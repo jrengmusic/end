@@ -1,0 +1,1 @@
+/Users/jreng/Documents/Poems/JUCE/modules/juce_gui_basics/keyboard/juce_SystemClipboard.h

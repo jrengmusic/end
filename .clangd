@@ -1,0 +1,13 @@
+CompileFlags:
+  CompilationDatabase: /Users/jreng/Documents/Poems/dev/end/Builds/Ninja/
+  Add:
+    - -D__APPLE__=1
+    - -DTARGET_OS_IPHONE=0
+    - -DJUCE_MAC=1
+    - -DJUCE_IOS=0
+    - -DJUCE_WINDOWS=0
+    - -DJUCE_LINUX=0
+    - -I/Users/jreng/Documents/Poems/dev/end/modules
+Diagnostics:
+  MissingIncludes: None
+  UnusedIncludes: None

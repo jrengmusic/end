@@ -1,0 +1,14 @@
+# Build directories
+build/
+build_ninja/
+Builds/
+
+# IDE / Tool directories
+.opencode/
+.cache/
+
+# Font project
+___display___/__pycache__/
+
+# macOS system files
+.DS_Store

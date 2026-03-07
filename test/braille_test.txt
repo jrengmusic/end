@@ -1,0 +1,64 @@
+Braille Character Reference (U+2800 - U+28FF)
+Dot numbering:  1 4
+                2 5
+                3 6
+                7 8
+
+=== All 256 Braille Patterns ===
+
+Row 0x00: ⠀ ⠁ ⠂ ⠃ ⠄ ⠅ ⠆ ⠇ ⠈ ⠉ ⠊ ⠋ ⠌ ⠍ ⠎ ⠏
+Row 0x10: ⠐ ⠑ ⠒ ⠓ ⠔ ⠕ ⠖ ⠗ ⠘ ⠙ ⠚ ⠛ ⠜ ⠝ ⠞ ⠟
+Row 0x20: ⠠ ⠡ ⠢ ⠣ ⠤ ⠥ ⠦ ⠧ ⠨ ⠩ ⠪ ⠫ ⠬ ⠭ ⠮ ⠯
+Row 0x30: ⠰ ⠱ ⠲ ⠳ ⠴ ⠵ ⠶ ⠷ ⠸ ⠹ ⠺ ⠻ ⠼ ⠽ ⠾ ⠿
+Row 0x40: ⡀ ⡁ ⡂ ⡃ ⡄ ⡅ ⡆ ⡇ ⡈ ⡉ ⡊ ⡋ ⡌ ⡍ ⡎ ⡏
+Row 0x50: ⡐ ⡑ ⡒ ⡓ ⡔ ⡕ ⡖ ⡗ ⡘ ⡙ ⡚ ⡛ ⡜ ⡝ ⡞ ⡟
+Row 0x60: ⡠ ⡡ ⡢ ⡣ ⡤ ⡥ ⡦ ⡧ ⡨ ⡩ ⡪ ⡫ ⡬ ⡭ ⡮ ⡯
+Row 0x70: ⡰ ⡱ ⡲ ⡳ ⡴ ⡵ ⡶ ⡷ ⡸ ⡹ ⡺ ⡻ ⡼ ⡽ ⡾ ⡿
+Row 0x80: ⢀ ⢁ ⢂ ⢃ ⢄ ⢅ ⢆ ⢇ ⢈ ⢉ ⢊ ⢋ ⢌ ⢍ ⢎ ⢏
+Row 0x90: ⢐ ⢑ ⢒ ⢓ ⢔ ⢕ ⢖ ⢗ ⢘ ⢙ ⢚ ⢛ ⢜ ⢝ ⢞ ⢟
+Row 0xA0: ⢠ ⢡ ⢢ ⢣ ⢤ ⢥ ⢦ ⢧ ⢨ ⢩ ⢪ ⢫ ⢬ ⢭ ⢮ ⢯
+Row 0xB0: ⢰ ⢱ ⢲ ⢳ ⢴ ⢵ ⢶ ⢷ ⢸ ⢹ ⢺ ⢻ ⢼ ⢽ ⢾ ⢿
+Row 0xC0: ⣀ ⣁ ⣂ ⣃ ⣄ ⣅ ⣆ ⣇ ⣈ ⣉ ⣊ ⣋ ⣌ ⣍ ⣎ ⣏
+Row 0xD0: ⣐ ⣑ ⣒ ⣓ ⣔ ⣕ ⣖ ⣗ ⣘ ⣙ ⣚ ⣛ ⣜ ⣝ ⣞ ⣟
+Row 0xE0: ⣠ ⣡ ⣢ ⣣ ⣤ ⣥ ⣦ ⣧ ⣨ ⣩ ⣪ ⣫ ⣬ ⣭ ⣮ ⣯
+Row 0xF0: ⣰ ⣱ ⣲ ⣳ ⣴ ⣵ ⣶ ⣷ ⣸ ⣹ ⣺ ⣻ ⣼ ⣽ ⣾ ⣿
+
+=== Rendering Test Patterns ===
+
+Empty:        ⠀
+Full:         ⣿
+Left column:  ⡇
+Right column: ⣸
+Top row:      ⠉
+Bottom row:   ⣀
+Diagonal:     ⠁ ⠂ ⠄ ⡀ ⠈ ⠐ ⠠ ⢀
+Dot 7 only:   ⡀
+Dot 8 only:   ⢀
+
+=== Density Gradient ===
+⠀ ⠁ ⠃ ⠇ ⡇ ⡏ ⡟ ⡿ ⣿
+
+=== Visual Test: Vertical Lines ===
+⡇⡇⡇⡇⡇⡇⡇⡇⡇⡇⡇⡇⡇⡇⡇⡇
+
+=== Visual Test: Horizontal Lines ===
+⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉
+⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒
+⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤
+⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
+
+=== Visual Test: Checkerboard ===
+⠑⠑⠑⠑⠑⠑⠑⠑
+⢊⢊⢊⢊⢊⢊⢊⢊
+
+=== Visual Test: Box Drawing ===
+⡏⠉⠉⠉⠉⠉⠉⢹
+⡇⠀⠀⠀⠀⠀⠀⢸
+⡇⠀⠀⠀⠀⠀⠀⢸
+⣇⣀⣀⣀⣀⣀⣀⣸
+
+=== Individual Dot Positions ===
+Dot 1: ⠁  Dot 4: ⠈
+Dot 2: ⠂  Dot 5: ⠐
+Dot 3: ⠄  Dot 6: ⠠
+Dot 7: ⡀  Dot 8: ⢀

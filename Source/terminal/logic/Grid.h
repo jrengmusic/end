@@ -1,0 +1,859 @@
+/**
+ * @file Grid.h
+ * @brief Ring-buffer cell storage for the terminal screen grid.
+ *
+ * Grid owns the raw cell memory for both the normal and alternate screen
+ * buffers.  It is the lowest-level storage layer in the terminal stack —
+ * everything above it (Screen, Snapshot, Renderer) reads through Grid.
+ *
+ * ## Ring-buffer layout
+ *
+ * Each Buffer holds a flat `HeapBlock<Cell>` of size `totalRows × cols`,
+ * where `totalRows` is rounded up to the next power of two so that modular
+ * row indexing reduces to a bitwise AND:
+ *
+ * @code
+ * physicalRow = (head - visibleRows + 1 + visibleRow) & rowMask
+ * @endcode
+ *
+ * `head` is the physical index of the **last** visible row (bottom of the
+ * viewport).  Scrolling up increments `head` by one (mod `totalRows`),
+ * which recycles the oldest row as the new blank bottom row without moving
+ * any data.  The scrollback region occupies the physical rows immediately
+ * before the visible window in the ring.
+ *
+ * ## Dual screen
+ *
+ * `buffers[normal]` holds the primary screen with a scrollback region.
+ * `buffers[alternate]` holds the alternate screen (no scrollback).
+ * `bufferForScreen()` selects the active buffer via `State::getScreen()`.
+ *
+ * ## Dirty tracking
+ *
+ * `dirtyRows[4]` is a 256-bit atomic bitmask (4 × `uint64_t`).  Bit `r`
+ * in word `r >> 6` is set whenever visible row `r` is modified.  The
+ * MESSAGE THREAD calls `consumeDirtyRows()` to atomically swap the bitmask
+ * to zero and obtain the set of rows that need repainting.
+ *
+ * ## Grapheme sidecar
+ *
+ * Multi-codepoint grapheme clusters store their extra codepoints in a
+ * parallel `HeapBlock<Grapheme>` that is co-indexed with the cell array.
+ * A cell with `Cell::LAYOUT_GRAPHEME` set has a valid entry at the same
+ * physical offset in the grapheme block.
+ *
+ * ## Thread ownership
+ *
+ * | Operation              | Thread         |
+ * |------------------------|----------------|
+ * | `activeWrite*()`       | READER THREAD  |
+ * | `scroll*()`, `erase*()` | READER THREAD |
+ * | `resize()`, `clearBuffer()` | READER THREAD (holds resizeLock) |
+ * | `activeVisibleRow()` reads | MESSAGE THREAD |
+ * | `consumeDirtyRows()`   | MESSAGE THREAD |
+ * | `extractText()`        | MESSAGE THREAD (holds resizeLock) |
+ *
+ * @see Cell       — the 16-byte terminal cell type.
+ * @see Grapheme   — extra codepoints for grapheme clusters.
+ * @see RowState   — per-row metadata (wrap flag, double-width flag).
+ * @see State      — atomic terminal parameter store.
+ */
+
+#pragma once
+
+#include <JuceHeader.h>
+
+#include "../data/State.h"
+#include "../data/Cell.h"
+
+namespace Terminal
+{ /*____________________________________________________________________________*/
+
+class State;
+
+/**
+ * @class Grid
+ * @brief Ring-buffer storage for terminal cells, graphemes, and row metadata.
+ *
+ * Grid manages two independent screen buffers (normal + alternate) as
+ * power-of-two ring buffers.  It provides:
+ *
+ * - **Cell read/write** — single-cell and run-length write paths.
+ * - **Grapheme sidecar** — parallel storage for multi-codepoint clusters.
+ * - **Dirty tracking** — 256-bit atomic bitmask for incremental repaint.
+ * - **Scroll operations** — full-screen and region scroll via head pointer.
+ * - **Erase operations** — row, row-range, cell, and cell-range erasure.
+ * - **Resize / reflow** — re-wraps soft-wrapped lines to the new column width.
+ * - **Scrollback** — normal screen retains up to `scrollbackCapacity` rows.
+ *
+ * @note All `activeWrite*()`, `scroll*()`, and `erase*()` methods are called
+ *       exclusively on the READER THREAD.  All `activeVisibleRow()` const
+ *       overloads and `consumeDirtyRows()` are called on the MESSAGE THREAD.
+ *       `resize()` and `extractText()` acquire `resizeLock` to synchronise
+ *       between the two threads.
+ *
+ * @see Cell, Grapheme, RowState, State
+ */
+class Grid
+{
+public:
+    /**
+     * @brief Constructs the Grid and allocates both screen buffers.
+     *
+     * Reads initial dimensions from `state` and the scrollback capacity from
+     * `Config`.  Allocates `buffers[normal]` with `visibleRows +
+     * scrollbackCapacity` total rows and `buffers[alternate]` with
+     * `visibleRows` total rows (no scrollback).
+     *
+     * @param state  Terminal parameter store; must outlive this Grid.
+     * @note READER THREAD — called during terminal initialisation.
+     */
+    explicit Grid (State& state);
+
+    /**
+     * @brief Returns the resize lock used to synchronise resize and text extraction.
+     *
+     * The READER THREAD acquires this lock during `resize()` and `clearBuffer()`.
+     * The MESSAGE THREAD acquires it during `extractText()`.  No other methods
+     * require the lock.
+     *
+     * @return Reference to the internal `juce::CriticalSection`.
+     * @note Lock-free getter — the lock itself is not acquired here.
+     */
+    juce::CriticalSection& getResizeLock() noexcept;
+
+    /**
+     * @brief Re-allocates the active screen buffer, discarding all content.
+     *
+     * Acquires `resizeLock`, re-initialises the active buffer to the current
+     * `cols` × `visibleRows` dimensions, and calls `markAllDirty()`.
+     * Used when the terminal receives an ED 3 (erase saved lines) sequence.
+     *
+     * @note READER THREAD — acquires `resizeLock`.
+     */
+    void resize();
+
+    /**
+     * @brief Clears the active screen buffer and marks all rows dirty.
+     *
+     * Acquires `resizeLock` and re-initialises the active buffer without
+     * changing dimensions.  Equivalent to erasing every cell and resetting
+     * every row state.
+     *
+     * @note READER THREAD — acquires `resizeLock`.
+     */
+    void clearBuffer();
+
+    /**
+     * @brief Returns the current column count.
+     * @return Number of columns in the active buffer.
+     * @note Lock-free, noexcept.  Safe to call from any thread.
+     */
+    int getCols() const noexcept;
+
+    /**
+     * @brief Returns the number of visible rows in the terminal viewport.
+     * @return Number of visible rows in the active buffer.
+     * @note Lock-free, noexcept.  Safe to call from any thread.
+     */
+    int getVisibleRows() const noexcept;
+
+    /**
+     * @brief Marks a single visible row as dirty in the atomic bitmask.
+     *
+     * Sets bit `row & 63` in `dirtyRows[row >> 6]` using
+     * `memory_order_relaxed`, then calls `State::setSnapshotDirty()`.
+     * Rows outside [0, 255] are silently ignored.
+     *
+     * @param row  Zero-based visible row index (0 … visibleRows-1).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void markRowDirty (int row) noexcept;
+
+    /**
+     * @brief Marks all 256 tracked rows dirty and resets the scroll delta.
+     *
+     * Stores `~uint64_t{0}` into all four `dirtyRows` words and resets
+     * `scrollDelta` to zero.  Called after resize or full-screen clear.
+     *
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void markAllDirty() noexcept;
+
+    /**
+     * @brief OR-merges a local 256-bit dirty bitmask into the shared bitmask.
+     *
+     * Allows a caller that has accumulated dirty bits locally (e.g. a bulk
+     * write loop) to flush them all at once with four atomic OR operations
+     * instead of one per row.
+     *
+     * @param localDirty  Four `uint64_t` words representing rows 0–255.
+     *                    Word 0 covers rows 0–63, word 1 covers 64–127, etc.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void batchMarkDirty (const uint64_t localDirty[4]) noexcept;
+
+    /**
+     * @brief Atomically swaps the dirty bitmask to zero and returns the old value.
+     *
+     * Used by the MESSAGE THREAD to determine which rows need repainting.
+     * The exchange uses `memory_order_acq_rel` to ensure all READER THREAD
+     * cell writes are visible before the MESSAGE THREAD reads the grid.
+     *
+     * @param out  Output array of four `uint64_t` words.  On return, bit `r`
+     *             in `out[r >> 6]` is set if visible row `r` was dirtied since
+     *             the last call.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    void consumeDirtyRows (uint64_t out[4]) noexcept;
+
+    /**
+     * @brief Atomically swaps the scroll delta to zero and returns the old value.
+     *
+     * The scroll delta accumulates the net number of lines scrolled up since
+     * the last call.  The MESSAGE THREAD uses this to animate smooth scrolling
+     * or to update the scrollback offset.
+     *
+     * @return Net lines scrolled up (positive = scrolled up).
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    int consumeScrollDelta() noexcept;
+
+    /** @name Cell access
+     *  All write methods are READER THREAD only.  Const read methods are
+     *  MESSAGE THREAD only (called from the render path).
+     * @{ */
+
+    /**
+     * @brief Writes a single cell to the active screen at (row, col).
+     *
+     * Bounds-checks both coordinates, writes the cell, and calls
+     * `markRowDirty (row)`.
+     *
+     * @param row        Zero-based visible row index.
+     * @param col        Zero-based column index.
+     * @param cellState  Cell value to write.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void activeWriteCell (int row, int col, const Cell& cellState) noexcept;
+
+    /**
+     * @brief Writes a contiguous run of cells to the active screen.
+     *
+     * Copies `count` cells from `cells` into row `row` starting at column
+     * `startCol` using `std::memcpy`.  Bounds-checks the entire range before
+     * writing.  Calls `markRowDirty (row)` on success.
+     *
+     * @param row       Zero-based visible row index.
+     * @param startCol  First destination column.
+     * @param cells     Source cell array; must contain at least `count` elements.
+     * @param count     Number of cells to copy (must be > 0).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void activeWriteRun (int row, int startCol, const Cell* cells, int count) noexcept;
+
+    /**
+     * @brief Writes a grapheme cluster sidecar for the cell at (row, col).
+     *
+     * Sets `Cell::LAYOUT_GRAPHEME` on the target cell and writes `grapheme`
+     * into the parallel grapheme block at the same physical offset.
+     * Calls `markRowDirty (row)`.
+     *
+     * @param row      Zero-based visible row index.
+     * @param col      Zero-based column index.
+     * @param grapheme Grapheme cluster to store.
+     * @note READER THREAD — lock-free, noexcept.
+     * @see activeEraseGrapheme(), activeReadGrapheme()
+     */
+    void activeWriteGrapheme (int row, int col, const Grapheme& grapheme) noexcept;
+
+    /**
+     * @brief Clears the grapheme cluster sidecar for the cell at (row, col).
+     *
+     * Clears `Cell::LAYOUT_GRAPHEME` and zero-fills the grapheme entry.
+     * No-op if the cell does not have a grapheme.  Calls `markRowDirty (row)`.
+     *
+     * @param row  Zero-based visible row index.
+     * @param col  Zero-based column index.
+     * @note READER THREAD — lock-free, noexcept.
+     * @see activeWriteGrapheme()
+     */
+    void activeEraseGrapheme (int row, int col) noexcept;
+
+    /**
+     * @brief Returns a pointer to the grapheme cluster for the cell at (row, col).
+     *
+     * Returns `nullptr` if the coordinates are out of range or if the cell
+     * does not have `Cell::LAYOUT_GRAPHEME` set.
+     *
+     * @param row  Zero-based visible row index.
+     * @param col  Zero-based column index.
+     * @return Pointer to the Grapheme entry, or `nullptr`.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     * @see activeWriteGrapheme()
+     */
+    const Grapheme* activeReadGrapheme (int row, int col) const noexcept;
+
+    /** @} */
+
+    /** @name Row access
+     *  Returns pointers into the flat cell/grapheme arrays.  The returned
+     *  pointer is valid until the next `resize()` or `clearBuffer()` call.
+     * @{ */
+
+    /**
+     * @brief Returns a mutable pointer to the start of visible row `row`.
+     *
+     * @param row  Zero-based visible row index (0 … visibleRows-1).
+     * @return Pointer to the first Cell in the row, or `nullptr` if out of range.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    Cell* activeVisibleRow (int row) noexcept;
+
+    /**
+     * @brief Returns a const pointer to the start of visible row `row`.
+     *
+     * @param row  Zero-based visible row index (0 … visibleRows-1).
+     * @return Pointer to the first Cell in the row, or `nullptr` if out of range.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    const Cell* activeVisibleRow (int row) const noexcept;
+
+    /**
+     * @brief Returns a const pointer to the grapheme row for visible row `row`.
+     *
+     * The returned pointer addresses `cols` Grapheme entries co-indexed with
+     * the cell row returned by `activeVisibleRow (row)`.
+     *
+     * @param row  Zero-based visible row index (0 … visibleRows-1).
+     * @return Pointer to the first Grapheme in the row, or `nullptr` if out of range.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    const Grapheme* activeVisibleGraphemeRow (int row) const noexcept;
+
+    /**
+     * @brief Returns the number of scrollback rows currently stored.
+     *
+     * Only meaningful for the normal screen buffer; always 0 for alternate.
+     *
+     * @return Number of scrollback rows available (0 … scrollbackCapacity).
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    int getScrollbackUsed() const noexcept;
+
+    /**
+     * @brief Returns a const pointer to a scrolled-back cell row.
+     *
+     * Applies `scrollOffset` to the ring-buffer index so that the caller can
+     * read historical rows without copying data.  A `scrollOffset` of 1 returns
+     * the row one line above the current live view.
+     *
+     * @param visibleRow   Zero-based visible row index (0 … visibleRows-1).
+     * @param scrollOffset Number of lines scrolled back into the scrollback buffer.
+     * @return Pointer to the first Cell in the scrolled row, or `nullptr` if
+     *         `visibleRow` is out of range.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     * @see scrollbackGraphemeRow()
+     */
+    const Cell* scrollbackRow (int visibleRow, int scrollOffset) const noexcept;
+
+    /**
+     * @brief Returns a const pointer to a scrolled-back grapheme row.
+     *
+     * Parallel to `scrollbackRow()` but for the grapheme sidecar array.
+     *
+     * @param visibleRow   Zero-based visible row index (0 … visibleRows-1).
+     * @param scrollOffset Number of lines scrolled back into the scrollback buffer.
+     * @return Pointer to the first Grapheme in the scrolled row, or `nullptr` if
+     *         `visibleRow` is out of range.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     * @see scrollbackRow()
+     */
+    const Grapheme* scrollbackGraphemeRow (int visibleRow, int scrollOffset) const noexcept;
+
+    /**
+     * @brief Returns a mutable reference to the RowState for visible row `row`.
+     *
+     * @param row  Zero-based visible row index.
+     * @return Reference to the RowState entry for the physical row.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    RowState& activeVisibleRowState (int row) noexcept;
+
+    /**
+     * @brief Returns a const reference to the RowState for visible row `row`.
+     *
+     * @param row  Zero-based visible row index.
+     * @return Const reference to the RowState entry for the physical row.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    const RowState& activeVisibleRowState (int row) const noexcept;
+
+    /** @} */
+
+    /**
+     * @brief Extracts a rectangular region of text as a UTF-32 string.
+     *
+     * Iterates visible rows from `start.y` to `end.y`, collecting codepoints
+     * from each cell (including grapheme cluster extra codepoints).  Empty
+     * cells are emitted as spaces; wide-continuation cells are skipped.
+     * Trailing whitespace is trimmed from each row.  Rows are separated by
+     * `'\n'` except the last.
+     *
+     * @param start  Top-left corner of the selection (x = col, y = row).
+     * @param end    Bottom-right corner of the selection (inclusive).
+     * @return A `juce::String` containing the selected text.
+     * @note MESSAGE THREAD — caller must hold `resizeLock`.
+     */
+    juce::String extractText (juce::Point<int> start, juce::Point<int> end) const;
+
+    /** @name Scroll operations
+     *  All scroll methods operate on the active screen buffer and are called
+     *  exclusively on the READER THREAD.
+     * @{ */
+
+    /**
+     * @brief Scrolls the entire visible area up by `count` lines.
+     *
+     * Advances `buffer.head` by `count` (mod `totalRows`), clearing the new
+     * bottom rows.  For the normal screen, increments `scrollbackUsed` up to
+     * `scrollbackCapacity`.  Accumulates `count` into `scrollDelta`.
+     *
+     * @param count  Number of lines to scroll up (must be > 0).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void scrollUp (int count) noexcept;
+
+    /**
+     * @brief Scrolls the entire visible area down by `count` lines.
+     *
+     * Decrements `buffer.head` by `count` (mod `totalRows`), clearing the new
+     * top rows.  Calls `markAllDirty()` because every visible row changes.
+     *
+     * @param count  Number of lines to scroll down (must be > 0).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void scrollDown (int count) noexcept;
+
+    /**
+     * @brief Scrolls a sub-region of the screen up by `count` lines.
+     *
+     * If the region spans the full viewport, delegates to `scrollUp()` to use
+     * the efficient head-pointer path.  Otherwise, shifts rows within the
+     * region using `memcpy` and clears the vacated rows at the bottom.
+     *
+     * @param top     First row of the scroll region (inclusive, 0-based).
+     * @param bottom  Last row of the scroll region (inclusive, 0-based).
+     * @param count   Number of lines to scroll up.
+     * @note READER THREAD — lock-free, noexcept.
+     * @see scrollRegionDown()
+     */
+    void scrollRegionUp (int top, int bottom, int count) noexcept;
+
+    /**
+     * @brief Scrolls a sub-region of the screen down by `count` lines.
+     *
+     * If the region spans the full viewport, delegates to `scrollDown()`.
+     * Otherwise, shifts rows within the region downward and clears the
+     * vacated rows at the top.
+     *
+     * @param top     First row of the scroll region (inclusive, 0-based).
+     * @param bottom  Last row of the scroll region (inclusive, 0-based).
+     * @param count   Number of lines to scroll down.
+     * @note READER THREAD — lock-free, noexcept.
+     * @see scrollRegionUp()
+     */
+    void scrollRegionDown (int top, int bottom, int count) noexcept;
+
+    /** @} */
+
+    /** @name Erase operations
+     *  All erase methods operate on the active screen buffer and are called
+     *  exclusively on the READER THREAD.
+     * @{ */
+
+    /**
+     * @brief Erases all cells in visible row `row` and resets its RowState.
+     *
+     * Fills the cell row with default-constructed Cells, zero-fills the
+     * grapheme row, and resets the RowState.  Calls `markRowDirty (row)`.
+     *
+     * @param row  Zero-based visible row index.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void eraseRow (int row) noexcept;
+
+    /**
+     * @brief Erases all rows in the inclusive range [startRow, endRow].
+     *
+     * Calls `eraseRow()` for each row in the range.
+     *
+     * @param startRow  First row to erase (inclusive, 0-based).
+     * @param endRow    Last row to erase (inclusive, 0-based).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void eraseRowRange (int startRow, int endRow) noexcept;
+
+    /**
+     * @brief Erases the single cell at (row, col).
+     *
+     * Writes a default-constructed Cell and calls `markRowDirty (row)`.
+     *
+     * @param row  Zero-based visible row index.
+     * @param col  Zero-based column index.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void eraseCell (int row, int col) noexcept;
+
+    /**
+     * @brief Erases cells in the inclusive column range [startCol, endCol] on row `row`.
+     *
+     * Clamps the column range to [0, cols-1] before writing.  Calls
+     * `markRowDirty (row)`.
+     *
+     * @param row       Zero-based visible row index.
+     * @param startCol  First column to erase (inclusive).
+     * @param endCol    Last column to erase (inclusive).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void eraseCellRange (int row, int startCol, int endCol) noexcept;
+
+    /** @} */
+
+    /**
+     * @brief Returns a raw pointer to the start of visible row `row` for bulk writes.
+     *
+     * Bypasses bounds checking for performance on the hot write path.  The
+     * caller is responsible for staying within [0, cols) and must call
+     * `markRowDirty (row)` after writing.
+     *
+     * @param visibleRow  Zero-based visible row index.
+     * @return Pointer to the first Cell in the row.
+     * @note READER THREAD — lock-free, noexcept.
+     *       Caller must markRowDirty after writing.
+     */
+    Cell* directRowPtr (int visibleRow) noexcept;
+
+private:
+    /**
+     * @struct Buffer
+     * @brief Internal ring-buffer storage for one screen (normal or alternate).
+     *
+     * All three HeapBlocks (`cells`, `rowStates`, `graphemes`) are allocated
+     * to `totalRows × cols` entries.  `totalRows` is always a power of two so
+     * that `physicalRow()` can use `& rowMask` instead of `% totalRows`.
+     *
+     * ### Ring-buffer invariant
+     * `head` is the physical index of the **bottom** visible row.  The top
+     * visible row is at physical index `(head - visibleRows + 1) & rowMask`.
+     * Scrollback rows occupy the physical rows immediately before the visible
+     * window (wrapping around the ring).
+     */
+    struct Buffer
+    {
+        /**
+         * @brief Flat cell array: `totalRows × cols` Cell entries.
+         *
+         * Indexed as `cells[physicalRow * cols + col]`.  Allocated with
+         * `false` (no zero-init) and explicitly filled with default Cells
+         * in `initBuffer()`.
+         */
+        juce::HeapBlock<Cell> cells;
+
+        /**
+         * @brief Per-row metadata: `totalRows` RowState entries.
+         *
+         * Indexed by physical row index.  Allocated with `true` (zero-init).
+         */
+        juce::HeapBlock<RowState> rowStates;
+
+        /**
+         * @brief Grapheme sidecar: `totalRows × cols` Grapheme entries.
+         *
+         * Co-indexed with `cells`.  A Grapheme entry is valid only when the
+         * corresponding Cell has `Cell::LAYOUT_GRAPHEME` set.  Allocated with
+         * `true` (zero-init).
+         */
+        juce::HeapBlock<Grapheme> graphemes;
+
+        /**
+         * @brief Total number of rows allocated (always a power of two).
+         *
+         * Equals `visibleRows + scrollbackCapacity` rounded up to the next
+         * power of two for the normal buffer; `visibleRows` rounded up for
+         * the alternate buffer.
+         */
+        int totalRows { 0 };
+
+        /**
+         * @brief Bitmask for modular row indexing: `totalRows - 1`.
+         *
+         * Used in `physicalRow()` as `(raw) & rowMask` instead of `% totalRows`.
+         */
+        int rowMask { 0 };
+
+        /**
+         * @brief Physical index of the bottom visible row (the ring-buffer write head).
+         *
+         * Incremented (mod `totalRows`) by `scrollUp()` to advance the ring
+         * without moving data.  Decremented by `scrollDown()`.
+         * Initialised to `visibleRows - 1` so that visible row 0 maps to
+         * physical row 0 before any scrolling.
+         */
+        int head { 0 };
+
+        /**
+         * @brief Number of scrollback rows currently stored (0 … scrollbackCapacity).
+         *
+         * Incremented by `scrollUp()` on the normal screen until it reaches
+         * `scrollbackCapacity`.  Always 0 for the alternate screen.
+         */
+        int scrollbackUsed { 0 };
+    };
+
+    /**
+     * @brief Lock that serialises `resize()` / `clearBuffer()` against `extractText()`.
+     *
+     * The READER THREAD acquires this lock during resize and clear operations.
+     * The MESSAGE THREAD acquires it during text extraction.  No other methods
+     * require the lock.
+     */
+    juce::CriticalSection resizeLock;
+
+    /**
+     * @brief Reference to the terminal parameter store.
+     *
+     * Used to read `cols`, `visibleRows`, and the active screen index.
+     * Never written by Grid.
+     */
+    State& state;
+
+    /**
+     * @brief Current column count, mirrored from `State` at construction and resize.
+     *
+     * Cached here to avoid an atomic load on every cell access.
+     */
+    int cols { 0 };
+
+    /**
+     * @brief Current visible row count, mirrored from `State` at construction and resize.
+     *
+     * Cached here to avoid an atomic load on every row access.
+     */
+    int visibleRows { 0 };
+
+    /**
+     * @brief Maximum number of scrollback rows for the normal screen buffer.
+     *
+     * Read from `Config` at construction and never changed.  The alternate
+     * screen always has zero scrollback.
+     */
+    int scrollbackCapacity { 0 };
+
+    /**
+     * @brief 256-bit atomic dirty bitmask: one bit per visible row (rows 0–255).
+     *
+     * `dirtyRows[w]` covers rows `w*64` through `w*64 + 63`.  Bit `r & 63`
+     * in word `r >> 6` is set by `markRowDirty (r)` and cleared atomically
+     * by `consumeDirtyRows()`.  All operations use `memory_order_relaxed`
+     * except `consumeDirtyRows()` which uses `memory_order_acq_rel`.
+     */
+    std::atomic<uint64_t> dirtyRows[4] { {0}, {0}, {0}, {0} };
+
+    /**
+     * @brief Net lines scrolled up since the last `consumeScrollDelta()` call.
+     *
+     * Incremented by `scrollUp()` and reset to zero by `markAllDirty()` and
+     * `consumeScrollDelta()`.  The MESSAGE THREAD reads this to drive smooth
+     * scroll animation.
+     */
+    std::atomic<int> scrollDelta { 0 };
+
+    /**
+     * @brief The two screen buffers: index 0 = normal, index 1 = alternate.
+     *
+     * Indexed by `ActiveScreen` enum values (`normal = 0`, `alternate = 1`).
+     * `bufferForScreen()` selects the active buffer via `state.getScreen()`.
+     */
+    std::array<Buffer, 2> buffers;
+
+    /**
+     * @brief Returns a mutable reference to the buffer for the currently active screen.
+     * @return Reference to `buffers[state.getScreen()]`.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    Buffer& bufferForScreen() noexcept;
+
+    /**
+     * @brief Returns a const reference to the buffer for the currently active screen.
+     * @return Const reference to `buffers[state.getScreen()]`.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    const Buffer& bufferForScreen() const noexcept;
+
+    /**
+     * @brief Converts a visible row index to a physical ring-buffer row index.
+     *
+     * @par Ring-buffer math
+     * @code
+     * physicalRow = (head - visibleRows + 1 + visibleRow) & rowMask
+     * @endcode
+     * Because `totalRows` is a power of two, the modular reduction is a
+     * single bitwise AND.  Negative intermediate values wrap correctly because
+     * `head` is always in [0, totalRows) and `rowMask = totalRows - 1`.
+     *
+     * @param buffer      The buffer whose ring geometry to use.
+     * @param visibleRow  Zero-based visible row index (0 = top of viewport).
+     * @return Physical row index in [0, buffer.totalRows).
+     * @note Lock-free, noexcept.
+     */
+    int physicalRow (const Buffer& buffer, int visibleRow) const noexcept;
+
+    /**
+     * @brief Returns a mutable pointer to the start of a visible row in `buffer`.
+     *
+     * @param buffer      Target buffer.
+     * @param visibleRow  Zero-based visible row index.
+     * @return Pointer to `buffer.cells[physicalRow * cols]`.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    Cell* rowPtr (Buffer& buffer, int visibleRow) noexcept;
+
+    /**
+     * @brief Returns a const pointer to the start of a visible row in `buffer`.
+     *
+     * @param buffer      Target buffer.
+     * @param visibleRow  Zero-based visible row index.
+     * @return Const pointer to `buffer.cells[physicalRow * cols]`.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    const Cell* rowPtr (const Buffer& buffer, int visibleRow) const noexcept;
+
+    /**
+     * @brief Allocates and initialises a Buffer to the given dimensions.
+     *
+     * Rounds `totalLines` up to the next power of two, allocates all three
+     * HeapBlocks, fills cells with default-constructed Cells, and sets
+     * `head = numVisibleRows - 1` so that visible row 0 maps to physical row 0.
+     *
+     * @param buffer         Buffer to initialise (existing allocation is replaced).
+     * @param numCols        Number of columns.
+     * @param totalLines     Desired total rows (rounded up to next power of two).
+     * @param numVisibleRows Number of visible rows (used to set `head`).
+     * @note READER THREAD — allocates heap memory.
+     */
+    void initBuffer (Buffer& buffer, int numCols, int totalLines, int numVisibleRows);
+
+    /**
+     * @brief Shared implementation for `scrollRegionUp()` and `scrollRegionDown()`.
+     *
+     * Validates the region bounds, clamps `count` to the region size, and
+     * delegates to `shiftRegionUp()` or `shiftRegionDown()`.  Marks all rows
+     * in [top, bottom] dirty.
+     *
+     * @param top     First row of the scroll region (inclusive, 0-based).
+     * @param bottom  Last row of the scroll region (inclusive, 0-based).
+     * @param count   Number of lines to shift.
+     * @param up      `true` to shift up, `false` to shift down.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void scrollRegion (int top, int bottom, int count, bool up) noexcept;
+
+    /**
+     * @brief Shifts rows [top, bottom] upward by `ec` lines within `buffer`.
+     *
+     * Copies rows `[top+ec, bottom]` down to `[top, bottom-ec]` using
+     * `memcpy`, then clears rows `[bottom-ec+1, bottom]`.  Also copies
+     * RowState entries.
+     *
+     * @param buffer    Target buffer.
+     * @param top       First row of the region (inclusive).
+     * @param bottom    Last row of the region (inclusive).
+     * @param ec        Effective count (clamped to region size).
+     * @param rowBytes  Byte size of one row (`cols * sizeof(Cell)`).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void shiftRegionUp (Buffer& buffer, int top, int bottom, int ec, size_t rowBytes) noexcept;
+
+    /**
+     * @brief Shifts rows [top, bottom] downward by `ec` lines within `buffer`.
+     *
+     * Copies rows `[top, bottom-ec]` up to `[top+ec, bottom]` using
+     * `memcpy`, then clears rows `[top, top+ec-1]`.  Also copies RowState
+     * entries.
+     *
+     * @param buffer    Target buffer.
+     * @param top       First row of the region (inclusive).
+     * @param bottom    Last row of the region (inclusive).
+     * @param ec        Effective count (clamped to region size).
+     * @param rowBytes  Byte size of one row (`cols * sizeof(Cell)`).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void shiftRegionDown (Buffer& buffer, int top, int bottom, int ec, size_t rowBytes) noexcept;
+
+    /**
+     * @brief Fills all cells, graphemes, and the RowState for visible row `visibleRow` with defaults.
+     *
+     * Used by scroll operations to blank newly exposed rows and by erase
+     * operations to reset individual rows.
+     *
+     * @param buffer      Target buffer.
+     * @param visibleRow  Zero-based visible row index.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void clearRow (Buffer& buffer, int visibleRow) noexcept;
+
+    /**
+     * @brief Returns a mutable pointer to the grapheme entry at (visibleRow, col).
+     *
+     * @param buffer      Target buffer.
+     * @param visibleRow  Zero-based visible row index.
+     * @param col         Zero-based column index.
+     * @return Pointer to `buffer.graphemes[physicalRow * cols + col]`.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    Grapheme* graphemePtr (Buffer& buffer, int visibleRow, int col) noexcept;
+
+    /**
+     * @brief Returns a const pointer to the grapheme entry at (visibleRow, col).
+     *
+     * @param buffer      Target buffer.
+     * @param visibleRow  Zero-based visible row index.
+     * @param col         Zero-based column index.
+     * @return Const pointer to `buffer.graphemes[physicalRow * cols + col]`.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    const Grapheme* graphemePtr (const Buffer& buffer, int visibleRow, int col) const noexcept;
+
+    /**
+     * @brief Reflows the content of `oldBuffer` into `newBuffer` at the new column width.
+     *
+     * Walks every logical line in `oldBuffer` (following soft-wrap chains),
+     * flattens each logical line into a temporary buffer, then re-wraps it at
+     * `newCols` and writes the result into `newBuffer`.  Preserves as much
+     * scrollback as fits in the new buffer.
+     *
+     * @par Algorithm overview
+     * 1. `findLastContent()` — find the last non-empty visible row.
+     * 2. `countOutputRows()` — dry-run to compute total output row count.
+     * 3. `writeReflowedContent()` — write rows, skipping overflow at the top.
+     * 4. Update `newBuffer.head` and `newBuffer.scrollbackUsed`.
+     *
+     * @param oldBuffer      Source buffer (read-only).
+     * @param oldCols        Column count of the source buffer.
+     * @param oldVisibleRows Visible row count of the source buffer.
+     * @param newBuffer      Destination buffer (already allocated by `initBuffer()`).
+     * @param newCols        Column count of the destination buffer.
+     * @param newVisibleRows Visible row count of the destination buffer.
+     * @note READER THREAD — allocates temporary heap memory for the flat buffer.
+     */
+    static void reflow (const Buffer& oldBuffer,
+                        int oldCols,
+                        int oldVisibleRows,
+                        Buffer& newBuffer,
+                        int newCols,
+                        int newVisibleRows);
+};
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace Terminal

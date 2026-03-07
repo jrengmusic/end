@@ -1,0 +1,879 @@
+/**
+ * @file ScreenRender.cpp
+ * @brief Per-cell rendering pipeline: colour resolution, shaping, and glyph cache population.
+ *
+ * This translation unit implements the core per-frame rendering pipeline for
+ * `Screen`.  It is responsible for converting the flat `hotCells` cache into
+ * per-row arrays of `Render::Glyph` and `Render::Background` instances that
+ * are later packed into a `Render::Snapshot` by `ScreenSnapshot.cpp`.
+ *
+ * ## Pipeline overview
+ *
+ * ```
+ * Screen::buildSnapshot()
+ *   └─ for each dirty row:
+ *        └─ Screen::processCellForSnapshot()   [per cell]
+ *             ├─ resolveCellColors()           [colour resolution]
+ *             ├─ emit background quad          [non-default bg]
+ *             ├─ Screen::buildBlockRect()      [block elements U+2580–U+2593]
+ *             ├─ Screen::buildCellInstance()   [all other glyphs]
+ *             │    ├─ BoxDrawing procedural    [U+2500–U+259F]
+ *             │    ├─ FontCollection fallback  [O(1) slot lookup]
+ *             │    ├─ Screen::tryLigature()    [2–3 char ligatures]
+ *             │    └─ Fonts::shapeText/Emoji() [HarfBuzz shaping]
+ *             └─ emit selection overlay quad   [ScreenSelection hit test]
+ * ```
+ *
+ * ## Colour resolution
+ *
+ * `resolveForeground()` and `resolveBackground()` map `Color` values to
+ * `juce::Colour` using the active `Theme`.  SGR bold on ANSI colours 0–7
+ * maps to the bright variants (indices 8–15).  SGR reverse swaps fg and bg.
+ *
+ * ## Glyph dispatch
+ *
+ * `buildCellInstance()` dispatches each cell through a priority chain:
+ * 1. **Box-drawing** (U+2500–U+259F): procedural rasterisation via `BoxDrawing`.
+ * 2. **FontCollection fallback**: O(1) slot lookup for codepoints not in the
+ *    primary font.
+ * 3. **Ligatures**: 2–3 character ASCII sequences shaped as a unit when
+ *    `ligatureEnabled` is true.
+ * 4. **Standard shaping**: single-codepoint or grapheme-cluster shaping via
+ *    `Fonts::shapeText()` / `Fonts::shapeEmoji()`.
+ *
+ * @see Screen.h
+ * @see ScreenSnapshot.cpp
+ * @see FontCollection
+ * @see GlyphAtlas
+ * @see BoxDrawing
+ * @see GlyphConstraint
+ */
+
+#include "Screen.h"
+#include "BoxDrawing.h"
+#include "GlyphConstraint.h"
+#include "FontCollection.h"
+
+
+namespace Terminal
+{ /*____________________________________________________________________________*/
+
+// MESSAGE THREAD
+
+// =========================================================================
+// Colour resolution helpers (file-scope)
+// =========================================================================
+
+/**
+ * @brief Resolves the foreground colour of @p cell against @p theme.
+ *
+ * Applies the following rules in order:
+ * - Default: `theme.defaultForeground`.
+ * - Palette mode: ANSI index 0–7 is promoted to 8–15 when the cell is bold.
+ *   Indices 0–15 map to `theme.ansi`; indices 16–255 map to `PALETTE`.
+ * - RGB mode: direct `juce::Colour` from the cell's RGB components.
+ *
+ * @param cell   Cell whose `fg` colour and `isBold()` flag are used.
+ * @param theme  Active colour theme.
+ * @return       Resolved `juce::Colour` for the foreground.
+ *
+ * @see resolveCellColors()
+ */
+static juce::Colour resolveForeground (const Cell& cell, const Theme& theme) noexcept
+{
+    const Color& color { cell.fg };
+    juce::Colour result { theme.defaultForeground };
+
+    if (color.mode == Color::palette)
+    {
+        uint8_t idx { color.paletteIndex() };
+
+        if (cell.isBold() and idx < 8)
+        {
+            idx = static_cast<uint8_t> (idx + 8);
+        }
+
+        if (idx < 16)
+        {
+            result = theme.ansi.at (idx);
+        }
+        else
+        {
+            result = resolvePalette (PALETTE.at (idx));
+        }
+    }
+    else if (color.mode == Color::rgb)
+    {
+        result = juce::Colour (color.red, color.green, color.blue);
+    }
+
+    return result;
+}
+
+/**
+ * @brief Resolves a background `Color` value against @p theme.
+ *
+ * Applies the following rules:
+ * - Default: `theme.defaultBackground`.
+ * - Palette mode: indices 0–15 map to `theme.ansi`; 16–255 map to `PALETTE`.
+ * - RGB mode: direct `juce::Colour` from the colour's RGB components.
+ *
+ * @note Unlike `resolveForeground()`, bold does not affect background colour.
+ *
+ * @param color  Background `Color` value from the cell.
+ * @param theme  Active colour theme.
+ * @return       Resolved `juce::Colour` for the background.
+ *
+ * @see resolveCellColors()
+ */
+static juce::Colour resolveBackground (const Color& color, const Theme& theme) noexcept
+{
+    juce::Colour result { theme.defaultBackground };
+
+    if (color.mode == Color::palette)
+    {
+        const uint8_t idx { color.paletteIndex() };
+
+        if (idx < 16)
+        {
+            result = theme.ansi.at (idx);
+        }
+        else
+        {
+            result = resolvePalette (PALETTE.at (idx));
+        }
+    }
+    else if (color.mode == Color::rgb)
+    {
+        result = juce::Colour (color.red, color.green, color.blue);
+    }
+
+    return result;
+}
+
+/**
+ * @struct ResolvedColors
+ * @brief Pair of resolved foreground and background colours for one cell.
+ *
+ * Produced by `resolveCellColors()` after applying SGR reverse-video.
+ *
+ * @see resolveCellColors()
+ */
+struct ResolvedColors
+{
+    juce::Colour fg; ///< Resolved foreground colour (after reverse-video swap if applicable).
+    juce::Colour bg; ///< Resolved background colour (after reverse-video swap if applicable).
+};
+
+/**
+ * @brief Resolves both foreground and background colours for @p cell.
+ *
+ * Calls `resolveForeground()` and `resolveBackground()`, then swaps them if
+ * the cell has the SGR reverse-video attribute set.
+ *
+ * @param cell   Cell to resolve colours for.
+ * @param theme  Active colour theme.
+ * @return       `ResolvedColors` with fg and bg after reverse-video.
+ */
+static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) noexcept
+{
+    ResolvedColors rc;
+    rc.fg = resolveForeground (cell, theme);
+    rc.bg = resolveBackground (cell.bg, theme);
+
+    if (cell.isInverse())
+    {
+        const juce::Colour temp { rc.fg };
+        rc.fg = rc.bg;
+        rc.bg = temp;
+    }
+
+    return rc;
+}
+
+
+// =========================================================================
+// Glyph emission helper (file-scope)
+// =========================================================================
+
+/**
+ * @brief Emits shaped glyph instances into a per-row cache slot.
+ *
+ * For each `Fonts::Glyph` in @p shapedGlyphs, looks up or rasterises the
+ * glyph in @p atlas, then writes a `Render::Glyph` instance into @p slot.
+ * Advances `currentX` by `sg.xAdvance` after each glyph.
+ *
+ * @param shapedGlyphs   Array of shaped glyphs from HarfBuzz.
+ * @param shapedCount    Number of elements in @p shapedGlyphs.
+ * @param fontHandle     Platform font handle used for rasterisation.
+ * @param isEmoji        `true` if the glyphs are colour emoji.
+ * @param fontSize       Font size in pixels-per-em for the atlas key.
+ * @param cellSpan       Cell span hint for the atlas (0 = unconstrained, 1–2 = constrained).
+ * @param constraint     Glyph constraint (max width/height) for the atlas.
+ * @param cellWidth      Physical cell width in pixels.
+ * @param cellHeight     Physical cell height in pixels.
+ * @param cellPixelX     Physical X origin of the cell (col × physCellWidth).
+ * @param cellPixelY     Physical Y origin of the cell (row × physCellHeight).
+ * @param physBaseline   Physical baseline offset from the cell top in pixels.
+ * @param foreground     Resolved foreground colour.
+ * @param atlas          Glyph atlas for rasterisation and texture lookup.
+ * @param slot           Pointer to the start of the row's glyph cache slot.
+ * @param maxSlots       Maximum number of glyph instances that fit in @p slot.
+ * @param count          In/out: current number of instances written; incremented per glyph.
+ *
+ * @note **MESSAGE THREAD**.
+ * @see GlyphAtlas::getOrRasterize()
+ * @see Screen::buildCellInstance()
+ */
+static void emitShapedGlyphsToCache (
+    const Fonts::Glyph* shapedGlyphs, int shapedCount,
+    void* fontHandle, bool isEmoji, float fontSize,
+    uint8_t cellSpan,
+    const GlyphConstraint& constraint,
+    int cellWidth, int cellHeight,
+    float cellPixelX, float cellPixelY,
+    int physBaseline,
+    const juce::Colour& foreground,
+    GlyphAtlas& atlas,
+    Render::Glyph* slot, int maxSlots, int& count) noexcept
+{
+    float currentX { cellPixelX };
+
+    for (int i { 0 }; i < shapedCount and count < maxSlots; ++i)
+    {
+        const Fonts::Glyph& sg { shapedGlyphs[i] };
+
+        GlyphKey glyphKey;
+        glyphKey.glyphIndex = sg.glyphIndex;
+        glyphKey.fontFace = fontHandle;
+        glyphKey.fontSize = fontSize;
+        glyphKey.cellSpan = cellSpan;
+
+        AtlasGlyph* atlasGlyph { atlas.getOrRasterize (glyphKey, fontHandle, isEmoji,
+                                                         constraint, cellWidth, cellHeight, physBaseline) };
+
+        if (atlasGlyph != nullptr)
+        {
+            const float ascender { static_cast<float> (physBaseline) };
+            const float glyphX { currentX + static_cast<float> (atlasGlyph->bearingX) };
+            const float glyphY { cellPixelY + ascender - static_cast<float> (atlasGlyph->bearingY) };
+
+            Render::Glyph& instance { slot[count] };
+            instance.screenPosition = juce::Point<float> { glyphX, glyphY };
+            instance.glyphSize = juce::Point<float> {
+                static_cast<float> (atlasGlyph->widthPixels),
+                static_cast<float> (atlasGlyph->heightPixels) };
+            instance.textureCoordinates = atlasGlyph->textureCoordinates;
+            instance.foregroundColorR = foreground.getFloatRed();
+            instance.foregroundColorG = foreground.getFloatGreen();
+            instance.foregroundColorB = foreground.getFloatBlue();
+            instance.foregroundColorA = foreground.getFloatAlpha();
+            ++count;
+        }
+
+        currentX += sg.xAdvance;
+    }
+}
+
+// =========================================================================
+// Screen::processCellForSnapshot
+// =========================================================================
+
+/**
+ * @brief Processes one cell and appends its contributions to the row caches.
+ *
+ * This is the per-cell entry point called by `buildSnapshot()` for every cell
+ * in a dirty row.  It performs the following steps:
+ *
+ * 1. Resolves foreground and background colours via `resolveCellColors()`.
+ * 2. If the background is non-default, emits a `Render::Background` quad.
+ * 3. If `ligatureSkip > 0`, decrements it and skips glyph rendering (the
+ *    cell is part of a ligature already emitted for a previous column).
+ * 4. If the cell has content:
+ *    - Block elements (U+2580–U+2593): emits a `Render::Background` quad via
+ *      `buildBlockRect()`.
+ *    - All other glyphs: calls `buildCellInstance()`.
+ * 5. If the cell is within the active `ScreenSelection`, emits a selection
+ *    overlay `Render::Background` quad using `Theme::selectionColour`.
+ *
+ * @param cell  The cell to render (from `hotCells`).
+ * @param col   Column index of the cell.
+ * @param row   Row index of the cell.
+ *
+ * @note **MESSAGE THREAD**.
+ * @see buildCellInstance()
+ * @see buildBlockRect()
+ * @see ScreenSelection::contains()
+ */
+void Screen::processCellForSnapshot (
+    const Cell& cell, int col, int row) noexcept
+{
+    const Grapheme* grapheme { nullptr };
+
+    if (cell.hasGrapheme())
+    {
+        grapheme = &coldGraphemes[static_cast<size_t> (row) * static_cast<size_t> (cacheCols) + static_cast<size_t> (col)];
+    }
+
+    const ResolvedColors resolved { resolveCellColors (cell, resources.terminalColors) };
+
+    if (resolved.bg != resources.terminalColors.defaultBackground)
+    {
+        const int bgIdx { row * bgCacheCols + bgCount[row] };
+        Render::Background& bg { cachedBg[bgIdx] };
+        bg.screenBounds = juce::Rectangle<float> {
+            static_cast<float> (col * physCellWidth),
+            static_cast<float> (row * physCellHeight),
+            static_cast<float> (physCellWidth),
+            static_cast<float> (physCellHeight) };
+        bg.backgroundColorR = resolved.bg.getFloatRed();
+        bg.backgroundColorG = resolved.bg.getFloatGreen();
+        bg.backgroundColorB = resolved.bg.getFloatBlue();
+        bg.backgroundColorA = resolved.bg.getFloatAlpha();
+        ++bgCount[row];
+    }
+
+    if (ligatureSkip > 0)
+    {
+        --ligatureSkip;
+    }
+    else if (cell.hasContent())
+    {
+        if (isBlockChar (cell.codepoint))
+        {
+            const int bgIdx { row * bgCacheCols + bgCount[row] };
+            cachedBg[bgIdx] = buildBlockRect (cell.codepoint, col, row, resolved.fg);
+            ++bgCount[row];
+        }
+        else
+        {
+            buildCellInstance (cell, grapheme, col, row, resolved.fg);
+        }
+    }
+
+    if (selection != nullptr and cell.hasContent() and selection->contains (col, row))
+    {
+        const int bgIdx { row * bgCacheCols + bgCount[row] };
+        const juce::Colour& sel { resources.terminalColors.selectionColour };
+        Render::Background& bg { cachedBg[bgIdx] };
+        bg.screenBounds = juce::Rectangle<float> {
+            static_cast<float> (col * physCellWidth),
+            static_cast<float> (row * physCellHeight),
+            static_cast<float> (physCellWidth),
+            static_cast<float> (physCellHeight) };
+        bg.backgroundColorR = sel.getFloatRed();
+        bg.backgroundColorG = sel.getFloatGreen();
+        bg.backgroundColorB = sel.getFloatBlue();
+        bg.backgroundColorA = sel.getFloatAlpha();
+        ++bgCount[row];
+    }
+}
+
+// =========================================================================
+// Screen::buildSnapshot
+// =========================================================================
+
+/**
+ * @brief Rebuilds dirty rows in the per-row caches and calls `updateSnapshot()`.
+ *
+ * Iterates all visible rows.  For each row marked dirty in @p dirty, resets
+ * the row's glyph and background counts to zero, resets `ligatureSkip`, and
+ * calls `processCellForSnapshot()` for every cell in the row.  After all rows
+ * are processed, calls `updateSnapshot()` to pack the caches into a
+ * `Render::Snapshot` and publish it.
+ *
+ * @param state  Current terminal state (provides `getCols()`, `getVisibleRows()`).
+ * @param dirty  256-bit dirty bitmask; only rows with their bit set are rebuilt.
+ *
+ * @note **MESSAGE THREAD**.
+ * @see processCellForSnapshot()
+ * @see updateSnapshot()
+ */
+void Screen::buildSnapshot (const State& state, const uint64_t dirty[4]) noexcept
+{
+    const int cols { state.getCols() };
+    const int rows { state.getVisibleRows() };
+    const ActiveScreen scr { state.getScreen() };
+    const int maxGlyphs { cacheCols * 2 };
+
+    for (int r { 0 }; r < rows; ++r)
+    {
+        if (isRowDirty (dirty, r))
+        {
+            monoCount[r] = 0;
+            emojiCount[r] = 0;
+            bgCount[r] = 0;
+            ligatureSkip = 0;
+
+            for (int c { 0 }; c < cols; ++c)
+            {
+                const size_t index { static_cast<size_t> (r * cols + c) };
+                processCellForSnapshot (hotCells[index], c, r);
+            }
+        }
+    }
+
+    updateSnapshot (state, rows, maxGlyphs);
+}
+
+// =========================================================================
+// Codepoint sequence builder (file-scope)
+// =========================================================================
+
+/**
+ * @brief Builds the codepoint sequence for a cell, including grapheme extras.
+ *
+ * Writes the cell's primary codepoint to `codepoints[0]`.  If @p grapheme is
+ * non-null and has extra codepoints, appends up to 7 of them.  Sets
+ * @p codepointCount to the total number of codepoints written.
+ *
+ * @param cell            Cell providing the primary codepoint.
+ * @param grapheme        Optional grapheme cluster; may be `nullptr`.
+ * @param codepoints      Output array of at least 8 elements.
+ * @param codepointCount  Output: number of codepoints written.
+ *
+ * @see Screen::buildCellInstance()
+ */
+static void buildCodepointSequence (const Cell& cell, const Grapheme* grapheme,
+                                     uint32_t* codepoints, uint8_t& codepointCount) noexcept
+{
+    codepoints[0] = cell.codepoint;
+    codepointCount = 1;
+
+    if (grapheme != nullptr and grapheme->count > 0)
+    {
+        for (uint8_t i { 0 }; i < grapheme->count and i < 7; ++i)
+            codepoints[i + 1] = grapheme->extraCodepoints.at (i);
+        codepointCount = static_cast<uint8_t> (1 + grapheme->count);
+    }
+}
+
+// =========================================================================
+// Screen::buildCellInstance
+// =========================================================================
+
+/**
+ * @brief Shapes and rasterises one cell's glyph(s) into the row cache.
+ *
+ * Dispatches through the following priority chain:
+ *
+ * 1. **Box-drawing** (U+2500–U+259F via `BoxDrawing::isProcedural()`):
+ *    rasterises procedurally via `GlyphAtlas::getOrRasterizeBoxDrawing()` and
+ *    emits a mono `Render::Glyph` instance.
+ *
+ * 2. **FontCollection fallback** (non-emoji, non-box-drawing):
+ *    calls `FontCollection::resolve()` to find the fallback slot.  If a slot
+ *    is found and `hb_font_get_nominal_glyph()` succeeds, overrides the font
+ *    handle and emits via `emitShapedGlyphsToCache()`.
+ *
+ * 3. **Ligature shaping** (ASCII, ligatures enabled, no FontCollection hit):
+ *    calls `tryLigature()`.  If a ligature is found, sets `ligatureSkip` and
+ *    returns.  Otherwise falls through to standard shaping.
+ *
+ * 4. **Standard shaping**: calls `Fonts::shapeText()` or `Fonts::shapeEmoji()`
+ *    and emits via `emitShapedGlyphsToCache()` into `cachedMono` or
+ *    `cachedEmoji` depending on `cell.isEmoji()`.
+ *
+ * @param cell       The cell to render.
+ * @param grapheme   Optional grapheme cluster; may be `nullptr`.
+ * @param col        Column index.
+ * @param row        Row index.
+ * @param foreground Resolved foreground colour.
+ *
+ * @note **MESSAGE THREAD**.
+ * @see tryLigature()
+ * @see emitShapedGlyphsToCache()
+ * @see FontCollection::resolve()
+ * @see BoxDrawing::isProcedural()
+ */
+void Screen::buildCellInstance (const Cell& cell,
+                                const Grapheme* grapheme,
+                                int col, int row,
+                                const juce::Colour& foreground) noexcept
+{
+    if (cell.codepoint != 0)
+    {
+        if (BoxDrawing::isProcedural (cell.codepoint))
+        {
+            AtlasGlyph* atlasGlyph { resources.glyphAtlas.getOrRasterizeBoxDrawing (
+                cell.codepoint, physCellWidth, physCellHeight, physBaseline) };
+
+            if (atlasGlyph != nullptr)
+            {
+                const int maxGlyphs { cacheCols * 2 };
+                int& count { monoCount[row] };
+                Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
+
+                if (count < maxGlyphs)
+                {
+                    const float ascender { static_cast<float> (physBaseline) };
+                    Render::Glyph& instance { slot[count] };
+                    instance.screenPosition = juce::Point<float> {
+                        static_cast<float> (col * physCellWidth),
+                        static_cast<float> (row * physCellHeight) + ascender - static_cast<float> (atlasGlyph->bearingY) };
+                    instance.glyphSize = juce::Point<float> {
+                        static_cast<float> (atlasGlyph->widthPixels),
+                        static_cast<float> (atlasGlyph->heightPixels) };
+                    instance.textureCoordinates = atlasGlyph->textureCoordinates;
+                    instance.foregroundColorR = foreground.getFloatRed();
+                    instance.foregroundColorG = foreground.getFloatGreen();
+                    instance.foregroundColorB = foreground.getFloatBlue();
+                    instance.foregroundColorA = foreground.getFloatAlpha();
+                    ++count;
+                }
+            }
+        }
+        else
+        {
+            const Fonts::Style style { selectFontStyle (cell) };
+            void* fontHandle { resources.fonts.getFontHandle (style) };
+
+            if (fontHandle == nullptr)
+            {
+                fontHandle = resources.fonts.getFontHandle (Fonts::Style::regular);
+            }
+
+            if (fontHandle != nullptr)
+            {
+                uint32_t codepoints[8] { 0, 0, 0, 0, 0, 0, 0, 0 };
+                uint8_t codepointCount { 0 };
+                buildCodepointSequence (cell, grapheme, codepoints, codepointCount);
+
+                const bool isEmoji { cell.isEmoji() };
+
+                const GlyphConstraint constraint { getGlyphConstraint (cell.codepoint) };
+                uint8_t cellSpan { 0 };
+
+                if (constraint.isActive() and not isEmoji)
+                {
+                    cellSpan = 1;
+
+                    if (constraint.maxCellSpan >= 2 and col + 1 < cacheCols)
+                    {
+                        const size_t nextIndex { static_cast<size_t> (row) * static_cast<size_t> (cacheCols)
+                                               + static_cast<size_t> (col + 1) };
+
+                        if (nextIndex < hotCellCount)
+                        {
+                            const Cell& next { hotCells[nextIndex] };
+
+                            if (not next.hasContent() or next.codepoint == 0x20)
+                            {
+                                cellSpan = 2;
+                            }
+                        }
+                    }
+                }
+
+                bool usedFontCollection { false };
+                Fonts::Glyph fcGlyph;
+
+                auto* fc { FontCollection::getContext() };
+
+                const bool isBoxDrawing { cell.codepoint >= 0x2500 and cell.codepoint <= 0x259F };
+
+                if (fc != nullptr and not isEmoji and not isBoxDrawing)
+                {
+                    const int8_t slot { fc->resolve (cell.codepoint) };
+
+                    if (slot > 0)
+                    {
+                        const FontCollection::Entry* entry { fc->getEntry (static_cast<int> (slot)) };
+
+                        if (entry != nullptr and entry->hbFont != nullptr)
+                        {
+                            uint32_t glyphId { 0 };
+
+                            if (hb_font_get_nominal_glyph (entry->hbFont, cell.codepoint, &glyphId))
+                            {
+#if JUCE_MAC
+                                if (entry->ctFont != nullptr)
+                                {
+                                    fontHandle = entry->ctFont;
+                                }
+#else
+                                if (entry->ftFace != nullptr)
+                                {
+                                    fontHandle = static_cast<void*> (entry->ftFace);
+                                }
+#endif
+                                fcGlyph.glyphIndex = glyphId;
+                                fcGlyph.xOffset = 0.0f;
+                                fcGlyph.yOffset = 0.0f;
+                                fcGlyph.xAdvance = static_cast<float> (physCellWidth);
+                                usedFontCollection = true;
+                            }
+                        }
+                    }
+                }
+
+                if (usedFontCollection)
+                {
+                    const float pixelsPerEm { resources.fonts.getPixelsPerEm (style) };
+                    const int maxGlyphs { cacheCols * 2 };
+                    int& count { monoCount[row] };
+                    Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
+
+                    emitShapedGlyphsToCache (&fcGlyph, 1, fontHandle, false, pixelsPerEm,
+                                             cellSpan, constraint, physCellWidth, physCellHeight,
+                                             static_cast<float> (col * physCellWidth),
+                                             static_cast<float> (row * physCellHeight),
+                                             physBaseline, foreground,
+                                             resources.glyphAtlas,
+                                             slot, maxGlyphs, count);
+                }
+                else if (ligatureEnabled and not isEmoji and cell.codepoint > 0 and cell.codepoint < 128)
+                {
+                    const int skip { tryLigature (col, row, style, fontHandle, foreground) };
+
+                    if (skip > 0)
+                    {
+                        ligatureSkip = skip;
+                    }
+                    else
+                    {
+                        const Fonts::ShapeResult shaped { resources.fonts.shapeText (style, codepoints,
+                                                                                     static_cast<size_t> (codepointCount)) };
+
+                        if (shaped.count > 0)
+                        {
+                            void* renderHandle { fontHandle };
+
+                            if (shaped.fontHandle != nullptr)
+                            {
+                                renderHandle = shaped.fontHandle;
+                            }
+
+                            const float pixelsPerEm { resources.fonts.getPixelsPerEm (style) };
+                            const int maxGlyphs { cacheCols * 2 };
+                            int& count { monoCount[row] };
+                            Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
+
+                            emitShapedGlyphsToCache (shaped.glyphs, shaped.count, renderHandle, false, pixelsPerEm,
+                                                     cellSpan, constraint, physCellWidth, physCellHeight,
+                                                     static_cast<float> (col * physCellWidth),
+                                                     static_cast<float> (row * physCellHeight),
+                                                     physBaseline, foreground,
+                                                     resources.glyphAtlas,
+                                                     slot, maxGlyphs, count);
+                        }
+                    }
+                }
+                else
+                {
+                    const Fonts::ShapeResult shaped { isEmoji
+                        ? resources.fonts.shapeEmoji (codepoints, static_cast<size_t> (codepointCount))
+                        : resources.fonts.shapeText (style, codepoints, static_cast<size_t> (codepointCount)) };
+
+                    if (shaped.count > 0)
+                    {
+                        void* renderHandle { isEmoji ? resources.fonts.getEmojiFontHandle() : fontHandle };
+
+                        if (not isEmoji and shaped.fontHandle != nullptr)
+                        {
+                            renderHandle = shaped.fontHandle;
+                        }
+
+                        const float pixelsPerEm { resources.fonts.getPixelsPerEm (style) };
+                        const int maxGlyphs { cacheCols * 2 };
+                        int& count { isEmoji ? emojiCount[row] : monoCount[row] };
+                        Render::Glyph* slot { isEmoji
+                            ? cachedEmoji.get() + row * maxGlyphs
+                            : cachedMono.get() + row * maxGlyphs };
+
+                        emitShapedGlyphsToCache (shaped.glyphs, shaped.count, renderHandle, isEmoji, pixelsPerEm,
+                                                 cellSpan, constraint, physCellWidth, physCellHeight,
+                                                 static_cast<float> (col * physCellWidth),
+                                                 static_cast<float> (row * physCellHeight),
+                                                 physBaseline, foreground,
+                                                 resources.glyphAtlas,
+                                                 slot, maxGlyphs, count);
+                    }
+                }
+            }
+        } // else (not box drawing)
+    }
+}
+
+// =========================================================================
+// Screen::tryLigature
+// =========================================================================
+
+/**
+ * @brief Attempts to shape a 2- or 3-character ligature starting at @p col.
+ *
+ * Tries sequence lengths 3 then 2 (longest match first).  For each length,
+ * checks that all cells in the run are:
+ * - ASCII (codepoint < 128, non-zero).
+ * - Same SGR style as the first cell.
+ * - Not emoji, not grapheme clusters, not wide-continuation cells.
+ *
+ * If the run is eligible, calls `Fonts::shapeText()`.  If HarfBuzz produces
+ * fewer output glyphs than input codepoints, the sequence is a ligature.
+ * The ligature glyphs are emitted with a fixed `xAdvance` of `physCellWidth`
+ * per input cell, and the number of cells to skip is returned.
+ *
+ * @param col         Starting column.
+ * @param row         Row index.
+ * @param style       Font style for shaping.
+ * @param fontHandle  Platform font handle (may be overridden by `shaped.fontHandle`).
+ * @param foreground  Resolved foreground colour.
+ * @return            Number of subsequent cells to skip (0 if no ligature found).
+ *
+ * @note **MESSAGE THREAD**.
+ * @see buildCellInstance()
+ * @see emitShapedGlyphsToCache()
+ */
+int Screen::tryLigature (int col, int row, Fonts::Style style, void* fontHandle,
+                         const juce::Colour& foreground) noexcept
+{
+    const size_t base { static_cast<size_t> (row) * static_cast<size_t> (cacheCols) };
+    int result { 0 };
+
+    for (int tryLen { 3 }; tryLen >= 2 and result == 0; --tryLen)
+    {
+        if (col + tryLen <= cacheCols)
+        {
+            bool eligible { true };
+            uint32_t codepoints[3];
+            const uint8_t baseStyle { hotCells[base + static_cast<size_t> (col)].style };
+
+            for (int i { 0 }; i < tryLen and eligible; ++i)
+            {
+                const Cell& c { hotCells[base + static_cast<size_t> (col + i)] };
+
+                if (c.codepoint == 0 or c.codepoint >= 128
+                    or c.style != baseStyle
+                    or c.isEmoji() or c.hasGrapheme() or c.isWideContinuation())
+                {
+                    eligible = false;
+                }
+                else
+                {
+                    codepoints[i] = c.codepoint;
+                }
+            }
+
+            if (eligible)
+            {
+                const Fonts::ShapeResult shaped { resources.fonts.shapeText (style, codepoints,
+                                                                             static_cast<size_t> (tryLen)) };
+
+                if (shaped.count > 0 and shaped.count < tryLen)
+                {
+                    void* ligatureHandle { fontHandle };
+
+                    if (shaped.fontHandle != nullptr)
+                    {
+                        ligatureHandle = shaped.fontHandle;
+                    }
+
+                    const float pixelsPerEm { resources.fonts.getPixelsPerEm (style) };
+                    const int maxGlyphs { cacheCols * 2 };
+                    int& count { monoCount[row] };
+                    Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
+                    const GlyphConstraint noConstraint;
+
+                    Fonts::Glyph fixedGlyphs[3];
+
+                    for (int i { 0 }; i < shaped.count; ++i)
+                    {
+                        fixedGlyphs[i] = shaped.glyphs[i];
+                        fixedGlyphs[i].xAdvance = static_cast<float> (physCellWidth);
+                    }
+
+                    emitShapedGlyphsToCache (fixedGlyphs, shaped.count, ligatureHandle, false, pixelsPerEm,
+                                             0, noConstraint, physCellWidth, physCellHeight,
+                                             static_cast<float> (col * physCellWidth),
+                                             static_cast<float> (row * physCellHeight),
+                                             physBaseline, foreground,
+                                             resources.glyphAtlas,
+                                             slot, maxGlyphs, count);
+
+                    result = tryLen - 1;
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+// =========================================================================
+// Screen::buildBlockRect
+// =========================================================================
+
+/**
+ * @brief Builds a `Render::Background` quad for a block-element character.
+ *
+ * Looks up the `BlockGeometry` for @p codepoint in `BLOCK_TABLE` (indexed by
+ * `codepoint - BLOCK_FIRST`) and scales the normalised geometry by the
+ * physical cell dimensions.  The fill colour is @p foreground; if the
+ * geometry's `alpha` field is non-negative it overrides the foreground alpha.
+ *
+ * @param codepoint   Block-element codepoint (U+2580–U+2593).
+ * @param col         Column index.
+ * @param row         Row index.
+ * @param foreground  Resolved foreground colour used as the block fill.
+ * @return            A fully populated `Render::Background` quad in physical pixel space.
+ *
+ * @note **MESSAGE THREAD**.
+ * @see BLOCK_TABLE
+ * @see isBlockChar()
+ * @see processCellForSnapshot()
+ */
+Render::Background Screen::buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept
+{
+    const BlockGeometry& g { BLOCK_TABLE.at (codepoint - BLOCK_FIRST) };
+    const float cx { static_cast<float> (col * physCellWidth) };
+    const float cy { static_cast<float> (row * physCellHeight) };
+    const float cw { static_cast<float> (physCellWidth) };
+    const float ch { static_cast<float> (physCellHeight) };
+
+    Render::Background bg;
+    bg.screenBounds = { cx + g.x * cw, cy + g.y * ch, g.w * cw, g.h * ch };
+    bg.backgroundColorR = foreground.getFloatRed();
+    bg.backgroundColorG = foreground.getFloatGreen();
+    bg.backgroundColorB = foreground.getFloatBlue();
+    bg.backgroundColorA = (g.alpha >= 0.0f) ? g.alpha : foreground.getFloatAlpha();
+    return bg;
+}
+
+// =========================================================================
+// Screen::selectFontStyle
+// =========================================================================
+
+/**
+ * @brief Selects the `Fonts::Style` variant for a cell based on its SGR attributes.
+ *
+ * Maps the cell's bold and italic flags to the corresponding `Fonts::Style`
+ * enum value.  Returns `boldItalic` if both flags are set, `bold` if only
+ * bold, `italic` if only italic, and `regular` otherwise.
+ *
+ * @param cell  Cell whose `isBold()` and `isItalic()` flags are tested.
+ * @return      `Fonts::Style::boldItalic`, `bold`, `italic`, or `regular`.
+ *
+ * @see buildCellInstance()
+ */
+Fonts::Style Screen::selectFontStyle (const Cell& cell) noexcept
+{
+    Fonts::Style result { Fonts::Style::regular };
+
+    if (cell.isBold() and cell.isItalic())
+    {
+        result = Fonts::Style::boldItalic;
+    }
+    else if (cell.isBold())
+    {
+        result = Fonts::Style::bold;
+    }
+    else if (cell.isItalic())
+    {
+        result = Fonts::Style::italic;
+    }
+
+    return result;
+}
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace Terminal

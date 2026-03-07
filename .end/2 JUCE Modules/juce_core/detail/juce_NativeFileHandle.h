@@ -1,0 +1,1 @@
+/Users/jreng/Documents/Poems/JUCE/modules/juce_core/detail/juce_NativeFileHandle.h

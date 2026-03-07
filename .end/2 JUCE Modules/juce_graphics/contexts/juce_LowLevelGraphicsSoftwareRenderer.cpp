@@ -1,0 +1,1 @@
+/Users/jreng/Documents/Poems/JUCE/modules/juce_graphics/contexts/juce_LowLevelGraphicsSoftwareRenderer.cpp
