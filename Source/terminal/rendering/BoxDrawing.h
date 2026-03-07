@@ -47,6 +47,7 @@
 
 #pragma once
 
+#include <JuceHeader.h>
 #include <cstdint>
 #include <cstring>
 #include <cmath>

@@ -12,3 +12,12 @@ ___display___/__pycache__/
 
 # macOS system files
 .DS_Store
+
+# Windows build environment
+_msvc_env.txt
+_dumpenv.bat
+_build_env.sh
+_build_log.bat
+_build_output.txt
+_preprocess.bat
+nul

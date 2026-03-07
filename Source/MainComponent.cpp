@@ -40,7 +40,7 @@
  */
 MainComponent::MainComponent()
 {
-    setOpaque (true);
+    setOpaque (false);
 
     terminal = std::make_unique<TerminalComponent>();
     addAndMakeVisible (terminal.get());
@@ -66,20 +66,9 @@ MainComponent::MainComponent()
  */
 void MainComponent::resized()
 {
-    terminal->setBounds (getLocalBounds());
+    if (terminal != nullptr)
+        terminal->setBounds (getLocalBounds());
 }
-
-/**
- * @brief Paints the translucent background tint.
- *
- * Fills the component with `backgroundColour` at `opacity` alpha.  The native
- * blur layer beneath the window provides the frosted-glass effect; this fill
- * sets the tint colour and transparency level.
- *
- * @param g  JUCE graphics context for this paint pass.
- * @note MESSAGE THREAD — called by JUCE on every repaint.
- */
-void MainComponent::paint (juce::Graphics& g) { g.fillAll (backgroundColour.withAlpha (opacity)); }
 
 /**
  * @brief Clears the BackgroundBlur close callback.

@@ -49,7 +49,7 @@ void GlassComponent::visibilityChanged()
  */
 void GlassComponent::handleAsyncUpdate()
 {
-    BackgroundBlur::apply (this, 20.0f);
+    BackgroundBlur::apply (this, 20.0f, juce::Colours::transparentBlack);
 }
 
 /**_____________________________END_OF_NAMESPACE______________________________*/

@@ -34,7 +34,7 @@
  */
 TerminalComponent::TerminalComponent()
     : screen (Config::getContext()->getString (Config::Key::fontFamily),
-              Config::getContext()->getFloat (Config::Key::fontSize))
+              dpiCorrectedFontSize())
     , stateTree (session.getState().get())
     , vblank (this,
               [this]
@@ -51,7 +51,7 @@ TerminalComponent::TerminalComponent()
 
     if (savedZoom > Config::zoomMin)
     {
-        screen.setFontSize (cfg->getFloat (Config::Key::fontSize) * savedZoom);
+        screen.setFontSize (dpiCorrectedFontSize() * savedZoom);
     }
 
     cursor = std::make_unique<CursorComponent> (session.getCursorState(), screen.getFonts());
@@ -205,10 +205,16 @@ bool TerminalComponent::keyPressed (const juce::KeyPress& key, juce::Component*)
         session.paste (juce::SystemClipboard::getTextFromClipboard());
         cursor->resetBlink();
     }
-    else if (mods.isCommandDown() and code == 'Q')
+    else if (mods.isCommandDown() and (code == 'Q' or code == 'W'))
     {
         juce::JUCEApplication::getInstance()->systemRequestedQuit();
     }
+#if JUCE_WINDOWS
+    else if (mods.isAltDown() and code == juce::KeyPress::F4Key)
+    {
+        juce::JUCEApplication::getInstance()->systemRequestedQuit();
+    }
+#endif
     else if (mods.isCommandDown() and code == 'R')
     {
         const juce::String error { Config::getContext()->reload() };
@@ -682,8 +688,7 @@ void TerminalComponent::applyConfig() noexcept
  */
 void TerminalComponent::applyZoom (float zoom) noexcept
 {
-    const float baseSize { Config::getContext()->getFloat (Config::Key::fontSize) };
-    screen.setFontSize (baseSize * zoom);
+    screen.setFontSize (dpiCorrectedFontSize() * zoom);
     zoomInProgress = true;
     resized();
     zoomInProgress = false;

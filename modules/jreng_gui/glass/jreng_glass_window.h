@@ -128,8 +128,22 @@ public:
     void handleAsyncUpdate() override;
 
 private:
+#if JUCE_WINDOWS
+    struct TransparentTitleBarLookAndFeel : public juce::LookAndFeel_V4
+    {
+        void drawDocumentWindowTitleBar (juce::DocumentWindow&, juce::Graphics&,
+                                        int, int, int, int,
+                                        const juce::Image*, bool) override {}
+    };
+
+    TransparentTitleBarLookAndFeel transparentTitleBarLnf;
+#endif
+
     /** @brief Blur radius (in points) forwarded to BackgroundBlur::apply(). */
     float blurRadius { 0.0f };
+
+    /** @brief Tint colour (with alpha) forwarded to BackgroundBlur::apply(). */
+    juce::Colour tintColour { juce::Colours::transparentBlack };
 
     /** @brief Guards against applying the blur more than once. */
     bool blurApplied { false };

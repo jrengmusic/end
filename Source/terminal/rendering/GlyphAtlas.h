@@ -52,9 +52,7 @@
 
 #pragma once
 
-#include <juce_core/juce_core.h>
-#include <juce_graphics/juce_graphics.h>
-#include <juce_opengl/juce_opengl.h>
+#include <JuceHeader.h>
 
 #include "AtlasPacker.h"
 #include "GlyphConstraint.h"

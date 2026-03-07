@@ -66,8 +66,8 @@ struct Fader
             float startXRight { lines.area.getCentreX() + lines.centerGap };
             float endXRight { startXRight + lines.width };
 
-            float startSubXLeft { endXLeft - fromPercent (lines.subWidth, lines.width) };
-            float endSubXRight { startXRight + fromPercent (lines.subWidth, lines.width) };
+            float startSubXLeft { endXLeft - jreng::Value::fromPercent (lines.subWidth, lines.width) };
+            float endSubXRight { startXRight + jreng::Value::fromPercent (lines.subWidth, lines.width) };
 
             float textX { lines.position ? endXRight + lines.space : startXLeft - lines.space - lines.textWidth };
 
@@ -82,7 +82,7 @@ struct Fader
                         if (shouldShowNumber)
                             path.addLineSegment (juce::Line<float> { startXLeft, y, endXLeft, y }, lines.stroke);
                         else
-                            subPath.addLineSegment (juce::Line<float> { startSubXLeft, y, endXLeft, y }, fromPercent (lines.subStroke, lines.stroke));
+                            subPath.addLineSegment (juce::Line<float> { startSubXLeft, y, endXLeft, y }, jreng::Value::fromPercent (lines.subStroke, lines.stroke));
                     }
 
                     if (shouldShowRightLine)
@@ -90,7 +90,7 @@ struct Fader
                         if (shouldShowNumber)
                             path.addLineSegment (juce::Line<float> { startXRight, y, endXRight, y }, lines.stroke);
                         else
-                            subPath.addLineSegment (juce::Line<float> { startXRight, y, endSubXRight, y }, fromPercent (lines.subStroke, lines.stroke));
+                            subPath.addLineSegment (juce::Line<float> { startXRight, y, endSubXRight, y }, jreng::Value::fromPercent (lines.subStroke, lines.stroke));
                     }
 
                     float baselineOffset { jreng::Value::map (lines.baseline, -100.0f, 100.0f, lines.textHeight, -lines.textHeight) - (lines.textHeight / 2) };
@@ -100,7 +100,7 @@ struct Fader
                     if (shouldShowNumber)
                     {
                         juce::Font font { lines.font };
-                        font.setExtraKerningFactor (fromPercent (lines.kerning, 1.0f));
+                        font.setExtraKerningFactor (jreng::Value::fromPercent (lines.kerning, 1.0f));
                         
                         g.setFont (font);
                         juce::GlyphArrangement glyph;
@@ -155,7 +155,7 @@ struct Fader
 
                 g.setColour (lines.colourLine);
                 g.strokePath (path, juce::PathStrokeType (lines.stroke));
-                g.strokePath (subPath, juce::PathStrokeType (fromPercent (lines.subStroke, lines.stroke)));
+                g.strokePath (subPath, juce::PathStrokeType (jreng::Value::fromPercent (lines.subStroke, lines.stroke)));
 
                 g.setColour (lines.colourNumber);
                 g.fillPath (numbersPath);
@@ -173,7 +173,7 @@ struct Fader
             };
 
             if (subPath.toString().isNotEmpty())
-                marks.add (SVG::Format::stroke (subPath, lines.colourLine, fromPercent (lines.subStroke, lines.stroke), "sublines"));
+                marks.add (SVG::Format::stroke (subPath, lines.colourLine, jreng::Value::fromPercent (lines.subStroke, lines.stroke), "sublines"));
 
             return SVG::Format::group (marks.joinIntoString ("\n\t"), "fader_marks");
         }

@@ -44,16 +44,33 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
                           float blur,
                           bool alwaysOnTop,
                           bool showWindowButtons)
-    : juce::DocumentWindow (name, colour.withAlpha (opacity), juce::DocumentWindow::allButtons)
+    : juce::DocumentWindow (name, juce::Colours::transparentBlack,
+#if JUCE_WINDOWS
+        showWindowButtons ? juce::DocumentWindow::allButtons : 0)
+#else
+        juce::DocumentWindow::allButtons)
+#endif
     , blurRadius (blur)
+    , tintColour (colour.withAlpha (opacity))
     , shouldShowWindowButtons (showWindowButtons)
 {
+#if JUCE_WINDOWS
+    setUsingNativeTitleBar (showWindowButtons);
+    if (not showWindowButtons)
+    {
+        setTitleBarHeight (10);
+        setLookAndFeel (&transparentTitleBarLnf);
+    }
+#else
     setUsingNativeTitleBar (true);
+#endif
+    setOpaque (false);
     setContentOwned (std::move (mainComponent), true);
     setAlwaysOnTop (alwaysOnTop);
-    setOpaque (false);
 #if JUCE_IOS || JUCE_ANDROID
     setFullScreen (true);
+#elif JUCE_WINDOWS
+    setResizable (true, false);
 #else
     setResizable (true, true);
 #endif
@@ -97,7 +114,7 @@ void GlassWindow::visibilityChanged()
  */
 void GlassWindow::handleAsyncUpdate()
 {
-    blurApplied = BackgroundBlur::apply (this, blurRadius);
+    blurApplied = BackgroundBlur::apply (this, blurRadius, tintColour);
 
     if (blurApplied and not shouldShowWindowButtons)
         BackgroundBlur::hideWindowButtons (this);

@@ -109,9 +109,15 @@ message(STATUS "━━━━━━━━━━━━━━━━━━━━━�
 # PROJECT DECLARATION
 # ============================================================================
 
+if(APPLE)
+    set(_EXTRA_LANGS OBJC OBJCXX)
+else()
+    set(_EXTRA_LANGS "")
+endif()
+
 project("${PROJECT_NAME}"
     VERSION ${PROJECT_VERSION}
-    LANGUAGES C CXX OBJC OBJCXX
+    LANGUAGES C CXX ${_EXTRA_LANGS}
     DESCRIPTION "Ephemeral Nexus Display - GPU Terminal Emulator"
 )
 
@@ -457,9 +463,9 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
     JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:${TARGET_NAME},JUCE_VERSION>"
     FT2_BUILD_LIBRARY
     FT_ERR_PREFIX=FT_Err_
-    HAVE_UNISTD_H
-    HAVE_FCNTL_H
     HAVE_FREETYPE
+    $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_UNISTD_H>
+    $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_FCNTL_H>
 )
 
 if(COMMAND _juce_fixup_module_source_groups)
@@ -493,6 +499,7 @@ if(APPLE)
 
 elseif(WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    target_link_libraries(${TARGET_NAME} PRIVATE dwmapi)
     message(STATUS "Platform: Windows")
 
 elseif(UNIX)

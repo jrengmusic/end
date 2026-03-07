@@ -42,9 +42,7 @@
 
 #pragma once
 
-#include <juce_core/juce_core.h>
-#include <juce_graphics/juce_graphics.h>
-#include <juce_gui_basics/juce_gui_basics.h>
+#include <JuceHeader.h>
 
 
 #include <ft2build.h>
@@ -172,7 +170,7 @@ struct Fonts
          * @brief Returns true when the metrics contain valid (non-zero) dimensions.
          * @return `true` if both `logicalCellW` and `logicalCellH` are positive.
          */
-        bool isValid() const noexcept { return logicalCellW > 0 and logicalCellH > 0; }
+        bool isValid() const noexcept { return logicalCellW > 0 && logicalCellH > 0; }
     };
 
     // =========================================================================

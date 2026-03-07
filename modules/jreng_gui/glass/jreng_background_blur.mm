@@ -163,7 +163,7 @@ const bool BackgroundBlur::isCoreGraphicsAvailable()
  *         or the API is unavailable.
  */
 const bool
-BackgroundBlur::apply (juce::Component* component, float blurRadius, Type type)
+BackgroundBlur::apply (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
 {
     switch (type)
     {
@@ -172,13 +172,13 @@ BackgroundBlur::apply (juce::Component* component, float blurRadius, Type type)
             jassert (isCoreGraphicsAvailable());
 
             if (isCoreGraphicsAvailable())
-                return applyBackgroundBlur (component, blurRadius);
+                return applyBackgroundBlur (component, blurRadius, tint);
             else
-                return applyNSVisualEffect (component, blurRadius);
+                return applyNSVisualEffect (component, blurRadius, tint);
         }
 
         case Type::nsVisualEffect:
-            return applyNSVisualEffect (component, blurRadius);
+            return applyNSVisualEffect (component, blurRadius, tint);
     }
 
     return false;
@@ -205,7 +205,8 @@ BackgroundBlur::apply (juce::Component* component, float blurRadius, Type type)
  *       is performed, preserving JUCE's peer/view ownership model.
  */
 const bool BackgroundBlur::applyBackgroundBlur (juce::Component* component,
-                                                float blurRadius)
+                                                float blurRadius,
+                                                juce::Colour tint)
 {
     if (auto* peer { component->getPeer() })
     {
@@ -214,9 +215,12 @@ const bool BackgroundBlur::applyBackgroundBlur (juce::Component* component,
 
         if (window != nil)
         {
-            // COUNSELOR: Style existing JUCE window - NO window swap, NO view move
+            // Style existing JUCE window — NO window swap, NO view move
             [window setOpaque:NO];
-            [window setBackgroundColor:[NSColor clearColor]];
+            [window setBackgroundColor:[NSColor colorWithRed:tint.getFloatRed()
+                                                      green:tint.getFloatGreen()
+                                                       blue:tint.getFloatBlue()
+                                                      alpha:tint.getFloatAlpha()]];
             [window setTitleVisibility:NSWindowTitleHidden];
             [window setTitlebarAppearsTransparent:YES];
             [window setStyleMask:window.styleMask |
@@ -261,7 +265,8 @@ const bool BackgroundBlur::applyBackgroundBlur (juce::Component* component,
  * @note The window is styled in-place — no window swap or view relocation.
  */
 const bool BackgroundBlur::applyNSVisualEffect (juce::Component* component,
-                                                float blurRadius)
+                                                float blurRadius,
+                                                juce::Colour tint)
 {
     if (auto* peer { component->getPeer() })
     {
@@ -270,9 +275,12 @@ const bool BackgroundBlur::applyNSVisualEffect (juce::Component* component,
 
         if (window != nil)
         {
-            // COUNSELOR: Style existing JUCE window - NO window swap, NO view move
+            // Style existing JUCE window — NO window swap, NO view move
             [window setOpaque:NO];
-            [window setBackgroundColor:[NSColor clearColor]];
+            [window setBackgroundColor:[NSColor colorWithRed:tint.getFloatRed()
+                                                      green:tint.getFloatGreen()
+                                                       blue:tint.getFloatBlue()
+                                                      alpha:tint.getFloatAlpha()]];
             [window setTitleVisibility:NSWindowTitleHidden];
             [window setTitlebarAppearsTransparent:YES];
             [window setStyleMask:window.styleMask |

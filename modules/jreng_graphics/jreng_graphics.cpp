@@ -1,6 +1,3 @@
 #include "jreng_graphics.h"
-#include "blur/jreng_cached_blur.cpp"
-#include "blur/internal/jreng_cached_shadows.cpp"
-#include "blur/internal/jreng_rendered_single_channel_shadow.cpp"
 #include "graphics/jreng_graphics_rotary.cpp"
 #include "colours/jreng_colours_names.cpp"

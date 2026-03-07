@@ -24,9 +24,9 @@
  * @see https://docs.microsoft.com/en-us/windows/console/creating-a-pseudoconsole-session
  */
 
-#ifdef JUCE_WINDOWS
-
 #include "WindowsTTY.h"
+
+#ifdef JUCE_WINDOWS
 
 #pragma comment(lib, "kernel32.lib")
 
@@ -107,7 +107,7 @@ static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipe
     InitializeProcThreadAttributeList (nullptr, 1, 0, &attrSize);
 
     STARTUPINFOEXW si {};
-    si.StartupInfo.cb = sizeof (si.StartupInfo);
+    si.StartupInfo.cb = sizeof (si);
     si.lpAttributeList = static_cast<LPPROC_THREAD_ATTRIBUTE_LIST> (HeapAlloc (GetProcessHeap(), 0, attrSize));
 
     if (not si.lpAttributeList)
@@ -194,17 +194,25 @@ void WindowsTTY::close()
 {
     signalThreadShouldExit();
 
+    // Close the pseudo console first — this may emit a final frame and then
+    // breaks the output pipe, which unblocks the reader thread's ReadFile.
+    // The reader thread must still be alive to drain any final output,
+    // otherwise ClosePseudoConsole will deadlock.
+    if (pseudoConsole != nullptr)
+    {
+        ClosePseudoConsole (pseudoConsole);
+        pseudoConsole = nullptr;
+    }
+
+    // Now wait for the reader thread to see the broken pipe and exit.
+    stopThread (5000);
+
+    // Clean up the child process.
     if (process != INVALID_HANDLE_VALUE)
     {
         TerminateProcess (process, 0);
         CloseHandle (process);
         process = INVALID_HANDLE_VALUE;
-    }
-
-    if (pseudoConsole != nullptr)
-    {
-        ClosePseudoConsole (pseudoConsole);
-        pseudoConsole = nullptr;
     }
 
     auto safeClose = [] (HANDLE& h)
@@ -220,8 +228,6 @@ void WindowsTTY::close()
     safeClose (inputWriter);
     safeClose (pipeReadEnd);
     safeClose (pipeWriteEnd);
-
-    stopThread (5000);
 }
 
 /**
@@ -266,27 +272,23 @@ bool WindowsTTY::isRunning() const
  */
 int WindowsTTY::read (char* buf, int maxBytes)
 {
-    OVERLAPPED ov {};
+    // Peek first to avoid blocking indefinitely in ReadFile.
+    // This allows the reader thread to return to the outer loop
+    // and check resizePending between reads.
+    DWORD available { 0 };
+
+    if (not PeekNamedPipe (outputReader, nullptr, 0, nullptr, &available, nullptr))
+        return (GetLastError() == ERROR_BROKEN_PIPE) ? -1 : 0;
+
+    if (available == 0)
+        return 0;
+
     DWORD bytesRead { 0 };
 
-    if (ReadFile (outputReader, buf, maxBytes, &bytesRead, &ov))
-    {
+    if (ReadFile (outputReader, buf, static_cast<DWORD> (maxBytes), &bytesRead, nullptr))
         return static_cast<int> (bytesRead);
-    }
 
-    const DWORD err { GetLastError() };
-
-    if (err != ERROR_IO_PENDING)
-    {
-        return (err == ERROR_BROKEN_PIPE) ? -1 : 0;
-    }
-
-    if (GetOverlappedResult (outputReader, &ov, &bytesRead, FALSE))
-    {
-        return static_cast<int> (bytesRead);
-    }
-
-    return (GetLastError() == ERROR_IO_INCOMPLETE) ? 0 : -1;
+    return (GetLastError() == ERROR_BROKEN_PIPE) ? -1 : 0;
 }
 
 /**
@@ -343,12 +345,27 @@ void WindowsTTY::resize (int cols, int rows)
 bool WindowsTTY::waitForData (int timeoutMs)
 {
     if (outputReader == INVALID_HANDLE_VALUE)
-    {
         return false;
+
+    // Poll with short sleeps so the reader thread can check resizePending.
+    const int sleepMs { 1 };
+    int elapsed { 0 };
+
+    while (elapsed < timeoutMs)
+    {
+        DWORD available { 0 };
+
+        if (not PeekNamedPipe (outputReader, nullptr, 0, nullptr, &available, nullptr))
+            return false;  // pipe broken
+
+        if (available > 0)
+            return true;
+
+        Sleep (sleepMs);
+        elapsed += sleepMs;
     }
 
-    DWORD result { WaitForSingleObject (outputReader, static_cast<DWORD> (timeoutMs)) };
-    return result == WAIT_OBJECT_0;
+    return false;
 }
 
 #endif

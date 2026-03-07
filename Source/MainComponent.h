@@ -73,26 +73,9 @@ public:
      */
     void resized() override;
 
-    /**
-     * @brief Paints the translucent background tint.
-     *
-     * Fills the entire component with `backgroundColour` at `opacity` alpha.
-     * The native window blur layer beneath provides the frosted-glass effect.
-     *
-     * @param g  JUCE graphics context for this paint pass.
-     * @note MESSAGE THREAD — called by JUCE on every repaint.
-     */
-    void paint (juce::Graphics& g) override;
-
 private:
-    /** @brief Window background tint colour, read from Config at construction. */
-    juce::Colour backgroundColour { Config::getContext()->getColour (Config::Key::windowColour) };
-
     /** @brief The terminal UI; fills the entire client area. */
     std::unique_ptr<TerminalComponent> terminal;
-
-    /** @brief Window opacity [0, 1], read from Config at construction. */
-    float opacity { Config::getContext()->getFloat (Config::Key::windowOpacity) };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

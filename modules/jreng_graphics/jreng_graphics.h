@@ -8,8 +8,8 @@
    website:                      https://jrengmusic.com
    license:                      Proprietary
    dependencies:                 juce_gui_basics,
-                                 juce_opengl,
-                                 jreng_core,
+                                  juce_opengl,
+                                  jreng_core,
     OSXFrameworks:               Accelerate,
   END_JUCE_MODULE_DECLARATION
  *******************************************************************************/
@@ -22,14 +22,13 @@
 #include <jreng_data_structures/jreng_data_structures.h>
 #endif// jreng_data_structures
 
-#include "blur/jreng_cached_blur.h"
-#include "blur/jreng_shadows.h"
+
 #include "graphics/jreng_graphics_utilities.h"
 #include "graphics/jreng_graphics_fader.h"
 #include "graphics/jreng_graphics_rotary.h"
 #include "graphics/jreng_graphics_perimeter.h"
 #include "graphics/jreng_graphics_segment.h"
-#include "shadow/jreng_graphics_shadow.h"
+
 #include "vignette/jreng_graphics_vignette.h"
 #include "logo/jreng_logo.h"
 #include "colours/jreng_colours_names.h"

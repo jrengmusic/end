@@ -293,7 +293,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
             {
                 juce::StringArray warnings;
 
-                sol::table undefinedAccesses { lua["_undefined"] };
+                sol::table undefinedAccesses = lua["_undefined"];
 
                 if (undefinedAccesses.valid())
                 {
@@ -414,7 +414,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
             }
             else
             {
-                sol::error err { result };
+                sol::error err = result;
                 errorOut = juce::String (configErrorPrefix)
                            + juce::String (err.what());
             }
@@ -625,7 +625,7 @@ void Config::loadState()
 
         if (result.valid())
         {
-            sol::table state { lua["state"] };
+            sol::table state = lua["state"];
 
             if (state.valid())
             {

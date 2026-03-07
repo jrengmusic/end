@@ -34,8 +34,7 @@
 
 #pragma once
 
-#include <juce_core/juce_core.h>
-#include <juce_graphics/juce_graphics.h>
+#include <JuceHeader.h>
 
 /**
  * @struct AtlasPacker
