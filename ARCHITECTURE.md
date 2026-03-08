@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-07
+**Last Updated:** 2026-03-08
 
 ---
 
@@ -86,7 +86,7 @@ Source/
     rendering/                      GPU pipeline (fonts, atlas, GL)
       Screen.h/cpp                  Render coordinator, cell cache, snapshot builder
       ScreenRender.cpp              populateFromGrid, buildSnapshot
-      ScreenSnapshot.cpp            updateSnapshot, publish to mailbox
+      ScreenSnapshot.cpp            updateSnapshot, publish to GLSnapshotBuffer
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
       Fonts.h                       Shared header (platform-agnostic API)
       Fonts.mm                      macOS: CoreText font loading, HarfBuzz shaping, CTFontDrawGlyphs rasterization
@@ -111,6 +111,23 @@ Source/
       TTY.h/cpp                     Abstract base + reader thread
       UnixTTY.h/cpp                 macOS/Linux: forkpty
       WindowsTTY.h/cpp              Windows: ConPTY (in progress)
+
+modules/
+  jreng_core/                       Shared utilities (Owner, identifiers, Context, BinaryData)
+  jreng_graphics/                   Graphics utilities
+  jreng_opengl/                     OpenGL-accelerated rendering (forked from KANJUT kuassa_opengl)
+    context/
+      jreng_gl_mailbox.h            Lock-free atomic pointer exchange (generic template)
+      jreng_gl_snapshot_buffer.h    Double-buffered snapshot with mailbox (generic template)
+      jreng_gl_graphics.h/cpp       juce::Graphics-like command buffer API for OpenGL
+      jreng_gl_component.h/cpp      Base class for GL-rendered components
+      jreng_gl_renderer.h/cpp       OpenGL renderer (shader management, draw dispatch)
+      jreng_gl_overlay.h            Integration overlay for JUCE components
+    renderers/
+      jreng_gl_path.h/cpp           juce::Path tessellation to GL vertices
+      jreng_gl_vignette.h           Vignette edge effect component
+    shaders/
+      flat_colour.vert/frag         Vertex colour shader with optional alpha mask
 ```
 
 ### Module Inventory
@@ -124,6 +141,8 @@ Source/
 | Logic | `terminal/logic/` | VT parsing, grid storage, session orchestration | Data |
 | Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL draw | Data, FreeType, HarfBuzz, OpenGL |
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
+| jreng_core | `modules/jreng_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
+| jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
 
 ---
 
@@ -165,12 +184,12 @@ Source/
 **Data -> Component (render path):**
 - `VBlankAttachment` fires on every display vsync (CVDisplayLink)
 - Calls `State::consumeSnapshotDirty()` — one atomic exchange
-- If dirty: `Screen::render()` reads Grid + State, builds snapshot, publishes to Mailbox
+- If dirty: `Screen::render()` reads Grid + State, builds snapshot, publishes to GLSnapshotBuffer
 
 **Component -> Rendering (GL path):**
-- `Render::Mailbox::publish()` — message thread publishes snapshot pointer
-- `Render::Mailbox::acquire()` — GL thread acquires snapshot pointer
-- Lock-free: single `std::atomic<Snapshot*>` exchange
+- `GLSnapshotBuffer::write()` — message thread publishes snapshot
+- `GLSnapshotBuffer::read()` — GL thread acquires latest snapshot (retains previous if none new)
+- Lock-free: double-buffered with atomic pointer exchange via `GLMailbox`
 
 ### Layer Violations (FORBIDDEN)
 
@@ -190,7 +209,7 @@ Source/
 | **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Grid cells, dirty bits |
 | **Timer** (JUCE) | default | — | `needsFlush` atomic | ValueTree properties |
 | **Message** (main) | user-interactive | Component, Screen | ValueTree, `snapshotDirty` atomic, Grid cells | Snapshot, hotCells cache |
-| **GL** (OpenGL) | user-interactive | OpenGL context | Snapshot (via Mailbox), staged bitmaps | GPU textures, framebuffer |
+| **GL** (OpenGL) | user-interactive | OpenGL context | Snapshot (via GLSnapshotBuffer), staged bitmaps | GPU textures, framebuffer |
 
 ### Data Flow: Keystroke to Pixel
 
@@ -199,8 +218,8 @@ Keystroke -> Message Thread -> TTY::write()
          -> Reader Thread reads response -> Parser::process()
          -> Grid cells written, State atomics set, snapshotDirty = true
          -> VBlank fires on Message Thread -> consumeSnapshotDirty()
-         -> Screen::render() reads Grid -> builds Snapshot -> Mailbox::publish()
-         -> GL Thread -> Mailbox::acquire() -> uploadStagedBitmaps() -> draw
+          -> Screen::render() reads Grid -> builds Snapshot -> GLSnapshotBuffer::write()
+          -> GL Thread -> GLSnapshotBuffer::read() -> uploadStagedBitmaps() -> draw
 ```
 
 ### Synchronization Primitives
@@ -210,7 +229,7 @@ Keystroke -> Message Thread -> TTY::write()
 | `std::atomic<float>` | Reader -> Timer/Message | State parameter transport |
 | `std::atomic<bool> snapshotDirty` | Reader -> Message (VBlank) | Render trigger |
 | `std::atomic<bool> needsFlush` | Reader -> Timer | ValueTree flush trigger |
-| `std::atomic<Snapshot*>` (Mailbox) | Message -> GL | Snapshot handoff |
+| `jreng::GLSnapshotBuffer` (atomic exchange) | Message -> GL | Double-buffered snapshot handoff |
 | `std::mutex` (uploadMutex) | Message -> GL | Staged bitmap queue |
 | `juce::CriticalSection` (resizeLock) | Message <-> Reader | Grid resize safety |
 
@@ -226,13 +245,13 @@ Keystroke -> Message Thread -> TTY::write()
 
 Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Render path bypasses timer via `snapshotDirty` atomic polled by VBlankAttachment.
 
-### Pattern: Double-Buffered Snapshot Mailbox
+### Pattern: Double-Buffered Snapshot (GLSnapshotBuffer)
 
 **Used for:** Lock-free handoff of render data from message thread to GL thread.
 
-**Implementation:** `Screen.h` — `Render::Mailbox`
+**Implementation:** `modules/jreng_opengl/` — `jreng::GLSnapshotBuffer<T>`, `jreng::GLMailbox<T>`
 
-Message thread builds into `snapshotA` or `snapshotB`, publishes via atomic exchange, gets back the old one for reuse. GL thread acquires via atomic exchange. Zero allocation, zero locking.
+`GLSnapshotBuffer` owns two snapshot instances and a `GLMailbox`. Message thread calls `getWriteBuffer()`, fills the snapshot, calls `write()`. GL thread calls `read()` — returns latest snapshot, or retains the previous one if nothing new. Double-buffer rotation is encapsulated. Zero allocation, zero locking. Forked from KANJUT `kuassa_opengl`.
 
 ### Pattern: Context<T> (Responsible Global)
 
@@ -515,7 +534,8 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 | Grapheme | Multi-codepoint character cluster (e.g., flag emoji, combining marks) |
 | Grid | Ring-buffer storage for terminal cells, dual-screen (normal/alternate) |
 | LRUGlyphCache | Frame-stamped LRU map; evicts oldest 10% when over capacity |
-| Mailbox | Lock-free atomic pointer exchange for snapshot handoff between threads |
+| GLMailbox | Generic lock-free atomic pointer exchange template (`jreng::GLMailbox<T>`) |
+| GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jreng::GLSnapshotBuffer<T>`) |
 | MessageOverlay | Transient overlay showing grid size on resize or arbitrary messages on demand |
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |

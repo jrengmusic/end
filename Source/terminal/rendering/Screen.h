@@ -12,18 +12,17 @@
  *    arrays that store pre-built `Render::Glyph` and `Render::Background`
  *    instances for each row.  Only dirty rows are rebuilt on each frame.
  * 3. **Snapshot builder** — `buildSnapshot()` / `updateSnapshot()` pack the
- *    per-row caches into a contiguous `Render::Snapshot` and publish it to
- *    the `Render::Mailbox`.
+ *    per-row caches into a contiguous `Render::Snapshot` and publish it via
+ *    `jreng::GLSnapshotBuffer`.
  * 4. **OpenGL presenter** — owns a `Render::OpenGL` instance that reads
- *    snapshots from the mailbox and draws them to the attached component.
+ *    snapshots from the snapshot buffer and draws them to the attached component.
  *
  * ## Double-buffered snapshots
  *
- * Two `Render::Snapshot` objects (`snapshotA`, `snapshotB`) are owned by
- * `Screen` and recycled via the `Render::Mailbox`.  The MESSAGE THREAD writes
- * to `writeSnapshot` and publishes it; the GL THREAD acquires the latest
- * snapshot via `Render::Mailbox::acquire()`.  The mailbox returns the
- * previously published pointer for reuse, keeping allocations stable.
+ * `jreng::GLSnapshotBuffer<Render::Snapshot>` owns two snapshot instances
+ * internally and manages double-buffer rotation.  The MESSAGE THREAD writes
+ * to `getWriteBuffer()` and calls `write()`; the GL THREAD calls `read()`
+ * to acquire the latest snapshot.  Lock-free via atomic pointer exchange.
  *
  * ## Scroll optimisation
  *
@@ -39,13 +38,13 @@
  * |-------------------------|----------------|
  * | `render()`              | MESSAGE THREAD |
  * | `setViewport()` etc.    | MESSAGE THREAD |
- * | `Render::Mailbox::publish()` | MESSAGE THREAD |
- * | `Render::Mailbox::acquire()` | GL THREAD  |
+ * | `GLSnapshotBuffer::write()`  | MESSAGE THREAD |
+ * | `GLSnapshotBuffer::read()`   | GL THREAD  |
  * | `Render::OpenGL::renderOpenGL()` | GL THREAD |
  *
  * @see Grid
  * @see State
- * @see Render::Mailbox
+ * @see jreng::GLSnapshotBuffer
  * @see Render::Snapshot
  * @see ScreenSelection
  * @see FontCollection
@@ -165,7 +164,7 @@ using Theme = Config::Theme;
  * - `Render::Background` — a coloured rectangle (cell background or block char).
  * - `Render::Glyph`      — a positioned, textured glyph instance.
  * - `Render::Snapshot`   — a complete frame: arrays of glyphs + backgrounds.
- * - `Render::Mailbox`    — lock-free single-slot exchange for snapshots.
+ * - `jreng::GLSnapshotBuffer` — double-buffered lock-free snapshot exchange.
  * - `Render::OpenGL`     — the JUCE OpenGL renderer that consumes snapshots.
  *
  * @see Screen
@@ -237,7 +236,7 @@ struct Glyph
  * Two `Snapshot` instances (`snapshotA`, `snapshotB`) are owned by `Screen`
  * and recycled through the `Mailbox` to avoid per-frame allocation.
  *
- * @see Render::Mailbox
+ * @see jreng::GLSnapshotBuffer
  * @see Screen::updateSnapshot()
  */
 struct Snapshot
@@ -289,105 +288,10 @@ struct Snapshot
             backgroundCapacity = bgNeeded;
         }
     }
+
+    void resize() noexcept {}
 };
 
-/**
- * @class Mailbox
- * @brief Lock-free single-slot snapshot exchange between MESSAGE THREAD and GL THREAD.
- *
- * The mailbox holds at most one `Snapshot*` at a time.  The MESSAGE THREAD
- * calls `publish()` to deposit a new snapshot and receives the old pointer
- * back for reuse.  The GL THREAD calls `acquire()` to take the latest
- * snapshot (replacing the slot with `nullptr`).
- *
- * This design guarantees:
- * - The GL THREAD always sees the most recent snapshot (no queue lag).
- * - No snapshot is ever freed — `Screen` owns both `snapshotA` and
- *   `snapshotB`; the mailbox only exchanges pointers.
- * - No locks are needed; the exchange is a single `std::atomic::exchange`.
- *
- * @par Thread contract
- * - `publish()` — **MESSAGE THREAD** only.
- * - `acquire()` — **GL THREAD** only.
- * - `hasSnapshot()` — any thread (informational only).
- *
- * @code
- * // MESSAGE THREAD
- * Snapshot* old = mailbox.publish (newSnapshot);
- * // old is now safe to reuse for the next frame
- *
- * // GL THREAD
- * Snapshot* snap = mailbox.acquire();
- * if (snap != nullptr) { draw (*snap); }
- * @endcode
- *
- * @see Render::Snapshot
- * @see Screen::updateSnapshot()
- */
-// THREAD CONTRACT:
-//   - publish(): MESSAGE THREAD only — returns old pointer for reuse
-//   - acquire(): GL THREAD only — returns latest, or nullptr
-//   - Screen owns all Snapshot instances (snapshotA, snapshotB)
-class Mailbox
-{
-public:
-    Mailbox() = default;
-    ~Mailbox() = default;
-
-    /**
-     * @brief Deposits a new snapshot and returns the previous one.
-     *
-     * Atomically replaces the current slot with @p snapshot and returns
-     * whatever was there before (may be `nullptr` if the GL THREAD already
-     * consumed it).
-     *
-     * @param snapshot  Pointer to the newly built snapshot.  Must not be
-     *                  `nullptr`.
-     * @return          The previously published snapshot pointer (for reuse),
-     *                  or `nullptr` if the GL THREAD has already consumed it.
-     *
-     * @note **MESSAGE THREAD** only.
-     */
-    // MESSAGE THREAD: publish new snapshot, get back old one for reuse
-    Snapshot* publish (Snapshot* snapshot) noexcept
-    {
-        return current.exchange (snapshot, std::memory_order_acq_rel);
-    }
-
-    /**
-     * @brief Takes the latest snapshot from the mailbox.
-     *
-     * Atomically replaces the current slot with `nullptr` and returns the
-     * pointer that was there.  Returns `nullptr` if no snapshot has been
-     * published since the last `acquire()`.
-     *
-     * @return  Pointer to the latest snapshot, or `nullptr` if none is
-     *          available.
-     *
-     * @note **GL THREAD** only.
-     */
-    // GL THREAD: acquire latest snapshot
-    Snapshot* acquire() noexcept
-    {
-        return current.exchange (nullptr, std::memory_order_acq_rel);
-    }
-
-    /**
-     * @brief Returns true if a snapshot is waiting in the mailbox.
-     *
-     * Informational only — the result may be stale by the time the caller
-     * acts on it.
-     *
-     * @return `true` if the current slot is non-null.
-     */
-    bool hasSnapshot() const noexcept
-    {
-        return current.load (std::memory_order_acquire) != nullptr;
-    }
-
-private:
-    std::atomic<Snapshot*> current { nullptr }; ///< The single snapshot slot; exchanged atomically.
-};
 
 /**
  * @class OpenGL
@@ -397,7 +301,7 @@ private:
  * via `attachTo()`.  On each vsync the JUCE OpenGL thread calls
  * `renderOpenGL()`, which:
  *
- * 1. Acquires the latest snapshot from the `Render::Mailbox`.
+ * 1. Acquires the latest snapshot from the `GLSnapshotBuffer`.
  * 2. Uploads any staged atlas bitmaps to GPU textures.
  * 3. Draws background quads via the background shader.
  * 4. Draws mono glyph instances via the mono shader.
@@ -409,7 +313,7 @@ private:
  * `setResources()`, `setViewport()`, `attachTo()`, `detach()`, and
  * `triggerRepaint()` are called from the **MESSAGE THREAD**.
  *
- * @see Render::Mailbox
+ * @see jreng::GLSnapshotBuffer
  * @see GlyphAtlas
  */
 // GL THREAD
@@ -450,14 +354,14 @@ public:
      * Must be called before the OpenGL context is created.  Both pointers
      * must remain valid for the lifetime of this `OpenGL` instance.
      *
-     * @param mailbox  Pointer to the `Render::Mailbox` owned by `Screen::Resources`.
+     * @param buffer   Pointer to the `GLSnapshotBuffer` owned by `Screen::Resources`.
      * @param atlas    Pointer to the `GlyphAtlas` owned by `Screen::Resources`.
      *
      * @note **MESSAGE THREAD**.
      */
-    void setResources (Mailbox* mailbox, GlyphAtlas* atlas) noexcept
+    void setResources (jreng::GLSnapshotBuffer<Snapshot>* buffer, GlyphAtlas* atlas) noexcept
     {
-        snapshotMailbox = mailbox;
+        snapshotBuffer = buffer;
         glyphAtlas = atlas;
     }
 
@@ -570,14 +474,10 @@ private:
      */
     void drawBackgrounds (const Background* data, int count);
 
-    Mailbox*    snapshotMailbox { nullptr }; ///< Pointer to the shared mailbox; not owned.
-    GlyphAtlas* glyphAtlas      { nullptr }; ///< Pointer to the shared glyph atlas; not owned.
+    jreng::GLSnapshotBuffer<Snapshot>* snapshotBuffer { nullptr }; ///< Pointer to the shared snapshot buffer; not owned.
+    GlyphAtlas* glyphAtlas { nullptr }; ///< Pointer to the shared glyph atlas; not owned.
 
     juce::OpenGLContext openGLContext; ///< JUCE OpenGL context managing the platform GL surface.
-
-    // OWNED - snapshot acquired from mailbox via acquire()
-    // Screen owns the snapshots; GL thread just borrows a pointer
-    Snapshot* currentSnapshot { nullptr }; ///< Most recently acquired snapshot; borrowed from Screen.
 
     std::unique_ptr<juce::OpenGLShaderProgram> monoShader;       ///< Shader for monochrome glyph instances.
     std::unique_ptr<juce::OpenGLShaderProgram> emojiShader;      ///< Shader for colour emoji glyph instances.
@@ -629,18 +529,18 @@ namespace Terminal
  * - **Scroll optimisation**: `applyScrollOptimization()` shifts caches by the
  *   scroll delta, avoiding a full rebuild on scroll events.
  * - **Snapshot publication**: `updateSnapshot()` packs the per-row caches into
- *   a `Render::Snapshot` and publishes it via `Render::Mailbox`.
+ *   a `Render::Snapshot` and publishes it via `jreng::GLSnapshotBuffer`.
  * - **Selection overlay**: a `ScreenSelection*` pointer is checked per cell in
  *   `processCellForSnapshot()` to emit selection highlight quads.
  *
  * @par Thread context
- * All public methods except `getSnapshotMailbox()` must be called on the
+ * All public methods except `getSnapshotBuffer()` must be called on the
  * **MESSAGE THREAD**.  The `Render::OpenGL` sub-object runs its callbacks on
- * the **GL THREAD** and communicates only through the `Render::Mailbox`.
+ * the **GL THREAD** and communicates only through the `jreng::GLSnapshotBuffer`.
  *
  * @see Grid
  * @see State
- * @see Render::Mailbox
+ * @see jreng::GLSnapshotBuffer
  * @see Render::Snapshot
  * @see ScreenSelection
  * @see FontCollection
@@ -676,7 +576,7 @@ public:
         }
 
         GlyphAtlas       glyphAtlas;       ///< Glyph atlas: rasterises and caches glyphs on the GPU.
-        Render::Mailbox  snapshotMailbox;  ///< Lock-free snapshot exchange between MESSAGE THREAD and GL THREAD.
+        jreng::GLSnapshotBuffer<Render::Snapshot> snapshotBuffer; ///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
         Fonts            fonts;            ///< Font manager: loading, shaping, and metrics.
         Theme            terminalColors;   ///< Active colour theme (ANSI palette + default fg/bg/selection).
     };
@@ -832,7 +732,7 @@ public:
     /**
      * @brief Returns true if a new snapshot is waiting in the mailbox.
      *
-     * @return `true` if `Render::Mailbox::hasSnapshot()` returns true.
+     * @return `true` if the snapshot buffer has a pending snapshot.
      *
      * @note **MESSAGE THREAD** (informational; result may be stale).
      */
@@ -1011,22 +911,7 @@ public:
      */
     const Theme& getTheme() const noexcept;
 
-    /**
-     * @brief Returns a mutable reference to the snapshot mailbox.
-     *
-     * @return Reference to `resources.snapshotMailbox`.
-     *
-     * @note The mailbox is thread-safe; `publish()` is MESSAGE THREAD,
-     *       `acquire()` is GL THREAD.
-     */
-    Render::Mailbox& getSnapshotMailbox() noexcept;
-
-    /**
-     * @brief Returns a read-only reference to the snapshot mailbox.
-     *
-     * @return Const reference to `resources.snapshotMailbox`.
-     */
-    const Render::Mailbox& getSnapshotMailbox() const noexcept;
+    jreng::GLSnapshotBuffer<Render::Snapshot>& getSnapshotBuffer() noexcept;
 
 private:
     // =========================================================================
@@ -1072,8 +957,7 @@ private:
      *
      * Totals the per-row counts, ensures snapshot capacity, copies glyph and
      * background data via `memcpy`, sets cursor state, and calls
-     * `Render::Mailbox::publish()`.  The returned pointer is stored as
-     * `writeSnapshot` for the next frame.
+     * `jreng::GLSnapshotBuffer::write()`.
      *
      * @param state      Current terminal state (cursor position, screen type).
      * @param rows       Number of visible rows.
@@ -1259,10 +1143,6 @@ private:
     int cacheCols    { 0 }; ///< Number of columns the per-row caches were allocated for.
     int bgCacheCols  { 0 }; ///< Background slots per row (= cacheCols * 2, for bg + selection overlay).
 
-    // Double-buffered snapshots for persistent reuse
-    Render::Snapshot  snapshotA;              ///< First snapshot buffer; alternates with snapshotB.
-    Render::Snapshot  snapshotB;              ///< Second snapshot buffer; alternates with snapshotA.
-    Render::Snapshot* writeSnapshot { nullptr }; ///< Points to whichever snapshot is being written this frame.
 
     const ScreenSelection* selection   { nullptr }; ///< Non-owning pointer to the active selection; nullptr if none.
     bool                   hadSelection { false };  ///< True if a selection was active on the previous frame (forces full dirty).

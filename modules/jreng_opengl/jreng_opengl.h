@@ -1,0 +1,27 @@
+/*******************************************************************************
+ BEGIN_JUCE_MODULE_DECLARATION
+ ID             :   jreng_opengl
+ vendor         :   JRENG
+ version        :   0.0.1
+ name           :   JRENG OpenGL
+ description    :   OpenGL-accelerated path rendering with juce::Graphics-like API
+ website        :   https://jrengmusic.com
+ license        :   Proprietary
+ dependencies   :   juce_opengl, jreng_core
+ OSXFrameworks  :
+ iOSFrameworks  :
+ END_JUCE_MODULE_DECLARATION
+*******************************************************************************/
+
+#pragma once
+#include <juce_opengl/juce_opengl.h>
+#include <jreng_core/jreng_core.h>
+
+#include "renderers/jreng_gl_path.h"
+#include "context/jreng_gl_graphics.h"
+#include "context/jreng_gl_mailbox.h"
+#include "context/jreng_gl_snapshot_buffer.h"
+#include "context/jreng_gl_component.h"
+#include "renderers/jreng_gl_vignette.h"
+#include "context/jreng_gl_renderer.h"
+#include "context/jreng_gl_overlay.h"

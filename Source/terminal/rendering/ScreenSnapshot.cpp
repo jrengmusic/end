@@ -1,6 +1,6 @@
 /**
  * @file ScreenSnapshot.cpp
- * @brief Snapshot packing and mailbox publication for the terminal renderer.
+ * @brief Snapshot packing and publication for the terminal renderer.
  *
  * This translation unit implements `Screen::updateSnapshot()`, the final step
  * of the per-frame rendering pipeline.  It is responsible for:
@@ -16,30 +16,13 @@
  * 3. **Cursor state** — writing the cursor position and visibility from
  *    `State` into the snapshot.
  *
- * 4. **Mailbox publication** — calling `Render::Mailbox::publish()` to hand
- *    the snapshot to the GL THREAD.  The returned pointer (the previously
- *    published snapshot, or `nullptr` if the GL THREAD already consumed it)
- *    is stored as `writeSnapshot` for the next frame, implementing the
- *    double-buffer recycling scheme.
- *
- * ## Double-buffer recycling
- *
- * `Screen` owns two `Render::Snapshot` instances: `snapshotA` and `snapshotB`.
- * `writeSnapshot` always points to whichever one is being written this frame.
- * After `publish()`:
- * - If the mailbox returns the old pointer (GL THREAD hasn't consumed it yet),
- *   that pointer becomes `writeSnapshot` for the next frame.
- * - If the mailbox returns `nullptr` (GL THREAD consumed it), `writeSnapshot`
- *   alternates to the other snapshot.
- *
- * This ensures that:
- * - No snapshot is ever freed or reallocated between frames.
- * - The GL THREAD always has access to the most recent snapshot.
- * - The MESSAGE THREAD always has a snapshot to write into.
+ * 4. **Publication** — calling `jreng::GLSnapshotBuffer::write()` to hand
+ *    the snapshot to the GL THREAD.  Double-buffer rotation is handled
+ *    internally by `GLSnapshotBuffer`.
  *
  * @see Screen.h
  * @see ScreenRender.cpp
- * @see Render::Mailbox
+ * @see jreng::GLSnapshotBuffer
  * @see Render::Snapshot
  */
 
@@ -56,8 +39,7 @@ namespace Terminal
  * Called at the end of `Screen::buildSnapshot()` after all dirty rows have
  * been processed.  Performs the following steps:
  *
- * 1. Selects `snapshotA` as the initial `writeSnapshot` if it is `nullptr`
- *    (first frame only).
+ * 1. Obtains the write buffer from `GLSnapshotBuffer::getWriteBuffer()`.
  * 2. Totals `monoCount[r]`, `emojiCount[r]`, and `bgCount[r]` across all rows.
  * 3. Calls `Render::Snapshot::ensureCapacity()` to grow the snapshot arrays
  *    if needed.
@@ -66,9 +48,7 @@ namespace Terminal
  *    arrays via `memcpy`, advancing offsets as each row is packed.
  * 6. Writes the total counts (`monoCount`, `emojiCount`, `backgroundCount`)
  *    and cursor state (`cursorPosition`, `cursorVisible`) into the snapshot.
- * 7. Calls `Render::Mailbox::publish()` to hand the snapshot to the GL THREAD.
- * 8. Stores the returned pointer as `writeSnapshot` for the next frame, or
- *    alternates to the other snapshot if `nullptr` was returned.
+ * 7. Calls `jreng::GLSnapshotBuffer::write()` to hand the snapshot to the GL THREAD.
  *
  * @param state      Current terminal state; provides cursor position,
  *                   visibility, and active screen type.
@@ -78,17 +58,14 @@ namespace Terminal
  * @note **MESSAGE THREAD** only.  Must not be called from the GL THREAD.
  *
  * @see Render::Snapshot::ensureCapacity()
- * @see Render::Mailbox::publish()
+ * @see jreng::GLSnapshotBuffer::write()
  * @see Screen::buildSnapshot()
  */
 void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexcept
 {
     const ActiveScreen scr { state.getScreen() };
 
-    if (writeSnapshot == nullptr)
-    {
-        writeSnapshot = &snapshotA;
-    }
+    auto& snapshot { resources.snapshotBuffer.getWriteBuffer() };
 
     int totalMono  { 0 };
     int totalEmoji { 0 };
@@ -101,9 +78,9 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
         totalBg    += bgCount[r];
     }
 
-    writeSnapshot->ensureCapacity (totalMono, totalEmoji, totalBg);
-    writeSnapshot->gridWidth  = cacheCols;
-    writeSnapshot->gridHeight = rows;
+    snapshot.ensureCapacity (totalMono, totalEmoji, totalBg);
+    snapshot.gridWidth  = cacheCols;
+    snapshot.gridHeight = rows;
 
     int monoOffset  { 0 };
     int emojiOffset { 0 };
@@ -113,7 +90,7 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
     {
         if (monoCount[r] > 0)
         {
-            std::memcpy (writeSnapshot->mono.get() + monoOffset,
+            std::memcpy (snapshot.mono.get() + monoOffset,
                          cachedMono.get() + r * maxGlyphs,
                          static_cast<size_t> (monoCount[r]) * sizeof (Render::Glyph));
             monoOffset += monoCount[r];
@@ -121,7 +98,7 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
 
         if (emojiCount[r] > 0)
         {
-            std::memcpy (writeSnapshot->emoji.get() + emojiOffset,
+            std::memcpy (snapshot.emoji.get() + emojiOffset,
                          cachedEmoji.get() + r * maxGlyphs,
                          static_cast<size_t> (emojiCount[r]) * sizeof (Render::Glyph));
             emojiOffset += emojiCount[r];
@@ -129,31 +106,22 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
 
         if (bgCount[r] > 0)
         {
-            std::memcpy (writeSnapshot->backgrounds.get() + bgOffset,
+            std::memcpy (snapshot.backgrounds.get() + bgOffset,
                          cachedBg.get() + r * bgCacheCols,
                          static_cast<size_t> (bgCount[r]) * sizeof (Render::Background));
             bgOffset += bgCount[r];
         }
     }
 
-    writeSnapshot->monoCount        = totalMono;
-    writeSnapshot->emojiCount       = totalEmoji;
-    writeSnapshot->backgroundCount  = totalBg;
+    snapshot.monoCount        = totalMono;
+    snapshot.emojiCount       = totalEmoji;
+    snapshot.backgroundCount  = totalBg;
 
-    writeSnapshot->cursorPosition.x = state.getCursorCol (scr);
-    writeSnapshot->cursorPosition.y = state.getCursorRow (scr);
-    writeSnapshot->cursorVisible    = state.isCursorVisible (scr);
+    snapshot.cursorPosition.x = state.getCursorCol (scr);
+    snapshot.cursorPosition.y = state.getCursorRow (scr);
+    snapshot.cursorVisible    = state.isCursorVisible (scr);
 
-    Render::Snapshot* returned { resources.snapshotMailbox.publish (writeSnapshot) };
-
-    if (returned != nullptr)
-    {
-        writeSnapshot = returned;
-    }
-    else
-    {
-        writeSnapshot = (writeSnapshot == &snapshotA) ? &snapshotB : &snapshotA;
-    }
+    resources.snapshotBuffer.write();
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

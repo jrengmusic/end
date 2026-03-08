@@ -1,0 +1,5 @@
+#include "jreng_opengl.h"
+#include "renderers/jreng_gl_path.cpp"
+#include "context/jreng_gl_graphics.cpp"
+#include "context/jreng_gl_component.cpp"
+#include "context/jreng_gl_renderer.cpp"

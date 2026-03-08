@@ -125,6 +125,67 @@
 
 ## SPRINT HISTORY
 
+## Sprint 86: Fork jreng_opengl Module + Replace Snapshot Mailbox with GLSnapshotBuffer
+
+**Date:** 2026-03-08
+**Agents:** COUNSELOR, Engineer (x12 subtasks), Pathfinder, Oracle
+**Status:** Complete
+
+### Objective
+
+1. Fork KANJUT `kuassa_opengl` module into END as `jreng_opengl` (namespace `kuassa` -> `jreng`)
+2. Replace END's hand-rolled `Render::Mailbox` + manual double-buffer rotation with `jreng::GLSnapshotBuffer<Render::Snapshot>`
+
+### Context
+
+KANJUT's `kuassa_opengl` had a cleaner encapsulation of the same lock-free snapshot exchange pattern that END implemented manually. END's `Screen` owned `snapshotA`/`snapshotB`/`writeSnapshot` and manually rotated pointers after `Mailbox::publish()`. KANJUT's `GLSnapshotBuffer<T>` encapsulates the double-buffer, slot rotation, and last-read retention in a generic template. Forking this module also brings `juce::Path` tessellation and a `juce::Graphics`-like OpenGL command buffer API — needed for future WHELMED markdown/mermaid renderer integration.
+
+### Files Created (16 new files)
+
+- `modules/jreng_opengl/jreng_opengl.h` — module header
+- `modules/jreng_opengl/jreng_opengl.cpp` — module impl
+- `modules/jreng_opengl/jreng_opengl.mm` — ObjC++ impl (Mac renderer)
+- `modules/jreng_opengl/context/jreng_gl_mailbox.h` — `GLMailbox<T>` atomic exchange
+- `modules/jreng_opengl/context/jreng_gl_snapshot_buffer.h` — `GLSnapshotBuffer<T>` double-buffer + added `isReady()` forwarding method
+- `modules/jreng_opengl/context/jreng_gl_graphics.h` / `.cpp` — command buffer API
+- `modules/jreng_opengl/context/jreng_gl_component.h` / `.cpp` — GL component base
+- `modules/jreng_opengl/context/jreng_gl_renderer.h` / `.cpp` / `_mac.mm` — OpenGL renderer
+- `modules/jreng_opengl/context/jreng_gl_overlay.h` — component overlay
+- `modules/jreng_opengl/renderers/jreng_gl_path.h` / `.cpp` — Path tessellation
+- `modules/jreng_opengl/renderers/jreng_gl_vignette.h` — vignette effect
+- `modules/jreng_opengl/shaders/flat_colour.vert` / `.frag` — GLSL shaders
+
+### Files Modified
+
+- `CMakeLists.txt` — added `jreng_opengl` to JUCE_MODULES
+- `Source/terminal/rendering/Screen.h` — removed `Render::Mailbox` class, removed `snapshotA`/`snapshotB`/`writeSnapshot` members, added `jreng::GLSnapshotBuffer<Render::Snapshot>` to Resources, updated `Render::OpenGL::setResources()` signature, replaced `getSnapshotMailbox()` with `getSnapshotBuffer()`, added `resize()` no-op to `Render::Snapshot`, updated all doxygen
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — `updateSnapshot()` now uses `getWriteBuffer()` + `write()` instead of manual publish + rotation, updated doxygen
+- `Source/terminal/rendering/TerminalGLRenderer.cpp` — `renderOpenGL()` now uses `snapshotBuffer->read()` instead of `acquire()` + `currentSnapshot` tracking, updated doxygen
+- `Source/terminal/rendering/Screen.cpp` — constructor wires `&resources.snapshotBuffer`, `hasNewSnapshot()` calls `isReady()`, replaced `getSnapshotMailbox()` with `getSnapshotBuffer()`, updated doxygen
+- `ARCHITECTURE.md` — updated module map, module inventory, communication contracts, threading model, data flow, synchronization primitives, design patterns, glossary
+- `Source/component/TerminalComponent.h` — `dpiCorrectedFontSize()` guarded to Windows-only (Mac font scaling fix)
+
+### Skipped from KANJUT fork
+
+- `component/kuassa_gl_analyzer.h` — audio plugin specific (depends on `ku::Function::Map`)
+- `component/kuassa_gl_frequency_grid.h` — audio plugin specific
+- `component/kuassa_gl_magnitude_plot.h` — audio plugin specific
+
+### Alignment Check
+
+- **LIFESTAR:** Lean (GLSnapshotBuffer encapsulates what Screen did manually), Explicit (template contract clear), Single Source of Truth (no duplicate buffer management), Testable (generic template), Reviewable (matches KANJUT pattern)
+- **NAMING-CONVENTION:** `jreng::GLMailbox`, `jreng::GLSnapshotBuffer` — consistent with KANJUT naming, PascalCase types
+- **ARCHITECTURAL-MANIFESTO:** Layer separation preserved — rendering layer owns snapshot exchange, no cross-layer leaks
+
+### Technical Debt / Follow-up
+
+- `GLSnapshotBuffer::resize()` calls `SnapshotType::resize()` on both buffers — END's `Render::Snapshot::resize()` is a no-op since capacity is managed per-frame via `ensureCapacity()`. Works but semantically loose.
+- `jreng_gl_renderer.cpp` loads shaders via `BinaryData::getString()` — END's binary data system needs to include the `flat_colour.vert/frag` shaders if the renderer is ever used directly (currently only GLSnapshotBuffer is used by END)
+- `GLPath::tessellateFill()` uses centroid triangulation — buggy for concave shapes (TODO in source: ear-clipping)
+- Stale doc comment in `Screen.h` `Render::Snapshot` struct still references "Two `Snapshot` instances (`snapshotA`, `snapshotB`) are owned by `Screen`" at line ~237
+
+---
+
 ## Sprint 85: Comprehensive Doxygen Documentation + README + Grid Resize Crash Fix
 
 **Date:** 2026-03-07

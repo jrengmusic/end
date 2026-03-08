@@ -223,9 +223,9 @@ void Render::OpenGL::newOpenGLContextCreated()
  * 1. **Viewport** — queries the full framebuffer height via `glGetIntegerv`,
  *    converts the stored logical viewport to GL coordinates (Y-flipped), and
  *    calls `glViewport`.
- * 2. **Snapshot acquisition** — calls `Render::Mailbox::acquire()` to get the
- *    latest snapshot.  If a newer snapshot is available it replaces
- *    `currentSnapshot`; otherwise the previous snapshot is reused.
+ * 2. **Snapshot acquisition** — calls `GLSnapshotBuffer::read()` to get the
+ *    latest snapshot.  If no newer snapshot is available, the previous one
+ *    is retained internally by the buffer.
  * 3. **Clear** — clears the colour buffer to fully transparent black so the
  *    terminal composites correctly over the window background.
  * 4. **Draw** — if a snapshot is available, calls `uploadStagedBitmaps()`,
@@ -247,21 +247,13 @@ void Render::OpenGL::renderOpenGL()
         const int glY { fullHeight - viewportY - viewportHeight };
         juce::gl::glViewport (viewportX, glY, viewportWidth, viewportHeight);
 
-        if (snapshotMailbox != nullptr)
-        {
-            Snapshot* newest { snapshotMailbox->acquire() };
-
-            if (newest != nullptr)
-            {
-                currentSnapshot = newest;
-            }
-        }
+        Snapshot* snapshot { snapshotBuffer != nullptr ? snapshotBuffer->read() : nullptr };
 
         juce::gl::glClearColor (
             0.0f, 0.0f, 0.0f, 0.0f); // Transparent clear for compositing
         juce::gl::glClear (juce::gl::GL_COLOR_BUFFER_BIT);
 
-        if (currentSnapshot != nullptr)
+        if (snapshot != nullptr)
         {
             uploadStagedBitmaps();
 
@@ -269,20 +261,19 @@ void Render::OpenGL::renderOpenGL()
             juce::gl::glBlendFunc (
                 juce::gl::GL_SRC_ALPHA, juce::gl::GL_ONE_MINUS_SRC_ALPHA);
 
-            // Draw cell backgrounds BEFORE glyphs so glyphs appear on top
-            if (currentSnapshot->backgroundCount > 0)
+            if (snapshot->backgroundCount > 0)
             {
-                drawBackgrounds (currentSnapshot->backgrounds.get(), currentSnapshot->backgroundCount);
+                drawBackgrounds (snapshot->backgrounds.get(), snapshot->backgroundCount);
             }
 
-            if (currentSnapshot->monoCount > 0)
+            if (snapshot->monoCount > 0)
             {
-                drawInstances (currentSnapshot->mono.get(), currentSnapshot->monoCount, false);
+                drawInstances (snapshot->mono.get(), snapshot->monoCount, false);
             }
 
-            if (currentSnapshot->emojiCount > 0)
+            if (snapshot->emojiCount > 0)
             {
-                drawInstances (currentSnapshot->emoji.get(), currentSnapshot->emojiCount, true);
+                drawInstances (snapshot->emoji.get(), snapshot->emojiCount, true);
             }
 
             juce::gl::glDisable (juce::gl::GL_BLEND);

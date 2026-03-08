@@ -32,9 +32,9 @@ namespace Terminal
  * @brief Constructs the screen with the given font family and point size.
  *
  * Initialises `Resources` (which constructs `Fonts`, `GlyphAtlas`, and
- * `Render::Mailbox`), stores `baseFontSize`, calls `calc()` to derive cell
- * dimensions, wires the GL renderer to the mailbox and atlas, then calls
- * `reset()` to zero-initialise the cell cache.
+ * `GLSnapshotBuffer`), stores `baseFontSize`, calls `calc()` to derive cell
+ * dimensions, wires the GL renderer to the snapshot buffer and atlas, then
+ * calls `reset()` to zero-initialise the cell cache.
  *
  * @param fontFamily  Font family name (e.g. "JetBrains Mono").
  * @param pointSize   Initial font size in points.
@@ -44,7 +44,7 @@ Screen::Screen (const juce::String& fontFamily, float pointSize)
     , baseFontSize (pointSize)
 {
     calc();
-    glRenderer.setResources (&resources.snapshotMailbox, &resources.glyphAtlas);
+    glRenderer.setResources (&resources.snapshotBuffer, &resources.glyphAtlas);
     reset();
 }
 
@@ -211,24 +211,9 @@ const Theme& Screen::getTheme() const noexcept
     return resources.terminalColors;
 }
 
-/**
- * @brief Returns a mutable reference to the snapshot mailbox.
- *
- * @return Reference to `resources.snapshotMailbox`.
- */
-Render::Mailbox& Screen::getSnapshotMailbox() noexcept
+jreng::GLSnapshotBuffer<Render::Snapshot>& Screen::getSnapshotBuffer() noexcept
 {
-    return resources.snapshotMailbox;
-}
-
-/**
- * @brief Returns a read-only reference to the snapshot mailbox.
- *
- * @return Const reference to `resources.snapshotMailbox`.
- */
-const Render::Mailbox& Screen::getSnapshotMailbox() const noexcept
-{
-    return resources.snapshotMailbox;
+    return resources.snapshotBuffer;
 }
 
 /**
@@ -307,7 +292,7 @@ bool Screen::isAttached() const noexcept { return glRenderer.isAttached(); }
 bool Screen::consumeContextReady() noexcept { return glRenderer.consumeContextReady(); }
 
 /// @return `true` if a new snapshot is waiting in the mailbox.
-bool Screen::hasNewSnapshot() const noexcept { return resources.snapshotMailbox.hasSnapshot(); }
+bool Screen::hasNewSnapshot() const noexcept { return resources.snapshotBuffer.isReady(); }
 
 /**
  * @brief Resets the cell cache to default cells and clears row counts.
