@@ -335,9 +335,13 @@ private:
     static float dpiCorrectedFontSize() noexcept
     {
         const float raw { Config::getContext()->getFloat (Config::Key::fontSize) };
+#if JUCE_WINDOWS
         const auto* display { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
         const float scale { display != nullptr ? static_cast<float> (display->scale) : 1.0f };
         return raw / scale;
+#else
+        return raw;
+#endif
     }
 
     /** @brief Suppresses the grid-size overlay on the initial layout pass. */
