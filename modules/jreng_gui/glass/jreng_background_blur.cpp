@@ -154,7 +154,7 @@ const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blur
                           | ((COLORREF) tint.getRed());
 
             ACCENT_POLICY accent {};
-            accent.AccentState  = ACCENT_ENABLE_ACRYLICBLURBEHIND;
+            accent.AccentState  = ACCENT_ENABLE_BLURBEHIND;
             accent.AccentFlags  = 2;  // use GradientColor
             accent.GradientColor = abgr;
             accent.AnimationId  = 0;

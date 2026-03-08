@@ -58,7 +58,7 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
     setUsingNativeTitleBar (showWindowButtons);
     if (not showWindowButtons)
     {
-        setTitleBarHeight (10);
+        setTitleBarHeight (0);
         setLookAndFeel (&transparentTitleBarLnf);
     }
 #else

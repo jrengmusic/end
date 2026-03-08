@@ -420,9 +420,10 @@ public:
      * `scrollbackCapacity`.  Accumulates `count` into `scrollDelta`.
      *
      * @param count  Number of lines to scroll up (must be > 0).
+     * @param fill   Cell value for newly exposed rows.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void scrollUp (int count) noexcept;
+    void scrollUp (int count, const Cell& fill = Cell {}) noexcept;
 
     /**
      * @brief Scrolls the entire visible area down by `count` lines.
@@ -431,9 +432,10 @@ public:
      * top rows.  Calls `markAllDirty()` because every visible row changes.
      *
      * @param count  Number of lines to scroll down (must be > 0).
+     * @param fill   Cell value for newly exposed rows.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void scrollDown (int count) noexcept;
+    void scrollDown (int count, const Cell& fill = Cell {}) noexcept;
 
     /**
      * @brief Scrolls a sub-region of the screen up by `count` lines.
@@ -445,10 +447,11 @@ public:
      * @param top     First row of the scroll region (inclusive, 0-based).
      * @param bottom  Last row of the scroll region (inclusive, 0-based).
      * @param count   Number of lines to scroll up.
+     * @param fill    Cell value for newly exposed rows.
      * @note READER THREAD — lock-free, noexcept.
      * @see scrollRegionDown()
      */
-    void scrollRegionUp (int top, int bottom, int count) noexcept;
+    void scrollRegionUp (int top, int bottom, int count, const Cell& fill = Cell {}) noexcept;
 
     /**
      * @brief Scrolls a sub-region of the screen down by `count` lines.
@@ -460,10 +463,11 @@ public:
      * @param top     First row of the scroll region (inclusive, 0-based).
      * @param bottom  Last row of the scroll region (inclusive, 0-based).
      * @param count   Number of lines to scroll down.
+     * @param fill    Cell value for newly exposed rows.
      * @note READER THREAD — lock-free, noexcept.
      * @see scrollRegionUp()
      */
-    void scrollRegionDown (int top, int bottom, int count) noexcept;
+    void scrollRegionDown (int top, int bottom, int count, const Cell& fill = Cell {}) noexcept;
 
     /** @} */
 
@@ -478,10 +482,11 @@ public:
      * Fills the cell row with default-constructed Cells, zero-fills the
      * grapheme row, and resets the RowState.  Calls `markRowDirty (row)`.
      *
-     * @param row  Zero-based visible row index.
+     * @param row   Zero-based visible row index.
+     * @param fill  Cell value for erased positions.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void eraseRow (int row) noexcept;
+    void eraseRow (int row, const Cell& fill = Cell {}) noexcept;
 
     /**
      * @brief Erases all rows in the inclusive range [startRow, endRow].
@@ -490,20 +495,22 @@ public:
      *
      * @param startRow  First row to erase (inclusive, 0-based).
      * @param endRow    Last row to erase (inclusive, 0-based).
+     * @param fill      Cell value for erased positions.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void eraseRowRange (int startRow, int endRow) noexcept;
+    void eraseRowRange (int startRow, int endRow, const Cell& fill = Cell {}) noexcept;
 
     /**
      * @brief Erases the single cell at (row, col).
      *
-     * Writes a default-constructed Cell and calls `markRowDirty (row)`.
+     * Writes the provided fill cell and calls `markRowDirty (row)`.
      *
-     * @param row  Zero-based visible row index.
-     * @param col  Zero-based column index.
+     * @param row   Zero-based visible row index.
+     * @param col   Zero-based column index.
+     * @param fill  Cell value for the erased position.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void eraseCell (int row, int col) noexcept;
+    void eraseCell (int row, int col, const Cell& fill = Cell {}) noexcept;
 
     /**
      * @brief Erases cells in the inclusive column range [startCol, endCol] on row `row`.
@@ -514,9 +521,10 @@ public:
      * @param row       Zero-based visible row index.
      * @param startCol  First column to erase (inclusive).
      * @param endCol    Last column to erase (inclusive).
+     * @param fill      Cell value for erased positions.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void eraseCellRange (int row, int startCol, int endCol) noexcept;
+    void eraseCellRange (int row, int startCol, int endCol, const Cell& fill = Cell {}) noexcept;
 
     /** @} */
 
@@ -757,51 +765,21 @@ private:
      * @param up      `true` to shift up, `false` to shift down.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void scrollRegion (int top, int bottom, int count, bool up) noexcept;
+    void scrollRegion (int top, int bottom, int count, bool up, const Cell& fill = Cell {}) noexcept;
+
+    void shiftRegionUp (Buffer& buffer, int top, int bottom, int ec, size_t rowBytes, const Cell& fill = Cell {}) noexcept;
+    void shiftRegionDown (Buffer& buffer, int top, int bottom, int ec, size_t rowBytes, const Cell& fill = Cell {}) noexcept;
 
     /**
-     * @brief Shifts rows [top, bottom] upward by `ec` lines within `buffer`.
-     *
-     * Copies rows `[top+ec, bottom]` down to `[top, bottom-ec]` using
-     * `memcpy`, then clears rows `[bottom-ec+1, bottom]`.  Also copies
-     * RowState entries.
-     *
-     * @param buffer    Target buffer.
-     * @param top       First row of the region (inclusive).
-     * @param bottom    Last row of the region (inclusive).
-     * @param ec        Effective count (clamped to region size).
-     * @param rowBytes  Byte size of one row (`cols * sizeof(Cell)`).
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    void shiftRegionUp (Buffer& buffer, int top, int bottom, int ec, size_t rowBytes) noexcept;
-
-    /**
-     * @brief Shifts rows [top, bottom] downward by `ec` lines within `buffer`.
-     *
-     * Copies rows `[top, bottom-ec]` up to `[top+ec, bottom]` using
-     * `memcpy`, then clears rows `[top, top+ec-1]`.  Also copies RowState
-     * entries.
-     *
-     * @param buffer    Target buffer.
-     * @param top       First row of the region (inclusive).
-     * @param bottom    Last row of the region (inclusive).
-     * @param ec        Effective count (clamped to region size).
-     * @param rowBytes  Byte size of one row (`cols * sizeof(Cell)`).
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    void shiftRegionDown (Buffer& buffer, int top, int bottom, int ec, size_t rowBytes) noexcept;
-
-    /**
-     * @brief Fills all cells, graphemes, and the RowState for visible row `visibleRow` with defaults.
-     *
-     * Used by scroll operations to blank newly exposed rows and by erase
-     * operations to reset individual rows.
+     * @brief Fills all cells in visible row `visibleRow` with `fill`,
+     *        resets graphemes and RowState.
      *
      * @param buffer      Target buffer.
      * @param visibleRow  Zero-based visible row index.
+     * @param fill        Cell value to fill with.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void clearRow (Buffer& buffer, int visibleRow) noexcept;
+    void clearRow (Buffer& buffer, int visibleRow, const Cell& fill = Cell {}) noexcept;
 
     /**
      * @brief Returns a mutable pointer to the grapheme entry at (visibleRow, col).

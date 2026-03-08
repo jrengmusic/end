@@ -156,8 +156,10 @@ bool State::flush() noexcept
     bool result { false };
     if (needsFlush.exchange (false, std::memory_order_acquire))
     {
-        flushRootParams();
-
+        // Flush group params (MODES, NORMAL, ALTERNATE) BEFORE root params.
+        // Root params include activeScreen, whose ValueTree change fires
+        // synchronous listeners that read cursorRow/cursorCol from the
+        // target screen.  Those values must already be up-to-date.
         for (int c { 0 }; c < state.getNumChildren(); ++c)
         {
             auto child { state.getChild (c) };
@@ -168,6 +170,8 @@ bool State::flush() noexcept
                 flushGroupParams (child);
             }
         }
+
+        flushRootParams();
 
         result = true;
     }

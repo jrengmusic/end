@@ -482,7 +482,11 @@ void Parser::scrollUp (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
     const int bottom { scrollBottom };
-    grid.scrollRegionUp (state.getScrollTop (scr), bottom, static_cast<int> (params.param (0, 1)));
+
+    Cell fill {};
+    fill.bg = stamp.bg;
+
+    grid.scrollRegionUp (state.getScrollTop (scr), bottom, static_cast<int> (params.param (0, 1)), fill);
 }
 
 /**
@@ -507,7 +511,11 @@ void Parser::scrollDown (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
     const int bottom { scrollBottom };
-    grid.scrollRegionDown (state.getScrollTop (scr), bottom, static_cast<int> (params.param (0, 1)));
+
+    Cell fill {};
+    fill.bg = stamp.bg;
+
+    grid.scrollRegionDown (state.getScrollTop (scr), bottom, static_cast<int> (params.param (0, 1)), fill);
 }
 
 /**

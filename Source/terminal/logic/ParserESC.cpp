@@ -109,7 +109,9 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
         {
             if (not cursorGoToNextLine (scr, scrollBottom))
             {
-                grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1);
+                Cell fill {};
+                fill.bg = stamp.bg;
+                grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
             }
             break;
         }
@@ -119,7 +121,9 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
             state.setWrapPending (scr, false);
             if (not cursorGoToNextLine (scr, scrollBottom))
             {
-                grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1);
+                Cell fill {};
+                fill.bg = stamp.bg;
+                grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
             }
             break;
 
@@ -131,7 +135,9 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
         {
             if (state.getCursorRow (scr) == state.getScrollTop (scr))
             {
-                grid.scrollRegionDown (state.getScrollTop (scr), scrollBottom, 1);
+                Cell fill {};
+                fill.bg = stamp.bg;
+                grid.scrollRegionDown (state.getScrollTop (scr), scrollBottom, 1, fill);
             }
             else if (state.getCursorRow (scr) > 0)
             {

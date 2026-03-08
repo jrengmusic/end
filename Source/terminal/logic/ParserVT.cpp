@@ -85,13 +85,13 @@ namespace
      *
      * @note READER THREAD only.
      */
-    inline void handleLineFeed (GroundCursor& c, Grid& grid, int scrollTop, int scrollBottom) noexcept
+    inline void handleLineFeed (GroundCursor& c, Grid& grid, int scrollTop, int scrollBottom, const Cell& fill) noexcept
     {
         c.wrapPending = false;
 
         if (c.row >= scrollBottom)
         {
-            grid.scrollRegionUp (scrollTop, scrollBottom, 1);
+            grid.scrollRegionUp (scrollTop, scrollBottom, 1, fill);
         }
         else
         {
@@ -171,7 +171,7 @@ namespace
      */
     inline void flushPrintRun (GroundCursor& c, Grid& grid, int scrollTop, int scrollBottom,
                                 int cols, bool autoWrap, uint64_t* localDirty,
-                                Cell& cellTemplate, uint8_t byte, bool useLineDrawing) noexcept
+                                Cell& cellTemplate, uint8_t byte, bool useLineDrawing, const Cell& fill) noexcept
     {
         if (c.wrapPending and autoWrap)
         {
@@ -179,7 +179,7 @@ namespace
 
             if (c.row >= scrollBottom)
             {
-                grid.scrollRegionUp (scrollTop, scrollBottom, 1);
+                grid.scrollRegionUp (scrollTop, scrollBottom, 1, fill);
             }
             else
             {
@@ -261,6 +261,9 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
     cellTemplate.fg = stamp.fg;
     cellTemplate.bg = stamp.bg;
 
+    Cell fill {};
+    fill.bg = stamp.bg;
+
     GroundCursor c { state.getCursorRow (scr), state.getCursorCol (scr),
                      state.isWrapPending (scr), grid.directRowPtr (state.getCursorRow (scr)) };
 
@@ -273,7 +276,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
 
         if (byte >= 0x20 and byte <= 0x7E)
         {
-            flushPrintRun (c, grid, scrollTop, scrollBottom, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing);
+            flushPrintRun (c, grid, scrollTop, scrollBottom, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill);
             consumed = i + 1;
             continue;
         }
@@ -281,7 +284,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
         if (byte == 0x0A or byte == 0x0B or byte == 0x0C)
         {
             localDirty[c.row >> 6] |= uint64_t { 1 } << (c.row & 63);
-            handleLineFeed (c, grid, scrollTop, scrollBottom);
+            handleLineFeed (c, grid, scrollTop, scrollBottom, fill);
             consumed = i + 1;
             continue;
         }
@@ -348,7 +351,9 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
 
         if (state.getCursorRow (scr) >= scrollBottom)
         {
-            grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1);
+            Cell fill {};
+            fill.bg = stamp.bg;
+            grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
         }
         else
         {
@@ -552,7 +557,9 @@ void Parser::print (uint32_t codepoint) noexcept
 
                 if (row >= scrollBottom)
                 {
-                    grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1);
+                    Cell fill {};
+                    fill.bg = stamp.bg;
+                    grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
                 }
                 else
                 {
@@ -633,7 +640,9 @@ void Parser::executeLineFeed (ActiveScreen scr) noexcept
 {
     if (not cursorGoToNextLine (scr, scrollBottom))
     {
-        grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1);
+        Cell fill {};
+        fill.bg = stamp.bg;
+        grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
     }
 }
 

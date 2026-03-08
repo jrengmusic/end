@@ -100,29 +100,32 @@ void Parser::eraseInDisplay (int mode) noexcept
     const int cols { grid.getCols() };
     const int visibleRows { grid.getVisibleRows() };
 
+    Cell fill {};
+    fill.bg = stamp.bg;
+
     switch (mode)
     {
         case 0:
-            grid.eraseCellRange (state.getCursorRow (scr), state.getCursorCol (scr), cols - 1);
+            grid.eraseCellRange (state.getCursorRow (scr), state.getCursorCol (scr), cols - 1, fill);
 
             if (state.getCursorRow (scr) + 1 < visibleRows)
             {
-                grid.eraseRowRange (state.getCursorRow (scr) + 1, visibleRows - 1);
+                grid.eraseRowRange (state.getCursorRow (scr) + 1, visibleRows - 1, fill);
             }
             break;
 
         case 1:
             if (state.getCursorRow (scr) > 0)
             {
-                grid.eraseRowRange (0, state.getCursorRow (scr) - 1);
+                grid.eraseRowRange (0, state.getCursorRow (scr) - 1, fill);
             }
 
-            grid.eraseCellRange (state.getCursorRow (scr), 0, state.getCursorCol (scr));
+            grid.eraseCellRange (state.getCursorRow (scr), 0, state.getCursorCol (scr), fill);
             break;
 
         case 2:
         case 3:
-            grid.eraseRowRange (0, visibleRows - 1);
+            grid.eraseRowRange (0, visibleRows - 1, fill);
             break;
 
         default:
@@ -178,18 +181,21 @@ void Parser::eraseInLine (int mode) noexcept
     const auto scr { state.getScreen() };
     const int cols { grid.getCols() };
 
+    Cell fill {};
+    fill.bg = stamp.bg;
+
     switch (mode)
     {
         case 0:
-            grid.eraseCellRange (state.getCursorRow (scr), state.getCursorCol (scr), cols - 1);
+            grid.eraseCellRange (state.getCursorRow (scr), state.getCursorCol (scr), cols - 1, fill);
             break;
 
         case 1:
-            grid.eraseCellRange (state.getCursorRow (scr), 0, state.getCursorCol (scr));
+            grid.eraseCellRange (state.getCursorRow (scr), 0, state.getCursorCol (scr), fill);
             break;
 
         case 2:
-            grid.eraseRow (state.getCursorRow (scr));
+            grid.eraseRow (state.getCursorRow (scr), fill);
             break;
 
         default:
@@ -291,13 +297,16 @@ void Parser::shiftLines (int count, bool up) noexcept
 
     if (state.getCursorRow (scr) >= state.getScrollTop (scr) and state.getCursorRow (scr) <= bottom)
     {
+        Cell fill {};
+        fill.bg = stamp.bg;
+
         if (up)
         {
-            grid.scrollRegionUp (state.getCursorRow (scr), bottom, count);
+            grid.scrollRegionUp (state.getCursorRow (scr), bottom, count, fill);
         }
         else
         {
-            grid.scrollRegionDown (state.getCursorRow (scr), bottom, count);
+            grid.scrollRegionDown (state.getCursorRow (scr), bottom, count, fill);
         }
 
         state.setCursorCol (scr, 0);
@@ -351,9 +360,12 @@ void Parser::shiftCellsRight (int count) noexcept
             rowCells[col] = rowCells[col - count];
         }
 
+        Cell fill {};
+        fill.bg = stamp.bg;
+
         for (int col { state.getCursorCol (scr) }; col < juce::jmin (state.getCursorCol (scr) + count, cols); ++col)
         {
-            rowCells[col] = Cell {};
+            rowCells[col] = fill;
             grid.activeEraseGrapheme (state.getCursorRow (scr), col);
         }
     }
@@ -401,9 +413,12 @@ void Parser::removeCells (int count) noexcept
             rowCells[col] = rowCells[col + count];
         }
 
+        Cell fill {};
+        fill.bg = stamp.bg;
+
         for (int col { cols - count }; col < cols; ++col)
         {
-            rowCells[col] = Cell {};
+            rowCells[col] = fill;
             grid.activeEraseGrapheme (state.getCursorRow (scr), col);
         }
     }
@@ -437,7 +452,11 @@ void Parser::eraseCells (int count) noexcept
     const auto scr { state.getScreen() };
     const int cols { grid.getCols() };
     const int endCol { juce::jmin (state.getCursorCol (scr) + count - 1, cols - 1) };
-    grid.eraseCellRange (state.getCursorRow (scr), state.getCursorCol (scr), endCol);
+
+    Cell fill {};
+    fill.bg = stamp.bg;
+
+    grid.eraseCellRange (state.getCursorRow (scr), state.getCursorCol (scr), endCol, fill);
 }
 
 // ============================================================================

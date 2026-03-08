@@ -126,10 +126,18 @@ juce::Rectangle<int> Screen::getCellBounds (int col, int row) const noexcept
     {
         const int clampedCol { juce::jlimit (0, numCols - 1, col) };
         const int clampedRow { juce::jlimit (0, numRows - 1, row) };
-        result = { viewportX + clampedCol * cellWidth,
-                   viewportY + clampedRow * cellHeight,
-                   cellWidth,
-                   cellHeight };
+
+        // Derive logical position from the physical-pixel grid used by the
+        // GL renderer (row * physCellHeight) divided back by display scale.
+        // This eliminates per-row rounding drift at fractional scales (e.g.
+        // 150%) between the JUCE component overlay and GL-rendered glyphs.
+        const float scale { Fonts::getDisplayScale() };
+        const int x { viewportX + static_cast<int> (static_cast<float> (clampedCol * physCellWidth) / scale) };
+        const int y { viewportY + static_cast<int> (static_cast<float> (clampedRow * physCellHeight) / scale) };
+        const int w { static_cast<int> (static_cast<float> (physCellWidth) / scale) };
+        const int h { static_cast<int> (static_cast<float> (physCellHeight) / scale) };
+
+        result = { x, y, juce::jmax (1, w), juce::jmax (1, h) };
     }
 
     return result;

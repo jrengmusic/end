@@ -73,6 +73,7 @@
  */
 
 #include "Fonts.h"
+#include <cmath>
 
 #if JUCE_MAC
 // CoreText implementation in Fonts.mm
