@@ -276,6 +276,8 @@ juce_add_gui_app(${TARGET_NAME}
     COMPANY_NAME "${PROJECT_COMPANY}"
     COMPANY_WEBSITE "${PROJECT_WEBSITE}"
     BUNDLE_ID "${BUNDLE_ID_PREFIX}.${PROJECT_NAME}"
+    ICON_BIG "${CMAKE_CURRENT_SOURCE_DIR}/Source/icons/end-icon.png"
+    ICON_SMALL "${CMAKE_CURRENT_SOURCE_DIR}/Source/icons/end-icon.png"
 )
 
 target_sources(${TARGET_NAME} PRIVATE ${SOURCES})

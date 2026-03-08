@@ -2,7 +2,7 @@
  * @file TerminalComponent.h
  * @brief UI host component that wires the terminal backend to JUCE input/render.
  *
- * TerminalComponent is the central integration point between the terminal
+ * Terminal::Component is the central integration point between the terminal
  * emulation backend (Session + Grid) and the JUCE component tree.  It owns:
  *
  * - **Screen** — GPU-accelerated renderer; attached to this component via
@@ -18,18 +18,13 @@
  * calls `Screen::render()` under a `ScopedTryLock` on the resize lock.
  *
  * ### Keyboard handling
- * `keyPressed()` dispatches on modifier + key code:
+ * Application commands (copy, paste, quit, reload, zoom) are handled by
+ * MainComponent via ApplicationCommandManager.  `keyPressed()` only handles:
  * | Shortcut        | Action                                      |
  * |-----------------|---------------------------------------------|
- * | Cmd+C           | Copy selection to clipboard                 |
- * | Cmd+V           | Paste from clipboard                        |
- * | Cmd+Q           | Quit application                            |
- * | Cmd+R           | Reload config                               |
- * | Cmd+= / Cmd++   | Zoom in (+ 0.25×)                           |
- * | Cmd+-           | Zoom out (− 0.25×)                          |
- * | Cmd+0           | Reset zoom to 1×                            |
  * | Shift+PgUp/Dn   | Scroll scrollback (isScrollNav guard)       |
  * | Shift+Home/End  | Jump to top / bottom of scrollback          |
+ * | Any other key   | Forward to Session (TTY passthrough)        |
  *
  * ### Mouse handling
  * Mouse events are forwarded as SGR 1006 sequences when the application has
@@ -51,9 +46,13 @@
 #include "../terminal/rendering/Screen.h"
 #include "CursorComponent.h"
 #include "MessageOverlay.h"
+#include "config/Config.h"
+
+namespace Terminal
+{
 
 /**
- * @class TerminalComponent
+ * @class Terminal::Component
  * @brief JUCE component that hosts the terminal renderer and handles all input.
  *
  * Inherits `juce::Component` for rendering and layout, `juce::KeyListener` for
@@ -79,17 +78,17 @@
  * @see CursorComponent
  * @see MessageOverlay
  */
-class TerminalComponent
+class Component
     : public juce::Component
     , public juce::KeyListener
     , private juce::ValueTree::Listener
 {
 public:
     /** @brief Constructs the component, wires Session callbacks, starts VBlank. */
-    TerminalComponent();
+    Component();
 
     /** @brief Tears down listeners, detaches Screen, resets all children. */
-    ~TerminalComponent() override;
+    ~Component() override;
 
     /**
      * @brief Lays out the screen viewport, notifies Session of new grid size,
@@ -206,6 +205,13 @@ public:
      */
     int getGridCols() const noexcept;
 
+    void copySelection();
+    void pasteClipboard();
+    void reloadConfig();
+    void increaseZoom();
+    void decreaseZoom();
+    void resetZoom();
+
 private:
     //==============================================================================
     /**
@@ -252,10 +258,13 @@ private:
      * Updates ligatures, embolden, and theme on Screen, then marks all cells
      * dirty so the next VBlank re-renders with the new settings.
      *
-     * @note MESSAGE THREAD — called from keyPressed() on Cmd+R.
+     * @note MESSAGE THREAD — called from perform() on reload command.
      * @see Config::reload
      */
     void applyConfig() noexcept;
+
+    void handleScrollNavigation (int keyCode);
+    void clearSelectionAndScroll();
 
     /**
      * @brief Scales the font size by @p zoom and re-lays out the component.
@@ -281,10 +290,10 @@ private:
 
     //==============================================================================
     /** @brief GPU-accelerated terminal renderer; attached to this component. */
-    Terminal::Screen screen;
+    Screen screen;
 
     /** @brief pty session, VT parser, and grid state machine. */
-    Terminal::Session session;
+    Session session;
 
     /** @brief Cursor overlay component; positioned by updateCursorBounds(). */
     std::unique_ptr<CursorComponent> cursor;
@@ -293,7 +302,7 @@ private:
     std::unique_ptr<MessageOverlay> messageOverlay;
 
     /** @brief Current text selection; null when nothing is selected. */
-    std::unique_ptr<Terminal::ScreenSelection> screenSelection;
+    std::unique_ptr<ScreenSelection> screenSelection;
 
     /**
      * @brief Snapshot of the Session state ValueTree for listener registration.
@@ -348,5 +357,7 @@ private:
     bool initialLayoutDone { false };
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TerminalComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Component)
 };
+
+} // namespace Terminal

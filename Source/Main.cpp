@@ -123,7 +123,7 @@ public:
      * @brief Destroys the main window and releases all resources.
      *
      * Resetting `mainWindow` triggers the full component teardown chain:
-     * GlassWindow → MainComponent → TerminalComponent → Session / Screen.
+     * GlassWindow → MainComponent → Terminal::Component → Session / Screen.
      *
      * @note MESSAGE THREAD — called once at shutdown.
      */

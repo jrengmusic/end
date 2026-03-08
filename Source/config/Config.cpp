@@ -94,6 +94,15 @@ void Config::initDefaults()
 
     values[Key::scrollbackNumLines] = 10000;
     values[Key::scrollbackStep] = 5;
+
+    values[Key::keysCopy]      = "cmd+c";
+    values[Key::keysPaste]     = "cmd+v";
+    values[Key::keysQuit]      = "cmd+q";
+    values[Key::keysCloseTab]  = "cmd+w";
+    values[Key::keysReload]    = "cmd+r";
+    values[Key::keysZoomIn]    = "cmd+=";
+    values[Key::keysZoomOut]   = "cmd+-";
+    values[Key::keysZoomReset] = "cmd+0";
 }
 
 /**
@@ -152,6 +161,15 @@ void Config::initSchema()
 
     schema[Key::scrollbackNumLines]  = { T::number, 100.0, 1000000.0, true };
     schema[Key::scrollbackStep]      = { T::number, 1.0,   100.0,   true };
+
+    schema[Key::keysCopy]            = { T::string };
+    schema[Key::keysPaste]           = { T::string };
+    schema[Key::keysQuit]            = { T::string };
+    schema[Key::keysCloseTab]        = { T::string };
+    schema[Key::keysReload]          = { T::string };
+    schema[Key::keysZoomIn]          = { T::string };
+    schema[Key::keysZoomOut]         = { T::string };
+    schema[Key::keysZoomReset]       = { T::string };
 }
 
 /**
@@ -159,7 +177,7 @@ void Config::initSchema()
  *
  * If `end.lua` does not exist it is created with an empty `END = {}` table via
  * `writeDefaults()`.  Any load errors are stored in `loadError` and surfaced by
- * `TerminalComponent` as a startup `MessageOverlay`.
+ * `Terminal::Component` as a startup `MessageOverlay`.
  *
  * @note MESSAGE THREAD — called once from ENDApplication member initialisation.
  */
@@ -428,10 +446,10 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
  * @brief Resets to defaults and reloads `end.lua`.
  *
  * Does NOT reload `state.lua`; window size and zoom are preserved across
- * config reloads.  Called by `TerminalComponent` on Cmd+R.
+ * config reloads.  Called by `Terminal::Component` on Cmd+R.
  *
  * @return The error/warning string from the reload, or empty if clean.
- * @see TerminalComponent::keyPressed
+ * @see Terminal::Component::keyPressed
  */
 juce::String Config::reload()
 {

@@ -15,7 +15,7 @@
  * configured display duration.
  *
  * ### Zoom suppression
- * `TerminalComponent` sets `zoomInProgress = true` before calling `resized()`
+ * `Terminal::Component` sets `zoomInProgress = true` before calling `resized()`
  * during zoom operations, which prevents `resized()` from calling `show()`.
  * This avoids a distracting grid-size flash during zoom.
  *
@@ -25,8 +25,8 @@
  *
  * @note All methods are called on the **MESSAGE THREAD**.
  *
- * @see TerminalComponent::resized
- * @see TerminalComponent::keyPressed
+ * @see Terminal::Component::resized
+ * @see Terminal::Component::keyPressed
  * @see Config::Key::overlayFamily
  * @see Config::Key::overlaySize
  * @see Config::Key::overlayColour
@@ -52,7 +52,7 @@
  * @par Thread context
  * **MESSAGE THREAD** — all public methods.
  *
- * @see TerminalComponent
+ * @see Terminal::Component
  */
 class MessageOverlay
     : public juce::Component
@@ -62,7 +62,7 @@ public:
     /**
      * @brief Constructs MessageOverlay: sets non-opaque, disables mouse interception.
      *
-     * The component starts hidden (`addChildComponent` in TerminalComponent).
+     * The component starts hidden (`addChildComponent` in Terminal::Component).
      * Visibility is managed entirely by `jreng::Animator::toggleFade()`.
      *
      * @note MESSAGE THREAD.
@@ -76,7 +76,7 @@ public:
     /**
      * @brief Updates the stored grid dimensions and triggers a repaint.
      *
-     * Called by `TerminalComponent::resized()` after every layout pass so that
+     * Called by `Terminal::Component::resized()` after every layout pass so that
      * the next `show()` call displays the current grid size.
      *
      * @param rows  Current number of visible grid rows.
@@ -96,7 +96,7 @@ public:
      * Formats the message as "N col * M row", fades in, then starts the
      * auto-hide timer for `delayMs` milliseconds.
      *
-     * @note MESSAGE THREAD — called from TerminalComponent::resized().
+     * @note MESSAGE THREAD — called from Terminal::Component::resized().
      * @see setGridSize
      */
     void show()
@@ -116,7 +116,7 @@ public:
      * @param text        The message to display (may be multi-line).
      * @param durationMs  How long to show the message before fading out.
      *                    Defaults to `messageDelayMs` (5000 ms).
-     * @note MESSAGE THREAD — called from TerminalComponent::keyPressed() on Cmd+R,
+     * @note MESSAGE THREAD — called from Terminal::Component::keyPressed() on Cmd+R,
      *       and asynchronously at startup if the config has errors.
      */
     void showMessage (const juce::String& text, int durationMs = messageDelayMs)

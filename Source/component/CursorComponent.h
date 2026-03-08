@@ -3,7 +3,7 @@
  * @brief Cursor overlay component with blink, tinting, and colour-emoji support.
  *
  * CursorComponent renders the terminal cursor as a JUCE component overlaid on
- * the terminal grid.  It is positioned and sized by `TerminalComponent::updateCursorBounds()`.
+ * the terminal grid.  It is positioned and sized by `Terminal::Component::updateCursorBounds()`.
  *
  * ### Cursor glyph
  * The cursor shape is any Unicode codepoint configured via `Config::Key::cursorChar`
@@ -18,7 +18,7 @@
  *
  * ### Wide cursor
  * `cursorWidth` tracks how many grid cells the cursor glyph spans (1 for
- * normal, 2 for double-width glyphs).  `TerminalComponent` multiplies the
+ * normal, 2 for double-width glyphs).  `Terminal::Component` multiplies the
  * cell width by this value when calling `setBounds()`.
  *
  * ### Blink
@@ -33,7 +33,7 @@
  *
  * @note All methods are called on the **MESSAGE THREAD**.
  *
- * @see TerminalComponent
+ * @see Terminal::Component
  * @see Fonts::rasterizeToImage
  * @see Config::Key::cursorChar
  * @see Config::Key::cursorBlink
@@ -56,15 +56,15 @@
  * changes published by the VT parser.
  *
  * @par Ownership
- * Owned by `TerminalComponent` as a `unique_ptr`.  The cursor state ValueTree
+ * Owned by `Terminal::Component` as a `unique_ptr`.  The cursor state ValueTree
  * is borrowed (not owned); `rebindToScreen()` is called when the active screen
  * switches between primary and alternate.
  *
  * @par Thread context
  * **MESSAGE THREAD** — all public and private methods.
  *
- * @see TerminalComponent::updateCursorBounds
- * @see TerminalComponent::valueTreePropertyChanged
+ * @see Terminal::Component::updateCursorBounds
+ * @see Terminal::Component::valueTreePropertyChanged
  */
 class CursorComponent
     : public juce::Component
@@ -99,7 +99,7 @@ public:
     /**
      * @brief Rebinds the ValueTree listener to a new screen's cursor state.
      *
-     * Called by `TerminalComponent` when the active screen switches between
+     * Called by `Terminal::Component` when the active screen switches between
      * primary and alternate (DEC private mode 1049).  Removes the listener from
      * the old tree and adds it to @p screen.
      *
@@ -111,7 +111,7 @@ public:
     /**
      * @brief Forces the cursor visible and restarts the blink timer.
      *
-     * Called by `TerminalComponent::keyPressed()` on every keypress so the
+     * Called by `Terminal::Component::keyPressed()` on every keypress so the
      * cursor is always visible immediately after typing, regardless of blink phase.
      *
      * @note MESSAGE THREAD.
@@ -122,7 +122,7 @@ public:
      * @brief Returns the number of grid cells spanned by the cursor glyph.
      *
      * 1 for normal-width glyphs, 2 for double-width glyphs.  Used by
-     * `TerminalComponent::updateCursorBounds()` to set the correct component width.
+     * `Terminal::Component::updateCursorBounds()` to set the correct component width.
      *
      * @return Cell width multiplier (1 or 2).
      */
@@ -198,7 +198,7 @@ private:
      * @brief Number of grid cells spanned by the cursor glyph (1 or 2).
      *
      * Computed at construction from the rasterized image width divided by the
-     * physical cell width.  Used by `TerminalComponent::updateCursorBounds()`.
+     * physical cell width.  Used by `Terminal::Component::updateCursorBounds()`.
      */
     int cursorWidth { 1 };
 

@@ -6,7 +6,7 @@
  * the VBlank render loop.  See TerminalComponent.h for the full architectural
  * overview.
  *
- * @see TerminalComponent
+ * @see Terminal::Component
  * @see Terminal::Session
  * @see Terminal::Screen
  */
@@ -15,7 +15,7 @@
 #include "../config/Config.h"
 
 /**
- * @brief Constructs TerminalComponent and wires all subsystems.
+ * @brief Constructs Terminal::Component and wires all subsystems.
  *
  * Construction order:
  * 1. **Screen** — initialised with font family and base size from Config.
@@ -32,7 +32,7 @@
  *
  * @note MESSAGE THREAD — called from MainComponent constructor.
  */
-TerminalComponent::TerminalComponent()
+Terminal::Component::Component()
     : screen (Config::getContext()->getString (Config::Key::fontFamily),
               dpiCorrectedFontSize())
     , stateTree (session.getState().get())
@@ -110,7 +110,7 @@ TerminalComponent::TerminalComponent()
  *
  * @note MESSAGE THREAD.
  */
-TerminalComponent::~TerminalComponent()
+Terminal::Component::~Component()
 {
     stateTree.removeListener (this);
     messageOverlay.reset();
@@ -134,7 +134,7 @@ TerminalComponent::~TerminalComponent()
  *
  * @note MESSAGE THREAD — called by JUCE on every resize event.
  */
-void TerminalComponent::resized()
+void Terminal::Component::resized()
 {
     auto contentArea { getLocalBounds() };
     contentArea.removeFromTop (titleBarHeight);
@@ -155,43 +155,9 @@ void TerminalComponent::resized()
     initialLayoutDone = true;
 }
 
-/**
- * @brief Dispatches keyboard shortcuts and forwards remaining keys to Session.
- *
- * ### Dispatch table
- * | Modifier + Key  | Action                                                  |
- * |-----------------|---------------------------------------------------------|
- * | Cmd+C           | Copy selection text to system clipboard; clear selection |
- * | Cmd+V           | Paste clipboard text to pty; reset cursor blink          |
- * | Cmd+Q           | Request application quit                                |
- * | Cmd+R           | Reload config; show "RELOADED" or error overlay         |
- * | Cmd+= or Cmd++  | Zoom in by 0.25×; save and apply                       |
- * | Cmd+-           | Zoom out by 0.25×; save and apply                      |
- * | Cmd+0           | Reset zoom to 1×; save and apply                       |
- * | Shift+PgUp      | Scroll scrollback up by one page                       |
- * | Shift+PgDn      | Scroll scrollback down by one page                     |
- * | Shift+Home      | Jump to top of scrollback                               |
- * | Shift+End       | Jump to bottom (live view)                              |
- * | Any other key   | Clear selection + scroll offset, forward to Session     |
- *
- * The `isScrollNav` guard is true for Shift+PgUp/Dn/Home/End without Cmd,
- * routing those keys to scrollback navigation instead of the shell.
- *
- * @param key                   The key event.
- * @param originatingComponent  Unused.
- * @return Always @c true — all key events are consumed.
- * @note MESSAGE THREAD.
- */
-bool TerminalComponent::keyPressed (const juce::KeyPress& key, juce::Component*)
+void Terminal::Component::copySelection()
 {
-    const int code { key.getKeyCode() };
-    const auto mods { key.getModifiers() };
-
-    const bool isScrollNav { mods.isShiftDown() and not mods.isCommandDown()
-        and (code == juce::KeyPress::pageUpKey or code == juce::KeyPress::pageDownKey
-             or code == juce::KeyPress::homeKey or code == juce::KeyPress::endKey) };
-
-    if (mods.isCommandDown() and code == 'C' and screenSelection != nullptr)
+    if (screenSelection != nullptr)
     {
         const juce::ScopedLock lock (session.getGrid().getResizeLock());
         const auto text { session.getGrid().extractText (screenSelection->anchor, screenSelection->end) };
@@ -200,115 +166,139 @@ bool TerminalComponent::keyPressed (const juce::KeyPress& key, juce::Component*)
         screen.setSelection (nullptr);
         session.getState().setSnapshotDirty();
     }
-    else if (mods.isCommandDown() and code == 'V')
-    {
-        session.paste (juce::SystemClipboard::getTextFromClipboard());
-        cursor->resetBlink();
-    }
-    else if (mods.isCommandDown() and (code == 'Q' or code == 'W'))
-    {
-        juce::JUCEApplication::getInstance()->systemRequestedQuit();
-    }
-#if JUCE_WINDOWS
-    else if (mods.isAltDown() and code == juce::KeyPress::F4Key)
-    {
-        juce::JUCEApplication::getInstance()->systemRequestedQuit();
-    }
-#endif
-    else if (mods.isCommandDown() and code == 'R')
-    {
-        const juce::String error { Config::getContext()->reload() };
-        applyConfig();
+}
 
-        if (error.isEmpty())
-            messageOverlay->showMessage ("RELOADED", 1000);
-        else
-            messageOverlay->showMessage (error);
-    }
-    else if (mods.isCommandDown() and (code == '=' or code == '+'))
-    {
-        auto* cfg { Config::getContext() };
-        const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) + 0.25f) };
-        cfg->saveZoom (newZoom);
-        applyZoom (newZoom);
-    }
-    else if (mods.isCommandDown() and code == '-')
-    {
-        auto* cfg { Config::getContext() };
-        const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) - 0.25f) };
-        cfg->saveZoom (newZoom);
-        applyZoom (newZoom);
-    }
-    else if (mods.isCommandDown() and code == '0')
-    {
-        Config::getContext()->saveZoom (Config::zoomMin);
-        applyZoom (Config::zoomMin);
-    }
-    else if (isScrollNav)
-    {
-        if (code == juce::KeyPress::pageUpKey)
-        {
-            const int maxOffset { session.getGrid().getScrollbackUsed() };
-            const int current { session.getState().getScrollOffset() };
-            const int page { screen.getNumRows() };
-            const int clamped { juce::jlimit (0, maxOffset, current + page) };
+void Terminal::Component::pasteClipboard()
+{
+    session.paste (juce::SystemClipboard::getTextFromClipboard());
+    cursor->resetBlink();
+}
 
-            if (clamped != current)
-            {
-                session.getState().setScrollOffset (clamped);
-                session.getState().setSnapshotDirty();
-            }
-        }
-        else if (code == juce::KeyPress::pageDownKey)
-        {
-            const int current { session.getState().getScrollOffset() };
-            const int page { screen.getNumRows() };
-            const int clamped { juce::jmax (0, current - page) };
+void Terminal::Component::reloadConfig()
+{
+    const juce::String error { Config::getContext()->reload() };
+    applyConfig();
 
-            if (clamped != current)
-            {
-                session.getState().setScrollOffset (clamped);
-                session.getState().setSnapshotDirty();
-            }
-        }
-        else if (code == juce::KeyPress::homeKey)
-        {
-            const int maxOffset { session.getGrid().getScrollbackUsed() };
-
-            if (session.getState().getScrollOffset() != maxOffset)
-            {
-                session.getState().setScrollOffset (maxOffset);
-                session.getState().setSnapshotDirty();
-            }
-        }
-        else if (code == juce::KeyPress::endKey)
-        {
-            if (session.getState().getScrollOffset() != 0)
-            {
-                session.getState().setScrollOffset (0);
-                session.getState().setSnapshotDirty();
-            }
-        }
-    }
+    if (error.isEmpty())
+        messageOverlay->showMessage ("RELOADED", 1000);
     else
+        messageOverlay->showMessage (error);
+}
+
+void Terminal::Component::increaseZoom()
+{
+    auto* cfg { Config::getContext() };
+    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) + 0.25f) };
+    cfg->saveZoom (newZoom);
+    applyZoom (newZoom);
+}
+
+void Terminal::Component::decreaseZoom()
+{
+    auto* cfg { Config::getContext() };
+    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) - 0.25f) };
+    cfg->saveZoom (newZoom);
+    applyZoom (newZoom);
+}
+
+void Terminal::Component::resetZoom()
+{
+    Config::getContext()->saveZoom (Config::zoomMin);
+    applyZoom (Config::zoomMin);
+}
+
+void Terminal::Component::handleScrollNavigation (int code)
+{
+    if (code == juce::KeyPress::pageUpKey)
     {
-        if (screenSelection != nullptr)
+        const int maxOffset { session.getGrid().getScrollbackUsed() };
+        const int current { session.getState().getScrollOffset() };
+        const int page { screen.getNumRows() };
+        const int clamped { juce::jlimit (0, maxOffset, current + page) };
+
+        if (clamped != current)
         {
-            screenSelection.reset();
-            screen.setSelection (nullptr);
+            session.getState().setScrollOffset (clamped);
             session.getState().setSnapshotDirty();
         }
+    }
+    else if (code == juce::KeyPress::pageDownKey)
+    {
+        const int current { session.getState().getScrollOffset() };
+        const int page { screen.getNumRows() };
+        const int clamped { juce::jmax (0, current - page) };
 
-        if (session.getState().getScrollOffset() > 0)
+        if (clamped != current)
+        {
+            session.getState().setScrollOffset (clamped);
+            session.getState().setSnapshotDirty();
+        }
+    }
+    else if (code == juce::KeyPress::homeKey)
+    {
+        const int maxOffset { session.getGrid().getScrollbackUsed() };
+
+        if (session.getState().getScrollOffset() != maxOffset)
+        {
+            session.getState().setScrollOffset (maxOffset);
+            session.getState().setSnapshotDirty();
+        }
+    }
+    else if (code == juce::KeyPress::endKey)
+    {
+        if (session.getState().getScrollOffset() != 0)
         {
             session.getState().setScrollOffset (0);
             session.getState().setSnapshotDirty();
         }
+    }
+}
 
-        session.handleKeyPress (key);
-        cursor->resetBlink();
+void Terminal::Component::clearSelectionAndScroll()
+{
+    if (screenSelection != nullptr)
+    {
+        screenSelection.reset();
+        screen.setSelection (nullptr);
+        session.getState().setSnapshotDirty();
     }
 
+    if (session.getState().getScrollOffset() > 0)
+    {
+        session.getState().setScrollOffset (0);
+        session.getState().setSnapshotDirty();
+    }
+}
+
+bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component*)
+{
+    const int code { key.getKeyCode() };
+    const auto mods { key.getModifiers() };
+
+    const bool isScrollNav { mods.isShiftDown() and not mods.isCommandDown()
+        and (code == juce::KeyPress::pageUpKey or code == juce::KeyPress::pageDownKey
+             or code == juce::KeyPress::homeKey or code == juce::KeyPress::endKey) };
+
+    if (isScrollNav)
+    {
+        handleScrollNavigation (code);
+        return true;
+    }
+
+    const bool hasCommandModifier {
+#if JUCE_MAC
+        mods.isCommandDown()
+#else
+        mods.isCtrlDown()
+#endif
+    };
+
+    if (hasCommandModifier or mods.isAltDown())
+        return false;
+
+    clearSelectionAndScroll();
+    session.handleKeyPress (key);
+    cursor->resetBlink();
     return true;
 }
 
@@ -324,7 +314,7 @@ bool TerminalComponent::keyPressed (const juce::KeyPress& key, juce::Component*)
  * @param wheel  Wheel details; `deltaY > 0` = scroll up.
  * @note MESSAGE THREAD.
  */
-void TerminalComponent::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
+void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
     auto& st { session.getState() };
 
@@ -361,7 +351,7 @@ void TerminalComponent::mouseWheelMove (const juce::MouseEvent& event, const juc
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
  */
-void TerminalComponent::mouseDown (const juce::MouseEvent& event)
+void Terminal::Component::mouseDown (const juce::MouseEvent& event)
 {
     const auto& st { session.getState() };
 
@@ -404,7 +394,7 @@ void TerminalComponent::mouseDown (const juce::MouseEvent& event)
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
  */
-void TerminalComponent::mouseDoubleClick (const juce::MouseEvent& event)
+void Terminal::Component::mouseDoubleClick (const juce::MouseEvent& event)
 {
     const auto& st { session.getState() };
 
@@ -450,7 +440,7 @@ void TerminalComponent::mouseDoubleClick (const juce::MouseEvent& event)
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
  */
-void TerminalComponent::mouseDrag (const juce::MouseEvent& event)
+void Terminal::Component::mouseDrag (const juce::MouseEvent& event)
 {
     const auto& st { session.getState() };
     const bool motionTracking { st.getTreeMode (Terminal::ID::mouseMotionTracking)
@@ -482,7 +472,7 @@ void TerminalComponent::mouseDrag (const juce::MouseEvent& event)
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
  */
-void TerminalComponent::mouseUp (const juce::MouseEvent& event)
+void Terminal::Component::mouseUp (const juce::MouseEvent& event)
 {
     const auto& st { session.getState() };
 
@@ -514,7 +504,7 @@ void TerminalComponent::mouseUp (const juce::MouseEvent& event)
  *
  * @note MESSAGE THREAD.
  */
-void TerminalComponent::visibilityChanged()
+void Terminal::Component::visibilityChanged()
 {
     if (isVisible() and not screen.isAttached())
         screen.attachTo (*this);
@@ -529,7 +519,7 @@ void TerminalComponent::visibilityChanged()
  * @param cause  Unused.
  * @note MESSAGE THREAD.
  */
-void TerminalComponent::focusGained (FocusChangeType)
+void Terminal::Component::focusGained (FocusChangeType)
 {
     session.writeFocusEvent (true);
     repaint();
@@ -544,17 +534,17 @@ void TerminalComponent::focusGained (FocusChangeType)
  * @param cause  Unused.
  * @note MESSAGE THREAD.
  */
-void TerminalComponent::focusLost (FocusChangeType)
+void Terminal::Component::focusLost (FocusChangeType)
 {
     session.writeFocusEvent (false);
     repaint();
 }
 
 /** @return Current number of visible grid rows as reported by Screen. */
-int TerminalComponent::getGridRows() const noexcept { return screen.getNumRows(); }
+int Terminal::Component::getGridRows() const noexcept { return screen.getNumRows(); }
 
 /** @return Current number of visible grid columns as reported by Screen. */
-int TerminalComponent::getGridCols() const noexcept { return screen.getNumCols(); }
+int Terminal::Component::getGridCols() const noexcept { return screen.getNumCols(); }
 
 /**
  * @brief VBlank callback: renders the grid if dirty, updates cursor visibility.
@@ -572,7 +562,7 @@ int TerminalComponent::getGridCols() const noexcept { return screen.getNumCols()
  *
  * @note MESSAGE THREAD — VBlankAttachment callbacks run on the message thread.
  */
-void TerminalComponent::onVBlank()
+void Terminal::Component::onVBlank()
 {
     if (not isFocusContainer())
         toFront (true);
@@ -612,7 +602,7 @@ void TerminalComponent::onVBlank()
  * @param property  The property identifier that changed.
  * @note MESSAGE THREAD — called by JUCE ValueTree notification.
  */
-void TerminalComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+void Terminal::Component::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     if (property == Terminal::ID::value and tree.getType() == Terminal::ID::PARAM)
     {
@@ -640,7 +630,7 @@ void TerminalComponent::valueTreePropertyChanged (juce::ValueTree& tree, const j
  *
  * @note MESSAGE THREAD — called from valueTreePropertyChanged() and resized().
  */
-void TerminalComponent::updateCursorBounds() noexcept
+void Terminal::Component::updateCursorBounds() noexcept
 {
     const juce::ValueTree cursorState { session.getCursorState() };
     const auto rowParam { cursorState.getChildWithProperty (Terminal::ID::id, Terminal::ID::cursorRow.toString()) };
@@ -664,7 +654,7 @@ void TerminalComponent::updateCursorBounds() noexcept
  * @note MESSAGE THREAD — called from keyPressed() on Cmd+R.
  * @see Config::reload
  */
-void TerminalComponent::applyConfig() noexcept
+void Terminal::Component::applyConfig() noexcept
 {
     auto* cfg { Config::getContext() };
     screen.setLigatures (cfg->getBool (Config::Key::fontLigatures));
@@ -686,7 +676,7 @@ void TerminalComponent::applyConfig() noexcept
  * @see Screen::setFontSize
  * @see Config::saveZoom
  */
-void TerminalComponent::applyZoom (float zoom) noexcept
+void Terminal::Component::applyZoom (float zoom) noexcept
 {
     screen.setFontSize (dpiCorrectedFontSize() * zoom);
     zoomInProgress = true;
@@ -707,7 +697,7 @@ void TerminalComponent::applyZoom (float zoom) noexcept
  * @see Terminal::ID::mouseMotionTracking
  * @see Terminal::ID::mouseAllTracking
  */
-bool TerminalComponent::isMouseTracking() const noexcept
+bool Terminal::Component::isMouseTracking() const noexcept
 {
     const auto& st { session.getState() };
     return st.getTreeMode (Terminal::ID::mouseTracking)

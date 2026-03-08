@@ -27,12 +27,12 @@
  *
  * ### Zoom
  * Zoom is stored as a multiplier in `[zoomMin, zoomMax]`.  `saveZoom()` clamps
- * and persists the value; `TerminalComponent::applyZoom()` applies it to the
+ * and persists the value; `Terminal::Component::applyZoom()` applies it to the
  * renderer by scaling the base font size.
  *
  * @note All public methods are called on the **MESSAGE THREAD**.
  *
- * @see TerminalComponent
+ * @see Terminal::Component
  * @see Config::Theme
  * @see Config::Key
  */
@@ -53,7 +53,7 @@
  * 1. `Config()` — calls `initDefaults()`, `initSchema()`, loads `end.lua`,
  *    then overlays `state.lua` (window size + zoom).
  * 2. `reload()` — re-runs `initDefaults()` then re-loads `end.lua`; used by
- *    Cmd+R in `TerminalComponent`.
+ *    Cmd+R in `Terminal::Component`.
  * 3. `saveWindowSize()` / `saveZoom()` — write `state.lua` atomically.
  *
  * @par Thread context
@@ -61,7 +61,7 @@
  *
  * @see Config::Key
  * @see Config::Theme
- * @see TerminalComponent::applyConfig
+ * @see Terminal::Component::applyConfig
  */
 struct Config : jreng::Context<Config>
 {
@@ -249,6 +249,15 @@ struct Config : jreng::Context<Config>
 
         /** @brief Number of lines scrolled per mouse-wheel tick. */
         inline static const juce::String scrollbackStep     { "scrollback.step" };
+
+        inline static const juce::String keysCopy           { "keys.copy" };
+        inline static const juce::String keysPaste          { "keys.paste" };
+        inline static const juce::String keysQuit           { "keys.quit" };
+        inline static const juce::String keysCloseTab       { "keys.close_tab" };
+        inline static const juce::String keysReload         { "keys.reload" };
+        inline static const juce::String keysZoomIn         { "keys.zoom_in" };
+        inline static const juce::String keysZoomOut        { "keys.zoom_out" };
+        inline static const juce::String keysZoomReset      { "keys.zoom_reset" };
     };
 
     //==============================================================================
@@ -257,7 +266,7 @@ struct Config : jreng::Context<Config>
      *
      * If `~/.config/end/end.lua` does not exist it is created with an empty
      * `END = {}` table.  Errors from `end.lua` are stored in `loadError` and
-     * displayed by `TerminalComponent` at startup.
+     * displayed by `Terminal::Component` at startup.
      *
      * @note MESSAGE THREAD — called once from ENDApplication member init.
      */
@@ -342,11 +351,11 @@ struct Config : jreng::Context<Config>
     /**
      * @brief Resets to defaults and reloads `end.lua`.
      *
-     * Called by `TerminalComponent` on Cmd+R.  Does NOT reload `state.lua`
+     * Called by `Terminal::Component` on Cmd+R.  Does NOT reload `state.lua`
      * (window size and zoom are preserved across reloads).
      *
      * @return The error/warning string from the reload, or empty if clean.
-     * @see TerminalComponent::keyPressed
+     * @see Terminal::Component::keyPressed
      */
     juce::String reload();
 
@@ -367,7 +376,7 @@ struct Config : jreng::Context<Config>
      * @brief Persists the zoom multiplier to `state.lua`.
      *
      * Clamps @p zoom to `[zoomMin, zoomMax]` before storing.  Called by
-     * `TerminalComponent` on Cmd+= / Cmd+- / Cmd+0.
+     * `Terminal::Component` on Cmd+= / Cmd+- / Cmd+0.
      *
      * @param zoom  Desired zoom multiplier (will be clamped).
      * @see saveWindowSize
@@ -385,7 +394,7 @@ struct Config : jreng::Context<Config>
      * @brief Returns the last load error/warning string.
      *
      * Non-empty after a load that produced warnings or a fatal Lua error.
-     * Displayed by `TerminalComponent` as a `MessageOverlay` at startup.
+     * Displayed by `Terminal::Component` as a `MessageOverlay` at startup.
      *
      * @return Reference to the internal error string.
      */

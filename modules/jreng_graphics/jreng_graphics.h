@@ -30,6 +30,5 @@
 #include "graphics/jreng_graphics_segment.h"
 
 #include "vignette/jreng_graphics_vignette.h"
-#include "logo/jreng_logo.h"
 #include "colours/jreng_colours_names.h"
 #include "colours/jreng_colours_utilities.h"
