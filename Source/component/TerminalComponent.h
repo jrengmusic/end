@@ -49,8 +49,7 @@
 #include "config/Config.h"
 
 namespace Terminal
-{
-
+{ /*____________________________________________________________________________*/
 /**
  * @class Terminal::Component
  * @brief JUCE component that hosts the terminal renderer and handles all input.
@@ -354,10 +353,11 @@ private:
     }
 
     /** @brief Suppresses the grid-size overlay on the initial layout pass. */
-    bool initialLayoutDone { false };
+    bool isInitLayout { false };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Component)
 };
 
-} // namespace Terminal
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace Terminal

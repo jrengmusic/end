@@ -550,6 +550,8 @@ Config::Theme Config::buildTheme() const
 juce::Colour Config::parseColour (const juce::String& input)
 {
     const juce::String trimmed { input.trim() };
+    juce::Colour result { juce::Colours::magenta };
+    bool parsed { false };
 
     if (trimmed.startsWithIgnoreCase ("rgba"))
     {
@@ -569,15 +571,17 @@ juce::Colour Config::parseColour (const juce::String& input)
                 const uint8_t b { static_cast<uint8_t> (juce::jlimit (0, 255, parts[2].getIntValue())) };
                 const uint8_t a { static_cast<uint8_t> (
                     juce::jlimit (0, 255, juce::roundToInt (parts[3].getFloatValue() * 255.0f))) };
-                return juce::Colour (r, g, b, a);
+                result = juce::Colour (r, g, b, a);
+                parsed = true;
             }
         }
 
-        jassertfalse;
-        return juce::Colours::magenta;
+        if (not parsed)
+        {
+            jassertfalse;
+        }
     }
-
-    if (trimmed.startsWithChar ('#'))
+    else if (trimmed.startsWithChar ('#'))
     {
         const juce::String hex { trimmed.substring (1) };
 
@@ -586,29 +590,34 @@ juce::Colour Config::parseColour (const juce::String& input)
             const uint8_t r { static_cast<uint8_t> (hex.substring (0, 1).getHexValue32() * 17) };
             const uint8_t g { static_cast<uint8_t> (hex.substring (1, 2).getHexValue32() * 17) };
             const uint8_t b { static_cast<uint8_t> (hex.substring (2, 3).getHexValue32() * 17) };
-            return juce::Colour (r, g, b);
+            result = juce::Colour (r, g, b);
+            parsed = true;
         }
-
-        if (hex.length() == 6)
+        else if (hex.length() == 6)
         {
             const uint8_t r { static_cast<uint8_t> (hex.substring (0, 2).getHexValue32()) };
             const uint8_t g { static_cast<uint8_t> (hex.substring (2, 4).getHexValue32()) };
             const uint8_t b { static_cast<uint8_t> (hex.substring (4, 6).getHexValue32()) };
-            return juce::Colour (r, g, b);
+            result = juce::Colour (r, g, b);
+            parsed = true;
         }
-
-        if (hex.length() == 8)
+        else if (hex.length() == 8)
         {
             const uint8_t a { static_cast<uint8_t> (hex.substring (0, 2).getHexValue32()) };
             const uint8_t r { static_cast<uint8_t> (hex.substring (2, 4).getHexValue32()) };
             const uint8_t g { static_cast<uint8_t> (hex.substring (4, 6).getHexValue32()) };
             const uint8_t b { static_cast<uint8_t> (hex.substring (6, 8).getHexValue32()) };
-            return juce::Colour (r, g, b, a);
+            result = juce::Colour (r, g, b, a);
+            parsed = true;
         }
     }
 
-    jassertfalse;
-    return juce::Colours::magenta;
+    if (not parsed)
+    {
+        jassertfalse;
+    }
+
+    return result;
 }
 
 /**

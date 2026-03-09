@@ -112,29 +112,28 @@ namespace Terminal
  */
 static Color parseExtendedColor (const CSI& params, uint8_t& i) noexcept
 {
+    Color result {};
+
     if (i + 1 < params.count)
     {
         const auto subType { params.values.at (i + 1) };
 
         if (subType == 5 and i + 2 < params.count)
         {
-            const Color result { static_cast<uint8_t> (params.values.at (i + 2)), 0, 0, Color::palette };
+            result = Color { static_cast<uint8_t> (params.values.at (i + 2)), 0, 0, Color::palette };
             i += 2;
-            return result;
         }
-
-        if (subType == 2 and i + 4 < params.count)
+        else if (subType == 2 and i + 4 < params.count)
         {
-            const Color result { static_cast<uint8_t> (params.values.at (i + 2)),
-                                 static_cast<uint8_t> (params.values.at (i + 3)),
-                                 static_cast<uint8_t> (params.values.at (i + 4)),
-                                 Color::rgb };
+            result = Color { static_cast<uint8_t> (params.values.at (i + 2)),
+                             static_cast<uint8_t> (params.values.at (i + 3)),
+                             static_cast<uint8_t> (params.values.at (i + 4)),
+                             Color::rgb };
             i += 4;
-            return result;
         }
     }
 
-    return Color {};
+    return result;
 }
 
 namespace

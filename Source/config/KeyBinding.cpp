@@ -17,10 +17,12 @@ juce::KeyPress KeyBinding::getBinding (CommandID cmd) const
     const auto& actionID { actionIDForCommand (cmd) };
     auto it { bindings.find (actionID) };
 
-    if (it != bindings.end())
-        return it->second;
+    juce::KeyPress result {};
 
-    return {};
+    if (it != bindings.end())
+        result = it->second;
+
+    return result;
 }
 
 void KeyBinding::loadFromConfig()
@@ -144,11 +146,9 @@ const juce::String& KeyBinding::actionIDForCommand (CommandID cmd)
     };
 
     const int idx { static_cast<int> (cmd) - 1 };
+    const int safeIdx { (idx >= 0 and idx < 8) ? idx : 0 };
 
-    if (idx >= 0 and idx < 8)
-        return actionIDs.at (idx);
-
-    return actionIDs.at (0);
+    return actionIDs.at (safeIdx);
 }
 
 KeyBinding::CommandID KeyBinding::commandForActionID (const juce::String& actionID)

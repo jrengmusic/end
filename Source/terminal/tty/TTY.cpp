@@ -61,8 +61,9 @@ void TTY::run()
 {
     setPriority (Thread::Priority::high);
     char chunk[READ_CHUNK_SIZE];
+    bool eof { false };
 
-    while (not threadShouldExit())
+    while (not threadShouldExit() and not eof)
     {
         if (resizePending.load (std::memory_order_acquire))
         {
@@ -101,13 +102,14 @@ void TTY::run()
                     {
                         juce::MessageManager::callAsync (onExit);
                     }
-                    return;
+                    eof = true;
+                    break;
                 }
             }
 
             // READER THREAD — flush queued responses after drain completes
             // Deferred write gives child process time to set raw mode (ECHO off)
-            if (onDrainComplete)
+            if (not eof and onDrainComplete)
             {
                 onDrainComplete();
             }

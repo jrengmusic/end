@@ -33,8 +33,7 @@
  * @note MESSAGE THREAD — called from MainComponent constructor.
  */
 Terminal::Component::Component()
-    : screen (Config::getContext()->getString (Config::Key::fontFamily),
-              dpiCorrectedFontSize())
+    : screen (Config::getContext()->getString (Config::Key::fontFamily), dpiCorrectedFontSize())
     , stateTree (session.getState().get())
     , vblank (this,
               [this]
@@ -147,12 +146,12 @@ void Terminal::Component::resized()
     messageOverlay->setBounds (getLocalBounds());
     messageOverlay->setGridSize (screen.getNumRows(), screen.getNumCols());
 
-    if (isShowing() and not zoomInProgress and initialLayoutDone)
+    if (isShowing() and not zoomInProgress and isInitLayout)
     {
         messageOverlay->show();
     }
 
-    initialLayoutDone = true;
+    isInitLayout = true;
 }
 
 void Terminal::Component::copySelection()
@@ -188,7 +187,8 @@ void Terminal::Component::reloadConfig()
 void Terminal::Component::increaseZoom()
 {
     auto* cfg { Config::getContext() };
-    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) + 0.25f) };
+    const float newZoom { juce::jlimit (
+        Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) + 0.25f) };
     cfg->saveZoom (newZoom);
     applyZoom (newZoom);
 }
@@ -196,7 +196,8 @@ void Terminal::Component::increaseZoom()
 void Terminal::Component::decreaseZoom()
 {
     auto* cfg { Config::getContext() };
-    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) - 0.25f) };
+    const float newZoom { juce::jlimit (
+        Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) - 0.25f) };
     cfg->saveZoom (newZoom);
     applyZoom (newZoom);
 }
@@ -276,30 +277,36 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
     const auto mods { key.getModifiers() };
 
     const bool isScrollNav { mods.isShiftDown() and not mods.isCommandDown()
-        and (code == juce::KeyPress::pageUpKey or code == juce::KeyPress::pageDownKey
-             or code == juce::KeyPress::homeKey or code == juce::KeyPress::endKey) };
+                             and (code == juce::KeyPress::pageUpKey or code == juce::KeyPress::pageDownKey
+                                  or code == juce::KeyPress::homeKey or code == juce::KeyPress::endKey) };
+
+    bool handled { false };
 
     if (isScrollNav)
     {
         handleScrollNavigation (code);
-        return true;
+        handled = true;
+    }
+    else
+    {
+        const bool hasCommandModifier {
+#if JUCE_MAC
+            mods.isCommandDown()
+#else
+            mods.isCtrlDown()
+#endif
+        };
+
+        if (not hasCommandModifier and not mods.isAltDown())
+        {
+            clearSelectionAndScroll();
+            session.handleKeyPress (key);
+            cursor->resetBlink();
+            handled = true;
+        }
     }
 
-    const bool hasCommandModifier {
-#if JUCE_MAC
-        mods.isCommandDown()
-#else
-        mods.isCtrlDown()
-#endif
-    };
-
-    if (hasCommandModifier or mods.isAltDown())
-        return false;
-
-    clearSelectionAndScroll();
-    session.handleKeyPress (key);
-    cursor->resetBlink();
-    return true;
+    return handled;
 }
 
 /**
@@ -700,7 +707,6 @@ void Terminal::Component::applyZoom (float zoom) noexcept
 bool Terminal::Component::isMouseTracking() const noexcept
 {
     const auto& st { session.getState() };
-    return st.getTreeMode (Terminal::ID::mouseTracking)
-           or st.getTreeMode (Terminal::ID::mouseMotionTracking)
+    return st.getTreeMode (Terminal::ID::mouseTracking) or st.getTreeMode (Terminal::ID::mouseMotionTracking)
            or st.getTreeMode (Terminal::ID::mouseAllTracking);
 }

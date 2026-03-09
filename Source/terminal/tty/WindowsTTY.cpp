@@ -71,18 +71,18 @@ WindowsTTY::~WindowsTTY()
 static bool createPseudoConsoleAndPipes (HPCON& pseudoConsole, HANDLE& pipeReadEnd, HANDLE& inputWriter,
                                           HANDLE& outputReader, HANDLE& pipeWriteEnd, COORD size)
 {
-    if (not CreatePipe (&pipeReadEnd, &inputWriter, nullptr, 0))
+    bool result { false };
+
+    if (CreatePipe (&pipeReadEnd, &inputWriter, nullptr, 0))
     {
-        return false;
+        if (CreatePipe (&outputReader, &pipeWriteEnd, nullptr, 0))
+        {
+            HRESULT hr { CreatePseudoConsole (size, pipeReadEnd, pipeWriteEnd, 0, &pseudoConsole) };
+            result = not FAILED (hr);
+        }
     }
 
-    if (not CreatePipe (&outputReader, &pipeWriteEnd, nullptr, 0))
-    {
-        return false;
-    }
-
-    HRESULT hr { CreatePseudoConsole (size, pipeReadEnd, pipeWriteEnd, 0, &pseudoConsole) };
-    return not FAILED (hr);
+    return result;
 }
 
 /**
@@ -110,36 +110,38 @@ static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipe
     si.StartupInfo.cb = sizeof (si);
     si.lpAttributeList = static_cast<LPPROC_THREAD_ATTRIBUTE_LIST> (HeapAlloc (GetProcessHeap(), 0, attrSize));
 
-    if (not si.lpAttributeList)
+    bool result { false };
+
+    if (si.lpAttributeList)
     {
-        return false;
+        InitializeProcThreadAttributeList (si.lpAttributeList, 1, 0, &attrSize);
+        UpdateProcThreadAttribute (si.lpAttributeList, 0,
+            PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pseudoConsole, sizeof (HPCON), nullptr, nullptr);
+
+        WCHAR cmd[] = L"cmd.exe";
+        PROCESS_INFORMATION pi {};
+
+        BOOL ok { CreateProcessW (nullptr, cmd, nullptr, nullptr, FALSE,
+            CREATE_NEW_PROCESS_GROUP | EXTENDED_STARTUPINFO_PRESENT,
+            nullptr, nullptr, &si.StartupInfo, &pi) };
+
+        HeapFree (GetProcessHeap(), 0, si.lpAttributeList);
+
+        CloseHandle (pipeReadEnd);
+        pipeReadEnd = INVALID_HANDLE_VALUE;
+        CloseHandle (pipeWriteEnd);
+        pipeWriteEnd = INVALID_HANDLE_VALUE;
+
+        if (ok)
+        {
+            CloseHandle (pi.hThread);
+            process = pi.hProcess;
+        }
+
+        result = ok != FALSE;
     }
 
-    InitializeProcThreadAttributeList (si.lpAttributeList, 1, 0, &attrSize);
-    UpdateProcThreadAttribute (si.lpAttributeList, 0,
-        PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pseudoConsole, sizeof (HPCON), nullptr, nullptr);
-
-    WCHAR cmd[] = L"cmd.exe";
-    PROCESS_INFORMATION pi {};
-
-    BOOL ok { CreateProcessW (nullptr, cmd, nullptr, nullptr, FALSE,
-        CREATE_NEW_PROCESS_GROUP | EXTENDED_STARTUPINFO_PRESENT,
-        nullptr, nullptr, &si.StartupInfo, &pi) };
-
-    HeapFree (GetProcessHeap(), 0, si.lpAttributeList);
-
-    CloseHandle (pipeReadEnd);
-    pipeReadEnd = INVALID_HANDLE_VALUE;
-    CloseHandle (pipeWriteEnd);
-    pipeWriteEnd = INVALID_HANDLE_VALUE;
-
-    if (ok)
-    {
-        CloseHandle (pi.hThread);
-        process = pi.hProcess;
-    }
-
-    return ok != FALSE;
+    return result;
 }
 
 // =============================================================================
@@ -276,19 +278,30 @@ int WindowsTTY::read (char* buf, int maxBytes)
     // This allows the reader thread to return to the outer loop
     // and check resizePending between reads.
     DWORD available { 0 };
+    int result { 0 };
 
-    if (not PeekNamedPipe (outputReader, nullptr, 0, nullptr, &available, nullptr))
-        return (GetLastError() == ERROR_BROKEN_PIPE) ? -1 : 0;
+    if (PeekNamedPipe (outputReader, nullptr, 0, nullptr, &available, nullptr))
+    {
+        if (available > 0)
+        {
+            DWORD bytesRead { 0 };
 
-    if (available == 0)
-        return 0;
+            if (ReadFile (outputReader, buf, static_cast<DWORD> (maxBytes), &bytesRead, nullptr))
+            {
+                result = static_cast<int> (bytesRead);
+            }
+            else
+            {
+                result = (GetLastError() == ERROR_BROKEN_PIPE) ? -1 : 0;
+            }
+        }
+    }
+    else
+    {
+        result = (GetLastError() == ERROR_BROKEN_PIPE) ? -1 : 0;
+    }
 
-    DWORD bytesRead { 0 };
-
-    if (ReadFile (outputReader, buf, static_cast<DWORD> (maxBytes), &bytesRead, nullptr))
-        return static_cast<int> (bytesRead);
-
-    return (GetLastError() == ERROR_BROKEN_PIPE) ? -1 : 0;
+    return result;
 }
 
 /**
@@ -344,28 +357,34 @@ void WindowsTTY::resize (int cols, int rows)
  */
 bool WindowsTTY::waitForData (int timeoutMs)
 {
-    if (outputReader == INVALID_HANDLE_VALUE)
-        return false;
+    bool dataAvailable { false };
 
-    // Poll with short sleeps so the reader thread can check resizePending.
-    const int sleepMs { 1 };
-    int elapsed { 0 };
-
-    while (elapsed < timeoutMs)
+    if (outputReader != INVALID_HANDLE_VALUE)
     {
-        DWORD available { 0 };
+        // Poll with short sleeps so the reader thread can check resizePending.
+        const int sleepMs { 1 };
+        int elapsed { 0 };
 
-        if (not PeekNamedPipe (outputReader, nullptr, 0, nullptr, &available, nullptr))
-            return false;  // pipe broken
+        while (elapsed < timeoutMs and not dataAvailable)
+        {
+            DWORD available { 0 };
 
-        if (available > 0)
-            return true;
+            if (not PeekNamedPipe (outputReader, nullptr, 0, nullptr, &available, nullptr))
+                break;  // pipe broken
 
-        Sleep (sleepMs);
-        elapsed += sleepMs;
+            if (available > 0)
+            {
+                dataAvailable = true;
+            }
+            else
+            {
+                Sleep (sleepMs);
+                elapsed += sleepMs;
+            }
+        }
     }
 
-    return false;
+    return dataAvailable;
 }
 
 #endif

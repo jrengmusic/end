@@ -54,8 +54,9 @@ END is opinionated: it does terminal rendering and nothing else. No tabs, no spl
 
 ## Roadmap
 
+- **Split panes** -- in progress
+- **Tabs** -- Terminal::Component is already a self-contained JUCE component, wrapping into TabbedComponent is straightforward
 - **Windows support** -- ConPTY backend in progress, rendering pipeline ready
-- **Tabs** -- TerminalComponent is already a self-contained JUCE component, wrapping into TabbedComponent is straightforward
 - **Inline images** -- Sixel protocol support
 
 
@@ -112,27 +113,68 @@ Window size and zoom are saved automatically in `~/.config/end/state.lua`.
 
 ## Keybinds
 
-| Key | Action |
-|-----|--------|
-| Cmd+C | Copy selection |
-| Cmd+V | Paste |
-| Cmd+R | Reload config |
-| Cmd+Q | Quit (saves window state) |
-| Cmd+= | Zoom in |
-| Cmd+- | Zoom out |
-| Cmd+0 | Reset zoom |
-| Shift+PageUp | Scroll up |
-| Shift+PageDown | Scroll down |
-| Shift+Home | Scroll to top |
-| Shift+End | Scroll to bottom |
+All keyboard shortcuts are configurable via `end.lua`. Defaults:
+
+| Key | Action | Config key |
+|-----|--------|------------|
+| Cmd+C | Copy selection | `keys.copy` |
+| Cmd+V | Paste | `keys.paste` |
+| Cmd+R | Reload config | `keys.reload` |
+| Cmd+Q | Quit (saves window state) | `keys.quit` |
+| Cmd+W | Close tab | `keys.close_tab` |
+| Cmd+= | Zoom in | `keys.zoom_in` |
+| Cmd+- | Zoom out | `keys.zoom_out` |
+| Cmd+0 | Reset zoom | `keys.zoom_reset` |
+| Shift+PageUp | Scroll up | -- |
+| Shift+PageDown | Scroll down | -- |
+| Shift+Home | Scroll to top | -- |
+| Shift+End | Scroll to bottom | -- |
+
+On Windows/Linux, `cmd` maps to `Ctrl`.
+
+### Customizing keybinds
+
+```lua
+END = {
+    keys = {
+        copy = "cmd+shift+c",
+        paste = "cmd+shift+v",
+        reload = "F5",
+        quit = "cmd+shift+q",
+        zoom_in = "cmd+]",
+        zoom_out = "cmd+[",
+        zoom_reset = "cmd+\\",
+    },
+}
+```
+
+### Shortcut format
+
+Modifiers and key separated by `+`:
+
+| Modifier | Token |
+|----------|-------|
+| Command (Mac) / Ctrl (Win/Linux) | `cmd` or `ctrl` |
+| Shift | `shift` |
+| Alt / Option | `alt` or `opt` |
+
+| Key | Token |
+|-----|-------|
+| Letters | `a`-`z` |
+| Digits / symbols | `0`-`9`, `=`, `-`, `[`, `]`, `\`, etc. |
+| Function keys | `F1`-`F12` |
+| Navigation | `pageup`, `pagedown`, `home`, `end` |
+| Special | `escape`, `return`, `tab`, `space`, `backspace`, `delete`, `insert` |
+
+Single keys without modifiers are supported: `keys.reload = "F5"`
 
 
-## What END Does Not Handle
+## What END Does Not Handle (Yet)
 
-| Feature | Why |
-|---------|-----|
-| Tabs | tmux (planned) |
-| Splits | tmux |
+| Feature | Status |
+|---------|--------|
+| Split panes | In progress |
+| Tabs | Planned |
 | Sessions | tmux |
 | Shell integration | Complexity, low value |
 | Hyperlinks | Not yet |

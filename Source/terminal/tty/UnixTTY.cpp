@@ -247,18 +247,22 @@ bool UnixTTY::isRunning() const
 int UnixTTY::read (char* buf, int maxBytes)
 {
     const ssize_t n { ::read (master, buf, maxBytes) };
+    int result { -1 };
 
     if (n > 0)
     {
-        return static_cast<int> (n);
+        result = static_cast<int> (n);
     }
-
-    if (n == 0)
+    else if (n == 0)
     {
-        return -1;
+        result = -1;
+    }
+    else
+    {
+        result = (errno == EAGAIN or errno == EWOULDBLOCK) ? 0 : -1;
     }
 
-    return (errno == EAGAIN or errno == EWOULDBLOCK) ? 0 : -1;
+    return result;
 }
 
 /**
