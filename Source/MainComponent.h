@@ -3,7 +3,7 @@
  * @brief Root JUCE component that hosts the terminal UI.
  *
  * MainComponent is the content component of the application's `GlassWindow`.
- * It owns a single `Terminal::Component` child that fills the entire client area,
+ * It owns a `Terminal::Tabs` child that manages multiple terminal sessions,
  * and paints the window background with the configured colour and opacity.
  *
  * ### Responsibilities
@@ -11,14 +11,14 @@
  * - Registers a close callback with `jreng::BackgroundBlur` so that window
  *   dimensions are persisted to `state.lua` when the native close button is
  *   pressed (in addition to the Cmd+Q path handled by ENDApplication).
- * - Delegates all keyboard, mouse, and terminal I/O to `Terminal::Component`.
+ * - Delegates all keyboard, mouse, and terminal I/O to `Terminal::Tabs`.
  * - Serves as an ApplicationCommandTarget, owning the ApplicationCommandManager
  *   and KeyBinding for command dispatch.
  *
  * @par Thread context
  * All methods are called on the **MESSAGE THREAD**.
  *
- * @see Terminal::Component
+ * @see Terminal::Tabs
  * @see Config
  * @see ENDApplication::systemRequestedQuit
  * @see KeyBinding
@@ -37,7 +37,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "component/TerminalComponent.h"
+#include "component/Tabs.h"
 #include "config/Config.h"
 #include "config/KeyBinding.h"
 
@@ -46,22 +46,23 @@
  * @brief Root content component of the END application window.
  *
  * Placed inside `jreng::GlassWindow` by `ENDApplication::initialise()`.
- * Owns the `Terminal::Component` and paints the translucent background layer
- * that shows through the native window blur effect.
+ * Owns the `Terminal::Tabs` container and paints the translucent background
+ * layer that shows through the native window blur effect.
  *
  * Inherits `juce::ApplicationCommandTarget` to handle application-wide commands
- * (copy, paste, quit, close tab, reload, zoom) via the JUCE command manager.
+ * (copy, paste, quit, close/new tab, navigate tabs, reload, zoom) via the
+ * JUCE command manager.
  *
  * @par Layout
- * `resized()` gives the full local bounds to `Terminal::Component`; the terminal
- * itself applies its own insets and title-bar offset internally.
+ * `resized()` gives the full local bounds to `Terminal::Tabs`; each terminal
+ * applies its own insets and title-bar offset internally.
  *
  * @par Background painting
  * `paint()` fills with `backgroundColour.withAlpha(opacity)`.  The native blur
  * layer beneath the window provides the frosted-glass effect; this fill sets
  * the tint colour and transparency.
  *
- * @see Terminal::Component
+ * @see Terminal::Tabs
  * @see Config::Key::windowColour
  * @see Config::Key::windowOpacity
  * @see KeyBinding
@@ -71,14 +72,14 @@ class MainComponent
     , public juce::ApplicationCommandTarget
 {
 public:
-    /** @brief Constructs the component, creates Terminal::Component, sets initial size. */
+    /** @brief Constructs the component, creates Terminal::Tabs, sets initial size. */
     MainComponent();
 
     /** @brief Clears the BackgroundBlur close callback before destruction. */
     ~MainComponent() override;
 
     /**
-     * @brief Fills the full bounds to Terminal::Component.
+     * @brief Fills the full bounds to Terminal::Tabs.
      * @note MESSAGE THREAD — called by JUCE layout system on every resize.
      */
     void resized() override;
@@ -95,14 +96,10 @@ public:
     bool perform (const juce::ApplicationCommandTarget::InvocationInfo& info) override;
 
 private:
-    /** @brief Application command manager; owned by this component. */
     juce::ApplicationCommandManager commandManager;
-
-    /** @brief Key bindings loaded from Config; references commandManager. */
     KeyBinding keyBinding { commandManager };
-
-    /** @brief The terminal UI; fills the entire client area. */
-    std::unique_ptr<Terminal::Component> terminal;
+    jreng::GLRenderer glRenderer;
+    std::unique_ptr<Terminal::Tabs> tabs;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

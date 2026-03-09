@@ -11,9 +11,9 @@ public:
 
     void attachTo (juce::Component& target);
     void detach();
+    void setComponentPaintingEnabled (bool enabled) noexcept;
 
-    void addComponent (GLComponent* component);
-    void removeComponent (GLComponent* component);
+    void setComponents (jreng::Owner<GLComponent>& source) noexcept;
 
     void triggerRepaint();
     void setClippingMask (const juce::Image& mask) noexcept;
@@ -24,7 +24,7 @@ private:
     void openGLContextClosing() override;
 
     juce::OpenGLContext openGLContext;
-    std::vector<GLComponent*> components;
+    jreng::Owner<GLComponent>* components { nullptr };
     float renderingScale { 1.0f };
 
     GLuint shaderProgram { 0 };

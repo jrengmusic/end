@@ -2,15 +2,16 @@
  * @file MainComponent.cpp
  * @brief Implementation of the root application content component.
  *
- * Constructs the `Terminal::Component`, sets the initial window size from
+ * Constructs the `Terminal::Tabs` container, sets the initial window size from
  * persisted state, and registers a close callback so that window dimensions
  * are saved when the native close button is pressed.
  *
  * Also owns the ApplicationCommandManager and KeyBinding to handle application
- * commands (copy, paste, quit, close tab, reload, zoom) via JUCE command system.
+ * commands (copy, paste, quit, tab management, reload, zoom) via JUCE command
+ * system.
  *
  * @see MainComponent
- * @see Terminal::Component
+ * @see Terminal::Tabs
  * @see Config
  * @see KeyBinding
  */
@@ -33,7 +34,7 @@
  *
  * Construction order:
  * 1. `setOpaque(false)` — tells JUCE the component has transparency.
- * 2. Creates `Terminal::Component` and makes it visible.
+ * 2. Creates `Terminal::Tabs` with top orientation and adds initial tab.
  * 3. Registers this component with the command manager and adds key listener.
  * 4. Reads `windowWidth` / `windowHeight` from Config (which already applied
  *    `state.lua` overrides) and calls `setSize()`.
@@ -46,8 +47,15 @@ MainComponent::MainComponent()
 {
     setOpaque (false);
 
-    terminal = std::make_unique<Terminal::Component>();
-    addAndMakeVisible (terminal.get());
+    tabs = std::make_unique<Terminal::Tabs> (juce::TabbedButtonBar::TabsAtTop);
+    addAndMakeVisible (tabs.get());
+
+    glRenderer.setComponents (tabs->getComponents());
+    glRenderer.setComponentPaintingEnabled (true);
+    glRenderer.attachTo (*this);
+
+    tabs->onRepaintNeeded = [this] { glRenderer.triggerRepaint(); };
+    tabs->addNewTab();
 
     commandManager.registerAllCommandsForTarget (this);
     keyBinding.applyMappings();
@@ -65,17 +73,17 @@ MainComponent::MainComponent()
 }
 
 /**
- * @brief Fills the full bounds to Terminal::Component.
+ * @brief Fills the full bounds to Terminal::Tabs.
  *
- * The terminal applies its own internal insets (horizontal/vertical padding
- * and optional title-bar offset), so we simply hand it the entire local area.
+ * The tab container handles its own tab bar layout and passes the content
+ * area to each Terminal::Component, which applies its own internal insets.
  *
  * @note MESSAGE THREAD — called by JUCE on every resize event.
  */
 void MainComponent::resized()
 {
-    if (terminal != nullptr)
-        terminal->setBounds (getLocalBounds());
+    if (tabs != nullptr)
+        tabs->setBounds (getLocalBounds());
 }
 
 /**
@@ -88,6 +96,8 @@ void MainComponent::resized()
  */
 MainComponent::~MainComponent()
 {
+    glRenderer.detach();
+    tabs.reset();
     removeKeyListener (commandManager.getKeyMappings());
     jreng::BackgroundBlur::setCloseCallback (nullptr);
 }
@@ -112,7 +122,10 @@ void MainComponent::getAllCommands (juce::Array<juce::CommandID>& commands)
         static_cast<int> (C::reload),
         static_cast<int> (C::zoomIn),
         static_cast<int> (C::zoomOut),
-        static_cast<int> (C::zoomReset)
+        static_cast<int> (C::zoomReset),
+        static_cast<int> (C::newTab),
+        static_cast<int> (C::prevTab),
+        static_cast<int> (C::nextTab)
     });
 }
 
@@ -186,6 +199,30 @@ void MainComponent::getCommandInfo (juce::CommandID commandID, juce::Application
                 result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
             break;
         }
+        case static_cast<int> (C::newTab):
+        {
+            result.setInfo ("New Tab", "Open a new terminal tab", "Tabs", 0);
+            const auto kp { keyBinding.getBinding (C::newTab) };
+            if (kp.isValid())
+                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
+            break;
+        }
+        case static_cast<int> (C::prevTab):
+        {
+            result.setInfo ("Previous Tab", "Switch to previous tab", "Tabs", 0);
+            const auto kp { keyBinding.getBinding (C::prevTab) };
+            if (kp.isValid())
+                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
+            break;
+        }
+        case static_cast<int> (C::nextTab):
+        {
+            result.setInfo ("Next Tab", "Switch to next tab", "Tabs", 0);
+            const auto kp { keyBinding.getBinding (C::nextTab) };
+            if (kp.isValid())
+                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
+            break;
+        }
         default:
             break;
     }
@@ -198,31 +235,42 @@ bool MainComponent::perform (const juce::ApplicationCommandTarget::InvocationInf
     switch (info.commandID)
     {
         case static_cast<int> (C::copy):
-            terminal->copySelection();
+            tabs->copySelection();
             return true;
         case static_cast<int> (C::paste):
-            terminal->pasteClipboard();
+            tabs->pasteClipboard();
             return true;
         case static_cast<int> (C::quit):
             juce::JUCEApplication::getInstance()->systemRequestedQuit();
             return true;
         case static_cast<int> (C::closeTab):
-            juce::JUCEApplication::getInstance()->systemRequestedQuit();
+            tabs->closeActiveTab();
+            if (tabs->getTabCount() == 0)
+                juce::JUCEApplication::getInstance()->systemRequestedQuit();
             return true;
         case static_cast<int> (C::reload):
             keyBinding.reload();
             commandManager.registerAllCommandsForTarget (this);
             keyBinding.applyMappings();
-            terminal->reloadConfig();
+            tabs->reloadConfig();
             return true;
         case static_cast<int> (C::zoomIn):
-            terminal->increaseZoom();
+            tabs->increaseZoom();
             return true;
         case static_cast<int> (C::zoomOut):
-            terminal->decreaseZoom();
+            tabs->decreaseZoom();
             return true;
         case static_cast<int> (C::zoomReset):
-            terminal->resetZoom();
+            tabs->resetZoom();
+            return true;
+        case static_cast<int> (C::newTab):
+            tabs->addNewTab();
+            return true;
+        case static_cast<int> (C::prevTab):
+            tabs->selectPreviousTab();
+            return true;
+        case static_cast<int> (C::nextTab):
+            tabs->selectNextTab();
             return true;
         default:
             return false;

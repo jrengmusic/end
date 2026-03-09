@@ -28,7 +28,10 @@ struct KeyBinding
         reload,
         zoomIn,
         zoomOut,
-        zoomReset
+        zoomReset,
+        newTab,
+        prevTab,
+        nextTab
     };
 
     explicit KeyBinding (juce::ApplicationCommandManager& commandManager);

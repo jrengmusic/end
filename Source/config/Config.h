@@ -258,6 +258,9 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysZoomIn         { "keys.zoom_in" };
         inline static const juce::String keysZoomOut        { "keys.zoom_out" };
         inline static const juce::String keysZoomReset      { "keys.zoom_reset" };
+        inline static const juce::String keysNewTab         { "keys.new_tab" };
+        inline static const juce::String keysPrevTab        { "keys.prev_tab" };
+        inline static const juce::String keysNextTab        { "keys.next_tab" };
     };
 
     //==============================================================================

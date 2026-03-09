@@ -78,7 +78,7 @@ namespace Terminal
  * @see MessageOverlay
  */
 class Component
-    : public juce::Component
+    : public jreng::GLComponent
     , public juce::KeyListener
     , private juce::ValueTree::Listener
 {
@@ -203,6 +203,12 @@ public:
      * @return Column count as reported by Screen.
      */
     int getGridCols() const noexcept;
+
+    void glContextCreated() noexcept override;
+    void glContextClosing() noexcept override;
+    void renderGL() noexcept override;
+
+    std::function<void()> onRepaintNeeded;
 
     void copySelection();
     void pasteClipboard();

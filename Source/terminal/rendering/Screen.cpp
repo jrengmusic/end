@@ -279,17 +279,13 @@ void Screen::toggleDebug() noexcept { debugMode = not debugMode; }
 /// @return `true` if debug rendering mode is active.
 bool Screen::isDebugMode() const noexcept { return debugMode; }
 
-/// @brief Attaches the OpenGL renderer to @p component.
-void Screen::attachTo (juce::Component& component) { glRenderer.attachTo (component); }
+void Screen::glContextCreated() { glRenderer.contextCreated(); }
 
-/// @brief Detaches the OpenGL renderer from its current component.
-void Screen::detach() { glRenderer.detach(); }
+void Screen::glContextClosing() { glRenderer.contextClosing(); }
 
-/// @return `true` if the OpenGL renderer is attached to a component.
-bool Screen::isAttached() const noexcept { return glRenderer.isAttached(); }
+void Screen::renderOpenGL (int originX, int originY) { glRenderer.render (originX, originY); }
 
-/// @return `true` once after the GL context has been created.
-bool Screen::consumeContextReady() noexcept { return glRenderer.consumeContextReady(); }
+bool Screen::isGLContextReady() const noexcept { return glRenderer.isContextReady(); }
 
 /// @return `true` if a new snapshot is waiting in the mailbox.
 bool Screen::hasNewSnapshot() const noexcept { return resources.snapshotBuffer.isReady(); }
@@ -513,7 +509,6 @@ void Screen::render (const State& state, Grid& grid) noexcept
 
         populateFromGrid (state, grid, dirty);
         buildSnapshot (state, dirty);
-        glRenderer.triggerRepaint();
     }
 }
 

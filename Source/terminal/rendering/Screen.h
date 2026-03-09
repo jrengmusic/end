@@ -317,64 +317,23 @@ struct Snapshot
  * @see GlyphAtlas
  */
 // GL THREAD
-class OpenGL : public juce::OpenGLRenderer
+class OpenGL
 {
 public:
     OpenGL();
-    ~OpenGL() override;
+    ~OpenGL();
 
-    /**
-     * @brief Called by JUCE when the OpenGL context is first created.
-     *
-     * Compiles shaders, creates VAO/VBO buffers, and sets `contextReady`.
-     * Called on the **GL THREAD**.
-     */
-    void newOpenGLContextCreated() override;
+    void contextCreated();
+    void render (int originX, int originY);
+    void contextClosing();
+    bool isContextReady() const noexcept { return monoShader != nullptr; }
 
-    /**
-     * @brief Called by JUCE on every vsync to render one frame.
-     *
-     * Acquires the latest snapshot, uploads staged atlas bitmaps, and issues
-     * draw calls for backgrounds, mono glyphs, and emoji glyphs.
-     * Called on the **GL THREAD**.
-     */
-    void renderOpenGL() override;
-
-    /**
-     * @brief Called by JUCE when the OpenGL context is about to be destroyed.
-     *
-     * Releases GPU resources (textures, VAO, VBOs, shaders).
-     * Called on the **GL THREAD**.
-     */
-    void openGLContextClosing() override;
-
-    /**
-     * @brief Wires up the mailbox and atlas pointers used during rendering.
-     *
-     * Must be called before the OpenGL context is created.  Both pointers
-     * must remain valid for the lifetime of this `OpenGL` instance.
-     *
-     * @param buffer   Pointer to the `GLSnapshotBuffer` owned by `Screen::Resources`.
-     * @param atlas    Pointer to the `GlyphAtlas` owned by `Screen::Resources`.
-     *
-     * @note **MESSAGE THREAD**.
-     */
     void setResources (jreng::GLSnapshotBuffer<Snapshot>* buffer, GlyphAtlas* atlas) noexcept
     {
         snapshotBuffer = buffer;
         glyphAtlas = atlas;
     }
 
-    /**
-     * @brief Updates the OpenGL viewport to match the component bounds.
-     *
-     * Scales @p bounds by `Fonts::getDisplayScale()` to convert from logical
-     * to physical pixels, then stores the result for use in `renderOpenGL()`.
-     *
-     * @param bounds  Component bounds in logical (CSS/point) pixel space.
-     *
-     * @note **MESSAGE THREAD**.
-     */
     void setViewport (const juce::Rectangle<int>& bounds) noexcept
     {
         const float scale { Fonts::getDisplayScale() };
@@ -383,50 +342,6 @@ public:
         viewportWidth  = static_cast<int> (static_cast<float> (bounds.getWidth())  * scale);
         viewportHeight = static_cast<int> (static_cast<float> (bounds.getHeight()) * scale);
     }
-
-    /**
-     * @brief Attaches the OpenGL context to @p target and starts rendering.
-     *
-     * @param target  Component to render into.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    void attachTo (juce::Component& target) noexcept;
-
-    /**
-     * @brief Detaches the OpenGL context from the current component.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    void detach() noexcept;
-
-    /**
-     * @brief Requests a repaint on the next vsync.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    void triggerRepaint() noexcept;
-
-    /**
-     * @brief Returns true if the OpenGL context is currently attached.
-     *
-     * @return `true` if attached to a component.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    bool isAttached() const noexcept;
-
-    /**
-     * @brief Atomically reads and clears the context-ready flag.
-     *
-     * Returns `true` once after `newOpenGLContextCreated()` has run.  Used
-     * by the message thread to detect when the GL context is ready for use.
-     *
-     * @return `true` if the context became ready since the last call.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    bool consumeContextReady() noexcept { return contextReady.exchange (false); }
 
 private:
     /**
@@ -474,14 +389,12 @@ private:
      */
     void drawBackgrounds (const Background* data, int count);
 
-    jreng::GLSnapshotBuffer<Snapshot>* snapshotBuffer { nullptr }; ///< Pointer to the shared snapshot buffer; not owned.
-    GlyphAtlas* glyphAtlas { nullptr }; ///< Pointer to the shared glyph atlas; not owned.
+    jreng::GLSnapshotBuffer<Snapshot>* snapshotBuffer { nullptr };
+    GlyphAtlas* glyphAtlas { nullptr };
 
-    juce::OpenGLContext openGLContext; ///< JUCE OpenGL context managing the platform GL surface.
-
-    std::unique_ptr<juce::OpenGLShaderProgram> monoShader;       ///< Shader for monochrome glyph instances.
-    std::unique_ptr<juce::OpenGLShaderProgram> emojiShader;      ///< Shader for colour emoji glyph instances.
-    std::unique_ptr<juce::OpenGLShaderProgram> backgroundShader; ///< Shader for background colour quads.
+    std::unique_ptr<juce::OpenGLShaderProgram> monoShader;
+    std::unique_ptr<juce::OpenGLShaderProgram> emojiShader;
+    std::unique_ptr<juce::OpenGLShaderProgram> backgroundShader;
 
     GLuint monoAtlasTexture  { 0 }; ///< GPU texture ID for the monochrome glyph atlas.
     GLuint emojiAtlasTexture { 0 }; ///< GPU texture ID for the colour emoji atlas.
@@ -495,7 +408,6 @@ private:
     int viewportWidth  { 0 }; ///< Physical pixel width of the render viewport.
     int viewportHeight { 0 }; ///< Physical pixel height of the render viewport.
 
-    std::atomic<bool> contextReady { false }; ///< Set to true in newOpenGLContextCreated(); cleared by consumeContextReady().
 };
 
 };  // struct Render
@@ -672,42 +584,13 @@ public:
     void setTheme (const Theme& theme) noexcept;
 
     // =========================================================================
-    // OpenGL attachment
+    // GL lifecycle (called by Terminal::Component from GLComponent overrides)
     // =========================================================================
 
-    /**
-     * @brief Attaches the OpenGL renderer to @p component.
-     *
-     * @param component  JUCE component to render into.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    void attachTo (juce::Component& component);
-
-    /**
-     * @brief Detaches the OpenGL renderer from its current component.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    void detach();
-
-    /**
-     * @brief Returns true if the OpenGL renderer is attached to a component.
-     *
-     * @return `true` if attached.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    bool isAttached() const noexcept;
-
-    /**
-     * @brief Atomically reads and clears the GL context-ready flag.
-     *
-     * @return `true` once after the GL context has been created.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    bool consumeContextReady() noexcept;
+    void glContextCreated();
+    void glContextClosing();
+    void renderOpenGL (int originX, int originY);
+    bool isGLContextReady() const noexcept;
 
     // =========================================================================
     // Debug / state queries

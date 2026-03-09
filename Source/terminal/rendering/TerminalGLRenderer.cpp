@@ -100,108 +100,12 @@ GLuint createAtlasTexture (int width, int height, GLenum internalFormat, GLenum 
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-/**
- * @brief Default constructor.
- *
- * All members are zero/null-initialised by their in-class defaults.
- * The OpenGL context is not created here; call `attachTo()` to start rendering.
- *
- * @note **MESSAGE THREAD**.
- */
-Render::OpenGL::OpenGL() {}
+Render::OpenGL::OpenGL() = default;
 
-/**
- * @brief Destructor — detaches the OpenGL context.
- *
- * Calls `openGLContext.detach()`, which triggers `openGLContextClosing()` on
- * the GL THREAD before the context is destroyed.  All GPU resources are
- * released inside that callback.
- *
- * @note **MESSAGE THREAD**.
- */
-Render::OpenGL::~OpenGL()
-{
-    openGLContext.detach();
-}
+Render::OpenGL::~OpenGL() = default;
 
-/**
- * @brief Attaches the OpenGL context to @p target and starts the render loop.
- *
- * Configures the context to require OpenGL 3.2 core profile, registers `this`
- * as the renderer, enables component painting, disables continuous repainting
- * (frames are triggered explicitly via `triggerRepaint()`), then attaches to
- * @p target.
- *
- * @param target  JUCE component to render into.
- *
- * @note **MESSAGE THREAD**.
- * @see triggerRepaint()
- */
-void Render::OpenGL::attachTo (juce::Component& target) noexcept
-{
-    openGLContext.setOpenGLVersionRequired (juce::OpenGLContext::openGL3_2);
-    openGLContext.setRenderer (this);
-    openGLContext.setComponentPaintingEnabled (true);
-    openGLContext.setContinuousRepainting (false);
-    openGLContext.attachTo (target);
-}
-
-/**
- * @brief Detaches the OpenGL context from its current component.
- *
- * After this call, `openGLContextClosing()` will be invoked on the GL THREAD
- * to release GPU resources.
- *
- * @note **MESSAGE THREAD**.
- */
-void Render::OpenGL::detach() noexcept
-{
-    openGLContext.detach();
-}
-
-/**
- * @brief Requests a repaint on the next vsync.
- *
- * Delegates to `juce::OpenGLContext::triggerRepaint()`.  Has no effect if the
- * context is not attached.
- *
- * @note **MESSAGE THREAD**.
- */
-void Render::OpenGL::triggerRepaint() noexcept
-{
-    openGLContext.triggerRepaint();
-}
-
-/**
- * @brief Returns true if the OpenGL context is currently attached to a component.
- *
- * @return `true` if attached.
- *
- * @note **MESSAGE THREAD**.
- */
-bool Render::OpenGL::isAttached() const noexcept
-{
-    return openGLContext.isAttached();
-}
-
-/**
- * @brief Called by JUCE when the OpenGL context is first created.
- *
- * Performs one-time GPU resource initialisation:
- * 1. Enables window transparency via `jreng::BackgroundBlur::enableGLTransparency()`.
- * 2. Compiles the mono, emoji, and background GLSL shader programs.
- * 3. Creates the VAO, unit-quad VBO, and instance VBO.
- * 4. Allocates the mono (R8) and emoji (RGBA8) atlas textures at
- *    `GlyphAtlas::atlasDimension()` × `GlyphAtlas::atlasDimension()`.
- * 5. Sets `contextReady` to `true` so the MESSAGE THREAD can detect readiness
- *    via `consumeContextReady()`.
- *
- * @note **GL THREAD**.
- * @see compileShaders()
- * @see createBuffers()
- * @see GlyphAtlas::atlasDimension()
- */
-void Render::OpenGL::newOpenGLContextCreated()
+// GL THREAD
+void Render::OpenGL::contextCreated()
 {
     jreng::BackgroundBlur::enableGLTransparency();
 
@@ -211,8 +115,6 @@ void Render::OpenGL::newOpenGLContextCreated()
     const int atlasDim { GlyphAtlas::atlasDimension() };
     monoAtlasTexture = createAtlasTexture (atlasDim, atlasDim, juce::gl::GL_R8, juce::gl::GL_RED);
     emojiAtlasTexture = createAtlasTexture (atlasDim, atlasDim, juce::gl::GL_RGBA, juce::gl::GL_RGBA);
-
-    contextReady.store (true);
 }
 
 /**
@@ -236,7 +138,8 @@ void Render::OpenGL::newOpenGLContextCreated()
  * @see drawBackgrounds()
  * @see drawInstances()
  */
-void Render::OpenGL::renderOpenGL()
+// GL THREAD
+void Render::OpenGL::render (int originX, int originY)
 {
     if (monoShader != nullptr and emojiShader != nullptr and backgroundShader != nullptr)
     {
@@ -244,14 +147,11 @@ void Render::OpenGL::renderOpenGL()
         juce::gl::glGetIntegerv (juce::gl::GL_VIEWPORT, fullViewport.data());
         const int fullHeight { fullViewport.at (3) };
 
-        const int glY { fullHeight - viewportY - viewportHeight };
-        juce::gl::glViewport (viewportX, glY, viewportWidth, viewportHeight);
+        const int glX { originX + viewportX };
+        const int glY { fullHeight - originY - viewportY - viewportHeight };
+        juce::gl::glViewport (glX, glY, viewportWidth, viewportHeight);
 
         Snapshot* snapshot { snapshotBuffer != nullptr ? snapshotBuffer->read() : nullptr };
-
-        juce::gl::glClearColor (
-            0.0f, 0.0f, 0.0f, 0.0f); // Transparent clear for compositing
-        juce::gl::glClear (juce::gl::GL_COLOR_BUFFER_BIT);
 
         if (snapshot != nullptr)
         {
@@ -294,7 +194,8 @@ void Render::OpenGL::renderOpenGL()
  *
  * @note **GL THREAD**.
  */
-void Render::OpenGL::openGLContextClosing()
+// GL THREAD
+void Render::OpenGL::contextClosing()
 {
     monoShader.reset();
     emojiShader.reset();

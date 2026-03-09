@@ -115,7 +115,6 @@ Terminal::Component::~Component()
     messageOverlay.reset();
     screen.setSelection (nullptr);
     screenSelection.reset();
-    screen.detach();
     removeKeyListener (this);
 }
 
@@ -502,19 +501,49 @@ void Terminal::Component::mouseUp (const juce::MouseEvent& event)
     }
 }
 
-/**
- * @brief Attaches Screen to this component on first visibility.
- *
- * `Screen::attachTo()` requires a valid native peer, so it is deferred until
- * the component is showing.  Subsequent visibility changes are ignored because
- * `Screen::isAttached()` guards the call.
- *
- * @note MESSAGE THREAD.
- */
+// GL THREAD
+void Terminal::Component::glContextCreated() noexcept
+{
+    screen.glContextCreated();
+    session.getGrid().markAllDirty();
+    session.getState().setSnapshotDirty();
+}
+
+// GL THREAD
+void Terminal::Component::glContextClosing() noexcept
+{
+    screen.glContextClosing();
+}
+
+// GL THREAD
+void Terminal::Component::renderGL() noexcept
+{
+    if (isVisible())
+    {
+        if (not screen.isGLContextReady())
+            screen.glContextCreated();
+
+        const float scale { Fonts::getDisplayScale() };
+        const auto origin { localPointToGlobal (juce::Point<int> (0, 0)) };
+        const auto* topLevel { getTopLevelComponent() };
+        const auto relative { topLevel != nullptr
+            ? topLevel->getLocalPoint (this, juce::Point<int> (0, 0))
+            : origin };
+        const int originX { static_cast<int> (static_cast<float> (relative.x) * scale) };
+        const int originY { static_cast<int> (static_cast<float> (relative.y) * scale) };
+
+        screen.renderOpenGL (originX, originY);
+    }
+}
+
+// MESSAGE THREAD
 void Terminal::Component::visibilityChanged()
 {
-    if (isVisible() and not screen.isAttached())
-        screen.attachTo (*this);
+    if (isVisible())
+    {
+        session.getGrid().markAllDirty();
+        session.getState().setSnapshotDirty();
+    }
 }
 
 /**
@@ -574,11 +603,6 @@ void Terminal::Component::onVBlank()
     if (not isFocusContainer())
         toFront (true);
 
-    if (screen.consumeContextReady())
-    {
-        session.getGrid().markAllDirty();
-    }
-
     if (session.getState().consumeSnapshotDirty())
     {
         const juce::ScopedTryLock lock (session.getGrid().getResizeLock());
@@ -586,6 +610,9 @@ void Terminal::Component::onVBlank()
         if (lock.isLocked())
         {
             screen.render (session.getState(), session.getGrid());
+
+            if (onRepaintNeeded != nullptr)
+                onRepaintNeeded();
         }
     }
 

@@ -103,6 +103,9 @@ void Config::initDefaults()
     values[Key::keysZoomIn]    = "cmd+=";
     values[Key::keysZoomOut]   = "cmd+-";
     values[Key::keysZoomReset] = "cmd+0";
+    values[Key::keysNewTab]    = "cmd+t";
+    values[Key::keysPrevTab]   = "cmd+[";
+    values[Key::keysNextTab]   = "cmd+]";
 }
 
 /**
@@ -170,6 +173,9 @@ void Config::initSchema()
     schema[Key::keysZoomIn]          = { T::string };
     schema[Key::keysZoomOut]         = { T::string };
     schema[Key::keysZoomReset]       = { T::string };
+    schema[Key::keysNewTab]          = { T::string };
+    schema[Key::keysPrevTab]         = { T::string };
+    schema[Key::keysNextTab]         = { T::string };
 }
 
 /**

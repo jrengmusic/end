@@ -31,16 +31,14 @@ void GLRenderer::detach()
     openGLContext.detach();
 }
 
-void GLRenderer::addComponent (GLComponent* component)
+void GLRenderer::setComponentPaintingEnabled (bool enabled) noexcept
 {
-    if (component != nullptr)
-        components.push_back (component);
+    openGLContext.setComponentPaintingEnabled (enabled);
 }
 
-void GLRenderer::removeComponent (GLComponent* component)
+void GLRenderer::setComponents (jreng::Owner<GLComponent>& source) noexcept
 {
-    components.erase (std::remove (components.begin(), components.end(), component),
-                     components.end());
+    components = &source;
 }
 
 void GLRenderer::triggerRepaint()
@@ -65,6 +63,15 @@ void GLRenderer::newOpenGLContextCreated()
     {
         juce::gl::glGenVertexArrays (1, &vao);
         juce::gl::glGenBuffers (1, &vbo);
+    }
+
+    if (components != nullptr)
+    {
+        for (auto& comp : *components)
+        {
+            if (comp != nullptr)
+                comp->glContextCreated();
+        }
     }
 }
 
@@ -121,66 +128,71 @@ void GLRenderer::renderOpenGL()
             const float uiScale { juce::Component::getApproximateScaleFactorForComponent (target) };
             const float totalScale { uiScale * renderingScale };
 
-            for (auto* comp : components)
+            if (components != nullptr)
             {
-                if (comp != nullptr and comp->isVisible())
+                for (auto& comp : *components)
                 {
-                    const auto localBounds { comp->getLocalBounds() };
-                    const float compWidth { static_cast<float> (localBounds.getWidth()) };
-                    const float compHeight { static_cast<float> (localBounds.getHeight()) };
-
-                    GLGraphics g { compWidth, compHeight, totalScale };
-                    comp->renderGL (g);
-
-                    if (g.hasContent())
+                    if (comp != nullptr and comp->isVisible())
                     {
-                        const auto origin { target->getLocalPoint (comp, juce::Point<float> (0.0f, 0.0f)) };
-                        const float destX { origin.x * totalScale };
-                        const float destY { origin.y * totalScale };
-                        const float physW { compWidth * totalScale };
-                        const float physH { compHeight * totalScale };
+                        comp->renderGL();
 
-                        juce::gl::glEnable (juce::gl::GL_SCISSOR_TEST);
-                        juce::gl::glScissor (static_cast<GLint> (destX),
-                                             static_cast<GLint> (vpHeight - destY - physH),
-                                             static_cast<GLsizei> (physW),
-                                             static_cast<GLsizei> (physH));
+                        const auto localBounds { comp->getLocalBounds() };
+                        const float compWidth { static_cast<float> (localBounds.getWidth()) };
+                        const float compHeight { static_cast<float> (localBounds.getHeight()) };
 
-                        juce::gl::glBindVertexArray (vao);
+                        GLGraphics g { compWidth, compHeight, totalScale };
+                        comp->renderGL (g);
 
-                        for (const auto& cmd : g.getCommands())
+                        if (g.hasContent())
                         {
-                            if (cmd.type == GLGraphics::CommandType::pushClip)
-                            {
-                                juce::gl::glEnable (juce::gl::GL_STENCIL_TEST);
-                                juce::gl::glStencilFunc (juce::gl::GL_ALWAYS, 1, 0xFF);
-                                juce::gl::glStencilOp (juce::gl::GL_KEEP, juce::gl::GL_KEEP, juce::gl::GL_REPLACE);
-                                juce::gl::glStencilMask (0xFF);
-                                juce::gl::glClear (juce::gl::GL_STENCIL_BUFFER_BIT);
-                                juce::gl::glColorMask (juce::gl::GL_FALSE, juce::gl::GL_FALSE, juce::gl::GL_FALSE, juce::gl::GL_FALSE);
+                            const auto origin { target->getLocalPoint (comp.get(), juce::Point<float> (0.0f, 0.0f)) };
+                            const float destX { origin.x * totalScale };
+                            const float destY { origin.y * totalScale };
+                            const float physW { compWidth * totalScale };
+                            const float physH { compHeight * totalScale };
 
-                                drawVertices (cmd.vertices, destX, destY);
+                            juce::gl::glEnable (juce::gl::GL_SCISSOR_TEST);
+                            juce::gl::glScissor (static_cast<GLint> (destX),
+                                                 static_cast<GLint> (vpHeight - destY - physH),
+                                                 static_cast<GLsizei> (physW),
+                                                 static_cast<GLsizei> (physH));
 
-                                juce::gl::glColorMask (juce::gl::GL_TRUE, juce::gl::GL_TRUE, juce::gl::GL_TRUE, juce::gl::GL_TRUE);
-                                juce::gl::glStencilFunc (juce::gl::GL_EQUAL, 1, 0xFF);
-                                juce::gl::glStencilMask (0x00);
-                            }
-                            else if (cmd.type == GLGraphics::CommandType::popClip)
+                            juce::gl::glBindVertexArray (vao);
+
+                            for (const auto& cmd : g.getCommands())
                             {
-                                juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
+                                if (cmd.type == GLGraphics::CommandType::pushClip)
+                                {
+                                    juce::gl::glEnable (juce::gl::GL_STENCIL_TEST);
+                                    juce::gl::glStencilFunc (juce::gl::GL_ALWAYS, 1, 0xFF);
+                                    juce::gl::glStencilOp (juce::gl::GL_KEEP, juce::gl::GL_KEEP, juce::gl::GL_REPLACE);
+                                    juce::gl::glStencilMask (0xFF);
+                                    juce::gl::glClear (juce::gl::GL_STENCIL_BUFFER_BIT);
+                                    juce::gl::glColorMask (juce::gl::GL_FALSE, juce::gl::GL_FALSE, juce::gl::GL_FALSE, juce::gl::GL_FALSE);
+
+                                    drawVertices (cmd.vertices, destX, destY);
+
+                                    juce::gl::glColorMask (juce::gl::GL_TRUE, juce::gl::GL_TRUE, juce::gl::GL_TRUE, juce::gl::GL_TRUE);
+                                    juce::gl::glStencilFunc (juce::gl::GL_EQUAL, 1, 0xFF);
+                                    juce::gl::glStencilMask (0x00);
+                                }
+                                else if (cmd.type == GLGraphics::CommandType::popClip)
+                                {
+                                    juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
+                                }
+                                else if (cmd.type == GLGraphics::CommandType::draw)
+                                {
+                                    drawVertices (cmd.vertices, destX, destY);
+                                }
+                                else if (cmd.type == GLGraphics::CommandType::drawLineStrip)
+                                {
+                                    drawVertices (cmd.vertices, destX, destY, juce::gl::GL_LINE_STRIP);
+                                }
                             }
-                            else if (cmd.type == GLGraphics::CommandType::draw)
-                            {
-                                drawVertices (cmd.vertices, destX, destY);
-                            }
-                            else if (cmd.type == GLGraphics::CommandType::drawLineStrip)
-                            {
-                                drawVertices (cmd.vertices, destX, destY, juce::gl::GL_LINE_STRIP);
-                            }
+
+                            juce::gl::glDisable (juce::gl::GL_SCISSOR_TEST);
+                            juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
                         }
-
-                        juce::gl::glDisable (juce::gl::GL_SCISSOR_TEST);
-                        juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
                     }
                 }
             }
@@ -233,6 +245,15 @@ void GLRenderer::drawVertices (const std::vector<GLVertex>& vertices,
 void GLRenderer::openGLContextClosing()
 {
     // GL THREAD
+    if (components != nullptr)
+    {
+        for (auto& comp : *components)
+        {
+            if (comp != nullptr)
+                comp->glContextClosing();
+        }
+    }
+
     destroyGLResources();
 }
 

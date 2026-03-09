@@ -9,7 +9,11 @@ public:
     GLComponent() = default;
     ~GLComponent() override = default;
 
-    virtual void renderGL (GLGraphics& g) noexcept = 0;
+    virtual void glContextCreated() noexcept {}
+    virtual void glContextClosing() noexcept {}
+    virtual void renderGL() noexcept {}
+
+    virtual void renderGL (GLGraphics& g) noexcept {}
 
     void setScale (float s) noexcept { scale = s; }
     float getScale() const noexcept { return scale; }
