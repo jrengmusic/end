@@ -5,11 +5,10 @@
  * Terminal::Component is the central integration point between the terminal
  * emulation backend (Session + Grid) and the JUCE component tree.  It owns:
  *
- * - **Screen** — GPU-accelerated renderer; attached to this component via
- *   `Screen::attachTo()` once the component becomes visible.
+ * - **Screen** — GPU-accelerated renderer; draws via the shared
+ *   `jreng::GLRenderer` context owned by MainComponent.
  * - **Session** — pty session, VT parser, and grid state machine.
  * - **CursorComponent** — cursor overlay driven by ValueTree state.
- * - **MessageOverlay** — transient overlay for grid-size and error messages.
  * - **ScreenSelection** — current text selection (null when nothing selected).
  *
  * ### Render loop
@@ -45,7 +44,6 @@
 #include "../terminal/logic/Session.h"
 #include "../terminal/rendering/Screen.h"
 #include "CursorComponent.h"
-#include "MessageOverlay.h"
 #include "config/Config.h"
 
 namespace Terminal
@@ -54,14 +52,13 @@ namespace Terminal
  * @class Terminal::Component
  * @brief JUCE component that hosts the terminal renderer and handles all input.
  *
- * Inherits `juce::Component` for rendering and layout, `juce::KeyListener` for
+ * Inherits `jreng::GLComponent` for GL-backed rendering and layout, `juce::KeyListener` for
  * keyboard input, and `juce::ValueTree::Listener` (private) to react to cursor
  * position and active-screen changes published by the Session state machine.
  *
  * @par Zoom
  * `applyZoom()` scales the base font size by the zoom multiplier and calls
- * `Screen::setFontSize()`.  The `zoomInProgress` flag suppresses the
- * `MessageOverlay` grid-size display during zoom operations.
+ * `Screen::setFontSize()`.
  *
  * @par Selection
  * `screenSelection` is a `unique_ptr<ScreenSelection>` that is non-null while
@@ -75,7 +72,6 @@ namespace Terminal
  * @see Terminal::Screen
  * @see Terminal::Session
  * @see CursorComponent
- * @see MessageOverlay
  */
 class Component
     : public jreng::GLComponent
@@ -90,17 +86,17 @@ public:
     ~Component() override;
 
     /**
-     * @brief Lays out the screen viewport, notifies Session of new grid size,
-     *        and updates the MessageOverlay bounds.
+     * @brief Lays out the screen viewport, notifies Session of new grid size.
      * @note MESSAGE THREAD — called by JUCE on every resize event.
      */
     void resized() override;
 
     /**
-     * @brief Attaches Screen to this component on first visibility.
+     * @brief Marks the grid dirty on visibility gain so the next frame redraws.
      *
-     * `Screen::attachTo()` is deferred until the component is showing so that
-     * the OpenGL context has a valid native peer to attach to.
+     * When the component becomes visible (e.g. tab switch), marks all grid
+     * rows and the snapshot dirty so the shared GL context redraws this
+     * terminal on the next frame.
      *
      * @note MESSAGE THREAD.
      */
@@ -204,17 +200,100 @@ public:
      */
     int getGridCols() const noexcept;
 
+    /**
+     * @brief Called by GLRenderer when the shared OpenGL context is first created.
+     *
+     * Forwards to Screen::glContextCreated() to compile shaders and create GPU
+     * buffers.  Also calls jreng::BackgroundBlur::enableGLTransparency() for
+     * native window transparency.
+     *
+     * @note GL THREAD.
+     * @see Screen::glContextCreated
+     */
     void glContextCreated() noexcept override;
+
+    /**
+     * @brief Called by GLRenderer when the shared OpenGL context is about to close.
+     *
+     * Forwards to Screen::glContextClosing() to release GPU resources.
+     *
+     * @note GL THREAD.
+     * @see Screen::glContextClosing
+     */
     void glContextClosing() noexcept override;
+
+    /**
+     * @brief Called by GLRenderer each frame to render the terminal.
+     *
+     * Computes the viewport origin offset via getOriginInTopLevel() and forwards
+     * to Screen::renderOpenGL().  Performs lazy GL initialisation if isGLContextReady()
+     * returns false (for tabs created after the context was already established).
+     *
+     * @note GL THREAD.
+     * @see Screen::renderOpenGL
+     */
     void renderGL() noexcept override;
 
+    /**
+     * @brief Callback invoked after rendering to trigger a repaint.
+     *
+     * Set by Terminal::Tabs (which receives it from MainComponent).  Invoked from
+     * onVBlank() after rendering to trigger GLRenderer::triggerRepaint() on the
+     * shared GL context.
+     *
+     * @note MESSAGE THREAD.
+     * @see GLRenderer::triggerRepaint
+     */
     std::function<void()> onRepaintNeeded;
 
+    /**
+     * @brief Copies the current text selection to the system clipboard.
+     *
+     * Clears the selection after copying.
+     *
+     * @note MESSAGE THREAD.
+     */
     void copySelection();
+
+    /**
+     * @brief Reads the system clipboard and writes its text to the pty.
+     *
+     * @note MESSAGE THREAD.
+     */
     void pasteClipboard();
-    void reloadConfig();
+
+    /**
+     * @brief Applies the current config to the renderer.
+     *
+     * Updates ligatures, embolden, and theme on Screen, then marks all cells
+     * dirty so the next VBlank re-renders with the new settings.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void applyConfig() noexcept;
+
+    /**
+     * @brief Increases the zoom multiplier by one step.
+     *
+     * @note MESSAGE THREAD.
+     * @see applyZoom
+     */
     void increaseZoom();
+
+    /**
+     * @brief Decreases the zoom multiplier by one step.
+     *
+     * @note MESSAGE THREAD.
+     * @see applyZoom
+     */
     void decreaseZoom();
+
+    /**
+     * @brief Resets the zoom multiplier to 1.0.
+     *
+     * @note MESSAGE THREAD.
+     * @see applyZoom
+     */
     void resetZoom();
 
 private:
@@ -258,30 +337,46 @@ private:
     void updateCursorBounds() noexcept;
 
     /**
-     * @brief Applies the current config to the renderer after a reload.
+     * @brief Handles scrollback navigation via Shift+PgUp/PgDn/Home/End.
      *
-     * Updates ligatures, embolden, and theme on Screen, then marks all cells
-     * dirty so the next VBlank re-renders with the new settings.
+     * PgUp/PgDn scroll by Config::Key::scrollbackStep lines.  Home/End jump to
+     * the top or bottom of the scrollback buffer.
      *
-     * @note MESSAGE THREAD — called from perform() on reload command.
-     * @see Config::reload
+     * @param keyCode  The key code of the pressed key.
+     * @note MESSAGE THREAD.
+     * @see Config::Key::scrollbackStep
      */
-    void applyConfig() noexcept;
-
     void handleScrollNavigation (int keyCode);
+
+    /**
+     * @brief Clears the active text selection and resets scroll offset.
+     *
+     * Resets the scroll offset to zero (bottom of scrollback).  Called when a
+     * non-navigation key is pressed.
+     *
+     * @note MESSAGE THREAD.
+     */
     void clearSelectionAndScroll();
 
     /**
      * @brief Scales the font size by @p zoom and re-lays out the component.
      *
-     * Sets `zoomInProgress = true` before calling `resized()` to suppress the
-     * grid-size MessageOverlay during zoom, then clears the flag.
-     *
      * @param zoom  The zoom multiplier to apply (already clamped by the caller).
-     * @note MESSAGE THREAD — called from keyPressed() on Cmd+= / Cmd+- / Cmd+0.
+     * @note MESSAGE THREAD — called from increaseZoom(), decreaseZoom(), resetZoom().
      * @see Screen::setFontSize
      */
     void applyZoom (float zoom) noexcept;
+    /**
+     * @brief Computes this component's pixel offset relative to the top-level window.
+     *
+     * Used by renderGL() to set the correct GL viewport origin when the component
+     * is offset by the tab bar.
+     *
+     * @return The pixel offset from the top-left corner of the top-level window.
+     * @note MESSAGE THREAD.
+     * @see renderGL
+     */
+    juce::Point<int> getOriginInTopLevel() const noexcept;
 
     /**
      * @brief Returns whether any mouse-tracking mode is currently active.
@@ -302,9 +397,6 @@ private:
 
     /** @brief Cursor overlay component; positioned by updateCursorBounds(). */
     std::unique_ptr<CursorComponent> cursor;
-
-    /** @brief Transient overlay for grid-size and error/reload messages. */
-    std::unique_ptr<MessageOverlay> messageOverlay;
 
     /** @brief Current text selection; null when nothing is selected. */
     std::unique_ptr<ScreenSelection> screenSelection;
@@ -335,15 +427,6 @@ private:
      */
     const int titleBarHeight { Config::getContext()->getBool (Config::Key::windowButtons) ? 24 : 0 };
 
-    /**
-     * @brief Flag set during applyZoom() to suppress the grid-size MessageOverlay.
-     *
-     * `resized()` calls `messageOverlay->show()` after every layout pass.
-     * Setting this flag before calling `resized()` prevents that display during
-     * zoom operations where the size change is intentional and transient.
-     */
-    bool zoomInProgress { false };
-
     /** @brief Returns the config font size corrected for display DPI.
      *  On Windows at 150% scale, divides by 1.5 so 14pt looks the same as Mac. */
     static float dpiCorrectedFontSize() noexcept
@@ -357,9 +440,6 @@ private:
         return raw;
 #endif
     }
-
-    /** @brief Suppresses the grid-size overlay on the initial layout pass. */
-    bool isInitLayout { false };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Component)

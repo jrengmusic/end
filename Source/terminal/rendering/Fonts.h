@@ -78,7 +78,7 @@
  * @see GlyphAtlas
  */
 // MESSAGE THREAD
-struct Fonts
+struct Fonts : public jreng::Context<Fonts>
 {
     // =========================================================================
     // Inner types

@@ -29,19 +29,15 @@ namespace Terminal
 // MESSAGE THREAD
 
 /**
- * @brief Constructs the screen with the given font family and point size.
+ * @brief Constructs the screen.
  *
- * Initialises `Resources` (which constructs `Fonts`, `GlyphAtlas`, and
- * `GLSnapshotBuffer`), stores `baseFontSize`, calls `calc()` to derive cell
- * dimensions, wires the GL renderer to the snapshot buffer and atlas, then
- * calls `reset()` to zero-initialise the cell cache.
- *
- * @param fontFamily  Font family name (e.g. "JetBrains Mono").
- * @param pointSize   Initial font size in points.
+ * Initialises `Resources`, calls `calc()` to derive cell dimensions, wires
+ * the GL renderer to the snapshot buffer and atlas, then calls `reset()` to
+ * zero-initialise the cell cache.
  */
-Screen::Screen (const juce::String& fontFamily, float pointSize)
-    : resources (fontFamily, pointSize)
-    , baseFontSize (pointSize)
+Screen::Screen()
+    : resources()
+    , baseFontSize (Config::getContext()->getFloat (Config::Key::fontSize))
 {
     calc();
     glRenderer.setResources (&resources.snapshotBuffer, &resources.glyphAtlas);
@@ -59,7 +55,7 @@ Screen::~Screen() = default;
  */
 void Screen::calc() noexcept
 {
-    const Fonts::Metrics fm { resources.fonts.calcMetrics (baseFontSize) };
+    const Fonts::Metrics fm { Fonts::getContext()->calcMetrics (baseFontSize) };
 
     if (fm.isValid())
     {
@@ -182,16 +178,6 @@ void Screen::setSelection (const ScreenSelection* sel) noexcept
 }
 
 /**
- * @brief Returns a mutable reference to the font manager.
- *
- * @return Reference to `resources.fonts`.
- */
-Fonts& Screen::getFonts() noexcept
-{
-    return resources.fonts;
-}
-
-/**
  * @brief Returns a mutable reference to the glyph atlas.
  *
  * @return Reference to `resources.glyphAtlas`.
@@ -230,7 +216,7 @@ void Screen::setFontSize (float pointSize) noexcept
     if (pointSize != baseFontSize)
     {
         baseFontSize = pointSize;
-        resources.fonts.setSize (pointSize);
+        Fonts::getContext()->setSize (pointSize);
         resources.glyphAtlas.clear();
         calc();
     }

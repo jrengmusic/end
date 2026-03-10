@@ -125,6 +125,104 @@
 
 ## SPRINT HISTORY
 
+## Sprint 87: Tab System + Fonts Context Refactor + LookAndFeel Colour System
+
+**Date:** 2026-03-10
+**Agents:** COUNSELOR, @pathfinder, @engineer, @oracle
+
+### Objective
+
+Implement tabbed terminal interface, refactor Fonts to global Context for SSOT and crash fix, build LookAndFeel colour system, move MessageOverlay to MainComponent.
+
+### Changes
+
+**Tab System**
+
+- `Source/component/Tabs.h/cpp` — `Terminal::Tabs` subclasses `juce::TabbedComponent`, manages `Owner<GLComponent>` container, visibility toggling, tab bar auto-hide
+- `Source/component/LookAndFeel.h/cpp` — Custom `Terminal::LookAndFeel` with `ColourIds` enum (`cursorColourId`, `tabBarBackgroundColourId`, `tabLineColourId`), `setColours()` reads all colours from Config, `drawTabButton()` simple line indicator on opposite edge, `drawTabbedButtonBarBackground()` no-op, popup menu glass blur
+- `Source/MainComponent.cpp` — `commandDefs[]` static table + `commandActions` Function::Map for table-driven dispatch, `setDefaultLookAndFeel`, reload wiring with `setColours()` + `sendLookAndFeelChange()` + `applyOrientation()`
+- Configurable tab position via `tab.position` config key (top/bottom/left/right, default left)
+- `Tabs::applyOrientation()` + `orientationFromString()` for hot-reload
+- `Tabs::resized()` handles all 4 orientations for content area trimming
+- Close last tab quits app — removed `terminals.size() > 1` guard
+
+**Config Keys Added**
+
+- `tab.family` (Display Mono), `tab.size` (14), `tab.foreground` (#FF00C8D8 blueBikini), `tab.inactive` (#FF2E4D53 mallard), `tab.position` (left), `tab.line` (#FF8CC9D9 dolphin), `menu.opacity` (0.65)
+
+**Fonts Context Refactor**
+
+- `Source/terminal/rendering/Fonts.h` — `Fonts` inherits `jreng::Context<Fonts>`, globally accessible via `Fonts::getContext()`
+- `Source/MainComponent.h/cpp` — MainComponent owns `std::unique_ptr<Fonts>`, constructed before Tabs, destroyed after
+- `Source/terminal/rendering/Screen.h/cpp` — Removed `Fonts` from `Resources` struct, Screen uses `Fonts::getContext()` everywhere
+- `Source/terminal/rendering/ScreenRender.cpp` — All `resources.fonts.` → `Fonts::getContext()->`
+- `Source/component/CursorComponent.h` — Removed `Fonts&` constructor parameter, uses `Fonts::getContext()`
+- `Source/component/TerminalComponent.cpp` — Screen default-constructed, cursor no longer passes `screen.getFonts()`
+
+**MessageOverlay Moved to MainComponent**
+
+- Removed from `Terminal::Component` (member, constructor, destructor, resized, reloadConfig)
+- Added to `MainComponent` (member, constructor, resized, reload command)
+- Removed `setGridSize()`, `show()`, `numRows`, `numCols` from MessageOverlay — now only has `showMessage()`
+- Removed `onGridSizeChanged` callback chain (was Terminal::Component -> Tabs -> MainComponent)
+- `reloadConfig()` removed from Tabs and Terminal::Component — Config::reload() called directly in MainComponent, `Tabs::applyConfig()` iterates all terminals
+
+**Popup Menu Glass Blur**
+
+- `preparePopupMenuWindow` — `setOpaque(false)` + `callAsync` with `BackgroundBlur::apply`
+- `drawPopupMenuBackgroundWithOptions` — empty no-op
+- `drawPopupMenuItem` — themed with `findColour()`
+- Removed `applyToMenu` from BackgroundBlur (.h, .mm, .cpp)
+
+**Other**
+
+- Configurable shell path via Config
+- Display Mono font registration in Main.cpp
+- Tab font uses `withPointHeight()` for CoreText/FreeType point sizing
+- `KeyBinding` for tab commands (new tab, close tab, prev/next tab)
+
+### Files Modified (25+ total)
+
+- `Source/MainComponent.h/cpp` — Fonts ownership, messageOverlay, command table, reload wiring, tab orientation
+- `Source/component/Tabs.h/cpp` — NEW: tab container with orientation support
+- `Source/component/LookAndFeel.h/cpp` — NEW: colour system, tab styling, popup menu
+- `Source/component/TerminalComponent.h/cpp` — removed messageOverlay, removed reloadConfig, removed Fonts dependency
+- `Source/component/CursorComponent.h` — removed Fonts& parameter
+- `Source/component/MessageOverlay.h` — simplified to showMessage() only
+- `Source/terminal/rendering/Fonts.h` — added Context<Fonts> base
+- `Source/terminal/rendering/Screen.h/cpp` — removed Fonts from Resources, default constructor
+- `Source/terminal/rendering/ScreenRender.cpp` — Fonts::getContext()
+- `Source/config/Config.h/cpp` — tab config keys, menu opacity
+- `Source/config/KeyBinding.h` — tab command IDs
+- `Source/Main.cpp` — Display Mono registration
+- `modules/jreng_gui/glass/jreng_background_blur.h/mm/cpp` — removed applyToMenu
+
+### Alignment Check
+
+- [x] LIFESTAR Lean: Fonts shared globally, no per-terminal duplication
+- [x] LIFESTAR Explicit: All colours flow Config -> setColours() -> findColour(), no hidden state
+- [x] LIFESTAR SSOT: Fonts is single instance, Config keys are sole source for all colours
+- [x] LIFESTAR Findable: ColourIds enum, setColours() centralizes all colour wiring
+- [x] LIFESTAR Reviewable: Table-driven command dispatch, orientation mapping
+- [x] NAMING-CONVENTION: tabLineColourId, tabBarBackgroundColourId, applyOrientation — all semantic
+- [x] ARCHITECTURAL-MANIFESTO: Tell don't ask — MainComponent tells Tabs to applyConfig/applyOrientation
+
+### Problems Solved
+
+1. **HarfBuzz crash on tab close** — Font destroyed while GL thread mid-render. Fixed by making Fonts a global Context owned by MainComponent.
+2. **Multiple OpenGL contexts** — Single shared GLRenderer, Terminal::Component inherits GLComponent
+3. **Popup menu opacity** — backgroundColourId must be non-opaque for JUCE to allow transparency
+4. **Tab bar covers GL content** — TabbedComponent::backgroundColourId set to transparentBlack
+5. **MessageOverlay on every new tab** — Moved to MainComponent, removed grid size trigger
+
+### Technical Debt / Follow-up
+
+1. **Grid size overlay** — removed grid size display from overlay. Need to recompute from Fonts::getContext()->calcMetrics() at MainComponent level for window resize display.
+2. **Zoom applies to single Screen** — setFontSize() calls Fonts::getContext()->setSize() (global) but only recalcs one Screen's metrics. Other Screens need recalc too.
+3. **Tab title from cwd** — tabs all show "Terminal", should show current working directory
+4. **Tab outline colours** — currently hardcoded transparent, could be configurable
+5. **Thread race in renderOpenGL** — GL thread iterates components while message thread can mutate container. Currently mitigated by Fonts outliving terminals, but container mutation is still unprotected.
+
 ## Sprint 86: Fork jreng_opengl Module + Replace Snapshot Mailbox with GLSnapshotBuffer
 
 **Date:** 2026-03-08

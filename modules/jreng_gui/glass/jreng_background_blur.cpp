@@ -184,6 +184,7 @@ const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blur
     return false;
 }
 
+
 void BackgroundBlur::setCloseCallback (std::function<void()> callback)
 {
     onWindowClosed = std::move (callback);

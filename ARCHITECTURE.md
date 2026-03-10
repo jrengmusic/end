@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-08
+**Last Updated:** 2026-03-10
 
 ---
 
@@ -37,15 +37,17 @@ APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTr
 ```
 Source/
   Main.cpp                          Application entry, owns Config + MainWindow
-  MainComponent.h/cpp               Root component, owns TerminalComponent
+  MainComponent.h/cpp               Root component, owns Fonts context, Tabs, MessageOverlay, GLRenderer
 
   config/
     Config.h/cpp                    Lua config loader, Context<Config> pattern
 
   component/
     TerminalComponent.h/cpp         UI host, VBlankAttachment render loop
-    CursorComponent.h               Cursor overlay, ValueTree-driven
-    MessageOverlay.h                Transient overlay: grid size on resize, arbitrary messages
+    Tabs.h/cpp                      Tab container, manages multiple Terminal::Component instances
+    LookAndFeel.h/cpp               Custom LookAndFeel: tab styling, popup menu, colour system
+    CursorComponent.h               Cursor overlay, ValueTree-driven, uses Fonts::getContext()
+    MessageOverlay.h                Transient overlay for status messages (reload, errors)
 
   fonts/
     DisplayMono-Book.ttf            Embedded base font (BinaryData)
@@ -135,11 +137,11 @@ modules/
 | Module | Location | Responsibility | Dependencies |
 |--------|----------|----------------|--------------|
 | Config | `config/` | Lua config load/save, Context-managed | sol2, jreng::Context |
-| Component | `component/` | JUCE UI hosting, VBlank render trigger | Session, Screen, Config |
+| Component | `component/` | JUCE UI hosting, tabs, LookAndFeel, VBlank render trigger | Session, Screen, Config |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Data | `terminal/data/` | Pure value types, state atomics, IDs | JUCE ValueTree |
 | Logic | `terminal/logic/` | VT parsing, grid storage, session orchestration | Data |
-| Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL draw | Data, FreeType, HarfBuzz, OpenGL |
+| Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL draw, Fonts (Context-managed) | Data, FreeType, HarfBuzz, OpenGL |
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jreng_core | `modules/jreng_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
@@ -255,11 +257,11 @@ Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls 
 
 ### Pattern: Context<T> (Responsible Global)
 
-**Used for:** Config access without Meyer's singleton.
+**Used for:** Global access without Meyer's singleton.
 
-**Implementation:** `Config.h` inherits `jreng::Context<Config>`
+**Implementation:** `Config.h` inherits `jreng::Context<Config>`, `Fonts.h` inherits `jreng::Context<Fonts>`
 
-Lifetime owned by `ENDApplication` (Main.cpp). Access via `Config::getContext()->`. Fail-fast jassert if accessed before construction.
+Config lifetime owned by `ENDApplication` (Main.cpp). Fonts lifetime owned by `MainComponent`. Access via `Config::getContext()->` / `Fonts::getContext()->`. Fail-fast jassert if accessed before construction.
 
 ### Pattern: Shelf-Based Atlas Packing
 
@@ -424,6 +426,14 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Rationale:** Matches NF patcher's own scaling logic. Icons render identically to how they appear in patched fonts, but with runtime flexibility for any cell size.
 
+### Decision: Shared Fonts Context over Per-Terminal Font Ownership
+
+**Context:** Each `Screen` owned its own `Fonts` instance inside a `Resources` struct. When closing tabs rapidly, the GL thread could access a destroyed font while mid-render, causing a HarfBuzz crash.
+
+**Decision:** `Fonts` inherits `jreng::Context<Fonts>`, owned by `MainComponent`. All terminals share a single instance via `Fonts::getContext()`.
+
+**Rationale:** Font metrics are global (zoom is global via state.lua). Shared ownership ensures font lifetime exceeds all terminal components. Enables global grid size computation from `Fonts::getContext()->calcMetrics()` without querying individual terminals.
+
 ---
 
 ## Font Architecture
@@ -498,6 +508,10 @@ Bold variants use platform-native stroke widening rather than a separate bold fo
 Display Monolithic -> OS system fonts (CJK/exotic) -> OS color emoji
 ```
 
+### Font Ownership
+
+`Fonts` inherits `jreng::Context<Fonts>` — single global instance owned by `MainComponent`. All terminals share the same font handles, shaping buffers, and metrics. `Screen` and `CursorComponent` access fonts via `Fonts::getContext()`. This ensures font lifetime exceeds all terminal components, preventing use-after-free when closing tabs.
+
 ### Platform Font Dispatch
 
 Same header (`Fonts.h`), different implementations. Caller site identical.
@@ -536,12 +550,14 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 | LRUGlyphCache | Frame-stamped LRU map; evicts oldest 10% when over capacity |
 | GLMailbox | Generic lock-free atomic pointer exchange template (`jreng::GLMailbox<T>`) |
 | GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jreng::GLSnapshotBuffer<T>`) |
-| MessageOverlay | Transient overlay showing grid size on resize or arbitrary messages on demand |
+| LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via Config |
+| MessageOverlay | Transient overlay for status messages (reload confirmation, config errors) |
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
 | Snapshot | Pre-built GPU instance data (glyphs + backgrounds) for one frame |
 | StagedBitmap | Cross-thread upload packet: pixel data + atlas region + mono/emoji kind |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state |
+| Tabs | TabbedComponent subclass managing multiple Terminal::Component instances with configurable orientation |
 | VBlank | Display vertical blank — CVDisplayLink callback synced to monitor refresh |
 | Atlas | 4096x4096 texture containing rasterized glyphs, shelf-packed |
 

@@ -54,43 +54,58 @@ void Config::initDefaults()
     values[Key::cursorBlink] = true;
     values[Key::cursorBlinkInterval] = 500;
 
-    values[Key::coloursForeground] = "#FFB3F9F5";// frostbite
-    // values[Key::coloursForeground] = "#FF4E8C93"; // paradiso
-    values[Key::coloursBackground] = "#E0090D12";// bunker
-    values[Key::coloursCursor] = "#CCB3F9F5";// frostbite
-    values[Key::coloursSelection] = "#8000C8D8";// blueBikini
+    values[Key::coloursForeground] = "#FFB3F9F5"; ///< frostbite
+    values[Key::coloursBackground] = "#E0090D12"; ///< bunker
+    values[Key::coloursCursor] = "#CCB3F9F5"; ///< frostbite
+    values[Key::coloursSelection] = "#8000C8D8"; ///< blueBikini
 
-    values[Key::coloursBlack] = "#FF090D12";// bunker
-    values[Key::coloursRed] = "#FFFC704C";// preciousPersimmon
-    values[Key::coloursGreen] = "#FFC5F0E9";// gentleCold
-    values[Key::coloursYellow] = "#FFF3F5C5";// silkStar
-    values[Key::coloursBlue] = "#FF8CC9D9";// dolphin
-    values[Key::coloursMagenta] = "#FF519299";// lagoon
-    values[Key::coloursCyan] = "#FF699DAA";// tranquiliTeal
-    values[Key::coloursWhite] = "#FFB3F9F5";// frostbite
+    values[Key::coloursBlack] = "#FF090D12"; ///< bunker
+    values[Key::coloursRed] = "#FFFC704C"; ///< preciousPersimmon
+    values[Key::coloursGreen] = "#FFC5F0E9"; ///< gentleCold
+    values[Key::coloursYellow] = "#FFF3F5C5"; ///< silkStar
+    values[Key::coloursBlue] = "#FF8CC9D9"; ///< dolphin
+    values[Key::coloursMagenta] = "#FF519299"; ///< lagoon
+    values[Key::coloursCyan] = "#FF699DAA"; ///< tranquiliTeal
+    values[Key::coloursWhite] = "#FFB3F9F5"; ///< frostbite
 
-    values[Key::coloursBrightBlack] = "#FF33535B";// mediterranea
-    values[Key::coloursBrightRed] = "#FFFC704C";// preciousPersimmon
-    values[Key::coloursBrightGreen] = "#FFBAFFFD";// paleSky
-    values[Key::coloursBrightYellow] = "#FFFEFFD2";// mattWhite
-    values[Key::coloursBrightBlue] = "#FF67DFEF";// poseidonJr
-    values[Key::coloursBrightMagenta] = "#FF01C2D2";// caribbeanBlue
-    values[Key::coloursBrightCyan] = "#FF00C8D8";// blueBikini
-    values[Key::coloursBrightWhite] = "#FFBAFFFD";// paleSky
+    values[Key::coloursBrightBlack] = "#FF33535B"; ///< mediterranea
+    values[Key::coloursBrightRed] = "#FFFC704C"; ///< preciousPersimmon
+    values[Key::coloursBrightGreen] = "#FFBAFFFD"; ///< paleSky
+    values[Key::coloursBrightYellow] = "#FFFEFFD2"; ///< mattWhite
+    values[Key::coloursBrightBlue] = "#FF67DFEF"; ///< poseidonJr
+    values[Key::coloursBrightMagenta] = "#FF01C2D2"; ///< caribbeanBlue
+    values[Key::coloursBrightCyan] = "#FF00C8D8"; ///< blueBikini
+    values[Key::coloursBrightWhite] = "#FFBAFFFD"; ///< paleSky
 
     values[Key::windowTitle] = ProjectInfo::projectName;
     values[Key::windowWidth] = 640;
     values[Key::windowHeight] = 480;
-    values[Key::windowColour] = "#090D12";
+    values[Key::windowColour] = "#090D12"; ///< bunker
     values[Key::windowOpacity] = 0.75f;
     values[Key::windowBlurRadius] = 32.0f;
     values[Key::windowAlwaysOnTop] = true;
     values[Key::windowButtons] = false;
     values[Key::windowZoom] = 1.0f;
 
+    values[Key::tabFamily] = "Display Mono";
+    values[Key::tabSize] = 14.0f;
+    values[Key::tabForeground] = "#FF00C8D8"; ///< blueBikini
+    values[Key::tabInactive] = "#FF2E4D53"; ///< mallard
+    values[Key::tabPosition] = "left";
+    values[Key::tabLine] = "#FF8CC9D9"; ///< dolphin
+    values[Key::menuOpacity] = 0.65f;
+
     values[Key::overlayFamily] = "Display Mono";
     values[Key::overlaySize] = 28.0f;
-    values[Key::overlayColour] = "#4E8C93";
+    values[Key::overlayColour] = "#4E8C93"; ///< paradiso
+
+#if JUCE_MAC
+    values[Key::shellProgram] = "zsh";
+#elif JUCE_LINUX
+    values[Key::shellProgram] = "bash";
+#elif JUCE_WINDOWS
+    values[Key::shellProgram] = "cmd.exe";
+#endif
 
     values[Key::scrollbackNumLines] = 10000;
     values[Key::scrollbackStep] = 5;
@@ -158,9 +173,19 @@ void Config::initSchema()
     schema[Key::windowAlwaysOnTop]   = { T::boolean };
     schema[Key::windowButtons]       = { T::boolean };
 
+    schema[Key::tabFamily]           = { T::string };
+    schema[Key::tabSize]             = { T::number, 1.0,   200.0,   true };
+    schema[Key::tabForeground]       = { T::string };
+    schema[Key::tabInactive]         = { T::string };
+    schema[Key::tabPosition]         = { T::string };
+    schema[Key::tabLine]             = { T::string };
+    schema[Key::menuOpacity]         = { T::number, 0.0,   1.0,     true };
+
     schema[Key::overlayFamily]       = { T::string };
     schema[Key::overlaySize]         = { T::number, 1.0,   200.0,   true };
     schema[Key::overlayColour]       = { T::string };
+
+    schema[Key::shellProgram]        = { T::string };
 
     schema[Key::scrollbackNumLines]  = { T::number, 100.0, 1000000.0, true };
     schema[Key::scrollbackStep]      = { T::number, 1.0,   100.0,   true };

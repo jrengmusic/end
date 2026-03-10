@@ -12,22 +12,101 @@ namespace Terminal
 {
 
 /**
- * @brief Constructs the LookAndFeel with no custom setup.
+ * @brief Constructs the LookAndFeel and sets colours from Config.
  *
- * All colour values are read from Config at paint time rather than
- * cached, so config reload applies immediately without requiring
- * a LookAndFeel rebuild.
+ * Calls setColours() to read Config once and set all JUCE colour IDs.
+ * The paint methods use findColour() to retrieve colours.
  *
  * @note MESSAGE THREAD.
  */
-LookAndFeel::LookAndFeel() = default;
+LookAndFeel::LookAndFeel()
+{
+    setColours();
+}
 
 /**
- * @brief Draws a single tab button — flat rectangle with text.
+ * @brief Refreshes all colour IDs from Config.
  *
- * Active tab: full-opacity foreground text with a cursor-coloured
- * indicator line at the bottom. Inactive tabs: reduced-opacity
- * foreground text. Hover state uses an intermediate opacity.
+ * Reads Config once and sets all JUCE colour IDs for tabs, popup menus,
+ * and text buttons. Call this after Config reload to update colours.
+ *
+ * @note MESSAGE THREAD.
+ */
+void LookAndFeel::setColours()
+{
+    const auto* cfg { Config::getContext() };
+    const auto fg { cfg->getColour (Config::Key::coloursForeground) };
+    const auto cursor { cfg->getColour (Config::Key::coloursCursor) };
+    const auto windowColour { cfg->getColour (Config::Key::windowColour) };
+    const auto menuOpacity { cfg->getFloat (Config::Key::menuOpacity) };
+
+    setColour (cursorColourId, cursor);
+
+    setColour (juce::TabbedButtonBar::tabTextColourId, cfg->getColour (Config::Key::tabInactive));
+    setColour (juce::TabbedButtonBar::frontTextColourId, cfg->getColour (Config::Key::tabForeground));
+    setColour (juce::TabbedButtonBar::tabOutlineColourId, juce::Colours::transparentBlack);
+    setColour (juce::TabbedButtonBar::frontOutlineColourId, juce::Colours::transparentBlack);
+    setColour (juce::TabbedComponent::backgroundColourId, juce::Colours::transparentBlack);
+    setColour (juce::TabbedComponent::outlineColourId, juce::Colours::transparentBlack);
+    setColour (tabBarBackgroundColourId, juce::Colours::transparentBlack);
+    setColour (tabLineColourId, cfg->getColour (Config::Key::tabLine));
+
+    setColour (juce::PopupMenu::backgroundColourId, windowColour.withAlpha (menuOpacity));
+    setColour (juce::PopupMenu::textColourId, fg);
+    setColour (juce::PopupMenu::highlightedBackgroundColourId, windowColour.brighter (0.15f)); ///< corbeau
+    setColour (juce::PopupMenu::highlightedTextColourId, fg);
+
+    setColour (juce::TextButton::textColourOffId, fg);
+    setColour (juce::TextButton::textColourOnId, fg);
+    setColour (juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+    setColour (juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+    setColour (juce::ComboBox::outlineColourId, windowColour.brighter (0.15f)); ///< corbeau
+}
+
+/**
+ * @brief Returns the tab font at the configured point size.
+ *
+ * Single source of truth for the tab font.  JUCE calls this
+ * internally for layout; `drawTabButton` and `getTabButtonBestWidth`
+ * also use it.
+ *
+ * @param button  The tab bar button being queried.
+ * @param height  The tab bar depth (height for horizontal bars).
+ * @return The tab font at `Config::Key::tabSize` point height.
+ * @note MESSAGE THREAD.
+ */
+juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float height)
+{
+    const auto* cfg { Config::getContext() };
+    return juce::Font { juce::FontOptions()
+                            .withName (cfg->getString (Config::Key::tabFamily))
+                            .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
+}
+
+/**
+ * @brief Computes the tab bar height from the configured tab font.
+ *
+ * Queries the real rendered font height from `getTabButtonFont()` and
+ * derives the bar height so the font occupies 75% of the bar.
+ *
+ * @return Tab bar height in pixels, rounded to nearest integer.
+ * @note MESSAGE THREAD.
+ */
+int LookAndFeel::getTabBarHeight() noexcept
+{
+    const auto* cfg { Config::getContext() };
+    const juce::Font font { juce::FontOptions()
+                                .withName (cfg->getString (Config::Key::tabFamily))
+                                .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
+    return juce::roundToInt (font.getHeight() / 0.7f);
+}
+
+/**
+ * @brief Draws a single tab button with a cut-corner polygon shape.
+ *
+ * Active tab: filled with tab bar background, outlined with cursor colour.
+ * Inactive tabs: filled darker, outlined with outline colour.
+ * Text colour uses frontTextColourId for active, tabTextColourId for inactive.
  *
  * @param button      The tab bar button being drawn.
  * @param g           Graphics context.
@@ -39,35 +118,71 @@ LookAndFeel::LookAndFeel() = default;
 void LookAndFeel::drawTabButton (juce::TabBarButton& button, juce::Graphics& g,
                                   bool isMouseOver, bool isMouseDown)
 {
-    const auto* cfg { Config::getContext() };
-    const auto bounds { button.getLocalBounds().toFloat() };
+    const auto tab { button.getActiveArea() };
     const bool isActive { button.getToggleState() };
+    const auto orientation { button.getTabbedButtonBar().getOrientation() };
 
-    const auto fgColour { cfg->getColour (Config::Key::coloursForeground) };
-    const auto cursorColour { cfg->getColour (Config::Key::coloursCursor) };
+    const auto fgColour { findColour (juce::TabbedButtonBar::frontTextColourId) };
+    const auto inactiveFgColour { findColour (juce::TabbedButtonBar::tabTextColourId) };
+    const auto lineColour { findColour (tabLineColourId) };
 
-    float textAlpha { inactiveAlpha };
+    g.setFont (getTabButtonFont (button, static_cast<float> (tab.getHeight())));
+    g.setColour (isActive ? fgColour : inactiveFgColour);
+
+    const bool isVertical { orientation == juce::TabbedButtonBar::TabsAtLeft
+                            or orientation == juce::TabbedButtonBar::TabsAtRight };
+
+    if (isVertical)
+    {
+        juce::Graphics::ScopedSaveState saveState (g);
+
+        const auto centreX { static_cast<float> (tab.getCentreX()) };
+        const auto centreY { static_cast<float> (tab.getCentreY()) };
+
+        const auto angle { orientation == juce::TabbedButtonBar::TabsAtLeft
+                           ? -juce::MathConstants<float>::halfPi
+                           : juce::MathConstants<float>::halfPi };
+
+        g.addTransform (juce::AffineTransform::rotation (angle, centreX, centreY));
+
+        const juce::Rectangle<int> rotatedRect {
+            tab.getCentreX() - tab.getHeight() / 2,
+            tab.getCentreY() - tab.getWidth() / 2,
+            tab.getHeight(),
+            tab.getWidth()
+        };
+
+        g.drawText (button.getButtonText(), rotatedRect, juce::Justification::centred, false);
+    }
+    else
+    {
+        g.drawText (button.getButtonText(), tab, juce::Justification::centred, false);
+    }
 
     if (isActive)
     {
-        textAlpha = activeAlpha;
-    }
-    else if (isMouseOver or isMouseDown)
-    {
-        textAlpha = hoverAlpha;
-    }
+        g.setColour (lineColour);
 
-    g.setFont (juce::FontOptions (cfg->getString (Config::Key::overlayFamily),
-                                   fontSize, juce::Font::plain));
-    g.setColour (fgColour.withAlpha (textAlpha));
-    g.drawText (button.getButtonText(), bounds.toNearestInt(),
-                juce::Justification::centred, false);
-
-    if (isActive)
-    {
-        g.setColour (cursorColour);
-        g.fillRect (bounds.getX(), bounds.getBottom() - activeIndicatorHeight,
-                    bounds.getWidth(), activeIndicatorHeight);
+        if (orientation == juce::TabbedButtonBar::TabsAtTop)
+        {
+            g.fillRect (tab.getX(), tab.getBottom() - static_cast<int> (activeIndicatorHeight),
+                        tab.getWidth(), static_cast<int> (activeIndicatorHeight));
+        }
+        else if (orientation == juce::TabbedButtonBar::TabsAtBottom)
+        {
+            g.fillRect (tab.getX(), tab.getY(),
+                        tab.getWidth(), static_cast<int> (activeIndicatorHeight));
+        }
+        else if (orientation == juce::TabbedButtonBar::TabsAtLeft)
+        {
+            g.fillRect (tab.getRight() - static_cast<int> (activeIndicatorHeight), tab.getY(),
+                        static_cast<int> (activeIndicatorHeight), tab.getHeight());
+        }
+        else if (orientation == juce::TabbedButtonBar::TabsAtRight)
+        {
+            g.fillRect (tab.getX(), tab.getY(),
+                        static_cast<int> (activeIndicatorHeight), tab.getHeight());
+        }
     }
 }
 
@@ -79,19 +194,16 @@ void LookAndFeel::drawTabButton (juce::TabBarButton& button, juce::Graphics& g,
  *
  * @note MESSAGE THREAD — called by JUCE tab bar painting.
  */
-void LookAndFeel::drawTabbedButtonBarBackground (juce::TabbedButtonBar& bar,
-                                                   juce::Graphics& g)
+void LookAndFeel::drawTabbedButtonBarBackground (juce::TabbedButtonBar&,
+                                                    juce::Graphics&)
 {
-    const auto* cfg { Config::getContext() };
-    const auto bgColour { cfg->getColour (Config::Key::windowColour) };
-    g.fillAll (bgColour.withAlpha (barAlpha));
 }
 
 /**
  * @brief Calculates the best width for a tab button based on its text.
  *
- * Measures the button text using the overlay font at the configured size,
- * then adds horizontal padding on both sides.
+ * Measures the button text using the tab font, then adds horizontal
+ * padding on both sides.
  *
  * @param button    The tab bar button to measure.
  * @param tabDepth  The depth (height for horizontal bars) of the tab bar.
@@ -101,13 +213,186 @@ void LookAndFeel::drawTabbedButtonBarBackground (juce::TabbedButtonBar& bar,
  */
 int LookAndFeel::getTabButtonBestWidth (juce::TabBarButton& button, int tabDepth)
 {
-    const auto* cfg { Config::getContext() };
-    const juce::Font font { juce::FontOptions (cfg->getString (Config::Key::overlayFamily),
-                                                fontSize, juce::Font::plain) };
     const int textWidth { static_cast<int> (std::ceil (
-        juce::TextLayout::getStringWidth (font, button.getButtonText()))) };
+        juce::TextLayout::getStringWidth (getTabButtonFont (button, static_cast<float> (tabDepth)),
+                                          button.getButtonText()))) };
 
     return textWidth + horizontalPadding * 2;
+}
+
+/**
+ * @brief Returns the font used for popup menu items.
+ *
+ * Uses the same font family and point size as tab buttons, via Config.
+ *
+ * @return The popup menu font at configured tab size.
+ * @note MESSAGE THREAD.
+ */
+juce::Font LookAndFeel::getPopupMenuFont()
+{
+    const auto* cfg { Config::getContext() };
+    return juce::Font { juce::FontOptions()
+                            .withName (cfg->getString (Config::Key::tabFamily))
+                            .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
+}
+
+/**
+ * @brief Prepares a popup menu window for display with background blur.
+ *
+ * Applies platform-specific background blur to the popup menu window
+ * asynchronously after the window is created. Only available on Mac
+ * and Windows platforms.
+ *
+ * @param newWindow  The popup menu window to prepare.
+ * @note MESSAGE THREAD — called from UI show logic.
+ */
+void LookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
+{
+    newWindow.setOpaque (false);
+
+#if JUCE_MAC || JUCE_WINDOWS
+    auto safeComponent { juce::Component::SafePointer<juce::Component> (&newWindow) };
+
+    juce::MessageManager::callAsync ([safeComponent]
+    {
+        if (safeComponent != nullptr)
+        {
+            const auto* cfg { Config::getContext() };
+            const auto windowColour { cfg->getColour (Config::Key::windowColour) };
+            const auto menuOpacity { cfg->getFloat (Config::Key::menuOpacity) };
+            jreng::BackgroundBlur::apply (safeComponent.getComponent(),
+                                          cfg->getFloat (Config::Key::windowBlurRadius),
+                                          windowColour.withAlpha (menuOpacity));
+        }
+    });
+#endif
+}
+
+
+/**
+ * @brief Draws a single popup menu item with theme styling.
+ *
+ * Handles normal, highlighted, active, separator, ticked, and disabled
+ * states. Uses foreground colour for text, selection colour for highlights,
+ * and cursor colour for ticked items.
+ *
+ * @param g                  Graphics context.
+ * @param area               Bounding rectangle for the item.
+ * @param isSeparator        True if this item is a separator.
+ * @param isActive           True if the item is enabled.
+ * @param isHighlighted      True if the item is hovered.
+ * @param isTicked           True if the item is checked.
+ * @param hasSubMenu         True if the item has a submenu.
+ * @param text               Item text.
+ * @param shortcutKeyText    Optional keyboard shortcut text.
+ * @param icon               Optional icon drawable.
+ * @param textColourToUse    Optional text colour override.
+ * @note MESSAGE THREAD — called by JUCE popup menu item painting.
+ */
+void LookAndFeel::drawPopupMenuItem (juce::Graphics& g, const juce::Rectangle<int>& area,
+                                     const bool isSeparator, const bool isActive,
+                                     const bool isHighlighted, const bool isTicked,
+                                     const bool hasSubMenu, const juce::String& text,
+                                     const juce::String& shortcutKeyText,
+                                     const juce::Drawable* icon,
+                                     const juce::Colour* const textColourToUse)
+{
+    const auto fgColour { findColour (juce::PopupMenu::textColourId) };
+    const auto cursorColour { findColour (cursorColourId) };
+    const auto highlightColour { findColour (juce::PopupMenu::highlightedBackgroundColourId) };
+
+    if (isSeparator)
+    {
+        const auto y { area.getY() + area.getHeight() / 2 };
+        g.setColour (fgColour.withAlpha (0.3f));
+        g.drawLine (static_cast<float> (area.getX()), static_cast<float> (y),
+                    static_cast<float> (area.getRight()), static_cast<float> (y));
+    }
+    else
+    {
+        if (isHighlighted and isActive)
+        {
+            g.setColour (highlightColour);
+            g.fillRect (area);
+        }
+
+        g.setFont (getPopupMenuFont());
+
+        juce::Colour textColour { fgColour };
+        if (textColourToUse != nullptr)
+        {
+            textColour = *textColourToUse;
+        }
+        else if (not isActive)
+        {
+            textColour = fgColour.withAlpha (0.5f);
+        }
+        else if (isTicked)
+        {
+            textColour = cursorColour;
+        }
+
+        g.setColour (textColour);
+
+        const auto font { getPopupMenuFont() };
+        const auto fontHeight { font.getHeight() };
+        auto r { area.reduced (static_cast<int> (fontHeight * 0.5f), 0) };
+        auto iconArea { r.removeFromLeft (juce::roundToInt (fontHeight)) };
+
+        if (isTicked)
+        {
+            g.drawText (">", iconArea, juce::Justification::centred, false);
+        }
+
+        g.drawText (text, r, juce::Justification::centredLeft, false);
+
+        if (not shortcutKeyText.isEmpty())
+        {
+            auto mutableArea { area };
+            const auto shortcutArea { mutableArea.removeFromRight (mutableArea.getWidth() / 3) };
+            g.drawText (shortcutKeyText, shortcutArea,
+                        juce::Justification::centredRight, false);
+        }
+
+        if (hasSubMenu)
+        {
+            const auto arrowSize { fontHeight * 0.4f };
+            const auto arrowX { static_cast<float> (area.getRight()) - arrowSize * 2.0f };
+            const auto arrowY { static_cast<float> (area.getCentre().getY()) };
+            juce::Path arrow;
+            arrow.startNewSubPath (arrowX, arrowY - arrowSize);
+            arrow.lineTo (arrowX + arrowSize, arrowY);
+            arrow.lineTo (arrowX, arrowY + arrowSize);
+            g.strokePath (arrow, juce::PathStrokeType (fontHeight * 0.15f));
+        }
+    }
+}
+
+/**
+ * @brief Creates the "extras" button for the tab bar with a ">" chevron.
+ *
+ * @return Pointer to the created Button (ownership transferred to caller).
+ * @note MESSAGE THREAD — called by JUCE tab bar layout.
+ */
+juce::Button* LookAndFeel::createTabBarExtrasButton()
+{
+    return new juce::TextButton (">");
+}
+
+/**
+ * @brief Returns the font for text buttons using the configured tab font.
+ *
+ * @param button       The text button being queried.
+ * @param buttonHeight The button height in pixels.
+ * @return The tab font at configured point size.
+ * @note MESSAGE THREAD.
+ */
+juce::Font LookAndFeel::getTextButtonFont (juce::TextButton& button, int buttonHeight)
+{
+    const auto* cfg { Config::getContext() };
+    return juce::Font { juce::FontOptions()
+                            .withName (cfg->getString (Config::Key::tabFamily))
+                            .withPointHeight (buttonHeight * 0.6f) };
 }
 
 }

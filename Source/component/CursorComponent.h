@@ -85,10 +85,9 @@ public:
      * 6. Starts the blink timer if `cursorBlink` is true.
      *
      * @param cursorState  The cursor state ValueTree subtree from Session.
-     * @param fonts        Reference to the shared Fonts instance for rasterization.
      * @note MESSAGE THREAD.
      */
-    CursorComponent (juce::ValueTree cursorState, Fonts& fonts);
+    CursorComponent (juce::ValueTree cursorState);
 
     /**
      * @brief Removes the ValueTree listener before destruction.
@@ -220,18 +219,18 @@ private:
 // Inline implementations
 //==============================================================================
 
-inline CursorComponent::CursorComponent (juce::ValueTree state, Fonts& fonts)
+inline CursorComponent::CursorComponent (juce::ValueTree state)
     : cursorState (state)
 {
     auto* cfg { Config::getContext() };
     const float fontSize { cfg->getFloat (Config::Key::fontSize) };
-    const Fonts::Metrics metrics { fonts.calcMetrics (fontSize) };
+    const Fonts::Metrics metrics { Fonts::getContext()->calcMetrics (fontSize) };
 
     const juce::String cursorCharStr { cfg->getString (Config::Key::cursorChar) };
     auto charPtr { cursorCharStr.getCharPointer() };
     const uint32_t codepoint { static_cast<uint32_t> (charPtr.getAndAdvance()) };
     bool colourEmoji { false };
-    cursorAlpha = fonts.rasterizeToImage (codepoint, fontSize, colourEmoji);
+    cursorAlpha = Fonts::getContext()->rasterizeToImage (codepoint, fontSize, colourEmoji);
 
     if (metrics.physCellW > 0 and cursorAlpha.isValid())
     {

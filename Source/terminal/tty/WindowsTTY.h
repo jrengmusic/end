@@ -79,16 +79,18 @@ public:
      * @brief Open the ConPTY and spawn the shell process.
      *
      * Creates the two anonymous pipe pairs, calls `CreatePseudoConsole()` with
-     * the initial size, then spawns `cmd.exe` with the ConPTY attribute.
-     * Starts the reader thread on success.
+     * the initial size, then spawns the configured shell with the ConPTY
+     * attribute.  Starts the reader thread on success.
      *
-     * @param cols  Initial terminal width in character columns.
-     * @param rows  Initial terminal height in character rows.
-     * @return      `true` on success; `false` if any Win32 call fails.
+     * @param cols   Initial terminal width in character columns.
+     * @param rows   Initial terminal height in character rows.
+     * @param shell  Shell program name or absolute path (e.g. "cmd.exe",
+     *               "pwsh").  Resolved via `%PATH%` when not absolute.
+     * @return       `true` on success; `false` if any Win32 call fails.
      *
      * @note MESSAGE THREAD context.
      */
-    bool open (int cols, int rows) override;
+    bool open (int cols, int rows, const juce::String& shell) override;
 
     /**
      * @brief Close the ConPTY, pipes, and child process.

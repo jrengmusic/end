@@ -22,6 +22,7 @@
 #endif
 
 #include "../data/Keyboard.h"
+#include "../../config/Config.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -148,8 +149,8 @@ Session::~Session()
  * 1. Calls `parser.resize (cols, rows)` to initialise the VT state machine
  *    viewport before any data arrives.
  * 2. Calls `grid.resize()` to allocate the ring-buffer.
- * 3. Calls `tty->open (cols, rows)` to fork the shell and start the reader
- *    thread.
+ * 3. Reads `Config::Key::shellProgram` and calls `tty->open()` to fork the
+ *    shell and start the reader thread.
  * 4. Sets `ttyOpened = true`.
  *
  * On **subsequent calls** (`ttyOpened == true`):
@@ -168,7 +169,7 @@ void Session::resized (int cols, int rows)
     {
         parser.resize (cols, rows);
         grid.resize();
-        tty->open (cols, rows);
+        tty->open (cols, rows, Config::getContext()->getString (Config::Key::shellProgram));
         ttyOpened = true;
     }
     else

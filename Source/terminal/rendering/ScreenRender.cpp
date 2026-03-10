@@ -526,11 +526,11 @@ void Screen::buildCellInstance (const Cell& cell,
         else
         {
             const Fonts::Style style { selectFontStyle (cell) };
-            void* fontHandle { resources.fonts.getFontHandle (style) };
+            void* fontHandle { Fonts::getContext()->getFontHandle (style) };
 
             if (fontHandle == nullptr)
             {
-                fontHandle = resources.fonts.getFontHandle (Fonts::Style::regular);
+                fontHandle = Fonts::getContext()->getFontHandle (Fonts::Style::regular);
             }
 
             if (fontHandle != nullptr)
@@ -609,7 +609,7 @@ void Screen::buildCellInstance (const Cell& cell,
 
                 if (usedFontCollection)
                 {
-                    const float pixelsPerEm { resources.fonts.getPixelsPerEm (style) };
+                    const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
                     const int maxGlyphs { cacheCols * 2 };
                     int& count { monoCount[row] };
                     Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
@@ -632,8 +632,8 @@ void Screen::buildCellInstance (const Cell& cell,
                     }
                     else
                     {
-                        const Fonts::ShapeResult shaped { resources.fonts.shapeText (style, codepoints,
-                                                                                     static_cast<size_t> (codepointCount)) };
+                    const Fonts::ShapeResult shaped { Fonts::getContext()->shapeText (style, codepoints,
+                                                                                 static_cast<size_t> (codepointCount)) };
 
                         if (shaped.count > 0)
                         {
@@ -644,7 +644,7 @@ void Screen::buildCellInstance (const Cell& cell,
                                 renderHandle = shaped.fontHandle;
                             }
 
-                            const float pixelsPerEm { resources.fonts.getPixelsPerEm (style) };
+                            const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
                             const int maxGlyphs { cacheCols * 2 };
                             int& count { monoCount[row] };
                             Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
@@ -662,19 +662,19 @@ void Screen::buildCellInstance (const Cell& cell,
                 else
                 {
                     const Fonts::ShapeResult shaped { isEmoji
-                        ? resources.fonts.shapeEmoji (codepoints, static_cast<size_t> (codepointCount))
-                        : resources.fonts.shapeText (style, codepoints, static_cast<size_t> (codepointCount)) };
+                        ? Fonts::getContext()->shapeEmoji (codepoints, static_cast<size_t> (codepointCount))
+                        : Fonts::getContext()->shapeText (style, codepoints, static_cast<size_t> (codepointCount)) };
 
                     if (shaped.count > 0)
                     {
-                        void* renderHandle { isEmoji ? resources.fonts.getEmojiFontHandle() : fontHandle };
+                        void* renderHandle { isEmoji ? Fonts::getContext()->getEmojiFontHandle() : fontHandle };
 
                         if (not isEmoji and shaped.fontHandle != nullptr)
                         {
                             renderHandle = shaped.fontHandle;
                         }
 
-                        const float pixelsPerEm { resources.fonts.getPixelsPerEm (style) };
+                        const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
                         const int maxGlyphs { cacheCols * 2 };
                         int& count { isEmoji ? emojiCount[row] : monoCount[row] };
                         Render::Glyph* slot { isEmoji
@@ -756,7 +756,7 @@ int Screen::tryLigature (int col, int row, Fonts::Style style, void* fontHandle,
 
             if (eligible)
             {
-                const Fonts::ShapeResult shaped { resources.fonts.shapeText (style, codepoints,
+                const Fonts::ShapeResult shaped { Fonts::getContext()->shapeText (style, codepoints,
                                                                              static_cast<size_t> (tryLen)) };
 
                 if (shaped.count > 0 and shaped.count < tryLen)
@@ -768,7 +768,7 @@ int Screen::tryLigature (int col, int row, Fonts::Style style, void* fontHandle,
                         ligatureHandle = shaped.fontHandle;
                     }
 
-                    const float pixelsPerEm { resources.fonts.getPixelsPerEm (style) };
+                    const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
                     const int maxGlyphs { cacheCols * 2 };
                     int& count { monoCount[row] };
                     Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };

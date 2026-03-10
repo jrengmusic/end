@@ -57,62 +57,54 @@
  *
  * @note READER THREAD context.  Do not call directly.
  */
+
 void TTY::run()
 {
     setPriority (Thread::Priority::high);
     char chunk[READ_CHUNK_SIZE];
-    bool eof { false };
 
-    while (not threadShouldExit() and not eof)
+    auto handleResize = [&]
     {
         if (resizePending.load (std::memory_order_acquire))
         {
-            const int c { pendingCols.load (std::memory_order_relaxed) };
-            const int r { pendingRows.load (std::memory_order_relaxed) };
+            const int c = pendingCols.load (std::memory_order_relaxed);
+            const int r = pendingRows.load (std::memory_order_relaxed);
+
             if (onResize)
-            {
                 onResize (c, r);
-            }
             resize (c, r);
             resizePending.store (false, std::memory_order_release);
         }
+    };
 
-        if (waitForData (100))
+    auto drainPty = [&] -> bool// returns true on EOF
+    {
+        int n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));
+
+        while (n > 0)
         {
-            // READER THREAD — drain all available data before returning to poll
-            for (;;)
-            {
-                const int n { read (chunk, static_cast<int> (READ_CHUNK_SIZE)) };
-
-                if (n > 0)
-                {
-                    if (onData)
-                    {
-                        onData (chunk, n);
-                    }
-                }
-                else if (n == 0)
-                {
-                    break;
-                }
-                else
-                {
-                    shellExited.store (true, std::memory_order_release);
-                    if (onExit)
-                    {
-                        juce::MessageManager::callAsync (onExit);
-                    }
-                    eof = true;
-                    break;
-                }
-            }
-
-            // READER THREAD — flush queued responses after drain completes
-            // Deferred write gives child process time to set raw mode (ECHO off)
-            if (not eof and onDrainComplete)
-            {
-                onDrainComplete();
-            }
+            if (onData)
+                onData (chunk, n);
+            n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));
         }
+
+        if (n == 0)
+        {
+            if (onDrainComplete)
+                onDrainComplete();
+            return false;
+        }
+
+        shellExited.store (true, std::memory_order_release);
+        if (onExit)
+            juce::MessageManager::callAsync (onExit);
+        return true;
+    };
+
+    while (! threadShouldExit())
+    {
+        handleResize();
+        if (waitForData (100) && drainPty())
+            break;
     }
 }

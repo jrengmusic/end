@@ -10,8 +10,7 @@
 #include "Tabs.h"
 
 namespace Terminal
-{
-
+{ /*____________________________________________________________________________*/
 /**
  * @brief Constructs the tab container with the given tab bar orientation.
  *
@@ -26,6 +25,7 @@ namespace Terminal
 Tabs::Tabs (juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)
 {
+    setOpaque (false);
     setLookAndFeel (&tabLookAndFeel);
     setTabBarDepth (0);
     setOutline (0);
@@ -91,17 +91,17 @@ void Tabs::closeActiveTab()
 
     if (index >= 0 and static_cast<size_t> (index) < terminals.size())
     {
-        if (terminals.size() > 1)
-        {
-            removeChildComponent (terminals.at (index).get());
-            terminals.remove (index);
-            removeTab (index);
+        removeChildComponent (terminals.at (index).get());
+        terminals.remove (index);
+        removeTab (index);
 
+        if (terminals.size() > 0)
+        {
             const int newIndex { (index > 0) ? index - 1 : 0 };
             setCurrentTabIndex (newIndex);
-
-            updateTabBarVisibility();
         }
+
+        updateTabBarVisibility();
     }
 }
 
@@ -172,10 +172,15 @@ void Tabs::pasteClipboard()
         t->pasteClipboard();
 }
 
-void Tabs::reloadConfig()
+void Tabs::applyConfig()
 {
-    if (auto* t { getActiveTerminal() })
-        t->reloadConfig();
+    for (auto& terminal : terminals)
+    {
+        if (terminal != nullptr)
+        {
+            static_cast<Terminal::Component*> (terminal.get())->applyConfig();
+        }
+    }
 }
 
 void Tabs::increaseZoom()
@@ -210,7 +215,26 @@ void Tabs::resized()
 {
     juce::TabbedComponent::resized();
 
-    const auto content { getLocalBounds().withTrimmedTop (getTabBarDepth()) };
+    const auto depth { getTabBarDepth() };
+    const auto orientation { getOrientation() };
+    auto content { getLocalBounds() };
+
+    if (orientation == juce::TabbedButtonBar::TabsAtTop)
+    {
+        content = content.withTrimmedTop (depth);
+    }
+    else if (orientation == juce::TabbedButtonBar::TabsAtBottom)
+    {
+        content = content.withTrimmedBottom (depth);
+    }
+    else if (orientation == juce::TabbedButtonBar::TabsAtLeft)
+    {
+        content = content.withTrimmedLeft (depth);
+    }
+    else if (orientation == juce::TabbedButtonBar::TabsAtRight)
+    {
+        content = content.withTrimmedRight (depth);
+    }
 
     for (auto& terminal : terminals)
     {
@@ -257,14 +281,48 @@ void Tabs::currentTabChanged (int newIndex, const juce::String& name)
  * @brief Shows or hides the tab bar based on the number of tabs.
  *
  * Tab bar is hidden (depth 0) when only one tab exists, and shown
- * at defaultTabBarHeight when multiple tabs are present.
+ * at the height derived from the configured tab font size when
+ * multiple tabs are present.
  *
  * @note MESSAGE THREAD.
  */
 void Tabs::updateTabBarVisibility()
 {
-    const int depth { (getNumTabs() > 1) ? defaultTabBarHeight : 0 };
+    const int depth { (getNumTabs() > 1) ? LookAndFeel::getTabBarHeight() : 0 };
     setTabBarDepth (depth);
 }
 
+/**
+ * @brief Refreshes the look and feel by triggering a repaint.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Tabs::refreshLookAndFeel() noexcept
+{
+    repaint();
 }
+
+void Tabs::applyOrientation()
+{
+    const auto* cfg { Config::getContext() };
+    const auto orientation { orientationFromString (cfg->getString (Config::Key::tabPosition)) };
+    setOrientation (orientation);
+    updateTabBarVisibility();
+}
+
+juce::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::String& position)
+{
+    if (position == "top")
+        return juce::TabbedButtonBar::TabsAtTop;
+
+    if (position == "bottom")
+        return juce::TabbedButtonBar::TabsAtBottom;
+
+    if (position == "right")
+        return juce::TabbedButtonBar::TabsAtRight;
+
+    return juce::TabbedButtonBar::TabsAtLeft;
+}
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace Terminal

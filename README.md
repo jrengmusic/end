@@ -8,7 +8,7 @@ The journey of finding the best terminal is finally comes to END.
 
 **Ephemeral Nexus Display** -- a GPU-accelerated terminal emulator built from scratch in C++17 and JUCE. OpenGL-rendered text, HarfBuzz shaping, full Unicode support, sub-frame latency.
 
-END is opinionated: it does terminal rendering and nothing else. No tabs, no splits, no session management. You use tmux for multiplexing. END handles the pixels.
+END is opinionated: it does terminal rendering well. Tabs built-in, glass blur UI, Lua-configurable everything. You use tmux for session management. END handles the pixels.
 
 
 ## Features
@@ -43,6 +43,13 @@ END is opinionated: it does terminal rendering and nothing else. No tabs, no spl
 - Lock-free render pipeline -- reader thread writes atomics, VBlank polls dirty flags, GL thread acquires snapshot via atomic pointer exchange
 - Zero allocations on the render path
 
+**UI**
+- Tabbed interface with configurable position (top, bottom, left, right)
+- Active tab line indicator with configurable colour
+- Native glass blur popup menus on macOS
+- Custom LookAndFeel colour system driven by Lua config
+- Transient message overlay for config reload and errors
+
 **Architecture**
 - C++17 + JUCE 8 cross-platform framework
 - CoreText + HarfBuzz on macOS, FreeType + HarfBuzz on Linux
@@ -54,8 +61,8 @@ END is opinionated: it does terminal rendering and nothing else. No tabs, no spl
 
 ## Roadmap
 
-- **Split panes** -- in progress
-- **Tabs** -- Terminal::Component is already a self-contained JUCE component, wrapping into TabbedComponent is straightforward
+- **Split panes** -- planned
+- **Tabs** -- implemented (configurable position, styling, hot-reload)
 - **Windows support** -- ConPTY backend in progress, rendering pipeline ready
 - **Inline images** -- Sixel protocol support
 
@@ -101,6 +108,14 @@ END = {
         always_on_top = true,
         buttons = false,
     },
+    tab = {
+        family = "Display Mono",
+        size = 14,
+        position = "left",
+        foreground = "#FF00C8D8",
+        inactive = "#FF2E4D53",
+        line = "#FF8CC9D9",
+    },
     scrollback = {
         num_lines = 10000,
         step = 5,
@@ -121,7 +136,10 @@ All keyboard shortcuts are configurable via `end.lua`. Defaults:
 | Cmd+V | Paste | `keys.paste` |
 | Cmd+R | Reload config | `keys.reload` |
 | Cmd+Q | Quit (saves window state) | `keys.quit` |
-| Cmd+W | Close tab | `keys.close_tab` |
+| Cmd+T | New tab | `keys.new_tab` |
+| Cmd+W | Close tab (quits if last) | `keys.close_tab` |
+| Cmd+Shift+[ | Previous tab | `keys.prev_tab` |
+| Cmd+Shift+] | Next tab | `keys.next_tab` |
 | Cmd+= | Zoom in | `keys.zoom_in` |
 | Cmd+- | Zoom out | `keys.zoom_out` |
 | Cmd+0 | Reset zoom | `keys.zoom_reset` |
@@ -174,7 +192,7 @@ Single keys without modifiers are supported: `keys.reload = "F5"`
 | Feature | Status |
 |---------|--------|
 | Split panes | In progress |
-| Tabs | Planned |
+| Tabs | Implemented |
 | Sessions | tmux |
 | Shell integration | Complexity, low value |
 | Hyperlinks | Not yet |

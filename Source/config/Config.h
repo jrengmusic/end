@@ -235,6 +235,27 @@ struct Config : jreng::Context<Config>
         /** @brief Persisted zoom multiplier in [zoomMin, zoomMax]. */
         inline static const juce::String windowZoom         { "window.zoom" };
 
+        /** @brief Font family for the tab bar labels. */
+        inline static const juce::String tabFamily { "tab.family" };
+
+        /** @brief Font size in points for the tab bar labels; font is 75% of tab bar height. */
+        inline static const juce::String tabSize   { "tab.size" };
+
+        /** @brief Active tab text colour (hex string). */
+        inline static const juce::String tabForeground { "tab.foreground" };
+
+        /** @brief Inactive tab text colour (hex string). */
+        inline static const juce::String tabInactive { "tab.inactive" };
+
+        /** @brief Tab bar position: "top", "bottom", "left", or "right". */
+        inline static const juce::String tabPosition { "tab.position" };
+
+        /** @brief Active tab indicator line colour (hex string). */
+        inline static const juce::String tabLine { "tab.line" };
+
+        /** @brief Popup menu background opacity (0.0–1.0). Applied as NSWindow tint alpha. */
+        inline static const juce::String menuOpacity { "menu.opacity" };
+
         /** @brief Font family for the MessageOverlay display. */
         inline static const juce::String overlayFamily { "overlay.family" };
 
@@ -243,6 +264,9 @@ struct Config : jreng::Context<Config>
 
         /** @brief Text colour for the MessageOverlay display (hex string). */
         inline static const juce::String overlayColour { "overlay.colour" };
+
+        /** @brief Shell program name or absolute path (e.g. "zsh", "/opt/homebrew/bin/fish"). */
+        inline static const juce::String shellProgram { "shell.program" };
 
         /** @brief Maximum number of scrollback lines retained in the grid. */
         inline static const juce::String scrollbackNumLines { "scrollback.num_lines" };

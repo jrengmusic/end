@@ -35,7 +35,7 @@
  * @brief Child-process setup: connect stdio to the PTY slave and exec the shell.
  *
  * Called in the child after `fork()`.  Never returns on success; calls `_exit(1)`
- * on `execl` failure.
+ * on `execlp` failure.
  *
  * @par Steps
  * 1. Close the master fd (child does not need it).
@@ -45,14 +45,16 @@
  * 5. Close the slave fd if it is not already one of the standard fds.
  * 6. Set `TERM=xterm-256color` so the shell and TUI apps use 256-colour sequences.
  * 7. Set `LANG=UTF-8` if not already set, to enable Unicode output.
- * 8. `execl(shell, shell, "-l")` — replace the process image with a login shell.
+ * 8. `execlp(shell, shell, "-l")` — replace the process image with a login shell.
+ *    Short names (e.g. "zsh") are resolved via `$PATH`.
  *
  * @param master   Master fd to close in the child.
  * @param slaveFd  Slave fd to use as the controlling terminal and stdio.
+ * @param shell    Shell program name or absolute path (C string, must outlive fork).
  *
  * @note Runs in the child process only.  Must not return.
  */
-static void runChildProcess (int master, int slaveFd) noexcept
+static void runChildProcess (int master, int slaveFd, const char* shell) noexcept
 {
     ::close (master);
     setsid();
@@ -67,12 +69,6 @@ static void runChildProcess (int master, int slaveFd) noexcept
         ::close (slaveFd);
     }
 
-    const char* shell { getenv ("SHELL") };
-    if (shell == nullptr)
-    {
-        shell = "/bin/bash";
-    }
-
     setenv ("TERM", "xterm-256color", 1);
 
     if (getenv ("LANG") == nullptr)
@@ -80,7 +76,7 @@ static void runChildProcess (int master, int slaveFd) noexcept
         setenv ("LANG", "UTF-8", 1);
     }
 
-    execl (shell, shell, "-l", nullptr);
+    execlp (shell, shell, "-l", nullptr);
     _exit (1);
 }
 
@@ -102,21 +98,26 @@ UnixTTY::~UnixTTY()
  * @par Sequence
  * 1. Build a `winsize` struct from @p cols / @p rows.
  * 2. `openpty()` — allocate master and slave fds with the initial window size.
- * 3. `fork()` — child calls `runChildProcess()`; parent continues.
- * 4. Parent closes the slave fd (only the child needs it).
- * 5. `fcntl(O_NONBLOCK)` — make the master fd non-blocking for the reader thread.
- * 6. `startThread()` — begin the TTY reader loop.
+ * 3. Convert @p shell to a C string (must happen before `fork()`).
+ * 4. `fork()` — child calls `runChildProcess()`; parent continues.
+ * 5. Parent closes the slave fd (only the child needs it).
+ * 6. `fcntl(O_NONBLOCK)` — make the master fd non-blocking for the reader thread.
+ * 7. `startThread()` — begin the TTY reader loop.
  *
- * @param cols  Initial terminal width in character columns.
- * @param rows  Initial terminal height in character rows.
- * @return      `true` on success; `false` if `openpty()` or `fork()` fails.
+ * @param cols   Initial terminal width in character columns.
+ * @param rows   Initial terminal height in character rows.
+ * @param shell  Shell program name or absolute path.  Resolved via `$PATH`
+ *               using `execlp()` when not absolute.
+ * @return       `true` on success; `false` if `openpty()` or `fork()` fails.
  *
  * @note MESSAGE THREAD context.
  */
-bool UnixTTY::open (int cols, int rows)
+bool UnixTTY::open (int cols, int rows, const juce::String& shell)
 {
     int slaveFd;
     struct winsize ws { static_cast<unsigned short> (rows), static_cast<unsigned short> (cols), 0, 0 };
+    const auto shellUtf8 { shell.toStdString() };
+    const char* shellCStr { shellUtf8.c_str() };
 
     bool result { false };
 
@@ -126,7 +127,7 @@ bool UnixTTY::open (int cols, int rows)
 
         if (childProcess == 0)
         {
-            runChildProcess (master, slaveFd);
+            runChildProcess (master, slaveFd, shellCStr);
         }
 
         ::close (slaveFd);

@@ -33,7 +33,7 @@
  * @note MESSAGE THREAD — called from MainComponent constructor.
  */
 Terminal::Component::Component()
-    : screen (Config::getContext()->getString (Config::Key::fontFamily), dpiCorrectedFontSize())
+    : screen()
     , stateTree (session.getState().get())
     , vblank (this,
               [this]
@@ -53,16 +53,13 @@ Terminal::Component::Component()
         screen.setFontSize (dpiCorrectedFontSize() * savedZoom);
     }
 
-    cursor = std::make_unique<CursorComponent> (session.getCursorState(), screen.getFonts());
+    cursor = std::make_unique<CursorComponent> (session.getCursorState());
 
     setOpaque (false);
     setWantsKeyboardFocus (true);
     addKeyListener (this);
 
     addAndMakeVisible (cursor.get());
-
-    messageOverlay = std::make_unique<MessageOverlay>();
-    addChildComponent (messageOverlay.get());
 
     session.onShellExited = []
     {
@@ -84,17 +81,6 @@ Terminal::Component::Component()
     };
 
     stateTree.addListener (this);
-
-    const auto& startupError { cfg->getLoadError() };
-
-    if (startupError.isNotEmpty())
-    {
-        juce::MessageManager::callAsync (
-            [this, error = startupError]
-            {
-                messageOverlay->showMessage (error);
-            });
-    }
 }
 
 /**
@@ -102,9 +88,8 @@ Terminal::Component::Component()
  *
  * Destruction order is the reverse of construction:
  * 1. Remove ValueTree listener to prevent callbacks into a partially-destroyed object.
- * 2. Reset MessageOverlay before Screen detach (overlay may trigger repaints).
- * 3. Clear the selection pointer on Screen before resetting the local unique_ptr.
- * 4. Detach Screen from the OpenGL context.
+ * 2. Clear the selection pointer on Screen before resetting the local unique_ptr.
+ * 3. Detach Screen from the OpenGL context.
  * 5. Remove the key listener.
  *
  * @note MESSAGE THREAD.
@@ -112,7 +97,6 @@ Terminal::Component::Component()
 Terminal::Component::~Component()
 {
     stateTree.removeListener (this);
-    messageOverlay.reset();
     screen.setSelection (nullptr);
     screenSelection.reset();
     removeKeyListener (this);
@@ -124,11 +108,7 @@ Terminal::Component::~Component()
  * Removes the title-bar height from the top, then applies horizontal and
  * vertical insets to produce the content area passed to `Screen::setViewport()`.
  * After the viewport is set, the grid dimensions are known and the Session is
- * notified via `Session::resized()`.  The cursor is repositioned and the
- * MessageOverlay is updated with the new grid size.
- *
- * The `zoomInProgress` flag suppresses the grid-size overlay during zoom
- * operations where the resize is intentional and transient.
+ * notified via `Session::resized()`.  The cursor is repositioned.
  *
  * @note MESSAGE THREAD — called by JUCE on every resize event.
  */
@@ -141,16 +121,6 @@ void Terminal::Component::resized()
     screen.setViewport (contentArea);
     session.resized (screen.getNumCols(), screen.getNumRows());
     updateCursorBounds();
-
-    messageOverlay->setBounds (getLocalBounds());
-    messageOverlay->setGridSize (screen.getNumRows(), screen.getNumCols());
-
-    if (isShowing() and not zoomInProgress and isInitLayout)
-    {
-        messageOverlay->show();
-    }
-
-    isInitLayout = true;
 }
 
 void Terminal::Component::copySelection()
@@ -172,16 +142,7 @@ void Terminal::Component::pasteClipboard()
     cursor->resetBlink();
 }
 
-void Terminal::Component::reloadConfig()
-{
-    const juce::String error { Config::getContext()->reload() };
-    applyConfig();
 
-    if (error.isEmpty())
-        messageOverlay->showMessage ("RELOADED", 1000);
-    else
-        messageOverlay->showMessage (error);
-}
 
 void Terminal::Component::increaseZoom()
 {
@@ -515,6 +476,18 @@ void Terminal::Component::glContextClosing() noexcept
     screen.glContextClosing();
 }
 
+juce::Point<int> Terminal::Component::getOriginInTopLevel() const noexcept
+{
+    const float scale { Fonts::getDisplayScale() };
+    const auto* topLevel { getTopLevelComponent() };
+    const auto relative { topLevel != nullptr
+        ? topLevel->getLocalPoint (this, juce::Point<int> (0, 0))
+        : juce::Point<int> (0, 0) };
+
+    return { static_cast<int> (static_cast<float> (relative.x) * scale),
+             static_cast<int> (static_cast<float> (relative.y) * scale) };
+}
+
 // GL THREAD
 void Terminal::Component::renderGL() noexcept
 {
@@ -523,16 +496,8 @@ void Terminal::Component::renderGL() noexcept
         if (not screen.isGLContextReady())
             screen.glContextCreated();
 
-        const float scale { Fonts::getDisplayScale() };
-        const auto origin { localPointToGlobal (juce::Point<int> (0, 0)) };
-        const auto* topLevel { getTopLevelComponent() };
-        const auto relative { topLevel != nullptr
-            ? topLevel->getLocalPoint (this, juce::Point<int> (0, 0))
-            : origin };
-        const int originX { static_cast<int> (static_cast<float> (relative.x) * scale) };
-        const int originY { static_cast<int> (static_cast<float> (relative.y) * scale) };
-
-        screen.renderOpenGL (originX, originY);
+        const auto origin { getOriginInTopLevel() };
+        screen.renderOpenGL (origin.x, origin.y);
     }
 }
 
@@ -589,10 +554,9 @@ int Terminal::Component::getGridCols() const noexcept { return screen.getNumCols
  *
  * Steps:
  * 1. Ensures this component is the focus container (brings to front if not).
- * 2. If `consumeContextReady()` returns true (OpenGL context was recreated),
- *    marks all grid cells dirty so the next render is a full redraw.
- * 3. If `consumeSnapshotDirty()` returns true and the resize lock is available,
+ * 2. If `consumeSnapshotDirty()` returns true and the resize lock is available,
  *    calls `Screen::render()` with the current state and grid.
+ * 3. Invokes `onRepaintNeeded` to trigger a GL repaint on the shared context.
  * 4. Updates cursor visibility: hidden when scrolled back or when the terminal
  *    application has hidden the cursor via DEC private mode.
  *
@@ -685,7 +649,7 @@ void Terminal::Component::updateCursorBounds() noexcept
  * and sets the snapshot dirty so the next VBlank re-renders with the new
  * settings.  Does not change font size (zoom is preserved across reloads).
  *
- * @note MESSAGE THREAD — called from keyPressed() on Cmd+R.
+ * @note MESSAGE THREAD — called from reloadConfig().
  * @see Config::reload
  */
 void Terminal::Component::applyConfig() noexcept
@@ -702,20 +666,17 @@ void Terminal::Component::applyConfig() noexcept
  * @brief Scales the font size by @p zoom and re-lays out the component.
  *
  * Computes the new font size as `baseSize * zoom` and calls
- * `Screen::setFontSize()`.  Sets `zoomInProgress = true` before calling
- * `resized()` to suppress the grid-size MessageOverlay, then clears the flag.
+ * `Screen::setFontSize()`.
  *
  * @param zoom  The zoom multiplier to apply (already clamped by the caller).
- * @note MESSAGE THREAD — called from keyPressed() on Cmd+= / Cmd+- / Cmd+0.
+ * @note MESSAGE THREAD — called from increaseZoom(), decreaseZoom(), resetZoom().
  * @see Screen::setFontSize
  * @see Config::saveZoom
  */
 void Terminal::Component::applyZoom (float zoom) noexcept
 {
     screen.setFontSize (dpiCorrectedFontSize() * zoom);
-    zoomInProgress = true;
     resized();
-    zoomInProgress = false;
 }
 
 /**

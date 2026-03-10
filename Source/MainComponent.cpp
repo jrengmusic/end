@@ -47,8 +47,17 @@ MainComponent::MainComponent()
 {
     setOpaque (false);
 
-    tabs = std::make_unique<Terminal::Tabs> (juce::TabbedButtonBar::TabsAtTop);
+    const auto* cfg { Config::getContext() };
+
+    fonts = std::make_unique<Fonts> (cfg->getString (Config::Key::fontFamily),
+                                     cfg->getFloat (Config::Key::fontSize));
+
+    tabs = std::make_unique<Terminal::Tabs> (Terminal::Tabs::orientationFromString (
+        cfg->getString (Config::Key::tabPosition)));
     addAndMakeVisible (tabs.get());
+
+    auto& lf { tabs->getTabLookAndFeel() };
+    juce::LookAndFeel::setDefaultLookAndFeel (&lf);
 
     glRenderer.setComponents (tabs->getComponents());
     glRenderer.setComponentPaintingEnabled (true);
@@ -57,13 +66,28 @@ MainComponent::MainComponent()
     tabs->onRepaintNeeded = [this] { glRenderer.triggerRepaint(); };
     tabs->addNewTab();
 
+    messageOverlay = std::make_unique<MessageOverlay>();
+    addChildComponent (messageOverlay.get());
+
+    buildCommandActions();
+
     commandManager.registerAllCommandsForTarget (this);
     keyBinding.applyMappings();
     addKeyListener (commandManager.getKeyMappings());
 
-    const auto* cfg { Config::getContext() };
     setSize (cfg->getInt (Config::Key::windowWidth),
              cfg->getInt (Config::Key::windowHeight));
+
+    const auto& startupError { cfg->getLoadError() };
+
+    if (startupError.isNotEmpty())
+    {
+        juce::MessageManager::callAsync (
+            [this, error = startupError]
+            {
+                messageOverlay->showMessage (error);
+            });
+    }
 
     jreng::BackgroundBlur::setCloseCallback (
         [this]()
@@ -84,6 +108,43 @@ void MainComponent::resized()
 {
     if (tabs != nullptr)
         tabs->setBounds (getLocalBounds());
+
+    if (messageOverlay != nullptr)
+    {
+        messageOverlay->setBounds (getLocalBounds());
+
+        const auto fm { Fonts::getContext()->calcMetrics (
+            Config::getContext()->getFloat (Config::Key::fontSize)) };
+
+        if (fm.isValid())
+        {
+            auto content { getLocalBounds() };
+            const int depth { tabs != nullptr ? tabs->getTabBarDepth() : 0 };
+            const auto orientation { tabs != nullptr ? tabs->getOrientation() : juce::TabbedButtonBar::TabsAtLeft };
+
+            if (orientation == juce::TabbedButtonBar::TabsAtTop)
+                content = content.withTrimmedTop (depth);
+            else if (orientation == juce::TabbedButtonBar::TabsAtBottom)
+                content = content.withTrimmedBottom (depth);
+            else if (orientation == juce::TabbedButtonBar::TabsAtLeft)
+                content = content.withTrimmedLeft (depth);
+            else if (orientation == juce::TabbedButtonBar::TabsAtRight)
+                content = content.withTrimmedRight (depth);
+
+            const int titleBarHeight { Config::getContext()->getBool (Config::Key::windowButtons) ? 24 : 0 };
+            content.removeFromTop (titleBarHeight);
+            content = content.reduced (10, 10);
+
+            const int cols { content.getWidth() / fm.logicalCellW };
+            const int rows { content.getHeight() / fm.logicalCellH };
+
+            if (cols > 0 and rows > 0 and isShowing())
+            {
+                messageOverlay->showMessage (
+                    juce::String (cols) + " col * " + juce::String (rows) + " row", 1000);
+            }
+        }
+    }
 }
 
 /**
@@ -97,9 +158,105 @@ void MainComponent::resized()
 MainComponent::~MainComponent()
 {
     glRenderer.detach();
+    juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
+    messageOverlay.reset();
     tabs.reset();
+    fonts.reset();
     removeKeyListener (commandManager.getKeyMappings());
     jreng::BackgroundBlur::setCloseCallback (nullptr);
+}
+
+void MainComponent::buildCommandActions()
+{
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::copy),
+        [this]() -> bool
+        {
+            tabs->copySelection();
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::paste),
+        [this]() -> bool
+        {
+            tabs->pasteClipboard();
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::quit),
+        [this]() -> bool
+        {
+            juce::JUCEApplication::getInstance()->systemRequestedQuit();
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::closeTab),
+        [this]() -> bool
+        {
+            tabs->closeActiveTab();
+            if (tabs->getTabCount() == 0)
+                juce::JUCEApplication::getInstance()->systemRequestedQuit();
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::reload),
+        [this]() -> bool
+        {
+            keyBinding.reload();
+            commandManager.registerAllCommandsForTarget (this);
+            keyBinding.applyMappings();
+            const auto reloadError { Config::getContext()->reload() };
+            tabs->applyConfig();
+            tabs->getTabLookAndFeel().setColours();
+            tabs->sendLookAndFeelChange();
+            tabs->applyOrientation();
+            if (reloadError.isEmpty())
+                messageOverlay->showMessage ("RELOADED", 1000);
+            else
+                messageOverlay->showMessage (reloadError);
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomIn),
+        [this]() -> bool
+        {
+            tabs->increaseZoom();
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomOut),
+        [this]() -> bool
+        {
+            tabs->decreaseZoom();
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomReset),
+        [this]() -> bool
+        {
+            tabs->resetZoom();
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::newTab),
+        [this]() -> bool
+        {
+            tabs->addNewTab();
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::prevTab),
+        [this]() -> bool
+        {
+            tabs->selectPreviousTab();
+            return true;
+        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::nextTab),
+        [this]() -> bool
+        {
+            tabs->selectNextTab();
+            return true;
+        });
 }
 
 //==============================================================================
@@ -112,167 +269,31 @@ juce::ApplicationCommandTarget* MainComponent::getNextCommandTarget()
 
 void MainComponent::getAllCommands (juce::Array<juce::CommandID>& commands)
 {
-    using C = KeyBinding::CommandID;
-
-    commands.addArray ({
-        static_cast<int> (C::copy),
-        static_cast<int> (C::paste),
-        static_cast<int> (C::quit),
-        static_cast<int> (C::closeTab),
-        static_cast<int> (C::reload),
-        static_cast<int> (C::zoomIn),
-        static_cast<int> (C::zoomOut),
-        static_cast<int> (C::zoomReset),
-        static_cast<int> (C::newTab),
-        static_cast<int> (C::prevTab),
-        static_cast<int> (C::nextTab)
-    });
+    for (const auto& def : commandDefs)
+    {
+        commands.add (static_cast<int> (def.id));
+    }
 }
 
 void MainComponent::getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result)
 {
-    using C = KeyBinding::CommandID;
-
-    switch (commandID)
+    for (const auto& def : commandDefs)
     {
-        case static_cast<int> (C::copy):
+        if (static_cast<int> (def.id) == commandID)
         {
-            result.setInfo ("Copy", "Copy selection to clipboard", "Edit", 0);
-            const auto kp { keyBinding.getBinding (C::copy) };
+            result.setInfo (def.name, def.description, def.category, 0);
+            const auto kp { keyBinding.getBinding (def.id) };
             if (kp.isValid())
                 result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
             break;
         }
-        case static_cast<int> (C::paste):
-        {
-            result.setInfo ("Paste", "Paste from clipboard", "Edit", 0);
-            const auto kp { keyBinding.getBinding (C::paste) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        case static_cast<int> (C::quit):
-        {
-            result.setInfo ("Quit", "Quit application", "Application", 0);
-            const auto kp { keyBinding.getBinding (C::quit) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        case static_cast<int> (C::closeTab):
-        {
-            result.setInfo ("Close Tab", "Close current tab", "Application", 0);
-            const auto kp { keyBinding.getBinding (C::closeTab) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        case static_cast<int> (C::reload):
-        {
-            result.setInfo ("Reload", "Reload configuration", "Application", 0);
-            const auto kp { keyBinding.getBinding (C::reload) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        case static_cast<int> (C::zoomIn):
-        {
-            result.setInfo ("Zoom In", "Increase font size", "View", 0);
-            const auto kp { keyBinding.getBinding (C::zoomIn) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        case static_cast<int> (C::zoomOut):
-        {
-            result.setInfo ("Zoom Out", "Decrease font size", "View", 0);
-            const auto kp { keyBinding.getBinding (C::zoomOut) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        case static_cast<int> (C::zoomReset):
-        {
-            result.setInfo ("Zoom Reset", "Reset font size to default", "View", 0);
-            const auto kp { keyBinding.getBinding (C::zoomReset) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        case static_cast<int> (C::newTab):
-        {
-            result.setInfo ("New Tab", "Open a new terminal tab", "Tabs", 0);
-            const auto kp { keyBinding.getBinding (C::newTab) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        case static_cast<int> (C::prevTab):
-        {
-            result.setInfo ("Previous Tab", "Switch to previous tab", "Tabs", 0);
-            const auto kp { keyBinding.getBinding (C::prevTab) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        case static_cast<int> (C::nextTab):
-        {
-            result.setInfo ("Next Tab", "Switch to next tab", "Tabs", 0);
-            const auto kp { keyBinding.getBinding (C::nextTab) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
-        }
-        default:
-            break;
     }
 }
 
 bool MainComponent::perform (const juce::ApplicationCommandTarget::InvocationInfo& info)
 {
-    using C = KeyBinding::CommandID;
+    if (commandActions.contains (info.commandID))
+        return commandActions.get (info.commandID);
 
-    switch (info.commandID)
-    {
-        case static_cast<int> (C::copy):
-            tabs->copySelection();
-            return true;
-        case static_cast<int> (C::paste):
-            tabs->pasteClipboard();
-            return true;
-        case static_cast<int> (C::quit):
-            juce::JUCEApplication::getInstance()->systemRequestedQuit();
-            return true;
-        case static_cast<int> (C::closeTab):
-            tabs->closeActiveTab();
-            if (tabs->getTabCount() == 0)
-                juce::JUCEApplication::getInstance()->systemRequestedQuit();
-            return true;
-        case static_cast<int> (C::reload):
-            keyBinding.reload();
-            commandManager.registerAllCommandsForTarget (this);
-            keyBinding.applyMappings();
-            tabs->reloadConfig();
-            return true;
-        case static_cast<int> (C::zoomIn):
-            tabs->increaseZoom();
-            return true;
-        case static_cast<int> (C::zoomOut):
-            tabs->decreaseZoom();
-            return true;
-        case static_cast<int> (C::zoomReset):
-            tabs->resetZoom();
-            return true;
-        case static_cast<int> (C::newTab):
-            tabs->addNewTab();
-            return true;
-        case static_cast<int> (C::prevTab):
-            tabs->selectPreviousTab();
-            return true;
-        case static_cast<int> (C::nextTab):
-            tabs->selectNextTab();
-            return true;
-        default:
-            return false;
-    }
+    return false;
 }

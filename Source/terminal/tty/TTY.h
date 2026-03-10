@@ -81,15 +81,18 @@ public:
      * Creates the PTY pair, forks (Unix) or spawns (Windows) the shell, sets
      * the master fd to non-blocking, and starts the reader thread.
      *
-     * @param cols  Initial terminal width in character columns.
-     * @param rows  Initial terminal height in character rows.
-     * @return      `true` on success; `false` if the PTY or process could not
-     *              be created.
+     * @param cols   Initial terminal width in character columns.
+     * @param rows   Initial terminal height in character rows.
+     * @param shell  Shell program name or absolute path (e.g. "zsh",
+     *               "/opt/homebrew/bin/fish").  Resolved via `$PATH` when
+     *               not an absolute path.
+     * @return       `true` on success; `false` if the PTY or process could not
+     *               be created.
      *
      * @note Called from the message thread.  Must not be called while the
      *       reader thread is already running.
      */
-    virtual bool open (int cols, int rows) = 0;
+    virtual bool open (int cols, int rows, const juce::String& shell) = 0;
 
     /**
      * @brief Close the PTY and terminate the shell process.

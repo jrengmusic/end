@@ -82,13 +82,15 @@ public:
      * child, closes the slave fd in the parent, sets the master to
      * `O_NONBLOCK`, and starts the reader thread.
      *
-     * @param cols  Initial terminal width in character columns.
-     * @param rows  Initial terminal height in character rows.
-     * @return      `true` on success; `false` if `openpty()` or `fork()` fails.
+     * @param cols   Initial terminal width in character columns.
+     * @param rows   Initial terminal height in character rows.
+     * @param shell  Shell program name or absolute path.  Resolved via
+     *               `$PATH` using `execlp()` when not absolute.
+     * @return       `true` on success; `false` if `openpty()` or `fork()` fails.
      *
      * @note MESSAGE THREAD context.
      */
-    bool open (int cols, int rows) override;
+    bool open (int cols, int rows, const juce::String& shell) override;
 
     /**
      * @brief Close the PTY and terminate the shell process.

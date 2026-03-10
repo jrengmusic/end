@@ -308,6 +308,7 @@ const bool BackgroundBlur::applyNSVisualEffect (juce::Component* component,
     return false;
 }
 
+
 /**
  * @brief Makes the current NSOpenGLContext surface non-opaque.
  *

@@ -107,6 +107,14 @@ public:
      */
     void initialise (const juce::String& commandLine) override
     {
+        juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBook_ttf,
+                                                  BinaryData::DisplayMonoBook_ttfSize);
+        juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoMedium_ttf,
+                                                  BinaryData::DisplayMonoMedium_ttfSize);
+        juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBold_ttf,
+                                                  BinaryData::DisplayMonoBold_ttfSize);
+
+
         auto* cfg { Config::getContext() };
 
         mainWindow.reset (new jreng::GlassWindow (

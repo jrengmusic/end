@@ -37,9 +37,11 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "component/MessageOverlay.h"
 #include "component/Tabs.h"
 #include "config/Config.h"
 #include "config/KeyBinding.h"
+#include "terminal/rendering/Fonts.h"
 
 /**
  * @class MainComponent
@@ -51,8 +53,8 @@
  *
  * Inherits `juce::ApplicationCommandTarget` to handle application-wide commands
  * (copy, paste, quit, close/new tab, navigate tabs, reload, zoom) via the
- * JUCE command manager.
- *
+ * JUCE command manager 
+  
  * @par Layout
  * `resized()` gives the full local bounds to `Terminal::Tabs`; each terminal
  * applies its own insets and title-bar offset internally.
@@ -96,10 +98,94 @@ public:
     bool perform (const juce::ApplicationCommandTarget::InvocationInfo& info) override;
 
 private:
+    /**
+     * @struct CommandDef
+     * @brief Compile-time descriptor for a single application command.
+     *
+     * Each entry pairs a `KeyBinding::CommandID` with the human-readable
+     * metadata that JUCE's `ApplicationCommandInfo::setInfo()` requires.
+     * The static `commandDefs[]` table is iterated by `getAllCommands()`
+     * and `getCommandInfo()` to avoid repetitive switch/case boilerplate.
+     *
+     * @see commandDefs
+     * @see getAllCommands()
+     * @see getCommandInfo()
+     */
+    struct CommandDef
+    {
+        KeyBinding::CommandID id;   ///< Enum value identifying the command.
+        const char* name;           ///< Short display name shown in menus.
+        const char* description;    ///< Tooltip / status-bar description.
+        const char* category;       ///< Grouping category (Edit, Application, View, Tabs).
+    };
+
+    /**
+     * @brief Compile-time table of every application command.
+     *
+     * Iterated by `getAllCommands()` to register IDs and by
+     * `getCommandInfo()` to populate `ApplicationCommandInfo`.
+     * Order is irrelevant; the table is searched linearly.
+     *
+     * @see CommandDef
+     */
+    static constexpr CommandDef commandDefs[]
+    {
+        { KeyBinding::CommandID::copy,      "Copy",          "Copy selection to clipboard",    "Edit" },
+        { KeyBinding::CommandID::paste,     "Paste",         "Paste from clipboard",           "Edit" },
+        { KeyBinding::CommandID::quit,      "Quit",          "Quit application",               "Application" },
+        { KeyBinding::CommandID::closeTab,  "Close Tab",     "Close current tab",              "Application" },
+        { KeyBinding::CommandID::reload,    "Reload",        "Reload configuration",           "Application" },
+        { KeyBinding::CommandID::zoomIn,    "Zoom In",       "Increase font size",             "View" },
+        { KeyBinding::CommandID::zoomOut,   "Zoom Out",      "Decrease font size",             "View" },
+        { KeyBinding::CommandID::zoomReset, "Zoom Reset",    "Reset font size to default",     "View" },
+        { KeyBinding::CommandID::newTab,    "New Tab",       "Open a new terminal tab",        "Tabs" },
+        { KeyBinding::CommandID::prevTab,   "Previous Tab",  "Switch to previous tab",         "Tabs" },
+        { KeyBinding::CommandID::nextTab,   "Next Tab",      "Switch to next tab",             "Tabs" }
+    };
+
+    /**
+     * @brief Populates `commandActions` with one lambda per command.
+     *
+     * Called once from the constructor after `tabs` is fully initialised.
+     * Each lambda captures `this` and returns `true` after executing the
+     * command, matching the `juce::ApplicationCommandTarget::perform()`
+     * return contract.
+     *
+     * @note MESSAGE THREAD.
+     * @see commandActions
+     * @see perform()
+     */
+    void buildCommandActions();
+
+    /** @brief JUCE command manager; owns the keypress-to-command mapping. */
     juce::ApplicationCommandManager commandManager;
+
+    /** @brief Key binding resolver; reads shortcuts from `config.lua`. */
     KeyBinding keyBinding { commandManager };
+
+    /** @brief Shared OpenGL renderer; attached to this component, renders all GL children. */
     jreng::GLRenderer glRenderer;
+
+    /** @brief Global font context; provides font metrics and shaping for all terminals. */
+    std::unique_ptr<Fonts> fonts;
+
+    /** @brief Tabbed terminal container; owns all Terminal::Component instances. */
     std::unique_ptr<Terminal::Tabs> tabs;
+
+    /** @brief Transient overlay for grid-size and status messages. */
+    std::unique_ptr<MessageOverlay> messageOverlay;
+
+    /**
+     * @brief Maps command IDs to action lambdas for table-driven dispatch.
+     *
+     * Populated by `buildCommandActions()`.  `perform()` looks up the
+     * incoming `commandID` and invokes the matching lambda.  Each lambda
+     * returns `true` to indicate the command was handled.
+     *
+     * @see buildCommandActions()
+     * @see perform()
+     */
+    jreng::Function::Map<int, bool> commandActions;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

@@ -86,7 +86,7 @@ static bool createPseudoConsoleAndPipes (HPCON& pseudoConsole, HANDLE& pipeReadE
 }
 
 /**
- * @brief Spawn `cmd.exe` with the ConPTY attribute and retrieve the process handle.
+ * @brief Spawn the configured shell with the ConPTY attribute.
  *
  * Builds a `STARTUPINFOEXW` with a `PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE`
  * attribute so that ConPTY intercepts the child's console I/O.  After a
@@ -97,11 +97,15 @@ static bool createPseudoConsoleAndPipes (HPCON& pseudoConsole, HANDLE& pipeReadE
  * @param[in,out] pipeReadEnd   Input pipe read end — closed on success.
  * @param[in,out] pipeWriteEnd  Output pipe write end — closed on success.
  * @param[out] process         Receives the child process handle on success.
+ * @param      shell           Shell program as a wide string.  Short names
+ *                             (e.g. L"pwsh") are resolved via `%PATH%` by
+ *                             `CreateProcessW()`.
  * @return                     `true` if `CreateProcessW()` succeeded.
  *
  * @note Called from `WindowsTTY::open()` on the message thread.
  */
-static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipeWriteEnd, HANDLE& process)
+static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipeWriteEnd,
+                          HANDLE& process, const std::wstring& shell)
 {
     size_t attrSize { 0 };
     InitializeProcThreadAttributeList (nullptr, 1, 0, &attrSize);
@@ -118,10 +122,10 @@ static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipe
         UpdateProcThreadAttribute (si.lpAttributeList, 0,
             PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pseudoConsole, sizeof (HPCON), nullptr, nullptr);
 
-        WCHAR cmd[] = L"cmd.exe";
+        std::wstring cmd { shell };
         PROCESS_INFORMATION pi {};
 
-        BOOL ok { CreateProcessW (nullptr, cmd, nullptr, nullptr, FALSE,
+        BOOL ok { CreateProcessW (nullptr, cmd.data(), nullptr, nullptr, FALSE,
             CREATE_NEW_PROCESS_GROUP | EXTENDED_STARTUPINFO_PRESENT,
             nullptr, nullptr, &si.StartupInfo, &pi) };
 
@@ -152,24 +156,27 @@ static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipe
  * @par Sequence
  * 1. Convert @p cols / @p rows to a `COORD`.
  * 2. `createPseudoConsoleAndPipes()` — allocate pipe pairs and ConPTY handle.
- * 3. `spawnProcess()` — launch `cmd.exe` with the ConPTY attribute.
+ * 3. `spawnProcess()` — launch the configured shell with the ConPTY attribute.
  * 4. `startThread()` — begin the TTY reader loop.
  *
- * @param cols  Initial terminal width in character columns.
- * @param rows  Initial terminal height in character rows.
- * @return      `true` on success; `false` if any Win32 call fails.
+ * @param cols   Initial terminal width in character columns.
+ * @param rows   Initial terminal height in character rows.
+ * @param shell  Shell program name or absolute path.  Resolved via `%PATH%`
+ *               by `CreateProcessW()` when not absolute.
+ * @return       `true` on success; `false` if any Win32 call fails.
  *
  * @note MESSAGE THREAD context.
  */
-bool WindowsTTY::open (int cols, int rows)
+bool WindowsTTY::open (int cols, int rows, const juce::String& shell)
 {
     COORD size { static_cast<short> (cols), static_cast<short> (rows) };
+    const std::wstring shellWide { shell.toWideCharPointer() };
 
     bool result { false };
 
     if (createPseudoConsoleAndPipes (pseudoConsole, pipeReadEnd, inputWriter, outputReader, pipeWriteEnd, size))
     {
-        if (spawnProcess (pseudoConsole, pipeReadEnd, pipeWriteEnd, process))
+        if (spawnProcess (pseudoConsole, pipeReadEnd, pipeWriteEnd, process, shellWide))
         {
             startThread();
             result = true;
