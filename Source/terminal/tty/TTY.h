@@ -81,18 +81,20 @@ public:
      * Creates the PTY pair, forks (Unix) or spawns (Windows) the shell, sets
      * the master fd to non-blocking, and starts the reader thread.
      *
-     * @param cols   Initial terminal width in character columns.
-     * @param rows   Initial terminal height in character rows.
-     * @param shell  Shell program name or absolute path (e.g. "zsh",
-     *               "/opt/homebrew/bin/fish").  Resolved via `$PATH` when
-     *               not an absolute path.
-     * @return       `true` on success; `false` if the PTY or process could not
-     *               be created.
+     * @param cols             Initial terminal width in character columns.
+     * @param rows             Initial terminal height in character rows.
+     * @param shell            Shell program name or absolute path (e.g. "zsh",
+     *                         "/opt/homebrew/bin/fish").  Resolved via `$PATH` when
+     *                         not an absolute path.
+     * @param workingDirectory Optional initial working directory for the shell.
+     *                         If empty, the shell inherits the parent's cwd.
+     * @return                 `true` on success; `false` if the PTY or process could not
+     *                         be created.
      *
      * @note Called from the message thread.  Must not be called while the
      *       reader thread is already running.
      */
-    virtual bool open (int cols, int rows, const juce::String& shell) = 0;
+    virtual bool open (int cols, int rows, const juce::String& shell, const juce::String& workingDirectory = {}) = 0;
 
     /**
      * @brief Close the PTY and terminate the shell process.
@@ -213,6 +215,41 @@ public:
     {
         return shellExited.load (std::memory_order_acquire);
     }
+
+    /** @} */
+
+    // =========================================================================
+    /** @name Process introspection
+     *  Query the foreground process running in the terminal.
+     *  Default implementations return empty/invalid values.
+     * @{ */
+
+    /**
+     * @brief Returns the PID of the foreground process group leader.
+     * @return The foreground PID, or -1 if unavailable.
+     * @note READER THREAD — called from Session::process().
+     */
+    virtual int getForegroundPid() const noexcept { return -1; }
+
+    /**
+     * @brief Writes the process name for the given PID into the buffer.
+     * @param pid        The process ID to query.
+     * @param buffer     Destination buffer for the null-terminated name.
+     * @param maxLength  Size of the destination buffer in bytes.
+     * @return Number of bytes written (excluding null terminator), or 0 on failure.
+     * @note READER THREAD — no allocation, writes directly into caller's buffer.
+     */
+    virtual int getProcessName (int pid, char* buffer, int maxLength) const noexcept { return 0; }
+
+    /**
+     * @brief Writes the current working directory for the given PID into the buffer.
+     * @param pid        The process ID to query.
+     * @param buffer     Destination buffer for the null-terminated path.
+     * @param maxLength  Size of the destination buffer in bytes.
+     * @return Number of bytes written (excluding null terminator), or 0 on failure.
+     * @note READER THREAD — no allocation, writes directly into caller's buffer.
+     */
+    virtual int getCwd (int pid, char* buffer, int maxLength) const noexcept { return 0; }
 
     /** @} */
 

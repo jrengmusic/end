@@ -31,7 +31,9 @@ struct KeyBinding
         zoomReset,
         newTab,
         prevTab,
-        nextTab
+        nextTab,
+        splitHorizontal,
+        splitVertical
     };
 
     explicit KeyBinding (juce::ApplicationCommandManager& commandManager);

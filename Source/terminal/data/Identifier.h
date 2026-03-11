@@ -130,6 +130,25 @@ namespace ID
     static const juce::Identifier scrollOffset  { "scrollOffset" };
 
     //==========================================================================
+    // Display name parameter IDs (tab name sources)
+    //==========================================================================
+
+    /** @brief Window title set by OSC 0/2 escape sequences. */
+    static const juce::Identifier title              { "title" };
+
+    /** @brief Current working directory path from OSC 7 or OS query. */
+    static const juce::Identifier cwd                { "cwd" };
+
+    /** @brief Name of the foreground process running in the terminal. */
+    static const juce::Identifier foregroundProcess   { "foregroundProcess" };
+
+    /** @brief Derived display name for the tab (computed from title, foregroundProcess, cwd). */
+    static const juce::Identifier displayName         { "displayName" };
+
+    /** @brief Unique identifier for this terminal session. */
+    static const juce::Identifier uuid                { "uuid" };
+
+    //==========================================================================
     // Mode parameter IDs (DEC terminal mode flags)
     //==========================================================================
 

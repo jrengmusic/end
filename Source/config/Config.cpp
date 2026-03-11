@@ -16,7 +16,7 @@
  *     lua.safe_script_file(end.lua)       ← execute user config
  *     iterate _undefined → warnings
  *     iterate END.* → validate + store
- *   loadState()             ← overlay state.lua (width, height, zoom)
+ *   (AppState loads state.xml separately)
  * @endcode
  *
  * ### Colour parsing
@@ -38,8 +38,7 @@
  * @brief Populates the values map with all built-in default settings.
  *
  * Every key defined in `Config::Key` must have a corresponding entry here.
- * Defaults are applied first; `end.lua` values overlay them, and `state.lua`
- * overlays those.
+ * Defaults are applied first; `end.lua` values overlay them.
  *
  * @note Called at construction and at the start of `reload()`.
  */
@@ -54,33 +53,33 @@ void Config::initDefaults()
     values[Key::cursorBlink] = true;
     values[Key::cursorBlinkInterval] = 500;
 
-    values[Key::coloursForeground] = "#FFB3F9F5"; ///< frostbite
-    values[Key::coloursBackground] = "#E0090D12"; ///< bunker
-    values[Key::coloursCursor] = "#CCB3F9F5"; ///< frostbite
-    values[Key::coloursSelection] = "#8000C8D8"; ///< blueBikini
+    values[Key::coloursForeground] = "#FF4E8C93";///< paradiso
+    values[Key::coloursBackground] = "#E0090D12";///< bunker
+    values[Key::coloursCursor] = "#FF4E8C93";///< paradiso
+    values[Key::coloursSelection] = "#8000C8D8";///< blueBikini
 
-    values[Key::coloursBlack] = "#FF090D12"; ///< bunker
-    values[Key::coloursRed] = "#FFFC704C"; ///< preciousPersimmon
-    values[Key::coloursGreen] = "#FFC5F0E9"; ///< gentleCold
-    values[Key::coloursYellow] = "#FFF3F5C5"; ///< silkStar
-    values[Key::coloursBlue] = "#FF8CC9D9"; ///< dolphin
-    values[Key::coloursMagenta] = "#FF519299"; ///< lagoon
-    values[Key::coloursCyan] = "#FF699DAA"; ///< tranquiliTeal
-    values[Key::coloursWhite] = "#FFB3F9F5"; ///< frostbite
+    values[Key::coloursBlack] = "#FF090D12";///< bunker
+    values[Key::coloursRed] = "#FFFC704C";///< preciousPersimmon
+    values[Key::coloursGreen] = "#FFC5F0E9";///< gentleCold
+    values[Key::coloursYellow] = "#FFF3F5C5";///< silkStar
+    values[Key::coloursBlue] = "#FF8CC9D9";///< dolphin
+    values[Key::coloursMagenta] = "#FF519299";///< lagoon
+    values[Key::coloursCyan] = "#FF699DAA";///< tranquiliTeal
+    values[Key::coloursWhite] = "#FFFF0000";///< frostbite
 
-    values[Key::coloursBrightBlack] = "#FF33535B"; ///< mediterranea
-    values[Key::coloursBrightRed] = "#FFFC704C"; ///< preciousPersimmon
-    values[Key::coloursBrightGreen] = "#FFBAFFFD"; ///< paleSky
-    values[Key::coloursBrightYellow] = "#FFFEFFD2"; ///< mattWhite
-    values[Key::coloursBrightBlue] = "#FF67DFEF"; ///< poseidonJr
-    values[Key::coloursBrightMagenta] = "#FF01C2D2"; ///< caribbeanBlue
-    values[Key::coloursBrightCyan] = "#FF00C8D8"; ///< blueBikini
-    values[Key::coloursBrightWhite] = "#FFBAFFFD"; ///< paleSky
+    values[Key::coloursBrightBlack] = "#FF33535B";///< mediterranea
+    values[Key::coloursBrightRed] = "#FFFC704C";///< preciousPersimmon
+    values[Key::coloursBrightGreen] = "#FFBAFFFD";///< paleSky
+    values[Key::coloursBrightYellow] = "#FFFEFFD2";///< mattWhite
+    values[Key::coloursBrightBlue] = "#FF67DFEF";///< poseidonJr
+    values[Key::coloursBrightMagenta] = "#FF01C2D2";///< caribbeanBlue
+    values[Key::coloursBrightCyan] = "#FF00C8D8";///< blueBikini
+    values[Key::coloursBrightWhite] = "#FFBAFFFD";///< paleSky
 
     values[Key::windowTitle] = ProjectInfo::projectName;
     values[Key::windowWidth] = 640;
     values[Key::windowHeight] = 480;
-    values[Key::windowColour] = "#090D12"; ///< bunker
+    values[Key::windowColour] = "#090D12";///< bunker
     values[Key::windowOpacity] = 0.75f;
     values[Key::windowBlurRadius] = 32.0f;
     values[Key::windowAlwaysOnTop] = true;
@@ -89,15 +88,17 @@ void Config::initDefaults()
 
     values[Key::tabFamily] = "Display Mono";
     values[Key::tabSize] = 14.0f;
-    values[Key::tabForeground] = "#FF00C8D8"; ///< blueBikini
-    values[Key::tabInactive] = "#FF2E4D53"; ///< mallard
+    values[Key::tabForeground] = "#FF00C8D8";///< blueBikini
+    values[Key::tabInactive] = "#FF1B2A31";///< dark
     values[Key::tabPosition] = "left";
-    values[Key::tabLine] = "#FF8CC9D9"; ///< dolphin
+    values[Key::tabLine] = "#FF8CC9D9";///< dolphin
+    values[Key::tabActive] = "#FF002B35";///< midnightDreams
+    values[Key::tabIndicator] = "#FF01C2D2";///< caribbeanBlue
     values[Key::menuOpacity] = 0.65f;
 
     values[Key::overlayFamily] = "Display Mono";
     values[Key::overlaySize] = 28.0f;
-    values[Key::overlayColour] = "#4E8C93"; ///< paradiso
+    values[Key::overlayColour] = "#4E8C93";///< paradiso
 
 #if JUCE_MAC
     values[Key::shellProgram] = "zsh";
@@ -110,17 +111,19 @@ void Config::initDefaults()
     values[Key::scrollbackNumLines] = 10000;
     values[Key::scrollbackStep] = 5;
 
-    values[Key::keysCopy]      = "cmd+c";
-    values[Key::keysPaste]     = "cmd+v";
-    values[Key::keysQuit]      = "cmd+q";
-    values[Key::keysCloseTab]  = "cmd+w";
-    values[Key::keysReload]    = "cmd+r";
-    values[Key::keysZoomIn]    = "cmd+=";
-    values[Key::keysZoomOut]   = "cmd+-";
+    values[Key::keysCopy] = "cmd+c";
+    values[Key::keysPaste] = "cmd+v";
+    values[Key::keysQuit] = "cmd+q";
+    values[Key::keysCloseTab] = "cmd+w";
+    values[Key::keysReload] = "cmd+r";
+    values[Key::keysZoomIn] = "cmd+=";
+    values[Key::keysZoomOut] = "cmd+-";
     values[Key::keysZoomReset] = "cmd+0";
-    values[Key::keysNewTab]    = "cmd+t";
-    values[Key::keysPrevTab]   = "cmd+[";
-    values[Key::keysNextTab]   = "cmd+]";
+    values[Key::keysNewTab] = "cmd+t";
+    values[Key::keysPrevTab] = "cmd+[";
+    values[Key::keysNextTab] = "cmd+]";
+    values[Key::keysSplitHorizontal] = "cmd+shift+h";
+    values[Key::keysSplitVertical] = "cmd+shift+v";
 }
 
 /**
@@ -136,75 +139,79 @@ void Config::initSchema()
 {
     using T = ValueSpec::Type;
 
-    schema[Key::fontFamily]          = { T::string };
-    schema[Key::fontSize]            = { T::number, 1.0,   200.0,   true };
-    schema[Key::fontLigatures]       = { T::boolean };
-    schema[Key::fontEmbolden]        = { T::boolean };
+    schema[Key::fontFamily] = { T::string };
+    schema[Key::fontSize] = { T::number, 1.0, 200.0, true };
+    schema[Key::fontLigatures] = { T::boolean };
+    schema[Key::fontEmbolden] = { T::boolean };
 
-    schema[Key::cursorChar]          = { T::string };
-    schema[Key::cursorBlink]         = { T::boolean };
-    schema[Key::cursorBlinkInterval] = { T::number, 100.0, 5000.0,  true };
+    schema[Key::cursorChar] = { T::string };
+    schema[Key::cursorBlink] = { T::boolean };
+    schema[Key::cursorBlinkInterval] = { T::number, 100.0, 5000.0, true };
 
-    schema[Key::coloursForeground]   = { T::string };
-    schema[Key::coloursBackground]   = { T::string };
-    schema[Key::coloursCursor]       = { T::string };
-    schema[Key::coloursSelection]    = { T::string };
-    schema[Key::coloursBlack]        = { T::string };
-    schema[Key::coloursRed]          = { T::string };
-    schema[Key::coloursGreen]        = { T::string };
-    schema[Key::coloursYellow]       = { T::string };
-    schema[Key::coloursBlue]         = { T::string };
-    schema[Key::coloursMagenta]      = { T::string };
-    schema[Key::coloursCyan]         = { T::string };
-    schema[Key::coloursWhite]        = { T::string };
-    schema[Key::coloursBrightBlack]  = { T::string };
-    schema[Key::coloursBrightRed]    = { T::string };
-    schema[Key::coloursBrightGreen]  = { T::string };
+    schema[Key::coloursForeground] = { T::string };
+    schema[Key::coloursBackground] = { T::string };
+    schema[Key::coloursCursor] = { T::string };
+    schema[Key::coloursSelection] = { T::string };
+    schema[Key::coloursBlack] = { T::string };
+    schema[Key::coloursRed] = { T::string };
+    schema[Key::coloursGreen] = { T::string };
+    schema[Key::coloursYellow] = { T::string };
+    schema[Key::coloursBlue] = { T::string };
+    schema[Key::coloursMagenta] = { T::string };
+    schema[Key::coloursCyan] = { T::string };
+    schema[Key::coloursWhite] = { T::string };
+    schema[Key::coloursBrightBlack] = { T::string };
+    schema[Key::coloursBrightRed] = { T::string };
+    schema[Key::coloursBrightGreen] = { T::string };
     schema[Key::coloursBrightYellow] = { T::string };
-    schema[Key::coloursBrightBlue]   = { T::string };
-    schema[Key::coloursBrightMagenta]= { T::string };
-    schema[Key::coloursBrightCyan]   = { T::string };
-    schema[Key::coloursBrightWhite]  = { T::string };
+    schema[Key::coloursBrightBlue] = { T::string };
+    schema[Key::coloursBrightMagenta] = { T::string };
+    schema[Key::coloursBrightCyan] = { T::string };
+    schema[Key::coloursBrightWhite] = { T::string };
 
-    schema[Key::windowTitle]         = { T::string };
-    schema[Key::windowColour]        = { T::string };
-    schema[Key::windowOpacity]       = { T::number, 0.0,   1.0,     true };
-    schema[Key::windowBlurRadius]    = { T::number, 0.0,   100.0,   true };
-    schema[Key::windowAlwaysOnTop]   = { T::boolean };
-    schema[Key::windowButtons]       = { T::boolean };
+    schema[Key::windowTitle] = { T::string };
+    schema[Key::windowColour] = { T::string };
+    schema[Key::windowOpacity] = { T::number, 0.0, 1.0, true };
+    schema[Key::windowBlurRadius] = { T::number, 0.0, 100.0, true };
+    schema[Key::windowAlwaysOnTop] = { T::boolean };
+    schema[Key::windowButtons] = { T::boolean };
 
-    schema[Key::tabFamily]           = { T::string };
-    schema[Key::tabSize]             = { T::number, 1.0,   200.0,   true };
-    schema[Key::tabForeground]       = { T::string };
-    schema[Key::tabInactive]         = { T::string };
-    schema[Key::tabPosition]         = { T::string };
-    schema[Key::tabLine]             = { T::string };
-    schema[Key::menuOpacity]         = { T::number, 0.0,   1.0,     true };
+    schema[Key::tabFamily] = { T::string };
+    schema[Key::tabSize] = { T::number, 1.0, 200.0, true };
+    schema[Key::tabForeground] = { T::string };
+    schema[Key::tabInactive] = { T::string };
+    schema[Key::tabPosition] = { T::string };
+    schema[Key::tabLine] = { T::string };
+    schema[Key::tabActive] = { T::string };
+    schema[Key::tabIndicator] = { T::string };
+    schema[Key::menuOpacity] = { T::number, 0.0, 1.0, true };
 
-    schema[Key::overlayFamily]       = { T::string };
-    schema[Key::overlaySize]         = { T::number, 1.0,   200.0,   true };
-    schema[Key::overlayColour]       = { T::string };
+    schema[Key::overlayFamily] = { T::string };
+    schema[Key::overlaySize] = { T::number, 1.0, 200.0, true };
+    schema[Key::overlayColour] = { T::string };
 
-    schema[Key::shellProgram]        = { T::string };
+    schema[Key::shellProgram] = { T::string };
 
-    schema[Key::scrollbackNumLines]  = { T::number, 100.0, 1000000.0, true };
-    schema[Key::scrollbackStep]      = { T::number, 1.0,   100.0,   true };
+    schema[Key::scrollbackNumLines] = { T::number, 100.0, 1000000.0, true };
+    schema[Key::scrollbackStep] = { T::number, 1.0, 100.0, true };
 
-    schema[Key::keysCopy]            = { T::string };
-    schema[Key::keysPaste]           = { T::string };
-    schema[Key::keysQuit]            = { T::string };
-    schema[Key::keysCloseTab]        = { T::string };
-    schema[Key::keysReload]          = { T::string };
-    schema[Key::keysZoomIn]          = { T::string };
-    schema[Key::keysZoomOut]         = { T::string };
-    schema[Key::keysZoomReset]       = { T::string };
-    schema[Key::keysNewTab]          = { T::string };
-    schema[Key::keysPrevTab]         = { T::string };
-    schema[Key::keysNextTab]         = { T::string };
+    schema[Key::keysCopy] = { T::string };
+    schema[Key::keysPaste] = { T::string };
+    schema[Key::keysQuit] = { T::string };
+    schema[Key::keysCloseTab] = { T::string };
+    schema[Key::keysReload] = { T::string };
+    schema[Key::keysZoomIn] = { T::string };
+    schema[Key::keysZoomOut] = { T::string };
+    schema[Key::keysZoomReset] = { T::string };
+    schema[Key::keysNewTab] = { T::string };
+    schema[Key::keysPrevTab] = { T::string };
+    schema[Key::keysNextTab] = { T::string };
+    schema[Key::keysSplitHorizontal] = { T::string };
+    schema[Key::keysSplitVertical] = { T::string };
 }
 
 /**
- * @brief Constructs Config: loads defaults, schema, end.lua, then state.lua.
+ * @brief Constructs Config: loads defaults, schema, then end.lua.
  *
  * If `end.lua` does not exist it is created with an empty `END = {}` table via
  * `writeDefaults()`.  Any load errors are stored in `loadError` and surfaced by
@@ -221,8 +228,6 @@ Config::Config()
     {
         load (configFile);
     }
-
-    loadState();
 }
 
 /**
@@ -274,16 +279,26 @@ static juce::String luaTypeName (sol::type t)
 {
     switch (t)
     {
-        case sol::type::lua_nil:       return "nil";
-        case sol::type::boolean:       return "boolean";
-        case sol::type::number:        return "number";
-        case sol::type::string:        return "string";
-        case sol::type::table:         return "table";
-        case sol::type::function:      return "function";
-        case sol::type::userdata:      return "userdata";
-        case sol::type::lightuserdata: return "lightuserdata";
-        case sol::type::thread:        return "thread";
-        default:                       return "unknown";
+        case sol::type::lua_nil:
+            return "nil";
+        case sol::type::boolean:
+            return "boolean";
+        case sol::type::number:
+            return "number";
+        case sol::type::string:
+            return "string";
+        case sol::type::table:
+            return "table";
+        case sol::type::function:
+            return "function";
+        case sol::type::userdata:
+            return "userdata";
+        case sol::type::lightuserdata:
+            return "lightuserdata";
+        case sol::type::thread:
+            return "thread";
+        default:
+            return "unknown";
     }
 }
 
@@ -295,10 +310,7 @@ static juce::String luaTypeName (sol::type t)
  * @param file  The Lua config file to load.
  * @return @c true if the file was parsed without a fatal Lua error.
  */
-bool Config::load (const juce::File& file)
-{
-    return load (file, loadError);
-}
+bool Config::load (const juce::File& file) { return load (file, loadError); }
 
 /**
  * @brief Loads and validates a Lua config file.
@@ -328,15 +340,13 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
     if (file.existsAsFile())
     {
         sol::state lua;
-        lua.open_libraries (sol::lib::base, sol::lib::string, sol::lib::table,
-                            sol::lib::os, sol::lib::debug);
+        lua.open_libraries (sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::os, sol::lib::debug);
 
         auto setupResult { lua.safe_script (validationScript, sol::script_pass_on_error) };
 
         if (setupResult.valid())
         {
-            auto result { lua.safe_script_file (file.getFullPathName().toStdString(),
-                                                sol::script_pass_on_error) };
+            auto result { lua.safe_script_file (file.getFullPathName().toStdString(), sol::script_pass_on_error) };
 
             if (result.valid())
             {
@@ -354,8 +364,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                 sol::table t { entry.as<sol::table>() };
                                 const juce::String name { t["name"].get<std::string>() };
                                 const int line { t["line"].get<int>() };
-                                warnings.add ("line " + juce::String (line)
-                                              + ": undefined variable '" + name + "'");
+                                warnings.add ("line " + juce::String (line) + ": undefined variable '" + name + "'");
                             }
                         });
                 }
@@ -369,15 +378,14 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                     root.for_each (
                         [this, &warnings] (const sol::object& groupKey, const sol::object& groupVal)
                         {
-                            if (groupKey.get_type() == sol::type::string
-                                and groupVal.get_type() == sol::type::table)
+                            if (groupKey.get_type() == sol::type::string and groupVal.get_type() == sol::type::table)
                             {
                                 const juce::String groupName { groupKey.as<std::string>() };
                                 sol::table group { groupVal.as<sol::table>() };
 
                                 group.for_each (
-                                    [this, &groupName, &warnings] (const sol::object& fieldKey,
-                                                                   const sol::object& fieldVal)
+                                    [this, &groupName, &warnings] (
+                                        const sol::object& fieldKey, const sol::object& fieldVal)
                                     {
                                         if (fieldKey.get_type() == sol::type::string)
                                         {
@@ -408,24 +416,23 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
 
                                                 if (not typeOk)
                                                 {
-                                                    static const std::array<const char*, 3> specTypeNames
-                                                        {{ "string", "number", "boolean" }};
-                                                    warnings.add ("'" + dotKey + "' expected "
+                                                    static const std::array<const char*, 3> specTypeNames {
+                                                        { "string", "number", "boolean" }
+                                                    };
+                                                    warnings.add (
+                                                        "'" + dotKey + "' expected "
                                                         + specTypeNames.at (static_cast<size_t> (spec.expectedType))
-                                                        + ", got "
-                                                        + luaTypeName (fieldVal.get_type()));
+                                                        + ", got " + luaTypeName (fieldVal.get_type()));
                                                 }
-                                                else if (spec.hasRange
-                                                         and spec.expectedType == ValueSpec::Type::number)
+                                                else if (spec.hasRange and spec.expectedType == ValueSpec::Type::number)
                                                 {
                                                     const double val { fieldVal.as<double>() };
 
                                                     if (val < spec.minValue or val > spec.maxValue)
                                                     {
-                                                        warnings.add ("'" + dotKey + "' value "
-                                                            + juce::String (val) + " out of range ["
-                                                            + juce::String (spec.minValue) + ", "
-                                                            + juce::String (spec.maxValue) + "]");
+                                                        warnings.add ("'" + dotKey + "' value " + juce::String (val)
+                                                                      + " out of range [" + juce::String (spec.minValue)
+                                                                      + ", " + juce::String (spec.maxValue) + "]");
                                                     }
                                                     else
                                                     {
@@ -434,18 +441,16 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                                 }
                                                 else if (fieldVal.get_type() == sol::type::string)
                                                 {
-                                                    values.insert_or_assign (dotKey,
-                                                        juce::String (fieldVal.as<std::string>()));
+                                                    values.insert_or_assign (
+                                                        dotKey, juce::String (fieldVal.as<std::string>()));
                                                 }
                                                 else if (fieldVal.get_type() == sol::type::number)
                                                 {
-                                                    values.insert_or_assign (dotKey,
-                                                        fieldVal.as<double>());
+                                                    values.insert_or_assign (dotKey, fieldVal.as<double>());
                                                 }
                                                 else if (fieldVal.get_type() == sol::type::boolean)
                                                 {
-                                                    values.insert_or_assign (dotKey,
-                                                        fieldVal.as<bool>());
+                                                    values.insert_or_assign (dotKey, fieldVal.as<bool>());
                                                 }
                                             }
                                         }
@@ -464,8 +469,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
             else
             {
                 sol::error err = result;
-                errorOut = juce::String (configErrorPrefix)
-                           + juce::String (err.what());
+                errorOut = juce::String (configErrorPrefix) + juce::String (err.what());
             }
         }
     }
@@ -476,7 +480,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
 /**
  * @brief Resets to defaults and reloads `end.lua`.
  *
- * Does NOT reload `state.lua`; window size and zoom are preserved across
+ * Window size and zoom are managed by `AppState` and preserved across
  * config reloads.  Called by `Terminal::Component` on Cmd+R.
  *
  * @return The error/warning string from the reload, or empty if clean.
@@ -542,24 +546,26 @@ Config::Theme Config::buildTheme() const
     theme.defaultForeground = getColour (Key::coloursForeground);
     theme.defaultBackground = getColour (Key::coloursBackground);
     theme.selectionColour = getColour (Key::coloursSelection);
-    theme.ansi = {{
-        getColour (Key::coloursBlack),
-        getColour (Key::coloursRed),
-        getColour (Key::coloursGreen),
-        getColour (Key::coloursYellow),
-        getColour (Key::coloursBlue),
-        getColour (Key::coloursMagenta),
-        getColour (Key::coloursCyan),
-        getColour (Key::coloursWhite),
-        getColour (Key::coloursBrightBlack),
-        getColour (Key::coloursBrightRed),
-        getColour (Key::coloursBrightGreen),
-        getColour (Key::coloursBrightYellow),
-        getColour (Key::coloursBrightBlue),
-        getColour (Key::coloursBrightMagenta),
-        getColour (Key::coloursBrightCyan),
-        getColour (Key::coloursBrightWhite),
-    }};
+    theme.ansi = {
+        {
+         getColour (Key::coloursBlack),
+         getColour (Key::coloursRed),
+         getColour (Key::coloursGreen),
+         getColour (Key::coloursYellow),
+         getColour (Key::coloursBlue),
+         getColour (Key::coloursMagenta),
+         getColour (Key::coloursCyan),
+         getColour (Key::coloursWhite),
+         getColour (Key::coloursBrightBlack),
+         getColour (Key::coloursBrightRed),
+         getColour (Key::coloursBrightGreen),
+         getColour (Key::coloursBrightYellow),
+         getColour (Key::coloursBrightBlue),
+         getColour (Key::coloursBrightMagenta),
+         getColour (Key::coloursBrightCyan),
+         getColour (Key::coloursBrightWhite),
+         }
+    };
     return theme;
 }
 
@@ -649,123 +655,4 @@ juce::Colour Config::parseColour (const juce::String& input)
     }
 
     return result;
-}
-
-/**
- * @brief Returns the path to `~/.config/end/state.lua`.
- * @return The state file path (may not exist yet).
- */
-juce::File Config::getStateFile() const
-{
-    return getConfigFile().getParentDirectory().getChildFile ("state.lua");
-}
-
-/**
- * @brief Loads `state.lua` and overlays window width, height, and zoom.
- *
- * State values take precedence over both built-in defaults and `end.lua`.
- * Missing or invalid fields in `state.lua` are silently ignored so that a
- * partial or corrupt state file does not prevent startup.
- *
- * @note Called at the end of the constructor, after `end.lua` has been loaded.
- */
-void Config::loadState()
-{
-    auto stateFile { getStateFile() };
-
-    if (stateFile.existsAsFile())
-    {
-        sol::state lua;
-        lua.open_libraries (sol::lib::base);
-
-        auto result { lua.safe_script_file (stateFile.getFullPathName().toStdString(),
-                                            sol::script_pass_on_error) };
-
-        if (result.valid())
-        {
-            sol::table state = lua["state"];
-
-            if (state.valid())
-            {
-                sol::object w { state["width"] };
-                sol::object h { state["height"] };
-                sol::object z { state["zoom"] };
-
-                if (w.get_type() == sol::type::number)
-                {
-                    values.insert_or_assign (Key::windowWidth, w.as<double>());
-                }
-
-                if (h.get_type() == sol::type::number)
-                {
-                    values.insert_or_assign (Key::windowHeight, h.as<double>());
-                }
-
-                if (z.get_type() == sol::type::number)
-                {
-                    values.insert_or_assign (Key::windowZoom, z.as<double>());
-                }
-            }
-        }
-    }
-}
-
-/**
- * @brief Writes the state table to @p file.
- *
- * File-scope helper used by both `saveWindowSize()` and `saveZoom()`.
- * Writes a Lua table with `width`, `height`, and `zoom` fields.
- *
- * @param file    The state file to overwrite.
- * @param width   Window width in pixels.
- * @param height  Window height in pixels.
- * @param zoom    Zoom multiplier (already clamped by the caller).
- */
-static void writeState (const juce::File& file, int width, int height, float zoom)
-{
-    juce::String content;
-    content << "state = {\n";
-    content << "\twidth = " << width << ",\n";
-    content << "\theight = " << height << ",\n";
-    content << "\tzoom = " << juce::String (zoom, 2) << ",\n";
-    content << "}\n";
-    file.replaceWithText (content);
-}
-
-/**
- * @brief Persists the current window dimensions to `state.lua`.
- *
- * Updates the in-memory `windowWidth` / `windowHeight` values and writes
- * `state.lua` so the next launch restores the same size.
- *
- * @param width   Current window width in pixels.
- * @param height  Current window height in pixels.
- * @see saveZoom
- */
-void Config::saveWindowSize (int width, int height)
-{
-    values.insert_or_assign (Key::windowWidth, width);
-    values.insert_or_assign (Key::windowHeight, height);
-    writeState (getStateFile(), width, height,
-                static_cast<float> (values.at (Key::windowZoom)));
-}
-
-/**
- * @brief Persists the zoom multiplier to `state.lua`.
- *
- * Clamps @p zoom to `[zoomMin, zoomMax]` before storing.  Reads the current
- * window dimensions from the values map so `writeState()` always writes a
- * consistent triple.
- *
- * @param zoom  Desired zoom multiplier (will be clamped to [zoomMin, zoomMax]).
- * @see saveWindowSize
- */
-void Config::saveZoom (float zoom)
-{
-    const float clamped { juce::jlimit (zoomMin, zoomMax, zoom) };
-    values.insert_or_assign (Key::windowZoom, clamped);
-    writeState (getStateFile(),
-                static_cast<int> (values.at (Key::windowWidth)),
-                static_cast<int> (values.at (Key::windowHeight)),
-                clamped);
 }

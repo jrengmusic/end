@@ -12,6 +12,7 @@
  */
 
 #include "TerminalComponent.h"
+#include "../AppState.h"
 #include "../config/Config.h"
 
 /**
@@ -41,12 +42,59 @@ Terminal::Component::Component()
                   onVBlank();
               })
 {
+    initialise();
+    session.getState().get().setProperty (Terminal::ID::uuid, juce::Uuid().toString(), nullptr);
+}
+
+Terminal::Component* Terminal::Component::create (juce::Component& parent,
+                                                   juce::Rectangle<int> bounds,
+                                                   jreng::Owner<Component>& owner)
+{
+    auto terminal { std::make_unique<Component>() };
+    const auto uuid { terminal->getValueTree().getProperty (Terminal::ID::uuid).toString() };
+    terminal->setComponentID (uuid);
+    terminal->setBounds (bounds);
+    parent.addChildComponent (terminal.get());
+    auto& ref { owner.add (std::move (terminal)) };
+    return ref.get();
+}
+
+/**
+ * @brief Constructs a terminal component starting in the given directory.
+ *
+ * @param workingDirectory  Absolute path for the shell's initial cwd.
+ * @note MESSAGE THREAD.
+ */
+Terminal::Component::Component (const juce::String& workingDirectory)
+    : screen()
+    , stateTree (session.getState().get())
+    , vblank (this,
+              [this]
+              {
+                  onVBlank();
+              })
+{
+    session.setWorkingDirectory (workingDirectory);
+    initialise();
+    session.getState().get().setProperty (Terminal::ID::uuid, juce::Uuid().toString(), nullptr);
+}
+
+/**
+ * @brief Initialises the terminal component after construction.
+ *
+ * Contains the shared initialization logic for both constructors.
+ * Sets up screen, cursor, session callbacks, and ValueTree listeners.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Terminal::Component::initialise()
+{
     auto* cfg { Config::getContext() };
     screen.setLigatures (cfg->getBool (Config::Key::fontLigatures));
     screen.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
     screen.setTheme (cfg->buildTheme());
 
-    const float savedZoom { cfg->getFloat (Config::Key::windowZoom) };
+    const float savedZoom { AppState::getContext()->getWindowZoom() };
 
     if (savedZoom > Config::zoomMin)
     {
@@ -118,9 +166,12 @@ void Terminal::Component::resized()
     contentArea.removeFromTop (titleBarHeight);
     contentArea = contentArea.reduced (horizontalInset, verticalInset);
 
-    screen.setViewport (contentArea);
-    session.resized (screen.getNumCols(), screen.getNumRows());
-    updateCursorBounds();
+    if (contentArea.getWidth() > 0 and contentArea.getHeight() > 0)
+    {
+        screen.setViewport (contentArea);
+        session.resized (screen.getNumCols(), screen.getNumRows());
+        updateCursorBounds();
+    }
 }
 
 void Terminal::Component::copySelection()
@@ -146,25 +197,23 @@ void Terminal::Component::pasteClipboard()
 
 void Terminal::Component::increaseZoom()
 {
-    auto* cfg { Config::getContext() };
-    const float newZoom { juce::jlimit (
-        Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) + 0.25f) };
-    cfg->saveZoom (newZoom);
+    const float current { AppState::getContext()->getWindowZoom() };
+    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current + 0.25f) };
+    AppState::getContext()->setWindowZoom (newZoom);
     applyZoom (newZoom);
 }
 
 void Terminal::Component::decreaseZoom()
 {
-    auto* cfg { Config::getContext() };
-    const float newZoom { juce::jlimit (
-        Config::zoomMin, Config::zoomMax, cfg->getFloat (Config::Key::windowZoom) - 0.25f) };
-    cfg->saveZoom (newZoom);
+    const float current { AppState::getContext()->getWindowZoom() };
+    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current - 0.25f) };
+    AppState::getContext()->setWindowZoom (newZoom);
     applyZoom (newZoom);
 }
 
 void Terminal::Component::resetZoom()
 {
-    Config::getContext()->saveZoom (Config::zoomMin);
+    AppState::getContext()->setWindowZoom (Config::zoomMin);
     applyZoom (Config::zoomMin);
 }
 
@@ -497,7 +546,7 @@ void Terminal::Component::renderGL() noexcept
             screen.glContextCreated();
 
         const auto origin { getOriginInTopLevel() };
-        screen.renderOpenGL (origin.x, origin.y);
+        screen.renderOpenGL (origin.x, origin.y, getFullViewportHeight());
     }
 }
 
@@ -547,6 +596,11 @@ int Terminal::Component::getGridRows() const noexcept { return screen.getNumRows
 /** @return Current number of visible grid columns as reported by Screen. */
 int Terminal::Component::getGridCols() const noexcept { return screen.getNumCols(); }
 
+juce::ValueTree Terminal::Component::getValueTree() noexcept
+{
+    return session.getState().get();
+}
+
 /**
  * @brief VBlank callback: renders the grid if dirty, updates cursor visibility.
  *
@@ -564,8 +618,13 @@ int Terminal::Component::getGridCols() const noexcept { return screen.getNumCols
  */
 void Terminal::Component::onVBlank()
 {
-    if (not isFocusContainer())
-        toFront (true);
+    if (getComponentID() == AppState::getContext()->getActiveTerminalUuid())
+    {
+        if (isShowing() and not hasKeyboardFocus (true))
+        {
+            toFront (true);
+        }
+    }
 
     if (session.getState().consumeSnapshotDirty())
     {
@@ -583,7 +642,8 @@ void Terminal::Component::onVBlank()
     const bool scrolledBack { session.getState().getScrollOffset() > 0 };
     const auto activeScreen { session.getState().getScreen() };
     const bool cursorMode { session.getState().isCursorVisible (activeScreen) };
-    cursor->setVisible (not scrolledBack and cursorMode);
+    const bool focused { hasKeyboardFocus (true) };
+    cursor->setVisible (not scrolledBack and cursorMode and focused);
 }
 
 /**
@@ -671,7 +731,7 @@ void Terminal::Component::applyConfig() noexcept
  * @param zoom  The zoom multiplier to apply (already clamped by the caller).
  * @note MESSAGE THREAD — called from increaseZoom(), decreaseZoom(), resetZoom().
  * @see Screen::setFontSize
- * @see Config::saveZoom
+ * @see AppState::setWindowZoom
  */
 void Terminal::Component::applyZoom (float zoom) noexcept
 {

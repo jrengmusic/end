@@ -2,4 +2,6 @@
 #include "renderers/jreng_gl_path.cpp"
 #include "context/jreng_gl_graphics.cpp"
 #include "context/jreng_gl_component.cpp"
+#include "context/jreng_gl_shader_compiler.cpp"
+#include "context/jreng_gl_vertex_layout.cpp"
 #include "context/jreng_gl_renderer.cpp"

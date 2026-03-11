@@ -8,13 +8,15 @@
  */
 
 #include "Tabs.h"
+#include "../AppState.h"
+#include "../terminal/data/Identifier.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 /**
  * @brief Constructs the tab container with the given tab bar orientation.
  *
- * Sets the custom LookAndFeel for tab drawing. The tab bar starts hidden
+ * The tab bar starts hidden
  * (depth 0) since no tabs exist yet. The first tab is added by the caller
  * (MainComponent) after construction.
  *
@@ -26,9 +28,10 @@ Tabs::Tabs (juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)
 {
     setOpaque (false);
-    setLookAndFeel (&tabLookAndFeel);
     setTabBarDepth (0);
     setOutline (0);
+    juce::Desktop::getInstance().addFocusChangeListener (this);
+    AppState::getContext()->getTabs().addListener (this);
 }
 
 /**
@@ -38,50 +41,111 @@ Tabs::Tabs (juce::TabbedButtonBar::Orientation orientation)
  */
 Tabs::~Tabs()
 {
-    setLookAndFeel (nullptr);
+    AppState::getContext()->getTabs().removeListener (this);
+    juce::Desktop::getInstance().removeFocusChangeListener (this);
 }
 
 /**
- * @brief Creates a new terminal session in a new tab and switches to it.
- *
- * Construction order:
- * 1. Create Terminal::Component via Owner::add().
- * 2. Add as hidden child via addChildComponent().
- * 3. Add a tab entry to TabbedComponent with nullptr content.
- * 4. Switch to the new tab (which triggers currentTabChanged).
- * 5. Update tab bar visibility.
+ * @brief Creates a new Panes instance in a new tab and switches to it.
  *
  * @note MESSAGE THREAD.
  */
 void Tabs::addNewTab()
 {
-    auto& terminal { terminals.add (std::make_unique<Terminal::Component>()) };
+    auto& newPanesPtr { panes.add (std::make_unique<Panes>()) };
+    auto& newPanes { *newPanesPtr };
+    newPanes.onRepaintNeeded = onRepaintNeeded;
+    addChildComponent (&newPanes);
 
-    if (onRepaintNeeded != nullptr)
-        static_cast<Terminal::Component*> (terminal.get())->onRepaintNeeded = onRepaintNeeded;
+    const auto uuid { newPanes.createTerminal() };
 
-    addChildComponent (terminal.get());
+    auto tab { AppState::getContext()->addTab() };
+    tab.removeChild (tab.getChildWithName (App::ID::PANES), nullptr);
+    tab.appendChild (newPanes.getState(), nullptr);
+
+    AppState::getContext()->setActiveTerminalUuid (uuid);
 
     const int tabIndex { getNumTabs() };
-    addTab ("Terminal", juce::Colours::transparentBlack, nullptr, false, tabIndex);
+    addTab ("~", juce::Colours::transparentBlack, nullptr, false, tabIndex);
     setCurrentTabIndex (tabIndex);
 
     updateTabBarVisibility();
 }
 
 /**
- * @brief Closes the active tab and destroys its terminal session.
+ * @brief Returns the Panes instance for the active tab.
+ *
+ * @return Pointer to the active Panes, or nullptr if none.
+ * @note MESSAGE THREAD.
+ */
+Panes* Tabs::getActivePanes() const noexcept
+{
+    const int index { getCurrentTabIndex() };
+
+    if (index >= 0 and index < static_cast<int> (panes.size()))
+    {
+        return panes.at (index).get();
+    }
+
+    return nullptr;
+}
+
+/**
+ * @brief Returns the active Panes' terminals for GL iteration.
+ *
+ * @return Reference to the active terminal owner, or a static empty owner.
+ * @note MESSAGE THREAD.
+ */
+jreng::Owner<Terminal::Component>& Tabs::getTerminals() noexcept
+{
+    static jreng::Owner<Terminal::Component> empty;
+
+    if (auto* active { getActivePanes() })
+    {
+        return active->getTerminals();
+    }
+
+    return empty;
+}
+
+void Tabs::globalFocusChanged (juce::Component* focusedComponent)
+{
+    if (auto* term = dynamic_cast<Terminal::Component*> (focusedComponent))
+    {
+        const auto uuid { term->getValueTree().getProperty (Terminal::ID::uuid).toString() };
+        AppState::getContext()->setActiveTerminalUuid (uuid);
+    }
+}
+
+void Tabs::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    if (tree.getType() == Terminal::ID::SESSION and property == Terminal::ID::displayName)
+    {
+        int tabIndex { 0 };
+
+        for (auto& p : panes)
+        {
+            auto& panesState { p->getState() };
+
+            for (int i { 0 }; i < panesState.getNumChildren(); ++i)
+            {
+                if (panesState.getChild (i) == tree)
+                {
+                    getTabbedButtonBar().setTabName (tabIndex, tree.getProperty (property).toString());
+                    return;
+                }
+            }
+
+            ++tabIndex;
+        }
+    }
+}
+
+/**
+ * @brief Closes the active tab and destroys its Panes instance.
  *
  * If this is the last tab, does nothing — the caller (MainComponent)
  * handles application quit when no tabs remain after this call.
- *
- * Removal order:
- * 1. Record active index.
- * 2. Remove the child component.
- * 3. Remove from Owner (destroys Terminal::Component + PTY).
- * 4. Remove the tab entry from TabbedComponent.
- * 5. Switch to adjacent tab (prefer left, fall back to right).
- * 6. Update tab bar visibility.
  *
  * @note MESSAGE THREAD.
  */
@@ -89,13 +153,16 @@ void Tabs::closeActiveTab()
 {
     const int index { getCurrentTabIndex() };
 
-    if (index >= 0 and static_cast<size_t> (index) < terminals.size())
+    if (index >= 0 and index < static_cast<int> (panes.size()))
     {
-        removeChildComponent (terminals.at (index).get());
-        terminals.remove (index);
-        removeTab (index);
+        auto* activePanes { panes.at (index).get() };
+        removeChildComponent (activePanes);
+        panes.erase (panes.begin() + index);
 
-        if (terminals.size() > 0)
+        removeTab (index);
+        AppState::getContext()->removeTab (index);
+
+        if (not panes.isEmpty())
         {
             const int newIndex { (index > 0) ? index - 1 : 0 };
             setCurrentTabIndex (newIndex);
@@ -145,17 +212,28 @@ void Tabs::selectNextTab()
  * @return The number of terminal tabs.
  * @note MESSAGE THREAD.
  */
-int Tabs::getTabCount() const noexcept
-{
-    return static_cast<int> (terminals.size());
-}
+int Tabs::getTabCount() const noexcept { return getNumTabs(); }
 
+/**
+ * @brief Returns the currently active terminal component.
+ *
+ * @return Pointer to the active terminal, or nullptr if none.
+ * @note MESSAGE THREAD.
+ */
 Terminal::Component* Tabs::getActiveTerminal() const noexcept
 {
-    const int index { getCurrentTabIndex() };
+    const auto uuid { AppState::getContext()->getActiveTerminalUuid() };
 
-    if (index >= 0 and static_cast<size_t> (index) < terminals.size())
-        return static_cast<Terminal::Component*> (terminals.at (index).get());
+    if (auto* active { getActivePanes() })
+    {
+        for (auto& terminal : active->getTerminals())
+        {
+            if (terminal->getComponentID() == uuid)
+            {
+                return terminal.get();
+            }
+        }
+    }
 
     return nullptr;
 }
@@ -174,11 +252,11 @@ void Tabs::pasteClipboard()
 
 void Tabs::applyConfig()
 {
-    for (auto& terminal : terminals)
+    for (auto& p : panes)
     {
-        if (terminal != nullptr)
+        for (auto& terminal : p->getTerminals())
         {
-            static_cast<Terminal::Component*> (terminal.get())->applyConfig();
+            terminal->applyConfig();
         }
     }
 }
@@ -201,13 +279,44 @@ void Tabs::resetZoom()
         t->resetZoom();
 }
 
+void Tabs::splitVertical()
+{
+    if (auto* active { getActivePanes() })
+    {
+        active->splitVertical();
+
+        auto& terminals { active->getTerminals() };
+
+        if (not terminals.isEmpty())
+        {
+            auto* lastTerminal { terminals.back().get() };
+            AppState::getContext()->setActiveTerminalUuid (lastTerminal->getComponentID());
+            if (lastTerminal->isShowing())
+                lastTerminal->grabKeyboardFocus();
+        }
+    }
+}
+
+void Tabs::splitHorizontal()
+{
+    if (auto* active { getActivePanes() })
+    {
+        active->splitHorizontal();
+
+        auto& terminals { active->getTerminals() };
+
+        if (not terminals.isEmpty())
+        {
+            auto* lastTerminal { terminals.back().get() };
+            AppState::getContext()->setActiveTerminalUuid (lastTerminal->getComponentID());
+            if (lastTerminal->isShowing())
+                lastTerminal->grabKeyboardFocus();
+        }
+    }
+}
+
 /**
- * @brief Lays out all terminal components to fill the content area.
- *
- * Calls the base class resized() first (which positions the tab bar),
- * then calculates the content area and applies it to every terminal.
- * Only the active terminal is visible, but all get correct bounds so
- * that switching tabs doesn't trigger an extra resize.
+ * @brief Lays out the active Panes to fill the content area.
  *
  * @note MESSAGE THREAD.
  */
@@ -236,45 +345,52 @@ void Tabs::resized()
         content = content.withTrimmedRight (depth);
     }
 
-    for (auto& terminal : terminals)
+    if (auto* active { getActivePanes() })
     {
-        if (terminal != nullptr)
-        {
-            terminal->setBounds (content);
-        }
+        active->setBounds (content);
     }
 }
 
 /**
- * @brief Toggles terminal visibility when the active tab changes.
+ * @brief Toggles Panes visibility when the active tab changes.
  *
- * Hides all terminals, then shows only the one at the new index.
- * This is called by JUCE's internal changeCallback() after the tab
- * bar state has been updated. Since we pass nullptr as content to
- * addTab(), the base class does no child management — we handle it.
+ * Hides all Panes, shows the newly selected one, then updates focus.
  *
  * @param newIndex  The index of the newly selected tab.
- * @param name      The name of the newly selected tab (unused).
  *
  * @note MESSAGE THREAD.
  */
-void Tabs::currentTabChanged (int newIndex, const juce::String& name)
+void Tabs::currentTabChanged (int newIndex, const juce::String&)
 {
-    for (auto& terminal : terminals)
+    for (auto& p : panes)
     {
-        if (terminal != nullptr)
+        p->setVisible (false);
+    }
+
+    resized();
+
+    if (newIndex >= 0 and newIndex < static_cast<int> (panes.size()))
+    {
+        panes.at (newIndex)->setVisible (true);
+    }
+
+    if (auto* active { getActivePanes() })
+    {
+        auto& terminals { active->getTerminals() };
+
+        if (not terminals.isEmpty())
         {
-            terminal->setVisible (false);
+            auto* firstTerminal { terminals.at (0).get() };
+            AppState::getContext()->setActiveTerminalUuid (firstTerminal->getComponentID());
+
+            if (firstTerminal->isShowing())
+            {
+                firstTerminal->grabKeyboardFocus();
+            }
         }
     }
 
-    if (newIndex >= 0 and static_cast<size_t> (newIndex) < terminals.size())
-    {
-        terminals.at (newIndex)->setVisible (true);
-
-        if (terminals.at (newIndex)->isShowing())
-            terminals.at (newIndex)->grabKeyboardFocus();
-    }
+    AppState::getContext()->setActiveTabIndex (newIndex);
 }
 
 /**
@@ -290,16 +406,6 @@ void Tabs::updateTabBarVisibility()
 {
     const int depth { (getNumTabs() > 1) ? LookAndFeel::getTabBarHeight() : 0 };
     setTabBarDepth (depth);
-}
-
-/**
- * @brief Refreshes the look and feel by triggering a repaint.
- *
- * @note MESSAGE THREAD.
- */
-void Tabs::refreshLookAndFeel() noexcept
-{
-    repaint();
 }
 
 void Tabs::applyOrientation()

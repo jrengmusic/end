@@ -4,7 +4,7 @@
  *
  * `Screen` is the central render coordinator for the terminal emulator.  It
  * sits between the data layer (`Grid`, `State`) and the GPU layer
- * (`Render::OpenGL`) and is responsible for:
+ * and is responsible for:
  *
  * 1. **Cell cache** — a flat `hotCells` / `coldGraphemes` mirror of the
  *    visible grid, updated incrementally via dirty-row tracking.
@@ -14,8 +14,8 @@
  * 3. **Snapshot builder** — `buildSnapshot()` / `updateSnapshot()` pack the
  *    per-row caches into a contiguous `Render::Snapshot` and publish it via
  *    `jreng::GLSnapshotBuffer`.
- * 4. **OpenGL presenter** — owns a `Render::OpenGL` instance that reads
- *    snapshots from the snapshot buffer and draws them to the attached component.
+ * 4. **OpenGL presenter** — reads snapshots from the snapshot buffer and draws
+ *    them to the attached component.
  *
  * ## Double-buffered snapshots
  *
@@ -40,7 +40,7 @@
  * | `setViewport()` etc.    | MESSAGE THREAD |
  * | `GLSnapshotBuffer::write()`  | MESSAGE THREAD |
  * | `GLSnapshotBuffer::read()`   | GL THREAD  |
- * | `Render::OpenGL::render()`      | GL THREAD |
+ * | `renderOpenGL()`             | GL THREAD |
  *
  * @see Grid
  * @see State
@@ -58,8 +58,6 @@
 #include "GlyphAtlas.h"
 #include "Fonts.h"
 #include "../data/Palette.h"
-#include "GLShaderCompiler.h"
-#include "GLVertexLayout.h"
 #include "ScreenSelection.h"
 #include "../../config/Config.h"
 
@@ -163,7 +161,6 @@ using Theme = Config::Theme;
  * - `Render::Glyph`      — a positioned, textured glyph instance.
  * - `Render::Snapshot`   — a complete frame: arrays of glyphs + backgrounds.
  * - `jreng::GLSnapshotBuffer` — double-buffered lock-free snapshot exchange.
- * - `Render::OpenGL`     — the JUCE OpenGL renderer that consumes snapshots.
  *
  * @see Screen
  */
@@ -288,203 +285,7 @@ struct Snapshot
     void resize() noexcept {}
 };
 
-
-/**
- * @class OpenGL
- * @brief GPU renderer that consumes `Render::Snapshot` frames.
- *
- * Lifecycle and render calls are driven by the shared `jreng::GLRenderer`
- * via `Terminal::Component`'s `GLComponent` overrides.  On each frame
- * `render()` is called, which:
- *
- * 1. Acquires the latest snapshot from the `GLSnapshotBuffer`.
- * 2. Uploads any staged atlas bitmaps to GPU textures.
- * 3. Draws background quads via the background shader.
- * 4. Draws mono glyph instances via the mono shader.
- * 5. Draws emoji glyph instances via the emoji shader.
- *
- * @par Thread context
- * `contextCreated()`, `render()`, and `contextClosing()` run on the
- * **GL THREAD**.  `setResources()` and `setViewport()` are called from
- * the **MESSAGE THREAD**.
- *
- * @see jreng::GLSnapshotBuffer
- * @see GlyphAtlas
- */
-// GL THREAD
-class OpenGL
-{
-public:
-    /**
-     * @brief Default constructor.
-     *
-     * Initialises all GPU resource handles to zero/null.
-     *
-     * @note MESSAGE THREAD.
-     */
-    OpenGL();
-    /**
-     * @brief Destructor.
-     *
-     * GPU resources must be released via `contextClosing()` before destruction.
-     *
-     * @note MESSAGE THREAD.
-     */
-    ~OpenGL();
-
-    /**
-     * @brief Called when context is first created.
-     *
-     * Called by `Terminal::Component::glContextCreated()` on the GL THREAD
-     * when the shared OpenGL context is first created.  Compiles shaders via
-     * `compileShaders()` and creates VAO/VBO buffers via `createBuffers()`.
-     *
-     * @note GL THREAD.
-     */
-    void contextCreated();
-    /**
-     * @brief Renders a frame to the OpenGL context.
-     *
-     * Called by `Terminal::Component::renderGL()` on the GL THREAD each frame.
-     * Acquires the latest snapshot from `snapshotBuffer`, uploads staged atlas
-     * bitmaps, sets the GL viewport using the stored viewport dimensions offset
-     * by `originX`/`originY`, and draws backgrounds, mono glyphs, and emoji glyphs.
-     *
-     * @param originX  Physical pixel offset of this component relative to the
-     *                 top-level window (accounts for tab bar offset).
-     * @param originY  Physical pixel offset of this component relative to the
-     *                 top-level window (accounts for tab bar offset).
-     *
-     * @note GL THREAD.
-     */
-    void render (int originX, int originY);
-    /**
-     * @brief Called when the OpenGL context is closing.
-     *
-     * Called by `Terminal::Component::glContextClosing()` on the GL THREAD
-     * when the shared OpenGL context is about to be destroyed. Releases all
-     * GPU resources (shaders, textures, VAO, VBOs).
-     *
-     * @note GL THREAD.
-     */
-    void contextClosing();
-    /**
-     * @brief Returns true if the OpenGL context is ready for rendering.
-     *
-     * Returns true if shaders have been compiled (i.e. `contextCreated()` has
-     * been called and `contextClosing()` has not). Used for lazy initialisation
-     * of tabs created after the GL context was already established.
-     *
-     * @return `true` if shaders are compiled and context is ready.
-     *
-     * @note GL THREAD.
-     */
-    bool isContextReady() const noexcept { return monoShader != nullptr; }
-
-    /**
-     * @brief Sets the snapshot buffer and glyph atlas pointers.
-     *
-     * Called once from `Screen`'s constructor on the MESSAGE THREAD before the
-     * GL context is created. Both pointers are non-owning.
-     *
-     * @param buffer  Pointer to the double-buffered snapshot exchange.
-     * @param atlas   Pointer to the glyph atlas.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void setResources (jreng::GLSnapshotBuffer<Snapshot>* buffer, GlyphAtlas* atlas) noexcept
-    {
-        snapshotBuffer = buffer;
-        glyphAtlas = atlas;
-    }
-
-    /**
-     * @brief Updates the render viewport dimensions.
-     *
-     * Called from `Screen::setViewport()` on the MESSAGE THREAD. Scales logical
-     * pixel bounds by `Fonts::getDisplayScale()` to compute physical pixel
-     * viewport dimensions.
-     *
-     * @param bounds  Viewport bounds in logical pixel space.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void setViewport (const juce::Rectangle<int>& bounds) noexcept
-    {
-        const float scale { Fonts::getDisplayScale() };
-        viewportX      = static_cast<int> (static_cast<float> (bounds.getX())      * scale);
-        viewportY      = static_cast<int> (static_cast<float> (bounds.getY())      * scale);
-        viewportWidth  = static_cast<int> (static_cast<float> (bounds.getWidth())  * scale);
-        viewportHeight = static_cast<int> (static_cast<float> (bounds.getHeight()) * scale);
-    }
-
-private:
-    /**
-     * @brief Compiles the mono, emoji, and background GLSL shader programs.
-     *
-     * Called from `contextCreated()` on the **GL THREAD**.
-     */
-    void compileShaders();
-
-    /**
-     * @brief Creates the VAO, quad VBO, and instance VBO.
-     *
-     * Called from `contextCreated()` on the **GL THREAD**.
-     */
-    void createBuffers();
-
-    /**
-     * @brief Uploads any pending atlas bitmaps to the mono/emoji GPU textures.
-     *
-     * Called from `render()` on the **GL THREAD**.
-     */
-    void uploadStagedBitmaps();
-
-    /**
-     * @brief Issues an instanced draw call for an array of glyph instances.
-     *
-     * Uploads @p data to the instance VBO and calls `glDrawArraysInstanced`.
-     *
-     * @param data     Pointer to the glyph instance array.
-     * @param count    Number of instances to draw.
-     * @param isEmoji  If `true`, uses the emoji shader and texture; otherwise
-     *                 uses the mono shader and texture.
-     *
-     * @note **GL THREAD**.
-     */
-    void drawInstances (const Glyph* data, int count, bool isEmoji);
-
-    /**
-     * @brief Issues draw calls for an array of background quads.
-     *
-     * @param data   Pointer to the background array.
-     * @param count  Number of quads to draw.
-     *
-     * @note **GL THREAD**.
-     */
-    void drawBackgrounds (const Background* data, int count);
-
-    jreng::GLSnapshotBuffer<Snapshot>* snapshotBuffer { nullptr };
-    GlyphAtlas* glyphAtlas { nullptr };
-
-    std::unique_ptr<juce::OpenGLShaderProgram> monoShader;
-    std::unique_ptr<juce::OpenGLShaderProgram> emojiShader;
-    std::unique_ptr<juce::OpenGLShaderProgram> backgroundShader;
-
-    GLuint monoAtlasTexture  { 0 }; ///< GPU texture ID for the monochrome glyph atlas.
-    GLuint emojiAtlasTexture { 0 }; ///< GPU texture ID for the colour emoji atlas.
-
-    GLuint vao         { 0 }; ///< Vertex array object.
-    GLuint quadVBO     { 0 }; ///< VBO holding the unit-quad vertex data (shared across instances).
-    GLuint instanceVBO { 0 }; ///< VBO holding per-instance glyph data (updated each frame).
-
-    int viewportX      { 0 }; ///< Physical pixel X origin of the render viewport.
-    int viewportY      { 0 }; ///< Physical pixel Y origin of the render viewport.
-    int viewportWidth  { 0 }; ///< Physical pixel width of the render viewport.
-    int viewportHeight { 0 }; ///< Physical pixel height of the render viewport.
-
-};
-
+/**______________________________END OF NAMESPACE______________________________*/
 };  // struct Render
 
 static_assert (std::is_trivially_copyable_v<Render::Background>, "Render::Background must be trivially copyable");
@@ -522,8 +323,8 @@ namespace Terminal
  *
  * @par Thread context
  * All public methods except `getSnapshotBuffer()` must be called on the
- * **MESSAGE THREAD**.  The `Render::OpenGL` sub-object runs its callbacks on
- * the **GL THREAD** and communicates only through the `jreng::GLSnapshotBuffer`.
+ * **MESSAGE THREAD**.  The GL thread methods run on the **GL THREAD**
+ * and communicate only through the `jreng::GLSnapshotBuffer`.
  *
  * @see Grid
  * @see State
@@ -546,8 +347,8 @@ public:
      * @brief Aggregates all shared rendering resources owned by `Screen`.
      *
      * Constructed once in the `Screen` initialiser list.  All members are
-     * accessed by both `Screen` (MESSAGE THREAD) and `Render::OpenGL`
-     * (GL THREAD) through carefully controlled interfaces.
+     * accessed by both `Screen` (MESSAGE THREAD) and the GL thread methods
+     * through carefully controlled interfaces.
      */
     struct Resources
     {
@@ -567,8 +368,8 @@ public:
     /**
      * @brief Constructs the screen.
      *
-     * Initialises `Resources`, calls `calc()` to derive cell dimensions, wires
-     * the GL renderer to the mailbox and atlas, then calls `reset()`.
+     * Initialises `Resources`, calls `calc()` to derive cell dimensions,
+     * then calls `reset()`.
      *
      * @note **MESSAGE THREAD**.
      */
@@ -577,8 +378,8 @@ public:
     /**
      * @brief Destroys the screen and releases all resources.
      *
-     * @note **MESSAGE THREAD**.  The GL renderer must be detached before
-     *       destruction to avoid use-after-free on the GL THREAD.
+     * @note **MESSAGE THREAD**.  Call `glContextClosing()` before destroying
+     *       to release GL resources on the correct thread.
      */
     ~Screen();
 
@@ -592,7 +393,7 @@ public:
     /**
      * @brief Updates the render viewport and recomputes grid dimensions.
      *
-     * Stores the new bounds, forwards them to the GL renderer, and calls
+     * Stores the new bounds, scales them to physical pixels, and calls
      * `calc()` to recompute `numCols` / `numRows`.
      *
      * @param bounds  New viewport bounds in logical pixel space.
@@ -652,47 +453,44 @@ public:
     // =========================================================================
 
     /**
-     * @brief Forwards the GL context-created event to the internal renderer.
+     * @brief Called when the GL context is first created.
      *
-     * Called by `Terminal::Component::glContextCreated()`.  Delegates to
-     * `Render::OpenGL::contextCreated()` which compiles shaders and creates
-     * GPU buffers.
+     * Called by `Terminal::Component::glContextCreated()`.  Compiles shaders
+     * and creates GPU buffers.
      *
      * @note **GL THREAD**.
-     * @see Render::OpenGL::contextCreated
      */
     void glContextCreated();
 
     /**
-     * @brief Forwards the GL context-closing event to the internal renderer.
+     * @brief Called when the GL context is closing.
      *
-     * Called by `Terminal::Component::glContextClosing()`.  Delegates to
-     * `Render::OpenGL::contextClosing()` which releases all GPU resources.
+     * Called by `Terminal::Component::glContextClosing()`.  Releases all
+     * GPU resources.
      *
      * @note **GL THREAD**.
-     * @see Render::OpenGL::contextClosing
      */
     void glContextClosing();
 
     /**
-     * @brief Forwards a render call to the internal renderer with viewport offset.
+     * @brief Renders a frame to the GL context with viewport offset.
      *
-     * Called by `Terminal::Component::renderGL()`.  Delegates to
-     * `Render::OpenGL::render()` passing the physical pixel origin offset
+     * Called by `Terminal::Component::renderGL()`.  Draws backgrounds,
+     * mono glyphs, and emoji glyphs using the physical pixel origin offset
      * so the GL viewport accounts for the tab bar.
      *
-     * @param originX  Physical pixel X offset of the component relative to the
-     *                 top-level window.
-     * @param originY  Physical pixel Y offset of the component relative to the
-     *                 top-level window.
+     * @param originX     Physical pixel X offset of the component relative to the
+     *                    top-level window.
+     * @param originY     Physical pixel Y offset of the component relative to the
+     *                    top-level window.
+     * @param fullHeight  Full window height in physical pixels.
      *
      * @note **GL THREAD**.
-     * @see Render::OpenGL::render
      */
-    void renderOpenGL (int originX, int originY);
+    void renderOpenGL (int originX, int originY, int fullHeight);
 
     /**
-     * @brief Returns true if the internal GL renderer has compiled its shaders.
+     * @brief Returns true if the GL context is ready for rendering.
      *
      * Used for lazy initialisation of tabs created after the shared GL context
      * was already established.  When this returns false, the caller should
@@ -701,7 +499,6 @@ public:
      * @return `true` if the GL context is ready for rendering.
      *
      * @note **GL THREAD**.
-     * @see Render::OpenGL::isContextReady
      */
     bool isGLContextReady() const noexcept;
 
@@ -900,7 +697,7 @@ public:
     /**
      * @brief Returns a mutable reference to the double-buffered snapshot exchange.
      *
-     * Used by `Render::OpenGL` on the **GL THREAD** to acquire the latest
+     * Used by the GL thread methods on the **GL THREAD** to acquire the latest
      * snapshot published by `render()` on the MESSAGE THREAD.
      *
      * @return Reference to `resources.snapshotBuffer`.
@@ -1101,10 +898,32 @@ private:
     static Fonts::Style selectFontStyle (const Cell& cell) noexcept;
 
     // =========================================================================
+    // GL thread methods
+    // =========================================================================
+
+    void compileShaders();
+    void createBuffers();
+    static GLuint createAtlasTexture (int width, int height, GLenum internalFormat, GLenum format) noexcept;
+    void uploadStagedBitmaps();
+    void drawInstances (const Render::Glyph* data, int count, bool isEmoji);
+    void drawBackgrounds (const Render::Background* data, int count);
+
+    // =========================================================================
     // Data
     // =========================================================================
 
-    Render::OpenGL glRenderer; ///< OpenGL renderer; runs its callbacks on the GL THREAD.
+    std::unique_ptr<juce::OpenGLShaderProgram> monoShader;
+    std::unique_ptr<juce::OpenGLShaderProgram> emojiShader;
+    std::unique_ptr<juce::OpenGLShaderProgram> backgroundShader;
+    GLuint monoAtlasTexture  { 0 };
+    GLuint emojiAtlasTexture { 0 };
+    GLuint vao         { 0 };
+    GLuint quadVBO     { 0 };
+    GLuint instanceVBO { 0 };
+    int glViewportX      { 0 };
+    int glViewportY      { 0 };
+    int glViewportWidth  { 0 };
+    int glViewportHeight { 0 };
 
     int cellWidth    { 0 };  ///< Logical cell width in CSS/point pixels.
     int cellHeight   { 0 };  ///< Logical cell height in CSS/point pixels.

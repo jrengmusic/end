@@ -23,5 +23,7 @@
 #include "context/jreng_gl_snapshot_buffer.h"
 #include "context/jreng_gl_component.h"
 #include "renderers/jreng_gl_vignette.h"
+#include "context/jreng_gl_shader_compiler.h"
+#include "context/jreng_gl_vertex_layout.h"
 #include "context/jreng_gl_renderer.h"
 #include "context/jreng_gl_overlay.h"

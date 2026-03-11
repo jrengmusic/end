@@ -26,6 +26,7 @@
 
 #ifdef __APPLE__
 #include <util.h>
+#include <libproc.h>
 #else
 #include <pty.h>
 #endif
@@ -39,24 +40,32 @@
  *
  * @par Steps
  * 1. Close the master fd (child does not need it).
- * 2. `setsid()` — create a new session so the child becomes a session leader.
- * 3. `ioctl(TIOCSCTTY)` — make the slave the controlling terminal of the session.
- * 4. `dup2` slave → stdin / stdout / stderr.
- * 5. Close the slave fd if it is not already one of the standard fds.
- * 6. Set `TERM=xterm-256color` so the shell and TUI apps use 256-colour sequences.
- * 7. Set `LANG=UTF-8` if not already set, to enable Unicode output.
- * 8. `execlp(shell, shell, "-l")` — replace the process image with a login shell.
+ * 2. Change to the specified working directory (if provided).
+ * 3. `setsid()` — create a new session so the child becomes a session leader.
+ * 4. `ioctl(TIOCSCTTY)` — make the slave the controlling terminal of the session.
+ * 5. `dup2` slave → stdin / stdout / stderr.
+ * 6. Close the slave fd if it is not already one of the standard fds.
+ * 7. Set `TERM=xterm-256color` so the shell and TUI apps use 256-colour sequences.
+ * 8. Set `LANG=UTF-8` if not already set, to enable Unicode output.
+ * 9. `execlp(shell, shell, "-l")` — replace the process image with a login shell.
  *    Short names (e.g. "zsh") are resolved via `$PATH`.
  *
- * @param master   Master fd to close in the child.
- * @param slaveFd  Slave fd to use as the controlling terminal and stdio.
- * @param shell    Shell program name or absolute path (C string, must outlive fork).
+ * @param master           Master fd to close in the child.
+ * @param slaveFd          Slave fd to use as the controlling terminal and stdio.
+ * @param shell            Shell program name or absolute path (C string, must outlive fork).
+ * @param workingDirectory Optional working directory to chdir to before exec.
  *
  * @note Runs in the child process only.  Must not return.
  */
-static void runChildProcess (int master, int slaveFd, const char* shell) noexcept
+static void runChildProcess (int master, int slaveFd, const char* shell, const char* workingDirectory) noexcept
 {
     ::close (master);
+
+    if (workingDirectory != nullptr and workingDirectory[0] != '\0')
+    {
+        chdir (workingDirectory);
+    }
+
     setsid();
     ioctl (slaveFd, TIOCSCTTY, 0);
 
@@ -98,26 +107,29 @@ UnixTTY::~UnixTTY()
  * @par Sequence
  * 1. Build a `winsize` struct from @p cols / @p rows.
  * 2. `openpty()` — allocate master and slave fds with the initial window size.
- * 3. Convert @p shell to a C string (must happen before `fork()`).
+ * 3. Convert @p shell and @p workingDirectory to C strings (must happen before `fork()`).
  * 4. `fork()` — child calls `runChildProcess()`; parent continues.
  * 5. Parent closes the slave fd (only the child needs it).
  * 6. `fcntl(O_NONBLOCK)` — make the master fd non-blocking for the reader thread.
  * 7. `startThread()` — begin the TTY reader loop.
  *
- * @param cols   Initial terminal width in character columns.
- * @param rows   Initial terminal height in character rows.
- * @param shell  Shell program name or absolute path.  Resolved via `$PATH`
- *               using `execlp()` when not absolute.
- * @return       `true` on success; `false` if `openpty()` or `fork()` fails.
+ * @param cols             Initial terminal width in character columns.
+ * @param rows             Initial terminal height in character rows.
+ * @param shell            Shell program name or absolute path.  Resolved via `$PATH`
+ *                         using `execlp()` when not absolute.
+ * @param workingDirectory Optional initial working directory for the shell.
+ * @return                 `true` on success; `false` if `openpty()` or `fork()` fails.
  *
  * @note MESSAGE THREAD context.
  */
-bool UnixTTY::open (int cols, int rows, const juce::String& shell)
+bool UnixTTY::open (int cols, int rows, const juce::String& shell, const juce::String& workingDirectory)
 {
     int slaveFd;
     struct winsize ws { static_cast<unsigned short> (rows), static_cast<unsigned short> (cols), 0, 0 };
     const auto shellUtf8 { shell.toStdString() };
     const char* shellCStr { shellUtf8.c_str() };
+    const auto cwdUtf8 { workingDirectory.toStdString() };
+    const char* cwdCStr { cwdUtf8.c_str() };
 
     bool result { false };
 
@@ -127,7 +139,7 @@ bool UnixTTY::open (int cols, int rows, const juce::String& shell)
 
         if (childProcess == 0)
         {
-            runChildProcess (master, slaveFd, shellCStr);
+            runChildProcess (master, slaveFd, shellCStr, cwdCStr);
         }
 
         ::close (slaveFd);
@@ -336,6 +348,97 @@ bool UnixTTY::waitForData (int timeoutMs)
     }
 
     return result;
+}
+
+int UnixTTY::getForegroundPid() const noexcept
+{
+    if (master >= 0)
+    {
+        const pid_t fg { tcgetpgrp (master) };
+
+        if (fg > 0)
+        {
+            return static_cast<int> (fg);
+        }
+    }
+
+    return -1;
+}
+
+int UnixTTY::getProcessName (int pid, char* buffer, int maxLength) const noexcept
+{
+    if (pid > 0 and buffer != nullptr and maxLength > 0)
+    {
+#if JUCE_MAC
+        char name[PROC_PIDPATHINFO_MAXSIZE] {};
+        const int result { proc_name (pid, name, sizeof (name)) };
+
+        if (result > 0)
+        {
+            const int length { juce::jmin (result, maxLength - 1) };
+            std::memcpy (buffer, name, static_cast<size_t> (length));
+            buffer[length] = '\0';
+            return length;
+        }
+#elif JUCE_LINUX
+        char path[64] {};
+        std::snprintf (path, sizeof (path), "/proc/%d/comm", pid);
+        const int fd { ::open (path, O_RDONLY) };
+
+        if (fd >= 0)
+        {
+            const auto bytesRead { ::read (fd, buffer, static_cast<size_t> (maxLength - 1)) };
+            ::close (fd);
+
+            if (bytesRead > 0)
+            {
+                int length { static_cast<int> (bytesRead) };
+
+                if (length > 0 and buffer[length - 1] == '\n')
+                {
+                    --length;
+                }
+
+                buffer[length] = '\0';
+                return length;
+            }
+        }
+#endif
+    }
+
+    return 0;
+}
+
+int UnixTTY::getCwd (int pid, char* buffer, int maxLength) const noexcept
+{
+    if (pid > 0 and buffer != nullptr and maxLength > 0)
+    {
+#if JUCE_MAC
+        struct proc_vnodepathinfo pathInfo {};
+        const int result { proc_pidinfo (pid, PROC_PIDVNODEPATHINFO, 0, &pathInfo, sizeof (pathInfo)) };
+
+        if (result > 0)
+        {
+            const int length { juce::jmin (static_cast<int> (std::strlen (pathInfo.pvi_cdir.vip_path)), maxLength - 1) };
+            std::memcpy (buffer, pathInfo.pvi_cdir.vip_path, static_cast<size_t> (length));
+            buffer[length] = '\0';
+            return length;
+        }
+#elif JUCE_LINUX
+        char path[64] {};
+        std::snprintf (path, sizeof (path), "/proc/%d/cwd", pid);
+        const auto bytesRead { ::readlink (path, buffer, static_cast<size_t> (maxLength - 1)) };
+
+        if (bytesRead > 0)
+        {
+            const int length { static_cast<int> (bytesRead) };
+            buffer[length] = '\0';
+            return length;
+        }
+#endif
+    }
+
+    return 0;
 }
 
 #endif

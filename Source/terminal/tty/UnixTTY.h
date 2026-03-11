@@ -82,15 +82,17 @@ public:
      * child, closes the slave fd in the parent, sets the master to
      * `O_NONBLOCK`, and starts the reader thread.
      *
-     * @param cols   Initial terminal width in character columns.
-     * @param rows   Initial terminal height in character rows.
-     * @param shell  Shell program name or absolute path.  Resolved via
-     *               `$PATH` using `execlp()` when not absolute.
-     * @return       `true` on success; `false` if `openpty()` or `fork()` fails.
+     * @param cols             Initial terminal width in character columns.
+     * @param rows             Initial terminal height in character rows.
+     * @param shell            Shell program name or absolute path.  Resolved via
+     *                         `$PATH` using `execlp()` when not absolute.
+     * @param workingDirectory Optional initial working directory for the shell.
+     *                         If empty, the shell inherits the parent's cwd.
+     * @return                 `true` on success; `false` if `openpty()` or `fork()` fails.
      *
      * @note MESSAGE THREAD context.
      */
-    bool open (int cols, int rows, const juce::String& shell) override;
+    bool open (int cols, int rows, const juce::String& shell, const juce::String& workingDirectory = {}) override;
 
     /**
      * @brief Close the PTY and terminate the shell process.
@@ -167,6 +169,39 @@ public:
      * @note READER THREAD context.
      */
     bool waitForData (int timeoutMs) override;
+
+    /**
+     * @brief Returns the PID of the foreground process group leader via tcgetpgrp.
+     * @return The foreground PID, or -1 if unavailable.
+     * @note READER THREAD.
+     */
+    int getForegroundPid() const noexcept override;
+
+    /**
+     * @brief Writes the process name for the given PID into the buffer.
+     *
+     * Uses proc_name() on macOS.
+     *
+     * @param pid        The process ID to query.
+     * @param buffer     Destination buffer.
+     * @param maxLength  Buffer size in bytes.
+     * @return Bytes written (excluding null), or 0 on failure.
+     * @note READER THREAD.
+     */
+    int getProcessName (int pid, char* buffer, int maxLength) const noexcept override;
+
+    /**
+     * @brief Writes the cwd for the given PID into the buffer.
+     *
+     * Uses proc_pidinfo with PROC_PIDVNODEPATHINFO on macOS.
+     *
+     * @param pid        The process ID to query.
+     * @param buffer     Destination buffer.
+     * @param maxLength  Buffer size in bytes.
+     * @return Bytes written (excluding null), or 0 on failure.
+     * @note READER THREAD.
+     */
+    int getCwd (int pid, char* buffer, int maxLength) const noexcept override;
 
     /** @} */
 

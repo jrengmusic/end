@@ -77,7 +77,7 @@ void TTY::run()
         }
     };
 
-    auto drainPty = [&] -> bool// returns true on EOF
+    auto drainPty = [&]() -> bool// returns true on EOF
     {
         int n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));
 

@@ -82,15 +82,17 @@ public:
      * the initial size, then spawns the configured shell with the ConPTY
      * attribute.  Starts the reader thread on success.
      *
-     * @param cols   Initial terminal width in character columns.
-     * @param rows   Initial terminal height in character rows.
-     * @param shell  Shell program name or absolute path (e.g. "cmd.exe",
-     *               "pwsh").  Resolved via `%PATH%` when not absolute.
-     * @return       `true` on success; `false` if any Win32 call fails.
+     * @param cols             Initial terminal width in character columns.
+     * @param rows             Initial terminal height in character rows.
+     * @param shell            Shell program name or absolute path (e.g. "cmd.exe",
+     *                         "pwsh").  Resolved via `%PATH%` when not absolute.
+     * @param workingDirectory Optional initial working directory for the shell.
+     *                         If empty, the shell inherits the parent's cwd.
+     * @return                 `true` on success; `false` if any Win32 call fails.
      *
      * @note MESSAGE THREAD context.
      */
-    bool open (int cols, int rows, const juce::String& shell) override;
+    bool open (int cols, int rows, const juce::String& shell, const juce::String& workingDirectory = {}) override;
 
     /**
      * @brief Close the ConPTY, pipes, and child process.

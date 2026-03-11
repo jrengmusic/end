@@ -1,45 +1,46 @@
 /**
  * @file Tabs.h
- * @brief Tab container that manages multiple Terminal::Component instances.
+ * @brief Tab container that manages one Terminal::Panes instance per tab.
  *
  * Terminal::Tabs subclasses juce::TabbedComponent to provide a tabbed
- * interface where each tab hosts an independent terminal session. Content
- * components are NOT passed to JUCE's addTab() — instead they are managed
- * as direct children with visibility toggling, so that hidden sessions
- * stay alive and VBlank stops naturally.
+ * interface where each tab hosts a Terminal::Panes component. Panes owns
+ * all terminal sessions for its tab. Content components are NOT passed to
+ * JUCE's addTab() — instead Panes instances are managed as direct children
+ * with visibility toggling, so that hidden sessions stay alive and VBlank
+ * stops naturally.
  *
  * @par Ownership
- * Terminal::Component instances are owned by `jreng::Owner<Component>`.
- * The TabbedComponent base only knows about tab names and colours.
+ * Each tab owns one Panes instance via `jreng::Owner<Panes>`. The ValueTree
+ * defines hierarchy (TAB > PANES > SESSION).
  *
  * @par Tab bar visibility
  * The tab bar is hidden (depth 0) when only one tab exists, and shown
  * at the configured height when multiple tabs are present.
  *
- * @see Terminal::Component
+ * @see Terminal::Panes
  * @see Terminal::LookAndFeel
- * @see jreng::Owner
  */
 
 #pragma once
 #include <JuceHeader.h>
 #include "TerminalComponent.h"
+#include "Panes.h"
 #include "LookAndFeel.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 /**
  * @class Tabs
- * @brief Tabbed container managing multiple terminal sessions.
+ * @brief Tabbed container managing terminal sessions — one Panes per tab.
  *
- * Each tab corresponds to a Terminal::Component with its own Session,
- * PTY, Grid, Screen, and OpenGL context. Tabs are added with addNewTab()
- * and removed with closeActiveTab(). The active terminal is the only
- * visible child; all others remain as hidden children.
+ * Tabs are added with addNewTab() and removed with closeActiveTab().
+ * Each tab owns a Panes instance that manages its terminal sessions.
  *
  * @note MESSAGE THREAD — all methods.
  */
 class Tabs : public juce::TabbedComponent
+           , private juce::FocusChangeListener
+           , private juce::ValueTree::Listener
 {
 public:
     /**
@@ -59,7 +60,7 @@ public:
      * @brief Callback invoked when any terminal needs a repaint.
      *
      * This callback is set by MainComponent to trigger GLRenderer::triggerRepaint().
-     * It is forwarded to each new terminal's own onRepaintNeeded callback in addNewTab().
+     * It is forwarded to each new terminal's own onRepaintNeeded callback.
      *
      * @note MESSAGE THREAD.
      */
@@ -68,18 +69,17 @@ public:
     /**
      * @brief Create and add a new terminal tab.
      *
-     * Creates a new Terminal::Component, adds it to the terminals owner,
-     * adds a tab to the JUCE tab bar, and wires the onRepaintNeeded callback.
+     * Creates a new Terminal::Component, adds it to the terminals map,
+     * adds a tab to the JUCE tab bar, and wires the callbacks.
      *
      * @note MESSAGE THREAD.
      */
     void addNewTab();
 
     /**
-     * @brief Close the currently active tab.
+     * @brief Close the currently active tab and its terminal.
      *
-     * Removes the active tab and its terminal. If the last tab is closed,
-     * the caller (MainComponent) handles quit.
+     * If the last tab is closed, the caller (MainComponent) handles quit.
      *
      * @note MESSAGE THREAD.
      */
@@ -105,6 +105,17 @@ public:
     int getTabCount() const noexcept;
 
     /**
+     * @brief Get the currently active terminal component.
+     *
+     * Returns a pointer to the focused Terminal::Component.
+     *
+     * @return Pointer to the active terminal, or nullptr if none.
+     * @note MESSAGE THREAD.
+     */
+    Terminal::Component* getActiveTerminal() const noexcept;
+    jreng::Owner<Terminal::Component>& getTerminals() noexcept;
+
+    /**
      * @brief Copy the current selection to clipboard.
      *
      * Forwards to getActiveTerminal().
@@ -125,7 +136,7 @@ public:
     /**
      * @brief Applies the current config to all terminal sessions.
      *
-     * Iterates all terminals and calls applyConfig() on each.
+     * Iterates all terminals across all tabs and calls applyConfig() on each.
      *
      * @note MESSAGE THREAD.
      */
@@ -159,31 +170,16 @@ public:
     void resetZoom();
 
     /**
-     * @brief Get the owner container for all terminal components.
-     *
-     * Returns a reference to the terminals owner so GLRenderer can iterate
-     * all GL components for rendering.
-     *
-     * @return Reference to the GLComponent owner.
+     * @brief Split the active tab vertically (side by side).
      * @note MESSAGE THREAD.
      */
-    jreng::Owner<jreng::GLComponent>& getComponents() noexcept { return terminals; }
+    void splitVertical();
 
     /**
-     * @brief Get the custom LookAndFeel for the tab bar.
-     * @return Reference to the tab LookAndFeel instance.
+     * @brief Split the active tab horizontally (stacked).
      * @note MESSAGE THREAD.
      */
-    LookAndFeel& getTabLookAndFeel() noexcept { return tabLookAndFeel; }
-
-    /**
-     * @brief Refreshes the look and feel by triggering a repaint.
-     *
-     * Called after LookAndFeel::setColours() to refresh the UI.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void refreshLookAndFeel() noexcept;
+    void splitHorizontal();
 
     /**
      * @brief Reads tab.position from Config and applies the orientation.
@@ -210,21 +206,10 @@ public:
 
 private:
     /**
-     * @brief Get the currently active terminal component.
-     *
-     * Returns a pointer to the active Terminal::Component by downcasting
-     * the currently visible GLComponent via static_cast.
-     *
-     * @return Pointer to the active terminal, or nullptr if none.
-     * @note MESSAGE THREAD.
-     */
-    Terminal::Component* getActiveTerminal() const noexcept;
-
-    /**
      * @brief Handle tab change events from JUCE.
      *
-     * Called when the user switches tabs. Toggles visibility of terminal
-     * components so only the active one is visible.
+     * Called when the user switches tabs. Toggles visibility of components
+     * so only the current tab's terminal is visible.
      *
      * @param newIndex The index of the newly selected tab.
      * @param name The name of the newly selected tab.
@@ -244,18 +229,16 @@ private:
     void updateTabBarVisibility();
 
     /**
-     * @brief Owner container for all terminal components.
-     *
-     * Stores Terminal::Component instances as base GLComponent (Pabrik pattern).
+     * @brief Returns the Panes instance for the active tab.
+     * @return Pointer to the active Panes, or nullptr if none.
      * @note MESSAGE THREAD.
      */
-    jreng::Owner<jreng::GLComponent> terminals;
+    Panes* getActivePanes() const noexcept;
 
-    /**
-     * @brief Custom look-and-feel for the tab bar.
-     * @note MESSAGE THREAD.
-     */
-    LookAndFeel tabLookAndFeel;
+    void globalFocusChanged (juce::Component* focusedComponent) override;
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    jreng::Owner<Panes> panes;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Tabs)

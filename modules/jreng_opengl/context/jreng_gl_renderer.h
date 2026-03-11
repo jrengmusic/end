@@ -13,7 +13,8 @@ public:
     void detach();
     void setComponentPaintingEnabled (bool enabled) noexcept;
 
-    void setComponents (jreng::Owner<GLComponent>& source) noexcept;
+    using ComponentIterator = std::function<void (std::function<void (GLComponent&)>)>;
+    void setComponentIterator (ComponentIterator iterator) noexcept;
 
     void triggerRepaint();
     void setClippingMask (const juce::Image& mask) noexcept;
@@ -24,10 +25,10 @@ private:
     void openGLContextClosing() override;
 
     juce::OpenGLContext openGLContext;
-    jreng::Owner<GLComponent>* components { nullptr };
+    ComponentIterator componentIterator;
     float renderingScale { 1.0f };
 
-    GLuint shaderProgram { 0 };
+    std::unique_ptr<juce::OpenGLShaderProgram> flatColourShader;
     GLuint vao { 0 };
     GLuint vbo { 0 };
     GLint projectionUniform { -1 };
@@ -39,13 +40,14 @@ private:
     GLint hasMaskUniform { -1 };
     bool maskDirty { false };
 
-    void createShaderProgram();
+    void compileFlatColourShader();
     void destroyGLResources();
     void uploadMaskTexture();
     void drawVertices (const std::vector<GLVertex>& vertices,
                        float offsetX, float offsetY,
                        GLenum mode = juce::gl::GL_TRIANGLES);
     static void enableSurfaceTransparency();
+    void renderComponent (GLComponent* comp, const juce::Component* target, float totalScale, float vpWidth, float vpHeight);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GLRenderer)
 };

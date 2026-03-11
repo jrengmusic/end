@@ -64,7 +64,7 @@ namespace Terminal
  * - **Resize** — `resized()` (opens the PTY on first call, then requests resize)
  * - **Output** — `process()` (called internally by the TTY reader thread)
  * - **State access** — `getState()`, `getGrid()`, `getCursorState()`
- * - **Lifecycle callbacks** — `onShellExited`, `onTitleChanged`, `onClipboardChanged`, `onBell`
+ * - **Lifecycle callbacks** — `onShellExited`, `onClipboardChanged`, `onBell`
  *
  * ### Ownership
  * Session holds all four subsystems by value (State, Grid, Parser) or by
@@ -113,6 +113,16 @@ public:
      * @note MESSAGE THREAD only.
      */
     void resized (int cols, int rows);
+
+    /**
+     * @brief Sets the initial working directory for the shell process.
+     *
+     * Must be called before the first resized() call which opens the PTY.
+     *
+     * @param path  Absolute path to start the shell in.
+     * @note MESSAGE THREAD.
+     */
+    void setWorkingDirectory (const juce::String& path);
 
     /**
      * @brief Translates a JUCE key press into a VT escape sequence and writes it to the PTY.
@@ -234,9 +244,6 @@ public:
     /** Called when the child shell process exits. */
     std::function<void()> onShellExited;
 
-    /** Called when the terminal title changes (OSC 0 or OSC 2). */
-    std::function<void (const juce::String&)> onTitleChanged;
-
     /** Called when the terminal writes to the clipboard (OSC 52). */
     std::function<void (const juce::String&)> onClipboardChanged;
 
@@ -255,7 +262,6 @@ private:
      * - `tty->onDrainComplete` → `parser.flushResponses()`
      * - `tty->onResize` → `parser.resize()` + `grid.resize()`
      * - `tty->onExit` → `onShellExited` (via callAsync)
-     * - `parser.onTitleChanged` → `onTitleChanged` (via callAsync)
      * - `parser.onClipboardChanged` → `onClipboardChanged` (via callAsync)
      * - `parser.onBell` → `onBell` (via callAsync)
      *
@@ -275,8 +281,15 @@ private:
     /** @brief Platform PTY abstraction (UnixTTY or WindowsTTY). */
     std::unique_ptr<TTY> tty;
 
+    /** @brief Initial working directory for the shell process. */
+    juce::String workingDirectory;
+
     /** @brief `true` after the first `resized()` call opens the PTY. */
     bool ttyOpened { false };
+
+    static constexpr int maxStringLength { 256 };
+    char foregroundProcessBuffer[maxStringLength] {};
+    char cwdBuffer[maxStringLength] {};
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

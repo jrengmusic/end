@@ -22,7 +22,7 @@ GLRenderer::~GLRenderer()
 
 void GLRenderer::attachTo (juce::Component& target)
 {
-    if (! openGLContext.isAttached())
+    if (not openGLContext.isAttached())
         openGLContext.attachTo (target);
 }
 
@@ -36,9 +36,9 @@ void GLRenderer::setComponentPaintingEnabled (bool enabled) noexcept
     openGLContext.setComponentPaintingEnabled (enabled);
 }
 
-void GLRenderer::setComponents (jreng::Owner<GLComponent>& source) noexcept
+void GLRenderer::setComponentIterator (ComponentIterator iterator) noexcept
 {
-    components = &source;
+    componentIterator = std::move (iterator);
 }
 
 void GLRenderer::triggerRepaint()
@@ -57,21 +57,20 @@ void GLRenderer::newOpenGLContextCreated()
 {
     // GL THREAD
     enableSurfaceTransparency();
-    createShaderProgram();
+    compileFlatColourShader();
 
-    if (shaderProgram != 0)
+    if (flatColourShader != nullptr)
     {
         juce::gl::glGenVertexArrays (1, &vao);
         juce::gl::glGenBuffers (1, &vbo);
     }
 
-    if (components != nullptr)
+    if (componentIterator)
     {
-        for (auto& comp : *components)
+        componentIterator ([] (GLComponent& comp)
         {
-            if (comp != nullptr)
-                comp->glContextCreated();
-        }
+            comp.glContextCreated();
+        });
     }
 }
 
@@ -81,14 +80,14 @@ void GLRenderer::renderOpenGL()
     juce::gl::glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
     juce::gl::glClear (juce::gl::GL_COLOR_BUFFER_BIT);
 
-    if (shaderProgram != 0)
+    if (flatColourShader != nullptr)
     {
         if (const auto* target { openGLContext.getTargetComponent() })
         {
             juce::gl::glEnable (juce::gl::GL_BLEND);
             juce::gl::glBlendFunc (juce::gl::GL_SRC_ALPHA, juce::gl::GL_ONE_MINUS_SRC_ALPHA);
 
-            juce::gl::glUseProgram (shaderProgram);
+            flatColourShader->use();
 
             GLint viewport[4];
             juce::gl::glGetIntegerv (juce::gl::GL_VIEWPORT, viewport);
@@ -128,73 +127,13 @@ void GLRenderer::renderOpenGL()
             const float uiScale { juce::Component::getApproximateScaleFactorForComponent (target) };
             const float totalScale { uiScale * renderingScale };
 
-            if (components != nullptr)
+            if (componentIterator)
             {
-                for (auto& comp : *components)
+                componentIterator ([&] (GLComponent& glComp)
                 {
-                    if (comp != nullptr and comp->isVisible())
-                    {
-                        comp->renderGL();
-
-                        const auto localBounds { comp->getLocalBounds() };
-                        const float compWidth { static_cast<float> (localBounds.getWidth()) };
-                        const float compHeight { static_cast<float> (localBounds.getHeight()) };
-
-                        GLGraphics g { compWidth, compHeight, totalScale };
-                        comp->renderGL (g);
-
-                        if (g.hasContent())
-                        {
-                            const auto origin { target->getLocalPoint (comp.get(), juce::Point<float> (0.0f, 0.0f)) };
-                            const float destX { origin.x * totalScale };
-                            const float destY { origin.y * totalScale };
-                            const float physW { compWidth * totalScale };
-                            const float physH { compHeight * totalScale };
-
-                            juce::gl::glEnable (juce::gl::GL_SCISSOR_TEST);
-                            juce::gl::glScissor (static_cast<GLint> (destX),
-                                                 static_cast<GLint> (vpHeight - destY - physH),
-                                                 static_cast<GLsizei> (physW),
-                                                 static_cast<GLsizei> (physH));
-
-                            juce::gl::glBindVertexArray (vao);
-
-                            for (const auto& cmd : g.getCommands())
-                            {
-                                if (cmd.type == GLGraphics::CommandType::pushClip)
-                                {
-                                    juce::gl::glEnable (juce::gl::GL_STENCIL_TEST);
-                                    juce::gl::glStencilFunc (juce::gl::GL_ALWAYS, 1, 0xFF);
-                                    juce::gl::glStencilOp (juce::gl::GL_KEEP, juce::gl::GL_KEEP, juce::gl::GL_REPLACE);
-                                    juce::gl::glStencilMask (0xFF);
-                                    juce::gl::glClear (juce::gl::GL_STENCIL_BUFFER_BIT);
-                                    juce::gl::glColorMask (juce::gl::GL_FALSE, juce::gl::GL_FALSE, juce::gl::GL_FALSE, juce::gl::GL_FALSE);
-
-                                    drawVertices (cmd.vertices, destX, destY);
-
-                                    juce::gl::glColorMask (juce::gl::GL_TRUE, juce::gl::GL_TRUE, juce::gl::GL_TRUE, juce::gl::GL_TRUE);
-                                    juce::gl::glStencilFunc (juce::gl::GL_EQUAL, 1, 0xFF);
-                                    juce::gl::glStencilMask (0x00);
-                                }
-                                else if (cmd.type == GLGraphics::CommandType::popClip)
-                                {
-                                    juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
-                                }
-                                else if (cmd.type == GLGraphics::CommandType::draw)
-                                {
-                                    drawVertices (cmd.vertices, destX, destY);
-                                }
-                                else if (cmd.type == GLGraphics::CommandType::drawLineStrip)
-                                {
-                                    drawVertices (cmd.vertices, destX, destY, juce::gl::GL_LINE_STRIP);
-                                }
-                            }
-
-                            juce::gl::glDisable (juce::gl::GL_SCISSOR_TEST);
-                            juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
-                        }
-                    }
-                }
+                    if (glComp.isVisible())
+                        renderComponent (&glComp, target, totalScale, vpWidth, vpHeight);
+                });
             }
 
             if (maskTexture.getTextureID() != 0)
@@ -245,73 +184,36 @@ void GLRenderer::drawVertices (const std::vector<GLVertex>& vertices,
 void GLRenderer::openGLContextClosing()
 {
     // GL THREAD
-    if (components != nullptr)
+    if (componentIterator)
     {
-        for (auto& comp : *components)
+        componentIterator ([] (GLComponent& comp)
         {
-            if (comp != nullptr)
-                comp->glContextClosing();
-        }
+            comp.glContextClosing();
+        });
     }
 
     destroyGLResources();
 }
 
-void GLRenderer::createShaderProgram()
+void GLRenderer::compileFlatColourShader()
 {
     const auto vertexSource { BinaryData::getString ("flat_colour.vert") };
     const auto fragmentSource { BinaryData::getString ("flat_colour.frag") };
 
-    auto compileShader = [] (GLenum type, const juce::String& source) -> GLuint
+    auto* glContext { juce::OpenGLContext::getCurrentContext() };
+    if (glContext != nullptr)
     {
-        GLuint shader { juce::gl::glCreateShader (type) };
-        const char* src { source.toRawUTF8() };
-        juce::gl::glShaderSource (shader, 1, &src, nullptr);
-        juce::gl::glCompileShader (shader);
+        flatColourShader = GLShaderCompiler::compile (*glContext, vertexSource, fragmentSource);
 
-        GLint success { 0 };
-        juce::gl::glGetShaderiv (shader, juce::gl::GL_COMPILE_STATUS, &success);
-
-        if (success == 0)
+        if (flatColourShader != nullptr)
         {
-            char log[512];
-            juce::gl::glGetShaderInfoLog (shader, 512, nullptr, log);
-            DBG ("Shader compile error: " + juce::String (log));
-            juce::gl::glDeleteShader (shader);
-            return 0;
+            const auto programID { flatColourShader->getProgramID() };
+            projectionUniform = juce::gl::glGetUniformLocation (programID, "uProjection");
+            viewportSizeUniform = juce::gl::glGetUniformLocation (programID, "uViewportSize");
+            maskSamplerUniform = juce::gl::glGetUniformLocation (programID, "uMaskTexture");
+            hasMaskUniform = juce::gl::glGetUniformLocation (programID, "uHasMask");
         }
-
-        return shader;
-    };
-
-    GLuint vertShader { compileShader (juce::gl::GL_VERTEX_SHADER, vertexSource) };
-    GLuint fragShader { compileShader (juce::gl::GL_FRAGMENT_SHADER, fragmentSource) };
-
-    if (vertShader == 0 || fragShader == 0)
-        return;
-
-    shaderProgram = juce::gl::glCreateProgram();
-    juce::gl::glAttachShader (shaderProgram, vertShader);
-    juce::gl::glAttachShader (shaderProgram, fragShader);
-    juce::gl::glLinkProgram (shaderProgram);
-
-    GLint success { 0 };
-    juce::gl::glGetProgramiv (shaderProgram, juce::gl::GL_LINK_STATUS, &success);
-
-    if (success == 0)
-    {
-        char log[512];
-        juce::gl::glGetProgramInfoLog (shaderProgram, 512, nullptr, log);
-        DBG ("Shader link error: " + juce::String (log));
     }
-
-    juce::gl::glDeleteShader (vertShader);
-    juce::gl::glDeleteShader (fragShader);
-
-    projectionUniform = juce::gl::glGetUniformLocation (shaderProgram, "uProjection");
-    viewportSizeUniform = juce::gl::glGetUniformLocation (shaderProgram, "uViewportSize");
-    maskSamplerUniform = juce::gl::glGetUniformLocation (shaderProgram, "uMaskTexture");
-    hasMaskUniform = juce::gl::glGetUniformLocation (shaderProgram, "uHasMask");
 }
 
 void GLRenderer::uploadMaskTexture()
@@ -341,11 +243,7 @@ void GLRenderer::destroyGLResources()
         vao = 0;
     }
 
-    if (shaderProgram != 0)
-    {
-        juce::gl::glDeleteProgram (shaderProgram);
-        shaderProgram = 0;
-    }
+    flatColourShader.reset();
 }
 
 
@@ -355,5 +253,69 @@ void GLRenderer::enableSurfaceTransparency()
     // TODO: Windows/Linux GL surface transparency
 }
 #endif
+
+void GLRenderer::renderComponent (GLComponent* comp, const juce::Component* target, float totalScale, float vpWidth, float vpHeight)
+{
+    comp->setFullViewportHeight (static_cast<int> (vpHeight));
+    comp->renderGL();
+
+    const auto localBounds { comp->getLocalBounds() };
+    const float compWidth { static_cast<float> (localBounds.getWidth()) };
+    const float compHeight { static_cast<float> (localBounds.getHeight()) };
+
+    GLGraphics g { compWidth, compHeight, totalScale };
+    comp->renderGL (g);
+
+    if (g.hasContent())
+    {
+        const auto origin { target->getLocalPoint (comp, juce::Point<float> (0.0f, 0.0f)) };
+        const float destX { origin.x * totalScale };
+        const float destY { origin.y * totalScale };
+        const float physW { compWidth * totalScale };
+        const float physH { compHeight * totalScale };
+
+        juce::gl::glEnable (juce::gl::GL_SCISSOR_TEST);
+        juce::gl::glScissor (static_cast<GLint> (destX),
+                             static_cast<GLint> (vpHeight - destY - physH),
+                             static_cast<GLsizei> (physW),
+                             static_cast<GLsizei> (physH));
+
+        juce::gl::glBindVertexArray (vao);
+
+        for (const auto& cmd : g.getCommands())
+        {
+            if (cmd.type == GLGraphics::CommandType::pushClip)
+            {
+                juce::gl::glEnable (juce::gl::GL_STENCIL_TEST);
+                juce::gl::glStencilFunc (juce::gl::GL_ALWAYS, 1, 0xFF);
+                juce::gl::glStencilOp (juce::gl::GL_KEEP, juce::gl::GL_KEEP, juce::gl::GL_REPLACE);
+                juce::gl::glStencilMask (0xFF);
+                juce::gl::glClear (juce::gl::GL_STENCIL_BUFFER_BIT);
+                juce::gl::glColorMask (juce::gl::GL_FALSE, juce::gl::GL_FALSE, juce::gl::GL_FALSE, juce::gl::GL_FALSE);
+
+                drawVertices (cmd.vertices, destX, destY);
+
+                juce::gl::glColorMask (juce::gl::GL_TRUE, juce::gl::GL_TRUE, juce::gl::GL_TRUE, juce::gl::GL_TRUE);
+                juce::gl::glStencilFunc (juce::gl::GL_EQUAL, 1, 0xFF);
+                juce::gl::glStencilMask (0x00);
+            }
+            else if (cmd.type == GLGraphics::CommandType::popClip)
+            {
+                juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
+            }
+            else if (cmd.type == GLGraphics::CommandType::draw)
+            {
+                drawVertices (cmd.vertices, destX, destY);
+            }
+            else if (cmd.type == GLGraphics::CommandType::drawLineStrip)
+            {
+                drawVertices (cmd.vertices, destX, destY, juce::gl::GL_LINE_STRIP);
+            }
+        }
+
+        juce::gl::glDisable (juce::gl::GL_SCISSOR_TEST);
+        juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
+    }
+}
 
 } // namespace jreng

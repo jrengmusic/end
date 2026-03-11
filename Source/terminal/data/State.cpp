@@ -158,6 +158,15 @@ State::State()
 
     buildParameterMap();
 
+    stringStorage.emplace_back (nullptr);
+    stringMap[ID::title] = &stringStorage.back();
+
+    stringStorage.emplace_back (nullptr);
+    stringMap[ID::cwd] = &stringStorage.back();
+
+    stringStorage.emplace_back (nullptr);
+    stringMap[ID::foregroundProcess] = &stringStorage.back();
+
     startTimerHz (60);
 }
 
@@ -219,6 +228,27 @@ void State::setWrapPending (ActiveScreen s, bool v) noexcept     { storeAndFlush
 void State::setScrollTop (ActiveScreen s, int top) noexcept      { storeAndFlush (screenKey (s, ID::scrollTop), static_cast<float> (top)); }
 /** @note READER THREAD — key is built via `screenKey (s, ID::scrollBottom)`. */
 void State::setScrollBottom (ActiveScreen s, int bottom) noexcept { storeAndFlush (screenKey (s, ID::scrollBottom), static_cast<float> (bottom)); }
+
+void State::setTitle (const char* ptr) noexcept
+{
+    // READER THREAD
+    stringMap.at (ID::title)->store (ptr, std::memory_order_relaxed);
+    needsFlush.store (true, std::memory_order_release);
+}
+
+void State::setCwd (const char* ptr) noexcept
+{
+    // READER THREAD
+    stringMap.at (ID::cwd)->store (ptr, std::memory_order_relaxed);
+    needsFlush.store (true, std::memory_order_release);
+}
+
+void State::setForegroundProcess (const char* ptr) noexcept
+{
+    // READER THREAD
+    stringMap.at (ID::foregroundProcess)->store (ptr, std::memory_order_relaxed);
+    needsFlush.store (true, std::memory_order_release);
+}
 
 /**
  * @brief Signals that the cell-grid snapshot has new data and a repaint is needed.
@@ -530,9 +560,11 @@ juce::ValueTree State::getCursorState() noexcept
 // Timer
 void State::timerCallback()
 {
+    // MESSAGE THREAD
     static constexpr int flushHz { 120 };
     static constexpr int idleHz { 60 };
     const bool anythingUpdated { flush() };
+    flushStrings();
     startTimer (anythingUpdated ? 1000 / flushHz : 1000 / idleHz);
 }
 
@@ -608,6 +640,44 @@ juce::Identifier State::screenKey (ActiveScreen s, const juce::Identifier& prope
 juce::Identifier State::modeKey (const juce::Identifier& property) const noexcept
 {
     return buildParamKey (ID::MODES, property.toString());
+}
+
+void State::flushStrings() noexcept
+{
+    // MESSAGE THREAD
+    for (const auto& [id, slot] : stringMap)
+    {
+        const char* ptr { slot->load (std::memory_order_relaxed) };
+
+        if (ptr != nullptr)
+        {
+            state.setProperty (id, juce::String::fromUTF8 (ptr), nullptr);
+        }
+    }
+
+    const auto title { state.getProperty (ID::title).toString() };
+    const auto foreground { state.getProperty (ID::foregroundProcess).toString() };
+    const auto cwdPath { state.getProperty (ID::cwd).toString() };
+
+    juce::String name;
+
+    if (title.isNotEmpty())
+    {
+        name = title;
+    }
+    else if (foreground.isNotEmpty())
+    {
+        name = foreground;
+    }
+    else if (cwdPath.isNotEmpty())
+    {
+        name = juce::File (cwdPath).getFileName();
+    }
+
+    if (name.isNotEmpty())
+    {
+        state.setProperty (ID::displayName, name, nullptr);
+    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

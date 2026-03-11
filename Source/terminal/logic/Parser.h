@@ -130,7 +130,7 @@ public:
      * @brief Maximum number of characters accepted from an OSC title string.
      *
      * Applied when extracting the window title from an OSC 0 or OSC 2 sequence.
-     * Titles longer than this are truncated before being passed to `onTitleChanged`.
+     * Titles longer than this are truncated before being written to State.
      */
     static constexpr int MAX_OSC_TITLE_LENGTH { 256 };
 
@@ -238,19 +238,6 @@ public:
      * @note READER THREAD — the callback must be thread-safe.
      */
     std::function<void (const char*, int)> writeToHost;
-
-    /**
-     * @brief Callback invoked when the terminal window title changes.
-     *
-     * Triggered by OSC 0 (`ESC]0;<title>BEL`) and OSC 2 sequences.
-     * The argument is the new title string (UTF-8, max `MAX_OSC_TITLE_LENGTH`
-     * characters).
-     *
-     * @note READER THREAD — the callback must be thread-safe.
-     *
-     * @see handleOscTitle()
-     */
-    std::function<void (const juce::String&)> onTitleChanged;
 
     /**
      * @brief Callback invoked when the terminal requests a clipboard write.
@@ -417,6 +404,10 @@ private:
      * @see oscBuffer
      */
     uint16_t oscLength { 0 };
+
+    static constexpr int maxStringLength { 256 };
+    char titleBuffer[maxStringLength] {};
+    char cwdBuffer[maxStringLength] {};
 
     /**
      * @brief Current drawing attributes applied to newly written cells.
@@ -1178,17 +1169,29 @@ private:
     /**
      * @brief Handles an OSC title-change command (OSC 0 or OSC 2).
      *
-     * Extracts the title string from `data`, truncates it to `MAX_OSC_TITLE_LENGTH`
-     * characters, and invokes `onTitleChanged` with the result.
+     * Extracts the title string from `data`, truncates it to `maxStringLength`
+     * characters, copies it into `titleBuffer`, and calls `state.setTitle()`.
      *
      * @param data        Pointer to the title bytes (after the "0;" or "2;" prefix).
      * @param dataLength  Number of bytes in `data`.
      *
      * @note READER THREAD only.
      *
-     * @see onTitleChanged
+     * @see state.setTitle()
      */
     void handleOscTitle (const uint8_t* data, uint16_t dataLength) noexcept;
+
+    /**
+     * @brief Handles OSC 7 — current working directory notification.
+     *
+     * Parses the `file://hostname/path` URI, extracts the path, writes it
+     * into `cwdBuffer`, and calls `state.setCwd()`.
+     *
+     * @param data        Pointer to the OSC 7 payload bytes (after "7;").
+     * @param dataLength  Number of bytes in `data`.
+     * @note READER THREAD only.
+     */
+    void handleOscCwd (const uint8_t* data, uint16_t dataLength) noexcept;
 
     /**
      * @brief Handles an OSC clipboard-write command (OSC 52).

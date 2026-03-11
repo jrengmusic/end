@@ -82,6 +82,27 @@ public:
     /** @brief Constructs the component, wires Session callbacks, starts VBlank. */
     Component();
 
+    /**
+     * @brief Constructs a terminal component starting in the given directory.
+     *
+     * @param workingDirectory  Absolute path for the shell's initial cwd.
+     * @note MESSAGE THREAD.
+     */
+    explicit Component (const juce::String& workingDirectory);
+
+    /**
+     * @brief Creates a terminal, adds it to the parent and owner.
+     *
+     * @param parent  The component to add the terminal to (addAndMakeVisible).
+     * @param bounds  The initial bounds for the terminal.
+     * @param owner   Ownership container for the terminal's lifetime.
+     * @return Raw pointer to the created terminal.
+     * @note MESSAGE THREAD.
+     */
+    static Component* create (juce::Component& parent,
+                              juce::Rectangle<int> bounds,
+                              jreng::Owner<Component>& owner);
+
     /** @brief Tears down listeners, detaches Screen, resets all children. */
     ~Component() override;
 
@@ -201,6 +222,17 @@ public:
     int getGridCols() const noexcept;
 
     /**
+     * @brief Returns the terminal session's root ValueTree.
+     *
+     * Convenience accessor for grafting the SESSION subtree into the
+     * application ValueTree.
+     *
+     * @return The SESSION ValueTree owned by this terminal's State.
+     * @note MESSAGE THREAD.
+     */
+    juce::ValueTree getValueTree() noexcept;
+
+    /**
      * @brief Called by GLRenderer when the shared OpenGL context is first created.
      *
      * Forwards to Screen::glContextCreated() to compile shaders and create GPU
@@ -295,6 +327,16 @@ public:
      * @see applyZoom
      */
     void resetZoom();
+
+    /**
+     * @brief Initialises the terminal component after construction.
+     *
+     * Contains the shared initialization logic for both constructors.
+     * Sets up screen, cursor, session callbacks, and ValueTree listeners.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void initialise();
 
 private:
     //==============================================================================

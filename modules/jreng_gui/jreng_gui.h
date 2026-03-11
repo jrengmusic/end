@@ -25,3 +25,5 @@
 #include "glass/jreng_glass_component.h"
 #include "glass/jreng_glass_window.h"
 #include "animation/jreng_animator.h"
+#include "layout/jreng_pane_manager.h"
+#include "layout/jreng_pane_resizer_bar.h"

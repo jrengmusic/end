@@ -52,9 +52,10 @@ namespace Terminal
  * @par TTY exit → onShellExited callback
  * `tty->onExit` invokes the public `onShellExited` callback if set.
  *
- * @par Parser title/clipboard/bell → public callbacks
- * `parser.onTitleChanged`, `parser.onClipboardChanged`, and `parser.onBell`
- * forward to the corresponding public `Session` callbacks.
+ * @par Parser clipboard/bell → public callbacks
+ * `parser.onClipboardChanged` and `parser.onBell` forward to the
+ * corresponding public `Session` callbacks. Title is now written
+ * directly to State by Parser (no callback).
  *
  * @note MESSAGE THREAD — called once from the constructor.
  */
@@ -77,13 +78,6 @@ void Session::setupCallbacks()
         }
     };
 
-    parser.onTitleChanged = [this] (const juce::String& t)
-    {
-        if (onTitleChanged)
-        {
-            onTitleChanged (t);
-        }
-    };
     parser.onClipboardChanged = [this] (const juce::String& c)
     {
         if (onClipboardChanged)
@@ -169,13 +163,18 @@ void Session::resized (int cols, int rows)
     {
         parser.resize (cols, rows);
         grid.resize();
-        tty->open (cols, rows, Config::getContext()->getString (Config::Key::shellProgram));
+        tty->open (cols, rows, Config::getContext()->getString (Config::Key::shellProgram), workingDirectory);
         ttyOpened = true;
     }
     else
     {
         tty->requestResize (cols, rows);
     }
+}
+
+void Session::setWorkingDirectory (const juce::String& path)
+{
+    workingDirectory = path;
 }
 
 /**
@@ -339,6 +338,17 @@ void Session::process (const char* data, int length) noexcept
 {
     // READER THREAD
     parser.process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
+
+    const int fgPid { tty->getForegroundPid() };
+
+    if (fgPid > 0)
+    {
+        tty->getProcessName (fgPid, foregroundProcessBuffer, maxStringLength);
+        state.setForegroundProcess (foregroundProcessBuffer);
+
+        tty->getCwd (fgPid, cwdBuffer, maxStringLength);
+        state.setCwd (cwdBuffer);
+    }
 }
 
 /**

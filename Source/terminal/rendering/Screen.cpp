@@ -31,16 +31,14 @@ namespace Terminal
 /**
  * @brief Constructs the screen.
  *
- * Initialises `Resources`, calls `calc()` to derive cell dimensions, wires
- * the GL renderer to the snapshot buffer and atlas, then calls `reset()` to
- * zero-initialise the cell cache.
+ * Initialises `Resources`, calls `calc()` to derive cell dimensions,
+ * then calls `reset()` to zero-initialise the cell cache.
  */
 Screen::Screen()
     : resources()
     , baseFontSize (Config::getContext()->getFloat (Config::Key::fontSize))
 {
     calc();
-    glRenderer.setResources (&resources.snapshotBuffer, &resources.glyphAtlas);
     reset();
 }
 
@@ -77,8 +75,7 @@ void Screen::calc() noexcept
 /**
  * @brief Updates the render viewport and recomputes grid dimensions.
  *
- * Stores the new bounds, forwards them to `glRenderer` (which scales to
- * physical pixels), and calls `calc()`.
+ * Stores the new bounds, scales them to physical pixels, and calls `calc()`.
  *
  * @param bounds  New viewport bounds in logical pixel space.
  */
@@ -88,7 +85,13 @@ void Screen::setViewport (const juce::Rectangle<int>& bounds) noexcept
     viewportY = bounds.getY();
     viewportWidth = bounds.getWidth();
     viewportHeight = bounds.getHeight();
-    glRenderer.setViewport (bounds);
+
+    const float scale { Fonts::getDisplayScale() };
+    glViewportX      = static_cast<int> (static_cast<float> (bounds.getX())      * scale);
+    glViewportY      = static_cast<int> (static_cast<float> (bounds.getY())      * scale);
+    glViewportWidth  = static_cast<int> (static_cast<float> (bounds.getWidth())  * scale);
+    glViewportHeight = static_cast<int> (static_cast<float> (bounds.getHeight()) * scale);
+
     calc();
 }
 
@@ -265,14 +268,6 @@ void Screen::toggleDebug() noexcept { debugMode = not debugMode; }
 /// @return `true` if debug rendering mode is active.
 bool Screen::isDebugMode() const noexcept { return debugMode; }
 
-void Screen::glContextCreated() { glRenderer.contextCreated(); }
-
-void Screen::glContextClosing() { glRenderer.contextClosing(); }
-
-void Screen::renderOpenGL (int originX, int originY) { glRenderer.render (originX, originY); }
-
-bool Screen::isGLContextReady() const noexcept { return glRenderer.isContextReady(); }
-
 /// @return `true` if a new snapshot is waiting in the mailbox.
 bool Screen::hasNewSnapshot() const noexcept { return resources.snapshotBuffer.isReady(); }
 
@@ -429,7 +424,6 @@ void Screen::applyScrollOptimization (int rows, int cols, int scroll, uint64_t d
  * 7. If the view is scrolled or was scrolled last frame, marks all rows dirty.
  * 8. Calls `populateFromGrid()` to copy dirty rows from `Grid`.
  * 9. Calls `buildSnapshot()` to rebuild dirty rows and publish the snapshot.
- * 10. Calls `glRenderer.triggerRepaint()`.
  *
  * @param state  Current terminal state (cursor, dimensions, scroll offset).
  * @param grid   Terminal grid providing cell data and dirty tracking.

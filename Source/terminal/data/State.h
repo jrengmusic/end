@@ -219,6 +219,30 @@ struct State : public juce::Timer
      */
     void setScrollBottom (ActiveScreen s, int bottom) noexcept;
 
+    /**
+     * @brief Sets the window title from OSC 0/2 escape sequences.
+     * @param ptr  Pointer to a null-terminated UTF-8 string owned by the caller.
+     *             Must remain valid until the next flush.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setTitle (const char* ptr) noexcept;
+
+    /**
+     * @brief Sets the current working directory from OSC 7 or OS query.
+     * @param ptr  Pointer to a null-terminated UTF-8 string owned by the caller.
+     *             Must remain valid until the next flush.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setCwd (const char* ptr) noexcept;
+
+    /**
+     * @brief Sets the foreground process name from OS query.
+     * @param ptr  Pointer to a null-terminated UTF-8 string owned by the caller.
+     *             Must remain valid until the next flush.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setForegroundProcess (const char* ptr) noexcept;
+
     /** @} */
 
     // =========================================================================
@@ -578,6 +602,21 @@ private:
     std::atomic<bool> snapshotDirty { false };
 
     /**
+     * @brief Stable backing store for string atomic slots.
+     *
+     * Mirrors `storage` for floats. Uses `std::deque` so that emplace_back
+     * never invalidates existing element addresses.
+     */
+    std::deque<std::atomic<const char*>> stringStorage;
+
+    /**
+     * @brief Flat map from identifier → string atomic slot pointer.
+     *
+     * Mirrors `parameterMap` for floats. Populated once during construction.
+     */
+    std::unordered_map<juce::Identifier, std::atomic<const char*>*> stringMap;
+
+    /**
      * @brief Copies all atomic parameter values into the ValueTree.
      *
      * Iterates `flushRootParams()` then `flushGroupParams()` for every group
@@ -611,6 +650,18 @@ private:
      * @note MESSAGE THREAD — called from `flush()` only.
      */
     void flushGroupParams (juce::ValueTree& group) noexcept;
+
+    /**
+     * @brief Flushes string atomics to the SESSION ValueTree as direct properties
+     *        and computes the displayName.
+     *
+     * Reads each string atomic, converts to juce::String via fromUTF8,
+     * writes as a direct property on the SESSION node. Then computes
+     * displayName from priority: title > foregroundProcess > cwd leaf name.
+     *
+     * @note MESSAGE THREAD — called from timerCallback() only.
+     */
+    void flushStrings() noexcept;
 };
 
 template<typename ValueType>

@@ -18,8 +18,7 @@
 #include "../config/Config.h"
 
 namespace Terminal
-{
-
+{ /*____________________________________________________________________________*/
 /**
  * @class LookAndFeel
  * @brief Minimal tab bar appearance for the terminal emulator.
@@ -44,9 +43,11 @@ public:
      */
     enum ColourIds
     {
-        cursorColourId           = 0x2000001, ///< Active tab indicator and popup tick colour.
-        tabBarBackgroundColourId = 0x2000002, ///< Tab bar background fill colour.
-        tabLineColourId          = 0x2000003  ///< Active tab indicator line colour.
+        cursorColourId = 0x2000001,///< Active tab indicator and popup tick colour.
+        tabBarBackgroundColourId = 0x2000002,///< Tab bar background fill colour.
+        tabLineColourId = 0x2000003,///< Active tab indicator line colour.
+        tabActiveColourId = 0x2000004,///< Active tab fill colour (paradiso).
+        tabIndicatorColourId = 0x2000005///< Active tab indicator fill colour.
     };
 
     LookAndFeel();
@@ -61,11 +62,9 @@ public:
      */
     void setColours();
 
-    void drawTabButton (juce::TabBarButton& button, juce::Graphics& g,
-                        bool isMouseOver, bool isMouseDown) override;
+    void drawTabButton (juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver, bool isMouseDown) override;
 
-    void drawTabbedButtonBarBackground (juce::TabbedButtonBar& bar,
-                                        juce::Graphics& g) override;
+    void drawTabbedButtonBarBackground (juce::TabbedButtonBar& bar, juce::Graphics& g) override;
 
     int getTabButtonBestWidth (juce::TabBarButton& button, int tabDepth) override;
 
@@ -112,8 +111,7 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    void drawPopupMenuBackgroundWithOptions (juce::Graphics&, int, int,
-                                              const juce::PopupMenu::Options&) override {}
+    void drawPopupMenuBackgroundWithOptions (juce::Graphics&, int, int, const juce::PopupMenu::Options&) override {}
 
     /**
      * @brief Draws a single popup menu item using terminal theme colours.
@@ -135,10 +133,14 @@ public:
      * @param textColourToUse    Optional text colour override.
      * @note MESSAGE THREAD.
      */
-    void drawPopupMenuItem (juce::Graphics& g, const juce::Rectangle<int>& area,
-                            const bool isSeparator, const bool isActive,
-                            const bool isHighlighted, const bool isTicked,
-                            const bool hasSubMenu, const juce::String& text,
+    void drawPopupMenuItem (juce::Graphics& g,
+                            const juce::Rectangle<int>& area,
+                            const bool isSeparator,
+                            const bool isActive,
+                            const bool isHighlighted,
+                            const bool isTicked,
+                            const bool hasSubMenu,
+                            const juce::String& text,
                             const juce::String& shortcutKeyText,
                             const juce::Drawable* icon,
                             const juce::Colour* const textColourToUse) override;
@@ -176,11 +178,19 @@ public:
     static int getTabBarHeight() noexcept;
 
 private:
-
     static constexpr int horizontalPadding { 24 };
-    static constexpr float activeIndicatorHeight { 2.0f };
-
+    static constexpr float skew { 10.0f };
+    static constexpr float strokeWidth { 1.0f };
+    static constexpr int minTabChars { 8 };
+    static constexpr int maxTabChars { 24 };
+    static constexpr int buttonInset { 4 };
+    static constexpr int indicatorSize { 22 };
+    static constexpr int gap { 4 };
+    static juce::Path getTabButtonShape (const juce::Rectangle<float>& area) noexcept;
+    static juce::Path getTabButtonIndicator (const juce::Rectangle<float>& area) noexcept;
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LookAndFeel)
 };
 
-}
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace Terminal

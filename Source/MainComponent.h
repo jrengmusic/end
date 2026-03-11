@@ -7,9 +7,9 @@
  * and paints the window background with the configured colour and opacity.
  *
  * ### Responsibilities
- * - Sets the initial window size from `Config::Key::windowWidth/Height`.
+ * - Sets the initial window size from `AppState` (persisted in `state.xml`).
  * - Registers a close callback with `jreng::BackgroundBlur` so that window
- *   dimensions are persisted to `state.lua` when the native close button is
+ *   dimensions are persisted to `AppState` when the native close button is
  *   pressed (in addition to the Cmd+Q path handled by ENDApplication).
  * - Delegates all keyboard, mouse, and terminal I/O to `Terminal::Tabs`.
  * - Serves as an ApplicationCommandTarget, owning the ApplicationCommandManager
@@ -37,6 +37,8 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "AppState.h"
+#include "component/LookAndFeel.h"
 #include "component/MessageOverlay.h"
 #include "component/Tabs.h"
 #include "config/Config.h"
@@ -113,10 +115,10 @@ private:
      */
     struct CommandDef
     {
-        KeyBinding::CommandID id;   ///< Enum value identifying the command.
-        const char* name;           ///< Short display name shown in menus.
-        const char* description;    ///< Tooltip / status-bar description.
-        const char* category;       ///< Grouping category (Edit, Application, View, Tabs).
+        KeyBinding::CommandID id;///< Enum value identifying the command.
+        const char* name;///< Short display name shown in menus.
+        const char* description;///< Tooltip / status-bar description.
+        const char* category;///< Grouping category (Edit, Application, View, Tabs).
     };
 
     /**
@@ -128,19 +130,20 @@ private:
      *
      * @see CommandDef
      */
-    static constexpr CommandDef commandDefs[]
-    {
-        { KeyBinding::CommandID::copy,      "Copy",          "Copy selection to clipboard",    "Edit" },
-        { KeyBinding::CommandID::paste,     "Paste",         "Paste from clipboard",           "Edit" },
-        { KeyBinding::CommandID::quit,      "Quit",          "Quit application",               "Application" },
-        { KeyBinding::CommandID::closeTab,  "Close Tab",     "Close current tab",              "Application" },
-        { KeyBinding::CommandID::reload,    "Reload",        "Reload configuration",           "Application" },
-        { KeyBinding::CommandID::zoomIn,    "Zoom In",       "Increase font size",             "View" },
-        { KeyBinding::CommandID::zoomOut,   "Zoom Out",      "Decrease font size",             "View" },
-        { KeyBinding::CommandID::zoomReset, "Zoom Reset",    "Reset font size to default",     "View" },
-        { KeyBinding::CommandID::newTab,    "New Tab",       "Open a new terminal tab",        "Tabs" },
-        { KeyBinding::CommandID::prevTab,   "Previous Tab",  "Switch to previous tab",         "Tabs" },
-        { KeyBinding::CommandID::nextTab,   "Next Tab",      "Switch to next tab",             "Tabs" }
+    static constexpr CommandDef commandDefs[] {
+        { KeyBinding::CommandID::copy,      "Copy",         "Copy selection to clipboard", "Edit"        },
+        { KeyBinding::CommandID::paste,     "Paste",        "Paste from clipboard",        "Edit"        },
+        { KeyBinding::CommandID::quit,      "Quit",         "Quit application",            "Application" },
+        { KeyBinding::CommandID::closeTab,  "Close Tab",    "Close current tab",           "Application" },
+        { KeyBinding::CommandID::reload,    "Reload",       "Reload configuration",        "Application" },
+        { KeyBinding::CommandID::zoomIn,    "Zoom In",      "Increase font size",          "View"        },
+        { KeyBinding::CommandID::zoomOut,   "Zoom Out",     "Decrease font size",          "View"        },
+        { KeyBinding::CommandID::zoomReset, "Zoom Reset",   "Reset font size to default",  "View"        },
+        { KeyBinding::CommandID::newTab,    "New Tab",      "Open a new terminal tab",     "Tabs"        },
+        { KeyBinding::CommandID::prevTab,   "Previous Tab", "Switch to previous tab",      "Tabs"        },
+        { KeyBinding::CommandID::nextTab,          "Next Tab",         "Switch to next tab",          "Tabs"  },
+        { KeyBinding::CommandID::splitHorizontal, "Split Horizontal", "Split pane horizontally",     "Panes" },
+        { KeyBinding::CommandID::splitVertical,   "Split Vertical",   "Split pane vertically",       "Panes" }
     };
 
     /**
@@ -157,17 +160,24 @@ private:
      */
     void buildCommandActions();
 
+    /** @brief Cached context references; resolved once, used everywhere. */
+    Config& config { *Config::getContext() };
+    AppState& appState { *AppState::getContext() };
+
     /** @brief JUCE command manager; owns the keypress-to-command mapping. */
     juce::ApplicationCommandManager commandManager;
 
     /** @brief Key binding resolver; reads shortcuts from `config.lua`. */
     KeyBinding keyBinding { commandManager };
 
+    /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
+    Terminal::LookAndFeel terminalLookAndFeel;
+
     /** @brief Shared OpenGL renderer; attached to this component, renders all GL children. */
     jreng::GLRenderer glRenderer;
 
     /** @brief Global font context; provides font metrics and shaping for all terminals. */
-    std::unique_ptr<Fonts> fonts;
+    Fonts fonts { config.getString (Config::Key::fontFamily), config.getFloat (Config::Key::fontSize) };
 
     /** @brief Tabbed terminal container; owns all Terminal::Component instances. */
     std::unique_ptr<Terminal::Tabs> tabs;
@@ -186,6 +196,31 @@ private:
      * @see perform()
      */
     jreng::Function::Map<int, bool> commandActions;
+
+    /**
+     * @brief Creates Terminal::Tabs, attaches GL renderer, wires repaint callback, restores tabs.
+     * @note MESSAGE THREAD.
+     * @see Terminal::Tabs
+     * @see glRenderer
+     * @see AppState
+     */
+    void initialiseTabs();
+
+    /**
+     * @brief Creates MessageOverlay, shows startup errors if any.
+     * @note MESSAGE THREAD.
+     * @see MessageOverlay
+     * @see Config::getLoadError()
+     */
+    void initialiseMessageOverlay();
+
+    /**
+     * @brief Computes grid dimensions from font metrics and window bounds, displays "cols * rows" overlay on resize.
+     * @note MESSAGE THREAD — called from resized().
+     * @see MessageOverlay
+     * @see fonts
+     */
+    void showMessageOverlay();
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

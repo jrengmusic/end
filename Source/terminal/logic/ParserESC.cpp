@@ -356,9 +356,8 @@ namespace
 /**
  * @brief Handles OSC 0 / OSC 2 — window title change.
  *
- * Extracts the title string from `data`, truncates it to `MAX_OSC_TITLE_LENGTH`
- * characters, and invokes `onTitleChanged` on the message thread via
- * `juce::MessageManager::callAsync`.
+ * Extracts the title string from `data`, truncates it to `maxStringLength`
+ * characters, copies it into `titleBuffer`, and calls `state.setTitle()`.
  *
  * @par Sequences
  * @code
@@ -370,19 +369,53 @@ namespace
  *                    Not null-terminated.
  * @param dataLength  Number of bytes in `data`.
  *
- * @note READER THREAD only.  The `onTitleChanged` callback is dispatched to
- *       the message thread.
+ * @note READER THREAD only.
  *
- * @see onTitleChanged
+ * @see state.setTitle()
  * @see oscDispatch()
- * @see MAX_OSC_TITLE_LENGTH
+ * @see maxStringLength
  */
 void Parser::handleOscTitle (const uint8_t* data, uint16_t dataLength) noexcept
 {
-    const int clampedLength { juce::jmin (static_cast<int> (dataLength), MAX_OSC_TITLE_LENGTH) };
-    juce::String title (reinterpret_cast<const char*> (data), static_cast<size_t> (clampedLength));
-    if (onTitleChanged)
-        juce::MessageManager::callAsync ([this, title] { /* MESSAGE THREAD */ onTitleChanged (title); });
+    // READER THREAD
+    const int length { juce::jmin (static_cast<int> (dataLength), maxStringLength - 1) };
+    std::memcpy (titleBuffer, data, static_cast<size_t> (length));
+    titleBuffer[length] = '\0';
+    state.setTitle (titleBuffer);
+}
+
+void Parser::handleOscCwd (const uint8_t* data, uint16_t dataLength) noexcept
+{
+    // READER THREAD
+    // OSC 7 format: file://hostname/path
+    // Find the path after "file://hostname" by locating the third '/'
+    const auto* begin { reinterpret_cast<const char*> (data) };
+    const auto* end { begin + dataLength };
+
+    int slashCount { 0 };
+    const char* pathStart { nullptr };
+
+    for (const char* p { begin }; p < end; ++p)
+    {
+        if (*p == '/')
+        {
+            ++slashCount;
+
+            if (slashCount == 3)
+            {
+                pathStart = p;
+                break;
+            }
+        }
+    }
+
+    if (pathStart != nullptr)
+    {
+        const int length { juce::jmin (static_cast<int> (end - pathStart), maxStringLength - 1) };
+        std::memcpy (cwdBuffer, pathStart, static_cast<size_t> (length));
+        cwdBuffer[length] = '\0';
+        state.setCwd (cwdBuffer);
+    }
 }
 
 /**
@@ -465,6 +498,7 @@ void Parser::handleOscClipboard (const uint8_t* data, uint16_t dataLength) noexc
  * |---------|-------------------|--------------------------|
  * | 0       | Icon + title      | `handleOscTitle()`       |
  * | 2       | Window title      | `handleOscTitle()`       |
+ * | 7       | Working directory  | `handleOscCwd()`         |
  * | 52      | Clipboard write   | `handleOscClipboard()`   |
  * | Other   | —                 | silently ignored         |
  *
@@ -499,6 +533,7 @@ void Parser::oscDispatch (const uint8_t* payload, uint16_t length) noexcept
             {
                 case 0:
                 case 2:     handleOscTitle (data, dataLength);     break;
+                case 7:     handleOscCwd (data, dataLength);       break;
                 case 52:    handleOscClipboard (data, dataLength); break;
                 default:    break;
             }

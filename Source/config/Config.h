@@ -11,12 +11,12 @@
  * | File                        | Purpose                                  |
  * |-----------------------------|------------------------------------------|
  * | `~/.config/end/end.lua`     | User config (loaded at startup, reloaded on Cmd+R) |
- * | `~/.config/end/state.lua`   | Persisted window state (width, height, zoom) |
+ * | `~/.config/end/state.xml`   | Persisted application state (managed by AppState) |
  *
  * ### Config format (end.lua)
  * @code{.lua}
  * END = {
- *     font = { family = "JetBrains Mono", size = 14 },
+ *     font = { family = "Display Mono", size = 14 },
  *     colours = { foreground = "#FFB3F9F5", background = "#E0090D12" },
  *     window = { opacity = 0.85, always_on_top = true },
  * }
@@ -26,9 +26,9 @@
  * and out-of-range numbers produce non-fatal warnings collected in `loadError`.
  *
  * ### Zoom
- * Zoom is stored as a multiplier in `[zoomMin, zoomMax]`.  `saveZoom()` clamps
- * and persists the value; `Terminal::Component::applyZoom()` applies it to the
- * renderer by scaling the base font size.
+ * Zoom is stored as a multiplier in `[zoomMin, zoomMax]` by `AppState`.
+ * `Terminal::Component::applyZoom()` applies it to the renderer by scaling
+ * the base font size.
  *
  * @note All public methods are called on the **MESSAGE THREAD**.
  *
@@ -50,11 +50,9 @@
  * before any other subsystem.
  *
  * ### Lifecycle
- * 1. `Config()` — calls `initDefaults()`, `initSchema()`, loads `end.lua`,
- *    then overlays `state.lua` (window size + zoom).
+ * 1. `Config()` — calls `initDefaults()`, `initSchema()`, loads `end.lua`.
  * 2. `reload()` — re-runs `initDefaults()` then re-loads `end.lua`; used by
  *    Cmd+R in `Terminal::Component`.
- * 3. `saveWindowSize()` / `saveZoom()` — write `state.lua` atomically.
  *
  * @par Thread context
  * **MESSAGE THREAD** — all methods must be called from the JUCE message thread.
@@ -128,118 +126,118 @@ struct Config : jreng::Context<Config>
     struct Key
     {
         /** @brief Primary monospace font family name (e.g. "JetBrains Mono"). */
-        inline static const juce::String fontFamily          { "font.family" };
+        inline static const juce::String fontFamily { "font.family" };
 
         /** @brief Base font size in points before zoom is applied. */
-        inline static const juce::String fontSize            { "font.size" };
+        inline static const juce::String fontSize { "font.size" };
 
         /** @brief Whether OpenType ligature substitution is enabled. */
-        inline static const juce::String fontLigatures       { "font.ligatures" };
+        inline static const juce::String fontLigatures { "font.ligatures" };
 
         /** @brief Whether synthetic bold (embolden) is applied to the main font. */
-        inline static const juce::String fontEmbolden        { "font.embolden" };
+        inline static const juce::String fontEmbolden { "font.embolden" };
 
         /** @brief Unicode codepoint string used as the cursor glyph. */
-        inline static const juce::String cursorChar          { "cursor.char" };
+        inline static const juce::String cursorChar { "cursor.char" };
 
         /** @brief Whether the cursor blinks. */
-        inline static const juce::String cursorBlink         { "cursor.blink" };
+        inline static const juce::String cursorBlink { "cursor.blink" };
 
         /** @brief Blink period in milliseconds (half-cycle on, half-cycle off). */
         inline static const juce::String cursorBlinkInterval { "cursor.blink_interval" };
 
         /** @brief Default text foreground colour (hex or rgba string). */
-        inline static const juce::String coloursForeground   { "colours.foreground" };
+        inline static const juce::String coloursForeground { "colours.foreground" };
 
         /** @brief Default cell background colour (hex or rgba string). */
-        inline static const juce::String coloursBackground   { "colours.background" };
+        inline static const juce::String coloursBackground { "colours.background" };
 
         /** @brief Cursor glyph tint colour (hex or rgba string). */
-        inline static const juce::String coloursCursor       { "colours.cursor" };
+        inline static const juce::String coloursCursor { "colours.cursor" };
 
         /** @brief Selection highlight colour (hex or rgba string). */
-        inline static const juce::String coloursSelection    { "colours.selection" };
+        inline static const juce::String coloursSelection { "colours.selection" };
 
         /** @brief ANSI colour 0 — black. */
-        inline static const juce::String coloursBlack        { "colours.black" };
+        inline static const juce::String coloursBlack { "colours.black" };
 
         /** @brief ANSI colour 1 — red. */
-        inline static const juce::String coloursRed          { "colours.red" };
+        inline static const juce::String coloursRed { "colours.red" };
 
         /** @brief ANSI colour 2 — green. */
-        inline static const juce::String coloursGreen        { "colours.green" };
+        inline static const juce::String coloursGreen { "colours.green" };
 
         /** @brief ANSI colour 3 — yellow. */
-        inline static const juce::String coloursYellow       { "colours.yellow" };
+        inline static const juce::String coloursYellow { "colours.yellow" };
 
         /** @brief ANSI colour 4 — blue. */
-        inline static const juce::String coloursBlue         { "colours.blue" };
+        inline static const juce::String coloursBlue { "colours.blue" };
 
         /** @brief ANSI colour 5 — magenta. */
-        inline static const juce::String coloursMagenta      { "colours.magenta" };
+        inline static const juce::String coloursMagenta { "colours.magenta" };
 
         /** @brief ANSI colour 6 — cyan. */
-        inline static const juce::String coloursCyan         { "colours.cyan" };
+        inline static const juce::String coloursCyan { "colours.cyan" };
 
         /** @brief ANSI colour 7 — white. */
-        inline static const juce::String coloursWhite        { "colours.white" };
+        inline static const juce::String coloursWhite { "colours.white" };
 
         /** @brief ANSI colour 8 — bright black (dark grey). */
-        inline static const juce::String coloursBrightBlack   { "colours.bright_black" };
+        inline static const juce::String coloursBrightBlack { "colours.bright_black" };
 
         /** @brief ANSI colour 9 — bright red. */
-        inline static const juce::String coloursBrightRed     { "colours.bright_red" };
+        inline static const juce::String coloursBrightRed { "colours.bright_red" };
 
         /** @brief ANSI colour 10 — bright green. */
-        inline static const juce::String coloursBrightGreen   { "colours.bright_green" };
+        inline static const juce::String coloursBrightGreen { "colours.bright_green" };
 
         /** @brief ANSI colour 11 — bright yellow. */
-        inline static const juce::String coloursBrightYellow  { "colours.bright_yellow" };
+        inline static const juce::String coloursBrightYellow { "colours.bright_yellow" };
 
         /** @brief ANSI colour 12 — bright blue. */
-        inline static const juce::String coloursBrightBlue    { "colours.bright_blue" };
+        inline static const juce::String coloursBrightBlue { "colours.bright_blue" };
 
         /** @brief ANSI colour 13 — bright magenta. */
         inline static const juce::String coloursBrightMagenta { "colours.bright_magenta" };
 
         /** @brief ANSI colour 14 — bright cyan. */
-        inline static const juce::String coloursBrightCyan    { "colours.bright_cyan" };
+        inline static const juce::String coloursBrightCyan { "colours.bright_cyan" };
 
         /** @brief ANSI colour 15 — bright white. */
-        inline static const juce::String coloursBrightWhite   { "colours.bright_white" };
+        inline static const juce::String coloursBrightWhite { "colours.bright_white" };
 
         /** @brief Native window title bar string. */
-        inline static const juce::String windowTitle        { "window.title" };
+        inline static const juce::String windowTitle { "window.title" };
 
         /** @brief Initial (and persisted) window width in pixels. */
-        inline static const juce::String windowWidth        { "window.width" };
+        inline static const juce::String windowWidth { "window.width" };
 
         /** @brief Initial (and persisted) window height in pixels. */
-        inline static const juce::String windowHeight       { "window.height" };
+        inline static const juce::String windowHeight { "window.height" };
 
         /** @brief Native window background colour used for blur tint (hex string, no alpha). */
-        inline static const juce::String windowColour       { "window.colour" };
+        inline static const juce::String windowColour { "window.colour" };
 
         /** @brief Window translucency [0.0, 1.0]; 1.0 = fully opaque. */
-        inline static const juce::String windowOpacity      { "window.opacity" };
+        inline static const juce::String windowOpacity { "window.opacity" };
 
         /** @brief Background blur radius in points; 0 = no blur. */
-        inline static const juce::String windowBlurRadius   { "window.blur_radius" };
+        inline static const juce::String windowBlurRadius { "window.blur_radius" };
 
         /** @brief Whether the window floats above all other windows. */
-        inline static const juce::String windowAlwaysOnTop  { "window.always_on_top" };
+        inline static const juce::String windowAlwaysOnTop { "window.always_on_top" };
 
         /** @brief Whether native traffic-light window buttons are shown. */
-        inline static const juce::String windowButtons      { "window.buttons" };
+        inline static const juce::String windowButtons { "window.buttons" };
 
         /** @brief Persisted zoom multiplier in [zoomMin, zoomMax]. */
-        inline static const juce::String windowZoom         { "window.zoom" };
+        inline static const juce::String windowZoom { "window.zoom" };
 
         /** @brief Font family for the tab bar labels. */
         inline static const juce::String tabFamily { "tab.family" };
 
         /** @brief Font size in points for the tab bar labels; font is 75% of tab bar height. */
-        inline static const juce::String tabSize   { "tab.size" };
+        inline static const juce::String tabSize { "tab.size" };
 
         /** @brief Active tab text colour (hex string). */
         inline static const juce::String tabForeground { "tab.foreground" };
@@ -253,6 +251,12 @@ struct Config : jreng::Context<Config>
         /** @brief Active tab indicator line colour (hex string). */
         inline static const juce::String tabLine { "tab.line" };
 
+        /** @brief Active tab fill colour (hex string). */
+        inline static const juce::String tabActive { "tab.active" };
+
+        /** @brief Active tab indicator colour (hex string). */
+        inline static const juce::String tabIndicator { "tab.indicator" };
+
         /** @brief Popup menu background opacity (0.0–1.0). Applied as NSWindow tint alpha. */
         inline static const juce::String menuOpacity { "menu.opacity" };
 
@@ -260,7 +264,7 @@ struct Config : jreng::Context<Config>
         inline static const juce::String overlayFamily { "overlay.family" };
 
         /** @brief Font size in points for the MessageOverlay display. */
-        inline static const juce::String overlaySize   { "overlay.size" };
+        inline static const juce::String overlaySize { "overlay.size" };
 
         /** @brief Text colour for the MessageOverlay display (hex string). */
         inline static const juce::String overlayColour { "overlay.colour" };
@@ -272,24 +276,30 @@ struct Config : jreng::Context<Config>
         inline static const juce::String scrollbackNumLines { "scrollback.num_lines" };
 
         /** @brief Number of lines scrolled per mouse-wheel tick. */
-        inline static const juce::String scrollbackStep     { "scrollback.step" };
+        inline static const juce::String scrollbackStep { "scrollback.step" };
 
-        inline static const juce::String keysCopy           { "keys.copy" };
-        inline static const juce::String keysPaste          { "keys.paste" };
-        inline static const juce::String keysQuit           { "keys.quit" };
-        inline static const juce::String keysCloseTab       { "keys.close_tab" };
-        inline static const juce::String keysReload         { "keys.reload" };
-        inline static const juce::String keysZoomIn         { "keys.zoom_in" };
-        inline static const juce::String keysZoomOut        { "keys.zoom_out" };
-        inline static const juce::String keysZoomReset      { "keys.zoom_reset" };
-        inline static const juce::String keysNewTab         { "keys.new_tab" };
-        inline static const juce::String keysPrevTab        { "keys.prev_tab" };
-        inline static const juce::String keysNextTab        { "keys.next_tab" };
+        inline static const juce::String keysCopy { "keys.copy" };
+        inline static const juce::String keysPaste { "keys.paste" };
+        inline static const juce::String keysQuit { "keys.quit" };
+        inline static const juce::String keysCloseTab { "keys.close_tab" };
+        inline static const juce::String keysReload { "keys.reload" };
+        inline static const juce::String keysZoomIn { "keys.zoom_in" };
+        inline static const juce::String keysZoomOut { "keys.zoom_out" };
+        inline static const juce::String keysZoomReset { "keys.zoom_reset" };
+        inline static const juce::String keysNewTab { "keys.new_tab" };
+        inline static const juce::String keysPrevTab { "keys.prev_tab" };
+        inline static const juce::String keysNextTab { "keys.next_tab" };
+
+        /** @brief Key binding for horizontal split (side by side). */
+        inline static const juce::String keysSplitHorizontal { "keys.splitHorizontal" };
+
+        /** @brief Key binding for vertical split (stacked top/bottom). */
+        inline static const juce::String keysSplitVertical { "keys.splitVertical" };
     };
 
     //==============================================================================
     /**
-     * @brief Constructs Config: loads defaults, schema, end.lua, then state.lua.
+     * @brief Constructs Config: loads defaults, schema, then end.lua.
      *
      * If `~/.config/end/end.lua` does not exist it is created with an empty
      * `END = {}` table.  Errors from `end.lua` are stored in `loadError` and
@@ -378,37 +388,13 @@ struct Config : jreng::Context<Config>
     /**
      * @brief Resets to defaults and reloads `end.lua`.
      *
-     * Called by `Terminal::Component` on Cmd+R.  Does NOT reload `state.lua`
-     * (window size and zoom are preserved across reloads).
+     * Called by `Terminal::Component` on Cmd+R.  Window size and zoom are
+     * managed by `AppState` and preserved across reloads.
      *
      * @return The error/warning string from the reload, or empty if clean.
      * @see Terminal::Component::keyPressed
      */
     juce::String reload();
-
-    /**
-     * @brief Persists the current window dimensions to `state.lua`.
-     *
-     * Updates the in-memory `windowWidth` / `windowHeight` values and writes
-     * `state.lua` atomically.  Called from `ENDApplication::systemRequestedQuit()`
-     * and the `BackgroundBlur` close callback.
-     *
-     * @param width   Current window width in pixels.
-     * @param height  Current window height in pixels.
-     * @see saveZoom
-     */
-    void saveWindowSize (int width, int height);
-
-    /**
-     * @brief Persists the zoom multiplier to `state.lua`.
-     *
-     * Clamps @p zoom to `[zoomMin, zoomMax]` before storing.  Called by
-     * `Terminal::Component` on Cmd+= / Cmd+- / Cmd+0.
-     *
-     * @param zoom  Desired zoom multiplier (will be clamped).
-     * @see saveWindowSize
-     */
-    void saveZoom (float zoom);
 
     //==============================================================================
     /**
@@ -458,7 +444,12 @@ private:
     struct ValueSpec
     {
         /** @brief Expected Lua type for this key. */
-        enum class Type { string, number, boolean };
+        enum class Type
+        {
+            string,
+            number,
+            boolean
+        };
 
         /** @brief The expected Lua type. */
         Type expectedType;
@@ -501,14 +492,6 @@ private:
     void initSchema();
 
     /**
-     * @brief Loads `state.lua` and overlays `windowWidth`, `windowHeight`, `windowZoom`.
-     *
-     * Called at the end of the constructor, after `end.lua` has been loaded.
-     * State values take precedence over both defaults and `end.lua`.
-     */
-    void loadState();
-
-    /**
      * @brief Writes a minimal `END = {}` skeleton to @p file.
      *
      * Called when `end.lua` does not exist so the user has a valid starting
@@ -517,12 +500,6 @@ private:
      * @param file  The file to create (parent directory must already exist).
      */
     void writeDefaults (const juce::File& file) const;
-
-    /**
-     * @brief Returns the path to `~/.config/end/state.lua`.
-     * @return The state file path (may not exist yet).
-     */
-    juce::File getStateFile() const;
 
     //==============================================================================
     /** @brief Prefix prepended to all user-visible config error messages. */

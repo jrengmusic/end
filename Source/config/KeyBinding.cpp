@@ -41,7 +41,9 @@ void KeyBinding::loadFromConfig()
         Config::Key::keysZoomReset,
         Config::Key::keysNewTab,
         Config::Key::keysPrevTab,
-        Config::Key::keysNextTab
+        Config::Key::keysNextTab,
+        Config::Key::keysSplitHorizontal,
+        Config::Key::keysSplitVertical
     };
 
     for (const auto& actionID : keyIDs)
@@ -56,7 +58,7 @@ void KeyBinding::loadFromConfig()
 
 void KeyBinding::applyMappings()
 {
-    for (int cmd { static_cast<int> (CommandID::copy) }; cmd <= static_cast<int> (CommandID::nextTab); ++cmd)
+    for (int cmd { static_cast<int> (CommandID::copy) }; cmd <= static_cast<int> (CommandID::splitVertical); ++cmd)
     {
         const auto actionID { actionIDForCommand (static_cast<CommandID> (cmd)) };
         auto it { bindings.find (actionID) };
@@ -136,7 +138,7 @@ juce::KeyPress KeyBinding::parse (const juce::String& shortcutString)
 
 const juce::String& KeyBinding::actionIDForCommand (CommandID cmd)
 {
-    static const std::array<juce::String, 11> actionIDs
+    static const std::array<juce::String, 13> actionIDs
     {
         Config::Key::keysCopy,
         Config::Key::keysPaste,
@@ -148,18 +150,20 @@ const juce::String& KeyBinding::actionIDForCommand (CommandID cmd)
         Config::Key::keysZoomReset,
         Config::Key::keysNewTab,
         Config::Key::keysPrevTab,
-        Config::Key::keysNextTab
+        Config::Key::keysNextTab,
+        Config::Key::keysSplitHorizontal,
+        Config::Key::keysSplitVertical
     };
 
     const int idx { static_cast<int> (cmd) - 1 };
-    const int safeIdx { (idx >= 0 and idx < 11) ? idx : 0 };
+    const int safeIdx { (idx >= 0 and idx < 13) ? idx : 0 };
 
     return actionIDs.at (safeIdx);
 }
 
 KeyBinding::CommandID KeyBinding::commandForActionID (const juce::String& actionID)
 {
-    static const std::array<juce::String, 11> actionIDs
+    static const std::array<juce::String, 13> actionIDs
     {
         Config::Key::keysCopy,
         Config::Key::keysPaste,
@@ -171,10 +175,12 @@ KeyBinding::CommandID KeyBinding::commandForActionID (const juce::String& action
         Config::Key::keysZoomReset,
         Config::Key::keysNewTab,
         Config::Key::keysPrevTab,
-        Config::Key::keysNextTab
+        Config::Key::keysNextTab,
+        Config::Key::keysSplitHorizontal,
+        Config::Key::keysSplitVertical
     };
 
-    for (int i { 0 }; i < 11; ++i)
+    for (int i { 0 }; i < 13; ++i)
     {
         if (actionIDs.at (i) == actionID)
             return static_cast<CommandID> (i + 1);

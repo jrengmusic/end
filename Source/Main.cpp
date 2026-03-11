@@ -12,7 +12,8 @@
  *
  * ### Startup sequence
  * @code
- * Config ctor        → loads ~/.config/end/end.lua, then state.lua
+ * Config ctor        → loads ~/.config/end/end.lua
+ * AppState ctor      → loads ~/.config/end/state.xml (or creates defaults)
  * FontCollection ctor → loads font handles at default size
  * initialise()       → creates GlassWindow(new MainComponent())
  * @endcode
@@ -20,7 +21,7 @@
  * ### Shutdown sequence
  * `systemRequestedQuit()` is called by the OS (Cmd+Q, window close button, or
  * `JUCEApplication::quit()`).  Before quitting it snapshots the current window
- * dimensions into `state.lua` so the next launch restores the same size.
+ * dimensions into `state.xml` via `AppState` so the next launch restores the same size.
  *
  * @note The `START_JUCE_APPLICATION` macro at the bottom generates the platform
  *       `main()` / `WinMain()` entry point.
@@ -43,6 +44,7 @@
 
 #include <JuceHeader.h>
 #include "MainComponent.h"
+#include "AppState.h"
 #include "config/Config.h"
 #include "terminal/rendering/FontCollection.h"
 
@@ -141,12 +143,12 @@ public:
     /**
      * @brief Handles OS quit requests (Cmd+Q, window close, SIGTERM).
      *
-     * Saves the current window dimensions to `state.lua` before calling
-     * `quit()`, so the next launch restores the same size.
+     * Saves the application state to `state.xml` via `AppState` before
+     * calling `quit()`, so the next launch restores the same layout.
      *
      * @note MESSAGE THREAD — called by the OS or by `JUCEApplication::quit()`.
      *
-     * @see Config::saveWindowSize
+     * @see AppState::save
      */
     void systemRequestedQuit() override
     {
@@ -154,16 +156,20 @@ public:
         {
             if (auto* content { mainWindow->getContentComponent() })
             {
-                Config::getContext()->saveWindowSize (content->getWidth(), content->getHeight());
+                appState.setWindowSize (content->getWidth(), content->getHeight());
             }
         }
 
+        appState.save();
         quit();
     }
 
 private:
-    /** @brief Lua config singleton. Must be constructed before fontCollection. */
+    /** @brief Lua config singleton. Must be constructed before appState and fontCollection. */
     Config config;
+
+    /** @brief Application-level ValueTree. Must be constructed after config. */
+    AppState appState;
 
     /** @brief Pre-loaded font handles shared by the renderer. */
     FontCollection fontCollection;

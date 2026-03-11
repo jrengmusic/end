@@ -32,68 +32,36 @@
 /**
  * @brief Constructs MainComponent.
  *
- * Construction order:
+ * Member init order (declared in header):
+ * - `config`, `appState` — cached context references
+ * - `commandManager`, `keyBinding` — command dispatch
+ * - `terminalLookAndFeel` — application-wide LookAndFeel
+ * - `glRenderer` — OpenGL renderer
+ * - `fonts` — global font context (from config)
+ *
+ * Constructor body:
  * 1. `setOpaque(false)` — tells JUCE the component has transparency.
- * 2. Creates `Terminal::Tabs` with top orientation and adds initial tab.
- * 3. Registers this component with the command manager and adds key listener.
- * 4. Reads `windowWidth` / `windowHeight` from Config (which already applied
- *    `state.lua` overrides) and calls `setSize()`.
- * 5. Registers a `BackgroundBlur` close callback that persists the current
- *    window size to `state.lua` when the native close button is clicked.
+ * 2. `initialiseTabs()` — creates Tabs, attaches GL renderer, adds first tab.
+ * 3. `initialiseMessageOverlay()` — creates overlay, shows startup errors.
+ * 4. `buildCommandActions()` — populates command table, registers keybindings,
+ *    sets BackgroundBlur close callback.
+ * 5. `setSize()` — reads window dimensions from AppState.
+ * 6. `setDefaultLookAndFeel()` — applies terminalLookAndFeel to all children.
  *
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
 MainComponent::MainComponent()
 {
     setOpaque (false);
+    juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
 
-    const auto* cfg { Config::getContext() };
-
-    fonts = std::make_unique<Fonts> (cfg->getString (Config::Key::fontFamily),
-                                     cfg->getFloat (Config::Key::fontSize));
-
-    tabs = std::make_unique<Terminal::Tabs> (Terminal::Tabs::orientationFromString (
-        cfg->getString (Config::Key::tabPosition)));
-    addAndMakeVisible (tabs.get());
-
-    auto& lf { tabs->getTabLookAndFeel() };
-    juce::LookAndFeel::setDefaultLookAndFeel (&lf);
-
-    glRenderer.setComponents (tabs->getComponents());
-    glRenderer.setComponentPaintingEnabled (true);
-    glRenderer.attachTo (*this);
-
-    tabs->onRepaintNeeded = [this] { glRenderer.triggerRepaint(); };
-    tabs->addNewTab();
-
-    messageOverlay = std::make_unique<MessageOverlay>();
-    addChildComponent (messageOverlay.get());
-
+    //==============================================================================
+    initialiseTabs();
+    initialiseMessageOverlay();
     buildCommandActions();
 
-    commandManager.registerAllCommandsForTarget (this);
-    keyBinding.applyMappings();
-    addKeyListener (commandManager.getKeyMappings());
-
-    setSize (cfg->getInt (Config::Key::windowWidth),
-             cfg->getInt (Config::Key::windowHeight));
-
-    const auto& startupError { cfg->getLoadError() };
-
-    if (startupError.isNotEmpty())
-    {
-        juce::MessageManager::callAsync (
-            [this, error = startupError]
-            {
-                messageOverlay->showMessage (error);
-            });
-    }
-
-    jreng::BackgroundBlur::setCloseCallback (
-        [this]()
-        {
-            Config::getContext()->saveWindowSize (getWidth(), getHeight());
-        });
+    //==============================================================================
+    setSize (appState.getWindowWidth(), appState.getWindowHeight());
 }
 
 /**
@@ -106,15 +74,227 @@ MainComponent::MainComponent()
  */
 void MainComponent::resized()
 {
-    if (tabs != nullptr)
+    if (tabs)
         tabs->setBounds (getLocalBounds());
 
-    if (messageOverlay != nullptr)
+    showMessageOverlay();
+}
+
+/**
+ * @brief Clears the BackgroundBlur close callback.
+ *
+ * Passing `nullptr` prevents the lambda (which captures `this`) from being
+ * invoked after this component has been destroyed.
+ *
+ * @note MESSAGE THREAD — called during window teardown.
+ */
+MainComponent::~MainComponent()
+{
+    juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
+    jreng::BackgroundBlur::setCloseCallback (nullptr);
+    removeKeyListener (commandManager.getKeyMappings());
+    glRenderer.detach();
+}
+
+/**
+ * @brief Populates commandActions with one lambda per command.
+ * @note MESSAGE THREAD.
+ * @see commandActions
+ * @see perform()
+ */
+void MainComponent::buildCommandActions()
+{
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::copy),
+                        [this]() -> bool
+                        {
+                            tabs->copySelection();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::paste),
+                        [this]() -> bool
+                        {
+                            tabs->pasteClipboard();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::quit),
+                        [this]() -> bool
+                        {
+                            juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::closeTab),
+                        [this]() -> bool
+                        {
+                            tabs->closeActiveTab();
+                            if (tabs->getTabCount() == 0)
+                                juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::reload),
+                        [this]() -> bool
+                        {
+                            keyBinding.reload();
+                            commandManager.registerAllCommandsForTarget (this);
+                            keyBinding.applyMappings();
+                            const auto reloadError { config.reload() };
+                            tabs->applyConfig();
+                            terminalLookAndFeel.setColours();
+                            sendLookAndFeelChange();
+                            tabs->applyOrientation();
+                            if (reloadError.isEmpty())
+                                messageOverlay->showMessage ("RELOADED", 1000);
+                            else
+                                messageOverlay->showMessage (reloadError);
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomIn),
+                        [this]() -> bool
+                        {
+                            tabs->increaseZoom();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomOut),
+                        [this]() -> bool
+                        {
+                            tabs->decreaseZoom();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomReset),
+                        [this]() -> bool
+                        {
+                            tabs->resetZoom();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::newTab),
+                        [this]() -> bool
+                        {
+                            tabs->addNewTab();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::prevTab),
+                        [this]() -> bool
+                        {
+                            tabs->selectPreviousTab();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::nextTab),
+                        [this]() -> bool
+                        {
+                            tabs->selectNextTab();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::splitHorizontal),
+                        [this]() -> bool
+                        {
+                            tabs->splitHorizontal();
+                            return true;
+                        });
+
+    commandActions.add (static_cast<int> (KeyBinding::CommandID::splitVertical),
+                        [this]() -> bool
+                        {
+                            tabs->splitVertical();
+                            return true;
+                        });
+
+    //==============================================================================
+    commandManager.registerAllCommandsForTarget (this);
+    keyBinding.applyMappings();
+    addKeyListener (commandManager.getKeyMappings());
+
+    jreng::BackgroundBlur::setCloseCallback (
+        [this]()
+        {
+            appState.setWindowSize (getWidth(), getHeight());
+        });
+}
+
+//==============================================================================
+// juce::ApplicationCommandTarget implementation
+
+/**
+ * @brief Returns nullptr, indicating no next target.
+ * @note MESSAGE THREAD.
+ * @return Always nullptr.
+ */
+juce::ApplicationCommandTarget* MainComponent::getNextCommandTarget() { return nullptr; }
+
+/**
+ * @brief Populates the commands array with all registered command IDs.
+ * @note MESSAGE THREAD.
+ * @param commands Array to receive command IDs.
+ * @see commandDefs
+ */
+void MainComponent::getAllCommands (juce::Array<juce::CommandID>& commands)
+{
+    for (const auto& def : commandDefs)
+    {
+        commands.add (static_cast<int> (def.id));
+    }
+}
+
+/**
+ * @brief Populates ApplicationCommandInfo for the given command ID.
+ * @note MESSAGE THREAD.
+ * @param commandID The command to query.
+ * @param result Structure to receive command metadata.
+ * @see commandDefs
+ * @see keyBinding
+ */
+void MainComponent::getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result)
+{
+    for (const auto& def : commandDefs)
+    {
+        if (static_cast<int> (def.id) == commandID)
+        {
+            result.setInfo (def.name, def.description, def.category, 0);
+
+            if (const auto keypress { keyBinding.getBinding (def.id) }; keypress.isValid())
+                result.addDefaultKeypress (keypress.getKeyCode(), keypress.getModifiers());
+            break;
+        }
+    }
+}
+
+/**
+ * @brief Dispatches the command to its action lambda.
+ * @note MESSAGE THREAD.
+ * @param info Invocation details containing command ID.
+ * @return true if command was found and executed.
+ * @see commandActions
+ */
+bool MainComponent::perform (const juce::ApplicationCommandTarget::InvocationInfo& info)
+{
+    if (commandActions.contains (info.commandID))
+        return commandActions.get (info.commandID);
+
+    return false;
+}
+
+/**
+ * @brief Computes grid dimensions from font metrics and window bounds, displays "cols * rows" overlay.
+ * @note MESSAGE THREAD — called from resized().
+ * @see MessageOverlay
+ * @see fonts
+ */
+void MainComponent::showMessageOverlay()
+{
+    if (messageOverlay)
     {
         messageOverlay->setBounds (getLocalBounds());
 
-        const auto fm { Fonts::getContext()->calcMetrics (
-            Config::getContext()->getFloat (Config::Key::fontSize)) };
+        const auto fm { fonts.calcMetrics (config.getFloat (Config::Key::fontSize)) };
 
         if (fm.isValid())
         {
@@ -131,7 +311,7 @@ void MainComponent::resized()
             else if (orientation == juce::TabbedButtonBar::TabsAtRight)
                 content = content.withTrimmedRight (depth);
 
-            const int titleBarHeight { Config::getContext()->getBool (Config::Key::windowButtons) ? 24 : 0 };
+            const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? 24 : 0 };
             content.removeFromTop (titleBarHeight);
             content = content.reduced (10, 10);
 
@@ -140,160 +320,75 @@ void MainComponent::resized()
 
             if (cols > 0 and rows > 0 and isShowing())
             {
-                messageOverlay->showMessage (
-                    juce::String (cols) + " col * " + juce::String (rows) + " row", 1000);
+                messageOverlay->showMessage (juce::String (cols) + " col * " + juce::String (rows) + " row", 1000);
             }
         }
     }
 }
 
 /**
- * @brief Clears the BackgroundBlur close callback.
+ * @brief Creates Terminal::Tabs, attaches GL renderer, wires repaint callback, restores tabs.
  *
- * Passing `nullptr` prevents the lambda (which captures `this`) from being
- * invoked after this component has been destroyed.
+ * Reads the saved tab count from AppState. If tabs were saved, clears the
+ * TABS subtree and recreates that many tabs (addNewTab rebuilds the tree).
+ * Falls back to one tab if no saved state exists.
  *
- * @note MESSAGE THREAD — called during window teardown.
+ * @note MESSAGE THREAD.
+ * @see Terminal::Tabs
+ * @see glRenderer
+ * @see AppState
  */
-MainComponent::~MainComponent()
+void MainComponent::initialiseTabs()
 {
-    glRenderer.detach();
-    juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
-    messageOverlay.reset();
-    tabs.reset();
-    fonts.reset();
-    removeKeyListener (commandManager.getKeyMappings());
-    jreng::BackgroundBlur::setCloseCallback (nullptr);
-}
+    tabs = std::make_unique<Terminal::Tabs> (
+        Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
+    addAndMakeVisible (tabs.get());
 
-void MainComponent::buildCommandActions()
-{
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::copy),
-        [this]() -> bool
-        {
-            tabs->copySelection();
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::paste),
-        [this]() -> bool
-        {
-            tabs->pasteClipboard();
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::quit),
-        [this]() -> bool
-        {
-            juce::JUCEApplication::getInstance()->systemRequestedQuit();
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::closeTab),
-        [this]() -> bool
-        {
-            tabs->closeActiveTab();
-            if (tabs->getTabCount() == 0)
-                juce::JUCEApplication::getInstance()->systemRequestedQuit();
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::reload),
-        [this]() -> bool
-        {
-            keyBinding.reload();
-            commandManager.registerAllCommandsForTarget (this);
-            keyBinding.applyMappings();
-            const auto reloadError { Config::getContext()->reload() };
-            tabs->applyConfig();
-            tabs->getTabLookAndFeel().setColours();
-            tabs->sendLookAndFeelChange();
-            tabs->applyOrientation();
-            if (reloadError.isEmpty())
-                messageOverlay->showMessage ("RELOADED", 1000);
-            else
-                messageOverlay->showMessage (reloadError);
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomIn),
-        [this]() -> bool
-        {
-            tabs->increaseZoom();
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomOut),
-        [this]() -> bool
-        {
-            tabs->decreaseZoom();
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomReset),
-        [this]() -> bool
-        {
-            tabs->resetZoom();
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::newTab),
-        [this]() -> bool
-        {
-            tabs->addNewTab();
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::prevTab),
-        [this]() -> bool
-        {
-            tabs->selectPreviousTab();
-            return true;
-        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::nextTab),
-        [this]() -> bool
-        {
-            tabs->selectNextTab();
-            return true;
-        });
-}
-
-//==============================================================================
-// juce::ApplicationCommandTarget implementation
-
-juce::ApplicationCommandTarget* MainComponent::getNextCommandTarget()
-{
-    return nullptr;
-}
-
-void MainComponent::getAllCommands (juce::Array<juce::CommandID>& commands)
-{
-    for (const auto& def : commandDefs)
+    glRenderer.setComponentIterator ([this] (std::function<void (jreng::GLComponent&)> renderComponent)
     {
-        commands.add (static_cast<int> (def.id));
-    }
-}
-
-void MainComponent::getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result)
-{
-    for (const auto& def : commandDefs)
-    {
-        if (static_cast<int> (def.id) == commandID)
+        for (auto& terminal : tabs->getTerminals())
         {
-            result.setInfo (def.name, def.description, def.category, 0);
-            const auto kp { keyBinding.getBinding (def.id) };
-            if (kp.isValid())
-                result.addDefaultKeypress (kp.getKeyCode(), kp.getModifiers());
-            break;
+            if (terminal->isVisible())
+            {
+                renderComponent (*terminal);
+            }
         }
+    });
+    glRenderer.setComponentPaintingEnabled (true);
+    glRenderer.attachTo (*this);
+
+    tabs->onRepaintNeeded = [this]
+    {
+        glRenderer.triggerRepaint();
+    };
+
+    // TODO: State restoration disabled — fix after renderer and tabs cleanup
+    appState.getTabs().removeAllChildren (nullptr);
+    appState.setActiveTabIndex (0);
+    tabs->addNewTab();
+
+    sendLookAndFeelChange();
+}
+
+/**
+ * @brief Creates MessageOverlay, shows startup errors if any.
+ * @note MESSAGE THREAD.
+ * @see MessageOverlay
+ * @see Config::getLoadError()
+ */
+void MainComponent::initialiseMessageOverlay()
+{
+    messageOverlay = std::make_unique<MessageOverlay>();
+    addChildComponent (messageOverlay.get());
+
+    if (const auto& startupError { config.getLoadError() }; startupError.isNotEmpty())
+    {
+        juce::MessageManager::callAsync (
+            [this, error = startupError]
+            {
+                messageOverlay->showMessage (error);
+            });
     }
 }
 
-bool MainComponent::perform (const juce::ApplicationCommandTarget::InvocationInfo& info)
-{
-    if (commandActions.contains (info.commandID))
-        return commandActions.get (info.commandID);
 
-    return false;
-}
