@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-12
+**Last Updated:** 2026-03-12 (updated: pwd tracking, tab name, shellProgram, Shift+Enter CSI u, Windows config path)
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### Purpose
 
-END (Ephemeral Nexus Display) is a GPU-accelerated terminal emulator built with C++17 and JUCE. It renders terminal output through an OpenGL pipeline with FreeType/HarfBuzz text shaping and a glyph atlas cache.
+END (Ephemeral Nexus Display) is a GPU-accelerated, fully-featured terminal emulator built with C++17 and JUCE. Tabs, split panes, Lua configuration, prefix-key modal input. Renders terminal output through an OpenGL pipeline with FreeType/HarfBuzz text shaping and a glyph atlas cache.
 
 ### Architecture Philosophy
 
@@ -38,6 +38,8 @@ APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTr
 Source/
   Main.cpp                          Application entry, owns Config + MainWindow
   MainComponent.h/cpp               Root component, owns Fonts context, Tabs, ModalKeyBinding, MessageOverlay, GLRenderer
+  AppState.h/cpp                    Application state: ValueTree root, pwdValue (live cwd binding), active terminal tracking
+  AppIdentifier.h                   App-level ValueTree identifiers (END, WINDOW, TABS, TAB, PANES)
 
   config/
     Config.h/cpp                    Lua config loader, Context<Config> pattern
@@ -72,7 +74,7 @@ Source/
       State.h/cpp                   APVTS-style atomic + timer + ValueTree
       StateFlush.cpp                Timer flush implementation
       ValueTreeUtilities.h          ValueTree traversal helpers
-      Keyboard.h                    Keypress -> escape sequence mapping
+      Keyboard.h                    Keypress -> escape sequence mapping (includes Shift+Enter CSI u)
 
     logic/                          Terminal emulation (parser, grid, session)
       Session.h/cpp                 Orchestrator: owns State, Grid, Parser, TTY
@@ -143,8 +145,9 @@ modules/
 
 | Module | Location | Responsibility | Dependencies |
 |--------|----------|----------------|--------------|
-| Config | `config/` | Lua config load/save, Context-managed | sol2, jreng::Context |
-| Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, Config, PaneManager |
+| AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active terminal UUID | JUCE ValueTree, Terminal::ID |
+| Config | `config/` | Lua config load/save, Context-managed, platform config paths | sol2, jreng::Context |
+| Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, Config, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Data | `terminal/data/` | Pure value types, state atomics, IDs | JUCE ValueTree |
 | Logic | `terminal/logic/` | VT parsing, grid storage, session orchestration | Data |
@@ -384,6 +387,88 @@ When a pane is closed:
 2. `PaneManager::remove()` collapses the parent split node, promotes the sibling
 3. If last pane in tab: `Tabs::closeTab()` removes the tab
 4. If last tab: application quits
+
+---
+
+## Working Directory Tracking
+
+### AppState::pwdValue (Live CWD Binding)
+
+`AppState` holds a `juce::Value pwdValue` member that tracks the active terminal's current working directory via `Value::referTo`.
+
+**`setPwd(sessionTree)`** — Binds `pwdValue` to the `Terminal::ID::cwd` property of the given SESSION ValueTree:
+```cpp
+void setPwd (juce::ValueTree sessionTree);
+// Calls: pwdValue.referTo (sessionTree.getPropertyAsValue (Terminal::ID::cwd, nullptr))
+```
+
+**`getPwd()`** — Returns `pwdValue.toString()`, falls back to `$HOME` if empty.
+
+**Binding lifecycle:**
+- `Tabs::globalFocusChanged()` calls `setPwd(term->getValueTree())` when focus moves to a terminal
+- `Tabs::addNewTab()` calls `setPwd()` on the new terminal
+- New splits inherit cwd: `Panes::splitImpl()` passes `AppState::getContext()->getPwd()` to `createTerminal()`
+- New tabs inherit cwd: `Tabs::addNewTab()` passes `getPwd()` to `createTerminal()`
+
+**Critical pattern:** `Value::referTo` must bind to a **stored** `juce::Value` member, not a temporary. `getPropertyAsValue()` returns a temporary — calling `referTo` on a temporary does nothing.
+
+### Panes::createTerminal with Working Directory
+
+```cpp
+juce::String createTerminal (const juce::String& workingDirectory = {});
+```
+
+Passes `workingDirectory` through to `Terminal::Component::create()`, which constructs the terminal with the given cwd. Default empty string = inherit from environment.
+
+---
+
+## Tab Name Management
+
+### Value::Listener Pattern
+
+`Tabs` uses `juce::Value::Listener` (not `ValueTree::Listener`) to track the active terminal's display name:
+
+- **Member:** `juce::Value tabName` — bound via `referTo` to active terminal's `Terminal::ID::displayName`
+- **Binding:** `globalFocusChanged()` rebinds `tabName` when focus changes
+- **Update:** `valueChanged()` calls `setTabName()` on the tab bar
+
+### displayName Computation (State::flushStrings)
+
+`State::flushStrings()` computes `displayName` with priority:
+
+1. **foregroundProcess** — only when it differs from `shellProgram` (filters out "zsh", "bash", etc.)
+2. **cwd leaf** — `juce::File(cwdPath).getFileName()` (e.g., "end" from "/Users/me/dev/end")
+
+`Terminal::ID::shellProgram` is stored on the SESSION ValueTree at TTY open time (`Session::resized()`) so `flushStrings` can compare against it without crossing layers to Config.
+
+`title` (OSC 0/2) is NOT used in displayName computation — it's shell prompt noise that overrides everything else.
+
+### SESSION Node Identification
+
+SESSION nodes use `jreng::ID::id` (not a Terminal-specific UUID identifier). This makes SESSION nodes compatible with `jreng::ValueTree::getChildWithID()` — a recursive lookup utility in the jreng_data_structures module.
+
+---
+
+## Input Encoding
+
+### Shift+Enter (CSI u)
+
+`Keyboard::mapPlain` checks for Shift+Return before the `simpleKeys` lookup and sends `\x1b[13;2u` (CSI u / fixterms encoding) instead of plain `\r`. Matches Kitty/WezTerm/Ghostty behavior. Codepoint 13 = CR, modifier 2 = Shift.
+
+---
+
+## Platform Configuration
+
+### Config File Paths
+
+| Platform | Config path | State path |
+|----------|------------|------------|
+| macOS/Linux | `~/.config/end/end.lua` | `~/.config/end/state.xml` |
+| Windows | `%APPDATA%\end\end.lua` | `%APPDATA%\end\state.xml` |
+
+`Config::getConfigFile()` uses `juce::File::userApplicationDataDirectory` on Windows, `userHomeDirectory/.config/end/` on macOS/Linux. Creates directory and writes defaults if absent.
+
+`state.xml` (window size, zoom) is derived from the config file's parent directory.
 
 ---
 
@@ -664,9 +749,11 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 
 | Term | Definition |
 |------|------------|
+| AppState | Application-level ValueTree root; tracks active terminal UUID, pwd via Value::referTo |
 | AtlasGlyph | Cached rasterization result: texture UV rect, pixel dimensions, bearing |
 | BoxDrawing | Procedural rasterizer for box drawing, block elements, and braille — no font lookup |
 | Cell | 16-byte struct representing one terminal character position |
+| displayName | Derived tab label: foregroundProcess (when != shell) > cwd leaf name |
 | Embolden | Platform stroke-widening for bold: kCGTextFillStroke (macOS), FT_Outline_Embolden (Linux) |
 | FontCollection | Flat int8_t[0x110000] codepoint-to-font-slot dispatch table, O(1) lookup |
 | GlyphConstraint | Per-codepoint NF icon scaling/alignment descriptor applied at rasterization time |
@@ -682,11 +769,13 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
 | Panes | Per-tab component owning Terminal::Component instances and managing split layout via PaneManager |
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
+| pwdValue | juce::Value in AppState bound via referTo to active terminal's cwd property |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
+| shellProgram | Shell basename stored on SESSION at TTY open; used to filter displayName |
 | Snapshot | Pre-built GPU instance data (glyphs + backgrounds) for one frame |
 | StagedBitmap | Cross-thread upload packet: pixel data + atlas region + mono/emoji kind |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state |
-| Tabs | TabbedComponent subclass managing multiple Panes instances with configurable orientation |
+| Tabs | TabbedComponent subclass; Value::Listener for tabName, manages Panes instances |
 | VBlank | Display vertical blank — CVDisplayLink callback synced to monitor refresh |
 | Atlas | 4096x4096 texture containing rasterized glyphs, shelf-packed |
 

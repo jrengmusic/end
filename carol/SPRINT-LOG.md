@@ -125,6 +125,56 @@
 
 ## SPRINT HISTORY
 
+## Sprint 90: Document Reorganization + Roadmap Expansion
+
+**Date:** 2026-03-12
+**Role:** COUNSELOR
+
+### Agents Participated
+- COUNSELOR: Planning, document restructuring, roadmap authoring
+- Pathfinder (x1): Discovered current codebase state for ARCHITECTURE.md updates (AppState, Tabs, Identifier, State, Session, Keyboard, Config, Panes, TerminalComponent, AppIdentifier)
+
+### Objective
+
+Reorganize project documentation: separate implemented features (ARCHITECTURE.md) from future plans (SPEC.md). Extract detailed future specs to SPEC-details.md. Add 7 new feature specs to roadmap.
+
+### Files Modified (3)
+
+- **SPEC.md** — Rewritten as forward-looking roadmap (v0.4.0). Stripped all implemented feature documentation. Added 7 new feature specs: Keybinding Reorganization (unified action registry, global + modal, fully configurable), Command Palette (fuzzy search, native OS dialog), Tmux-Style Popup (user-defined popup terminals), File Opener / Flash-Jump (ls integration, hint labels like flash.nvim), Inline Image Rendering (Sixel + iTerm2 OSC 1337), Generalized GL Text Rendering Module (jreng_text extraction), WHELMED Integration (markdown + mermaid as juce::Component in split panes). Phases reorganized: Phase 3 = Keybinding + UX, Phase 4 = Rendering + Protocol, Phase 5 = Module Extraction + WHELMED. Updated overview: "fully-featured" replaces "minimalistic".
+
+- **SPEC-details.md** — NEW. Section 21 (Terminal State Serialization) extracted verbatim from old SPEC.md, renumbered as Section 1. Standalone detailed spec for future implementation.
+
+- **ARCHITECTURE.md** — Updated with recent session work:
+  - Module map: added `AppState.h/cpp`, `AppIdentifier.h`, updated `Keyboard.h` description
+  - Module inventory: added AppState row, updated Config and Component dependencies
+  - New section: Working Directory Tracking (AppState::pwdValue, Value::referTo pattern, binding lifecycle, Panes::createTerminal with workingDirectory)
+  - New section: Tab Name Management (Value::Listener pattern, displayName computation priority, shellProgram on SESSION, SESSION node identification via jreng::ID::id)
+  - New section: Input Encoding (Shift+Enter CSI u `\x1b[13;2u`)
+  - New section: Platform Configuration (config file paths per OS, Windows %APPDATA%)
+  - Glossary: added AppState, displayName, pwdValue, shellProgram; updated Tabs description
+  - Overview updated: "fully-featured" replaces "minimalistic"
+
+### Alignment Check
+- [x] LIFESTAR Single Source of Truth: ARCHITECTURE.md = current code, SPEC.md = future plans, no overlap
+- [x] LIFESTAR Findable: clear document hierarchy (SPEC -> SPEC-details -> ARCHITECTURE)
+- [x] LIFESTAR Explicit: each document has stated purpose and scope
+- [x] NAMING-CONVENTION adhered
+
+### Architecture Decisions
+- **Document separation principle**: implemented features documented in ARCHITECTURE.md only. SPEC.md is forward-looking only. Detailed future specs in SPEC-details.md.
+- **Phase reorganization**: Phases 3-5 restructured around feature clusters (UX, Protocol, Module Extraction) rather than arbitrary numbering.
+
+### Problems Solved
+1. **SPEC.md bloat** — was 1395 lines documenting both implemented and unimplemented features. Now ~500 lines, forward-looking only.
+2. **Stale SPEC** — implemented features in SPEC.md were not reflected in code and diverged from ARCHITECTURE.md. Eliminated by removing them from SPEC.md entirely.
+3. **Missing ARCHITECTURE.md sections** — pwd tracking, tab name management, Shift+Enter, Windows config path now documented.
+
+### Technical Debt / Follow-up
+1. **SPEC-details.md** — only contains serialization spec. Future detailed specs should be added here as sections.
+2. **Build not verified** — documentation-only changes, no code modified.
+
+---
+
 ## Sprint 89: Split Pane Bug Fixes + Codebase Audit + Documentation
 
 **Date:** 2026-03-12
@@ -406,96 +456,5 @@ KANJUT's `kuassa_opengl` had a cleaner encapsulation of the same lock-free snaps
 - Stale doc comment in `Screen.h` `Render::Snapshot` struct still references "Two `Snapshot` instances (`snapshotA`, `snapshotB`) are owned by `Screen`" at line ~237
 
 ---
-
-## Sprint 85: Comprehensive Doxygen Documentation + README + Grid Resize Crash Fix
-
-**Date:** 2026-03-07
-**Agents:** COUNSELOR, @pathfinder, @engineer
-
-### Objective
-
-Document the entire END codebase with Doxygen annotations (77 files across 6 phases), create a user-facing README.md, fix a crash in Grid::resize() that only resized the active screen buffer, and suppress the first-load resize overlay.
-
-### Changes
-
-**Grid Resize Crash Fix**
-
-`Source/terminal/logic/GridReflow.cpp` (lines 132-148)
-- `Grid::resize()` now resizes BOTH normal and alternate screen buffers on every resize
-- Previously only resized the active buffer. When on alternate screen (vim/opencode), the normal buffer kept stale dimensions. On screen switch back + erase, `clearRow()` used `phys * newCols` to index into graphemes allocated with `oldCols` — out-of-bounds crash.
-
-**First-Load Resize Overlay Suppressed**
-
-`Source/component/TerminalComponent.h`
-- Added `bool initialLayoutDone { false }` member
-
-`Source/component/TerminalComponent.cpp`
-- `resized()` skips showing the grid-size overlay on the very first layout pass
-- Sets `initialLayoutDone = true` after first pass
-
-**Comprehensive Doxygen Documentation (77 files)**
-
-All source files documented with `@file`, `@brief`, `@class`/`@struct`, `@param`, `@return`, `@note`, `@see`, thread context annotations (`@note AUDIO THREAD` / `@note UI THREAD` equivalent for terminal threads).
-
-Phase 1 — `Source/terminal/data/` (14 files):
-- `Cell.h`, `Charset.h`, `CharProps.h`, `CharPropsData.h`, `Grapheme.h`, `Keyboard.h`, `Palette.h`, `State.h`, `State.cpp`, `StateFlush.cpp`, `ValueTreeUtilities.h`, `GlyphConstraint.h`, `GlyphConstraintTable.cpp` (header comment only — generated file), `Selection.h`
-
-Phase 2 — `Source/terminal/logic/` (15 files):
-- `Grid.h`, `GridCursor.cpp`, `GridEdit.cpp`, `GridReflow.cpp`, `GridScroll.cpp`, `Parser.h`, `Parser.cpp`, `ParserCSI.cpp`, `ParserOps.cpp`, `ParserSGR.cpp`, `ParserVT.cpp`, `Session.h`, `Session.cpp`, `SessionIO.cpp`, `SessionResize.cpp`
-
-Phase 3 — `Source/terminal/tty/` (6 files):
-- `TTY.h`, `UnixTTY.h`, `UnixTTY.cpp`, `WindowsTTY.h`, `WindowsTTY.cpp`, `ConPTYDefinitions.h`
-
-Phase 4 — `Source/terminal/rendering/` (27 files):
-- `Screen.h`, `Screen.cpp`, `ScreenRender.cpp`, `ScreenSnapshot.cpp`, `ScreenSelection.cpp`, `TerminalGLRenderer.h`, `TerminalGLRenderer.cpp`, `GlyphAtlas.h`, `GlyphAtlas.cpp`, `GlyphAtlas.mm`, `AtlasPacker.h`, `BoxDrawing.h`, `Fonts.h`, `Fonts.cpp`, `Fonts.mm`, `FontsMetrics.cpp`, `FontsShaping.cpp`, `FontCollection.h`, `FontCollection.cpp`, `FontCollection.mm`, `Shaders.h`, `Shaders.cpp`, `TextShader.h`, `TextShader.cpp`, `BGShader.h`, `BGShader.cpp`, `CursorShader.h`
-
-Phase 5 — `Source/component/` + `Source/config/` + Main (9 files):
-- `TerminalComponent.h`, `TerminalComponent.cpp`, `CursorComponent.h`, `MessageOverlay.h`, `Config.h`, `Config.cpp`, `Main.cpp`, `MainComponent.h`, `MainComponent.cpp`
-
-Phase 6 — `modules/jreng_gui/glass/` (6 files):
-- `jreng_background_blur.h`, `jreng_background_blur.mm`, `jreng_glass_window.h`, `jreng_glass_window.cpp`, `jreng_glass_component.h`, `jreng_glass_component.cpp`
-
-**README.md — Created**
-- User-friendly style matching CAKE project reference
-- Sections: what/why, get started, configuration, keybinds, features, architecture overview, platform support
-
-**SPEC.md — Updated**
-- Selection overlay documented (transparent bg, `coloursSelection` config key)
-- Shift+scroll implemented status
-- State-only keys (`window.width`, `window.height`, `window.zoom`) documented
-- `window.buttons` config key added
-- Config persistence updated (writeState to state.lua)
-- File tree updated (removed table_serializer.lua)
-- Phase 2 checklist updated
-- GlassWindow constructor signature updated
-- Dates updated
-
-**ARCHITECTURE.md — Updated**
-- ScreenSelection overlay section added
-- Font Resize (Zoom) section added
-- Dates updated
-
-### Alignment Check
-
-- [x] LIFESTAR Lean: Doxygen annotations add zero runtime cost. Crash fix is 16 lines.
-- [x] LIFESTAR Explicit: Every public API now has documented intent, parameters, and thread context.
-- [x] LIFESTAR SSOT: Grid::resize() now maintains both buffers as single source of grid dimensions.
-- [x] LIFESTAR Findable: Doxygen `@see` cross-references connect related components. `@file` + `@brief` on every file.
-- [x] LIFESTAR Reviewable: Documentation follows consistent format across all 77 files.
-- [x] CODING-STANDARD: No code style changes in documentation pass. Crash fix follows all conventions.
-- [x] NAMING-CONVENTION: `initialLayoutDone` — semantic boolean name.
-
-### Problems Solved
-
-1. **Grid resize crash** — alternate buffer kept stale dimensions after resize, causing out-of-bounds access on screen switch back
-2. **First-load overlay flash** — resize overlay appeared briefly on initial window layout
-3. **Zero documentation** — entire codebase now has Doxygen annotations for IDE tooltips and future doc generation
-4. **No README** — project now has user-facing documentation
-
-### Technical Debt / Follow-up
-
-1. **Doxygen config file** — No `Doxyfile` exists yet. Would enable HTML/PDF doc generation from the annotations.
-2. **GlyphConstraintTable.cpp** — Only has `@file` header comment (generated file). Generator could emit Doxygen comments per switch arm.
-3. **jreng_core/ and jreng_graphics/ modules** — Not documented in this pass. Lower priority (stable utility code).
 
 ---
