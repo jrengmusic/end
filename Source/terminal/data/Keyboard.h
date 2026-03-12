@@ -225,7 +225,14 @@ private:
 
         if (simpleIt != simpleKeys.end())
         {
-            result = simpleIt->second;
+            if (mods.isShiftDown() and code == juce::KeyPress::returnKey)
+            {
+                result = juce::String ("\x1b[13;2u");
+            }
+            else
+            {
+                result = simpleIt->second;
+            }
         }
         else if (cursorIt != cursorKeys.end())
         {

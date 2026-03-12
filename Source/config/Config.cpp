@@ -249,16 +249,23 @@ Config::Config()
 }
 
 /**
- * @brief Returns the path to `~/.config/end/end.lua`, creating it if absent.
+ * @brief Returns the path to the config file, creating it if absent.
  *
- * Creates `~/.config/end/` if the directory does not exist, then writes a
+ * - macOS / Linux: `~/.config/end/end.lua`
+ * - Windows: `%APPDATA%/end/end.lua`
+ *
+ * Creates the directory if it does not exist, then writes a
  * minimal `END = {}` skeleton if `end.lua` is missing.
  *
  * @return The config file; guaranteed to exist after this call.
  */
 juce::File Config::getConfigFile() const
 {
+#if JUCE_WINDOWS
+    auto configDir { juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory).getChildFile ("end") };
+#else
     auto configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile (".config/end") };
+#endif
 
     if (not configDir.exists())
         configDir.createDirectory();

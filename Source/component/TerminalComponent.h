@@ -93,15 +93,17 @@ public:
     /**
      * @brief Creates a terminal, adds it to the parent and owner.
      *
-     * @param parent  The component to add the terminal to (addAndMakeVisible).
-     * @param bounds  The initial bounds for the terminal.
-     * @param owner   Ownership container for the terminal's lifetime.
+     * @param parent            The component to add the terminal to (addAndMakeVisible).
+     * @param bounds            The initial bounds for the terminal.
+     * @param owner             Ownership container for the terminal's lifetime.
+     * @param workingDirectory  Initial cwd for the shell. Empty = inherit parent cwd.
      * @return Raw pointer to the created terminal.
      * @note MESSAGE THREAD.
      */
     static Component* create (juce::Component& parent,
                               juce::Rectangle<int> bounds,
-                              jreng::Owner<Component>& owner);
+                              jreng::Owner<Component>& owner,
+                              const juce::String& workingDirectory = {});
 
     /** @brief Tears down listeners, detaches Screen, resets all children. */
     ~Component() override;

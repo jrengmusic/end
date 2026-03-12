@@ -145,9 +145,6 @@ namespace ID
     /** @brief Derived display name for the tab (computed from title, foregroundProcess, cwd). */
     static const juce::Identifier displayName         { "displayName" };
 
-    /** @brief Unique identifier for this terminal session. */
-    static const juce::Identifier uuid                { "uuid" };
-
     //==========================================================================
     // Mode parameter IDs (DEC terminal mode flags)
     //==========================================================================

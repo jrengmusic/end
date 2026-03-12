@@ -7,6 +7,7 @@
 
 #include "AppState.h"
 #include "config/Config.h"
+#include "terminal/data/Identifier.h"
 
 AppState::AppState()
     : state (App::ID::END)
@@ -186,6 +187,23 @@ void AppState::setActiveTerminalUuid (const juce::String& uuid)
     {
         tabs.setProperty (App::ID::activeTerminalUuid, uuid, nullptr);
     }
+}
+
+juce::String AppState::getPwd() const noexcept
+{
+    const auto cwd { pwdValue.toString() };
+
+    if (cwd.isNotEmpty())
+    {
+        return cwd;
+    }
+
+    return juce::File::getSpecialLocation (juce::File::userHomeDirectory).getFullPathName();
+}
+
+void AppState::setPwd (juce::ValueTree sessionTree)
+{
+    pwdValue.referTo (sessionTree.getPropertyAsValue (Terminal::ID::cwd, nullptr));
 }
 
 //==============================================================================

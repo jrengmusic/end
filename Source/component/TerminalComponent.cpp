@@ -44,15 +44,18 @@ Terminal::Component::Component()
               })
 {
     initialise();
-    session.getState().get().setProperty (Terminal::ID::uuid, juce::Uuid().toString(), nullptr);
+    session.getState().get().setProperty (jreng::ID::id, juce::Uuid().toString(), nullptr);
 }
 
 Terminal::Component* Terminal::Component::create (juce::Component& parent,
                                                    juce::Rectangle<int> bounds,
-                                                   jreng::Owner<Component>& owner)
+                                                   jreng::Owner<Component>& owner,
+                                                   const juce::String& workingDirectory)
 {
-    auto terminal { std::make_unique<Component>() };
-    const auto uuid { terminal->getValueTree().getProperty (Terminal::ID::uuid).toString() };
+    auto terminal { workingDirectory.isNotEmpty()
+                        ? std::make_unique<Component> (workingDirectory)
+                        : std::make_unique<Component>() };
+    const auto uuid { terminal->getValueTree().getProperty (jreng::ID::id).toString() };
     terminal->setComponentID (uuid);
     terminal->setBounds (bounds);
     parent.addChildComponent (terminal.get());
@@ -77,7 +80,7 @@ Terminal::Component::Component (const juce::String& workingDirectory)
 {
     session.setWorkingDirectory (workingDirectory);
     initialise();
-    session.getState().get().setProperty (Terminal::ID::uuid, juce::Uuid().toString(), nullptr);
+    session.getState().get().setProperty (jreng::ID::id, juce::Uuid().toString(), nullptr);
 }
 
 /**

@@ -37,12 +37,13 @@ Panes::~Panes() = default;
  * callbacks, registers it with PaneManager via addLeaf, and grafts its SESSION
  * ValueTree into the corresponding PANE node.
  *
+ * @param workingDirectory  Initial cwd for the shell. Empty = inherit parent cwd.
  * @return The UUID of the newly created terminal (its componentID).
  * @note MESSAGE THREAD.
  */
-juce::String Panes::createTerminal()
+juce::String Panes::createTerminal (const juce::String& workingDirectory)
 {
-    auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals) };
+    auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals, workingDirectory) };
     setTerminalCallbacks (term);
 
     const juce::String uuid { term->getComponentID() };
@@ -163,7 +164,7 @@ void Panes::splitImpl (const juce::String& direction, bool isVertical)
     const juce::String activeUuid { AppState::getContext()->getActiveTerminalUuid() };
     jassert (activeUuid.isNotEmpty());
 
-    auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals) };
+    auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals, AppState::getContext()->getPwd()) };
     setTerminalCallbacks (term);
 
     const juce::String newUuid { term->getComponentID() };

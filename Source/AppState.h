@@ -65,6 +65,9 @@ struct AppState : jreng::Context<AppState>
     juce::String getActiveTerminalUuid() const noexcept;
     void setActiveTerminalUuid (const juce::String& uuid);
 
+    juce::String getPwd() const noexcept;
+    void setPwd (juce::ValueTree sessionTree);
+
     //==============================================================================
 
     void save();
@@ -74,6 +77,7 @@ struct AppState : jreng::Context<AppState>
 
 private:
     juce::ValueTree state;
+    juce::Value pwdValue;
 
     void initDefaults();
 

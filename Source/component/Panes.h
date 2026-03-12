@@ -55,10 +55,11 @@ public:
      * owner. Wires callbacks, registers with PaneManager via addLeaf, and
      * grafts the SESSION ValueTree into the corresponding PANE node.
      *
+     * @param workingDirectory  Initial cwd for the shell. Empty = inherit parent cwd.
      * @return The UUID of the newly created terminal (its componentID).
      * @note MESSAGE THREAD.
      */
-    juce::String createTerminal();
+    juce::String createTerminal (const juce::String& workingDirectory = {});
 
     /**
      * @brief Access the owned terminals for GL iteration.

@@ -57,13 +57,14 @@ void Tabs::addNewTab()
     newPanes.onRepaintNeeded = onRepaintNeeded;
     addChildComponent (&newPanes);
 
-    const auto uuid { newPanes.createTerminal() };
+    const auto uuid { newPanes.createTerminal (AppState::getContext()->getPwd()) };
 
     auto tab { AppState::getContext()->addTab() };
     tab.removeChild (tab.getChildWithName (App::ID::PANES), nullptr);
     tab.appendChild (newPanes.getState(), nullptr);
 
     AppState::getContext()->setActiveTerminalUuid (uuid);
+    AppState::getContext()->setPwd (newPanes.getTerminals().back()->getValueTree());
 
     const int tabIndex { getNumTabs() };
     addTab ("~", juce::Colours::transparentBlack, nullptr, false, tabIndex);
@@ -112,8 +113,9 @@ void Tabs::globalFocusChanged (juce::Component* focusedComponent)
 {
     if (auto* term { dynamic_cast<Terminal::Component*> (focusedComponent) }; term != nullptr)
     {
-        const auto uuid { term->getValueTree().getProperty (Terminal::ID::uuid).toString() };
+        const auto uuid { term->getValueTree().getProperty (jreng::ID::id).toString() };
         AppState::getContext()->setActiveTerminalUuid (uuid);
+        AppState::getContext()->setPwd (term->getValueTree());
     }
 }
 
