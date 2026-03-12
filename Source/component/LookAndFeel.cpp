@@ -183,7 +183,7 @@ void LookAndFeel::drawTabButton (juce::TabBarButton& button, juce::Graphics& g, 
     }
 
     g.setFont (font);
-    g.setColour (isActive ? fgColour : inactiveColour);
+    g.setColour (isActive ? fgColour : (isMouseOver ? fgColour : inactiveColour));
 
     const float maxTextWidth { juce::TextLayout::getStringWidth (font, "M") * maxTabChars };
     auto text { button.getButtonText() };
@@ -414,12 +414,15 @@ juce::Font LookAndFeel::getTextButtonFont (juce::TextButton& button, int buttonH
     };
 }
 
-void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g, int w, int h,
-                                                    bool isVerticalBar, bool isMouseOver, bool isMouseDragging)
+void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
+                                                   int w,
+                                                   int h,
+                                                   bool isVerticalBar,
+                                                   bool isMouseOver,
+                                                   bool isMouseDragging)
 {
-    const auto colour { (isMouseOver or isMouseDragging)
-                        ? findColour (paneBarHighlightColourId)
-                        : findColour (paneBarColourId) };
+    const auto colour { (isMouseOver or isMouseDragging) ? findColour (paneBarHighlightColourId)
+                                                         : findColour (paneBarColourId) };
     g.setColour (colour);
 
     if (isVerticalBar)

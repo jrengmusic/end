@@ -209,6 +209,18 @@ namespace ID
 
     /** @brief Scroll Bottom - bottom margin row for scrolling region (inclusive). */
     static const juce::Identifier scrollBottom         { "scrollBottom" };
+
+    /** @brief DECSCUSR cursor shape (0=default, 1=blinking block, 2=steady block, 3=blinking underline, 4=steady underline, 5=blinking bar, 6=steady bar). */
+    static const juce::Identifier cursorShape         { "cursorShape" };
+
+    /** @brief OSC 12 cursor color red component (0-255). -1 = not set (use config default). */
+    static const juce::Identifier cursorColorR         { "cursorColorR" };
+
+    /** @brief OSC 12 cursor color green component (0-255). -1 = not set (use config default). */
+    static const juce::Identifier cursorColorG         { "cursorColorG" };
+
+    /** @brief OSC 12 cursor color blue component (0-255). -1 = not set (use config default). */
+    static const juce::Identifier cursorColorB         { "cursorColorB" };
 }
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

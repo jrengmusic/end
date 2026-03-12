@@ -104,6 +104,10 @@ static juce::ValueTree buildScreenNode (const juce::Identifier& nodeId)
     State::addParam (node, ID::wrapPending, 0.0f);
     State::addParam (node, ID::scrollTop, 0.0f);
     State::addParam (node, ID::scrollBottom, 0.0f);
+    State::addParam (node, ID::cursorShape, 0.0f);
+    State::addParam (node, ID::cursorColorR, -1.0f);
+    State::addParam (node, ID::cursorColorG, -1.0f);
+    State::addParam (node, ID::cursorColorB, -1.0f);
     return node;
 }
 
@@ -228,6 +232,25 @@ void State::setWrapPending (ActiveScreen s, bool v) noexcept     { storeAndFlush
 void State::setScrollTop (ActiveScreen s, int top) noexcept      { storeAndFlush (screenKey (s, ID::scrollTop), static_cast<float> (top)); }
 /** @note READER THREAD — key is built via `screenKey (s, ID::scrollBottom)`. */
 void State::setScrollBottom (ActiveScreen s, int bottom) noexcept { storeAndFlush (screenKey (s, ID::scrollBottom), static_cast<float> (bottom)); }
+
+void State::setCursorShape (ActiveScreen s, int shape) noexcept
+{
+    storeAndFlush (screenKey (s, ID::cursorShape), static_cast<float> (shape));
+}
+
+void State::setCursorColor (ActiveScreen s, int r, int g, int b) noexcept
+{
+    storeAndFlush (screenKey (s, ID::cursorColorR), static_cast<float> (r));
+    storeAndFlush (screenKey (s, ID::cursorColorG), static_cast<float> (g));
+    storeAndFlush (screenKey (s, ID::cursorColorB), static_cast<float> (b));
+}
+
+void State::resetCursorColor (ActiveScreen s) noexcept
+{
+    storeAndFlush (screenKey (s, ID::cursorColorR), -1.0f);
+    storeAndFlush (screenKey (s, ID::cursorColorG), -1.0f);
+    storeAndFlush (screenKey (s, ID::cursorColorB), -1.0f);
+}
 
 void State::setTitle (const char* ptr) noexcept
 {
@@ -400,6 +423,11 @@ int State::getScrollTop (ActiveScreen s) const noexcept
 int State::getScrollBottom (ActiveScreen s) const noexcept
 {
     return getRawValue<int> (screenKey (s, ID::scrollBottom));
+}
+
+int State::getCursorShape (ActiveScreen s) const noexcept
+{
+    return getRawValue<int> (screenKey (s, ID::cursorShape));
 }
 
 // --- Message thread (read from ValueTree, the SSOT) ---

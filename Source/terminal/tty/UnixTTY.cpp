@@ -281,8 +281,9 @@ int UnixTTY::read (char* buf, int maxBytes)
 /**
  * @brief Write bytes to the PTY master fd (keyboard input to the shell).
  *
- * A single `write()` syscall.  Returns `true` only if all @p len bytes were
- * accepted by the kernel.
+ * Retries on partial writes and EAGAIN/EWOULDBLOCK until all bytes are
+ * delivered or an unrecoverable error occurs.  This prevents bracketed
+ * paste sequences from being truncated when the PTY kernel buffer is full.
  *
  * @param buf  Data to write.
  * @param len  Number of bytes.
@@ -292,7 +293,27 @@ int UnixTTY::read (char* buf, int maxBytes)
  */
 bool UnixTTY::write (const char* buf, int len)
 {
-    return ::write (master, buf, len) == len;
+    int written { 0 };
+
+    while (written < len)
+    {
+        const auto result { ::write (master, buf + written, len - written) };
+
+        if (result > 0)
+        {
+            written += static_cast<int> (result);
+        }
+        else if (result == -1 and (errno == EAGAIN or errno == EWOULDBLOCK))
+        {
+            usleep (100);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**

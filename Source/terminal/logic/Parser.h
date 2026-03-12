@@ -1293,6 +1293,24 @@ private:
      */
     void handleMode (const CSI& params, bool enable) noexcept;
 
+    /** @brief Handles DECSCUSR (CSI Ps SP q) — set cursor style.
+     *  @param params  CSI parameters. Ps 0-6.
+     *  @note READER THREAD.
+     */
+    void handleCursorStyle (const CSI& params) noexcept;
+
+    /** @brief Handles OSC 12 — set cursor color.
+     *  @param data        Pointer to OSC payload after the command number separator.
+     *  @param dataLength  Length of the payload in bytes.
+     *  @note READER THREAD.
+     */
+    void handleOscCursorColor (const uint8_t* data, uint16_t dataLength) noexcept;
+
+    /** @brief Handles OSC 112 — reset cursor color to default.
+     *  @note READER THREAD.
+     */
+    void handleOscResetCursorColor() noexcept;
+
     /** @} */
 
     // =========================================================================

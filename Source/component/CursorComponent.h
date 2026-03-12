@@ -1,43 +1,21 @@
 /**
  * @file CursorComponent.h
- * @brief Cursor overlay component with blink, tinting, and colour-emoji support.
+ * @brief Cursor overlay with DECSCUSR shape support, OSC 12 color, and user glyph fallback.
  *
- * CursorComponent renders the terminal cursor as a JUCE component overlaid on
- * the terminal grid.  It is positioned and sized by `Terminal::Component::updateCursorBounds()`.
+ * Renders the terminal cursor as a JUCE component overlaid on the terminal grid.
+ * Supports three rendering modes:
  *
- * ### Cursor glyph
- * The cursor shape is any Unicode codepoint configured via `Config::Key::cursorChar`
- * (default: U+2588 FULL BLOCK █).  The glyph is rasterized at construction via
- * `Fonts::rasterizeToImage()` into `cursorAlpha`.
+ * 1. **User glyph** (DECSCUSR Ps=0 or cursor.force=true): any Unicode codepoint
+ *    from `cursor.char`, rasterized via `Fonts::rasterizeToImage()`.
+ * 2. **Geometric block** (DECSCUSR Ps=1/2): filled rectangle covering the full cell.
+ * 3. **Geometric underline** (DECSCUSR Ps=3/4): thin horizontal rect at cell bottom.
+ * 4. **Geometric bar** (DECSCUSR Ps=5/6): thin vertical rect at cell left edge.
  *
- * ### Colour emoji support
- * If `rasterizeToImage()` sets `colourEmoji = true`, the rasterized image
- * already contains full colour data and is used directly as `cursorImage`.
- * Otherwise `rebuildTintedImage()` tints the alpha-channel image with
- * `Config::Key::coloursCursor`.
- *
- * ### Wide cursor
- * `cursorWidth` tracks how many grid cells the cursor glyph spans (1 for
- * normal, 2 for double-width glyphs).  `Terminal::Component` multiplies the
- * cell width by this value when calling `setBounds()`.
- *
- * ### Blink
- * If `Config::Key::cursorBlink` is true, a `juce::Timer` toggles `cursorVisible`
- * at the configured interval.  `resetBlink()` restarts the timer and forces the
- * cursor visible — called on every keypress so the cursor is always visible
- * immediately after typing.
- *
- * ### ValueTree listener
- * Listens to the cursor state subtree for `cursorVisible` property changes
- * published by the VT parser (e.g. DECTCEM — DEC private mode 25).
+ * DECSCUSR odd Ps = blinking, even Ps = steady.
+ * OSC 12 overrides cursor color. OSC 112 resets to config default.
+ * `cursor.force = true` ignores all VT overrides.
  *
  * @note All methods are called on the **MESSAGE THREAD**.
- *
- * @see Terminal::Component
- * @see Fonts::rasterizeToImage
- * @see Config::Key::cursorChar
- * @see Config::Key::cursorBlink
- * @see Config::Key::coloursCursor
  */
 
 #pragma once
@@ -49,22 +27,7 @@
 
 /**
  * @class CursorComponent
- * @brief Cursor overlay: renders a Unicode glyph with blink and colour tinting.
- *
- * Inherits `juce::Component` for rendering, `juce::Timer` (private) for blink,
- * and `juce::ValueTree::Listener` (private) to react to DECTCEM visibility
- * changes published by the VT parser.
- *
- * @par Ownership
- * Owned by `Terminal::Component` as a `unique_ptr`.  The cursor state ValueTree
- * is borrowed (not owned); `rebindToScreen()` is called when the active screen
- * switches between primary and alternate.
- *
- * @par Thread context
- * **MESSAGE THREAD** — all public and private methods.
- *
- * @see Terminal::Component::updateCursorBounds
- * @see Terminal::Component::valueTreePropertyChanged
+ * @brief Cursor overlay: DECSCUSR geometric shapes + user glyph + blink + color override.
  */
 class CursorComponent
     : public juce::Component
@@ -73,144 +36,68 @@ class CursorComponent
 {
 public:
     /**
-     * @brief Constructs CursorComponent: rasterizes the cursor glyph and starts blink.
-     *
-     * Steps:
-     * 1. Reads `cursorChar`, `fontSize`, `coloursCursor`, and `cursorBlink` from Config.
-     * 2. Calls `Fonts::rasterizeToImage()` to produce `cursorAlpha`.
-     * 3. Computes `cursorWidth` (number of grid cells spanned by the glyph).
-     * 4. If colour emoji: uses `cursorAlpha` directly as `cursorImage`.
-     *    Otherwise: calls `rebuildTintedImage()` to tint with `cursorColour`.
-     * 5. Registers as a ValueTree listener on @p cursorState.
-     * 6. Starts the blink timer if `cursorBlink` is true.
-     *
-     * @param cursorState  The cursor state ValueTree subtree from Session.
+     * @brief Constructs CursorComponent: rasterizes user glyph, reads config, starts blink.
+     * @param cursorState  The cursor state ValueTree subtree (NORMAL or ALTERNATE).
      * @note MESSAGE THREAD.
      */
     CursorComponent (juce::ValueTree cursorState);
 
-    /**
-     * @brief Removes the ValueTree listener before destruction.
-     * @note MESSAGE THREAD.
-     */
+    /** @brief Removes the ValueTree listener. @note MESSAGE THREAD. */
     ~CursorComponent() override;
 
     /**
      * @brief Rebinds the ValueTree listener to a new screen's cursor state.
-     *
-     * Called by `Terminal::Component` when the active screen switches between
-     * primary and alternate (DEC private mode 1049).  Removes the listener from
-     * the old tree and adds it to @p screen.
-     *
-     * @param screen  The new cursor state ValueTree to listen to.
+     * @param screen  The new cursor state ValueTree.
      * @note MESSAGE THREAD.
      */
     void rebindToScreen (juce::ValueTree screen);
 
     /**
      * @brief Forces the cursor visible and restarts the blink timer.
-     *
-     * Called by `Terminal::Component::keyPressed()` on every keypress so the
-     * cursor is always visible immediately after typing, regardless of blink phase.
-     *
      * @note MESSAGE THREAD.
      */
     void resetBlink();
 
     /**
      * @brief Returns the number of grid cells spanned by the cursor glyph.
-     *
-     * 1 for normal-width glyphs, 2 for double-width glyphs.  Used by
-     * `Terminal::Component::updateCursorBounds()` to set the correct component width.
-     *
      * @return Cell width multiplier (1 or 2).
      */
     int getCellWidth() const noexcept;
 
     /**
-     * @brief Draws the cursor image if visible and valid.
-     *
-     * Stretches `cursorImage` to fill the component bounds using
-     * `RectanglePlacement::stretchToFit`.  Does nothing if `cursorVisible` is
-     * false (blink off) or if `cursorImage` is invalid.
-     *
-     * @param g  JUCE graphics context for this paint pass.
+     * @brief Draws the cursor: geometric rect for DECSCUSR, glyph for user custom.
+     * @param g  JUCE graphics context.
      * @note MESSAGE THREAD.
      */
     void paint (juce::Graphics& g) override;
 
 private:
-    /**
-     * @brief Toggles `cursorVisible` and triggers a repaint.
-     *
-     * Called by the JUCE timer at the configured blink interval.
-     * @note MESSAGE THREAD.
-     */
     void timerCallback() override;
-
-    /**
-     * @brief Reacts to `cursorVisible` property changes from the VT parser.
-     *
-     * Listens for `Terminal::ID::value` changes on `Terminal::ID::PARAM` nodes
-     * with `id == Terminal::ID::cursorVisible`.  Calls `setVisible()` to show or
-     * hide the component in response to DECTCEM (DEC private mode 25).
-     *
-     * @param tree      The ValueTree node that changed.
-     * @param property  The property identifier that changed.
-     * @note MESSAGE THREAD.
-     */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
-    /**
-     * @brief Rebuilds `cursorImage` by tinting `cursorAlpha` with `cursorColour`.
-     *
-     * Copies `cursorAlpha`, then iterates every pixel and replaces the colour
-     * with `cursorColour` while preserving the original alpha channel.  This
-     * produces a solid-colour cursor glyph at the configured tint colour.
-     *
-     * @note Only called for non-colour-emoji glyphs.  Colour emoji glyphs use
-     *       `cursorAlpha` directly as `cursorImage`.
-     */
     void rebuildTintedImage() noexcept;
+    void applyShape (int shape) noexcept;
+    juce::Colour getActiveColour() const noexcept;
 
     //==============================================================================
-    /** @brief The cursor state ValueTree subtree; source of DECTCEM visibility events. */
     juce::ValueTree cursorState;
 
-    /**
-     * @brief Alpha-channel rasterization of the cursor glyph at the configured size.
-     *
-     * For non-colour-emoji glyphs this is a greyscale alpha mask.  For colour
-     * emoji it contains full ARGB colour data and is used directly as `cursorImage`.
-     */
     juce::Image cursorAlpha;
-
-    /**
-     * @brief The final cursor image drawn by `paint()`.
-     *
-     * For colour emoji: same object as `cursorAlpha`.
-     * For normal glyphs: a tinted copy produced by `rebuildTintedImage()`.
-     */
     juce::Image cursorImage;
-
-    /**
-     * @brief Number of grid cells spanned by the cursor glyph (1 or 2).
-     *
-     * Computed at construction from the rasterized image width divided by the
-     * physical cell width.  Used by `Terminal::Component::updateCursorBounds()`.
-     */
     int cursorWidth { 1 };
 
-    /** @brief Tint colour applied to the cursor glyph (from `Config::Key::coloursCursor`). */
-    juce::Colour cursorColour;
+    juce::Colour configColour;
+    juce::Colour overrideColour;
+    bool hasColorOverride { false };
 
-    /**
-     * @brief Current blink state: @c true = cursor drawn, @c false = cursor hidden.
-     *
-     * Toggled by `timerCallback()` at the configured blink interval.
-     * Reset to @c true by `resetBlink()` on every keypress.
-     */
+    int currentShape { 0 };
+    bool forceUserCursor { false };
+
+    bool blinkEnabled { false };
+    int blinkInterval { 500 };
     bool cursorVisible { true };
+
+    static constexpr float cursorThickness { 0.15f };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CursorComponent)
 };
@@ -237,7 +124,10 @@ inline CursorComponent::CursorComponent (juce::ValueTree state)
         cursorWidth = (cursorAlpha.getWidth() + metrics.physCellW - 1) / metrics.physCellW;
     }
 
-    cursorColour = cfg->getColour (Config::Key::coloursCursor);
+    configColour = cfg->getColour (Config::Key::coloursCursor);
+    forceUserCursor = cfg->getBool (Config::Key::cursorForce);
+    blinkEnabled = cfg->getBool (Config::Key::cursorBlink);
+    blinkInterval = cfg->getInt (Config::Key::cursorBlinkInterval);
 
     if (colourEmoji)
     {
@@ -251,9 +141,9 @@ inline CursorComponent::CursorComponent (juce::ValueTree state)
     cursorState.addListener (this);
     setOpaque (false);
 
-    if (cfg->getBool (Config::Key::cursorBlink))
+    if (blinkEnabled)
     {
-        startTimer (cfg->getInt (Config::Key::cursorBlinkInterval));
+        startTimer (blinkInterval);
     }
 }
 
@@ -271,6 +161,51 @@ inline void CursorComponent::rebindToScreen (juce::ValueTree screen)
     cursorState.addListener (this);
 }
 
+inline juce::Colour CursorComponent::getActiveColour() const noexcept
+{
+    if (not forceUserCursor and hasColorOverride)
+    {
+        return overrideColour;
+    }
+
+    return configColour;
+}
+
+inline void CursorComponent::applyShape (int shape) noexcept
+{
+    if (not forceUserCursor)
+    {
+        currentShape = shape;
+
+        if (shape == 0)
+        {
+            if (blinkEnabled)
+            {
+                startTimer (blinkInterval);
+            }
+            else
+            {
+                stopTimer();
+            }
+        }
+        else
+        {
+            const bool shouldBlink { (shape % 2) != 0 };
+
+            if (shouldBlink)
+            {
+                startTimer (blinkInterval);
+            }
+            else
+            {
+                stopTimer();
+                cursorVisible = true;
+                repaint();
+            }
+        }
+    }
+}
+
 inline void CursorComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     if (property == Terminal::ID::value and tree.getType() == Terminal::ID::PARAM)
@@ -281,6 +216,59 @@ inline void CursorComponent::valueTreePropertyChanged (juce::ValueTree& tree, co
         {
             setVisible (static_cast<bool> (tree.getProperty (Terminal::ID::value)));
         }
+        else if (paramId == Terminal::ID::cursorShape.toString())
+        {
+            applyShape (static_cast<int> (tree.getProperty (Terminal::ID::value)));
+            repaint();
+        }
+        else if (paramId == Terminal::ID::cursorColorR.toString()
+              or paramId == Terminal::ID::cursorColorG.toString()
+              or paramId == Terminal::ID::cursorColorB.toString())
+        {
+            if (not forceUserCursor)
+            {
+                const auto findParam = [&] (const juce::Identifier& id) -> float
+                {
+                    float result { -1.0f };
+
+                    for (int i { 0 }; i < cursorState.getNumChildren(); ++i)
+                    {
+                        auto child { cursorState.getChild (i) };
+
+                        if (child.getType() == Terminal::ID::PARAM
+                            and child.getProperty (Terminal::ID::id).toString() == id.toString())
+                        {
+                            result = static_cast<float> (child.getProperty (Terminal::ID::value));
+                        }
+                    }
+
+                    return result;
+                };
+
+                const float r { findParam (Terminal::ID::cursorColorR) };
+                const float g { findParam (Terminal::ID::cursorColorG) };
+                const float b { findParam (Terminal::ID::cursorColorB) };
+
+                if (r >= 0.0f and g >= 0.0f and b >= 0.0f)
+                {
+                    hasColorOverride = true;
+                    overrideColour = juce::Colour (static_cast<uint8_t> (r),
+                                                   static_cast<uint8_t> (g),
+                                                   static_cast<uint8_t> (b));
+                }
+                else
+                {
+                    hasColorOverride = false;
+                }
+
+                if (currentShape == 0)
+                {
+                    rebuildTintedImage();
+                }
+
+                repaint();
+            }
+        }
     }
 }
 
@@ -289,7 +277,9 @@ inline void CursorComponent::resetBlink()
     cursorVisible = true;
 
     if (isTimerRunning())
+    {
         startTimer (getTimerInterval());
+    }
 
     repaint();
 }
@@ -298,6 +288,7 @@ inline void CursorComponent::rebuildTintedImage() noexcept
 {
     if (cursorAlpha.isValid())
     {
+        const juce::Colour tint { getActiveColour() };
         cursorImage = cursorAlpha.createCopy();
         juce::Image::BitmapData data (cursorImage, juce::Image::BitmapData::readWrite);
 
@@ -306,7 +297,7 @@ inline void CursorComponent::rebuildTintedImage() noexcept
             for (int x { 0 }; x < data.width; ++x)
             {
                 const juce::Colour src { data.getPixelColour (x, y) };
-                data.setPixelColour (x, y, cursorColour.withAlpha (src.getAlpha()));
+                data.setPixelColour (x, y, tint.withAlpha (src.getAlpha()));
             }
         }
     }
@@ -314,10 +305,51 @@ inline void CursorComponent::rebuildTintedImage() noexcept
 
 inline void CursorComponent::paint (juce::Graphics& g)
 {
-    if (cursorVisible and cursorImage.isValid())
+    if (cursorVisible)
     {
-        g.drawImage (cursorImage, getLocalBounds().toFloat(),
-                     juce::RectanglePlacement::stretchToFit);
+        const auto bounds { getLocalBounds().toFloat() };
+        const juce::Colour colour { getActiveColour() };
+
+        if (forceUserCursor or currentShape == 0)
+        {
+            if (cursorImage.isValid())
+            {
+                g.drawImage (cursorImage, bounds, juce::RectanglePlacement::stretchToFit);
+            }
+        }
+        else
+        {
+            g.setColour (colour);
+
+            switch (currentShape)
+            {
+                case 1:
+                case 2:
+                    g.fillRect (bounds);
+                    break;
+
+                case 3:
+                case 4:
+                {
+                    const float thickness { juce::jmax (1.0f, bounds.getHeight() * cursorThickness) };
+                    g.fillRect (bounds.getX(), bounds.getBottom() - thickness,
+                                bounds.getWidth(), thickness);
+                    break;
+                }
+
+                case 5:
+                case 6:
+                {
+                    const float thickness { juce::jmax (1.0f, bounds.getWidth() * cursorThickness) };
+                    g.fillRect (bounds.getX(), bounds.getY(),
+                                thickness, bounds.getHeight());
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
     }
 }
 

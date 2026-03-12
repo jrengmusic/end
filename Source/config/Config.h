@@ -146,6 +146,9 @@ struct Config : jreng::Context<Config>
         /** @brief Blink period in milliseconds (half-cycle on, half-cycle off). */
         inline static const juce::String cursorBlinkInterval { "cursor.blink_interval" };
 
+        /** @brief Whether to force user-configured cursor, ignoring DECSCUSR and OSC 12. */
+        inline static const juce::String cursorForce { "cursor.force" };
+
         /** @brief Default text foreground colour (hex or rgba string). */
         inline static const juce::String coloursForeground { "colours.foreground" };
 

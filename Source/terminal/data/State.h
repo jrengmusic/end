@@ -220,6 +220,31 @@ struct State : public juce::Timer
     void setScrollBottom (ActiveScreen s, int bottom) noexcept;
 
     /**
+     * @brief Sets the DECSCUSR cursor shape for the specified screen.
+     * @param s      Target screen.
+     * @param shape  DECSCUSR Ps value (0-6). 0 = default (user config).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setCursorShape (ActiveScreen s, int shape) noexcept;
+
+    /**
+     * @brief Sets the cursor color override from OSC 12.
+     * @param s  Target screen.
+     * @param r  Red component (0-255).
+     * @param g  Green component (0-255).
+     * @param b  Blue component (0-255).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setCursorColor (ActiveScreen s, int r, int g, int b) noexcept;
+
+    /**
+     * @brief Resets the cursor color override (OSC 112). Reverts to user config.
+     * @param s  Target screen.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void resetCursorColor (ActiveScreen s) noexcept;
+
+    /**
      * @brief Sets the window title from OSC 0/2 escape sequences.
      * @param ptr  Pointer to a null-terminated UTF-8 string owned by the caller.
      *             Must remain valid until the next flush.
@@ -328,6 +353,14 @@ struct State : public juce::Timer
      * @note READER THREAD — lock-free, noexcept.
      */
     int getScrollBottom (ActiveScreen s) const noexcept;
+
+    /**
+     * @brief Returns the DECSCUSR cursor shape for the specified screen.
+     * @param s  Target screen.
+     * @return DECSCUSR Ps value (0-6).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    int getCursorShape (ActiveScreen s) const noexcept;
 
     /** @} */
 

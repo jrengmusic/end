@@ -30,39 +30,14 @@ public:
 
         renderer = std::make_unique<GLRenderer>();
         renderer->attachTo (*this);
-        renderer->setComponentIterator ([this] (std::function<void (GLComponent&)> visit)
-        {
-            for (auto& comp : components)
-            {
-                if (comp != nullptr)
-                {
-                    if (auto* glComp = dynamic_cast<GLComponent*> (comp.get()))
-                        visit (*glComp);
-                }
-            }
-        });
 
         syncWithTarget();
     }
 
-    GLComponent* addGLComponent (std::unique_ptr<GLComponent> comp)
+    void setComponentIterator (GLRenderer::ComponentIterator iter)
     {
-        if (comp != nullptr)
-        {
-            auto& added { components.add (std::move (comp)) };
-            return static_cast<GLComponent*> (added.get());
-        }
-        return nullptr;
-    }
-
-    void removeGLComponent (GLComponent* comp)
-    {
-        if (comp != nullptr)
-        {
-            const int index { components.indexOf (comp) };
-            if (index >= 0)
-                components.remove (index);
-        }
+        if (renderer != nullptr)
+            renderer->setComponentIterator (std::move (iter));
     }
 
     void triggerRepaint()
@@ -98,7 +73,6 @@ private:
 
     std::unique_ptr<GLRenderer> renderer;
     juce::Component* targetComponent { nullptr };
-    jreng::Owner<juce::Component> components;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GLOverlay)

@@ -532,13 +532,62 @@ void Parser::oscDispatch (const uint8_t* payload, uint16_t length) noexcept
             switch (h.commandNumber)
             {
                 case 0:
-                case 2:     handleOscTitle (data, dataLength);     break;
-                case 7:     handleOscCwd (data, dataLength);       break;
-                case 52:    handleOscClipboard (data, dataLength); break;
+                case 2:     handleOscTitle (data, dataLength);        break;
+                case 7:     handleOscCwd (data, dataLength);          break;
+                case 12:    handleOscCursorColor (data, dataLength);  break;
+                case 52:    handleOscClipboard (data, dataLength);    break;
                 default:    break;
             }
         }
+
+        if (h.commandNumber == 112)
+        {
+            handleOscResetCursorColor();
+        }
     }
+}
+
+void Parser::handleOscCursorColor (const uint8_t* data, uint16_t dataLength) noexcept
+{
+    // READER THREAD
+    if (dataLength >= 7)
+    {
+        const juce::String colorStr { juce::String::fromUTF8 (reinterpret_cast<const char*> (data),
+                                                               static_cast<int> (dataLength)) };
+
+        if (colorStr.startsWith ("rgb:") and colorStr.length() >= 12)
+        {
+            const auto parts { juce::StringArray::fromTokens (colorStr.substring (4), "/", "") };
+
+            if (parts.size() == 3)
+            {
+                const int r { parts.getReference (0).getHexValue32() };
+                const int g { parts.getReference (1).getHexValue32() };
+                const int b { parts.getReference (2).getHexValue32() };
+
+                const int rr { parts.getReference (0).length() > 2 ? (r >> 8) : r };
+                const int gg { parts.getReference (1).length() > 2 ? (g >> 8) : g };
+                const int bb { parts.getReference (2).length() > 2 ? (b >> 8) : b };
+
+                state.setCursorColor (state.getScreen(),
+                                      juce::jlimit (0, 255, rr),
+                                      juce::jlimit (0, 255, gg),
+                                      juce::jlimit (0, 255, bb));
+            }
+        }
+        else if (colorStr.startsWith ("#") and colorStr.length() >= 7)
+        {
+            const juce::Colour c { juce::Colour::fromString ("FF" + colorStr.substring (1, 7)) };
+            state.setCursorColor (state.getScreen(),
+                                  c.getRed(), c.getGreen(), c.getBlue());
+        }
+    }
+}
+
+void Parser::handleOscResetCursorColor() noexcept
+{
+    // READER THREAD
+    state.resetCursorColor (state.getScreen());
 }
 
 // ============================================================================

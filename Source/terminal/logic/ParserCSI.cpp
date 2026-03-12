@@ -192,8 +192,22 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
         case 'n': reportCursorPosition (params);        break;
         case 'r': setScrollRegion (params);             break;
         case 'c': reportDeviceAttributes (isPrivate);   break;
+        case 'q':
+            if (interCount > 0 and inter[0] == ' ')
+                handleCursorStyle (params);
+            break;
         case 't': break;
         default:  break;
+    }
+}
+
+void Parser::handleCursorStyle (const CSI& params) noexcept
+{
+    const int ps { static_cast<int> (params.param (0, 0)) };
+
+    if (ps >= 0 and ps <= 6)
+    {
+        state.setCursorShape (state.getScreen(), ps);
     }
 }
 

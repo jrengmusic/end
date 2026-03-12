@@ -134,15 +134,15 @@ juce::KeyPress KeyBinding::parse (const juce::String& shortcutString)
                 if (fNum >= 1 and fNum <= 12)
                     keyCode = juce::KeyPress::F1Key + (fNum - 1);
             }
-            else if (token.length() == 1)
-            {
-                const char ch { static_cast<char> (token[0]) };
+        else if (token.length() == 1)
+        {
+            const char ch { static_cast<char> (token[0]) };
 
-                if (ch >= 'a' and ch <= 'z')
-                    keyCode = static_cast<int> (ch - 'a' + 'A');
-                else
-                    keyCode = static_cast<int> (ch);
-            }
+            if (ch >= 'a' and ch <= 'z')
+                keyCode = static_cast<int> (ch - 'a' + 'A');
+            else
+                keyCode = static_cast<int> (ch);
+        }
         }
     }
 

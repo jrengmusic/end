@@ -317,8 +317,9 @@ int WindowsTTY::read (char* buf, int maxBytes)
 /**
  * @brief Write bytes to the ConPTY input pipe (keyboard input to the shell).
  *
- * A single synchronous `WriteFile()` call.  Returns `true` only if all
- * @p len bytes were accepted.
+ * Retries on partial writes until all bytes are delivered or an
+ * unrecoverable error occurs.  This prevents bracketed paste sequences
+ * from being truncated when the pipe buffer is full.
  *
  * @param buf  Data to write.
  * @param len  Number of bytes.
@@ -328,8 +329,21 @@ int WindowsTTY::read (char* buf, int maxBytes)
  */
 bool WindowsTTY::write (const char* buf, int len)
 {
-    DWORD written { 0 };
-    return WriteFile (inputWriter, buf, len, &written, nullptr) and static_cast<int> (written) == len;
+    int totalWritten { 0 };
+
+    while (totalWritten < len)
+    {
+        DWORD written { 0 };
+
+        if (not WriteFile (inputWriter, buf + totalWritten, len - totalWritten, &written, nullptr))
+        {
+            return false;
+        }
+
+        totalWritten += static_cast<int> (written);
+    }
+
+    return true;
 }
 
 /**
