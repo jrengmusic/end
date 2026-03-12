@@ -42,6 +42,8 @@ struct KeyBinding
 
     static juce::KeyPress parse (const juce::String& shortcutString);
 
+    static bool isCommandKeyPress (const juce::KeyPress& key);
+
     static const juce::String& actionIDForCommand (CommandID cmd);
 
     static CommandID commandForActionID (const juce::String& actionID);

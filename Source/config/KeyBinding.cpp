@@ -84,6 +84,21 @@ void KeyBinding::applyMappings()
     }
 }
 
+bool KeyBinding::isCommandKeyPress (const juce::KeyPress& key)
+{
+    auto* cfg { Config::getContext() };
+
+    for (const auto& actionID : actionIDs)
+    {
+        const juce::KeyPress bound { parse (cfg->getString (actionID)) };
+
+        if (bound.isValid() and key == bound)
+            return true;
+    }
+
+    return false;
+}
+
 juce::KeyPress KeyBinding::parse (const juce::String& shortcutString)
 {
     juce::StringArray tokens;

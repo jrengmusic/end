@@ -14,6 +14,7 @@
 #include "TerminalComponent.h"
 #include "../AppState.h"
 #include "../config/Config.h"
+#include "../config/KeyBinding.h"
 #include "../config/ModalKeyBinding.h"
 
 /**
@@ -99,11 +100,7 @@ void Terminal::Component::initialise()
     screen.setTheme (cfg->buildTheme());
 
     const float savedZoom { AppState::getContext()->getWindowZoom() };
-
-    if (savedZoom > Config::zoomMin)
-    {
-        screen.setFontSize (dpiCorrectedFontSize() * savedZoom);
-    }
+    screen.setFontSize (dpiCorrectedFontSize() * savedZoom);
 
     cursor = std::make_unique<CursorComponent> (session.getCursorState());
 
@@ -305,15 +302,15 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
     }
     else
     {
-        const bool hasCommandModifier {
+        const bool isAppCommand {
 #if JUCE_MAC
             mods.isCommandDown()
 #else
-            mods.isCtrlDown()
+            KeyBinding::isCommandKeyPress (key)
 #endif
         };
 
-        if (not hasCommandModifier and not mods.isAltDown())
+        if (not isAppCommand and not mods.isAltDown())
         {
             clearSelectionAndScroll();
             session.handleKeyPress (key);

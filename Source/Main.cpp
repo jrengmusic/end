@@ -109,14 +109,6 @@ public:
      */
     void initialise (const juce::String& commandLine) override
     {
-        juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBook_ttf,
-                                                  BinaryData::DisplayMonoBook_ttfSize);
-        juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoMedium_ttf,
-                                                  BinaryData::DisplayMonoMedium_ttfSize);
-        juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBold_ttf,
-                                                  BinaryData::DisplayMonoBold_ttfSize);
-
-
         auto* cfg { Config::getContext() };
 
         mainWindow.reset (new jreng::GlassWindow (
@@ -173,6 +165,14 @@ private:
 
     /** @brief Pre-loaded font handles shared by the renderer. */
     FontCollection fontCollection;
+
+    /** @brief Embedded Display Mono typefaces; held alive for DirectWrite on Windows. */
+    struct DisplayMono
+    {
+        static inline auto book   { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBook_ttf,   BinaryData::DisplayMonoBook_ttfSize) };
+        static inline auto medium { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoMedium_ttf, BinaryData::DisplayMonoMedium_ttfSize) };
+        static inline auto bold   { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBold_ttf,   BinaryData::DisplayMonoBold_ttfSize) };
+    };
 
     /** @brief The native OS window; null before initialise() and after shutdown(). */
     std::unique_ptr<jreng::GlassWindow> mainWindow;

@@ -53,7 +53,6 @@
 MainComponent::MainComponent()
 {
     setOpaque (false);
-    juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
 
     //==============================================================================
     initialiseTabs();
@@ -62,6 +61,8 @@ MainComponent::MainComponent()
 
     //==============================================================================
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
+    setLookAndFeel (&terminalLookAndFeel);
+    juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
 }
 
 /**
@@ -306,7 +307,7 @@ void MainComponent::showMessageOverlay()
     {
         messageOverlay->setBounds (getLocalBounds());
 
-        const auto fm { fonts.calcMetrics (config.getFloat (Config::Key::fontSize)) };
+        const auto fm { fonts.calcMetrics (Terminal::Component::dpiCorrectedFontSize()) };
 
         if (fm.isValid())
         {

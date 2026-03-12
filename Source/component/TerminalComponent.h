@@ -340,6 +340,20 @@ public:
      */
     void initialise();
 
+    /** @brief Returns the config font size corrected for display DPI.
+     *  On Windows at 150% scale, divides by 1.5 so 14pt looks the same as Mac. */
+    static float dpiCorrectedFontSize() noexcept
+    {
+        const float raw { Config::getContext()->getFloat (Config::Key::fontSize) };
+#if JUCE_WINDOWS
+        const auto* display { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
+        const float scale { display != nullptr ? static_cast<float> (display->scale) : 1.0f };
+        return raw / scale;
+#else
+        return raw;
+#endif
+    }
+
 private:
     //==============================================================================
     /**
@@ -470,20 +484,6 @@ private:
      * traffic-light buttons occupy 24 px at the top of the component.
      */
     const int titleBarHeight { Config::getContext()->getBool (Config::Key::windowButtons) ? 24 : 0 };
-
-    /** @brief Returns the config font size corrected for display DPI.
-     *  On Windows at 150% scale, divides by 1.5 so 14pt looks the same as Mac. */
-    static float dpiCorrectedFontSize() noexcept
-    {
-        const float raw { Config::getContext()->getFloat (Config::Key::fontSize) };
-#if JUCE_WINDOWS
-        const auto* display { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
-        const float scale { display != nullptr ? static_cast<float> (display->scale) : 1.0f };
-        return raw / scale;
-#else
-        return raw;
-#endif
-    }
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Component)

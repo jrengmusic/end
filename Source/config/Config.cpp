@@ -112,8 +112,13 @@ void Config::initDefaults()
     values[Key::scrollbackNumLines] = 10000;
     values[Key::scrollbackStep] = 5;
 
+#if JUCE_MAC
     values[Key::keysCopy] = "cmd+c";
     values[Key::keysPaste] = "cmd+v";
+#else
+    values[Key::keysCopy] = "shift+ctrl+c";
+    values[Key::keysPaste] = "shift+ctrl+v";
+#endif
     values[Key::keysQuit] = "cmd+q";
     values[Key::keysCloseTab] = "cmd+w";
     values[Key::keysReload] = "cmd+r";
@@ -253,8 +258,7 @@ Config::Config()
 /**
  * @brief Returns the path to the config file, creating it if absent.
  *
- * - macOS / Linux: `~/.config/end/end.lua`
- * - Windows: `%APPDATA%/end/end.lua`
+ * - All platforms: `~/.config/end/end.lua`
  *
  * Creates the directory if it does not exist, then writes a
  * minimal `END = {}` skeleton if `end.lua` is missing.
@@ -263,11 +267,7 @@ Config::Config()
  */
 juce::File Config::getConfigFile() const
 {
-#if JUCE_WINDOWS
-    auto configDir { juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory).getChildFile ("end") };
-#else
     auto configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile (".config/end") };
-#endif
 
     if (not configDir.exists())
         configDir.createDirectory();
