@@ -6,10 +6,11 @@
  *
  *     END
  *     +-- WINDOW (width, height, zoom)
- *     +-- TABS (active, position)
+ *     +-- TABS (active, position, activeTerminalUuid)
  *         +-- TAB
- *             +-- PANES
- *                 +-- SESSION (terminal state, grafted from Terminal::State)
+ *             +-- PANES (direction, ratio)
+ *                 +-- PANE (uuid) | PANES (nested split)
+ *                     +-- SESSION (terminal state, grafted from Terminal::State)
  *
  * @see AppState
  * @see Terminal::ID (terminal-level identifiers in Source/terminal/data/Identifier.h)

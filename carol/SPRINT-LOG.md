@@ -125,6 +125,66 @@
 
 ## SPRINT HISTORY
 
+## Sprint 88: Binary Tree Split Panes + Prefix Key System
+
+**Date:** 2026-03-12
+**Role:** COUNSELOR
+
+### Agents Participated
+- COUNSELOR: Architecture decisions, planning, delegation, audit review
+- Engineer (x8): PaneResizerBar, PaneManager, Panes, Tabs, AppIdentifier, ModalKeyBinding, LookAndFeel, Config
+- Auditor (x1): Reviewed Panes rewrite — caught 3 critical bugs, 5 major style violations
+- Pathfinder (x1): Discovered all Panes API consumers before rewrite
+- Librarian (x1): Researched juce::StretchableLayoutResizerBar pattern
+
+### Files Modified (18 total)
+- `modules/jreng_gui/layout/jreng_pane_resizer_bar.h` — Rewritten: JUCE StretchableLayoutResizerBar pattern (PaneManager pointer + splitNode + isVertical), removed onDrag callback, added getSplitNode() getter
+- `modules/jreng_gui/layout/jreng_pane_resizer_bar.cpp` — Rewritten: mouseDown stores position from manager, mouseDrag calls setItemPosition, hasBeenMoved calls parent->resized()
+- `modules/jreng_gui/layout/jreng_pane_manager.h` — Rewritten: binary tree ValueTree, static templated layOut stores bounds (ID::x/y/width/height) on PANES nodes, getItemCurrentPosition/setItemPosition for drag, public identifiers
+- `modules/jreng_gui/layout/jreng_pane_manager.cpp` — Rewritten: addLeaf, split, remove (mutates in-place, never replaces state), getItemCurrentPosition/setItemPosition (pixel-to-ratio conversion), findLeaf recursive search
+- `Source/component/Panes.h` — Rewritten: removed ValueTree::Listener, isVertical, hasSplitDirection, rebuildLayout, findSplitBounds; added closePane, focusPane, findPaneNode
+- `Source/component/Panes.cpp` — Rewritten: createTerminal grafts SESSION into PANE node, splitVertical/splitHorizontal create PaneResizerBar with manager+splitNode, closePane removes stale bar via getRoot() check, focusPane spatial nearest-neighbour lookup
+- `Source/component/Tabs.h` — Added focusPaneLeft/Down/Up/Right declarations
+- `Source/component/Tabs.cpp` — Updated valueTreePropertyChanged (ancestor walk for nested SESSION), closeActiveTab (pane>tab>window close order), added focusPaneLeft/Down/Up/Right forwarding
+- `Source/AppIdentifier.h` — Updated schema comment to reflect PANES > PANE > SESSION tree structure
+- `Source/component/TerminalComponent.cpp` — Added ModalKeyBinding intercept at top of keyPressed
+- `Source/MainComponent.h` — Added ModalKeyBinding include and member
+- `Source/MainComponent.cpp` — Wired modalKeyBinding actions (paneLeft/Down/Up/Right), reload re-wires actions
+- `Source/component/LookAndFeel.h` — Added paneBarColourId/paneBarHighlightColourId to ColourIds, drawStretchableLayoutResizerBar override
+- `Source/component/LookAndFeel.cpp` — Added setColour for pane bar colours, drawStretchableLayoutResizerBar draws centred line with colour/highlight
+- `Source/config/Config.h` — Added keys: keysPrefix, keysPrefixTimeout, keysPaneLeft/Down/Up/Right, paneBarColour, paneBarHighlight
+- `Source/config/Config.cpp` — Added defaults + schema for all new keys, writeDefaults rewritten to output full documented end.lua with all config keys and comments
+- `Source/config/ModalKeyBinding.h` — NEW: prefix-key modal keybinding, Context singleton, Timer timeout, state machine (idle/waiting), Action enum, setAction
+- `Source/config/ModalKeyBinding.cpp` — NEW: handleKeyPress state machine, loadFromConfig parses prefix + action keys via KeyBinding::parse, timerCallback returns to idle
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+
+### Architecture Decisions
+- **PaneManager owns ValueTree as SSOT** for binary tree split structure
+- **PANE > SESSION grafting**: SESSION (terminal state) grafted as child of PANE (layout leaf) at graft time. PaneManager ignores SESSION children during layout
+- **PaneManager::remove() mutates in-place**: never replaces root state object, preserving listener registrations
+- **JUCE StretchableLayoutResizerBar pattern**: PaneResizerBar holds PaneManager pointer + splitNode ValueTree. layOut stores bounds on PANES nodes. getItemCurrentPosition/setItemPosition convert between pixels and ratio
+- **ModalKeyBinding as Context singleton**: parallel to KeyBinding, handles two-key prefix sequences with configurable timeout
+- **Spatial focus navigation**: Panes::focusPane uses component centre distances, no tree-based slot computation
+- **Cmd+W close order**: pane > tab > window, handled in Tabs::closeActiveTab
+
+### Problems Solved
+- PaneManager::remove() was replacing `state` member, orphaning ValueTree listeners — fixed to mutate in-place
+- findSplitBounds was using manual boolean flag and union with (0,0,0,0) — eliminated entirely when switching to JUCE resizer pattern
+- onDrag callback approach pushed ratio computation complexity into Panes — eliminated by adopting JUCE's setItemPosition pattern where PaneManager owns the conversion
+
+### Technical Debt / Follow-up
+- ModalKeyBinding.h/.cpp need adding to Projucer/CMake source list
+- Not yet built or tested — needs build validation
+- PLAN.md needs updating to reflect final architecture (SESSION grafting into PANE, ModalKeyBinding)
+- State persistence/restore from XML not yet tested with new tree structure
+- No visual indicator for prefix mode active state
+
+---
+
 ## Sprint 87: Tab System + Fonts Context Refactor + LookAndFeel Colour System
 
 **Date:** 2026-03-10

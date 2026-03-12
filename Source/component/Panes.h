@@ -5,12 +5,12 @@
  * Terminal::Panes subclasses juce::Component to provide a paned layout
  * where one or more terminal sessions are hosted side-by-side or stacked.
  * Each pane owns exactly one Terminal::Component. The ValueTree defines
- * hierarchy (TAB > PANES > SESSION).
+ * hierarchy (TAB > PANES > PANE > SESSION).
  *
  * @par Ownership
  * Terminals are owned by `jreng::Owner<Terminal::Component>`. Each terminal's
- * componentID is set to its UUID for lookup. The PANES ValueTree is grafted
- * into the application state tree by the owning Tab.
+ * componentID is set to its UUID for lookup. The PANES ValueTree is owned by
+ * PaneManager and grafted into the application state tree by the owning Tab.
  *
  * @see Terminal::Component
  * @see Terminal::Tabs
@@ -51,7 +51,8 @@ public:
      * @brief Create a new terminal session in this pane.
      *
      * Creates a new Terminal::Component, adds it to the terminals owner,
-     * wires callbacks, and appends its SESSION ValueTree to the PANES state.
+     * wires callbacks, registers it with PaneManager via addLeaf, and grafts
+     * its SESSION ValueTree into the corresponding PANE node.
      *
      * @return The UUID of the newly created terminal (its componentID).
      * @note MESSAGE THREAD.
@@ -72,10 +73,10 @@ public:
     /**
      * @brief Access the PANES ValueTree for attachment to AppState.
      *
-     * The returned tree has type App::ID::PANES and accumulates SESSION
-     * children as terminals are created.
+     * Delegates to PaneManager::getState(). The returned tree has type PANES
+     * and contains the binary split-pane hierarchy.
      *
-     * @return Reference to the PANES ValueTree.
+     * @return Reference to the PANES ValueTree owned by PaneManager.
      * @note MESSAGE THREAD.
      */
     juce::ValueTree& getState() noexcept;
@@ -91,21 +92,43 @@ public:
     std::function<void()> onRepaintNeeded;
 
     /**
-     * @brief Split the active pane vertically (side by side columns).
+     * @brief Close the pane with the given uuid.
+     *
+     * Removes the terminal, its resizer bar, and updates PaneManager.
+     * 
+     * @param uuid The componentID of the terminal to close.
      * @note MESSAGE THREAD.
      */
-    void splitVertical();
+    void closePane (const juce::String& uuid);
 
     /**
-     * @brief Split the active pane horizontally (stacked rows).
+     * @brief Split the active pane horizontally (side by side columns).
      * @note MESSAGE THREAD.
      */
     void splitHorizontal();
 
     /**
+     * @brief Split the active pane vertically (stacked rows).
+     * @note MESSAGE THREAD.
+     */
+    void splitVertical();
+
+    /**
+     * @brief Focus the nearest pane in the given direction.
+     *
+     * Spatial lookup based on terminal component bounds.
+     *
+     * @param deltaX  -1 for left, +1 for right, 0 for vertical.
+     * @param deltaY  -1 for up, +1 for down, 0 for horizontal.
+     * @note MESSAGE THREAD.
+     */
+    void focusPane (int deltaX, int deltaY);
+
+    /**
      * @brief Handle component resize events.
      *
-     * Lays out all visible terminals within the component bounds.
+     * Delegates to PaneManager::layOut to recursively position all terminals
+     * and resizer bars according to the binary split tree.
      *
      * @note MESSAGE THREAD.
      */
@@ -130,19 +153,20 @@ private:
     void setTerminalCallbacks (Terminal::Component* terminal);
 
     /**
-     * @brief Rebuild the PaneManager layout and resizer bars for the current terminal count.
+     * @brief Find a PANE node by uuid in the given tree.
+     *
+     * Recursively walks the tree. Returns an invalid ValueTree if not found.
+     *
+     * @param root  Root of the tree to search.
+     * @param uuid  UUID to match against the "uuid" property.
+     * @return The matching PANE ValueTree, or an invalid ValueTree.
      * @note MESSAGE THREAD.
      */
-    void rebuildLayout();
+    static juce::ValueTree findPaneNode (const juce::ValueTree& root, const juce::String& uuid);
 
     jreng::Owner<Terminal::Component> terminals;
     jreng::PaneManager paneManager;
     jreng::Owner<jreng::PaneResizerBar> resizerBars;
-    juce::ValueTree state;
-
-    bool isVertical { true };
-    bool hasSplitDirection { false };
-    static constexpr int resizerBarSize { 4 };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Panes)

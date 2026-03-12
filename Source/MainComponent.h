@@ -43,6 +43,7 @@
 #include "component/Tabs.h"
 #include "config/Config.h"
 #include "config/KeyBinding.h"
+#include "config/ModalKeyBinding.h"
 #include "terminal/rendering/Fonts.h"
 
 /**
@@ -141,9 +142,7 @@ private:
         { KeyBinding::CommandID::zoomReset, "Zoom Reset",   "Reset font size to default",  "View"        },
         { KeyBinding::CommandID::newTab,    "New Tab",      "Open a new terminal tab",     "Tabs"        },
         { KeyBinding::CommandID::prevTab,   "Previous Tab", "Switch to previous tab",      "Tabs"        },
-        { KeyBinding::CommandID::nextTab,          "Next Tab",         "Switch to next tab",          "Tabs"  },
-        { KeyBinding::CommandID::splitHorizontal, "Split Horizontal", "Split pane horizontally",     "Panes" },
-        { KeyBinding::CommandID::splitVertical,   "Split Vertical",   "Split pane vertically",       "Panes" }
+        { KeyBinding::CommandID::nextTab,          "Next Tab",         "Switch to next tab",          "Tabs"  }
     };
 
     /**
@@ -169,6 +168,9 @@ private:
 
     /** @brief Key binding resolver; reads shortcuts from `config.lua`. */
     KeyBinding keyBinding { commandManager };
+
+    /** @brief Modal key binding resolver; handles prefix-key sequences from `config.lua`. */
+    ModalKeyBinding modalKeyBinding;
 
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
     Terminal::LookAndFeel terminalLookAndFeel;

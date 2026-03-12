@@ -125,15 +125,17 @@ void Tabs::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
 
         for (auto& p : panes)
         {
-            auto& panesState { p->getState() };
+            auto parent { tree.getParent() };
 
-            for (int i { 0 }; i < panesState.getNumChildren(); ++i)
+            while (parent.isValid())
             {
-                if (panesState.getChild (i) == tree)
+                if (parent == p->getState())
                 {
                     getTabbedButtonBar().setTabName (tabIndex, tree.getProperty (property).toString());
                     return;
                 }
+
+                parent = parent.getParent();
             }
 
             ++tabIndex;
@@ -156,19 +158,50 @@ void Tabs::closeActiveTab()
     if (index >= 0 and index < static_cast<int> (panes.size()))
     {
         auto* activePanes { panes.at (index).get() };
-        removeChildComponent (activePanes);
-        panes.erase (panes.begin() + index);
 
-        removeTab (index);
-        AppState::getContext()->removeTab (index);
-
-        if (not panes.isEmpty())
+        if (activePanes->getTerminals().size() > 1)
         {
-            const int newIndex { (index > 0) ? index - 1 : 0 };
-            setCurrentTabIndex (newIndex);
-        }
+            const juce::String uuid { AppState::getContext()->getActiveTerminalUuid() };
 
-        updateTabBarVisibility();
+            int closedIndex { 0 };
+
+            for (size_t i { 0 }; i < activePanes->getTerminals().size(); ++i)
+            {
+                if (activePanes->getTerminals().at (i)->getComponentID() == uuid)
+                {
+                    closedIndex = static_cast<int> (i);
+                    break;
+                }
+            }
+
+            activePanes->closePane (uuid);
+
+            if (not activePanes->getTerminals().isEmpty())
+            {
+                const int nextIndex { juce::jmin (closedIndex, static_cast<int> (activePanes->getTerminals().size()) - 1) };
+                auto* nearest { activePanes->getTerminals().at (static_cast<size_t> (nextIndex)).get() };
+                AppState::getContext()->setActiveTerminalUuid (nearest->getComponentID());
+
+                if (nearest->isShowing())
+                    nearest->grabKeyboardFocus();
+            }
+        }
+        else
+        {
+            removeChildComponent (activePanes);
+            panes.erase (panes.begin() + index);
+
+            removeTab (index);
+            AppState::getContext()->removeTab (index);
+
+            if (not panes.isEmpty())
+            {
+                const int newIndex { (index > 0) ? index - 1 : 0 };
+                setCurrentTabIndex (newIndex);
+            }
+
+            updateTabBarVisibility();
+        }
     }
 }
 
@@ -279,11 +312,11 @@ void Tabs::resetZoom()
         t->resetZoom();
 }
 
-void Tabs::splitVertical()
+void Tabs::splitHorizontal()
 {
     if (auto* active { getActivePanes() })
     {
-        active->splitVertical();
+        active->splitHorizontal();
 
         auto& terminals { active->getTerminals() };
 
@@ -297,11 +330,11 @@ void Tabs::splitVertical()
     }
 }
 
-void Tabs::splitHorizontal()
+void Tabs::splitVertical()
 {
     if (auto* active { getActivePanes() })
     {
-        active->splitHorizontal();
+        active->splitVertical();
 
         auto& terminals { active->getTerminals() };
 
@@ -428,6 +461,30 @@ juce::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::Stri
         return juce::TabbedButtonBar::TabsAtRight;
 
     return juce::TabbedButtonBar::TabsAtLeft;
+}
+
+void Tabs::focusPaneLeft()
+{
+    if (auto* active { getActivePanes() })
+        active->focusPane (-1, 0);
+}
+
+void Tabs::focusPaneDown()
+{
+    if (auto* active { getActivePanes() })
+        active->focusPane (0, 1);
+}
+
+void Tabs::focusPaneUp()
+{
+    if (auto* active { getActivePanes() })
+        active->focusPane (0, -1);
+}
+
+void Tabs::focusPaneRight()
+{
+    if (auto* active { getActivePanes() })
+        active->focusPane (1, 0);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -140,6 +140,19 @@ void MainComponent::buildCommandActions()
                             keyBinding.reload();
                             commandManager.registerAllCommandsForTarget (this);
                             keyBinding.applyMappings();
+                            modalKeyBinding.reload();
+                            modalKeyBinding.setAction (ModalKeyBinding::Action::paneLeft,
+                                                       [this]() { tabs->focusPaneLeft(); });
+                            modalKeyBinding.setAction (ModalKeyBinding::Action::paneDown,
+                                                       [this]() { tabs->focusPaneDown(); });
+                            modalKeyBinding.setAction (ModalKeyBinding::Action::paneUp,
+                                                       [this]() { tabs->focusPaneUp(); });
+                            modalKeyBinding.setAction (ModalKeyBinding::Action::paneRight,
+                                                       [this]() { tabs->focusPaneRight(); });
+                            modalKeyBinding.setAction (ModalKeyBinding::Action::splitHorizontal,
+                                                       [this]() { tabs->splitHorizontal(); });
+                            modalKeyBinding.setAction (ModalKeyBinding::Action::splitVertical,
+                                                       [this]() { tabs->splitVertical(); });
                             const auto reloadError { config.reload() };
                             tabs->applyConfig();
                             terminalLookAndFeel.setColours();
@@ -194,19 +207,19 @@ void MainComponent::buildCommandActions()
                             return true;
                         });
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::splitHorizontal),
-                        [this]() -> bool
-                        {
-                            tabs->splitHorizontal();
-                            return true;
-                        });
-
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::splitVertical),
-                        [this]() -> bool
-                        {
-                            tabs->splitVertical();
-                            return true;
-                        });
+    //==============================================================================
+    modalKeyBinding.setAction (ModalKeyBinding::Action::paneLeft,
+                               [this]() { tabs->focusPaneLeft(); });
+    modalKeyBinding.setAction (ModalKeyBinding::Action::paneDown,
+                               [this]() { tabs->focusPaneDown(); });
+    modalKeyBinding.setAction (ModalKeyBinding::Action::paneUp,
+                               [this]() { tabs->focusPaneUp(); });
+    modalKeyBinding.setAction (ModalKeyBinding::Action::paneRight,
+                               [this]() { tabs->focusPaneRight(); });
+    modalKeyBinding.setAction (ModalKeyBinding::Action::splitHorizontal,
+                               [this]() { tabs->splitHorizontal(); });
+    modalKeyBinding.setAction (ModalKeyBinding::Action::splitVertical,
+                               [this]() { tabs->splitVertical(); });
 
     //==============================================================================
     commandManager.registerAllCommandsForTarget (this);

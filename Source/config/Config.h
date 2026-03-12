@@ -290,11 +290,24 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysPrevTab { "keys.prev_tab" };
         inline static const juce::String keysNextTab { "keys.next_tab" };
 
-        /** @brief Key binding for horizontal split (side by side). */
-        inline static const juce::String keysSplitHorizontal { "keys.splitHorizontal" };
+        /** @brief Key binding for horizontal split (left/right). */
+        inline static const juce::String keysSplitHorizontal { "keys.split_horizontal" };
 
-        /** @brief Key binding for vertical split (stacked top/bottom). */
-        inline static const juce::String keysSplitVertical { "keys.splitVertical" };
+        /** @brief Key binding for vertical split (top/bottom). */
+        inline static const juce::String keysSplitVertical { "keys.split_vertical" };
+
+        inline static const juce::String keysPrefix { "keys.prefix" };
+        inline static const juce::String keysPrefixTimeout { "keys.prefix_timeout" };
+        inline static const juce::String keysPaneLeft { "keys.pane_left" };
+        inline static const juce::String keysPaneDown { "keys.pane_down" };
+        inline static const juce::String keysPaneUp { "keys.pane_up" };
+        inline static const juce::String keysPaneRight { "keys.pane_right" };
+
+        /** @brief Pane divider bar colour (hex string). */
+        inline static const juce::String paneBarColour { "pane.bar_colour" };
+
+        /** @brief Pane divider bar colour when dragging or hovering (hex string). */
+        inline static const juce::String paneBarHighlight { "pane.bar_highlight" };
     };
 
     //==============================================================================

@@ -59,6 +59,9 @@ void LookAndFeel::setColours()
     setColour (juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
     setColour (juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
     setColour (juce::ComboBox::outlineColourId, windowColour.brighter (0.15f));///< corbeau
+
+    setColour (paneBarColourId, cfg->getColour (Config::Key::paneBarColour));
+    setColour (paneBarHighlightColourId, cfg->getColour (Config::Key::paneBarHighlight));
 }
 
 /**
@@ -409,6 +412,26 @@ juce::Font LookAndFeel::getTextButtonFont (juce::TextButton& button, int buttonH
     return juce::Font {
         juce::FontOptions().withName (cfg->getString (Config::Key::tabFamily)).withPointHeight (buttonHeight * 0.6f)
     };
+}
+
+void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g, int w, int h,
+                                                    bool isVerticalBar, bool isMouseOver, bool isMouseDragging)
+{
+    const auto colour { (isMouseOver or isMouseDragging)
+                        ? findColour (paneBarHighlightColourId)
+                        : findColour (paneBarColourId) };
+    g.setColour (colour);
+
+    if (isVerticalBar)
+    {
+        const float centreX { w * 0.5f };
+        g.drawLine (centreX, 0.0f, centreX, static_cast<float> (h), 1.0f);
+    }
+    else
+    {
+        const float centreY { h * 0.5f };
+        g.drawLine (0.0f, centreY, static_cast<float> (w), centreY, 1.0f);
+    }
 }
 
 juce::Path LookAndFeel::getTabButtonIndicator (const juce::Rectangle<float>& area) noexcept

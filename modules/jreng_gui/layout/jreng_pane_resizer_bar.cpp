@@ -1,18 +1,17 @@
 #include "jreng_pane_resizer_bar.h"
+#include "jreng_pane_manager.h"
 
 namespace jreng
 {
 
-PaneResizerBar::PaneResizerBar (PaneManager* layout_,
-                                const int index,
-                                const bool vertical)
-    : layout (layout_),
-      itemIndex (index),
-      isVertical (vertical)
+PaneResizerBar::PaneResizerBar (PaneManager* layout_, juce::ValueTree splitNode_, bool isVertical_)
+    : layout (layout_)
+    , splitNode (splitNode_)
+    , isVertical (isVertical_)
 {
     setRepaintsOnMouseActivity (true);
-    setMouseCursor (vertical ? juce::MouseCursor::LeftRightResizeCursor
-                             : juce::MouseCursor::UpDownResizeCursor);
+    setMouseCursor (isVertical_ ? juce::MouseCursor::LeftRightResizeCursor
+                                : juce::MouseCursor::UpDownResizeCursor);
 }
 
 PaneResizerBar::~PaneResizerBar()
@@ -20,38 +19,44 @@ PaneResizerBar::~PaneResizerBar()
 }
 
 //==============================================================================
+const juce::ValueTree& PaneResizerBar::getSplitNode() const noexcept
+{
+    return splitNode;
+}
+
+//==============================================================================
+void PaneResizerBar::hasBeenMoved()
+{
+    if (auto* p = getParentComponent())
+        p->resized();
+}
+
+//==============================================================================
 void PaneResizerBar::paint (juce::Graphics& g)
 {
     getLookAndFeel().drawStretchableLayoutResizerBar (g,
-                                                       getWidth(), getHeight(),
-                                                       isVertical,
-                                                       isMouseOver(),
-                                                       isMouseButtonDown());
+                                                      getWidth(), getHeight(),
+                                                      isVertical,
+                                                      isMouseOver(),
+                                                      isMouseButtonDown());
 }
 
 void PaneResizerBar::mouseDown (const juce::MouseEvent&)
 {
-    mouseDownPos = layout->getItemCurrentPosition (itemIndex);
+    mouseDownPos = layout->getItemCurrentPosition (splitNode);
 }
 
 void PaneResizerBar::mouseDrag (const juce::MouseEvent& e)
 {
-    const int desiredPos = mouseDownPos + (isVertical ? e.getDistanceFromDragStartX()
-                                                      : e.getDistanceFromDragStartY());
+    const int delta { isVertical ? e.getDistanceFromDragStartX()
+                                 : e.getDistanceFromDragStartY() };
+    const int desiredPos { mouseDownPos + delta };
 
-
-    if (layout->getItemCurrentPosition (itemIndex) != desiredPos)
+    if (layout->getItemCurrentPosition (splitNode) != desiredPos)
     {
-        layout->setItemPosition (itemIndex, desiredPos);
+        layout->setItemPosition (splitNode, desiredPos);
         hasBeenMoved();
     }
-}
-
-void PaneResizerBar::hasBeenMoved()
-{
-    auto* parent = getParentComponent();
-    if (parent != nullptr)
-        parent->resized();
 }
 
 } // namespace jreng

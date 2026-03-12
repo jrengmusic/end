@@ -47,7 +47,9 @@ public:
         tabBarBackgroundColourId = 0x2000002,///< Tab bar background fill colour.
         tabLineColourId = 0x2000003,///< Active tab indicator line colour.
         tabActiveColourId = 0x2000004,///< Active tab fill colour (paradiso).
-        tabIndicatorColourId = 0x2000005///< Active tab indicator fill colour.
+        tabIndicatorColourId = 0x2000005,///< Active tab indicator fill colour.
+        paneBarColourId = 0x2000006,///< Pane divider bar colour.
+        paneBarHighlightColourId = 0x2000007///< Pane divider bar colour when dragging or hovering.
     };
 
     LookAndFeel();
@@ -165,6 +167,23 @@ public:
      * @note MESSAGE THREAD.
      */
     juce::Font getTextButtonFont (juce::TextButton& button, int buttonHeight) override;
+
+    /**
+     * @brief Draws the pane resizer bar as a centred 1px line.
+     *
+     * Uses `paneBarHighlightColourId` when the mouse is over or dragging,
+     * `paneBarColourId` otherwise.
+     *
+     * @param g               Graphics context.
+     * @param w               Bar width in pixels.
+     * @param h               Bar height in pixels.
+     * @param isVerticalBar   True if the bar separates left/right panes.
+     * @param isMouseOver     True if the mouse is hovering over the bar.
+     * @param isMouseDragging True if the bar is being dragged.
+     * @note MESSAGE THREAD.
+     */
+    void drawStretchableLayoutResizerBar (juce::Graphics& g, int w, int h,
+                                          bool isVerticalBar, bool isMouseOver, bool isMouseDragging) override;
 
     /**
      * @brief Computes the tab bar height from the configured tab font.

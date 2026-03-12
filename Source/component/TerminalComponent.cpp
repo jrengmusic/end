@@ -14,6 +14,7 @@
 #include "TerminalComponent.h"
 #include "../AppState.h"
 #include "../config/Config.h"
+#include "../config/ModalKeyBinding.h"
 
 /**
  * @brief Constructs Terminal::Component and wires all subsystems.
@@ -282,6 +283,9 @@ void Terminal::Component::clearSelectionAndScroll()
 
 bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
+    if (ModalKeyBinding::getContext()->handleKeyPress (key))
+        return true;
+
     const int code { key.getKeyCode() };
     const auto mods { key.getModifiers() };
 

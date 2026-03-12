@@ -14,12 +14,11 @@
 namespace Terminal
 { /*____________________________________________________________________________*/
 /**
- * @brief Constructs the pane container with an empty PANES ValueTree.
+ * @brief Constructs the pane container.
  *
  * @note MESSAGE THREAD.
  */
 Panes::Panes()
-    : state (App::ID::PANES)
 {
     setOpaque (false);
 }
@@ -32,10 +31,11 @@ Panes::Panes()
 Panes::~Panes() = default;
 
 /**
- * @brief Creates a new terminal session in this pane and returns its UUID.
+ * @brief Creates a new terminal session as the first (or only) leaf in this pane.
  *
- * Creates a Terminal::Component via Terminal::Component::create(), wires
- * its callbacks, and appends its SESSION ValueTree to the PANES state tree.
+ * Creates a Terminal::Component via Terminal::Component::create(), wires its
+ * callbacks, registers it with PaneManager via addLeaf, and grafts its SESSION
+ * ValueTree into the corresponding PANE node.
  *
  * @return The UUID of the newly created terminal (its componentID).
  * @note MESSAGE THREAD.
@@ -44,12 +44,20 @@ juce::String Panes::createTerminal()
 {
     auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals) };
     setTerminalCallbacks (term);
-    state.appendChild (term->getValueTree(), nullptr);
+
+    const juce::String uuid { term->getComponentID() };
+    paneManager.addLeaf (uuid);
+
+    auto paneNode { findPaneNode (paneManager.getState(), uuid) };
+    jassert (paneNode.isValid());
+
+    if (paneNode.isValid())
+        paneNode.appendChild (term->getValueTree(), nullptr);
 
     if (isShowing())
         term->setVisible (true);
 
-    return term->getComponentID();
+    return uuid;
 }
 
 /**
@@ -60,6 +68,8 @@ juce::String Panes::createTerminal()
  */
 void Panes::setTerminalCallbacks (Terminal::Component* terminal)
 {
+    jassert (onRepaintNeeded != nullptr);
+
     if (onRepaintNeeded != nullptr)
     {
         terminal->onRepaintNeeded = onRepaintNeeded;
@@ -78,130 +88,132 @@ jreng::Owner<Terminal::Component>& Panes::getTerminals() noexcept
 }
 
 /**
- * @brief Returns the PANES ValueTree for attachment to AppState.
+ * @brief Returns the PANES ValueTree owned by PaneManager.
  *
  * @return Reference to the PANES ValueTree.
  * @note MESSAGE THREAD.
  */
 juce::ValueTree& Panes::getState() noexcept
 {
-    return state;
+    return paneManager.getState();
 }
 
 /**
- * @brief Splits the pane into vertical columns (side by side).
+ * @brief Closes the pane with the given uuid.
  *
+ * @param uuid The componentID of the terminal to close.
  * @note MESSAGE THREAD.
  */
-void Panes::splitVertical()
+void Panes::closePane (const juce::String& uuid)
 {
-    if (not hasSplitDirection or isVertical)
+    auto paneNode { findPaneNode (paneManager.getState(), uuid) };
+    jassert (paneNode.isValid());
+
+    auto splitNode { paneNode.getParent() };
+
+    if (paneNode.isValid())
+        paneNode.removeAllChildren (nullptr);
+
+    for (auto it { terminals.begin() }; it != terminals.end(); ++it)
     {
-        isVertical = true;
-        hasSplitDirection = true;
-        createTerminal();
-        rebuildLayout();
-        resized();
+        if ((*it)->getComponentID() == uuid)
+        {
+            removeChildComponent (it->get());
+            terminals.erase (it);
+            break;
+        }
     }
+
+    for (auto it { resizerBars.begin() }; it != resizerBars.end(); ++it)
+    {
+        if ((*it)->getSplitNode() == splitNode)
+        {
+            removeChildComponent (it->get());
+            resizerBars.erase (it);
+            break;
+        }
+    }
+
+    paneManager.remove (uuid);
+    resized();
 }
 
 /**
- * @brief Splits the pane into horizontal rows (stacked).
+ * @brief Splits the active pane into horizontal columns (side by side).
  *
  * @note MESSAGE THREAD.
  */
 void Panes::splitHorizontal()
 {
-    if (not hasSplitDirection or not isVertical)
-    {
-        isVertical = false;
-        hasSplitDirection = true;
-        createTerminal();
-        rebuildLayout();
-        resized();
-    }
+    const juce::String activeUuid { AppState::getContext()->getActiveTerminalUuid() };
+    jassert (activeUuid.isNotEmpty());
+
+    auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals) };
+    setTerminalCallbacks (term);
+
+    const juce::String newUuid { term->getComponentID() };
+    paneManager.split (activeUuid, newUuid, "vertical");
+
+    auto paneNode { findPaneNode (paneManager.getState(), newUuid) };
+    jassert (paneNode.isValid());
+
+    if (paneNode.isValid())
+        paneNode.appendChild (term->getValueTree(), nullptr);
+
+    auto splitNode { paneNode.getParent() };
+    jassert (splitNode.isValid());
+
+    resizerBars.add (std::make_unique<jreng::PaneResizerBar> (&paneManager, splitNode, true));
+    addAndMakeVisible (resizerBars.back().get());
+
+    if (isShowing())
+        term->setVisible (true);
+
+    resized();
 }
 
 /**
- * @brief Rebuilds the PaneManager layout and resizer bars for the current terminal count.
+ * @brief Splits the active pane into vertical rows (stacked).
  *
  * @note MESSAGE THREAD.
  */
-void Panes::rebuildLayout()
+void Panes::splitVertical()
 {
-    for (auto& bar : resizerBars)
-    {
-        removeChildComponent (bar.get());
-    }
-    resizerBars.clear();
-    paneManager.clearAllItems();
+    const juce::String activeUuid { AppState::getContext()->getActiveTerminalUuid() };
+    jassert (activeUuid.isNotEmpty());
 
-    const int numTerminals { static_cast<int> (terminals.size()) };
+    auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals) };
+    setTerminalCallbacks (term);
 
-    if (numTerminals <= 1) return;
+    const juce::String newUuid { term->getComponentID() };
+    paneManager.split (activeUuid, newUuid, "horizontal");
 
-    const double proportion { -1.0 / numTerminals };
-    int itemIndex { 0 };
+    auto paneNode { findPaneNode (paneManager.getState(), newUuid) };
+    jassert (paneNode.isValid());
 
-    for (int i { 0 }; i < numTerminals; ++i)
-    {
-        paneManager.setItemLayout (itemIndex, 50, -1.0, proportion);
-        ++itemIndex;
+    if (paneNode.isValid())
+        paneNode.appendChild (term->getValueTree(), nullptr);
 
-        if (i < numTerminals - 1)
-        {
-            auto resizer { std::make_unique<jreng::PaneResizerBar> (&paneManager, itemIndex, isVertical) };
-            addAndMakeVisible (resizer.get());
-            resizerBars.add (std::move (resizer));
-            paneManager.setItemLayout (itemIndex, resizerBarSize, resizerBarSize, resizerBarSize);
-            ++itemIndex;
-        }
-    }
+    auto splitNode { paneNode.getParent() };
+    jassert (splitNode.isValid());
+
+    resizerBars.add (std::make_unique<jreng::PaneResizerBar> (&paneManager, splitNode, false));
+    addAndMakeVisible (resizerBars.back().get());
+
+    if (isShowing())
+        term->setVisible (true);
+
+    resized();
 }
 
 /**
- * @brief Lays out all visible terminals to fill the component bounds.
+ * @brief Lays out all terminals and resizer bars via PaneManager.
  *
  * @note MESSAGE THREAD.
  */
 void Panes::resized()
 {
-    const int numTerminals { static_cast<int> (terminals.size()) };
-
-    if (numTerminals == 1)
-    {
-        terminals.at (0)->setBounds (getLocalBounds());
-    }
-    else if (numTerminals > 1)
-    {
-        auto content { getLocalBounds() };
-        const int totalGap { resizerBarSize * (numTerminals - 1) };
-
-        if (isVertical)
-        {
-            const int termWidth { (content.getWidth() - totalGap) / numTerminals };
-            int x { content.getX() };
-
-            for (int i { 0 }; i < numTerminals; ++i)
-            {
-                const int w { (i == numTerminals - 1) ? content.getRight() - x : termWidth };
-                terminals.at (i)->setBounds (x, content.getY(), w, content.getHeight());
-                x += w + resizerBarSize;
-            }
-        }
-        else
-        {
-            const int termHeight { (content.getHeight() - totalGap) / numTerminals };
-            int y { content.getY() };
-
-            for (int i { 0 }; i < numTerminals; ++i)
-            {
-                const int h { (i == numTerminals - 1) ? content.getBottom() - y : termHeight };
-                terminals.at (i)->setBounds (content.getX(), y, content.getWidth(), h);
-                y += h + resizerBarSize;
-            }
-        }
-    }
+    jreng::PaneManager::layOut (paneManager.getState(), getLocalBounds(), terminals, resizerBars);
 }
 
 /**
@@ -217,6 +229,91 @@ void Panes::visibilityChanged()
     {
         terminal->setVisible (visible);
     }
+}
+
+/**
+ * @brief Focus the nearest pane in the given direction.
+ *
+ * @param deltaX  -1 for left, +1 for right, 0 for vertical.
+ * @param deltaY  -1 for up, +1 for down, 0 for horizontal.
+ * @note MESSAGE THREAD.
+ */
+void Panes::focusPane (int deltaX, int deltaY)
+{
+    const auto activeUuid { AppState::getContext()->getActiveTerminalUuid() };
+    Terminal::Component* active { nullptr };
+
+    for (auto& terminal : terminals)
+    {
+        if (terminal->getComponentID() == activeUuid)
+            active = terminal.get();
+    }
+
+    if (active != nullptr)
+    {
+        const auto activeCentre { active->getBounds().getCentre() };
+
+        Terminal::Component* best { nullptr };
+        int bestDistance { std::numeric_limits<int>::max() };
+
+        for (auto& terminal : terminals)
+        {
+            if (terminal.get() != active)
+            {
+                const auto centre { terminal->getBounds().getCentre() };
+
+                const bool inDirection {
+                    (deltaX < 0 and centre.getX() < activeCentre.getX())
+                    or (deltaX > 0 and centre.getX() > activeCentre.getX())
+                    or (deltaY < 0 and centre.getY() < activeCentre.getY())
+                    or (deltaY > 0 and centre.getY() > activeCentre.getY()) };
+
+                if (inDirection)
+                {
+                    const int dx { centre.getX() - activeCentre.getX() };
+                    const int dy { centre.getY() - activeCentre.getY() };
+                    const int distance { dx * dx + dy * dy };
+
+                    if (distance < bestDistance)
+                    {
+                        bestDistance = distance;
+                        best = terminal.get();
+                    }
+                }
+            }
+        }
+
+        if (best != nullptr)
+        {
+            AppState::getContext()->setActiveTerminalUuid (best->getComponentID());
+
+            if (best->isShowing())
+                best->grabKeyboardFocus();
+        }
+    }
+}
+
+juce::ValueTree Panes::findPaneNode (const juce::ValueTree& root, const juce::String& uuid)
+{
+    juce::ValueTree result;
+
+    if (root.getType() == jreng::PaneManager::idPane
+        and root.getProperty (jreng::PaneManager::idUuid).toString() == uuid)
+    {
+        result = root;
+    }
+    else
+    {
+        for (auto child : root)
+        {
+            result = findPaneNode (child, uuid);
+
+            if (result.isValid())
+                break;
+        }
+    }
+
+    return result;
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

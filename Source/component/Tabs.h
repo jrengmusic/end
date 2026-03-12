@@ -170,16 +170,28 @@ public:
     void resetZoom();
 
     /**
-     * @brief Split the active tab vertically (side by side).
+     * @brief Split the active tab horizontally (side by side).
+     * @note MESSAGE THREAD.
+     */
+    void splitHorizontal();
+
+    /**
+     * @brief Split the active tab vertically (stacked).
      * @note MESSAGE THREAD.
      */
     void splitVertical();
 
-    /**
-     * @brief Split the active tab horizontally (stacked).
-     * @note MESSAGE THREAD.
-     */
-    void splitHorizontal();
+    /** @brief Focus the nearest pane to the left of the active pane. @note MESSAGE THREAD. */
+    void focusPaneLeft();
+
+    /** @brief Focus the nearest pane below the active pane. @note MESSAGE THREAD. */
+    void focusPaneDown();
+
+    /** @brief Focus the nearest pane above the active pane. @note MESSAGE THREAD. */
+    void focusPaneUp();
+
+    /** @brief Focus the nearest pane to the right of the active pane. @note MESSAGE THREAD. */
+    void focusPaneRight();
 
     /**
      * @brief Reads tab.position from Config and applies the orientation.
