@@ -142,8 +142,11 @@ namespace ID
     /** @brief Name of the foreground process running in the terminal. */
     static const juce::Identifier foregroundProcess   { "foregroundProcess" };
 
-    /** @brief Derived display name for the tab (computed from title, foregroundProcess, cwd). */
+    /** @brief Derived display name for the tab (computed from foregroundProcess, cwd). */
     static const juce::Identifier displayName         { "displayName" };
+
+    /** @brief Shell program name, stored at session creation for display name filtering. */
+    static const juce::Identifier shellProgram        { "shellProgram" };
 
     //==========================================================================
     // Mode parameter IDs (DEC terminal mode flags)

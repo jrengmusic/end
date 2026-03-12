@@ -655,17 +655,12 @@ void State::flushStrings() noexcept
         }
     }
 
-    const auto title { state.getProperty (ID::title).toString() };
     const auto foreground { state.getProperty (ID::foregroundProcess).toString() };
     const auto cwdPath { state.getProperty (ID::cwd).toString() };
-
+    const auto shell { state.getProperty (ID::shellProgram).toString() };
     juce::String name;
 
-    if (title.isNotEmpty())
-    {
-        name = title;
-    }
-    else if (foreground.isNotEmpty())
+    if (foreground.isNotEmpty() and foreground != shell)
     {
         name = foreground;
     }

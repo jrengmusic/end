@@ -40,7 +40,7 @@ namespace Terminal
  */
 class Tabs : public juce::TabbedComponent
            , private juce::FocusChangeListener
-           , private juce::ValueTree::Listener
+           , private juce::Value::Listener
 {
 public:
     /**
@@ -259,12 +259,13 @@ private:
     /** @brief Tracks focus changes to update the active terminal UUID in AppState. */
     void globalFocusChanged (juce::Component* focusedComponent) override;
 
-    /** @brief Updates the tab name when a SESSION's displayName property changes. */
-    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+    /** @brief Updates the tab name when the bound displayName value changes. */
+    void valueChanged (juce::Value& value) override;
 
     /** @brief Sets the active terminal UUID and grabs focus for the last terminal in @p active. */
     void focusLastTerminal (Panes* active);
 
+    juce::Value tabName;
     jreng::Owner<Panes> panes;
 
     //==============================================================================

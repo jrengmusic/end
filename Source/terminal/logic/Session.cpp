@@ -163,7 +163,9 @@ void Session::resized (int cols, int rows)
     {
         parser.resize (cols, rows);
         grid.resize();
-        tty->open (cols, rows, Config::getContext()->getString (Config::Key::shellProgram), workingDirectory);
+        const auto shell { Config::getContext()->getString (Config::Key::shellProgram) };
+        tty->open (cols, rows, shell, workingDirectory);
+        state.get().setProperty (ID::shellProgram, juce::File (shell).getFileName(), nullptr);
         ttyOpened = true;
     }
     else

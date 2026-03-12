@@ -31,7 +31,7 @@ Tabs::Tabs (juce::TabbedButtonBar::Orientation orientation)
     setTabBarDepth (0);
     setOutline (0);
     juce::Desktop::getInstance().addFocusChangeListener (this);
-    AppState::getContext()->getTabs().addListener (this);
+    tabName.addListener (this);
 }
 
 /**
@@ -41,7 +41,7 @@ Tabs::Tabs (juce::TabbedButtonBar::Orientation orientation)
  */
 Tabs::~Tabs()
 {
-    AppState::getContext()->getTabs().removeListener (this);
+    tabName.removeListener (this);
     juce::Desktop::getInstance().removeFocusChangeListener (this);
 }
 
@@ -65,9 +65,11 @@ void Tabs::addNewTab()
 
     AppState::getContext()->setActiveTerminalUuid (uuid);
     AppState::getContext()->setPwd (newPanes.getTerminals().back()->getValueTree());
+    tabName.referTo (newPanes.getTerminals().back()->getValueTree().getPropertyAsValue (Terminal::ID::displayName, nullptr));
 
+    const auto initialName { juce::File (AppState::getContext()->getPwd()).getFileName() };
     const int tabIndex { getNumTabs() };
-    addTab ("~", juce::Colours::transparentBlack, nullptr, false, tabIndex);
+    addTab (initialName, juce::Colours::transparentBlack, nullptr, false, tabIndex);
     setCurrentTabIndex (tabIndex);
 
     updateTabBarVisibility();
@@ -116,31 +118,19 @@ void Tabs::globalFocusChanged (juce::Component* focusedComponent)
         const auto uuid { term->getValueTree().getProperty (jreng::ID::id).toString() };
         AppState::getContext()->setActiveTerminalUuid (uuid);
         AppState::getContext()->setPwd (term->getValueTree());
+        tabName.referTo (term->getValueTree().getPropertyAsValue (Terminal::ID::displayName, nullptr));
     }
 }
 
-void Tabs::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+void Tabs::valueChanged (juce::Value& value)
 {
-    if (tree.getType() == Terminal::ID::SESSION and property == Terminal::ID::displayName)
+    if (value.refersToSameSourceAs (tabName))
     {
-        int tabIndex { 0 };
+        const auto name { tabName.toString() };
 
-        for (auto& p : panes)
+        if (name.isNotEmpty())
         {
-            auto parent { tree.getParent() };
-
-            while (parent.isValid())
-            {
-                if (parent == p->getState())
-                {
-                    getTabbedButtonBar().setTabName (tabIndex, tree.getProperty (property).toString());
-                    return;
-                }
-
-                parent = parent.getParent();
-            }
-
-            ++tabIndex;
+            getTabbedButtonBar().setTabName (getCurrentTabIndex(), name);
         }
     }
 }
