@@ -38,7 +38,10 @@
  */
 struct ModalKeyBinding : jreng::Context<ModalKeyBinding>, private juce::Timer
 {
+    /** @brief Constructs the binding, loads prefix key and action keys from Config. */
     ModalKeyBinding();
+
+    /** @brief Stops any active timer before destruction. */
     ~ModalKeyBinding() override;
 
     /**
@@ -89,6 +92,15 @@ private:
 
     std::vector<ActionBinding> actions;
 
+    /**
+     * @brief Reads prefix key, timeout, and action keys from Config into internal state.
+     * @note MESSAGE THREAD.
+     */
     void loadFromConfig();
+
+    /**
+     * @brief Cancels the waiting state when the prefix-sequence timeout fires.
+     * @note MESSAGE THREAD — called by juce::Timer.
+     */
     void timerCallback() override;
 };

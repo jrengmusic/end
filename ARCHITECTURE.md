@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-10
+**Last Updated:** 2026-03-12
 
 ---
 
@@ -37,14 +37,17 @@ APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTr
 ```
 Source/
   Main.cpp                          Application entry, owns Config + MainWindow
-  MainComponent.h/cpp               Root component, owns Fonts context, Tabs, MessageOverlay, GLRenderer
+  MainComponent.h/cpp               Root component, owns Fonts context, Tabs, ModalKeyBinding, MessageOverlay, GLRenderer
 
   config/
     Config.h/cpp                    Lua config loader, Context<Config> pattern
+    KeyBinding.h/cpp                ApplicationCommandManager wrapper, configurable shortcuts
+    ModalKeyBinding.h/cpp           Prefix-key modal input system (tmux-style), Context<ModalKeyBinding>
 
   component/
     TerminalComponent.h/cpp         UI host, VBlankAttachment render loop
     Tabs.h/cpp                      Tab container, manages multiple Terminal::Component instances
+    Panes.h/cpp                     Per-tab pane container, owns Terminal::Component instances and PaneResizerBars
     LookAndFeel.h/cpp               Custom LookAndFeel: tab styling, popup menu, colour system
     CursorComponent.h               Cursor overlay, ValueTree-driven, uses Fonts::getContext()
     MessageOverlay.h                Transient overlay for status messages (reload, errors)
@@ -130,6 +133,10 @@ modules/
       jreng_gl_vignette.h           Vignette edge effect component
     shaders/
       flat_colour.vert/frag         Vertex colour shader with optional alpha mask
+  jreng_gui/                        Layout utilities (PaneManager, PaneResizerBar)
+    layout/
+      jreng_pane_manager.h/cpp      Binary tree ValueTree layout engine for split panes
+      jreng_pane_resizer_bar.h/cpp  Draggable divider bar between panes
 ```
 
 ### Module Inventory
@@ -137,7 +144,7 @@ modules/
 | Module | Location | Responsibility | Dependencies |
 |--------|----------|----------------|--------------|
 | Config | `config/` | Lua config load/save, Context-managed | sol2, jreng::Context |
-| Component | `component/` | JUCE UI hosting, tabs, LookAndFeel, VBlank render trigger | Session, Screen, Config |
+| Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, Config, PaneManager |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Data | `terminal/data/` | Pure value types, state atomics, IDs | JUCE ValueTree |
 | Logic | `terminal/logic/` | VT parsing, grid storage, session orchestration | Data |
@@ -145,6 +152,10 @@ modules/
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jreng_core | `modules/jreng_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
+| KeyBinding | `config/` | ApplicationCommandManager wrapper, configurable key mappings | JUCE ACM, Config |
+| ModalKeyBinding | `config/` | Prefix-key modal input (tmux-style), Context-managed | Config, jreng::Context |
+| Panes | `component/` | Per-tab pane container, owns terminals and resizer bars | PaneManager, Terminal::Component |
+| jreng_gui | `modules/jreng_gui/` | Layout utilities: PaneManager binary tree, PaneResizerBar | JUCE core, jreng_core |
 
 ---
 
@@ -283,6 +294,96 @@ Fonts.cpp -> FontsMetrics, FontsShaping
 TerminalGLRenderer.cpp -> TerminalGLDraw
 
 All split files define member functions of the parent class. No separate classes needed.
+
+---
+
+## Split Pane System
+
+### Architecture
+
+Each tab owns a `Panes` component that manages split pane layout via a `PaneManager`. The layout is a binary tree stored as a JUCE `ValueTree`:
+
+```
+TAB
+  PANES (direction="vertical"|"horizontal", ratio=0.5, x, y, width, height)
+    PANE (uuid="abc")
+      SESSION (uuid="abc", displayName, ...)
+    PANE (uuid="def")
+      SESSION (uuid="def", displayName, ...)
+```
+
+- **Leaves** (`PANE` type) — each maps to one `Terminal::Component`
+- **Internal nodes** (`PANES` type) — each represents a split with `direction` and `ratio`
+- **SESSION** — terminal state, grafted as child of PANE by `Panes` at creation time
+
+### PaneManager (Binary Tree Layout Engine)
+
+`jreng::PaneManager` owns the `PANES` ValueTree and provides:
+
+| Method | Purpose |
+|--------|---------|
+| `addLeaf(uuid)` | Add a new pane leaf to the tree |
+| `split(uuid, newUuid, direction)` | Split a leaf into two panes with given direction |
+| `remove(uuid)` | Remove a pane, collapsing its parent split node |
+| `layOut(state, bounds, components, resizerBars)` | Recursive layout: subdivide bounds, position components and resizer bars |
+| `getItemCurrentPosition(splitNode)` | Get current pixel position of a split divider |
+| `setItemPosition(splitNode, newPosition)` | Set pixel position of a split divider (updates ratio) |
+| `findLeaf(node, uuid)` | Static: find a PANE leaf by UUID |
+
+`layOut` is a static template method. It recursively walks the tree, subdivides the available bounds by direction and ratio, calls `setBounds` on components matched by `getComponentID()`, and positions `PaneResizerBar` instances matched by `getSplitNode()` identity.
+
+Ratio is clamped to `[0.1, 0.9]`. Bounds are stored as `ID::x/y/width/height` properties on split nodes. Resizer bar width is 4px.
+
+### PaneResizerBar (Draggable Divider)
+
+`jreng::PaneResizerBar` is a `juce::Component` subclass that acts as a draggable divider between panes. Each split node in the tree has a paired resizer bar.
+
+On drag: queries `PaneManager::getItemCurrentPosition()`, computes desired position from mouse delta, calls `setItemPosition()`. `hasBeenMoved()` triggers `parent->resized()` to re-layout.
+
+Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configurable via `pane.bar_colour` and `pane.bar_highlight`.
+
+### Panes (Per-Tab Container)
+
+`Terminal::Panes` is the per-tab component that bridges `PaneManager` with `Terminal::Component` instances:
+
+- Owns `Owner<Terminal::Component> terminals` and `Owner<PaneResizerBar> resizerBars`
+- `createTerminal()` — adds a leaf to the tree, creates a terminal, grafts SESSION
+- `closePane(uuid)` — ungrafts SESSION, removes terminal, removes resizer bar, calls `paneManager.remove()`
+- `splitHorizontal()` — left/right layout (calls `splitImpl("vertical", true)`)
+- `splitVertical()` — top/bottom layout (calls `splitImpl("horizontal", false)`)
+- `focusPane(deltaX, deltaY)` — spatial navigation by component bounds
+
+**Split naming convention:** `splitHorizontal` produces a left/right layout. The internal direction string `"vertical"` describes the divider orientation, not the layout direction.
+
+### Prefix Key System (ModalKeyBinding)
+
+`ModalKeyBinding` inherits `jreng::Context<ModalKeyBinding>` and `juce::Timer`. It implements a tmux-style two-keystroke input system:
+
+1. User presses prefix key (default: backtick) — consumed, enters `waiting` state
+2. User presses action key — dispatched to registered callback
+3. Timer cancels if no action key within timeout (default: 1000ms)
+
+Intercepted in `Terminal::Component::keyPressed` before any other key processing.
+
+| Action | Default Key | Config Key |
+|--------|-------------|------------|
+| Split horizontal (left/right) | `\` | `keys.split_horizontal` |
+| Split vertical (top/bottom) | `-` | `keys.split_vertical` |
+| Focus pane left | `h` | `keys.pane_left` |
+| Focus pane down | `j` | `keys.pane_down` |
+| Focus pane up | `k` | `keys.pane_up` |
+| Focus pane right | `l` | `keys.pane_right` |
+
+Prefix key and timeout configurable via `keys.prefix` and `keys.prefix_timeout`.
+
+### Close Cascade
+
+When a pane is closed:
+
+1. `Panes::closePane()` ungrafts SESSION, destroys terminal, removes resizer bar
+2. `PaneManager::remove()` collapses the parent split node, promotes the sibling
+3. If last pane in tab: `Tabs::closeTab()` removes the tab
+4. If last tab: application quits
 
 ---
 
@@ -434,6 +535,30 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Rationale:** Font metrics are global (zoom is global via state.lua). Shared ownership ensures font lifetime exceeds all terminal components. Enables global grid size computation from `Fonts::getContext()->calcMetrics()` without querying individual terminals.
 
+### Decision: Binary Tree ValueTree for Split Pane Layout
+
+**Context:** Split panes needed a recursive layout model that integrates with JUCE's ValueTree state management.
+
+**Decision:** Binary tree where internal nodes are `PANES` (direction + ratio) and leaves are `PANE` (uuid). Tree stored as a JUCE ValueTree, enabling state persistence and listener-based reactivity.
+
+**Rationale:** ValueTree provides free serialization, undo/redo capability, and listener notifications. Binary tree naturally models recursive splits. Each split operation wraps the target leaf in a new internal node with a sibling — O(1) split and remove.
+
+### Decision: Prefix Key over Chord Modifiers for Pane Actions
+
+**Context:** Pane navigation and splitting needed keyboard shortcuts. Options: Cmd+Shift chords, or tmux-style prefix key.
+
+**Decision:** Prefix key system (`ModalKeyBinding`). Default prefix: backtick. Action keys: h/j/k/l for navigation, `\`/`-` for splitting.
+
+**Rationale:** Chord modifiers (Cmd+Shift+H/J/K/L) conflict with terminal applications that use these sequences. Prefix key avoids conflicts entirely — the prefix is consumed, then the next key is unambiguously a pane action. Familiar to tmux users. Fully configurable.
+
+### Decision: SESSION Grafted as Child of PANE
+
+**Context:** Terminal state (SESSION ValueTree) needs to be associated with a specific pane in the split tree.
+
+**Decision:** SESSION is grafted as a child of its PANE node in the ValueTree hierarchy. `Panes` manages the grafting at terminal creation time and ungrafts before tree restructuring.
+
+**Rationale:** Co-locating SESSION under PANE enables future state persistence of the full split layout + terminal state in a single ValueTree. Ungrafting before `PaneManager::remove()` prevents re-parenting asserts when the tree restructures.
+
 ---
 
 ## Font Architecture
@@ -552,12 +677,16 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 | GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jreng::GLSnapshotBuffer<T>`) |
 | LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via Config |
 | MessageOverlay | Transient overlay for status messages (reload confirmation, config errors) |
+| ModalKeyBinding | Prefix-key modal input system (tmux-style), Context-managed, owned by MainComponent |
+| PaneManager | Binary tree ValueTree layout engine for recursive split pane layout |
+| PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
+| Panes | Per-tab component owning Terminal::Component instances and managing split layout via PaneManager |
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
 | Snapshot | Pre-built GPU instance data (glyphs + backgrounds) for one frame |
 | StagedBitmap | Cross-thread upload packet: pixel data + atlas region + mono/emoji kind |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state |
-| Tabs | TabbedComponent subclass managing multiple Terminal::Component instances with configurable orientation |
+| Tabs | TabbedComponent subclass managing multiple Panes instances with configurable orientation |
 | VBlank | Display vertical blank — CVDisplayLink callback synced to monitor refresh |
 | Atlas | 4096x4096 texture containing rasterized glyphs, shelf-packed |
 

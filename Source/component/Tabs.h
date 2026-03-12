@@ -69,8 +69,8 @@ public:
     /**
      * @brief Create and add a new terminal tab.
      *
-     * Creates a new Terminal::Component, adds it to the terminals map,
-     * adds a tab to the JUCE tab bar, and wires the callbacks.
+     * Creates a new Panes instance, creates its first terminal, grafts the
+     * PANES tree into AppState, and switches to the new tab.
      *
      * @note MESSAGE THREAD.
      */
@@ -113,6 +113,15 @@ public:
      * @note MESSAGE THREAD.
      */
     Terminal::Component* getActiveTerminal() const noexcept;
+
+    /**
+     * @brief Returns the active Panes' terminal owner for GL iteration.
+     *
+     * Returns a reference to a static empty owner if no active pane exists.
+     *
+     * @return Reference to the active terminal owner, or a static empty owner.
+     * @note MESSAGE THREAD.
+     */
     jreng::Owner<Terminal::Component>& getTerminals() noexcept;
 
     /**
@@ -247,8 +256,14 @@ private:
      */
     Panes* getActivePanes() const noexcept;
 
+    /** @brief Tracks focus changes to update the active terminal UUID in AppState. */
     void globalFocusChanged (juce::Component* focusedComponent) override;
+
+    /** @brief Updates the tab name when a SESSION's displayName property changes. */
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    /** @brief Sets the active terminal UUID and grabs focus for the last terminal in @p active. */
+    void focusLastTerminal (Panes* active);
 
     jreng::Owner<Panes> panes;
 

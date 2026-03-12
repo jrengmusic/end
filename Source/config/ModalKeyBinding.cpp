@@ -1,5 +1,15 @@
 #include "ModalKeyBinding.h"
 
+static const juce::String actionKeys[]
+{
+    Config::Key::keysPaneLeft,
+    Config::Key::keysPaneDown,
+    Config::Key::keysPaneUp,
+    Config::Key::keysPaneRight,
+    Config::Key::keysSplitHorizontal,
+    Config::Key::keysSplitVertical
+};
+
 ModalKeyBinding::ModalKeyBinding()
 {
     loadFromConfig();
@@ -30,7 +40,7 @@ bool ModalKeyBinding::handleKeyPress (const juce::KeyPress& key)
         {
             if (key == binding.key)
             {
-                if (binding.callback)
+                if (binding.callback != nullptr)
                     binding.callback();
 
                 return true;
@@ -53,16 +63,6 @@ void ModalKeyBinding::reload()
 
 void ModalKeyBinding::setAction (Action action, std::function<void()> callback)
 {
-    static const juce::String actionKeys[]
-    {
-        Config::Key::keysPaneLeft,
-        Config::Key::keysPaneDown,
-        Config::Key::keysPaneUp,
-        Config::Key::keysPaneRight,
-        Config::Key::keysSplitHorizontal,
-        Config::Key::keysSplitVertical
-    };
-
     const int idx { static_cast<int> (action) };
     jassert (idx >= 0 and idx < 6);
 
@@ -87,16 +87,6 @@ void ModalKeyBinding::loadFromConfig()
 
     prefixKey = KeyBinding::parse (cfg->getString (Config::Key::keysPrefix));
     timeoutMs = cfg->getInt (Config::Key::keysPrefixTimeout);
-
-    static const juce::String actionKeys[]
-    {
-        Config::Key::keysPaneLeft,
-        Config::Key::keysPaneDown,
-        Config::Key::keysPaneUp,
-        Config::Key::keysPaneRight,
-        Config::Key::keysSplitHorizontal,
-        Config::Key::keysSplitVertical
-    };
 
     for (const auto& configKey : actionKeys)
     {

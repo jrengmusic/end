@@ -3,7 +3,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 
 namespace jreng
-{
+{ /*____________________________________________________________________________*/
 
 class PaneManager;
 
@@ -22,6 +22,12 @@ class PaneResizerBar : public juce::Component
 {
 public:
     //==============================================================================
+    /** @brief Constructs a resizer bar for the given split node.
+        @param layout     PaneManager that owns the tree.
+        @param splitNode  The PANES node this bar controls.
+        @param isVertical true for left/right divider (vertical cursor),
+                          false for top/bottom (horizontal cursor).
+    */
     PaneResizerBar (PaneManager* layout, juce::ValueTree splitNode, bool isVertical);
     ~PaneResizerBar() override;
 
@@ -36,9 +42,11 @@ public:
     };
 
     //==============================================================================
+    /** @brief Returns the split node this bar controls. */
     const juce::ValueTree& getSplitNode() const noexcept;
 
     //==============================================================================
+    /** @brief Called after drag to trigger parent relayout via resized(). */
     void hasBeenMoved();
 
     //==============================================================================
@@ -59,4 +67,5 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaneResizerBar)
 };
 
-} // namespace jreng
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace jreng

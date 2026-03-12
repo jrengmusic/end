@@ -4,16 +4,17 @@
  *
  * Terminal::Panes subclasses juce::Component to provide a paned layout
  * where one or more terminal sessions are hosted side-by-side or stacked.
- * Each pane owns exactly one Terminal::Component. The ValueTree defines
- * hierarchy (TAB > PANES > PANE > SESSION).
+ * Each pane owns exactly one Terminal::Component. The ValueTree hierarchy
+ * is TAB > PANES > PANE > SESSION, owned by PaneManager and grafted into
+ * the application state tree by the owning Tab.
  *
- * @par Ownership
- * Terminals are owned by `jreng::Owner<Terminal::Component>`. Each terminal's
- * componentID is set to its UUID for lookup. The PANES ValueTree is owned by
- * PaneManager and grafted into the application state tree by the owning Tab.
+ * Split operations delegate to splitImpl. Leaf lookup delegates to
+ * jreng::PaneManager::findLeaf. Terminals are owned by
+ * jreng::Owner<Terminal::Component>; each terminal's componentID is its UUID.
  *
  * @see Terminal::Component
  * @see Terminal::Tabs
+ * @see jreng::PaneManager
  */
 
 #pragma once
@@ -50,9 +51,9 @@ public:
     /**
      * @brief Create a new terminal session in this pane.
      *
-     * Creates a new Terminal::Component, adds it to the terminals owner,
-     * wires callbacks, registers it with PaneManager via addLeaf, and grafts
-     * its SESSION ValueTree into the corresponding PANE node.
+     * Terminal::Component::create() handles construction and adding to the
+     * owner. Wires callbacks, registers with PaneManager via addLeaf, and
+     * grafts the SESSION ValueTree into the corresponding PANE node.
      *
      * @return The UUID of the newly created terminal (its componentID).
      * @note MESSAGE THREAD.
@@ -94,21 +95,27 @@ public:
     /**
      * @brief Close the pane with the given uuid.
      *
-     * Removes the terminal, its resizer bar, and updates PaneManager.
-     * 
+     * Removes the SESSION child from the PANE node, removes the terminal
+     * from the owner, removes the paired resizer bar, calls
+     * paneManager.remove, and relays out.
+     *
      * @param uuid The componentID of the terminal to close.
      * @note MESSAGE THREAD.
      */
     void closePane (const juce::String& uuid);
 
     /**
-     * @brief Split the active pane horizontally (side by side columns).
+     * @brief Split the active pane into side-by-side columns.
+     *
+     * Delegates to splitImpl ("vertical", true).
      * @note MESSAGE THREAD.
      */
     void splitHorizontal();
 
     /**
-     * @brief Split the active pane vertically (stacked rows).
+     * @brief Split the active pane into stacked rows.
+     *
+     * Delegates to splitImpl ("horizontal", false).
      * @note MESSAGE THREAD.
      */
     void splitVertical();
@@ -153,16 +160,15 @@ private:
     void setTerminalCallbacks (Terminal::Component* terminal);
 
     /**
-     * @brief Find a PANE node by uuid in the given tree.
+     * @brief Shared implementation for splitHorizontal and splitVertical.
      *
-     * Recursively walks the tree. Returns an invalid ValueTree if not found.
-     *
-     * @param root  Root of the tree to search.
-     * @param uuid  UUID to match against the "uuid" property.
-     * @return The matching PANE ValueTree, or an invalid ValueTree.
+     * @param direction  PaneManager direction string: "vertical" produces a
+     *                   left/right divider (side-by-side columns); "horizontal"
+     *                   produces a top/bottom divider (stacked rows).
+     * @param isVertical True when the resizer bar is vertical (splitHorizontal).
      * @note MESSAGE THREAD.
      */
-    static juce::ValueTree findPaneNode (const juce::ValueTree& root, const juce::String& uuid);
+    void splitImpl (const juce::String& direction, bool isVertical);
 
     jreng::Owner<Terminal::Component> terminals;
     jreng::PaneManager paneManager;

@@ -8,11 +8,15 @@ std::unique_ptr<juce::OpenGLShaderProgram> GLShaderCompiler::compile (
 {
     auto shader { std::make_unique<juce::OpenGLShaderProgram> (context) };
 
-    jassert (shader->addVertexShader (vertexSource));
-    jassert (shader->addFragmentShader (fragmentSource));
-    jassert (shader->link());
+    if (shader->addVertexShader (vertexSource)
+        and shader->addFragmentShader (fragmentSource)
+        and shader->link())
+    {
+        return shader;
+    }
 
-    return shader;
+    jassertfalse;
+    return nullptr;
 }
 
 } // namespace jreng

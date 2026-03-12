@@ -159,6 +159,17 @@ private:
      */
     void buildCommandActions();
 
+    /**
+     * @brief Binds the six modal pane/split actions to their tab callbacks.
+     *
+     * Called once from `buildCommandActions()` and again inside the `reload`
+     * command lambda so that action keys are re-registered after a config reload.
+     *
+     * @note MESSAGE THREAD.
+     * @see modalKeyBinding
+     */
+    void bindModalActions();
+
     /** @brief Cached context references; resolved once, used everywhere. */
     Config& config { *Config::getContext() };
     AppState& appState { *AppState::getContext() };

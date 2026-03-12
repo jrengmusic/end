@@ -8,7 +8,7 @@ The journey of finding the best terminal is finally comes to END.
 
 **Ephemeral Nexus Display** -- a GPU-accelerated terminal emulator built from scratch in C++17 and JUCE. OpenGL-rendered text, HarfBuzz shaping, full Unicode support, sub-frame latency.
 
-END is opinionated: it does terminal rendering well. Tabs built-in, glass blur UI, Lua-configurable everything. You use tmux for session management. END handles the pixels.
+END is opinionated: it does terminal rendering well. Tabs and split panes built-in, glass blur UI, Lua-configurable everything. You use tmux for session management. END handles the pixels.
 
 
 ## Features
@@ -49,6 +49,8 @@ END is opinionated: it does terminal rendering well. Tabs built-in, glass blur U
 - Native glass blur popup menus on macOS
 - Custom LookAndFeel colour system driven by Lua config
 - Transient message overlay for config reload and errors
+- Split panes with binary tree layout -- horizontal and vertical splits, draggable dividers
+- Prefix-key pane navigation (tmux-style) -- fully configurable keys and timeout
 
 **Architecture**
 - C++17 + JUCE 8 cross-platform framework
@@ -61,7 +63,7 @@ END is opinionated: it does terminal rendering well. Tabs built-in, glass blur U
 
 ## Roadmap
 
-- **Split panes** -- planned
+- **Split panes** -- implemented (binary tree layout, prefix-key navigation, configurable dividers)
 - **Tabs** -- implemented (configurable position, styling, hot-reload)
 - **Windows support** -- ConPTY backend in progress, rendering pipeline ready
 - **Inline images** -- Sixel protocol support
@@ -120,6 +122,20 @@ END = {
         num_lines = 10000,
         step = 5,
     },
+    pane = {
+        bar_colour = "#FF2E4D53",
+        bar_highlight = "#FF00C8D8",
+    },
+    keys = {
+        prefix = "`",
+        prefix_timeout = 1000,
+        split_horizontal = "\\",
+        split_vertical = "-",
+        pane_left = "h",
+        pane_down = "j",
+        pane_up = "k",
+        pane_right = "l",
+    },
 }
 ```
 
@@ -149,6 +165,26 @@ All keyboard shortcuts are configurable via `end.lua`. Defaults:
 | Shift+End | Scroll to bottom | -- |
 
 On Windows/Linux, `cmd` maps to `Ctrl`.
+
+### Pane keybinds (prefix key)
+
+Pane actions use a prefix key (default: backtick `` ` ``). Press prefix, then the action key:
+
+| Key | Action | Config key |
+|-----|--------|------------|
+| `` ` `` then `\` | Split horizontal (left/right) | `keys.split_horizontal` |
+| `` ` `` then `-` | Split vertical (top/bottom) | `keys.split_vertical` |
+| `` ` `` then `h` | Focus pane left | `keys.pane_left` |
+| `` ` `` then `j` | Focus pane down | `keys.pane_down` |
+| `` ` `` then `k` | Focus pane up | `keys.pane_up` |
+| `` ` `` then `l` | Focus pane right | `keys.pane_right` |
+
+Prefix key and timeout are configurable:
+
+| Config key | Default | Description |
+|------------|---------|-------------|
+| `keys.prefix` | `` ` `` (backtick) | Prefix key to enter pane mode |
+| `keys.prefix_timeout` | `1000` | Timeout in ms before prefix mode cancels |
 
 ### Customizing keybinds
 
@@ -191,7 +227,7 @@ Single keys without modifiers are supported: `keys.reload = "F5"`
 
 | Feature | Status |
 |---------|--------|
-| Split panes | In progress |
+| Split panes | Implemented |
 | Tabs | Implemented |
 | Sessions | tmux |
 | Shell integration | Complexity, low value |

@@ -193,4 +193,4 @@ juce::ValueTree PaneManager::findLeaf (juce::ValueTree node, const juce::String&
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace jreng
+}// namespace jreng

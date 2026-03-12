@@ -74,7 +74,7 @@ MainComponent::MainComponent()
  */
 void MainComponent::resized()
 {
-    if (tabs)
+    if (tabs != nullptr)
         tabs->setBounds (getLocalBounds());
 
     showMessageOverlay();
@@ -141,18 +141,7 @@ void MainComponent::buildCommandActions()
                             commandManager.registerAllCommandsForTarget (this);
                             keyBinding.applyMappings();
                             modalKeyBinding.reload();
-                            modalKeyBinding.setAction (ModalKeyBinding::Action::paneLeft,
-                                                       [this]() { tabs->focusPaneLeft(); });
-                            modalKeyBinding.setAction (ModalKeyBinding::Action::paneDown,
-                                                       [this]() { tabs->focusPaneDown(); });
-                            modalKeyBinding.setAction (ModalKeyBinding::Action::paneUp,
-                                                       [this]() { tabs->focusPaneUp(); });
-                            modalKeyBinding.setAction (ModalKeyBinding::Action::paneRight,
-                                                       [this]() { tabs->focusPaneRight(); });
-                            modalKeyBinding.setAction (ModalKeyBinding::Action::splitHorizontal,
-                                                       [this]() { tabs->splitHorizontal(); });
-                            modalKeyBinding.setAction (ModalKeyBinding::Action::splitVertical,
-                                                       [this]() { tabs->splitVertical(); });
+                            bindModalActions();
                             const auto reloadError { config.reload() };
                             tabs->applyConfig();
                             terminalLookAndFeel.setColours();
@@ -208,6 +197,27 @@ void MainComponent::buildCommandActions()
                         });
 
     //==============================================================================
+    bindModalActions();
+
+    //==============================================================================
+    commandManager.registerAllCommandsForTarget (this);
+    keyBinding.applyMappings();
+    addKeyListener (commandManager.getKeyMappings());
+
+    jreng::BackgroundBlur::setCloseCallback (
+        [this]()
+        {
+            appState.setWindowSize (getWidth(), getHeight());
+        });
+}
+
+/**
+ * @brief Binds the six modal pane/split actions to their tab callbacks.
+ * @note MESSAGE THREAD.
+ * @see modalKeyBinding
+ */
+void MainComponent::bindModalActions()
+{
     modalKeyBinding.setAction (ModalKeyBinding::Action::paneLeft,
                                [this]() { tabs->focusPaneLeft(); });
     modalKeyBinding.setAction (ModalKeyBinding::Action::paneDown,
@@ -220,17 +230,6 @@ void MainComponent::buildCommandActions()
                                [this]() { tabs->splitHorizontal(); });
     modalKeyBinding.setAction (ModalKeyBinding::Action::splitVertical,
                                [this]() { tabs->splitVertical(); });
-
-    //==============================================================================
-    commandManager.registerAllCommandsForTarget (this);
-    keyBinding.applyMappings();
-    addKeyListener (commandManager.getKeyMappings());
-
-    jreng::BackgroundBlur::setCloseCallback (
-        [this]()
-        {
-            appState.setWindowSize (getWidth(), getHeight());
-        });
 }
 
 //==============================================================================
@@ -303,7 +302,7 @@ bool MainComponent::perform (const juce::ApplicationCommandTarget::InvocationInf
  */
 void MainComponent::showMessageOverlay()
 {
-    if (messageOverlay)
+    if (messageOverlay != nullptr)
     {
         messageOverlay->setBounds (getLocalBounds());
 

@@ -100,7 +100,7 @@ jreng::Owner<Terminal::Component>& Tabs::getTerminals() noexcept
 {
     static jreng::Owner<Terminal::Component> empty;
 
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
     {
         return active->getTerminals();
     }
@@ -110,7 +110,7 @@ jreng::Owner<Terminal::Component>& Tabs::getTerminals() noexcept
 
 void Tabs::globalFocusChanged (juce::Component* focusedComponent)
 {
-    if (auto* term = dynamic_cast<Terminal::Component*> (focusedComponent))
+    if (auto* term { dynamic_cast<Terminal::Component*> (focusedComponent) }; term != nullptr)
     {
         const auto uuid { term->getValueTree().getProperty (Terminal::ID::uuid).toString() };
         AppState::getContext()->setActiveTerminalUuid (uuid);
@@ -257,7 +257,7 @@ Terminal::Component* Tabs::getActiveTerminal() const noexcept
 {
     const auto uuid { AppState::getContext()->getActiveTerminalUuid() };
 
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
     {
         for (auto& terminal : active->getTerminals())
         {
@@ -273,13 +273,13 @@ Terminal::Component* Tabs::getActiveTerminal() const noexcept
 
 void Tabs::copySelection()
 {
-    if (auto* t { getActiveTerminal() })
+    if (auto* t { getActiveTerminal() }; t != nullptr)
         t->copySelection();
 }
 
 void Tabs::pasteClipboard()
 {
-    if (auto* t { getActiveTerminal() })
+    if (auto* t { getActiveTerminal() }; t != nullptr)
         t->pasteClipboard();
 }
 
@@ -296,55 +296,51 @@ void Tabs::applyConfig()
 
 void Tabs::increaseZoom()
 {
-    if (auto* t { getActiveTerminal() })
+    if (auto* t { getActiveTerminal() }; t != nullptr)
         t->increaseZoom();
 }
 
 void Tabs::decreaseZoom()
 {
-    if (auto* t { getActiveTerminal() })
+    if (auto* t { getActiveTerminal() }; t != nullptr)
         t->decreaseZoom();
 }
 
 void Tabs::resetZoom()
 {
-    if (auto* t { getActiveTerminal() })
+    if (auto* t { getActiveTerminal() }; t != nullptr)
         t->resetZoom();
+}
+
+void Tabs::focusLastTerminal (Panes* active)
+{
+    auto& terminals { active->getTerminals() };
+
+    if (not terminals.isEmpty())
+    {
+        auto* lastTerminal { terminals.back().get() };
+        AppState::getContext()->setActiveTerminalUuid (lastTerminal->getComponentID());
+
+        if (lastTerminal->isShowing())
+            lastTerminal->grabKeyboardFocus();
+    }
 }
 
 void Tabs::splitHorizontal()
 {
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
     {
         active->splitHorizontal();
-
-        auto& terminals { active->getTerminals() };
-
-        if (not terminals.isEmpty())
-        {
-            auto* lastTerminal { terminals.back().get() };
-            AppState::getContext()->setActiveTerminalUuid (lastTerminal->getComponentID());
-            if (lastTerminal->isShowing())
-                lastTerminal->grabKeyboardFocus();
-        }
+        focusLastTerminal (active);
     }
 }
 
 void Tabs::splitVertical()
 {
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
     {
         active->splitVertical();
-
-        auto& terminals { active->getTerminals() };
-
-        if (not terminals.isEmpty())
-        {
-            auto* lastTerminal { terminals.back().get() };
-            AppState::getContext()->setActiveTerminalUuid (lastTerminal->getComponentID());
-            if (lastTerminal->isShowing())
-                lastTerminal->grabKeyboardFocus();
-        }
+        focusLastTerminal (active);
     }
 }
 
@@ -378,7 +374,7 @@ void Tabs::resized()
         content = content.withTrimmedRight (depth);
     }
 
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
     {
         active->setBounds (content);
     }
@@ -407,7 +403,7 @@ void Tabs::currentTabChanged (int newIndex, const juce::String&)
         panes.at (newIndex)->setVisible (true);
     }
 
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
     {
         auto& terminals { active->getTerminals() };
 
@@ -465,25 +461,25 @@ juce::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::Stri
 
 void Tabs::focusPaneLeft()
 {
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
         active->focusPane (-1, 0);
 }
 
 void Tabs::focusPaneDown()
 {
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
         active->focusPane (0, 1);
 }
 
 void Tabs::focusPaneUp()
 {
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
         active->focusPane (0, -1);
 }
 
 void Tabs::focusPaneRight()
 {
-    if (auto* active { getActivePanes() })
+    if (auto* active { getActivePanes() }; active != nullptr)
         active->focusPane (1, 0);
 }
 

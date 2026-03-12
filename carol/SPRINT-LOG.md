@@ -125,6 +125,69 @@
 
 ## SPRINT HISTORY
 
+## Sprint 89: Split Pane Bug Fixes + Codebase Audit + Documentation
+
+**Date:** 2026-03-12
+**Role:** COUNSELOR
+
+### Agents Participated
+- COUNSELOR: Planning, delegation, audit coordination, doc review
+- Engineer (x2): ARCHITECTURE.md updates, README.md updates
+- Auditor (x2): Verified ARCHITECTURE.md and README.md edits
+- Pathfinder (x1): Discovered doc gaps and current API surface
+
+### Files Modified (20 total)
+
+**Bug Fixes + Refactoring:**
+- `modules/jreng_gui/layout/jreng_pane_manager.h` — findLeaf made public, full doxygen, namespace closing fixed
+- `modules/jreng_gui/layout/jreng_pane_manager.cpp` — remove() fixed (parent==state check, sibling removeChild before re-parenting), namespace closing fixed
+- `modules/jreng_gui/layout/jreng_pane_resizer_bar.h` — namespace format fixed, doxygen added
+- `modules/jreng_gui/layout/jreng_pane_resizer_bar.cpp` — namespace format fixed, destructor=default, if-init brace init fixed
+- `Source/component/Panes.h` — findPaneNode removed, splitImpl added, doxygen updated
+- `Source/component/Panes.cpp` — splitImpl extracted, findPaneNode removed (uses PaneManager::findLeaf), closePane reordered (ungraft SESSION first), redundant jassert+if removed
+- `Source/component/Tabs.h` — focusLastTerminal added, doxygen updated/added
+- `Source/component/Tabs.cpp` — all implicit pointer checks fixed, focusLastTerminal extracted, focus-after-close uses adjacent index
+- `Source/MainComponent.h` — bindModalActions added
+- `Source/MainComponent.cpp` — bindModalActions extracted, implicit pointer checks fixed, split commands removed from commandActions
+- `Source/config/ModalKeyBinding.h` — splitHorizontal/splitVertical actions added, doxygen added
+- `Source/config/ModalKeyBinding.cpp` — file-scope actionKeys array, implicit std::function check fixed, split config keys added
+- `Source/config/KeyBinding.h` — splitHorizontal/splitVertical removed from CommandID
+- `Source/config/KeyBinding.cpp` — file-scope actionIDs array, array sizes 13->11, loop bounds updated
+- `Source/config/Config.h` — keys changed to snake_case (keys.split_horizontal, keys.split_vertical)
+- `Source/config/Config.cpp` — defaults changed to `\\` and `-`, writeDefaults updated
+
+**Documentation:**
+- `ARCHITECTURE.md` — Added: Split Pane System section (PaneManager, PaneResizerBar, Panes, ModalKeyBinding, Close Cascade), 3 design decisions (Binary Tree ValueTree, Prefix Key, SESSION Grafting), module map/inventory updates (jreng_gui, KeyBinding, ModalKeyBinding, Panes), 4 glossary entries, Tabs entry corrected
+- `README.md` — Split panes: "planned"/"in progress" -> "implemented", added UI feature bullets, pane keybinds subsection, config example with pane/keys blocks, intro updated
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered (snake_case config keys, semantic method names)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] All implicit bool checks converted to explicit null/validity checks
+- [x] DRY: 4 extractions (splitImpl, focusLastTerminal, bindModalActions, file-scope arrays)
+
+### Architecture Decisions
+- **Split naming convention finalized**: splitHorizontal = left/right layout, splitVertical = top/bottom layout. Internal direction string describes divider orientation.
+- **Split commands moved to prefix key**: removed from KeyBinding::CommandID (Cmd+Shift chords), now exclusively ModalKeyBinding actions
+- **Resizer bar matching by identity**: `getSplitNode() == node` instead of sequential index, survives tree restructuring
+
+### Problems Solved
+1. **Re-parenting assert on close** — sibling must be removeChild'd before appendChild to new parent
+2. **State ripped from AppState on close** — parent==state check instead of grandparent.isValid()
+3. **SESSION re-parenting assert** — ungraft SESSION before PaneManager::remove() restructures tree
+4. **Wrong resizer bar removed on close** — identity matching instead of index-based
+5. **Focus jumps to first terminal on close** — now picks adjacent terminal
+6. **Split naming confusion** — swapped to match user expectation (horizontal = left/right)
+7. **Stale docs** — ARCHITECTURE.md and README.md now reflect implemented split pane system
+
+### Technical Debt / Follow-up
+1. **State persistence/restore** — not tested with new tree structure
+2. **No visual indicator** for prefix mode active state
+3. **Sprint 88 tech debt resolved**: ModalKeyBinding added to CMake (done), build validated (done)
+
+---
+
 ## Sprint 88: Binary Tree Split Panes + Prefix Key System
 
 **Date:** 2026-03-12
@@ -434,486 +497,5 @@ Phase 6 — `modules/jreng_gui/glass/` (6 files):
 1. **Doxygen config file** — No `Doxyfile` exists yet. Would enable HTML/PDF doc generation from the annotations.
 2. **GlyphConstraintTable.cpp** — Only has `@file` header comment (generated file). Generator could emit Doxygen comments per switch arm.
 3. **jreng_core/ and jreng_graphics/ modules** — Not documented in this pass. Lower priority (stable utility code).
-
----
-
-## Sprint 84: Zoom Font Scaling — bgCacheCols + Shift Key + Selection + Window State + Full Font Resize
-
-**Date:** 2026-03-07
-**Agents:** COUNSELOR, @pathfinder, @engineer
-
-### Objective
-
-Fix multiple rendering and input bugs discovered during zoom implementation and general usage. Add window chrome config, selection overlay, and complete font resize for all font handles during zoom.
-
-### Changes
-
-**bgCacheCols Overflow Fix**
-
-`Source/terminal/rendering/Screen.h`
-- Added `int bgCacheCols { 0 }` member — tracks actual bg cache slot count per row (= cols * 2)
-
-`Source/terminal/rendering/Screen.cpp`
-- `bgCacheCols` set to `cols * 2` wherever `cachedBg` is allocated
-- All bg row offset computations use `bgCacheCols` instead of `cols`
-
-`Source/terminal/rendering/ScreenRender.cpp`
-- `bgIdx` calculation uses `bgCacheCols` for row stride
-
-`Source/terminal/rendering/ScreenSnapshot.cpp`
-- `memcpy` offset uses `bgCacheCols` for bg row stride
-
-**Shift Key Swallowing Fix**
-
-`Source/component/TerminalComponent.cpp`
-- Added `isScrollNav` bool guard — only matches Shift+PageUp/PageDown/Home/End
-- Restructured `keyPressed` so Shift+printable characters (`:`, `!`, uppercase) pass through to terminal
-
-**Selection Overlay**
-
-`Source/terminal/rendering/Screen.h`
-- Removed `applySelectionInverse` method
-
-`Source/terminal/rendering/Screen.cpp`
-- Removed `applySelectionInverse` implementation
-
-`Source/terminal/rendering/ScreenRender.cpp`
-- Selection rendering changed from XOR INVERSE to transparent bg overlay
-- Uses `coloursSelection` config color (default: blueBikini `#8000C8D8`)
-- Only renders on cells with content (`cell.hasContent()`)
-
-`Source/config/Config.h`
-- Added `selectionColour` to Theme struct
-
-`Source/config/Config.cpp`
-- Added `coloursSelection` default and schema entry
-
-**Title Bar Buttons Config**
-
-`Source/config/Config.h`
-- Added `windowButtons` config key (default false)
-
-`Source/config/Config.cpp`
-- Added `windowButtons` default and schema entry
-
-`modules/jreng_gui/glass/jreng_background_blur.h`
-- Added `hideWindowButtons` declaration
-
-`modules/jreng_gui/glass/jreng_background_blur.mm`
-- Added `hideWindowButtons` implementation (hides close/minimize/zoom buttons)
-
-`modules/jreng_gui/glass/jreng_glass_window.h`
-- Added `showWindowButtons` parameter and member
-
-`modules/jreng_gui/glass/jreng_glass_window.cpp`
-- Accepts `showWindowButtons` param, calls `hideWindowButtons` when false
-- Title bar height = 0 when buttons hidden
-
-**Window State Save on Quit**
-
-`Source/Main.cpp`
-- Added `saveWindowSize` call in `systemRequestedQuit()`
-
-**Window Size/Zoom Removed from Config Schema**
-
-`Source/config/Config.cpp`
-- `window.width`, `window.height`, `window.zoom` removed from `end.lua` config schema
-- State-only via `state.lua`, stored in Config context with defaults
-- `writeDefaults` no longer writes width/height to `end.lua`
-
-**Zoom Infrastructure**
-
-`Source/terminal/rendering/Screen.h`
-- Added `setFontSize()` method
-
-`Source/terminal/rendering/Screen.cpp`
-- `setFontSize()` calls `resources.fonts.setSize()` then recalculates metrics/grid
-
-`Source/component/TerminalComponent.h`
-- Added `applyZoom()`, `zoomInProgress` flag
-
-`Source/component/TerminalComponent.cpp`
-- Cmd+/-/0 wired to `applyZoom()`
-- Saved zoom applied at startup
-- Message overlay suppressed during zoom via `zoomInProgress` flag
-
-**Full Font Resize (NF + Identity + Fallback Cache)**
-
-`Source/terminal/rendering/Fonts.mm:309-428` (setSize)
-- Added resize for `identityFont` + `identityShapingFont` via `CTFontCreateCopyWithAttributes`
-- Added resize for `nerdFont` + `nerdShapingFont` via `CTFontCreateCopyWithAttributes`
-- Added `fallbackFontCache` cleanup — iterates and `CFRelease` all cached CTFontRefs, then clears map
-- Updates FontCollection entries: slot 0 (identityFont) and slot 1 (nerdFont) with new font handles and hb_font pointers
-
-`Source/terminal/rendering/Fonts.cpp:271-318` (setSize)
-- Added `FT_Set_Char_Size` on `nfFace`
-- Destroys and recreates `nerdShapingFont` via `hb_ft_font_create_referenced`
-- Updates FontCollection slot 1 with new `ftFace` and `hbFont`
-
-### Alignment Check
-
-- [x] LIFESTAR Lean: Font resize follows existing pattern (CTFontCreateCopyWithAttributes for each font). No new abstractions.
-- [x] LIFESTAR Explicit: All font handles explicitly resized. Fallback cache explicitly cleared. FontCollection entries explicitly updated.
-- [x] LIFESTAR SSOT: `bgCacheCols` is single source for bg row stride. Zoom state in `state.lua` only. Selection color in config only.
-- [x] LIFESTAR Testable: Each fix is isolated and independently verifiable.
-- [x] LIFESTAR Findable: `isScrollNav` guard makes shift-key logic discoverable. `zoomInProgress` flag is explicit.
-- [x] CODING-STANDARD: `and`/`or`/`not`, Allman braces, brace init, `.at()`, no early returns, positive checks.
-- [x] NAMING-CONVENTION: `bgCacheCols`, `isScrollNav`, `zoomInProgress`, `selectionColour` — all semantic.
-
-### Problems Solved
-
-1. **bgCacheCols overflow** — Cells emitting 2 bg entries (colored bg + block char) could overflow into next row's bg slots
-2. **Shift key swallowing** — Shift+printable characters (`:`, `!`, uppercase) were caught by scroll nav handler
-3. **Selection rendering** — XOR INVERSE replaced with transparent overlay using configurable color
-4. **Window state lost on Cmd+Q** — `saveWindowSize` now called in `systemRequestedQuit()`
-5. **NF/identity icons not scaling with zoom** — `Fonts::setSize()` now resizes all font handles, not just mainFont and emojiFont
-6. **Fallback font cache stale after zoom** — Cache cleared on every `setSize()` call, resolves Sprint 83 tech debt item #5
-
-### Technical Debt / Follow-up
-
-1. **Paste inversion** — Shell-side SGR 7 from OMP prompt. Same behavior in Kitty/WezTerm. NOT an END bug. Left as-is.
-2. **Linux system font fallback** — Still deferred from Sprint 83. No FreeType equivalent of `CTFontCreateForString`.
-3. **FreeType path: main face hb_font not recreated on setSize** — `hb_ft_font_create_referenced` caches internal state. Currently relies on FT_Set_Char_Size updating the face in-place. May need explicit recreation if shaping artifacts appear after zoom on Linux.
-
----
-
-## Sprint 83: System Font Fallback + Half-Line Box Drawing Fix
-
-**Date:** 2026-03-06
-**Agents:** COUNSELOR, @pathfinder, @researcher, @engineer
-
-### Objective
-
-Fix two rendering issues discovered when running opencode TUI in END:
-1. Arrow `→` (U+2192) renders as box — missing glyph, no system font fallback
-2. Half-line characters like `╹` (U+2579) render as `┼` — missing handler in procedural box drawing
-
-### Root Cause Analysis
-
-**Missing glyph (U+2192):**
-- Embedded DisplayMono-Book.ttf has 1,426 glyphs — standard Latin/ASCII only, no arrows
-- SymbolsNerdFont-Regular.ttf covers NF private-use area (U+E000+) but not standard Unicode arrows
-- `shapeHarfBuzz` returns glyph count 1 with glyph index 0 (.notdef) but doesn't detect it
-- `result.count == 1` (not 0) so `shapeFallback` is never called
-- Even if called, `shapeFallback` only tried `mainFont` (same font that already failed)
-- No system font fallback existed
-
-**Half-line box drawing (U+2574–U+257F):**
-- `BoxDrawing::rasterize` dispatch had no handler for idx 0x74–0x7F
-- These 12 codepoints fell into the `else` fallback: `{light, light, light, light}` → `┼`
-- Characters affected: `╴╵╶╷╸╹╺╻╼╽╾╿`
-
-### Changes
-
-**System Font Fallback**
-
-`Source/terminal/rendering/Fonts.h:83,135`
-- `ShapeResult` gains `void* fontHandle { nullptr }` — carries the actual font used for shaping
-- `std::unordered_map<uint32_t, void*> fallbackFontCache` added to macOS private section
-
-`Source/terminal/rendering/Fonts.mm:58-64` (destructor)
-- Iterates `fallbackFontCache`, releases all cached CTFontRefs
-
-`Source/terminal/rendering/Fonts.mm:761-795` (shapeHarfBuzz)
-- After `hb_shape`, scans all returned glyph infos for .notdef (glyph index 0)
-- If ALL glyphs are .notdef, returns count=0, triggering `shapeFallback`
-
-`Source/terminal/rendering/Fonts.mm:799-936` (shapeFallback)
-- Tries `mainFont` first (existing behavior)
-- On miss: checks `fallbackFontCache` for cached result
-- On cache miss: calls `CTFontCreateForString(mainFont, str, range)` to find system font
-- Validates PostScript name is not "LastResort"
-- Verifies glyph exists via `glyphForCodepoint`
-- Caches result (CTFontRef or nullptr on failure) per codepoint
-- Sets `result.fontHandle` when fallback font was used
-
-`Source/terminal/rendering/FontsShaping.cpp:50-68` (Linux shapeHarfBuzz)
-- Same .notdef detection — returns count=0 if all glyphs are .notdef
-
-`Source/terminal/rendering/ScreenRender.cpp:378-383,410-413`
-- All 3 `shapeText` call sites check `shaped.fontHandle != nullptr`
-- Substitutes fallback font handle for `renderHandle` before `emitShapedGlyphsToCache`
-- Emoji path excluded from override
-
-**Half-Line Box Drawing**
-
-`Source/terminal/rendering/BoxDrawing.h:59-63`
-- Added `else if (idx >= 0x74 and idx <= 0x7F)` branch before the `else` fallback
-- Dispatches to `HALF_TABLE.at(idx - 0x74)` → `drawLines`
-
-`Source/terminal/rendering/BoxDrawing.h:648-662`
-- Added `static constexpr std::array<Lines, 12> HALF_TABLE` with correct entries for all 12 half-line/mixed-weight characters
-
-### Alignment Check
-
-- [x] LIFESTAR Lean: System fallback uses CoreText's built-in cascade — no manual font scanning
-- [x] LIFESTAR Explicit: Fallback cache is per-codepoint, deterministic. LastResort font explicitly rejected.
-- [x] LIFESTAR SSOT: Fallback logic lives in `shapeFallback` only. `ShapeResult.fontHandle` propagates font identity through existing pipeline.
-- [x] LIFESTAR Testable: .notdef detection is deterministic. HALF_TABLE is constexpr.
-- [x] CODING-STANDARD: `and`/`or`/`not`, Allman braces, brace init, `.at()`, no early returns
-
-### Problems Solved
-
-1. **U+2192 `→` renders as box** — System font fallback finds a system font (e.g. Menlo, Helvetica) that has the glyph
-2. **U+2579 `╹` renders as `┼`** — HALF_TABLE provides correct `{heavy, none, none, none}` entry
-3. **All 12 half-line chars (U+2574–U+257F)** — Now render correctly instead of as `┼`
-4. **HarfBuzz .notdef not detected** — `shapeHarfBuzz` now returns count=0 for all-.notdef, triggering fallback
-
-### Technical Debt / Follow-up
-
-1. **Color artifacts** — Background overflow bug in `ScreenRender.cpp:153`: `bgCount[row]` has no bounds check. Block chars + colored backgrounds can overflow `cachedBg` into next row's slots. **Next priority.**
-2. **U+254C–U+254F** (double-dash lines) — Still hit the `┼` fallback. Uncommon characters, low priority.
-3. **Linux system font fallback** — .notdef detection added but no FreeType equivalent of `CTFontCreateForString`. `shapeFallback` on Linux still only tries the primary font.
-4. **Multi-codepoint fallback** — `shapeFallback` sets `result.fontHandle` to the last fallback font used. If different codepoints in a cluster need different fallback fonts, only the last one is propagated. Rare edge case.
-5. **Fallback cache invalidation** — Cache is never cleared (except on Fonts destruction). Font size changes don't invalidate. CTFontCreateForString inherits size from mainFont, so size changes would need cache rebuild.
-
----
-
-## Sprint 82: Full Codebase Audit Sweep — 71-File Clean
-
-**Date:** 2026-03-06
-**Agents:** COUNSELOR, @pathfinder, @engineer, @oracle, @researcher
-
-### Objective
-
-Execute a full codebase clean sweep of END based on a 71-file audit report. Fix every finding: critical bugs, SSOT violations, coding standard violations, naming convention violations, dead code removal, and low-priority issues. Mandate: fix all, never assume — stop and discuss any discrepancy between audit and actual code.
-
-### Changes
-
-**Phase 1-2: Critical Bugs (6 audited, 4 real, 2 false positives)**
-
-`Source/terminal/rendering/FontsShaping.cpp:87`
-- Added null check on `face` in `shapeFallback()` — `getFace(Style::regular)` could differ from caller's style
-- Audit #1 was false positive at caller level (shapeText already null-checks) but user decided to add defensive check anyway
-
-`Source/terminal/rendering/GlyphAtlas.cpp:358,396`
-- Added `true` for zero-init to both `HeapBlock<uint8_t> buf(bufSize)` calls — Critical Bug #2
-
-`Source/terminal/rendering/GlyphAtlas.cpp` + `GlyphAtlas.mm`
-- Fixed `adaptiveScale` to `std::min(1.0f, uniform)` (never upscale) — Critical Bug #3
-- Research confirmed: `adaptiveScale` = NF patcher `pa` without `!` flag = min(min(scaleX,scaleY), 1.0)
-
-`Source/terminal/tty/UnixTTY.cpp:73-74`
-- Added `if (flags != -1)` guard around `fcntl(F_SETFL)` — Critical Bug #5
-
-`Source/component/MessageOverlay.h`
-- Removed stale `backgroundColour` and `font` members, now reads config fresh in `paint()` — Critical Bug #6
-
-Critical Bug #4 (`||` in `#if JUCE_MAC || JUCE_LINUX`) — false positive, preprocessor syntax is correct
-
-**Phase 3: SSOT Violations**
-
-`Source/component/TerminalComponent.h:31` + `TerminalComponent.cpp`
-- Extracted `isMouseTracking()` helper — replaced 4 duplicate 3-condition checks
-
-`Source/config/Config.h:7-8`
-- Added `static constexpr float zoomMin { 1.0f }` and `zoomMax { 4.0f }`
-- Replaced 4 hardcoded zoom clamp values across Config.cpp and TerminalComponent.cpp
-
-`Source/config/Config.h:109`
-- Added `static constexpr const char* configErrorPrefix` — replaced 2 duplicate string literals in Config.cpp
-
-`Source/MainComponent.cpp`
-- Removed duplicate `saveWindowSize` call from destructor (close callback already handles it)
-
-`Source/component/TerminalComponent.h` + `.cpp`
-- Renamed `gridOverlay` → `messageOverlay` (semantic naming)
-
-Platform-guarded SSOT items (getDisplayScale, ceil26_6ToPx, HarfBuzz loops, texture coords, scale-mode) — skipped as inherent to platform-specific `.mm`/`.cpp` split
-
-**Phase 4: Coding Standard Violations**
-
-`Source/terminal/tty/UnixTTY.cpp` — `waitForData` early return → positive check, added braces
-`Source/terminal/logic/Session.cpp` — added braces on callbacks
-`Source/terminal/logic/ParserVT.cpp` — added braces
-`Source/terminal/logic/ParserCSI.cpp` — `\033` → `\x1b` standardization
-`Source/terminal/logic/ParserSGR.cpp` — if/continue chain → else-if ladder
-`Source/terminal/logic/Grid.h` — public section reordered
-`Source/terminal/logic/GridScroll.cpp` — early returns → if/else
-`Source/terminal/rendering/GlyphAtlas.cpp` — 3 early returns → positive checks, added braces
-`Source/terminal/rendering/GlyphAtlas.mm` — added braces on alignment block
-`Source/terminal/rendering/FontsMetrics.cpp` — added braces
-`Source/terminal/rendering/FontsShaping.cpp` — added braces
-`Source/terminal/rendering/Screen.cpp` — 2 early returns → single-exit
-`Source/terminal/rendering/ScreenRender.cpp` — 3 early returns → single-exit
-`Source/terminal/rendering/TerminalGLRenderer.cpp` — comment spacing
-`Source/component/TerminalComponent.cpp` — `keyPressed` converted to single-return, all mouse handlers converted from early returns to positive checks
-
-Data layer (CharProps.h, Palette.h, Keyboard.h, Cell.h, Charset.h, ValueTreeUtilities.h, State.cpp, StateFlush.cpp) — all already compliant, no changes needed
-
-**Phase 5: Naming Convention Violations**
-
-`Source/terminal/rendering/Fonts.h` — 14 member renames:
-- `ctFont`→`mainFont`, `emojiCtFont`→`emojiFont`, `nfCtFont`→`nerdFont`
-- `hbFont`→`shapingFont`, `emojiHbFont`→`emojiShapingFont`, `nfHbFont`→`nerdShapingFont`
-- `dmIdentityCtFont`→`identityFont`, `dmIdentityHbFont`→`identityShapingFont`
-- `cellW26_6`→`fixedCellWidth`, `cellH26_6`→`fixedCellHeight`, `baseline26_6`→`fixedBaseline`
-- `shapeScratch`→`shapingBuffer`, `shapeScratchCapacity`→`shapingBufferCapacity`
-- All references updated in Fonts.mm, Fonts.cpp, FontsShaping.cpp, FontsMetrics.cpp
-
-`Source/component/CursorComponent.h` — `colorEmoji`→`colourEmoji`
-`Source/terminal/logic/ParserVT.cpp` — `dst`→`cellRow`
-`Source/terminal/tty/UnixTTY.h` + `.cpp` — `masterFd`→`master`, `childPid`→`childProcess`, `KILL_TIMEOUT_ITERATIONS`→`killTimeoutIterations`, `KILL_POLL_INTERVAL_US`→`killPollInterval`
-`Source/terminal/tty/WindowsTTY.h` + `.cpp` — `hPC`→`pseudoConsole`, `hReadOut`→`outputReader`, `hWriteIn`→`inputWriter`, `hProcess`→`process`, `hReadIn`→`pipeReadEnd`, `hWriteOut`→`pipeWriteEnd`
-`Source/Main.cpp` — empty constructor → `= default`
-`Source/config/Config.h` — `fontEmbolden` alignment fixed, `minVal`→`minValue`, `maxVal`→`maxValue` in ValueSpec (+ Config.cpp references)
-`Source/terminal/logic/Parser.h` + `Parser.cpp` — member `intermediates`→`intermediateBuffer` (resolved shadow with parameter names in csiDispatch/dcsHook declarations)
-
-**Phase 6: Dead Code Removal**
-
-`Source/resources/table_serializer.lua` — DELETED (confirmed not in CMakeLists.txt or .jucer)
-`Source/terminal/logic/ParserOps.cpp` — `clearTabStop()`/`clearAllTabStops()` marked `// TODO: unused — verify before removal`
-`Source/terminal/logic/Parser.cpp` — `performExitAction` marked `// TODO: implement or remove`
-
-**Phase 7-8: Architectural + Low Issues**
-
-`Source/component/MessageOverlay.h` — magic numbers replaced: `0.8f`→`backgroundAlpha`, `20`(padding)→`textPadding`, `20`(lines)→`maxLines`
-`Source/MainComponent.cpp:21` — long line broken, extracted `cfg` local variable
-
-Keyboard.h struct-as-namespace — cancelled (has private members, struct pattern is correct)
-ScreenRender.cpp indentation error — cancelled (false positive, no issue found after full file review)
-AtlasPacker.h `shelfCapacity = 64` — skipped (comment already adequate)
-CharPropsData.h `Regional_Indicator` snake_case — skipped (generated file)
-
-### Alignment Check
-
-- [x] LIFESTAR Lean: No unnecessary abstractions added. Helpers only where 3+ duplicates existed.
-- [x] LIFESTAR SSOT: Zoom constants, configErrorPrefix, isMouseTracking — all single source now.
-- [x] LIFESTAR Explicit: All defensive checks added with clear intent. No hidden state.
-- [x] LIFESTAR Findable: Semantic names throughout (mainFont, shapingBuffer, messageOverlay, etc.)
-- [x] LIFESTAR Reviewable: All coding standard violations fixed — Allman braces, `and`/`or`/`not`, no early returns, brace init.
-- [x] NAMING-CONVENTION: Rule 2 (no type in name), Rule 3 (semantic over literal), Rule 4 (clarity over brevity), Rule 5 (consistency) — all applied.
-- [x] ARCHITECTURAL-MANIFESTO: Platform-guarded duplication preserved (not false SSOT). Layer boundaries respected.
-
-### Problems Solved
-
-1. **Uninitialized glyph atlas buffers** — HeapBlock zero-init added
-2. **NF icons upscaling** — adaptiveScale now caps at 1.0
-3. **fcntl on invalid fd** — flags checked before F_SETFL
-4. **Stale config in MessageOverlay** — reads fresh on every paint
-5. **4 duplicate mouse-tracking checks** — extracted to single helper
-6. **4 hardcoded zoom bounds** — centralized in Config constants
-7. **Variable shadowing in Parser** — member renamed to intermediateBuffer
-8. **30+ coding standard violations** — early returns, missing braces, escape sequences, etc.
-9. **20+ naming violations** — cryptic abbreviations replaced with semantic names
-
-### False Positives in Audit (documented for future reference)
-
-1. Critical Bug #1 (FontsShaping null check) — caller already guards, but defensive check added per user decision
-2. Critical Bug #4 (`||` in `#if`) — preprocessor syntax, not C++ code
-3. SSOT #3-7 (platform-guarded duplication) — inherent to `.mm`/`.cpp` split, not real duplication
-4. SSOT #9 (ceilDiv) — only 2 occurrences, LIFESTAR Lean says skip
-5. SSOT #10 (GL divisor reset) — different attribute counts, not identical code
-6. ScreenRender.cpp indentation — no issue found in actual file
-7. Data layer files — all already compliant
-
-### Technical Debt / Follow-up
-
-1. **ParserOps.cpp dead code** — `clearTabStop()`/`clearAllTabStops()` marked TODO. May be needed for future DECST/DECTBM support. Verify before removal.
-2. **Parser.cpp `performExitAction`** — empty body, marked TODO. May be needed for DCS state machine.
-3. **SPEC.md** still references `table_serializer.lua` in file tree (line 849) — update when next editing SPEC.
-4. **Linux emoji cursor** — still deferred from Sprint 81.
-5. **Build verification needed** — many files modified across all layers. User should build all platforms.
-
----
-
-## Sprint 81: Phase 4 Complete + Cursor Fixes + Config Hot-Reload
-
-**Date:** 2026-03-06
-**Agents:** COUNSELOR, @pathfinder, @engineer
-
-### Objective
-
-Complete Phase 4 (block elements + braille), fix cursor bugs (DECTCEM visibility, emoji cursor rendering, Y-flip), add config hot-reload via keyboard shortcut, refactor Theme ownership into Config.
-
-### Changes
-
-**Phase 4c+4d: Block Elements + Braille**
-
-`Source/terminal/rendering/BoxDrawing.h` (549 lines)
-- `isProcedural` — extended to cover U+2580-U+259F (block elements) and U+2800-U+28FF (braille)
-- `rasterize` — added dispatch to `drawBlockElement` and `drawBraille`
-- `drawShade` — flat alpha memset (64/128/191 for light/medium/dark)
-- `drawBlockElement` — full switch for all 32 block codepoints: fractional lower/left blocks via `h*N/8`/`w*N/8`, quadrant combos via multiple `fillRect`
-- `drawBraille` — 8-bit pattern decode, 2×4 dot grid centered in cells, two constexpr arrays for col/row mapping
-
-**Cursor DECTCEM Fix**
-
-`Source/component/TerminalComponent.cpp:297-300`
-- VBlank cursor visibility now respects DECTCEM mode (`\e[?25l` / `\e[?25h`)
-- Was: `cursor->setVisible (not scrolledBack)` — unconditionally visible when not scrolled back
-- Now: `cursor->setVisible (not scrolledBack and cursorMode)` where `cursorMode = state.isCursorVisible (activeScreen)`
-- Root cause: TUI apps (ASCII animations) send DECTCEM hide, but VBlank overrode it every frame, causing cursor block to appear at random positions during animation
-
-**Cursor Emoji + Fallback Rendering**
-
-`Source/terminal/rendering/Fonts.h:101`
-- `rasterizeToImage` gains `bool& isColor` out-param
-
-`Source/terminal/rendering/Fonts.mm:437-660`
-- Font fallback chain: text font → emoji font → NF font
-- Emoji: creates `CGBitmapContext` with `DeviceRGB` + `kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host`, BGRA pixel copy
-- Non-emoji fallback (NF): grayscale alpha as before
-- `isColor = true` only for emoji font path
-- Removed Y-flip from both emoji and grayscale pixel copy loops (CG bitmap data is top-to-bottom in memory — Sprint 74 discovery)
-
-`Source/terminal/rendering/Fonts.cpp:362`
-- Signature updated, `isColor = false` (Linux emoji cursor deferred)
-
-`Source/component/CursorComponent.h:48-65`
-- Color emoji: use image directly, skip tinting
-- Non-color: tint with cursor colour as before
-
-**Config Hot-Reload**
-
-`Source/component/TerminalComponent.h:31`
-- Added `applyConfig()` declaration
-
-`Source/component/TerminalComponent.cpp:96-101`
-- `Ctrl+Shift+/` (or `Ctrl+Shift+?`) triggers `Config::reload()` + `applyConfig()`
-
-`Source/component/TerminalComponent.cpp:313-319` — `applyConfig()`
-- Re-applies: ligatures, theme. Triggers snapshot rebuild.
-- Single API calls: `cfg->getBool()`, `cfg->buildTheme()` — no internal poking
-
-**Theme Refactor (ARCHITECTURAL-MANIFESTO compliance)**
-
-`Source/config/Config.h:7-12`
-- Added `Config::Theme` struct (defaultForeground, defaultBackground, ansi[16])
-- Added `buildTheme()` declaration
-
-`Source/config/Config.cpp:172-197`
-- `buildTheme()` — single place that maps 18 config colour keys to Theme struct
-
-`Source/terminal/rendering/Screen.h:13,59`
-- Added `#include "../../config/Config.h"`
-- Replaced `Terminal::Theme` struct with `using Theme = Config::Theme;`
-
-`Source/component/TerminalComponent.cpp:15,313-319`
-- Constructor and `applyConfig()` both use `cfg->buildTheme()` — one call, no poking internals
-
-### Alignment Check
-
-- [x] LIFESTAR: Explicit Encapsulation — Config owns Theme, higher hierarchy sets instructions not pokes internals. "Objects manage their own state" — Config builds its own Theme.
-- [x] LIFESTAR: SSOT — Theme definition lives in Config (single source), Screen uses alias
-- [x] LIFESTAR: Lean — `applyConfig()` is 4 lines. `buildTheme()` centralizes the 18-key mapping.
-- [x] LIFESTAR: Accessible — `font.ligatures` configurable and hot-reloadable via `Ctrl+Shift+/`
-- [x] CODING-STANDARD: `and`/`or`/`not`, Allman braces, brace init, `noexcept`, no early returns
-
-### Problems Solved
-
-1. **Random cursor blocks during TUI animations** — DECTCEM mode not respected in VBlank
-2. **Emoji cursor not rendering** — `rasterizeToImage` only tried text font, no fallback chain
-3. **Cursor Y-flip** — both grayscale and emoji paths had unnecessary Y-flip (CG data already top-down)
-4. **Theme poking violation** — TerminalComponent manually building Theme from 18 keys violated ARCHITECTURAL-MANIFESTO
-5. **No config hot-reload** — had to restart app to apply config changes
-
-### Technical Debt / Follow-up
-
-1. **Hot-reload scope** — currently reloads: ligatures, theme colours. Does NOT hot-reload: font family, font size, cursor char, cursor blink, window opacity/colour. These require object recreation.
-2. **Linux emoji cursor** — `isColor` always false on Linux path. Needs FreeType color emoji support.
-3. **Phase 5 cancelled** — `build_monolithic.py` doesn't exist, Display Mono already has no NF glyphs.
-4. **Dashed/dotted lines** (U+2504-U+250B) — currently render as solid lines. Could add dash pattern.
-5. **Diagonal lines** (U+2571-U+2573) — not in current procedural range. Would need separate handler.
 
 ---

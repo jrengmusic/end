@@ -2,7 +2,7 @@
 #include "jreng_pane_manager.h"
 
 namespace jreng
-{
+{ /*____________________________________________________________________________*/
 
 PaneResizerBar::PaneResizerBar (PaneManager* layout_, juce::ValueTree splitNode_, bool isVertical_)
     : layout (layout_)
@@ -14,9 +14,7 @@ PaneResizerBar::PaneResizerBar (PaneManager* layout_, juce::ValueTree splitNode_
                                 : juce::MouseCursor::UpDownResizeCursor);
 }
 
-PaneResizerBar::~PaneResizerBar()
-{
-}
+PaneResizerBar::~PaneResizerBar() = default;
 
 //==============================================================================
 const juce::ValueTree& PaneResizerBar::getSplitNode() const noexcept
@@ -27,7 +25,7 @@ const juce::ValueTree& PaneResizerBar::getSplitNode() const noexcept
 //==============================================================================
 void PaneResizerBar::hasBeenMoved()
 {
-    if (auto* p = getParentComponent())
+    if (auto* p { getParentComponent() }; p != nullptr)
         p->resized();
 }
 
@@ -59,4 +57,5 @@ void PaneResizerBar::mouseDrag (const juce::MouseEvent& e)
     }
 }
 
-} // namespace jreng
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace jreng

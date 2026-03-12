@@ -1,5 +1,20 @@
 #include "KeyBinding.h"
 
+static const std::array<juce::String, 11> actionIDs
+{
+    Config::Key::keysCopy,
+    Config::Key::keysPaste,
+    Config::Key::keysQuit,
+    Config::Key::keysCloseTab,
+    Config::Key::keysReload,
+    Config::Key::keysZoomIn,
+    Config::Key::keysZoomOut,
+    Config::Key::keysZoomReset,
+    Config::Key::keysNewTab,
+    Config::Key::keysPrevTab,
+    Config::Key::keysNextTab
+};
+
 KeyBinding::KeyBinding (juce::ApplicationCommandManager& commandManager)
     : acm (commandManager)
 {
@@ -81,7 +96,7 @@ juce::KeyPress KeyBinding::parse (const juce::String& shortcutString)
 
     for (int i { 0 }; i < tokens.size(); ++i)
     {
-        const auto& token { tokens[i] };
+        const auto& token { tokens[i] }; // juce::StringArray has no .at(); operator[] is bounds-safe in debug
 
         if (token == "cmd" or token == "ctrl")
         {
@@ -136,21 +151,6 @@ juce::KeyPress KeyBinding::parse (const juce::String& shortcutString)
 
 const juce::String& KeyBinding::actionIDForCommand (CommandID cmd)
 {
-    static const std::array<juce::String, 11> actionIDs
-    {
-        Config::Key::keysCopy,
-        Config::Key::keysPaste,
-        Config::Key::keysQuit,
-        Config::Key::keysCloseTab,
-        Config::Key::keysReload,
-        Config::Key::keysZoomIn,
-        Config::Key::keysZoomOut,
-        Config::Key::keysZoomReset,
-        Config::Key::keysNewTab,
-        Config::Key::keysPrevTab,
-        Config::Key::keysNextTab
-    };
-
     const int idx { static_cast<int> (cmd) - 1 };
     const int safeIdx { (idx >= 0 and idx < 11) ? idx : 0 };
 
@@ -159,21 +159,6 @@ const juce::String& KeyBinding::actionIDForCommand (CommandID cmd)
 
 KeyBinding::CommandID KeyBinding::commandForActionID (const juce::String& actionID)
 {
-    static const std::array<juce::String, 11> actionIDs
-    {
-        Config::Key::keysCopy,
-        Config::Key::keysPaste,
-        Config::Key::keysQuit,
-        Config::Key::keysCloseTab,
-        Config::Key::keysReload,
-        Config::Key::keysZoomIn,
-        Config::Key::keysZoomOut,
-        Config::Key::keysZoomReset,
-        Config::Key::keysNewTab,
-        Config::Key::keysPrevTab,
-        Config::Key::keysNextTab
-    };
-
     for (int i { 0 }; i < 11; ++i)
     {
         if (actionIDs.at (i) == actionID)

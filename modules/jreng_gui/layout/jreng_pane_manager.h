@@ -21,25 +21,52 @@ class PaneManager
 {
 public:
     //==============================================================================
+    /** @brief Constructs with empty PANES root node. */
     PaneManager();
+
+    /** @brief Destructor. */
     ~PaneManager();
 
     //==============================================================================
+    /** @brief Returns the PANES root ValueTree for grafting into AppState. */
     juce::ValueTree& getState() noexcept;
 
+    /** @brief Adds the first leaf PANE node.
+        @param uuid Terminal componentID.
+    */
     void addLeaf (const juce::String& uuid);
 
+    /** @brief Splits an existing leaf into two.
+        @param uuid      Existing leaf to split.
+        @param newUuid   New leaf UUID.
+        @param direction Internal divider orientation: "vertical" = left/right divider,
+                         "horizontal" = top/bottom divider.
+    */
     void split (const juce::String& uuid,
                 const juce::String& newUuid,
                 const juce::String& direction);
 
+    /** @brief Removes a leaf and promotes its sibling.
+        Handles both nested (grandparent exists) and root-level (parent == state) cases.
+    */
     void remove (const juce::String& uuid);
 
     //==============================================================================
+    /** @brief Returns the current pixel position of the divider for the given split node.
+        Computed from stored bounds and ratio.
+    */
     int getItemCurrentPosition (const juce::ValueTree& splitNode) const;
+
+    /** @brief Updates the split ratio from a new pixel position.
+        Clamps ratio to [0.1, 0.9].
+    */
     void setItemPosition (const juce::ValueTree& splitNode, int newPosition);
 
     //==============================================================================
+    /** @brief Recursively subdivides bounds according to the binary tree, positioning
+        components and resizer bars. Matches components by componentID, resizer bars
+        by splitNode identity.
+    */
     template <typename ComponentType>
     static void layOut (const juce::ValueTree& state,
                         juce::Rectangle<int> bounds,
@@ -48,6 +75,14 @@ public:
     {
         layOutNode (state, bounds, components, resizerBars);
     }
+
+    //==============================================================================
+    /** @brief Recursively finds a PANE leaf by UUID.
+        @param node Starting node for the search.
+        @param uuid UUID to search for.
+        @return The matching PANE ValueTree, or invalid if not found.
+    */
+    static juce::ValueTree findLeaf (juce::ValueTree node, const juce::String& uuid);
 
 private:
     //==============================================================================
@@ -135,9 +170,6 @@ private:
     }
 
     //==============================================================================
-    static juce::ValueTree findLeaf (juce::ValueTree node, const juce::String& uuid);
-
-    //==============================================================================
     juce::ValueTree state;
 
     static constexpr int resizerBarSize { 4 };
@@ -146,12 +178,21 @@ private:
 
 public:
     //==============================================================================
+    /** @brief Root node type identifier ("PANES"). */
     static const juce::Identifier idPanes;
+
+    /** @brief Leaf node type identifier ("PANE"). */
     static const juce::Identifier idPane;
+
+    /** @brief Property key for split direction ("vertical" or "horizontal"). */
     static const juce::Identifier idDirection;
+
+    /** @brief Property key for the split ratio in [0.0, 1.0]. */
     static const juce::Identifier idRatio;
+
+    /** @brief Property key for the leaf UUID matching componentID. */
     static const juce::Identifier idUuid;
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace jreng
+}// namespace jreng

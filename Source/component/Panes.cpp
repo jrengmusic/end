@@ -48,11 +48,9 @@ juce::String Panes::createTerminal()
     const juce::String uuid { term->getComponentID() };
     paneManager.addLeaf (uuid);
 
-    auto paneNode { findPaneNode (paneManager.getState(), uuid) };
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), uuid) };
     jassert (paneNode.isValid());
-
-    if (paneNode.isValid())
-        paneNode.appendChild (term->getValueTree(), nullptr);
+    paneNode.appendChild (term->getValueTree(), nullptr);
 
     if (isShowing())
         term->setVisible (true);
@@ -69,11 +67,7 @@ juce::String Panes::createTerminal()
 void Panes::setTerminalCallbacks (Terminal::Component* terminal)
 {
     jassert (onRepaintNeeded != nullptr);
-
-    if (onRepaintNeeded != nullptr)
-    {
-        terminal->onRepaintNeeded = onRepaintNeeded;
-    }
+    terminal->onRepaintNeeded = onRepaintNeeded;
 }
 
 /**
@@ -106,13 +100,11 @@ juce::ValueTree& Panes::getState() noexcept
  */
 void Panes::closePane (const juce::String& uuid)
 {
-    auto paneNode { findPaneNode (paneManager.getState(), uuid) };
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), uuid) };
     jassert (paneNode.isValid());
 
     auto splitNode { paneNode.getParent() };
-
-    if (paneNode.isValid())
-        paneNode.removeAllChildren (nullptr);
+    paneNode.removeAllChildren (nullptr);
 
     for (auto it { terminals.begin() }; it != terminals.end(); ++it)
     {
@@ -139,45 +131,34 @@ void Panes::closePane (const juce::String& uuid)
 }
 
 /**
- * @brief Splits the active pane into horizontal columns (side by side).
+ * @brief Splits the active pane into side-by-side columns.
  *
  * @note MESSAGE THREAD.
  */
 void Panes::splitHorizontal()
 {
-    const juce::String activeUuid { AppState::getContext()->getActiveTerminalUuid() };
-    jassert (activeUuid.isNotEmpty());
-
-    auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals) };
-    setTerminalCallbacks (term);
-
-    const juce::String newUuid { term->getComponentID() };
-    paneManager.split (activeUuid, newUuid, "vertical");
-
-    auto paneNode { findPaneNode (paneManager.getState(), newUuid) };
-    jassert (paneNode.isValid());
-
-    if (paneNode.isValid())
-        paneNode.appendChild (term->getValueTree(), nullptr);
-
-    auto splitNode { paneNode.getParent() };
-    jassert (splitNode.isValid());
-
-    resizerBars.add (std::make_unique<jreng::PaneResizerBar> (&paneManager, splitNode, true));
-    addAndMakeVisible (resizerBars.back().get());
-
-    if (isShowing())
-        term->setVisible (true);
-
-    resized();
+    splitImpl ("vertical", true);
 }
 
 /**
- * @brief Splits the active pane into vertical rows (stacked).
+ * @brief Splits the active pane into stacked rows.
  *
  * @note MESSAGE THREAD.
  */
 void Panes::splitVertical()
+{
+    splitImpl ("horizontal", false);
+}
+
+/**
+ * @brief Shared split implementation.
+ *
+ * @param direction  PaneManager direction string: "vertical" = left/right
+ *                   divider; "horizontal" = top/bottom divider.
+ * @param isVertical True when the resizer bar is vertical (splitHorizontal).
+ * @note MESSAGE THREAD.
+ */
+void Panes::splitImpl (const juce::String& direction, bool isVertical)
 {
     const juce::String activeUuid { AppState::getContext()->getActiveTerminalUuid() };
     jassert (activeUuid.isNotEmpty());
@@ -186,18 +167,16 @@ void Panes::splitVertical()
     setTerminalCallbacks (term);
 
     const juce::String newUuid { term->getComponentID() };
-    paneManager.split (activeUuid, newUuid, "horizontal");
+    paneManager.split (activeUuid, newUuid, direction);
 
-    auto paneNode { findPaneNode (paneManager.getState(), newUuid) };
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), newUuid) };
     jassert (paneNode.isValid());
-
-    if (paneNode.isValid())
-        paneNode.appendChild (term->getValueTree(), nullptr);
+    paneNode.appendChild (term->getValueTree(), nullptr);
 
     auto splitNode { paneNode.getParent() };
     jassert (splitNode.isValid());
 
-    resizerBars.add (std::make_unique<jreng::PaneResizerBar> (&paneManager, splitNode, false));
+    resizerBars.add (std::make_unique<jreng::PaneResizerBar> (&paneManager, splitNode, isVertical));
     addAndMakeVisible (resizerBars.back().get());
 
     if (isShowing())
@@ -291,29 +270,6 @@ void Panes::focusPane (int deltaX, int deltaY)
                 best->grabKeyboardFocus();
         }
     }
-}
-
-juce::ValueTree Panes::findPaneNode (const juce::ValueTree& root, const juce::String& uuid)
-{
-    juce::ValueTree result;
-
-    if (root.getType() == jreng::PaneManager::idPane
-        and root.getProperty (jreng::PaneManager::idUuid).toString() == uuid)
-    {
-        result = root;
-    }
-    else
-    {
-        for (auto child : root)
-        {
-            result = findPaneNode (child, uuid);
-
-            if (result.isValid())
-                break;
-        }
-    }
-
-    return result;
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
