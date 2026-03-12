@@ -657,6 +657,19 @@ private:
     juce::String discoverFontLinux (const juce::String& familyName);
     #endif
 
+    #if JUCE_WINDOWS
+    /**
+     * @brief Discovers a font file path on Windows via the font registry.
+     *
+     * Enumerates `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts`
+     * looking for an entry whose name starts with the requested family.
+     *
+     * @param familyName  Font family name to look up (e.g. "Cascadia Code").
+     * @return Absolute path to the font file, or empty if not found.
+     */
+    juce::String discoverFontWindows (const juce::String& familyName);
+    #endif
+
     // =========================================================================
     // Platform-specific font handles
     // =========================================================================

@@ -310,7 +310,15 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
 #endif
         };
 
-        if (not isAppCommand and not mods.isAltDown())
+        const bool isAltBlocked {
+#if JUCE_MAC
+            mods.isAltDown()
+#else
+            false
+#endif
+        };
+
+        if (not isAppCommand and not isAltBlocked)
         {
             clearSelectionAndScroll();
             session.handleKeyPress (key);

@@ -64,6 +64,7 @@
 #if JUCE_LINUX
     #include <fontconfig/fontconfig.h>
 #endif
+
 #include <BinaryData.h>
 #include "FontCollection.h"
 
@@ -571,6 +572,8 @@ juce::String Fonts::discoverFont (const juce::String& familyName)
         return discoverFontMac (familyName);
     #elif JUCE_LINUX
         return discoverFontLinux (familyName);
+    #elif JUCE_WINDOWS
+        return discoverFontWindows (familyName);
     #else
         (void) familyName;
         return {};
@@ -680,6 +683,75 @@ juce::String Fonts::discoverFontLinux (const juce::String& familyName)
 }
 #endif
 
+#if JUCE_WINDOWS
+/**
+ * @brief Discovers a font file path on Windows via the font registry.
+ *
+ * Enumerates `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts`
+ * looking for an entry whose name starts with the requested family.
+ * The registry value is either an absolute path or a filename relative
+ * to the system Fonts directory.
+ *
+ * @param familyName  Font family name to look up (e.g. "Cascadia Code").
+ * @return Absolute path to the font file, or empty if not found.
+ */
+juce::String Fonts::discoverFontWindows (const juce::String& familyName)
+{
+    juce::String path;
+    const juce::String target { familyName.toLowerCase() };
+
+    HKEY hKey { nullptr };
+    const LONG result { RegOpenKeyExW (HKEY_LOCAL_MACHINE,
+                                       L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts",
+                                       0, KEY_READ, &hKey) };
+
+    if (result == ERROR_SUCCESS and hKey != nullptr)
+    {
+        DWORD index { 0 };
+        wchar_t valueName[512];
+        DWORD valueNameLen { 512 };
+        BYTE valueData[512];
+        DWORD valueDataLen { 512 };
+        DWORD valueType { 0 };
+
+        while (RegEnumValueW (hKey, index, valueName, &valueNameLen,
+                              nullptr, &valueType, valueData, &valueDataLen) == ERROR_SUCCESS)
+        {
+            if (valueType == REG_SZ)
+            {
+                const juce::String entryName { juce::String (valueName).toLowerCase() };
+
+                if (entryName.startsWith (target))
+                {
+                    const juce::String filename { juce::String (reinterpret_cast<const wchar_t*> (valueData)) };
+
+                    if (juce::File::isAbsolutePath (filename))
+                    {
+                        path = filename;
+                    }
+                    else
+                    {
+                        wchar_t winDir[MAX_PATH];
+                        GetWindowsDirectoryW (winDir, MAX_PATH);
+                        path = juce::String (winDir) + "\\Fonts\\" + filename;
+                    }
+
+                    break;
+                }
+            }
+
+            ++index;
+            valueNameLen = 512;
+            valueDataLen = 512;
+        }
+
+        RegCloseKey (hKey);
+    }
+
+    return path;
+}
+#endif
+
 /**
  * @brief Returns the file path of the system emoji font.
  *
@@ -696,6 +768,8 @@ juce::String Fonts::discoverEmojiFont()
         return discoverFont ("Apple Color Emoji");
     #elif JUCE_LINUX
         return discoverFont ("Noto Color Emoji");
+    #elif JUCE_WINDOWS
+        return discoverFont ("Segoe UI Emoji");
     #else
         return {};
     #endif
