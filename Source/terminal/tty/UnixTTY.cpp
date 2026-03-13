@@ -47,17 +47,19 @@
  * 6. Close the slave fd if it is not already one of the standard fds.
  * 7. Set `TERM=xterm-256color` so the shell and TUI apps use 256-colour sequences.
  * 8. Set `LANG=UTF-8` if not already set, to enable Unicode output.
- * 9. `execlp(shell, shell, "-l")` — replace the process image with a login shell.
+ * 9. `execvp(shell, argv)` — replace the process image with the shell.
  *    Short names (e.g. "zsh") are resolved via `$PATH`.
  *
  * @param master           Master fd to close in the child.
  * @param slaveFd          Slave fd to use as the controlling terminal and stdio.
  * @param shell            Shell program name or absolute path (C string, must outlive fork).
+ * @param argv             Null-terminated argument vector (argv[0] = shell).
  * @param workingDirectory Optional working directory to chdir to before exec.
  *
  * @note Runs in the child process only.  Must not return.
  */
-static void runChildProcess (int master, int slaveFd, const char* shell, const char* workingDirectory) noexcept
+static void runChildProcess (int master, int slaveFd, const char* shell,
+                             char* const* argv, const char* workingDirectory) noexcept
 {
     ::close (master);
 
@@ -85,7 +87,7 @@ static void runChildProcess (int master, int slaveFd, const char* shell, const c
         setenv ("LANG", "UTF-8", 1);
     }
 
-    execlp (shell, shell, "-l", nullptr);
+    execvp (shell, argv);
     _exit (1);
 }
 
@@ -116,13 +118,15 @@ UnixTTY::~UnixTTY()
  * @param cols             Initial terminal width in character columns.
  * @param rows             Initial terminal height in character rows.
  * @param shell            Shell program name or absolute path.  Resolved via `$PATH`
- *                         using `execlp()` when not absolute.
+ *                         using `execvp()` when not absolute.
+ * @param args             Space-separated arguments for the shell (e.g. "-l").
  * @param workingDirectory Optional initial working directory for the shell.
  * @return                 `true` on success; `false` if `openpty()` or `fork()` fails.
  *
  * @note MESSAGE THREAD context.
  */
-bool UnixTTY::open (int cols, int rows, const juce::String& shell, const juce::String& workingDirectory)
+bool UnixTTY::open (int cols, int rows, const juce::String& shell,
+                    const juce::String& args, const juce::String& workingDirectory)
 {
     int slaveFd;
     struct winsize ws { static_cast<unsigned short> (rows), static_cast<unsigned short> (cols), 0, 0 };
@@ -130,6 +134,27 @@ bool UnixTTY::open (int cols, int rows, const juce::String& shell, const juce::S
     const char* shellCStr { shellUtf8.c_str() };
     const auto cwdUtf8 { workingDirectory.toStdString() };
     const char* cwdCStr { cwdUtf8.c_str() };
+
+    // Build argv: [shell, ...tokens, nullptr]
+    const auto tokens { juce::StringArray::fromTokens (args, true) };
+    std::vector<std::string> argStrings;
+    argStrings.reserve (static_cast<size_t> (tokens.size()));
+
+    for (const auto& t : tokens)
+    {
+        argStrings.push_back (t.toStdString());
+    }
+
+    std::vector<char*> argv;
+    argv.reserve (argStrings.size() + 2);
+    argv.push_back (const_cast<char*> (shellCStr));
+
+    for (auto& s : argStrings)
+    {
+        argv.push_back (s.data());
+    }
+
+    argv.push_back (nullptr);
 
     bool result { false };
 
@@ -139,7 +164,7 @@ bool UnixTTY::open (int cols, int rows, const juce::String& shell, const juce::S
 
         if (childProcess == 0)
         {
-            runChildProcess (master, slaveFd, shellCStr, cwdCStr);
+            runChildProcess (master, slaveFd, shellCStr, argv.data(), cwdCStr);
         }
 
         ::close (slaveFd);

@@ -85,14 +85,16 @@ public:
      * @param cols             Initial terminal width in character columns.
      * @param rows             Initial terminal height in character rows.
      * @param shell            Shell program name or absolute path.  Resolved via
-     *                         `$PATH` using `execlp()` when not absolute.
+     *                         `$PATH` using `execvp()` when not absolute.
+     * @param args             Space-separated arguments for the shell (e.g. "-l").
      * @param workingDirectory Optional initial working directory for the shell.
      *                         If empty, the shell inherits the parent's cwd.
      * @return                 `true` on success; `false` if `openpty()` or `fork()` fails.
      *
      * @note MESSAGE THREAD context.
      */
-    bool open (int cols, int rows, const juce::String& shell, const juce::String& workingDirectory = {}) override;
+    bool open (int cols, int rows, const juce::String& shell,
+               const juce::String& args = {}, const juce::String& workingDirectory = {}) override;
 
     /**
      * @brief Close the PTY and terminate the shell process.

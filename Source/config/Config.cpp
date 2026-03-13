@@ -87,7 +87,7 @@ void Config::initDefaults()
     values[Key::windowColour] = "#090D12";///< bunker
     values[Key::windowOpacity] = 0.75f;
     values[Key::windowBlurRadius] = 32.0f;
-    values[Key::windowAlwaysOnTop] = true;
+    values[Key::windowAlwaysOnTop] = false;
     values[Key::windowButtons] = false;
     values[Key::windowZoom] = 1.0f;
 
@@ -111,6 +111,11 @@ void Config::initDefaults()
     values[Key::shellProgram] = "bash";
 #elif JUCE_WINDOWS
     values[Key::shellProgram] = "powershell.exe";
+#endif
+#if JUCE_WINDOWS
+    values[Key::shellArgs] = "--login";
+#else
+    values[Key::shellArgs] = "-l";
 #endif
 
     values[Key::scrollbackNumLines] = 10000;
@@ -211,6 +216,7 @@ void Config::initSchema()
     schema[Key::overlayColour] = { T::string };
 
     schema[Key::shellProgram] = { T::string };
+    schema[Key::shellArgs] = { T::string };
 
     schema[Key::scrollbackNumLines] = { T::number, 100.0, 1000000.0, true };
     schema[Key::scrollbackStep] = { T::number, 1.0, 100.0, true };
@@ -460,7 +466,6 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                                 {
                                                     typeOk = (fieldVal.get_type() == sol::type::string);
                                                 }
-
                                                 if (not typeOk)
                                                 {
                                                     static const std::array<const char*, 3> specTypeNames {
@@ -568,6 +573,8 @@ float Config::getFloat (const juce::String& key) const { return static_cast<floa
  * @return The stored boolean value.
  */
 bool Config::getBool (const juce::String& key) const { return static_cast<bool> (values.at (key)); }
+
+
 
 /**
  * @brief Returns a config value parsed as a JUCE Colour.

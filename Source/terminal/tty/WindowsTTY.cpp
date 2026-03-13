@@ -100,12 +100,15 @@ static bool createPseudoConsoleAndPipes (HPCON& pseudoConsole, HANDLE& pipeReadE
  * @param      shell           Shell program as a wide string.  Short names
  *                             (e.g. L"pwsh") are resolved via `%PATH%` by
  *                             `CreateProcessW()`.
+ * @param      args            Shell arguments as a wide string (space-separated).
+ * @param      workingDirectory Initial cwd for the child process.
  * @return                     `true` if `CreateProcessW()` succeeded.
  *
  * @note Called from `WindowsTTY::open()` on the message thread.
  */
 static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipeWriteEnd,
-                          HANDLE& process, const std::wstring& shell, const std::wstring& workingDirectory)
+                          HANDLE& process, const std::wstring& shell,
+                          const std::wstring& args, const std::wstring& workingDirectory)
 {
     size_t attrSize { 0 };
     InitializeProcThreadAttributeList (nullptr, 1, 0, &attrSize);
@@ -123,6 +126,12 @@ static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipe
             PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pseudoConsole, sizeof (HPCON), nullptr, nullptr);
 
         std::wstring cmd { shell };
+
+        if (not args.empty())
+        {
+            cmd += L' ';
+            cmd += args;
+        }
         PROCESS_INFORMATION pi {};
 
         const wchar_t* cwd { workingDirectory.empty() ? nullptr : workingDirectory.c_str() };
@@ -188,22 +197,25 @@ static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipe
  * @param rows             Initial terminal height in character rows.
  * @param shell            Shell program name or absolute path.  Resolved via `%PATH%`
  *                         by `CreateProcessW()` when not absolute.
+ * @param args             Space-separated arguments for the shell (e.g. "--login").
  * @param workingDirectory Optional initial working directory for the shell.
  * @return                 `true` on success; `false` if any Win32 call fails.
  *
  * @note MESSAGE THREAD context.
  */
-bool WindowsTTY::open (int cols, int rows, const juce::String& shell, const juce::String& workingDirectory)
+bool WindowsTTY::open (int cols, int rows, const juce::String& shell,
+                       const juce::String& args, const juce::String& workingDirectory)
 {
     COORD size { static_cast<short> (cols), static_cast<short> (rows) };
     const std::wstring shellWide { shell.toWideCharPointer() };
+    const std::wstring argsWide { args.toWideCharPointer() };
     const std::wstring cwdWide { workingDirectory.toWideCharPointer() };
 
     bool result { false };
 
     if (createPseudoConsoleAndPipes (pseudoConsole, pipeReadEnd, inputWriter, outputReader, pipeWriteEnd, size))
     {
-        if (spawnProcess (pseudoConsole, pipeReadEnd, pipeWriteEnd, process, shellWide, cwdWide))
+        if (spawnProcess (pseudoConsole, pipeReadEnd, pipeWriteEnd, process, shellWide, argsWide, cwdWide))
         {
             startThread();
             result = true;

@@ -86,6 +86,8 @@ public:
      * @param shell            Shell program name or absolute path (e.g. "zsh",
      *                         "/opt/homebrew/bin/fish").  Resolved via `$PATH` when
      *                         not an absolute path.
+     * @param args             Space-separated arguments to pass to the shell
+     *                         (e.g. "-l", "--login -i").  Tokenized at the call site.
      * @param workingDirectory Optional initial working directory for the shell.
      *                         If empty, the shell inherits the parent's cwd.
      * @return                 `true` on success; `false` if the PTY or process could not
@@ -94,7 +96,8 @@ public:
      * @note Called from the message thread.  Must not be called while the
      *       reader thread is already running.
      */
-    virtual bool open (int cols, int rows, const juce::String& shell, const juce::String& workingDirectory = {}) = 0;
+    virtual bool open (int cols, int rows, const juce::String& shell,
+                       const juce::String& args = {}, const juce::String& workingDirectory = {}) = 0;
 
     /**
      * @brief Close the PTY and terminate the shell process.

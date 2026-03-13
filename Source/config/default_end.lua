@@ -236,6 +236,11 @@ END = {
 		-- Shell program name or absolute path.
 		-- Examples: "zsh", "bash", "fish", "/opt/homebrew/bin/fish"
 		program = "%%shell_program%%",
+
+		-- Arguments passed to the shell program (space-separated string).
+		-- Default: "-l" on Unix, "--login" on Windows.
+		-- Set to "" to launch the shell with no arguments.
+		args = "%%shell_args%%",
 	},
 
 	-- ========================================================================

@@ -275,6 +275,9 @@ struct Config : jreng::Context<Config>
         /** @brief Shell program name or absolute path (e.g. "zsh", "/opt/homebrew/bin/fish"). */
         inline static const juce::String shellProgram { "shell.program" };
 
+        /** @brief Shell arguments passed after the program name (array of strings). */
+        inline static const juce::String shellArgs { "shell.args" };
+
         /** @brief Maximum number of scrollback lines retained in the grid. */
         inline static const juce::String scrollbackNumLines { "scrollback.num_lines" };
 

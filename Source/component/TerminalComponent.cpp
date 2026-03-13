@@ -738,8 +738,10 @@ void Terminal::Component::applyConfig() noexcept
     screen.setLigatures (cfg->getBool (Config::Key::fontLigatures));
     screen.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
     screen.setTheme (cfg->buildTheme());
+    screen.setFontSize (dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
     session.getGrid().markAllDirty();
     session.getState().setSnapshotDirty();
+    resized();
 }
 
 /**
