@@ -8,7 +8,7 @@
  * 1. `createPseudoConsoleAndPipes()` — creates the anonymous pipe pairs and
  *    calls `CreatePseudoConsole()`.
  * 2. `spawnProcess()` — builds a `STARTUPINFOEXW` with the ConPTY attribute
- *    and calls `CreateProcessW()` to launch `cmd.exe`.
+ *    and calls `CreateProcessW()` to launch the configured shell.
  *
  * ### Pipe ownership after open()
  *
@@ -126,9 +126,33 @@ static bool spawnProcess (HPCON pseudoConsole, HANDLE& pipeReadEnd, HANDLE& pipe
         PROCESS_INFORMATION pi {};
 
         const wchar_t* cwd { workingDirectory.empty() ? nullptr : workingDirectory.c_str() };
+
+        std::wstring env;
+        {
+            wchar_t* parentEnv { GetEnvironmentStringsW() };
+
+            if (parentEnv != nullptr)
+            {
+                const wchar_t* p { parentEnv };
+
+                while (*p != L'\0')
+                {
+                    const size_t len { wcslen (p) + 1 };
+                    env.append (p, len);
+                    p += len;
+                }
+
+                FreeEnvironmentStringsW (parentEnv);
+            }
+
+            env += L"TERM=xterm-256color";
+            env += L'\0';
+            env += L'\0';
+        }
+
         BOOL ok { CreateProcessW (nullptr, cmd.data(), nullptr, nullptr, FALSE,
-            CREATE_NEW_PROCESS_GROUP | EXTENDED_STARTUPINFO_PRESENT,
-            nullptr, cwd, &si.StartupInfo, &pi) };
+            CREATE_NEW_PROCESS_GROUP | EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT,
+            env.data(), cwd, &si.StartupInfo, &pi) };
 
         HeapFree (GetProcessHeap(), 0, si.lpAttributeList);
 
@@ -219,10 +243,27 @@ void WindowsTTY::close()
     // Now wait for the reader thread to see the broken pipe and exit.
     stopThread (5000);
 
-    // Clean up the child process.
+    // Clean up the child process — attempt graceful exit first.
     if (process != INVALID_HANDLE_VALUE)
     {
-        TerminateProcess (process, 0);
+        DWORD exitCode { 0 };
+
+        if (GetExitCodeProcess (process, &exitCode) and exitCode == STILL_ACTIVE)
+        {
+            // Send Ctrl+C via the input pipe to request graceful shutdown.
+            const char ctrlC { '\x03' };
+
+            if (inputWriter != INVALID_HANDLE_VALUE)
+            {
+                DWORD written { 0 };
+                WriteFile (inputWriter, &ctrlC, 1, &written, nullptr);
+            }
+
+            // Wait up to 500ms for the process to exit gracefully.
+            if (WaitForSingleObject (process, 500) != WAIT_OBJECT_0)
+                TerminateProcess (process, 0);
+        }
+
         CloseHandle (process);
         process = INVALID_HANDLE_VALUE;
     }
@@ -394,7 +435,10 @@ bool WindowsTTY::waitForData (int timeoutMs)
             DWORD available { 0 };
 
             if (not PeekNamedPipe (outputReader, nullptr, 0, nullptr, &available, nullptr))
-                break;  // pipe broken
+            {
+                dataAvailable = true;  // pipe broken — let drainPty detect EOF
+                break;
+            }
 
             if (available > 0)
             {

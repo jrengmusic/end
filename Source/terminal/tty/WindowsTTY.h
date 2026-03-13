@@ -24,8 +24,8 @@
  * ### Process creation
  * The child process is created with `EXTENDED_STARTUPINFO_PRESENT` and the
  * `PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE` attribute so that ConPTY intercepts
- * its console I/O.  The shell is hard-coded to `cmd.exe`; a future version
- * may read `COMSPEC` or a user preference.
+ * its console I/O.  The shell is configurable via `config.lua`; defaults to
+ * `cmd.exe`.
  *
  * ### Status
  * Implementation is in progress.  `read()` uses a non-overlapped

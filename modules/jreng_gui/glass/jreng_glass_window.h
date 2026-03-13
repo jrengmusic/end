@@ -129,14 +129,8 @@ public:
 
 
 #if JUCE_WINDOWS
-    /** @brief Alt+click anywhere drags the window (no title bar on Windows). */
-    WindowControlKind findControlAtPoint (juce::Point<float> pt) const override
-    {
-        if (juce::ModifierKeys::currentModifiers.isAltDown())
-            return WindowControlKind::caption;
-
-        return DocumentWindow::findControlAtPoint (pt);
-    }
+    /** @brief Meta+click anywhere drags the window (no title bar on Windows). */
+    WindowControlKind findControlAtPoint (juce::Point<float> pt) const override;
 #endif
 
 private:

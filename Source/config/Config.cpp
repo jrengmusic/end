@@ -110,7 +110,7 @@ void Config::initDefaults()
 #elif JUCE_LINUX
     values[Key::shellProgram] = "bash";
 #elif JUCE_WINDOWS
-    values[Key::shellProgram] = "cmd.exe";
+    values[Key::shellProgram] = "powershell.exe";
 #endif
 
     values[Key::scrollbackNumLines] = 10000;

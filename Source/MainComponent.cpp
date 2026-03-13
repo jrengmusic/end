@@ -63,6 +63,7 @@ MainComponent::MainComponent()
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
     setLookAndFeel (&terminalLookAndFeel);
     juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
+
 }
 
 /**

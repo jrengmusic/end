@@ -123,5 +123,15 @@ void GlassWindow::handleAsyncUpdate()
         juce::Process::makeForegroundProcess();
 }
 
+#if JUCE_WINDOWS
+auto GlassWindow::findControlAtPoint (juce::Point<float> pt) const -> WindowControlKind
+{
+    if ((GetAsyncKeyState (VK_LWIN) | GetAsyncKeyState (VK_RWIN)) & 0x8000)
+        return WindowControlKind::caption;
+
+    return DocumentWindow::findControlAtPoint (pt);
+}
+#endif
+
 /**_____________________________END_OF_NAMESPACE______________________________*/
 } /** namespace jreng */
