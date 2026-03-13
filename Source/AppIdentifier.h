@@ -40,7 +40,7 @@ namespace ID
 
     static const juce::Identifier width     { "width" };
     static const juce::Identifier height    { "height" };
-    static const juce::Identifier zoom      { "zoom" };
+    static const juce::Identifier zoom         { "zoom" };
     static const juce::Identifier active    { "active" };
     static const juce::Identifier position  { "position" };
     static const juce::Identifier splitVertical { "splitVertical" };

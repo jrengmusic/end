@@ -64,6 +64,10 @@
 #if JUCE_LINUX
     #include <fontconfig/fontconfig.h>
 #endif
+#if JUCE_WINDOWS
+    #define NOMINMAX
+    #include <windows.h>
+#endif
 
 #include <BinaryData.h>
 #include "FontCollection.h"
@@ -196,25 +200,7 @@ void Fonts::initialize()
  */
 juce::String Fonts::resolveFontPath()
 {
-    juce::String fontPath { discoverFont (userFamily) };
-
-    if (fontPath.isEmpty())
-    {
-        #if JUCE_MAC
-            fontPath = discoverFont ("Menlo");
-        #elif JUCE_LINUX
-            fontPath = discoverFont ("DejaVu Sans Mono");
-        #elif JUCE_WINDOWS
-            fontPath = discoverFont ("Consolas");
-        #endif
-    }
-
-    if (fontPath.isEmpty())
-    {
-        fontPath = discoverFont (juce::Font::getDefaultMonospacedFontName());
-    }
-
-    return fontPath;
+    return discoverFont (userFamily);
 }
 
 // ============================================================================

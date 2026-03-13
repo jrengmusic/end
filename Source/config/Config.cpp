@@ -45,7 +45,11 @@
 void Config::initDefaults()
 {
     values[Key::fontFamily] = "Display Mono";
+#if JUCE_WINDOWS
+    values[Key::fontSize] = 12.0f;
+#else
     values[Key::fontSize] = 14.0f;
+#endif
     values[Key::fontLigatures] = true;
     values[Key::fontEmbolden] = true;
 

@@ -198,6 +198,19 @@ private:
     /** @brief Transient overlay for grid-size and status messages. */
     std::unique_ptr<MessageOverlay> messageOverlay;
 
+#if JUCE_WINDOWS
+    /** @brief Fires when the native scale factor changes.
+     *  Updates AppState and resets zoom on all terminals. */
+    juce::NativeScaleFactorNotifier scaleNotifier
+    {
+        this,
+        [this] (float)
+        {
+            tabs->resetZoom();
+        }
+    };
+#endif
+
     /**
      * @brief Maps command IDs to action lambdas for table-driven dispatch.
      *

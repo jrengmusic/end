@@ -97,6 +97,7 @@ MainComponent::~MainComponent()
     glRenderer.detach();
 }
 
+
 /**
  * @brief Populates commandActions with one lambda per command.
  * @note MESSAGE THREAD.
@@ -275,6 +276,11 @@ void MainComponent::getCommandInfo (juce::CommandID commandID, juce::Application
 
             if (const auto keypress { keyBinding.getBinding (def.id) }; keypress.isValid())
                 result.addDefaultKeypress (keypress.getKeyCode(), keypress.getModifiers());
+
+#if JUCE_WINDOWS
+            if (def.id == KeyBinding::CommandID::quit)
+                result.addDefaultKeypress (juce::KeyPress::F4Key, juce::ModifierKeys::altModifier);
+#endif
             break;
         }
     }

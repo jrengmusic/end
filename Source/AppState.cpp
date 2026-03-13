@@ -82,6 +82,7 @@ void AppState::setWindowZoom (float zoom)
     window.setProperty (App::ID::zoom, clamped, nullptr);
 }
 
+
 int AppState::getActiveTabIndex() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
@@ -252,6 +253,7 @@ void AppState::initDefaults()
     window.setProperty (App::ID::width, cfg->getInt (Config::Key::windowWidth), nullptr);
     window.setProperty (App::ID::height, cfg->getInt (Config::Key::windowHeight), nullptr);
     window.setProperty (App::ID::zoom, cfg->getFloat (Config::Key::windowZoom), nullptr);
+
     state.appendChild (window, nullptr);
 
     auto tabs { juce::ValueTree (App::ID::TABS) };

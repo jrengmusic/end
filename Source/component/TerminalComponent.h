@@ -340,18 +340,10 @@ public:
      */
     void initialise();
 
-    /** @brief Returns the config font size corrected for display DPI.
-     *  On Windows at 150% scale, divides by 1.5 so 14pt looks the same as Mac. */
+    /** @brief Returns the config font size, currently unmodified on all platforms. */
     static float dpiCorrectedFontSize() noexcept
     {
-        const float raw { Config::getContext()->getFloat (Config::Key::fontSize) };
-#if JUCE_WINDOWS
-        const auto* display { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
-        const float scale { display != nullptr ? static_cast<float> (display->scale) : 1.0f };
-        return raw / scale;
-#else
-        return raw;
-#endif
+        return Config::getContext()->getFloat (Config::Key::fontSize);
     }
 
 private:

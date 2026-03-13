@@ -127,6 +127,18 @@ public:
      */
     void handleAsyncUpdate() override;
 
+
+#if JUCE_WINDOWS
+    /** @brief Alt+click anywhere drags the window (no title bar on Windows). */
+    WindowControlKind findControlAtPoint (juce::Point<float> pt) const override
+    {
+        if (juce::ModifierKeys::currentModifiers.isAltDown())
+            return WindowControlKind::caption;
+
+        return DocumentWindow::findControlAtPoint (pt);
+    }
+#endif
+
 private:
 #if JUCE_WINDOWS
     struct TransparentTitleBarLookAndFeel : public juce::LookAndFeel_V4

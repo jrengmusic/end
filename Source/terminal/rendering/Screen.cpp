@@ -216,13 +216,10 @@ jreng::GLSnapshotBuffer<Render::Snapshot>& Screen::getSnapshotBuffer() noexcept
  */
 void Screen::setFontSize (float pointSize) noexcept
 {
-    if (pointSize != baseFontSize)
-    {
-        baseFontSize = pointSize;
-        Fonts::getContext()->setSize (pointSize);
-        resources.glyphAtlas.clear();
-        calc();
-    }
+    baseFontSize = pointSize;
+    Fonts::getContext()->setSize (pointSize);
+    resources.glyphAtlas.clear();
+    calc();
 }
 
 /**

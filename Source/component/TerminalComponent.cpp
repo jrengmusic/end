@@ -305,6 +305,9 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
         const bool isAppCommand {
 #if JUCE_MAC
             mods.isCommandDown()
+#elif JUCE_WINDOWS
+            KeyBinding::isCommandKeyPress (key)
+            or (mods.isAltDown() and code == juce::KeyPress::F4Key)
 #else
             KeyBinding::isCommandKeyPress (key)
 #endif
