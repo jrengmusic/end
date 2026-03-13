@@ -175,6 +175,7 @@ void Terminal::Component::resized()
     {
         screen.setViewport (contentArea);
         session.resized (screen.getNumCols(), screen.getNumRows());
+        session.getState().setScrollOffset (0);
         updateCursorBounds();
     }
 }

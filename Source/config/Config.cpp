@@ -387,7 +387,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
     if (file.existsAsFile())
     {
         sol::state lua;
-        lua.open_libraries (sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::os, sol::lib::debug);
+        lua.open_libraries (sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::os, sol::lib::debug, sol::lib::package);
 
         auto setupResult { lua.safe_script (validationScript, sol::script_pass_on_error) };
 

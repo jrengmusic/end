@@ -346,6 +346,10 @@ int WindowsTTY::read (char* buf, int maxBytes)
                 result = (GetLastError() == ERROR_BROKEN_PIPE) ? -1 : 0;
             }
         }
+        else if (not isRunning())
+        {
+            result = -1;  // process exited, no more data coming
+        }
     }
     else
     {
@@ -443,6 +447,10 @@ bool WindowsTTY::waitForData (int timeoutMs)
             if (available > 0)
             {
                 dataAvailable = true;
+            }
+            else if (not isRunning())
+            {
+                dataAvailable = true;  // process exited — let drainPty detect EOF
             }
             else
             {
