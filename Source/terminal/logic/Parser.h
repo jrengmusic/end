@@ -423,10 +423,29 @@ private:
     Pen pen {};
 
     /**
-     * @brief Saved pen state for DECSC/DECRC cursor save and restore.
+     * @brief Saved cursor state for DECSC/DECRC (ESC 7 / ESC 8).
      *
-     * Written by `escDispatch` when it processes ESC 7 (DECSC).
-     * Restored into `pen` when it processes ESC 8 (DECRC).
+     * Per-screen saved state: cursor position, pen, wrap-pending, origin
+     * mode, and line-drawing charset.  Indexed by `ActiveScreen`.
+     */
+    struct SavedCursor
+    {
+        int row { 0 };
+        int col { 0 };
+        Pen pen {};
+        bool wrapPending { false };
+        bool originMode { false };
+        bool lineDrawing { false };
+    };
+
+    /// Per-screen DECSC saved cursor state (normal / alternate).
+    std::array<SavedCursor, 2> savedCursor {};
+
+    /**
+     * @brief Saved pen state — legacy alias kept for `bg` fill in erase ops.
+     *
+     * `stamp.bg` is used as the fill colour for scroll and erase operations.
+     * Kept in sync with `pen` by SGR handlers.
      *
      * @see pen
      */
@@ -445,13 +464,19 @@ private:
     int scrollBottom { 0 };
 
     /**
-     * @brief Whether the VT100 line-drawing character set (G1) is active.
+     * @brief Whether the VT100 line-drawing character set is active in GL.
      *
      * When `true`, printable bytes in the range 0x60–0x7E are mapped to
-     * box-drawing characters (DEC Special Graphics).  Toggled by the
-     * Shift-In (SI, 0x0F) and Shift-Out (SO, 0x0E) control characters.
+     * box-drawing characters (DEC Special Graphics).  Set by SO (0x0E)
+     * when G1 contains line-drawing, cleared by SI (0x0F) to return to G0.
      */
     bool useLineDrawing { false };
+
+    /// Whether G0 is designated as DEC Special Graphics (ESC ( 0).
+    bool g0LineDrawing { false };
+
+    /// Whether G1 is designated as DEC Special Graphics (ESC ) 0).
+    bool g1LineDrawing { false };
 
     /**
      * @brief Unicode grapheme segmentation state for cluster boundary detection.
@@ -1298,6 +1323,22 @@ private:
      *  @note READER THREAD.
      */
     void handleCursorStyle (const CSI& params) noexcept;
+
+    /**
+     * @brief Handles kitty keyboard protocol sequences (`CSI … u`).
+     *
+     * Dispatches based on intermediate byte:
+     * - `>` — push flags onto per-screen keyboard mode stack
+     * - `<` — pop entries from per-screen keyboard mode stack
+     * - `?` — query current flags (responds with `CSI ? flags u`)
+     * - `=` — set/OR/AND-NOT flags directly
+     *
+     * @param params      CSI parameters (flags, count, or mode).
+     * @param inter       Intermediate byte buffer.
+     * @param interCount  Number of intermediate bytes collected.
+     * @note READER THREAD only.
+     */
+    void handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_t interCount) noexcept;
 
     /** @brief Handles OSC 12 — set cursor color.
      *  @param data        Pointer to OSC payload after the command number separator.

@@ -123,15 +123,19 @@ public:
     juce::CriticalSection& getResizeLock() noexcept;
 
     /**
-     * @brief Re-allocates the active screen buffer, discarding all content.
+     * @brief Re-allocates both screen buffers to the new dimensions and reflows
+     *        content on the normal screen.
      *
-     * Acquires `resizeLock`, re-initialises the active buffer to the current
-     * `cols` × `visibleRows` dimensions, and calls `markAllDirty()`.
-     * Used when the terminal receives an ED 3 (erase saved lines) sequence.
+     * Acquires `resizeLock` and writes the new dimensions to State inside the
+     * lock, ensuring that State and Grid are always in sync from the message
+     * thread's perspective.  Reflows soft-wrapped lines on the normal screen;
+     * the alternate screen is re-initialised without reflow (xterm behaviour).
      *
-     * @note READER THREAD — acquires `resizeLock`.
+     * @param newCols        New terminal width in character columns.
+     * @param newVisibleRows New terminal height in character rows.
+     * @note READER THREAD — acquires `resizeLock`.  Allocates heap memory.
      */
-    void resize();
+    void resize (int newCols, int newVisibleRows);
 
     /**
      * @brief Clears the active screen buffer and marks all rows dirty.
@@ -406,6 +410,27 @@ public:
      * @note MESSAGE THREAD — caller must hold `resizeLock`.
      */
     juce::String extractText (juce::Point<int> start, juce::Point<int> end) const;
+
+    /**
+     * @brief Extracts a box (rectangle) selection of text as a UTF-32 string.
+     *
+     * Unlike `extractText()`, which uses row-wrapped selection semantics, this
+     * method applies the same column range `[topLeft.x, bottomRight.x]` to
+     * every row in `[topLeft.y, bottomRight.y]`.  This produces a strict
+     * rectangular region regardless of content.
+     *
+     * Empty cells are emitted as spaces; wide-continuation cells are skipped.
+     * Trailing whitespace is trimmed from each row.  Rows are separated by
+     * `'\n'` except the last.
+     *
+     * @param topLeft      Top-left corner of the rectangle (x = col, y = row).
+     *                     Must already be normalised (min col/row of the selection).
+     * @param bottomRight  Bottom-right corner of the rectangle (inclusive).
+     *                     Must already be normalised (max col/row of the selection).
+     * @return A `juce::String` containing the selected text.
+     * @note MESSAGE THREAD — caller must hold `resizeLock`.
+     */
+    juce::String extractBoxText (juce::Point<int> topLeft, juce::Point<int> bottomRight) const;
 
     /** @name Scroll operations
      *  All scroll methods operate on the active screen buffer and are called

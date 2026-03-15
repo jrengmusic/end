@@ -93,6 +93,8 @@ public:
      *
      * @note Override in a subclass if different close behaviour is required.
      */
+    ~GlassWindow() override { setLookAndFeel (nullptr); }
+
     void closeButtonPressed() override;
 
     /**

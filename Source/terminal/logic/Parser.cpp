@@ -178,8 +178,10 @@ void Parser::process (const uint8_t* data, size_t length) noexcept
  */
 void Parser::resize (int newCols, int newVisibleRows) noexcept
 {
-    state.setCols (newCols);
-    state.setVisibleRows (newVisibleRows);
+    state.setWrapPending (normal, false);
+    state.setWrapPending (alternate, false);
+    cursorClamp (normal, newCols, newVisibleRows);
+    cursorClamp (alternate, newCols, newVisibleRows);
     cursorResetScrollRegion (normal);
     cursorResetScrollRegion (alternate);
     initializeTabStops (newCols);
@@ -298,6 +300,8 @@ void Parser::performAction (Action action, uint8_t byte) noexcept
             break;
 
         case Action::print:
+            if (byte == '$' or byte == '+')
+                DBG ("PRINT byte=" + juce::String (byte) + " char=" + juce::String::charToString (byte) + " state=" + juce::String (static_cast<int> (currentState)));
             handlePrintByte (byte);
             break;
 

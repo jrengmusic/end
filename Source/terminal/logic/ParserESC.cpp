@@ -151,6 +151,39 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
             reset();
             break;
 
+        case '7':
+        {
+            auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
+            sc.row = state.getCursorRow (scr);
+            sc.col = state.getCursorCol (scr);
+            sc.pen = pen;
+            sc.wrapPending = state.isWrapPending (scr);
+            sc.originMode = state.getMode (ID::originMode);
+            sc.lineDrawing = useLineDrawing;
+            break;
+        }
+
+        case '8':
+        {
+            const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
+            state.setCursorRow (scr, sc.row);
+            state.setCursorCol (scr, sc.col);
+            pen = sc.pen;
+            stamp = sc.pen;
+            state.setWrapPending (scr, sc.wrapPending);
+            state.setMode (ID::originMode, sc.originMode);
+            useLineDrawing = sc.lineDrawing;
+            break;
+        }
+
+        case '=':
+            state.setMode (ID::applicationKeypad, true);
+            break;
+
+        case '>':
+            state.setMode (ID::applicationKeypad, false);
+            break;
+
         default:
             break;
     }
@@ -191,7 +224,12 @@ void Parser::escDispatchCharset (uint8_t interByte, uint8_t finalByte) noexcept
 {
     if (interByte == '(')
     {
-        useLineDrawing = (finalByte == '0');
+        g0LineDrawing = (finalByte == '0');
+        useLineDrawing = g0LineDrawing;
+    }
+    else if (interByte == ')')
+    {
+        g1LineDrawing = (finalByte == '0');
     }
 }
 

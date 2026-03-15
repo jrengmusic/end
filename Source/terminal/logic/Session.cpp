@@ -44,10 +44,12 @@ namespace Terminal
  * `tty->onDrainComplete` calls `parser.flushResponses()` so that any
  * buffered response sequences are sent after the write buffer drains.
  *
- * @par TTY resize → Parser + Grid
- * `tty->onResize` propagates the new dimensions to both `parser.resize()`
- * (updates the VT state machine's viewport) and `grid.resize()` (reallocates
- * the ring-buffer to match).
+ * @par TTY resize → Grid + Parser
+ * `tty->onResize` calls `grid.resize()` first — which acquires `resizeLock`
+ * and writes the new dimensions to State atomically with the buffer
+ * reallocation — then calls `parser.resize()` to reset scroll regions and
+ * tab stops.  The Grid-first ordering ensures that State dimensions always
+ * match the Grid's actual allocation from the message thread's perspective.
  *
  * @par TTY exit → onShellExited callback
  * `tty->onExit` invokes the public `onShellExited` callback if set.
@@ -64,11 +66,11 @@ void Session::setupCallbacks()
     parser.writeToHost = [this] (const char* data, int len) { tty->write (data, len); };
 
     tty->onData = [this] (const char* data, int len) { process (data, len); };
-    tty->onDrainComplete = [this] { parser.flushResponses(); };
+    tty->onDrainComplete = [this] { parser.flushResponses(); state.clearPasteEchoGate(); };
     tty->onResize = [this] (int c, int r)
     {
+        grid.resize (c, r);
         parser.resize (c, r);
-        grid.resize();
     };
     tty->onExit = [this]
     {
@@ -133,6 +135,23 @@ Session::Session()
  */
 Session::~Session()
 {
+    if (tty != nullptr)
+    {
+        // Threat: std::function assignment is not atomic.  If we null onData
+        // before close() signals the reader thread to exit and waits for it,
+        // the reader thread may be mid-callback when the message thread writes
+        // nullptr — undefined behaviour on the std::function object.
+        //
+        // Fix: close() first (signals exit, waits for reader thread to fully
+        // stop via stopThread), then null the callbacks.  After stopThread()
+        // returns the reader thread is guaranteed to have exited, so no
+        // concurrent access to the callbacks is possible.
+        tty->close();
+        tty->onData = nullptr;
+        tty->onResize = nullptr;
+        tty->onDrainComplete = nullptr;
+        tty->onExit = nullptr;
+    }
 }
 
 
@@ -140,17 +159,17 @@ Session::~Session()
  * @brief Notifies the session of a terminal viewport resize.
  *
  * On the **first call** (`ttyOpened == false`):
- * 1. Calls `parser.resize (cols, rows)` to initialise the VT state machine
- *    viewport before any data arrives.
- * 2. Calls `grid.resize()` to allocate the ring-buffer.
+ * 1. Calls `grid.resize (cols, rows)` to allocate the ring-buffer and write
+ *    dimensions to State inside `resizeLock`.
+ * 2. Calls `parser.resize (cols, rows)` to reset scroll regions and tab stops.
  * 3. Reads `Config::Key::shellProgram` and calls `tty->open()` to fork the
  *    shell and start the reader thread.
  * 4. Sets `ttyOpened = true`.
  *
  * On **subsequent calls** (`ttyOpened == true`):
- * - Calls `tty->requestResize (cols, rows)`, which sends `SIGWINCH` to the
- *   child process and fires `tty->onResize`, which in turn calls
- *   `parser.resize()` and `grid.resize()`.
+ * - Calls `tty->requestResize (cols, rows)`, which sets the pending resize
+ *   atomics.  The reader thread picks this up and calls `grid.resize()` then
+ *   `parser.resize()`.
  *
  * @param cols  New terminal width in character columns.
  * @param rows  New terminal height in character rows.
@@ -161,12 +180,15 @@ void Session::resized (int cols, int rows)
 {
     if (not ttyOpened)
     {
+        grid.resize (cols, rows);
         parser.resize (cols, rows);
-        grid.resize();
         const auto shell { Config::getContext()->getString (Config::Key::shellProgram) };
         const auto args { Config::getContext()->getString (Config::Key::shellArgs) };
         tty->open (cols, rows, shell, args, workingDirectory);
-        state.get().setProperty (ID::shellProgram, juce::File (shell).getFileName(), nullptr);
+        const juce::String shellName { shell.contains (juce::File::getSeparatorString())
+            ? juce::File (shell).getFileName()
+            : shell };
+        state.get().setProperty (ID::shellProgram, shellName, nullptr);
         ttyOpened = true;
     }
     else
@@ -199,9 +221,21 @@ void Session::setWorkingDirectory (const juce::String& path)
 void Session::handleKeyPress (const juce::KeyPress& key)
 {
     // MESSAGE THREAD — read from ValueTree, the SSOT
-    const bool applicationCursor { state.getTreeMode (ID::applicationCursor) };
+    juce::String seq;
 
-    juce::String seq { Keyboard::map (key, applicationCursor) };
+#if JUCE_WINDOWS
+    if (state.getTreeMode (ID::win32InputMode))
+    {
+        seq = Keyboard::encodeWin32Input (key);
+    }
+    else
+#endif
+    {
+        const bool applicationCursor { state.getTreeMode (ID::applicationCursor) };
+        const uint32_t keyboardFlags { state.getTreeKeyboardFlags() };
+        seq = Keyboard::map (key, applicationCursor, keyboardFlags);
+    }
+
     if (seq.isNotEmpty())
     {
         tty->write (seq.toRawUTF8(), static_cast<int> (seq.getNumBytesAsUTF8()));
@@ -231,19 +265,26 @@ void Session::paste (const juce::String& text)
 {
     if (text.isNotEmpty() and tty != nullptr)
     {
-        // MESSAGE THREAD — read from ValueTree, the SSOT
         const bool bracketed { state.getTreeMode (ID::bracketedPaste) };
+        const auto utf8 { text.toRawUTF8() };
+        const int utf8Len { static_cast<int> (text.getNumBytesAsUTF8()) };
 
         if (bracketed)
         {
-            tty->write ("\x1b[200~", 6);
+            static constexpr const char open[]  { "\x1b[200~" };
+            static constexpr const char close[] { "\x1b[201~" };
+            static constexpr int bracketLen { 6 };
+
+            juce::HeapBlock<char> buf (static_cast<size_t> (bracketLen + utf8Len + bracketLen));
+            std::memcpy (buf.get(), open, bracketLen);
+            std::memcpy (buf.get() + bracketLen, utf8, static_cast<size_t> (utf8Len));
+            std::memcpy (buf.get() + bracketLen + utf8Len, close, bracketLen);
+            tty->write (buf.get(), bracketLen + utf8Len + bracketLen);
         }
-
-        tty->write (text.toRawUTF8(), static_cast<int> (text.getNumBytesAsUTF8()));
-
-        if (bracketed)
+        else
         {
-            tty->write ("\x1b[201~", 6);
+            state.setPasteEchoGate (utf8Len);
+            tty->write (utf8, utf8Len);
         }
     }
 }
@@ -296,11 +337,11 @@ void Session::writeFocusEvent (bool gained) noexcept
  */
 void Session::writeMouseEvent (int button, int col, int row, bool press) noexcept
 {
-    // MESSAGE THREAD — read from ValueTree, the SSOT
-    const bool sgr { state.getTreeMode (ID::mouseSgr) };
+    const bool useSgr { true };
 
-    if (sgr)
+    if (useSgr)
     {
+        // SGR encoding
         const char finalChar { press ? 'M' : 'm' };
         const juce::String seq { juce::String ("\x1b[<")
                                  + juce::String (button) + ";"
@@ -311,14 +352,17 @@ void Session::writeMouseEvent (int button, int col, int row, bool press) noexcep
     }
     else
     {
-        constexpr int x10Offset { 32 };
-        constexpr int x10Max    { 255 - x10Offset };
+        // X10 encoding - 6-byte sequence
+        // Clamp to [0, 223] (X10 offset 32, max byte value 255)
+        const int clampedButton { juce::jlimit (0, 223, button + 32) };
+        const int clampedCol { juce::jlimit (0, 223, col + 1 + 32) };
+        const int clampedRow { juce::jlimit (0, 223, row + 1 + 32) };
 
-        const char bytes[6] { '\x1b', '[', 'M',
-                               static_cast<char> (juce::jmin (button, x10Max) + x10Offset),
-                               static_cast<char> (juce::jmin (col + 1, x10Max) + x10Offset),
-                               static_cast<char> (juce::jmin (row + 1, x10Max) + x10Offset) };
-        tty->write (bytes, 6);
+        char seq[6] { '\x1b', '[', 'M',
+                      static_cast<char> (clampedButton),
+                      static_cast<char> (clampedCol),
+                      static_cast<char> (clampedRow) };
+        tty->write (seq, 6);
     }
 }
 
@@ -341,6 +385,7 @@ void Session::process (const char* data, int length) noexcept
 {
     // READER THREAD
     parser.process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
+    state.consumePasteEcho (length);
 
     const int fgPid { tty->getForegroundPid() };
 

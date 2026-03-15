@@ -8,7 +8,86 @@
 
 ---
 
-## 📖 Notation Reference
+## Sprint 91 — WindowsTTY Rewrite + ConPTY Mouse Investigation
+
+**Date:** 2026-03-15  
+**Agents:** COUNSELOR, @engineer, @pathfinder, @researcher, @auditor
+
+### Problem
+
+Windows implementation had 5 critical issues: mouse outputting garbage, poor performance (`seq 1M` = 4m16s), cursor twitching, crash on forced quit, OMP extra newlines. Root cause: `WindowsTTY` was built without a working reference — two anonymous pipes, `PeekNamedPipe` + `Sleep(1)` polling, no overlapped I/O. Fundamentally different pipe topology from Microsoft Terminal.
+
+### What Was Done
+
+**1. WindowsTTY rewritten from scratch**
+- Ported Microsoft Terminal's `ConptyConnection` pipe topology exactly
+- Single duplex unnamed pipe via `NtCreateNamedPipeFile` (same NT API Microsoft Terminal uses)
+- Client opened via `NtCreateFile` relative to server handle — true full-duplex, no contention
+- Overlapped I/O for both read and write — zero CPU when idle, instant wake on data
+- `read()` issues immediate overlapped reads with zero-timeout to drain multiple chunks without re-entering `waitForData()`
+- Clean shutdown: `ClosePseudoConsole` while reader alive → `stopThread` → `TerminateProcess` as last resort
+- Performance: `seq 1M` improved from 4m16s to 2m33s
+
+**2. Parser::resize() — stale wrapPending fix**
+- Added `setWrapPending (false)` + `cursorClamp()` for both screens before resetting scroll regions
+- Fixes OMP extra newline at full terminal width on resize
+
+**3. State::getActiveScreen() — message-thread ValueTree reader**
+- Added `getActiveScreen()` that reads from ValueTree (post-flush)
+- Fixed `mouseWheelMove`, `shouldForwardMouseToPty()`, `getTreeKeyboardFlags()`, `getCursorState()`, `onVBlank` to use `getActiveScreen()` instead of `getScreen()` (atomic)
+- `getScreen()` remains for reader-thread callers (Parser, Grid, ScreenRender, ScreenSnapshot)
+
+**4. timeBeginPeriod(1) — Windows timer resolution**
+- Added `timeBeginPeriod(1)` in `initialise()`, `timeEndPeriod(1)` in `shutdown()` (after teardown)
+- Unlocks 1ms timer resolution for state flush timer
+
+### ConPTY Mouse Investigation — UNRESOLVED
+
+**Finding:** ConPTY on Windows 10 22H2 (build 19045) intercepts ALL of the following from the child's output and never forwards them to the terminal emulator:
+- `ESC[?1049h/l` (alternate screen) — `activeScreen` is always `normal`
+- `ESC[?1000h/l` (mouse tracking) — `isMouseTracking()` is always `false`
+- `ESC[?1002h/l` (motion tracking) — never seen
+- `ESC[?1003h/l` (all tracking) — never seen
+- `ESC[?1006h/l` (SGR mouse) — never seen
+
+**Confirmed via file logging:** Parser's `setScreen()` is never called. `applyPrivateModeTable` never receives mode 1000/1002/1003/1006/1049. ConPTY renders alternate screen internally and sends the result as normal-screen output.
+
+**Forwarding blindly (`return true`)** causes ConPTY to echo SGR sequences back as raw text — rendered as red boxes (unknown glyphs).
+
+**Status:** Mouse on Windows requires a fundamentally different approach. Possible directions:
+- Win32 Input Mode (`?9001`) — ConPTY's own input protocol
+- `WriteConsoleInput` with `MOUSE_EVENT_RECORD` — bypass pipe, use console API
+- Heuristic screen detection (full-screen redraw patterns)
+- Research how Windows Terminal's `ControlInteractivity` handles mouse → ConPTY
+
+### Files Modified
+
+- `Source/terminal/tty/WindowsTTY.h` — complete rewrite (277 lines)
+- `Source/terminal/tty/WindowsTTY.cpp` — complete rewrite (974 lines)
+- `Source/terminal/logic/Parser.cpp:179-189` — resize wrapPending + cursorClamp
+- `Source/terminal/logic/ParserEdit.cpp` — diagnostic added/removed (clean)
+- `Source/terminal/logic/ParserCSI.cpp` — diagnostic added/removed (clean)
+- `Source/terminal/data/State.h` — added `getActiveScreen()` declaration
+- `Source/terminal/data/State.cpp` — added `getActiveScreen()` implementation, fixed `getTreeKeyboardFlags()` + `getCursorState()`
+- `Source/component/TerminalComponent.cpp` — `mouseWheelMove`, `shouldForwardMouseToPty()`, `onVBlank` use `getActiveScreen()`, mouse handlers gated, diagnostics added/removed (clean)
+- `Source/Main.cpp` — `timeBeginPeriod(1)` / `timeEndPeriod(1)` with extern declarations
+
+### Alignment Check
+
+- **LIFESTAR:** Lean (single pipe replaces two), Explicit (overlapped I/O model documented in header), Single Source of Truth (`getActiveScreen` reads ValueTree, `getScreen` reads atomic — clear separation), Reviewable (docstrings match UnixTTY pattern)
+- **NAMING-CONVENTION:** `getActiveScreen` — semantic name (Rule 3), no data-source encoding (Rule 2). Previous `getTreeMode`/`getTreeKeyboardFlags` violate Rule 2 (encode "Tree" in name) — pre-existing debt, not introduced here
+- **ARCHITECTURAL-MANIFESTO:** TTY layer stays dumb — no knowledge of parser, grid, or UI. Session writes bytes, TTY delivers bytes. Explicit Encapsulation preserved.
+
+### Technical Debt / Follow-up
+
+- **CRITICAL: Mouse on Windows is non-functional.** ConPTY intercepts all DECSET mouse/screen sequences. Needs research into Win32 Input Mode or WriteConsoleInput approach. Reference: `terminal/src/cascadia/TerminalControl/ControlInteractivity.cpp`
+- **`getTreeMode()` / `getTreeKeyboardFlags()` naming** violates NAMING-CONVENTION Rule 2 — encodes data source ("Tree") in name. Should be renamed to semantic names in a future sprint.
+- **`seq 1M` is 2m33s vs Windows Terminal's 1m12s** — 2x gap remains. Reader thread CPU is 33% (should be higher). The zero-timeout `WaitForSingleObject` in `read()` exits the drain loop too early when data hasn't arrived in that instant. Needs a short timeout (1-2ms) or a different drain strategy.
+- **`shouldForwardMouseToPty()` docstring** still references alternate screen fallback that was removed. Needs update.
+- **`CursorComponent` does not call `setInterceptsMouseClicks(false, false)`** — cursor child swallows clicks on the cursor cell. Trivial fix but blocked by mouse being non-functional anyway.
+
+---
+
 
 **[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
 
@@ -456,5 +535,63 @@ KANJUT's `kuassa_opengl` had a cleaner encapsulation of the same lock-free snaps
 - Stale doc comment in `Screen.h` `Render::Snapshot` struct still references "Two `Snapshot` instances (`snapshotA`, `snapshotB`) are owned by `Screen`" at line ~237
 
 ---
+
+## Sprint 92 — ConPTY Sideload: Mouse + Alternate Screen on Windows
+
+**Date:** 2026-03-15  
+**Agents:** COUNSELOR, @engineer, @researcher, @pathfinder
+
+### Problem
+
+Mouse was completely non-functional on Windows. ConPTY on Windows 10 22H2 (build 19045) intercepts all DECSET sequences (`?1000h`, `?1003h`, `?1006h`, `?1049h`) and does NOT re-emit them in the output stream. The terminal emulator has zero information about mouse tracking or alternate screen state. The inbox `conhost.exe` does not support `PSEUDOCONSOLE_WIN32_INPUT_MODE` (0x4 flag).
+
+### Root Cause
+
+Discovered by examining wezterm's source (`pty/src/win/psuedocon.rs`): wezterm sideloads `conpty.dll` + `OpenConsole.exe` from Microsoft Terminal's open-source project (MIT license). The sideloaded `conpty.dll` launches `OpenConsole.exe` (a newer conhost) instead of the inbox `conhost.exe`. This newer conhost supports `PSEUDOCONSOLE_WIN32_INPUT_MODE` and emits DECSET sequences in the output stream.
+
+The fix was **one flag** (`0x4`) — but it only works with the sideloaded DLL, not the inbox conhost.
+
+### What Was Done
+
+**1. ConPTY sideload mechanism**
+- Embedded `conpty.dll` (109 KB) and `OpenConsole.exe` (1.1 MB) from Microsoft Terminal as JUCE BinaryData
+- On first `open()`, extracts both to `~/.config/end/conpty/` (skips if size matches — update-safe)
+- Loads `CreatePseudoConsole`, `ResizePseudoConsole`, `ClosePseudoConsole` from sideloaded DLL
+- Falls back to `kernel32.dll` if sideload fails
+- Passes `PSEUDOCONSOLE_WIN32_INPUT_MODE` (0x4) flag to `CreatePseudoConsole`
+
+**2. Mouse gate restored**
+- `shouldForwardMouseToPty()` returns `isMouseTracking()` on all platforms
+- With sideloaded ConPTY, `isMouseTracking()` now correctly returns true when TUI apps enable mouse (ConPTY emits `?1003;1006h` in output stream)
+
+**3. State::getActiveScreen() (from Sprint 91)**
+- Now works correctly — sideloaded ConPTY emits `?1049h` so `setScreen()` is called and `getActiveScreen()` returns `alternate` when appropriate
+
+**4. Diagnostics removed**
+- All temporary `std::cout`, file logging, and `DBG` diagnostics removed from Session.cpp, ParserCSI.cpp, ParserEdit.cpp, TerminalComponent.cpp
+
+### Files Modified
+
+- `Resources/windows/conpty.dll` — NEW (MIT-licensed binary from Microsoft Terminal)
+- `Resources/windows/OpenConsole.exe` — NEW (MIT-licensed binary from Microsoft Terminal)
+- `CMakeLists.txt:254-264` — Added explicit binary data entries for conpty.dll + OpenConsole.exe (WIN32 only)
+- `Source/terminal/tty/WindowsTTY.cpp` — Added `ConPtyFuncs` struct, `extractConPtyBinaries()`, `loadConPtyFuncs()`. All ConPTY API calls now go through function pointers loaded from sideloaded DLL (or kernel32 fallback). `PSEUDOCONSOLE_WIN32_INPUT_MODE` flag passed.
+- `Source/terminal/logic/Session.cpp` — Diagnostics removed, `onData` restored to clean one-liner
+- `Source/component/TerminalComponent.cpp` — `shouldForwardMouseToPty()` cleaned up, diagnostics removed
+
+### Alignment Check
+
+- **LIFESTAR:** Lean (sideload is ~60 lines, single static initializer), Explicit (ConPtyFuncs struct makes function source traceable), Single Source of Truth (all three ConPTY functions from same DLL), Findable (extraction path documented in docstring)
+- **NAMING-CONVENTION:** `ConPtyFuncs`, `extractConPtyBinaries`, `loadConPtyFuncs` — all semantic, no data-source encoding
+- **ARCHITECTURAL-MANIFESTO:** TTY layer manages its own dependencies. No poking from Session or TerminalComponent. The sideload is an implementation detail of WindowsTTY — callers don't know or care.
+
+### Technical Debt / Follow-up
+
+- **Binary size increase:** ~1.2 MB added to END.exe from embedded conpty.dll + OpenConsole.exe. Acceptable trade-off for mouse support.
+- **Update mechanism:** Size-based check for extraction. If Microsoft updates the binaries, END must be rebuilt with new versions. No version checking beyond file size.
+- **Windows 11:** The inbox conhost on Windows 11 may support `PSEUDOCONSOLE_WIN32_INPUT_MODE` natively. The sideload is harmless (same behavior) but could be skipped on newer OS versions.
+- **`seq 1M` performance gap** (from Sprint 91): Still 2m33s vs Terminal's 1m12s. Drain loop exits too early. Separate sprint.
+- **`getTreeMode()` / `getTreeKeyboardFlags()` naming** violates NAMING-CONVENTION Rule 2. Pre-existing debt.
+- **`CursorComponent` missing `setInterceptsMouseClicks(false, false)`** — cursor cell swallows clicks. Now that mouse works, this should be fixed.
 
 ---

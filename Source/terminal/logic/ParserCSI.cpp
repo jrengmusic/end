@@ -192,11 +192,25 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
         case 'n': reportCursorPosition (params);        break;
         case 'r': setScrollRegion (params);             break;
         case 'c': reportDeviceAttributes (isPrivate);   break;
+        case 'g':
+        {
+            const int ps { static_cast<int> (params.param (0, 0)) };
+            if (ps == 0)
+            {
+                clearTabStop (state.getScreen());
+            }
+            else if (ps == 3)
+            {
+                clearAllTabStops();
+            }
+            break;
+        }
         case 'q':
             if (interCount > 0 and inter[0] == ' ')
                 handleCursorStyle (params);
             break;
         case 't': break;
+        case 'u': handleKeyboardMode (params, inter, interCount); break;
         default:  break;
     }
 }
@@ -208,6 +222,60 @@ void Parser::handleCursorStyle (const CSI& params) noexcept
     if (ps >= 0 and ps <= 6)
     {
         state.setCursorShape (state.getScreen(), ps);
+    }
+}
+
+// ============================================================================
+// CSI Handler — Kitty Keyboard Protocol
+// ============================================================================
+
+/**
+ * @brief Handles kitty keyboard protocol sequences (`CSI … u`).
+ *
+ * Dispatches based on the intermediate byte collected before the params:
+ *
+ * | Intermediate | Sequence              | Action                          |
+ * |--------------|-----------------------|---------------------------------|
+ * | `>`          | `CSI > flags u`       | Push flags onto stack           |
+ * | `<`          | `CSI < count u`       | Pop count entries from stack    |
+ * | `?`          | `CSI ? u`             | Query — respond `CSI ? flags u` |
+ * | `=`          | `CSI = flags ; mode u`| Set / OR / AND-NOT flags        |
+ * | (none)       | `CSI … u`             | No-op (future: key event input) |
+ *
+ * @param params      CSI parameter accumulator.
+ * @param inter       Intermediate byte buffer.
+ * @param interCount  Number of intermediate bytes collected.
+ * @note READER THREAD only.
+ */
+void Parser::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_t interCount) noexcept
+{
+    if (interCount > 0)
+    {
+        const auto scr { state.getScreen() };
+
+        if (inter[0] == '>')
+        {
+            const auto flags { static_cast<uint32_t> (params.param (0, 0)) };
+            state.pushKeyboardMode (scr, flags);
+        }
+        else if (inter[0] == '<')
+        {
+            const auto count { static_cast<int> (params.param (0, 1)) };
+            state.popKeyboardMode (scr, count);
+        }
+        else if (inter[0] == '?')
+        {
+            const auto flags { state.getKeyboardFlags (scr) };
+            char buf[32];
+            std::snprintf (buf, sizeof (buf), "\x1b[?%uu", flags);
+            sendResponse (buf);
+        }
+        else if (inter[0] == '=')
+        {
+            const auto flags { static_cast<uint32_t> (params.param (0, 0)) };
+            const auto mode { static_cast<int> (params.param (1, 1)) };
+            state.setKeyboardMode (scr, flags, mode);
+        }
     }
 }
 
@@ -637,30 +705,37 @@ void Parser::reportCursorPosition (const CSI& params) noexcept
 /**
  * @brief Handles `CSI c` / `CSI ? c` — Device Attributes (DA1 / DA2).
  *
- * Intentionally suppressed.  DA1/DA2 responses cause echo loops on macOS PTY
- * when the terminal is in cooked mode (ECHO on): the shell or tmux queries DA1
- * before entering raw mode, and our response would be echoed back as garbage
- * text or interpreted as shell commands.  tmux falls back gracefully after a
- * timeout.  CPR responses (`reportCursorPosition`) are unaffected because
- * applications query CPR only after entering raw mode.
+ * Responds to DA1 (`CSI c` or `CSI 0 c`) with a VT220-compatible response
+ * identifying the terminal's capabilities:
+ *
+ * @code
+ *   CSI ? 62 ; 4 c
+ * @endcode
+ *
+ * - `62` — VT220 conformance level.
+ * - `4`  — Sixel graphics (declared for compatibility; not yet implemented).
+ *
+ * DA2 (`CSI > c`) is not handled — secondary device attributes are rarely
+ * needed and the `?` intermediate is consumed by the `isPrivate` check in
+ * `csiDispatch`, so `isPrivate` is true for `CSI ? c` (which is actually
+ * a DA1 variant).  Standard DA1 arrives as `CSI c` with no intermediate.
  *
  * @par Sequences
  * @code
  *   ESC [ c      — Primary DA (DA1)
- *   ESC [ ? c    — Secondary DA (DA2)
+ *   ESC [ 0 c    — Primary DA (DA1, explicit parameter)
  * @endcode
  *
- * @param isPrivate  `true` if the sequence had a `?` intermediate (DA2).
+ * @param isPrivate  `true` if the sequence had a `?` intermediate.
  *
  * @note READER THREAD only.
  */
-void Parser::reportDeviceAttributes (bool /*isPrivate*/) noexcept
+void Parser::reportDeviceAttributes (bool isPrivate) noexcept
 {
-    // DA1/DA2 responses cause echo loops on macOS PTY when ECHO is on.
-    // Shell/tmux queries DA1 before setting raw mode — our response echoes
-    // back as garbage text or shell commands. tmux falls back gracefully
-    // after timeout. CPR responses (reportCursorPosition) are unaffected
-    // because apps query CPR only after entering raw mode.
+    if (not isPrivate)
+    {
+        sendResponse ("\x1b[?62;4c");
+    }
 }
 
 // ============================================================================
@@ -700,6 +775,7 @@ namespace
      * | 1004 | Focus events          | focusEvents               |
      * | 1006 | SGR mouse encoding    | mouseSgr                  |
      * | 2004 | Bracketed paste       | bracketedPaste            |
+     * | 9001 | Win32 input mode      | win32InputMode            |
      */
     static const PrivateModeEntry privateModeTable[]
     {
@@ -713,6 +789,7 @@ namespace
         { 1004, ID::focusEvents          },
         { 1006, ID::mouseSgr             },
         { 2004, ID::bracketedPaste       },
+        { 9001, ID::win32InputMode       },
     };
 
     /**

@@ -37,6 +37,19 @@ if not exist %VCVARSALL% (
 echo Setting up MSVC x64 environment...
 call %VCVARSALL% x64
 
+:: Use clang-cl for DWARF debug symbols (codelldb/LLDB compatible)
+:: clang-cl is MSVC-compatible (handles intrinsics, ABI, headers natively)
+set CLANGCL=C:\Program Files\LLVM\bin\clang-cl.exe
+if exist "%CLANGCL%" (
+    set CC=%CLANGCL%
+    set CXX=%CLANGCL%
+    set CLANG_FLAGS=-gdwarf /EHsc
+    echo Using clang-cl with DWARF debug symbols
+) else (
+    set CLANG_FLAGS=
+    echo WARNING: clang-cl not found, using cl.exe
+)
+
 :: Use VS-bundled ninja (guaranteed to exist)
 set PATH=%VS_PATH%\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja;%PATH%
 
@@ -49,7 +62,7 @@ echo.
 :: Configure
 if not exist "Builds\Ninja" (
     echo Configuring...
-    cmake -S . -B Builds/Ninja -G Ninja -DCMAKE_BUILD_TYPE=%CONFIG%
+    cmake -S . -B Builds/Ninja -G Ninja -DCMAKE_BUILD_TYPE=%CONFIG% -DCMAKE_C_COMPILER="%CC%" -DCMAKE_CXX_COMPILER="%CXX%" -DCMAKE_C_FLAGS="%CLANG_FLAGS%" -DCMAKE_CXX_FLAGS="%CLANG_FLAGS%" -DCMAKE_EXE_LINKER_FLAGS="/debug:dwarf" -DCMAKE_SHARED_LINKER_FLAGS="/debug:dwarf" -DCMAKE_MODULE_LINKER_FLAGS="/debug:dwarf" -DCMAKE_EXE_LINKER_FLAGS_DEBUG="/debug:dwarf /INCREMENTAL" -DCMAKE_SHARED_LINKER_FLAGS_DEBUG="/debug:dwarf /INCREMENTAL" -DCMAKE_MODULE_LINKER_FLAGS_DEBUG="/debug:dwarf /INCREMENTAL"
     if errorlevel 1 (
         echo CMake configure FAILED
         exit /b 1

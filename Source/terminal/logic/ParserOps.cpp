@@ -570,7 +570,6 @@ void Parser::setTabStop (ActiveScreen s) noexcept
  * @see setTabStop()       — sets a stop at the cursor column (HTS)
  * @see clearAllTabStops() — clears all stops (TBC CSI 3 g)
  */
-// TODO: unused — verify before removal
 void Parser::clearTabStop (ActiveScreen s) noexcept
 {
     const int col { state.getCursorCol (s) };
@@ -588,12 +587,10 @@ void Parser::clearTabStop (ActiveScreen s) noexcept
  * `nextTabStop()` will always return `cols - 1` (the right margin).
  *
  * @note READER THREAD only.
- * @note Currently unused — verify against TBC dispatch before removal.
  *
  * @see clearTabStop()        — clears only the stop at the cursor column
  * @see initializeTabStops()  — restores the default 8-column layout
  */
-// TODO: unused — verify before removal
 void Parser::clearAllTabStops() noexcept
 {
     tabStops.assign (tabStops.size(), 0);

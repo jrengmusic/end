@@ -188,6 +188,11 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
         rc.bg = temp;
     }
 
+    if (cell.isDim())
+    {
+        rc.fg = rc.fg.withMultipliedBrightness (0.5f);
+    }
+
     return rc;
 }
 
@@ -351,7 +356,7 @@ void Screen::processCellForSnapshot (
         }
     }
 
-    if (selection != nullptr and cell.hasContent() and selection->contains (col, row))
+    if (selection != nullptr and cell.hasContent() and selection->containsBox (col, row))
     {
         const int bgIdx { row * bgCacheCols + bgCount[row] };
         const juce::Colour& sel { resources.terminalColors.selectionColour };

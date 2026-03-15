@@ -715,7 +715,11 @@ void Parser::execute (uint8_t controlByte) noexcept
             break;
 
         case 0x0E:
+            useLineDrawing = g1LineDrawing;
+            break;
+
         case 0x0F:
+            useLineDrawing = g0LineDrawing;
             break;
 
         default:
@@ -804,6 +808,9 @@ void Parser::flushResponses() noexcept
  * | cursorVisible      | true    |
  * | reverseVideo       | false   |
  *
+ * Also clears the kitty keyboard mode stacks for both screens via
+ * `resetKeyboardMode()`, restoring flags to 0 (legacy mode).
+ *
  * @note READER THREAD only.
  *
  * @see reset()
@@ -823,6 +830,9 @@ void Parser::resetModes() noexcept
     state.setMode (ID::applicationKeypad, false);
     state.setMode (ID::cursorVisible, true);
     state.setMode (ID::reverseVideo, false);
+
+    state.resetKeyboardMode (normal);
+    state.resetKeyboardMode (alternate);
 }
 
 /**
@@ -852,6 +862,8 @@ void Parser::reset() noexcept
     resetModes();
     resetPen();
     useLineDrawing = false;
+    g0LineDrawing = false;
+    g1LineDrawing = false;
     grid.eraseRowRange (0, grid.getVisibleRows() - 1);
     calc();
 }

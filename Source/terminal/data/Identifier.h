@@ -191,6 +191,9 @@ namespace ID
     /** @brief Reverse Video Mode - swap foreground and background colors. */
     static const juce::Identifier reverseVideo         { "reverseVideo" };
 
+    /** @brief Win32 Input Mode (XTerm 9001) - encode keyboard input as Win32 KEY_EVENT_RECORD. */
+    static const juce::Identifier win32InputMode       { "win32InputMode" };
+
     //==========================================================================
     // Per-screen parameter IDs (screen-specific cursor and scroll state)
     //==========================================================================
@@ -221,6 +224,9 @@ namespace ID
 
     /** @brief OSC 12 cursor color blue component (0-255). -1 = not set (use config default). */
     static const juce::Identifier cursorColorB         { "cursorColorB" };
+
+    /** @brief Kitty keyboard protocol flags (bitmask). 0 = legacy mode. */
+    static const juce::Identifier keyboardFlags        { "keyboardFlags" };
 }
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

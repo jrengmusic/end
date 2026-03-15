@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-12 (updated: pwd tracking, tab name, shellProgram, Shift+Enter CSI u, Windows config path)
+**Last Updated:** 2026-03-13 (updated: kitty keyboard protocol, CSI u encoding, keyboard flags in State)
 
 ---
 
@@ -74,7 +74,7 @@ Source/
       State.h/cpp                   APVTS-style atomic + timer + ValueTree
       StateFlush.cpp                Timer flush implementation
       ValueTreeUtilities.h          ValueTree traversal helpers
-      Keyboard.h                    Keypress -> escape sequence mapping (includes Shift+Enter CSI u)
+      Keyboard.h                    Keypress -> escape sequence mapping (kitty keyboard protocol)
 
     logic/                          Terminal emulation (parser, grid, session)
       Session.h/cpp                 Orchestrator: owns State, Grid, Parser, TTY
@@ -451,9 +451,48 @@ SESSION nodes use `jreng::ID::id` (not a Terminal-specific UUID identifier). Thi
 
 ## Input Encoding
 
-### Shift+Enter (CSI u)
+### Kitty Keyboard Protocol
 
-`Keyboard::mapPlain` checks for Shift+Return before the `simpleKeys` lookup and sends `\x1b[13;2u` (CSI u / fixterms encoding) instead of plain `\r`. Matches Kitty/WezTerm/Ghostty behavior. Codepoint 13 = CR, modifier 2 = Shift.
+Full implementation of the [kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/) progressive enhancement system.
+
+#### Protocol Handshake (Parser → State)
+
+| Sequence | Action | Implementation |
+|----------|--------|----------------|
+| `CSI > flags u` | Push flags onto per-screen stack | `State::pushKeyboardMode()` |
+| `CSI < count u` | Pop count entries from stack | `State::popKeyboardMode()` |
+| `CSI ? u` | Query current flags | `Parser::handleKeyboardMode()` responds `CSI ? flags u` |
+| `CSI = flags ; mode u` | Set flags (1=abs, 2=OR, 3=AND-NOT) | `State::setKeyboardMode()` |
+
+Per-screen stacks (normal/alternate) with max depth 16. Stacks cleared on RIS (`resetModes()`).
+
+#### State Storage
+
+`keyboardFlags` is a per-screen parameter in the APVTS pattern:
+- **Reader thread:** `State::getKeyboardFlags(screen)` reads the atomic.
+- **Message thread:** `State::getTreeKeyboardFlags()` reads the ValueTree (post-flush).
+- Stack storage: `HeapBlock<uint32_t>` (flat) + `HeapBlock<int>` (stack sizes per screen).
+
+#### Flag-Aware Keyboard Encoding (Keyboard::map)
+
+`Session::handleKeyPress()` reads `getTreeKeyboardFlags()` and passes to `Keyboard::map()`.
+
+| Flag | Bit | Effect on encoding |
+|------|-----|--------------------|
+| 0 (legacy) | — | All keys use xterm legacy encoding. Shift+Enter = `\r`. |
+| 1 (disambiguate) | 0 | Ctrl+key, Alt+key, Escape → CSI u. Enter/Tab/Backspace stay legacy when unmodified; modified (e.g. Shift+Enter) → CSI u. |
+| 8 (all keys) | 3 | ALL keys including Enter/Tab/Backspace and plain text → CSI u. |
+| 2 (event types) | 1 | Accepted/stored but not encoded (JUCE lacks key release events). |
+| 4 (alternate keys) | 2 | Accepted/stored but not encoded (no base-layout-key info from JUCE). |
+| 16 (associated text) | 4 | Accepted/stored but not encoded. |
+
+CSI u format: `CSI keycode ; modifiers u` where modifiers = `1 + shift(1) + alt(2) + ctrl(4)`.
+
+#### Key Dispatch by Flag
+
+- **`mapPlain`:** Simple keys (Enter=13, Tab=9, Backspace=127, Escape=27) check `shouldUseCsiU()`. Text keys check `kittyAllKeys` flag. Functional keys (cursor, F-keys, editing) always use legacy CSI encoding.
+- **`mapCtrl`:** Under flags 1/8, Ctrl+letter sends `CSI lowercase_codepoint ; modifiers u` instead of control characters. Ctrl+Shift properly encoded with both modifier bits.
+- **`mapAlt`:** Under flags 1/8, Alt+text-key sends `CSI lowercase_codepoint ; modifiers u` instead of ESC-prefix. Alt+functional-key keeps legacy ESC-prefix encoding.
 
 ---
 

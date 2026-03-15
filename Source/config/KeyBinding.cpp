@@ -92,8 +92,12 @@ bool KeyBinding::isCommandKeyPress (const juce::KeyPress& key)
     {
         const juce::KeyPress bound { parse (cfg->getString (actionID)) };
 
-        if (bound.isValid() and key == bound)
+        if (bound.isValid()
+            and key.getKeyCode() == bound.getKeyCode()
+            and key.getModifiers() == bound.getModifiers())
+        {
             return true;
+        }
     }
 
     return false;

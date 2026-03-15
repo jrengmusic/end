@@ -245,6 +245,66 @@ struct State : public juce::Timer
     void resetCursorColor (ActiveScreen s) noexcept;
 
     /**
+     * @brief Pushes keyboard mode flags onto the per-screen stack.
+     *
+     * Implements `CSI > flags u` from the kitty keyboard protocol.
+     * Stores `flags` on the stack and flushes the top-of-stack value
+     * to the atomic slot for the given screen.
+     *
+     * @param s      Target screen (`normal` or `alternate`).
+     * @param flags  Bitmask of keyboard enhancement flags to push.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void pushKeyboardMode (ActiveScreen s, uint32_t flags) noexcept;
+
+    /**
+     * @brief Pops entries from the per-screen keyboard mode stack.
+     *
+     * Implements `CSI < number u` from the kitty keyboard protocol.
+     * Pops up to `count` entries and flushes the new top-of-stack
+     * (or 0 if the stack is empty) to the atomic slot.
+     *
+     * @param s      Target screen (`normal` or `alternate`).
+     * @param count  Number of entries to pop (clamped to stack size).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void popKeyboardMode (ActiveScreen s, int count) noexcept;
+
+    /**
+     * @brief Sets keyboard mode flags directly on the per-screen stack top.
+     *
+     * Implements `CSI = flags ; mode u` from the kitty keyboard protocol.
+     *
+     * @param s      Target screen (`normal` or `alternate`).
+     * @param flags  Bitmask of keyboard enhancement flags.
+     * @param mode   1 = set (absolute), 2 = OR, 3 = AND-NOT.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setKeyboardMode (ActiveScreen s, uint32_t flags, int mode) noexcept;
+
+    /**
+     * @brief Returns the current keyboard flags for the specified screen.
+     *
+     * Reads the atomic slot directly — safe from any thread.
+     *
+     * @param s  Target screen (`normal` or `alternate`).
+     * @return The active keyboard enhancement flags (0 = legacy mode).
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    uint32_t getKeyboardFlags (ActiveScreen s) const noexcept;
+
+    /**
+     * @brief Resets the keyboard mode stack for the specified screen.
+     *
+     * Clears the stack and flushes 0 to the atomic slot. Called during
+     * terminal reset (RIS).
+     *
+     * @param s  Target screen (`normal` or `alternate`).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void resetKeyboardMode (ActiveScreen s) noexcept;
+
+    /**
      * @brief Sets the window title from OSC 0/2 escape sequences.
      * @param ptr  Pointer to a null-terminated UTF-8 string owned by the caller.
      *             Must remain valid until the next flush.
@@ -283,6 +343,22 @@ struct State : public juce::Timer
      * @note READER THREAD — lock-free, noexcept.
      */
     ActiveScreen getScreen() const noexcept;
+
+    /**
+     * @brief Returns the currently active screen buffer from the ValueTree
+     *        (post-flush value).
+     *
+     * Reads the `activeScreen` PARAM child of the root SESSION node.  Unlike
+     * `getScreen()`, which reads the atomic directly, this method reflects the
+     * state as of the last timer flush and is therefore consistent with all
+     * other ValueTree properties.  Use this inside message-thread code (UI
+     * components, ValueTree listeners, mouse/keyboard handlers) where
+     * consistency with the rest of the flushed state matters.
+     *
+     * @return `ActiveScreen::normal` or `ActiveScreen::alternate`.
+     * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
+     */
+    ActiveScreen getActiveScreen() const noexcept;
 
     /**
      * @brief Returns the current terminal column count.
@@ -411,6 +487,18 @@ struct State : public juce::Timer
     bool getTreeMode (const juce::Identifier& id) const noexcept;
 
     /**
+     * @brief Reads the kitty keyboard flags from the ValueTree (post-flush value).
+     *
+     * Determines the active screen via `getScreen()`, navigates to the
+     * corresponding screen child node (`NORMAL` or `ALTERNATE`), and reads
+     * the `keyboardFlags` parameter.
+     *
+     * @return The active keyboard enhancement flags (0 = legacy mode).
+     * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
+     */
+    uint32_t getTreeKeyboardFlags() const noexcept;
+
+    /**
      * @brief Sets the vertical scroll offset (UI-owned parameter).
      *
      * `scrollOffset` is the only parameter written exclusively by the message
@@ -440,10 +528,48 @@ struct State : public juce::Timer
      * The UI polls `consumeSnapshotDirty()` (typically from a timer or
      * `timerCallback`) to decide whether to trigger a repaint.
      *
-     * @note READER THREAD — sets `snapshotDirty` with `memory_order_relaxed`.
+     * When a paste echo gate is active (`pasteEchoRemaining > 0`), this call
+     * is suppressed — the grid is still updated, but the UI is not notified
+     * until the echo has fully arrived, producing a single visual update.
+     *
+     * @note READER THREAD — sets `snapshotDirty` with `memory_order_release`.
      *       Lock-free, noexcept.
      */
     void setSnapshotDirty() noexcept;
+
+    /**
+     * @brief Arms the paste echo gate to suppress rendering during paste echo.
+     *
+     * After a non-bracketed paste, the shell echoes the pasted text back
+     * character by character.  The gate suppresses `setSnapshotDirty()` until
+     * the expected number of echo bytes have been received, producing a single
+     * visual update instead of per-character repaints.
+     *
+     * @param bytes  Expected echo length in bytes.
+     * @note MESSAGE THREAD — called from `Session::paste()`.
+     */
+    void setPasteEchoGate (int bytes) noexcept;
+
+    /**
+     * @brief Decrements the paste echo gate by the number of bytes received.
+     *
+     * When the counter reaches zero (or below), marks the snapshot dirty and
+     * clears the gate, triggering a single repaint for the entire paste.
+     *
+     * @param bytes  Number of bytes just received from the PTY.
+     * @note READER THREAD — called from `Session::process()`.
+     */
+    void consumePasteEcho (int bytes) noexcept;
+
+    /**
+     * @brief Clears the paste echo gate unconditionally and marks dirty.
+     *
+     * Fallback for when the echo is shorter than expected (e.g. shell
+     * transforms input).  Called on drain complete.
+     *
+     * @note READER THREAD — called from `onDrainComplete`.
+     */
+    void clearPasteEchoGate() noexcept;
 
     /**
      * @brief Returns a ValueTree snapshot of the cursor state for the active screen.
@@ -615,6 +741,31 @@ private:
     juce::Identifier modeKey (const juce::Identifier& property) const noexcept;
 
     /**
+     * @brief Maximum depth of the per-screen keyboard mode stack.
+     *
+     * The kitty keyboard protocol uses a push/pop stack for keyboard
+     * enhancement flags.  Capped to prevent unbounded growth from
+     * misbehaving programs.
+     */
+    static constexpr int maxKeyboardStackDepth { 16 };
+
+    /**
+     * @brief Flat storage for two per-screen keyboard mode stacks.
+     *
+     * Layout: `[screen * maxKeyboardStackDepth + index]`.
+     * Allocated once in the constructor; never reallocated.
+     */
+    juce::HeapBlock<uint32_t> keyboardModeStack;
+
+    /**
+     * @brief Current size of each per-screen keyboard mode stack.
+     *
+     * Layout: `[screen]` — index 0 = normal, index 1 = alternate.
+     * Allocated once in the constructor; never reallocated.
+     */
+    juce::HeapBlock<int> keyboardModeStackSize;
+
+    /**
      * @brief Set by `storeAndFlush()` (READER THREAD) when any atomic has changed.
      *        Cleared by `flush()` (MESSAGE THREAD) after copying to the ValueTree.
      *
@@ -633,6 +784,17 @@ private:
      * ValueTree flush.
      */
     std::atomic<bool> snapshotDirty { false };
+
+    /**
+     * @brief Remaining echo bytes expected from a non-bracketed paste.
+     *
+     * Set by `setPasteEchoGate()` (MESSAGE THREAD) before writing paste data.
+     * Decremented by `consumePasteEcho()` (READER THREAD) as data arrives.
+     * While positive, `setSnapshotDirty()` is suppressed.  When the counter
+     * reaches zero, a single `snapshotDirty` store fires, producing one
+     * visual update for the entire paste.
+     */
+    std::atomic<int> pasteEchoRemaining { 0 };
 
     /**
      * @brief Stable backing store for string atomic slots.

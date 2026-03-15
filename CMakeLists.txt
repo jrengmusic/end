@@ -250,6 +250,17 @@ if(AUTO_BINARY_DATA)
     list(APPEND BINARY_DATA_FILES
         ${SVG_FILES} ${XML_FILES} ${PNG_FILES} ${FONT_FILES} ${LUA_FILES} ${SHADER_FILES}
     )
+
+    # Windows ConPTY sideload binaries (MIT-licensed, from Microsoft Terminal project).
+    # conpty.dll + OpenConsole.exe are extracted at runtime to ~/.config/end/conpty/
+    # so that the modern ConPTY (with PSEUDOCONSOLE_WIN32_INPUT_MODE support) is used
+    # instead of the inbox conhost.exe on Windows 10 22H2 and earlier.
+    if(WIN32)
+        list(APPEND BINARY_DATA_FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/Resources/windows/conpty.dll"
+            "${CMAKE_CURRENT_SOURCE_DIR}/Resources/windows/OpenConsole.exe"
+        )
+    endif()
 endif()
 
 if(BINARY_DATA_FILES)

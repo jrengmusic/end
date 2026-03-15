@@ -778,5 +778,87 @@ juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end) co
     return result;
 }
 
+/**
+ * @brief Extracts a box (rectangle) selection of text as a UTF-32 string.
+ *
+ * Applies the same column range `[topLeft.x, bottomRight.x]` to every row in
+ * `[topLeft.y, bottomRight.y]`.  This produces a strict rectangular region —
+ * the column range does not change between rows, unlike `extractText()` which
+ * uses row-wrapped semantics.
+ *
+ * Empty cells are emitted as spaces; wide-continuation cells are skipped.
+ * Trailing whitespace is trimmed from each row.  Rows are separated by `'\n'`
+ * except the last.
+ *
+ * @param topLeft      Top-left corner of the rectangle (x = col, y = row).
+ *                     Must already be normalised (min col/row of the selection).
+ * @param bottomRight  Bottom-right corner of the rectangle (inclusive).
+ *                     Must already be normalised (max col/row of the selection).
+ * @return A `juce::String` containing the selected text.
+ * @note MESSAGE THREAD — caller must hold `resizeLock`.
+ */
+juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bottomRight) const
+{
+    const int startRow { juce::jlimit (0, visibleRows - 1, topLeft.y) };
+    const int endRow   { juce::jlimit (0, visibleRows - 1, bottomRight.y) };
+    const int startCol { juce::jlimit (0, cols - 1, topLeft.x) };
+    const int endCol   { juce::jlimit (0, cols - 1, bottomRight.x) };
+
+    juce::String result;
+
+    for (int row { startRow }; row <= endRow; ++row)
+    {
+        const Cell* cells { activeVisibleRow (row) };
+
+        if (cells != nullptr)
+        {
+            juce::String rowText;
+
+            for (int col { startCol }; col <= endCol; ++col)
+            {
+                const Cell& cell { *(cells + col) };
+
+                if (not cell.isWideContinuation())
+                {
+                    if (cell.codepoint == 0)
+                    {
+                        rowText += " ";
+                    }
+                    else
+                    {
+                        rowText += juce::String::charToString (static_cast<juce::juce_wchar> (cell.codepoint));
+
+                        if (cell.hasGrapheme())
+                        {
+                            const Grapheme* grapheme { activeReadGrapheme (row, col) };
+
+                            if (grapheme != nullptr)
+                            {
+                                const uint8_t safeCount { std::min (grapheme->count,
+                                    static_cast<uint8_t> (grapheme->extraCodepoints.size())) };
+
+                                for (uint8_t g { 0 }; g < safeCount; ++g)
+                                {
+                                    rowText += juce::String::charToString (
+                                        static_cast<juce::juce_wchar> (grapheme->extraCodepoints.at (g)));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            rowText = rowText.trimEnd();
+
+            if (row < endRow)
+                rowText += "\n";
+
+            result += rowText;
+        }
+    }
+
+    return result;
+}
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

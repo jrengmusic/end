@@ -46,7 +46,7 @@ struct File
                                bool searchRecursively = true,
                                const juce::String& wildCardPattern = "*") noexcept
     {
-        auto childFiles { parent.findChildFiles (whatToLook | juce::File::ignoreHiddenFiles, searchRecursively, wildCardPattern) };
+        auto childFiles = parent.findChildFiles (whatToLook | juce::File::ignoreHiddenFiles, searchRecursively, wildCardPattern);
 
         childFiles.sort();
 

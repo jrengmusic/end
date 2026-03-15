@@ -1,7 +1,7 @@
 ---
 description: Library and framework research specialist - understands external dependencies
 mode: subagent
-model: minimax-coding-plan/MiniMax-M2.5
+model: anthropic/claude-sonnet-4-6
 temperature: 0.2
 tools:
   write: false

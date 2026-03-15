@@ -108,6 +108,7 @@ static juce::ValueTree buildScreenNode (const juce::Identifier& nodeId)
     State::addParam (node, ID::cursorColorR, -1.0f);
     State::addParam (node, ID::cursorColorG, -1.0f);
     State::addParam (node, ID::cursorColorB, -1.0f);
+    State::addParam (node, ID::keyboardFlags, 0.0f);
     return node;
 }
 
@@ -155,12 +156,16 @@ State::State()
     addParam (modesNode, ID::applicationKeypad, 0.0f);
     addParam (modesNode, ID::cursorVisible, 1.0f);
     addParam (modesNode, ID::reverseVideo, 0.0f);
+    addParam (modesNode, ID::win32InputMode, 0.0f);
     state.appendChild (modesNode, nullptr);
 
     state.appendChild (buildScreenNode (ID::NORMAL), nullptr);
     state.appendChild (buildScreenNode (ID::ALTERNATE), nullptr);
 
     buildParameterMap();
+
+    keyboardModeStack.allocate (2 * maxKeyboardStackDepth, true);
+    keyboardModeStackSize.allocate (2, true);
 
     stringStorage.emplace_back (nullptr);
     stringMap[ID::title] = &stringStorage.back();
@@ -252,6 +257,78 @@ void State::resetCursorColor (ActiveScreen s) noexcept
     storeAndFlush (screenKey (s, ID::cursorColorB), -1.0f);
 }
 
+void State::pushKeyboardMode (ActiveScreen s, uint32_t flags) noexcept
+{
+    const int base { static_cast<int> (s) * maxKeyboardStackDepth };
+    auto& size { keyboardModeStackSize[static_cast<int> (s)] };
+
+    if (size >= maxKeyboardStackDepth)
+    {
+        // Evict oldest entry by shifting the stack down
+        for (int i { 0 }; i < maxKeyboardStackDepth - 1; ++i)
+        {
+            keyboardModeStack[base + i] = keyboardModeStack[base + i + 1];
+        }
+
+        --size;
+    }
+
+    keyboardModeStack[base + size] = flags;
+    ++size;
+    storeAndFlush (screenKey (s, ID::keyboardFlags), static_cast<float> (flags));
+}
+
+void State::popKeyboardMode (ActiveScreen s, int count) noexcept
+{
+    auto& size { keyboardModeStackSize[static_cast<int> (s)] };
+    const int toPop { std::min (count, size) };
+    size -= toPop;
+
+    const int base { static_cast<int> (s) * maxKeyboardStackDepth };
+    const uint32_t current { size > 0 ? keyboardModeStack[base + size - 1] : 0u };
+    storeAndFlush (screenKey (s, ID::keyboardFlags), static_cast<float> (current));
+}
+
+void State::setKeyboardMode (ActiveScreen s, uint32_t flags, int mode) noexcept
+{
+    const int base { static_cast<int> (s) * maxKeyboardStackDepth };
+    auto& size { keyboardModeStackSize[static_cast<int> (s)] };
+
+    if (size == 0)
+    {
+        keyboardModeStack[base] = 0u;
+        size = 1;
+    }
+
+    auto& top { keyboardModeStack[base + size - 1] };
+
+    if (mode == 1)
+    {
+        top = flags;
+    }
+    else if (mode == 2)
+    {
+        top |= flags;
+    }
+    else if (mode == 3)
+    {
+        top &= ~flags;
+    }
+
+    storeAndFlush (screenKey (s, ID::keyboardFlags), static_cast<float> (top));
+}
+
+uint32_t State::getKeyboardFlags (ActiveScreen s) const noexcept
+{
+    return static_cast<uint32_t> (getRawValue<int> (screenKey (s, ID::keyboardFlags)));
+}
+
+void State::resetKeyboardMode (ActiveScreen s) noexcept
+{
+    keyboardModeStackSize[static_cast<int> (s)] = 0;
+    storeAndFlush (screenKey (s, ID::keyboardFlags), 0.0f);
+}
+
 void State::setTitle (const char* ptr) noexcept
 {
     // READER THREAD
@@ -288,7 +365,40 @@ void State::setForegroundProcess (const char* ptr) noexcept
 // READER THREAD
 void State::setSnapshotDirty() noexcept
 {
-    snapshotDirty.store (true, std::memory_order_release);
+    if (pasteEchoRemaining.load (std::memory_order_relaxed) <= 0)
+    {
+        snapshotDirty.store (true, std::memory_order_release);
+    }
+}
+
+// MESSAGE THREAD
+void State::setPasteEchoGate (int bytes) noexcept
+{
+    pasteEchoRemaining.store (bytes, std::memory_order_release);
+}
+
+// READER THREAD
+void State::consumePasteEcho (int bytes) noexcept
+{
+    if (pasteEchoRemaining.load (std::memory_order_relaxed) > 0)
+    {
+        const int remaining { pasteEchoRemaining.fetch_sub (bytes, std::memory_order_acq_rel) - bytes };
+
+        if (remaining <= 0)
+        {
+            pasteEchoRemaining.store (0, std::memory_order_relaxed);
+            snapshotDirty.store (true, std::memory_order_release);
+        }
+    }
+}
+
+// READER THREAD
+void State::clearPasteEchoGate() noexcept
+{
+    if (pasteEchoRemaining.exchange (0, std::memory_order_acq_rel) > 0)
+    {
+        snapshotDirty.store (true, std::memory_order_release);
+    }
 }
 
 /**
@@ -496,6 +606,56 @@ bool State::getTreeMode (const juce::Identifier& id) const noexcept
 }
 
 /**
+ * @brief Returns the currently active screen buffer from the ValueTree
+ *        (post-flush value).
+ *
+ * Navigates to the `activeScreen` PARAM child of the root SESSION node and
+ * returns its `value` property cast to `ActiveScreen`.  Returns
+ * `ActiveScreen::normal` if the parameter node is not found.
+ *
+ * @return `ActiveScreen::normal` or `ActiveScreen::alternate`.
+ * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
+ */
+ActiveScreen State::getActiveScreen() const noexcept
+{
+    auto param { ValueTreeUtilities::getChildWithID (state, ID::activeScreen.toString()) };
+    ActiveScreen result { normal };
+
+    if (param.isValid())
+    {
+        result = static_cast<ActiveScreen> (static_cast<int> (param.getProperty (ID::value)));
+    }
+
+    return result;
+}
+
+/**
+ * @brief Reads the kitty keyboard flags from the ValueTree (post-flush value).
+ *
+ * Determines the active screen via `getActiveScreen()`, navigates to the
+ * corresponding screen child node (`NORMAL` or `ALTERNATE`), and reads
+ * the `keyboardFlags` parameter.  Returns 0 (legacy mode) if the parameter
+ * is not found.
+ *
+ * @return The active keyboard enhancement flags (0 = legacy mode).
+ * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
+ */
+uint32_t State::getTreeKeyboardFlags() const noexcept
+{
+    const auto scr { getActiveScreen() };
+    auto screenNode { state.getChildWithName (scr == normal ? ID::NORMAL : ID::ALTERNATE) };
+    auto param { ValueTreeUtilities::getChildWithID (screenNode, ID::keyboardFlags.toString()) };
+    uint32_t result { 0 };
+
+    if (param.isValid())
+    {
+        result = static_cast<uint32_t> (static_cast<int> (param.getProperty (ID::value)));
+    }
+
+    return result;
+}
+
+/**
  * @brief Sets the vertical scroll offset (UI-owned parameter).
  *
  * `scrollOffset` is the only parameter written exclusively by the message
@@ -560,7 +720,7 @@ int State::getScrollOffset() const noexcept
 // Cursor state for external VT listeners (CursorComponent)
 juce::ValueTree State::getCursorState() noexcept
 {
-    const auto scr { getScreen() };
+    const auto scr { getActiveScreen() };
     return state.getChildWithName (scr == normal ? ID::NORMAL : ID::ALTERNATE);
 }
 

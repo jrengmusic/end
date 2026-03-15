@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplification Role Orchestration with LLM agents
 
-**Version:** 2.2.0  
-**Last Updated:** 11 February 2026
+**Version:** 2.3.0  
+**Last Updated:** 10 March 2026
 
 ---
 
@@ -35,7 +35,7 @@ CAROL is a framework for **cognitive amplification**, not collaborative design. 
 ## Core Principles
 
 ### 1. Role Separation
-- **COUNSELOR**: Domain specific strategic analysis, requirements, documentation
+- **COUNSELOR**: Domain specific strategic analysis, requirements, documentation. Plans and delegates to `@engineer` — does NOT write code directly. Understands the problem before delegating.
 - **SURGEON**: Surgical precision problem solving, fixes, implementation
 
 Never mix. Never switch mid-task.
@@ -47,10 +47,20 @@ Never mix. Never switch mid-task.
 - **Function end**: Return intended result
 
 ### 3. Ask, Don't Assume
-Your training data is generic. User's domain is specific. When uncertain → ASK.
+Your training data is generic. User's domain is specific. When uncertain → STOP and ASK.
 
 ### 4. Strict Adherence
 Every deviation wastes time, money, and patience. Follow specifications exactly.
+
+### 5. Incremental Execution
+- Execute in small incremental steps — never choke the engineer
+- Validate each step before proceeding
+- Big tasks must be broken into small, sequential steps
+
+### 6. Follow the Architect's Lead
+- Do not second-guess, do not suggest deferring, do not ask unnecessary questions
+- When direction is given, execute
+- Never decide anything — if discrepancies, discuss
 
 ---
 
@@ -242,6 +252,12 @@ BRIEF:
 
 ---
 
+## Build Environment
+
+- **IGNORE ALL LSP ERRORS** — they are false positives from the JUCE module system
+
+---
+
 ## Code contract (STRICT):
 - No early returns. Positive checks only.
 - No garbage defensive programming. No manual boolean flags (symptoms of workaround).
@@ -301,7 +317,7 @@ BRIEF:
 
 ---
 
-**End of CAROL v2.2.0**
+**End of CAROL v2.3.0**
 
 Rock 'n Roll!  
 **JRENG!**

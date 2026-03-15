@@ -438,6 +438,20 @@ private:
      */
     bool isMouseTracking() const noexcept;
 
+    /**
+     * @brief Returns whether mouse events should be forwarded to the PTY.
+     *
+     * Returns true when the PTY should receive mouse events instead of the
+     * component performing text selection:
+     * - If any mouse-tracking mode is active (works on macOS/Linux).
+     * - On Windows: if the alternate screen is active (ConPTY workaround —
+     *   ConPTY intercepts DECSET mouse mode sequences so `isMouseTracking()`
+     *   always returns false on Windows even when a TUI app requests tracking).
+     *
+     * @return @c true if mouse events should be forwarded to the PTY.
+     */
+    bool shouldForwardMouseToPty() const noexcept;
+
     //==============================================================================
     /** @brief GPU-accelerated terminal renderer; attached to this component. */
     Screen screen;
@@ -447,6 +461,32 @@ private:
 
     /** @brief Cursor overlay component; positioned by updateCursorBounds(). */
     std::unique_ptr<CursorComponent> cursor;
+
+    /**
+     * @brief Rectangle (box) selection state driven by mouse drag.
+     *
+     * Stores the anchor (mouse-down) and end (current drag) grid coordinates
+     * for a box selection.  The actual selected rectangle is
+     * `[min(anchorCol,endCol), max(anchorCol,endCol)]` ×
+     * `[min(anchorRow,endRow), max(anchorRow,endRow)]` — the same column
+     * range applies to every row, making this a strict rectangle rather than
+     * a row-wrapped region.
+     *
+     * `active` is set to `true` once the user has dragged at least one cell
+     * away from the anchor.  A plain click (no drag) leaves `active` false
+     * and clears any previous selection.
+     */
+    struct BoxSelection
+    {
+        int  anchorCol { 0 };  ///< Column of the mouse-down anchor cell.
+        int  anchorRow { 0 };  ///< Row of the mouse-down anchor cell.
+        int  endCol    { 0 };  ///< Column of the current drag end cell.
+        int  endRow    { 0 };  ///< Row of the current drag end cell.
+        bool active    { false }; ///< True when a non-degenerate selection exists.
+    };
+
+    /** @brief Current box selection state; `active` is false when nothing is selected. */
+    BoxSelection boxSelection;
 
     /** @brief Current text selection; null when nothing is selected. */
     std::unique_ptr<ScreenSelection> screenSelection;

@@ -48,6 +48,13 @@
 #include "config/Config.h"
 #include "terminal/rendering/FontCollection.h"
 
+#if JUCE_WINDOWS
+#pragma comment(lib, "winmm.lib")
+extern "C" __declspec(dllimport) unsigned int __stdcall timeBeginPeriod (unsigned int uPeriod);
+extern "C" __declspec(dllimport) unsigned int __stdcall timeEndPeriod (unsigned int uPeriod);
+#endif
+
+
 //==============================================================================
 /**
  * @class ENDApplication
@@ -109,6 +116,14 @@ public:
      */
     void initialise (const juce::String& commandLine) override
     {
+#if JUCE_WINDOWS
+        // Unlock 1 ms timer resolution so the 8 ms flush timer fires at its
+        // intended rate rather than the default 15 ms WM_TIMER granularity.
+        // Threat: coarse timer resolution causes cursor-position update latency
+        // and visible cursor twitching at nominal 120 Hz.
+        timeBeginPeriod (1);
+#endif
+
         auto* cfg { Config::getContext() };
 
         mainWindow.reset (new jreng::GlassWindow (
@@ -129,7 +144,13 @@ public:
      *
      * @note MESSAGE THREAD — called once at shutdown.
      */
-    void shutdown() override { mainWindow = nullptr; }
+    void shutdown() override
+    {
+        mainWindow = nullptr;
+#if JUCE_WINDOWS
+        timeEndPeriod (1);
+#endif
+    }
 
     //==============================================================================
     /**

@@ -168,6 +168,7 @@ namespace
         switch (code)
         {
             case 1:  p.style |= Cell::BOLD;      break;
+            case 2:  p.style |= Cell::DIM;       break;
             case 3:  p.style |= Cell::ITALIC;    break;
             case 4:  p.style |= Cell::UNDERLINE; break;
             case 5:
@@ -211,7 +212,7 @@ namespace
         switch (code)
         {
             case 21:
-            case 22: p.style &= static_cast<uint8_t> (~Cell::BOLD);      break;
+            case 22: p.style &= static_cast<uint8_t> (~(Cell::BOLD | Cell::DIM)); break;
             case 23: p.style &= static_cast<uint8_t> (~Cell::ITALIC);    break;
             case 24: p.style &= static_cast<uint8_t> (~Cell::UNDERLINE); break;
             case 25: p.style &= static_cast<uint8_t> (~Cell::BLINK);     break;

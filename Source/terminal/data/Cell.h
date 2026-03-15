@@ -76,6 +76,9 @@ struct Cell
     /** SGR 7 — swap foreground and background colours when rendering. */
     static constexpr uint8_t INVERSE   { 0x20 };
 
+    /** SGR 2 — render text with reduced intensity (dim / faint). */
+    static constexpr uint8_t DIM       { 0x40 };
+
     /** @} */
 
     /** @name Data members
@@ -210,6 +213,15 @@ struct Cell
     bool isInverse() const noexcept
     {
         return (style & INVERSE) != 0;
+    }
+
+    /**
+     * @brief Returns true when the DIM (faint) style flag is set.
+     * @return `true` if the DIM bit is set in `style`.
+     */
+    bool isDim() const noexcept
+    {
+        return (style & DIM) != 0;
     }
 
     /** @} */

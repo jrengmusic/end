@@ -86,10 +86,14 @@ struct Keyboard
      *                           (`\x1bOA`) instead of CSI sequences (`\x1b[A`),
      *                           matching xterm's "application cursor keys" mode
      *                           (DECCKM, `\x1b[?1h`).
+     * @param keyboardFlags  Kitty keyboard protocol flags from the active screen.
+     *                       0 = legacy mode (no enhanced encoding).
+     *                       Bit 0 (1): disambiguate escape codes.
+     *                       Bit 3 (8): report all keys as escape codes.
      * @return The escape sequence as a juce::String, or an empty string if the
      *         key has no defined mapping (caller should ignore the event).
      */
-    static inline juce::String map (const juce::KeyPress& key, bool applicationCursor)
+    static inline juce::String map (const juce::KeyPress& key, bool applicationCursor, uint32_t keyboardFlags = 0)
     {
         const int code { key.getKeyCode() };
         const auto mods { key.getModifiers() };
@@ -98,19 +102,46 @@ struct Keyboard
 
         if (mods.isCtrlDown() and not mods.isAltDown())
         {
-            result = mapCtrl (code);
+            result = mapCtrl (code, mods, keyboardFlags);
         }
         else if (mods.isAltDown())
         {
-            result = mapAlt (code, mods, ch, applicationCursor);
+            result = mapAlt (code, mods, ch, applicationCursor, keyboardFlags);
         }
         else
         {
-            result = mapPlain (code, mods, ch, applicationCursor);
+            result = mapPlain (code, mods, ch, applicationCursor, keyboardFlags);
         }
 
         return result;
     }
+
+#if JUCE_WINDOWS
+    /**
+     * @brief Encodes a JUCE key press as a Win32-input-mode sequence.
+     *
+     * Produces the ConPTY win32-input-mode encoding:
+     * @code
+     *   CSI Vk ; Sc ; Uc ; 1 ; Cs ; 1 _
+     * @endcode
+     *
+     * Where:
+     * - Vk = Win32 wVirtualKeyCode (decimal)
+     * - Sc = Win32 wVirtualScanCode via MapVirtualKeyW (decimal)
+     * - Uc = UnicodeChar decimal value (0 for Ctrl+letter)
+     * - 1  = bKeyDown (key-down only; JUCE delivers no key-up events)
+     * - Cs = dwControlKeyState bitmask
+     * - 1  = wRepeatCount (always 1)
+     *
+     * Navigation keys (arrows, Home, End, Insert, Delete, PgUp, PgDn) have
+     * ENHANCED_KEY (0x100) set in the control-key state.
+     *
+     * @param key  The JUCE key press event to encode.
+     * @return The win32-input-mode escape sequence, or an empty string if the
+     *         key code cannot be mapped to a Win32 virtual key.
+     */
+    static juce::String encodeWin32Input (const juce::KeyPress& key) noexcept;
+#endif
 
 private:
     /**
@@ -122,30 +153,64 @@ private:
      * - Ctrl+[ → ESC (0x1B), Ctrl+\\ → FS (0x1C), Ctrl+] → GS (0x1D),
      *   Ctrl+^ → RS (0x1E), Ctrl+_ → US (0x1F)
      *
+     * When kitty keyboard flag 1 (disambiguate) or flag 8 (all keys) is
+     * active, Ctrl+key combinations produce CSI u sequences instead of
+     * legacy control characters, using the lowercase codepoint as the key
+     * number (e.g. Ctrl+C → `CSI 99;5u`).
+     *
      * @param code  The raw JUCE key code (from `KeyPress::getKeyCode()`).
-     * @return The control-character sequence, or an empty string if @p code
-     *         has no Ctrl mapping.
+     * @param mods  Full modifier state (Ctrl is always set; Shift may be).
+     * @param keyboardFlags  Kitty keyboard protocol flags.
+     * @return The control-character sequence or CSI u sequence, or an
+     *         empty string if @p code has no Ctrl mapping.
      */
-    static inline juce::String mapCtrl (int code)
+    static inline juce::String mapCtrl (int code, const juce::ModifierKeys& mods, uint32_t keyboardFlags)
     {
         juce::String result;
 
-        if (code >= 'A' and code <= 'Z')
+        if (keyboardFlags & (kittyDisambiguate | kittyAllKeys))
         {
-            result = juce::String::charToString (static_cast<wchar_t> (code - 'A' + ctrlLetterBase));
-        }
-        else if (code == '@' or code == ' ')
-        {
-            const char nul { 0 };
-            result = juce::String (&nul, 1);
+            if (code >= 'A' and code <= 'Z')
+            {
+                result = encodeCsiU (code - 'A' + 'a', mods);
+            }
+            else if (code == '@')
+            {
+                result = encodeCsiU ('@', mods);
+            }
+            else if (code == ' ')
+            {
+                result = encodeCsiU (' ', mods);
+            }
+            else
+            {
+                const auto it { ctrlKeys.find (code) };
+
+                if (it != ctrlKeys.end())
+                {
+                    result = encodeCsiU (code, mods);
+                }
+            }
         }
         else
         {
-            const auto it { ctrlKeys.find (code) };
-
-            if (it != ctrlKeys.end())
+            if (code >= 'A' and code <= 'Z')
             {
-                result = it->second;
+                result = juce::String::charToString (static_cast<wchar_t> (code - 'A' + ctrlLetterBase));
+            }
+            else if (code == '@' or code == ' ')
+            {
+                const char nul { 0 };
+                result = juce::String (&nul, 1);
+            }
+            else
+            {
+                const auto it { ctrlKeys.find (code) };
+
+                if (it != ctrlKeys.end())
+                {
+                    result = it->second;
+                }
             }
         }
 
@@ -167,35 +232,46 @@ private:
      * @param mods             Full modifier state (including Alt).
      * @param ch               Text character associated with the key event.
      * @param applicationCursor Forwarded to the inner `map()` call.
+     * @param keyboardFlags  Kitty keyboard protocol flags (forwarded to inner
+     *                       `map()` call).
      * @return ESC-prefixed sequence, or an empty string if neither a special
      *         sequence nor a printable character is available.
      */
-    static inline juce::String mapAlt (int code, const juce::ModifierKeys& mods, juce::juce_wchar ch, bool applicationCursor)
+    static inline juce::String mapAlt (int code, const juce::ModifierKeys& mods, juce::juce_wchar ch, bool applicationCursor, uint32_t keyboardFlags)
     {
-        int flags { 0 };
-
-        if (mods.isShiftDown())
-        {
-            flags |= juce::ModifierKeys::shiftModifier;
-        }
-
-        if (mods.isCtrlDown())
-        {
-            flags |= juce::ModifierKeys::ctrlModifier;
-        }
-
-        const juce::ModifierKeys stripped (flags);
-        const juce::KeyPress inner (code, stripped, ch);
-        const juce::String seq { map (inner, applicationCursor) };
         juce::String result;
 
-        if (seq.isNotEmpty())
+        if ((keyboardFlags & (kittyDisambiguate | kittyAllKeys)) and isTextKey (code))
         {
-            result = juce::String (escPrefix) + seq;
+            const int codepoint { (code >= 'A' and code <= 'Z') ? (code - 'A' + 'a') : code };
+            result = encodeCsiU (codepoint, mods);
         }
-        else if (ch > 0)
+        else
         {
-            result = juce::String (escPrefix) + juce::String::charToString (ch);
+            int flags { 0 };
+
+            if (mods.isShiftDown())
+            {
+                flags |= juce::ModifierKeys::shiftModifier;
+            }
+
+            if (mods.isCtrlDown())
+            {
+                flags |= juce::ModifierKeys::ctrlModifier;
+            }
+
+            const juce::ModifierKeys stripped (flags);
+            const juce::KeyPress inner (code, stripped, ch);
+            const juce::String seq { map (inner, applicationCursor, keyboardFlags) };
+
+            if (seq.isNotEmpty())
+            {
+                result = juce::String (escPrefix) + seq;
+            }
+            else if (ch > 0)
+            {
+                result = juce::String (escPrefix) + juce::String::charToString (ch);
+            }
         }
 
         return result;
@@ -215,9 +291,10 @@ private:
      * @param mods             Modifier state (Shift may be set; Ctrl/Alt are not).
      * @param ch               Text character associated with the key event.
      * @param applicationCursor Forwarded to `cursorKey()`.
+     * @param keyboardFlags  Kitty keyboard protocol flags.
      * @return The escape sequence or character string, or empty if unmapped.
      */
-    static inline juce::String mapPlain (int code, const juce::ModifierKeys& mods, juce::juce_wchar ch, bool applicationCursor)
+    static inline juce::String mapPlain (int code, const juce::ModifierKeys& mods, juce::juce_wchar ch, bool applicationCursor, uint32_t keyboardFlags)
     {
         juce::String result;
         const auto simpleIt { simpleKeys.find (code) };
@@ -225,9 +302,14 @@ private:
 
         if (simpleIt != simpleKeys.end())
         {
-            if (mods.isShiftDown() and code == juce::KeyPress::returnKey)
+            if (shouldUseCsiU (code, mods, keyboardFlags))
             {
-                result = juce::String ("\x1b[13;2u");
+                const auto kittyIt { kittyKeyCodes.find (code) };
+
+                if (kittyIt != kittyKeyCodes.end())
+                {
+                    result = encodeCsiU (kittyIt->second, mods);
+                }
             }
             else
             {
@@ -250,7 +332,15 @@ private:
         }
         else if (ch > 0 and not mods.isCtrlDown())
         {
-            result = juce::String::charToString (ch);
+            if ((keyboardFlags & kittyAllKeys) and isTextKey (code))
+            {
+                const int codepoint { (code >= 'A' and code <= 'Z') ? (code - 'A' + 'a') : code };
+                result = encodeCsiU (codepoint, mods);
+            }
+            else
+            {
+                result = juce::String::charToString (ch);
+            }
         }
 
         return result;
@@ -457,6 +547,145 @@ private:
         }
 
         return code;
+    }
+
+    // -------------------------------------------------------------------------
+    // Kitty keyboard protocol — CSI u encoding
+    // -------------------------------------------------------------------------
+
+    /// Kitty keyboard flag: disambiguate escape codes (bit 0).
+    static constexpr uint32_t kittyDisambiguate { 1 };
+
+    /// Kitty keyboard flag: report all keys as escape codes (bit 3).
+    static constexpr uint32_t kittyAllKeys { 8 };
+
+    /**
+     * @brief Maps JUCE simple key codes to their kitty CSI u key numbers.
+     *
+     * | Key       | CSI u code |
+     * |-----------|------------|
+     * | Enter     | 13         |
+     * | Backspace | 127        |
+     * | Tab       | 9          |
+     * | Escape    | 27         |
+     */
+    static inline const std::unordered_map<int, int> kittyKeyCodes
+    {
+        { juce::KeyPress::returnKey,    13 },
+        { juce::KeyPress::backspaceKey, 127 },
+        { juce::KeyPress::tabKey,       9 },
+        { juce::KeyPress::escapeKey,    27 }
+    };
+
+    /**
+     * @brief Encodes a key event in CSI u format.
+     *
+     * Produces the kitty keyboard protocol encoding:
+     * - `CSI keycode u` when no modifiers are present.
+     * - `CSI keycode ; modifiers u` when modifiers are active.
+     *
+     * @param keycode  The Unicode key number (e.g. 13 for Enter).
+     * @param mods     Active modifier keys.
+     * @return The CSI u escape sequence string.
+     */
+    static inline juce::String encodeCsiU (int keycode, const juce::ModifierKeys& mods)
+    {
+        const int mc { modifierCode (mods) };
+        juce::String result;
+
+        if (mc > noModifier)
+        {
+            result = juce::String (csiPrefix) + juce::String (keycode)
+                   + paramSeparator + juce::String (mc) + "u";
+        }
+        else
+        {
+            result = juce::String (csiPrefix) + juce::String (keycode) + "u";
+        }
+
+        return result;
+    }
+
+    /**
+     * @brief Determines whether a simple key should use CSI u encoding.
+     *
+     * Applies the kitty keyboard protocol rules (matching kitty source):
+     * - Legacy (flags=0): never CSI u.
+     * - Disambiguate (flag 1): Escape always gets CSI u.
+     *   Enter/Tab/Backspace get CSI u only when a non-lock modifier
+     *   (Shift/Ctrl/Alt) is held; unmodified presses stay legacy so the
+     *   user can still type `reset` after a crash.
+     * - All keys (flag 8): all simple keys get CSI u unconditionally.
+     *
+     * @param code           JUCE key code.
+     * @param mods           Active modifier keys.
+     * @param keyboardFlags  Kitty keyboard protocol flags.
+     * @return `true` if the key should be encoded as CSI u.
+     */
+    static inline bool shouldUseCsiU (int code, const juce::ModifierKeys& mods, uint32_t keyboardFlags) noexcept
+    {
+        bool result { false };
+
+        if (keyboardFlags & kittyAllKeys)
+        {
+            result = true;
+        }
+        else if (keyboardFlags & kittyDisambiguate)
+        {
+            const bool hasModifiers { mods.isShiftDown() or mods.isCtrlDown() or mods.isAltDown() };
+
+            if (code == juce::KeyPress::escapeKey)
+            {
+                result = true;
+            }
+            else if (hasModifiers)
+            {
+                result = true;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * @brief Tests whether a key code is an ASCII text key.
+     *
+     * Text keys are the set of keys that produce printable ASCII characters
+     * in the kitty protocol spec: a-z (JUCE codes A-Z), 0-9, and the
+     * punctuation keys: ` - = [ ] \\ ; ' , . / and space.
+     *
+     * @param code  JUCE key code.
+     * @return `true` if the key is an ASCII text key.
+     */
+    static inline bool isTextKey (int code) noexcept
+    {
+        bool result { false };
+
+        if (code >= 'A' and code <= 'Z')
+        {
+            result = true;
+        }
+        else if (code >= '0' and code <= '9')
+        {
+            result = true;
+        }
+        else
+        {
+            static constexpr std::array<int, 12> punctuation
+            {
+                '`', '-', '=', '[', ']', '\\', ';', '\'', ',', '.', '/', ' '
+            };
+
+            for (const auto& p : punctuation)
+            {
+                if (code == p)
+                {
+                    result = true;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**

@@ -122,6 +122,33 @@ struct ScreenSelection
 
         return result;
     }
+
+    /**
+     * @brief Tests whether a grid cell falls within a box (rectangle) selection.
+     *
+     * A box selection uses the same column range for every row in the
+     * selection — it is a strict rectangle, not a row-wrapped region.
+     * Both axes are normalised independently so dragging in any direction
+     * produces the correct rectangle.
+     *
+     * @param col  Column index of the cell to test (0-based).
+     * @param row  Row index of the cell to test (0-based).
+     * @return     `true` if the cell at (@p col, @p row) is within the
+     *             rectangle defined by `anchor` and `end`; `false` otherwise.
+     *
+     * @note The normalisation is performed on local copies; `anchor` and
+     *       `end` are not modified.
+     */
+    bool containsBox (int col, int row) const noexcept
+    {
+        const int startRow { std::min (anchor.y, end.y) };
+        const int endRow   { std::max (anchor.y, end.y) };
+        const int startCol { std::min (anchor.x, end.x) };
+        const int endCol   { std::max (anchor.x, end.x) };
+
+        return row >= startRow and row <= endRow
+           and col >= startCol and col <= endCol;
+    }
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

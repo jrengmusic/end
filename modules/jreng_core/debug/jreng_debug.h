@@ -102,11 +102,11 @@ public:
         : editor (mainComponent)
     {
         console.reset (new Console());
-        auto desktop { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea };
-        auto x { desktop.getWidth() - console->getWidth() };
-        auto y { desktop.getHeight() - console->getHeight() };
-        auto w { console->getWidth() };
-        auto h { console->getHeight() };
+        auto desktop = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea;
+        auto x = desktop.getWidth() - console->getWidth();
+        auto y = desktop.getHeight() - console->getHeight();
+        auto w = console->getWidth();
+        auto h = console->getHeight();
         console->setBounds (x, y, w, h);
         monitor.reset (new ValueTreeMonitor (state));
 #if JUCE_MAC
@@ -116,6 +116,20 @@ public:
 #elif JUCE_WINDOWS
         monitor->setBounds (x, 28, w, desktop.getHeight() - h - 56);
 #endif
+        mainComponent->addComponentListener (this);
+    }
+
+    /** Console-only constructor — no ValueTree monitor, no processor. */
+    Widget (juce::Component* mainComponent, bool alwaysOnTop = true)
+        : editor (mainComponent)
+    {
+        console.reset (new Console());
+        auto desktop = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea;
+        auto x = desktop.getWidth() - console->getWidth();
+        auto y = desktop.getHeight() - console->getHeight();
+        auto w = console->getWidth();
+        console->setBounds (x, y, w, toInt (desktop.getHeight() * 0.67f));
+        console->setAlwaysOnTop (alwaysOnTop);
         mainComponent->addComponentListener (this);
     }
 

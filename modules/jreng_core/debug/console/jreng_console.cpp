@@ -55,8 +55,7 @@ Console::Log::Log (bool captureStdErrImmediately, bool captureStdOutImmediately)
     consoleOutputEditor.setReadOnly (true);
     consoleOutputEditor.setLineSpacing (1.5f);
 
-    juce::FontOptions font { Fonts::InputSansNarrowLight };
-    font = font.withHeight (12.0f);
+    juce::FontOptions font { juce::Font::getDefaultMonospacedFontName(), 12.0f, juce::Font::plain };
     consoleOutputEditor.setFont (font);
     consoleOutputEditor.setColour (juce::TextEditor::focusedOutlineColourId, backgroundColour);
 

@@ -95,8 +95,11 @@ namespace Terminal
  * @brief Re-allocates the active screen buffer to the new terminal dimensions
  *        and reflows content if the column count changed.
  *
- * Acquires `resizeLock` and reads the new dimensions from `state`.  If neither
- * `cols` nor `visibleRows` changed, the function returns immediately.
+ * Acquires `resizeLock` and writes the new dimensions to State atomically
+ * with the buffer reallocation.  This prevents the message thread from ever
+ * observing State dimensions that do not match the Grid's actual allocation.
+ * If neither `cols` nor `visibleRows` changed, the function returns
+ * immediately (after updating State inside the lock for consistency).
  *
  * @par Normal screen
  * A new primary buffer is allocated at the new dimensions (with scrollback),
@@ -110,15 +113,18 @@ namespace Terminal
  * After resizing, `markAllDirty()` is called so the renderer repaints the
  * entire viewport.
  *
+ * @param newCols        New terminal width in character columns.
+ * @param newVisibleRows New terminal height in character rows.
  * @note READER THREAD — acquires `resizeLock`.  Allocates heap memory.
  * @see reflow(), initBuffer(), markAllDirty()
  */
-void Grid::resize()
+void Grid::resize (int newCols, int newVisibleRows)
 {
     juce::ScopedLock lock (resizeLock);
 
-    const int newCols { state.getCols() };
-    const int newVisibleRows { state.getVisibleRows() };
+    state.setCols (newCols);
+    state.setVisibleRows (newVisibleRows);
+
     const bool dimensionsChanged { newCols != cols or newVisibleRows != visibleRows };
 
     if (dimensionsChanged)

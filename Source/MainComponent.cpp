@@ -92,6 +92,7 @@ void MainComponent::resized()
  */
 MainComponent::~MainComponent()
 {
+    setLookAndFeel (nullptr);
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
     jreng::BackgroundBlur::setCloseCallback (nullptr);
     removeKeyListener (commandManager.getKeyMappings());

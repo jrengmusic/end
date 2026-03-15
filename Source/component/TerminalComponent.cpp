@@ -17,10 +17,6 @@
 #include "../config/KeyBinding.h"
 #include "../config/ModalKeyBinding.h"
 
-
-
-
-
 /**
  * @brief Constructs Terminal::Component and wires all subsystems.
  *
@@ -53,13 +49,12 @@ Terminal::Component::Component()
 }
 
 Terminal::Component* Terminal::Component::create (juce::Component& parent,
-                                                   juce::Rectangle<int> bounds,
-                                                   jreng::Owner<Component>& owner,
-                                                   const juce::String& workingDirectory)
+                                                  juce::Rectangle<int> bounds,
+                                                  jreng::Owner<Component>& owner,
+                                                  const juce::String& workingDirectory)
 {
-    auto terminal { workingDirectory.isNotEmpty()
-                        ? std::make_unique<Component> (workingDirectory)
-                        : std::make_unique<Component>() };
+    auto terminal { workingDirectory.isNotEmpty() ? std::make_unique<Component> (workingDirectory)
+                                                  : std::make_unique<Component>() };
     const auto uuid { terminal->getValueTree().getProperty (jreng::ID::id).toString() };
     terminal->setComponentID (uuid);
     terminal->setBounds (bounds);
@@ -86,6 +81,7 @@ Terminal::Component::Component (const juce::String& workingDirectory)
     session.setWorkingDirectory (workingDirectory);
     initialise();
     session.getState().get().setProperty (jreng::ID::id, juce::Uuid().toString(), nullptr);
+
 }
 
 /**
@@ -113,6 +109,7 @@ void Terminal::Component::initialise()
     addKeyListener (this);
 
     addAndMakeVisible (cursor.get());
+    cursor->setInterceptsMouseClicks (false, false);
 
     session.onShellExited = []
     {
@@ -180,13 +177,24 @@ void Terminal::Component::resized()
     }
 }
 
+
 void Terminal::Component::copySelection()
 {
-    if (screenSelection != nullptr)
+    if (boxSelection.active)
     {
         const juce::ScopedLock lock (session.getGrid().getResizeLock());
-        const auto text { session.getGrid().extractText (screenSelection->anchor, screenSelection->end) };
+
+        const juce::Point<int> topLeft {
+            std::min (boxSelection.anchorCol, boxSelection.endCol),
+            std::min (boxSelection.anchorRow, boxSelection.endRow) };
+        const juce::Point<int> bottomRight {
+            std::max (boxSelection.anchorCol, boxSelection.endCol),
+            std::max (boxSelection.anchorRow, boxSelection.endRow) };
+
+        const auto text { session.getGrid().extractBoxText (topLeft, bottomRight) };
         juce::SystemClipboard::copyTextToClipboard (text);
+
+        boxSelection = BoxSelection {};
         screenSelection.reset();
         screen.setSelection (nullptr);
         session.getState().setSnapshotDirty();
@@ -198,8 +206,6 @@ void Terminal::Component::pasteClipboard()
     session.paste (juce::SystemClipboard::getTextFromClipboard());
     cursor->resetBlink();
 }
-
-
 
 void Terminal::Component::increaseZoom()
 {
@@ -272,8 +278,9 @@ void Terminal::Component::handleScrollNavigation (int code)
 
 void Terminal::Component::clearSelectionAndScroll()
 {
-    if (screenSelection != nullptr)
+    if (boxSelection.active or screenSelection != nullptr)
     {
+        boxSelection = BoxSelection {};
         screenSelection.reset();
         screen.setSelection (nullptr);
         session.getState().setSnapshotDirty();
@@ -307,31 +314,50 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
     }
     else
     {
-        const bool isAppCommand {
-#if JUCE_MAC
-            mods.isCommandDown()
-#elif JUCE_WINDOWS
-            KeyBinding::isCommandKeyPress (key)
-            or (mods.isAltDown() and code == juce::KeyPress::F4Key)
-#else
-            KeyBinding::isCommandKeyPress (key)
-#endif
-        };
+        const bool isCtrlC { mods.isCtrlDown() and not mods.isAltDown()
+                             and not mods.isCommandDown() and not mods.isShiftDown()
+                             and code == 'C' };
+        const bool isCtrlV { mods.isCtrlDown() and not mods.isAltDown()
+                             and not mods.isCommandDown() and not mods.isShiftDown()
+                             and code == 'V' };
 
-        const bool isAltBlocked {
-#if JUCE_MAC
-            mods.isAltDown()
-#else
-            false
-#endif
-        };
-
-        if (not isAppCommand and not isAltBlocked)
+        if (isCtrlC and boxSelection.active)
         {
-            clearSelectionAndScroll();
-            session.handleKeyPress (key);
-            cursor->resetBlink();
+            copySelection();
             handled = true;
+        }
+        else if (isCtrlV)
+        {
+            pasteClipboard();
+            handled = true;
+        }
+        else
+        {
+            const bool isAppCommand {
+#if JUCE_MAC
+                mods.isCommandDown()
+#elif JUCE_WINDOWS
+                KeyBinding::isCommandKeyPress (key) or (mods.isAltDown() and code == juce::KeyPress::F4Key)
+#else
+                KeyBinding::isCommandKeyPress (key)
+#endif
+            };
+
+            const bool isAltBlocked {
+#if JUCE_MAC
+                mods.isAltDown()
+#else
+                false
+#endif
+            };
+
+            if (not isAppCommand and not isAltBlocked)
+            {
+                clearSelectionAndScroll();
+                session.handleKeyPress (key);
+                cursor->resetBlink();
+                handled = true;
+            }
         }
     }
 
@@ -339,12 +365,11 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
 }
 
 /**
- * @brief Scrolls the scrollback buffer or forwards a mouse-wheel SGR event.
+ * @brief Forwards mouse wheel scroll events to the PTY or scrolls the scrollback.
  *
- * When any mouse-tracking mode is active, encodes the scroll direction as
- * button 64 (wheel up) or 65 (wheel down) and writes an SGR 1006 sequence.
- * Otherwise adjusts the scroll offset by `Config::Key::scrollbackStep` lines,
- * clamped to `[0, scrollbackUsed]`.
+ * - **Mouse tracking active**: writes SGR scroll button (64 = up, 65 = down) at
+ *   the clicked cell.
+ * - **No tracking**: navigates the scrollback using `handleScrollNavigation()`.
  *
  * @param event  Mouse event; position used for SGR cell coordinates.
  * @param wheel  Wheel details; `deltaY > 0` = scroll up.
@@ -352,181 +377,154 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
  */
 void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
-    auto& st { session.getState() };
+    static constexpr int scrollLines { 3 };
+    const bool scrollUp { wheel.deltaY > 0.0f };
+    const auto activeScreen { session.getState().getActiveScreen() };
 
-    if (isMouseTracking())
+    if (activeScreen == Terminal::ActiveScreen::alternate)
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
-        const int scrollButton { wheel.deltaY > 0.0f ? 64 : 65 };
-        session.writeMouseEvent (scrollButton, cell.x, cell.y, true);
+        if (shouldForwardMouseToPty())
+        {
+            const int keyCode { scrollUp ? juce::KeyPress::upKey : juce::KeyPress::downKey };
+            const juce::KeyPress arrow { keyCode, juce::ModifierKeys::noModifiers, 0 };
+
+            for (int i { 0 }; i < scrollLines; ++i)
+            {
+                session.handleKeyPress (arrow);
+            }
+        }
     }
     else
     {
         const int maxOffset { session.getGrid().getScrollbackUsed() };
-        const int current { st.getScrollOffset() };
-        const int step { Config::getContext()->getInt (Config::Key::scrollbackStep) };
-        const int delta { wheel.deltaY > 0.0f ? step : -step };
+        const int current { session.getState().getScrollOffset() };
+        const int delta { scrollUp ? scrollLines : -scrollLines };
         const int clamped { juce::jlimit (0, maxOffset, current + delta) };
 
         if (clamped != current)
         {
-            st.setScrollOffset (clamped);
-            st.setSnapshotDirty();
+            session.getState().setScrollOffset (clamped);
+            session.getState().setSnapshotDirty();
         }
     }
 }
 
 /**
- * @brief Begins a text selection or forwards a mouse-button SGR event.
+ * @brief Begins a box selection or forwards a mouse-button SGR event.
  *
  * - **Mouse tracking active**: writes SGR button-0 press at the clicked cell.
- * - **Triple-click** (primary screen only): selects the entire row.
- * - **Single click** (primary screen only): starts a new selection anchored at
- *   the clicked cell.
+ * - **No tracking**: records the anchor cell for a new box selection and clears
+ *   any existing selection.  A plain click (no subsequent drag) will clear the
+ *   selection on mouse-up.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
  */
 void Terminal::Component::mouseDown (const juce::MouseEvent& event)
 {
-    const auto& st { session.getState() };
-
-    if (isMouseTracking())
+    if (shouldForwardMouseToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
         session.writeMouseEvent (0, cell.x, cell.y, true);
     }
-    else if (st.getScreen() != Terminal::ActiveScreen::alternate)
+    else
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
 
-        if (event.getNumberOfClicks() >= 3)
-        {
-            screenSelection = std::make_unique<Terminal::ScreenSelection>();
-            screenSelection->anchor = { 0, cell.y };
-            screenSelection->end = { session.getGrid().getCols() - 1, cell.y };
-            screen.setSelection (screenSelection.get());
-            session.getState().setSnapshotDirty();
-        }
-        else
-        {
-            screenSelection = std::make_unique<Terminal::ScreenSelection>();
-            screenSelection->anchor = cell;
-            screenSelection->end = cell;
-            screen.setSelection (screenSelection.get());
-            session.getState().setSnapshotDirty();
-        }
+        boxSelection.anchorCol = cell.x;
+        boxSelection.anchorRow = cell.y;
+        boxSelection.endCol    = cell.x;
+        boxSelection.endRow    = cell.y;
+        boxSelection.active    = false;
+
+        screenSelection.reset();
+        screen.setSelection (nullptr);
+        session.getState().setSnapshotDirty();
     }
 }
 
 /**
- * @brief Selects the word under the cursor on double-click.
+ * @brief Forwards a double-click event to the PTY when mouse tracking is active.
  *
- * Scans left from the clicked cell while `codepoint > 0x20`, then right while
- * `codepoint > 0x20`, to find word boundaries.  Only active on the primary
- * screen and when mouse tracking is disabled.  Cells with codepoint ≤ 0x20
- * (space, NUL) are treated as word separators.
+ * When mouse tracking is disabled, double-click is treated as a plain click
+ * and the box selection anchor is reset to the clicked cell (no drag yet).
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
  */
 void Terminal::Component::mouseDoubleClick (const juce::MouseEvent& event)
 {
-    const auto& st { session.getState() };
-
-    if (not isMouseTracking() and st.getScreen() != Terminal::ActiveScreen::alternate)
+    if (shouldForwardMouseToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
-        const juce::ScopedLock lock (session.getGrid().getResizeLock());
-        const Terminal::Cell* cells { session.getGrid().activeVisibleRow (cell.y) };
-
-        if (cells != nullptr)
-        {
-            const int numCols { session.getGrid().getCols() };
-            int wordStart { cell.x };
-            int wordEnd { cell.x };
-
-            const uint32_t cp { (*(cells + cell.x)).codepoint };
-
-            if (cp > 0x20)
-            {
-                while (wordStart > 0 and (*(cells + wordStart - 1)).codepoint > 0x20)
-                    --wordStart;
-
-                while (wordEnd < numCols - 1 and (*(cells + wordEnd + 1)).codepoint > 0x20)
-                    ++wordEnd;
-
-                screenSelection = std::make_unique<Terminal::ScreenSelection>();
-                screenSelection->anchor = { wordStart, cell.y };
-                screenSelection->end = { wordEnd, cell.y };
-                screen.setSelection (screenSelection.get());
-                session.getState().setSnapshotDirty();
-            }
-        }
+        session.writeMouseEvent (0, cell.x, cell.y, true);
     }
 }
 
 /**
- * @brief Extends the selection or forwards a mouse-motion SGR event.
+ * @brief Extends the box selection or forwards a mouse-motion SGR event.
  *
- * In motion-tracking or all-tracking mode, writes an SGR button-32 (drag)
- * sequence at the current cell.  Otherwise extends `screenSelection->end` to
- * the dragged cell and marks the snapshot dirty for re-render.
+ * - **Motion tracking active**: writes SGR button-32 (drag) at the current cell.
+ * - **No tracking**: updates the box selection end cell to the current drag
+ *   position, activates the selection, and marks the snapshot dirty so the
+ *   selection overlay is redrawn on the next frame.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
  */
 void Terminal::Component::mouseDrag (const juce::MouseEvent& event)
 {
-    const auto& st { session.getState() };
-    const bool motionTracking { st.getTreeMode (Terminal::ID::mouseMotionTracking)
-                                or st.getTreeMode (Terminal::ID::mouseAllTracking) };
-
-    if (motionTracking)
+    if (shouldForwardMouseToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
         session.writeMouseEvent (32, cell.x, cell.y, true);
     }
-    else if (st.getScreen() != Terminal::ActiveScreen::alternate)
+    else
     {
-        if (screenSelection != nullptr)
+        const auto cell { screen.cellAtPoint (event.x, event.y) };
+
+        boxSelection.endCol = cell.x;
+        boxSelection.endRow = cell.y;
+        boxSelection.active = true;
+
+        if (screenSelection == nullptr)
         {
-            const auto cell { screen.cellAtPoint (event.x, event.y) };
-            screenSelection->end = cell;
-            session.getState().setSnapshotDirty();
+            screenSelection = std::make_unique<ScreenSelection>();
         }
+
+        screenSelection->anchor = { boxSelection.anchorCol, boxSelection.anchorRow };
+        screenSelection->end    = { boxSelection.endCol,    boxSelection.endRow };
+
+        screen.setSelection (screenSelection.get());
+        session.getState().setSnapshotDirty();
     }
 }
 
 /**
- * @brief Finalises the selection or forwards a mouse-button-release SGR event.
+ * @brief Finalises the box selection or forwards a mouse-button-release SGR event.
  *
- * In mouse-tracking mode writes an SGR button-0 release sequence.  Otherwise,
- * if the selection has zero area (anchor == end), clears it so a plain click
- * does not leave a degenerate selection.
+ * - **Mouse tracking active**: writes an SGR button-0 release sequence.
+ * - **No tracking**: if the selection has zero area (anchor == end, i.e. a plain
+ *   click with no drag), clears the selection so a plain click leaves no
+ *   degenerate selection visible.  A non-zero-area selection is kept visible.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
  */
 void Terminal::Component::mouseUp (const juce::MouseEvent& event)
 {
-    const auto& st { session.getState() };
-
-    if (isMouseTracking())
+    if (shouldForwardMouseToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
         session.writeMouseEvent (0, cell.x, cell.y, false);
     }
-    else if (st.getScreen() != Terminal::ActiveScreen::alternate)
+    else
     {
-        if (screenSelection != nullptr)
+        if (not boxSelection.active)
         {
-            if (screenSelection->anchor == screenSelection->end)
-            {
-                screenSelection.reset();
-                screen.setSelection (nullptr);
-                session.getState().setSnapshotDirty();
-            }
+            screenSelection.reset();
+            screen.setSelection (nullptr);
+            session.getState().setSnapshotDirty();
         }
     }
 }
@@ -540,18 +538,14 @@ void Terminal::Component::glContextCreated() noexcept
 }
 
 // GL THREAD
-void Terminal::Component::glContextClosing() noexcept
-{
-    screen.glContextClosing();
-}
+void Terminal::Component::glContextClosing() noexcept { screen.glContextClosing(); }
 
 juce::Point<int> Terminal::Component::getOriginInTopLevel() const noexcept
 {
     const float scale { Fonts::getDisplayScale() };
     const auto* topLevel { getTopLevelComponent() };
-    const auto relative { topLevel != nullptr
-        ? topLevel->getLocalPoint (this, juce::Point<int> (0, 0))
-        : juce::Point<int> (0, 0) };
+    const auto relative { topLevel != nullptr ? topLevel->getLocalPoint (this, juce::Point<int> (0, 0))
+                                              : juce::Point<int> (0, 0) };
 
     return { static_cast<int> (static_cast<float> (relative.x) * scale),
              static_cast<int> (static_cast<float> (relative.y) * scale) };
@@ -616,10 +610,7 @@ int Terminal::Component::getGridRows() const noexcept { return screen.getNumRows
 /** @return Current number of visible grid columns as reported by Screen. */
 int Terminal::Component::getGridCols() const noexcept { return screen.getNumCols(); }
 
-juce::ValueTree Terminal::Component::getValueTree() noexcept
-{
-    return session.getState().get();
-}
+juce::ValueTree Terminal::Component::getValueTree() noexcept { return session.getState().get(); }
 
 /**
  * @brief VBlank callback: renders the grid if dirty, updates cursor visibility.
@@ -660,7 +651,7 @@ void Terminal::Component::onVBlank()
     }
 
     const bool scrolledBack { session.getState().getScrollOffset() > 0 };
-    const auto activeScreen { session.getState().getScreen() };
+    const auto activeScreen { session.getState().getActiveScreen() };
     const bool cursorMode { session.getState().isCursorVisible (activeScreen) };
     const bool focused { hasKeyboardFocus (true) };
     cursor->setVisible (not scrolledBack and cursorMode and focused);
@@ -779,4 +770,22 @@ bool Terminal::Component::isMouseTracking() const noexcept
     const auto& st { session.getState() };
     return st.getTreeMode (Terminal::ID::mouseTracking) or st.getTreeMode (Terminal::ID::mouseMotionTracking)
            or st.getTreeMode (Terminal::ID::mouseAllTracking);
+}
+
+/**
+ * @brief Returns whether mouse events should be forwarded to the PTY.
+ *
+ * Returns true when the PTY should receive mouse events instead of the
+ * component performing text selection:
+ * - If any mouse-tracking mode is active (works on macOS/Linux).
+ * - On Windows: if the alternate screen is active (ConPTY workaround —
+ *   ConPTY intercepts DECSET mouse mode sequences so `isMouseTracking()`
+ *   always returns false on Windows even when a TUI app requests tracking).
+ *
+ * @return @c true if mouse events should be forwarded to the PTY.
+ * @note MESSAGE THREAD.
+ */
+bool Terminal::Component::shouldForwardMouseToPty() const noexcept
+{
+    return isMouseTracking();
 }
