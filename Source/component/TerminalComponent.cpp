@@ -211,6 +211,11 @@ void Terminal::Component::pasteClipboard()
     cursor->resetBlink();
 }
 
+void Terminal::Component::writeToPty (const char* data, int len)
+{
+    session.writeToPty (data, len);
+}
+
 void Terminal::Component::increaseZoom()
 {
     const float current { AppState::getContext()->getWindowZoom() };

@@ -308,6 +308,7 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysPaneDown { "keys.pane_down" };
         inline static const juce::String keysPaneUp { "keys.pane_up" };
         inline static const juce::String keysPaneRight { "keys.pane_right" };
+        inline static const juce::String keysNewline { "keys.newline" };
 
         /** @brief Pane divider bar colour (hex string). */
         inline static const juce::String paneBarColour { "pane.bar_colour" };

@@ -261,6 +261,13 @@ void MainComponent::registerActions()
             return true;
         });
 
+    action.registerAction ("newline", "Insert Newline", "Send literal newline (LF) to terminal", "Edit", false,
+        [this]() -> bool
+        {
+            tabs->writeToActivePty ("\n", 1);
+            return true;
+        });
+
     //==============================================================================
     action.reload();
 

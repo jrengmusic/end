@@ -595,3 +595,57 @@ The fix was **one flag** (`0x4`) — but it only works with the sideloaded DLL, 
 - **`CursorComponent` missing `setInterceptsMouseClicks(false, false)`** — cursor cell swallows clicks. Now that mouse works, this should be fixed.
 
 ---
+
+## Sprint 93 — Terminal::Action: Unified Action Registry
+
+**Date:** 2026-03-15
+**Agents:** COUNSELOR, @engineer, @researcher, @auditor
+
+### Problem
+
+Keyboard/action handling scattered across 4 objects: `KeyBinding`, `ModalKeyBinding`, `MainComponent` (ApplicationCommandTarget), `TerminalComponent::keyPressed` (inline Ctrl+C/V). Copy/paste didn't work — Config defaults were `shift+ctrl+c/v` (Linux convention) not `ctrl+c/v`.
+
+### What Was Done
+
+**1. Terminal::Action** (`Source/terminal/action/Action.h` + `Action.cpp`)
+- Single owner of all user-performable actions
+- Fixed action table: 18 actions with ID, name, description, category, callback
+- Hot-reloadable key map from `end.lua`
+- Prefix state machine absorbed from ModalKeyBinding
+- Global singleton via `jreng::Context<Action>`
+
+**2. 18 actions:** copy (selection gate), paste, newline (Shift+Enter → `\n`), quit, close_tab, reload_config, zoom_in/out/reset, new_tab, prev/next_tab, split_horizontal/vertical, pane_left/down/up/right
+
+**3. MainComponent stripped** — removed ApplicationCommandTarget, CommandDef, commandDefs[], commandActions, buildCommandActions, bindModalActions, ApplicationCommandManager, KeyBinding, ModalKeyBinding
+
+**4. KeyBinding + ModalKeyBinding dissolved** — tombstoned
+
+**5. Config defaults fixed** — ctrl+c/v on Windows, smart shell detection (zsh → pwsh → powershell), empty shell args, font 11pt
+
+**6. VkKeyScanW fallback** for punctuation in Win32 Input Mode
+
+**7. Session shutdown crash fix** — null onExit before close()
+
+**8. Newline action** — Shift+Enter sends `\n` via `Session::writeToPty()`
+
+### Files Created
+- `Source/terminal/action/Action.h` + `Action.cpp`
+
+### Files Modified
+- `MainComponent.h/cpp`, `TerminalComponent.h/cpp`, `Tabs.h/cpp`, `Session.h/cpp`, `Keyboard.cpp`, `Config.h/cpp`, `default_end.lua`
+
+### Files Tombstoned
+- `Source/config/KeyBinding.h/cpp`, `Source/config/ModalKeyBinding.h/cpp`
+
+### Alignment Check
+- **LIFESTAR:** Lean (one object replaces four), Explicit Encapsulation (Action is dumb, callbacks injected), SSOT (one registry), Findable (`terminal/action/`)
+- **NAMING-CONVENTION:** All semantic — `Action`, `Entry`, `handleKeyPress`, `registerAction`, `writeToPty`, `findDefaultWindowsShell`
+- **ARCHITECTURAL-MANIFESTO:** Tell don't ask. Action doesn't know about Session, Grid, Tabs.
+
+### Technical Debt
+- `close_pane` action blocked on missing `Config::Key::keysClosePane`
+- `getTreeMode()` naming violates Rule 2
+- `seq 1M` performance gap remains
+- Action List UI not built (Phase 3)
+
+---

@@ -295,6 +295,14 @@ void Session::paste (const juce::String& text)
     }
 }
 
+void Session::writeToPty (const char* data, int len)
+{
+    if (tty != nullptr)
+    {
+        tty->write (data, len);
+    }
+}
+
 /**
  * @brief Writes a focus-in or focus-out event to the PTY.
  *

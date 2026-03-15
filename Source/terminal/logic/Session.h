@@ -150,6 +150,9 @@ public:
      */
     void paste (const juce::String& text);
 
+    /** @brief Writes raw bytes to the PTY. @note MESSAGE THREAD. */
+    void writeToPty (const char* data, int len);
+
     /**
      * @brief Encodes and writes a mouse event to the PTY.
      *

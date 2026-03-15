@@ -307,6 +307,9 @@ public:
      */
     void pasteClipboard();
 
+    /** @brief Writes raw bytes to the PTY. @note MESSAGE THREAD. */
+    void writeToPty (const char* data, int len);
+
     /**
      * @brief Applies the current config to the renderer.
      *

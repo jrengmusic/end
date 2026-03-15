@@ -182,6 +182,7 @@ void Config::initDefaults()
     values[Key::keysPaneDown] = "j";
     values[Key::keysPaneUp] = "k";
     values[Key::keysPaneRight] = "l";
+    values[Key::keysNewline] = "shift+return";
 
     values[Key::paneBarColour] = "#FF1B2A31";///< dark
     values[Key::paneBarHighlight] = "#FF4E8C93";///< paradiso
@@ -277,6 +278,8 @@ void Config::initSchema()
     schema[Key::keysPaneDown] = { T::string };
     schema[Key::keysPaneUp] = { T::string };
     schema[Key::keysPaneRight] = { T::string };
+    schema[Key::keysNewline] = { T::string };
+
 
     schema[Key::paneBarColour] = { T::string };
     schema[Key::paneBarHighlight] = { T::string };

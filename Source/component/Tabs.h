@@ -154,6 +154,19 @@ public:
     void pasteClipboard();
 
     /**
+     * @brief Writes raw bytes to the active terminal's PTY.
+     *
+     * Forwards to the active terminal's session. Does nothing if no
+     * terminal is active.
+     *
+     * @param data  Pointer to the bytes to write.
+     * @param len   Number of bytes.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void writeToActivePty (const char* data, int len);
+
+    /**
      * @brief Applies the current config to all terminal sessions.
      *
      * Iterates all terminals across all tabs and calls applyConfig() on each.

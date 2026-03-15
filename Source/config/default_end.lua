@@ -335,5 +335,8 @@ END = {
 
 		-- Focus pane to the right. Prefix-mode key.
 		pane_right = "%%keys_pane_right%%",
+
+		-- Insert a literal newline (LF) instead of carriage return.
+		newline = "%%keys_newline%%",
 	},
 }

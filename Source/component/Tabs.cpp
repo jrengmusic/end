@@ -283,6 +283,12 @@ void Tabs::pasteClipboard()
         t->pasteClipboard();
 }
 
+void Tabs::writeToActivePty (const char* data, int len)
+{
+    if (auto* t { getActiveTerminal() }; t != nullptr)
+        t->writeToPty (data, len);
+}
+
 void Tabs::applyConfig()
 {
     for (auto& p : panes)
