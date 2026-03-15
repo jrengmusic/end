@@ -36,6 +36,7 @@ static const ActionKeyEntry actionKeyTable[]
     { Config::Key::keysPaneUp,           "pane_up",          true  },
     { Config::Key::keysPaneRight,        "pane_right",       true  },
     { Config::Key::keysNewline,          "newline",          false },
+    { Config::Key::keysPopup,             "popup",            true  },
     // TODO: add { Config::Key::keysClosePane, "close_pane", true } once
     // Config::Key::keysClosePane ("keys.close_pane") is added to Config.h
     // and a default value is registered in Config::initDefaults().
@@ -88,11 +89,36 @@ bool Action::handleKeyPress (const juce::KeyPress& key)
         stopTimer();
         prefixState = PrefixState::idle;
 
-        const auto it { modalBindings.find (key) };
+        // Modal bindings match by text character, not full KeyPress.
+        // This handles shifted characters correctly (e.g. '?' = Shift+/).
+        const juce::juce_wchar textChar { key.getTextCharacter() };
+        int matchIndex { -1 };
 
-        if (it != modalBindings.end())
+        if (textChar != 0)
         {
-            const auto& entry { entries.at (static_cast<std::size_t> (it->second)) };
+            for (const auto& [boundKey, index] : modalBindings)
+            {
+                if (boundKey.getKeyCode() == static_cast<int> (textChar)
+                    or boundKey.getTextCharacter() == textChar)
+                {
+                    matchIndex = index;
+                    break;
+                }
+            }
+        }
+
+        // Fall back to exact KeyPress match for non-character modal keys.
+        if (matchIndex == -1)
+        {
+            const auto it { modalBindings.find (key) };
+
+            if (it != modalBindings.end())
+                matchIndex = it->second;
+        }
+
+        if (matchIndex >= 0)
+        {
+            const auto& entry { entries.at (static_cast<std::size_t> (matchIndex)) };
 
             if (entry.execute != nullptr)
                 consumed = entry.execute();

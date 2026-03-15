@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-13 (updated: kitty keyboard protocol, CSI u encoding, keyboard flags in State)
+**Last Updated:** 2026-03-15 (updated: WindowsTTY rewrite, Terminal::Action, ConPTY sideload, box selection)
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### Purpose
 
-END (Ephemeral Nexus Display) is a GPU-accelerated, fully-featured terminal emulator built with C++17 and JUCE. Tabs, split panes, Lua configuration, prefix-key modal input. Renders terminal output through an OpenGL pipeline with FreeType/HarfBuzz text shaping and a glyph atlas cache.
+END (Ephemeral Nexus Display) is a GPU-accelerated, fully-featured terminal emulator built with C++17 and JUCE. Tabs, split panes, Lua configuration, unified action registry with prefix-key modal input. Renders terminal output through an OpenGL pipeline with FreeType/HarfBuzz text shaping and a glyph atlas cache.
 
 ### Architecture Philosophy
 
@@ -26,7 +26,7 @@ APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTr
 - **GPU:** OpenGL (via JUCE OpenGLContext)
 - **Config:** Lua (sol2)
 - **Build System:** JUCE / CMake
-- **Platform:** macOS (primary), Linux, Windows (in progress)
+- **Platform:** macOS (primary), Linux, Windows
 
 ---
 
@@ -37,14 +37,13 @@ APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTr
 ```
 Source/
   Main.cpp                          Application entry, owns Config + MainWindow
-  MainComponent.h/cpp               Root component, owns Fonts context, Tabs, ModalKeyBinding, MessageOverlay, GLRenderer
+  MainComponent.h/cpp               Root component, owns Fonts context, Tabs, Action, MessageOverlay, GLRenderer
   AppState.h/cpp                    Application state: ValueTree root, pwdValue (live cwd binding), active terminal tracking
   AppIdentifier.h                   App-level ValueTree identifiers (END, WINDOW, TABS, TAB, PANES)
 
   config/
     Config.h/cpp                    Lua config loader, Context<Config> pattern
-    KeyBinding.h/cpp                ApplicationCommandManager wrapper, configurable shortcuts
-    ModalKeyBinding.h/cpp           Prefix-key modal input system (tmux-style), Context<ModalKeyBinding>
+    (KeyBinding, ModalKeyBinding — dissolved into Terminal::Action, Sprint 93)
 
   component/
     TerminalComponent.h/cpp         UI host, VBlankAttachment render loop
@@ -117,7 +116,11 @@ Source/
     tty/                            Platform TTY abstraction
       TTY.h/cpp                     Abstract base + reader thread
       UnixTTY.h/cpp                 macOS/Linux: forkpty
-      WindowsTTY.h/cpp              Windows: ConPTY (in progress)
+      WindowsTTY.h/cpp              Windows: ConPTY via NtCreateNamedPipeFile, overlapped I/O, sideloaded conpty.dll
+
+    action/                         Unified action registry + key dispatch
+      Action.h/cpp                  Action table, key map, prefix state machine, Context<Action>
+      ActionList.h/cpp              Command palette component (scaffolded, UI wiring pending)
 
 modules/
   jreng_core/                       Shared utilities (Owner, identifiers, Context, BinaryData)
@@ -155,8 +158,7 @@ modules/
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jreng_core | `modules/jreng_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
-| KeyBinding | `config/` | ApplicationCommandManager wrapper, configurable key mappings | JUCE ACM, Config |
-| ModalKeyBinding | `config/` | Prefix-key modal input (tmux-style), Context-managed | Config, jreng::Context |
+| Action | `terminal/action/` | Unified action registry, key dispatch, prefix state machine | Config, jreng::Context |
 | Panes | `component/` | Per-tab pane container, owns terminals and resizer bars | PaneManager, Terminal::Component |
 | jreng_gui | `modules/jreng_gui/` | Layout utilities: PaneManager binary tree, PaneResizerBar | JUCE core, jreng_core |
 
@@ -358,24 +360,47 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 
 **Split naming convention:** `splitHorizontal` produces a left/right layout. The internal direction string `"vertical"` describes the divider orientation, not the layout direction.
 
-### Prefix Key System (ModalKeyBinding)
+### Action Registry (Terminal::Action)
 
-`ModalKeyBinding` inherits `jreng::Context<ModalKeyBinding>` and `juce::Timer`. It implements a tmux-style two-keystroke input system:
+`Terminal::Action` inherits `jreng::Context<Action>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
 
-1. User presses prefix key (default: backtick) — consumed, enters `waiting` state
-2. User presses action key — dispatched to registered callback
-3. Timer cancels if no action key within timeout (default: 1000ms)
+**Architecture:**
+- Fixed action table: 18 entries with ID, name, description, category, callback
+- Hot-reloadable key map: reads `end.lua`, rebuilds KeyPress → action ID mapping on `reload()`
+- Prefix state machine: tmux-style two-keystroke input (prefix key + action key with timeout)
+- Global singleton via `jreng::Context<Action>`
 
-Intercepted in `Terminal::Component::keyPressed` before any other key processing.
+**Key resolution order in `handleKeyPress()`:**
+1. If in **waiting** state: match by text character in modal bindings → execute → idle
+2. If in **idle** state and key equals prefix key: enter **waiting** → start timer
+3. If in **idle** state: match in global bindings → execute
+4. No match → return false (caller forwards to PTY)
 
-| Action | Default Key | Config Key |
-|--------|-------------|------------|
-| Split horizontal (left/right) | `\` | `keys.split_horizontal` |
-| Split vertical (top/bottom) | `-` | `keys.split_vertical` |
-| Focus pane left | `h` | `keys.pane_left` |
-| Focus pane down | `j` | `keys.pane_down` |
-| Focus pane up | `k` | `keys.pane_up` |
-| Focus pane right | `l` | `keys.pane_right` |
+**Modal character matching:** Shifted characters (e.g. `?` = Shift+/) are matched by text character, not keycode+modifiers. Falls back to exact KeyPress match for non-character keys.
+
+| Action | Default Key | Modal | Config Key |
+|--------|-------------|-------|------------|
+| copy | ctrl+c (Mac: cmd+c) | No | `keys.copy` |
+| paste | ctrl+v (Mac: cmd+v) | No | `keys.paste` |
+| quit | cmd+q | No | `keys.quit` |
+| close_tab | cmd+w | No | `keys.close_tab` |
+| reload_config | cmd+r | No | `keys.reload` |
+| zoom_in | cmd+= | No | `keys.zoom_in` |
+| zoom_out | cmd+- | No | `keys.zoom_out` |
+| zoom_reset | cmd+0 | No | `keys.zoom_reset` |
+| new_tab | cmd+t | No | `keys.new_tab` |
+| prev_tab | cmd+shift+[ | No | `keys.prev_tab` |
+| next_tab | cmd+shift+] | No | `keys.next_tab` |
+| newline | shift+return | No | `keys.newline` |
+| action_list | ? | Yes | `keys.action_list` |
+| split_horizontal | \ | Yes | `keys.split_horizontal` |
+| split_vertical | - | Yes | `keys.split_vertical` |
+| pane_left | h | Yes | `keys.pane_left` |
+| pane_down | j | Yes | `keys.pane_down` |
+| pane_up | k | Yes | `keys.pane_up` |
+| pane_right | l | Yes | `keys.pane_right` |
+
+**Copy action special behavior:** If box selection is active, copies to clipboard and returns true (consumed). If no selection, returns false — key falls through to PTY as `\x03` (SIGINT).
 
 Prefix key and timeout configurable via `keys.prefix` and `keys.prefix_timeout`.
 
@@ -643,6 +668,22 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Rationale:** Simpler, lower latency. The FIFO added a drain step on the message thread that was unnecessary — the parser is fast enough to run on the reader thread without blocking. Grid access is protected by `resizeLock` CriticalSection only during resize.
 
+### Decision: Sideloaded ConPTY for Windows 10
+
+**Context:** The inbox `conhost.exe` on Windows 10 22H2 (build 19045) does not support `PSEUDOCONSOLE_WIN32_INPUT_MODE`. Mouse tracking, alternate screen detection, and other DECSET sequences are intercepted and never forwarded to the terminal emulator.
+
+**Decision:** Embed `conpty.dll` + `OpenConsole.exe` (MIT-licensed, from Microsoft Terminal) as JUCE BinaryData. Extract to `~/.config/end/conpty/` at runtime. Load `CreatePseudoConsole`, `ResizePseudoConsole`, `ClosePseudoConsole` from the sideloaded DLL. Fall back to `kernel32.dll` if sideload fails. Pass `PSEUDOCONSOLE_WIN32_INPUT_MODE` (0x4) flag.
+
+**Rationale:** Discovered via wezterm's source — every terminal emulator with working mouse on Windows 10 ships its own OpenConsole. The sideloaded DLL launches a newer conhost that emits DECSET sequences in the output stream. Single flag (`0x4`) enables mouse tracking, alternate screen, and SGR mouse encoding.
+
+### Decision: NtCreateNamedPipeFile for ConPTY Pipe
+
+**Context:** `CreateNamedPipeW` (public API) creates half-duplex named pipes with read/write contention on a single handle. Microsoft Terminal uses `NtCreateNamedPipeFile` (undocumented NT API) for a true full-duplex unnamed pipe.
+
+**Decision:** Port Microsoft Terminal's `CreateOverlappedPipe` exactly — `NtCreateNamedPipeFile` + `NtCreateFile` via `GetProcAddress` on `ntdll.dll`. Single duplex pipe, overlapped I/O, same client handle for both hInput and hOutput to `CreatePseudoConsole`.
+
+**Rationale:** True full-duplex eliminates read/write contention. Overlapped I/O provides zero-CPU blocking wait (no polling). Microsoft Terminal ships this in production — stable and tested.
+
 ### Decision: NF Glyph Constraint System
 
 **Context:** Nerd Font icons have wildly varying aspect ratios and need per-glyph positioning to look correct in a monospace grid.
@@ -671,7 +712,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Pane navigation and splitting needed keyboard shortcuts. Options: Cmd+Shift chords, or tmux-style prefix key.
 
-**Decision:** Prefix key system (`ModalKeyBinding`). Default prefix: backtick. Action keys: h/j/k/l for navigation, `\`/`-` for splitting.
+**Decision:** Prefix key system (now `Terminal::Action`). Default prefix: backtick. Action keys: h/j/k/l for navigation, `\`/`-` for splitting.
 
 **Rationale:** Chord modifiers (Cmd+Shift+H/J/K/L) conflict with terminal applications that use these sequences. Prefix key avoids conflicts entirely — the prefix is consumed, then the next key is unambiguously a pane action. Familiar to tmux users. Fully configurable.
 
@@ -791,6 +832,9 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 | AppState | Application-level ValueTree root; tracks active terminal UUID, pwd via Value::referTo |
 | AtlasGlyph | Cached rasterization result: texture UV rect, pixel dimensions, bearing |
 | BoxDrawing | Procedural rasterizer for box drawing, block elements, and braille — no font lookup |
+| BoxSelection | Rectangle selection: anchor + end cell coordinates, rendered as overlay |
+| ConPTY sideload | Runtime extraction of conpty.dll + OpenConsole.exe from BinaryData to ~/.config/end/conpty/ |
+| getActiveScreen | Message-thread ValueTree reader for active screen state (normal/alternate) |
 | Cell | 16-byte struct representing one terminal character position |
 | displayName | Derived tab label: foregroundProcess (when != shell) > cwd leaf name |
 | Embolden | Platform stroke-widening for bold: kCGTextFillStroke (macOS), FT_Outline_Embolden (Linux) |
@@ -803,7 +847,8 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 | GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jreng::GLSnapshotBuffer<T>`) |
 | LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via Config |
 | MessageOverlay | Transient overlay for status messages (reload confirmation, config errors) |
-| ModalKeyBinding | Prefix-key modal input system (tmux-style), Context-managed, owned by MainComponent |
+| Action | Unified action registry: action table + key map + prefix state machine, Context-managed, owned by MainComponent |
+| ActionList | Command palette component: fuzzy-searchable list of all registered actions (scaffolded, UI pending) |
 | PaneManager | Binary tree ValueTree layout engine for recursive split pane layout |
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
 | Panes | Per-tab component owning Terminal::Component instances and managing split layout via PaneManager |

@@ -39,6 +39,7 @@
 #include "AppState.h"
 #include "component/LookAndFeel.h"
 #include "component/MessageOverlay.h"
+#include "component/Popup.h"
 #include "component/Tabs.h"
 #include "config/Config.h"
 #include "terminal/action/Action.h"
@@ -126,6 +127,9 @@ private:
     /** @brief Transient overlay for grid-size and status messages. */
     std::unique_ptr<MessageOverlay> messageOverlay;
 
+    /** @brief Modal popup dialog; shows content in a glass window. */
+    Terminal::Popup popup;
+
 #if JUCE_WINDOWS
     /** @brief Fires when the native scale factor changes.
      *  Updates AppState and resets zoom on all terminals. */
@@ -165,9 +169,9 @@ private:
     void showMessageOverlay();
 
     //==============================================================================
-#if JUCE_DEBUG
-    jreng::debug::Widget debug { this, false };
-#endif
+// #if JUCE_DEBUG
+//     jreng::debug::Widget debug { this, false };
+// #endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

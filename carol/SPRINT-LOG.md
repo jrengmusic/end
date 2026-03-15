@@ -204,6 +204,83 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
+## Sprint 95 — Terminal::Popup: Modal Glass Dialog with GL Rendering
+
+**Date:** 2026-03-16
+**Agents:** COUNSELOR, @engineer, @pathfinder
+
+### Problem
+
+ActionList (command palette) scaffolded in Sprint 94 could never grab keyboard focus when added as a child of MainComponent. The tmux-style popup from SPEC.md was identified as the correct primitive — a modal glass window that hosts any component, grabs focus, and blocks the parent.
+
+### What Was Done
+
+**1. Terminal::Popup** (`Source/component/Popup.h` + `Popup.cpp`)
+- Modal glass dialog using `juce::DialogWindow` with `escapeKeyTriggersCloseButton = true`
+- `jreng::BackgroundBlur` applied via deferred `juce::AsyncUpdater` (identical pattern to `jreng::GlassWindow` and `kuassa::GlassDialogWindow`)
+- Escape dismisses (JUCE built-in), click outside brings to front (does not dismiss)
+- `Popup::show (caller, content)` — reads Config fractions, sizes content, creates window, centres on caller, enters modal state
+- `Popup::dismiss()` — exits modal state, releases window
+- `onDismiss` callback for cleanup
+
+**2. ContentView pattern** (mirrors MainComponent)
+- `Popup::ContentView` — intermediate content component inside the DialogWindow
+- Owns `jreng::GLRenderer` attached to itself (not to the DialogWindow)
+- Sets `componentIterator` to yield the single GL content component
+- Wires `Terminal::Component::onRepaintNeeded` → `glRenderer.triggerRepaint()`
+- `initialiseGL()` called after window is visible (native peer exists)
+- Architecture: `Window (DialogWindow) → ContentView → Terminal::Component` — identical to `GlassWindow → MainComponent → Terminal::Component`
+
+**3. Config keys**
+- Added: `popup.width` (0.6), `popup.height` (0.5), `popup.position` ("center"), `popup.action` ("action_list")
+- Renamed: `keys.action_list` → `keys.popup`, default `"?"`
+- Removed: `keys.action_list_position` (replaced by `popup.position`)
+- Schema: `popup.width`/`popup.height` range-validated [0.1, 1.0]
+
+**4. Action system updated**
+- Action ID `"action_list"` → `"popup"`
+- Action key table entry: `Config::Key::keysPopup`
+- MainComponent registration: creates `Terminal::Component`, passes to `popup.show()`
+
+**5. default_end.lua updated**
+- New `popup` section with `width`, `height`, `position`, `action`
+- `keys.popup` replaces `keys.action_list`
+
+### Key Discovery: GL Context Cannot Cross Native Window Boundaries
+
+`juce::OpenGLContext` is attached to one native window. A `DialogWindow` creates a separate native OS window. The main app's GLRenderer (attached to MainComponent) cannot render into the popup's window. Solution: each popup window gets its own GLRenderer attached to its own ContentView — identical architecture to the main app.
+
+### Files Created
+- `Source/component/Popup.h` (231 lines)
+- `Source/component/Popup.cpp` (172 lines)
+
+### Files Modified
+- `Source/config/Config.h` — `keysActionList` → `keysPopup`, removed `keysActionListPosition`, added `popupWidth`/`popupHeight`/`popupPosition`/`popupAction`
+- `Source/config/Config.cpp` — updated `initDefaults()` and `initSchema()`
+- `Source/config/default_end.lua` — new `popup` section, `keys.popup` replaces `keys.action_list`
+- `Source/terminal/action/Action.cpp` — action key table: `keysActionList`/`"action_list"` → `keysPopup`/`"popup"`
+- `Source/terminal/action/ActionList.cpp:59` — `keysActionListPosition` → `popupPosition`
+- `Source/MainComponent.h` — added `#include "component/Popup.h"`, added `Terminal::Popup popup` member
+- `Source/MainComponent.cpp` — `"popup"` action creates `Terminal::Component` and calls `popup.show()`
+
+### Alignment Check
+- **LIFESTAR Lean:** Popup is a thin controller (~170 lines). ContentView is minimal. No unnecessary abstractions.
+- **LIFESTAR Explicit Encapsulation:** Popup knows nothing about Terminal::Component. ContentView detects GL content via `dynamic_cast` — generic for any `jreng::GLComponent`. Window handles its own glass blur. Each object has one job.
+- **LIFESTAR SSOT:** Config is the sole source for popup size/position. `Config& config` member reference resolved once, used everywhere.
+- **LIFESTAR Findable:** `Source/component/Popup.h` — alongside Tabs, Panes, MessageOverlay.
+- **LIFESTAR Reviewable:** Architecture documented in header doxygen. Pattern explicitly mirrors MainComponent.
+- **NAMING-CONVENTION:** `Popup`, `ContentView`, `initialiseGL`, `popupWidth`, `popupAction` — all semantic, no data-type encoding.
+- **ARCHITECTURAL-MANIFESTO:** Tell don't ask. `show()` is an instruction. Popup doesn't poke Window internals. Window doesn't poke ContentView internals.
+
+### Technical Debt / Follow-up
+- **`popup.action` not yet interpreted** — currently hardcoded to spawn `Terminal::Component`. Needs dispatch logic: if value matches END keyword (`"action_list"`), spawn ActionList; otherwise spawn terminal running the shell command.
+- **ActionList not wired as popup content** — ActionList.h/cpp exist but are not used. Next step: ActionList inside Popup when `popup.action == "action_list"`.
+- **Multiple popup configs** — SPEC.md describes per-popup entries (lazygit, htop, etc.). Current Config supports only one popup. Future: `popups` array in Lua.
+- **Popup not resizable** — `setResizable (false, false)`. May want draggable/resizable in future.
+- **`close_pane` action** still blocked on missing Config key.
+
+---
+
 ## Sprint 90: Document Reorganization + Roadmap Expansion
 
 **Date:** 2026-03-12
@@ -475,67 +552,6 @@ Implement tabbed terminal interface, refactor Fonts to global Context for SSOT a
 4. **Tab outline colours** — currently hardcoded transparent, could be configurable
 5. **Thread race in renderOpenGL** — GL thread iterates components while message thread can mutate container. Currently mitigated by Fonts outliving terminals, but container mutation is still unprotected.
 
-## Sprint 86: Fork jreng_opengl Module + Replace Snapshot Mailbox with GLSnapshotBuffer
-
-**Date:** 2026-03-08
-**Agents:** COUNSELOR, Engineer (x12 subtasks), Pathfinder, Oracle
-**Status:** Complete
-
-### Objective
-
-1. Fork KANJUT `kuassa_opengl` module into END as `jreng_opengl` (namespace `kuassa` -> `jreng`)
-2. Replace END's hand-rolled `Render::Mailbox` + manual double-buffer rotation with `jreng::GLSnapshotBuffer<Render::Snapshot>`
-
-### Context
-
-KANJUT's `kuassa_opengl` had a cleaner encapsulation of the same lock-free snapshot exchange pattern that END implemented manually. END's `Screen` owned `snapshotA`/`snapshotB`/`writeSnapshot` and manually rotated pointers after `Mailbox::publish()`. KANJUT's `GLSnapshotBuffer<T>` encapsulates the double-buffer, slot rotation, and last-read retention in a generic template. Forking this module also brings `juce::Path` tessellation and a `juce::Graphics`-like OpenGL command buffer API — needed for future WHELMED markdown/mermaid renderer integration.
-
-### Files Created (16 new files)
-
-- `modules/jreng_opengl/jreng_opengl.h` — module header
-- `modules/jreng_opengl/jreng_opengl.cpp` — module impl
-- `modules/jreng_opengl/jreng_opengl.mm` — ObjC++ impl (Mac renderer)
-- `modules/jreng_opengl/context/jreng_gl_mailbox.h` — `GLMailbox<T>` atomic exchange
-- `modules/jreng_opengl/context/jreng_gl_snapshot_buffer.h` — `GLSnapshotBuffer<T>` double-buffer + added `isReady()` forwarding method
-- `modules/jreng_opengl/context/jreng_gl_graphics.h` / `.cpp` — command buffer API
-- `modules/jreng_opengl/context/jreng_gl_component.h` / `.cpp` — GL component base
-- `modules/jreng_opengl/context/jreng_gl_renderer.h` / `.cpp` / `_mac.mm` — OpenGL renderer
-- `modules/jreng_opengl/context/jreng_gl_overlay.h` — component overlay
-- `modules/jreng_opengl/renderers/jreng_gl_path.h` / `.cpp` — Path tessellation
-- `modules/jreng_opengl/renderers/jreng_gl_vignette.h` — vignette effect
-- `modules/jreng_opengl/shaders/flat_colour.vert` / `.frag` — GLSL shaders
-
-### Files Modified
-
-- `CMakeLists.txt` — added `jreng_opengl` to JUCE_MODULES
-- `Source/terminal/rendering/Screen.h` — removed `Render::Mailbox` class, removed `snapshotA`/`snapshotB`/`writeSnapshot` members, added `jreng::GLSnapshotBuffer<Render::Snapshot>` to Resources, updated `Render::OpenGL::setResources()` signature, replaced `getSnapshotMailbox()` with `getSnapshotBuffer()`, added `resize()` no-op to `Render::Snapshot`, updated all doxygen
-- `Source/terminal/rendering/ScreenSnapshot.cpp` — `updateSnapshot()` now uses `getWriteBuffer()` + `write()` instead of manual publish + rotation, updated doxygen
-- `Source/terminal/rendering/TerminalGLRenderer.cpp` — `renderOpenGL()` now uses `snapshotBuffer->read()` instead of `acquire()` + `currentSnapshot` tracking, updated doxygen
-- `Source/terminal/rendering/Screen.cpp` — constructor wires `&resources.snapshotBuffer`, `hasNewSnapshot()` calls `isReady()`, replaced `getSnapshotMailbox()` with `getSnapshotBuffer()`, updated doxygen
-- `ARCHITECTURE.md` — updated module map, module inventory, communication contracts, threading model, data flow, synchronization primitives, design patterns, glossary
-- `Source/component/TerminalComponent.h` — `dpiCorrectedFontSize()` guarded to Windows-only (Mac font scaling fix)
-
-### Skipped from KANJUT fork
-
-- `component/kuassa_gl_analyzer.h` — audio plugin specific (depends on `ku::Function::Map`)
-- `component/kuassa_gl_frequency_grid.h` — audio plugin specific
-- `component/kuassa_gl_magnitude_plot.h` — audio plugin specific
-
-### Alignment Check
-
-- **LIFESTAR:** Lean (GLSnapshotBuffer encapsulates what Screen did manually), Explicit (template contract clear), Single Source of Truth (no duplicate buffer management), Testable (generic template), Reviewable (matches KANJUT pattern)
-- **NAMING-CONVENTION:** `jreng::GLMailbox`, `jreng::GLSnapshotBuffer` — consistent with KANJUT naming, PascalCase types
-- **ARCHITECTURAL-MANIFESTO:** Layer separation preserved — rendering layer owns snapshot exchange, no cross-layer leaks
-
-### Technical Debt / Follow-up
-
-- `GLSnapshotBuffer::resize()` calls `SnapshotType::resize()` on both buffers — END's `Render::Snapshot::resize()` is a no-op since capacity is managed per-frame via `ensureCapacity()`. Works but semantically loose.
-- `jreng_gl_renderer.cpp` loads shaders via `BinaryData::getString()` — END's binary data system needs to include the `flat_colour.vert/frag` shaders if the renderer is ever used directly (currently only GLSnapshotBuffer is used by END)
-- `GLPath::tessellateFill()` uses centroid triangulation — buggy for concave shapes (TODO in source: ear-clipping)
-- Stale doc comment in `Screen.h` `Render::Snapshot` struct still references "Two `Snapshot` instances (`snapshotA`, `snapshotB`) are owned by `Screen`" at line ~237
-
----
-
 ## Sprint 92 — ConPTY Sideload: Mouse + Alternate Screen on Windows
 
 **Date:** 2026-03-15  
@@ -647,5 +663,56 @@ Keyboard/action handling scattered across 4 objects: `KeyBinding`, `ModalKeyBind
 - `getTreeMode()` naming violates Rule 2
 - `seq 1M` performance gap remains
 - Action List UI not built (Phase 3)
+
+---
+
+## Sprint 94 — ActionList Scaffolding + Modal Character Matching Fix
+
+**Date:** 2026-03-15
+**Agents:** COUNSELOR, @engineer
+
+### Problem
+
+1. ActionList (command palette) needed scaffolding — Config keys, Action registration, Lua template, standalone component files.
+2. Modal key matching broken for shifted characters (e.g. `?` = Shift+/ on US keyboard). `parseShortcut("?")` produced `KeyPress('?', 0, 0)` but JUCE delivered `KeyPress('/', shift, '?')`. No match.
+
+### What Was Done
+
+**1. ActionList scaffolding**
+- Config keys added: `keys.action_list` (default `"?"`, modal), `keys.action_list_position` (default `"top"`)
+- Action key table entry added in Action.cpp
+- default_end.lua updated with action_list + action_list_position entries
+- `ActionList.h` + `ActionList.cpp` created as standalone component (TextEditor + ListBox + FuzzySearch)
+- Registration in MainComponent as TODO placeholder — UI wiring deferred to fresh session
+
+**2. Modal character matching fix** (Action.cpp `handleKeyPress`)
+- In `PrefixState::waiting`, modal bindings now match by **text character** first (handles shifted chars like `?`, `+`, `{` etc.)
+- Falls back to exact KeyPress match for non-character modal keys (F-keys, arrows)
+
+**3. ActionList UI attempted but reverted**
+- Focus management, glass styling, font sizing attempted but failed — too many patches without visual iteration
+- Reverted: ActionList not wired as MainComponent child, registration lambda is TODO placeholder
+- ActionList.h/cpp exist as standalone files ready for fresh session
+
+### Files Created
+- `Source/terminal/action/ActionList.h` (249 lines)
+- `Source/terminal/action/ActionList.cpp` (326 lines)
+
+### Files Modified
+- `Source/config/Config.h` — added `keysActionList`, `keysActionListPosition`
+- `Source/config/Config.cpp` — added defaults, schema
+- `Source/config/default_end.lua` — added action_list entries
+- `Source/terminal/action/Action.cpp` — added `action_list` to key table, fixed modal character matching in `handleKeyPress`
+- `Source/MainComponent.cpp` — action_list registered with TODO placeholder lambda
+
+### Alignment Check
+- **LIFESTAR:** Lean (scaffolding only, no over-engineering), Explicit (ActionList is standalone, no coupling)
+- **NAMING-CONVENTION:** `ActionList`, `keysActionList`, `keysActionListPosition` — semantic
+- **ARCHITECTURAL-MANIFESTO:** ActionList is dumb — receives entries, shows UI. Not wired yet to avoid premature coupling.
+
+### Technical Debt
+- **ActionList UI not wired** — needs fresh session with visual iteration for focus management, glass styling, font sizing
+- PLAN-action-list.md documents the full design
+- `close_pane` action still blocked on missing Config key
 
 ---

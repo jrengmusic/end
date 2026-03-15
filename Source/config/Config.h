@@ -309,6 +309,19 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysPaneUp { "keys.pane_up" };
         inline static const juce::String keysPaneRight { "keys.pane_right" };
         inline static const juce::String keysNewline { "keys.newline" };
+        inline static const juce::String keysPopup { "keys.popup" };
+
+        /** @brief Popup width as a fraction of the parent width (0.1–1.0). */
+        inline static const juce::String popupWidth { "popup.width" };
+
+        /** @brief Popup height as a fraction of the parent height (0.1–1.0). */
+        inline static const juce::String popupHeight { "popup.height" };
+
+        /** @brief Popup position: "center" for now. */
+        inline static const juce::String popupPosition { "popup.position" };
+
+        /** @brief Popup action: END keyword (e.g. "action_list") or shell command. */
+        inline static const juce::String popupAction { "popup.action" };
 
         /** @brief Pane divider bar colour (hex string). */
         inline static const juce::String paneBarColour { "pane.bar_colour" };

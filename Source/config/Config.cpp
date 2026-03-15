@@ -183,6 +183,12 @@ void Config::initDefaults()
     values[Key::keysPaneUp] = "k";
     values[Key::keysPaneRight] = "l";
     values[Key::keysNewline] = "shift+return";
+    values[Key::keysPopup] = "?";
+
+    values[Key::popupWidth] = 0.6f;
+    values[Key::popupHeight] = 0.5f;
+    values[Key::popupPosition] = "center";
+    values[Key::popupAction] = "action_list";
 
     values[Key::paneBarColour] = "#FF1B2A31";///< dark
     values[Key::paneBarHighlight] = "#FF4E8C93";///< paradiso
@@ -279,7 +285,12 @@ void Config::initSchema()
     schema[Key::keysPaneUp] = { T::string };
     schema[Key::keysPaneRight] = { T::string };
     schema[Key::keysNewline] = { T::string };
+    schema[Key::keysPopup] = { T::string };
 
+    schema[Key::popupWidth] = { T::number, 0.1, 1.0, true };
+    schema[Key::popupHeight] = { T::number, 0.1, 1.0, true };
+    schema[Key::popupPosition] = { T::string };
+    schema[Key::popupAction] = { T::string };
 
     schema[Key::paneBarColour] = { T::string };
     schema[Key::paneBarHighlight] = { T::string };

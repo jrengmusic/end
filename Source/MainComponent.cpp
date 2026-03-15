@@ -268,6 +268,18 @@ void MainComponent::registerActions()
             return true;
         });
 
+    action.registerAction ("popup", "Popup", "Open popup overlay", "Application", true,
+        [this]() -> bool
+        {
+            if (not popup.isActive())
+            {
+                auto terminal { std::make_unique<Terminal::Component>() };
+                popup.show (*getTopLevelComponent(), std::move (terminal));
+            }
+
+            return true;
+        });
+
     //==============================================================================
     action.reload();
 

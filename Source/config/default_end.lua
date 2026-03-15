@@ -338,5 +338,33 @@ END = {
 
 		-- Insert a literal newline (LF) instead of carriage return.
 		newline = "%%keys_newline%%",
+
+		-- Open popup. Prefix-mode key.
+		popup = "%%keys_popup%%",
+	},
+
+	-- ========================================================================
+	-- POPUP
+	-- ========================================================================
+	--
+	-- Modal popup overlay triggered by prefix + popup key.
+	-- Action can be an END keyword (e.g. "action_list") or a shell command
+	-- (e.g. "lazygit", "htop", "/usr/bin/nvim").
+	--
+
+	popup = {
+		-- Popup width as a fraction of the window width (0.1 - 1.0).
+		width = %%popup_width%%,
+
+		-- Popup height as a fraction of the window height (0.1 - 1.0).
+		height = %%popup_height%%,
+
+		-- Popup position: "center".
+		position = "%%popup_position%%",
+
+		-- Action to run inside the popup.
+		-- END keywords: "action_list" (built-in command palette).
+		-- Shell commands: "lazygit", "htop", "/usr/bin/nvim", etc.
+		action = "%%popup_action%%",
 	},
 }
