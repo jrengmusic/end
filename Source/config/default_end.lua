@@ -338,33 +338,71 @@ END = {
 
 		-- Insert a literal newline (LF) instead of carriage return.
 		newline = "%%keys_newline%%",
-
-		-- Open popup. Prefix-mode key.
-		popup = "%%keys_popup%%",
 	},
 
 	-- ========================================================================
-	-- POPUP
+	-- POPUP DEFAULTS
 	-- ========================================================================
-	--
-	-- Modal popup overlay triggered by prefix + popup key.
-	-- Action can be an END keyword (e.g. "action_list") or a shell command
-	-- (e.g. "lazygit", "htop", "/usr/bin/nvim").
-	--
 
 	popup = {
-		-- Popup width as a fraction of the window width (0.1 - 1.0).
+		-- Default popup width as a fraction of the window width (0.1 - 1.0).
+		-- Individual popup entries can override this.
 		width = %%popup_width%%,
 
-		-- Popup height as a fraction of the window height (0.1 - 1.0).
+		-- Default popup height as a fraction of the window height (0.1 - 1.0).
+		-- Individual popup entries can override this.
 		height = %%popup_height%%,
 
-		-- Popup position: "center".
+		-- Default popup position: "center".
 		position = "%%popup_position%%",
-
-		-- Action to run inside the popup.
-		-- END keywords: "action_list" (built-in command palette).
-		-- Shell commands: "lazygit", "htop", "/usr/bin/nvim", etc.
-		action = "%%popup_action%%",
 	},
+
+	-- ========================================================================
+	-- POPUPS
+	-- ========================================================================
+	--
+	-- Modal popup terminals. Each entry spawns a terminal running a command
+	-- in a glass overlay window. The popup blocks the main window until the
+	-- process exits (quit the TUI, Ctrl+C a script, etc.).
+	--
+	-- Each entry is a named table. The table key is the unique identifier.
+	--
+	-- Fields:
+	--   command  (string, required)  Shell command or executable to run.
+	--   args     (string, optional)  Arguments passed to the command.
+	--   cwd      (string, optional)  Working directory. Empty = inherit active terminal cwd.
+	--   width    (number, optional)  Fraction of window width (0.1-1.0). Overrides popup.width.
+	--   height   (number, optional)  Fraction of window height (0.1-1.0). Overrides popup.height.
+	--   modal    (string, optional)  Modal key: prefix + key. Can include modifiers (e.g. "cmd+t").
+	--   global   (string, optional)  Global key: direct shortcut, no prefix needed.
+	--
+	-- At least one of modal or global is required.
+	-- Both can coexist on the same entry.
+	--
+	-- Examples:
+	--
+	-- popups = {
+	--     tit = {
+	--         command = "tit.exe",
+	--         args = "",
+	--         cwd = "",
+	--         width = 0.8,
+	--         height = 0.6,
+	--         modal = "t",
+	--     },
+	--     lazygit = {
+	--         command = "lazygit",
+	--         width = 0.9,
+	--         height = 0.9,
+	--         modal = "g",
+	--     },
+	--     htop = {
+	--         command = "htop",
+	--         cwd = "~",
+	--         width = 0.7,
+	--         height = 0.5,
+	--         modal = "p",
+	--         global = "cmd+shift+p",
+	--     },
+	-- },
 }

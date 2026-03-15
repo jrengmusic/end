@@ -183,12 +183,10 @@ void Config::initDefaults()
     values[Key::keysPaneUp] = "k";
     values[Key::keysPaneRight] = "l";
     values[Key::keysNewline] = "shift+return";
-    values[Key::keysPopup] = "?";
 
     values[Key::popupWidth] = 0.6f;
     values[Key::popupHeight] = 0.5f;
     values[Key::popupPosition] = "center";
-    values[Key::popupAction] = "action_list";
 
     values[Key::paneBarColour] = "#FF1B2A31";///< dark
     values[Key::paneBarHighlight] = "#FF4E8C93";///< paradiso
@@ -285,12 +283,10 @@ void Config::initSchema()
     schema[Key::keysPaneUp] = { T::string };
     schema[Key::keysPaneRight] = { T::string };
     schema[Key::keysNewline] = { T::string };
-    schema[Key::keysPopup] = { T::string };
 
     schema[Key::popupWidth] = { T::number, 0.1, 1.0, true };
     schema[Key::popupHeight] = { T::number, 0.1, 1.0, true };
     schema[Key::popupPosition] = { T::string };
-    schema[Key::popupAction] = { T::string };
 
     schema[Key::paneBarColour] = { T::string };
     schema[Key::paneBarHighlight] = { T::string };
@@ -485,6 +481,10 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                             if (groupKey.get_type() == sol::type::string and groupVal.get_type() == sol::type::table)
                             {
                                 const juce::String groupName { groupKey.as<std::string>() };
+
+                                if (groupName == "popups")
+                                    return;
+
                                 sol::table group { groupVal.as<sol::table>() };
 
                                 group.for_each (
@@ -560,6 +560,60 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                     });
                             }
                         });
+
+                    // Parse popups table (three-level: END.popups.<name>.<field>)
+                    sol::object popupsObj { root["popups"] };
+
+                    if (popupsObj.get_type() == sol::type::table)
+                    {
+                        sol::table popupsTable { popupsObj.as<sol::table>() };
+
+                        popupsTable.for_each (
+                            [this, &warnings] (const sol::object& nameKey, const sol::object& entryVal)
+                            {
+                                if (nameKey.get_type() == sol::type::string
+                                    and entryVal.get_type() == sol::type::table)
+                                {
+                                    const juce::String name { nameKey.as<std::string>() };
+                                    sol::table entry { entryVal.as<sol::table>() };
+                                    PopupEntry popup;
+
+                                    if (auto cmd { entry.get<sol::optional<std::string>> ("command") })
+                                        popup.command = juce::String (*cmd);
+
+                                    if (auto a { entry.get<sol::optional<std::string>> ("args") })
+                                        popup.args = juce::String (*a);
+
+                                    if (auto c { entry.get<sol::optional<std::string>> ("cwd") })
+                                        popup.cwd = juce::String (*c);
+
+                                    if (auto w { entry.get<sol::optional<double>> ("width") })
+                                        popup.width = static_cast<float> (*w);
+
+                                    if (auto h { entry.get<sol::optional<double>> ("height") })
+                                        popup.height = static_cast<float> (*h);
+
+                                    if (auto m { entry.get<sol::optional<std::string>> ("modal") })
+                                        popup.modal = juce::String (*m);
+
+                                    if (auto g { entry.get<sol::optional<std::string>> ("global") })
+                                        popup.global = juce::String (*g);
+
+                                    if (popup.command.isEmpty())
+                                    {
+                                        warnings.add ("popups." + name + ": missing 'command'");
+                                    }
+                                    else if (popup.modal.isEmpty() and popup.global.isEmpty())
+                                    {
+                                        warnings.add ("popups." + name + ": needs 'modal' or 'global' key binding");
+                                    }
+                                    else
+                                    {
+                                        popups.insert_or_assign (name, std::move (popup));
+                                    }
+                                }
+                            });
+                    }
                 }
 
                 if (not warnings.isEmpty())
@@ -592,8 +646,13 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
 juce::String Config::reload()
 {
     initDefaults();
+    clearPopups();
     juce::String error;
     load (getConfigFile(), error);
+
+    if (onReload != nullptr)
+        onReload();
+
     return error;
 }
 
@@ -760,4 +819,14 @@ juce::Colour Config::parseColour (const juce::String& input)
     }
 
     return result;
+}
+
+const std::unordered_map<juce::String, Config::PopupEntry>& Config::getPopups() const noexcept
+{
+    return popups;
+}
+
+void Config::clearPopups()
+{
+    popups.clear();
 }

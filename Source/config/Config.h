@@ -103,6 +103,40 @@ struct Config : jreng::Context<Config>
 
     //==============================================================================
     /**
+     * @struct PopupEntry
+     * @brief Configuration for a single popup terminal entry.
+     *
+     * Each entry in the `popups` Lua table maps to one PopupEntry.
+     * The table key (e.g. "tit", "lazygit") serves as the unique identifier.
+     *
+     * @see Config::getPopups
+     */
+    struct PopupEntry
+    {
+        /** @brief Shell command or executable to run inside the popup terminal. */
+        juce::String command;
+
+        /** @brief Arguments passed to the command (space-separated string). */
+        juce::String args;
+
+        /** @brief Working directory. Empty = inherit active terminal's cwd. */
+        juce::String cwd;
+
+        /** @brief Popup width as fraction of parent (0.1–1.0). Zero = use global default. */
+        float width { 0.0f };
+
+        /** @brief Popup height as fraction of parent (0.1–1.0). Zero = use global default. */
+        float height { 0.0f };
+
+        /** @brief Modal key binding (prefix + key). Empty = no modal binding. */
+        juce::String modal;
+
+        /** @brief Global key binding (direct shortcut). Empty = no global binding. */
+        juce::String global;
+    };
+
+    //==============================================================================
+    /**
      * @struct Key
      * @brief String constants for every config key understood by Config.
      *
@@ -309,19 +343,15 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysPaneUp { "keys.pane_up" };
         inline static const juce::String keysPaneRight { "keys.pane_right" };
         inline static const juce::String keysNewline { "keys.newline" };
-        inline static const juce::String keysPopup { "keys.popup" };
 
-        /** @brief Popup width as a fraction of the parent width (0.1–1.0). */
+        /** @brief Popup default width as a fraction of the parent width (0.1–1.0). */
         inline static const juce::String popupWidth { "popup.width" };
 
-        /** @brief Popup height as a fraction of the parent height (0.1–1.0). */
+        /** @brief Popup default height as a fraction of the parent height (0.1–1.0). */
         inline static const juce::String popupHeight { "popup.height" };
 
-        /** @brief Popup position: "center" for now. */
+        /** @brief Popup default position: "center" for now. */
         inline static const juce::String popupPosition { "popup.position" };
-
-        /** @brief Popup action: END keyword (e.g. "action_list") or shell command. */
-        inline static const juce::String popupAction { "popup.action" };
 
         /** @brief Pane divider bar colour (hex string). */
         inline static const juce::String paneBarColour { "pane.bar_colour" };
@@ -396,6 +426,18 @@ struct Config : jreng::Context<Config>
      */
     Theme buildTheme() const;
 
+    /**
+     * @brief Returns the parsed popup entries from the `popups` Lua table.
+     *
+     * Each map entry is keyed by the popup name (e.g. "tit", "lazygit").
+     * Entries have per-popup width/height that fall back to global
+     * `popup.width` / `popup.height` defaults when zero.
+     *
+     * @return Const reference to the popup entries map.
+     * @see PopupEntry
+     */
+    const std::unordered_map<juce::String, PopupEntry>& getPopups() const noexcept;
+
     //==============================================================================
     /**
      * @brief Loads config from @p file, storing errors in `loadError`.
@@ -428,6 +470,17 @@ struct Config : jreng::Context<Config>
      * @see Terminal::Component::keyPressed
      */
     juce::String reload();
+
+    /**
+     * @brief Callback fired after `reload()` completes successfully.
+     *
+     * Wired by MainComponent to rebuild actions, apply config to tabs,
+     * update LookAndFeel, etc.  Fired at the end of `reload()` after
+     * defaults are reset and `end.lua` is re-parsed.
+     *
+     * @note MESSAGE THREAD.
+     */
+    std::function<void()> onReload;
 
     //==============================================================================
     /**
@@ -504,6 +557,9 @@ private:
     /** @brief Schema map: key → ValueSpec for type and range validation. */
     std::unordered_map<juce::String, ValueSpec> schema;
 
+    /** @brief Parsed popup entries from the `popups` Lua table. */
+    std::unordered_map<juce::String, PopupEntry> popups;
+
     /** @brief Last load error or warning string; empty if the last load was clean. */
     juce::String loadError;
 
@@ -523,6 +579,9 @@ private:
      * stored but are not range-checked.
      */
     void initSchema();
+
+    /** @brief Clears all popup entries; called at the start of reload(). */
+    void clearPopups();
 
     /**
      * @brief Writes a minimal `END = {}` skeleton to @p file.

@@ -91,6 +91,21 @@ public:
     explicit Component (const juce::String& workingDirectory);
 
     /**
+     * @brief Constructs a terminal component running a specific command.
+     *
+     * Overrides the default shell program from Config.  Used by popup
+     * terminals to run TUI apps, scripts, etc.
+     *
+     * @param program           Shell command or executable path.
+     * @param args              Arguments passed to the command.
+     * @param workingDirectory  Initial cwd. Empty = inherit.
+     * @note MESSAGE THREAD.
+     */
+    Component (const juce::String& program,
+               const juce::String& args,
+               const juce::String& workingDirectory);
+
+    /**
      * @brief Creates a terminal, adds it to the parent and owner.
      *
      * @param parent            The component to add the terminal to (addAndMakeVisible).
@@ -279,6 +294,16 @@ public:
      * @see GLRenderer::triggerRepaint
      */
     std::function<void()> onRepaintNeeded;
+
+    /**
+     * @brief Callback invoked when the shell process exits.
+     *
+     * If set, this replaces the default behaviour (quit the application).
+     * Used by popup terminals to dismiss the popup window on process exit.
+     *
+     * @note MESSAGE THREAD (via callAsync).
+     */
+    std::function<void()> onProcessExited;
 
     /**
      * @brief Returns `true` if a non-degenerate box selection is currently active.

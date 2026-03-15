@@ -204,6 +204,111 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
+## Sprint 96 — Configurable Popup Terminals + Action Ownership + Ctrl+C Fix
+
+**Date:** 2026-03-16
+**Agents:** COUNSELOR, @engineer, @researcher, @librarian, @pathfinder
+
+### Problem
+
+Sprint 95 delivered a hardcoded popup spawning a default shell. Needed: configurable popup entries from Lua (command, args, cwd, modal/global keys), Action ownership moved to Main.cpp, popup auto-dismiss on process exit, and Ctrl+C not reaching TUI apps.
+
+### What Was Done
+
+**1. Config: `popups` table**
+- `Config::PopupEntry` struct: command, args, cwd, width, height, modal, global
+- `Config::getPopups()` accessor, `clearPopups()` for reload
+- Three-level Lua parsing: `END.popups.<name>.<field>` with validation (command required, at least one key binding)
+- Per-popup width/height with global `popup.width`/`popup.height` fallback
+- `default_end.lua` updated: comprehensive commented example block (tit, lazygit, htop)
+- Removed: `keys.popup`, `popup.action` (single-popup design replaced by `popups` table)
+
+**2. Config: `onReload` callback**
+- `Config::onReload` — `std::function<void()>` fired at end of `reload()`
+- Wired in `Main.cpp::initialise()` → calls `MainComponent::applyConfig()`
+- `MainComponent::applyConfig()` — public method: `registerActions()` + `tabs->applyConfig()` + LookAndFeel + orientation
+- reload_config action simplified: just calls `config.reload()`, shows message
+
+**3. Action ownership moved to Main.cpp**
+- `Terminal::Action action` moved from MainComponent to ENDApplication (alongside Config, AppState, FontCollection)
+- All Contexts now owned by the app, constructed before the window
+- `Action::clear()` — public method, wipes entries + bindings
+- `Action::buildKeyMap()` — made public, called after registration
+- MainComponent accesses via `Action::getContext()`, no member
+- `registerActions()` calls `action.clear()`, registers all fixed + popup actions, calls `action.buildKeyMap()`
+
+**4. Popup actions from Config**
+- Each `popups` entry registers as `"popup:<name>"` (modal) and/or `"popup_global:<name>"` (global)
+- `Action::buildKeyMap()` resolves popup modal/global keys from `Config::getPopups()`
+- Shared `launchPopup` lambda per entry — DRY, no duplicate callbacks
+- Shell wrapping: `config.shellProgram -c command` (e.g. `zsh -c tit`)
+
+**5. Session shell override**
+- `Session::setShellProgram (program, args)` — overrides Config default
+- `Terminal::Component (program, args, cwd)` constructor — calls `setShellProgram` + `setWorkingDirectory` before `initialise()`
+- Session stays dumb — receives shell + args, launches them
+
+**6. Popup auto-dismiss on process exit**
+- `Terminal::Component::onProcessExited` — public callback, replaces default quit-app behavior
+- `Popup::show()` wires `terminal->onProcessExited = [this] { dismiss(); }` — Popup owns its own dismissal
+- `WindowsTTY::waitForData()` — `WaitForMultipleObjects` on both `readEvent` and `process` handle. When child exits, cancels pending read and signals EOF. Fixes ConPTY keeping pipe alive after process exit.
+
+**7. Popup terminal input: tmux overlay model**
+- Popup terminals bypass `Terminal::Action` entirely in `keyPressed`
+- All keys go directly to PTY — no copy interception, no prefix handling
+- `escapeKeyTriggersCloseButton` set to `false` — Escape goes to TUI, not dismiss
+- Matches tmux's `popup_key_cb` pattern: overlay owns all input while active
+
+**8. Ctrl+C fix (Win32 Input Mode bypass)**
+- `Keyboard::encodeWin32Input()` — Ctrl+C sends raw `\x03` (ETX) instead of Win32 Input Mode sequence
+- Root cause: zsh enables Win32 Input Mode (`?9001h`). Go/Rust TUI apps (tit, lazygit) don't understand Win32 Input Mode sequences. They expect standard VT input for signal-generating keys.
+- `\x03` is universal — PTY line discipline generates SIGINT. Works on all platforms.
+
+### Files Created
+- None
+
+### Files Modified
+- `Source/config/Config.h` — removed `keysPopup`/`popupAction`, added `PopupEntry` struct, `popups` map, `getPopups()`, `clearPopups()`, `onReload` callback
+- `Source/config/Config.cpp` — removed keysPopup/popupAction from defaults+schema, added `popups` table parsing, `getPopups()`, `clearPopups()`, `onReload` fired from `reload()`
+- `Source/config/default_end.lua` — removed `keys.popup`/`popup.action`, added `popup` defaults section, added commented `popups` example block
+- `Source/Main.cpp` — added `Terminal::Action action` member, `#include Action.h`, wired `config.onReload`
+- `Source/MainComponent.h` — removed `Terminal::Action action` member, added public `applyConfig()`
+- `Source/MainComponent.cpp` — `applyConfig()` method, `registerActions()` uses `Action::getContext()`, popup actions from `config.getPopups()`, reload_config simplified
+- `Source/terminal/action/Action.h` — `clear()` public, `buildKeyMap()` public
+- `Source/terminal/action/Action.cpp` — `clear()` implementation, popup key resolution in `buildKeyMap()`
+- `Source/terminal/logic/Session.h` — `setShellProgram()`, `shellOverride`/`shellArgsOverride` members
+- `Source/terminal/logic/Session.cpp` — `setShellProgram()` implementation, `resized()` uses override
+- `Source/component/TerminalComponent.h` — `onProcessExited` callback, `Component (program, args, cwd)` constructor
+- `Source/component/TerminalComponent.cpp` — new constructor, `onProcessExited` in `initialise()`, popup bypass in `keyPressed`
+- `Source/component/Popup.cpp` — `escapeKeyTriggersCloseButton = false`, `onProcessExited` wired in `show()`
+- `Source/terminal/tty/WindowsTTY.cpp` — `WaitForMultipleObjects` on process handle in `waitForData()`
+- `Source/terminal/data/Keyboard.cpp` — Ctrl+C sends `\x03` bypassing Win32 Input Mode
+
+### Alignment Check
+- **LIFESTAR Lean:** Shell wrapping is one line in MainComponent. Session stays dumb. Popup wires its own dismissal.
+- **LIFESTAR Explicit Encapsulation:** Action owned by Main (Context). Config fires `onReload`, doesn't know about Action. Popup wires `onProcessExited` itself — MainComponent doesn't manage popup lifecycle. Each object has one job.
+- **LIFESTAR SSOT:** `Config::getPopups()` is the sole source for popup entries. Action registry rebuilt from scratch on every reload.
+- **LIFESTAR Findable:** `PopupEntry` in Config.h. Popup actions prefixed `"popup:"`.
+- **NAMING-CONVENTION:** `PopupEntry`, `getPopups`, `clearPopups`, `onReload`, `onProcessExited`, `setShellProgram`, `shellOverride` — all semantic.
+- **ARCHITECTURAL-MANIFESTO:** Tell don't ask. Config tells listeners via `onReload`. Popup tells itself to dismiss via `onProcessExited`. tmux overlay model: popup owns all input.
+
+### Key Discovery: Win32 Input Mode + TUI Apps
+
+Go/Rust TUI apps don't understand Win32 Input Mode (`?9001h`). When zsh enables it and a TUI launches inside zsh without disabling it, signal-generating keys (Ctrl+C) are sent as Win32 Input Mode sequences that the TUI ignores. Fix: Ctrl+C always sends raw `\x03` regardless of Win32 Input Mode.
+
+### Key Discovery: ConPTY Pipe Stays Open After Process Exit
+
+ConPTY (sideloaded `OpenConsole.exe`) keeps the pipe alive after the child process exits. `ReadFile` never returns `ERROR_BROKEN_PIPE`. Fix: `WaitForMultipleObjects` on both the read event and the process handle. When the process exits, cancel the pending read and signal EOF.
+
+### Technical Debt / Follow-up
+- **Multiple popup configs not tested with reload** — hot-reload should re-register popup actions correctly via `onReload` chain
+- **Per-popup width/height fallback** — registered in Config but not consumed in MainComponent's `launchPopup` (always uses global defaults)
+- **`onProcessExited` naming** — used as a flag to detect popup terminals in `keyPressed`. Should have a dedicated `isPopupTerminal` flag instead of overloading callback presence.
+- **Ctrl+C bypass is Ctrl+C only** — other signal keys (Ctrl+Z, Ctrl+\) may have the same Win32 Input Mode issue. Should audit all signal-generating keys.
+- **`escapeKeyTriggersCloseButton = false`** — Escape goes to TUI. No way to dismiss popup except process exit. May want a configurable dismiss key in future.
+
+---
+
 ## Sprint 95 — Terminal::Popup: Modal Glass Dialog with GL Rendering
 
 **Date:** 2026-03-16
@@ -451,106 +556,6 @@ Reorganize project documentation: separate implemented features (ARCHITECTURE.md
 - PLAN.md needs updating to reflect final architecture (SESSION grafting into PANE, ModalKeyBinding)
 - State persistence/restore from XML not yet tested with new tree structure
 - No visual indicator for prefix mode active state
-
----
-
-## Sprint 87: Tab System + Fonts Context Refactor + LookAndFeel Colour System
-
-**Date:** 2026-03-10
-**Agents:** COUNSELOR, @pathfinder, @engineer, @oracle
-
-### Objective
-
-Implement tabbed terminal interface, refactor Fonts to global Context for SSOT and crash fix, build LookAndFeel colour system, move MessageOverlay to MainComponent.
-
-### Changes
-
-**Tab System**
-
-- `Source/component/Tabs.h/cpp` — `Terminal::Tabs` subclasses `juce::TabbedComponent`, manages `Owner<GLComponent>` container, visibility toggling, tab bar auto-hide
-- `Source/component/LookAndFeel.h/cpp` — Custom `Terminal::LookAndFeel` with `ColourIds` enum (`cursorColourId`, `tabBarBackgroundColourId`, `tabLineColourId`), `setColours()` reads all colours from Config, `drawTabButton()` simple line indicator on opposite edge, `drawTabbedButtonBarBackground()` no-op, popup menu glass blur
-- `Source/MainComponent.cpp` — `commandDefs[]` static table + `commandActions` Function::Map for table-driven dispatch, `setDefaultLookAndFeel`, reload wiring with `setColours()` + `sendLookAndFeelChange()` + `applyOrientation()`
-- Configurable tab position via `tab.position` config key (top/bottom/left/right, default left)
-- `Tabs::applyOrientation()` + `orientationFromString()` for hot-reload
-- `Tabs::resized()` handles all 4 orientations for content area trimming
-- Close last tab quits app — removed `terminals.size() > 1` guard
-
-**Config Keys Added**
-
-- `tab.family` (Display Mono), `tab.size` (14), `tab.foreground` (#FF00C8D8 blueBikini), `tab.inactive` (#FF2E4D53 mallard), `tab.position` (left), `tab.line` (#FF8CC9D9 dolphin), `menu.opacity` (0.65)
-
-**Fonts Context Refactor**
-
-- `Source/terminal/rendering/Fonts.h` — `Fonts` inherits `jreng::Context<Fonts>`, globally accessible via `Fonts::getContext()`
-- `Source/MainComponent.h/cpp` — MainComponent owns `std::unique_ptr<Fonts>`, constructed before Tabs, destroyed after
-- `Source/terminal/rendering/Screen.h/cpp` — Removed `Fonts` from `Resources` struct, Screen uses `Fonts::getContext()` everywhere
-- `Source/terminal/rendering/ScreenRender.cpp` — All `resources.fonts.` → `Fonts::getContext()->`
-- `Source/component/CursorComponent.h` — Removed `Fonts&` constructor parameter, uses `Fonts::getContext()`
-- `Source/component/TerminalComponent.cpp` — Screen default-constructed, cursor no longer passes `screen.getFonts()`
-
-**MessageOverlay Moved to MainComponent**
-
-- Removed from `Terminal::Component` (member, constructor, destructor, resized, reloadConfig)
-- Added to `MainComponent` (member, constructor, resized, reload command)
-- Removed `setGridSize()`, `show()`, `numRows`, `numCols` from MessageOverlay — now only has `showMessage()`
-- Removed `onGridSizeChanged` callback chain (was Terminal::Component -> Tabs -> MainComponent)
-- `reloadConfig()` removed from Tabs and Terminal::Component — Config::reload() called directly in MainComponent, `Tabs::applyConfig()` iterates all terminals
-
-**Popup Menu Glass Blur**
-
-- `preparePopupMenuWindow` — `setOpaque(false)` + `callAsync` with `BackgroundBlur::apply`
-- `drawPopupMenuBackgroundWithOptions` — empty no-op
-- `drawPopupMenuItem` — themed with `findColour()`
-- Removed `applyToMenu` from BackgroundBlur (.h, .mm, .cpp)
-
-**Other**
-
-- Configurable shell path via Config
-- Display Mono font registration in Main.cpp
-- Tab font uses `withPointHeight()` for CoreText/FreeType point sizing
-- `KeyBinding` for tab commands (new tab, close tab, prev/next tab)
-
-### Files Modified (25+ total)
-
-- `Source/MainComponent.h/cpp` — Fonts ownership, messageOverlay, command table, reload wiring, tab orientation
-- `Source/component/Tabs.h/cpp` — NEW: tab container with orientation support
-- `Source/component/LookAndFeel.h/cpp` — NEW: colour system, tab styling, popup menu
-- `Source/component/TerminalComponent.h/cpp` — removed messageOverlay, removed reloadConfig, removed Fonts dependency
-- `Source/component/CursorComponent.h` — removed Fonts& parameter
-- `Source/component/MessageOverlay.h` — simplified to showMessage() only
-- `Source/terminal/rendering/Fonts.h` — added Context<Fonts> base
-- `Source/terminal/rendering/Screen.h/cpp` — removed Fonts from Resources, default constructor
-- `Source/terminal/rendering/ScreenRender.cpp` — Fonts::getContext()
-- `Source/config/Config.h/cpp` — tab config keys, menu opacity
-- `Source/config/KeyBinding.h` — tab command IDs
-- `Source/Main.cpp` — Display Mono registration
-- `modules/jreng_gui/glass/jreng_background_blur.h/mm/cpp` — removed applyToMenu
-
-### Alignment Check
-
-- [x] LIFESTAR Lean: Fonts shared globally, no per-terminal duplication
-- [x] LIFESTAR Explicit: All colours flow Config -> setColours() -> findColour(), no hidden state
-- [x] LIFESTAR SSOT: Fonts is single instance, Config keys are sole source for all colours
-- [x] LIFESTAR Findable: ColourIds enum, setColours() centralizes all colour wiring
-- [x] LIFESTAR Reviewable: Table-driven command dispatch, orientation mapping
-- [x] NAMING-CONVENTION: tabLineColourId, tabBarBackgroundColourId, applyOrientation — all semantic
-- [x] ARCHITECTURAL-MANIFESTO: Tell don't ask — MainComponent tells Tabs to applyConfig/applyOrientation
-
-### Problems Solved
-
-1. **HarfBuzz crash on tab close** — Font destroyed while GL thread mid-render. Fixed by making Fonts a global Context owned by MainComponent.
-2. **Multiple OpenGL contexts** — Single shared GLRenderer, Terminal::Component inherits GLComponent
-3. **Popup menu opacity** — backgroundColourId must be non-opaque for JUCE to allow transparency
-4. **Tab bar covers GL content** — TabbedComponent::backgroundColourId set to transparentBlack
-5. **MessageOverlay on every new tab** — Moved to MainComponent, removed grid size trigger
-
-### Technical Debt / Follow-up
-
-1. **Grid size overlay** — removed grid size display from overlay. Need to recompute from Fonts::getContext()->calcMetrics() at MainComponent level for window resize display.
-2. **Zoom applies to single Screen** — setFontSize() calls Fonts::getContext()->setSize() (global) but only recalcs one Screen's metrics. Other Screens need recalc too.
-3. **Tab title from cwd** — tabs all show "Terminal", should show current working directory
-4. **Tab outline colours** — currently hardcoded transparent, could be configurable
-5. **Thread race in renderOpenGL** — GL thread iterates components while message thread can mutate container. Currently mitigated by Fonts outliving terminals, but container mutation is still unprotected.
 
 ## Sprint 92 — ConPTY Sideload: Mouse + Alternate Screen on Windows
 

@@ -84,6 +84,31 @@ Terminal::Component::Component (const juce::String& workingDirectory)
 }
 
 /**
+ * @brief Constructs a terminal component running a specific command.
+ *
+ * @param program           Shell command or executable path.
+ * @param args              Arguments passed to the command.
+ * @param workingDirectory  Initial cwd. Empty = inherit.
+ * @note MESSAGE THREAD.
+ */
+Terminal::Component::Component (const juce::String& program,
+                                const juce::String& args,
+                                const juce::String& workingDirectory)
+    : screen()
+    , stateTree (session.getState().get())
+    , vblank (this,
+              [this]
+              {
+                  onVBlank();
+              })
+{
+    session.setShellProgram (program, args);
+    session.setWorkingDirectory (workingDirectory);
+    initialise();
+    session.getState().get().setProperty (jreng::ID::id, juce::Uuid().toString(), nullptr);
+}
+
+/**
  * @brief Initialises the terminal component after construction.
  *
  * Contains the shared initialization logic for both constructors.
@@ -110,12 +135,15 @@ void Terminal::Component::initialise()
     addAndMakeVisible (cursor.get());
     cursor->setInterceptsMouseClicks (false, false);
 
-    session.onShellExited = []
+    session.onShellExited = [this]
     {
         juce::MessageManager::callAsync (
-            []
+            [this]
             {
-                juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                if (onProcessExited != nullptr)
+                    onProcessExited();
+                else
+                    juce::JUCEApplication::getInstance()->systemRequestedQuit();
             });
     };
 
@@ -304,6 +332,15 @@ void Terminal::Component::clearSelectionAndScroll()
 
 bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
+    // Popup terminals bypass the action system entirely.
+    // All keys go directly to the PTY — identical to tmux's overlay model.
+    if (onProcessExited != nullptr)
+    {
+        session.handleKeyPress (key);
+        cursor->resetBlink();
+        return true;
+    }
+
     bool handled { Terminal::Action::getContext()->handleKeyPress (key) };
 
     if (not handled)

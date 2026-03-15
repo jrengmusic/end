@@ -69,7 +69,7 @@ void Popup::ContentView::initialiseGL()
 Popup::Window::Window (std::unique_ptr<juce::Component> content,
                        juce::Component& centreAround,
                        std::function<void()> dismissCallback)
-    : juce::DialogWindow ({}, Config::getContext()->getColour (Config::Key::windowColour), true)
+    : juce::DialogWindow ({}, Config::getContext()->getColour (Config::Key::windowColour), false)
     , onDismissed (std::move (dismissCallback))
 {
     setOpaque (false);
@@ -144,6 +144,9 @@ void Popup::show (juce::Component& caller, std::unique_ptr<juce::Component> cont
                                                 * config.getFloat (Config::Key::popupHeight)) };
 
     content->setSize (contentWidth, contentHeight);
+
+    if (auto* terminal { dynamic_cast<Terminal::Component*> (content.get()) })
+        terminal->onProcessExited = [this] { dismiss(); };
 
     window = std::make_unique<Window> (std::move (content), caller,
         [this]

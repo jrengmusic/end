@@ -188,8 +188,12 @@ void Session::resized (int cols, int rows)
     {
         grid.resize (cols, rows);
         parser.resize (cols, rows);
-        const auto shell { Config::getContext()->getString (Config::Key::shellProgram) };
-        const auto args { Config::getContext()->getString (Config::Key::shellArgs) };
+        const auto shell { shellOverride.isNotEmpty()
+            ? shellOverride
+            : Config::getContext()->getString (Config::Key::shellProgram) };
+        const auto args { shellOverride.isNotEmpty()
+            ? shellArgsOverride
+            : Config::getContext()->getString (Config::Key::shellArgs) };
         tty->open (cols, rows, shell, args, workingDirectory);
         const juce::String shellName { shell.contains (juce::File::getSeparatorString())
             ? juce::File (shell).getFileName()
@@ -206,6 +210,12 @@ void Session::resized (int cols, int rows)
 void Session::setWorkingDirectory (const juce::String& path)
 {
     workingDirectory = path;
+}
+
+void Session::setShellProgram (const juce::String& program, const juce::String& args)
+{
+    shellOverride = program;
+    shellArgsOverride = args;
 }
 
 /**

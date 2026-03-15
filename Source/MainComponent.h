@@ -12,7 +12,7 @@
  *   dimensions are persisted to `AppState` when the native close button is
  *   pressed (in addition to the Cmd+Q path handled by ENDApplication).
  * - Delegates all keyboard, mouse, and terminal I/O to `Terminal::Tabs`.
- * - Owns `Terminal::Action` and registers all user-performable action callbacks.
+ * - Registers all user-performable action callbacks with `Terminal::Action`.
  *
  * @par Thread context
  * All methods are called on the **MESSAGE THREAD**.
@@ -82,35 +82,32 @@ public:
      */
     void resized() override;
 
+    /**
+     * @brief Rebuilds actions, applies config to tabs, LookAndFeel, and orientation.
+     *
+     * Called by `Config::onReload` (wired in Main.cpp) after Config reloads
+     * `end.lua`.  Also called once from the constructor for initial setup.
+     *
+     * @note MESSAGE THREAD.
+     * @see Config::onReload
+     */
+    void applyConfig();
+
 private:
     /**
      * @brief Registers all user-performable actions with `Terminal::Action`.
      *
-     * Called once from the constructor after `tabs` is fully initialised.
-     * Each action captures `this` (or `tabs`) and returns `true` if the key
-     * was consumed, or `false` to let it fall through to the PTY.
+     * Clears existing actions, registers all fixed actions and popup actions
+     * from Config, then rebuilds the key map.
      *
      * @note MESSAGE THREAD.
-     * @see action
-     * @see Terminal::Action::registerAction
+     * @see Terminal::Action
      */
     void registerActions();
 
     /** @brief Cached context references; resolved once, used everywhere. */
     Config& config { *Config::getContext() };
     AppState& appState { *AppState::getContext() };
-
-    /**
-     * @brief Global action registry, key dispatcher, and prefix state machine.
-     *
-     * Constructed after `Config` (via cached context reference) and before
-     * `tabs`.  `registerActions()` wires all callbacks into this object after
-     * `tabs` is fully initialised.
-     *
-     * @see Terminal::Action
-     * @see registerActions()
-     */
-    Terminal::Action action;
 
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
     Terminal::LookAndFeel terminalLookAndFeel;
@@ -169,9 +166,9 @@ private:
     void showMessageOverlay();
 
     //==============================================================================
-// #if JUCE_DEBUG
-//     jreng::debug::Widget debug { this, false };
-// #endif
+#if JUCE_DEBUG
+    jreng::debug::Widget debug { this, false };
+#endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

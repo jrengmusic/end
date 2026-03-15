@@ -36,7 +36,6 @@ static const ActionKeyEntry actionKeyTable[]
     { Config::Key::keysPaneUp,           "pane_up",          true  },
     { Config::Key::keysPaneRight,        "pane_right",       true  },
     { Config::Key::keysNewline,          "newline",          false },
-    { Config::Key::keysPopup,             "popup",            true  },
     // TODO: add { Config::Key::keysClosePane, "close_pane", true } once
     // Config::Key::keysClosePane ("keys.close_pane") is added to Config.h
     // and a default value is registered in Config::initDefaults().
@@ -155,6 +154,16 @@ bool Action::handleKeyPress (const juce::KeyPress& key)
 }
 
 //==============================================================================
+void Action::clear()
+{
+    stopTimer();
+    prefixState = PrefixState::idle;
+    entries.clear();
+    globalBindings.clear();
+    modalBindings.clear();
+}
+
+//==============================================================================
 void Action::reload()
 {
     stopTimer();
@@ -203,6 +212,36 @@ void Action::buildKeyMap()
                 if (row.isModal)
                     modalBindings.insert_or_assign (kp, idxIt->second);
                 else
+                    globalBindings.insert_or_assign (kp, idxIt->second);
+            }
+        }
+    }
+
+    // Walk popup entries and populate modal/global bindings.
+    for (const auto& [name, entry] : cfg->getPopups())
+    {
+        if (entry.modal.isNotEmpty())
+        {
+            const juce::KeyPress kp { parseShortcut (entry.modal) };
+
+            if (kp.isValid())
+            {
+                const auto idxIt { idToIndex.find ("popup:" + name) };
+
+                if (idxIt != idToIndex.end())
+                    modalBindings.insert_or_assign (kp, idxIt->second);
+            }
+        }
+
+        if (entry.global.isNotEmpty())
+        {
+            const juce::KeyPress kp { parseShortcut (entry.global) };
+
+            if (kp.isValid())
+            {
+                const auto idxIt { idToIndex.find ("popup_global:" + name) };
+
+                if (idxIt != idToIndex.end())
                     globalBindings.insert_or_assign (kp, idxIt->second);
             }
         }

@@ -141,6 +141,14 @@ juce::String Keyboard::encodeWin32Input (const juce::KeyPress& key) noexcept
     const int juceCode { key.getKeyCode() };
     const auto mods    { key.getModifiers() };
 
+    // Ctrl+letter → send raw control character (0x01–0x1A).
+    // Many TUI apps (Go/bubbletea, Rust/crossterm) don't understand Win32
+    // Input Mode sequences. They expect standard VT control characters.
+    // Ctrl+A = 0x01, Ctrl+B = 0x02, ..., Ctrl+Z = 0x1A.
+    if (juceCode >= 'A' and juceCode <= 'Z'
+        and mods.isCtrlDown() and not mods.isShiftDown() and not mods.isAltDown())
+        return juce::String::charToString (juceCode - 'A' + 1);
+
     const int vk { juceToVk (juceCode) };
 
     juce::String result;

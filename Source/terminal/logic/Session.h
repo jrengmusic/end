@@ -125,6 +125,19 @@ public:
     void setWorkingDirectory (const juce::String& path);
 
     /**
+     * @brief Overrides the shell program and arguments for this session.
+     *
+     * When set, `resized()` launches this command instead of
+     * `Config::Key::shellProgram`.  Must be called before the first
+     * `resized()` call which opens the PTY.
+     *
+     * @param program  Shell command or executable path.
+     * @param args     Arguments passed to the command.
+     * @note MESSAGE THREAD.
+     */
+    void setShellProgram (const juce::String& program, const juce::String& args);
+
+    /**
      * @brief Translates a JUCE key press into a VT escape sequence and writes it to the PTY.
      *
      * Reads `ID::applicationCursor` from the ValueTree (message-thread SSOT) to
@@ -286,6 +299,12 @@ private:
 
     /** @brief Initial working directory for the shell process. */
     juce::String workingDirectory;
+
+    /** @brief Shell program override; empty = use Config default. */
+    juce::String shellOverride;
+
+    /** @brief Shell arguments override; used only when shellOverride is set. */
+    juce::String shellArgsOverride;
 
     /** @brief `true` after the first `resized()` call opens the PTY. */
     bool ttyOpened { false };

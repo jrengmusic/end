@@ -160,6 +160,23 @@ public:
     bool handleKeyPress (const juce::KeyPress& key);
 
     /**
+     * @brief Clears all entries and key bindings.
+     *
+     * Called before re-registering all actions (e.g. on config reload).
+     * The prefix state machine is reset to idle.
+     */
+    void clear();
+
+    /**
+     * @brief Reads Config and rebuilds `globalBindings`, `modalBindings`,
+     *        `prefixKey`, and `prefixTimeoutMs` from registered entries.
+     *
+     * Called after all actions are registered (or re-registered on reload).
+     * The prefix state machine is reset to idle before this runs.
+     */
+    void buildKeyMap();
+
+    /**
      * @brief Re-reads shortcuts from Config and rebuilds the key maps.
      *
      * Registered callbacks are not touched.  The prefix state machine is
@@ -205,15 +222,6 @@ private:
     int prefixTimeoutMs { 1000 };
 
     //==========================================================================
-    /**
-     * @brief Reads Config and rebuilds `globalBindings`, `modalBindings`,
-     *        `prefixKey`, and `prefixTimeoutMs`.
-     *
-     * Called at construction and at the start of `reload()`.  The prefix
-     * state machine is reset to idle before this runs.
-     */
-    void buildKeyMap();
-
     /**
      * @brief Parses a shortcut string (e.g. `"ctrl+shift+["`) into a KeyPress.
      *

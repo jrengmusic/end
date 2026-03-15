@@ -46,6 +46,7 @@
 #include "MainComponent.h"
 #include "AppState.h"
 #include "config/Config.h"
+#include "terminal/action/Action.h"
 #include "terminal/rendering/FontCollection.h"
 
 #if JUCE_WINDOWS
@@ -134,6 +135,12 @@ public:
             cfg->getFloat (Config::Key::windowBlurRadius),
             cfg->getBool (Config::Key::windowAlwaysOnTop),
             cfg->getBool (Config::Key::windowButtons)));
+
+        config.onReload = [this]
+        {
+            if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
+                content->applyConfig();
+        };
     }
 
     /**
@@ -186,6 +193,9 @@ private:
 
     /** @brief Pre-loaded font handles shared by the renderer. */
     FontCollection fontCollection;
+
+    /** @brief Global action registry. Must be constructed after Config. */
+    Terminal::Action action;
 
     /** @brief Embedded Display Mono typefaces; held alive for DirectWrite on Windows. */
     struct DisplayMono

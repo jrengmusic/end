@@ -56,13 +56,21 @@ MainComponent::MainComponent()
     //==============================================================================
     initialiseTabs();
     initialiseMessageOverlay();
-    registerActions();
+    applyConfig();
 
     //==============================================================================
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
     setLookAndFeel (&terminalLookAndFeel);
     juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
+}
 
+void MainComponent::applyConfig()
+{
+    registerActions();
+    tabs->applyConfig();
+    terminalLookAndFeel.setColours();
+    sendLookAndFeelChange();
+    tabs->applyOrientation();
 }
 
 /**
@@ -115,11 +123,13 @@ MainComponent::~MainComponent()
  * then applies the new config to all terminals and the look-and-feel.
  *
  * @note MESSAGE THREAD.
- * @see action
- * @see Terminal::Action::registerAction
+ * @see Terminal::Action
  */
 void MainComponent::registerActions()
 {
+    auto& action { *Terminal::Action::getContext() };
+    action.clear();
+
     action.registerAction ("copy", "Copy", "Copy selection to clipboard", "Edit", false,
         [this]() -> bool
         {
@@ -163,11 +173,6 @@ void MainComponent::registerActions()
         [this]() -> bool
         {
             const auto reloadError { config.reload() };
-            action.reload();
-            tabs->applyConfig();
-            terminalLookAndFeel.setColours();
-            sendLookAndFeelChange();
-            tabs->applyOrientation();
 
             if (reloadError.isEmpty())
                 messageOverlay->showMessage ("RELOADED", 1000);
@@ -268,20 +273,33 @@ void MainComponent::registerActions()
             return true;
         });
 
-    action.registerAction ("popup", "Popup", "Open popup overlay", "Application", true,
-        [this]() -> bool
+    // Register popup actions from Config
+    for (const auto& [name, entry] : config.getPopups())
+    {
+        auto launchPopup { [this, entry]() -> bool
         {
             if (not popup.isActive())
             {
-                auto terminal { std::make_unique<Terminal::Component>() };
+                const auto shell { config.getString (Config::Key::shellProgram) };
+                const auto shellArgs { juce::String ("-c ") + entry.command
+                    + (entry.args.isNotEmpty() ? " " + entry.args : "") };
+
+                auto terminal { std::make_unique<Terminal::Component> (shell, shellArgs, entry.cwd) };
                 popup.show (*getTopLevelComponent(), std::move (terminal));
             }
 
             return true;
-        });
+        }};
+
+        if (entry.modal.isNotEmpty())
+            action.registerAction ("popup:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", true, launchPopup);
+
+        if (entry.global.isNotEmpty())
+            action.registerAction ("popup_global:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", false, launchPopup);
+    }
 
     //==============================================================================
-    action.reload();
+    action.buildKeyMap();
 
     //==============================================================================
     jreng::BackgroundBlur::setCloseCallback (

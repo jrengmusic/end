@@ -1120,12 +1120,23 @@ bool WindowsTTY::waitForData (int timeoutMs)
             }
         }
 
-        // If a read is pending, wait for it to complete.
+        // If a read is pending, wait for data or process exit.
         if (readPending)
         {
-            const DWORD waitResult { WaitForSingleObject (readEvent, static_cast<DWORD> (timeoutMs)) };
+            HANDLE handles[2] { readEvent, process };
+            const DWORD handleCount { process != INVALID_HANDLE_VALUE ? 2u : 1u };
+            const DWORD waitResult { WaitForMultipleObjects (handleCount, handles, FALSE,
+                                                             static_cast<DWORD> (timeoutMs)) };
 
-            if (waitResult == WAIT_OBJECT_0)
+            if (waitResult == WAIT_OBJECT_0 + 1)
+            {
+                // Child process exited — cancel pending read and signal EOF.
+                CancelIo (pipe);
+                readPending = false;
+                readBufferBytes = -1;
+                dataReady = true;
+            }
+            else if (waitResult == WAIT_OBJECT_0)
             {
                 readPending = false;
 
