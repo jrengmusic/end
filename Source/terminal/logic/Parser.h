@@ -872,7 +872,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void performAction (Action action, uint8_t byte) noexcept;
+    void performAction (ParserAction action, uint8_t byte) noexcept;
 
     /**
      * @brief Handles a printable byte, routing it through UTF-8 accumulation.

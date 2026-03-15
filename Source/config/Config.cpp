@@ -42,11 +42,47 @@
  *
  * @note Called at construction and at the start of `reload()`.
  */
+
+#if JUCE_WINDOWS
+/**
+ * @brief Detects the best available shell on Windows.
+ *
+ * Search order:
+ * 1. zsh — MSYS2 (`C:/msys64/usr/bin/zsh.exe`)
+ * 2. zsh — Git for Windows (`C:/Program Files/Git/usr/bin/zsh.exe`)
+ * 3. pwsh — PowerShell 7+ (`C:/Program Files/PowerShell/7/pwsh.exe`)
+ * 4. powershell.exe — legacy fallback (always available)
+ *
+ * @return Pair of {shell path, shell args}.
+ */
+static std::pair<juce::String, juce::String> findDefaultWindowsShell() noexcept
+{
+    static constexpr const char* zshPaths[]
+    {
+        "C:\\msys64\\usr\\bin\\zsh.exe",
+        "C:\\Program Files\\Git\\usr\\bin\\zsh.exe"
+    };
+
+    for (const auto* path : zshPaths)
+    {
+        if (juce::File (path).existsAsFile())
+            return { path, "-l" };
+    }
+
+    const juce::File pwsh { "C:\\Program Files\\PowerShell\\7\\pwsh.exe" };
+
+    if (pwsh.existsAsFile())
+        return { pwsh.getFullPathName(), "" };
+
+    return { "powershell.exe", "" };
+}
+#endif
+
 void Config::initDefaults()
 {
     values[Key::fontFamily] = "Display Mono";
 #if JUCE_WINDOWS
-    values[Key::fontSize] = 12.0f;
+    values[Key::fontSize] = 11.0f;
 #else
     values[Key::fontSize] = 14.0f;
 #endif
@@ -107,15 +143,16 @@ void Config::initDefaults()
 
 #if JUCE_MAC
     values[Key::shellProgram] = "zsh";
+    values[Key::shellArgs] = "-l";
 #elif JUCE_LINUX
     values[Key::shellProgram] = "bash";
-#elif JUCE_WINDOWS
-    values[Key::shellProgram] = "powershell.exe";
-#endif
-#if JUCE_WINDOWS
-    values[Key::shellArgs] = "--login";
-#else
     values[Key::shellArgs] = "-l";
+#elif JUCE_WINDOWS
+    {
+        const auto [shell, args] { findDefaultWindowsShell() };
+        values[Key::shellProgram] = shell;
+        values[Key::shellArgs] = args;
+    }
 #endif
 
     values[Key::scrollbackNumLines] = 10000;
@@ -125,8 +162,8 @@ void Config::initDefaults()
     values[Key::keysCopy] = "cmd+c";
     values[Key::keysPaste] = "cmd+v";
 #else
-    values[Key::keysCopy] = "shift+ctrl+c";
-    values[Key::keysPaste] = "shift+ctrl+v";
+    values[Key::keysCopy] = "ctrl+c";
+    values[Key::keysPaste] = "ctrl+v";
 #endif
     values[Key::keysQuit] = "cmd+q";
     values[Key::keysCloseTab] = "cmd+w";

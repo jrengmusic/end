@@ -291,26 +291,26 @@ void Parser::processTransition (uint8_t byte, const Transition& transition) noex
  * @see dcsHook()
  * @see dcsUnhook()
  */
-void Parser::performAction (Action action, uint8_t byte) noexcept
+void Parser::performAction (ParserAction action, uint8_t byte) noexcept
 {
     switch (action)
     {
-        case Action::none:
-        case Action::ignore:
+        case ParserAction::none:
+        case ParserAction::ignore:
             break;
 
-        case Action::print:
+        case ParserAction::print:
             if (byte == '$' or byte == '+')
                 DBG ("PRINT byte=" + juce::String (byte) + " char=" + juce::String::charToString (byte) + " state=" + juce::String (static_cast<int> (currentState)));
             handlePrintByte (byte);
             break;
 
-        case Action::execute:
+        case ParserAction::execute:
             graphemeState = graphemeSegmentationInit();
             execute (byte);
             break;
 
-        case Action::collect:
+        case ParserAction::collect:
             if (intermediateCount < MAX_INTERMEDIATES)
             {
                 intermediateBuffer[intermediateCount] = byte;
@@ -318,26 +318,26 @@ void Parser::performAction (Action action, uint8_t byte) noexcept
             }
             break;
 
-        case Action::param:
+        case ParserAction::param:
             handleParam (byte);
             break;
 
-        case Action::escDispatch:
+        case ParserAction::escDispatch:
             graphemeState = graphemeSegmentationInit();
             escDispatch (intermediateBuffer, intermediateCount, byte);
             break;
 
-        case Action::csiDispatch:
+        case ParserAction::csiDispatch:
             graphemeState = graphemeSegmentationInit();
             csi.finalize();
             csiDispatch (csi, intermediateBuffer, intermediateCount, byte);
             break;
 
-        case Action::put:
+        case ParserAction::put:
             dcsPut (byte);
             break;
 
-        case Action::oscPut:
+        case ParserAction::oscPut:
             if (oscLength < OSC_BUFFER_CAPACITY)
             {
                 oscBuffer[oscLength] = byte;
@@ -345,16 +345,16 @@ void Parser::performAction (Action action, uint8_t byte) noexcept
             }
             break;
 
-        case Action::oscEnd:
+        case ParserAction::oscEnd:
             oscDispatch (oscBuffer, oscLength);
             break;
 
-        case Action::hook:
+        case ParserAction::hook:
             csi.finalize();
             dcsHook (csi, intermediateBuffer, intermediateCount, byte);
             break;
 
-        case Action::unhook:
+        case ParserAction::unhook:
             dcsUnhook();
             break;
     }

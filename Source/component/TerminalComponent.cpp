@@ -14,8 +14,7 @@
 #include "TerminalComponent.h"
 #include "../AppState.h"
 #include "../config/Config.h"
-#include "../config/KeyBinding.h"
-#include "../config/ModalKeyBinding.h"
+#include "../terminal/action/Action.h"
 
 /**
  * @brief Constructs Terminal::Component and wires all subsystems.
@@ -178,6 +177,11 @@ void Terminal::Component::resized()
 }
 
 
+bool Terminal::Component::hasSelection() const noexcept
+{
+    return boxSelection.active;
+}
+
 void Terminal::Component::copySelection()
 {
     if (boxSelection.active)
@@ -295,69 +299,28 @@ void Terminal::Component::clearSelectionAndScroll()
 
 bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
-    if (ModalKeyBinding::getContext()->handleKeyPress (key))
-        return true;
+    bool handled { Terminal::Action::getContext()->handleKeyPress (key) };
 
-    const int code { key.getKeyCode() };
-    const auto mods { key.getModifiers() };
-
-    const bool isScrollNav { mods.isShiftDown() and not mods.isCommandDown()
-                             and (code == juce::KeyPress::pageUpKey or code == juce::KeyPress::pageDownKey
-                                  or code == juce::KeyPress::homeKey or code == juce::KeyPress::endKey) };
-
-    bool handled { false };
-
-    if (isScrollNav)
+    if (not handled)
     {
-        handleScrollNavigation (code);
-        handled = true;
-    }
-    else
-    {
-        const bool isCtrlC { mods.isCtrlDown() and not mods.isAltDown()
-                             and not mods.isCommandDown() and not mods.isShiftDown()
-                             and code == 'C' };
-        const bool isCtrlV { mods.isCtrlDown() and not mods.isAltDown()
-                             and not mods.isCommandDown() and not mods.isShiftDown()
-                             and code == 'V' };
+        const int code { key.getKeyCode() };
+        const auto mods { key.getModifiers() };
 
-        if (isCtrlC and boxSelection.active)
+        const bool isScrollNav { mods.isShiftDown() and not mods.isCommandDown()
+                                 and (code == juce::KeyPress::pageUpKey or code == juce::KeyPress::pageDownKey
+                                      or code == juce::KeyPress::homeKey or code == juce::KeyPress::endKey) };
+
+        if (isScrollNav)
         {
-            copySelection();
-            handled = true;
-        }
-        else if (isCtrlV)
-        {
-            pasteClipboard();
+            handleScrollNavigation (code);
             handled = true;
         }
         else
         {
-            const bool isAppCommand {
-#if JUCE_MAC
-                mods.isCommandDown()
-#elif JUCE_WINDOWS
-                KeyBinding::isCommandKeyPress (key) or (mods.isAltDown() and code == juce::KeyPress::F4Key)
-#else
-                KeyBinding::isCommandKeyPress (key)
-#endif
-            };
-
-            const bool isAltBlocked {
-#if JUCE_MAC
-                mods.isAltDown()
-#else
-                false
-#endif
-            };
-
-            if (not isAppCommand and not isAltBlocked)
-            {
-                clearSelectionAndScroll();
-                session.handleKeyPress (key);
-                cursor->resetBlink();
-                handled = true;
-            }
+            clearSelectionAndScroll();
+            session.handleKeyPress (key);
+            cursor->resetBlink();
+            handled = true;
         }
     }
 

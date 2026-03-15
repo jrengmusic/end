@@ -12,8 +12,7 @@
  *   dimensions are persisted to `AppState` when the native close button is
  *   pressed (in addition to the Cmd+Q path handled by ENDApplication).
  * - Delegates all keyboard, mouse, and terminal I/O to `Terminal::Tabs`.
- * - Serves as an ApplicationCommandTarget, owning the ApplicationCommandManager
- *   and KeyBinding for command dispatch.
+ * - Owns `Terminal::Action` and registers all user-performable action callbacks.
  *
  * @par Thread context
  * All methods are called on the **MESSAGE THREAD**.
@@ -21,7 +20,7 @@
  * @see Terminal::Tabs
  * @see Config
  * @see ENDApplication::systemRequestedQuit
- * @see KeyBinding
+ * @see Terminal::Action
  */
 
 /*
@@ -42,8 +41,7 @@
 #include "component/MessageOverlay.h"
 #include "component/Tabs.h"
 #include "config/Config.h"
-#include "config/KeyBinding.h"
-#include "config/ModalKeyBinding.h"
+#include "terminal/action/Action.h"
 #include "terminal/rendering/Fonts.h"
 
 /**
@@ -54,10 +52,6 @@
  * Owns the `Terminal::Tabs` container and paints the translucent background
  * layer that shows through the native window blur effect.
  *
- * Inherits `juce::ApplicationCommandTarget` to handle application-wide commands
- * (copy, paste, quit, close/new tab, navigate tabs, reload, zoom) via the
- * JUCE command manager 
-  
  * @par Layout
  * `resized()` gives the full local bounds to `Terminal::Tabs`; each terminal
  * applies its own insets and title-bar offset internally.
@@ -70,11 +64,9 @@
  * @see Terminal::Tabs
  * @see Config::Key::windowColour
  * @see Config::Key::windowOpacity
- * @see KeyBinding
+ * @see Terminal::Action
  */
-class MainComponent
-    : public juce::Component
-    , public juce::ApplicationCommandTarget
+class MainComponent : public juce::Component
 {
 public:
     /** @brief Constructs the component, creates Terminal::Tabs, sets initial size. */
@@ -89,99 +81,35 @@ public:
      */
     void resized() override;
 
-    //==============================================================================
-    // juce::ApplicationCommandTarget overrides
-
-    juce::ApplicationCommandTarget* getNextCommandTarget() override;
-
-    void getAllCommands (juce::Array<juce::CommandID>& commands) override;
-
-    void getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result) override;
-
-    bool perform (const juce::ApplicationCommandTarget::InvocationInfo& info) override;
-
 private:
     /**
-     * @struct CommandDef
-     * @brief Compile-time descriptor for a single application command.
-     *
-     * Each entry pairs a `KeyBinding::CommandID` with the human-readable
-     * metadata that JUCE's `ApplicationCommandInfo::setInfo()` requires.
-     * The static `commandDefs[]` table is iterated by `getAllCommands()`
-     * and `getCommandInfo()` to avoid repetitive switch/case boilerplate.
-     *
-     * @see commandDefs
-     * @see getAllCommands()
-     * @see getCommandInfo()
-     */
-    struct CommandDef
-    {
-        KeyBinding::CommandID id;///< Enum value identifying the command.
-        const char* name;///< Short display name shown in menus.
-        const char* description;///< Tooltip / status-bar description.
-        const char* category;///< Grouping category (Edit, Application, View, Tabs).
-    };
-
-    /**
-     * @brief Compile-time table of every application command.
-     *
-     * Iterated by `getAllCommands()` to register IDs and by
-     * `getCommandInfo()` to populate `ApplicationCommandInfo`.
-     * Order is irrelevant; the table is searched linearly.
-     *
-     * @see CommandDef
-     */
-    static constexpr CommandDef commandDefs[] {
-        { KeyBinding::CommandID::copy,      "Copy",         "Copy selection to clipboard", "Edit"        },
-        { KeyBinding::CommandID::paste,     "Paste",        "Paste from clipboard",        "Edit"        },
-        { KeyBinding::CommandID::quit,      "Quit",         "Quit application",            "Application" },
-        { KeyBinding::CommandID::closeTab,  "Close Tab",    "Close current tab",           "Application" },
-        { KeyBinding::CommandID::reload,    "Reload",       "Reload configuration",        "Application" },
-        { KeyBinding::CommandID::zoomIn,    "Zoom In",      "Increase font size",          "View"        },
-        { KeyBinding::CommandID::zoomOut,   "Zoom Out",     "Decrease font size",          "View"        },
-        { KeyBinding::CommandID::zoomReset, "Zoom Reset",   "Reset font size to default",  "View"        },
-        { KeyBinding::CommandID::newTab,    "New Tab",      "Open a new terminal tab",     "Tabs"        },
-        { KeyBinding::CommandID::prevTab,   "Previous Tab", "Switch to previous tab",      "Tabs"        },
-        { KeyBinding::CommandID::nextTab,          "Next Tab",         "Switch to next tab",          "Tabs"  }
-    };
-
-    /**
-     * @brief Populates `commandActions` with one lambda per command.
+     * @brief Registers all user-performable actions with `Terminal::Action`.
      *
      * Called once from the constructor after `tabs` is fully initialised.
-     * Each lambda captures `this` and returns `true` after executing the
-     * command, matching the `juce::ApplicationCommandTarget::perform()`
-     * return contract.
+     * Each action captures `this` (or `tabs`) and returns `true` if the key
+     * was consumed, or `false` to let it fall through to the PTY.
      *
      * @note MESSAGE THREAD.
-     * @see commandActions
-     * @see perform()
+     * @see action
+     * @see Terminal::Action::registerAction
      */
-    void buildCommandActions();
-
-    /**
-     * @brief Binds the six modal pane/split actions to their tab callbacks.
-     *
-     * Called once from `buildCommandActions()` and again inside the `reload`
-     * command lambda so that action keys are re-registered after a config reload.
-     *
-     * @note MESSAGE THREAD.
-     * @see modalKeyBinding
-     */
-    void bindModalActions();
+    void registerActions();
 
     /** @brief Cached context references; resolved once, used everywhere. */
     Config& config { *Config::getContext() };
     AppState& appState { *AppState::getContext() };
 
-    /** @brief JUCE command manager; owns the keypress-to-command mapping. */
-    juce::ApplicationCommandManager commandManager;
-
-    /** @brief Key binding resolver; reads shortcuts from `config.lua`. */
-    KeyBinding keyBinding { commandManager };
-
-    /** @brief Modal key binding resolver; handles prefix-key sequences from `config.lua`. */
-    ModalKeyBinding modalKeyBinding;
+    /**
+     * @brief Global action registry, key dispatcher, and prefix state machine.
+     *
+     * Constructed after `Config` (via cached context reference) and before
+     * `tabs`.  `registerActions()` wires all callbacks into this object after
+     * `tabs` is fully initialised.
+     *
+     * @see Terminal::Action
+     * @see registerActions()
+     */
+    Terminal::Action action;
 
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
     Terminal::LookAndFeel terminalLookAndFeel;
@@ -210,18 +138,6 @@ private:
         }
     };
 #endif
-
-    /**
-     * @brief Maps command IDs to action lambdas for table-driven dispatch.
-     *
-     * Populated by `buildCommandActions()`.  `perform()` looks up the
-     * incoming `commandID` and invokes the matching lambda.  Each lambda
-     * returns `true` to indicate the command was handled.
-     *
-     * @see buildCommandActions()
-     * @see perform()
-     */
-    jreng::Function::Map<int, bool> commandActions;
 
     /**
      * @brief Creates Terminal::Tabs, attaches GL renderer, wires repaint callback, restores tabs.

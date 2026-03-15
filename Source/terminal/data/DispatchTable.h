@@ -70,8 +70,11 @@ enum class ParserState : uint8_t
  *
  * These actions are returned by the dispatch table and executed by the parser.
  * Each action represents a specific handling routine for the current byte.
+ *
+ * @note Renamed from `Action` to `ParserAction` to avoid a name collision with
+ *       `Terminal::Action` (the user-facing action registry in action/Action.h).
  */
-enum class Action : uint8_t
+enum class ParserAction : uint8_t
 {
     none,          ///< No action, just transition state
     ignore,        ///< Ignore this byte (consume without action)
@@ -99,7 +102,7 @@ enum class Action : uint8_t
 struct Transition
 {
     ParserState nextState;  ///< The state to transition to
-    Action action;          ///< The action to perform
+    ParserAction action;    ///< The action to perform
 };
 
 static_assert (std::is_trivially_copyable_v<Transition>, "Transition must be trivially copyable");
@@ -190,7 +193,7 @@ private:
      * @param a The action to perform
      * @return A Transition struct
      */
-    static Transition make (ParserState s, Action a) noexcept
+    static Transition make (ParserState s, ParserAction a) noexcept
     {
         return { s, a };
     }
@@ -220,20 +223,20 @@ private:
      */
     void applyAnywhere (StateRow& row) noexcept
     {
-        row.at (0x18) = make (ParserState::ground, Action::execute);  // CAN
-        row.at (0x1A) = make (ParserState::ground, Action::execute);  // SUB
-        row.at (0x1B) = make (ParserState::escape, Action::none);      // ESC
-        fillRange (row, 0x80, 0x8F, make (ParserState::ground, Action::execute));
-        row.at (0x90) = make (ParserState::dcsEntry, Action::none);   // DCS
-        fillRange (row, 0x91, 0x97, make (ParserState::ground, Action::execute));
-        row.at (0x98) = make (ParserState::sosPmApcString, Action::none);  // SOS
-        row.at (0x99) = make (ParserState::ground, Action::execute);
-        row.at (0x9A) = make (ParserState::ground, Action::execute);   // DECID
-        row.at (0x9B) = make (ParserState::csiEntry, Action::none);   // CSI
-        row.at (0x9C) = make (ParserState::ground, Action::none);     // ST
-        row.at (0x9D) = make (ParserState::oscString, Action::none);  // OSC
-        row.at (0x9E) = make (ParserState::sosPmApcString, Action::none);  // PM
-        row.at (0x9F) = make (ParserState::sosPmApcString, Action::none);  // APC
+        row.at (0x18) = make (ParserState::ground, ParserAction::execute);  // CAN
+        row.at (0x1A) = make (ParserState::ground, ParserAction::execute);  // SUB
+        row.at (0x1B) = make (ParserState::escape, ParserAction::none);      // ESC
+        fillRange (row, 0x80, 0x8F, make (ParserState::ground, ParserAction::execute));
+        row.at (0x90) = make (ParserState::dcsEntry, ParserAction::none);   // DCS
+        fillRange (row, 0x91, 0x97, make (ParserState::ground, ParserAction::execute));
+        row.at (0x98) = make (ParserState::sosPmApcString, ParserAction::none);  // SOS
+        row.at (0x99) = make (ParserState::ground, ParserAction::execute);
+        row.at (0x9A) = make (ParserState::ground, ParserAction::execute);   // DECID
+        row.at (0x9B) = make (ParserState::csiEntry, ParserAction::none);   // CSI
+        row.at (0x9C) = make (ParserState::ground, ParserAction::none);     // ST
+        row.at (0x9D) = make (ParserState::oscString, ParserAction::none);  // OSC
+        row.at (0x9E) = make (ParserState::sosPmApcString, ParserAction::none);  // PM
+        row.at (0x9F) = make (ParserState::sosPmApcString, ParserAction::none);  // APC
     }
 
     /**
@@ -251,195 +254,195 @@ private:
     void buildGround()
     {
         auto& row { rowFor (ParserState::ground) };
-        fillRange (row, 0x00, 0x17, make (ParserState::ground, Action::execute));
-        row.at (0x19) = make (ParserState::ground, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::ground, Action::execute));
-        fillRange (row, 0x20, 0x7E, make (ParserState::ground, Action::print));
-        row.at (0x7F) = make (ParserState::ground, Action::ignore);
-        fillRange (row, 0xA0, 0xFF, make (ParserState::ground, Action::print));
+        fillRange (row, 0x00, 0x17, make (ParserState::ground, ParserAction::execute));
+        row.at (0x19) = make (ParserState::ground, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::ground, ParserAction::execute));
+        fillRange (row, 0x20, 0x7E, make (ParserState::ground, ParserAction::print));
+        row.at (0x7F) = make (ParserState::ground, ParserAction::ignore);
+        fillRange (row, 0xA0, 0xFF, make (ParserState::ground, ParserAction::print));
         applyAnywhere (row);
-        fillRange (row, 0x80, 0x9F, make (ParserState::ground, Action::print));
+        fillRange (row, 0x80, 0x9F, make (ParserState::ground, ParserAction::print));
     }
 
     void buildEscape()
     {
         auto& row { rowFor (ParserState::escape) };
-        fillRange (row, 0x00, 0x17, make (ParserState::escape, Action::execute));
-        row.at (0x19) = make (ParserState::escape, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::escape, Action::execute));
-        fillRange (row, 0x20, 0x2F, make (ParserState::escapeIntermediate, Action::collect));
-        fillRange (row, 0x30, 0x4F, make (ParserState::ground, Action::escDispatch));
-        row.at (0x50) = make (ParserState::dcsEntry, Action::none);
-        fillRange (row, 0x51, 0x57, make (ParserState::ground, Action::escDispatch));
-        row.at (0x58) = make (ParserState::sosPmApcString, Action::none);
-        row.at (0x59) = make (ParserState::ground, Action::escDispatch);
-        row.at (0x5A) = make (ParserState::ground, Action::escDispatch);
-        row.at (0x5B) = make (ParserState::csiEntry, Action::none);
-        row.at (0x5C) = make (ParserState::ground, Action::escDispatch);
-        row.at (0x5D) = make (ParserState::oscString, Action::none);
-        row.at (0x5E) = make (ParserState::sosPmApcString, Action::none);
-        row.at (0x5F) = make (ParserState::sosPmApcString, Action::none);
-        fillRange (row, 0x60, 0x7E, make (ParserState::ground, Action::escDispatch));
-        row.at (0x7F) = make (ParserState::escape, Action::ignore);
+        fillRange (row, 0x00, 0x17, make (ParserState::escape, ParserAction::execute));
+        row.at (0x19) = make (ParserState::escape, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::escape, ParserAction::execute));
+        fillRange (row, 0x20, 0x2F, make (ParserState::escapeIntermediate, ParserAction::collect));
+        fillRange (row, 0x30, 0x4F, make (ParserState::ground, ParserAction::escDispatch));
+        row.at (0x50) = make (ParserState::dcsEntry, ParserAction::none);
+        fillRange (row, 0x51, 0x57, make (ParserState::ground, ParserAction::escDispatch));
+        row.at (0x58) = make (ParserState::sosPmApcString, ParserAction::none);
+        row.at (0x59) = make (ParserState::ground, ParserAction::escDispatch);
+        row.at (0x5A) = make (ParserState::ground, ParserAction::escDispatch);
+        row.at (0x5B) = make (ParserState::csiEntry, ParserAction::none);
+        row.at (0x5C) = make (ParserState::ground, ParserAction::escDispatch);
+        row.at (0x5D) = make (ParserState::oscString, ParserAction::none);
+        row.at (0x5E) = make (ParserState::sosPmApcString, ParserAction::none);
+        row.at (0x5F) = make (ParserState::sosPmApcString, ParserAction::none);
+        fillRange (row, 0x60, 0x7E, make (ParserState::ground, ParserAction::escDispatch));
+        row.at (0x7F) = make (ParserState::escape, ParserAction::ignore);
         applyAnywhere (row);
     }
 
     void buildEscapeIntermediate()
     {
         auto& row { rowFor (ParserState::escapeIntermediate) };
-        fillRange (row, 0x00, 0x17, make (ParserState::escapeIntermediate, Action::execute));
-        row.at (0x19) = make (ParserState::escapeIntermediate, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::escapeIntermediate, Action::execute));
-        fillRange (row, 0x20, 0x2F, make (ParserState::escapeIntermediate, Action::collect));
-        fillRange (row, 0x30, 0x7E, make (ParserState::ground, Action::escDispatch));
-        row.at (0x7F) = make (ParserState::escapeIntermediate, Action::ignore);
+        fillRange (row, 0x00, 0x17, make (ParserState::escapeIntermediate, ParserAction::execute));
+        row.at (0x19) = make (ParserState::escapeIntermediate, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::escapeIntermediate, ParserAction::execute));
+        fillRange (row, 0x20, 0x2F, make (ParserState::escapeIntermediate, ParserAction::collect));
+        fillRange (row, 0x30, 0x7E, make (ParserState::ground, ParserAction::escDispatch));
+        row.at (0x7F) = make (ParserState::escapeIntermediate, ParserAction::ignore);
         applyAnywhere (row);
     }
 
     void buildCSIEntry()
     {
         auto& row { rowFor (ParserState::csiEntry) };
-        fillRange (row, 0x00, 0x17, make (ParserState::csiEntry, Action::execute));
-        row.at (0x19) = make (ParserState::csiEntry, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::csiEntry, Action::execute));
-        fillRange (row, 0x20, 0x2F, make (ParserState::csiIntermediate, Action::collect));
-        fillRange (row, 0x30, 0x39, make (ParserState::csiParam, Action::param));
-        row.at (0x3A) = make (ParserState::csiParam, Action::param);
-        row.at (0x3B) = make (ParserState::csiParam, Action::param);
-        fillRange (row, 0x3C, 0x3F, make (ParserState::csiParam, Action::collect));
-        fillRange (row, 0x40, 0x7E, make (ParserState::ground, Action::csiDispatch));
-        row.at (0x7F) = make (ParserState::csiEntry, Action::ignore);
+        fillRange (row, 0x00, 0x17, make (ParserState::csiEntry, ParserAction::execute));
+        row.at (0x19) = make (ParserState::csiEntry, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::csiEntry, ParserAction::execute));
+        fillRange (row, 0x20, 0x2F, make (ParserState::csiIntermediate, ParserAction::collect));
+        fillRange (row, 0x30, 0x39, make (ParserState::csiParam, ParserAction::param));
+        row.at (0x3A) = make (ParserState::csiParam, ParserAction::param);
+        row.at (0x3B) = make (ParserState::csiParam, ParserAction::param);
+        fillRange (row, 0x3C, 0x3F, make (ParserState::csiParam, ParserAction::collect));
+        fillRange (row, 0x40, 0x7E, make (ParserState::ground, ParserAction::csiDispatch));
+        row.at (0x7F) = make (ParserState::csiEntry, ParserAction::ignore);
         applyAnywhere (row);
     }
 
     void buildCSIParam()
     {
         auto& row { rowFor (ParserState::csiParam) };
-        fillRange (row, 0x00, 0x17, make (ParserState::csiParam, Action::execute));
-        row.at (0x19) = make (ParserState::csiParam, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::csiParam, Action::execute));
-        fillRange (row, 0x20, 0x2F, make (ParserState::csiIntermediate, Action::collect));
-        fillRange (row, 0x30, 0x39, make (ParserState::csiParam, Action::param));
-        row.at (0x3A) = make (ParserState::csiParam, Action::param);
-        row.at (0x3B) = make (ParserState::csiParam, Action::param);
-        fillRange (row, 0x3C, 0x3F, make (ParserState::csiIgnore, Action::collect));
-        fillRange (row, 0x40, 0x7E, make (ParserState::ground, Action::csiDispatch));
-        row.at (0x7F) = make (ParserState::csiParam, Action::ignore);
+        fillRange (row, 0x00, 0x17, make (ParserState::csiParam, ParserAction::execute));
+        row.at (0x19) = make (ParserState::csiParam, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::csiParam, ParserAction::execute));
+        fillRange (row, 0x20, 0x2F, make (ParserState::csiIntermediate, ParserAction::collect));
+        fillRange (row, 0x30, 0x39, make (ParserState::csiParam, ParserAction::param));
+        row.at (0x3A) = make (ParserState::csiParam, ParserAction::param);
+        row.at (0x3B) = make (ParserState::csiParam, ParserAction::param);
+        fillRange (row, 0x3C, 0x3F, make (ParserState::csiIgnore, ParserAction::collect));
+        fillRange (row, 0x40, 0x7E, make (ParserState::ground, ParserAction::csiDispatch));
+        row.at (0x7F) = make (ParserState::csiParam, ParserAction::ignore);
         applyAnywhere (row);
     }
 
     void buildCSIIntermediate()
     {
         auto& row { rowFor (ParserState::csiIntermediate) };
-        fillRange (row, 0x00, 0x17, make (ParserState::csiIntermediate, Action::execute));
-        row.at (0x19) = make (ParserState::csiIntermediate, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::csiIntermediate, Action::execute));
-        fillRange (row, 0x20, 0x2F, make (ParserState::csiIntermediate, Action::collect));
-        fillRange (row, 0x30, 0x3F, make (ParserState::csiIgnore, Action::ignore));
-        fillRange (row, 0x40, 0x7E, make (ParserState::ground, Action::csiDispatch));
-        row.at (0x7F) = make (ParserState::csiIntermediate, Action::ignore);
+        fillRange (row, 0x00, 0x17, make (ParserState::csiIntermediate, ParserAction::execute));
+        row.at (0x19) = make (ParserState::csiIntermediate, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::csiIntermediate, ParserAction::execute));
+        fillRange (row, 0x20, 0x2F, make (ParserState::csiIntermediate, ParserAction::collect));
+        fillRange (row, 0x30, 0x3F, make (ParserState::csiIgnore, ParserAction::ignore));
+        fillRange (row, 0x40, 0x7E, make (ParserState::ground, ParserAction::csiDispatch));
+        row.at (0x7F) = make (ParserState::csiIntermediate, ParserAction::ignore);
         applyAnywhere (row);
     }
 
     void buildCSIIgnore()
     {
         auto& row { rowFor (ParserState::csiIgnore) };
-        fillRange (row, 0x00, 0x17, make (ParserState::csiIgnore, Action::execute));
-        row.at (0x19) = make (ParserState::csiIgnore, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::csiIgnore, Action::execute));
-        fillRange (row, 0x20, 0x3F, make (ParserState::csiIgnore, Action::ignore));
-        fillRange (row, 0x40, 0x7E, make (ParserState::ground, Action::none));
-        row.at (0x7F) = make (ParserState::csiIgnore, Action::ignore);
+        fillRange (row, 0x00, 0x17, make (ParserState::csiIgnore, ParserAction::execute));
+        row.at (0x19) = make (ParserState::csiIgnore, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::csiIgnore, ParserAction::execute));
+        fillRange (row, 0x20, 0x3F, make (ParserState::csiIgnore, ParserAction::ignore));
+        fillRange (row, 0x40, 0x7E, make (ParserState::ground, ParserAction::none));
+        row.at (0x7F) = make (ParserState::csiIgnore, ParserAction::ignore);
         applyAnywhere (row);
     }
 
     void buildDCSEntry()
     {
         auto& row { rowFor (ParserState::dcsEntry) };
-        fillRange (row, 0x00, 0x17, make (ParserState::dcsEntry, Action::execute));
-        row.at (0x19) = make (ParserState::dcsEntry, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::dcsEntry, Action::execute));
-        fillRange (row, 0x20, 0x2F, make (ParserState::dcsIntermediate, Action::collect));
-        fillRange (row, 0x30, 0x39, make (ParserState::dcsParam, Action::param));
-        row.at (0x3A) = make (ParserState::dcsParam, Action::param);
-        row.at (0x3B) = make (ParserState::dcsParam, Action::param);
-        fillRange (row, 0x3C, 0x3F, make (ParserState::dcsParam, Action::collect));
-        fillRange (row, 0x40, 0x7E, make (ParserState::dcsPassthrough, Action::hook));
-        row.at (0x7F) = make (ParserState::dcsEntry, Action::ignore);
+        fillRange (row, 0x00, 0x17, make (ParserState::dcsEntry, ParserAction::execute));
+        row.at (0x19) = make (ParserState::dcsEntry, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::dcsEntry, ParserAction::execute));
+        fillRange (row, 0x20, 0x2F, make (ParserState::dcsIntermediate, ParserAction::collect));
+        fillRange (row, 0x30, 0x39, make (ParserState::dcsParam, ParserAction::param));
+        row.at (0x3A) = make (ParserState::dcsParam, ParserAction::param);
+        row.at (0x3B) = make (ParserState::dcsParam, ParserAction::param);
+        fillRange (row, 0x3C, 0x3F, make (ParserState::dcsParam, ParserAction::collect));
+        fillRange (row, 0x40, 0x7E, make (ParserState::dcsPassthrough, ParserAction::hook));
+        row.at (0x7F) = make (ParserState::dcsEntry, ParserAction::ignore);
         applyAnywhere (row);
     }
 
     void buildDCSParam()
     {
         auto& row { rowFor (ParserState::dcsParam) };
-        fillRange (row, 0x00, 0x17, make (ParserState::dcsParam, Action::execute));
-        row.at (0x19) = make (ParserState::dcsParam, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::dcsParam, Action::execute));
-        fillRange (row, 0x20, 0x2F, make (ParserState::dcsIntermediate, Action::collect));
-        fillRange (row, 0x30, 0x39, make (ParserState::dcsParam, Action::param));
-        row.at (0x3A) = make (ParserState::dcsParam, Action::param);
-        row.at (0x3B) = make (ParserState::dcsParam, Action::param);
-        fillRange (row, 0x3C, 0x3F, make (ParserState::dcsIgnore, Action::collect));
-        fillRange (row, 0x40, 0x7E, make (ParserState::dcsPassthrough, Action::hook));
-        row.at (0x7F) = make (ParserState::dcsParam, Action::ignore);
+        fillRange (row, 0x00, 0x17, make (ParserState::dcsParam, ParserAction::execute));
+        row.at (0x19) = make (ParserState::dcsParam, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::dcsParam, ParserAction::execute));
+        fillRange (row, 0x20, 0x2F, make (ParserState::dcsIntermediate, ParserAction::collect));
+        fillRange (row, 0x30, 0x39, make (ParserState::dcsParam, ParserAction::param));
+        row.at (0x3A) = make (ParserState::dcsParam, ParserAction::param);
+        row.at (0x3B) = make (ParserState::dcsParam, ParserAction::param);
+        fillRange (row, 0x3C, 0x3F, make (ParserState::dcsIgnore, ParserAction::collect));
+        fillRange (row, 0x40, 0x7E, make (ParserState::dcsPassthrough, ParserAction::hook));
+        row.at (0x7F) = make (ParserState::dcsParam, ParserAction::ignore);
         applyAnywhere (row);
     }
 
     void buildDCSIntermediate()
     {
         auto& row { rowFor (ParserState::dcsIntermediate) };
-        fillRange (row, 0x00, 0x17, make (ParserState::dcsIntermediate, Action::execute));
-        row.at (0x19) = make (ParserState::dcsIntermediate, Action::execute);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::dcsIntermediate, Action::execute));
-        fillRange (row, 0x20, 0x2F, make (ParserState::dcsIntermediate, Action::collect));
-        fillRange (row, 0x30, 0x3F, make (ParserState::dcsIgnore, Action::ignore));
-        fillRange (row, 0x40, 0x7E, make (ParserState::dcsPassthrough, Action::hook));
-        row.at (0x7F) = make (ParserState::dcsIntermediate, Action::ignore);
+        fillRange (row, 0x00, 0x17, make (ParserState::dcsIntermediate, ParserAction::execute));
+        row.at (0x19) = make (ParserState::dcsIntermediate, ParserAction::execute);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::dcsIntermediate, ParserAction::execute));
+        fillRange (row, 0x20, 0x2F, make (ParserState::dcsIntermediate, ParserAction::collect));
+        fillRange (row, 0x30, 0x3F, make (ParserState::dcsIgnore, ParserAction::ignore));
+        fillRange (row, 0x40, 0x7E, make (ParserState::dcsPassthrough, ParserAction::hook));
+        row.at (0x7F) = make (ParserState::dcsIntermediate, ParserAction::ignore);
         applyAnywhere (row);
     }
 
     void buildDCSPassthrough()
     {
         auto& row { rowFor (ParserState::dcsPassthrough) };
-        fillRange (row, 0x00, 0x17, make (ParserState::dcsPassthrough, Action::put));
-        row.at (0x19) = make (ParserState::dcsPassthrough, Action::put);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::dcsPassthrough, Action::put));
-        fillRange (row, 0x20, 0x7E, make (ParserState::dcsPassthrough, Action::put));
-        row.at (0x7F) = make (ParserState::dcsPassthrough, Action::ignore);
-        row.at (0x9C) = make (ParserState::ground, Action::unhook);
-        row.at (0x1B) = make (ParserState::escape, Action::none);
+        fillRange (row, 0x00, 0x17, make (ParserState::dcsPassthrough, ParserAction::put));
+        row.at (0x19) = make (ParserState::dcsPassthrough, ParserAction::put);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::dcsPassthrough, ParserAction::put));
+        fillRange (row, 0x20, 0x7E, make (ParserState::dcsPassthrough, ParserAction::put));
+        row.at (0x7F) = make (ParserState::dcsPassthrough, ParserAction::ignore);
+        row.at (0x9C) = make (ParserState::ground, ParserAction::unhook);
+        row.at (0x1B) = make (ParserState::escape, ParserAction::none);
     }
 
     void buildDCSIgnore()
     {
         auto& row { rowFor (ParserState::dcsIgnore) };
-        fillRange (row, 0x00, 0x7F, make (ParserState::dcsIgnore, Action::ignore));
-        row.at (0x9C) = make (ParserState::ground, Action::none);
-        row.at (0x1B) = make (ParserState::escape, Action::none);
+        fillRange (row, 0x00, 0x7F, make (ParserState::dcsIgnore, ParserAction::ignore));
+        row.at (0x9C) = make (ParserState::ground, ParserAction::none);
+        row.at (0x1B) = make (ParserState::escape, ParserAction::none);
     }
 
     void buildOSCString()
     {
         auto& row { rowFor (ParserState::oscString) };
-        fillRange (row, 0x00, 0x06, make (ParserState::oscString, Action::ignore));
-        row.at (0x07) = make (ParserState::ground, Action::oscEnd);
-        fillRange (row, 0x08, 0x17, make (ParserState::oscString, Action::ignore));
-        row.at (0x19) = make (ParserState::oscString, Action::ignore);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::oscString, Action::ignore));
-        fillRange (row, 0x20, 0x7F, make (ParserState::oscString, Action::oscPut));
-        row.at (0x9C) = make (ParserState::ground, Action::oscEnd);
-        row.at (0x1B) = make (ParserState::escape, Action::none);
+        fillRange (row, 0x00, 0x06, make (ParserState::oscString, ParserAction::ignore));
+        row.at (0x07) = make (ParserState::ground, ParserAction::oscEnd);
+        fillRange (row, 0x08, 0x17, make (ParserState::oscString, ParserAction::ignore));
+        row.at (0x19) = make (ParserState::oscString, ParserAction::ignore);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::oscString, ParserAction::ignore));
+        fillRange (row, 0x20, 0x7F, make (ParserState::oscString, ParserAction::oscPut));
+        row.at (0x9C) = make (ParserState::ground, ParserAction::oscEnd);
+        row.at (0x1B) = make (ParserState::escape, ParserAction::none);
     }
 
     void buildSosPmApc()
     {
         auto& row { rowFor (ParserState::sosPmApcString) };
-        fillRange (row, 0x00, 0x17, make (ParserState::sosPmApcString, Action::ignore));
-        row.at (0x19) = make (ParserState::sosPmApcString, Action::ignore);
-        fillRange (row, 0x1C, 0x1F, make (ParserState::sosPmApcString, Action::ignore));
-        fillRange (row, 0x20, 0x7F, make (ParserState::sosPmApcString, Action::ignore));
-        row.at (0x9C) = make (ParserState::ground, Action::none);
-        row.at (0x1B) = make (ParserState::escape, Action::none);
+        fillRange (row, 0x00, 0x17, make (ParserState::sosPmApcString, ParserAction::ignore));
+        row.at (0x19) = make (ParserState::sosPmApcString, ParserAction::ignore);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::sosPmApcString, ParserAction::ignore));
+        fillRange (row, 0x20, 0x7F, make (ParserState::sosPmApcString, ParserAction::ignore));
+        row.at (0x9C) = make (ParserState::ground, ParserAction::none);
+        row.at (0x1B) = make (ParserState::escape, ParserAction::none);
     }
 };
 

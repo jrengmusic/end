@@ -125,6 +125,17 @@ public:
     jreng::Owner<Terminal::Component>& getTerminals() noexcept;
 
     /**
+     * @brief Returns `true` if the active terminal has a non-degenerate selection.
+     *
+     * Forwards to `Terminal::Component::hasSelection()` on the active terminal.
+     * Returns `false` if there is no active terminal.
+     *
+     * @return `true` if a selection is active and can be copied.
+     * @note MESSAGE THREAD.
+     */
+    bool hasSelection() const noexcept;
+
+    /**
      * @brief Copy the current selection to clipboard.
      *
      * Forwards to getActiveTerminal().

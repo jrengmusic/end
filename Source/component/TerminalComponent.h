@@ -281,6 +281,17 @@ public:
     std::function<void()> onRepaintNeeded;
 
     /**
+     * @brief Returns `true` if a non-degenerate box selection is currently active.
+     *
+     * Used by the copy action to decide whether to consume the key or let it
+     * fall through to the PTY as `\x03`.
+     *
+     * @return `true` if `boxSelection.active` is set.
+     * @note MESSAGE THREAD.
+     */
+    bool hasSelection() const noexcept;
+
+    /**
      * @brief Copies the current text selection to the system clipboard.
      *
      * Clears the selection after copying.

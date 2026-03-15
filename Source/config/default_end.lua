@@ -238,7 +238,7 @@ END = {
 		program = "%%shell_program%%",
 
 		-- Arguments passed to the shell program (space-separated string).
-		-- Default: "-l" on Unix, "--login" on Windows.
+		-- Default: "-l" on Unix (login shell), "" on Windows.
 		-- Set to "" to launch the shell with no arguments.
 		args = "%%shell_args%%",
 	},

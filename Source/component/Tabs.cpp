@@ -263,6 +263,14 @@ Terminal::Component* Tabs::getActiveTerminal() const noexcept
     return nullptr;
 }
 
+bool Tabs::hasSelection() const noexcept
+{
+    if (const auto* t { getActiveTerminal() }; t != nullptr)
+        return t->hasSelection();
+
+    return false;
+}
+
 void Tabs::copySelection()
 {
     if (auto* t { getActiveTerminal() }; t != nullptr)

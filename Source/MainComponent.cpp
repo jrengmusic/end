@@ -6,14 +6,13 @@
  * persisted state, and registers a close callback so that window dimensions
  * are saved when the native close button is pressed.
  *
- * Also owns the ApplicationCommandManager and KeyBinding to handle application
- * commands (copy, paste, quit, tab management, reload, zoom) via JUCE command
- * system.
+ * Owns `Terminal::Action` and registers all user-performable action callbacks
+ * via `registerActions()`.
  *
  * @see MainComponent
  * @see Terminal::Tabs
  * @see Config
- * @see KeyBinding
+ * @see Terminal::Action
  */
 
 /*
@@ -34,7 +33,7 @@
  *
  * Member init order (declared in header):
  * - `config`, `appState` — cached context references
- * - `commandManager`, `keyBinding` — command dispatch
+ * - `action` — global action registry (constructed after Config)
  * - `terminalLookAndFeel` — application-wide LookAndFeel
  * - `glRenderer` — OpenGL renderer
  * - `fonts` — global font context (from config)
@@ -43,8 +42,8 @@
  * 1. `setOpaque(false)` — tells JUCE the component has transparency.
  * 2. `initialiseTabs()` — creates Tabs, attaches GL renderer, adds first tab.
  * 3. `initialiseMessageOverlay()` — creates overlay, shows startup errors.
- * 4. `buildCommandActions()` — populates command table, registers keybindings,
- *    sets BackgroundBlur close callback.
+ * 4. `registerActions()` — wires all action callbacks into `action`, sets
+ *    BackgroundBlur close callback.
  * 5. `setSize()` — reads window dimensions from AppState.
  * 6. `setDefaultLookAndFeel()` — applies terminalLookAndFeel to all children.
  *
@@ -57,7 +56,7 @@ MainComponent::MainComponent()
     //==============================================================================
     initialiseTabs();
     initialiseMessageOverlay();
-    buildCommandActions();
+    registerActions();
 
     //==============================================================================
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
@@ -95,212 +94,182 @@ MainComponent::~MainComponent()
     setLookAndFeel (nullptr);
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
     jreng::BackgroundBlur::setCloseCallback (nullptr);
-    removeKeyListener (commandManager.getKeyMappings());
     glRenderer.detach();
 }
 
 
 /**
- * @brief Populates commandActions with one lambda per command.
+ * @brief Registers all user-performable actions with `Terminal::Action`.
+ *
+ * Wires every action callback into `action` and sets the BackgroundBlur
+ * close callback.  Called once from the constructor after `tabs` and
+ * `messageOverlay` are fully initialised.
+ *
+ * ### Copy action
+ * Returns `false` when no selection is active so the key falls through to
+ * the PTY as `\x03` (SIGINT).  Returns `true` only when a selection was
+ * actually copied.
+ *
+ * ### Reload action
+ * Calls `action.reload()` to rebuild the key map from the updated config,
+ * then applies the new config to all terminals and the look-and-feel.
+ *
  * @note MESSAGE THREAD.
- * @see commandActions
- * @see perform()
+ * @see action
+ * @see Terminal::Action::registerAction
  */
-void MainComponent::buildCommandActions()
+void MainComponent::registerActions()
 {
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::copy),
-                        [this]() -> bool
-                        {
-                            tabs->copySelection();
-                            return true;
-                        });
+    action.registerAction ("copy", "Copy", "Copy selection to clipboard", "Edit", false,
+        [this]() -> bool
+        {
+            bool consumed { false };
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::paste),
-                        [this]() -> bool
-                        {
-                            tabs->pasteClipboard();
-                            return true;
-                        });
+            if (tabs->hasSelection())
+            {
+                tabs->copySelection();
+                consumed = true;
+            }
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::quit),
-                        [this]() -> bool
-                        {
-                            juce::JUCEApplication::getInstance()->systemRequestedQuit();
-                            return true;
-                        });
+            return consumed;
+        });
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::closeTab),
-                        [this]() -> bool
-                        {
-                            tabs->closeActiveTab();
-                            if (tabs->getTabCount() == 0)
-                                juce::JUCEApplication::getInstance()->systemRequestedQuit();
-                            return true;
-                        });
+    action.registerAction ("paste", "Paste", "Paste from clipboard", "Edit", false,
+        [this]() -> bool
+        {
+            tabs->pasteClipboard();
+            return true;
+        });
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::reload),
-                        [this]() -> bool
-                        {
-                            keyBinding.reload();
-                            commandManager.registerAllCommandsForTarget (this);
-                            keyBinding.applyMappings();
-                            modalKeyBinding.reload();
-                            bindModalActions();
-                            const auto reloadError { config.reload() };
-                            tabs->applyConfig();
-                            terminalLookAndFeel.setColours();
-                            sendLookAndFeelChange();
-                            tabs->applyOrientation();
-                            if (reloadError.isEmpty())
-                                messageOverlay->showMessage ("RELOADED", 1000);
-                            else
-                                messageOverlay->showMessage (reloadError);
-                            return true;
-                        });
+    action.registerAction ("quit", "Quit", "Quit application", "Application", false,
+        [this]() -> bool
+        {
+            juce::JUCEApplication::getInstance()->systemRequestedQuit();
+            return true;
+        });
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomIn),
-                        [this]() -> bool
-                        {
-                            tabs->increaseZoom();
-                            return true;
-                        });
+    action.registerAction ("close_tab", "Close Tab", "Close current tab", "Tabs", false,
+        [this]() -> bool
+        {
+            tabs->closeActiveTab();
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomOut),
-                        [this]() -> bool
-                        {
-                            tabs->decreaseZoom();
-                            return true;
-                        });
+            if (tabs->getTabCount() == 0)
+                juce::JUCEApplication::getInstance()->systemRequestedQuit();
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::zoomReset),
-                        [this]() -> bool
-                        {
-                            tabs->resetZoom();
-                            return true;
-                        });
+            return true;
+        });
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::newTab),
-                        [this]() -> bool
-                        {
-                            tabs->addNewTab();
-                            return true;
-                        });
+    action.registerAction ("reload_config", "Reload Config", "Reload configuration", "Application", false,
+        [this]() -> bool
+        {
+            const auto reloadError { config.reload() };
+            action.reload();
+            tabs->applyConfig();
+            terminalLookAndFeel.setColours();
+            sendLookAndFeelChange();
+            tabs->applyOrientation();
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::prevTab),
-                        [this]() -> bool
-                        {
-                            tabs->selectPreviousTab();
-                            return true;
-                        });
+            if (reloadError.isEmpty())
+                messageOverlay->showMessage ("RELOADED", 1000);
+            else
+                messageOverlay->showMessage (reloadError);
 
-    commandActions.add (static_cast<int> (KeyBinding::CommandID::nextTab),
-                        [this]() -> bool
-                        {
-                            tabs->selectNextTab();
-                            return true;
-                        });
+            return true;
+        });
+
+    action.registerAction ("zoom_in", "Zoom In", "Increase font size", "View", false,
+        [this]() -> bool
+        {
+            tabs->increaseZoom();
+            return true;
+        });
+
+    action.registerAction ("zoom_out", "Zoom Out", "Decrease font size", "View", false,
+        [this]() -> bool
+        {
+            tabs->decreaseZoom();
+            return true;
+        });
+
+    action.registerAction ("zoom_reset", "Zoom Reset", "Reset font size to default", "View", false,
+        [this]() -> bool
+        {
+            tabs->resetZoom();
+            return true;
+        });
+
+    action.registerAction ("new_tab", "New Tab", "Open a new terminal tab", "Tabs", false,
+        [this]() -> bool
+        {
+            tabs->addNewTab();
+            return true;
+        });
+
+    action.registerAction ("prev_tab", "Previous Tab", "Switch to previous tab", "Tabs", false,
+        [this]() -> bool
+        {
+            tabs->selectPreviousTab();
+            return true;
+        });
+
+    action.registerAction ("next_tab", "Next Tab", "Switch to next tab", "Tabs", false,
+        [this]() -> bool
+        {
+            tabs->selectNextTab();
+            return true;
+        });
+
+    action.registerAction ("split_horizontal", "Split Horizontal", "Split pane horizontally", "Panes", true,
+        [this]() -> bool
+        {
+            tabs->splitHorizontal();
+            return true;
+        });
+
+    action.registerAction ("split_vertical", "Split Vertical", "Split pane vertically", "Panes", true,
+        [this]() -> bool
+        {
+            tabs->splitVertical();
+            return true;
+        });
+
+    action.registerAction ("pane_left", "Focus Left Pane", "Move focus to the left pane", "Panes", true,
+        [this]() -> bool
+        {
+            tabs->focusPaneLeft();
+            return true;
+        });
+
+    action.registerAction ("pane_down", "Focus Down Pane", "Move focus to the pane below", "Panes", true,
+        [this]() -> bool
+        {
+            tabs->focusPaneDown();
+            return true;
+        });
+
+    action.registerAction ("pane_up", "Focus Up Pane", "Move focus to the pane above", "Panes", true,
+        [this]() -> bool
+        {
+            tabs->focusPaneUp();
+            return true;
+        });
+
+    action.registerAction ("pane_right", "Focus Right Pane", "Move focus to the right pane", "Panes", true,
+        [this]() -> bool
+        {
+            tabs->focusPaneRight();
+            return true;
+        });
 
     //==============================================================================
-    bindModalActions();
+    action.reload();
 
     //==============================================================================
-    commandManager.registerAllCommandsForTarget (this);
-    keyBinding.applyMappings();
-    addKeyListener (commandManager.getKeyMappings());
-
     jreng::BackgroundBlur::setCloseCallback (
         [this]()
         {
             appState.setWindowSize (getWidth(), getHeight());
         });
-}
-
-/**
- * @brief Binds the six modal pane/split actions to their tab callbacks.
- * @note MESSAGE THREAD.
- * @see modalKeyBinding
- */
-void MainComponent::bindModalActions()
-{
-    modalKeyBinding.setAction (ModalKeyBinding::Action::paneLeft,
-                               [this]() { tabs->focusPaneLeft(); });
-    modalKeyBinding.setAction (ModalKeyBinding::Action::paneDown,
-                               [this]() { tabs->focusPaneDown(); });
-    modalKeyBinding.setAction (ModalKeyBinding::Action::paneUp,
-                               [this]() { tabs->focusPaneUp(); });
-    modalKeyBinding.setAction (ModalKeyBinding::Action::paneRight,
-                               [this]() { tabs->focusPaneRight(); });
-    modalKeyBinding.setAction (ModalKeyBinding::Action::splitHorizontal,
-                               [this]() { tabs->splitHorizontal(); });
-    modalKeyBinding.setAction (ModalKeyBinding::Action::splitVertical,
-                               [this]() { tabs->splitVertical(); });
-}
-
-//==============================================================================
-// juce::ApplicationCommandTarget implementation
-
-/**
- * @brief Returns nullptr, indicating no next target.
- * @note MESSAGE THREAD.
- * @return Always nullptr.
- */
-juce::ApplicationCommandTarget* MainComponent::getNextCommandTarget() { return nullptr; }
-
-/**
- * @brief Populates the commands array with all registered command IDs.
- * @note MESSAGE THREAD.
- * @param commands Array to receive command IDs.
- * @see commandDefs
- */
-void MainComponent::getAllCommands (juce::Array<juce::CommandID>& commands)
-{
-    for (const auto& def : commandDefs)
-    {
-        commands.add (static_cast<int> (def.id));
-    }
-}
-
-/**
- * @brief Populates ApplicationCommandInfo for the given command ID.
- * @note MESSAGE THREAD.
- * @param commandID The command to query.
- * @param result Structure to receive command metadata.
- * @see commandDefs
- * @see keyBinding
- */
-void MainComponent::getCommandInfo (juce::CommandID commandID, juce::ApplicationCommandInfo& result)
-{
-    for (const auto& def : commandDefs)
-    {
-        if (static_cast<int> (def.id) == commandID)
-        {
-            result.setInfo (def.name, def.description, def.category, 0);
-
-            if (const auto keypress { keyBinding.getBinding (def.id) }; keypress.isValid())
-                result.addDefaultKeypress (keypress.getKeyCode(), keypress.getModifiers());
-
-#if JUCE_WINDOWS
-            if (def.id == KeyBinding::CommandID::quit)
-                result.addDefaultKeypress (juce::KeyPress::F4Key, juce::ModifierKeys::altModifier);
-#endif
-            break;
-        }
-    }
-}
-
-/**
- * @brief Dispatches the command to its action lambda.
- * @note MESSAGE THREAD.
- * @param info Invocation details containing command ID.
- * @return true if command was found and executed.
- * @see commandActions
- */
-bool MainComponent::perform (const juce::ApplicationCommandTarget::InvocationInfo& info)
-{
-    if (commandActions.contains (info.commandID))
-        return commandActions.get (info.commandID);
-
-    return false;
 }
 
 /**

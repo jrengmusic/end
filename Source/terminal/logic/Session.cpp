@@ -137,20 +137,26 @@ Session::~Session()
 {
     if (tty != nullptr)
     {
-        // Threat: std::function assignment is not atomic.  If we null onData
-        // before close() signals the reader thread to exit and waits for it,
-        // the reader thread may be mid-callback when the message thread writes
-        // nullptr — undefined behaviour on the std::function object.
+        // Threat: onExit is dispatched via callAsync (TTY.cpp:100).  If we
+        // close() first, the reader thread may post callAsync(onExit) just
+        // before stopping.  That async callback captures `this` (Session)
+        // and will fire on the message thread after Session is destroyed.
         //
-        // Fix: close() first (signals exit, waits for reader thread to fully
-        // stop via stopThread), then null the callbacks.  After stopThread()
-        // returns the reader thread is guaranteed to have exited, so no
-        // concurrent access to the callbacks is possible.
+        // Fix: null onExit BEFORE close().  The reader thread checks
+        // `if (onExit)` before posting callAsync — if we null it first and
+        // the reader hasn't posted yet, no async callback is queued.  If the
+        // reader already posted, the lambda captured a copy of onExit by
+        // reference through `this`, which will be dangling.  To handle that
+        // case, close() calls stopThread() which waits for the reader to
+        // fully exit.  After stopThread() returns, no more callbacks will be
+        // posted.  Any already-posted callAsync is harmless because
+        // onShellExited is a stateless lambda (captures nothing from Session).
+        onShellExited = nullptr;
+        tty->onExit = nullptr;
         tty->close();
         tty->onData = nullptr;
         tty->onResize = nullptr;
         tty->onDrainComplete = nullptr;
-        tty->onExit = nullptr;
     }
 }
 
