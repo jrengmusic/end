@@ -313,10 +313,27 @@ struct Config : jreng::Context<Config>
         inline static const juce::String shellArgs { "shell.args" };
 
         /** @brief Maximum number of scrollback lines retained in the grid. */
-        inline static const juce::String scrollbackNumLines { "scrollback.num_lines" };
+        inline static const juce::String terminalScrollbackLines { "terminal.scrollback_lines" };
 
-        /** @brief Number of lines scrolled per mouse-wheel tick. */
-        inline static const juce::String scrollbackStep { "scrollback.step" };
+        /** @brief Number of lines scrolled per mouse-wheel tick and scrollback keyboard navigation. */
+        inline static const juce::String terminalScrollStep { "terminal.scroll_step" };
+
+        /**
+         * @brief Grid padding — top edge inset in logical pixels (0–200).
+         *
+         * Parsed from the four-value `terminal.padding` array in end.lua.
+         * Order: top, right, bottom, left (CSS convention).
+         */
+        inline static const juce::String terminalPaddingTop    { "terminal.padding_top" };
+
+        /** @brief Grid padding — right edge inset in logical pixels (0–200). */
+        inline static const juce::String terminalPaddingRight  { "terminal.padding_right" };
+
+        /** @brief Grid padding — bottom edge inset in logical pixels (0–200). */
+        inline static const juce::String terminalPaddingBottom { "terminal.padding_bottom" };
+
+        /** @brief Grid padding — left edge inset in logical pixels (0–200). */
+        inline static const juce::String terminalPaddingLeft   { "terminal.padding_left" };
 
         inline static const juce::String keysCopy { "keys.copy" };
         inline static const juce::String keysPaste { "keys.paste" };

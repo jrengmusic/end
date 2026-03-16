@@ -638,7 +638,7 @@ def build_font(cfg):
     fb.setupGlyf(tt_glyphs)
     fb.setupHorizontalMetrics(metrics)
 
-    fb.setupHorizontalHeader(ascent=ASC + LINE_GAP, descent=DESC - LINE_GAP)
+    fb.setupHorizontalHeader(ascent=ASC, descent=DESC, lineGap=LINE_GAP)
 
     style = cfg["style"]
     is_ribbi = style in ("Regular", "Bold", "Italic", "Bold Italic")
@@ -676,7 +676,7 @@ def build_font(cfg):
     name_table.setName(win_family, 1, 3, 1, 0x0409)
     name_table.setName(win_style, 2, 3, 1, 0x0409)
 
-    fs_sel = 0xA0 if style == "Bold" else 0xC0
+    fs_sel = 0x20 if style == "Bold" else 0x40  # BOLD=0x20, REGULAR=0x40 (no USE_TYPO_METRICS)
 
     from fontTools.ttLib.tables.O_S_2f_2 import Panose
 
@@ -696,11 +696,11 @@ def build_font(cfg):
 
     fb.setupOS2(
         version=4,
-        sTypoAscender=ASC + LINE_GAP,
-        sTypoDescender=DESC - LINE_GAP,
-        sTypoLineGap=0,
-        usWinAscent=ASC + LINE_GAP,
-        usWinDescent=abs(DESC) + LINE_GAP,
+        sTypoAscender=ASC,
+        sTypoDescender=DESC,
+        sTypoLineGap=LINE_GAP,
+        usWinAscent=ASC,
+        usWinDescent=abs(DESC),
         sxHeight=X_H,
         sCapHeight=CAP_H,
         fsType=0,

@@ -145,21 +145,28 @@ juce::Rectangle<int> Screen::getCellBounds (int col, int row) const noexcept
 /**
  * @brief Returns the grid cell that contains the logical pixel point (@p x, @p y).
  *
- * Subtracts the viewport origin, divides by cell dimensions, and clamps to
- * the valid grid range.  Returns (0, 0) if cell dimensions are zero.
+ * Converts the logical offset from the viewport origin to physical pixels by
+ * multiplying by the display scale, then divides by `physCellWidth` /
+ * `physCellHeight` — the same physical grid the GL renderer uses.  This
+ * matches the inverse of `getCellBounds()` and eliminates per-row rounding
+ * drift at fractional DPI scales (e.g. 125%, 150%) where
+ * `physCellHeight / scale ≠ cellHeight` due to integer truncation.
  *
- * @param x  Logical pixel X coordinate.
- * @param y  Logical pixel Y coordinate.
+ * @param x  Logical pixel X coordinate (component-local).
+ * @param y  Logical pixel Y coordinate (component-local).
  * @return   Grid cell (col, row) clamped to [0, numCols-1] × [0, numRows-1].
  */
 juce::Point<int> Screen::cellAtPoint (int x, int y) const noexcept
 {
     juce::Point<int> result { 0, 0 };
 
-    if (cellWidth > 0 and cellHeight > 0)
+    if (physCellWidth > 0 and physCellHeight > 0)
     {
-        const int col { juce::jlimit (0, numCols - 1, (x - viewportX) / cellWidth) };
-        const int row { juce::jlimit (0, numRows - 1, (y - viewportY) / cellHeight) };
+        const float scale { Fonts::getDisplayScale() };
+        const int physX { static_cast<int> (static_cast<float> (x - viewportX) * scale) };
+        const int physY { static_cast<int> (static_cast<float> (y - viewportY) * scale) };
+        const int col { juce::jlimit (0, numCols - 1, physX / physCellWidth) };
+        const int row { juce::jlimit (0, numRows - 1, physY / physCellHeight) };
         result = { col, row };
     }
 

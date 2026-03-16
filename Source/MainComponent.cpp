@@ -350,15 +350,23 @@ void MainComponent::showMessageOverlay()
                 content = content.withTrimmedRight (depth);
 
             const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? 24 : 0 };
-            content.removeFromTop (titleBarHeight);
-            content = content.reduced (10, 10);
+            const int padTop    { config.getInt (Config::Key::terminalPaddingTop) };
+            const int padRight  { config.getInt (Config::Key::terminalPaddingRight) };
+            const int padBottom { config.getInt (Config::Key::terminalPaddingBottom) };
+            const int padLeft   { config.getInt (Config::Key::terminalPaddingLeft) };
+
+            content.removeFromTop    (titleBarHeight);
+            content.removeFromTop    (padTop);
+            content.removeFromRight  (padRight);
+            content.removeFromBottom (padBottom);
+            content.removeFromLeft   (padLeft);
 
             const int cols { content.getWidth() / fm.logicalCellW };
             const int rows { content.getHeight() / fm.logicalCellH };
 
             if (cols > 0 and rows > 0 and isShowing())
             {
-                messageOverlay->showMessage (juce::String (cols) + " col * " + juce::String (rows) + " row", 1000);
+                messageOverlay->showResize (cols, rows, padTop, padRight, padBottom, padLeft);
             }
         }
     }

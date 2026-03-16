@@ -54,7 +54,7 @@ Grid::Grid (State& initState)
     : state (initState)
     , cols { state.getCols() }
     , visibleRows { state.getVisibleRows() }
-    , scrollbackCapacity { Config::getContext()->getInt (Config::Key::scrollbackNumLines) }
+    , scrollbackCapacity { Config::getContext()->getInt (Config::Key::terminalScrollbackLines) }
 {
     initBuffer (buffers.at (normal), cols, visibleRows + scrollbackCapacity, visibleRows);
     initBuffer (buffers.at (alternate), cols, visibleRows, visibleRows);

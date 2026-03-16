@@ -182,18 +182,21 @@ Terminal::Component::~Component()
 /**
  * @brief Lays out the screen viewport, notifies Session of new grid size.
  *
- * Removes the title-bar height from the top, then applies horizontal and
- * vertical insets to produce the content area passed to `Screen::setViewport()`.
- * After the viewport is set, the grid dimensions are known and the Session is
- * notified via `Session::resized()`.  The cursor is repositioned.
+ * Removes the title-bar height from the top, then applies the four configurable
+ * padding values (`terminal.padding`) to produce the content area passed to
+ * `Screen::setViewport()`.  After the viewport is set, the grid dimensions are
+ * known and the Session is notified via `Session::resized()`.
  *
  * @note MESSAGE THREAD — called by JUCE on every resize event.
  */
 void Terminal::Component::resized()
 {
     auto contentArea { getLocalBounds() };
-    contentArea.removeFromTop (titleBarHeight);
-    contentArea = contentArea.reduced (horizontalInset, verticalInset);
+    contentArea.removeFromTop    (titleBarHeight);
+    contentArea.removeFromTop    (paddingTop);
+    contentArea.removeFromRight  (paddingRight);
+    contentArea.removeFromBottom (paddingBottom);
+    contentArea.removeFromLeft   (paddingLeft);
 
     if (contentArea.getWidth() > 0 and contentArea.getHeight() > 0)
     {
@@ -382,7 +385,7 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
  */
 void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
-    static constexpr int scrollLines { 3 };
+    const int scrollLines { Config::getContext()->getInt (Config::Key::terminalScrollStep) };
     const bool scrollUp { wheel.deltaY > 0.0f };
     const auto activeScreen { session.getState().getActiveScreen() };
 
@@ -390,12 +393,14 @@ void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const j
     {
         if (shouldForwardMouseToPty())
         {
-            const int keyCode { scrollUp ? juce::KeyPress::upKey : juce::KeyPress::downKey };
-            const juce::KeyPress arrow { keyCode, juce::ModifierKeys::noModifiers, 0 };
+            // SGR mouse wheel: button 64 = wheel up, 65 = wheel down.
+            // Send one event per scroll step (scrollLines ticks).
+            const int button { scrollUp ? 64 : 65 };
+            const auto cell { screen.cellAtPoint (event.x, event.y) };
 
             for (int i { 0 }; i < scrollLines; ++i)
             {
-                session.handleKeyPress (arrow);
+                session.writeMouseEvent (button, cell.x, cell.y, true);
             }
         }
     }
@@ -781,11 +786,13 @@ bool Terminal::Component::isMouseTracking() const noexcept
  * @brief Returns whether mouse events should be forwarded to the PTY.
  *
  * Returns true when the PTY should receive mouse events instead of the
- * component performing text selection:
- * - If any mouse-tracking mode is active (works on macOS/Linux).
- * - On Windows: if the alternate screen is active (ConPTY workaround —
- *   ConPTY intercepts DECSET mouse mode sequences so `isMouseTracking()`
- *   always returns false on Windows even when a TUI app requests tracking).
+ * component performing text selection — i.e. when any mouse-tracking mode
+ * is active.
+ *
+ * On Windows, `isMouseTracking()` works correctly because the sideloaded
+ * ConPTY (`conpty.dll` + `OpenConsole.exe`) forwards DECSET mouse mode
+ * sequences through the pipe to END's parser, unlike the inbox conhost
+ * which intercepts them.
  *
  * @return @c true if mouse events should be forwarded to the PTY.
  * @note MESSAGE THREAD.

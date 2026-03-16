@@ -79,16 +79,17 @@ void LookAndFeel::setColours()
 juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float height)
 {
     const auto* cfg { Config::getContext() };
-    return juce::Font { juce::FontOptions()
-                            .withName (cfg->getString (Config::Key::tabFamily))
-                            .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
+    float fontHeight { 0.5f * getTabBarHeight() };
+    return juce::Font {
+        juce::FontOptions().withName (cfg->getString (Config::Key::tabFamily)).withPointHeight (fontHeight)
+    };
 }
 
 /**
  * @brief Computes the tab bar height from the configured tab font.
  *
  * Queries the real rendered font height from `getTabButtonFont()` and
- * derives the bar height so the font occupies 75% of the bar.
+ * derives the bar height so the font occupies 60% of the bar.
  *
  * @return Tab bar height in pixels, rounded to nearest integer.
  * @note MESSAGE THREAD.
@@ -96,10 +97,7 @@ juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float heig
 int LookAndFeel::getTabBarHeight() noexcept
 {
     const auto* cfg { Config::getContext() };
-    const juce::Font font { juce::FontOptions()
-                                .withName (cfg->getString (Config::Key::tabFamily))
-                                .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
-    return juce::roundToInt (font.getHeight() / 0.7f);
+    return juce::roundToInt (cfg->getFloat (Config::Key::tabSize));
 }
 
 /**
@@ -198,7 +196,7 @@ void LookAndFeel::drawTabButton (juce::TabBarButton& button, juce::Graphics& g, 
         text = "..." + text;
     }
 
-    g.drawText (text, buttonArea, juce::Justification::centred, false);
+    g.drawFittedText (text, buttonArea.toNearestInt(), juce::Justification::centred, 1);
 }
 
 /**
@@ -460,3 +458,4 @@ juce::Path LookAndFeel::getTabButtonShape (const juce::Rectangle<float>& area) n
 }
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal
+

@@ -1,6 +1,19 @@
+--	████████████████████  ████████████    ████  ████    ████    ████
+--	████████████████████  ████████████    ████  ████    ████    ████
+--	████░░░░░░░░░░░░████  ████░░░░████    ████  ░░░░    ░░░░    ████
+--	████            ████  ████    ████    ████                  ████
+--	████████████████████  ████    ████    ████  ████████████████████
+--	████████████████████  ████    ████    ████  ████████████████████
+--	████░░░░░░░░░░░░░░░░  ████    ████    ████  ████░░░░░░░░░░░░████
+--	████                  ████    ████    ████  ████            ████
+--	████████████████████  ████    ████████████  ████████████████████
+--	████████████████████  ████    ████████████  ████████████████████
+--	░░░░░░░░░░░░░░░░░░░░  ░░░░    ░░░░░░░░░░░░  ░░░░░░░░░░░░░░░░░░░░
+-- 
+--	                Ephemeral Nexus Display  v%versionString%
 -- ============================================================================
--- END Terminal Emulator Configuration
--- https://github.com/jreng/end
+-- Configuration
+-- https://github.com/jrengmusic/end
 -- ============================================================================
 --
 -- This file is auto-generated with default values on first launch.
@@ -244,15 +257,23 @@ END = {
 	},
 
 	-- ========================================================================
-	-- SCROLLBACK
+	-- TERMINAL
 	-- ========================================================================
 
-	scrollback = {
-		-- Maximum number of scrollback lines retained (100 - 1000000).
-		num_lines = %%scrollback_num_lines%%,
+	terminal = {
+		-- Maximum number of scrollback lines retained in the ring buffer (100 - 1000000).
+		scrollback_lines = %%terminal_scrollback_lines%%,
 
-		-- Lines scrolled per mouse wheel tick (1 - 100).
-		step = %%scrollback_step%%,
+		-- Lines scrolled per mouse wheel tick and per Shift+PgUp/PgDn step (1 - 100).
+		scroll_step = %%terminal_scroll_step%%,
+
+		-- Grid padding in logical pixels — space between the window edge and the
+		-- terminal grid on each side.  Four values in CSS order:
+		--   { top, right, bottom, left }
+		-- All four values must be present.  Valid range: 0 - 200.
+		-- Example: { 10, 10, 10, 10 } gives equal padding on all sides.
+		--          { 4, 10, 10, 10 } gives a tighter top edge.
+		padding = { %%terminal_padding_top%%, %%terminal_padding_right%%, %%terminal_padding_bottom%%, %%terminal_padding_left%% },
 	},
 
 	-- ========================================================================

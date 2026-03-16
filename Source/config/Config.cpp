@@ -125,7 +125,7 @@ void Config::initDefaults()
     values[Key::windowZoom] = 1.0f;
 
     values[Key::tabFamily] = "Display Mono";
-    values[Key::tabSize] = 14.0f;
+    values[Key::tabSize] = 24.0f;
     values[Key::tabForeground] = "#FF00C8D8";///< blueBikini
     values[Key::tabInactive] = "#FF33535B";///< mediterranea
     values[Key::tabPosition] = "left";
@@ -135,7 +135,7 @@ void Config::initDefaults()
     values[Key::menuOpacity] = 0.65f;
 
     values[Key::overlayFamily] = "Display Mono";
-    values[Key::overlaySize] = 28.0f;
+    values[Key::overlaySize] = 20.0f;
     values[Key::overlayColour] = "#4E8C93";///< paradiso
 
 #if JUCE_MAC
@@ -152,8 +152,12 @@ void Config::initDefaults()
     }
 #endif
 
-    values[Key::scrollbackNumLines] = 10000;
-    values[Key::scrollbackStep] = 5;
+    values[Key::terminalScrollbackLines] = 10000;
+    values[Key::terminalScrollStep]      = 5;
+    values[Key::terminalPaddingTop]      = 10;
+    values[Key::terminalPaddingRight]    = 10;
+    values[Key::terminalPaddingBottom]   = 10;
+    values[Key::terminalPaddingLeft]     = 10;
 
 #if JUCE_MAC
     values[Key::keysCopy] = "cmd+c";
@@ -259,8 +263,12 @@ void Config::initSchema()
     schema[Key::shellProgram] = { T::string };
     schema[Key::shellArgs] = { T::string };
 
-    schema[Key::scrollbackNumLines] = { T::number, 100.0, 1000000.0, true };
-    schema[Key::scrollbackStep] = { T::number, 1.0, 100.0, true };
+    schema[Key::terminalScrollbackLines] = { T::number, 100.0, 1000000.0, true };
+    schema[Key::terminalScrollStep]      = { T::number, 1.0,   100.0,     true };
+    schema[Key::terminalPaddingTop]      = { T::number, 0.0,   200.0,     true };
+    schema[Key::terminalPaddingRight]    = { T::number, 0.0,   200.0,     true };
+    schema[Key::terminalPaddingBottom]   = { T::number, 0.0,   200.0,     true };
+    schema[Key::terminalPaddingLeft]     = { T::number, 0.0,   200.0,     true };
 
     schema[Key::keysCopy] = { T::string };
     schema[Key::keysPaste] = { T::string };
@@ -350,6 +358,8 @@ juce::File Config::getConfigFile() const
 void Config::writeDefaults (const juce::File& file) const
 {
     juce::String content { BinaryData::getString ("default_end.lua") };
+
+    content = jreng::String::replaceholder (content, "versionString", ProjectInfo::versionString);
 
     for (const auto& [key, value] : values)
     {
@@ -496,6 +506,34 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                         {
                                             const juce::String fieldName { fieldKey.as<std::string>() };
                                             const juce::String dotKey { groupName + "." + fieldName };
+
+                                            // terminal.padding is a 4-element array { top, right, bottom, left }.
+                                            // Parse it into the four flat keys rather than treating it as a scalar.
+                                            if (groupName == "terminal" and fieldName == "padding"
+                                                and fieldVal.get_type() == sol::type::table)
+                                            {
+                                                sol::table arr { fieldVal.as<sol::table>() };
+                                                static const std::array<const juce::String*, 4> paddingKeys {
+                                                    &Key::terminalPaddingTop,
+                                                    &Key::terminalPaddingRight,
+                                                    &Key::terminalPaddingBottom,
+                                                    &Key::terminalPaddingLeft
+                                                };
+
+                                                for (int i { 0 }; i < 4; ++i)
+                                                {
+                                                    sol::optional<double> v { arr.get<sol::optional<double>> (i + 1) };
+
+                                                    if (v)
+                                                    {
+                                                        const auto& spec { schema.at (*paddingKeys[i]) };
+                                                        const double clamped { juce::jlimit (spec.minValue, spec.maxValue, *v) };
+                                                        values.insert_or_assign (*paddingKeys[i], clamped);
+                                                    }
+                                                }
+
+                                                return;
+                                            }
 
                                             if (values.find (dotKey) == values.end())
                                             {

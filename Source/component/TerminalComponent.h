@@ -480,12 +480,9 @@ private:
     /**
      * @brief Returns whether mouse events should be forwarded to the PTY.
      *
-     * Returns true when the PTY should receive mouse events instead of the
-     * component performing text selection:
-     * - If any mouse-tracking mode is active (works on macOS/Linux).
-     * - On Windows: if the alternate screen is active (ConPTY workaround —
-     *   ConPTY intercepts DECSET mouse mode sequences so `isMouseTracking()`
-     *   always returns false on Windows even when a TUI app requests tracking).
+     * Returns true when any mouse-tracking mode is active.  On Windows,
+     * `isMouseTracking()` works correctly because the sideloaded ConPTY
+     * forwards DECSET mouse mode sequences through the pipe to END's parser.
      *
      * @return @c true if mouse events should be forwarded to the PTY.
      */
@@ -542,12 +539,6 @@ private:
     juce::VBlankAttachment vblank;
 
     //==============================================================================
-    /** @brief Vertical padding (pixels) between the component edge and the grid. */
-    static constexpr int verticalInset { 10 };
-
-    /** @brief Horizontal padding (pixels) between the component edge and the grid. */
-    static constexpr int horizontalInset { 10 };
-
     /**
      * @brief Height of the native title bar in pixels; 0 when buttons are hidden.
      *
@@ -555,6 +546,18 @@ private:
      * traffic-light buttons occupy 24 px at the top of the component.
      */
     const int titleBarHeight { Config::getContext()->getBool (Config::Key::windowButtons) ? 24 : 0 };
+
+    /** @brief Grid padding — top edge inset in logical pixels (from `terminal.padding`). */
+    const int paddingTop    { Config::getContext()->getInt (Config::Key::terminalPaddingTop) };
+
+    /** @brief Grid padding — right edge inset in logical pixels (from `terminal.padding`). */
+    const int paddingRight  { Config::getContext()->getInt (Config::Key::terminalPaddingRight) };
+
+    /** @brief Grid padding — bottom edge inset in logical pixels (from `terminal.padding`). */
+    const int paddingBottom { Config::getContext()->getInt (Config::Key::terminalPaddingBottom) };
+
+    /** @brief Grid padding — left edge inset in logical pixels (from `terminal.padding`). */
+    const int paddingLeft   { Config::getContext()->getInt (Config::Key::terminalPaddingLeft) };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Component)
