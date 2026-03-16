@@ -204,6 +204,93 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
+## Sprint 98 — Configurable Padding, SGR Mouse Wheel, DPI Cell Hit-Test, Resize Ruler, Bit-Font Logo
+
+**Date:** 2026-03-17
+**Agents:** SURGEON, @pathfinder, @explore
+
+### Problems Solved
+
+1. **Text selection offset worsened toward bottom** — `cellAtPoint` used logical integer `cellWidth`/`cellHeight` for hit-testing but the GL renderer places rows at `row * physCellHeight` physical pixels. At fractional DPI scales (125%, 150%), `physCellHeight / scale ≠ cellHeight` due to integer truncation. Error accumulated per row — 6px drift at row 10, 12px at row 20.
+2. **Mouse wheel sent arrow keys on alternate screen** — `mouseWheelMove` sent `\x1b[A`/`\x1b[B` (arrow key sequences) instead of SGR mouse wheel events. TUI apps that handle mouse wheel natively (button 64/65) never received them.
+3. **Terminal padding hardcoded** — `horizontalInset`/`verticalInset` were `static constexpr int { 10 }`. No way to configure per-side padding.
+4. **`scrollbackStep` set in config but never read** — `mouseWheelMove` used `static constexpr int scrollLines { 3 }` ignoring the config value entirely.
+5. **`scrollback.*` table orphaned** — two-key table with no natural home. Belongs in a `terminal` table alongside new padding keys.
+6. **Resize overlay showed plain centred text** — replaced with Path-based crossed ruler lines with inline gap labels, padding-aware, aligned to actual grid edges.
+7. **`shouldForwardMouseToPty` docstring wrong** — claimed ConPTY intercepts DECSET sequences on Windows; sideloaded ConPTY (Sprint 92) makes `isMouseTracking()` fully reliable on Windows.
+
+### What Was Done
+
+**1. `Screen::cellAtPoint` — DPI-accurate cell hit-testing** (`Screen.cpp`)
+- Rewritten to use physical-pixel round-trip: `physX = (x - viewportX) * scale`, then `col = physX / physCellWidth`
+- Exactly inverts `getCellBounds()` — click-to-cell is now symmetric with cell-to-pixel
+- Eliminates per-row drift at all fractional DPI scales
+
+**2. `mouseWheelMove` — SGR mouse wheel** (`TerminalComponent.cpp`)
+- Alternate screen path now calls `session.writeMouseEvent(button, cell.x, cell.y, true)` with button 64 (up) or 65 (down)
+- `scrollLines` reads `Config::Key::terminalScrollStep` — fixes pre-existing bug where config value was set but ignored
+- Primary screen scrollback path also reads `terminalScrollStep`
+
+**3. `terminal` config table** (`Config.h`, `Config.cpp`, `default_end.lua`)
+- `scrollback.num_lines` → `terminal.scrollback_lines` (`terminalScrollbackLines`)
+- `scrollback.step` → `terminal.scroll_step` (`terminalScrollStep`)
+- New `terminal.padding` — 4-element Lua array `{ top, right, bottom, left }` (CSS order)
+- Dedicated array parser in `Config::load()`: when field is a table, reads indices 1–4, clamps to [0, 200], stores as 4 flat keys `terminal.padding_top/right/bottom/left`
+- Default: `{ 10, 10, 10, 10 }`
+
+**4. `TerminalComponent` padding** (`TerminalComponent.h`, `TerminalComponent.cpp`)
+- Removed `static constexpr int verticalInset { 10 }` and `horizontalInset { 10 }`
+- Added 4 `const int padding*` members read from config at construction
+- `resized()` uses 4 individual `removeFrom*` calls instead of `reduced()`
+
+**5. Resize ruler overlay** (`MessageOverlay.h`, `MainComponent.cpp`)
+- `showResize(cols, rows, padTop, padRight, padBottom, padLeft)` replaces `showMessage(...)` on resize
+- `paintRulers()` static free function: two `juce::Path` rulers crossing near bottom-right (resize handle location)
+- Horizontal ruler at `y = 2/3 * gridHeight`, vertical at `x = 2/3 * gridWidth` — both inset by padding to align with actual grid edges
+- Each ruler: two Path strokes flanking a label gap, perpendicular tick marks at grid edges
+- Labels: `"N col"` and `"N row"` — horizontal text only, no rotation
+- `MainComponent::showMessageOverlay()` reads config padding for accurate col/row calculation
+
+**6. `shouldForwardMouseToPty` docstring corrected** (`TerminalComponent.h`, `TerminalComponent.cpp`)
+- Removed incorrect ConPTY interception claim
+- Documents that `isMouseTracking()` is reliable on Windows via sideloaded ConPTY
+
+**7. Bit-font logo + version stamp** (`default_end.lua`)
+- 11-line pixel-art `END` logo added as Lua comments at top of `default_end.lua`
+- `Ephemeral Nexus Display  v%versionString%` subtitle line
+- `Config::writeDefaults()` substitutes `%%versionString%%` → `ProjectInfo::versionString` before config key loop
+
+### Files Modified
+
+- `Source/terminal/rendering/Screen.cpp` — `cellAtPoint()` rewritten (physical-pixel round-trip)
+- `Source/component/TerminalComponent.h` — removed `verticalInset`/`horizontalInset`, added 4 `const int padding*` members
+- `Source/component/TerminalComponent.cpp` — `resized()` uses 4 `removeFrom*`, `mouseWheelMove` uses SGR + config scroll step, `shouldForwardMouseToPty` docstring corrected
+- `Source/config/Config.h` — `scrollbackNumLines` → `terminalScrollbackLines`, `scrollbackStep` → `terminalScrollStep`, added 4 `terminalPadding*` constants
+- `Source/config/Config.cpp` — `initDefaults()` + `initSchema()` updated, `terminal.padding` array parser added, `writeDefaults()` substitutes `%%versionString%%`
+- `Source/config/default_end.lua` — `scrollback` table → `terminal` table, `padding` array with full CSS-order comment, bit-font logo + version stamp
+- `Source/terminal/logic/Grid.cpp:57` — `scrollbackNumLines` → `terminalScrollbackLines`
+- `Source/MainComponent.cpp` — `showMessageOverlay()` reads 4 config padding values, calls `showResize()` with padding args
+- `Source/component/MessageOverlay.h` — `showResize()` accepts 4 padding params, `paintRulers()` insets ruler bounds by padding, 4 `resizePad*` members added
+
+### Alignment Check
+
+- **LIFESTAR Lean:** `cellAtPoint` fix is 4 lines replacing 2. Padding is 4 flat keys parsed by a single dedicated block. No new abstractions.
+- **LIFESTAR Explicit Encapsulation:** Padding lives in `terminal.*` — terminal behaviour, not window chrome. `paintRulers` is a static free function — no state, no coupling. `writeDefaults` substitutes version before config loop — explicit ordering.
+- **LIFESTAR SSOT:** `terminal.padding` array is the sole source — parsed once into 4 flat keys, read from those keys everywhere. No shadow copies.
+- **LIFESTAR Findable:** All terminal behaviour config under `terminal.*`. Ruler drawing in `MessageOverlay.h` alongside `showResize`.
+- **LIFESTAR Reviewable:** `cellAtPoint` docstring explains the physical round-trip and why it matches `getCellBounds`. `paintRulers` docstring explains grid inset and Path gap approach.
+- **NAMING-CONVENTION:** `terminalScrollbackLines`, `terminalScrollStep`, `terminalPaddingTop/Right/Bottom/Left`, `paintRulers`, `showResize`, `resizePadTop` — all semantic, no data-source encoding.
+- **ARCHITECTURAL-MANIFESTO:** `cellAtPoint` is a pure coordinate transform — no side effects. `paintRulers` is a pure paint function — no state mutation. Config parser is additive — new array path doesn't touch existing scalar path.
+
+### Technical Debt / Follow-up
+
+- **`getTreeMode()` / `getTreeKeyboardFlags()` naming** — still violates NAMING-CONVENTION Rule 2 (encodes "Tree" in name). Pre-existing debt from Sprint 91.
+- **`seq 1M` performance gap** — still 2m33s vs Terminal's 1m12s. Pre-existing debt from Sprint 91.
+- **`terminal.padding` is read at construction only** — `TerminalComponent` members are `const int` initialized at construction. Hot-reload (`Cmd+R`) does not update padding until next session restart. To support live reload, padding members would need to be non-const and `applyConfig()` would need to call `resized()`.
+- **`CursorComponent` missing `setInterceptsMouseClicks(false, false)`** — cursor cell swallows clicks. Pre-existing debt from Sprint 92.
+
+---
+
 ## Sprint 97 — BackgroundBlur Architecture Fix: Unified macOS/Windows Glass
 
 **Date:** 2026-03-16
@@ -472,176 +559,7 @@ ActionList (command palette) scaffolded in Sprint 94 could never grab keyboard f
 
 ---
 
-## Sprint 90: Document Reorganization + Roadmap Expansion
 
-**Date:** 2026-03-12
-**Role:** COUNSELOR
-
-### Agents Participated
-- COUNSELOR: Planning, document restructuring, roadmap authoring
-- Pathfinder (x1): Discovered current codebase state for ARCHITECTURE.md updates (AppState, Tabs, Identifier, State, Session, Keyboard, Config, Panes, TerminalComponent, AppIdentifier)
-
-### Objective
-
-Reorganize project documentation: separate implemented features (ARCHITECTURE.md) from future plans (SPEC.md). Extract detailed future specs to SPEC-details.md. Add 7 new feature specs to roadmap.
-
-### Files Modified (3)
-
-- **SPEC.md** — Rewritten as forward-looking roadmap (v0.4.0). Stripped all implemented feature documentation. Added 7 new feature specs: Keybinding Reorganization (unified action registry, global + modal, fully configurable), Command Palette (fuzzy search, native OS dialog), Tmux-Style Popup (user-defined popup terminals), File Opener / Flash-Jump (ls integration, hint labels like flash.nvim), Inline Image Rendering (Sixel + iTerm2 OSC 1337), Generalized GL Text Rendering Module (jreng_text extraction), WHELMED Integration (markdown + mermaid as juce::Component in split panes). Phases reorganized: Phase 3 = Keybinding + UX, Phase 4 = Rendering + Protocol, Phase 5 = Module Extraction + WHELMED. Updated overview: "fully-featured" replaces "minimalistic".
-
-- **SPEC-details.md** — NEW. Section 21 (Terminal State Serialization) extracted verbatim from old SPEC.md, renumbered as Section 1. Standalone detailed spec for future implementation.
-
-- **ARCHITECTURE.md** — Updated with recent session work:
-  - Module map: added `AppState.h/cpp`, `AppIdentifier.h`, updated `Keyboard.h` description
-  - Module inventory: added AppState row, updated Config and Component dependencies
-  - New section: Working Directory Tracking (AppState::pwdValue, Value::referTo pattern, binding lifecycle, Panes::createTerminal with workingDirectory)
-  - New section: Tab Name Management (Value::Listener pattern, displayName computation priority, shellProgram on SESSION, SESSION node identification via jreng::ID::id)
-  - New section: Input Encoding (Shift+Enter CSI u `\x1b[13;2u`)
-  - New section: Platform Configuration (config file paths per OS, Windows %APPDATA%)
-  - Glossary: added AppState, displayName, pwdValue, shellProgram; updated Tabs description
-  - Overview updated: "fully-featured" replaces "minimalistic"
-
-### Alignment Check
-- [x] LIFESTAR Single Source of Truth: ARCHITECTURE.md = current code, SPEC.md = future plans, no overlap
-- [x] LIFESTAR Findable: clear document hierarchy (SPEC -> SPEC-details -> ARCHITECTURE)
-- [x] LIFESTAR Explicit: each document has stated purpose and scope
-- [x] NAMING-CONVENTION adhered
-
-### Architecture Decisions
-- **Document separation principle**: implemented features documented in ARCHITECTURE.md only. SPEC.md is forward-looking only. Detailed future specs in SPEC-details.md.
-- **Phase reorganization**: Phases 3-5 restructured around feature clusters (UX, Protocol, Module Extraction) rather than arbitrary numbering.
-
-### Problems Solved
-1. **SPEC.md bloat** — was 1395 lines documenting both implemented and unimplemented features. Now ~500 lines, forward-looking only.
-2. **Stale SPEC** — implemented features in SPEC.md were not reflected in code and diverged from ARCHITECTURE.md. Eliminated by removing them from SPEC.md entirely.
-3. **Missing ARCHITECTURE.md sections** — pwd tracking, tab name management, Shift+Enter, Windows config path now documented.
-
-### Technical Debt / Follow-up
-1. **SPEC-details.md** — only contains serialization spec. Future detailed specs should be added here as sections.
-2. **Build not verified** — documentation-only changes, no code modified.
-
----
-
-## Sprint 89: Split Pane Bug Fixes + Codebase Audit + Documentation
-
-**Date:** 2026-03-12
-**Role:** COUNSELOR
-
-### Agents Participated
-- COUNSELOR: Planning, delegation, audit coordination, doc review
-- Engineer (x2): ARCHITECTURE.md updates, README.md updates
-- Auditor (x2): Verified ARCHITECTURE.md and README.md edits
-- Pathfinder (x1): Discovered doc gaps and current API surface
-
-### Files Modified (20 total)
-
-**Bug Fixes + Refactoring:**
-- `modules/jreng_gui/layout/jreng_pane_manager.h` — findLeaf made public, full doxygen, namespace closing fixed
-- `modules/jreng_gui/layout/jreng_pane_manager.cpp` — remove() fixed (parent==state check, sibling removeChild before re-parenting), namespace closing fixed
-- `modules/jreng_gui/layout/jreng_pane_resizer_bar.h` — namespace format fixed, doxygen added
-- `modules/jreng_gui/layout/jreng_pane_resizer_bar.cpp` — namespace format fixed, destructor=default, if-init brace init fixed
-- `Source/component/Panes.h` — findPaneNode removed, splitImpl added, doxygen updated
-- `Source/component/Panes.cpp` — splitImpl extracted, findPaneNode removed (uses PaneManager::findLeaf), closePane reordered (ungraft SESSION first), redundant jassert+if removed
-- `Source/component/Tabs.h` — focusLastTerminal added, doxygen updated/added
-- `Source/component/Tabs.cpp` — all implicit pointer checks fixed, focusLastTerminal extracted, focus-after-close uses adjacent index
-- `Source/MainComponent.h` — bindModalActions added
-- `Source/MainComponent.cpp` — bindModalActions extracted, implicit pointer checks fixed, split commands removed from commandActions
-- `Source/config/ModalKeyBinding.h` — splitHorizontal/splitVertical actions added, doxygen added
-- `Source/config/ModalKeyBinding.cpp` — file-scope actionKeys array, implicit std::function check fixed, split config keys added
-- `Source/config/KeyBinding.h` — splitHorizontal/splitVertical removed from CommandID
-- `Source/config/KeyBinding.cpp` — file-scope actionIDs array, array sizes 13->11, loop bounds updated
-- `Source/config/Config.h` — keys changed to snake_case (keys.split_horizontal, keys.split_vertical)
-- `Source/config/Config.cpp` — defaults changed to `\\` and `-`, writeDefaults updated
-
-**Documentation:**
-- `ARCHITECTURE.md` — Added: Split Pane System section (PaneManager, PaneResizerBar, Panes, ModalKeyBinding, Close Cascade), 3 design decisions (Binary Tree ValueTree, Prefix Key, SESSION Grafting), module map/inventory updates (jreng_gui, KeyBinding, ModalKeyBinding, Panes), 4 glossary entries, Tabs entry corrected
-- `README.md` — Split panes: "planned"/"in progress" -> "implemented", added UI feature bullets, pane keybinds subsection, config example with pane/keys blocks, intro updated
-
-### Alignment Check
-- [x] LIFESTAR principles followed
-- [x] NAMING-CONVENTION.md adhered (snake_case config keys, semantic method names)
-- [x] ARCHITECTURAL-MANIFESTO.md principles applied
-- [x] All implicit bool checks converted to explicit null/validity checks
-- [x] DRY: 4 extractions (splitImpl, focusLastTerminal, bindModalActions, file-scope arrays)
-
-### Architecture Decisions
-- **Split naming convention finalized**: splitHorizontal = left/right layout, splitVertical = top/bottom layout. Internal direction string describes divider orientation.
-- **Split commands moved to prefix key**: removed from KeyBinding::CommandID (Cmd+Shift chords), now exclusively ModalKeyBinding actions
-- **Resizer bar matching by identity**: `getSplitNode() == node` instead of sequential index, survives tree restructuring
-
-### Problems Solved
-1. **Re-parenting assert on close** — sibling must be removeChild'd before appendChild to new parent
-2. **State ripped from AppState on close** — parent==state check instead of grandparent.isValid()
-3. **SESSION re-parenting assert** — ungraft SESSION before PaneManager::remove() restructures tree
-4. **Wrong resizer bar removed on close** — identity matching instead of index-based
-5. **Focus jumps to first terminal on close** — now picks adjacent terminal
-6. **Split naming confusion** — swapped to match user expectation (horizontal = left/right)
-7. **Stale docs** — ARCHITECTURE.md and README.md now reflect implemented split pane system
-
-### Technical Debt / Follow-up
-1. **State persistence/restore** — not tested with new tree structure
-2. **No visual indicator** for prefix mode active state
-3. **Sprint 88 tech debt resolved**: ModalKeyBinding added to CMake (done), build validated (done)
-
----
-
-## Sprint 88: Binary Tree Split Panes + Prefix Key System
-
-**Date:** 2026-03-12
-**Role:** COUNSELOR
-
-### Agents Participated
-- COUNSELOR: Architecture decisions, planning, delegation, audit review
-- Engineer (x8): PaneResizerBar, PaneManager, Panes, Tabs, AppIdentifier, ModalKeyBinding, LookAndFeel, Config
-- Auditor (x1): Reviewed Panes rewrite — caught 3 critical bugs, 5 major style violations
-- Pathfinder (x1): Discovered all Panes API consumers before rewrite
-- Librarian (x1): Researched juce::StretchableLayoutResizerBar pattern
-
-### Files Modified (18 total)
-- `modules/jreng_gui/layout/jreng_pane_resizer_bar.h` — Rewritten: JUCE StretchableLayoutResizerBar pattern (PaneManager pointer + splitNode + isVertical), removed onDrag callback, added getSplitNode() getter
-- `modules/jreng_gui/layout/jreng_pane_resizer_bar.cpp` — Rewritten: mouseDown stores position from manager, mouseDrag calls setItemPosition, hasBeenMoved calls parent->resized()
-- `modules/jreng_gui/layout/jreng_pane_manager.h` — Rewritten: binary tree ValueTree, static templated layOut stores bounds (ID::x/y/width/height) on PANES nodes, getItemCurrentPosition/setItemPosition for drag, public identifiers
-- `modules/jreng_gui/layout/jreng_pane_manager.cpp` — Rewritten: addLeaf, split, remove (mutates in-place, never replaces state), getItemCurrentPosition/setItemPosition (pixel-to-ratio conversion), findLeaf recursive search
-- `Source/component/Panes.h` — Rewritten: removed ValueTree::Listener, isVertical, hasSplitDirection, rebuildLayout, findSplitBounds; added closePane, focusPane, findPaneNode
-- `Source/component/Panes.cpp` — Rewritten: createTerminal grafts SESSION into PANE node, splitVertical/splitHorizontal create PaneResizerBar with manager+splitNode, closePane removes stale bar via getRoot() check, focusPane spatial nearest-neighbour lookup
-- `Source/component/Tabs.h` — Added focusPaneLeft/Down/Up/Right declarations
-- `Source/component/Tabs.cpp` — Updated valueTreePropertyChanged (ancestor walk for nested SESSION), closeActiveTab (pane>tab>window close order), added focusPaneLeft/Down/Up/Right forwarding
-- `Source/AppIdentifier.h` — Updated schema comment to reflect PANES > PANE > SESSION tree structure
-- `Source/component/TerminalComponent.cpp` — Added ModalKeyBinding intercept at top of keyPressed
-- `Source/MainComponent.h` — Added ModalKeyBinding include and member
-- `Source/MainComponent.cpp` — Wired modalKeyBinding actions (paneLeft/Down/Up/Right), reload re-wires actions
-- `Source/component/LookAndFeel.h` — Added paneBarColourId/paneBarHighlightColourId to ColourIds, drawStretchableLayoutResizerBar override
-- `Source/component/LookAndFeel.cpp` — Added setColour for pane bar colours, drawStretchableLayoutResizerBar draws centred line with colour/highlight
-- `Source/config/Config.h` — Added keys: keysPrefix, keysPrefixTimeout, keysPaneLeft/Down/Up/Right, paneBarColour, paneBarHighlight
-- `Source/config/Config.cpp` — Added defaults + schema for all new keys, writeDefaults rewritten to output full documented end.lua with all config keys and comments
-- `Source/config/ModalKeyBinding.h` — NEW: prefix-key modal keybinding, Context singleton, Timer timeout, state machine (idle/waiting), Action enum, setAction
-- `Source/config/ModalKeyBinding.cpp` — NEW: handleKeyPress state machine, loadFromConfig parses prefix + action keys via KeyBinding::parse, timerCallback returns to idle
-
-### Alignment Check
-- [x] LIFESTAR principles followed
-- [x] NAMING-CONVENTION.md adhered
-- [x] ARCHITECTURAL-MANIFESTO.md principles applied
-
-### Architecture Decisions
-- **PaneManager owns ValueTree as SSOT** for binary tree split structure
-- **PANE > SESSION grafting**: SESSION (terminal state) grafted as child of PANE (layout leaf) at graft time. PaneManager ignores SESSION children during layout
-- **PaneManager::remove() mutates in-place**: never replaces root state object, preserving listener registrations
-- **JUCE StretchableLayoutResizerBar pattern**: PaneResizerBar holds PaneManager pointer + splitNode ValueTree. layOut stores bounds on PANES nodes. getItemCurrentPosition/setItemPosition convert between pixels and ratio
-- **ModalKeyBinding as Context singleton**: parallel to KeyBinding, handles two-key prefix sequences with configurable timeout
-- **Spatial focus navigation**: Panes::focusPane uses component centre distances, no tree-based slot computation
-- **Cmd+W close order**: pane > tab > window, handled in Tabs::closeActiveTab
-
-### Problems Solved
-- PaneManager::remove() was replacing `state` member, orphaning ValueTree listeners — fixed to mutate in-place
-- findSplitBounds was using manual boolean flag and union with (0,0,0,0) — eliminated entirely when switching to JUCE resizer pattern
-- onDrag callback approach pushed ratio computation complexity into Panes — eliminated by adopting JUCE's setItemPosition pattern where PaneManager owns the conversion
-
-### Technical Debt / Follow-up
-- ModalKeyBinding.h/.cpp need adding to Projucer/CMake source list
-- Not yet built or tested — needs build validation
-- PLAN.md needs updating to reflect final architecture (SESSION grafting into PANE, ModalKeyBinding)
-- State persistence/restore from XML not yet tested with new tree structure
-- No visual indicator for prefix mode active state
 
 ## Sprint 92 — ConPTY Sideload: Mouse + Alternate Screen on Windows
 
@@ -703,107 +621,4 @@ The fix was **one flag** (`0x4`) — but it only works with the sideloaded DLL, 
 
 ---
 
-## Sprint 93 — Terminal::Action: Unified Action Registry
 
-**Date:** 2026-03-15
-**Agents:** COUNSELOR, @engineer, @researcher, @auditor
-
-### Problem
-
-Keyboard/action handling scattered across 4 objects: `KeyBinding`, `ModalKeyBinding`, `MainComponent` (ApplicationCommandTarget), `TerminalComponent::keyPressed` (inline Ctrl+C/V). Copy/paste didn't work — Config defaults were `shift+ctrl+c/v` (Linux convention) not `ctrl+c/v`.
-
-### What Was Done
-
-**1. Terminal::Action** (`Source/terminal/action/Action.h` + `Action.cpp`)
-- Single owner of all user-performable actions
-- Fixed action table: 18 actions with ID, name, description, category, callback
-- Hot-reloadable key map from `end.lua`
-- Prefix state machine absorbed from ModalKeyBinding
-- Global singleton via `jreng::Context<Action>`
-
-**2. 18 actions:** copy (selection gate), paste, newline (Shift+Enter → `\n`), quit, close_tab, reload_config, zoom_in/out/reset, new_tab, prev/next_tab, split_horizontal/vertical, pane_left/down/up/right
-
-**3. MainComponent stripped** — removed ApplicationCommandTarget, CommandDef, commandDefs[], commandActions, buildCommandActions, bindModalActions, ApplicationCommandManager, KeyBinding, ModalKeyBinding
-
-**4. KeyBinding + ModalKeyBinding dissolved** — tombstoned
-
-**5. Config defaults fixed** — ctrl+c/v on Windows, smart shell detection (zsh → pwsh → powershell), empty shell args, font 11pt
-
-**6. VkKeyScanW fallback** for punctuation in Win32 Input Mode
-
-**7. Session shutdown crash fix** — null onExit before close()
-
-**8. Newline action** — Shift+Enter sends `\n` via `Session::writeToPty()`
-
-### Files Created
-- `Source/terminal/action/Action.h` + `Action.cpp`
-
-### Files Modified
-- `MainComponent.h/cpp`, `TerminalComponent.h/cpp`, `Tabs.h/cpp`, `Session.h/cpp`, `Keyboard.cpp`, `Config.h/cpp`, `default_end.lua`
-
-### Files Tombstoned
-- `Source/config/KeyBinding.h/cpp`, `Source/config/ModalKeyBinding.h/cpp`
-
-### Alignment Check
-- **LIFESTAR:** Lean (one object replaces four), Explicit Encapsulation (Action is dumb, callbacks injected), SSOT (one registry), Findable (`terminal/action/`)
-- **NAMING-CONVENTION:** All semantic — `Action`, `Entry`, `handleKeyPress`, `registerAction`, `writeToPty`, `findDefaultWindowsShell`
-- **ARCHITECTURAL-MANIFESTO:** Tell don't ask. Action doesn't know about Session, Grid, Tabs.
-
-### Technical Debt
-- `close_pane` action blocked on missing `Config::Key::keysClosePane`
-- `getTreeMode()` naming violates Rule 2
-- `seq 1M` performance gap remains
-- Action List UI not built (Phase 3)
-
----
-
-## Sprint 94 — ActionList Scaffolding + Modal Character Matching Fix
-
-**Date:** 2026-03-15
-**Agents:** COUNSELOR, @engineer
-
-### Problem
-
-1. ActionList (command palette) needed scaffolding — Config keys, Action registration, Lua template, standalone component files.
-2. Modal key matching broken for shifted characters (e.g. `?` = Shift+/ on US keyboard). `parseShortcut("?")` produced `KeyPress('?', 0, 0)` but JUCE delivered `KeyPress('/', shift, '?')`. No match.
-
-### What Was Done
-
-**1. ActionList scaffolding**
-- Config keys added: `keys.action_list` (default `"?"`, modal), `keys.action_list_position` (default `"top"`)
-- Action key table entry added in Action.cpp
-- default_end.lua updated with action_list + action_list_position entries
-- `ActionList.h` + `ActionList.cpp` created as standalone component (TextEditor + ListBox + FuzzySearch)
-- Registration in MainComponent as TODO placeholder — UI wiring deferred to fresh session
-
-**2. Modal character matching fix** (Action.cpp `handleKeyPress`)
-- In `PrefixState::waiting`, modal bindings now match by **text character** first (handles shifted chars like `?`, `+`, `{` etc.)
-- Falls back to exact KeyPress match for non-character modal keys (F-keys, arrows)
-
-**3. ActionList UI attempted but reverted**
-- Focus management, glass styling, font sizing attempted but failed — too many patches without visual iteration
-- Reverted: ActionList not wired as MainComponent child, registration lambda is TODO placeholder
-- ActionList.h/cpp exist as standalone files ready for fresh session
-
-### Files Created
-- `Source/terminal/action/ActionList.h` (249 lines)
-- `Source/terminal/action/ActionList.cpp` (326 lines)
-
-### Files Modified
-- `Source/config/Config.h` — added `keysActionList`, `keysActionListPosition`
-- `Source/config/Config.cpp` — added defaults, schema
-- `Source/config/default_end.lua` — added action_list entries
-- `Source/terminal/action/Action.cpp` — added `action_list` to key table, fixed modal character matching in `handleKeyPress`
-- `Source/MainComponent.cpp` — action_list registered with TODO placeholder lambda
-
-### Alignment Check
-- **LIFESTAR:** Lean (scaffolding only, no over-engineering), Explicit (ActionList is standalone, no coupling)
-- **NAMING-CONVENTION:** `ActionList`, `keysActionList`, `keysActionListPosition` — semantic
-- **ARCHITECTURAL-MANIFESTO:** ActionList is dumb — receives entries, shows UI. Not wired yet to avoid premature coupling.
-
-### Technical Debt
-- **ActionList UI not wired** — needs fresh session with visual iteration for focus management, glass styling, font sizing
-- PLAN-action-list.md documents the full design
-- `close_pane` action still blocked on missing Config key
-
----
