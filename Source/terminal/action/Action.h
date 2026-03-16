@@ -44,8 +44,8 @@ struct hash<juce::KeyPress>
 {
     size_t operator() (const juce::KeyPress& k) const noexcept
     {
-        const auto h1 { std::hash<int>{} (k.getKeyCode()) };
-        const auto h2 { std::hash<int>{} (k.getModifiers().getRawFlags()) };
+        const auto h1 { std::hash<int> {}(k.getKeyCode()) };
+        const auto h2 { std::hash<int> {}(k.getModifiers().getRawFlags()) };
         return h1 ^ (h2 << 16);
     }
 };
@@ -70,8 +70,9 @@ namespace Terminal
  * **MESSAGE THREAD** — all public methods must be called from the JUCE
  * message thread.
  */
-class Action : public jreng::Context<Action>,
-               private juce::Timer
+class Action
+    : public jreng::Context<Action>
+    , private juce::Timer
 {
 public:
     //==========================================================================
@@ -248,4 +249,5 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Action)
 };
 
-} // namespace Terminal
+}// namespace Terminal
+

@@ -204,6 +204,92 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
+## Sprint 97 — BackgroundBlur Architecture Fix: Unified macOS/Windows Glass
+
+**Date:** 2026-03-16
+**Agents:** COUNSELOR, @engineer, @pathfinder, @oracle, @researcher, @auditor
+
+### Problem
+
+TextEditor inside GlassWindow disappeared on Windows. GL terminal rendered correctly but any software-rendered JUCE component (TextEditor for command palette) was invisible. Same root cause made kuassa plugin dialog windows show flat white instead of glass blur.
+
+### Root Cause
+
+`applyDwmGlass()` stripped `WS_EX_LAYERED` from the window and called `DwmExtendFrameIntoClientArea({-1,-1,-1,-1})`. JUCE's software renderer for transparent windows (`setOpaque(false)` + no native title bar) uses `TransparencyKind::perPixel` mode, painting via `UpdateLayeredWindow()`. Stripping `WS_EX_LAYERED` caused `UpdateLayeredWindow` to silently fail on every repaint — content painted into an offscreen bitmap that never reached the screen.
+
+GL windows survived because OpenGL bypasses JUCE's software paint pipeline entirely (`wglSwapBuffers` writes directly to the framebuffer). PopupMenu blur worked by accident — painted once before async blur fired, then never needed repainting (short-lived).
+
+### What Was Done
+
+**1. BackgroundBlur architecture unified across platforms**
+
+Split the Windows implementation to match macOS architecture:
+
+| | macOS | Windows |
+|---|---|---|
+| `apply()` | `CGSSetWindowBackgroundBlurRadius` / `NSVisualEffectView` | `SetWindowCompositionAttribute(ACCENT_ENABLE_BLURBEHIND)` |
+| `enableGLTransparency()` | `NSOpenGLContextParameterSurfaceOpacity = 0` | Strip `WS_EX_LAYERED` + `DwmExtendFrameIntoClientArea({-1,-1,-1,-1})` |
+
+`apply()` is rendering-agnostic — safe for any window (GL or software). `enableGLTransparency()` is GL-only — called from `Screen::glContextCreated()`.
+
+**2. `applyDwmGlass()` — safe for all windows**
+- Removed `WS_EX_LAYERED` stripping
+- Removed `DwmExtendFrameIntoClientArea` call
+- Win11 Mica attributes set but fall through to accent policy (Mica needs frame extension which only GL windows get)
+- Accent policy (`SetWindowCompositionAttribute`) always applied — works with `WS_EX_LAYERED` windows
+
+**3. `enableGLTransparency()` — GL-specific DWM setup**
+- Was a no-op on Windows, now performs the invasive DWM operations
+- Gets HWND via `wglGetCurrentDC()` → `WindowFromDC()` → `GetAncestor(GA_ROOT)` (JUCE creates internal GL child window; must walk up to top-level)
+- Strips `WS_EX_LAYERED` (GL doesn't use `UpdateLayeredWindow`)
+- Calls `DwmExtendFrameIntoClientArea({-1,-1,-1,-1})`
+
+**4. ActionList fixes**
+- Explicit TextEditor colours from Config (background, text, caret, outline)
+- Removed unused `searchBox` member
+- Added Escape key dismissal (`keyPressed` override)
+
+**5. Kuassa library fork**
+- `kuassa_background_blur.cpp` updated with identical fix (namespace `kuassa` instead of `jreng`)
+
+### Files Modified
+
+- `modules/jreng_gui/glass/jreng_background_blur.cpp` — `applyDwmGlass()` rewritten (removed WS_EX_LAYERED strip + frame extension), `enableGLTransparency()` rewritten (GL-specific DWM setup with GetAncestor walk)
+- `Source/terminal/action/ActionList.h` — removed unused `searchBox` member, added `keyPressed` override
+- `Source/terminal/action/ActionList.cpp` — explicit TextEditor colours, Escape dismissal
+- `~/Documents/Poems/kuassa/___lib___/kuassa_graphics/glass/kuassa_background_blur.cpp` — identical fix forked from jreng module
+
+### Files NOT Modified
+
+- `modules/jreng_gui/glass/jreng_background_blur.h` — API surface unchanged
+- `modules/jreng_gui/glass/jreng_background_blur.mm` — macOS implementation untouched
+
+### Alignment Check
+
+- **LIFESTAR Lean:** Fix is minimal — moved two operations between two functions. No new abstractions.
+- **LIFESTAR Explicit Encapsulation:** `apply()` is rendering-agnostic. `enableGLTransparency()` is GL-specific. Each function has one clear responsibility. Callers don't need to know the rendering mode.
+- **LIFESTAR SSOT:** One blur API surface, two platform implementations, identical structure.
+- **LIFESTAR Findable:** Same file, same function names, same call sites on both platforms.
+- **LIFESTAR Reviewable:** Doxygen on both functions explains the split and why each operation lives where it does.
+- **NAMING-CONVENTION:** No new identifiers. Existing names preserved.
+- **ARCHITECTURAL-MANIFESTO:** Tell don't ask. `apply()` tells the window to blur. `enableGLTransparency()` tells the GL context to composite. Neither queries the other.
+
+### Key Discovery: JUCE perPixel Transparency + WS_EX_LAYERED
+
+When a JUCE window has `setOpaque(false)` + no native title bar, JUCE calculates `TransparencyKind::perPixel` and adds `WS_EX_LAYERED`. All painting goes through `UpdateLayeredWindow()` with an ARGB bitmap. Stripping `WS_EX_LAYERED` externally (via `SetWindowLongPtrW`) while JUCE's internal state still says `perPixel` causes every subsequent repaint to silently fail — `UpdateLayeredWindow` returns `FALSE` on a non-layered window but JUCE doesn't check the return value.
+
+### Key Discovery: JUCE GL Child Window
+
+`juce::OpenGLContext::attachTo()` creates an internal child window for the GL surface. `wglGetCurrentDC()` → `WindowFromDC()` returns this child HWND, not the top-level window. `WS_EX_LAYERED` and `DwmExtendFrameIntoClientArea` are top-level window attributes — must use `GetAncestor(hwnd, GA_ROOT)` to walk up.
+
+### Technical Debt / Follow-up
+
+- **Win11 Mica on software-rendered windows:** Mica requires `DwmExtendFrameIntoClientArea` which is only called for GL windows. Software-rendered windows on Win11 get accent policy blur instead. Visual parity between GL and software windows on Win11 not yet achieved.
+- **Apple Silicon:** `NSOpenGLContext` deprecated. `enableGLTransparency()` needs Metal equivalent (`CAMetalLayer.opaque = NO`). macOS `CGSSetWindowBackgroundBlurRadius` deprecated on Monterey+ but `NSVisualEffectView` fallback catches it.
+- **Kuassa plugin build not yet tested** — forked code needs verification in plugin host context.
+
+---
+
 ## Sprint 96 — Configurable Popup Terminals + Action Ownership + Ctrl+C Fix
 
 **Date:** 2026-03-16

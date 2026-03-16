@@ -273,9 +273,20 @@ void MainComponent::registerActions()
             return true;
         });
 
+    action.registerAction ("action_list", "Action List", "Open command palette", "Application", true,
+        [this]() -> bool
+        {
+            actionList = std::make_unique<Terminal::ActionList> (*this);
+
+            return true;
+        });
+
     // Register popup actions from Config
-    for (const auto& [name, entry] : config.getPopups())
+    for (const auto& pair : config.getPopups())
     {
+        const auto& name { pair.first };
+        const auto& entry { pair.second };
+
         auto launchPopup { [this, entry]() -> bool
         {
             if (not popup.isActive())

@@ -343,6 +343,8 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysPaneUp { "keys.pane_up" };
         inline static const juce::String keysPaneRight { "keys.pane_right" };
         inline static const juce::String keysNewline { "keys.newline" };
+        inline static const juce::String keysActionList { "keys.action_list" };
+        inline static const juce::String keysActionListPosition { "keys.action_list_position" };
 
         /** @brief Popup default width as a fraction of the parent width (0.1–1.0). */
         inline static const juce::String popupWidth { "popup.width" };
@@ -623,3 +625,4 @@ setmetatable(_G, {
 })
 )lua" };
 };
+

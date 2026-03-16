@@ -57,11 +57,8 @@
  */
 static std::pair<juce::String, juce::String> findDefaultWindowsShell() noexcept
 {
-    static constexpr const char* zshPaths[]
-    {
-        "C:\\msys64\\usr\\bin\\zsh.exe",
-        "C:\\Program Files\\Git\\usr\\bin\\zsh.exe"
-    };
+    static constexpr const char* zshPaths[] { "C:\\msys64\\usr\\bin\\zsh.exe",
+                                              "C:\\Program Files\\Git\\usr\\bin\\zsh.exe" };
 
     for (const auto* path : zshPaths)
     {
@@ -82,12 +79,12 @@ void Config::initDefaults()
 {
     values[Key::fontFamily] = "Display Mono";
 #if JUCE_WINDOWS
-    values[Key::fontSize] = 11.0f;
+    values[Key::fontSize] = 10.0f;
 #else
     values[Key::fontSize] = 14.0f;
 #endif
     values[Key::fontLigatures] = true;
-    values[Key::fontEmbolden] = true;
+    values[Key::fontEmbolden] = false;
 
     values[Key::cursorChar] = juce::String::charToString (static_cast<juce::juce_wchar> (0x2588));
     values[Key::cursorBlink] = true;
@@ -183,6 +180,8 @@ void Config::initDefaults()
     values[Key::keysPaneUp] = "k";
     values[Key::keysPaneRight] = "l";
     values[Key::keysNewline] = "shift+return";
+    values[Key::keysActionList] = "?";
+    values[Key::keysActionListPosition] = "top";
 
     values[Key::popupWidth] = 0.6f;
     values[Key::popupHeight] = 0.5f;
@@ -283,6 +282,8 @@ void Config::initSchema()
     schema[Key::keysPaneUp] = { T::string };
     schema[Key::keysPaneRight] = { T::string };
     schema[Key::keysNewline] = { T::string };
+    schema[Key::keysActionList] = { T::string };
+    schema[Key::keysActionListPosition] = { T::string };
 
     schema[Key::popupWidth] = { T::number, 0.1, 1.0, true };
     schema[Key::popupHeight] = { T::number, 0.1, 1.0, true };
@@ -355,8 +356,7 @@ void Config::writeDefaults (const juce::File& file) const
         const auto placeholder { key.replaceCharacter ('.', '_') };
 
         if (value.isBool())
-            content = jreng::String::replaceholder (content, placeholder,
-                                                    static_cast<bool> (value) ? "true" : "false");
+            content = jreng::String::replaceholder (content, placeholder, static_cast<bool> (value) ? "true" : "false");
         else
         {
             // Escape backslashes for valid Lua string syntax
@@ -440,7 +440,8 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
     if (file.existsAsFile())
     {
         sol::state lua;
-        lua.open_libraries (sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::os, sol::lib::debug, sol::lib::package);
+        lua.open_libraries (
+            sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::os, sol::lib::debug, sol::lib::package);
 
         auto setupResult { lua.safe_script (validationScript, sol::script_pass_on_error) };
 
@@ -571,8 +572,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                         popupsTable.for_each (
                             [this, &warnings] (const sol::object& nameKey, const sol::object& entryVal)
                             {
-                                if (nameKey.get_type() == sol::type::string
-                                    and entryVal.get_type() == sol::type::table)
+                                if (nameKey.get_type() == sol::type::string and entryVal.get_type() == sol::type::table)
                                 {
                                     const juce::String name { nameKey.as<std::string>() };
                                     sol::table entry { entryVal.as<sol::table>() };
@@ -683,8 +683,6 @@ float Config::getFloat (const juce::String& key) const { return static_cast<floa
  * @return The stored boolean value.
  */
 bool Config::getBool (const juce::String& key) const { return static_cast<bool> (values.at (key)); }
-
-
 
 /**
  * @brief Returns a config value parsed as a JUCE Colour.
@@ -821,12 +819,7 @@ juce::Colour Config::parseColour (const juce::String& input)
     return result;
 }
 
-const std::unordered_map<juce::String, Config::PopupEntry>& Config::getPopups() const noexcept
-{
-    return popups;
-}
+const std::unordered_map<juce::String, Config::PopupEntry>& Config::getPopups() const noexcept { return popups; }
 
-void Config::clearPopups()
-{
-    popups.clear();
-}
+void Config::clearPopups() { popups.clear(); }
+

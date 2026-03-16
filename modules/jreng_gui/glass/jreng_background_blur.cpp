@@ -102,6 +102,28 @@ const bool BackgroundBlur::apply (juce::Component* component, float blurRadius, 
     return false;
 }
 
+/**
+ * @brief Applies DWM blur/Mica to a window without touching its rendering pipeline.
+ *
+ * Sets the accent policy (Win10) or Mica backdrop (Win11 22H2+) on the window.
+ * Safe for any window — software-rendered (UpdateLayeredWindow) and GL-rendered
+ * windows alike — because it does NOT strip WS_EX_LAYERED and does NOT call
+ * DwmExtendFrameIntoClientArea.
+ *
+ * @note WS_EX_LAYERED must be preserved for JUCE software-rendered transparent
+ *       windows (setOpaque(false) + no native title bar).  Stripping it causes
+ *       UpdateLayeredWindow to silently fail on every repaint, making the content
+ *       invisible.  GL windows do not use UpdateLayeredWindow, so they can safely
+ *       have WS_EX_LAYERED stripped — but that is done in enableGLTransparency(),
+ *       not here.
+ *
+ * @param component   JUCE component whose native HWND receives the blur.
+ * @param blurRadius  Blur radius (forwarded to accent policy; not used by Mica).
+ * @param tint        Tint colour in ARGB; converted to ABGR for the accent API.
+ * @return @c true on success; @c false if the peer or HWND could not be obtained.
+ *
+ * @see enableGLTransparency()
+ */
 const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blurRadius, juce::Colour tint)
 {
     if (auto* peer = component->getPeer())
@@ -111,36 +133,27 @@ const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blur
         if (hwnd == nullptr)
             return false;
 
-        // Strip WS_EX_LAYERED if JUCE added it (from setOpaque(false) + no native title bar).
-        // Layered windows bypass DWM compositing, which prevents acrylic blur and
-        // breaks OpenGL surface compositing.  Removing the flag returns the window
-        // to normal DWM-composited mode where both GL and acrylic work correctly.
-        LONG_PTR exStyle = GetWindowLongPtrW (hwnd, GWL_EXSTYLE);
-        if (exStyle & WS_EX_LAYERED)
-        {
-            SetWindowLongPtrW (hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
-        }
-
-        // Extend DWM frame across the entire client area — required for both paths
-        MARGINS margins = { -1, -1, -1, -1 };
-        DwmExtendFrameIntoClientArea (hwnd, &margins);
-
-        // --- Windows 11 22H2+: official Mica API ---
+        // --- Windows 11 22H2+: set Mica attributes ---
+        // Mica requires DwmExtendFrameIntoClientArea to render.  For GL windows
+        // that is done in enableGLTransparency(); for software-rendered windows
+        // Mica will silently not apply.  We do NOT return early — fall through
+        // to the accent-policy path which works on all Windows 10+ versions and
+        // provides blur for software-rendered windows even on Win11.
         if (isWindows11_22H2OrLater())
         {
             BOOL darkMode = TRUE;
             DwmSetWindowAttribute (hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_,
                 &darkMode, sizeof (darkMode));
 
-            // DWMSBT_MAINWINDOW = 2 (Mica)
-            DWORD backdropType = 2;
-            HRESULT hr = DwmSetWindowAttribute (hwnd, DWMWA_SYSTEMBACKDROP_TYPE_,
+            DWORD backdropType = 2; // DWMSBT_MAINWINDOW (Mica)
+            DwmSetWindowAttribute (hwnd, DWMWA_SYSTEMBACKDROP_TYPE_,
                 &backdropType, sizeof (backdropType));
-
-            return SUCCEEDED (hr);
         }
 
-        // --- Windows 10: undocumented SetWindowCompositionAttribute ---
+        // --- SetWindowCompositionAttribute (Windows 10+, including Win11) ---
+        // Works with WS_EX_LAYERED windows (proven by PopupMenu blur path).
+        // On Win11 GL windows, Mica takes precedence once enableGLTransparency()
+        // extends the DWM frame; the accent policy is harmlessly overridden.
         auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
             GetProcAddress (GetModuleHandleW (L"user32.dll"),
                 "SetWindowCompositionAttribute");
@@ -154,10 +167,10 @@ const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blur
                           | ((COLORREF) tint.getRed());
 
             ACCENT_POLICY accent {};
-            accent.AccentState  = ACCENT_ENABLE_BLURBEHIND;
-            accent.AccentFlags  = 2;  // use GradientColor
+            accent.AccentState   = ACCENT_ENABLE_BLURBEHIND;
+            accent.AccentFlags   = 2;  // use GradientColor
             accent.GradientColor = abgr;
-            accent.AnimationId  = 0;
+            accent.AnimationId   = 0;
 
             WINDOWCOMPOSITIONATTRIBDATA data {};
             data.Attrib = WCA_ACCENT_POLICY;
@@ -194,13 +207,70 @@ void BackgroundBlur::hideWindowButtons (juce::Component*)
 {
 }
 
+/**
+ * @brief Prepares the current OpenGL window for DWM alpha compositing.
+ *
+ * Called from Screen::glContextCreated() on the GL render thread while the
+ * WGL context is current.  Performs the two operations that are safe for GL
+ * windows but would break software-rendered (UpdateLayeredWindow) windows:
+ *
+ * 1. Strips @c WS_EX_LAYERED from the HWND.  JUCE sets this flag on
+ *    transparent windows (setOpaque(false) + no native title bar) so that its
+ *    software renderer can call UpdateLayeredWindow.  OpenGL bypasses that
+ *    pipeline entirely (wglSwapBuffers writes directly to the framebuffer), so
+ *    the flag is not needed and must be removed for DWM alpha compositing to
+ *    work correctly.
+ *
+ * 2. Calls DwmExtendFrameIntoClientArea({-1,-1,-1,-1}).  This tells DWM to
+ *    treat the entire client area as the non-client (glass) frame, enabling
+ *    per-pixel alpha compositing of the GL framebuffer with the desktop.
+ *    Without this call the GL surface is composited as fully opaque.
+ *
+ * @note Must be called from the GL render thread while the WGL context is
+ *       current (i.e. inside glContextCreated / renderOpenGL).
+ * @note Do NOT call this for software-rendered windows — it will break them.
+ *
+ * @return @c true  if the HWND was obtained and both operations succeeded.
+ * @return @c false if @c wglGetCurrentDC() or @c WindowFromDC() returned null.
+ *
+ * @see applyDwmGlass()
+ */
 const bool BackgroundBlur::enableGLTransparency()
 {
-    // On Windows, DWM compositing with OpenGL requires the
-    // DwmEnableBlurBehindWindow call (already done in applyDwmGlass)
-    // to tell DWM to respect the alpha channel in the GL framebuffer.
-    // The GL pixel format must have alpha bits (JUCE requests this).
-    // No additional WGL call is needed — unlike macOS NSOpenGLContext.
+    // Obtain the HWND from the current WGL device context.
+    // wglGetCurrentDC() returns the HDC that was passed to wglMakeCurrent()
+    // by JUCE's OpenGL context setup.  On Windows, JUCE creates an internal
+    // child window for the GL surface, so WindowFromDC() returns the child
+    // HWND — not the top-level window.  We must walk up to the root window
+    // because WS_EX_LAYERED and DwmExtendFrameIntoClientArea are top-level
+    // window attributes.
+    HDC hdc = wglGetCurrentDC();
+
+    if (hdc == nullptr)
+        return false;
+
+    HWND glHwnd = WindowFromDC (hdc);
+
+    if (glHwnd == nullptr)
+        return false;
+
+    // Walk up to the top-level (root) window that owns this GL child.
+    HWND hwnd = GetAncestor (glHwnd, GA_ROOT);
+
+    if (hwnd == nullptr)
+        hwnd = glHwnd; // fallback: use the GL window itself
+
+    // Strip WS_EX_LAYERED so DWM composites the GL framebuffer per-pixel.
+    // GL does not use UpdateLayeredWindow, so removing this flag is safe.
+    LONG_PTR exStyle = GetWindowLongPtrW (hwnd, GWL_EXSTYLE);
+    if (exStyle & WS_EX_LAYERED)
+        SetWindowLongPtrW (hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
+
+    // Extend the DWM frame across the entire client area so DWM respects
+    // the alpha channel written by the GL renderer.
+    MARGINS margins { -1, -1, -1, -1 };
+    DwmExtendFrameIntoClientArea (hwnd, &margins);
+
     return true;
 }
 

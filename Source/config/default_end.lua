@@ -338,6 +338,12 @@ END = {
 
 		-- Insert a literal newline (LF) instead of carriage return.
 		newline = "%%keys_newline%%",
+
+		-- Open the action list (command palette).
+		action_list = "%%keys_action_list%%",
+
+		-- Action list position: "top" or "bottom".
+		action_list_position = "%%keys_action_list_position%%",
 	},
 
 	-- ========================================================================

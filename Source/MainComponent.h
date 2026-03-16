@@ -43,6 +43,7 @@
 #include "component/Tabs.h"
 #include "config/Config.h"
 #include "terminal/action/Action.h"
+#include "terminal/action/ActionList.h"
 #include "terminal/rendering/Fonts.h"
 
 /**
@@ -127,6 +128,9 @@ private:
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;
 
+    /** @brief Command palette glass window; created on demand. */
+    std::unique_ptr<Terminal::ActionList> actionList;
+
 #if JUCE_WINDOWS
     /** @brief Fires when the native scale factor changes.
      *  Updates AppState and resets zoom on all terminals. */
@@ -166,9 +170,9 @@ private:
     void showMessageOverlay();
 
     //==============================================================================
-#if JUCE_DEBUG
-    jreng::debug::Widget debug { this, false };
-#endif
+// #if JUCE_DEBUG
+//     jreng::debug::Widget debug { this, false };
+// #endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
