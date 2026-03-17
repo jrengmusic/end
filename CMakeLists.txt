@@ -16,6 +16,7 @@
 
 cmake_minimum_required(VERSION 4.2.0)
 
+
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
@@ -320,12 +321,30 @@ set_source_files_properties(${LUA_SOURCES} PROPERTIES LANGUAGE C)
 target_include_directories(${TARGET_NAME} PRIVATE "${LUA_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/Library")
 
 # ============================================================================
-# FREETYPE LIBRARY (Use FreeType's CMake)
+# FREETYPE LIBRARY (git submodule: Library/freetype)
 # ============================================================================
 
 set(FREETYPE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Library/freetype")
 
-# Use FreeType's own build system
+if(NOT EXISTS "${FREETYPE_DIR}/CMakeLists.txt")
+    message(STATUS "FreeType submodule not found — running git submodule update --init...")
+    execute_process(
+        COMMAND git submodule update --init Library/freetype
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        RESULT_VARIABLE GIT_SUBMODULE_RESULT
+    )
+    if(NOT GIT_SUBMODULE_RESULT EQUAL 0)
+        message(FATAL_ERROR "git submodule update --init failed for Library/freetype")
+    endif()
+endif()
+
+# Disable FreeType's optional deps — keep it lean
+set(FT_DISABLE_ZLIB TRUE)
+set(FT_DISABLE_BZIP2 TRUE)
+set(FT_DISABLE_PNG TRUE)
+set(FT_DISABLE_HARFBUZZ TRUE)
+set(FT_DISABLE_BROTLI TRUE)
+
 add_subdirectory("${FREETYPE_DIR}" "${CMAKE_BINARY_DIR}/freetype" EXCLUDE_FROM_ALL)
 
 # Link FreeType
@@ -333,7 +352,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE freetype)
 
 message(STATUS "Lua: ${LUA_PATH} (vendored)")
 message(STATUS "sol2: ${SOL_PATH} (vendored)")
-message(STATUS "FreeType: ${FREETYPE_DIR} (vendored)")
+message(STATUS "FreeType: ${FREETYPE_DIR} (submodule)")
 message(STATUS "HarfBuzz: ${JUCE_PATH}/modules/juce_graphics/fonts/harfbuzz (JUCE internal)")
 
 message(STATUS "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")

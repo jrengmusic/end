@@ -1,6 +1,7 @@
 @echo off
 :: build.bat - Bootstrap build script for END (Windows)
 :: Sets up MSVC environment then runs CMake + Ninja
+:: Produces PDB debug symbols for whatdbg (dbgeng.dll-based DAP adapter)
 ::
 :: Usage:
 ::   build.bat           - configure + build (Debug)
@@ -37,21 +38,13 @@ if not exist %VCVARSALL% (
 echo Setting up MSVC x64 environment...
 call %VCVARSALL% x64
 
-:: Use clang-cl for DWARF debug symbols (codelldb/LLDB compatible)
-:: clang-cl is MSVC-compatible (handles intrinsics, ABI, headers natively)
-set CLANGCL=C:\Program Files\LLVM\bin\clang-cl.exe
-if exist "%CLANGCL%" (
-    set CC=%CLANGCL%
-    set CXX=%CLANGCL%
-    set CLANG_FLAGS=-gdwarf /EHsc
-    echo Using clang-cl with DWARF debug symbols
-) else (
-    set CLANG_FLAGS=
-    echo WARNING: clang-cl not found, using cl.exe
-)
+:: Use cl.exe (MSVC) — produces PDB symbols readable by whatdbg (dbgeng.dll)
+set CC=cl
+set CXX=cl
+echo Using cl.exe with PDB debug symbols
 
-:: Use VS-bundled ninja (guaranteed to exist)
-set PATH=%VS_PATH%\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja;%PATH%
+:: Use VS-bundled cmake and ninja (MSYS2 cmake 4.x breaks RC compilation with MSVC)
+set PATH=%VS_PATH%\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;%VS_PATH%\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja;%PATH%
 
 echo.
 echo CMake: && cmake --version
@@ -62,7 +55,7 @@ echo.
 :: Configure
 if not exist "Builds\Ninja" (
     echo Configuring...
-    cmake -S . -B Builds/Ninja -G Ninja -DCMAKE_BUILD_TYPE=%CONFIG% -DCMAKE_C_COMPILER="%CC%" -DCMAKE_CXX_COMPILER="%CXX%" -DCMAKE_C_FLAGS="%CLANG_FLAGS%" -DCMAKE_CXX_FLAGS="%CLANG_FLAGS%" -DCMAKE_EXE_LINKER_FLAGS="/debug:dwarf" -DCMAKE_SHARED_LINKER_FLAGS="/debug:dwarf" -DCMAKE_MODULE_LINKER_FLAGS="/debug:dwarf" -DCMAKE_EXE_LINKER_FLAGS_DEBUG="/debug:dwarf /INCREMENTAL" -DCMAKE_SHARED_LINKER_FLAGS_DEBUG="/debug:dwarf /INCREMENTAL" -DCMAKE_MODULE_LINKER_FLAGS_DEBUG="/debug:dwarf /INCREMENTAL"
+    cmake -S . -B Builds/Ninja -G Ninja -DCMAKE_BUILD_TYPE=%CONFIG% -DCMAKE_C_COMPILER="%CC%" -DCMAKE_CXX_COMPILER="%CXX%"
     if errorlevel 1 (
         echo CMake configure FAILED
         exit /b 1
