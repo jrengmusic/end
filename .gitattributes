@@ -1,0 +1,14 @@
+# Force LF line endings in the repo, auto-convert on checkout
+* text=auto eol=lf
+
+# Binaries — don't touch
+*.ttf binary
+*.otf binary
+*.png binary
+*.ico binary
+*.icns binary
+*.svg binary
+*.sfd binary
+*.dll binary
+*.exe binary
+*.pdb binary
