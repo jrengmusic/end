@@ -213,8 +213,11 @@ static const ConPtyFuncs& loadConPtyFuncs() noexcept
     {
         ConPtyFuncs result {};
 
-        // --- Attempt 1: sideloaded conpty.dll (Windows 10 only) ---
-        if (isWindows10())
+        // --- Attempt 1: sideloaded conpty.dll (all Windows versions) ---
+        // The inbox kernel32 ConPTY on Windows 11 sends STATUS_CONTROL_C_EXIT
+        // to child processes immediately after spawn. The sideloaded DLL from
+        // Microsoft Terminal works correctly on both Windows 10 and 11.
+        if (true) // always sideload
         {
             const juce::File dllPath { extractConPtyBinaries() };
 

@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-18 (updated: ConPTY sideload guarded for Windows 10 only)
+**Last Updated:** 2026-03-19 (updated: Windows 11 DWM blur, ConPTY sideload all versions, unified blur architecture)
 
 ---
 
@@ -116,7 +116,7 @@ Source/
     tty/                            Platform TTY abstraction
       TTY.h/cpp                     Abstract base + reader thread
       UnixTTY.h/cpp                 macOS/Linux: forkpty
-      WindowsTTY.h/cpp              Windows: ConPTY via NtCreateNamedPipeFile, overlapped I/O, sideloaded conpty.dll (Win10 only)
+      WindowsTTY.h/cpp              Windows: ConPTY via NtCreateNamedPipeFile, overlapped I/O, sideloaded conpty.dll
 
     action/                         Unified action registry + key dispatch
       Action.h/cpp                  Action table, key map, prefix state machine, Context<Action>
@@ -668,13 +668,13 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Rationale:** Simpler, lower latency. The FIFO added a drain step on the message thread that was unnecessary — the parser is fast enough to run on the reader thread without blocking. Grid access is protected by `resizeLock` CriticalSection only during resize.
 
-### Decision: Sideloaded ConPTY for Windows 10 (Guarded)
+### Decision: Sideloaded ConPTY (All Windows Versions)
 
-**Context:** The inbox `conhost.exe` on Windows 10 22H2 (build 19045) does not support `PSEUDOCONSOLE_WIN32_INPUT_MODE`. Mouse tracking, alternate screen detection, and other DECSET sequences are intercepted and never forwarded to the terminal emulator. On Windows 11 (build >= 22000), the inbox ConPTY supports this flag natively — sideloaded binaries are unnecessary and crash due to version incompatibility.
+**Context:** The inbox `conhost.exe` on Windows 10 does not support `PSEUDOCONSOLE_WIN32_INPUT_MODE`. The inbox ConPTY on Windows 11 sends `STATUS_CONTROL_C_EXIT` (0xC000013A) to child processes immediately after spawn.
 
-**Decision:** Embed `conpty.dll` + `OpenConsole.exe` (MIT-licensed, from Microsoft Terminal) as JUCE BinaryData. On Windows 10 only (`isWindows10()` — `RtlGetVersion` build number < 22000): extract to `~/.config/end/conpty/` at runtime, load `CreatePseudoConsole`, `ResizePseudoConsole`, `ClosePseudoConsole` from the sideloaded DLL. On Windows 11+: skip extraction and loading entirely, use inbox `kernel32.dll`. Pass `PSEUDOCONSOLE_WIN32_INPUT_MODE` (0x4) flag on both paths.
+**Decision:** Embed `conpty.dll` + `OpenConsole.exe` (MIT-licensed, from Microsoft Terminal) as JUCE BinaryData. Always extract to `~/.config/end/conpty/` at runtime on all Windows versions. Load `CreatePseudoConsole`, `ResizePseudoConsole`, `ClosePseudoConsole` from the sideloaded DLL. Fall back to `kernel32.dll` only if sideload fails. Pass `PSEUDOCONSOLE_WIN32_INPUT_MODE` (0x4) flag.
 
-**Rationale:** Discovered via wezterm's source — every terminal emulator with working mouse on Windows 10 ships its own OpenConsole. The sideloaded DLL launches a newer conhost that emits DECSET sequences in the output stream. Single flag (`0x4`) enables mouse tracking, alternate screen, and SGR mouse encoding. Windows 11 guard added after sideloaded binaries were found to crash on Win11's console subsystem.
+**Rationale:** The inbox ConPTY is broken on both OS versions (missing DECSET on Win10, STATUS_CONTROL_C_EXIT on Win11). The sideloaded DLL from Microsoft Terminal works correctly on both.
 
 ### Decision: NtCreateNamedPipeFile for ConPTY Pipe
 
@@ -833,7 +833,7 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 | AtlasGlyph | Cached rasterization result: texture UV rect, pixel dimensions, bearing |
 | BoxDrawing | Procedural rasterizer for box drawing, block elements, and braille — no font lookup |
 | BoxSelection | Rectangle selection: anchor + end cell coordinates, rendered as overlay |
-| ConPTY sideload | Runtime extraction of conpty.dll + OpenConsole.exe from BinaryData to ~/.config/end/conpty/ (Windows 10 only; skipped on Windows 11+ via `isWindows10()` guard) |
+| ConPTY sideload | Runtime extraction of conpty.dll + OpenConsole.exe from BinaryData to ~/.config/end/conpty/ (all Windows versions — inbox ConPTY broken on both Win10 and Win11) |
 | getActiveScreen | Message-thread ValueTree reader for active screen state (normal/alternate) |
 | Cell | 16-byte struct representing one terminal character position |
 | displayName | Derived tab label: foregroundProcess (when != shell) > cwd leaf name |

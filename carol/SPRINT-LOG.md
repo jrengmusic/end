@@ -204,6 +204,90 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
+## Sprint 100 — Windows 11: DWM Blur, ConPTY Sideload, Unified Blur Architecture
+
+**Date:** 2026-03-19
+**Agents:** COUNSELOR, @engineer, @pathfinder, @researcher, @librarian, @auditor
+
+### Problem
+
+END crashed on Windows 11 — black window, shell exits immediately, no blur. Three root causes discovered through incremental testing:
+
+1. **DWM blur black on Windows 11:** `ACCENT_ENABLE_BLURBEHIND` (3) with `AccentFlags=2` (GradientColor) produces black. `WS_EX_LAYERED` (added by JUCE `setOpaque(false)`) is incompatible with DWM backdrop effects and rounded corners on Windows 11.
+2. **Inbox ConPTY kills child processes:** Windows 11 inbox `kernel32.dll` ConPTY sends `STATUS_CONTROL_C_EXIT` (0xC000013A) to child processes immediately after spawn. Sideloaded `conpty.dll` + `OpenConsole.exe` works correctly on both Windows 10 and 11.
+3. **Blur architecture diverged from original macOS design:** The Windows port moved tint color into the OS API (`GradientColor`), diverging from the original `de22c5c` architecture where OS handles blur only and JUCE handles tint.
+
+### What Was Done
+
+**1. Windows 11 DWM blur path** (`jreng_background_blur.cpp`)
+- Strip `WS_EX_LAYERED` on Windows 11 — incompatible with DWM backdrop and rounded corners
+- `DWMWA_WINDOW_CORNER_PREFERENCE = DWMWCP_ROUND` (attribute 33) — native rounded corners
+- `DwmExtendFrameIntoClientArea({-1})` — sheet of glass
+- `ACCENT_ENABLE_BLURBEHIND` (3) + `AccentFlags=0` + `GradientColor=0` — blur only, no tint
+- `isWindows10()` is the only OS branch — Windows 11 is canon, Windows 10 is special case
+
+**2. Unified blur architecture** (`jreng_background_blur.mm`, `jreng_glass_window.cpp`)
+- Restored original `de22c5c` macOS architecture: OS API provides blur only, JUCE provides tint
+- macOS: `[window setBackgroundColor:[NSColor clearColor]]` replaces tint-colored background
+- GlassWindow: `DocumentWindow` background restored to `colour.withAlpha(opacity)` (was `transparentBlack`)
+- Both platforms now identical: OS = blur, JUCE = tint
+
+**3. ConPTY sideload on all Windows versions** (`WindowsTTY.cpp`)
+- Removed `isWindows10()` guard from `loadConPtyFuncs()` — always sideload
+- Inbox Windows 11 ConPTY sends `STATUS_CONTROL_C_EXIT` to child processes; sideloaded DLL works correctly
+- Sprint 99 assumption ("inbox ConPTY on Win11 is sufficient") proven wrong
+
+**4. Shared `isWindows10()`** (`jreng_platform.h`)
+- Moved from `WindowsTTY.cpp` to `jreng_core/utilities/jreng_platform.h`
+- Single definition used by both `WindowsTTY.cpp` and `jreng_background_blur.cpp`
+- Removed `isWindows11_22H2OrLater()` from `jreng_background_blur.cpp`
+
+**5. `scaleNotifier` null guard** (`MainComponent.h`)
+- Added `tabs != nullptr` check in `NativeScaleFactorNotifier` lambda
+- Prevents crash when DPI change fires before `initialiseTabs()`
+
+### Key Discovery: Windows 11 DWM + WS_EX_LAYERED
+
+`WS_EX_LAYERED` windows are fundamentally incompatible with DWM backdrop effects on Windows 11. DWM treats layered windows as flat textures — no blur behind, no rounded corners. Windows Terminal explicitly warns: "WS_EX_LAYERED acts REAL WEIRD... activating the window will remove our DWM frame entirely" (IslandWindow.cpp:147). The fix: strip `WS_EX_LAYERED` after JUCE adds it, then use DWM attributes for rounding and blur.
+
+### Key Discovery: Windows 11 Inbox ConPTY Broken
+
+The inbox `kernel32.dll` `CreatePseudoConsole` on Windows 11 sends `STATUS_CONTROL_C_EXIT` (0xC000013A) to child processes immediately after spawn. All shells (cmd.exe, powershell.exe, zsh.exe) affected. The sideloaded `conpty.dll` + `OpenConsole.exe` from Microsoft Terminal works correctly on both Windows 10 and 11.
+
+### Key Discovery: ACCENT_ENABLE_BLURBEHIND AccentFlags
+
+On Windows 11, `ACCENT_ENABLE_BLURBEHIND` (3) behavior depends on `AccentFlags`:
+- `AccentFlags=0` — transparent blur (works, closest to macOS CGS blur)
+- `AccentFlags=2` (use GradientColor) — black/opaque (broken on Win11)
+- `ACCENT_ENABLE_ACRYLICBLURBEHIND` (4) + `AccentFlags=0` — acrylic blur (works but different look)
+
+### Files Modified
+
+- `modules/jreng_gui/glass/jreng_background_blur.cpp` — `applyDwmGlass()` rewritten: Win11 canon path (strip WS_EX_LAYERED, rounded corners, sheet of glass, blur only), Win10 special case preserved. Removed `isWindows11_22H2OrLater()` and DWMWA constants.
+- `modules/jreng_gui/glass/jreng_background_blur.mm` — `applyBackgroundBlur()` and `applyNSVisualEffect()`: `[NSColor clearColor]` replaces tint-colored background
+- `modules/jreng_gui/glass/jreng_glass_window.cpp` — `DocumentWindow` background restored to `colour.withAlpha(opacity)`
+- `modules/jreng_core/utilities/jreng_platform.h` — NEW: shared `isWindows10()` static function
+- `Source/terminal/tty/WindowsTTY.cpp` — removed `isWindows10()` guard from sideload, removed local `isWindows10()` definition, includes `jreng_platform.h`
+- `Source/MainComponent.h` — `scaleNotifier` null guard for `tabs`
+- `Source/component/TerminalComponent.cpp` — clean (diagnostics removed)
+
+### Alignment Check
+
+- **LIFESTAR Lean:** One OS branch (`isWindows10()`), no nested version checks. Blur architecture identical on both platforms.
+- **LIFESTAR Explicit Encapsulation:** OS API handles blur only. JUCE handles tint. GL renders on top. Each layer has one job.
+- **LIFESTAR SSOT:** `isWindows10()` defined once in `jreng_platform.h`, used everywhere.
+- **LIFESTAR Reviewable:** Win11 path documented with DWM attribute values and rationale.
+- **NAMING-CONVENTION:** `isWindows10()` — boolean predicate with `is*` prefix, semantic name.
+
+### Technical Debt / Follow-up
+
+- **GL compositing on Windows 11:** GL framebuffer covers JUCE-painted tint. `enableGLTransparency()` on Windows has no equivalent of macOS `NSOpenGLContextParameterSurfaceOpacity=0`. Terminal renders but tint is invisible. Needs investigation.
+- **Windows 10 blur path untested after changes:** The Win10 special case path is preserved byte-for-byte but the sideload change (always sideload) and `isWindows10()` relocation need verification on Win10.
+- **ConPTY sideload always on:** The `isWindows10()` guard was removed. The sideloaded binaries add ~1.2MB to the exe. This is the correct behavior but the Sprint 99 ARCHITECTURE.md entry about "Win10 only sideload" needs updating.
+- **`if (true)` in loadConPtyFuncs:** Temporary — should be cleaned up to remove the dead `isWindows10()` branch entirely.
+
+---
+
 ## Sprint 99 — Windows 11 ConPTY Guard + build.bat Fixes
 
 **Date:** 2026-03-18
@@ -545,82 +629,5 @@ ConPTY (sideloaded `OpenConsole.exe`) keeps the pipe alive after the child proce
 - **`onProcessExited` naming** — used as a flag to detect popup terminals in `keyPressed`. Should have a dedicated `isPopupTerminal` flag instead of overloading callback presence.
 - **Ctrl+C bypass is Ctrl+C only** — other signal keys (Ctrl+Z, Ctrl+\) may have the same Win32 Input Mode issue. Should audit all signal-generating keys.
 - **`escapeKeyTriggersCloseButton = false`** — Escape goes to TUI. No way to dismiss popup except process exit. May want a configurable dismiss key in future.
-
----
-
-## Sprint 95 — Terminal::Popup: Modal Glass Dialog with GL Rendering
-
-**Date:** 2026-03-16
-**Agents:** COUNSELOR, @engineer, @pathfinder
-
-### Problem
-
-ActionList (command palette) scaffolded in Sprint 94 could never grab keyboard focus when added as a child of MainComponent. The tmux-style popup from SPEC.md was identified as the correct primitive — a modal glass window that hosts any component, grabs focus, and blocks the parent.
-
-### What Was Done
-
-**1. Terminal::Popup** (`Source/component/Popup.h` + `Popup.cpp`)
-- Modal glass dialog using `juce::DialogWindow` with `escapeKeyTriggersCloseButton = true`
-- `jreng::BackgroundBlur` applied via deferred `juce::AsyncUpdater` (identical pattern to `jreng::GlassWindow` and `kuassa::GlassDialogWindow`)
-- Escape dismisses (JUCE built-in), click outside brings to front (does not dismiss)
-- `Popup::show (caller, content)` — reads Config fractions, sizes content, creates window, centres on caller, enters modal state
-- `Popup::dismiss()` — exits modal state, releases window
-- `onDismiss` callback for cleanup
-
-**2. ContentView pattern** (mirrors MainComponent)
-- `Popup::ContentView` — intermediate content component inside the DialogWindow
-- Owns `jreng::GLRenderer` attached to itself (not to the DialogWindow)
-- Sets `componentIterator` to yield the single GL content component
-- Wires `Terminal::Component::onRepaintNeeded` → `glRenderer.triggerRepaint()`
-- `initialiseGL()` called after window is visible (native peer exists)
-- Architecture: `Window (DialogWindow) → ContentView → Terminal::Component` — identical to `GlassWindow → MainComponent → Terminal::Component`
-
-**3. Config keys**
-- Added: `popup.width` (0.6), `popup.height` (0.5), `popup.position` ("center"), `popup.action` ("action_list")
-- Renamed: `keys.action_list` → `keys.popup`, default `"?"`
-- Removed: `keys.action_list_position` (replaced by `popup.position`)
-- Schema: `popup.width`/`popup.height` range-validated [0.1, 1.0]
-
-**4. Action system updated**
-- Action ID `"action_list"` → `"popup"`
-- Action key table entry: `Config::Key::keysPopup`
-- MainComponent registration: creates `Terminal::Component`, passes to `popup.show()`
-
-**5. default_end.lua updated**
-- New `popup` section with `width`, `height`, `position`, `action`
-- `keys.popup` replaces `keys.action_list`
-
-### Key Discovery: GL Context Cannot Cross Native Window Boundaries
-
-`juce::OpenGLContext` is attached to one native window. A `DialogWindow` creates a separate native OS window. The main app's GLRenderer (attached to MainComponent) cannot render into the popup's window. Solution: each popup window gets its own GLRenderer attached to its own ContentView — identical architecture to the main app.
-
-### Files Created
-- `Source/component/Popup.h` (231 lines)
-- `Source/component/Popup.cpp` (172 lines)
-
-### Files Modified
-- `Source/config/Config.h` — `keysActionList` → `keysPopup`, removed `keysActionListPosition`, added `popupWidth`/`popupHeight`/`popupPosition`/`popupAction`
-- `Source/config/Config.cpp` — updated `initDefaults()` and `initSchema()`
-- `Source/config/default_end.lua` — new `popup` section, `keys.popup` replaces `keys.action_list`
-- `Source/terminal/action/Action.cpp` — action key table: `keysActionList`/`"action_list"` → `keysPopup`/`"popup"`
-- `Source/terminal/action/ActionList.cpp:59` — `keysActionListPosition` → `popupPosition`
-- `Source/MainComponent.h` — added `#include "component/Popup.h"`, added `Terminal::Popup popup` member
-- `Source/MainComponent.cpp` — `"popup"` action creates `Terminal::Component` and calls `popup.show()`
-
-### Alignment Check
-- **LIFESTAR Lean:** Popup is a thin controller (~170 lines). ContentView is minimal. No unnecessary abstractions.
-- **LIFESTAR Explicit Encapsulation:** Popup knows nothing about Terminal::Component. ContentView detects GL content via `dynamic_cast` — generic for any `jreng::GLComponent`. Window handles its own glass blur. Each object has one job.
-- **LIFESTAR SSOT:** Config is the sole source for popup size/position. `Config& config` member reference resolved once, used everywhere.
-- **LIFESTAR Findable:** `Source/component/Popup.h` — alongside Tabs, Panes, MessageOverlay.
-- **LIFESTAR Reviewable:** Architecture documented in header doxygen. Pattern explicitly mirrors MainComponent.
-- **NAMING-CONVENTION:** `Popup`, `ContentView`, `initialiseGL`, `popupWidth`, `popupAction` — all semantic, no data-type encoding.
-- **ARCHITECTURAL-MANIFESTO:** Tell don't ask. `show()` is an instruction. Popup doesn't poke Window internals. Window doesn't poke ContentView internals.
-
-### Technical Debt / Follow-up
-- **`popup.action` not yet interpreted** — currently hardcoded to spawn `Terminal::Component`. Needs dispatch logic: if value matches END keyword (`"action_list"`), spawn ActionList; otherwise spawn terminal running the shell command.
-- **ActionList not wired as popup content** — ActionList.h/cpp exist but are not used. Next step: ActionList inside Popup when `popup.action == "action_list"`.
-- **Multiple popup configs** — SPEC.md describes per-popup entries (lazygit, htop, etc.). Current Config supports only one popup. Future: `popups` array in Lua.
-- **Popup not resizable** — `setResizable (false, false)`. May want draggable/resizable in future.
-- **`close_pane` action** still blocked on missing Config key.
 
 ---

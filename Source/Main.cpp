@@ -43,23 +43,11 @@
 */
 
 #include <JuceHeader.h>
-#include "MainComponent.h"// TEMP: still compiled, not instantiated
+#include "MainComponent.h"
 #include "AppState.h"
 #include "config/Config.h"
 #include "terminal/action/Action.h"
 #include "terminal/rendering/FontCollection.h"
-
-// TEMP: empty transparent component for window-only testing
-class EmptyComponent : public juce::Component
-{
-public:
-    EmptyComponent()
-    {
-        setOpaque (false);
-        setSize (640, 480);
-    }
-    void paint (juce::Graphics&) override {}
-};
 
 #if JUCE_WINDOWS
 #pragma comment(lib, "winmm.lib")
@@ -138,14 +126,20 @@ public:
 
         auto* cfg { Config::getContext() };
 
-        // TEMP: window-only test — no MainComponent, no GL, no terminal
-        mainWindow.reset (new jreng::GlassWindow (new EmptyComponent(),
-                                                  cfg->getString (Config::Key::windowTitle),
-                                                  cfg->getColour (Config::Key::windowColour),
-                                                  cfg->getFloat (Config::Key::windowOpacity),
-                                                  cfg->getFloat (Config::Key::windowBlurRadius),
-                                                  cfg->getBool (Config::Key::windowAlwaysOnTop),
-                                                  cfg->getBool (Config::Key::windowButtons)));
+        mainWindow.reset (new jreng::GlassWindow (
+            new MainComponent(),
+            cfg->getString (Config::Key::windowTitle),
+            cfg->getColour (Config::Key::windowColour),
+            cfg->getFloat (Config::Key::windowOpacity),
+            cfg->getFloat (Config::Key::windowBlurRadius),
+            cfg->getBool (Config::Key::windowAlwaysOnTop),
+            cfg->getBool (Config::Key::windowButtons)));
+
+        config.onReload = [this]
+        {
+            if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
+                content->applyConfig();
+        };
     }
 
     /**

@@ -139,7 +139,8 @@ private:
         this,
         [this] (float)
         {
-            tabs->resetZoom();
+            if (tabs != nullptr)
+                tabs->resetZoom();
         }
     };
 #endif
