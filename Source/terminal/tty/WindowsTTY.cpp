@@ -213,38 +213,36 @@ static const ConPtyFuncs& loadConPtyFuncs() noexcept
     {
         ConPtyFuncs result {};
 
-        // --- Attempt 1: sideloaded conpty.dll (all Windows versions) ---
-        // The inbox kernel32 ConPTY on Windows 11 sends STATUS_CONTROL_C_EXIT
-        // to child processes immediately after spawn. The sideloaded DLL from
-        // Microsoft Terminal works correctly on both Windows 10 and 11.
-        if (true) // always sideload
+        // --- Sideloaded conpty.dll (all Windows versions) ---
+        // The inbox kernel32 ConPTY is broken on both Windows 10 (missing
+        // DECSET passthrough) and Windows 11 (sends STATUS_CONTROL_C_EXIT to
+        // child processes immediately after spawn).  The sideloaded DLL from
+        // Microsoft Terminal works correctly on both.
+        const juce::File dllPath { extractConPtyBinaries() };
+
+        if (dllPath.existsAsFile())
         {
-            const juce::File dllPath { extractConPtyBinaries() };
+            const HMODULE conptyModule { LoadLibraryW (dllPath.getFullPathName().toWideCharPointer()) };
 
-            if (dllPath.existsAsFile())
+            if (conptyModule != nullptr)
             {
-                const HMODULE conptyModule { LoadLibraryW (dllPath.getFullPathName().toWideCharPointer()) };
+                result.create = reinterpret_cast<ConPtyFuncs::CreateFunc> (
+                    GetProcAddress (conptyModule, "CreatePseudoConsole"));
+                result.resize = reinterpret_cast<ConPtyFuncs::ResizeFunc> (
+                    GetProcAddress (conptyModule, "ResizePseudoConsole"));
+                result.close  = reinterpret_cast<ConPtyFuncs::CloseFunc> (
+                    GetProcAddress (conptyModule, "ClosePseudoConsole"));
 
-                if (conptyModule != nullptr)
+                if (not result.isValid())
                 {
-                    result.create = reinterpret_cast<ConPtyFuncs::CreateFunc> (
-                        GetProcAddress (conptyModule, "CreatePseudoConsole"));
-                    result.resize = reinterpret_cast<ConPtyFuncs::ResizeFunc> (
-                        GetProcAddress (conptyModule, "ResizePseudoConsole"));
-                    result.close  = reinterpret_cast<ConPtyFuncs::CloseFunc> (
-                        GetProcAddress (conptyModule, "ClosePseudoConsole"));
-
-                    if (not result.isValid())
-                    {
-                        // Partial load — reset and fall through to kernel32.
-                        result = {};
-                        FreeLibrary (conptyModule);
-                    }
+                    // Partial load — reset and fall through to kernel32.
+                    result = {};
+                    FreeLibrary (conptyModule);
                 }
             }
         }
 
-        // --- Attempt 2: inbox kernel32.dll (fallback, or sole path on Windows 11+) ---
+        // --- Fallback: inbox kernel32.dll ---
         if (not result.isValid())
         {
             const HMODULE kernel32 { GetModuleHandleW (L"kernel32.dll") };

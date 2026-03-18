@@ -174,6 +174,9 @@ END = {
 		opacity = %%window_opacity%%,
 
 		-- Background blur radius in pixels (0 = no blur).
+		-- macOS: controls blur intensity via CoreGraphics private SPI.
+		-- Windows: blur intensity is controlled by DWM (this value is accepted
+		-- but not forwarded — the acrylic effect has a fixed blur radius).
 		blur_radius = %%window_blur_radius%%,
 
 		-- Keep window above all other windows.

@@ -210,20 +210,15 @@ void BackgroundBlur::hideWindowButtons (juce::Component*)
  * @brief Prepares the current OpenGL window for DWM alpha compositing.
  *
  * Called from Screen::glContextCreated() on the GL render thread while the
- * WGL context is current.  Performs the two operations that are safe for GL
- * windows but would break software-rendered (UpdateLayeredWindow) windows:
+ * WGL context is current.  Performs two operations:
  *
- * 1. Strips @c WS_EX_LAYERED from the HWND.  JUCE sets this flag on
- *    transparent windows (setOpaque(false) + no native title bar) so that its
- *    software renderer can call UpdateLayeredWindow.  OpenGL bypasses that
- *    pipeline entirely (wglSwapBuffers writes directly to the framebuffer), so
- *    the flag is not needed and must be removed for DWM alpha compositing to
- *    work correctly.
+ * 1. Strips @c WS_EX_LAYERED from the HWND.
+ * 2. Calls DwmExtendFrameIntoClientArea({-1,-1,-1,-1}).
  *
- * 2. Calls DwmExtendFrameIntoClientArea({-1,-1,-1,-1}).  This tells DWM to
- *    treat the entire client area as the non-client (glass) frame, enabling
- *    per-pixel alpha compositing of the GL framebuffer with the desktop.
- *    Without this call the GL surface is composited as fully opaque.
+ * On Windows 11, applyDwmGlass() already performs both operations.  This
+ * function is idempotent — calling it again is harmless.  On Windows 10,
+ * applyDwmGlass() does NOT strip WS_EX_LAYERED or extend the DWM frame,
+ * so this function is required for GL windows on that OS.
  *
  * @note Must be called from the GL render thread while the WGL context is
  *       current (i.e. inside glContextCreated / renderOpenGL).
