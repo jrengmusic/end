@@ -204,6 +204,72 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
+## Sprint 99 — Windows 11 ConPTY Guard + build.bat Fixes
+
+**Date:** 2026-03-18
+**Agents:** COUNSELOR, @engineer, @pathfinder, @auditor
+
+### Problem
+
+END crashed on Windows 11 with a warning about conpty. The sideloaded `conpty.dll` + `OpenConsole.exe` (embedded as BinaryData, extracted to `~/.config/end/conpty/` at runtime) were designed for Windows 10 where the inbox `conhost.exe` doesn't support `PSEUDOCONSOLE_WIN32_INPUT_MODE`. On Windows 11, the inbox ConPTY already supports this flag natively, and the sideloaded Win10-era binaries are version-incompatible with Win11's console subsystem — causing a crash.
+
+Additionally, `build.bat` had three bugs: (1) parentheses in `%PATH%` after `vcvarsall.bat` broke `cmd.exe` block parsing, (2) switching between Debug/Release required manual `clean` because Ninja is single-config, (3) `vcvarsall.bat` caused the script to re-enter and run twice.
+
+### What Was Done
+
+**1. `isWindows10()` — OS version gate for ConPTY sideload** (`WindowsTTY.cpp:206-238`)
+- Static function with cached IIFE (`static const bool`)
+- Uses `RtlGetVersion` from `ntdll.dll` via `GetProcAddress` + `reinterpret_cast` (matches file's existing NT API pattern)
+- Returns `true` when `dwBuildNumber < 22000` (Windows 10)
+- Safe default: `false` — if version undetectable, skip sideload, use inbox ConPTY
+- Nested positive checks, single `return result`, brace initialization — fully compliant with JRENG-CODING-STANDARD
+
+**2. `loadConPtyFuncs()` — sideload path guarded** (`WindowsTTY.cpp:259-313`)
+- Wrapped entire "Attempt 1: sideloaded conpty.dll" block inside `if (isWindows10())`
+- `extractConPtyBinaries()` never called on Windows 11+ — no files dumped to disk
+- Kernel32 fallback gated by `if (not result.isValid())` instead of pre-existing early return
+- Fixed pre-existing coding standard violations: early return removed, `= []()` → brace init `{ []()...() }`, `mod` → `conptyModule`
+
+**3. `build.bat` — delayed expansion fix** (`build.bat`)
+- `setlocal enabledelayedexpansion` — all `%VAR%` → `!VAR!` inside `if` blocks
+- Prevents `cmd.exe` parser crash when `%PATH%` contains parentheses (e.g. `C:\Program Files (x86)\...`) after `vcvarsall.bat` runs
+- Echo messages use `[Config]` brackets instead of `(Config)` parentheses
+
+**4. `build.bat` — automatic reconfigure on config change** (`build.bat`)
+- Marker file `Builds/Ninja/.build_config` stores active config type
+- On every run: reads marker, compares to requested config, reconfigures if different
+- `build.bat Release` after a Debug build now works without manual `clean`
+
+**5. `build.bat` — re-entry guard** (`build.bat`)
+- `_END_BUILD_RUNNING` environment variable prevents double execution
+- `vcvarsall.bat` can cause `cmd.exe` to re-enter the calling script; guard exits immediately on re-entry
+
+### Files Modified
+
+- `Source/terminal/tty/WindowsTTY.cpp:206-238` — added `isWindows10()` static function
+- `Source/terminal/tty/WindowsTTY.cpp:259-313` — `loadConPtyFuncs()` IIFE restructured: sideload guarded by `isWindows10()`, early return eliminated, brace init, `mod` → `conptyModule`
+- `build.bat` — `enabledelayedexpansion` + `!VAR!` syntax, config change detection with marker file, re-entry guard
+
+### Alignment Check
+
+- **LIFESTAR Lean:** `isWindows10()` is 32 lines including docstring. One `if` guard in `loadConPtyFuncs()`. No new abstractions, no shared utilities — the version check is local to the one static function that needs it.
+- **LIFESTAR Explicit Encapsulation:** `isWindows10()` is a pure static function with no parameters and no external dependencies beyond Win32 API. It manages its own cached state. Callers don't track any flags on its behalf. `loadConPtyFuncs()` doesn't know or care about the OS version check implementation.
+- **LIFESTAR SSOT:** Build number threshold `22000` appears exactly once (line 230). Not duplicated with `isWindows11_22H2OrLater()` in `jreng_background_blur.cpp` — different threshold (22621), different purpose (Mica blur), different predicate.
+- **LIFESTAR Immutable:** Both functions use `static const` locals — computed once per process, deterministic, no hidden mutation.
+- **LIFESTAR Reviewable:** Docstring explains why (Win10 vs Win11), the threshold (22000), and the safe default (false). Inline comments mark the two-attempt strategy.
+- **NAMING-CONVENTION:** `isWindows10` — boolean predicate with `is*` prefix (Rule 1), semantic name (Rule 3). `FnRtlGetVersion` — type alias with `Fn` prefix distinguishing from the API function it wraps. `conptyModule` — semantic name for the loaded DLL handle (Rule 3).
+- **JRENG-CODING-STANDARD:** Nested positive checks (no early returns), brace initialization, `not`/`and`/`or` tokens, `reinterpret_cast`, `const` before type, `noexcept`, explicit nullptr checks. Audited and passed all three contracts.
+
+### Technical Debt / Follow-up
+
+- **Sprint 92 debt resolved:** "Windows 11: The inbox conhost on Windows 11 may support PSEUDOCONSOLE_WIN32_INPUT_MODE natively. The sideload is harmless (same behavior) but could be skipped on newer OS versions." — Now guarded. Sideload is Windows 10 exclusive.
+- **`getTreeMode()` / `getTreeKeyboardFlags()` naming** — still violates NAMING-CONVENTION Rule 2. Pre-existing debt from Sprint 91.
+- **`seq 1M` performance gap** — still 2m33s vs Terminal's 1m12s. Pre-existing debt from Sprint 91.
+- **`CursorComponent` missing `setInterceptsMouseClicks(false, false)`** — pre-existing debt from Sprint 92.
+- **Sideloaded binaries still embedded in BinaryData** — on Windows 11 they are dead weight (~1.2 MB) in the executable. Could be excluded from BinaryData via CMake platform/version guard, but the complexity isn't worth the savings right now.
+
+---
+
 ## Sprint 98 — Configurable Padding, SGR Mouse Wheel, DPI Cell Hit-Test, Resize Ruler, Bit-Font Logo
 
 **Date:** 2026-03-17
@@ -558,67 +624,3 @@ ActionList (command palette) scaffolded in Sprint 94 could never grab keyboard f
 - **`close_pane` action** still blocked on missing Config key.
 
 ---
-
-
-
-## Sprint 92 — ConPTY Sideload: Mouse + Alternate Screen on Windows
-
-**Date:** 2026-03-15  
-**Agents:** COUNSELOR, @engineer, @researcher, @pathfinder
-
-### Problem
-
-Mouse was completely non-functional on Windows. ConPTY on Windows 10 22H2 (build 19045) intercepts all DECSET sequences (`?1000h`, `?1003h`, `?1006h`, `?1049h`) and does NOT re-emit them in the output stream. The terminal emulator has zero information about mouse tracking or alternate screen state. The inbox `conhost.exe` does not support `PSEUDOCONSOLE_WIN32_INPUT_MODE` (0x4 flag).
-
-### Root Cause
-
-Discovered by examining wezterm's source (`pty/src/win/psuedocon.rs`): wezterm sideloads `conpty.dll` + `OpenConsole.exe` from Microsoft Terminal's open-source project (MIT license). The sideloaded `conpty.dll` launches `OpenConsole.exe` (a newer conhost) instead of the inbox `conhost.exe`. This newer conhost supports `PSEUDOCONSOLE_WIN32_INPUT_MODE` and emits DECSET sequences in the output stream.
-
-The fix was **one flag** (`0x4`) — but it only works with the sideloaded DLL, not the inbox conhost.
-
-### What Was Done
-
-**1. ConPTY sideload mechanism**
-- Embedded `conpty.dll` (109 KB) and `OpenConsole.exe` (1.1 MB) from Microsoft Terminal as JUCE BinaryData
-- On first `open()`, extracts both to `~/.config/end/conpty/` (skips if size matches — update-safe)
-- Loads `CreatePseudoConsole`, `ResizePseudoConsole`, `ClosePseudoConsole` from sideloaded DLL
-- Falls back to `kernel32.dll` if sideload fails
-- Passes `PSEUDOCONSOLE_WIN32_INPUT_MODE` (0x4) flag to `CreatePseudoConsole`
-
-**2. Mouse gate restored**
-- `shouldForwardMouseToPty()` returns `isMouseTracking()` on all platforms
-- With sideloaded ConPTY, `isMouseTracking()` now correctly returns true when TUI apps enable mouse (ConPTY emits `?1003;1006h` in output stream)
-
-**3. State::getActiveScreen() (from Sprint 91)**
-- Now works correctly — sideloaded ConPTY emits `?1049h` so `setScreen()` is called and `getActiveScreen()` returns `alternate` when appropriate
-
-**4. Diagnostics removed**
-- All temporary `std::cout`, file logging, and `DBG` diagnostics removed from Session.cpp, ParserCSI.cpp, ParserEdit.cpp, TerminalComponent.cpp
-
-### Files Modified
-
-- `Resources/windows/conpty.dll` — NEW (MIT-licensed binary from Microsoft Terminal)
-- `Resources/windows/OpenConsole.exe` — NEW (MIT-licensed binary from Microsoft Terminal)
-- `CMakeLists.txt:254-264` — Added explicit binary data entries for conpty.dll + OpenConsole.exe (WIN32 only)
-- `Source/terminal/tty/WindowsTTY.cpp` — Added `ConPtyFuncs` struct, `extractConPtyBinaries()`, `loadConPtyFuncs()`. All ConPTY API calls now go through function pointers loaded from sideloaded DLL (or kernel32 fallback). `PSEUDOCONSOLE_WIN32_INPUT_MODE` flag passed.
-- `Source/terminal/logic/Session.cpp` — Diagnostics removed, `onData` restored to clean one-liner
-- `Source/component/TerminalComponent.cpp` — `shouldForwardMouseToPty()` cleaned up, diagnostics removed
-
-### Alignment Check
-
-- **LIFESTAR:** Lean (sideload is ~60 lines, single static initializer), Explicit (ConPtyFuncs struct makes function source traceable), Single Source of Truth (all three ConPTY functions from same DLL), Findable (extraction path documented in docstring)
-- **NAMING-CONVENTION:** `ConPtyFuncs`, `extractConPtyBinaries`, `loadConPtyFuncs` — all semantic, no data-source encoding
-- **ARCHITECTURAL-MANIFESTO:** TTY layer manages its own dependencies. No poking from Session or TerminalComponent. The sideload is an implementation detail of WindowsTTY — callers don't know or care.
-
-### Technical Debt / Follow-up
-
-- **Binary size increase:** ~1.2 MB added to END.exe from embedded conpty.dll + OpenConsole.exe. Acceptable trade-off for mouse support.
-- **Update mechanism:** Size-based check for extraction. If Microsoft updates the binaries, END must be rebuilt with new versions. No version checking beyond file size.
-- **Windows 11:** The inbox conhost on Windows 11 may support `PSEUDOCONSOLE_WIN32_INPUT_MODE` natively. The sideload is harmless (same behavior) but could be skipped on newer OS versions.
-- **`seq 1M` performance gap** (from Sprint 91): Still 2m33s vs Terminal's 1m12s. Drain loop exits too early. Separate sprint.
-- **`getTreeMode()` / `getTreeKeyboardFlags()` naming** violates NAMING-CONVENTION Rule 2. Pre-existing debt.
-- **`CursorComponent` missing `setInterceptsMouseClicks(false, false)`** — cursor cell swallows clicks. Now that mouse works, this should be fixed.
-
----
-
-

@@ -187,13 +187,68 @@ static juce::File extractConPtyBinaries() noexcept
 // =============================================================================
 
 /**
+ * @brief Returns true if the current OS is Windows 10 (build < 22000).
+ *
+ * The sideloaded conpty.dll + OpenConsole.exe are only needed on Windows 10.
+ * On Windows 11 and later (build >= 22000), the inbox ConPTY in kernel32.dll
+ * already supports PSEUDOCONSOLE_WIN32_INPUT_MODE natively.  The sideloaded
+ * binaries crash on Windows 11, so they must never be loaded there.
+ *
+ * Build number threshold: 22000 is the first Windows 11 build (21H2).
+ *
+ * Safe default is false: if RtlGetVersion cannot be resolved we skip the
+ * sideload and fall through to the inbox kernel32.dll path, which is always
+ * correct on any supported Windows version.
+ *
+ * @return  true  — Windows 10 (build < 22000); sideload is safe.
+ * @return  false — Windows 11+ (build >= 22000) or version undetectable; use inbox ConPTY.
+ */
+static bool isWindows10() noexcept
+{
+    using FnRtlGetVersion = NTSTATUS (NTAPI*) (OSVERSIONINFOEXW*);
+
+    static const bool cached { []() noexcept -> bool
+    {
+        bool result { false };
+
+        const HMODULE ntdll { GetModuleHandleW (L"ntdll.dll") };
+
+        if (ntdll != nullptr)
+        {
+            const FnRtlGetVersion rtlGetVersion
+            {
+                reinterpret_cast<FnRtlGetVersion> (
+                    GetProcAddress (ntdll, "RtlGetVersion"))
+            };
+
+            if (rtlGetVersion != nullptr)
+            {
+                OSVERSIONINFOEXW osvi {};
+                osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFOEXW);
+
+                if (rtlGetVersion (&osvi) == 0)
+                    result = osvi.dwBuildNumber < 22000;
+            }
+        }
+
+        return result;
+    }() };
+
+    return cached;
+}
+
+// =============================================================================
+
+/**
  * @brief Load the three ConPTY function pointers, preferring the sideloaded conpty.dll.
  *
  * Strategy (mirrors wezterm's approach):
- * 1. Extract conpty.dll + OpenConsole.exe from BinaryData to ~/.config/end/conpty/.
+ * 1. On Windows 10 only: extract conpty.dll + OpenConsole.exe from BinaryData
+ *    to ~/.config/end/conpty/ and attempt to load them.
  * 2. Try `LoadLibraryW` on the extracted conpty.dll.
  * 3. If loaded, resolve all three functions from it.
- * 4. If any step fails, fall back to kernel32.dll (inbox ConPTY).
+ * 4. If any step fails, or if running on Windows 11+, fall back to kernel32.dll
+ *    (inbox ConPTY).
  *
  * The result is cached in a static local — loaded once per process lifetime.
  *
@@ -203,50 +258,56 @@ static juce::File extractConPtyBinaries() noexcept
  */
 static const ConPtyFuncs& loadConPtyFuncs() noexcept
 {
-    static const ConPtyFuncs funcs = []() noexcept -> ConPtyFuncs
+    static const ConPtyFuncs funcs { []() noexcept -> ConPtyFuncs
     {
         ConPtyFuncs result {};
 
-        // --- Attempt 1: sideloaded conpty.dll ---
-        const juce::File dllPath { extractConPtyBinaries() };
-
-        if (dllPath.existsAsFile())
+        // --- Attempt 1: sideloaded conpty.dll (Windows 10 only) ---
+        if (isWindows10())
         {
-            const HMODULE mod { LoadLibraryW (dllPath.getFullPathName().toWideCharPointer()) };
+            const juce::File dllPath { extractConPtyBinaries() };
 
-            if (mod != nullptr)
+            if (dllPath.existsAsFile())
             {
-                result.create = reinterpret_cast<ConPtyFuncs::CreateFunc> (
-                    GetProcAddress (mod, "CreatePseudoConsole"));
-                result.resize = reinterpret_cast<ConPtyFuncs::ResizeFunc> (
-                    GetProcAddress (mod, "ResizePseudoConsole"));
-                result.close  = reinterpret_cast<ConPtyFuncs::CloseFunc> (
-                    GetProcAddress (mod, "ClosePseudoConsole"));
+                const HMODULE conptyModule { LoadLibraryW (dllPath.getFullPathName().toWideCharPointer()) };
 
-                if (result.isValid())
-                    return result;
+                if (conptyModule != nullptr)
+                {
+                    result.create = reinterpret_cast<ConPtyFuncs::CreateFunc> (
+                        GetProcAddress (conptyModule, "CreatePseudoConsole"));
+                    result.resize = reinterpret_cast<ConPtyFuncs::ResizeFunc> (
+                        GetProcAddress (conptyModule, "ResizePseudoConsole"));
+                    result.close  = reinterpret_cast<ConPtyFuncs::CloseFunc> (
+                        GetProcAddress (conptyModule, "ClosePseudoConsole"));
 
-                // Partial load — reset and fall through to kernel32.
-                result = {};
-                FreeLibrary (mod);
+                    if (not result.isValid())
+                    {
+                        // Partial load — reset and fall through to kernel32.
+                        result = {};
+                        FreeLibrary (conptyModule);
+                    }
+                }
             }
         }
 
-        // --- Attempt 2: inbox kernel32.dll ---
-        const HMODULE kernel32 { GetModuleHandleW (L"kernel32.dll") };
-
-        if (kernel32 != nullptr)
+        // --- Attempt 2: inbox kernel32.dll (fallback, or sole path on Windows 11+) ---
+        if (not result.isValid())
         {
-            result.create = reinterpret_cast<ConPtyFuncs::CreateFunc> (
-                GetProcAddress (kernel32, "CreatePseudoConsole"));
-            result.resize = reinterpret_cast<ConPtyFuncs::ResizeFunc> (
-                GetProcAddress (kernel32, "ResizePseudoConsole"));
-            result.close  = reinterpret_cast<ConPtyFuncs::CloseFunc> (
-                GetProcAddress (kernel32, "ClosePseudoConsole"));
+            const HMODULE kernel32 { GetModuleHandleW (L"kernel32.dll") };
+
+            if (kernel32 != nullptr)
+            {
+                result.create = reinterpret_cast<ConPtyFuncs::CreateFunc> (
+                    GetProcAddress (kernel32, "CreatePseudoConsole"));
+                result.resize = reinterpret_cast<ConPtyFuncs::ResizeFunc> (
+                    GetProcAddress (kernel32, "ResizePseudoConsole"));
+                result.close  = reinterpret_cast<ConPtyFuncs::CloseFunc> (
+                    GetProcAddress (kernel32, "ClosePseudoConsole"));
+            }
         }
 
         return result;
-    }();
+    }() };
 
     return funcs;
 }
