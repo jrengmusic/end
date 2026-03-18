@@ -184,58 +184,9 @@ static juce::File extractConPtyBinaries() noexcept
     return (allOk and dllPath.existsAsFile()) ? dllPath : juce::File {};
 }
 
-// =============================================================================
-
-/**
- * @brief Returns true if the current OS is Windows 10 (build < 22000).
- *
- * The sideloaded conpty.dll + OpenConsole.exe are only needed on Windows 10.
- * On Windows 11 and later (build >= 22000), the inbox ConPTY in kernel32.dll
- * already supports PSEUDOCONSOLE_WIN32_INPUT_MODE natively.  The sideloaded
- * binaries crash on Windows 11, so they must never be loaded there.
- *
- * Build number threshold: 22000 is the first Windows 11 build (21H2).
- *
- * Safe default is false: if RtlGetVersion cannot be resolved we skip the
- * sideload and fall through to the inbox kernel32.dll path, which is always
- * correct on any supported Windows version.
- *
- * @return  true  — Windows 10 (build < 22000); sideload is safe.
- * @return  false — Windows 11+ (build >= 22000) or version undetectable; use inbox ConPTY.
- */
-static bool isWindows10() noexcept
-{
-    using FnRtlGetVersion = NTSTATUS (NTAPI*) (OSVERSIONINFOEXW*);
-
-    static const bool cached { []() noexcept -> bool
-    {
-        bool result { false };
-
-        const HMODULE ntdll { GetModuleHandleW (L"ntdll.dll") };
-
-        if (ntdll != nullptr)
-        {
-            const FnRtlGetVersion rtlGetVersion
-            {
-                reinterpret_cast<FnRtlGetVersion> (
-                    GetProcAddress (ntdll, "RtlGetVersion"))
-            };
-
-            if (rtlGetVersion != nullptr)
-            {
-                OSVERSIONINFOEXW osvi {};
-                osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFOEXW);
-
-                if (rtlGetVersion (&osvi) == 0)
-                    result = osvi.dwBuildNumber < 22000;
-            }
-        }
-
-        return result;
-    }() };
-
-    return cached;
-}
+// isWindows10() — defined in jreng_platform.h, included via WindowsTTY.h → JuceHeader.h → windows.h
+// The header is safe to include here because windows.h is already pulled in by WindowsTTY.h.
+#include "../../../modules/jreng_core/utilities/jreng_platform.h"
 
 // =============================================================================
 

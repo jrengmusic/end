@@ -105,7 +105,6 @@ MainComponent::~MainComponent()
     glRenderer.detach();
 }
 
-
 /**
  * @brief Registers all user-performable actions with `Terminal::Action`.
  *
@@ -130,156 +129,232 @@ void MainComponent::registerActions()
     auto& action { *Terminal::Action::getContext() };
     action.clear();
 
-    action.registerAction ("copy", "Copy", "Copy selection to clipboard", "Edit", false,
-        [this]() -> bool
-        {
-            bool consumed { false };
+    action.registerAction ("copy",
+                           "Copy",
+                           "Copy selection to clipboard",
+                           "Edit",
+                           false,
+                           [this]() -> bool
+                           {
+                               bool consumed { false };
 
-            if (tabs->hasSelection())
-            {
-                tabs->copySelection();
-                consumed = true;
-            }
+                               if (tabs->hasSelection())
+                               {
+                                   tabs->copySelection();
+                                   consumed = true;
+                               }
 
-            return consumed;
-        });
+                               return consumed;
+                           });
 
-    action.registerAction ("paste", "Paste", "Paste from clipboard", "Edit", false,
-        [this]() -> bool
-        {
-            tabs->pasteClipboard();
-            return true;
-        });
+    action.registerAction ("paste",
+                           "Paste",
+                           "Paste from clipboard",
+                           "Edit",
+                           false,
+                           [this]() -> bool
+                           {
+                               tabs->pasteClipboard();
+                               return true;
+                           });
 
-    action.registerAction ("quit", "Quit", "Quit application", "Application", false,
-        [this]() -> bool
-        {
-            juce::JUCEApplication::getInstance()->systemRequestedQuit();
-            return true;
-        });
+    action.registerAction ("quit",
+                           "Quit",
+                           "Quit application",
+                           "Application",
+                           false,
+                           [this]() -> bool
+                           {
+                               juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                               return true;
+                           });
 
-    action.registerAction ("close_tab", "Close Tab", "Close current tab", "Tabs", false,
-        [this]() -> bool
-        {
-            tabs->closeActiveTab();
+    action.registerAction ("close_tab",
+                           "Close Tab",
+                           "Close current tab",
+                           "Tabs",
+                           false,
+                           [this]() -> bool
+                           {
+                               tabs->closeActiveTab();
 
-            if (tabs->getTabCount() == 0)
-                juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                               if (tabs->getTabCount() == 0)
+                                   juce::JUCEApplication::getInstance()->systemRequestedQuit();
 
-            return true;
-        });
+                               return true;
+                           });
 
-    action.registerAction ("reload_config", "Reload Config", "Reload configuration", "Application", false,
-        [this]() -> bool
-        {
-            const auto reloadError { config.reload() };
+    action.registerAction ("reload_config",
+                           "Reload Config",
+                           "Reload configuration",
+                           "Application",
+                           false,
+                           [this]() -> bool
+                           {
+                               const auto reloadError { config.reload() };
 
-            if (reloadError.isEmpty())
-                messageOverlay->showMessage ("RELOADED", 1000);
-            else
-                messageOverlay->showMessage (reloadError);
+                               if (reloadError.isEmpty())
+                                   messageOverlay->showMessage ("RELOADED", 1000);
+                               else
+                                   messageOverlay->showMessage (reloadError);
 
-            return true;
-        });
+                               return true;
+                           });
 
-    action.registerAction ("zoom_in", "Zoom In", "Increase font size", "View", false,
-        [this]() -> bool
-        {
-            tabs->increaseZoom();
-            return true;
-        });
+    action.registerAction ("zoom_in",
+                           "Zoom In",
+                           "Increase font size",
+                           "View",
+                           false,
+                           [this]() -> bool
+                           {
+                               tabs->increaseZoom();
+                               return true;
+                           });
 
-    action.registerAction ("zoom_out", "Zoom Out", "Decrease font size", "View", false,
-        [this]() -> bool
-        {
-            tabs->decreaseZoom();
-            return true;
-        });
+    action.registerAction ("zoom_out",
+                           "Zoom Out",
+                           "Decrease font size",
+                           "View",
+                           false,
+                           [this]() -> bool
+                           {
+                               tabs->decreaseZoom();
+                               return true;
+                           });
 
-    action.registerAction ("zoom_reset", "Zoom Reset", "Reset font size to default", "View", false,
-        [this]() -> bool
-        {
-            tabs->resetZoom();
-            return true;
-        });
+    action.registerAction ("zoom_reset",
+                           "Zoom Reset",
+                           "Reset font size to default",
+                           "View",
+                           false,
+                           [this]() -> bool
+                           {
+                               tabs->resetZoom();
+                               return true;
+                           });
 
-    action.registerAction ("new_tab", "New Tab", "Open a new terminal tab", "Tabs", false,
-        [this]() -> bool
-        {
-            tabs->addNewTab();
-            return true;
-        });
+    action.registerAction ("new_tab",
+                           "New Tab",
+                           "Open a new terminal tab",
+                           "Tabs",
+                           false,
+                           [this]() -> bool
+                           {
+                               tabs->addNewTab();
+                               return true;
+                           });
 
-    action.registerAction ("prev_tab", "Previous Tab", "Switch to previous tab", "Tabs", false,
-        [this]() -> bool
-        {
-            tabs->selectPreviousTab();
-            return true;
-        });
+    action.registerAction ("prev_tab",
+                           "Previous Tab",
+                           "Switch to previous tab",
+                           "Tabs",
+                           false,
+                           [this]() -> bool
+                           {
+                               tabs->selectPreviousTab();
+                               return true;
+                           });
 
-    action.registerAction ("next_tab", "Next Tab", "Switch to next tab", "Tabs", false,
-        [this]() -> bool
-        {
-            tabs->selectNextTab();
-            return true;
-        });
+    action.registerAction ("next_tab",
+                           "Next Tab",
+                           "Switch to next tab",
+                           "Tabs",
+                           false,
+                           [this]() -> bool
+                           {
+                               tabs->selectNextTab();
+                               return true;
+                           });
 
-    action.registerAction ("split_horizontal", "Split Horizontal", "Split pane horizontally", "Panes", true,
-        [this]() -> bool
-        {
-            tabs->splitHorizontal();
-            return true;
-        });
+    action.registerAction ("split_horizontal",
+                           "Split Horizontal",
+                           "Split pane horizontally",
+                           "Panes",
+                           true,
+                           [this]() -> bool
+                           {
+                               tabs->splitHorizontal();
+                               return true;
+                           });
 
-    action.registerAction ("split_vertical", "Split Vertical", "Split pane vertically", "Panes", true,
-        [this]() -> bool
-        {
-            tabs->splitVertical();
-            return true;
-        });
+    action.registerAction ("split_vertical",
+                           "Split Vertical",
+                           "Split pane vertically",
+                           "Panes",
+                           true,
+                           [this]() -> bool
+                           {
+                               tabs->splitVertical();
+                               return true;
+                           });
 
-    action.registerAction ("pane_left", "Focus Left Pane", "Move focus to the left pane", "Panes", true,
-        [this]() -> bool
-        {
-            tabs->focusPaneLeft();
-            return true;
-        });
+    action.registerAction ("pane_left",
+                           "Focus Left Pane",
+                           "Move focus to the left pane",
+                           "Panes",
+                           true,
+                           [this]() -> bool
+                           {
+                               tabs->focusPaneLeft();
+                               return true;
+                           });
 
-    action.registerAction ("pane_down", "Focus Down Pane", "Move focus to the pane below", "Panes", true,
-        [this]() -> bool
-        {
-            tabs->focusPaneDown();
-            return true;
-        });
+    action.registerAction ("pane_down",
+                           "Focus Down Pane",
+                           "Move focus to the pane below",
+                           "Panes",
+                           true,
+                           [this]() -> bool
+                           {
+                               tabs->focusPaneDown();
+                               return true;
+                           });
 
-    action.registerAction ("pane_up", "Focus Up Pane", "Move focus to the pane above", "Panes", true,
-        [this]() -> bool
-        {
-            tabs->focusPaneUp();
-            return true;
-        });
+    action.registerAction ("pane_up",
+                           "Focus Up Pane",
+                           "Move focus to the pane above",
+                           "Panes",
+                           true,
+                           [this]() -> bool
+                           {
+                               tabs->focusPaneUp();
+                               return true;
+                           });
 
-    action.registerAction ("pane_right", "Focus Right Pane", "Move focus to the right pane", "Panes", true,
-        [this]() -> bool
-        {
-            tabs->focusPaneRight();
-            return true;
-        });
+    action.registerAction ("pane_right",
+                           "Focus Right Pane",
+                           "Move focus to the right pane",
+                           "Panes",
+                           true,
+                           [this]() -> bool
+                           {
+                               tabs->focusPaneRight();
+                               return true;
+                           });
 
-    action.registerAction ("newline", "Insert Newline", "Send literal newline (LF) to terminal", "Edit", false,
-        [this]() -> bool
-        {
-            tabs->writeToActivePty ("\n", 1);
-            return true;
-        });
+    action.registerAction ("newline",
+                           "Insert Newline",
+                           "Send literal newline (LF) to terminal",
+                           "Edit",
+                           false,
+                           [this]() -> bool
+                           {
+                               tabs->writeToActivePty ("\n", 1);
+                               return true;
+                           });
 
-    action.registerAction ("action_list", "Action List", "Open command palette", "Application", true,
-        [this]() -> bool
-        {
-            actionList = std::make_unique<Terminal::ActionList> (*this);
+    action.registerAction ("action_list",
+                           "Action List",
+                           "Open command palette",
+                           "Application",
+                           true,
+                           [this]() -> bool
+                           {
+                               actionList = std::make_unique<Terminal::ActionList> (*this);
 
-            return true;
-        });
+                               return true;
+                           });
 
     // Register popup actions from Config
     for (const auto& pair : config.getPopups())
@@ -288,25 +363,28 @@ void MainComponent::registerActions()
         const auto& entry { pair.second };
 
         auto launchPopup { [this, entry]() -> bool
-        {
-            if (not popup.isActive())
-            {
-                const auto shell { config.getString (Config::Key::shellProgram) };
-                const auto shellArgs { juce::String ("-c ") + entry.command
-                    + (entry.args.isNotEmpty() ? " " + entry.args : "") };
+                           {
+                               if (not popup.isActive())
+                               {
+                                   const auto shell { config.getString (Config::Key::shellProgram) };
+                                   const auto shellArgs { juce::String ("-c ") + entry.command
+                                                          + (entry.args.isNotEmpty() ? " " + entry.args : "") };
 
-                auto terminal { std::make_unique<Terminal::Component> (shell, shellArgs, entry.cwd) };
-                popup.show (*getTopLevelComponent(), std::move (terminal));
-            }
+                                   auto terminal { std::make_unique<Terminal::Component> (
+                                       shell, shellArgs, entry.cwd) };
+                                   popup.show (*getTopLevelComponent(), std::move (terminal));
+                               }
 
-            return true;
-        }};
+                               return true;
+                           } };
 
         if (entry.modal.isNotEmpty())
-            action.registerAction ("popup:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", true, launchPopup);
+            action.registerAction (
+                "popup:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", true, launchPopup);
 
         if (entry.global.isNotEmpty())
-            action.registerAction ("popup_global:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", false, launchPopup);
+            action.registerAction (
+                "popup_global:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", false, launchPopup);
     }
 
     //==============================================================================
@@ -350,16 +428,16 @@ void MainComponent::showMessageOverlay()
                 content = content.withTrimmedRight (depth);
 
             const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? 24 : 0 };
-            const int padTop    { config.getInt (Config::Key::terminalPaddingTop) };
-            const int padRight  { config.getInt (Config::Key::terminalPaddingRight) };
+            const int padTop { config.getInt (Config::Key::terminalPaddingTop) };
+            const int padRight { config.getInt (Config::Key::terminalPaddingRight) };
             const int padBottom { config.getInt (Config::Key::terminalPaddingBottom) };
-            const int padLeft   { config.getInt (Config::Key::terminalPaddingLeft) };
+            const int padLeft { config.getInt (Config::Key::terminalPaddingLeft) };
 
-            content.removeFromTop    (titleBarHeight);
-            content.removeFromTop    (padTop);
-            content.removeFromRight  (padRight);
+            content.removeFromTop (titleBarHeight);
+            content.removeFromTop (padTop);
+            content.removeFromRight (padRight);
             content.removeFromBottom (padBottom);
-            content.removeFromLeft   (padLeft);
+            content.removeFromLeft (padLeft);
 
             const int cols { content.getWidth() / fm.logicalCellW };
             const int rows { content.getHeight() / fm.logicalCellH };
@@ -390,16 +468,17 @@ void MainComponent::initialiseTabs()
         Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
     addAndMakeVisible (tabs.get());
 
-    glRenderer.setComponentIterator ([this] (std::function<void (jreng::GLComponent&)> renderComponent)
-    {
-        for (auto& terminal : tabs->getTerminals())
+    glRenderer.setComponentIterator (
+        [this] (std::function<void (jreng::GLComponent&)> renderComponent)
         {
-            if (terminal->isVisible())
+            for (auto& terminal : tabs->getTerminals())
             {
-                renderComponent (*terminal);
+                if (terminal->isVisible())
+                {
+                    renderComponent (*terminal);
+                }
             }
-        }
-    });
+        });
     glRenderer.setComponentPaintingEnabled (true);
     glRenderer.attachTo (*this);
 
@@ -436,5 +515,4 @@ void MainComponent::initialiseMessageOverlay()
             });
     }
 }
-
 

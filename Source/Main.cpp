@@ -43,18 +43,29 @@
 */
 
 #include <JuceHeader.h>
-#include "MainComponent.h"
+#include "MainComponent.h"// TEMP: still compiled, not instantiated
 #include "AppState.h"
 #include "config/Config.h"
 #include "terminal/action/Action.h"
 #include "terminal/rendering/FontCollection.h"
 
+// TEMP: empty transparent component for window-only testing
+class EmptyComponent : public juce::Component
+{
+public:
+    EmptyComponent()
+    {
+        setOpaque (false);
+        setSize (640, 480);
+    }
+    void paint (juce::Graphics&) override {}
+};
+
 #if JUCE_WINDOWS
 #pragma comment(lib, "winmm.lib")
-extern "C" __declspec(dllimport) unsigned int __stdcall timeBeginPeriod (unsigned int uPeriod);
-extern "C" __declspec(dllimport) unsigned int __stdcall timeEndPeriod (unsigned int uPeriod);
+extern "C" __declspec (dllimport) unsigned int __stdcall timeBeginPeriod (unsigned int uPeriod);
+extern "C" __declspec (dllimport) unsigned int __stdcall timeEndPeriod (unsigned int uPeriod);
 #endif
-
 
 //==============================================================================
 /**
@@ -127,20 +138,14 @@ public:
 
         auto* cfg { Config::getContext() };
 
-        mainWindow.reset (new jreng::GlassWindow (
-            new MainComponent(),
-            cfg->getString (Config::Key::windowTitle),
-            cfg->getColour (Config::Key::windowColour),
-            cfg->getFloat (Config::Key::windowOpacity),
-            cfg->getFloat (Config::Key::windowBlurRadius),
-            cfg->getBool (Config::Key::windowAlwaysOnTop),
-            cfg->getBool (Config::Key::windowButtons)));
-
-        config.onReload = [this]
-        {
-            if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
-                content->applyConfig();
-        };
+        // TEMP: window-only test — no MainComponent, no GL, no terminal
+        mainWindow.reset (new jreng::GlassWindow (new EmptyComponent(),
+                                                  cfg->getString (Config::Key::windowTitle),
+                                                  cfg->getColour (Config::Key::windowColour),
+                                                  cfg->getFloat (Config::Key::windowOpacity),
+                                                  cfg->getFloat (Config::Key::windowBlurRadius),
+                                                  cfg->getBool (Config::Key::windowAlwaysOnTop),
+                                                  cfg->getBool (Config::Key::windowButtons)));
     }
 
     /**
@@ -200,9 +205,12 @@ private:
     /** @brief Embedded Display Mono typefaces; held alive for DirectWrite on Windows. */
     struct DisplayMono
     {
-        static inline auto book   { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBook_ttf,   BinaryData::DisplayMonoBook_ttfSize) };
-        static inline auto medium { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoMedium_ttf, BinaryData::DisplayMonoMedium_ttfSize) };
-        static inline auto bold   { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBold_ttf,   BinaryData::DisplayMonoBold_ttfSize) };
+        static inline auto book { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBook_ttf,
+                                                                           BinaryData::DisplayMonoBook_ttfSize) };
+        static inline auto medium { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoMedium_ttf,
+                                                                             BinaryData::DisplayMonoMedium_ttfSize) };
+        static inline auto bold { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBold_ttf,
+                                                                           BinaryData::DisplayMonoBold_ttfSize) };
     };
 
     /** @brief The native OS window; null before initialise() and after shutdown(). */
@@ -212,3 +220,4 @@ private:
 //==============================================================================
 // This macro generates the main() routine that launches the app.
 START_JUCE_APPLICATION (ENDApplication)
+

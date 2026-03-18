@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include <dwmapi.h>
+#include "../../jreng_core/utilities/jreng_platform.h"
 #ifdef small
  #undef small
 #endif
@@ -49,35 +50,11 @@ using SetWindowCompositionAttribute_t = BOOL (WINAPI*) (HWND, WINDOWCOMPOSITIONA
 
 static constexpr DWORD WCA_ACCENT_POLICY = 19;
 
-// DWMWA_SYSTEMBACKDROP_TYPE = 38 (Windows 11 22H2+)
-static constexpr DWORD DWMWA_SYSTEMBACKDROP_TYPE_ = 38;
-// DWMWA_USE_IMMERSIVE_DARK_MODE = 20
-static constexpr DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_ = 20;
-
 /*____________________________________________________________________________*/
 
 static std::function<void()> onWindowClosed;
 
 /*____________________________________________________________________________*/
-
-/** @brief Returns true if this is Windows 11 Build 22621 or later. */
-static bool isWindows11_22H2OrLater()
-{
-    // RtlGetVersion gives the real OS version (not manifested)
-    using RtlGetVersion_t = LONG (WINAPI*) (OSVERSIONINFOEXW*);
-    auto RtlGetVersion = (RtlGetVersion_t) GetProcAddress (
-        GetModuleHandleW (L"ntdll.dll"), "RtlGetVersion");
-
-    if (RtlGetVersion == nullptr)
-        return false;
-
-    OSVERSIONINFOEXW osvi {};
-    osvi.dwOSVersionInfoSize = sizeof (osvi);
-    RtlGetVersion (&osvi);
-
-    // Windows 11 = build 22000+, 22H2 = build 22621+
-    return osvi.dwBuildNumber >= 22621;
-}
 
 /*____________________________________________________________________________*/
 
@@ -103,22 +80,21 @@ const bool BackgroundBlur::apply (juce::Component* component, float blurRadius, 
 }
 
 /**
- * @brief Applies DWM blur/Mica to a window without touching its rendering pipeline.
+ * @brief Applies DWM blur to a window.
  *
- * Sets the accent policy (Win10) or Mica backdrop (Win11 22H2+) on the window.
- * Safe for any window — software-rendered (UpdateLayeredWindow) and GL-rendered
- * windows alike — because it does NOT strip WS_EX_LAYERED and does NOT call
- * DwmExtendFrameIntoClientArea.
+ * Windows 11 is the canonical path.  Windows 10 is the special case,
+ * branched via isWindows10() — the only OS version conditional in the
+ * Windows rendering path.
  *
- * @note WS_EX_LAYERED must be preserved for JUCE software-rendered transparent
- *       windows (setOpaque(false) + no native title bar).  Stripping it causes
- *       UpdateLayeredWindow to silently fail on every repaint, making the content
- *       invisible.  GL windows do not use UpdateLayeredWindow, so they can safely
- *       have WS_EX_LAYERED stripped — but that is done in enableGLTransparency(),
- *       not here.
+ * Windows 11 (canon): SetWindowCompositionAttribute with
+ * ACCENT_ENABLE_ACRYLICBLURBEHIND (4) + tint colour.
+ *
+ * Windows 10 (special case): SetWindowCompositionAttribute with
+ * ACCENT_ENABLE_BLURBEHIND (3) + tint colour.  Fallback to legacy
+ * DwmEnableBlurBehindWindow if SetWindowCompositionAttribute is unavailable.
  *
  * @param component   JUCE component whose native HWND receives the blur.
- * @param blurRadius  Blur radius (forwarded to accent policy; not used by Mica).
+ * @param blurRadius  Accepted for API uniformity; DWM controls blur intensity.
  * @param tint        Tint colour in ARGB; converted to ABGR for the accent API.
  * @return @c true on success; @c false if the peer or HWND could not be obtained.
  *
@@ -133,34 +109,52 @@ const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blur
         if (hwnd == nullptr)
             return false;
 
-        // --- Windows 11 22H2+: set Mica attributes ---
-        // Mica requires DwmExtendFrameIntoClientArea to render.  For GL windows
-        // that is done in enableGLTransparency(); for software-rendered windows
-        // Mica will silently not apply.  We do NOT return early — fall through
-        // to the accent-policy path which works on all Windows 10+ versions and
-        // provides blur for software-rendered windows even on Win11.
-        if (isWindows11_22H2OrLater())
+        // --- Windows 11 (canon) ---
+        if (not isWindows10())
         {
-            BOOL darkMode = TRUE;
-            DwmSetWindowAttribute (hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_,
-                &darkMode, sizeof (darkMode));
+            // Strip WS_EX_LAYERED — incompatible with DWM backdrop and rounded corners
+            LONG_PTR exStyle = GetWindowLongPtrW (hwnd, GWL_EXSTYLE);
+            if (exStyle & WS_EX_LAYERED)
+                SetWindowLongPtrW (hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
 
-            DWORD backdropType = 2; // DWMSBT_MAINWINDOW (Mica)
-            DwmSetWindowAttribute (hwnd, DWMWA_SYSTEMBACKDROP_TYPE_,
-                &backdropType, sizeof (backdropType));
+            // Rounded corners
+            DWORD cornerPref = 2; // DWMWCP_ROUND
+            DwmSetWindowAttribute (hwnd, 33, &cornerPref, sizeof (cornerPref));
+
+            // Extend DWM frame into entire client area ("sheet of glass")
+            MARGINS margins { -1, -1, -1, -1 };
+            DwmExtendFrameIntoClientArea (hwnd, &margins);
+
+            auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
+                GetProcAddress (GetModuleHandleW (L"user32.dll"),
+                    "SetWindowCompositionAttribute");
+
+            if (SetWindowCompositionAttribute != nullptr)
+            {
+                ACCENT_POLICY accent {};
+                accent.AccentState   = ACCENT_ENABLE_BLURBEHIND;
+                accent.AccentFlags   = 0;
+                accent.GradientColor = 0;
+                accent.AnimationId   = 0;
+
+                WINDOWCOMPOSITIONATTRIBDATA data {};
+                data.Attrib = WCA_ACCENT_POLICY;
+                data.pvData = &accent;
+                data.cbData = sizeof (accent);
+
+                return SetWindowCompositionAttribute (hwnd, &data) != FALSE;
+            }
+
+            return false;
         }
 
-        // --- SetWindowCompositionAttribute (Windows 10+, including Win11) ---
-        // Works with WS_EX_LAYERED windows (proven by PopupMenu blur path).
-        // On Win11 GL windows, Mica takes precedence once enableGLTransparency()
-        // extends the DWM frame; the accent policy is harmlessly overridden.
+        // --- Windows 10 (special case): original working path, unchanged ---
         auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
             GetProcAddress (GetModuleHandleW (L"user32.dll"),
                 "SetWindowCompositionAttribute");
 
         if (SetWindowCompositionAttribute != nullptr)
         {
-            // Convert juce::Colour (ARGB) to ABGR for GradientColor
             COLORREF abgr = ((COLORREF) tint.getAlpha() << 24)
                           | ((COLORREF) tint.getBlue()  << 16)
                           | ((COLORREF) tint.getGreen() <<  8)
@@ -180,7 +174,7 @@ const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blur
             return SetWindowCompositionAttribute (hwnd, &data) != FALSE;
         }
 
-        // Fallback: legacy DwmEnableBlurBehindWindow (Vista/7 style, minimal effect on 10)
+        // Fallback: legacy DwmEnableBlurBehindWindow
         DWM_BLURBEHIND blurBehind {};
         blurBehind.dwFlags  = DWM_BB_ENABLE | DWM_BB_BLURREGION;
         blurBehind.hRgnBlur = CreateRectRgn (0, 0, -1, -1);

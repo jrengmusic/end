@@ -216,11 +216,10 @@ const bool BackgroundBlur::applyBackgroundBlur (juce::Component* component,
         if (window != nil)
         {
             // Style existing JUCE window — NO window swap, NO view move
+            // Tint is handled by JUCE (DocumentWindow background colour),
+            // not by NSWindow.backgroundColor — blur only at the OS level.
             [window setOpaque:NO];
-            [window setBackgroundColor:[NSColor colorWithRed:tint.getFloatRed()
-                                                      green:tint.getFloatGreen()
-                                                       blue:tint.getFloatBlue()
-                                                      alpha:tint.getFloatAlpha()]];
+            [window setBackgroundColor:[NSColor clearColor]];
             [window setTitleVisibility:NSWindowTitleHidden];
             [window setTitlebarAppearsTransparent:YES];
             [window setStyleMask:window.styleMask |
@@ -276,11 +275,10 @@ const bool BackgroundBlur::applyNSVisualEffect (juce::Component* component,
         if (window != nil)
         {
             // Style existing JUCE window — NO window swap, NO view move
+            // Tint is handled by JUCE (DocumentWindow background colour),
+            // not by NSWindow.backgroundColor — blur only at the OS level.
             [window setOpaque:NO];
-            [window setBackgroundColor:[NSColor colorWithRed:tint.getFloatRed()
-                                                      green:tint.getFloatGreen()
-                                                       blue:tint.getFloatBlue()
-                                                      alpha:tint.getFloatAlpha()]];
+            [window setBackgroundColor:[NSColor clearColor]];
             [window setTitleVisibility:NSWindowTitleHidden];
             [window setTitlebarAppearsTransparent:YES];
             [window setStyleMask:window.styleMask |
