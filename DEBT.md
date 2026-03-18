@@ -8,21 +8,23 @@
 ## Software Rendering Fallback (No GPU)
 
 **Priority:** High  
-**Context:** END and wezterm both crash on Windows 11 UTM (no GPU acceleration). The GL + DWM compositing stack requires GPU drivers. This blocks END from running in virtualized environments without GPU passthrough.
+**Effort:** Small — 1-2 sprints  
+**Context:** END and wezterm both crash on Windows 11 UTM (no GPU acceleration). The GL + DWM compositing stack requires GPU drivers. This blocks END from running in virtualized environments without GPU passthrough, remote desktop, and headless setups.
 
 **Current state:** END requires OpenGL for all rendering. The glyph atlas is a GPU texture (`GL_R8` mono, `GL_RGBA` emoji). Without a GL context, nothing renders.
 
-**Proposed approach:** CPU-side glyph atlas via `juce::Image` + `juce::Graphics` as a second rendering backend.
+**Why the effort is small:** The rendering pipeline is already structured for this. The glyph atlas rasterizes fonts to bitmaps — the CPU-side data already exists before GPU upload. Grid, Parser, Session, TTY, GlyphAtlas are all rendering-agnostic. Only the `Screen` layer draws to a surface. A `juce::Graphics` backend reads the same `ScreenSnapshot` and `GlyphAtlas` data, just draws with different calls.
 
-- Pre-rasterize each unique glyph once into a `juce::Image` cache (same atlas concept, CPU-side)
-- Per frame: blit cached images to cell positions via `drawImageAt()`, fill background rects
-- Skip GL entirely — no shaders, no textures, no `OpenGLContext`
-- Skip DWM blur — opaque window with tint from config background colour
-- The terminal data model (Grid, Parser, Session, TTY) is rendering-agnostic — only the `Screen` layer needs a second implementation
+**Proposed approach:** `ScreenGraphics` — new class, same interface as `ScreenGL`.
 
-**Why this would be faster than the original `juce::GlyphArrangement`:** The first END iteration used `juce::GlyphArrangement` which does full text shaping + layout per frame (slow for 4800+ cells). The atlas approach pre-rasterizes once and blits — no shaping, no layout. `juce::Graphics` backed by Direct2D can handle ~10000 rect+blit draw calls per frame.
+- Reads from the same `GlyphAtlas` bitmap cache and `ScreenSnapshot` cell data
+- Renders via `juce::Graphics` in `paint()`: `fillRect()` for backgrounds, `drawImageAt()` for cached glyph bitmaps
+- Double-buffered `juce::Image` for flicker-free rendering
+- No GL context, no shaders, no textures, no `GLRenderer::attachTo()`
+- No DWM blur — opaque window with tint from config background colour
+- Renderer selection at startup: try GL, fall back to `ScreenGraphics` if GL context creation fails
 
-**Scope:** New `ScreenSoftware` class alongside existing `ScreenGL`. Renderer selection at startup based on GL context availability.
+**Why faster than original `juce::GlyphArrangement`:** The first END iteration used `juce::GlyphArrangement` which does full text shaping + layout per frame (slow for 4800+ cells). The atlas approach pre-rasterizes once and blits — no shaping, no layout. `juce::Graphics` backed by Direct2D handles ~10000 rect+blit draw calls per frame easily (audio visualizers do comparable workloads).
 
 ---
 

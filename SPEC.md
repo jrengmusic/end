@@ -351,25 +351,28 @@ END = {
 - **Monospace:** Current END layout — fixed cell width/height, row-based dirty tracking, ring buffer indexing
 - **Attributed:** Line-wrapped text layout with styled runs (bold, italic, color, size). Each run shaped independently. Paragraph-level layout. Supports mixed font sizes within a line.
 
-**API surface (attributed mode):**
+**API surface (attributed mode) — drop-in replacement for `juce::TextLayout`:**
 
 ```cpp
 namespace jreng
 {
-    class GLTextLayout
+    class TextLayout
     {
     public:
         void createLayout (const juce::AttributedString& text, float maxWidth);
         void draw (GLGraphics& g, juce::Rectangle<float> area) const;
+        void draw (juce::Graphics& g, juce::Rectangle<float> area) const;
         float getHeight() const;
         int getNumLines() const;
     };
 }
 ```
 
+Input is `juce::AttributedString` — no custom string type. Two `draw()` overloads: GL (instanced quads) and CPU (`juce::Image` blit). Same layout, different surface.
+
 **Module location:** `modules/jreng_text/`
 
-**Dependencies:** `jreng_opengl`, `jreng_core`, `juce_graphics`, HarfBuzz, FreeType/CoreText
+**Dependencies:** `jreng_opengl`, `jreng_core`, `jreng_freetype`, `jreng_harfbuzz`, `juce_graphics`
 
 **Migration path:**
 1. Extract shared types (GlyphAtlas, FontCollection, Fonts, shaping) from `Source/terminal/rendering/` into `modules/jreng_text/`

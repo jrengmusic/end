@@ -204,6 +204,82 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
+## Handoff: Text Rendering Pipeline Extraction & CPU Fallback
+
+**From:** COUNSELOR  
+**Date:** 2026-03-19  
+**Plan:** PLAN.md (project root)
+
+### Objective
+
+Extract END's glyph rendering pipeline into reusable JUCE modules. Provide `jreng::TextLayout` as drop-in replacement for `juce::TextLayout` — accepts `juce::AttributedString`, renders via GL (instanced quads) or CPU (`juce::Graphics`). Enable CPU rendering fallback for environments without GPU acceleration (UTM, remote desktop).
+
+### Plans (5 sequential, each self-contained)
+
+| Plan | Objective | Module | Steps |
+|------|-----------|--------|-------|
+| 0 | Vendor FreeType + HarfBuzz as JUCE modules | `jreng_freetype`, `jreng_harfbuzz` | 0.1–0.3 |
+| 1 | Extract glyph pipeline + proportional text layout | `jreng_text` | 1.1–1.10 |
+| 2 | Replace END rendering with `jreng_text` | END `Source/terminal/rendering/` | 2.1–2.5 |
+| 3 | CPU rendering backend via `juce::Graphics` | `jreng_text` (CPU backend) | 3.1–3.4 |
+| 4 | END CPU rendering fallback | END `Source/` | 4.1–4.5 |
+
+### Surface API
+
+```cpp
+namespace jreng
+{
+    class TextLayout
+    {
+    public:
+        void createLayout (const juce::AttributedString& text, float maxWidth);
+        void draw (GLGraphics& g, juce::Rectangle<float> area) const;
+        void draw (juce::Graphics& g, juce::Rectangle<float> area) const;
+        float getHeight() const;
+        int getNumLines() const;
+    };
+}
+```
+
+### Key Decisions Made
+
+- **Input type:** `juce::AttributedString` — no custom string type. Drop-in replacement for `juce::TextLayout`.
+- **Dependencies:** `jreng_freetype` + `jreng_harfbuzz` vendored as JUCE modules (FTL + MIT licenses). Replaces CMake submodule and JUCE internal HarfBuzz.
+- **Architecture:** Extract working code, don't rewrite. One class (`TextLayout`) with two `draw()` overloads (GL + CPU). Shared `createLayout()` — same shaping, same layout, different surface.
+- **Namespace:** Follow existing pattern — flat `jreng` namespace.
+
+### Open Questions (for ARCHITECT at execution time)
+
+- Step 1.2: Namespace — `jreng::text` or flat `jreng`?
+- Step 1.3: `GlyphKey::cellSpan` — remove, keep as generic, or template?
+- Step 1.5: `BoxDrawing` — move to module or keep in END?
+- Step 1.5: Rasterization callback pattern for `GlyphConstraint` decoupling?
+- Step 1.7: `shapeASCII` — move as monospace optimization or keep in END?
+- Step 1.9: Line breaking — simple word-wrap or UAX #14?
+- Step 1.9: Bidirectional text — defer or handle now?
+- Step 2.1: `GlyphConstraint`/`BoxDrawing` integration — callback, subclass, or composition?
+- Step 3.1: `CPUGlyphCache` — share `LRUGlyphCache` template or separate?
+- Step 4.1: GPU detection flag — Config key, AppState, or module static?
+- Step 4.3: Renderer selection — runtime or compile-time?
+
+### Contracts
+
+All execution must follow:
+- `JRENG-CODING-STANDARD.md`
+- `carol/NAMING-CONVENTION.md`
+- `carol/ARCHITECTURAL-MANIFESTO.md` (LIFESTAR + LOVE)
+
+### Execution Rules
+
+1. Always invoke @pathfinder first — discover existing patterns before any code change
+2. Validate each step before proceeding — ARCHITECT builds and tests
+3. Never assume, never decide — discrepancies between plan and code must be discussed
+4. No new types without ARCHITECT approval
+5. Incremental execution — one step at a time
+6. ARCHITECT runs all git commands
+
+---
+
 ## Sprint 100 — Windows 11: DWM Blur, ConPTY Sideload, GL Compositing
 
 **Date:** 2026-03-19
