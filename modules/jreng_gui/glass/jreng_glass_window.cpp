@@ -44,7 +44,7 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
                           float blur,
                           bool alwaysOnTop,
                           bool showWindowButtons)
-    : juce::DocumentWindow (name, colour.withAlpha (opacity),
+    : juce::DocumentWindow (name, juce::Colours::transparentBlack,
 #if JUCE_WINDOWS
         showWindowButtons ? juce::DocumentWindow::allButtons : 0)
 #else

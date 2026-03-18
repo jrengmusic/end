@@ -131,10 +131,15 @@ const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blur
 
             if (SetWindowCompositionAttribute != nullptr)
             {
+                COLORREF abgr = ((COLORREF) tint.getAlpha() << 24)
+                              | ((COLORREF) tint.getBlue()  << 16)
+                              | ((COLORREF) tint.getGreen() <<  8)
+                              | ((COLORREF) tint.getRed());
+
                 ACCENT_POLICY accent {};
-                accent.AccentState   = ACCENT_ENABLE_BLURBEHIND;
-                accent.AccentFlags   = 0;
-                accent.GradientColor = 0;
+                accent.AccentState   = ACCENT_ENABLE_ACRYLICBLURBEHIND;
+                accent.AccentFlags   = 2;  // use GradientColor
+                accent.GradientColor = abgr;
                 accent.AnimationId   = 0;
 
                 WINDOWCOMPOSITIONATTRIBDATA data {};

@@ -172,6 +172,42 @@ def patch_cmap_subtables(font, new_cmap_entries):
             subtable.cmap.update(new_cmap_entries)
 
 
+def get_ref_scale(donor_font, donor_cmap, donor_glyf, upm_scale, base_advance_w):
+    """
+    Compute a reference scale from U+25A0 BLACK SQUARE — a glyph intentionally
+    designed to fill a full cell. All other donor glyphs are scaled by this same
+    factor so their size relationships relative to ■ are preserved.
+
+    If ■ is not in this donor, returns None (caller falls back to per-glyph fit_scale).
+    """
+    REF_CP = 0x25A0  # ■ BLACK SQUARE
+    ref_gname = donor_cmap.get(REF_CP)
+    if not ref_gname or ref_gname not in donor_glyf:
+        return None
+
+    try:
+        ref_raw = donor_glyf[ref_gname]
+        if ref_raw.isComposite() or is_empty_glyph(ref_raw):
+            return None
+        ref_raw.recalcBounds(donor_glyf)
+    except Exception:
+        return None
+
+    ref_w = ref_raw.xMax - ref_raw.xMin
+    ref_h = ref_raw.yMax - ref_raw.yMin
+    if ref_w <= 0 or ref_h <= 0:
+        return None
+
+    # Apply UPM normalization to reference dimensions (same as applied to glyphs)
+    ref_w_scaled = ref_w * upm_scale
+    ref_h_scaled = ref_h * upm_scale
+
+    max_h = (ASC + LINE_GAP) + (abs(DESC) + LINE_GAP)
+    scale_by_w = base_advance_w / ref_w_scaled
+    scale_by_h = max_h / ref_h_scaled
+    return min(scale_by_w, scale_by_h)
+
+
 def merge_donor(base_font, donor_font, donor_label, base_advance_w):
     base_glyf = base_font["glyf"]
     base_hmtx = base_font["hmtx"].metrics
@@ -185,7 +221,16 @@ def merge_donor(base_font, donor_font, donor_label, base_advance_w):
 
     base_upm = base_font["head"].unitsPerEm
     donor_upm = donor_font["head"].unitsPerEm
-    scale = base_upm / donor_upm if donor_upm != base_upm else 1.0
+    upm_scale = base_upm / donor_upm if donor_upm != base_upm else 1.0
+
+    # Compute reference scale from ■ U+25A0 so all donor glyphs preserve their
+    # size relationships relative to a full-cell glyph. Falls back to None if
+    # this donor does not contain ■ (e.g. NotoEmoji).
+    ref_scale = get_ref_scale(donor_font, donor_cmap, donor_glyf, upm_scale, base_advance_w)
+    if ref_scale is not None:
+        print(f"  ref_scale from U+25A0: {ref_scale:.4f}")
+    else:
+        print(f"  ref_scale: not available, using per-glyph fit_scale")
 
     new_glyphs = {}
     new_metrics = {}
@@ -212,8 +257,8 @@ def merge_donor(base_font, donor_font, donor_label, base_advance_w):
                 f"failed to decompose {donor_gname} (U+{cp:04X}) from {donor_label}: {e}"
             ) from e
 
-        if scale != 1.0:
-            raw = scale_glyph(raw, scale)
+        if upm_scale != 1.0:
+            raw = scale_glyph(raw, upm_scale)
 
         if is_empty_glyph(raw):
             continue
@@ -225,7 +270,10 @@ def merge_donor(base_font, donor_font, donor_label, base_advance_w):
         if glyph_w > 0 and glyph_h > 0:
             scale_by_w = base_advance_w / glyph_w
             scale_by_h = max_h / glyph_h
-            fit_scale = min(scale_by_w, scale_by_h)
+            per_glyph_fit = min(scale_by_w, scale_by_h)
+            # Use ref_scale to preserve size relationships between donor glyphs.
+            # Still clamp with per_glyph_fit so oversized glyphs never overflow.
+            fit_scale = min(ref_scale, per_glyph_fit) if ref_scale is not None else per_glyph_fit
             raw = scale_glyph(raw, fit_scale)
             recalc_bounds(raw)
             glyph_w = raw.xMax - raw.xMin

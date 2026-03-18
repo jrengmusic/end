@@ -204,7 +204,7 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
-## Sprint 100 — Windows 11: DWM Blur, ConPTY Sideload, Unified Blur Architecture
+## Sprint 100 — Windows 11: DWM Blur, ConPTY Sideload, GL Compositing
 
 **Date:** 2026-03-19
 **Agents:** COUNSELOR, @engineer, @pathfinder, @researcher, @librarian, @auditor
@@ -215,7 +215,7 @@ END crashed on Windows 11 — black window, shell exits immediately, no blur. Th
 
 1. **DWM blur black on Windows 11:** `ACCENT_ENABLE_BLURBEHIND` (3) with `AccentFlags=2` (GradientColor) produces black. `WS_EX_LAYERED` (added by JUCE `setOpaque(false)`) is incompatible with DWM backdrop effects and rounded corners on Windows 11.
 2. **Inbox ConPTY kills child processes:** Windows 11 inbox `kernel32.dll` ConPTY sends `STATUS_CONTROL_C_EXIT` (0xC000013A) to child processes immediately after spawn. Sideloaded `conpty.dll` + `OpenConsole.exe` works correctly on both Windows 10 and 11.
-3. **Blur architecture diverged from original macOS design:** The Windows port moved tint color into the OS API (`GradientColor`), diverging from the original `de22c5c` architecture where OS handles blur only and JUCE handles tint.
+3. **GL compositing covers JUCE tint:** GL framebuffer on Windows is composited as opaque by DWM — `glClearColor(0,0,0,0)` alpha is ignored. Tint must go through OS native API, not JUCE paint.
 
 ### What Was Done
 
@@ -223,14 +223,17 @@ END crashed on Windows 11 — black window, shell exits immediately, no blur. Th
 - Strip `WS_EX_LAYERED` on Windows 11 — incompatible with DWM backdrop and rounded corners
 - `DWMWA_WINDOW_CORNER_PREFERENCE = DWMWCP_ROUND` (attribute 33) — native rounded corners
 - `DwmExtendFrameIntoClientArea({-1})` — sheet of glass
-- `ACCENT_ENABLE_BLURBEHIND` (3) + `AccentFlags=0` + `GradientColor=0` — blur only, no tint
+- `ACCENT_ENABLE_ACRYLICBLURBEHIND` (4) + `AccentFlags=2` + `GradientColor=tint` — acrylic blur with tint
 - `isWindows10()` is the only OS branch — Windows 11 is canon, Windows 10 is special case
 
-**2. Unified blur architecture** (`jreng_background_blur.mm`, `jreng_glass_window.cpp`)
-- Restored original `de22c5c` macOS architecture: OS API provides blur only, JUCE provides tint
-- macOS: `[window setBackgroundColor:[NSColor clearColor]]` replaces tint-colored background
-- GlassWindow: `DocumentWindow` background restored to `colour.withAlpha(opacity)` (was `transparentBlack`)
-- Both platforms now identical: OS = blur, JUCE = tint
+**2. Tint via OS native API on all platforms** (`jreng_background_blur.cpp`, `jreng_background_blur.mm`)
+- GL framebuffer on Windows is composited as opaque by DWM — alpha channel ignored
+- Tint must go through OS native API, not JUCE `DocumentWindow` background paint
+- macOS: `[window setBackgroundColor:tint]` — unchanged from Windows port
+- Windows 11: `ACCENT_ENABLE_ACRYLICBLURBEHIND` + `GradientColor=tint` — DWM handles tint
+- Windows 10: `ACCENT_ENABLE_BLURBEHIND` + `GradientColor=tint` — DWM handles tint
+- `GlassWindow` `DocumentWindow` background = `transparentBlack` (JUCE doesn't tint)
+- All platforms consistent: OS handles blur + tint, GL renders terminal content on top
 
 **3. ConPTY sideload on all Windows versions** (`WindowsTTY.cpp`)
 - Removed `isWindows10()` guard from `loadConPtyFuncs()` — always sideload
@@ -263,28 +266,28 @@ On Windows 11, `ACCENT_ENABLE_BLURBEHIND` (3) behavior depends on `AccentFlags`:
 
 ### Files Modified
 
-- `modules/jreng_gui/glass/jreng_background_blur.cpp` — `applyDwmGlass()` rewritten: Win11 canon path (strip WS_EX_LAYERED, rounded corners, sheet of glass, blur only), Win10 special case preserved. Removed `isWindows11_22H2OrLater()` and DWMWA constants.
-- `modules/jreng_gui/glass/jreng_background_blur.mm` — `applyBackgroundBlur()` and `applyNSVisualEffect()`: `[NSColor clearColor]` replaces tint-colored background
-- `modules/jreng_gui/glass/jreng_glass_window.cpp` — `DocumentWindow` background restored to `colour.withAlpha(opacity)`
+- `modules/jreng_gui/glass/jreng_background_blur.cpp` — `applyDwmGlass()` rewritten: Win11 canon path (strip WS_EX_LAYERED, rounded corners, sheet of glass, acrylic blur + tint via GradientColor), Win10 special case preserved. Removed `isWindows11_22H2OrLater()` and DWMWA constants.
+- `modules/jreng_gui/glass/jreng_background_blur.mm` — `applyBackgroundBlur()` and `applyNSVisualEffect()`: tint via `[window setBackgroundColor:tint]` (restored, consistent with Windows path)
+- `modules/jreng_gui/glass/jreng_glass_window.cpp` — `DocumentWindow` background = `transparentBlack` (tint handled by OS API)
 - `modules/jreng_core/utilities/jreng_platform.h` — NEW: shared `isWindows10()` static function
-- `Source/terminal/tty/WindowsTTY.cpp` — removed `isWindows10()` guard from sideload, removed local `isWindows10()` definition, includes `jreng_platform.h`
+- `Source/terminal/tty/WindowsTTY.cpp` — always sideload conpty.dll (removed `isWindows10()` guard), removed local `isWindows10()` definition, includes `jreng_platform.h`
 - `Source/MainComponent.h` — `scaleNotifier` null guard for `tabs`
-- `Source/component/TerminalComponent.cpp` — clean (diagnostics removed)
 
 ### Alignment Check
 
-- **LIFESTAR Lean:** One OS branch (`isWindows10()`), no nested version checks. Blur architecture identical on both platforms.
-- **LIFESTAR Explicit Encapsulation:** OS API handles blur only. JUCE handles tint. GL renders on top. Each layer has one job.
-- **LIFESTAR SSOT:** `isWindows10()` defined once in `jreng_platform.h`, used everywhere.
-- **LIFESTAR Reviewable:** Win11 path documented with DWM attribute values and rationale.
+- **LIFESTAR Lean:** One OS branch (`isWindows10()`), no nested version checks. Tint architecture identical on all platforms — OS handles blur + tint, GL renders on top.
+- **LIFESTAR Explicit Encapsulation:** OS API handles blur + tint. GL renders terminal content. Each layer has one job. `enableGLTransparency()` handles GL-specific DWM setup only.
+- **LIFESTAR SSOT:** `isWindows10()` defined once in `jreng_platform.h`, used everywhere. Tint flows through one path: config → GlassWindow → BackgroundBlur::apply() → OS API.
+- **LIFESTAR Reviewable:** Win11 path documented with DWM attribute values and rationale. AccentFlags findings documented.
 - **NAMING-CONVENTION:** `isWindows10()` — boolean predicate with `is*` prefix, semantic name.
 
 ### Technical Debt / Follow-up
 
-- **GL compositing on Windows 11:** GL framebuffer covers JUCE-painted tint. `enableGLTransparency()` on Windows has no equivalent of macOS `NSOpenGLContextParameterSurfaceOpacity=0`. Terminal renders but tint is invisible. Needs investigation.
-- **Windows 10 blur path untested after changes:** The Win10 special case path is preserved byte-for-byte but the sideload change (always sideload) and `isWindows10()` relocation need verification on Win10.
-- **ConPTY sideload always on:** The `isWindows10()` guard was removed. The sideloaded binaries add ~1.2MB to the exe. This is the correct behavior but the Sprint 99 ARCHITECTURE.md entry about "Win10 only sideload" needs updating.
+- **Windows 10 blur path untested after changes:** The Win10 special case path is preserved but the sideload change (always sideload) and `isWindows10()` relocation need verification on Win10.
 - **`if (true)` in loadConPtyFuncs:** Temporary — should be cleaned up to remove the dead `isWindows10()` branch entirely.
+- **`enableGLTransparency()` on Windows 11:** Still strips `WS_EX_LAYERED` and calls `DwmExtendFrameIntoClientArea` — both already done by `applyDwmGlass()`. Redundant but harmless. Could be simplified.
+- **Blur radius not controllable on Windows:** `ACCENT_ENABLE_ACRYLICBLURBEHIND` does not expose a blur radius parameter. DWM controls intensity. Config `window.blur_radius` is accepted but unused on Windows.
+- **Windows 11 UTM/no-GPU:** Untested. DWM calls should fail gracefully (opaque fallback) but not verified.
 
 ---
 
