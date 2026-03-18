@@ -284,10 +284,9 @@ On Windows 11, `ACCENT_ENABLE_BLURBEHIND` (3) behavior depends on `AccentFlags`:
 ### Technical Debt / Follow-up
 
 - **Windows 10 blur path untested after changes:** The Win10 special case path is preserved but the sideload change (always sideload) and `isWindows10()` relocation need verification on Win10.
-- **`if (true)` in loadConPtyFuncs:** Temporary — should be cleaned up to remove the dead `isWindows10()` branch entirely.
 - **`enableGLTransparency()` on Windows 11:** Still strips `WS_EX_LAYERED` and calls `DwmExtendFrameIntoClientArea` — both already done by `applyDwmGlass()`. Redundant but harmless. Could be simplified.
-- **Blur radius not controllable on Windows:** `ACCENT_ENABLE_ACRYLICBLURBEHIND` does not expose a blur radius parameter. DWM controls intensity. Config `window.blur_radius` is accepted but unused on Windows.
-- **Windows 11 UTM/no-GPU:** Untested. DWM calls should fail gracefully (opaque fallback) but not verified.
+- **Blur radius not controllable on Windows:** Documented in `default_end.lua`. `ACCENT_ENABLE_ACRYLICBLURBEHIND` does not expose a blur radius parameter. DWM controls intensity.
+- **CRITICAL: Windows 11 UTM/no-GPU crashes.** Black window, no rendering, crash. Likely the Win11 DWM blur path (strip `WS_EX_LAYERED` + acrylic accent) fails without GPU acceleration. Needs dedicated debug session on UTM — add diagnostics, identify failure point, add graceful fallback to opaque.
 
 ---
 
