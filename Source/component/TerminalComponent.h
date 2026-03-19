@@ -388,12 +388,29 @@ public:
 private:
     //==============================================================================
     /**
-     * @brief Reacts to cursor position and active-screen changes in the ValueTree.
+     * @brief Scaling factor that converts JUCE's normalised trackpad deltas to
+     *        line-sized units before accumulation.
+     *
+     * JUCE normalises smooth-scroll deltas to approximately `1.0 / lines-per-notch`,
+     * yielding values around 0.05–0.15 per frame at typical trackpad velocity.
+     * After multiplying by the user's `terminalScrollStep` (default 5), the raw
+     * product is still sub-line (~0.25–0.75).  This factor bridges the gap so that
+     * a natural finger swipe produces a comfortable number of scrolled lines
+     * without requiring multiple frames to cross the first whole-line threshold.
+     */
+    static constexpr float trackpadDeltaScale { 8.0f };
+
+    //==============================================================================
+    /**
+     * @brief Reacts to active-screen changes in the ValueTree.
      *
      * Listens for `Terminal::ID::value` property changes on `Terminal::ID::PARAM`
      * nodes.  Handles:
-     * - `activeScreen` — rebinds the cursor to the new screen's state tree.
-     * - `cursorRow` / `cursorCol` — repositions the CursorComponent.
+     * - `activeScreen` — rebinds the cursor to the new screen's state tree and
+     *   immediately repositions it for the screen switch.
+     *
+     * Cursor row/col repositioning is deferred to `onVBlank()` so the overlay
+     * only moves on the same frame as the GL content update.
      *
      * @param tree      The ValueTree node that changed.
      * @param property  The property identifier that changed.
@@ -402,12 +419,13 @@ private:
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     /**
-     * @brief VBlank callback: renders the grid if dirty, updates cursor visibility.
+     * @brief VBlank callback: renders the grid if dirty, repositions cursor, updates visibility.
      *
      * Called every display refresh by `juce::VBlankAttachment`.  Steps:
      * 1. Ensures this component is the focus container.
-     * 2. If the OpenGL context was just recreated, marks all cells dirty.
-     * 3. If the snapshot is dirty and the resize lock is available, renders.
+     * 2. If the snapshot is dirty and the resize lock is available, renders.
+     * 3. Repositions the cursor overlay on the same frame as the GL content
+     *    update, preventing the one-frame glitch on the alternate screen.
      * 4. Updates cursor visibility based on scroll offset and cursor mode.
      *
      * @note MESSAGE THREAD — VBlankAttachment callbacks run on the message thread.
@@ -558,6 +576,26 @@ private:
 
     /** @brief Grid padding — left edge inset in logical pixels (from `terminal.padding`). */
     const int paddingLeft   { Config::getContext()->getInt (Config::Key::terminalPaddingLeft) };
+
+    /**
+     * @brief Fractional scroll accumulator for smooth (trackpad) input.
+     *
+     * Trackpads emit many small delta events per gesture.  The accumulator
+     * collects fractional line amounts and only scrolls when a whole line
+     * threshold is crossed, preventing the massive overscroll that occurs
+     * when every micro-event triggers a fixed multi-line jump.
+     */
+    float scrollAccumulator { 0.0f };
+
+    /**
+     * @brief Set by `valueTreePropertyChanged` when `cursorRow` or `cursorCol`
+     *        changes; consumed by `onVBlank()` to reposition the cursor overlay.
+     *
+     * Event-driven (not polled): the ValueTree listener detects the change,
+     * the VBlank consumer applies it on the next display frame so the cursor
+     * overlay never moves over stale GL content.
+     */
+    bool cursorBoundsDirty { false };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Component)

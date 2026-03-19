@@ -375,41 +375,87 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
 /**
  * @brief Forwards mouse wheel scroll events to the PTY or scrolls the scrollback.
  *
+ * Discrete mouse wheels scroll by a fixed `terminalScrollStep` lines per notch.
+ * Smooth trackpad input accumulates fractional deltas in `scrollAccumulator`
+ * and only scrolls when a whole-line threshold is crossed, preventing the
+ * massive overscroll that occurs when every micro-event triggers a fixed jump.
+ *
  * - **Mouse tracking active**: writes SGR scroll button (64 = up, 65 = down) at
  *   the clicked cell.
- * - **No tracking**: navigates the scrollback using `handleScrollNavigation()`.
+ * - **No tracking**: adjusts the scrollback offset.
  *
  * @param event  Mouse event; position used for SGR cell coordinates.
- * @param wheel  Wheel details; `deltaY > 0` = scroll up.
+ * @param wheel  Wheel details; `deltaY > 0` = scroll up, `isSmooth` = trackpad.
  * @note MESSAGE THREAD.
  */
 void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
     const int scrollLines { Config::getContext()->getInt (Config::Key::terminalScrollStep) };
-    const bool scrollUp { wheel.deltaY > 0.0f };
     const auto activeScreen { session.getState().getActiveScreen() };
+
+    // Discrete mouse wheel: fixed step per notch (existing behaviour).
+    // Smooth trackpad: accumulate fractional deltas, scroll whole lines only.
+    if (! wheel.isSmooth)
+    {
+        const bool scrollUp { wheel.deltaY > 0.0f };
+
+        if (activeScreen == Terminal::ActiveScreen::alternate)
+        {
+            if (shouldForwardMouseToPty())
+            {
+                const int button { scrollUp ? 64 : 65 };
+                const auto cell { screen.cellAtPoint (event.x, event.y) };
+
+                for (int i { 0 }; i < scrollLines; ++i)
+                    session.writeMouseEvent (button, cell.x, cell.y, true);
+            }
+        }
+        else
+        {
+            const int maxOffset { session.getGrid().getScrollbackUsed() };
+            const int current { session.getState().getScrollOffset() };
+            const int delta { scrollUp ? scrollLines : -scrollLines };
+            const int clamped { juce::jlimit (0, maxOffset, current + delta) };
+
+            if (clamped != current)
+            {
+                session.getState().setScrollOffset (clamped);
+                session.getState().setSnapshotDirty();
+            }
+        }
+
+        return;
+    }
+
+    // --- Smooth (trackpad) path ---
+    // Scale the tiny per-frame delta by scrollLines so the config value still
+    // controls overall speed, then accumulate until whole lines are reached.
+    scrollAccumulator += wheel.deltaY * static_cast<float> (scrollLines) * trackpadDeltaScale;
+
+    const int lines { static_cast<int> (scrollAccumulator) };
+
+    if (lines == 0)
+        return;
+
+    scrollAccumulator -= static_cast<float> (lines);
 
     if (activeScreen == Terminal::ActiveScreen::alternate)
     {
         if (shouldForwardMouseToPty())
         {
-            // SGR mouse wheel: button 64 = wheel up, 65 = wheel down.
-            // Send one event per scroll step (scrollLines ticks).
-            const int button { scrollUp ? 64 : 65 };
+            const int button { lines > 0 ? 64 : 65 };
             const auto cell { screen.cellAtPoint (event.x, event.y) };
+            const int count { std::abs (lines) };
 
-            for (int i { 0 }; i < scrollLines; ++i)
-            {
+            for (int i { 0 }; i < count; ++i)
                 session.writeMouseEvent (button, cell.x, cell.y, true);
-            }
         }
     }
     else
     {
         const int maxOffset { session.getGrid().getScrollbackUsed() };
         const int current { session.getState().getScrollOffset() };
-        const int delta { scrollUp ? scrollLines : -scrollLines };
-        const int clamped { juce::jlimit (0, maxOffset, current + delta) };
+        const int clamped { juce::jlimit (0, maxOffset, current + lines) };
 
         if (clamped != current)
         {
@@ -623,7 +669,7 @@ int Terminal::Component::getGridCols() const noexcept { return screen.getNumCols
 juce::ValueTree Terminal::Component::getValueTree() noexcept { return session.getState().get(); }
 
 /**
- * @brief VBlank callback: renders the grid if dirty, updates cursor visibility.
+ * @brief VBlank callback: renders the grid if dirty, repositions cursor, updates visibility.
  *
  * Called every display refresh by `juce::VBlankAttachment`.
  *
@@ -632,7 +678,10 @@ juce::ValueTree Terminal::Component::getValueTree() noexcept { return session.ge
  * 2. If `consumeSnapshotDirty()` returns true and the resize lock is available,
  *    calls `Screen::render()` with the current state and grid.
  * 3. Invokes `onRepaintNeeded` to trigger a GL repaint on the shared context.
- * 4. Updates cursor visibility: hidden when scrolled back or when the terminal
+ * 4. Consumes `cursorBoundsDirty` (set by `valueTreePropertyChanged`) and
+ *    repositions the cursor overlay.  Event-driven, not polled — only fires
+ *    when the ValueTree listener detected a cursorRow/cursorCol/activeScreen change.
+ * 5. Updates cursor visibility: hidden when scrolled back or when the terminal
  *    application has hidden the cursor via DEC private mode.
  *
  * @note MESSAGE THREAD — VBlankAttachment callbacks run on the message thread.
@@ -660,6 +709,15 @@ void Terminal::Component::onVBlank()
         }
     }
 
+    // Event-driven cursor reposition: valueTreePropertyChanged sets the flag
+    // when cursorRow/cursorCol/activeScreen changes, we consume it here so
+    // the overlay moves on the next display frame — never over stale GL content.
+    if (cursorBoundsDirty)
+    {
+        cursorBoundsDirty = false;
+        updateCursorBounds();
+    }
+
     const bool scrolledBack { session.getState().getScrollOffset() > 0 };
     const auto activeScreen { session.getState().getActiveScreen() };
     const bool cursorMode { session.getState().isCursorVisible (activeScreen) };
@@ -668,14 +726,19 @@ void Terminal::Component::onVBlank()
 }
 
 /**
- * @brief Reacts to cursor position and active-screen changes in the ValueTree.
+ * @brief Reacts to active-screen changes in the ValueTree.
  *
  * Listens for `Terminal::ID::value` property changes on `Terminal::ID::PARAM`
  * nodes.  Dispatches on the `id` property of the changed node:
  * - `activeScreen` — rebinds the cursor to the new screen's state tree so that
  *   the cursor tracks the correct screen when switching between primary and
- *   alternate.
- * - `cursorRow` / `cursorCol` — repositions the CursorComponent.
+ *   alternate, and immediately repositions it so the overlay is correct before
+ *   the next VBlank fires.
+ *
+ * Cursor row/col changes set `cursorBoundsDirty` instead of calling
+ * `updateCursorBounds()` directly — repositioning is deferred to `onVBlank()`
+ * so the cursor overlay only moves on the next display frame, eliminating the
+ * one-frame glitch where the cursor sits over stale GL content.
  *
  * @param tree      The ValueTree node that changed.
  * @param property  The property identifier that changed.
@@ -690,12 +753,12 @@ void Terminal::Component::valueTreePropertyChanged (juce::ValueTree& tree, const
         if (paramId == Terminal::ID::activeScreen)
         {
             cursor->rebindToScreen (session.getCursorState());
-            updateCursorBounds();
+            cursorBoundsDirty = true;
         }
 
         if (paramId == Terminal::ID::cursorRow or paramId == Terminal::ID::cursorCol)
         {
-            updateCursorBounds();
+            cursorBoundsDirty = true;
         }
     }
 }
@@ -707,7 +770,7 @@ void Terminal::Component::valueTreePropertyChanged (juce::ValueTree& tree, const
  * `Screen::getCellBounds()` for the pixel rectangle of that cell, then adjusts
  * the width for wide (double-width) cursor glyphs via `CursorComponent::getCellWidth()`.
  *
- * @note MESSAGE THREAD — called from valueTreePropertyChanged() and resized().
+ * @note MESSAGE THREAD — called from onVBlank() (when cursorBoundsDirty) and resized().
  */
 void Terminal::Component::updateCursorBounds() noexcept
 {

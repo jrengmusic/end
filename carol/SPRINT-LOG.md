@@ -204,6 +204,56 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
+## Sprint 101 — Trackpad Scroll Sensitivity Fix
+
+**Date:** 2026-03-19
+**Agents:** COUNSELOR, @pathfinder
+
+### Problem
+
+Trackpad scrolling was massively oversensitive. A gentle swipe would fly through hundreds of lines of scrollback. Discrete mouse wheel was fine.
+
+### Root Cause
+
+`mouseWheelMove()` treated `wheel.deltaY` as a boolean — checked `> 0.0f` for direction, then scrolled a fixed `terminalScrollStep` (default 5) lines per event. The magnitude was discarded entirely. Trackpads emit many small delta events per gesture (e.g. `deltaY = 0.05` at 120Hz), so every micro-event triggered a full 5-line jump. `wheel.isSmooth` (JUCE's trackpad vs discrete wheel flag) was never checked.
+
+### What Was Done
+
+**1. Split `mouseWheelMove` into discrete and smooth paths** (`TerminalComponent.cpp`)
+- Discrete mouse wheel (`!wheel.isSmooth`): unchanged — fixed `scrollLines` per notch
+- Smooth trackpad (`wheel.isSmooth`): accumulates `deltaY * scrollLines * trackpadDeltaScale` into `scrollAccumulator`, only scrolls when whole-line thresholds are crossed, subtracts consumed lines from the accumulator
+- Both paths handle primary screen (scrollback offset) and alternate screen (SGR mouse events)
+
+**2. Added `trackpadDeltaScale` constant** (`TerminalComponent.h`)
+- `static constexpr float trackpadDeltaScale { 8.0f }` — scaling factor that converts JUCE's normalised trackpad deltas to line-sized units
+- Documented with rationale: JUCE deltas are ~0.05–0.15 per frame, multiplied by `scrollLines` alone is sub-line, multiplier bridges the gap
+
+**3. Added `scrollAccumulator` member** (`TerminalComponent.h`)
+- `float scrollAccumulator { 0.0f }` — collects fractional line amounts across frames
+- Documented with rationale: prevents overscroll from micro-events
+
+### Files Modified
+
+- `Source/component/TerminalComponent.h:401` — added `static constexpr float trackpadDeltaScale { 8.0f }` with docstring
+- `Source/component/TerminalComponent.h:570` — added `float scrollAccumulator { 0.0f }` with docstring
+- `Source/component/TerminalComponent.cpp:386-466` — `mouseWheelMove()` rewritten: discrete path (unchanged behaviour) + smooth path (accumulator-based)
+
+### Alignment Check
+
+- **LIFESTAR Lean:** Minimal change — one function split into two paths, two members added. No new abstractions.
+- **LIFESTAR Explicit Encapsulation:** Scroll accumulation is internal to `Component`. No external API change.
+- **LIFESTAR SSOT:** `trackpadDeltaScale` defined once. `terminalScrollStep` config controls overall speed for both paths.
+- **LIFESTAR Reviewable:** Both new members have docstrings explaining why they exist and how the values were chosen. No magic numbers.
+- **NAMING-CONVENTION:** `trackpadDeltaScale` — semantic name describing what it scales and for what input type. `scrollAccumulator` — describes its role precisely.
+- **JRENG-CODING-STANDARD:** Brace initialization, `static_cast`, `not` keyword, no early returns in the smooth path (single exit after accumulation check), `static constexpr` for compile-time constant.
+
+### Technical Debt / Follow-up
+
+- **`trackpadDeltaScale` is not user-configurable** — hardcoded at `8.0f`. If users on different hardware report sensitivity issues, could be exposed as a config value (e.g. `terminal.trackpad_sensitivity`).
+- **`scrollAccumulator` not reset on focus loss** — if the component loses focus mid-gesture, residual accumulation could cause a small unexpected scroll on next gesture. Unlikely to be noticeable in practice.
+
+---
+
 ## Handoff: Text Rendering Pipeline Extraction & CPU Fallback
 
 **From:** COUNSELOR  
