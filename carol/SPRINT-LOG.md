@@ -204,6 +204,64 @@ Windows implementation had 5 critical issues: mouse outputting garbage, poor per
 
 ## SPRINT HISTORY
 
+## Sprint 102 — Cursor Overlay VBlank Synchronization
+
+**Date:** 2026-03-19
+**Agents:** COUNSELOR, @pathfinder, @engineer
+
+### Problem
+
+On the alternate screen (vim, htop), the cursor overlay briefly flashed at a random cell for a single frame before snapping to the correct position. Visible on M4 ProMotion (120Hz), not on iMac 5K 2015 (60Hz).
+
+### Root Cause
+
+Cursor repositioning and GL screen content rendering were driven by two independent timers with no synchronization:
+
+| Path | Trigger | Action |
+|------|---------|--------|
+| Cursor overlay | `State::timerCallback()` (60–120 Hz) → ValueTree flush → `valueTreePropertyChanged` → `updateCursorBounds()` → `cursor->setBounds()` | Immediate reposition |
+| GL content | `VBlankAttachment` (display refresh) → `consumeSnapshotDirty()` → `screen.render()` | GL repaint |
+
+At 60Hz (iMac 5K) the two timers land close enough that the glitch is invisible. At 120Hz (M4 ProMotion) there's a ~50% chance the timer fires between VBlanks, moving the JUCE cursor component over stale GL content for one frame.
+
+### What Was Done
+
+**1. Event-driven cursor reposition via `cursorBoundsDirty` flag** (`TerminalComponent.h`, `TerminalComponent.cpp`)
+- `valueTreePropertyChanged` for `cursorRow`/`cursorCol`/`activeScreen` sets `cursorBoundsDirty = true` instead of calling `updateCursorBounds()` directly
+- `onVBlank()` consumes the flag: if `cursorBoundsDirty`, clears it and calls `updateCursorBounds()`
+- Event-driven (not polled) — no wasted `updateCursorBounds()` calls when cursor hasn't moved
+- VBlank-synchronized — cursor overlay only moves on the next display frame, never over stale GL content
+
+**2. `activeScreen` change still rebinds immediately** (`TerminalComponent.cpp`)
+- `cursor->rebindToScreen()` stays in `valueTreePropertyChanged` (listener rebinding must happen before the next VBlank reads from the new screen's ValueTree node)
+- Actual reposition deferred to VBlank via the same `cursorBoundsDirty` flag
+
+### Files Modified
+
+- `Source/component/TerminalComponent.h:580–588` — added `bool cursorBoundsDirty { false }` with docstring
+- `Source/component/TerminalComponent.cpp:689–726` — `onVBlank()`: consumes `cursorBoundsDirty` flag after render block, calls `updateCursorBounds()` only when flag is set
+- `Source/component/TerminalComponent.cpp:747–764` — `valueTreePropertyChanged()`: `cursorRow`/`cursorCol` set flag instead of calling `updateCursorBounds()` directly; `activeScreen` rebinds listener + sets flag
+
+### Alignment Check
+
+- **LIFESTAR Lean:** One boolean flag, no new abstractions. Producer sets, consumer clears.
+- **LIFESTAR Explicit Encapsulation:** Flag is private to `Component`. ValueTree listener produces, VBlank consumes. Each has one job.
+- **LIFESTAR SSOT:** `cursorBoundsDirty` is the single signal. No duplicate dirty tracking.
+- **LIFESTAR Immutable:** Flag is set-and-consume — no partial states.
+- **LIFESTAR Reviewable:** Docstrings on the flag, both functions, and `updateCursorBounds()` explain the event-driven pattern and why timer-driven repositioning was wrong.
+- **NAMING-CONVENTION:** `cursorBoundsDirty` — semantic name describing what is dirty and what needs updating.
+
+### Key Discovery: 120Hz Exposes Timer Desynchronization
+
+The cursor glitch was always present but invisible at 60Hz because the State timer flush (~60–120 Hz) and VBlank (~60 Hz) landed close enough to appear synchronized. At 120Hz the VBlank interval halves to ~8ms, creating a ~50% chance of the timer firing between VBlanks. Any UI state driven by timer flush rather than event-driven VBlank consumption will exhibit similar frame-tearing artifacts at high refresh rates.
+
+### Technical Debt / Follow-up
+
+- **Snacks notifier cursor glitch** — vim snacks notification popups still occasionally show a cursor flash on the message box. Likely the same root cause (cursor position update for a transient UI region) but needs separate investigation.
+- **`cursorBoundsDirty` is not atomic** — both producer and consumer run on the message thread so this is safe. If either path ever moves off the message thread, the flag would need to be `std::atomic<bool>`.
+
+---
+
 ## Sprint 101 — Trackpad Scroll Sensitivity Fix
 
 **Date:** 2026-03-19
