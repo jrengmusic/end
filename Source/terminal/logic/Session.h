@@ -63,7 +63,7 @@ namespace Terminal
  * - **Input** — `handleKeyPress()`, `paste()`, `writeMouseEvent()`, `writeFocusEvent()`
  * - **Resize** — `resized()` (opens the PTY on first call, then requests resize)
  * - **Output** — `process()` (called internally by the TTY reader thread)
- * - **State access** — `getState()`, `getGrid()`, `getCursorState()`
+ * - **State access** — `getState()`, `getGrid()`
  * - **Lifecycle callbacks** — `onShellExited`, `onClipboardChanged`, `onBell`
  *
  * ### Ownership
@@ -233,17 +233,6 @@ public:
      * @note Cell reads on the message thread must hold `grid.getResizeLock()`.
      */
     const Grid& getGrid() const noexcept;
-
-    /**
-     * @brief Returns a ValueTree snapshot of the cursor state for the active screen.
-     *
-     * Convenience accessor for the cursor renderer.  Delegates to
-     * `State::getCursorState()`.
-     *
-     * @return A ValueTree node containing cursor row, col, visible, and wrapPending.
-     * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
-     */
-    juce::ValueTree getCursorState() noexcept;
 
     /**
      * @brief Returns whether the child shell process has exited.

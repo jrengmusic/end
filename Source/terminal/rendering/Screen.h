@@ -244,8 +244,18 @@ struct Snapshot
     int                         emojiCapacity  { 0 }; ///< Allocated capacity of @p emoji in elements.
     int                         backgroundCapacity { 0 }; ///< Allocated capacity of @p backgrounds in elements.
 
-    juce::Point<int>            cursorPosition;    ///< Cursor position in grid coordinates (col, row).
-    bool                        cursorVisible { false }; ///< True if the cursor should be drawn this frame.
+    juce::Point<int>            cursorPosition;           ///< Cursor position in grid coordinates (col, row).
+    bool                        cursorVisible  { false }; ///< True if DECTCEM cursor mode is on.
+    int                         cursorShape    { 0 };     ///< DECSCUSR Ps value (0 = user glyph, 1–6 = geometric).
+    float                       cursorColorR   { -1.0f }; ///< OSC 12 red override (0–255), or -1 if no override.
+    float                       cursorColorG   { -1.0f }; ///< OSC 12 green override (0–255), or -1 if no override.
+    float                       cursorColorB   { -1.0f }; ///< OSC 12 blue override (0–255), or -1 if no override.
+    int                         scrollOffset   { 0 };     ///< Lines scrolled back (0 = live view; cursor hidden when > 0).
+    bool                        cursorBlinkOn  { true };  ///< Current blink phase (true = visible half of cycle).
+    bool                        cursorFocused  { false }; ///< True if the terminal component has keyboard focus.
+    Glyph                       cursorGlyph;                    ///< Pre-built glyph instance for user cursor (shape 0).
+    bool                        hasCursorGlyph    { false };   ///< True when cursorGlyph is valid (shape 0 or cursor.force).
+    bool                        cursorGlyphIsEmoji { false };  ///< True when cursorGlyph lives in the emoji (RGBA) atlas.
 
     int                         gridWidth  { 0 }; ///< Grid width in columns at the time of snapshot.
     int                         gridHeight { 0 }; ///< Grid height in rows at the time of snapshot.
@@ -907,6 +917,7 @@ private:
     void uploadStagedBitmaps();
     void drawInstances (const Render::Glyph* data, int count, bool isEmoji);
     void drawBackgrounds (const Render::Background* data, int count);
+    void drawCursor (const Render::Snapshot& snapshot);
 
     // =========================================================================
     // Data

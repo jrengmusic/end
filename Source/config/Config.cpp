@@ -746,6 +746,14 @@ Config::Theme Config::buildTheme() const
     theme.defaultForeground = getColour (Key::coloursForeground);
     theme.defaultBackground = getColour (Key::coloursBackground);
     theme.selectionColour = getColour (Key::coloursSelection);
+    theme.cursorColour = getColour (Key::coloursCursor);
+
+    const juce::String cursorCharStr { getString (Key::cursorChar) };
+    theme.cursorCodepoint = cursorCharStr.isNotEmpty()
+        ? static_cast<uint32_t> (cursorCharStr[0])
+        : 0x2588u;
+    theme.cursorForce = getBool (Key::cursorForce);
+
     theme.ansi = {
         {
          getColour (Key::coloursBlack),

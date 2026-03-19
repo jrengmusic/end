@@ -248,29 +248,53 @@ private:
         }
         else
         {
-            int flags { 0 };
+            // Arrow, function, and editing keys encode modifiers as a CSI
+            // parameter (e.g. \x1b[1;3D for Alt+Left).  The ESC-prefix
+            // encoding (\x1b + base sequence) is only used for printable
+            // characters and simple keys where no CSI modifier form exists.
+            const auto cursorIt { cursorKeys.find (code) };
+            const auto editCodeIt { editingCodes.find (code) };
+            const auto editCharIt { editingFinalChars.find (code) };
+            const bool isFKey { code >= juce::KeyPress::F1Key and code <= juce::KeyPress::F12Key };
 
-            if (mods.isShiftDown())
+            if (cursorIt != cursorKeys.end())
             {
-                flags |= juce::ModifierKeys::shiftModifier;
+                result = cursorKey (cursorIt->second, mods, applicationCursor);
             }
-
-            if (mods.isCtrlDown())
+            else if (isFKey)
             {
-                flags |= juce::ModifierKeys::ctrlModifier;
+                result = functionKey (code, mods);
             }
-
-            const juce::ModifierKeys stripped (flags);
-            const juce::KeyPress inner (code, stripped, ch);
-            const juce::String seq { map (inner, applicationCursor, keyboardFlags) };
-
-            if (seq.isNotEmpty())
+            else if (editCodeIt != editingCodes.end() or editCharIt != editingFinalChars.end())
             {
-                result = juce::String (escPrefix) + seq;
+                result = editingKey (code, mods);
             }
-            else if (ch > 0)
+            else
             {
-                result = juce::String (escPrefix) + juce::String::charToString (ch);
+                int flags { 0 };
+
+                if (mods.isShiftDown())
+                {
+                    flags |= juce::ModifierKeys::shiftModifier;
+                }
+
+                if (mods.isCtrlDown())
+                {
+                    flags |= juce::ModifierKeys::ctrlModifier;
+                }
+
+                const juce::ModifierKeys stripped (flags);
+                const juce::KeyPress inner (code, stripped, ch);
+                const juce::String seq { map (inner, applicationCursor, keyboardFlags) };
+
+                if (seq.isNotEmpty())
+                {
+                    result = juce::String (escPrefix) + seq;
+                }
+                else if (ch > 0)
+                {
+                    result = juce::String (escPrefix) + juce::String::charToString (ch);
+                }
             }
         }
 
@@ -410,6 +434,9 @@ private:
     /// Ctrl modifier bit weight added to the xterm modifier parameter.
     static constexpr int ctrlBit       { 4 };
 
+    /// Meta (Cmd on macOS) modifier bit weight added to the xterm modifier parameter.
+    static constexpr int metaBit       { 8 };
+
     // -------------------------------------------------------------------------
     // Ctrl key byte offsets
     // -------------------------------------------------------------------------
@@ -516,14 +543,15 @@ private:
      *
      * The parameter is defined as:
      * @code
-     *   N = 1 + (shift ? 1 : 0) + (alt ? 2 : 0) + (ctrl ? 4 : 0)
+     *   N = 1 + (shift ? 1 : 0) + (alt ? 2 : 0) + (ctrl ? 4 : 0) + (meta ? 8 : 0)
      * @endcode
      *
-     * When `N == 1` (no modifiers active), callers omit the modifier parameter
-     * from the sequence entirely.
+     * Meta maps to Cmd on macOS (modifier code 9 = meta-only, same as
+     * iTerm2/Kitty).  When `N == 1` (no modifiers active), callers omit the
+     * modifier parameter from the sequence entirely.
      *
      * @param mods  The modifier key state to encode.
-     * @return Integer modifier code in the range [1, 8].
+     * @return Integer modifier code in the range [1, 16].
      *
      * @note This function is `noexcept` and performs no allocation.
      */
@@ -544,6 +572,11 @@ private:
         if (mods.isCtrlDown())
         {
             code += ctrlBit;
+        }
+
+        if (mods.isCommandDown())
+        {
+            code += metaBit;
         }
 
         return code;

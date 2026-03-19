@@ -8,7 +8,6 @@
  * - **Screen** — GPU-accelerated renderer; draws via the shared
  *   `jreng::GLRenderer` context owned by MainComponent.
  * - **Session** — pty session, VT parser, and grid state machine.
- * - **CursorComponent** — cursor overlay driven by ValueTree state.
  * - **ScreenSelection** — current text selection (null when nothing selected).
  *
  * ### Render loop
@@ -34,7 +33,6 @@
  *
  * @see Terminal::Screen
  * @see Terminal::Session
- * @see CursorComponent
  * @see MessageOverlay
  * @see Config
  */
@@ -43,7 +41,6 @@
 #include <JuceHeader.h>
 #include "../terminal/logic/Session.h"
 #include "../terminal/rendering/Screen.h"
-#include "CursorComponent.h"
 #include "config/Config.h"
 
 namespace Terminal
@@ -53,8 +50,8 @@ namespace Terminal
  * @brief JUCE component that hosts the terminal renderer and handles all input.
  *
  * Inherits `jreng::GLComponent` for GL-backed rendering and layout, `juce::KeyListener` for
- * keyboard input, and `juce::ValueTree::Listener` (private) to react to cursor
- * position and active-screen changes published by the Session state machine.
+ * keyboard input.  Cursor rendering is handled by `Screen::drawCursor()` in
+ * the GL pipeline — no JUCE component overlay.
  *
  * @par Zoom
  * `applyZoom()` scales the base font size by the zoom multiplier and calls
@@ -71,12 +68,10 @@ namespace Terminal
  *
  * @see Terminal::Screen
  * @see Terminal::Session
- * @see CursorComponent
  */
 class Component
     : public jreng::GLComponent
     , public juce::KeyListener
-    , private juce::ValueTree::Listener
 {
 public:
     /** @brief Constructs the component, wires Session callbacks, starts VBlank. */
@@ -402,46 +397,15 @@ private:
 
     //==============================================================================
     /**
-     * @brief Reacts to active-screen changes in the ValueTree.
-     *
-     * Listens for `Terminal::ID::value` property changes on `Terminal::ID::PARAM`
-     * nodes.  Handles:
-     * - `activeScreen` — rebinds the cursor to the new screen's state tree and
-     *   immediately repositions it for the screen switch.
-     *
-     * Cursor row/col repositioning is deferred to `onVBlank()` so the overlay
-     * only moves on the same frame as the GL content update.
-     *
-     * @param tree      The ValueTree node that changed.
-     * @param property  The property identifier that changed.
-     * @note MESSAGE THREAD — called by JUCE ValueTree notification.
-     */
-    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
-
-    /**
-     * @brief VBlank callback: renders the grid if dirty, repositions cursor, updates visibility.
+     * @brief VBlank callback: renders the grid if dirty.
      *
      * Called every display refresh by `juce::VBlankAttachment`.  Steps:
      * 1. Ensures this component is the focus container.
      * 2. If the snapshot is dirty and the resize lock is available, renders.
-     * 3. Repositions the cursor overlay on the same frame as the GL content
-     *    update, preventing the one-frame glitch on the alternate screen.
-     * 4. Updates cursor visibility based on scroll offset and cursor mode.
      *
      * @note MESSAGE THREAD — VBlankAttachment callbacks run on the message thread.
      */
     void onVBlank();
-
-    /**
-     * @brief Repositions CursorComponent to the current cursor cell bounds.
-     *
-     * Reads `cursorRow` and `cursorCol` from the cursor ValueTree, queries
-     * `Screen::getCellBounds()`, and calls `cursor->setBounds()`.  Also adjusts
-     * width for wide (double-width) cursor glyphs via `getCellWidth()`.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void updateCursorBounds() noexcept;
 
     /**
      * @brief Handles scrollback navigation via Shift+PgUp/PgDn/Home/End.
@@ -513,9 +477,6 @@ private:
     /** @brief pty session, VT parser, and grid state machine. */
     Session session;
 
-    /** @brief Cursor overlay component; positioned by updateCursorBounds(). */
-    std::unique_ptr<CursorComponent> cursor;
-
     /**
      * @brief Rectangle (box) selection state driven by mouse drag.
      *
@@ -544,14 +505,6 @@ private:
 
     /** @brief Current text selection; null when nothing is selected. */
     std::unique_ptr<ScreenSelection> screenSelection;
-
-    /**
-     * @brief Snapshot of the Session state ValueTree for listener registration.
-     *
-     * Held as a member so that `addListener` / `removeListener` operate on the
-     * same tree object across the component lifetime.
-     */
-    juce::ValueTree stateTree;
 
     /** @brief VBlank attachment that drives the render loop at display refresh rate. */
     juce::VBlankAttachment vblank;
@@ -586,16 +539,6 @@ private:
      * when every micro-event triggers a fixed multi-line jump.
      */
     float scrollAccumulator { 0.0f };
-
-    /**
-     * @brief Set by `valueTreePropertyChanged` when `cursorRow` or `cursorCol`
-     *        changes; consumed by `onVBlank()` to reposition the cursor overlay.
-     *
-     * Event-driven (not polled): the ValueTree listener detects the change,
-     * the VBlank consumer applies it on the next display frame so the cursor
-     * overlay never moves over stale GL content.
-     */
-    bool cursorBoundsDirty { false };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Component)

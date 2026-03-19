@@ -28,6 +28,7 @@
 
 #include "State.h"
 #include "ValueTreeUtilities.h"
+#include "../../config/Config.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -175,6 +176,9 @@ State::State()
 
     stringStorage.emplace_back (nullptr);
     stringMap[ID::foregroundProcess] = &stringStorage.back();
+
+    cursorBlinkEnabled  = Config::getContext()->getBool (Config::Key::cursorBlink);
+    cursorBlinkInterval = Config::getContext()->getInt (Config::Key::cursorBlinkInterval);
 
     startTimerHz (60);
 }
@@ -540,6 +544,21 @@ int State::getCursorShape (ActiveScreen s) const noexcept
     return getRawValue<int> (screenKey (s, ID::cursorShape));
 }
 
+float State::getCursorColorR (ActiveScreen s) const noexcept
+{
+    return getRawValue<float> (screenKey (s, ID::cursorColorR));
+}
+
+float State::getCursorColorG (ActiveScreen s) const noexcept
+{
+    return getRawValue<float> (screenKey (s, ID::cursorColorG));
+}
+
+float State::getCursorColorB (ActiveScreen s) const noexcept
+{
+    return getRawValue<float> (screenKey (s, ID::cursorColorB));
+}
+
 // --- Message thread (read from ValueTree, the SSOT) ---
 
 /**
@@ -704,27 +723,6 @@ int State::getScrollOffset() const noexcept
 }
 
 /**
- * @brief Returns a ValueTree snapshot of the cursor state for the active screen.
- *
- * Reads `getScreen()` from the atomic (always current) to determine which
- * screen is active, then returns the corresponding NORMAL or ALTERNATE child
- * node from the ValueTree.  The returned node contains the post-flush cursor
- * PARAM children (`cursorRow`, `cursorCol`, `cursorVisible`, `wrapPending`).
- *
- * Used by `CursorComponent` to attach a single `ValueTree::Listener` to the
- * active screen node rather than listening to the entire SESSION tree.
- *
- * @return The NORMAL or ALTERNATE ValueTree child for the currently active screen.
- * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
- */
-// Cursor state for external VT listeners (CursorComponent)
-juce::ValueTree State::getCursorState() noexcept
-{
-    const auto scr { getActiveScreen() };
-    return state.getChildWithName (scr == normal ? ID::NORMAL : ID::ALTERNATE);
-}
-
-/**
  * @brief JUCE timer callback — flushes dirty atomics into the ValueTree.
  *
  * ## Adaptive rate mechanism
@@ -753,7 +751,59 @@ void State::timerCallback()
     static constexpr int idleHz { 60 };
     const bool anythingUpdated { flush() };
     flushStrings();
-    startTimer (anythingUpdated ? 1000 / flushHz : 1000 / idleHz);
+
+    const int interval { anythingUpdated ? 1000 / flushHz : 1000 / idleHz };
+    tickCursorBlink (interval);
+    startTimer (interval);
+}
+
+/**
+ * @brief Advances the cursor blink counter and toggles the phase.
+ *
+ * Reads the current cursor position from the active screen's atomics and
+ * compares against the previous flushed position.  If the cursor moved,
+ * the blink phase resets to "on" (visible) — standard terminal behaviour
+ * where typing makes the cursor solid until the next blink interval.
+ *
+ * DECSCUSR shape parity determines whether blinking is active:
+ * - Shape 0: uses the `cursor.blink` config setting.
+ * - Odd shapes (1, 3, 5): blink enabled.
+ * - Even shapes (2, 4, 6): steady (always visible).
+ *
+ * @param elapsedMs  Milliseconds since the previous timer tick.
+ * @note MESSAGE THREAD — called from `timerCallback()` only.
+ */
+void State::tickCursorBlink (int elapsedMs) noexcept
+{
+    const ActiveScreen scr { getScreen() };
+    const int row { getCursorRow (scr) };
+    const int col { getCursorCol (scr) };
+    const int shape { getCursorShape (scr) };
+
+    const bool cursorMoved { row != prevFlushedCursorRow or col != prevFlushedCursorCol };
+    prevFlushedCursorRow = row;
+    prevFlushedCursorCol = col;
+
+    // Shape 0 defers to config; odd = blink; even = steady.
+    const bool blinkActive { shape == 0 ? cursorBlinkEnabled : (shape % 2 != 0) };
+
+    // Movement or steady mode resets to visible.
+    if (cursorMoved or not blinkActive)
+    {
+        cursorBlinkOn = true;
+        cursorBlinkElapsed = 0;
+    }
+    else
+    {
+        cursorBlinkElapsed += elapsedMs;
+
+        if (cursorBlinkElapsed >= cursorBlinkInterval)
+        {
+            cursorBlinkOn = not cursorBlinkOn;
+            cursorBlinkElapsed = 0;
+            setSnapshotDirty();
+        }
+    }
 }
 
 /**

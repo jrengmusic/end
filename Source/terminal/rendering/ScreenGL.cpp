@@ -91,6 +91,8 @@ void Screen::renderOpenGL (int originX, int originY, int fullHeight)
                 drawInstances (snapshot->emoji.get(), snapshot->emojiCount, true);
             }
 
+            drawCursor (*snapshot);
+
             juce::gl::glDisable (juce::gl::GL_BLEND);
         }
     }
@@ -303,6 +305,110 @@ void Screen::drawBackgrounds (const Render::Background* data, int count)
         juce::gl::glVertexAttribDivisor (3, 0);
 
         juce::gl::glBindVertexArray (0);
+    }
+}
+
+/**
+ * @brief Draws the cursor as a geometric background quad from snapshot data.
+ *
+ * The cursor is a coloured rectangle whose shape depends on the DECSCUSR Ps
+ * value in the snapshot:
+ * - Shapes 0, 1, 2 (block): full cell rectangle.
+ * - Shapes 3, 4 (underline): thin strip at the bottom of the cell.
+ * - Shapes 5, 6 (bar): thin strip at the left edge of the cell.
+ *
+ * The cursor is hidden when any of these conditions hold:
+ * - DECTCEM cursor mode is off (`cursorVisible == false`).
+ * - The blink phase is in the hidden half (`cursorBlinkOn == false`).
+ * - The terminal component is unfocused (`cursorFocused == false`).
+ * - The viewport is scrolled back (`scrollOffset > 0`).
+ *
+ * Colour is determined by OSC 12 override if active (all three R/G/B >= 0),
+ * otherwise falls back to the theme's `cursorColour`.
+ *
+ * Drawn after glyphs so the cursor overlays the cell content.
+ *
+ * @param snapshot  The current frame's snapshot (already acquired by `renderOpenGL`).
+ * @note **GL THREAD** only.
+ */
+void Screen::drawCursor (const Render::Snapshot& snapshot)
+{
+    const int col { snapshot.cursorPosition.x };
+    const int row { snapshot.cursorPosition.y };
+
+    const bool shouldDraw { snapshot.cursorVisible
+                            and snapshot.cursorBlinkOn
+                            and snapshot.cursorFocused
+                            and snapshot.scrollOffset == 0
+                            and col >= 0 and col < snapshot.gridWidth
+                            and row >= 0 and row < snapshot.gridHeight };
+
+    if (shouldDraw)
+    {
+        // User glyph cursor (shape 0 or cursor.force): draw the pre-built
+        // glyph from the snapshot.  Emoji codepoints live in the RGBA atlas
+        // and must go through the emoji shader path to preserve native colour.
+        if (snapshot.hasCursorGlyph)
+        {
+            drawInstances (&snapshot.cursorGlyph, 1, snapshot.cursorGlyphIsEmoji);
+        }
+        else
+        {
+            // Geometric cursor (shapes 1–6): coloured rectangle.
+            const bool hasOverride { snapshot.cursorColorR >= 0.0f
+                                     and snapshot.cursorColorG >= 0.0f
+                                     and snapshot.cursorColorB >= 0.0f };
+
+            const float r { hasOverride ? snapshot.cursorColorR / 255.0f : resources.terminalColors.cursorColour.getFloatRed() };
+            const float g { hasOverride ? snapshot.cursorColorG / 255.0f : resources.terminalColors.cursorColour.getFloatGreen() };
+            const float b { hasOverride ? snapshot.cursorColorB / 255.0f : resources.terminalColors.cursorColour.getFloatBlue() };
+
+            const float cellX { static_cast<float> (col * physCellWidth) };
+            const float cellY { static_cast<float> (row * physCellHeight) };
+            const float cellW { static_cast<float> (physCellWidth) };
+            const float cellH { static_cast<float> (physCellHeight) };
+
+            static constexpr float cursorThickness { 0.15f };
+
+            float x { cellX };
+            float y { cellY };
+            float w { cellW };
+            float h { cellH };
+
+            switch (snapshot.cursorShape)
+            {
+                case 3:
+                case 4:
+                {
+                    // Underline: thin strip at cell bottom.
+                    const float thickness { std::max (1.0f, cellH * cursorThickness) };
+                    y = cellY + cellH - thickness;
+                    h = thickness;
+                    break;
+                }
+
+                case 5:
+                case 6:
+                {
+                    // Bar: thin strip at cell left edge.
+                    const float thickness { std::max (1.0f, cellW * cursorThickness) };
+                    w = thickness;
+                    break;
+                }
+
+                default:
+                    // Block (shapes 1, 2): full cell.
+                    break;
+            }
+
+            const Render::Background cursorBg
+            {
+                juce::Rectangle<float> { x, y, w, h },
+                r, g, b, 1.0f
+            };
+
+            drawBackgrounds (&cursorBg, 1);
+        }
     }
 }
 

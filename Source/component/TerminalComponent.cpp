@@ -21,22 +21,17 @@
  *
  * Construction order:
  * 1. **Screen** — initialised with font family and base size from Config.
- * 2. **stateTree** — snapshot of the Session state ValueTree for listener
- *    registration (must be taken before the VBlankAttachment starts).
- * 3. **VBlankAttachment** — starts the render loop immediately.
- * 4. Screen settings (ligatures, embolden, theme) applied from Config.
- * 5. Saved zoom applied if > 1× (scales font size before first layout).
- * 6. **CursorComponent** created with the cursor state subtree and Fonts ref.
- * 7. **MessageOverlay** created and added as a hidden child.
- * 8. Session callbacks wired: `onShellExited`, `onClipboardChanged`, `onBell`.
- * 9. ValueTree listener registered on `stateTree`.
- * 10. Startup config error (if any) shown asynchronously via MessageOverlay.
+ * 2. **VBlankAttachment** — starts the render loop immediately.
+ * 3. Screen settings (ligatures, embolden, theme) applied from Config.
+ * 4. Saved zoom applied if > 1× (scales font size before first layout).
+ * 5. **MessageOverlay** created and added as a hidden child.
+ * 6. Session callbacks wired: `onShellExited`, `onClipboardChanged`, `onBell`.
+ * 7. Startup config error (if any) shown asynchronously via MessageOverlay.
  *
  * @note MESSAGE THREAD — called from MainComponent constructor.
  */
 Terminal::Component::Component()
     : screen()
-    , stateTree (session.getState().get())
     , vblank (this,
               [this]
               {
@@ -70,7 +65,6 @@ Terminal::Component* Terminal::Component::create (juce::Component& parent,
  */
 Terminal::Component::Component (const juce::String& workingDirectory)
     : screen()
-    , stateTree (session.getState().get())
     , vblank (this,
               [this]
               {
@@ -95,7 +89,6 @@ Terminal::Component::Component (const juce::String& program,
                                 const juce::String& args,
                                 const juce::String& workingDirectory)
     : screen()
-    , stateTree (session.getState().get())
     , vblank (this,
               [this]
               {
@@ -126,14 +119,9 @@ void Terminal::Component::initialise()
     const float savedZoom { AppState::getContext()->getWindowZoom() };
     screen.setFontSize (dpiCorrectedFontSize() * savedZoom);
 
-    cursor = std::make_unique<CursorComponent> (session.getCursorState());
-
     setOpaque (false);
     setWantsKeyboardFocus (true);
     addKeyListener (this);
-
-    addAndMakeVisible (cursor.get());
-    cursor->setInterceptsMouseClicks (false, false);
 
     session.onShellExited = [this]
     {
@@ -157,7 +145,6 @@ void Terminal::Component::initialise()
         std::fwrite ("\a", 1, 1, stderr);
     };
 
-    stateTree.addListener (this);
 }
 
 /**
@@ -173,7 +160,6 @@ void Terminal::Component::initialise()
  */
 Terminal::Component::~Component()
 {
-    stateTree.removeListener (this);
     screen.setSelection (nullptr);
     screenSelection.reset();
     removeKeyListener (this);
@@ -203,7 +189,6 @@ void Terminal::Component::resized()
         screen.setViewport (contentArea);
         session.resized (screen.getNumCols(), screen.getNumRows());
         session.getState().setScrollOffset (0);
-        updateCursorBounds();
     }
 }
 
@@ -239,7 +224,6 @@ void Terminal::Component::copySelection()
 void Terminal::Component::pasteClipboard()
 {
     session.paste (juce::SystemClipboard::getTextFromClipboard());
-    cursor->resetBlink();
 }
 
 void Terminal::Component::writeToPty (const char* data, int len)
@@ -340,7 +324,6 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
     if (onProcessExited != nullptr)
     {
         session.handleKeyPress (key);
-        cursor->resetBlink();
         return true;
     }
 
@@ -364,7 +347,6 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
         {
             clearSelectionAndScroll();
             session.handleKeyPress (key);
-            cursor->resetBlink();
             handled = true;
         }
     }
@@ -641,6 +623,7 @@ void Terminal::Component::visibilityChanged()
  */
 void Terminal::Component::focusGained (FocusChangeType)
 {
+    session.getState().setCursorFocused (true);
     session.writeFocusEvent (true);
     repaint();
 }
@@ -656,6 +639,7 @@ void Terminal::Component::focusGained (FocusChangeType)
  */
 void Terminal::Component::focusLost (FocusChangeType)
 {
+    session.getState().setCursorFocused (false);
     session.writeFocusEvent (false);
     repaint();
 }
@@ -678,11 +662,6 @@ juce::ValueTree Terminal::Component::getValueTree() noexcept { return session.ge
  * 2. If `consumeSnapshotDirty()` returns true and the resize lock is available,
  *    calls `Screen::render()` with the current state and grid.
  * 3. Invokes `onRepaintNeeded` to trigger a GL repaint on the shared context.
- * 4. Consumes `cursorBoundsDirty` (set by `valueTreePropertyChanged`) and
- *    repositions the cursor overlay.  Event-driven, not polled — only fires
- *    when the ValueTree listener detected a cursorRow/cursorCol/activeScreen change.
- * 5. Updates cursor visibility: hidden when scrolled back or when the terminal
- *    application has hidden the cursor via DEC private mode.
  *
  * @note MESSAGE THREAD — VBlankAttachment callbacks run on the message thread.
  */
@@ -708,82 +687,6 @@ void Terminal::Component::onVBlank()
                 onRepaintNeeded();
         }
     }
-
-    // Event-driven cursor reposition: valueTreePropertyChanged sets the flag
-    // when cursorRow/cursorCol/activeScreen changes, we consume it here so
-    // the overlay moves on the next display frame — never over stale GL content.
-    if (cursorBoundsDirty)
-    {
-        cursorBoundsDirty = false;
-        updateCursorBounds();
-    }
-
-    const bool scrolledBack { session.getState().getScrollOffset() > 0 };
-    const auto activeScreen { session.getState().getActiveScreen() };
-    const bool cursorMode { session.getState().isCursorVisible (activeScreen) };
-    const bool focused { hasKeyboardFocus (true) };
-    cursor->setVisible (not scrolledBack and cursorMode and focused);
-}
-
-/**
- * @brief Reacts to active-screen changes in the ValueTree.
- *
- * Listens for `Terminal::ID::value` property changes on `Terminal::ID::PARAM`
- * nodes.  Dispatches on the `id` property of the changed node:
- * - `activeScreen` — rebinds the cursor to the new screen's state tree so that
- *   the cursor tracks the correct screen when switching between primary and
- *   alternate, and immediately repositions it so the overlay is correct before
- *   the next VBlank fires.
- *
- * Cursor row/col changes set `cursorBoundsDirty` instead of calling
- * `updateCursorBounds()` directly — repositioning is deferred to `onVBlank()`
- * so the cursor overlay only moves on the next display frame, eliminating the
- * one-frame glitch where the cursor sits over stale GL content.
- *
- * @param tree      The ValueTree node that changed.
- * @param property  The property identifier that changed.
- * @note MESSAGE THREAD — called by JUCE ValueTree notification.
- */
-void Terminal::Component::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
-{
-    if (property == Terminal::ID::value and tree.getType() == Terminal::ID::PARAM)
-    {
-        const auto paramId { juce::Identifier (tree.getProperty (Terminal::ID::id)) };
-
-        if (paramId == Terminal::ID::activeScreen)
-        {
-            cursor->rebindToScreen (session.getCursorState());
-            cursorBoundsDirty = true;
-        }
-
-        if (paramId == Terminal::ID::cursorRow or paramId == Terminal::ID::cursorCol)
-        {
-            cursorBoundsDirty = true;
-        }
-    }
-}
-
-/**
- * @brief Repositions CursorComponent to the current cursor cell bounds.
- *
- * Reads `cursorRow` and `cursorCol` from the cursor ValueTree subtree, queries
- * `Screen::getCellBounds()` for the pixel rectangle of that cell, then adjusts
- * the width for wide (double-width) cursor glyphs via `CursorComponent::getCellWidth()`.
- *
- * @note MESSAGE THREAD — called from onVBlank() (when cursorBoundsDirty) and resized().
- */
-void Terminal::Component::updateCursorBounds() noexcept
-{
-    const juce::ValueTree cursorState { session.getCursorState() };
-    const auto rowParam { cursorState.getChildWithProperty (Terminal::ID::id, Terminal::ID::cursorRow.toString()) };
-    const auto colParam { cursorState.getChildWithProperty (Terminal::ID::id, Terminal::ID::cursorCol.toString()) };
-
-    const int row { rowParam.isValid() ? static_cast<int> (rowParam.getProperty (Terminal::ID::value)) : 0 };
-    const int col { colParam.isValid() ? static_cast<int> (colParam.getProperty (Terminal::ID::value)) : 0 };
-
-    auto bounds { screen.getCellBounds (col, row) };
-    bounds.setWidth (bounds.getWidth() * cursor->getCellWidth());
-    cursor->setBounds (bounds);
 }
 
 /**

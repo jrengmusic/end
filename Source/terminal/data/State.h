@@ -438,6 +438,30 @@ struct State : public juce::Timer
      */
     int getCursorShape (ActiveScreen s) const noexcept;
 
+    /**
+     * @brief Returns the OSC 12 cursor colour red component for the specified screen.
+     * @param s  Target screen.
+     * @return Red value 0–255, or -1 if no override is active.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    float getCursorColorR (ActiveScreen s) const noexcept;
+
+    /**
+     * @brief Returns the OSC 12 cursor colour green component for the specified screen.
+     * @param s  Target screen.
+     * @return Green value 0–255, or -1 if no override is active.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    float getCursorColorG (ActiveScreen s) const noexcept;
+
+    /**
+     * @brief Returns the OSC 12 cursor colour blue component for the specified screen.
+     * @param s  Target screen.
+     * @return Blue value 0–255, or -1 if no override is active.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    float getCursorColorB (ActiveScreen s) const noexcept;
+
     /** @} */
 
     // =========================================================================
@@ -517,6 +541,39 @@ struct State : public juce::Timer
      */
     int getScrollOffset() const noexcept;
 
+    /**
+     * @brief Returns the current cursor blink phase.
+     *
+     * `true` during the visible half of the blink cycle, `false` during the
+     * hidden half.  Always `true` when blinking is disabled (steady cursor).
+     *
+     * The blink counter is ticked in `timerCallback()` and reset to "on"
+     * whenever `flush()` detects that the cursor position has changed.
+     *
+     * @return `true` if the cursor should be drawn this frame.
+     * @note MESSAGE THREAD only.
+     */
+    bool isCursorBlinkOn() const noexcept { return cursorBlinkOn; }
+
+    /**
+     * @brief Sets whether the terminal component currently has keyboard focus.
+     *
+     * Called from `focusGained()` / `focusLost()`.  The value flows through
+     * `isCursorFocused()` → `updateSnapshot()` → `snapshot.cursorFocused`
+     * so the GL renderer can hide the cursor when the terminal is unfocused.
+     *
+     * @param focused  `true` if the component has keyboard focus.
+     * @note MESSAGE THREAD only.
+     */
+    void setCursorFocused (bool focused) noexcept { cursorFocused = focused; }
+
+    /**
+     * @brief Returns whether the terminal component currently has keyboard focus.
+     * @return `true` if focused.
+     * @note MESSAGE THREAD only.
+     */
+    bool isCursorFocused() const noexcept { return cursorFocused; }
+
     /** @} */
 
     // =========================================================================
@@ -570,19 +627,6 @@ struct State : public juce::Timer
      * @note READER THREAD — called from `onDrainComplete`.
      */
     void clearPasteEchoGate() noexcept;
-
-    /**
-     * @brief Returns a ValueTree snapshot of the cursor state for the active screen.
-     *
-     * Convenience accessor used by the cursor renderer to obtain all cursor
-     * properties (row, col, visible, wrapPending) in a single ValueTree node
-     * without querying each atomic individually.
-     *
-     * @return A ValueTree child node (`NORMAL` or `ALTERNATE`) containing the
-     *         cursor-related PARAM children for the currently active screen.
-     * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
-     */
-    juce::ValueTree getCursorState() noexcept;
 
     /**
      * @brief Timer callback — flushes dirty atomics into the ValueTree.
@@ -785,6 +829,65 @@ private:
      */
     std::atomic<bool> snapshotDirty { false };
 
+    // =========================================================================
+    // Cursor blink state (MESSAGE THREAD only — not atomic, not in ValueTree)
+    // =========================================================================
+
+    /**
+     * @brief Current blink phase: `true` = visible, `false` = hidden.
+     *
+     * Toggled by `tickCursorBlink()` in `timerCallback()`.  Reset to `true`
+     * whenever `flush()` detects that the cursor position has changed.
+     * Read by `isCursorBlinkOn()` → `updateSnapshot()` → snapshot.
+     */
+    bool cursorBlinkOn { true };
+
+    /**
+     * @brief Milliseconds accumulated since the last blink toggle.
+     *
+     * Incremented by the timer interval each tick.  When it reaches
+     * `cursorBlinkInterval`, the phase toggles and the counter resets.
+     */
+    int cursorBlinkElapsed { 0 };
+
+    /**
+     * @brief Last-flushed cursor row for the active screen.
+     *
+     * Compared against the current flushed value in `flush()` to detect
+     * cursor movement and reset the blink phase.
+     */
+    int prevFlushedCursorRow { 0 };
+
+    /**
+     * @brief Last-flushed cursor column for the active screen.
+     * @see prevFlushedCursorRow
+     */
+    int prevFlushedCursorCol { 0 };
+
+    /**
+     * @brief Blink half-period in milliseconds (from `cursor.blink_interval` config).
+     *
+     * The cursor is visible for this duration, then hidden for the same duration.
+     * Read once at construction from `Config::getContext()`.
+     */
+    int cursorBlinkInterval { 500 };
+
+    /**
+     * @brief Whether cursor blinking is enabled (from `cursor.blink` config).
+     *
+     * When `false`, `cursorBlinkOn` is always `true` (steady cursor).
+     * DECSCUSR overrides: odd shapes force blink on, even shapes force steady.
+     */
+    bool cursorBlinkEnabled { true };
+
+    /**
+     * @brief Whether the terminal component currently has keyboard focus.
+     *
+     * Set by `setCursorFocused()` from `focusGained()` / `focusLost()`.
+     * Read by `isCursorFocused()` → `updateSnapshot()` → snapshot.
+     */
+    bool cursorFocused { false };
+
     /**
      * @brief Remaining echo bytes expected from a non-bracketed paste.
      *
@@ -857,6 +960,19 @@ private:
      * @note MESSAGE THREAD — called from timerCallback() only.
      */
     void flushStrings() noexcept;
+
+    /**
+     * @brief Advances the cursor blink counter and toggles the phase.
+     *
+     * Called from `timerCallback()` after `flush()`.  Accumulates elapsed
+     * milliseconds and toggles `cursorBlinkOn` when `cursorBlinkInterval` is
+     * reached.  Respects DECSCUSR shape parity: odd shapes blink, even shapes
+     * are steady.  When blinking is disabled, forces `cursorBlinkOn = true`.
+     *
+     * @param elapsedMs  Milliseconds since the previous timer tick.
+     * @note MESSAGE THREAD — called from `timerCallback()` only.
+     */
+    void tickCursorBlink (int elapsedMs) noexcept;
 };
 
 template<typename ValueType>

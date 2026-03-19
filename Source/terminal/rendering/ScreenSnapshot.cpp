@@ -47,7 +47,9 @@ namespace Terminal
  * 5. Copies per-row glyph and background data into the contiguous snapshot
  *    arrays via `memcpy`, advancing offsets as each row is packed.
  * 6. Writes the total counts (`monoCount`, `emojiCount`, `backgroundCount`)
- *    and cursor state (`cursorPosition`, `cursorVisible`) into the snapshot.
+ *    and cursor state (`cursorPosition`, `cursorVisible`, `cursorShape`,
+ *    `cursorColorR/G/B`, `scrollOffset`, `cursorBlinkOn`, `cursorFocused`)
+ *    into the snapshot.
  * 7. Calls `jreng::GLSnapshotBuffer::write()` to hand the snapshot to the GL THREAD.
  *
  * @param state      Current terminal state; provides cursor position,
@@ -120,6 +122,108 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
     snapshot.cursorPosition.x = state.getCursorCol (scr);
     snapshot.cursorPosition.y = state.getCursorRow (scr);
     snapshot.cursorVisible    = state.isCursorVisible (scr);
+    snapshot.cursorShape      = state.getCursorShape (scr);
+    snapshot.cursorColorR     = state.getCursorColorR (scr);
+    snapshot.cursorColorG     = state.getCursorColorG (scr);
+    snapshot.cursorColorB     = state.getCursorColorB (scr);
+    snapshot.scrollOffset     = state.getScrollOffset();
+    snapshot.cursorBlinkOn    = state.isCursorBlinkOn();
+    snapshot.cursorFocused    = state.isCursorFocused();
+
+    // Build the user cursor glyph (shape 0 or cursor.force) on the message
+    // thread so the GL thread can draw it without touching the atlas.
+    snapshot.hasCursorGlyph    = false;
+    snapshot.cursorGlyphIsEmoji = false;
+
+    const bool useUserGlyph { resources.terminalColors.cursorForce
+                              or snapshot.cursorShape == 0 };
+
+    if (useUserGlyph and snapshot.cursorVisible)
+    {
+        const uint32_t cp { resources.terminalColors.cursorCodepoint };
+
+        // Try the emoji font first — if the codepoint shapes there it must be
+        // drawn via the RGBA atlas so the native colour is preserved.
+        const Fonts::ShapeResult emojiShaped { Fonts::getContext()->shapeEmoji (&cp, 1) };
+
+        const bool isEmoji { emojiShaped.count > 0 };
+
+        void* fontHandle { nullptr };
+        uint32_t glyphIndex { 0 };
+
+        if (isEmoji)
+        {
+            fontHandle = Fonts::getContext()->getEmojiFontHandle();
+            glyphIndex = emojiShaped.glyphs[0].glyphIndex;
+        }
+        else
+        {
+            // shapeText handles font resolution and platform fallback internally —
+            // the cursor codepoint is just a glyph like any other.
+            const Fonts::ShapeResult textShaped { Fonts::getContext()->shapeText (
+                Fonts::Style::regular, &cp, 1) };
+
+            if (textShaped.count > 0)
+            {
+                fontHandle = textShaped.fontHandle != nullptr
+                             ? textShaped.fontHandle
+                             : Fonts::getContext()->getFontHandle (Fonts::Style::regular);
+                glyphIndex = textShaped.glyphs[0].glyphIndex;
+            }
+        }
+
+        if (fontHandle != nullptr)
+        {
+            GlyphKey key;
+            key.glyphIndex = glyphIndex;
+            key.fontFace   = fontHandle;
+            key.fontSize   = Fonts::getContext()->getPixelsPerEm (Fonts::Style::regular);
+            key.cellSpan   = 1;
+
+            AtlasGlyph* ag { resources.glyphAtlas.getOrRasterize (
+                key, fontHandle, isEmoji, GlyphConstraint {},
+                physCellWidth, physCellHeight, physBaseline) };
+
+            if (ag != nullptr)
+            {
+                const int col { snapshot.cursorPosition.x };
+                const int row { snapshot.cursorPosition.y };
+                const float ascender { static_cast<float> (physBaseline) };
+
+                // OSC 12 supplies raw 0–255 components; theme colour is already [0, 1].
+                // For emoji the shader samples colour from the texture, but we
+                // populate the fields consistently so the struct is never uninitialised.
+                const bool hasOverride { snapshot.cursorColorR >= 0.0f
+                                         and snapshot.cursorColorG >= 0.0f
+                                         and snapshot.cursorColorB >= 0.0f };
+
+                const float cr { isEmoji ? 1.0f
+                                         : (hasOverride ? snapshot.cursorColorR / 255.0f
+                                                        : resources.terminalColors.cursorColour.getFloatRed()) };
+                const float cg { isEmoji ? 1.0f
+                                         : (hasOverride ? snapshot.cursorColorG / 255.0f
+                                                        : resources.terminalColors.cursorColour.getFloatGreen()) };
+                const float cb { isEmoji ? 1.0f
+                                         : (hasOverride ? snapshot.cursorColorB / 255.0f
+                                                        : resources.terminalColors.cursorColour.getFloatBlue()) };
+
+                snapshot.cursorGlyph.screenPosition = juce::Point<float> {
+                    static_cast<float> (col * physCellWidth) + static_cast<float> (ag->bearingX),
+                    static_cast<float> (row * physCellHeight) + ascender - static_cast<float> (ag->bearingY) };
+                snapshot.cursorGlyph.glyphSize = juce::Point<float> {
+                    static_cast<float> (ag->widthPixels),
+                    static_cast<float> (ag->heightPixels) };
+                snapshot.cursorGlyph.textureCoordinates = ag->textureCoordinates;
+                snapshot.cursorGlyph.foregroundColorR = cr;
+                snapshot.cursorGlyph.foregroundColorG = cg;
+                snapshot.cursorGlyph.foregroundColorB = cb;
+                snapshot.cursorGlyph.foregroundColorA = 1.0f;
+
+                snapshot.hasCursorGlyph    = true;
+                snapshot.cursorGlyphIsEmoji = isEmoji;
+            }
+        }
+    }
 
     resources.snapshotBuffer.write();
 }

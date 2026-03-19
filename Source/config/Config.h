@@ -92,6 +92,15 @@ struct Config : jreng::Context<Config>
         /** @brief Selection highlight colour (typically semi-transparent). */
         juce::Colour selectionColour { 0x8000C8D8 };
 
+        /** @brief Cursor colour (from `colours.cursor` config). */
+        juce::Colour cursorColour { juce::Colours::white };
+
+        /** @brief Unicode codepoint for the user cursor glyph (from `cursor.char`). */
+        uint32_t cursorCodepoint { 0x2588 };
+
+        /** @brief When true, always use the user cursor glyph regardless of DECSCUSR. */
+        bool cursorForce { false };
+
         /**
          * @brief The 16 standard ANSI palette entries.
          *

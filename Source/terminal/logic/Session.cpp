@@ -452,18 +452,6 @@ Grid& Session::getGrid() noexcept { return grid; }
 const Grid& Session::getGrid() const noexcept { return grid; }
 
 /**
- * @brief Returns a ValueTree snapshot of the cursor state for the active screen.
- *
- * Delegates to `State::getCursorState()`.  The returned ValueTree contains
- * cursor row, col, visible flag, and wrapPending flag — all post-flush values
- * written by the parser on the reader thread and read here on the message thread.
- *
- * @return A ValueTree node with cursor position and visibility properties.
- * @note MESSAGE THREAD only — reads from the ValueTree.
- */
-juce::ValueTree Session::getCursorState() noexcept { return state.getCursorState(); }
-
-/**
  * @brief Returns whether the child shell process has exited.
  *
  * Delegates to `tty->hasShellExited()`.  Returns `false` if `tty` is null
