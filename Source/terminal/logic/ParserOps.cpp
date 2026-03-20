@@ -532,6 +532,48 @@ int Parser::nextTabStop (ActiveScreen s, int cols) noexcept
 }
 
 /**
+ * @brief Returns the column index of the previous tab stop to the left of the cursor.
+ *
+ * Scans `tabStops` from `cursorCol - 1` leftward, returning the first column
+ * with a non-zero entry.  If no tab stop exists to the left, returns 0,
+ * matching xterm behaviour for CBT.
+ *
+ * @par Scan logic
+ * @code
+ * prevTab = cursorCol - 1;
+ * while (prevTab > 0):
+ *     if tabStops[prevTab] != 0: break;
+ *     --prevTab;
+ * return max (prevTab, 0);
+ * @endcode
+ *
+ * @param s  Target screen buffer (used to read the current cursor column).
+ *
+ * @return Zero-based column index of the previous tab stop, or 0 if none.
+ *
+ * @note READER THREAD only.
+ *
+ * @see nextTabStop()         — forward direction counterpart
+ * @see initializeTabStops()  — sets the default stop layout
+ */
+int Parser::prevTabStop (ActiveScreen s) noexcept
+{
+    int prevTab { state.getCursorCol (s) - 1 };
+
+    while (prevTab > 0)
+    {
+        if (prevTab < static_cast<int> (tabStops.size()) and tabStops.at (static_cast<size_t> (prevTab)) != 0)
+        {
+            break;
+        }
+
+        --prevTab;
+    }
+
+    return juce::jmax (prevTab, 0);
+}
+
+/**
  * @brief Sets a tab stop at the current cursor column (HTS — Horizontal Tab Set).
  *
  * Corresponds to ESC H (HTS).  Marks the cursor's current column as a tab stop

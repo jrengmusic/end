@@ -277,6 +277,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
         if (byte >= 0x20 and byte <= 0x7E)
         {
             flushPrintRun (c, grid, scrollTop, scrollBottom, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill);
+            lastGraphicChar = cellTemplate.codepoint;
             consumed = i + 1;
             continue;
         }
@@ -588,6 +589,7 @@ void Parser::print (uint32_t codepoint) noexcept
 
         grid.activeWriteCell (writeRow, writeCol, cell);
         grid.activeEraseGrapheme (writeRow, writeCol);
+        lastGraphicChar = codepoint;
 
         if (cellWidth == 2 and writeCol + 1 < cols)
         {

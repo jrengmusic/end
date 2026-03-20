@@ -277,6 +277,16 @@ END = {
 		-- Example: { 10, 10, 10, 10 } gives equal padding on all sides.
 		--          { 4, 10, 10, 10 } gives a tighter top edge.
 		padding = { %%terminal_padding_top%%, %%terminal_padding_right%%, %%terminal_padding_bottom%%, %%terminal_padding_left%% },
+
+		-- Separator for multiple dropped file paths.
+		-- "space" joins paths with spaces (shell convention).
+		-- "newline" joins paths with newlines.
+		drop_multifiles = "%%terminal_drop_multifiles%%",
+
+		-- Whether dropped file paths are shell-quoted.
+		-- true: paths with special characters are quoted for the active shell.
+		-- false: paths are pasted raw (for TUI apps that handle paths directly).
+		drop_quoted = %%terminal_drop_quoted%%,
 	},
 
 	-- ========================================================================

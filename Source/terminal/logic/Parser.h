@@ -451,6 +451,9 @@ private:
      */
     Pen stamp;
 
+    /** @brief Last graphic character printed, for REP (CSI Ps b). */
+    uint32_t lastGraphicChar { 0 };
+
     /**
      * @brief Cached bottom row of the current scrolling region (zero-based).
      *
@@ -791,6 +794,22 @@ private:
      * @note READER THREAD only.
      */
     int nextTabStop (ActiveScreen s, int cols) noexcept;
+
+    /**
+     * @brief Returns the column index of the previous tab stop to the left of the cursor.
+     *
+     * Scans `tabStops` from `cursorCol - 1` leftward, returning the first column
+     * with a non-zero entry.  If no tab stop exists to the left, returns 0.
+     *
+     * @param s  Target screen buffer (used to read the current cursor column).
+     *
+     * @return Zero-based column index of the previous tab stop, or 0 if none.
+     *
+     * @note READER THREAD only.
+     *
+     * @see nextTabStop()  — forward direction counterpart
+     */
+    int prevTabStop (ActiveScreen s) noexcept;
 
     /**
      * @brief Sets a tab stop at the current cursor column.
@@ -1431,6 +1450,34 @@ private:
     void moveCursorPrevLine (const CSI& params) noexcept;
 
     /**
+     * @brief Handles `CSI Pn I` — Cursor Forward Tabulation (CHT).
+     *
+     * Advances the cursor to the next tab stop `params.param(0, 1)` times.
+     * Stops at the right margin if no further tab stops exist.
+     *
+     * @param params  CSI parameters (Pn = tab count, default 1).
+     *
+     * @note READER THREAD only.
+     *
+     * @see nextTabStop()
+     */
+    void cursorForwardTab (const CSI& params) noexcept;
+
+    /**
+     * @brief Handles `CSI Pn Z` — Cursor Backward Tabulation (CBT).
+     *
+     * Moves the cursor to the previous tab stop `params.param(0, 1)` times.
+     * Stops at column 0 if no further tab stops exist to the left.
+     *
+     * @param params  CSI parameters (Pn = tab count, default 1).
+     *
+     * @note READER THREAD only.
+     *
+     * @see prevTabStop()
+     */
+    void cursorBackTab (const CSI& params) noexcept;
+
+    /**
      * @brief Handles `CSI Pn G` — Cursor Horizontal Absolute (CHA).
      *
      * Sets the cursor column to `params.param(0, 1) - 1` (one-based input,
@@ -1682,6 +1729,9 @@ private:
      * @note READER THREAD only.
      */
     void eraseCells (int count) noexcept;
+
+    /** @brief Handles `CSI Ps b` — Repeat preceding graphic character (REP). */
+    void repeatCharacter (int count) noexcept;
 
     /** @} */
 

@@ -158,6 +158,8 @@ void Config::initDefaults()
     values[Key::terminalPaddingRight]    = 10;
     values[Key::terminalPaddingBottom]   = 10;
     values[Key::terminalPaddingLeft]     = 10;
+    values[Key::terminalDropMultifiles]     = "space";
+    values[Key::terminalDropQuoted]         = true;
 
 #if JUCE_MAC
     values[Key::keysCopy] = "cmd+c";
@@ -269,6 +271,8 @@ void Config::initSchema()
     schema[Key::terminalPaddingRight]    = { T::number, 0.0,   200.0,     true };
     schema[Key::terminalPaddingBottom]   = { T::number, 0.0,   200.0,     true };
     schema[Key::terminalPaddingLeft]     = { T::number, 0.0,   200.0,     true };
+    schema[Key::terminalDropMultifiles]     = { T::string };
+    schema[Key::terminalDropQuoted]         = { T::boolean };
 
     schema[Key::keysCopy] = { T::string };
     schema[Key::keysPaste] = { T::string };

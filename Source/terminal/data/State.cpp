@@ -369,7 +369,8 @@ void State::setForegroundProcess (const char* ptr) noexcept
 // READER THREAD
 void State::setSnapshotDirty() noexcept
 {
-    if (pasteEchoRemaining.load (std::memory_order_relaxed) <= 0)
+    if (pasteEchoRemaining.load (std::memory_order_relaxed) <= 0
+        and not syncOutputActive.load (std::memory_order_relaxed))
     {
         snapshotDirty.store (true, std::memory_order_release);
     }
@@ -426,15 +427,23 @@ bool State::consumeSnapshotDirty() noexcept
 // READER THREAD
 void State::setSyncOutput (bool active) noexcept
 {
-    syncOutputActive.store (active, std::memory_order_release);
-
-    if (not active)
-        setSnapshotDirty();
+    if (active)
+        syncOutputActive.store (true, std::memory_order_release);
 }
 
 bool State::isSyncOutputActive() const noexcept
 {
     return syncOutputActive.load (std::memory_order_relaxed);
+}
+
+void State::clearSyncOutput() noexcept
+{
+    syncOutputActive.store (false, std::memory_order_release);
+}
+
+void State::setSyncOutputActive() noexcept
+{
+    syncOutputActive.store (true, std::memory_order_release);
 }
 
 void State::requestSyncResize() noexcept

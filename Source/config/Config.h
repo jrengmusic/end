@@ -344,6 +344,12 @@ struct Config : jreng::Context<Config>
         /** @brief Grid padding — left edge inset in logical pixels (0–200). */
         inline static const juce::String terminalPaddingLeft   { "terminal.padding_left" };
 
+        /** @brief Separator for multiple dropped file paths: "space" or "newline". */
+        inline static const juce::String terminalDropMultifiles { "terminal.drop_multifiles" };
+
+        /** @brief Whether dropped file paths are shell-quoted (true) or raw (false). */
+        inline static const juce::String terminalDropQuoted { "terminal.drop_quoted" };
+
         inline static const juce::String keysCopy { "keys.copy" };
         inline static const juce::String keysPaste { "keys.paste" };
         inline static const juce::String keysQuit { "keys.quit" };

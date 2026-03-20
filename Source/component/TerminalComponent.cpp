@@ -566,6 +566,64 @@ void Terminal::Component::mouseUp (const juce::MouseEvent& event)
     }
 }
 
+/**
+ * @brief Returns true — the terminal accepts any file drag.
+ *
+ * @param files  Array of absolute file paths being dragged.
+ * @return Always @c true.
+ * @note MESSAGE THREAD.
+ */
+bool Terminal::Component::isInterestedInFileDrag (const juce::StringArray&)
+{
+    return true;
+}
+
+/**
+ * @brief Pastes dropped file paths as text into the PTY.
+ *
+ * By default, paths are pasted raw (TUI-friendly).  When the configured
+ * modifier key is held during the drop, paths are shell-quoted using the
+ * quoting convention for the active shell program.
+ *
+ * @param files  Array of absolute file paths dropped onto the terminal.
+ * @param x      Drop position x (unused).
+ * @param y      Drop position y (unused).
+ * @note MESSAGE THREAD.
+ */
+void Terminal::Component::filesDropped (const juce::StringArray& files, int, int)
+{
+    if (files.isEmpty())
+        return;
+
+    const auto* cfg { Config::getContext() };
+    const juce::String multifiles { cfg->getString (Config::Key::terminalDropMultifiles) };
+    const bool shouldQuote { cfg->getBool (Config::Key::terminalDropQuoted) };
+    const juce::String separator { multifiles == "newline" ? "\n" : " " };
+
+    juce::StringArray paths;
+
+    for (const auto& file : files)
+    {
+        if (shouldQuote and (file.containsChar (' ') or file.containsChar ('\'')
+            or file.containsChar ('"') or file.containsChar ('\\')
+            or file.containsChar ('(') or file.containsChar (')')))
+        {
+            const juce::String shell { cfg->getString (Config::Key::shellProgram) };
+
+            if (shell.contains ("cmd"))
+                paths.add ("\"" + file + "\"");
+            else
+                paths.add ("'" + file.replace ("'", "'\\''") + "'");
+        }
+        else
+        {
+            paths.add (file);
+        }
+    }
+
+    session.paste (paths.joinIntoString (separator));
+}
+
 // GL THREAD
 void Terminal::Component::glContextCreated() noexcept
 {

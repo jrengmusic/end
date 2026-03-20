@@ -72,6 +72,7 @@ namespace Terminal
 class Component
     : public jreng::GLComponent
     , public juce::KeyListener
+    , public juce::FileDragAndDropTarget
 {
 public:
     /** @brief Constructs the component, wires Session callbacks, starts VBlank. */
@@ -220,6 +221,29 @@ public:
      * @note MESSAGE THREAD.
      */
     void mouseUp (const juce::MouseEvent& event) override;
+
+    /**
+     * @brief Returns true — the terminal accepts any file drag.
+     *
+     * @param files  Array of absolute file paths being dragged.
+     * @return Always @c true.
+     * @note MESSAGE THREAD.
+     */
+    bool isInterestedInFileDrag (const juce::StringArray& files) override;
+
+    /**
+     * @brief Pastes dropped file paths as text into the PTY.
+     *
+     * When `terminal.drop_quoted` is true, paths containing shell-special
+     * characters are quoted using the convention for the active shell.
+     * Multiple files are joined by the configured separator.
+     *
+     * @param files  Array of absolute file paths dropped onto the terminal.
+     * @param x      Drop position x (unused).
+     * @param y      Drop position y (unused).
+     * @note MESSAGE THREAD.
+     */
+    void filesDropped (const juce::StringArray& files, int x, int y) override;
 
     /**
      * @brief Returns the current number of visible grid rows.

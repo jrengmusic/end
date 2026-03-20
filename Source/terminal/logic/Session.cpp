@@ -65,9 +65,15 @@ void Session::setupCallbacks()
 {
     parser.writeToHost = [this] (const char* data, int len) { tty->write (data, len); };
 
-    tty->onData = [this] (const char* data, int len) { process (data, len); };
+    tty->onData = [this] (const char* data, int len)
+    {
+        state.setSyncOutputActive();
+        process (data, len);
+    };
     tty->onDrainComplete = [this]
     {
+        state.clearSyncOutput();
+        state.setSnapshotDirty();
         parser.flushResponses();
         state.clearPasteEchoGate();
 

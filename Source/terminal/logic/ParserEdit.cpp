@@ -464,6 +464,32 @@ void Parser::eraseCells (int count) noexcept
 }
 
 // ============================================================================
+// CSI Handler — REP
+// ============================================================================
+
+/**
+ * @brief Handles `CSI Ps b` — Repeat preceding graphic character (REP).
+ *
+ * Repeats the last graphic character printed Ps times at the current cursor
+ * position, advancing the cursor.  Uses the existing `print()` path so that
+ * all cell writes, dirty marking, and wrap handling are consistent.
+ *
+ * @param count  Number of repetitions (default 1).
+ *
+ * @note READER THREAD only.
+ */
+void Parser::repeatCharacter (int count) noexcept
+{
+    if (lastGraphicChar != 0 and count > 0)
+    {
+        for (int i { 0 }; i < count; ++i)
+        {
+            print (lastGraphicChar);
+        }
+    }
+}
+
+// ============================================================================
 // VT Handler: Alternate Screen
 // ============================================================================
 

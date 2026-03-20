@@ -30,6 +30,7 @@
  * | F     | CPL           | `moveCursorPrevLine()`   |
  * | G     | CHA           | `setCursorColumn()`      |
  * | H / f | CUP / HVP    | `setCursorPosition()`    |
+ * | I     | CHT           | `cursorForwardTab()`     |
  * | J     | ED            | `eraseInDisplay()`       |
  * | K     | EL            | `eraseInLine()`          |
  * | L     | IL            | `shiftLinesDown()`       |
@@ -38,8 +39,12 @@
  * | S     | SU            | `scrollUp()`             |
  * | T     | SD            | `scrollDown()`           |
  * | X     | ECH           | `eraseCells()`           |
+ * | Z     | CBT           | `cursorBackTab()`        |
  * | @     | ICH           | `shiftCellsRight()`      |
+ * | `     | HPA           | `setCursorColumn()`      |
+ * | a     | HPR           | `moveCursorForward()`    |
  * | d     | VPA           | `setCursorLine()`        |
+ * | e     | VPR           | `moveCursorDown()`       |
  * | h / l | SM / RM      | `handleMode()` / `handlePrivateMode()` |
  * | m     | SGR           | `applySGR()`             |
  * | n     | DSR           | `reportCursorPosition()` |
@@ -133,6 +138,7 @@ static int indexToParam (int index) noexcept
  * | 'F'         | CPL      | `moveCursorPrevLine(params)`                    |
  * | 'G'         | CHA      | `setCursorColumn(params)`                       |
  * | 'H' / 'f'   | CUP/HVP  | `setCursorPosition(params)`                     |
+ * | 'I'         | CHT      | `cursorForwardTab(params)`                      |
  * | 'J'         | ED       | `eraseInDisplay(param0)`                        |
  * | 'K'         | EL       | `eraseInLine(param0)`                           |
  * | 'L'         | IL       | `shiftLinesDown(param0)`                        |
@@ -141,8 +147,12 @@ static int indexToParam (int index) noexcept
  * | 'S'         | SU       | `scrollUp(params)`                              |
  * | 'T'         | SD       | `scrollDown(params)`                            |
  * | 'X'         | ECH      | `eraseCells(param0)`                            |
+ * | 'Z'         | CBT      | `cursorBackTab(params)`                         |
  * | '@'         | ICH      | `shiftCellsRight(param0)`                       |
+ * | '`'         | HPA      | `setCursorColumn(params)`                       |
+ * | 'a'         | HPR      | `moveCursorForward(params)`                     |
  * | 'd'         | VPA      | `setCursorLine(params)`                         |
+ * | 'e'         | VPR      | `moveCursorDown(params)`                        |
  * | 'h' / 'l'   | SM/RM    | `handleMode()` or `handlePrivateMode()`         |
  * | 'm'         | SGR      | `applySGR(params)`                              |
  * | 'n'         | DSR      | `reportCursorPosition(params)`                  |
@@ -176,6 +186,11 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
         case 'G': setCursorColumn (params);             break;
         case 'H':
         case 'f': setCursorPosition (params);            break;
+        case 'I': cursorForwardTab (params);            break;
+        case 'Z': cursorBackTab (params);               break;
+        case 'a': moveCursorForward (params);           break;  // HPR — same as CUF
+        case 'e': moveCursorDown (params);              break;  // VPR — same as CUD
+        case '`': setCursorColumn (params);             break;  // HPA — same as CHA
         case 'J': eraseInDisplay (static_cast<int> (params.param (0, 0)));  break;
         case 'K': eraseInLine (static_cast<int> (params.param (0, 0)));     break;
         case 'L': shiftLinesDown (static_cast<int> (params.param (0, 1)));  break;
@@ -191,6 +206,7 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
         case 'm': applySGR (params);                    break;
         case 'n': reportCursorPosition (params);        break;
         case 'r': setScrollRegion (params);             break;
+        case 'b': repeatCharacter (static_cast<int> (params.param (0, 1))); break;
         case 'c': reportDeviceAttributes (isPrivate);   break;
         case 'g':
         {
@@ -209,7 +225,7 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
             if (interCount > 0 and inter[0] == ' ')
                 handleCursorStyle (params);
             else if (interCount > 0 and inter[0] == '>' and params.param (0, 0) == 0)
-                sendResponse ("\x1bP>|END(1.0)\x1b\\");
+                sendResponse ("\x1bP>|xterm(1.0)\x1b\\");
             break;
         case 't': break;
         case 'u': handleKeyboardMode (params, inter, interCount); break;
@@ -425,6 +441,71 @@ void Parser::moveCursorPrevLine (const CSI& params) noexcept
     const int count { static_cast<int> (params.param (0, 1)) };
     cursorMoveUp (scr, count);
     state.setCursorCol (scr, 0);
+}
+
+/**
+ * @brief Handles `CSI Pn I` — Cursor Forward Tabulation (CHT).
+ *
+ * Advances the cursor to the next tab stop `Pn` times (default 1).  Each
+ * iteration calls `nextTabStop()` to advance to the nearest stop to the
+ * right, stopping at the right margin if no further stops exist.  The
+ * wrap-pending flag is cleared after the final move.
+ *
+ * @par Sequence
+ * @code
+ *   ESC [ Pn I
+ * @endcode
+ *
+ * @param params  CSI parameters.  `params.param(0, 1)` is the tab count.
+ *
+ * @note READER THREAD only.
+ *
+ * @see nextTabStop()
+ */
+void Parser::cursorForwardTab (const CSI& params) noexcept
+{
+    const auto scr { state.getScreen() };
+    const int cols { grid.getCols() };
+    const int count { static_cast<int> (params.param (0, 1)) };
+
+    for (int i { 0 }; i < count; ++i)
+    {
+        state.setCursorCol (scr, nextTabStop (scr, cols));
+    }
+
+    state.setWrapPending (scr, false);
+}
+
+/**
+ * @brief Handles `CSI Pn Z` — Cursor Backward Tabulation (CBT).
+ *
+ * Moves the cursor to the previous tab stop `Pn` times (default 1).  Each
+ * iteration calls `prevTabStop()` to retreat to the nearest stop to the
+ * left, stopping at column 0 if no further stops exist.  The wrap-pending
+ * flag is cleared after the final move.
+ *
+ * @par Sequence
+ * @code
+ *   ESC [ Pn Z
+ * @endcode
+ *
+ * @param params  CSI parameters.  `params.param(0, 1)` is the tab count.
+ *
+ * @note READER THREAD only.
+ *
+ * @see prevTabStop()
+ */
+void Parser::cursorBackTab (const CSI& params) noexcept
+{
+    const auto scr { state.getScreen() };
+    const int count { static_cast<int> (params.param (0, 1)) };
+
+    for (int i { 0 }; i < count; ++i)
+    {
+        state.setCursorCol (scr, prevTabStop (scr));
+    }
+
+    state.setWrapPending (scr, false);
 }
 
 /**
