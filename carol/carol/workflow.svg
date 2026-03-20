@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="1400px" height="1000px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <rect x="0" y="0" width="1400" height="1000" style="fill:rgb(9,13,18);"/>
+    <text x="620.3086px" y="40px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:24px;fill:rgb(179,249,245);">CAROL v2.2</text>
+    <text x="460.0005px" y="65px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:14px;fill:rgb(105,157,170);">Cognitive Ampliﬁcation Role Orchestration with LLM agents</text>
+    <g>
+        <path d="M550,125L550,255C550,257.7596 547.7596,260 545,260L155,260C152.2404,260 150,257.7596 150,255L150,125C150,122.2404 152.2404,120 155,120L545,120C547.7596,120 550,122.2404 550,125Z" style="fill:rgb(13,20,28);stroke:rgb(179,249,245);stroke-width:2px;"/>
+        <path d="M1250,125L1250,255C1250,257.7596 1247.7596,260 1245,260L855,260C852.2404,260 850,257.7596 850,255L850,125C850,122.2404 852.2404,120 855,120L1245,120C1247.7596,120 1250,122.2404 1250,125Z" style="fill:rgb(13,20,28);stroke:rgb(179,249,245);stroke-width:2px;"/>
+    </g>
+    <g>
+        <text x="301.2339px" y="155px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:18px;fill:rgb(179,249,245);">COUNSELOR</text>
+        <text x="200.4893px" y="180px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(105,157,170);">Domain Specific Strategic Analysis</text>
+        <text x="244.0391px" y="205px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(140,201,217);">- Write SPEC.md, ARCHITECTURE.md</text>
+        <text x="250.6616px" y="225px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(140,201,217);">- Plan features, ask questions</text>
+        <text x="253.9729px" y="245px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(140,201,217);">- Handoff to SURGEON for ﬁxes</text>
+        <text x="1012.0708px" y="155px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:18px;fill:rgb(179,249,245);">SURGEON</text>
+        <text x="910.877px" y="180px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(105,157,170);">Surgical Precision Problem Solving</text>
+        <text x="950.6616px" y="205px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(140,201,217);">- Fix bugs, implement features</text>
+        <text x="944.0391px" y="225px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(140,201,217);">- Surgical ﬁxes, minimal changes</text>
+        <text x="973.8406px" y="245px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(140,201,217);">- Handle complex issues</text>
+    </g>
+    <g>
+        <path d="M200,353L200,427C200,428.6557 198.6557,430 197,430L83,430C81.3443,430 80,428.6557 80,427L80,353C80,351.3443 81.3443,350 83,350L197,350C198.6557,350 200,351.3443 200,353Z" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
+        <path d="M340,353L340,427C340,428.6557 338.6557,430 337,430L223,430C221.3443,430 220,428.6557 220,427L220,353C220,351.3443 221.3443,350 223,350L337,350C338.6557,350 340,351.3443 340,353Z" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
+        <path d="M480,353L480,427C480,428.6557 478.6557,430 477,430L363,430C361.3443,430 360,428.6557 360,427L360,353C360,351.3443 361.3443,350 363,350L477,350C478.6557,350 480,351.3443 480,353Z" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
+        <path d="M620,353L620,427C620,428.6557 618.6557,430 617,430L503,430C501.3443,430 500,428.6557 500,427L500,353C500,351.3443 501.3443,350 503,350L617,350C618.6557,350 620,351.3443 620,353Z" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
+        <path d="M900,353L900,427C900,428.6557 898.6557,430 897,430L783,430C781.3443,430 780,428.6557 780,427L780,353C780,351.3443 781.3443,350 783,350L897,350C898.6557,350 900,351.3443 900,353Z" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
+        <path d="M1040,353L1040,427C1040,428.6557 1038.6557,430 1037,430L923,430C921.3443,430 920,428.6557 920,427L920,353C920,351.3443 921.3443,350 923,350L1037,350C1038.6557,350 1040,351.3443 1040,353Z" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
+        <path d="M1180,353L1180,427C1180,428.6557 1178.6557,430 1177,430L1063,430C1061.3443,430 1060,428.6557 1060,427L1060,353C1060,351.3443 1061.3443,350 1063,350L1177,350C1178.6557,350 1180,351.3443 1180,353Z" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
+        <path d="M1320,353L1320,427C1320,428.6557 1318.6557,430 1317,430L1203,430C1201.3443,430 1200,428.6557 1200,427L1200,353C1200,351.3443 1201.3443,350 1203,350L1317,350C1318.6557,350 1320,351.3443 1320,353Z" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
+    </g>
+    <g>
+        <text x="112.6172px" y="380px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(179,249,245);">Pathﬁnder</text>
+        <text x="118.3547px" y="389.7583px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(74,159,171);">patterns</text>
+        <text x="107.5112px" y="415px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(81,146,153);">ALWAYS FIRST</text>
+        <text x="261.9287px" y="380px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(179,249,245);">Oracle</text>
+        <text x="258.48px" y="390.0308px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(74,159,171);">analysis</text>
+        <text x="395.6274px" y="380px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(179,249,245);">Engineer</text>
+        <text x="398.2778px" y="390.9031px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(74,159,171);">scaffold</text>
+        <text x="539.0283px" y="380px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(179,249,245);">Auditor</text>
+        <text x="538.3547px" y="390.9031px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(74,159,171);">validate</text>
+        <text x="812.6172px" y="380px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(179,249,245);">Pathﬁnder</text>
+        <text x="818.3547px" y="389.7583px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(74,159,171);">patterns</text>
+        <text x="807.5112px" y="415px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(81,146,153);">ALWAYS FIRST</text>
+        <text x="961.9287px" y="380px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(179,249,245);">Oracle</text>
+        <text x="966.6033px" y="389.9868px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(74,159,171);">debug</text>
+        <text x="1093.3105px" y="380px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(179,249,245);">Machinist</text>
+        <text x="1103.7271px" y="390.0308px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(74,159,171);">polish</text>
+        <text x="1232.8271px" y="380px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(179,249,245);">Librarian</text>
+        <text x="1237.9307px" y="390.8899px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:9px;fill:rgb(74,159,171);">research</text>
+    </g>
+    <g>
+        <path d="M850,755L850,845C850,847.7596 847.7596,850 845,850L555,850C552.2404,850 550,847.7596 550,845L550,755C550,752.2404 552.2404,750 555,750L845,750C847.7596,750 850,752.2404 850,755Z" style="fill:rgb(44,65,68);stroke:rgb(0,200,216);stroke-width:2px;"/>
+    </g>
+    <g>
+        <path d="M850,555L850,645C850,647.7596 847.7596,650 845,650L555,650C552.2404,650 550,647.7596 550,645L550,555C550,552.2404 552.2404,550 555,550L845,550C847.7596,550 850,552.2404 850,555Z" style="fill:rgb(27,42,49);stroke:rgb(252,112,76);stroke-width:2px;"/>
+    </g>
+    <g>
+        <text x="685.5508px" y="585px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:16px;fill:rgb(252,112,76);">YOU</text>
+        <text x="665.04px" y="610px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:12px;fill:rgb(254,255,210);">ARCHITECT</text>
+        <text x="623.8406px" y="635px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(197,240,233);">Test • Decide • Approve</text>
+    </g>
+    <g>
+        <text x="637.3867px" y="785px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:16px;fill:rgb(0,200,216);">SPRINT-LOG.md</text>
+        <text x="620.5293px" y="810px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(186,255,253);">Long-term context memory</text>
+        <text x="630.7642px" y="830px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(140,201,217);">Written on &quot;log sprint&quot;</text>
+    </g>
+    <g>
+        <path d="M260,260L260,300L140,300L140,350" style="fill:none;stroke:rgb(179,249,245);stroke-width:1px;"/>
+        <path d="M310,260L310,280L280,280L280,350" style="fill:none;stroke:rgb(179,249,245);stroke-width:1px;"/>
+        <path d="M410,260L410,280L420,280L420,350" style="fill:none;stroke:rgb(179,249,245);stroke-width:1px;"/>
+        <path d="M460,260L460,300L560,300L560,350" style="fill:none;stroke:rgb(179,249,245);stroke-width:1px;"/>
+        <path d="M950,260L950,300L840,300L840,350" style="fill:none;stroke:rgb(179,249,245);stroke-width:1px;"/>
+        <path d="M1000,260L1000,280L980,280L980,350" style="fill:none;stroke:rgb(179,249,245);stroke-width:1px;"/>
+        <path d="M1100,260L1100,280L1120,280L1120,350" style="fill:none;stroke:rgb(179,249,245);stroke-width:1px;"/>
+        <path d="M1150,260L1150,300L1260,300L1260,350" style="fill:none;stroke:rgb(179,249,245);stroke-width:1px;"/>
+        <path d="M555,195L675,195L675,550" style="fill:none;stroke:rgb(179,249,245);stroke-width:2px;stroke-dasharray:5,5;"/>
+        <path d="M845,195L725,195L725,550" style="fill:none;stroke:rgb(179,249,245);stroke-width:2px;stroke-dasharray:5,5;"/>
+        <path d="M850,803L1360,803L1360,195L1250,195" style="fill:none;stroke:rgb(179,249,245);stroke-width:2px;"/>
+        <path d="M150,190L40,190L40,803L550,803" style="fill:none;stroke:rgb(179,249,245);stroke-width:2px;"/>
+        <path d="M700,650L700,750" style="fill:none;stroke:rgb(179,249,245);stroke-width:2px;"/>
+    </g>
+    <g>
+        <text x="323.4453px" y="304.3896px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(105,157,170);">delegate</text>
+        <text x="1023.4453px" y="304.3896px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(105,157,170);">delegate</text>
+        <text x="326.9822px" y="792.8442px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(105,157,170);">results</text>
+        <text x="1026.9822px" y="792.6884px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:rgb(105,157,170);">results</text>
+    </g>
+    <g>
+        <text x="322.5269px" y="950px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(81,146,153);">Legend:</text>
+        <rect x="392.5269" y="940" width="15" height="10" style="fill:rgb(13,20,28);stroke:rgb(179,249,245);stroke-width:1.5px;"/>
+        <text x="412.5269px" y="950px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(140,201,217);">PRIMARY Agent</text>
+        <rect x="552.5269" y="940" width="15" height="10" style="fill:rgb(17,33,48);stroke:rgb(103,223,239);stroke-width:1.5px;"/>
+        <text x="572.5269px" y="950px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(140,201,217);">Secondary Agent (Subagent)</text>
+        <rect x="792.5269" y="940" width="15" height="10" style="fill:rgb(27,42,49);stroke:rgb(252,112,76);stroke-width:2px;"/>
+        <text x="812.5269px" y="950px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(254,255,210);">ARCHITECT</text>
+        <rect x="972.5269" y="940" width="15" height="10" style="fill:rgb(44,65,68);stroke:rgb(0,200,216);stroke-width:2px;"/>
+        <text x="992.5269px" y="950px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:10px;fill:rgb(186,255,253);">Context Memory</text>
+    </g>
+    <text x="425.4648px" y="980px" style="font-family:'Menlo-Italic', 'Menlo', monospace;font-style:italic;font-size:12px;fill:rgb(179,249,245);">&quot;COUNSELOR plans, SURGEON builds. Both delegate to specialists. You decide.&quot;</text>
+</svg>

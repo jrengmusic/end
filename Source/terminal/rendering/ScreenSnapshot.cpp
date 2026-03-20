@@ -271,7 +271,12 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
         }
     }
 
-    resources.snapshotBuffer.write();
+    // Synchronized output (mode 2026): keep updating the write buffer
+    // (hotCells + snapshot data stay fresh) but do NOT publish to the
+    // GL thread.  The display stays frozen at the pre-sync frame.
+    // When sync ends, setSnapshotDirty fires → render → publish.
+    if (not state.isSyncOutputActive())
+        resources.snapshotBuffer.write();
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

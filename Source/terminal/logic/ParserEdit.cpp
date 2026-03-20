@@ -368,6 +368,8 @@ void Parser::shiftCellsRight (int count) noexcept
             rowCells[col] = fill;
             grid.activeEraseGrapheme (state.getCursorRow (scr), col);
         }
+
+        grid.markRowDirty (state.getCursorRow (scr));
     }
 }
 
@@ -421,6 +423,8 @@ void Parser::removeCells (int count) noexcept
             rowCells[col] = fill;
             grid.activeEraseGrapheme (state.getCursorRow (scr), col);
         }
+
+        grid.markRowDirty (state.getCursorRow (scr));
     }
 }
 

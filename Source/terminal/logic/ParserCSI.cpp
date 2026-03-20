@@ -208,6 +208,8 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
         case 'q':
             if (interCount > 0 and inter[0] == ' ')
                 handleCursorStyle (params);
+            else if (interCount > 0 and inter[0] == '>' and params.param (0, 0) == 0)
+                sendResponse ("\x1bP>|END(1.0)\x1b\\");
             break;
         case 't': break;
         case 'u': handleKeyboardMode (params, inter, interCount); break;
@@ -879,6 +881,13 @@ void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
         else if (modeValue == 47 or modeValue == 1047 or modeValue == 1049)
         {
             setScreen (enable);
+        }
+        else if (modeValue == 2026)
+        {
+            state.setSyncOutput (enable);
+
+            if (enable)
+                state.requestSyncResize();
         }
     }
 }

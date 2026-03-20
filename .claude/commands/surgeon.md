@@ -24,3 +24,5 @@ Then wait for ARCHITECT direction. Do not start working.
 | LIBRARIAN | `general-purpose` | default |
 
 ALWAYS invoke PATHFINDER first before any fix work.
+
+**Before invoking any subagent:** Read `.claude/agents/<role>.md` and prepend its full contents to the Agent tool prompt.

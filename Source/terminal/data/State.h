@@ -631,6 +631,40 @@ struct State : public juce::Timer
     void clearPasteEchoGate() noexcept;
 
     /**
+     * @brief Enables or disables synchronized output (mode 2026).
+     *
+     * When enabled, `Session::process()` suppresses its post-parse dirty
+     * signal.  When disabled, fires `setSnapshotDirty()` so the renderer
+     * sees the completed sync block as a single atomic update.
+     *
+     * @param active  `true` on `ESC[?2026h`, `false` on `ESC[?2026l`.
+     * @note READER THREAD — called from the private mode handler.
+     */
+    void setSyncOutput (bool active) noexcept;
+
+    /**
+     * @brief Returns true if synchronized output (mode 2026) is active.
+     * @note Safe from any thread (relaxed atomic load).
+     */
+    bool isSyncOutputActive() const noexcept;
+
+    /**
+     * @brief Requests a same-size PTY resize on the next drain completion.
+     *
+     * Called by the parser when mode 2026 is first activated, ensuring the
+     * PTY dimensions match the actual grid before the TUI renders.
+     *
+     * @note READER THREAD — called from the private mode handler.
+     */
+    void requestSyncResize() noexcept;
+
+    /**
+     * @brief Consumes the sync resize request, returning true if one was pending.
+     * @note READER THREAD — called from onDrainComplete.
+     */
+    bool consumeSyncResize() noexcept;
+
+    /**
      * @brief Timer callback — flushes dirty atomics into the ValueTree.
      *
      * Called by the JUCE timer infrastructure on the message thread at the
@@ -900,6 +934,21 @@ private:
      * visual update for the entire paste.
      */
     std::atomic<int> pasteEchoRemaining { 0 };
+
+    /**
+     * @brief True while synchronized output (mode 2026) is active.
+     *
+     * Set by `setSyncOutput(true)` (READER THREAD) on `ESC[?2026h`.
+     * Cleared by `setSyncOutput(false)` on `ESC[?2026l`, which also
+     * fires `setSnapshotDirty()` to render the completed sync block.
+     *
+     * While true, `Session::process()` suppresses its post-parse
+     * `setSnapshotDirty()` call — the sync-off handler fires it instead.
+     */
+    std::atomic<bool> syncOutputActive { false };
+
+    /** @brief Set by requestSyncResize(), consumed by consumeSyncResize(). */
+    std::atomic<bool> syncResizePending { false };
 
     /**
      * @brief Stable backing store for string atomic slots.

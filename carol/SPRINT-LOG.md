@@ -8,6 +8,62 @@
 
 ---
 
+## Sprint 104 — Terminal Rendering Pipeline: SSOT Cell Dimensions + Sync Mode 2026 + ICH/DCH Dirty ✅
+
+**Date:** 2026-03-20
+
+### Agents Participated
+- COUNSELOR: root cause analysis, pipeline trace, design (SSOT from physical pixels)
+- @pathfinder: cursor rendering pipeline, dirty tracking investigation, initialization trace
+- @oracle: deterministic artifact investigation, PTY data analysis
+- @researcher: kitty comparison, CC rendering architecture
+- @engineer: all implementations
+
+### Problems Solved
+
+**1. SSOT cell dimensions (root cause)**
+Screen::calc() computed numCols/numRows from logical pixels while GL renders in physical. Independent rounding between logical→physical paths caused grid dimensions to exceed what physically fits in the GL viewport. TUI apps received wrong dimensions, producing overlapping text. Fix: physical pixels are now the Single Source of Truth. numCols = glViewportWidth / physCellWidth. Logical derived backward.
+
+**2. Cursor glyph .notdef**
+shapeEmoji() returns count > 0 even for .notdef (glyph index 0). Non-emoji codepoints routed through emoji atlas, rendering Apple Color Emoji .notdef rectangle. Fix: isEmoji guard requires glyphIndex != 0. FontCollection resolution added for NF icons.
+
+**3. ICH/DCH missing dirty marks**
+shiftCellsRight() and removeCells() wrote directly to grid via activeVisibleRow() without calling markRowDirty(). Cells modified by Insert/Delete Characters never flagged dirty. Renderer showed stale cached content. Fix: markRowDirty() added after cell modifications.
+
+**4. Synchronized output mode 2026**
+END had no mode 2026 support. TUI apps using sync blocks (Claude Code) had intermediate render states visible between blocks. Fix: parser handles ESC[?2026h/l, updateSnapshot() holds GL snapshot publication during sync.
+
+**5. Deferred TTY open**
+tty->open() fired on first resized() with preliminary JUCE layout bounds. PTY received wrong initial dimensions. Fix: deferred via callAsync to ensure layout completes.
+
+**6. Sync resize nudge**
+First mode 2026 activation triggers requestResize on drain complete, correcting any PTY dimension drift from actual grid.
+
+**7. XTVERSION response**
+ESC[>0q now responds with DCS >|END(1.0) ST. Terminal identification for applications.
+
+### Files Modified (8 total)
+- `Source/terminal/rendering/Screen.cpp:54-76` — SSOT calc() from physical pixels
+- `Source/terminal/rendering/ScreenSnapshot.cpp:168-226` — cursor glyph .notdef guard + FontCollection + sync gate
+- `Source/terminal/logic/ParserEdit.cpp:372,427` — markRowDirty for ICH/DCH
+- `Source/terminal/logic/ParserCSI.cpp:885-891,208` — mode 2026 handler + XTVERSION response
+- `Source/terminal/logic/Grid.cpp:199,222,241` — setSnapshotDirty restored in dirty markers
+- `Source/terminal/data/State.h` — syncOutputActive, syncResizePending, setSyncOutput, requestSyncResize, consumeSyncResize
+- `Source/terminal/data/State.cpp` — sync method implementations
+- `Source/terminal/logic/Session.cpp:191-224,68-73` — deferred tty->open + sync resize in onDrainComplete
+
+### Alignment Check
+- [x] LIFESTAR: Single Source of Truth (physical pixels), Lean (no redundant calculations)
+- [x] NAMING-CONVENTION: no new naming violations
+- [x] ARCHITECTURAL-MANIFESTO: GL thread reads only immutable snapshot, reader/message thread separation preserved
+
+### Technical Debt / Follow-up
+- `Fonts::calcMetrics()` still computes logical and physical independently — could derive logical from physical in the metrics itself for full SSOT at the font level
+- Mode 2026 shadow buffer (kitty-style paused_rendering with full linebuf copy) not implemented — current hold-snapshot approach is sufficient but less robust
+- The `ttyOpenPending` bool in Session is a manual flag — consider if lifecycle can be simplified
+
+---
+
 ## Sprint 103 — Cursor Glyph Rendering: Any Codepoint as Cursor ✅
 
 **Date:** 2026-03-20

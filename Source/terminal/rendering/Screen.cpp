@@ -57,18 +57,21 @@ void Screen::calc() noexcept
 
     if (fm.isValid())
     {
-        cellWidth = fm.logicalCellW;
-        cellHeight = fm.logicalCellH;
-        baseline = fm.logicalBaseline;
-        physCellWidth = fm.physCellW;
+        physCellWidth  = fm.physCellW;
         physCellHeight = fm.physCellH;
-        physBaseline = fm.physBaseline;
+        physBaseline   = fm.physBaseline;
 
-        if (cellWidth > 0 and cellHeight > 0 and viewportWidth > 0 and viewportHeight > 0)
+        if (physCellWidth > 0 and physCellHeight > 0 and glViewportWidth > 0 and glViewportHeight > 0)
         {
-            numCols = viewportWidth / cellWidth;
-            numRows = viewportHeight / cellHeight;
+            numCols = glViewportWidth / physCellWidth;
+            numRows = glViewportHeight / physCellHeight;
         }
+
+        const float scale { Fonts::getDisplayScale() };
+
+        cellWidth  = scale > 0.0f ? static_cast<int> (static_cast<float> (physCellWidth)  / scale) : fm.logicalCellW;
+        cellHeight = scale > 0.0f ? static_cast<int> (static_cast<float> (physCellHeight) / scale) : fm.logicalCellH;
+        baseline   = scale > 0.0f ? static_cast<int> (static_cast<float> (physBaseline)   / scale) : fm.logicalBaseline;
     }
 }
 

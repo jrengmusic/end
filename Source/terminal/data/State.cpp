@@ -423,6 +423,30 @@ bool State::consumeSnapshotDirty() noexcept
     return snapshotDirty.exchange (false, std::memory_order_acquire);
 }
 
+// READER THREAD
+void State::setSyncOutput (bool active) noexcept
+{
+    syncOutputActive.store (active, std::memory_order_release);
+
+    if (not active)
+        setSnapshotDirty();
+}
+
+bool State::isSyncOutputActive() const noexcept
+{
+    return syncOutputActive.load (std::memory_order_relaxed);
+}
+
+void State::requestSyncResize() noexcept
+{
+    syncResizePending.store (true, std::memory_order_relaxed);
+}
+
+bool State::consumeSyncResize() noexcept
+{
+    return syncResizePending.exchange (false, std::memory_order_relaxed);
+}
+
 // --- Reader thread getters (read from parameterMap) ---
 
 /**
