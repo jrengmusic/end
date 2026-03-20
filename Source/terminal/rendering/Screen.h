@@ -256,6 +256,9 @@ struct Snapshot
     Glyph                       cursorGlyph;                    ///< Pre-built glyph instance for user cursor (shape 0).
     bool                        hasCursorGlyph    { false };   ///< True when cursorGlyph is valid (shape 0 or cursor.force).
     bool                        cursorGlyphIsEmoji { false };  ///< True when cursorGlyph lives in the emoji (RGBA) atlas.
+    float cursorDrawColorR { 1.0f };  ///< Final resolved cursor colour red [0, 1] (theme or OSC 12).
+    float cursorDrawColorG { 1.0f };  ///< Final resolved cursor colour green [0, 1] (theme or OSC 12).
+    float cursorDrawColorB { 1.0f };  ///< Final resolved cursor colour blue [0, 1] (theme or OSC 12).
 
     int                         gridWidth  { 0 }; ///< Grid width in columns at the time of snapshot.
     int                         gridHeight { 0 }; ///< Grid height in rows at the time of snapshot.

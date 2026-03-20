@@ -581,7 +581,8 @@ struct State : public juce::Timer
     /**
      * @brief Marks the cell-grid snapshot as dirty, requesting a repaint.
      *
-     * Called by the reader thread after writing one or more cells to the grid.
+     * Called by the reader thread after writing one or more cells to the grid,
+     * and by the message thread when toggling the cursor blink phase.
      * The UI polls `consumeSnapshotDirty()` (typically from a timer or
      * `timerCallback`) to decide whether to trigger a repaint.
      *
@@ -589,8 +590,9 @@ struct State : public juce::Timer
      * is suppressed — the grid is still updated, but the UI is not notified
      * until the echo has fully arrived, producing a single visual update.
      *
-     * @note READER THREAD — sets `snapshotDirty` with `memory_order_release`.
-     *       Lock-free, noexcept.
+     * @note Thread-safe — called from the READER THREAD (cell writes) and
+     *       MESSAGE THREAD (cursor blink toggle). The atomic store with
+     *       `memory_order_release` is safe from any thread.
      */
     void setSnapshotDirty() noexcept;
 

@@ -8,6 +8,43 @@
 
 ---
 
+## Sprint 103 — Cursor Glyph Rendering: Any Codepoint as Cursor ✅
+
+**Date:** 2026-03-20
+
+### Agents Participated
+- COUNSELOR: root cause analysis, pipeline trace, spec
+- @pathfinder: full cursor rendering pipeline exploration
+- @engineer: implementation
+
+### Problem Solved
+
+Cursor rendered as a small outlined black rectangle (.notdef from Apple Color Emoji) regardless of `cursor.char`. Root cause: `ScreenSnapshot::updateSnapshot()` called `shapeEmoji()` first for all codepoints. HarfBuzz always returns `count > 0` — even when the font lacks the codepoint it returns `.notdef` (glyph index 0). The `isEmoji` check trusted `count > 0` alone, routing every non-emoji codepoint (including plain "a") through the emoji atlas, producing .notdef.
+
+Additionally, the non-emoji branch had no FontCollection resolution — NF icons would have been looked up against the wrong font.
+
+### Files Modified (1 total)
+- `Source/terminal/rendering/ScreenSnapshot.cpp:31` — added `#include "FontCollection.h"`
+- `Source/terminal/rendering/ScreenSnapshot.cpp:169-172` — `isEmoji` guard now requires `glyphIndex != 0` to exclude .notdef
+- `Source/terminal/rendering/ScreenSnapshot.cpp:182-226` — non-emoji branch: FontCollection resolution first (NF icons), shapeText fallback second
+
+### Rendering Contract Enforced
+- **Procedural** (box/braille U+2500–U+28FF): geometric quad — `drawCursor()` fallback, unchanged
+- **True emoji**: `shapeEmoji` + `glyphIndex != 0` → RGBA atlas, native colour preserved
+- **NF icons**: FontCollection `resolve()` → `hb_font_get_nominal_glyph()` → mono atlas
+- **Regular chars**: `shapeText(regular)` → mono atlas, drawn in cursor theme colour
+
+### Alignment Check
+- [x] LIFESTAR: no new state, positive checks only, mirrors existing `buildCellInstance` priority chain
+- [x] NAMING-CONVENTION: no new symbols
+- [x] ARCHITECTURAL-MANIFESTO: GL thread reads only immutable snapshot data — cursor glyph resolved entirely on message thread
+
+### Technical Debt / Follow-up
+- `cursor.force = false` means shells can still override cursor shape via DECSCUSR — user glyphs only render when `cursorShape == 0`. This is correct behaviour per spec.
+- NF icon cursor rendering untested (requires an NF icon as `cursor.char`).
+
+---
+
 ## Sprint 91 — WindowsTTY Rewrite + ConPTY Mouse Investigation
 
 **Date:** 2026-03-15  

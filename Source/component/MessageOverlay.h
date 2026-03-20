@@ -83,7 +83,7 @@ public:
     void showMessage (const juce::String& text, int durationMs = messageDelayMs)
     {
         resizeMode = false;
-        message    = text;
+        message = text;
         repaint();
         jreng::Animator::toggleFade (this, true, fadeInMs);
         startTimer (durationMs);
@@ -107,13 +107,13 @@ public:
      */
     void showResize (int cols, int rows, int padTop, int padRight, int padBottom, int padLeft)
     {
-        resizeMode    = true;
-        resizeCols    = cols;
-        resizeRows    = rows;
-        resizePadTop    = padTop;
-        resizePadRight  = padRight;
+        resizeMode = true;
+        resizeCols = cols;
+        resizeRows = rows;
+        resizePadTop = padTop;
+        resizePadRight = padRight;
         resizePadBottom = padBottom;
-        resizePadLeft   = padLeft;
+        resizePadLeft = padLeft;
         repaint();
         jreng::Animator::toggleFade (this, true, fadeInMs);
         startTimer (resizeDelayMs);
@@ -128,10 +128,10 @@ public:
     void paint (juce::Graphics& g) override
     {
         const auto* cfg { Config::getContext() };
-        const auto bgColour  { cfg->getColour (Config::Key::windowColour) };
-        const auto fgColour  { cfg->getColour (Config::Key::overlayColour) };
+        const auto bgColour { cfg->getColour (Config::Key::windowColour) };
+        const auto fgColour { cfg->getColour (Config::Key::overlayColour) };
         const juce::Font font { juce::FontOptions (cfg->getString (Config::Key::overlayFamily),
-                                                   cfg->getFloat  (Config::Key::overlaySize),
+                                                   cfg->getFloat (Config::Key::overlaySize),
                                                    juce::Font::plain) };
 
         g.fillAll (bgColour.withAlpha (backgroundAlpha));
@@ -139,12 +139,9 @@ public:
         g.setColour (fgColour);
 
         if (resizeMode)
-            paintRulers (g, getLocalBounds(), resizeCols, resizeRows,
-                         resizePadTop, resizePadRight, resizePadBottom, resizePadLeft,
-                         font, fgColour);
+            paintRulers (g, getLocalBounds(), resizeCols, resizeRows, resizePadTop, resizePadRight, resizePadBottom, resizePadLeft, font, fgColour);
         else
-            g.drawFittedText (message, getLocalBounds().reduced (textPadding),
-                              juce::Justification::centred, maxLines);
+            g.drawFittedText (message, getLocalBounds().reduced (textPadding), juce::Justification::centred, maxLines);
     }
 
 private:
@@ -191,33 +188,33 @@ private:
 
         // Grid area — inset by padding so rulers align with actual grid edges.
         const auto grid { bounds.reduced (0, 0)
-                              .withTrimmedTop    (padTop)
-                              .withTrimmedRight  (padRight)
+                              .withTrimmedTop (padTop)
+                              .withTrimmedRight (padRight)
                               .withTrimmedBottom (padBottom)
-                              .withTrimmedLeft   (padLeft) };
+                              .withTrimmedLeft (padLeft) };
 
         const float x0 { static_cast<float> (grid.getX()) };
         const float y0 { static_cast<float> (grid.getY()) };
-        const float w  { static_cast<float> (grid.getWidth()) };
-        const float h  { static_cast<float> (grid.getHeight()) };
+        const float w { static_cast<float> (grid.getWidth()) };
+        const float h { static_cast<float> (grid.getHeight()) };
 
         // Ruler positions: 2/3 from top-left = 1/3 from bottom-right.
-        const float hY { y0 + h * 2.0f / 3.0f };   // horizontal ruler y
-        const float vX { x0 + w * 2.0f / 3.0f };   // vertical ruler x
+        const float hY { y0 + h * 2.0f / 3.0f };// horizontal ruler y
+        const float vX { x0 + w * 2.0f / 3.0f };// vertical ruler x
 
-        const float tickLen  { 6.0f };   // perpendicular end-tick half-length
-        const float stroke   { 1.0f };   // line stroke width
-        const float labelGap { 6.0f };   // space between line end and label edge
+        const float tickLen { 6.0f };// perpendicular end-tick half-length
+        const float stroke { 1.0f };// line stroke width
+        const float labelGap { 6.0f };// space between line end and label edge
 
         // ── Horizontal ruler ─────────────────────────────────────────────────
         {
             const juce::String label { juce::String (cols) + " col" };
-            const float labelW { font.getStringWidthFloat (label) };
+            const float labelW { juce::TextLayout::getStringWidth (font, label) };
             const float totalGap { labelW + labelGap * 2.0f };
             const float midX { x0 + w / 2.0f };
-            const float gapL { midX - totalGap / 2.0f };   // line ends here
-            const float gapR { midX + totalGap / 2.0f };   // line resumes here
-            const float x1   { x0 + w };                   // right edge of grid
+            const float gapL { midX - totalGap / 2.0f };// line ends here
+            const float gapR { midX + totalGap / 2.0f };// line resumes here
+            const float x1 { x0 + w };// right edge of grid
 
             // Left segment + left tick
             juce::Path left;
@@ -237,8 +234,7 @@ private:
 
             // Label centred in the gap
             g.drawText (label,
-                        juce::Rectangle<float> (gapL, hY - font.getHeight() / 2.0f,
-                                                totalGap, font.getHeight()),
+                        juce::Rectangle<float> (gapL, hY - font.getHeight() / 2.0f, totalGap, font.getHeight()),
                         juce::Justification::centred,
                         false);
         }
@@ -249,9 +245,9 @@ private:
             const float labelH { font.getHeight() };
             const float totalGap { labelH + labelGap * 2.0f };
             const float midY { y0 + h / 2.0f };
-            const float gapT { midY - totalGap / 2.0f };   // line ends here
-            const float gapB { midY + totalGap / 2.0f };   // line resumes here
-            const float y1   { y0 + h };                   // bottom edge of grid
+            const float gapT { midY - totalGap / 2.0f };// line ends here
+            const float gapB { midY + totalGap / 2.0f };// line resumes here
+            const float y1 { y0 + h };// bottom edge of grid
 
             // Top segment + top tick
             juce::Path top;
@@ -270,10 +266,9 @@ private:
             g.strokePath (bottom, juce::PathStrokeType (stroke));
 
             // Label horizontal (no rotation), centred on vX and midY in the gap
-            const float labelW { font.getStringWidthFloat (label) };
+            const float labelW { juce::TextLayout::getStringWidth (font, label) };
             g.drawText (label,
-                        juce::Rectangle<float> (vX - labelW / 2.0f, gapT,
-                                                labelW, totalGap),
+                        juce::Rectangle<float> (vX - labelW / 2.0f, gapT, labelW, totalGap),
                         juce::Justification::centred,
                         false);
         }
@@ -301,16 +296,16 @@ private:
     int resizeRows { 0 };
 
     /** @brief Grid padding top — passed to paintRulers() to inset the ruler bounds. */
-    int resizePadTop    { 0 };
+    int resizePadTop { 0 };
 
     /** @brief Grid padding right — passed to paintRulers() to inset the ruler bounds. */
-    int resizePadRight  { 0 };
+    int resizePadRight { 0 };
 
     /** @brief Grid padding bottom — passed to paintRulers() to inset the ruler bounds. */
     int resizePadBottom { 0 };
 
     /** @brief Grid padding left — passed to paintRulers() to inset the ruler bounds. */
-    int resizePadLeft   { 0 };
+    int resizePadLeft { 0 };
 
     //==============================================================================
     /** @brief Background fill alpha [0, 1]; applied on top of the window blur. */

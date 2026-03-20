@@ -104,8 +104,8 @@ Terminal::Component::Component (const juce::String& program,
 /**
  * @brief Initialises the terminal component after construction.
  *
- * Contains the shared initialization logic for both constructors.
- * Sets up screen, cursor, session callbacks, and ValueTree listeners.
+ * Contains the shared initialization logic for all constructors.
+ * Sets up screen settings, session callbacks, and message overlay.
  *
  * @note MESSAGE THREAD.
  */
@@ -151,10 +151,9 @@ void Terminal::Component::initialise()
  * @brief Tears down all listeners and detaches the Screen renderer.
  *
  * Destruction order is the reverse of construction:
- * 1. Remove ValueTree listener to prevent callbacks into a partially-destroyed object.
- * 2. Clear the selection pointer on Screen before resetting the local unique_ptr.
- * 3. Detach Screen from the OpenGL context.
- * 5. Remove the key listener.
+ * 1. Clear the selection pointer on Screen before resetting the local unique_ptr.
+ * 2. Detach Screen from the OpenGL context.
+ * 3. Remove the key listener.
  *
  * @note MESSAGE THREAD.
  */
@@ -377,7 +376,7 @@ void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const j
 
     // Discrete mouse wheel: fixed step per notch (existing behaviour).
     // Smooth trackpad: accumulate fractional deltas, scroll whole lines only.
-    if (! wheel.isSmooth)
+    if (not wheel.isSmooth)
     {
         const bool scrollUp { wheel.deltaY > 0.0f };
 

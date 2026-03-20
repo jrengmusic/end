@@ -676,7 +676,9 @@ def build_font(cfg):
     name_table.setName(win_family, 1, 3, 1, 0x0409)
     name_table.setName(win_style, 2, 3, 1, 0x0409)
 
-    fs_sel = 0x20 if style == "Bold" else 0x40  # BOLD=0x20, REGULAR=0x40 (no USE_TYPO_METRICS)
+    fs_sel = (
+        0x20 if style == "Bold" else 0x40
+    )  # BOLD=0x20, REGULAR=0x40 (no USE_TYPO_METRICS)
 
     from fontTools.ttLib.tables.O_S_2f_2 import Panose
 
@@ -742,8 +744,12 @@ def build_font(cfg):
         lig_subst.Format = 1
         lig_subst.ligatures = {}
         for first_glyph, entries in lig_by_first.items():
+            # Longer sequences must come first — OpenType shaper takes the first match,
+            # so a shorter ligature listed before a longer one with the same prefix
+            # will always win and the longer one will never fire.
+            entries_ordered = sorted(entries, key=lambda e: len(e[0]), reverse=True)
             lig_set = []
-            for components, lig_glyph in entries:
+            for components, lig_glyph in entries_ordered:
                 lig = Ligature()
                 lig.Component = components
                 lig.LigGlyph = lig_glyph

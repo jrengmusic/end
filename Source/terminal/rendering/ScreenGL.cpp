@@ -355,13 +355,11 @@ void Screen::drawCursor (const Render::Snapshot& snapshot)
         else
         {
             // Geometric cursor (shapes 1–6): coloured rectangle.
-            const bool hasOverride { snapshot.cursorColorR >= 0.0f
-                                     and snapshot.cursorColorG >= 0.0f
-                                     and snapshot.cursorColorB >= 0.0f };
-
-            const float r { hasOverride ? snapshot.cursorColorR / 255.0f : resources.terminalColors.cursorColour.getFloatRed() };
-            const float g { hasOverride ? snapshot.cursorColorG / 255.0f : resources.terminalColors.cursorColour.getFloatGreen() };
-            const float b { hasOverride ? snapshot.cursorColorB / 255.0f : resources.terminalColors.cursorColour.getFloatBlue() };
+            // Colour was resolved once on the message thread in updateSnapshot()
+            // so the GL thread never reads resources.terminalColors here.
+            const float r { snapshot.cursorDrawColorR };
+            const float g { snapshot.cursorDrawColorG };
+            const float b { snapshot.cursorDrawColorB };
 
             const float cellX { static_cast<float> (col * physCellWidth) };
             const float cellY { static_cast<float> (row * physCellHeight) };

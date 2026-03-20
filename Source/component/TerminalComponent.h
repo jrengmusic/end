@@ -367,8 +367,8 @@ public:
     /**
      * @brief Initialises the terminal component after construction.
      *
-     * Contains the shared initialization logic for both constructors.
-     * Sets up screen, cursor, session callbacks, and ValueTree listeners.
+     * Contains the shared initialization logic for all constructors.
+     * Sets up screen settings, session callbacks, and message overlay.
      *
      * @note MESSAGE THREAD.
      */

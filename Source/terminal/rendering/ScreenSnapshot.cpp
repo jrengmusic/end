@@ -27,6 +27,8 @@
  */
 
 #include "Screen.h"
+#include "BoxDrawing.h"
+#include "FontCollection.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -130,6 +132,19 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
     snapshot.cursorBlinkOn    = state.isCursorBlinkOn();
     snapshot.cursorFocused    = state.isCursorFocused();
 
+    // Resolve final cursor draw colour on the message thread so the GL
+    // thread never reads resources.terminalColors in drawCursor().
+    const bool hasColorOverride { snapshot.cursorColorR >= 0.0f
+                                  and snapshot.cursorColorG >= 0.0f
+                                  and snapshot.cursorColorB >= 0.0f };
+
+    snapshot.cursorDrawColorR = hasColorOverride ? snapshot.cursorColorR / 255.0f
+                                                 : resources.terminalColors.cursorColour.getFloatRed();
+    snapshot.cursorDrawColorG = hasColorOverride ? snapshot.cursorColorG / 255.0f
+                                                 : resources.terminalColors.cursorColour.getFloatGreen();
+    snapshot.cursorDrawColorB = hasColorOverride ? snapshot.cursorColorB / 255.0f
+                                                 : resources.terminalColors.cursorColour.getFloatBlue();
+
     // Build the user cursor glyph (shape 0 or cursor.force) on the message
     // thread so the GL thread can draw it without touching the atlas.
     snapshot.hasCursorGlyph    = false;
@@ -142,85 +157,116 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
     {
         const uint32_t cp { resources.terminalColors.cursorCodepoint };
 
-        // Try the emoji font first — if the codepoint shapes there it must be
-        // drawn via the RGBA atlas so the native colour is preserved.
-        const Fonts::ShapeResult emojiShaped { Fonts::getContext()->shapeEmoji (&cp, 1) };
-
-        const bool isEmoji { emojiShaped.count > 0 };
-
-        void* fontHandle { nullptr };
-        uint32_t glyphIndex { 0 };
-
-        if (isEmoji)
+        // Block elements and box drawing characters are rendered procedurally
+        // by the terminal renderer — they have no font glyph.  Skip the glyph
+        // path so drawCursor() falls through to the geometric block.
+        if (not BoxDrawing::isProcedural (cp))
         {
-            fontHandle = Fonts::getContext()->getEmojiFontHandle();
-            glyphIndex = emojiShaped.glyphs[0].glyphIndex;
-        }
-        else
-        {
-            // shapeText handles font resolution and platform fallback internally —
-            // the cursor codepoint is just a glyph like any other.
-            const Fonts::ShapeResult textShaped { Fonts::getContext()->shapeText (
-                Fonts::Style::regular, &cp, 1) };
+            // Try the emoji font first — if the codepoint shapes there it must be
+            // drawn via the RGBA atlas so the native colour is preserved.
+            const Fonts::ShapeResult emojiShaped { Fonts::getContext()->shapeEmoji (&cp, 1) };
 
-            if (textShaped.count > 0)
+            // HarfBuzz returns count > 0 even for .notdef (glyph index 0).
+            // Only treat as emoji when the font actually has the codepoint.
+            const bool isEmoji { emojiShaped.count > 0
+                                 and emojiShaped.glyphs[0].glyphIndex != 0 };
+
+            void* fontHandle { nullptr };
+            uint32_t glyphIndex { 0 };
+
+            if (isEmoji)
             {
-                fontHandle = textShaped.fontHandle != nullptr
-                             ? textShaped.fontHandle
-                             : Fonts::getContext()->getFontHandle (Fonts::Style::regular);
-                glyphIndex = textShaped.glyphs[0].glyphIndex;
+                fontHandle = Fonts::getContext()->getEmojiFontHandle();
+                glyphIndex = emojiShaped.glyphs[0].glyphIndex;
             }
-        }
-
-        if (fontHandle != nullptr)
-        {
-            GlyphKey key;
-            key.glyphIndex = glyphIndex;
-            key.fontFace   = fontHandle;
-            key.fontSize   = Fonts::getContext()->getPixelsPerEm (Fonts::Style::regular);
-            key.cellSpan   = 1;
-
-            AtlasGlyph* ag { resources.glyphAtlas.getOrRasterize (
-                key, fontHandle, isEmoji, GlyphConstraint {},
-                physCellWidth, physCellHeight, physBaseline) };
-
-            if (ag != nullptr)
+            else
             {
-                const int col { snapshot.cursorPosition.x };
-                const int row { snapshot.cursorPosition.y };
-                const float ascender { static_cast<float> (physBaseline) };
+                // FontCollection first — resolves NF icons and fallback-font codepoints
+                // exactly as buildCellInstance does for normal cells.
+                auto* fc { FontCollection::getContext() };
 
-                // OSC 12 supplies raw 0–255 components; theme colour is already [0, 1].
-                // For emoji the shader samples colour from the texture, but we
-                // populate the fields consistently so the struct is never uninitialised.
-                const bool hasOverride { snapshot.cursorColorR >= 0.0f
-                                         and snapshot.cursorColorG >= 0.0f
-                                         and snapshot.cursorColorB >= 0.0f };
+                if (fc != nullptr)
+                {
+                    const int8_t fcSlot { fc->resolve (cp) };
 
-                const float cr { isEmoji ? 1.0f
-                                         : (hasOverride ? snapshot.cursorColorR / 255.0f
-                                                        : resources.terminalColors.cursorColour.getFloatRed()) };
-                const float cg { isEmoji ? 1.0f
-                                         : (hasOverride ? snapshot.cursorColorG / 255.0f
-                                                        : resources.terminalColors.cursorColour.getFloatGreen()) };
-                const float cb { isEmoji ? 1.0f
-                                         : (hasOverride ? snapshot.cursorColorB / 255.0f
-                                                        : resources.terminalColors.cursorColour.getFloatBlue()) };
+                    if (fcSlot > 0)
+                    {
+                        const FontCollection::Entry* entry { fc->getEntry (static_cast<int> (fcSlot)) };
 
-                snapshot.cursorGlyph.screenPosition = juce::Point<float> {
-                    static_cast<float> (col * physCellWidth) + static_cast<float> (ag->bearingX),
-                    static_cast<float> (row * physCellHeight) + ascender - static_cast<float> (ag->bearingY) };
-                snapshot.cursorGlyph.glyphSize = juce::Point<float> {
-                    static_cast<float> (ag->widthPixels),
-                    static_cast<float> (ag->heightPixels) };
-                snapshot.cursorGlyph.textureCoordinates = ag->textureCoordinates;
-                snapshot.cursorGlyph.foregroundColorR = cr;
-                snapshot.cursorGlyph.foregroundColorG = cg;
-                snapshot.cursorGlyph.foregroundColorB = cb;
-                snapshot.cursorGlyph.foregroundColorA = 1.0f;
+                        if (entry != nullptr and entry->hbFont != nullptr)
+                        {
+                            uint32_t glyphId { 0 };
 
-                snapshot.hasCursorGlyph    = true;
-                snapshot.cursorGlyphIsEmoji = isEmoji;
+                            if (hb_font_get_nominal_glyph (entry->hbFont, cp, &glyphId) and glyphId != 0)
+                            {
+#if JUCE_MAC
+                                fontHandle = entry->ctFont;
+#else
+                                fontHandle = static_cast<void*> (entry->ftFace);
+#endif
+                                glyphIndex = glyphId;
+                            }
+                        }
+                    }
+                }
+
+                // ShapeText fallback — regular chars ("a", digits, punctuation, etc.)
+                if (fontHandle == nullptr)
+                {
+                    const Fonts::ShapeResult textShaped { Fonts::getContext()->shapeText (
+                        Fonts::Style::regular, &cp, 1) };
+
+                    if (textShaped.count > 0)
+                    {
+                        fontHandle = textShaped.fontHandle != nullptr
+                                     ? textShaped.fontHandle
+                                     : Fonts::getContext()->getFontHandle (Fonts::Style::regular);
+                        glyphIndex = textShaped.glyphs[0].glyphIndex;
+                    }
+                }
+            }
+
+            if (fontHandle != nullptr)
+            {
+                GlyphKey key;
+                key.glyphIndex = glyphIndex;
+                key.fontFace   = fontHandle;
+                key.fontSize   = Fonts::getContext()->getPixelsPerEm (Fonts::Style::regular);
+                key.cellSpan   = 1;
+
+                AtlasGlyph* ag { resources.glyphAtlas.getOrRasterize (
+                    key, fontHandle, isEmoji, GlyphConstraint {},
+                    physCellWidth, physCellHeight, physBaseline) };
+
+                if (ag != nullptr)
+                {
+                    const int col { snapshot.cursorPosition.x };
+                    const int row { snapshot.cursorPosition.y };
+                    const float ascender { static_cast<float> (physBaseline) };
+
+                    // For emoji the shader samples colour from the texture, but we
+                    // populate the fields consistently so the struct is never uninitialised.
+                    // cursorDrawColor* was resolved above on the message thread — read
+                    // directly so no theme access is needed here or on the GL thread.
+                    const float cr { isEmoji ? 1.0f : snapshot.cursorDrawColorR };
+                    const float cg { isEmoji ? 1.0f : snapshot.cursorDrawColorG };
+                    const float cb { isEmoji ? 1.0f : snapshot.cursorDrawColorB };
+
+                    snapshot.cursorGlyph.screenPosition = juce::Point<float> {
+                        static_cast<float> (col * physCellWidth) + static_cast<float> (ag->bearingX),
+                        static_cast<float> (row * physCellHeight) + ascender - static_cast<float> (ag->bearingY) };
+                    snapshot.cursorGlyph.glyphSize = juce::Point<float> {
+                        static_cast<float> (ag->widthPixels),
+                        static_cast<float> (ag->heightPixels) };
+                    snapshot.cursorGlyph.textureCoordinates = ag->textureCoordinates;
+                    snapshot.cursorGlyph.foregroundColorR = cr;
+                    snapshot.cursorGlyph.foregroundColorG = cg;
+                    snapshot.cursorGlyph.foregroundColorB = cb;
+                    snapshot.cursorGlyph.foregroundColorA = 1.0f;
+
+                    snapshot.hasCursorGlyph    = true;
+                    snapshot.cursorGlyphIsEmoji = isEmoji;
+                }
             }
         }
     }
