@@ -441,11 +441,13 @@ void Session::process (const char* data, int length) noexcept
 
     if (fgPid > 0)
     {
-        tty->getProcessName (fgPid, foregroundProcessBuffer, maxStringLength);
-        state.setForegroundProcess (foregroundProcessBuffer);
+        char fgNameBuf[State::maxStringLength] {};
+        tty->getProcessName (fgPid, fgNameBuf, State::maxStringLength);
+        state.setForegroundProcess (fgNameBuf, static_cast<int> (std::strlen (fgNameBuf)));
 
-        tty->getCwd (fgPid, cwdBuffer, maxStringLength);
-        state.setCwd (cwdBuffer);
+        char cwdBuf[State::maxStringLength] {};
+        tty->getCwd (fgPid, cwdBuf, State::maxStringLength);
+        state.setCwd (cwdBuf, static_cast<int> (std::strlen (cwdBuf)));
     }
 }
 

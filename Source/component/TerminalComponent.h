@@ -319,10 +319,23 @@ public:
      *
      * If set, this replaces the default behaviour (quit the application).
      * Used by popup terminals to dismiss the popup window on process exit.
+     * Also gates the keyPress bypass: when set, all keys go to the PTY
+     * directly (popup model). Do NOT set this on regular pane terminals.
      *
      * @note MESSAGE THREAD (via callAsync).
      */
     std::function<void()> onProcessExited;
+
+    /**
+     * @brief Callback invoked whenever the shell process exits.
+     *
+     * Fired unconditionally on shell exit, before the onProcessExited /
+     * systemRequestedQuit decision. Use this to close a pane without
+     * affecting the keyPress routing that onProcessExited controls.
+     *
+     * @note MESSAGE THREAD (via callAsync).
+     */
+    std::function<void()> onShellExited;
 
     /**
      * @brief Returns `true` if a non-degenerate box selection is currently active.
@@ -493,6 +506,19 @@ private:
      * @return @c true if mouse events should be forwarded to the PTY.
      */
     bool shouldForwardMouseToPty() const noexcept;
+
+    /**
+     * @brief Clamps @p newOffset to [0, scrollbackUsed] and applies it if changed.
+     *
+     * Single SSOT for all scrollback offset mutations.  Reads the current
+     * offset and the scrollback high-water mark, clamps @p newOffset into the
+     * valid range, and — only if the clamped value differs from the current
+     * offset — writes it back and marks the snapshot dirty.
+     *
+     * @param newOffset  Desired scroll offset in lines (positive = scrolled back).
+     * @note MESSAGE THREAD.
+     */
+    void setScrollOffsetClamped (int newOffset) noexcept;
 
     //==============================================================================
     /** @brief GPU-accelerated terminal renderer; attached to this component. */

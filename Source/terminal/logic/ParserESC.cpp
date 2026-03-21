@@ -394,8 +394,9 @@ namespace
 /**
  * @brief Handles OSC 0 / OSC 2 — window title change.
  *
- * Extracts the title string from `data`, truncates it to `maxStringLength`
- * characters, copies it into `titleBuffer`, and calls `state.setTitle()`.
+ * Trims `dataLength` to avoid splitting a multi-byte UTF-8 sequence at the
+ * boundary, then passes the raw bytes directly to `state.setTitle()`.  State
+ * owns the backing buffer — no intermediate `titleBuffer` is needed.
  *
  * @par Sequences
  * @code
@@ -409,19 +410,18 @@ namespace
  *
  * @note READER THREAD only.
  *
- * @see state.setTitle()
+ * @see State::setTitle()
  * @see oscDispatch()
- * @see maxStringLength
  */
 void Parser::handleOscTitle (const uint8_t* data, uint16_t dataLength) noexcept
 {
     // READER THREAD
-    int safeLen { juce::jmin (static_cast<int> (dataLength), maxStringLength - 1) };
+    int safeLen { juce::jmin (static_cast<int> (dataLength), State::maxStringLength - 1) };
+
     while (safeLen > 0 and (data[safeLen] & 0xC0) == 0x80)
         --safeLen;
-    std::memcpy (titleBuffer, data, static_cast<size_t> (safeLen));
-    titleBuffer[safeLen] = '\0';
-    state.setTitle (titleBuffer);
+
+    state.setTitle (reinterpret_cast<const char*> (data), safeLen);
 }
 
 void Parser::handleOscCwd (const uint8_t* data, uint16_t dataLength) noexcept
@@ -451,10 +451,8 @@ void Parser::handleOscCwd (const uint8_t* data, uint16_t dataLength) noexcept
 
     if (pathStart != nullptr)
     {
-        const int length { juce::jmin (static_cast<int> (end - pathStart), maxStringLength - 1) };
-        std::memcpy (cwdBuffer, pathStart, static_cast<size_t> (length));
-        cwdBuffer[length] = '\0';
-        state.setCwd (cwdBuffer);
+        const int length { juce::jmin (static_cast<int> (end - pathStart), State::maxStringLength - 1) };
+        state.setCwd (pathStart, length);
     }
 }
 

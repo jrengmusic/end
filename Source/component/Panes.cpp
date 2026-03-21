@@ -69,6 +69,37 @@ void Panes::setTerminalCallbacks (Terminal::Component* terminal)
 {
     jassert (onRepaintNeeded != nullptr);
     terminal->onRepaintNeeded = onRepaintNeeded;
+
+    terminal->onShellExited = [this, uuid = terminal->getComponentID()]
+    {
+        int closedIndex { 0 };
+
+        for (size_t i { 0 }; i < terminals.size(); ++i)
+        {
+            if (terminals.at (i)->getComponentID() == uuid)
+            {
+                closedIndex = static_cast<int> (i);
+                break;
+            }
+        }
+
+        closePane (uuid);
+
+        if (not terminals.isEmpty())
+        {
+            const int nextIndex { juce::jmin (closedIndex, static_cast<int> (terminals.size()) - 1) };
+            auto* nearest { terminals.at (static_cast<size_t> (nextIndex)).get() };
+            AppState::getContext()->setActiveTerminalUuid (nearest->getComponentID());
+
+            if (nearest->isShowing())
+                nearest->grabKeyboardFocus();
+        }
+        else
+        {
+            if (onLastPaneClosed != nullptr)
+                onLastPaneClosed();
+        }
+    };
 }
 
 /**

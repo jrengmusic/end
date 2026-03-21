@@ -55,6 +55,13 @@ void Tabs::addNewTab()
     auto& newPanesPtr { panes.add (std::make_unique<Panes>()) };
     auto& newPanes { *newPanesPtr };
     newPanes.onRepaintNeeded = onRepaintNeeded;
+    newPanes.onLastPaneClosed = [this]
+    {
+        closeActiveTab();
+
+        if (getTabCount() == 0)
+            juce::JUCEApplication::getInstance()->systemRequestedQuit();
+    };
     addChildComponent (&newPanes);
 
     const auto uuid { newPanes.createTerminal (AppState::getContext()->getPwd()) };

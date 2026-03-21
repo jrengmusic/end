@@ -405,9 +405,6 @@ private:
      */
     uint16_t oscLength { 0 };
 
-    static constexpr int maxStringLength { 256 };
-    char titleBuffer[maxStringLength] {};
-    char cwdBuffer[maxStringLength] {};
 
     /**
      * @brief Current drawing attributes applied to newly written cells.
@@ -750,6 +747,22 @@ private:
      */
     int effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexcept;
 
+    /**
+     * @brief Returns the effective downward clamp for cursor movement on screen `s`.
+     *
+     * If the cursor is within the scroll margins (row >= scrollTop and
+     * row <= scrollBottom), returns `scrollBottom`.  Otherwise returns
+     * `visibleRows - 1`.  Used by `moveCursorDown()` and `moveCursorNextLine()`
+     * to avoid duplicating the margin-awareness check.
+     *
+     * @param s  Target screen buffer.
+     *
+     * @return Zero-based index of the last row the cursor may reach moving down.
+     *
+     * @note READER THREAD only.
+     */
+    int effectiveClampBottom (ActiveScreen s) const noexcept;
+
     /** @} */
 
     // =========================================================================
@@ -852,11 +865,10 @@ private:
      * @brief Applies a state transition: exit action, transition action, entry action.
      *
      * Called by `process()` for every byte that produces a non-trivial
-     * transition (i.e. state change or action).  Performs the three-phase
+     * transition (i.e. state change or action).  Performs the two-phase
      * Williams model:
-     * 1. `performExitAction (currentState)` if the state is changing.
-     * 2. `performAction (transition.action, byte)`.
-     * 3. `performEntryAction (transition.nextState)` if the state is changing.
+     * 1. `performAction (transition.action, byte)`.
+     * 2. `performEntryAction (transition.nextState)` if the state is changing.
      *
      * @param byte        The input byte that triggered the transition.
      * @param transition  The `(nextState, action)` pair from the DispatchTable.
@@ -865,7 +877,6 @@ private:
      *
      * @see performAction()
      * @see performEntryAction()
-     * @see performExitAction()
      */
     void processTransition (uint8_t byte, const Transition& transition) noexcept;
 
@@ -979,17 +990,6 @@ private:
      */
     void performEntryAction (ParserState newState) noexcept;
 
-    /**
-     * @brief Performs the exit action for a state being left.
-     *
-     * Called by `processTransition()` when the state changes.  Currently only
-     * `dcsPassthrough` has a non-trivial exit action (calls `dcsUnhook()`).
-     *
-     * @param oldState  The state being exited.
-     *
-     * @note READER THREAD only.
-     */
-    void performExitAction (ParserState oldState) noexcept;
 
     /** @} */
 
@@ -1213,25 +1213,29 @@ private:
     /**
      * @brief Handles an OSC title-change command (OSC 0 or OSC 2).
      *
-     * Extracts the title string from `data`, truncates it to `maxStringLength`
-     * characters, copies it into `titleBuffer`, and calls `state.setTitle()`.
+     * Passes `data` and `dataLength` directly to `state.setTitle()`, which
+     * owns the backing buffer.  The UTF-8 safety trim (avoiding broken
+     * multi-byte sequences at the boundary) is performed here before the call.
      *
      * @param data        Pointer to the title bytes (after the "0;" or "2;" prefix).
+     *                    Not null-terminated.
      * @param dataLength  Number of bytes in `data`.
      *
      * @note READER THREAD only.
      *
-     * @see state.setTitle()
+     * @see State::setTitle()
      */
     void handleOscTitle (const uint8_t* data, uint16_t dataLength) noexcept;
 
     /**
      * @brief Handles OSC 7 — current working directory notification.
      *
-     * Parses the `file://hostname/path` URI, extracts the path, writes it
-     * into `cwdBuffer`, and calls `state.setCwd()`.
+     * Parses the `file://hostname/path` URI and extracts the path portion,
+     * then passes it directly to `state.setCwd()` which owns the backing
+     * buffer.
      *
      * @param data        Pointer to the OSC 7 payload bytes (after "7;").
+     *                    Not null-terminated.
      * @param dataLength  Number of bytes in `data`.
      * @note READER THREAD only.
      */

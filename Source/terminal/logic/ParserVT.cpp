@@ -442,7 +442,8 @@ void Parser::print (uint32_t codepoint) noexcept
     if (segResult.addToCurrentCell())
     {
         const int curCol { state.getCursorCol (scr) };
-        int prevCol { curCol > 0 ? curCol - 1 : 0 };
+        const bool wrapping { state.isWrapPending (scr) };
+        int prevCol { wrapping ? curCol : (curCol > 0 ? curCol - 1 : 0) };
         const int row { state.getCursorRow (scr) };
 
         const Cell* rowCells { grid.activeVisibleRow (row) };
@@ -450,11 +451,6 @@ void Parser::print (uint32_t codepoint) noexcept
         if (rowCells != nullptr and prevCol > 0 and rowCells[prevCol].isWideContinuation())
         {
             --prevCol;
-        }
-
-        if (state.isWrapPending (scr) and curCol == 0)
-        {
-            // TODO: handle wrap-pending grapheme append to previous line's last cell
         }
 
         const Grapheme* existing { grid.activeReadGrapheme (row, prevCol) };

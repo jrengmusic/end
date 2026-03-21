@@ -454,6 +454,31 @@ int Parser::effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexce
     return (sb > 0) ? sb : visibleRows - 1;
 }
 
+/**
+ * @brief Returns the effective downward clamp for cursor movement on screen `s`.
+ *
+ * If the cursor is within the scroll margins (row >= scrollTop and
+ * row <= scrollBottom), returns `scrollBottom`.  Otherwise returns
+ * `visibleRows - 1`.  Used by `moveCursorDown()` and `moveCursorNextLine()`
+ * to eliminate the duplicated margin-awareness check.
+ *
+ * @param s  Target screen buffer.
+ *
+ * @return Zero-based index of the last row the cursor may reach moving down.
+ *
+ * @note READER THREAD only.
+ *
+ * @see moveCursorDown()      — CUD handler
+ * @see moveCursorNextLine()  — CNL handler
+ */
+int Parser::effectiveClampBottom (ActiveScreen s) const noexcept
+{
+    const int row { state.getCursorRow (s) };
+    const int top { state.getScrollTop (s) };
+    const bool withinMargins { row >= top and row <= scrollBottom };
+    return withinMargins ? scrollBottom : grid.getVisibleRows() - 1;
+}
+
 // ============================================================================
 // Tab Stops
 // ============================================================================

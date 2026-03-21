@@ -94,6 +94,16 @@ public:
     std::function<void()> onRepaintNeeded;
 
     /**
+     * @brief Callback invoked when a shell exits and all panes in this tab are closed.
+     *
+     * Fired by setTerminalCallbacks after closePane empties the terminal list.
+     * The owning Tabs wires this to its tab-removal logic.
+     *
+     * @note MESSAGE THREAD (via callAsync).
+     */
+    std::function<void()> onLastPaneClosed;
+
+    /**
      * @brief Close the pane with the given uuid.
      *
      * Removes the SESSION child from the PANE node, removes the terminal

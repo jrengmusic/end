@@ -346,11 +346,7 @@ void Parser::moveCursorUp (const CSI& params) noexcept
 void Parser::moveCursorDown (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
-    const int row { state.getCursorRow (scr) };
-    const int top { state.getScrollTop (scr) };
-    const bool withinMargins { row >= top and row <= scrollBottom };
-    const int clampBottom { withinMargins ? scrollBottom : grid.getVisibleRows() - 1 };
-    cursorMoveDown (scr, static_cast<int> (params.param (0, 1)), clampBottom);
+    cursorMoveDown (scr, static_cast<int> (params.param (0, 1)), effectiveClampBottom (scr));
 }
 
 /**
@@ -423,11 +419,7 @@ void Parser::moveCursorNextLine (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
     const int count { static_cast<int> (params.param (0, 1)) };
-    const int row { state.getCursorRow (scr) };
-    const int top { state.getScrollTop (scr) };
-    const bool withinMargins { row >= top and row <= scrollBottom };
-    const int clampBottom { withinMargins ? scrollBottom : grid.getVisibleRows() - 1 };
-    cursorMoveDown (scr, count, clampBottom);
+    cursorMoveDown (scr, count, effectiveClampBottom (scr));
     state.setCursorCol (scr, 0);
 }
 

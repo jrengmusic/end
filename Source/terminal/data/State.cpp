@@ -168,14 +168,14 @@ State::State()
     keyboardModeStack.allocate (2 * maxKeyboardStackDepth, true);
     keyboardModeStackSize.allocate (2, true);
 
-    stringStorage.emplace_back (nullptr);
-    stringMap[ID::title] = &stringStorage.back();
+    stringSlots.emplace_back();
+    stringMap[ID::title] = &stringSlots.back();
 
-    stringStorage.emplace_back (nullptr);
-    stringMap[ID::cwd] = &stringStorage.back();
+    stringSlots.emplace_back();
+    stringMap[ID::cwd] = &stringSlots.back();
 
-    stringStorage.emplace_back (nullptr);
-    stringMap[ID::foregroundProcess] = &stringStorage.back();
+    stringSlots.emplace_back();
+    stringMap[ID::foregroundProcess] = &stringSlots.back();
 
     cursorBlinkEnabled  = Config::getContext()->getBool (Config::Key::cursorBlink);
     cursorBlinkInterval = Config::getContext()->getInt (Config::Key::cursorBlinkInterval);
@@ -333,25 +333,50 @@ void State::resetKeyboardMode (ActiveScreen s) noexcept
     storeAndFlush (screenKey (s, ID::keyboardFlags), 0.0f);
 }
 
-void State::setTitle (const char* ptr) noexcept
+/**
+ * @brief SSOT writer for all three string slots (title, cwd, foreground process).
+ *
+ * Copies up to `maxStringLength - 1` bytes from `src` into the slot's
+ * `buffer` and null-terminates it.  The generation counter is then incremented
+ * with a `memory_order_release` store so that `flushStrings()` (message thread)
+ * observes the completed write via a matching `memory_order_acquire` load.
+ * Finally, `needsFlush` is released so the timer wakes on the next tick.
+ *
+ * This is the single write path for all string state — `setTitle`, `setCwd`,
+ * and `setForegroundProcess` all delegate here (SSOT / DRY).
+ *
+ * @param id      One of `ID::title`, `ID::cwd`, `ID::foregroundProcess`.
+ * @param src     Pointer to the source bytes.  Need not be null-terminated.
+ * @param length  Number of source bytes to copy.
+ * @note READER THREAD — lock-free, noexcept.
+ */
+void State::writeStringSlot (const juce::Identifier& id, const char* src, int length) noexcept
 {
     // READER THREAD
-    stringMap.at (ID::title)->store (ptr, std::memory_order_relaxed);
+    auto* slot { stringMap.at (id) };
+    const int len { juce::jmin (length, maxStringLength - 1) };
+    std::memcpy (slot->buffer, src, static_cast<size_t> (len));
+    slot->buffer[len] = '\0';
+    slot->generation.fetch_add (1, std::memory_order_release);
     needsFlush.store (true, std::memory_order_release);
 }
 
-void State::setCwd (const char* ptr) noexcept
+/** @note READER THREAD — delegates to `writeStringSlot (ID::title, …)`. */
+void State::setTitle (const char* src, int length) noexcept
 {
-    // READER THREAD
-    stringMap.at (ID::cwd)->store (ptr, std::memory_order_relaxed);
-    needsFlush.store (true, std::memory_order_release);
+    writeStringSlot (ID::title, src, length);
 }
 
-void State::setForegroundProcess (const char* ptr) noexcept
+/** @note READER THREAD — delegates to `writeStringSlot (ID::cwd, …)`. */
+void State::setCwd (const char* src, int length) noexcept
 {
-    // READER THREAD
-    stringMap.at (ID::foregroundProcess)->store (ptr, std::memory_order_relaxed);
-    needsFlush.store (true, std::memory_order_release);
+    writeStringSlot (ID::cwd, src, length);
+}
+
+/** @note READER THREAD — delegates to `writeStringSlot (ID::foregroundProcess, …)`. */
+void State::setForegroundProcess (const char* src, int length) noexcept
+{
+    writeStringSlot (ID::foregroundProcess, src, length);
 }
 
 /**
@@ -391,7 +416,7 @@ void State::consumePasteEcho (int bytes) noexcept
         if (remaining <= 0)
         {
             pasteEchoRemaining.store (0, std::memory_order_relaxed);
-            snapshotDirty.store (true, std::memory_order_release);
+            setSnapshotDirty();
         }
     }
 }
@@ -401,7 +426,7 @@ void State::clearPasteEchoGate() noexcept
 {
     if (pasteEchoRemaining.exchange (0, std::memory_order_acq_rel) > 0)
     {
-        snapshotDirty.store (true, std::memory_order_release);
+        setSnapshotDirty();
     }
 }
 
@@ -907,13 +932,22 @@ juce::Identifier State::modeKey (const juce::Identifier& property) const noexcep
 void State::flushStrings() noexcept
 {
     // MESSAGE THREAD
-    for (const auto& [id, slot] : stringMap)
+    for (auto& [id, slot] : stringMap)
     {
-        const char* ptr { slot->load (std::memory_order_relaxed) };
+        const uint32_t gen { slot->generation.load (std::memory_order_acquire) };
 
-        if (ptr != nullptr)
+        if (gen != slot->lastFlushedGeneration)
         {
-            state.setProperty (id, juce::String::fromUTF8 (ptr), nullptr);
+            char local[maxStringLength];
+            std::memcpy (local, slot->buffer, maxStringLength);
+
+            const uint32_t gen2 { slot->generation.load (std::memory_order_acquire) };
+
+            if (gen2 != gen)
+                std::memcpy (local, slot->buffer, maxStringLength);
+
+            slot->lastFlushedGeneration = gen2;
+            state.setProperty (id, juce::String::fromUTF8 (local), nullptr);
         }
     }
 

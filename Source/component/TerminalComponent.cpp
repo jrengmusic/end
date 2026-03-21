@@ -128,9 +128,12 @@ void Terminal::Component::initialise()
         juce::MessageManager::callAsync (
             [this]
             {
+                if (onShellExited != nullptr)
+                    onShellExited();
+
                 if (onProcessExited != nullptr)
                     onProcessExited();
-                else
+                else if (onShellExited == nullptr)
                     juce::JUCEApplication::getInstance()->systemRequestedQuit();
             });
     };
@@ -254,48 +257,24 @@ void Terminal::Component::resetZoom()
 
 void Terminal::Component::handleScrollNavigation (int code)
 {
+    const int page { screen.getNumRows() };
+    const int current { session.getState().getScrollOffset() };
+
     if (code == juce::KeyPress::pageUpKey)
     {
-        const int maxOffset { session.getGrid().getScrollbackUsed() };
-        const int current { session.getState().getScrollOffset() };
-        const int page { screen.getNumRows() };
-        const int clamped { juce::jlimit (0, maxOffset, current + page) };
-
-        if (clamped != current)
-        {
-            session.getState().setScrollOffset (clamped);
-            session.getState().setSnapshotDirty();
-        }
+        setScrollOffsetClamped (current + page);
     }
     else if (code == juce::KeyPress::pageDownKey)
     {
-        const int current { session.getState().getScrollOffset() };
-        const int page { screen.getNumRows() };
-        const int clamped { juce::jmax (0, current - page) };
-
-        if (clamped != current)
-        {
-            session.getState().setScrollOffset (clamped);
-            session.getState().setSnapshotDirty();
-        }
+        setScrollOffsetClamped (current - page);
     }
     else if (code == juce::KeyPress::homeKey)
     {
-        const int maxOffset { session.getGrid().getScrollbackUsed() };
-
-        if (session.getState().getScrollOffset() != maxOffset)
-        {
-            session.getState().setScrollOffset (maxOffset);
-            session.getState().setSnapshotDirty();
-        }
+        setScrollOffsetClamped (session.getGrid().getScrollbackUsed());
     }
     else if (code == juce::KeyPress::endKey)
     {
-        if (session.getState().getScrollOffset() != 0)
-        {
-            session.getState().setScrollOffset (0);
-            session.getState().setSnapshotDirty();
-        }
+        setScrollOffsetClamped (0);
     }
 }
 
@@ -393,55 +372,39 @@ void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const j
         }
         else
         {
-            const int maxOffset { session.getGrid().getScrollbackUsed() };
-            const int current { session.getState().getScrollOffset() };
             const int delta { scrollUp ? scrollLines : -scrollLines };
-            const int clamped { juce::jlimit (0, maxOffset, current + delta) };
-
-            if (clamped != current)
-            {
-                session.getState().setScrollOffset (clamped);
-                session.getState().setSnapshotDirty();
-            }
-        }
-
-        return;
-    }
-
-    // --- Smooth (trackpad) path ---
-    // Scale the tiny per-frame delta by scrollLines so the config value still
-    // controls overall speed, then accumulate until whole lines are reached.
-    scrollAccumulator += wheel.deltaY * static_cast<float> (scrollLines) * trackpadDeltaScale;
-
-    const int lines { static_cast<int> (scrollAccumulator) };
-
-    if (lines == 0)
-        return;
-
-    scrollAccumulator -= static_cast<float> (lines);
-
-    if (activeScreen == Terminal::ActiveScreen::alternate)
-    {
-        if (shouldForwardMouseToPty())
-        {
-            const int button { lines > 0 ? 64 : 65 };
-            const auto cell { screen.cellAtPoint (event.x, event.y) };
-            const int count { std::abs (lines) };
-
-            for (int i { 0 }; i < count; ++i)
-                session.writeMouseEvent (button, cell.x, cell.y, true);
+            setScrollOffsetClamped (session.getState().getScrollOffset() + delta);
         }
     }
     else
     {
-        const int maxOffset { session.getGrid().getScrollbackUsed() };
-        const int current { session.getState().getScrollOffset() };
-        const int clamped { juce::jlimit (0, maxOffset, current + lines) };
+        // --- Smooth (trackpad) path ---
+        // Scale the tiny per-frame delta by scrollLines so the config value still
+        // controls overall speed, then accumulate until whole lines are reached.
+        scrollAccumulator += wheel.deltaY * static_cast<float> (scrollLines) * trackpadDeltaScale;
 
-        if (clamped != current)
+        const int lines { static_cast<int> (scrollAccumulator) };
+
+        if (lines != 0)
         {
-            session.getState().setScrollOffset (clamped);
-            session.getState().setSnapshotDirty();
+            scrollAccumulator -= static_cast<float> (lines);
+
+            if (activeScreen == Terminal::ActiveScreen::alternate)
+            {
+                if (shouldForwardMouseToPty())
+                {
+                    const int button { lines > 0 ? 64 : 65 };
+                    const auto cell { screen.cellAtPoint (event.x, event.y) };
+                    const int count { std::abs (lines) };
+
+                    for (int i { 0 }; i < count; ++i)
+                        session.writeMouseEvent (button, cell.x, cell.y, true);
+                }
+            }
+            else
+            {
+                setScrollOffsetClamped (session.getState().getScrollOffset() + lines);
+            }
         }
     }
 }
@@ -827,4 +790,17 @@ bool Terminal::Component::isMouseTracking() const noexcept
 bool Terminal::Component::shouldForwardMouseToPty() const noexcept
 {
     return isMouseTracking();
+}
+
+void Terminal::Component::setScrollOffsetClamped (int newOffset) noexcept
+{
+    const int maxOffset { session.getGrid().getScrollbackUsed() };
+    const int current { session.getState().getScrollOffset() };
+    const int clamped { juce::jlimit (0, maxOffset, newOffset) };
+
+    if (clamped != current)
+    {
+        session.getState().setScrollOffset (clamped);
+        session.getState().setSnapshotDirty();
+    }
 }

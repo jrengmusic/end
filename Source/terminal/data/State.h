@@ -121,6 +121,9 @@ struct State : public juce::Timer
      * @note MESSAGE THREAD — must be constructed on the message thread so that
      *       the timer is registered with the correct thread's event loop.
      */
+    /** Maximum byte length for string slots (title, CWD, foreground process). */
+    static constexpr int maxStringLength { 256 };
+
     State();
 
     /**
@@ -306,27 +309,42 @@ struct State : public juce::Timer
 
     /**
      * @brief Sets the window title from OSC 0/2 escape sequences.
-     * @param ptr  Pointer to a null-terminated UTF-8 string owned by the caller.
-     *             Must remain valid until the next flush.
+     *
+     * Copies `src` (up to `length` bytes, capped at `StringSlot::maxLength - 1`)
+     * into the State-owned title buffer, then increments the generation counter
+     * so that `flushStrings()` can detect the change without touching the
+     * caller's buffer.
+     *
+     * @param src     Pointer to the raw UTF-8 title bytes.  Need not be
+     *                null-terminated; `length` governs the byte count.
+     * @param length  Number of bytes to copy from `src`.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void setTitle (const char* ptr) noexcept;
+    void setTitle (const char* src, int length) noexcept;
 
     /**
      * @brief Sets the current working directory from OSC 7 or OS query.
-     * @param ptr  Pointer to a null-terminated UTF-8 string owned by the caller.
-     *             Must remain valid until the next flush.
+     *
+     * Copies `src` into the State-owned cwd buffer.  See `setTitle()` for the
+     * full semantics of the SeqLock-style snap-copy used in `flushStrings()`.
+     *
+     * @param src     Pointer to the raw UTF-8 path bytes.
+     * @param length  Number of bytes to copy from `src`.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void setCwd (const char* ptr) noexcept;
+    void setCwd (const char* src, int length) noexcept;
 
     /**
      * @brief Sets the foreground process name from OS query.
-     * @param ptr  Pointer to a null-terminated UTF-8 string owned by the caller.
-     *             Must remain valid until the next flush.
+     *
+     * Copies `src` into the State-owned foreground-process buffer.
+     * See `setTitle()` for the full semantics.
+     *
+     * @param src     Pointer to the raw UTF-8 process name bytes.
+     * @param length  Number of bytes to copy from `src`.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void setForegroundProcess (const char* ptr) noexcept;
+    void setForegroundProcess (const char* src, int length) noexcept;
 
     /** @} */
 
@@ -951,19 +969,40 @@ private:
     std::atomic<bool> syncResizePending { false };
 
     /**
-     * @brief Stable backing store for string atomic slots.
+     * @brief Owned backing buffer for a single string parameter.
      *
-     * Mirrors `storage` for floats. Uses `std::deque` so that emplace_back
-     * never invalidates existing element addresses.
+     * The reader thread writes into `buffer` and increments `generation` with
+     * a release store.  The message thread (in `flushStrings()`) snap-copies
+     * the buffer after reading `generation`, then re-reads `generation` to
+     * detect torn writes (SeqLock-style).  `lastFlushedGeneration` tracks the
+     * last value seen by the message thread so unchanged slots are skipped.
+     *
+     * Buffer size is `maxStringLength` (public constant) so callers can
+     * stack-allocate matching buffers without coupling to the private struct.
      */
-    std::deque<std::atomic<const char*>> stringStorage;
+    struct StringSlot
+    {
+        char buffer[maxStringLength] {};
+        std::atomic<uint32_t> generation { 0 };
+        uint32_t lastFlushedGeneration { 0 };  ///< MESSAGE THREAD only — never read by reader.
+    };
 
     /**
-     * @brief Flat map from identifier → string atomic slot pointer.
+     * @brief Stable backing store for all `StringSlot` instances.
      *
-     * Mirrors `parameterMap` for floats. Populated once during construction.
+     * `std::deque` prevents reallocation so that `stringMap` raw pointers
+     * remain valid for the lifetime of the State.  Populated once during
+     * construction; never modified after that.
      */
-    std::unordered_map<juce::Identifier, std::atomic<const char*>*> stringMap;
+    std::deque<StringSlot> stringSlots;
+
+    /**
+     * @brief Flat map from identifier → StringSlot pointer.
+     *
+     * Mirrors `parameterMap` for floats.  Populated once during construction
+     * and immutable thereafter — safe to read from any thread without a lock.
+     */
+    std::unordered_map<juce::Identifier, StringSlot*> stringMap;
 
     /**
      * @brief Copies all atomic parameter values into the ValueTree.
@@ -1001,12 +1040,31 @@ private:
     void flushGroupParams (juce::ValueTree& group) noexcept;
 
     /**
-     * @brief Flushes string atomics to the SESSION ValueTree as direct properties
+     * @brief SSOT writer for all three string slots (title, cwd, foreground process).
+     *
+     * Copies up to `StringSlot::maxLength - 1` bytes from `src` into the
+     * slot's `buffer`, null-terminates, then increments the `generation`
+     * counter with a release store so that `flushStrings()` (message thread)
+     * observes the completed write.  Sets `needsFlush` so the timer wakes.
+     *
+     * @param id      One of `ID::title`, `ID::cwd`, `ID::foregroundProcess`.
+     * @param src     Pointer to the source bytes.  Need not be null-terminated.
+     * @param length  Number of source bytes.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void writeStringSlot (const juce::Identifier& id, const char* src, int length) noexcept;
+
+    /**
+     * @brief Flushes string slots to the SESSION ValueTree as direct properties
      *        and computes the displayName.
      *
-     * Reads each string atomic, converts to juce::String via fromUTF8,
-     * writes as a direct property on the SESSION node. Then computes
-     * displayName from priority: title > foregroundProcess > cwd leaf name.
+     * For each slot whose `generation` has advanced since the last flush, the
+     * slot's `buffer` is snap-copied into a stack-local array.  A second
+     * `generation` read after the copy detects torn writes; if detected, the
+     * copy is repeated once.  The resulting string is written to the ValueTree
+     * via `juce::String::fromUTF8`.  Then `displayName` is recomputed from
+     * the priority: foreground process (when different from shell) → cwd leaf
+     * name.
      *
      * @note MESSAGE THREAD — called from timerCallback() only.
      */

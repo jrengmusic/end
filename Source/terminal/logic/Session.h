@@ -301,9 +301,6 @@ private:
     /** @brief `true` while a deferred tty->open() is pending via callAsync. */
     bool ttyOpenPending { false };
 
-    static constexpr int maxStringLength { 256 };
-    char foregroundProcessBuffer[maxStringLength] {};
-    char cwdBuffer[maxStringLength] {};
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

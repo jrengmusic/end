@@ -25,7 +25,6 @@
  *              ▼
  *         processTransition()
  *              │
- *              ├─ performExitAction(currentState)
  *              ├─ performAction(action, byte)       ← routes to handler
  *              └─ performEntryAction(nextState)
  * @endcode
@@ -219,16 +218,15 @@ void Parser::calc() noexcept
 /**
  * @brief Applies a state transition: exit action → transition action → entry action.
  *
- * Implements the three-phase Paul Flo Williams model for every byte that
- * produces a non-trivial result:
+ * Implements the two-phase transition model for every byte that produces
+ * a non-trivial result:
  *
- * 1. If `transition.nextState != currentState`, calls
- *    `performExitAction (currentState)` to clean up the departing state.
- * 2. Calls `performAction (transition.action, byte)` unconditionally.
- * 3. If the state changed, calls `performEntryAction (transition.nextState)`
- *    to initialise the new state's accumulators, then updates `currentState`.
+ * 1. Calls `performAction (transition.action, byte)` unconditionally.
+ * 2. If `transition.nextState != currentState`, calls
+ *    `performEntryAction (transition.nextState)` to initialise the new
+ *    state's accumulators, then updates `currentState`.
  *
- * When the state does not change (self-transition), only step 2 runs.
+ * When the state does not change (self-transition), only step 1 runs.
  *
  * @param byte        The input byte that triggered the transition.
  * @param transition  The `{nextState, action}` pair returned by `dispatchTable.get()`.
@@ -237,14 +235,12 @@ void Parser::calc() noexcept
  *
  * @see performAction()
  * @see performEntryAction()
- * @see performExitAction()
  * @see DispatchTable.h
  */
 void Parser::processTransition (uint8_t byte, const Transition& transition) noexcept
 {
     if (transition.nextState != currentState)
     {
-        performExitAction (currentState);
         performAction (transition.action, byte);
         performEntryAction (transition.nextState);
         currentState = transition.nextState;
@@ -537,7 +533,6 @@ uint8_t Parser::expectedUTF8Length (uint8_t leadByte) noexcept
  * @note READER THREAD only.
  *
  * @see processTransition()
- * @see performExitAction()
  */
 void Parser::performEntryAction (ParserState newState) noexcept
 {
@@ -563,23 +558,6 @@ void Parser::performEntryAction (ParserState newState) noexcept
     }
 }
 
-/**
- * @brief Performs the exit action for a state being left.
- *
- * Called by `processTransition()` before `performAction()` when the state
- * changes.  Currently a no-op for all states — the parameter is accepted to
- * match the Williams model interface and to allow future exit actions (e.g.
- * `dcsPassthrough` exit calling `dcsUnhook()`) without changing call sites.
- *
- * @param oldState  The state being exited (currently unused).
- *
- * @note READER THREAD only.
- *
- * @see processTransition()
- * @see performEntryAction()
- */
-// TODO: implement or remove
-void Parser::performExitAction (ParserState oldState) noexcept { (void) oldState; }
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal
