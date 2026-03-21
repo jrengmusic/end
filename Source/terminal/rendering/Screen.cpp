@@ -458,9 +458,23 @@ void Screen::render (const State& state, Grid& grid) noexcept
         const int scroll { grid.consumeScrollDelta() };
 
         if (cacheRows != rows or cacheCols != cols)
+        {
             allocateRowCache (rows, cols);
+            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
+        }
+        else if (scroll > 0 and scroll < rows)
+        {
+            applyScrollOptimization (rows, cols, scroll, dirty);
 
-        std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
+            for (int r { rows - scroll }; r < rows; ++r)
+            {
+                dirty[r >> 6] |= (uint64_t { 1 } << (r & 63));
+            }
+        }
+        else if (scroll >= rows)
+        {
+            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
+        }
 
         const bool hasSelection { selection != nullptr };
 

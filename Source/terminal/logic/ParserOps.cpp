@@ -62,6 +62,7 @@
  */
 
 #include "Parser.h"
+#include "Grid.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -120,15 +121,17 @@ void Parser::resetCursor (int cols) noexcept
 }
 
 /**
- * @brief Moves the cursor up by `count` rows, clamped to the scroll region top.
+ * @brief Moves the cursor up by `count` rows, clamped to the appropriate upper bound.
  *
- * Used by CUU (`CSI Pn A`) and CPL (`CSI Pn F`).  The cursor never moves
- * above `scrollTop`; if the cursor is already at or above `scrollTop`, the
- * result is clamped to `scrollTop`.
+ * Used by CUU (`CSI Pn A`) and CPL (`CSI Pn F`).  The clamping boundary
+ * depends on whether the cursor is within the scroll region:
+ * - Within margins (row >= scrollTop and row <= scrollBottom): clamp to scrollTop.
+ * - Outside margins: clamp to row 0.
  *
  * @par Clamping
  * @code
- * newRow = max (scrollTop, cursorRow - count)
+ * clampTop = (row >= scrollTop and row <= scrollBottom) ? scrollTop : 0
+ * newRow   = max (clampTop, cursorRow - count)
  * @endcode
  *
  * @param s      Target screen buffer.
@@ -138,13 +141,16 @@ void Parser::resetCursor (int cols) noexcept
  * @note Always clears the wrap-pending flag.
  *
  * @see cursorMoveDown()  — complementary downward movement
- * @see State::getScrollTop() — the upper bound for upward movement
+ * @see State::getScrollTop() — the upper bound for upward movement within margins
  */
 void Parser::cursorMoveUp (ActiveScreen s, int count) noexcept
 {
     const int top { state.getScrollTop (s) };
+    const int bottom { effectiveScrollBottom (s, grid.getVisibleRows()) };
     const int row { state.getCursorRow (s) };
-    state.setCursorRow (s, juce::jmax (top, row - count));
+    const bool withinMargins { row >= top and row <= bottom };
+    const int clampTop { withinMargins ? top : 0 };
+    state.setCursorRow (s, juce::jmax (clampTop, row - count));
     state.setWrapPending (s, false);
 }
 
@@ -153,7 +159,8 @@ void Parser::cursorMoveUp (ActiveScreen s, int count) noexcept
  *
  * Used by CUD (`CSI Pn B`) and CNL (`CSI Pn E`).  The cursor never moves
  * below `bottom`; the caller is responsible for passing the correct bottom
- * bound (typically `effectiveScrollBottom()` or `visibleRows - 1`).
+ * bound — `scrollBottom` when the cursor is within the scroll region, or
+ * `visibleRows - 1` when the cursor is outside the region.
  *
  * @par Clamping
  * @code
@@ -300,26 +307,29 @@ void Parser::cursorSetPositionInOrigin (ActiveScreen s, int row, int col, int co
  * @brief Advances the cursor to the next line, returning whether the cursor moved.
  *
  * If the cursor is strictly above `bottom`, the cursor row is incremented and
- * the function returns `true`.  If the cursor is already at `bottom`, the
- * function returns `false` — the caller (typically `executeLineFeed()` or
- * `resolveWrapPending()`) is responsible for triggering a scroll.
+ * the function returns `true`.  If the cursor is exactly at `bottom`, the
+ * function returns `false` — the caller (typically `executeLineFeed()`) is
+ * responsible for triggering a scroll.  If the cursor is below `bottom`
+ * (outside the scroll region), the row is advanced clamped to `visibleRows - 1`
+ * and the function returns `true` (no scroll needed).
  *
  * @par Wrap-pending
  * The wrap-pending flag is always cleared before the row check, so that a
  * deferred wrap is resolved before the line-feed logic runs.
  *
- * @param s      Target screen buffer.
- * @param bottom Zero-based index of the last row of the scrolling region.
+ * @param s           Target screen buffer.
+ * @param bottom      Zero-based index of the last row of the scrolling region.
+ * @param visibleRows Total number of visible rows in the terminal.
  *
  * @return `true`  if the cursor moved down one row.
- *         `false` if the cursor was already at `bottom` (scroll needed).
+ *         `false` if the cursor was exactly at `bottom` (scroll needed).
  *
  * @note READER THREAD only.
  *
  * @see executeLineFeed()    — calls this; scrolls the region if it returns false
  * @see resolveWrapPending() — calls this when auto-wrap fires at the right margin
  */
-bool Parser::cursorGoToNextLine (ActiveScreen s, int bottom) noexcept
+bool Parser::cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) noexcept
 {
     state.setWrapPending (s, false);
     const int row { state.getCursorRow (s) };
@@ -327,6 +337,12 @@ bool Parser::cursorGoToNextLine (ActiveScreen s, int bottom) noexcept
     if (row < bottom)
     {
         state.setCursorRow (s, row + 1);
+        return true;
+    }
+
+    if (row > bottom)
+    {
+        state.setCursorRow (s, juce::jmin (row + 1, visibleRows - 1));
         return true;
     }
 

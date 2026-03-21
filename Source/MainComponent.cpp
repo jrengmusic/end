@@ -371,7 +371,9 @@ void MainComponent::registerActions()
                                                           + (entry.args.isNotEmpty() ? " " + entry.args : "") };
 
                                    auto terminal { std::make_unique<Terminal::Component> (
-                                       shell, shellArgs, entry.cwd) };
+                                       shell,
+                                       shellArgs,
+                                       entry.cwd) };
                                    popup.show (*getTopLevelComponent(), std::move (terminal));
                                }
 
@@ -380,11 +382,21 @@ void MainComponent::registerActions()
 
         if (entry.modal.isNotEmpty())
             action.registerAction (
-                "popup:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", true, launchPopup);
+                "popup:" + name,
+                "Popup: " + name,
+                "Open " + name + " popup",
+                "Popups",
+                true,
+                launchPopup);
 
         if (entry.global.isNotEmpty())
             action.registerAction (
-                "popup_global:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", false, launchPopup);
+                "popup_global:" + name,
+                "Popup: " + name,
+                "Open " + name + " popup",
+                "Popups",
+                false,
+                launchPopup);
     }
 
     //==============================================================================
@@ -515,4 +527,3 @@ void MainComponent::initialiseMessageOverlay()
             });
     }
 }
-

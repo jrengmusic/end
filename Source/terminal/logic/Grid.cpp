@@ -196,6 +196,7 @@ void Grid::markRowDirty (int row) noexcept
         const int word { row >> 6 };
         const uint64_t bit { uint64_t { 1 } << (row & 63) };
         dirtyRows[word].fetch_or (bit, std::memory_order_relaxed);
+        state.setSnapshotDirty();
     }
 }
 
@@ -203,7 +204,8 @@ void Grid::markRowDirty (int row) noexcept
  * @brief OR-merges a local 256-bit dirty bitmask into the shared bitmask.
  *
  * Iterates the four words and skips any that are zero to avoid unnecessary
- * atomic operations.
+ * atomic operations.  Calls `State::setSnapshotDirty()` once after all words
+ * are merged.
  *
  * @param localDirty  Four `uint64_t` words (rows 0–63, 64–127, 128–191, 192–255).
  * @note READER THREAD — lock-free, noexcept.
@@ -217,6 +219,7 @@ void Grid::batchMarkDirty (const uint64_t localDirty[4]) noexcept
             dirtyRows[i].fetch_or (localDirty[i], std::memory_order_relaxed);
         }
     }
+    state.setSnapshotDirty();
 }
 
 /**
@@ -235,6 +238,7 @@ void Grid::markAllDirty() noexcept
         dirtyRows[i].store (~uint64_t { 0 }, std::memory_order_relaxed);
     }
     scrollDelta.store (0, std::memory_order_relaxed);
+    state.setSnapshotDirty();
 }
 
 /**

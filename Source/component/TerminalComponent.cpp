@@ -743,6 +743,10 @@ void Terminal::Component::onVBlank()
             if (onRepaintNeeded != nullptr)
                 onRepaintNeeded();
         }
+        else
+        {
+            session.getState().setSnapshotDirty();
+        }
     }
 }
 

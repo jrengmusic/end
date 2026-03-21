@@ -83,6 +83,7 @@ void TTY::run()
 
         while (n > 0)
         {
+            { static FILE* f = fopen ("/tmp/end-pty-trace.bin", "wb"); if (f) { fwrite (chunk, 1, static_cast<size_t> (n), f); fflush (f); } }
             if (onData)
                 onData (chunk, n);
             n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));

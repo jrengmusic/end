@@ -689,7 +689,7 @@ private:
      *
      * @see executeLineFeed()
      */
-    bool cursorGoToNextLine (ActiveScreen s, int bottom) noexcept;
+    bool cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) noexcept;
 
     /**
      * @brief Clamps the cursor to the valid screen area after a resize.

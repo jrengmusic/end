@@ -81,6 +81,7 @@ static void runChildProcess (int master, int slaveFd, const char* shell,
     }
 
     setenv ("TERM", "xterm-256color", 1);
+    setenv ("COLORTERM", "truecolor", 1);
 
     if (getenv ("LANG") == nullptr)
     {

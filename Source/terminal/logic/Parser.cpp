@@ -547,6 +547,7 @@ void Parser::performEntryAction (ParserState newState) noexcept
     {
         case ParserState::escape:
             intermediateCount = 0;
+            utf8AccumulatorLength = 0;
             break;
 
         case ParserState::csiEntry:

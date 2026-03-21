@@ -107,7 +107,7 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
     {
         case 'D':
         {
-            if (not cursorGoToNextLine (scr, scrollBottom))
+            if (not cursorGoToNextLine (scr, scrollBottom, grid.getVisibleRows()))
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
@@ -119,7 +119,7 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
         case 'E':
             state.setCursorCol (scr, 0);
             state.setWrapPending (scr, false);
-            if (not cursorGoToNextLine (scr, scrollBottom))
+            if (not cursorGoToNextLine (scr, scrollBottom, grid.getVisibleRows()))
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
@@ -166,6 +166,7 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
         case '8':
         {
             const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
+            DBG ("DECRC row=" + juce::String (sc.row) + " col=" + juce::String (sc.col));
             state.setCursorRow (scr, sc.row);
             state.setCursorCol (scr, sc.col);
             pen = sc.pen;
@@ -321,7 +322,7 @@ void Parser::escDispatch (const uint8_t* inter, uint8_t interCount, uint8_t fina
     {
         escDispatchNoIntermediate (scr, finalByte);
     }
-    else if (interCount == 1 and inter[0] == '(')
+    else if (interCount == 1 and (inter[0] == '(' or inter[0] == ')'))
     {
         escDispatchCharset (inter[0], finalByte);
     }
@@ -416,9 +417,11 @@ namespace
 void Parser::handleOscTitle (const uint8_t* data, uint16_t dataLength) noexcept
 {
     // READER THREAD
-    const int length { juce::jmin (static_cast<int> (dataLength), maxStringLength - 1) };
-    std::memcpy (titleBuffer, data, static_cast<size_t> (length));
-    titleBuffer[length] = '\0';
+    int safeLen { juce::jmin (static_cast<int> (dataLength), maxStringLength - 1) };
+    while (safeLen > 0 and (data[safeLen] & 0xC0) == 0x80)
+        --safeLen;
+    std::memcpy (titleBuffer, data, static_cast<size_t> (safeLen));
+    titleBuffer[safeLen] = '\0';
     state.setTitle (titleBuffer);
 }
 
@@ -514,8 +517,8 @@ void Parser::handleOscClipboard (const uint8_t* data, uint16_t dataLength) noexc
 
             if (decoded.fromBase64Encoding (base64))
             {
-                const juce::String text (static_cast<const char*> (decoded.getData()),
-                                         decoded.getSize());
+                const juce::String text (juce::String::fromUTF8 (static_cast<const char*> (decoded.getData()),
+                                                                  static_cast<int> (decoded.getSize())));
 
                 if (onClipboardChanged)
                     juce::MessageManager::callAsync ([this, text] { /* MESSAGE THREAD */ onClipboardChanged (text); });

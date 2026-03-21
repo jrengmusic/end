@@ -74,24 +74,35 @@ namespace
     /**
      * @brief Advances the cursor to the next line, scrolling the region if needed.
      *
-     * Clears `wrapPending`, then either scrolls the scroll region up by one
-     * line (if the cursor is already at `scrollBottom`) or increments the row.
+     * Clears `wrapPending`, then:
+     * - If the cursor is exactly at `scrollBottom`, scrolls the region up one line.
+     * - If the cursor is below `scrollBottom` (outside the scroll region), advances
+     *   the row clamped to `visibleRows - 1`.
+     * - Otherwise increments the row.
      * Updates `c.cellRow` to point at the new row.
      *
      * @param c             Cursor snapshot to update in-place.
      * @param grid          Terminal screen buffer (for scroll and row pointer).
      * @param scrollTop     Zero-based index of the first row of the scroll region.
      * @param scrollBottom  Zero-based index of the last row of the scroll region.
+     * @param visibleRows   Total number of visible rows in the terminal.
      *
      * @note READER THREAD only.
      */
-    inline void handleLineFeed (GroundCursor& c, Grid& grid, int scrollTop, int scrollBottom, const Cell& fill) noexcept
+    inline void handleLineFeed (GroundCursor& c, Grid& grid, int scrollTop, int scrollBottom, int visibleRows, const Cell& fill) noexcept
     {
         c.wrapPending = false;
 
-        if (c.row >= scrollBottom)
+        if (c.row >= visibleRows - 2)
+            DBG ("LF-AT row=" + juce::String (c.row) + " scrollBot=" + juce::String (scrollBottom) + " visRows=" + juce::String (visibleRows));
+
+        if (c.row == scrollBottom)
         {
             grid.scrollRegionUp (scrollTop, scrollBottom, 1, fill);
+        }
+        else if (c.row > scrollBottom)
+        {
+            c.row = juce::jmin (c.row + 1, visibleRows - 1);
         }
         else
         {
@@ -170,16 +181,20 @@ namespace
      * @see translateCharset()
      */
     inline void flushPrintRun (GroundCursor& c, Grid& grid, int scrollTop, int scrollBottom,
-                                int cols, bool autoWrap, uint64_t* localDirty,
+                                int visibleRows, int cols, bool autoWrap, uint64_t* localDirty,
                                 Cell& cellTemplate, uint8_t byte, bool useLineDrawing, const Cell& fill) noexcept
     {
         if (c.wrapPending and autoWrap)
         {
             grid.activeVisibleRowState (c.row).setWrapped (true);
 
-            if (c.row >= scrollBottom)
+            if (c.row == scrollBottom)
             {
                 grid.scrollRegionUp (scrollTop, scrollBottom, 1, fill);
+            }
+            else if (c.row > scrollBottom)
+            {
+                c.row = juce::jmin (c.row + 1, visibleRows - 1);
             }
             else
             {
@@ -193,6 +208,9 @@ namespace
         c.wrapPending = false;
         cellTemplate.codepoint = translateCharset (static_cast<uint32_t> (byte), useLineDrawing);
         c.cellRow[c.col] = cellTemplate;
+
+        if (c.row == visibleRows - 1)
+            DBG ("BOTTOM-FAST col=" + juce::String (c.col) + " cp=U+" + juce::String::toHexString ((int) cellTemplate.codepoint).paddedLeft ('0', 4) + " '" + juce::String::charToString (static_cast<juce::juce_wchar> (byte)) + "'");
 
         if (c.col + 1 >= cols)
         {
@@ -252,6 +270,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
 {
     const auto scr { state.getScreen() };
     const int cols { grid.getCols() };
+    const int visibleRows { grid.getVisibleRows() };
     const bool autoWrap { state.getMode (ID::autoWrap) };
     const int scrollTop { state.getScrollTop (scr) };
 
@@ -276,7 +295,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
 
         if (byte >= 0x20 and byte <= 0x7E)
         {
-            flushPrintRun (c, grid, scrollTop, scrollBottom, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill);
+            flushPrintRun (c, grid, scrollTop, scrollBottom, visibleRows, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill);
             lastGraphicChar = cellTemplate.codepoint;
             consumed = i + 1;
             continue;
@@ -285,7 +304,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
         if (byte == 0x0A or byte == 0x0B or byte == 0x0C)
         {
             localDirty[c.row >> 6] |= uint64_t { 1 } << (c.row & 63);
-            handleLineFeed (c, grid, scrollTop, scrollBottom, fill);
+            handleLineFeed (c, grid, scrollTop, scrollBottom, visibleRows, fill);
             consumed = i + 1;
             continue;
         }
@@ -350,15 +369,21 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
     {
         grid.activeVisibleRowState (state.getCursorRow (scr)).setWrapped (true);
 
-        if (state.getCursorRow (scr) >= scrollBottom)
+        const int row { state.getCursorRow (scr) };
+
+        if (row == scrollBottom)
         {
             Cell fill {};
             fill.bg = stamp.bg;
             grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
         }
+        else if (row > scrollBottom)
+        {
+            state.setCursorRow (scr, juce::jmin (row + 1, grid.getVisibleRows() - 1));
+        }
         else
         {
-            state.setCursorRow (scr, state.getCursorRow (scr) + 1);
+            state.setCursorRow (scr, row + 1);
         }
         state.setCursorCol (scr, 0);
     }
@@ -556,11 +581,15 @@ void Parser::print (uint32_t codepoint) noexcept
             {
                 grid.activeVisibleRowState (row).setWrapped (true);
 
-                if (row >= scrollBottom)
+                if (row == scrollBottom)
                 {
                     Cell fill {};
                     fill.bg = stamp.bg;
                     grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
+                }
+                else if (row > scrollBottom)
+                {
+                    state.setCursorRow (scr, juce::jmin (row + 1, grid.getVisibleRows() - 1));
                 }
                 else
                 {
@@ -574,6 +603,9 @@ void Parser::print (uint32_t codepoint) noexcept
 
         const int writeRow { state.getCursorRow (scr) };
         const int writeCol { state.getCursorCol (scr) };
+
+        if (writeRow == grid.getVisibleRows() - 1)
+            DBG ("BOTTOM-ROW col=" + juce::String (writeCol) + " cp=U+" + juce::String::toHexString ((int) codepoint).paddedLeft ('0', 4) + (codepoint >= 0x20 && codepoint <= 0x7E ? " ch=" + juce::String::charToString ((juce::juce_wchar) codepoint) : ""));
 
         Cell cell {};
         cell.codepoint = translateCharset (codepoint, useLineDrawing);
@@ -640,7 +672,11 @@ void Parser::print (uint32_t codepoint) noexcept
  */
 void Parser::executeLineFeed (ActiveScreen scr) noexcept
 {
-    if (not cursorGoToNextLine (scr, scrollBottom))
+    const int elfRow { state.getCursorRow (scr) };
+    if (elfRow >= grid.getVisibleRows() - 2)
+        DBG ("ELF row=" + juce::String (elfRow) + " scrollBot=" + juce::String (scrollBottom) + " visRows=" + juce::String (grid.getVisibleRows()));
+
+    if (not cursorGoToNextLine (scr, scrollBottom, grid.getVisibleRows()))
     {
         Cell fill {};
         fill.bg = stamp.bg;

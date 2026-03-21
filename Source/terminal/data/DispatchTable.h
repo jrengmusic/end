@@ -409,7 +409,6 @@ private:
         fillRange (row, 0x1C, 0x1F, make (ParserState::dcsPassthrough, ParserAction::put));
         fillRange (row, 0x20, 0x7E, make (ParserState::dcsPassthrough, ParserAction::put));
         row.at (0x7F) = make (ParserState::dcsPassthrough, ParserAction::ignore);
-        row.at (0x9C) = make (ParserState::ground, ParserAction::unhook);
         row.at (0x1B) = make (ParserState::escape, ParserAction::none);
     }
 
@@ -417,7 +416,6 @@ private:
     {
         auto& row { rowFor (ParserState::dcsIgnore) };
         fillRange (row, 0x00, 0x7F, make (ParserState::dcsIgnore, ParserAction::ignore));
-        row.at (0x9C) = make (ParserState::ground, ParserAction::none);
         row.at (0x1B) = make (ParserState::escape, ParserAction::none);
     }
 
@@ -430,7 +428,7 @@ private:
         row.at (0x19) = make (ParserState::oscString, ParserAction::ignore);
         fillRange (row, 0x1C, 0x1F, make (ParserState::oscString, ParserAction::ignore));
         fillRange (row, 0x20, 0x7F, make (ParserState::oscString, ParserAction::oscPut));
-        row.at (0x9C) = make (ParserState::ground, ParserAction::oscEnd);
+        fillRange (row, 0x80, 0xFF, make (ParserState::oscString, ParserAction::oscPut));
         row.at (0x1B) = make (ParserState::escape, ParserAction::none);
     }
 
@@ -441,7 +439,6 @@ private:
         row.at (0x19) = make (ParserState::sosPmApcString, ParserAction::ignore);
         fillRange (row, 0x1C, 0x1F, make (ParserState::sosPmApcString, ParserAction::ignore));
         fillRange (row, 0x20, 0x7F, make (ParserState::sosPmApcString, ParserAction::ignore));
-        row.at (0x9C) = make (ParserState::ground, ParserAction::none);
         row.at (0x1B) = make (ParserState::escape, ParserAction::none);
     }
 };

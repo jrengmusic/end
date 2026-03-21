@@ -649,27 +649,6 @@ struct State : public juce::Timer
     bool isSyncOutputActive() const noexcept;
 
     /**
-     * @brief Clears synchronized output flag at drain completion.
-     *
-     * Called by `onDrainComplete` to unfreeze the display after all
-     * pending data in the drain has been processed.
-     *
-     * @note READER THREAD — called from `onDrainComplete`.
-     */
-    void clearSyncOutput() noexcept;
-
-    /**
-     * @brief Marks the reader thread as actively writing to the grid.
-     *
-     * Called at the start of every `onData` callback to prevent the blink
-     * timer from triggering mid-drain renders.  Cleared by `clearSyncOutput()`
-     * in `onDrainComplete`.
-     *
-     * @note READER THREAD — called from `onData`.
-     */
-    void setSyncOutputActive() noexcept;
-
-    /**
      * @brief Requests a same-size PTY resize on the next drain completion.
      *
      * Called by the parser when mode 2026 is first activated, ensuring the

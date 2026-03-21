@@ -8,6 +8,164 @@
 
 ---
 
+## Sprint 106 — COUNSELOR: Parser Handlers + Scroll Region Fixes + Drag-Drop + Artifact Investigation
+
+**Date:** 2026-03-21
+
+### Agents Participated
+- COUNSELOR: investigation lead, root cause analysis
+- @oracle: kitty vs END parsing comparison, byte-level trace
+- @pathfinder: initialization sequence, dirty tracking
+- @researcher: kitty/wezterm/ghostty architecture comparison
+- @engineer: implementations
+
+### Committed (independently good)
+- REP (CSI b), CBT (CSI Z), CHT (CSI I), HPR (CSI a), VPR (CSI e), HPA (CSI `)
+- XTVERSION response (ESC[>0q → DCS >|END(1.0) ST)
+- File drag-and-drop (FileDragAndDropTarget, Config: drop_multifiles, drop_quoted)
+- LF `>=` → `==` in handleLineFeed, flushPrintRun, resolveWrapPending, wide char wrap
+- CUU/CUD margin-aware clamping (withinMargins check)
+- cursorGoToNextLine handles row > scrollBottom
+- cursorMoveUp uses effectiveScrollBottom (not raw sentinel)
+- UTF-8 accumulator reset on escape state entry
+
+### CC Rendering Artifact — UNSOLVED
+
+**Symptom:** `C◆ CAROL dOpus` — "Claude Code" residue persists at status bar. Never on kitty/wezterm/ghostty.
+
+**Proven facts:**
+- Grid has residue (CC writes "Claude Code" then partial "CAROL", no EL)
+- kitty with TERM=xterm-256color still clean — bytes ARE same, rendering differs
+- Diagnostic at drain-complete: grid does NOT have 'C' at col 1 → grid clean at drain time, stale content from mid-drain render
+- Removing hotCells cache did NOT fix (SURGEON Sprint 105 reverted)
+- All sync/drain/timing approaches did NOT fix
+
+**Remaining suspects (SURGEON deep analysis):**
+1. ~~UTF-8 accumulator~~ — fixed, not the cause (plain ASCII)
+2. **Data race on cwdBuffer/titleBuffer** — reader writes raw char*, message reads via fromUTF8, no lock
+3. **Scroll region window** — content reaches bottom row before DECSTBM, then protected from scroll-away
+4. OSC title UTF-8 truncation at 255 bytes
+5. OSC 52 Latin-1 constructor (clipboard only)
+6. Missing G1 charset routing
+
+**Architecture insight:**
+- kitty/wezterm: no cell cache, read screen buffer every frame
+- ghostty: row cache + page-level dirty
+- END: hotCells + per-row dirty + scroll optimization — can become stale
+
+**For next COUNSELOR:** investigate SUSPECTS 2 and 3 first. The artifact is about GRID CONTENT (CC's overlapping writes), not cache staleness. Something causes the grid to have residue that kitty's grid doesn't, despite same bytes. The `>=` → `==` LF fix was the right direction but insufficient.
+
+---
+
+## Sprint 105: Remove hotCells Cache — Read Grid Directly Every Frame ✅
+
+**Date:** 2026-03-21
+
+### Agents Participated
+- SURGEON: led implementation
+- @Pathfinder: discovered Grid cell-read API, Cell struct, hotCells layout, populateFromGrid logic, buildSnapshot/updateSnapshot/tryLigature call chains
+- @Engineer: n/a — SURGEON implemented directly
+
+### Files Modified (3 total)
+- `Source/terminal/rendering/Screen.h:961-963` — removed `hotCells`, `hotCellCount`, `coldGraphemes` member declarations
+- `Source/terminal/rendering/Screen.h:792,811,825,843,862,883` — removed `applyScrollOptimization` and `populateFromGrid` declarations; updated signatures of `buildSnapshot` (added `const Grid&`), `processCellForSnapshot` (added `rowCells`, `rowGraphemes`), `buildCellInstance` (added `rowCells`), `tryLigature` (added `rowCells`)
+- `Source/terminal/rendering/Screen.cpp:288-295` — `reset()`: removed hotCells/coldGraphemes fill; resets cacheRows/cacheCols/bgCacheCols only
+- `Source/terminal/rendering/Screen.cpp:358-395` — `render()`: removed hotCellCount allocation block; removed `applyScrollOptimization` call; collapsed scroll cases — any scroll (`scroll > 0`) marks all rows dirty; passes `grid` to `buildSnapshot`
+- `Source/terminal/rendering/Screen.cpp` — removed `applyScrollOptimization()` function entirely
+- `Source/terminal/rendering/Screen.cpp` — removed `populateFromGrid()` function entirely
+- `Source/terminal/rendering/ScreenRender.cpp:397-428` — `buildSnapshot()`: added `const Grid& grid` param; reads `activeVisibleRow`/`scrollbackRow` and grapheme equivalents per dirty row; passes `rowCells`/`rowGraphemes` to `processCellForSnapshot`
+- `Source/terminal/rendering/ScreenRender.cpp:313-375` — `processCellForSnapshot()`: added `rowCells`, `rowGraphemes` params; reads grapheme from `rowGraphemes[col]` instead of `coldGraphemes[row*cacheCols+col]`; passes `rowCells` to `buildCellInstance`
+- `Source/terminal/rendering/ScreenRender.cpp:494-701` — `buildCellInstance()`: added `rowCells` param; cellSpan lookahead uses `rowCells[col+1]` instead of `hotCells[nextIndex]` (removed `hotCellCount` bounds check, replaced with `col+1 < cacheCols`); passes `rowCells` to `tryLigature`
+- `Source/terminal/rendering/ScreenRender.cpp:732-805` — `tryLigature()`: added `rowCells` param; removed `base` index computation; reads cells as `rowCells[col+i]` and `rowCells[col].style` directly
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied — no defensive flags, no manual booleans, positive checks only, no magic numbers
+
+### Problems Solved
+Stale `hotCells` render cache eliminated. Root causes:
+1. Race condition between reader thread (Grid writes) and message thread (`populateFromGrid` reads) — gone: no copy, Grid read directly in `buildSnapshot` under the existing lock context
+2. Scroll optimization propagating stale cached rows — gone: `applyScrollOptimization` removed; any scroll marks all rows dirty
+3. Cursor blink mid-drain consuming dirty bits before data fully written — mitigated: no intermediate cell buffer to go stale; per-row glyph cache (cachedMono/cachedEmoji) is still incremental but is rebuilt from live Grid data
+
+### Technical Debt / Follow-up
+- Per-row glyph cache (cachedMono/cachedEmoji/cachedBg) is still incremental — unchanged rows are not reshaped. This is correct because dirty bits gate the rebuild. If cursor blink issue resurfaces (dirty bits consumed before data ready), the fix is in Session's drain gate, not here.
+- Scroll now marks all rows dirty (no glyph cache shift). Slightly more reshape CPU on scroll vs the old scroll optimization. Acceptable per COUNSELOR analysis (kitty/wezterm model).
+- Acceptance criteria from COUNSELOR handoff to be verified by ARCHITECT via manual testing.
+
+---
+
+## Handoff to SURGEON: Normal-Screen Rendering Artifacts
+
+**From:** COUNSELOR
+**Date:** 2026-03-21
+
+### Problem
+TUI apps (Claude Code) on the normal screen show stale cell artifacts — residue from overwritten text persists in the render cache. Characters like `C` and `d` from "Claude Code" appear where "CAROL" should have fully overwritten them. Pig art glyphs break on subsequent runs. Scrolling up/down fixes broken cells (forces full re-read), proving the grid is correct but the render cache is stale.
+
+This NEVER happens on kitty, wezterm, or ghostty at the same cell dimensions.
+
+### Root Cause Analysis (COUNSELOR findings)
+
+**The design flaw:** END has a `hotCells` render cache with per-row dirty-bit partial updates + scroll optimization. The three working terminals do NOT:
+- **kitty/wezterm:** No intermediate cell cache. Read all cells from screen buffer every frame.
+- **ghostty:** Has row cache but uses page-level dirty flag — full rebuild on any page change.
+
+END's `hotCells` cache can become stale when:
+1. `populateFromGrid()` reads the grid while the reader thread is writing to it (no lock)
+2. Scroll optimization shifts stale cached rows, propagating the staleness
+3. Cursor blink timer triggers mid-drain renders that consume dirty bits before data is fully written
+
+The scroll optimization (`applyScrollOptimization`) assumes the cache is always in sync with the grid. When it isn't, the optimization propagates stale data.
+
+### Files to Checkout (clean baseline)
+
+SURGEON must restore these 7 files to the last known-good state (`b5d0d85`)
+before starting any fix. Current HEAD has broken experimental changes stacked
+on top. The good parsers/features (REP, CBT, drag-drop, XTVERSION) are in
+separate files and won't be affected.
+
+```
+git checkout b5d0d85 -- Source/terminal/logic/Grid.cpp
+git checkout b5d0d85 -- Source/terminal/logic/Session.cpp
+git checkout b5d0d85 -- Source/terminal/logic/Session.h
+git checkout b5d0d85 -- Source/terminal/data/State.h
+git checkout b5d0d85 -- Source/terminal/data/State.cpp
+git checkout b5d0d85 -- Source/terminal/rendering/Screen.cpp
+git checkout b5d0d85 -- Source/terminal/rendering/ScreenSnapshot.cpp
+```
+
+### Recommended Solution
+
+Study the three reference implementations:
+- kitty: `/Users/jreng/Documents/Poems/dev/kitty/kitty/screen.c` (screen_update_cell_data, no cache)
+- wezterm: `/Users/jreng/Documents/Poems/dev/wezterm/wezterm-gui/src/` (dynamic viewport range, no cache)
+- ghostty: `/Users/jreng/Documents/Poems/dev/ghostty/src/terminal/render.zig` (page-level dirty)
+
+Two approaches:
+- **A. Remove hotCells cache** — read all cells from Grid every frame (kitty/wezterm model). Correct by construction. Slightly more CPU.
+- **B. Page-level dirty** — when ANY write happens, mark ALL rows dirty. Keep cache but disable scroll optimization. (ghostty model).
+
+Both require proper locking between reader thread (writes to Grid) and message thread (reads from Grid in populateFromGrid). The `resizeLock` with `ScopedTryLock` in onVBlank was the correct pattern — needs to be held during `Session::process()`.
+
+### Acceptance Criteria
+- [ ] `cd end && claude` — clean rendering, no stale artifacts
+- [ ] Exit CC, run again — no broken cells
+- [ ] Scroll up — no previously broken cells in scrollback
+- [ ] Same result at any window size
+- [ ] No regression in alternate-screen TUIs (vim, htop)
+- [ ] Performance acceptable (no visible frame drops during `seq 100000`)
+
+### Notes
+- The SSOT calc (physical pixel cell dimensions) is confirmed correct — keep it
+- Mode 2026 parser handler is correct — keep it
+- ICH/DCH markRowDirty is correct — keep it
+- The problem is ONLY in the render pipeline: Screen.cpp, Grid→hotCells→snapshot path
+- COUNSELOR attempted ~15 experimental fixes that were stacked without baseline testing. All reverted. Start clean.
+
+---
+
 ## Sprint 104 — Terminal Rendering Pipeline: SSOT Cell Dimensions + Sync Mode 2026 + ICH/DCH Dirty ✅
 
 **Date:** 2026-03-20

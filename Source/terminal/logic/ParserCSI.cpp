@@ -327,8 +327,10 @@ void Parser::moveCursorUp (const CSI& params) noexcept
 /**
  * @brief Handles `CSI Pn B` — Cursor Down (CUD).
  *
- * Moves the cursor down by `Pn` rows (default 1), clamped to the bottom of
- * the scrolling region.  Does not change the cursor column.
+ * Moves the cursor down by `Pn` rows (default 1).  The clamp boundary
+ * depends on whether the cursor is within the scroll region:
+ * - Within margins (row >= scrollTop and row <= scrollBottom): clamp to scrollBottom.
+ * - Outside margins: clamp to visibleRows - 1.
  *
  * @par Sequence
  * @code
@@ -344,7 +346,11 @@ void Parser::moveCursorUp (const CSI& params) noexcept
 void Parser::moveCursorDown (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
-    cursorMoveDown (scr, static_cast<int> (params.param (0, 1)), scrollBottom);
+    const int row { state.getCursorRow (scr) };
+    const int top { state.getScrollTop (scr) };
+    const bool withinMargins { row >= top and row <= scrollBottom };
+    const int clampBottom { withinMargins ? scrollBottom : grid.getVisibleRows() - 1 };
+    cursorMoveDown (scr, static_cast<int> (params.param (0, 1)), clampBottom);
 }
 
 /**
@@ -397,7 +403,10 @@ void Parser::moveCursorBackward (const CSI& params) noexcept
  * @brief Handles `CSI Pn E` — Cursor Next Line (CNL).
  *
  * Moves the cursor down by `Pn` rows (default 1) and sets the column to 0.
- * Equivalent to `Pn` line feeds followed by a carriage return.
+ * Equivalent to `Pn` line feeds followed by a carriage return.  The clamp
+ * boundary depends on whether the cursor is within the scroll region:
+ * - Within margins (row >= scrollTop and row <= scrollBottom): clamp to scrollBottom.
+ * - Outside margins: clamp to visibleRows - 1.
  *
  * @par Sequence
  * @code
@@ -414,7 +423,11 @@ void Parser::moveCursorNextLine (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
     const int count { static_cast<int> (params.param (0, 1)) };
-    cursorMoveDown (scr, count, scrollBottom);
+    const int row { state.getCursorRow (scr) };
+    const int top { state.getScrollTop (scr) };
+    const bool withinMargins { row >= top and row <= scrollBottom };
+    const int clampBottom { withinMargins ? scrollBottom : grid.getVisibleRows() - 1 };
+    cursorMoveDown (scr, count, clampBottom);
     state.setCursorCol (scr, 0);
 }
 
@@ -609,6 +622,9 @@ void Parser::moveCursorTo (int row, int col) noexcept
     const int cols { grid.getCols() };
     const int visibleRows { grid.getVisibleRows() };
 
+    if (row == visibleRows - 1)
+        DBG ("CUP-TO row=" + juce::String (row) + " col=" + juce::String (col));
+
     if (state.getMode (ID::originMode))
     {
         cursorSetPositionInOrigin (scr, row, col, cols, visibleRows);
@@ -647,11 +663,14 @@ void Parser::scrollUp (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
     const int bottom { scrollBottom };
+    const int count { static_cast<int> (params.param (0, 1)) };
+
+    DBG ("SU count=" + juce::String (count));
 
     Cell fill {};
     fill.bg = stamp.bg;
 
-    grid.scrollRegionUp (state.getScrollTop (scr), bottom, static_cast<int> (params.param (0, 1)), fill);
+    grid.scrollRegionUp (state.getScrollTop (scr), bottom, count, fill);
 }
 
 /**
@@ -676,11 +695,14 @@ void Parser::scrollDown (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
     const int bottom { scrollBottom };
+    const int count { static_cast<int> (params.param (0, 1)) };
+
+    DBG ("SD count=" + juce::String (count));
 
     Cell fill {};
     fill.bg = stamp.bg;
 
-    grid.scrollRegionDown (state.getScrollTop (scr), bottom, static_cast<int> (params.param (0, 1)), fill);
+    grid.scrollRegionDown (state.getScrollTop (scr), bottom, count, fill);
 }
 
 /**
@@ -717,6 +739,8 @@ void Parser::setScrollRegion (const CSI& params) noexcept
     const int visibleRows { grid.getVisibleRows() };
     const int top { paramToIndex (params, 0, 1) };
     const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (visibleRows)) };
+
+    DBG ("DECSTBM top=" + juce::String (top) + " bot=" + juce::String (bottom) + " visRows=" + juce::String (visibleRows));
 
     if (top >= 0 and bottom > top and bottom < visibleRows)
     {
@@ -798,24 +822,34 @@ void Parser::reportCursorPosition (const CSI& params) noexcept
  * - `62` — VT220 conformance level.
  * - `4`  — Sixel graphics (declared for compatibility; not yet implemented).
  *
- * DA2 (`CSI > c`) is not handled — secondary device attributes are rarely
- * needed and the `?` intermediate is consumed by the `isPrivate` check in
- * `csiDispatch`, so `isPrivate` is true for `CSI ? c` (which is actually
- * a DA1 variant).  Standard DA1 arrives as `CSI c` with no intermediate.
+ * DA2 (`CSI > c`) responds with a VT500-family identification:
+ *
+ * @code
+ *   CSI > 65 ; 100 ; 0 c
+ * @endcode
+ *
+ * - `65`  — VT500 family (Pp).
+ * - `100` — Firmware version (Pv).
+ * - `0`   — ROM cartridge registration (Pc).
  *
  * @par Sequences
  * @code
  *   ESC [ c      — Primary DA (DA1)
  *   ESC [ 0 c    — Primary DA (DA1, explicit parameter)
+ *   ESC [ > c    — Secondary DA (DA2)
  * @endcode
  *
- * @param isPrivate  `true` if the sequence had a `?` intermediate.
+ * @param isPrivate  `true` if the sequence had a `>` intermediate (DA2).
  *
  * @note READER THREAD only.
  */
 void Parser::reportDeviceAttributes (bool isPrivate) noexcept
 {
-    if (not isPrivate)
+    if (isPrivate)
+    {
+        sendResponse ("\x1b[>65;100;0c");
+    }
+    else
     {
         sendResponse ("\x1b[?62;4c");
     }
@@ -969,6 +1003,39 @@ void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
 
             if (enable)
                 state.requestSyncResize();
+
+            if (not enable)
+            {
+                static int syncCount = 0;
+                ++syncCount;
+                if (syncCount >= 2 and syncCount <= 4)
+                {
+                    const auto scr { state.getScreen() };
+                    const int curRow { state.getCursorRow (scr) };
+                    const int cols { grid.getCols() };
+                    juce::String rowDump;
+                    // Dump the row ABOVE cursor (that's where carol-statusline should be)
+                    const int dumpRow { curRow - 1 };
+                    if (dumpRow >= 0)
+                    {
+                        const auto* cells { grid.activeVisibleRow (dumpRow) };
+                        if (cells != nullptr)
+                        {
+                            for (int c = 0; c < juce::jmin (cols, 50); ++c)
+                            {
+                                const uint32_t cp { cells[c].codepoint };
+                                if (cp >= 0x20 and cp < 0x7F)
+                                    rowDump += juce::String::charToString (static_cast<juce::juce_wchar> (cp));
+                                else if (cp == 0)
+                                    rowDump += ".";
+                                else
+                                    rowDump += "[" + juce::String::toHexString (static_cast<int> (cp)) + "]";
+                            }
+                        }
+                    }
+                    DBG ("SYNC-OFF #" + juce::String (syncCount) + " row=" + juce::String (dumpRow) + " cursor=(" + juce::String (curRow) + ") cells: " + rowDump);
+                }
+            }
         }
     }
 }
