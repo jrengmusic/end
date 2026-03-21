@@ -153,6 +153,8 @@ void Config::initDefaults()
     }
 #endif
 
+    values[Key::shellIntegration] = true;
+
     values[Key::terminalScrollbackLines] = 10000;
     values[Key::terminalScrollStep]      = 5;
     values[Key::terminalPaddingTop]      = 10;
@@ -190,6 +192,7 @@ void Config::initDefaults()
     values[Key::keysActionList] = "?";
     values[Key::keysActionListPosition] = "top";
     values[Key::keysEnterSelection] = "[";
+    values[Key::keysEnterOpenFile] = "o";
 
     values[Key::keysSelectionUp]          = "k";
     values[Key::keysSelectionDown]        = "j";
@@ -212,10 +215,15 @@ void Config::initDefaults()
     values[Key::paneBarColour] = "#FF1B2A31";///< dark
     values[Key::paneBarHighlight] = "#FF4E8C93";///< paradiso
 
-    values[Key::coloursSelectionBar] = "#FF002B35";///< midnightDreams — same as tab.active default
-    values[Key::coloursSelectionBarLabelBg] = "#FF01C2D2";///< caribbeanBlue — same as tab.indicator default
-    values[Key::coloursSelectionBarLabelFg] = "#FF444444";///< dark grey
-    values[Key::keysSelectionBarPosition] = "bottom";
+    values[Key::coloursStatusBar] = "#FF090D12";///< trappedDarkness
+    values[Key::coloursStatusBarLabelBg] = "#FF01C2D2";///< caribbeanBlue — same as tab.indicator default
+    values[Key::coloursStatusBarLabelFg] = "#FF444444";///< dark grey
+    values[Key::keysStatusBarPosition] = "bottom";
+
+    values[Key::coloursHintLabelBg] = "#FFFFD700";///< gold — high visibility hint badge background
+    values[Key::coloursHintLabelFg] = "#FF111111";///< near-black — readable on gold background
+
+    values[Key::hyperlinksEditor] = "nvim";
 }
 
 /**
@@ -286,6 +294,7 @@ void Config::initSchema()
 
     schema[Key::shellProgram] = { T::string };
     schema[Key::shellArgs] = { T::string };
+    schema[Key::shellIntegration] = { T::boolean };
 
     schema[Key::terminalScrollbackLines] = { T::number, 100.0, 1000000.0, true };
     schema[Key::terminalScrollStep]      = { T::number, 1.0,   100.0,     true };
@@ -319,6 +328,7 @@ void Config::initSchema()
     schema[Key::keysActionList] = { T::string };
     schema[Key::keysActionListPosition] = { T::string };
     schema[Key::keysEnterSelection] = { T::string };
+    schema[Key::keysEnterOpenFile] = { T::string };
 
     schema[Key::keysSelectionUp]          = { T::string };
     schema[Key::keysSelectionDown]        = { T::string };
@@ -341,10 +351,15 @@ void Config::initSchema()
     schema[Key::paneBarColour] = { T::string };
     schema[Key::paneBarHighlight] = { T::string };
 
-    schema[Key::coloursSelectionBar] = { T::string };
-    schema[Key::coloursSelectionBarLabelBg] = { T::string };
-    schema[Key::coloursSelectionBarLabelFg] = { T::string };
-    schema[Key::keysSelectionBarPosition] = { T::string };
+    schema[Key::coloursStatusBar] = { T::string };
+    schema[Key::coloursStatusBarLabelBg] = { T::string };
+    schema[Key::coloursStatusBarLabelFg] = { T::string };
+    schema[Key::keysStatusBarPosition] = { T::string };
+
+    schema[Key::coloursHintLabelBg] = { T::string };
+    schema[Key::coloursHintLabelFg] = { T::string };
+
+    schema[Key::hyperlinksEditor] = { T::string };
 }
 
 /**
@@ -800,6 +815,9 @@ Config::Theme Config::buildTheme() const
         ? static_cast<uint32_t> (cursorCharStr[0])
         : 0x2588u;
     theme.cursorForce = getBool (Key::cursorForce);
+
+    theme.hintLabelBg = getColour (Key::coloursHintLabelBg);
+    theme.hintLabelFg = getColour (Key::coloursHintLabelFg);
 
     theme.ansi = {
         {

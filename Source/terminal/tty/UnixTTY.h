@@ -39,6 +39,8 @@
 #if JUCE_MAC || JUCE_LINUX
 
 #include <unistd.h>
+#include <utility>
+#include <vector>
 
 /**
  * @class UnixTTY
@@ -207,12 +209,37 @@ public:
 
     /** @} */
 
+    /**
+     * @brief Adds a key-value pair to the shell integration environment.
+     *
+     * Each pair is injected via `setenv()` in the child process before `execvp()`.
+     * Must be called before `open()`.
+     *
+     * @param key    Environment variable name.
+     * @param value  Value to set.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void addShellEnv (const juce::String& key, const juce::String& value);
+
+    /**
+     * @brief Clears all previously registered shell integration environment pairs.
+     *
+     * Call before re-populating for a new shell type.  Must be called before `open()`.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void clearShellEnv();
+
 private:
     /** @brief Master side of the PTY pair.  -1 when not open. */
     int master { -1 };
 
     /** @brief PID of the forked shell process.  -1 when not running. */
     pid_t childProcess { -1 };
+
+    /** @brief Shell integration environment variable pairs injected before execvp(). */
+    std::vector<std::pair<std::string, std::string>> shellIntegrationEnv;
 
     /** @brief Number of 10 ms poll iterations before escalating to SIGKILL.
      *

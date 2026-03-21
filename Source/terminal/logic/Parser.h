@@ -260,6 +260,57 @@ public:
      */
     std::function<void()> onBell;
 
+    // =========================================================================
+    /**
+     * @struct Osc8Span
+     * @brief A hyperlink span recorded from an OSC 8 sequence.
+     *
+     * Produced by `handleOsc8()` when the closing empty-URI OSC 8 is received.
+     * Stored in `osc8Links` and exposed to the viewport scanner so explicit
+     * hyperlinks from programs (e.g. compilers, diff tools) are found alongside
+     * heuristic file/URL detections.
+     *
+     * @see getOsc8Links()
+     * @see Terminal::Component::scanViewportForLinks
+     */
+    struct Osc8Span
+    {
+        /** @brief Zero-based visible row where the link starts. */
+        int row { 0 };
+
+        /** @brief Zero-based column where the link starts (inclusive). */
+        int startCol { 0 };
+
+        /** @brief Zero-based column where the link ends (exclusive). */
+        int endCol { 0 };
+
+        /** @brief Target URI (e.g. "https://example.com" or "file:///path"). */
+        juce::String uri;
+    };
+
+    /**
+     * @brief Returns the list of OSC 8 hyperlink spans accumulated since the last clear.
+     *
+     * Called from the message thread by `Terminal::Component::scanViewportForLinks()`
+     * to merge explicit hyperlinks with heuristic detections.
+     *
+     * @note READER THREAD writes; MESSAGE THREAD reads. The caller must only
+     *       read this list when no active parse is in progress (i.e. after a
+     *       repaint snapshot, which implies the reader has yielded).
+     */
+    const std::vector<Osc8Span>& getOsc8Links() const noexcept { return osc8Links; }
+
+    /**
+     * @brief Clears all recorded OSC 8 spans.
+     *
+     * Called by `Terminal::Component` after consuming the spans (e.g. when
+     * leaving open-file mode or on viewport scroll).
+     *
+     * @note READER THREAD — call only from the parser's reader thread context,
+     *       or from `reset()`.
+     */
+    void clearOsc8Links() noexcept { osc8Links.clear(); }
+
     /**
      * @brief Delivers any queued device responses to the host via `writeToHost`.
      *
@@ -511,6 +562,42 @@ private:
      * @see responseBuf
      */
     int responseLen { 0 };
+
+    /**
+     * @brief Accumulated OSC 8 hyperlink spans.
+     *
+     * Appended by `handleOsc8()` when an empty-URI OSC 8 closes a span.
+     * Read by `Terminal::Component::scanViewportForLinks()` via `getOsc8Links()`.
+     * Cleared by `clearOsc8Links()`.
+     *
+     * @see Osc8Span
+     * @see handleOsc8()
+     */
+    std::vector<Osc8Span> osc8Links;
+
+    /**
+     * @brief URI of the currently active OSC 8 hyperlink, or empty when no link is open.
+     *
+     * Set by `handleOsc8()` on start; cleared when the matching empty-URI end is received.
+     *
+     * @see osc8StartRow
+     * @see osc8StartCol
+     */
+    juce::String activeOsc8Uri;
+
+    /**
+     * @brief Zero-based visible row where the active OSC 8 link started.
+     *
+     * Valid only when `activeOsc8Uri` is non-empty.  Set to -1 when no link is open.
+     */
+    int osc8StartRow { -1 };
+
+    /**
+     * @brief Zero-based column where the active OSC 8 link started.
+     *
+     * Valid only when `activeOsc8Uri` is non-empty.  Set to -1 when no link is open.
+     */
+    int osc8StartCol { -1 };
 
     // =========================================================================
     /** @name SGR and mode helpers
@@ -1363,6 +1450,19 @@ private:
      */
     void handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_t interCount) noexcept;
 
+    /** @brief Handles OSC 8 — explicit hyperlink start/end.
+     *
+     *  Payload format: `8;params;uri`
+     *  - Non-empty URI: records link start position in `activeOsc8Uri`,
+     *    `osc8StartRow`, `osc8StartCol`.
+     *  - Empty URI:     closes the span, appends to `osc8Links`.
+     *
+     *  @param data        Pointer to OSC payload after the `"8;"` prefix.
+     *  @param dataLength  Length of the payload in bytes.
+     *  @note READER THREAD.
+     */
+    void handleOsc8 (const uint8_t* data, uint16_t dataLength) noexcept;
+
     /** @brief Handles OSC 12 — set cursor color.
      *  @param data        Pointer to OSC payload after the command number separator.
      *  @param dataLength  Length of the payload in bytes.
@@ -1374,6 +1474,24 @@ private:
      *  @note READER THREAD.
      */
     void handleOscResetCursorColor() noexcept;
+
+    /**
+     * @brief Handles OSC 133 — shell integration semantic prompt markers.
+     *
+     * Dispatches single-letter subcommands A/B/C/D:
+     * - A: prompt start (no-op for output tracking).
+     * - B: command start (no-op for output tracking).
+     * - C: command output start — records outputBlockTop and activates scan.
+     * - D: command output end — records outputBlockBottom and deactivates scan.
+     *
+     * The subcommand byte is the first byte of `data`.
+     *
+     * @param scr         Active screen at the time of dispatch.
+     * @param data        Pointer to OSC payload bytes after the `"133;"` prefix.
+     * @param dataLength  Length of the payload in bytes (at least 1 for a valid subcommand).
+     * @note READER THREAD only.
+     */
+    void handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataLength) noexcept;
 
     /** @} */
 

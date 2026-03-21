@@ -102,7 +102,7 @@ enum class ModalType : uint8_t
 {
     none,        ///< No modal active — normal input routing.
     selection,   ///< Vim-style keyboard selection mode.
-    flashJump,   ///< Flash-jump / EasyMotion navigation (reserved).
+    openFile,    ///< Open file / hyperlink hint label mode.
     uriAction    ///< URI picker overlay (reserved).
 };
 
@@ -807,6 +807,58 @@ struct State : public juce::Timer
     bool consumeSyncResize() noexcept;
 
     /**
+     * @brief Records the start of an OSC 133 command output block.
+     *
+     * Called when OSC 133 ; C is received.  Sets `outputBlockTop` to `row`,
+     * resets `outputBlockBottom` to `row`, and sets `outputScanActive`.
+     *
+     * @param row  Current cursor row (zero-based visible row index).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setOutputBlockStart (int row) noexcept;
+
+    /**
+     * @brief Records the end of the current OSC 133 command output block.
+     *
+     * Called when OSC 133 ; D is received.  Sets `outputBlockBottom` to `row`
+     * and clears `outputScanActive`.
+     *
+     * @param row  Current cursor row (zero-based visible row index).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setOutputBlockEnd (int row) noexcept;
+
+    /**
+     * @brief Extends the output block bottom boundary to `row`.
+     *
+     * Called on LF while `outputScanActive` is true.  No-op when scan is not active.
+     *
+     * @param row  Current cursor row after the line feed.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void extendOutputBlock (int row) noexcept;
+
+    /**
+     * @brief Returns the first row of the current or most-recent output block.
+     *
+     * Returns -1 if no OSC 133 C has been received.
+     *
+     * @return Zero-based visible row index, or -1.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    int getOutputBlockTop() const noexcept;
+
+    /**
+     * @brief Returns the last row of the current or most-recent output block.
+     *
+     * Returns -1 if no output rows have been recorded yet.
+     *
+     * @return Zero-based visible row index, or -1.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    int getOutputBlockBottom() const noexcept;
+
+    /**
      * @brief Timer callback — flushes dirty atomics into the ValueTree.
      *
      * Called by the JUCE timer infrastructure on the message thread at the
@@ -1091,6 +1143,39 @@ private:
 
     /** @brief Set by requestSyncResize(), consumed by consumeSyncResize(). */
     std::atomic<bool> syncResizePending { false };
+
+    /**
+     * @brief First visible row of the current or most-recent OSC 133 command output block.
+     *
+     * Set to the cursor row when OSC 133 ; C is received (command output starts).
+     * -1 means no OSC 133 C has been received since session start or last reset.
+     * Read on the message thread (scanner) and written on the reader thread (parser).
+     *
+     * @note READER THREAD writes (relaxed), MESSAGE THREAD reads (relaxed).
+     *       Ordering guaranteed by the snapshot-dirty handshake.
+     */
+    std::atomic<int> outputBlockTop { -1 };
+
+    /**
+     * @brief Last visible row of the current or most-recent OSC 133 command output block.
+     *
+     * Updated on every LF while outputScanActive is true, and set definitively
+     * when OSC 133 ; D is received (command output ends).
+     * -1 means no output rows have been recorded yet.
+     *
+     * @note READER THREAD writes (relaxed), MESSAGE THREAD reads (relaxed).
+     */
+    std::atomic<int> outputBlockBottom { -1 };
+
+    /**
+     * @brief True between OSC 133 ; C and OSC 133 ; D — output is being produced.
+     *
+     * The parser sets this on OSC 133 C, the LF handler extends outputBlockBottom
+     * while it is true, and OSC 133 D clears it.
+     *
+     * @note READER THREAD only — never read on the message thread.
+     */
+    std::atomic<bool> outputScanActive { false };
 
     /**
      * @brief Owned backing buffer for a single string parameter.

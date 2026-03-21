@@ -1,22 +1,22 @@
 /**
  * @file SelectionOverlay.h
- * @brief Full-width status bar that shows the active vim-style selection mode.
+ * @brief Full-width status bar that reflects the active terminal modal state.
  *
- * SelectionOverlay spans the entire MainComponent width and is positioned at
- * either the top or bottom edge, controlled by `keys.selection_bar_position`
+ * StatusBarOverlay spans the entire MainComponent width and is positioned at
+ * either the top or bottom edge, controlled by `keys.status_bar_position`
  * in Config.  It is non-interactive and passes all mouse events through.
  *
  * ### Layout
  * The bar is divided into two regions:
  * - **Mode label** — a text-width rectangle on the left filled with
- *   `labelBackgroundColourId`, showing "-- VISUAL --" etc.
+ *   `labelBackgroundColourId`, showing "VISUAL", "OPEN", etc.
  * - **Bar background** — the remainder of the width filled with
  *   `barBackgroundColourId`.
  *
  * ### Visibility
- * Hidden when the selection type is `SelectionType::none`.  Shown immediately
- * (no fade) when an active type is set.  When hidden, no space is reserved in
- * the layout; MainComponent::resized() adjusts bounds accordingly.
+ * Hidden when `ModalType::none`.  Shown immediately (no fade) when any
+ * active modal type is set.  When hidden, no space is reserved in the
+ * layout; MainComponent::resized() adjusts bounds accordingly.
  *
  * ### Colours
  * Three custom ColourIds are registered in `Terminal::LookAndFeel` and applied
@@ -27,6 +27,7 @@
  *
  * @see MainComponent
  * @see Terminal::LookAndFeel
+ * @see Terminal::ModalType
  * @see Terminal::SelectionType
  */
 
@@ -34,79 +35,119 @@
 #include <JuceHeader.h>
 #include "SelectionType.h"
 #include "../../config/Config.h"
+#include "../data/State.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 
 /**
- * @class SelectionOverlay
- * @brief Full-width status bar for vim-style selection mode indicator.
+ * @class StatusBarOverlay
+ * @brief Full-width status bar for terminal modal state indicators.
  *
  * Header-only.  Inherits `juce::Component`.  Non-interactive.
+ * Displays a mode label for each active `ModalType`: selection modes
+ * ("VISUAL" etc.) and file-open mode ("OPEN").
  *
  * @par Thread context
  * **MESSAGE THREAD** — all public methods.
  *
  * @see MainComponent
  */
-class SelectionOverlay : public juce::Component
+class StatusBarOverlay : public juce::Component
 {
 public:
     /**
-     * @brief Custom colour IDs for the selection status bar.
+     * @brief Custom colour IDs for the status bar overlay.
      *
      * Registered in `Terminal::LookAndFeel` alongside other terminal colour IDs.
      * Set via `LookAndFeel::setColours()` from Config; read here via `findColour()`.
      */
     enum ColourIds
     {
-        barBackgroundColourId = 0x2000100,///< Full bar background colour.
+        barBackgroundColourId = 0x2000100,  ///< Full bar background colour.
         labelBackgroundColourId = 0x2000101,///< Mode label rectangle background colour.
-        labelTextColourId = 0x2000102///< Mode label text colour.
+        labelTextColourId = 0x2000102       ///< Mode label text colour.
     };
 
     /**
-     * @brief Constructs SelectionOverlay: opaque bar, no mouse interception.
+     * @brief Constructs StatusBarOverlay: opaque bar, no mouse interception.
      *
      * Starts hidden via `addChildComponent` in MainComponent.
      *
      * @note MESSAGE THREAD.
      */
-    SelectionOverlay()
+    StatusBarOverlay()
     {
         setOpaque (true);
         setInterceptsMouseClicks (false, false);
     }
 
     /**
-     * @brief Updates the displayed selection type and toggles visibility.
+     * @brief Updates the displayed modal state and toggles visibility.
      *
-     * When @p type is `SelectionType::none`, hides the overlay.
-     * Otherwise sets the label text and shows the overlay.
-     * Triggers a layout recalculation in MainComponent via a repaint
-     * followed by the caller re-invoking resized().
+     * When @p modalType is `ModalType::none`, hides the overlay.
+     * For `ModalType::selection`, shows a vim-style mode label derived from
+     * @p selectionType.  For `ModalType::openFile`, shows "OPEN".
+     * Hidden when the selection type within a selection modal is unrecognised.
      *
-     * @param type  The currently active selection type.
+     * @param modalType     The currently active modal type.
+     * @param selectionType Integer cast of the current SelectionType (used
+     *                      when @p modalType is `ModalType::selection`).
      * @note MESSAGE THREAD.
      */
-    void update (SelectionType type) noexcept
+    void update (ModalType modalType, int selectionType) noexcept
     {
-        if (type == SelectionType::none)
+        if (modalType == ModalType::selection)
         {
-            setVisible (false);
-        }
-        else
-        {
-            if (type == SelectionType::visual)
-                label = "-- VISUAL --";
-            else if (type == SelectionType::visualLine)
-                label = "-- VISUAL LINE --";
+            if (selectionType == static_cast<int> (SelectionType::visual))
+            {
+                label = "VISUAL";
+                setVisible (true);
+                repaint();
+            }
+            else if (selectionType == static_cast<int> (SelectionType::visualLine))
+            {
+                label = "V-LINE";
+                setVisible (true);
+                repaint();
+            }
+            else if (selectionType == static_cast<int> (SelectionType::visualBlock))
+            {
+                label = "V-BLOCK";
+                setVisible (true);
+                repaint();
+            }
             else
-                label = "-- VISUAL BLOCK --";
-
+            {
+                setVisible (false);
+            }
+        }
+        else if (modalType == ModalType::openFile)
+        {
+            label = "OPEN";
             setVisible (true);
             repaint();
         }
+        else
+        {
+            setVisible (false);
+        }
+    }
+
+    /**
+     * @brief Returns the preferred height of the status bar in logical pixels.
+     *
+     * Height is derived from the configured font size: font size + vertical
+     * padding.  When `font.size` is 0 the terminal default is used instead.
+     *
+     * @return Height in logical pixels.
+     * @note MESSAGE THREAD.
+     */
+    int getPreferredHeight() const noexcept
+    {
+        const auto font { juce::FontOptions {}
+                              .withPointHeight (Config::getContext()->getFloat (Config::Key::fontSize)) };
+        return juce::roundToInt (juce::Font (font).getHeight()) + 1 * verticalPadding;
     }
 
     /**
@@ -127,23 +168,6 @@ public:
      * @param g  JUCE graphics context.
      * @note MESSAGE THREAD.
      */
-    /**
-     * @brief Returns the preferred height of the status bar in logical pixels.
-     *
-     * Height is derived from the configured font size: font size + 8 px vertical
-     * padding on each side (i.e. font size + 2 * verticalPadding).  When
-     * `selection_bar.font_size` is 0 the terminal `font.size` is used instead.
-     *
-     * @return Height in logical pixels.
-     * @note MESSAGE THREAD.
-     */
-    int getPreferredHeight() const noexcept
-    {
-        const auto font { juce::FontOptions {}
-                              .withPointHeight (Config::getContext()->getFloat (Config::Key::fontSize)) };
-        return juce::roundToInt (juce::Font (font).getHeight()) + 1 * verticalPadding;
-    }
-
     void paint (juce::Graphics& g) override
     {
         const auto bounds { getLocalBounds() };
@@ -180,7 +204,7 @@ private:
     static constexpr int verticalPadding { 4 };
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SelectionOverlay)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StatusBarOverlay)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

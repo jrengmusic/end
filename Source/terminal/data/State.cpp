@@ -339,6 +339,42 @@ void State::resetKeyboardMode (ActiveScreen s) noexcept
     storeAndFlush (screenKey (s, ID::keyboardFlags), 0.0f);
 }
 
+/** @note READER THREAD — sets outputBlockTop / outputBlockBottom and activates scan. */
+void State::setOutputBlockStart (int row) noexcept
+{
+    outputBlockTop.store (row, std::memory_order_relaxed);
+    outputBlockBottom.store (row, std::memory_order_relaxed);
+    outputScanActive.store (true, std::memory_order_relaxed);
+}
+
+/** @note READER THREAD — records final row and deactivates scan. */
+void State::setOutputBlockEnd (int row) noexcept
+{
+    outputBlockBottom.store (row, std::memory_order_relaxed);
+    outputScanActive.store (false, std::memory_order_relaxed);
+}
+
+/** @note READER THREAD — extends the output block bottom while scan is active. */
+void State::extendOutputBlock (int row) noexcept
+{
+    if (outputScanActive.load (std::memory_order_relaxed))
+    {
+        outputBlockBottom.store (row, std::memory_order_relaxed);
+    }
+}
+
+/** @note MESSAGE THREAD — relaxed load (snapshot-dirty handshake provides ordering). */
+int State::getOutputBlockTop() const noexcept
+{
+    return outputBlockTop.load (std::memory_order_relaxed);
+}
+
+/** @note MESSAGE THREAD — relaxed load (snapshot-dirty handshake provides ordering). */
+int State::getOutputBlockBottom() const noexcept
+{
+    return outputBlockBottom.load (std::memory_order_relaxed);
+}
+
 /**
  * @brief SSOT writer for all three string slots (title, cwd, foreground process).
  *

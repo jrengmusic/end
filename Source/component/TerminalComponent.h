@@ -43,6 +43,7 @@
 #include "../terminal/rendering/Screen.h"
 #include "../terminal/rendering/ScreenSelection.h"
 #include "../terminal/selection/SelectionType.h"
+#include "../terminal/selection/LinkSpan.h"
 #include "config/Config.h"
 
 namespace Terminal
@@ -201,6 +202,20 @@ public:
      * @note MESSAGE THREAD.
      */
     void mouseDoubleClick (const juce::MouseEvent& event) override;
+
+    /**
+     * @brief Updates the mouse cursor and refreshes clickable link spans on hover.
+     *
+     * If `linkScanNeeded` is true, rescans the viewport for links and updates
+     * `clickableLinks` and the screen link underlay.  Hit-tests the mouse
+     * position against `clickableLinks`: shows `PointingHandCursor` over a
+     * link, `NormalCursor` otherwise.  Inactive when any modal is active or
+     * when mouse tracking is forwarded to the PTY.
+     *
+     * @param event  The mouse event.
+     * @note MESSAGE THREAD.
+     */
+    void mouseMove (const juce::MouseEvent& event) override;
 
     /**
      * @brief Extends the selection or forwards a mouse-motion SGR event.
@@ -419,6 +434,19 @@ public:
     void enterSelectionMode() noexcept;
 
     /**
+     * @brief Enters open-file hint-label mode.
+     *
+     * Sets the modal type to `ModalType::openFile` and marks the snapshot
+     * dirty so the next frame renders the hint-label overlay.  Span indexing
+     * and label assignment will be wired here in a later step.
+     *
+     * Called by the action registration (step 3).
+     *
+     * @note MESSAGE THREAD.
+     */
+    void enterOpenFileMode() noexcept;
+
+    /**
      * @brief Returns `true` when the terminal is currently in vim-style selection mode.
      *
      * Used by MainComponent to guard tab/pane switch exit logic.
@@ -447,12 +475,24 @@ public:
      *
      * Lock-free atomic read from State.  Used by MainComponent to poll the
      * active terminal's selection state every VBlank frame and update the
-     * SelectionOverlay without a callback chain.
+     * StatusBarOverlay without a callback chain.
      *
      * @return Integer cast of the current SelectionType.
      * @note ANY THREAD — lock-free, noexcept.
      */
     int getSelectionType() const noexcept;
+
+    /**
+     * @brief Returns the currently active modal type.
+     *
+     * Lock-free atomic read from State.  Used by MainComponent to poll the
+     * active terminal's modal state every VBlank frame and update the
+     * StatusBarOverlay without a callback chain.
+     *
+     * @return The active ModalType, or `ModalType::none` if no modal is active.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    ModalType getModalType() const noexcept;
 
     /**
      * @brief Initialises the terminal component after construction.
@@ -599,6 +639,51 @@ private:
     bool handleSelectionKey (const juce::KeyPress& key) noexcept;
 
     /**
+     * @brief Handles a key event while open-file hint-label mode is active.
+     *
+     * Escape exits the mode and clears the overlay.  Letter keys (a–z) are
+     * matched against `activeLinks` hint labels.  A match dispatches the link
+     * immediately.  Unmatched keys are consumed without action.
+     *
+     * @param key  The key event from keyPressed().
+     * @return Always `true` — open-file mode is fully modal.
+     * @note MESSAGE THREAD.
+     */
+    bool handleOpenFileKey (const juce::KeyPress& key) noexcept;
+
+    /**
+     * @brief Scans every visible row for file-path and URL tokens.
+     *
+     * Iterates all visible rows via `grid.activeVisibleRow()`, walks each row
+     * cell-by-cell accumulating non-whitespace runs, classifies each token
+     * with `LinkDetector::classify()`, resolves file tokens against @p cwd,
+     * and assigns hint labels (`'a'`–`'z'`, then `"aa"`–`"zz"`).
+     *
+     * Called once on open-file mode entry under a `ScopedTryLock` on the grid
+     * resize lock.  If the lock cannot be acquired the function returns an
+     * empty vector and the mode is still entered (overlay shows no hints).
+     *
+     * @param grid  The terminal grid to scan (const — read-only).
+     * @param cwd   The shell's current working directory, used to resolve
+     *              relative file tokens into absolute `file:///` URIs.
+     * @return Vector of `LinkSpan` values, one per detected token, with hint
+     *         labels assigned.
+     * @note MESSAGE THREAD.
+     */
+    /**
+     * @brief Scans visible rows for file/URL tokens and returns their spans.
+     *
+     * @param grid            Terminal grid to scan (read-only).
+     * @param cwd             Shell current working directory for relative-path resolution.
+     * @param outputRowsOnly  When true, only rows within the OSC 133 output block
+     *                        are scanned.  When false (open-file mode), all visible
+     *                        rows are scanned regardless of output-block boundaries.
+     */
+    std::vector<LinkSpan> scanViewportForLinks (const Grid& grid,
+                                                const juce::String& cwd,
+                                                bool outputRowsOnly);
+
+    /**
      * @brief Syncs `screenSelection` and `screen.setSelection()` from State.
      *
      * Maps the State selectionType to `ScreenSelection::SelectionType`,
@@ -692,6 +777,33 @@ private:
      * cancels the sequence.  Transient UI state — not persisted to State.
      */
     bool pendingG { false };
+
+    /**
+     * @brief Link spans detected during the last open-file mode entry.
+     *
+     * Populated once by `scanViewportForLinks()` in `enterOpenFileMode()` and
+     * consumed by `handleOpenFileKey()`.  Cleared when open-file mode exits.
+     */
+    std::vector<LinkSpan> activeLinks;
+
+    /**
+     * @brief Link spans for always-on click mode.
+     *
+     * Refreshed lazily by `mouseMove()` when `linkScanNeeded` is true.
+     * Passed to `screen.setLinkUnderlay()` so the renderer draws underlines
+     * beneath each span.  Also hit-tested in `mouseDown()` to dispatch clicks.
+     */
+    std::vector<LinkSpan> clickableLinks;
+
+    /**
+     * @brief True when the viewport content has changed and `clickableLinks` must be rescanned.
+     *
+     * Set to `true` in `onVBlank()` whenever the snapshot is dirty.  Cleared
+     * in `mouseMove()` after `scanViewportForLinks()` runs.  This defers the
+     * O(rows×cols) scan until the mouse actually moves, so mouse-less frames
+     * pay no cost.
+     */
+    bool linkScanNeeded { true };
 
     /** @brief VBlank attachment that drives the render loop at display refresh rate. */
     juce::VBlankAttachment vblank;

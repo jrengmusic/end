@@ -126,8 +126,8 @@ private:
     /** @brief Transient overlay for grid-size and status messages. */
     std::unique_ptr<MessageOverlay> messageOverlay;
 
-    /** @brief Selection mode status overlay; shown at bottom-centre during vim-style selection. */
-    Terminal::SelectionOverlay selectionOverlay;
+    /** @brief Status bar overlay; shown during any active modal state (selection, open-file, etc.). */
+    Terminal::StatusBarOverlay statusBarOverlay;
 
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;

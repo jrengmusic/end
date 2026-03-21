@@ -191,6 +191,38 @@ void Screen::setSelection (const ScreenSelection* sel) noexcept
 }
 
 /**
+ * @brief Sets the hint label overlay for Open File mode rendering.
+ *
+ * Stores a non-owning pointer to the active `LinkSpan` array.  The next
+ * `render()` call detects the transition via `hadHintOverlay` and marks all
+ * rows dirty so the overlay or its absence is reflected in the next frame.
+ *
+ * @param spans  Pointer to the `LinkSpan` array, or `nullptr` to clear.
+ * @param count  Number of elements in @p spans.
+ */
+void Screen::setHintOverlay (const LinkSpan* spans, int count) noexcept
+{
+    hintOverlay      = spans;
+    hintOverlayCount = count;
+}
+
+/**
+ * @brief Sets the always-on link underlay for click-mode underline rendering.
+ *
+ * Stores a non-owning pointer to the clickable link span array.  The next
+ * `render()` call detects the transition via `hadLinkUnderlay` and marks all
+ * rows dirty so the underlines or their absence is reflected in the next frame.
+ *
+ * @param spans  Pointer to the `LinkSpan` array, or `nullptr` to clear.
+ * @param count  Number of elements in @p spans.
+ */
+void Screen::setLinkUnderlay (const LinkSpan* spans, int count) noexcept
+{
+    linkUnderlay      = spans;
+    linkUnderlayCount = count;
+}
+
+/**
  * @brief Returns a mutable reference to the glyph atlas.
  *
  * @return Reference to `resources.glyphAtlas`.
@@ -345,7 +377,7 @@ void Screen::allocateRowCache (int rows, int cols) noexcept
 {
     const int maxGlyphs { cols * 2 };
     const size_t glyphSlots { static_cast<size_t> (rows) * static_cast<size_t> (maxGlyphs) };
-    const size_t bgSlots { static_cast<size_t> (rows) * static_cast<size_t> (cols) * 2 };
+    const size_t bgSlots { static_cast<size_t> (rows) * static_cast<size_t> (cols) * 3 };
 
     cachedMono.allocate (glyphSlots, true);
     cachedEmoji.allocate (glyphSlots, true);
@@ -356,7 +388,7 @@ void Screen::allocateRowCache (int rows, int cols) noexcept
 
     cacheRows = rows;
     cacheCols = cols;
-    bgCacheCols = cols * 2;
+    bgCacheCols = cols * 3;
 }
 
 /**
@@ -514,6 +546,24 @@ void Screen::render (const State& state, Grid& grid) noexcept
         }
 
         wasScrolled = isScrolled;
+
+        const bool hasHintOverlay { hintOverlay != nullptr and hintOverlayCount > 0 };
+
+        if (hasHintOverlay or hadHintOverlay)
+        {
+            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
+        }
+
+        hadHintOverlay = hasHintOverlay;
+
+        const bool hasLinkUnderlay { linkUnderlay != nullptr and linkUnderlayCount > 0 };
+
+        if (hasLinkUnderlay or hadLinkUnderlay)
+        {
+            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
+        }
+
+        hadLinkUnderlay = hasLinkUnderlay;
 
         populateFromGrid (state, grid, dirty);
         buildSnapshot (state, dirty);

@@ -532,13 +532,16 @@ void Parser::handleOscClipboard (const uint8_t* data, uint16_t dataLength) noexc
  * `payload` via `parseOscHeader()` and routes to the appropriate handler.
  *
  * @par Supported OSC commands
- * | Command | Name              | Handler                  |
- * |---------|-------------------|--------------------------|
- * | 0       | Icon + title      | `handleOscTitle()`       |
- * | 2       | Window title      | `handleOscTitle()`       |
- * | 7       | Working directory  | `handleOscCwd()`         |
- * | 52      | Clipboard write   | `handleOscClipboard()`   |
- * | Other   | —                 | silently ignored         |
+ * | Command | Name                     | Handler                  |
+ * |---------|--------------------------|--------------------------|
+ * | 0       | Icon + title             | `handleOscTitle()`       |
+ * | 2       | Window title             | `handleOscTitle()`       |
+ * | 7       | Working directory         | `handleOscCwd()`         |
+ * | 12      | Set cursor color         | `handleOscCursorColor()` |
+ * | 52      | Clipboard write          | `handleOscClipboard()`   |
+ * | 112     | Reset cursor color       | `handleOscResetCursorColor()` |
+ * | 133     | Shell integration marker | `handleOsc133()`         |
+ * | Other   | —                        | silently ignored         |
  *
  * @par Sequence format
  * @code
@@ -570,10 +573,12 @@ void Parser::oscDispatch (const uint8_t* payload, uint16_t length) noexcept
             switch (h.commandNumber)
             {
                 case 0:
-                case 2:     handleOscTitle (data, dataLength);        break;
-                case 7:     handleOscCwd (data, dataLength);          break;
-                case 12:    handleOscCursorColor (data, dataLength);  break;
-                case 52:    handleOscClipboard (data, dataLength);    break;
+                case 2:     handleOscTitle (data, dataLength);                   break;
+                case 7:     handleOscCwd (data, dataLength);                     break;
+                case 8:     handleOsc8 (data, dataLength);                       break;
+                case 12:    handleOscCursorColor (data, dataLength);             break;
+                case 52:    handleOscClipboard (data, dataLength);               break;
+                case 133:   handleOsc133 (state.getScreen(), data, dataLength);  break;
                 default:    break;
             }
         }
@@ -626,6 +631,118 @@ void Parser::handleOscResetCursorColor() noexcept
 {
     // READER THREAD
     state.resetCursorColor (state.getScreen());
+}
+
+/**
+ * @brief Handles OSC 8 — explicit hyperlink start/end.
+ *
+ * Payload (the data after the "8;" separator) has the form:
+ *   params ; uri
+ *
+ * - Non-empty URI: records the current cursor position as the link start.
+ * - Empty URI:     closes the open span and appends it to `osc8Links`.
+ *
+ * @param data        Pointer to OSC payload bytes (after the "8;" separator).
+ * @param dataLength  Number of bytes in `data`.
+ *
+ * @note READER THREAD only.
+ */
+void Parser::handleOsc8 (const uint8_t* data, uint16_t dataLength) noexcept
+{
+    // READER THREAD
+    // Find the semicolon that separates params from uri
+    int semiPos { -1 };
+
+    for (int i { 0 }; i < static_cast<int> (dataLength); ++i)
+    {
+        if (data[i] == ';')
+        {
+            semiPos = i;
+            break;
+        }
+    }
+
+    if (semiPos < 0)
+    {
+        // Malformed — no separator found; ignore
+        activeOsc8Uri = {};
+        osc8StartRow  = -1;
+        osc8StartCol  = -1;
+    }
+    else
+    {
+        const int uriStart  { semiPos + 1 };
+        const int uriLength { static_cast<int> (dataLength) - uriStart };
+
+        if (uriLength > 0)
+        {
+            // Start of a new hyperlink
+            activeOsc8Uri = juce::String::fromUTF8 (
+                reinterpret_cast<const char*> (data + uriStart), uriLength);
+
+            const ActiveScreen scr { state.getScreen() };
+            osc8StartRow = state.getCursorRow (scr);
+            osc8StartCol = state.getCursorCol (scr);
+        }
+        else
+        {
+            // End of hyperlink — close the span if one was open
+            if (activeOsc8Uri.isNotEmpty() and osc8StartRow >= 0)
+            {
+                const ActiveScreen scr { state.getScreen() };
+
+                Osc8Span span;
+                span.row      = osc8StartRow;
+                span.startCol = osc8StartCol;
+                span.endCol   = state.getCursorCol (scr);
+                span.uri      = activeOsc8Uri;
+
+                osc8Links.push_back (std::move (span));
+            }
+
+            activeOsc8Uri = {};
+            osc8StartRow  = -1;
+            osc8StartCol  = -1;
+        }
+    }
+}
+
+/**
+ * @brief Handles OSC 133 — shell integration semantic prompt markers.
+ *
+ * Subcommands A and B are accepted and silently ignored; they exist in the
+ * protocol but carry no information needed for output-block tracking.
+ * Subcommand C marks the start of command output: the current cursor row is
+ * recorded as the output block top and the scan-active flag is set, so that
+ * subsequent LF events extend the tracked row range.  Subcommand D marks the
+ * end of command output: the current cursor row is recorded as the block
+ * bottom and the scan flag is cleared.
+ *
+ * @param scr         Active screen buffer selected at dispatch time.
+ * @param data        Pointer to the OSC 133 subcommand byte(s) after `"133;"`.
+ * @param dataLength  Number of bytes in `data` (must be >= 1 for a valid subcommand).
+ * @note READER THREAD only.
+ */
+void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataLength) noexcept
+{
+    if (dataLength >= 1)
+    {
+        const int cursorRow { state.getCursorRow (scr) };
+
+        switch (data[0])
+        {
+            case 'C':
+                state.setOutputBlockStart (cursorRow);
+                break;
+
+            case 'D':
+                state.setOutputBlockEnd (cursorRow);
+                break;
+
+            default:
+                break;
+        }
+    }
 }
 
 // ============================================================================

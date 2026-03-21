@@ -235,6 +235,19 @@ public:
     const Grid& getGrid() const noexcept;
 
     /**
+     * @brief Returns a const reference to the VT parser.
+     *
+     * Used by `Terminal::Component::scanViewportForLinks()` to read OSC 8
+     * hyperlink spans accumulated on the reader thread.
+     *
+     * @return Const reference to the owned `Parser` object.
+     * @note The caller must only read parser state when no active parse is in
+     *       progress (i.e. after a repaint snapshot has been taken).
+     */
+    const Parser& getParser() const noexcept;
+    Parser& getParser() noexcept;
+
+    /**
      * @brief Returns whether the child shell process has exited.
      * @return `true` if the PTY child process has terminated.
      * @note MESSAGE THREAD only.
@@ -273,6 +286,35 @@ private:
      * @note Called once from the constructor on the MESSAGE THREAD.
      */
     void setupCallbacks();
+
+    /**
+     * @brief Sideloads shell integration scripts and configures env var injection.
+     *
+     * Dispatches to the appropriate shell-specific integration strategy based on
+     * the shell name:
+     * - **zsh**        — ZDOTDIR approach: writes `.zshenv` + `end-integration` to
+     *                    `~/.config/end/zsh/`, injects `ZDOTDIR` via `addShellEnv`.
+     * - **bash**       — ENV + --posix approach: writes `bash_integration.bash` to
+     *                    `~/.config/end/`, injects `ENV` and `END_BASH_INJECT`,
+     *                    prepends `--posix` to @p args.
+     * - **fish**       — XDG_DATA_DIRS prepend: writes `end-shell-integration.fish`
+     *                    to `~/.config/end/fish/vendor_conf.d/`, injects
+     *                    `XDG_DATA_DIRS` via `addShellEnv`.
+     * - **pwsh/powershell** — Launch-args modification: writes
+     *                    `powershell_integration.ps1` to `~/.config/end/`, replaces
+     *                    @p args with `-NoLogo -NoProfile -NoExit -Command`. ...`.
+     *
+     * When integration is disabled: deletes all integration files/dirs and clears
+     * all env overrides.
+     *
+     * Does NOT write to the PTY.
+     *
+     * @param shell  Full shell program string (e.g. "zsh", "/usr/bin/zsh").
+     * @param args   Shell arguments string, may be modified by some integrations.
+     *
+     * @note MESSAGE THREAD — must be called BEFORE tty->open().
+     */
+    void applyShellIntegration (const juce::String& shell, juce::String& args);
 
     /** @brief Terminal parameter store — the SSOT for the UI. */
     State state;

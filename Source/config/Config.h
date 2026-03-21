@@ -98,6 +98,12 @@ struct Config : jreng::Context<Config>
         /** @brief Selection-mode cursor colour (from `colours.selection_cursor` config). */
         juce::Colour selectionCursorColour { 0xFF00D8FF };
 
+        /** @brief Hint label background colour used in Open File mode (from `colours.hint_label_bg` config). */
+        juce::Colour hintLabelBg { 0xFFFFD700 };
+
+        /** @brief Hint label foreground colour used in Open File mode (from `colours.hint_label_fg` config). */
+        juce::Colour hintLabelFg { 0xFF111111 };
+
         /** @brief Unicode codepoint for the user cursor glyph (from `cursor.char`). */
         uint32_t cursorCodepoint { 0x2588 };
 
@@ -327,6 +333,9 @@ struct Config : jreng::Context<Config>
         /** @brief Shell arguments passed after the program name (array of strings). */
         inline static const juce::String shellArgs { "shell.args" };
 
+        /** @brief Whether automatic shell integration (OSC 133 markers) is enabled. */
+        inline static const juce::String shellIntegration { "shell.integration" };
+
         /** @brief Maximum number of scrollback lines retained in the grid. */
         inline static const juce::String terminalScrollbackLines { "terminal.scrollback_lines" };
 
@@ -384,6 +393,7 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysActionList { "keys.action_list" };
         inline static const juce::String keysActionListPosition { "keys.action_list_position" };
         inline static const juce::String keysEnterSelection { "keys.enter_selection" };
+        inline static const juce::String keysEnterOpenFile { "keys.enter_open_file" };
 
         /** @brief Move cursor up in selection mode. */
         inline static const juce::String keysSelectionUp { "keys.selection_up" };
@@ -439,17 +449,26 @@ struct Config : jreng::Context<Config>
         /** @brief Pane divider bar colour when dragging or hovering (hex string). */
         inline static const juce::String paneBarHighlight { "pane.bar_highlight" };
 
-        /** @brief Selection status bar full background colour (hex string). */
-        inline static const juce::String coloursSelectionBar { "colours.selection_bar" };
+        /** @brief Status bar full background colour (hex string). */
+        inline static const juce::String coloursStatusBar { "colours.status_bar" };
 
-        /** @brief Selection status bar mode label background colour (hex string). */
-        inline static const juce::String coloursSelectionBarLabelBg { "colours.selection_bar_label_bg" };
+        /** @brief Status bar mode label background colour (hex string). */
+        inline static const juce::String coloursStatusBarLabelBg { "colours.status_bar_label_bg" };
 
-        /** @brief Selection status bar mode label text colour (hex string). */
-        inline static const juce::String coloursSelectionBarLabelFg { "colours.selection_bar_label_fg" };
+        /** @brief Status bar mode label text colour (hex string). */
+        inline static const juce::String coloursStatusBarLabelFg { "colours.status_bar_label_fg" };
 
-        /** @brief Selection status bar position: "top" or "bottom". */
-        inline static const juce::String keysSelectionBarPosition { "keys.selection_bar_position" };
+        /** @brief Hint label background colour for Open File mode (hex string). */
+        inline static const juce::String coloursHintLabelBg { "colours.hint_label_bg" };
+
+        /** @brief Hint label foreground colour for Open File mode (hex string). */
+        inline static const juce::String coloursHintLabelFg { "colours.hint_label_fg" };
+
+        /** @brief Status bar position: "top" or "bottom". */
+        inline static const juce::String keysStatusBarPosition { "keys.status_bar_position" };
+
+        /** @brief Editor command used to open files from hyperlinks (e.g. "nvim", "vim"). */
+        inline static const juce::String hyperlinksEditor { "hyperlinks.editor" };
 
     };
 

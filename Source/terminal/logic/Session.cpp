@@ -213,9 +213,10 @@ void Session::resized (int cols, int rows)
                     const auto shell { shellOverride.isNotEmpty()
                         ? shellOverride
                         : Config::getContext()->getString (Config::Key::shellProgram) };
-                    const auto args { shellOverride.isNotEmpty()
+                    auto args { shellOverride.isNotEmpty()
                         ? shellArgsOverride
                         : Config::getContext()->getString (Config::Key::shellArgs) };
+                    applyShellIntegration (shell, args);
                     tty->open (finalCols, finalRows, shell, args, workingDirectory);
                     const juce::String shellName { shell.contains (juce::File::getSeparatorString())
                         ? juce::File (shell).getFileName()
@@ -480,6 +481,13 @@ Grid& Session::getGrid() noexcept { return grid; }
 const Grid& Session::getGrid() const noexcept { return grid; }
 
 /**
+ * @brief Returns a const reference to the VT parser.
+ * @return Const reference to the owned `Parser` object.
+ */
+const Parser& Session::getParser() const noexcept { return parser; }
+Parser& Session::getParser() noexcept { return parser; }
+
+/**
  * @brief Returns whether the child shell process has exited.
  *
  * Delegates to `tty->hasShellExited()`.  Returns `false` if `tty` is null
@@ -498,6 +506,133 @@ bool Session::hasShellExited() const noexcept
     }
 
     return exited;
+}
+
+/**
+ * @brief Sideloads shell integration scripts and configures env var injection.
+ *
+ * Dispatches to the appropriate shell-specific integration strategy based on
+ * the shell name.  All integration files live under `~/.config/end/`.
+ *
+ * When integration is disabled: deletes all integration artefacts and clears
+ * all env overrides via `clearShellEnv()`.
+ *
+ * @param shell  Full shell program string used to detect the shell type.
+ * @param args   Shell arguments string; modified in-place for bash/powershell.
+ *
+ * @note MESSAGE THREAD — must be called BEFORE tty->open().
+ */
+void Session::applyShellIntegration (const juce::String& shell, juce::String& args)
+{
+    const juce::File configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+                                     .getChildFile (".config/end") };
+
+#if JUCE_MAC || JUCE_LINUX
+    auto* unixTty { static_cast<UnixTTY*> (tty.get()) };
+    unixTty->clearShellEnv();
+#endif
+
+    if (not Config::getContext()->getBool (Config::Key::shellIntegration))
+    {
+        configDir.getChildFile ("zsh").deleteRecursively();
+        configDir.getChildFile ("bash_integration.bash").deleteFile();
+        configDir.getChildFile ("fish").deleteRecursively();
+        configDir.getChildFile ("powershell_integration.ps1").deleteFile();
+    }
+    else if (shell.contains ("zsh"))
+    {
+        const juce::File zshDir { configDir.getChildFile ("zsh") };
+        zshDir.createDirectory();
+
+        const BinaryData::Raw zshenv { "zsh_zshenv.zsh" };
+        const BinaryData::Raw endInteg { "zsh_end_integration.zsh" };
+
+        if (zshenv.exists())
+        {
+            zshDir.getChildFile (".zshenv")
+                  .replaceWithData (zshenv.data, static_cast<size_t> (zshenv.size));
+        }
+
+        if (endInteg.exists())
+        {
+            zshDir.getChildFile ("end-integration")
+                  .replaceWithData (endInteg.data, static_cast<size_t> (endInteg.size));
+        }
+
+#if JUCE_MAC || JUCE_LINUX
+        const char* origZdotdir { getenv ("ZDOTDIR") };
+
+        if (origZdotdir != nullptr)
+        {
+            unixTty->addShellEnv ("END_ORIG_ZDOTDIR", origZdotdir);
+        }
+
+        unixTty->addShellEnv ("ZDOTDIR", zshDir.getFullPathName().toStdString());
+#endif
+    }
+    else if (shell.contains ("bash"))
+    {
+        const BinaryData::Raw bashScript { "bash_integration.bash" };
+
+        if (bashScript.exists())
+        {
+            const juce::File scriptFile { configDir.getChildFile ("bash_integration.bash") };
+            configDir.createDirectory();
+            scriptFile.replaceWithData (bashScript.data, static_cast<size_t> (bashScript.size));
+
+#if JUCE_MAC || JUCE_LINUX
+            unixTty->addShellEnv ("ENV", scriptFile.getFullPathName().toStdString());
+            unixTty->addShellEnv ("END_BASH_INJECT", "1");
+            unixTty->addShellEnv ("END_BASH_UNEXPORT_HISTFILE", "1");
+
+            if (args.contains ("--norc"))
+            {
+                unixTty->addShellEnv ("END_BASH_NORC", "1");
+            }
+#endif
+
+            args = "--posix " + args;
+        }
+    }
+    else if (shell.contains ("fish"))
+    {
+        const BinaryData::Raw fishScript { "end-shell-integration.fish" };
+
+        if (fishScript.exists())
+        {
+            const juce::File fishDir { configDir.getChildFile ("fish/vendor_conf.d") };
+            fishDir.createDirectory();
+            fishDir.getChildFile ("end-shell-integration.fish")
+                   .replaceWithData (fishScript.data, static_cast<size_t> (fishScript.size));
+
+#if JUCE_MAC || JUCE_LINUX
+            const juce::String integDir { configDir.getFullPathName() };
+            const char* origXdg { getenv ("XDG_DATA_DIRS") };
+            juce::String newXdg { integDir };
+
+            if (origXdg != nullptr and juce::String (origXdg).isNotEmpty())
+            {
+                newXdg += ":" + juce::String (origXdg);
+            }
+
+            unixTty->addShellEnv ("XDG_DATA_DIRS", newXdg.toStdString());
+            unixTty->addShellEnv ("END_FISH_XDG_DATA_DIR", integDir.toStdString());
+#endif
+        }
+    }
+    else if (shell.contains ("pwsh") or shell.contains ("powershell"))
+    {
+        const BinaryData::Raw psScript { "powershell_integration.ps1" };
+
+        if (psScript.exists())
+        {
+            const juce::File scriptFile { configDir.getChildFile ("powershell_integration.ps1") };
+            configDir.createDirectory();
+            scriptFile.replaceWithData (psScript.data, static_cast<size_t> (psScript.size));
+
+            args = "-NoLogo -NoProfile -NoExit -Command \". '" + scriptFile.getFullPathName() + "'\"";
+        }
+    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

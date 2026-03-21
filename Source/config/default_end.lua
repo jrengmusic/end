@@ -156,16 +156,23 @@ END = {
 		-- ANSI colour 15: bright white
 		bright_white = "%%colours_bright_white%%",
 
-		-- Selection status bar full background colour.
+		-- Status bar full background colour.
 		-- Default matches the active tab background (tab.active).
-		selection_bar = "%%colours_selection_bar%%",
+		status_bar = "%%colours_status_bar%%",
 
-		-- Selection status bar mode label background colour.
+		-- Status bar mode label background colour.
 		-- Default matches the active tab indicator colour (tab.indicator).
-		selection_bar_label_bg = "%%colours_selection_bar_label_bg%%",
+		status_bar_label_bg = "%%colours_status_bar_label_bg%%",
 
-		-- Selection status bar mode label text colour.
-		selection_bar_label_fg = "%%colours_selection_bar_label_fg%%",
+		-- Status bar mode label text colour.
+		status_bar_label_fg = "%%colours_status_bar_label_fg%%",
+
+		-- Open File mode hint label background colour.
+		-- Shown as the badge background behind single- or double-letter hint keys.
+		hint_label_bg = "%%colours_hint_label_bg%%",
+
+		-- Open File mode hint label foreground (text) colour.
+		hint_label_fg = "%%colours_hint_label_fg%%",
 	},
 
 	-- ========================================================================
@@ -265,13 +272,19 @@ END = {
 
 	shell = {
 		-- Shell program name or absolute path.
-		-- Examples: "zsh", "bash", "fish", "/opt/homebrew/bin/fish"
 		program = "%%shell_program%%",
 
-		-- Arguments passed to the shell program (space-separated string).
-		-- Default: "-l" on Unix (login shell), "" on Windows.
-		-- Set to "" to launch the shell with no arguments.
+		-- Arguments passed to the shell program.
 		args = "%%shell_args%%",
+
+		-- Enable automatic shell integration (OSC 133 markers).
+		-- When true, END creates shell hook scripts in ~/.config/end/
+		-- and injects them on shell startup. This enables:
+		--   - Clickable file links in command output
+		--   - Output block detection for the Open File feature
+		-- Supported shells: zsh, bash, fish.
+		-- Set to false to disable and remove integration scripts.
+		integration = %%shell_integration%%,
 	},
 
 	-- ========================================================================
@@ -391,6 +404,9 @@ END = {
 		-- Enter text selection mode. Prefix-mode key.
 		enter_selection = "%%keys_enter_selection%%",
 
+		-- Enter open-file mode (hyperlink hint labels). Prefix-mode key.
+		enter_open_file = "%%keys_enter_open_file%%",
+
 		-- ---- Selection mode ----
 
 		-- Move cursor up in selection mode.
@@ -438,8 +454,8 @@ END = {
 		-- Action list position: "top" or "bottom".
 		action_list_position = "%%keys_action_list_position%%",
 
-		-- Selection status bar position: "top" or "bottom".
-		selection_bar_position = "%%keys_selection_bar_position%%",
+		-- Status bar position: "top" or "bottom".
+		status_bar_position = "%%keys_status_bar_position%%",
 	},
 
 	-- ========================================================================
@@ -457,6 +473,17 @@ END = {
 
 		-- Default popup position: "center".
 		position = "%%popup_position%%",
+	},
+
+	-- ========================================================================
+	-- HYPERLINKS
+	-- ========================================================================
+
+	hyperlinks = {
+		-- Editor command for opening files from hyperlinks and Open File mode.
+		-- The command receives the file path as its first argument.
+		-- Example: "nvim", "vim", "nano", "/usr/local/bin/hx"
+		editor = "%%hyperlinks_editor%%",
 	},
 
 	-- ========================================================================

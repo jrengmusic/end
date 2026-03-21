@@ -74,7 +74,6 @@ Terminal::Component::Component (const juce::String& workingDirectory)
     session.setWorkingDirectory (workingDirectory);
     initialise();
     session.getState().get().setProperty (jreng::ID::id, juce::Uuid().toString(), nullptr);
-
 }
 
 /**
@@ -148,7 +147,6 @@ void Terminal::Component::initialise()
     {
         std::fwrite ("\a", 1, 1, stderr);
     };
-
 }
 
 /**
@@ -181,11 +179,11 @@ Terminal::Component::~Component()
 void Terminal::Component::resized()
 {
     auto contentArea { getLocalBounds() };
-    contentArea.removeFromTop    (titleBarHeight);
-    contentArea.removeFromTop    (paddingTop);
-    contentArea.removeFromRight  (paddingRight);
+    contentArea.removeFromTop (titleBarHeight);
+    contentArea.removeFromTop (paddingTop);
+    contentArea.removeFromRight (paddingRight);
     contentArea.removeFromBottom (paddingBottom);
-    contentArea.removeFromLeft   (paddingLeft);
+    contentArea.removeFromLeft (paddingLeft);
 
     if (contentArea.getWidth() > 0 and contentArea.getHeight() > 0)
     {
@@ -195,26 +193,43 @@ void Terminal::Component::resized()
     }
 }
 
-
 bool Terminal::Component::hasSelection() const noexcept
 {
-    return boxSelection.active;
+    return screenSelection != nullptr;
 }
 
 void Terminal::Component::copySelection()
 {
-    if (boxSelection.active)
+    if (screenSelection != nullptr)
     {
         const juce::ScopedLock lock (session.getGrid().getResizeLock());
+        const int cols { session.getGrid().getCols() };
 
-        const juce::Point<int> topLeft {
-            std::min (boxSelection.anchorCol, boxSelection.endCol),
-            std::min (boxSelection.anchorRow, boxSelection.endRow) };
-        const juce::Point<int> bottomRight {
-            std::max (boxSelection.anchorCol, boxSelection.endCol),
-            std::max (boxSelection.anchorRow, boxSelection.endRow) };
+        juce::String text;
 
-        const auto text { session.getGrid().extractBoxText (topLeft, bottomRight) };
+        if (screenSelection->type == ScreenSelection::SelectionType::linear)
+        {
+            text = session.getGrid().extractText (screenSelection->anchor, screenSelection->end);
+        }
+        else if (screenSelection->type == ScreenSelection::SelectionType::line)
+        {
+            const juce::Point<int> start { 0, std::min (screenSelection->anchor.y, screenSelection->end.y) };
+            const juce::Point<int> end { cols - 1, std::max (screenSelection->anchor.y, screenSelection->end.y) };
+            text = session.getGrid().extractText (start, end);
+        }
+        else
+        {
+            const juce::Point<int> topLeft {
+                std::min (screenSelection->anchor.x, screenSelection->end.x),
+                std::min (screenSelection->anchor.y, screenSelection->end.y)
+            };
+            const juce::Point<int> bottomRight {
+                std::max (screenSelection->anchor.x, screenSelection->end.x),
+                std::max (screenSelection->anchor.y, screenSelection->end.y)
+            };
+            text = session.getGrid().extractBoxText (topLeft, bottomRight);
+        }
+
         juce::SystemClipboard::copyTextToClipboard (text);
 
         boxSelection = BoxSelection {};
@@ -349,6 +364,9 @@ bool Terminal::Component::handleModalKey (const juce::KeyPress& key) noexcept
     if (type == ModalType::selection)
         return handleSelectionKey (key);
 
+    if (type == ModalType::openFile)
+        return handleOpenFileKey (key);
+
     return false;
 }
 
@@ -357,8 +375,8 @@ void Terminal::Component::enterSelectionMode() noexcept
     const auto activeScreen { session.getState().getActiveScreen() };
     const int screenCursorRow { session.getState().getCursorRow (activeScreen) };
     const int screenCursorCol { session.getState().getCursorCol (activeScreen) };
-    const int scrollbackRows  { session.getGrid().getScrollbackUsed() };
-    const int absRow          { scrollbackRows + screenCursorRow };
+    const int scrollbackRows { session.getGrid().getScrollbackUsed() };
+    const int absRow { scrollbackRows + screenCursorRow };
 
     session.getState().setSelectionCursor (absRow, screenCursorCol);
     session.getState().setSelectionAnchor (absRow, screenCursorCol);
@@ -377,6 +395,11 @@ int Terminal::Component::getSelectionType() const noexcept
     return session.getState().getSelectionType();
 }
 
+Terminal::ModalType Terminal::Component::getModalType() const noexcept
+{
+    return session.getState().getModalType();
+}
+
 void Terminal::Component::exitSelectionMode() noexcept
 {
     session.getState().setSelectionType (static_cast<int> (SelectionType::none));
@@ -386,6 +409,239 @@ void Terminal::Component::exitSelectionMode() noexcept
     screenSelection.reset();
     screen.setSelection (nullptr);
     session.getState().setSnapshotDirty();
+}
+
+void Terminal::Component::enterOpenFileMode() noexcept
+{
+    const juce::ScopedTryLock stl { session.getGrid().getResizeLock() };
+
+    const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
+
+    try
+    {
+        activeLinks = scanViewportForLinks (session.getGrid(), cwd, false);
+    }
+    catch (...)
+    {
+        activeLinks.clear();
+    }
+
+    screen.setHintOverlay (activeLinks.data(), static_cast<int> (activeLinks.size()));
+    session.getState().setModalType (ModalType::openFile);
+    session.getState().setSnapshotDirty();
+}
+
+bool Terminal::Component::handleOpenFileKey (const juce::KeyPress& key) noexcept
+{
+    if (key == juce::KeyPress::escapeKey)
+    {
+        screen.setHintOverlay (nullptr, 0);
+        activeLinks.clear();
+        session.getState().setModalType (ModalType::none);
+        session.getState().setSnapshotDirty();
+    }
+    else
+    {
+        const juce::juce_wchar ch { key.getTextCharacter() };
+        const char lower { static_cast<char> (ch >= 'A' and ch <= 'Z' ? ch + 32 : ch) };
+        const bool isLetter { lower >= 'a' and lower <= 'z' };
+
+        if (isLetter)
+        {
+            const LinkSpan* matched { nullptr };
+
+            for (const auto& span : activeLinks)
+            {
+                if (span.hintLabel[0] == lower)
+                {
+                    matched = &span;
+                }
+            }
+
+            if (matched != nullptr)
+            {
+                if (matched->type == LinkDetector::LinkType::url)
+                {
+                    juce::URL { matched->uri }.launchInDefaultBrowser();
+                }
+                else
+                {
+                    const juce::String path { matched->uri.fromFirstOccurrenceOf ("file://", false, false) };
+                    const juce::String editor { Config::getContext()->getString (Config::Key::hyperlinksEditor) };
+                    const juce::String command { editor + " " + path + "\r" };
+                    session.writeToPty (command.toRawUTF8(), static_cast<int> (command.getNumBytesAsUTF8()));
+                }
+
+                screen.setHintOverlay (nullptr, 0);
+                activeLinks.clear();
+                session.getState().setModalType (ModalType::none);
+                session.getState().setSnapshotDirty();
+            }
+        }
+    }
+
+    return true;// fully modal — consume all keys
+}
+
+std::vector<Terminal::LinkSpan> Terminal::Component::scanViewportForLinks (const Grid& grid,
+                                                                           const juce::String& cwd,
+                                                                           bool outputRowsOnly)
+{
+    session.getParser().clearOsc8Links();
+    std::vector<LinkSpan> spans;
+
+    const int visibleRows { grid.getVisibleRows() };
+    const int cols { grid.getCols() };
+    const int blockTop { outputRowsOnly ? session.getState().getOutputBlockTop() : 0 };
+    const int blockBottom { outputRowsOnly ? session.getState().getOutputBlockBottom() : visibleRows - 1 };
+
+    for (int row = 0; row < visibleRows; ++row)
+    {
+        if (outputRowsOnly and (blockTop < 0 or row < blockTop or row > blockBottom))
+            continue;
+
+        const Cell* rowCells { grid.activeVisibleRow (row) };
+
+        if (rowCells == nullptr)
+            continue;
+
+        int col { 0 };
+
+        while (col < cols)
+        {
+            // Skip whitespace / empty cells
+            while (col < cols
+                   and (rowCells[col].codepoint == 0
+                        or rowCells[col].codepoint <= 0x20))
+            {
+                ++col;
+            }
+
+            if (col >= cols)
+                break;
+
+            // Accumulate non-whitespace token
+            const int tokenStartCol { col };
+            juce::String token;
+
+            while (col < cols
+                   and rowCells[col].codepoint > 0x20)
+            {
+                token += juce::String::charToString (
+                    static_cast<juce::juce_wchar> (rowCells[col].codepoint));
+                ++col;
+            }
+
+            const int tokenLength { col - tokenStartCol };
+            const LinkDetector::LinkType linkType { LinkDetector::classify (token) };
+
+            if (linkType != LinkDetector::LinkType::none)
+            {
+                LinkSpan span;
+                span.row = row;
+                span.col = tokenStartCol;
+                span.length = tokenLength;
+                span.type = linkType;
+
+                if (linkType == LinkDetector::LinkType::url)
+                {
+                    span.uri = token;
+                }
+                else
+                {
+                    // Resolve relative paths against cwd
+                    juce::File resolved;
+
+                    if (juce::File::isAbsolutePath (token))
+                    {
+                        resolved = juce::File { token };
+                    }
+                    else
+                    {
+                        resolved = juce::File { cwd }.getChildFile (token);
+                    }
+
+                    span.uri = resolved.getFullPathName().isNotEmpty()
+                                   ? "file://" + resolved.getFullPathName()
+                                   : "file://" + token;
+                }
+
+                spans.push_back (std::move (span));
+            }
+        }
+    }
+
+    // Merge OSC 8 explicit hyperlink spans from the parser.
+    // These are produced by programs that emit OSC 8 start/end sequences
+    // (e.g. compilers printing clickable file:// links, man pages, etc.).
+    for (const auto& osc : session.getParser().getOsc8Links())
+    {
+        if (outputRowsOnly and (blockTop < 0 or osc.row < blockTop or osc.row > blockBottom))
+            continue;
+
+        const juce::String uri { osc.uri };
+
+        if (uri.isEmpty())
+            continue;
+
+        LinkSpan span;
+        span.row = osc.row;
+        span.col = osc.startCol;
+        span.length = osc.endCol - osc.startCol;
+        span.uri = uri;
+
+        if (uri.startsWith ("http://") or uri.startsWith ("https://"))
+        {
+            span.type = LinkDetector::LinkType::url;
+        }
+        else
+        {
+            span.type = LinkDetector::LinkType::file;
+
+            if (not uri.startsWith ("file://"))
+                span.uri = "file://" + uri;
+        }
+
+        spans.push_back (std::move (span));
+    }
+
+    // Assign hint labels: each span gets a unique character from its own filename.
+    // First char preferred. If taken, shift to next char until unique.
+    std::unordered_set<char> usedLabels;
+
+    for (auto& span : spans)
+    {
+        const int tokenEnd { span.col + span.length };
+        bool assigned { false };
+
+        for (int c { span.col }; c < tokenEnd and not assigned; ++c)
+        {
+            const Cell* rowCells { grid.activeVisibleRow (span.row) };
+
+            if (rowCells != nullptr)
+            {
+                const uint32_t cp { rowCells[c].codepoint };
+                const char lower { static_cast<char> (cp >= 'A' and cp <= 'Z' ? cp + 32 : cp) };
+
+                if (lower >= 'a' and lower <= 'z' and usedLabels.find (lower) == usedLabels.end())
+                {
+                    span.hintLabel[0] = lower;
+                    span.hintLabel[1] = 0;
+                    span.labelCol = c;
+                    usedLabels.insert (lower);
+                    assigned = true;
+                }
+            }
+        }
+
+        if (not assigned)
+        {
+            span.hintLabel[0] = 0;
+            span.labelCol = span.col;
+        }
+    }
+
+    return spans;
 }
 
 bool Terminal::Component::handleSelectionKey (const juce::KeyPress& key) noexcept
@@ -492,38 +748,40 @@ bool Terminal::Component::handleSelectionKey (const juce::KeyPress& key) noexcep
 
             if (tryLock.isLocked())
             {
-                const int scrollback   { session.getGrid().getScrollbackUsed() };
+                const int scrollback { session.getGrid().getScrollbackUsed() };
                 const int scrollOffset { st.getScrollOffset() };
                 const int visibleStart { scrollback - scrollOffset };
-                const int cols         { session.getGrid().getCols() };
+                const int cols { session.getGrid().getCols() };
 
                 const int anchorVisRow { st.getSelectionAnchorRow() - visibleStart };
                 const int cursorVisRow { st.getSelectionCursorRow() - visibleStart };
-                const int anchorCol    { st.getSelectionAnchorCol() };
-                const int cursorCol    { st.getSelectionCursorCol() };
+                const int anchorCol { st.getSelectionAnchorCol() };
+                const int cursorCol { st.getSelectionCursorCol() };
 
                 juce::String text;
 
                 if (smType == SelectionType::visual)
                 {
                     const juce::Point<int> start { anchorCol, anchorVisRow };
-                    const juce::Point<int> end   { cursorCol, cursorVisRow };
+                    const juce::Point<int> end { cursorCol, cursorVisRow };
                     text = session.getGrid().extractText (start, end);
                 }
                 else if (smType == SelectionType::visualLine)
                 {
-                    const juce::Point<int> start { 0,        std::min (anchorVisRow, cursorVisRow) };
-                    const juce::Point<int> end   { cols - 1, std::max (anchorVisRow, cursorVisRow) };
+                    const juce::Point<int> start { 0, std::min (anchorVisRow, cursorVisRow) };
+                    const juce::Point<int> end { cols - 1, std::max (anchorVisRow, cursorVisRow) };
                     text = session.getGrid().extractText (start, end);
                 }
                 else
                 {
                     const juce::Point<int> topLeft {
                         std::min (anchorCol, cursorCol),
-                        std::min (anchorVisRow, cursorVisRow) };
+                        std::min (anchorVisRow, cursorVisRow)
+                    };
                     const juce::Point<int> bottomRight {
                         std::max (anchorCol, cursorCol),
-                        std::max (anchorVisRow, cursorVisRow) };
+                        std::max (anchorVisRow, cursorVisRow)
+                    };
                     text = session.getGrid().extractBoxText (topLeft, bottomRight);
                 }
 
@@ -568,11 +826,11 @@ bool Terminal::Component::handleSelectionKey (const juce::KeyPress& key) noexcep
 
     if (consumed)
     {
-        const int cursorRow    { st.getSelectionCursorRow() };
-        const int visibleRows  { session.getGrid().getVisibleRows() };
-        const int scrollback   { session.getGrid().getScrollbackUsed() };
+        const int cursorRow { st.getSelectionCursorRow() };
+        const int visibleRows { session.getGrid().getVisibleRows() };
+        const int scrollback { session.getGrid().getScrollbackUsed() };
         const int visibleStart { scrollback - st.getScrollOffset() };
-        const int visibleEnd   { visibleStart + visibleRows - 1 };
+        const int visibleEnd { visibleStart + visibleRows - 1 };
 
         if (cursorRow < visibleStart)
         {
@@ -615,7 +873,7 @@ void Terminal::Component::updateSelectionHighlight() noexcept
             screenSelection = std::make_unique<ScreenSelection>();
         }
 
-        const int scrollback   { session.getGrid().getScrollbackUsed() };
+        const int scrollback { session.getGrid().getScrollbackUsed() };
         const int scrollOffset { session.getState().getScrollOffset() };
         const int visibleStart { scrollback - scrollOffset };
 
@@ -623,7 +881,7 @@ void Terminal::Component::updateSelectionHighlight() noexcept
         const int cursorVisRow { session.getState().getSelectionCursorRow() - visibleStart };
 
         screenSelection->anchor = { session.getState().getSelectionAnchorCol(), anchorVisRow };
-        screenSelection->end    = { session.getState().getSelectionCursorCol(), cursorVisRow };
+        screenSelection->end = { session.getState().getSelectionCursorCol(), cursorVisRow };
 
         if (smType == SelectionType::visual)
         {
@@ -653,12 +911,12 @@ void Terminal::Component::buildSelectionKeyMap() noexcept
 {
     auto* cfg { Config::getContext() };
 
-    selectionKeys.up          = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionUp));
-    selectionKeys.down        = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionDown));
-    selectionKeys.left        = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLeft));
-    selectionKeys.right       = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionRight));
-    selectionKeys.visual      = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionVisual));
-    selectionKeys.visualLine  = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionVisualLine));
+    selectionKeys.up = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionUp));
+    selectionKeys.down = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionDown));
+    selectionKeys.left = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLeft));
+    selectionKeys.right = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionRight));
+    selectionKeys.visual = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionVisual));
+    selectionKeys.visualLine = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionVisualLine));
     // Visual block uses real Ctrl (not Cmd on macOS).  parseShortcut maps
     // "ctrl" → commandModifier on macOS, which conflicts with paste.  We
     // build the KeyPress directly with ctrlModifier so Ctrl+V is unambiguous
@@ -677,13 +935,13 @@ void Terminal::Component::buildSelectionKeyMap() noexcept
             selectionKeys.visualBlock = Terminal::Action::parseShortcut (raw);
         }
     }
-    selectionKeys.copy        = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionCopy));
-    selectionKeys.globalCopy  = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysCopy));
-    selectionKeys.top         = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionTop));
-    selectionKeys.bottom      = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionBottom));
-    selectionKeys.lineStart   = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineStart));
-    selectionKeys.lineEnd     = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineEnd));
-    selectionKeys.exit        = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionExit));
+    selectionKeys.copy = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionCopy));
+    selectionKeys.globalCopy = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysCopy));
+    selectionKeys.top = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionTop));
+    selectionKeys.bottom = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionBottom));
+    selectionKeys.lineStart = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineStart));
+    selectionKeys.lineEnd = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineEnd));
+    selectionKeys.exit = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionExit));
 }
 
 /**
@@ -764,14 +1022,80 @@ void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const j
 }
 
 /**
+ * @brief Updates the mouse cursor and refreshes clickable link spans on hover.
+ *
+ * Scans the viewport for links (lazily, only when `linkScanNeeded`) and
+ * hit-tests the hovered cell.  Shows `PointingHandCursor` over a link span,
+ * `NormalCursor` otherwise.  Inactive when a modal is active or when mouse
+ * events are forwarded to the PTY.
+ *
+ * @param event  The mouse event.
+ * @note MESSAGE THREAD.
+ */
+void Terminal::Component::mouseMove (const juce::MouseEvent& event)
+{
+    if (not shouldForwardMouseToPty() and not session.getState().isModal())
+    {
+        if (linkScanNeeded)
+        {
+            const juce::ScopedTryLock stl { session.getGrid().getResizeLock() };
+
+            if (stl.isLocked())
+            {
+                const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
+
+                try
+                {
+                    clickableLinks = scanViewportForLinks (session.getGrid(), cwd, true);
+                }
+                catch (...)
+                {
+                    clickableLinks.clear();
+                }
+
+                screen.setLinkUnderlay (clickableLinks.data(), static_cast<int> (clickableLinks.size()));
+                session.getState().setSnapshotDirty();
+                linkScanNeeded = false;
+            }
+        }
+
+        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        bool overLink { false };
+
+        for (const auto& span : clickableLinks)
+        {
+            if (cell.y == span.row and cell.x >= span.col and cell.x < span.col + span.length)
+            {
+                overLink = true;
+                break;
+            }
+        }
+
+        if (overLink)
+        {
+            setMouseCursor (juce::MouseCursor::PointingHandCursor);
+        }
+        else
+        {
+            setMouseCursor (juce::MouseCursor::NormalCursor);
+        }
+    }
+    else
+    {
+        setMouseCursor (juce::MouseCursor::NormalCursor);
+    }
+}
+
+/**
  * @brief Begins a selection or forwards a mouse-button SGR event.
  *
  * - **Mouse tracking active**: writes SGR button-0 press at the clicked cell.
- * - **Triple-click (click count 3)**: enters selection mode with `visualLine`
- *   type anchored at the clicked row — selects the entire line.
- * - **Single click**: records the anchor for a potential drag.  Does not enter
- *   selection mode yet; waits for a drag gesture.  If selection mode is already
- *   active, exits it so the user can start fresh.
+ * - **Triple-click (click count 3)**: selects the entire clicked row directly
+ *   via `ScreenSelection` with type `line`.  No `ModalType` is set — mouse
+ *   selection is independent of vim-style selection mode.
+ * - **Single click**: records the anchor cell for a potential drag.  Clears
+ *   any existing drag selection (`screenSelection` + `screen.setSelection()`).
+ *   Does not touch modal state — vim-style selection mode is unaffected.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
@@ -785,41 +1109,87 @@ void Terminal::Component::mouseDown (const juce::MouseEvent& event)
     }
     else if (event.getNumberOfClicks() == 3)
     {
-        // Triple-click: select the entire row.
+        // Triple-click: select the entire clicked row directly via ScreenSelection.
+        // No ModalType — mouse selection is independent of vim-style selection mode.
         const auto cell { screen.cellAtPoint (event.x, event.y) };
-        const int scrollback    { session.getGrid().getScrollbackUsed() };
-        const int scrollOffset  { session.getState().getScrollOffset() };
-        const int absoluteRow   { cell.y + scrollback - scrollOffset };
 
-        session.getState().setSelectionCursor (absoluteRow, 0);
-        session.getState().setSelectionAnchor (absoluteRow, 0);
-        session.getState().setSelectionType (static_cast<int> (SelectionType::visualLine));
-        session.getState().setModalType (ModalType::selection);
-        pendingG = false;
-        updateSelectionHighlight();
+        screenSelection = std::make_unique<ScreenSelection>();
+        screenSelection->type = ScreenSelection::SelectionType::line;
+        screenSelection->anchor = { 0, cell.y };
+        screenSelection->end = { 0, cell.y };
+
+        boxSelection.anchorCol = 0;
+        boxSelection.anchorRow = cell.y;
+        boxSelection.endCol = 0;
+        boxSelection.endRow = cell.y;
+        boxSelection.active = false;
+
+        screen.setSelection (screenSelection.get());
         session.getState().setSnapshotDirty();
     }
     else
     {
-        // Single click: record anchor for potential drag, clear any existing selection.
         const auto cell { screen.cellAtPoint (event.x, event.y) };
 
-        boxSelection.anchorCol = cell.x;
-        boxSelection.anchorRow = cell.y;
-        boxSelection.endCol    = cell.x;
-        boxSelection.endRow    = cell.y;
-        boxSelection.active    = false;
-
-        if (session.getState().getModalType() == ModalType::selection)
+        // Click-mode dispatch: hit-test against clickable link spans.
+        // Only active when no modal is open and content is at the live view.
+        if (not session.getState().isModal()
+            and session.getState().getScrollOffset() == 0)
         {
-            session.getState().setSelectionType (static_cast<int> (SelectionType::none));
-            session.getState().setModalType (ModalType::none);
-            pendingG = false;
-        }
+            const LinkSpan* matched { nullptr };
 
-        screenSelection.reset();
-        screen.setSelection (nullptr);
-        session.getState().setSnapshotDirty();
+            for (const auto& span : clickableLinks)
+            {
+                if (cell.y == span.row and cell.x >= span.col and cell.x < span.col + span.length)
+                {
+                    matched = &span;
+                    break;
+                }
+            }
+
+            if (matched != nullptr)
+            {
+                if (matched->type == LinkDetector::LinkType::url)
+                {
+                    juce::URL { matched->uri }.launchInDefaultBrowser();
+                }
+                else
+                {
+                    const juce::String path { matched->uri.fromFirstOccurrenceOf ("file://", false, false) };
+                    const juce::String editor { Config::getContext()->getString (Config::Key::hyperlinksEditor) };
+                    const juce::String command { editor + " " + path + "\r" };
+                    session.writeToPty (command.toRawUTF8(), static_cast<int> (command.getNumBytesAsUTF8()));
+                }
+            }
+            else
+            {
+                // Single click on non-link: record anchor for potential drag.
+                // Clear any existing drag selection.
+                boxSelection.anchorCol = cell.x;
+                boxSelection.anchorRow = cell.y;
+                boxSelection.endCol = cell.x;
+                boxSelection.endRow = cell.y;
+                boxSelection.active = false;
+
+                screenSelection.reset();
+                screen.setSelection (nullptr);
+                session.getState().setSnapshotDirty();
+            }
+        }
+        else
+        {
+            // Single click: record anchor for potential drag.
+            // Clear any existing drag selection.
+            boxSelection.anchorCol = cell.x;
+            boxSelection.anchorRow = cell.y;
+            boxSelection.endCol = cell.x;
+            boxSelection.endRow = cell.y;
+            boxSelection.active = false;
+
+            screenSelection.reset();
+            screen.setSelection (nullptr);
+            session.getState().setSnapshotDirty();
+        }
     }
 }
 
@@ -828,8 +1198,9 @@ void Terminal::Component::mouseDown (const juce::MouseEvent& event)
  *
  * - **Mouse tracking active**: writes SGR button-0 press at the clicked cell.
  * - **No tracking**: scans left and right from the clicked column to find word
- *   boundaries (non-space codepoints, > 0x20), enters selection mode with type
- *   `visual`, and sets anchor to word start / cursor to word end.
+ *   boundaries (non-space codepoints, > 0x20) and sets `screenSelection` with
+ *   type `linear` spanning word start to word end.  No `ModalType` is set —
+ *   mouse selection is independent of vim-style selection mode.
  *
  * Word boundary scan uses `scrollbackRow()` so it works correctly when scrolled
  * back into the scrollback buffer.
@@ -846,17 +1217,15 @@ void Terminal::Component::mouseDoubleClick (const juce::MouseEvent& event)
     }
     else
     {
-        const auto cell        { screen.cellAtPoint (event.x, event.y) };
-        const int scrollback   { session.getGrid().getScrollbackUsed() };
+        const auto cell { screen.cellAtPoint (event.x, event.y) };
         const int scrollOffset { session.getState().getScrollOffset() };
-        const int absoluteRow  { cell.y + scrollback - scrollOffset };
-        const int cols         { session.getGrid().getCols() };
+        const int cols { session.getGrid().getCols() };
 
         // Scan the visible row (with scroll offset applied) to find word boundaries.
         const Cell* row { session.getGrid().scrollbackRow (cell.y, scrollOffset) };
 
         int wordStart { cell.x };
-        int wordEnd   { cell.x };
+        int wordEnd { cell.x };
 
         if (row != nullptr)
         {
@@ -877,12 +1246,20 @@ void Terminal::Component::mouseDoubleClick (const juce::MouseEvent& event)
             }
         }
 
-        session.getState().setSelectionCursor (absoluteRow, wordEnd);
-        session.getState().setSelectionAnchor (absoluteRow, wordStart);
-        session.getState().setSelectionType (static_cast<int> (SelectionType::visual));
-        session.getState().setModalType (ModalType::selection);
-        pendingG = false;
-        updateSelectionHighlight();
+        // Write directly to screenSelection — no ModalType, no State selection params.
+        screenSelection = std::make_unique<ScreenSelection>();
+        screenSelection->type = ScreenSelection::SelectionType::linear;
+        screenSelection->anchor = { wordStart, cell.y };
+        screenSelection->end = { wordEnd, cell.y };
+
+        // Sync boxSelection for copy compatibility.
+        boxSelection.anchorCol = wordStart;
+        boxSelection.anchorRow = cell.y;
+        boxSelection.endCol = wordEnd;
+        boxSelection.endRow = cell.y;
+        boxSelection.active = false;
+
+        screen.setSelection (screenSelection.get());
         session.getState().setSnapshotDirty();
     }
 }
@@ -891,11 +1268,13 @@ void Terminal::Component::mouseDoubleClick (const juce::MouseEvent& event)
  * @brief Extends the selection or forwards a mouse-motion SGR event.
  *
  * - **Motion tracking active**: writes SGR button-32 (drag) at the current cell.
- * - **No tracking, first drag**: enters selection mode with type `visual` anchored
- *   at the mouseDown position (stored in `boxSelection`), then updates the cursor
- *   to the current cell.
- * - **No tracking, subsequent drags**: updates the selection-mode cursor to the
- *   current cell and calls `updateSelectionHighlight()`.
+ * - **No tracking, threshold not met**: drag distance (Manhattan) from the anchor
+ *   is less than 2 cells — no selection is started yet.
+ * - **No tracking, threshold met, first qualifying drag**: creates `screenSelection`
+ *   with type `linear` anchored at the mouseDown position; sets `boxSelection.active`.
+ *   No `ModalType` is set — mouse drag is independent of vim-style selection mode.
+ * - **No tracking, selection active**: extends `screenSelection->end` to the
+ *   current cell and calls `screen.setSelection()`.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
@@ -909,34 +1288,41 @@ void Terminal::Component::mouseDrag (const juce::MouseEvent& event)
     }
     else
     {
-        const auto cell        { screen.cellAtPoint (event.x, event.y) };
-        const int scrollback   { session.getGrid().getScrollbackUsed() };
-        const int scrollOffset { session.getState().getScrollOffset() };
+        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const int maxCol { session.getGrid().getCols() - 1 };
+        const int maxRow { session.getGrid().getVisibleRows() - 1 };
 
-        if (session.getState().getModalType() != ModalType::selection)
-        {
-            // First drag event: enter selection mode anchored at mouseDown position.
-            const int anchorAbsRow { boxSelection.anchorRow + scrollback - scrollOffset };
-            session.getState().setSelectionCursor (anchorAbsRow, boxSelection.anchorCol);
-            session.getState().setSelectionAnchor (anchorAbsRow, boxSelection.anchorCol);
-            session.getState().setSelectionType (static_cast<int> (SelectionType::visual));
-            session.getState().setModalType (ModalType::selection);
-            pendingG = false;
-        }
-
-        // Update cursor to the current drag position.
-        const int cursorAbsRow { cell.y + scrollback - scrollOffset };
-        const int maxRow       { session.getGrid().getVisibleRows() + scrollback - 1 };
-        const int maxCol       { session.getGrid().getCols() - 1 };
-
-        const int clampedRow { juce::jlimit (0, maxRow, cursorAbsRow) };
         const int clampedCol { juce::jlimit (0, maxCol, cell.x) };
+        const int clampedRow { juce::jlimit (0, maxRow, cell.y) };
 
-        session.getState().setSelectionCursor (clampedRow, clampedCol);
+        // 2-cell Manhattan distance threshold before starting a drag selection.
+        const int manhattanDist { std::abs (clampedCol - boxSelection.anchorCol)
+                                + std::abs (clampedRow - boxSelection.anchorRow) };
 
-        boxSelection.active = true;
-        updateSelectionHighlight();
-        session.getState().setSnapshotDirty();
+        if (manhattanDist >= 2)
+        {
+            if (not boxSelection.active)
+            {
+                // Threshold crossed — create the screenSelection anchored at mouseDown position.
+                screenSelection = std::make_unique<ScreenSelection>();
+                screenSelection->type = ScreenSelection::SelectionType::linear;
+                screenSelection->anchor = { boxSelection.anchorCol, boxSelection.anchorRow };
+                screenSelection->end = { clampedCol, clampedRow };
+                boxSelection.active = true;
+            }
+            else
+            {
+                // Extend existing drag selection to current cell.
+                screenSelection->end = { clampedCol, clampedRow };
+            }
+
+            // Sync boxSelection end for copy compatibility.
+            boxSelection.endCol = clampedCol;
+            boxSelection.endRow = clampedRow;
+
+            screen.setSelection (screenSelection.get());
+            session.getState().setSnapshotDirty();
+        }
     }
 }
 
@@ -944,10 +1330,11 @@ void Terminal::Component::mouseDrag (const juce::MouseEvent& event)
  * @brief Finalises the selection or forwards a mouse-button-release SGR event.
  *
  * - **Mouse tracking active**: writes an SGR button-0 release sequence.
- * - **Drag completed**: selection mode is already active from `mouseDrag()`; the
- *   selection is kept alive so the user can press `y` to copy or `Escape` to cancel.
- * - **Plain click (no drag)**: if selection mode was never activated by a drag,
- *   it was already cleared in `mouseDown()`; nothing left to do.
+ * - **Drag completed**: `screenSelection` remains visible so the user can Cmd+C
+ *   to copy or click elsewhere to clear it.  `boxSelection.active` is reset to
+ *   false so subsequent clicks begin a fresh selection rather than extending.
+ * - **Plain click / double-click / triple-click**: no drag occurred; the selection
+ *   set by `mouseDown()` or `mouseDoubleClick()` is left intact.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
@@ -961,19 +1348,9 @@ void Terminal::Component::mouseUp (const juce::MouseEvent& event)
     }
     else
     {
-        // If no drag occurred (boxSelection.active is false) and selection mode
-        // was not entered by a double/triple-click, there is nothing to finalise.
-        // The selection was already cleared in mouseDown().
-        // If a drag did occur, selection mode is active and we leave it intact so
-        // the user can interact with it via keyboard (y to copy, Escape to exit).
-        if (not boxSelection.active
-            and session.getState().getModalType() != ModalType::selection)
-        {
-            screenSelection.reset();
-            screen.setSelection (nullptr);
-            session.getState().setSnapshotDirty();
-        }
-
+        // If a drag selection was active, keep the screenSelection highlighted.
+        // The user can Cmd+C to copy or click elsewhere to clear it.
+        // Reset active flag so subsequent clicks don't extend the selection.
         boxSelection.active = false;
     }
 }
@@ -1016,9 +1393,7 @@ void Terminal::Component::filesDropped (const juce::StringArray& files, int, int
 
     for (const auto& file : files)
     {
-        if (shouldQuote and (file.containsChar (' ') or file.containsChar ('\'')
-            or file.containsChar ('"') or file.containsChar ('\\')
-            or file.containsChar ('(') or file.containsChar (')')))
+        if (shouldQuote and (file.containsChar (' ') or file.containsChar ('\'') or file.containsChar ('"') or file.containsChar ('\\') or file.containsChar ('(') or file.containsChar (')')))
         {
             const juce::String shell { cfg->getString (Config::Key::shellProgram) };
 
@@ -1146,6 +1521,10 @@ void Terminal::Component::onVBlank()
 
     if (session.getState().consumeSnapshotDirty())
     {
+        linkScanNeeded = true;
+        clickableLinks.clear();
+        screen.setLinkUnderlay (nullptr, 0);
+
         const juce::ScopedTryLock lock (session.getGrid().getResizeLock());
 
         if (lock.isLocked())
@@ -1156,10 +1535,10 @@ void Terminal::Component::onVBlank()
             // visibleRow = absoluteRow - (scrollbackUsed - scrollOffset)
             {
                 const bool active { session.getState().getModalType() == ModalType::selection };
-                const int  scrollback   { session.getGrid().getScrollbackUsed() };
-                const int  scrollOffset { session.getState().getScrollOffset() };
-                const int  visibleRow   { session.getState().getSelectionCursorRow()
-                                          - (scrollback - scrollOffset) };
+                const int scrollback { session.getGrid().getScrollbackUsed() };
+                const int scrollOffset { session.getState().getScrollOffset() };
+                const int visibleRow { session.getState().getSelectionCursorRow()
+                                       - (scrollback - scrollOffset) };
                 screen.setSelectionCursor (active, visibleRow, session.getState().getSelectionCursorCol());
             }
 

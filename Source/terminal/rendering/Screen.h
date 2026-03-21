@@ -59,6 +59,7 @@
 #include "Fonts.h"
 #include "../data/Palette.h"
 #include "ScreenSelection.h"
+#include "../selection/LinkSpan.h"
 #include "../../config/Config.h"
 
 namespace Terminal
@@ -680,6 +681,45 @@ public:
     void setSelection (const ScreenSelection* sel) noexcept;
 
     /**
+     * @brief Sets the hint label overlay for Open File mode rendering.
+     *
+     * Stores a non-owning pointer to the active `LinkSpan` array.  When
+     * non-null, `processCellForSnapshot()` overrides cell content at hint
+     * label positions with the hint character and `Theme::hintLabelBg` /
+     * `Theme::hintLabelFg` colours.  Pass `nullptr` (with `count` 0) to clear
+     * the overlay.
+     *
+     * The next `render()` call detects the change via `hadHintOverlay` and
+     * marks all rows dirty to force a full re-render.
+     *
+     * @param spans  Pointer to the `LinkSpan` array, or `nullptr`.
+     * @param count  Number of elements in @p spans; ignored when @p spans is `nullptr`.
+     *
+     * @note **MESSAGE THREAD**.
+     * @see LinkSpan
+     */
+    void setHintOverlay (const LinkSpan* spans, int count) noexcept;
+
+    /**
+     * @brief Sets the always-on link underlay for click-mode underline rendering.
+     *
+     * Stores a non-owning pointer to the clickable link span array.  When
+     * non-null, `processCellForSnapshot()` emits a thin `Render::Background`
+     * underline quad at the bottom of each cell that falls within a span.
+     * Pass `nullptr` (with `count` 0) to clear the underlay.
+     *
+     * The next `render()` call detects the change via `hadLinkUnderlay` and
+     * marks all rows dirty to force a full re-render.
+     *
+     * @param spans  Pointer to the `LinkSpan` array, or `nullptr`.
+     * @param count  Number of elements in @p spans; ignored when @p spans is `nullptr`.
+     *
+     * @note **MESSAGE THREAD**.
+     * @see LinkSpan
+     */
+    void setLinkUnderlay (const LinkSpan* spans, int count) noexcept;
+
+    /**
      * @brief Invokes @p callback for every cell in the visible grid.
      *
      * Iterates rows then columns and calls:
@@ -996,6 +1036,14 @@ private:
     const ScreenSelection* selection   { nullptr }; ///< Non-owning pointer to the active selection; nullptr if none.
     bool                   hadSelection { false };  ///< True if a selection was active on the previous frame (forces full dirty).
     bool                   wasScrolled  { false };  ///< True if the view was scrolled on the previous frame (forces full dirty).
+
+    const LinkSpan* hintOverlay      { nullptr }; ///< Non-owning pointer to the active hint label spans; nullptr if none.
+    int             hintOverlayCount { 0 };       ///< Number of valid elements in @p hintOverlay.
+    bool            hadHintOverlay   { false };   ///< True if hint overlay was active on the previous frame (forces full dirty).
+
+    const LinkSpan* linkUnderlay      { nullptr }; ///< Non-owning pointer to always-on click-mode link spans for underline rendering; nullptr if none.
+    int             linkUnderlayCount { 0 };       ///< Number of valid elements in @p linkUnderlay.
+    bool            hadLinkUnderlay   { false };   ///< True if link underlay was active on the previous frame (forces full dirty).
 
     bool selectionModeActive   { false }; ///< True when vim-style selection mode is active (hides terminal cursor).
     int  selectionCursorRow    { 0 };     ///< Selection cursor row in visible-grid coordinates (0 = top visible row).

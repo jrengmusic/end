@@ -543,6 +543,8 @@ void Parser::setScreen (bool shouldUseAlternate) noexcept
         {
             grid.clearBuffer();
             cursorClamp (scr, grid.getCols(), grid.getVisibleRows());
+            osc8Links.clear();
+            activeOsc8Uri = {};
         }
         else
         {

@@ -313,14 +313,60 @@ static void emitShapedGlyphsToCache (
 void Screen::processCellForSnapshot (
     const Cell& cell, int col, int row) noexcept
 {
+    // ---------------------------------------------------------------------------
+    // Hint label override: substitute cell content at hint positions.
+    //
+    // When Open File mode is active, `hintOverlay` points to the `LinkSpan`
+    // array.  For each cell that falls within a hint label's one- or two-
+    // character badge, we build a local `Cell` copy with the hint character
+    // as the codepoint and the theme hint colours as direct-RGB fg/bg.  The
+    // remainder of `processCellForSnapshot` uses this copy transparently —
+    // no additional draw calls or GL arrays are required.
+    // ---------------------------------------------------------------------------
+
+    Cell effectiveCell { cell };
+
+    if (hintOverlay != nullptr)
+    {
+        for (int h { 0 }; h < hintOverlayCount; ++h)
+        {
+            const LinkSpan& span { hintOverlay[h] };
+
+            if (span.hintLabel[0] != '\0'
+                and row == span.row
+                and col == span.labelCol)
+            {
+                effectiveCell.codepoint = static_cast<uint32_t> (span.hintLabel[0]);
+                effectiveCell.width     = 1;
+                effectiveCell.style     = Cell::BOLD;
+                effectiveCell.layout    = 0;
+
+                const juce::Colour& hintFg { resources.terminalColors.hintLabelFg };
+                const juce::Colour& hintBg { resources.terminalColors.hintLabelBg };
+
+                effectiveCell.fg.setRGB (
+                    static_cast<uint8_t> (hintFg.getRed()),
+                    static_cast<uint8_t> (hintFg.getGreen()),
+                    static_cast<uint8_t> (hintFg.getBlue()));
+
+                effectiveCell.bg.setRGB (
+                    static_cast<uint8_t> (hintBg.getRed()),
+                    static_cast<uint8_t> (hintBg.getGreen()),
+                    static_cast<uint8_t> (hintBg.getBlue()));
+
+                break;
+            }
+        }
+    }
+
     const Grapheme* grapheme { nullptr };
 
-    if (cell.hasGrapheme())
+    if (effectiveCell.hasGrapheme())
     {
         grapheme = &coldGraphemes[static_cast<size_t> (row) * static_cast<size_t> (cacheCols) + static_cast<size_t> (col)];
     }
 
-    const ResolvedColors resolved { resolveCellColors (cell, resources.terminalColors) };
+    const ResolvedColors resolved { resolveCellColors (effectiveCell, resources.terminalColors) };
 
     if (resolved.bg != resources.terminalColors.defaultBackground)
     {
@@ -342,21 +388,21 @@ void Screen::processCellForSnapshot (
     {
         --ligatureSkip;
     }
-    else if (cell.hasContent())
+    else if (effectiveCell.hasContent())
     {
-        if (isBlockChar (cell.codepoint))
+        if (isBlockChar (effectiveCell.codepoint))
         {
             const int bgIdx { row * bgCacheCols + bgCount[row] };
-            cachedBg[bgIdx] = buildBlockRect (cell.codepoint, col, row, resolved.fg);
+            cachedBg[bgIdx] = buildBlockRect (effectiveCell.codepoint, col, row, resolved.fg);
             ++bgCount[row];
         }
         else
         {
-            buildCellInstance (cell, grapheme, col, row, resolved.fg);
+            buildCellInstance (effectiveCell, grapheme, col, row, resolved.fg);
         }
     }
 
-    if (selection != nullptr and cell.hasContent() and selection->containsCell (col, row))
+    if (selection != nullptr and effectiveCell.hasContent() and selection->containsCell (col, row))
     {
         const int bgIdx { row * bgCacheCols + bgCount[row] };
         const juce::Colour& sel { resources.terminalColors.selectionColour };
@@ -371,6 +417,35 @@ void Screen::processCellForSnapshot (
         bg.backgroundColorB = sel.getFloatBlue();
         bg.backgroundColorA = sel.getFloatAlpha();
         ++bgCount[row];
+    }
+
+    if (linkUnderlay != nullptr)
+    {
+        for (int h { 0 }; h < linkUnderlayCount; ++h)
+        {
+            const LinkSpan& span { linkUnderlay[h] };
+
+            if (row == span.row and col >= span.col and col < span.col + span.length)
+            {
+                const int bgIdx { row * bgCacheCols + bgCount[row] };
+                const float thickness { std::max (1.0f, static_cast<float> (physCellHeight) * 0.06f) };
+                const float y { static_cast<float> (row * physCellHeight)
+                                + static_cast<float> (physCellHeight) - thickness };
+
+                Render::Background& bg { cachedBg[bgIdx] };
+                bg.screenBounds = juce::Rectangle<float> {
+                    static_cast<float> (col * physCellWidth),
+                    y,
+                    static_cast<float> (physCellWidth),
+                    thickness };
+                bg.backgroundColorR = resolved.fg.getFloatRed();
+                bg.backgroundColorG = resolved.fg.getFloatGreen();
+                bg.backgroundColorB = resolved.fg.getFloatBlue();
+                bg.backgroundColorA = 0.5f;
+                ++bgCount[row];
+                break;
+            }
+        }
     }
 }
 

@@ -59,7 +59,8 @@
  * @note Runs in the child process only.  Must not return.
  */
 static void runChildProcess (int master, int slaveFd, const char* shell,
-                             char* const* argv, const char* workingDirectory) noexcept
+                             char* const* argv, const char* workingDirectory,
+                             const std::vector<std::pair<std::string, std::string>>& shellEnvVars) noexcept
 {
     ::close (master);
 
@@ -86,6 +87,11 @@ static void runChildProcess (int master, int slaveFd, const char* shell,
     if (getenv ("LANG") == nullptr)
     {
         setenv ("LANG", "UTF-8", 1);
+    }
+
+    for (const auto& [key, value] : shellEnvVars)
+    {
+        setenv (key.c_str(), value.c_str(), 1);
     }
 
     execvp (shell, argv);
@@ -126,6 +132,16 @@ UnixTTY::~UnixTTY()
  *
  * @note MESSAGE THREAD context.
  */
+void UnixTTY::addShellEnv (const juce::String& key, const juce::String& value)
+{
+    shellIntegrationEnv.emplace_back (key.toStdString(), value.toStdString());
+}
+
+void UnixTTY::clearShellEnv()
+{
+    shellIntegrationEnv.clear();
+}
+
 bool UnixTTY::open (int cols, int rows, const juce::String& shell,
                     const juce::String& args, const juce::String& workingDirectory)
 {
@@ -165,7 +181,7 @@ bool UnixTTY::open (int cols, int rows, const juce::String& shell,
 
         if (childProcess == 0)
         {
-            runChildProcess (master, slaveFd, shellCStr, argv.data(), cwdCStr);
+            runChildProcess (master, slaveFd, shellCStr, argv.data(), cwdCStr, shellIntegrationEnv);
         }
 
         ::close (slaveFd);

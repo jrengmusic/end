@@ -56,7 +56,7 @@ MainComponent::MainComponent()
     //==============================================================================
     initialiseTabs();
     initialiseMessageOverlay();
-    addChildComponent (selectionOverlay);
+    addChildComponent (statusBarOverlay);
     applyConfig();
 
     //==============================================================================
@@ -89,13 +89,13 @@ void MainComponent::resized()
 
     showMessageOverlay();
 
-    // Position selection status bar: full-width at configured edge.
+    // Position status bar overlay: full-width at configured edge.
     // No space is reserved when hidden — the bar overlays the terminal area.
     {
-        const juce::String position { config.getString (Config::Key::keysSelectionBarPosition) };
-        const int barHeight { selectionOverlay.getPreferredHeight() };
+        const juce::String position { config.getString (Config::Key::keysStatusBarPosition) };
+        const int barHeight { statusBarOverlay.getPreferredHeight() };
         const int y { (position == "top") ? 0 : getHeight() - barHeight };
-        selectionOverlay.setBounds (0, y, getWidth(), barHeight);
+        statusBarOverlay.setBounds (0, y, getWidth(), barHeight);
     }
 }
 
@@ -375,6 +375,20 @@ void MainComponent::registerActions()
                                return true;
                            });
 
+    action.registerAction (
+        "enter_open_file",
+        "Open File",
+        "Enter open-file mode with hint labels",
+        "Navigation",
+        true,
+        [this]() -> bool
+        {
+            if (auto* terminal { tabs->getActiveTerminal() })
+                terminal->enterOpenFileMode();
+
+            return true;
+        });
+
     action.registerAction ("action_list",
                            "Action List",
                            "Open command palette",
@@ -529,8 +543,9 @@ void MainComponent::initialiseTabs()
     {
         if (auto* terminal { tabs->getActiveTerminal() }; terminal != nullptr)
         {
-            const auto type { static_cast<Terminal::SelectionType> (terminal->getSelectionType()) };
-            selectionOverlay.update (type);
+            const auto modalType { terminal->getModalType() };
+            const auto selType { terminal->getSelectionType() };
+            statusBarOverlay.update (modalType, selType);
         }
 
         glRenderer.triggerRepaint();
