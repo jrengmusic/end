@@ -8,6 +8,50 @@
 
 ---
 
+## Sprint 107 — COUNSELOR: CC Status Bar Artifact — SOLVED
+
+**Date:** 2026-03-21
+
+### Agents Participated
+- COUNSELOR: investigation lead, root cause analysis, delegated to all specialists
+- @oracle: VT handler audits (CUU/CUF/EL/ED/CUP, sync mode pipeline, scroll delta, new CSI handlers), rendering pipeline trace, dirty-flag-to-render analysis
+- @pathfinder: character width lookup, cell struct, charprops table, wcwidth analysis
+- @researcher: Claude Code status line mechanism, DECSSDT/DECSASD research, xterm alternate screen spec
+- @librarian: xterm spec for alternate screen, DECSTBM, scroll region per-screen behavior
+- @engineer: implementations (bug fixes, diagnostic DBGs)
+
+### Root Cause
+
+**8-bit C1 control 0x9C (ST) in oscString state conflicts with UTF-8 continuation bytes.**
+
+Claude Code sets the window title via `OSC 0 ; ◜ Claude Code BEL`. The icon "◜" encodes in UTF-8 as bytes including 0x9C. The oscString dispatch table treated 0x9C as String Terminator (legacy VT220 C1 control), aborting the OSC mid-character. The remaining payload `" Claude Code"` leaked into ground state as printed text, shifting the cursor right by 13 columns. The built-in status bar was then written at col 15 instead of col 2, and the carol-statusline's `CSI 1C` gaps exposed the mispositioned content.
+
+### Files Modified (6 total)
+- `Source/terminal/data/DispatchTable.h:424-446` — removed 0x9C (8-bit ST) overrides from oscString, dcsPassthrough, dcsIgnore, sosPmApcString states; added `fillRange(0x80, 0xFF, oscPut)` to oscString for UTF-8 payload support
+- `Source/terminal/logic/Parser.cpp:550` — reset `utf8AccumulatorLength` on escape state entry (sprint 106 carry-forward)
+- `Source/terminal/logic/ParserCSI.cpp:840` — added DA2 response (`CSI > 65;100;0 c`)
+- `Source/terminal/logic/ParserESC.cpp:324` — route `)` intermediate to `escDispatchCharset` (G1 charset)
+- `Source/terminal/logic/ParserESC.cpp:419` — OSC title truncation respects UTF-8 character boundaries
+- `Source/terminal/logic/ParserESC.cpp:517` — OSC 52 clipboard uses `String::fromUTF8()` instead of Latin-1 constructor
+- `Source/component/TerminalComponent.cpp:745` — re-arm `snapshotDirty` when `ScopedTryLock` fails (frame drop prevention)
+- `Source/terminal/tty/UnixTTY.cpp:84` — set `COLORTERM=truecolor` for child processes
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+
+### Problems Solved
+- CC status bar artifact: "C◈ CAROL dOpus 4.6" — OSC title payload with UTF-8 icon leaked into grid due to 0x9C being treated as 8-bit ST instead of UTF-8 continuation byte
+- Frame drops on resize lock contention (VBlank consumed dirty flag without render)
+- OSC strings with UTF-8 payloads (titles, hyperlinks) silently aborted
+- DCS/SOS/PM/APC strings similarly vulnerable to 0x9C in UTF-8 content
+
+### Technical Debt / Follow-up
+- Remove all diagnostic DBGs before commit (PTY dump in TTY.cpp, cell dumps in ParserCSI.cpp, cursor traces in ParserVT.cpp/ParserCSI.cpp/ParserESC.cpp/ParserEdit.cpp, SYNC-END in State.cpp)
+- Data race on cwdBuffer/titleBuffer (Session.cpp:440-448, State.cpp:912-916) — raw `char*` read on message thread without mutex while reader thread writes — not blocking but should be addressed
+- Sprint 106 committed changes (REP/CBT/CHT/HPR/VPR/HPA, XTVERSION, drag-drop, LF/CUU fixes) remain valid
+
 ## Sprint 106 — COUNSELOR: Parser Handlers + Scroll Region Fixes + Drag-Drop + Artifact Investigation
 
 **Date:** 2026-03-21
@@ -29,31 +73,7 @@
 - cursorMoveUp uses effectiveScrollBottom (not raw sentinel)
 - UTF-8 accumulator reset on escape state entry
 
-### CC Rendering Artifact — UNSOLVED
-
-**Symptom:** `C◆ CAROL dOpus` — "Claude Code" residue persists at status bar. Never on kitty/wezterm/ghostty.
-
-**Proven facts:**
-- Grid has residue (CC writes "Claude Code" then partial "CAROL", no EL)
-- kitty with TERM=xterm-256color still clean — bytes ARE same, rendering differs
-- Diagnostic at drain-complete: grid does NOT have 'C' at col 1 → grid clean at drain time, stale content from mid-drain render
-- Removing hotCells cache did NOT fix (SURGEON Sprint 105 reverted)
-- All sync/drain/timing approaches did NOT fix
-
-**Remaining suspects (SURGEON deep analysis):**
-1. ~~UTF-8 accumulator~~ — fixed, not the cause (plain ASCII)
-2. **Data race on cwdBuffer/titleBuffer** — reader writes raw char*, message reads via fromUTF8, no lock
-3. **Scroll region window** — content reaches bottom row before DECSTBM, then protected from scroll-away
-4. OSC title UTF-8 truncation at 255 bytes
-5. OSC 52 Latin-1 constructor (clipboard only)
-6. Missing G1 charset routing
-
-**Architecture insight:**
-- kitty/wezterm: no cell cache, read screen buffer every frame
-- ghostty: row cache + page-level dirty
-- END: hotCells + per-row dirty + scroll optimization — can become stale
-
-**For next COUNSELOR:** investigate SUSPECTS 2 and 3 first. The artifact is about GRID CONTENT (CC's overlapping writes), not cache staleness. Something causes the grid to have residue that kitty's grid doesn't, despite same bytes. The `>=` → `==` LF fix was the right direction but insufficient.
+### CC Rendering Artifact — SOLVED in Sprint 107
 
 ---
 

@@ -166,7 +166,6 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
         case '8':
         {
             const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-            DBG ("DECRC row=" + juce::String (sc.row) + " col=" + juce::String (sc.col));
             state.setCursorRow (scr, sc.row);
             state.setCursorCol (scr, sc.col);
             pen = sc.pen;
@@ -203,8 +202,8 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
  * - `B` → ASCII (ISO 646 US)
  * - `0` → DEC Special Graphics (VT100 line-drawing characters)
  *
- * Currently only the G0 slot (`(`) is acted upon: `useLineDrawing` is set to
- * `true` when `finalByte == '0'` and `false` otherwise.
+ * The G0 slot (`(`) sets `useLineDrawing` and `g0LineDrawing`.  The G1 slot
+ * (`)`) sets `g1LineDrawing` but does not immediately affect `useLineDrawing`.
  *
  * @par Sequences
  * @code

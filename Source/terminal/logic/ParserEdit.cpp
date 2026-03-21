@@ -302,12 +302,10 @@ void Parser::shiftLines (int count, bool up) noexcept
 
         if (up)
         {
-            DBG ("DL rows=" + juce::String (count) + " curRow=" + juce::String (state.getCursorRow (scr)) + " scrollBot=" + juce::String (bottom));
             grid.scrollRegionUp (state.getCursorRow (scr), bottom, count, fill);
         }
         else
         {
-            DBG ("IL rows=" + juce::String (count) + " curRow=" + juce::String (state.getCursorRow (scr)) + " scrollBot=" + juce::String (bottom));
             grid.scrollRegionDown (state.getCursorRow (scr), bottom, count, fill);
         }
 

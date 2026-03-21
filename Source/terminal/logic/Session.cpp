@@ -202,28 +202,28 @@ void Session::resized (int cols, int rows)
 
             juce::MessageManager::callAsync ([this]
             {
-                if (ttyOpened)
-                    return;
+                if (not ttyOpened)
+                {
+                    const int finalCols { grid.getCols() };
+                    const int finalRows { grid.getVisibleRows() };
 
-                const int finalCols { grid.getCols() };
-                const int finalRows { grid.getVisibleRows() };
+                    grid.resize (finalCols, finalRows);
+                    parser.resize (finalCols, finalRows);
 
-                grid.resize (finalCols, finalRows);
-                parser.resize (finalCols, finalRows);
-
-                const auto shell { shellOverride.isNotEmpty()
-                    ? shellOverride
-                    : Config::getContext()->getString (Config::Key::shellProgram) };
-                const auto args { shellOverride.isNotEmpty()
-                    ? shellArgsOverride
-                    : Config::getContext()->getString (Config::Key::shellArgs) };
-                tty->open (finalCols, finalRows, shell, args, workingDirectory);
-                const juce::String shellName { shell.contains (juce::File::getSeparatorString())
-                    ? juce::File (shell).getFileName()
-                    : shell };
-                state.get().setProperty (ID::shellProgram, shellName, nullptr);
-                ttyOpened = true;
-                ttyOpenPending = false;
+                    const auto shell { shellOverride.isNotEmpty()
+                        ? shellOverride
+                        : Config::getContext()->getString (Config::Key::shellProgram) };
+                    const auto args { shellOverride.isNotEmpty()
+                        ? shellArgsOverride
+                        : Config::getContext()->getString (Config::Key::shellArgs) };
+                    tty->open (finalCols, finalRows, shell, args, workingDirectory);
+                    const juce::String shellName { shell.contains (juce::File::getSeparatorString())
+                        ? juce::File (shell).getFileName()
+                        : shell };
+                    state.get().setProperty (ID::shellProgram, shellName, nullptr);
+                    ttyOpened = true;
+                    ttyOpenPending = false;
+                }
             });
         }
     }

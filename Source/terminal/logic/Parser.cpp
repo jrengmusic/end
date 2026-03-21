@@ -300,8 +300,6 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::print:
-            if (byte == '$' or byte == '+')
-                DBG ("PRINT byte=" + juce::String (byte) + " char=" + juce::String::charToString (byte) + " state=" + juce::String (static_cast<int> (currentState)));
             handlePrintByte (byte);
             break;
 

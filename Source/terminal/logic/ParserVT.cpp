@@ -93,9 +93,6 @@ namespace
     {
         c.wrapPending = false;
 
-        if (c.row >= visibleRows - 2)
-            DBG ("LF-AT row=" + juce::String (c.row) + " scrollBot=" + juce::String (scrollBottom) + " visRows=" + juce::String (visibleRows));
-
         if (c.row == scrollBottom)
         {
             grid.scrollRegionUp (scrollTop, scrollBottom, 1, fill);
@@ -208,9 +205,6 @@ namespace
         c.wrapPending = false;
         cellTemplate.codepoint = translateCharset (static_cast<uint32_t> (byte), useLineDrawing);
         c.cellRow[c.col] = cellTemplate;
-
-        if (c.row == visibleRows - 1)
-            DBG ("BOTTOM-FAST col=" + juce::String (c.col) + " cp=U+" + juce::String::toHexString ((int) cellTemplate.codepoint).paddedLeft ('0', 4) + " '" + juce::String::charToString (static_cast<juce::juce_wchar> (byte)) + "'");
 
         if (c.col + 1 >= cols)
         {
@@ -604,9 +598,6 @@ void Parser::print (uint32_t codepoint) noexcept
         const int writeRow { state.getCursorRow (scr) };
         const int writeCol { state.getCursorCol (scr) };
 
-        if (writeRow == grid.getVisibleRows() - 1)
-            DBG ("BOTTOM-ROW col=" + juce::String (writeCol) + " cp=U+" + juce::String::toHexString ((int) codepoint).paddedLeft ('0', 4) + (codepoint >= 0x20 && codepoint <= 0x7E ? " ch=" + juce::String::charToString ((juce::juce_wchar) codepoint) : ""));
-
         Cell cell {};
         cell.codepoint = translateCharset (codepoint, useLineDrawing);
         cell.style = stamp.style;
@@ -672,10 +663,6 @@ void Parser::print (uint32_t codepoint) noexcept
  */
 void Parser::executeLineFeed (ActiveScreen scr) noexcept
 {
-    const int elfRow { state.getCursorRow (scr) };
-    if (elfRow >= grid.getVisibleRows() - 2)
-        DBG ("ELF row=" + juce::String (elfRow) + " scrollBot=" + juce::String (scrollBottom) + " visRows=" + juce::String (grid.getVisibleRows()));
-
     if (not cursorGoToNextLine (scr, scrollBottom, grid.getVisibleRows()))
     {
         Cell fill {};

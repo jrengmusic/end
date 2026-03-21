@@ -429,18 +429,7 @@ void State::setSyncOutput (bool active) noexcept
     syncOutputActive.store (active, std::memory_order_release);
 
     if (not active)
-    {
         setSnapshotDirty();
-        static int syncEndCount = 0;
-        ++syncEndCount;
-        if (syncEndCount >= 2 and syncEndCount <= 5)
-        {
-            const auto scr = getScreen();
-            const int curRow = getCursorRow (scr);
-            const int curCol = getCursorCol (scr);
-            DBG ("SYNC-END #" + juce::String (syncEndCount) + " cursor=(" + juce::String (curRow) + "," + juce::String (curCol) + ")");
-        }
-    }
 }
 
 bool State::isSyncOutputActive() const noexcept

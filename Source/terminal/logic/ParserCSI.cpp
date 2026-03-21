@@ -622,9 +622,6 @@ void Parser::moveCursorTo (int row, int col) noexcept
     const int cols { grid.getCols() };
     const int visibleRows { grid.getVisibleRows() };
 
-    if (row == visibleRows - 1)
-        DBG ("CUP-TO row=" + juce::String (row) + " col=" + juce::String (col));
-
     if (state.getMode (ID::originMode))
     {
         cursorSetPositionInOrigin (scr, row, col, cols, visibleRows);
@@ -665,8 +662,6 @@ void Parser::scrollUp (const CSI& params) noexcept
     const int bottom { scrollBottom };
     const int count { static_cast<int> (params.param (0, 1)) };
 
-    DBG ("SU count=" + juce::String (count));
-
     Cell fill {};
     fill.bg = stamp.bg;
 
@@ -696,8 +691,6 @@ void Parser::scrollDown (const CSI& params) noexcept
     const auto scr { state.getScreen() };
     const int bottom { scrollBottom };
     const int count { static_cast<int> (params.param (0, 1)) };
-
-    DBG ("SD count=" + juce::String (count));
 
     Cell fill {};
     fill.bg = stamp.bg;
@@ -739,8 +732,6 @@ void Parser::setScrollRegion (const CSI& params) noexcept
     const int visibleRows { grid.getVisibleRows() };
     const int top { paramToIndex (params, 0, 1) };
     const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (visibleRows)) };
-
-    DBG ("DECSTBM top=" + juce::String (top) + " bot=" + juce::String (bottom) + " visRows=" + juce::String (visibleRows));
 
     if (top >= 0 and bottom > top and bottom < visibleRows)
     {
@@ -1003,39 +994,6 @@ void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
 
             if (enable)
                 state.requestSyncResize();
-
-            if (not enable)
-            {
-                static int syncCount = 0;
-                ++syncCount;
-                if (syncCount >= 2 and syncCount <= 4)
-                {
-                    const auto scr { state.getScreen() };
-                    const int curRow { state.getCursorRow (scr) };
-                    const int cols { grid.getCols() };
-                    juce::String rowDump;
-                    // Dump the row ABOVE cursor (that's where carol-statusline should be)
-                    const int dumpRow { curRow - 1 };
-                    if (dumpRow >= 0)
-                    {
-                        const auto* cells { grid.activeVisibleRow (dumpRow) };
-                        if (cells != nullptr)
-                        {
-                            for (int c = 0; c < juce::jmin (cols, 50); ++c)
-                            {
-                                const uint32_t cp { cells[c].codepoint };
-                                if (cp >= 0x20 and cp < 0x7F)
-                                    rowDump += juce::String::charToString (static_cast<juce::juce_wchar> (cp));
-                                else if (cp == 0)
-                                    rowDump += ".";
-                                else
-                                    rowDump += "[" + juce::String::toHexString (static_cast<int> (cp)) + "]";
-                            }
-                        }
-                    }
-                    DBG ("SYNC-OFF #" + juce::String (syncCount) + " row=" + juce::String (dumpRow) + " cursor=(" + juce::String (curRow) + ") cells: " + rowDump);
-                }
-            }
         }
     }
 }

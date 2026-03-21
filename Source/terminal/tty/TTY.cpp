@@ -67,23 +67,23 @@ void TTY::run()
     {
         if (resizePending.load (std::memory_order_acquire))
         {
-            const int c = pendingCols.load (std::memory_order_relaxed);
-            const int r = pendingRows.load (std::memory_order_relaxed);
+            const int cols { pendingCols.load (std::memory_order_relaxed) };
+            const int rows { pendingRows.load (std::memory_order_relaxed) };
 
             if (onResize)
-                onResize (c, r);
-            resize (c, r);
+                onResize (cols, rows);
+            resize (cols, rows);
             resizePending.store (false, std::memory_order_release);
         }
     };
 
-    auto drainPty = [&]() -> bool// returns true on EOF
+    // returns true on EOF
+    auto drainPty = [&]() -> bool
     {
         int n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));
 
         while (n > 0)
         {
-            { static FILE* f = fopen ("/tmp/end-pty-trace.bin", "wb"); if (f) { fwrite (chunk, 1, static_cast<size_t> (n), f); fflush (f); } }
             if (onData)
                 onData (chunk, n);
             n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));
@@ -102,7 +102,7 @@ void TTY::run()
         return true;
     };
 
-    while (! threadShouldExit())
+    while (not threadShouldExit())
     {
         handleResize();
         if (waitForData (100) && drainPty())
