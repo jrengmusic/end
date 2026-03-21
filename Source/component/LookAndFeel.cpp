@@ -62,6 +62,10 @@ void LookAndFeel::setColours()
 
     setColour (paneBarColourId, cfg->getColour (Config::Key::paneBarColour));
     setColour (paneBarHighlightColourId, cfg->getColour (Config::Key::paneBarHighlight));
+
+    setColour (selectionBarBackgroundColourId, cfg->getColour (Config::Key::coloursSelectionBar));
+    setColour (selectionBarLabelBackgroundColourId, cfg->getColour (Config::Key::coloursSelectionBarLabelBg));
+    setColour (selectionBarLabelTextColourId, cfg->getColour (Config::Key::coloursSelectionBarLabelFg));
 }
 
 /**

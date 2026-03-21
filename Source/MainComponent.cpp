@@ -56,6 +56,7 @@ MainComponent::MainComponent()
     //==============================================================================
     initialiseTabs();
     initialiseMessageOverlay();
+    addChildComponent (selectionOverlay);
     applyConfig();
 
     //==============================================================================
@@ -87,6 +88,15 @@ void MainComponent::resized()
         tabs->setBounds (getLocalBounds());
 
     showMessageOverlay();
+
+    // Position selection status bar: full-width at configured edge.
+    // No space is reserved when hidden — the bar overlays the terminal area.
+    {
+        const juce::String position { config.getString (Config::Key::keysSelectionBarPosition) };
+        const int barHeight { selectionOverlay.getPreferredHeight() };
+        const int y { (position == "top") ? 0 : getHeight() - barHeight };
+        selectionOverlay.setBounds (0, y, getWidth(), barHeight);
+    }
 }
 
 /**
@@ -252,6 +262,7 @@ void MainComponent::registerActions()
                            false,
                            [this]() -> bool
                            {
+                               exitActiveTerminalSelectionMode();
                                tabs->selectPreviousTab();
                                return true;
                            });
@@ -263,6 +274,7 @@ void MainComponent::registerActions()
                            false,
                            [this]() -> bool
                            {
+                               exitActiveTerminalSelectionMode();
                                tabs->selectNextTab();
                                return true;
                            });
@@ -296,6 +308,7 @@ void MainComponent::registerActions()
                            true,
                            [this]() -> bool
                            {
+                               exitActiveTerminalSelectionMode();
                                tabs->focusPaneLeft();
                                return true;
                            });
@@ -307,6 +320,7 @@ void MainComponent::registerActions()
                            true,
                            [this]() -> bool
                            {
+                               exitActiveTerminalSelectionMode();
                                tabs->focusPaneDown();
                                return true;
                            });
@@ -318,6 +332,7 @@ void MainComponent::registerActions()
                            true,
                            [this]() -> bool
                            {
+                               exitActiveTerminalSelectionMode();
                                tabs->focusPaneUp();
                                return true;
                            });
@@ -329,6 +344,7 @@ void MainComponent::registerActions()
                            true,
                            [this]() -> bool
                            {
+                               exitActiveTerminalSelectionMode();
                                tabs->focusPaneRight();
                                return true;
                            });
@@ -341,6 +357,21 @@ void MainComponent::registerActions()
                            [this]() -> bool
                            {
                                tabs->writeToActivePty ("\n", 1);
+                               return true;
+                           });
+
+    action.registerAction ("enter_selection",
+                           "Enter Selection Mode",
+                           "Enter vim-like text selection mode",
+                           "Selection",
+                           true,
+                           [this]() -> bool
+                           {
+                               auto* terminal { tabs->getActiveTerminal() };
+
+                               if (terminal != nullptr)
+                                   terminal->enterSelectionMode();
+
                                return true;
                            });
 
@@ -496,6 +527,12 @@ void MainComponent::initialiseTabs()
 
     tabs->onRepaintNeeded = [this]
     {
+        if (auto* terminal { tabs->getActiveTerminal() }; terminal != nullptr)
+        {
+            const auto type { static_cast<Terminal::SelectionType> (terminal->getSelectionType()) };
+            selectionOverlay.update (type);
+        }
+
         glRenderer.triggerRepaint();
     };
 
@@ -505,6 +542,20 @@ void MainComponent::initialiseTabs()
     tabs->addNewTab();
 
     sendLookAndFeelChange();
+}
+
+/**
+ * @brief Exits selection mode on the active terminal if it is currently modal.
+ * @note MESSAGE THREAD.
+ * @see Terminal::Component::exitSelectionMode
+ */
+void MainComponent::exitActiveTerminalSelectionMode() noexcept
+{
+    if (auto* terminal { tabs->getActiveTerminal() }; terminal != nullptr)
+    {
+        if (terminal->isInSelectionMode())
+            terminal->exitSelectionMode();
+    }
 }
 
 /**

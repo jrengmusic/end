@@ -269,6 +269,27 @@ void Screen::setTheme (const Theme& theme) noexcept
     resources.terminalColors = theme;
 }
 
+/**
+ * @brief Updates the selection-mode cursor state used for rendering.
+ *
+ * When @p active is true, `updateSnapshot()` will suppress the normal terminal
+ * cursor and emit a block cursor at (@p col, @p row) using the theme's
+ * `selectionCursorColour`.  Calling with @p active `false` restores the
+ * normal terminal cursor.
+ *
+ * @param active  True to enable selection-mode cursor override.
+ * @param row     Visible row index in the current viewport (0 = top row).
+ * @param col     Column index (0-based).
+ *
+ * @note **MESSAGE THREAD** — call before `render()` each frame.
+ */
+void Screen::setSelectionCursor (bool active, int row, int col) noexcept
+{
+    selectionModeActive = active;
+    selectionCursorRow  = row;
+    selectionCursorCol  = col;
+}
+
 /// @brief Toggles debug rendering mode.
 void Screen::toggleDebug() noexcept { debugMode = not debugMode; }
 

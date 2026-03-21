@@ -84,6 +84,29 @@ enum ActiveScreen : size_t
 };
 
 /**
+ * @enum ModalType
+ * @brief Identifies which modal input mode is currently active in the terminal.
+ *
+ * State is the SSOT for "are we in a modal state".  The enum value is stored
+ * as a standalone `std::atomic<uint8_t>` so any thread can check whether the
+ * terminal is intercepting keys without holding a lock.
+ *
+ * - `none`        — normal terminal input; keys flow to the Action system and PTY.
+ * - `selection`   — vim-style selection mode; `handleSelectionKey` handles navigation keys.
+ * - `flashJump`   — reserved for flash-jump / EasyMotion mode (future).
+ * - `uriAction`   — reserved for URI picker mode (future).
+ *
+ * @note Stored as `uint8_t` to keep the atomic lock-free on all platforms.
+ */
+enum class ModalType : uint8_t
+{
+    none,        ///< No modal active — normal input routing.
+    selection,   ///< Vim-style keyboard selection mode.
+    flashJump,   ///< Flash-jump / EasyMotion navigation (reserved).
+    uriAction    ///< URI picker overlay (reserved).
+};
+
+/**
  * @struct State
  * @brief APVTS-style terminal parameter store: reader thread writes atomics,
  *        timer flushes to ValueTree, UI reads ValueTree.
@@ -665,6 +688,107 @@ struct State : public juce::Timer
      * @note Safe from any thread (relaxed atomic load).
      */
     bool isSyncOutputActive() const noexcept;
+
+    /**
+     * @brief Sets the active modal input type.
+     *
+     * Writes `type` via `storeAndFlush (ID::modalType, …)` and fires
+     * `setSnapshotDirty()` so the renderer can update any modal overlay on the
+     * next frame.  The timer flushes the value into the ValueTree for the UI.
+     *
+     * @param type  The modal to activate, or `ModalType::none` to deactivate.
+     * @note MESSAGE THREAD — called from keyboard event handlers.
+     */
+    void setModalType (ModalType type) noexcept;
+
+    // =========================================================================
+    /** @name Selection state convenience wrappers
+     *  All selection state is stored in the parameterMap and flows through
+     *  the normal storeAndFlush → ValueTree pipeline.  These wrappers provide
+     *  a typed API over the raw float storage.
+     * @{ */
+
+    /**
+     * @brief Sets the active selection type.
+     * @param type  Integer cast of the SelectionType enum value.
+     * @note MESSAGE THREAD — calls storeAndFlush.
+     */
+    void setSelectionType (int type) noexcept;
+
+    /**
+     * @brief Returns the active selection type as an integer.
+     * @return Integer cast of the current SelectionType.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getSelectionType() const noexcept;
+
+    /**
+     * @brief Sets both the selection cursor row and column atomically.
+     * @param row  Scrollback-aware grid row index.
+     * @param col  Zero-based column index.
+     * @note MESSAGE THREAD — calls storeAndFlush for each component.
+     */
+    void setSelectionCursor (int row, int col) noexcept;
+
+    /**
+     * @brief Returns the selection cursor row.
+     * @return Scrollback-aware grid row index.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getSelectionCursorRow() const noexcept;
+
+    /**
+     * @brief Returns the selection cursor column.
+     * @return Zero-based column index.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getSelectionCursorCol() const noexcept;
+
+    /**
+     * @brief Sets both the selection anchor row and column atomically.
+     * @param row  Scrollback-aware grid row index.
+     * @param col  Zero-based column index.
+     * @note MESSAGE THREAD — calls storeAndFlush for each component.
+     */
+    void setSelectionAnchor (int row, int col) noexcept;
+
+    /**
+     * @brief Returns the selection anchor row.
+     * @return Scrollback-aware grid row index.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getSelectionAnchorRow() const noexcept;
+
+    /**
+     * @brief Returns the selection anchor column.
+     * @return Zero-based column index.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getSelectionAnchorCol() const noexcept;
+
+    /** @} */
+
+    /**
+     * @brief Returns the currently active modal input type.
+     *
+     * Reads `ID::modalType` from the parameterMap atomic.  Safe to call from
+     * any thread without a lock.
+     *
+     * @return The active `ModalType`, or `ModalType::none` if no modal is active.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    ModalType getModalType() const noexcept;
+
+    /**
+     * @brief Returns `true` when any modal input mode is active.
+     *
+     * Convenience wrapper around `getModalType() != ModalType::none`.
+     * Used by `keyPressed()` as the single guard before the Action system.
+     *
+     * @return `true` if a modal is intercepting input.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    bool isModal() const noexcept;
 
     /**
      * @brief Requests a same-size PTY resize on the next drain completion.

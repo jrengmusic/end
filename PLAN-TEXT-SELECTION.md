@@ -1,7 +1,7 @@
 # PLAN: Text Selection Mode Redesign
 
 **Date:** 2026-03-21
-**Status:** DRAFT — awaiting ARCHITECT approval before implementation
+**Status:** IN PROGRESS — Steps 1-5 implemented, Step 2-3 need rework for ModalType
 
 ---
 
@@ -13,186 +13,214 @@ Replace the current rectangle-only mouse drag selection with a vim-like modal se
 
 ## Architecture Overview
 
+### Modal State (SSOT)
+
+`Terminal::State` owns a `ModalType` atomic — the single source of truth for whether the terminal is in a modal state. When modal, ALL keys are intercepted before the action system and PTY.
+
+```cpp
+enum class ModalType : uint8_t
+{
+    none,           // normal terminal operation
+    selection,      // text selection mode (this feature)
+    flashJump,      // file opener hint labels (SPEC Phase 3)
+    uriAction       // actionable URIs (SPEC Phase 3)
+};
+```
+
+This is a general-purpose modal gate. Selection mode is the first consumer. Flash-jump and URI actions reuse the same plumbing when implemented.
+
+### Key Dispatch
+
 ```
 keyPressed()
     |
+    +-- State::isModal()?                 (NEW — FIRST check, before everything)
+    |       |
+    |       +-- handleModalKey()          (NEW — dispatches by ModalType)
+    |               |
+    |               +-- selection → handleSelectionKey()
+    |               +-- flashJump → handleFlashJumpKey()   (future)
+    |               +-- uriAction → handleUriActionKey()   (future)
+    |
     +-- Action::handleKeyPress()          (existing — prefix + global bindings)
     |       |
-    |       +-- "enter_selection_mode"    (NEW — modal action, prefix + [)
-    |
-    +-- selectionMode.isActive()?         (NEW — intercept before PTY)
-    |       |
-    |       +-- SelectionMode::handleKey() (NEW — hjkl, v, V, ctrl+v, y, /, esc)
+    |       +-- "enter_selection"         (modal action, prefix + [)
+    |       +-- "enter_flashjump"         (future)
     |
     +-- handleScrollNavigation()          (existing)
     +-- session.handleKeyPress()          (existing — PTY forward)
 ```
 
+When `State::isModal()` returns true, ALL keys go to the modal handler. Nothing reaches the action system or PTY. This solves Ctrl+V conflicts — when in selection mode, Ctrl+V is visual-block, not paste.
+
+### All Keys Are Configurable
+
+Every keystroke in every modal state is:
+1. Stored as a config key in `Config.h` (`keys.selection_up`, etc.)
+2. Has a default value in `Config.cpp` `initDefaults()`
+3. Has a schema entry in `Config.cpp` `initSchema()`
+4. Has a Lua template entry in `default_end.lua`
+5. Parsed into `juce::KeyPress` at startup and on config reload
+6. Cached in a per-modal-type key struct (e.g., `SelectionKeys`)
+7. Compared in the modal key handler — zero hardcoded characters
+
 ### New Components
 
 | Component | Location | Responsibility |
 |-----------|----------|----------------|
-| `SelectionMode` | `Source/terminal/selection/SelectionMode.h/cpp` | Modal state machine, cursor, key handling |
-| `SelectionOverlay` | `Source/terminal/selection/SelectionOverlay.h` | Status bar ("-- VISUAL --", "-- V-BLOCK --") |
-| `SearchBar` | `Source/terminal/selection/SearchBar.h/cpp` | `/` search input overlay |
+| `ModalType` enum | `State.h` | Modal state type, stored as atomic in State |
+| `SelectionMode` | `Source/terminal/selection/SelectionMode.h/cpp` | Selection cursor, anchor, type state machine |
+| `SelectionOverlay` | `Source/terminal/selection/SelectionOverlay.h` | Status bar ("-- VISUAL --", etc.) |
+| `SelectionFinder` | `Source/terminal/selection/SelectionFinder.h/cpp` | `/` search GlassWindow with TextEditor |
 
 ### Modified Components
 
 | Component | Change |
 |-----------|--------|
-| `TerminalComponent` | Mode check in `keyPressed()`, mouse handlers enter selection mode |
-| `ScreenSelection` | Add `SelectionType` enum, `contains()` dispatches by type |
+| `State` | `ModalType` atomic, `setModalType()`, `getModalType()`, `isModal()` |
+| `TerminalComponent` | Modal intercept in `keyPressed()`, `handleModalKey()`, `SelectionKeys` cache |
+| `ScreenSelection` | `SelectionType` enum, `containsCell()` dispatches by type |
 | `Screen` / `ScreenRender` | Selection cursor rendering, type-aware hit test |
-| `Action` / `Config` | New action registrations and config keys |
-| `Theme` | Selection mode cursor color, status bar color |
+| `Config` | All selection key strings + defaults + schema |
+| `default_end.lua` | All selection key entries in Lua template |
+| `Theme` | Selection cursor color, status bar color |
+
+---
+
+## Config Keys (end.lua)
+
+All keys are in the `keys` table. All are user-overridable.
+
+```lua
+keys = {
+    -- Enter text selection mode. Prefix-mode key.
+    enter_selection = "[",
+
+    -- Selection mode keys (only active when in selection mode)
+    selection_up = "k",
+    selection_down = "j",
+    selection_left = "h",
+    selection_right = "l",
+    selection_visual = "v",
+    selection_visual_line = "shift+v",
+    selection_visual_block = "ctrl+v",
+    selection_copy = "y",
+    selection_search = "/",
+    selection_next_match = "n",
+    selection_prev_match = "shift+n",
+    selection_top = "g",              -- gg double-press
+    selection_bottom = "shift+g",
+    selection_line_start = "0",
+    selection_line_end = "$",
+    selection_exit = "escape",
+}
+```
+
+`enter_selection` is a modal action (registered in Action system, requires prefix key). All other selection keys are NOT in the Action system — they are config-driven keys parsed into `SelectionKeys` and checked only by `handleSelectionKey()` when `ModalType == selection`.
 
 ---
 
 ## Implementation Steps
 
-### Step 1: SelectionMode state machine
+### Step 1: SelectionMode state machine -- DONE
 
 **Files:** `Source/terminal/selection/SelectionMode.h`, `SelectionMode.cpp`
 
-Create the modal state machine:
-
-```cpp
-enum class SelectionType { none, visual, visualLine, visualBlock };
-
-class SelectionMode
-{
-public:
-    bool isActive() const noexcept;
-    void enter (int cursorRow, int cursorCol, int scrollOffset);
-    void exit() noexcept;
-
-    SelectionType getType() const noexcept;
-    void setType (SelectionType type) noexcept;
-
-    // Cursor (grid coordinates, scrollback-aware)
-    int getCursorRow() const noexcept;
-    int getCursorCol() const noexcept;
-
-    // Navigation
-    void moveUp (int count = 1) noexcept;
-    void moveDown (int count, int maxRow) noexcept;
-    void moveLeft (int count = 1) noexcept;
-    void moveRight (int count, int maxCol) noexcept;
-    void moveToTop() noexcept;
-    void moveToBottom (int maxRow) noexcept;
-
-    // Anchor (selection start point, set when entering visual/line/block)
-    int getAnchorRow() const noexcept;
-    int getAnchorCol() const noexcept;
-};
-```
-
-**Validate:** Unit-testable state machine. No dependencies on Grid, State, or Screen.
+Pure value-type state machine. Tracks: active flag, SelectionType (none/visual/visualLine/visualBlock), cursor row/col, anchor row/col, pendingG state. No dependencies on Grid, State, Screen, or JUCE.
 
 ---
 
-### Step 2: Wire SelectionMode into keyPressed()
+### Step 2: ModalType in State + keyPressed intercept -- REWORK NEEDED
 
-**File:** `TerminalComponent.cpp`
+**Files:** `State.h`, `State.cpp`, `TerminalComponent.cpp`
 
-Insert mode check between Action dispatch and scroll nav:
+#### A. State — ModalType atomic
 
 ```cpp
-// In keyPressed():
-if (Action::getContext()->handleKeyPress (key))
-    return true;
+// State.h — public
+enum class ModalType : uint8_t { none, selection, flashJump, uriAction };
 
-if (selectionMode.isActive())
+void setModalType (ModalType type) noexcept;
+ModalType getModalType() const noexcept;
+bool isModal() const noexcept;  // type != none
+
+// State.h — private
+std::atomic<uint8_t> modalType { 0 };
+```
+
+`setModalType` calls `setSnapshotDirty()` to trigger re-render (cursor changes).
+
+#### B. keyPressed — modal intercept FIRST
+
+```cpp
+bool Terminal::Component::keyPressed (const juce::KeyPress& key)
 {
-    if (handleSelectionKey (key))
-        return true;
+    if (session.getState().isModal())
+    {
+        if (handleModalKey (key))
+            return true;
+    }
+
+    // ... existing: onProcessExited, Action dispatch, scroll nav, PTY forward
 }
-
-// ... existing scroll nav + PTY forward
 ```
 
-Add `handleSelectionKey(const juce::KeyPress&)` — dispatches hjkl/v/V/ctrl+v/y/esc to SelectionMode methods. Returns true if consumed.
-
-**Validate:** Enter selection mode via action, press Escape, verify exit. No selection rendering yet — just state transitions.
-
----
-
-### Step 3: Register actions and config keys
-
-**Files:** `MainComponent.cpp` (registration), `Config.h` (key strings)
-
-New config keys:
-```
-keys.enter_selection     = "prefix+["     (modal, default)
-keys.selection_up        = "k"
-keys.selection_down      = "j"
-keys.selection_left      = "h"
-keys.selection_right     = "l"
-keys.selection_visual    = "v"
-keys.selection_vline     = "shift+v"
-keys.selection_vblock    = "ctrl+v"
-keys.selection_copy      = "y"
-keys.selection_search    = "/"
-keys.selection_top       = "g g"          (defer — two-key sequence)
-keys.selection_bottom    = "shift+g"
-keys.selection_exit      = "escape"
-```
-
-Register actions in `MainComponent::registerActions()` following established pattern:
+`handleModalKey` dispatches by `ModalType`:
 ```cpp
-action.registerAction ("enter_selection", "Enter Selection Mode", "...", "Selection", true, [this] { ... });
+bool Terminal::Component::handleModalKey (const juce::KeyPress& key) noexcept
+{
+    const auto type { session.getState().getModalType() };
+
+    if (type == ModalType::selection)
+        return handleSelectionKey (key);
+
+    // future: flashJump, uriAction
+
+    return false;
+}
 ```
 
-`enter_selection` is modal (`isModal=true`) — requires prefix key first. All selection-internal keys (hjkl, v, etc.) are NOT registered as actions — they are handled directly by `handleSelectionKey()` when selection mode is active. This avoids polluting the action system with mode-specific keys.
+#### C. enterSelectionMode / exitSelectionMode
 
-**Exception:** `y` and `Cmd+C`/`Ctrl+C` for copy are registered as global actions with a mode check — they should work both in and out of selection mode.
-
-**Validate:** Prefix + `[` enters selection mode. Escape exits. Config override works.
-
----
-
-### Step 4: Selection cursor rendering
-
-**Files:** `Screen.h`, `ScreenRender.cpp`, `ScreenSnapshot.cpp`, `Theme` (Config.h)
-
-Add to `Render::Snapshot`:
-- `selectionCursorRow`, `selectionCursorCol` — grid position of the selection cursor
-- `selectionCursorVisible` — true when selection mode is active
-- `selectionCursorColour` — from Theme
-
-Add to `Theme`:
-- `selectionCursorColour` (default: bright cyan or similar)
-
-In `buildSnapshot()`: if selection mode active, populate the selection cursor fields from `SelectionMode::getCursorRow/Col()`.
-
-In `drawCursor()`: if `selectionCursorVisible`, draw a block cursor at the selection cursor position (suppress terminal cursor while in selection mode).
-
-**Validate:** Enter selection mode, see cursor at current position. Move with hjkl, cursor follows.
-
----
-
-### Step 5: Selection highlighting (visual mode)
-
-**Files:** `ScreenSelection.h`, `ScreenRender.cpp`
-
-Add `SelectionType` to `ScreenSelection`:
 ```cpp
-enum class SelectionType { box, linear, line };
-SelectionType type { SelectionType::box };
+void enterSelectionMode()
+{
+    selectionMode.enter (row, col);
+    session.getState().setModalType (ModalType::selection);
+}
 ```
 
-Update `processCellForSnapshot()` to dispatch by type:
-- `box` → `containsBox()` (existing)
-- `linear` → `contains()` (existing, unused until now)
-- `line` → new `containsLine()` — full row if row is in range
+In `handleSelectionKey()` on Escape:
+```cpp
+selectionMode.exit();
+session.getState().setModalType (ModalType::none);
+```
 
-When `v` is pressed: set `ScreenSelection` anchor to SelectionMode cursor, type to `linear`. On every cursor move, update `ScreenSelection::end`. Screen re-renders with streaming selection highlight.
+**Validate:** Modal intercept fires before Action system. Ctrl+V in selection mode triggers visual-block, not paste. Escape exits cleanly.
 
-When `V` is pressed: type = `line`, full rows highlighted.
+---
 
-When `Ctrl+V` is pressed: type = `box`, rectangle selection (existing behavior).
+### Step 3: Config keys + SelectionKeys cache -- DONE (needs ModalType wiring)
 
-**Validate:** Enter selection mode, press `v`, move cursor, verify streaming highlight. Press `V`, verify line highlight. Press `Ctrl+V`, verify rectangle highlight.
+**Files:** `Config.h`, `Config.cpp`, `default_end.lua`, `TerminalComponent.h/cpp`
+
+All 17 selection keys stored in Config with defaults. `SelectionKeys` struct caches parsed `juce::KeyPress` objects. `buildSelectionKeyMap()` called from constructor and `applyConfig()`. `handleSelectionKey()` compares against cached keys — zero hardcoded characters.
+
+---
+
+### Step 4: Selection cursor rendering -- DONE
+
+**Files:** `Screen.h`, `Screen.cpp`, `ScreenSnapshot.cpp`, `Config.h`, `Config.cpp`, `default_end.lua`
+
+When selection mode active: terminal cursor suppressed, selection cursor drawn as filled block in configurable `colours.selection_cursor` (default bright cyan). `Screen::setSelectionCursor(active, row, col)` called from `onVBlank()`.
+
+---
+
+### Step 5: Selection highlighting -- DONE
+
+**Files:** `ScreenSelection.h`, `ScreenRender.cpp`, `TerminalComponent.h/cpp`
+
+`ScreenSelection` has `SelectionType` enum (linear/line/box). `containsCell()` dispatches to `contains()`, `containsLine()`, or `containsBox()`. `updateSelectionHighlight()` syncs SelectionMode state to ScreenSelection on every key/cursor change.
 
 ---
 
@@ -200,16 +228,15 @@ When `Ctrl+V` is pressed: type = `box`, rectangle selection (existing behavior).
 
 **File:** `TerminalComponent.cpp`
 
-When `y` or `Cmd+C`/`Ctrl+C` is pressed in selection mode:
+When `selection_copy` key pressed in selection mode:
 1. Determine selection type from `ScreenSelection::type`
-2. For `linear`: call `Grid::extractText(start, end)` (existing, currently unwired)
-3. For `line`: call `Grid::extractText()` with full-row start/end columns
-4. For `box`: call `Grid::extractBoxText()` (existing)
+2. `linear` → `Grid::extractText(start, end)` (existing, currently unwired)
+3. `line` → `Grid::extractText()` with full-row start/end columns
+4. `box` → `Grid::extractBoxText()` (existing)
 5. Copy to `juce::SystemClipboard`
-6. Exit selection mode
-7. Flash selection briefly (optional — defer)
+6. Exit selection mode (`setModalType(none)`)
 
-**Validate:** Select text in all three modes, press `y`, verify clipboard contents match.
+**Validate:** Select text in all three modes, press configured copy key, verify clipboard.
 
 ---
 
@@ -217,15 +244,12 @@ When `y` or `Cmd+C`/`Ctrl+C` is pressed in selection mode:
 
 **File:** `TerminalComponent.cpp`
 
-Modify mouse handlers:
-- `mouseDown`: if not in selection mode, record anchor position
-- `mouseDrag`: if dragging past threshold, enter selection mode with type `linear`, anchor at mouseDown position, cursor tracks mouse
+- `mouseDown`: record anchor position
+- `mouseDrag`: enter selection mode (`setModalType(selection)`), type `linear`, anchor at mouseDown, cursor tracks mouse
 - `mouseDoubleClick`: enter selection mode, select word at click position
-- `mouseTripleClick`: enter selection mode with type `line`, select line at click position
+- `mouseTripleClick`: enter selection mode, type `line`, select line at click position
 
-Follow existing mouse → grid coordinate conversion pattern.
-
-**Validate:** Click-drag selects text (streaming, not rectangle). Double-click selects word. Triple-click selects line.
+**Validate:** Click-drag = streaming select. Double-click = word. Triple-click = line.
 
 ---
 
@@ -233,85 +257,101 @@ Follow existing mouse → grid coordinate conversion pattern.
 
 **File:** `Source/terminal/selection/SelectionOverlay.h`
 
-Lightweight `juce::Component` child of `TerminalComponent` (follow `MessageOverlay` pattern):
+Lightweight `juce::Component` child (follow `MessageOverlay` pattern):
 - Shows `-- VISUAL --`, `-- VISUAL LINE --`, `-- VISUAL BLOCK --`
-- Positioned at bottom of terminal (configurable)
-- Themed colors (configurable via `colours.selection_status_bg`, `colours.selection_status_fg`)
-- `setInterceptsMouseClicks(false, false)` — non-interactive overlay
+- Configurable position, colors (`colours.selection_status_bg`, `colours.selection_status_fg`)
+- `setInterceptsMouseClicks(false, false)`
 
-**Validate:** Enter each mode, verify correct label displayed. Exit, label disappears.
+**Validate:** Enter each mode, verify correct label. Exit, label disappears.
 
 ---
 
 ### Step 9: Search (`/`)
 
-**Files:** `Source/terminal/selection/SearchBar.h`, `SearchBar.cpp`
+**Files:** `Source/terminal/selection/SelectionFinder.h`, `SelectionFinder.cpp`
 
-When `/` is pressed in selection mode:
-1. Show search input overlay at bottom (above status bar)
-2. User types search query
-3. On Enter: find next match in grid (scan rows), move selection cursor to match
-4. On Escape: close search bar, stay in selection mode
-5. `n` / `N` for next/previous match (after search bar closes)
+`SelectionFinder` is a `GlassWindow` with `juce::TextEditor` — duplicates `ActionList` glass pattern (different UX: text input + next/prev buttons, no dropdown).
 
-Grid search: iterate `Grid::activeVisibleRow()` and scrollback rows, scan cell codepoints for substring match. Highlight all matches with a distinct color.
+1. `selection_search` key pressed → show `SelectionFinder` as modal glass overlay
+2. User types query
+3. Enter → find next match in grid, move cursor, dismiss finder
+4. Escape → dismiss finder, stay in selection mode
+5. `selection_next_match` / `selection_prev_match` for next/prev after dismiss
+6. Next/prev buttons for mouse users
 
-**Validate:** Enter selection mode, press `/`, type query, verify cursor jumps to match. Press `n` for next.
+Grid search: scan `Grid::activeVisibleRow()` + scrollback rows for substring match. Highlight matches with `colours.search_match`.
+
+**Validate:** `/` opens finder, type query, cursor jumps to match. `n`/`N` cycle.
 
 ---
 
 ### Step 10: gg/G navigation
 
-`gg` requires a two-key sequence (press `g` once, wait, press `g` again). Options:
-- **Simple:** treat single `g` as a pending state with short timeout (like prefix key)
-- **Simpler:** use `Home`/`End` as aliases for gg/G
+Pending-g state inside `handleSelectionKey()`:
+- First `selection_top` key: set `pendingG = true`, start timer
+- Second press within timeout: `moveToTop()`, clear pending
+- Timeout or different key: clear pending
+- `selection_bottom`: `moveToBottom()` immediately
 
-Implement the pending-`g` state inside `handleSelectionKey()`:
-- First `g`: set `pendingG = true`, start timer
-- Second `g` within timeout: `moveToTop()`, clear pending
-- Timeout: clear pending
-- `G` (shift+g): `moveToBottom()` immediately
-
-**Validate:** `gg` scrolls to top of scrollback. `G` scrolls to bottom.
+**Validate:** `gg` to top of scrollback. `G` to bottom.
 
 ---
 
 ## Execution Order
 
-| Step | Dependency | Estimated Size |
-|------|-----------|----------------|
-| 1 | None | Small — pure state machine |
-| 2 | Step 1 | Small — keyPressed intercept |
-| 3 | Step 2 | Small — action registration |
-| 4 | Step 1 | Medium — rendering pipeline |
-| 5 | Step 4 | Medium — selection type dispatch |
-| 6 | Step 5 | Small — clipboard wiring |
-| 7 | Step 5 | Medium — mouse handler rework |
-| 8 | Step 2 | Small — overlay component |
-| 9 | Step 1 | Large — search from scratch |
-| 10 | Step 1 | Small — two-key state |
+| Step | Status | Dependency | Size |
+|------|--------|-----------|------|
+| 1 | DONE | None | Small |
+| 2 | REWORK | Step 1 | Small — add ModalType to State, move intercept before Action |
+| 3 | DONE | Step 2 | Small — config keys + SelectionKeys cache |
+| 4 | DONE | Step 1 | Medium — cursor rendering |
+| 5 | DONE | Step 4 | Medium — selection type highlighting |
+| 6 | TODO | Step 5 | Small — clipboard wiring |
+| 7 | TODO | Step 5 | Medium — mouse rework |
+| 8 | TODO | Step 2 | Small — overlay |
+| 9 | TODO | Step 1 | Large — search from scratch |
+| 10 | DONE | Step 1 | Small — pendingG in SelectionMode |
 
-**Critical path:** 1 → 2 → 3 → 4 → 5 → 6 (minimum viable selection mode)
-**Parallel:** 7, 8, 9, 10 can be done independently after step 5
+**Critical path:** 2 (rework) → 6 → 7 (minimum viable)
+**Parallel after step 5:** 8, 9
 
 ---
 
 ## Discrepancy Checkpoints
 
 Before proceeding at each step, verify:
-- [ ] Does the established keyPressed routing pattern match my understanding?
-- [ ] Does the action registration pattern match Config.h key naming?
+- [ ] Does `State::isModal()` intercept BEFORE `Action::handleKeyPress()`?
+- [ ] Are ALL selection keys read from Config, not hardcoded?
+- [ ] Does `parseShortcut()` handle single characters ("k", "/", "$")?
+- [ ] Does Ctrl+V in selection mode bypass paste action?
+- [ ] Does mouse drag set `ModalType::selection` in State?
 - [ ] Does the ScreenSelection rendering path match the snapshot pipeline?
 - [ ] Does Grid text extraction handle scrollback coordinates correctly?
-- [ ] Does the mouse coordinate conversion match existing mouseDown/mouseDrag?
 
 **If ANY discrepancy is found: STOP and discuss with ARCHITECT.**
 
 ---
 
+## Future Modal Types (same plumbing)
+
+| ModalType | Trigger Action | Keys | Description |
+|-----------|---------------|------|-------------|
+| `selection` | `enter_selection` (prefix+[) | `keys.selection_*` | This feature |
+| `flashJump` | `enter_flashjump` (prefix+f) | `keys.flashjump_*` | File opener hint labels |
+| `uriAction` | `enter_uri_action` | `keys.uri_*` | Clickable URIs in terminal output |
+
+Each modal type:
+1. Registers its enter action in the Action system (modal, prefix-based)
+2. Has its own config keys in `keys.*` section of `end.lua`
+3. Has its own `*Keys` cache struct in TerminalComponent
+4. Has its own `handle*Key()` method dispatched by `handleModalKey()`
+5. Sets `ModalType` in State on enter, resets to `none` on exit
+
+---
+
 ## Contracts
 
-- LIFESTAR: Lean (no over-engineering), SSOT (one SelectionMode, one ScreenSelection type enum), Explicit Encapsulation (SelectionMode is a dumb state machine, knows nothing about Grid/Screen)
-- NAMING-CONVENTION: SelectionMode (PascalCase class), selectionMode (camelCase member), isActive/enter/exit (verb functions)
+- LIFESTAR: Lean (no over-engineering), SSOT (`ModalType` in State, one `SelectionKeys` cache, one `ScreenSelection` type enum), Explicit Encapsulation (SelectionMode is dumb — knows nothing about State/Grid/Screen; State owns the modal flag; TerminalComponent owns the dispatch)
+- NAMING-CONVENTION: ModalType/SelectionMode (PascalCase), selectionMode/selectionKeys (camelCase), isModal/enter/exit (verbs), SelectionKeys (noun struct)
 - JRENG-CODING-STANDARD: brace init, `not`/`and`/`or`, no early returns, `.at()` for containers, braces on new lines
-- CAROL: incremental steps, validate each, stop on discrepancy
+- CAROL: incremental steps, validate each, stop on discrepancy, all keys user-configurable via end.lua

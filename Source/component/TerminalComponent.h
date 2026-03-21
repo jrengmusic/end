@@ -41,6 +41,8 @@
 #include <JuceHeader.h>
 #include "../terminal/logic/Session.h"
 #include "../terminal/rendering/Screen.h"
+#include "../terminal/rendering/ScreenSelection.h"
+#include "../terminal/selection/SelectionType.h"
 #include "config/Config.h"
 
 namespace Terminal
@@ -402,6 +404,57 @@ public:
     void resetZoom();
 
     /**
+     * @brief Enters vim-style selection mode, placing the cursor at the current
+     *        terminal cursor position.
+     *
+     * Computes the cursor row in scrollback-aware coordinates (scrollback rows
+     * above the visible screen + the in-screen cursor row), then writes the
+     * cursor and anchor to State and sets modal type to `selection` so the
+     * next frame draws the selection overlay.
+     *
+     * Called by the action registration (step 3) and by mouse handlers (step 7).
+     *
+     * @note MESSAGE THREAD.
+     */
+    void enterSelectionMode() noexcept;
+
+    /**
+     * @brief Returns `true` when the terminal is currently in vim-style selection mode.
+     *
+     * Used by MainComponent to guard tab/pane switch exit logic.
+     *
+     * @return `true` if the modal type is `ModalType::selection`.
+     * @note MESSAGE THREAD.
+     */
+    bool isInSelectionMode() const noexcept;
+
+    /**
+     * @brief Exits vim-style selection mode, clearing the selection highlight.
+     *
+     * Resets selection state in State (modal type, selection type), clears
+     * `screenSelection` and the screen selection pointer, and marks the
+     * snapshot dirty.
+     *
+     * Called by MainComponent before tab or pane switches so that selection mode
+     * does not persist on a terminal that is no longer focused.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void exitSelectionMode() noexcept;
+
+    /**
+     * @brief Returns the current selection type as its integer representation.
+     *
+     * Lock-free atomic read from State.  Used by MainComponent to poll the
+     * active terminal's selection state every VBlank frame and update the
+     * SelectionOverlay without a callback chain.
+     *
+     * @return Integer cast of the current SelectionType.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getSelectionType() const noexcept;
+
+    /**
      * @brief Initialises the terminal component after construction.
      *
      * Contains the shared initialization logic for all constructors.
@@ -520,6 +573,54 @@ private:
      */
     void setScrollOffsetClamped (int newOffset) noexcept;
 
+    /**
+     * @brief Dispatches a key event to the handler for the currently active modal.
+     *
+     * Called by `keyPressed()` when `session.getState().isModal()` is true.
+     * Routes the key to the appropriate handler based on `State::getModalType()`.
+     * Returns `true` if the modal consumed the key, `false` otherwise.
+     *
+     * @param key  The key event from keyPressed().
+     * @return `true` if the active modal consumed the key.
+     * @note MESSAGE THREAD.
+     */
+    bool handleModalKey (const juce::KeyPress& key) noexcept;
+
+    /**
+     * @brief Handles a key event while selection mode is active.
+     *
+     * Compares the key against cached `selectionKeys` parsed from Config.
+     * Returns `true` if the key was consumed by the selection state machine.
+     *
+     * @param key  The key event from keyPressed().
+     * @return `true` if the key was consumed; `false` if not a selection key.
+     * @note MESSAGE THREAD.
+     */
+    bool handleSelectionKey (const juce::KeyPress& key) noexcept;
+
+    /**
+     * @brief Syncs `screenSelection` and `screen.setSelection()` from State.
+     *
+     * Maps the State selectionType to `ScreenSelection::SelectionType`,
+     * sets anchor/end from the selection cursor and anchor in State, and calls
+     * `screen.setSelection()`.  When selectionType is `none`, clears the
+     * selection highlight.
+     *
+     * @note Call at the end of `handleSelectionKey()` whenever selection state changes.
+     * @note MESSAGE THREAD.
+     */
+    void updateSelectionHighlight() noexcept;
+
+    /**
+     * @brief Parses all selection-mode key strings from Config into `selectionKeys`.
+     *
+     * Called from `initialise()` and `applyConfig()` so changes take effect on
+     * config reload without restarting.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void buildSelectionKeyMap() noexcept;
+
     //==============================================================================
     /** @brief GPU-accelerated terminal renderer; attached to this component. */
     Screen screen;
@@ -555,6 +656,42 @@ private:
 
     /** @brief Current text selection; null when nothing is selected. */
     std::unique_ptr<ScreenSelection> screenSelection;
+
+    /**
+     * @brief Parsed KeyPress objects for every selection-mode binding.
+     *
+     * Built by `buildSelectionKeyMap()` from Config strings.  Compared against
+     * incoming key events in `handleSelectionKey()` instead of hardcoded chars.
+     */
+    struct SelectionKeys
+    {
+        juce::KeyPress up;
+        juce::KeyPress down;
+        juce::KeyPress left;
+        juce::KeyPress right;
+        juce::KeyPress visual;
+        juce::KeyPress visualLine;
+        juce::KeyPress visualBlock;
+        juce::KeyPress copy;
+        juce::KeyPress globalCopy;
+        juce::KeyPress top;
+        juce::KeyPress bottom;
+        juce::KeyPress lineStart;
+        juce::KeyPress lineEnd;
+        juce::KeyPress exit;
+    };
+
+    /** @brief Cached selection-mode key bindings, rebuilt from Config on load/reload. */
+    SelectionKeys selectionKeys;
+
+    /**
+     * @brief Pending-g flag for the two-key `gg` (go-to-top) sequence.
+     *
+     * Set to `true` after the first `g` key is received in selection mode.
+     * Cleared after the second `g` fires `moveToTop`, or when any other key
+     * cancels the sequence.  Transient UI state — not persisted to State.
+     */
+    bool pendingG { false };
 
     /** @brief VBlank attachment that drives the render loop at display refresh rate. */
     juce::VBlankAttachment vblank;

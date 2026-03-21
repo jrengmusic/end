@@ -95,6 +95,7 @@ void Config::initDefaults()
     values[Key::coloursBackground] = "#E0090D12";///< bunker
     values[Key::coloursCursor] = "#FF4E8C93";///< paradiso
     values[Key::coloursSelection] = "#8000C8D8";///< blueBikini
+    values[Key::coloursSelectionCursor] = "#FF00D8FF";///< bright cyan
 
     values[Key::coloursBlack] = "#FF090D12";///< bunker
     values[Key::coloursRed] = "#FFFC704C";///< preciousPersimmon
@@ -188,6 +189,21 @@ void Config::initDefaults()
     values[Key::keysNewline] = "shift+return";
     values[Key::keysActionList] = "?";
     values[Key::keysActionListPosition] = "top";
+    values[Key::keysEnterSelection] = "[";
+
+    values[Key::keysSelectionUp]          = "k";
+    values[Key::keysSelectionDown]        = "j";
+    values[Key::keysSelectionLeft]        = "h";
+    values[Key::keysSelectionRight]       = "l";
+    values[Key::keysSelectionVisual]      = "v";
+    values[Key::keysSelectionVisualLine]  = "shift+v";
+    values[Key::keysSelectionVisualBlock] = "ctrl+v";
+    values[Key::keysSelectionCopy]        = "y";
+    values[Key::keysSelectionTop]         = "g";
+    values[Key::keysSelectionBottom]      = "shift+g";
+    values[Key::keysSelectionLineStart]   = "0";
+    values[Key::keysSelectionLineEnd]     = "$";
+    values[Key::keysSelectionExit]        = "escape";
 
     values[Key::popupWidth] = 0.6f;
     values[Key::popupHeight] = 0.5f;
@@ -195,6 +211,11 @@ void Config::initDefaults()
 
     values[Key::paneBarColour] = "#FF1B2A31";///< dark
     values[Key::paneBarHighlight] = "#FF4E8C93";///< paradiso
+
+    values[Key::coloursSelectionBar] = "#FF002B35";///< midnightDreams — same as tab.active default
+    values[Key::coloursSelectionBarLabelBg] = "#FF01C2D2";///< caribbeanBlue — same as tab.indicator default
+    values[Key::coloursSelectionBarLabelFg] = "#FF444444";///< dark grey
+    values[Key::keysSelectionBarPosition] = "bottom";
 }
 
 /**
@@ -224,6 +245,7 @@ void Config::initSchema()
     schema[Key::coloursBackground] = { T::string };
     schema[Key::coloursCursor] = { T::string };
     schema[Key::coloursSelection] = { T::string };
+    schema[Key::coloursSelectionCursor] = { T::string };
     schema[Key::coloursBlack] = { T::string };
     schema[Key::coloursRed] = { T::string };
     schema[Key::coloursGreen] = { T::string };
@@ -296,6 +318,21 @@ void Config::initSchema()
     schema[Key::keysNewline] = { T::string };
     schema[Key::keysActionList] = { T::string };
     schema[Key::keysActionListPosition] = { T::string };
+    schema[Key::keysEnterSelection] = { T::string };
+
+    schema[Key::keysSelectionUp]          = { T::string };
+    schema[Key::keysSelectionDown]        = { T::string };
+    schema[Key::keysSelectionLeft]        = { T::string };
+    schema[Key::keysSelectionRight]       = { T::string };
+    schema[Key::keysSelectionVisual]      = { T::string };
+    schema[Key::keysSelectionVisualLine]  = { T::string };
+    schema[Key::keysSelectionVisualBlock] = { T::string };
+    schema[Key::keysSelectionCopy]        = { T::string };
+    schema[Key::keysSelectionTop]         = { T::string };
+    schema[Key::keysSelectionBottom]      = { T::string };
+    schema[Key::keysSelectionLineStart]   = { T::string };
+    schema[Key::keysSelectionLineEnd]     = { T::string };
+    schema[Key::keysSelectionExit]        = { T::string };
 
     schema[Key::popupWidth] = { T::number, 0.1, 1.0, true };
     schema[Key::popupHeight] = { T::number, 0.1, 1.0, true };
@@ -303,6 +340,11 @@ void Config::initSchema()
 
     schema[Key::paneBarColour] = { T::string };
     schema[Key::paneBarHighlight] = { T::string };
+
+    schema[Key::coloursSelectionBar] = { T::string };
+    schema[Key::coloursSelectionBarLabelBg] = { T::string };
+    schema[Key::coloursSelectionBarLabelFg] = { T::string };
+    schema[Key::keysSelectionBarPosition] = { T::string };
 }
 
 /**
@@ -749,8 +791,9 @@ Config::Theme Config::buildTheme() const
     Theme theme;
     theme.defaultForeground = getColour (Key::coloursForeground);
     theme.defaultBackground = getColour (Key::coloursBackground);
-    theme.selectionColour = getColour (Key::coloursSelection);
-    theme.cursorColour = getColour (Key::coloursCursor);
+    theme.selectionColour       = getColour (Key::coloursSelection);
+    theme.selectionCursorColour = getColour (Key::coloursSelectionCursor);
+    theme.cursorColour          = getColour (Key::coloursCursor);
 
     const juce::String cursorCharStr { getString (Key::cursorChar) };
     theme.cursorCodepoint = cursorCharStr.isNotEmpty()

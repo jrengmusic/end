@@ -461,6 +461,25 @@ public:
      */
     void setTheme (const Theme& theme) noexcept;
 
+    /**
+     * @brief Updates the selection-mode cursor state used for rendering.
+     *
+     * When @p active is true, the normal terminal cursor is suppressed and
+     * replaced with a block cursor drawn at (@p col, @p row) in visible-grid
+     * coordinates using the theme's `selectionCursorColour`.  Call with
+     * @p active `false` to restore normal cursor rendering.
+     *
+     * Must be called before `render()` on the **MESSAGE THREAD** so that the
+     * values are visible to `updateSnapshot()` in the same frame.
+     *
+     * @param active  True to enable selection-mode cursor override.
+     * @param row     Visible row index (0 = topmost visible row).
+     * @param col     Column index (0-based).
+     *
+     * @note **MESSAGE THREAD**.
+     */
+    void setSelectionCursor (bool active, int row, int col) noexcept;
+
     // =========================================================================
     // GL lifecycle (called by Terminal::Component from GLComponent overrides)
     // =========================================================================
@@ -977,6 +996,10 @@ private:
     const ScreenSelection* selection   { nullptr }; ///< Non-owning pointer to the active selection; nullptr if none.
     bool                   hadSelection { false };  ///< True if a selection was active on the previous frame (forces full dirty).
     bool                   wasScrolled  { false };  ///< True if the view was scrolled on the previous frame (forces full dirty).
+
+    bool selectionModeActive   { false }; ///< True when vim-style selection mode is active (hides terminal cursor).
+    int  selectionCursorRow    { 0 };     ///< Selection cursor row in visible-grid coordinates (0 = top visible row).
+    int  selectionCursorCol    { 0 };     ///< Selection cursor column (0-based).
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

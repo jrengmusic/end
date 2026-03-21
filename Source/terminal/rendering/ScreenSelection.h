@@ -62,8 +62,20 @@ namespace Terminal
  */
 struct ScreenSelection
 {
+    /**
+     * @enum SelectionType
+     * @brief Determines which hit-test algorithm `containsCell()` dispatches to.
+     */
+    enum class SelectionType
+    {
+        linear, ///< Character-wise (Vim `v`): wraps across rows like normal text flow.
+        line,   ///< Line-wise (Vim `V`): entire rows between anchor and end.
+        box     ///< Block / rectangle (Vim `Ctrl+V` or mouse drag): strict column range per row.
+    };
+
     juce::Point<int> anchor; ///< Selection start point (mouse-down position) in grid coordinates (col, row).
     juce::Point<int> end;    ///< Selection end point (current drag position) in grid coordinates (col, row).
+    SelectionType    type { SelectionType::box }; ///< Algorithm used by `containsCell()` to test membership.
 
     /**
      * @brief Tests whether a grid cell falls within the selection.
@@ -148,6 +160,61 @@ struct ScreenSelection
 
         return row >= startRow and row <= endRow
            and col >= startCol and col <= endCol;
+    }
+
+    /**
+     * @brief Tests whether a grid cell falls within a line-wise selection.
+     *
+     * Returns `true` for every cell on every row between `anchor.y` and
+     * `end.y` (inclusive), regardless of column.  This matches Vim `V`
+     * line-wise visual mode, where entire lines are selected.
+     *
+     * @param col  Column index of the cell to test (0-based). Unused.
+     * @param row  Row index of the cell to test (0-based).
+     * @return     `true` if @p row is within the selected row range.
+     *
+     * @note The row range is normalised internally so dragging upward works.
+     */
+    bool containsLine (int col, int row) const noexcept
+    {
+        juce::ignoreUnused (col);
+        const int startRow { std::min (anchor.y, end.y) };
+        const int endRow   { std::max (anchor.y, end.y) };
+
+        return row >= startRow and row <= endRow;
+    }
+
+    /**
+     * @brief Unified cell membership test — dispatches based on `type`.
+     *
+     * Calls `contains()` for `SelectionType::linear`, `containsLine()` for
+     * `SelectionType::line`, and `containsBox()` for `SelectionType::box`.
+     *
+     * This is the **only** entry point used by the renderer.  All three
+     * selection variants are handled through this single call.
+     *
+     * @param col  Column index of the cell to test (0-based).
+     * @param row  Row index of the cell to test (0-based).
+     * @return     `true` if the cell is within the active selection.
+     */
+    bool containsCell (int col, int row) const noexcept
+    {
+        bool result { false };
+
+        if (type == SelectionType::linear)
+        {
+            result = contains (col, row);
+        }
+        else if (type == SelectionType::line)
+        {
+            result = containsLine (col, row);
+        }
+        else
+        {
+            result = containsBox (col, row);
+        }
+
+        return result;
     }
 };
 

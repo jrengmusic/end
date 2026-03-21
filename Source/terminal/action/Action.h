@@ -194,6 +194,19 @@ public:
      */
     const std::vector<Entry>& getEntries() const noexcept;
 
+    /**
+     * @brief Parses a shortcut string (e.g. `"ctrl+shift+["`) into a KeyPress.
+     *
+     * Supports modifier tokens `ctrl`, `cmd`, `shift`, `alt`, `opt` and key
+     * names `pageup`, `pagedown`, `home`, `end`, `delete`, `insert`,
+     * `escape`, `return`, `tab`, `space`, `backspace`, `f1`–`f12`, and any
+     * single printable character.
+     *
+     * @param shortcutString  The shortcut string from Config (case-insensitive).
+     * @return The parsed `juce::KeyPress`, or an invalid KeyPress on failure.
+     */
+    static juce::KeyPress parseShortcut (const juce::String& shortcutString);
+
 private:
     //==========================================================================
     /** @brief All registered actions, in registration order. */
@@ -223,21 +236,6 @@ private:
     int prefixTimeoutMs { 1000 };
 
     //==========================================================================
-    /**
-     * @brief Parses a shortcut string (e.g. `"ctrl+shift+["`) into a KeyPress.
-     *
-     * Supports modifier tokens `ctrl`, `cmd`, `shift`, `alt`, `opt` and key
-     * names `pageup`, `pagedown`, `home`, `end`, `delete`, `insert`,
-     * `escape`, `return`, `tab`, `space`, `backspace`, `f1`–`f12`, and any
-     * single printable character.
-     *
-     * Ported from `KeyBinding::parse()`.
-     *
-     * @param shortcutString  The shortcut string from Config (case-insensitive).
-     * @return The parsed `juce::KeyPress`, or an invalid KeyPress on failure.
-     */
-    static juce::KeyPress parseShortcut (const juce::String& shortcutString);
-
     /**
      * @brief Cancels the waiting state when the prefix-sequence timeout fires.
      *

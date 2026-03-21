@@ -141,6 +141,12 @@ State::State()
     addParam (state, ID::cols, 0.0f);
     addParam (state, ID::visibleRows, 0.0f);
     addParam (state, ID::scrollOffset, 0);
+    addParam (state, ID::modalType, 0.0f);
+    addParam (state, ID::selectionType, 0.0f);
+    addParam (state, ID::selectionCursorRow, 0.0f);
+    addParam (state, ID::selectionCursorCol, 0.0f);
+    addParam (state, ID::selectionAnchorRow, 0.0f);
+    addParam (state, ID::selectionAnchorCol, 0.0f);
 
     // MODES
     juce::ValueTree modesNode { ID::MODES };
@@ -177,7 +183,7 @@ State::State()
     stringSlots.emplace_back();
     stringMap[ID::foregroundProcess] = &stringSlots.back();
 
-    cursorBlinkEnabled  = Config::getContext()->getBool (Config::Key::cursorBlink);
+    cursorBlinkEnabled = Config::getContext()->getBool (Config::Key::cursorBlink);
     cursorBlinkInterval = Config::getContext()->getInt (Config::Key::cursorBlinkInterval);
 
     startTimerHz (60);
@@ -221,24 +227,24 @@ void State::storeAndFlush (const juce::Identifier& key, float v) noexcept
 }
 
 /** @note READER THREAD — delegates to `storeAndFlush (ID::activeScreen, …)`. */
-void State::setScreen (ActiveScreen s) noexcept              { storeAndFlush (ID::activeScreen, static_cast<float> (s)); }
+void State::setScreen (ActiveScreen s) noexcept { storeAndFlush (ID::activeScreen, static_cast<float> (s)); }
 /** @note READER THREAD — delegates to `storeAndFlush (ID::cols, …)`. */
-void State::setCols (int c) noexcept                         { storeAndFlush (ID::cols, static_cast<float> (c)); }
+void State::setCols (int c) noexcept { storeAndFlush (ID::cols, static_cast<float> (c)); }
 /** @note READER THREAD — delegates to `storeAndFlush (ID::visibleRows, …)`. */
-void State::setVisibleRows (int r) noexcept                  { storeAndFlush (ID::visibleRows, static_cast<float> (r)); }
+void State::setVisibleRows (int r) noexcept { storeAndFlush (ID::visibleRows, static_cast<float> (r)); }
 /** @note READER THREAD — key is built via `modeKey (id)`. */
 void State::setMode (const juce::Identifier& id, bool v) noexcept { storeAndFlush (modeKey (id), static_cast<float> (v)); }
 
 /** @note READER THREAD — key is built via `screenKey (s, ID::cursorRow)`. */
-void State::setCursorRow (ActiveScreen s, int row) noexcept      { storeAndFlush (screenKey (s, ID::cursorRow), static_cast<float> (row)); }
+void State::setCursorRow (ActiveScreen s, int row) noexcept { storeAndFlush (screenKey (s, ID::cursorRow), static_cast<float> (row)); }
 /** @note READER THREAD — key is built via `screenKey (s, ID::cursorCol)`. */
-void State::setCursorCol (ActiveScreen s, int col) noexcept      { storeAndFlush (screenKey (s, ID::cursorCol), static_cast<float> (col)); }
+void State::setCursorCol (ActiveScreen s, int col) noexcept { storeAndFlush (screenKey (s, ID::cursorCol), static_cast<float> (col)); }
 /** @note READER THREAD — key is built via `screenKey (s, ID::cursorVisible)`. */
-void State::setCursorVisible (ActiveScreen s, bool v) noexcept   { storeAndFlush (screenKey (s, ID::cursorVisible), static_cast<float> (v)); }
+void State::setCursorVisible (ActiveScreen s, bool v) noexcept { storeAndFlush (screenKey (s, ID::cursorVisible), static_cast<float> (v)); }
 /** @note READER THREAD — key is built via `screenKey (s, ID::wrapPending)`. */
-void State::setWrapPending (ActiveScreen s, bool v) noexcept     { storeAndFlush (screenKey (s, ID::wrapPending), static_cast<float> (v)); }
+void State::setWrapPending (ActiveScreen s, bool v) noexcept { storeAndFlush (screenKey (s, ID::wrapPending), static_cast<float> (v)); }
 /** @note READER THREAD — key is built via `screenKey (s, ID::scrollTop)`. */
-void State::setScrollTop (ActiveScreen s, int top) noexcept      { storeAndFlush (screenKey (s, ID::scrollTop), static_cast<float> (top)); }
+void State::setScrollTop (ActiveScreen s, int top) noexcept { storeAndFlush (screenKey (s, ID::scrollTop), static_cast<float> (top)); }
 /** @note READER THREAD — key is built via `screenKey (s, ID::scrollBottom)`. */
 void State::setScrollBottom (ActiveScreen s, int bottom) noexcept { storeAndFlush (screenKey (s, ID::scrollBottom), static_cast<float> (bottom)); }
 
@@ -460,6 +466,67 @@ void State::setSyncOutput (bool active) noexcept
 bool State::isSyncOutputActive() const noexcept
 {
     return syncOutputActive.load (std::memory_order_relaxed);
+}
+
+// MESSAGE THREAD
+void State::setModalType (ModalType type) noexcept
+{
+    storeAndFlush (ID::modalType, static_cast<float> (type));
+    setSnapshotDirty();
+}
+
+ModalType State::getModalType() const noexcept
+{
+    return static_cast<ModalType> (getRawValue<int> (ID::modalType));
+}
+
+bool State::isModal() const noexcept
+{
+    return getModalType() != ModalType::none;
+}
+
+// --- Selection state convenience wrappers ---
+
+void State::setSelectionType (int type) noexcept
+{
+    storeAndFlush (ID::selectionType, static_cast<float> (type));
+}
+
+int State::getSelectionType() const noexcept
+{
+    return getRawValue<int> (ID::selectionType);
+}
+
+void State::setSelectionCursor (int row, int col) noexcept
+{
+    storeAndFlush (ID::selectionCursorRow, static_cast<float> (row));
+    storeAndFlush (ID::selectionCursorCol, static_cast<float> (col));
+}
+
+int State::getSelectionCursorRow() const noexcept
+{
+    return getRawValue<int> (ID::selectionCursorRow);
+}
+
+int State::getSelectionCursorCol() const noexcept
+{
+    return getRawValue<int> (ID::selectionCursorCol);
+}
+
+void State::setSelectionAnchor (int row, int col) noexcept
+{
+    storeAndFlush (ID::selectionAnchorRow, static_cast<float> (row));
+    storeAndFlush (ID::selectionAnchorCol, static_cast<float> (col));
+}
+
+int State::getSelectionAnchorRow() const noexcept
+{
+    return getRawValue<int> (ID::selectionAnchorRow);
+}
+
+int State::getSelectionAnchorCol() const noexcept
+{
+    return getRawValue<int> (ID::selectionAnchorCol);
 }
 
 void State::requestSyncResize() noexcept
@@ -881,19 +948,19 @@ void State::tickCursorBlink (int elapsedMs) noexcept
 void State::buildParameterMap() noexcept
 {
     ValueTreeUtilities::applyFunctionRecursively (state, [this] (const juce::ValueTree& node) -> bool
-    {
-        if (node.getType() == ID::PARAM and node.getProperty (ID::value).isDouble())
-        {
-            const auto paramId { node.getProperty (ID::id).toString() };
-            const auto parent { node.getParent() };
-            const bool isRoot { parent.getType() == ID::SESSION };
-            const juce::Identifier key { isRoot ? juce::Identifier { paramId } : buildParamKey (parent.getType(), paramId) };
-            storage.emplace_back (static_cast<float> (node.getProperty (ID::value)));
-            parameterMap[key] = &storage.back();
-        }
+                                                  {
+                                                      if (node.getType() == ID::PARAM and node.getProperty (ID::value).isDouble())
+                                                      {
+                                                          const auto paramId { node.getProperty (ID::id).toString() };
+                                                          const auto parent { node.getParent() };
+                                                          const bool isRoot { parent.getType() == ID::SESSION };
+                                                          const juce::Identifier key { isRoot ? juce::Identifier { paramId } : buildParamKey (parent.getType(), paramId) };
+                                                          storage.emplace_back (static_cast<float> (node.getProperty (ID::value)));
+                                                          parameterMap[key] = &storage.back();
+                                                      }
 
-        return false;
-    });
+                                                      return false;
+                                                  });
 }
 
 /**

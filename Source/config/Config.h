@@ -95,6 +95,9 @@ struct Config : jreng::Context<Config>
         /** @brief Cursor colour (from `colours.cursor` config). */
         juce::Colour cursorColour { juce::Colours::white };
 
+        /** @brief Selection-mode cursor colour (from `colours.selection_cursor` config). */
+        juce::Colour selectionCursorColour { 0xFF00D8FF };
+
         /** @brief Unicode codepoint for the user cursor glyph (from `cursor.char`). */
         uint32_t cursorCodepoint { 0x2588 };
 
@@ -203,6 +206,9 @@ struct Config : jreng::Context<Config>
 
         /** @brief Selection highlight colour (hex or rgba string). */
         inline static const juce::String coloursSelection { "colours.selection" };
+
+        /** @brief Selection-mode cursor colour (hex or rgba string). */
+        inline static const juce::String coloursSelectionCursor { "colours.selection_cursor" };
 
         /** @brief ANSI colour 0 — black. */
         inline static const juce::String coloursBlack { "colours.black" };
@@ -377,6 +383,46 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysNewline { "keys.newline" };
         inline static const juce::String keysActionList { "keys.action_list" };
         inline static const juce::String keysActionListPosition { "keys.action_list_position" };
+        inline static const juce::String keysEnterSelection { "keys.enter_selection" };
+
+        /** @brief Move cursor up in selection mode. */
+        inline static const juce::String keysSelectionUp { "keys.selection_up" };
+
+        /** @brief Move cursor down in selection mode. */
+        inline static const juce::String keysSelectionDown { "keys.selection_down" };
+
+        /** @brief Move cursor left in selection mode. */
+        inline static const juce::String keysSelectionLeft { "keys.selection_left" };
+
+        /** @brief Move cursor right in selection mode. */
+        inline static const juce::String keysSelectionRight { "keys.selection_right" };
+
+        /** @brief Toggle character-wise visual selection in selection mode. */
+        inline static const juce::String keysSelectionVisual { "keys.selection_visual" };
+
+        /** @brief Toggle line-wise visual selection in selection mode. */
+        inline static const juce::String keysSelectionVisualLine { "keys.selection_visual_line" };
+
+        /** @brief Toggle block visual selection in selection mode. */
+        inline static const juce::String keysSelectionVisualBlock { "keys.selection_visual_block" };
+
+        /** @brief Yank (copy) the current selection in selection mode. */
+        inline static const juce::String keysSelectionCopy { "keys.selection_copy" };
+
+        /** @brief Jump to top (gg double-press) in selection mode. */
+        inline static const juce::String keysSelectionTop { "keys.selection_top" };
+
+        /** @brief Jump to bottom in selection mode. */
+        inline static const juce::String keysSelectionBottom { "keys.selection_bottom" };
+
+        /** @brief Jump to line start in selection mode. */
+        inline static const juce::String keysSelectionLineStart { "keys.selection_line_start" };
+
+        /** @brief Jump to line end in selection mode. */
+        inline static const juce::String keysSelectionLineEnd { "keys.selection_line_end" };
+
+        /** @brief Exit selection mode. */
+        inline static const juce::String keysSelectionExit { "keys.selection_exit" };
 
         /** @brief Popup default width as a fraction of the parent width (0.1–1.0). */
         inline static const juce::String popupWidth { "popup.width" };
@@ -392,6 +438,19 @@ struct Config : jreng::Context<Config>
 
         /** @brief Pane divider bar colour when dragging or hovering (hex string). */
         inline static const juce::String paneBarHighlight { "pane.bar_highlight" };
+
+        /** @brief Selection status bar full background colour (hex string). */
+        inline static const juce::String coloursSelectionBar { "colours.selection_bar" };
+
+        /** @brief Selection status bar mode label background colour (hex string). */
+        inline static const juce::String coloursSelectionBarLabelBg { "colours.selection_bar_label_bg" };
+
+        /** @brief Selection status bar mode label text colour (hex string). */
+        inline static const juce::String coloursSelectionBarLabelFg { "colours.selection_bar_label_fg" };
+
+        /** @brief Selection status bar position: "top" or "bottom". */
+        inline static const juce::String keysSelectionBarPosition { "keys.selection_bar_position" };
+
     };
 
     //==============================================================================

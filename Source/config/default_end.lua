@@ -104,6 +104,10 @@ END = {
 		-- Semi-transparent recommended so text remains readable.
 		selection = "%%colours_selection%%",
 
+		-- Selection-mode cursor colour.
+		-- Shown instead of the normal cursor when selection mode is active.
+		selection_cursor = "%%colours_selection_cursor%%",
+
 		-- ANSI colour 0: black
 		black = "%%colours_black%%",
 
@@ -151,6 +155,17 @@ END = {
 
 		-- ANSI colour 15: bright white
 		bright_white = "%%colours_bright_white%%",
+
+		-- Selection status bar full background colour.
+		-- Default matches the active tab background (tab.active).
+		selection_bar = "%%colours_selection_bar%%",
+
+		-- Selection status bar mode label background colour.
+		-- Default matches the active tab indicator colour (tab.indicator).
+		selection_bar_label_bg = "%%colours_selection_bar_label_bg%%",
+
+		-- Selection status bar mode label text colour.
+		selection_bar_label_fg = "%%colours_selection_bar_label_fg%%",
 	},
 
 	-- ========================================================================
@@ -373,11 +388,58 @@ END = {
 		-- Insert a literal newline (LF) instead of carriage return.
 		newline = "%%keys_newline%%",
 
+		-- Enter text selection mode. Prefix-mode key.
+		enter_selection = "%%keys_enter_selection%%",
+
+		-- ---- Selection mode ----
+
+		-- Move cursor up in selection mode.
+		selection_up = "%%keys_selection_up%%",
+
+		-- Move cursor down in selection mode.
+		selection_down = "%%keys_selection_down%%",
+
+		-- Move cursor left in selection mode.
+		selection_left = "%%keys_selection_left%%",
+
+		-- Move cursor right in selection mode.
+		selection_right = "%%keys_selection_right%%",
+
+		-- Toggle character-wise visual selection.
+		selection_visual = "%%keys_selection_visual%%",
+
+		-- Toggle line-wise visual selection.
+		selection_visual_line = "%%keys_selection_visual_line%%",
+
+		-- Toggle block visual selection.
+		selection_visual_block = "%%keys_selection_visual_block%%",
+
+		-- Yank (copy) the current selection and exit selection mode.
+		selection_copy = "%%keys_selection_copy%%",
+
+		-- Jump to top of buffer (press twice: gg).
+		selection_top = "%%keys_selection_top%%",
+
+		-- Jump to bottom of buffer.
+		selection_bottom = "%%keys_selection_bottom%%",
+
+		-- Jump to start of current line.
+		selection_line_start = "%%keys_selection_line_start%%",
+
+		-- Jump to end of current line.
+		selection_line_end = "%%keys_selection_line_end%%",
+
+		-- Exit selection mode.
+		selection_exit = "%%keys_selection_exit%%",
+
 		-- Open the action list (command palette).
 		action_list = "%%keys_action_list%%",
 
 		-- Action list position: "top" or "bottom".
 		action_list_position = "%%keys_action_list_position%%",
+
+		-- Selection status bar position: "top" or "bottom".
+		selection_bar_position = "%%keys_selection_bar_position%%",
 	},
 
 	-- ========================================================================

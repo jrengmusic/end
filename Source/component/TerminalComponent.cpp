@@ -115,6 +115,7 @@ void Terminal::Component::initialise()
     screen.setLigatures (cfg->getBool (Config::Key::fontLigatures));
     screen.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
     screen.setTheme (cfg->buildTheme());
+    buildSelectionKeyMap();
 
     const float savedZoom { AppState::getContext()->getWindowZoom() };
     screen.setFontSize (dpiCorrectedFontSize() * savedZoom);
@@ -305,6 +306,15 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
         return true;
     }
 
+    // Modal intercept fires BEFORE the action system.
+    // This ensures Escape, Ctrl+V, and any other mapped key cannot
+    // leak through to paste or other actions while a modal is active.
+    if (session.getState().isModal())
+    {
+        if (handleModalKey (key))
+            return true;
+    }
+
     bool handled { Terminal::Action::getContext()->handleKeyPress (key) };
 
     if (not handled)
@@ -330,6 +340,350 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
     }
 
     return handled;
+}
+
+bool Terminal::Component::handleModalKey (const juce::KeyPress& key) noexcept
+{
+    const auto type { session.getState().getModalType() };
+
+    if (type == ModalType::selection)
+        return handleSelectionKey (key);
+
+    return false;
+}
+
+void Terminal::Component::enterSelectionMode() noexcept
+{
+    const auto activeScreen { session.getState().getActiveScreen() };
+    const int screenCursorRow { session.getState().getCursorRow (activeScreen) };
+    const int screenCursorCol { session.getState().getCursorCol (activeScreen) };
+    const int scrollbackRows  { session.getGrid().getScrollbackUsed() };
+    const int absRow          { scrollbackRows + screenCursorRow };
+
+    session.getState().setSelectionCursor (absRow, screenCursorCol);
+    session.getState().setSelectionAnchor (absRow, screenCursorCol);
+    session.getState().setSelectionType (static_cast<int> (SelectionType::none));
+    session.getState().setModalType (ModalType::selection);
+    pendingG = false;
+}
+
+bool Terminal::Component::isInSelectionMode() const noexcept
+{
+    return session.getState().getModalType() == ModalType::selection;
+}
+
+int Terminal::Component::getSelectionType() const noexcept
+{
+    return session.getState().getSelectionType();
+}
+
+void Terminal::Component::exitSelectionMode() noexcept
+{
+    session.getState().setSelectionType (static_cast<int> (SelectionType::none));
+    session.getState().setModalType (ModalType::none);
+    pendingG = false;
+    boxSelection = BoxSelection {};
+    screenSelection.reset();
+    screen.setSelection (nullptr);
+    session.getState().setSnapshotDirty();
+}
+
+bool Terminal::Component::handleSelectionKey (const juce::KeyPress& key) noexcept
+{
+    const int maxRow { session.getGrid().getVisibleRows() + session.getGrid().getScrollbackUsed() - 1 };
+    const int maxCol { session.getGrid().getCols() - 1 };
+
+    auto& st { session.getState() };
+
+    bool consumed { false };
+
+    if (key == selectionKeys.exit)
+    {
+        st.setSelectionType (static_cast<int> (SelectionType::none));
+        st.setModalType (ModalType::none);
+        pendingG = false;
+        boxSelection = BoxSelection {};
+        screenSelection.reset();
+        screen.setSelection (nullptr);
+        consumed = true;
+    }
+    else if (key == selectionKeys.visualBlock)
+    {
+        const auto current { static_cast<SelectionType> (st.getSelectionType()) };
+
+        if (current == SelectionType::visualBlock)
+        {
+            st.setSelectionType (static_cast<int> (SelectionType::none));
+            st.setModalType (ModalType::none);
+        }
+        else
+        {
+            st.setSelectionAnchor (st.getSelectionCursorRow(), st.getSelectionCursorCol());
+            st.setSelectionType (static_cast<int> (SelectionType::visualBlock));
+        }
+
+        consumed = true;
+    }
+    else if (key == selectionKeys.left)
+    {
+        st.setSelectionCursor (st.getSelectionCursorRow(),
+                               std::max (0, st.getSelectionCursorCol() - 1));
+        consumed = true;
+    }
+    else if (key == selectionKeys.down)
+    {
+        st.setSelectionCursor (std::min (maxRow, st.getSelectionCursorRow() + 1),
+                               st.getSelectionCursorCol());
+        consumed = true;
+    }
+    else if (key == selectionKeys.up)
+    {
+        st.setSelectionCursor (std::max (0, st.getSelectionCursorRow() - 1),
+                               st.getSelectionCursorCol());
+        consumed = true;
+    }
+    else if (key == selectionKeys.right)
+    {
+        st.setSelectionCursor (st.getSelectionCursorRow(),
+                               std::min (maxCol, st.getSelectionCursorCol() + 1));
+        consumed = true;
+    }
+    else if (key == selectionKeys.visualLine)
+    {
+        const auto current { static_cast<SelectionType> (st.getSelectionType()) };
+
+        if (current == SelectionType::visualLine)
+        {
+            st.setSelectionType (static_cast<int> (SelectionType::none));
+            st.setModalType (ModalType::none);
+        }
+        else
+        {
+            st.setSelectionAnchor (st.getSelectionCursorRow(), st.getSelectionCursorCol());
+            st.setSelectionType (static_cast<int> (SelectionType::visualLine));
+        }
+
+        consumed = true;
+    }
+    else if (key == selectionKeys.visual)
+    {
+        const auto current { static_cast<SelectionType> (st.getSelectionType()) };
+
+        if (current == SelectionType::visual)
+        {
+            st.setSelectionType (static_cast<int> (SelectionType::none));
+            st.setModalType (ModalType::none);
+        }
+        else
+        {
+            st.setSelectionAnchor (st.getSelectionCursorRow(), st.getSelectionCursorCol());
+            st.setSelectionType (static_cast<int> (SelectionType::visual));
+        }
+
+        consumed = true;
+    }
+    else if (key == selectionKeys.copy or key == selectionKeys.globalCopy)
+    {
+        const auto smType { static_cast<SelectionType> (st.getSelectionType()) };
+
+        if (smType != SelectionType::none)
+        {
+            const juce::ScopedTryLock tryLock (session.getGrid().getResizeLock());
+
+            if (tryLock.isLocked())
+            {
+                const int scrollback   { session.getGrid().getScrollbackUsed() };
+                const int scrollOffset { st.getScrollOffset() };
+                const int visibleStart { scrollback - scrollOffset };
+                const int cols         { session.getGrid().getCols() };
+
+                const int anchorVisRow { st.getSelectionAnchorRow() - visibleStart };
+                const int cursorVisRow { st.getSelectionCursorRow() - visibleStart };
+                const int anchorCol    { st.getSelectionAnchorCol() };
+                const int cursorCol    { st.getSelectionCursorCol() };
+
+                juce::String text;
+
+                if (smType == SelectionType::visual)
+                {
+                    const juce::Point<int> start { anchorCol, anchorVisRow };
+                    const juce::Point<int> end   { cursorCol, cursorVisRow };
+                    text = session.getGrid().extractText (start, end);
+                }
+                else if (smType == SelectionType::visualLine)
+                {
+                    const juce::Point<int> start { 0,        std::min (anchorVisRow, cursorVisRow) };
+                    const juce::Point<int> end   { cols - 1, std::max (anchorVisRow, cursorVisRow) };
+                    text = session.getGrid().extractText (start, end);
+                }
+                else
+                {
+                    const juce::Point<int> topLeft {
+                        std::min (anchorCol, cursorCol),
+                        std::min (anchorVisRow, cursorVisRow) };
+                    const juce::Point<int> bottomRight {
+                        std::max (anchorCol, cursorCol),
+                        std::max (anchorVisRow, cursorVisRow) };
+                    text = session.getGrid().extractBoxText (topLeft, bottomRight);
+                }
+
+                juce::SystemClipboard::copyTextToClipboard (text);
+            }
+        }
+
+        st.setSelectionType (static_cast<int> (SelectionType::none));
+        st.setModalType (ModalType::none);
+        pendingG = false;
+        consumed = true;
+    }
+    else if (key == selectionKeys.bottom)
+    {
+        st.setSelectionCursor (maxRow, st.getSelectionCursorCol());
+        consumed = true;
+    }
+    else if (key == selectionKeys.top)
+    {
+        if (pendingG)
+        {
+            st.setSelectionCursor (0, 0);
+            pendingG = false;
+        }
+        else
+        {
+            pendingG = true;
+        }
+
+        consumed = true;
+    }
+    else if (key == selectionKeys.lineStart)
+    {
+        st.setSelectionCursor (st.getSelectionCursorRow(), 0);
+        consumed = true;
+    }
+    else if (key == selectionKeys.lineEnd)
+    {
+        st.setSelectionCursor (st.getSelectionCursorRow(), maxCol);
+        consumed = true;
+    }
+
+    if (consumed)
+    {
+        const int cursorRow    { st.getSelectionCursorRow() };
+        const int visibleRows  { session.getGrid().getVisibleRows() };
+        const int scrollback   { session.getGrid().getScrollbackUsed() };
+        const int visibleStart { scrollback - st.getScrollOffset() };
+        const int visibleEnd   { visibleStart + visibleRows - 1 };
+
+        if (cursorRow < visibleStart)
+        {
+            setScrollOffsetClamped (scrollback - cursorRow);
+        }
+        else if (cursorRow > visibleEnd)
+        {
+            setScrollOffsetClamped (scrollback - (cursorRow - visibleRows + 1));
+        }
+
+        updateSelectionHighlight();
+        st.setSnapshotDirty();
+    }
+
+    return true;
+}
+
+/**
+ * @brief Syncs `screenSelection` and `screen.setSelection()` from State.
+ *
+ * Maps the State selectionType to `ScreenSelection::SelectionType`, sets
+ * anchor/end from the selection cursor and anchor stored in State, and calls
+ * `screen.setSelection()`.  Clears the selection when selectionType is `none`.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Terminal::Component::updateSelectionHighlight() noexcept
+{
+    const auto smType { static_cast<SelectionType> (session.getState().getSelectionType()) };
+
+    if (smType == SelectionType::none)
+    {
+        screenSelection.reset();
+        screen.setSelection (nullptr);
+    }
+    else
+    {
+        if (screenSelection == nullptr)
+        {
+            screenSelection = std::make_unique<ScreenSelection>();
+        }
+
+        const int scrollback   { session.getGrid().getScrollbackUsed() };
+        const int scrollOffset { session.getState().getScrollOffset() };
+        const int visibleStart { scrollback - scrollOffset };
+
+        const int anchorVisRow { session.getState().getSelectionAnchorRow() - visibleStart };
+        const int cursorVisRow { session.getState().getSelectionCursorRow() - visibleStart };
+
+        screenSelection->anchor = { session.getState().getSelectionAnchorCol(), anchorVisRow };
+        screenSelection->end    = { session.getState().getSelectionCursorCol(), cursorVisRow };
+
+        if (smType == SelectionType::visual)
+        {
+            screenSelection->type = ScreenSelection::SelectionType::linear;
+        }
+        else if (smType == SelectionType::visualLine)
+        {
+            screenSelection->type = ScreenSelection::SelectionType::line;
+        }
+        else
+        {
+            screenSelection->type = ScreenSelection::SelectionType::box;
+        }
+
+        screen.setSelection (screenSelection.get());
+    }
+}
+
+/**
+ * @brief Parses all selection-mode key strings from Config into the cached selectionKeys struct.
+ *
+ * Called from initialise() and applyConfig() so config reloads take effect without restart.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Terminal::Component::buildSelectionKeyMap() noexcept
+{
+    auto* cfg { Config::getContext() };
+
+    selectionKeys.up          = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionUp));
+    selectionKeys.down        = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionDown));
+    selectionKeys.left        = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLeft));
+    selectionKeys.right       = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionRight));
+    selectionKeys.visual      = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionVisual));
+    selectionKeys.visualLine  = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionVisualLine));
+    // Visual block uses real Ctrl (not Cmd on macOS).  parseShortcut maps
+    // "ctrl" → commandModifier on macOS, which conflicts with paste.  We
+    // build the KeyPress directly with ctrlModifier so Ctrl+V is unambiguous
+    // on all platforms.  The config value is still read so users can remap.
+    {
+        const juce::String raw { cfg->getString (Config::Key::keysSelectionVisualBlock) };
+        const bool hasCtrl { raw.containsIgnoreCase ("ctrl") and not raw.containsIgnoreCase ("cmd") };
+
+        if (hasCtrl)
+        {
+            const int vChar { raw.toLowerCase().contains ("v") ? 'v' : 'v' };
+            selectionKeys.visualBlock = juce::KeyPress (vChar, juce::ModifierKeys::ctrlModifier, 0);
+        }
+        else
+        {
+            selectionKeys.visualBlock = Terminal::Action::parseShortcut (raw);
+        }
+    }
+    selectionKeys.copy        = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionCopy));
+    selectionKeys.globalCopy  = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysCopy));
+    selectionKeys.top         = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionTop));
+    selectionKeys.bottom      = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionBottom));
+    selectionKeys.lineStart   = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineStart));
+    selectionKeys.lineEnd     = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineEnd));
+    selectionKeys.exit        = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionExit));
 }
 
 /**
@@ -410,12 +764,14 @@ void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const j
 }
 
 /**
- * @brief Begins a box selection or forwards a mouse-button SGR event.
+ * @brief Begins a selection or forwards a mouse-button SGR event.
  *
  * - **Mouse tracking active**: writes SGR button-0 press at the clicked cell.
- * - **No tracking**: records the anchor cell for a new box selection and clears
- *   any existing selection.  A plain click (no subsequent drag) will clear the
- *   selection on mouse-up.
+ * - **Triple-click (click count 3)**: enters selection mode with `visualLine`
+ *   type anchored at the clicked row — selects the entire line.
+ * - **Single click**: records the anchor for a potential drag.  Does not enter
+ *   selection mode yet; waits for a drag gesture.  If selection mode is already
+ *   active, exits it so the user can start fresh.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
@@ -427,8 +783,25 @@ void Terminal::Component::mouseDown (const juce::MouseEvent& event)
         const auto cell { screen.cellAtPoint (event.x, event.y) };
         session.writeMouseEvent (0, cell.x, cell.y, true);
     }
+    else if (event.getNumberOfClicks() == 3)
+    {
+        // Triple-click: select the entire row.
+        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const int scrollback    { session.getGrid().getScrollbackUsed() };
+        const int scrollOffset  { session.getState().getScrollOffset() };
+        const int absoluteRow   { cell.y + scrollback - scrollOffset };
+
+        session.getState().setSelectionCursor (absoluteRow, 0);
+        session.getState().setSelectionAnchor (absoluteRow, 0);
+        session.getState().setSelectionType (static_cast<int> (SelectionType::visualLine));
+        session.getState().setModalType (ModalType::selection);
+        pendingG = false;
+        updateSelectionHighlight();
+        session.getState().setSnapshotDirty();
+    }
     else
     {
+        // Single click: record anchor for potential drag, clear any existing selection.
         const auto cell { screen.cellAtPoint (event.x, event.y) };
 
         boxSelection.anchorCol = cell.x;
@@ -437,6 +810,13 @@ void Terminal::Component::mouseDown (const juce::MouseEvent& event)
         boxSelection.endRow    = cell.y;
         boxSelection.active    = false;
 
+        if (session.getState().getModalType() == ModalType::selection)
+        {
+            session.getState().setSelectionType (static_cast<int> (SelectionType::none));
+            session.getState().setModalType (ModalType::none);
+            pendingG = false;
+        }
+
         screenSelection.reset();
         screen.setSelection (nullptr);
         session.getState().setSnapshotDirty();
@@ -444,10 +824,15 @@ void Terminal::Component::mouseDown (const juce::MouseEvent& event)
 }
 
 /**
- * @brief Forwards a double-click event to the PTY when mouse tracking is active.
+ * @brief Selects the word under the cursor or forwards a double-click SGR event.
  *
- * When mouse tracking is disabled, double-click is treated as a plain click
- * and the box selection anchor is reset to the clicked cell (no drag yet).
+ * - **Mouse tracking active**: writes SGR button-0 press at the clicked cell.
+ * - **No tracking**: scans left and right from the clicked column to find word
+ *   boundaries (non-space codepoints, > 0x20), enters selection mode with type
+ *   `visual`, and sets anchor to word start / cursor to word end.
+ *
+ * Word boundary scan uses `scrollbackRow()` so it works correctly when scrolled
+ * back into the scrollback buffer.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
@@ -459,15 +844,58 @@ void Terminal::Component::mouseDoubleClick (const juce::MouseEvent& event)
         const auto cell { screen.cellAtPoint (event.x, event.y) };
         session.writeMouseEvent (0, cell.x, cell.y, true);
     }
+    else
+    {
+        const auto cell        { screen.cellAtPoint (event.x, event.y) };
+        const int scrollback   { session.getGrid().getScrollbackUsed() };
+        const int scrollOffset { session.getState().getScrollOffset() };
+        const int absoluteRow  { cell.y + scrollback - scrollOffset };
+        const int cols         { session.getGrid().getCols() };
+
+        // Scan the visible row (with scroll offset applied) to find word boundaries.
+        const Cell* row { session.getGrid().scrollbackRow (cell.y, scrollOffset) };
+
+        int wordStart { cell.x };
+        int wordEnd   { cell.x };
+
+        if (row != nullptr)
+        {
+            // Scan left: stop at space (codepoint <= 0x20) or column 0.
+            int c { cell.x - 1 };
+            while (c >= 0 and row[c].codepoint > 0x20)
+            {
+                wordStart = c;
+                --c;
+            }
+
+            // Scan right: stop at space or end of line.
+            c = cell.x + 1;
+            while (c < cols and row[c].codepoint > 0x20)
+            {
+                wordEnd = c;
+                ++c;
+            }
+        }
+
+        session.getState().setSelectionCursor (absoluteRow, wordEnd);
+        session.getState().setSelectionAnchor (absoluteRow, wordStart);
+        session.getState().setSelectionType (static_cast<int> (SelectionType::visual));
+        session.getState().setModalType (ModalType::selection);
+        pendingG = false;
+        updateSelectionHighlight();
+        session.getState().setSnapshotDirty();
+    }
 }
 
 /**
- * @brief Extends the box selection or forwards a mouse-motion SGR event.
+ * @brief Extends the selection or forwards a mouse-motion SGR event.
  *
  * - **Motion tracking active**: writes SGR button-32 (drag) at the current cell.
- * - **No tracking**: updates the box selection end cell to the current drag
- *   position, activates the selection, and marks the snapshot dirty so the
- *   selection overlay is redrawn on the next frame.
+ * - **No tracking, first drag**: enters selection mode with type `visual` anchored
+ *   at the mouseDown position (stored in `boxSelection`), then updates the cursor
+ *   to the current cell.
+ * - **No tracking, subsequent drags**: updates the selection-mode cursor to the
+ *   current cell and calls `updateSelectionHighlight()`.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
@@ -481,32 +909,45 @@ void Terminal::Component::mouseDrag (const juce::MouseEvent& event)
     }
     else
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const auto cell        { screen.cellAtPoint (event.x, event.y) };
+        const int scrollback   { session.getGrid().getScrollbackUsed() };
+        const int scrollOffset { session.getState().getScrollOffset() };
 
-        boxSelection.endCol = cell.x;
-        boxSelection.endRow = cell.y;
-        boxSelection.active = true;
-
-        if (screenSelection == nullptr)
+        if (session.getState().getModalType() != ModalType::selection)
         {
-            screenSelection = std::make_unique<ScreenSelection>();
+            // First drag event: enter selection mode anchored at mouseDown position.
+            const int anchorAbsRow { boxSelection.anchorRow + scrollback - scrollOffset };
+            session.getState().setSelectionCursor (anchorAbsRow, boxSelection.anchorCol);
+            session.getState().setSelectionAnchor (anchorAbsRow, boxSelection.anchorCol);
+            session.getState().setSelectionType (static_cast<int> (SelectionType::visual));
+            session.getState().setModalType (ModalType::selection);
+            pendingG = false;
         }
 
-        screenSelection->anchor = { boxSelection.anchorCol, boxSelection.anchorRow };
-        screenSelection->end    = { boxSelection.endCol,    boxSelection.endRow };
+        // Update cursor to the current drag position.
+        const int cursorAbsRow { cell.y + scrollback - scrollOffset };
+        const int maxRow       { session.getGrid().getVisibleRows() + scrollback - 1 };
+        const int maxCol       { session.getGrid().getCols() - 1 };
 
-        screen.setSelection (screenSelection.get());
+        const int clampedRow { juce::jlimit (0, maxRow, cursorAbsRow) };
+        const int clampedCol { juce::jlimit (0, maxCol, cell.x) };
+
+        session.getState().setSelectionCursor (clampedRow, clampedCol);
+
+        boxSelection.active = true;
+        updateSelectionHighlight();
         session.getState().setSnapshotDirty();
     }
 }
 
 /**
- * @brief Finalises the box selection or forwards a mouse-button-release SGR event.
+ * @brief Finalises the selection or forwards a mouse-button-release SGR event.
  *
  * - **Mouse tracking active**: writes an SGR button-0 release sequence.
- * - **No tracking**: if the selection has zero area (anchor == end, i.e. a plain
- *   click with no drag), clears the selection so a plain click leaves no
- *   degenerate selection visible.  A non-zero-area selection is kept visible.
+ * - **Drag completed**: selection mode is already active from `mouseDrag()`; the
+ *   selection is kept alive so the user can press `y` to copy or `Escape` to cancel.
+ * - **Plain click (no drag)**: if selection mode was never activated by a drag,
+ *   it was already cleared in `mouseDown()`; nothing left to do.
  *
  * @param event  The mouse event.
  * @note MESSAGE THREAD.
@@ -520,12 +961,20 @@ void Terminal::Component::mouseUp (const juce::MouseEvent& event)
     }
     else
     {
-        if (not boxSelection.active)
+        // If no drag occurred (boxSelection.active is false) and selection mode
+        // was not entered by a double/triple-click, there is nothing to finalise.
+        // The selection was already cleared in mouseDown().
+        // If a drag did occur, selection mode is active and we leave it intact so
+        // the user can interact with it via keyboard (y to copy, Escape to exit).
+        if (not boxSelection.active
+            and session.getState().getModalType() != ModalType::selection)
         {
             screenSelection.reset();
             screen.setSelection (nullptr);
             session.getState().setSnapshotDirty();
         }
+
+        boxSelection.active = false;
     }
 }
 
@@ -701,6 +1150,19 @@ void Terminal::Component::onVBlank()
 
         if (lock.isLocked())
         {
+            // Compute the visible-row coordinate for the selection cursor before
+            // rendering.  State stores absolute (scrollback-aware) rows;
+            // the renderer needs visible rows (0 = topmost visible row).
+            // visibleRow = absoluteRow - (scrollbackUsed - scrollOffset)
+            {
+                const bool active { session.getState().getModalType() == ModalType::selection };
+                const int  scrollback   { session.getGrid().getScrollbackUsed() };
+                const int  scrollOffset { session.getState().getScrollOffset() };
+                const int  visibleRow   { session.getState().getSelectionCursorRow()
+                                          - (scrollback - scrollOffset) };
+                screen.setSelectionCursor (active, visibleRow, session.getState().getSelectionCursorCol());
+            }
+
             screen.render (session.getState(), session.getGrid());
 
             if (onRepaintNeeded != nullptr)
@@ -730,6 +1192,7 @@ void Terminal::Component::applyConfig() noexcept
     screen.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
     screen.setTheme (cfg->buildTheme());
     screen.setFontSize (dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
+    buildSelectionKeyMap();
     session.getGrid().markAllDirty();
     session.getState().setSnapshotDirty();
     resized();

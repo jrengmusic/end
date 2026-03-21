@@ -49,7 +49,10 @@ public:
         tabActiveColourId = 0x2000004,///< Active tab fill colour (paradiso).
         tabIndicatorColourId = 0x2000005,///< Active tab indicator fill colour.
         paneBarColourId = 0x2000006,///< Pane divider bar colour.
-        paneBarHighlightColourId = 0x2000007///< Pane divider bar colour when dragging or hovering.
+        paneBarHighlightColourId = 0x2000007,///< Pane divider bar colour when dragging or hovering.
+        selectionBarBackgroundColourId = 0x2000100,///< SelectionOverlay full bar background.
+        selectionBarLabelBackgroundColourId = 0x2000101,///< SelectionOverlay mode label background.
+        selectionBarLabelTextColourId = 0x2000102///< SelectionOverlay mode label text.
     };
 
     LookAndFeel();

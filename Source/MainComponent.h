@@ -45,6 +45,7 @@
 #include "terminal/action/Action.h"
 #include "terminal/action/ActionList.h"
 #include "terminal/rendering/Fonts.h"
+#include "terminal/selection/SelectionOverlay.h"
 
 /**
  * @class MainComponent
@@ -125,6 +126,9 @@ private:
     /** @brief Transient overlay for grid-size and status messages. */
     std::unique_ptr<MessageOverlay> messageOverlay;
 
+    /** @brief Selection mode status overlay; shown at bottom-centre during vim-style selection. */
+    Terminal::SelectionOverlay selectionOverlay;
+
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;
 
@@ -153,6 +157,17 @@ private:
      * @see AppState
      */
     void initialiseTabs();
+
+    //==============================================================================
+    /**
+     * @brief Exits selection mode on the active terminal if it is currently modal.
+     *
+     * Called before tab and pane switches so that vim-style selection mode does
+     * not persist on a terminal that is no longer focused.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void exitActiveTerminalSelectionMode() noexcept;
 
     /**
      * @brief Creates MessageOverlay, shows startup errors if any.

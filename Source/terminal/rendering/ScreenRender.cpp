@@ -356,7 +356,7 @@ void Screen::processCellForSnapshot (
         }
     }
 
-    if (selection != nullptr and cell.hasContent() and selection->containsBox (col, row))
+    if (selection != nullptr and cell.hasContent() and selection->containsCell (col, row))
     {
         const int bgIdx { row * bgCacheCols + bgCount[row] };
         const juce::Colour& sel { resources.terminalColors.selectionColour };

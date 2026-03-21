@@ -129,6 +129,9 @@ namespace ID
     /** @brief Scroll offset for alternate screen buffer (scrollback position). */
     static const juce::Identifier scrollOffset  { "scrollOffset" };
 
+    /** @brief Active modal input type (cast from ModalType enum). 0 = none. */
+    static const juce::Identifier modalType     { "modalType" };
+
     //==========================================================================
     // Display name parameter IDs (tab name sources)
     //==========================================================================
@@ -227,6 +230,25 @@ namespace ID
 
     /** @brief Kitty keyboard protocol flags (bitmask). 0 = legacy mode. */
     static const juce::Identifier keyboardFlags        { "keyboardFlags" };
+
+    //==========================================================================
+    // Selection state parameter IDs
+    //==========================================================================
+
+    /** @brief Active selection type (cast from SelectionType enum). 0 = none. */
+    static const juce::Identifier selectionType        { "selectionType" };
+
+    /** @brief Selection cursor row in scrollback-aware grid coordinates. */
+    static const juce::Identifier selectionCursorRow   { "selectionCursorRow" };
+
+    /** @brief Selection cursor column in grid coordinates. */
+    static const juce::Identifier selectionCursorCol   { "selectionCursorCol" };
+
+    /** @brief Selection anchor row in scrollback-aware grid coordinates. */
+    static const juce::Identifier selectionAnchorRow   { "selectionAnchorRow" };
+
+    /** @brief Selection anchor column in grid coordinates. */
+    static const juce::Identifier selectionAnchorCol   { "selectionAnchorCol" };
 }
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

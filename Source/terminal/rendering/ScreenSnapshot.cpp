@@ -121,37 +121,66 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
     snapshot.emojiCount       = totalEmoji;
     snapshot.backgroundCount  = totalBg;
 
-    snapshot.cursorPosition.x = state.getCursorCol (scr);
-    snapshot.cursorPosition.y = state.getCursorRow (scr);
-    snapshot.cursorVisible    = state.isCursorVisible (scr);
-    snapshot.cursorShape      = state.getCursorShape (scr);
-    snapshot.cursorColorR     = state.getCursorColorR (scr);
-    snapshot.cursorColorG     = state.getCursorColorG (scr);
-    snapshot.cursorColorB     = state.getCursorColorB (scr);
-    snapshot.scrollOffset     = state.getScrollOffset();
-    snapshot.cursorBlinkOn    = state.isCursorBlinkOn();
-    snapshot.cursorFocused    = state.isCursorFocused();
+    snapshot.cursorFocused = state.isCursorFocused();
 
-    // Resolve final cursor draw colour on the message thread so the GL
-    // thread never reads resources.terminalColors in drawCursor().
-    const bool hasColorOverride { snapshot.cursorColorR >= 0.0f
-                                  and snapshot.cursorColorG >= 0.0f
-                                  and snapshot.cursorColorB >= 0.0f };
+    if (selectionModeActive)
+    {
+        // Selection mode: suppress the terminal cursor and show the selection
+        // cursor at the visible-grid position supplied by setSelectionCursor().
+        // scrollOffset is forced to 0 so drawCursor() does not suppress it
+        // when the viewport is scrolled — the caller already converts the
+        // absolute row to a visible-row coordinate before calling us.
+        snapshot.cursorPosition.x = selectionCursorCol;
+        snapshot.cursorPosition.y = selectionCursorRow;
+        snapshot.cursorVisible    = true;
+        snapshot.cursorShape      = 1;  // block — force geometric, no user glyph.
+        snapshot.cursorColorR     = -1.0f;
+        snapshot.cursorColorG     = -1.0f;
+        snapshot.cursorColorB     = -1.0f;
+        snapshot.cursorBlinkOn    = true;
+        snapshot.scrollOffset     = 0;
 
-    snapshot.cursorDrawColorR = hasColorOverride ? snapshot.cursorColorR / 255.0f
-                                                 : resources.terminalColors.cursorColour.getFloatRed();
-    snapshot.cursorDrawColorG = hasColorOverride ? snapshot.cursorColorG / 255.0f
-                                                 : resources.terminalColors.cursorColour.getFloatGreen();
-    snapshot.cursorDrawColorB = hasColorOverride ? snapshot.cursorColorB / 255.0f
-                                                 : resources.terminalColors.cursorColour.getFloatBlue();
+        // Resolve selection cursor colour on the message thread.
+        snapshot.cursorDrawColorR = resources.terminalColors.selectionCursorColour.getFloatRed();
+        snapshot.cursorDrawColorG = resources.terminalColors.selectionCursorColour.getFloatGreen();
+        snapshot.cursorDrawColorB = resources.terminalColors.selectionCursorColour.getFloatBlue();
+    }
+    else
+    {
+        snapshot.cursorPosition.x = state.getCursorCol (scr);
+        snapshot.cursorPosition.y = state.getCursorRow (scr);
+        snapshot.cursorVisible    = state.isCursorVisible (scr);
+        snapshot.cursorShape      = state.getCursorShape (scr);
+        snapshot.cursorColorR     = state.getCursorColorR (scr);
+        snapshot.cursorColorG     = state.getCursorColorG (scr);
+        snapshot.cursorColorB     = state.getCursorColorB (scr);
+        snapshot.cursorBlinkOn    = state.isCursorBlinkOn();
+        snapshot.scrollOffset     = state.getScrollOffset();
+
+        // Resolve final cursor draw colour on the message thread so the GL
+        // thread never reads resources.terminalColors in drawCursor().
+        const bool hasColorOverride { snapshot.cursorColorR >= 0.0f
+                                      and snapshot.cursorColorG >= 0.0f
+                                      and snapshot.cursorColorB >= 0.0f };
+
+        snapshot.cursorDrawColorR = hasColorOverride ? snapshot.cursorColorR / 255.0f
+                                                     : resources.terminalColors.cursorColour.getFloatRed();
+        snapshot.cursorDrawColorG = hasColorOverride ? snapshot.cursorColorG / 255.0f
+                                                     : resources.terminalColors.cursorColour.getFloatGreen();
+        snapshot.cursorDrawColorB = hasColorOverride ? snapshot.cursorColorB / 255.0f
+                                                     : resources.terminalColors.cursorColour.getFloatBlue();
+    }
 
     // Build the user cursor glyph (shape 0 or cursor.force) on the message
     // thread so the GL thread can draw it without touching the atlas.
+    // In selection mode we always draw a geometric block — suppress the glyph
+    // path entirely so cursor.force does not override the selection cursor.
     snapshot.hasCursorGlyph    = false;
     snapshot.cursorGlyphIsEmoji = false;
 
-    const bool useUserGlyph { resources.terminalColors.cursorForce
-                              or snapshot.cursorShape == 0 };
+    const bool useUserGlyph { not selectionModeActive
+                              and (resources.terminalColors.cursorForce
+                                   or snapshot.cursorShape == 0) };
 
     if (useUserGlyph and snapshot.cursorVisible)
     {

@@ -37,6 +37,7 @@ static const ActionKeyEntry actionKeyTable[]
     { Config::Key::keysPaneRight,        "pane_right",       true  },
     { Config::Key::keysNewline,          "newline",          false },
     { Config::Key::keysActionList,       "action_list",      true  },
+    { Config::Key::keysEnterSelection,   "enter_selection",  true  },
     // TODO: add { Config::Key::keysClosePane, "close_pane", true } once
     // Config::Key::keysClosePane ("keys.close_pane") is added to Config.h
     // and a default value is registered in Config::initDefaults().
