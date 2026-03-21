@@ -4,7 +4,7 @@
 
 **Purpose:** Detailed specs for features not yet implemented. Extracted from SPEC.md to keep the main spec lean and forward-looking.
 
-**Last Updated:** 2026-03-12
+**Last Updated:** 2026-03-21
 
 ---
 

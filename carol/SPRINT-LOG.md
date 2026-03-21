@@ -8,6 +8,113 @@
 
 ---
 
+## Sprint 109 — COUNSELOR: Vim-like Text Selection Mode
+
+**Date:** 2026-03-21
+
+### Agents Participated
+- COUNSELOR: requirements, plan (PLAN-TEXT-SELECTION.md), architecture decisions, step-by-step delegation
+- @pathfinder: existing selection/action/keybinding/scrollback/search/overlay/theme/cursor patterns
+- @oracle: wrap-pending grapheme edge case analysis (xterm/kitty comparison)
+- @engineer: all 10 implementation steps + fixes
+- @auditor: (via Sprint 108)
+- @machinist: (via Sprint 108)
+
+### Files Modified (18 total)
+- `Source/terminal/selection/SelectionType.h` — NEW: SelectionType enum (visual/visualLine/visualBlock)
+- `Source/terminal/selection/SelectionOverlay.h` — NEW: full-width status bar component (-- VISUAL -- etc.)
+- `Source/terminal/data/State.h` — ModalType enum, selection state params (type/cursor/anchor), convenience methods
+- `Source/terminal/data/State.cpp` — parameterMap entries for selection state, ModalType via storeAndFlush
+- `Source/terminal/data/Identifier.h` — 6 new IDs (modalType, selectionType, selectionCursor/AnchorRow/Col)
+- `Source/terminal/rendering/ScreenSelection.h` — SelectionType enum, containsLine(), containsCell() dispatch
+- `Source/terminal/rendering/ScreenRender.cpp` — containsBox → containsCell (type-aware hit test)
+- `Source/terminal/rendering/Screen.h` — setSelectionCursor() for modal cursor override
+- `Source/terminal/rendering/Screen.cpp` — setSelectionCursor implementation
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — selection cursor rendering (block shape, configurable color, no blink)
+- `Source/component/TerminalComponent.h` — SelectionKeys cache, handleModalKey/handleSelectionKey/enterSelectionMode/exitSelectionMode, pendingG
+- `Source/component/TerminalComponent.cpp` — full modal key dispatch, all selection operations, mouse integration (drag/double/triple-click), copy to clipboard, updateSelectionHighlight, buildSelectionKeyMap
+- `Source/component/Panes.h/cpp` — onLastPaneClosed callback, onShellExited wiring
+- `Source/component/Tabs.h/cpp` — onLastPaneClosed wiring, exitActiveTerminalSelectionMode on tab switch
+- `Source/MainComponent.h` — SelectionOverlay member, exitActiveTerminalSelectionMode
+- `Source/MainComponent.cpp` — overlay positioning, poll State via onRepaintNeeded, exit modal on tab/pane switch, enter_selection action registration
+- `Source/config/Config.h` — 20 new Key entries (selection keys, colours, bar position)
+- `Source/config/Config.cpp` — defaults and schema for all new keys
+- `Source/config/default_end.lua` — full selection mode key section, selection bar colours
+- `Source/component/LookAndFeel.h/cpp` — 3 SelectionOverlay ColourIds
+
+### Architecture Decisions
+- **ModalType in State (parameterMap)** — general-purpose modal gate, not selection-specific. Future flashJump/uriAction reuse same enum and dispatch
+- **All selection state in State** — no duplicate SelectionMode class. Type, cursor, anchor stored as parameterMap params. SSOT enforced
+- **All keys user-configurable** — Config + Lua + SelectionKeys cache. Zero hardcoded characters
+- **Modal intercept BEFORE Action system** — solves Ctrl+V conflict (visual-block, not paste)
+- **No manual callbacks** — MainComponent polls State via existing onRepaintNeeded VBlank. ValueTree flush handles propagation
+- **SelectionFinder deferred** — GlassWindow search bar had parenting/focus issues. Removed entirely, search keys are consumed stubs
+
+### Alignment Check
+- [x] LIFESTAR principles followed (SSOT: State owns all selection state, no duplicate)
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] All keys configurable via end.lua
+
+### Problems Solved
+- Vim-like modal text selection with visual/visual-line/visual-block modes
+- Mouse integration: click-drag (streaming), double-click (word), triple-click (line)
+- Copy to clipboard via all three selection types (extractText for linear/line, extractBoxText for block)
+- Full-width status bar overlay with configurable position/colours/font
+- Shell exit wired to Cmd+W hierarchy (pane → tab → window)
+- Tab/pane switch exits modal state cleanly
+
+### Technical Debt / Follow-up
+- SelectionFinder (search in selection mode) — deferred, needs proper implementation
+- Screen::setSelectionCursor still called from onVBlank — could read State directly in ScreenSnapshot
+- `parseShortcut("ctrl+v")` maps ctrl→cmd on macOS — works because modal intercept catches it first, but parseShortcut should distinguish ctrl from cmd long-term
+
+---
+
+## Sprint 108 — COUNSELOR: Technical Debt Cleanup
+
+**Date:** 2026-03-21
+
+### Agents Participated
+- COUNSELOR: audit coordination, debt triage
+- @auditor: comprehensive codebase audit (contract adherence, SSOT, dead code, stale doxygen)
+- @engineer: StringSlot SeqLock, shell exit wiring, performExitAction removal, SSOT extractions
+- @machinist: 20-item production polish (DBG removal, early returns, brace init, operator tokens, doxygen)
+
+### Files Modified (12 total)
+- `Source/terminal/data/State.h/cpp` — StringSlot SeqLock (data race fix), writeStringSlot SSOT helper, snapshotDirty write path unified
+- `Source/terminal/logic/Session.h/cpp` — removed buffer ownership (moved to State), stack-local buffers, shell exit callback
+- `Source/terminal/logic/Parser.h/cpp` — removed performExitAction (dead code), removed titleBuffer/cwdBuffer
+- `Source/terminal/logic/ParserESC.cpp` — OSC title/CWD pass data+length to State, stale doxygen updated
+- `Source/terminal/logic/ParserCSI.cpp` — effectiveClampBottom SSOT helper
+- `Source/terminal/logic/ParserVT.cpp` — wrap-pending grapheme targeting fix
+- `Source/component/TerminalComponent.h/cpp` — setScrollOffsetClamped SSOT helper, mouseWheelMove early returns fixed, shell exit wiring
+- `Source/component/Panes.h/cpp` — onShellExited/onLastPaneClosed callbacks
+- `Source/component/Tabs.cpp` — onLastPaneClosed → closeActiveTab + quit
+- `Source/terminal/tty/TTY.cpp` — brace init, `not` operator, lambda formatting
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+
+### Problems Solved
+- Data race on string passing (title/CWD/foreground process) — SeqLock-style StringSlot
+- Shell exit kills entire app → now follows pane/tab/window hierarchy
+- 3x duplicated scrollback offset logic → setScrollOffsetClamped SSOT
+- 2x duplicated margin check → effectiveClampBottom SSOT
+- snapshotDirty bypass → unified write path through setSnapshotDirty
+- performExitAction dead code removed
+- Wrap-pending grapheme append targeted wrong cell
+- 14 diagnostic DBGs removed
+- Early returns converted to nested positive checks
+
+### Technical Debt / Follow-up
+- Terminal::State serialization — deferred until END features complete
+- `mouseWheelMove` discrete/smooth paths still have structural duplication (logic differs enough to not extract)
+
+---
+
 ## Sprint 107 — COUNSELOR: CC Status Bar Artifact — SOLVED
 
 **Date:** 2026-03-21

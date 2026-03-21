@@ -3,7 +3,7 @@
 ## END: Ephemeral Nexus Display — Roadmap
 
 **Version:** 0.4.0
-**Last Updated:** 2026-03-12
+**Last Updated:** 2026-03-21
 
 **Purpose:** Forward-looking plan. What is NOT yet implemented. For current codebase documentation, see ARCHITECTURE.md. For detailed future feature specs, see SPEC-details.md.
 
@@ -30,25 +30,25 @@
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Focus events (`\x1b[I`/`\x1b[O`) | Not implemented | `focusGained`/`focusLost` only call `repaint()`, no PTY write |
-| Unified keybinding system | Not implemented | See Keybinding Reorganization below |
-| Command palette | Not implemented | See Command Palette below |
+| Unified keybinding system | **Done** | Action registry, global + modal, configurable via end.lua |
+| Command palette | **Done** | ActionList with GlassWindow |
 | Cross-platform modifier mapping | Not implemented | Ctrl+Shift on Linux/Windows |
 
 ### Selection
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Auto-copy on mouse release | Not implemented | |
-| Word selection (double-click) | Not implemented | |
-| Line selection (triple-click) | Not implemented | |
-| Keyboard selection mode | Not implemented | |
-| Selection in scrollback | Unverified | May work, not tested |
+| Auto-copy on mouse release | Not implemented | User copies with y or cmd+c |
+| Word selection (double-click) | **Done** | |
+| Line selection (triple-click) | **Done** | |
+| Keyboard selection mode | **Done** | Vim-like modal: visual/visual-line/visual-block |
+| Selection in scrollback | **Done** | Selection cursor navigates scrollback |
 
 ### OSC
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| OSC 52 base64 decode | Not implemented | Raw bytes passed through |
+| OSC 52 base64 decode | **Done** | Fixed Latin-1 constructor |
 | OSC 7 (cwd tracking) | Not implemented | cwd currently tracked via OS query |
 | OSC 8 (hyperlinks) | Not implemented | |
 | OSC 9/777 (notifications) | Not implemented | |
@@ -179,7 +179,7 @@ BEL character (`\x07`) silently discarded. Not implemented.
 - User-defined popup entries from `end.lua`
 - Any configurable action that has a string name
 
-**Implementation:** Native OS dialog (not a GL-rendered overlay). Text box + dynamic popup menu. JUCE `PopupMenu` or platform-native equivalent.
+**Implementation note:** Implemented as a JUCE GlassWindow component (not a native OS dialog). Fuzzy-searchable list of all registered actions.
 
 ---
 
@@ -421,14 +421,14 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 **Remaining:**
 - [ ] Focus events (send to PTY)
 - [ ] Bell
-- [ ] Word/line selection
+- [x] Word/line selection
 - [ ] Software renderer fallback
 
 ### Phase 3: Keybinding + UX
 
-- [ ] Unified keybinding system (action registry, global + modal, fully configurable)
-- [ ] Command palette (fuzzy search, all actions + popups)
-- [ ] Tmux-style popup terminals (user-defined, configurable)
+- [x] Unified keybinding system (action registry, global + modal, fully configurable)
+- [x] Command palette (fuzzy search, all actions + popups)
+- [x] Tmux-style popup terminals (user-defined, configurable)
 - [ ] File opener / flash-jump (ls integration, hint labels)
 - [ ] Terminal state serialization (SPEC-details.md Section 1)
 
@@ -478,14 +478,14 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 ## Success Criteria (Remaining)
 
 ### Correctness
-- [ ] Selection works in scrollback
-- [ ] Word selection (double-click)
-- [ ] Line selection (triple-click)
+- [x] Selection works in scrollback
+- [x] Word selection (double-click)
+- [x] Line selection (triple-click)
 - [ ] Focus events sent to PTY
 - [ ] Windows build compiles and runs
-- [ ] All keybindings overridable via end.lua
-- [ ] Command palette lists all actions
-- [ ] Popup terminals spawn and close correctly
+- [x] All keybindings overridable via end.lua
+- [x] Command palette lists all actions
+- [x] Popup terminals spawn and close correctly
 - [ ] Flash-jump labels resolve to correct files
 - [ ] Sixel images render in correct cell positions
 - [ ] WHELMED markdown renders with correct typography

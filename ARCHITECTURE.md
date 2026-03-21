@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-19 (updated: Windows 11 DWM blur, ConPTY sideload all versions, unified blur architecture)
+**Last Updated:** 2026-03-21 (updated: ModalType in State, modal key dispatch chain, shell exit wiring, ActionList done)
 
 ---
 
@@ -120,7 +120,7 @@ Source/
 
     action/                         Unified action registry + key dispatch
       Action.h/cpp                  Action table, key map, prefix state machine, Context<Action>
-      ActionList.h/cpp              Command palette component (scaffolded, UI wiring pending)
+      ActionList.h/cpp              Command palette component (GlassWindow, fuzzy-searchable action list)
 
 modules/
   jreng_core/                       Shared utilities (Owner, identifiers, Context, BinaryData)
@@ -406,7 +406,13 @@ Prefix key and timeout configurable via `keys.prefix` and `keys.prefix_timeout`.
 
 ### Close Cascade
 
-When a pane is closed:
+Two entry points feed into the same cascade: explicit close action and shell exit.
+
+**Explicit close:** `Action::close_pane` callback calls `Panes::closePane(uuid)`.
+
+**Shell exit:** `TTY` reader thread detects EOF/process exit → posts `onProcessExited` lambda to message thread → `TerminalComponent::onProcessExited()` → calls `Panes::closePane(uuid)`.
+
+Cascade from `closePane()`:
 
 1. `Panes::closePane()` ungrafts SESSION, destroys terminal, removes resizer bar
 2. `PaneManager::remove()` collapses the parent split node, promotes the sibling
@@ -596,7 +602,34 @@ Uses SDF for rounded corners and anti-aliased diagonals. Produces pixel-perfect 
 
 ### ScreenSelection
 
-Anchor + end `Point<int>` pair. `contains()` for per-cell hit testing. Renders via transparent background overlay using `colours.selection` config color.
+Anchor + end `Point<int>` pair. `SelectionType` enum (linear/line/box). `containsCell()` dispatches to `contains()`, `containsLine()`, or `containsBox()`. Renders via transparent background overlay using `colours.selection` config color.
+
+### ModalType
+
+`State` holds a `ModalType` atomic stored in the `parameterMap` via `storeAndFlush (ID::modalType, …)`. When non-none, ALL keys are intercepted by `TerminalComponent::keyPressed()` before the Action system or PTY.
+
+```cpp
+enum class ModalType : uint8_t { none, selection, flashJump, uriAction };
+```
+
+`setModalType()` writes the atomic and calls `setSnapshotDirty()` to trigger re-render (selection cursor changes). `getModalType()` reads from the parameterMap atomic. `isModal()` is a convenience wrapper.
+
+**Key dispatch chain (updated):**
+
+```
+keyPressed()
+    |
+    +-- State::isModal()?              (FIRST — before everything)
+    |       |
+    |       +-- handleModalKey()       (dispatches by ModalType)
+    |               +-- selection → handleSelectionKey()
+    |               +-- flashJump → handleFlashJumpKey()   (future)
+    |               +-- uriAction → handleUriActionKey()   (future)
+    |
+    +-- Action::handleKeyPress()       (prefix state machine + global bindings)
+    +-- handleScrollNavigation()
+    +-- session.handleKeyPress()       (PTY forward)
+```
 
 ### MessageOverlay
 
@@ -848,7 +881,7 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 | LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via Config |
 | MessageOverlay | Transient overlay for status messages (reload confirmation, config errors) |
 | Action | Unified action registry: action table + key map + prefix state machine, Context-managed, owned by MainComponent |
-| ActionList | Command palette component: fuzzy-searchable list of all registered actions (scaffolded, UI pending) |
+| ActionList | Command palette component: GlassWindow with fuzzy-searchable list of all registered actions |
 | PaneManager | Binary tree ValueTree layout engine for recursive split pane layout |
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
 | Panes | Per-tab component owning Terminal::Component instances and managing split layout via PaneManager |
