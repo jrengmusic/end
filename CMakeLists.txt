@@ -36,8 +36,10 @@ set(JUCE_MODULES
     juce_gui_basics
     juce_opengl
     jreng_core
+    jreng_freetype
     jreng_graphics
     jreng_opengl
+    jreng_glyph
 )
 
 set(USER_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
@@ -302,7 +304,7 @@ target_sources(${TARGET_NAME} PRIVATE ${SOURCES})
 
 target_include_directories(${TARGET_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/Source"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Library/freetype/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/modules/jreng_freetype/freetype/include"
     "${JUCE_PATH}/modules/juce_graphics/fonts/harfbuzz"
 )
 
@@ -326,39 +328,9 @@ set_source_files_properties(${LUA_SOURCES} PROPERTIES LANGUAGE C)
 # Add include paths
 target_include_directories(${TARGET_NAME} PRIVATE "${LUA_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/Library")
 
-# ============================================================================
-# FREETYPE LIBRARY (git submodule: Library/freetype)
-# ============================================================================
-
-set(FREETYPE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Library/freetype")
-
-if(NOT EXISTS "${FREETYPE_DIR}/CMakeLists.txt")
-    message(STATUS "FreeType submodule not found — running git submodule update --init...")
-    execute_process(
-        COMMAND git submodule update --init Library/freetype
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        RESULT_VARIABLE GIT_SUBMODULE_RESULT
-    )
-    if(NOT GIT_SUBMODULE_RESULT EQUAL 0)
-        message(FATAL_ERROR "git submodule update --init failed for Library/freetype")
-    endif()
-endif()
-
-# Disable FreeType's optional deps — keep it lean
-set(FT_DISABLE_ZLIB TRUE)
-set(FT_DISABLE_BZIP2 TRUE)
-set(FT_DISABLE_PNG TRUE)
-set(FT_DISABLE_HARFBUZZ TRUE)
-set(FT_DISABLE_BROTLI TRUE)
-
-add_subdirectory("${FREETYPE_DIR}" "${CMAKE_BINARY_DIR}/freetype" EXCLUDE_FROM_ALL)
-
-# Link FreeType
-target_link_libraries(${TARGET_NAME} PRIVATE freetype)
-
 message(STATUS "Lua: ${LUA_PATH} (vendored)")
 message(STATUS "sol2: ${SOL_PATH} (vendored)")
-message(STATUS "FreeType: ${FREETYPE_DIR} (submodule)")
+message(STATUS "FreeType: modules/jreng_freetype (JUCE module, vendored)")
 message(STATUS "HarfBuzz: ${JUCE_PATH}/modules/juce_graphics/fonts/harfbuzz (JUCE internal)")
 
 message(STATUS "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -500,8 +472,6 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
     DONT_SET_USING_JUCE_NAMESPACE=1
     JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:${TARGET_NAME},JUCE_PRODUCT_NAME>"
     JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:${TARGET_NAME},JUCE_VERSION>"
-    FT2_BUILD_LIBRARY
-    FT_ERR_PREFIX=FT_Err_
     HAVE_FREETYPE
     $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_UNISTD_H>
     $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_FCNTL_H>

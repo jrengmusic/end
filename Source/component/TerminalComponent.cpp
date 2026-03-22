@@ -30,8 +30,9 @@
  *
  * @note MESSAGE THREAD — called from MainComponent constructor.
  */
-Terminal::Component::Component()
-    : screen()
+Terminal::Component::Component (jreng::Font& font_)
+    : font (font_)
+    , screen (font_)
     , vblank (this,
               [this]
               {
@@ -42,13 +43,14 @@ Terminal::Component::Component()
     session.getState().get().setProperty (jreng::ID::id, juce::Uuid().toString(), nullptr);
 }
 
-Terminal::Component* Terminal::Component::create (juce::Component& parent,
+Terminal::Component* Terminal::Component::create (jreng::Font& font,
+                                                  juce::Component& parent,
                                                   juce::Rectangle<int> bounds,
                                                   jreng::Owner<Component>& owner,
                                                   const juce::String& workingDirectory)
 {
-    auto terminal { workingDirectory.isNotEmpty() ? std::make_unique<Component> (workingDirectory)
-                                                  : std::make_unique<Component>() };
+    auto terminal { workingDirectory.isNotEmpty() ? std::make_unique<Component> (font, workingDirectory)
+                                                  : std::make_unique<Component> (font) };
     const auto uuid { terminal->getValueTree().getProperty (jreng::ID::id).toString() };
     terminal->setComponentID (uuid);
     terminal->setBounds (bounds);
@@ -60,11 +62,13 @@ Terminal::Component* Terminal::Component::create (juce::Component& parent,
 /**
  * @brief Constructs a terminal component starting in the given directory.
  *
+ * @param font_             Font instance providing metrics, shaping, and rasterisation.
  * @param workingDirectory  Absolute path for the shell's initial cwd.
  * @note MESSAGE THREAD.
  */
-Terminal::Component::Component (const juce::String& workingDirectory)
-    : screen()
+Terminal::Component::Component (jreng::Font& font_, const juce::String& workingDirectory)
+    : font (font_)
+    , screen (font_)
     , vblank (this,
               [this]
               {
@@ -79,15 +83,18 @@ Terminal::Component::Component (const juce::String& workingDirectory)
 /**
  * @brief Constructs a terminal component running a specific command.
  *
+ * @param font_             Font instance providing metrics, shaping, and rasterisation.
  * @param program           Shell command or executable path.
  * @param args              Arguments passed to the command.
  * @param workingDirectory  Initial cwd. Empty = inherit.
  * @note MESSAGE THREAD.
  */
-Terminal::Component::Component (const juce::String& program,
+Terminal::Component::Component (jreng::Font& font_,
+                                const juce::String& program,
                                 const juce::String& args,
                                 const juce::String& workingDirectory)
-    : screen()
+    : font (font_)
+    , screen (font_)
     , vblank (this,
               [this]
               {
@@ -436,7 +443,7 @@ void Terminal::Component::glContextClosing() noexcept { screen.glContextClosing(
 
 juce::Point<int> Terminal::Component::getOriginInTopLevel() const noexcept
 {
-    const float scale { Fonts::getDisplayScale() };
+    const float scale { jreng::Font::getDisplayScale() };
     const auto* topLevel { getTopLevelComponent() };
     const auto relative { topLevel != nullptr ? topLevel->getLocalPoint (this, juce::Point<int> (0, 0))
                                               : juce::Point<int> (0, 0) };
@@ -584,8 +591,13 @@ void Terminal::Component::onVBlank()
                 }
             }
 
-            // Scan for clickable links when output block exists and scan is needed.
-            if (linkManager.needsScan() and session.getState().getOutputBlockTop() >= 0)
+            // Scan for clickable links when at live view with an output block.
+            // Clear underlay when scrolled back — link row indices are viewport-relative.
+            if (scrollOffset > 0)
+            {
+                screen.setLinkUnderlay (nullptr, 0);
+            }
+            else if (linkManager.needsScan() and session.getState().getOutputBlockTop() >= 0)
             {
                 const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
                 linkManager.scan (cwd, true);

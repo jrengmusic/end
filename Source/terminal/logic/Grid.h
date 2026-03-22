@@ -829,6 +829,29 @@ private:
     const Grapheme* graphemePtr (const Buffer& buffer, int visibleRow, int col) const noexcept;
 
     /**
+     * @brief Fills dead space below the cursor after the terminal grew taller.
+     *
+     * Called from `resize()` after reflow, when:
+     * - the terminal grew taller (`newVisibleRows > oldVisibleRows`),
+     * - the normal screen is active, and
+     * - OSC 133 A has been received (`state.getPromptRow() >= 0`).
+     *
+     * If there are empty rows below the cursor in the new visible window, and
+     * the normal buffer has scrollback content available, this function adjusts
+     * the ring-buffer `head` backward to expose scrollback rows at the top of
+     * the viewport.  This eliminates the visual dead space that otherwise
+     * appears when an inline TUI app (e.g. Claude Code / Ink) is running and
+     * the terminal is resized to a larger height.
+     *
+     * The cursor row is updated in State to reflect the shift.
+     *
+     * @param oldVisibleRows  Visible row count before this resize.
+     * @param newVisibleRows  Visible row count after this resize.
+     * @note READER THREAD — called under `resizeLock`, lock-free, noexcept.
+     */
+    void fillDeadSpaceAfterGrow (int oldVisibleRows, int newVisibleRows) noexcept;
+
+    /**
      * @brief Reflows the content of `oldBuffer` into `newBuffer` at the new column width.
      *
      * Walks every logical line in `oldBuffer` (following soft-wrap chains),

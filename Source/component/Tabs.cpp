@@ -24,8 +24,9 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Tabs::Tabs (juce::TabbedButtonBar::Orientation orientation)
+Tabs::Tabs (jreng::Font& font_, juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)
+    , font (font_)
 {
     setOpaque (false);
     setTabBarDepth (0);
@@ -52,7 +53,7 @@ Tabs::~Tabs()
  */
 void Tabs::addNewTab()
 {
-    auto& newPanesPtr { panes.add (std::make_unique<Panes>()) };
+    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font)) };
     auto& newPanes { *newPanesPtr };
     newPanes.onRepaintNeeded = onRepaintNeeded;
     newPanes.onLastPaneClosed = [this]

@@ -45,10 +45,11 @@ class Tabs : public juce::TabbedComponent
 public:
     /**
      * @brief Construct a new Tabs container.
+     * @param font        Font instance providing metrics, shaping, and rasterisation.
      * @param orientation The tab bar orientation (top, bottom, left, or right).
      * @note MESSAGE THREAD.
      */
-    explicit Tabs (juce::TabbedButtonBar::Orientation orientation);
+    Tabs (jreng::Font& font, juce::TabbedButtonBar::Orientation orientation);
 
     /**
      * @brief Destructor.
@@ -289,6 +290,7 @@ private:
     /** @brief Sets the active terminal UUID and grabs focus for the last terminal in @p active. */
     void focusLastTerminal (Panes* active);
 
+    jreng::Font& font;
     juce::Value tabName;
     jreng::Owner<Panes> panes;
 

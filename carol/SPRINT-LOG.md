@@ -8,6 +8,125 @@
 
 ---
 
+## Sprint 115 — COUNSELOR: jreng_glyph Module Extraction + TextLayout
+
+**Date:** 2026-03-22
+
+### Agents Participated
+- COUNSELOR: architecture decisions, extraction planning, audit review
+- @pathfinder: codebase pattern discovery (module structure, FreeType/HarfBuzz integration, rendering code map)
+- @engineer: all implementation (module creation, code extraction, TextLayout, GLTextRenderer, audit fixes)
+- @librarian: JUCE TextLayout/AttributedString/GlyphArrangement API research
+- @researcher: UAX #14 line breaking options (libunibreak selected)
+- @auditor: comprehensive contract compliance audit (21 findings, all resolved)
+
+### Files Modified (60+ total)
+
+**New module: `modules/jreng_glyph/` (26 files)**
+- `jreng_glyph.h` — module header, dependencies: jreng_opengl, jreng_core, jreng_freetype, juce_graphics, juce_opengl
+- `jreng_glyph.cpp` — unity build
+- `jreng_glyph.mm` — macOS unity build
+- `atlas/jreng_atlas_packer.h` — `jreng::Glyph::AtlasPacker` (shelf bin packer)
+- `atlas/jreng_glyph_key.h` — `jreng::Glyph::Key` (cache key)
+- `atlas/jreng_atlas_glyph.h` — `jreng::Glyph::Region` (atlas region descriptor)
+- `atlas/jreng_lru_glyph_cache.h` — `jreng::Glyph::LRUCache` (frame-based eviction)
+- `atlas/jreng_staged_bitmap.h` — `jreng::Glyph::StagedBitmap` (cross-thread upload)
+- `atlas_impl/jreng_glyph_atlas.h/.cpp/.mm` — `jreng::Glyph::Atlas` (dual atlas + rasterization)
+- `constraint/jreng_glyph_constraint.h` — `jreng::Glyph::Constraint` (icon scaling)
+- `constraint/jreng_glyph_constraint_table.cpp` — generated lookup table
+- `constraint/jreng_constraint_transform.h` — shared `computeConstraintTransform()` (DRY fix)
+- `drawing/jreng_box_drawing.h` — `jreng::Glyph::BoxDrawing` (procedural rasterizer)
+- `font/jreng_font.h/.cpp/.mm` — `jreng::Font` (loading, shaping, metrics)
+- `font/jreng_font_registry.cpp/.mm` — `jreng::Font::Registry` (codepoint-to-slot resolver)
+- `font/jreng_font_metrics.cpp` — metrics calculation
+- `font/jreng_font_shaping.cpp` — HarfBuzz shaping pipeline
+- `render/jreng_glyph_render.h` — `jreng::Glyph::Render::Quad`, `Background`, `SnapshotBase`
+- `render/jreng_glyph_shaders.h` — embedded shader sources
+- `render/jreng_gl_text_renderer.h/.cpp` — `jreng::Glyph::GLTextRenderer` (instanced quad renderer)
+- `layout/jreng_text_layout.h/.cpp` — `jreng::TextLayout` (proportional text layout engine)
+- `linebreak/*` — vendored libunibreak (UAX #14, Unicode 15.0)
+- `shaders/*` — glyph + background shader source files
+
+**New module: `modules/jreng_freetype/` (3 files + vendored source)**
+- `jreng_freetype.h/.cpp/.mm` — vendored FreeType 2.13.3
+- `freetype/` — full FreeType source (forked from git submodule)
+
+**Modified in `Source/`:**
+- `Screen.h` — `Render::Snapshot` inherits `SnapshotBase`; GL members replaced with `GLTextRenderer`; `blockFirst/blockLast/blockTable` renamed
+- `ScreenGL.cpp` — delegates to `textRenderer` for all GL operations
+- `ScreenRender.cpp` — uses `jreng::Glyph::*` types
+- `ScreenSnapshot.cpp` — uses `jreng::Glyph::*` types
+- `Main.cpp` — owns `jreng::Font::Registry`
+- `MainComponent.h/.cpp` — threads `Font&` reference
+- `TerminalComponent.h/.cpp`, `Panes.h/.cpp`, `Tabs.h/.cpp` — `Font&` reference chain
+- `CMakeLists.txt` — `jreng_freetype` and `jreng_glyph` added to JUCE_MODULES; old FreeType integration removed
+
+**Deleted from `Source/terminal/rendering/`:**
+- `AtlasPacker.h`, `BoxDrawing.h`, `GlyphConstraint.h`, `GlyphConstraintTable.cpp`
+- `GlyphAtlas.h/.cpp/.mm`, `FontCollection.h/.cpp/.mm`
+- `Fonts.h/.cpp/.mm`, `FontsShaping.cpp`, `FontsMetrics.cpp`
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered (audit-verified, all violations fixed)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md enforced (audit-verified, all 21 findings resolved)
+
+### Problems Solved
+- FreeType vendored as JUCE module — no git submodule dependency
+- HarfBuzz: using JUCE's internal copy (ARCHITECT decision — skip vendoring)
+- Entire glyph rendering pipeline extracted into reusable `jreng_glyph` module
+- `jreng::Font` singleton removed — lifecycle owned by application, passed by reference
+- `jreng::Font::Registry` singleton removed — same pattern
+- DRY violation fixed: constraint transform logic shared between FreeType/CoreText backends
+- All control flow violations fixed (early returns, continue, break, boolean flags)
+- All naming violations fixed (UNICODE_MAX, BLOCK_FIRST/LAST, etc.)
+- libunibreak vendored for UAX #14 Unicode line breaking
+- `jreng::TextLayout` created — HarfBuzz shaping + UAX #14 line breaking + GL instanced rendering
+
+### Technical Debt / Follow-up
+- `TextLayout::draw(juce::Graphics&)` is a stub — Plan 3 implements CPU rendering backend
+- Emoji routing in `TextLayout::draw(GLTextRenderer&)` not implemented — all glyphs go to mono atlas
+- `calcMetrics()` called per-glyph in GL draw inner loop — can be hoisted per-run
+- Shader BinaryData wiring: shaders embedded as constexpr strings in module, but END's `ScreenGL.cpp` still loads from BinaryData (two copies)
+- Fix 13 partial: 3 `.mm`/`.cpp` files have static helpers wrapped in namespace via qualified calls rather than full file namespace restructure
+- `displayScale` only set from `setFontSize` — may need update from display-change handler
+- Plan 2 residual: END already consumes module (destructive move), but shader loading path is dual
+- Plans 3–4 (CPU rendering backend + END fallback) not started
+
+---
+
+## Sprint 114 — COUNSELOR: Resize Dead Space Fix + Link Underline Cleanup
+
+**Date:** 2026-03-22
+
+### Agents Participated
+- COUNSELOR: root cause analysis, architecture decision
+- @engineer: implementation
+
+### Files Modified (5 total)
+- `Source/terminal/data/State.h` — added `promptRow` atomic, `setPromptRow()`/`getPromptRow()` methods
+- `Source/terminal/data/State.cpp` — implemented prompt row accessors
+- `Source/terminal/logic/ParserESC.cpp` — OSC 133 A now stores cursor row as prompt position (was no-op)
+- `Source/terminal/logic/Grid.h` — declared `fillDeadSpaceAfterGrow()`
+- `Source/terminal/logic/GridReflow.cpp` — implemented `fillDeadSpaceAfterGrow()`: after resize grow on normal screen with OSC 133 active, pulls scrollback into visible area by adjusting ring buffer head backward, shifts cursor row down. Called between reflow and markAllDirty in `resize()`.
+- `Source/component/TerminalComponent.cpp` — clear link underlay when scrolled back (`scrollOffset > 0`), prevents stale underline artifacts from viewport-relative spans surviving scroll
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+
+### Problems Solved
+- Resize dead space: inline TUI apps (Claude Code/Ink) left empty rows below the prompt after terminal grows. Now fills from scrollback using OSC 133 A prompt position as anchor.
+- Link underline trails: stale LinkSpan row indices persisted across scroll, rendering underlines on wrong rows. Now cleared when scrollOffset > 0.
+
+### Technical Debt / Follow-up
+- Fresh session with zero scrollback won't benefit from dead space fill (no content to pull). Acceptable — scrollback fills quickly after first command.
+- Prompt row tracking is per-session (State atomic), resets on session restart.
+
+---
+
 ## Sprint 113 — COUNSELOR: Config Refactor + RRGGBBAA
 
 **Date:** 2026-03-22

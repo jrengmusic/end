@@ -27,8 +27,7 @@
  */
 
 #include "Screen.h"
-#include "BoxDrawing.h"
-#include "FontCollection.h"
+// BoxDrawing is now jreng::Glyph::BoxDrawing, available via JuceHeader → jreng_glyph
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -189,11 +188,11 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
         // Block elements and box drawing characters are rendered procedurally
         // by the terminal renderer — they have no font glyph.  Skip the glyph
         // path so drawCursor() falls through to the geometric block.
-        if (not BoxDrawing::isProcedural (cp))
+        if (not jreng::Glyph::BoxDrawing::isProcedural (cp))
         {
             // Try the emoji font first — if the codepoint shapes there it must be
             // drawn via the RGBA atlas so the native colour is preserved.
-            const Fonts::ShapeResult emojiShaped { Fonts::getContext()->shapeEmoji (&cp, 1) };
+            const jreng::Font::ShapeResult emojiShaped { font.shapeEmoji (&cp, 1) };
 
             // HarfBuzz returns count > 0 even for .notdef (glyph index 0).
             // Only treat as emoji when the font actually has the codepoint.
@@ -205,22 +204,21 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
 
             if (isEmoji)
             {
-                fontHandle = Fonts::getContext()->getEmojiFontHandle();
+                fontHandle = font.getEmojiFontHandle();
                 glyphIndex = emojiShaped.glyphs[0].glyphIndex;
             }
             else
             {
                 // FontCollection first — resolves NF icons and fallback-font codepoints
                 // exactly as buildCellInstance does for normal cells.
-                auto* fc { FontCollection::getContext() };
+                jreng::Font::Registry& fc { font.registry };
 
-                if (fc != nullptr)
                 {
-                    const int8_t fcSlot { fc->resolve (cp) };
+                    const int8_t fcSlot { fc.resolve (cp) };
 
                     if (fcSlot > 0)
                     {
-                        const FontCollection::Entry* entry { fc->getEntry (static_cast<int> (fcSlot)) };
+                        const jreng::Font::Registry::Entry* entry { fc.getEntry (static_cast<int> (fcSlot)) };
 
                         if (entry != nullptr and entry->hbFont != nullptr)
                         {
@@ -242,14 +240,14 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
                 // ShapeText fallback — regular chars ("a", digits, punctuation, etc.)
                 if (fontHandle == nullptr)
                 {
-                    const Fonts::ShapeResult textShaped { Fonts::getContext()->shapeText (
-                        Fonts::Style::regular, &cp, 1) };
+                    const jreng::Font::ShapeResult textShaped { font.shapeText (
+                        jreng::Font::Style::regular, &cp, 1) };
 
                     if (textShaped.count > 0)
                     {
                         fontHandle = textShaped.fontHandle != nullptr
                                      ? textShaped.fontHandle
-                                     : Fonts::getContext()->getFontHandle (Fonts::Style::regular);
+                                     : font.getFontHandle (jreng::Font::Style::regular);
                         glyphIndex = textShaped.glyphs[0].glyphIndex;
                     }
                 }
@@ -257,14 +255,14 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
 
             if (fontHandle != nullptr)
             {
-                GlyphKey key;
+                jreng::Glyph::Key key;
                 key.glyphIndex = glyphIndex;
                 key.fontFace   = fontHandle;
-                key.fontSize   = Fonts::getContext()->getPixelsPerEm (Fonts::Style::regular);
-                key.cellSpan   = 1;
+                key.fontSize   = font.getPixelsPerEm (jreng::Font::Style::regular);
+                key.span       = 1;
 
-                AtlasGlyph* ag { resources.glyphAtlas.getOrRasterize (
-                    key, fontHandle, isEmoji, GlyphConstraint {},
+                jreng::Glyph::Region* ag { resources.glyphAtlas.getOrRasterize (
+                    key, fontHandle, isEmoji, jreng::Glyph::Constraint {},
                     physCellWidth, physCellHeight, physBaseline) };
 
                 if (ag != nullptr)

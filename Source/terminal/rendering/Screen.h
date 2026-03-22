@@ -46,8 +46,8 @@
 #include <array>
 #include "../data/Cell.h"
 #include "../logic/Grid.h"
-#include "GlyphAtlas.h"
-#include "Fonts.h"
+// GlyphAtlas is now jreng::Glyph::Atlas, available via JuceHeader → jreng_glyph
+// jreng::Font is available via JuceHeader → jreng_glyph
 #include "../data/Palette.h"
 #include "ScreenSelection.h"
 #include "../selection/LinkSpan.h"
@@ -60,14 +60,14 @@ namespace Terminal
  * @struct BlockGeometry
  * @brief Normalised geometry descriptor for a Unicode block-element character.
  *
- * Each entry in `BLOCK_TABLE` describes one block-element codepoint
+ * Each entry in `blockTable` describes one block-element codepoint
  * (U+2580–U+2593) as a rectangle in normalised cell space [0, 1] × [0, 1],
  * plus an optional alpha override.  The renderer scales these values by the
  * physical cell dimensions to produce pixel-space quads.
  *
  * @note `static_assert` below verifies trivial copyability for safe GPU upload.
  *
- * @see BLOCK_TABLE
+ * @see blockTable
  * @see Screen::buildBlockRect()
  */
 struct BlockGeometry
@@ -82,22 +82,22 @@ struct BlockGeometry
 static_assert (std::is_trivially_copyable_v<BlockGeometry>, "BlockGeometry must be trivially copyable");
 
 /// @brief First Unicode codepoint in the block-element range (U+2580 UPPER HALF BLOCK).
-static constexpr uint32_t BLOCK_FIRST { 0x2580 };
+static constexpr uint32_t blockFirst { 0x2580 };
 
 /// @brief Last Unicode codepoint in the block-element range (U+2593 DARK SHADE).
-static constexpr uint32_t BLOCK_LAST  { 0x2593 };
+static constexpr uint32_t blockLast  { 0x2593 };
 
 /**
  * @brief Lookup table mapping block-element codepoints to normalised geometry.
  *
- * Indexed by `codepoint - BLOCK_FIRST`.  Contains 20 entries covering
+ * Indexed by `codepoint - blockFirst`.  Contains 20 entries covering
  * U+2580–U+2593.  Each entry is a `BlockGeometry` describing the filled
  * rectangle within the cell in normalised [0, 1] space.
  *
  * @see BlockGeometry
  * @see Screen::buildBlockRect()
  */
-static constexpr std::array<BlockGeometry, 20> BLOCK_TABLE
+static constexpr std::array<BlockGeometry, 20> blockTable
 {{
     { 0.0f, 0.0f,   1.0f,   0.5f,   -1.0f },
     { 0.0f, 0.875f, 1.0f,   0.125f, -1.0f },
@@ -124,19 +124,19 @@ static constexpr std::array<BlockGeometry, 20> BLOCK_TABLE
 /**
  * @brief Returns true if @p codepoint is a Unicode block-element character.
  *
- * Tests whether @p codepoint falls in the range [BLOCK_FIRST, BLOCK_LAST]
+ * Tests whether @p codepoint falls in the range [blockFirst, blockLast]
  * (U+2580–U+2593).  Block characters are rendered as GPU quads rather than
  * rasterised glyphs.
  *
  * @param codepoint  Unicode scalar value to test.
  * @return           `true` if the codepoint is a block element.
  *
- * @see BLOCK_TABLE
+ * @see blockTable
  * @see Screen::buildBlockRect()
  */
 inline bool isBlockChar (uint32_t codepoint) noexcept
 {
-    return codepoint >= BLOCK_FIRST and codepoint <= BLOCK_LAST;
+    return codepoint >= blockFirst and codepoint <= blockLast;
 }
 
 /// @brief Alias for the active colour theme type from Config.
@@ -149,152 +149,67 @@ using Theme = Config::Theme;
  * `Render` is a plain struct used as a namespace to group the types that
  * cross the MESSAGE THREAD / GL THREAD boundary:
  *
- * - `Render::Background` — a coloured rectangle (cell background or block char).
- * - `Render::Glyph`      — a positioned, textured glyph instance.
- * - `Render::Snapshot`   — a complete frame: arrays of glyphs + backgrounds.
+ * - `Render::Background` — alias for `jreng::Glyph::Render::Background`.
+ * - `Render::Glyph`      — alias for `jreng::Glyph::Render::Quad` (kept for
+ *                          minimal consumer churn; the canonical module name
+ *                          is `Quad` to avoid collision with `jreng::Font::Glyph`).
+ * - `Render::Snapshot`   — terminal-specific snapshot: inherits the generic
+ *                          `jreng::Glyph::Render::SnapshotBase` arrays and
+ *                          adds cursor state fields.
  * - `jreng::GLSnapshotBuffer` — double-buffered lock-free snapshot exchange.
  *
  * @see Screen
+ * @see jreng::Glyph::Render
  */
 struct Render
 {
 
-/**
- * @struct Background
- * @brief A coloured rectangle to be drawn as a cell background or block element.
- *
- * Trivially copyable for direct GPU upload.  Coordinates are in physical
- * (HiDPI-scaled) pixel space.
- *
- * @note `static_assert` below verifies trivial copyability.
- *
- * @see Render::Snapshot::backgrounds
- */
-struct Background
-{
-    juce::Rectangle<float> screenBounds;  ///< Rectangle in physical pixel space (origin at top-left of viewport).
-    float backgroundColorR;               ///< Red channel of the background colour [0, 1].
-    float backgroundColorG;               ///< Green channel of the background colour [0, 1].
-    float backgroundColorB;               ///< Blue channel of the background colour [0, 1].
-    float backgroundColorA;               ///< Alpha channel of the background colour [0, 1].
-};
+/// @brief Alias for the module-level coloured rectangle type.
+using Background = jreng::Glyph::Render::Background;
 
-/**
- * @struct Glyph
- * @brief A positioned, textured glyph instance for GPU instanced drawing.
- *
- * Describes one glyph to be drawn: its screen position, size, atlas texture
- * coordinates, and foreground colour.  Arrays of `Glyph` are uploaded to the
- * instance VBO and drawn with a single `glDrawArraysInstanced` call.
- *
- * @par Thread contract
- * - **READER THREAD** (MESSAGE THREAD): builds and writes `Glyph` instances
- *   into `Render::Snapshot`.
- * - **GL THREAD**: reads `Glyph` instances from the acquired snapshot
- *   (immutable after publish).
- *
- * @note `static_assert` below verifies trivial copyability for GPU upload.
- *
- * @see Render::Snapshot::mono
- * @see Render::Snapshot::emoji
- */
-struct Glyph
-{
-    juce::Point<float>      screenPosition;      ///< Top-left corner of the glyph bitmap in physical pixel space.
-    juce::Point<float>      glyphSize;           ///< Width and height of the glyph bitmap in physical pixels.
-    juce::Rectangle<float>  textureCoordinates;  ///< UV rectangle within the glyph atlas texture [0, 1].
-    float                   foregroundColorR;    ///< Red channel of the glyph foreground colour [0, 1].
-    float                   foregroundColorG;    ///< Green channel of the glyph foreground colour [0, 1].
-    float                   foregroundColorB;    ///< Blue channel of the glyph foreground colour [0, 1].
-    float                   foregroundColorA;    ///< Alpha channel of the glyph foreground colour [0, 1].
-};
+/// @brief Alias for the module-level positioned quad type.
+/// @note The canonical module name is `jreng::Glyph::Render::Quad`; this
+///       alias preserves existing consumer code at `Terminal::Render::Glyph`.
+using Glyph = jreng::Glyph::Render::Quad;
 
 /**
  * @struct Snapshot
- * @brief A complete rendered frame: glyph instances + background quads.
+ * @brief A complete rendered frame: glyph instances + background quads + cursor state.
  *
- * Owns three `HeapBlock` arrays — `mono`, `emoji`, and `backgrounds` — that
- * hold all draw calls for one frame.  Capacity is grown on demand via
- * `ensureCapacity()` and never shrunk, so allocations stabilise after a few
- * frames.
+ * Inherits the generic `jreng::Glyph::Render::SnapshotBase` which owns the
+ * three `HeapBlock` arrays (`mono`, `emoji`, `backgrounds`) and
+ * `ensureCapacity()`.  Terminal-specific cursor state fields are added here.
  *
  * Two `Snapshot` instances are owned internally by `jreng::GLSnapshotBuffer`
  * and recycled via atomic pointer exchange to avoid per-frame allocation.
  *
+ * @see jreng::Glyph::Render::SnapshotBase
  * @see jreng::GLSnapshotBuffer
  * @see Screen::updateSnapshot()
  */
-struct Snapshot
+struct Snapshot : jreng::Glyph::Render::SnapshotBase
 {
-    juce::HeapBlock<Glyph>      mono;              ///< Monochrome glyph instances (regular + bold + italic).
-    juce::HeapBlock<Glyph>      emoji;             ///< Colour emoji glyph instances.
-    juce::HeapBlock<Background> backgrounds;       ///< Background colour quads (non-default bg + selection overlay).
-    int                         monoCount      { 0 }; ///< Number of valid entries in @p mono.
-    int                         emojiCount     { 0 }; ///< Number of valid entries in @p emoji.
-    int                         backgroundCount{ 0 }; ///< Number of valid entries in @p backgrounds.
-    int                         monoCapacity   { 0 }; ///< Allocated capacity of @p mono in elements.
-    int                         emojiCapacity  { 0 }; ///< Allocated capacity of @p emoji in elements.
-    int                         backgroundCapacity { 0 }; ///< Allocated capacity of @p backgrounds in elements.
-
-    juce::Point<int>            cursorPosition;           ///< Cursor position in grid coordinates (col, row).
-    bool                        cursorVisible  { false }; ///< True if DECTCEM cursor mode is on.
-    int                         cursorShape    { 0 };     ///< DECSCUSR Ps value (0 = user glyph, 1–6 = geometric).
-    float                       cursorColorR   { -1.0f }; ///< OSC 12 red override (0–255), or -1 if no override.
-    float                       cursorColorG   { -1.0f }; ///< OSC 12 green override (0–255), or -1 if no override.
-    float                       cursorColorB   { -1.0f }; ///< OSC 12 blue override (0–255), or -1 if no override.
-    int                         scrollOffset   { 0 };     ///< Lines scrolled back (0 = live view; cursor hidden when > 0).
-    bool                        cursorBlinkOn  { true };  ///< Current blink phase (true = visible half of cycle).
-    bool                        cursorFocused  { false }; ///< True if the terminal component has keyboard focus.
-    Glyph                       cursorGlyph;                    ///< Pre-built glyph instance for user cursor (shape 0).
-    bool                        hasCursorGlyph    { false };   ///< True when cursorGlyph is valid (shape 0 or cursor.force).
-    bool                        cursorGlyphIsEmoji { false };  ///< True when cursorGlyph lives in the emoji (RGBA) atlas.
-    float cursorDrawColorR { 1.0f };  ///< Final resolved cursor colour red [0, 1] (theme or OSC 12).
-    float cursorDrawColorG { 1.0f };  ///< Final resolved cursor colour green [0, 1] (theme or OSC 12).
-    float cursorDrawColorB { 1.0f };  ///< Final resolved cursor colour blue [0, 1] (theme or OSC 12).
-
-    int                         gridWidth  { 0 }; ///< Grid width in columns at the time of snapshot.
-    int                         gridHeight { 0 }; ///< Grid height in rows at the time of snapshot.
-
-    /**
-     * @brief Grows the backing arrays to at least the requested capacities.
-     *
-     * Each array is reallocated only if the requested count exceeds the
-     * current capacity.  Existing data is not preserved across reallocation.
-     *
-     * @param monoNeeded   Minimum number of `Glyph` slots required for mono.
-     * @param emojiNeeded  Minimum number of `Glyph` slots required for emoji.
-     * @param bgNeeded     Minimum number of `Background` slots required.
-     *
-     * @note Called on the **MESSAGE THREAD** from `updateSnapshot()` before
-     *       writing glyph data.
-     */
-    void ensureCapacity (int monoNeeded, int emojiNeeded, int bgNeeded) noexcept
-    {
-        if (monoNeeded > monoCapacity)
-        {
-            mono.allocate (static_cast<size_t> (monoNeeded), false);
-            monoCapacity = monoNeeded;
-        }
-        if (emojiNeeded > emojiCapacity)
-        {
-            emoji.allocate (static_cast<size_t> (emojiNeeded), false);
-            emojiCapacity = emojiNeeded;
-        }
-        if (bgNeeded > backgroundCapacity)
-        {
-            backgrounds.allocate (static_cast<size_t> (bgNeeded), false);
-            backgroundCapacity = bgNeeded;
-        }
-    }
-
-    void resize() noexcept {}
+    juce::Point<int> cursorPosition;           ///< Cursor position in grid coordinates (col, row).
+    bool             cursorVisible  { false }; ///< True if DECTCEM cursor mode is on.
+    int              cursorShape    { 0 };     ///< DECSCUSR Ps value (0 = user glyph, 1–6 = geometric).
+    float            cursorColorR   { -1.0f }; ///< OSC 12 red override (0–255), or -1 if no override.
+    float            cursorColorG   { -1.0f }; ///< OSC 12 green override (0–255), or -1 if no override.
+    float            cursorColorB   { -1.0f }; ///< OSC 12 blue override (0–255), or -1 if no override.
+    int              scrollOffset   { 0 };     ///< Lines scrolled back (0 = live view; cursor hidden when > 0).
+    bool             cursorBlinkOn  { true };  ///< Current blink phase (true = visible half of cycle).
+    bool             cursorFocused  { false }; ///< True if the terminal component has keyboard focus.
+    Glyph            cursorGlyph;                    ///< Pre-built glyph instance for user cursor (shape 0).
+    bool             hasCursorGlyph    { false };    ///< True when cursorGlyph is valid (shape 0 or cursor.force).
+    bool             cursorGlyphIsEmoji { false };   ///< True when cursorGlyph lives in the emoji (RGBA) atlas.
+    float            cursorDrawColorR { 1.0f };      ///< Final resolved cursor colour red [0, 1] (theme or OSC 12).
+    float            cursorDrawColorG { 1.0f };      ///< Final resolved cursor colour green [0, 1] (theme or OSC 12).
+    float            cursorDrawColorB { 1.0f };      ///< Final resolved cursor colour blue [0, 1] (theme or OSC 12).
+    int              gridWidth  { 0 };               ///< Grid width in columns at the time of snapshot.
+    int              gridHeight { 0 };               ///< Grid height in rows at the time of snapshot.
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
 };  // struct Render
-
-static_assert (std::is_trivially_copyable_v<Render::Background>, "Render::Background must be trivially copyable");
-static_assert (std::is_trivially_copyable_v<Render::Glyph>, "Render::Glyph must be trivially copyable for GPU upload");
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal
@@ -357,7 +272,7 @@ public:
         {
         }
 
-        GlyphAtlas       glyphAtlas;       ///< Glyph atlas: rasterises and caches glyphs on the GPU.
+        jreng::Glyph::Atlas glyphAtlas;    ///< Glyph atlas: rasterises and caches glyphs on the GPU.
         jreng::GLSnapshotBuffer<Render::Snapshot> snapshotBuffer; ///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
         Theme            terminalColors;   ///< Active colour theme (ANSI palette + default fg/bg/selection).
     };
@@ -372,9 +287,11 @@ public:
      * Initialises `Resources`, calls `calc()` to derive cell dimensions,
      * then calls `reset()`.
      *
+     * @param font  Font instance providing metrics, shaping, and rasterisation.
+     *
      * @note **MESSAGE THREAD**.
      */
-    Screen();
+    explicit Screen (jreng::Font& font);
 
     /**
      * @brief Destroys the screen and releases all resources.
@@ -737,7 +654,7 @@ public:
      *
      * @note **MESSAGE THREAD**.
      */
-    GlyphAtlas& getGlyphAtlas() noexcept;
+    jreng::Glyph::Atlas& getGlyphAtlas() noexcept;
 
     /**
      * @brief Returns a read-only reference to the active colour theme.
@@ -887,13 +804,13 @@ private:
      *
      * @note **MESSAGE THREAD**.
      */
-    int tryLigature (const Cell* rowCells, int col, int row, Fonts::Style style, void* fontHandle,
+    int tryLigature (const Cell* rowCells, int col, int row, jreng::Font::Style style, void* fontHandle,
                      const juce::Colour& foreground) noexcept;
 
     /**
      * @brief Builds a `Render::Background` quad for a block-element character.
      *
-     * Looks up the `BlockGeometry` for @p codepoint in `BLOCK_TABLE` and
+     * Looks up the `BlockGeometry` for @p codepoint in `blockTable` and
      * scales it by the physical cell dimensions.  Uses @p foreground as the
      * fill colour (with the geometry's alpha override if non-negative).
      *
@@ -904,7 +821,7 @@ private:
      * @return            A fully populated `Render::Background` quad.
      *
      * @note **MESSAGE THREAD**.
-     * @see BLOCK_TABLE
+     * @see blockTable
      * @see isBlockChar()
      */
     Render::Background buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept;
@@ -915,32 +832,19 @@ private:
      * @param cell  Cell whose `isBold()` and `isItalic()` flags are tested.
      * @return      `boldItalic`, `bold`, `italic`, or `regular`.
      */
-    static Fonts::Style selectFontStyle (const Cell& cell) noexcept;
+    static jreng::Font::Style selectFontStyle (const Cell& cell) noexcept;
 
     // =========================================================================
     // GL thread methods
     // =========================================================================
 
-    void compileShaders();
-    void createBuffers();
-    static GLuint createAtlasTexture (int width, int height, GLenum internalFormat, GLenum format) noexcept;
-    void uploadStagedBitmaps();
-    void drawInstances (const Render::Glyph* data, int count, bool isEmoji);
-    void drawBackgrounds (const Render::Background* data, int count);
     void drawCursor (const Render::Snapshot& snapshot);
 
     // =========================================================================
     // Data
     // =========================================================================
 
-    std::unique_ptr<juce::OpenGLShaderProgram> monoShader;
-    std::unique_ptr<juce::OpenGLShaderProgram> emojiShader;
-    std::unique_ptr<juce::OpenGLShaderProgram> backgroundShader;
-    GLuint monoAtlasTexture  { 0 };
-    GLuint emojiAtlasTexture { 0 };
-    GLuint vao         { 0 };
-    GLuint quadVBO     { 0 };
-    GLuint instanceVBO { 0 };
+    jreng::Glyph::GLTextRenderer textRenderer; ///< Owns all GL resources for instanced glyph and background rendering.
     int glViewportX      { 0 };
     int glViewportY      { 0 };
     int glViewportWidth  { 0 };
@@ -960,7 +864,8 @@ private:
     int viewportHeight { 0 }; ///< Logical pixel height of the viewport.
     float baseFontSize { 14.0f }; ///< Current font size in points; updated by setFontSize().
 
-    Resources resources;           ///< All shared rendering resources (fonts, atlas, mailbox, theme).
+    jreng::Font& font;             ///< Font instance providing metrics, shaping, and rasterisation.
+    Resources resources;           ///< All shared rendering resources (atlas, mailbox, theme).
     bool ligatureEnabled { false }; ///< True if HarfBuzz ligature shaping is active.
     bool debugMode       { false }; ///< True if debug rendering overlays are enabled.
     int  ligatureSkip    { 0 };     ///< Number of cells to skip after a ligature was emitted.

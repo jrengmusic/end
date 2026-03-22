@@ -378,6 +378,18 @@ int State::getOutputBlockBottom() const noexcept
     return outputBlockBottom.load (std::memory_order_relaxed);
 }
 
+/** @note READER THREAD — stores the prompt row from OSC 133 A. */
+void State::setPromptRow (int row) noexcept
+{
+    promptRow.store (row, std::memory_order_relaxed);
+}
+
+/** @note READER THREAD — relaxed load; called from resize on the reader thread. */
+int State::getPromptRow() const noexcept
+{
+    return promptRow.load (std::memory_order_relaxed);
+}
+
 /**
  * @brief SSOT writer for all three string slots (title, cwd, foreground process).
  *

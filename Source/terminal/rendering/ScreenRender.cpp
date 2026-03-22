@@ -50,9 +50,8 @@
  */
 
 #include "Screen.h"
-#include "BoxDrawing.h"
-#include "GlyphConstraint.h"
-#include "FontCollection.h"
+// BoxDrawing is now jreng::Glyph::BoxDrawing, available via JuceHeader → jreng_glyph
+// GlyphConstraint is now jreng::Glyph::Constraint, available via JuceHeader → jreng_glyph
 
 
 namespace Terminal
@@ -231,30 +230,30 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
  * @see Screen::buildCellInstance()
  */
 static void emitShapedGlyphsToCache (
-    const Fonts::Glyph* shapedGlyphs, int shapedCount,
+    const jreng::Font::Glyph* shapedGlyphs, int shapedCount,
     void* fontHandle, bool isEmoji, float fontSize,
     uint8_t cellSpan,
-    const GlyphConstraint& constraint,
+    const jreng::Glyph::Constraint& constraint,
     int cellWidth, int cellHeight,
     float cellPixelX, float cellPixelY,
     int physBaseline,
     const juce::Colour& foreground,
-    GlyphAtlas& atlas,
+    jreng::Glyph::Atlas& atlas,
     Render::Glyph* slot, int maxSlots, int& count) noexcept
 {
     float currentX { cellPixelX };
 
     for (int i { 0 }; i < shapedCount and count < maxSlots; ++i)
     {
-        const Fonts::Glyph& sg { shapedGlyphs[i] };
+        const jreng::Font::Glyph& sg { shapedGlyphs[i] };
 
-        GlyphKey glyphKey;
+        jreng::Glyph::Key glyphKey;
         glyphKey.glyphIndex = sg.glyphIndex;
         glyphKey.fontFace = fontHandle;
         glyphKey.fontSize = fontSize;
-        glyphKey.cellSpan = cellSpan;
+        glyphKey.span = cellSpan;
 
-        AtlasGlyph* atlasGlyph { atlas.getOrRasterize (glyphKey, fontHandle, isEmoji,
+        jreng::Glyph::Region* atlasGlyph { atlas.getOrRasterize (glyphKey, fontHandle, isEmoji,
                                                          constraint, cellWidth, cellHeight, physBaseline) };
 
         if (atlasGlyph != nullptr)
@@ -584,9 +583,9 @@ void Screen::buildCellInstance (const Cell& cell,
 {
     if (cell.codepoint != 0)
     {
-        if (BoxDrawing::isProcedural (cell.codepoint))
+        if (jreng::Glyph::BoxDrawing::isProcedural (cell.codepoint))
         {
-            AtlasGlyph* atlasGlyph { resources.glyphAtlas.getOrRasterizeBoxDrawing (
+            jreng::Glyph::Region* atlasGlyph { resources.glyphAtlas.getOrRasterizeBoxDrawing (
                 cell.codepoint, physCellWidth, physCellHeight, physBaseline) };
 
             if (atlasGlyph != nullptr)
@@ -616,12 +615,12 @@ void Screen::buildCellInstance (const Cell& cell,
         }
         else
         {
-            const Fonts::Style style { selectFontStyle (cell) };
-            void* fontHandle { Fonts::getContext()->getFontHandle (style) };
+            const jreng::Font::Style style { selectFontStyle (cell) };
+            void* fontHandle { font.getFontHandle (style) };
 
             if (fontHandle == nullptr)
             {
-                fontHandle = Fonts::getContext()->getFontHandle (Fonts::Style::regular);
+                fontHandle = font.getFontHandle (jreng::Font::Style::regular);
             }
 
             if (fontHandle != nullptr)
@@ -632,7 +631,7 @@ void Screen::buildCellInstance (const Cell& cell,
 
                 const bool isEmoji { cell.isEmoji() };
 
-                const GlyphConstraint constraint { getGlyphConstraint (cell.codepoint) };
+                const jreng::Glyph::Constraint constraint { jreng::Glyph::getConstraint (cell.codepoint) };
                 uint8_t cellSpan { 0 };
 
                 if (constraint.isActive() and not isEmoji)
@@ -651,19 +650,19 @@ void Screen::buildCellInstance (const Cell& cell,
                 }
 
                 bool usedFontCollection { false };
-                Fonts::Glyph fcGlyph;
+                jreng::Font::Glyph fcGlyph;
 
-                auto* fc { FontCollection::getContext() };
+                jreng::Font::Registry& fc { font.registry };
 
                 const bool isBoxDrawing { cell.codepoint >= 0x2500 and cell.codepoint <= 0x259F };
 
-                if (fc != nullptr and not isEmoji and not isBoxDrawing)
+                if (not isEmoji and not isBoxDrawing)
                 {
-                    const int8_t slot { fc->resolve (cell.codepoint) };
+                    const int8_t slot { fc.resolve (cell.codepoint) };
 
                     if (slot > 0)
                     {
-                        const FontCollection::Entry* entry { fc->getEntry (static_cast<int> (slot)) };
+                        const jreng::Font::Registry::Entry* entry { fc.getEntry (static_cast<int> (slot)) };
 
                         if (entry != nullptr and entry->hbFont != nullptr)
                         {
@@ -694,7 +693,7 @@ void Screen::buildCellInstance (const Cell& cell,
 
                 if (usedFontCollection)
                 {
-                    const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
+                    const float pixelsPerEm { font.getPixelsPerEm (style) };
                     const int maxGlyphs { cacheCols * 2 };
                     int& count { monoCount[row] };
                     Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
@@ -717,8 +716,8 @@ void Screen::buildCellInstance (const Cell& cell,
                     }
                     else
                     {
-                    const Fonts::ShapeResult shaped { Fonts::getContext()->shapeText (style, codepoints,
-                                                                                 static_cast<size_t> (codepointCount)) };
+                    const jreng::Font::ShapeResult shaped { font.shapeText (style, codepoints,
+                                                                            static_cast<size_t> (codepointCount)) };
 
                         if (shaped.count > 0)
                         {
@@ -729,7 +728,7 @@ void Screen::buildCellInstance (const Cell& cell,
                                 renderHandle = shaped.fontHandle;
                             }
 
-                            const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
+                            const float pixelsPerEm { font.getPixelsPerEm (style) };
                             const int maxGlyphs { cacheCols * 2 };
                             int& count { monoCount[row] };
                             Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
@@ -746,20 +745,20 @@ void Screen::buildCellInstance (const Cell& cell,
                 }
                 else
                 {
-                    const Fonts::ShapeResult shaped { isEmoji
-                        ? Fonts::getContext()->shapeEmoji (codepoints, static_cast<size_t> (codepointCount))
-                        : Fonts::getContext()->shapeText (style, codepoints, static_cast<size_t> (codepointCount)) };
+                    const jreng::Font::ShapeResult shaped { isEmoji
+                        ? font.shapeEmoji (codepoints, static_cast<size_t> (codepointCount))
+                        : font.shapeText (style, codepoints, static_cast<size_t> (codepointCount)) };
 
                     if (shaped.count > 0)
                     {
-                        void* renderHandle { isEmoji ? Fonts::getContext()->getEmojiFontHandle() : fontHandle };
+                        void* renderHandle { isEmoji ? font.getEmojiFontHandle() : fontHandle };
 
                         if (not isEmoji and shaped.fontHandle != nullptr)
                         {
                             renderHandle = shaped.fontHandle;
                         }
 
-                        const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
+                        const float pixelsPerEm { font.getPixelsPerEm (style) };
                         const int maxGlyphs { cacheCols * 2 };
                         int& count { isEmoji ? emojiCount[row] : monoCount[row] };
                         Render::Glyph* slot { isEmoji
@@ -810,7 +809,7 @@ void Screen::buildCellInstance (const Cell& cell,
  * @see buildCellInstance()
  * @see emitShapedGlyphsToCache()
  */
-int Screen::tryLigature (const Cell* rowCells, int col, int row, Fonts::Style style, void* fontHandle,
+int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Font::Style style, void* fontHandle,
                          const juce::Colour& foreground) noexcept
 {
     int result { 0 };
@@ -843,8 +842,8 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, Fonts::Style st
 
                 if (eligible)
                 {
-                    const Fonts::ShapeResult shaped { Fonts::getContext()->shapeText (style, codepoints,
-                                                                                 static_cast<size_t> (tryLen)) };
+                    const jreng::Font::ShapeResult shaped { font.shapeText (style, codepoints,
+                                                                            static_cast<size_t> (tryLen)) };
 
                     if (shaped.count > 0 and shaped.count < tryLen)
                     {
@@ -855,13 +854,13 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, Fonts::Style st
                             ligatureHandle = shaped.fontHandle;
                         }
 
-                        const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
+                        const float pixelsPerEm { font.getPixelsPerEm (style) };
                         const int maxGlyphs { cacheCols * 2 };
                         int& count { monoCount[row] };
                         Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
-                        const GlyphConstraint noConstraint;
+                        const jreng::Glyph::Constraint noConstraint;
 
-                        Fonts::Glyph fixedGlyphs[3];
+                        jreng::Font::Glyph fixedGlyphs[3];
 
                         for (int i { 0 }; i < shaped.count; ++i)
                         {
@@ -894,8 +893,8 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, Fonts::Style st
 /**
  * @brief Builds a `Render::Background` quad for a block-element character.
  *
- * Looks up the `BlockGeometry` for @p codepoint in `BLOCK_TABLE` (indexed by
- * `codepoint - BLOCK_FIRST`) and scales the normalised geometry by the
+ * Looks up the `BlockGeometry` for @p codepoint in `blockTable` (indexed by
+ * `codepoint - blockFirst`) and scales the normalised geometry by the
  * physical cell dimensions.  The fill colour is @p foreground; if the
  * geometry's `alpha` field is non-negative it overrides the foreground alpha.
  *
@@ -906,13 +905,13 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, Fonts::Style st
  * @return            A fully populated `Render::Background` quad in physical pixel space.
  *
  * @note **MESSAGE THREAD**.
- * @see BLOCK_TABLE
+ * @see blockTable
  * @see isBlockChar()
  * @see processCellForSnapshot()
  */
 Render::Background Screen::buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept
 {
-    const BlockGeometry& g { BLOCK_TABLE.at (codepoint - BLOCK_FIRST) };
+    const BlockGeometry& g { blockTable.at (codepoint - blockFirst) };
     const float cx { static_cast<float> (col * physCellWidth) };
     const float cy { static_cast<float> (row * physCellHeight) };
     const float cw { static_cast<float> (physCellWidth) };
@@ -943,21 +942,21 @@ Render::Background Screen::buildBlockRect (uint32_t codepoint, int col, int row,
  *
  * @see buildCellInstance()
  */
-Fonts::Style Screen::selectFontStyle (const Cell& cell) noexcept
+jreng::Font::Style Screen::selectFontStyle (const Cell& cell) noexcept
 {
-    Fonts::Style result { Fonts::Style::regular };
+    jreng::Font::Style result { jreng::Font::Style::regular };
 
     if (cell.isBold() and cell.isItalic())
     {
-        result = Fonts::Style::boldItalic;
+        result = jreng::Font::Style::boldItalic;
     }
     else if (cell.isBold())
     {
-        result = Fonts::Style::bold;
+        result = jreng::Font::Style::bold;
     }
     else if (cell.isItalic())
     {
-        result = Fonts::Style::italic;
+        result = jreng::Font::Style::italic;
     }
 
     return result;

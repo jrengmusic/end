@@ -38,9 +38,10 @@ class Panes : public juce::Component
 public:
     /**
      * @brief Construct a new Panes container.
+     * @param font  Font instance providing metrics, shaping, and rasterisation.
      * @note MESSAGE THREAD.
      */
-    Panes();
+    explicit Panes (jreng::Font& font);
 
     /**
      * @brief Destructor.
@@ -181,6 +182,7 @@ private:
      */
     void splitImpl (const juce::String& direction, bool isVertical);
 
+    jreng::Font& font;
     jreng::Owner<Terminal::Component> terminals;
     jreng::PaneManager paneManager;
     jreng::Owner<jreng::PaneResizerBar> resizerBars;

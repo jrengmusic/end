@@ -44,7 +44,7 @@
 #include "config/Config.h"
 #include "terminal/action/Action.h"
 #include "terminal/action/ActionList.h"
-#include "terminal/rendering/Fonts.h"
+// jreng::Font is available via JuceHeader → jreng_glyph
 #include "terminal/selection/SelectionOverlay.h"
 
 /**
@@ -72,8 +72,14 @@
 class MainComponent : public juce::Component
 {
 public:
-    /** @brief Constructs the component, creates Terminal::Tabs, sets initial size. */
-    MainComponent();
+    /**
+     * @brief Constructs the component, creates Terminal::Tabs, sets initial size.
+     *
+     * @param collection  Font slot registry owned by ENDApplication.  Passed
+     *                    through to the `Fonts` instance so font slots can be
+     *                    populated and resolved without a singleton.
+     */
+    explicit MainComponent (jreng::Font::Registry& fontRegistry);
 
     /** @brief Clears the BackgroundBlur close callback before destruction. */
     ~MainComponent() override;
@@ -117,8 +123,8 @@ private:
     /** @brief Shared OpenGL renderer; attached to this component, renders all GL children. */
     jreng::GLRenderer glRenderer;
 
-    /** @brief Global font context; provides font metrics and shaping for all terminals. */
-    Fonts fonts { config.getString (Config::Key::fontFamily), config.getFloat (Config::Key::fontSize) };
+    /** @brief Global font instance; provides font metrics and shaping for all terminals. */
+    jreng::Font font;
 
     /** @brief Tabbed terminal container; owns all Terminal::Component instances. */
     std::unique_ptr<Terminal::Tabs> tabs;

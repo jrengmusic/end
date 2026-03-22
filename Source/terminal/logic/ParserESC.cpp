@@ -731,6 +731,10 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataL
 
         switch (data[0])
         {
+            case 'A':
+                state.setPromptRow (cursorRow);
+                break;
+
             case 'C':
                 state.setOutputBlockStart (cursorRow);
                 break;

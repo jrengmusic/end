@@ -873,6 +873,30 @@ struct State : public juce::Timer
     void setOutputBlockEnd (int row) noexcept;
 
     /**
+     * @brief Records the cursor row at which an OSC 133 ; A prompt marker was received.
+     *
+     * Called when OSC 133 ; A is received.  Stores `row` so that `Grid::resize()`
+     * can detect that shell integration is active and fill dead space below the
+     * cursor after the terminal grows taller.
+     *
+     * @param row  Current cursor row (zero-based visible row index).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setPromptRow (int row) noexcept;
+
+    /**
+     * @brief Returns the cursor row of the most-recently received OSC 133 ; A marker.
+     *
+     * Returns -1 if no OSC 133 A has been received since session start.
+     * A non-negative value indicates shell integration is active and the
+     * prompt is (or was) at that row.
+     *
+     * @return Zero-based visible row index, or -1.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    int getPromptRow() const noexcept;
+
+    /**
      * @brief Extends the output block bottom boundary to `row`.
      *
      * Called on LF while `outputScanActive` is true.  No-op when scan is not active.
@@ -1220,6 +1244,19 @@ private:
      * @note READER THREAD only — never read on the message thread.
      */
     std::atomic<bool> outputScanActive { false };
+
+    /**
+     * @brief Cursor row recorded on the most-recently received OSC 133 ; A prompt marker.
+     *
+     * Set by `setPromptRow()` when OSC 133 A is received.  -1 means no OSC 133 A
+     * has been received, i.e. shell integration is not active.
+     *
+     * Used by `Grid::resize()` to detect shell-integration sessions and fill dead
+     * space below the cursor when the terminal grows taller.
+     *
+     * @note READER THREAD writes (relaxed), READER THREAD reads (relaxed) in resize.
+     */
+    std::atomic<int> promptRow { -1 };
 
     /**
      * @brief Owned backing buffer for a single string parameter.

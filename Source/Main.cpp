@@ -47,7 +47,6 @@
 #include "AppState.h"
 #include "config/Config.h"
 #include "terminal/action/Action.h"
-#include "terminal/rendering/FontCollection.h"
 
 #if JUCE_WINDOWS
 #pragma comment(lib, "winmm.lib")
@@ -127,7 +126,7 @@ public:
         auto* cfg { Config::getContext() };
 
         mainWindow.reset (new jreng::GlassWindow (
-            new MainComponent(),
+            new MainComponent (fontRegistry),
             cfg->getString (Config::Key::windowTitle),
             cfg->getColour (Config::Key::windowColour),
             cfg->getFloat (Config::Key::windowOpacity),
@@ -191,7 +190,7 @@ private:
     AppState appState;
 
     /** @brief Pre-loaded font handles shared by the renderer. */
-    FontCollection fontCollection;
+    jreng::Font::Registry fontRegistry;
 
     /** @brief Global action registry. Must be constructed after Config. */
     Terminal::Action action;

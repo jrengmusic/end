@@ -18,7 +18,8 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Panes::Panes()
+Panes::Panes (jreng::Font& font_)
+    : font (font_)
 {
     setOpaque (false);
 }
@@ -43,7 +44,7 @@ Panes::~Panes() = default;
  */
 juce::String Panes::createTerminal (const juce::String& workingDirectory)
 {
-    auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals, workingDirectory) };
+    auto* term { Terminal::Component::create (font, *this, getLocalBounds(), terminals, workingDirectory) };
     setTerminalCallbacks (term);
 
     const juce::String uuid { term->getComponentID() };
@@ -195,7 +196,7 @@ void Panes::splitImpl (const juce::String& direction, bool isVertical)
     const juce::String activeUuid { AppState::getContext()->getActiveTerminalUuid() };
     jassert (activeUuid.isNotEmpty());
 
-    auto* term { Terminal::Component::create (*this, getLocalBounds(), terminals, AppState::getContext()->getPwd()) };
+    auto* term { Terminal::Component::create (font, *this, getLocalBounds(), terminals, AppState::getContext()->getPwd()) };
     setTerminalCallbacks (term);
 
     const juce::String newUuid { term->getComponentID() };

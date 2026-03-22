@@ -81,16 +81,20 @@ class Component
     , public juce::FileDragAndDropTarget
 {
 public:
-    /** @brief Constructs the component, wires Session callbacks, starts VBlank. */
-    Component();
+    /**
+     * @brief Constructs the component, wires Session callbacks, starts VBlank.
+     * @param font  Font instance providing metrics, shaping, and rasterisation.
+     */
+    explicit Component (jreng::Font& font);
 
     /**
      * @brief Constructs a terminal component starting in the given directory.
      *
+     * @param font              Font instance providing metrics, shaping, and rasterisation.
      * @param workingDirectory  Absolute path for the shell's initial cwd.
      * @note MESSAGE THREAD.
      */
-    explicit Component (const juce::String& workingDirectory);
+    Component (jreng::Font& font, const juce::String& workingDirectory);
 
     /**
      * @brief Constructs a terminal component running a specific command.
@@ -98,18 +102,21 @@ public:
      * Overrides the default shell program from Config.  Used by popup
      * terminals to run TUI apps, scripts, etc.
      *
+     * @param font              Font instance providing metrics, shaping, and rasterisation.
      * @param program           Shell command or executable path.
      * @param args              Arguments passed to the command.
      * @param workingDirectory  Initial cwd. Empty = inherit.
      * @note MESSAGE THREAD.
      */
-    Component (const juce::String& program,
+    Component (jreng::Font& font,
+               const juce::String& program,
                const juce::String& args,
                const juce::String& workingDirectory);
 
     /**
      * @brief Creates a terminal, adds it to the parent and owner.
      *
+     * @param font              Font instance providing metrics, shaping, and rasterisation.
      * @param parent            The component to add the terminal to (addAndMakeVisible).
      * @param bounds            The initial bounds for the terminal.
      * @param owner             Ownership container for the terminal's lifetime.
@@ -117,7 +124,8 @@ public:
      * @return Raw pointer to the created terminal.
      * @note MESSAGE THREAD.
      */
-    static Component* create (juce::Component& parent,
+    static Component* create (jreng::Font& font,
+                              juce::Component& parent,
                               juce::Rectangle<int> bounds,
                               jreng::Owner<Component>& owner,
                               const juce::String& workingDirectory = {});
@@ -563,6 +571,9 @@ private:
     void setScrollOffsetClamped (int newOffset) noexcept;
 
     //==============================================================================
+    /** @brief Font reference; lifetime owned by MainComponent. */
+    jreng::Font& font;
+
     /** @brief GPU-accelerated terminal renderer; attached to this component. */
     Screen screen;
 

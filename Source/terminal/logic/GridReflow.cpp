@@ -92,6 +92,61 @@ namespace Terminal
 // ============================================================================
 
 /**
+ * @brief Fills dead space below the cursor after the terminal grew taller.
+ *
+ * After `reflow()` places content into the new buffer, if the content does not
+ * fill the entire visible window there will be empty rows below the cursor.
+ * This is visible as a dead area at the bottom of the screen when an inline
+ * TUI app (e.g. Claude Code / Ink) is running.
+ *
+ * The fix: if the normal buffer has scrollback rows, decrement `head` by the
+ * number of empty rows below the cursor (clamped to available scrollback).
+ * This slides the visible window upward so that scrollback content fills the
+ * top of the viewport, and the cursor shifts down to sit closer to the bottom.
+ *
+ * Only applied when:
+ * - the terminal grew taller (`newVisibleRows > oldVisibleRows`),
+ * - the normal screen is active (alternate screen has no scrollback), and
+ * - OSC 133 A was received (`state.getPromptRow() >= 0`, indicating a shell
+ *   integration session where the prompt position is meaningful).
+ *
+ * @param oldVisibleRows  Visible row count before this resize.
+ * @param newVisibleRows  Visible row count after this resize.
+ * @note READER THREAD — called under `resizeLock`, lock-free, noexcept.
+ */
+void Grid::fillDeadSpaceAfterGrow (int oldVisibleRows, int newVisibleRows) noexcept
+{
+    const bool grew { newVisibleRows > oldVisibleRows };
+    const bool shellIntegrationActive { state.getPromptRow() >= 0 };
+    const bool onNormalScreen { state.getScreen() == normal };
+
+    if (grew and shellIntegrationActive and onNormalScreen)
+    {
+        const int cursorRow { state.getCursorRow (normal) };
+        const int emptyBelow { newVisibleRows - 1 - cursorRow };
+
+        if (emptyBelow > 0)
+        {
+            Buffer& buf { buffers.at (normal) };
+            const int available { buf.scrollbackUsed };
+            const int pull { juce::jmin (emptyBelow, available) };
+
+            if (pull > 0)
+            {
+                // Slide the visible window up by 'pull' rows: decrementing head
+                // makes the ring buffer expose 'pull' former-scrollback rows at
+                // the top of the viewport without moving any cell data.
+                buf.head = (buf.head - pull + buf.totalRows) & buf.rowMask;
+                buf.scrollbackUsed -= pull;
+
+                // Cursor shifts down by the same amount since content appeared above.
+                state.setCursorRow (normal, cursorRow + pull);
+            }
+        }
+    }
+}
+
+/**
  * @brief Re-allocates the active screen buffer to the new terminal dimensions
  *        and reflows content if the column count changed.
  *
@@ -154,6 +209,7 @@ void Grid::resize (int newCols, int newVisibleRows)
             buffers.at (normal) = std::move (newPrimary);
         }
 
+        fillDeadSpaceAfterGrow (oldVisibleRows, newVisibleRows);
         markAllDirty();
     }
 }
