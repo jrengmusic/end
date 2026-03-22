@@ -9,8 +9,7 @@
  * ### Load pipeline
  * @code
  * Config()
- *   initDefaults()          ← populate values map with built-in defaults
- *   initSchema()            ← populate schema map with type/range constraints
+ *   initKeys()               ← populate values + schema from single key table
  *   load(end.lua)
  *     lua.safe_script(validationScript)   ← install _undefined tracker
  *     lua.safe_script_file(end.lua)       ← execute user config
@@ -20,7 +19,7 @@
  * @endcode
  *
  * ### Colour parsing
- * `parseColour()` handles `#RGB`, `#RRGGBB`, `#AARRGGBB`, and
+ * `parseColour()` handles `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`, and
  * `rgba(r,g,b,a)` formats.  All other formats trigger `jassertfalse` and
  * return magenta as a visible error sentinel.
  *
@@ -33,15 +32,6 @@
 #include <sol/sol.hpp>
 
 #include "Config.h"
-
-/**
- * @brief Populates the values map with all built-in default settings.
- *
- * Every key defined in `Config::Key` must have a corresponding entry here.
- * Defaults are applied first; `end.lua` values overlay them.
- *
- * @note Called at construction and at the start of `reload()`.
- */
 
 #if JUCE_WINDOWS
 /**
@@ -75,295 +65,192 @@ static std::pair<juce::String, juce::String> findDefaultWindowsShell() noexcept
 }
 #endif
 
-void Config::initDefaults()
+//==============================================================================
+/**
+ * @brief Registers a single config key with its default value and schema spec.
+ *
+ * Inserts into both `values` and `schema` in one call, eliminating the
+ * parallel initDefaults / initSchema pattern.
+ *
+ * @param key          The dot-notation key string (e.g. `"font.size"`).
+ * @param defaultVal   Default value stored in the values map.
+ * @param spec         Type and range constraints for validation.
+ */
+void Config::addKey (const juce::String& key, const juce::var& defaultVal, ValueSpec spec)
 {
-    values[Key::fontFamily] = "Display Mono";
-#if JUCE_WINDOWS
-    values[Key::fontSize] = 10.0f;
-#else
-    values[Key::fontSize] = 14.0f;
-#endif
-    values[Key::fontLigatures] = true;
-    values[Key::fontEmbolden] = false;
-
-    values[Key::cursorChar] = juce::String::charToString (static_cast<juce::juce_wchar> (0x2588));
-    values[Key::cursorBlink] = true;
-    values[Key::cursorBlinkInterval] = 500;
-    values[Key::cursorForce] = false;
-
-    values[Key::coloursForeground] = "#FF4E8C93";///< paradiso
-    values[Key::coloursBackground] = "#E0090D12";///< bunker
-    values[Key::coloursCursor] = "#FF4E8C93";///< paradiso
-    values[Key::coloursSelection] = "#8000C8D8";///< blueBikini
-    values[Key::coloursSelectionCursor] = "#FF00D8FF";///< bright cyan
-
-    values[Key::coloursBlack] = "#FF090D12";///< bunker
-    values[Key::coloursRed] = "#FFFC704C";///< preciousPersimmon
-    values[Key::coloursGreen] = "#FFC5F0E9";///< gentleCold
-    values[Key::coloursYellow] = "#FFF3F5C5";///< silkStar
-    values[Key::coloursBlue] = "#FF8CC9D9";///< dolphin
-    values[Key::coloursMagenta] = "#FF519299";///< lagoon
-    values[Key::coloursCyan] = "#FF699DAA";///< tranquiliTeal
-    values[Key::coloursWhite] = "#FFFF0000";///< frostbite
-
-    values[Key::coloursBrightBlack] = "#FF33535B";///< mediterranea
-    values[Key::coloursBrightRed] = "#FFFC704C";///< preciousPersimmon
-    values[Key::coloursBrightGreen] = "#FFBAFFFD";///< paleSky
-    values[Key::coloursBrightYellow] = "#FFFEFFD2";///< mattWhite
-    values[Key::coloursBrightBlue] = "#FF67DFEF";///< poseidonJr
-    values[Key::coloursBrightMagenta] = "#FF01C2D2";///< caribbeanBlue
-    values[Key::coloursBrightCyan] = "#FF00C8D8";///< blueBikini
-    values[Key::coloursBrightWhite] = "#FFBAFFFD";///< paleSky
-
-    values[Key::windowTitle] = ProjectInfo::projectName;
-    values[Key::windowWidth] = 640;
-    values[Key::windowHeight] = 480;
-    values[Key::windowColour] = "#090D12";///< bunker
-    values[Key::windowOpacity] = 0.75f;
-    values[Key::windowBlurRadius] = 32.0f;
-    values[Key::windowAlwaysOnTop] = false;
-    values[Key::windowButtons] = false;
-    values[Key::windowZoom] = 1.0f;
-
-    values[Key::tabFamily] = "Display Mono";
-    values[Key::tabSize] = 24.0f;
-    values[Key::tabForeground] = "#FF00C8D8";///< blueBikini
-    values[Key::tabInactive] = "#FF33535B";///< mediterranea
-    values[Key::tabPosition] = "left";
-    values[Key::tabLine] = "#FF2C4144";///< littleMermaid
-    values[Key::tabActive] = "#FF002B35";///< midnightDreams
-    values[Key::tabIndicator] = "#FF01C2D2";///< caribbeanBlue
-    values[Key::menuOpacity] = 0.65f;
-
-    values[Key::overlayFamily] = "Display Mono";
-    values[Key::overlaySize] = 20.0f;
-    values[Key::overlayColour] = "#4E8C93";///< paradiso
-
-#if JUCE_MAC
-    values[Key::shellProgram] = "zsh";
-    values[Key::shellArgs] = "-l";
-#elif JUCE_LINUX
-    values[Key::shellProgram] = "bash";
-    values[Key::shellArgs] = "-l";
-#elif JUCE_WINDOWS
-    {
-        const auto [shell, args] { findDefaultWindowsShell() };
-        values[Key::shellProgram] = shell;
-        values[Key::shellArgs] = args;
-    }
-#endif
-
-    values[Key::shellIntegration] = true;
-
-    values[Key::terminalScrollbackLines] = 10000;
-    values[Key::terminalScrollStep]      = 5;
-    values[Key::terminalPaddingTop]      = 10;
-    values[Key::terminalPaddingRight]    = 10;
-    values[Key::terminalPaddingBottom]   = 10;
-    values[Key::terminalPaddingLeft]     = 10;
-    values[Key::terminalDropMultifiles]     = "space";
-    values[Key::terminalDropQuoted]         = true;
-
-#if JUCE_MAC
-    values[Key::keysCopy] = "cmd+c";
-    values[Key::keysPaste] = "cmd+v";
-#else
-    values[Key::keysCopy] = "ctrl+c";
-    values[Key::keysPaste] = "ctrl+v";
-#endif
-    values[Key::keysQuit] = "cmd+q";
-    values[Key::keysCloseTab] = "cmd+w";
-    values[Key::keysReload] = "cmd+r";
-    values[Key::keysZoomIn] = "cmd+=";
-    values[Key::keysZoomOut] = "cmd+-";
-    values[Key::keysZoomReset] = "cmd+0";
-    values[Key::keysNewTab] = "cmd+t";
-    values[Key::keysPrevTab] = "cmd+[";
-    values[Key::keysNextTab] = "cmd+]";
-    values[Key::keysSplitHorizontal] = juce::String::charToString (static_cast<juce::juce_wchar> ('\\'));
-    values[Key::keysSplitVertical] = "-";
-    values[Key::keysPrefix] = "`";
-    values[Key::keysPrefixTimeout] = 1000;
-    values[Key::keysPaneLeft] = "h";
-    values[Key::keysPaneDown] = "j";
-    values[Key::keysPaneUp] = "k";
-    values[Key::keysPaneRight] = "l";
-    values[Key::keysNewline] = "shift+return";
-    values[Key::keysActionList] = "?";
-    values[Key::keysActionListPosition] = "top";
-    values[Key::keysEnterSelection] = "[";
-    values[Key::keysEnterOpenFile] = "o";
-
-    values[Key::keysSelectionUp]          = "k";
-    values[Key::keysSelectionDown]        = "j";
-    values[Key::keysSelectionLeft]        = "h";
-    values[Key::keysSelectionRight]       = "l";
-    values[Key::keysSelectionVisual]      = "v";
-    values[Key::keysSelectionVisualLine]  = "shift+v";
-    values[Key::keysSelectionVisualBlock] = "ctrl+v";
-    values[Key::keysSelectionCopy]        = "y";
-    values[Key::keysSelectionTop]         = "g";
-    values[Key::keysSelectionBottom]      = "shift+g";
-    values[Key::keysSelectionLineStart]   = "0";
-    values[Key::keysSelectionLineEnd]     = "$";
-    values[Key::keysSelectionExit]        = "escape";
-
-    values[Key::popupWidth] = 0.6f;
-    values[Key::popupHeight] = 0.5f;
-    values[Key::popupPosition] = "center";
-
-    values[Key::paneBarColour] = "#FF1B2A31";///< dark
-    values[Key::paneBarHighlight] = "#FF4E8C93";///< paradiso
-
-    values[Key::coloursStatusBar] = "#FF090D12";///< trappedDarkness
-    values[Key::coloursStatusBarLabelBg] = "#FF01C2D2";///< caribbeanBlue — same as tab.indicator default
-    values[Key::coloursStatusBarLabelFg] = "#FF444444";///< dark grey
-    values[Key::keysStatusBarPosition] = "bottom";
-
-    values[Key::coloursHintLabelBg] = "#FFFFD700";///< gold — high visibility hint badge background
-    values[Key::coloursHintLabelFg] = "#FF111111";///< near-black — readable on gold background
-
-    values[Key::hyperlinksEditor] = "nvim";
+    values.insert_or_assign (key, defaultVal);
+    schema.insert_or_assign (key, std::move (spec));
 }
 
 /**
- * @brief Populates the schema map with type and range constraints.
+ * @brief Populates both `values` and `schema` from a single unified key table.
  *
- * Each entry maps a dot-notation key to a `ValueSpec` describing the expected
- * Lua type and, for numbers, the valid range.  Keys absent from the schema are
- * still stored but are not range-validated.
+ * Replaces the former parallel `initDefaults()` + `initSchema()` pair.  Every
+ * key is declared once — default value and validation spec together — making it
+ * impossible for the two maps to diverge.
  *
- * @note Called once at construction; not called during `reload()`.
+ * Called at construction and at the start of `reload()`.
  */
-void Config::initSchema()
+void Config::initKeys()
 {
     using T = ValueSpec::Type;
 
-    schema[Key::fontFamily] = { T::string };
-    schema[Key::fontSize] = { T::number, 1.0, 200.0, true };
-    schema[Key::fontLigatures] = { T::boolean };
-    schema[Key::fontEmbolden] = { T::boolean };
+    addKey (Key::fontFamily,   "Display Mono",                    { T::string });
+#if JUCE_WINDOWS
+    addKey (Key::fontSize,     10.0,                              { T::number, 1.0, 200.0, true });
+#else
+    addKey (Key::fontSize,     14.0,                              { T::number, 1.0, 200.0, true });
+#endif
+    addKey (Key::fontLigatures, true,                             { T::boolean });
+    addKey (Key::fontEmbolden,  false,                            { T::boolean });
 
-    schema[Key::cursorChar] = { T::string };
-    schema[Key::cursorBlink] = { T::boolean };
-    schema[Key::cursorBlinkInterval] = { T::number, 100.0, 5000.0, true };
-    schema[Key::cursorForce] = { T::boolean };
+    addKey (Key::cursorChar,          juce::String::charToString (static_cast<juce::juce_wchar> (0x2588)),
+                                                                  { T::string });
+    addKey (Key::cursorBlink,         true,                       { T::boolean });
+    addKey (Key::cursorBlinkInterval, 500.0,                      { T::number, 100.0, 5000.0, true });
+    addKey (Key::cursorForce,         false,                      { T::boolean });
 
-    schema[Key::coloursForeground] = { T::string };
-    schema[Key::coloursBackground] = { T::string };
-    schema[Key::coloursCursor] = { T::string };
-    schema[Key::coloursSelection] = { T::string };
-    schema[Key::coloursSelectionCursor] = { T::string };
-    schema[Key::coloursBlack] = { T::string };
-    schema[Key::coloursRed] = { T::string };
-    schema[Key::coloursGreen] = { T::string };
-    schema[Key::coloursYellow] = { T::string };
-    schema[Key::coloursBlue] = { T::string };
-    schema[Key::coloursMagenta] = { T::string };
-    schema[Key::coloursCyan] = { T::string };
-    schema[Key::coloursWhite] = { T::string };
-    schema[Key::coloursBrightBlack] = { T::string };
-    schema[Key::coloursBrightRed] = { T::string };
-    schema[Key::coloursBrightGreen] = { T::string };
-    schema[Key::coloursBrightYellow] = { T::string };
-    schema[Key::coloursBrightBlue] = { T::string };
-    schema[Key::coloursBrightMagenta] = { T::string };
-    schema[Key::coloursBrightCyan] = { T::string };
-    schema[Key::coloursBrightWhite] = { T::string };
+    addKey (Key::coloursForeground,    "#4E8C93",                 { T::string }); ///< paradiso
+    addKey (Key::coloursBackground,    "#090D12E0",               { T::string }); ///< bunker semi-transparent
+    addKey (Key::coloursCursor,        "#4E8C93",                 { T::string }); ///< paradiso
+    addKey (Key::coloursSelection,     "#00C8D880",               { T::string }); ///< blueBikini semi-transparent
+    addKey (Key::coloursSelectionCursor, "#00D8FF",               { T::string }); ///< bright cyan
 
-    schema[Key::windowTitle] = { T::string };
-    schema[Key::windowColour] = { T::string };
-    schema[Key::windowOpacity] = { T::number, 0.0, 1.0, true };
-    schema[Key::windowBlurRadius] = { T::number, 0.0, 100.0, true };
-    schema[Key::windowAlwaysOnTop] = { T::boolean };
-    schema[Key::windowButtons] = { T::boolean };
+    // ---- ANSI palette (indices 0–15) ----------------------------------------
+    // Normal colours
+    addKey (Key::coloursBlack,   "#090D12",                       { T::string }); ///< bunker
+    addKey (Key::coloursRed,     "#FC704C",                       { T::string }); ///< preciousPersimmon
+    addKey (Key::coloursGreen,   "#C5F0E9",                       { T::string }); ///< gentleCold
+    addKey (Key::coloursYellow,  "#F3F5C5",                       { T::string }); ///< silkStar
+    addKey (Key::coloursBlue,    "#8CC9D9",                       { T::string }); ///< dolphin
+    addKey (Key::coloursMagenta, "#519299",                       { T::string }); ///< lagoon
+    addKey (Key::coloursCyan,    "#699DAA",                       { T::string }); ///< tranquiliTeal
+    addKey (Key::coloursWhite,   "#FF0000",                       { T::string }); ///< frostbite
+    // Bright colours
+    addKey (Key::coloursBrightBlack,   "#33535B",                 { T::string }); ///< mediterranea
+    addKey (Key::coloursBrightRed,     "#FC704C",                 { T::string }); ///< preciousPersimmon
+    addKey (Key::coloursBrightGreen,   "#BAFFFD",                 { T::string }); ///< paleSky
+    addKey (Key::coloursBrightYellow,  "#FEFFD2",                 { T::string }); ///< mattWhite
+    addKey (Key::coloursBrightBlue,    "#67DFEF",                 { T::string }); ///< poseidonJr
+    addKey (Key::coloursBrightMagenta, "#01C2D2",                 { T::string }); ///< caribbeanBlue
+    addKey (Key::coloursBrightCyan,    "#00C8D8",                 { T::string }); ///< blueBikini
+    addKey (Key::coloursBrightWhite,   "#BAFFFD",                 { T::string }); ///< paleSky
 
-    schema[Key::tabFamily] = { T::string };
-    schema[Key::tabSize] = { T::number, 1.0, 200.0, true };
-    schema[Key::tabForeground] = { T::string };
-    schema[Key::tabInactive] = { T::string };
-    schema[Key::tabPosition] = { T::string };
-    schema[Key::tabLine] = { T::string };
-    schema[Key::tabActive] = { T::string };
-    schema[Key::tabIndicator] = { T::string };
-    schema[Key::menuOpacity] = { T::number, 0.0, 1.0, true };
+    addKey (Key::windowTitle,       ProjectInfo::projectName,     { T::string });
+    addKey (Key::windowWidth,       640.0,                        { T::number, 0.0, 0.0, false });
+    addKey (Key::windowHeight,      480.0,                        { T::number, 0.0, 0.0, false });
+    addKey (Key::windowColour,      "#090D12",                    { T::string }); ///< bunker
+    addKey (Key::windowOpacity,     0.75,                         { T::number, 0.0, 1.0, true });
+    addKey (Key::windowBlurRadius,  32.0,                         { T::number, 0.0, 100.0, true });
+    addKey (Key::windowAlwaysOnTop, false,                        { T::boolean });
+    addKey (Key::windowButtons,     false,                        { T::boolean });
+    addKey (Key::windowZoom,        1.0,                          { T::number, 0.0, 0.0, false });
 
-    schema[Key::overlayFamily] = { T::string };
-    schema[Key::overlaySize] = { T::number, 1.0, 200.0, true };
-    schema[Key::overlayColour] = { T::string };
+    addKey (Key::tabFamily,    "Display Mono",                    { T::string });
+    addKey (Key::tabSize,      24.0,                              { T::number, 1.0, 200.0, true });
+    addKey (Key::tabForeground, "#00C8D8",                        { T::string }); ///< blueBikini
+    addKey (Key::tabInactive,   "#33535B",                        { T::string }); ///< mediterranea
+    addKey (Key::tabPosition,   "left",                           { T::string });
+    addKey (Key::tabLine,       "#2C4144",                        { T::string }); ///< littleMermaid
+    addKey (Key::tabActive,     "#002B35",                        { T::string }); ///< midnightDreams
+    addKey (Key::tabIndicator,  "#01C2D2",                        { T::string }); ///< caribbeanBlue
+    addKey (Key::menuOpacity,   0.65,                             { T::number, 0.0, 1.0, true });
 
-    schema[Key::shellProgram] = { T::string };
-    schema[Key::shellArgs] = { T::string };
-    schema[Key::shellIntegration] = { T::boolean };
+    addKey (Key::overlayFamily, "Display Mono",                   { T::string });
+    addKey (Key::overlaySize,   20.0,                             { T::number, 1.0, 200.0, true });
+    addKey (Key::overlayColour, "#4E8C93",                        { T::string }); ///< paradiso
 
-    schema[Key::terminalScrollbackLines] = { T::number, 100.0, 1000000.0, true };
-    schema[Key::terminalScrollStep]      = { T::number, 1.0,   100.0,     true };
-    schema[Key::terminalPaddingTop]      = { T::number, 0.0,   200.0,     true };
-    schema[Key::terminalPaddingRight]    = { T::number, 0.0,   200.0,     true };
-    schema[Key::terminalPaddingBottom]   = { T::number, 0.0,   200.0,     true };
-    schema[Key::terminalPaddingLeft]     = { T::number, 0.0,   200.0,     true };
-    schema[Key::terminalDropMultifiles]     = { T::string };
-    schema[Key::terminalDropQuoted]         = { T::boolean };
+#if JUCE_MAC
+    addKey (Key::shellProgram, "zsh",                             { T::string });
+    addKey (Key::shellArgs,    "-l",                              { T::string });
+#elif JUCE_LINUX
+    addKey (Key::shellProgram, "bash",                            { T::string });
+    addKey (Key::shellArgs,    "-l",                              { T::string });
+#elif JUCE_WINDOWS
+    {
+        const auto [shell, args] { findDefaultWindowsShell() };
+        addKey (Key::shellProgram, shell,                         { T::string });
+        addKey (Key::shellArgs,    args,                          { T::string });
+    }
+#endif
 
-    schema[Key::keysCopy] = { T::string };
-    schema[Key::keysPaste] = { T::string };
-    schema[Key::keysQuit] = { T::string };
-    schema[Key::keysCloseTab] = { T::string };
-    schema[Key::keysReload] = { T::string };
-    schema[Key::keysZoomIn] = { T::string };
-    schema[Key::keysZoomOut] = { T::string };
-    schema[Key::keysZoomReset] = { T::string };
-    schema[Key::keysNewTab] = { T::string };
-    schema[Key::keysPrevTab] = { T::string };
-    schema[Key::keysNextTab] = { T::string };
-    schema[Key::keysSplitHorizontal] = { T::string };
-    schema[Key::keysSplitVertical] = { T::string };
-    schema[Key::keysPrefix] = { T::string };
-    schema[Key::keysPrefixTimeout] = { T::number, 100.0, 5000.0, true };
-    schema[Key::keysPaneLeft] = { T::string };
-    schema[Key::keysPaneDown] = { T::string };
-    schema[Key::keysPaneUp] = { T::string };
-    schema[Key::keysPaneRight] = { T::string };
-    schema[Key::keysNewline] = { T::string };
-    schema[Key::keysActionList] = { T::string };
-    schema[Key::keysActionListPosition] = { T::string };
-    schema[Key::keysEnterSelection] = { T::string };
-    schema[Key::keysEnterOpenFile] = { T::string };
+    addKey (Key::shellIntegration, true,                          { T::boolean });
 
-    schema[Key::keysSelectionUp]          = { T::string };
-    schema[Key::keysSelectionDown]        = { T::string };
-    schema[Key::keysSelectionLeft]        = { T::string };
-    schema[Key::keysSelectionRight]       = { T::string };
-    schema[Key::keysSelectionVisual]      = { T::string };
-    schema[Key::keysSelectionVisualLine]  = { T::string };
-    schema[Key::keysSelectionVisualBlock] = { T::string };
-    schema[Key::keysSelectionCopy]        = { T::string };
-    schema[Key::keysSelectionTop]         = { T::string };
-    schema[Key::keysSelectionBottom]      = { T::string };
-    schema[Key::keysSelectionLineStart]   = { T::string };
-    schema[Key::keysSelectionLineEnd]     = { T::string };
-    schema[Key::keysSelectionExit]        = { T::string };
+    addKey (Key::terminalScrollbackLines, 10000.0,                { T::number, 100.0, 1000000.0, true });
+    addKey (Key::terminalScrollStep,      5.0,                    { T::number, 1.0, 100.0, true });
+    addKey (Key::terminalPaddingTop,      10.0,                   { T::number, 0.0, 200.0, true });
+    addKey (Key::terminalPaddingRight,    10.0,                   { T::number, 0.0, 200.0, true });
+    addKey (Key::terminalPaddingBottom,   10.0,                   { T::number, 0.0, 200.0, true });
+    addKey (Key::terminalPaddingLeft,     10.0,                   { T::number, 0.0, 200.0, true });
+    addKey (Key::terminalDropMultifiles,  "space",                { T::string });
+    addKey (Key::terminalDropQuoted,      true,                   { T::boolean });
 
-    schema[Key::popupWidth] = { T::number, 0.1, 1.0, true };
-    schema[Key::popupHeight] = { T::number, 0.1, 1.0, true };
-    schema[Key::popupPosition] = { T::string };
+#if JUCE_MAC
+    addKey (Key::keysCopy,  "cmd+c",                              { T::string });
+    addKey (Key::keysPaste, "cmd+v",                              { T::string });
+#else
+    addKey (Key::keysCopy,  "ctrl+c",                             { T::string });
+    addKey (Key::keysPaste, "ctrl+v",                             { T::string });
+#endif
+    addKey (Key::keysQuit,             "cmd+q",                   { T::string });
+    addKey (Key::keysCloseTab,         "cmd+w",                   { T::string });
+    addKey (Key::keysReload,           "cmd+r",                   { T::string });
+    addKey (Key::keysZoomIn,           "cmd+=",                   { T::string });
+    addKey (Key::keysZoomOut,          "cmd+-",                   { T::string });
+    addKey (Key::keysZoomReset,        "cmd+0",                   { T::string });
+    addKey (Key::keysNewTab,           "cmd+t",                   { T::string });
+    addKey (Key::keysPrevTab,          "cmd+[",                   { T::string });
+    addKey (Key::keysNextTab,          "cmd+]",                   { T::string });
+    addKey (Key::keysSplitHorizontal,  juce::String::charToString (static_cast<juce::juce_wchar> ('\\')),
+                                                                  { T::string });
+    addKey (Key::keysSplitVertical,    "-",                       { T::string });
+    addKey (Key::keysPrefix,           "`",                       { T::string });
+    addKey (Key::keysPrefixTimeout,    1000.0,                    { T::number, 100.0, 5000.0, true });
+    addKey (Key::keysPaneLeft,         "h",                       { T::string });
+    addKey (Key::keysPaneDown,         "j",                       { T::string });
+    addKey (Key::keysPaneUp,           "k",                       { T::string });
+    addKey (Key::keysPaneRight,        "l",                       { T::string });
+    addKey (Key::keysNewline,          "shift+return",            { T::string });
+    addKey (Key::keysActionList,       "?",                       { T::string });
+    addKey (Key::keysActionListPosition, "top",                   { T::string });
+    addKey (Key::keysEnterSelection,   "[",                       { T::string });
+    addKey (Key::keysEnterOpenFile,    "o",                       { T::string });
 
-    schema[Key::paneBarColour] = { T::string };
-    schema[Key::paneBarHighlight] = { T::string };
+    addKey (Key::keysSelectionUp,          "k",                   { T::string });
+    addKey (Key::keysSelectionDown,        "j",                   { T::string });
+    addKey (Key::keysSelectionLeft,        "h",                   { T::string });
+    addKey (Key::keysSelectionRight,       "l",                   { T::string });
+    addKey (Key::keysSelectionVisual,      "v",                   { T::string });
+    addKey (Key::keysSelectionVisualLine,  "shift+v",             { T::string });
+    addKey (Key::keysSelectionVisualBlock, "ctrl+v",              { T::string });
+    addKey (Key::keysSelectionCopy,        "y",                   { T::string });
+    addKey (Key::keysSelectionTop,         "g",                   { T::string });
+    addKey (Key::keysSelectionBottom,      "shift+g",             { T::string });
+    addKey (Key::keysSelectionLineStart,   "0",                   { T::string });
+    addKey (Key::keysSelectionLineEnd,     "$",                   { T::string });
+    addKey (Key::keysSelectionExit,        "escape",              { T::string });
 
-    schema[Key::coloursStatusBar] = { T::string };
-    schema[Key::coloursStatusBarLabelBg] = { T::string };
-    schema[Key::coloursStatusBarLabelFg] = { T::string };
-    schema[Key::keysStatusBarPosition] = { T::string };
+    addKey (Key::popupWidth,    0.6,                              { T::number, 0.1, 1.0, true });
+    addKey (Key::popupHeight,   0.5,                              { T::number, 0.1, 1.0, true });
+    addKey (Key::popupPosition, "center",                         { T::string });
 
-    schema[Key::coloursHintLabelBg] = { T::string };
-    schema[Key::coloursHintLabelFg] = { T::string };
+    addKey (Key::paneBarColour,    "#1B2A31",                     { T::string }); ///< dark
+    addKey (Key::paneBarHighlight, "#4E8C93",                     { T::string }); ///< paradiso
 
-    schema[Key::hyperlinksEditor] = { T::string };
+    addKey (Key::coloursStatusBar,        "#090D12",              { T::string }); ///< trappedDarkness
+    addKey (Key::coloursStatusBarLabelBg, "#01C2D2",              { T::string }); ///< caribbeanBlue
+    addKey (Key::coloursStatusBarLabelFg, "#444444",              { T::string }); ///< dark grey
+    addKey (Key::keysStatusBarPosition,   "bottom",               { T::string });
+
+    addKey (Key::coloursHintLabelBg, "#FFD700",                   { T::string }); ///< gold
+    addKey (Key::coloursHintLabelFg, "#111111",                   { T::string }); ///< near-black
+
+    addKey (Key::hyperlinksEditor, "nvim",                        { T::string });
 }
 
+//==============================================================================
 /**
- * @brief Constructs Config: loads defaults, schema, then end.lua.
+ * @brief Constructs Config: initialises key table then loads end.lua.
  *
  * If `end.lua` does not exist it is created with an empty `END = {}` table via
  * `writeDefaults()`.  Any load errors are stored in `loadError` and surfaced by
@@ -373,8 +260,7 @@ void Config::initSchema()
  */
 Config::Config()
 {
-    initDefaults();
-    initSchema();
+    initKeys();
 
     if (auto configFile { getConfigFile() }; configFile.existsAsFile())
     {
@@ -411,7 +297,7 @@ juce::File Config::getConfigFile() const
  * @brief Writes a default `end.lua` from the embedded template.
  *
  * Reads the `default_end.lua` template from BinaryData, replaces every
- * `%%key%%` placeholder with the corresponding value from `initDefaults()`,
+ * `%%key%%` placeholder with the corresponding value from `initKeys()`,
  * and writes the result to @p file.
  *
  * @param file  The file to create; parent directory must already exist.
@@ -440,6 +326,7 @@ void Config::writeDefaults (const juce::File& file) const
     file.replaceWithText (content);
 }
 
+//==============================================================================
 /**
  * @brief Maps a sol2 type enum to a human-readable string for error messages.
  *
@@ -473,6 +360,7 @@ static juce::String luaTypeName (sol::type t)
     }
 }
 
+//==============================================================================
 /**
  * @brief Loads config from @p file, storing errors in `loadError`.
  *
@@ -484,13 +372,201 @@ static juce::String luaTypeName (sol::type t)
 bool Config::load (const juce::File& file) { return load (file, loadError); }
 
 /**
+ * @brief Validates a single key/value pair from Lua and stores it if valid.
+ *
+ * Checks the value type against the schema entry for @p dotKey, emits a
+ * warning on mismatch or out-of-range number, and stores the value on success.
+ *
+ * Free function; operates on the caller's maps directly to avoid exposing
+ * sol2 types in Config.h.
+ *
+ * @param dotKey    The fully-qualified dot-notation key (e.g. `"font.size"`).
+ * @param fieldVal  The Lua value to validate.
+ * @param values    The config values map to store into.
+ * @param schema    The schema map to look up constraints from.
+ * @param warnings  Warning list; entries are appended on failure.
+ */
+static void validateAndStore (const juce::String& dotKey,
+                              const sol::object& fieldVal,
+                              std::unordered_map<juce::String, juce::var>& values,
+                              const std::unordered_map<juce::String, Config::ValueSpec>& schema,
+                              juce::StringArray& warnings)
+{
+    static constexpr std::array<const char*, 3> specTypeNames {{ "string", "number", "boolean" }};
+
+    const bool keyKnown   { values.find (dotKey) != values.end() };
+    const bool hasSchema  { keyKnown and schema.find (dotKey) != schema.end() };
+
+    if (not keyKnown)
+    {
+        warnings.add ("unknown key '" + dotKey + "'");
+    }
+    else if (hasSchema)
+    {
+        const auto& spec { schema.at (dotKey) };
+
+        bool typeOk { false };
+
+        switch (spec.expectedType)
+        {
+            case Config::ValueSpec::Type::number:
+                typeOk = (fieldVal.get_type() == sol::type::number);
+                break;
+            case Config::ValueSpec::Type::boolean:
+                typeOk = (fieldVal.get_type() == sol::type::boolean);
+                break;
+            case Config::ValueSpec::Type::string:
+                typeOk = (fieldVal.get_type() == sol::type::string);
+                break;
+        }
+
+        if (not typeOk)
+        {
+            warnings.add ("'" + dotKey + "' expected "
+                          + specTypeNames.at (static_cast<size_t> (spec.expectedType))
+                          + ", got " + luaTypeName (fieldVal.get_type()));
+        }
+        else
+        {
+            switch (spec.expectedType)
+            {
+                case Config::ValueSpec::Type::number:
+                {
+                    const double val { fieldVal.as<double>() };
+
+                    if (spec.hasRange and (val < spec.minValue or val > spec.maxValue))
+                    {
+                        warnings.add ("'" + dotKey + "' value " + juce::String (val)
+                                      + " out of range [" + juce::String (spec.minValue)
+                                      + ", " + juce::String (spec.maxValue) + "]");
+                    }
+                    else
+                    {
+                        values.insert_or_assign (dotKey, val);
+                    }
+
+                    break;
+                }
+                case Config::ValueSpec::Type::string:
+                    values.insert_or_assign (dotKey, juce::String (fieldVal.as<std::string>()));
+                    break;
+                case Config::ValueSpec::Type::boolean:
+                    values.insert_or_assign (dotKey, fieldVal.as<bool>());
+                    break;
+            }
+        }
+    }
+}
+
+/**
+ * @brief Parses the `terminal.padding` four-element Lua array into flat keys.
+ *
+ * The Lua config exposes padding as `{ top, right, bottom, left }`.  Reads
+ * that array and stores each value under its individual flat key.
+ *
+ * Free function; operates on the caller's maps directly to avoid exposing
+ * sol2 types in Config.h.
+ *
+ * @param arr     The Lua array table (1-indexed, four numeric elements).
+ * @param values  The config values map to store into.
+ * @param schema  The schema map used for clamping range.
+ */
+static void loadPadding (const sol::table& arr,
+                         std::unordered_map<juce::String, juce::var>& values,
+                         const std::unordered_map<juce::String, Config::ValueSpec>& schema)
+{
+    static const std::array<const juce::String*, 4> paddingKeys {
+        &Config::Key::terminalPaddingTop,
+        &Config::Key::terminalPaddingRight,
+        &Config::Key::terminalPaddingBottom,
+        &Config::Key::terminalPaddingLeft
+    };
+
+    for (int i { 0 }; i < 4; ++i)
+    {
+        sol::optional<double> v { arr.get<sol::optional<double>> (i + 1) };
+
+        if (v)
+        {
+            const auto& spec { schema.at (*paddingKeys[i]) };
+            const double clamped { juce::jlimit (spec.minValue, spec.maxValue, *v) };
+            values.insert_or_assign (*paddingKeys[i], clamped);
+        }
+    }
+}
+
+/**
+ * @brief Parses the `popups` three-level Lua table into `PopupEntry` records.
+ *
+ * Each named entry under `END.popups` becomes a `PopupEntry`.  Entries missing
+ * a `command` field or lacking any key binding are rejected with a warning.
+ *
+ * Free function; operates on the caller's maps directly to avoid exposing
+ * sol2 types in Config.h.
+ *
+ * @param popupsTable  The `END.popups` Lua table.
+ * @param popups       The popup entries map to insert into.
+ * @param warnings     Warning list; entries are appended on validation failure.
+ */
+static void loadPopups (const sol::table& popupsTable,
+                        std::unordered_map<juce::String, Config::PopupEntry>& popups,
+                        juce::StringArray& warnings)
+{
+    popupsTable.for_each (
+        [&popups, &warnings] (const sol::object& nameKey, const sol::object& entryVal)
+        {
+            if (nameKey.get_type() == sol::type::string and entryVal.get_type() == sol::type::table)
+            {
+                const juce::String name { nameKey.as<std::string>() };
+                sol::table entry { entryVal.as<sol::table>() };
+                Config::PopupEntry popup;
+
+                if (auto cmd { entry.get<sol::optional<std::string>> ("command") })
+                    popup.command = juce::String (*cmd);
+
+                if (auto a { entry.get<sol::optional<std::string>> ("args") })
+                    popup.args = juce::String (*a);
+
+                if (auto c { entry.get<sol::optional<std::string>> ("cwd") })
+                    popup.cwd = juce::String (*c);
+
+                if (auto w { entry.get<sol::optional<double>> ("width") })
+                    popup.width = static_cast<float> (*w);
+
+                if (auto h { entry.get<sol::optional<double>> ("height") })
+                    popup.height = static_cast<float> (*h);
+
+                if (auto m { entry.get<sol::optional<std::string>> ("modal") })
+                    popup.modal = juce::String (*m);
+
+                if (auto g { entry.get<sol::optional<std::string>> ("global") })
+                    popup.global = juce::String (*g);
+
+                if (popup.command.isEmpty())
+                {
+                    warnings.add ("popups." + name + ": missing 'command'");
+                }
+                else if (popup.modal.isEmpty() and popup.global.isEmpty())
+                {
+                    warnings.add ("popups." + name + ": needs 'modal' or 'global' key binding");
+                }
+                else
+                {
+                    popups.insert_or_assign (name, std::move (popup));
+                }
+            }
+        });
+}
+
+/**
  * @brief Loads and validates a Lua config file.
  *
  * ### Validation steps
  * 1. Injects `validationScript` to track undefined global accesses.
  * 2. Executes the user file with `safe_script_file`.
  * 3. Iterates `_undefined` to collect undefined-variable warnings.
- * 4. Iterates `END.*.*` to validate types and ranges against the schema.
+ * 4. Iterates `END.*.*` — dispatches `terminal.padding` to `loadPadding()`,
+ *    `popups` to `loadPopups()`, and all other keys to `validateAndStore()`.
  * 5. Stores validated values in the `values` map; rejects out-of-range numbers.
  *
  * Non-fatal warnings are appended to @p errorOut but do not prevent a
@@ -506,6 +582,7 @@ bool Config::load (const juce::File& file) { return load (file, loadError); }
 bool Config::load (const juce::File& file, juce::String& errorOut)
 {
     errorOut = {};
+    colourCache.clear();
     bool success { false };
 
     if (file.existsAsFile())
@@ -550,7 +627,8 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                     root.for_each (
                         [this, &warnings] (const sol::object& groupKey, const sol::object& groupVal)
                         {
-                            if (groupKey.get_type() == sol::type::string and groupVal.get_type() == sol::type::table)
+                            if (groupKey.get_type() == sol::type::string
+                                and groupVal.get_type() == sol::type::table)
                             {
                                 const juce::String groupName { groupKey.as<std::string>() };
 
@@ -566,159 +644,31 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                         if (fieldKey.get_type() == sol::type::string)
                                         {
                                             const juce::String fieldName { fieldKey.as<std::string>() };
-                                            const juce::String dotKey { groupName + "." + fieldName };
 
                                             // terminal.padding is a 4-element array { top, right, bottom, left }.
-                                            // Parse it into the four flat keys rather than treating it as a scalar.
-                                            if (groupName == "terminal" and fieldName == "padding"
+                                            // Dispatched to loadPadding() rather than treated as a scalar.
+                                            if (groupName == "terminal"
+                                                and fieldName == "padding"
                                                 and fieldVal.get_type() == sol::type::table)
                                             {
-                                                sol::table arr { fieldVal.as<sol::table>() };
-                                                static const std::array<const juce::String*, 4> paddingKeys {
-                                                    &Key::terminalPaddingTop,
-                                                    &Key::terminalPaddingRight,
-                                                    &Key::terminalPaddingBottom,
-                                                    &Key::terminalPaddingLeft
-                                                };
-
-                                                for (int i { 0 }; i < 4; ++i)
-                                                {
-                                                    sol::optional<double> v { arr.get<sol::optional<double>> (i + 1) };
-
-                                                    if (v)
-                                                    {
-                                                        const auto& spec { schema.at (*paddingKeys[i]) };
-                                                        const double clamped { juce::jlimit (spec.minValue, spec.maxValue, *v) };
-                                                        values.insert_or_assign (*paddingKeys[i], clamped);
-                                                    }
-                                                }
-
+                                                loadPadding (fieldVal.as<sol::table>(), values, schema);
                                                 return;
                                             }
 
-                                            if (values.find (dotKey) == values.end())
-                                            {
-                                                warnings.add ("unknown key '" + dotKey + "'");
-                                            }
-                                            else if (schema.find (dotKey) != schema.end())
-                                            {
-                                                const auto& spec { schema.at (dotKey) };
-                                                bool typeOk { false };
-
-                                                if (spec.expectedType == ValueSpec::Type::number)
-                                                {
-                                                    typeOk = (fieldVal.get_type() == sol::type::number);
-                                                }
-                                                else if (spec.expectedType == ValueSpec::Type::boolean)
-                                                {
-                                                    typeOk = (fieldVal.get_type() == sol::type::boolean);
-                                                }
-                                                else if (spec.expectedType == ValueSpec::Type::string)
-                                                {
-                                                    typeOk = (fieldVal.get_type() == sol::type::string);
-                                                }
-                                                if (not typeOk)
-                                                {
-                                                    static const std::array<const char*, 3> specTypeNames {
-                                                        { "string", "number", "boolean" }
-                                                    };
-                                                    warnings.add (
-                                                        "'" + dotKey + "' expected "
-                                                        + specTypeNames.at (static_cast<size_t> (spec.expectedType))
-                                                        + ", got " + luaTypeName (fieldVal.get_type()));
-                                                }
-                                                else if (spec.hasRange and spec.expectedType == ValueSpec::Type::number)
-                                                {
-                                                    const double val { fieldVal.as<double>() };
-
-                                                    if (val < spec.minValue or val > spec.maxValue)
-                                                    {
-                                                        warnings.add ("'" + dotKey + "' value " + juce::String (val)
-                                                                      + " out of range [" + juce::String (spec.minValue)
-                                                                      + ", " + juce::String (spec.maxValue) + "]");
-                                                    }
-                                                    else
-                                                    {
-                                                        values.insert_or_assign (dotKey, val);
-                                                    }
-                                                }
-                                                else if (fieldVal.get_type() == sol::type::string)
-                                                {
-                                                    values.insert_or_assign (
-                                                        dotKey, juce::String (fieldVal.as<std::string>()));
-                                                }
-                                                else if (fieldVal.get_type() == sol::type::number)
-                                                {
-                                                    values.insert_or_assign (dotKey, fieldVal.as<double>());
-                                                }
-                                                else if (fieldVal.get_type() == sol::type::boolean)
-                                                {
-                                                    values.insert_or_assign (dotKey, fieldVal.as<bool>());
-                                                }
-                                            }
+                                            validateAndStore (groupName + "." + fieldName, fieldVal, values, schema, warnings);
                                         }
                                     });
                             }
                         });
 
-                    // Parse popups table (three-level: END.popups.<name>.<field>)
                     sol::object popupsObj { root["popups"] };
 
                     if (popupsObj.get_type() == sol::type::table)
-                    {
-                        sol::table popupsTable { popupsObj.as<sol::table>() };
-
-                        popupsTable.for_each (
-                            [this, &warnings] (const sol::object& nameKey, const sol::object& entryVal)
-                            {
-                                if (nameKey.get_type() == sol::type::string and entryVal.get_type() == sol::type::table)
-                                {
-                                    const juce::String name { nameKey.as<std::string>() };
-                                    sol::table entry { entryVal.as<sol::table>() };
-                                    PopupEntry popup;
-
-                                    if (auto cmd { entry.get<sol::optional<std::string>> ("command") })
-                                        popup.command = juce::String (*cmd);
-
-                                    if (auto a { entry.get<sol::optional<std::string>> ("args") })
-                                        popup.args = juce::String (*a);
-
-                                    if (auto c { entry.get<sol::optional<std::string>> ("cwd") })
-                                        popup.cwd = juce::String (*c);
-
-                                    if (auto w { entry.get<sol::optional<double>> ("width") })
-                                        popup.width = static_cast<float> (*w);
-
-                                    if (auto h { entry.get<sol::optional<double>> ("height") })
-                                        popup.height = static_cast<float> (*h);
-
-                                    if (auto m { entry.get<sol::optional<std::string>> ("modal") })
-                                        popup.modal = juce::String (*m);
-
-                                    if (auto g { entry.get<sol::optional<std::string>> ("global") })
-                                        popup.global = juce::String (*g);
-
-                                    if (popup.command.isEmpty())
-                                    {
-                                        warnings.add ("popups." + name + ": missing 'command'");
-                                    }
-                                    else if (popup.modal.isEmpty() and popup.global.isEmpty())
-                                    {
-                                        warnings.add ("popups." + name + ": needs 'modal' or 'global' key binding");
-                                    }
-                                    else
-                                    {
-                                        popups.insert_or_assign (name, std::move (popup));
-                                    }
-                                }
-                            });
-                    }
+                        loadPopups (popupsObj.as<sol::table>(), popups, warnings);
                 }
 
                 if (not warnings.isEmpty())
-                {
                     errorOut = configErrorPrefix + warnings.joinIntoString ("\n");
-                }
 
                 success = true;
             }
@@ -733,6 +683,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
     return success;
 }
 
+//==============================================================================
 /**
  * @brief Resets to defaults and reloads `end.lua`.
  *
@@ -744,7 +695,8 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
  */
 juce::String Config::reload()
 {
-    initDefaults();
+    colourCache.clear();
+    initKeys();
     clearPopups();
     juce::String error;
     load (getConfigFile(), error);
@@ -755,6 +707,7 @@ juce::String Config::reload()
     return error;
 }
 
+//==============================================================================
 /**
  * @brief Returns a config value as a string.
  * @param key  A `Config::Key` constant.
@@ -785,17 +738,36 @@ bool Config::getBool (const juce::String& key) const { return static_cast<bool> 
 
 /**
  * @brief Returns a config value parsed as a JUCE Colour.
+ *
+ * Results are cached in `colourCache` so repeated calls for the same key
+ * pay only a hash-map lookup, not a full string parse.
+ *
  * @param key  A `Config::Key` constant whose value is a colour string.
  * @return The parsed `juce::Colour`.
  * @see parseColour
  */
-juce::Colour Config::getColour (const juce::String& key) const { return parseColour (values.at (key).toString()); }
+juce::Colour Config::getColour (const juce::String& key) const
+{
+    auto it { colourCache.find (key) };
 
+    if (it == colourCache.end())
+    {
+        colourCache.insert_or_assign (key, parseColour (values.at (key).toString()));
+        it = colourCache.find (key);
+    }
+
+    return it->second;
+}
+
+//==============================================================================
 /**
  * @brief Builds a fully resolved Theme from the current config values.
  *
  * Reads all 16 ANSI colour keys plus the default foreground, background, and
  * selection colour, and assembles them into a `Theme` struct.
+ *
+ * The 16 ANSI entries are read via a loop over `ansiKeys` — the same ordering
+ * used everywhere the palette is iterated — rather than 16 individual calls.
  *
  * @return A `Theme` ready to pass to `Screen::setTheme()`.
  * @see Theme
@@ -804,8 +776,8 @@ juce::Colour Config::getColour (const juce::String& key) const { return parseCol
 Config::Theme Config::buildTheme() const
 {
     Theme theme;
-    theme.defaultForeground = getColour (Key::coloursForeground);
-    theme.defaultBackground = getColour (Key::coloursBackground);
+    theme.defaultForeground     = getColour (Key::coloursForeground);
+    theme.defaultBackground     = getColour (Key::coloursBackground);
     theme.selectionColour       = getColour (Key::coloursSelection);
     theme.selectionCursorColour = getColour (Key::coloursSelectionCursor);
     theme.cursorColour          = getColour (Key::coloursCursor);
@@ -819,39 +791,43 @@ Config::Theme Config::buildTheme() const
     theme.hintLabelBg = getColour (Key::coloursHintLabelBg);
     theme.hintLabelFg = getColour (Key::coloursHintLabelFg);
 
-    theme.ansi = {
-        {
-         getColour (Key::coloursBlack),
-         getColour (Key::coloursRed),
-         getColour (Key::coloursGreen),
-         getColour (Key::coloursYellow),
-         getColour (Key::coloursBlue),
-         getColour (Key::coloursMagenta),
-         getColour (Key::coloursCyan),
-         getColour (Key::coloursWhite),
-         getColour (Key::coloursBrightBlack),
-         getColour (Key::coloursBrightRed),
-         getColour (Key::coloursBrightGreen),
-         getColour (Key::coloursBrightYellow),
-         getColour (Key::coloursBrightBlue),
-         getColour (Key::coloursBrightMagenta),
-         getColour (Key::coloursBrightCyan),
-         getColour (Key::coloursBrightWhite),
-         }
-    };
+    static const std::array<const juce::String*, 16> ansiKeys {{
+        &Key::coloursBlack,
+        &Key::coloursRed,
+        &Key::coloursGreen,
+        &Key::coloursYellow,
+        &Key::coloursBlue,
+        &Key::coloursMagenta,
+        &Key::coloursCyan,
+        &Key::coloursWhite,
+        &Key::coloursBrightBlack,
+        &Key::coloursBrightRed,
+        &Key::coloursBrightGreen,
+        &Key::coloursBrightYellow,
+        &Key::coloursBrightBlue,
+        &Key::coloursBrightMagenta,
+        &Key::coloursBrightCyan,
+        &Key::coloursBrightWhite,
+    }};
+
+    for (int i { 0 }; i < 16; ++i)
+        theme.ansi.at (static_cast<size_t> (i)) = getColour (*ansiKeys.at (static_cast<size_t> (i)));
+
     return theme;
 }
 
+//==============================================================================
 /**
  * @brief Parses a colour string in several supported formats.
  *
  * Supported formats:
- * | Format          | Example               | Notes                        |
- * |-----------------|-----------------------|------------------------------|
- * | `#RGB`          | `#F0A`                | Each nibble expanded × 17    |
- * | `#RRGGBB`       | `#FF00AA`             | Full opaque RGB              |
- * | `#AARRGGBB`     | `#CCB3F9F5`           | Alpha in high byte           |
- * | `rgba(r,g,b,a)` | `rgba(255,0,128,0.5)` | Alpha is float [0, 1]        |
+ * | Format          | Example               | Notes                           |
+ * |-----------------|-----------------------|---------------------------------|
+ * | `#RGB`          | `#F0A`                | Each nibble expanded × 17       |
+ * | `#RGBA`         | `#F0A8`               | Each nibble expanded × 17       |
+ * | `#RRGGBB`       | `#FF00AA`             | Fully opaque RGB                |
+ * | `#RRGGBBAA`     | `#FF00AA80`           | Alpha in low byte               |
+ * | `rgba(r,g,b,a)` | `rgba(255,0,128,0.5)` | Alpha is float [0, 1]           |
  *
  * @param input  The colour string to parse (leading/trailing whitespace trimmed).
  * @return The parsed `juce::Colour`, or `juce::Colours::magenta` on failure.
@@ -865,7 +841,7 @@ juce::Colour Config::parseColour (const juce::String& input)
 
     if (trimmed.startsWithIgnoreCase ("rgba"))
     {
-        const int open { trimmed.indexOfChar ('(') };
+        const int open  { trimmed.indexOfChar ('(') };
         const int close { trimmed.indexOfChar (')') };
 
         if (open >= 0 and close > open)
@@ -897,14 +873,26 @@ juce::Colour Config::parseColour (const juce::String& input)
 
         if (hex.length() == 3)
         {
+            // #RGB — each nibble expanded to two digits (× 17)
             const uint8_t r { static_cast<uint8_t> (hex.substring (0, 1).getHexValue32() * 17) };
             const uint8_t g { static_cast<uint8_t> (hex.substring (1, 2).getHexValue32() * 17) };
             const uint8_t b { static_cast<uint8_t> (hex.substring (2, 3).getHexValue32() * 17) };
             result = juce::Colour (r, g, b);
             parsed = true;
         }
+        else if (hex.length() == 4)
+        {
+            // #RGBA — each nibble expanded to two digits (× 17)
+            const uint8_t r { static_cast<uint8_t> (hex.substring (0, 1).getHexValue32() * 17) };
+            const uint8_t g { static_cast<uint8_t> (hex.substring (1, 2).getHexValue32() * 17) };
+            const uint8_t b { static_cast<uint8_t> (hex.substring (2, 3).getHexValue32() * 17) };
+            const uint8_t a { static_cast<uint8_t> (hex.substring (3, 4).getHexValue32() * 17) };
+            result = juce::Colour (r, g, b, a);
+            parsed = true;
+        }
         else if (hex.length() == 6)
         {
+            // #RRGGBB — fully opaque
             const uint8_t r { static_cast<uint8_t> (hex.substring (0, 2).getHexValue32()) };
             const uint8_t g { static_cast<uint8_t> (hex.substring (2, 4).getHexValue32()) };
             const uint8_t b { static_cast<uint8_t> (hex.substring (4, 6).getHexValue32()) };
@@ -913,10 +901,11 @@ juce::Colour Config::parseColour (const juce::String& input)
         }
         else if (hex.length() == 8)
         {
-            const uint8_t a { static_cast<uint8_t> (hex.substring (0, 2).getHexValue32()) };
-            const uint8_t r { static_cast<uint8_t> (hex.substring (2, 4).getHexValue32()) };
-            const uint8_t g { static_cast<uint8_t> (hex.substring (4, 6).getHexValue32()) };
-            const uint8_t b { static_cast<uint8_t> (hex.substring (6, 8).getHexValue32()) };
+            // #RRGGBBAA — alpha in low byte
+            const uint8_t r { static_cast<uint8_t> (hex.substring (0, 2).getHexValue32()) };
+            const uint8_t g { static_cast<uint8_t> (hex.substring (2, 4).getHexValue32()) };
+            const uint8_t b { static_cast<uint8_t> (hex.substring (4, 6).getHexValue32()) };
+            const uint8_t a { static_cast<uint8_t> (hex.substring (6, 8).getHexValue32()) };
             result = juce::Colour (r, g, b, a);
             parsed = true;
         }
@@ -930,7 +919,7 @@ juce::Colour Config::parseColour (const juce::String& input)
     return result;
 }
 
+//==============================================================================
 const std::unordered_map<juce::String, Config::PopupEntry>& Config::getPopups() const noexcept { return popups; }
 
 void Config::clearPopups() { popups.clear(); }
-

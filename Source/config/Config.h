@@ -17,7 +17,7 @@
  * @code{.lua}
  * END = {
  *     font = { family = "Display Mono", size = 14 },
- *     colours = { foreground = "#FFB3F9F5", background = "#E0090D12" },
+ *     colours = { foreground = "#B3F9F5", background = "#090D12E0" },
  *     window = { opacity = 0.85, always_on_top = true },
  * }
  * @endcode
@@ -50,8 +50,8 @@
  * before any other subsystem.
  *
  * ### Lifecycle
- * 1. `Config()` — calls `initDefaults()`, `initSchema()`, loads `end.lua`.
- * 2. `reload()` — re-runs `initDefaults()` then re-loads `end.lua`; used by
+ * 1. `Config()` — calls `initKeys()`, loads `end.lua`.
+ * 2. `reload()` — re-runs `initKeys()` then re-loads `end.lua`; used by
  *    Cmd+R in `Terminal::Component`.
  *
  * @par Thread context
@@ -619,8 +619,9 @@ struct Config : jreng::Context<Config>
      * | Format          | Example                  | Notes                        |
      * |-----------------|--------------------------|------------------------------|
      * | `#RGB`          | `#F0A`                   | Expands each nibble × 17     |
-     * | `#RRGGBB`       | `#FF00AA`                | Full opaque RGB              |
-     * | `#AARRGGBB`     | `#CCB3F9F5`              | Alpha in high byte           |
+     * | `#RGBA`         | `#F0A8`                  | Expands each nibble × 17     |
+     * | `#RRGGBB`       | `#FF00AA`                | Fully opaque RGB             |
+     * | `#RRGGBBAA`     | `#FF00AA80`              | Alpha in low byte            |
      * | `rgba(r,g,b,a)` | `rgba(255,0,128,0.5)`    | Alpha is float [0, 1]        |
      *
      * @param input  The colour string to parse (leading/trailing whitespace is trimmed).
@@ -629,7 +630,6 @@ struct Config : jreng::Context<Config>
      */
     static juce::Colour parseColour (const juce::String& input);
 
-private:
     //==============================================================================
     /**
      * @struct ValueSpec
@@ -638,6 +638,9 @@ private:
      * Used by `load()` to validate values read from Lua before storing them.
      * Out-of-range numbers are rejected with a warning; type mismatches are
      * also warned but the default value is kept.
+     *
+     * @note Public so that file-scope helper functions in Config.cpp can reference
+     *       `Config::ValueSpec` without requiring friend declarations.
      */
     struct ValueSpec
     {
@@ -662,6 +665,7 @@ private:
         bool hasRange { false };
     };
 
+private:
     //==============================================================================
     /** @brief Runtime value store: key → juce::var (string, double, or bool). */
     std::unordered_map<juce::String, juce::var> values;
@@ -672,25 +676,43 @@ private:
     /** @brief Parsed popup entries from the `popups` Lua table. */
     std::unordered_map<juce::String, PopupEntry> popups;
 
+    /**
+     * @brief Parsed colour cache; keyed by config key, not by colour string.
+     *
+     * Populated lazily by `getColour()` and cleared on every `load()` and
+     * `reload()` call so stale entries cannot survive a config change.
+     * Declared `mutable` because the cache is a pure optimisation with no
+     * observable semantic effect on the Config's logical state.
+     */
+    mutable std::unordered_map<juce::String, juce::Colour> colourCache;
+
     /** @brief Last load error or warning string; empty if the last load was clean. */
     juce::String loadError;
 
     //==============================================================================
     /**
-     * @brief Populates `values` with all built-in default settings.
+     * @brief Registers a single config key with its default value and schema spec.
      *
-     * Called at construction and at the start of `reload()`.  Every key in
-     * `Config::Key` must have a corresponding entry here.
+     * Called exclusively from `initKeys()`.  Inserts into both `values` and
+     * `schema` in one call, eliminating the former parallel
+     * `initDefaults` / `initSchema` pattern.
+     *
+     * @param key          The dot-notation key string (e.g. `"font.size"`).
+     * @param defaultVal   Default value stored in the values map.
+     * @param spec         Type and range constraints for validation.
      */
-    void initDefaults();
+    void addKey (const juce::String& key, const juce::var& defaultVal, ValueSpec spec);
 
     /**
-     * @brief Populates `schema` with type and range constraints for each key.
+     * @brief Populates both `values` and `schema` from a single unified key table.
      *
-     * Called once at construction.  Keys not present in the schema are still
-     * stored but are not range-checked.
+     * Replaces the former parallel `initDefaults()` + `initSchema()` pair.
+     * Every key is declared exactly once — default value and validation spec
+     * together — making it impossible for the two maps to diverge.
+     *
+     * Called at construction and at the start of `reload()`.
      */
-    void initSchema();
+    void initKeys();
 
     /** @brief Clears all popup entries; called at the start of reload(). */
     void clearPopups();

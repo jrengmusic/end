@@ -21,9 +21,8 @@
 -- Invalid or missing values fall back to defaults silently.
 -- Reload with Cmd+R (no restart needed).
 --
--- Colour format: "#AARRGGBB" where AA = alpha, RR/GG/BB = red/green/blue.
---   - "#RRGGBB" is also accepted (fully opaque, alpha = FF).
---   - "#RGB" shorthand is supported (each nibble expanded to two digits).
+-- Colour format: "#RRGGBB" (fully opaque) or "#RRGGBBAA" (with alpha).
+--   - "#RGB" and "#RGBA" shorthand supported (each nibble expanded to two digits).
 --   - "rgba(r, g, b, a)" functional notation (a is 0.0 - 1.0).
 --
 -- Key binding format: "modifier+key" (e.g. "cmd+c", "ctrl+shift+t").
@@ -85,7 +84,7 @@ END = {
 	--
 	-- The 16 ANSI colours are used by terminal programs via SGR escape codes.
 	-- Indices 0-7 are normal colours, 8-15 are bright variants.
-	-- Format: "#AARRGGBB" (alpha + red + green + blue).
+	-- Format: "#RRGGBB" (opaque) or "#RRGGBBAA" (with alpha).
 	--
 
 	colours = {
