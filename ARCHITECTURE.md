@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-21 (updated: ModalType in State, modal key dispatch chain, shell exit wiring, ActionList done)
+**Last Updated:** 2026-03-22 (updated: component extraction, shell integration, open-file mode, OSC 8 hyperlinks, configurable shell)
 
 ---
 
@@ -46,7 +46,9 @@ Source/
     (KeyBinding, ModalKeyBinding — dissolved into Terminal::Action, Sprint 93)
 
   component/
-    TerminalComponent.h/cpp         UI host, VBlankAttachment render loop
+    TerminalComponent.h/cpp         UI host, VBlankAttachment render loop; delegates to InputHandler + MouseHandler
+    InputHandler.h/cpp              Modal gate, selection keys, open-file keys, scroll nav
+    MouseHandler.h/cpp              PTY forwarding, drag selection, click dispatch, wheel scroll
     Tabs.h/cpp                      Tab container, manages multiple Terminal::Component instances
     Panes.h/cpp                     Per-tab pane container, owns Terminal::Component instances and PaneResizerBars
     LookAndFeel.h/cpp               Custom LookAndFeel: tab styling, popup menu, colour system
@@ -90,10 +92,12 @@ Source/
       GridReflow.cpp                Reflow on resize
 
     rendering/                      GPU pipeline (fonts, atlas, GL)
-      Screen.h/cpp                  Render coordinator, cell cache, snapshot builder
-      ScreenRender.cpp              populateFromGrid, buildSnapshot
+      Screen.h/cpp                  Render coordinator, snapshot builder (reads Grid directly every frame)
+      ScreenRender.cpp              buildSnapshot (reads Grid directly, no cell cache)
       ScreenSnapshot.cpp            updateSnapshot, publish to GLSnapshotBuffer
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
+      selection/
+        LinkManager.h/cpp           Viewport scan, OSC 8 span merging, hit-test, click dispatch
       Fonts.h                       Shared header (platform-agnostic API)
       Fonts.mm                      macOS: CoreText font loading, HarfBuzz shaping, CTFontDrawGlyphs rasterization
       Fonts.cpp                     Linux/Windows: FreeType font loading
@@ -149,7 +153,7 @@ modules/
 | Module | Location | Responsibility | Dependencies |
 |--------|----------|----------------|--------------|
 | AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active terminal UUID | JUCE ValueTree, Terminal::ID |
-| Config | `config/` | Lua config load/save, Context-managed, platform config paths | sol2, jreng::Context |
+| Config | `config/` | Lua config load/save, Context-managed, platform config paths. `initKeys()` populates defaults before sol2 reads end.lua. Colour values parsed as RRGGBBAA hex strings. Colour cache invalidated on reload. | sol2, jreng::Context |
 | Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, Config, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Data | `terminal/data/` | Pure value types, state atomics, IDs | JUCE ValueTree |
@@ -226,7 +230,7 @@ modules/
 |--------|-----|------|-------|--------|
 | **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Grid cells, dirty bits |
 | **Timer** (JUCE) | default | — | `needsFlush` atomic | ValueTree properties |
-| **Message** (main) | user-interactive | Component, Screen | ValueTree, `snapshotDirty` atomic, Grid cells | Snapshot, hotCells cache |
+| **Message** (main) | user-interactive | Component, Screen | ValueTree, `snapshotDirty` atomic, Grid cells | Snapshot (reads Grid cells directly) |
 | **GL** (OpenGL) | user-interactive | OpenGL context | Snapshot (via GLSnapshotBuffer), staged bitmaps | GPU textures, framebuffer |
 
 ### Data Flow: Keystroke to Pixel
@@ -619,15 +623,12 @@ enum class ModalType : uint8_t { none, selection, flashJump, uriAction };
 ```
 keyPressed()
     |
-    +-- State::isModal()?              (FIRST — before everything)
-    |       |
-    |       +-- handleModalKey()       (dispatches by ModalType)
-    |               +-- selection → handleSelectionKey()
-    |               +-- flashJump → handleFlashJumpKey()   (future)
-    |               +-- uriAction → handleUriActionKey()   (future)
+    +-- State::isModal()? → InputHandler::handleKey()
+    |       +-- selection → handleSelectionKey()
+    |       +-- openFile  → handleOpenFileKey()
     |
     +-- Action::handleKeyPress()       (prefix state machine + global bindings)
-    +-- handleScrollNavigation()
+    +-- InputHandler::handleScrollNav()
     +-- session.handleKeyPress()       (PTY forward)
 ```
 
@@ -855,6 +856,39 @@ HarfBuzz is JUCE's bundled version (10.1.0, `HAVE_CORETEXT=1` on macOS).
 **Linux:** `FT_Set_Char_Size` on all FT_Face handles (4 style faces, emojiFace, nfFace). Destroys and recreates `nerdShapingFont`. Updates FontCollection slot 1.
 
 Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
+
+---
+
+## Component Extraction (TerminalComponent)
+
+TerminalComponent delegates to three focused handlers:
+
+| Class | File | Responsibility |
+|-------|------|----------------|
+| InputHandler | component/InputHandler.h/cpp | Modal gate, selection keys, open-file keys, scroll nav |
+| MouseHandler | component/MouseHandler.h/cpp | PTY forwarding, drag selection, click dispatch, wheel scroll |
+| LinkManager | terminal/selection/LinkManager.h/cpp | Viewport scan, hit-test, dispatch, OSC 8 span merging |
+
+All selection/gesture state in State parameterMap. ScreenSelection rebuilt from State in onVBlank.
+
+---
+
+## Shell Integration
+
+Automatic OSC 133 injection via shell-specific mechanisms:
+
+| Shell | Mechanism | Env var |
+|-------|-----------|---------|
+| zsh | ZDOTDIR wrapper | ZDOTDIR, END_ORIG_ZDOTDIR |
+| bash | ENV + --posix | ENV, END_BASH_INJECT |
+| fish | XDG_DATA_DIRS prepend | XDG_DATA_DIRS, END_FISH_XDG_DATA_DIR |
+| pwsh | Launch args | -NoLogo -NoProfile -NoExit -Command |
+
+Scripts embedded as BinaryData, sideloaded to `~/.config/end/` at launch.
+Controlled by `shell.integration` config (default true).
+
+Parser handles OSC 133 A/B/C/D. Output block boundaries tracked in State.
+Click-mode link underlines only render on OSC 133 output rows.
 
 ---
 

@@ -50,7 +50,8 @@
 |---------|--------|-------|
 | OSC 52 base64 decode | **Done** | Fixed Latin-1 constructor |
 | OSC 7 (cwd tracking) | Not implemented | cwd currently tracked via OS query |
-| OSC 8 (hyperlinks) | Not implemented | |
+| OSC 8 (hyperlinks) | **Done** | Parsed in oscDispatch, spans merged with heuristic links |
+| OSC 133 (shell integration) | **Done** | A/B/C/D markers, output block tracking, automatic injection (zsh/bash/fish/pwsh) |
 | OSC 9/777 (notifications) | Not implemented | |
 
 ### Bell
@@ -68,14 +69,16 @@ BEL character (`\x07`) silently discarded. Not implemented.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| File opener (ls flash-jump) | Not implemented | See File Opener below |
+| Shell integration (OSC 133) | **Done** | Auto-inject via ZDOTDIR/ENV/XDG_DATA_DIRS/pwsh args |
+| File opener (open-file mode) | **Done** | Hint labels, click mode, editor dispatch via PTY |
+| Clickable hyperlinks | **Done** | Underlines on OSC 133 output rows, mouse click dispatch |
 
 ### Platform
 
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Windows ConPTY | In progress | `WindowsTTY.h/cpp` stubbed |
-| Configurable shell in Lua | Not implemented | Reads `$SHELL` env var |
+| Configurable shell in Lua | **Done** | `shell.program` and `shell.args` in end.lua |
 | Error display on invalid config | Not implemented | Silent fallback to defaults |
 
 ### State Persistence
@@ -249,6 +252,8 @@ END = {
 ---
 
 ### File Opener (ls Flash-Jump)
+
+**Status: Implemented.** See Sprint 110 in SPRINT-LOG.md for implementation details.
 
 **Goal:** Shell integration for opening files from terminal output. Files displayed by `ls` (or any command) become clickable and keyboard-jumpable.
 
@@ -429,7 +434,7 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 - [x] Unified keybinding system (action registry, global + modal, fully configurable)
 - [x] Command palette (fuzzy search, all actions + popups)
 - [x] Tmux-style popup terminals (user-defined, configurable)
-- [ ] File opener / flash-jump (ls integration, hint labels)
+- [x] File opener / flash-jump (ls integration, hint labels)
 - [ ] Terminal state serialization (SPEC-details.md Section 1)
 
 ### Phase 4: Rendering + Protocol
@@ -437,10 +442,10 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 - [ ] Sixel inline image rendering
 - [ ] iTerm2 inline images (OSC 1337)
 - [ ] OSC 7 (cwd tracking)
-- [ ] OSC 8 (hyperlinks)
+- [x] OSC 8 (hyperlinks)
 - [ ] OSC 52 base64 decode
 - [ ] Windows ConPTY support
-- [ ] Configurable shell in Lua
+- [x] Configurable shell in Lua
 - [ ] Error display on invalid config
 
 ### Phase 5: Module Extraction + WHELMED
@@ -486,7 +491,7 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 - [x] All keybindings overridable via end.lua
 - [x] Command palette lists all actions
 - [x] Popup terminals spawn and close correctly
-- [ ] Flash-jump labels resolve to correct files
+- [x] Flash-jump labels resolve to correct files
 - [ ] Sixel images render in correct cell positions
 - [ ] WHELMED markdown renders with correct typography
 
