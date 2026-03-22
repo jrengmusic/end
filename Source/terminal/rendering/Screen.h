@@ -6,15 +6,14 @@
  * sits between the data layer (`Grid`, `State`) and the GPU layer
  * and is responsible for:
  *
- * 1. **Cell cache** — a flat `hotCells` / `coldGraphemes` mirror of the
- *    visible grid, updated incrementally via dirty-row tracking.
- * 2. **Per-row render cache** — `cachedMono`, `cachedEmoji`, `cachedBg`
+ * 1. **Per-row render cache** — `cachedMono`, `cachedEmoji`, `cachedBg`
  *    arrays that store pre-built `Render::Glyph` and `Render::Background`
- *    instances for each row.  Only dirty rows are rebuilt on each frame.
- * 3. **Snapshot builder** — `buildSnapshot()` / `updateSnapshot()` pack the
+ *    instances for each row.  All rows are rebuilt on every frame by reading
+ *    directly from `Grid`.
+ * 2. **Snapshot builder** — `buildSnapshot()` / `updateSnapshot()` pack the
  *    per-row caches into a contiguous `Render::Snapshot` and publish it via
  *    `jreng::GLSnapshotBuffer`.
- * 4. **OpenGL presenter** — reads snapshots from the snapshot buffer and draws
+ * 3. **OpenGL presenter** — reads snapshots from the snapshot buffer and draws
  *    them to the attached component.
  *
  * ## Double-buffered snapshots
@@ -23,14 +22,6 @@
  * internally and manages double-buffer rotation.  The MESSAGE THREAD writes
  * to `getWriteBuffer()` and calls `write()`; the GL THREAD calls `read()`
  * to acquire the latest snapshot.  Lock-free via atomic pointer exchange.
- *
- * ## Scroll optimisation
- *
- * When `Grid::consumeScrollDelta()` returns a positive value, `Screen`
- * shifts the per-row caches upward by the scroll amount using `memmove`,
- * adjusts Y positions of cached glyph instances, and marks only the newly
- * exposed rows as dirty.  This avoids reshaping the entire grid on every
- * scroll event.
  *
  * ## Thread contract
  *
@@ -323,13 +314,9 @@ namespace Terminal
  *
  * - **Viewport management**: `setViewport()` recomputes `numCols` / `numRows`
  *   from the physical cell dimensions returned by `Fonts::calcMetrics()`.
- * - **Cell cache**: `hotCells` / `coldGraphemes` mirror the visible grid.
- *   `populateFromGrid()` copies only dirty rows from `Grid`.
  * - **Per-row render cache**: `cachedMono`, `cachedEmoji`, `cachedBg` store
  *   pre-built glyph/background instances per row.  `buildSnapshot()` rebuilds
- *   only dirty rows.
- * - **Scroll optimisation**: `applyScrollOptimization()` shifts caches by the
- *   scroll delta, avoiding a full rebuild on scroll events.
+ *   all rows every frame by reading directly from `Grid`.
  * - **Snapshot publication**: `updateSnapshot()` packs the per-row caches into
  *   a `Render::Snapshot` and publishes it via `jreng::GLSnapshotBuffer`.
  * - **Selection overlay**: a `ScreenSelection*` pointer is checked per cell in
@@ -569,30 +556,25 @@ public:
     // =========================================================================
 
     /**
-     * @brief Performs one full render cycle: update cache, build snapshot, trigger repaint.
+     * @brief Performs one full render cycle: build snapshot from Grid, trigger repaint.
      *
      * Called once per frame from the terminal view on the **MESSAGE THREAD**.
      * Steps:
-     * 1. Allocates / resizes `hotCells` and `coldGraphemes` if the grid size changed.
-     * 2. Consumes dirty rows and scroll delta from `Grid`.
-     * 3. Applies scroll optimisation or marks all rows dirty as needed.
-     * 4. Marks all rows dirty if a selection is active or the view is scrolled.
-     * 5. Calls `populateFromGrid()` to copy dirty rows from `Grid`.
- * 6. Calls `buildSnapshot()` to rebuild dirty rows and pack the snapshot.
+     * 1. Reallocates per-row render caches if the grid dimensions changed.
+     * 2. Calls `buildSnapshot()` to process all rows and pack the snapshot.
      *
      * @param state  Current terminal state (cursor, dimensions, scroll offset).
-     * @param grid   Terminal grid providing cell data and dirty tracking.
+     * @param grid   Terminal grid providing cell data.
      *
      * @note **MESSAGE THREAD**.
      */
     void render (const State& state, Grid& grid) noexcept;
 
     /**
-     * @brief Resets the cell cache to default cells and clears row counts.
+     * @brief Resets the render cache dimensions to force reallocation on the next frame.
      *
-     * Fills `hotCells` with default-constructed `Cell` values and
-     * `coldGraphemes` with default `Grapheme` values.  Resets `cacheRows`,
-     * `cacheCols`, and `bgCacheCols` to zero.
+     * Resets `cacheRows` and `bgCacheCols` to zero so the next `render()` call
+     * reallocates the per-row glyph and background caches.
      *
      * @note **MESSAGE THREAD**.
      */
@@ -689,8 +671,8 @@ public:
      * `Theme::hintLabelFg` colours.  Pass `nullptr` (with `count` 0) to clear
      * the overlay.
      *
-     * The next `render()` call detects the change via `hadHintOverlay` and
-     * marks all rows dirty to force a full re-render.
+     * Because every row is rebuilt from `Grid` on every frame, the overlay is
+     * reflected immediately on the next `render()` call.
      *
      * @param spans  Pointer to the `LinkSpan` array, or `nullptr`.
      * @param count  Number of elements in @p spans; ignored when @p spans is `nullptr`.
@@ -708,8 +690,8 @@ public:
      * underline quad at the bottom of each cell that falls within a span.
      * Pass `nullptr` (with `count` 0) to clear the underlay.
      *
-     * The next `render()` call detects the change via `hadLinkUnderlay` and
-     * marks all rows dirty to force a full re-render.
+     * Because every row is rebuilt from `Grid` on every frame, the underlines
+     * are reflected immediately on the next `render()` call.
      *
      * @param spans  Pointer to the `LinkSpan` array, or `nullptr`.
      * @param count  Number of elements in @p spans; ignored when @p spans is `nullptr`.
@@ -785,15 +767,6 @@ private:
     // =========================================================================
 
     /**
-     * @brief Returns true if @p row is marked dirty in the 256-bit bitmask.
-     *
-     * @param dirty  Four-word dirty bitmask (256 bits, one per row).
-     * @param row    Row index to test (0–255).
-     * @return       `true` if bit @p row is set.
-     */
-    static bool isRowDirty (const uint64_t dirty[4], int row) noexcept;
-
-    /**
      * @brief Recomputes cell dimensions and grid size from the current font metrics.
      *
      * Calls `Fonts::calcMetrics()` and updates `cellWidth`, `cellHeight`,
@@ -809,14 +782,14 @@ private:
      *
      * Allocates `cachedMono`, `cachedEmoji`, `cachedBg`, `monoCount`,
      * `emojiCount`, and `bgCount`.  Each row gets `cols * 2` glyph slots and
-     * `cols * 2` background slots.
+     * `cols * 3` background slots.
      *
      * @param rows  Number of visible rows.
      * @param cols  Number of visible columns.
      *
      * @note **MESSAGE THREAD**.
      */
-    void allocateRowCache (int rows, int cols) noexcept;
+    void allocateRenderCache (int rows, int cols) noexcept;
 
     /**
      * @brief Packs per-row caches into a `Render::Snapshot` and publishes it.
@@ -827,61 +800,30 @@ private:
      *
      * @param state      Current terminal state (cursor position, screen type).
      * @param rows       Number of visible rows.
-     * @param maxGlyphs  Maximum glyph slots per row (`cacheCols * 2`).
+     * @param maxGlyphs  Maximum glyph slots per row (`cacheRows` cols × 2).
      *
      * @note **MESSAGE THREAD**.
      */
     void updateSnapshot (const State& state, int rows, int maxGlyphs) noexcept;
-
-    /**
-     * @brief Shifts per-row caches upward by @p scroll rows.
-     *
-     * Uses `memmove` to shift `hotCells`, `coldGraphemes`, `cachedMono`,
-     * `cachedEmoji`, `cachedBg`, and the count arrays.  Adjusts Y positions
-     * of cached glyph instances by `-scroll * physCellHeight`.  Clears the
-     * newly exposed rows at the bottom.
-     *
-     * @param rows    Number of visible rows.
-     * @param cols    Number of visible columns.
-     * @param scroll  Number of rows scrolled (positive = scroll up).
-     * @param dirty   Dirty bitmask (unused; reserved for future use).
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    void applyScrollOptimization (int rows, int cols, int scroll, uint64_t dirty[4]) noexcept;
 
     // =========================================================================
     // Private render pipeline
     // =========================================================================
 
     /**
-     * @brief Copies dirty rows from `Grid` into the `hotCells` / `coldGraphemes` cache.
+     * @brief Rebuilds all rows in the per-row caches from `Grid` and calls `updateSnapshot()`.
      *
-     * For each row marked dirty in @p dirty, reads the row pointer from `Grid`
-     * (scrollback or active, depending on `state.getScrollOffset()`) and
-     * copies cells and graphemes into the flat cache arrays.
+     * Iterates all visible rows, reads cells directly from `Grid` (scrollback
+     * or active, depending on `state.getScrollOffset()`), resets the row's
+     * glyph/bg counts, and calls `processCellForSnapshot()` for every cell.
+     * Then calls `updateSnapshot()` to publish the result.
      *
      * @param state  Current terminal state.
-     * @param grid   Source grid.
-     * @param dirty  256-bit dirty bitmask.
+     * @param grid   Source grid (read directly; no intermediate cache).
      *
      * @note **MESSAGE THREAD**.
      */
-    void populateFromGrid (const State& state, const Grid& grid, const uint64_t dirty[4]) noexcept;
-
-    /**
-     * @brief Rebuilds dirty rows in the per-row caches and calls `updateSnapshot()`.
-     *
-     * Iterates all rows; for each dirty row, resets the row's glyph/bg counts
-     * and calls `processCellForSnapshot()` for every cell.  Then calls
-     * `updateSnapshot()` to publish the result.
-     *
-     * @param state  Current terminal state.
-     * @param dirty  256-bit dirty bitmask.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    void buildSnapshot (const State& state, const uint64_t dirty[4]) noexcept;
+    void buildSnapshot (const State& state, Grid& grid) noexcept;
 
     /**
      * @brief Processes one cell and appends its contributions to the row caches.
@@ -891,15 +833,18 @@ private:
      * glyph rendering, and emits a selection overlay quad if the cell is
      * selected.
      *
-     * @param cell  The cell to render.
-     * @param col   Column index of the cell.
-     * @param row   Row index of the cell.
+     * @param cell         The cell to render.
+     * @param rowCells     Pointer to the start of the current row in `Grid` (for lookahead).
+     * @param rowGraphemes Grapheme sidecar row pointer for the current row (may be `nullptr`).
+     * @param col          Column index of the cell.
+     * @param row          Row index of the cell.
      *
      * @note **MESSAGE THREAD**.
      * @see buildCellInstance()
      * @see buildBlockRect()
      */
-    void processCellForSnapshot (const Cell& cell, int col, int row) noexcept;
+    void processCellForSnapshot (const Cell& cell, const Cell* rowCells,
+                                 const Grapheme* rowGraphemes, int col, int row) noexcept;
 
     /**
      * @brief Shapes and rasterises one cell's glyph(s) into the row cache.
@@ -910,6 +855,7 @@ private:
      *
      * @param cell       The cell to render.
      * @param grapheme   Optional grapheme cluster for multi-codepoint cells; may be `nullptr`.
+     * @param rowCells   Pointer to the start of the current row in `Grid` (for lookahead).
      * @param col        Column index.
      * @param row        Row index.
      * @param foreground Resolved foreground colour.
@@ -920,6 +866,7 @@ private:
      */
     void buildCellInstance (const Cell& cell,
                             const Grapheme* grapheme,
+                            const Cell* rowCells,
                             int col, int row,
                             const juce::Colour& foreground) noexcept;
 
@@ -930,6 +877,7 @@ private:
      * codepoints, the sequence is a ligature: emits the shaped glyphs and
      * returns the number of subsequent cells to skip.
      *
+     * @param rowCells    Pointer to the start of the current row in `Grid`.
      * @param col         Starting column.
      * @param row         Row index.
      * @param style       Font style for shaping.
@@ -939,7 +887,7 @@ private:
      *
      * @note **MESSAGE THREAD**.
      */
-    int tryLigature (int col, int row, Fonts::Style style, void* fontHandle,
+    int tryLigature (const Cell* rowCells, int col, int row, Fonts::Style style, void* fontHandle,
                      const juce::Colour& foreground) noexcept;
 
     /**
@@ -1017,11 +965,7 @@ private:
     bool debugMode       { false }; ///< True if debug rendering overlays are enabled.
     int  ligatureSkip    { 0 };     ///< Number of cells to skip after a ligature was emitted.
 
-    juce::HeapBlock<Cell>     hotCells;      ///< Flat mirror of the visible grid cells (rows × cols).
-    size_t                    hotCellCount { 0 }; ///< Number of elements in hotCells (rows × cols).
-    juce::HeapBlock<Grapheme> coldGraphemes; ///< Grapheme cluster sidecar co-indexed with hotCells.
-
-    // Per-row render cache
+    // Per-row render cache (rebuilt every frame for every row)
     juce::HeapBlock<Render::Glyph>      cachedMono;   ///< Mono glyph instances; layout: [row][0 … maxGlyphs-1].
     juce::HeapBlock<Render::Glyph>      cachedEmoji;  ///< Emoji glyph instances; layout: [row][0 … maxGlyphs-1].
     juce::HeapBlock<Render::Background> cachedBg;     ///< Background quads; layout: [row][0 … bgCacheCols-1].
@@ -1030,20 +974,15 @@ private:
     juce::HeapBlock<int>                bgCount;      ///< Number of valid background quads per row.
     int cacheRows    { 0 }; ///< Number of rows the per-row caches were allocated for.
     int cacheCols    { 0 }; ///< Number of columns the per-row caches were allocated for.
-    int bgCacheCols  { 0 }; ///< Background slots per row (= cacheCols * 2, for bg + selection overlay).
-
+    int bgCacheCols  { 0 }; ///< Background slots per row (= cacheCols * 3, for bg + selection + underlay).
 
     const ScreenSelection* selection   { nullptr }; ///< Non-owning pointer to the active selection; nullptr if none.
-    bool                   hadSelection { false };  ///< True if a selection was active on the previous frame (forces full dirty).
-    bool                   wasScrolled  { false };  ///< True if the view was scrolled on the previous frame (forces full dirty).
 
     const LinkSpan* hintOverlay      { nullptr }; ///< Non-owning pointer to the active hint label spans; nullptr if none.
     int             hintOverlayCount { 0 };       ///< Number of valid elements in @p hintOverlay.
-    bool            hadHintOverlay   { false };   ///< True if hint overlay was active on the previous frame (forces full dirty).
 
     const LinkSpan* linkUnderlay      { nullptr }; ///< Non-owning pointer to always-on click-mode link spans for underline rendering; nullptr if none.
     int             linkUnderlayCount { 0 };       ///< Number of valid elements in @p linkUnderlay.
-    bool            hadLinkUnderlay   { false };   ///< True if link underlay was active on the previous frame (forces full dirty).
 
     bool selectionModeActive   { false }; ///< True when vim-style selection mode is active (hides terminal cursor).
     int  selectionCursorRow    { 0 };     ///< Selection cursor row in visible-grid coordinates (0 = top visible row).

@@ -3,15 +3,15 @@
  * @brief Per-cell rendering pipeline: colour resolution, shaping, and glyph cache population.
  *
  * This translation unit implements the core per-frame rendering pipeline for
- * `Screen`.  It is responsible for converting the flat `hotCells` cache into
- * per-row arrays of `Render::Glyph` and `Render::Background` instances that
- * are later packed into a `Render::Snapshot` by `ScreenSnapshot.cpp`.
+ * `Screen`.  It is responsible for converting `Grid` cell rows into per-row
+ * arrays of `Render::Glyph` and `Render::Background` instances that are later
+ * packed into a `Render::Snapshot` by `ScreenSnapshot.cpp`.
  *
  * ## Pipeline overview
  *
  * ```
  * Screen::buildSnapshot()
- *   └─ for each dirty row:
+ *   └─ for each row (every frame):
  *        └─ Screen::processCellForSnapshot()   [per cell]
  *             ├─ resolveCellColors()           [colour resolution]
  *             ├─ emit background quad          [non-default bg]
@@ -301,9 +301,10 @@ static void emitShapedGlyphsToCache (
  * 5. If the cell is within the active `ScreenSelection`, emits a selection
  *    overlay `Render::Background` quad using `Theme::selectionColour`.
  *
- * @param cell  The cell to render (from `hotCells`).
- * @param col   Column index of the cell.
- * @param row   Row index of the cell.
+ * @param cell         The cell to render (read directly from `Grid`).
+ * @param rowGraphemes Grapheme sidecar row pointer for the current row (may be `nullptr`).
+ * @param col          Column index of the cell.
+ * @param row          Row index of the cell.
  *
  * @note **MESSAGE THREAD**.
  * @see buildCellInstance()
@@ -311,7 +312,7 @@ static void emitShapedGlyphsToCache (
  * @see ScreenSelection::contains()
  */
 void Screen::processCellForSnapshot (
-    const Cell& cell, int col, int row) noexcept
+    const Cell& cell, const Cell* rowCells, const Grapheme* rowGraphemes, int col, int row) noexcept
 {
     // ---------------------------------------------------------------------------
     // Hint label override: substitute cell content at hint positions.
@@ -361,9 +362,9 @@ void Screen::processCellForSnapshot (
 
     const Grapheme* grapheme { nullptr };
 
-    if (effectiveCell.hasGrapheme())
+    if (effectiveCell.hasGrapheme() and rowGraphemes != nullptr)
     {
-        grapheme = &coldGraphemes[static_cast<size_t> (row) * static_cast<size_t> (cacheCols) + static_cast<size_t> (col)];
+        grapheme = &rowGraphemes[col];
     }
 
     const ResolvedColors resolved { resolveCellColors (effectiveCell, resources.terminalColors) };
@@ -398,7 +399,7 @@ void Screen::processCellForSnapshot (
         }
         else
         {
-            buildCellInstance (effectiveCell, grapheme, col, row, resolved.fg);
+            buildCellInstance (effectiveCell, grapheme, rowCells, col, row, resolved.fg);
         }
     }
 
@@ -454,41 +455,49 @@ void Screen::processCellForSnapshot (
 // =========================================================================
 
 /**
- * @brief Rebuilds dirty rows in the per-row caches and calls `updateSnapshot()`.
+ * @brief Rebuilds all rows in the per-row caches from `Grid` and calls `updateSnapshot()`.
  *
- * Iterates all visible rows.  For each row marked dirty in @p dirty, resets
- * the row's glyph and background counts to zero, resets `ligatureSkip`, and
- * calls `processCellForSnapshot()` for every cell in the row.  After all rows
- * are processed, calls `updateSnapshot()` to pack the caches into a
- * `Render::Snapshot` and publish it.
+ * Iterates all visible rows every frame.  For each row, reads cells and
+ * graphemes directly from `Grid` (scrollback or active, depending on
+ * `state.getScrollOffset()`), resets the row's glyph and background counts to
+ * zero, resets `ligatureSkip`, and calls `processCellForSnapshot()` for every
+ * cell.  After all rows are processed, calls `updateSnapshot()` to pack the
+ * caches into a `Render::Snapshot` and publish it.
  *
- * @param state  Current terminal state (provides `getCols()`, `getVisibleRows()`).
- * @param dirty  256-bit dirty bitmask; only rows with their bit set are rebuilt.
+ * @param state  Current terminal state (provides `getCols()`, `getVisibleRows()`,
+ *               `getScrollOffset()`).
+ * @param grid   Terminal grid (read directly every frame; no intermediate cache).
  *
  * @note **MESSAGE THREAD**.
  * @see processCellForSnapshot()
  * @see updateSnapshot()
  */
-void Screen::buildSnapshot (const State& state, const uint64_t dirty[4]) noexcept
+void Screen::buildSnapshot (const State& state, Grid& grid) noexcept
 {
     const int cols { state.getCols() };
     const int rows { state.getVisibleRows() };
-    const ActiveScreen scr { state.getScreen() };
+    const int offset { state.getScrollOffset() };
     const int maxGlyphs { cacheCols * 2 };
 
     for (int r { 0 }; r < rows; ++r)
     {
-        if (isRowDirty (dirty, r))
-        {
-            monoCount[r] = 0;
-            emojiCount[r] = 0;
-            bgCount[r] = 0;
-            ligatureSkip = 0;
+        const Cell* rowCells { offset > 0
+            ? grid.scrollbackRow (r, offset)
+            : grid.activeVisibleRow (r) };
+        const Grapheme* rowGraphemes { offset > 0
+            ? grid.scrollbackGraphemeRow (r, offset)
+            : grid.activeVisibleGraphemeRow (r) };
 
+        monoCount[r]  = 0;
+        emojiCount[r] = 0;
+        bgCount[r]    = 0;
+        ligatureSkip  = 0;
+
+        if (rowCells != nullptr)
+        {
             for (int c { 0 }; c < cols; ++c)
             {
-                const size_t index { static_cast<size_t> (r * cols + c) };
-                processCellForSnapshot (hotCells[index], c, r);
+                processCellForSnapshot (rowCells[c], rowCells, rowGraphemes, c, r);
             }
         }
     }
@@ -556,6 +565,7 @@ static void buildCodepointSequence (const Cell& cell, const Grapheme* grapheme,
  *
  * @param cell       The cell to render.
  * @param grapheme   Optional grapheme cluster; may be `nullptr`.
+ * @param rowCells   Pointer to the start of the current row in `Grid` (for lookahead).
  * @param col        Column index.
  * @param row        Row index.
  * @param foreground Resolved foreground colour.
@@ -568,6 +578,7 @@ static void buildCodepointSequence (const Cell& cell, const Grapheme* grapheme,
  */
 void Screen::buildCellInstance (const Cell& cell,
                                 const Grapheme* grapheme,
+                                const Cell* rowCells,
                                 int col, int row,
                                 const juce::Colour& foreground) noexcept
 {
@@ -628,19 +639,13 @@ void Screen::buildCellInstance (const Cell& cell,
                 {
                     cellSpan = 1;
 
-                    if (constraint.maxCellSpan >= 2 and col + 1 < cacheCols)
+                    if (constraint.maxCellSpan >= 2 and col + 1 < cacheCols and rowCells != nullptr)
                     {
-                        const size_t nextIndex { static_cast<size_t> (row) * static_cast<size_t> (cacheCols)
-                                               + static_cast<size_t> (col + 1) };
+                        const Cell& next { rowCells[col + 1] };
 
-                        if (nextIndex < hotCellCount)
+                        if (not next.hasContent() or next.codepoint == 0x20)
                         {
-                            const Cell& next { hotCells[nextIndex] };
-
-                            if (not next.hasContent() or next.codepoint == 0x20)
-                            {
-                                cellSpan = 2;
-                            }
+                            cellSpan = 2;
                         }
                     }
                 }
@@ -704,7 +709,7 @@ void Screen::buildCellInstance (const Cell& cell,
                 }
                 else if (ligatureEnabled and not isEmoji and cell.codepoint > 0 and cell.codepoint < 128)
                 {
-                    const int skip { tryLigature (col, row, style, fontHandle, foreground) };
+                    const int skip { tryLigature (rowCells, col, row, style, fontHandle, foreground) };
 
                     if (skip > 0)
                     {
@@ -793,6 +798,7 @@ void Screen::buildCellInstance (const Cell& cell,
  * The ligature glyphs are emitted with a fixed `xAdvance` of `physCellWidth`
  * per input cell, and the number of cells to skip is returned.
  *
+ * @param rowCells    Pointer to the start of the current row in `Grid`.
  * @param col         Starting column.
  * @param row         Row index.
  * @param style       Font style for shaping.
@@ -804,73 +810,75 @@ void Screen::buildCellInstance (const Cell& cell,
  * @see buildCellInstance()
  * @see emitShapedGlyphsToCache()
  */
-int Screen::tryLigature (int col, int row, Fonts::Style style, void* fontHandle,
+int Screen::tryLigature (const Cell* rowCells, int col, int row, Fonts::Style style, void* fontHandle,
                          const juce::Colour& foreground) noexcept
 {
-    const size_t base { static_cast<size_t> (row) * static_cast<size_t> (cacheCols) };
     int result { 0 };
 
-    for (int tryLen { 3 }; tryLen >= 2 and result == 0; --tryLen)
+    if (rowCells != nullptr)
     {
-        if (col + tryLen <= cacheCols)
+        for (int tryLen { 3 }; tryLen >= 2 and result == 0; --tryLen)
         {
-            bool eligible { true };
-            uint32_t codepoints[3];
-            const uint8_t baseStyle { hotCells[base + static_cast<size_t> (col)].style };
-
-            for (int i { 0 }; i < tryLen and eligible; ++i)
+            if (col + tryLen <= cacheCols)
             {
-                const Cell& c { hotCells[base + static_cast<size_t> (col + i)] };
+                bool eligible { true };
+                uint32_t codepoints[3];
+                const uint8_t baseStyle { rowCells[col].style };
 
-                if (c.codepoint == 0 or c.codepoint >= 128
-                    or c.style != baseStyle
-                    or c.isEmoji() or c.hasGrapheme() or c.isWideContinuation())
+                for (int i { 0 }; i < tryLen and eligible; ++i)
                 {
-                    eligible = false;
-                }
-                else
-                {
-                    codepoints[i] = c.codepoint;
-                }
-            }
+                    const Cell& c { rowCells[col + i] };
 
-            if (eligible)
-            {
-                const Fonts::ShapeResult shaped { Fonts::getContext()->shapeText (style, codepoints,
-                                                                             static_cast<size_t> (tryLen)) };
-
-                if (shaped.count > 0 and shaped.count < tryLen)
-                {
-                    void* ligatureHandle { fontHandle };
-
-                    if (shaped.fontHandle != nullptr)
+                    if (c.codepoint == 0 or c.codepoint >= 128
+                        or c.style != baseStyle
+                        or c.isEmoji() or c.hasGrapheme() or c.isWideContinuation())
                     {
-                        ligatureHandle = shaped.fontHandle;
+                        eligible = false;
                     }
-
-                    const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
-                    const int maxGlyphs { cacheCols * 2 };
-                    int& count { monoCount[row] };
-                    Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
-                    const GlyphConstraint noConstraint;
-
-                    Fonts::Glyph fixedGlyphs[3];
-
-                    for (int i { 0 }; i < shaped.count; ++i)
+                    else
                     {
-                        fixedGlyphs[i] = shaped.glyphs[i];
-                        fixedGlyphs[i].xAdvance = static_cast<float> (physCellWidth);
+                        codepoints[i] = c.codepoint;
                     }
+                }
 
-                    emitShapedGlyphsToCache (fixedGlyphs, shaped.count, ligatureHandle, false, pixelsPerEm,
-                                             0, noConstraint, physCellWidth, physCellHeight,
-                                             static_cast<float> (col * physCellWidth),
-                                             static_cast<float> (row * physCellHeight),
-                                             physBaseline, foreground,
-                                             resources.glyphAtlas,
-                                             slot, maxGlyphs, count);
+                if (eligible)
+                {
+                    const Fonts::ShapeResult shaped { Fonts::getContext()->shapeText (style, codepoints,
+                                                                                 static_cast<size_t> (tryLen)) };
 
-                    result = tryLen - 1;
+                    if (shaped.count > 0 and shaped.count < tryLen)
+                    {
+                        void* ligatureHandle { fontHandle };
+
+                        if (shaped.fontHandle != nullptr)
+                        {
+                            ligatureHandle = shaped.fontHandle;
+                        }
+
+                        const float pixelsPerEm { Fonts::getContext()->getPixelsPerEm (style) };
+                        const int maxGlyphs { cacheCols * 2 };
+                        int& count { monoCount[row] };
+                        Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
+                        const GlyphConstraint noConstraint;
+
+                        Fonts::Glyph fixedGlyphs[3];
+
+                        for (int i { 0 }; i < shaped.count; ++i)
+                        {
+                            fixedGlyphs[i] = shaped.glyphs[i];
+                            fixedGlyphs[i].xAdvance = static_cast<float> (physCellWidth);
+                        }
+
+                        emitShapedGlyphsToCache (fixedGlyphs, shaped.count, ligatureHandle, false, pixelsPerEm,
+                                                 0, noConstraint, physCellWidth, physCellHeight,
+                                                 static_cast<float> (col * physCellWidth),
+                                                 static_cast<float> (row * physCellHeight),
+                                                 physBaseline, foreground,
+                                                 resources.glyphAtlas,
+                                                 slot, maxGlyphs, count);
+
+                        result = tryLen - 1;
+                    }
                 }
             }
         }

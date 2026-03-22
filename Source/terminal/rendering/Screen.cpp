@@ -1,14 +1,13 @@
 /**
  * @file Screen.cpp
- * @brief Screen lifecycle, configuration, geometry, and grid-population implementation.
+ * @brief Screen lifecycle, configuration, geometry, and render entry point.
  *
  * This translation unit implements:
  * - `Screen` constructor / destructor and `calc()`.
  * - Viewport, font, theme, and selection configuration.
  * - Grid geometry helpers (`getCellBounds`, `cellAtPoint`).
  * - `render()` — the top-level per-frame entry point.
- * - `populateFromGrid()` — copies dirty rows from `Grid` into the cell cache.
- * - `allocateRowCache()` and `applyScrollOptimization()`.
+ * - `allocateRenderCache()` — per-row glyph and background cache allocation.
  *
  * The rendering pipeline (glyph shaping, snapshot building) is split across:
  * - `ScreenRender.cpp`   — `buildSnapshot()`, `processCellForSnapshot()`, `buildCellInstance()`.
@@ -32,7 +31,7 @@ namespace Terminal
  * @brief Constructs the screen.
  *
  * Initialises `Resources`, calls `calc()` to derive cell dimensions,
- * then calls `reset()` to zero-initialise the cell cache.
+ * then calls `reset()` to zero the cache dimension sentinels.
  */
 Screen::Screen()
     : resources()
@@ -180,8 +179,6 @@ juce::Point<int> Screen::cellAtPoint (int x, int y) const noexcept
  * @brief Sets the active text selection for overlay rendering.
  *
  * Stores a non-owning pointer.  Pass `nullptr` to clear the selection.
- * The next `render()` call will detect the change via `hadSelection` and
- * mark all rows dirty.
  *
  * @param sel  Pointer to the active `ScreenSelection`, or `nullptr`.
  */
@@ -193,9 +190,9 @@ void Screen::setSelection (const ScreenSelection* sel) noexcept
 /**
  * @brief Sets the hint label overlay for Open File mode rendering.
  *
- * Stores a non-owning pointer to the active `LinkSpan` array.  The next
- * `render()` call detects the transition via `hadHintOverlay` and marks all
- * rows dirty so the overlay or its absence is reflected in the next frame.
+ * Stores a non-owning pointer to the active `LinkSpan` array.  Because every
+ * row is rebuilt from `Grid` on every frame, the overlay is reflected
+ * immediately on the next `render()` call.
  *
  * @param spans  Pointer to the `LinkSpan` array, or `nullptr` to clear.
  * @param count  Number of elements in @p spans.
@@ -209,9 +206,9 @@ void Screen::setHintOverlay (const LinkSpan* spans, int count) noexcept
 /**
  * @brief Sets the always-on link underlay for click-mode underline rendering.
  *
- * Stores a non-owning pointer to the clickable link span array.  The next
- * `render()` call detects the transition via `hadLinkUnderlay` and marks all
- * rows dirty so the underlines or their absence is reflected in the next frame.
+ * Stores a non-owning pointer to the clickable link span array.  Because every
+ * row is rebuilt from `Grid` on every frame, the underlines are reflected
+ * immediately on the next `render()` call.
  *
  * @param spans  Pointer to the `LinkSpan` array, or `nullptr` to clear.
  * @param count  Number of elements in @p spans.
@@ -332,48 +329,29 @@ bool Screen::isDebugMode() const noexcept { return debugMode; }
 bool Screen::hasNewSnapshot() const noexcept { return resources.snapshotBuffer.isReady(); }
 
 /**
- * @brief Resets the cell cache to default cells and clears row counts.
+ * @brief Resets cache dimension sentinels to force reallocation on the next frame.
  *
- * Fills `hotCells` with default-constructed `Cell` values and `coldGraphemes`
- * with default `Grapheme` values.  Resets `cacheRows`, `cacheCols`, and
- * `bgCacheCols` to zero so the next `render()` call reallocates the caches.
+ * Zeroes `cacheRows`, `cacheCols`, and `bgCacheCols` so the next `render()` call
+ * reallocates the per-row glyph and background caches.
  */
 void Screen::reset() noexcept
 {
-    const Cell defaultCell {};
-    std::fill (hotCells.get(), hotCells.get() + hotCellCount, defaultCell);
-    std::fill (coldGraphemes.get(), coldGraphemes.get() + hotCellCount, Grapheme {});
-    cacheRows = 0;
-    cacheCols = 0;
+    cacheRows   = 0;
+    cacheCols   = 0;
     bgCacheCols = 0;
-}
-
-/**
- * @brief Returns true if @p row is marked dirty in the 256-bit bitmask.
- *
- * The bitmask is stored as four `uint64_t` words.  Row @p row maps to bit
- * `(row & 63)` of word `(row >> 6)`.
- *
- * @param dirty  Four-word dirty bitmask (256 bits, one per row).
- * @param row    Row index to test (0–255).
- * @return       `true` if bit @p row is set.
- */
-bool Screen::isRowDirty (const uint64_t dirty[4], int row) noexcept
-{
-    return (dirty[row >> 6] & (uint64_t { 1 } << (row & 63))) != 0;
 }
 
 /**
  * @brief Allocates per-row render caches for @p rows rows and @p cols columns.
  *
  * Each row gets `cols * 2` glyph slots (to accommodate wide characters and
- * ligatures) and `cols * 2` background slots (for bg + selection overlay).
+ * ligatures) and `cols * 3` background slots (for bg + selection + underlay).
  * All arrays are zero-initialised.
  *
  * @param rows  Number of visible rows.
  * @param cols  Number of visible columns.
  */
-void Screen::allocateRowCache (int rows, int cols) noexcept
+void Screen::allocateRenderCache (int rows, int cols) noexcept
 {
     const int maxGlyphs { cols * 2 };
     const size_t glyphSlots { static_cast<size_t> (rows) * static_cast<size_t> (maxGlyphs) };
@@ -386,107 +364,22 @@ void Screen::allocateRowCache (int rows, int cols) noexcept
     emojiCount.allocate (static_cast<size_t> (rows), true);
     bgCount.allocate (static_cast<size_t> (rows), true);
 
-    cacheRows = rows;
-    cacheCols = cols;
+    cacheRows   = rows;
+    cacheCols   = cols;
     bgCacheCols = cols * 3;
 }
 
 /**
- * @brief Shifts per-row caches upward by @p scroll rows.
- *
- * Uses `memmove` to shift `hotCells`, `coldGraphemes`, `cachedMono`,
- * `cachedEmoji`, `cachedBg`, and the count arrays.  After shifting, adjusts
- * the Y screen positions of all cached glyph and background instances in the
- * retained rows by `-scroll * physCellHeight`.  Clears the newly exposed rows
- * at the bottom.
- *
- * @param rows    Number of visible rows.
- * @param cols    Number of visible columns.
- * @param scroll  Number of rows scrolled upward (positive).
- * @param dirty   Dirty bitmask (currently unused; reserved for future use).
- *
- * @note The `dirty` parameter is intentionally unused; the caller marks the
- *       newly exposed rows dirty after this function returns.
- */
-void Screen::applyScrollOptimization (int rows, int cols, int scroll, uint64_t dirty[4]) noexcept
-{
-    const size_t rowBytes { static_cast<size_t> (cols) * sizeof (Cell) };
-    const size_t graphemeRowBytes { static_cast<size_t> (cols) * sizeof (Grapheme) };
-    const size_t shiftRows { static_cast<size_t> (rows - scroll) };
-
-    std::memmove (hotCells.get(),
-                  hotCells.get() + static_cast<size_t> (scroll) * static_cast<size_t> (cols),
-                  shiftRows * rowBytes);
-    std::memmove (coldGraphemes.get(),
-                  coldGraphemes.get() + static_cast<size_t> (scroll) * static_cast<size_t> (cols),
-                  shiftRows * graphemeRowBytes);
-
-    const Cell defaultCell {};
-    for (int r { rows - scroll }; r < rows; ++r)
-    {
-        const size_t rowBase { static_cast<size_t> (r) * static_cast<size_t> (cols) };
-        std::fill (hotCells.get() + rowBase, hotCells.get() + rowBase + static_cast<size_t> (cols), defaultCell);
-        std::fill (coldGraphemes.get() + rowBase, coldGraphemes.get() + rowBase + static_cast<size_t> (cols), Grapheme {});
-    }
-
-    const int maxGlyphs { cacheCols * 2 };
-    const size_t glyphRowBytes { static_cast<size_t> (maxGlyphs) * sizeof (Render::Glyph) };
-    const size_t bgRowBytes { static_cast<size_t> (bgCacheCols) * sizeof (Render::Background) };
-
-    std::memmove (cachedMono.get(), cachedMono.get() + static_cast<size_t> (scroll) * static_cast<size_t> (maxGlyphs), shiftRows * glyphRowBytes);
-    std::memmove (cachedEmoji.get(), cachedEmoji.get() + static_cast<size_t> (scroll) * static_cast<size_t> (maxGlyphs), shiftRows * glyphRowBytes);
-    std::memmove (cachedBg.get(), cachedBg.get() + static_cast<size_t> (scroll) * static_cast<size_t> (bgCacheCols), shiftRows * bgRowBytes);
-    std::memmove (monoCount.get(), monoCount.get() + scroll, shiftRows * sizeof (int));
-    std::memmove (emojiCount.get(), emojiCount.get() + scroll, shiftRows * sizeof (int));
-    std::memmove (bgCount.get(), bgCount.get() + scroll, shiftRows * sizeof (int));
-
-    const float yShift { static_cast<float> (scroll * physCellHeight) };
-    for (int r { 0 }; r < rows - scroll; ++r)
-    {
-        const int base { r * maxGlyphs };
-        for (int i { 0 }; i < monoCount[r]; ++i)
-            cachedMono[base + i].screenPosition.y -= yShift;
-        for (int i { 0 }; i < emojiCount[r]; ++i)
-            cachedEmoji[base + i].screenPosition.y -= yShift;
-        const int bgBase { r * bgCacheCols };
-        for (int i { 0 }; i < bgCount[r]; ++i)
-        {
-            auto& bounds { cachedBg[bgBase + i].screenBounds };
-            bounds = bounds.withY (bounds.getY() - yShift);
-        }
-    }
-
-    for (int r { rows - scroll }; r < rows; ++r)
-    {
-        monoCount[r] = 0;
-        emojiCount[r] = 0;
-        bgCount[r] = 0;
-    }
-
-    (void) dirty;
-}
-
-
-
-/**
- * @brief Performs one full render cycle: update cache, build snapshot, trigger repaint.
+ * @brief Performs one full render cycle: build snapshot from Grid, trigger repaint.
  *
  * Called once per frame from the terminal view on the **MESSAGE THREAD**.
  *
  * @par Steps
- * 1. Allocates / resizes `hotCells` and `coldGraphemes` if the grid size changed.
- * 2. Consumes dirty rows and scroll delta from `Grid`.
- * 3. If the cache dimensions changed, reallocates caches and marks all rows dirty.
- * 4. If a partial scroll occurred, applies the scroll optimisation and marks
- *    the newly exposed rows dirty.
- * 5. If a full scroll occurred (≥ rows), marks all rows dirty.
- * 6. If a selection is active or was active last frame, marks all rows dirty.
- * 7. If the view is scrolled or was scrolled last frame, marks all rows dirty.
- * 8. Calls `populateFromGrid()` to copy dirty rows from `Grid`.
- * 9. Calls `buildSnapshot()` to rebuild dirty rows and publish the snapshot.
+ * 1. Reallocates per-row render caches if the grid dimensions changed.
+ * 2. Calls `buildSnapshot()` to process all rows and publish the snapshot.
  *
  * @param state  Current terminal state (cursor, dimensions, scroll offset).
- * @param grid   Terminal grid providing cell data and dirty tracking.
+ * @param grid   Terminal grid providing cell data.
  */
 void Screen::render (const State& state, Grid& grid) noexcept
 {
@@ -495,128 +388,12 @@ void Screen::render (const State& state, Grid& grid) noexcept
 
     if (cols > 0 and rows > 0)
     {
-        const size_t needed { static_cast<size_t> (cols) * static_cast<size_t> (rows) };
-
-        if (needed != hotCellCount)
-        {
-            hotCells.allocate (needed, true);
-            coldGraphemes.allocate (needed, true);
-            hotCellCount = needed;
-            cacheRows = 0;
-            cacheCols = 0;
-        }
-
-        uint64_t dirty[4] { 0, 0, 0, 0 };
-        grid.consumeDirtyRows (dirty);
-        const int scroll { grid.consumeScrollDelta() };
-
         if (cacheRows != rows or cacheCols != cols)
         {
-            allocateRowCache (rows, cols);
-            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
-        }
-        else if (scroll > 0 and scroll < rows)
-        {
-            applyScrollOptimization (rows, cols, scroll, dirty);
-
-            for (int r { rows - scroll }; r < rows; ++r)
-            {
-                dirty[r >> 6] |= (uint64_t { 1 } << (r & 63));
-            }
-        }
-        else if (scroll >= rows)
-        {
-            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
+            allocateRenderCache (rows, cols);
         }
 
-        const bool hasSelection { selection != nullptr };
-
-        if (hasSelection or hadSelection)
-        {
-            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
-        }
-
-        hadSelection = hasSelection;
-
-        const bool isScrolled { state.getScrollOffset() > 0 };
-
-        if (isScrolled or wasScrolled)
-        {
-            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
-        }
-
-        wasScrolled = isScrolled;
-
-        const bool hasHintOverlay { hintOverlay != nullptr and hintOverlayCount > 0 };
-
-        if (hasHintOverlay or hadHintOverlay)
-        {
-            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
-        }
-
-        hadHintOverlay = hasHintOverlay;
-
-        const bool hasLinkUnderlay { linkUnderlay != nullptr and linkUnderlayCount > 0 };
-
-        if (hasLinkUnderlay or hadLinkUnderlay)
-        {
-            std::fill (std::begin (dirty), std::end (dirty), ~uint64_t { 0 });
-        }
-
-        hadLinkUnderlay = hasLinkUnderlay;
-
-        populateFromGrid (state, grid, dirty);
-        buildSnapshot (state, dirty);
-    }
-}
-
-/**
- * @brief Copies dirty rows from `Grid` into the `hotCells` / `coldGraphemes` cache.
- *
- * For each row marked dirty in @p dirty, selects the appropriate row pointer
- * from `Grid` (scrollback or active, depending on `state.getScrollOffset()`)
- * and copies cells and graphemes into the flat cache arrays.  Rows not marked
- * dirty are left unchanged.
- *
- * @param state  Current terminal state (provides `getCols()`, `getVisibleRows()`,
- *               `getScrollOffset()`).
- * @param grid   Source grid (provides `scrollbackRow()`, `activeVisibleRow()`,
- *               and their grapheme equivalents).
- * @param dirty  256-bit dirty bitmask; only rows with their bit set are copied.
- */
-void Screen::populateFromGrid (const State& state, const Grid& grid, const uint64_t dirty[4]) noexcept
-{
-    const int cols { state.getCols() };
-    const int rows { state.getVisibleRows() };
-    const int offset { state.getScrollOffset() };
-
-    for (int row { 0 }; row < rows; ++row)
-    {
-        if (isRowDirty (dirty, row))
-        {
-            const Cell* rowCells { offset > 0
-                ? grid.scrollbackRow (row, offset)
-                : grid.activeVisibleRow (row) };
-            const Grapheme* rowGraphemes { offset > 0
-                ? grid.scrollbackGraphemeRow (row, offset)
-                : grid.activeVisibleGraphemeRow (row) };
-
-            if (rowCells != nullptr)
-            {
-                const size_t rowBase { static_cast<size_t> (row) * static_cast<size_t> (cols) };
-
-                for (int col { 0 }; col < cols; ++col)
-                {
-                    const size_t idx { rowBase + static_cast<size_t> (col) };
-                    hotCells[idx] = rowCells[col];
-
-                    if (rowCells[col].hasGrapheme() and rowGraphemes != nullptr)
-                    {
-                        coldGraphemes[idx] = rowGraphemes[col];
-                    }
-                }
-            }
-        }
+        buildSnapshot (state, grid);
     }
 }
 
