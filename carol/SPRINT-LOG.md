@@ -8,6 +8,72 @@
 
 ---
 
+## Sprint 110 — COUNSELOR: Open File Mode, Hyperlinks, Shell Integration
+
+**Date:** 2026-03-22
+
+### Agents Participated
+- COUNSELOR: plan updates, architecture decisions, step-by-step delegation
+- @pathfinder: rendering pipeline insertion points, mouse/underline/cursor patterns
+- @researcher: kitty/ghostty/wezterm shell integration mechanisms (ZDOTDIR, ENV, XDG_DATA_DIRS)
+- @engineer: all implementation steps
+
+### Files Modified (22 total)
+- `Source/terminal/selection/SelectionOverlay.h` — renamed class SelectionOverlay → StatusBarOverlay, general-purpose modal status bar, added openFile case, terminal font, dynamic height
+- `Source/terminal/selection/LinkDetector.h` — NEW: built-in extension set (60+), URL protocol detection, classify utility
+- `Source/terminal/selection/LinkSpan.h` — NEW: link span data struct with labelCol for hint positioning
+- `Source/terminal/rendering/Screen.h/cpp` — setHintOverlay, setLinkUnderlay for hint labels and click-mode underlines
+- `Source/terminal/rendering/ScreenRender.cpp` — hint label cell override in processCellForSnapshot, link underline Background quads
+- `Source/terminal/logic/Parser.h` — Osc8Span struct, OSC 8 span storage, handleOsc8/handleOsc133 declarations
+- `Source/terminal/logic/ParserESC.cpp` — OSC 8 and OSC 133 A/B/C/D dispatch
+- `Source/terminal/logic/ParserEdit.cpp` — clear OSC 8 spans on alternate screen switch
+- `Source/terminal/data/State.h/cpp` — ModalType::openFile, output block tracking (top/bottom/scanActive)
+- `Source/terminal/tty/UnixTTY.h/cpp` — addShellEnv/clearShellEnv for generalized env injection before execvp
+- `Source/terminal/logic/Session.h/cpp` — applyShellIntegration (zsh/bash/fish/pwsh), getParser non-const overload
+- `Source/component/TerminalComponent.h/cpp` — enterOpenFileMode, handleOpenFileKey, scanViewportForLinks, hint label assignment (filename-char-based), click-mode link dispatch, mouseMove hover cursor, drag threshold (2-cell), mouse selection separated from modal, copySelection by ScreenSelection type
+- `Source/MainComponent.h/cpp` — StatusBarOverlay member, exitActiveTerminalSelectionMode on tab/pane switch
+- `Source/component/LookAndFeel.h/cpp` — ColourIds renamed selectionBar → statusBar
+- `Source/config/Config.h/cpp` — 8 new Key entries (hyperlinks.editor, shell.integration, hint label colours, status bar colours/position, enter_open_file)
+- `Source/config/default_end.lua` — hyperlinks section, shell integration config, status bar colours, hint label colours, enter_open_file key
+- `Source/terminal/action/Action.cpp` — enter_open_file action table entry
+- `CMakeLists.txt` — .bash/.fish/.ps1 extensions added to binary data glob
+- `Source/terminal/shell/zsh_zshenv.zsh` — NEW: ZDOTDIR wrapper
+- `Source/terminal/shell/zsh_end_integration.zsh` — NEW: zsh autoload hooks
+- `Source/terminal/shell/bash_integration.bash` — NEW: ENV/POSIX mode integration
+- `Source/terminal/shell/fish/vendor_conf.d/end-shell-integration.fish` — NEW: XDG_DATA_DIRS vendor conf
+- `Source/terminal/shell/powershell_integration.ps1` — NEW: prompt/PSReadLine hooks
+
+### Architecture Decisions
+- **Hint labels use filename characters** — first unique char from the filename, shift right on conflict. Single keystroke, always readable.
+- **Click-drag separate from modal VISUAL** — no ModalType, direct ScreenSelection, 2-cell threshold
+- **OSC 133 gates click mode** — underlines only on command output rows, prevents false positives on prompts
+- **Shell integration via ZDOTDIR/ENV/XDG_DATA_DIRS** — same mechanisms as kitty/ghostty, zero visible output
+- **Editor dispatch via direct PTY write** — `writeToPty("{editor} {path}\r")`, in-place execution
+- **StatusBarOverlay polls State** — no manual callbacks, reads ModalType via onRepaintNeeded
+
+### Alignment Check
+- [x] LIFESTAR principles followed (SSOT: State owns modal/selection/output block state)
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] All keys configurable via end.lua
+
+### Problems Solved
+- Open-file mode with vimium-style hint labels
+- Always-on clickable hyperlinks with underlines and pointer cursor
+- OSC 133 semantic prompt parsing for output block detection
+- Automatic shell integration for 4 shells (zsh, bash, fish, PowerShell)
+- OSC 8 explicit hyperlink protocol
+- Mouse selection sensitivity (2-cell threshold) and modal separation
+
+### Technical Debt / Follow-up
+- TerminalComponent is becoming a god object — mouse/key/link handling should be extracted into InputHandler, MouseHandler, LinkManager
+- Editor fallback chain (config currently single string, plan spec'd table of fallbacks)
+- SelectionFinder (search in selection mode) — removed, needs proper reimplementation
+- Link underline artifacts on screen transitions — cleared on dirty but may need per-row tracking
+- OSC 133 output block boundaries are approximate after scroll — absolute position tracking deferred
+
+---
+
 ## Sprint 109 — COUNSELOR: Vim-like Text Selection Mode
 
 **Date:** 2026-03-21

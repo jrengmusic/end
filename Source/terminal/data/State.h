@@ -766,6 +766,50 @@ struct State : public juce::Timer
      */
     int getSelectionAnchorCol() const noexcept;
 
+    /**
+     * @brief Sets the mouse drag anchor position (absolute row, column).
+     *
+     * Written by the mouse-down handler.  Row is in scrollback-aware
+     * coordinates (same coordinate system as selection cursor/anchor).
+     *
+     * @param row  Absolute grid row of the mouse-down cell.
+     * @param col  Zero-based column index of the mouse-down cell.
+     * @note MESSAGE THREAD — calls storeAndFlush for each component.
+     */
+    void setDragAnchor (int row, int col) noexcept;
+
+    /**
+     * @brief Returns the drag anchor row in absolute grid coordinates.
+     * @return Scrollback-aware grid row index.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getDragAnchorRow() const noexcept;
+
+    /**
+     * @brief Returns the drag anchor column.
+     * @return Zero-based column index.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getDragAnchorCol() const noexcept;
+
+    /**
+     * @brief Sets whether a mouse drag selection is currently active.
+     *
+     * Set to `true` once the Manhattan distance from the drag anchor exceeds
+     * the 2-cell threshold.  Reset to `false` on mouse-up.
+     *
+     * @param active  `true` when a drag selection is in progress.
+     * @note MESSAGE THREAD — calls storeAndFlush.
+     */
+    void setDragActive (bool active) noexcept;
+
+    /**
+     * @brief Returns whether a mouse drag selection is currently active.
+     * @return `true` if a drag is in progress.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    bool isDragActive() const noexcept;
+
     /** @} */
 
     /**

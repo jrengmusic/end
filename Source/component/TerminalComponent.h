@@ -44,6 +44,9 @@
 #include "../terminal/rendering/ScreenSelection.h"
 #include "../terminal/selection/SelectionType.h"
 #include "../terminal/selection/LinkSpan.h"
+#include "../terminal/selection/LinkManager.h"
+#include "InputHandler.h"
+#include "MouseHandler.h"
 #include "config/Config.h"
 
 namespace Terminal
@@ -206,9 +209,9 @@ public:
     /**
      * @brief Updates the mouse cursor and refreshes clickable link spans on hover.
      *
-     * If `linkScanNeeded` is true, rescans the viewport for links and updates
-     * `clickableLinks` and the screen link underlay.  Hit-tests the mouse
-     * position against `clickableLinks`: shows `PointingHandCursor` over a
+     * If `linkManager.needsScan()` is true, rescans the viewport for links and
+     * updates the screen link underlay.  Hit-tests the mouse position against
+     * clickable links via `LinkManager::hitTest()`: shows `PointingHandCursor` over a
      * link, `NormalCursor` otherwise.  Inactive when any modal is active or
      * when mouse tracking is forwarded to the PTY.
      *
@@ -355,12 +358,12 @@ public:
     std::function<void()> onShellExited;
 
     /**
-     * @brief Returns `true` if a non-degenerate box selection is currently active.
+     * @brief Returns `true` if a non-degenerate selection is currently active.
      *
      * Used by the copy action to decide whether to consume the key or let it
      * fall through to the PTY as `\x03`.
      *
-     * @return `true` if `boxSelection.active` is set.
+     * @return `true` if `screenSelection` is non-null.
      * @note MESSAGE THREAD.
      */
     bool hasSelection() const noexcept;
@@ -513,51 +516,17 @@ public:
 private:
     //==============================================================================
     /**
-     * @brief Scaling factor that converts JUCE's normalised trackpad deltas to
-     *        line-sized units before accumulation.
-     *
-     * JUCE normalises smooth-scroll deltas to approximately `1.0 / lines-per-notch`,
-     * yielding values around 0.05–0.15 per frame at typical trackpad velocity.
-     * After multiplying by the user's `terminalScrollStep` (default 5), the raw
-     * product is still sub-line (~0.25–0.75).  This factor bridges the gap so that
-     * a natural finger swipe produces a comfortable number of scrolled lines
-     * without requiring multiple frames to cross the first whole-line threshold.
-     */
-    static constexpr float trackpadDeltaScale { 8.0f };
-
-    //==============================================================================
-    /**
      * @brief VBlank callback: renders the grid if dirty.
      *
      * Called every display refresh by `juce::VBlankAttachment`.  Steps:
      * 1. Ensures this component is the focus container.
-     * 2. If the snapshot is dirty and the resize lock is available, renders.
+     * 2. If the snapshot is dirty and the resize lock is available:
+     *    a. Rebuilds `screenSelection` from State params (SSOT for selection rendering).
+     *    b. Calls `Screen::render()`.
      *
      * @note MESSAGE THREAD — VBlankAttachment callbacks run on the message thread.
      */
     void onVBlank();
-
-    /**
-     * @brief Handles scrollback navigation via Shift+PgUp/PgDn/Home/End.
-     *
-     * PgUp/PgDn scroll by Config::Key::scrollbackStep lines.  Home/End jump to
-     * the top or bottom of the scrollback buffer.
-     *
-     * @param keyCode  The key code of the pressed key.
-     * @note MESSAGE THREAD.
-     * @see Config::Key::scrollbackStep
-     */
-    void handleScrollNavigation (int keyCode);
-
-    /**
-     * @brief Clears the active text selection and resets scroll offset.
-     *
-     * Resets the scroll offset to zero (bottom of scrollback).  Called when a
-     * non-navigation key is pressed.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void clearSelectionAndScroll();
 
     /**
      * @brief Scales the font size by @p zoom and re-lays out the component.
@@ -567,6 +536,7 @@ private:
      * @see Screen::setFontSize
      */
     void applyZoom (float zoom) noexcept;
+
     /**
      * @brief Computes this component's pixel offset relative to the top-level window.
      *
@@ -578,27 +548,6 @@ private:
      * @see renderGL
      */
     juce::Point<int> getOriginInTopLevel() const noexcept;
-
-    /**
-     * @brief Returns whether any mouse-tracking mode is currently active.
-     *
-     * Checks `mouseTracking`, `mouseMotionTracking`, and `mouseAllTracking`
-     * modes in the Session state tree.
-     *
-     * @return @c true if any mouse-tracking mode is enabled.
-     */
-    bool isMouseTracking() const noexcept;
-
-    /**
-     * @brief Returns whether mouse events should be forwarded to the PTY.
-     *
-     * Returns true when any mouse-tracking mode is active.  On Windows,
-     * `isMouseTracking()` works correctly because the sideloaded ConPTY
-     * forwards DECSET mouse mode sequences through the pipe to END's parser.
-     *
-     * @return @c true if mouse events should be forwarded to the PTY.
-     */
-    bool shouldForwardMouseToPty() const noexcept;
 
     /**
      * @brief Clamps @p newOffset to [0, scrollbackUsed] and applies it if changed.
@@ -613,197 +562,39 @@ private:
      */
     void setScrollOffsetClamped (int newOffset) noexcept;
 
-    /**
-     * @brief Dispatches a key event to the handler for the currently active modal.
-     *
-     * Called by `keyPressed()` when `session.getState().isModal()` is true.
-     * Routes the key to the appropriate handler based on `State::getModalType()`.
-     * Returns `true` if the modal consumed the key, `false` otherwise.
-     *
-     * @param key  The key event from keyPressed().
-     * @return `true` if the active modal consumed the key.
-     * @note MESSAGE THREAD.
-     */
-    bool handleModalKey (const juce::KeyPress& key) noexcept;
-
-    /**
-     * @brief Handles a key event while selection mode is active.
-     *
-     * Compares the key against cached `selectionKeys` parsed from Config.
-     * Returns `true` if the key was consumed by the selection state machine.
-     *
-     * @param key  The key event from keyPressed().
-     * @return `true` if the key was consumed; `false` if not a selection key.
-     * @note MESSAGE THREAD.
-     */
-    bool handleSelectionKey (const juce::KeyPress& key) noexcept;
-
-    /**
-     * @brief Handles a key event while open-file hint-label mode is active.
-     *
-     * Escape exits the mode and clears the overlay.  Letter keys (a–z) are
-     * matched against `activeLinks` hint labels.  A match dispatches the link
-     * immediately.  Unmatched keys are consumed without action.
-     *
-     * @param key  The key event from keyPressed().
-     * @return Always `true` — open-file mode is fully modal.
-     * @note MESSAGE THREAD.
-     */
-    bool handleOpenFileKey (const juce::KeyPress& key) noexcept;
-
-    /**
-     * @brief Scans every visible row for file-path and URL tokens.
-     *
-     * Iterates all visible rows via `grid.activeVisibleRow()`, walks each row
-     * cell-by-cell accumulating non-whitespace runs, classifies each token
-     * with `LinkDetector::classify()`, resolves file tokens against @p cwd,
-     * and assigns hint labels (`'a'`–`'z'`, then `"aa"`–`"zz"`).
-     *
-     * Called once on open-file mode entry under a `ScopedTryLock` on the grid
-     * resize lock.  If the lock cannot be acquired the function returns an
-     * empty vector and the mode is still entered (overlay shows no hints).
-     *
-     * @param grid  The terminal grid to scan (const — read-only).
-     * @param cwd   The shell's current working directory, used to resolve
-     *              relative file tokens into absolute `file:///` URIs.
-     * @return Vector of `LinkSpan` values, one per detected token, with hint
-     *         labels assigned.
-     * @note MESSAGE THREAD.
-     */
-    /**
-     * @brief Scans visible rows for file/URL tokens and returns their spans.
-     *
-     * @param grid            Terminal grid to scan (read-only).
-     * @param cwd             Shell current working directory for relative-path resolution.
-     * @param outputRowsOnly  When true, only rows within the OSC 133 output block
-     *                        are scanned.  When false (open-file mode), all visible
-     *                        rows are scanned regardless of output-block boundaries.
-     */
-    std::vector<LinkSpan> scanViewportForLinks (const Grid& grid,
-                                                const juce::String& cwd,
-                                                bool outputRowsOnly);
-
-    /**
-     * @brief Syncs `screenSelection` and `screen.setSelection()` from State.
-     *
-     * Maps the State selectionType to `ScreenSelection::SelectionType`,
-     * sets anchor/end from the selection cursor and anchor in State, and calls
-     * `screen.setSelection()`.  When selectionType is `none`, clears the
-     * selection highlight.
-     *
-     * @note Call at the end of `handleSelectionKey()` whenever selection state changes.
-     * @note MESSAGE THREAD.
-     */
-    void updateSelectionHighlight() noexcept;
-
-    /**
-     * @brief Parses all selection-mode key strings from Config into `selectionKeys`.
-     *
-     * Called from `initialise()` and `applyConfig()` so changes take effect on
-     * config reload without restarting.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void buildSelectionKeyMap() noexcept;
-
     //==============================================================================
     /** @brief GPU-accelerated terminal renderer; attached to this component. */
     Screen screen;
 
-    /** @brief pty session, VT parser, and grid state machine. */
+    /** @brief PTY session, VT parser, and grid state machine. */
     Session session;
-
-    /**
-     * @brief Rectangle (box) selection state driven by mouse drag.
-     *
-     * Stores the anchor (mouse-down) and end (current drag) grid coordinates
-     * for a box selection.  The actual selected rectangle is
-     * `[min(anchorCol,endCol), max(anchorCol,endCol)]` ×
-     * `[min(anchorRow,endRow), max(anchorRow,endRow)]` — the same column
-     * range applies to every row, making this a strict rectangle rather than
-     * a row-wrapped region.
-     *
-     * `active` is set to `true` once the user has dragged at least one cell
-     * away from the anchor.  A plain click (no drag) leaves `active` false
-     * and clears any previous selection.
-     */
-    struct BoxSelection
-    {
-        int  anchorCol { 0 };  ///< Column of the mouse-down anchor cell.
-        int  anchorRow { 0 };  ///< Row of the mouse-down anchor cell.
-        int  endCol    { 0 };  ///< Column of the current drag end cell.
-        int  endRow    { 0 };  ///< Row of the current drag end cell.
-        bool active    { false }; ///< True when a non-degenerate selection exists.
-    };
-
-    /** @brief Current box selection state; `active` is false when nothing is selected. */
-    BoxSelection boxSelection;
 
     /** @brief Current text selection; null when nothing is selected. */
     std::unique_ptr<ScreenSelection> screenSelection;
 
     /**
-     * @brief Parsed KeyPress objects for every selection-mode binding.
+     * @brief Keyboard input handler: modal dispatch, vim selection, open-file keys.
      *
-     * Built by `buildSelectionKeyMap()` from Config strings.  Compared against
-     * incoming key events in `handleSelectionKey()` instead of hardcoded chars.
+     * Constructed after `session`, `screen`, and `linkManager` so those members
+     * are valid at InputHandler construction time.
      */
-    struct SelectionKeys
-    {
-        juce::KeyPress up;
-        juce::KeyPress down;
-        juce::KeyPress left;
-        juce::KeyPress right;
-        juce::KeyPress visual;
-        juce::KeyPress visualLine;
-        juce::KeyPress visualBlock;
-        juce::KeyPress copy;
-        juce::KeyPress globalCopy;
-        juce::KeyPress top;
-        juce::KeyPress bottom;
-        juce::KeyPress lineStart;
-        juce::KeyPress lineEnd;
-        juce::KeyPress exit;
-    };
-
-    /** @brief Cached selection-mode key bindings, rebuilt from Config on load/reload. */
-    SelectionKeys selectionKeys;
+    InputHandler inputHandler { session, screen, linkManager };
 
     /**
-     * @brief Pending-g flag for the two-key `gg` (go-to-top) sequence.
+     * @brief Mouse input handler: PTY forwarding, drag selection, link dispatch.
      *
-     * Set to `true` after the first `g` key is received in selection mode.
-     * Cleared after the second `g` fires `moveToTop`, or when any other key
-     * cancels the sequence.  Transient UI state — not persisted to State.
+     * Constructed after `session`, `screen`, and `linkManager`.
      */
-    bool pendingG { false };
+    MouseHandler mouseHandler { session, screen, linkManager };
 
     /**
-     * @brief Link spans detected during the last open-file mode entry.
+     * @brief Link manager: owns viewport scanning, hit-testing, and dispatch.
      *
-     * Populated once by `scanViewportForLinks()` in `enterOpenFileMode()` and
-     * consumed by `handleOpenFileKey()`.  Cleared when open-file mode exits.
+     * Handles both hover-underline (`clickableLinks`) and open-file hint-label
+     * (`hintLinks`) modes.  Invalidated in `onVBlank()` whenever the snapshot is
+     * dirty; rescanned lazily in `mouseMove()`.
      */
-    std::vector<LinkSpan> activeLinks;
-
-    /**
-     * @brief Link spans for always-on click mode.
-     *
-     * Refreshed lazily by `mouseMove()` when `linkScanNeeded` is true.
-     * Passed to `screen.setLinkUnderlay()` so the renderer draws underlines
-     * beneath each span.  Also hit-tested in `mouseDown()` to dispatch clicks.
-     */
-    std::vector<LinkSpan> clickableLinks;
-
-    /**
-     * @brief True when the viewport content has changed and `clickableLinks` must be rescanned.
-     *
-     * Set to `true` in `onVBlank()` whenever the snapshot is dirty.  Cleared
-     * in `mouseMove()` after `scanViewportForLinks()` runs.  This defers the
-     * O(rows×cols) scan until the mouse actually moves, so mouse-less frames
-     * pay no cost.
-     */
-    bool linkScanNeeded { true };
+    LinkManager linkManager { session };
 
     /** @brief VBlank attachment that drives the render loop at display refresh rate. */
     juce::VBlankAttachment vblank;
@@ -828,16 +619,6 @@ private:
 
     /** @brief Grid padding — left edge inset in logical pixels (from `terminal.padding`). */
     const int paddingLeft   { Config::getContext()->getInt (Config::Key::terminalPaddingLeft) };
-
-    /**
-     * @brief Fractional scroll accumulator for smooth (trackpad) input.
-     *
-     * Trackpads emit many small delta events per gesture.  The accumulator
-     * collects fractional line amounts and only scrolls when a whole line
-     * threshold is crossed, preventing the massive overscroll that occurs
-     * when every micro-event triggers a fixed multi-line jump.
-     */
-    float scrollAccumulator { 0.0f };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Component)

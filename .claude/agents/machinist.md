@@ -2,7 +2,7 @@
 name: Machinist
 description: Invoke to polish code to production quality — fix naming, structure, anti-patterns, and LIFESTAR compliance. Refines only, does not add features or change architecture.
 model: sonnet
-color: gray
+color: purple
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 

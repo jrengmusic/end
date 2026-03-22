@@ -249,6 +249,15 @@ namespace ID
 
     /** @brief Selection anchor column in grid coordinates. */
     static const juce::Identifier selectionAnchorCol   { "selectionAnchorCol" };
+
+    /** @brief Mouse drag anchor row in absolute (scrollback-aware) grid coordinates. */
+    static const juce::Identifier dragAnchorRow        { "dragAnchorRow" };
+
+    /** @brief Mouse drag anchor column in grid coordinates. */
+    static const juce::Identifier dragAnchorCol        { "dragAnchorCol" };
+
+    /** @brief True when the drag threshold has been crossed and a drag selection is active. */
+    static const juce::Identifier dragActive           { "dragActive" };
 }
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

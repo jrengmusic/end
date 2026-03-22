@@ -147,6 +147,9 @@ State::State()
     addParam (state, ID::selectionCursorCol, 0.0f);
     addParam (state, ID::selectionAnchorRow, 0.0f);
     addParam (state, ID::selectionAnchorCol, 0.0f);
+    addParam (state, ID::dragAnchorRow, 0.0f);
+    addParam (state, ID::dragAnchorCol, 0.0f);
+    addParam (state, ID::dragActive, 0.0f);
 
     // MODES
     juce::ValueTree modesNode { ID::MODES };
@@ -563,6 +566,32 @@ int State::getSelectionAnchorRow() const noexcept
 int State::getSelectionAnchorCol() const noexcept
 {
     return getRawValue<int> (ID::selectionAnchorCol);
+}
+
+void State::setDragAnchor (int row, int col) noexcept
+{
+    storeAndFlush (ID::dragAnchorRow, static_cast<float> (row));
+    storeAndFlush (ID::dragAnchorCol, static_cast<float> (col));
+}
+
+int State::getDragAnchorRow() const noexcept
+{
+    return getRawValue<int> (ID::dragAnchorRow);
+}
+
+int State::getDragAnchorCol() const noexcept
+{
+    return getRawValue<int> (ID::dragAnchorCol);
+}
+
+void State::setDragActive (bool active) noexcept
+{
+    storeAndFlush (ID::dragActive, active ? 1.0f : 0.0f);
+}
+
+bool State::isDragActive() const noexcept
+{
+    return getRawValue<bool> (ID::dragActive);
 }
 
 void State::requestSyncResize() noexcept
