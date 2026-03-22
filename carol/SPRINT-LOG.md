@@ -8,6 +8,101 @@
 
 ---
 
+## Sprint 113 — COUNSELOR: Config Refactor + RRGGBBAA
+
+**Date:** 2026-03-22
+
+### Agents Participated
+- COUNSELOR: architecture decisions, delegation
+- @pathfinder: mapped Config load/colour/key systems
+- @machinist: refactored Config.cpp, colour parser, default_end.lua
+
+### Files Modified (3 total)
+- `Source/config/Config.h` — added `addKey()` helper, `ValueSpec` moved to public, `mutable colourCache` member, removed `initDefaults()`/`initSchema()` declarations
+- `Source/config/Config.cpp` — replaced `initDefaults()`+`initSchema()` with single `initKeys()` using `addKey()`, ANSI colours looped in `buildTheme()`, `load()` flattened (extracted `validateAndStore`/`loadPadding`/`loadPopups`, switch for type dispatch), `getColour()` caches parsed results, `parseColour()` reads RRGGBBAA (alpha at end), added `#RGBA` 4-char shorthand
+- `Source/config/default_end.lua` — colour format docs updated to `#RRGGBB`/`#RRGGBBAA`, all default values use new format
+
+### Alignment Check
+- [x] LIFESTAR principles followed (SSOT: one `addKey()` per key, no parallel structures)
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+
+### Problems Solved
+- Parallel `initDefaults()`/`initSchema()` eliminated — every key declared once
+- 16 ANSI colour fan-out in `buildTheme()` replaced with array + loop
+- `load()` 5-level nesting flattened to 3 extracted helpers + switch
+- `getColour()` re-parsed strings on every call — now cached
+- Colour format `#AARRGGBB` → `#RRGGBBAA` (CSS convention, alpha at end)
+
+### Technical Debt / Follow-up
+- Breaking change: existing end.lua with `#AARRGGBB` colours produce wrong results — delete and regenerate
+
+---
+
+## Sprint 112 — COUNSELOR: Nuke Per-Row Cell Cache
+
+**Date:** 2026-03-22
+
+### Agents Participated
+- COUNSELOR: architecture decision (nuke vs fix)
+- @pathfinder: mapped all dirty tracking and cache sites
+- @machinist: removed cell cache, rewired buildSnapshot to read Grid directly
+
+### Files Modified (4 total)
+- `Source/terminal/rendering/Screen.h` — removed `hotCells`, `hotCellCount`, `coldGraphemes`, `hadSelection`, `wasScrolled`, `hadHintOverlay`, `hadLinkUnderlay`, `isRowDirty()`, `applyScrollOptimization()`, `populateFromGrid()`, renamed `allocateRowCache` → `allocateRenderCache`
+- `Source/terminal/rendering/Screen.cpp` — `render()` simplified: no `consumeDirtyRows`/`consumeScrollDelta`, no scroll optimization, no dirty bit logic. Calls `buildSnapshot(state, grid)` directly.
+- `Source/terminal/rendering/ScreenRender.cpp` — `buildSnapshot` reads `Grid::activeVisibleRow()`/`scrollbackRow()` directly every frame, every row. `processCellForSnapshot`/`buildCellInstance`/`tryLigature` receive row pointers as params.
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — signature updates for Grid parameter
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+
+### Problems Solved
+- Stale cell rendering artifacts from Ink CUU+EL+rewrite cycles — dirty bits consumed before new content arrived, cached cells shown until scroll forced full dirty sweep
+- Eliminated entire class of dirty tracking bugs (races, scroll optimization shifts, transition bool workarounds)
+
+### Technical Debt / Follow-up
+- Grid::consumeDirtyRows/consumeScrollDelta still exist but unused by renderer — can be removed if no other callers
+- Thread safety: message thread reads Grid cells while reader thread writes — same race as before, mitigated by ScopedTryLock on resize
+
+---
+
+## Sprint 111 — COUNSELOR: TerminalComponent Refactor
+
+**Date:** 2026-03-22
+
+### Agents Participated
+- COUNSELOR: architecture decisions (State as SSOT, tell-don't-ask, extraction boundaries)
+- @pathfinder: mapped all TerminalComponent responsibilities (9 groups, ~1600 lines)
+- @machinist: extracted InputHandler, MouseHandler, LinkManager, moved state to parameterMap
+
+### Files Modified (12 total)
+- `Source/component/InputHandler.h/cpp` — NEW: modal key dispatch, selection keys, open-file keys, scroll nav, SelectionKeys cache, pendingG, reset()
+- `Source/component/MouseHandler.h/cpp` — NEW: PTY forwarding, drag selection, double/triple-click, wheel scroll, hover cursor, scrollAccumulator
+- `Source/terminal/selection/LinkManager.h/cpp` — NEW: viewport scan, hit-test, dispatch (editor/browser), OSC 8 span merging, hint label management
+- `Source/component/TerminalComponent.h/cpp` — thin delegation shell (~300 lines from ~1600), JUCE overrides delegate to handlers, onVBlank builds ScreenSelection from State
+- `Source/terminal/data/State.h/cpp` — added dragAnchorRow/Col, dragActive to parameterMap
+- `Source/terminal/data/Identifier.h` — added drag state identifiers
+
+### Alignment Check
+- [x] LIFESTAR principles followed (SSOT: all state in State parameterMap)
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+
+### Problems Solved
+- TerminalComponent god object split into 4 focused classes
+- BoxSelection struct deleted — unified with State params
+- Link dispatch duplicated in mouseDown + handleOpenFileKey — unified in LinkManager::dispatch
+- Link underlines now driven by OSC 133 output block state in onVBlank, not mouseMove
+
+### Technical Debt / Follow-up
+- setScrollOffsetClamped duplicated between Component and InputHandler (different ownership domains)
+- Mouse selection and keyboard VISUAL share State params but have different coordinate conversion needs
+
+---
+
 ## Sprint 110 — COUNSELOR: Open File Mode, Hyperlinks, Shell Integration
 
 **Date:** 2026-03-22
