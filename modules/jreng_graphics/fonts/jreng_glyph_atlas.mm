@@ -41,6 +41,41 @@
 namespace jreng::Glyph
 {
 
+static void ensurePooledContext (int neededW, int neededH,
+                                 juce::HeapBlock<uint8_t>& buffer,
+                                 CGContextRef& ctx,
+                                 CGColorSpaceRef colorSpace,
+                                 int& poolW, int& poolH,
+                                 size_t bpp, uint32_t bitmapInfo) noexcept
+{
+    if (ctx != nullptr)
+    {
+        CGContextRelease (ctx);
+        ctx = nullptr;
+    }
+
+    if (neededW > poolW or neededH > poolH)
+    {
+        poolW = std::max (poolW, neededW);
+        poolH = std::max (poolH, neededH);
+        buffer.allocate (static_cast<size_t> (poolW) * static_cast<size_t> (poolH) * bpp, true);
+    }
+    else
+    {
+        std::memset (buffer.get(), 0,
+                     static_cast<size_t> (neededW) * static_cast<size_t> (neededH) * bpp);
+    }
+
+    ctx = CGBitmapContextCreate (buffer.get(),
+                                 static_cast<size_t> (neededW),
+                                 static_cast<size_t> (neededH),
+                                 8,
+                                 static_cast<size_t> (neededW) * bpp,
+                                 colorSpace,
+                                 bitmapInfo);
+}
+
+
 /**
  * @brief Flip a pixel buffer vertically in-place (macOS only).
  *
@@ -70,6 +105,41 @@ void Atlas::flipBitmapVertically (uint8_t* data, int width, int height, int byte
         std::memcpy (tempRow.get(), topRow, rowBytes);
         std::memcpy (topRow, bottomRow, rowBytes);
         std::memcpy (bottomRow, tempRow.get(), rowBytes);
+    }
+}
+
+Atlas::Atlas()
+    : atlasWidth (atlasSize)
+    , atlasHeight (atlasSize)
+    , monoPacker (atlasSize, atlasSize)
+    , emojiPacker (atlasSize, atlasSize)
+    , monoLRU (monoLruCapacity)
+    , emojiLRU (emojiLruCapacity)
+{
+    monoColorSpace = CGColorSpaceCreateDeviceGray();
+    emojiColorSpace = CGColorSpaceCreateDeviceRGB();
+}
+
+Atlas::~Atlas()
+{
+    if (monoPoolContext != nullptr)
+    {
+        CGContextRelease (monoPoolContext);
+    }
+
+    if (emojiPoolContext != nullptr)
+    {
+        CGContextRelease (emojiPoolContext);
+    }
+
+    if (monoColorSpace != nullptr)
+    {
+        CGColorSpaceRelease (monoColorSpace);
+    }
+
+    if (emojiColorSpace != nullptr)
+    {
+        CGColorSpaceRelease (emojiColorSpace);
     }
 }
 
@@ -156,32 +226,29 @@ Region Atlas::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
                     static_cast<float> (cellBitmapW) / aw,
                     static_cast<float> (cellBitmapH) / ah };
 
-                const size_t bufSize { static_cast<size_t> (cellBitmapW) * static_cast<size_t> (cellBitmapH) };
-                juce::HeapBlock<uint8_t> buf (bufSize, true);
+                ensurePooledContext (cellBitmapW, cellBitmapH,
+                                     monoPoolBuffer, monoPoolContext, monoColorSpace,
+                                     monoPoolWidth, monoPoolHeight,
+                                     1, kCGImageAlphaNone);
 
-                CGColorSpaceRef colorSpace { CGColorSpaceCreateDeviceGray() };
-                CGContextRef ctx { CGBitmapContextCreate (buf.get(), static_cast<size_t> (cellBitmapW),
-                                                          static_cast<size_t> (cellBitmapH), 8,
-                                                          static_cast<size_t> (cellBitmapW),
-                                                          colorSpace,
-                                                          kCGImageAlphaNone) };
-                CGColorSpaceRelease (colorSpace);
-
-                if (ctx != nullptr)
+                if (monoPoolContext != nullptr)
                 {
-                    CGContextSetShouldAntialias (ctx, true);
-                    CGContextSetShouldSmoothFonts (ctx, true);
-                    CGContextSetGrayFillColor (ctx, 1.0, 1.0);
-                    CGContextSetTextDrawingMode (ctx, kCGTextFill);
+                    CGContextSaveGState (monoPoolContext);
 
-                    CGContextTranslateCTM (ctx, static_cast<CGFloat> (xform.posX), static_cast<CGFloat> (xform.posY));
-                    CGContextScaleCTM (ctx, static_cast<CGFloat> (xform.scaleX), static_cast<CGFloat> (xform.scaleY));
+                    CGContextSetShouldAntialias (monoPoolContext, true);
+                    CGContextSetShouldSmoothFonts (monoPoolContext, true);
+                    CGContextSetGrayFillColor (monoPoolContext, 1.0, 1.0);
+                    CGContextSetTextDrawingMode (monoPoolContext, kCGTextFill);
+
+                    CGContextTranslateCTM (monoPoolContext, static_cast<CGFloat> (xform.posX), static_cast<CGFloat> (xform.posY));
+                    CGContextScaleCTM (monoPoolContext, static_cast<CGFloat> (xform.scaleX), static_cast<CGFloat> (xform.scaleY));
 
                     const CGPoint position { -bounds.origin.x, -bounds.origin.y };
-                    CTFontDrawGlyphs (font, &cgGlyph, &position, 1, ctx);
-                    CGContextRelease (ctx);
+                    CTFontDrawGlyphs (font, &cgGlyph, &position, 1, monoPoolContext);
 
-                    stageForUpload (buf.get(), cellBitmapW, cellBitmapH, region, false);
+                    CGContextRestoreGState (monoPoolContext);
+
+                    stageForUpload (monoPoolBuffer.get(), cellBitmapW, cellBitmapH, region, false);
                 }
             }
         }
@@ -223,64 +290,58 @@ Region Atlas::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
 
                     if (isEmoji)
                     {
-                        const size_t bufSize { static_cast<size_t> (pixelWidth) * static_cast<size_t> (pixelHeight) * 4 };
-                        juce::HeapBlock<uint8_t> buf (bufSize, true);
+                        ensurePooledContext (pixelWidth, pixelHeight,
+                                             emojiPoolBuffer, emojiPoolContext, emojiColorSpace,
+                                             emojiPoolWidth, emojiPoolHeight,
+                                             4, kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host);
 
-                        CGColorSpaceRef colorSpace { CGColorSpaceCreateDeviceRGB() };
-                        CGContextRef ctx { CGBitmapContextCreate (buf.get(), static_cast<size_t> (pixelWidth),
-                                                                  static_cast<size_t> (pixelHeight), 8,
-                                                                  static_cast<size_t> (pixelWidth) * 4,
-                                                                  colorSpace,
-                                                                  kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host) };
-                        CGColorSpaceRelease (colorSpace);
-
-                        if (ctx != nullptr)
+                        if (emojiPoolContext != nullptr)
                         {
-                            CGContextSetShouldAntialias (ctx, true);
-                            CGContextSetShouldSmoothFonts (ctx, true);
+                            CGContextSaveGState (emojiPoolContext);
+
+                            CGContextSetShouldAntialias (emojiPoolContext, true);
+                            CGContextSetShouldSmoothFonts (emojiPoolContext, true);
 
                             const CGPoint position { drawX, drawY };
-                            CTFontDrawGlyphs (font, &cgGlyph, &position, 1, ctx);
-                            CGContextRelease (ctx);
+                            CTFontDrawGlyphs (font, &cgGlyph, &position, 1, emojiPoolContext);
 
-                            stageForUpload (buf.get(), pixelWidth, pixelHeight, region, true);
+                            CGContextRestoreGState (emojiPoolContext);
+
+                            stageForUpload (emojiPoolBuffer.get(), pixelWidth, pixelHeight, region, true);
                         }
                     }
                     else
                     {
-                        const size_t bufSize { static_cast<size_t> (pixelWidth) * static_cast<size_t> (pixelHeight) };
-                        juce::HeapBlock<uint8_t> buf (bufSize, true);
+                        ensurePooledContext (pixelWidth, pixelHeight,
+                                             monoPoolBuffer, monoPoolContext, monoColorSpace,
+                                             monoPoolWidth, monoPoolHeight,
+                                             1, kCGImageAlphaNone);
 
-                        CGColorSpaceRef colorSpace { CGColorSpaceCreateDeviceGray() };
-                        CGContextRef ctx { CGBitmapContextCreate (buf.get(), static_cast<size_t> (pixelWidth),
-                                                                  static_cast<size_t> (pixelHeight), 8,
-                                                                  static_cast<size_t> (pixelWidth),
-                                                                  colorSpace,
-                                                                  kCGImageAlphaNone) };
-                        CGColorSpaceRelease (colorSpace);
-
-                        if (ctx != nullptr)
+                        if (monoPoolContext != nullptr)
                         {
-                            CGContextSetShouldAntialias (ctx, true);
-                            CGContextSetShouldSmoothFonts (ctx, true);
-                            CGContextSetGrayFillColor (ctx, 1.0, 1.0);
+                            CGContextSaveGState (monoPoolContext);
+
+                            CGContextSetShouldAntialias (monoPoolContext, true);
+                            CGContextSetShouldSmoothFonts (monoPoolContext, true);
+                            CGContextSetGrayFillColor (monoPoolContext, 1.0, 1.0);
 
                             if (embolden)
                             {
-                                CGContextSetGrayStrokeColor (ctx, 1.0, 1.0);
-                                CGContextSetLineWidth (ctx, 1.0);
-                                CGContextSetTextDrawingMode (ctx, kCGTextFillStroke);
+                                CGContextSetGrayStrokeColor (monoPoolContext, 1.0, 1.0);
+                                CGContextSetLineWidth (monoPoolContext, 1.0);
+                                CGContextSetTextDrawingMode (monoPoolContext, kCGTextFillStroke);
                             }
                             else
                             {
-                                CGContextSetTextDrawingMode (ctx, kCGTextFill);
+                                CGContextSetTextDrawingMode (monoPoolContext, kCGTextFill);
                             }
 
                             const CGPoint position { drawX, drawY };
-                            CTFontDrawGlyphs (font, &cgGlyph, &position, 1, ctx);
-                            CGContextRelease (ctx);
+                            CTFontDrawGlyphs (font, &cgGlyph, &position, 1, monoPoolContext);
 
-                            stageForUpload (buf.get(), pixelWidth, pixelHeight, region, false);
+                            CGContextRestoreGState (monoPoolContext);
+
+                            stageForUpload (monoPoolBuffer.get(), pixelWidth, pixelHeight, region, false);
                         }
                     }
                 }

@@ -34,6 +34,8 @@ static constexpr float ftFixed { static_cast<float> (jreng::Typeface::ftFixedSca
 namespace jreng::Glyph
 {
 
+#if ! JUCE_MAC
+
 /**
  * @brief Construct the atlas with both packers and LRU caches initialized.
  *
@@ -50,6 +52,12 @@ Atlas::Atlas()
     , emojiLRU (emojiLruCapacity)
 {
 }
+
+Atlas::~Atlas()
+{
+}
+
+#endif
 
 /**
  * @brief Return a cached glyph or rasterize it on demand.

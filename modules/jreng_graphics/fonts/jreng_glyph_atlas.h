@@ -54,6 +54,10 @@
 
 #include <mutex>
 
+#if JUCE_MAC
+    #include <CoreGraphics/CoreGraphics.h>
+#endif
+
 namespace jreng::Glyph
 {
 
@@ -123,8 +127,8 @@ public:
      */
     Atlas();
 
-    /** @brief Default destructor; all resources are RAII-managed. */
-    ~Atlas() = default;
+    /** @brief Destructor; releases pooled CGColorSpaceRef objects on macOS. */
+    ~Atlas();
 
     /**
      * @brief Return a cached glyph or rasterize it on demand.
@@ -434,6 +438,38 @@ private:
      * `consumeStagedBitmaps()` / `hasStagedBitmaps()` (GL THREAD).
      */
     mutable std::mutex uploadMutex;
+
+#if JUCE_MAC
+    /** @brief Pooled DeviceGray color space for mono rasterization (macOS). */
+    CGColorSpaceRef monoColorSpace { nullptr };
+
+    /** @brief Pooled DeviceRGB color space for emoji rasterization (macOS). */
+    CGColorSpaceRef emojiColorSpace { nullptr };
+
+    /** @brief Backing pixel buffer for the pooled mono CGBitmapContext (macOS). */
+    juce::HeapBlock<uint8_t> monoPoolBuffer;
+
+    /** @brief Pooled CGBitmapContext for mono rasterization; grows on high-watermark (macOS). */
+    CGContextRef monoPoolContext { nullptr };
+
+    /** @brief Current pooled mono context width in pixels (macOS). */
+    int monoPoolWidth { 0 };
+
+    /** @brief Current pooled mono context height in pixels (macOS). */
+    int monoPoolHeight { 0 };
+
+    /** @brief Backing pixel buffer for the pooled emoji CGBitmapContext (macOS). */
+    juce::HeapBlock<uint8_t> emojiPoolBuffer;
+
+    /** @brief Pooled CGBitmapContext for emoji rasterization; grows on high-watermark (macOS). */
+    CGContextRef emojiPoolContext { nullptr };
+
+    /** @brief Current pooled emoji context width in pixels (macOS). */
+    int emojiPoolWidth { 0 };
+
+    /** @brief Current pooled emoji context height in pixels (macOS). */
+    int emojiPoolHeight { 0 };
+#endif
 };
 
 } // namespace jreng::Glyph
