@@ -939,6 +939,9 @@ struct State : public juce::Timer
      */
     void timerCallback() override;
 
+    /** Called by `timerCallback()` after each flush cycle. MESSAGE THREAD only. */
+    std::function<void()> onFlush;
+
     /**
      * @brief Atomically tests and clears the snapshot-dirty flag.
      *

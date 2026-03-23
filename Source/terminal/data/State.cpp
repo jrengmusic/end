@@ -948,6 +948,9 @@ void State::timerCallback()
     const int interval { anythingUpdated ? 1000 / flushHz : 1000 / idleHz };
     tickCursorBlink (interval);
     startTimer (interval);
+
+    if (onFlush != nullptr)
+        onFlush();
 }
 
 /**

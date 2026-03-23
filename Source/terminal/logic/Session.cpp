@@ -15,6 +15,8 @@
 
 #include "Session.h"
 
+#include <cstring>
+
 #if JUCE_MAC || JUCE_LINUX
 #include "../tty/UnixTTY.h"
 #elif JUCE_WINDOWS
@@ -101,6 +103,25 @@ void Session::setupCallbacks()
             onBell();
         }
     };
+
+    state.onFlush = [this]
+    {
+        if (tty != nullptr)
+        {
+            const int fgPid { tty->getForegroundPid() };
+
+            if (fgPid > 0)
+            {
+                char fgNameBuf[State::maxStringLength] {};
+                tty->getProcessName (fgPid, fgNameBuf, State::maxStringLength);
+                state.setForegroundProcess (fgNameBuf, static_cast<int> (std::strlen (fgNameBuf)));
+
+                char cwdBuf[State::maxStringLength] {};
+                tty->getCwd (fgPid, cwdBuf, State::maxStringLength);
+                state.setCwd (cwdBuf, static_cast<int> (std::strlen (cwdBuf)));
+            }
+        }
+    };
 }
 
 /**
@@ -158,8 +179,8 @@ Session::~Session()
         // fully exit.  After stopThread() returns, no more callbacks will be
         // posted.  Any already-posted callAsync is harmless because
         // onShellExited is a stateless lambda (captures nothing from Session).
-        onShellExited = nullptr;
-        tty->onExit = nullptr;
+        onShellExited  = nullptr;
+        tty->onExit    = nullptr;
         tty->close();
         tty->onData = nullptr;
         tty->onResize = nullptr;
@@ -434,22 +455,9 @@ void Session::writeMouseEvent (int button, int col, int row, bool press) noexcep
  */
 void Session::process (const char* data, int length) noexcept
 {
-    // READER THREAD
+    // READER THREAD — keep absolutely minimal
     parser.process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
     state.consumePasteEcho (length);
-
-    const int fgPid { tty->getForegroundPid() };
-
-    if (fgPid > 0)
-    {
-        char fgNameBuf[State::maxStringLength] {};
-        tty->getProcessName (fgPid, fgNameBuf, State::maxStringLength);
-        state.setForegroundProcess (fgNameBuf, static_cast<int> (std::strlen (fgNameBuf)));
-
-        char cwdBuf[State::maxStringLength] {};
-        tty->getCwd (fgPid, cwdBuf, State::maxStringLength);
-        state.setCwd (cwdBuf, static_cast<int> (std::strlen (cwdBuf)));
-    }
 }
 
 /**

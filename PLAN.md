@@ -3,7 +3,7 @@
 **Project:** END
 **Date:** 2026-03-23
 **Author:** COUNSELOR
-**Status:** Active — Plan 2.5 next
+**Status:** Active — Plan 2.6 next
 
 **Contracts:** LIFESTAR, NAMING-CONVENTION, ARCHITECTURAL-MANIFESTO, JRENG-CODING-STANDARD
 
@@ -18,8 +18,8 @@ Seven sequential plans. Each plan is self-contained — delivers working, testab
 | 0 | Vendor FreeType as JUCE module | Done (Sprint 115) |
 | 1 | Extract glyph pipeline into `jreng_glyph` module | Done (Sprint 115) |
 | 2 | Replace END's rendering with `jreng_glyph` (destructive move) | Done (Sprint 115) |
-| **2.5** | **Decouple GL from `jreng_glyph`, consolidate in `jreng_opengl`** | **Next** |
-| **2.6** | **Rendering pipeline optimization** | **Gate for Plan 3** |
+| 2.5 | Decouple GL from glyph pipeline, rewire Screen to Font API | Done (Sprint 117) |
+| **2.6** | **Rendering pipeline optimization — rasterization + dirty rows** | **Next** |
 | 3 | CPU rendering backend via `juce::Graphics` | Blocked on 2.6 |
 | 4 | END end-to-end CPU rendering fallback | Blocked on 3 |
 
@@ -272,19 +272,93 @@ Screen uses `Glyph::Renderer&` instead of `GLTextRenderer`.
 
 **Gate:** Must complete before Plan 3. CPU rendering will amplify any inefficiency — fix on the GL path first so the CPU path inherits a clean baseline.
 
-**Goal:** Investigate and resolve rendering latency. END's data throughput beats kitty by ~200ms on `time seq 1 1M`, but rendering feels sluggish. The bottleneck is between "data ready" and "pixels on screen."
+**Goal:** Eliminate redundant per-frame work in the rendering pipeline. Two confirmed bottlenecks: (1) `calcMetrics()` called per cell every frame despite metrics only changing on font size change, (2) full grid rebuild every frame despite dirty-row tracking infrastructure already existing.
 
-**Investigation targets (prioritize by impact):**
+### Benchmark context
 
-1. **Snapshot buffer latency** — `GLSnapshotBuffer` double-buffer introduces 1-frame lag. Kitty renders directly in the GL callback. Measure: timestamp delta between snapshot write and GL draw.
-2. **Full redraw every frame** — does Screen rebuild the entire instance buffer every frame, or only dirty cells? If full rebuild: thousands of atlas lookups + quad builds per frame on static content.
-3. **`glBufferData` per frame** — uploading entire instance VBO every frame via `GL_DYNAMIC_DRAW`. For mostly-static content, persistent mapped buffer or dirty-region update avoids the stall.
-4. **Message thread rasterization blocking** — `getOrRasterize()` on message thread during scrolling can stall snapshot production while GL thread waits.
-5. **Blend state on opaque backgrounds** — `GL_SRC_ALPHA / GL_ONE_MINUS_SRC_ALPHA` on every quad including fully opaque backgrounds. Backgrounds could skip blending.
+`seq 1 10000000` on iMac 5K 2015, -O3:
 
-**Scope:** Profile, measure, fix. Each optimization is a standalone step with before/after measurement. No speculative optimization — data first.
+| Terminal | Wall |
+|----------|------|
+| kitty | 13.55s |
+| END | **12.39s** |
 
-**Validate:** Measurable improvement in perceived rendering responsiveness. `time seq 1 1M` visual output feels as fluid as kitty.
+END wins throughput. The optimization targets are per-frame CPU waste, not throughput.
+
+### Investigation results (confirmed by code analysis)
+
+| Target | Finding | Status |
+|--------|---------|--------|
+| Snapshot buffer latency | `GLMailbox` is lock-free atomic exchange. One-frame latency is inherent and acceptable. | No change needed |
+| Full redraw every frame | `buildSnapshot()` rebuilds ALL rows unconditionally. `Grid::dirtyRows[4]` bitmask exists but is never consumed by the render path. | **Fix: Step 2.6.1** |
+| `calcMetrics()` per cell | `Font::getGlyph()` calls `typeface.calcMetrics(size)` per cell per frame. 4,800 calls/frame, each doing `FT_Set_Char_Size` x2 + 96 `FT_Load_Glyph`. 100% waste on cache hits. | **Fix: Step 2.6.0** |
+| `glBufferData` per frame | Standard orphaning pattern. Modern drivers handle it well. | Low priority |
+| CGBitmapContext per glyph | macOS rasterization creates/destroys CGBitmapContext + CGColorSpace per glyph. | **Fix: Step 2.6.2** |
+| Blend state on opaque backgrounds | Minor. | Deferred |
+
+---
+
+### Step 2.6.0 — Cache `calcMetrics()` on Typeface
+
+**Problem:** `Font::getGlyph()` calls `typeface.calcMetrics(size)` on every invocation. For 120x40 terminal: 4,800 calls per frame. Each call does `FT_Set_Char_Size` twice + iterates 96 ASCII glyphs in `measureMaxCellWidth`. On steady-state cache hits, this is pure waste — metrics never change between calls at the same size.
+
+**Fix:** Cache the `Metrics` result on Typeface, keyed by size. `calcMetrics()` returns the cached result when size matches. Invalidate only on size change.
+
+**Files:**
+- `modules/jreng_graphics/fonts/jreng_typeface.h` — add cached Metrics member + cached size
+- `modules/jreng_graphics/fonts/jreng_typeface.cpp` — `calcMetrics()` returns cached result when size matches, recomputes and caches on size change
+
+**Validate:** Build succeeds. `Font::getGlyph()` no longer triggers FreeType calls on cache hits. Verify: font size change still recomputes metrics correctly.
+
+---
+
+### Step 2.6.1 — Dirty-row skipping in `buildSnapshot()`
+
+**Problem:** `buildSnapshot()` processes all rows, all columns, every frame. Grid already has `dirtyRows[4]` atomic bitmask with `consumeDirtyRows()` and `markRowDirty()` / `markAllDirty()` / `batchMarkDirty()`. This infrastructure is unused by the render path.
+
+**Fix:** `buildSnapshot()` consumes the dirty bitmask. Only dirty rows run through `processCellForSnapshot()` (color resolution, shaping, atlas lookup). Clean rows retain their cached `cachedMono[r]`, `cachedEmoji[r]`, `cachedBg[r]` arrays from the previous frame.
+
+**Dirty-all triggers (already handled by existing Grid API):**
+- Scroll: `markAllDirty()` or `batchMarkDirty()`
+- Resize: `markAllDirty()`
+- Scroll offset change: needs to mark all dirty
+- Selection overlay change: needs to dirty affected rows
+
+**Expected impact:** During typical usage (typing, cursor movement), 1-3 rows dirty per frame. 90-98% reduction in per-frame `processCellForSnapshot()` calls.
+
+**Files:**
+- `Source/terminal/rendering/ScreenRender.cpp` — `buildSnapshot()` consumes `dirtyRows`, skips clean rows
+- Possibly `Source/terminal/data/State.cpp` or `Source/component/TerminalComponent.cpp` — ensure scroll offset changes mark all rows dirty
+
+**Validate:** Build succeeds. Terminal renders correctly. Static content (e.g. vim buffer) does not trigger per-cell processing. Scrolling still works (marks all dirty). Selection still works.
+
+---
+
+### Step 2.6.2 — Pool CGBitmapContext on macOS
+
+**Problem:** Every glyph rasterization on macOS creates and destroys a `CGBitmapContext` + `CGColorSpaceRef`. During cache-cold frames (first display, font size change), this is ~285+ CoreGraphics allocations for 95 ASCII characters.
+
+**Fix:** Pool two persistent contexts: one DeviceGray (mono glyphs), one DeviceRGB (emoji). Resize only when cell dimensions change (font size change). Reuse across rasterizations.
+
+**Files:**
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.mm` — pool CGBitmapContext + CGColorSpace, resize on cell dimension change
+
+**Validate:** Build succeeds on macOS. Glyph rasterization produces identical output. Font size change triggers context resize.
+
+---
+
+### Step 2.6.3 — Measure and validate
+
+After steps 2.6.0-2.6.2:
+1. `time seq 1 10000000` — wall time unchanged or improved
+2. Open `nvim` with large file — observe static content. Verify: steady-state frame cost is minimal (only dirty rows processed)
+3. Font size change — verify metrics recompute, atlas repopulates, contexts resize
+4. Rapid scrolling — verify all rows marked dirty, no visual artifacts
+5. Selection — verify affected rows re-rendered
+
+**Scope:** Each step is standalone. ARCHITECT builds and tests after each step before proceeding.
+
+---
 
 ---
 
