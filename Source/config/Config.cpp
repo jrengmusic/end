@@ -555,6 +555,59 @@ static void loadPopups (const sol::table& popupsTable,
 }
 
 /**
+ * @brief Parses the `hyperlinks.handlers` and `hyperlinks.extensions` sub-tables.
+ *
+ * `handlers` is a string-keyed table mapping extensions to shell commands.
+ * `extensions` is an array of extension strings.  Both are optional; missing
+ * sub-tables are silently skipped.
+ *
+ * Free function; operates on the caller's maps directly to avoid exposing
+ * sol2 types in Config.h.
+ *
+ * @param hyperlinksTable  The `END.hyperlinks` Lua table.
+ * @param handlers         Map to populate with `{ lowercase extension → command }` entries.
+ * @param extensions       Set to populate with lowercase extension strings.
+ */
+static void loadHyperlinks (const sol::table& hyperlinksTable,
+                             std::unordered_map<juce::String, juce::String>& handlers,
+                             std::unordered_set<juce::String>& extensions)
+{
+    hyperlinksTable.for_each (
+        [&handlers, &extensions] (const sol::object& fieldKey, const sol::object& fieldVal)
+        {
+            if (fieldKey.get_type() == sol::type::string)
+            {
+                const juce::String fieldName { fieldKey.as<std::string>() };
+
+                if (fieldName == "handlers" and fieldVal.get_type() == sol::type::table)
+                {
+                    fieldVal.as<sol::table>().for_each (
+                        [&handlers] (const sol::object& extKey, const sol::object& cmdVal)
+                        {
+                            if (extKey.get_type() == sol::type::string
+                                and cmdVal.get_type() == sol::type::string)
+                            {
+                                const juce::String ext { juce::String (extKey.as<std::string>()).toLowerCase() };
+                                handlers.insert_or_assign (ext, juce::String (cmdVal.as<std::string>()));
+                            }
+                        });
+                }
+                else if (fieldName == "extensions" and fieldVal.get_type() == sol::type::table)
+                {
+                    fieldVal.as<sol::table>().for_each (
+                        [&extensions] (const sol::object&, const sol::object& extVal)
+                        {
+                            if (extVal.get_type() == sol::type::string)
+                            {
+                                extensions.insert (juce::String (extVal.as<std::string>()).toLowerCase());
+                            }
+                        });
+                }
+            }
+        });
+}
+
+/**
  * @brief Loads and validates a Lua config file.
  *
  * ### Validation steps
@@ -579,6 +632,8 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
 {
     errorOut = {};
     colourCache.clear();
+    hyperlinkHandlers.clear();
+    hyperlinkExtensions.clear();
     bool success { false };
 
     if (file.existsAsFile())
@@ -627,7 +682,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                             {
                                 const juce::String groupName { groupKey.as<std::string>() };
 
-                                if (groupName == "popups")
+                                if (groupName == "popups" or groupName == "hyperlinks")
                                     return;
 
                                 sol::table group { groupVal.as<sol::table>() };
@@ -660,6 +715,28 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
 
                     if (popupsObj.get_type() == sol::type::table)
                         loadPopups (popupsObj.as<sol::table>(), popups, warnings);
+
+                    sol::object hyperlinksObj { root["hyperlinks"] };
+
+                    if (hyperlinksObj.get_type() == sol::type::table)
+                    {
+                        sol::table hyperlinksTable { hyperlinksObj.as<sol::table>() };
+
+                        // Scalar keys (e.g. editor) go through normal validation.
+                        hyperlinksTable.for_each (
+                            [this, &warnings] (const sol::object& fieldKey, const sol::object& fieldVal)
+                            {
+                                if (fieldKey.get_type() == sol::type::string
+                                    and fieldVal.get_type() != sol::type::table)
+                                {
+                                    const juce::String fieldName { fieldKey.as<std::string>() };
+                                    validateAndStore ("hyperlinks." + fieldName, fieldVal, values, schema, warnings);
+                                }
+                            });
+
+                        // Sub-table keys (handlers, extensions) go to loadHyperlinks.
+                        loadHyperlinks (hyperlinksTable, hyperlinkHandlers, hyperlinkExtensions);
+                    }
                 }
 
                 if (not warnings.isEmpty())
@@ -918,3 +995,33 @@ juce::Colour Config::parseColour (const juce::String& input)
 const std::unordered_map<juce::String, Config::PopupEntry>& Config::getPopups() const noexcept { return popups; }
 
 void Config::clearPopups() { popups.clear(); }
+
+//==============================================================================
+/**
+ * @brief Returns the handler command for the given file extension.
+ *
+ * @param extension  Lowercase extension with leading dot (e.g. `".pdf"`).
+ * @return The command string, or empty if none is configured.
+ */
+juce::String Config::getHandler (const juce::String& extension) const noexcept
+{
+    juce::String result;
+    const auto it { hyperlinkHandlers.find (extension) };
+
+    if (it != hyperlinkHandlers.end())
+        result = it->second;
+
+    return result;
+}
+
+/**
+ * @brief Returns `true` if @p extension is user-configured (extensions array or handlers keys).
+ *
+ * @param extension  Lowercase extension with leading dot (e.g. `".vue"`).
+ * @return `true` if the extension is in either user-configured set.
+ */
+bool Config::isClickableExtension (const juce::String& extension) const noexcept
+{
+    return hyperlinkExtensions.count (extension) > 0
+           or hyperlinkHandlers.count (extension) > 0;
+}

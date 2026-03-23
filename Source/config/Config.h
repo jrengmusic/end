@@ -40,6 +40,8 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <unordered_map>
+#include <unordered_set>
 
 /**
  * @struct Config
@@ -473,6 +475,33 @@ struct Config : jreng::Context<Config>
 
     //==============================================================================
     /**
+     * @brief Returns the handler command for the given file extension.
+     *
+     * Looks up @p extension (with leading dot, lowercase) in `hyperlinkHandlers`.
+     * Returns the command string if found, or an empty string if no handler is
+     * configured.  Falls back to the `editor` command at the call site when empty.
+     *
+     * @param extension  Lowercase extension with leading dot (e.g. `".pdf"`).
+     * @return The configured command string, or empty.
+     * @note MESSAGE THREAD.
+     */
+    juce::String getHandler (const juce::String& extension) const noexcept;
+
+    /**
+     * @brief Returns `true` if @p extension is clickable (built-in or user-configured).
+     *
+     * Checks both `hyperlinkExtensions` (user-added extensions without handlers)
+     * and the keys of `hyperlinkHandlers` (extensions with explicit handlers).
+     * Does NOT check built-in extensions — the caller merges with `builtInExtensions()`.
+     *
+     * @param extension  Lowercase extension with leading dot (e.g. `".vue"`).
+     * @return `true` if the extension appears in the user config.
+     * @note MESSAGE THREAD.
+     */
+    bool isClickableExtension (const juce::String& extension) const noexcept;
+
+    //==============================================================================
+    /**
      * @brief Constructs Config: loads defaults, schema, then end.lua.
      *
      * If `~/.config/end/end.lua` does not exist it is created with an empty
@@ -687,6 +716,25 @@ private:
 
     /** @brief Last load error or warning string; empty if the last load was clean. */
     juce::String loadError;
+
+    /**
+     * @brief Per-extension command overrides from the `hyperlinks.handlers` Lua table.
+     *
+     * Keys are lowercase extensions with a leading dot (e.g. `".pdf"`).
+     * Values are shell commands (e.g. `"open -a Preview"`).
+     * Populated by the `hyperlinks` group loader; cleared on every `reload()`.
+     */
+    std::unordered_map<juce::String, juce::String> hyperlinkHandlers;
+
+    /**
+     * @brief Extra clickable extensions from the `hyperlinks.extensions` Lua array.
+     *
+     * Lowercase extensions with a leading dot (e.g. `".vue"`).  Extends the
+     * built-in set in `LinkDetector::builtInExtensions()` without a handler —
+     * these extensions fall back to the `editor` command.
+     * Populated by the `hyperlinks` group loader; cleared on every `reload()`.
+     */
+    std::unordered_set<juce::String> hyperlinkExtensions;
 
     //==============================================================================
     /**

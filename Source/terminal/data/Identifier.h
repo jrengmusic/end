@@ -283,6 +283,19 @@ namespace ID
 
     /** @brief Cursor row of the most-recently received OSC 133 A prompt marker. -1 = none. */
     static const juce::Identifier promptRow            { "promptRow" };
+
+    //==========================================================================
+    // OUTPUT_BLOCK ephemeral node
+    //==========================================================================
+
+    /** @brief Ephemeral child node type for the current OSC 133 output block (message thread). */
+    static const juce::Identifier outputBlock          { "OUTPUT_BLOCK" };
+
+    /** @brief Top row of the output block (property on the OUTPUT_BLOCK child node). */
+    static const juce::Identifier blockTopRow          { "blockTopRow" };
+
+    /** @brief Bottom row of the output block (property on the OUTPUT_BLOCK child node). */
+    static const juce::Identifier blockBottomRow       { "blockBottomRow" };
 }
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

@@ -21,6 +21,7 @@
 
 #include <JuceHeader.h>
 #include <unordered_set>
+#include "../../config/Config.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -115,11 +116,17 @@ public:
     static bool hasKnownExtension (const juce::String& token) noexcept
     {
         const auto dotIndex { token.lastIndexOfChar ('.') };
-        const bool hasDot   { dotIndex >= 0 };
+        const bool hasDot { dotIndex >= 0 };
+        bool result { false };
 
-        return hasDot
-            and builtInExtensions().count (
-                token.fromLastOccurrenceOf (".", true, false).toLowerCase()) > 0;
+        if (hasDot)
+        {
+            const juce::String ext { token.fromLastOccurrenceOf (".", true, false).toLowerCase() };
+            result = builtInExtensions().count (ext) > 0
+                     or Config::getContext()->isClickableExtension (ext);
+        }
+
+        return result;
     }
 
     //==============================================================================

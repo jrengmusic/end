@@ -994,6 +994,18 @@ struct State : public juce::Timer
     int getOutputBlockBottom() const noexcept;
 
     /**
+     * @brief Returns `true` when the OUTPUT_BLOCK ephemeral child node exists in the ValueTree.
+     *
+     * The OUTPUT_BLOCK node is created by `flush()` when `outputBlockTop >= 0` and the
+     * active screen is normal.  It is removed when the block is no longer valid.
+     * LinkManager reads this to gate file-link scanning without accessing raw atomics.
+     *
+     * @return `true` if the OUTPUT_BLOCK child node is present.
+     * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
+     */
+    bool hasOutputBlock() const noexcept;
+
+    /**
      * @brief Timer callback — flushes dirty atomics into the ValueTree.
      *
      * Called by the JUCE timer infrastructure on the message thread at the

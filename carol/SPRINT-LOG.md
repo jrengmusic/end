@@ -8,6 +8,36 @@
 
 ---
 
+## Sprint 119 — COUNSELOR: CGBitmapContext Pooling (Plan 2.6.2)
+
+**Date:** 2026-03-24
+
+### Agents Participated
+- COUNSELOR: design discussion, bug diagnosis (vertical clipping from high-watermark context offset)
+- @engineer: color space pooling, full context pooling (two iterations)
+
+### Files Modified (3 total)
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.h` — added `#if JUCE_MAC` members: `monoPoolBuffer`, `emojiPoolBuffer` (HeapBlock), `monoPoolContext`, `emojiPoolContext` (CGContextRef), pool dimension watermarks
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.mm` — `ensurePooledContext` helper (high-watermark buffer, per-glyph context at exact dimensions), destructor releases pool contexts, all three rasterization paths use pooled buffer + direct `stageForUpload`
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.cpp` — constructor/destructor guarded `#if ! JUCE_MAC`
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+
+### Problems Solved
+- Per-glyph CGColorSpaceCreate/Release eliminated (pooled as Atlas members)
+- Per-glyph HeapBlock malloc/free eliminated (high-watermark pool buffer)
+- Per-glyph copyFromPool eliminated (context created at exact glyph dimensions, buffer passed directly to stageForUpload)
+- First attempt broke rendering (high-watermark context larger than glyph caused offset mismatch in pixel copy). Fixed by recreating context per glyph at exact dimensions against the pooled buffer.
+
+### Technical Debt / Follow-up
+- CGBitmapContext still recreated per glyph (cheap against pre-allocated buffer, but could be pooled if context creation proves costly in profiling)
+- SaveGState/RestoreGState retained per glyph for safety — unnecessary since context is recreated, could be removed
+
+---
+
 ## Sprint 118 — COUNSELOR: Rendering Optimization (Plan 2.6) + State Refactor + Bug Fixes
 
 **Date:** 2026-03-24

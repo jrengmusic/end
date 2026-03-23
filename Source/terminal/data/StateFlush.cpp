@@ -173,6 +173,39 @@ bool State::flush() noexcept
 
         flushRootParams();
 
+        // Materialise or remove the OUTPUT_BLOCK ephemeral child node.
+        // The atomics (outputBlockTop / outputBlockBottom / outputScanActive) are
+        // the reader-thread transport.  The OUTPUT_BLOCK node is the message-thread
+        // SSOT that LinkManager reads via hasOutputBlock().
+        {
+            const int blockTop { jreng::toInt (getRawParam (ID::outputBlockTop)->load (std::memory_order_relaxed)) };
+            const int blockBottom { jreng::toInt (getRawParam (ID::outputBlockBottom)->load (std::memory_order_relaxed)) };
+            const int activeScreenVal { jreng::toInt (getRawParam (ID::activeScreen)->load (std::memory_order_relaxed)) };
+            const bool isNormalScreen { activeScreenVal == static_cast<int> (ActiveScreen::normal) };
+
+            juce::ValueTree existingBlock { state.getChildWithName (ID::outputBlock) };
+
+            if (blockTop >= 0 and isNormalScreen)
+            {
+                if (not existingBlock.isValid())
+                {
+                    juce::ValueTree block { ID::outputBlock };
+                    block.setProperty (ID::blockTopRow, blockTop, nullptr);
+                    block.setProperty (ID::blockBottomRow, blockBottom, nullptr);
+                    state.appendChild (block, nullptr);
+                }
+                else
+                {
+                    existingBlock.setProperty (ID::blockTopRow, blockTop, nullptr);
+                    existingBlock.setProperty (ID::blockBottomRow, blockBottom, nullptr);
+                }
+            }
+            else if (existingBlock.isValid())
+            {
+                state.removeChild (existingBlock, nullptr);
+            }
+        }
+
         result = true;
     }
 

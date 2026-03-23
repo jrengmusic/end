@@ -483,6 +483,18 @@ END = {
 		-- The command receives the file path as its first argument.
 		-- Example: "nvim", "vim", "nano", "/usr/local/bin/hx"
 		editor = "%%hyperlinks_editor%%",
+
+		-- Per-extension handler commands (override the editor for specific file types).
+		-- Keys are file extensions (with leading dot), values are shell commands.
+		-- handlers = {
+		--     [".png"] = "open",
+		--     [".pdf"] = "open -a Preview",
+		-- },
+
+		-- Extra clickable extensions beyond the built-in set.
+		-- Use this for frameworks or custom extensions not in the built-in list.
+		-- These fall back to the editor command.
+		-- extensions = { ".vue", ".svelte", ".astro" },
 	},
 
 	-- ========================================================================

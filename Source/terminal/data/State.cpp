@@ -384,6 +384,20 @@ int State::getOutputBlockBottom() const noexcept
     return jreng::toInt (getRawParam (ID::outputBlockBottom)->load (std::memory_order_relaxed));
 }
 
+/**
+ * @brief Returns `true` when the OUTPUT_BLOCK ephemeral child node exists.
+ *
+ * Reads directly from the ValueTree — only valid on the message thread.
+ * The node is materialised by `flush()` and removed when the block is not active.
+ *
+ * @return `true` if the OUTPUT_BLOCK child is present.
+ * @note MESSAGE THREAD only.
+ */
+bool State::hasOutputBlock() const noexcept
+{
+    return state.getChildWithName (ID::outputBlock).isValid();
+}
+
 /** @note READER THREAD — stores the prompt row from OSC 133 A. */
 void State::setPromptRow (int row) noexcept
 {

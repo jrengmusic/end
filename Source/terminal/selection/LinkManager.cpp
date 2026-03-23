@@ -43,7 +43,7 @@ void LinkManager::scanForHints (const juce::String& cwd)
 
     try
     {
-        hintLinks = scanViewport (session.getGrid(), cwd, false);
+        hintLinks = scanViewport (session.getGrid(), cwd, session.getState().hasOutputBlock());
         assignHintLabels (hintLinks, session.getGrid());
     }
     catch (...)
@@ -108,8 +108,10 @@ void LinkManager::dispatch (const LinkSpan& span) const
     else
     {
         const juce::String path { span.uri.fromFirstOccurrenceOf ("file://", false, false) };
-        const juce::String editor { Config::getContext()->getString (Config::Key::hyperlinksEditor) };
-        const juce::String command { editor + " " + path + "\r" };
+        const juce::String ext { juce::File (path).getFileExtension().toLowerCase() };
+        const juce::String handler { Config::getContext()->getHandler (ext) };
+        const juce::String opener { handler.isNotEmpty() ? handler : Config::getContext()->getString (Config::Key::hyperlinksEditor) };
+        const juce::String command { opener + " " + path + "\r" };
         session.writeToPty (command.toRawUTF8(), static_cast<int> (command.getNumBytesAsUTF8()));
     }
 }
@@ -132,13 +134,13 @@ std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid,
 
     const int visibleRows { grid.getVisibleRows() };
     const int cols { grid.getCols() };
+    const bool hasBlock { session.getState().hasOutputBlock() };
     const int blockTop { outputRowsOnly ? session.getState().getOutputBlockTop() : 0 };
     const int blockBottom { outputRowsOnly ? session.getState().getOutputBlockBottom() : visibleRows - 1 };
+    const bool normalScreen { session.getState().getActiveScreen() == ActiveScreen::normal };
 
     for (int row = 0; row < visibleRows; ++row)
     {
-        if (outputRowsOnly and (blockTop < 0 or row < blockTop or row > blockBottom))
-            continue;
 
         const Cell* rowCells { grid.activeVisibleRow (row) };
 
@@ -175,7 +177,12 @@ std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid,
             const int tokenLength { col - tokenStartCol };
             const LinkDetector::LinkType linkType { LinkDetector::classify (token) };
 
-            if (linkType != LinkDetector::LinkType::none)
+            const bool inOutputBlock { hasBlock and row >= blockTop and row <= blockBottom };
+            const bool fileAllowed { linkType == LinkDetector::LinkType::file
+                                     and normalScreen and inOutputBlock };
+            const bool urlAllowed { linkType == LinkDetector::LinkType::url };
+
+            if (fileAllowed or urlAllowed)
             {
                 LinkSpan span;
                 span.row = row;
@@ -213,33 +220,37 @@ std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid,
     // Merge OSC 8 explicit hyperlink spans accumulated by the parser.
     for (const auto& osc : session.getParser().getOsc8Links())
     {
-        if (outputRowsOnly and (blockTop < 0 or osc.row < blockTop or osc.row > blockBottom))
-            continue;
-
         const juce::String uri { osc.uri };
 
         if (uri.isEmpty())
             continue;
 
-        LinkSpan span;
-        span.row = osc.row;
-        span.col = osc.startCol;
-        span.length = osc.endCol - osc.startCol;
-        span.uri = uri;
+        const bool isUrl { uri.startsWith ("http://") or uri.startsWith ("https://") };
+        const bool oscInOutputBlock { hasBlock and osc.row >= blockTop and osc.row <= blockBottom };
+        const bool oscFileAllowed { not isUrl and normalScreen and oscInOutputBlock };
 
-        if (uri.startsWith ("http://") or uri.startsWith ("https://"))
+        if (isUrl or oscFileAllowed)
         {
-            span.type = LinkDetector::LinkType::url;
-        }
-        else
-        {
-            span.type = LinkDetector::LinkType::file;
+            LinkSpan span;
+            span.row = osc.row;
+            span.col = osc.startCol;
+            span.length = osc.endCol - osc.startCol;
+            span.uri = uri;
 
-            if (not uri.startsWith ("file://"))
-                span.uri = "file://" + uri;
-        }
+            if (isUrl)
+            {
+                span.type = LinkDetector::LinkType::url;
+            }
+            else
+            {
+                span.type = LinkDetector::LinkType::file;
 
-        spans.push_back (std::move (span));
+                if (not uri.startsWith ("file://"))
+                    span.uri = "file://" + uri;
+            }
+
+            spans.push_back (std::move (span));
+        }
     }
 
     return spans;

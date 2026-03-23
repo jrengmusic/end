@@ -594,7 +594,7 @@ void Terminal::Component::onVBlank()
             {
                 screen.setLinkUnderlay (nullptr, 0);
             }
-            else if (linkManager.needsScan() and session.getState().getOutputBlockTop() >= 0)
+            else if (linkManager.needsScan() and session.getState().hasOutputBlock())
             {
                 const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
                 linkManager.scan (cwd, true);
