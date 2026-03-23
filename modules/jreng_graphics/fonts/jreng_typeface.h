@@ -1,8 +1,8 @@
 /**
- * @file jreng_font.h
- * @brief Font management system for the terminal emulator.
+ * @file jreng_typeface.h
+ * @brief Typeface management system for the terminal emulator.
  *
- * Font is the single point of authority for all font handles, HarfBuzz shaping
+ * Typeface is the single point of authority for all font handles, HarfBuzz shaping
  * fonts, and glyph metrics used by the terminal renderer.  It abstracts over two
  * platform backends behind a unified API:
  *
@@ -35,7 +35,7 @@
  *
  * @note All methods must be called on the **MESSAGE THREAD**.
  *
- * @see jreng::Font::Registry
+ * @see jreng::Typeface::Registry
  * @see jreng::Glyph::Atlas
  * @see jreng::Glyph::Constraint
  */
@@ -58,7 +58,7 @@ namespace jreng
 { /*____________________________________________________________________________*/
 
 /**
- * @struct Font
+ * @struct Typeface
  * @brief Platform-agnostic font manager: loading, shaping, rasterization.
  *
  * Owns all font resources for the terminal renderer.  Constructed once per
@@ -74,11 +74,11 @@ namespace jreng
  * **MESSAGE THREAD** — all public methods must be called from the JUCE message
  * thread.  No internal locking is performed.
  *
- * @see jreng::Font::Registry
+ * @see jreng::Typeface::Registry
  * @see jreng::Glyph::Atlas
  */
 // MESSAGE THREAD
-struct Font
+struct Typeface
 {
     // =========================================================================
     // Nested types
@@ -120,23 +120,23 @@ struct Font
      * ## Usage
      *
      * @code
-     * jreng::Font::Registry registry;
+     * jreng::Typeface::Registry registry;
      * registry.addFont ({ ctFont, hbFont, false });   // slot 0
      * registry.populateFromCmap (0);
      *
      * int8_t slot = registry.resolve (0x1F600);       // emoji codepoint
      * if (slot >= 0)
      * {
-     *     const jreng::Font::Registry::Entry* e = registry.getEntry (slot);
+     *     const jreng::Typeface::Registry::Entry* e = registry.getEntry (slot);
      *     // use e->hbFont for shaping
      * }
      * @endcode
      *
      * @note Registry lifecycle is owned by the consumer — typically the
      *       application's top-level component.  It is passed by reference to
-     *       Font and any subsystem that requires font slot resolution.
+     *       Typeface and any subsystem that requires font slot resolution.
      *
-     * @see jreng::Font
+     * @see jreng::Typeface
      * @see jreng::Glyph::Atlas
      *
      * @par Thread context
@@ -155,7 +155,7 @@ struct Font
          *
          * On macOS the platform handle is a `CTFontRef` stored as `void*`.
          * On other platforms it is an `FT_Face`.  Both are owned externally
-         * (by `Font`) and must outlive the `Registry`.
+         * (by `Typeface`) and must outlive the `Registry`.
          */
         struct Entry
         {
@@ -381,7 +381,7 @@ struct Font
      * @note Call `isValid()` before using any field; an invalid Metrics means
      *       font loading failed and all values are zero.
      *
-     * @see Font::calcMetrics
+     * @see Typeface::calcMetrics
      */
     struct Metrics
     {
@@ -440,16 +440,16 @@ struct Font
      *
      * @param fontRegistry    Font slot registry that this instance will populate
      *                        during `loadFaces()` and update during `setSize()`.
-     *                        Must outlive this `Font` instance.
+     *                        Must outlive this `Typeface` instance.
      * @param userFamilyName  Preferred font family name (e.g. "JetBrains Mono").
      *                        If empty or not found, falls back to the platform
      *                        default monospace font, then to the embedded
      *                        Display Mono.
      * @param pointSize       Initial font size in CSS points.
      */
-    Font (Registry& fontRegistry,
-          const juce::String& userFamilyName,
-          float pointSize);
+    Typeface (Registry& fontRegistry,
+              const juce::String& userFamilyName,
+              float pointSize);
 
     /**
      * @brief Destroys all font handles and releases HarfBuzz resources.
@@ -462,7 +462,7 @@ struct Font
      * `hb_font_destroy` on all shaping fonts, and `FT_Done_FreeType` on the
      * library instance.
      */
-    ~Font();
+    ~Typeface();
 
     // =========================================================================
     // Accessors
@@ -673,6 +673,119 @@ struct Font
      * @note Safe to call multiple times; registration is guarded by a static flag.
      */
     static void registerEmbeddedFonts();
+
+    // =========================================================================
+    // Atlas delegation
+    // =========================================================================
+
+    /**
+     * @brief Return a cached glyph or rasterize it on demand.
+     * Delegates to the internal Atlas.
+     * @note **MESSAGE THREAD** only.
+     */
+    jreng::Glyph::Region* getOrRasterize (const jreng::Glyph::Key& key, void* fontHandle, bool isEmoji,
+                                          const jreng::Glyph::Constraint& constraint,
+                                          int cellWidth, int cellHeight, int baseline) noexcept
+    {
+        return atlas.getOrRasterize (key, fontHandle, isEmoji, constraint, cellWidth, cellHeight, baseline);
+    }
+
+    /**
+     * @brief Return a cached box-drawing glyph or rasterize it procedurally.
+     * Delegates to the internal Atlas.
+     * @note **MESSAGE THREAD** only.
+     */
+    jreng::Glyph::Region* getOrRasterizeBoxDrawing (uint32_t codepoint, int cellWidth, int cellHeight, int baseline) noexcept
+    {
+        return atlas.getOrRasterizeBoxDrawing (codepoint, cellWidth, cellHeight, baseline);
+    }
+
+    /**
+     * @brief Drain the staged-bitmap queue for renderer upload.
+     * Delegates to the internal Atlas.
+     * @note **GL THREAD** only.
+     */
+    void consumeStagedBitmaps (juce::HeapBlock<jreng::Glyph::StagedBitmap>& out, int& outCount) noexcept
+    {
+        atlas.consumeStagedBitmaps (out, outCount);
+    }
+
+    /**
+     * @brief Check whether any bitmaps are waiting for upload.
+     * Delegates to the internal Atlas.
+     * @note **GL THREAD** only.
+     */
+    bool hasStagedBitmaps() const noexcept
+    {
+        return atlas.hasStagedBitmaps();
+    }
+
+    /**
+     * @brief Advance the LRU frame counter.
+     * Delegates to the internal Atlas.
+     * @note **MESSAGE THREAD** only.
+     */
+    void advanceFrame() noexcept
+    {
+        atlas.advanceFrame();
+    }
+
+    /**
+     * @brief Enable or disable synthetic bold.
+     * Delegates to the internal Atlas.
+     * @note **MESSAGE THREAD** only.
+     */
+    void setEmbolden (bool enabled) noexcept
+    {
+        atlas.setEmbolden (enabled);
+    }
+
+    /**
+     * @brief Query whether synthetic bold is enabled.
+     * Delegates to the internal Atlas.
+     */
+    bool getEmbolden() const noexcept
+    {
+        return atlas.getEmbolden();
+    }
+
+    /**
+     * @brief Invalidate all cached glyphs and reset atlas packers.
+     * Delegates to the internal Atlas.
+     * @note **MESSAGE THREAD** only.
+     */
+    void clearAtlas() noexcept
+    {
+        atlas.clear();
+    }
+
+    /**
+     * @brief Set the display scale for rasterization.
+     * Delegates to the internal Atlas.
+     * @note **MESSAGE THREAD** only.
+     */
+    void setAtlasDisplayScale (float scale) noexcept
+    {
+        atlas.setDisplayScale (scale);
+    }
+
+    /**
+     * @brief Return atlas dimension (4096).
+     */
+    static constexpr int atlasDimension() noexcept
+    {
+        return jreng::Glyph::Atlas::atlasDimension();
+    }
+
+    /**
+     * @brief Return snapshot of LRU cache occupancy.
+     * Delegates to the internal Atlas.
+     * @note **MESSAGE THREAD** only.
+     */
+    jreng::Glyph::Atlas::CacheStats getCacheStats() const noexcept
+    {
+        return atlas.getCacheStats();
+    }
 
     // =========================================================================
     // Metrics and rasterization
@@ -986,6 +1099,8 @@ private:
 
     /** @brief Current font size in CSS points. Updated by `setSize()`. */
     float fontSize { 0.0f };
+
+    jreng::Glyph::Atlas atlas;   ///< Internal glyph rasterization cache.
 };
 
 } // namespace jreng

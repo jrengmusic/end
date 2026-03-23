@@ -18,7 +18,7 @@ void GLTextRenderer::contextCreated() noexcept
     compileShaders();
     createBuffers();
 
-    const int atlasDim { Atlas::atlasDimension() };
+    const int atlasDim { jreng::Typeface::atlasDimension() };
     monoAtlasTexture  = createAtlasTexture (atlasDim, atlasDim,
                                             juce::gl::GL_R8,
                                             juce::gl::GL_RED);
@@ -68,11 +68,11 @@ void GLTextRenderer::contextClosing() noexcept
 // Per-frame operations
 // =============================================================================
 
-void GLTextRenderer::uploadStagedBitmaps (Atlas& atlas) noexcept
+void GLTextRenderer::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
 {
     juce::HeapBlock<StagedBitmap> stagedBitmaps;
     int stagedCount { 0 };
-    atlas.consumeStagedBitmaps (stagedBitmaps, stagedCount);
+    typeface.consumeStagedBitmaps (stagedBitmaps, stagedCount);
 
     if (stagedCount > 0)
     {
@@ -81,7 +81,7 @@ void GLTextRenderer::uploadStagedBitmaps (Atlas& atlas) noexcept
         for (int i { 0 }; i < stagedCount; ++i)
         {
             const auto& staged { stagedBitmaps[i] };
-            GLuint targetTexture { (staged.kind == StagedBitmap::AtlasKind::emoji)
+            GLuint targetTexture { (staged.type == Atlas::Type::emoji)
                                        ? emojiAtlasTexture
                                        : monoAtlasTexture };
 
@@ -89,13 +89,17 @@ void GLTextRenderer::uploadStagedBitmaps (Atlas& atlas) noexcept
             {
                 juce::gl::glBindTexture (juce::gl::GL_TEXTURE_2D, targetTexture);
 
+                const GLenum pixelFormat { (staged.type == Atlas::Type::emoji)
+                                               ? juce::gl::GL_BGRA
+                                               : juce::gl::GL_RED };
+
                 juce::gl::glTexSubImage2D (juce::gl::GL_TEXTURE_2D,
                                            0,
                                            staged.region.getX(),
                                            staged.region.getY(),
                                            staged.region.getWidth(),
                                            staged.region.getHeight(),
-                                           static_cast<GLenum> (staged.format),
+                                           pixelFormat,
                                            juce::gl::GL_UNSIGNED_BYTE,
                                            staged.pixelData.get());
             }

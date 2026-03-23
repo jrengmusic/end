@@ -230,7 +230,7 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
  * @see Screen::buildCellInstance()
  */
 static void emitShapedGlyphsToCache (
-    const jreng::Font::Glyph* shapedGlyphs, int shapedCount,
+    const jreng::Typeface::Glyph* shapedGlyphs, int shapedCount,
     void* fontHandle, bool isEmoji, float fontSize,
     uint8_t cellSpan,
     const jreng::Glyph::Constraint& constraint,
@@ -238,14 +238,14 @@ static void emitShapedGlyphsToCache (
     float cellPixelX, float cellPixelY,
     int physBaseline,
     const juce::Colour& foreground,
-    jreng::Glyph::Atlas& atlas,
+    jreng::Typeface& font,
     Render::Glyph* slot, int maxSlots, int& count) noexcept
 {
     float currentX { cellPixelX };
 
     for (int i { 0 }; i < shapedCount and count < maxSlots; ++i)
     {
-        const jreng::Font::Glyph& sg { shapedGlyphs[i] };
+        const jreng::Typeface::Glyph& sg { shapedGlyphs[i] };
 
         jreng::Glyph::Key glyphKey;
         glyphKey.glyphIndex = sg.glyphIndex;
@@ -253,7 +253,7 @@ static void emitShapedGlyphsToCache (
         glyphKey.fontSize = fontSize;
         glyphKey.span = cellSpan;
 
-        jreng::Glyph::Region* atlasGlyph { atlas.getOrRasterize (glyphKey, fontHandle, isEmoji,
+        jreng::Glyph::Region* atlasGlyph { font.getOrRasterize (glyphKey, fontHandle, isEmoji,
                                                          constraint, cellWidth, cellHeight, physBaseline) };
 
         if (atlasGlyph != nullptr)
@@ -585,7 +585,7 @@ void Screen::buildCellInstance (const Cell& cell,
     {
         if (jreng::Glyph::BoxDrawing::isProcedural (cell.codepoint))
         {
-            jreng::Glyph::Region* atlasGlyph { resources.glyphAtlas.getOrRasterizeBoxDrawing (
+            jreng::Glyph::Region* atlasGlyph { font.getOrRasterizeBoxDrawing (
                 cell.codepoint, physCellWidth, physCellHeight, physBaseline) };
 
             if (atlasGlyph != nullptr)
@@ -615,12 +615,12 @@ void Screen::buildCellInstance (const Cell& cell,
         }
         else
         {
-            const jreng::Font::Style style { selectFontStyle (cell) };
+            const jreng::Typeface::Style style { selectFontStyle (cell) };
             void* fontHandle { font.getFontHandle (style) };
 
             if (fontHandle == nullptr)
             {
-                fontHandle = font.getFontHandle (jreng::Font::Style::regular);
+                fontHandle = font.getFontHandle (jreng::Typeface::Style::regular);
             }
 
             if (fontHandle != nullptr)
@@ -650,9 +650,9 @@ void Screen::buildCellInstance (const Cell& cell,
                 }
 
                 bool usedFontCollection { false };
-                jreng::Font::Glyph fcGlyph;
+                jreng::Typeface::Glyph fcGlyph;
 
-                jreng::Font::Registry& fc { font.registry };
+                jreng::Typeface::Registry& fc { font.registry };
 
                 const bool isBoxDrawing { cell.codepoint >= 0x2500 and cell.codepoint <= 0x259F };
 
@@ -662,7 +662,7 @@ void Screen::buildCellInstance (const Cell& cell,
 
                     if (slot > 0)
                     {
-                        const jreng::Font::Registry::Entry* entry { fc.getEntry (static_cast<int> (slot)) };
+                        const jreng::Typeface::Registry::Entry* entry { fc.getEntry (static_cast<int> (slot)) };
 
                         if (entry != nullptr and entry->hbFont != nullptr)
                         {
@@ -703,7 +703,7 @@ void Screen::buildCellInstance (const Cell& cell,
                                              static_cast<float> (col * physCellWidth),
                                              static_cast<float> (row * physCellHeight),
                                              physBaseline, foreground,
-                                             resources.glyphAtlas,
+                                             font,
                                              slot, maxGlyphs, count);
                 }
                 else if (ligatureEnabled and not isEmoji and cell.codepoint > 0 and cell.codepoint < 128)
@@ -716,7 +716,7 @@ void Screen::buildCellInstance (const Cell& cell,
                     }
                     else
                     {
-                    const jreng::Font::ShapeResult shaped { font.shapeText (style, codepoints,
+                    const jreng::Typeface::ShapeResult shaped { font.shapeText (style, codepoints,
                                                                             static_cast<size_t> (codepointCount)) };
 
                         if (shaped.count > 0)
@@ -738,14 +738,14 @@ void Screen::buildCellInstance (const Cell& cell,
                                                      static_cast<float> (col * physCellWidth),
                                                      static_cast<float> (row * physCellHeight),
                                                      physBaseline, foreground,
-                                                     resources.glyphAtlas,
+                                                     font,
                                                      slot, maxGlyphs, count);
                         }
                     }
                 }
                 else
                 {
-                    const jreng::Font::ShapeResult shaped { isEmoji
+                    const jreng::Typeface::ShapeResult shaped { isEmoji
                         ? font.shapeEmoji (codepoints, static_cast<size_t> (codepointCount))
                         : font.shapeText (style, codepoints, static_cast<size_t> (codepointCount)) };
 
@@ -770,7 +770,7 @@ void Screen::buildCellInstance (const Cell& cell,
                                                  static_cast<float> (col * physCellWidth),
                                                  static_cast<float> (row * physCellHeight),
                                                  physBaseline, foreground,
-                                                 resources.glyphAtlas,
+                                                 font,
                                                  slot, maxGlyphs, count);
                     }
                 }
@@ -809,7 +809,7 @@ void Screen::buildCellInstance (const Cell& cell,
  * @see buildCellInstance()
  * @see emitShapedGlyphsToCache()
  */
-int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Font::Style style, void* fontHandle,
+int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface::Style style, void* fontHandle,
                          const juce::Colour& foreground) noexcept
 {
     int result { 0 };
@@ -842,7 +842,7 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Font::St
 
                 if (eligible)
                 {
-                    const jreng::Font::ShapeResult shaped { font.shapeText (style, codepoints,
+                    const jreng::Typeface::ShapeResult shaped { font.shapeText (style, codepoints,
                                                                             static_cast<size_t> (tryLen)) };
 
                     if (shaped.count > 0 and shaped.count < tryLen)
@@ -860,7 +860,7 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Font::St
                         Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
                         const jreng::Glyph::Constraint noConstraint;
 
-                        jreng::Font::Glyph fixedGlyphs[3];
+                        jreng::Typeface::Glyph fixedGlyphs[3];
 
                         for (int i { 0 }; i < shaped.count; ++i)
                         {
@@ -873,7 +873,7 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Font::St
                                                  static_cast<float> (col * physCellWidth),
                                                  static_cast<float> (row * physCellHeight),
                                                  physBaseline, foreground,
-                                                 resources.glyphAtlas,
+                                                 font,
                                                  slot, maxGlyphs, count);
 
                         result = tryLen - 1;
@@ -942,21 +942,21 @@ Render::Background Screen::buildBlockRect (uint32_t codepoint, int col, int row,
  *
  * @see buildCellInstance()
  */
-jreng::Font::Style Screen::selectFontStyle (const Cell& cell) noexcept
+jreng::Typeface::Style Screen::selectFontStyle (const Cell& cell) noexcept
 {
-    jreng::Font::Style result { jreng::Font::Style::regular };
+    jreng::Typeface::Style result { jreng::Typeface::Style::regular };
 
     if (cell.isBold() and cell.isItalic())
     {
-        result = jreng::Font::Style::boldItalic;
+        result = jreng::Typeface::Style::boldItalic;
     }
     else if (cell.isBold())
     {
-        result = jreng::Font::Style::bold;
+        result = jreng::Typeface::Style::bold;
     }
     else if (cell.isItalic())
     {
-        result = jreng::Font::Style::italic;
+        result = jreng::Typeface::Style::italic;
     }
 
     return result;

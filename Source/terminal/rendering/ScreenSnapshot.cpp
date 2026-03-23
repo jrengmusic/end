@@ -192,7 +192,7 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
         {
             // Try the emoji font first — if the codepoint shapes there it must be
             // drawn via the RGBA atlas so the native colour is preserved.
-            const jreng::Font::ShapeResult emojiShaped { font.shapeEmoji (&cp, 1) };
+            const jreng::Typeface::ShapeResult emojiShaped { font.shapeEmoji (&cp, 1) };
 
             // HarfBuzz returns count > 0 even for .notdef (glyph index 0).
             // Only treat as emoji when the font actually has the codepoint.
@@ -211,14 +211,14 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
             {
                 // FontCollection first — resolves NF icons and fallback-font codepoints
                 // exactly as buildCellInstance does for normal cells.
-                jreng::Font::Registry& fc { font.registry };
+                jreng::Typeface::Registry& fc { font.registry };
 
                 {
                     const int8_t fcSlot { fc.resolve (cp) };
 
                     if (fcSlot > 0)
                     {
-                        const jreng::Font::Registry::Entry* entry { fc.getEntry (static_cast<int> (fcSlot)) };
+                        const jreng::Typeface::Registry::Entry* entry { fc.getEntry (static_cast<int> (fcSlot)) };
 
                         if (entry != nullptr and entry->hbFont != nullptr)
                         {
@@ -240,14 +240,14 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
                 // ShapeText fallback — regular chars ("a", digits, punctuation, etc.)
                 if (fontHandle == nullptr)
                 {
-                    const jreng::Font::ShapeResult textShaped { font.shapeText (
-                        jreng::Font::Style::regular, &cp, 1) };
+                    const jreng::Typeface::ShapeResult textShaped { font.shapeText (
+                        jreng::Typeface::Style::regular, &cp, 1) };
 
                     if (textShaped.count > 0)
                     {
                         fontHandle = textShaped.fontHandle != nullptr
                                      ? textShaped.fontHandle
-                                     : font.getFontHandle (jreng::Font::Style::regular);
+                                     : font.getFontHandle (jreng::Typeface::Style::regular);
                         glyphIndex = textShaped.glyphs[0].glyphIndex;
                     }
                 }
@@ -258,10 +258,10 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
                 jreng::Glyph::Key key;
                 key.glyphIndex = glyphIndex;
                 key.fontFace   = fontHandle;
-                key.fontSize   = font.getPixelsPerEm (jreng::Font::Style::regular);
+                key.fontSize   = font.getPixelsPerEm (jreng::Typeface::Style::regular);
                 key.span       = 1;
 
-                jreng::Glyph::Region* ag { resources.glyphAtlas.getOrRasterize (
+                jreng::Glyph::Region* ag { font.getOrRasterize (
                     key, fontHandle, isEmoji, jreng::Glyph::Constraint {},
                     physCellWidth, physCellHeight, physBaseline) };
 

@@ -190,7 +190,7 @@ private:
     AppState appState;
 
     /** @brief Pre-loaded font handles shared by the renderer. */
-    jreng::Font::Registry fontRegistry;
+    jreng::Typeface::Registry fontRegistry;
 
     /** @brief Global action registry. Must be constructed after Config. */
     Terminal::Action action;

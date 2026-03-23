@@ -47,7 +47,7 @@
 #include "../data/Cell.h"
 #include "../logic/Grid.h"
 // GlyphAtlas is now jreng::Glyph::Atlas, available via JuceHeader → jreng_glyph
-// jreng::Font is available via JuceHeader → jreng_glyph
+// jreng::Typeface is available via JuceHeader → jreng_glyph
 #include "../data/Palette.h"
 #include "ScreenSelection.h"
 #include "../selection/LinkSpan.h"
@@ -152,7 +152,7 @@ using Theme = Config::Theme;
  * - `Render::Background` — alias for `jreng::Glyph::Render::Background`.
  * - `Render::Glyph`      — alias for `jreng::Glyph::Render::Quad` (kept for
  *                          minimal consumer churn; the canonical module name
- *                          is `Quad` to avoid collision with `jreng::Font::Glyph`).
+ *                          is `Quad` to avoid collision with `jreng::Typeface::Glyph`).
  * - `Render::Snapshot`   — terminal-specific snapshot: inherits the generic
  *                          `jreng::Glyph::Render::SnapshotBase` arrays and
  *                          adds cursor state fields.
@@ -272,7 +272,6 @@ public:
         {
         }
 
-        jreng::Glyph::Atlas glyphAtlas;    ///< Glyph atlas: rasterises and caches glyphs on the GPU.
         jreng::GLSnapshotBuffer<Render::Snapshot> snapshotBuffer; ///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
         Theme            terminalColors;   ///< Active colour theme (ANSI palette + default fg/bg/selection).
     };
@@ -291,7 +290,7 @@ public:
      *
      * @note **MESSAGE THREAD**.
      */
-    explicit Screen (jreng::Font& font);
+    explicit Screen (jreng::Typeface& typeface);
 
     /**
      * @brief Destroys the screen and releases all resources.
@@ -648,15 +647,6 @@ public:
     // =========================================================================
 
     /**
-     * @brief Returns a mutable reference to the glyph atlas.
-     *
-     * @return Reference to `resources.glyphAtlas`.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    jreng::Glyph::Atlas& getGlyphAtlas() noexcept;
-
-    /**
      * @brief Returns a read-only reference to the active colour theme.
      *
      * @return Const reference to `resources.terminalColors`.
@@ -804,7 +794,7 @@ private:
      *
      * @note **MESSAGE THREAD**.
      */
-    int tryLigature (const Cell* rowCells, int col, int row, jreng::Font::Style style, void* fontHandle,
+    int tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface::Style style, void* fontHandle,
                      const juce::Colour& foreground) noexcept;
 
     /**
@@ -832,7 +822,7 @@ private:
      * @param cell  Cell whose `isBold()` and `isItalic()` flags are tested.
      * @return      `boldItalic`, `bold`, `italic`, or `regular`.
      */
-    static jreng::Font::Style selectFontStyle (const Cell& cell) noexcept;
+    static jreng::Typeface::Style selectFontStyle (const Cell& cell) noexcept;
 
     // =========================================================================
     // GL thread methods
@@ -864,7 +854,7 @@ private:
     int viewportHeight { 0 }; ///< Logical pixel height of the viewport.
     float baseFontSize { 14.0f }; ///< Current font size in points; updated by setFontSize().
 
-    jreng::Font& font;             ///< Font instance providing metrics, shaping, and rasterisation.
+    jreng::Typeface& font;             ///< Font instance providing metrics, shaping, and rasterisation.
     Resources resources;           ///< All shared rendering resources (atlas, mailbox, theme).
     bool ligatureEnabled { false }; ///< True if HarfBuzz ligature shaping is active.
     bool debugMode       { false }; ///< True if debug rendering overlays are enabled.

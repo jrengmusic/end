@@ -2,12 +2,12 @@
  * @file jreng_text_layout.cpp
  * @brief Implementation of jreng::TextLayout.
  *
- * Shapes attributed text via jreng::Font::shapeText() (HarfBuzz), finds line
+ * Shapes attributed text via jreng::Typeface::shapeText() (HarfBuzz), finds line
  * break opportunities via libunibreak's set_linebreaks_utf32(), and builds
  * Line/Run/Glyph structures for GL instanced rendering.
  */
 
-#include "../linebreak/linebreak.h"
+#include "linebreak/linebreak.h"
 
 namespace jreng
 {
@@ -66,24 +66,24 @@ juce::Rectangle<float> TextLayout::Line::getLineBounds() const noexcept
 // TextLayout — private helpers
 // =============================================================================
 
-Font::Style TextLayout::resolveStyle (const juce::Font& juceFont) noexcept
+Typeface::Style TextLayout::resolveStyle (const juce::Font& juceFont) noexcept
 {
     const bool isBold   { juceFont.isBold() };
     const bool isItalic { juceFont.isItalic() };
 
-    Font::Style result { Font::Style::regular };
+    Typeface::Style result { Typeface::Style::regular };
 
     if (isBold and isItalic)
     {
-        result = Font::Style::boldItalic;
+        result = Typeface::Style::boldItalic;
     }
     else if (isBold)
     {
-        result = Font::Style::bold;
+        result = Typeface::Style::bold;
     }
     else if (isItalic)
     {
-        result = Font::Style::italic;
+        result = Typeface::Style::italic;
     }
 
     return result;
@@ -107,18 +107,18 @@ void TextLayout::recalculateSize() noexcept
 // =============================================================================
 
 void TextLayout::createLayout (const juce::AttributedString& text,
-                               jreng::Font& font,
+                               jreng::Typeface& typeface,
                                float maxWidth) noexcept
 {
-    createLayoutInternal (text, font, maxWidth, unlimitedDimension);
+    createLayoutInternal (text, typeface, maxWidth, unlimitedDimension);
 }
 
 void TextLayout::createLayout (const juce::AttributedString& text,
-                               jreng::Font& font,
+                               jreng::Typeface& typeface,
                                float maxWidth,
                                float maxHeight) noexcept
 {
-    createLayoutInternal (text, font, maxWidth, maxHeight);
+    createLayoutInternal (text, typeface, maxWidth, maxHeight);
 }
 
 // =============================================================================
@@ -126,10 +126,11 @@ void TextLayout::createLayout (const juce::AttributedString& text,
 // =============================================================================
 
 void TextLayout::createLayoutInternal (const juce::AttributedString& text,
-                                       jreng::Font& font,
+                                       jreng::Typeface& typeface,
                                        float maxWidth,
                                        float maxHeight) noexcept
 {
+    layoutTypeface = &typeface;
     lines.clear();
 
     const juce::String& fullText { text.getText() };
@@ -166,7 +167,7 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
             //         so the line-wrapper can operate on the shaped output.
             //
             // We accumulate:
-            //   shapedGlyphs[i]   — Font::Glyph for codepoint i
+            //   shapedGlyphs[i]   — Typeface::Glyph for codepoint i
             //   shapedAdvances[i] — advance width of that glyph in logical pixels
             //   attrIndex[i]      — which attribute owns codepoint i
             // -------------------------------------------------------------------------
@@ -174,7 +175,7 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
             const int numAttributes { text.getNumAttributes() };
 
             // Per-codepoint data from shaping
-            juce::Array<Font::Glyph> shapedGlyphs;
+            juce::Array<Typeface::Glyph> shapedGlyphs;
             juce::Array<float>       shapedAdvances;
             juce::Array<int>         attrIndexForCp;
 
@@ -194,7 +195,7 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
             {
                 const juce::AttributedString::Attribute& attr { text.getAttribute (attrIdx) };
                 const juce::Range<int> range { attr.range };
-                const Font::Style style { resolveStyle (attr.font) };
+                const Typeface::Style style { resolveStyle (attr.font) };
 
                 const int rangeStart { juce::jmax (0, range.getStart()) };
                 const int rangeEnd   { juce::jmin (totalCodepoints, range.getEnd()) };
@@ -202,7 +203,7 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
 
                 if (rangeLen > 0)
                 {
-                    Font::ShapeResult shaped { font.shapeText (style,
+                    Typeface::ShapeResult shaped { typeface.shapeText (style,
                                                                codepoints.data() + rangeStart,
                                                                static_cast<size_t> (rangeLen)) };
 
@@ -232,7 +233,7 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
                                               ? text.getAttribute (0).font
                                               : juce::Font (juce::FontOptions{}) };
             const float fontHeight   { firstJuceFont.getHeight() };
-            Font::Metrics metrics    { font.calcMetrics (fontHeight) };
+            Typeface::Metrics metrics    { typeface.calcMetrics (fontHeight) };
             const float lineAscent   { static_cast<float> (metrics.logicalBaseline) };
             const float lineDescent  { static_cast<float> (metrics.logicalCellH - metrics.logicalBaseline) };
             const float lineLeading  { 0.0f };
@@ -362,107 +363,11 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
 }
 
 // =============================================================================
-// TextLayout — draw (GL path)
-// =============================================================================
-
-void TextLayout::draw (jreng::Glyph::GLTextRenderer& renderer,
-                       jreng::Glyph::Atlas& atlas,
-                       jreng::Font& font,
-                       juce::Rectangle<float> area) const noexcept
-{
-    // Accumulate quads before submitting to avoid per-glyph draw calls.
-    juce::Array<jreng::Glyph::Render::Quad> monoQuads;
-    juce::Array<jreng::Glyph::Render::Quad> emojiQuads;
-
-    const float areaX { area.getX() };
-    const float areaY { area.getY() };
-
-    for (const auto* line : lines)
-    {
-        const float baselineX { areaX + line->lineOrigin.x };
-        const float baselineY { areaY + line->lineOrigin.y };
-
-        for (const auto* run : line->runs)
-        {
-            void* const fontHandle { font.getFontHandle (run->style) };
-            const float fontSize   { run->font.getHeight() };
-            Font::Metrics m        { font.calcMetrics (fontSize) };
-
-            const int cellWidth    { m.physCellW };
-            const int cellHeight   { m.physCellH };
-            const int baseline     { m.physBaseline };
-
-            const float colR { run->colour.getFloatRed() };
-            const float colG { run->colour.getFloatGreen() };
-            const float colB { run->colour.getFloatBlue() };
-            const float colA { run->colour.getFloatAlpha() };
-
-            for (const auto& g : run->glyphs)
-            {
-                if (g.glyphCode != 0)
-                {
-                    jreng::Glyph::Key key;
-                    key.glyphIndex = static_cast<uint32_t> (g.glyphCode);
-                    key.fontFace   = fontHandle;
-                    key.fontSize   = fontSize;
-                    key.span       = defaultGlyphSpan;
-
-                    // For TextLayout we never deal with Nerd Font constraints —
-                    // pass a default-constructed Constraint (inactive).
-                    jreng::Glyph::Constraint constraint{};
-
-                    jreng::Glyph::Region* region { atlas.getOrRasterize (key,
-                                                                   fontHandle,
-                                                                   false,
-                                                                   constraint,
-                                                                   cellWidth,
-                                                                   cellHeight,
-                                                                   baseline) };
-
-                    if (region != nullptr)
-                    {
-                        const float screenX { baselineX + g.anchor.x
-                                              + static_cast<float> (region->bearingX) };
-                        const float screenY { baselineY - g.anchor.y
-                                              - static_cast<float> (region->bearingY) };
-
-                        jreng::Glyph::Render::Quad quad;
-                        quad.screenPosition     = { screenX, screenY };
-                        quad.glyphSize          = { static_cast<float> (region->widthPixels),
-                                                    static_cast<float> (region->heightPixels) };
-                        quad.textureCoordinates = region->textureCoordinates;
-                        quad.foregroundColorR   = colR;
-                        quad.foregroundColorG   = colG;
-                        quad.foregroundColorB   = colB;
-                        quad.foregroundColorA   = colA;
-
-                        monoQuads.add (quad);
-                    }
-                }
-            }
-        }
-    }
-
-    renderer.drawQuads (monoQuads.data(),  monoQuads.size(),  false);
-    renderer.drawQuads (emojiQuads.data(), emojiQuads.size(), true);
-}
-
-// =============================================================================
-// TextLayout — draw (CPU path — Plan 3 stub)
-// =============================================================================
-
-void TextLayout::draw (juce::Graphics& /*g*/,
-                       juce::Rectangle<float> /*area*/) const noexcept
-{
-    // Plan 3: implement juce::Graphics fallback rendering.
-}
-
-// =============================================================================
 // TextLayout — static convenience
 // =============================================================================
 
 juce::Rectangle<float> TextLayout::getStringBounds (const juce::AttributedString& text,
-                                                     jreng::Font& font)
+                                                     jreng::Typeface& font)
 {
     TextLayout layout;
     layout.createLayout (text, font, unlimitedDimension);
@@ -470,7 +375,7 @@ juce::Rectangle<float> TextLayout::getStringBounds (const juce::AttributedString
 }
 
 float TextLayout::getStringWidth (const juce::AttributedString& text,
-                                  jreng::Font& font)
+                                  jreng::Typeface& font)
 {
     return getStringBounds (text, font).getWidth();
 }

@@ -30,7 +30,7 @@
  *
  * @note MESSAGE THREAD — called from MainComponent constructor.
  */
-Terminal::Component::Component (jreng::Font& font_)
+Terminal::Component::Component (jreng::Typeface& font_)
     : font (font_)
     , screen (font_)
     , vblank (this,
@@ -43,7 +43,7 @@ Terminal::Component::Component (jreng::Font& font_)
     session.getState().get().setProperty (jreng::ID::id, juce::Uuid().toString(), nullptr);
 }
 
-Terminal::Component* Terminal::Component::create (jreng::Font& font,
+Terminal::Component* Terminal::Component::create (jreng::Typeface& font,
                                                   juce::Component& parent,
                                                   juce::Rectangle<int> bounds,
                                                   jreng::Owner<Component>& owner,
@@ -66,7 +66,7 @@ Terminal::Component* Terminal::Component::create (jreng::Font& font,
  * @param workingDirectory  Absolute path for the shell's initial cwd.
  * @note MESSAGE THREAD.
  */
-Terminal::Component::Component (jreng::Font& font_, const juce::String& workingDirectory)
+Terminal::Component::Component (jreng::Typeface& font_, const juce::String& workingDirectory)
     : font (font_)
     , screen (font_)
     , vblank (this,
@@ -89,7 +89,7 @@ Terminal::Component::Component (jreng::Font& font_, const juce::String& workingD
  * @param workingDirectory  Initial cwd. Empty = inherit.
  * @note MESSAGE THREAD.
  */
-Terminal::Component::Component (jreng::Font& font_,
+Terminal::Component::Component (jreng::Typeface& font_,
                                 const juce::String& program,
                                 const juce::String& args,
                                 const juce::String& workingDirectory)
@@ -443,7 +443,7 @@ void Terminal::Component::glContextClosing() noexcept { screen.glContextClosing(
 
 juce::Point<int> Terminal::Component::getOriginInTopLevel() const noexcept
 {
-    const float scale { jreng::Font::getDisplayScale() };
+    const float scale { jreng::Typeface::getDisplayScale() };
     const auto* topLevel { getTopLevelComponent() };
     const auto relative { topLevel != nullptr ? topLevel->getLocalPoint (this, juce::Point<int> (0, 0))
                                               : juce::Point<int> (0, 0) };

@@ -38,7 +38,7 @@ void Screen::renderOpenGL (int originX, int originY, int fullHeight)
         if (snapshot != nullptr)
         {
             textRenderer.setViewportSize (glViewportWidth, glViewportHeight);
-            textRenderer.uploadStagedBitmaps (resources.glyphAtlas);
+            textRenderer.uploadStagedBitmaps (font);
 
             juce::gl::glEnable (juce::gl::GL_BLEND);
             juce::gl::glBlendFunc (

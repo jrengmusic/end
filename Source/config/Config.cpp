@@ -95,157 +95,155 @@ void Config::initKeys()
 {
     using T = ValueSpec::Type;
 
-    addKey (Key::fontFamily,   "Display Mono",                    { T::string });
+    addKey (Key::fontFamily, "Display Mono", { T::string });
 #if JUCE_WINDOWS
-    addKey (Key::fontSize,     10.0,                              { T::number, 1.0, 200.0, true });
+    addKey (Key::fontSize, 10.0, { T::number, 1.0, 200.0, true });
 #else
-    addKey (Key::fontSize,     14.0,                              { T::number, 1.0, 200.0, true });
+    addKey (Key::fontSize, 12.0, { T::number, 1.0, 200.0, true });
 #endif
-    addKey (Key::fontLigatures, true,                             { T::boolean });
-    addKey (Key::fontEmbolden,  false,                            { T::boolean });
+    addKey (Key::fontLigatures, true, { T::boolean });
+    addKey (Key::fontEmbolden, false, { T::boolean });
 
-    addKey (Key::cursorChar,          juce::String::charToString (static_cast<juce::juce_wchar> (0x2588)),
-                                                                  { T::string });
-    addKey (Key::cursorBlink,         true,                       { T::boolean });
-    addKey (Key::cursorBlinkInterval, 500.0,                      { T::number, 100.0, 5000.0, true });
-    addKey (Key::cursorForce,         false,                      { T::boolean });
+    addKey (Key::cursorChar, juce::String::charToString (static_cast<juce::juce_wchar> (0x2588)), { T::string });
+    addKey (Key::cursorBlink, true, { T::boolean });
+    addKey (Key::cursorBlinkInterval, 500.0, { T::number, 100.0, 5000.0, true });
+    addKey (Key::cursorForce, false, { T::boolean });
 
-    addKey (Key::coloursForeground,    "#4E8C93",                 { T::string }); ///< paradiso
-    addKey (Key::coloursBackground,    "#090D12E0",               { T::string }); ///< bunker semi-transparent
-    addKey (Key::coloursCursor,        "#4E8C93",                 { T::string }); ///< paradiso
-    addKey (Key::coloursSelection,     "#00C8D880",               { T::string }); ///< blueBikini semi-transparent
-    addKey (Key::coloursSelectionCursor, "#00D8FF",               { T::string }); ///< bright cyan
+    addKey (Key::coloursForeground, "#4E8C93", { T::string });///< paradiso
+    addKey (Key::coloursBackground, "#090D12E0", { T::string });///< bunker semi-transparent
+    addKey (Key::coloursCursor, "#4E8C93", { T::string });///< paradiso
+    addKey (Key::coloursSelection, "#00C8D880", { T::string });///< blueBikini semi-transparent
+    addKey (Key::coloursSelectionCursor, "#00D8FF", { T::string });///< bright cyan
 
     // ---- ANSI palette (indices 0–15) ----------------------------------------
     // Normal colours
-    addKey (Key::coloursBlack,   "#090D12",                       { T::string }); ///< bunker
-    addKey (Key::coloursRed,     "#FC704C",                       { T::string }); ///< preciousPersimmon
-    addKey (Key::coloursGreen,   "#C5F0E9",                       { T::string }); ///< gentleCold
-    addKey (Key::coloursYellow,  "#F3F5C5",                       { T::string }); ///< silkStar
-    addKey (Key::coloursBlue,    "#8CC9D9",                       { T::string }); ///< dolphin
-    addKey (Key::coloursMagenta, "#519299",                       { T::string }); ///< lagoon
-    addKey (Key::coloursCyan,    "#699DAA",                       { T::string }); ///< tranquiliTeal
-    addKey (Key::coloursWhite,   "#FF0000",                       { T::string }); ///< frostbite
+    addKey (Key::coloursBlack, "#090D12", { T::string });///< bunker
+    addKey (Key::coloursRed, "#FC704C", { T::string });///< preciousPersimmon
+    addKey (Key::coloursGreen, "#C5F0E9", { T::string });///< gentleCold
+    addKey (Key::coloursYellow, "#F3F5C5", { T::string });///< silkStar
+    addKey (Key::coloursBlue, "#8CC9D9", { T::string });///< dolphin
+    addKey (Key::coloursMagenta, "#519299", { T::string });///< lagoon
+    addKey (Key::coloursCyan, "#699DAA", { T::string });///< tranquiliTeal
+    addKey (Key::coloursWhite, "#FF0000", { T::string });///< frostbite
     // Bright colours
-    addKey (Key::coloursBrightBlack,   "#33535B",                 { T::string }); ///< mediterranea
-    addKey (Key::coloursBrightRed,     "#FC704C",                 { T::string }); ///< preciousPersimmon
-    addKey (Key::coloursBrightGreen,   "#BAFFFD",                 { T::string }); ///< paleSky
-    addKey (Key::coloursBrightYellow,  "#FEFFD2",                 { T::string }); ///< mattWhite
-    addKey (Key::coloursBrightBlue,    "#67DFEF",                 { T::string }); ///< poseidonJr
-    addKey (Key::coloursBrightMagenta, "#01C2D2",                 { T::string }); ///< caribbeanBlue
-    addKey (Key::coloursBrightCyan,    "#00C8D8",                 { T::string }); ///< blueBikini
-    addKey (Key::coloursBrightWhite,   "#BAFFFD",                 { T::string }); ///< paleSky
+    addKey (Key::coloursBrightBlack, "#33535B", { T::string });///< mediterranea
+    addKey (Key::coloursBrightRed, "#FC704C", { T::string });///< preciousPersimmon
+    addKey (Key::coloursBrightGreen, "#BAFFFD", { T::string });///< paleSky
+    addKey (Key::coloursBrightYellow, "#FEFFD2", { T::string });///< mattWhite
+    addKey (Key::coloursBrightBlue, "#67DFEF", { T::string });///< poseidonJr
+    addKey (Key::coloursBrightMagenta, "#01C2D2", { T::string });///< caribbeanBlue
+    addKey (Key::coloursBrightCyan, "#00C8D8", { T::string });///< blueBikini
+    addKey (Key::coloursBrightWhite, "#BAFFFD", { T::string });///< paleSky
 
-    addKey (Key::windowTitle,       ProjectInfo::projectName,     { T::string });
-    addKey (Key::windowWidth,       640.0,                        { T::number, 0.0, 0.0, false });
-    addKey (Key::windowHeight,      480.0,                        { T::number, 0.0, 0.0, false });
-    addKey (Key::windowColour,      "#090D12",                    { T::string }); ///< bunker
-    addKey (Key::windowOpacity,     0.75,                         { T::number, 0.0, 1.0, true });
-    addKey (Key::windowBlurRadius,  32.0,                         { T::number, 0.0, 100.0, true });
-    addKey (Key::windowAlwaysOnTop, false,                        { T::boolean });
-    addKey (Key::windowButtons,     false,                        { T::boolean });
-    addKey (Key::windowZoom,        1.0,                          { T::number, 0.0, 0.0, false });
+    addKey (Key::windowTitle, ProjectInfo::projectName, { T::string });
+    addKey (Key::windowWidth, 640.0, { T::number, 0.0, 0.0, false });
+    addKey (Key::windowHeight, 480.0, { T::number, 0.0, 0.0, false });
+    addKey (Key::windowColour, "#090D12", { T::string });///< bunker
+    addKey (Key::windowOpacity, 0.75, { T::number, 0.0, 1.0, true });
+    addKey (Key::windowBlurRadius, 32.0, { T::number, 0.0, 100.0, true });
+    addKey (Key::windowAlwaysOnTop, false, { T::boolean });
+    addKey (Key::windowButtons, false, { T::boolean });
+    addKey (Key::windowZoom, 1.0, { T::number, 0.0, 0.0, false });
 
-    addKey (Key::tabFamily,    "Display Mono",                    { T::string });
-    addKey (Key::tabSize,      24.0,                              { T::number, 1.0, 200.0, true });
-    addKey (Key::tabForeground, "#00C8D8",                        { T::string }); ///< blueBikini
-    addKey (Key::tabInactive,   "#33535B",                        { T::string }); ///< mediterranea
-    addKey (Key::tabPosition,   "left",                           { T::string });
-    addKey (Key::tabLine,       "#2C4144",                        { T::string }); ///< littleMermaid
-    addKey (Key::tabActive,     "#002B35",                        { T::string }); ///< midnightDreams
-    addKey (Key::tabIndicator,  "#01C2D2",                        { T::string }); ///< caribbeanBlue
-    addKey (Key::menuOpacity,   0.65,                             { T::number, 0.0, 1.0, true });
+    addKey (Key::tabFamily, "Display Mono", { T::string });
+    addKey (Key::tabSize, 24.0, { T::number, 1.0, 200.0, true });
+    addKey (Key::tabForeground, "#00C8D8", { T::string });///< blueBikini
+    addKey (Key::tabInactive, "#33535B", { T::string });///< mediterranea
+    addKey (Key::tabPosition, "left", { T::string });
+    addKey (Key::tabLine, "#2C4144", { T::string });///< littleMermaid
+    addKey (Key::tabActive, "#002B35", { T::string });///< midnightDreams
+    addKey (Key::tabIndicator, "#01C2D2", { T::string });///< caribbeanBlue
+    addKey (Key::menuOpacity, 0.65, { T::number, 0.0, 1.0, true });
 
-    addKey (Key::overlayFamily, "Display Mono",                   { T::string });
-    addKey (Key::overlaySize,   20.0,                             { T::number, 1.0, 200.0, true });
-    addKey (Key::overlayColour, "#4E8C93",                        { T::string }); ///< paradiso
+    addKey (Key::overlayFamily, "Display Mono", { T::string });
+    addKey (Key::overlaySize, 14.0, { T::number, 1.0, 200.0, true });
+    addKey (Key::overlayColour, "#4E8C93", { T::string });///< paradiso
 
 #if JUCE_MAC
-    addKey (Key::shellProgram, "zsh",                             { T::string });
-    addKey (Key::shellArgs,    "-l",                              { T::string });
+    addKey (Key::shellProgram, "zsh", { T::string });
+    addKey (Key::shellArgs, "-l", { T::string });
 #elif JUCE_LINUX
-    addKey (Key::shellProgram, "bash",                            { T::string });
-    addKey (Key::shellArgs,    "-l",                              { T::string });
+    addKey (Key::shellProgram, "bash", { T::string });
+    addKey (Key::shellArgs, "-l", { T::string });
 #elif JUCE_WINDOWS
     {
         const auto [shell, args] { findDefaultWindowsShell() };
-        addKey (Key::shellProgram, shell,                         { T::string });
-        addKey (Key::shellArgs,    args,                          { T::string });
+        addKey (Key::shellProgram, shell, { T::string });
+        addKey (Key::shellArgs, args, { T::string });
     }
 #endif
 
-    addKey (Key::shellIntegration, true,                          { T::boolean });
+    addKey (Key::shellIntegration, true, { T::boolean });
 
-    addKey (Key::terminalScrollbackLines, 10000.0,                { T::number, 100.0, 1000000.0, true });
-    addKey (Key::terminalScrollStep,      5.0,                    { T::number, 1.0, 100.0, true });
-    addKey (Key::terminalPaddingTop,      10.0,                   { T::number, 0.0, 200.0, true });
-    addKey (Key::terminalPaddingRight,    10.0,                   { T::number, 0.0, 200.0, true });
-    addKey (Key::terminalPaddingBottom,   10.0,                   { T::number, 0.0, 200.0, true });
-    addKey (Key::terminalPaddingLeft,     10.0,                   { T::number, 0.0, 200.0, true });
-    addKey (Key::terminalDropMultifiles,  "space",                { T::string });
-    addKey (Key::terminalDropQuoted,      true,                   { T::boolean });
+    addKey (Key::terminalScrollbackLines, 10000.0, { T::number, 100.0, 1000000.0, true });
+    addKey (Key::terminalScrollStep, 5.0, { T::number, 1.0, 100.0, true });
+    addKey (Key::terminalPaddingTop, 10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::terminalPaddingRight, 10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::terminalPaddingBottom, 10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::terminalPaddingLeft, 10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::terminalDropMultifiles, "space", { T::string });
+    addKey (Key::terminalDropQuoted, true, { T::boolean });
 
 #if JUCE_MAC
-    addKey (Key::keysCopy,  "cmd+c",                              { T::string });
-    addKey (Key::keysPaste, "cmd+v",                              { T::string });
+    addKey (Key::keysCopy, "cmd+c", { T::string });
+    addKey (Key::keysPaste, "cmd+v", { T::string });
 #else
-    addKey (Key::keysCopy,  "ctrl+c",                             { T::string });
-    addKey (Key::keysPaste, "ctrl+v",                             { T::string });
+    addKey (Key::keysCopy, "ctrl+c", { T::string });
+    addKey (Key::keysPaste, "ctrl+v", { T::string });
 #endif
-    addKey (Key::keysQuit,             "cmd+q",                   { T::string });
-    addKey (Key::keysCloseTab,         "cmd+w",                   { T::string });
-    addKey (Key::keysReload,           "cmd+r",                   { T::string });
-    addKey (Key::keysZoomIn,           "cmd+=",                   { T::string });
-    addKey (Key::keysZoomOut,          "cmd+-",                   { T::string });
-    addKey (Key::keysZoomReset,        "cmd+0",                   { T::string });
-    addKey (Key::keysNewTab,           "cmd+t",                   { T::string });
-    addKey (Key::keysPrevTab,          "cmd+[",                   { T::string });
-    addKey (Key::keysNextTab,          "cmd+]",                   { T::string });
-    addKey (Key::keysSplitHorizontal,  juce::String::charToString (static_cast<juce::juce_wchar> ('\\')),
-                                                                  { T::string });
-    addKey (Key::keysSplitVertical,    "-",                       { T::string });
-    addKey (Key::keysPrefix,           "`",                       { T::string });
-    addKey (Key::keysPrefixTimeout,    1000.0,                    { T::number, 100.0, 5000.0, true });
-    addKey (Key::keysPaneLeft,         "h",                       { T::string });
-    addKey (Key::keysPaneDown,         "j",                       { T::string });
-    addKey (Key::keysPaneUp,           "k",                       { T::string });
-    addKey (Key::keysPaneRight,        "l",                       { T::string });
-    addKey (Key::keysNewline,          "shift+return",            { T::string });
-    addKey (Key::keysActionList,       "?",                       { T::string });
-    addKey (Key::keysActionListPosition, "top",                   { T::string });
-    addKey (Key::keysEnterSelection,   "[",                       { T::string });
-    addKey (Key::keysEnterOpenFile,    "o",                       { T::string });
+    addKey (Key::keysQuit, "cmd+q", { T::string });
+    addKey (Key::keysCloseTab, "cmd+w", { T::string });
+    addKey (Key::keysReload, "cmd+r", { T::string });
+    addKey (Key::keysZoomIn, "cmd+=", { T::string });
+    addKey (Key::keysZoomOut, "cmd+-", { T::string });
+    addKey (Key::keysZoomReset, "cmd+0", { T::string });
+    addKey (Key::keysNewTab, "cmd+t", { T::string });
+    addKey (Key::keysPrevTab, "cmd+[", { T::string });
+    addKey (Key::keysNextTab, "cmd+]", { T::string });
+    addKey (Key::keysSplitHorizontal, juce::String::charToString (static_cast<juce::juce_wchar> ('\\')), { T::string });
+    addKey (Key::keysSplitVertical, "-", { T::string });
+    addKey (Key::keysPrefix, "`", { T::string });
+    addKey (Key::keysPrefixTimeout, 1000.0, { T::number, 100.0, 5000.0, true });
+    addKey (Key::keysPaneLeft, "h", { T::string });
+    addKey (Key::keysPaneDown, "j", { T::string });
+    addKey (Key::keysPaneUp, "k", { T::string });
+    addKey (Key::keysPaneRight, "l", { T::string });
+    addKey (Key::keysNewline, "shift+return", { T::string });
+    addKey (Key::keysActionList, "?", { T::string });
+    addKey (Key::keysActionListPosition, "top", { T::string });
+    addKey (Key::keysEnterSelection, "[", { T::string });
+    addKey (Key::keysEnterOpenFile, "o", { T::string });
 
-    addKey (Key::keysSelectionUp,          "k",                   { T::string });
-    addKey (Key::keysSelectionDown,        "j",                   { T::string });
-    addKey (Key::keysSelectionLeft,        "h",                   { T::string });
-    addKey (Key::keysSelectionRight,       "l",                   { T::string });
-    addKey (Key::keysSelectionVisual,      "v",                   { T::string });
-    addKey (Key::keysSelectionVisualLine,  "shift+v",             { T::string });
-    addKey (Key::keysSelectionVisualBlock, "ctrl+v",              { T::string });
-    addKey (Key::keysSelectionCopy,        "y",                   { T::string });
-    addKey (Key::keysSelectionTop,         "g",                   { T::string });
-    addKey (Key::keysSelectionBottom,      "shift+g",             { T::string });
-    addKey (Key::keysSelectionLineStart,   "0",                   { T::string });
-    addKey (Key::keysSelectionLineEnd,     "$",                   { T::string });
-    addKey (Key::keysSelectionExit,        "escape",              { T::string });
+    addKey (Key::keysSelectionUp, "k", { T::string });
+    addKey (Key::keysSelectionDown, "j", { T::string });
+    addKey (Key::keysSelectionLeft, "h", { T::string });
+    addKey (Key::keysSelectionRight, "l", { T::string });
+    addKey (Key::keysSelectionVisual, "v", { T::string });
+    addKey (Key::keysSelectionVisualLine, "shift+v", { T::string });
+    addKey (Key::keysSelectionVisualBlock, "ctrl+v", { T::string });
+    addKey (Key::keysSelectionCopy, "y", { T::string });
+    addKey (Key::keysSelectionTop, "g", { T::string });
+    addKey (Key::keysSelectionBottom, "shift+g", { T::string });
+    addKey (Key::keysSelectionLineStart, "0", { T::string });
+    addKey (Key::keysSelectionLineEnd, "$", { T::string });
+    addKey (Key::keysSelectionExit, "escape", { T::string });
 
-    addKey (Key::popupWidth,    0.6,                              { T::number, 0.1, 1.0, true });
-    addKey (Key::popupHeight,   0.5,                              { T::number, 0.1, 1.0, true });
-    addKey (Key::popupPosition, "center",                         { T::string });
+    addKey (Key::popupWidth, 0.6, { T::number, 0.1, 1.0, true });
+    addKey (Key::popupHeight, 0.5, { T::number, 0.1, 1.0, true });
+    addKey (Key::popupPosition, "center", { T::string });
 
-    addKey (Key::paneBarColour,    "#1B2A31",                     { T::string }); ///< dark
-    addKey (Key::paneBarHighlight, "#4E8C93",                     { T::string }); ///< paradiso
+    addKey (Key::paneBarColour, "#1B2A31", { T::string });///< dark
+    addKey (Key::paneBarHighlight, "#4E8C93", { T::string });///< paradiso
 
-    addKey (Key::coloursStatusBar,        "#090D12",              { T::string }); ///< trappedDarkness
-    addKey (Key::coloursStatusBarLabelBg, "#01C2D2",              { T::string }); ///< caribbeanBlue
-    addKey (Key::coloursStatusBarLabelFg, "#444444",              { T::string }); ///< dark grey
-    addKey (Key::keysStatusBarPosition,   "bottom",               { T::string });
+    addKey (Key::coloursStatusBar, "#090D12", { T::string });///< trappedDarkness
+    addKey (Key::coloursStatusBarLabelBg, "#01C2D2", { T::string });///< caribbeanBlue
+    addKey (Key::coloursStatusBarLabelFg, "#444444", { T::string });///< dark grey
+    addKey (Key::keysStatusBarPosition, "bottom", { T::string });
 
-    addKey (Key::coloursHintLabelBg, "#FFD700",                   { T::string }); ///< gold
-    addKey (Key::coloursHintLabelFg, "#111111",                   { T::string }); ///< near-black
+    addKey (Key::coloursHintLabelBg, "#00FFFF", { T::string });///< cyan
+    addKey (Key::coloursHintLabelFg, "#111111", { T::string });///< near-black
 
-    addKey (Key::hyperlinksEditor, "nvim",                        { T::string });
+    addKey (Key::hyperlinksEditor, "nvim", { T::string });
 }
 
 //==============================================================================
@@ -392,10 +390,12 @@ static void validateAndStore (const juce::String& dotKey,
                               const std::unordered_map<juce::String, Config::ValueSpec>& schema,
                               juce::StringArray& warnings)
 {
-    static constexpr std::array<const char*, 3> specTypeNames {{ "string", "number", "boolean" }};
+    static constexpr std::array<const char*, 3> specTypeNames {
+        { "string", "number", "boolean" }
+    };
 
-    const bool keyKnown   { values.find (dotKey) != values.end() };
-    const bool hasSchema  { keyKnown and schema.find (dotKey) != schema.end() };
+    const bool keyKnown { values.find (dotKey) != values.end() };
+    const bool hasSchema { keyKnown and schema.find (dotKey) != schema.end() };
 
     if (not keyKnown)
     {
@@ -422,8 +422,7 @@ static void validateAndStore (const juce::String& dotKey,
 
         if (not typeOk)
         {
-            warnings.add ("'" + dotKey + "' expected "
-                          + specTypeNames.at (static_cast<size_t> (spec.expectedType))
+            warnings.add ("'" + dotKey + "' expected " + specTypeNames.at (static_cast<size_t> (spec.expectedType))
                           + ", got " + luaTypeName (fieldVal.get_type()));
         }
         else
@@ -436,9 +435,8 @@ static void validateAndStore (const juce::String& dotKey,
 
                     if (spec.hasRange and (val < spec.minValue or val > spec.maxValue))
                     {
-                        warnings.add ("'" + dotKey + "' value " + juce::String (val)
-                                      + " out of range [" + juce::String (spec.minValue)
-                                      + ", " + juce::String (spec.maxValue) + "]");
+                        warnings.add ("'" + dotKey + "' value " + juce::String (val) + " out of range ["
+                                      + juce::String (spec.minValue) + ", " + juce::String (spec.maxValue) + "]");
                     }
                     else
                     {
@@ -475,12 +473,10 @@ static void loadPadding (const sol::table& arr,
                          std::unordered_map<juce::String, juce::var>& values,
                          const std::unordered_map<juce::String, Config::ValueSpec>& schema)
 {
-    static const std::array<const juce::String*, 4> paddingKeys {
-        &Config::Key::terminalPaddingTop,
-        &Config::Key::terminalPaddingRight,
-        &Config::Key::terminalPaddingBottom,
-        &Config::Key::terminalPaddingLeft
-    };
+    static const std::array<const juce::String*, 4> paddingKeys { &Config::Key::terminalPaddingTop,
+                                                                  &Config::Key::terminalPaddingRight,
+                                                                  &Config::Key::terminalPaddingBottom,
+                                                                  &Config::Key::terminalPaddingLeft };
 
     for (int i { 0 }; i < 4; ++i)
     {
@@ -627,8 +623,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                     root.for_each (
                         [this, &warnings] (const sol::object& groupKey, const sol::object& groupVal)
                         {
-                            if (groupKey.get_type() == sol::type::string
-                                and groupVal.get_type() == sol::type::table)
+                            if (groupKey.get_type() == sol::type::string and groupVal.get_type() == sol::type::table)
                             {
                                 const juce::String groupName { groupKey.as<std::string>() };
 
@@ -647,15 +642,15 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
 
                                             // terminal.padding is a 4-element array { top, right, bottom, left }.
                                             // Dispatched to loadPadding() rather than treated as a scalar.
-                                            if (groupName == "terminal"
-                                                and fieldName == "padding"
+                                            if (groupName == "terminal" and fieldName == "padding"
                                                 and fieldVal.get_type() == sol::type::table)
                                             {
                                                 loadPadding (fieldVal.as<sol::table>(), values, schema);
                                                 return;
                                             }
 
-                                            validateAndStore (groupName + "." + fieldName, fieldVal, values, schema, warnings);
+                                            validateAndStore (
+                                                groupName + "." + fieldName, fieldVal, values, schema, warnings);
                                         }
                                     });
                             }
@@ -776,39 +771,39 @@ juce::Colour Config::getColour (const juce::String& key) const
 Config::Theme Config::buildTheme() const
 {
     Theme theme;
-    theme.defaultForeground     = getColour (Key::coloursForeground);
-    theme.defaultBackground     = getColour (Key::coloursBackground);
-    theme.selectionColour       = getColour (Key::coloursSelection);
+    theme.defaultForeground = getColour (Key::coloursForeground);
+    theme.defaultBackground = getColour (Key::coloursBackground);
+    theme.selectionColour = getColour (Key::coloursSelection);
     theme.selectionCursorColour = getColour (Key::coloursSelectionCursor);
-    theme.cursorColour          = getColour (Key::coloursCursor);
+    theme.cursorColour = getColour (Key::coloursCursor);
 
     const juce::String cursorCharStr { getString (Key::cursorChar) };
-    theme.cursorCodepoint = cursorCharStr.isNotEmpty()
-        ? static_cast<uint32_t> (cursorCharStr[0])
-        : 0x2588u;
+    theme.cursorCodepoint = cursorCharStr.isNotEmpty() ? static_cast<uint32_t> (cursorCharStr[0]) : 0x2588u;
     theme.cursorForce = getBool (Key::cursorForce);
 
     theme.hintLabelBg = getColour (Key::coloursHintLabelBg);
     theme.hintLabelFg = getColour (Key::coloursHintLabelFg);
 
-    static const std::array<const juce::String*, 16> ansiKeys {{
-        &Key::coloursBlack,
-        &Key::coloursRed,
-        &Key::coloursGreen,
-        &Key::coloursYellow,
-        &Key::coloursBlue,
-        &Key::coloursMagenta,
-        &Key::coloursCyan,
-        &Key::coloursWhite,
-        &Key::coloursBrightBlack,
-        &Key::coloursBrightRed,
-        &Key::coloursBrightGreen,
-        &Key::coloursBrightYellow,
-        &Key::coloursBrightBlue,
-        &Key::coloursBrightMagenta,
-        &Key::coloursBrightCyan,
-        &Key::coloursBrightWhite,
-    }};
+    static const std::array<const juce::String*, 16> ansiKeys {
+        {
+         &Key::coloursBlack,
+         &Key::coloursRed,
+         &Key::coloursGreen,
+         &Key::coloursYellow,
+         &Key::coloursBlue,
+         &Key::coloursMagenta,
+         &Key::coloursCyan,
+         &Key::coloursWhite,
+         &Key::coloursBrightBlack,
+         &Key::coloursBrightRed,
+         &Key::coloursBrightGreen,
+         &Key::coloursBrightYellow,
+         &Key::coloursBrightBlue,
+         &Key::coloursBrightMagenta,
+         &Key::coloursBrightCyan,
+         &Key::coloursBrightWhite,
+         }
+    };
 
     for (int i { 0 }; i < 16; ++i)
         theme.ansi.at (static_cast<size_t> (i)) = getColour (*ansiKeys.at (static_cast<size_t> (i)));
@@ -841,7 +836,7 @@ juce::Colour Config::parseColour (const juce::String& input)
 
     if (trimmed.startsWithIgnoreCase ("rgba"))
     {
-        const int open  { trimmed.indexOfChar ('(') };
+        const int open { trimmed.indexOfChar ('(') };
         const int close { trimmed.indexOfChar (')') };
 
         if (open >= 0 and close > open)

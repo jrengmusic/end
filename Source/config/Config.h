@@ -348,16 +348,16 @@ struct Config : jreng::Context<Config>
          * Parsed from the four-value `terminal.padding` array in end.lua.
          * Order: top, right, bottom, left (CSS convention).
          */
-        inline static const juce::String terminalPaddingTop    { "terminal.padding_top" };
+        inline static const juce::String terminalPaddingTop { "terminal.padding_top" };
 
         /** @brief Grid padding — right edge inset in logical pixels (0–200). */
-        inline static const juce::String terminalPaddingRight  { "terminal.padding_right" };
+        inline static const juce::String terminalPaddingRight { "terminal.padding_right" };
 
         /** @brief Grid padding — bottom edge inset in logical pixels (0–200). */
         inline static const juce::String terminalPaddingBottom { "terminal.padding_bottom" };
 
         /** @brief Grid padding — left edge inset in logical pixels (0–200). */
-        inline static const juce::String terminalPaddingLeft   { "terminal.padding_left" };
+        inline static const juce::String terminalPaddingLeft { "terminal.padding_left" };
 
         /** @brief Separator for multiple dropped file paths: "space" or "newline". */
         inline static const juce::String terminalDropMultifiles { "terminal.drop_multifiles" };
@@ -469,7 +469,6 @@ struct Config : jreng::Context<Config>
 
         /** @brief Editor command used to open files from hyperlinks (e.g. "nvim", "vim"). */
         inline static const juce::String hyperlinksEditor { "hyperlinks.editor" };
-
     };
 
     //==============================================================================
@@ -757,4 +756,3 @@ setmetatable(_G, {
 })
 )lua" };
 };
-

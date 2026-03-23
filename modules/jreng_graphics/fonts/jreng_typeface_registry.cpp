@@ -1,6 +1,6 @@
 /**
- * @file jreng_font_registry.cpp
- * @brief Font::Registry implementation — lifecycle, lookup, and FreeType cmap population.
+ * @file jreng_typeface_registry.cpp
+ * @brief Typeface::Registry implementation — lifecycle, lookup, and FreeType cmap population.
  *
  * This translation unit provides:
  * - Constructor / destructor (platform-agnostic).
@@ -29,7 +29,7 @@ namespace jreng
  * with the `unresolved` sentinel (-1) via `memset`.  The zero-then-fill
  * pattern ensures the OS has committed the pages before the memset runs.
  */
-Font::Registry::Registry()
+Typeface::Registry::Registry()
 {
     lookupTable.calloc (static_cast<size_t> (unicodeMax));
     memset (lookupTable.get(), unresolved, static_cast<size_t> (unicodeMax));
@@ -41,7 +41,7 @@ Font::Registry::Registry()
  * `HeapBlock` frees the lookup table automatically.  Platform font handles
  * stored in `entries` are owned by `Font` and are not released here.
  */
-Font::Registry::~Registry()
+Typeface::Registry::~Registry()
 {
 }
 
@@ -54,7 +54,7 @@ Font::Registry::~Registry()
  * @param codepoint  Unicode scalar value (0 … 0x10FFFF).
  * @return           Slot index (0–31), `unresolved` (-1), or `notFound` (-2).
  */
-int8_t Font::Registry::resolve (uint32_t codepoint) const noexcept
+int8_t Typeface::Registry::resolve (uint32_t codepoint) const noexcept
 {
     int8_t result { notFound };
 
@@ -75,7 +75,7 @@ int8_t Font::Registry::resolve (uint32_t codepoint) const noexcept
  * @param entry  Font entry to register.  The platform handle and `hbFont`
  *               must remain valid for the lifetime of this `Registry`.
  */
-void Font::Registry::addFont (Entry entry) noexcept
+void Typeface::Registry::addFont (Entry entry) noexcept
 {
     if (entryCount < maxFonts)
     {
@@ -90,7 +90,7 @@ void Font::Registry::addFont (Entry entry) noexcept
  * @param slotIndex  Slot index to retrieve (0 … `entryCount - 1`).
  * @return           Pointer to the `Entry`, or `nullptr` if out of range.
  */
-Font::Registry::Entry* Font::Registry::getEntry (int slotIndex) noexcept
+Typeface::Registry::Entry* Typeface::Registry::getEntry (int slotIndex) noexcept
 {
     Entry* result { nullptr };
 
@@ -108,7 +108,7 @@ Font::Registry::Entry* Font::Registry::getEntry (int slotIndex) noexcept
  * @param slotIndex  Slot index to retrieve (0 … `entryCount - 1`).
  * @return           Const pointer to the `Entry`, or `nullptr` if out of range.
  */
-const Font::Registry::Entry* Font::Registry::getEntry (int slotIndex) const noexcept
+const Typeface::Registry::Entry* Typeface::Registry::getEntry (int slotIndex) const noexcept
 {
     const Entry* result { nullptr };
 
@@ -141,7 +141,7 @@ const Font::Registry::Entry* Font::Registry::getEntry (int slotIndex) const noex
  *
  * @see jreng_font_registry.mm  — CoreText equivalent for macOS.
  */
-void Font::Registry::populateFromCmap (int slotIndex) noexcept
+void Typeface::Registry::populateFromCmap (int slotIndex) noexcept
 {
     if (slotIndex >= 0 and slotIndex < entryCount)
     {

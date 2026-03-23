@@ -1,10 +1,10 @@
 /**
  * @file jreng_text_layout.h
- * @brief Drop-in replacement for juce::TextLayout using jreng::Font (HarfBuzz) shaping
+ * @brief Drop-in replacement for juce::TextLayout using jreng::Typeface (HarfBuzz) shaping
  *        and libunibreak (UAX #14) line breaking.
  *
  * TextLayout accepts a juce::AttributedString, shapes each attribute run through
- * jreng::Font::shapeText(), breaks lines via libunibreak's set_linebreaks_utf32(),
+ * jreng::Typeface::shapeText(), breaks lines via libunibreak's set_linebreaks_utf32(),
  * and outputs positioned glyphs for either the GL instanced renderer or (stub)
  * juce::Graphics.
  *
@@ -13,10 +13,10 @@
  * caller's responsibility (multiply by the display scale before passing to GL).
  *
  * ### Thread context
- * **MESSAGE THREAD** — createLayout() calls Font::shapeText() which is MESSAGE THREAD
+ * **MESSAGE THREAD** — createLayout() calls Typeface::shapeText() which is MESSAGE THREAD
  * only.  draw(GLTextRenderer&) is called on the **GL THREAD** after layout is built.
  *
- * @see jreng::Font
+ * @see jreng::Typeface
  * @see jreng::Glyph::Atlas
  * @see jreng::Glyph::GLTextRenderer
  */
@@ -31,7 +31,7 @@ namespace jreng
  * @brief Shapes and lays out an AttributedString using HarfBuzz and libunibreak.
  *
  * Mirrors the public surface of juce::TextLayout so it can be used as a
- * drop-in replacement.  Internally it delegates to jreng::Font::shapeText()
+ * drop-in replacement.  Internally it delegates to jreng::Typeface::shapeText()
  * for glyph shaping and libunibreak's set_linebreaks_utf32() for UAX #14
  * compliant line-break opportunity detection.
  *
@@ -75,7 +75,7 @@ public:
         juce::Colour       colour;                           ///< Text colour for this run.
         juce::Array<Glyph> glyphs;                          ///< Shaped and positioned glyphs.
         juce::Range<int>   stringRange;                      ///< Character range in the original string.
-        Font::Style        style { Font::Style::regular };  ///< Resolved style from bold/italic flags.
+        Typeface::Style    style { Typeface::Style::regular };  ///< Resolved style from bold/italic flags.
 
         /**
          * @brief Returns the [minX, maxX) extent of all glyphs in this run.
@@ -126,18 +126,18 @@ public:
      * @brief Shape and lay out @p text, wrapping at @p maxWidth.
      *
      * Converts the string to UTF-32, queries libunibreak for break opportunities,
-     * then shapes each attribute run via Font::shapeText().  The resulting glyphs
+     * then shapes each attribute run via Typeface::shapeText().  The resulting glyphs
      * are wrapped into Line objects according to the break opportunities and
      * @p maxWidth.
      *
      * @param text      Attributed string to lay out.
-     * @param font      jreng::Font instance used for shaping and metrics.
+     * @param typeface  jreng::Typeface instance used for shaping and metrics.
      * @param maxWidth  Maximum line width in logical pixels before wrapping.
      *
      * @note **MESSAGE THREAD** only.
      */
     void createLayout (const juce::AttributedString& text,
-                       jreng::Font& font,
+                       jreng::Typeface& typeface,
                        float maxWidth) noexcept;
 
     /**
@@ -147,14 +147,14 @@ public:
      * the accumulated height exceeds @p maxHeight.
      *
      * @param text      Attributed string to lay out.
-     * @param font      jreng::Font instance used for shaping and metrics.
+     * @param typeface  jreng::Typeface instance used for shaping and metrics.
      * @param maxWidth  Maximum line width in logical pixels before wrapping.
      * @param maxHeight Maximum total layout height in logical pixels.
      *
      * @note **MESSAGE THREAD** only.
      */
     void createLayout (const juce::AttributedString& text,
-                       jreng::Font& font,
+                       jreng::Typeface& typeface,
                        float maxWidth,
                        float maxHeight) noexcept;
 
@@ -163,38 +163,59 @@ public:
     // =========================================================================
 
     /**
-     * @brief Render all lines via the GL instanced renderer.
+     * @brief Render all lines via a graphics context.
      *
-     * For each glyph in each run in each line, looks up (or rasterizes) the
-     * glyph in @p atlas and emits a Glyph::Render::Quad.  Mono and emoji quads
-     * are separated and submitted to @p renderer via drawQuads().
+     * Iterates lines and runs, constructing a lightweight `jreng::Font` per
+     * run, calling `g.setFont()` then `g.drawGlyphs()` with parallel spans
+     * of glyph codes and positions.
      *
-     * Caller must have called renderer.setViewportSize() before this.
+     * Works with any graphics context that provides:
+     * - `void setFont (jreng::Font&)`
+     * - `void drawGlyphs (const uint16_t*, const juce::Point<float>*, int)`
      *
-     * @param renderer  GL renderer that owns the atlas textures and shaders.
-     * @param atlas     Glyph atlas for rasterization and UV lookup.
-     * @param font      Font used during layout; provides getFontHandle() per style.
-     * @param area      Bounding rectangle in physical pixels (layout origin mapped
-     *                  to area.getTopLeft()).
+     * Type is deduced automatically — GL or CPU backend.
      *
-     * @note **GL THREAD** only.
+     * @tparam GraphicsContext  A type providing setFont + drawGlyphs.
+     * @param g     Graphics context (GLGraphics, juce::Graphics wrapper, etc.).
+     * @param area  Bounding rectangle in pixel coordinates (layout origin
+     *              mapped to area.getTopLeft()).
      */
-    void draw (jreng::Glyph::GLTextRenderer& renderer,
-               jreng::Glyph::Atlas& atlas,
-               jreng::Font& font,
-               juce::Rectangle<float> area) const noexcept;
+    template <typename GraphicsContext>
+    void draw (GraphicsContext& g,
+               juce::Rectangle<float> area) const noexcept
+    {
+        jassert (layoutTypeface != nullptr);
 
-    /**
-     * @brief CPU draw path — stub for Plan 3.
-     *
-     * Currently a no-op.  Plan 3 will implement JUCE Graphics-based fallback
-     * rendering.
-     *
-     * @param g     JUCE Graphics context.
-     * @param area  Target rectangle in component space.
-     */
-    void draw (juce::Graphics& g,
-               juce::Rectangle<float> area) const noexcept;
+        const float areaX { area.getX() };
+        const float areaY { area.getY() };
+
+        for (const auto* line : lines)
+        {
+            const float baselineX { areaX + line->lineOrigin.x };
+            const float baselineY { areaY + line->lineOrigin.y };
+
+            for (const auto* run : line->runs)
+            {
+                const int glyphCount { run->glyphs.size() };
+
+                if (glyphCount > 0)
+                {
+                    juce::HeapBlock<uint16_t>           codes (static_cast<size_t> (glyphCount));
+                    juce::HeapBlock<juce::Point<float>> positions (static_cast<size_t> (glyphCount));
+
+                    for (int i { 0 }; i < glyphCount; ++i)
+                    {
+                        const auto& glyph { run->glyphs.getReference (i) };
+                        codes[i]     = static_cast<uint16_t> (glyph.glyphCode);
+                        positions[i] = { baselineX + glyph.anchor.x,
+                                         baselineY + glyph.anchor.y };
+                    }
+
+                    g.drawGlyphs (codes.get(), positions.get(), glyphCount);
+                }
+            }
+        }
+    }
 
     // =========================================================================
     // Accessors
@@ -231,7 +252,7 @@ public:
      * @return Tight bounding rectangle in logical pixels.
      */
     static juce::Rectangle<float> getStringBounds (const juce::AttributedString& text,
-                                                    jreng::Font& font);
+                                                    jreng::Typeface& typeface);
 
     /**
      * @brief Returns the total advance width of @p text shaped by @p font.
@@ -243,7 +264,7 @@ public:
      * @return Total advance width in logical pixels.
      */
     static float getStringWidth (const juce::AttributedString& text,
-                                 jreng::Font& font);
+                                 jreng::Typeface& typeface);
 
 private:
     // =========================================================================
@@ -253,13 +274,14 @@ private:
     juce::OwnedArray<Line> lines;  ///< Ordered lines produced by createLayout().
     float width  { 0.0f };        ///< Total layout width in logical pixels.
     float height { 0.0f };        ///< Total layout height in logical pixels.
+    jreng::Typeface* layoutTypeface { nullptr }; ///< Typeface captured at createLayout() time; valid for draw().
 
     // =========================================================================
     // Private helpers
     // =========================================================================
 
     /**
-     * @brief Maps juce::Font bold/italic flags to jreng::Font::Style.
+     * @brief Maps juce::Font bold/italic flags to jreng::Typeface::Style.
      *
      * | Bold  | Italic | Result       |
      * |-------|--------|--------------|
@@ -269,9 +291,9 @@ private:
      * | true  | true   | boldItalic   |
      *
      * @param juceFont  JUCE font whose bold/italic flags are inspected.
-     * @return Corresponding Font::Style enum value.
+     * @return Corresponding Typeface::Style enum value.
      */
-    static Font::Style resolveStyle (const juce::Font& juceFont) noexcept;
+    static Typeface::Style resolveStyle (const juce::Font& juceFont) noexcept;
 
     /**
      * @brief Recomputes @p width and @p height from the current line array.
@@ -285,12 +307,12 @@ private:
      * @brief Core layout implementation shared by both createLayout overloads.
      *
      * @param text       Attributed string to lay out.
-     * @param font       jreng::Font for shaping and metrics.
+     * @param typeface   jreng::Typeface for shaping and metrics.
      * @param maxWidth   Maximum line width before wrapping.
      * @param maxHeight  Maximum total height; use a very large value to disable.
      */
     void createLayoutInternal (const juce::AttributedString& text,
-                               jreng::Font& font,
+                               jreng::Typeface& typeface,
                                float maxWidth,
                                float maxHeight) noexcept;
 

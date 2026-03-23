@@ -53,7 +53,7 @@ struct Background
  * instance VBO and drawn with a single `glDrawArraysInstanced` call.
  *
  * @note Renamed from `Glyph` to `Quad` to avoid collision with
- *       `jreng::Font::Glyph` (the shaped glyph output from HarfBuzz).
+ *       `jreng::Typeface::Glyph` (the shaped glyph output from HarfBuzz).
  *       In the render context this type is a positioned quad with texture coords.
  *
  * @par Thread contract

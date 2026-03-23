@@ -1,9 +1,9 @@
 /**
- * @file jreng_font_metrics.cpp
+ * @file jreng_typeface_metrics.cpp
  * @brief FreeType cell geometry calculation for the terminal renderer.
  *
  * Compiled on all platforms **except macOS** (`!JUCE_MAC`).  Implements
- * `jreng::Font::calcMetrics()`, which derives the logical and physical cell
+ * `jreng::Typeface::calcMetrics()`, which derives the logical and physical cell
  * dimensions used to lay out the terminal grid.
  *
  * ### Cell geometry overview
@@ -20,7 +20,7 @@
  *
  * ### Coordinate spaces
  *
- * `calcMetrics()` populates three coordinate spaces in `jreng::Font::Metrics`:
+ * `calcMetrics()` populates three coordinate spaces in `jreng::Typeface::Metrics`:
  *
  * - **Logical** (CSS pixels) — used for layout, grid sizing, and UI.
  * - **Physical** (device pixels) — logical × `displayScale`; used for
@@ -67,7 +67,7 @@
  *
  * @note All methods run on the **MESSAGE THREAD**.
  *
- * @see jreng::Font::Metrics
+ * @see jreng::Typeface::Metrics
  * @see jreng_font.h
  * @see jreng_font_shaping.cpp
  */
@@ -128,7 +128,7 @@ static MaxCellMeasure measureMaxCellWidth (FT_Face face) noexcept
             if (loadError == 0)
             {
                 const FT_Pos horiAdvance26_6 { face->glyph->metrics.horiAdvance };
-                const int cellW { static_cast<int> (ceilf (static_cast<float> (horiAdvance26_6) / static_cast<float> (jreng::Font::ftFixedScale))) };
+                const int cellW { static_cast<int> (ceilf (static_cast<float> (horiAdvance26_6) / static_cast<float> (jreng::Typeface::ftFixedScale))) };
 
                 if (cellW > result.maxCellW)
                 {
@@ -187,13 +187,13 @@ static MaxCellMeasure measureMaxCellWidth (FT_Face face) noexcept
  * @note The face is left at the **render** (physical) size after this call.
  *       Callers that need logical metrics must not rely on the face state.
  *
- * @see jreng::Font::Metrics
+ * @see jreng::Typeface::Metrics
  * @see measureMaxCellWidth
  * @see ceil26_6ToPx
  * @see roundFloatPxTo26_6
  * @see getDisplayScale
  */
-jreng::Font::Metrics jreng::Font::calcMetrics (float heightPx) noexcept
+jreng::Typeface::Metrics jreng::Typeface::calcMetrics (float heightPx) noexcept
 {
     Metrics metrics;
     FT_Face face { getFace (Style::regular) };

@@ -29,7 +29,7 @@
 // Included via unity build (jreng_glyph.cpp) — jreng_glyph.h already in scope
 #include FT_OUTLINE_H
 
-static constexpr float ftFixed { static_cast<float> (jreng::Font::ftFixedScale) };
+static constexpr float ftFixed { static_cast<float> (jreng::Typeface::ftFixedScale) };
 
 namespace jreng::Glyph
 {
@@ -130,14 +130,13 @@ void Atlas::stageForUpload (uint8_t* pixelData, int width, int height,
     }
 
     StagedBitmap staged;
-    staged.kind = isEmoji ? StagedBitmap::AtlasKind::emoji : StagedBitmap::AtlasKind::mono;
+    staged.type = isEmoji ? Type::emoji : Type::mono;
     staged.region = region;
 
     const size_t bpp { isEmoji ? size_t { 4 } : size_t { 1 } };
     staged.pixelDataSize = static_cast<size_t> (width) * static_cast<size_t> (height) * bpp;
     staged.pixelData.allocate (staged.pixelDataSize, false);
     std::memcpy (staged.pixelData.get(), pixelData, staged.pixelDataSize);
-    staged.format = isEmoji ? juce::gl::GL_BGRA : juce::gl::GL_RED;
 
     jassert (uploadCount < uploadCapacity);
     uploadQueue[uploadCount] = std::move (staged);
@@ -441,7 +440,7 @@ Region Atlas::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
                 {
                     if (embolden)
                     {
-                        FT_Outline_Embolden (&face->glyph->outline, jreng::Font::ftFixedScale);
+                        FT_Outline_Embolden (&face->glyph->outline, jreng::Typeface::ftFixedScale);
                     }
 
                     FT_Render_Glyph (face->glyph, FT_RENDER_MODE_LIGHT);

@@ -1,5 +1,5 @@
 /**
- * @file jreng_font_shaping.cpp
+ * @file jreng_typeface_shaping.cpp
  * @brief FreeType + HarfBuzz text shaping pipeline for the terminal renderer.
  *
  * Compiled on all platforms **except macOS** (`!JUCE_MAC`).  Implements the
@@ -58,7 +58,7 @@
  *
  * @see jreng_font.h
  * @see jreng_font_metrics.cpp
- * @see jreng::Font::Registry
+ * @see jreng::Typeface::Registry
  */
 
 // Included via unity build (jreng_font.cpp) — jreng_glyph.h already in scope
@@ -95,7 +95,7 @@ namespace jreng
 static constexpr int minShapingCapacity { 16 };
 } // namespace jreng
 
-jreng::Font::ShapeResult jreng::Font::shapeASCII (uint32_t codepoint) noexcept
+jreng::Typeface::ShapeResult jreng::Typeface::shapeASCII (uint32_t codepoint) noexcept
 {
     ShapeResult result;
     FT_Face face { getFace (Style::regular) };
@@ -157,7 +157,7 @@ jreng::Font::ShapeResult jreng::Font::shapeASCII (uint32_t codepoint) noexcept
  * @note The returned pointer is invalidated by the next call to any `shape*`
  *       method.
  */
-jreng::Font::ShapeResult jreng::Font::shapeHarfBuzz (Style style,
+jreng::Typeface::ShapeResult jreng::Typeface::shapeHarfBuzz (Style style,
                                                       const uint32_t* codepoints, size_t count) noexcept
 {
     ShapeResult result;
@@ -234,7 +234,7 @@ jreng::Font::ShapeResult jreng::Font::shapeHarfBuzz (Style style,
  *       this path is only reached for characters the primary font cannot render,
  *       so pixel-perfect metrics are not expected.
  */
-jreng::Font::ShapeResult jreng::Font::shapeFallback (const uint32_t* codepoints, size_t count) noexcept
+jreng::Typeface::ShapeResult jreng::Typeface::shapeFallback (const uint32_t* codepoints, size_t count) noexcept
 {
     ShapeResult result;
     FT_Face face { getFace (Style::regular) };
@@ -305,7 +305,7 @@ jreng::Font::ShapeResult jreng::Font::shapeFallback (const uint32_t* codepoints,
  * @see shapeFallback
  * @see shapeEmoji
  */
-jreng::Font::ShapeResult jreng::Font::shapeText (Style style,
+jreng::Typeface::ShapeResult jreng::Typeface::shapeText (Style style,
                                                   const uint32_t* codepoints,
                                                   size_t count) noexcept
 {
@@ -361,7 +361,7 @@ jreng::Font::ShapeResult jreng::Font::shapeText (Style style,
  *
  * @see shapeText
  */
-jreng::Font::ShapeResult jreng::Font::shapeEmoji (const uint32_t* codepoints, size_t count) noexcept
+jreng::Typeface::ShapeResult jreng::Typeface::shapeEmoji (const uint32_t* codepoints, size_t count) noexcept
 {
     ShapeResult result;
 
@@ -419,7 +419,7 @@ jreng::Font::ShapeResult jreng::Font::shapeEmoji (const uint32_t* codepoints, si
  * @see roundFloatPxTo26_6
  * @see ftFixedScale
  */
-int jreng::Font::ceil26_6ToPx (int v26_6) noexcept
+int jreng::Typeface::ceil26_6ToPx (int v26_6) noexcept
 {
     return (v26_6 + ftFixedScale - 1) >> 6;
 }
@@ -442,7 +442,7 @@ int jreng::Font::ceil26_6ToPx (int v26_6) noexcept
  * @see ceil26_6ToPx
  * @see ftFixedScale
  */
-int jreng::Font::roundFloatPxTo26_6 (float px) noexcept
+int jreng::Typeface::roundFloatPxTo26_6 (float px) noexcept
 {
     return static_cast<int> (px * static_cast<float> (ftFixedScale) + 0.5f);
 }
@@ -465,10 +465,10 @@ int jreng::Font::roundFloatPxTo26_6 (float px) noexcept
  *
  * @return Display scale factor (e.g. `2.0f` on HiDPI, `1.0f` on standard).
  *
- * @see jreng::Font::Metrics
+ * @see jreng::Typeface::Metrics
  * @see calcMetrics
  */
-float jreng::Font::getDisplayScale() noexcept
+float jreng::Typeface::getDisplayScale() noexcept
 {
     const auto* display { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
     float scale { 1.0f };

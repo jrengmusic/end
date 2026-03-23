@@ -1,9 +1,9 @@
 /**
- * @file jreng_font.mm
- * @brief macOS CoreText + HarfBuzz implementation of the Font font manager.
+ * @file jreng_typeface.mm
+ * @brief macOS CoreText + HarfBuzz implementation of the Typeface font manager.
  *
  * This file is compiled **only on macOS** (`JUCE_MAC`).  It implements the
- * `jreng::Font` struct declared in `jreng_font.h` using:
+ * `jreng::Typeface` struct declared in `jreng_font.h` using:
  *
  * - **CoreText** (`CTFontRef`) for font loading, metrics, and rasterization.
  * - **HarfBuzz** (`hb_coretext_font_create`) for Unicode shaping.
@@ -34,7 +34,7 @@
  * @note All methods run on the **MESSAGE THREAD**.
  *
  * @see jreng_font.h
- * @see jreng::Font::Registry
+ * @see jreng::Typeface::Registry
  * @see jreng::Glyph::Atlas
  */
 
@@ -123,7 +123,7 @@ static CGGlyph glyphForCodepoint (CTFontRef font, uint32_t codepoint) noexcept
  * @param userFamilyName  Preferred font family (e.g. "JetBrains Mono").
  * @param pointSize       Initial font size in CSS points.
  */
-jreng::Font::Font (Registry& fontRegistry,
+jreng::Typeface::Typeface (Registry& fontRegistry,
                    const juce::String& userFamilyName,
                    float pointSize)
     : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize)
@@ -142,7 +142,7 @@ jreng::Font::Font (Registry& fontRegistry,
  * 5. `emojiShapingFont` → `shapingFont`.
  * 6. `emojiFont` → `mainFont`.
  */
-jreng::Font::~Font()
+jreng::Typeface::~Typeface()
 {
     for (auto& pair : fallbackFontCache)
     {
@@ -216,7 +216,7 @@ jreng::Font::~Font()
  * @note Guarded by a `static bool registered` flag — safe to call multiple
  *       times; registration happens exactly once per process.
  */
-void jreng::Font::registerEmbeddedFonts()
+void jreng::Typeface::registerEmbeddedFonts()
 {
     static bool registered { false };
 
@@ -264,7 +264,7 @@ void jreng::Font::registerEmbeddedFonts()
  * Calls `registerEmbeddedFonts()` to make Display Mono available by name,
  * creates the HarfBuzz scratch buffer, then calls `loadFaces()`.
  */
-void jreng::Font::initialize()
+void jreng::Typeface::initialize()
 {
     registerEmbeddedFonts();
     scratchBuffer = hb_buffer_create();
@@ -280,7 +280,7 @@ void jreng::Font::initialize()
  *
  * @return Always returns an empty string on macOS.
  */
-juce::String jreng::Font::resolveFontPath()
+juce::String jreng::Typeface::resolveFontPath()
 {
     return {};
 }
@@ -307,7 +307,7 @@ juce::String jreng::Font::resolveFontPath()
  * @note Called once from `initialize()`.  Subsequent size changes go through
  *       `setSize()` which updates handles in-place.
  */
-void jreng::Font::loadFaces()
+void jreng::Typeface::loadFaces()
 {
     const juce::String familyName { userFamily.isNotEmpty() ? userFamily : juce::String ("Menlo") };
     const float displayScale { getDisplayScale() };
@@ -409,7 +409,7 @@ void jreng::Font::loadFaces()
  * @param  (unused) Style variant.
  * @return Always `nullptr` on macOS.
  */
-FT_Face jreng::Font::getFace (Style) noexcept
+FT_Face jreng::Typeface::getFace (Style) noexcept
 {
     return nullptr;
 }
@@ -419,7 +419,7 @@ FT_Face jreng::Font::getFace (Style) noexcept
  *
  * @return Always `nullptr` on macOS.
  */
-FT_Face jreng::Font::getEmojiFace() noexcept
+FT_Face jreng::Typeface::getEmojiFace() noexcept
 {
     return nullptr;
 }
@@ -434,7 +434,7 @@ FT_Face jreng::Font::getEmojiFace() noexcept
  * @param  (unused) Style variant.
  * @return `mainFont` cast to `void*`, or `nullptr` if not loaded.
  */
-void* jreng::Font::getFontHandle (Style) noexcept
+void* jreng::Typeface::getFontHandle (Style) noexcept
 {
     return mainFont;
 }
@@ -445,7 +445,7 @@ void* jreng::Font::getFontHandle (Style) noexcept
  * @return `emojiFont` cast to `void*`, or `nullptr` if the emoji font was not
  *         found during `loadFaces()`.
  */
-void* jreng::Font::getEmojiFontHandle() noexcept
+void* jreng::Typeface::getEmojiFontHandle() noexcept
 {
     return emojiFont;
 }
@@ -459,7 +459,7 @@ void* jreng::Font::getEmojiFontHandle() noexcept
  * @param  (unused) Style variant.
  * @return `shapingFont`, or `nullptr` if font loading failed.
  */
-hb_font_t* jreng::Font::getHbFont (Style) noexcept
+hb_font_t* jreng::Typeface::getHbFont (Style) noexcept
 {
     return shapingFont;
 }
@@ -474,7 +474,7 @@ hb_font_t* jreng::Font::getHbFont (Style) noexcept
  * @return Pixels per em at the current size and display scale, or `0.0f` if
  *         `mainFont` is null.
  */
-float jreng::Font::getPixelsPerEm (Style) noexcept
+float jreng::Typeface::getPixelsPerEm (Style) noexcept
 {
     float result { 0.0f };
 
@@ -512,7 +512,7 @@ float jreng::Font::getPixelsPerEm (Style) noexcept
  *
  * @note The physical size passed to CoreText is `pointSize * getDisplayScale()`.
  */
-void jreng::Font::setSize (float pointSize) noexcept
+void jreng::Typeface::setSize (float pointSize) noexcept
 {
     fontSize = pointSize;
     const float displayScale { getDisplayScale() };
@@ -640,7 +640,7 @@ void jreng::Font::setSize (float pointSize) noexcept
  * @param familyName  Font family name to look up.
  * @return Absolute POSIX path to the font file, or empty if not found.
  */
-juce::String jreng::Font::discoverFont (const juce::String& familyName)
+juce::String jreng::Typeface::discoverFont (const juce::String& familyName)
 {
     return discoverFontMac (familyName);
 }
@@ -656,7 +656,7 @@ juce::String jreng::Font::discoverFont (const juce::String& familyName)
  * @return Absolute POSIX path (e.g. `/System/Library/Fonts/Menlo.ttc`), or
  *         empty if the family is not installed.
  */
-juce::String jreng::Font::discoverFontMac (const juce::String& familyName)
+juce::String jreng::Typeface::discoverFontMac (const juce::String& familyName)
 {
     juce::String result;
 
@@ -701,7 +701,7 @@ juce::String jreng::Font::discoverFontMac (const juce::String& familyName)
  *
  * @return `"Apple Color Emoji"`.
  */
-juce::String jreng::Font::discoverEmojiFont()
+juce::String jreng::Typeface::discoverEmojiFont()
 {
     return "Apple Color Emoji";
 }
@@ -729,7 +729,7 @@ juce::String jreng::Font::discoverEmojiFont()
  * @param heightPx  Desired cell height in logical (CSS) pixels.
  * @return Populated `Metrics`; `isValid()` returns false if `mainFont` is null.
  */
-jreng::Font::Metrics jreng::Font::calcMetrics (float heightPx) noexcept
+jreng::Typeface::Metrics jreng::Typeface::calcMetrics (float heightPx) noexcept
 {
     Metrics metrics;
 
@@ -815,7 +815,7 @@ jreng::Font::Metrics jreng::Font::calcMetrics (float heightPx) noexcept
  *
  * @note The physical size is `heightPx * getDisplayScale()`.
  */
-juce::Image jreng::Font::rasterizeToImage (uint32_t codepoint, float heightPx, bool& isColor) noexcept
+juce::Image jreng::Typeface::rasterizeToImage (uint32_t codepoint, float heightPx, bool& isColor) noexcept
 {
     juce::Image result;
     isColor = false;
@@ -1068,7 +1068,7 @@ juce::Image jreng::Font::rasterizeToImage (uint32_t codepoint, float heightPx, b
  * @return ShapeResult with `count == 1` on success, `count == 0` if the glyph
  *         is not in `mainFont`.
  */
-jreng::Font::ShapeResult jreng::Font::shapeASCII (uint32_t codepoint) noexcept
+jreng::Typeface::ShapeResult jreng::Typeface::shapeASCII (uint32_t codepoint) noexcept
 {
     ShapeResult result;
 
@@ -1119,7 +1119,7 @@ jreng::Font::ShapeResult jreng::Font::shapeASCII (uint32_t codepoint) noexcept
  * @param count       Number of codepoints.
  * @return ShapeResult; `count == 0` if all glyphs are `.notdef`.
  */
-jreng::Font::ShapeResult jreng::Font::shapeHarfBuzz (Style style,
+jreng::Typeface::ShapeResult jreng::Typeface::shapeHarfBuzz (Style style,
                                                       const uint32_t* codepoints, size_t count) noexcept
 {
     ShapeResult result;
@@ -1187,7 +1187,7 @@ jreng::Font::ShapeResult jreng::Font::shapeHarfBuzz (Style style,
  * @note `fallbackFontCache` is cleared by `setSize()` because cached fonts are
  *       sized at the old point size.
  */
-jreng::Font::ShapeResult jreng::Font::shapeFallback (const uint32_t* codepoints, size_t count) noexcept
+jreng::Typeface::ShapeResult jreng::Typeface::shapeFallback (const uint32_t* codepoints, size_t count) noexcept
 {
     ShapeResult result;
 
@@ -1342,7 +1342,7 @@ jreng::Font::ShapeResult jreng::Font::shapeFallback (const uint32_t* codepoints,
  * @note The returned pointer into `shapingBuffer` is invalidated by the next
  *       call to any `shape*` method.
  */
-jreng::Font::ShapeResult jreng::Font::shapeText (Style style,
+jreng::Typeface::ShapeResult jreng::Typeface::shapeText (Style style,
                                                   const uint32_t* codepoints,
                                                   size_t count) noexcept
 {
@@ -1385,7 +1385,7 @@ jreng::Font::ShapeResult jreng::Font::shapeText (Style style,
  * @note The returned pointer into `shapingBuffer` is invalidated by the next
  *       call to any `shape*` method.
  */
-jreng::Font::ShapeResult jreng::Font::shapeEmoji (const uint32_t* codepoints, size_t count) noexcept
+jreng::Typeface::ShapeResult jreng::Typeface::shapeEmoji (const uint32_t* codepoints, size_t count) noexcept
 {
     ShapeResult result;
 
@@ -1437,7 +1437,7 @@ jreng::Font::ShapeResult jreng::Font::shapeEmoji (const uint32_t* codepoints, si
  * @param v26_6  Value in FreeType 26.6 fixed-point format.
  * @return Ceiling pixel count: `(v26_6 + 63) >> 6`.
  */
-int jreng::Font::ceil26_6ToPx (int v26_6) noexcept
+int jreng::Typeface::ceil26_6ToPx (int v26_6) noexcept
 {
     return (v26_6 + ftFixedScale - 1) >> 6;
 }
@@ -1450,7 +1450,7 @@ int jreng::Font::ceil26_6ToPx (int v26_6) noexcept
  * @param px  Pixel value.
  * @return Nearest 26.6 fixed-point integer: `(int)(px * 64 + 0.5)`.
  */
-int jreng::Font::roundFloatPxTo26_6 (float px) noexcept
+int jreng::Typeface::roundFloatPxTo26_6 (float px) noexcept
 {
     return static_cast<int> (px * static_cast<float> (ftFixedScale) + 0.5f);
 }
@@ -1463,7 +1463,7 @@ int jreng::Font::roundFloatPxTo26_6 (float px) noexcept
  *
  * @return Display scale factor (e.g. `2.0f` on Retina, `1.0f` on standard).
  */
-float jreng::Font::getDisplayScale() noexcept
+float jreng::Typeface::getDisplayScale() noexcept
 {
     const auto* display { juce::Desktop::getInstance().getDisplays().getPrimaryDisplay() };
     float scale { 1.0f };
@@ -1476,6 +1476,6 @@ float jreng::Font::getDisplayScale() noexcept
     return scale;
 }
 
-#include "jreng_font_registry.mm"
+#include "jreng_typeface_registry.mm"
 
 #endif

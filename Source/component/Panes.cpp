@@ -18,7 +18,7 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Panes::Panes (jreng::Font& font_)
+Panes::Panes (jreng::Typeface& font_)
     : font (font_)
 {
     setOpaque (false);

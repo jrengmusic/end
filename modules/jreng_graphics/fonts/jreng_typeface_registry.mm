@@ -1,6 +1,6 @@
 /**
- * @file jreng_font_registry.mm
- * @brief Font::Registry::populateFromCmap — CoreText backend (macOS only).
+ * @file jreng_typeface_registry.mm
+ * @brief Typeface::Registry::populateFromCmap — CoreText backend (macOS only).
  *
  * This Objective-C++ translation unit provides the macOS implementation of
  * `populateFromCmap()`.  It is compiled only when `JUCE_MAC` is defined; the
@@ -51,7 +51,7 @@ namespace jreng
  *
  * @see jreng_font_registry.cpp  — FreeType equivalent for non-macOS platforms.
  */
-void Font::Registry::populateFromCmap (int slotIndex) noexcept
+void Typeface::Registry::populateFromCmap (int slotIndex) noexcept
 {
     if (slotIndex >= 0 and slotIndex < entryCount)
     {

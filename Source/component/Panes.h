@@ -41,7 +41,7 @@ public:
      * @param font  Font instance providing metrics, shaping, and rasterisation.
      * @note MESSAGE THREAD.
      */
-    explicit Panes (jreng::Font& font);
+    explicit Panes (jreng::Typeface& font);
 
     /**
      * @brief Destructor.
@@ -182,7 +182,7 @@ private:
      */
     void splitImpl (const juce::String& direction, bool isVertical);
 
-    jreng::Font& font;
+    jreng::Typeface& font;
     jreng::Owner<Terminal::Component> terminals;
     jreng::PaneManager paneManager;
     jreng::Owner<jreng::PaneResizerBar> resizerBars;

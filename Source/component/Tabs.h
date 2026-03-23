@@ -49,7 +49,7 @@ public:
      * @param orientation The tab bar orientation (top, bottom, left, or right).
      * @note MESSAGE THREAD.
      */
-    Tabs (jreng::Font& font, juce::TabbedButtonBar::Orientation orientation);
+    Tabs (jreng::Typeface& font, juce::TabbedButtonBar::Orientation orientation);
 
     /**
      * @brief Destructor.
@@ -290,7 +290,7 @@ private:
     /** @brief Sets the active terminal UUID and grabs focus for the last terminal in @p active. */
     void focusLastTerminal (Panes* active);
 
-    jreng::Font& font;
+    jreng::Typeface& font;
     juce::Value tabName;
     jreng::Owner<Panes> panes;
 

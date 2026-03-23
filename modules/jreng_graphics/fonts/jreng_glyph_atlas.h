@@ -108,6 +108,14 @@ class Atlas
 {
 public:
     /**
+     * @brief Identifies which atlas texture a glyph targets.
+     *
+     * - `mono`  — R8 grayscale atlas (monochrome glyphs, box drawing).
+     * - `emoji` — RGBA8 color atlas (color emoji).
+     */
+    using Type = jreng::Glyph::Type;
+
+    /**
      * @brief Construct the atlas, initializing both packers and LRU caches.
      *
      * Both atlases are set to `atlasSize × atlasSize` (4096×4096).  The mono

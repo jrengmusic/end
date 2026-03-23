@@ -85,7 +85,7 @@ public:
      * @brief Constructs the component, wires Session callbacks, starts VBlank.
      * @param font  Font instance providing metrics, shaping, and rasterisation.
      */
-    explicit Component (jreng::Font& font);
+    explicit Component (jreng::Typeface& font);
 
     /**
      * @brief Constructs a terminal component starting in the given directory.
@@ -94,7 +94,7 @@ public:
      * @param workingDirectory  Absolute path for the shell's initial cwd.
      * @note MESSAGE THREAD.
      */
-    Component (jreng::Font& font, const juce::String& workingDirectory);
+    Component (jreng::Typeface& font, const juce::String& workingDirectory);
 
     /**
      * @brief Constructs a terminal component running a specific command.
@@ -108,7 +108,7 @@ public:
      * @param workingDirectory  Initial cwd. Empty = inherit.
      * @note MESSAGE THREAD.
      */
-    Component (jreng::Font& font,
+    Component (jreng::Typeface& font,
                const juce::String& program,
                const juce::String& args,
                const juce::String& workingDirectory);
@@ -124,7 +124,7 @@ public:
      * @return Raw pointer to the created terminal.
      * @note MESSAGE THREAD.
      */
-    static Component* create (jreng::Font& font,
+    static Component* create (jreng::Typeface& font,
                               juce::Component& parent,
                               juce::Rectangle<int> bounds,
                               jreng::Owner<Component>& owner,
@@ -572,7 +572,7 @@ private:
 
     //==============================================================================
     /** @brief Font reference; lifetime owned by MainComponent. */
-    jreng::Font& font;
+    jreng::Typeface& font;
 
     /** @brief GPU-accelerated terminal renderer; attached to this component. */
     Screen screen;

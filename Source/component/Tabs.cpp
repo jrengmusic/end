@@ -24,7 +24,7 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Tabs::Tabs (jreng::Font& font_, juce::TabbedButtonBar::Orientation orientation)
+Tabs::Tabs (jreng::Typeface& font_, juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)
     , font (font_)
 {

@@ -49,8 +49,8 @@
  *
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
-MainComponent::MainComponent (jreng::Font::Registry& fontRegistry)
-    : font (fontRegistry,
+MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
+    : typeface (fontRegistry,
             config.getString (Config::Key::fontFamily),
             config.getFloat (Config::Key::fontSize))
 {
@@ -419,7 +419,7 @@ void MainComponent::registerActions()
                                                           + (entry.args.isNotEmpty() ? " " + entry.args : "") };
 
                                    auto terminal { std::make_unique<Terminal::Component> (
-                                       font,
+                                       typeface,
                                        shell,
                                        shellArgs,
                                        entry.cwd) };
@@ -471,7 +471,7 @@ void MainComponent::showMessageOverlay()
     {
         messageOverlay->setBounds (getLocalBounds());
 
-        const auto fm { font.calcMetrics (Terminal::Component::dpiCorrectedFontSize()) };
+        const auto fm { typeface.calcMetrics (Terminal::Component::dpiCorrectedFontSize()) };
 
         if (fm.isValid())
         {
@@ -526,7 +526,7 @@ void MainComponent::showMessageOverlay()
 void MainComponent::initialiseTabs()
 {
     tabs = std::make_unique<Terminal::Tabs> (
-        font,
+        typeface,
         Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
     addAndMakeVisible (tabs.get());
 

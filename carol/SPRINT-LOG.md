@@ -8,6 +8,85 @@
 
 ---
 
+## Sprint 116 — COUNSELOR: Decouple GL from Glyph Pipeline + Font/Typeface Split
+
+**Date:** 2026-03-23
+
+### Agents Participated
+- COUNSELOR: architecture decisions, plan authoring, all design discussions
+- @pathfinder: codebase mapping (Atlas usage, Font touchpoints, GLTextRenderer interface, jreng_opengl structure)
+- @engineer: file moves (jreng_glyph → jreng_graphics/fonts/), Font→Typeface rename, Atlas::Type refactor, cleanup
+- @librarian: JUCE GlyphArrangement/TextLayout/LowLevelGraphicsContext rendering flow research
+- @researcher: JUCE font rendering pipeline pattern analysis (drawGlyphs, LowLevelGraphicsContext)
+
+### Files Modified (60+ total)
+
+**New module location: `modules/jreng_graphics/fonts/` (22 files)**
+- `jreng_font.h` — NEW lightweight `jreng::Font` value type (size, style, typeface ref)
+- `jreng_typeface.h/.cpp/.mm` — renamed from `jreng_font.*` (`jreng::Font` → `jreng::Typeface`)
+- `jreng_typeface_shaping.cpp` — renamed from `jreng_font_shaping.cpp`
+- `jreng_typeface_metrics.cpp` — renamed from `jreng_font_metrics.cpp`
+- `jreng_typeface_registry.cpp/.mm` — renamed from `jreng_font_registry.*`
+- `jreng_atlas_packer.h` — moved from `atlas/`
+- `jreng_glyph_key.h` — moved from `atlas/`
+- `jreng_atlas_glyph.h` — moved from `atlas/`
+- `jreng_staged_bitmap.h` — moved from `atlas/`, `AtlasKind` → `Glyph::Type`, `format` field removed
+- `jreng_lru_glyph_cache.h` — moved from `atlas/`
+- `jreng_glyph_constraint.h` — moved from `constraint/`
+- `jreng_constraint_transform.h` — moved from `constraint/`
+- `jreng_glyph_constraint_table.cpp` — moved from `constraint/`
+- `jreng_box_drawing.h` — moved from `drawing/`
+- `jreng_glyph_atlas.h/.cpp/.mm` — moved from `atlas_impl/`
+- `jreng_text_layout.h/.cpp` — moved from `layout/`, `draw()` templatized
+- `linebreak/*` — vendored libunibreak moved from `jreng_glyph/linebreak/`
+
+**Modified: `modules/jreng_graphics/`**
+- `jreng_graphics.h` — added dependencies (jreng_freetype, juce_graphics, CoreText), added all fonts/ includes
+- `jreng_graphics.cpp` — added unity build includes for fonts/ .cpp and linebreak/ .c files
+- `jreng_graphics.mm` — added macOS-specific .mm includes for typeface and atlas
+
+**Modified: `modules/jreng_glyph/` (stripped to GL-only)**
+- `jreng_glyph.h` — stripped to GL-only render includes, depends on jreng_graphics
+- `jreng_glyph.cpp` — stripped to GL text renderer only
+- `jreng_glyph.mm` — stripped (no macOS-specific files remain)
+
+**Deleted from `modules/jreng_glyph/`:**
+- `atlas/`, `atlas_impl/`, `constraint/`, `drawing/`, `font/`, `layout/`, `linebreak/` — all moved to jreng_graphics/fonts/
+
+**Renamed across 24 Source/ files:**
+- `jreng::Font` → `jreng::Typeface` in: Screen.h/.cpp, ScreenRender.cpp, ScreenSnapshot.cpp, ScreenGL.cpp, MainComponent.h/.cpp, Main.cpp, TerminalComponent.h/.cpp, Panes.h/.cpp, Tabs.h/.cpp
+- Member variables `font` → `typeface` where referring to the heavy resource manager
+
+**Modified in `modules/jreng_glyph/render/`:**
+- `jreng_gl_text_renderer.h/.cpp` — `Font&` → `Typeface&`, `Font::atlasDimension()` → `Typeface::atlasDimension()`
+
+### Alignment Check
+- [x] LIFESTAR principles followed (Font god object split, tell-don't-ask, explicit encapsulation)
+- [x] NAMING-CONVENTION.md adhered (Typeface = resource manager, Font = lightweight value type)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied (DIP, module separation)
+
+### Problems Solved
+- `jreng::Font` was a god object — split into `jreng::Typeface` (heavy) + `jreng::Font` (lightweight)
+- `jreng_glyph` module mixed rendering-agnostic code with GL-specific code — non-GL code moved to `jreng_graphics/fonts/`
+- `TextLayout::draw()` had GL dependency — templatized, works with any graphics context via duck typing
+- `Glyph::Renderer` abstract interface replaced by template deduction — no virtual overhead, no dependency
+- `StagedBitmap::format` (GL constant) replaced by `Glyph::Type` enum — rendering-agnostic
+- Atlas absorbed into Typeface — rendering layer never touches Atlas directly
+- Researched JUCE's `LowLevelGraphicsContext::drawGlyphs` pattern — parallel spans (SOA), setFont per-run
+
+### Technical Debt / Follow-up
+- `jreng_glyph` module still exists with GL-only render files — pending move to `jreng_opengl` (Step 2.5.4)
+- `jreng::Font::getGlyph()` not yet implemented — needs atlas integration via Typeface
+- `GLGraphics::setFont()` + `GLGraphics::drawGlyphs()` not yet added — Step 2.5.4
+- Screen still uses `GLTextRenderer` directly with pre-built `Render::Quad` arrays — pending rewire
+- `Render::Quad`, `Render::Background`, `SnapshotBase` still in `jreng_glyph` — move to `jreng_opengl`
+- `Glyph::Renderer` interface file (`jreng_glyph_renderer.h`) still exists — dead code, delete
+- `juce::Font` deprecation warning in `TextLayout::Run` default constructor — pre-existing
+- Rendering optimization (Plan 2.6) must complete before Plan 3 (CPU rendering)
+- PLAN.md needs update to reflect module restructure and Font/Typeface split
+
+---
+
 ## Sprint 115 — COUNSELOR: jreng_glyph Module Extraction + TextLayout
 
 **Date:** 2026-03-22

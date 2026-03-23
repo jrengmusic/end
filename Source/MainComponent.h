@@ -44,7 +44,7 @@
 #include "config/Config.h"
 #include "terminal/action/Action.h"
 #include "terminal/action/ActionList.h"
-// jreng::Font is available via JuceHeader → jreng_glyph
+// jreng::Typeface is available via JuceHeader → jreng_glyph
 #include "terminal/selection/SelectionOverlay.h"
 
 /**
@@ -79,7 +79,7 @@ public:
      *                    through to the `Fonts` instance so font slots can be
      *                    populated and resolved without a singleton.
      */
-    explicit MainComponent (jreng::Font::Registry& fontRegistry);
+    explicit MainComponent (jreng::Typeface::Registry& fontRegistry);
 
     /** @brief Clears the BackgroundBlur close callback before destruction. */
     ~MainComponent() override;
@@ -123,8 +123,8 @@ private:
     /** @brief Shared OpenGL renderer; attached to this component, renders all GL children. */
     jreng::GLRenderer glRenderer;
 
-    /** @brief Global font instance; provides font metrics and shaping for all terminals. */
-    jreng::Font font;
+    /** @brief Global typeface instance; provides font metrics and shaping for all terminals. */
+    jreng::Typeface typeface;
 
     /** @brief Tabbed terminal container; owns all Terminal::Component instances. */
     std::unique_ptr<Terminal::Tabs> tabs;

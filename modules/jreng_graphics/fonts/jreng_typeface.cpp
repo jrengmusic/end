@@ -1,9 +1,9 @@
 /**
- * @file jreng_font.cpp
- * @brief Linux / Windows FreeType + HarfBuzz implementation of the Font font manager.
+ * @file jreng_typeface.cpp
+ * @brief Linux / Windows FreeType + HarfBuzz implementation of the Typeface font manager.
  *
  * This file is compiled on all platforms **except macOS** (`!JUCE_MAC`).  It
- * implements the `jreng::Font` struct declared in `jreng_font.h` using:
+ * implements the `jreng::Typeface` struct declared in `jreng_font.h` using:
  *
  * - **FreeType** (`FT_Face`) for font loading, metrics, and rasterization.
  * - **HarfBuzz** (`hb_ft_font_create_referenced`) for Unicode shaping.
@@ -46,7 +46,7 @@
  * @note All methods run on the **MESSAGE THREAD**.
  *
  * @see jreng_font.h
- * @see jreng::Font::Registry
+ * @see jreng::Typeface::Registry
  * @see jreng::Glyph::Atlas
  */
 
@@ -86,7 +86,7 @@
  * @param userFamilyName  Preferred font family (e.g. "JetBrains Mono").
  * @param pointSize       Initial font size in CSS points.
  */
-jreng::Font::Font (Registry& fontRegistry,
+jreng::Typeface::Typeface (Registry& fontRegistry,
                    const juce::String& userFamilyName,
                    float pointSize)
     : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize)
@@ -107,7 +107,7 @@ jreng::Font::Font (Registry& fontRegistry,
  * @note `FT_Done_FreeType` invalidates all `FT_Face` handles created from
  *       this library, so faces must be destroyed before the library.
  */
-jreng::Font::~Font()
+jreng::Typeface::~Typeface()
 {
     if (scratchBuffer != nullptr)
     {
@@ -164,7 +164,7 @@ jreng::Font::~Font()
  * (Display Mono variants) are loaded directly in `loadFaces()` via
  * `FT_New_Memory_Face` when the file-system path is unavailable.
  */
-void jreng::Font::registerEmbeddedFonts()
+void jreng::Typeface::registerEmbeddedFonts()
 {
     // FreeType has no system-wide registration.
     // Embedded fonts are loaded via FT_New_Memory_Face in loadFaces().
@@ -178,7 +178,7 @@ void jreng::Font::registerEmbeddedFonts()
  * `FT_Init_FreeType` fails, the instance remains invalid (`isValid()` returns
  * false) and no further initialization is attempted.
  */
-void jreng::Font::initialize()
+void jreng::Typeface::initialize()
 {
     if (FT_Init_FreeType (&library) == 0)
     {
@@ -200,7 +200,7 @@ void jreng::Font::initialize()
  *
  * @return Absolute path to a font file, or an empty string if no font was found.
  */
-juce::String jreng::Font::resolveFontPath()
+juce::String jreng::Typeface::resolveFontPath()
 {
     return discoverFont (userFamily);
 }
@@ -281,7 +281,7 @@ static const char* embeddedFontForFamily (const juce::String& family, int& size)
  * @note Only the `Style::regular` slot is populated.  Bold/italic variants are
  *       not currently loaded on the FreeType backend.
  */
-void jreng::Font::loadFaces()
+void jreng::Typeface::loadFaces()
 {
     const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * getDisplayScale()) };
     const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (fontSize * ftFixedScale) };
@@ -371,7 +371,7 @@ void jreng::Font::loadFaces()
  * @return FreeType face handle; falls back to `faces[regular].face`.
  *         Returns `nullptr` only if the regular face itself failed to load.
  */
-FT_Face jreng::Font::getFace (Style style) noexcept
+FT_Face jreng::Typeface::getFace (Style style) noexcept
 {
     const auto idx { static_cast<int> (style) };
     FT_Face result { faces.at (static_cast<int> (Style::regular)).face };
@@ -393,7 +393,7 @@ FT_Face jreng::Font::getFace (Style style) noexcept
  * @return HarfBuzz font pointer; falls back to `faces[regular].hbFont`.
  *         Returns `nullptr` only if the regular face failed to load.
  */
-hb_font_t* jreng::Font::getHbFont (Style style) noexcept
+hb_font_t* jreng::Typeface::getHbFont (Style style) noexcept
 {
     const auto idx { static_cast<int> (style) };
     hb_font_t* result { faces.at (static_cast<int> (Style::regular)).hbFont };
@@ -412,7 +412,7 @@ hb_font_t* jreng::Font::getHbFont (Style style) noexcept
  * @return `emojiFace`, or `nullptr` if the emoji font was not found during
  *         `loadFaces()`.
  */
-FT_Face jreng::Font::getEmojiFace() noexcept
+FT_Face jreng::Typeface::getEmojiFace() noexcept
 {
     return emojiFace;
 }
@@ -426,7 +426,7 @@ FT_Face jreng::Font::getEmojiFace() noexcept
  * @param style  Desired style variant.
  * @return `FT_Face` cast to `void*`.
  */
-void* jreng::Font::getFontHandle (Style style) noexcept
+void* jreng::Typeface::getFontHandle (Style style) noexcept
 {
     return static_cast<void*> (getFace (style));
 }
@@ -436,7 +436,7 @@ void* jreng::Font::getFontHandle (Style style) noexcept
  *
  * @return `emojiFace` cast to `void*`, or `nullptr` if not loaded.
  */
-void* jreng::Font::getEmojiFontHandle() noexcept
+void* jreng::Typeface::getEmojiFontHandle() noexcept
 {
     return static_cast<void*> (emojiFace);
 }
@@ -451,7 +451,7 @@ void* jreng::Font::getEmojiFontHandle() noexcept
  * @return Pixels per em at the current size and display scale, or `0.0f` if
  *         the face is null.
  */
-float jreng::Font::getPixelsPerEm (Style style) noexcept
+float jreng::Typeface::getPixelsPerEm (Style style) noexcept
 {
     const FT_Face face { getFace (style) };
     float result { 0.0f };
@@ -491,7 +491,7 @@ float jreng::Font::getPixelsPerEm (Style style) noexcept
  *
  * @note The render DPI is `baseDpi * getDisplayScale()`.
  */
-void jreng::Font::setSize (float pointSize) noexcept
+void jreng::Typeface::setSize (float pointSize) noexcept
 {
     fontSize = pointSize;
     const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * getDisplayScale()) };
@@ -549,7 +549,7 @@ void jreng::Font::setSize (float pointSize) noexcept
  * @param familyName  Font family name to look up.
  * @return Absolute path to the font file, or empty if not found.
  */
-juce::String jreng::Font::discoverFont (const juce::String& familyName)
+juce::String jreng::Typeface::discoverFont (const juce::String& familyName)
 {
     #if JUCE_MAC
         return discoverFontMac (familyName);
@@ -578,7 +578,7 @@ juce::String jreng::Font::discoverFont (const juce::String& familyName)
  * @param familyName  Font family name to look up.
  * @return Absolute POSIX path to the font file, or empty if not found.
  */
-juce::String jreng::Font::discoverFontMac (const juce::String& familyName)
+juce::String jreng::Typeface::discoverFontMac (const juce::String& familyName)
 {
     juce::String result;
 
@@ -629,7 +629,7 @@ juce::String jreng::Font::discoverFontMac (const juce::String& familyName)
  * @return Absolute path to the font file (e.g. `/usr/share/fonts/...`), or
  *         empty if fontconfig cannot find a match.
  */
-juce::String jreng::Font::discoverFontLinux (const juce::String& familyName)
+juce::String jreng::Typeface::discoverFontLinux (const juce::String& familyName)
 {
     juce::String path;
 
@@ -678,7 +678,7 @@ juce::String jreng::Font::discoverFontLinux (const juce::String& familyName)
  * @param familyName  Font family name to look up (e.g. "Cascadia Code").
  * @return Absolute path to the font file, or empty if not found.
  */
-juce::String jreng::Font::discoverFontWindows (const juce::String& familyName)
+juce::String jreng::Typeface::discoverFontWindows (const juce::String& familyName)
 {
     juce::String path;
     const juce::String target { familyName.toLowerCase() };
@@ -745,7 +745,7 @@ juce::String jreng::Font::discoverFontWindows (const juce::String& familyName)
  *
  * @return Absolute path to the emoji font file, or empty if not found.
  */
-juce::String jreng::Font::discoverEmojiFont()
+juce::String jreng::Typeface::discoverEmojiFont()
 {
     #if JUCE_MAC
         return discoverFont ("Apple Color Emoji");
@@ -783,7 +783,7 @@ juce::String jreng::Font::discoverEmojiFont()
  * @param isColor    Set to `true` if the emoji face was used; `false` otherwise.
  * @return ARGB `juce::Image` in physical pixels, or an invalid image on failure.
  */
-juce::Image jreng::Font::rasterizeToImage (uint32_t codepoint, float fontSize, bool& isColor) noexcept
+juce::Image jreng::Typeface::rasterizeToImage (uint32_t codepoint, float fontSize, bool& isColor) noexcept
 {
     juce::Image result;
     isColor = false;
@@ -924,6 +924,6 @@ juce::Image jreng::Font::rasterizeToImage (uint32_t codepoint, float fontSize, b
 
 #endif
 
-#include "jreng_font_registry.cpp"
-#include "jreng_font_metrics.cpp"
-#include "jreng_font_shaping.cpp"
+#include "jreng_typeface_registry.cpp"
+#include "jreng_typeface_metrics.cpp"
+#include "jreng_typeface_shaping.cpp"

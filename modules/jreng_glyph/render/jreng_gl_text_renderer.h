@@ -106,16 +106,16 @@ public:
     /**
      * @brief Drain the atlas upload queue and issue `glTexSubImage2D` calls.
      *
-     * Calls `atlas.consumeStagedBitmaps()` to acquire any bitmaps rasterised
+     * Calls `font.consumeStagedBitmaps()` to acquire any bitmaps rasterised
      * on the message thread since the last frame, then uploads each one to
      * the appropriate atlas texture (mono or emoji) via `glTexSubImage2D`.
      *
-     * @param atlas  The glyph atlas whose staged bitmaps should be uploaded.
+     * @param typeface  The typeface whose staged bitmaps should be uploaded.
      *
      * @note **GL THREAD**.
-     * @see jreng::Glyph::Atlas::consumeStagedBitmaps()
+     * @see jreng::Typeface::consumeStagedBitmaps()
      */
-    void uploadStagedBitmaps (Atlas& atlas) noexcept;
+    void uploadStagedBitmaps (jreng::Typeface& typeface) noexcept;
 
     /**
      * @brief Store the current viewport dimensions for use in shader uniforms.
