@@ -794,7 +794,7 @@ private:
      *
      * @note **MESSAGE THREAD**.
      */
-    int tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface::Style style, void* fontHandle,
+    int tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface::Style style,
                      const juce::Colour& foreground) noexcept;
 
     /**

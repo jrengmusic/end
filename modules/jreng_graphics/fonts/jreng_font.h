@@ -83,6 +83,21 @@ struct Font
     /** @brief Set whether this font targets the emoji atlas. */
     void setEmoji (bool isEmoji) noexcept { emoji = isEmoji; }
 
+    /**
+     * @brief Apply face context from a glyph run.
+     *
+     * When shaping produces a glyph run from a non-primary face (e.g. Nerd
+     * Font, fallback font), the run carries internal face context that Font
+     * needs for correct atlas lookup.  Call this after shaping to transfer
+     * that context into the Font.
+     *
+     * @param run  Glyph run from Typeface::shapeText() or shapeEmoji().
+     */
+    void applyGlyphRun (const Typeface::GlyphRun& run) noexcept
+    {
+        faceHandle = run.fontHandle;
+    }
+
     // =========================================================================
     // Accessors — for graphics context configuration
     // =========================================================================
@@ -102,11 +117,55 @@ struct Font
     /** @brief The backing typeface resource (const). */
     const Typeface& getTypeface () const noexcept { return typeface; }
 
+    // =========================================================================
+    // Glyph access
+    // =========================================================================
+
+    /**
+     * @brief Look up or rasterize a glyph using a default (inactive) constraint and span 1.
+     * @param glyphCode  Font-internal glyph index from HarfBuzz shaping.
+     * @return Pointer to the atlas Region, or nullptr if rasterization failed.
+     * @note **MESSAGE THREAD**.
+     */
+    jreng::Glyph::Region* getGlyph (uint16_t glyphCode) noexcept;
+
+    /**
+     * @brief Look up or rasterize a glyph with an explicit constraint and span.
+     * @param glyphCode   Font-internal glyph index.
+     * @param constraint  Nerd Font scaling / alignment constraint.
+     * @param span        Number of cells the glyph spans horizontally.
+     * @return Pointer to the atlas Region, or nullptr if rasterization failed.
+     * @note **MESSAGE THREAD**.
+     */
+    jreng::Glyph::Region* getGlyph (uint16_t glyphCode,
+                                     const jreng::Glyph::Constraint& constraint,
+                                     uint8_t span) noexcept;
+
+    // =========================================================================
+    // Atlas delegation
+    // =========================================================================
+
+    /**
+     * @brief Drain staged bitmaps from the atlas for GL upload.
+     * Delegates to Typeface::consumeStagedBitmaps().
+     * @note **GL THREAD**.
+     */
+    void consumeStagedBitmaps (juce::HeapBlock<jreng::Glyph::StagedBitmap>& out,
+                                int& outCount) noexcept;
+
+    /**
+     * @brief Returns true if any bitmaps are queued for GL upload.
+     * Delegates to Typeface::hasStagedBitmaps().
+     * @note **GL THREAD**.
+     */
+    bool hasStagedBitmaps() const noexcept;
+
 private:
     Typeface& typeface;
     float size { 0.0f };
     Typeface::Style style { Typeface::Style::regular };
     bool emoji { false };
+    void* faceHandle { nullptr }; ///< Override font handle from GlyphRun; nullptr = derive from style/emoji.
 };
 
 } // namespace jreng

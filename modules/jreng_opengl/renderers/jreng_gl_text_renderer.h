@@ -163,6 +163,28 @@ public:
     // =========================================================================
 
     /**
+     * @brief Set the current font for subsequent drawGlyphs calls.
+     * @param font  Lightweight font carrying typeface, size, style, emoji flag.
+     * @note **GL THREAD**.
+     */
+    void setFont (jreng::Font& font) noexcept;
+
+    /**
+     * @brief Draw positioned glyphs using the current font.
+     *
+     * For each glyph: calls font.getGlyph() for atlas lookup, builds a
+     * Render::Quad, batches, and submits via instanced draw.
+     *
+     * @param glyphCodes  Array of font-internal glyph indices.
+     * @param positions   Array of baseline anchor points in pixel space.
+     * @param count       Number of elements in both arrays.
+     * @note **GL THREAD**.
+     */
+    void drawGlyphs (const uint16_t* glyphCodes,
+                      const juce::Point<float>* positions,
+                      int count) noexcept;
+
+    /**
      * @brief Returns `true` if GL resources are initialised and ready for drawing.
      *
      * Checks that `monoShader` is non-null.  Returns `false` before
@@ -264,6 +286,9 @@ private:
 
     /** @brief Viewport height in physical pixels; set via `setViewportSize()`. */
     int viewportHeight { 0 };
+
+    /** @brief Current font set via setFont(); used by drawGlyphs(). nullptr until setFont() is called. */
+    jreng::Font* currentFont { nullptr };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GLTextRenderer)
 };

@@ -5,3 +5,4 @@
 #include "context/jreng_gl_shader_compiler.cpp"
 #include "context/jreng_gl_vertex_layout.cpp"
 #include "context/jreng_gl_renderer.cpp"
+#include "renderers/jreng_gl_text_renderer.cpp"

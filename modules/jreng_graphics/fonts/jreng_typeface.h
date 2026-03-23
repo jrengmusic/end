@@ -572,7 +572,7 @@ struct Typeface
     // =========================================================================
 
     /**
-     * @struct ShapeResult
+     * @struct GlyphRun
      * @brief Output of a HarfBuzz shaping call.
      *
      * Points into `shapingBuffer` — valid only until the next call to any
@@ -582,7 +582,7 @@ struct Typeface
      *       `CTFontRef` was used, so the renderer can pass the correct handle to
      *       `Atlas::getOrRasterize`.  It is `nullptr` for normal shaping.
      */
-    struct ShapeResult
+    struct GlyphRun
     {
         const Glyph* glyphs     { nullptr }; ///< Pointer into the internal shaping buffer.
         int          count      { 0 };       ///< Number of valid Glyph entries.
@@ -600,15 +600,15 @@ struct Typeface
      * @param style       Font style to use for shaping.
      * @param codepoints  Pointer to an array of UTF-32 codepoints.
      * @param count       Number of codepoints in the array.
-     * @return ShapeResult pointing into the internal shaping buffer.
+     * @return GlyphRun pointing into the internal shaping buffer.
      *         `count == 0` means no glyphs could be shaped.
      *
      * @note The returned pointer is invalidated by the next call to any
      *       `shape*` method.
      */
-    ShapeResult shapeText (Style style,
-                           const uint32_t* codepoints,
-                           size_t count) noexcept;
+    GlyphRun shapeText (Style style,
+                        const uint32_t* codepoints,
+                        size_t count) noexcept;
 
     /**
      * @brief Shapes a sequence of Unicode codepoints using the emoji font.
@@ -618,15 +618,15 @@ struct Typeface
      *
      * @param codepoints  Pointer to an array of UTF-32 codepoints.
      * @param count       Number of codepoints in the array.
-     * @return ShapeResult pointing into the internal shaping buffer.
+     * @return GlyphRun pointing into the internal shaping buffer.
      *         `count == 0` if `emojiShapingFont` is null or shaping produced
      *         no glyphs.
      *
      * @note The returned pointer is invalidated by the next call to any
      *       `shape*` method.
      */
-    ShapeResult shapeEmoji (const uint32_t* codepoints,
-                            size_t count) noexcept;
+    GlyphRun shapeEmoji (const uint32_t* codepoints,
+                         size_t count) noexcept;
 
     // =========================================================================
     // Validity
@@ -936,10 +936,10 @@ private:
      * then queries the advance width.  Writes one `Glyph` into `shapingBuffer`.
      *
      * @param codepoint  ASCII codepoint (must be < 128).
-     * @return ShapeResult with `count == 1` on success, `count == 0` if the
+     * @return GlyphRun with `count == 1` on success, `count == 0` if the
      *         glyph is not in the font.
      */
-    ShapeResult shapeASCII (uint32_t codepoint) noexcept;
+    GlyphRun shapeASCII (uint32_t codepoint) noexcept;
 
     /**
      * @brief Shapes codepoints using HarfBuzz.
@@ -952,9 +952,9 @@ private:
      * @param style       Font style — selects the HarfBuzz font via `getHbFont`.
      * @param codepoints  UTF-32 codepoint array.
      * @param count       Number of codepoints.
-     * @return ShapeResult; `count == 0` if all glyphs are `.notdef`.
+     * @return GlyphRun; `count == 0` if all glyphs are `.notdef`.
      */
-    ShapeResult shapeHarfBuzz (Style style, const uint32_t* codepoints, size_t count) noexcept;
+    GlyphRun shapeHarfBuzz (Style style, const uint32_t* codepoints, size_t count) noexcept;
 
     /**
      * @brief macOS-only fallback shaper using CoreText font substitution.
@@ -964,14 +964,14 @@ private:
      * cached in `fallbackFontCache` (keyed by codepoint) to avoid repeated
      * CoreText lookups.  Fonts identified as "LastResort" are rejected.
      *
-     * The `ShapeResult::fontHandle` is set to the fallback `CTFontRef` so the
+     * The `GlyphRun::fontHandle` is set to the fallback `CTFontRef` so the
      * renderer can pass the correct handle to `Atlas::getOrRasterize`.
      *
      * @param codepoints  UTF-32 codepoint array.
      * @param count       Number of codepoints.
-     * @return ShapeResult; `count == 0` if no codepoint could be shaped.
+     * @return GlyphRun; `count == 0` if no codepoint could be shaped.
      */
-    ShapeResult shapeFallback (const uint32_t* codepoints, size_t count) noexcept;
+    GlyphRun shapeFallback (const uint32_t* codepoints, size_t count) noexcept;
 
     // =========================================================================
     // Platform-specific font discovery

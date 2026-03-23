@@ -11,6 +11,7 @@
 #include "fonts/linebreak/linebreak.c"
 
 #include "fonts/jreng_typeface.cpp"
+#include "fonts/jreng_font.cpp"
 #include "fonts/jreng_glyph_constraint_table.cpp"
 #include "fonts/jreng_glyph_atlas.cpp"
 #include "fonts/jreng_text_layout.cpp"

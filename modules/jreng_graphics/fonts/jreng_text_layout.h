@@ -200,6 +200,9 @@ public:
 
                 if (glyphCount > 0)
                 {
+                    jreng::Font font (*layoutTypeface, run->font.getHeight(), run->style);
+                    g.setFont (font);
+
                     juce::HeapBlock<uint16_t>           codes (static_cast<size_t> (glyphCount));
                     juce::HeapBlock<juce::Point<float>> positions (static_cast<size_t> (glyphCount));
 

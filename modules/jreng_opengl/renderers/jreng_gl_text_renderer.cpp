@@ -206,6 +206,59 @@ void GLTextRenderer::drawBackgrounds (const Render::Background* data, int count)
 }
 
 // =============================================================================
+// Font and glyph draw
+// =============================================================================
+
+void GLTextRenderer::setFont (jreng::Font& font) noexcept
+{
+    currentFont = &font;
+}
+
+void GLTextRenderer::drawGlyphs (const uint16_t* glyphCodes,
+                                  const juce::Point<float>* positions,
+                                  int count) noexcept
+{
+    jassert (currentFont != nullptr);
+
+    if (count > 0 and currentFont != nullptr)
+    {
+        juce::Array<Render::Quad> quads;
+
+        for (int i { 0 }; i < count; ++i)
+        {
+            jreng::Glyph::Region* region { currentFont->getGlyph (glyphCodes[i]) };
+
+            if (region != nullptr)
+            {
+                const float colR { 1.0f };
+                const float colG { 1.0f };
+                const float colB { 1.0f };
+                const float colA { 1.0f };
+
+                Render::Quad quad;
+                quad.screenPosition     = { positions[i].x + static_cast<float> (region->bearingX),
+                                            positions[i].y - static_cast<float> (region->bearingY) };
+                quad.glyphSize          = { static_cast<float> (region->widthPixels),
+                                            static_cast<float> (region->heightPixels) };
+                quad.textureCoordinates = region->textureCoordinates;
+                quad.foregroundColorR   = colR;
+                quad.foregroundColorG   = colG;
+                quad.foregroundColorB   = colB;
+                quad.foregroundColorA   = colA;
+
+                quads.add (quad);
+            }
+        }
+
+        if (quads.size() > 0)
+        {
+            const bool isEmoji { currentFont->isEmoji() };
+            drawQuads (quads.data(), quads.size(), isEmoji);
+        }
+    }
+}
+
+// =============================================================================
 // State queries
 // =============================================================================
 

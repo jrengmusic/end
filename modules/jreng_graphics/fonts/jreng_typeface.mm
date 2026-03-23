@@ -1065,12 +1065,12 @@ juce::Image jreng::Typeface::rasterizeToImage (uint32_t codepoint, float heightP
  * `shapingBuffer` (allocating 16 slots if the buffer is empty).
  *
  * @param codepoint  ASCII codepoint (must be < 128).
- * @return ShapeResult with `count == 1` on success, `count == 0` if the glyph
+ * @return GlyphRun with `count == 1` on success, `count == 0` if the glyph
  *         is not in `mainFont`.
  */
-jreng::Typeface::ShapeResult jreng::Typeface::shapeASCII (uint32_t codepoint) noexcept
+jreng::Typeface::GlyphRun jreng::Typeface::shapeASCII (uint32_t codepoint) noexcept
 {
-    ShapeResult result;
+    GlyphRun result;
 
     if (mainFont != nullptr)
     {
@@ -1117,12 +1117,12 @@ jreng::Typeface::ShapeResult jreng::Typeface::shapeASCII (uint32_t codepoint) no
  * @param style       Font style — selects the HarfBuzz font via `getHbFont`.
  * @param codepoints  UTF-32 codepoint array.
  * @param count       Number of codepoints.
- * @return ShapeResult; `count == 0` if all glyphs are `.notdef`.
+ * @return GlyphRun; `count == 0` if all glyphs are `.notdef`.
  */
-jreng::Typeface::ShapeResult jreng::Typeface::shapeHarfBuzz (Style style,
+jreng::Typeface::GlyphRun jreng::Typeface::shapeHarfBuzz (Style style,
                                                       const uint32_t* codepoints, size_t count) noexcept
 {
-    ShapeResult result;
+    GlyphRun result;
     hb_font_t* font { getHbFont (style) };
 
     if (font != nullptr and scratchBuffer != nullptr)
@@ -1177,19 +1177,19 @@ jreng::Typeface::ShapeResult jreng::Typeface::shapeHarfBuzz (Style style,
  * Fonts identified as "LastResort" (CoreText's last-resort placeholder) are
  * rejected and stored as `nullptr` in the cache to prevent future lookups.
  *
- * The `ShapeResult::fontHandle` is set to the fallback `CTFontRef` so the
+ * The `GlyphRun::fontHandle` is set to the fallback `CTFontRef` so the
  * renderer can pass the correct handle to `Atlas::getOrRasterize`.
  *
  * @param codepoints  UTF-32 codepoint array.
  * @param count       Number of codepoints.
- * @return ShapeResult; `count == 0` if no codepoint could be shaped.
+ * @return GlyphRun; `count == 0` if no codepoint could be shaped.
  *
  * @note `fallbackFontCache` is cleared by `setSize()` because cached fonts are
  *       sized at the old point size.
  */
-jreng::Typeface::ShapeResult jreng::Typeface::shapeFallback (const uint32_t* codepoints, size_t count) noexcept
+jreng::Typeface::GlyphRun jreng::Typeface::shapeFallback (const uint32_t* codepoints, size_t count) noexcept
 {
-    ShapeResult result;
+    GlyphRun result;
 
     if (mainFont != nullptr)
     {
@@ -1337,16 +1337,16 @@ jreng::Typeface::ShapeResult jreng::Typeface::shapeFallback (const uint32_t* cod
  * @param style       Font style for HarfBuzz shaping.
  * @param codepoints  UTF-32 codepoint array; must not be null.
  * @param count       Number of codepoints; must be > 0.
- * @return ShapeResult; `count == 0` if no glyphs could be shaped.
+ * @return GlyphRun; `count == 0` if no glyphs could be shaped.
  *
  * @note The returned pointer into `shapingBuffer` is invalidated by the next
  *       call to any `shape*` method.
  */
-jreng::Typeface::ShapeResult jreng::Typeface::shapeText (Style style,
+jreng::Typeface::GlyphRun jreng::Typeface::shapeText (Style style,
                                                   const uint32_t* codepoints,
                                                   size_t count) noexcept
 {
-    ShapeResult result;
+    GlyphRun result;
 
     if (codepoints != nullptr and count > 0 and mainFont != nullptr)
     {
@@ -1379,15 +1379,15 @@ jreng::Typeface::ShapeResult jreng::Typeface::shapeText (Style style,
  *
  * @param codepoints  UTF-32 codepoint array; must not be null.
  * @param count       Number of codepoints; must be > 0.
- * @return ShapeResult; `count == 0` if `emojiShapingFont` is null or shaping
+ * @return GlyphRun; `count == 0` if `emojiShapingFont` is null or shaping
  *         produced no glyphs.
  *
  * @note The returned pointer into `shapingBuffer` is invalidated by the next
  *       call to any `shape*` method.
  */
-jreng::Typeface::ShapeResult jreng::Typeface::shapeEmoji (const uint32_t* codepoints, size_t count) noexcept
+jreng::Typeface::GlyphRun jreng::Typeface::shapeEmoji (const uint32_t* codepoints, size_t count) noexcept
 {
-    ShapeResult result;
+    GlyphRun result;
 
     if (codepoints != nullptr and count > 0 and emojiShapingFont != nullptr)
     {

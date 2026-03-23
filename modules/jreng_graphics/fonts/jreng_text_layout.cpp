@@ -203,7 +203,7 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
 
                 if (rangeLen > 0)
                 {
-                    Typeface::ShapeResult shaped { typeface.shapeText (style,
+                    Typeface::GlyphRun shaped { typeface.shapeText (style,
                                                                codepoints.data() + rangeStart,
                                                                static_cast<size_t> (rangeLen)) };
 

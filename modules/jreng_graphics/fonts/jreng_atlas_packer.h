@@ -163,7 +163,7 @@ struct AtlasPacker
             jassert (fittingShelf >= 0 and fittingShelf < shelfCount);
             auto& shelf { shelves[fittingShelf] };
             result = juce::Rectangle<int> { shelf.currentX, shelf.y, width, height };
-            shelf.currentX += width;
+            shelf.currentX += width + 1;
         }
         else
         {
@@ -173,7 +173,7 @@ struct AtlasPacker
             {
                 jassert (shelfCount - 1 >= 0 and shelfCount - 1 < shelfCount);
                 const auto& lastShelf { shelves[shelfCount - 1] };
-                shelfY = lastShelf.y + lastShelf.height;
+                shelfY = lastShelf.y + lastShelf.height + 1;
             }
 
             if (shelfY + height <= atlasHeight)
@@ -186,7 +186,7 @@ struct AtlasPacker
                 jassert (shelfCount >= 0 and shelfCount < shelfCapacity);
                 shelves[shelfCount].y        = shelfY;
                 shelves[shelfCount].height   = height;
-                shelves[shelfCount].currentX = width;
+                shelves[shelfCount].currentX = width + 1;
                 ++shelfCount;
 
                 result = juce::Rectangle<int> { 0, shelfY, width, height };
