@@ -200,7 +200,7 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
                                  and emojiShaped.glyphs[0].glyphIndex != 0 };
 
             uint32_t glyphIndex { 0 };
-            jreng::Font fontObj (font, font.getPixelsPerEm (jreng::Typeface::Style::regular),
+            jreng::Font fontObj (font, baseFontSize,
                                  jreng::Typeface::Style::regular);
 
             if (isEmoji)

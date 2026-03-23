@@ -1100,6 +1100,12 @@ private:
     /** @brief Current font size in CSS points. Updated by `setSize()`. */
     float fontSize { 0.0f };
 
+    /** @brief Height passed to the last successful `calcMetrics()` call.  Negative means uncached. */
+    float cachedMetricsSize { -1.0f };
+
+    /** @brief Result of the last `calcMetrics()` call, valid when `cachedMetricsSize >= 0`. */
+    Metrics cachedMetrics;
+
     jreng::Glyph::Atlas atlas;   ///< Internal glyph rasterization cache.
 };
 

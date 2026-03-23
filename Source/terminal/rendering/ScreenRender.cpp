@@ -685,7 +685,7 @@ void Screen::buildCellInstance (const Cell& cell,
                     int& count { monoCount[row] };
                     Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
 
-                    jreng::Font fontObj (font, pixelsPerEm, style);
+                    jreng::Font fontObj (font, baseFontSize, style);
                     jreng::Typeface::GlyphRun registryRun;
                     registryRun.fontHandle = fontHandle;
                     fontObj.applyGlyphRun (registryRun);
@@ -717,7 +717,7 @@ void Screen::buildCellInstance (const Cell& cell,
                             int& count { monoCount[row] };
                             Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
 
-                            jreng::Font fontObj (font, pixelsPerEm, style);
+                            jreng::Font fontObj (font, baseFontSize, style);
 
                             if (shaped.fontHandle != nullptr)
                             {
@@ -748,7 +748,7 @@ void Screen::buildCellInstance (const Cell& cell,
                             ? cachedEmoji.get() + row * maxGlyphs
                             : cachedMono.get() + row * maxGlyphs };
 
-                        jreng::Font fontObj (font, pixelsPerEm, style);
+                        jreng::Font fontObj (font, baseFontSize, style);
                         fontObj.setEmoji (isEmoji);
 
                         if (not isEmoji and shaped.fontHandle != nullptr)
@@ -841,7 +841,7 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface
                         int& count { monoCount[row] };
                         Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
 
-                        jreng::Font fontObj (font, pixelsPerEm, style);
+                        jreng::Font fontObj (font, baseFontSize, style);
 
                         if (shaped.fontHandle != nullptr)
                         {

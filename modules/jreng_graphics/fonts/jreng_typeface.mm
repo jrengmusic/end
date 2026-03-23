@@ -733,51 +733,61 @@ jreng::Typeface::Metrics jreng::Typeface::calcMetrics (float heightPx) noexcept
 {
     Metrics metrics;
 
-    if (mainFont != nullptr)
+    if (heightPx == cachedMetricsSize)
     {
-        auto scaledFont { CTFontCreateCopyWithAttributes (jreng::toCTFont (mainFont),
-                                                          static_cast<CGFloat> (heightPx),
-                                                          nullptr,
-                                                          nullptr) };
-
-        if (scaledFont != nullptr)
+        metrics = cachedMetrics;
+    }
+    else
+    {
+        if (mainFont != nullptr)
         {
-            const float displayScale { getDisplayScale() };
+            auto scaledFont { CTFontCreateCopyWithAttributes (jreng::toCTFont (mainFont),
+                                                              static_cast<CGFloat> (heightPx),
+                                                              nullptr,
+                                                              nullptr) };
 
-            const float ascent  { static_cast<float> (CTFontGetAscent (scaledFont)) };
-            const float descent { static_cast<float> (CTFontGetDescent (scaledFont)) };
-            const float leading { std::max (0.0f, static_cast<float> (CTFontGetLeading (scaledFont))) };
-            const float lineH   { ascent + descent + leading };
-
-            CGGlyph spaceGlyph { jreng::glyphForCodepoint (scaledFont, static_cast<uint32_t> (' ')) };
-            float cellW { 0.0f };
-
-            if (spaceGlyph != 0)
+            if (scaledFont != nullptr)
             {
-                CGSize advance {};
-                CTFontGetAdvancesForGlyphs (scaledFont, kCTFontOrientationHorizontal, &spaceGlyph, &advance, 1);
-                cellW = static_cast<float> (advance.width);
+                const float displayScale { getDisplayScale() };
+
+                const float ascent  { static_cast<float> (CTFontGetAscent (scaledFont)) };
+                const float descent { static_cast<float> (CTFontGetDescent (scaledFont)) };
+                const float leading { std::max (0.0f, static_cast<float> (CTFontGetLeading (scaledFont))) };
+                const float lineH   { ascent + descent + leading };
+
+                CGGlyph spaceGlyph { jreng::glyphForCodepoint (scaledFont, static_cast<uint32_t> (' ')) };
+                float cellW { 0.0f };
+
+                if (spaceGlyph != 0)
+                {
+                    CGSize advance {};
+                    CTFontGetAdvancesForGlyphs (scaledFont, kCTFontOrientationHorizontal, &spaceGlyph, &advance, 1);
+                    cellW = static_cast<float> (advance.width);
+                }
+
+                if (cellW <= 0.0f)
+                {
+                    cellW = static_cast<float> (CTFontGetSize (scaledFont));
+                }
+
+                CFRelease (scaledFont);
+
+                metrics.logicalCellW    = static_cast<int> (ceilf (cellW));
+                metrics.logicalCellH    = static_cast<int> (ceilf (lineH));
+                metrics.logicalBaseline = static_cast<int> (ceilf (ascent));
+
+                metrics.fixedCellWidth  = static_cast<int> (cellW  * static_cast<float> (ftFixedScale));
+                metrics.fixedCellHeight = static_cast<int> (lineH  * static_cast<float> (ftFixedScale));
+                metrics.fixedBaseline   = static_cast<int> (ascent * static_cast<float> (ftFixedScale));
+
+                metrics.physCellW    = static_cast<int> (static_cast<float> (metrics.logicalCellW)    * displayScale);
+                metrics.physCellH    = static_cast<int> (static_cast<float> (metrics.logicalCellH)    * displayScale);
+                metrics.physBaseline = static_cast<int> (static_cast<float> (metrics.logicalBaseline) * displayScale);
             }
-
-            if (cellW <= 0.0f)
-            {
-                cellW = static_cast<float> (CTFontGetSize (scaledFont));
-            }
-
-            CFRelease (scaledFont);
-
-            metrics.logicalCellW    = static_cast<int> (ceilf (cellW));
-            metrics.logicalCellH    = static_cast<int> (ceilf (lineH));
-            metrics.logicalBaseline = static_cast<int> (ceilf (ascent));
-
-            metrics.fixedCellWidth  = static_cast<int> (cellW  * static_cast<float> (ftFixedScale));
-            metrics.fixedCellHeight = static_cast<int> (lineH  * static_cast<float> (ftFixedScale));
-            metrics.fixedBaseline   = static_cast<int> (ascent * static_cast<float> (ftFixedScale));
-
-            metrics.physCellW    = static_cast<int> (static_cast<float> (metrics.logicalCellW)    * displayScale);
-            metrics.physCellH    = static_cast<int> (static_cast<float> (metrics.logicalCellH)    * displayScale);
-            metrics.physBaseline = static_cast<int> (static_cast<float> (metrics.logicalBaseline) * displayScale);
         }
+
+        cachedMetricsSize = heightPx;
+        cachedMetrics = metrics;
     }
 
     return metrics;

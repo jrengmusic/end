@@ -50,9 +50,7 @@
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
 MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
-    : typeface (fontRegistry,
-            config.getString (Config::Key::fontFamily),
-            config.getFloat (Config::Key::fontSize))
+    : typeface (fontRegistry, config.getString (Config::Key::fontFamily), config.getFloat (Config::Key::fontSize))
 {
     setOpaque (false);
 
@@ -378,19 +376,18 @@ void MainComponent::registerActions()
                                return true;
                            });
 
-    action.registerAction (
-        "enter_open_file",
-        "Open File",
-        "Enter open-file mode with hint labels",
-        "Navigation",
-        true,
-        [this]() -> bool
-        {
-            if (auto* terminal { tabs->getActiveTerminal() })
-                terminal->enterOpenFileMode();
+    action.registerAction ("enter_open_file",
+                           "Open File",
+                           "Enter open-file mode with hint labels",
+                           "Navigation",
+                           true,
+                           [this]() -> bool
+                           {
+                               if (auto* terminal { tabs->getActiveTerminal() })
+                                   terminal->enterOpenFileMode();
 
-            return true;
-        });
+                               return true;
+                           });
 
     action.registerAction ("action_list",
                            "Action List",
@@ -419,10 +416,7 @@ void MainComponent::registerActions()
                                                           + (entry.args.isNotEmpty() ? " " + entry.args : "") };
 
                                    auto terminal { std::make_unique<Terminal::Component> (
-                                       typeface,
-                                       shell,
-                                       shellArgs,
-                                       entry.cwd) };
+                                       typeface, shell, shellArgs, entry.cwd) };
                                    popup.show (*getTopLevelComponent(), std::move (terminal));
                                }
 
@@ -431,21 +425,11 @@ void MainComponent::registerActions()
 
         if (entry.modal.isNotEmpty())
             action.registerAction (
-                "popup:" + name,
-                "Popup: " + name,
-                "Open " + name + " popup",
-                "Popups",
-                true,
-                launchPopup);
+                "popup:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", true, launchPopup);
 
         if (entry.global.isNotEmpty())
             action.registerAction (
-                "popup_global:" + name,
-                "Popup: " + name,
-                "Open " + name + " popup",
-                "Popups",
-                false,
-                launchPopup);
+                "popup_global:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", false, launchPopup);
     }
 
     //==============================================================================
@@ -526,8 +510,7 @@ void MainComponent::showMessageOverlay()
 void MainComponent::initialiseTabs()
 {
     tabs = std::make_unique<Terminal::Tabs> (
-        typeface,
-        Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
+        typeface, Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
     addAndMakeVisible (tabs.get());
 
     glRenderer.setComponentIterator (

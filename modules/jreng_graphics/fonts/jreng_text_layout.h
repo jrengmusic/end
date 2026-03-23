@@ -71,7 +71,7 @@ public:
      */
     struct Run
     {
-        juce::Font         font;                             ///< Source JUCE font for this attribute run.
+        juce::Font         font { juce::FontOptions {} };     ///< Source JUCE font for this attribute run.
         juce::Colour       colour;                           ///< Text colour for this run.
         juce::Array<Glyph> glyphs;                          ///< Shaped and positioned glyphs.
         juce::Range<int>   stringRange;                      ///< Character range in the original string.

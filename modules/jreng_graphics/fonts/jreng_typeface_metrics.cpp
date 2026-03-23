@@ -196,54 +196,65 @@ static MaxCellMeasure measureMaxCellWidth (FT_Face face) noexcept
 jreng::Typeface::Metrics jreng::Typeface::calcMetrics (float heightPx) noexcept
 {
     Metrics metrics;
-    FT_Face face { getFace (Style::regular) };
 
-    if (face != nullptr)
+    if (heightPx == cachedMetricsSize)
     {
-        const float displayScale { getDisplayScale() };
-        const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * displayScale) };
-        const int height26_6 { roundFloatPxTo26_6 (heightPx) };
+        metrics = cachedMetrics;
+    }
+    else
+    {
+        FT_Face face { getFace (Style::regular) };
 
-        // Set logical size (baseDpi) to read layout metrics.
-        const FT_Error logicalSizeError { FT_Set_Char_Size (face, 0, height26_6, baseDpi, baseDpi) };
-
-        if (logicalSizeError == 0)
+        if (face != nullptr)
         {
-            const FT_Pos ascender26_6 { face->size->metrics.ascender };
-            const FT_Pos h26_6 { face->size->metrics.height };
+            const float displayScale { getDisplayScale() };
+            const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * displayScale) };
+            const int height26_6 { roundFloatPxTo26_6 (heightPx) };
 
-            const auto [maxCellW, maxW26_6] { jreng::measureMaxCellWidth (face) };
+            // Set logical size (baseDpi) to read layout metrics.
+            const FT_Error logicalSizeError { FT_Set_Char_Size (face, 0, height26_6, baseDpi, baseDpi) };
 
-            if (maxCellW > 0)
+            if (logicalSizeError == 0)
             {
-                // Primary path: use the measured maximum ASCII advance width.
-                metrics.fixedCellWidth = maxW26_6;
-                metrics.fixedCellHeight = h26_6;
-                metrics.fixedBaseline = ascender26_6;
-                metrics.logicalCellW = maxCellW;
-                metrics.logicalCellH = ceil26_6ToPx (h26_6);
-                metrics.logicalBaseline = ceil26_6ToPx (ascender26_6);
-            }
-            else
-            {
-                // Fallback: no ASCII glyph found — use max_advance from face metrics.
-                const FT_Pos fallback26_6 { face->size->metrics.max_advance };
-                metrics.fixedCellWidth = fallback26_6;
-                metrics.fixedCellHeight = h26_6;
-                metrics.fixedBaseline = ascender26_6;
-                metrics.logicalCellW = ceil26_6ToPx (fallback26_6);
-                metrics.logicalCellH = ceil26_6ToPx (h26_6);
-                metrics.logicalBaseline = ceil26_6ToPx (ascender26_6);
-            }
+                const FT_Pos ascender26_6 { face->size->metrics.ascender };
+                const FT_Pos h26_6 { face->size->metrics.height };
 
-            // Scale logical → physical by the display device-pixel ratio.
-            metrics.physCellW = static_cast<int> (static_cast<float> (metrics.logicalCellW) * displayScale);
-            metrics.physCellH = static_cast<int> (static_cast<float> (metrics.logicalCellH) * displayScale);
-            metrics.physBaseline = static_cast<int> (static_cast<float> (metrics.logicalBaseline) * displayScale);
+                const auto [maxCellW, maxW26_6] { jreng::measureMaxCellWidth (face) };
 
-            // Restore the face to render DPI so rasterizeToImage() uses physical resolution.
-            FT_Set_Char_Size (face, 0, height26_6, renderDpi, renderDpi);
+                if (maxCellW > 0)
+                {
+                    // Primary path: use the measured maximum ASCII advance width.
+                    metrics.fixedCellWidth = maxW26_6;
+                    metrics.fixedCellHeight = h26_6;
+                    metrics.fixedBaseline = ascender26_6;
+                    metrics.logicalCellW = maxCellW;
+                    metrics.logicalCellH = ceil26_6ToPx (h26_6);
+                    metrics.logicalBaseline = ceil26_6ToPx (ascender26_6);
+                }
+                else
+                {
+                    // Fallback: no ASCII glyph found — use max_advance from face metrics.
+                    const FT_Pos fallback26_6 { face->size->metrics.max_advance };
+                    metrics.fixedCellWidth = fallback26_6;
+                    metrics.fixedCellHeight = h26_6;
+                    metrics.fixedBaseline = ascender26_6;
+                    metrics.logicalCellW = ceil26_6ToPx (fallback26_6);
+                    metrics.logicalCellH = ceil26_6ToPx (h26_6);
+                    metrics.logicalBaseline = ceil26_6ToPx (ascender26_6);
+                }
+
+                // Scale logical → physical by the display device-pixel ratio.
+                metrics.physCellW = static_cast<int> (static_cast<float> (metrics.logicalCellW) * displayScale);
+                metrics.physCellH = static_cast<int> (static_cast<float> (metrics.logicalCellH) * displayScale);
+                metrics.physBaseline = static_cast<int> (static_cast<float> (metrics.logicalBaseline) * displayScale);
+
+                // Restore the face to render DPI so rasterizeToImage() uses physical resolution.
+                FT_Set_Char_Size (face, 0, height26_6, renderDpi, renderDpi);
+            }
         }
+
+        cachedMetricsSize = heightPx;
+        cachedMetrics = metrics;
     }
 
     return metrics;
