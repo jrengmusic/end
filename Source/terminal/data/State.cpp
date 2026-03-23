@@ -174,17 +174,23 @@ State::State()
 
     buildParameterMap();
 
+    // Stray-atomic identifiers are not in the ValueTree, so they are not
+    // registered by buildParameterMap(). Insert them directly after the map
+    // is built so that getRawParam() and getRawValue() can find them.
+    parameterMap[ID::pasteEchoRemaining]  = std::make_unique<std::atomic<float>> (0.0f);
+    parameterMap[ID::syncOutputActive]    = std::make_unique<std::atomic<float>> (0.0f);
+    parameterMap[ID::syncResizePending]   = std::make_unique<std::atomic<float>> (0.0f);
+    parameterMap[ID::outputBlockTop]      = std::make_unique<std::atomic<float>> (-1.0f);
+    parameterMap[ID::outputBlockBottom]   = std::make_unique<std::atomic<float>> (-1.0f);
+    parameterMap[ID::outputScanActive]    = std::make_unique<std::atomic<float>> (0.0f);
+    parameterMap[ID::promptRow]           = std::make_unique<std::atomic<float>> (-1.0f);
+
     keyboardModeStack.allocate (2 * maxKeyboardStackDepth, true);
     keyboardModeStackSize.allocate (2, true);
 
-    stringSlots.emplace_back();
-    stringMap[ID::title] = &stringSlots.back();
-
-    stringSlots.emplace_back();
-    stringMap[ID::cwd] = &stringSlots.back();
-
-    stringSlots.emplace_back();
-    stringMap[ID::foregroundProcess] = &stringSlots.back();
+    stringMap[ID::title]             = std::make_unique<StringSlot>();
+    stringMap[ID::cwd]               = std::make_unique<StringSlot>();
+    stringMap[ID::foregroundProcess] = std::make_unique<StringSlot>();
 
     cursorBlinkEnabled = Config::getContext()->getBool (Config::Key::cursorBlink);
     cursorBlinkInterval = Config::getContext()->getInt (Config::Key::cursorBlinkInterval);
@@ -225,7 +231,7 @@ State::~State()
  */
 void State::storeAndFlush (const juce::Identifier& key, float v) noexcept
 {
-    parameterMap.at (key)->store (v, std::memory_order_relaxed);
+    parameterMap.at (key).get()->store (v, std::memory_order_relaxed);
     needsFlush.store (true, std::memory_order_release);
 }
 
@@ -345,49 +351,49 @@ void State::resetKeyboardMode (ActiveScreen s) noexcept
 /** @note READER THREAD — sets outputBlockTop / outputBlockBottom and activates scan. */
 void State::setOutputBlockStart (int row) noexcept
 {
-    outputBlockTop.store (row, std::memory_order_relaxed);
-    outputBlockBottom.store (row, std::memory_order_relaxed);
-    outputScanActive.store (true, std::memory_order_relaxed);
+    getRawParam (ID::outputBlockTop)->store (static_cast<float> (row), std::memory_order_relaxed);
+    getRawParam (ID::outputBlockBottom)->store (static_cast<float> (row), std::memory_order_relaxed);
+    getRawParam (ID::outputScanActive)->store (1.0f, std::memory_order_relaxed);
 }
 
 /** @note READER THREAD — records final row and deactivates scan. */
 void State::setOutputBlockEnd (int row) noexcept
 {
-    outputBlockBottom.store (row, std::memory_order_relaxed);
-    outputScanActive.store (false, std::memory_order_relaxed);
+    getRawParam (ID::outputBlockBottom)->store (static_cast<float> (row), std::memory_order_relaxed);
+    getRawParam (ID::outputScanActive)->store (0.0f, std::memory_order_relaxed);
 }
 
 /** @note READER THREAD — extends the output block bottom while scan is active. */
 void State::extendOutputBlock (int row) noexcept
 {
-    if (outputScanActive.load (std::memory_order_relaxed))
+    if (getRawParam (ID::outputScanActive)->load (std::memory_order_relaxed) != 0.0f)
     {
-        outputBlockBottom.store (row, std::memory_order_relaxed);
+        getRawParam (ID::outputBlockBottom)->store (static_cast<float> (row), std::memory_order_relaxed);
     }
 }
 
 /** @note MESSAGE THREAD — relaxed load (snapshot-dirty handshake provides ordering). */
 int State::getOutputBlockTop() const noexcept
 {
-    return outputBlockTop.load (std::memory_order_relaxed);
+    return jreng::toInt (getRawParam (ID::outputBlockTop)->load (std::memory_order_relaxed));
 }
 
 /** @note MESSAGE THREAD — relaxed load (snapshot-dirty handshake provides ordering). */
 int State::getOutputBlockBottom() const noexcept
 {
-    return outputBlockBottom.load (std::memory_order_relaxed);
+    return jreng::toInt (getRawParam (ID::outputBlockBottom)->load (std::memory_order_relaxed));
 }
 
 /** @note READER THREAD — stores the prompt row from OSC 133 A. */
 void State::setPromptRow (int row) noexcept
 {
-    promptRow.store (row, std::memory_order_relaxed);
+    getRawParam (ID::promptRow)->store (static_cast<float> (row), std::memory_order_relaxed);
 }
 
 /** @note READER THREAD — relaxed load; called from resize on the reader thread. */
 int State::getPromptRow() const noexcept
 {
-    return promptRow.load (std::memory_order_relaxed);
+    return jreng::toInt (getRawParam (ID::promptRow)->load (std::memory_order_relaxed));
 }
 
 /**
@@ -410,11 +416,11 @@ int State::getPromptRow() const noexcept
 void State::writeStringSlot (const juce::Identifier& id, const char* src, int length) noexcept
 {
     // READER THREAD
-    auto* slot { stringMap.at (id) };
+    auto* slot { stringMap.at (id).get() };
     const int len { juce::jmin (length, maxStringLength - 1) };
     std::memcpy (slot->buffer, src, static_cast<size_t> (len));
     slot->buffer[len] = '\0';
-    slot->generation.fetch_add (1, std::memory_order_release);
+    fetchAdd (slot->generation, 1.0f, std::memory_order_release);
     needsFlush.store (true, std::memory_order_release);
 }
 
@@ -451,7 +457,7 @@ void State::setForegroundProcess (const char* src, int length) noexcept
 // READER THREAD
 void State::setSnapshotDirty() noexcept
 {
-    if (pasteEchoRemaining.load (std::memory_order_relaxed) <= 0)
+    if (getRawParam (ID::pasteEchoRemaining)->load (std::memory_order_relaxed) <= 0.0f)
     {
         snapshotDirty.store (true, std::memory_order_release);
     }
@@ -460,19 +466,21 @@ void State::setSnapshotDirty() noexcept
 // MESSAGE THREAD
 void State::setPasteEchoGate (int bytes) noexcept
 {
-    pasteEchoRemaining.store (bytes, std::memory_order_release);
+    getRawParam (ID::pasteEchoRemaining)->store (static_cast<float> (bytes), std::memory_order_release);
 }
 
 // READER THREAD
 void State::consumePasteEcho (int bytes) noexcept
 {
-    if (pasteEchoRemaining.load (std::memory_order_relaxed) > 0)
-    {
-        const int remaining { pasteEchoRemaining.fetch_sub (bytes, std::memory_order_acq_rel) - bytes };
+    auto* gate { getRawParam (ID::pasteEchoRemaining) };
 
-        if (remaining <= 0)
+    if (gate->load (std::memory_order_relaxed) > 0.0f)
+    {
+        const float remaining { fetchSub (*gate, static_cast<float> (bytes), std::memory_order_acq_rel) - static_cast<float> (bytes) };
+
+        if (remaining <= 0.0f)
         {
-            pasteEchoRemaining.store (0, std::memory_order_relaxed);
+            gate->store (0.0f, std::memory_order_relaxed);
             setSnapshotDirty();
         }
     }
@@ -481,7 +489,9 @@ void State::consumePasteEcho (int bytes) noexcept
 // READER THREAD
 void State::clearPasteEchoGate() noexcept
 {
-    if (pasteEchoRemaining.exchange (0, std::memory_order_acq_rel) > 0)
+    auto* gate { getRawParam (ID::pasteEchoRemaining) };
+
+    if (gate->exchange (0.0f, std::memory_order_acq_rel) > 0.0f)
     {
         setSnapshotDirty();
     }
@@ -508,7 +518,7 @@ bool State::consumeSnapshotDirty() noexcept
 // READER THREAD
 void State::setSyncOutput (bool active) noexcept
 {
-    syncOutputActive.store (active, std::memory_order_release);
+    getRawParam (ID::syncOutputActive)->store (active ? 1.0f : 0.0f, std::memory_order_release);
 
     if (not active)
         setSnapshotDirty();
@@ -516,13 +526,14 @@ void State::setSyncOutput (bool active) noexcept
 
 bool State::isSyncOutputActive() const noexcept
 {
-    return syncOutputActive.load (std::memory_order_relaxed);
+    return getRawParam (ID::syncOutputActive)->load (std::memory_order_relaxed) != 0.0f;
 }
 
 // MESSAGE THREAD
 void State::setModalType (ModalType type) noexcept
 {
     storeAndFlush (ID::modalType, static_cast<float> (type));
+    setFullRebuild();
     setSnapshotDirty();
 }
 
@@ -541,6 +552,8 @@ bool State::isModal() const noexcept
 void State::setSelectionType (int type) noexcept
 {
     storeAndFlush (ID::selectionType, static_cast<float> (type));
+    setFullRebuild();
+    setSnapshotDirty();
 }
 
 int State::getSelectionType() const noexcept
@@ -552,6 +565,8 @@ void State::setSelectionCursor (int row, int col) noexcept
 {
     storeAndFlush (ID::selectionCursorRow, static_cast<float> (row));
     storeAndFlush (ID::selectionCursorCol, static_cast<float> (col));
+    setFullRebuild();
+    setSnapshotDirty();
 }
 
 int State::getSelectionCursorRow() const noexcept
@@ -568,6 +583,8 @@ void State::setSelectionAnchor (int row, int col) noexcept
 {
     storeAndFlush (ID::selectionAnchorRow, static_cast<float> (row));
     storeAndFlush (ID::selectionAnchorCol, static_cast<float> (col));
+    setFullRebuild();
+    setSnapshotDirty();
 }
 
 int State::getSelectionAnchorRow() const noexcept
@@ -599,6 +616,8 @@ int State::getDragAnchorCol() const noexcept
 void State::setDragActive (bool active) noexcept
 {
     storeAndFlush (ID::dragActive, active ? 1.0f : 0.0f);
+    setFullRebuild();
+    setSnapshotDirty();
 }
 
 bool State::isDragActive() const noexcept
@@ -608,12 +627,12 @@ bool State::isDragActive() const noexcept
 
 void State::requestSyncResize() noexcept
 {
-    syncResizePending.store (true, std::memory_order_relaxed);
+    getRawParam (ID::syncResizePending)->store (1.0f, std::memory_order_relaxed);
 }
 
 bool State::consumeSyncResize() noexcept
 {
-    return syncResizePending.exchange (false, std::memory_order_relaxed);
+    return getRawParam (ID::syncResizePending)->exchange (0.0f, std::memory_order_relaxed) != 0.0f;
 }
 
 // --- Reader thread getters (read from parameterMap) ---
@@ -889,6 +908,8 @@ void State::setScrollOffset (int offset) noexcept
     if (param.isValid())
     {
         param.setProperty (ID::value, offset, nullptr);
+        setFullRebuild();
+        setSnapshotDirty();
     }
 }
 
@@ -997,6 +1018,7 @@ void State::tickCursorBlink (int elapsedMs) noexcept
         {
             cursorBlinkOn = not cursorBlinkOn;
             cursorBlinkElapsed = 0;
+            setFullRebuild();
             setSnapshotDirty();
         }
     }
@@ -1035,8 +1057,7 @@ void State::buildParameterMap() noexcept
                                                           const auto parent { node.getParent() };
                                                           const bool isRoot { parent.getType() == ID::SESSION };
                                                           const juce::Identifier key { isRoot ? juce::Identifier { paramId } : buildParamKey (parent.getType(), paramId) };
-                                                          storage.emplace_back (static_cast<float> (node.getProperty (ID::value)));
-                                                          parameterMap[key] = &storage.back();
+                                                          parameterMap[key] = std::make_unique<std::atomic<float>> (static_cast<float> (node.getProperty (ID::value)));
                                                       }
 
                                                       return false;
@@ -1079,16 +1100,17 @@ juce::Identifier State::modeKey (const juce::Identifier& property) const noexcep
 void State::flushStrings() noexcept
 {
     // MESSAGE THREAD
-    for (auto& [id, slot] : stringMap)
+    for (auto& [id, slotPtr] : stringMap)
     {
-        const uint32_t gen { slot->generation.load (std::memory_order_acquire) };
+        auto* slot { slotPtr.get() };
+        const float gen { slot->generation.load (std::memory_order_acquire) };
 
         if (gen != slot->lastFlushedGeneration)
         {
             char local[maxStringLength];
             std::memcpy (local, slot->buffer, maxStringLength);
 
-            const uint32_t gen2 { slot->generation.load (std::memory_order_acquire) };
+            const float gen2 { slot->generation.load (std::memory_order_acquire) };
 
             if (gen2 != gen)
                 std::memcpy (local, slot->buffer, maxStringLength);

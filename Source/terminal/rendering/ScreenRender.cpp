@@ -441,49 +441,69 @@ void Screen::processCellForSnapshot (
 // =========================================================================
 
 /**
- * @brief Rebuilds all rows in the per-row caches from `Grid` and calls `updateSnapshot()`.
+ * @brief Rebuilds dirty rows in the per-row caches from `Grid` and calls `updateSnapshot()`.
  *
- * Iterates all visible rows every frame.  For each row, reads cells and
- * graphemes directly from `Grid` (scrollback or active, depending on
- * `state.getScrollOffset()`), resets the row's glyph and background counts to
- * zero, resets `ligatureSkip`, and calls `processCellForSnapshot()` for every
- * cell.  After all rows are processed, calls `updateSnapshot()` to pack the
- * caches into a `Render::Snapshot` and publish it.
+ * Calls `grid.consumeDirtyRows()` to obtain the set of rows that have changed
+ * since the last call.  Only rows with their dirty bit set are reprocessed;
+ * clean rows retain their previous-frame glyph and background caches.  For
+ * each dirty row, reads cells and graphemes directly from `Grid` (scrollback
+ * or active, depending on `state.getScrollOffset()`), resets the row's glyph
+ * and background counts to zero, resets `ligatureSkip`, and calls
+ * `processCellForSnapshot()` for every cell.  After all rows are processed,
+ * calls `updateSnapshot()` to pack the caches into a `Render::Snapshot` and
+ * publish it.
  *
  * @param state  Current terminal state (provides `getCols()`, `getVisibleRows()`,
  *               `getScrollOffset()`).
- * @param grid   Terminal grid (read directly every frame; no intermediate cache).
+ * @param grid   Terminal grid (dirty bits consumed; cells read per dirty row).
  *
  * @note **MESSAGE THREAD**.
  * @see processCellForSnapshot()
  * @see updateSnapshot()
  */
-void Screen::buildSnapshot (const State& state, Grid& grid) noexcept
+void Screen::buildSnapshot (State& state, Grid& grid) noexcept
 {
     const int cols { state.getCols() };
     const int rows { state.getVisibleRows() };
     const int offset { state.getScrollOffset() };
     const int maxGlyphs { cacheCols * 2 };
 
+    // Always consume Grid dirty bits to keep them from accumulating.
+    // If a full rebuild is requested, override with all-ones so every row
+    // is processed — same initial state as a first-frame render.
+    uint64_t dirtyBits[4] {};
+    grid.consumeDirtyRows (dirtyBits);
+
+    if (state.consumeFullRebuild())
+    {
+        std::memset (dirtyBits, 0xFF, sizeof (dirtyBits));
+    }
+
     for (int r { 0 }; r < rows; ++r)
     {
-        const Cell* rowCells { offset > 0
-            ? grid.scrollbackRow (r, offset)
-            : grid.activeVisibleRow (r) };
-        const Grapheme* rowGraphemes { offset > 0
-            ? grid.scrollbackGraphemeRow (r, offset)
-            : grid.activeVisibleGraphemeRow (r) };
+        const int word { r >> 6 };
+        const uint64_t bit { static_cast<uint64_t> (1) << (r & 63) };
 
-        monoCount[r]  = 0;
-        emojiCount[r] = 0;
-        bgCount[r]    = 0;
-        ligatureSkip  = 0;
-
-        if (rowCells != nullptr)
+        if ((dirtyBits[word] & bit) != 0)
         {
-            for (int c { 0 }; c < cols; ++c)
+            const Cell* rowCells { offset > 0
+                ? grid.scrollbackRow (r, offset)
+                : grid.activeVisibleRow (r) };
+            const Grapheme* rowGraphemes { offset > 0
+                ? grid.scrollbackGraphemeRow (r, offset)
+                : grid.activeVisibleGraphemeRow (r) };
+
+            monoCount[r]  = 0;
+            emojiCount[r] = 0;
+            bgCount[r]    = 0;
+            ligatureSkip  = 0;
+
+            if (rowCells != nullptr)
             {
-                processCellForSnapshot (rowCells[c], rowCells, rowGraphemes, c, r);
+                for (int c { 0 }; c < cols; ++c)
+                {
+                    processCellForSnapshot (rowCells[c], rowCells, rowGraphemes, c, r);
+                }
             }
         }
     }

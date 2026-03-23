@@ -258,6 +258,31 @@ namespace ID
 
     /** @brief True when the drag threshold has been crossed and a drag selection is active. */
     static const juce::Identifier dragActive           { "dragActive" };
+
+    //==========================================================================
+    // Transient session atomics (moved from stray members)
+    //==========================================================================
+
+    /** @brief Remaining paste echo bytes expected from the PTY (gate suppresses repaint). */
+    static const juce::Identifier pasteEchoRemaining   { "pasteEchoRemaining" };
+
+    /** @brief True while synchronized output (mode 2026) is active. */
+    static const juce::Identifier syncOutputActive     { "syncOutputActive" };
+
+    /** @brief True when a same-size PTY resize is requested on next drain. */
+    static const juce::Identifier syncResizePending    { "syncResizePending" };
+
+    /** @brief First visible row of the current OSC 133 command output block. -1 = none. */
+    static const juce::Identifier outputBlockTop       { "outputBlockTop" };
+
+    /** @brief Last visible row of the current OSC 133 command output block. -1 = none. */
+    static const juce::Identifier outputBlockBottom    { "outputBlockBottom" };
+
+    /** @brief True between OSC 133 C and D while output is being produced. */
+    static const juce::Identifier outputScanActive     { "outputScanActive" };
+
+    /** @brief Cursor row of the most-recently received OSC 133 A prompt marker. -1 = none. */
+    static const juce::Identifier promptRow            { "promptRow" };
 }
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

@@ -266,11 +266,14 @@ private:
     /** @brief Compiled background quad shader program. Null until `contextCreated()`. */
     std::unique_ptr<juce::OpenGLShaderProgram> backgroundShader;
 
-    /** @brief OpenGL handle for the mono (R8) atlas texture. 0 until `contextCreated()`. */
-    GLuint monoAtlasTexture  { 0 };
+    /** @brief Shared mono (R8) atlas texture. Created by the first instance, deleted by the last. */
+    static GLuint sharedMonoAtlas;
 
-    /** @brief OpenGL handle for the emoji (RGBA8) atlas texture. 0 until `contextCreated()`. */
-    GLuint emojiAtlasTexture { 0 };
+    /** @brief Shared emoji (RGBA8) atlas texture. Created by the first instance, deleted by the last. */
+    static GLuint sharedEmojiAtlas;
+
+    /** @brief Reference count for shared atlas textures. Incremented in contextCreated, decremented in contextClosing. */
+    static int sharedAtlasRefCount;
 
     /** @brief Vertex array object shared by all draw calls. 0 until `contextCreated()`. */
     GLuint vao         { 0 };

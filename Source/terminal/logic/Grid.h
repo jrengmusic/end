@@ -691,7 +691,7 @@ private:
      * by `consumeDirtyRows()`.  All operations use `memory_order_relaxed`
      * except `consumeDirtyRows()` which uses `memory_order_acq_rel`.
      */
-    std::atomic<uint64_t> dirtyRows[4] { {0}, {0}, {0}, {0} };
+    std::atomic<uint64_t> dirtyRows[4] { {~ uint64_t {0}}, {~ uint64_t {0}}, {~ uint64_t {0}}, {~ uint64_t {0}} };
 
     /**
      * @brief Net lines scrolled up since the last `consumeScrollDelta()` call.

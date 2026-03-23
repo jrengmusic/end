@@ -484,7 +484,7 @@ public:
      *
      * @note **MESSAGE THREAD**.
      */
-    void render (const State& state, Grid& grid) noexcept;
+    void render (State& state, Grid& grid) noexcept;
 
     /**
      * @brief Resets the render cache dimensions to force reallocation on the next frame.
@@ -730,7 +730,7 @@ private:
      *
      * @note **MESSAGE THREAD**.
      */
-    void buildSnapshot (const State& state, Grid& grid) noexcept;
+    void buildSnapshot (State& state, Grid& grid) noexcept;
 
     /**
      * @brief Processes one cell and appends its contributions to the row caches.

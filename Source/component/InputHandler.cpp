@@ -97,13 +97,11 @@ void InputHandler::clearSelectionAndScroll() noexcept
     {
         session.getState().setDragActive (false);
         session.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
-        session.getState().setSnapshotDirty();
     }
 
     if (session.getState().getScrollOffset() > 0)
     {
         session.getState().setScrollOffset (0);
-        session.getState().setSnapshotDirty();
     }
 }
 
@@ -360,7 +358,6 @@ bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
             setScrollOffsetClamped (scrollback - (cursorRow - visibleRows + 1));
         }
 
-        st.setSnapshotDirty();
     }
 
     return true;
@@ -373,7 +370,6 @@ bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
         screen.setHintOverlay (nullptr, 0);
         linkManager.clearHints();
         session.getState().setModalType (Terminal::ModalType::none);
-        session.getState().setSnapshotDirty();
     }
     else
     {
@@ -392,7 +388,6 @@ bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
                 screen.setHintOverlay (nullptr, 0);
                 linkManager.clearHints();
                 session.getState().setModalType (Terminal::ModalType::none);
-                session.getState().setSnapshotDirty();
             }
         }
     }
@@ -409,6 +404,5 @@ void InputHandler::setScrollOffsetClamped (int newOffset) noexcept
     if (clamped != current)
     {
         session.getState().setScrollOffset (clamped);
-        session.getState().setSnapshotDirty();
     }
 }

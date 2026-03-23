@@ -10,6 +10,14 @@ namespace jreng::Glyph
 { /*____________________________________________________________________________*/
 
 // =============================================================================
+// Static definitions
+// =============================================================================
+
+GLuint GLTextRenderer::sharedMonoAtlas     { 0 };
+GLuint GLTextRenderer::sharedEmojiAtlas    { 0 };
+int    GLTextRenderer::sharedAtlasRefCount { 0 };
+
+// =============================================================================
 // GL lifecycle
 // =============================================================================
 
@@ -18,13 +26,18 @@ void GLTextRenderer::contextCreated() noexcept
     compileShaders();
     createBuffers();
 
-    const int atlasDim { jreng::Typeface::atlasDimension() };
-    monoAtlasTexture  = createAtlasTexture (atlasDim, atlasDim,
-                                            juce::gl::GL_R8,
-                                            juce::gl::GL_RED);
-    emojiAtlasTexture = createAtlasTexture (atlasDim, atlasDim,
-                                            juce::gl::GL_RGBA,
-                                            juce::gl::GL_RGBA);
+    if (sharedAtlasRefCount == 0)
+    {
+        const int atlasDim { jreng::Typeface::atlasDimension() };
+        sharedMonoAtlas  = createAtlasTexture (atlasDim, atlasDim,
+                                               juce::gl::GL_R8,
+                                               juce::gl::GL_RED);
+        sharedEmojiAtlas = createAtlasTexture (atlasDim, atlasDim,
+                                               juce::gl::GL_RGBA,
+                                               juce::gl::GL_RGBA);
+    }
+
+    ++sharedAtlasRefCount;
 }
 
 void GLTextRenderer::contextClosing() noexcept
@@ -33,16 +46,21 @@ void GLTextRenderer::contextClosing() noexcept
     emojiShader.reset();
     backgroundShader.reset();
 
-    if (monoAtlasTexture != 0)
-    {
-        juce::gl::glDeleteTextures (1, &monoAtlasTexture);
-        monoAtlasTexture = 0;
-    }
+    --sharedAtlasRefCount;
 
-    if (emojiAtlasTexture != 0)
+    if (sharedAtlasRefCount == 0)
     {
-        juce::gl::glDeleteTextures (1, &emojiAtlasTexture);
-        emojiAtlasTexture = 0;
+        if (sharedMonoAtlas != 0)
+        {
+            juce::gl::glDeleteTextures (1, &sharedMonoAtlas);
+            sharedMonoAtlas = 0;
+        }
+
+        if (sharedEmojiAtlas != 0)
+        {
+            juce::gl::glDeleteTextures (1, &sharedEmojiAtlas);
+            sharedEmojiAtlas = 0;
+        }
     }
 
     if (vao != 0)
@@ -82,8 +100,8 @@ void GLTextRenderer::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
         {
             const auto& staged { stagedBitmaps[i] };
             GLuint targetTexture { (staged.type == Atlas::Type::emoji)
-                                       ? emojiAtlasTexture
-                                       : monoAtlasTexture };
+                                       ? sharedEmojiAtlas
+                                       : sharedMonoAtlas };
 
             if (targetTexture != 0)
             {
@@ -120,7 +138,7 @@ void GLTextRenderer::drawQuads (const Render::Quad* data, int count, bool isEmoj
     if (count > 0)
     {
         auto& shader  { isEmoji ? emojiShader : monoShader };
-        auto  texture { isEmoji ? emojiAtlasTexture : monoAtlasTexture };
+        auto  texture { isEmoji ? sharedEmojiAtlas : sharedMonoAtlas };
 
         if (shader != nullptr)
         {

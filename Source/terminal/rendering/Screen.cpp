@@ -373,7 +373,7 @@ void Screen::allocateRenderCache (int rows, int cols) noexcept
  * @param state  Current terminal state (cursor, dimensions, scroll offset).
  * @param grid   Terminal grid providing cell data.
  */
-void Screen::render (const State& state, Grid& grid) noexcept
+void Screen::render (State& state, Grid& grid) noexcept
 {
     const int cols { state.getCols() };
     const int rows { state.getVisibleRows() };

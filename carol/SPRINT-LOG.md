@@ -8,6 +8,72 @@
 
 ---
 
+## Sprint 118 — COUNSELOR: Rendering Optimization (Plan 2.6) + State Refactor + Bug Fixes
+
+**Date:** 2026-03-24
+
+### Agents Participated
+- COUNSELOR: throughput investigation, rendering analysis, State architecture redesign, plan writing
+- @oracle: deep PTY throughput analysis, rendering pipeline hot path analysis (calcMetrics, buildSnapshot, atlas)
+- @librarian: juce::AbstractFifo research, input path tracing, JUCE APVTS storage pattern research
+- @pathfinder: Session/State/Grid data flow mapping, dirty-row infrastructure discovery, setSnapshotDirty call site audit
+- @engineer: calcMetrics caching, dirty-row skipping, State refactor, shared atlas textures, glyph position fix, process query move
+- @auditor: PLAN.md contract verification (found wrong file paths, missing macOS path, inaccurate cache description)
+
+### Files Modified (15 total)
+
+**State refactor — unified APVTS pattern:**
+- `Source/terminal/data/State.h` — StateMap<unique_ptr> template, fetchAdd/fetchSub CAS utilities, migrated 7 stray atomics into parameterMap, StringSlot generation uint32_t to float, fullRebuild signal, removed onCursorBlinkRowDirty
+- `Source/terminal/data/State.cpp` — constructor uses make_unique, stray atomic methods rewired to getRawParam, view-state setters call setFullRebuild, fetchAdd for string generation
+- `Source/terminal/data/StateFlush.cpp` — updated iterator access for unique_ptr
+- `Source/terminal/data/Identifier.h` — 7 new IDs: pasteEchoRemaining, syncOutputActive, syncResizePending, outputBlockTop, outputBlockBottom, outputScanActive, promptRow
+
+**Rendering optimization (2.6.0 + 2.6.1):**
+- `modules/jreng_graphics/fonts/jreng_typeface.h` — cachedMetricsSize + cachedMetrics members
+- `modules/jreng_graphics/fonts/jreng_typeface_metrics.cpp` — calcMetrics cache hit/miss (non-macOS)
+- `modules/jreng_graphics/fonts/jreng_typeface.mm` — calcMetrics cache hit/miss (macOS CoreText)
+- `Source/terminal/rendering/ScreenRender.cpp` — buildSnapshot dirty-row skipping via consumeDirtyRows + fullRebuild override
+- `Source/terminal/logic/Grid.h` — dirtyRows init to all-ones for first-frame full rebuild
+- `Source/terminal/rendering/Screen.h` — render/buildSnapshot signature to State& (non-const for consumeFullRebuild)
+
+**Bug fixes:**
+- `Source/terminal/rendering/ScreenRender.cpp` — Font construction: baseFontSize not pixelsPerEm
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — same baseFontSize fix for cursor path
+- `modules/jreng_graphics/fonts/jreng_atlas_packer.h` — removed 1px gutter (unnecessary, GL_NEAREST)
+- `modules/jreng_graphics/fonts/jreng_text_layout.h` — juce::Font deprecated constructor fix
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.h` — shared atlas textures (static refcount)
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.cpp` — shared atlas lifecycle, uploadStagedBitmaps uses shared textures
+
+**Cleanup:**
+- `Source/terminal/logic/Session.cpp` — process queries moved to onFlush timer callback, removed onCursorBlinkRowDirty wiring
+- `Source/component/TerminalComponent.cpp` — removed 5 scattered markAllDirty calls
+- `Source/component/InputHandler.cpp` — removed 6 scattered markAllDirty calls
+- `Source/component/MouseHandler.cpp` — removed 5 scattered markAllDirty calls
+- `Source/MainComponent.cpp` — fixed broken lambda brace
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered (fetchAdd/fetchSub, StateMap, fullRebuild)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied (APVTS pattern for State, SSOT)
+
+### Problems Solved
+- calcMetrics called 4800 times/frame — now cached, one call on size change
+- buildSnapshot rebuilt all rows every frame — now skips clean rows (90-98% reduction)
+- 7 stray atomics (mixed int/bool types) scattered in State — unified into parameterMap as float
+- StringSlot generation used uint32_t — now float with CAS-based fetchAdd
+- Glyph position shifted right — baseFontSize vs pixelsPerEm mismatch in Font construction
+- Split panes garbled — atlas textures created per-renderer but staging queue consumed destructively by first renderer; fixed with shared static textures
+- 16 scattered markAllDirty calls across UI components — replaced with fullRebuild signal through State
+- Process queries (tcgetpgrp, proc_name, proc_pidinfo) on reader thread hot path — moved to message thread timer
+
+### Technical Debt / Follow-up
+- 2.6.2 (CGBitmapContext pooling on macOS) not done — reverted after rendering bugs, low priority
+- calcMetrics FreeType path: cache hit skips FT_Set_Char_Size restore — safe on macOS (CoreText), needs verification on Linux/Windows
+- Dead pixelsPerEm variables remain in ScreenRender.cpp (computed but unused after baseFontSize fix)
+- PLAN-throughput.md analysis was based on -O0 debug benchmarks — invalidated by -O3 results (END beats all competitors)
+
+---
+
 ## Sprint 117 — COUNSELOR: Screen Rewire + Module Consolidation + Atlas Validation
 
 **Date:** 2026-03-23

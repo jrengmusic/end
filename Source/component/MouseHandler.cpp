@@ -46,7 +46,6 @@ void MouseHandler::handleDown (const juce::MouseEvent& event,
         session.getState().setSelectionCursor (absRow, 0);
         session.getState().setDragAnchor (absRow, 0);
         session.getState().setDragActive (false);
-        session.getState().setSnapshotDirty();
     }
     else
     {
@@ -71,7 +70,6 @@ void MouseHandler::handleDown (const juce::MouseEvent& event,
                 session.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
                 session.getState().setDragAnchor (absRow, cell.x);
                 session.getState().setDragActive (false);
-                session.getState().setSnapshotDirty();
             }
         }
         else
@@ -81,7 +79,6 @@ void MouseHandler::handleDown (const juce::MouseEvent& event,
             session.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
             session.getState().setDragAnchor (absRow, cell.x);
             session.getState().setDragActive (false);
-            session.getState().setSnapshotDirty();
         }
     }
 
@@ -134,7 +131,6 @@ void MouseHandler::handleDoubleClick (const juce::MouseEvent& event)
         session.getState().setSelectionCursor (absRow, wordEnd);
         session.getState().setDragAnchor (absRow, wordStart);
         session.getState().setDragActive (false);
-        session.getState().setSnapshotDirty();
     }
 }
 
@@ -174,7 +170,6 @@ void MouseHandler::handleDrag (const juce::MouseEvent& event)
 
             // Extend or update the drag cursor to current cell.
             session.getState().setSelectionCursor (clampedAbsRow, clampedCol);
-            session.getState().setSnapshotDirty();
         }
     }
 }

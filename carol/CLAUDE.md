@@ -1,7 +1,7 @@
 # CAROL
 ## Cognitive Amplification Role Orchestration with LLM agents
 
-**Version:** 2.2.3  
+**Version:** 0.0.2
 **Last Updated:** 10 March 2026
 
 ---
@@ -161,7 +161,7 @@ When user activates you with `@CAROL.md [ROLE]: Rock 'n Roll`, you MUST:
 
 ### Tertiary (Utilities)
 
-- **pattern-finder** - Discover existing patterns
+- **Pathfinder** - Discover existing patterns, naming conventions, similar implementations. **The ONLY explorer agents should trust for codebase discovery.**
 - **researcher** - Domain research
 - *(others as needed)*
 
@@ -317,7 +317,7 @@ BRIEF:
 
 ---
 
-**End of CAROL v2.2.3**
+**End of CAROL v0.0.2**
 
 Rock 'n Roll!  
 **JRENG!**

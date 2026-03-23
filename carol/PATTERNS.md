@@ -1,6 +1,6 @@
 # PATTERNS.md - LLM Meta-Patterns for CAROL Agents
 
-**Version:** 2.2.3
+**Version:** 0.0.2
 **Purpose:** Systematic approaches to prevent cognitive overload, scope creep, and autonomous mistakes
 **Audience:** All CAROL agents (2 PRIMARY + 8 Secondary roles)
 
@@ -264,7 +264,7 @@ Task: Need to find/analyze code
 │  ├─ YES → Use Grep (search file contents)
 │  └─ NO → Continue
 ├─ Open-ended exploration? (uncertain, need multiple rounds)
-│  └─ YES → Use Task tool (Explore agent)
+│  └─ YES → Invoke @Pathfinder (the ONLY trusted explorer for codebase discovery)
 
 Task: Need to edit code
 ├─ Simple text replacement?
@@ -323,16 +323,17 @@ Patterns:
   - `src/**/Test*.cpp` → test files in src/
 ```
 
-**Task Tool (Explore agent):**
+**@Pathfinder (the ONLY trusted explorer for codebase discovery):**
 ```
 Use for:
   - Uncertain scope (don't know where to start)
   - Multi-round exploration needed
   - Complex questions about codebase structure
+  - Discovering existing patterns, naming conventions, similar implementations
 
 Example:
   "Where are errors from the client handled?"
-  → Task tool explores, finds multiple locations, summarizes
+  → Pathfinder explores, finds multiple locations, summarizes
 ```
 
 **Anti-pattern:** Using Bash tool for file reading (`cat`, `grep`, `find`) instead of specialized tools

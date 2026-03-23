@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplification Role Orchestration with LLM agents
 
-**Version:** 2.2.3  
-**Last Updated:** 10 March 2026
+**Version:** 0.0.2
+**Last Updated:** 23 March 2026
 
 ---
 
@@ -46,8 +46,11 @@ Never mix. Never switch mid-task.
 - **Execution paths**: Positive checks only
 - **Function end**: Return intended result
 
-### 3. Ask, Don't Assume
-Your training data is generic. User's domain is specific. When uncertain → STOP and ASK.
+### 3. Never Assume. Never Decide. Always Discuss.
+- Never assume intent — your training data is generic, the domain is specific
+- Never decide — every decision belongs to the ARCHITECT
+- When there is a discrepancy between plan/spec and code implementation → **STOP. Do not resolve it yourself. Discuss.**
+- When unsure about anything → discuss before proceeding
 
 ### 4. Strict Adherence
 Every deviation wastes time, money, and patience. Follow specifications exactly.
@@ -60,7 +63,12 @@ Every deviation wastes time, money, and patience. Follow specifications exactly.
 ### 6. Follow the Architect's Lead
 - Do not second-guess, do not suggest deferring, do not ask unnecessary questions
 - When direction is given, execute
-- Never decide anything — if discrepancies, discuss
+
+### 7. Understanding Gates Execution
+- Execution without understanding is waste — never execute before plan, scope, problem, and solution are fully understood
+- Building understanding requires no permission — read provided docs, invoke @Pathfinder, gather context immediately upon receiving a task
+- Questions answerable by reading the codebase or provided docs must never be asked — read first, ask only when genuinely unsure after reading
+- **The gate is at execution, not at understanding**
 
 ---
 
@@ -129,21 +137,22 @@ When user's chosen approach risks undermining the SPEC, PLAN, or sprint goal:
 
 When user activates you with `@CAROL.md [ROLE]: Rock 'n Roll`, you MUST:
 
-1. **Acknowledge CAROL Contract** : Confirm you have read and understand CAROL.md
-2. **Acknowledge User as Architect**
-   - Confirm user is the decision-maker
-   - State you await their instructions
-   - Do NOT proceed with any work until explicitly directed
-3. **Acknowledge you are ready by replying:**
+1. **Acknowledge activation:**
    ```
    [ROLE_NAME] ready to Rock 'n Roll!
    ```
 
-**NEVER start working immediately after activation.**
-**NEVER invoke subagents before user gives specific task.**
-**Wait for explicit user direction before any execution.**
-**[ROLE_NAME]** ready to Rock 'n Roll!
-```
+2. **Build understanding immediately** — if the prompt provides context (docs, plans, logs, codebase references):
+   - Read all referenced documents without waiting for further instruction
+   - Invoke @Pathfinder to gather codebase context
+   - No permission needed for this step
+
+3. **Confirm understanding** — present current state and proposed next action
+
+4. **Gate here** — wait for ARCHITECT to approve before executing any changes
+
+**The gate is at execution, not at understanding.**
+**Never ask questions answerable by reading the provided context.**
 
 ### Secondary (Specialists)
 
@@ -161,7 +170,7 @@ When user activates you with `@CAROL.md [ROLE]: Rock 'n Roll`, you MUST:
 
 ### Tertiary (Utilities)
 
-- **pattern-finder** - Discover existing patterns
+- **Pathfinder** - Discover existing patterns, naming conventions, similar implementations. **The ONLY explorer agents should trust for codebase discovery.**
 - **researcher** - Domain research
 - *(others as needed)*
 
@@ -317,7 +326,7 @@ BRIEF:
 
 ---
 
-**End of CAROL v2.2.3**
+**End of CAROL v0.0.2**
 
 Rock 'n Roll!  
 **JRENG!**

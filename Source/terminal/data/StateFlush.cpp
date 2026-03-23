@@ -77,7 +77,7 @@ void State::flushRootParams() noexcept
             const auto it { parameterMap.find (juce::Identifier { paramId }) };
             if (it != parameterMap.end())
             {
-                child.setProperty (ID::value, it->second->load (std::memory_order_relaxed), nullptr);
+                child.setProperty (ID::value, it->second.get()->load (std::memory_order_relaxed), nullptr);
             }
         }
     }
@@ -117,7 +117,7 @@ void State::flushGroupParams (juce::ValueTree& group) noexcept
             const auto it { parameterMap.find (key) };
             if (it != parameterMap.end())
             {
-                param.setProperty (ID::value, it->second->load (std::memory_order_relaxed), nullptr);
+                param.setProperty (ID::value, it->second.get()->load (std::memory_order_relaxed), nullptr);
             }
         }
     }

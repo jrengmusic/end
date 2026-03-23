@@ -242,7 +242,6 @@ void Terminal::Component::copySelection()
         session.getState().setDragActive (false);
         screenSelection.reset();
         screen.setSelection (nullptr);
-        session.getState().setSnapshotDirty();
     }
 }
 
@@ -321,7 +320,6 @@ void Terminal::Component::exitSelectionMode() noexcept
     session.getState().setDragActive (false);
     screenSelection.reset();
     screen.setSelection (nullptr);
-    session.getState().setSnapshotDirty();
 }
 
 void Terminal::Component::enterOpenFileMode() noexcept
@@ -334,7 +332,6 @@ void Terminal::Component::enterOpenFileMode() noexcept
     const auto& hints { linkManager.getHintLinks() };
     screen.setHintOverlay (hints.data(), static_cast<int> (hints.size()));
     session.getState().setModalType (ModalType::openFile);
-    session.getState().setSnapshotDirty();
 }
 
 
@@ -667,6 +664,5 @@ void Terminal::Component::setScrollOffsetClamped (int newOffset) noexcept
     if (clamped != current)
     {
         session.getState().setScrollOffset (clamped);
-        session.getState().setSnapshotDirty();
     }
 }

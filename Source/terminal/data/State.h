@@ -59,14 +59,81 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include <deque>
 #include <unordered_map>
+#include <memory>
 
 #include "Cell.h"
 #include "Identifier.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
+
+/**
+ * @brief Atomically adds `delta` to `atom` and returns the value before the add.
+ *
+ * Equivalent to `std::atomic::fetch_add` but works with any value type via
+ * `compare_exchange_weak`, allowing use with types like `float` that lack a
+ * dedicated `fetch_add` overload.
+ *
+ * @tparam ValueType  Integral or floating-point type stored in the atomic.
+ * @param atom   The target atomic variable.
+ * @param delta  Value to add.
+ * @param order  Memory order for the successful exchange (default: seq_cst).
+ * @return The value of `atom` before the add.
+ * @note Lock-free, noexcept.
+ */
+template <typename ValueType>
+ValueType fetchAdd (std::atomic<ValueType>& atom, ValueType delta,
+                    std::memory_order order = std::memory_order_seq_cst) noexcept
+{
+    ValueType expected { atom.load (std::memory_order_relaxed) };
+
+    while (not atom.compare_exchange_weak (expected, expected + delta, order, std::memory_order_relaxed))
+    {
+    }
+
+    return expected;
+}
+
+/**
+ * @brief Atomically subtracts `delta` from `atom` and returns the value before the subtraction.
+ *
+ * Equivalent to `std::atomic::fetch_sub` but works with any value type via
+ * `compare_exchange_weak`, allowing use with types like `float` that lack a
+ * dedicated `fetch_sub` overload.
+ *
+ * @tparam ValueType  Integral or floating-point type stored in the atomic.
+ * @param atom   The target atomic variable.
+ * @param delta  Value to subtract.
+ * @param order  Memory order for the successful exchange (default: seq_cst).
+ * @return The value of `atom` before the subtraction.
+ * @note Lock-free, noexcept.
+ */
+template <typename ValueType>
+ValueType fetchSub (std::atomic<ValueType>& atom, ValueType delta,
+                    std::memory_order order = std::memory_order_seq_cst) noexcept
+{
+    ValueType expected { atom.load (std::memory_order_relaxed) };
+
+    while (not atom.compare_exchange_weak (expected, expected - delta, order, std::memory_order_relaxed))
+    {
+    }
+
+    return expected;
+}
+
+/**
+ * @brief Alias for the map type used to store owned atomic parameter and string slots.
+ *
+ * Uses `unique_ptr` for ownership so that the container itself can be a plain
+ * `unordered_map` without requiring a stable-address backing deque.  Because
+ * `unique_ptr` elements are heap-allocated, their addresses are stable across
+ * map inserts and re-hashes.
+ *
+ * @tparam ValueType  The type of the owned object (e.g. `std::atomic<float>` or `StringSlot`).
+ */
+template <typename ValueType>
+using StateMap = std::unordered_map<juce::Identifier, std::unique_ptr<ValueType>>;
 
 /**
  * @enum ActiveScreen
@@ -79,8 +146,8 @@ namespace Terminal
  */
 enum ActiveScreen : size_t
 {
-    normal    = 0, ///< Primary screen buffer (default).
-    alternate = 1  ///< Alternate screen buffer (full-screen apps).
+    normal = 0,///< Primary screen buffer (default).
+    alternate = 1///< Alternate screen buffer (full-screen apps).
 };
 
 /**
@@ -100,10 +167,10 @@ enum ActiveScreen : size_t
  */
 enum class ModalType : uint8_t
 {
-    none,        ///< No modal active — normal input routing.
-    selection,   ///< Vim-style keyboard selection mode.
-    openFile,    ///< Open file / hyperlink hint label mode.
-    uriAction    ///< URI picker overlay (reserved).
+    none,///< No modal active — normal input routing.
+    selection,///< Vim-style keyboard selection mode.
+    openFile,///< Open file / hyperlink hint label mode.
+    uriAction///< URI picker overlay (reserved).
 };
 
 /**
@@ -943,6 +1010,36 @@ struct State : public juce::Timer
     std::function<void()> onFlush;
 
     /**
+     * @brief Signals that the entire viewport must be rebuilt on the next frame.
+     *
+     * Called by state-change setters that alter the visual appearance of all
+     * rows (scroll offset change, modal toggle, selection change, drag toggle,
+     * cursor blink toggle).  The renderer consumes the flag via
+     * `consumeFullRebuild()` at the start of `buildSnapshot()` and sets all
+     * dirty bits to all-ones so every row is reprocessed.
+     *
+     * Stored as a standalone atomic (not in parameterMap) because it is a
+     * transient signal, not persistent state.  Same pattern as `snapshotDirty`.
+     *
+     * @note Thread-safe — may be called from any thread.
+     */
+    void setFullRebuild() noexcept
+    {
+        fullRebuild.store (1.0f, std::memory_order_release);
+    }
+
+    /**
+     * @brief Atomically tests and clears the full-rebuild flag.
+     *
+     * @return `true` if a full rebuild was requested since the last call.
+     * @note MESSAGE THREAD — called from `buildSnapshot()`.
+     */
+    bool consumeFullRebuild() noexcept
+    {
+        return fullRebuild.exchange (0.0f, std::memory_order_acquire) != 0.0f;
+    }
+
+    /**
      * @brief Atomically tests and clears the snapshot-dirty flag.
      *
      * Returns `true` and clears the flag if the reader thread has written new
@@ -1015,31 +1112,43 @@ private:
     juce::ValueTree state;
 
     /**
-     * @brief Stable backing store for all `std::atomic<float>` parameter slots.
+     * @brief Flat map from compound parameter key → owned atomic float slot.
      *
-     * A `std::deque` is used instead of `std::vector` so that push_back never
-     * invalidates existing element addresses — `parameterMap` holds raw
-     * pointers into this container.  Each element corresponds to one PARAM
-     * node in the ValueTree.
-     */
-    std::deque<std::atomic<float>> storage;
-
-    /**
-     * @brief Flat map from compound parameter key → atomic slot pointer.
-     *
-     * Keys are built by `buildParamKey()`.  The reader thread looks up a key
+     * Keys are built by `buildParamKey()`.  Each slot is heap-allocated via
+     * `unique_ptr` so that the map can be re-hashed without invalidating the
+     * addresses held by external readers.  The reader thread looks up a key
      * and stores/loads the pointed-to atomic directly.  The message thread
      * iterates this map during `flush()` to copy atomics back to the ValueTree.
      *
-     * @note Populated once during construction by `buildParameterMap()`.
+     * @note Populated once during construction by `buildParameterMap()` and the
+     *       explicit `addParam` calls for stray-atomic identifiers.
      *       Never modified after construction, so concurrent reads are safe
      *       without a lock.
      */
-    std::unordered_map<juce::Identifier, std::atomic<float>*> parameterMap;
+    StateMap<std::atomic<float>> parameterMap;
+
+    /**
+     * @brief Returns a raw pointer to the atomic float slot for `id`.
+     *
+     * Equivalent to dereferencing `parameterMap.at(id).get()`.  Used internally
+     * by setters and getters that need direct atomic access without going through
+     * the full `getRawValue<T>` / `storeAndFlush` API — for example, in the
+     * stray-atomic migration methods that call `fetchAdd`, `fetchSub`, or plain
+     * `store`/`load` with explicit memory orders.
+     *
+     * @param id  Parameter identifier.  Must exist in `parameterMap` (asserted in debug).
+     * @return    Non-owning pointer to the backing `std::atomic<float>`.
+     * @note READER THREAD or MESSAGE THREAD — lock-free, noexcept.
+     */
+    std::atomic<float>* getRawParam (const juce::Identifier& id) const noexcept
+    {
+        jassert (jreng::Map::contains (parameterMap, id));
+        return parameterMap.at (id).get();
+    }
 
     /**
      * @brief Walks the ValueTree skeleton and registers every PARAM node in
-     *        `parameterMap`, allocating an atomic slot in `storage` for each.
+     *        `parameterMap`, allocating an atomic slot in `parameterMap` for each.
      *
      * Called once from the constructor after the ValueTree has been fully built.
      * After this call, `parameterMap` is immutable and safe to read from any thread.
@@ -1130,6 +1239,15 @@ private:
      */
     std::atomic<bool> snapshotDirty { false };
 
+    /**
+     * @brief Set by `setFullRebuild()` when all visible rows must be redrawn.
+     *        Cleared by `consumeFullRebuild()` at the start of `buildSnapshot()`.
+     *
+     * Standalone transient signal — not in `parameterMap`.  Same pattern as
+     * `snapshotDirty`.
+     */
+    std::atomic<float> fullRebuild { 0.0f };
+
     // =========================================================================
     // Cursor blink state (MESSAGE THREAD only — not atomic, not in ValueTree)
     // =========================================================================
@@ -1190,78 +1308,6 @@ private:
     bool cursorFocused { false };
 
     /**
-     * @brief Remaining echo bytes expected from a non-bracketed paste.
-     *
-     * Set by `setPasteEchoGate()` (MESSAGE THREAD) before writing paste data.
-     * Decremented by `consumePasteEcho()` (READER THREAD) as data arrives.
-     * While positive, `setSnapshotDirty()` is suppressed.  When the counter
-     * reaches zero, a single `snapshotDirty` store fires, producing one
-     * visual update for the entire paste.
-     */
-    std::atomic<int> pasteEchoRemaining { 0 };
-
-    /**
-     * @brief True while synchronized output (mode 2026) is active.
-     *
-     * Set by `setSyncOutput(true)` (READER THREAD) on `ESC[?2026h`.
-     * Cleared by `setSyncOutput(false)` on `ESC[?2026l`, which also
-     * fires `setSnapshotDirty()` to render the completed sync block.
-     *
-     * While true, `Session::process()` suppresses its post-parse
-     * `setSnapshotDirty()` call — the sync-off handler fires it instead.
-     */
-    std::atomic<bool> syncOutputActive { false };
-
-    /** @brief Set by requestSyncResize(), consumed by consumeSyncResize(). */
-    std::atomic<bool> syncResizePending { false };
-
-    /**
-     * @brief First visible row of the current or most-recent OSC 133 command output block.
-     *
-     * Set to the cursor row when OSC 133 ; C is received (command output starts).
-     * -1 means no OSC 133 C has been received since session start or last reset.
-     * Read on the message thread (scanner) and written on the reader thread (parser).
-     *
-     * @note READER THREAD writes (relaxed), MESSAGE THREAD reads (relaxed).
-     *       Ordering guaranteed by the snapshot-dirty handshake.
-     */
-    std::atomic<int> outputBlockTop { -1 };
-
-    /**
-     * @brief Last visible row of the current or most-recent OSC 133 command output block.
-     *
-     * Updated on every LF while outputScanActive is true, and set definitively
-     * when OSC 133 ; D is received (command output ends).
-     * -1 means no output rows have been recorded yet.
-     *
-     * @note READER THREAD writes (relaxed), MESSAGE THREAD reads (relaxed).
-     */
-    std::atomic<int> outputBlockBottom { -1 };
-
-    /**
-     * @brief True between OSC 133 ; C and OSC 133 ; D — output is being produced.
-     *
-     * The parser sets this on OSC 133 C, the LF handler extends outputBlockBottom
-     * while it is true, and OSC 133 D clears it.
-     *
-     * @note READER THREAD only — never read on the message thread.
-     */
-    std::atomic<bool> outputScanActive { false };
-
-    /**
-     * @brief Cursor row recorded on the most-recently received OSC 133 ; A prompt marker.
-     *
-     * Set by `setPromptRow()` when OSC 133 A is received.  -1 means no OSC 133 A
-     * has been received, i.e. shell integration is not active.
-     *
-     * Used by `Grid::resize()` to detect shell-integration sessions and fill dead
-     * space below the cursor when the terminal grows taller.
-     *
-     * @note READER THREAD writes (relaxed), READER THREAD reads (relaxed) in resize.
-     */
-    std::atomic<int> promptRow { -1 };
-
-    /**
      * @brief Owned backing buffer for a single string parameter.
      *
      * The reader thread writes into `buffer` and increments `generation` with
@@ -1272,30 +1318,26 @@ private:
      *
      * Buffer size is `maxStringLength` (public constant) so callers can
      * stack-allocate matching buffers without coupling to the private struct.
+     *
+     * `generation` is `std::atomic<float>` so that `fetchAdd` (the generic
+     * float-capable CAS loop) can be used uniformly with the rest of parameterMap.
      */
     struct StringSlot
     {
         char buffer[maxStringLength] {};
-        std::atomic<uint32_t> generation { 0 };
-        uint32_t lastFlushedGeneration { 0 };  ///< MESSAGE THREAD only — never read by reader.
+        std::atomic<float> generation { 0.0f };
+        float lastFlushedGeneration { 0.0f };///< MESSAGE THREAD only — never read by reader.
     };
 
     /**
-     * @brief Stable backing store for all `StringSlot` instances.
+     * @brief Flat map from identifier → owned StringSlot.
      *
-     * `std::deque` prevents reallocation so that `stringMap` raw pointers
-     * remain valid for the lifetime of the State.  Populated once during
-     * construction; never modified after that.
+     * Uses `unique_ptr` for stable addressing so the map can be re-hashed
+     * without invalidating the pointers accessed from the reader thread.
+     * Populated once during construction and immutable thereafter — safe to
+     * read from any thread without a lock.
      */
-    std::deque<StringSlot> stringSlots;
-
-    /**
-     * @brief Flat map from identifier → StringSlot pointer.
-     *
-     * Mirrors `parameterMap` for floats.  Populated once during construction
-     * and immutable thereafter — safe to read from any thread without a lock.
-     */
-    std::unordered_map<juce::Identifier, StringSlot*> stringMap;
+    StateMap<StringSlot> stringMap;
 
     /**
      * @brief Copies all atomic parameter values into the ValueTree.
@@ -1381,7 +1423,7 @@ template<typename ValueType>
 ValueType State::getRawValue (const juce::Identifier& id) const noexcept
 {
     jassert (jreng::Map::contains (parameterMap, id));
-    const float raw { parameterMap.at (id)->load (std::memory_order_relaxed) };
+    const float raw { parameterMap.at (id).get()->load (std::memory_order_relaxed) };
 
     if constexpr (std::is_same_v<ValueType, bool>)
     {
