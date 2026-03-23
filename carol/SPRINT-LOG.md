@@ -8,6 +8,80 @@
 
 ---
 
+## Sprint 117 — COUNSELOR: Screen Rewire + Module Consolidation + Atlas Validation
+
+**Date:** 2026-03-23
+
+### Agents Participated
+- COUNSELOR: architecture decisions, Screen rewire planning, atlas design discussion
+- @pathfinder: ShapeResult usage mapping, Screen getOrRasterize call sites, GLTextRenderer interface
+- @engineer: ShapeResult→GlyphRun rename, emitShapedGlyphsToCache rewire, ScreenSnapshot cursor rewire, AtlasPacker gutter, Font::getGlyph faceHandle resolution, module file moves, build verification
+- @oracle: brutal assessment of sprite sheet atlas design (2 rounds — identified fatal flaws in uniform grid, validated current shelf packer + LRU as sound)
+
+### Files Modified (30+ total)
+
+**Module restructure:**
+- `modules/jreng_graphics/jreng_graphics.h` — added jreng_freetype dep, CoreText frameworks, all fonts/ includes
+- `modules/jreng_graphics/jreng_graphics.cpp` — added fonts/ unity build (libunibreak, typeface, atlas, layout)
+- `modules/jreng_graphics/jreng_graphics.mm` — added macOS .mm includes (typeface, atlas)
+- `modules/jreng_graphics/fonts/` — 22 files created (moved from jreng_glyph)
+- `modules/jreng_graphics/fonts/linebreak/` — 13 files (vendored libunibreak)
+- `modules/jreng_graphics/fonts/jreng_font.h` — NEW lightweight Font value type
+- `modules/jreng_graphics/fonts/jreng_font.cpp` — Font::getGlyph() implementation with faceHandle resolution
+- `modules/jreng_graphics/fonts/jreng_typeface.cpp` — fixed internal includes to renamed files
+- `modules/jreng_graphics/fonts/jreng_typeface.mm` — fixed internal include to renamed registry
+- `modules/jreng_graphics/fonts/jreng_text_layout.h` — templatized draw(), removed GL/Renderer draw overloads
+- `modules/jreng_graphics/fonts/jreng_text_layout.cpp` — removed all draw implementations (now in header template)
+- `modules/jreng_opengl/renderers/` — 4 files created (GL text renderer, shaders, render types)
+- `modules/jreng_opengl/jreng_opengl.h` — added jreng_graphics dependency, renderer includes
+- `modules/jreng_opengl/jreng_opengl.cpp` — added GL text renderer to unity build
+- `modules/jreng_glyph/` — DELETED entirely
+- `CMakeLists.txt` — removed jreng_glyph from JUCE_MODULES
+
+**Rename ShapeResult → GlyphRun (6 files):**
+- `fonts/jreng_typeface.h` — struct, all method signatures, doc comments
+- `fonts/jreng_typeface.mm` — all method definitions, local variables
+- `fonts/jreng_typeface_shaping.cpp` — all method definitions, local variables
+- `fonts/jreng_text_layout.cpp` — local variable
+- `Source/terminal/rendering/ScreenRender.cpp` — 3 local variables
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — 2 local variables
+
+**Font::getGlyph() + Screen rewire:**
+- `fonts/jreng_font.h` — added applyGlyphRun(), faceHandle private member
+- `fonts/jreng_font.cpp` — getGlyph() uses faceHandle override when set
+- `Source/terminal/rendering/ScreenRender.cpp` — emitShapedGlyphsToCache simplified (Font& replaces 8 params), all 4 call sites construct Font + applyGlyphRun, tryLigature loses fontHandle param
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — cursor path rewired to Font::getGlyph()
+- `Source/terminal/rendering/Screen.h` — tryLigature signature updated
+
+**Atlas gutter:**
+- `modules/jreng_graphics/fonts/jreng_atlas_packer.h` — +1px horizontal and vertical gutter between packed glyphs
+
+### Alignment Check
+- [x] LIFESTAR principles followed (tell-don't-ask, explicit encapsulation, no poking internals)
+- [x] NAMING-CONVENTION.md adhered (ShapeResult→GlyphRun: semantic over literal)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied (Font resolves face internally)
+
+### Problems Solved
+- Screen no longer constructs Glyph::Key or handles void* fontHandle — Font::getGlyph() encapsulates
+- ShapeResult renamed to GlyphRun — semantic naming per convention
+- jreng_glyph module eliminated — non-GL in jreng_graphics/fonts/, GL in jreng_opengl/renderers/
+- Atlas sprite sheet design validated by Oracle — shelf packer + LRU confirmed as correct architecture
+- 1px atlas gutter prevents GL_LINEAR texture bleeding between packed glyphs
+- Font::applyGlyphRun() transfers face context from shaping result without exposing void* handles
+
+### Technical Debt / Follow-up
+- Box drawing path still calls `typeface.getOrRasterizeBoxDrawing()` directly — not through Font
+- `Glyph::Renderer` dead interface file still in jreng_opengl — delete
+- Stale `jreng_glyph` references in doc comments across codebase
+- `typeface.advanceFrame()` called directly by Screen — should route through Font or stay on Typeface
+- GLGraphics::setFont() + drawGlyphs() not yet added — needed for TextLayout template instantiation
+- Render::Quad/Background/SnapshotBase still terminal-specific — may belong in END, not jreng_opengl
+- `void* fontHandle` still exists in GlyphRun struct — migrate to faceSlot when fallback fonts register dynamically
+- Performance: END 27.2s / 46% CPU vs kitty 13.2s / 99% CPU on `seq 1 10M` — Plan 2.6 target
+- PLAN.md needs update to reflect completed module restructure
+
+---
+
 ## Sprint 116 — COUNSELOR: Decouple GL from Glyph Pipeline + Font/Typeface Split
 
 **Date:** 2026-03-23
