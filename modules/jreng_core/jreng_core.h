@@ -87,3 +87,6 @@
 #include "xml/jreng_xml.h"
 #include "xml/jreng_svg.h"
 #include "fuzzy_search/jreng_fuzzy_search.h"
+
+#include "concurrency/jreng_mailbox.h"
+#include "concurrency/jreng_snapshot_buffer.h"

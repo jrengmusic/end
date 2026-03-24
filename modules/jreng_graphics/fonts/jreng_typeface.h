@@ -449,7 +449,8 @@ struct Typeface
      */
     Typeface (Registry& fontRegistry,
               const juce::String& userFamilyName,
-              float pointSize);
+              float pointSize,
+              jreng::Glyph::AtlasSize atlasSize = jreng::Glyph::AtlasSize::standard);
 
     /**
      * @brief Destroys all font handles and releases HarfBuzz resources.
@@ -770,11 +771,12 @@ struct Typeface
     }
 
     /**
-     * @brief Return atlas dimension (4096).
+     * @brief Returns the atlas dimension in texels.
+     * @return Atlas side length (e.g. 4096 or 2048).
      */
-    static constexpr int atlasDimension() noexcept
+    int getAtlasDimension() const noexcept
     {
-        return jreng::Glyph::Atlas::atlasDimension();
+        return atlas.getAtlasDimension();
     }
 
     /**

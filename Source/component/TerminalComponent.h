@@ -330,6 +330,18 @@ public:
     void renderGL() noexcept override;
 
     /**
+     * @brief Renders the terminal via juce::Graphics (CPU path).
+     *
+     * Active during Plan 3.4 Graphics-only validation.  Delegates to
+     * Screen::renderPaint() using the component's local coordinate space
+     * (originX/Y = 0, fullHeight = getHeight()).
+     *
+     * @param g  The graphics context from JUCE's paint cycle.
+     * @note MESSAGE THREAD.
+     */
+    void paint (juce::Graphics& g) override;
+
+    /**
      * @brief Callback invoked after rendering to trigger a repaint.
      *
      * Set by Terminal::Tabs (which receives it from MainComponent).  Invoked from
@@ -573,8 +585,9 @@ private:
     /** @brief Font reference; lifetime owned by MainComponent. */
     jreng::Typeface& font;
 
-    /** @brief GPU-accelerated terminal renderer; attached to this component. */
-    Screen screen;
+    /** @brief Terminal renderer; Graphics path active for Plan 3.4 validation. */
+    // [Plan 3.4 — Graphics-only test: swapped GLTextRenderer → GraphicsTextRenderer]
+    Screen<jreng::Glyph::GraphicsTextRenderer> screen;
 
     /** @brief PTY session, VT parser, and grid state machine. */
     Session session;

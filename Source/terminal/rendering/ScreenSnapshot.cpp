@@ -64,7 +64,8 @@ namespace Terminal
  * @see jreng::GLSnapshotBuffer::write()
  * @see Screen::buildSnapshot()
  */
-void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexcept
+template <typename Renderer>
+void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyphs) noexcept
 {
     const ActiveScreen scr { state.getScreen() };
 
@@ -84,6 +85,9 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
     snapshot.ensureCapacity (totalMono, totalEmoji, totalBg);
     snapshot.gridWidth  = cacheCols;
     snapshot.gridHeight = rows;
+    std::memcpy (snapshot.dirtyRows, frameDirtyBits, sizeof (snapshot.dirtyRows));
+    snapshot.scrollDelta    = frameScrollDelta;
+    snapshot.physCellHeight = physCellHeight;
 
     int monoOffset  { 0 };
     int emojiOffset { 0 };
@@ -301,6 +305,9 @@ void Screen::updateSnapshot (const State& state, int rows, int maxGlyphs) noexce
     if (not state.isSyncOutputActive())
         resources.snapshotBuffer.write();
 }
+
+template class Screen<jreng::Glyph::GLTextRenderer>;
+template class Screen<jreng::Glyph::GraphicsTextRenderer>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

@@ -21,14 +21,14 @@ int    GLTextRenderer::sharedAtlasRefCount { 0 };
 // GL lifecycle
 // =============================================================================
 
-void GLTextRenderer::contextCreated() noexcept
+void GLTextRenderer::createContext() noexcept
 {
     compileShaders();
     createBuffers();
 
     if (sharedAtlasRefCount == 0)
     {
-        const int atlasDim { jreng::Typeface::atlasDimension() };
+        const int atlasDim { getAtlasDimension() };
         sharedMonoAtlas  = createAtlasTexture (atlasDim, atlasDim,
                                                juce::gl::GL_R8,
                                                juce::gl::GL_RED);
@@ -40,7 +40,7 @@ void GLTextRenderer::contextCreated() noexcept
     ++sharedAtlasRefCount;
 }
 
-void GLTextRenderer::contextClosing() noexcept
+void GLTextRenderer::closeContext() noexcept
 {
     monoShader.reset();
     emojiShader.reset();
@@ -131,6 +131,22 @@ void GLTextRenderer::setViewportSize (int width, int height) noexcept
 {
     viewportWidth  = width;
     viewportHeight = height;
+}
+
+void GLTextRenderer::push (int x, int y, int w, int h, int fullHeight) noexcept
+{
+    juce::gl::glViewport (x, fullHeight - y - h, w, h);
+    viewportWidth  = w;
+    viewportHeight = h;
+
+    juce::gl::glEnable (juce::gl::GL_BLEND);
+    juce::gl::glBlendFunc (juce::gl::GL_SRC_ALPHA,
+                           juce::gl::GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void GLTextRenderer::pop() noexcept
+{
+    juce::gl::glDisable (juce::gl::GL_BLEND);
 }
 
 void GLTextRenderer::drawQuads (const Render::Quad* data, int count, bool isEmoji) noexcept
@@ -279,6 +295,14 @@ void GLTextRenderer::drawGlyphs (const uint16_t* glyphCodes,
 // =============================================================================
 // State queries
 // =============================================================================
+
+void GLTextRenderer::setGraphicsContext (juce::Graphics&) noexcept
+{
+}
+
+void GLTextRenderer::prepareFrame (const uint64_t*, int, int, int, int) noexcept
+{
+}
 
 bool GLTextRenderer::isReady() const noexcept
 {

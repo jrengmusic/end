@@ -50,7 +50,7 @@
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
 MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
-    : typeface (fontRegistry, config.getString (Config::Key::fontFamily), config.getFloat (Config::Key::fontSize))
+    : typeface (fontRegistry, config.getString (Config::Key::fontFamily), config.getFloat (Config::Key::fontSize), jreng::Glyph::AtlasSize::compact)
 {
     setOpaque (false);
 
@@ -524,8 +524,9 @@ void MainComponent::initialiseTabs()
                 }
             }
         });
-    glRenderer.setComponentPaintingEnabled (true);
-    glRenderer.attachTo (*this);
+    // [Plan 3.4 — Graphics-only test: GL disabled]
+    // glRenderer.setComponentPaintingEnabled (true);
+    // glRenderer.attachTo (*this);
 
     tabs->onRepaintNeeded = [this]
     {
@@ -536,7 +537,9 @@ void MainComponent::initialiseTabs()
             statusBarOverlay.update (modalType, selType);
         }
 
-        glRenderer.triggerRepaint();
+        // [Plan 3.4 — Graphics-only test: repaint via JUCE instead of GL]
+        // glRenderer.triggerRepaint();
+        repaint();
     };
 
     // TODO: State restoration disabled — fix after renderer and tabs cleanup

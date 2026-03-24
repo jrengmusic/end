@@ -22,7 +22,7 @@ namespace Terminal
 {
 
 MouseHandler::MouseHandler (Session& s,
-                            Screen& sc,
+                            ScreenBase& sc,
                             LinkManager& lm) noexcept
     : session (s)
     , screen (sc)

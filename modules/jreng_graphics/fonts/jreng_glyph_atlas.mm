@@ -108,11 +108,11 @@ void Atlas::flipBitmapVertically (uint8_t* data, int width, int height, int byte
     }
 }
 
-Atlas::Atlas()
-    : atlasWidth (atlasSize)
-    , atlasHeight (atlasSize)
-    , monoPacker (atlasSize, atlasSize)
-    , emojiPacker (atlasSize, atlasSize)
+Atlas::Atlas (AtlasSize size) noexcept
+    : atlasWidth (static_cast<int> (size))
+    , atlasHeight (static_cast<int> (size))
+    , monoPacker (static_cast<int> (size), static_cast<int> (size))
+    , emojiPacker (static_cast<int> (size), static_cast<int> (size))
     , monoLRU (monoLruCapacity)
     , emojiLRU (emojiLruCapacity)
 {

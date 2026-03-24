@@ -62,6 +62,18 @@ namespace jreng::Glyph
 {
 
 /**
+ * @brief Atlas texture dimension presets.
+ *
+ * - `standard` (4096) — GPU rendering via GLTextRenderer.
+ * - `compact`  (2048) — CPU rendering via GraphicsTextRenderer. Better cache locality.
+ */
+enum class AtlasSize : int
+{
+    standard = 4096,
+    compact  = 2048
+};
+
+/**
  * @class Atlas
  * @brief Two-atlas glyph cache: rasterizes on MESSAGE THREAD, uploads on GL THREAD.
  *
@@ -120,12 +132,18 @@ public:
     using Type = jreng::Glyph::Type;
 
     /**
-     * @brief Construct the atlas, initializing both packers and LRU caches.
+     * @brief Constructs an atlas with the specified dimension.
+     * @param size  Preset atlas dimension.
+     */
+    explicit Atlas (AtlasSize size) noexcept;
+
+    /**
+     * @brief Constructs a standard-size atlas (4096×4096).
      *
-     * Both atlases are set to `atlasSize × atlasSize` (4096×4096).  The mono
+     * Both atlases are set to `AtlasSize::standard` (4096×4096).  The mono
      * LRU is capped at 19 000 entries; the emoji LRU at 4 000 entries.
      */
-    Atlas();
+    Atlas() : Atlas (AtlasSize::standard) {}
 
     /** @brief Destructor; releases pooled CGColorSpaceRef objects on macOS. */
     ~Atlas();
@@ -231,10 +249,10 @@ public:
     void advanceFrame() noexcept;
 
     /**
-     * @brief Compile-time atlas dimension (width == height == 4096).
-     * @return 4096.
+     * @brief Returns the atlas dimension in texels.
+     * @return Atlas side length (e.g. 4096 or 2048).
      */
-    static constexpr int atlasDimension() noexcept { return atlasSize; }  // NOLINT: method name matches constant intent
+    int getAtlasDimension() const noexcept { return atlasWidth; }
 
     /**
      * @struct CacheStats
@@ -323,9 +341,6 @@ public:
     }
 
 private:
-    /** @brief Side length of both atlas textures in texels (4096). */
-    inline static constexpr int atlasSize { 4096 };
-
     /** @brief Maximum entries in the mono LRU cache. */
     inline static constexpr uint32_t monoLruCapacity { 19000 };
 
@@ -399,10 +414,10 @@ private:
     /** @brief Display scale factor used by the CoreText backend for AA padding. */
     float displayScale { 1.0f };
 
-    /** @brief Atlas texture width in texels (always `atlasSize`). */
+    /** @brief Atlas texture width in texels (set from AtlasSize at construction). */
     int atlasWidth { 0 };
 
-    /** @brief Atlas texture height in texels (always `atlasSize`). */
+    /** @brief Atlas texture height in texels (set from AtlasSize at construction). */
     int atlasHeight { 0 };
 
     /** @brief Shelf packer for the mono (R8) atlas. */

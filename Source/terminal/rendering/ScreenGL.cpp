@@ -19,31 +19,27 @@
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-void Screen::glContextCreated()
+template <typename Renderer>
+void Screen<Renderer>::glContextCreated()
 {
-    jreng::BackgroundBlur::enableGLTransparency();
-    textRenderer.contextCreated();
+    textRenderer.createContext();
 }
 
-void Screen::renderOpenGL (int originX, int originY, int fullHeight)
+template <typename Renderer>
+void Screen<Renderer>::renderOpenGL (int originX, int originY, int fullHeight)
 {
     if (textRenderer.isReady())
     {
-        const int glX { originX + glViewportX };
-        const int glY { fullHeight - originY - glViewportY - glViewportHeight };
-        juce::gl::glViewport (glX, glY, glViewportWidth, glViewportHeight);
+        const int x { originX + glViewportX };
+        const int y { originY + glViewportY };
+
+        textRenderer.push (x, y, glViewportWidth, glViewportHeight, fullHeight);
+        textRenderer.uploadStagedBitmaps (font);
 
         Render::Snapshot* snapshot { resources.snapshotBuffer.read() };
 
         if (snapshot != nullptr)
         {
-            textRenderer.setViewportSize (glViewportWidth, glViewportHeight);
-            textRenderer.uploadStagedBitmaps (font);
-
-            juce::gl::glEnable (juce::gl::GL_BLEND);
-            juce::gl::glBlendFunc (
-                juce::gl::GL_SRC_ALPHA, juce::gl::GL_ONE_MINUS_SRC_ALPHA);
-
             if (snapshot->backgroundCount > 0)
             {
                 textRenderer.drawBackgrounds (snapshot->backgrounds.get(),
@@ -65,18 +61,20 @@ void Screen::renderOpenGL (int originX, int originY, int fullHeight)
             }
 
             drawCursor (*snapshot);
-
-            juce::gl::glDisable (juce::gl::GL_BLEND);
         }
+
+        textRenderer.pop();
     }
 }
 
-void Screen::glContextClosing()
+template <typename Renderer>
+void Screen<Renderer>::glContextClosing()
 {
-    textRenderer.contextClosing();
+    textRenderer.closeContext();
 }
 
-bool Screen::isGLContextReady() const noexcept
+template <typename Renderer>
+bool Screen<Renderer>::isGLContextReady() const noexcept
 {
     return textRenderer.isReady();
 }
@@ -104,7 +102,8 @@ bool Screen::isGLContextReady() const noexcept
  * @param snapshot  The current frame's snapshot (already acquired by `renderOpenGL`).
  * @note **GL THREAD** only.
  */
-void Screen::drawCursor (const Render::Snapshot& snapshot)
+template <typename Renderer>
+void Screen<Renderer>::drawCursor (const Render::Snapshot& snapshot)
 {
     const int col { snapshot.cursorPosition.x };
     const int row { snapshot.cursorPosition.y };
@@ -182,6 +181,62 @@ void Screen::drawCursor (const Render::Snapshot& snapshot)
         }
     }
 }
+
+template <typename Renderer>
+void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY, int fullHeight)
+{
+    textRenderer.setGraphicsContext (g);
+
+    if (not textRenderer.isReady())
+        textRenderer.createContext();
+
+    if (textRenderer.isReady())
+    {
+        const int x { originX + glViewportX };
+        const int y { originY + glViewportY };
+
+        textRenderer.push (x, y, glViewportWidth, glViewportHeight, fullHeight);
+        textRenderer.uploadStagedBitmaps (font);
+
+        Render::Snapshot* snapshot { resources.snapshotBuffer.read() };
+
+        if (snapshot != nullptr)
+        {
+            textRenderer.prepareFrame (snapshot->dirtyRows,
+                                        snapshot->scrollDelta,
+                                        snapshot->physCellHeight,
+                                        snapshot->gridHeight,
+                                        snapshot->scrollOffset);
+
+            if (snapshot->backgroundCount > 0)
+            {
+                textRenderer.drawBackgrounds (snapshot->backgrounds.get(),
+                                              snapshot->backgroundCount);
+            }
+
+            if (snapshot->monoCount > 0)
+            {
+                textRenderer.drawQuads (snapshot->mono.get(),
+                                        snapshot->monoCount,
+                                        false);
+            }
+
+            if (snapshot->emojiCount > 0)
+            {
+                textRenderer.drawQuads (snapshot->emoji.get(),
+                                        snapshot->emojiCount,
+                                        true);
+            }
+
+            drawCursor (*snapshot);
+        }
+
+        textRenderer.pop();
+    }
+}
+
+template class Screen<jreng::Glyph::GLTextRenderer>;
+template class Screen<jreng::Glyph::GraphicsTextRenderer>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

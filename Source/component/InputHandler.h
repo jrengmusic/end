@@ -28,7 +28,7 @@
 namespace Terminal
 {
 class Session;
-class Screen;
+class ScreenBase;
 class LinkManager;
 } // namespace Terminal
 
@@ -53,7 +53,7 @@ public:
      * @note MESSAGE THREAD.
      */
     InputHandler (Terminal::Session& session,
-                  Terminal::Screen& screen,
+                  Terminal::ScreenBase& screen,
                   Terminal::LinkManager& linkManager) noexcept;
 
     /**
@@ -184,7 +184,7 @@ private:
     Terminal::Session& session;
 
     /** @brief Terminal renderer — provides scroll offset and cursor queries. */
-    Terminal::Screen& screen;
+    Terminal::ScreenBase& screen;
 
     /** @brief Link manager — used by open-file mode for dispatch. */
     Terminal::LinkManager& linkManager;

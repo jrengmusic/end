@@ -8,6 +8,93 @@
 
 ---
 
+## Sprint 122 — COUNSELOR: Plan 3 — CPU Rendering Backend (GraphicsTextRenderer + Template Screen)
+
+**Date:** 2026-03-25
+
+### Agents Participated
+- COUNSELOR: Requirements analysis, plan authoring, design decisions, step-by-step delegation
+- Pathfinder: Codebase discovery (rendering pipeline, atlas internals, Screen consumers, GL wiring)
+- Oracle: Brutal assessment of C1 vs C2 glyph tinting strategies
+- Researcher: CPU bitmap rasterization patterns (multi-thread, dirty regions, SIMD, glyph caching)
+- Librarian: JUCE internals + native OS APIs (BitmapData, vImage, Direct2D, LowLevelGraphicsContext)
+- Engineer: All implementation (7 major tasks across 30+ files)
+- Auditor: Contract compliance verification per step
+
+### Files Modified (30 total)
+
+**New files (4):**
+- `modules/jreng_core/concurrency/jreng_mailbox.h` — `Mailbox<T>` (moved from jreng_opengl, renamed from GLMailbox)
+- `modules/jreng_core/concurrency/jreng_snapshot_buffer.h` — `SnapshotBuffer<T>` (moved, renamed from GLSnapshotBuffer)
+- `modules/jreng_graphics/rendering/jreng_glyph_render.h` — `Render::Quad`, `Background`, `SnapshotBase` (moved from jreng_opengl)
+- `modules/jreng_graphics/rendering/jreng_graphics_text_renderer.h/.cpp` — `GraphicsTextRenderer` (new CPU renderer)
+
+**Module headers (3):**
+- `modules/jreng_core/jreng_core.h` — added concurrency includes
+- `modules/jreng_graphics/jreng_graphics.h` — added rendering includes
+- `modules/jreng_opengl/jreng_opengl.h` — removed moved includes
+
+**Forwarding headers (3):**
+- `modules/jreng_opengl/context/jreng_gl_mailbox.h` — forwarding alias GLMailbox → Mailbox
+- `modules/jreng_opengl/context/jreng_gl_snapshot_buffer.h` — forwarding alias GLSnapshotBuffer → SnapshotBuffer
+- `modules/jreng_opengl/renderers/jreng_glyph_render.h` — forwarding to jreng_graphics
+
+**GLTextRenderer (2):**
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.h` — added push/pop/prepareFrame/setGraphicsContext/getAtlasDimension, renamed createContext/closeContext
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.cpp` — implemented push/pop, no-op prepareFrame/setGraphicsContext, renamed methods
+
+**Atlas + Typeface (6):**
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.h` — `AtlasSize` enum, configurable constructor, `getAtlasDimension()` instance method
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.cpp` — `Atlas(AtlasSize)` constructor
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.mm` — same for macOS
+- `modules/jreng_graphics/fonts/jreng_typeface.h` — `AtlasSize` param forwarding, `getAtlasDimension()` instance method
+- `modules/jreng_graphics/fonts/jreng_typeface.cpp` — constructor forwards AtlasSize
+- `modules/jreng_graphics/fonts/jreng_typeface.mm` — same for macOS
+
+**Unity build (1):**
+- `modules/jreng_graphics/jreng_graphics.cpp` — added rendering .cpp include
+
+**Screen template (5):**
+- `Source/terminal/rendering/Screen.h` — `ScreenBase` abstract class, `template <typename Renderer> class Screen`, `Renderer textRenderer` member, `renderPaint()`, enriched `Render::Snapshot` (dirtyRows, scrollDelta, physCellHeight)
+- `Source/terminal/rendering/Screen.cpp` — templated all methods, destructor calls closeContext, frameDirtyBits/frameScrollDelta members
+- `Source/terminal/rendering/ScreenGL.cpp` — templated all methods, push/pop/prepareFrame calls, BackgroundBlur removed
+- `Source/terminal/rendering/ScreenRender.cpp` — templated all methods, stores dirtyBits + scrollDelta
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — templated, writes dirty/scroll/cellHeight to snapshot
+
+**App-level (6):**
+- `Source/component/TerminalComponent.h` — `Screen<GraphicsTextRenderer>` (Plan 3.4), paint() override
+- `Source/component/TerminalComponent.cpp` — GL methods commented out (Plan 3.4), paint() calls renderPaint, BackgroundBlur moved here
+- `Source/component/InputHandler.h/.cpp` — `ScreenBase&` instead of `Screen&`, removed stale forward decl
+- `Source/component/MouseHandler.h/.cpp` — `ScreenBase&` instead of `Screen&`, removed stale forward decl
+- `Source/MainComponent.cpp` — GL attachment commented out (Plan 3.4), AtlasSize::compact, JUCE repaint cycle
+
+**Documentation (1):**
+- `PLAN.md` — Updated architecture, duck-type contract, Plan 3 steps, Plan 4 scope
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered (functions are verbs: push/pop/createContext/closeContext/prepareFrame/getAtlasDimension)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied (Lean, Explicit Encapsulation, SSOT)
+
+### Problems Solved
+- **C2 (per-glyph drawImageAt) choked message thread** — replaced with direct BitmapData compositing (Option C). Zero juce::Graphics calls during glyph rendering.
+- **Retina scaling** — inverse scale transform in pop() via drawImageAt + saveState/restoreState. Integer coordinates, no float interpolation.
+- **Atlas sharing across splits/tabs** — static shared atlas images with ref-counting (mirrors GL pattern).
+- **Render target artifacts on scroll** — full clear on scroll frames, dirty-row clear on non-scroll frames. Scroll memmove deferred (needs cumulative delta tracking).
+- **Below-grid stale pixels after zoom** — explicit clear of area below grid in prepareFrame.
+- **Static Image leak on shutdown** — Screen destructor calls closeContext().
+- **Font size inconsistency** — replaced drawImage(float rect) with drawImageAt (integer coords + scale transform). No bilinear interpolation.
+
+### Technical Debt / Follow-up
+- **Scroll memmove optimization** — deferred. Needs cumulative scrollDelta tracking across snapshot double-buffer to be correct. Currently falls back to full clear on scroll.
+- **Dedicated render thread** — identified as the path to close the CPU utilization gap (37% → higher). Compositing moves off message thread. Architecture ready (SnapshotBuffer + Mailbox exist).
+- **2K atlas sizing** — currently hardcoded per renderer type. Plan 4 wires it at startup based on renderer selection.
+- **Plan 3.4 non-destructive markers** — 8 `[Plan 3.4]` comment markers across TerminalComponent and MainComponent. Restore GL path by uncommenting.
+- **vImage acceleration (macOS)** — `vImagePremultipliedAlphaBlend_ARGB8888` is an exact match for our blend loop. ~50 lines behind `#if JUCE_MAC`. Profile first after dirty-row + render thread.
+- **PLAN.md doc references** — some `atlasDimension` references in PLAN.md not updated (documentation, not code).
+
+---
+
 ## Sprint 121 — COUNSELOR: LinkManager Architecture, Scroll-Aware Output Block, StatusBar Fix
 
 **Date:** 2026-03-24

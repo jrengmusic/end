@@ -13,7 +13,7 @@
 #include "../config/Config.h"
 
 InputHandler::InputHandler (Terminal::Session& s,
-                            Terminal::Screen& sc,
+                            Terminal::ScreenBase& sc,
                             Terminal::LinkManager& lm) noexcept
     : session (s)
     , screen (sc)

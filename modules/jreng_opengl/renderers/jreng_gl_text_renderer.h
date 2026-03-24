@@ -9,7 +9,7 @@
  *
  * ### Shader pipeline
  *
- * Three shader programs are compiled once in `contextCreated()`:
+ * Three shader programs are compiled once in `createContext()`:
  * - **monoShader**       — R8 atlas path (regular + bold + italic glyphs).
  * - **emojiShader**      — RGBA8 atlas path (colour emoji).
  * - **backgroundShader** — coloured background rectangles.
@@ -21,7 +21,7 @@
  * ### Thread contract
  *
  * All methods must be called on the **GL THREAD** (inside
- * `glContextCreated`, `renderOpenGL`, `glContextClosing`, or equivalent).
+ * `createContext`, `renderOpenGL`, `closeContext`, or equivalent).
  * No method is thread-safe; the caller is responsible for synchronisation.
  *
  * @see jreng::Glyph::Shaders
@@ -37,8 +37,8 @@ namespace jreng::Glyph
  * @class GLTextRenderer
  * @brief Owns GL resources for instanced glyph and background quad rendering.
  *
- * Compile shaders and allocate textures/buffers by calling `contextCreated()`
- * when the OpenGL context is first established.  Call `contextClosing()` before
+ * Compile shaders and allocate textures/buffers by calling `createContext()`
+ * when the OpenGL context is first established.  Call `closeContext()` before
  * the context is torn down to release all GPU objects.  Between those two calls,
  * use `uploadStagedBitmaps()`, `setViewportSize()`, `drawQuads()`, and
  * `drawBackgrounds()` once per frame on the GL thread.
@@ -46,7 +46,7 @@ namespace jreng::Glyph
  * @par Typical frame sequence
  * @code
  * // Once per GL context lifetime:
- * renderer.contextCreated();
+ * renderer.createContext();
  *
  * // Each frame (GL THREAD):
  * renderer.setViewportSize (w, h);
@@ -56,7 +56,7 @@ namespace jreng::Glyph
  * renderer.drawQuads (emojiData, emojiCount, true);
  *
  * // On context teardown:
- * renderer.contextClosing();
+ * renderer.closeContext();
  * @endcode
  *
  * @note **GL THREAD** only for all methods.
@@ -82,22 +82,22 @@ public:
      * any draw calls.  Compiles the three shader programs from the embedded
      * `jreng::Glyph::Shaders` constexpr strings, creates the shared VAO and
      * VBOs, and allocates a mono (R8) and an emoji (RGBA8) atlas texture,
-     * each `Atlas::atlasDimension() × Atlas::atlasDimension()` texels.
+     * each `Atlas::getAtlasDimension() × Atlas::getAtlasDimension()` texels.
      *
      * @note **GL THREAD**.
      */
-    void contextCreated() noexcept;
+    void createContext() noexcept;
 
     /**
      * @brief Release all GL resources owned by this renderer.
      *
      * Resets the three shader unique_ptrs and deletes the atlas textures,
-     * VAO, and VBOs.  Safe to call even if `contextCreated()` was never
+     * VAO, and VBOs.  Safe to call even if `createContext()` was never
      * called (all handles initialise to 0).
      *
      * @note **GL THREAD**.
      */
-    void contextClosing() noexcept;
+    void closeContext() noexcept;
 
     // =========================================================================
     // Per-frame operations
@@ -129,6 +129,31 @@ public:
      * @note **GL THREAD**.
      */
     void setViewportSize (int width, int height) noexcept;
+
+    /**
+     * @brief Set up per-frame GL state for rendering.
+     *
+     * Configures the GL viewport with Y-flip for top-down coordinate space,
+     * stores viewport dimensions for shader uniforms, and enables alpha blending.
+     *
+     * @param x           Physical pixel X origin of the viewport.
+     * @param y           Physical pixel Y origin of the viewport (top-down).
+     * @param w           Viewport width in physical pixels.
+     * @param h           Viewport height in physical pixels.
+     * @param fullHeight  Full window height in physical pixels (for GL Y-flip).
+     *
+     * @note **GL THREAD**.
+     */
+    void push (int x, int y, int w, int h, int fullHeight) noexcept;
+
+    /**
+     * @brief Tear down per-frame GL state after rendering.
+     *
+     * Disables alpha blending.
+     *
+     * @note **GL THREAD**.
+     */
+    void pop() noexcept;
 
     /**
      * @brief Draw instanced glyph quads from a `Render::Quad` array.
@@ -163,6 +188,23 @@ public:
     // =========================================================================
 
     /**
+     * @brief No-op for GL renderer. Required by the duck-type contract.
+     *
+     * `GraphicsTextRenderer` binds a `juce::Graphics` context here.
+     * The GL renderer ignores this call — it renders via the OpenGL context.
+     *
+     * @param g  Unused.
+     * @note **GL THREAD**.
+     */
+    void setGraphicsContext (juce::Graphics& g) noexcept;
+
+    /**
+     * @brief No-op for GL renderer. Required by the duck-type contract.
+     * @note **GL THREAD**.
+     */
+    void prepareFrame (const uint64_t*, int, int, int, int) noexcept;
+
+    /**
      * @brief Set the current font for subsequent drawGlyphs calls.
      * @param font  Lightweight font carrying typeface, size, style, emoji flag.
      * @note **GL THREAD**.
@@ -188,7 +230,7 @@ public:
      * @brief Returns `true` if GL resources are initialised and ready for drawing.
      *
      * Checks that `monoShader` is non-null.  Returns `false` before
-     * `contextCreated()` is called or after `contextClosing()` clears it.
+     * `createContext()` is called or after `closeContext()` clears it.
      *
      * @return `true` if the renderer is ready.
      *
@@ -199,13 +241,11 @@ public:
     /**
      * @brief Compile-time atlas texture side length in texels.
      *
-     * Delegates to `Atlas::atlasDimension()`.
-     *
      * @return 4096.
      */
-    static constexpr int atlasDimension() noexcept
+    static constexpr int getAtlasDimension() noexcept
     {
-        return Atlas::atlasDimension();
+        return static_cast<int> (AtlasSize::standard);
     }
 
 private:
@@ -217,7 +257,7 @@ private:
      * @brief Compile all three shader programs from the embedded GLSL sources.
      *
      * Sources are read from `jreng::Glyph::Shaders::*` constexpr strings.
-     * Requires an active `juce::OpenGLContext`.  Called from `contextCreated()`.
+     * Requires an active `juce::OpenGLContext`.  Called from `createContext()`.
      *
      * @note **GL THREAD**.
      */
@@ -228,7 +268,7 @@ private:
      *
      * Sets up a unit quad (four vertices at the corners of a 1×1 square)
      * as the base geometry for all instanced draw calls.  Called from
-     * `contextCreated()`.
+     * `createContext()`.
      *
      * @note **GL THREAD**.
      */
@@ -257,13 +297,13 @@ private:
     // Data
     // =========================================================================
 
-    /** @brief Compiled mono (R8) glyph shader program. Null until `contextCreated()`. */
+    /** @brief Compiled mono (R8) glyph shader program. Null until `createContext()`. */
     std::unique_ptr<juce::OpenGLShaderProgram> monoShader;
 
-    /** @brief Compiled emoji (RGBA8) glyph shader program. Null until `contextCreated()`. */
+    /** @brief Compiled emoji (RGBA8) glyph shader program. Null until `createContext()`. */
     std::unique_ptr<juce::OpenGLShaderProgram> emojiShader;
 
-    /** @brief Compiled background quad shader program. Null until `contextCreated()`. */
+    /** @brief Compiled background quad shader program. Null until `createContext()`. */
     std::unique_ptr<juce::OpenGLShaderProgram> backgroundShader;
 
     /** @brief Shared mono (R8) atlas texture. Created by the first instance, deleted by the last. */
@@ -272,16 +312,16 @@ private:
     /** @brief Shared emoji (RGBA8) atlas texture. Created by the first instance, deleted by the last. */
     static GLuint sharedEmojiAtlas;
 
-    /** @brief Reference count for shared atlas textures. Incremented in contextCreated, decremented in contextClosing. */
+    /** @brief Reference count for shared atlas textures. Incremented in createContext, decremented in closeContext. */
     static int sharedAtlasRefCount;
 
-    /** @brief Vertex array object shared by all draw calls. 0 until `contextCreated()`. */
+    /** @brief Vertex array object shared by all draw calls. 0 until `createContext()`. */
     GLuint vao         { 0 };
 
-    /** @brief Static VBO holding the unit quad corner vertices. 0 until `contextCreated()`. */
+    /** @brief Static VBO holding the unit quad corner vertices. 0 until `createContext()`. */
     GLuint quadVBO     { 0 };
 
-    /** @brief Dynamic VBO for per-instance data; re-uploaded every draw call. 0 until `contextCreated()`. */
+    /** @brief Dynamic VBO for per-instance data; re-uploaded every draw call. 0 until `createContext()`. */
     GLuint instanceVBO { 0 };
 
     /** @brief Viewport width in physical pixels; set via `setViewportSize()`. */

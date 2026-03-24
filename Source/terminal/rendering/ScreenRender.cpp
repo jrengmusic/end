@@ -316,7 +316,8 @@ static void emitShapedGlyphsToCache (
  * @see buildBlockRect()
  * @see ScreenSelection::contains()
  */
-void Screen::processCellForSnapshot (
+template <typename Renderer>
+void Screen<Renderer>::processCellForSnapshot (
     const Cell& cell, const Cell* rowCells, const Grapheme* rowGraphemes, int col, int row) noexcept
 {
     // ---------------------------------------------------------------------------
@@ -480,7 +481,8 @@ void Screen::processCellForSnapshot (
  * @see processCellForSnapshot()
  * @see updateSnapshot()
  */
-void Screen::buildSnapshot (State& state, Grid& grid) noexcept
+template <typename Renderer>
+void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
 {
     const int cols { state.getCols() };
     const int rows { state.getVisibleRows() };
@@ -497,6 +499,9 @@ void Screen::buildSnapshot (State& state, Grid& grid) noexcept
     {
         std::memset (dirtyBits, 0xFF, sizeof (dirtyBits));
     }
+
+    std::memcpy (frameDirtyBits, dirtyBits, sizeof (frameDirtyBits));
+    frameScrollDelta = grid.consumeScrollDelta();
 
     for (int r { 0 }; r < rows; ++r)
     {
@@ -601,7 +606,8 @@ static void buildCodepointSequence (const Cell& cell, const Grapheme* grapheme,
  * @see FontCollection::resolve()
  * @see BoxDrawing::isProcedural()
  */
-void Screen::buildCellInstance (const Cell& cell,
+template <typename Renderer>
+void Screen<Renderer>::buildCellInstance (const Cell& cell,
                                 const Grapheme* grapheme,
                                 const Cell* rowCells,
                                 int col, int row,
@@ -837,7 +843,8 @@ void Screen::buildCellInstance (const Cell& cell,
  * @see buildCellInstance()
  * @see emitShapedGlyphsToCache()
  */
-int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface::Style style,
+template <typename Renderer>
+int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface::Style style,
                          const juce::Colour& foreground) noexcept
 {
     int result { 0 };
@@ -936,7 +943,8 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface
  * @see isBlockChar()
  * @see processCellForSnapshot()
  */
-Render::Background Screen::buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept
+template <typename Renderer>
+Render::Background Screen<Renderer>::buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept
 {
     const BlockGeometry& g { blockTable.at (codepoint - blockFirst) };
     const float cx { static_cast<float> (col * physCellWidth) };
@@ -969,7 +977,8 @@ Render::Background Screen::buildBlockRect (uint32_t codepoint, int col, int row,
  *
  * @see buildCellInstance()
  */
-jreng::Typeface::Style Screen::selectFontStyle (const Cell& cell) noexcept
+template <typename Renderer>
+jreng::Typeface::Style Screen<Renderer>::selectFontStyle (const Cell& cell) noexcept
 {
     jreng::Typeface::Style result { jreng::Typeface::Style::regular };
 
@@ -988,6 +997,9 @@ jreng::Typeface::Style Screen::selectFontStyle (const Cell& cell) noexcept
 
     return result;
 }
+
+template class Screen<jreng::Glyph::GLTextRenderer>;
+template class Screen<jreng::Glyph::GraphicsTextRenderer>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

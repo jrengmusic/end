@@ -1,9 +1,9 @@
 # PLAN.md — Text Rendering Pipeline: Extraction, Decoupling, CPU Fallback
 
 **Project:** END
-**Date:** 2026-03-23
+**Date:** 2026-03-24
 **Author:** COUNSELOR
-**Status:** Active — Plan 2.6 next
+**Status:** Active — Plan 3 next
 
 **Contracts:** LIFESTAR, NAMING-CONVENTION, ARCHITECTURAL-MANIFESTO, JRENG-CODING-STANDARD
 
@@ -16,24 +16,27 @@ Seven sequential plans. Each plan is self-contained — delivers working, testab
 | Plan | Objective | Status |
 |------|-----------|--------|
 | 0 | Vendor FreeType as JUCE module | Done (Sprint 115) |
-| 1 | Extract glyph pipeline into `jreng_glyph` module | Done (Sprint 115) |
-| 2 | Replace END's rendering with `jreng_glyph` (destructive move) | Done (Sprint 115) |
+| 1 | Extract glyph pipeline into `jreng_graphics` module | Done (Sprint 115) |
+| 2 | Replace END's rendering with `jreng_graphics` (destructive move) | Done (Sprint 115) |
 | 2.5 | Decouple GL from glyph pipeline, rewire Screen to Font API | Done (Sprint 117) |
-| **2.6** | **Rendering pipeline optimization — rasterization + dirty rows** | **Next** |
-| 3 | CPU rendering backend via `juce::Graphics` | Blocked on 2.6 |
-| 4 | END end-to-end CPU rendering fallback | Blocked on 3 |
+| 2.6 | Rendering pipeline optimization — metrics cache, dirty rows, CG pooling | Done (Sprint 118) |
+| **3** | **CPU rendering backend — `GraphicsTextRenderer` + template `Screen`** | **Next** |
+| 4 | END runtime GPU/CPU switching | Blocked on 3 |
 
 ### Surface API
 
 `jreng::TextLayout` — drop-in replacement for `juce::TextLayout`.
 
 - **Input:** `juce::AttributedString` (no custom string type)
-- **Rendering:** `jreng::TextLayout::draw (jreng::Glyph::Renderer&, area)` — backend-agnostic
-- **GL backend:** `GLRenderer` implements `Glyph::Renderer` — instanced quad rendering
-- **CPU backend:** Plan 3 implements `Glyph::Renderer` — `juce::Graphics` blit rendering
+- **Rendering:** `jreng::TextLayout::draw<GraphicsContext> (context, area)` — template duck-typing
+- **GL backend:** `GLTextRenderer` satisfies duck-type — instanced quad rendering
+- **Graphics backend:** Plan 3 — `GraphicsTextRenderer` satisfies duck-type — `juce::Graphics` blit rendering
 
-### Architecture (post-Plan 2.5)
+### Architecture (current — post-Plan 2.6)
 
+Two rendering paths exist:
+
+**TextLayout path** (UI components: LookAndFeel, overlays):
 ```
 juce::AttributedString
         |
@@ -44,45 +47,74 @@ TextLayout::createLayout (text, maxWidth, font)
    layout data (lines, runs, positioned glyphs)
         |
         v
-TextLayout::draw (renderer, area)
-        |                         |
-        v                         v
-  setFont() + drawGlyphs()   setFont() + drawGlyphs()
-    GLRenderer                  CPURenderer (Plan 3)
-   (jreng_opengl)
+TextLayout::draw<GraphicsContext> (context, area)
+        |                              |
+        v                              v
+  setFont() + drawGlyphs()      setFont() + drawGlyphs()
+    GLTextRenderer                 GraphicsTextRenderer (Plan 3)
+   (jreng_opengl)                 (jreng_graphics)
 ```
 
-### Module Dependency (post-Plan 2.5)
+**Screen path** (terminal grid):
+```
+Grid + State
+      |
+      v
+Screen::buildSnapshot()  (MESSAGE THREAD)
+      |
+      v
+Render::Snapshot  (Quad[] + Background[] + cursor)
+      |
+      v
+SnapshotBuffer::write() → read()
+      |
+      v
+Renderer::drawBackgrounds() + drawQuads()
+      |                              |
+      v                              v
+  GLTextRenderer                 GraphicsTextRenderer (Plan 3)
+  (GL THREAD)                    (MESSAGE THREAD paint())
+```
+
+### Module Dependency (current)
 
 ```
-jreng_glyph  (Font, Atlas, TextLayout, Glyph::Renderer interface)
+jreng_core       (Mailbox, SnapshotBuffer — lock-free utilities) [Plan 3 moves these here]
      ^
      |
-jreng_opengl (GLRenderer implements Glyph::Renderer)
+jreng_graphics   (Font, Atlas, Typeface, TextLayout, Render types, GraphicsTextRenderer)
      ^
      |
-jreng_core
+jreng_opengl     (GLTextRenderer, GLRenderer, shaders, GL context)
+     ^
+     |
+END app          (Screen<Renderer>, Terminal::Component, MainComponent)
 ```
 
-`jreng_glyph` has zero GL dependency. `jreng_opengl` depends on `jreng_glyph` (DIP: high-level module defines interface, low-level implements).
+`jreng_graphics` has zero GL dependency. `jreng_opengl` depends on `jreng_graphics`.
 
-### Rendering Interface (mirrors juce::LowLevelGraphicsContext::drawGlyphs)
+### Renderer Duck-Type Contract
+
+Both `GLTextRenderer` and `GraphicsTextRenderer` satisfy this implicit interface via C++ template duck-typing. No virtual dispatch.
 
 ```cpp
-namespace jreng::Glyph
-{
-    struct Renderer
-    {
-        virtual ~Renderer() = default;
-        virtual void setFont (jreng::Font& font, Font::Style style, bool isEmoji) = 0;
-        virtual void drawGlyphs (const uint16_t* glyphCodes,
-                                 const juce::Point<float>* positions,
-                                 int count) = 0;
-        virtual void drawBackgrounds (const juce::Rectangle<float>* areas,
-                                      const juce::Colour* colours,
-                                      int count) = 0;
-    };
-}
+// Required by TextLayout::draw<GraphicsContext>:
+void setFont (jreng::Font& font) noexcept;
+void drawGlyphs (const uint16_t* glyphCodes,
+                 const juce::Point<float>* positions,
+                 int count) noexcept;
+
+// Required by Screen<Renderer>:
+void contextCreated() noexcept;           // GL: compile shaders. Graphics: no-op.
+void contextClosing() noexcept;           // GL: release GPU. Graphics: no-op.
+bool isReady() const noexcept;            // GL: shaders compiled. Graphics: always true.
+void uploadStagedBitmaps (jreng::Typeface&) noexcept;  // GL: glTexSubImage2D. Graphics: copy to juce::Image.
+void setViewportSize (int w, int h) noexcept;
+void push (int x, int y, int w, int h, int fullHeight) noexcept;
+void pop() noexcept;
+void drawQuads (const Render::Quad* data, int count, bool isEmoji) noexcept;
+void drawBackgrounds (const Render::Background* data, int count) noexcept;
+static constexpr int atlasDimension() noexcept;  // 4096
 ```
 
 ---
@@ -268,117 +300,201 @@ Screen uses `Glyph::Renderer&` instead of `GLTextRenderer`.
 
 ---
 
-## PLAN 2.6: Rendering Pipeline Optimization
+## PLAN 2.6: Rendering Pipeline Optimization — DONE
 
-**Gate:** Must complete before Plan 3. CPU rendering will amplify any inefficiency — fix on the GL path first so the CPU path inherits a clean baseline.
-
-**Goal:** Eliminate redundant per-frame work in the rendering pipeline. Two confirmed bottlenecks: (1) `calcMetrics()` called per cell every frame despite metrics only changing on font size change, (2) full grid rebuild every frame despite dirty-row tracking infrastructure already existing.
-
-### Benchmark context
-
-`seq 1 10000000` on iMac 5K 2015, -O3:
-
-| Terminal | Wall |
-|----------|------|
-| kitty | 13.55s |
-| END | **12.39s** |
-
-END wins throughput. The optimization targets are per-frame CPU waste, not throughput.
-
-### Investigation results (confirmed by code analysis)
-
-| Target | Finding | Status |
-|--------|---------|--------|
-| Snapshot buffer latency | `GLMailbox` is lock-free atomic exchange. One-frame latency is inherent and acceptable. | No change needed |
-| Full redraw every frame | `buildSnapshot()` rebuilds ALL rows unconditionally. `Grid::dirtyRows[4]` bitmask exists but is never consumed by the render path. | **Fix: Step 2.6.1** |
-| `calcMetrics()` per cell | `Font::getGlyph()` calls `typeface.calcMetrics(size)` per cell per frame. 4,800 calls/frame, each doing `FT_Set_Char_Size` x2 + 96 `FT_Load_Glyph`. 100% waste on cache hits. | **Fix: Step 2.6.0** |
-| `glBufferData` per frame | Standard orphaning pattern. Modern drivers handle it well. | Low priority |
-| CGBitmapContext per glyph | macOS rasterization creates/destroys CGBitmapContext + CGColorSpace per glyph. | **Fix: Step 2.6.2** |
-| Blend state on opaque backgrounds | Minor. | Deferred |
+Completed Sprint 118. Three optimizations:
+- **Metrics caching** on Typeface (`cachedMetricsSize` / `cachedMetrics`). `calcMetrics()` returns cached result when size matches.
+- **Dirty-row skipping** in `buildSnapshot()`. Consumes `grid.consumeDirtyRows()` bitmask, skips clean rows.
+- **CGBitmapContext pooling** on macOS. `ensurePooledContext()` reuses persistent mono/emoji contexts.
 
 ---
 
-### Step 2.6.0 — Cache `calcMetrics()` on Typeface
+## PLAN 3: CPU Rendering Backend — `GraphicsTextRenderer` + Template `Screen`
 
-**Problem:** `Font::getGlyph()` calls `typeface.calcMetrics(size)` on every invocation. For 120x40 terminal: 4,800 calls per frame. Each call does `FT_Set_Char_Size` twice + iterates 96 ASCII glyphs in `measureMaxCellWidth`. On steady-state cache hits, this is pure waste — metrics never change between calls at the same size.
+**Goal:** `juce::Graphics`-based rendering backend for both TextLayout (UI) and Screen (terminal grid). Same call sites as GL path. Template `Screen<Renderer>` enables compile-time backend selection with zero runtime overhead.
 
-**Fix:** Cache the `Metrics` result on Typeface, keyed by size. `calcMetrics()` returns the cached result when size matches. Invalidate only on size change.
+**Covers:**
+1. Move rendering-agnostic infrastructure out of `jreng_opengl`
+2. `GraphicsTextRenderer` in `jreng_graphics` — duck-type compatible with `GLTextRenderer`
+3. `Screen<Renderer>` template — identical rendering code, swappable backend
+
+### Design Decisions (ARCHITECT approved)
+
+1. **Template duck-typing, not virtual dispatch.** `Screen<Renderer>` and `TextLayout::draw<GraphicsContext>` use compile-time polymorphism. Zero vtable overhead.
+2. **`GraphicsTextRenderer` lives in `jreng_graphics`.** All CPU rendering code stays in the GL-free module.
+3. **`juce::Image` atlas mirrors GL atlas.** Same atlas packing, same UV coordinates. `GraphicsTextRenderer` drains the same staged bitmap queue — copies pixels to `juce::Image` instead of `glTexSubImage2D`.
+4. **`Render::Quad`, `Render::Background`, `SnapshotBase` move to `jreng_graphics`.** Pure geometry + colour PODs with zero GL dependency.
+5. **`Mailbox` and `SnapshotBuffer` move to `jreng_core`.** Lock-free atomic utilities with zero GL dependency. Renamed from `GLMailbox` / `GLSnapshotBuffer`.
+6. **GL state consolidation.** `glViewport`, `glEnable(GL_BLEND)`, `glBlendFunc`, `glDisable(GL_BLEND)` move into `GLTextRenderer::beginFrame()` / `endFrame()`. Screen never touches GL directly.
+7. **Mono glyph tinting.** Mono atlas stores alpha coverage. `GraphicsTextRenderer::drawQuads()` blits glyph alpha tinted with `Render::Quad::foregroundColor`. Emoji atlas stores full ARGB — direct blit.
+
+---
+
+### Step 3.0 — Move snapshot infrastructure out of `jreng_opengl`
+
+Move rendering-agnostic types and utilities so `Screen` and `GraphicsTextRenderer` can live outside `jreng_opengl`.
+
+**Move to `jreng_core`:**
+- `jreng_opengl/context/jreng_gl_mailbox.h` → `jreng_core/concurrency/jreng_mailbox.h` — rename `GLMailbox` → `Mailbox`
+- `jreng_opengl/context/jreng_gl_snapshot_buffer.h` → `jreng_core/concurrency/jreng_snapshot_buffer.h` — rename `GLSnapshotBuffer` → `SnapshotBuffer`
+
+**Move to `jreng_graphics`:**
+- `jreng_opengl/renderers/jreng_glyph_render.h` → `jreng_graphics/rendering/jreng_glyph_render.h` — `Render::Quad`, `Render::Background`, `SnapshotBase`
+
+**Update consumers:**
+- `jreng_opengl.h` — remove moved includes, add `jreng_graphics` dependency (already exists)
+- `jreng_core.h` — add new includes
+- `jreng_graphics.h` — add new include
+- `Screen.h` — `jreng::GLSnapshotBuffer` → `jreng::SnapshotBuffer`
+- All files referencing `GLMailbox` → `Mailbox`, `GLSnapshotBuffer` → `SnapshotBuffer`
+
+**Validate:** END builds. No behavior change. `grep -r "GLMailbox\|GLSnapshotBuffer" modules/` returns nothing.
+
+---
+
+### Step 3.1 — Consolidate GL state into `GLTextRenderer`
+
+Move all GL state management from `ScreenGL.cpp` into the renderer. Screen never touches GL directly after this step.
+
+**GLTextRenderer gains:**
+- `beginFrame (int x, int y, int w, int h, int fullHeight) noexcept` — `glViewport(x, fullHeight - y - h, w, h)`, `setViewportSize(w, h)`, `glEnable(GL_BLEND)`, `glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)`
+- `endFrame() noexcept` — `glDisable(GL_BLEND)`
+
+**ScreenGL.cpp `renderOpenGL` becomes:**
+```cpp
+if (textRenderer.isReady())
+{
+    const int x { originX + glViewportX };
+    const int y { originY + glViewportY };
+    textRenderer.beginFrame (x, y, glViewportWidth, glViewportHeight, fullHeight);
+    textRenderer.uploadStagedBitmaps (font);
+
+    Render::Snapshot* snapshot { resources.snapshotBuffer.read() };
+    if (snapshot != nullptr)
+    {
+        // ... drawBackgrounds, drawQuads, drawCursor — unchanged
+    }
+
+    textRenderer.endFrame();
+}
+```
 
 **Files:**
-- `modules/jreng_graphics/fonts/jreng_typeface.h` — add cached Metrics member + cached size
-- `modules/jreng_graphics/fonts/jreng_typeface.cpp` — `calcMetrics()` returns cached result when size matches, recomputes and caches on size change
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.h` — add `beginFrame`, `endFrame`
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.cpp` — implement
+- `Source/terminal/rendering/ScreenGL.cpp` — remove raw GL calls, use `beginFrame`/`endFrame`
 
-**Validate:** Build succeeds. `Font::getGlyph()` no longer triggers FreeType calls on cache hits. Verify: font size change still recomputes metrics correctly.
+**Validate:** END builds. Identical rendering. No raw `juce::gl::` calls remain in Screen.
 
 ---
 
-### Step 2.6.1 — Dirty-row skipping in `buildSnapshot()`
+### Step 3.2 — `GraphicsTextRenderer` in `jreng_graphics`
 
-**Problem:** `buildSnapshot()` processes all rows, all columns, every frame. Grid already has `dirtyRows[4]` atomic bitmask with `consumeDirtyRows()` and `markRowDirty()` / `markAllDirty()` / `batchMarkDirty()`. This infrastructure is unused by the render path.
+New class satisfying the same duck-type contract as `GLTextRenderer`. All rendering via `juce::Graphics`.
 
-**Fix:** `buildSnapshot()` consumes the dirty bitmask. Only dirty rows run through `processCellForSnapshot()` (color resolution, shaping, atlas lookup). Clean rows retain their cached `cachedMono[r]`, `cachedEmoji[r]`, `cachedBg[r]` arrays from the previous frame.
+**Class:** `jreng::Glyph::GraphicsTextRenderer` in `jreng_graphics/rendering/`
 
-**Dirty-all triggers (already handled by existing Grid API):**
-- Scroll: `markAllDirty()` or `batchMarkDirty()`
-- Resize: `markAllDirty()`
-- Scroll offset change: needs to mark all dirty
-- Selection overlay change: needs to dirty affected rows
+**Data:**
+- `juce::Image monoAtlas` — `SingleChannel`, `atlasDimension() x atlasDimension()`
+- `juce::Image emojiAtlas` — `ARGB`, `atlasDimension() x atlasDimension()`
+- `juce::Graphics* graphics { nullptr }` — bound per-frame via `setGraphicsContext()`
+- `jreng::Font* currentFont { nullptr }`
+- `int viewportWidth { 0 }, viewportHeight { 0 }`
 
-**Expected impact:** During typical usage (typing, cursor movement), 1-3 rows dirty per frame. 90-98% reduction in per-frame `processCellForSnapshot()` calls.
+**Duck-type methods:**
+- `contextCreated()` — allocate `juce::Image` atlases
+- `contextClosing()` — release atlases
+- `isReady()` — `return monoAtlas.isValid()`
+- `uploadStagedBitmaps (Typeface&)` — drain `typeface.consumeStagedBitmaps()`, copy pixel data into `juce::Image` atlas via `Image::BitmapData` write access
+- `setViewportSize (int w, int h)` — store dimensions
+- `beginFrame (int x, int y, int w, int h, int fullHeight)` — store viewport offset for coordinate translation
+- `endFrame()` — no-op
+- `drawQuads (const Render::Quad*, int, bool isEmoji)` — for each quad: compute source rect from `textureCoordinates` × atlas dimension, dest rect from `screenPosition` + `glyphSize`. Mono: tint alpha with foreground colour. Emoji: direct blit.
+- `drawBackgrounds (const Render::Background*, int)` — for each bg: `g.setColour()`, `g.fillRect(screenBounds)`
+- `setFont (Font&)` — store font pointer
+- `drawGlyphs (const uint16_t*, const Point<float>*, int)` — for each glyph: `currentFont->getGlyph(code)` → `Region*`, compute source/dest rects, blit from atlas
+- `setGraphicsContext (juce::Graphics&)` — CPU-specific: bind paint target
+- `static constexpr int atlasDimension()` — `return Atlas::atlasDimension()`
+
+**Mono glyph tinting strategy:**
+The mono atlas `juce::Image` is `SingleChannel` (8-bit alpha). For each mono quad:
+1. Read source sub-rect from `monoAtlas` via `BitmapData`
+2. Blit to destination with foreground colour tint: `pixel = fg_colour * glyph_alpha`
+3. Implementation: `g.reduceClipRegion()` with glyph image as mask + `g.setColour(fg)` + `g.fillAll()`, or direct pixel compositing via `BitmapData` — ARCHITECT decides during implementation.
 
 **Files:**
-- `Source/terminal/rendering/ScreenRender.cpp` — `buildSnapshot()` consumes `dirtyRows`, skips clean rows
-- Possibly `Source/terminal/data/State.cpp` or `Source/component/TerminalComponent.cpp` — ensure scroll offset changes mark all rows dirty
+- New: `modules/jreng_graphics/rendering/jreng_graphics_text_renderer.h`
+- New: `modules/jreng_graphics/rendering/jreng_graphics_text_renderer.cpp`
+- Update: `jreng_graphics.h` — add include
 
-**Validate:** Build succeeds. Terminal renders correctly. Static content (e.g. vim buffer) does not trigger per-cell processing. Scrolling still works (marks all dirty). Selection still works.
-
----
-
-### Step 2.6.2 — Pool CGBitmapContext on macOS
-
-**Problem:** Every glyph rasterization on macOS creates and destroys a `CGBitmapContext` + `CGColorSpaceRef`. During cache-cold frames (first display, font size change), this is ~285+ CoreGraphics allocations for 95 ASCII characters.
-
-**Fix:** Pool two persistent contexts: one DeviceGray (mono glyphs), one DeviceRGB (emoji). Resize only when cell dimensions change (font size change). Reuse across rasterizations.
-
-**Files:**
-- `modules/jreng_graphics/fonts/jreng_glyph_atlas.mm` — pool CGBitmapContext + CGColorSpace, resize on cell dimension change
-
-**Validate:** Build succeeds on macOS. Glyph rasterization produces identical output. Font size change triggers context resize.
+**Validate:** Builds. `TextLayout::draw (graphicsRenderer, area)` compiles and draws glyphs via `juce::Graphics`.
 
 ---
 
-### Step 2.6.3 — Measure and validate
+### Step 3.3 — Template `Screen<Renderer>`
 
-After steps 2.6.0-2.6.2:
-1. `time seq 1 10000000` — wall time unchanged or improved
-2. Open `nvim` with large file — observe static content. Verify: steady-state frame cost is minimal (only dirty rows processed)
-3. Font size change — verify metrics recompute, atlas repopulates, contexts resize
-4. Rapid scrolling — verify all rows marked dirty, no visual artifacts
-5. Selection — verify affected rows re-rendered
+`Screen` becomes a class template parameterised on the renderer type.
+
+**Changes to `Screen.h`:**
+- `class Screen` → `template <typename Renderer> class Screen`
+- Member `jreng::Glyph::GLTextRenderer textRenderer` → `Renderer textRenderer`
+- `renderOpenGL (int, int, int)` uses `textRenderer.beginFrame()` / `endFrame()` (Step 3.1 contract)
+- `glContextCreated()` / `glContextClosing()` delegate to `textRenderer.contextCreated()` / `textRenderer.contextClosing()` — works for both (GL does real work, Graphics no-ops)
+
+**Changes to Screen .cpp files:**
+- `ScreenGL.cpp`, `ScreenRender.cpp`, `Screen.cpp` — implementation stays in .cpp with explicit template instantiation at bottom:
+  ```cpp
+  template class Screen<jreng::Glyph::GLTextRenderer>;
+  template class Screen<jreng::Glyph::GraphicsTextRenderer>;
+  ```
+
+**Changes to `Terminal::Render`:**
+- `Render::Glyph`, `Render::Background`, `Render::Snapshot` aliases unchanged — they reference types now in `jreng_graphics`
+
+**Validate:** END builds with `Screen<GLTextRenderer>`. Identical rendering. `Screen<GraphicsTextRenderer>` compiles (not yet wired to a paint path — that is Plan 4).
+
+---
+
+### Step 3.4 — Force Graphics path, validate end-to-end
+
+Temporarily disable GL rendering (comment out, non-destructive). Wire `Screen<GraphicsTextRenderer>` as the exclusive rendering path. ARCHITECT tests full terminal functionality and measures performance.
+
+**Changes (non-destructive — comments only, no code deletion):**
+- `MainComponent` / `Terminal::Component` — comment out `GLRenderer` attachment, GL context setup, GL render loop
+- Wire `Screen<GraphicsTextRenderer>` instead of `Screen<GLTextRenderer>`
+- Terminal rendering driven by `Component::paint (juce::Graphics&)` on message thread
+- `Screen::renderOpenGL` replaced by equivalent paint-path call: `textRenderer.setGraphicsContext(g)` → `beginFrame` → `uploadStagedBitmaps` → draw snapshot → `endFrame`
+
+**Validation:**
+1. Terminal launches without GL context
+2. Text rendering: mono glyphs, bold, italic, emoji, ligatures — visually correct
+3. Backgrounds: cell backgrounds, selection overlay, block characters
+4. Cursor: all shapes (block, underline, bar), blink, focus/unfocus
+5. Font size change: atlas images repopulate, metrics recompute
+6. Scrolling: rapid scroll (`seq 1 10000000`), scrollback navigation
+7. Performance: `time seq 1 10000000` — measure wall time vs GL baseline (12.39s)
+8. Resize: grid recomputes, no artifacts
+9. UI chrome: LookAndFeel overlays render via `TextLayout::draw<GraphicsTextRenderer>`
+
+**After validation:** Restore GL path (uncomment). Both paths confirmed working. Plan 4 adds runtime switching.
 
 **Scope:** Each step is standalone. ARCHITECT builds and tests after each step before proceeding.
 
 ---
 
----
+## PLAN 4: END Runtime GPU/CPU Switching
 
-## PLAN 3: CPU Rendering Backend
+**Goal:** END detects GPU availability at startup. Selects `Screen<GLTextRenderer>` (GL render loop) or `Screen<GraphicsTextRenderer>` (JUCE `paint()` loop). Full terminal functionality on both paths. Blur disabled on CPU path.
 
-**Blocked on:** Plan 2.6 (rendering optimization)
+**Scope:**
+- GPU detection at startup (`juce::OpenGLContext::openGLContextCreated` success/failure, or explicit capability check)
+- `Terminal::Component` holds either `Screen<GLTextRenderer>` or `Screen<GraphicsTextRenderer>` (compile-time variant or `std::variant`)
+- GL path: `GLRenderer` drives render loop, `Screen<GLTextRenderer>::renderOpenGL()` on GL thread
+- CPU path: `Component::paint (juce::Graphics&)` drives render loop, `Screen<GraphicsTextRenderer>` renders on message thread. `SnapshotBuffer` still used (same atomic exchange, same-thread read/write is valid)
+- `BackgroundBlur` feature gate: GL path enables transparency + blur. CPU path disables — opaque background, no blur shaders
+- `MainComponent` wiring: `GLRenderer::setComponentIterator()` only for GL path. CPU path uses standard JUCE repaint cycle
 
-**Goal:** Implement `Glyph::Renderer` for `juce::Graphics`. Same `TextLayout::draw()` call — different backend. CPU glyph cache stores `juce::Image` per glyph. `drawGlyphs()` calls `g.drawImageAt()`. `drawBackgrounds()` calls `g.fillRect()`.
-
-**Scope unchanged from original Plan 3.** Implementation details deferred until Plan 2.6 completes and the optimized pipeline establishes the baseline.
-
----
-
-## PLAN 4: END CPU Rendering Fallback
-
-**Blocked on:** Plan 3
-
-**Goal:** END detects GPU availability at startup. Falls back to CPU rendering. Full terminal functionality, no blur.
-
-**Scope unchanged from original Plan 4.** Implementation details deferred until Plan 3 completes.
+**Implementation details deferred until Plan 3 completes.**
 
 ---
 

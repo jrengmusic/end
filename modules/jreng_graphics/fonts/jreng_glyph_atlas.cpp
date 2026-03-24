@@ -39,15 +39,17 @@ namespace jreng::Glyph
 /**
  * @brief Construct the atlas with both packers and LRU caches initialized.
  *
- * Sets atlas dimensions to `atlasSize × atlasSize` (4096×4096), constructs
- * both `AtlasPacker` instances at that size, and initializes the mono and
- * emoji LRU caches at their respective capacity limits.
+ * Sets atlas dimensions from `size`, constructs both `AtlasPacker` instances
+ * at that dimension, and initializes the mono and emoji LRU caches at their
+ * respective capacity limits.
+ *
+ * @param size  Preset atlas dimension.
  */
-Atlas::Atlas()
-    : atlasWidth (atlasSize)
-    , atlasHeight (atlasSize)
-    , monoPacker (atlasSize, atlasSize)
-    , emojiPacker (atlasSize, atlasSize)
+Atlas::Atlas (AtlasSize size) noexcept
+    : atlasWidth (static_cast<int> (size))
+    , atlasHeight (static_cast<int> (size))
+    , monoPacker (static_cast<int> (size), static_cast<int> (size))
+    , emojiPacker (static_cast<int> (size), static_cast<int> (size))
     , monoLRU (monoLruCapacity)
     , emojiLRU (emojiLruCapacity)
 {

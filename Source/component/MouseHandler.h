@@ -29,7 +29,7 @@ namespace Terminal
 {
 
 class Session;
-class Screen;
+class ScreenBase;
 class LinkManager;
 
 /**
@@ -66,7 +66,7 @@ public:
      * @note MESSAGE THREAD.
      */
     MouseHandler (Session& session,
-                  Screen& screen,
+                  ScreenBase& screen,
                   LinkManager& linkManager) noexcept;
 
     /**
@@ -169,7 +169,7 @@ private:
     Session& session;
 
     /** @brief Terminal renderer — provides cell coordinate mapping. */
-    Screen& screen;
+    ScreenBase& screen;
 
     /** @brief Link manager — click hit-testing and dispatch. */
     LinkManager& linkManager;

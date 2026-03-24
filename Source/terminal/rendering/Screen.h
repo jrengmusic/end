@@ -212,6 +212,9 @@ struct Snapshot : jreng::Glyph::Render::SnapshotBase
     float            cursorDrawColorB { 1.0f };      ///< Final resolved cursor colour blue [0, 1] (theme or OSC 12).
     int              gridWidth  { 0 };               ///< Grid width in columns at the time of snapshot.
     int              gridHeight { 0 };               ///< Grid height in rows at the time of snapshot.
+    uint64_t         dirtyRows[4] {};                ///< Bitmask of rows that changed this frame (bit per row, max 256 rows).
+    int              scrollDelta    { 0 };           ///< Lines scrolled up since last frame (positive = scrolled up).
+    int              physCellHeight { 0 };           ///< Physical (HiDPI-scaled) cell height in pixels.
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
@@ -222,6 +225,28 @@ struct Snapshot : jreng::Glyph::Render::SnapshotBase
 
 namespace Terminal
 { /*____________________________________________________________________________*/
+
+/**
+ * @class ScreenBase
+ * @brief Non-template interface for renderer-agnostic Screen operations.
+ *
+ * Provides the minimal API needed by UI event handlers (InputHandler,
+ * MouseHandler) without exposing the renderer template parameter.
+ */
+class ScreenBase
+{
+public:
+    virtual ~ScreenBase() = default;
+
+    virtual int getNumRows() const noexcept = 0;
+    virtual juce::Point<int> cellAtPoint (int x, int y) const noexcept = 0;
+    virtual void setHintOverlay (const LinkSpan* spans, int count) noexcept = 0;
+
+protected:
+    ScreenBase() = default;
+    ScreenBase (const ScreenBase&) = delete;
+    ScreenBase& operator= (const ScreenBase&) = delete;
+};
 
 /**
  * @class Screen
@@ -257,7 +282,8 @@ namespace Terminal
  * @see Fonts
  * @see GlyphAtlas
  */
-class Screen
+template <typename Renderer>
+class Screen : public ScreenBase
 {
 public:
     // =========================================================================
@@ -278,7 +304,7 @@ public:
         {
         }
 
-        jreng::GLSnapshotBuffer<Render::Snapshot> snapshotBuffer; ///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
+        jreng::SnapshotBuffer<Render::Snapshot> snapshotBuffer; ///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
         Theme            terminalColors;   ///< Active colour theme (ANSI palette + default fg/bg/selection).
     };
 
@@ -444,6 +470,22 @@ public:
      */
     bool isGLContextReady() const noexcept;
 
+    /**
+     * @brief Renders a frame via juce::Graphics (CPU rendering path).
+     *
+     * Binds the graphics context to the renderer, then executes the same
+     * render pipeline as `renderOpenGL()`.  Used when the terminal is
+     * driven by `Component::paint()` instead of the GL render loop.
+     *
+     * @param g           The graphics context from `Component::paint()`.
+     * @param originX     Physical pixel X offset.
+     * @param originY     Physical pixel Y offset.
+     * @param fullHeight  Full window height in physical pixels.
+     *
+     * @note **MESSAGE THREAD**.
+     */
+    void renderPaint (juce::Graphics& g, int originX, int originY, int fullHeight);
+
     // =========================================================================
     // Debug / state queries
     // =========================================================================
@@ -522,7 +564,7 @@ public:
      *
      * @note **MESSAGE THREAD**.
      */
-    int getNumRows() const noexcept;
+    int getNumRows() const noexcept override;
 
     /**
      * @brief Returns the logical cell width in pixels.
@@ -568,7 +610,7 @@ public:
      *
      * @note **MESSAGE THREAD**.
      */
-    juce::Point<int> cellAtPoint (int x, int y) const noexcept;
+    juce::Point<int> cellAtPoint (int x, int y) const noexcept override;
 
     /**
      * @brief Sets the active text selection for overlay rendering.
@@ -602,7 +644,7 @@ public:
      * @note **MESSAGE THREAD**.
      * @see LinkSpan
      */
-    void setHintOverlay (const LinkSpan* spans, int count) noexcept;
+    void setHintOverlay (const LinkSpan* spans, int count) noexcept override;
 
     /**
      * @brief Sets the always-on link underlay for click-mode underline rendering.
@@ -670,9 +712,9 @@ public:
      * @return Reference to `resources.snapshotBuffer`.
      *
      * @note Thread-safe: the snapshot buffer uses atomic pointer exchange.
-     * @see jreng::GLSnapshotBuffer
+     * @see jreng::SnapshotBuffer
      */
-    jreng::GLSnapshotBuffer<Render::Snapshot>& getSnapshotBuffer() noexcept;
+    jreng::SnapshotBuffer<Render::Snapshot>& getSnapshotBuffer() noexcept;
 
 private:
     // =========================================================================
@@ -840,7 +882,7 @@ private:
     // Data
     // =========================================================================
 
-    jreng::Glyph::GLTextRenderer textRenderer; ///< Owns all GL resources for instanced glyph and background rendering.
+    Renderer textRenderer; ///< Owns all GL resources for instanced glyph and background rendering.
     int glViewportX      { 0 };
     int glViewportY      { 0 };
     int glViewportWidth  { 0 };
@@ -888,6 +930,9 @@ private:
     bool selectionModeActive   { false }; ///< True when vim-style selection mode is active (hides terminal cursor).
     int  selectionCursorRow    { 0 };     ///< Selection cursor row in visible-grid coordinates (0 = top visible row).
     int  selectionCursorCol    { 0 };     ///< Selection cursor column (0-based).
+
+    uint64_t frameDirtyBits[4] {};  ///< Dirty row bitmask for current frame, set in buildSnapshot.
+    int frameScrollDelta { 0 };     ///< Scroll delta for current frame, set in buildSnapshot.
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

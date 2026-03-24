@@ -433,13 +433,19 @@ void Terminal::Component::filesDropped (const juce::StringArray& files, int, int
 // GL THREAD
 void Terminal::Component::glContextCreated() noexcept
 {
-    screen.glContextCreated();
-    session.getGrid().markAllDirty();
-    session.getState().setSnapshotDirty();
+    // [Plan 3.4 — Graphics-only test: GL disabled]
+    // jreng::BackgroundBlur::enableGLTransparency();
+    // screen.glContextCreated();
+    // session.getGrid().markAllDirty();
+    // session.getState().setSnapshotDirty();
 }
 
 // GL THREAD
-void Terminal::Component::glContextClosing() noexcept { screen.glContextClosing(); }
+void Terminal::Component::glContextClosing() noexcept
+{
+    // [Plan 3.4 — Graphics-only test: GL disabled]
+    // screen.glContextClosing();
+}
 
 juce::Point<int> Terminal::Component::getOriginInTopLevel() const noexcept
 {
@@ -455,13 +461,22 @@ juce::Point<int> Terminal::Component::getOriginInTopLevel() const noexcept
 // GL THREAD
 void Terminal::Component::renderGL() noexcept
 {
+    // [Plan 3.4 — Graphics-only test: GL disabled]
+    // if (isVisible())
+    // {
+    //     if (not screen.isGLContextReady())
+    //         screen.glContextCreated();
+    //     const auto origin { getOriginInTopLevel() };
+    //     screen.renderOpenGL (origin.x, origin.y, getFullViewportHeight());
+    // }
+}
+
+// MESSAGE THREAD
+void Terminal::Component::paint (juce::Graphics& g)
+{
     if (isVisible())
     {
-        if (not screen.isGLContextReady())
-            screen.glContextCreated();
-
-        const auto origin { getOriginInTopLevel() };
-        screen.renderOpenGL (origin.x, origin.y, getFullViewportHeight());
+        screen.renderPaint (g, 0, 0, getHeight());
     }
 }
 

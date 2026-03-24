@@ -88,8 +88,9 @@
  */
 jreng::Typeface::Typeface (Registry& fontRegistry,
                    const juce::String& userFamilyName,
-                   float pointSize)
-    : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize)
+                   float pointSize,
+                   jreng::Glyph::AtlasSize atlasSize)
+    : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize), atlas (atlasSize)
 {
     initialize();
 }
