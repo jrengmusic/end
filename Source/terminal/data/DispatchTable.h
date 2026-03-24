@@ -429,7 +429,7 @@ private:
         fillRange (row, 0x1C, 0x1F, make (ParserState::oscString, ParserAction::ignore));
         fillRange (row, 0x20, 0x7F, make (ParserState::oscString, ParserAction::oscPut));
         fillRange (row, 0x80, 0xFF, make (ParserState::oscString, ParserAction::oscPut));
-        row.at (0x1B) = make (ParserState::escape, ParserAction::none);
+        row.at (0x1B) = make (ParserState::escape, ParserAction::oscEnd);
     }
 
     void buildSosPmApc()

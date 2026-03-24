@@ -1058,8 +1058,6 @@ struct State : public juce::Timer
      * @note MESSAGE THREAD — called by juce::Timer, never call directly.
      * @see flush()
      */
-    void timerCallback() override;
-
     /** Called by `timerCallback()` after each flush cycle. MESSAGE THREAD only. */
     std::function<void()> onFlush;
 
@@ -1156,6 +1154,8 @@ struct State : public juce::Timer
     static juce::Identifier buildParamKey (const juce::Identifier& parentType, const juce::String& paramId) noexcept;
 
 private:
+    void timerCallback() override;
+
     /**
      * @brief Root `SESSION` ValueTree — the Single Source of Truth for the UI.
      *

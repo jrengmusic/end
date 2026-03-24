@@ -95,6 +95,20 @@ Visible-row-relative positions go stale when content shifts the viewport. Select
 **3. juce::Font is deprecated.**
 Never construct juce::Font to read properties. Use source values directly. Added to code contract for enforcement.
 
+### Unit Test Run (post-audit)
+
+**Agents:** @engineer (infrastructure + 95 cases + build/run), @auditor (cleanup validation)
+
+**Spec:** 95 test cases across 16 groups (Parser + Grid + State). Catch2 v2 single-header, standalone CMake target, `Test::Term` fixture feeding raw bytes and asserting grid/state fields.
+
+**Result:** 95/95 passed (236 assertions)
+
+**Production bugs discovered and fixed (2):**
+- `DispatchTable.h` — OSC ST terminator (`ESC \`) silently discarded; OSC strings only dispatched on BEL. Fixed: ESC in `oscString` state now fires `oscEnd` before transitioning to `escape`.
+- `Charset.h` — DEC Special Graphics line-drawing table off-by-one from index 0; all box-drawing characters mapped to wrong codepoints. Fixed.
+
+**Test suite status:** Removed after validation. Spec retained at `SPEC-unit-tests.md` for future rebuild. Infrastructure not yet production-ready (needs: proper CMake integration, CI pipeline, Config stub refinement).
+
 ---
 
 ## Sprint 120 — COUNSELOR: Hyperlinks, State Refactor, Audit Polish
