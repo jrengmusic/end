@@ -27,8 +27,7 @@ MouseHandler::MouseHandler (Terminal::Session& s,
 {
 }
 
-void MouseHandler::handleDown (const juce::MouseEvent& event,
-                               std::function<void (int)> setScrollFn)
+void MouseHandler::handleDown (const juce::MouseEvent& event)
 {
     if (shouldForwardToPty())
     {
@@ -82,7 +81,6 @@ void MouseHandler::handleDown (const juce::MouseEvent& event,
         }
     }
 
-    juce::ignoreUnused (setScrollFn);
 }
 
 void MouseHandler::handleDoubleClick (const juce::MouseEvent& event)

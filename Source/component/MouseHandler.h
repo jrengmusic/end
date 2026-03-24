@@ -77,12 +77,10 @@ public:
      * - **Single click on link**: dispatches via LinkManager.
      * - **Single click on non-link**: records drag anchor; clears selection.
      *
-     * @param event         The mouse event.
-     * @param setScrollFn   Callable for clamped scroll offset writes: `void(int)`.
+     * @param event  The mouse event.
      * @note MESSAGE THREAD.
      */
-    void handleDown (const juce::MouseEvent& event,
-                     std::function<void (int)> setScrollFn);
+    void handleDown (const juce::MouseEvent& event);
 
     /**
      * @brief Handles a mouse double-click event.

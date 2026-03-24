@@ -661,7 +661,7 @@ struct State : public juce::Timer
      * @return `true` if the cursor should be drawn this frame.
      * @note MESSAGE THREAD only.
      */
-    bool isCursorBlinkOn() const noexcept { return cursorBlinkOn; }
+    bool isCursorBlinkOn() const noexcept { return getRawParam (ID::cursorBlinkOn)->load (std::memory_order_relaxed) != 0.0f; }
 
     /**
      * @brief Sets whether the terminal component currently has keyboard focus.
@@ -673,14 +673,14 @@ struct State : public juce::Timer
      * @param focused  `true` if the component has keyboard focus.
      * @note MESSAGE THREAD only.
      */
-    void setCursorFocused (bool focused) noexcept { cursorFocused = focused; }
+    void setCursorFocused (bool focused) noexcept { getRawParam (ID::cursorFocused)->store (focused ? 1.0f : 0.0f, std::memory_order_relaxed); }
 
     /**
      * @brief Returns whether the terminal component currently has keyboard focus.
      * @return `true` if focused.
      * @note MESSAGE THREAD only.
      */
-    bool isCursorFocused() const noexcept { return cursorFocused; }
+    bool isCursorFocused() const noexcept { return getRawParam (ID::cursorFocused)->load (std::memory_order_relaxed) != 0.0f; }
 
     /** @} */
 
@@ -1037,7 +1037,7 @@ struct State : public juce::Timer
      */
     void setFullRebuild() noexcept
     {
-        fullRebuild.store (1.0f, std::memory_order_release);
+        getRawParam (ID::fullRebuild)->store (1.0f, std::memory_order_release);
     }
 
     /**
@@ -1048,7 +1048,7 @@ struct State : public juce::Timer
      */
     bool consumeFullRebuild() noexcept
     {
-        return fullRebuild.exchange (0.0f, std::memory_order_acquire) != 0.0f;
+        return getRawParam (ID::fullRebuild)->exchange (0.0f, std::memory_order_acquire) != 0.0f;
     }
 
     /**
@@ -1231,93 +1231,10 @@ private:
      */
     juce::HeapBlock<int> keyboardModeStackSize;
 
-    /**
-     * @brief Set by `storeAndFlush()` (READER THREAD) when any atomic has changed.
-     *        Cleared by `flush()` (MESSAGE THREAD) after copying to the ValueTree.
-     *
-     * Acts as a cheap dirty flag so the timer can skip the flush pass entirely
-     * when no parameters have changed since the last tick.
-     */
-    std::atomic<bool> needsFlush { false };
-
-    /**
-     * @brief Set by `setSnapshotDirty()` (READER THREAD) after new cell data
-     *        has been written to the grid.  Cleared by `consumeSnapshotDirty()`
-     *        (MESSAGE THREAD) once the UI has acknowledged the update.
-     *
-     * Decoupled from `needsFlush` so that a parameter-only change does not
-     * force a full grid repaint, and a cell-only change does not force a
-     * ValueTree flush.
-     */
-    std::atomic<bool> snapshotDirty { false };
-
-    /**
-     * @brief Set by `setFullRebuild()` when all visible rows must be redrawn.
-     *        Cleared by `consumeFullRebuild()` at the start of `buildSnapshot()`.
-     *
-     * Standalone transient signal — not in `parameterMap`.  Same pattern as
-     * `snapshotDirty`.
-     */
-    std::atomic<float> fullRebuild { 0.0f };
-
-    // =========================================================================
-    // Cursor blink state (MESSAGE THREAD only — not atomic, not in ValueTree)
-    // =========================================================================
-
-    /**
-     * @brief Current blink phase: `true` = visible, `false` = hidden.
-     *
-     * Toggled by `tickCursorBlink()` in `timerCallback()`.  Reset to `true`
-     * whenever `flush()` detects that the cursor position has changed.
-     * Read by `isCursorBlinkOn()` → `updateSnapshot()` → snapshot.
-     */
-    bool cursorBlinkOn { true };
-
-    /**
-     * @brief Milliseconds accumulated since the last blink toggle.
-     *
-     * Incremented by the timer interval each tick.  When it reaches
-     * `cursorBlinkInterval`, the phase toggles and the counter resets.
-     */
-    int cursorBlinkElapsed { 0 };
-
-    /**
-     * @brief Last-flushed cursor row for the active screen.
-     *
-     * Compared against the current flushed value in `flush()` to detect
-     * cursor movement and reset the blink phase.
-     */
-    int prevFlushedCursorRow { 0 };
-
-    /**
-     * @brief Last-flushed cursor column for the active screen.
-     * @see prevFlushedCursorRow
-     */
-    int prevFlushedCursorCol { 0 };
-
-    /**
-     * @brief Blink half-period in milliseconds (from `cursor.blink_interval` config).
-     *
-     * The cursor is visible for this duration, then hidden for the same duration.
-     * Read once at construction from `Config::getContext()`.
-     */
-    int cursorBlinkInterval { 500 };
-
-    /**
-     * @brief Whether cursor blinking is enabled (from `cursor.blink` config).
-     *
-     * When `false`, `cursorBlinkOn` is always `true` (steady cursor).
-     * DECSCUSR overrides: odd shapes force blink on, even shapes force steady.
-     */
-    bool cursorBlinkEnabled { true };
-
-    /**
-     * @brief Whether the terminal component currently has keyboard focus.
-     *
-     * Set by `setCursorFocused()` from `focusGained()` / `focusLost()`.
-     * Read by `isCursorFocused()` → `updateSnapshot()` → snapshot.
-     */
-    bool cursorFocused { false };
+    // needsFlush, snapshotDirty, fullRebuild, cursorBlinkOn, cursorBlinkElapsed,
+    // prevFlushedCursorRow, prevFlushedCursorCol, cursorBlinkInterval,
+    // cursorBlinkEnabled, and cursorFocused are all stored in parameterMap
+    // as std::atomic<float> slots (see constructor in State.cpp).
 
     /**
      * @brief Owned backing buffer for a single string parameter.
@@ -1337,8 +1254,6 @@ private:
     struct StringSlot
     {
         char buffer[maxStringLength] {};
-        std::atomic<float> generation { 0.0f };
-        float lastFlushedGeneration { 0.0f };///< MESSAGE THREAD only — never read by reader.
     };
 
     /**
@@ -1431,28 +1346,22 @@ private:
     void tickCursorBlink (int elapsedMs) noexcept;
 };
 
-template<typename ValueType>
+template <typename ValueType>
 ValueType State::getRawValue (const juce::Identifier& id) const noexcept
 {
     jassert (jreng::Map::contains (parameterMap, id));
     const float raw { parameterMap.at (id).get()->load (std::memory_order_relaxed) };
 
     if constexpr (std::is_same_v<ValueType, bool>)
-    {
-        return static_cast<bool> (jreng::toBool (raw));
-    }
-    else if constexpr (std::is_same_v<ValueType, int>)
-    {
+        return jreng::toBool (raw);
+
+    if constexpr (std::is_same_v<ValueType, int>)
         return jreng::toInt (raw);
-    }
-    else if constexpr (std::is_same_v<ValueType, ActiveScreen>)
-    {
+
+    if constexpr (std::is_same_v<ValueType, ActiveScreen>)
         return static_cast<ActiveScreen> (jreng::toInt (raw));
-    }
-    else
-    {
-        return static_cast<ValueType> (raw);
-    }
+
+    return static_cast<ValueType> (raw);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -173,3 +173,7 @@ Write comprehensive sprint block to SPRINT-LOG.md including:
 - Alignment check (LIFESTAR, NAMING-CONVENTION, ARCHITECTURAL-MANIFESTO)
 - Problems solved
 - Technical debt / follow-up
+
+---
+
+**ARCHITECT is always the ground of truth. Their observations override your training data. Always.**

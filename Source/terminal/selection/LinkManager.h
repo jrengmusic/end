@@ -42,7 +42,7 @@ class Session;
  * @par Thread context
  * All public methods must be called on the **MESSAGE THREAD**.
  */
-class LinkManager
+class LinkManager : public juce::ValueTree::Listener
 {
 public:
     /**
@@ -51,6 +51,7 @@ public:
      * @note MESSAGE THREAD.
      */
     explicit LinkManager (Session& session) noexcept;
+    ~LinkManager() override;
 
     /**
      * @brief Scans the viewport for file-path and URL tokens.
@@ -187,6 +188,18 @@ private:
 
     /** @brief `true` when the click-link cache is stale and needs rescanning. */
     bool scanNeeded { true };
+
+    /** @brief Cached reference to the promptRow PARAM node for direct listening. */
+    juce::ValueTree promptRowNode;
+
+    /** @brief Cached reference to the activeScreen PARAM node for direct listening. */
+    juce::ValueTree activeScreenNode;
+
+    // =========================================================================
+    // ValueTree::Listener — react to OUTPUT_BLOCK node changes
+    // =========================================================================
+
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

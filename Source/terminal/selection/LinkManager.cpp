@@ -6,6 +6,7 @@
  */
 
 #include "LinkManager.h"
+#include <JuceHeader.h>
 #include "../logic/Session.h"
 #include "../logic/Grid.h"
 #include "../data/State.h"
@@ -18,7 +19,17 @@ namespace Terminal
 
 LinkManager::LinkManager (Session& s) noexcept
     : session (s)
+    , promptRowNode (jreng::ValueTree::getChildWithID (session.getState().get(), ID::promptRow.toString()))
+    , activeScreenNode (jreng::ValueTree::getChildWithID (session.getState().get(), ID::activeScreen.toString()))
 {
+    promptRowNode.addListener (this);
+    activeScreenNode.addListener (this);
+}
+
+LinkManager::~LinkManager()
+{
+    promptRowNode.removeListener (this);
+    activeScreenNode.removeListener (this);
 }
 
 void LinkManager::scan (const juce::String& cwd, bool outputRowsOnly)
@@ -52,20 +63,11 @@ void LinkManager::scanForHints (const juce::String& cwd)
     }
 }
 
-void LinkManager::clearHints() noexcept
-{
-    hintLinks.clear();
-}
+void LinkManager::clearHints() noexcept { hintLinks.clear(); }
 
-void LinkManager::invalidate() noexcept
-{
-    scanNeeded = true;
-}
+void LinkManager::invalidate() noexcept { scanNeeded = true; }
 
-bool LinkManager::needsScan() const noexcept
-{
-    return scanNeeded;
-}
+bool LinkManager::needsScan() const noexcept { return scanNeeded; }
 
 const LinkSpan* LinkManager::hitTest (int row, int col) const noexcept
 {
@@ -110,25 +112,19 @@ void LinkManager::dispatch (const LinkSpan& span) const
         const juce::String path { span.uri.fromFirstOccurrenceOf ("file://", false, false) };
         const juce::String ext { juce::File (path).getFileExtension().toLowerCase() };
         const juce::String handler { Config::getContext()->getHandler (ext) };
-        const juce::String opener { handler.isNotEmpty() ? handler : Config::getContext()->getString (Config::Key::hyperlinksEditor) };
+        const juce::String opener { handler.isNotEmpty()
+                                        ? handler
+                                        : Config::getContext()->getString (Config::Key::hyperlinksEditor) };
         const juce::String command { opener + " " + path + "\r" };
         session.writeToPty (command.toRawUTF8(), static_cast<int> (command.getNumBytesAsUTF8()));
     }
 }
 
-const std::vector<LinkSpan>& LinkManager::getClickableLinks() const noexcept
-{
-    return clickableLinks;
-}
+const std::vector<LinkSpan>& LinkManager::getClickableLinks() const noexcept { return clickableLinks; }
 
-const std::vector<LinkSpan>& LinkManager::getHintLinks() const noexcept
-{
-    return hintLinks;
-}
+const std::vector<LinkSpan>& LinkManager::getHintLinks() const noexcept { return hintLinks; }
 
-std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid,
-                                                  const juce::String& cwd,
-                                                  bool outputRowsOnly) const
+std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid, const juce::String& cwd, bool outputRowsOnly) const
 {
     std::vector<LinkSpan> spans;
 
@@ -139,80 +135,74 @@ std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid,
     const int blockBottom { outputRowsOnly ? session.getState().getOutputBlockBottom() : visibleRows - 1 };
     const bool normalScreen { session.getState().getActiveScreen() == ActiveScreen::normal };
 
-    for (int row = 0; row < visibleRows; ++row)
+    for (int row { 0 }; row < visibleRows; ++row)
     {
-
         const Cell* rowCells { grid.activeVisibleRow (row) };
 
-        if (rowCells == nullptr)
-            continue;
-
-        int col { 0 };
-
-        while (col < cols)
+        if (rowCells != nullptr)
         {
-            // Skip whitespace / empty cells.
-            while (col < cols
-                   and (rowCells[col].codepoint == 0
-                        or rowCells[col].codepoint <= 0x20))
+            int col { 0 };
+
+            while (col < cols)
             {
-                ++col;
-            }
-
-            if (col >= cols)
-                break;
-
-            // Accumulate non-whitespace token.
-            const int tokenStartCol { col };
-            juce::String token;
-
-            while (col < cols
-                   and rowCells[col].codepoint > 0x20)
-            {
-                token += juce::String::charToString (
-                    static_cast<juce::juce_wchar> (rowCells[col].codepoint));
-                ++col;
-            }
-
-            const int tokenLength { col - tokenStartCol };
-            const LinkDetector::LinkType linkType { LinkDetector::classify (token) };
-
-            const bool inOutputBlock { hasBlock and row >= blockTop and row <= blockBottom };
-            const bool fileAllowed { linkType == LinkDetector::LinkType::file
-                                     and normalScreen and inOutputBlock };
-            const bool urlAllowed { linkType == LinkDetector::LinkType::url };
-
-            if (fileAllowed or urlAllowed)
-            {
-                LinkSpan span;
-                span.row = row;
-                span.col = tokenStartCol;
-                span.length = tokenLength;
-                span.type = linkType;
-
-                if (linkType == LinkDetector::LinkType::url)
+                // Skip whitespace / empty cells.
+                while (col < cols and (rowCells[col].codepoint == 0 or rowCells[col].codepoint <= 0x20))
                 {
-                    span.uri = token;
-                }
-                else
-                {
-                    juce::File resolved;
-
-                    if (juce::File::isAbsolutePath (token))
-                    {
-                        resolved = juce::File { token };
-                    }
-                    else
-                    {
-                        resolved = juce::File { cwd }.getChildFile (token);
-                    }
-
-                    span.uri = resolved.getFullPathName().isNotEmpty()
-                                   ? "file://" + resolved.getFullPathName()
-                                   : "file://" + token;
+                    ++col;
                 }
 
-                spans.push_back (std::move (span));
+                // Accumulate non-whitespace token.
+                if (col < cols)
+                {
+                    const int tokenStartCol { col };
+                    juce::String token;
+
+                    while (col < cols and rowCells[col].codepoint > 0x20)
+                    {
+                        token += juce::String::charToString (static_cast<juce::juce_wchar> (rowCells[col].codepoint));
+                        ++col;
+                    }
+
+                    const int tokenLength { col - tokenStartCol };
+                    const LinkDetector::LinkType linkType { LinkDetector::classify (token) };
+
+                    const bool inOutputBlock { hasBlock and row >= blockTop and row <= blockBottom };
+                    const bool fileAllowed { linkType == LinkDetector::LinkType::file and normalScreen
+                                             and inOutputBlock };
+                    const bool urlAllowed { linkType == LinkDetector::LinkType::url };
+
+                    if (fileAllowed or urlAllowed)
+                    {
+                        LinkSpan span;
+                        span.row = row;
+                        span.col = tokenStartCol;
+                        span.length = tokenLength;
+                        span.type = linkType;
+
+                        if (linkType == LinkDetector::LinkType::url)
+                        {
+                            span.uri = token;
+                        }
+                        else
+                        {
+                            juce::File resolved;
+
+                            if (juce::File::isAbsolutePath (token))
+                            {
+                                resolved = juce::File { token };
+                            }
+                            else
+                            {
+                                resolved = juce::File { cwd }.getChildFile (token);
+                            }
+
+                            span.uri = resolved.getFullPathName().isNotEmpty() ? "file://" + resolved.getFullPathName()
+                                                                               : "file://" + token;
+                        }
+
+                        spans.push_back (std::move (span));
+                    }
+                }
             }
         }
     }
@@ -222,34 +212,34 @@ std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid,
     {
         const juce::String uri { osc.uri };
 
-        if (uri.isEmpty())
-            continue;
-
-        const bool isUrl { uri.startsWith ("http://") or uri.startsWith ("https://") };
-        const bool oscInOutputBlock { hasBlock and osc.row >= blockTop and osc.row <= blockBottom };
-        const bool oscFileAllowed { not isUrl and normalScreen and oscInOutputBlock };
-
-        if (isUrl or oscFileAllowed)
+        if (uri.isNotEmpty())
         {
-            LinkSpan span;
-            span.row = osc.row;
-            span.col = osc.startCol;
-            span.length = osc.endCol - osc.startCol;
-            span.uri = uri;
+            const bool isUrl { uri.startsWith ("http://") or uri.startsWith ("https://") };
+            const bool oscInOutputBlock { hasBlock and osc.row >= blockTop and osc.row <= blockBottom };
+            const bool oscFileAllowed { not isUrl and normalScreen and oscInOutputBlock };
 
-            if (isUrl)
+            if (isUrl or oscFileAllowed)
             {
-                span.type = LinkDetector::LinkType::url;
-            }
-            else
-            {
-                span.type = LinkDetector::LinkType::file;
+                LinkSpan span;
+                span.row = osc.row;
+                span.col = osc.startCol;
+                span.length = osc.endCol - osc.startCol;
+                span.uri = uri;
 
-                if (not uri.startsWith ("file://"))
-                    span.uri = "file://" + uri;
-            }
+                if (isUrl)
+                {
+                    span.type = LinkDetector::LinkType::url;
+                }
+                else
+                {
+                    span.type = LinkDetector::LinkType::file;
 
-            spans.push_back (std::move (span));
+                    if (not uri.startsWith ("file://"))
+                        span.uri = "file://" + uri;
+                }
+
+                spans.push_back (std::move (span));
+            }
         }
     }
 
@@ -293,5 +283,33 @@ std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid,
     }
 }
 
+// =============================================================================
+// ValueTree::Listener
+// =============================================================================
+
+void LinkManager::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    juce::ignoreUnused (tree);
+
+    if (property == ID::value)
+    {
+        auto& state { session.getState() };
+        const int blockTop { state.getOutputBlockTop() };
+        const int prompt { state.getPromptRow() };
+        const int activeScreenVal { state.getRawValue<int> (ID::activeScreen) };
+        const bool isNormalScreen { activeScreenVal == static_cast<int> (ActiveScreen::normal) };
+
+        if (blockTop >= 0 and prompt > blockTop and isNormalScreen)
+        {
+            const juce::String cwd { state.get().getProperty (ID::cwd).toString() };
+            scan (cwd, true);
+        }
+        else
+        {
+            clickableLinks.clear();
+        }
+    }
+}
+
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

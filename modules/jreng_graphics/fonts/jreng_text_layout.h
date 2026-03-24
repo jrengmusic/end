@@ -71,7 +71,7 @@ public:
      */
     struct Run
     {
-        juce::Font         font { juce::FontOptions {} };     ///< Source JUCE font for this attribute run.
+        juce::FontOptions  fontOptions;                          ///< Source JUCE font options for this attribute run.
         juce::Colour       colour;                           ///< Text colour for this run.
         juce::Array<Glyph> glyphs;                          ///< Shaped and positioned glyphs.
         juce::Range<int>   stringRange;                      ///< Character range in the original string.
@@ -200,7 +200,7 @@ public:
 
                 if (glyphCount > 0)
                 {
-                    jreng::Font font (*layoutTypeface, run->font.getHeight(), run->style);
+                    jreng::Font font (*layoutTypeface, run->fontOptions.getHeight(), run->style);
                     g.setFont (font);
 
                     juce::HeapBlock<uint16_t>           codes (static_cast<size_t> (glyphCount));
@@ -296,7 +296,7 @@ private:
      * @param juceFont  JUCE font whose bold/italic flags are inspected.
      * @return Corresponding Typeface::Style enum value.
      */
-    static Typeface::Style resolveStyle (const juce::Font& juceFont) noexcept;
+    static Typeface::Style resolveStyle (int styleFlags) noexcept;
 
     /**
      * @brief Recomputes @p width and @p height from the current line array.

@@ -60,6 +60,25 @@ namespace Terminal
 // MESSAGE THREAD
 
 // =========================================================================
+// File-scope named constants
+// =========================================================================
+
+/// @brief Maximum number of codepoints in a grapheme cluster (1 primary + 7 extras).
+static constexpr int maxGraphemeCodepoints { 8 };
+
+/// @brief Exclusive upper bound for the ASCII range tested during shaping dispatch.
+static constexpr uint32_t asciiCeiling { 128 };
+
+/// @brief Maximum codepoint sequence length tried during ligature detection.
+static constexpr int maxLigatureLength { 3 };
+
+/// @brief Underline thickness as a fraction of the physical cell height.
+static constexpr float underlineThicknessFraction { 0.06f };
+
+/// @brief Brightness multiplier applied to the foreground colour of dim cells.
+static constexpr float dimBrightnessFactor { 0.5f };
+
+// =========================================================================
 // Colour resolution helpers (file-scope)
 // =========================================================================
 
@@ -189,7 +208,7 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
 
     if (cell.isDim())
     {
-        rc.fg = rc.fg.withMultipliedBrightness (0.5f);
+        rc.fg = rc.fg.withMultipliedBrightness (dimBrightnessFactor);
     }
 
     return rc;
@@ -415,7 +434,7 @@ void Screen::processCellForSnapshot (
             if (row == span.row and col >= span.col and col < span.col + span.length)
             {
                 const int bgIdx { row * bgCacheCols + bgCount[row] };
-                const float thickness { std::max (1.0f, static_cast<float> (physCellHeight) * 0.06f) };
+                const float thickness { std::max (1.0f, static_cast<float> (physCellHeight) * underlineThicknessFraction) };
                 const float y { static_cast<float> (row * physCellHeight)
                                 + static_cast<float> (physCellHeight) - thickness };
 
@@ -537,7 +556,7 @@ static void buildCodepointSequence (const Cell& cell, const Grapheme* grapheme,
 
     if (grapheme != nullptr and grapheme->count > 0)
     {
-        for (uint8_t i { 0 }; i < grapheme->count and i < 7; ++i)
+        for (uint8_t i { 0 }; i < grapheme->count and i < maxGraphemeCodepoints - 1; ++i)
             codepoints[i + 1] = grapheme->extraCodepoints.at (i);
         codepointCount = static_cast<uint8_t> (1 + grapheme->count);
     }
@@ -590,6 +609,9 @@ void Screen::buildCellInstance (const Cell& cell,
 {
     if (cell.codepoint != 0)
     {
+        // Box-drawing uses direct atlas rasterisation (no HarfBuzz shaping, no GlyphRun).
+        // This path is intentionally separate from emitShapedGlyphsToCache — merging
+        // them would require fabricating a GlyphRun for a codepoint that was never shaped.
         if (jreng::Glyph::BoxDrawing::isProcedural (cell.codepoint))
         {
             jreng::Glyph::Region* atlasGlyph { font.getOrRasterizeBoxDrawing (
@@ -632,7 +654,7 @@ void Screen::buildCellInstance (const Cell& cell,
 
             if (fontHandle != nullptr)
             {
-                uint32_t codepoints[8] { 0, 0, 0, 0, 0, 0, 0, 0 };
+                uint32_t codepoints[maxGraphemeCodepoints] { 0, 0, 0, 0, 0, 0, 0, 0 };
                 uint8_t codepointCount { 0 };
                 buildCodepointSequence (cell, grapheme, codepoints, codepointCount);
 
@@ -659,17 +681,17 @@ void Screen::buildCellInstance (const Cell& cell,
                 bool usedFontCollection { false };
                 jreng::Typeface::Glyph fcGlyph;
 
-                jreng::Typeface::Registry& fc { font.registry };
+                jreng::Typeface::Registry& fontRegistry { font.registry };
 
-                const bool isBoxDrawing { cell.codepoint >= 0x2500 and cell.codepoint <= 0x259F };
+                const bool isBoxDrawing { cell.codepoint >= boxDrawingFirst and cell.codepoint <= boxDrawingLast };
 
                 if (not isEmoji and not isBoxDrawing)
                 {
-                    const int8_t slot { fc.resolve (cell.codepoint) };
+                    const int8_t registrySlot { fontRegistry.resolve (cell.codepoint) };
 
-                    if (slot > 0)
+                    if (registrySlot > 0)
                     {
-                        const jreng::Typeface::Registry::Entry* entry { fc.getEntry (static_cast<int> (slot)) };
+                        const jreng::Typeface::Registry::Entry* entry { fontRegistry.getEntry (static_cast<int> (registrySlot)) };
 
                         if (entry != nullptr and entry->hbFont != nullptr)
                         {
@@ -700,7 +722,6 @@ void Screen::buildCellInstance (const Cell& cell,
 
                 if (usedFontCollection)
                 {
-                    const float pixelsPerEm { font.getPixelsPerEm (style) };
                     const int maxGlyphs { cacheCols * 2 };
                     int& count { monoCount[row] };
                     Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
@@ -717,7 +738,7 @@ void Screen::buildCellInstance (const Cell& cell,
                                              physBaseline, foreground,
                                              slot, maxGlyphs, count);
                 }
-                else if (ligatureEnabled and not isEmoji and cell.codepoint > 0 and cell.codepoint < 128)
+                else if (ligatureEnabled and not isEmoji and cell.codepoint > 0 and cell.codepoint < asciiCeiling)
                 {
                     const int skip { tryLigature (rowCells, col, row, style, foreground) };
 
@@ -727,12 +748,11 @@ void Screen::buildCellInstance (const Cell& cell,
                     }
                     else
                     {
-                    const jreng::Typeface::GlyphRun shaped { font.shapeText (style, codepoints,
-                                                                            static_cast<size_t> (codepointCount)) };
+                        const jreng::Typeface::GlyphRun shaped { font.shapeText (style, codepoints,
+                                                                                  static_cast<size_t> (codepointCount)) };
 
                         if (shaped.count > 0)
                         {
-                            const float pixelsPerEm { font.getPixelsPerEm (style) };
                             const int maxGlyphs { cacheCols * 2 };
                             int& count { monoCount[row] };
                             Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
@@ -761,7 +781,6 @@ void Screen::buildCellInstance (const Cell& cell,
 
                     if (shaped.count > 0)
                     {
-                        const float pixelsPerEm { font.getPixelsPerEm (style) };
                         const int maxGlyphs { cacheCols * 2 };
                         int& count { isEmoji ? emojiCount[row] : monoCount[row] };
                         Render::Glyph* slot { isEmoji
@@ -825,19 +844,19 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface
 
     if (rowCells != nullptr)
     {
-        for (int tryLen { 3 }; tryLen >= 2 and result == 0; --tryLen)
+        for (int tryLen { maxLigatureLength }; tryLen >= 2 and result == 0; --tryLen)
         {
             if (col + tryLen <= cacheCols)
             {
                 bool eligible { true };
-                uint32_t codepoints[3];
+                uint32_t codepoints[maxLigatureLength];
                 const uint8_t baseStyle { rowCells[col].style };
 
                 for (int i { 0 }; i < tryLen and eligible; ++i)
                 {
                     const Cell& c { rowCells[col + i] };
 
-                    if (c.codepoint == 0 or c.codepoint >= 128
+                    if (c.codepoint == 0 or c.codepoint >= asciiCeiling
                         or c.style != baseStyle
                         or c.isEmoji() or c.hasGrapheme() or c.isWideContinuation())
                     {
@@ -856,7 +875,6 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface
 
                     if (shaped.count > 0 and shaped.count < tryLen)
                     {
-                        const float pixelsPerEm { font.getPixelsPerEm (style) };
                         const int maxGlyphs { cacheCols * 2 };
                         int& count { monoCount[row] };
                         Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
@@ -868,7 +886,7 @@ int Screen::tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface
                             fontObj.applyGlyphRun (shaped);
                         }
 
-                        jreng::Typeface::Glyph fixedGlyphs[3];
+                        jreng::Typeface::Glyph fixedGlyphs[maxLigatureLength];
 
                         for (int i { 0 }; i < shaped.count; ++i)
                         {

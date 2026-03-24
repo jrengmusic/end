@@ -324,14 +324,17 @@ void Terminal::Component::exitSelectionMode() noexcept
 
 void Terminal::Component::enterOpenFileMode() noexcept
 {
-    const juce::ScopedTryLock stl { session.getGrid().getResizeLock() };
+    if (session.getState().hasOutputBlock())
+    {
+        const juce::ScopedTryLock stl { session.getGrid().getResizeLock() };
 
-    const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
-    linkManager.scanForHints (cwd);
+        const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
+        linkManager.scanForHints (cwd);
 
-    const auto& hints { linkManager.getHintLinks() };
-    screen.setHintOverlay (hints.data(), static_cast<int> (hints.size()));
-    session.getState().setModalType (ModalType::openFile);
+        const auto& hints { linkManager.getHintLinks() };
+        screen.setHintOverlay (hints.data(), static_cast<int> (hints.size()));
+        session.getState().setModalType (ModalType::openFile);
+    }
 }
 
 
@@ -350,10 +353,7 @@ void Terminal::Component::mouseMove (const juce::MouseEvent& event)
 
 void Terminal::Component::mouseDown (const juce::MouseEvent& event)
 {
-    mouseHandler.handleDown (event, [this] (int offset)
-    {
-        setScrollOffsetClamped (offset);
-    });
+    mouseHandler.handleDown (event);
 }
 
 void Terminal::Component::mouseDoubleClick (const juce::MouseEvent& event)
@@ -588,16 +588,14 @@ void Terminal::Component::onVBlank()
                 }
             }
 
-            // Scan for clickable links when at live view with an output block.
-            // Clear underlay when scrolled back — link row indices are viewport-relative.
+            // Link underlay: driven by LinkManager's ValueTree listener.
+            // Clear when scrolled back — link row indices are viewport-relative.
             if (scrollOffset > 0)
             {
                 screen.setLinkUnderlay (nullptr, 0);
             }
-            else if (linkManager.needsScan() and session.getState().hasOutputBlock())
+            else
             {
-                const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
-                linkManager.scan (cwd, true);
                 const auto& links { linkManager.getClickableLinks() };
                 screen.setLinkUnderlay (links.data(), static_cast<int> (links.size()));
             }

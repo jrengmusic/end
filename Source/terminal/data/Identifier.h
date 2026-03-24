@@ -148,6 +148,24 @@ namespace ID
     /** @brief Derived display name for the tab (computed from foregroundProcess, cwd). */
     static const juce::Identifier displayName         { "displayName" };
 
+    /** @brief Write generation counter for the title string slot. */
+    static const juce::Identifier titleGeneration                       { "titleGeneration" };
+
+    /** @brief Write generation counter for the cwd string slot. */
+    static const juce::Identifier cwdGeneration                         { "cwdGeneration" };
+
+    /** @brief Write generation counter for the foregroundProcess string slot. */
+    static const juce::Identifier foregroundProcessGeneration           { "foregroundProcessGeneration" };
+
+    /** @brief Last-flushed generation for the title string slot (message thread only). */
+    static const juce::Identifier titleLastFlushedGeneration            { "titleLastFlushedGeneration" };
+
+    /** @brief Last-flushed generation for the cwd string slot (message thread only). */
+    static const juce::Identifier cwdLastFlushedGeneration              { "cwdLastFlushedGeneration" };
+
+    /** @brief Last-flushed generation for the foregroundProcess string slot (message thread only). */
+    static const juce::Identifier foregroundProcessLastFlushedGeneration { "foregroundProcessLastFlushedGeneration" };
+
     /** @brief Shell program name, stored at session creation for display name filtering. */
     static const juce::Identifier shellProgram        { "shellProgram" };
 
@@ -285,17 +303,43 @@ namespace ID
     static const juce::Identifier promptRow            { "promptRow" };
 
     //==========================================================================
-    // OUTPUT_BLOCK ephemeral node
+    // Flush / repaint signal atomics (moved from stray members)
     //==========================================================================
 
-    /** @brief Ephemeral child node type for the current OSC 133 output block (message thread). */
-    static const juce::Identifier outputBlock          { "OUTPUT_BLOCK" };
+    /** @brief True when any atomic parameter has been written since the last flush. */
+    static const juce::Identifier needsFlush           { "needsFlush" };
 
-    /** @brief Top row of the output block (property on the OUTPUT_BLOCK child node). */
-    static const juce::Identifier blockTopRow          { "blockTopRow" };
+    /** @brief True when new cell data has been written to the grid since the last repaint. */
+    static const juce::Identifier snapshotDirty        { "snapshotDirty" };
 
-    /** @brief Bottom row of the output block (property on the OUTPUT_BLOCK child node). */
-    static const juce::Identifier blockBottomRow       { "blockBottomRow" };
+    /** @brief Non-zero when all visible rows must be rebuilt on the next frame. */
+    static const juce::Identifier fullRebuild          { "fullRebuild" };
+
+    //==========================================================================
+    // Cursor blink state (message-thread only, moved from stray members)
+    //==========================================================================
+
+    /** @brief Current blink phase: 1.0 = visible half, 0.0 = hidden half. */
+    static const juce::Identifier cursorBlinkOn        { "cursorBlinkOn" };
+
+    /** @brief Milliseconds accumulated since the last blink phase toggle. */
+    static const juce::Identifier cursorBlinkElapsed   { "cursorBlinkElapsed" };
+
+    /** @brief Last-flushed cursor row used to detect cursor movement for blink reset. */
+    static const juce::Identifier prevFlushedCursorRow { "prevFlushedCursorRow" };
+
+    /** @brief Last-flushed cursor column used to detect cursor movement for blink reset. */
+    static const juce::Identifier prevFlushedCursorCol { "prevFlushedCursorCol" };
+
+
+    /** @brief Blink half-period in milliseconds (from cursor.blink_interval config). */
+    static const juce::Identifier cursorBlinkInterval  { "cursorBlinkInterval" };
+
+    /** @brief Whether cursor blinking is enabled (from cursor.blink config). */
+    static const juce::Identifier cursorBlinkEnabled   { "cursorBlinkEnabled" };
+
+    /** @brief Whether the terminal component currently has keyboard focus. */
+    static const juce::Identifier cursorFocused        { "cursorFocused" };
 }
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

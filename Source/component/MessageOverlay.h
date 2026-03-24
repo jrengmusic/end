@@ -130,16 +130,16 @@ public:
         const auto* cfg { Config::getContext() };
         const auto bgColour { cfg->getColour (Config::Key::windowColour) };
         const auto fgColour { cfg->getColour (Config::Key::overlayColour) };
-        const juce::Font font { juce::FontOptions (cfg->getString (Config::Key::overlayFamily),
-                                                   cfg->getFloat (Config::Key::overlaySize),
-                                                   juce::Font::plain) };
+        const juce::FontOptions fontOptions { cfg->getString (Config::Key::overlayFamily),
+                                              cfg->getFloat (Config::Key::overlaySize),
+                                              juce::Font::plain };
 
         g.fillAll (bgColour.withAlpha (backgroundAlpha));
-        g.setFont (font);
+        g.setFont (fontOptions);
         g.setColour (fgColour);
 
         if (resizeMode)
-            paintRulers (g, getLocalBounds(), resizeCols, resizeRows, resizePadTop, resizePadRight, resizePadBottom, resizePadLeft, font, fgColour);
+            paintRulers (g, getLocalBounds(), resizeCols, resizeRows, resizePadTop, resizePadRight, resizePadBottom, resizePadLeft, fontOptions, fgColour);
         else
             g.drawFittedText (message, getLocalBounds().reduced (textPadding), juce::Justification::centred, maxLines);
     }
@@ -170,7 +170,7 @@ private:
      * @param padRight   Grid padding — right edge in logical pixels.
      * @param padBottom  Grid padding — bottom edge in logical pixels.
      * @param padLeft    Grid padding — left edge in logical pixels.
-     * @param font       Font used for label text (same as overlay font).
+     * @param fontOptions  Font options used for label text (same as overlay font).
      * @param colour     Stroke and text colour.
      */
     static void paintRulers (juce::Graphics& g,
@@ -181,7 +181,7 @@ private:
                              int padRight,
                              int padBottom,
                              int padLeft,
-                             const juce::Font& font,
+                             const juce::FontOptions& fontOptions,
                              juce::Colour colour)
     {
         g.setColour (colour);
@@ -209,7 +209,8 @@ private:
         // ── Horizontal ruler ─────────────────────────────────────────────────
         {
             const juce::String label { juce::String (cols) + " col" };
-            const float labelW { juce::TextLayout::getStringWidth (font, label) };
+            const juce::Font juceFont { fontOptions };
+            const float labelW { juce::TextLayout::getStringWidth (juceFont, label) };
             const float totalGap { labelW + labelGap * 2.0f };
             const float midX { x0 + w / 2.0f };
             const float gapL { midX - totalGap / 2.0f };// line ends here
@@ -234,15 +235,16 @@ private:
 
             // Label centred in the gap
             g.drawText (label,
-                        juce::Rectangle<float> (gapL, hY - font.getHeight() / 2.0f, totalGap, font.getHeight()),
+                        juce::Rectangle<float> (gapL, hY - juceFont.getHeight() / 2.0f, totalGap, juceFont.getHeight()),
                         juce::Justification::centred,
                         false);
         }
 
         // ── Vertical ruler ───────────────────────────────────────────────────
         {
+            const juce::Font juceFont { fontOptions };
             const juce::String label { juce::String (rows) + " row" };
-            const float labelH { font.getHeight() };
+            const float labelH { juceFont.getHeight() };
             const float totalGap { labelH + labelGap * 2.0f };
             const float midY { y0 + h / 2.0f };
             const float gapT { midY - totalGap / 2.0f };// line ends here
@@ -266,7 +268,7 @@ private:
             g.strokePath (bottom, juce::PathStrokeType (stroke));
 
             // Label horizontal (no rotation), centred on vX and midY in the gap
-            const float labelW { juce::TextLayout::getStringWidth (font, label) };
+            const float labelW { juce::TextLayout::getStringWidth (juceFont, label) };
             g.drawText (label,
                         juce::Rectangle<float> (vX - labelW / 2.0f, gapT, labelW, totalGap),
                         juce::Justification::centred,

@@ -206,3 +206,7 @@ Write handoff entry to SPRINT-LOG.md in this format:
 ### Notes
 [Any warnings, context, or special considerations]
 ```
+
+---
+
+**ARCHITECT is always the ground of truth. Their observations override your training data. Always.**

@@ -31,7 +31,7 @@ struct Rotary
         static void drawLines (juce::Graphics& g, juce::Colour colour, const juce::Rectangle<float>& area, int div, bool shouldBeClosed = true, float rotationDegree = 0.0f, float lineThickness = 2.0f, float opacity = 1.0f);
 
         static juce::Path getNumbersPath (const juce::StringArray& numbers,
-                                          const juce::Font& font,
+                                          const juce::FontOptions& fontOptions,
                                           float length,
                                           float space,
                                           float baseline,

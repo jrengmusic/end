@@ -81,6 +81,12 @@ struct BlockGeometry
 
 static_assert (std::is_trivially_copyable_v<BlockGeometry>, "BlockGeometry must be trivially copyable");
 
+/// @brief First Unicode codepoint in the box-drawing range (U+2500 BOX DRAWINGS LIGHT HORIZONTAL).
+static constexpr uint32_t boxDrawingFirst { 0x2500 };
+
+/// @brief Last Unicode codepoint in the box-drawing range (U+259F QUADRANT UPPER RIGHT AND LOWER LEFT AND LOWER RIGHT).
+static constexpr uint32_t boxDrawingLast  { 0x259F };
+
 /// @brief First Unicode codepoint in the block-element range (U+2580 UPPER HALF BLOCK).
 static constexpr uint32_t blockFirst { 0x2580 };
 

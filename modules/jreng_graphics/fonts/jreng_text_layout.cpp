@@ -66,10 +66,10 @@ juce::Rectangle<float> TextLayout::Line::getLineBounds() const noexcept
 // TextLayout — private helpers
 // =============================================================================
 
-Typeface::Style TextLayout::resolveStyle (const juce::Font& juceFont) noexcept
+Typeface::Style TextLayout::resolveStyle (int styleFlags) noexcept
 {
-    const bool isBold   { juceFont.isBold() };
-    const bool isItalic { juceFont.isItalic() };
+    const bool isBold   { (styleFlags & juce::Font::bold) != 0 };
+    const bool isItalic { (styleFlags & juce::Font::italic) != 0 };
 
     Typeface::Style result { Typeface::Style::regular };
 
@@ -195,7 +195,12 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
             {
                 const juce::AttributedString::Attribute& attr { text.getAttribute (attrIdx) };
                 const juce::Range<int> range { attr.range };
-                const Typeface::Style style { resolveStyle (attr.font) };
+                const int attrStyleFlags { (attr.font.isBold() ? juce::Font::bold : 0)
+                                           | (attr.font.isItalic() ? juce::Font::italic : 0) };
+                const juce::FontOptions attrOptions (attr.font.getTypefaceName(),
+                                                     attr.font.getHeight(),
+                                                     attrStyleFlags);
+                const Typeface::Style style { resolveStyle (attrStyleFlags) };
 
                 const int rangeStart { juce::jmax (0, range.getStart()) };
                 const int rangeEnd   { juce::jmin (totalCodepoints, range.getEnd()) };
@@ -229,10 +234,9 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
 
             // Use the first attribute's font height for global metrics.
             // Each line's ascent/descent will be set from the dominant attribute.
-            const juce::Font& firstJuceFont { numAttributes > 0
-                                              ? text.getAttribute (0).font
-                                              : juce::Font (juce::FontOptions{}) };
-            const float fontHeight   { firstJuceFont.getHeight() };
+            const float fontHeight   { numAttributes > 0
+                                       ? text.getAttribute (0).font.getHeight()
+                                       : juce::Font (juce::FontOptions{}).getHeight() };
             Typeface::Metrics metrics    { typeface.calcMetrics (fontHeight) };
             const float lineAscent   { static_cast<float> (metrics.logicalBaseline) };
             const float lineDescent  { static_cast<float> (metrics.logicalCellH - metrics.logicalBaseline) };
@@ -274,10 +278,15 @@ void TextLayout::createLayoutInternal (const juce::AttributedString& text,
                         while (runEnd < endExcl and attrIndexForCp[runEnd] == attrIdx)
                             ++runEnd;
 
+                        const int runStyleFlags { (attr.font.isBold() ? juce::Font::bold : 0)
+                                                   | (attr.font.isItalic() ? juce::Font::italic : 0) };
+
                         auto* run { new Run() };
-                        run->font        = attr.font;
+                        run->fontOptions = juce::FontOptions (attr.font.getTypefaceName(),
+                                                              attr.font.getHeight(),
+                                                              runStyleFlags);
                         run->colour      = attr.colour;
-                        run->style       = resolveStyle (attr.font);
+                        run->style       = resolveStyle (runStyleFlags);
                         run->stringRange = { runStart, runEnd };
 
                         for (int ci { runStart }; ci < runEnd; ++ci)

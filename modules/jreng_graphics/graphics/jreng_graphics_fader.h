@@ -99,10 +99,10 @@ struct Fader
                     
                     if (shouldShowNumber)
                     {
-                        juce::Font font { lines.font };
-                        font.setExtraKerningFactor (jreng::Value::fromPercent (lines.kerning, 1.0f));
-                        
-                        g.setFont (font);
+                        juce::Font drawFont { lines.font };
+                        drawFont.setExtraKerningFactor (jreng::Value::fromPercent (lines.kerning, 1.0f));
+
+                        g.setFont (drawFont);
                         juce::GlyphArrangement glyph;
 
                         auto justification { lines.position ? juce::Justification::centredLeft : juce::Justification::centredRight };
@@ -117,7 +117,7 @@ struct Fader
                             if (dB > 0.0 and lines.isWithPositiveSign)
                                 textNumber = "+" + textNumber;
 
-                            glyph.addJustifiedText (font, textNumber, textArea.getX(), textArea.getCentreY() + (lines.textHeight / 4), textArea.getWidth(), justification);
+                            glyph.addJustifiedText (drawFont, textNumber, textArea.getX(), textArea.getCentreY() + (lines.textHeight / 4), textArea.getWidth(), justification);
                         }
                         else
                         {
@@ -146,7 +146,7 @@ struct Fader
                             auto inf { SVG::getPath (inf_data, infArea) };
                             numbersPath.addPath (inf);
 
-                            glyph.addJustifiedText (font, "-", signArea.getX(), signArea.getCentreY() + (lines.textHeight / 4), signArea.getWidth(), juce::Justification::centredLeft);
+                            glyph.addJustifiedText (drawFont, "-", signArea.getX(), signArea.getCentreY() + (lines.textHeight / 4), signArea.getWidth(), juce::Justification::centredLeft);
                         }
 
                         glyph.createPath (numbersPath);

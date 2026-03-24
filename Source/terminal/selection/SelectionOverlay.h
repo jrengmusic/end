@@ -147,7 +147,7 @@ public:
     {
         const auto font { juce::FontOptions {}
                               .withPointHeight (Config::getContext()->getFloat (Config::Key::fontSize)) };
-        return juce::roundToInt (juce::Font (font).getHeight()) + 1 * verticalPadding;
+        return juce::roundToInt (font.getHeight()) + 1 * verticalPadding;
     }
 
     /**

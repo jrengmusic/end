@@ -96,7 +96,7 @@ void Rotary::Angles::drawLines (juce::Graphics& g,
 }
 
 juce::Path Rotary::Angles::getNumbersPath (const juce::StringArray& numbers,
-                                           const juce::Font& font,
+                                           const juce::FontOptions& fontOptions,
                                            float length,
                                            float space,
                                            float baseline,
@@ -108,6 +108,7 @@ juce::Path Rotary::Angles::getNumbersPath (const juce::StringArray& numbers,
 {
     juce::Path path;
     juce::GlyphArrangement glyph;
+    const juce::Font font { fontOptions };
 
     auto angles { Angles { div, arc, rotation } };
 
@@ -308,9 +309,13 @@ void Rotary::Base::drawNumbers (juce::Graphics& g,
                                   2 * radius,
                                   2 * radius };
 
-    numbersPath = Angles::getNumbersPath (numbers, g.getCurrentFont(), length, space, baseline, shouldDrawInside, area, div, arc, rotation);
+    const juce::Font currentFont { g.getCurrentFont() };
+    const juce::FontOptions currentFontOptions { currentFont.getTypefaceName(),
+                                                 currentFont.getHeight(),
+                                                 currentFont.getStyleFlags() };
+    numbersPath = Angles::getNumbersPath (numbers, currentFontOptions, length, space, baseline, shouldDrawInside, area, div, arc, rotation);
 
-    cornerDistance = radius + space + (2 * g.getCurrentFont().getHeight());
+    cornerDistance = radius + space + (2 * currentFont.getHeight());
 
     g.fillPath (numbersPath);
 }
