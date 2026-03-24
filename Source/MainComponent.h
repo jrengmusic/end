@@ -45,7 +45,7 @@
 #include "terminal/action/Action.h"
 #include "terminal/action/ActionList.h"
 // jreng::Typeface is available via JuceHeader → jreng_glyph
-#include "terminal/selection/SelectionOverlay.h"
+#include "terminal/selection/StatusBarOverlay.h"
 
 /**
  * @class MainComponent
@@ -144,15 +144,12 @@ private:
 #if JUCE_WINDOWS
     /** @brief Fires when the native scale factor changes.
      *  Updates AppState and resets zoom on all terminals. */
-    juce::NativeScaleFactorNotifier scaleNotifier
-    {
-        this,
-        [this] (float)
-        {
-            if (tabs != nullptr)
-                tabs->resetZoom();
-        }
-    };
+    juce::NativeScaleFactorNotifier scaleNotifier { this,
+                                                    [this] (float)
+                                                    {
+                                                        if (tabs != nullptr)
+                                                            tabs->resetZoom();
+                                                    } };
 #endif
 
     /**
@@ -192,9 +189,9 @@ private:
     void showMessageOverlay();
 
     //==============================================================================
-// #if JUCE_DEBUG
-//     jreng::debug::Widget debug { this, false };
-// #endif
+    // #if JUCE_DEBUG
+    //     jreng::debug::Widget debug { this, false };
+    // #endif
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

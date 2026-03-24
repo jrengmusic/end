@@ -1,5 +1,5 @@
 /**
- * @file SelectionOverlay.h
+ * @file StatusBarOverlay.h
  * @brief Full-width status bar that reflects the active terminal modal state.
  *
  * StatusBarOverlay spans the entire MainComponent width and is positioned at
@@ -145,9 +145,8 @@ public:
      */
     int getPreferredHeight() const noexcept
     {
-        const auto font { juce::FontOptions {}
-                              .withPointHeight (Config::getContext()->getFloat (Config::Key::fontSize)) };
-        return juce::roundToInt (font.getHeight()) + 1 * verticalPadding;
+        const float fontSize { Config::getContext()->getFloat (Config::Key::fontSize) };
+        return juce::roundToInt (fontSize) + 2 * verticalPadding;
     }
 
     /**
@@ -172,10 +171,10 @@ public:
     {
         const auto bounds { getLocalBounds() };
         const auto* cfg { Config::getContext() };
-        const auto font { juce::FontOptions {}
-                              .withName (cfg->getString (Config::Key::fontFamily))
-                              .withPointHeight (cfg->getFloat (Config::Key::fontSize))
-                              .withStyle ("Bold") };
+        const juce::Font font { juce::FontOptions {}
+                                    .withName (cfg->getString (Config::Key::fontFamily))
+                                    .withPointHeight (cfg->getFloat (Config::Key::fontSize))
+                                    .withStyle ("Bold") };
 
         g.setColour (findColour (barBackgroundColourId));
         g.fillRect (bounds);
