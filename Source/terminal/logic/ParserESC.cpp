@@ -418,7 +418,7 @@ void Parser::handleOscTitle (const uint8_t* data, uint16_t dataLength) noexcept
     // READER THREAD
     int safeLen { juce::jmin (static_cast<int> (dataLength), State::maxStringLength - 1) };
 
-    while (safeLen > 0 and (data[safeLen] & 0xC0) == 0x80)
+    while (safeLen > 0 and (data[safeLen - 1] & 0xC0) == 0x80)
         --safeLen;
 
     state.setTitle (reinterpret_cast<const char*> (data), safeLen);

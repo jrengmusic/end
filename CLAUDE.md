@@ -275,7 +275,6 @@ BRIEF:
 - Follow carol/NAMING-CONVENTION.md — if comments are needed to explain a variable, naming failed.
 - Follow carol/ARCHITECTURAL-MANIFESTO.md (LIFESTAR + LOVE principles).
 - Objects stay dumb, no poking internals, communicate via API (Explicit Encapsulation).
-- juce::Font is deprecated. Use juce::FontOptions everywhere. juce::Font is ONLY permitted where JUCE API demands it (e.g., LookAndFeel overrides, Graphics::setFont, TextLayout::getStringWidth). Never construct juce::Font just to read properties — use the source values directly.
 
 ---
 

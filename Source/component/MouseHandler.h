@@ -27,10 +27,10 @@
 
 namespace Terminal
 {
+
 class Session;
 class Screen;
 class LinkManager;
-} // namespace Terminal
 
 /**
  * @class MouseHandler
@@ -65,9 +65,9 @@ public:
      * @param linkManager Link manager (hit-testing, dispatch).
      * @note MESSAGE THREAD.
      */
-    MouseHandler (Terminal::Session& session,
-                  Terminal::Screen& screen,
-                  Terminal::LinkManager& linkManager) noexcept;
+    MouseHandler (Session& session,
+                  Screen& screen,
+                  LinkManager& linkManager) noexcept;
 
     /**
      * @brief Handles a mouse-down event.
@@ -166,13 +166,13 @@ private:
     int toAbsoluteRow (int visibleRow) const noexcept;
 
     /** @brief Terminal session — provides state, grid, and PTY write access. */
-    Terminal::Session& session;
+    Session& session;
 
     /** @brief Terminal renderer — provides cell coordinate mapping. */
-    Terminal::Screen& screen;
+    Screen& screen;
 
     /** @brief Link manager — click hit-testing and dispatch. */
-    Terminal::LinkManager& linkManager;
+    LinkManager& linkManager;
 
     /**
      * @brief Fractional scroll accumulator for smooth (trackpad) input.
@@ -182,3 +182,5 @@ private:
      */
     float scrollAccumulator { 0.0f };
 };
+
+} // namespace Terminal

@@ -18,9 +18,12 @@
 #include "../terminal/data/State.h"
 #include "../config/Config.h"
 
-MouseHandler::MouseHandler (Terminal::Session& s,
-                            Terminal::Screen& sc,
-                            Terminal::LinkManager& lm) noexcept
+namespace Terminal
+{
+
+MouseHandler::MouseHandler (Session& s,
+                            Screen& sc,
+                            LinkManager& lm) noexcept
     : session (s)
     , screen (sc)
     , linkManager (lm)
@@ -282,3 +285,5 @@ int MouseHandler::toAbsoluteRow (int visibleRow) const noexcept
     const int scrollOffset { session.getState().getScrollOffset() };
     return scrollback - scrollOffset + visibleRow;
 }
+
+} // namespace Terminal

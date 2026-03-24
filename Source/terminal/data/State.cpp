@@ -1100,10 +1100,6 @@ void State::tickCursorBlink (int elapsedMs) noexcept
  * `isDouble()` guard skips it automatically — it has no atomic backing and is
  * managed exclusively by the message thread via the ValueTree.
  *
- * `std::deque` is used for `storage` so that `emplace_back` never invalidates
- * existing element addresses.  `parameterMap` holds raw pointers into
- * `storage`, which would dangle if `std::vector` reallocated.
- *
  * @note MESSAGE THREAD — called once from the constructor.  After this call
  *       `parameterMap` is immutable and safe to read from any thread without
  *       a lock.

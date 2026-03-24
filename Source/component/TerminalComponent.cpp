@@ -328,12 +328,15 @@ void Terminal::Component::enterOpenFileMode() noexcept
     {
         const juce::ScopedTryLock stl { session.getGrid().getResizeLock() };
 
-        const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
-        linkManager.scanForHints (cwd);
+        if (stl.isLocked())
+        {
+            const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
+            linkManager.scanForHints (cwd);
 
-        const auto& hints { linkManager.getHintLinks() };
-        screen.setHintOverlay (hints.data(), static_cast<int> (hints.size()));
-        session.getState().setModalType (ModalType::openFile);
+            const auto& hints { linkManager.getHintLinks() };
+            screen.setHintOverlay (hints.data(), static_cast<int> (hints.size()));
+            session.getState().setModalType (ModalType::openFile);
+        }
     }
 }
 
@@ -397,34 +400,34 @@ bool Terminal::Component::isInterestedInFileDrag (const juce::StringArray&)
  */
 void Terminal::Component::filesDropped (const juce::StringArray& files, int, int)
 {
-    if (files.isEmpty())
-        return;
-
-    const auto* cfg { Config::getContext() };
-    const juce::String multifiles { cfg->getString (Config::Key::terminalDropMultifiles) };
-    const bool shouldQuote { cfg->getBool (Config::Key::terminalDropQuoted) };
-    const juce::String separator { multifiles == "newline" ? "\n" : " " };
-
-    juce::StringArray paths;
-
-    for (const auto& file : files)
+    if (not files.isEmpty())
     {
-        if (shouldQuote and (file.containsChar (' ') or file.containsChar ('\'') or file.containsChar ('"') or file.containsChar ('\\') or file.containsChar ('(') or file.containsChar (')')))
-        {
-            const juce::String shell { cfg->getString (Config::Key::shellProgram) };
+        const auto* cfg { Config::getContext() };
+        const juce::String multifiles { cfg->getString (Config::Key::terminalDropMultifiles) };
+        const bool shouldQuote { cfg->getBool (Config::Key::terminalDropQuoted) };
+        const juce::String separator { multifiles == "newline" ? "\n" : " " };
 
-            if (shell.contains ("cmd"))
-                paths.add ("\"" + file + "\"");
+        juce::StringArray paths;
+
+        for (const auto& file : files)
+        {
+            if (shouldQuote and (file.containsChar (' ') or file.containsChar ('\'') or file.containsChar ('"') or file.containsChar ('\\') or file.containsChar ('(') or file.containsChar (')')))
+            {
+                const juce::String shell { cfg->getString (Config::Key::shellProgram) };
+
+                if (shell.contains ("cmd"))
+                    paths.add ("\"" + file + "\"");
+                else
+                    paths.add ("'" + file.replace ("'", "'\\''") + "'");
+            }
             else
-                paths.add ("'" + file.replace ("'", "'\\''") + "'");
+            {
+                paths.add (file);
+            }
         }
-        else
-        {
-            paths.add (file);
-        }
-    }
 
-    session.paste (paths.joinIntoString (separator));
+        session.paste (paths.joinIntoString (separator));
+    }
 }
 
 // GL THREAD

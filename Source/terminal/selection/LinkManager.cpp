@@ -248,16 +248,17 @@ std::vector<LinkSpan> LinkManager::scanViewport (const juce::String& cwd, bool o
 void LinkManager::assignHintLabels (std::vector<LinkSpan>& spans) noexcept
 {
     std::unordered_set<char> usedLabels;
+    const int scrollOffset { state.getScrollOffset() };
 
     for (auto& span : spans)
     {
         const int tokenEnd { span.col + span.length };
-        bool assigned { false };
+        const Cell* rowCells { scrollOffset > 0
+                                   ? grid.scrollbackRow (span.row, scrollOffset)
+                                   : grid.activeVisibleRow (span.row) };
 
-        for (int c { span.col }; c < tokenEnd and not assigned; ++c)
+        for (int c { span.col }; c < tokenEnd; ++c)
         {
-            const Cell* rowCells { grid.activeVisibleRow (span.row) };
-
             if (rowCells != nullptr)
             {
                 const uint32_t cp { rowCells[c].codepoint };
@@ -269,14 +270,15 @@ void LinkManager::assignHintLabels (std::vector<LinkSpan>& spans) noexcept
                     span.hintLabel[1] = 0;
                     span.labelCol = c;
                     usedLabels.insert (lower);
-                    assigned = true;
+                    break;
                 }
             }
         }
 
-        if (not assigned)
+        // hintLabel[0] is zero-initialized by default (LinkSpan::hintLabel[2] {}).
+        // If the inner loop found no usable character, hintLabel[0] remains 0.
+        if (span.hintLabel[0] == 0)
         {
-            span.hintLabel[0] = 0;
             span.labelCol = span.col;
         }
     }
@@ -292,12 +294,7 @@ void LinkManager::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 
     if (property == ID::value)
     {
-        const int blockTop { state.getOutputBlockTop() };
-        const int prompt { state.getPromptRow() };
-        const int activeScreenVal { state.getRawValue<int> (ID::activeScreen) };
-        const bool isNormalScreen { activeScreenVal == static_cast<int> (ActiveScreen::normal) };
-
-        if (blockTop >= 0 and prompt > blockTop and isNormalScreen)
+        if (state.hasOutputBlock())
         {
             const juce::String cwd { state.get().getProperty (ID::cwd).toString() };
             scan (cwd, true);

@@ -66,8 +66,23 @@
 
 ### Technical Debt / Follow-up
 - `spanKey` in handleOsc8 constructs `juce::String` on reader thread (for Identifier key derivation) — could use a fixed char buffer
-- InputHandler and MouseHandler still hold Session& — could be decoupled to State& + Grid& + callbacks (same pattern as LinkManager)
+- InputHandler still holds Session& — could be decoupled to State& + Grid& + callbacks (same pattern as LinkManager)
 - StringSlot storeAndFlush overload not implemented — deferred, would unify write API for string params
+
+### Audit Polish (post-commit)
+
+**Agents:** @auditor (11 findings), @machinist (all applied)
+
+**Files Modified (7 total):**
+- `TerminalComponent.cpp:401` — early return in `filesDropped` replaced with positive check `not files.isEmpty()`
+- `LinkManager.cpp:255` — `bool assigned` manual flag removed from `assignHintLabels`; uses `break` + zero-check
+- `LinkManager.cpp:259` — `assignHintLabels` scroll-aware row accessor (mirrors `scanViewport` pattern)
+- `LinkManager.cpp:294` — `valueTreePropertyChanged` calls `state.hasOutputBlock()` instead of reimplementing check (SSOT)
+- `TerminalComponent.cpp:329` — `enterOpenFileMode` checks `ScopedTryLock` before grid read
+- `MouseHandler.h/cpp` — `MouseHandler` class moved into `namespace Terminal` (consistency)
+- `ParserESC.cpp:421` — `handleOscTitle` UTF-8 truncation `data[safeLen]` → `data[safeLen - 1]` (OOB fix)
+- `State.h` — `hasOutputBlock` doc updated (removed stale OUTPUT_BLOCK node reference)
+- `State.cpp` — `buildParameterMap` doc removed stale `std::deque` paragraph
 
 ### Lessons
 

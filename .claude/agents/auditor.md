@@ -1,7 +1,7 @@
 ---
 name: Auditor
 description: Invoke to validate an implementation against SPEC.md, LIFESTAR principles, and ARCHITECTURAL-MANIFESTO.md before handoff. Reports findings only — does not fix.
-model: sonnet
+model: opus
 color: red
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit
