@@ -49,12 +49,11 @@ void MouseHandler::handleDown (const juce::MouseEvent& event)
     else
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
-        const int scrollOffset { session.getState().getScrollOffset() };
         const int absRow { toAbsoluteRow (cell.y) };
 
         // Click-mode dispatch: hit-test against clickable link spans.
-        // Only active when no modal is open and content is at the live view.
-        if (not session.getState().isModal() and scrollOffset == 0)
+        // Only active when no modal is open.
+        if (not session.getState().isModal())
         {
             const Terminal::LinkSpan* matched { linkManager.hitTest (cell.y, cell.x) };
 

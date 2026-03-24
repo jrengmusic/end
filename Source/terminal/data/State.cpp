@@ -182,6 +182,10 @@ State::State()
     addParam (state, ID::cwdLastFlushedGeneration, 0.0f);
     addParam (state, ID::foregroundProcessLastFlushedGeneration, 0.0f);
 
+    // Hyperlink generation counters.
+    addParam (state, ID::hyperlinksGeneration, 0.0f);
+    addParam (state, ID::hyperlinksLastFlushedGeneration, 0.0f);
+
     // MODES
     juce::ValueTree modesNode { ID::MODES };
     addParam (modesNode, ID::originMode, 0.0f);
@@ -202,6 +206,9 @@ State::State()
 
     state.appendChild (buildScreenNode (ID::NORMAL), nullptr);
     state.appendChild (buildScreenNode (ID::ALTERNATE), nullptr);
+
+    // HYPERLINKS container node — children are created/removed by flushHyperlinks().
+    state.appendChild (juce::ValueTree { ID::HYPERLINKS }, nullptr);
 
     buildParameterMap();
 
@@ -495,6 +502,55 @@ void State::setCwd (const char* src, int length) noexcept { writeStringSlot (ID:
 void State::setForegroundProcess (const char* src, int length) noexcept
 {
     writeStringSlot (ID::foregroundProcess, src, length);
+}
+
+/**
+ * @brief Records an OSC 8 hyperlink span into `hyperlinkMap`.
+ *
+ * Emplaces or overwrites the entry keyed by `id`.  Bumps `hyperlinksGeneration`
+ * with a release store so `flushHyperlinks()` observes the completed write.
+ * Sets `needsFlush` so the timer wakes on the next tick.
+ *
+ * @note READER THREAD — lock-free, noexcept.
+ */
+void State::storeHyperlink (const juce::Identifier& id, const char* uri, int uriLength,
+                             int row, int startCol, int endCol) noexcept
+{
+    // READER THREAD
+    auto it { hyperlinkMap.find (id) };
+
+    if (it == hyperlinkMap.end())
+    {
+        hyperlinkMap.emplace (id, std::make_unique<HyperlinkEntry>());
+        it = hyperlinkMap.find (id);
+    }
+
+    auto* entry { it->second.get() };
+    const int len { juce::jmin (uriLength, maxStringLength - 1) };
+    std::memcpy (entry->uri, uri, static_cast<size_t> (len));
+    entry->uri[len] = '\0';
+    entry->row      = row;
+    entry->startCol = startCol;
+    entry->endCol   = endCol;
+
+    fetchAdd (*getRawParam (ID::hyperlinksGeneration), 1.0f, std::memory_order_release);
+    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
+}
+
+/**
+ * @brief Clears all entries in `hyperlinkMap` and bumps the generation.
+ *
+ * `flushHyperlinks()` detects the generation change and removes all
+ * HYPERLINKS children from the ValueTree.
+ *
+ * @note READER THREAD — lock-free, noexcept.
+ */
+void State::clearHyperlinks() noexcept
+{
+    // READER THREAD
+    hyperlinkMap.clear();
+    fetchAdd (*getRawParam (ID::hyperlinksGeneration), 1.0f, std::memory_order_release);
+    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
 }
 
 /**
@@ -961,6 +1017,7 @@ void State::timerCallback()
     static constexpr int idleHz { 60 };
     const bool anythingUpdated { flush() };
     flushStrings();
+    flushHyperlinks();
 
     const int interval { anythingUpdated ? 1000 / flushHz : 1000 / idleHz };
     tickCursorBlink (interval);

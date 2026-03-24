@@ -179,5 +179,55 @@ bool State::flush() noexcept
     return result;
 }
 
+/**
+ * @brief Synchronises OSC 8 hyperlink spans from `hyperlinkMap` into the
+ *        HYPERLINKS ValueTree node.
+ *
+ * Compares `hyperlinksGeneration` (acquire load) against
+ * `hyperlinksLastFlushedGeneration`.  When they differ, removes all existing
+ * HYPERLINKS children and rebuilds them from `hyperlinkMap`.  Each child node
+ * has type `ID::HYPERLINK` and carries `ID::uri`, `ID::row`, `ID::startCol`,
+ * and `ID::endCol`.
+ *
+ * @note MESSAGE THREAD — called from `timerCallback()` only.
+ */
+// MESSAGE THREAD
+void State::flushHyperlinks() noexcept
+{
+    auto* genAtom     { getRawParam (ID::hyperlinksGeneration) };
+    auto* lastGenAtom { getRawParam (ID::hyperlinksLastFlushedGeneration) };
+
+    const float gen     { genAtom->load (std::memory_order_acquire) };
+    const float lastGen { lastGenAtom->load (std::memory_order_relaxed) };
+
+    if (gen != lastGen)
+    {
+        lastGenAtom->store (gen, std::memory_order_relaxed);
+
+        juce::ValueTree hyperlinksNode { state.getChildWithName (ID::HYPERLINKS) };
+
+        if (hyperlinksNode.isValid())
+        {
+            hyperlinksNode.removeAllChildren (nullptr);
+
+            for (const auto& [id, entry] : hyperlinkMap)
+            {
+                juce::ValueTree child { ID::HYPERLINK };
+                child.setProperty (ID::uri,      juce::String::fromUTF8 (entry->uri), nullptr);
+                child.setProperty (ID::row,      entry->row,      nullptr);
+                child.setProperty (ID::startCol, entry->startCol, nullptr);
+                child.setProperty (ID::endCol,   entry->endCol,   nullptr);
+
+                hyperlinksNode.appendChild (child, nullptr);
+            }
+
+            // Signal listeners once after the full rebuild by bumping the node's
+            // value property.  This fires valueTreePropertyChanged on any listener
+            // attached to hyperlinksNode, triggering a single re-scan.
+            hyperlinksNode.setProperty (ID::value, gen, nullptr);
+        }
+    }
+}
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

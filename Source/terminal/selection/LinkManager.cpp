@@ -7,67 +7,54 @@
 
 #include "LinkManager.h"
 #include <JuceHeader.h>
-#include "../logic/Session.h"
-#include "../logic/Grid.h"
 #include "../data/State.h"
 #include "../data/Identifier.h"
+#include "../logic/Grid.h"
 #include "../../config/Config.h"
 #include <unordered_set>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-LinkManager::LinkManager (Session& s) noexcept
-    : session (s)
-    , promptRowNode (jreng::ValueTree::getChildWithID (session.getState().get(), ID::promptRow.toString()))
-    , activeScreenNode (jreng::ValueTree::getChildWithID (session.getState().get(), ID::activeScreen.toString()))
+LinkManager::LinkManager (State& s, const Grid& g,
+                          std::function<void (const char*, int)> writeToPtyCallback) noexcept
+    : state (s)
+    , grid (g)
+    , writeToPty (std::move (writeToPtyCallback))
+    , promptRowNode         (jreng::ValueTree::getChildWithID (state.get(), ID::promptRow.toString()))
+    , activeScreenNode      (jreng::ValueTree::getChildWithID (state.get(), ID::activeScreen.toString()))
+    , hyperlinksNode        (state.get().getChildWithName (ID::HYPERLINKS))
+    , scrollOffsetNode      (jreng::ValueTree::getChildWithID (state.get(), ID::scrollOffset.toString()))
+    , outputBlockBottomNode (jreng::ValueTree::getChildWithID (state.get(), ID::outputBlockBottom.toString()))
 {
     promptRowNode.addListener (this);
     activeScreenNode.addListener (this);
+    hyperlinksNode.addListener (this);
+    scrollOffsetNode.addListener (this);
+    outputBlockBottomNode.addListener (this);
 }
 
 LinkManager::~LinkManager()
 {
     promptRowNode.removeListener (this);
     activeScreenNode.removeListener (this);
+    hyperlinksNode.removeListener (this);
+    scrollOffsetNode.removeListener (this);
+    outputBlockBottomNode.removeListener (this);
 }
 
 void LinkManager::scan (const juce::String& cwd, bool outputRowsOnly)
 {
-    session.getParser().clearOsc8Links();
-
-    try
-    {
-        clickableLinks = scanViewport (session.getGrid(), cwd, outputRowsOnly);
-    }
-    catch (...)
-    {
-        clickableLinks.clear();
-    }
-
-    scanNeeded = false;
+    clickableLinks = scanViewport (cwd, outputRowsOnly);
 }
 
 void LinkManager::scanForHints (const juce::String& cwd)
 {
-    session.getParser().clearOsc8Links();
-
-    try
-    {
-        hintLinks = scanViewport (session.getGrid(), cwd, session.getState().hasOutputBlock());
-        assignHintLabels (hintLinks, session.getGrid());
-    }
-    catch (...)
-    {
-        hintLinks.clear();
-    }
+    hintLinks = scanViewport (cwd, state.hasOutputBlock());
+    assignHintLabels (hintLinks);
 }
 
 void LinkManager::clearHints() noexcept { hintLinks.clear(); }
-
-void LinkManager::invalidate() noexcept { scanNeeded = true; }
-
-bool LinkManager::needsScan() const noexcept { return scanNeeded; }
 
 const LinkSpan* LinkManager::hitTest (int row, int col) const noexcept
 {
@@ -116,7 +103,7 @@ void LinkManager::dispatch (const LinkSpan& span) const
                                         ? handler
                                         : Config::getContext()->getString (Config::Key::hyperlinksEditor) };
         const juce::String command { opener + " " + path + "\r" };
-        session.writeToPty (command.toRawUTF8(), static_cast<int> (command.getNumBytesAsUTF8()));
+        writeToPty (command.toRawUTF8(), static_cast<int> (command.getNumBytesAsUTF8()));
     }
 }
 
@@ -124,20 +111,25 @@ const std::vector<LinkSpan>& LinkManager::getClickableLinks() const noexcept { r
 
 const std::vector<LinkSpan>& LinkManager::getHintLinks() const noexcept { return hintLinks; }
 
-std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid, const juce::String& cwd, bool outputRowsOnly) const
+std::vector<LinkSpan> LinkManager::scanViewport (const juce::String& cwd, bool outputRowsOnly) const
 {
     std::vector<LinkSpan> spans;
 
     const int visibleRows { grid.getVisibleRows() };
     const int cols { grid.getCols() };
-    const bool hasBlock { session.getState().hasOutputBlock() };
-    const int blockTop { outputRowsOnly ? session.getState().getOutputBlockTop() : 0 };
-    const int blockBottom { outputRowsOnly ? session.getState().getOutputBlockBottom() : visibleRows - 1 };
-    const bool normalScreen { session.getState().getActiveScreen() == ActiveScreen::normal };
+    const int scrollbackUsed { grid.getScrollbackUsed() };
+    const int scrollOffset { state.getScrollOffset() };
+    const int visibleBase { scrollbackUsed - scrollOffset };
+    const bool hasBlock { state.hasOutputBlock() };
+    const int blockTop { outputRowsOnly ? state.getOutputBlockTop() : visibleBase };
+    const int blockBottom { outputRowsOnly ? state.getOutputBlockBottom() : visibleBase + visibleRows - 1 };
+    const bool normalScreen { state.getActiveScreen() == ActiveScreen::normal };
 
     for (int row { 0 }; row < visibleRows; ++row)
     {
-        const Cell* rowCells { grid.activeVisibleRow (row) };
+        const Cell* rowCells { scrollOffset > 0
+                                   ? grid.scrollbackRow (row, scrollOffset)
+                                   : grid.activeVisibleRow (row) };
 
         if (rowCells != nullptr)
         {
@@ -166,7 +158,8 @@ std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid, const juce::S
                     const int tokenLength { col - tokenStartCol };
                     const LinkDetector::LinkType linkType { LinkDetector::classify (token) };
 
-                    const bool inOutputBlock { hasBlock and row >= blockTop and row <= blockBottom };
+                    const int absoluteRow { visibleBase + row };
+                    const bool inOutputBlock { hasBlock and absoluteRow >= blockTop and absoluteRow <= blockBottom };
                     const bool fileAllowed { linkType == LinkDetector::LinkType::file and normalScreen
                                              and inOutputBlock };
                     const bool urlAllowed { linkType == LinkDetector::LinkType::url };
@@ -207,24 +200,30 @@ std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid, const juce::S
         }
     }
 
-    // Merge OSC 8 explicit hyperlink spans accumulated by the parser.
-    for (const auto& osc : session.getParser().getOsc8Links())
+    // Merge OSC 8 explicit hyperlink spans from the State HYPERLINKS ValueTree.
+    for (int i { 0 }; i < hyperlinksNode.getNumChildren(); ++i)
     {
-        const juce::String uri { osc.uri };
+        const auto child { hyperlinksNode.getChild (i) };
+        const juce::String uri { child.getProperty (ID::uri).toString() };
 
         if (uri.isNotEmpty())
         {
+            const int oscRow      { static_cast<int> (child.getProperty (ID::row)) };
+            const int oscStartCol { static_cast<int> (child.getProperty (ID::startCol)) };
+            const int oscEndCol   { static_cast<int> (child.getProperty (ID::endCol)) };
+
+            const bool oscInViewport { oscRow >= visibleBase and oscRow < visibleBase + visibleRows };
             const bool isUrl { uri.startsWith ("http://") or uri.startsWith ("https://") };
-            const bool oscInOutputBlock { hasBlock and osc.row >= blockTop and osc.row <= blockBottom };
+            const bool oscInOutputBlock { hasBlock and oscRow >= blockTop and oscRow <= blockBottom };
             const bool oscFileAllowed { not isUrl and normalScreen and oscInOutputBlock };
 
-            if (isUrl or oscFileAllowed)
+            if (oscInViewport and (isUrl or oscFileAllowed))
             {
                 LinkSpan span;
-                span.row = osc.row;
-                span.col = osc.startCol;
-                span.length = osc.endCol - osc.startCol;
-                span.uri = uri;
+                span.row    = oscRow - visibleBase;
+                span.col    = oscStartCol;
+                span.length = oscEndCol - oscStartCol;
+                span.uri    = uri;
 
                 if (isUrl)
                 {
@@ -246,7 +245,7 @@ std::vector<LinkSpan> LinkManager::scanViewport (const Grid& grid, const juce::S
     return spans;
 }
 
-/*static*/ void LinkManager::assignHintLabels (std::vector<LinkSpan>& spans, const Grid& grid) noexcept
+void LinkManager::assignHintLabels (std::vector<LinkSpan>& spans) noexcept
 {
     std::unordered_set<char> usedLabels;
 
@@ -293,7 +292,6 @@ void LinkManager::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 
     if (property == ID::value)
     {
-        auto& state { session.getState() };
         const int blockTop { state.getOutputBlockTop() };
         const int prompt { state.getPromptRow() };
         const int activeScreenVal { state.getRawValue<int> (ID::activeScreen) };

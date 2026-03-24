@@ -261,55 +261,6 @@ public:
     std::function<void()> onBell;
 
     // =========================================================================
-    /**
-     * @struct Osc8Span
-     * @brief A hyperlink span recorded from an OSC 8 sequence.
-     *
-     * Produced by `handleOsc8()` when the closing empty-URI OSC 8 is received.
-     * Stored in `osc8Links` and exposed to the viewport scanner so explicit
-     * hyperlinks from programs (e.g. compilers, diff tools) are found alongside
-     * heuristic file/URL detections.
-     *
-     * @see getOsc8Links()
-     * @see Terminal::Component::scanViewportForLinks
-     */
-    struct Osc8Span
-    {
-        /** @brief Zero-based visible row where the link starts. */
-        int row { 0 };
-
-        /** @brief Zero-based column where the link starts (inclusive). */
-        int startCol { 0 };
-
-        /** @brief Zero-based column where the link ends (exclusive). */
-        int endCol { 0 };
-
-        /** @brief Target URI (e.g. "https://example.com" or "file:///path"). */
-        juce::String uri;
-    };
-
-    /**
-     * @brief Returns the list of OSC 8 hyperlink spans accumulated since the last clear.
-     *
-     * Called from the message thread by `Terminal::Component::scanViewportForLinks()`
-     * to merge explicit hyperlinks with heuristic detections.
-     *
-     * @note READER THREAD writes; MESSAGE THREAD reads. The caller must only
-     *       read this list when no active parse is in progress (i.e. after a
-     *       repaint snapshot, which implies the reader has yielded).
-     */
-    const std::vector<Osc8Span>& getOsc8Links() const noexcept { return osc8Links; }
-
-    /**
-     * @brief Clears all recorded OSC 8 spans.
-     *
-     * Called by `Terminal::Component` after consuming the spans (e.g. when
-     * leaving open-file mode or on viewport scroll).
-     *
-     * @note READER THREAD — call only from the parser's reader thread context,
-     *       or from `reset()`.
-     */
-    void clearOsc8Links() noexcept { osc8Links.clear(); }
 
     /**
      * @brief Delivers any queued device responses to the host via `writeToHost`.
@@ -564,18 +515,6 @@ private:
     int responseLen { 0 };
 
     /**
-     * @brief Accumulated OSC 8 hyperlink spans.
-     *
-     * Appended by `handleOsc8()` when an empty-URI OSC 8 closes a span.
-     * Read by `Terminal::Component::scanViewportForLinks()` via `getOsc8Links()`.
-     * Cleared by `clearOsc8Links()`.
-     *
-     * @see Osc8Span
-     * @see handleOsc8()
-     */
-    std::vector<Osc8Span> osc8Links;
-
-    /**
      * @brief URI of the currently active OSC 8 hyperlink, or empty when no link is open.
      *
      * Set by `handleOsc8()` on start; cleared when the matching empty-URI end is received.
@@ -583,7 +522,7 @@ private:
      * @see osc8StartRow
      * @see osc8StartCol
      */
-    juce::String activeOsc8Uri;
+    State::StringSlot activeOsc8Uri;
 
     /**
      * @brief Zero-based visible row where the active OSC 8 link started.
@@ -1455,7 +1394,8 @@ private:
      *  Payload format: `8;params;uri`
      *  - Non-empty URI: records link start position in `activeOsc8Uri`,
      *    `osc8StartRow`, `osc8StartCol`.
-     *  - Empty URI:     closes the span, appends to `osc8Links`.
+     *  - Empty URI:     closes the span and writes it to State via
+     *    `state.storeHyperlink()`.
      *
      *  @param data        Pointer to OSC payload after the `"8;"` prefix.
      *  @param dataLength  Length of the payload in bytes.

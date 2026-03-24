@@ -120,9 +120,9 @@ public:
     /**
      * @brief Handles mouse move (hover) events.
      *
-     * Rescans the viewport for links when `linkManager.needsScan()` is `true`,
-     * then hit-tests the hovered cell.  Sets `PointingHandCursor` over a link,
-     * `NormalCursor` otherwise.  No-op when mouse tracking or a modal is active.
+     * Hit-tests the hovered cell against `linkManager`'s current clickable spans.
+     * Sets `PointingHandCursor` over a link, `NormalCursor` otherwise.
+     * No-op when mouse tracking or a modal is active.
      *
      * @param event     The mouse event.
      * @param component The JUCE component to set the cursor on.

@@ -640,7 +640,8 @@ void Parser::handleOscResetCursorColor() noexcept
  *   params ; uri
  *
  * - Non-empty URI: records the current cursor position as the link start.
- * - Empty URI:     closes the open span and appends it to `osc8Links`.
+ * - Empty URI:     closes the open span and writes it to State via
+ *                  `state.storeHyperlink()`.
  *
  * @param data        Pointer to OSC payload bytes (after the "8;" separator).
  * @param dataLength  Number of bytes in `data`.
@@ -676,28 +677,33 @@ void Parser::handleOsc8 (const uint8_t* data, uint16_t dataLength) noexcept
 
         if (uriLength > 0)
         {
-            // Start of a new hyperlink
-            activeOsc8Uri = juce::String::fromUTF8 (
-                reinterpret_cast<const char*> (data + uriStart), uriLength);
+            // Start of a new hyperlink — record in-flight tracking state
+            const int len { juce::jmin (uriLength, State::maxStringLength - 1) };
+            std::memcpy (activeOsc8Uri.buffer,
+                         reinterpret_cast<const char*> (data + uriStart),
+                         static_cast<size_t> (len));
+            activeOsc8Uri.buffer[len] = '\0';
 
             const ActiveScreen scr { state.getScreen() };
-            osc8StartRow = state.getCursorRow (scr);
+            osc8StartRow = grid.getScrollbackUsed() + state.getCursorRow (scr);
             osc8StartCol = state.getCursorCol (scr);
         }
         else
         {
-            // End of hyperlink — close the span if one was open
-            if (activeOsc8Uri.isNotEmpty() and osc8StartRow >= 0)
+            // End of hyperlink — close the span if one was open and write to State
+            if (activeOsc8Uri.buffer[0] != '\0' and osc8StartRow >= 0)
             {
                 const ActiveScreen scr { state.getScreen() };
+                const int endCol { state.getCursorCol (scr) };
 
-                Osc8Span span;
-                span.row      = osc8StartRow;
-                span.startCol = osc8StartCol;
-                span.endCol   = state.getCursorCol (scr);
-                span.uri      = activeOsc8Uri;
+                // Derive a unique span key from start position: "row_startCol"
+                const juce::String spanKey { juce::String (osc8StartRow) + "_"
+                                             + juce::String (osc8StartCol) };
+                const juce::Identifier spanId { spanKey };
 
-                osc8Links.push_back (std::move (span));
+                const int uriLen { static_cast<int> (std::strlen (activeOsc8Uri.buffer)) };
+                state.storeHyperlink (spanId, activeOsc8Uri.buffer, uriLen,
+                                      osc8StartRow, osc8StartCol, endCol);
             }
 
             activeOsc8Uri = {};
@@ -728,19 +734,20 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataL
     if (dataLength >= 1)
     {
         const int cursorRow { state.getCursorRow (scr) };
+        const int absoluteRow { grid.getScrollbackUsed() + cursorRow };
 
         switch (data[0])
         {
             case 'A':
-                state.setPromptRow (cursorRow);
+                state.setPromptRow (absoluteRow);
                 break;
 
             case 'C':
-                state.setOutputBlockStart (cursorRow);
+                state.setOutputBlockStart (absoluteRow);
                 break;
 
             case 'D':
-                state.setOutputBlockEnd (cursorRow);
+                state.setOutputBlockEnd (absoluteRow);
                 break;
 
             default:

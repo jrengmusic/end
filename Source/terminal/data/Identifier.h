@@ -340,6 +340,34 @@ namespace ID
 
     /** @brief Whether the terminal component currently has keyboard focus. */
     static const juce::Identifier cursorFocused        { "cursorFocused" };
+
+    //==========================================================================
+    // OSC 8 hyperlink tree node and properties
+    //==========================================================================
+
+    /** @brief Container node for OSC 8 hyperlink spans (children of SESSION). */
+    static const juce::Identifier HYPERLINKS           { "HYPERLINKS" };
+
+    /** @brief Child node type for a single OSC 8 hyperlink span (children of HYPERLINKS). */
+    static const juce::Identifier HYPERLINK            { "HYPERLINK" };
+
+    /** @brief Write generation counter for the hyperlinks slot set. */
+    static const juce::Identifier hyperlinksGeneration             { "hyperlinksGeneration" };
+
+    /** @brief Last-flushed generation for the hyperlinks slot set (message thread only). */
+    static const juce::Identifier hyperlinksLastFlushedGeneration  { "hyperlinksLastFlushedGeneration" };
+
+    /** @brief Zero-based visible column where a hyperlink span starts (inclusive). */
+    static const juce::Identifier startCol             { "startCol" };
+
+    /** @brief Zero-based visible column where a hyperlink span ends (exclusive). */
+    static const juce::Identifier endCol               { "endCol" };
+
+    /** @brief Zero-based visible row where a hyperlink span lives. */
+    static const juce::Identifier row                  { "row" };
+
+    /** @brief URI string stored on a hyperlink child node. */
+    static const juce::Identifier uri                  { "uri" };
 }
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

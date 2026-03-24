@@ -214,6 +214,18 @@ struct State : public juce::Timer
     /** Maximum byte length for string slots (title, CWD, foreground process). */
     static constexpr int maxStringLength { 256 };
 
+    /**
+     * @brief Fixed-size char buffer for string parameters.
+     *
+     * Used by State internally for string storage (title, cwd, foreground
+     * process) and externally by Parser for in-flight string tracking
+     * without heap allocation on the reader thread.
+     */
+    struct StringSlot
+    {
+        char buffer[maxStringLength] {};
+    };
+
     State();
 
     /**
@@ -435,6 +447,36 @@ struct State : public juce::Timer
      * @note READER THREAD — lock-free, noexcept.
      */
     void setForegroundProcess (const char* src, int length) noexcept;
+
+    /**
+     * @brief Records an OSC 8 hyperlink span from the parser.
+     *
+     * Emplaces or overwrites the entry in `hyperlinkMap` keyed by `id` and
+     * increments the generation counter with a release store so that
+     * `flushHyperlinks()` (message thread) observes the completed write.
+     * Sets `needsFlush` so the timer wakes on the next tick.
+     *
+     * @param id          Unique identifier for this span (e.g. `"row_startCol"`).
+     * @param uri         Pointer to the raw UTF-8 URI bytes.
+     * @param uriLength   Number of bytes in `uri`.
+     * @param row         Zero-based visible row where the span lives.
+     * @param startCol    Zero-based start column (inclusive).
+     * @param endCol      Zero-based end column (exclusive).
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void storeHyperlink (const juce::Identifier& id, const char* uri, int uriLength,
+                         int row, int startCol, int endCol) noexcept;
+
+    /**
+     * @brief Clears all recorded OSC 8 hyperlink spans.
+     *
+     * Clears `hyperlinkMap` and bumps the generation counter so
+     * `flushHyperlinks()` rebuilds the HYPERLINKS ValueTree children on
+     * the next flush.
+     *
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void clearHyperlinks() noexcept;
 
     /** @} */
 
@@ -1237,26 +1279,6 @@ private:
     // as std::atomic<float> slots (see constructor in State.cpp).
 
     /**
-     * @brief Owned backing buffer for a single string parameter.
-     *
-     * The reader thread writes into `buffer` and increments `generation` with
-     * a release store.  The message thread (in `flushStrings()`) snap-copies
-     * the buffer after reading `generation`, then re-reads `generation` to
-     * detect torn writes (SeqLock-style).  `lastFlushedGeneration` tracks the
-     * last value seen by the message thread so unchanged slots are skipped.
-     *
-     * Buffer size is `maxStringLength` (public constant) so callers can
-     * stack-allocate matching buffers without coupling to the private struct.
-     *
-     * `generation` is `std::atomic<float>` so that `fetchAdd` (the generic
-     * float-capable CAS loop) can be used uniformly with the rest of parameterMap.
-     */
-    struct StringSlot
-    {
-        char buffer[maxStringLength] {};
-    };
-
-    /**
      * @brief Flat map from identifier → owned StringSlot.
      *
      * Uses `unique_ptr` for stable addressing so the map can be re-hashed
@@ -1265,6 +1287,31 @@ private:
      * read from any thread without a lock.
      */
     StateMap<StringSlot> stringMap;
+
+    /**
+     * @brief Backing store for a single OSC 8 hyperlink span.
+     *
+     * Written exclusively by the reader thread via `storeHyperlink()`.
+     * Read by the message thread in `flushHyperlinks()` after acquiring
+     * the generation fence on `hyperlinksGeneration`.
+     *
+     * `uri` holds the null-terminated URI string.
+     */
+    struct HyperlinkEntry
+    {
+        char uri[maxStringLength] {};
+        int  row      { 0 };
+        int  startCol { 0 };
+        int  endCol   { 0 };
+    };
+
+    /**
+     * @brief Flat map from hyperlink identifier to owned HyperlinkEntry holding the URI
+     *        and position data.
+     *
+     * Mutable — emplaced by storeHyperlink, cleared by clearHyperlinks.
+     */
+    StateMap<HyperlinkEntry> hyperlinkMap;
 
     /**
      * @brief Copies all atomic parameter values into the ValueTree.
@@ -1331,6 +1378,25 @@ private:
      * @note MESSAGE THREAD — called from timerCallback() only.
      */
     void flushStrings() noexcept;
+
+    /**
+     * @brief Synchronises OSC 8 hyperlink spans from the reader-thread pool
+     *        into the HYPERLINKS ValueTree node.
+     *
+     * Reads `hyperlinksGeneration` with `memory_order_acquire`.  If the
+     * generation has advanced since `hyperlinksLastFlushedGeneration`, rebuilds
+     * the HYPERLINKS children: removes all existing children, then creates one
+     * child per entry in `hyperlinkMap`.
+     *
+     * Each child node has the type `ID::HYPERLINK` and carries properties:
+     * - `ID::uri`      — the hyperlink URI.
+     * - `ID::row`      — zero-based visible row.
+     * - `ID::startCol` — start column (inclusive).
+     * - `ID::endCol`   — end column (exclusive).
+     *
+     * @note MESSAGE THREAD — called from `timerCallback()` only.
+     */
+    void flushHyperlinks() noexcept;
 
     /**
      * @brief Advances the cursor blink counter and toggles the phase.

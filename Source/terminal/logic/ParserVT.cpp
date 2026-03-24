@@ -299,7 +299,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
         {
             localDirty[c.row >> 6] |= uint64_t { 1 } << (c.row & 63);
             handleLineFeed (c, grid, scrollTop, scrollBottom, visibleRows, fill);
-            state.extendOutputBlock (c.row);
+            state.extendOutputBlock (grid.getScrollbackUsed() + c.row);
             consumed = i + 1;
             continue;
         }
@@ -667,7 +667,7 @@ void Parser::executeLineFeed (ActiveScreen scr) noexcept
         grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
     }
 
-    state.extendOutputBlock (state.getCursorRow (scr));
+    state.extendOutputBlock (grid.getScrollbackUsed() + state.getCursorRow (scr));
 }
 
 /**

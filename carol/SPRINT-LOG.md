@@ -8,6 +8,80 @@
 
 ---
 
+## Sprint 121 — COUNSELOR: LinkManager Architecture, Scroll-Aware Output Block, StatusBar Fix
+
+**Date:** 2026-03-24
+
+### Agents Participated
+- COUNSELOR: architecture analysis, dependency mapping, plan decomposition, LIFESTAR enforcement
+- @pathfinder: LinkManager dependency graph, Session consumer audit, text rendering module discovery, underline rendering trace
+- @engineer: StatusBarOverlay fix, LinkManager rewrite, State hyperlinkMap migration, absolute row conversion, scroll-aware scanning
+- @auditor: full implementation audit (State deviation found, doc comment errors, naming issues)
+
+### Files Modified (14 total)
+
+**StatusBarOverlay fix:**
+- `Source/terminal/selection/StatusBarOverlay.h` (renamed from SelectionOverlay.h) — `getPreferredHeight()` reads fontSize from Config directly (was constructing FontOptions then calling getHeight which returns -1), padding corrected to `2 * verticalPadding`, paint() font typed as juce::Font (required by Graphics API)
+- `Source/MainComponent.h:48` — include path updated
+
+**State — OSC 8 hyperlinks via APVTS pattern:**
+- `Source/terminal/data/State.h` — `StringSlot` moved to public, added `HyperlinkEntry` struct + `StateMap<HyperlinkEntry> hyperlinkMap`, added `storeHyperlink()` / `clearHyperlinks()` API
+- `Source/terminal/data/State.cpp` — HYPERLINKS ValueTree node in constructor, `storeHyperlink` emplaces into hyperlinkMap, `clearHyperlinks` clears map, both bump generation + needsFlush
+- `Source/terminal/data/StateFlush.cpp` — `flushHyperlinks()` iterates hyperlinkMap, creates `ID::HYPERLINK` (singular) child nodes with uri/row/startCol/endCol properties
+- `Source/terminal/data/Identifier.h` — added `HYPERLINKS`, `HYPERLINK`, `startCol`, `endCol`, `row`, `uri`, `hyperlinksGeneration`, `hyperlinksLastFlushedGeneration`
+
+**Parser — write OSC 8 to State, absolute rows:**
+- `Source/terminal/logic/Parser.h` — removed `Osc8Span` struct, `osc8Links` vector, `getOsc8Links()`, `clearOsc8Links()`; `activeOsc8Uri` changed from `juce::String` to `State::StringSlot`
+- `Source/terminal/logic/ParserESC.cpp` — `handleOsc8` writes to `state.storeHyperlink()`, uses memcpy for URI (no heap alloc); `handleOsc133` passes absolute rows (`grid.getScrollbackUsed() + cursorRow`)
+- `Source/terminal/logic/ParserEdit.cpp` — `clearOsc8Links()` replaced with `state.clearHyperlinks()`
+- `Source/terminal/logic/ParserVT.cpp` — `extendOutputBlock` calls use absolute rows
+
+**LinkManager — decoupled from Session, scroll-aware:**
+- `Source/terminal/selection/LinkManager.h` — constructor takes `State&`, `const Grid&`, write callback; removed `needsScan()`, `invalidate()`, `scanNeeded`; added `scrollOffsetNode`, `hyperlinksNode`, `outputBlockBottomNode` members
+- `Source/terminal/selection/LinkManager.cpp` — no Session dependency, no try/catch; scanViewport reads scrollbackRow when scrolled, compares absolute rows against absolute block bounds; valueTreePropertyChanged always scans with outputRowsOnly=true; reads OSC 8 from HYPERLINKS ValueTree
+
+**Callers:**
+- `Source/component/TerminalComponent.cpp` — LinkManager constructed with State/Grid/callback; removed `invalidate()` call; removed scroll-clear hack (unconditional link underlay)
+- `Source/component/MouseHandler.h` — handleMove doc corrected (removed false needsScan claim)
+- `Source/component/MouseHandler.cpp` — removed `scrollOffset == 0` gate on click dispatch
+
+**Code contract enforcement:**
+- `CLAUDE.md` — added juce::Font deprecation rule to code contract
+
+### Alignment Check
+- [x] LIFESTAR principles followed (SSOT for hyperlinks via State, Explicit Encapsulation — LinkManager decoupled from Session, Lean — no polling/try-catch/manual flags)
+- [x] NAMING-CONVENTION.md adhered (storeHyperlink/clearHyperlinks verbs, HyperlinkEntry noun, HYPERLINK singular for child)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied (APVTS pattern for hyperlinks, ValueTree listeners, tell-don't-ask)
+
+### Problems Solved
+- StatusBarOverlay height clipping — FontOptions::getHeight() returns -1 with withPointHeight(); reads fontSize directly from Config
+- LinkManager coupled to Session (god-object pass-through) — now takes State& + Grid& + write callback
+- OSC 8 links stored in Parser (SSOT violation) — flow through State hyperlinkMap + HYPERLINKS ValueTree
+- Parser activeOsc8Uri heap-allocated on reader thread — replaced with State::StringSlot
+- Output block row indices visible-row-relative (stale on scroll) — now absolute (scrollback-aware)
+- Link underlines didn't follow text on scroll — scanViewport uses scrollbackRow, listens to scrollOffset + outputBlockBottom
+- All file tokens underlined when scrolled (not just output block) — removed outputRowsOnly=false branch
+- Clicks didn't dispatch when scrolled — removed scrollOffset==0 gate
+- SelectionOverlay.h/StatusBarOverlay class name mismatch — file renamed
+
+### Technical Debt / Follow-up
+- `spanKey` in handleOsc8 constructs `juce::String` on reader thread (for Identifier key derivation) — could use a fixed char buffer
+- InputHandler and MouseHandler still hold Session& — could be decoupled to State& + Grid& + callbacks (same pattern as LinkManager)
+- StringSlot storeAndFlush overload not implemented — deferred, would unify write API for string params
+
+### Lessons
+
+**1. Follow the architecture. Always.**
+OSC 8 links in Parser was an SSOT violation. Moving them to State via the established APVTS pattern (write to map, flush to ValueTree, listen) immediately solved concurrency, staleness, and coupling. The pattern works — use it.
+
+**2. Absolute coordinates for persistent positions.**
+Visible-row-relative positions go stale when content shifts the viewport. Selection already uses absolute rows — output block and hyperlink positions must follow the same pattern. Convert at write site (Parser), compare in absolute space, convert to visible at render time.
+
+**3. juce::Font is deprecated.**
+Never construct juce::Font to read properties. Use source values directly. Added to code contract for enforcement.
+
+---
+
 ## Sprint 120 — COUNSELOR: Hyperlinks, State Refactor, Audit Polish
 
 **Date:** 2026-03-24

@@ -215,12 +215,11 @@ public:
     void mouseDoubleClick (const juce::MouseEvent& event) override;
 
     /**
-     * @brief Updates the mouse cursor and refreshes clickable link spans on hover.
+     * @brief Updates the mouse cursor on hover.
      *
-     * If `linkManager.needsScan()` is true, rescans the viewport for links and
-     * updates the screen link underlay.  Hit-tests the mouse position against
-     * clickable links via `LinkManager::hitTest()`: shows `PointingHandCursor` over a
-     * link, `NormalCursor` otherwise.  Inactive when any modal is active or
+     * Hit-tests the mouse position against clickable links via
+     * `LinkManager::hitTest()`: shows `PointingHandCursor` over a link,
+     * `NormalCursor` otherwise.  Inactive when any modal is active or
      * when mouse tracking is forwarded to the PTY.
      *
      * @param event  The mouse event.
@@ -602,10 +601,12 @@ private:
      * @brief Link manager: owns viewport scanning, hit-testing, and dispatch.
      *
      * Handles both hover-underline (`clickableLinks`) and open-file hint-label
-     * (`hintLinks`) modes.  Invalidated in `onVBlank()` whenever the snapshot is
-     * dirty; rescanned lazily in `mouseMove()`.
+     * (`hintLinks`) modes.  Rescanned reactively via ValueTree listener when the
+     * prompt row, active screen, or HYPERLINKS node changes.
      */
-    LinkManager linkManager { session };
+    LinkManager linkManager { session.getState(),
+                              session.getGrid(),
+                              [this] (const char* data, int len) { session.writeToPty (data, len); } };
 
     /** @brief VBlank attachment that drives the render loop at display refresh rate. */
     juce::VBlankAttachment vblank;

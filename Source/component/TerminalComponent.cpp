@@ -537,8 +537,6 @@ void Terminal::Component::onVBlank()
 
     if (session.getState().consumeSnapshotDirty())
     {
-        linkManager.invalidate();
-
         const juce::ScopedTryLock lock (session.getGrid().getResizeLock());
 
         if (lock.isLocked())
@@ -589,12 +587,6 @@ void Terminal::Component::onVBlank()
             }
 
             // Link underlay: driven by LinkManager's ValueTree listener.
-            // Clear when scrolled back — link row indices are viewport-relative.
-            if (scrollOffset > 0)
-            {
-                screen.setLinkUnderlay (nullptr, 0);
-            }
-            else
             {
                 const auto& links { linkManager.getClickableLinks() };
                 screen.setLinkUnderlay (links.data(), static_cast<int> (links.size()));
