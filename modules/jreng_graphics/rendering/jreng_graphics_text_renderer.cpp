@@ -27,16 +27,21 @@ void GraphicsTextRenderer::createContext() noexcept
     }
 
     ++sharedAtlasRefCount;
+    contextInitialised = true;
 }
 
 void GraphicsTextRenderer::closeContext() noexcept
 {
-    --sharedAtlasRefCount;
-
-    if (sharedAtlasRefCount == 0)
+    if (contextInitialised)
     {
-        sharedMonoAtlas  = juce::Image();
-        sharedEmojiAtlas = juce::Image();
+        contextInitialised = false;
+        --sharedAtlasRefCount;
+
+        if (sharedAtlasRefCount == 0)
+        {
+            sharedMonoAtlas  = juce::Image();
+            sharedEmojiAtlas = juce::Image();
+        }
     }
 
     renderTarget = juce::Image();

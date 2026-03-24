@@ -281,6 +281,9 @@ private:
     /** @brief Reference count for shared atlas images. Incremented in createContext, decremented in closeContext. */
     static int sharedAtlasRefCount;
 
+    /** @brief True if this instance called createContext(). Guards closeContext() from unmatched decrement. */
+    bool contextInitialised { false };
+
     /** @brief Viewport-sized ARGB render target for compositing. Blitted to Graphics in pop(). */
     juce::Image renderTarget;
 

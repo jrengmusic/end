@@ -8,6 +8,63 @@
 
 ---
 
+## Sprint 123 — COUNSELOR: Plan 3 Polish — Direct-to-Graphics, Atlas Guard, Naming, Optimization Research
+
+**Date:** 2026-03-25
+
+### Agents Participated
+- COUNSELOR: Design iteration, optimization analysis, research coordination
+- Pathfinder: Codebase discovery (xterm, foot, Ghostty, Windows Terminal rendering architectures)
+- Researcher: CPU bitmap rasterization patterns (dirty regions, SIMD, multi-thread, glyph caching)
+- Librarian: JUCE internals + native OS APIs (vImage, BitmapData, LowLevelGraphicsContext, Direct2D)
+- Oracle: C1 vs C2 rendering strategy assessment
+- Engineer: Implementation (direct-to-Graphics rewrite, atlas sizing, naming, ref-count fix)
+
+### Files Modified (14 total)
+- `modules/jreng_graphics/rendering/jreng_graphics_text_renderer.h` — direct-to-Graphics rewrite (removed renderTarget/compositeMonoGlyph/compositeEmojiGlyph, added offsetX/offsetY/inverseScale/contextInitialised)
+- `modules/jreng_graphics/rendering/jreng_graphics_text_renderer.cpp` — full rewrite: drawQuads via g.drawImage(), drawBackgrounds via g.fillRect(), push/pop/prepareFrame simplified, shared atlas ref-count guard
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.h` — AtlasSize enum, configurable constructor, getAtlasDimension() instance method
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.cpp` — Atlas(AtlasSize) constructor
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.mm` — same for macOS
+- `modules/jreng_graphics/fonts/jreng_typeface.h` — AtlasSize param forwarding, getAtlasDimension()
+- `modules/jreng_graphics/fonts/jreng_typeface.cpp` — constructor forwards AtlasSize
+- `modules/jreng_graphics/fonts/jreng_typeface.mm` — same for macOS
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.h` — push/pop/createContext/closeContext/getAtlasDimension/prepareFrame/setGraphicsContext
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.cpp` — renamed methods, no-op implementations
+- `Source/terminal/rendering/Screen.h` — Snapshot enrichment (dirtyRows, scrollDelta, physCellHeight), lastFrameScrolled(), getLastDirtyRegion()
+- `Source/terminal/rendering/Screen.cpp` — lastFrameScrolled/getLastDirtyRegion implementations
+- `Source/terminal/rendering/ScreenGL.cpp` — push/pop/createContext/closeContext call sites
+- `Source/MainComponent.cpp` — AtlasSize::compact passed to Typeface
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered (all functions are verbs: push/pop/createContext/closeContext/getAtlasDimension/prepareFrame)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied (Lean, Explicit Encapsulation, SSOT)
+
+### Problems Solved
+- **Blank window after closing split** — contextInitialised guard prevents unmatched closeContext() decrement on shared atlas ref count
+- **Font size inconsistency** — drawImageAt with integer coords + scale transform (no float rect interpolation)
+- **Viewport padding** — offsetX/offsetY in logical pixels applied in drawQuads/drawBackgrounds
+- **Naming violations** — all renderer API functions are now verbs per NAMING-CONVENTION
+
+### Research Conducted (not implemented — informing future work)
+- **xterm** (40 years CPU rendering): no dirty tracking, caller-driven repaints, XCopyArea server-side scroll, XDrawImageString (bg+fg in one call), run-length batching by attribute
+- **foot** (modern Wayland, fastest CPU terminal): per-cell dirty bits, SHM scroll via fallocate(PUNCH_HOLE), pixman compositing, multi-threaded row rendering, compositor-paced frame submission
+- **Ghostty**: 3-thread model (IO/render/UI), per-row dirty (.partial/.full), no scroll pixel reuse (GPU rebuilds all), triple-buffer swap chain
+- **Windows Terminal AtlasEngine**: row pointer rotation on scroll, color bitmap memmove, DXGI Present1 scroll hint, no LRU (whole-atlas flush)
+- **SIMD opportunity**: compositeMonoGlyph inner loop (1M pixels/frame) — vImage on macOS, SSE2 on Windows. ~5x speedup on compositing. Compositing is ~3ms; blit is ~5ms at 5K. SIMD helps compositing but blit dominates.
+- **setBufferedToImage(true)**: tested, caused garbled output (persistent cache + partial repaint = stale pixel overlap). Reverted.
+
+### Technical Debt / Follow-up
+- **Graphics path throughput**: 35s (-O0) for 10M lines vs GL path 12.39s. Gap is message thread blocked by paint(). No CPU optimization closes this — it's architectural (single-thread rendering vs GL's separate thread).
+- **Split performance at 5K Retina**: two panes = 2x paint cost on message thread. Inherent limitation of CPU rendering at this resolution.
+- **Render thread**: tried, synchronization overhead negated gains. Revisit with different strategy (batch wakeups, reduced synchronization).
+- **Scroll memmove**: tried cumulative delta tracking via atomics. Memmove at 5K costs more than it saves (40MB copy > compositing cost). Reverted to full clear on scroll.
+- **SIMD compositing**: planned but not implemented. vImage on macOS (~50 lines), SSE2 on Windows (~100 lines). Profile first to confirm compositing is the bottleneck, not the blit.
+- **Plan 3.4 markers**: 8 `[Plan 3.4]` comment markers remain. Plan 4 restores GL path.
+
+---
+
 ## Sprint 122 — COUNSELOR: Plan 3 — CPU Rendering Backend (GraphicsTextRenderer + Template Screen)
 
 **Date:** 2026-03-25
