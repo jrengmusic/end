@@ -206,16 +206,59 @@ inline void blendMonoTinted4 (uint32_t*       dest,
 
 #elif JRENG_SIMD_NEON
 
-    uint32_t srcPixels[4];
-    for (int i { 0 }; i < 4; ++i)
-    {
-        const uint32_t a  { alpha[i] };
-        const uint32_t sR { (fgR * a + 128u) >> 8u };
-        const uint32_t sG { (fgG * a + 128u) >> 8u };
-        const uint32_t sB { (fgB * a + 128u) >> 8u };
-        srcPixels[i] = (a << ALPHA_SHIFT) | (sR << RED_SHIFT) | (sG << GREEN_SHIFT) | sB;
-    }
-    blendSrcOver4 (dest, srcPixels);
+    // Load 4 atlas alpha bytes, zero-extend to 16-bit.
+    uint32_t alphaPacked { static_cast<uint32_t> (alpha[0])
+                         | (static_cast<uint32_t> (alpha[1]) << 8u)
+                         | (static_cast<uint32_t> (alpha[2]) << 16u)
+                         | (static_cast<uint32_t> (alpha[3]) << 24u) };
+    uint16x4_t vA16 { vget_low_u16 (vmovl_u8 (vreinterpret_u8_u32 (vdup_n_u32 (alphaPacked)))) };
+
+    // Broadcast fg channels to 16-bit vectors.
+    uint16x4_t vFgR { vdup_n_u16 (static_cast<uint16_t> (fgR)) };
+    uint16x4_t vFgG { vdup_n_u16 (static_cast<uint16_t> (fgG)) };
+    uint16x4_t vFgB { vdup_n_u16 (static_cast<uint16_t> (fgB)) };
+
+    // Tint: channel = (fgChannel * alpha + 128) >> 8
+    // vrshrn_n_u32 not needed — vmul_u16 gives 16-bit result, shift in 16-bit.
+    uint16x4_t bias { vdup_n_u16 (128) };
+    uint16x4_t tR { vshr_n_u16 (vadd_u16 (vmul_u16 (vFgR, vA16), bias), 8) };
+    uint16x4_t tG { vshr_n_u16 (vadd_u16 (vmul_u16 (vFgG, vA16), bias), 8) };
+    uint16x4_t tB { vshr_n_u16 (vadd_u16 (vmul_u16 (vFgB, vA16), bias), 8) };
+
+    // Interleave channels into BGRA pixel order (0xAARRGGBB little-endian).
+    // Low 16 bits of each pixel word: G<<8 | B
+    // High 16 bits: A<<8 | R
+    uint16x4_t lo16 { vorr_u16 (vshl_n_u16 (tG, 8), tB) };
+    uint16x4_t hi16 { vorr_u16 (vshl_n_u16 (vA16, 8), tR) };
+
+    // Zip lo/hi halves into 32-bit pixel words.
+    uint16x4x2_t zipped { vzip_u16 (lo16, hi16) };
+    uint8x16_t vSrc { vreinterpretq_u8_u16 (vcombine_u16 (zipped.val[0], zipped.val[1])) };
+
+    // Inline src-over blend.
+    uint8x16_t vDest { vld1q_u8 (reinterpret_cast<const uint8_t*> (dest)) };
+
+    uint8x8_t srcLo  { vget_low_u8 (vSrc) };
+    uint8x8_t srcHi  { vget_high_u8 (vSrc) };
+    uint8x8_t destLo { vget_low_u8 (vDest) };
+    uint8x8_t destHi { vget_high_u8 (vDest) };
+
+    // Broadcast alpha to all channel positions per pixel.
+    uint8x8_t alphaIdx { vcreate_u8 (0x0707070703030303ULL) };
+    uint8x8_t alphaLo  { vtbl1_u8 (srcLo, alphaIdx) };
+    uint8x8_t alphaHi  { vtbl1_u8 (srcHi, alphaIdx) };
+
+    uint8x8_t vFull      { vdup_n_u8 (static_cast<uint8_t> (ALPHA_FULL)) };
+    uint8x8_t invAlphaLo { vsub_u8 (vFull, alphaLo) };
+    uint8x8_t invAlphaHi { vsub_u8 (vFull, alphaHi) };
+
+    uint8x8_t scaledLo { vrshrn_n_u16 (vmull_u8 (destLo, invAlphaLo), 8) };
+    uint8x8_t scaledHi { vrshrn_n_u16 (vmull_u8 (destHi, invAlphaHi), 8) };
+
+    uint8x8_t resultLo { vqadd_u8 (srcLo, scaledLo) };
+    uint8x8_t resultHi { vqadd_u8 (srcHi, scaledHi) };
+
+    vst1q_u8 (reinterpret_cast<uint8_t*> (dest), vcombine_u8 (resultLo, resultHi));
 
 #else
 
