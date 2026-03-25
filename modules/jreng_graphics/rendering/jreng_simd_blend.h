@@ -148,49 +148,61 @@ inline void blendMonoTinted4 (uint32_t*       dest,
 
 #if JRENG_SIMD_SSE2
 
-    // Build 4 src pixels from atlas alpha and fg colour, then delegate to
-    // blendSrcOver4.  The SIMD path below does both steps in one pass
-    // to avoid a redundant store + reload cycle.
-
-    // Pack fg channels into a 16-bit vector replicated across pixel slots.
-    // We compute (fgCh * a + 128) >> 8 per channel, per pixel, in 16-bit.
-
     __m128i vZero  { _mm_setzero_si128() };
     __m128i vBias  { _mm_set1_epi16 (128) };
 
-    // Broadcast fg channels into separate 16-bit vectors (same value in all 8 lanes).
     __m128i vFgR { _mm_set1_epi16 (static_cast<short> (fgR)) };
     __m128i vFgG { _mm_set1_epi16 (static_cast<short> (fgG)) };
     __m128i vFgB { _mm_set1_epi16 (static_cast<short> (fgB)) };
 
-    // Load 4 atlas alpha bytes and zero-extend to 16-bit in a 128-bit register.
-    // We place them at pixel positions [0..3] by loading the 4 bytes as a 32-bit
-    // scalar and unpacking.
+    // Load 4 atlas alpha bytes, zero-extend to 16-bit.
     uint32_t alphaPacked { static_cast<uint32_t> (alpha[0])
                          | (static_cast<uint32_t> (alpha[1]) << 8u)
                          | (static_cast<uint32_t> (alpha[2]) << 16u)
                          | (static_cast<uint32_t> (alpha[3]) << 24u) };
     __m128i vAlpha4 { _mm_cvtsi32_si128 (static_cast<int> (alphaPacked)) };
-    // Unpack to 16-bit: [a0, a1, a2, a3, 0, 0, 0, 0]
-    __m128i vA16 { _mm_unpacklo_epi8 (vAlpha4, vZero) };
+    __m128i vA16    { _mm_unpacklo_epi8 (vAlpha4, vZero) };
 
-    // Shuffle so each 16-bit alpha value is in the correct channel slot.
-    // After building src pixels in ARGB 32-bit order (A, R, G, B as 16-bit pairs):
-    // We need per-pixel vectors.  It is simpler to compute scalar here since
-    // the interleave into 0xAARRGGBB words is awkward in SSE2 without SSSE3.
-    // Fall through to scalar pixel build, then use blendSrcOver4.
-    (void) vFgR; (void) vFgG; (void) vFgB; (void) vA16; (void) vBias;
+    // Tint: channel = (fgChannel * alpha + 128) >> 8
+    __m128i chR { _mm_srli_epi16 (_mm_add_epi16 (_mm_mullo_epi16 (vFgR, vA16), vBias), 8) };
+    __m128i chG { _mm_srli_epi16 (_mm_add_epi16 (_mm_mullo_epi16 (vFgG, vA16), vBias), 8) };
+    __m128i chB { _mm_srli_epi16 (_mm_add_epi16 (_mm_mullo_epi16 (vFgB, vA16), vBias), 8) };
 
-    uint32_t srcPixels[4];
-    for (int i { 0 }; i < 4; ++i)
-    {
-        const uint32_t a   { alpha[i] };
-        const uint32_t sR  { (fgR * a + 128u) >> 8u };
-        const uint32_t sG  { (fgG * a + 128u) >> 8u };
-        const uint32_t sB  { (fgB * a + 128u) >> 8u };
-        srcPixels[i] = (a << ALPHA_SHIFT) | (sR << RED_SHIFT) | (sG << GREEN_SHIFT) | sB;
-    }
-    blendSrcOver4 (dest, srcPixels);
+    // Interleave channels into BGRA pixel order (0xAARRGGBB little-endian).
+    // unpacklo_epi16: bg16 = [B0,G0, B1,G1, B2,G2, B3,G3] (16-bit)
+    //                 ra16 = [R0,A0, R1,A1, R2,A2, R3,A3]
+    __m128i bg16 { _mm_unpacklo_epi16 (chB, chG) };
+    __m128i ra16 { _mm_unpacklo_epi16 (chR, vA16) };
+
+    // Merge pairs into pixel quads: [B,G,R,A] per pixel (16-bit).
+    __m128i px01 { _mm_unpacklo_epi32 (bg16, ra16) };
+    __m128i px23 { _mm_unpackhi_epi32 (bg16, ra16) };
+
+    // Narrow to 8-bit: 4 packed ARGB pixels.
+    __m128i vSrc { _mm_packus_epi16 (px01, px23) };
+
+    // Inline src-over blend — avoids store+reload vs calling blendSrcOver4.
+    __m128i vDest { _mm_loadu_si128 (reinterpret_cast<const __m128i*> (dest)) };
+
+    __m128i srcLo  { _mm_unpacklo_epi8 (vSrc,  vZero) };
+    __m128i srcHi  { _mm_unpackhi_epi8 (vSrc,  vZero) };
+    __m128i destLo { _mm_unpacklo_epi8 (vDest, vZero) };
+    __m128i destHi { _mm_unpackhi_epi8 (vDest, vZero) };
+
+    __m128i alphaLo { _mm_shufflelo_epi16 (_mm_shufflehi_epi16 (srcLo, 0xFF), 0xFF) };
+    __m128i alphaHi { _mm_shufflelo_epi16 (_mm_shufflehi_epi16 (srcHi, 0xFF), 0xFF) };
+
+    __m128i vAlphaFull { _mm_set1_epi16 (static_cast<short> (ALPHA_FULL)) };
+    __m128i invAlphaLo { _mm_sub_epi16 (vAlphaFull, alphaLo) };
+    __m128i invAlphaHi { _mm_sub_epi16 (vAlphaFull, alphaHi) };
+
+    __m128i scaledLo { _mm_srli_epi16 (_mm_add_epi16 (_mm_mullo_epi16 (destLo, invAlphaLo), vBias), 8) };
+    __m128i scaledHi { _mm_srli_epi16 (_mm_add_epi16 (_mm_mullo_epi16 (destHi, invAlphaHi), vBias), 8) };
+
+    __m128i scaled { _mm_packus_epi16 (scaledLo, scaledHi) };
+    __m128i result { _mm_adds_epu8 (vSrc, scaled) };
+
+    _mm_storeu_si128 (reinterpret_cast<__m128i*> (dest), result);
 
 #elif JRENG_SIMD_NEON
 
@@ -214,7 +226,6 @@ inline void blendMonoTinted4 (uint32_t*       dest,
         const uint32_t sG { (fgG * a + 128u) >> 8u };
         const uint32_t sB { (fgB * a + 128u) >> 8u };
 
-        const uint32_t srcPixel  { (a << ALPHA_SHIFT) | (sR << RED_SHIFT) | (sG << GREEN_SHIFT) | sB };
         const uint32_t d         { dest[i] };
         const uint32_t invAlpha  { ALPHA_FULL - a };
 
@@ -227,8 +238,6 @@ inline void blendMonoTinted4 (uint32_t*       dest,
         const uint32_t gOut { sG + ((gD * invAlpha + 128u) >> 8u) };
         const uint32_t bOut { sB + ((bD * invAlpha + 128u) >> 8u) };
         const uint32_t aOut {  a + ((aD * invAlpha + 128u) >> 8u) };
-
-        (void) srcPixel;
 
         dest[i] = ((aOut > ALPHA_FULL ? ALPHA_FULL : aOut) << ALPHA_SHIFT)
                 | ((rOut > ALPHA_FULL ? ALPHA_FULL : rOut) << RED_SHIFT)

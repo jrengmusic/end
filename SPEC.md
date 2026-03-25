@@ -62,7 +62,7 @@ BEL character (`\x07`) silently discarded. Not implemented.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Software renderer fallback | Not implemented | GL-only currently |
+| Software renderer fallback | **Done** | GraphicsTextRenderer + SIMD compositing (Plan 3 + optimization sprint) |
 | Sixel / inline images | Not implemented | See Inline Image Rendering below |
 
 ### Shell Integration
@@ -427,7 +427,7 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 - [ ] Focus events (send to PTY)
 - [ ] Bell
 - [x] Word/line selection
-- [ ] Software renderer fallback
+- [x] Software renderer fallback
 
 ### Phase 3: Keybinding + UX
 

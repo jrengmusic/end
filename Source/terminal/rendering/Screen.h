@@ -12,13 +12,13 @@
  *    directly from `Grid`.
  * 2. **Snapshot builder** — `buildSnapshot()` / `updateSnapshot()` pack the
  *    per-row caches into a contiguous `Render::Snapshot` and publish it via
- *    `jreng::GLSnapshotBuffer`.
+ *    `jreng::SnapshotBuffer`.
  * 3. **OpenGL presenter** — reads snapshots from the snapshot buffer and draws
  *    them to the attached component.
  *
  * ## Double-buffered snapshots
  *
- * `jreng::GLSnapshotBuffer<Render::Snapshot>` owns two snapshot instances
+ * `jreng::SnapshotBuffer<Render::Snapshot>` owns two snapshot instances
  * internally and manages double-buffer rotation.  The MESSAGE THREAD writes
  * to `getWriteBuffer()` and calls `write()`; the GL THREAD calls `read()`
  * to acquire the latest snapshot.  Lock-free via atomic pointer exchange.
@@ -35,7 +35,7 @@
  *
  * @see Grid
  * @see State
- * @see jreng::GLSnapshotBuffer
+ * @see jreng::SnapshotBuffer
  * @see Render::Snapshot
  * @see ScreenSelection
  * @see FontCollection
@@ -162,7 +162,7 @@ using Theme = Config::Theme;
  * - `Render::Snapshot`   — terminal-specific snapshot: inherits the generic
  *                          `jreng::Glyph::Render::SnapshotBase` arrays and
  *                          adds cursor state fields.
- * - `jreng::GLSnapshotBuffer` — double-buffered lock-free snapshot exchange.
+ * - `jreng::SnapshotBuffer` — double-buffered lock-free snapshot exchange.
  *
  * @see Screen
  * @see jreng::Glyph::Render
@@ -186,11 +186,11 @@ using Glyph = jreng::Glyph::Render::Quad;
  * three `HeapBlock` arrays (`mono`, `emoji`, `backgrounds`) and
  * `ensureCapacity()`.  Terminal-specific cursor state fields are added here.
  *
- * Two `Snapshot` instances are owned internally by `jreng::GLSnapshotBuffer`
+ * Two `Snapshot` instances are owned internally by `jreng::SnapshotBuffer`
  * and recycled via atomic pointer exchange to avoid per-frame allocation.
  *
  * @see jreng::Glyph::Render::SnapshotBase
- * @see jreng::GLSnapshotBuffer
+ * @see jreng::SnapshotBuffer
  * @see Screen::updateSnapshot()
  */
 struct Snapshot : jreng::Glyph::Render::SnapshotBase
@@ -264,18 +264,18 @@ protected:
  *   pre-built glyph/background instances per row.  `buildSnapshot()` rebuilds
  *   all rows every frame by reading directly from `Grid`.
  * - **Snapshot publication**: `updateSnapshot()` packs the per-row caches into
- *   a `Render::Snapshot` and publishes it via `jreng::GLSnapshotBuffer`.
+ *   a `Render::Snapshot` and publishes it via `jreng::SnapshotBuffer`.
  * - **Selection overlay**: a `ScreenSelection*` pointer is checked per cell in
  *   `processCellForSnapshot()` to emit selection highlight quads.
  *
  * @par Thread context
  * All public methods except `getSnapshotBuffer()` must be called on the
  * **MESSAGE THREAD**.  The GL thread methods run on the **GL THREAD**
- * and communicate only through the `jreng::GLSnapshotBuffer`.
+ * and communicate only through the `jreng::SnapshotBuffer`.
  *
  * @see Grid
  * @see State
- * @see jreng::GLSnapshotBuffer
+ * @see jreng::SnapshotBuffer
  * @see Render::Snapshot
  * @see ScreenSelection
  * @see FontCollection
@@ -751,7 +751,7 @@ private:
      *
      * Totals the per-row counts, ensures snapshot capacity, copies glyph and
      * background data via `memcpy`, sets cursor state, and calls
-     * `jreng::GLSnapshotBuffer::write()`.
+     * `jreng::SnapshotBuffer::write()`.
      *
      * @param state      Current terminal state (cursor position, screen type).
      * @param rows       Number of visible rows.

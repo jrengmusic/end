@@ -3,7 +3,7 @@
 **Project:** END
 **Date:** 2026-03-24
 **Author:** COUNSELOR
-**Status:** Active — Plan 3 next
+**Status:** Active — Plan 4 next
 
 **Contracts:** LIFESTAR, NAMING-CONVENTION, ARCHITECTURAL-MANIFESTO, JRENG-CODING-STANDARD
 
@@ -20,8 +20,8 @@ Seven sequential plans. Each plan is self-contained — delivers working, testab
 | 2 | Replace END's rendering with `jreng_graphics` (destructive move) | Done (Sprint 115) |
 | 2.5 | Decouple GL from glyph pipeline, rewire Screen to Font API | Done (Sprint 117) |
 | 2.6 | Rendering pipeline optimization — metrics cache, dirty rows, CG pooling | Done (Sprint 118) |
-| **3** | **CPU rendering backend — `GraphicsTextRenderer` + template `Screen`** | **Next** |
-| 4 | END runtime GPU/CPU switching | Blocked on 3 |
+| 3 | CPU rendering backend — `GraphicsTextRenderer` + template `Screen` | Done (Sprint 119) |
+| **4** | **END runtime GPU/CPU switching** | **Next** |
 
 ### Surface API
 

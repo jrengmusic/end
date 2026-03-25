@@ -105,10 +105,10 @@ public:
     void setViewportSize (int width, int height) noexcept;
 
     /**
-     * @brief Begin a frame: ensure render target size, clear it, store viewport offset.
+     * @brief Begin a frame: ensure render target size, store viewport offset.
      *
      * Allocates or resizes the render target image if the viewport dimensions
-     * changed. Clears the render target to transparent black.
+     * changed. The render target persists between frames; clearing is handled by prepareFrame().
      *
      * @param x           Physical pixel X origin of the viewport.
      * @param y           Physical pixel Y origin of the viewport (top-down).
@@ -133,8 +133,7 @@ public:
     /**
      * @brief Apply scroll shift and clear dirty rows on the persistent render target.
      *
-     * Shifts the render target pixels by the scroll delta using moveImageSection,
-     * then clears only the dirty rows to transparent black.
+     * Clears the render target for dirty or scrolled rows.
      *
      * @param dirtyRows       Bitmask of rows that changed (bit per row).
      * @param scrollDelta     Lines scrolled up since last frame.
