@@ -495,13 +495,24 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
     uint64_t dirtyBits[4] {};
     grid.consumeDirtyRows (dirtyBits);
 
-    if (state.consumeFullRebuild())
+    const bool fullRebuild { state.consumeFullRebuild() };
+
+    if (fullRebuild)
+    {
+        std::memset (dirtyBits, 0xFF, sizeof (dirtyBits));
+    }
+
+    frameScrollDelta = grid.consumeScrollDelta();
+
+    // Scroll shifts visible content — all rows now show different data.
+    // Force all-dirty so every row is rebuilt from current grid content.
+    // Without this, stale cached quads overwrite memmove'd pixels.
+    if (frameScrollDelta > 0)
     {
         std::memset (dirtyBits, 0xFF, sizeof (dirtyBits));
     }
 
     std::memcpy (frameDirtyBits, dirtyBits, sizeof (frameDirtyBits));
-    frameScrollDelta = grid.consumeScrollDelta();
 
     for (int r { 0 }; r < rows; ++r)
     {
@@ -513,20 +524,55 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
             const Cell* rowCells { offset > 0
                 ? grid.scrollbackRow (r, offset)
                 : grid.activeVisibleRow (r) };
-            const Grapheme* rowGraphemes { offset > 0
-                ? grid.scrollbackGraphemeRow (r, offset)
-                : grid.activeVisibleGraphemeRow (r) };
-
-            monoCount[r]  = 0;
-            emojiCount[r] = 0;
-            bgCount[r]    = 0;
-            ligatureSkip  = 0;
 
             if (rowCells != nullptr)
             {
-                for (int c { 0 }; c < cols; ++c)
+                Cell* prevRow { previousCells.get()
+                                + static_cast<size_t> (r) * static_cast<size_t> (cacheCols) };
+
+                // Row-level memcmp: if all cells unchanged and no overlay rebuild
+                // needed, skip entirely. Previous frame's cached quads remain valid.
+                // fullRebuild bypasses skip — selection/hint overlays need regeneration.
+                if (fullRebuild
+                    or std::memcmp (rowCells, prevRow, static_cast<size_t> (cols) * sizeof (Cell)) != 0)
                 {
-                    processCellForSnapshot (rowCells[c], rowCells, rowGraphemes, c, r);
+                    const Grapheme* rowGraphemes { offset > 0
+                        ? grid.scrollbackGraphemeRow (r, offset)
+                        : grid.activeVisibleGraphemeRow (r) };
+
+                    monoCount[r]  = 0;
+                    emojiCount[r] = 0;
+                    bgCount[r]    = 0;
+                    ligatureSkip  = 0;
+
+                    // Leading/trailing blank trim
+                    int firstCol { 0 };
+
+                    while (firstCol < cols
+                           and rowCells[firstCol].codepoint == 0
+                           and rowCells[firstCol].bg.isTheme()
+                           and rowCells[firstCol].style == 0)
+                    {
+                        ++firstCol;
+                    }
+
+                    int lastCol { cols - 1 };
+
+                    while (lastCol >= firstCol
+                           and rowCells[lastCol].codepoint == 0
+                           and rowCells[lastCol].bg.isTheme()
+                           and rowCells[lastCol].style == 0)
+                    {
+                        --lastCol;
+                    }
+
+                    for (int c { firstCol }; c <= lastCol; ++c)
+                    {
+                        processCellForSnapshot (rowCells[c], rowCells, rowGraphemes, c, r);
+                    }
+
+                    // Store current row for next-frame comparison.
+                    std::memcpy (prevRow, rowCells, static_cast<size_t> (cols) * sizeof (Cell));
                 }
             }
         }

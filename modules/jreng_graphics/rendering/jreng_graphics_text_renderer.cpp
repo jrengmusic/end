@@ -3,6 +3,8 @@
  * @brief Implementation of GraphicsTextRenderer — direct BitmapData compositing.
  */
 
+#include "jreng_simd_blend.h"
+
 namespace jreng::Glyph
 {
 
@@ -103,7 +105,7 @@ void GraphicsTextRenderer::push (int x, int y, int w, int h, int fullHeight) noe
         or renderTarget.getHeight() != h)
     {
         renderTarget = juce::Image (juce::Image::ARGB, w, h, true,
-                                     juce::SoftwareImageType());
+                                     juce::NativeImageType());
     }
     // No clear — render target persists between frames.
     // Dirty rows are composited selectively in prepareFrame().
@@ -132,13 +134,14 @@ void GraphicsTextRenderer::prepareFrame (const uint64_t* dirtyRows, int scrollDe
         previousScrollOffset = scrollOffset;
 
         const bool hasScroll { scrollDelta > 0 };
+
         const bool needsFullClear { viewportChanged or hasScroll };
 
         if (needsFullClear)
         {
-            // Viewport scrollback changed or terminal scrolled — full clear.
-            // Scroll memmove is unsafe because the snapshot double-buffer may
-            // skip intermediate frames, losing cumulative scroll deltas.
+            // Scrollback changed or terminal scrolled — full clear.
+            // All rows are force-dirty in buildSnapshot() when scrollDelta > 0,
+            // so every row will be recomposited onto the cleared target.
             renderTarget.clear (juce::Rectangle<int> (0, 0, viewportWidth, viewportHeight));
         }
         else
@@ -231,34 +234,63 @@ void GraphicsTextRenderer::drawBackgrounds (const Render::Background* data, int 
                 if (a == 255)
                 {
                     // Opaque: overwrite directly, no blend needed.
+                    const uint32_t packedColor { (static_cast<uint32_t> (a) << 24u)
+                                               | (static_cast<uint32_t> (r) << 16u)
+                                               | (static_cast<uint32_t> (g) << 8u)
+                                               |  static_cast<uint32_t> (b) };
+
                     for (int row { y0 }; row < y1; ++row)
                     {
-                        auto* pixel { reinterpret_cast<juce::PixelARGB*> (targetData.getLinePointer (row)) + x0 };
+                        auto* pixelU32 { reinterpret_cast<uint32_t*> (targetData.getLinePointer (row)) + x0 };
+                        int col { x0 };
 
-                        for (int col { x0 }; col < x1; ++col)
+                        // SIMD: 4 pixels at a time.
+                        for (; col + 3 < x1; col += 4)
                         {
-                            pixel->setARGB (a, r, g, b);
-                            ++pixel;
+                            jreng::simd::fillOpaque4 (pixelU32, packedColor);
+                            pixelU32 += 4;
+                        }
+
+                        // Scalar tail.
+                        for (; col < x1; ++col)
+                        {
+                            *pixelU32 = packedColor;
+                            ++pixelU32;
                         }
                     }
                 }
                 else
                 {
                     // Semi-transparent: src-over blend.
-                    const uint8_t invA { static_cast<uint8_t> (255 - a) };
+                    const uint32_t srcPixel { (static_cast<uint32_t> (a) << 24u)
+                                            | (static_cast<uint32_t> (r) << 16u)
+                                            | (static_cast<uint32_t> (g) << 8u)
+                                            |  static_cast<uint32_t> (b) };
 
                     for (int row { y0 }; row < y1; ++row)
                     {
-                        auto* pixel { reinterpret_cast<juce::PixelARGB*> (targetData.getLinePointer (row)) + x0 };
+                        auto* pixelU32 { reinterpret_cast<uint32_t*> (targetData.getLinePointer (row)) + x0 };
+                        int col { x0 };
 
-                        for (int col { x0 }; col < x1; ++col)
+                        // SIMD: 4 pixels at a time.
+                        const uint32_t srcBatch[4] { srcPixel, srcPixel, srcPixel, srcPixel };
+                        for (; col + 3 < x1; col += 4)
                         {
-                            pixel->setARGB (
-                                static_cast<uint8_t> (a + ((pixel->getAlpha() * invA + 127) >> 8)),
-                                static_cast<uint8_t> (r + ((pixel->getRed()   * invA + 127) >> 8)),
-                                static_cast<uint8_t> (g + ((pixel->getGreen() * invA + 127) >> 8)),
-                                static_cast<uint8_t> (b + ((pixel->getBlue()  * invA + 127) >> 8)));
-                            ++pixel;
+                            jreng::simd::blendSrcOver4 (pixelU32, srcBatch);
+                            pixelU32 += 4;
+                        }
+
+                        // Scalar tail.
+                        for (; col < x1; ++col)
+                        {
+                            const uint32_t d    { *pixelU32 };
+                            const uint32_t invA { 255u - a };
+                            const uint32_t rOut { r + ((((d >> 16u) & 0xFFu) * invA + 128u) >> 8u) };
+                            const uint32_t gOut { g + ((((d >> 8u)  & 0xFFu) * invA + 128u) >> 8u) };
+                            const uint32_t bOut { b + ((( d         & 0xFFu) * invA + 128u) >> 8u) };
+                            const uint32_t aOut { a + ((((d >> 24u) & 0xFFu) * invA + 128u) >> 8u) };
+                            *pixelU32 = (aOut << 24u) | (rOut << 16u) | (gOut << 8u) | bOut;
+                            ++pixelU32;
                         }
                     }
                 }
@@ -295,12 +327,27 @@ void GraphicsTextRenderer::compositeMonoGlyph (juce::Image::BitmapData& targetDa
         const uint8_t fgG { static_cast<uint8_t> (juce::roundToInt (quad.foregroundColorG * 255.0f)) };
         const uint8_t fgB { static_cast<uint8_t> (juce::roundToInt (quad.foregroundColorB * 255.0f)) };
 
+        const uint32_t fgPacked { (static_cast<uint32_t> (255u) << 24u)
+                                 | (static_cast<uint32_t> (fgR) << 16u)
+                                 | (static_cast<uint32_t> (fgG) << 8u)
+                                 |  static_cast<uint32_t> (fgB) };
+
         for (int py { clipY0 }; py < clipY1; ++py)
         {
             const auto* srcRow { atlasData.getLinePointer (srcY + py) + srcX + clipX0 };
-            auto* destRow { reinterpret_cast<juce::PixelARGB*> (targetData.getLinePointer (destY + py)) + destX + clipX0 };
+            auto* destU32 { reinterpret_cast<uint32_t*> (targetData.getLinePointer (destY + py)) + destX + clipX0 };
+            int px { clipX0 };
 
-            for (int px { clipX0 }; px < clipX1; ++px)
+            // SIMD: 4 pixels at a time.
+            for (; px + 3 < clipX1; px += 4)
+            {
+                jreng::simd::blendMonoTinted4 (destU32, srcRow, fgPacked);
+                srcRow  += 4;
+                destU32 += 4;
+            }
+
+            // Scalar tail.
+            for (; px < clipX1; ++px)
             {
                 const uint8_t alpha { *srcRow };
                 const uint8_t srcR { static_cast<uint8_t> ((fgR * alpha + 127) >> 8) };
@@ -308,14 +355,14 @@ void GraphicsTextRenderer::compositeMonoGlyph (juce::Image::BitmapData& targetDa
                 const uint8_t srcB { static_cast<uint8_t> ((fgB * alpha + 127) >> 8) };
                 const uint8_t invA { static_cast<uint8_t> (255 - alpha) };
 
-                destRow->setARGB (
-                    static_cast<uint8_t> (alpha + ((destRow->getAlpha() * invA + 127) >> 8)),
-                    static_cast<uint8_t> (srcR  + ((destRow->getRed()   * invA + 127) >> 8)),
-                    static_cast<uint8_t> (srcG  + ((destRow->getGreen() * invA + 127) >> 8)),
-                    static_cast<uint8_t> (srcB  + ((destRow->getBlue()  * invA + 127) >> 8)));
-
+                auto* destPixel { reinterpret_cast<juce::PixelARGB*> (destU32) };
+                destPixel->setARGB (
+                    static_cast<uint8_t> (alpha + ((destPixel->getAlpha() * invA + 127) >> 8)),
+                    static_cast<uint8_t> (srcR  + ((destPixel->getRed()   * invA + 127) >> 8)),
+                    static_cast<uint8_t> (srcG  + ((destPixel->getGreen() * invA + 127) >> 8)),
+                    static_cast<uint8_t> (srcB  + ((destPixel->getBlue()  * invA + 127) >> 8)));
                 ++srcRow;
-                ++destRow;
+                ++destU32;
             }
         }
     }
@@ -346,30 +393,41 @@ void GraphicsTextRenderer::compositeEmojiGlyph (juce::Image::BitmapData& targetD
     {
         for (int py { clipY0 }; py < clipY1; ++py)
         {
-            const auto* srcRow { reinterpret_cast<const juce::PixelARGB*> (atlasData.getLinePointer (srcY + py)) + srcX + clipX0 };
-            auto* destRow { reinterpret_cast<juce::PixelARGB*> (targetData.getLinePointer (destY + py)) + destX + clipX0 };
+            auto* srcU32  { reinterpret_cast<const uint32_t*> (atlasData.getLinePointer (srcY + py)) + srcX + clipX0 };
+            auto* destU32 { reinterpret_cast<uint32_t*> (targetData.getLinePointer (destY + py)) + destX + clipX0 };
+            int px { clipX0 };
 
-            for (int px { clipX0 }; px < clipX1; ++px)
+            // SIMD: 4 pixels at a time.
+            for (; px + 3 < clipX1; px += 4)
             {
-                const uint8_t srcA { srcRow->getAlpha() };
+                jreng::simd::blendSrcOver4 (destU32, srcU32);
+                srcU32  += 4;
+                destU32 += 4;
+            }
+
+            // Scalar tail.
+            for (; px < clipX1; ++px)
+            {
+                const uint8_t srcA { static_cast<uint8_t> (*srcU32 >> 24u) };
 
                 if (srcA == 255)
                 {
-                    *destRow = *srcRow;
+                    *destU32 = *srcU32;
                 }
                 else if (srcA > 0)
                 {
-                    const uint8_t invA { static_cast<uint8_t> (255 - srcA) };
-
-                    destRow->setARGB (
-                        static_cast<uint8_t> (srcA             + ((destRow->getAlpha() * invA + 127) >> 8)),
-                        static_cast<uint8_t> (srcRow->getRed()   + ((destRow->getRed()   * invA + 127) >> 8)),
-                        static_cast<uint8_t> (srcRow->getGreen() + ((destRow->getGreen() * invA + 127) >> 8)),
-                        static_cast<uint8_t> (srcRow->getBlue()  + ((destRow->getBlue()  * invA + 127) >> 8)));
+                    const uint32_t s    { *srcU32 };
+                    const uint32_t d    { *destU32 };
+                    const uint32_t invA { 255u - srcA };
+                    const uint32_t rOut { ((s >> 16u) & 0xFFu) + ((((d >> 16u) & 0xFFu) * invA + 128u) >> 8u) };
+                    const uint32_t gOut { ((s >> 8u)  & 0xFFu) + ((((d >> 8u)  & 0xFFu) * invA + 128u) >> 8u) };
+                    const uint32_t bOut { ( s         & 0xFFu) + ((( d         & 0xFFu) * invA + 128u) >> 8u) };
+                    const uint32_t aOut { ((s >> 24u) & 0xFFu) + ((((d >> 24u) & 0xFFu) * invA + 128u) >> 8u) };
+                    *destU32 = (aOut << 24u) | (rOut << 16u) | (gOut << 8u) | bOut;
                 }
 
-                ++srcRow;
-                ++destRow;
+                ++srcU32;
+                ++destU32;
             }
         }
     }

@@ -915,6 +915,7 @@ private:
     juce::HeapBlock<int>                monoCount;    ///< Number of valid mono glyphs per row.
     juce::HeapBlock<int>                emojiCount;   ///< Number of valid emoji glyphs per row.
     juce::HeapBlock<int>                bgCount;      ///< Number of valid background quads per row.
+    juce::HeapBlock<Terminal::Cell>     previousCells; ///< Previous-frame cells for memcmp skip; layout: [row * cacheCols + col].
     int cacheRows    { 0 }; ///< Number of rows the per-row caches were allocated for.
     int cacheCols    { 0 }; ///< Number of columns the per-row caches were allocated for.
     int bgCacheCols  { 0 }; ///< Background slots per row (= cacheCols * 3, for bg + selection + underlay).

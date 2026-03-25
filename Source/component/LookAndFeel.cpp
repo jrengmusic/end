@@ -66,6 +66,9 @@ void LookAndFeel::setColours()
     setColour (statusBarBackgroundColourId, cfg->getColour (Config::Key::coloursStatusBar));
     setColour (statusBarLabelBackgroundColourId, cfg->getColour (Config::Key::coloursStatusBarLabelBg));
     setColour (statusBarLabelTextColourId, cfg->getColour (Config::Key::coloursStatusBarLabelFg));
+
+    setColour (juce::ResizableWindow::backgroundColourId,
+               cfg->getColour (Config::Key::coloursBackground));
 }
 
 /**

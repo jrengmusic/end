@@ -535,11 +535,12 @@ void MainComponent::initialiseTabs()
             const auto modalType { terminal->getModalType() };
             const auto selType { terminal->getSelectionType() };
             statusBarOverlay.update (modalType, selType);
-        }
 
-        // [Plan 3.4 — Graphics-only test: repaint via JUCE instead of GL]
-        // glRenderer.triggerRepaint();
-        repaint();
+            // CPU path: repaint only the active terminal, not the entire window.
+            // StatusBarOverlay calls its own repaint() when state changes.
+            // [Plan 4: GL path uses glRenderer.triggerRepaint() instead]
+            terminal->repaint();
+        }
     };
 
     // TODO: State restoration disabled — fix after renderer and tabs cleanup

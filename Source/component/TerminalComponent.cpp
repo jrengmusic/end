@@ -126,7 +126,10 @@ void Terminal::Component::initialise()
     const float savedZoom { AppState::getContext()->getWindowZoom() };
     screen.setFontSize (dpiCorrectedFontSize() * savedZoom);
 
-    setOpaque (false);
+    // CPU rendering path: opaque + buffered. No glassmorphism.
+    // GPU path (Plan 4): setOpaque(false), bg applied at NSView/DWM level.
+    setOpaque (true);
+    setBufferedToImage (true);
     setWantsKeyboardFocus (true);
     addKeyListener (this);
 
@@ -476,6 +479,7 @@ void Terminal::Component::paint (juce::Graphics& g)
 {
     if (isVisible())
     {
+        g.fillAll (findColour (juce::ResizableWindow::backgroundColourId));
         screen.renderPaint (g, 0, 0, getHeight());
     }
 }
