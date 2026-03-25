@@ -38,6 +38,7 @@
 #include <JuceHeader.h>
 #include "AppState.h"
 #include "component/LookAndFeel.h"
+#include "component/RendererType.h"
 #include "component/MessageOverlay.h"
 #include "component/Popup.h"
 #include "component/Tabs.h"
@@ -69,7 +70,8 @@
  * @see Config::Key::windowOpacity
  * @see Terminal::Action
  */
-class MainComponent : public juce::Component
+class MainComponent : public juce::Component,
+                      private juce::ValueTree::Listener
 {
 public:
     /**
@@ -89,6 +91,7 @@ public:
      * @note MESSAGE THREAD — called by JUCE layout system on every resize.
      */
     void resized() override;
+    void paint (juce::Graphics& g) override;
 
     /**
      * @brief Rebuilds actions, applies config to tabs, LookAndFeel, and orientation.
@@ -113,9 +116,14 @@ private:
      */
     void registerActions();
 
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
     /** @brief Cached context references; resolved once, used everywhere. */
     Config& config { *Config::getContext() };
     AppState& appState { *AppState::getContext() };
+
+    /** @brief Retained reference to AppState WINDOW subtree for listener registration. */
+    juce::ValueTree windowState;
 
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
     Terminal::LookAndFeel terminalLookAndFeel;

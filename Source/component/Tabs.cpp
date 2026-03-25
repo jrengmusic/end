@@ -308,6 +308,17 @@ void Tabs::applyConfig()
     }
 }
 
+void Tabs::switchRenderer (Terminal::RendererType type)
+{
+    for (auto& p : panes)
+    {
+        for (auto& terminal : p->getTerminals())
+        {
+            terminal->switchRenderer (type);
+        }
+    }
+}
+
 void Tabs::increaseZoom()
 {
     if (auto* t { getActiveTerminal() }; t != nullptr)

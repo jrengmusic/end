@@ -45,5 +45,6 @@ namespace ID
     static const juce::Identifier position  { "position" };
     static const juce::Identifier splitVertical { "splitVertical" };
     static const juce::Identifier activeTerminalUuid { "activeTerminalUuid" };
+    static const juce::Identifier renderer { "renderer" };
 }
 }

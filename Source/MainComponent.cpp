@@ -50,39 +50,119 @@
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
 MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
-    : typeface (fontRegistry, config.getString (Config::Key::fontFamily), config.getFloat (Config::Key::fontSize), jreng::Glyph::AtlasSize::compact)
+    : typeface (fontRegistry,
+                config.getString (Config::Key::fontFamily),
+                config.getFloat (Config::Key::fontSize),
+                config.getString (Config::Key::gpuAcceleration) != "false" ? jreng::Glyph::AtlasSize::standard
+                                                                           : jreng::Glyph::AtlasSize::compact)
 {
     setOpaque (false);
+
+    // Store resolved renderer in AppState. The ValueTree listener handles
+    // GL lifecycle, atlas resize, and terminal switching.
+    const auto gpuSetting { config.getString (Config::Key::gpuAcceleration) };
+    appState.setRendererType (gpuSetting == "false" ? "cpu" : "gpu");
+
+    // Retain the WINDOW subtree reference and listen for renderer changes.
+    windowState = appState.getWindow();
+    windowState.addListener (this);
 
     //==============================================================================
     initialiseTabs();
     initialiseMessageOverlay();
     addChildComponent (statusBarOverlay);
-    applyConfig();
-
     //==============================================================================
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
     setLookAndFeel (&terminalLookAndFeel);
     juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
+    //==============================================================================
+    applyConfig();
+    // Apply initial renderer state. The listener won't fire when appState
+    // already holds the same value, so call directly to set up GL and atlas.
+    valueTreePropertyChanged (windowState, App::ID::renderer);
 }
 
 void MainComponent::applyConfig()
 {
     registerActions();
-    tabs->applyConfig();
+
+    // Config → AppState. The ValueTree listener handles GL lifecycle + terminals.
+    const auto gpuSetting { config.getString (Config::Key::gpuAcceleration) };
+    appState.setRendererType (gpuSetting == "false" ? "cpu" : "gpu");
+
+    if (tabs != nullptr)
+    {
+        tabs->applyConfig();
+        tabs->applyOrientation();
+    }
+
     terminalLookAndFeel.setColours();
     sendLookAndFeelChange();
-    tabs->applyOrientation();
+
+    // Re-apply window appearance on every reload (colour, opacity, blur).
+    // GPU: native blur + transparent window. CPU: opaque, no blur.
+    // Deferred via callAsync — at construction time the component has no peer,
+    // and GlassWindow applies blur asynchronously via handleAsyncUpdate.
+    // The deferred call runs after both, ensuring the correct final state.
+    juce::MessageManager::callAsync ([this]
+    {
+        if (Terminal::getRendererType() == Terminal::RendererType::gpu)
+        {
+            jreng::BackgroundBlur::apply (
+                this,
+                config.getFloat (Config::Key::windowBlurRadius),
+                config.getColour (Config::Key::windowColour).withAlpha (config.getFloat (Config::Key::windowOpacity)));
+        }
+        else
+        {
+            jreng::BackgroundBlur::disableWindowTransparency (this);
+        }
+    });
 }
 
-/**
- * @brief Fills the full bounds to Terminal::Tabs.
- *
- * The tab container handles its own tab bar layout and passes the content
- * area to each Terminal::Component, which applies its own internal insets.
- *
- * @note MESSAGE THREAD — called by JUCE on every resize event.
- */
+void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    juce::ignoreUnused (tree);
+
+    if (property == App::ID::renderer)
+    {
+        const auto rendererType { Terminal::getRendererType() };
+
+        // Shared atlas: resize once for all terminals.
+        const auto atlasSize { rendererType == Terminal::RendererType::gpu ? jreng::Glyph::AtlasSize::standard
+                                                                           : jreng::Glyph::AtlasSize::compact };
+        typeface.setAtlasSize (atlasSize);
+
+        // GL lifecycle: detach first (required for setComponentPaintingEnabled).
+        glRenderer.detach();
+        glRenderer.setComponentPaintingEnabled (true);
+
+        if (rendererType == Terminal::RendererType::gpu)
+        {
+            glRenderer.attachTo (*this);
+            setOpaque (false);
+        }
+        else
+        {
+            setOpaque (true);
+        }
+
+        // Switch all terminal instances.
+        if (tabs != nullptr)
+        {
+            tabs->switchRenderer (rendererType);
+        }
+    }
+}
+
+void MainComponent::paint (juce::Graphics& g)
+{
+    if (isOpaque())
+    {
+        g.fillAll (findColour (juce::ResizableWindow::backgroundColourId));
+    }
+}
+
 void MainComponent::resized()
 {
     if (tabs != nullptr)
@@ -110,6 +190,7 @@ void MainComponent::resized()
  */
 MainComponent::~MainComponent()
 {
+    windowState.removeListener (this);
     setLookAndFeel (nullptr);
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
     jreng::BackgroundBlur::setCloseCallback (nullptr);
@@ -205,9 +286,14 @@ void MainComponent::registerActions()
                                const auto reloadError { config.reload() };
 
                                if (reloadError.isEmpty())
-                                   messageOverlay->showMessage ("RELOADED", 1000);
+                               {
+                                   const auto rendererName { AppState::getContext()->getRendererType().toUpperCase() };
+                                   messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
+                               }
                                else
+                               {
                                    messageOverlay->showMessage (reloadError);
+                               }
 
                                return true;
                            });
@@ -524,9 +610,6 @@ void MainComponent::initialiseTabs()
                 }
             }
         });
-    // [Plan 3.4 — Graphics-only test: GL disabled]
-    // glRenderer.setComponentPaintingEnabled (true);
-    // glRenderer.attachTo (*this);
 
     tabs->onRepaintNeeded = [this]
     {
@@ -535,12 +618,10 @@ void MainComponent::initialiseTabs()
             const auto modalType { terminal->getModalType() };
             const auto selType { terminal->getSelectionType() };
             statusBarOverlay.update (modalType, selType);
-
-            // CPU path: repaint only the active terminal, not the entire window.
-            // StatusBarOverlay calls its own repaint() when state changes.
-            // [Plan 4: GL path uses glRenderer.triggerRepaint() instead]
             terminal->repaint();
         }
+
+        glRenderer.triggerRepaint();
     };
 
     // TODO: State restoration disabled — fix after renderer and tabs cleanup

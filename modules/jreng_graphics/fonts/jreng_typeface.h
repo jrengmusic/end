@@ -761,6 +761,17 @@ struct Typeface
     }
 
     /**
+     * @brief Resize the atlas and clear all cached glyphs.
+     * Delegates to the internal Atlas. All glyphs re-rasterize on demand.
+     * @param size  New atlas dimension.
+     * @note **MESSAGE THREAD** only.
+     */
+    void setAtlasSize (jreng::Glyph::AtlasSize size) noexcept
+    {
+        atlas.setAtlasSize (size);
+    }
+
+    /**
      * @brief Set the display scale for rasterization.
      * Delegates to the internal Atlas.
      * @note **MESSAGE THREAD** only.

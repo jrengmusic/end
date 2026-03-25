@@ -208,6 +208,9 @@ void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY,
                                         snapshot->gridHeight,
                                         snapshot->scrollOffset);
 
+            // Reset accumulated dirty bits — consumed for this paint cycle.
+            std::memset (frameDirtyBits, 0, sizeof (frameDirtyBits));
+
             if (snapshot->backgroundCount > 0)
             {
                 textRenderer.drawBackgrounds (snapshot->backgrounds.get(),

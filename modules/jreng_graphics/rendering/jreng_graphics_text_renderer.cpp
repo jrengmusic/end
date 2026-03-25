@@ -134,19 +134,15 @@ void GraphicsTextRenderer::prepareFrame (const uint64_t* dirtyRows, int scrollDe
         previousScrollOffset = scrollOffset;
 
         const bool hasScroll { scrollDelta > 0 };
-
         const bool needsFullClear { viewportChanged or hasScroll };
 
         if (needsFullClear)
         {
-            // Scrollback changed or terminal scrolled — full clear.
-            // All rows are force-dirty in buildSnapshot() when scrollDelta > 0,
-            // so every row will be recomposited onto the cleared target.
             renderTarget.clear (juce::Rectangle<int> (0, 0, viewportWidth, viewportHeight));
         }
         else
         {
-            // No scroll — clear only dirty rows (cursor blink, typing, etc.).
+            // Clear only accumulated dirty rows.
             for (int r { 0 }; r < totalRows; ++r)
             {
                 const int word { r >> 6 };

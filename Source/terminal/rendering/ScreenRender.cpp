@@ -512,7 +512,10 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
         std::memset (dirtyBits, 0xFF, sizeof (dirtyBits));
     }
 
-    std::memcpy (frameDirtyBits, dirtyBits, sizeof (frameDirtyBits));
+    for (int i { 0 }; i < 4; ++i)
+    {
+        frameDirtyBits[i] |= dirtyBits[i];
+    }
 
     for (int r { 0 }; r < rows; ++r)
     {

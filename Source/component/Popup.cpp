@@ -9,6 +9,7 @@
  */
 
 #include "Popup.h"
+#include "RendererType.h"
 #include "TerminalComponent.h"
 
 namespace Terminal
@@ -26,8 +27,9 @@ Popup::ContentView::ContentView (std::unique_ptr<juce::Component> content)
 
     if (auto* terminal { dynamic_cast<Terminal::Component*> (ownedContent.get()) })
     {
-        terminal->onRepaintNeeded = [this]
+        terminal->onRepaintNeeded = [this, terminal]
         {
+            terminal->repaint();
             glRenderer.triggerRepaint();
         };
     }
@@ -49,7 +51,7 @@ void Popup::ContentView::resized()
 
 void Popup::ContentView::initialiseGL()
 {
-    if (glContent != nullptr)
+    if (glContent != nullptr and Terminal::getRendererType() == Terminal::RendererType::gpu)
     {
         glRenderer.setComponentIterator (
             [this] (std::function<void (jreng::GLComponent&)> renderComponent)
@@ -95,6 +97,17 @@ Popup::Window::Window (std::unique_ptr<juce::Component> content,
 
     if (auto* focusTarget { viewPtr->getChildComponent (0) })
         focusTarget->grabKeyboardFocus();
+}
+
+void Popup::Window::paint (juce::Graphics& g)
+{
+    const auto borderWidth { config.getFloat (Config::Key::popupBorderWidth) };
+
+    if (borderWidth > 0.0f)
+    {
+        g.setColour (config.getColour (Config::Key::popupBorderColour));
+        g.drawRect (getLocalBounds().toFloat(), borderWidth);
+    }
 }
 
 void Popup::Window::closeButtonPressed()

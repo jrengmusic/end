@@ -98,7 +98,7 @@ const bool BackgroundBlur::apply (juce::Component* component, float blurRadius, 
  * @param tint        Tint colour in ARGB; converted to ABGR for the accent API.
  * @return @c true on success; @c false if the peer or HWND could not be obtained.
  *
- * @see enableGLTransparency()
+ * @see enableWindowTransparency()
  */
 const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blurRadius, juce::Colour tint)
 {
@@ -229,7 +229,7 @@ void BackgroundBlur::hideWindowButtons (juce::Component*)
  *
  * @see applyDwmGlass()
  */
-const bool BackgroundBlur::enableGLTransparency()
+const bool BackgroundBlur::enableWindowTransparency()
 {
     // Obtain the HWND from the current WGL device context.
     // wglGetCurrentDC() returns the HDC that was passed to wglMakeCurrent()
@@ -266,6 +266,34 @@ const bool BackgroundBlur::enableGLTransparency()
     DwmExtendFrameIntoClientArea (hwnd, &margins);
 
     return true;
+}
+
+/**
+ * @brief Removes the DWM glass effect from the foreground window.
+ *
+ * Calls DwmExtendFrameIntoClientArea with zero margins to restore the
+ * default non-extended frame.  Called from the message thread when
+ * switching from the GPU renderer to the CPU renderer.
+ *
+ * @note MESSAGE THREAD.
+ */
+void BackgroundBlur::disableWindowTransparency (juce::Component* component)
+{
+    if (auto* peer { component->getPeer() })
+    {
+        HWND hwnd = (HWND) peer->getNativeHandle();
+
+        if (hwnd != nullptr)
+        {
+            HWND root = GetAncestor (hwnd, GA_ROOT);
+
+            if (root != nullptr)
+            {
+                MARGINS margins { 0, 0, 0, 0 };
+                DwmExtendFrameIntoClientArea (root, &margins);
+            }
+        }
+    }
 }
 
 /**_____________________________END_OF_NAMESPACE______________________________*/

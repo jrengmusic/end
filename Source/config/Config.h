@@ -293,6 +293,9 @@ struct Config : jreng::Context<Config>
         /** @brief Persisted zoom multiplier in [zoomMin, zoomMax]. */
         inline static const juce::String windowZoom { "window.zoom" };
 
+        /** @brief GPU acceleration mode: "auto", "true", or "false". */
+        inline static const juce::String gpuAcceleration { "gpu.acceleration" };
+
         /** @brief Font family for the tab bar labels. */
         inline static const juce::String tabFamily { "tab.family" };
 
@@ -444,6 +447,12 @@ struct Config : jreng::Context<Config>
 
         /** @brief Popup default position: "center" for now. */
         inline static const juce::String popupPosition { "popup.position" };
+
+        /** @brief Popup border colour (hex or rgba string). */
+        inline static const juce::String popupBorderColour { "popup.border_colour" };
+
+        /** @brief Popup border stroke width in pixels (0 = no border). */
+        inline static const juce::String popupBorderWidth { "popup.border_width" };
 
         /** @brief Pane divider bar colour (hex string). */
         inline static const juce::String paneBarColour { "pane.bar_colour" };

@@ -239,6 +239,22 @@ public:
     void clear() noexcept;
 
     /**
+     * @brief Resize the atlas and clear all cached glyphs.
+     *
+     * Sets the atlas dimension to @p size and calls clear() to reset
+     * both LRU caches and atlas packers. All glyphs re-rasterize on demand.
+     *
+     * @param size  New atlas dimension.
+     * @note **MESSAGE THREAD** only.
+     */
+    void setAtlasSize (AtlasSize size) noexcept
+    {
+        atlasWidth  = static_cast<int> (size);
+        atlasHeight = static_cast<int> (size);
+        clear();
+    }
+
+    /**
      * @brief Advance the LRU frame counter for both caches.
      *
      * Must be called once per rendered frame so that LRU age calculations

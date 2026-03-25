@@ -2,6 +2,80 @@
 
 ---
 
+## Sprint 121: Plan 4 — Runtime GPU/CPU Switching
+
+**Date:** 2026-03-26
+**Duration:** ~8h
+
+### Agents Participated
+- COUNSELOR: Planning, diagnosis, delegation, root cause analysis
+- Pathfinder: Plan 4 touch points discovery
+- Oracle: SSE2 mono tint interleave, CPU garbled glyph root cause (LRU eviction + orphaned staged bitmaps)
+- Engineer (x8): Config key, RendererType, Screen variant, MainComponent wiring, AppState SSOT, ValueTree listener, Popup renderer, dirty bit accumulation, SIMD NEON tint, popup border, BackgroundBlur rename
+- Auditor: default_end.lua user-friendliness audit (28 findings)
+
+### Files Modified (28 total)
+- `Source/AppIdentifier.h` — added `renderer` property identifier
+- `Source/AppState.h` — added `getRendererType()` / `setRendererType()`
+- `Source/AppState.cpp` — implemented renderer getter/setter, added to `initDefaults()`
+- `Source/MainComponent.h` — added `ValueTree::Listener`, `paint()` override, `windowState` member
+- `Source/MainComponent.cpp` — constructor: resolve renderer → AppState → listener; `applyConfig()`: writes renderer to AppState, re-applies blur/opacity via deferred callAsync; `valueTreePropertyChanged`: GL lifecycle + atlas resize + terminal switch; `paint()`: fills background when opaque; `onRepaintNeeded`: always calls both `terminal->repaint()` + `glRenderer.triggerRepaint()`
+- `Source/component/RendererType.h` — `RendererType` enum, `getRendererType()` reads from AppState (SSOT)
+- `Source/component/TerminalComponent.h` — `ScreenVariant` (std::variant), `switchRenderer()`, `screenBase()`, `visitScreen()`, `std::optional` handlers
+- `Source/component/TerminalComponent.cpp` — all `screen.` calls → `visitScreen`/`screenBase()`; constructors use `std::in_place_type`; `initialise()` calls `switchRenderer(getRendererType())`; `switchRenderer()` emplaces variant, reconstructs handlers, applies config; `paint()` fills + renders for CPU variant only; `glContextCreated/Closing/renderGL` gated by variant; `onVBlank` modal component check for popup focus
+- `Source/component/Tabs.h` — added `switchRenderer()` declaration
+- `Source/component/Tabs.cpp` — `switchRenderer()` iterates all panes/terminals
+- `Source/component/Popup.h` — `Window::paint()` override for border
+- `Source/component/Popup.cpp` — `onRepaintNeeded` calls both repaint + triggerRepaint; `initialiseGL()` guards on `getRendererType()`; `Window::paint()` draws configurable border
+- `Source/component/LookAndFeel.cpp:69` — `ResizableWindow::backgroundColourId` wired from `Config::Key::coloursBackground`
+- `Source/component/MessageOverlay.h` — `withPointHeight()` fix for font size
+- `Source/terminal/rendering/Screen.h` — `getNumCols()` added to `ScreenBase`; `previousCells` member
+- `Source/terminal/rendering/Screen.cpp` — `previousCells` allocation; `setFontSize()` guarded against redundant atlas clear
+- `Source/terminal/rendering/ScreenRender.cpp` — `fullRebuild` flag; scroll force-dirty; row-level memcmp skip (gated by fullRebuild); blank trim; `frameDirtyBits` OR-accumulation
+- `Source/terminal/rendering/ScreenGL.cpp` — `frameDirtyBits` reset after `prepareFrame()` in `renderPaint()`
+- `Source/config/Config.h` — added `Key::gpuAcceleration`, `Key::popupBorderColour`, `Key::popupBorderWidth`
+- `Source/config/Config.cpp` — `initKeys()` entries for gpu/popup border keys
+- `Source/config/default_end.lua` — gpu section at top; user-friendly comment rewrite (28 jargon removals); popup border keys; per-key GPU dependency notes
+- `modules/jreng_graphics/rendering/jreng_graphics_text_renderer.h` — stale doxygen fixed (push, prepareFrame)
+- `modules/jreng_graphics/rendering/jreng_graphics_text_renderer.cpp` — NativeImageType; prepareFrame selective clearing with accumulated dirty bits; SIMD compositing loops
+- `modules/jreng_graphics/rendering/jreng_simd_blend.h` — full SSE2 + NEON blendMonoTinted4 (tint+interleave+blend inline)
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.h` — added `setAtlasSize()`
+- `modules/jreng_graphics/fonts/jreng_typeface.h` — added `setAtlasSize()` delegate
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.h` — added `contextInitialised` guard
+- `modules/jreng_opengl/renderers/jreng_gl_text_renderer.cpp` — guarded `createContext()`/`closeContext()` with `contextInitialised`
+- `modules/jreng_gui/glass/jreng_background_blur.h` — renamed `enableGLTransparency` → `enableWindowTransparency`; added `disableWindowTransparency(Component*)`
+- `modules/jreng_gui/glass/jreng_background_blur.mm` — `enableWindowTransparency` GL-surface only; `disableWindowTransparency` removes blur + sets opaque via component peer
+- `modules/jreng_gui/glass/jreng_background_blur.cpp` — Windows implementations updated
+- `PLAN.md` — Plan 4 marked Done (Sprint 121)
+- `PLAN-cpu-rendering-optimization.md` — optimization plan
+- `SPEC.md` — software renderer fallback marked Done
+- `DEBT.md` — `enableGLTransparency` references updated
+- `SPRINT-LOG.md` — Sprint 120 + 121 logged
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [ ] LEAN violated during garble fix attempts — multiple speculative changes without diagnosis
+
+### Problems Solved
+- **GPU/CPU hot-reload:** Config → AppState (SSOT) → ValueTree listener → GL lifecycle + atlas resize + terminal switch. One write, one reaction.
+- **Atlas size mismatch:** GPU (4096) vs CPU (2048) — `Typeface::setAtlasSize()` resizes on switch.
+- **GL ref count leak:** `GLTextRenderer::closeContext()` never called on variant destruction. Fix: `contextInitialised` guard + `glContextClosing()` in `switchRenderer()`.
+- **Redundant atlas clear:** `Screen::setFontSize()` unconditionally cleared shared atlas even when size unchanged. Fix: guard with `pointSize != baseFontSize`.
+- **Popup focus steal:** `onVBlank` `toFront(true)` fought modal popup. Fix: skip when `getCurrentlyModalComponent() != nullptr`.
+- **MessageOverlay font size:** `FontOptions` constructor used height units, not points. Fix: `withPointHeight()`.
+- **Orphaned staged bitmaps:** Popup terminal staged bitmaps polluted shared atlas after close — root cause identified by Oracle but fixed by the `setFontSize` guard (prevents atlas clear).
+- **VBlank outpacing paint:** Intermediate snapshot dirty bits lost. Fix: `frameDirtyBits` OR-accumulation, reset after paint consumes.
+- **Window transparency lifecycle:** `enableGLTransparency` renamed to `enableWindowTransparency`; `disableWindowTransparency` added; blur re-applied on every reload via deferred callAsync.
+
+### Technical Debt / Follow-up
+- **Block character overlap on CPU alternate screen** — primitive background quads show old content during scroll region operations. Selective row clearing doesn't fully resolve. Root cause: render target retains stale pixels for rows cleared by scroll region ops where `viewportChanged` is false. Needs investigation — may require tracking scroll region operations in `prepareFrame()` or always full-clearing on alternate screen.
+- **Popup terminal atlas interaction** — popup's terminal shares the Typeface atlas. LRU eviction during popup can displace main terminal glyphs. Currently mitigated by `setFontSize` guard. A proper fix would use per-terminal atlas instances or reference-counted glyph pinning.
+- **`default_end.lua` regeneration** — existing user configs don't get the new gpu section. Only affects fresh installs or manual config reset.
+
+---
+
 ## Sprint 120: CPU Rendering Optimization — SIMD Compositing
 
 **Date:** 2026-03-25

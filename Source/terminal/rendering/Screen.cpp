@@ -265,11 +265,14 @@ jreng::SnapshotBuffer<Render::Snapshot>& Screen<Renderer>::getSnapshotBuffer() n
 template <typename Renderer>
 void Screen<Renderer>::setFontSize (float pointSize) noexcept
 {
-    baseFontSize = pointSize;
-    font.setSize (pointSize);
-    font.setAtlasDisplayScale (jreng::Typeface::getDisplayScale());
-    font.clearAtlas();
-    calc();
+    if (pointSize != baseFontSize)
+    {
+        baseFontSize = pointSize;
+        font.setSize (pointSize);
+        font.setAtlasDisplayScale (jreng::Typeface::getDisplayScale());
+        font.clearAtlas();
+        calc();
+    }
 }
 
 /**

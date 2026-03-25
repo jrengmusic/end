@@ -205,6 +205,7 @@ private:
                 juce::Component& centreAround,
                 std::function<void()> dismissCallback);
 
+        void paint (juce::Graphics& g) override;
         void closeButtonPressed() override;
         void inputAttemptWhenModal() override;
         void visibilityChanged() override;

@@ -32,7 +32,7 @@
  */
 Terminal::Component::Component (jreng::Typeface& font_)
     : font (font_)
-    , screen (font_)
+    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsTextRenderer>>, font_)
     , vblank (this,
               [this]
               {
@@ -68,7 +68,7 @@ Terminal::Component* Terminal::Component::create (jreng::Typeface& font,
  */
 Terminal::Component::Component (jreng::Typeface& font_, const juce::String& workingDirectory)
     : font (font_)
-    , screen (font_)
+    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsTextRenderer>>, font_)
     , vblank (this,
               [this]
               {
@@ -94,7 +94,7 @@ Terminal::Component::Component (jreng::Typeface& font_,
                                 const juce::String& args,
                                 const juce::String& workingDirectory)
     : font (font_)
-    , screen (font_)
+    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsTextRenderer>>, font_)
     , vblank (this,
               [this]
               {
@@ -117,21 +117,14 @@ Terminal::Component::Component (jreng::Typeface& font_,
  */
 void Terminal::Component::initialise()
 {
-    auto* cfg { Config::getContext() };
-    screen.setLigatures (cfg->getBool (Config::Key::fontLigatures));
-    screen.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
-    screen.setTheme (cfg->buildTheme());
-    inputHandler.buildKeyMap();
-
-    const float savedZoom { AppState::getContext()->getWindowZoom() };
-    screen.setFontSize (dpiCorrectedFontSize() * savedZoom);
-
-    // CPU rendering path: opaque + buffered. No glassmorphism.
-    // GPU path (Plan 4): setOpaque(false), bg applied at NSView/DWM level.
-    setOpaque (true);
-    setBufferedToImage (true);
+    setOpaque (false);
     setWantsKeyboardFocus (true);
     addKeyListener (this);
+
+    // Switch to the renderer stored in AppState (SSOT).
+    // Emplaces correct Screen variant, handlers, opacity, and applies config.
+    switchRenderer (Terminal::getRendererType());
+    inputHandler->buildKeyMap();
 
     session.onShellExited = [this]
     {
@@ -171,7 +164,7 @@ void Terminal::Component::initialise()
  */
 Terminal::Component::~Component()
 {
-    screen.setSelection (nullptr);
+    visitScreen ([&] (auto& s) { s.setSelection (nullptr); });
     screenSelection.reset();
     removeKeyListener (this);
 }
@@ -197,16 +190,17 @@ void Terminal::Component::resized()
 
     if (contentArea.getWidth() > 0 and contentArea.getHeight() > 0)
     {
-        screen.setViewport (contentArea);
-        session.resized (screen.getNumCols(), screen.getNumRows());
+        visitScreen (
+            [&] (auto& s)
+            {
+                s.setViewport (contentArea);
+            });
+        session.resized (screenBase().getNumCols(), screenBase().getNumRows());
         session.getState().setScrollOffset (0);
     }
 }
 
-bool Terminal::Component::hasSelection() const noexcept
-{
-    return screenSelection != nullptr;
-}
+bool Terminal::Component::hasSelection() const noexcept { return screenSelection != nullptr; }
 
 void Terminal::Component::copySelection()
 {
@@ -229,14 +223,10 @@ void Terminal::Component::copySelection()
         }
         else
         {
-            const juce::Point<int> topLeft {
-                std::min (screenSelection->anchor.x, screenSelection->end.x),
-                std::min (screenSelection->anchor.y, screenSelection->end.y)
-            };
-            const juce::Point<int> bottomRight {
-                std::max (screenSelection->anchor.x, screenSelection->end.x),
-                std::max (screenSelection->anchor.y, screenSelection->end.y)
-            };
+            const juce::Point<int> topLeft { std::min (screenSelection->anchor.x, screenSelection->end.x),
+                                             std::min (screenSelection->anchor.y, screenSelection->end.y) };
+            const juce::Point<int> bottomRight { std::max (screenSelection->anchor.x, screenSelection->end.x),
+                                                 std::max (screenSelection->anchor.y, screenSelection->end.y) };
             text = session.getGrid().extractBoxText (topLeft, bottomRight);
         }
 
@@ -244,19 +234,17 @@ void Terminal::Component::copySelection()
 
         session.getState().setDragActive (false);
         screenSelection.reset();
-        screen.setSelection (nullptr);
+        visitScreen (
+            [&] (auto& s)
+            {
+                s.setSelection (nullptr);
+            });
     }
 }
 
-void Terminal::Component::pasteClipboard()
-{
-    session.paste (juce::SystemClipboard::getTextFromClipboard());
-}
+void Terminal::Component::pasteClipboard() { session.paste (juce::SystemClipboard::getTextFromClipboard()); }
 
-void Terminal::Component::writeToPty (const char* data, int len)
-{
-    session.writeToPty (data, len);
-}
+void Terminal::Component::writeToPty (const char* data, int len) { session.writeToPty (data, len); }
 
 void Terminal::Component::increaseZoom()
 {
@@ -282,7 +270,7 @@ void Terminal::Component::resetZoom()
 
 bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
-    return inputHandler.handleKey (key, onProcessExited != nullptr);
+    return inputHandler->handleKey (key, onProcessExited != nullptr);
 }
 
 void Terminal::Component::enterSelectionMode() noexcept
@@ -297,7 +285,7 @@ void Terminal::Component::enterSelectionMode() noexcept
     session.getState().setSelectionAnchor (absRow, screenCursorCol);
     session.getState().setSelectionType (static_cast<int> (SelectionType::none));
     session.getState().setModalType (ModalType::selection);
-    inputHandler.reset();
+    inputHandler->reset();
 }
 
 bool Terminal::Component::isInSelectionMode() const noexcept
@@ -305,24 +293,22 @@ bool Terminal::Component::isInSelectionMode() const noexcept
     return session.getState().getModalType() == ModalType::selection;
 }
 
-int Terminal::Component::getSelectionType() const noexcept
-{
-    return session.getState().getSelectionType();
-}
+int Terminal::Component::getSelectionType() const noexcept { return session.getState().getSelectionType(); }
 
-Terminal::ModalType Terminal::Component::getModalType() const noexcept
-{
-    return session.getState().getModalType();
-}
+Terminal::ModalType Terminal::Component::getModalType() const noexcept { return session.getState().getModalType(); }
 
 void Terminal::Component::exitSelectionMode() noexcept
 {
     session.getState().setSelectionType (static_cast<int> (SelectionType::none));
     session.getState().setModalType (ModalType::none);
-    inputHandler.reset();
+    inputHandler->reset();
     session.getState().setDragActive (false);
     screenSelection.reset();
-    screen.setSelection (nullptr);
+    visitScreen (
+        [&] (auto& s)
+        {
+            s.setSelection (nullptr);
+        });
 }
 
 void Terminal::Component::enterOpenFileMode() noexcept
@@ -337,45 +323,31 @@ void Terminal::Component::enterOpenFileMode() noexcept
             linkManager.scanForHints (cwd);
 
             const auto& hints { linkManager.getHintLinks() };
-            screen.setHintOverlay (hints.data(), static_cast<int> (hints.size()));
+            screenBase().setHintOverlay (hints.data(), static_cast<int> (hints.size()));
             session.getState().setModalType (ModalType::openFile);
         }
     }
 }
 
-
 void Terminal::Component::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
-    mouseHandler.handleWheel (event, wheel, [this] (int offset)
-    {
-        setScrollOffsetClamped (offset);
-    });
+    mouseHandler->handleWheel (event,
+                               wheel,
+                               [this] (int offset)
+                               {
+                                   setScrollOffsetClamped (offset);
+                               });
 }
 
-void Terminal::Component::mouseMove (const juce::MouseEvent& event)
-{
-    mouseHandler.handleMove (event, *this);
-}
+void Terminal::Component::mouseMove (const juce::MouseEvent& event) { mouseHandler->handleMove (event, *this); }
 
-void Terminal::Component::mouseDown (const juce::MouseEvent& event)
-{
-    mouseHandler.handleDown (event);
-}
+void Terminal::Component::mouseDown (const juce::MouseEvent& event) { mouseHandler->handleDown (event); }
 
-void Terminal::Component::mouseDoubleClick (const juce::MouseEvent& event)
-{
-    mouseHandler.handleDoubleClick (event);
-}
+void Terminal::Component::mouseDoubleClick (const juce::MouseEvent& event) { mouseHandler->handleDoubleClick (event); }
 
-void Terminal::Component::mouseDrag (const juce::MouseEvent& event)
-{
-    mouseHandler.handleDrag (event);
-}
+void Terminal::Component::mouseDrag (const juce::MouseEvent& event) { mouseHandler->handleDrag (event); }
 
-void Terminal::Component::mouseUp (const juce::MouseEvent& event)
-{
-    mouseHandler.handleUp (event);
-}
+void Terminal::Component::mouseUp (const juce::MouseEvent& event) { mouseHandler->handleUp (event); }
 
 /**
  * @brief Returns true — the terminal accepts any file drag.
@@ -384,10 +356,7 @@ void Terminal::Component::mouseUp (const juce::MouseEvent& event)
  * @return Always @c true.
  * @note MESSAGE THREAD.
  */
-bool Terminal::Component::isInterestedInFileDrag (const juce::StringArray&)
-{
-    return true;
-}
+bool Terminal::Component::isInterestedInFileDrag (const juce::StringArray&) { return true; }
 
 /**
  * @brief Pastes dropped file paths as text into the PTY.
@@ -414,7 +383,9 @@ void Terminal::Component::filesDropped (const juce::StringArray& files, int, int
 
         for (const auto& file : files)
         {
-            if (shouldQuote and (file.containsChar (' ') or file.containsChar ('\'') or file.containsChar ('"') or file.containsChar ('\\') or file.containsChar ('(') or file.containsChar (')')))
+            if (shouldQuote
+                and (file.containsChar (' ') or file.containsChar ('\'') or file.containsChar ('"')
+                     or file.containsChar ('\\') or file.containsChar ('(') or file.containsChar (')')))
             {
                 const juce::String shell { cfg->getString (Config::Key::shellProgram) };
 
@@ -436,18 +407,24 @@ void Terminal::Component::filesDropped (const juce::StringArray& files, int, int
 // GL THREAD
 void Terminal::Component::glContextCreated() noexcept
 {
-    // [Plan 3.4 — Graphics-only test: GL disabled]
-    // jreng::BackgroundBlur::enableGLTransparency();
-    // screen.glContextCreated();
-    // session.getGrid().markAllDirty();
-    // session.getState().setSnapshotDirty();
+    if (std::holds_alternative<Screen<jreng::Glyph::GLTextRenderer>> (screen))
+    {
+        // GL surface opacity only — AppKit blur is applied on the message thread
+        // by MainComponent::valueTreePropertyChanged.
+        jreng::BackgroundBlur::enableWindowTransparency();
+        std::get<Screen<jreng::Glyph::GLTextRenderer>> (screen).glContextCreated();
+        session.getGrid().markAllDirty();
+        session.getState().setSnapshotDirty();
+    }
 }
 
 // GL THREAD
 void Terminal::Component::glContextClosing() noexcept
 {
-    // [Plan 3.4 — Graphics-only test: GL disabled]
-    // screen.glContextClosing();
+    if (std::holds_alternative<Screen<jreng::Glyph::GLTextRenderer>> (screen))
+    {
+        std::get<Screen<jreng::Glyph::GLTextRenderer>> (screen).glContextClosing();
+    }
 }
 
 juce::Point<int> Terminal::Component::getOriginInTopLevel() const noexcept
@@ -464,23 +441,25 @@ juce::Point<int> Terminal::Component::getOriginInTopLevel() const noexcept
 // GL THREAD
 void Terminal::Component::renderGL() noexcept
 {
-    // [Plan 3.4 — Graphics-only test: GL disabled]
-    // if (isVisible())
-    // {
-    //     if (not screen.isGLContextReady())
-    //         screen.glContextCreated();
-    //     const auto origin { getOriginInTopLevel() };
-    //     screen.renderOpenGL (origin.x, origin.y, getFullViewportHeight());
-    // }
+    if (isVisible() and std::holds_alternative<Screen<jreng::Glyph::GLTextRenderer>> (screen))
+    {
+        auto& glScreen { std::get<Screen<jreng::Glyph::GLTextRenderer>> (screen) };
+
+        if (not glScreen.isGLContextReady())
+            glScreen.glContextCreated();
+
+        const auto origin { getOriginInTopLevel() };
+        glScreen.renderOpenGL (origin.x, origin.y, getFullViewportHeight());
+    }
 }
 
 // MESSAGE THREAD
 void Terminal::Component::paint (juce::Graphics& g)
 {
-    if (isVisible())
+    if (isVisible() and std::holds_alternative<Screen<jreng::Glyph::GraphicsTextRenderer>> (screen))
     {
         g.fillAll (findColour (juce::ResizableWindow::backgroundColourId));
-        screen.renderPaint (g, 0, 0, getHeight());
+        std::get<Screen<jreng::Glyph::GraphicsTextRenderer>> (screen).renderPaint (g, 0, 0, getHeight());
     }
 }
 
@@ -527,10 +506,26 @@ void Terminal::Component::focusLost (FocusChangeType)
 }
 
 /** @return Current number of visible grid rows as reported by Screen. */
-int Terminal::Component::getGridRows() const noexcept { return screen.getNumRows(); }
+int Terminal::Component::getGridRows() const noexcept
+{
+    return std::visit (
+        [] (const auto& s)
+        {
+            return s.getNumRows();
+        },
+        screen);
+}
 
 /** @return Current number of visible grid columns as reported by Screen. */
-int Terminal::Component::getGridCols() const noexcept { return screen.getNumCols(); }
+int Terminal::Component::getGridCols() const noexcept
+{
+    return std::visit (
+        [] (const auto& s)
+        {
+            return s.getNumCols();
+        },
+        screen);
+}
 
 juce::ValueTree Terminal::Component::getValueTree() noexcept { return session.getState().get(); }
 
@@ -551,7 +546,8 @@ void Terminal::Component::onVBlank()
 {
     if (getComponentID() == AppState::getContext()->getActiveTerminalUuid())
     {
-        if (isShowing() and not hasKeyboardFocus (true))
+        if (isShowing() and not hasKeyboardFocus (true)
+            and juce::Component::getCurrentlyModalComponent() == nullptr)
         {
             toFront (true);
         }
@@ -573,7 +569,11 @@ void Terminal::Component::onVBlank()
             {
                 const bool active { session.getState().getModalType() == ModalType::selection };
                 const int visibleRow { session.getState().getSelectionCursorRow() - visibleStart };
-                screen.setSelectionCursor (active, visibleRow, session.getState().getSelectionCursorCol());
+                visitScreen (
+                    [&] (auto& s)
+                    {
+                        s.setSelectionCursor (active, visibleRow, session.getState().getSelectionCursorCol());
+                    });
             }
 
             // Build ScreenSelection from State — single SSOT for selection rendering.
@@ -590,7 +590,7 @@ void Terminal::Component::onVBlank()
                     const int cursorVisRow { session.getState().getSelectionCursorRow() - visibleStart };
 
                     screenSelection->anchor = { session.getState().getSelectionAnchorCol(), anchorVisRow };
-                    screenSelection->end    = { session.getState().getSelectionCursorCol(), cursorVisRow };
+                    screenSelection->end = { session.getState().getSelectionCursorCol(), cursorVisRow };
 
                     if (smType == SelectionType::visual)
                         screenSelection->type = ScreenSelection::SelectionType::linear;
@@ -599,22 +599,38 @@ void Terminal::Component::onVBlank()
                     else
                         screenSelection->type = ScreenSelection::SelectionType::box;
 
-                    screen.setSelection (screenSelection.get());
+                    visitScreen (
+                        [&] (auto& s)
+                        {
+                            s.setSelection (screenSelection.get());
+                        });
                 }
                 else if (not session.getState().isDragActive())
                 {
                     screenSelection.reset();
-                    screen.setSelection (nullptr);
+                    visitScreen (
+                        [&] (auto& s)
+                        {
+                            s.setSelection (nullptr);
+                        });
                 }
             }
 
             // Link underlay: driven by LinkManager's ValueTree listener.
             {
                 const auto& links { linkManager.getClickableLinks() };
-                screen.setLinkUnderlay (links.data(), static_cast<int> (links.size()));
+                visitScreen (
+                    [&] (auto& s)
+                    {
+                        s.setLinkUnderlay (links.data(), static_cast<int> (links.size()));
+                    });
             }
 
-            screen.render (session.getState(), session.getGrid());
+            visitScreen (
+                [&] (auto& s)
+                {
+                    s.render (session.getState(), session.getGrid());
+                });
 
             if (onRepaintNeeded != nullptr)
                 onRepaintNeeded();
@@ -639,11 +655,15 @@ void Terminal::Component::onVBlank()
 void Terminal::Component::applyConfig() noexcept
 {
     auto* cfg { Config::getContext() };
-    screen.setLigatures (cfg->getBool (Config::Key::fontLigatures));
-    screen.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
-    screen.setTheme (cfg->buildTheme());
-    screen.setFontSize (dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
-    inputHandler.buildKeyMap();
+    visitScreen (
+        [&] (auto& s)
+        {
+            s.setLigatures (cfg->getBool (Config::Key::fontLigatures));
+            s.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
+            s.setTheme (cfg->buildTheme());
+            s.setFontSize (dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
+        });
+    inputHandler->buildKeyMap();
     session.getGrid().markAllDirty();
     session.getState().setSnapshotDirty();
     resized();
@@ -662,10 +682,64 @@ void Terminal::Component::applyConfig() noexcept
  */
 void Terminal::Component::applyZoom (float zoom) noexcept
 {
-    screen.setFontSize (dpiCorrectedFontSize() * zoom);
+    visitScreen (
+        [&] (auto& s)
+        {
+            s.setFontSize (dpiCorrectedFontSize() * zoom);
+        });
     resized();
 }
 
+void Terminal::Component::switchRenderer (RendererType type)
+{
+    // Release current renderer's GL resources before switching.
+    // The contextInitialised guard in each renderer prevents
+    // double-close or close-before-create.
+    visitScreen (
+        [&] (auto& s)
+        {
+            s.glContextClosing();
+        });
+
+    // Atlas resize is handled once by MainComponent's ValueTree listener.
+    if (type == RendererType::cpu)
+    {
+        if (not std::holds_alternative<Screen<jreng::Glyph::GraphicsTextRenderer>> (screen))
+        {
+            screen.emplace<Screen<jreng::Glyph::GraphicsTextRenderer>> (font);
+        }
+    }
+    else
+    {
+        if (not std::holds_alternative<Screen<jreng::Glyph::GLTextRenderer>> (screen))
+        {
+            screen.emplace<Screen<jreng::Glyph::GLTextRenderer>> (font);
+        }
+    }
+
+    inputHandler.emplace (session, screenBase(), linkManager);
+    mouseHandler.emplace (session, screenBase(), linkManager);
+
+    juce::ignoreUnused (type);
+
+    auto* cfg { Config::getContext() };
+    visitScreen (
+        [&] (auto& s)
+        {
+            s.setLigatures (cfg->getBool (Config::Key::fontLigatures));
+            s.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
+            s.setTheme (cfg->buildTheme());
+            s.setFontSize (dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
+        });
+
+    session.getGrid().markAllDirty();
+    session.getState().setSnapshotDirty();
+
+    if (getWidth() > 0 and getHeight() > 0)
+    {
+        resized();
+    }
+}
 
 void Terminal::Component::setScrollOffsetClamped (int newOffset) noexcept
 {

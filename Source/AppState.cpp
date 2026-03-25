@@ -82,6 +82,21 @@ void AppState::setWindowZoom (float zoom)
     window.setProperty (App::ID::zoom, clamped, nullptr);
 }
 
+juce::String AppState::getRendererType() const noexcept
+{
+    auto window { state.getChildWithName (App::ID::WINDOW) };
+
+    if (window.isValid() and window.hasProperty (App::ID::renderer))
+        return window.getProperty (App::ID::renderer).toString();
+
+    return "cpu";
+}
+
+void AppState::setRendererType (const juce::String& type)
+{
+    auto window { getWindow() };
+    window.setProperty (App::ID::renderer, type, nullptr);
+}
 
 int AppState::getActiveTabIndex() const noexcept
 {
@@ -253,6 +268,10 @@ void AppState::initDefaults()
     window.setProperty (App::ID::width, cfg->getInt (Config::Key::windowWidth), nullptr);
     window.setProperty (App::ID::height, cfg->getInt (Config::Key::windowHeight), nullptr);
     window.setProperty (App::ID::zoom, cfg->getFloat (Config::Key::windowZoom), nullptr);
+
+    // Resolve renderer from config. "auto" and "true" → "gpu", "false" → "cpu".
+    const auto gpuSetting { cfg->getString (Config::Key::gpuAcceleration) };
+    window.setProperty (App::ID::renderer, gpuSetting == "false" ? "cpu" : "gpu", nullptr);
 
     state.appendChild (window, nullptr);
 

@@ -38,6 +38,7 @@
  */
 
 #pragma once
+#include <variant>
 #include <JuceHeader.h>
 #include "../terminal/logic/Session.h"
 #include "../terminal/rendering/Screen.h"
@@ -47,6 +48,7 @@
 #include "../terminal/selection/LinkManager.h"
 #include "InputHandler.h"
 #include "MouseHandler.h"
+#include "RendererType.h"
 #include "config/Config.h"
 
 namespace Terminal
@@ -299,7 +301,7 @@ public:
      * @brief Called by GLRenderer when the shared OpenGL context is first created.
      *
      * Forwards to Screen::glContextCreated() to compile shaders and create GPU
-     * buffers.  Also calls jreng::BackgroundBlur::enableGLTransparency() for
+     * buffers.  Also calls jreng::BackgroundBlur::enableWindowTransparency() for
      * native window transparency.
      *
      * @note GL THREAD.
@@ -415,6 +417,18 @@ public:
      * @note MESSAGE THREAD.
      */
     void applyConfig() noexcept;
+
+    /**
+     * @brief Switches the active rendering backend at runtime.
+     *
+     * Replaces the active Screen variant with the appropriate renderer for
+     * @p type, reconstructs InputHandler and MouseHandler with the new
+     * ScreenBase reference, reapplies config, and forces a full repaint.
+     *
+     * @param type  The desired rendering backend.
+     * @note MESSAGE THREAD.
+     */
+    void switchRenderer (RendererType type);
 
     /**
      * @brief Increases the zoom multiplier by one step.
@@ -581,13 +595,38 @@ private:
      */
     void setScrollOffsetClamped (int newOffset) noexcept;
 
+    /** @brief Returns the ScreenBase interface for the active Screen variant. */
+    ScreenBase& screenBase() noexcept
+    {
+        return std::visit ([] (auto& s) -> ScreenBase& { return s; }, screen);
+    }
+
+    /**
+     * @brief Visits the active Screen variant, forwarding the return value.
+     *
+     * @tparam Func  Callable accepting any Screen<T> specialisation by reference.
+     */
+    template <typename Func>
+    decltype(auto) visitScreen (Func&& func)
+    {
+        return std::visit (std::forward<Func> (func), screen);
+    }
+
     //==============================================================================
     /** @brief Font reference; lifetime owned by MainComponent. */
     jreng::Typeface& font;
 
-    /** @brief Terminal renderer; Graphics path active for Plan 3.4 validation. */
-    // [Plan 3.4 — Graphics-only test: swapped GLTextRenderer → GraphicsTextRenderer]
-    Screen<jreng::Glyph::GraphicsTextRenderer> screen;
+    /**
+     * @brief Terminal renderer — variant over CPU and GPU Screen specialisations.
+     *
+     * GraphicsTextRenderer is the first alternative and the default (CPU path).
+     * switchRenderer() emplaces the appropriate alternative at runtime.
+     */
+    using ScreenVariant = std::variant<
+        Screen<jreng::Glyph::GraphicsTextRenderer>,
+        Screen<jreng::Glyph::GLTextRenderer>>;
+
+    ScreenVariant screen;
 
     /** @brief PTY session, VT parser, and grid state machine. */
     Session session;
@@ -598,17 +637,17 @@ private:
     /**
      * @brief Keyboard input handler: modal dispatch, vim selection, open-file keys.
      *
-     * Constructed after `session`, `screen`, and `linkManager` so those members
-     * are valid at InputHandler construction time.
+     * Held as optional so it can be emplaced after screen is initialised and
+     * re-emplaced when switchRenderer() swaps the Screen variant.
      */
-    InputHandler inputHandler { session, screen, linkManager };
+    std::optional<InputHandler> inputHandler;
 
     /**
      * @brief Mouse input handler: PTY forwarding, drag selection, link dispatch.
      *
-     * Constructed after `session`, `screen`, and `linkManager`.
+     * Held as optional for the same reason as inputHandler.
      */
-    MouseHandler mouseHandler { session, screen, linkManager };
+    std::optional<MouseHandler> mouseHandler;
 
     /**
      * @brief Link manager: owns viewport scanning, hit-testing, and dispatch.

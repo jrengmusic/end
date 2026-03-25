@@ -239,6 +239,7 @@ public:
     virtual ~ScreenBase() = default;
 
     virtual int getNumRows() const noexcept = 0;
+    virtual int getNumCols() const noexcept = 0;
     virtual juce::Point<int> cellAtPoint (int x, int y) const noexcept = 0;
     virtual void setHintOverlay (const LinkSpan* spans, int count) noexcept = 0;
 
@@ -555,7 +556,7 @@ public:
      *
      * @note **MESSAGE THREAD**.
      */
-    int getNumCols() const noexcept;
+    int getNumCols() const noexcept override;
 
     /**
      * @brief Returns the number of visible rows.

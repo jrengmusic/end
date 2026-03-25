@@ -9,7 +9,7 @@
 --	████████████████████  ████    ████████████  ████████████████████
 --	████████████████████  ████    ████████████  ████████████████████
 --	░░░░░░░░░░░░░░░░░░░░  ░░░░    ░░░░░░░░░░░░  ░░░░░░░░░░░░░░░░░░░░
--- 
+--
 --	                Ephemeral Nexus Display  v%versionString%
 -- ============================================================================
 -- Configuration
@@ -22,34 +22,49 @@
 -- Reload with Cmd+R (no restart needed).
 --
 -- Colour format: "#RRGGBB" (fully opaque) or "#RRGGBBAA" (with alpha).
---   - "#RGB" and "#RGBA" shorthand supported (each nibble expanded to two digits).
+--   - "#RGB" and "#RGBA" shorthand supported (e.g. "#F00" becomes "#FF0000").
 --   - "rgba(r, g, b, a)" functional notation (a is 0.0 - 1.0).
 --
 -- Key binding format: "modifier+key" (e.g. "cmd+c", "ctrl+shift+t").
 --   - Modifiers: cmd, ctrl, alt, shift
---   - Prefix-mode keys (split, pane navigation) are single characters
---     activated after pressing the prefix key.
+--   - Some keys use a two-step sequence: press the prefix key first, then the
+--     action key. See the keys section below.
 --
 -- ============================================================================
 
 END = {
 
 	-- ========================================================================
+	-- GPU
+	-- ========================================================================
+	--
+	-- Rendering backend selection. Hot-reloadable (Cmd+R).
+	--
+	-- "auto"  — Use GPU if available, CPU fallback. (default)
+	-- "true"  — Force GPU rendering. Falls back to CPU if unavailable.
+	-- "false" — Force CPU rendering. No GPU used.
+	--
+
+	gpu = {
+		acceleration = "%%gpu_acceleration%%",
+	},
+
+	-- ========================================================================
 	-- FONT
 	-- ========================================================================
 
 	font = {
-		-- Font family name for the terminal grid.
+		-- Font used for terminal text.
 		-- Must be a monospace font installed on the system.
 		family = "%%font_family%%",
 
 		-- Font size in points before zoom is applied (1 - 200).
 		size = %%font_size%%,
 
-		-- Enable OpenType ligature substitution (e.g. -> becomes arrow).
+		-- Combine certain character sequences into symbols (e.g. -> becomes an arrow).
 		ligatures = %%font_ligatures%%,
 
-		-- Embolden glyphs for heavier strokes.
+		-- Make text appear bolder.
 		-- Useful for thin fonts that are hard to read at small sizes.
 		embolden = %%font_embolden%%,
 	},
@@ -59,10 +74,11 @@ END = {
 	-- ========================================================================
 
 	cursor = {
-		-- Unicode character used as the cursor glyph.
-		-- Default is the full block character U+2588.
+		-- Character displayed as the cursor.
+		-- Default is a solid block (the standard blinking rectangle).
+		-- You can use any char, NF icons, including color emoji.
 		-- Only used when cursor shape is "glyph" (user-defined).
-		-- Programs can override shape via DECSCUSR escape sequence
+		-- Programs (like vim or tmux) can change the cursor shape
 		-- unless cursor.force is true.
 		char = "%%cursor_char%%",
 
@@ -73,7 +89,7 @@ END = {
 		-- Full cycle = 2x this value (on for interval, off for interval).
 		blink_interval = %%cursor_blink_interval%%,
 
-		-- Force user-configured cursor, ignoring DECSCUSR and OSC 12.
+		-- Lock the cursor to your configured shape and colour. Programs cannot change it.
 		-- When true, programs cannot change cursor shape or colour.
 		force = %%cursor_force%%,
 	},
@@ -82,8 +98,8 @@ END = {
 	-- COLOURS
 	-- ========================================================================
 	--
-	-- The 16 ANSI colours are used by terminal programs via SGR escape codes.
-	-- Indices 0-7 are normal colours, 8-15 are bright variants.
+	-- The 16 standard terminal colours. Programs like ls, git, and vim use these.
+	-- The first 8 are normal, the next 8 are brighter versions.
 	-- Format: "#RRGGBB" (opaque) or "#RRGGBBAA" (with alpha).
 	--
 
@@ -92,11 +108,12 @@ END = {
 		foreground = "%%colours_foreground%%",
 
 		-- Default background colour.
-		-- Alpha channel controls terminal background opacity.
+		-- The last two hex digits control background transparency (GPU only).
+		-- CPU rendering always uses a fully opaque background.
 		background = "%%colours_background%%",
 
 		-- Cursor colour.
-		-- Can be overridden per-session by programs via OSC 12.
+		-- Programs may change this colour while running.
 		cursor = "%%colours_cursor%%",
 
 		-- Selection highlight colour.
@@ -107,52 +124,52 @@ END = {
 		-- Shown instead of the normal cursor when selection mode is active.
 		selection_cursor = "%%colours_selection_cursor%%",
 
-		-- ANSI colour 0: black
+		-- Black
 		black = "%%colours_black%%",
 
-		-- ANSI colour 1: red
+		-- Red
 		red = "%%colours_red%%",
 
-		-- ANSI colour 2: green
+		-- Green
 		green = "%%colours_green%%",
 
-		-- ANSI colour 3: yellow
+		-- Yellow
 		yellow = "%%colours_yellow%%",
 
-		-- ANSI colour 4: blue
+		-- Blue
 		blue = "%%colours_blue%%",
 
-		-- ANSI colour 5: magenta
+		-- Magenta
 		magenta = "%%colours_magenta%%",
 
-		-- ANSI colour 6: cyan
+		-- Cyan
 		cyan = "%%colours_cyan%%",
 
-		-- ANSI colour 7: white
+		-- White
 		white = "%%colours_white%%",
 
-		-- ANSI colour 8: bright black
+		-- Bright black
 		bright_black = "%%colours_bright_black%%",
 
-		-- ANSI colour 9: bright red
+		-- Bright red
 		bright_red = "%%colours_bright_red%%",
 
-		-- ANSI colour 10: bright green
+		-- Bright green
 		bright_green = "%%colours_bright_green%%",
 
-		-- ANSI colour 11: bright yellow
+		-- Bright yellow
 		bright_yellow = "%%colours_bright_yellow%%",
 
-		-- ANSI colour 12: bright blue
+		-- Bright blue
 		bright_blue = "%%colours_bright_blue%%",
 
-		-- ANSI colour 13: bright magenta
+		-- Bright magenta
 		bright_magenta = "%%colours_bright_magenta%%",
 
-		-- ANSI colour 14: bright cyan
+		-- Bright cyan
 		bright_cyan = "%%colours_bright_cyan%%",
 
-		-- ANSI colour 15: bright white
+		-- Bright white
 		bright_white = "%%colours_bright_white%%",
 
 		-- Status bar full background colour.
@@ -188,16 +205,19 @@ END = {
 		-- Initial window height in pixels.
 		height = %%window_height%%,
 
-		-- Window background tint colour (no alpha, used for blur tint).
+		-- Tint colour for the window background. Most visible with blur enabled.
 		colour = "%%window_colour%%",
 
 		-- Window opacity (0.0 fully transparent - 1.0 fully opaque).
+		-- GPU only. Has no effect with CPU rendering.
+		-- macOS and Windows 10 only. No effect on Windows 11.
 		opacity = %%window_opacity%%,
 
 		-- Background blur radius in pixels (0 = no blur).
-		-- macOS: controls blur intensity via CoreGraphics private SPI.
-		-- Windows: blur intensity is controlled by DWM (this value is accepted
-		-- but not forwarded — the acrylic effect has a fixed blur radius).
+		-- GPU only. Has no effect with CPU rendering.
+		-- macOS: controls blur intensity.
+		-- Windows 10: blur is on but intensity is set by the system.
+		-- Windows 11: uses the system glass effect. This setting has no effect.
 		blur_radius = %%window_blur_radius%%,
 
 		-- Keep window above all other windows.
@@ -276,7 +296,7 @@ END = {
 		-- Arguments passed to the shell program.
 		args = "%%shell_args%%",
 
-		-- Enable automatic shell integration (OSC 133 markers).
+		-- Enable automatic shell integration.
 		-- When true, END creates shell hook scripts in ~/.config/end/
 		-- and injects them on shell startup. This enables:
 		--   - Clickable file links in command output
@@ -291,14 +311,13 @@ END = {
 	-- ========================================================================
 
 	terminal = {
-		-- Maximum number of scrollback lines retained in the ring buffer (100 - 1000000).
+		-- Maximum number of lines you can scroll back through (100 - 1000000).
 		scrollback_lines = %%terminal_scrollback_lines%%,
 
 		-- Lines scrolled per mouse wheel tick and per Shift+PgUp/PgDn step (1 - 100).
 		scroll_step = %%terminal_scroll_step%%,
 
-		-- Grid padding in logical pixels — space between the window edge and the
-		-- terminal grid on each side.  Four values in CSS order:
+		-- Space between the window edge and the terminal text, in pixels. Four values:
 		--   { top, right, bottom, left }
 		-- All four values must be present.  Valid range: 0 - 200.
 		-- Example: { 10, 10, 10, 10 } gives equal padding on all sides.
@@ -310,7 +329,7 @@ END = {
 		-- "newline" joins paths with newlines.
 		drop_multifiles = "%%terminal_drop_multifiles%%",
 
-		-- Whether dropped file paths are shell-quoted.
+		-- Wrap dropped file paths in quotes so spaces and special characters work correctly.
 		-- true: paths with special characters are quoted for the active shell.
 		-- false: paths are pasted raw (for TUI apps that handle paths directly).
 		drop_quoted = %%terminal_drop_quoted%%,
@@ -472,6 +491,12 @@ END = {
 
 		-- Default popup position: "center".
 		position = "%%popup_position%%",
+
+		-- Popup border colour.
+		border_colour = "%%popup_border_colour%%",
+
+		-- Popup border stroke width in pixels (0 = no border).
+		border_width = %%popup_border_width%%,
 	},
 
 	-- ========================================================================
@@ -502,8 +527,8 @@ END = {
 	-- ========================================================================
 	--
 	-- Modal popup terminals. Each entry spawns a terminal running a command
-	-- in a glass overlay window. The popup blocks the main window until the
-	-- process exits (quit the TUI, Ctrl+C a script, etc.).
+	-- in a floating panel on top of the terminal. The popup blocks the main
+	-- window until the process exits (quit the TUI, Ctrl+C a script, etc.).
 	--
 	-- Each entry is a named table. The table key is the unique identifier.
 	--
@@ -513,7 +538,7 @@ END = {
 	--   cwd      (string, optional)  Working directory. Empty = inherit active terminal cwd.
 	--   width    (number, optional)  Fraction of window width (0.1-1.0). Overrides popup.width.
 	--   height   (number, optional)  Fraction of window height (0.1-1.0). Overrides popup.height.
-	--   modal    (string, optional)  Modal key: prefix + key. Can include modifiers (e.g. "cmd+t").
+	--   modal    (string, optional)  Key pressed after the prefix key (e.g. "t").
 	--   global   (string, optional)  Global key: direct shortcut, no prefix needed.
 	--
 	-- At least one of modal or global is required.
@@ -523,20 +548,14 @@ END = {
 	--
 	-- popups = {
 	--     tit = {
-	--         command = "tit.exe",
+	--         command = "tit",
 	--         args = "",
 	--         cwd = "",
 	--         width = 0.8,
 	--         height = 0.6,
 	--         modal = "t",
 	--     },
-	--     lazygit = {
-	--         command = "lazygit",
-	--         width = 0.9,
-	--         height = 0.9,
-	--         modal = "g",
-	--     },
-	--     htop = {
+	--     btop = {
 	--         command = "htop",
 	--         cwd = "~",
 	--         width = 0.7,

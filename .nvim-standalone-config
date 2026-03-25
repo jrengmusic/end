@@ -1,4 +1,4 @@
 -- Standalone Build Configuration
 return {
-  buildScheme = "Release",
+  buildScheme = "Debug",
 }

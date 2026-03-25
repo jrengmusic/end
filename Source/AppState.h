@@ -50,6 +50,12 @@ struct AppState : jreng::Context<AppState>
     void setWindowSize (int width, int height);
     void setWindowZoom (float zoom);
 
+    /** @brief Returns the resolved renderer type string ("gpu" or "cpu"). */
+    juce::String getRendererType() const noexcept;
+
+    /** @brief Stores the resolved renderer type string in the WINDOW subtree. */
+    void setRendererType (const juce::String& type);
+
     int getActiveTabIndex() const noexcept;
     void setActiveTabIndex (int index);
 

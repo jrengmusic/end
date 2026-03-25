@@ -23,6 +23,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "RendererType.h"
 #include "TerminalComponent.h"
 #include "Panes.h"
 #include "LookAndFeel.h"
@@ -226,6 +227,9 @@ public:
 
     /** @brief Focus the nearest pane to the right of the active pane. @note MESSAGE THREAD. */
     void focusPaneRight();
+
+    /** @brief Switches all terminals to the given renderer type. */
+    void switchRenderer (Terminal::RendererType type);
 
     /**
      * @brief Reads tab.position from Config and applies the orientation.

@@ -21,7 +21,7 @@ Seven sequential plans. Each plan is self-contained — delivers working, testab
 | 2.5 | Decouple GL from glyph pipeline, rewire Screen to Font API | Done (Sprint 117) |
 | 2.6 | Rendering pipeline optimization — metrics cache, dirty rows, CG pooling | Done (Sprint 118) |
 | 3 | CPU rendering backend — `GraphicsTextRenderer` + template `Screen` | Done (Sprint 119) |
-| **4** | **END runtime GPU/CPU switching** | **Next** |
+| 4 | END runtime GPU/CPU switching | Done (Sprint 121) |
 
 ### Surface API
 
@@ -484,17 +484,175 @@ Temporarily disable GL rendering (comment out, non-destructive). Wire `Screen<Gr
 
 ## PLAN 4: END Runtime GPU/CPU Switching
 
-**Goal:** END detects GPU availability at startup. Selects `Screen<GLTextRenderer>` (GL render loop) or `Screen<GraphicsTextRenderer>` (JUCE `paint()` loop). Full terminal functionality on both paths. Blur disabled on CPU path.
+**Goal:** User-configurable rendering engine via `gpu.acceleration`. Hot-reloadable. Auto-fallback on machines without GPU. GPU = glassmorphism + GL render loop. CPU = opaque + SIMD compositing via `paint()`.
 
-**Scope:**
-- GPU detection at startup (`juce::OpenGLContext::openGLContextCreated` success/failure, or explicit capability check)
-- `Terminal::Component` holds either `Screen<GLTextRenderer>` or `Screen<GraphicsTextRenderer>` (compile-time variant or `std::variant`)
-- GL path: `GLRenderer` drives render loop, `Screen<GLTextRenderer>::renderOpenGL()` on GL thread
-- CPU path: `Component::paint (juce::Graphics&)` drives render loop, `Screen<GraphicsTextRenderer>` renders on message thread. `SnapshotBuffer` still used (same atomic exchange, same-thread read/write is valid)
-- `BackgroundBlur` feature gate: GL path enables transparency + blur. CPU path disables — opaque background, no blur shaders
-- `MainComponent` wiring: `GLRenderer::setComponentIterator()` only for GL path. CPU path uses standard JUCE repaint cycle
+### Config
 
-**Implementation details deferred until Plan 3 completes.**
+```lua
+END = {
+    gpu = {
+        acceleration = "auto",  -- "auto" | "true" | "false"
+    },
+}
+```
+
+| Value | Behavior |
+|-------|----------|
+| `"auto"` | Detect GPU capability before creating renderer. GPU if available, CPU fallback. |
+| `"true"` | Force GPU. If unavailable, error in MessageOverlay, fallback to CPU. |
+| `"false"` | Force CPU. No GL context created. |
+
+### Design Decisions (ARCHITECT approved)
+
+1. **`std::variant<Screen<GLTextRenderer>, Screen<GraphicsTextRenderer>>`** in `Terminal::Component`. Runtime selection, both compiled in. Zero virtual dispatch — `std::visit` with visitor.
+2. **Hot-reload:** Config change triggers variant swap. Grid/State/Session survive — they are independent of Screen. Render cache rebuilds automatically via `markAllDirty()`. No serialization needed.
+3. **GPU detection before renderer creation.** `"auto"` probes GL capability at startup, not on failure. No trial-and-error.
+4. **MessageOverlay feedback.** After reload, show renderer status: `"RELOADED (GPU)"` or `"RELOADED (CPU)"`. On auto-fallback: `"GPU unavailable — using CPU renderer"`.
+5. **GLRenderer lifecycle.** `MainComponent` owns `GLRenderer`. Attached only when GPU path is active. Detached on switch to CPU. Re-attached on switch back to GPU. `attachTo()` / `detach()` are safe to call at any time.
+6. **Opacity follows renderer.** GPU: `setOpaque(false)`, glassmorphism via NSView/DWM. CPU: `setOpaque(true)`, `setBufferedToImage(true)`, bg fill from LookAndFeel.
+7. **Popup has own GLRenderer** (`Popup.cpp:54`). Popup follows the same `gpu.acceleration` setting independently.
+
+### Architecture
+
+```
+Config::Key::gpuAcceleration
+        |
+        v
+MainComponent::applyConfig()
+        |
+        v
+    resolveRenderer()  — "auto" probes GPU, returns enum { gpu, cpu }
+        |
+        v
+    if changed:
+        GPU → CPU: glRenderer.detach(), all terminals switchToCPU()
+        CPU → GPU: glRenderer.attachTo(*this), all terminals switchToGPU()
+        |
+        v
+Terminal::Component::switchRenderer (RendererType type)
+        |
+        v
+    screen.emplace<Screen<GLTextRenderer>>() or <GraphicsTextRenderer>()
+    setOpaque() / setBufferedToImage() toggle
+    grid.markAllDirty() + state.setSnapshotDirty()
+    rewire onRepaintNeeded (glRenderer.triggerRepaint vs terminal->repaint)
+```
+
+### Screen Variant
+
+```cpp
+// Terminal::Component member:
+using ScreenVariant = std::variant<
+    Screen<jreng::Glyph::GLTextRenderer>,
+    Screen<jreng::Glyph::GraphicsTextRenderer>>;
+
+ScreenVariant screen;
+```
+
+All call sites use `std::visit`:
+```cpp
+std::visit ([&] (auto& s) { s.render (state, grid); }, screen);
+std::visit ([&] (auto& s) { s.renderPaint (g, 0, 0, h); }, screen);
+```
+
+`renderPaint` is CPU-only. `renderOpenGL` is GPU-only. The visitor dispatches to the active alternative. Calling the wrong method on the wrong alternative is a compile error — the duck-type contract ensures both have `render()`, but only `GraphicsTextRenderer` has `setGraphicsContext` and only `GLTextRenderer` has GL lifecycle methods.
+
+---
+
+### Step 4.0 — Config key + GPU detection
+
+Add `Config::Key::gpuAcceleration` with default `"auto"`. Add `resolveRenderer()` utility that returns `enum class RendererType { gpu, cpu }` based on config value + GPU capability probe.
+
+**GPU probe:** Attempt `juce::OpenGLContext` creation on a dummy component. If `openGLContextCreated` fires successfully, GPU is available. Tear down immediately. Cache result — probe once at startup, re-probe on explicit `"auto"` reload.
+
+**Files:**
+- `Source/config/Config.h` — add `Key::gpuAcceleration`
+- `Source/config/Config.cpp` — add `initKeys` entry, Lua loader for `gpu` table
+- New: `Source/component/RendererType.h` — `enum class RendererType { gpu, cpu }` + `resolveRenderer()` utility
+
+**Validate:** Config loads `gpu.acceleration`. `resolveRenderer()` returns correct type. No rendering changes yet.
+
+---
+
+### Step 4.1 — Screen variant in Terminal::Component
+
+Replace `Screen<GraphicsTextRenderer> screen` with `ScreenVariant screen`. Add `switchRenderer(RendererType)` method. Update all `screen.*` call sites to use `std::visit`.
+
+**Call sites to update:**
+- `onVBlank()` — `screen.render(state, grid)`
+- `paint()` — `screen.renderPaint(g, ...)`
+- `renderGL()` — `screen.renderOpenGL(...)`
+- `glContextCreated()` — `screen.glContextCreated()`
+- `glContextClosing()` — `screen.glContextClosing()`
+- `resized()` — `screen.setViewport(...)`
+- `applyConfig()` — `screen.setLigatures(...)`, `screen.setEmbolden(...)`, `screen.setTheme(...)`
+- `initialise()` — `screen.setFontSize(...)`
+- All other `screen.*` calls
+
+**`switchRenderer(RendererType)` method:**
+1. Emplace new variant alternative (destroys old Screen, constructs new)
+2. GPU: `setOpaque(false)`, remove `setBufferedToImage`
+3. CPU: `setOpaque(true)`, `setBufferedToImage(true)`
+4. Reapply settings from config (ligatures, embolden, theme, font size)
+5. `grid.markAllDirty()`, `state.setSnapshotDirty()`
+
+**Files:**
+- `Source/component/TerminalComponent.h` — `ScreenVariant`, `switchRenderer()`
+- `Source/component/TerminalComponent.cpp` — all `screen.*` → `std::visit`
+
+**Validate:** Builds. Hardcode CPU variant. Terminal works identically to current state.
+
+---
+
+### Step 4.2 — MainComponent wiring + repaint path
+
+Wire `MainComponent::applyConfig()` to detect renderer change and propagate to all terminals. Wire `onRepaintNeeded` callback to use `glRenderer.triggerRepaint()` for GPU or `terminal->repaint()` for CPU.
+
+**Changes:**
+- `MainComponent::applyConfig()` — call `resolveRenderer()`, compare to current, if changed: attach/detach `glRenderer`, iterate all terminals via `tabs->switchRenderer(type)`
+- `Tabs::switchRenderer(RendererType)` — iterates panes, calls `Terminal::Component::switchRenderer()` on each
+- `onRepaintNeeded` callback — branch on active renderer type
+- `MainComponent::initialiseTabs()` — use `resolveRenderer()` for initial setup instead of hardcoded CPU
+- Uncomment GL code paths — `glContextCreated()`, `glContextClosing()`, `renderGL()`, gated by variant type
+
+**Files:**
+- `Source/MainComponent.cpp` — `applyConfig()`, `initialiseTabs()`, `onRepaintNeeded`
+- `Source/component/Tabs.h/cpp` — `switchRenderer()` forwarding
+- `Source/component/Panes.h/cpp` — `switchRenderer()` forwarding
+- `Source/component/TerminalComponent.cpp` — uncomment GL paths, gate by variant
+
+**Validate:** Launch with `gpu.acceleration = "false"` → CPU path. Change to `"true"` → reload → GPU path. Change back → CPU. No crash, no artifacts.
+
+---
+
+### Step 4.3 — MessageOverlay renderer feedback
+
+Show renderer status after reload and on auto-fallback.
+
+**Changes:**
+- After config reload in `MainComponent.cpp`: `messageOverlay->showMessage("RELOADED (GPU)", 1000)` or `"RELOADED (CPU)"` based on active renderer
+- On auto-fallback (GPU requested but unavailable): `messageOverlay->showMessage("GPU unavailable — CPU renderer", 3000)`
+- On startup with `"auto"`: silent (no overlay unless fallback occurred)
+
+**Files:**
+- `Source/MainComponent.cpp` — reload path
+
+**Validate:** Reload with each config value. Correct overlay message shown.
+
+---
+
+### Step 4.4 — Popup renderer alignment
+
+Popup has its own `GLRenderer`. Align with `gpu.acceleration` setting.
+
+**Changes:**
+- `Popup::ContentView::initialiseGL()` — respect `gpu.acceleration`. If CPU, skip GL attachment, use `paint()` path.
+- Popup's `Terminal::Component` uses same `ScreenVariant` — follows global setting.
+
+**Files:**
+- `Source/component/Popup.h/cpp`
+
+**Validate:** Open popup in CPU mode — renders via paint. GPU mode — renders via GL.
 
 ---
 

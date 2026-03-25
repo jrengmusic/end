@@ -44,19 +44,19 @@
 
 **Priority:** Medium  
 **Sprint:** 100  
-**Context:** The Windows 10 blur path (`ACCENT_ENABLE_BLURBEHIND` + `AccentFlags=2`) is preserved but untested after Sprint 100 changes: ConPTY sideload always-on, `isWindows10()` moved to `jreng_platform.h`, `enableGLTransparency()` unchanged.
+**Context:** The Windows 10 blur path (`ACCENT_ENABLE_BLURBEHIND` + `AccentFlags=2`) is preserved but untested after Sprint 100 changes: ConPTY sideload always-on, `isWindows10()` moved to `jreng_platform.h`, `enableWindowTransparency()` unchanged.
 
 **Needs:** Build and test on Windows 10 22H2 to verify blur, tint, ConPTY, mouse, and terminal functionality.
 
 ---
 
-## enableGLTransparency() Redundancy on Windows 11
+## enableWindowTransparency() Redundancy on Windows 11
 
 **Priority:** Low  
 **Sprint:** 100  
-**Context:** On Windows 11, `applyDwmGlass()` already strips `WS_EX_LAYERED` and calls `DwmExtendFrameIntoClientArea`. `enableGLTransparency()` does the same — idempotent but redundant. On Windows 10, `enableGLTransparency()` is still required (applyDwmGlass doesn't do these operations on Win10).
+**Context:** On Windows 11, `applyDwmGlass()` already strips `WS_EX_LAYERED` and calls `DwmExtendFrameIntoClientArea`. `enableWindowTransparency()` does the same — idempotent but redundant. On Windows 10, `enableWindowTransparency()` is still required (applyDwmGlass doesn't do these operations on Win10).
 
-**Needs:** Could be guarded with `if (isWindows10())` inside `enableGLTransparency()`, but the redundancy is harmless. Low priority.
+**Needs:** Could be guarded with `if (isWindows10())` inside `enableWindowTransparency()`, but the redundancy is harmless. Low priority.
 
 ---
 

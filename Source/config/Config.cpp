@@ -102,7 +102,7 @@ void Config::initKeys()
     addKey (Key::fontSize, 12.0, { T::number, 1.0, 200.0, true });
 #endif
     addKey (Key::fontLigatures, true, { T::boolean });
-    addKey (Key::fontEmbolden, false, { T::boolean });
+    addKey (Key::fontEmbolden, true, { T::boolean });
 
     addKey (Key::cursorChar, juce::String::charToString (static_cast<juce::juce_wchar> (0x2588)), { T::string });
     addKey (Key::cursorBlink, true, { T::boolean });
@@ -144,6 +144,7 @@ void Config::initKeys()
     addKey (Key::windowAlwaysOnTop, false, { T::boolean });
     addKey (Key::windowButtons, false, { T::boolean });
     addKey (Key::windowZoom, 1.0, { T::number, 0.0, 0.0, false });
+    addKey (Key::gpuAcceleration, "auto", { T::string });
 
     addKey (Key::tabFamily, "Display Mono", { T::string });
     addKey (Key::tabSize, 24.0, { T::number, 1.0, 200.0, true });
@@ -231,6 +232,8 @@ void Config::initKeys()
     addKey (Key::popupWidth, 0.6, { T::number, 0.1, 1.0, true });
     addKey (Key::popupHeight, 0.5, { T::number, 0.1, 1.0, true });
     addKey (Key::popupPosition, "center", { T::string });
+    addKey (Key::popupBorderColour, "#4E8C93", { T::string });// paradiso (same as foreground)
+    addKey (Key::popupBorderWidth, 1.0, { T::number, 0.0, 10.0, true });
 
     addKey (Key::paneBarColour, "#1B2A31", { T::string });///< dark
     addKey (Key::paneBarHighlight, "#4E8C93", { T::string });///< paradiso
@@ -569,8 +572,8 @@ static void loadPopups (const sol::table& popupsTable,
  * @param extensions       Set to populate with lowercase extension strings.
  */
 static void loadHyperlinks (const sol::table& hyperlinksTable,
-                             std::unordered_map<juce::String, juce::String>& handlers,
-                             std::unordered_set<juce::String>& extensions)
+                            std::unordered_map<juce::String, juce::String>& handlers,
+                            std::unordered_set<juce::String>& extensions)
 {
     hyperlinksTable.for_each (
         [&handlers, &extensions] (const sol::object& fieldKey, const sol::object& fieldVal)
@@ -584,8 +587,7 @@ static void loadHyperlinks (const sol::table& hyperlinksTable,
                     fieldVal.as<sol::table>().for_each (
                         [&handlers] (const sol::object& extKey, const sol::object& cmdVal)
                         {
-                            if (extKey.get_type() == sol::type::string
-                                and cmdVal.get_type() == sol::type::string)
+                            if (extKey.get_type() == sol::type::string and cmdVal.get_type() == sol::type::string)
                             {
                                 const juce::String ext { juce::String (extKey.as<std::string>()).toLowerCase() };
                                 handlers.insert_or_assign (ext, juce::String (cmdVal.as<std::string>()));
@@ -1022,6 +1024,5 @@ juce::String Config::getHandler (const juce::String& extension) const noexcept
  */
 bool Config::isClickableExtension (const juce::String& extension) const noexcept
 {
-    return hyperlinkExtensions.count (extension) > 0
-           or hyperlinkHandlers.count (extension) > 0;
+    return hyperlinkExtensions.count (extension) > 0 or hyperlinkHandlers.count (extension) > 0;
 }

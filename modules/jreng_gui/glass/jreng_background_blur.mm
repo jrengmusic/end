@@ -310,29 +310,85 @@ const bool BackgroundBlur::applyNSVisualEffect (juce::Component* component,
 
 
 /**
- * @brief Makes the current NSOpenGLContext surface non-opaque.
+ * @brief Configures the current GL surface for transparent compositing.
  *
- * Retrieves the current NSOpenGLContext and sets
- * @c NSOpenGLContextParameterSurfaceOpacity to 0, allowing the blur layer
- * beneath to show through OpenGL-rendered content.
+ * Sets @c NSOpenGLContextParameterSurfaceOpacity to 0 so the native blur
+ * layer shows through OpenGL-rendered content.
  *
- * @return @c true  if a current context was found and configured.
- * @return @c false if @c [NSOpenGLContext currentContext] returned @c nil.
+ * Does NOT touch the NSWindow — window transparency is managed by apply()
+ * and disableWindowTransparency() on the message thread.
+ *
+ * @return @c true  if a current GL context was found and configured.
+ * @return @c false if no GL context is current.
  *
  * @note Must be called from the OpenGL render thread while the context is
- *       current (e.g. inside @c OpenGLRenderer::renderOpenGL()).
+ *       current (e.g. inside @c glContextCreated()).
  */
-const bool BackgroundBlur::enableGLTransparency()
+const bool BackgroundBlur::enableWindowTransparency()
 {
     NSOpenGLContext* ctx = [NSOpenGLContext currentContext];
 
-    if (ctx == nil)
-        return false;
+    if (ctx != nil)
+    {
+        GLint opaque = 0;
+        [ctx setValues:&opaque forParameter:NSOpenGLContextParameterSurfaceOpacity];
+        return true;
+    }
 
-    GLint opaque = 0;
-    [ctx setValues:&opaque forParameter:NSOpenGLContextParameterSurfaceOpacity];
+    return false;
+}
 
-    return true;
+/**
+ * @brief Restores the window to opaque rendering.
+ *
+ * Reverses the effects of apply():
+ * 1. Sets blur radius to 0 via CGS private SPI (if available).
+ * 2. Removes any NSVisualEffectView subview added by applyNSVisualEffect().
+ * 3. Sets the window opaque with a solid background colour.
+ *
+ * @param component  JUCE component whose native NSWindow is restored.
+ * @note MESSAGE THREAD.
+ */
+void BackgroundBlur::disableWindowTransparency (juce::Component* component)
+{
+    NSWindow* window = nil;
+
+    if (auto* peer { component->getPeer() })
+    {
+        NSView* view = (NSView*) peer->getNativeHandle();
+        window = [view window];
+    }
+
+    if (window != nil)
+    {
+        // Remove CGS blur radius.
+        if (isCoreGraphicsAvailable())
+        {
+            auto CGSMainConnectionID = (CGSMainConnectionID_Func) dlsym (
+                RTLD_DEFAULT, "CGSMainConnectionID");
+            auto CGSSetWindowBackgroundBlurRadius =
+                (CGSSetWindowBackgroundBlurRadius_Func) dlsym (
+                    RTLD_DEFAULT, "CGSSetWindowBackgroundBlurRadius");
+
+            if (CGSMainConnectionID != nullptr and CGSSetWindowBackgroundBlurRadius != nullptr)
+            {
+                auto connection = CGSMainConnectionID();
+                CGSSetWindowBackgroundBlurRadius (connection, [window windowNumber], 0);
+            }
+        }
+
+        // Remove NSVisualEffectView if present.
+        for (NSView* subview in [[[window contentView] subviews] copy])
+        {
+            if ([subview isKindOfClass:[NSVisualEffectView class]])
+            {
+                [subview removeFromSuperview];
+            }
+        }
+
+        [window setOpaque:YES];
+        [window setBackgroundColor:[NSColor blackColor]];
+    }
 }
 
 /**

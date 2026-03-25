@@ -130,9 +130,9 @@ public:
         const auto* cfg { Config::getContext() };
         const auto bgColour { cfg->getColour (Config::Key::windowColour) };
         const auto fgColour { cfg->getColour (Config::Key::overlayColour) };
-        const juce::FontOptions fontOptions { cfg->getString (Config::Key::overlayFamily),
-                                              cfg->getFloat (Config::Key::overlaySize),
-                                              juce::Font::plain };
+        const juce::FontOptions fontOptions { juce::FontOptions()
+                                                .withName (cfg->getString (Config::Key::overlayFamily))
+                                                .withPointHeight (cfg->getFloat (Config::Key::overlaySize)) };
 
         g.fillAll (bgColour.withAlpha (backgroundAlpha));
         g.setFont (fontOptions);

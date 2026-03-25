@@ -38,47 +38,53 @@ void GLTextRenderer::createContext() noexcept
     }
 
     ++sharedAtlasRefCount;
+    contextInitialised = true;
 }
 
 void GLTextRenderer::closeContext() noexcept
 {
-    monoShader.reset();
-    emojiShader.reset();
-    backgroundShader.reset();
-
-    --sharedAtlasRefCount;
-
-    if (sharedAtlasRefCount == 0)
+    if (contextInitialised)
     {
-        if (sharedMonoAtlas != 0)
+        contextInitialised = false;
+
+        monoShader.reset();
+        emojiShader.reset();
+        backgroundShader.reset();
+
+        --sharedAtlasRefCount;
+
+        if (sharedAtlasRefCount == 0)
         {
-            juce::gl::glDeleteTextures (1, &sharedMonoAtlas);
-            sharedMonoAtlas = 0;
+            if (sharedMonoAtlas != 0)
+            {
+                juce::gl::glDeleteTextures (1, &sharedMonoAtlas);
+                sharedMonoAtlas = 0;
+            }
+
+            if (sharedEmojiAtlas != 0)
+            {
+                juce::gl::glDeleteTextures (1, &sharedEmojiAtlas);
+                sharedEmojiAtlas = 0;
+            }
         }
 
-        if (sharedEmojiAtlas != 0)
+        if (vao != 0)
         {
-            juce::gl::glDeleteTextures (1, &sharedEmojiAtlas);
-            sharedEmojiAtlas = 0;
+            juce::gl::glDeleteVertexArrays (1, &vao);
+            vao = 0;
         }
-    }
 
-    if (vao != 0)
-    {
-        juce::gl::glDeleteVertexArrays (1, &vao);
-        vao = 0;
-    }
+        if (quadVBO != 0)
+        {
+            juce::gl::glDeleteBuffers (1, &quadVBO);
+            quadVBO = 0;
+        }
 
-    if (quadVBO != 0)
-    {
-        juce::gl::glDeleteBuffers (1, &quadVBO);
-        quadVBO = 0;
-    }
-
-    if (instanceVBO != 0)
-    {
-        juce::gl::glDeleteBuffers (1, &instanceVBO);
-        instanceVBO = 0;
+        if (instanceVBO != 0)
+        {
+            juce::gl::glDeleteBuffers (1, &instanceVBO);
+            instanceVBO = 0;
+        }
     }
 }
 

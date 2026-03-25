@@ -315,6 +315,9 @@ private:
     /** @brief Reference count for shared atlas textures. Incremented in createContext, decremented in closeContext. */
     static int sharedAtlasRefCount;
 
+    /** @brief True if this instance called createContext(). Guards closeContext(). */
+    bool contextInitialised { false };
+
     /** @brief Vertex array object shared by all draw calls. 0 until `createContext()`. */
     GLuint vao         { 0 };
 
