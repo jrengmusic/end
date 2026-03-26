@@ -27,12 +27,17 @@
  */
 
 #include "Screen.h"
-// BoxDrawing is now jreng::Glyph::BoxDrawing, available via JuceHeader → jreng_glyph
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 
 // MESSAGE THREAD
+
+/// @brief DECSCUSR Ps value for the block cursor shape (forced in selection mode).
+static constexpr int cursorShapeBlock { 1 };
+
+/// @brief Sentinel value indicating no OSC 12 cursor colour override is active.
+static constexpr float cursorColorNoOverride { -1.0f };
 
 /**
  * @brief Packs per-row caches into a `Render::Snapshot` and publishes it.
@@ -77,9 +82,12 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
 
     for (int r { 0 }; r < rows; ++r)
     {
-        totalMono  += monoCount[r];
-        totalEmoji += emojiCount[r];
-        totalBg    += bgCount[r];
+        if (isRowIncludedInSnapshot (r))
+        {
+            totalMono  += monoCount[r];
+            totalEmoji += emojiCount[r];
+            totalBg    += bgCount[r];
+        }
     }
 
     snapshot.ensureCapacity (totalMono, totalEmoji, totalBg);
@@ -95,28 +103,31 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
 
     for (int r { 0 }; r < rows; ++r)
     {
-        if (monoCount[r] > 0)
+        if (isRowIncludedInSnapshot (r))
         {
-            std::memcpy (snapshot.mono.get() + monoOffset,
-                         cachedMono.get() + r * maxGlyphs,
-                         static_cast<size_t> (monoCount[r]) * sizeof (Render::Glyph));
-            monoOffset += monoCount[r];
-        }
+            if (monoCount[r] > 0)
+            {
+                std::memcpy (snapshot.mono.get() + monoOffset,
+                             cachedMono.get() + r * maxGlyphs,
+                             static_cast<size_t> (monoCount[r]) * sizeof (Render::Glyph));
+                monoOffset += monoCount[r];
+            }
 
-        if (emojiCount[r] > 0)
-        {
-            std::memcpy (snapshot.emoji.get() + emojiOffset,
-                         cachedEmoji.get() + r * maxGlyphs,
-                         static_cast<size_t> (emojiCount[r]) * sizeof (Render::Glyph));
-            emojiOffset += emojiCount[r];
-        }
+            if (emojiCount[r] > 0)
+            {
+                std::memcpy (snapshot.emoji.get() + emojiOffset,
+                             cachedEmoji.get() + r * maxGlyphs,
+                             static_cast<size_t> (emojiCount[r]) * sizeof (Render::Glyph));
+                emojiOffset += emojiCount[r];
+            }
 
-        if (bgCount[r] > 0)
-        {
-            std::memcpy (snapshot.backgrounds.get() + bgOffset,
-                         cachedBg.get() + r * bgCacheCols,
-                         static_cast<size_t> (bgCount[r]) * sizeof (Render::Background));
-            bgOffset += bgCount[r];
+            if (bgCount[r] > 0)
+            {
+                std::memcpy (snapshot.backgrounds.get() + bgOffset,
+                             cachedBg.get() + r * bgCacheCols,
+                             static_cast<size_t> (bgCount[r]) * sizeof (Render::Background));
+                bgOffset += bgCount[r];
+            }
         }
     }
 
@@ -136,10 +147,10 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
         snapshot.cursorPosition.x = selectionCursorCol;
         snapshot.cursorPosition.y = selectionCursorRow;
         snapshot.cursorVisible    = true;
-        snapshot.cursorShape      = 1;  // block — force geometric, no user glyph.
-        snapshot.cursorColorR     = -1.0f;
-        snapshot.cursorColorG     = -1.0f;
-        snapshot.cursorColorB     = -1.0f;
+        snapshot.cursorShape      = cursorShapeBlock;
+        snapshot.cursorColorR     = cursorColorNoOverride;
+        snapshot.cursorColorG     = cursorColorNoOverride;
+        snapshot.cursorColorB     = cursorColorNoOverride;
         snapshot.cursorBlinkOn    = true;
         snapshot.scrollOffset     = 0;
 

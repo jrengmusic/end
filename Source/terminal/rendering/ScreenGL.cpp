@@ -14,7 +14,6 @@
  * @see jreng::Glyph::GLTextRenderer
  */
 #include "Screen.h"
-#include <array>
 
 namespace Terminal
 { /*____________________________________________________________________________*/

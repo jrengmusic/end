@@ -278,11 +278,13 @@ void State::setMode (const juce::Identifier& id, bool v) noexcept
 void State::setCursorRow (ActiveScreen s, int row) noexcept
 {
     storeAndFlush (screenKey (s, ID::cursorRow), static_cast<float> (row));
+    setSnapshotDirty();
 }
 /** @note READER THREAD — key is built via `screenKey (s, ID::cursorCol)`. */
 void State::setCursorCol (ActiveScreen s, int col) noexcept
 {
     storeAndFlush (screenKey (s, ID::cursorCol), static_cast<float> (col));
+    setSnapshotDirty();
 }
 /** @note READER THREAD — key is built via `screenKey (s, ID::cursorVisible)`. */
 void State::setCursorVisible (ActiveScreen s, bool v) noexcept

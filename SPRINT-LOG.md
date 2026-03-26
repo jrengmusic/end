@@ -2,6 +2,70 @@
 
 ---
 
+## Sprint 122: Pre-Plan 5 — CPU Fixes, OSC Completion, Polish
+
+**Date:** 2026-03-26
+**Duration:** ~6h
+
+### Agents Participated
+- COUNSELOR: Led diagnosis, planning, delegation, SPEC/PLAN audit coordination
+- Pathfinder (x3): Block char rendering pipeline, OSC dispatch/cwd tracking, action registration pattern
+- Engineer (x4): Cursor trail fix, dirty-row packing, OSC 9/777 handlers, new_window action
+- Auditor (x3): Cursor fix verification, snapshot packing verification, OSC 9/777 cross-platform audit
+- Auditor (x1): Comprehensive 21-finding audit (Sprint 121 through current)
+- Machinist: Polish all 21 audit findings to production quality
+- Librarian: JUCE PushNotifications/notification API research
+
+### Files Modified (28 total)
+- `Source/terminal/rendering/Screen.h` — `previousCursorRow` member, `isRowIncludedInSnapshot()` helper, `maxGlyphsPerRow` member, doxygen fixes (OpenGL→GPU/CPU, @param font→typeface), `Resources() = default`
+- `Source/terminal/rendering/Screen.cpp` — `maxGlyphsPerRow` set in `allocateRenderCache()`
+- `Source/terminal/rendering/ScreenRender.cpp` — previousCursorRow dirty marking in `buildSnapshot()`, `maxGlyphsPerRow` replaces 5 local computations, stale migration comments removed, `ResolvedColors rc {}`
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — dirty-row packing gate via `isRowIncludedInSnapshot()`, `cursorShapeBlock` and `cursorColorNoOverride` constants, stale migration comment removed
+- `Source/terminal/rendering/ScreenGL.cpp` — removed unused `#include <array>`
+- `Source/terminal/data/State.cpp:278-285` — `setCursorRow` and `setCursorCol` now call `setSnapshotDirty()`
+- `modules/jreng_graphics/rendering/jreng_graphics_text_renderer.cpp:149` — C-style cast → `static_cast`
+- `Source/terminal/logic/Parser.h` — `onDesktopNotification` callback, `handleOscNotification`/`handleOsc777` declarations
+- `Source/terminal/logic/ParserESC.cpp` — OSC 9/777 switch cases and handler implementations
+- `Source/terminal/logic/Session.h` — `onDesktopNotification` callback
+- `Source/terminal/logic/Session.cpp` — `parser.onDesktopNotification` wiring
+- `Source/component/TerminalComponent.h` — `applyScreenSettings()` declaration
+- `Source/component/TerminalComponent.cpp` — `applyScreenSettings()` extracted (DRY), `session.onDesktopNotification` → `Notifications::show()`, removed `ignoreUnused(type)`
+- `Source/terminal/notifications/Notifications.h` — NEW: cross-platform notification API
+- `Source/terminal/notifications/Notifications.mm` — NEW: macOS UNUserNotificationCenter with foreground delegate
+- `Source/terminal/notifications/Notifications.cpp` — NEW: Windows/Linux fallback
+- `Source/terminal/shell/zsh_end_integration.zsh` — OSC 7 cwd emission
+- `Source/terminal/shell/bash_integration.bash` — OSC 7 cwd emission
+- `Source/terminal/shell/fish/vendor_conf.d/end-shell-integration.fish` — OSC 7 cwd emission
+- `Source/terminal/shell/powershell_integration.ps1` — OSC 7 cwd emission
+- `Source/config/default_end.lua` — `new_window` key binding
+- `Source/config/Config.h` — `Key::keysNewWindow`
+- `Source/config/Config.cpp` — `addKey` for `new_window` (cmd+n)
+- `Source/terminal/action/Action.cpp` — `new_window` in `actionKeyTable`
+- `Source/MainComponent.cpp` — `new_window` action registration (`open -n` on macOS), PLAN.md method name fixes
+- `CMakeLists.txt` — weak-linked `UserNotifications.framework`
+- `SPEC.md` — 8 status updates (focus events, BEL, ConPTY, error display, OSC 7, OSC 9/777, multi-window, OSC 52 checkbox)
+- `PLAN.md` — stale method names corrected (`createContext`, `closeContext`, `getAtlasDimension`)
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+
+### Problems Solved
+- **CPU cursor trails:** Cursor drawn as overlay on persistent renderTarget. Previous cursor row never marked dirty → stale pixels. Fix: mark previousCursorRow dirty each frame in `buildSnapshot()`.
+- **CPU block char alpha accumulation:** `drawBackgrounds()` drew ALL rows every frame. Shade blocks (U+2591-2593, alpha 0.25/0.50/0.75) blended on top of previous frame's pixels → progressive darkening. Fix: only pack dirty rows into snapshot for CPU path via `if constexpr` template gate.
+- **Cursor-up not repainting:** `setCursorRow()` called `storeAndFlush()` but not `setSnapshotDirty()`. Cursor-only moves (no cell writes) were invisible to the repaint chain. Fix: `setCursorRow`/`setCursorCol` now call `setSnapshotDirty()`.
+- **macOS new_window launch failure:** `juce::File::startAsProcess()` goes through Launch Services → `-10652` on debug builds. `juce::ChildProcess` destructor kills spawned process. Fix: `std::system("open -n ...")`.
+- **macOS foreground notifications suppressed:** `UNUserNotificationCenter` silently drops notifications for the active app. Fix: `EndNotificationDelegate` implements `willPresentNotification:` with banner+sound options.
+
+### Technical Debt / Follow-up
+- **Sprint 121 scroll-region debt remains open** — "primitive background quads show old content during scroll region operations where viewportChanged is false." Not addressed by cursor/packing fixes.
+- **Windows notifications** — stderr + MessageBeep fallback. WinRT ToastNotification requires COM setup and app identity. Deferred until Windows packaging is finalised.
+- **Linux notifications** — `notify-send` via `std::system()`. Works if libnotify-bin is installed. No D-Bus fallback.
+- **State serialization** — spec written but unimplemented. Highest-value remaining feature for daily-driver use.
+
+---
+
 ## Sprint 121: Plan 4 — Runtime GPU/CPU Switching
 
 **Date:** 2026-03-26

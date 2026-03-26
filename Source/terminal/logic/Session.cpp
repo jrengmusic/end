@@ -103,6 +103,13 @@ void Session::setupCallbacks()
             onBell();
         }
     };
+    parser.onDesktopNotification = [this] (const juce::String& title, const juce::String& body)
+    {
+        if (onDesktopNotification)
+        {
+            onDesktopNotification (title, body);
+        }
+    };
 
     state.onFlush = [this]
     {

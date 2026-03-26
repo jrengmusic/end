@@ -50,8 +50,6 @@
  */
 
 #include "Screen.h"
-// BoxDrawing is now jreng::Glyph::BoxDrawing, available via JuceHeader → jreng_glyph
-// GlyphConstraint is now jreng::Glyph::Constraint, available via JuceHeader → jreng_glyph
 
 
 namespace Terminal
@@ -195,7 +193,7 @@ struct ResolvedColors
  */
 static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) noexcept
 {
-    ResolvedColors rc;
+    ResolvedColors rc {};
     rc.fg = resolveForeground (cell, theme);
     rc.bg = resolveBackground (cell.bg, theme);
 
@@ -487,8 +485,6 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
     const int cols { state.getCols() };
     const int rows { state.getVisibleRows() };
     const int offset { state.getScrollOffset() };
-    const int maxGlyphs { cacheCols * 2 };
-
     // Always consume Grid dirty bits to keep them from accumulating.
     // If a full rebuild is requested, override with all-ones so every row
     // is processed — same initial state as a first-frame render.
@@ -581,7 +577,19 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
         }
     }
 
-    updateSnapshot (state, rows, maxGlyphs);
+    // Mark previous cursor row dirty — clears stale cursor overlay pixels
+    // from the persistent CPU render target. Cost: one row clear per frame.
+    if (previousCursorRow >= 0 and previousCursorRow < rows)
+    {
+        const int word { previousCursorRow >> 6 };
+        const uint64_t bit { static_cast<uint64_t> (1) << (previousCursorRow & 63) };
+        frameDirtyBits[word] |= bit;
+    }
+
+    const ActiveScreen scr { state.getScreen() };
+    previousCursorRow = state.getCursorRow (scr);
+
+    updateSnapshot (state, rows, maxGlyphsPerRow);
 }
 
 // =========================================================================
@@ -674,11 +682,10 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
 
             if (atlasGlyph != nullptr)
             {
-                const int maxGlyphs { cacheCols * 2 };
                 int& count { monoCount[row] };
-                Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
+                Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
 
-                if (count < maxGlyphs)
+                if (count < maxGlyphsPerRow)
                 {
                     const float ascender { static_cast<float> (physBaseline) };
                     Render::Glyph& instance { slot[count] };
@@ -777,9 +784,8 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
 
                 if (usedFontCollection)
                 {
-                    const int maxGlyphs { cacheCols * 2 };
                     int& count { monoCount[row] };
-                    Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
+                    Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
 
                     jreng::Font fontObj (font, baseFontSize, style);
                     jreng::Typeface::GlyphRun registryRun;
@@ -791,7 +797,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                                              static_cast<float> (col * physCellWidth),
                                              static_cast<float> (row * physCellHeight),
                                              physBaseline, foreground,
-                                             slot, maxGlyphs, count);
+                                             slot, maxGlyphsPerRow, count);
                 }
                 else if (ligatureEnabled and not isEmoji and cell.codepoint > 0 and cell.codepoint < asciiCeiling)
                 {
@@ -808,9 +814,8 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
 
                         if (shaped.count > 0)
                         {
-                            const int maxGlyphs { cacheCols * 2 };
                             int& count { monoCount[row] };
-                            Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
+                            Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
 
                             jreng::Font fontObj (font, baseFontSize, style);
 
@@ -824,7 +829,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                                                      static_cast<float> (col * physCellWidth),
                                                      static_cast<float> (row * physCellHeight),
                                                      physBaseline, foreground,
-                                                     slot, maxGlyphs, count);
+                                                     slot, maxGlyphsPerRow, count);
                         }
                     }
                 }
@@ -836,11 +841,10 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
 
                     if (shaped.count > 0)
                     {
-                        const int maxGlyphs { cacheCols * 2 };
                         int& count { isEmoji ? emojiCount[row] : monoCount[row] };
                         Render::Glyph* slot { isEmoji
-                            ? cachedEmoji.get() + row * maxGlyphs
-                            : cachedMono.get() + row * maxGlyphs };
+                            ? cachedEmoji.get() + row * maxGlyphsPerRow
+                            : cachedMono.get() + row * maxGlyphsPerRow };
 
                         jreng::Font fontObj (font, baseFontSize, style);
                         fontObj.setEmoji (isEmoji);
@@ -855,7 +859,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                                                  static_cast<float> (col * physCellWidth),
                                                  static_cast<float> (row * physCellHeight),
                                                  physBaseline, foreground,
-                                                 slot, maxGlyphs, count);
+                                                 slot, maxGlyphsPerRow, count);
                     }
                 }
             }
@@ -931,9 +935,8 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jreng
 
                     if (shaped.count > 0 and shaped.count < tryLen)
                     {
-                        const int maxGlyphs { cacheCols * 2 };
                         int& count { monoCount[row] };
-                        Render::Glyph* slot { cachedMono.get() + row * maxGlyphs };
+                        Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
 
                         jreng::Font fontObj (font, baseFontSize, style);
 
@@ -957,7 +960,7 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jreng
                                                  static_cast<float> (col * physCellWidth),
                                                  static_cast<float> (row * physCellHeight),
                                                  physBaseline, foreground,
-                                                 slot, maxGlyphs, count);
+                                                 slot, maxGlyphsPerRow, count);
 
                         result = tryLen - 1;
                     }

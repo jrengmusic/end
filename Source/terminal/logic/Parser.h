@@ -260,6 +260,19 @@ public:
      */
     std::function<void()> onBell;
 
+    /**
+     * @brief Callback invoked when the terminal requests a desktop notification.
+     *
+     * Triggered by OSC 9 (`ESC]9;<body>BEL`) and OSC 777
+     * (`ESC]777;notify;<title>;<body>BEL`).  For OSC 9, `title` is empty.
+     *
+     * @note READER THREAD — dispatched to the message thread via `callAsync`.
+     *
+     * @see handleOscNotification()
+     * @see handleOsc777()
+     */
+    std::function<void (const juce::String&, const juce::String&)> onDesktopNotification;
+
     // =========================================================================
 
     /**
@@ -1281,6 +1294,39 @@ private:
      * @see onClipboardChanged
      */
     void handleOscClipboard (const uint8_t* data, uint16_t dataLength) noexcept;
+
+    /**
+     * @brief Handles OSC 9 — desktop notification (body only).
+     *
+     * The entire payload is treated as the notification body; title is empty.
+     * Invokes `onDesktopNotification` on the message thread.
+     *
+     * @param data        Pointer to the OSC 9 payload bytes (after "9;").
+     *                    Not null-terminated.
+     * @param dataLength  Number of bytes in `data`.
+     *
+     * @note READER THREAD only.  `onDesktopNotification` dispatched via `callAsync`.
+     *
+     * @see onDesktopNotification
+     */
+    void handleOscNotification (const uint8_t* data, uint16_t dataLength) noexcept;
+
+    /**
+     * @brief Handles OSC 777 — desktop notification with title and body.
+     *
+     * Payload format: `notify;<title>;<body>`.  Verifies the `notify;` prefix,
+     * then extracts title and body separated by `;`.  Invokes
+     * `onDesktopNotification` on the message thread.
+     *
+     * @param data        Pointer to the OSC 777 payload bytes (after "777;").
+     *                    Not null-terminated.
+     * @param dataLength  Number of bytes in `data`.
+     *
+     * @note READER THREAD only.  `onDesktopNotification` dispatched via `callAsync`.
+     *
+     * @see onDesktopNotification
+     */
+    void handleOsc777 (const uint8_t* data, uint16_t dataLength) noexcept;
 
     /**
      * @brief Called when a DCS (Device Control String) sequence is hooked.

@@ -499,6 +499,8 @@ if(APPLE)
         XCODE_SCHEME_NAME "${PROJECT_NAME}"
     )
 
+    target_link_libraries(${TARGET_NAME} PRIVATE "-weak_framework UserNotifications")
+
     if(TARGET ${TARGET_NAME}_BinaryData)
         set_target_properties(${TARGET_NAME}_BinaryData PROPERTIES
             XCODE_GENERATE_SCHEME OFF

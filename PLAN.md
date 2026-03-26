@@ -105,8 +105,8 @@ void drawGlyphs (const uint16_t* glyphCodes,
                  int count) noexcept;
 
 // Required by Screen<Renderer>:
-void contextCreated() noexcept;           // GL: compile shaders. Graphics: no-op.
-void contextClosing() noexcept;           // GL: release GPU. Graphics: no-op.
+void createContext() noexcept;            // GL: compile shaders. Graphics: no-op.
+void closeContext() noexcept;             // GL: release GPU. Graphics: no-op.
 bool isReady() const noexcept;            // GL: shaders compiled. Graphics: always true.
 void uploadStagedBitmaps (jreng::Typeface&) noexcept;  // GL: glTexSubImage2D. Graphics: copy to juce::Image.
 void setViewportSize (int w, int h) noexcept;
@@ -114,7 +114,7 @@ void push (int x, int y, int w, int h, int fullHeight) noexcept;
 void pop() noexcept;
 void drawQuads (const Render::Quad* data, int count, bool isEmoji) noexcept;
 void drawBackgrounds (const Render::Background* data, int count) noexcept;
-static constexpr int atlasDimension() noexcept;  // 4096
+static constexpr int getAtlasDimension() noexcept;  // GL: 4096, CPU: 2048
 ```
 
 ---

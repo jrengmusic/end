@@ -26,6 +26,7 @@ static const ActionKeyEntry actionKeyTable[]
     { Config::Key::keysZoomIn,           "zoom_in",          false },
     { Config::Key::keysZoomOut,          "zoom_out",         false },
     { Config::Key::keysZoomReset,        "zoom_reset",       false },
+    { Config::Key::keysNewWindow,        "new_window",       false },
     { Config::Key::keysNewTab,           "new_tab",          false },
     { Config::Key::keysPrevTab,          "prev_tab",         false },
     { Config::Key::keysNextTab,          "next_tab",         false },

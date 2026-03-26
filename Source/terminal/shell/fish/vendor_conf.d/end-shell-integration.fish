@@ -13,6 +13,7 @@ end
 
 # Install hooks
 function _end_precmd --on-event fish_prompt
+    printf '\033]7;file://%s%s\a' (hostname) $PWD
     printf '\033]133;A\a'
 end
 

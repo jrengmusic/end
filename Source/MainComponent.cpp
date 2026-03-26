@@ -331,6 +331,26 @@ void MainComponent::registerActions()
                                return true;
                            });
 
+    action.registerAction ("new_window",
+                           "New Window",
+                           "Open a new terminal window",
+                           "Window",
+                           false,
+                           []() -> bool
+                           {
+                               const juce::File app { juce::File::getSpecialLocation (
+                                   juce::File::currentApplicationFile) };
+
+                           #if JUCE_MAC
+                               const juce::String cmd { "open -n \"" + app.getFullPathName() + "\" &" };
+                               std::system (cmd.toRawUTF8());
+                           #else
+                               app.startAsProcess();
+                           #endif
+
+                               return true;
+                           });
+
     action.registerAction ("new_tab",
                            "New Tab",
                            "Open a new terminal tab",

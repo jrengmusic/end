@@ -268,6 +268,10 @@ public:
     /** Called when the terminal rings the bell (BEL, 0x07). */
     std::function<void()> onBell;
 
+    /** Called when the terminal requests a desktop notification (OSC 9 / OSC 777).
+     *  `title` is empty for OSC 9. */
+    std::function<void (const juce::String&, const juce::String&)> onDesktopNotification;
+
     /** @} */
 
 private:
@@ -282,6 +286,7 @@ private:
      * - `tty->onExit` → `onShellExited` (via callAsync)
      * - `parser.onClipboardChanged` → `onClipboardChanged` (via callAsync)
      * - `parser.onBell` → `onBell` (via callAsync)
+     * - `parser.onDesktopNotification` → `onDesktopNotification` (via callAsync)
      *
      * @note Called once from the constructor on the MESSAGE THREAD.
      */

@@ -381,6 +381,9 @@ END = {
 		-- Reset zoom to 1.0.
 		zoom_reset = "%%keys_zoom_reset%%",
 
+		-- Open a new window.
+		new_window = "%%keys_new_window%%",
+
 		-- Open a new tab.
 		new_tab = "%%keys_new_tab%%",
 

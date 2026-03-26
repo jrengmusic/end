@@ -525,6 +525,100 @@ void Parser::handleOscClipboard (const uint8_t* data, uint16_t dataLength) noexc
 }
 
 /**
+ * @brief Handles OSC 9 — desktop notification (body only).
+ *
+ * The entire payload is treated as the notification body; title is empty.
+ * Invokes `onDesktopNotification ({}, body)` on the message thread.
+ *
+ * @par Sequence
+ * @code
+ *   ESC ] 9 ; <message> BEL
+ * @endcode
+ *
+ * @param data        Pointer to the OSC 9 payload bytes (after "9;").
+ *                    Not null-terminated.
+ * @param dataLength  Number of bytes in `data`.
+ *
+ * @note READER THREAD only.  `onDesktopNotification` dispatched via `callAsync`.
+ *
+ * @see onDesktopNotification
+ * @see oscDispatch()
+ */
+void Parser::handleOscNotification (const uint8_t* data, uint16_t dataLength) noexcept
+{
+    if (dataLength > 0 and onDesktopNotification)
+    {
+        const juce::String body { juce::String::fromUTF8 (
+            reinterpret_cast<const char*> (data), static_cast<int> (dataLength)) };
+
+        juce::MessageManager::callAsync ([this, body] { onDesktopNotification ({}, body); });
+    }
+}
+
+/**
+ * @brief Handles OSC 777 — desktop notification with title and body.
+ *
+ * Verifies the `notify;` prefix, then extracts title and body separated by `;`.
+ * Invokes `onDesktopNotification (title, body)` on the message thread.
+ *
+ * @par Sequence
+ * @code
+ *   ESC ] 777 ; notify ; <title> ; <body> BEL
+ * @endcode
+ *
+ * @par Validation
+ * - Payloads shorter than 8 bytes are silently ignored.
+ * - Payloads not beginning with `notify;` are silently ignored.
+ *
+ * @param data        Pointer to the OSC 777 payload bytes (after "777;").
+ *                    Not null-terminated.
+ * @param dataLength  Number of bytes in `data`.
+ *
+ * @note READER THREAD only.  `onDesktopNotification` dispatched via `callAsync`.
+ *
+ * @see onDesktopNotification
+ * @see oscDispatch()
+ */
+void Parser::handleOsc777 (const uint8_t* data, uint16_t dataLength) noexcept
+{
+    // Format: notify;title;body
+    // data points after "777;", so it starts with "notify;..."
+    if (dataLength > 7 and onDesktopNotification)
+    {
+        // Verify "notify;" prefix
+        static constexpr uint8_t prefix[] { 'n', 'o', 't', 'i', 'f', 'y', ';' };
+
+        if (std::memcmp (data, prefix, 7) == 0)
+        {
+            const uint8_t* titleStart { data + 7 };
+            const uint16_t remaining { static_cast<uint16_t> (dataLength - 7) };
+
+            // Find semicolon separating title from body
+            uint16_t titleLen { 0 };
+
+            while (titleLen < remaining and titleStart[titleLen] != ';')
+            {
+                ++titleLen;
+            }
+
+            const juce::String title { juce::String::fromUTF8 (
+                reinterpret_cast<const char*> (titleStart), static_cast<int> (titleLen)) };
+
+            juce::String body;
+
+            if (titleLen + 1 < remaining)
+            {
+                body = juce::String::fromUTF8 (
+                    reinterpret_cast<const char*> (titleStart + titleLen + 1),
+                    static_cast<int> (remaining - titleLen - 1));
+            }
+
+            juce::MessageManager::callAsync ([this, title, body] { onDesktopNotification (title, body); });
+        }
+    }
+}
+
+/**
  * @brief Dispatches a complete OSC (Operating System Command) string.
  *
  * Called by `performAction()` when the `oscEnd` action fires (BEL or ST
@@ -532,16 +626,18 @@ void Parser::handleOscClipboard (const uint8_t* data, uint16_t dataLength) noexc
  * `payload` via `parseOscHeader()` and routes to the appropriate handler.
  *
  * @par Supported OSC commands
- * | Command | Name                     | Handler                  |
- * |---------|--------------------------|--------------------------|
- * | 0       | Icon + title             | `handleOscTitle()`       |
- * | 2       | Window title             | `handleOscTitle()`       |
- * | 7       | Working directory         | `handleOscCwd()`         |
- * | 12      | Set cursor color         | `handleOscCursorColor()` |
- * | 52      | Clipboard write          | `handleOscClipboard()`   |
+ * | Command | Name                     | Handler                       |
+ * |---------|--------------------------|-------------------------------|
+ * | 0       | Icon + title             | `handleOscTitle()`            |
+ * | 2       | Window title             | `handleOscTitle()`            |
+ * | 7       | Working directory         | `handleOscCwd()`              |
+ * | 9       | Desktop notification     | `handleOscNotification()`     |
+ * | 12      | Set cursor color         | `handleOscCursorColor()`      |
+ * | 52      | Clipboard write          | `handleOscClipboard()`        |
  * | 112     | Reset cursor color       | `handleOscResetCursorColor()` |
- * | 133     | Shell integration marker | `handleOsc133()`         |
- * | Other   | —                        | silently ignored         |
+ * | 133     | Shell integration marker | `handleOsc133()`              |
+ * | 777     | Desktop notification     | `handleOsc777()`              |
+ * | Other   | —                        | silently ignored              |
  *
  * @par Sequence format
  * @code
@@ -576,9 +672,11 @@ void Parser::oscDispatch (const uint8_t* payload, uint16_t length) noexcept
                 case 2:     handleOscTitle (data, dataLength);                   break;
                 case 7:     handleOscCwd (data, dataLength);                     break;
                 case 8:     handleOsc8 (data, dataLength);                       break;
+                case 9:     handleOscNotification (data, dataLength);            break;
                 case 12:    handleOscCursorColor (data, dataLength);             break;
                 case 52:    handleOscClipboard (data, dataLength);               break;
                 case 133:   handleOsc133 (state.getScreen(), data, dataLength);  break;
+                case 777:   handleOsc777 (data, dataLength);                     break;
                 default:    break;
             }
         }

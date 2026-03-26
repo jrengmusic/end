@@ -11,6 +11,8 @@ function prompt {
     $exitCode = $global:LASTEXITCODE
     # OSC 133 D - command finished
     $Host.UI.Write("`e]133;D;$exitCode`a")
+    # OSC 7 - current working directory
+    $Host.UI.Write("`e]7;file://$([System.Net.Dns]::GetHostName())$($PWD.Path)`a")
     # OSC 133 A - prompt start
     $Host.UI.Write("`e]133;A`a")
     # Run original prompt

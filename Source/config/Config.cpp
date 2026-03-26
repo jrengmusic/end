@@ -198,6 +198,7 @@ void Config::initKeys()
     addKey (Key::keysZoomIn, "cmd+=", { T::string });
     addKey (Key::keysZoomOut, "cmd+-", { T::string });
     addKey (Key::keysZoomReset, "cmd+0", { T::string });
+    addKey (Key::keysNewWindow, "cmd+n", { T::string });
     addKey (Key::keysNewTab, "cmd+t", { T::string });
     addKey (Key::keysPrevTab, "cmd+[", { T::string });
     addKey (Key::keysNextTab, "cmd+]", { T::string });

@@ -146,7 +146,7 @@ void GraphicsTextRenderer::prepareFrame (const uint64_t* dirtyRows, int scrollDe
             for (int r { 0 }; r < totalRows; ++r)
             {
                 const int word { r >> 6 };
-                const uint64_t bit { uint64_t (1) << (r & 63) };
+                const uint64_t bit { static_cast<uint64_t> (1) << (r & 63) };
 
                 if ((dirtyRows[word] & bit) != 0)
                 {

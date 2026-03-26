@@ -1,6 +1,6 @@
 /**
  * @file Screen.h
- * @brief Render coordinator: cell cache, snapshot builder, and OpenGL presenter.
+ * @brief Render coordinator: cell cache, snapshot builder, and GPU/CPU presenter.
  *
  * `Screen` is the central render coordinator for the terminal emulator.  It
  * sits between the data layer (`Grid`, `State`) and the GPU layer
@@ -13,7 +13,7 @@
  * 2. **Snapshot builder** — `buildSnapshot()` / `updateSnapshot()` pack the
  *    per-row caches into a contiguous `Render::Snapshot` and publish it via
  *    `jreng::SnapshotBuffer`.
- * 3. **OpenGL presenter** — reads snapshots from the snapshot buffer and draws
+ * 3. **GPU/CPU presenter** — reads snapshots from the snapshot buffer and draws
  *    them to the attached component.
  *
  * ## Double-buffered snapshots
@@ -46,8 +46,6 @@
 #include <array>
 #include "../data/Cell.h"
 #include "../logic/Grid.h"
-// GlyphAtlas is now jreng::Glyph::Atlas, available via JuceHeader → jreng_glyph
-// jreng::Typeface is available via JuceHeader → jreng_glyph
 #include "../data/Palette.h"
 #include "ScreenSelection.h"
 #include "../selection/LinkSpan.h"
@@ -301,9 +299,7 @@ public:
      */
     struct Resources
     {
-        Resources()
-        {
-        }
+        Resources() = default;
 
         jreng::SnapshotBuffer<Render::Snapshot> snapshotBuffer; ///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
         Theme            terminalColors;   ///< Active colour theme (ANSI palette + default fg/bg/selection).
@@ -319,7 +315,7 @@ public:
      * Initialises `Resources`, calls `calc()` to derive cell dimensions,
      * then calls `reset()`.
      *
-     * @param font  Font instance providing metrics, shaping, and rasterisation.
+     * @param typeface  Font instance providing metrics, shaping, and rasterisation.
      *
      * @note **MESSAGE THREAD**.
      */
@@ -873,6 +869,35 @@ private:
      */
     static jreng::Typeface::Style selectFontStyle (const Cell& cell) noexcept;
 
+    /**
+     * @brief Returns true if row @p r should be included in the current snapshot.
+     *
+     * GPU path (`GLTextRenderer`): always returns `true` — all rows are packed
+     * because the framebuffer is cleared each frame.
+     *
+     * CPU path (`GraphicsTextRenderer`): returns `true` only if the row's bit
+     * is set in `frameDirtyBits`.  Non-dirty rows retain correct content on the
+     * persistent render target; re-drawing them causes alpha accumulation.
+     *
+     * @param r  Row index (0-based).
+     * @return   `true` if the row must be packed into the snapshot.
+     *
+     * @note **MESSAGE THREAD**.
+     */
+    inline bool isRowIncludedInSnapshot (int r) const noexcept
+    {
+        bool result { true };
+
+        if constexpr (std::is_same_v<Renderer, jreng::Glyph::GraphicsTextRenderer>)
+        {
+            const int word { r >> 6 };
+            const uint64_t bit { static_cast<uint64_t> (1) << (r & 63) };
+            result = (frameDirtyBits[word] & bit) != 0;
+        }
+
+        return result;
+    }
+
     // =========================================================================
     // GL thread methods
     // =========================================================================
@@ -917,9 +942,11 @@ private:
     juce::HeapBlock<int>                emojiCount;   ///< Number of valid emoji glyphs per row.
     juce::HeapBlock<int>                bgCount;      ///< Number of valid background quads per row.
     juce::HeapBlock<Terminal::Cell>     previousCells; ///< Previous-frame cells for memcmp skip; layout: [row * cacheCols + col].
-    int cacheRows    { 0 }; ///< Number of rows the per-row caches were allocated for.
-    int cacheCols    { 0 }; ///< Number of columns the per-row caches were allocated for.
-    int bgCacheCols  { 0 }; ///< Background slots per row (= cacheCols * 3, for bg + selection + underlay).
+    int previousCursorRow { -1 };
+    int cacheRows       { 0 }; ///< Number of rows the per-row caches were allocated for.
+    int cacheCols       { 0 }; ///< Number of columns the per-row caches were allocated for.
+    int bgCacheCols     { 0 }; ///< Background slots per row (= cacheCols * 3, for bg + selection + underlay).
+    int maxGlyphsPerRow { 0 }; ///< Maximum glyph slots per row (= cacheCols * 2); set in allocateRenderCache().
 
     const ScreenSelection* selection   { nullptr }; ///< Non-owning pointer to the active selection; nullptr if none.
 

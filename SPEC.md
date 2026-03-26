@@ -29,7 +29,7 @@
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Focus events (`\x1b[I`/`\x1b[O`) | Not implemented | `focusGained`/`focusLost` only call `repaint()`, no PTY write |
+| Focus events (`\x1b[I`/`\x1b[O`) | **Done** | `session.writeFocusEvent()` on `focusGained`/`focusLost` |
 | Unified keybinding system | **Done** | Action registry, global + modal, configurable via end.lua |
 | Command palette | **Done** | ActionList with GlassWindow |
 | Cross-platform modifier mapping | Not implemented | Ctrl+Shift on Linux/Windows |
@@ -49,14 +49,14 @@
 | Feature | Status | Notes |
 |---------|--------|-------|
 | OSC 52 base64 decode | **Done** | Fixed Latin-1 constructor |
-| OSC 7 (cwd tracking) | Not implemented | cwd currently tracked via OS query |
+| OSC 7 (cwd tracking) | **Done** | Shell scripts emit OSC 7; OS query as fallback |
 | OSC 8 (hyperlinks) | **Done** | Parsed in oscDispatch, spans merged with heuristic links |
 | OSC 133 (shell integration) | **Done** | A/B/C/D markers, output block tracking, automatic injection (zsh/bash/fish/pwsh) |
-| OSC 9/777 (notifications) | Not implemented | |
+| OSC 9/777 (notifications) | **Done** | Native desktop notification (macOS UNUserNotificationCenter, Windows/Linux fallback) |
 
 ### Bell
 
-BEL character (`\x07`) silently discarded. Not implemented.
+BEL character (`\x07`) — **Done**. Passes BEL to stderr.
 
 ### Rendering
 
@@ -77,9 +77,9 @@ BEL character (`\x07`) silently discarded. Not implemented.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Windows ConPTY | In progress | `WindowsTTY.h/cpp` stubbed |
+| Windows ConPTY | **Done** | NT API duplex pipe, overlapped I/O, Windows 10/11 |
 | Configurable shell in Lua | **Done** | `shell.program` and `shell.args` in end.lua |
-| Error display on invalid config | Not implemented | Silent fallback to defaults |
+| Error display on invalid config | **Done** | MessageOverlay on startup and reload errors |
 
 ### State Persistence
 
@@ -87,7 +87,7 @@ BEL character (`\x07`) silently discarded. Not implemented.
 |---------|--------|-------|
 | Terminal state serialization | Spec written | See SPEC-details.md Section 1 |
 | Session restore on launch | Spec written | See SPEC-details.md Section 1 |
-| Multi-window support | Not started | Prerequisite for multi-instance restore |
+| Multi-window support | **Done** | Cmd+N spawns new instance; `moreThanOneInstanceAllowed = true` |
 
 ---
 
@@ -424,8 +424,8 @@ PTY backend, VT parser, xterm key sequences, SGR mouse, OSC 0/2, OSC 52 (partial
 Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced rendering, scrollback, font fallback, selection, cursor, hot reload, true color, box drawing, NF constraints, embolden, glass window, scroll keybinds, split panes, prefix key system, tab management, working directory tracking.
 
 **Remaining:**
-- [ ] Focus events (send to PTY)
-- [ ] Bell
+- [x] Focus events (send to PTY)
+- [x] Bell
 - [x] Word/line selection
 - [x] Software renderer fallback
 
@@ -441,12 +441,12 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 
 - [ ] Sixel inline image rendering
 - [ ] iTerm2 inline images (OSC 1337)
-- [ ] OSC 7 (cwd tracking)
+- [x] OSC 7 (cwd tracking)
 - [x] OSC 8 (hyperlinks)
-- [ ] OSC 52 base64 decode
-- [ ] Windows ConPTY support
+- [x] OSC 52 base64 decode
+- [x] Windows ConPTY support
 - [x] Configurable shell in Lua
-- [ ] Error display on invalid config
+- [x] Error display on invalid config
 
 ### Phase 5: Module Extraction + WHELMED
 
@@ -486,8 +486,8 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 - [x] Selection works in scrollback
 - [x] Word selection (double-click)
 - [x] Line selection (triple-click)
-- [ ] Focus events sent to PTY
-- [ ] Windows build compiles and runs
+- [x] Focus events sent to PTY
+- [x] Windows build compiles and runs
 - [x] All keybindings overridable via end.lua
 - [x] Command palette lists all actions
 - [x] Popup terminals spawn and close correctly

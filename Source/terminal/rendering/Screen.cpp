@@ -388,9 +388,10 @@ void Screen<Renderer>::allocateRenderCache (int rows, int cols) noexcept
     bgCount.allocate (static_cast<size_t> (rows), true);
     previousCells.allocate (static_cast<size_t> (rows) * static_cast<size_t> (cols), true);
 
-    cacheRows   = rows;
-    cacheCols   = cols;
-    bgCacheCols = cols * 3;
+    cacheRows       = rows;
+    cacheCols       = cols;
+    bgCacheCols     = cols * 3;
+    maxGlyphsPerRow = cols * 2;
 }
 
 /**

@@ -15,6 +15,7 @@
 #include "../AppState.h"
 #include "../config/Config.h"
 #include "../terminal/action/Action.h"
+#include "../terminal/notifications/Notifications.h"
 
 /**
  * @brief Constructs Terminal::Component and wires all subsystems.
@@ -25,7 +26,7 @@
  * 3. Screen settings (ligatures, embolden, theme) applied from Config.
  * 4. Saved zoom applied if > 1× (scales font size before first layout).
  * 5. **MessageOverlay** created and added as a hidden child.
- * 6. Session callbacks wired: `onShellExited`, `onClipboardChanged`, `onBell`.
+ * 6. Session callbacks wired: `onShellExited`, `onClipboardChanged`, `onBell`, `onDesktopNotification`.
  * 7. Startup config error (if any) shown asynchronously via MessageOverlay.
  *
  * @note MESSAGE THREAD — called from MainComponent constructor.
@@ -149,6 +150,11 @@ void Terminal::Component::initialise()
     session.onBell = []
     {
         std::fwrite ("\a", 1, 1, stderr);
+    };
+
+    session.onDesktopNotification = [] (const juce::String& title, const juce::String& body)
+    {
+        Terminal::Notifications::show (title, body);
     };
 }
 
@@ -652,7 +658,7 @@ void Terminal::Component::onVBlank()
  * @note MESSAGE THREAD — called from reloadConfig().
  * @see Config::reload
  */
-void Terminal::Component::applyConfig() noexcept
+void Terminal::Component::applyScreenSettings() noexcept
 {
     auto* cfg { Config::getContext() };
     visitScreen (
@@ -663,6 +669,11 @@ void Terminal::Component::applyConfig() noexcept
             s.setTheme (cfg->buildTheme());
             s.setFontSize (dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
         });
+}
+
+void Terminal::Component::applyConfig() noexcept
+{
+    applyScreenSettings();
     inputHandler->buildKeyMap();
     session.getGrid().markAllDirty();
     session.getState().setSnapshotDirty();
@@ -720,17 +731,7 @@ void Terminal::Component::switchRenderer (RendererType type)
     inputHandler.emplace (session, screenBase(), linkManager);
     mouseHandler.emplace (session, screenBase(), linkManager);
 
-    juce::ignoreUnused (type);
-
-    auto* cfg { Config::getContext() };
-    visitScreen (
-        [&] (auto& s)
-        {
-            s.setLigatures (cfg->getBool (Config::Key::fontLigatures));
-            s.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
-            s.setTheme (cfg->buildTheme());
-            s.setFontSize (dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
-        });
+    applyScreenSettings();
 
     session.getGrid().markAllDirty();
     session.getState().setSnapshotDirty();

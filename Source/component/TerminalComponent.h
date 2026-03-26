@@ -562,6 +562,15 @@ private:
     void onVBlank();
 
     /**
+     * @brief Applies current config settings (ligatures, embolden, theme, font size) to the active screen.
+     *
+     * Extracted shared body called by both `applyConfig()` and `switchRenderer()`.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void applyScreenSettings() noexcept;
+
+    /**
      * @brief Scales the font size by @p zoom and re-lays out the component.
      *
      * @param zoom  The zoom multiplier to apply (already clamped by the caller).
