@@ -2,6 +2,133 @@
 
 ---
 
+## Sprint 127: Whelmed Config Wiring, CodeBlock, Hint Pagination, Architecture Planning
+
+**Date:** 2026-03-27
+**Duration:** ~6h
+
+### Agents Participated
+- COUNSELOR: Led all planning, investigation, delegation, direct fixes, architecture discussion
+- Pathfinder (x3): Whelmed config/font wiring, CodeEditor patterns, open-file hint mode
+- Engineer (x6): Font/color config wiring, CodeBlock component, parser CodeFence, hint pagination, token colors, padding
+- Auditor (x2): Panes lifecycle, handler dispatch
+- Librarian: juce::TextEditor rendering internals research
+- Oracle (x2): GL vs CPU rendering analysis, ParsedDocument design assessment
+
+### Architecture Decisions This Session
+
+1. **3-phase Whelmed rendering strategy** — Phase 1: JUCE components (ship this). Phase 2: GL pipeline (future). Phase 3: forked JUCE + our backend (far future). Written in PLAN-WHELMED.md.
+2. **Async parsing with ParsedDocument** — trivially copyable flat structs (`HeapBlock<char>` text, `HeapBlock<Block>` blocks, `HeapBlock<InlineSpan>` spans). Pre-allocated from file size. `std::atomic<int>` generation counter fence. No AbstractFIFO, no mutex.
+3. **TextEditor replaces TextLayout** for markdown blocks — gives selection, copy, interaction for free. Consecutive markdown blocks merge into one TextEditor. ~21 components for a 3000-line doc.
+4. **setBufferedToImage(true)** on Whelmed::Component — JUCE caches entire tree as image, scroll moves cached image.
+5. **TextEditor rendering is sealed** — `drawContent()` is private, not virtual. No injection point. Fork required for Phase 3.
+6. **GL pipeline not needed for document viewer** — repaint only on scroll, not 120fps. CPU path under 16ms frame budget. GL is overengineering.
+7. **Paginated hint labels** — variable page sizes, greedy fill from filename characters, spacebar cycles, zero-copy page switching (start+count view into flat array).
+
+### Files Modified (25+ total)
+
+**Whelmed config wiring (6 files)**
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.h` — `FontConfig` struct with font + color fields
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.cpp` — `toAttributedString` accepts `FontConfig`, hardcoded values removed, `FontOptions().withName().withPointHeight().withStyle()` pattern
+- `Source/whelmed/Component.cpp` — `rebuildBlocks` builds `FontConfig` from `Whelmed::Config`, `paint()` fills background, `resized()` applies padding
+- `Source/whelmed/config/Config.h` — 11 color keys, 4 padding keys, 11 token color keys, `getColour()`, `getInt()`
+- `Source/whelmed/config/Config.cpp` — all keys in `initKeys()`, `loadPadding()`, `getColour()` RRGGBBAA->AARRGGBB, `codeFamily` default "Display Mono"
+- `Source/MainComponent.cpp` — whelmed typeface construction reads from Whelmed::Config
+
+**CodeBlock component (4 files)**
+- `Source/whelmed/CodeBlock.h` — NEW: wraps CodeDocument + CodeEditorComponent + tokeniser
+- `Source/whelmed/CodeBlock.cpp` — NEW: language-based tokeniser selection, config-driven font/colors/token scheme
+- `Source/whelmed/Component.h` — `CodeBlock` include, `codeBlocks` member
+- `Source/whelmed/Component.cpp` — CodeFence blocks create CodeBlock, layoutBlocks uses dynamic_cast dispatch
+
+**Parser CodeFence extraction (2 files)**
+- `modules/jreng_markdown/markdown/jreng_markdown_types.h` — `language` field on Block
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.cpp` — `getBlocks()` emits CodeFence blocks with language tag
+
+**Config-driven file handlers (2 files)**
+- `Source/config/Config.cpp` — default `.md` -> `"whelmed"` handler
+- `Source/terminal/selection/LinkManager.cpp` — handler lookup replaces hardcoded `.md` check
+
+**Paginated hint labels (7 files)**
+- `Source/terminal/data/Identifier.h` — `hintPage`, `hintTotalPages`
+- `Source/terminal/data/State.h/.cpp` — hint page getters/setters
+- `Source/terminal/selection/LinkManager.h` — `buildPages()`, `activeStart`/`activeCount`, `pageBreaks`
+- `Source/terminal/selection/LinkManager.cpp` — greedy page building, zero-copy `assignCurrentPage`, `getActiveHintsData()`/`getActiveHintsCount()`
+- `Source/component/InputHandler.h/.cpp` — `openFileNextPage` key, spacebar handler via `getKeyCode()`, flat if+return pattern
+- `Source/component/TerminalComponent.h/.cpp` — `getHintPage()`/`getHintTotalPages()` forwarding
+- `Source/terminal/selection/StatusBarOverlay.h` — "OPEN N/T" page indicator
+- `Source/config/Config.h/.cpp` — `keysOpenFileNextPage` config key
+
+**PaneComponent base (4 files)**
+- `Source/component/PaneComponent.h` — `virtual getValueTree() noexcept = 0`
+- `Source/component/TerminalComponent.h` — `override`
+- `Source/whelmed/Component.h/.cpp` — `override`, dropped `const`
+
+**Cleanup**
+- `Source/whelmed/BlockRenderer.h/.cpp` — DELETED (orphaned dead code)
+- `modules/jreng_gui/layout/jreng_pane_manager.h` — `layOut` -> `layout`, `layOutNode` -> `layoutNode`
+
+**Test document**
+- `test.md` — NEW: 3174-line comprehensive test covering all markdown features
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD enforced
+
+### Problems Solved
+- **Font resolution for CodeEditorComponent** — Display Mono registered with CoreText via `CTFontManagerRegisterGraphicsFont`, available to JUCE's font system. Added `.withStyle("Book")` for correct weight resolution.
+- **Hint label exhaustion** — old single-pass assignment ran out of unique filename characters. Fixed with greedy page building + spacebar cycling.
+- **Hint page cycling performance** — eliminated vector copy per page switch. `assignCurrentPage` is two integer assignments. Zero allocation.
+- **Early return in closeActiveTab** — restructured as if/else if/else chain.
+
+### Technical Debt / Follow-up
+- **CodeEditorComponent font** — `.withStyle("Book")` may not resolve on all platforms. Needs testing on Windows/Linux.
+- **`toAttributedString` still exists** — will be replaced by `ParsedDocument` pipeline in Step 1.1. Currently used by Phase 1 rendering.
+
+---
+
+## Handoff: PLAN-WHELMED Phase 1 Execution
+
+**From:** COUNSELOR
+**Date:** 2026-03-27
+
+### Context
+
+PLAN-WHELMED.md written and approved by ARCHITECT. Phase 1 is the immediate target: async parsing with `ParsedDocument` flat structs, `juce::TextEditor` for markdown blocks, `juce::CodeEditorComponent` for code fences, `setBufferedToImage(true)` caching, braille spinner during parse.
+
+Current state: synchronous parsing works, all config wired, CodeBlock component works. The bottleneck is synchronous `rebuildBlocks()` blocking the message thread.
+
+### Execution Order
+
+1. **Step 1.0** — `ParsedDocument`, `Block`, `InlineSpan` trivially copyable structs
+2. **Step 1.1** — Parser fills `ParsedDocument` (pre-allocated HeapBlocks)
+3. **Step 1.2** — `Whelmed::Parser` background thread with atomic fence
+4. **Step 1.3** — `Whelmed::State` owns `ParsedDocument`
+5. **Step 1.4** — Braille spinner
+6. **Step 1.5** — `juce::TextEditor` replaces `TextLayout` blocks
+7. **Step 1.6** — `setBufferedToImage(true)`
+8. **Step 1.7** — MermaidBlock
+9. **Step 1.8** — TableBlock
+
+### Critical Constraints
+
+- `HeapBlock` pre-allocated from file size — NO realloc during parse
+- `std::atomic<int>` generation counter — NO AbstractFIFO, NO mutex
+- Consecutive markdown blocks merge into one TextEditor
+- All structs `static_assert` trivially copyable
+- `FontConfig` set on parser thread before rasterization
+
+### Files to Read First
+- `PLAN-WHELMED.md` — the complete plan
+- `Source/whelmed/State.h/.cpp` — current state model
+- `Source/terminal/data/State.h` — `StringSlot` pattern for atomic fencing
+- `modules/jreng_markdown/markdown/jreng_markdown_types.h` — current Block struct
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.cpp` — current parser
+
+---
+
 ## Sprint 126: Whelmed Pane Lifecycle + Config-Driven File Handlers
 
 **Date:** 2026-03-27
