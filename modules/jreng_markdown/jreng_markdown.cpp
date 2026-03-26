@@ -1,0 +1,5 @@
+#include "jreng_markdown.h"
+#include "mermaid/jreng_mermaid_extract.cpp"
+#include "mermaid/jreng_mermaid_svg_parser.cpp"
+#include "markdown/jreng_markdown_parser.cpp"
+#include "markdown/jreng_markdown_table.cpp"

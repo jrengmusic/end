@@ -89,8 +89,9 @@
 jreng::Typeface::Typeface (Registry& fontRegistry,
                    const juce::String& userFamilyName,
                    float pointSize,
-                   jreng::Glyph::AtlasSize atlasSize)
-    : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize), atlas (atlasSize)
+                   jreng::Glyph::AtlasSize atlasSize,
+                   bool shouldBeMonospace)
+    : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize), atlas (atlasSize), isMonospace (shouldBeMonospace)
 {
     initialize();
 }

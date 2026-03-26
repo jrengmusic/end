@@ -16,7 +16,7 @@ Integrate WHELMED markdown/mermaid rendering into END as a pane-compatible compo
 **Surface API:** `juce::AttributedString` → `jreng::TextLayout` → duck-typed renderer. The component never knows which renderer is active.
 
 **What ports from WHELMED scaffold (`~/Documents/Poems/dev/whelmed/`):**
-- `markdown::Parse` — 3-stage parser (blocks → units → inline spans → `AttributedString`)
+- `markdown::Parser` — 3-stage parser (blocks → units → inline spans → `AttributedString`)
 - `markdown::parseTables()` — GFM table parser (data extraction)
 - `mermaid::extractBlocks()` — fence extraction
 - `MermaidSVGParser` — SVG string → `juce::Path`/`juce::Graphics` primitives (scaffolded by BRAINSTORMER against real mermaid.js output)
@@ -30,7 +30,7 @@ Integrate WHELMED markdown/mermaid rendering into END as a pane-compatible compo
 ## Architecture
 
 ```
-Config (end.lua: markdown = { ... })
+Whelmed::Config (whelmed.lua)
         |
         v
 MainComponent::applyConfig()
@@ -62,7 +62,7 @@ TextLayout::draw<Renderer>()        Renderer::drawQuads / drawBackgrounds
 jreng::GLComponent (modules/jreng_opengl)
     ^
     |
-PaneComponent (Source/component/)  — pure virtual base
+PaneComponent (Source/component/)  — pure virtual base, app-level (no namespace)
     ^                    ^
     |                    |
 Terminal::Component   Whelmed::Component
@@ -74,7 +74,7 @@ Terminal::Component   Whelmed::Component
 ```
 modules/jreng_markdown/          NEW: reusable parsing module
     ├── markdown/
-    │   ├── Parse.h/cpp          block detection, line classification, inline spans, toAttributedString
+    │   ├── Parser.h/cpp         block detection, line classification, inline spans, toAttributedString
     │   ├── Table.h/cpp          GFM table parser (data extraction)
     │   └── Types.h              Block, Unit, InlineSpan, Blocks
     └── mermaid/
@@ -85,6 +85,9 @@ modules/jreng_markdown/          NEW: reusable parsing module
 **Project level** (END-specific integration):
 ```
 Source/whelmed/                   NEW: END integration layer
+    ├── config/
+    │   ├── Config.h/cpp         Whelmed::Config (Context<Config> singleton)
+    │   └── default_whelmed.lua  BinaryData template
     ├── Component.h/cpp          Whelmed::Component (PaneComponent subclass)
     ├── Document.h/cpp           file state, parsed blocks, dirty tracking
     ├── TableComponent.h/cpp     dedicated table renderer component
@@ -109,8 +112,8 @@ jreng_opengl     (GLComponent, GLRenderer, GLTextRenderer)
     |
 END app
     ├── Source/component/    (PaneComponent, Terminal::Component, Panes, Tabs)
-    ├── Source/whelmed/      (Whelmed::Component, Document, TableComponent, mermaid::Parser)
-    └── Source/config/       (Config: markdown table)
+    ├── Source/whelmed/      (Whelmed::Config, Whelmed::Component, Document, TableComponent, mermaid::Parser)
+    └── Source/config/       (Config — terminal domain only, untouched)
 ```
 
 ---
@@ -125,7 +128,7 @@ END app
 
 4. **Atlas already supports multi-face multi-size.** `Glyph::Key` has `{glyphIndex, fontFace*, fontSize, span}`. Different Typeface instances produce different `fontFace*` pointers → distinct cache entries. No structural change needed.
 
-5. **Config under `markdown = { ... }` in `end.lua`.** Follows existing Config pattern exactly — `Config::Key` members, `initKeys()` calls, `default_end.lua` placeholders.
+5. **Separate `Whelmed::Config` with `Context<Config>`.** Own lua file (`~/.config/end/whelmed.lua`), own defaults, own reload. END's Config stays clean. Explicit Encapsulation — one object, one job.
 
 6. **Creation triggers via `LinkManager::dispatch()`.** Single hook point — both mouse click and keyboard hint-label converge here. Branch on `.md` extension to create Whelmed pane instead of writing to PTY.
 
@@ -154,36 +157,89 @@ Steps 5.0–5.3 have no cross-dependencies and can proceed independently.
 
 ---
 
-### Step 5.0 — Config keys for `markdown` table
+### Step 5.0 — `Whelmed::Config` — separate config object
 
-Add `markdown` config table to `end.lua`. Follows existing pattern exactly.
+Whelmed gets its own `Context<Config>` singleton. Separate lua file, separate defaults, separate reload. END's `Config` stays untouched — no markdown keys there. Clean domain separation (Explicit Encapsulation — one object, one job).
 
-**Config keys:**
+**Pattern:** Identical to `Config` — same CRTP base, same `initKeys()`/`load()`/`writeDefaults()`/`getConfigFile()` machinery. Different file, different keys.
+
+**Config file:** `~/.config/end/whelmed.lua` (same config dir as END, separate file)
+
+**Default template:** `Source/whelmed/config/default_whelmed.lua` (embedded as BinaryData)
 
 ```lua
-markdown = {
-    font_family   = "Georgia",       -- proportional body font
-    font_size     = 14.0,            -- base body size in points
-    code_family   = "JetBrains Mono",-- code block font (monospace)
-    code_size     = 12.0,            -- code block size
-    h1_size       = 28.0,            -- header sizes
-    h2_size       = 24.0,
-    h3_size       = 20.0,
-    h4_size       = 18.0,
-    h5_size       = 16.0,
-    h6_size       = 14.0,
-    line_height   = 1.4,             -- line height multiplier
-},
+WHELMED = {
+    font_family = "%%font_family%%",     -- proportional body font family
+    font_size   = %%font_size%%,          -- base body size in points (8-72)
+    code_family = "%%code_family%%",     -- code block font (monospace)
+    code_size   = %%code_size%%,          -- code block size in points (8-72)
+    h1_size     = %%h1_size%%,            -- header 1 size (8-72)
+    h2_size     = %%h2_size%%,            -- header 2 size (8-72)
+    h3_size     = %%h3_size%%,            -- header 3 size (8-72)
+    h4_size     = %%h4_size%%,            -- header 4 size (8-72)
+    h5_size     = %%h5_size%%,            -- header 5 size (8-72)
+    h6_size     = %%h6_size%%,            -- header 6 size (8-72)
+    line_height = %%line_height%%,        -- line height multiplier (0.8-3.0)
+}
 ```
 
+**`Whelmed::Config` class:**
+
+```cpp
+// Source/whelmed/config/Config.h
+namespace Whelmed
+{
+    struct Config : jreng::Context<Config>
+    {
+        Config();
+
+        struct Key
+        {
+            inline static const juce::String fontFamily { "font_family" };
+            inline static const juce::String fontSize { "font_size" };
+            inline static const juce::String codeFamily { "code_family" };
+            inline static const juce::String codeSize { "code_size" };
+            inline static const juce::String h1Size { "h1_size" };
+            inline static const juce::String h2Size { "h2_size" };
+            inline static const juce::String h3Size { "h3_size" };
+            inline static const juce::String h4Size { "h4_size" };
+            inline static const juce::String h5Size { "h5_size" };
+            inline static const juce::String h6Size { "h6_size" };
+            inline static const juce::String lineHeight { "line_height" };
+        };
+
+        // Same API as Config: getString, getFloat, getBool, etc.
+        // Same internals: values map, schema map, addKey, load, writeDefaults
+
+        bool reload();
+        std::function<void()> onReload;
+
+    private:
+        void initKeys();
+        bool load (const juce::File& file);
+        void writeDefaults (const juce::File& file) const;
+        juce::File getConfigFile() const;
+    };
+}
+```
+
+**Ownership:** Value member of `ENDApplication` in Main.cpp, alongside `Config config`. Declared after `config` (same lifetime):
+```cpp
+Config config;
+Whelmed::Config whelmedConfig;
+```
+
+**Reload wiring:** `config.onReload` already calls `content->applyConfig()`. `whelmedConfig.onReload` wired the same way — calls through to `Whelmed::Component::applyConfig()` via MainComponent.
+
 **Files:**
-- `Source/config/Config.h` — add `Key::markdownFontFamily`, `Key::markdownFontSize`, `Key::markdownCodeFamily`, `Key::markdownCodeSize`, `Key::markdownH1Size` through `Key::markdownH6Size`, `Key::markdownLineHeight`
-- `Source/config/Config.cpp` — add `addKey()` calls in `initKeys()` with defaults and ranges
-- `Source/config/default_end.lua` — add `markdown = { ... }` block with placeholders
+- `Source/whelmed/config/Config.h` — new
+- `Source/whelmed/config/Config.cpp` — new (initKeys, load, writeDefaults, getConfigFile, constructor)
+- `Source/whelmed/config/default_whelmed.lua` — new (BinaryData template)
+- `Source/Main.cpp` — add `Whelmed::Config whelmedConfig` member, wire `onReload`
 
-**Pattern:** Identical to existing `font`, `gpu`, `colours` tables. The main `load()` loop handles scalar fields automatically — no changes to `load()` needed.
+**No changes to END's Config.h, Config.cpp, or default_end.lua.**
 
-**Validate:** END builds. Config loads `markdown.*` keys. `Config::getContext()->getString (Config::Key::markdownFontFamily)` returns `"Georgia"`.
+**Validate:** END builds. `Whelmed::Config::getContext()->getString (Whelmed::Config::Key::fontFamily)` returns `"Georgia"`. `~/.config/end/whelmed.lua` created on first launch.
 
 ---
 
@@ -192,7 +248,7 @@ markdown = {
 Create new JUCE module `modules/jreng_markdown/`. Port parsing code from WHELMED scaffold. Pure data transforms — zero rendering dependency. Reusable by WHELMED standalone.
 
 **Port:**
-- `markdown::Parse` — block detection, line classification, inline span tokenization, `toAttributedString()`
+- `markdown::Parser` — block detection, line classification, inline span tokenization, `toAttributedString()`
 - `markdown::parseTables()` — GFM table data extraction
 - `mermaid::extractBlocks()` — fence extraction
 - `MermaidSVGParser` — SVG → `SVGPrimitive` / `SVGTextPrimitive` (flat lists for `juce::Graphics` rendering)
@@ -204,8 +260,8 @@ modules/jreng_markdown/
     jreng_markdown.cpp                — module source
     markdown/
         jreng_markdown_types.h        — Block, Unit, InlineSpan, Blocks
-        jreng_markdown_parse.h        — parse functions (getBlocks, getUnits, inlineSpans, toAttributedString)
-        jreng_markdown_parse.cpp
+        jreng_markdown_parser.h       — parse functions (getBlocks, getUnits, inlineSpans, toAttributedString)
+        jreng_markdown_parser.cpp
         jreng_markdown_table.h        — GFM table parser
         jreng_markdown_table.cpp
     mermaid/
@@ -226,7 +282,7 @@ modules/jreng_markdown/
 
 **CMakeLists.txt:** Add `jreng_markdown` to END's module list.
 
-**Validate:** END builds. `jreng::Markdown::Parse::getBlocks (testString)` returns correct block types. `jreng::Mermaid::SVGParser::parse (testSVG)` returns populated result. No rendering — pure data.
+**Validate:** END builds. `jreng::Markdown::Parserr::getBlocks (testString)` returns correct block types. `jreng::Mermaid::SVGParser::parse (testSVG)` returns populated result. No rendering — pure data.
 
 ---
 
@@ -268,22 +324,23 @@ Extract shared interface from `Terminal::Component` into `PaneComponent`. Both `
 #pragma once
 #include <modules/jreng_opengl/jreng_opengl.h>
 
-namespace Terminal
+class PaneComponent : public jreng::GLComponent
 {
-    enum class RendererType;  // forward
+public:
+    enum class RendererType { gpu, cpu };
 
-    class PaneComponent : public jreng::GLComponent
-    {
-    public:
-        virtual ~PaneComponent() = default;
+    virtual ~PaneComponent() = default;
 
-        virtual void switchRenderer (RendererType type) = 0;
-        virtual void applyConfig() noexcept = 0;
+    virtual void switchRenderer (RendererType type) = 0;
+    virtual void applyConfig() noexcept = 0;
 
-        std::function<void()> onRepaintNeeded;
-    };
-}
+    std::function<void()> onRepaintNeeded;
+};
 ```
+
+**`RendererType` is a public member enum of `PaneComponent`.** Not in `Terminal::` namespace — it is app-wide. Both `Terminal::Component` and `Whelmed::Component` reference it as `PaneComponent::RendererType`. The existing `PaneComponent::RendererType` and its free functions (`resolveRenderer()`, `resolveRendererFromConfig()`) move to `PaneComponent` scope or become free functions referencing `PaneComponent::RendererType`.
+
+**Namespace:** `PaneComponent` is NOT in `Terminal::` — shared between domains. Lives at app level (same as `AppState`, `MainComponent`).
 
 **Why this interface:**
 - `jreng::GLComponent` base — both pane types need GL lifecycle hooks and `paint()`. Already provides virtual no-ops.
@@ -298,11 +355,18 @@ namespace Terminal
 - Add `override` to `switchRenderer` and `applyConfig`
 - Zero behavioral changes — pure extraction
 
-**Files:**
-- `Source/component/PaneComponent.h` — new file
-- `Source/component/TerminalComponent.h` — change base class, add `override`
+**Changes to `RendererType`:**
+- Move `RendererType` enum from `Terminal::` namespace (Source/component/RendererType.h) into `PaneComponent` as public member enum
+- `resolveRenderer()`, `resolveRendererFromConfig()` become free functions returning `PaneComponent::RendererType`
+- All call sites update: `Terminal::RendererType` → `PaneComponent::RendererType`
 
-**Validate:** END builds. Terminal rendering identical. `Terminal::Component` is-a `PaneComponent` is-a `GLComponent`. All existing call sites compile.
+**Files:**
+- `Source/component/PaneComponent.h` — new file (owns RendererType enum)
+- `Source/component/RendererType.h` — remove enum, keep free functions updated to return `PaneComponent::RendererType`
+- `Source/component/TerminalComponent.h` — change base class, add `override`
+- All files referencing `Terminal::RendererType` — update to `PaneComponent::RendererType`
+
+**Validate:** END builds. Terminal rendering identical. `Terminal::Component` is-a `PaneComponent` is-a `GLComponent`. All existing `RendererType` references compile with new path.
 
 ---
 
@@ -336,7 +400,7 @@ namespace Whelmed
 ```
 
 **Responsibilities:**
-- Load file → parse via `Markdown::Parse::getBlocks()` → store blocks
+- Load file → parse via `Markdown::Parser::getBlocks()` → store blocks
 - Track dirty flag (set on `reload()`, consumed by render loop)
 - Mermaid blocks: store raw fence content. SVG conversion is deferred to rendering step (async via `WebBrowserComponent`)
 
@@ -363,13 +427,13 @@ Mirrors `Terminal::Component` lifecycle. `ScreenVariant` for GPU/CPU. VBlank ren
 // Source/whelmed/Component.h
 namespace Whelmed
 {
-    class Component : public Terminal::PaneComponent
+    class Component : public PaneComponent
     {
     public:
         explicit Component (jreng::Typeface& bodyFont, jreng::Typeface& codeFont);
 
         // PaneComponent interface
-        void switchRenderer (Terminal::RendererType type) override;
+        void switchRenderer (PaneComponent::RendererType type) override;
         void applyConfig() noexcept override;
 
         // GLComponent interface
@@ -384,7 +448,7 @@ namespace Whelmed
         void openFile (const juce::File& file);
 
     private:
-        Document document;
+        std::optional<Document> document;  // created on openFile()
 
         // Typefaces shared — owned by MainComponent, config-driven
         jreng::Typeface& bodyFont;
@@ -410,7 +474,7 @@ namespace Whelmed
 - Same pattern: emplace variant, `setOpaque`/`setBufferedToImage`, reapply config.
 
 **`applyConfig()`:**
-- Read `Config::Key::markdown*` values.
+- Read `Whelmed::Config::getContext()` values (font sizes, families, line height).
 - Update font sizes on body/code typefaces.
 - Mark document dirty for re-layout.
 
@@ -429,12 +493,16 @@ namespace Whelmed
 Change `Panes` to own `Owner<PaneComponent>` instead of `Owner<Terminal::Component>`.
 
 **Changes to `Source/component/Panes.h`:**
-- `jreng::Owner<Terminal::Component> terminals` → `jreng::Owner<Terminal::PaneComponent> panes`
+- `jreng::Owner<Terminal::Component> terminals` → `jreng::Owner<PaneComponent> panes`
 - Rename throughout: `terminals` → `panes` (semantic — container holds panes, not just terminals)
 
+**Changes to `Terminal::Component::create()` factory:**
+- Current signature takes `Owner<Terminal::Component>&` — incompatible with `Owner<PaneComponent>`.
+- Change: return `std::unique_ptr<Terminal::Component>` instead of adding to owner. Caller handles ownership. `unique_ptr<Terminal::Component>` implicitly upcasts to `unique_ptr<PaneComponent>` via converting constructor. `Owner` stays as-is — no changes to `jreng::Owner`.
+
 **Changes to `Source/component/Panes.cpp`:**
-- `createTerminal()` — creates `Terminal::Component`, adds to `panes`. Terminal-specific callback wiring accesses `Terminal::Component` API via the returned pointer (before upcasting to `Owner<PaneComponent>`).
-- New: `createWhelmed (const juce::File& file)` — creates `Whelmed::Component`, calls `openFile()`, adds to `panes`. Whelmed-specific callback wiring.
+- `createTerminal()` — calls modified `Terminal::Component::create()`, wires terminal-specific callbacks on the raw pointer, then moves `unique_ptr` into `panes` (implicit upcast to `PaneComponent`).
+- New: `createWhelmed (const juce::File& file)` — creates `Whelmed::Component`, calls `openFile()`, wires callbacks, adds to `panes`.
 - `PaneManager::layOut()` — already a template, already works with any `ComponentType` that has `getComponentID()` and `setBounds()`. `PaneComponent` inherits both from `juce::Component` via `GLComponent`. No change needed.
 - `switchRenderer()` — iterates `panes`, calls `pane->switchRenderer()` on each. No type inspection — `PaneComponent` interface.
 - `applyConfig()` — iterates `panes`, calls `pane->applyConfig()` on each. No type inspection.
@@ -488,7 +556,7 @@ Dedicated `Whelmed::TableComponent` for GFM table rendering. Self-contained — 
 - Receives `jreng::Markdown::TableData` (parsed rows, columns, alignment, headers)
 - Renders grid lines, cell backgrounds, text per cell via `juce::Graphics` (CPU) or `jreng::TextLayout` per cell (GPU)
 - Reports `getPreferredHeight()` based on row count and font metrics
-- Config-driven: reads font sizes, colours from `Config::Key::markdown*`
+- Config-driven: reads font sizes, colours from `Whelmed::Config::getContext()`
 - Participates in renderer switching (inherits from `juce::Component`, not `PaneComponent` — it is a child of `Whelmed::Component`, not a pane itself)
 
 **Files:**
@@ -528,6 +596,38 @@ Wire mermaid parser (WebBrowserComponent singleton) into `Whelmed::Component` fo
 3. **`juce_gui_extra`** — add to module deps. (ARCHITECT, Step 5.9)
 4. **Table rendering** — dedicated `Whelmed::TableComponent`, self-contained like mermaid diagrams. (ARCHITECT, Step 5.8)
 5. **Module/project split** — reusable parsing at module level (`jreng_markdown`), app integration at project level (`Source/whelmed/`). (ARCHITECT)
+6. **`create()` factory** — returns `unique_ptr`, caller handles ownership. `Owner` unchanged. (ARCHITECT)
+7. **`RendererType`** — public member enum of `PaneComponent`. Not in `Terminal::` namespace. (ARCHITECT)
+
+---
+
+## Contract Compliance Audit
+
+**NAMING-CONVENTION:**
+- `Parse` renamed to `Parser` (Rule 1: nouns for things)
+- `Document`, `Component`, `TableComponent` — all nouns
+- `getBlocks()`, `openFile()`, `switchRenderer()`, `applyConfig()` — all verbs
+- `consumeDirty()` — verb, reveals side effect (Rule 3: semantic over literal)
+- Consistent patterns throughout (Rule 5)
+
+**JRENG-CODING-STANDARD:**
+- All code examples use brace initialization, `not`/`and`/`or`, no early returns
+- `.at()` for container access enforced in execution rules
+- `noexcept` on `applyConfig()` — follows Terminal::Component pattern
+- `override` on all virtual method implementations
+
+**ARCHITECTURAL-MANIFESTO (LIFESTAR):**
+- **Lean:** Typeface proportional mode = one boolean, one line change. No new classes.
+- **Explicit Encapsulation:** Document does NOT read Config (receives parameters). PaneComponent communicates via API (switchRenderer, applyConfig), no type inspection. Objects are dumb — tell, don't ask.
+- **SSOT:** Config → AppState → Component. No duplicated state. Shared Typeface instances.
+- **Findable:** Module split mirrors existing pattern (jreng_graphics / Source/terminal/).
+- **Reviewable:** Each step is self-contained, validates independently.
+
+**ARCHITECTURE.md compliance:**
+- Layer separation: Module (data) → Source (component) → Config (coordination)
+- Communication: callbacks (onRepaintNeeded, onOpenMarkdown), not direct cross-layer calls
+- No poking: PaneComponent interface, not dynamic_cast
+- Factory pattern: `create()` returns `unique_ptr`, caller handles ownership. `Owner` unchanged.
 
 ---
 

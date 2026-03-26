@@ -76,7 +76,7 @@ static std::pair<juce::String, juce::String> findDefaultWindowsShell() noexcept
  * @param defaultVal   Default value stored in the values map.
  * @param spec         Type and range constraints for validation.
  */
-void Config::addKey (const juce::String& key, const juce::var& defaultVal, ValueSpec spec)
+void Config::addKey (const juce::String& key, const juce::var& defaultVal, Value spec)
 {
     values.insert_or_assign (key, defaultVal);
     schema.insert_or_assign (key, std::move (spec));
@@ -93,7 +93,7 @@ void Config::addKey (const juce::String& key, const juce::var& defaultVal, Value
  */
 void Config::initKeys()
 {
-    using T = ValueSpec::Type;
+    using T = Value::Type;
 
     addKey (Key::fontFamily, "Display Mono", { T::string });
 #if JUCE_WINDOWS
@@ -391,7 +391,7 @@ bool Config::load (const juce::File& file) { return load (file, loadError); }
 static void validateAndStore (const juce::String& dotKey,
                               const sol::object& fieldVal,
                               std::unordered_map<juce::String, juce::var>& values,
-                              const std::unordered_map<juce::String, Config::ValueSpec>& schema,
+                              const std::unordered_map<juce::String, Config::Value>& schema,
                               juce::StringArray& warnings)
 {
     static constexpr std::array<const char*, 3> specTypeNames {
@@ -413,13 +413,13 @@ static void validateAndStore (const juce::String& dotKey,
 
         switch (spec.expectedType)
         {
-            case Config::ValueSpec::Type::number:
+            case Config::Value::Type::number:
                 typeOk = (fieldVal.get_type() == sol::type::number);
                 break;
-            case Config::ValueSpec::Type::boolean:
+            case Config::Value::Type::boolean:
                 typeOk = (fieldVal.get_type() == sol::type::boolean);
                 break;
-            case Config::ValueSpec::Type::string:
+            case Config::Value::Type::string:
                 typeOk = (fieldVal.get_type() == sol::type::string);
                 break;
         }
@@ -433,7 +433,7 @@ static void validateAndStore (const juce::String& dotKey,
         {
             switch (spec.expectedType)
             {
-                case Config::ValueSpec::Type::number:
+                case Config::Value::Type::number:
                 {
                     const double val { fieldVal.as<double>() };
 
@@ -449,10 +449,10 @@ static void validateAndStore (const juce::String& dotKey,
 
                     break;
                 }
-                case Config::ValueSpec::Type::string:
+                case Config::Value::Type::string:
                     values.insert_or_assign (dotKey, juce::String (fieldVal.as<std::string>()));
                     break;
-                case Config::ValueSpec::Type::boolean:
+                case Config::Value::Type::boolean:
                     values.insert_or_assign (dotKey, fieldVal.as<bool>());
                     break;
             }
@@ -475,7 +475,7 @@ static void validateAndStore (const juce::String& dotKey,
  */
 static void loadPadding (const sol::table& arr,
                          std::unordered_map<juce::String, juce::var>& values,
-                         const std::unordered_map<juce::String, Config::ValueSpec>& schema)
+                         const std::unordered_map<juce::String, Config::Value>& schema)
 {
     static const std::array<const juce::String*, 4> paddingKeys { &Config::Key::terminalPaddingTop,
                                                                   &Config::Key::terminalPaddingRight,
@@ -629,7 +629,7 @@ static void loadHyperlinks (const sol::table& hyperlinksTable,
  * @return @c true if the file was parsed without a fatal Lua error.
  *
  * @see validationScript
- * @see ValueSpec
+ * @see Value
  */
 bool Config::load (const juce::File& file, juce::String& errorOut)
 {

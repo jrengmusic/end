@@ -313,7 +313,7 @@ jreng::Typeface::GlyphRun jreng::Typeface::shapeText (Style style,
 
     if (codepoints != nullptr and count > 0 and getFace (style) != nullptr)
     {
-        if (count == 1 and codepoints[0] < 128)
+        if (isMonospace and count == 1 and codepoints[0] < 128)
         {
             result = shapeASCII (codepoints[0]);
         }

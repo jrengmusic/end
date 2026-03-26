@@ -670,7 +670,7 @@ struct Config : jreng::Context<Config>
 
     //==============================================================================
     /**
-     * @struct ValueSpec
+     * @struct Value
      * @brief Schema entry describing the expected type and optional range for a key.
      *
      * Used by `load()` to validate values read from Lua before storing them.
@@ -678,9 +678,9 @@ struct Config : jreng::Context<Config>
      * also warned but the default value is kept.
      *
      * @note Public so that file-scope helper functions in Config.cpp can reference
-     *       `Config::ValueSpec` without requiring friend declarations.
+     *       `Config::Value` without requiring friend declarations.
      */
-    struct ValueSpec
+    struct Value
     {
         /** @brief Expected Lua type for this key. */
         enum class Type
@@ -708,8 +708,8 @@ private:
     /** @brief Runtime value store: key → juce::var (string, double, or bool). */
     std::unordered_map<juce::String, juce::var> values;
 
-    /** @brief Schema map: key → ValueSpec for type and range validation. */
-    std::unordered_map<juce::String, ValueSpec> schema;
+    /** @brief Schema map: key → Value for type and range validation. */
+    std::unordered_map<juce::String, Value> schema;
 
     /** @brief Parsed popup entries from the `popups` Lua table. */
     std::unordered_map<juce::String, PopupEntry> popups;
@@ -758,7 +758,7 @@ private:
      * @param defaultVal   Default value stored in the values map.
      * @param spec         Type and range constraints for validation.
      */
-    void addKey (const juce::String& key, const juce::var& defaultVal, ValueSpec spec);
+    void addKey (const juce::String& key, const juce::var& defaultVal, Value spec);
 
     /**
      * @brief Populates both `values` and `schema` from a single unified key table.

@@ -48,6 +48,7 @@
 #include "../terminal/selection/LinkManager.h"
 #include "InputHandler.h"
 #include "MouseHandler.h"
+#include "PaneComponent.h"
 #include "RendererType.h"
 #include "config/Config.h"
 
@@ -78,7 +79,7 @@ namespace Terminal
  * @see Terminal::Session
  */
 class Component
-    : public jreng::GLComponent
+    : public PaneComponent
     , public juce::KeyListener
     , public juce::FileDragAndDropTarget
 {
@@ -344,18 +345,6 @@ public:
     void paint (juce::Graphics& g) override;
 
     /**
-     * @brief Callback invoked after rendering to trigger a repaint.
-     *
-     * Set by Terminal::Tabs (which receives it from MainComponent).  Invoked from
-     * onVBlank() after rendering to trigger GLRenderer::triggerRepaint() on the
-     * shared GL context.
-     *
-     * @note MESSAGE THREAD.
-     * @see GLRenderer::triggerRepaint
-     */
-    std::function<void()> onRepaintNeeded;
-
-    /**
      * @brief Callback invoked when the shell process exits.
      *
      * If set, this replaces the default behaviour (quit the application).
@@ -416,7 +405,7 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    void applyConfig() noexcept;
+    void applyConfig() noexcept override;
 
     /**
      * @brief Switches the active rendering backend at runtime.
@@ -428,7 +417,7 @@ public:
      * @param type  The desired rendering backend.
      * @note MESSAGE THREAD.
      */
-    void switchRenderer (RendererType type);
+    void switchRenderer (PaneComponent::RendererType type) override;
 
     /**
      * @brief Increases the zoom multiplier by one step.

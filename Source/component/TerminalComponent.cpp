@@ -124,7 +124,7 @@ void Terminal::Component::initialise()
 
     // Switch to the renderer stored in AppState (SSOT).
     // Emplaces correct Screen variant, handlers, opacity, and applies config.
-    switchRenderer (Terminal::getRendererType());
+    switchRenderer (getRendererType());
     inputHandler->buildKeyMap();
 
     session.onShellExited = [this]
@@ -701,7 +701,7 @@ void Terminal::Component::applyZoom (float zoom) noexcept
     resized();
 }
 
-void Terminal::Component::switchRenderer (RendererType type)
+void Terminal::Component::switchRenderer (PaneComponent::RendererType type)
 {
     // Release current renderer's GL resources before switching.
     // The contextInitialised guard in each renderer prevents
@@ -713,7 +713,7 @@ void Terminal::Component::switchRenderer (RendererType type)
         });
 
     // Atlas resize is handled once by MainComponent's ValueTree listener.
-    if (type == RendererType::cpu)
+    if (type == PaneComponent::RendererType::cpu)
     {
         if (not std::holds_alternative<Screen<jreng::Glyph::GraphicsTextRenderer>> (screen))
         {

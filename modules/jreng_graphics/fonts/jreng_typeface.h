@@ -446,11 +446,13 @@ struct Typeface
      *                        default monospace font, then to the embedded
      *                        Display Mono.
      * @param pointSize       Initial font size in CSS points.
+     * @param isMonospace     When true, enables ASCII fixed-width fast path (terminal rendering).
      */
     Typeface (Registry& fontRegistry,
               const juce::String& userFamilyName,
               float pointSize,
-              jreng::Glyph::AtlasSize atlasSize = jreng::Glyph::AtlasSize::standard);
+              jreng::Glyph::AtlasSize atlasSize = jreng::Glyph::AtlasSize::standard,
+              bool shouldBeMonospace = false);
 
     /**
      * @brief Destroys all font handles and releases HarfBuzz resources.
@@ -1112,6 +1114,9 @@ private:
 
     /** @brief Current font size in CSS points. Updated by `setSize()`. */
     float fontSize { 0.0f };
+
+    /** @brief When true, enables ASCII fixed-width fast path (terminal rendering). */
+    bool isMonospace { false };
 
     /** @brief Height passed to the last successful `calcMetrics()` call.  Negative means uncached. */
     float cachedMetricsSize { -1.0f };

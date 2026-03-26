@@ -51,7 +51,7 @@ void Popup::ContentView::resized()
 
 void Popup::ContentView::initialiseGL()
 {
-    if (glContent != nullptr and Terminal::getRendererType() == Terminal::RendererType::gpu)
+    if (glContent != nullptr and getRendererType() == PaneComponent::RendererType::gpu)
     {
         glRenderer.setComponentIterator (
             [this] (std::function<void (jreng::GLComponent&)> renderComponent)

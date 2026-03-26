@@ -229,7 +229,7 @@ public:
     void focusPaneRight();
 
     /** @brief Switches all terminals to the given renderer type. */
-    void switchRenderer (Terminal::RendererType type);
+    void switchRenderer (PaneComponent::RendererType type);
 
     /**
      * @brief Reads tab.position from Config and applies the orientation.

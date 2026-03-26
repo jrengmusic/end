@@ -46,6 +46,7 @@
 #include "MainComponent.h"
 #include "AppState.h"
 #include "config/Config.h"
+#include "whelmed/config/Config.h"
 #include "terminal/action/Action.h"
 
 #if JUCE_WINDOWS
@@ -139,6 +140,12 @@ public:
             if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
                 content->applyConfig();
         };
+
+        whelmedConfig.onReload = [this]
+        {
+            if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
+                content->applyConfig();
+        };
     }
 
     /**
@@ -185,6 +192,9 @@ public:
 private:
     /** @brief Lua config singleton. Must be constructed before appState and fontCollection. */
     Config config;
+
+    /** @brief Whelmed Lua config singleton. Must be constructed before appState and fontCollection. */
+    Whelmed::Config whelmedConfig;
 
     /** @brief Application-level ValueTree. Must be constructed after config. */
     AppState appState;

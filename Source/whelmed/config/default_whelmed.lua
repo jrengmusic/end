@@ -1,0 +1,20 @@
+-- =============================================================================
+-- WHELMED configuration
+-- =============================================================================
+--
+-- This file is auto-generated. Edit freely — your changes are preserved
+-- across updates unless the config version changes.
+
+WHELMED = {
+    font_family = "%%font_family%%",     -- proportional body font family
+    font_size   = %%font_size%%,          -- base body size in points (8-72)
+    code_family = "%%code_family%%",     -- code block font (monospace)
+    code_size   = %%code_size%%,          -- code block size in points (8-72)
+    h1_size     = %%h1_size%%,            -- header 1 size (8-72)
+    h2_size     = %%h2_size%%,            -- header 2 size (8-72)
+    h3_size     = %%h3_size%%,            -- header 3 size (8-72)
+    h4_size     = %%h4_size%%,            -- header 4 size (8-72)
+    h5_size     = %%h5_size%%,            -- header 5 size (8-72)
+    h6_size     = %%h6_size%%,            -- header 6 size (8-72)
+    line_height = %%line_height%%,        -- line height multiplier (0.8-3.0)
+}

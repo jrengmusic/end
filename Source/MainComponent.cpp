@@ -54,7 +54,8 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
                 config.getString (Config::Key::fontFamily),
                 config.getFloat (Config::Key::fontSize),
                 config.getString (Config::Key::gpuAcceleration) != "false" ? jreng::Glyph::AtlasSize::standard
-                                                                           : jreng::Glyph::AtlasSize::compact)
+                                                                           : jreng::Glyph::AtlasSize::compact,
+                true)
 {
     setOpaque (false);
 
@@ -106,7 +107,7 @@ void MainComponent::applyConfig()
     // The deferred call runs after both, ensuring the correct final state.
     juce::MessageManager::callAsync ([this]
     {
-        if (Terminal::getRendererType() == Terminal::RendererType::gpu)
+        if (getRendererType() == PaneComponent::RendererType::gpu)
         {
             jreng::BackgroundBlur::apply (
                 this,
@@ -126,18 +127,18 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce:
 
     if (property == App::ID::renderer)
     {
-        const auto rendererType { Terminal::getRendererType() };
+        const auto rendererType { getRendererType() };
 
         // Shared atlas: resize once for all terminals.
-        const auto atlasSize { rendererType == Terminal::RendererType::gpu ? jreng::Glyph::AtlasSize::standard
-                                                                           : jreng::Glyph::AtlasSize::compact };
+        const auto atlasSize { rendererType == PaneComponent::RendererType::gpu ? jreng::Glyph::AtlasSize::standard
+                                                                               : jreng::Glyph::AtlasSize::compact };
         typeface.setAtlasSize (atlasSize);
 
         // GL lifecycle: detach first (required for setComponentPaintingEnabled).
         glRenderer.detach();
         glRenderer.setComponentPaintingEnabled (true);
 
-        if (rendererType == Terminal::RendererType::gpu)
+        if (rendererType == PaneComponent::RendererType::gpu)
         {
             glRenderer.attachTo (*this);
             setOpaque (false);
