@@ -3,11 +3,9 @@
 **Project:** END
 **Date:** 2026-03-26
 **Author:** COUNSELOR
-**Status:** Draft — awaiting ARCHITECT approval + Plan 4 completion
+**Status:** Draft — awaiting ARCHITECT approval. Plan 4 complete (Sprint 121/122).
 
 **Contracts:** LIFESTAR, NAMING-CONVENTION, ARCHITECTURAL-MANIFESTO, JRENG-CODING-STANDARD
-
-**Dependency:** Plan 4 (GPU/CPU runtime switching) must be complete before Step 5.5.
 
 ---
 
@@ -70,6 +68,30 @@ PaneComponent (Source/component/)  — pure virtual base
 Terminal::Component   Whelmed::Component
 ```
 
+### Module / Project Split
+
+**Module level** (reusable — WHELMED standalone can consume):
+```
+modules/jreng_markdown/          NEW: reusable parsing module
+    ├── markdown/
+    │   ├── Parse.h/cpp          block detection, line classification, inline spans, toAttributedString
+    │   ├── Table.h/cpp          GFM table parser (data extraction)
+    │   └── Types.h              Block, Unit, InlineSpan, Blocks
+    └── mermaid/
+        ├── Extract.h/cpp        fence extraction
+        └── SVGParser.h/cpp      SVG string → SVGPrimitive / SVGTextPrimitive
+```
+
+**Project level** (END-specific integration):
+```
+Source/whelmed/                   NEW: END integration layer
+    ├── Component.h/cpp          Whelmed::Component (PaneComponent subclass)
+    ├── Document.h/cpp           file state, parsed blocks, dirty tracking
+    ├── TableComponent.h/cpp     dedicated table renderer component
+    └── mermaid/
+        └── Parser.h/cpp         WebBrowserComponent singleton wrapper
+```
+
 ### Module Dependency
 
 ```
@@ -79,12 +101,15 @@ jreng_core
 jreng_graphics   (Typeface, Atlas, TextLayout, GraphicsTextRenderer)
     ^
     |
+jreng_markdown   (Parse, Table, SVG parser — pure data, depends on jreng_core + juce_graphics)
+    ^
+    |
 jreng_opengl     (GLComponent, GLRenderer, GLTextRenderer)
     ^
     |
 END app
-    ├── Source/component/    (PaneComponent, Terminal::Component, Whelmed::Component, Panes, Tabs)
-    ├── Source/whelmed/      (markdown parser, mermaid parser, SVG parser, Document)
+    ├── Source/component/    (PaneComponent, Terminal::Component, Panes, Tabs)
+    ├── Source/whelmed/      (Whelmed::Component, Document, TableComponent, mermaid::Parser)
     └── Source/config/       (Config: markdown table)
 ```
 
@@ -94,7 +119,7 @@ END app
 
 1. **`PaneComponent` pure virtual base.** Both `Terminal::Component` and `Whelmed::Component` inherit from it. `Panes` owns `Owner<PaneComponent>`. No `dynamic_cast`. MANIFESTO-compliant (Explicit Encapsulation — communicate via API, not type inspection).
 
-2. **Whelmed owns its own Typeface.** Separate font pipeline — proportional families, no ASCII fast path. Not shared with terminal's monospace Typeface. Each Whelmed::Component instance owns its own `jreng::Typeface`.
+2. **Whelmed Typefaces shared, config-driven.** `MainComponent` owns body + code `Typeface` instances (like terminal's shared typeface). Config-driven via `markdown.font_family`, `markdown.code_family`. Shared across all Whelmed panes. SSOT — one config, one typeface set, all panes reflect.
 
 3. **Typeface proportional mode via constructor flag.** Not a separate class. One boolean gates the ASCII fast path bypass. Lean — minimal change, zero impact on terminal path.
 
@@ -104,7 +129,7 @@ END app
 
 6. **Creation triggers via `LinkManager::dispatch()`.** Single hook point — both mouse click and keyboard hint-label converge here. Branch on `.md` extension to create Whelmed pane instead of writing to PTY.
 
-7. **Mermaid via `juce_gui_extra` + `WebBrowserComponent`.** Adds dependency. Deferred to last step — can ship markdown rendering without mermaid.
+7. **Mermaid via `juce_gui_extra` + `WebBrowserComponent`.** Add to module deps. Deferred to last step — can ship markdown rendering without mermaid.
 
 8. **`jreng::TextLayout` is the rendering surface.** `createLayout (AttributedString, maxWidth, font)` → `draw<Renderer>()`. Already proportional-capable — uses per-glyph `xAdvance` from HarfBuzz. Untested with proportional fonts — Step 5.2 validates.
 
@@ -115,16 +140,17 @@ END app
 | Step | Objective | Depends on |
 |------|-----------|------------|
 | 5.0 | Config keys — `markdown` table | — |
-| 5.1 | Port WHELMED semantic layer | — |
+| 5.1 | `jreng_markdown` module — port semantic layer | — |
 | 5.2 | Typeface proportional mode | — |
-| 5.3 | `PaneComponent` pure virtual base | Plan 4 complete |
+| 5.3 | `PaneComponent` pure virtual base | — |
 | 5.4 | Document model | 5.1 |
 | 5.5 | `Whelmed::Component` | 5.0, 5.2, 5.3, 5.4 |
 | 5.6 | Panes generalization | 5.3, 5.5 |
 | 5.7 | Creation triggers | 5.5, 5.6 |
-| 5.8 | Mermaid integration | 5.5 |
+| 5.8 | Table component | 5.1, 5.5 |
+| 5.9 | Mermaid integration | 5.1, 5.5 |
 
-Steps 5.0, 5.1, 5.2 have no dependencies and can proceed before Plan 4 completes.
+Steps 5.0–5.3 have no cross-dependencies and can proceed independently.
 
 ---
 
@@ -161,9 +187,9 @@ markdown = {
 
 ---
 
-### Step 5.1 — Port WHELMED semantic layer
+### Step 5.1 — `jreng_markdown` module — port semantic layer
 
-Copy parsing code from WHELMED scaffold into `Source/whelmed/`. Pure data transforms — zero rendering dependency.
+Create new JUCE module `modules/jreng_markdown/`. Port parsing code from WHELMED scaffold. Pure data transforms — zero rendering dependency. Reusable by WHELMED standalone.
 
 **Port:**
 - `markdown::Parse` — block detection, line classification, inline span tokenization, `toAttributedString()`
@@ -171,24 +197,36 @@ Copy parsing code from WHELMED scaffold into `Source/whelmed/`. Pure data transf
 - `mermaid::extractBlocks()` — fence extraction
 - `MermaidSVGParser` — SVG → `SVGPrimitive` / `SVGTextPrimitive` (flat lists for `juce::Graphics` rendering)
 
-**Files:**
-- `Source/whelmed/markdown/Parse.h` — block/unit/span types + parse functions
-- `Source/whelmed/markdown/Parse.cpp` — implementation
-- `Source/whelmed/markdown/Table.h` — table parser
-- `Source/whelmed/markdown/Table.cpp` — implementation
-- `Source/whelmed/mermaid/Extract.h` — fence extraction
-- `Source/whelmed/mermaid/Extract.cpp` — implementation
-- `Source/whelmed/mermaid/SVGParser.h` — `MermaidSVGParser::parse()`
-- `Source/whelmed/mermaid/SVGParser.cpp` — implementation
+**Module structure:**
+```
+modules/jreng_markdown/
+    jreng_markdown.h                  — module header
+    jreng_markdown.cpp                — module source
+    markdown/
+        jreng_markdown_types.h        — Block, Unit, InlineSpan, Blocks
+        jreng_markdown_parse.h        — parse functions (getBlocks, getUnits, inlineSpans, toAttributedString)
+        jreng_markdown_parse.cpp
+        jreng_markdown_table.h        — GFM table parser
+        jreng_markdown_table.cpp
+    mermaid/
+        jreng_mermaid_extract.h       — fence extraction
+        jreng_mermaid_extract.cpp
+        jreng_mermaid_svg_parser.h    — SVG string → primitives
+        jreng_mermaid_svg_parser.cpp
+```
+
+**Module dependencies:** `juce_core`, `juce_graphics` (for `juce::Path`, `juce::Colour`, `juce::AttributedString`)
 
 **Adaptation during port:**
-- Namespace: `Whelmed::Markdown`, `Whelmed::Mermaid` (follows END namespace patterns)
-- Naming: rename to match NAMING-CONVENTION (nouns for types, verbs for functions)
-- `toAttributedString()` — reads font families and sizes from `Config::Key::markdown*` instead of hardcoded values
+- Namespace: `jreng::Markdown`, `jreng::Mermaid` (module-level, not app-level)
+- Naming: NAMING-CONVENTION (nouns for types, verbs for functions)
+- `toAttributedString()` — takes font config parameters (family, sizes, colours), not hardcoded. Does NOT read Config directly (module has no Config dependency).
 - Code style: JRENG-CODING-STANDARD (braces on new line, `not`/`and`/`or`, brace initialization, no early returns, `.at()` for containers)
-- Remove any WHELMED-specific dependencies (`jreng_opengl` types, `GLString`, etc.)
+- Remove WHELMED-specific dependencies (`jreng_opengl` types, `GLString`, etc.)
 
-**Validate:** END builds. `Whelmed::Markdown::Parse::getBlocks (testString)` returns correct block types. `MermaidSVGParser::parse (testSVG)` returns populated `MermaidParseResult`. No rendering — pure data.
+**CMakeLists.txt:** Add `jreng_markdown` to END's module list.
+
+**Validate:** END builds. `jreng::Markdown::Parse::getBlocks (testString)` returns correct block types. `jreng::Mermaid::SVGParser::parse (testSVG)` returns populated result. No rendering — pure data.
 
 ---
 
@@ -221,14 +259,19 @@ Add proportional shaping mode to `jreng::Typeface`. One boolean flag — bypass 
 
 ### Step 5.3 — `PaneComponent` pure virtual base
 
-Extract shared interface from `Terminal::Component` into `PaneComponent`. Both `Terminal::Component` and `Whelmed::Component` inherit from it.
+Extract shared interface from `Terminal::Component` into `PaneComponent`. Both `Terminal::Component` and `Whelmed::Component` inherit from it. Panes communicates via this API — no type inspection.
 
 **`PaneComponent` class:**
 
 ```cpp
 // Source/component/PaneComponent.h
+#pragma once
+#include <modules/jreng_opengl/jreng_opengl.h>
+
 namespace Terminal
 {
+    enum class RendererType;  // forward
+
     class PaneComponent : public jreng::GLComponent
     {
     public:
@@ -242,17 +285,22 @@ namespace Terminal
 }
 ```
 
-**Design rationale:**
-- Inherits `jreng::GLComponent` — both pane types need GL lifecycle hooks (`glContextCreated`, `glContextClosing`, `renderGL`) and `paint()` for CPU path. `GLComponent` already provides these as virtual no-ops.
-- `switchRenderer` — called by `MainComponent::applyConfig()` via Tabs/Panes propagation. Both pane types implement identically-structured variant emplacement.
-- `applyConfig` — called after config hot-reload. Each pane type reads its own config keys.
-- `onRepaintNeeded` — callback wired by Panes/Tabs/MainComponent. Both pane types fire it after rendering dirty content.
+**Why this interface:**
+- `jreng::GLComponent` base — both pane types need GL lifecycle hooks and `paint()`. Already provides virtual no-ops.
+- `switchRenderer` — `MainComponent::applyConfig()` propagates via Tabs/Panes. Both types implement variant emplacement.
+- `applyConfig` — hot-reload propagation. Each type reads its own config keys.
+- `onRepaintNeeded` — callback wired by Panes/Tabs/MainComponent. Both types fire after dirty content rendered.
+- No `getValueTree()` — not needed for layout. Can be added when persistence is needed.
 
 **Changes to `Terminal::Component`:**
 - Inherit from `PaneComponent` instead of `jreng::GLComponent` directly
-- Move `onRepaintNeeded` member to `PaneComponent` (remove from `Terminal::Component`)
+- Move `onRepaintNeeded` to `PaneComponent` (remove from `Terminal::Component`)
 - Add `override` to `switchRenderer` and `applyConfig`
-- No behavioral changes
+- Zero behavioral changes — pure extraction
+
+**Files:**
+- `Source/component/PaneComponent.h` — new file
+- `Source/component/TerminalComponent.h` — change base class, add `override`
 
 **Validate:** END builds. Terminal rendering identical. `Terminal::Component` is-a `PaneComponent` is-a `GLComponent`. All existing call sites compile.
 
@@ -338,7 +386,7 @@ namespace Whelmed
     private:
         Document document;
 
-        // Typefaces owned externally (by MainComponent or Panes)
+        // Typefaces shared — owned by MainComponent, config-driven
         jreng::Typeface& bodyFont;
         jreng::Typeface& codeFont;
 
@@ -390,7 +438,7 @@ Change `Panes` to own `Owner<PaneComponent>` instead of `Owner<Terminal::Compone
 - `PaneManager::layOut()` — already a template, already works with any `ComponentType` that has `getComponentID()` and `setBounds()`. `PaneComponent` inherits both from `juce::Component` via `GLComponent`. No change needed.
 - `switchRenderer()` — iterates `panes`, calls `pane->switchRenderer()` on each. No type inspection — `PaneComponent` interface.
 - `applyConfig()` — iterates `panes`, calls `pane->applyConfig()` on each. No type inspection.
-- `getTerminals()` — GL renderer needs to iterate only terminals for the component iterator. Returns filtered view or separate accessor. **DISCUSS WITH ARCHITECT: cleanest approach for GL iterator filtering.**
+- `getTerminals()` → rename to `getPanes()` — returns `Owner<PaneComponent>&`. GL renderer iterates all panes (all are `GLComponent`). Single container, no filtering needed.
 
 **Changes to `Source/component/Tabs.h/cpp`:**
 - Forward `switchRenderer` and `applyConfig` through Panes to all pane components.
@@ -432,11 +480,30 @@ Register `open_markdown` action in `Terminal::Action`. Triggered from command pa
 
 ---
 
-### Step 5.8 — Mermaid integration
+### Step 5.8 — Table component
 
-Wire `mermaid::Parser` (WebBrowserComponent singleton) into `Whelmed::Component` for live mermaid diagram rendering.
+Dedicated `Whelmed::TableComponent` for GFM table rendering. Self-contained — manages its own rendering like mermaid diagrams. Parent viewport stacks it as a block.
 
-**Dependency:** `juce_gui_extra` module (for `WebBrowserComponent`). Must be added to END's CMakeLists.txt / JUCE module dependencies.
+**`Whelmed::TableComponent` class:**
+- Receives `jreng::Markdown::TableData` (parsed rows, columns, alignment, headers)
+- Renders grid lines, cell backgrounds, text per cell via `juce::Graphics` (CPU) or `jreng::TextLayout` per cell (GPU)
+- Reports `getPreferredHeight()` based on row count and font metrics
+- Config-driven: reads font sizes, colours from `Config::Key::markdown*`
+- Participates in renderer switching (inherits from `juce::Component`, not `PaneComponent` — it is a child of `Whelmed::Component`, not a pane itself)
+
+**Files:**
+- `Source/whelmed/TableComponent.h`
+- `Source/whelmed/TableComponent.cpp`
+
+**Validate:** Table block in `.md` file renders as formatted grid with headers, alignment, cell text. Resizing reflows column widths.
+
+---
+
+### Step 5.9 — Mermaid integration
+
+Wire mermaid parser (WebBrowserComponent singleton) into `Whelmed::Component` for live mermaid diagram rendering.
+
+**Dependency:** `juce_gui_extra` module (for `WebBrowserComponent`). Add to END's CMakeLists.txt module dependencies.
 
 **Changes:**
 - `Whelmed::Component` — when `Document::getBlocks()` contains `Type::Mermaid` blocks: extract fence content, pass to `mermaid::Parser::convertToSVG()`, store SVG result, parse via `MermaidSVGParser::parse()`, cache `MermaidParseResult` per block.
@@ -454,15 +521,13 @@ Wire `mermaid::Parser` (WebBrowserComponent singleton) into `Whelmed::Component`
 
 ---
 
-## Open Questions (for ARCHITECT)
+## Resolved Decisions
 
-1. **Step 5.5 — Typeface ownership.** Body and code `Typeface` instances for Whelmed — owned by `MainComponent` (shared across all Whelmed panes, like terminal's `Typeface`) or per-component? Recommend shared (SSOT, memory efficiency).
-
-2. **Step 5.6 — GL iterator filtering.** `GLRenderer::setComponentIterator()` currently iterates `Owner<Terminal::Component>`. With `Owner<PaneComponent>`, both terminals and Whelmed components are in the same container. The GL iterator needs all visible `GLComponent` instances — which `PaneComponent` already is. Should the iterator just iterate all `panes`? Or maintain separate collections?
-
-3. **Step 5.8 — `juce_gui_extra` dependency.** Acceptable for END? This module brings `WebBrowserComponent` but also other things. If not, mermaid rendering can be deferred entirely.
-
-4. **Table rendering (from Step 5.1).** WHELMED has table parsing but no table rendering. Should table rendering use `juce::Graphics` directly (draw lines, cells, text) or compose `TextLayout` per cell? Recommend direct `Graphics` — tables are grid-based, not flowing text.
+1. **Typeface ownership** — shared in MainComponent, config-driven, user-configurable. (ARCHITECT, Step 5.5)
+2. **GL iterator** — single container, iterate all panes. All just Components that render both GL and Graphics. (ARCHITECT, Step 5.6)
+3. **`juce_gui_extra`** — add to module deps. (ARCHITECT, Step 5.9)
+4. **Table rendering** — dedicated `Whelmed::TableComponent`, self-contained like mermaid diagrams. (ARCHITECT, Step 5.8)
+5. **Module/project split** — reusable parsing at module level (`jreng_markdown`), app integration at project level (`Source/whelmed/`). (ARCHITECT)
 
 ---
 

@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-22 (updated: component extraction, shell integration, open-file mode, OSC 8 hyperlinks, configurable shell)
+**Last Updated:** 2026-03-26 (updated: CPU renderer, OSC 7/9/777, native notifications, new_window action, jreng_graphics module)
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### Purpose
 
-END (Ephemeral Nexus Display) is a GPU-accelerated, fully-featured terminal emulator built with C++17 and JUCE. Tabs, split panes, Lua configuration, unified action registry with prefix-key modal input. Renders terminal output through an OpenGL pipeline with FreeType/HarfBuzz text shaping and a glyph atlas cache.
+END (Ephemeral Nexus Display) is a GPU/CPU-rendered, fully-featured terminal emulator built with C++17 and JUCE. Tabs, split panes, Lua configuration, unified action registry with prefix-key modal input. Renders terminal output through an OpenGL pipeline or a SIMD-optimised CPU software renderer, with FreeType/HarfBuzz text shaping and a glyph atlas cache. Runtime GPU/CPU switching via config hot-reload.
 
 ### Architecture Philosophy
 
@@ -23,7 +23,7 @@ APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTr
 - **Language:** C++17
 - **Framework:** JUCE 8
 - **Text Rendering:** CoreText + HarfBuzz (macOS), FreeType + HarfBuzz (Linux/Windows)
-- **GPU:** OpenGL (via JUCE OpenGLContext)
+- **Rendering:** OpenGL (GPU) or SIMD software renderer (CPU), runtime-switchable
 - **Config:** Lua (sol2)
 - **Build System:** JUCE / CMake
 - **Platform:** macOS (primary), Linux, Windows
@@ -82,7 +82,7 @@ Source/
       Parser.h/cpp                  VT state machine + dispatch
       ParserVT.cpp                  Ground state: print, execute, LF
       ParserCSI.cpp                 CSI dispatch (cursor, erase, mode)
-      ParserESC.cpp                 ESC dispatch (charset, OSC, DCS)
+      ParserESC.cpp                 ESC dispatch (charset, OSC 0/2/7/8/9/12/52/112/133/777, DCS)
       ParserSGR.cpp                 SGR (text attributes, color)
       ParserEdit.cpp                Erase, scroll, screen switch
       ParserOps.cpp                 Cursor movement, tab, reset
@@ -91,7 +91,7 @@ Source/
       GridErase.cpp                 Erase operations
       GridReflow.cpp                Reflow on resize
 
-    rendering/                      GPU pipeline (fonts, atlas, GL)
+    rendering/                      GPU/CPU pipeline (fonts, atlas, GL/SIMD)
       Screen.h/cpp                  Render coordinator, snapshot builder (reads Grid directly every frame)
       ScreenRender.cpp              buildSnapshot (reads Grid directly, no cell cache)
       ScreenSnapshot.cpp            updateSnapshot, publish to GLSnapshotBuffer
@@ -121,6 +121,11 @@ Source/
       TTY.h/cpp                     Abstract base + reader thread
       UnixTTY.h/cpp                 macOS/Linux: forkpty
       WindowsTTY.h/cpp              Windows: ConPTY via NtCreateNamedPipeFile, overlapped I/O, sideloaded conpty.dll
+
+    notifications/
+      Notifications.h               Cross-platform desktop notification API
+      Notifications.mm              macOS: UNUserNotificationCenter with foreground delegate
+      Notifications.cpp             Windows: MessageBeep + stderr; Linux: notify-send
 
     action/                         Unified action registry + key dispatch
       Action.h/cpp                  Action table, key map, prefix state machine, Context<Action>
@@ -158,9 +163,11 @@ modules/
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Data | `terminal/data/` | Pure value types, state atomics, IDs | JUCE ValueTree |
 | Logic | `terminal/logic/` | VT parsing, grid storage, session orchestration | Data |
-| Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL draw, Fonts (Context-managed) | Data, FreeType, HarfBuzz, OpenGL |
+| Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL/CPU draw, Fonts (Context-managed) | Data, FreeType, HarfBuzz, OpenGL, jreng_graphics |
+| Notifications | `terminal/notifications/` | Native desktop notification dispatch (OSC 9/777) | JUCE, UserNotifications (macOS) |
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jreng_core | `modules/jreng_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
+| jreng_graphics | `modules/jreng_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jreng_core, FreeType, HarfBuzz |
 | jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
 | Action | `terminal/action/` | Unified action registry, key dispatch, prefix state machine | Config, jreng::Context |
 | Panes | `component/` | Per-tab pane container, owns terminals and resizer bars | PaneManager, Terminal::Component |
@@ -285,7 +292,7 @@ Config lifetime owned by `ENDApplication` (Main.cpp). Fonts lifetime owned by `M
 
 ### Pattern: Shelf-Based Atlas Packing
 
-**Used for:** Packing variable-size glyphs into a fixed 4096x4096 texture atlas.
+**Used for:** Packing variable-size glyphs into a fixed texture atlas (4096x4096 GPU, 2048x2048 CPU).
 
 **Implementation:** `AtlasPacker.h`
 
@@ -369,7 +376,7 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 `Terminal::Action` inherits `jreng::Context<Action>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
 
 **Architecture:**
-- Fixed action table: 18 entries with ID, name, description, category, callback
+- Fixed action table: 19 entries with ID, name, description, category, callback
 - Hot-reloadable key map: reads `end.lua`, rebuilds KeyPress → action ID mapping on `reload()`
 - Prefix state machine: tmux-style two-keystroke input (prefix key + action key with timeout)
 - Global singleton via `jreng::Context<Action>`
@@ -392,6 +399,7 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 | zoom_in | cmd+= | No | `keys.zoom_in` |
 | zoom_out | cmd+- | No | `keys.zoom_out` |
 | zoom_reset | cmd+0 | No | `keys.zoom_reset` |
+| new_window | cmd+n | No | `keys.new_window` |
 | new_tab | cmd+t | No | `keys.new_tab` |
 | prev_tab | cmd+shift+[ | No | `keys.prev_tab` |
 | next_tab | cmd+shift+] | No | `keys.next_tab` |
