@@ -143,6 +143,8 @@ State::State()
     addParam (state, ID::visibleRows, 0.0f);
     addParam (state, ID::scrollOffset, 0);
     addParam (state, ID::modalType, 0.0f);
+    addParam (state, ID::hintPage, 0.0f);
+    addParam (state, ID::hintTotalPages, 0.0f);
     addParam (state, ID::selectionType, 0.0f);
     addParam (state, ID::selectionCursorRow, 0.0f);
     addParam (state, ID::selectionCursorCol, 0.0f);
@@ -654,6 +656,20 @@ void State::setModalType (ModalType type) noexcept
 ModalType State::getModalType() const noexcept { return static_cast<ModalType> (getRawValue<int> (ID::modalType)); }
 
 bool State::isModal() const noexcept { return getModalType() != ModalType::none; }
+
+void State::setHintPage (int page) noexcept
+{
+    storeAndFlush (ID::hintPage, static_cast<float> (page));
+}
+
+int State::getHintPage() const noexcept { return getRawValue<int> (ID::hintPage); }
+
+void State::setHintTotalPages (int total) noexcept
+{
+    storeAndFlush (ID::hintTotalPages, static_cast<float> (total));
+}
+
+int State::getHintTotalPages() const noexcept { return getRawValue<int> (ID::hintTotalPages); }
 
 // --- Selection state convenience wrappers ---
 

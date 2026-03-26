@@ -49,7 +49,7 @@ void Whelmed::Config::initKeys()
 
     addKey (Key::fontFamily, "Georgia", { T::string });
     addKey (Key::fontSize, 14.0, { T::number, 8.0, 72.0, true });
-    addKey (Key::codeFamily, "JetBrains Mono", { T::string });
+    addKey (Key::codeFamily, "Display Mono", { T::string });
     addKey (Key::codeSize, 12.0, { T::number, 8.0, 72.0, true });
     addKey (Key::h1Size, 28.0, { T::number, 8.0, 72.0, true });
     addKey (Key::h2Size, 24.0, { T::number, 8.0, 72.0, true });
@@ -58,6 +58,35 @@ void Whelmed::Config::initKeys()
     addKey (Key::h5Size, 16.0, { T::number, 8.0, 72.0, true });
     addKey (Key::h6Size, 14.0, { T::number, 8.0, 72.0, true });
     addKey (Key::lineHeight, 1.4, { T::number, 0.8, 3.0, true });
+
+    addKey (Key::background, juce::String ("00000000"), { T::string });
+    addKey (Key::bodyColour, juce::String ("CCCCCCFF"), { T::string });
+    addKey (Key::codeColour, juce::String ("00CCCCFF"), { T::string });
+    addKey (Key::linkColour, juce::String ("5599FFFF"), { T::string });
+    addKey (Key::h1Colour, juce::String ("CCCCCCFF"), { T::string });
+    addKey (Key::h2Colour, juce::String ("CCCCCCFF"), { T::string });
+    addKey (Key::h3Colour, juce::String ("CCCCCCFF"), { T::string });
+    addKey (Key::h4Colour, juce::String ("CCCCCCFF"), { T::string });
+    addKey (Key::h5Colour, juce::String ("CCCCCCFF"), { T::string });
+    addKey (Key::h6Colour, juce::String ("CCCCCCFF"), { T::string });
+    addKey (Key::codeFenceBackground, juce::String ("1A1A1AFF"), { T::string });
+
+    addKey (Key::paddingTop, 10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::paddingRight, 10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::paddingBottom, 10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::paddingLeft, 10.0, { T::number, 0.0, 200.0, true });
+
+    addKey (Key::tokenError,        juce::String ("CC0000FF"), { T::string });
+    addKey (Key::tokenComment,      juce::String ("6A9955FF"), { T::string });
+    addKey (Key::tokenKeyword,      juce::String ("569CD6FF"), { T::string });
+    addKey (Key::tokenOperator,     juce::String ("D4D4D4FF"), { T::string });
+    addKey (Key::tokenIdentifier,   juce::String ("9CDCFEFF"), { T::string });
+    addKey (Key::tokenInteger,      juce::String ("B5CEA8FF"), { T::string });
+    addKey (Key::tokenFloat,        juce::String ("B5CEA8FF"), { T::string });
+    addKey (Key::tokenString,       juce::String ("CE9178FF"), { T::string });
+    addKey (Key::tokenBracket,      juce::String ("D4D4D4FF"), { T::string });
+    addKey (Key::tokenPunctuation,  juce::String ("D4D4D4FF"), { T::string });
+    addKey (Key::tokenPreprocessor, juce::String ("C586C0FF"), { T::string });
 }
 
 //==============================================================================
@@ -180,6 +209,41 @@ static juce::String luaTypeName (sol::type t)
 bool Whelmed::Config::load (const juce::File& file) { return load (file, loadError); }
 
 /**
+ * @brief Explodes a 4-element Lua padding array into the four flat scalar keys.
+ *
+ * Expects @p arr to be a Lua array `{ top, right, bottom, left }` (1-indexed).
+ * Each element is validated against the schema range and stored if valid.
+ *
+ * @param arr     The Lua table containing the padding values.
+ * @param values  The runtime value store to write into.
+ * @param schema  The type/range schema to validate against.
+ */
+static void loadPadding (const sol::table& arr,
+                         std::unordered_map<juce::String, juce::var>& values,
+                         const std::unordered_map<juce::String, Whelmed::Config::Value>& schema)
+{
+    static const std::array<const juce::String*, 4> paddingKeys { &Whelmed::Config::Key::paddingTop,
+                                                                  &Whelmed::Config::Key::paddingRight,
+                                                                  &Whelmed::Config::Key::paddingBottom,
+                                                                  &Whelmed::Config::Key::paddingLeft };
+
+    for (int i { 0 }; i < 4; ++i)
+    {
+        sol::optional<double> v { arr.get<sol::optional<double>> (i + 1) };
+
+        if (v)
+        {
+            const auto& spec { schema.at (*paddingKeys.at (i)) };
+
+            if (spec.hasRange and (*v < spec.minValue or *v > spec.maxValue))
+                continue;
+
+            values.insert_or_assign (*paddingKeys.at (i), *v);
+        }
+    }
+}
+
+/**
  * @brief Validates a single key/value pair from Lua and stores it if valid.
  *
  * File-scope static — keeps sol2 types out of the header (matches END's pattern).
@@ -268,7 +332,6 @@ static void validateAndStore (const juce::String& key,
             }
         }
     }
-
 }
 
 /**
@@ -308,7 +371,15 @@ bool Whelmed::Config::load (const juce::File& file, juce::String& errorOut)
                     if (fieldKey.is<std::string>())
                     {
                         const auto key { juce::String (fieldKey.as<std::string>()) };
-                        validateAndStore (key, fieldVal, values, schema, errorOut);
+
+                        if (key == "padding" and fieldVal.get_type() == sol::type::table)
+                        {
+                            loadPadding (fieldVal.as<sol::table>(), values, schema);
+                        }
+                        else
+                        {
+                            validateAndStore (key, fieldVal, values, schema, errorOut);
+                        }
                     }
                 }
             }
@@ -359,6 +430,30 @@ juce::String Whelmed::Config::getString (const juce::String& key) const { return
  * @return The stored value cast to `float`.
  */
 float Whelmed::Config::getFloat (const juce::String& key) const { return static_cast<float> (values.at (key)); }
+
+/**
+ * @brief Returns a config value as an int.
+ * @param key  A `Whelmed::Config::Key` constant.
+ * @return The stored value cast to `int`.
+ */
+int Whelmed::Config::getInt (const juce::String& key) const { return static_cast<int> (values.at (key)); }
+
+/**
+ * @brief Returns a config value as a juce::Colour.
+ *
+ * Config stores colours as RRGGBBAA hex strings (8 chars).  JUCE parses
+ * colour strings in AARRGGBB order, so the alpha pair is moved to the front.
+ *
+ * @param key  A `Whelmed::Config::Key` constant for a colour field.
+ * @return The parsed colour, or opaque black on malformed input.
+ */
+juce::Colour Whelmed::Config::getColour (const juce::String& key) const
+{
+    const juce::String rrggbbaa { values.at (key).toString() };
+    jassert (rrggbbaa.length() == 8);
+    const juce::String aarrggbb { rrggbbaa.substring (6) + rrggbbaa.substring (0, 6) };
+    return juce::Colour::fromString (aarrggbb);
+}
 
 /**
  * @brief Returns the last load error/warning string.

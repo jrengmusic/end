@@ -142,6 +142,8 @@ void InputHandler::buildKeyMap() noexcept
     selectionKeys.lineStart = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineStart));
     selectionKeys.lineEnd = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineEnd));
     selectionKeys.exit = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionExit));
+
+    openFileNextPage = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysOpenFileNextPage));
 }
 
 void InputHandler::reset() noexcept
@@ -370,25 +372,32 @@ bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
         screen.setHintOverlay (nullptr, 0);
         linkManager.clearHints();
         session.getState().setModalType (Terminal::ModalType::none);
+        return true;
     }
-    else
+
+    if (key.getKeyCode() == juce::KeyPress::spaceKey)
     {
-        const juce::juce_wchar ch { key.getTextCharacter() };
-        const char lower { static_cast<char> (ch >= 'A' and ch <= 'Z' ? ch + 32 : ch) };
-        const bool isLetter { lower >= 'a' and lower <= 'z' };
+        linkManager.advanceHintPage();
 
-        if (isLetter)
+        screen.setHintOverlay (linkManager.getActiveHintsData(), linkManager.getActiveHintsCount());
+        session.getState().setSnapshotDirty();
+        return true;
+    }
+
+    const juce::juce_wchar ch { key.getTextCharacter() };
+    const char lower { static_cast<char> (ch >= 'A' and ch <= 'Z' ? ch + 32 : ch) };
+
+    if (lower >= 'a' and lower <= 'z')
+    {
+        const Terminal::LinkSpan* matched { linkManager.hitTestHint (lower) };
+
+        if (matched != nullptr)
         {
-            const Terminal::LinkSpan* matched { linkManager.hitTestHint (lower) };
+            linkManager.dispatch (*matched);
 
-            if (matched != nullptr)
-            {
-                linkManager.dispatch (*matched);
-
-                screen.setHintOverlay (nullptr, 0);
-                linkManager.clearHints();
-                session.getState().setModalType (Terminal::ModalType::none);
-            }
+            screen.setHintOverlay (nullptr, 0);
+            linkManager.clearHints();
+            session.getState().setModalType (Terminal::ModalType::none);
         }
     }
 

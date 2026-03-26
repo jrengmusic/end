@@ -192,6 +192,9 @@ private:
     /** @brief Cached selection-mode key bindings, rebuilt on config reload. */
     SelectionKeys selectionKeys;
 
+    /** @brief Cached open-file page-cycle key, rebuilt on config reload. */
+    juce::KeyPress openFileNextPage;
+
     /** @brief Pending-g flag for the two-key `gg` (go-to-top) sequence. */
     bool pendingG { false };
 };

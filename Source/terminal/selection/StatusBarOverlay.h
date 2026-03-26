@@ -87,15 +87,19 @@ public:
      *
      * When @p modalType is `ModalType::none`, hides the overlay.
      * For `ModalType::selection`, shows a vim-style mode label derived from
-     * @p selectionType.  For `ModalType::openFile`, shows "OPEN".
+     * @p selectionType.  For `ModalType::openFile`, shows "OPEN N/T" where
+     * N is the 1-based current page and T is the total page count.
      * Hidden when the selection type within a selection modal is unrecognised.
      *
      * @param modalType     The currently active modal type.
      * @param selectionType Integer cast of the current SelectionType (used
      *                      when @p modalType is `ModalType::selection`).
+     * @param hintPage      Current hint page index (0-based).
+     * @param hintTotalPages Total number of hint pages.
      * @note MESSAGE THREAD.
      */
-    void update (ModalType modalType, int selectionType) noexcept
+    void update (ModalType modalType, int selectionType,
+                 int hintPage, int hintTotalPages) noexcept
     {
         if (modalType == ModalType::selection)
         {
@@ -124,7 +128,15 @@ public:
         }
         else if (modalType == ModalType::openFile)
         {
-            label = "OPEN";
+            if (hintTotalPages > 1)
+            {
+                label = "OPEN " + juce::String (hintPage + 1) + "/" + juce::String (hintTotalPages);
+            }
+            else
+            {
+                label = "OPEN";
+            }
+
             setVisible (true);
             repaint();
         }

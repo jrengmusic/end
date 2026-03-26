@@ -70,10 +70,11 @@ public:
     void scan (const juce::String& cwd, bool outputRowsOnly);
 
     /**
-     * @brief Scans the full viewport and assigns single-character hint labels.
+     * @brief Scans the full viewport, paginates into 26-link pages, and labels page 0.
      *
-     * Used on open-file mode entry.  Populates `hintLinks` with spans labelled
-     * `'a'`–`'z'` using a character from the token's own filename where possible.
+     * Populates `hintLinks` with all detected spans (unlabeled), then computes
+     * total pages, resets the page index to 0, and calls `assignCurrentPage()`
+     * to label the first page into `activeHints`.
      *
      * @param cwd  Shell current working directory for relative-path resolution.
      * @note MESSAGE THREAD.
@@ -81,13 +82,23 @@ public:
     void scanForHints (const juce::String& cwd);
 
     /**
-     * @brief Clears all hint-mode link spans.
+     * @brief Clears all hint-mode link spans and resets page state.
      *
      * Called when open-file mode exits.
      *
      * @note MESSAGE THREAD.
      */
     void clearHints() noexcept;
+
+    /**
+     * @brief Advances to the next hint page, wrapping around, and re-labels.
+     *
+     * Increments the page index modulo total pages, writes it to State,
+     * and calls `assignCurrentPage()` to repopulate `activeHints`.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void advanceHintPage() noexcept;
 
     /**
      * @brief Returns the first clickable link at the given visible-row cell, or `nullptr`.
@@ -103,9 +114,11 @@ public:
      * @brief Returns the first hint-mode link matching the given label character,
      *        or `nullptr`.
      *
+     * Searches `activeHints` (the current page's labeled subset).
+     *
      * @param label  Single lowercase letter `'a'`–`'z'` to match against hint labels.
-     * @return Pointer into `hintLinks`, or `nullptr` if no span matches.
-     * @note MESSAGE THREAD.  Pointer is valid until the next `scanForHints()` call.
+     * @return Pointer into `activeHints`, or `nullptr` if no span matches.
+     * @note MESSAGE THREAD.  Pointer is valid until the next `scanForHints()` or `advanceHintPage()` call.
      */
     const LinkSpan* hitTestHint (char label) const noexcept;
 
@@ -140,11 +153,23 @@ public:
     const std::vector<LinkSpan>& getClickableLinks() const noexcept;
 
     /**
-     * @brief Returns the current hint-mode link spans.
+     * @brief Returns the current hint-mode link spans (full unfiltered list).
      * @return Read-only reference to the internal vector.
      * @note MESSAGE THREAD.
      */
     const std::vector<LinkSpan>& getHintLinks() const noexcept;
+
+    /**
+     * @brief Returns the current page's labeled hint spans.
+     *
+     * These are the spans passed to `Screen::setHintOverlay()`.  Valid until
+     * the next `scanForHints()` or `advanceHintPage()` call.
+     *
+     * @return Read-only reference to the active-page hint vector.
+     * @note MESSAGE THREAD.
+     */
+    const LinkSpan* getActiveHintsData() const noexcept;
+    int getActiveHintsCount() const noexcept;
 
 private:
     /**
@@ -166,11 +191,31 @@ private:
      *
      * Each span is given a character from its own token text (first available
      * unique lowercase letter).  Spans for which no unique letter can be found
-     * receive a null label.
+     * receive a null label (to be filled by `assignCurrentPage`'s fallback pass).
      *
      * @param spans  Spans to label.  Modified in-place.
      */
     void assignHintLabels (std::vector<LinkSpan>& spans) noexcept;
+
+    /**
+     * @brief Builds page boundaries from `hintLinks` based on character availability.
+     *
+     * Greedily assigns labels from each span's own characters. When all 26
+     * letters are exhausted, starts a new page. Stores boundaries in `pageBreaks`.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void buildPages() noexcept;
+
+    /**
+     * @brief Labels the current page's spans and stores them in `activeHints`.
+     *
+     * Reads page index from State, slices `hintLinks` using `pageBreaks`,
+     * and assigns labels via `assignHintLabels`.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void assignCurrentPage() noexcept;
 
     /** @brief Terminal parameter store — provides block bounds and screen queries. */
     State& state;
@@ -184,8 +229,17 @@ private:
     /** @brief Link spans for hover-underline mode.  Refreshed by ValueTree listener. */
     std::vector<LinkSpan> clickableLinks;
 
-    /** @brief Link spans for open-file hint-label mode.  Set on mode entry. */
+    /** @brief All link spans for open-file hint-label mode.  Full unfiltered list set on mode entry. */
     std::vector<LinkSpan> hintLinks;
+
+    /** @brief Start index of the current page in `hintLinks`. */
+    int activeStart { 0 };
+
+    /** @brief Number of spans in the current page. */
+    int activeCount { 0 };
+
+    /** @brief Page boundary indices into `hintLinks`.  Built by `buildPages()`. */
+    std::vector<int> pageBreaks;
 
     /** @brief Cached reference to the promptRow PARAM node for direct listening. */
     juce::ValueTree promptRowNode;

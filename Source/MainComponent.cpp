@@ -56,8 +56,16 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
                 config.getString (Config::Key::gpuAcceleration) != "false" ? jreng::Glyph::AtlasSize::standard
                                                                            : jreng::Glyph::AtlasSize::compact,
                 true)
-    , whelmedBodyFont (fontRegistry, "Helvetica", 14.0f, jreng::Glyph::AtlasSize::standard, false)
-    , whelmedCodeFont (fontRegistry, "Menlo", 12.0f, jreng::Glyph::AtlasSize::standard, true)
+    , whelmedBodyFont (fontRegistry,
+                       Whelmed::Config::getContext()->getString (Whelmed::Config::Key::fontFamily),
+                       Whelmed::Config::getContext()->getFloat (Whelmed::Config::Key::fontSize),
+                       jreng::Glyph::AtlasSize::standard,
+                       false)
+    , whelmedCodeFont (fontRegistry,
+                       Whelmed::Config::getContext()->getString (Whelmed::Config::Key::codeFamily),
+                       Whelmed::Config::getContext()->getFloat (Whelmed::Config::Key::codeSize),
+                       jreng::Glyph::AtlasSize::standard,
+                       true)
 {
     setOpaque (false);
 
@@ -666,9 +674,11 @@ void MainComponent::initialiseTabs()
     {
         if (auto* terminal { tabs->getActiveTerminal() }; terminal != nullptr)
         {
-            const auto modalType { terminal->getModalType() };
-            const auto selType { terminal->getSelectionType() };
-            statusBarOverlay.update (modalType, selType);
+            const auto modalType  { terminal->getModalType() };
+            const auto selType    { terminal->getSelectionType() };
+            const auto hintPage   { terminal->getHintPage() };
+            const auto hintTotal  { terminal->getHintTotalPages() };
+            statusBarOverlay.update (modalType, selType, hintPage, hintTotal);
             terminal->repaint();
         }
 

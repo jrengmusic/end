@@ -31,10 +31,41 @@ struct Config : jreng::Context<Config>
         inline static const juce::String h5Size { "h5_size" };
         inline static const juce::String h6Size { "h6_size" };
         inline static const juce::String lineHeight { "line_height" };
+
+        inline static const juce::String background          { "background" };
+        inline static const juce::String bodyColour          { "body_colour" };
+        inline static const juce::String codeColour          { "code_colour" };
+        inline static const juce::String linkColour          { "link_colour" };
+        inline static const juce::String h1Colour            { "h1_colour" };
+        inline static const juce::String h2Colour            { "h2_colour" };
+        inline static const juce::String h3Colour            { "h3_colour" };
+        inline static const juce::String h4Colour            { "h4_colour" };
+        inline static const juce::String h5Colour            { "h5_colour" };
+        inline static const juce::String h6Colour            { "h6_colour" };
+        inline static const juce::String codeFenceBackground { "code_fence_background" };
+
+        inline static const juce::String paddingTop    { "padding_top" };
+        inline static const juce::String paddingRight  { "padding_right" };
+        inline static const juce::String paddingBottom { "padding_bottom" };
+        inline static const juce::String paddingLeft   { "padding_left" };
+
+        inline static const juce::String tokenError        { "token_error" };
+        inline static const juce::String tokenComment      { "token_comment" };
+        inline static const juce::String tokenKeyword      { "token_keyword" };
+        inline static const juce::String tokenOperator     { "token_operator" };
+        inline static const juce::String tokenIdentifier   { "token_identifier" };
+        inline static const juce::String tokenInteger      { "token_integer" };
+        inline static const juce::String tokenFloat        { "token_float" };
+        inline static const juce::String tokenString       { "token_string" };
+        inline static const juce::String tokenBracket      { "token_bracket" };
+        inline static const juce::String tokenPunctuation  { "token_punctuation" };
+        inline static const juce::String tokenPreprocessor { "token_preprocessor" };
     };
 
     juce::String getString (const juce::String& key) const;
     float getFloat (const juce::String& key) const;
+    int getInt (const juce::String& key) const;
+    juce::Colour getColour (const juce::String& key) const;
 
     juce::String reload();
     const juce::String& getLoadError() const noexcept;

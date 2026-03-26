@@ -17,4 +17,19 @@ WHELMED = {
     h5_size     = %%h5_size%%,            -- header 5 size (8-72)
     h6_size     = %%h6_size%%,            -- header 6 size (8-72)
     line_height = %%line_height%%,        -- line height multiplier (0.8-3.0)
+
+    padding = { %%padding_top%%, %%padding_right%%, %%padding_bottom%%, %%padding_left%% },
+
+    -- token colours (RRGGBBAA hex strings)
+    token_error        = "%%token_error%%",        -- error tokens
+    token_comment      = "%%token_comment%%",      -- comments
+    token_keyword      = "%%token_keyword%%",      -- language keywords
+    token_operator     = "%%token_operator%%",     -- operators
+    token_identifier   = "%%token_identifier%%",   -- identifiers
+    token_integer      = "%%token_integer%%",      -- integer literals
+    token_float        = "%%token_float%%",        -- float literals
+    token_string       = "%%token_string%%",       -- string literals
+    token_bracket      = "%%token_bracket%%",      -- brackets
+    token_punctuation  = "%%token_punctuation%%",  -- punctuation
+    token_preprocessor = "%%token_preprocessor%%", -- preprocessor directives
 }

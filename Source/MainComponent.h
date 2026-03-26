@@ -48,6 +48,7 @@
 // jreng::Typeface is available via JuceHeader → jreng_glyph
 #include "terminal/selection/StatusBarOverlay.h"
 #include "whelmed/Component.h"
+#include "whelmed/config/Config.h"
 
 /**
  * @class MainComponent

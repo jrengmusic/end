@@ -2,6 +2,62 @@
 
 ---
 
+## Sprint 126: Whelmed Pane Lifecycle + Config-Driven File Handlers
+
+**Date:** 2026-03-27
+**Duration:** ~3h
+
+### Agents Participated
+- COUNSELOR: Led planning, investigation, delegation, auditing, direct fixes
+- Pathfinder (x3): swapToTerminal code paths, ValueTree PANE structure, Config/handler patterns
+- Engineer (x3): createWhelmed/closeWhelmed rewrite, layOut rename, handler dispatch
+- Auditor (x2): Panes lifecycle verification, handler dispatch verification
+
+### Architecture Decisions This Session
+
+1. **Keep terminal alive** — opening whelmed hides the terminal (`setVisible(false)`), closing whelmed shows it again. No destroy/create cycle. Eliminates single-pane rendering bug class entirely.
+2. **Shared UUID** — whelmed component gets the same `componentID` as the terminal it overlays. `PaneManager::layout` matches both by UUID; hidden terminal receives `setBounds` harmlessly.
+3. **DOCUMENT alongside SESSION** — PANE ValueTree node holds both SESSION and DOCUMENT children when whelmed is open. DOCUMENT presence is the indicator for visibility gating.
+4. **`getValueTree()` on PaneComponent** — pure virtual on base class. Both Terminal::Component and Whelmed::Component implement. Enables polymorphic ValueTree access without dynamic_cast.
+5. **Config-driven file handlers** — `LinkManager::dispatch` uses `Config::getHandler(ext)` instead of hardcoded `.md` check. `"whelmed"` is a reserved internal handler keyword. Default: `.md` → `"whelmed"`. User overridable via `handlers` table in `end.lua`.
+
+### Files Modified (10 total)
+
+**Whelmed pane lifecycle (5 files)**
+- `Source/component/PaneComponent.h` — added `virtual juce::ValueTree getValueTree() noexcept = 0`
+- `Source/component/TerminalComponent.h` — `getValueTree()` gains `override`
+- `Source/whelmed/Component.h` — `getValueTree()` drops `const`, gains `override`
+- `Source/whelmed/Component.cpp` — `getValueTree()` signature updated
+- `Source/component/Panes.h` — `swapToTerminal()` → `closeWhelmed()` declaration
+- `Source/component/Panes.cpp` — `createWhelmed` rewritten (hide terminal, overlay whelmed, DOCUMENT alongside SESSION); `swapToTerminal` replaced by `closeWhelmed`; `visibilityChanged` skips hidden terminals with DOCUMENT child
+- `Source/component/Tabs.cpp` — `closeActiveTab` calls `closeWhelmed()`, restructured as if/else if/else chain (no early returns)
+
+**Rename (3 files)**
+- `modules/jreng_gui/layout/jreng_pane_manager.h` — `layOut` → `layout`, `layOutNode` → `layoutNode`
+- `Source/component/Panes.h` — doc comment updated
+- `Source/component/Panes.cpp` — call site updated
+
+**Config-driven handlers (2 files)**
+- `Source/config/Config.cpp:741` — default `".md"` → `"whelmed"` handler before Lua load
+- `Source/terminal/selection/LinkManager.cpp:102-113` — handler lookup replaces hardcoded `.md` check
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD enforced
+
+### Problems Solved
+- **Single-pane rendering bug** — root cause was destroy/create terminal lifecycle. Eliminated by keeping terminal alive (hide/show). Terminal state, VBlank, PTY, grid all survive whelmed overlay.
+- **Early return violation** — `closeActiveTab` had `return` inside document-pane branch. Restructured as if/else if/else chain.
+- **Hardcoded .md handler** — replaced with config-driven lookup. User can override `.md` to open in editor instead of whelmed.
+
+### Technical Debt / Follow-up
+- **`visibilityChanged` ValueTree lookup** — iterates `findLeaf` per terminal pane on every visibility change. Acceptable for small pane counts but could cache if needed.
+- **Pre-existing brace violations** — `Config.cpp` `getHandler()` and reload path have single-statement ifs without braces. Not introduced by this sprint.
+
+---
+
 ## Sprint 125: Plan 5 — Steps 5.6–5.9, Phase 1 Rendering, Pane Generalization
 
 **Date:** 2026-03-26 / 2026-03-27

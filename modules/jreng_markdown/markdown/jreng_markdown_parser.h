@@ -1,6 +1,29 @@
 namespace jreng::Markdown
 { /*____________________________________________________________________________*/
 
+struct FontConfig
+{
+    juce::String bodyFamily;
+    float bodySize { 14.0f };
+    juce::String codeFamily;
+    float codeSize { 12.0f };
+    float h1Size { 28.0f };
+    float h2Size { 24.0f };
+    float h3Size { 20.0f };
+    float h4Size { 18.0f };
+    float h5Size { 16.0f };
+    float h6Size { 14.0f };
+    juce::Colour bodyColour;
+    juce::Colour codeColour;
+    juce::Colour linkColour;
+    juce::Colour h1Colour;
+    juce::Colour h2Colour;
+    juce::Colour h3Colour;
+    juce::Colour h4Colour;
+    juce::Colour h5Colour;
+    juce::Colour h6Colour;
+};
+
 struct Parser
 {
     // ========================================================================
@@ -15,7 +38,7 @@ struct Parser
 
     static std::tuple<LineType, uint8_t, int> classifyLine (const juce::String& line);
 
-    static juce::AttributedString toAttributedString (const Block& block);
+    static juce::AttributedString toAttributedString (const Block& block, const FontConfig& fontConfig);
 
     //==============================================================================
 private:

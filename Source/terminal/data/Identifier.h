@@ -132,6 +132,12 @@ namespace ID
     /** @brief Active modal input type (cast from ModalType enum). 0 = none. */
     static const juce::Identifier modalType     { "modalType" };
 
+    /** @brief Current hint page index (0-based). Updated on open-file mode entry and spacebar. */
+    static const juce::Identifier hintPage       { "hintPage" };
+
+    /** @brief Total number of hint pages. Updated on open-file mode entry. */
+    static const juce::Identifier hintTotalPages { "hintTotalPages" };
+
     //==========================================================================
     // Display name parameter IDs (tab name sources)
     //==========================================================================

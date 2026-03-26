@@ -1,17 +1,6 @@
 namespace jreng::Markdown
 { /*____________________________________________________________________________*/
 
-static constexpr float defaultFontSize { 14.0f };
-static constexpr float codeFontSize { 12.0f };
-static constexpr float h1FontSize { 24.0f };
-static constexpr float h2FontSize { 22.0f };
-static constexpr float h3FontSize { 20.0f };
-static constexpr float h4FontSize { 18.0f };
-static constexpr float h5FontSize { 16.0f };
-static constexpr float h6FontSize { 14.0f };
-static const juce::Colour codeColour { 0xff8b0000u };
-static const juce::Colour linkColour { 0xff0000ffu };
-
 int Parser::countConsecutive (const juce::String& s, int start, char target)
 {
     int count { 0 };
@@ -47,45 +36,96 @@ Blocks Parser::getBlocks (const juce::String& markdown)
         juce::StringArray lines;
         lines.addLines (markdown);
 
-        auto addMarkdownBlock = [&result, &lines] (int startLine, int endLine)
+        // Scans a range of lines (1-based, inclusive) and emits Markdown and CodeFence
+        // blocks into result, detecting generic ``` fences within that range.
+        auto scanRange = [&result, &lines] (int startLine, int endLine)
         {
-            if (startLine <= endLine)
-            {
-                const int startIndex { startLine - 1 };
-                const int numLines { endLine - startLine + 1 };
-                juce::String text { lines.joinIntoString ("\n", startIndex, numLines) };
+            if (startLine > endLine)
+                return;
 
-                if (text.trim().isNotEmpty())
+            juce::StringArray pendingMarkdown;
+            int i { startLine - 1 };  // 0-based index
+
+            auto flushPending = [&result, &pendingMarkdown]()
+            {
+                if (pendingMarkdown.size() > 0)
                 {
-                    Block block { BlockType::Markdown, text };
+                    juce::String text { pendingMarkdown.joinIntoString ("\n") };
+
+                    if (text.trim().isNotEmpty())
+                    {
+                        Block block;
+                        block.type = BlockType::Markdown;
+                        block.content = text;
+                        result.push_back (block);
+                    }
+
+                    pendingMarkdown.clear();
+                }
+            };
+
+            while (i <= endLine - 1)
+            {
+                const auto& line { lines[i] };
+                auto trimmed { line.trim() };
+
+                if (trimmed.startsWith ("```"))
+                {
+                    flushPending();
+
+                    juce::String language { trimmed.substring (3).trim().toLowerCase() };
+                    juce::StringArray fenceLines;
+                    ++i;
+
+                    while (i <= endLine - 1)
+                    {
+                        auto closingTrimmed { lines[i].trim() };
+
+                        if (closingTrimmed.startsWith ("```"))
+                            break;
+
+                        fenceLines.add (lines[i]);
+                        ++i;
+                    }
+
+                    // Skip closing fence line
+                    if (i <= endLine - 1)
+                        ++i;
+
+                    Block block;
+                    block.type = BlockType::CodeFence;
+                    block.content = fenceLines.joinIntoString ("\n");
+                    block.language = language;
                     result.push_back (block);
                 }
+                else
+                {
+                    pendingMarkdown.add (line);
+                    ++i;
+                }
             }
+
+            flushPending();
         };
 
         int previousEndLine { 0 };
 
         for (const auto& mermaidBlock : mermaidBlocks)
         {
-            addMarkdownBlock (previousEndLine + 1, mermaidBlock.lineStart - 1);
+            scanRange (previousEndLine + 1, mermaidBlock.lineStart - 1);
 
             if (mermaidBlock.code.trim().isNotEmpty())
             {
-                Block block { BlockType::Mermaid, mermaidBlock.code };
+                Block block;
+                block.type = BlockType::Mermaid;
+                block.content = mermaidBlock.code;
                 result.push_back (block);
             }
 
             previousEndLine = mermaidBlock.lineEnd;
         }
 
-        if (previousEndLine < lines.size())
-            addMarkdownBlock (previousEndLine + 1, lines.size());
-
-        if (mermaidBlocks.empty())
-        {
-            result.clear();
-            addMarkdownBlock (1, lines.size());
-        }
+        scanRange (previousEndLine + 1, lines.size());
     }
 
     return result;
@@ -360,7 +400,7 @@ std::pair<InlineSpans, TextLinks> Parser::inlineSpans (const juce::String& text)
     return { spans, links };
 }
 
-juce::AttributedString Parser::toAttributedString (const Block& block)
+juce::AttributedString Parser::toAttributedString (const Block& block, const FontConfig& fontConfig)
 {
     juce::AttributedString result;
 
@@ -371,33 +411,33 @@ juce::AttributedString Parser::toAttributedString (const Block& block)
     for (const auto& unit : units)
     {
         if (previousKind != LineType::Blank and unit.kind != previousKind)
-            result.append ("\n", juce::FontOptions (defaultFontSize), juce::Colours::white);
+            result.append ("\n", juce::FontOptions().withName (fontConfig.bodyFamily).withPointHeight (fontConfig.bodySize), fontConfig.bodyColour);
 
         previousKind = unit.kind;
 
-        float fontSize { defaultFontSize };
+        float fontSize { fontConfig.bodySize };
 
         if (unit.kind == LineType::Header)
         {
             switch (unit.level)
             {
                 case 1:
-                    fontSize = h1FontSize;
+                    fontSize = fontConfig.h1Size;
                     break;
                 case 2:
-                    fontSize = h2FontSize;
+                    fontSize = fontConfig.h2Size;
                     break;
                 case 3:
-                    fontSize = h3FontSize;
+                    fontSize = fontConfig.h3Size;
                     break;
                 case 4:
-                    fontSize = h4FontSize;
+                    fontSize = fontConfig.h4Size;
                     break;
                 case 5:
-                    fontSize = h5FontSize;
+                    fontSize = fontConfig.h5Size;
                     break;
                 case 6:
-                    fontSize = h6FontSize;
+                    fontSize = fontConfig.h6Size;
                     break;
                 default:
                     break;
@@ -408,7 +448,23 @@ juce::AttributedString Parser::toAttributedString (const Block& block)
 
         if (spans.empty())
         {
-            result.append (unit.text + "\n", juce::FontOptions (fontSize), juce::Colours::white);
+            juce::Colour unitColour { fontConfig.bodyColour };
+
+            if (unit.kind == LineType::Header)
+            {
+                switch (unit.level)
+                {
+                    case 1: unitColour = fontConfig.h1Colour; break;
+                    case 2: unitColour = fontConfig.h2Colour; break;
+                    case 3: unitColour = fontConfig.h3Colour; break;
+                    case 4: unitColour = fontConfig.h4Colour; break;
+                    case 5: unitColour = fontConfig.h5Colour; break;
+                    case 6: unitColour = fontConfig.h6Colour; break;
+                    default: break;
+                }
+            }
+
+            result.append (unit.text + "\n", juce::FontOptions().withName (fontConfig.bodyFamily).withPointHeight (fontSize), unitColour);
         }
         else
         {
@@ -421,24 +477,46 @@ juce::AttributedString Parser::toAttributedString (const Block& block)
                 bool isCode { (span.style & Code) != None };
                 bool isLink { (span.style & Link) != None };
 
-                float size { isCode ? codeFontSize : fontSize };
+                float size { isCode ? fontConfig.codeSize : fontSize };
+                const juce::String& family { isCode ? fontConfig.codeFamily : fontConfig.bodyFamily };
 
-                int styleFlags { juce::Font::plain };
-                if (isBold)
-                    styleFlags |= juce::Font::bold;
-                if (isItalic)
-                    styleFlags |= juce::Font::italic;
+                juce::String style { "Regular" };
 
-                juce::Colour colour { juce::Colours::white };
+                if (isBold and isItalic)
+                    style = "Bold Italic";
+                else if (isBold)
+                    style = "Bold";
+                else if (isItalic)
+                    style = "Italic";
+
+                juce::Colour colour { fontConfig.bodyColour };
+
                 if (isCode)
-                    colour = codeColour;
+                {
+                    colour = fontConfig.codeColour;
+                }
                 else if (isLink)
-                    colour = linkColour;
+                {
+                    colour = fontConfig.linkColour;
+                }
+                else if (unit.kind == LineType::Header)
+                {
+                    switch (unit.level)
+                    {
+                        case 1: colour = fontConfig.h1Colour; break;
+                        case 2: colour = fontConfig.h2Colour; break;
+                        case 3: colour = fontConfig.h3Colour; break;
+                        case 4: colour = fontConfig.h4Colour; break;
+                        case 5: colour = fontConfig.h5Colour; break;
+                        case 6: colour = fontConfig.h6Colour; break;
+                        default: break;
+                    }
+                }
 
-                result.append (spanText, juce::FontOptions (size, styleFlags), colour);
+                result.append (spanText, juce::FontOptions().withName (family).withPointHeight (size).withStyle (style), colour);
             }
 
-            result.append ("\n", juce::FontOptions (fontSize), juce::Colours::white);
+            result.append ("\n", juce::FontOptions().withName (fontConfig.bodyFamily).withPointHeight (fontSize), fontConfig.bodyColour);
         }
     }
 

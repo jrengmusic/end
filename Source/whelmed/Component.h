@@ -3,6 +3,7 @@
 #include "../component/PaneComponent.h"
 #include "State.h"
 #include "Block.h"
+#include "CodeBlock.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
@@ -20,6 +21,7 @@ public:
 
     // juce::Component
     bool keyPressed (const juce::KeyPress& key) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
 
     void openFile (const juce::File& file);
@@ -34,6 +36,7 @@ private:
     juce::Viewport viewport;
     std::unique_ptr<juce::Component> content;
     jreng::Owner<Block> blocks;
+    jreng::Owner<CodeBlock> codeBlocks;
 
     std::unique_ptr<jreng::Mermaid::Parser> mermaidParser;
 

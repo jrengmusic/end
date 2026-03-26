@@ -51,10 +51,108 @@ void LinkManager::scan (const juce::String& cwd, bool outputRowsOnly)
 void LinkManager::scanForHints (const juce::String& cwd)
 {
     hintLinks = scanViewport (cwd, state.hasOutputBlock());
-    assignHintLabels (hintLinks);
+    buildPages();
+    state.setHintPage (0);
+    assignCurrentPage();
 }
 
-void LinkManager::clearHints() noexcept { hintLinks.clear(); }
+void LinkManager::clearHints() noexcept
+{
+    hintLinks.clear();
+    pageBreaks.clear();
+    activeStart = 0;
+    activeCount = 0;
+    state.setHintPage (0);
+    state.setHintTotalPages (0);
+}
+
+void LinkManager::advanceHintPage() noexcept
+{
+    const int total { state.getHintTotalPages() };
+
+    if (total > 1)
+    {
+        const int nextPage { (state.getHintPage() + 1) % total };
+        state.setHintPage (nextPage);
+        assignCurrentPage();
+    }
+}
+
+void LinkManager::buildPages() noexcept
+{
+    pageBreaks.clear();
+    pageBreaks.push_back (0);
+
+    // Label all spans upfront and record page boundaries.
+    assignHintLabels (hintLinks);
+
+    std::unordered_set<char> usedLabels;
+
+    for (size_t i { 0 }; i < hintLinks.size(); ++i)
+    {
+        const char label { hintLinks.at (i).hintLabel[0] };
+
+        if (label == 0 or usedLabels.find (label) != usedLabels.end())
+        {
+            // Collision or unlabeled — start new page, re-label from here
+            usedLabels.clear();
+            pageBreaks.push_back (static_cast<int> (i));
+
+            // Re-assign labels for the new page starting at i
+            std::unordered_set<char> newPageUsed;
+            const int scrollOffset { state.getScrollOffset() };
+
+            for (size_t j { i }; j < hintLinks.size(); ++j)
+            {
+                auto& span { hintLinks.at (j) };
+                span.hintLabel[0] = 0;
+
+                const int tokenEnd { span.col + span.length };
+                const Cell* rowCells { scrollOffset > 0
+                                           ? grid.scrollbackRow (span.row, scrollOffset)
+                                           : grid.activeVisibleRow (span.row) };
+
+                if (rowCells != nullptr)
+                {
+                    for (int c { span.col }; c < tokenEnd; ++c)
+                    {
+                        const uint32_t cp { rowCells[c].codepoint };
+                        const char lower { static_cast<char> (cp >= 'A' and cp <= 'Z' ? cp + 32 : cp) };
+
+                        if (lower >= 'a' and lower <= 'z' and newPageUsed.find (lower) == newPageUsed.end())
+                        {
+                            span.hintLabel[0] = lower;
+                            span.hintLabel[1] = 0;
+                            span.labelCol = c;
+                            newPageUsed.insert (lower);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Continue scanning from i with fresh usedLabels
+            usedLabels.insert (hintLinks.at (i).hintLabel[0]);
+        }
+        else
+        {
+            usedLabels.insert (label);
+        }
+    }
+
+    state.setHintTotalPages (static_cast<int> (pageBreaks.size()));
+}
+
+void LinkManager::assignCurrentPage() noexcept
+{
+    const int page { state.getHintPage() };
+    const int total { state.getHintTotalPages() };
+
+    activeStart = pageBreaks.at (static_cast<size_t> (page));
+    activeCount = (page + 1 < total)
+                      ? pageBreaks.at (static_cast<size_t> (page + 1)) - activeStart
+                      : static_cast<int> (hintLinks.size()) - activeStart;
+}
 
 const LinkSpan* LinkManager::hitTest (int row, int col) const noexcept
 {
@@ -76,11 +174,11 @@ const LinkSpan* LinkManager::hitTestHint (char label) const noexcept
 {
     const LinkSpan* result { nullptr };
 
-    for (const auto& span : hintLinks)
+    for (int i { activeStart }; i < activeStart + activeCount; ++i)
     {
-        if (span.hintLabel[0] == label)
+        if (hintLinks.at (static_cast<size_t> (i)).hintLabel[0] == label)
         {
-            result = &span;
+            result = &hintLinks.at (static_cast<size_t> (i));
             break;
         }
     }
@@ -119,6 +217,9 @@ void LinkManager::dispatch (const LinkSpan& span) const
 const std::vector<LinkSpan>& LinkManager::getClickableLinks() const noexcept { return clickableLinks; }
 
 const std::vector<LinkSpan>& LinkManager::getHintLinks() const noexcept { return hintLinks; }
+
+const LinkSpan* LinkManager::getActiveHintsData() const noexcept { return hintLinks.data() + activeStart; }
+int LinkManager::getActiveHintsCount() const noexcept { return activeCount; }
 
 std::vector<LinkSpan> LinkManager::scanViewport (const juce::String& cwd, bool outputRowsOnly) const
 {
@@ -284,12 +385,8 @@ void LinkManager::assignHintLabels (std::vector<LinkSpan>& spans) noexcept
             }
         }
 
-        // hintLabel[0] is zero-initialized by default (LinkSpan::hintLabel[2] {}).
         // If the inner loop found no usable character, hintLabel[0] remains 0.
-        if (span.hintLabel[0] == 0)
-        {
-            span.labelCol = span.col;
-        }
+        // The span is unreachable on this page — user cycles to another page.
     }
 }
 

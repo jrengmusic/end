@@ -303,6 +303,10 @@ int Terminal::Component::getSelectionType() const noexcept { return session.getS
 
 Terminal::ModalType Terminal::Component::getModalType() const noexcept { return session.getState().getModalType(); }
 
+int Terminal::Component::getHintPage() const noexcept { return session.getState().getHintPage(); }
+
+int Terminal::Component::getHintTotalPages() const noexcept { return session.getState().getHintTotalPages(); }
+
 void Terminal::Component::exitSelectionMode() noexcept
 {
     session.getState().setSelectionType (static_cast<int> (SelectionType::none));
@@ -328,8 +332,7 @@ void Terminal::Component::enterOpenFileMode() noexcept
             const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
             linkManager.scanForHints (cwd);
 
-            const auto& hints { linkManager.getHintLinks() };
-            screenBase().setHintOverlay (hints.data(), static_cast<int> (hints.size()));
+            screenBase().setHintOverlay (linkManager.getActiveHintsData(), linkManager.getActiveHintsCount());
             session.getState().setModalType (ModalType::openFile);
         }
     }

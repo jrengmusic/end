@@ -810,6 +810,34 @@ struct State : public juce::Timer
      */
     void setModalType (ModalType type) noexcept;
 
+    /**
+     * @brief Sets the current hint page index (0-based).
+     * @param page  Zero-based index into the paginated hint list.
+     * @note MESSAGE THREAD — calls storeAndFlush.
+     */
+    void setHintPage (int page) noexcept;
+
+    /**
+     * @brief Returns the current hint page index.
+     * @return Zero-based page index.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getHintPage() const noexcept;
+
+    /**
+     * @brief Sets the total number of hint pages.
+     * @param total  Number of pages (ceil of link count / 26).
+     * @note MESSAGE THREAD — calls storeAndFlush.
+     */
+    void setHintTotalPages (int total) noexcept;
+
+    /**
+     * @brief Returns the total number of hint pages.
+     * @return Total page count (0 when no hints are active).
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getHintTotalPages() const noexcept;
+
     // =========================================================================
     /** @name Selection state convenience wrappers
      *  All selection state is stored in the parameterMap and flows through

@@ -400,6 +400,7 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysActionListPosition { "keys.action_list_position" };
         inline static const juce::String keysEnterSelection { "keys.enter_selection" };
         inline static const juce::String keysEnterOpenFile { "keys.enter_open_file" };
+        inline static const juce::String keysOpenFileNextPage { "keys.open_file_next_page" };
 
         /** @brief Move cursor up in selection mode. */
         inline static const juce::String keysSelectionUp { "keys.selection_up" };

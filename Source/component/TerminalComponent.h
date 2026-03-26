@@ -524,6 +524,30 @@ public:
     ModalType getModalType() const noexcept;
 
     /**
+     * @brief Returns the current hint page index (0-based).
+     *
+     * Lock-free atomic read from State.  Used by MainComponent to poll the
+     * active terminal's hint page state every VBlank frame and update the
+     * StatusBarOverlay without a callback chain.
+     *
+     * @return Zero-based page index.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getHintPage() const noexcept;
+
+    /**
+     * @brief Returns the total number of hint pages.
+     *
+     * Lock-free atomic read from State.  Used by MainComponent to poll the
+     * active terminal's hint total-page count every VBlank frame and update
+     * the StatusBarOverlay without a callback chain.
+     *
+     * @return Total page count (0 when no hints are active).
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getHintTotalPages() const noexcept;
+
+    /**
      * @brief Initialises the terminal component after construction.
      *
      * Contains the shared initialization logic for all constructors.

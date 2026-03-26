@@ -215,6 +215,7 @@ void Config::initKeys()
     addKey (Key::keysActionListPosition, "top", { T::string });
     addKey (Key::keysEnterSelection, "[", { T::string });
     addKey (Key::keysEnterOpenFile, "o", { T::string });
+    addKey (Key::keysOpenFileNextPage, "space", { T::string });
 
     addKey (Key::keysSelectionUp, "k", { T::string });
     addKey (Key::keysSelectionDown, "j", { T::string });

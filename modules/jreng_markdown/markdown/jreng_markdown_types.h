@@ -17,6 +17,7 @@ struct Block
 {
     BlockType type;
     juce::String content;
+    juce::String language;  // Language tag from code fence opening (e.g. "cpp", "lua"). Empty for untagged fences.
 };
 
 using Blocks = std::vector<Block>;
