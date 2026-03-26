@@ -47,13 +47,16 @@ MainComponent::applyConfig()
 Whelmed::Component                  Terminal::Component
     |                                   |
     v                                   v
-Document (file, blocks, dirty)      Session (Grid, State, TTY)
+State (ValueTree SSOT, blocks)      Session (Grid, State, TTY)
     |                                   |
     v                                   v
 TextLayout::createLayout()          Screen<Renderer>::buildSnapshot()
     |                                   |
     v                                   v
 TextLayout::draw<Renderer>()        Renderer::drawQuads / drawBackgrounds
+    |
+    v (mermaid blocks only)
+jreng::JavaScriptEngine → SVG string → Mermaid::Graphic::extractFromSVG → juce::Graphics
 ```
 
 ### Component Hierarchy
@@ -72,14 +75,18 @@ Terminal::Component   Whelmed::Component
 
 **Module level** (reusable — WHELMED standalone can consume):
 ```
-modules/jreng_markdown/          NEW: reusable parsing module
+modules/jreng_javascript/        NEW: headless JS engine (OS WebView wrapper)
+    └── Engine.h/cpp             load library (String), execute (String) → callback (String)
+
+modules/jreng_markdown/          DONE: reusable parsing module
     ├── markdown/
     │   ├── Parser.h/cpp         block detection, line classification, inline spans, toAttributedString
     │   ├── Table.h/cpp          GFM table parser (data extraction)
-    │   └── Types.h              Block, Unit, InlineSpan, Blocks
+    │   └── Types.h              BlockType, BlockUnit, InlineSpan, Blocks
     └── mermaid/
         ├── Extract.h/cpp        fence extraction
-        └── SVGParser.h/cpp      SVG string → SVGPrimitive / SVGTextPrimitive
+        ├── SVGParser.h/cpp      SVG string → Graphic::Diagrams
+        └── Parser.h/cpp         NEW: thin layer — mermaid code → SVG via jreng::JavaScriptEngine
 ```
 
 **Project level** (END-specific integration):
@@ -88,11 +95,9 @@ Source/whelmed/                   NEW: END integration layer
     ├── config/
     │   ├── Config.h/cpp         Whelmed::Config (Context<Config> singleton)
     │   └── default_whelmed.lua  BinaryData template
+    ├── State.h/cpp              Whelmed::State (ValueTree SSOT, parsed blocks, dirty flag)
     ├── Component.h/cpp          Whelmed::Component (PaneComponent subclass)
-    ├── Document.h/cpp           file state, parsed blocks, dirty tracking
-    ├── TableComponent.h/cpp     dedicated table renderer component
-    └── mermaid/
-        └── Parser.h/cpp         WebBrowserComponent singleton wrapper
+    └── TableComponent.h/cpp     dedicated table renderer component
 ```
 
 ### Module Dependency
@@ -101,18 +106,21 @@ Source/whelmed/                   NEW: END integration layer
 jreng_core
     ^
     |
-jreng_graphics   (Typeface, Atlas, TextLayout, GraphicsTextRenderer)
+jreng_graphics       (Typeface, Atlas, TextLayout, GraphicsTextRenderer)
     ^
     |
-jreng_markdown   (Parse, Table, SVG parser — pure data, depends on jreng_core + juce_graphics)
+jreng_javascript     (headless JS engine — WebBrowserComponent wrapper, depends on juce_gui_extra)
     ^
     |
-jreng_opengl     (GLComponent, GLRenderer, GLTextRenderer)
+jreng_markdown       (markdown parsing, mermaid SVG parser, mermaid JS execution via jreng_javascript)
+    ^
+    |
+jreng_opengl         (GLComponent, GLRenderer, GLTextRenderer)
     ^
     |
 END app
     ├── Source/component/    (PaneComponent, Terminal::Component, Panes, Tabs)
-    ├── Source/whelmed/      (Whelmed::Config, Whelmed::Component, Document, TableComponent, mermaid::Parser)
+    ├── Source/whelmed/      (Whelmed::Config, Whelmed::State, Whelmed::Component, TableComponent)
     └── Source/config/       (Config — terminal domain only, untouched)
 ```
 
@@ -132,28 +140,39 @@ END app
 
 6. **Creation triggers via `LinkManager::dispatch()`.** Single hook point — both mouse click and keyboard hint-label converge here. Branch on `.md` extension to create Whelmed pane instead of writing to PTY.
 
-7. **Mermaid via `juce_gui_extra` + `WebBrowserComponent`.** Add to module deps. Deferred to last step — can ship markdown rendering without mermaid.
+7. **`jreng::JavaScriptEngine` — headless JS engine.** Module-level `WebBrowserComponent` wrapper. Invisible, no UI. Loads any JS library as a string, executes code, returns string results via callback. Uses platform OS WebView (WKWebView/WebView2) — zero additional dependencies beyond `juce_gui_extra`. Generic infrastructure — not mermaid-specific. Enables END as a JS sandbox without web stack.
 
 8. **`jreng::TextLayout` is the rendering surface.** `createLayout (AttributedString, maxWidth, font)` → `draw<Renderer>()`. Already proportional-capable — uses per-glyph `xAdvance` from HarfBuzz. Untested with proportional fonts — Step 5.2 validates.
+
+9. **`Whelmed::State` IS the model.** Pure ValueTree, message thread only, no atomics. Holds file path, display name, scroll offset, dirty flag, parsed blocks. Grafts into AppState as child of PANE node (type `ID::DOCUMENT`). File read + parse is synchronous — markdown files are small.
+
+10. **Mermaid parser stays in `jreng_markdown` module.** Thin layer over `jreng::JavaScriptEngine`. Owns `mermaid.min.js` as BinaryData. Converts mermaid code → SVG string → feeds to `Graphic::extractFromSVG`. Reusable by both END and WHELMED standalone.
+
+11. **No code editor in END.** WHELMED standalone had its own editor. In END, the terminal IS the editor — user edits `.md` in their preferred editor (vim, nvim, etc.). END only builds the render layer.
+
+12. **`RendererType`** — public member enum of `PaneComponent`. Not in `Terminal::` namespace. (ARCHITECT)
+
+13. **Table as dedicated component** — `Whelmed::TableComponent`, self-contained like mermaid. (ARCHITECT)
 
 ---
 
 ## PLAN 5: WHELMED Integration
 
-| Step | Objective | Depends on |
-|------|-----------|------------|
-| 5.0 | Config keys — `markdown` table | — |
-| 5.1 | `jreng_markdown` module — port semantic layer | — |
-| 5.2 | Typeface proportional mode | — |
-| 5.3 | `PaneComponent` pure virtual base | — |
-| 5.4 | Document model | 5.1 |
-| 5.5 | `Whelmed::Component` | 5.0, 5.2, 5.3, 5.4 |
-| 5.6 | Panes generalization | 5.3, 5.5 |
-| 5.7 | Creation triggers | 5.5, 5.6 |
-| 5.8 | Table component | 5.1, 5.5 |
-| 5.9 | Mermaid integration | 5.1, 5.5 |
+| Step | Objective | Depends on | Status |
+|------|-----------|------------|--------|
+| 5.0 | `Whelmed::Config` — separate config singleton | — | Done |
+| 5.1 | `jreng_markdown` module — parsing layer | — | Done |
+| 5.2 | Typeface `isMonospace` flag | — | Done |
+| 5.3 | `PaneComponent` pure virtual base | — | Done |
+| 5.4 | `Whelmed::State` — ValueTree SSOT, file + blocks | 5.1 | Not started |
+| 5.5 | `jreng_javascript` module — headless JS engine | — | Not started |
+| 5.6 | Mermaid parser — thin layer in `jreng_markdown` | 5.1, 5.5 | Not started |
+| 5.7 | `Whelmed::Component` | 5.0, 5.2, 5.3, 5.4, 5.6 | Not started |
+| 5.8 | Panes generalization | 5.3, 5.7 | Not started |
+| 5.9 | Creation triggers | 5.7, 5.8 | Not started |
+| 5.10 | Table component | 5.1, 5.7 | Not started |
 
-Steps 5.0–5.3 have no cross-dependencies and can proceed independently.
+Steps 5.4 and 5.5 have no cross-dependencies and can proceed in parallel.
 
 ---
 
@@ -370,56 +389,197 @@ public:
 
 ---
 
-### Step 5.4 — Document model
+### Step 5.4 — `Whelmed::State` — ValueTree SSOT
 
-File-backed equivalent of `Terminal::Session`. Owns parsed blocks, file state, dirty tracking. One job: manage document state.
+File-backed state model. Pure ValueTree, message thread only, no atomics. Holds file path, parsed blocks, dirty flag, display name. Grafts into AppState as `ID::DOCUMENT` child of PANE node.
 
-**`Whelmed::Document` class:**
+**`Whelmed::State` class:**
 
 ```cpp
-// Source/whelmed/Document.h
+// Source/whelmed/State.h
 namespace Whelmed
 {
-    class Document
+    class State
     {
     public:
-        explicit Document (const juce::File& file);
+        explicit State (const juce::File& file);
 
         void reload();
         bool consumeDirty() noexcept;
 
-        const Markdown::Blocks& getBlocks() const noexcept;
-        const juce::File& getFile() const noexcept;
+        const jreng::Markdown::Blocks& getBlocks() const noexcept;
+        juce::ValueTree getValueTree() noexcept;
 
     private:
-        juce::File file;
-        Markdown::Blocks blocks;
-        std::atomic<bool> dirty { true };
+        juce::ValueTree state { App::ID::DOCUMENT };
+        jreng::Markdown::Blocks blocks;
+        bool dirty { true };
     };
 }
 ```
 
-**Responsibilities:**
-- Load file → parse via `Markdown::Parser::getBlocks()` → store blocks
-- Track dirty flag (set on `reload()`, consumed by render loop)
-- Mermaid blocks: store raw fence content. SVG conversion is deferred to rendering step (async via `WebBrowserComponent`)
+**ValueTree properties:**
+- `filePath` — absolute path to `.md` file
+- `displayName` — filename without extension (`file.getFileNameWithoutExtension()`)
+- `scrollOffset` — vertical scroll position (float, 0.0–1.0)
 
-**What Document does NOT do:**
+**Responsibilities:**
+- Load file → parse via `jreng::Markdown::Parser::getBlocks()` → store blocks
+- Track dirty flag (plain bool — message thread only)
+- Mermaid blocks: store raw fence content. SVG conversion deferred to rendering step (async via `jreng::JavaScriptEngine`)
+
+**What State does NOT do:**
 - No rendering (Lean, Explicit Encapsulation)
 - No config awareness (receives what it needs via parameters)
 - No PTY, no grid, no terminal state
+- No atomics (single-threaded access)
 
 **Files:**
-- `Source/whelmed/Document.h`
-- `Source/whelmed/Document.cpp`
+- `Source/whelmed/State.h`
+- `Source/whelmed/State.cpp`
+- `Source/AppIdentifier.h` — add `ID::DOCUMENT`
 
-**Validate:** Construct `Document (testFile)`. `getBlocks()` returns parsed blocks. `consumeDirty()` returns `true` once, then `false`.
+**Validate:** Construct `State (testFile)`. `getBlocks()` returns parsed blocks. `consumeDirty()` returns `true` once, then `false`. `getValueTree()` has `displayName` property set to filename.
 
 ---
 
-### Step 5.5 — `Whelmed::Component`
+### Step 5.5 — `jreng_javascript` module — headless JS engine
 
-Mirrors `Terminal::Component` lifecycle. `ScreenVariant` for GPU/CPU. VBlank render loop. Config-driven.
+Generic headless JavaScript execution engine. Wraps `juce::WebBrowserComponent` as an invisible component. Uses platform OS WebView (WKWebView on macOS, WebView2 on Windows). Loads any JS library, executes arbitrary code, returns string results.
+
+**Not mermaid-specific.** This is infrastructure — any JS library works (mermaid, KaTeX, p5.js, Prism, D3, etc.).
+
+**`jreng::JavaScriptEngine` class:**
+
+```cpp
+// modules/jreng_javascript/jreng_javascript_engine.h
+namespace jreng
+{
+    class JavaScriptEngine
+    {
+    public:
+        JavaScriptEngine();
+        ~JavaScriptEngine();
+
+        void loadLibrary (const juce::String& javascriptSource,
+                          std::function<void()> onReady);
+
+        void loadLibrary (const juce::String& javascriptSource,
+                          const juce::String& htmlTemplate,
+                          std::function<void()> onReady);
+
+        void execute (const juce::String& code,
+                      std::function<void (const juce::String&)> onResult);
+
+        bool isReady() const noexcept;
+
+        // Returns the WebView as a juce::Component for visual rendering.
+        // Caller adds to component hierarchy when JS produces visual output
+        // (canvas, SVG DOM, etc.). Returns nullptr before loadLibrary().
+        juce::Component* getView() noexcept;
+
+    private:
+        struct Impl;
+        std::unique_ptr<Impl> impl;
+    };
+}
+```
+
+**Composition, not inheritance.** Engine owns the `WebBrowserComponent` internally via pimpl. Callers never see browser internals.
+
+**Two consumption modes:**
+1. **String extraction** (mermaid, KaTeX) — `execute()` returns result via callback. WebView stays invisible. Zero UI.
+2. **Visual rendering** (p5.js, canvas-based) — `getView()` returns `juce::Component*`. Caller adds to hierarchy with `addAndMakeVisible`. WebView becomes the render surface.
+
+**Lazy creation.** `WebBrowserComponent` created on first `loadLibrary()` call. No cost when engine is constructed but unused (Lean).
+
+**Two `loadLibrary` overloads:**
+- JS-only: engine generates a minimal HTML shell internally.
+- JS + HTML template: caller provides custom HTML (canvas element, DOM structure). For mermaid, HTML is embedded. For future JS sandbox, user provides their own.
+
+**HTML template (default, generated internally):**
+```html
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<script>%%LIBRARY%%</script>
+</head><body></body></html>
+```
+
+**Module structure:**
+```
+modules/jreng_javascript/
+    jreng_javascript.h              — module header
+    jreng_javascript.cpp            — module source
+    jreng_javascript_engine.h       — Engine class
+    jreng_javascript_engine.cpp     — implementation
+```
+
+**Module dependencies:** `juce_gui_extra` (for `WebBrowserComponent`), `juce_gui_basics`, `jreng_core`
+
+**Files:**
+- `modules/jreng_javascript/jreng_javascript.h` — module header
+- `modules/jreng_javascript/jreng_javascript.cpp` — module source
+- `modules/jreng_javascript/jreng_javascript_engine.h` — Engine class
+- `modules/jreng_javascript/jreng_javascript_engine.cpp` — implementation
+
+**Validate:** Construct `JavaScriptEngine`. Call `loadLibrary ("function add(a,b){return a+b;}", onReady)`. After ready, call `execute ("add(2,3)", onResult)`. Result is `"5"`.
+
+---
+
+### Step 5.6 — Mermaid parser — thin layer in `jreng_markdown`
+
+Add mermaid JS execution to `jreng_markdown` module. Thin layer that uses `jreng::JavaScriptEngine` to convert mermaid code → SVG string. Feeds result to existing `Graphic::extractFromSVG()`.
+
+**`jreng::Mermaid::Parser` class:**
+
+```cpp
+// modules/jreng_markdown/mermaid/jreng_mermaid_parser.h
+namespace jreng::Mermaid
+{
+    class Parser
+    {
+    public:
+        Parser();
+
+        void onReady (std::function<void()> callback);
+
+        void convertToSVG (const juce::String& mermaidCode,
+                           std::function<void (const juce::String&)> onResult);
+
+        void convertToSVG (const juce::StringArray& codes,
+                           std::function<void (juce::StringArray)> onResults);
+
+        bool isReady() const noexcept;
+
+    private:
+        jreng::JavaScriptEngine engine;
+    };
+}
+```
+
+**How it works:**
+1. Constructor loads `mermaid.min.js` from BinaryData into the engine
+2. `convertToSVG()` wraps mermaid code in `validateAndRender()` JS call, executes via engine
+3. Result is SVG string — caller feeds to `Graphic::extractFromSVG()` for rendering
+
+**`mermaid.min.js` + `mermaid.html` template embedded as BinaryData** in the module.
+
+**Module dependency update:** `jreng_markdown` gains dependency on `jreng_javascript`.
+
+**Files:**
+- `modules/jreng_markdown/mermaid/jreng_mermaid_parser.h` — new
+- `modules/jreng_markdown/mermaid/jreng_mermaid_parser.cpp` — new
+- `modules/jreng_markdown/jreng_markdown.h` — add include
+- `modules/jreng_markdown/jreng_markdown.cpp` — add cpp include
+- `modules/jreng_markdown/jreng_markdown.h` — add `jreng_javascript` dependency
+
+**Validate:** Construct `Mermaid::Parser`. After ready, call `convertToSVG ("graph TD; A-->B;", onResult)`. Result is valid SVG string. Pass to `Graphic::extractFromSVG()` — returns populated `Diagrams`.
+
+---
+
+### Step 5.7 — `Whelmed::Component`
+
+Mirrors `Terminal::Component` lifecycle. `ScreenVariant` for GPU/CPU. VBlank render loop. Config-driven. Owns `Whelmed::State` and a lazy `Mermaid::Parser` for diagram rendering.
 
 **`Whelmed::Component` class:**
 
@@ -446,9 +606,10 @@ namespace Whelmed
         void resized() override;
 
         void openFile (const juce::File& file);
+        juce::ValueTree getValueTree() noexcept;
 
     private:
-        std::optional<Document> document;  // created on openFile()
+        std::optional<State> state;  // created on openFile()
 
         // Typefaces shared — owned by MainComponent, config-driven
         jreng::Typeface& bodyFont;
@@ -460,15 +621,19 @@ namespace Whelmed
             jreng::Glyph::GLTextRenderer>;
         RendererVariant renderer;
 
+        // Mermaid parser — lazy, created on first mermaid block (Lean)
+        std::unique_ptr<jreng::Mermaid::Parser> mermaidParser;
+
         juce::VBlankAttachment vblank;
     };
 }
 ```
 
 **Render loop (VBlank-driven, mirrors Terminal::Component):**
-1. `onVBlank()` — check `document.consumeDirty()`. If dirty: rebuild `TextLayout` per block, fire `onRepaintNeeded`.
+1. `onVBlank()` — check `state->consumeDirty()`. If dirty: rebuild `TextLayout` per block, fire `onRepaintNeeded`.
 2. GPU path: `renderGL()` — iterate layouts, call `layout.draw<GLTextRenderer>()`.
 3. CPU path: `paint(g)` — iterate layouts, call `layout.draw<GraphicsTextRenderer>()`.
+4. Mermaid blocks: on first encounter, create `mermaidParser`. Convert mermaid code → SVG → `Graphic::Diagrams`. Cache per block. Render via `juce::Graphics` path/fill/text.
 
 **`switchRenderer(RendererType)`:**
 - Same pattern: emplace variant, `setOpaque`/`setBufferedToImage`, reapply config.
@@ -476,19 +641,19 @@ namespace Whelmed
 **`applyConfig()`:**
 - Read `Whelmed::Config::getContext()` values (font sizes, families, line height).
 - Update font sizes on body/code typefaces.
-- Mark document dirty for re-layout.
+- Mark state dirty for re-layout.
 
-**Scroll:** `juce::Viewport` wrapping the rendered block content. Block stacking is vertical — each block's `TextLayout` reports height via `getHeight()`. Mermaid blocks report height from `MermaidParseResult::viewBox`.
+**Scroll:** `juce::Viewport` wrapping the rendered block content. Block stacking is vertical — each block's `TextLayout` reports height via `getHeight()`. Mermaid blocks report height from SVG viewBox.
 
 **Files:**
 - `Source/whelmed/Component.h`
 - `Source/whelmed/Component.cpp`
 
-**Validate:** Construct `Whelmed::Component`. Call `openFile (testMarkdown)`. CPU path renders styled text via `paint()`. GPU path renders via `renderGL()`. `switchRenderer()` toggles between paths. `applyConfig()` picks up new config values.
+**Validate:** Construct `Whelmed::Component`. Call `openFile (testMarkdown)`. CPU path renders styled text via `paint()`. GPU path renders via `renderGL()`. `switchRenderer()` toggles between paths. `applyConfig()` picks up new config values. Mermaid blocks render as diagrams after async JS conversion.
 
 ---
 
-### Step 5.6 — Panes generalization
+### Step 5.8 — Panes generalization (was 5.6)
 
 Change `Panes` to own `Owner<PaneComponent>` instead of `Owner<Terminal::Component>`.
 
@@ -515,7 +680,7 @@ Change `Panes` to own `Owner<PaneComponent>` instead of `Owner<Terminal::Compone
 
 ---
 
-### Step 5.7 — Creation triggers
+### Step 5.9 — Creation triggers (was 5.7)
 
 Wire `.md` file opening to spawn `Whelmed::Component` in a new pane.
 
@@ -548,7 +713,7 @@ Register `open_markdown` action in `Terminal::Action`. Triggered from command pa
 
 ---
 
-### Step 5.8 — Table component
+### Step 5.10 — Table component (was 5.8)
 
 Dedicated `Whelmed::TableComponent` for GFM table rendering. Self-contained — manages its own rendering like mermaid diagrams. Parent viewport stacks it as a block.
 
@@ -567,37 +732,23 @@ Dedicated `Whelmed::TableComponent` for GFM table rendering. Self-contained — 
 
 ---
 
-### Step 5.9 — Mermaid integration
-
-Wire mermaid parser (WebBrowserComponent singleton) into `Whelmed::Component` for live mermaid diagram rendering.
-
-**Dependency:** `juce_gui_extra` module (for `WebBrowserComponent`). Add to END's CMakeLists.txt module dependencies.
-
-**Changes:**
-- `Whelmed::Component` — when `Document::getBlocks()` contains `Type::Mermaid` blocks: extract fence content, pass to `mermaid::Parser::convertToSVG()`, store SVG result, parse via `MermaidSVGParser::parse()`, cache `MermaidParseResult` per block.
-- Render mermaid blocks in `paint()` / `renderGL()`: iterate `result.primitives` (fill/stroke paths) and `result.texts` (text labels). Scale from viewBox to allocated block bounds.
-- Mermaid parser singleton lifecycle: created lazily on first mermaid block encounter. Not created if no mermaid blocks exist (Lean — no cost when unused).
-- Mermaid conversion is async — block shows placeholder until SVG arrives, then marks dirty for re-render.
-
-**Files:**
-- `Source/whelmed/mermaid/Parser.h` — singleton wrapper (ported from WHELMED scaffold)
-- `Source/whelmed/mermaid/Parser.cpp` — implementation
-- `Source/whelmed/Component.cpp` — mermaid block rendering in paint/renderGL paths
-- CMakeLists.txt — add `juce_gui_extra` dependency
-
-**Validate:** Open `.md` file containing ```` ```mermaid ```` block. Diagram renders inline after async conversion. Scrolling, resize, renderer switching all work with mermaid blocks present.
+*Step 5.9 (old mermaid integration) has been split into Steps 5.5 (jreng_javascript engine) and 5.6 (mermaid parser in jreng_markdown). Mermaid rendering is wired in Step 5.7 (Whelmed::Component).*
 
 ---
 
 ## Resolved Decisions
 
-1. **Typeface ownership** — shared in MainComponent, config-driven, user-configurable. (ARCHITECT, Step 5.5)
-2. **GL iterator** — single container, iterate all panes. All just Components that render both GL and Graphics. (ARCHITECT, Step 5.6)
-3. **`juce_gui_extra`** — add to module deps. (ARCHITECT, Step 5.9)
-4. **Table rendering** — dedicated `Whelmed::TableComponent`, self-contained like mermaid diagrams. (ARCHITECT, Step 5.8)
-5. **Module/project split** — reusable parsing at module level (`jreng_markdown`), app integration at project level (`Source/whelmed/`). (ARCHITECT)
+1. **Typeface ownership** — shared in MainComponent, config-driven, user-configurable. (ARCHITECT, Step 5.7)
+2. **GL iterator** — single container, iterate all panes. All just Components that render both GL and Graphics. (ARCHITECT, Step 5.8)
+3. **`juce_gui_extra`** — dependency of `jreng_javascript` module (not app level). (ARCHITECT, Step 5.5)
+4. **Table rendering** — dedicated `Whelmed::TableComponent`, self-contained like mermaid diagrams. (ARCHITECT, Step 5.10)
+5. **Module/project split** — reusable parsing at module level (`jreng_markdown`), JS engine at module level (`jreng_javascript`), app integration at project level (`Source/whelmed/`). (ARCHITECT)
 6. **`create()` factory** — returns `unique_ptr`, caller handles ownership. `Owner` unchanged. (ARCHITECT)
 7. **`RendererType`** — public member enum of `PaneComponent`. Not in `Terminal::` namespace. (ARCHITECT)
+8. **`jreng::JavaScriptEngine` over raw `WebBrowserComponent`** — generic headless JS engine wrapping OS WebView. Not mermaid-specific. Enables END as JS sandbox without web stack. (ARCHITECT)
+9. **`Whelmed::State` IS the model** — pure ValueTree, no atomics, message thread only. `ID::DOCUMENT` type. (ARCHITECT)
+10. **No code editor in END** — terminal IS the editor. END only builds the render layer. (ARCHITECT)
+11. **Mermaid parser in module, not app level** — thin layer in `jreng_markdown` using `jreng_javascript`. Reusable by WHELMED standalone. (ARCHITECT)
 
 ---
 

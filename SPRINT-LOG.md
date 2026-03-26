@@ -2,6 +2,69 @@
 
 ---
 
+## Sprint 123: Plan 5 — Steps 5.1, 5.2, 5.3
+
+**Date:** 2026-03-26
+**Duration:** ~3h
+
+### Agents Participated
+- COUNSELOR: Led planning, delegation, contract enforcement, direct fixes
+- Pathfinder: Codebase discovery (whelmed state, module patterns, RendererType references, Terminal/Panes hierarchy)
+- Engineer (x2): Step 5.1 jreng_markdown module port, Step 5.3 PaneComponent extraction
+- Auditor (x3): Step 5.3 verification (PASS), Step 5.1 audit (23 findings), post-polish verification
+- Machinist (x2): Step 5.1 audit fix pass, juce::String API refactor
+- Librarian: juce::String/StringArray/CharacterFunctions API research
+
+### Files Modified (20 total)
+
+**Step 5.1 — `jreng_markdown` module (11 new files)**
+- `modules/jreng_markdown/jreng_markdown.h` — NEW: module header (JUCE module declaration, deps: juce_core, juce_graphics, jreng_core)
+- `modules/jreng_markdown/jreng_markdown.cpp` — NEW: module source (includes all sub-cpps)
+- `modules/jreng_markdown/markdown/jreng_markdown_types.h` — NEW: `BlockType`, `Block`, `Blocks`, `LineType`, `BlockUnit`, `InlineStyle` bitmask, `InlineSpan`, `TextLink`
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.h` — NEW: `jreng::Markdown::Parser` (renamed from scaffold `Parse`)
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.cpp` — NEW: `getBlocks`, `classifyLine`, `getUnits`, `inlineSpans`, `toAttributedString`
+- `modules/jreng_markdown/markdown/jreng_markdown_table.h` — NEW: `Alignment`, `TableCell`, `Table`, `Tables`, free functions
+- `modules/jreng_markdown/markdown/jreng_markdown_table.cpp` — NEW: `parseTables`, `lineHasUnescapedPipe`, `splitTableRow`, `parseAlignmentRow`, `parseTablesImpl`
+- `modules/jreng_markdown/mermaid/jreng_mermaid_extract.h` — NEW: `jreng::Mermaid::Fence`, `Block`, `Blocks`, `extractBlocks`
+- `modules/jreng_markdown/mermaid/jreng_mermaid_extract.cpp` — NEW: mermaid fence extraction
+- `modules/jreng_markdown/mermaid/jreng_mermaid_svg_parser.h` — NEW: `jreng::Mermaid::Graphic` (CSS parsing, SVG element extraction)
+- `modules/jreng_markdown/mermaid/jreng_mermaid_svg_parser.cpp` — NEW: full SVG-to-Diagram pipeline (path, rect, circle, ellipse, text)
+
+**Step 5.3 — PaneComponent extraction (7 modified, 1 new)**
+- `Source/component/PaneComponent.h` — NEW: pure virtual base, owns `RendererType` enum + `onRepaintNeeded`
+- `Source/component/RendererType.h` — removed `namespace Terminal`, free function returns `PaneComponent::RendererType`
+- `Source/component/TerminalComponent.h` — inherits `PaneComponent`, `override` on `switchRenderer`/`applyConfig`, removed duplicate `onRepaintNeeded`
+- `Source/component/TerminalComponent.cpp` — `switchRenderer` parameter type updated to `PaneComponent::RendererType`
+- `Source/component/Tabs.h` — `switchRenderer` parameter: `PaneComponent::RendererType`
+- `Source/component/Tabs.cpp` — definition updated
+- `Source/component/Popup.cpp` — `PaneComponent::RendererType::gpu` reference
+- `Source/MainComponent.cpp` — all `Terminal::RendererType` → `PaneComponent::RendererType`
+
+**Pre-existing fix**
+- `Source/AppState.cpp:66` — missing `)` on `getProperty` call
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD enforced (audited twice, all findings fixed)
+
+### Problems Solved
+- **Scaffold port to module:** `markdown::Parse` → `jreng::Markdown::Parser`, `mermaid::` → `jreng::Mermaid::`. All `&&`/`||`/`!` → `and`/`or`/`not`. All `assert()` → `jassert()`. All early returns → nested positive checks. All `= 0` → brace init.
+- **`juce_wchar` narrowing:** `char c { text[i] }` fails with brace init due to `wchar_t` → `char` narrowing. Fixed with `auto c { text[i] }`.
+- **PaneComponent default constructor:** `JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR` deletes copy constructor, suppressing implicit default. Added explicit `PaneComponent() = default;`.
+- **Ordered list digit counting bug:** Scaffold's `countConsecutive (line, leadingSpaces, firstChar)` only counted runs of the *same* digit — `12. item` would fail. Replaced with `containsOnly ("0123456789")` which correctly handles multi-digit numbers.
+- **Manual char loops → juce::String APIs:** `classifyLine` refactored: `trimStart()` + length diff for leading spaces, `trimCharactersAtStart ("#")` for hash count, `indexOfChar ('.')` + `containsOnly` for ordered lists. `parseAlignmentRow` inner loop replaced with `containsOnly ("-")`.
+- **Commented-out SVG branches:** `processElement` rect/circle/ellipse/text branches were inactive in scaffold. Activated — all extraction functions are fully implemented.
+
+### Technical Debt / Follow-up
+- **Step 5.2 build confirmation pending** — `isMonospace` flag was implemented in previous sprint, awaiting ARCHITECT validation that terminal ASCII fast path still works correctly.
+- **`toAttributedString` hardcoded values** — font sizes and colours extracted as `static constexpr` but still not config-driven. Step 5.5 will parameterize via `Whelmed::Config`.
+- **`fromTokens` for pipe splitting** — Librarian found `StringArray::fromTokens (row, "|", "`")` could replace manual pipe splitting, but it drops empty cells between `||`. Left manual implementation for correctness.
+- **Steps 5.4–5.9 remain** — Document model, Whelmed::Component, Panes generalization, creation triggers, table component, mermaid integration.
+
+---
+
 ## Handoff to COUNSELOR: Continue PLAN-WHELMED.md
 
 **From:** COUNSELOR
