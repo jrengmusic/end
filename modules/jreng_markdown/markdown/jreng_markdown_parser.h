@@ -1,11 +1,5 @@
-#pragma once
-#include <juce_core/juce_core.h>
-#include <juce_graphics/juce_graphics.h>
-#include "jreng_markdown_types.h"
-
 namespace jreng::Markdown
-{
-/*____________________________________________________________________________*/
+{ /*____________________________________________________________________________*/
 
 struct Parser
 {
@@ -64,4 +58,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} /** namespace jreng::Markdown */
+}// namespace jreng::Markdown

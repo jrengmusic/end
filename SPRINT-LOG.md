@@ -2,6 +2,92 @@
 
 ---
 
+## Sprint 124: Plan 5 — Steps 5.4, 5.5 + Architecture Design
+
+**Date:** 2026-03-26
+**Duration:** ~4h
+
+### Agents Participated
+- COUNSELOR: Led architecture discussion, planning, delegation, direct fixes
+- Pathfinder: Document model patterns (Session structure, dirty flags, Config access, file member naming)
+- Engineer (x2): Step 5.4 Whelmed::State, Step 5.5 jreng_javascript module
+- Auditor (x2): State verification (NEEDS_WORK — 2 medium), JS engine verification (NEEDS_WORK — 3 critical, 2 medium)
+- Librarian: juce::String API research for markdown parser refactoring
+- Machinist: juce::String API refactoring (classifyLine, parseAlignmentRow)
+
+### Architecture Decisions This Session
+
+1. **`Whelmed::State` IS the model** — pure ValueTree, no separate Document class. Message thread only, no atomics. `ID::DOCUMENT` type.
+2. **`jreng::JavaScriptEngine`** — headless JS engine wrapping OS WebView via composition (pimpl). Not mermaid-specific. Generic infrastructure enabling END as JS sandbox without web stack. Lazy creation, two consumption modes (string extraction + visual rendering), two `loadLibrary` overloads (JS-only + JS+HTML template).
+3. **Mermaid parser stays in `jreng_markdown` module** — thin layer over `jreng::JavaScriptEngine`. Reusable by both END and WHELMED standalone.
+4. **No code editor in END** — terminal IS the editor. END only builds the render layer.
+5. **Future JS sandbox** — `jreng::JavaScriptEngine` can load any JS library (p5.js, D3, KaTeX, Three.js). Edit `.js` in terminal, render output in adjacent pane. Zero Electron, zero Node, zero npm.
+6. **PLAN-WHELMED.md rewritten** — Steps renumbered 5.4–5.10. Old monolithic mermaid step split into engine (5.5) + parser (5.6). Component is now 5.7.
+
+### Files Modified (25 total)
+
+**Step 5.4 — Whelmed::State (3 files)**
+- `Source/whelmed/State.h` — NEW: `Whelmed::State` class, ValueTree SSOT, parsed blocks, dirty flag
+- `Source/whelmed/State.cpp` — NEW: constructor (file load + parse), reload, consumeDirty, getBlocks, getValueTree
+- `Source/AppIdentifier.h` — added `DOCUMENT` node type, `filePath`, `displayName`, `scrollOffset` properties
+
+**Step 5.5 — jreng_javascript module (4 files)**
+- `modules/jreng_javascript/jreng_javascript.h` — NEW: module header (deps: juce_gui_basics, juce_gui_extra, jreng_core)
+- `modules/jreng_javascript/jreng_javascript.cpp` — NEW: module source
+- `modules/jreng_javascript/engine/jreng_javascript_engine.h` — NEW: `jreng::JavaScriptEngine` public API (pimpl, lazy, two modes)
+- `modules/jreng_javascript/engine/jreng_javascript_engine.cpp` — NEW: Impl (private WebBrowserComponent inheritance), evaluate, loadLibrary, getView
+
+**Build config (1 file)**
+- `CMakeLists.txt` — `JUCE_WEB_BROWSER=1`, added `juce_gui_extra`, `jreng_javascript`, `jreng_markdown` to JUCE_MODULES
+
+**Submodule cleanup — jreng_markdown (10 files)**
+- `modules/jreng_markdown/markdown/jreng_markdown_types.h` — removed `#pragma once` + includes, fixed namespace format
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.h` — fixed namespace format
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.cpp` — removed include, fixed namespace format
+- `modules/jreng_markdown/markdown/jreng_markdown_table.h` — removed `#pragma once` + includes (including cross-include of parser.h), fixed namespace format
+- `modules/jreng_markdown/markdown/jreng_markdown_table.cpp` — removed include, fixed namespace format
+- `modules/jreng_markdown/mermaid/jreng_mermaid_extract.h` — removed `#pragma once` + includes, fixed namespace format
+- `modules/jreng_markdown/mermaid/jreng_mermaid_extract.cpp` — removed include, fixed namespace format
+- `modules/jreng_markdown/mermaid/jreng_mermaid_svg_parser.h` — removed `#pragma once` + includes, fixed namespace format
+- `modules/jreng_markdown/mermaid/jreng_mermaid_svg_parser.cpp` — removed include, fixed namespace format
+
+**Audit fixes (3 files)**
+- `Source/whelmed/State.h` — `getValueTree()` → `const noexcept`, added `AppIdentifier.h` include
+- `modules/jreng_javascript/engine/jreng_javascript_engine.cpp` — `jassert (isReady)` in evaluate, `jassert (r != nullptr)` on eval result, `jassert (impl != nullptr)` in execute, message thread asserts, `ready` → `isReady` member rename, `onResult` → `callback` parameter rename, fixed `EvaluationResult` corruption from replace_all
+- `modules/jreng_javascript/jreng_javascript.h` — removed trailing comma in dependencies
+
+**Previous sprint polish (2 files)**
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.cpp` — `classifyLine` refactored with juce::String APIs (trimStart, trimCharactersAtStart, indexOfChar, containsOnly), fixed ordered list digit counting bug
+- `modules/jreng_markdown/markdown/jreng_markdown_table.cpp` — `parseAlignmentRow` inner loop replaced with `containsOnly("-")`
+
+**Pre-existing fix (1 file)**
+- `Source/AppState.cpp:66` — missing `)` on `getProperty` call
+
+**Plan update (1 file)**
+- `PLAN-WHELMED.md` — architecture rewritten (State replaces Document, jreng_javascript module, mermaid parser in module, steps renumbered 5.4–5.10, design decisions updated)
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD enforced
+- [x] Submodule include contract enforced (no includes in sub-headers/sub-cpps)
+
+### Problems Solved
+- **Submodule cross-include:** `jreng_markdown_table.h` included `jreng_markdown_parser.h` directly → redefinition error. All includes removed from submodule files.
+- **WebBrowserComponent disabled:** `JUCE_WEB_BROWSER=0` in CMakeLists blocked `jreng_javascript`. Changed to `=1`.
+- **`EvaluationResult` corruption:** `replace_all` of `onResult` → `callback` caught `EvaluationResult` as false positive → `Evaluaticallback`. Fixed.
+- **`ready` vs `isReady` naming collision:** Member bool `ready` vs public method `isReady()` — renamed member to `isReady` for consistency (NAMING-CONVENTION Rule 1: booleans prefix verbs).
+- **Namespace format inconsistency:** All submodule files had `{\n/*___*/` (separate lines) and `} /** namespace */` closers. Fixed to `{ /*___*/` (same line) and `}// namespace` across all 11 files.
+
+### Technical Debt / Follow-up
+- **Steps 5.6–5.10 remain** — Mermaid parser (thin layer), Whelmed::Component, Panes generalization, creation triggers, table component.
+- **`displayName` in `App::ID` vs `Terminal::ID`** — separate namespaces, no conflict. Tabs.cpp currently binds `Terminal::ID::displayName`. When Whelmed panes integrate, need to resolve which ID to bind.
+- **`juce::URL::toString(false)` deprecated** — used in JS engine for `goToURL`. Works but may warn on newer JUCE.
+- **mermaid.min.js not yet embedded** — Step 5.6 will add it as BinaryData in the markdown module.
+
+---
+
 ## Sprint 123: Plan 5 — Steps 5.1, 5.2, 5.3
 
 **Date:** 2026-03-26

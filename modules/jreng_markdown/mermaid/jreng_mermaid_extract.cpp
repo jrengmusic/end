@@ -1,8 +1,5 @@
-#include "jreng_mermaid_extract.h"
-
 namespace jreng::Mermaid
-{
-/*____________________________________________________________________________*/
+{ /*____________________________________________________________________________*/
 
 Blocks extractBlocks (const juce::String& markdown)
 {
@@ -65,4 +62,4 @@ Blocks extractBlocks (const juce::String& markdown)
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} /** namespace jreng::Mermaid */
+}// namespace jreng::Mermaid

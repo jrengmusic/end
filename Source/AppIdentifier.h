@@ -11,6 +11,7 @@
  *             +-- PANES (direction, ratio)
  *                 +-- PANE (uuid) | PANES (nested split)
  *                     +-- SESSION (terminal state, grafted from Terminal::State)
+ *                     +-- DOCUMENT (whelmed state, grafted from Whelmed::State)
  *
  * @see AppState
  * @see Terminal::ID (terminal-level identifiers in Source/terminal/data/Identifier.h)
@@ -33,18 +34,23 @@ namespace ID
     static const juce::Identifier TABS      { "TABS" };
     static const juce::Identifier TAB       { "TAB" };
     static const juce::Identifier PANES     { "PANES" };
+    static const juce::Identifier PANE      { "PANE" };
+    static const juce::Identifier DOCUMENT  { "DOCUMENT" };
 
     //==========================================================================
     // Properties
     //==========================================================================
 
-    static const juce::Identifier width     { "width" };
-    static const juce::Identifier height    { "height" };
-    static const juce::Identifier zoom         { "zoom" };
-    static const juce::Identifier active    { "active" };
-    static const juce::Identifier position  { "position" };
-    static const juce::Identifier splitVertical { "splitVertical" };
+    static const juce::Identifier width              { "width" };
+    static const juce::Identifier height             { "height" };
+    static const juce::Identifier zoom               { "zoom" };
+    static const juce::Identifier active             { "active" };
+    static const juce::Identifier position           { "position" };
+    static const juce::Identifier splitVertical      { "splitVertical" };
     static const juce::Identifier activeTerminalUuid { "activeTerminalUuid" };
-    static const juce::Identifier renderer { "renderer" };
+    static const juce::Identifier renderer           { "renderer" };
+    static const juce::Identifier filePath           { "filePath" };
+    static const juce::Identifier displayName        { "displayName" };
+    static const juce::Identifier scrollOffset       { "scrollOffset" };
 }
 }

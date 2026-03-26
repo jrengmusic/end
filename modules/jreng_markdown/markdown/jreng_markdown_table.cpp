@@ -1,8 +1,5 @@
-#include "jreng_markdown_table.h"
-
 namespace jreng::Markdown
-{
-/*____________________________________________________________________________*/
+{ /*____________________________________________________________________________*/
 
 bool lineHasUnescapedPipe (const juce::String& line)
 {
@@ -269,4 +266,4 @@ Tables parseTables (const juce::String& markdown)
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} /** namespace jreng::Markdown */
+}// namespace jreng::Markdown

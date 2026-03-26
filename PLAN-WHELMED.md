@@ -164,15 +164,15 @@ END app
 | 5.1 | `jreng_markdown` module — parsing layer | — | Done |
 | 5.2 | Typeface `isMonospace` flag | — | Done |
 | 5.3 | `PaneComponent` pure virtual base | — | Done |
-| 5.4 | `Whelmed::State` — ValueTree SSOT, file + blocks | 5.1 | Not started |
-| 5.5 | `jreng_javascript` module — headless JS engine | — | Not started |
+| 5.4 | `Whelmed::State` — ValueTree SSOT, file + blocks | 5.1 | Done |
+| 5.5 | `jreng_javascript` module — headless JS engine | — | Done |
 | 5.6 | Mermaid parser — thin layer in `jreng_markdown` | 5.1, 5.5 | Not started |
 | 5.7 | `Whelmed::Component` | 5.0, 5.2, 5.3, 5.4, 5.6 | Not started |
 | 5.8 | Panes generalization | 5.3, 5.7 | Not started |
 | 5.9 | Creation triggers | 5.7, 5.8 | Not started |
 | 5.10 | Table component | 5.1, 5.7 | Not started |
 
-Steps 5.4 and 5.5 have no cross-dependencies and can proceed in parallel.
+5.6 is the next unblocked step.
 
 ---
 

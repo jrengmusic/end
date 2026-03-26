@@ -8,8 +8,8 @@
    website:                      https://jrengmusic.com
    license:                      Proprietary
    dependencies:                 juce_core,
-                                  juce_graphics,
-                                  jreng_core,
+                                 juce_graphics,
+                                 jreng_core,
   END_JUCE_MODULE_DECLARATION
  *******************************************************************************/
 #pragma once

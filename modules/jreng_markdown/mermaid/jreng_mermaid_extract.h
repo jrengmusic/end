@@ -1,9 +1,5 @@
-#pragma once
-#include <juce_core/juce_core.h>
-
 namespace jreng::Mermaid
-{
-/*____________________________________________________________________________*/
+{ /*____________________________________________________________________________*/
 
 struct Fence
 {
@@ -32,4 +28,4 @@ using Blocks = std::vector<Block>;
 Blocks extractBlocks (const juce::String& markdown);
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} /** namespace jreng::Mermaid */
+}// namespace jreng::Mermaid

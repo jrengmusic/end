@@ -24,7 +24,7 @@ cmake_minimum_required(VERSION 4.2.0)
 set(PROJECT_NAME "END")
 set(PROJECT_VERSION "0.1.0")
 set(PROJECT_COMPANY "JRENG")
-set(PROJECT_WEBSITE "https://jreng.com")
+set(PROJECT_WEBSITE "https://jrengmusic.com")
 
 set(TARGET_TYPE "GUI")
 
@@ -34,10 +34,13 @@ set(JUCE_MODULES
     juce_events
     juce_graphics
     juce_gui_basics
+    juce_gui_extra
     juce_opengl
     jreng_core
     jreng_freetype
     jreng_graphics
+    jreng_javascript
+    jreng_markdown
     jreng_opengl
 )
 
@@ -466,7 +469,7 @@ if(USER_MODULES)
 endif()
 
 target_compile_definitions(${TARGET_NAME} PRIVATE
-    JUCE_WEB_BROWSER=0
+    JUCE_WEB_BROWSER=1
     JUCE_USE_CURL=0
     DONT_SET_USING_JUCE_NAMESPACE=1
     JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:${TARGET_NAME},JUCE_PRODUCT_NAME>"

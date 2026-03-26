@@ -1,8 +1,3 @@
-#pragma once
-#include <juce_core/juce_core.h>
-#include "jreng_markdown_types.h"
-#include "jreng_markdown_parser.h"
-
 namespace jreng::Markdown
 {
 /*____________________________________________________________________________*/

@@ -1,8 +1,5 @@
-#include "jreng_mermaid_svg_parser.h"
-
 namespace jreng::Mermaid
-{
-/*____________________________________________________________________________*/
+{ /*____________________________________________________________________________*/
 
 using jreng::IDref;
 
@@ -453,4 +450,4 @@ Graphic::Diagrams Graphic::extractFromSVG (const juce::String& svgString)
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} /** namespace jreng::Mermaid */
+}// namespace jreng::Mermaid

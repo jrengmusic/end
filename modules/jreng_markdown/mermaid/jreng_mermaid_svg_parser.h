@@ -1,10 +1,5 @@
-#pragma once
-#include <juce_core/juce_core.h>
-#include <juce_graphics/juce_graphics.h>
-
 namespace jreng::Mermaid
-{
-/*____________________________________________________________________________*/
+{ /*____________________________________________________________________________*/
 
 struct Graphic
 {
@@ -134,4 +129,4 @@ struct Graphic
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} /** namespace jreng::Mermaid */
+}// namespace jreng::Mermaid

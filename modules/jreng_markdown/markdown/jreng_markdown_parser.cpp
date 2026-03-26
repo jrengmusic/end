@@ -1,8 +1,5 @@
-#include "jreng_markdown_parser.h"
-
 namespace jreng::Markdown
-{
-/*____________________________________________________________________________*/
+{ /*____________________________________________________________________________*/
 
 static constexpr float defaultFontSize { 14.0f };
 static constexpr float codeFontSize { 12.0f };
@@ -119,7 +116,8 @@ std::tuple<LineType, uint8_t, int> Parser::classifyLine (const juce::String& lin
             auto afterHashes { content.trimCharactersAtStart ("#") };
             int hashCount { content.length() - afterHashes.length() };
 
-            if (hashCount >= 1 and hashCount <= 6 and afterHashes.isNotEmpty() and juce::CharacterFunctions::isWhitespace (afterHashes[0]))
+            if (hashCount >= 1 and hashCount <= 6 and afterHashes.isNotEmpty()
+                and juce::CharacterFunctions::isWhitespace (afterHashes[0]))
             {
                 resultKind = LineType::Header;
                 resultLevel = static_cast<uint8_t> (hashCount);
@@ -130,8 +128,7 @@ std::tuple<LineType, uint8_t, int> Parser::classifyLine (const juce::String& lin
                 resultOffset = leadingSpaces;
             }
         }
-        else if (content.length() >= 2
-                 and (content[0] == '-' or content[0] == '*' or content[0] == '+')
+        else if (content.length() >= 2 and (content[0] == '-' or content[0] == '*' or content[0] == '+')
                  and juce::CharacterFunctions::isWhitespace (content[1]))
         {
             resultKind = LineType::ListItem;
@@ -272,8 +269,7 @@ std::pair<InlineSpans, TextLinks> Parser::inlineSpans (const juce::String& text)
                     links.push_back (link);
 
                     int linkIndex { static_cast<int> (links.size()) - 1 };
-                    for (int tokenIdx { st.linkTextStartTokenIndex };
-                         tokenIdx < static_cast<int> (spans.size());
+                    for (int tokenIdx { st.linkTextStartTokenIndex }; tokenIdx < static_cast<int> (spans.size());
                          ++tokenIdx)
                     {
                         spans.at (tokenIdx).linkIndex = linkIndex;
@@ -385,13 +381,26 @@ juce::AttributedString Parser::toAttributedString (const Block& block)
         {
             switch (unit.level)
             {
-                case 1: fontSize = h1FontSize; break;
-                case 2: fontSize = h2FontSize; break;
-                case 3: fontSize = h3FontSize; break;
-                case 4: fontSize = h4FontSize; break;
-                case 5: fontSize = h5FontSize; break;
-                case 6: fontSize = h6FontSize; break;
-                default: break;
+                case 1:
+                    fontSize = h1FontSize;
+                    break;
+                case 2:
+                    fontSize = h2FontSize;
+                    break;
+                case 3:
+                    fontSize = h3FontSize;
+                    break;
+                case 4:
+                    fontSize = h4FontSize;
+                    break;
+                case 5:
+                    fontSize = h5FontSize;
+                    break;
+                case 6:
+                    fontSize = h6FontSize;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -437,4 +446,4 @@ juce::AttributedString Parser::toAttributedString (const Block& block)
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} /** namespace jreng::Markdown */
+}// namespace jreng::Markdown

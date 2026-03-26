@@ -1,9 +1,5 @@
-#pragma once
-#include <juce_core/juce_core.h>
-
 namespace jreng::Markdown
-{
-/*____________________________________________________________________________*/
+{ /*____________________________________________________________________________*/
 
 // ============================================================================
 // Block Types
@@ -100,4 +96,4 @@ using InlineSpans = std::vector<InlineSpan>;
 using TextLinks = std::vector<TextLink>;
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} /** namespace jreng::Markdown */
+}// namespace jreng::Markdown
