@@ -24,9 +24,14 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Tabs::Tabs (jreng::Typeface& font_, juce::TabbedButtonBar::Orientation orientation)
+Tabs::Tabs (jreng::Typeface& font_,
+            jreng::Typeface& whelmedBodyFont_,
+            jreng::Typeface& whelmedCodeFont_,
+            juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)
     , font (font_)
+    , whelmedBodyFont (whelmedBodyFont_)
+    , whelmedCodeFont (whelmedCodeFont_)
 {
     setOpaque (false);
     setTabBarDepth (0);
@@ -53,9 +58,14 @@ Tabs::~Tabs()
  */
 void Tabs::addNewTab()
 {
-    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font)) };
+    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, whelmedBodyFont, whelmedCodeFont)) };
     auto& newPanes { *newPanesPtr };
     newPanes.onRepaintNeeded = onRepaintNeeded;
+    newPanes.onOpenMarkdown = [this] (const juce::File& file)
+    {
+        if (auto* active { getActivePanes() }; active != nullptr)
+            active->createWhelmed (file);
+    };
     newPanes.onLastPaneClosed = [this]
     {
         closeActiveTab();
@@ -71,9 +81,11 @@ void Tabs::addNewTab()
     tab.removeChild (tab.getChildWithName (App::ID::PANES), nullptr);
     tab.appendChild (newPanes.getState(), nullptr);
 
-    AppState::getContext()->setActiveTerminalUuid (uuid);
-    AppState::getContext()->setPwd (newPanes.getTerminals().back()->getValueTree());
-    tabName.referTo (newPanes.getTerminals().back()->getValueTree().getPropertyAsValue (Terminal::ID::displayName, nullptr));
+    AppState::getContext()->setActivePaneUuid (uuid);
+    auto paneNode { jreng::PaneManager::findLeaf (newPanes.getState(), uuid) };
+    auto sessionTree { paneNode.getChild (0) };
+    AppState::getContext()->setPwd (sessionTree);
+    tabName.referTo (sessionTree.getPropertyAsValue (Terminal::ID::displayName, nullptr));
 
     const auto initialName { juce::File (AppState::getContext()->getPwd()).getFileName() };
     const int tabIndex { getNumTabs() };
@@ -102,19 +114,17 @@ Panes* Tabs::getActivePanes() const noexcept
 }
 
 /**
- * @brief Returns the active Panes' terminals for GL iteration.
+ * @brief Returns the active Panes' panes for GL iteration.
  *
- * @return Reference to the active terminal owner, or a static empty owner.
+ * @return Reference to the active pane owner, or a static empty owner.
  * @note MESSAGE THREAD.
  */
-jreng::Owner<Terminal::Component>& Tabs::getTerminals() noexcept
+jreng::Owner<PaneComponent>& Tabs::getPanes() noexcept
 {
-    static jreng::Owner<Terminal::Component> empty;
+    static jreng::Owner<PaneComponent> empty;
 
     if (auto* active { getActivePanes() }; active != nullptr)
-    {
-        return active->getTerminals();
-    }
+        return active->getPanes();
 
     return empty;
 }
@@ -124,7 +134,7 @@ void Tabs::globalFocusChanged (juce::Component* focusedComponent)
     if (auto* term { dynamic_cast<Terminal::Component*> (focusedComponent) }; term != nullptr)
     {
         const auto uuid { term->getValueTree().getProperty (jreng::ID::id).toString() };
-        AppState::getContext()->setActiveTerminalUuid (uuid);
+        AppState::getContext()->setActivePaneUuid (uuid);
         AppState::getContext()->setPwd (term->getValueTree());
         tabName.referTo (term->getValueTree().getPropertyAsValue (Terminal::ID::displayName, nullptr));
     }
@@ -158,16 +168,21 @@ void Tabs::closeActiveTab()
     if (index >= 0 and index < static_cast<int> (panes.size()))
     {
         auto* activePanes { panes.at (index).get() };
+        const juce::String paneType { AppState::getContext()->getActivePaneType() };
 
-        if (activePanes->getTerminals().size() > 1)
+        if (paneType == "document")
         {
-            const juce::String uuid { AppState::getContext()->getActiveTerminalUuid() };
+            activePanes->closeWhelmed();
+        }
+        else if (activePanes->getPanes().size() > 1)
+        {
+            const juce::String uuid { AppState::getContext()->getActivePaneUuid() };
 
             int closedIndex { 0 };
 
-            for (size_t i { 0 }; i < activePanes->getTerminals().size(); ++i)
+            for (size_t i { 0 }; i < activePanes->getPanes().size(); ++i)
             {
-                if (activePanes->getTerminals().at (i)->getComponentID() == uuid)
+                if (activePanes->getPanes().at (i)->getComponentID() == uuid)
                 {
                     closedIndex = static_cast<int> (i);
                     break;
@@ -176,11 +191,11 @@ void Tabs::closeActiveTab()
 
             activePanes->closePane (uuid);
 
-            if (not activePanes->getTerminals().isEmpty())
+            if (not activePanes->getPanes().isEmpty())
             {
-                const int nextIndex { juce::jmin (closedIndex, static_cast<int> (activePanes->getTerminals().size()) - 1) };
-                auto* nearest { activePanes->getTerminals().at (static_cast<size_t> (nextIndex)).get() };
-                AppState::getContext()->setActiveTerminalUuid (nearest->getComponentID());
+                const int nextIndex { juce::jmin (closedIndex, static_cast<int> (activePanes->getPanes().size()) - 1) };
+                auto* nearest { activePanes->getPanes().at (static_cast<size_t> (nextIndex)).get() };
+                AppState::getContext()->setActivePaneUuid (nearest->getComponentID());
 
                 if (nearest->isShowing())
                     nearest->grabKeyboardFocus();
@@ -255,15 +270,15 @@ int Tabs::getTabCount() const noexcept { return getNumTabs(); }
  */
 Terminal::Component* Tabs::getActiveTerminal() const noexcept
 {
-    const auto uuid { AppState::getContext()->getActiveTerminalUuid() };
+    const auto uuid { AppState::getContext()->getActivePaneUuid() };
 
     if (auto* active { getActivePanes() }; active != nullptr)
     {
-        for (auto& terminal : active->getTerminals())
+        for (auto& pane : active->getPanes())
         {
-            if (terminal->getComponentID() == uuid)
+            if (pane->getComponentID() == uuid)
             {
-                return terminal.get();
+                return dynamic_cast<Terminal::Component*> (pane.get());
             }
         }
     }
@@ -301,9 +316,9 @@ void Tabs::applyConfig()
 {
     for (auto& p : panes)
     {
-        for (auto& terminal : p->getTerminals())
+        for (auto& pane : p->getPanes())
         {
-            terminal->applyConfig();
+            pane->applyConfig();
         }
     }
 }
@@ -312,9 +327,9 @@ void Tabs::switchRenderer (PaneComponent::RendererType type)
 {
     for (auto& p : panes)
     {
-        for (auto& terminal : p->getTerminals())
+        for (auto& pane : p->getPanes())
         {
-            terminal->switchRenderer (type);
+            pane->switchRenderer (type);
         }
     }
 }
@@ -339,15 +354,15 @@ void Tabs::resetZoom()
 
 void Tabs::focusLastTerminal (Panes* active)
 {
-    auto& terminals { active->getTerminals() };
+    auto& activePanes { active->getPanes() };
 
-    if (not terminals.isEmpty())
+    if (not activePanes.isEmpty())
     {
-        auto* lastTerminal { terminals.back().get() };
-        AppState::getContext()->setActiveTerminalUuid (lastTerminal->getComponentID());
+        auto* lastPane { activePanes.back().get() };
+        AppState::getContext()->setActivePaneUuid (lastPane->getComponentID());
 
-        if (lastTerminal->isShowing())
-            lastTerminal->grabKeyboardFocus();
+        if (lastPane->isShowing())
+            lastPane->grabKeyboardFocus();
     }
 }
 
@@ -430,16 +445,16 @@ void Tabs::currentTabChanged (int newIndex, const juce::String&)
 
     if (auto* active { getActivePanes() }; active != nullptr)
     {
-        auto& terminals { active->getTerminals() };
+        auto& activePanes { active->getPanes() };
 
-        if (not terminals.isEmpty())
+        if (not activePanes.isEmpty())
         {
-            auto* firstTerminal { terminals.at (0).get() };
-            AppState::getContext()->setActiveTerminalUuid (firstTerminal->getComponentID());
+            auto* firstPane { activePanes.at (0).get() };
+            AppState::getContext()->setActivePaneUuid (firstPane->getComponentID());
 
-            if (firstTerminal->isShowing())
+            if (firstPane->isShowing())
             {
-                firstTerminal->grabKeyboardFocus();
+                firstPane->grabKeyboardFocus();
             }
         }
     }
@@ -482,6 +497,12 @@ juce::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::Stri
         return juce::TabbedButtonBar::TabsAtRight;
 
     return juce::TabbedButtonBar::TabsAtLeft;
+}
+
+void Tabs::openMarkdown (const juce::File& file)
+{
+    if (auto* active { getActivePanes() }; active != nullptr)
+        active->createWhelmed (file);
 }
 
 void Tabs::focusPaneLeft()

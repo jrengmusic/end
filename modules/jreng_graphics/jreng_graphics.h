@@ -66,7 +66,7 @@
 #include "fonts/jreng_typeface.h"
 #include "fonts/jreng_font.h"
 
-#include "fonts/jreng_text_layout.h"
-
 #include "rendering/jreng_glyph_render.h"
-#include "rendering/jreng_graphics_text_renderer.h"
+#include "rendering/jreng_glyph_graphics_context.h"
+
+#include "fonts/jreng_text_layout.h"

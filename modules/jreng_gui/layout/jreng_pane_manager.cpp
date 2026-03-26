@@ -7,7 +7,7 @@ const juce::Identifier PaneManager::idPanes     { "PANES" };
 const juce::Identifier PaneManager::idPane      { "PANE" };
 const juce::Identifier PaneManager::idDirection { "direction" };
 const juce::Identifier PaneManager::idRatio     { "ratio" };
-const juce::Identifier PaneManager::idUuid      { "uuid" };
+const juce::Identifier PaneManager::id           { "id" };
 
 //==============================================================================
 PaneManager::PaneManager()
@@ -31,7 +31,7 @@ void PaneManager::addLeaf (const juce::String& uuid)
     jassert (state.getNumChildren() <= 1);
 
     juce::ValueTree leaf { idPane };
-    leaf.setProperty (idUuid, uuid, nullptr);
+    leaf.setProperty (id, uuid, nullptr);
     state.appendChild (leaf, nullptr);
 }
 
@@ -47,7 +47,7 @@ void PaneManager::split (const juce::String& uuid,
     jassert (parent.isValid());
 
     juce::ValueTree newLeaf { idPane };
-    newLeaf.setProperty (idUuid, newUuid, nullptr);
+    newLeaf.setProperty (id, newUuid, nullptr);
 
     if (parent.getNumChildren() == 1)
     {
@@ -174,7 +174,7 @@ juce::ValueTree PaneManager::findLeaf (juce::ValueTree node, const juce::String&
 {
     juce::ValueTree result;
 
-    if (node.getType() == idPane and node.getProperty (idUuid).toString() == uuid)
+    if (node.getType() == idPane and node.getProperty (id).toString() == uuid)
     {
         result = node;
     }

@@ -1,8 +1,8 @@
 /**
- * @file jreng_graphics_text_renderer.h
+ * @file jreng_glyph_graphics_context.h
  * @brief Software rendering backend for glyph and background draw calls via juce::Graphics.
  *
- * `GraphicsTextRenderer` is the CPU counterpart of `GLTextRenderer`.
+ * `GraphicsContext` is the CPU counterpart of `GLContext`.
  * It satisfies the same duck-type contract so that `Screen<Renderer>` and
  * `TextLayout::draw<GraphicsContext>` work identically with either backend.
  *
@@ -13,7 +13,7 @@
  * @par Thread contract
  * All methods must be called on the **MESSAGE THREAD** (inside `paint()`).
  *
- * @see jreng::Glyph::GLTextRenderer
+ * @see jreng::Glyph::GLContext
  * @see jreng::Glyph::Render
  */
 #pragma once
@@ -22,11 +22,11 @@ namespace jreng::Glyph
 {
 
 /**
- * @class GraphicsTextRenderer
+ * @class GraphicsContext
  * @brief Software renderer compositing glyphs and backgrounds via direct BitmapData pixel writes.
  *
- * Mirrors the `GLTextRenderer` duck-type contract. `Screen<GraphicsTextRenderer>`
- * and `TextLayout::draw<GraphicsTextRenderer>` compile and work identically.
+ * Mirrors the `GLContext` duck-type contract. `Screen<GraphicsContext>`
+ * and `TextLayout::draw<GraphicsContext>` compile and work identically.
  *
  * @par Typical frame sequence
  * @code
@@ -48,11 +48,11 @@ namespace jreng::Glyph
  *
  * @note **MESSAGE THREAD** only for all methods.
  */
-class GraphicsTextRenderer
+class GraphicsContext
 {
 public:
-    GraphicsTextRenderer()  = default;
-    ~GraphicsTextRenderer() = default;
+    GraphicsContext()  = default;
+    ~GraphicsContext() = default;
 
     // =========================================================================
     // Lifecycle
@@ -313,7 +313,7 @@ private:
     /** @brief Number of valid entries in stagedBuffer after consumeStagedBitmaps(). */
     int stagedCount { 0 };
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphicsTextRenderer)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphicsContext)
 };
 
 } // namespace jreng::Glyph

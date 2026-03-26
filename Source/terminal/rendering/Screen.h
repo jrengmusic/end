@@ -440,7 +440,7 @@ public:
     /**
      * @brief Renders a frame to the GL context with viewport offset.
      *
-     * Called by `Terminal::Component::renderGL()`.  Draws backgrounds,
+     * Called by `Terminal::Component::paintGL()`.  Draws backgrounds,
      * mono glyphs, and emoji glyphs using the physical pixel origin offset
      * so the GL viewport accounts for the tab bar.
      *
@@ -872,10 +872,10 @@ private:
     /**
      * @brief Returns true if row @p r should be included in the current snapshot.
      *
-     * GPU path (`GLTextRenderer`): always returns `true` — all rows are packed
+     * GPU path (`GLContext`): always returns `true` — all rows are packed
      * because the framebuffer is cleared each frame.
      *
-     * CPU path (`GraphicsTextRenderer`): returns `true` only if the row's bit
+     * CPU path (`GraphicsContext`): returns `true` only if the row's bit
      * is set in `frameDirtyBits`.  Non-dirty rows retain correct content on the
      * persistent render target; re-drawing them causes alpha accumulation.
      *
@@ -888,7 +888,7 @@ private:
     {
         bool result { true };
 
-        if constexpr (std::is_same_v<Renderer, jreng::Glyph::GraphicsTextRenderer>)
+        if constexpr (std::is_same_v<Renderer, jreng::Glyph::GraphicsContext>)
         {
             const int word { r >> 6 };
             const uint64_t bit { static_cast<uint64_t> (1) << (r & 63) };

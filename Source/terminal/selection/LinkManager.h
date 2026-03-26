@@ -123,6 +123,16 @@ public:
     void dispatch (const LinkSpan& span) const;
 
     /**
+     * @brief Callback invoked when a .md file link is activated.
+     *
+     * When set, intercepts file dispatch for `.md` extensions before the
+     * default editor-launch logic runs.
+     *
+     * @note MESSAGE THREAD.
+     */
+    mutable std::function<void (const juce::File&)> onOpenMarkdown;
+
+    /**
      * @brief Returns the current clickable-link spans (for hover underline).
      * @return Read-only reference to the internal vector.
      * @note MESSAGE THREAD.

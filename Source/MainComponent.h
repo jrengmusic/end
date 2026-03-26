@@ -47,6 +47,7 @@
 #include "terminal/action/ActionList.h"
 // jreng::Typeface is available via JuceHeader → jreng_glyph
 #include "terminal/selection/StatusBarOverlay.h"
+#include "whelmed/Component.h"
 
 /**
  * @class MainComponent
@@ -134,6 +135,12 @@ private:
     /** @brief Global typeface instance; provides font metrics and shaping for all terminals. */
     jreng::Typeface typeface;
 
+    /** @brief Body typeface for Whelmed markdown renderer. */
+    jreng::Typeface whelmedBodyFont;
+
+    /** @brief Monospace typeface for Whelmed code blocks. */
+    jreng::Typeface whelmedCodeFont;
+
     /** @brief Tabbed terminal container; owns all Terminal::Component instances. */
     std::unique_ptr<Terminal::Tabs> tabs;
 
@@ -201,5 +208,6 @@ private:
     //     jreng::debug::Widget debug { this, false };
     // #endif
     //==============================================================================
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

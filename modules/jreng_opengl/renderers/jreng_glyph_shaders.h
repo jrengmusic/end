@@ -5,7 +5,7 @@
  * All five shader sources are embedded as `constexpr const char*` so the
  * `jreng_glyph` module does not depend on app-level `BinaryData`.
  *
- * @see jreng::Glyph::GLTextRenderer
+ * @see jreng::Glyph::GLContext
  */
 #pragma once
 

@@ -9,8 +9,8 @@
  * the application state tree by the owning Tab.
  *
  * Split operations delegate to splitImpl. Leaf lookup delegates to
- * jreng::PaneManager::findLeaf. Terminals are owned by
- * jreng::Owner<Terminal::Component>; each terminal's componentID is its UUID.
+ * jreng::PaneManager::findLeaf. Panes are owned by
+ * jreng::Owner<PaneComponent>; each pane's componentID is its UUID.
  *
  * @see Terminal::Component
  * @see Terminal::Tabs
@@ -19,6 +19,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "PaneComponent.h"
 #include "TerminalComponent.h"
 
 namespace Terminal
@@ -27,8 +28,8 @@ namespace Terminal
  * @class Panes
  * @brief Pane container managing terminal sessions within a single tab.
  *
- * A Panes instance is created per tab and owns all Terminal::Component
- * instances for that tab. createTerminal() adds a new session and returns
+ * A Panes instance is created per tab and owns all pane components
+ * for that tab. createTerminal() adds a new session and returns
  * its UUID.
  *
  * @note MESSAGE THREAD — all methods.
@@ -41,7 +42,7 @@ public:
      * @param font  Font instance providing metrics, shaping, and rasterisation.
      * @note MESSAGE THREAD.
      */
-    explicit Panes (jreng::Typeface& font);
+    explicit Panes (jreng::Typeface& font, jreng::Typeface& whelmedBodyFont, jreng::Typeface& whelmedCodeFont);
 
     /**
      * @brief Destructor.
@@ -63,15 +64,26 @@ public:
     juce::String createTerminal (const juce::String& workingDirectory = {});
 
     /**
-     * @brief Access the owned terminals for GL iteration.
+     * @brief Create a new Whelmed markdown viewer pane and open the given file.
      *
-     * Returns a reference to the owner container so that the GL renderer
-     * can iterate all terminals without transferring ownership.
-     *
-     * @return Reference to the terminal owner container.
+     * @param file  The .md file to open.
+     * @return The UUID of the newly created Whelmed pane (its componentID).
      * @note MESSAGE THREAD.
      */
-    jreng::Owner<Terminal::Component>& getTerminals() noexcept;
+    juce::String createWhelmed (const juce::File& file);
+
+    void closeWhelmed();
+
+    /**
+     * @brief Access the owned panes for GL iteration.
+     *
+     * Returns a reference to the owner container so that the GL renderer
+     * can iterate all panes without transferring ownership.
+     *
+     * @return Reference to the pane owner container.
+     * @note MESSAGE THREAD.
+     */
+    jreng::Owner<PaneComponent>& getPanes() noexcept;
 
     /**
      * @brief Access the PANES ValueTree for attachment to AppState.
@@ -103,6 +115,15 @@ public:
      * @note MESSAGE THREAD (via callAsync).
      */
     std::function<void()> onLastPaneClosed;
+
+    /**
+     * @brief Callback invoked when a .md file link is activated.
+     *
+     * Set by the owning Tabs to spawn a Whelmed pane in the active tab.
+     *
+     * @note MESSAGE THREAD.
+     */
+    std::function<void (const juce::File&)> onOpenMarkdown;
 
     /**
      * @brief Close the pane with the given uuid.
@@ -146,7 +167,7 @@ public:
     /**
      * @brief Handle component resize events.
      *
-     * Delegates to PaneManager::layOut to recursively position all terminals
+     * Delegates to PaneManager::layout to recursively position all terminals
      * and resizer bars according to the binary split tree.
      *
      * @note MESSAGE THREAD.
@@ -183,7 +204,9 @@ private:
     void splitImpl (const juce::String& direction, bool isVertical);
 
     jreng::Typeface& font;
-    jreng::Owner<Terminal::Component> terminals;
+    jreng::Typeface& whelmedBodyFont;
+    jreng::Typeface& whelmedCodeFont;
+    jreng::Owner<PaneComponent> panes;
     jreng::PaneManager paneManager;
     jreng::Owner<jreng::PaneResizerBar> resizerBars;
 

@@ -317,8 +317,8 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
         resources.snapshotBuffer.write();
 }
 
-template class Screen<jreng::Glyph::GLTextRenderer>;
-template class Screen<jreng::Glyph::GraphicsTextRenderer>;
+template class Screen<jreng::Glyph::GLContext>;
+template class Screen<jreng::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

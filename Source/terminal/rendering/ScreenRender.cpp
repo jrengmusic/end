@@ -1050,8 +1050,8 @@ jreng::Typeface::Style Screen<Renderer>::selectFontStyle (const Cell& cell) noex
     return result;
 }
 
-template class Screen<jreng::Glyph::GLTextRenderer>;
-template class Screen<jreng::Glyph::GraphicsTextRenderer>;
+template class Screen<jreng::Glyph::GLContext>;
+template class Screen<jreng::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

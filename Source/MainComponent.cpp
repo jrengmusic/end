@@ -56,6 +56,8 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
                 config.getString (Config::Key::gpuAcceleration) != "false" ? jreng::Glyph::AtlasSize::standard
                                                                            : jreng::Glyph::AtlasSize::compact,
                 true)
+    , whelmedBodyFont (fontRegistry, "Helvetica", 14.0f, jreng::Glyph::AtlasSize::standard, false)
+    , whelmedCodeFont (fontRegistry, "Menlo", 12.0f, jreng::Glyph::AtlasSize::standard, true)
 {
     setOpaque (false);
 
@@ -73,6 +75,7 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     initialiseMessageOverlay();
     addChildComponent (statusBarOverlay);
     //==============================================================================
+
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
     setLookAndFeel (&terminalLookAndFeel);
     juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
@@ -508,6 +511,30 @@ void MainComponent::registerActions()
                                return true;
                            });
 
+    action.registerAction ("open_markdown",
+                           "Open Markdown",
+                           "Open a .md file in a Whelmed pane",
+                           "Navigation",
+                           true,
+                           [this]() -> bool
+                           {
+                               auto chooser { std::make_shared<juce::FileChooser> (
+                                   "Open Markdown File", juce::File {}, "*.md") };
+
+                               chooser->launchAsync (
+                                   juce::FileBrowserComponent::openMode
+                                       | juce::FileBrowserComponent::canSelectFiles,
+                                   [this, chooser] (const juce::FileChooser& fc)
+                                   {
+                                       const auto result { fc.getResult() };
+
+                                       if (result.existsAsFile())
+                                           tabs->openMarkdown (result);
+                                   });
+
+                               return true;
+                           });
+
     // Register popup actions from Config
     for (const auto& pair : config.getPopups())
     {
@@ -617,17 +644,20 @@ void MainComponent::showMessageOverlay()
 void MainComponent::initialiseTabs()
 {
     tabs = std::make_unique<Terminal::Tabs> (
-        typeface, Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
+        typeface,
+        whelmedBodyFont,
+        whelmedCodeFont,
+        Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
     addAndMakeVisible (tabs.get());
 
     glRenderer.setComponentIterator (
         [this] (std::function<void (jreng::GLComponent&)> renderComponent)
         {
-            for (auto& terminal : tabs->getTerminals())
+            for (auto& pane : tabs->getPanes())
             {
-                if (terminal->isVisible())
+                if (pane->isVisible())
                 {
-                    renderComponent (*terminal);
+                    renderComponent (*pane);
                 }
             }
         });

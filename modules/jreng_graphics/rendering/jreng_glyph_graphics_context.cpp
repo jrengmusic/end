@@ -1,6 +1,6 @@
 /**
- * @file jreng_graphics_text_renderer.cpp
- * @brief Implementation of GraphicsTextRenderer — direct BitmapData compositing.
+ * @file jreng_glyph_graphics_context.cpp
+ * @brief Implementation of GraphicsContext — direct BitmapData compositing.
  */
 
 #include "jreng_simd_blend.h"
@@ -8,15 +8,15 @@
 namespace jreng::Glyph
 {
 
-juce::Image GraphicsTextRenderer::sharedMonoAtlas;
-juce::Image GraphicsTextRenderer::sharedEmojiAtlas;
-int GraphicsTextRenderer::sharedAtlasRefCount { 0 };
+juce::Image GraphicsContext::sharedMonoAtlas;
+juce::Image GraphicsContext::sharedEmojiAtlas;
+int GraphicsContext::sharedAtlasRefCount { 0 };
 
 // =========================================================================
 // Lifecycle
 // =========================================================================
 
-void GraphicsTextRenderer::createContext() noexcept
+void GraphicsContext::createContext() noexcept
 {
     if (sharedAtlasRefCount == 0)
     {
@@ -32,7 +32,7 @@ void GraphicsTextRenderer::createContext() noexcept
     contextInitialised = true;
 }
 
-void GraphicsTextRenderer::closeContext() noexcept
+void GraphicsContext::closeContext() noexcept
 {
     if (contextInitialised)
     {
@@ -53,7 +53,7 @@ void GraphicsTextRenderer::closeContext() noexcept
 // Per-frame operations
 // =========================================================================
 
-void GraphicsTextRenderer::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
+void GraphicsContext::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
 {
     typeface.consumeStagedBitmaps (stagedBuffer, stagedCount);
 
@@ -86,13 +86,13 @@ void GraphicsTextRenderer::uploadStagedBitmaps (jreng::Typeface& typeface) noexc
     }
 }
 
-void GraphicsTextRenderer::setViewportSize (int width, int height) noexcept
+void GraphicsContext::setViewportSize (int width, int height) noexcept
 {
     viewportWidth  = width;
     viewportHeight = height;
 }
 
-void GraphicsTextRenderer::push (int x, int y, int w, int h, int fullHeight) noexcept
+void GraphicsContext::push (int x, int y, int w, int h, int fullHeight) noexcept
 {
     juce::ignoreUnused (fullHeight);
     viewportWidth  = w;
@@ -111,7 +111,7 @@ void GraphicsTextRenderer::push (int x, int y, int w, int h, int fullHeight) noe
     // Dirty rows are composited selectively in prepareFrame().
 }
 
-void GraphicsTextRenderer::pop() noexcept
+void GraphicsContext::pop() noexcept
 {
     if (graphics != nullptr and renderTarget.isValid())
     {
@@ -125,7 +125,7 @@ void GraphicsTextRenderer::pop() noexcept
     }
 }
 
-void GraphicsTextRenderer::prepareFrame (const uint64_t* dirtyRows, int scrollDelta,
+void GraphicsContext::prepareFrame (const uint64_t* dirtyRows, int scrollDelta,
                                           int cellHeight, int totalRows, int scrollOffset) noexcept
 {
     if (renderTarget.isValid() and cellHeight > 0)
@@ -177,7 +177,7 @@ void GraphicsTextRenderer::prepareFrame (const uint64_t* dirtyRows, int scrollDe
 // Drawing
 // =========================================================================
 
-void GraphicsTextRenderer::drawQuads (const Render::Quad* data, int count, bool isEmoji) noexcept
+void GraphicsContext::drawQuads (const Render::Quad* data, int count, bool isEmoji) noexcept
 {
     if (count > 0 and renderTarget.isValid())
     {
@@ -204,7 +204,7 @@ void GraphicsTextRenderer::drawQuads (const Render::Quad* data, int count, bool 
     }
 }
 
-void GraphicsTextRenderer::drawBackgrounds (const Render::Background* data, int count) noexcept
+void GraphicsContext::drawBackgrounds (const Render::Background* data, int count) noexcept
 {
     if (count > 0 and renderTarget.isValid())
     {
@@ -295,7 +295,7 @@ void GraphicsTextRenderer::drawBackgrounds (const Render::Background* data, int 
     }
 }
 
-void GraphicsTextRenderer::compositeMonoGlyph (juce::Image::BitmapData& targetData,
+void GraphicsContext::compositeMonoGlyph (juce::Image::BitmapData& targetData,
                                                 const juce::Image::BitmapData& atlasData,
                                                 const Render::Quad& quad) noexcept
 {
@@ -364,7 +364,7 @@ void GraphicsTextRenderer::compositeMonoGlyph (juce::Image::BitmapData& targetDa
     }
 }
 
-void GraphicsTextRenderer::compositeEmojiGlyph (juce::Image::BitmapData& targetData,
+void GraphicsContext::compositeEmojiGlyph (juce::Image::BitmapData& targetData,
                                                   const juce::Image::BitmapData& atlasData,
                                                   const Render::Quad& quad) noexcept
 {
@@ -433,12 +433,12 @@ void GraphicsTextRenderer::compositeEmojiGlyph (juce::Image::BitmapData& targetD
 // TextLayout duck-type
 // =========================================================================
 
-void GraphicsTextRenderer::setFont (jreng::Font& font) noexcept
+void GraphicsContext::setFont (jreng::Font& font) noexcept
 {
     currentFont = &font;
 }
 
-void GraphicsTextRenderer::drawGlyphs (const uint16_t* glyphCodes,
+void GraphicsContext::drawGlyphs (const uint16_t* glyphCodes,
                                         const juce::Point<float>* positions,
                                         int count) noexcept
 {
@@ -481,7 +481,7 @@ void GraphicsTextRenderer::drawGlyphs (const uint16_t* glyphCodes,
 // State queries
 // =========================================================================
 
-bool GraphicsTextRenderer::isReady() const noexcept
+bool GraphicsContext::isReady() const noexcept
 {
     return sharedMonoAtlas.isValid();
 }
@@ -490,7 +490,7 @@ bool GraphicsTextRenderer::isReady() const noexcept
 // Graphics context binding
 // =========================================================================
 
-void GraphicsTextRenderer::setGraphicsContext (juce::Graphics& g) noexcept
+void GraphicsContext::setGraphicsContext (juce::Graphics& g) noexcept
 {
     graphics = &g;
 }

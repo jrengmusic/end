@@ -14,11 +14,11 @@
  *
  * ### Thread context
  * **MESSAGE THREAD** — createLayout() calls Typeface::shapeText() which is MESSAGE THREAD
- * only.  draw(GLTextRenderer&) is called on the **GL THREAD** after layout is built.
+ * only.  draw(GLContext&) is called on the **GL THREAD** after layout is built.
  *
  * @see jreng::Typeface
  * @see jreng::Glyph::Atlas
- * @see jreng::Glyph::GLTextRenderer
+ * @see jreng::Glyph::GLContext
  */
 
 #pragma once
@@ -161,6 +161,18 @@ public:
     // =========================================================================
     // Drawing
     // =========================================================================
+
+    /**
+     * @brief Render all lines via juce::Graphics (CPU path).
+     *
+     * Wraps an internal Glyph::GraphicsContext to satisfy the duck-type
+     * contract, then delegates to the template draw implementation.
+     *
+     * @param g     juce::Graphics context.
+     * @param area  Bounding rectangle in logical pixels.
+     */
+    void draw (juce::Graphics& g,
+               juce::Rectangle<float> area) const noexcept;
 
     /**
      * @brief Render all lines via a graphics context.

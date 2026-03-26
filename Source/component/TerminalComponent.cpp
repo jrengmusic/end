@@ -33,7 +33,7 @@
  */
 Terminal::Component::Component (jreng::Typeface& font_)
     : font (font_)
-    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsTextRenderer>>, font_)
+    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsContext>>, font_)
     , vblank (this,
               [this]
               {
@@ -44,20 +44,14 @@ Terminal::Component::Component (jreng::Typeface& font_)
     session.getState().get().setProperty (jreng::ID::id, juce::Uuid().toString(), nullptr);
 }
 
-Terminal::Component* Terminal::Component::create (jreng::Typeface& font,
-                                                  juce::Component& parent,
-                                                  juce::Rectangle<int> bounds,
-                                                  jreng::Owner<Component>& owner,
-                                                  const juce::String& workingDirectory)
+std::unique_ptr<Terminal::Component> Terminal::Component::create (jreng::Typeface& font,
+                                                                   const juce::String& workingDirectory)
 {
     auto terminal { workingDirectory.isNotEmpty() ? std::make_unique<Component> (font, workingDirectory)
                                                   : std::make_unique<Component> (font) };
     const auto uuid { terminal->getValueTree().getProperty (jreng::ID::id).toString() };
     terminal->setComponentID (uuid);
-    terminal->setBounds (bounds);
-    parent.addChildComponent (terminal.get());
-    auto& ref { owner.add (std::move (terminal)) };
-    return ref.get();
+    return terminal;
 }
 
 /**
@@ -69,7 +63,7 @@ Terminal::Component* Terminal::Component::create (jreng::Typeface& font,
  */
 Terminal::Component::Component (jreng::Typeface& font_, const juce::String& workingDirectory)
     : font (font_)
-    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsTextRenderer>>, font_)
+    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsContext>>, font_)
     , vblank (this,
               [this]
               {
@@ -95,7 +89,7 @@ Terminal::Component::Component (jreng::Typeface& font_,
                                 const juce::String& args,
                                 const juce::String& workingDirectory)
     : font (font_)
-    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsTextRenderer>>, font_)
+    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsContext>>, font_)
     , vblank (this,
               [this]
               {
@@ -155,6 +149,12 @@ void Terminal::Component::initialise()
     session.onDesktopNotification = [] (const juce::String& title, const juce::String& body)
     {
         Terminal::Notifications::show (title, body);
+    };
+
+    linkManager.onOpenMarkdown = [this] (const juce::File& file)
+    {
+        if (onOpenMarkdown != nullptr)
+            onOpenMarkdown (file);
     };
 }
 
@@ -387,38 +387,48 @@ void Terminal::Component::filesDropped (const juce::StringArray& files, int, int
 
         juce::StringArray paths;
 
-        for (const auto& file : files)
+        for (const auto& filePath : files)
         {
-            if (shouldQuote
-                and (file.containsChar (' ') or file.containsChar ('\'') or file.containsChar ('"')
-                     or file.containsChar ('\\') or file.containsChar ('(') or file.containsChar (')')))
-            {
-                const juce::String shell { cfg->getString (Config::Key::shellProgram) };
+            const juce::File file { filePath };
 
-                if (shell.contains ("cmd"))
-                    paths.add ("\"" + file + "\"");
-                else
-                    paths.add ("'" + file.replace ("'", "'\\''") + "'");
+            if (file.getFileExtension().toLowerCase() == ".md" and onOpenMarkdown != nullptr)
+            {
+                onOpenMarkdown (file);
             }
             else
             {
-                paths.add (file);
+                if (shouldQuote
+                    and (filePath.containsChar (' ') or filePath.containsChar ('\'') or filePath.containsChar ('"')
+                         or filePath.containsChar ('\\') or filePath.containsChar ('(') or filePath.containsChar (')')))
+                {
+                    const juce::String shell { cfg->getString (Config::Key::shellProgram) };
+
+                    if (shell.contains ("cmd"))
+                        paths.add ("\"" + filePath + "\"");
+                    else
+                        paths.add ("'" + filePath.replace ("'", "'\\''") + "'");
+                }
+                else
+                {
+                    paths.add (filePath);
+                }
             }
         }
 
-        session.paste (paths.joinIntoString (separator));
+        if (not paths.isEmpty())
+            session.paste (paths.joinIntoString (separator));
     }
 }
 
 // GL THREAD
 void Terminal::Component::glContextCreated() noexcept
 {
-    if (std::holds_alternative<Screen<jreng::Glyph::GLTextRenderer>> (screen))
+    if (std::holds_alternative<Screen<jreng::Glyph::GLContext>> (screen))
     {
         // GL surface opacity only — AppKit blur is applied on the message thread
         // by MainComponent::valueTreePropertyChanged.
         jreng::BackgroundBlur::enableWindowTransparency();
-        std::get<Screen<jreng::Glyph::GLTextRenderer>> (screen).glContextCreated();
+        std::get<Screen<jreng::Glyph::GLContext>> (screen).glContextCreated();
         session.getGrid().markAllDirty();
         session.getState().setSnapshotDirty();
     }
@@ -427,9 +437,9 @@ void Terminal::Component::glContextCreated() noexcept
 // GL THREAD
 void Terminal::Component::glContextClosing() noexcept
 {
-    if (std::holds_alternative<Screen<jreng::Glyph::GLTextRenderer>> (screen))
+    if (std::holds_alternative<Screen<jreng::Glyph::GLContext>> (screen))
     {
-        std::get<Screen<jreng::Glyph::GLTextRenderer>> (screen).glContextClosing();
+        std::get<Screen<jreng::Glyph::GLContext>> (screen).glContextClosing();
     }
 }
 
@@ -445,11 +455,11 @@ juce::Point<int> Terminal::Component::getOriginInTopLevel() const noexcept
 }
 
 // GL THREAD
-void Terminal::Component::renderGL() noexcept
+void Terminal::Component::paintGL() noexcept
 {
-    if (isVisible() and std::holds_alternative<Screen<jreng::Glyph::GLTextRenderer>> (screen))
+    if (isVisible() and std::holds_alternative<Screen<jreng::Glyph::GLContext>> (screen))
     {
-        auto& glScreen { std::get<Screen<jreng::Glyph::GLTextRenderer>> (screen) };
+        auto& glScreen { std::get<Screen<jreng::Glyph::GLContext>> (screen) };
 
         if (not glScreen.isGLContextReady())
             glScreen.glContextCreated();
@@ -462,10 +472,10 @@ void Terminal::Component::renderGL() noexcept
 // MESSAGE THREAD
 void Terminal::Component::paint (juce::Graphics& g)
 {
-    if (isVisible() and std::holds_alternative<Screen<jreng::Glyph::GraphicsTextRenderer>> (screen))
+    if (isVisible() and std::holds_alternative<Screen<jreng::Glyph::GraphicsContext>> (screen))
     {
         g.fillAll (findColour (juce::ResizableWindow::backgroundColourId));
-        std::get<Screen<jreng::Glyph::GraphicsTextRenderer>> (screen).renderPaint (g, 0, 0, getHeight());
+        std::get<Screen<jreng::Glyph::GraphicsContext>> (screen).renderPaint (g, 0, 0, getHeight());
     }
 }
 
@@ -488,8 +498,9 @@ void Terminal::Component::visibilityChanged()
  * @param cause  Unused.
  * @note MESSAGE THREAD.
  */
-void Terminal::Component::focusGained (FocusChangeType)
+void Terminal::Component::focusGained (FocusChangeType cause)
 {
+    PaneComponent::focusGained (cause);
     session.getState().setCursorFocused (true);
     session.writeFocusEvent (true);
     repaint();
@@ -550,7 +561,7 @@ juce::ValueTree Terminal::Component::getValueTree() noexcept { return session.ge
  */
 void Terminal::Component::onVBlank()
 {
-    if (getComponentID() == AppState::getContext()->getActiveTerminalUuid())
+    if (getComponentID() == AppState::getContext()->getActivePaneUuid())
     {
         if (isShowing() and not hasKeyboardFocus (true)
             and juce::Component::getCurrentlyModalComponent() == nullptr)
@@ -715,16 +726,16 @@ void Terminal::Component::switchRenderer (PaneComponent::RendererType type)
     // Atlas resize is handled once by MainComponent's ValueTree listener.
     if (type == PaneComponent::RendererType::cpu)
     {
-        if (not std::holds_alternative<Screen<jreng::Glyph::GraphicsTextRenderer>> (screen))
+        if (not std::holds_alternative<Screen<jreng::Glyph::GraphicsContext>> (screen))
         {
-            screen.emplace<Screen<jreng::Glyph::GraphicsTextRenderer>> (font);
+            screen.emplace<Screen<jreng::Glyph::GraphicsContext>> (font);
         }
     }
     else
     {
-        if (not std::holds_alternative<Screen<jreng::Glyph::GLTextRenderer>> (screen))
+        if (not std::holds_alternative<Screen<jreng::Glyph::GLContext>> (screen))
         {
-            screen.emplace<Screen<jreng::Glyph::GLTextRenderer>> (font);
+            screen.emplace<Screen<jreng::Glyph::GLContext>> (font);
         }
     }
 

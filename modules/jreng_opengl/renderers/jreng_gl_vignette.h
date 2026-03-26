@@ -19,7 +19,7 @@ public:
         return edgeDistance;
     }
 
-    void renderGL (GLGraphics& g) noexcept override
+    void paintGL (GLGraphics& g) noexcept override
     {
         const auto bounds { getLocalBounds().toFloat() };
         const auto c { findColour (juce::ResizableWindow::backgroundColourId) };

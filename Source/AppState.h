@@ -68,8 +68,11 @@ struct AppState : jreng::Context<AppState>
     void removeTab (int index);
     juce::ValueTree getTab (int index) noexcept;
 
-    juce::String getActiveTerminalUuid() const noexcept;
-    void setActiveTerminalUuid (const juce::String& uuid);
+    juce::String getActivePaneUuid() const noexcept;
+    void setActivePaneUuid (const juce::String& uuid);
+
+    juce::String getActivePaneType() const noexcept;
+    void setActivePaneType (const juce::String& type);
 
     juce::String getPwd() const noexcept;
     void setPwd (juce::ValueTree sessionTree);

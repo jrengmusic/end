@@ -65,6 +65,8 @@ void GLRenderer::newOpenGLContextCreated()
         juce::gl::glGenBuffers (1, &vbo);
     }
 
+    glyphContext.createContext();
+
     if (componentIterator)
     {
         componentIterator ([] (GLComponent& comp)
@@ -184,6 +186,8 @@ void GLRenderer::drawVertices (const std::vector<GLVertex>& vertices,
 void GLRenderer::openGLContextClosing()
 {
     // GL THREAD
+    glyphContext.closeContext();
+
     if (componentIterator)
     {
         componentIterator ([] (GLComponent& comp)
@@ -257,14 +261,14 @@ void GLRenderer::enableSurfaceTransparency()
 void GLRenderer::renderComponent (GLComponent* comp, const juce::Component* target, float totalScale, float vpWidth, float vpHeight)
 {
     comp->setFullViewportHeight (static_cast<int> (vpHeight));
-    comp->renderGL();
+    comp->paintGL();
 
     const auto localBounds { comp->getLocalBounds() };
     const float compWidth { static_cast<float> (localBounds.getWidth()) };
     const float compHeight { static_cast<float> (localBounds.getHeight()) };
 
     GLGraphics g { compWidth, compHeight, totalScale };
-    comp->renderGL (g);
+    comp->paintGL (g);
 
     if (g.hasContent())
     {
@@ -315,6 +319,37 @@ void GLRenderer::renderComponent (GLComponent* comp, const juce::Component* targ
 
         juce::gl::glDisable (juce::gl::GL_SCISSOR_TEST);
         juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
+    }
+
+    if (not g.getTextCommands().empty() and glyphContext.isReady())
+    {
+        const auto origin { target->getLocalPoint (comp, juce::Point<float> (0.0f, 0.0f)) };
+        const int destX { static_cast<int> (origin.x * totalScale) };
+        const int destY { static_cast<int> (origin.y * totalScale) };
+        const int physW { static_cast<int> (compWidth * totalScale) };
+        const int physH { static_cast<int> (compHeight * totalScale) };
+        const int fullH { static_cast<int> (vpHeight) };
+
+        glyphContext.push (destX, destY, physW, physH, fullH);
+
+        // Upload bitmaps staged on message thread by TextLayout::createLayout
+        for (const auto& textCmd : g.getTextCommands())
+        {
+            jreng::Font fontCopy { textCmd.font };
+            glyphContext.uploadStagedBitmaps (fontCopy.getTypeface());
+        }
+
+        // Draw — atlas is populated, texture coordinates are valid
+        for (const auto& textCmd : g.getTextCommands())
+        {
+            jreng::Font fontCopy { textCmd.font };
+            glyphContext.setFont (fontCopy);
+            glyphContext.drawGlyphs (textCmd.glyphCodes.data(),
+                                     textCmd.positions.data(),
+                                     textCmd.numGlyphs);
+        }
+
+        glyphContext.pop();
     }
 }
 

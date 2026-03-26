@@ -11,9 +11,9 @@ public:
 
     virtual void glContextCreated() noexcept {}
     virtual void glContextClosing() noexcept {}
-    virtual void renderGL() noexcept {}
+    virtual void paintGL() noexcept {}
 
-    virtual void renderGL (GLGraphics& g) noexcept {}
+    virtual void paintGL (GLGraphics& g) noexcept {}
 
     void setScale (float s) noexcept { scale = s; }
     float getScale() const noexcept { return scale; }

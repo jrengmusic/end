@@ -10,12 +10,14 @@
    dependencies:                 juce_core,
                                  juce_graphics,
                                  jreng_core,
+                                 jreng_javascript
   END_JUCE_MODULE_DECLARATION
  *******************************************************************************/
 #pragma once
 #include <juce_core/juce_core.h>
 #include <juce_graphics/juce_graphics.h>
 #include <jreng_core/jreng_core.h>
+#include <jreng_javascript/jreng_javascript.h>
 
 // =========================================================================
 // Mermaid extraction (order matters — Markdown::Parser uses Mermaid::extractBlocks)
@@ -23,6 +25,7 @@
 
 #include "mermaid/jreng_mermaid_extract.h"
 #include "mermaid/jreng_mermaid_svg_parser.h"
+#include "mermaid/jreng_mermaid_parser.h"
 
 // =========================================================================
 // Markdown parsing

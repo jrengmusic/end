@@ -98,12 +98,21 @@ void LinkManager::dispatch (const LinkSpan& span) const
     {
         const juce::String path { span.uri.fromFirstOccurrenceOf ("file://", false, false) };
         const juce::String ext { juce::File (path).getFileExtension().toLowerCase() };
+
         const juce::String handler { Config::getContext()->getHandler (ext) };
-        const juce::String opener { handler.isNotEmpty()
-                                        ? handler
-                                        : Config::getContext()->getString (Config::Key::hyperlinksEditor) };
-        const juce::String command { opener + " " + path + "\r" };
-        writeToPty (command.toRawUTF8(), static_cast<int> (command.getNumBytesAsUTF8()));
+
+        if (handler == "whelmed" and onOpenMarkdown != nullptr)
+        {
+            onOpenMarkdown (juce::File (path));
+        }
+        else
+        {
+            const juce::String opener { handler.isNotEmpty() and handler != "whelmed"
+                                            ? handler
+                                            : Config::getContext()->getString (Config::Key::hyperlinksEditor) };
+            const juce::String command { opener + " " + path + "\r" };
+            writeToPty (command.toRawUTF8(), static_cast<int> (command.getNumBytesAsUTF8()));
+        }
     }
 }
 

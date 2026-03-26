@@ -12,6 +12,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "../AppState.h"
 
 /**
  * @class PaneComponent
@@ -31,19 +32,38 @@ public:
      */
     enum class RendererType
     {
-        gpu,  ///< OpenGL accelerated — GLTextRenderer, glassmorphism enabled.
-        cpu   ///< Software rendered — GraphicsTextRenderer, opaque background.
+        gpu,  ///< OpenGL accelerated — GLContext, glassmorphism enabled.
+        cpu   ///< Software rendered — GraphicsContext, opaque background.
     };
 
-    PaneComponent() = default;
+    PaneComponent()
+    {
+        setWantsKeyboardFocus (true);
+        setMouseClickGrabsKeyboardFocus (true);
+    }
+
     ~PaneComponent() override = default;
+
+    void focusGained (FocusChangeType) override
+    {
+        AppState::getContext()->setActivePaneUuid (getComponentID());
+        AppState::getContext()->setActivePaneType (getPaneType());
+    }
 
     /**
      * @brief Switches the active rendering backend at runtime.
      * @param type  The desired rendering backend.
      * @note MESSAGE THREAD.
      */
+    virtual juce::String getPaneType() const noexcept = 0;
+
     virtual void switchRenderer (RendererType type) = 0;
+
+    /**
+     * @brief Returns the pane's root ValueTree for grafting into AppState.
+     * @note MESSAGE THREAD.
+     */
+    virtual juce::ValueTree getValueTree() noexcept = 0;
 
     /**
      * @brief Applies the current config to the component.

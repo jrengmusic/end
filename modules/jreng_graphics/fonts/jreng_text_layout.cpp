@@ -389,4 +389,30 @@ float TextLayout::getStringWidth (const juce::AttributedString& text,
     return getStringBounds (text, font).getWidth();
 }
 
+// =============================================================================
+// TextLayout — CPU convenience overload
+// =============================================================================
+
+void TextLayout::draw (juce::Graphics& g,
+                       juce::Rectangle<float> area) const noexcept
+{
+    jassert (layoutTypeface != nullptr);
+
+    jreng::Glyph::GraphicsContext graphicsContext;
+    graphicsContext.createContext();
+    graphicsContext.setGraphicsContext (g);
+
+    const auto bounds { area.toNearestInt() };
+    graphicsContext.push (bounds.getX(), bounds.getY(),
+                          bounds.getWidth(), bounds.getHeight(),
+                          bounds.getHeight());
+
+    graphicsContext.uploadStagedBitmaps (*layoutTypeface);
+
+    draw<jreng::Glyph::GraphicsContext> (graphicsContext, area);
+
+    graphicsContext.pop();
+    graphicsContext.closeContext();
+}
+
 } // namespace jreng

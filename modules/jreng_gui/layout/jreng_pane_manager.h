@@ -12,7 +12,7 @@ namespace jreng
     Leaves are PANE nodes (uuid property). Internal nodes are PANES nodes
     (direction + ratio properties, exactly 2 children).
 
-    The static layOut function recursively subdivides a rectangle and calls
+    The static layout function recursively subdivides a rectangle and calls
     setBounds on components matched by getComponentID().
 
     @tags{GUI}
@@ -68,12 +68,12 @@ public:
         by splitNode identity.
     */
     template <typename ComponentType>
-    static void layOut (const juce::ValueTree& state,
+    static void layout (const juce::ValueTree& state,
                         juce::Rectangle<int> bounds,
                         Owner<ComponentType>& components,
                         Owner<PaneResizerBar>& resizerBars)
     {
-        layOutNode (state, bounds, components, resizerBars);
+        layoutNode (state, bounds, components, resizerBars);
     }
 
     //==============================================================================
@@ -87,14 +87,14 @@ public:
 private:
     //==============================================================================
     template <typename ComponentType>
-    static void layOutNode (const juce::ValueTree& node,
+    static void layoutNode (const juce::ValueTree& node,
                             juce::Rectangle<int> bounds,
                             Owner<ComponentType>& components,
                             Owner<PaneResizerBar>& resizerBars)
     {
         if (node.getType() == idPane)
         {
-            const juce::String nodeUuid { node.getProperty (idUuid).toString() };
+            const juce::String nodeUuid { node.getProperty (id).toString() };
 
             for (auto& component : components)
             {
@@ -114,7 +114,7 @@ private:
                 mutableNode.setProperty (ID::width,  bounds.getWidth(),  nullptr);
                 mutableNode.setProperty (ID::height, bounds.getHeight(), nullptr);
 
-                layOutNode (node.getChild (0), bounds, components, resizerBars);
+                layoutNode (node.getChild (0), bounds, components, resizerBars);
             }
             else if (numChildren == 2)
             {
@@ -143,8 +143,8 @@ private:
                             bar->setBounds (resizerBound);
                     }
 
-                    layOutNode (node.getChild (0), firstBounds,  components, resizerBars);
-                    layOutNode (node.getChild (1), secondBounds, components, resizerBars);
+                    layoutNode (node.getChild (0), firstBounds,  components, resizerBars);
+                    layoutNode (node.getChild (1), secondBounds, components, resizerBars);
                 }
                 else
                 {
@@ -162,8 +162,8 @@ private:
                             bar->setBounds (resizerBound);
                     }
 
-                    layOutNode (node.getChild (0), firstBounds,  components, resizerBars);
-                    layOutNode (node.getChild (1), secondBounds, components, resizerBars);
+                    layoutNode (node.getChild (0), firstBounds,  components, resizerBars);
+                    layoutNode (node.getChild (1), secondBounds, components, resizerBars);
                 }
             }
         }
@@ -190,8 +190,8 @@ public:
     /** @brief Property key for the split ratio in [0.0, 1.0]. */
     static const juce::Identifier idRatio;
 
-    /** @brief Property key for the leaf UUID matching componentID. */
-    static const juce::Identifier idUuid;
+    /** @brief Property key for the leaf ID matching componentID. */
+    static const juce::Identifier id;
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

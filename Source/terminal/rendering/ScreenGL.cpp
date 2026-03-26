@@ -4,14 +4,14 @@
  *
  * @note All functions in this file run on the **GL THREAD**.
  *
- * GL resource ownership has been delegated to `jreng::Glyph::GLTextRenderer`.
+ * GL resource ownership has been delegated to `jreng::Glyph::GLContext`.
  * `Screen` retains only terminal-specific GL concerns: viewport management,
  * background blur transparency, snapshot acquisition, and cursor rendering.
  *
  * @see Screen
  * @see Screen.h
  * @see Screen.cpp (MESSAGE THREAD methods)
- * @see jreng::Glyph::GLTextRenderer
+ * @see jreng::Glyph::GLContext
  */
 #include "Screen.h"
 
@@ -237,8 +237,8 @@ void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY,
     }
 }
 
-template class Screen<jreng::Glyph::GLTextRenderer>;
-template class Screen<jreng::Glyph::GraphicsTextRenderer>;
+template class Screen<jreng::Glyph::GLContext>;
+template class Screen<jreng::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

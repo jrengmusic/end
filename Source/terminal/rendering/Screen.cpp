@@ -423,8 +423,8 @@ void Screen<Renderer>::render (State& state, Grid& grid) noexcept
     }
 }
 
-template class Screen<jreng::Glyph::GLTextRenderer>;
-template class Screen<jreng::Glyph::GraphicsTextRenderer>;
+template class Screen<jreng::Glyph::GLContext>;
+template class Screen<jreng::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

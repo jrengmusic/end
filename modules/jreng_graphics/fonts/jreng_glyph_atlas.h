@@ -64,8 +64,8 @@ namespace jreng::Glyph
 /**
  * @brief Atlas texture dimension presets.
  *
- * - `standard` (4096) — GPU rendering via GLTextRenderer.
- * - `compact`  (2048) — CPU rendering via GraphicsTextRenderer. Better cache locality.
+ * - `standard` (4096) — GPU rendering via GLContext.
+ * - `compact`  (2048) — CPU rendering via GraphicsContext. Better cache locality.
  */
 enum class AtlasSize : int
 {

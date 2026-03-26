@@ -15,4 +15,4 @@
 #include "fonts/jreng_glyph_constraint_table.cpp"
 #include "fonts/jreng_glyph_atlas.cpp"
 #include "fonts/jreng_text_layout.cpp"
-#include "rendering/jreng_graphics_text_renderer.cpp"
+#include "rendering/jreng_glyph_graphics_context.cpp"

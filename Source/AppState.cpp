@@ -183,25 +183,47 @@ juce::ValueTree AppState::getTab (int index) noexcept
     return juce::ValueTree();
 }
 
-juce::String AppState::getActiveTerminalUuid() const noexcept
+juce::String AppState::getActivePaneUuid() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
 
-    if (tabs.isValid() and tabs.hasProperty (App::ID::activeTerminalUuid))
+    if (tabs.isValid() and tabs.hasProperty (App::ID::activePaneUuid))
     {
-        return tabs.getProperty (App::ID::activeTerminalUuid).toString();
+        return tabs.getProperty (App::ID::activePaneUuid).toString();
     }
 
     return {};
 }
 
-void AppState::setActiveTerminalUuid (const juce::String& uuid)
+void AppState::setActivePaneUuid (const juce::String& uuid)
 {
     auto tabs { getTabs() };
 
     if (tabs.isValid())
     {
-        tabs.setProperty (App::ID::activeTerminalUuid, uuid, nullptr);
+        tabs.setProperty (App::ID::activePaneUuid, uuid, nullptr);
+    }
+}
+
+juce::String AppState::getActivePaneType() const noexcept
+{
+    auto tabs { state.getChildWithName (App::ID::TABS) };
+
+    if (tabs.isValid() and tabs.hasProperty (App::ID::activePaneType))
+    {
+        return tabs.getProperty (App::ID::activePaneType).toString();
+    }
+
+    return "terminal";
+}
+
+void AppState::setActivePaneType (const juce::String& type)
+{
+    auto tabs { getTabs() };
+
+    if (tabs.isValid())
+    {
+        tabs.setProperty (App::ID::activePaneType, type, nullptr);
     }
 }
 

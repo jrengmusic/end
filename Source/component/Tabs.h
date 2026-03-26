@@ -50,7 +50,10 @@ public:
      * @param orientation The tab bar orientation (top, bottom, left, or right).
      * @note MESSAGE THREAD.
      */
-    Tabs (jreng::Typeface& font, juce::TabbedButtonBar::Orientation orientation);
+    explicit Tabs (jreng::Typeface& font,
+                   jreng::Typeface& whelmedBodyFont,
+                   jreng::Typeface& whelmedCodeFont,
+                   juce::TabbedButtonBar::Orientation orientation);
 
     /**
      * @brief Destructor.
@@ -117,14 +120,24 @@ public:
     Terminal::Component* getActiveTerminal() const noexcept;
 
     /**
-     * @brief Returns the active Panes' terminal owner for GL iteration.
+     * @brief Returns the active Panes' pane owner for GL iteration.
      *
      * Returns a reference to a static empty owner if no active pane exists.
      *
-     * @return Reference to the active terminal owner, or a static empty owner.
+     * @return Reference to the active pane owner, or a static empty owner.
      * @note MESSAGE THREAD.
      */
-    jreng::Owner<Terminal::Component>& getTerminals() noexcept;
+    jreng::Owner<PaneComponent>& getPanes() noexcept;
+
+    /**
+     * @brief Opens the given .md file as a Whelmed pane in the active tab.
+     *
+     * Delegates to the active Panes::createWhelmed. Does nothing if no tab is active.
+     *
+     * @param file  The .md file to open.
+     * @note MESSAGE THREAD.
+     */
+    void openMarkdown (const juce::File& file);
 
     /**
      * @brief Returns `true` if the active terminal has a non-degenerate selection.
@@ -295,6 +308,8 @@ private:
     void focusLastTerminal (Panes* active);
 
     jreng::Typeface& font;
+    jreng::Typeface& whelmedBodyFont;
+    jreng::Typeface& whelmedCodeFont;
     juce::Value tabName;
     jreng::Owner<Panes> panes;
 

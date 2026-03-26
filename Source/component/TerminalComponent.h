@@ -117,21 +117,15 @@ public:
                const juce::String& workingDirectory);
 
     /**
-     * @brief Creates a terminal, adds it to the parent and owner.
+     * @brief Creates a terminal and returns ownership to the caller.
      *
      * @param font              Font instance providing metrics, shaping, and rasterisation.
-     * @param parent            The component to add the terminal to (addAndMakeVisible).
-     * @param bounds            The initial bounds for the terminal.
-     * @param owner             Ownership container for the terminal's lifetime.
      * @param workingDirectory  Initial cwd for the shell. Empty = inherit parent cwd.
-     * @return Raw pointer to the created terminal.
+     * @return Unique pointer to the created terminal. Caller manages parent, bounds, and ownership.
      * @note MESSAGE THREAD.
      */
-    static Component* create (jreng::Typeface& font,
-                              juce::Component& parent,
-                              juce::Rectangle<int> bounds,
-                              jreng::Owner<Component>& owner,
-                              const juce::String& workingDirectory = {});
+    static std::unique_ptr<Component> create (jreng::Typeface& font,
+                                              const juce::String& workingDirectory = {});
 
     /** @brief Tears down listeners, detaches Screen, resets all children. */
     ~Component() override;
@@ -296,7 +290,7 @@ public:
      * @return The SESSION ValueTree owned by this terminal's State.
      * @note MESSAGE THREAD.
      */
-    juce::ValueTree getValueTree() noexcept;
+    juce::ValueTree getValueTree() noexcept override;
 
     /**
      * @brief Called by GLRenderer when the shared OpenGL context is first created.
@@ -330,7 +324,7 @@ public:
      * @note GL THREAD.
      * @see Screen::renderOpenGL
      */
-    void renderGL() noexcept override;
+    void paintGL() noexcept override;
 
     /**
      * @brief Renders the terminal via juce::Graphics (CPU path).
@@ -366,6 +360,15 @@ public:
      * @note MESSAGE THREAD (via callAsync).
      */
     std::function<void()> onShellExited;
+
+    /**
+     * @brief Callback invoked when a .md file link is activated.
+     *
+     * Propagated from LinkManager via the callback chain to Panes.
+     *
+     * @note MESSAGE THREAD.
+     */
+    std::function<void (const juce::File&)> onOpenMarkdown;
 
     /**
      * @brief Returns `true` if a non-degenerate selection is currently active.
@@ -405,6 +408,7 @@ public:
      *
      * @note MESSAGE THREAD.
      */
+    juce::String getPaneType() const noexcept override { return "terminal"; }
     void applyConfig() noexcept override;
 
     /**
@@ -571,12 +575,12 @@ private:
     /**
      * @brief Computes this component's pixel offset relative to the top-level window.
      *
-     * Used by renderGL() to set the correct GL viewport origin when the component
+     * Used by paintGL() to set the correct GL viewport origin when the component
      * is offset by the tab bar.
      *
      * @return The pixel offset from the top-left corner of the top-level window.
      * @note MESSAGE THREAD.
-     * @see renderGL
+     * @see paintGL
      */
     juce::Point<int> getOriginInTopLevel() const noexcept;
 
@@ -617,12 +621,12 @@ private:
     /**
      * @brief Terminal renderer — variant over CPU and GPU Screen specialisations.
      *
-     * GraphicsTextRenderer is the first alternative and the default (CPU path).
+     * GraphicsContext is the first alternative and the default (CPU path).
      * switchRenderer() emplaces the appropriate alternative at runtime.
      */
     using ScreenVariant = std::variant<
-        Screen<jreng::Glyph::GraphicsTextRenderer>,
-        Screen<jreng::Glyph::GLTextRenderer>>;
+        Screen<jreng::Glyph::GraphicsContext>,
+        Screen<jreng::Glyph::GLContext>>;
 
     ScreenVariant screen;
 

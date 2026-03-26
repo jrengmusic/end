@@ -737,6 +737,9 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                 }
                             });
 
+                        // Default handler: .md opens in whelmed viewer (user can override).
+                        hyperlinkHandlers[".md"] = "whelmed";
+
                         // Sub-table keys (handlers, extensions) go to loadHyperlinks.
                         loadHyperlinks (hyperlinksTable, hyperlinkHandlers, hyperlinkExtensions);
                     }

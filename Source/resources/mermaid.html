@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script>%%LIBRARY%%</script>
+</head>
+<body>
+<script>
+mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+async function validateAndRender(codesArray) {
+    const results = [];
+    for (let i = 0; i < codesArray.length; i++) {
+        try {
+            await mermaid.parse(codesArray[i]);
+            const { svg } = await mermaid.render('d' + Date.now() + i, codesArray[i]);
+            results.push(svg);
+        } catch (e) {
+            window.lastResult = { error: e.toString(), index: i };
+            return;
+        }
+    }
+    window.lastResult = results;
+}
+</script>
+</body>
+</html>

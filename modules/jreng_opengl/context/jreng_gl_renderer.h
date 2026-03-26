@@ -25,6 +25,7 @@ private:
     void openGLContextClosing() override;
 
     juce::OpenGLContext openGLContext;
+    jreng::Glyph::GLContext glyphContext;
     ComponentIterator componentIterator;
     float renderingScale { 1.0f };
 

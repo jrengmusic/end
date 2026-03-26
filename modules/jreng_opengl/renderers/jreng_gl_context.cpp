@@ -1,10 +1,10 @@
 /**
- * @file jreng_gl_text_renderer.cpp
- * @brief GLTextRenderer GL-thread method implementations.
+ * @file jreng_gl_context.cpp
+ * @brief GLContext GL-thread method implementations.
  *
  * All methods in this file execute on the **GL THREAD**.
  *
- * @see jreng_gl_text_renderer.h
+ * @see jreng_gl_context.h
  */
 namespace jreng::Glyph
 { /*____________________________________________________________________________*/
@@ -13,15 +13,15 @@ namespace jreng::Glyph
 // Static definitions
 // =============================================================================
 
-GLuint GLTextRenderer::sharedMonoAtlas     { 0 };
-GLuint GLTextRenderer::sharedEmojiAtlas    { 0 };
-int    GLTextRenderer::sharedAtlasRefCount { 0 };
+GLuint GLContext::sharedMonoAtlas     { 0 };
+GLuint GLContext::sharedEmojiAtlas    { 0 };
+int    GLContext::sharedAtlasRefCount { 0 };
 
 // =============================================================================
 // GL lifecycle
 // =============================================================================
 
-void GLTextRenderer::createContext() noexcept
+void GLContext::createContext() noexcept
 {
     compileShaders();
     createBuffers();
@@ -41,7 +41,7 @@ void GLTextRenderer::createContext() noexcept
     contextInitialised = true;
 }
 
-void GLTextRenderer::closeContext() noexcept
+void GLContext::closeContext() noexcept
 {
     if (contextInitialised)
     {
@@ -92,7 +92,7 @@ void GLTextRenderer::closeContext() noexcept
 // Per-frame operations
 // =============================================================================
 
-void GLTextRenderer::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
+void GLContext::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
 {
     juce::HeapBlock<StagedBitmap> stagedBitmaps;
     int stagedCount { 0 };
@@ -133,13 +133,13 @@ void GLTextRenderer::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
     }
 }
 
-void GLTextRenderer::setViewportSize (int width, int height) noexcept
+void GLContext::setViewportSize (int width, int height) noexcept
 {
     viewportWidth  = width;
     viewportHeight = height;
 }
 
-void GLTextRenderer::push (int x, int y, int w, int h, int fullHeight) noexcept
+void GLContext::push (int x, int y, int w, int h, int fullHeight) noexcept
 {
     juce::gl::glViewport (x, fullHeight - y - h, w, h);
     viewportWidth  = w;
@@ -150,12 +150,12 @@ void GLTextRenderer::push (int x, int y, int w, int h, int fullHeight) noexcept
                            juce::gl::GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void GLTextRenderer::pop() noexcept
+void GLContext::pop() noexcept
 {
     juce::gl::glDisable (juce::gl::GL_BLEND);
 }
 
-void GLTextRenderer::drawQuads (const Render::Quad* data, int count, bool isEmoji) noexcept
+void GLContext::drawQuads (const Render::Quad* data, int count, bool isEmoji) noexcept
 {
     if (count > 0)
     {
@@ -206,7 +206,7 @@ void GLTextRenderer::drawQuads (const Render::Quad* data, int count, bool isEmoj
     }
 }
 
-void GLTextRenderer::drawBackgrounds (const Render::Background* data, int count) noexcept
+void GLContext::drawBackgrounds (const Render::Background* data, int count) noexcept
 {
     if (count > 0 and backgroundShader != nullptr)
     {
@@ -249,12 +249,12 @@ void GLTextRenderer::drawBackgrounds (const Render::Background* data, int count)
 // Font and glyph draw
 // =============================================================================
 
-void GLTextRenderer::setFont (jreng::Font& font) noexcept
+void GLContext::setFont (jreng::Font& font) noexcept
 {
     currentFont = &font;
 }
 
-void GLTextRenderer::drawGlyphs (const uint16_t* glyphCodes,
+void GLContext::drawGlyphs (const uint16_t* glyphCodes,
                                   const juce::Point<float>* positions,
                                   int count) noexcept
 {
@@ -302,15 +302,15 @@ void GLTextRenderer::drawGlyphs (const uint16_t* glyphCodes,
 // State queries
 // =============================================================================
 
-void GLTextRenderer::setGraphicsContext (juce::Graphics&) noexcept
+void GLContext::setGraphicsContext (juce::Graphics&) noexcept
 {
 }
 
-void GLTextRenderer::prepareFrame (const uint64_t*, int, int, int, int) noexcept
+void GLContext::prepareFrame (const uint64_t*, int, int, int, int) noexcept
 {
 }
 
-bool GLTextRenderer::isReady() const noexcept
+bool GLContext::isReady() const noexcept
 {
     return monoShader != nullptr;
 }
@@ -319,7 +319,7 @@ bool GLTextRenderer::isReady() const noexcept
 // Private helpers
 // =============================================================================
 
-void GLTextRenderer::compileShaders() noexcept
+void GLContext::compileShaders() noexcept
 {
     auto* glContext { juce::OpenGLContext::getCurrentContext() };
     if (glContext != nullptr)
@@ -336,7 +336,7 @@ void GLTextRenderer::compileShaders() noexcept
     }
 }
 
-void GLTextRenderer::createBuffers() noexcept
+void GLContext::createBuffers() noexcept
 {
     juce::gl::glGenVertexArrays (1, &vao);
     juce::gl::glBindVertexArray (vao);
@@ -358,7 +358,7 @@ void GLTextRenderer::createBuffers() noexcept
     juce::gl::glBindVertexArray (0);
 }
 
-GLuint GLTextRenderer::createAtlasTexture (int width, int height,
+GLuint GLContext::createAtlasTexture (int width, int height,
                                            GLenum internalFormat,
                                            GLenum format) noexcept
 {

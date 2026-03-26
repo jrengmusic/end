@@ -20,10 +20,24 @@ public:
         std::vector<GLVertex> vertices;
     };
 
+    struct TextCommand
+    {
+        explicit TextCommand (const jreng::Font& f) noexcept : font (f) {}
+
+        jreng::Font font;
+        std::vector<uint16_t> glyphCodes;
+        std::vector<juce::Point<float>> positions;
+        int numGlyphs { 0 };
+    };
+
     explicit GLGraphics (float viewportWidth, float viewportHeight, float scale = 1.0f);
     ~GLGraphics() = default;
 
     void setColour (juce::Colour newColour) noexcept;
+    void setFont (jreng::Font& font) noexcept;
+    void drawGlyphs (const uint16_t* glyphCodes,
+                     const juce::Point<float>* positions,
+                     int numGlyphs) noexcept;
 
     void strokePath (const juce::Path& path,
                      const juce::PathStrokeType& strokeType,
@@ -41,11 +55,28 @@ public:
                              juce::Point<float> outerPoint,
                              juce::Point<float> innerPoint);
 
+    void drawText (const juce::String& text,
+                   juce::Rectangle<int> area,
+                   juce::Justification justification,
+                   bool useEllipsesIfTooBig = true) noexcept;
+
+    void drawText (const juce::String& text,
+                   juce::Rectangle<float> area,
+                   juce::Justification justification,
+                   bool useEllipsesIfTooBig = true) noexcept;
+
+    void drawFittedText (const juce::String& text,
+                         int x, int y, int width, int height,
+                         juce::Justification justification,
+                         int maximumNumberOfLines,
+                         float minimumHorizontalScale = 0.0f) noexcept;
+
     void reduceClipRegion (const juce::Path& clipPath);
     void restoreClipRegion();
 
     const std::vector<Command>& getCommands() const noexcept;
-    bool hasContent() const noexcept;
+    const std::vector<TextCommand>& getTextCommands() const noexcept;
+    bool hasContent() const noexcept { return not commands.empty() or not textCommands.empty(); }
 
     void clear() noexcept;
 
@@ -54,7 +85,9 @@ private:
     float height { 0.0f };
     float renderingScale { 1.0f };
     juce::Colour currentColour { juce::Colours::white };
+    jreng::Font* currentFont { nullptr };
     std::vector<Command> commands;
+    std::vector<TextCommand> textCommands;
 
     void addDrawVertices (std::vector<GLVertex>&& vertices);
 

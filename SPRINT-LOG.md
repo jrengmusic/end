@@ -2,6 +2,267 @@
 
 ---
 
+## Sprint 125: Plan 5 — Steps 5.6–5.9, Phase 1 Rendering, Pane Generalization
+
+**Date:** 2026-03-26 / 2026-03-27
+**Duration:** ~8h
+
+### Agents Participated
+- COUNSELOR: Led planning, delegation, auditing, direct fixes
+- Pathfinder (x6): Codebase discovery — mermaid scaffold, Terminal Screen machinery, Panes/Tabs/Owner, LinkManager dispatch, GLRenderer/GLGraphics internals, WHELMED standalone render flow
+- Engineer (x8): Step 5.6 mermaid parser, 5.7a GLGraphics text, 5.7b TextLayout CPU overload, 5.7c BlockRenderer, 5.7d Whelmed::Component, 5.8 Panes generalization, 5.9 creation triggers, rename agents
+- Auditor (x4): Verified 5.6, 5.7a/b, 5.7c/d, 5.8, 5.9
+- Librarian: juce::GlyphLayer research
+
+### Architecture Decisions This Session
+
+1. **Phase 1 rendering: pure juce::Graphics** — abandoned GLGraphics command buffer and Screen/Snapshot machinery for Whelmed. Phase 1 renders markdown via `juce::TextLayout::draw(g, area)` directly. GL path deferred to Phase 2/3.
+2. **Three-phase rendering strategy:**
+   - Phase 1: `juce::Graphics` CPU rendering (working, validated)
+   - Phase 2: Mirror surface API with `GLGraphics` (drop-in for `juce::Graphics`)
+   - Phase 3: Push atlas pipeline into both paths
+3. **Pane swap model** — opening `.md` swaps the active pane content (Terminal → Whelmed). Closing Whelmed creates fresh terminal at cwd. No automatic split.
+4. **`PaneComponent` isolation** — knows nothing about Terminal or Whelmed. Provides: `switchRenderer`, `applyConfig`, `onRepaintNeeded`, `getPaneType`, `focusGained` (sets active UUID + type).
+5. **`activePaneType` in AppState** — tracks focused pane type ("terminal" / "document") for hierarchical close behavior.
+6. **`Whelmed::Block`** — singular component per markdown block. `Owner<Block>` is the collection. Mirrors `Terminal::Grid` naming pattern.
+7. **GLGraphics gains text API** — `setFont`, `drawGlyphs`, `drawText`, `drawFittedText`. Command buffer pattern. `GLRenderer` owns `Glyph::GLContext` for dispatch. Infrastructure ready for Phase 2.
+8. **`TextLayout::draw(juce::Graphics&)` overload** — CPU convenience, wraps `Glyph::GraphicsContext` internally.
+
+### Renames (3 total)
+- `renderGL` → `paintGL` (6 code files)
+- `GLTextRenderer` → `Glyph::GLContext` (19 files, file renames)
+- `GraphicsTextRenderer` → `Glyph::GraphicsContext` (19 files, file renames)
+- `activeTerminalUuid` → `activePaneUuid` (6 files)
+- `PaneManager::idUuid` → `PaneManager::id`, property value `"uuid"` → `"id"`
+- `getTerminals` → `getPanes`, `terminals` → `panes` (7 files)
+
+### Files Modified (50+ total)
+
+**Step 5.6 — Mermaid parser (4 files)**
+- `modules/jreng_markdown/mermaid/jreng_mermaid_parser.h` — NEW: `Mermaid::Parser` class
+- `modules/jreng_markdown/mermaid/jreng_mermaid_parser.cpp` — NEW: loadLibrary + convertToSVG
+- `modules/jreng_markdown/jreng_markdown.h` — added `jreng_javascript` dependency + include
+- `modules/jreng_markdown/jreng_markdown.cpp` — added parser cpp include
+- `Source/resources/mermaid.html` — NEW: HTML template with `%%LIBRARY%%`
+- `Source/resources/mermaid.min.js` — COPIED from scaffold
+- `CMakeLists.txt` — JS/HTML globs for BinaryData
+
+**Step 5.7a — GLGraphics text capability (4 files)**
+- `modules/jreng_opengl/context/jreng_gl_graphics.h` — `TextCommand`, `setFont`, `drawGlyphs`, `drawText`, `drawFittedText`, `hasContent` includes text
+- `modules/jreng_opengl/context/jreng_gl_graphics.cpp` — implementations
+- `modules/jreng_opengl/context/jreng_gl_renderer.h` — `Glyph::GLContext glyphContext` member
+- `modules/jreng_opengl/context/jreng_gl_renderer.cpp` — GL lifecycle + text command dispatch
+
+**Step 5.7b — TextLayout CPU overload (3 files)**
+- `modules/jreng_graphics/fonts/jreng_text_layout.h` — `draw(juce::Graphics&)` declaration
+- `modules/jreng_graphics/fonts/jreng_text_layout.cpp` — implementation wrapping `Glyph::GraphicsContext`
+- `modules/jreng_graphics/jreng_graphics.h` — include order fix
+
+**Step 5.7c/d — Whelmed Block + Component (4 files)**
+- `Source/whelmed/Block.h` — NEW: per-block component, owns `AttributedString` + `TextLayout`
+- `Source/whelmed/Block.cpp` — NEW: `paint(g)` → `layout.draw(g, bounds)`
+- `Source/whelmed/Component.h` — REWRITTEN: Phase 1, pure juce::Graphics, Viewport + Owner<Block>
+- `Source/whelmed/Component.cpp` — REWRITTEN: `openFile`, `rebuildBlocks`, `layoutBlocks`, `keyPressed` → Action
+
+**Step 5.8 — Panes generalization (7 files)**
+- `Source/component/TerminalComponent.h` — `create` returns `unique_ptr`, `getPaneType`
+- `Source/component/TerminalComponent.cpp` — `create` simplified, `focusGained` calls base
+- `Source/component/Panes.h` — `Owner<PaneComponent> panes`, `getPanes`, `createWhelmed`, `swapToTerminal`, `onOpenMarkdown`
+- `Source/component/Panes.cpp` — all methods adapted, `createWhelmed` swaps in-place, `swapToTerminal`
+- `Source/component/Tabs.h` — `getPanes`, whelmed typeface refs
+- `Source/component/Tabs.cpp` — all references updated, `dynamic_cast` in `getActiveTerminal`, `closeActiveTab` checks paneType
+- `Source/MainComponent.cpp` — GL iterator uses `getPanes`
+
+**Step 5.9 — Creation triggers (10 files)**
+- `Source/MainComponent.h` — whelmed typefaces, `whelmed/Component.h` include
+- `Source/MainComponent.cpp` — typeface init, Tabs constructor update, `open_markdown` action
+- `Source/component/Tabs.h` — constructor with whelmed typefaces, `openMarkdown`
+- `Source/component/Tabs.cpp` — constructor, `onOpenMarkdown` wiring, `openMarkdown`
+- `Source/component/Panes.h` — constructor with whelmed typefaces, `onOpenMarkdown`
+- `Source/component/Panes.cpp` — constructor, `onOpenMarkdown` wiring in `setTerminalCallbacks`
+- `Source/component/TerminalComponent.h` — `onOpenMarkdown` callback
+- `Source/component/TerminalComponent.cpp` — wired `linkManager.onOpenMarkdown`, `.md` in `filesDropped`
+- `Source/terminal/selection/LinkManager.h` — `mutable onOpenMarkdown`
+- `Source/terminal/selection/LinkManager.cpp` — `.md` interception in `dispatch`
+
+**PaneComponent + AppState (4 files)**
+- `Source/component/PaneComponent.h` — `focusGained`, `getPaneType` pure virtual, keyboard focus
+- `Source/AppIdentifier.h` — `activePaneType`
+- `Source/AppState.h` — `getActivePaneType`, `setActivePaneType`
+- `Source/AppState.cpp` — implementations
+
+**Rename: paintGL (6 files)**
+- `modules/jreng_opengl/context/jreng_gl_component.h`
+- `modules/jreng_opengl/context/jreng_gl_renderer.cpp`
+- `modules/jreng_opengl/renderers/jreng_gl_vignette.h`
+- `Source/component/TerminalComponent.h`
+- `Source/component/TerminalComponent.cpp`
+- `Source/terminal/rendering/Screen.h`
+
+**Rename: GLContext + GraphicsContext (19 files)**
+- All renderer files renamed + all references updated
+
+**Rename: activePaneUuid (6 files)**
+- `AppIdentifier.h`, `AppState.h`, `AppState.cpp`, `TerminalComponent.cpp`, `Tabs.cpp`, `Panes.cpp`
+
+**Module include fix**
+- `modules/jreng_opengl/jreng_opengl.h` — `jreng_gl_context.h` before `jreng_gl_renderer.h`
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD enforced
+- [ ] `has_value()` snake_case violation cleaned in Whelmed — other files may still have it
+
+### Problems Solved
+- **Phase 1 rendering validated** — `juce::TextLayout::draw(g, area)` renders markdown instantly. Screenshot confirmed.
+- **Pane swap lifecycle** — open .md swaps active pane, Cmd+W swaps back to terminal. Hierarchical close behavior via `activePaneType`.
+- **Callback chain** — LinkManager → Terminal → Panes → Tabs for `.md` triggers (hyperlink, drag-and-drop, action).
+- **Include order** — `jreng_gl_context.h` must precede `jreng_gl_renderer.h` in module header.
+- **Namespace shadowing** — `TextLayout::Glyph` shadows `jreng::Glyph` namespace, required full qualification.
+- **`focusGained` base call** — Terminal::Component must call `PaneComponent::focusGained` for pane type tracking.
+
+### Open Bugs
+- **swapToTerminal single-pane rendering** — after closing Whelmed in single-pane mode, the new terminal renders cursor (blinking) but no text. Split-pane scenario works. Root cause unresolved — likely GL resource initialization or layout timing issue. Needs investigation.
+
+### Technical Debt / Follow-up
+- **GLGraphics text dispatch** — atlas staging happens on GL thread (wrong thread per atlas design). Two-pass approach tried, pre-staging in createLayout tried. Both produced garbled output. Needs proper investigation matching WHELMED scaffold's thread discipline.
+- **Mermaid rendering** — parser scaffolded, TODO stubs in Block creation. Async race concern in convertToSVG deferred.
+- **Table component** — Step 5.10 not started.
+- **`BlockRenderer.h/cpp`** — orphaned files from scrapped approach. Should be deleted.
+- **Whelmed typeface refs** — threaded through Tabs/Panes but unused by Phase 1 (juce::TextLayout uses JUCE fonts). Kept for Phase 2.
+- **`has_value()` cleanup** — snake_case violation exists in `Source/whelmed/State.h` and potentially other files.
+- **`closeActiveTab` early return** — `if (paneType == "document") { swapToTerminal(); return; }` violates no-early-return contract.
+- **swapToTerminal single-pane rendering** — new terminal renders cursor but no text. Root cause unresolved.
+
+### Handoff: 3-Phase Whelmed Rendering Implementation
+
+**From:** COUNSELOR
+**Date:** 2026-03-27
+
+#### Context
+
+Phase 1 is validated: `juce::TextLayout::draw (g, area)` renders markdown via `juce::Graphics` CPU path. Instant render, correct output. The remaining work is GPU acceleration and optimization following a strict layered approach. Each phase must produce identical visual output to the previous phase before proceeding.
+
+#### Open Bug: swapToTerminal single-pane
+
+After closing Whelmed in single-pane mode, the replacement terminal renders a blinking cursor but no text. Split-pane works correctly. The terminal IS created (cursor proves VBlank + Screen render loop works). Shell output does not appear. Likely cause: GL resource initialization timing — new components added after `glContextCreated` was called miss the GL lifecycle callback. Or layout/sizing issue preventing grid dimension calculation. Investigate by comparing the exact state of a working terminal (created at startup) vs the swapped terminal (created mid-session). Check `Screen::glContextCreated`, grid dimensions after `resized()`, PTY output flow.
+
+---
+
+#### Phase 1 — juce::Graphics CPU rendering (DONE)
+
+**Status:** Working. Validated with screenshot.
+
+**What it does:**
+- `Whelmed::Block` owns `juce::AttributedString` + `juce::TextLayout`
+- `Block::paint (juce::Graphics& g)` calls `layout.draw (g, getLocalBounds().toFloat())`
+- `Whelmed::Component` owns `jreng::Owner<Block>` + `juce::Viewport`
+- `openFile` → `State::getBlocks()` → `Parser::toAttributedString` per block → create `Block` components → stack vertically in viewport
+- `resized()` triggers `layoutBlocks()` which sizes each block to viewport width
+
+**What renders:** Markdown text with headings (H1–H6 sizes), bold, italic, inline code (coloured), links (coloured), code fences. Proportional font. Scrollable.
+
+**What doesn't render yet:** Mermaid diagrams (TODO stub), tables (TODO stub).
+
+**Call site (Block::paint):**
+```cpp
+void Block::paint (juce::Graphics& g)
+{
+    layout.draw (g, getLocalBounds().toFloat());
+}
+```
+
+This is the surface API. It must remain identical in all phases. The caller never changes.
+
+---
+
+#### Phase 2 — GLGraphics drop-in for juce::Graphics
+
+**Goal:** `paintGL (GLGraphics& g)` produces identical output to `paint (juce::Graphics& g)`. Same call site, different context.
+
+**Prerequisite:** GLGraphics already has `setFont`, `drawGlyphs`, `drawText`, `drawFittedText` (added in Sprint 125). These accumulate `TextCommand` structs in a command buffer. `GLRenderer::renderComponent` dispatches them through `Glyph::GLContext`.
+
+**The problem that blocked this in Sprint 125:** Glyph atlas staging. The atlas design requires:
+- MESSAGE THREAD: `Font::getGlyph()` → rasterizes bitmap → stages into atlas upload queue
+- GL THREAD: `GLContext::uploadStagedBitmaps()` → transfers to GL texture → `drawQuads()`
+
+But `paintGL (GLGraphics& g)` runs on the GL THREAD (called from `GLRenderer::renderOpenGL`). Calling `getGlyph` on the GL thread violates the atlas thread model. Attempts to pre-stage on the message thread (in `TextLayout::createLayout`) produced garbled output.
+
+**Investigation needed:**
+1. Read `modules/jreng_graphics/fonts/jreng_glyph_atlas.h/.cpp` — understand the atlas upload queue mutex. Is `getOrRasterize` truly message-thread-only, or is it protected by mutex and safe from any thread?
+2. Read WHELMED scaffold `~/Documents/Poems/dev/whelmed/modules/jreng_opengl/context/jreng_GLGraphics.cpp` — WHELMED calls `GLAtlas::getOrRasterize` from `paintGL` (GL thread) and it works. Understand WHY.
+3. Compare END's `Glyph::Atlas::getOrRasterize` with WHELMED's `GLAtlas::getOrRasterize` — find the divergence.
+4. If the atlas IS thread-safe for staging (mutex-protected), the inline staging in `GLGraphics::drawGlyphs` (tried and reverted in Sprint 125) was correct. The garbled output had a different root cause — investigate texture coordinate mapping, atlas packer state, or shader setup.
+
+**Implementation (once atlas issue resolved):**
+1. `Whelmed::Block` gains `paintGL (GLGraphics& g)` override alongside existing `paint (juce::Graphics& g)`
+2. Both call the same logical draw: `layout.draw (g, getLocalBounds().toFloat())`
+3. For `juce::TextLayout` to work with `GLGraphics`, either:
+   - (a) `juce::TextLayout::draw` already works because JUCE internally calls `g.drawGlyphs` which GLGraphics intercepts — check if this is the case
+   - (b) Use `jreng::TextLayout::draw<GLGraphics>` (template) — requires GLGraphics to satisfy the duck-type contract (`setFont(jreng::Font&)` + `drawGlyphs(uint16_t*, Point<float>*, int)`)
+   - (c) Use the `GLGraphics::drawText (String, area, justification)` convenience methods which internally build `jreng::TextLayout` and call `draw (*this, area)`
+4. Validate: GPU output pixel-identical to CPU output
+
+**Files involved:**
+- `Source/whelmed/Block.h/cpp` — add `paintGL` override
+- `modules/jreng_opengl/context/jreng_gl_graphics.cpp` — fix atlas staging (if needed)
+- `modules/jreng_opengl/context/jreng_gl_renderer.cpp` — verify text command dispatch
+
+---
+
+#### Phase 3 — Atlas pipeline optimization
+
+**Goal:** Push the atlas-backed HarfBuzz rendering into the `juce::Graphics` path. The CPU path uses the same atlas pipeline as GPU, but composites via `juce::Graphics` instead of GL draw calls. This gives HarfBuzz shaping + atlas caching on CPU too.
+
+**Prerequisite:** Phase 2 working. `jreng::TextLayout` + atlas pipeline validated on GPU.
+
+**What this means:**
+- `Block::paint (juce::Graphics& g)` switches from `juce::TextLayout::draw` to `jreng::TextLayout::draw<Glyph::GraphicsContext>`
+- `Glyph::GraphicsContext` already satisfies the duck-type contract and composites glyphs from the atlas onto `juce::Graphics`
+- The `TextLayout::draw (juce::Graphics&)` convenience overload (added in Sprint 125) already does this — it wraps `GraphicsContext` internally
+- Validate: output identical to Phase 1 (juce::TextLayout) but using HarfBuzz shaping
+
+**Call site stays identical:**
+```cpp
+void Block::paint (juce::Graphics& g)
+{
+    layout.draw (g, getLocalBounds().toFloat());
+}
+```
+
+`layout` changes from `juce::TextLayout` to `jreng::TextLayout`. The `draw` overload handles the rest. Caller never changes.
+
+**Performance gain:** HarfBuzz shaping (proper kerning, ligatures), atlas caching (no per-frame rasterization), shared atlas between GPU and CPU paths.
+
+**Files involved:**
+- `Source/whelmed/Block.h` — `juce::TextLayout` → `jreng::TextLayout`
+- `Source/whelmed/Block.cpp` — `juce::TextLayout::createLayout` → `jreng::TextLayout::createLayout (attrString, typeface, maxWidth)`
+- `Source/whelmed/Component.h/cpp` — pass `Typeface&` refs to `Block` constructors (whelmed typeface refs already threaded through Panes/Tabs)
+
+**Atlas lifecycle for CPU path:** `Glyph::GraphicsContext` uses shared static atlas images (ref-counted). A persistent `GraphicsContext` member in `Whelmed::Component` keeps the atlas alive. The `TextLayout::draw(juce::Graphics&)` convenience overload creates/destroys a local `GraphicsContext` per call — if no other instance is alive, this thrashes the atlas. The persistent member prevents this.
+
+---
+
+#### Invariant Across All Phases
+
+The call site in `Block::paint` / `Block::paintGL` is always a one-liner:
+```cpp
+layout.draw (g, getLocalBounds().toFloat());
+```
+
+What changes between phases is:
+- Phase 1: `layout` = `juce::TextLayout`, `g` = `juce::Graphics`
+- Phase 2: `layout` = `jreng::TextLayout`, `g` = `GLGraphics` (GPU) or `juce::Graphics` (CPU)
+- Phase 3: `layout` = `jreng::TextLayout`, `g` = `juce::Graphics` (CPU, atlas-backed)
+
+The surface API never changes. Complexity moves downward.
+
+---
+
+---
+
 ## Sprint 124: Plan 5 — Steps 5.4, 5.5 + Architecture Design
 
 **Date:** 2026-03-26

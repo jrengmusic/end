@@ -13,6 +13,28 @@ void GLGraphics::setColour (juce::Colour newColour) noexcept
     currentColour = newColour;
 }
 
+void GLGraphics::setFont (jreng::Font& font) noexcept
+{
+    currentFont = &font;
+}
+
+void GLGraphics::drawGlyphs (const uint16_t* glyphCodes,
+                              const juce::Point<float>* positions,
+                              int numGlyphs) noexcept
+{
+    jassert (currentFont != nullptr);
+    jassert (glyphCodes != nullptr);
+    jassert (positions != nullptr);
+
+    if (numGlyphs > 0 and currentFont != nullptr)
+    {
+        TextCommand& cmd { textCommands.emplace_back (*currentFont) };
+        cmd.numGlyphs = numGlyphs;
+        cmd.glyphCodes.assign (glyphCodes, glyphCodes + numGlyphs);
+        cmd.positions.assign (positions, positions + numGlyphs);
+    }
+}
+
 void GLGraphics::strokePath (const juce::Path& path,
                               const juce::PathStrokeType& strokeType,
                               bool antiAliased)
@@ -160,6 +182,55 @@ void GLGraphics::fillLinearGradient (juce::Rectangle<float> area,
     addDrawVertices (std::move (vertices));
 }
 
+void GLGraphics::drawText (const juce::String& text,
+                            juce::Rectangle<int> area,
+                            juce::Justification justification,
+                            bool useEllipsesIfTooBig) noexcept
+{
+    drawText (text, area.toFloat(), justification, useEllipsesIfTooBig);
+}
+
+void GLGraphics::drawText (const juce::String& text,
+                            juce::Rectangle<float> area,
+                            juce::Justification justification,
+                            bool useEllipsesIfTooBig) noexcept
+{
+    jassert (currentFont != nullptr);
+    juce::ignoreUnused (useEllipsesIfTooBig); // TODO: truncate + append "..." when text exceeds area width
+
+    juce::AttributedString attrString;
+    attrString.append (text, juce::Font (juce::FontOptions().withHeight (currentFont->getSize())));
+    attrString.setJustification (justification);
+
+    jreng::TextLayout layout;
+    layout.createLayout (attrString, currentFont->getTypeface(), area.getWidth());
+    layout.draw (*this, area);
+}
+
+void GLGraphics::drawFittedText (const juce::String& text,
+                                  int x, int y, int width, int height,
+                                  juce::Justification justification,
+                                  int maximumNumberOfLines,
+                                  float minimumHorizontalScale) noexcept
+{
+    jassert (currentFont != nullptr);
+    juce::ignoreUnused (maximumNumberOfLines);
+    juce::ignoreUnused (minimumHorizontalScale); // TODO: compress glyphs horizontally when text doesn't fit
+
+    const juce::Rectangle<float> area { static_cast<float> (x),
+                                        static_cast<float> (y),
+                                        static_cast<float> (width),
+                                        static_cast<float> (height) };
+
+    juce::AttributedString attrString;
+    attrString.append (text, juce::Font (juce::FontOptions().withHeight (currentFont->getSize())));
+    attrString.setJustification (justification);
+
+    jreng::TextLayout layout;
+    layout.createLayout (attrString, currentFont->getTypeface(), area.getWidth(), area.getHeight());
+    layout.draw (*this, area);
+}
+
 void GLGraphics::reduceClipRegion (const juce::Path& clipPath)
 {
     juce::Path scaled;
@@ -183,14 +254,15 @@ const std::vector<GLGraphics::Command>& GLGraphics::getCommands() const noexcept
     return commands;
 }
 
-bool GLGraphics::hasContent() const noexcept
+const std::vector<GLGraphics::TextCommand>& GLGraphics::getTextCommands() const noexcept
 {
-    return not commands.empty();
+    return textCommands;
 }
 
 void GLGraphics::clear() noexcept
 {
     commands.clear();
+    textCommands.clear();
 }
 
 void GLGraphics::addDrawVertices (std::vector<GLVertex>&& vertices)

@@ -247,6 +247,8 @@ if(AUTO_BINARY_DATA)
         "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.fish"
         "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.ps1"
     )
+    file(GLOB_RECURSE JS_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.js")
+    file(GLOB_RECURSE HTML_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.html")
 
     # Add shader files from Source and modules
     file(GLOB_RECURSE SHADER_FILES CONFIGURE_DEPENDS
@@ -259,7 +261,7 @@ if(AUTO_BINARY_DATA)
     )
 
     list(APPEND BINARY_DATA_FILES
-        ${SVG_FILES} ${XML_FILES} ${PNG_FILES} ${FONT_FILES} ${LUA_FILES} ${SHELL_FILES} ${SHADER_FILES}
+        ${SVG_FILES} ${XML_FILES} ${PNG_FILES} ${FONT_FILES} ${LUA_FILES} ${SHELL_FILES} ${SHADER_FILES} ${JS_FILES} ${HTML_FILES}
     )
 
     # Windows ConPTY sideload binaries (MIT-licensed, from Microsoft Terminal project).

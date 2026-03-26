@@ -1,8 +1,8 @@
 /**
- * @file jreng_gl_text_renderer.h
+ * @file jreng_gl_context.h
  * @brief Standalone instanced quad renderer for glyph and background draw calls.
  *
- * `GLTextRenderer` owns all OpenGL resources required to draw glyph and
+ * `GLContext` owns all OpenGL resources required to draw glyph and
  * background instances: shader programs, atlas textures, VAO, and VBOs.
  * It exposes a minimal GL-thread API so any host component can delegate
  * instanced rendering without owning GL state directly.
@@ -34,7 +34,7 @@ namespace jreng::Glyph
 {
 
 /**
- * @class GLTextRenderer
+ * @class GLContext
  * @brief Owns GL resources for instanced glyph and background quad rendering.
  *
  * Compile shaders and allocate textures/buffers by calling `createContext()`
@@ -65,11 +65,11 @@ namespace jreng::Glyph
  * @see jreng::Glyph::Render::Quad
  * @see jreng::Glyph::Render::Background
  */
-class GLTextRenderer
+class GLContext
 {
 public:
-    GLTextRenderer()  = default;
-    ~GLTextRenderer() = default;
+    GLContext()  = default;
+    ~GLContext() = default;
 
     // =========================================================================
     // GL lifecycle
@@ -190,7 +190,7 @@ public:
     /**
      * @brief No-op for GL renderer. Required by the duck-type contract.
      *
-     * `GraphicsTextRenderer` binds a `juce::Graphics` context here.
+     * `GraphicsContext` binds a `juce::Graphics` context here.
      * The GL renderer ignores this call — it renders via the OpenGL context.
      *
      * @param g  Unused.
@@ -336,7 +336,7 @@ private:
     /** @brief Current font set via setFont(); used by drawGlyphs(). nullptr until setFont() is called. */
     jreng::Font* currentFont { nullptr };
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GLTextRenderer)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GLContext)
 };
 
 } // namespace jreng::Glyph
