@@ -2,6 +2,85 @@
 
 ---
 
+## Sprint 128: Whelmed Phase 1 — Async Parsing, TextEditor Blocks, Mermaid/Table Components
+
+**Date:** 2026-03-27
+**Duration:** ~8h
+
+### Agents Participated
+- COUNSELOR: Led all planning, investigation, delegation, compliance enforcement
+- Pathfinder (x3): Terminal threading pattern, Mermaid/Table module state, MessageOverlay/Animator patterns
+- Engineer (x8): ParsedDocument types, parser rewrite, Whelmed::Parser thread, State atomic flush, SpinnerOverlay, TextEditor Block rewrite, MermaidBlock, TableBlock wiring
+- Auditor (x2): Steps 1.0-1.1 compliance, Steps 1.2-1.3 compliance
+- Librarian: JUCE 8 TextEditor per-range styling API research
+- Oracle: (via Auditor) plan deviation analysis
+
+### Files Modified (25+ total)
+
+**ParsedDocument types (Step 1.0)**
+- `modules/jreng_markdown/markdown/jreng_markdown_types.h` — rewritten: flat `Block`, `InlineSpan`, `ParsedDocument` with HeapBlock arrays, `static_assert` trivially copyable. Old `Block`, `Blocks`, `BlockUnit`, `BlockUnits`, `TextLink`, `TextLinks` removed.
+
+**Parser rewrite (Step 1.1)**
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.h` — new API: `parse()` returns `ParsedDocument`, `getInlineSpans()` returns `InlineSpanResult` (HeapBlock), `toAttributedString` removed
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.cpp` — full rewrite: `parse()` fills pre-allocated ParsedDocument, fine-grained blocks (one per heading/paragraph/list item), pre-computed inline spans, URI storage in text buffer. Table detection added (pipe + separator heuristic emits `BlockType::Table`)
+- `modules/jreng_markdown/markdown/jreng_markdown_table.h` — `StyledText` alias removed, `TableCell::tokens` changed to `HeapBlock<InlineSpan>` + `int tokenCount`
+- `modules/jreng_markdown/markdown/jreng_markdown_table.cpp` — call sites updated for `getInlineSpans()` returning `InlineSpanResult`, `std::move` on cell/table push_back
+
+**Background parser thread (Step 1.2)**
+- NEW: `Source/whelmed/Parser.h` — `Whelmed::Parser : juce::Thread`, analogous to TTY reader thread
+- NEW: `Source/whelmed/Parser.cpp` — `run()` reads file + parses on background thread, `commitDocument()` to State
+
+**State atomic flush (Step 1.3)**
+- `Source/whelmed/State.h` — `std::atomic<bool> needsFlush` replaces `bool dirty`, `commitDocument()` (parser thread, release), `flush()` (message thread, exchange+acquire). Identical to Terminal::State pattern.
+- `Source/whelmed/State.cpp` — `reload()` removed, `commitDocument` + `flush` + constructor no longer auto-parses
+
+**Braille spinner (Step 1.4)**
+- NEW: `Source/whelmed/SpinnerOverlay.h` — header-only, Timer-driven braille animation, `toggleFade` show/hide, 80ms frame interval, follows MessageOverlay pattern
+
+**TextEditor blocks (Step 1.5)**
+- `Source/whelmed/Block.h` — DELETED (renamed to TextBlock)
+- `Source/whelmed/Block.cpp` — DELETED
+- NEW: `Source/whelmed/TextBlock.h` — wraps `juce::TextEditor` (read-only, multi-line, transparent), `appendStyledText()` for per-range font+colour insertion
+- NEW: `Source/whelmed/TextBlock.cpp` — TextEditor setup, styled text insertion, `getPreferredHeight()` from `getTextHeight()`
+
+**setBufferedToImage (Step 1.6)**
+- `Source/whelmed/Component.cpp` — `setBufferedToImage (true)` after `layoutBlocks()`
+
+**MermaidBlock (Step 1.7)**
+- NEW: `Source/whelmed/MermaidSVGParser.h` — header-only SVG parser: flat `SVGPrimitive`/`SVGTextPrimitive` lists, CSS class resolution, transform inheritance, marker stamping
+- NEW: `Source/whelmed/MermaidBlock.h` — renders `MermaidParseResult` scaled to viewport width via viewBox
+- NEW: `Source/whelmed/MermaidBlock.cpp` — `setParseResult()`, scale/offset computation in `resized()`, primitive rendering in `paint()`
+
+**TableBlock (Step 1.8)**
+- NEW: `Source/whelmed/TableBlock.h` — grid table renderer with ColourScheme, cell selection, Cmd+C copy as TSV
+- NEW: `Source/whelmed/TableBlock.cpp` — markdown table parsing, proportional column distribution, TextLayout per cell, header/row/border/selection painting
+
+**Component wiring**
+- `Source/whelmed/Component.h` — includes for all block types, `std::unique_ptr<Parser>`, `juce::Timer`, `SpinnerOverlay`, `appendBlockContent()`, `Owner<TextBlock/CodeBlock/MermaidBlock/TableBlock>`
+- `Source/whelmed/Component.cpp` — async `openFile()` (start parser + timer + spinner), `timerCallback()` polls `flush()`, `rebuildBlocks()` merges consecutive markdown blocks into one TextEditor, creates CodeBlock/MermaidBlock/TableBlock per type, `layoutBlocks()` with dynamic_cast per block type
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD enforced
+
+### Problems Solved
+- **Synchronous parse blocking** — moved file read + parse to background thread with atomic release/acquire fence (identical to Terminal::State pattern)
+- **No text selection** — TextLayout replaced by juce::TextEditor (read-only) giving selection + copy for free
+- **Component count explosion** — consecutive Markdown blocks merge into one TextEditor (~21 components for 3000-line doc with 10 code fences)
+- **Table detection** — pipe + separator heuristic in `processRange()` emits `BlockType::Table` blocks
+- **HeapBlock for InlineSpan** — replaced `std::vector<InlineSpan>` in table module, `getInlineSpans()` returns `InlineSpanResult` struct
+- **Block naming** — `Block` renamed to `TextBlock` per `****Block` convention
+
+### Technical Debt / Follow-up
+- **Spinner doesn't spin** — `rebuildBlocks()` blocks message thread during component creation. Parse is async but rendering is synchronous. Need incremental component creation or deferred layout.
+- **Mermaid not rendering** — `mermaidParser` (jreng::Mermaid::Parser) never instantiated in Component. MermaidBlock + MermaidSVGParser are wired but JS engine not created.
+- **`juce::Font` in TableBlock** — constructor uses `juce::Font` parameter. `getStringWidthFloat` requires Font object. FontOptions preferred where possible.
+- **Build agent gave false clean builds** — stale cmake cache. ARCHITECT builds only going forward.
+
+---
+
 ## Sprint 127: Whelmed Config Wiring, CodeBlock, Hint Pagination, Architecture Planning
 
 **Date:** 2026-03-27

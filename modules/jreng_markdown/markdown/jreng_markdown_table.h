@@ -10,8 +10,6 @@ enum class Alignment
     Right
 };
 
-using StyledText = std::vector<InlineSpan>;
-
 struct TableCell
 {
     int row { 0 };
@@ -20,7 +18,8 @@ struct TableCell
     Alignment align { Alignment::None };
 
     juce::String text;
-    StyledText tokens;
+    juce::HeapBlock<InlineSpan> tokens;
+    int tokenCount { 0 };
 };
 
 struct Table

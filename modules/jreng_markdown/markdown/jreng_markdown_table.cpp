@@ -226,8 +226,10 @@ Tables parseTablesImpl (const juce::StringArray& lines)
                         cell.isHeader = true;
                         cell.align = aligns.at (static_cast<size_t> (c));
                         cell.text = headerCells.getReference (c);
-                        cell.tokens = Parser::inlineSpans (headerCells.getReference (c)).first;
-                        table.cells.push_back (cell);
+                        auto spanResult { Parser::getInlineSpans (headerCells.getReference (c)) };
+                        cell.tokens = std::move (spanResult.spans);
+                        cell.tokenCount = spanResult.count;
+                        table.cells.push_back (std::move (cell));
                     }
 
                     for (int r { 0 }; r < jreng::toInt (bodyRawCells.size()); ++r)
@@ -244,12 +246,14 @@ Tables parseTablesImpl (const juce::StringArray& lines)
                             cell.isHeader = false;
                             cell.align = aligns.at (static_cast<size_t> (c));
                             cell.text = rowCells.getReference (c);
-                            cell.tokens = Parser::inlineSpans (rowCells.getReference (c)).first;
-                            table.cells.push_back (cell);
+                            auto spanResult { Parser::getInlineSpans (rowCells.getReference (c)) };
+                            cell.tokens = std::move (spanResult.spans);
+                            cell.tokenCount = spanResult.count;
+                            table.cells.push_back (std::move (cell));
                         }
                     }
 
-                    result.push_back (table);
+                    result.push_back (std::move (table));
                     i = j;
                 }
             }

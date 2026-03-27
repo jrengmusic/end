@@ -4,24 +4,23 @@
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-class Block : public juce::Component
+class TextBlock : public juce::Component
 {
 public:
-    explicit Block (const juce::AttributedString& attributedString);
+    TextBlock();
 
-    void paint (juce::Graphics& g) override;
+    void appendStyledText (const juce::String& text,
+                           const juce::FontOptions& fontOptions,
+                           juce::Colour colour);
+
     void resized() override;
-
     int getPreferredHeight() const noexcept;
 
 private:
-    void rebuildLayout();
-
-    juce::AttributedString attributedString;
-    juce::TextLayout layout;
+    juce::TextEditor editor;
     int preferredHeight { 0 };
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Block)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TextBlock)
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/

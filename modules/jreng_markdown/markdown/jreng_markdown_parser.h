@@ -30,15 +30,15 @@ struct Parser
     // Public API
     // ========================================================================
 
-    static Blocks getBlocks (const juce::String& markdown);
+    static ParsedDocument parse (const juce::String& markdown);
 
-    static BlockUnits getUnits (const juce::String& blockContent);
+    struct InlineSpanResult
+    {
+        juce::HeapBlock<InlineSpan> spans;
+        int count { 0 };
+    };
 
-    static std::pair<InlineSpans, TextLinks> inlineSpans (const juce::String& text);
-
-    static std::tuple<LineType, uint8_t, int> classifyLine (const juce::String& line);
-
-    static juce::AttributedString toAttributedString (const Block& block, const FontConfig& fontConfig);
+    static InlineSpanResult getInlineSpans (const juce::String& text);
 
     //==============================================================================
 private:
@@ -63,11 +63,10 @@ private:
         int codeStart { 0 };
 
         int openBracketPos { 0 };
-        int linkTextStartTokenIndex { 0 };
+        int linkTextStartSpanIndex { 0 };
         int linkDestStart { 0 };
 
-        std::vector<InlineSpan>* spans { nullptr };
-        std::vector<TextLink>* links { nullptr };
+        ParsedDocument* doc { nullptr };
         int segmentStart { 0 };
     };
 
@@ -75,9 +74,17 @@ private:
     // Internal Helpers
     // ========================================================================
 
+    static std::tuple<LineType, uint8_t, int> classifyLine (const juce::String& line);
     static int countConsecutive (const juce::String& s, int start, char target);
-
     static void flushSegment (TokenizerState& st, int endIndex);
+    static void tokenizeSpans (ParsedDocument& doc, const juce::String& text);
+    static int appendText (ParsedDocument& doc, const juce::String& text);
+    static void appendBlock (ParsedDocument& doc, const Block& block);
+    static void emitMarkdownBlock (ParsedDocument& doc, const juce::String& text, int level);
+    static void processRange (ParsedDocument& doc,
+                              const juce::StringArray& lines,
+                              int startLine,
+                              int endLine);
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/

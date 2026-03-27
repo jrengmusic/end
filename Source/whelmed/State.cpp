@@ -7,30 +7,25 @@ State::State (const juce::File& file_)
     : state (App::ID::DOCUMENT)
     , file (file_)
 {
-    state.setProperty (App::ID::filePath,    file.getFullPathName(),            nullptr);
-    state.setProperty (App::ID::displayName, file.getFileNameWithoutExtension(), nullptr);
-    state.setProperty (App::ID::scrollOffset, 0.0f,                             nullptr);
-
-    reload();
+    state.setProperty (App::ID::filePath,     file.getFullPathName(),             nullptr);
+    state.setProperty (App::ID::displayName,  file.getFileNameWithoutExtension(), nullptr);
+    state.setProperty (App::ID::scrollOffset, 0.0f,                              nullptr);
 }
 
-void State::reload()
+void State::commitDocument (jreng::Markdown::ParsedDocument&& doc)
 {
-    auto content { file.loadFileAsString() };
-    blocks = jreng::Markdown::Parser::getBlocks (content);
-    dirty = true;
+    document = std::move (doc);
+    needsFlush.store (true, std::memory_order_release);
 }
 
-bool State::consumeDirty() noexcept
+bool State::flush() noexcept
 {
-    bool wasDirty { dirty };
-    dirty = false;
-    return wasDirty;
+    return needsFlush.exchange (false, std::memory_order_acquire);
 }
 
-const jreng::Markdown::Blocks& State::getBlocks() const noexcept
+const jreng::Markdown::ParsedDocument& State::getDocument() const noexcept
 {
-    return blocks;
+    return document;
 }
 
 juce::ValueTree State::getValueTree() const noexcept

@@ -11,124 +11,199 @@ int Parser::countConsecutive (const juce::String& s, int start, char target)
 
 void Parser::flushSegment (TokenizerState& st, int endIndex)
 {
-    if (endIndex > st.segmentStart)
+    if (endIndex > st.segmentStart and st.doc != nullptr)
     {
-        InlineSpan span;
-        span.startOffset = st.segmentStart;
-        span.endOffset = endIndex;
-        span.style = st.currentStyle;
-        span.linkIndex = -1;
+        if (st.doc->spanCount < st.doc->spanCapacity)
+        {
+            InlineSpan span {};
+            span.startOffset = st.segmentStart;
+            span.endOffset = endIndex;
+            span.style = st.currentStyle;
+            span.uriOffset = 0;
+            span.uriLength = 0;
 
-        st.spans->push_back (span);
+            st.doc->spans[st.doc->spanCount] = span;
+            ++st.doc->spanCount;
+        }
+
         st.segmentStart = endIndex;
     }
 }
 
-//==============================================================================
-Blocks Parser::getBlocks (const juce::String& markdown)
+int Parser::appendText (ParsedDocument& doc, const juce::String& text)
 {
-    Blocks result;
+    int offset { doc.textSize };
+    auto utf8 { text.toUTF8() };
+    int numBytes { static_cast<int> (utf8.sizeInBytes()) - 1 };  // exclude null terminator
 
-    if (markdown.isNotEmpty())
+    if (doc.textSize + numBytes <= doc.textCapacity)
     {
-        auto mermaidBlocks { jreng::Mermaid::extractBlocks (markdown) };
-
-        juce::StringArray lines;
-        lines.addLines (markdown);
-
-        // Scans a range of lines (1-based, inclusive) and emits Markdown and CodeFence
-        // blocks into result, detecting generic ``` fences within that range.
-        auto scanRange = [&result, &lines] (int startLine, int endLine)
-        {
-            if (startLine > endLine)
-                return;
-
-            juce::StringArray pendingMarkdown;
-            int i { startLine - 1 };  // 0-based index
-
-            auto flushPending = [&result, &pendingMarkdown]()
-            {
-                if (pendingMarkdown.size() > 0)
-                {
-                    juce::String text { pendingMarkdown.joinIntoString ("\n") };
-
-                    if (text.trim().isNotEmpty())
-                    {
-                        Block block;
-                        block.type = BlockType::Markdown;
-                        block.content = text;
-                        result.push_back (block);
-                    }
-
-                    pendingMarkdown.clear();
-                }
-            };
-
-            while (i <= endLine - 1)
-            {
-                const auto& line { lines[i] };
-                auto trimmed { line.trim() };
-
-                if (trimmed.startsWith ("```"))
-                {
-                    flushPending();
-
-                    juce::String language { trimmed.substring (3).trim().toLowerCase() };
-                    juce::StringArray fenceLines;
-                    ++i;
-
-                    while (i <= endLine - 1)
-                    {
-                        auto closingTrimmed { lines[i].trim() };
-
-                        if (closingTrimmed.startsWith ("```"))
-                            break;
-
-                        fenceLines.add (lines[i]);
-                        ++i;
-                    }
-
-                    // Skip closing fence line
-                    if (i <= endLine - 1)
-                        ++i;
-
-                    Block block;
-                    block.type = BlockType::CodeFence;
-                    block.content = fenceLines.joinIntoString ("\n");
-                    block.language = language;
-                    result.push_back (block);
-                }
-                else
-                {
-                    pendingMarkdown.add (line);
-                    ++i;
-                }
-            }
-
-            flushPending();
-        };
-
-        int previousEndLine { 0 };
-
-        for (const auto& mermaidBlock : mermaidBlocks)
-        {
-            scanRange (previousEndLine + 1, mermaidBlock.lineStart - 1);
-
-            if (mermaidBlock.code.trim().isNotEmpty())
-            {
-                Block block;
-                block.type = BlockType::Mermaid;
-                block.content = mermaidBlock.code;
-                result.push_back (block);
-            }
-
-            previousEndLine = mermaidBlock.lineEnd;
-        }
-
-        scanRange (previousEndLine + 1, lines.size());
+        std::memcpy (doc.text + doc.textSize, utf8.getAddress(), static_cast<size_t> (numBytes));
+        doc.textSize += numBytes;
     }
 
-    return result;
+    return offset;
+}
+
+void Parser::appendBlock (ParsedDocument& doc, const Block& block)
+{
+    if (doc.blockCount < doc.blockCapacity)
+    {
+        doc.blocks[doc.blockCount] = block;
+        ++doc.blockCount;
+    }
+}
+
+void Parser::tokenizeSpans (ParsedDocument& doc, const juce::String& text)
+{
+    TokenizerState st;
+    st.doc = &doc;
+    st.segmentStart = 0;
+
+    for (int i { 0 }; i < text.length(); ++i)
+    {
+        auto c { text[i] };
+
+        switch (st.mode)
+        {
+            case InlineMode::CodeSpan:
+            {
+                if (c == '`')
+                {
+                    int fenceLen { countConsecutive (text, i, '`') };
+
+                    if (fenceLen == st.codeFenceLen)
+                    {
+                        flushSegment (st, i);
+                        st.mode = InlineMode::Normal;
+                        st.currentStyle &= ~Code;
+                        i += fenceLen - 1;
+                        st.segmentStart = i + 1;
+                    }
+                }
+                break;
+            }
+
+            case InlineMode::LinkDest:
+            {
+                if (c == ')')
+                {
+                    juce::String url { text.substring (st.linkDestStart, i).trim() };
+
+                    int uriOffset { appendText (doc, url) };
+                    auto uriUtf8 { url.toUTF8() };
+                    int uriLength { static_cast<int> (uriUtf8.sizeInBytes()) - 1 };
+
+                    for (int spanIdx { st.linkTextStartSpanIndex }; spanIdx < doc.spanCount; ++spanIdx)
+                    {
+                        doc.spans[spanIdx].uriOffset = uriOffset;
+                        doc.spans[spanIdx].uriLength = uriLength;
+                    }
+
+                    st.mode = InlineMode::Normal;
+                    st.currentStyle &= ~Link;
+                    st.segmentStart = i + 1;
+                }
+                break;
+            }
+
+            case InlineMode::Normal:
+            case InlineMode::LinkText:
+            {
+                if (c == '`')
+                {
+                    flushSegment (st, i);
+
+                    int fenceLen { countConsecutive (text, i, '`') };
+
+                    if (st.mode == InlineMode::Normal)
+                    {
+                        st.mode = InlineMode::CodeSpan;
+                        st.codeFenceLen = fenceLen;
+                        st.currentStyle |= Code;
+                        i += fenceLen - 1;
+                        st.segmentStart = i + 1;
+                    }
+                    else
+                    {
+                        st.segmentStart = i + fenceLen;
+                        i += fenceLen - 1;
+                    }
+                }
+                else if (c == '*' or c == '_')
+                {
+                    flushSegment (st, i);
+
+                    int runLen { countConsecutive (text, i, c) };
+
+                    if (runLen >= 2)
+                        st.currentStyle ^= Bold;
+                    if (runLen >= 1)
+                        st.currentStyle ^= Italic;
+
+                    i += runLen - 1;
+                    st.segmentStart = i + 1;
+                }
+                else if (c == '[' and st.mode == InlineMode::Normal)
+                {
+                    flushSegment (st, i);
+                    st.mode = InlineMode::LinkText;
+                    st.openBracketPos = i;
+                    st.linkTextStartSpanIndex = doc.spanCount;
+                    st.currentStyle |= Link;
+                    st.segmentStart = i + 1;
+                }
+                else if (c == ']' and st.mode == InlineMode::LinkText)
+                {
+                    flushSegment (st, i);
+
+                    int j { i + 1 };
+                    while (j < text.length() and juce::CharacterFunctions::isWhitespace (text[j]))
+                        ++j;
+
+                    if (j < text.length() and text[j] == '(')
+                    {
+                        st.mode = InlineMode::LinkDest;
+                        st.linkDestStart = j + 1;
+                        i = j;
+                        st.segmentStart = j + 1;
+                    }
+                    else
+                    {
+                        st.mode = InlineMode::Normal;
+                        st.currentStyle &= ~Link;
+                        st.segmentStart = i + 1;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    flushSegment (st, text.length());
+}
+
+void Parser::emitMarkdownBlock (ParsedDocument& doc, const juce::String& text, int level)
+{
+    int contentOffset { appendText (doc, text) };
+    auto utf8 { text.toUTF8() };
+    int contentLength { static_cast<int> (utf8.sizeInBytes()) - 1 };
+
+    int spanOffset { doc.spanCount };
+    tokenizeSpans (doc, text);
+    int spanCount { doc.spanCount - spanOffset };
+
+    Block block {};
+    block.type = BlockType::Markdown;
+    block.contentOffset = contentOffset;
+    block.contentLength = contentLength;
+    block.languageOffset = 0;
+    block.languageLength = 0;
+    block.spanOffset = spanOffset;
+    block.spanCount = spanCount;
+    block.level = level;
+
+    appendBlock (doc, block);
 }
 
 std::tuple<LineType, uint8_t, int> Parser::classifyLine (const juce::String& line)
@@ -200,324 +275,233 @@ std::tuple<LineType, uint8_t, int> Parser::classifyLine (const juce::String& lin
     return { resultKind, resultLevel, resultOffset };
 }
 
-BlockUnits Parser::getUnits (const juce::String& blockContent)
+void Parser::processRange (ParsedDocument& doc,
+                           const juce::StringArray& lines,
+                           int startLine,
+                           int endLine)
 {
-    BlockUnits result;
-
-    auto lines { juce::StringArray::fromLines (blockContent) };
-
-    BlockUnit currentParagraph;
-    bool inParagraph { false };
-
-    for (int i { 0 }; i < lines.size(); ++i)
+    if (startLine <= endLine)
     {
-        const auto& line { lines[i] };
-        auto [kind, level, contentStart] { classifyLine (line) };
+        juce::StringArray pendingParagraph;
 
-        if (kind == LineType::Blank)
+        auto flushParagraph = [&doc, &pendingParagraph]()
         {
-            if (inParagraph)
+            if (pendingParagraph.size() > 0)
             {
-                result.push_back (currentParagraph);
-                inParagraph = false;
+                juce::String text { pendingParagraph.joinIntoString ("\n") };
+
+                if (text.trim().isNotEmpty())
+                    emitMarkdownBlock (doc, text, 0);
+
+                pendingParagraph.clear();
             }
-        }
-        else
-        {
-            juce::String content { line.substring (contentStart).trim() };
+        };
 
-            if (kind == LineType::Paragraph)
+        int i { startLine - 1 };  // 0-based index
+
+        while (i <= endLine - 1)
+        {
+            const auto& line { lines[i] };
+            auto trimmed { line.trim() };
+
+            if (trimmed.startsWith ("```"))
             {
-                if (inParagraph)
+                flushParagraph();
+
+                juce::String language { trimmed.substring (3).trim().toLowerCase() };
+                juce::StringArray fenceLines;
+                ++i;
+
+                while (i <= endLine - 1)
                 {
-                    currentParagraph.text = currentParagraph.text + "\n" + content;
+                    auto closingTrimmed { lines[i].trim() };
+
+                    if (closingTrimmed.startsWith ("```"))
+                        break;
+
+                    fenceLines.add (lines[i]);
+                    ++i;
                 }
-                else
-                {
-                    currentParagraph = { kind, 0, content, i + 1, i + 1 };
-                    inParagraph = true;
-                }
+
+                // Skip closing fence line
+                if (i <= endLine - 1)
+                    ++i;
+
+                juce::String fenceContent { fenceLines.joinIntoString ("\n") };
+
+                int contentOffset { appendText (doc, fenceContent) };
+                auto contentUtf8 { fenceContent.toUTF8() };
+                int contentLength { static_cast<int> (contentUtf8.sizeInBytes()) - 1 };
+
+                int languageOffset { appendText (doc, language) };
+                auto languageUtf8 { language.toUTF8() };
+                int languageLength { static_cast<int> (languageUtf8.sizeInBytes()) - 1 };
+
+                Block block {};
+                block.type = BlockType::CodeFence;
+                block.contentOffset = contentOffset;
+                block.contentLength = contentLength;
+                block.languageOffset = languageOffset;
+                block.languageLength = languageLength;
+                block.spanOffset = 0;
+                block.spanCount = 0;
+                block.level = 0;
+
+                appendBlock (doc, block);
             }
             else
             {
-                if (inParagraph)
+                auto trimmedLine { line.trim() };
+
+                // Table detection: line with pipe followed by separator row
+                bool isTable { false };
+
+                if (i + 1 <= endLine - 1 and trimmedLine.contains ("|"))
                 {
-                    result.push_back (currentParagraph);
-                    inParagraph = false;
+                    auto nextTrimmed { lines[i + 1].trim() };
+
+                    if (nextTrimmed.contains ("|") and nextTrimmed.contains ("---"))
+                        isTable = true;
                 }
 
-                BlockUnit unit;
-                unit.kind = kind;
-                unit.level = level;
-                unit.text = content;
-                unit.lineNumberStart = i + 1;
-                unit.lineNumberEnd = i + 1;
-                result.push_back (unit);
-            }
-        }
-    }
-
-    if (inParagraph)
-        result.push_back (currentParagraph);
-
-    return result;
-}
-
-std::pair<InlineSpans, TextLinks> Parser::inlineSpans (const juce::String& text)
-{
-    InlineSpans spans;
-    TextLinks links;
-
-    TokenizerState st;
-    st.spans = &spans;
-    st.links = &links;
-    st.segmentStart = 0;
-
-    for (int i { 0 }; i < text.length(); ++i)
-    {
-        auto c { text[i] };
-
-        switch (st.mode)
-        {
-            case InlineMode::CodeSpan:
-            {
-                if (c == '`')
+                if (isTable)
                 {
-                    int fenceLen { countConsecutive (text, i, '`') };
+                    flushParagraph();
 
-                    if (fenceLen == st.codeFenceLen)
+                    juce::StringArray tableLines;
+
+                    while (i <= endLine - 1 and lines[i].trim().contains ("|"))
                     {
-                        flushSegment (st, i);
-                        st.mode = InlineMode::Normal;
-                        st.currentStyle &= ~Code;
-                        i += fenceLen - 1;
-                        st.segmentStart = i + 1;
-                    }
-                }
-                break;
-            }
-
-            case InlineMode::LinkDest:
-            {
-                if (c == ')')
-                {
-                    juce::String url { text.substring (st.linkDestStart, i).trim() };
-
-                    TextLink link;
-                    link.text = text.substring (st.openBracketPos + 1, i - 1);
-                    link.href = url;
-                    links.push_back (link);
-
-                    int linkIndex { static_cast<int> (links.size()) - 1 };
-                    for (int tokenIdx { st.linkTextStartTokenIndex }; tokenIdx < static_cast<int> (spans.size());
-                         ++tokenIdx)
-                    {
-                        spans.at (tokenIdx).linkIndex = linkIndex;
+                        tableLines.add (lines[i]);
+                        ++i;
                     }
 
-                    st.mode = InlineMode::Normal;
-                    st.currentStyle &= ~Link;
-                    st.segmentStart = i + 1;
+                    juce::String tableContent { tableLines.joinIntoString ("\n") };
+
+                    int contentOffset { appendText (doc, tableContent) };
+                    auto utf8 { tableContent.toUTF8() };
+                    int contentLength { static_cast<int> (utf8.sizeInBytes()) - 1 };
+
+                    Block block {};
+                    block.type = BlockType::Table;
+                    block.contentOffset = contentOffset;
+                    block.contentLength = contentLength;
+
+                    appendBlock (doc, block);
                 }
-                break;
-            }
-
-            case InlineMode::Normal:
-            case InlineMode::LinkText:
-            {
-                if (c == '`')
+                else
                 {
-                    flushSegment (st, i);
+                    auto [kind, level, contentStart] { classifyLine (line) };
 
-                    int fenceLen { countConsecutive (text, i, '`') };
-
-                    if (st.mode == InlineMode::Normal)
+                    if (kind == LineType::Blank)
                     {
-                        st.mode = InlineMode::CodeSpan;
-                        st.codeFenceLen = fenceLen;
-                        st.currentStyle |= Code;
-                        i += fenceLen - 1;
-                        st.segmentStart = i + 1;
+                        flushParagraph();
+                        ++i;
+                    }
+                    else if (kind == LineType::Paragraph)
+                    {
+                        juce::String content { line.substring (contentStart).trim() };
+                        pendingParagraph.add (content);
+                        ++i;
                     }
                     else
                     {
-                        st.segmentStart = i + fenceLen;
-                        i += fenceLen - 1;
+                        flushParagraph();
+
+                        juce::String content { line.substring (contentStart).trim() };
+
+                        if (kind == LineType::ThematicBreak)
+                        {
+                            emitMarkdownBlock (doc, "---", 0);
+                        }
+                        else if (kind == LineType::Header)
+                        {
+                            emitMarkdownBlock (doc, content, static_cast<int> (level));
+                        }
+                        else if (kind == LineType::ListItem)
+                        {
+                            emitMarkdownBlock (doc, content, 0);
+                        }
+
+                        ++i;
                     }
                 }
-                else if (c == '*' or c == '_')
-                {
-                    flushSegment (st, i);
-
-                    int runLen { countConsecutive (text, i, c) };
-
-                    if (runLen >= 2)
-                        st.currentStyle ^= Bold;
-                    if (runLen >= 1)
-                        st.currentStyle ^= Italic;
-
-                    i += runLen - 1;
-                    st.segmentStart = i + 1;
-                }
-                else if (c == '[' and st.mode == InlineMode::Normal)
-                {
-                    flushSegment (st, i);
-                    st.mode = InlineMode::LinkText;
-                    st.openBracketPos = i;
-                    st.linkTextStartTokenIndex = static_cast<int> (spans.size());
-                    st.currentStyle |= Link;
-                    st.segmentStart = i + 1;
-                }
-                else if (c == ']' and st.mode == InlineMode::LinkText)
-                {
-                    flushSegment (st, i);
-
-                    int j { i + 1 };
-                    while (j < text.length() and juce::CharacterFunctions::isWhitespace (text[j]))
-                        ++j;
-
-                    if (j < text.length() and text[j] == '(')
-                    {
-                        st.mode = InlineMode::LinkDest;
-                        st.linkDestStart = j + 1;
-                        i = j;
-                        st.segmentStart = j + 1;
-                    }
-                    else
-                    {
-                        st.mode = InlineMode::Normal;
-                        st.currentStyle &= ~Link;
-                        st.segmentStart = i + 1;
-                    }
-                }
-                break;
             }
         }
+
+        flushParagraph();
     }
-
-    flushSegment (st, text.length());
-
-    return { spans, links };
 }
 
-juce::AttributedString Parser::toAttributedString (const Block& block, const FontConfig& fontConfig)
+ParsedDocument Parser::parse (const juce::String& markdown)
 {
-    juce::AttributedString result;
+    ParsedDocument doc;
 
-    auto units { getUnits (block.content) };
+    int inputSize { markdown.length() };
+    doc.textCapacity = juce::jmax (1024, inputSize * 4);    // UTF-8 worst case + URIs
+    doc.blockCapacity = juce::jmax (64, inputSize / 50);
+    doc.spanCapacity = juce::jmax (64, inputSize / 20);
 
-    LineType previousKind { LineType::Blank };
+    doc.text.allocate (static_cast<size_t> (doc.textCapacity), true);
+    doc.blocks.allocate (static_cast<size_t> (doc.blockCapacity), true);
+    doc.spans.allocate (static_cast<size_t> (doc.spanCapacity), true);
 
-    for (const auto& unit : units)
+    if (markdown.isNotEmpty())
     {
-        if (previousKind != LineType::Blank and unit.kind != previousKind)
-            result.append ("\n", juce::FontOptions().withName (fontConfig.bodyFamily).withPointHeight (fontConfig.bodySize), fontConfig.bodyColour);
+        auto mermaidBlocks { jreng::Mermaid::extractBlocks (markdown) };
 
-        previousKind = unit.kind;
+        juce::StringArray lines;
+        lines.addLines (markdown);
 
-        float fontSize { fontConfig.bodySize };
+        int previousEndLine { 0 };
 
-        if (unit.kind == LineType::Header)
+        for (const auto& mermaidBlock : mermaidBlocks)
         {
-            switch (unit.level)
+            processRange (doc, lines, previousEndLine + 1, mermaidBlock.lineStart - 1);
+
+            if (mermaidBlock.code.trim().isNotEmpty())
             {
-                case 1:
-                    fontSize = fontConfig.h1Size;
-                    break;
-                case 2:
-                    fontSize = fontConfig.h2Size;
-                    break;
-                case 3:
-                    fontSize = fontConfig.h3Size;
-                    break;
-                case 4:
-                    fontSize = fontConfig.h4Size;
-                    break;
-                case 5:
-                    fontSize = fontConfig.h5Size;
-                    break;
-                case 6:
-                    fontSize = fontConfig.h6Size;
-                    break;
-                default:
-                    break;
-            }
-        }
+                int contentOffset { appendText (doc, mermaidBlock.code) };
+                auto utf8 { mermaidBlock.code.toUTF8() };
+                int contentLength { static_cast<int> (utf8.sizeInBytes()) - 1 };
 
-        auto [spans, links] { inlineSpans (unit.text) };
-
-        if (spans.empty())
-        {
-            juce::Colour unitColour { fontConfig.bodyColour };
-
-            if (unit.kind == LineType::Header)
-            {
-                switch (unit.level)
-                {
-                    case 1: unitColour = fontConfig.h1Colour; break;
-                    case 2: unitColour = fontConfig.h2Colour; break;
-                    case 3: unitColour = fontConfig.h3Colour; break;
-                    case 4: unitColour = fontConfig.h4Colour; break;
-                    case 5: unitColour = fontConfig.h5Colour; break;
-                    case 6: unitColour = fontConfig.h6Colour; break;
-                    default: break;
-                }
+                Block block {};
+                block.type = BlockType::Mermaid;
+                block.contentOffset = contentOffset;
+                block.contentLength = contentLength;
+                appendBlock (doc, block);
             }
 
-            result.append (unit.text + "\n", juce::FontOptions().withName (fontConfig.bodyFamily).withPointHeight (fontSize), unitColour);
+            previousEndLine = mermaidBlock.lineEnd;
         }
-        else
-        {
-            for (const auto& span : spans)
-            {
-                juce::String spanText { unit.text.substring (span.startOffset, span.endOffset) };
 
-                bool isBold { (span.style & Bold) != None };
-                bool isItalic { (span.style & Italic) != None };
-                bool isCode { (span.style & Code) != None };
-                bool isLink { (span.style & Link) != None };
+        processRange (doc, lines, previousEndLine + 1, lines.size());
+    }
 
-                float size { isCode ? fontConfig.codeSize : fontSize };
-                const juce::String& family { isCode ? fontConfig.codeFamily : fontConfig.bodyFamily };
+    return doc;
+}
 
-                juce::String style { "Regular" };
+Parser::InlineSpanResult Parser::getInlineSpans (const juce::String& text)
+{
+    ParsedDocument doc;
 
-                if (isBold and isItalic)
-                    style = "Bold Italic";
-                else if (isBold)
-                    style = "Bold";
-                else if (isItalic)
-                    style = "Italic";
+    int inputSize { juce::jmax (256, text.length()) };
+    doc.textCapacity = inputSize * 4;
+    doc.spanCapacity = inputSize / 10;
 
-                juce::Colour colour { fontConfig.bodyColour };
+    doc.text.allocate (static_cast<size_t> (doc.textCapacity), true);
+    doc.blocks.allocate (1, true);
+    doc.spans.allocate (static_cast<size_t> (doc.spanCapacity), true);
 
-                if (isCode)
-                {
-                    colour = fontConfig.codeColour;
-                }
-                else if (isLink)
-                {
-                    colour = fontConfig.linkColour;
-                }
-                else if (unit.kind == LineType::Header)
-                {
-                    switch (unit.level)
-                    {
-                        case 1: colour = fontConfig.h1Colour; break;
-                        case 2: colour = fontConfig.h2Colour; break;
-                        case 3: colour = fontConfig.h3Colour; break;
-                        case 4: colour = fontConfig.h4Colour; break;
-                        case 5: colour = fontConfig.h5Colour; break;
-                        case 6: colour = fontConfig.h6Colour; break;
-                        default: break;
-                    }
-                }
+    tokenizeSpans (doc, text);
 
-                result.append (spanText, juce::FontOptions().withName (family).withPointHeight (size).withStyle (style), colour);
-            }
+    InlineSpanResult result;
+    result.count = doc.spanCount;
 
-            result.append ("\n", juce::FontOptions().withName (fontConfig.bodyFamily).withPointHeight (fontSize), fontConfig.bodyColour);
-        }
+    if (doc.spanCount > 0)
+    {
+        result.spans.allocate (static_cast<size_t> (doc.spanCount), false);
+        std::memcpy (result.spans, doc.spans, static_cast<size_t> (doc.spanCount) * sizeof (InlineSpan));
     }
 
     return result;

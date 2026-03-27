@@ -1,12 +1,17 @@
 /**
  * @file State.h
- * @brief Whelmed document state — ValueTree SSOT, parsed blocks, dirty tracking.
+ * @brief Whelmed document state — ValueTree SSOT, parsed document, atomic dirty tracking.
  *
  * Whelmed::State is the file-backed state model for markdown panes.
- * Pure ValueTree, message thread only. Grafts into AppState as
- * ID::DOCUMENT child of the PANE node.
+ * Pure ValueTree, message thread only (except commitDocument which is called
+ * from parser thread with atomic release fence).
+ *
+ * Threading model identical to Terminal::State:
+ * - Parser thread writes document, then needsFlush.store(true, release)
+ * - Message thread needsFlush.exchange(false, acquire), then reads document
  *
  * @see Whelmed::Component
+ * @see Whelmed::Parser
  * @see jreng::Markdown::Parser
  */
 
@@ -23,24 +28,26 @@ public:
     explicit State (const juce::File& file);
 
     /**
-     * @brief Re-reads the file from disk and re-parses blocks.
-     * Sets dirty flag for re-render.
-     * @note MESSAGE THREAD.
+     * @brief Commits a parsed document from the parser thread.
+     * Moves the document and releases needsFlush atomic.
+     * @note PARSER THREAD.
      */
-    void reload();
+    void commitDocument (jreng::Markdown::ParsedDocument&& doc);
 
     /**
-     * @brief Returns dirty flag and clears it.
-     * @return true if state has changed since last consume.
+     * @brief Exchanges needsFlush to false with acquire fence.
+     * All writes before the parser's release are visible after this returns true.
+     * @return true if document was committed since last flush.
      * @note MESSAGE THREAD.
      */
-    bool consumeDirty() noexcept;
+    bool flush() noexcept;
 
     /**
-     * @brief Returns the parsed markdown blocks.
+     * @brief Returns the parsed markdown document.
+     * Only valid after flush() returns true.
      * @note MESSAGE THREAD.
      */
-    const jreng::Markdown::Blocks& getBlocks() const noexcept;
+    const jreng::Markdown::ParsedDocument& getDocument() const noexcept;
 
     /**
      * @brief Returns the DOCUMENT ValueTree for grafting into AppState.
@@ -51,8 +58,9 @@ public:
 private:
     juce::ValueTree state;
     juce::File file;
-    jreng::Markdown::Blocks blocks;
-    bool dirty { true };
+    jreng::Markdown::ParsedDocument document;
+
+    std::atomic<bool> needsFlush { false };  ///< Written by parser thread (release), exchanged by message thread (acquire)
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (State)
 };

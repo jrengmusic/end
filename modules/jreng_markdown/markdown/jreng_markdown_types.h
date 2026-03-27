@@ -13,15 +13,6 @@ enum class BlockType
     Table       ///< A GitHub-flavored markdown table.
 };
 
-struct Block
-{
-    BlockType type;
-    juce::String content;
-    juce::String language;  // Language tag from code fence opening (e.g. "cpp", "lua"). Empty for untagged fences.
-};
-
-using Blocks = std::vector<Block>;
-
 // ============================================================================
 // Line Classification
 // ============================================================================
@@ -34,21 +25,6 @@ enum class LineType
     ThematicBreak,
     Blank
 };
-
-// ============================================================================
-// Semantic Unit
-// ============================================================================
-
-struct BlockUnit
-{
-    LineType kind;
-    uint8_t level;
-    juce::String text;
-    int lineNumberStart;
-    int lineNumberEnd;
-};
-
-using BlockUnits = std::vector<BlockUnit>;
 
 // ============================================================================
 // Inline Styles
@@ -79,22 +55,56 @@ inline InlineStyle& operator|= (InlineStyle& a, InlineStyle b) { a = a | b; retu
 inline InlineStyle& operator&= (InlineStyle& a, InlineStyle b) { a = a & b; return a; }
 inline InlineStyle& operator^= (InlineStyle& a, InlineStyle b) { a = a ^ b; return a; }
 
+// ============================================================================
+// Inline Span
+// ============================================================================
+
 struct InlineSpan
 {
-    int startOffset;
+    int startOffset;  ///< Relative to block content offset in ParsedDocument::text
     int endOffset;
-    InlineStyle style;
-    int linkIndex;
+    InlineStyle style;  ///< Bitmask: Bold | Italic | Code | Link
+    int uriOffset;      ///< Into ParsedDocument::text (0 if not a link)
+    int uriLength;
 };
 
-struct TextLink
+// ============================================================================
+// Block
+// ============================================================================
+
+struct Block
 {
-    juce::String text;
-    juce::String href;
+    BlockType type;       ///< Markdown, CodeFence, Mermaid, Table
+    int contentOffset;    ///< Into ParsedDocument::text
+    int contentLength;
+    int languageOffset;   ///< Into ParsedDocument::text (code fence language tag)
+    int languageLength;
+    int spanOffset;       ///< Index into ParsedDocument::spans
+    int spanCount;
+    int level;            ///< Heading level 1-6, 0 for non-headings
 };
 
-using InlineSpans = std::vector<InlineSpan>;
-using TextLinks = std::vector<TextLink>;
+static_assert (std::is_trivially_copyable_v<Block>,      "Block must be trivially copyable");
+static_assert (std::is_trivially_copyable_v<InlineSpan>, "InlineSpan must be trivially copyable");
+
+// ============================================================================
+// Parsed Document
+// ============================================================================
+
+struct ParsedDocument
+{
+    juce::HeapBlock<char> text;
+    int textSize { 0 };
+    int textCapacity { 0 };
+
+    juce::HeapBlock<Block> blocks;
+    int blockCount { 0 };
+    int blockCapacity { 0 };
+
+    juce::HeapBlock<InlineSpan> spans;
+    int spanCount { 0 };
+    int spanCapacity { 0 };
+};
 
 /**_____________________________END OF NAMESPACE______________________________*/
 }// namespace jreng::Markdown
