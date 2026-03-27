@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Block.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
@@ -16,7 +17,7 @@ namespace Whelmed
       - resized() re-runs the full measure pass; paint() is a pure draw from cache.
       - Text selection (rectangular cell range) + Cmd/Ctrl+C copy as TSV.
  */
-class TableBlock  : public juce::Component
+class TableBlock : public Block
 {
 public:
     //==========================================================================
@@ -41,7 +42,7 @@ public:
     void setTableMarkdown (const juce::String& markdown);
 
     /** Returns the cached total height from the last measureLayout() call. */
-    int getPreferredHeight() const noexcept;
+    int getPreferredHeight() const noexcept override;
 
     /** Pure measure — does not mutate layout cache. Safe to call before setBounds. */
     int getPreferredHeight (int forWidth) const;
@@ -157,10 +158,10 @@ private:
     juce::String getCellText (int row, int col) const;
 
     //==========================================================================
-    static constexpr int kCellPaddingH = 10;
-    static constexpr int kCellPaddingV = 6;
-    static constexpr int kBorderWidth  = 1;
-    static constexpr int kMinColWidth  = 48;
+    static constexpr int kCellPaddingH { 10 };
+    static constexpr int kCellPaddingV { 6 };
+    static constexpr int kBorderWidth  { 1 };
+    static constexpr int kMinColWidth  { 48 };
 
     //==========================================================================
     juce::Font   font;
@@ -179,4 +180,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

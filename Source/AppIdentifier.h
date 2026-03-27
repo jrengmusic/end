@@ -53,5 +53,7 @@ namespace ID
     static const juce::Identifier filePath           { "filePath" };
     static const juce::Identifier displayName        { "displayName" };
     static const juce::Identifier scrollOffset       { "scrollOffset" };
+    static const juce::Identifier blockCount         { "blockCount" };
+    static const juce::Identifier parseComplete      { "parseComplete" };
 }
 }

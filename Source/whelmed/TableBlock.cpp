@@ -227,19 +227,26 @@ juce::Array<int> TableBlock::distributeColumns (int forWidth) const
     if (table.numCols > 0)
     {
         // Measure natural (single-line) width of each column
+        auto textWidth = [](const juce::Font& f, const juce::String& text) -> float
+        {
+            juce::GlyphArrangement ga;
+            ga.addLineOfText (f, text, 0.0f, 0.0f);
+            return ga.getBoundingBox (0, -1, false).getWidth();
+        };
+
         juce::Array<float> weights;
         float totalWeight { 0.0f };
 
         for (int c { 0 }; c < table.numCols; ++c)
         {
-            float maxW { headerFont.getStringWidthFloat (table.headers[c].text)
+            float maxW { textWidth (headerFont, table.headers[c].text)
                        + kCellPaddingH * 2 };
 
             for (const auto& row : table.rows)
             {
                 if (c < row.size())
                 {
-                    const float w { font.getStringWidthFloat (row[c].text)
+                    const float w { textWidth (font, row[c].text)
                                   + kCellPaddingH * 2 };
                     maxW = juce::jmax (maxW, w);
                 }
@@ -422,27 +429,22 @@ TableBlock::CellPos TableBlock::cellAtPoint (juce::Point<int> p) const
 
     if (layout.isValid())
     {
-        for (int col { 0 }; col < table.numCols; ++col)
+        for (int col { 0 }; col < table.numCols and not result.isValid(); ++col)
         {
             // Header
             if (getCellBounds (-1, col).contains (p))
             {
                 result = { -1, col };
-                break;
             }
-
-            // Data rows
-            for (int row { 0 }; row < table.rows.size(); ++row)
+            else
             {
-                if (getCellBounds (row, col).contains (p))
+                // Data rows
+                for (int row { 0 }; row < table.rows.size() and not result.isValid(); ++row)
                 {
-                    result = { row, col };
-                    break;
+                    if (getCellBounds (row, col).contains (p))
+                        result = { row, col };
                 }
             }
-
-            if (result.isValid())
-                break;
         }
     }
 
@@ -593,4 +595,4 @@ void TableBlock::copySelectionToClipboard() const
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

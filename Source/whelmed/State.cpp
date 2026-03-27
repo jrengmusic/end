@@ -3,27 +3,79 @@
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-State::State (const juce::File& file_)
+State::State()
     : state (App::ID::DOCUMENT)
-    , file (file_)
 {
-    state.setProperty (App::ID::filePath,     file.getFullPathName(),             nullptr);
-    state.setProperty (App::ID::displayName,  file.getFileNameWithoutExtension(), nullptr);
-    state.setProperty (App::ID::scrollOffset, 0.0f,                              nullptr);
+    state.setProperty (App::ID::filePath,      "",    nullptr);
+    state.setProperty (App::ID::displayName,   "",    nullptr);
+    state.setProperty (App::ID::scrollOffset,  0.0f,  nullptr);
+    state.setProperty (App::ID::blockCount,    0,     nullptr);
+    state.setProperty (App::ID::parseComplete, false, nullptr);
+
+    startTimerHz (60);
 }
 
-void State::commitDocument (jreng::Markdown::ParsedDocument&& doc)
+State::~State()
+{
+    stopTimer();
+}
+
+void State::setDocument (jreng::Markdown::ParsedDocument&& doc)
 {
     document = std::move (doc);
-    needsFlush.store (true, std::memory_order_release);
+    completedBlockCount.store (0, std::memory_order_relaxed);
+    lastFlushedBlockCount = 0;
 }
 
-bool State::flush() noexcept
+void State::appendBlock() noexcept
 {
-    return needsFlush.exchange (false, std::memory_order_acquire);
+    completedBlockCount.fetch_add (1, std::memory_order_release);
+}
+
+void State::setParseComplete() noexcept
+{
+    parseComplete.store (true, std::memory_order_release);
+}
+
+void State::timerCallback()
+{
+    static constexpr int flushHz { 120 };
+    static constexpr int idleHz  { 60 };
+
+    const bool anythingUpdated { flush() };
+
+    const int interval { anythingUpdated ? 1000 / flushHz : 1000 / idleHz };
+    startTimer (interval);
+}
+
+bool State::flush()
+{
+    bool updated { false };
+
+    const int currentCount { completedBlockCount.load (std::memory_order_acquire) };
+
+    if (currentCount > lastFlushedBlockCount)
+    {
+        ++lastFlushedBlockCount;
+        state.setProperty (App::ID::blockCount, lastFlushedBlockCount, nullptr);
+        updated = true;
+    }
+
+    if (parseComplete.exchange (false, std::memory_order_acquire))
+    {
+        state.setProperty (App::ID::parseComplete, true, nullptr);
+        updated = true;
+    }
+
+    return updated;
 }
 
 const jreng::Markdown::ParsedDocument& State::getDocument() const noexcept
+{
+    return document;
+}
+
+jreng::Markdown::ParsedDocument& State::getDocumentForWriting() noexcept
 {
     return document;
 }

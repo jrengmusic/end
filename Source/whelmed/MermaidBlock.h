@@ -11,12 +11,13 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "Block.h"
 #include "MermaidSVGParser.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-class MermaidBlock : public juce::Component
+class MermaidBlock : public Block
 {
 public:
     MermaidBlock();
@@ -26,7 +27,7 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
 
-    int getPreferredHeight() const noexcept;
+    int getPreferredHeight() const noexcept override;
 
 private:
     MermaidParseResult parseResult;
@@ -39,4 +40,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

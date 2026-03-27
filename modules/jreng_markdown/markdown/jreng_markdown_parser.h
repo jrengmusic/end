@@ -1,7 +1,7 @@
 namespace jreng::Markdown
 { /*____________________________________________________________________________*/
 
-struct FontConfig
+struct DocConfig
 {
     juce::String bodyFamily;
     float bodySize { 14.0f };

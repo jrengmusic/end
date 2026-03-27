@@ -67,8 +67,7 @@ void CodeBlock::resized()
 
     const int lineHeight { editor->getLineHeight() };
     const int lineCount { document.getNumLines() };
-    const int verticalPadding { 8 };
-    preferredHeight = (lineCount * lineHeight) + verticalPadding;
+    preferredHeight = (lineCount * lineHeight) + kVerticalPadding;
 }
 
 int CodeBlock::getPreferredHeight() const noexcept
@@ -77,4 +76,4 @@ int CodeBlock::getPreferredHeight() const noexcept
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

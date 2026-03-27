@@ -18,6 +18,12 @@ TextBlock::TextBlock()
     addAndMakeVisible (editor);
 }
 
+void TextBlock::clear() noexcept
+{
+    editor.clear();
+    preferredHeight = 0;
+}
+
 void TextBlock::appendStyledText (const juce::String& text,
                                    const juce::FontOptions& fontOptions,
                                    juce::Colour colour)
@@ -39,4 +45,4 @@ int TextBlock::getPreferredHeight() const noexcept
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

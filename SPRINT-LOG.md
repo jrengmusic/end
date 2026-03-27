@@ -2,6 +2,96 @@
 
 ---
 
+## Sprint 129: Whelmed Phase 2 — Incremental Styling, Progress Bar, Vim Navigation
+
+**Date:** 2026-03-27
+**Duration:** ~6h
+
+### Agents Participated
+- COUNSELOR: Led planning, investigation, delegation — multiple protocol violations corrected by ARCHITECT
+- Pathfinder (x5): Terminal::State timer pattern, ValueTree listener pattern, openFile callers, key handling, file audit
+- Engineer (x6): State timer, Parser ownership, ValueTree ref, sync parse, incremental styling, DocConfig rename
+- Machinist (x5): Contract violations sweep, Owner consolidation, SpinnerOverlay rewrite, deprecated API fixes
+- Auditor (x2): Full whelmed module audit, pattern compliance
+
+### Files Modified (28 total)
+
+**State refactor (Terminal::State pattern)**
+- `Source/whelmed/State.h` — `private juce::Timer`, adaptive flush (120Hz/60Hz), `getDocumentForWriting()`, removed `openFile()`
+- `Source/whelmed/State.cpp` — constructor starts timer, destructor stops, `timerCallback` adaptive interval, `flush()` increments blockCount by 1 per tick, `parseComplete` uses `exchange(false, acquire)` (one-shot)
+- `Source/AppIdentifier.h` — added `blockCount`, `parseComplete` identifiers
+
+**Parser refactor**
+- `Source/whelmed/Parser.h` — takes `DocConfig` in constructor, `start()` (no file param), removed `fileToParse`
+- `Source/whelmed/Parser.cpp` — `start()` sets ValueTree properties on message thread, `run()` resolves styles per block via `getDocumentForWriting()`, calls `appendBlock()` per block
+
+**Component refactor**
+- `Source/whelmed/Component.h` — `State docState` (value member), `juce::ValueTree state` (held reference), `Owner<Block> blocks` (single collection), `DocConfig docConfig`, `int totalBlocks`, removed Timer inheritance
+- `Source/whelmed/Component.cpp` — synchronous parse in `openFile()`, immediate component creation by type, incremental styling in `valueTreePropertyChanged` (one block per tick), `clearBlocks()` extracted, `buildDocConfig()` cached, `applyConfig()` restyles without rebuild, vim navigation in `keyPressed` (j/k/gg/G with prefix state), spinner hides when `blockCount >= totalBlocks`
+
+**Block base class**
+- `Source/whelmed/Block.h` — NEW: `virtual int getPreferredHeight() const noexcept = 0`
+- `Source/whelmed/TextBlock.h` — inherits Block, override getPreferredHeight
+- `Source/whelmed/TextBlock.cpp` — added `clear()` for restyle support
+- `Source/whelmed/CodeBlock.h` — inherits Block, override getPreferredHeight
+- `Source/whelmed/CodeBlock.cpp` — no functional change
+- `Source/whelmed/MermaidBlock.h` — inherits Block, override getPreferredHeight
+- `Source/whelmed/MermaidBlock.cpp` — early return fixed to positive check
+- `Source/whelmed/TableBlock.h` — inherits Block, constexpr brace init
+- `Source/whelmed/TableBlock.cpp` — `getStringWidthFloat` replaced with `GlyphArrangement`
+
+**DocConfig (renamed from FontConfig/StyleConfig)**
+- `modules/jreng_markdown/markdown/jreng_markdown_parser.h` — `FontConfig` renamed to `DocConfig`
+- `modules/jreng_markdown/markdown/jreng_markdown_types.h` — added resolved `fontSize`, `colour`, `fontFamily` to `InlineSpan` and `Block` (trivially copyable)
+
+**SpinnerOverlay rewrite**
+- `Source/whelmed/SpinnerOverlay.h` — thin bottom progress bar (not overlay), event-driven (no Timer), 4 configurable colours (progressBackground, progressForeground, progressTextColour, progressSpinnerColour), braille spinner + text drawn separately
+
+**Config**
+- `Source/whelmed/config/Config.h` — added progress bar colours (4), scroll keybindings (5)
+- `Source/whelmed/config/Config.cpp` — registered defaults for all new keys
+- `Source/whelmed/config/default_whelmed.lua` — added progress bar colour section
+
+**Other**
+- `Source/whelmed/MermaidSVGParser.h` — namespace closing spacing fix
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] Terminal::State pattern followed exactly (adaptive timer, exchange fence)
+
+### ARCHITECT Adjudications (Binding for Future Sessions)
+- State owns timer, flushes itself — Component NEVER calls flush
+- `dynamic_cast` over `static_cast` for block type — explicit, always correct, negligible overhead
+- `parseComplete` uses `exchange(false, acquire)` — one-shot, matches Terminal::State `needsFlush` pattern
+- `unique_ptr` assignment handles old parser destruction — no explicit `reset()` needed
+- No state shadowing — derive from existing state (`getNumChildComponents`, ValueTree properties)
+- Spinner completion determined by Component (`blockCount >= totalBlocks`), not Parser
+- DocConfig replaces FontConfig/StyleConfig — carries colours, not just fonts
+- Progress bar colours are separate config keys (background, foreground, text, spinner)
+
+### Problems Solved
+- **Spinner never spun** — message thread blocked during one-shot `rebuildBlocks()`. Fixed: synchronous parse + immediate empty component creation + incremental per-block styling via ValueTree events
+- **State shadowing** — `lastBuiltBlockIndex` removed. Block count derived from ValueTree property and child component count
+- **Four Owner collections** — consolidated to single `Owner<Block>` via common base class
+- **dynamic_cast chain in layoutBlocks** — eliminated with `Block` base class, single `dynamic_cast<Block*>`
+- **FontConfig rebuilt every tick** — cached as member, rebuilt only on `openFile`/`applyConfig`
+- **Redundant parser.reset()** — removed from destructor and openFile
+- **ValueTree listener never fired** — `getValueTree()` returns by value; held as `juce::ValueTree state` member for stable reference
+- **Deprecated getStringWidthFloat** — replaced with `GlyphArrangement` in TableBlock and SpinnerOverlay
+
+### Technical Debt / Follow-up
+- **P1 — Mermaid not rendering** — `mermaidParser` still never instantiated. Pipeline wired but skipped. Separate task.
+- **P2 — TableBlock runtime untested** — table detection and rendering not validated by ARCHITECT
+- **P3 — MermaidSVGParser.h contract violations** — pervasive `=` initialization, `continue`/`break` patterns. Large refactor deferred.
+- **P4 — applyConfig restyle** — currently only restyles TextBlocks. CodeBlock/MermaidBlock/TableBlock not restyled on config reload.
+
+### New Files Created This Sprint
+```
+Source/whelmed/Block.h
+```
+
 ## Sprint 128: Whelmed Phase 1 — Async Parsing, TextEditor Blocks, Mermaid/Table Components
 
 **Date:** 2026-03-27
@@ -73,11 +163,87 @@
 - **HeapBlock for InlineSpan** — replaced `std::vector<InlineSpan>` in table module, `getInlineSpans()` returns `InlineSpanResult` struct
 - **Block naming** — `Block` renamed to `TextBlock` per `****Block` convention
 
+### ARCHITECT Adjudications (Binding for Future Sessions)
+- `[]` on `juce::HeapBlock` and `juce::StringArray` — **accepted** (no `.at()` method on JUCE types)
+- Plain `enum InlineStyle : uint16_t` for bitmask — **accepted** (enables natural `|`/`&` syntax)
+- `if (state)` implicit check on `std::optional` — **accepted** (STL snake_case methods acceptable)
+- `juce::FontOptions` preferred over `juce::Font` — only use `juce::Font` when no substitute in newer API
+- `****Block` naming for all block components — `TextBlock`, `CodeBlock`, `MermaidBlock`, `TableBlock`
+- Only `#include <JuceHeader.h>` — never individual JUCE module headers or STL headers
+- ARCHITECT builds only — agents never run build commands
+
+### Plan Deviations (Intentional)
+- **`std::atomic<bool> needsFlush`** instead of plan's `std::atomic<int> completedBlockCount` — ARCHITECT directed to match Terminal::State flush pattern exactly: `store(true, release)` / `exchange(false, acquire)`. Plan specified `int` counter for incremental block delivery; implementation uses `bool` for single-shot. Plan should be updated.
+- **`flush()` naming** instead of plan's `consumeDirty()` — matches Terminal::State method name.
+
 ### Technical Debt / Follow-up
-- **Spinner doesn't spin** — `rebuildBlocks()` blocks message thread during component creation. Parse is async but rendering is synchronous. Need incremental component creation or deferred layout.
-- **Mermaid not rendering** — `mermaidParser` (jreng::Mermaid::Parser) never instantiated in Component. MermaidBlock + MermaidSVGParser are wired but JS engine not created.
-- **`juce::Font` in TableBlock** — constructor uses `juce::Font` parameter. `getStringWidthFloat` requires Font object. FontOptions preferred where possible.
-- **Build agent gave false clean builds** — stale cmake cache. ARCHITECT builds only going forward.
+
+**P0 — Spinner doesn't spin (message thread blocked during component creation)**
+
+Root cause: parsing is async (background thread), but `rebuildBlocks()` runs synchronously on the message thread AFTER parse completes. The slow part is NOT parsing — it's creating JUCE components: `juce::TextEditor` insertion (`insertTextAtCaret` with styled text), `juce::CodeEditorComponent` creation, `layoutBlocks()` two-pass sizing. For a 3000-line doc, this blocks the message thread long enough that the SpinnerOverlay timer never fires a paint cycle.
+
+Files: `Source/whelmed/Component.cpp:107` (`rebuildBlocks`), `Source/whelmed/Component.cpp:94` (`timerCallback`)
+
+Candidate solutions:
+1. **Incremental component creation** — create N blocks per timer tick instead of all at once. Track creation progress, advance each tick.
+2. **Deferred layout** — create components without styling first (fast), then style incrementally.
+3. **Accept it** — parse is fast, component creation is fast enough for most docs. Spinner shows briefly on very large files.
+
+**P1 — Mermaid not rendering (JS engine never instantiated)**
+
+Root cause: `Component.h:57` declares `std::unique_ptr<jreng::Mermaid::Parser> mermaidParser` but it is never constructed. `rebuildBlocks()` line 173 checks `if (mermaidParser != nullptr)` — always false, so all Mermaid blocks are silently skipped.
+
+The rendering pipeline is fully wired:
+- `jreng::Markdown::Parser::parse()` extracts mermaid blocks as `BlockType::Mermaid` with content in ParsedDocument
+- `MermaidBlock` component exists with `setParseResult()` + `paint()` rendering SVG primitives
+- `MermaidSVGParser::parse()` converts SVG string → flat `SVGPrimitive`/`SVGTextPrimitive` lists
+- `Component::rebuildBlocks()` has the mermaid branch that calls `mermaidParser->convertToSVG()` → `MermaidSVGParser::parse()` → `mermaidBlock->setParseResult()`
+
+Fix: instantiate `mermaidParser` in Component constructor:
+```cpp
+mermaidParser = std::make_unique<jreng::Mermaid::Parser>();
+```
+
+But investigate first:
+- `jreng::Mermaid::Parser` constructor loads `mermaid.min.js` via `jreng::JavaScriptEngine`. Check if JS engine has dependencies or initialization requirements.
+- `Parser::onReady(callback)` signals when JS engine is loaded. `convertToSVG` asserts `isMermaidReady`. May need to defer mermaid block creation until `onReady` fires.
+- `convertToSVG` appears synchronous (two sequential `engine.execute` calls), but verify.
+
+Files to read: `modules/jreng_markdown/mermaid/jreng_mermaid_parser.h`, `modules/jreng_markdown/mermaid/jreng_mermaid_parser.cpp`
+
+**P2 — TableBlock runtime untested**
+
+Table detection (pipe + separator heuristic) is wired in `processRange()` and TableBlock component is created in `rebuildBlocks()`. ARCHITECT has not confirmed tables render correctly. The TableBlock parses its own markdown internally (`parseMarkdown()`), independent of ParsedDocument spans.
+
+File: `Source/whelmed/TableBlock.cpp:139` (`parseMarkdown`)
+
+**P3 — `juce::Font` in TableBlock**
+
+`TableBlock` constructor takes `juce::Font` and stores `juce::Font font` / `juce::Font headerFont` members. ARCHITECT directed `juce::FontOptions` preferred. However, `Font::getStringWidthFloat()` requires a `juce::Font` object — no FontOptions substitute. Keep `Font` members for measurement, but use `FontOptions` for construction where possible. Default param already fixed: `juce::Font (juce::FontOptions().withPointHeight (14.0f))`.
+
+**P4 — PLAN-WHELMED.md outdated**
+
+Current state section still says Sprint 126. Synchronization section says `completedBlockCount` but implementation uses `needsFlush`. Component stack diagram still references `Whelmed::Block` (now `TextBlock`). Needs update to reflect Sprint 128 state.
+
+### New Files Created This Sprint
+```
+Source/whelmed/Parser.h
+Source/whelmed/Parser.cpp
+Source/whelmed/SpinnerOverlay.h
+Source/whelmed/TextBlock.h
+Source/whelmed/TextBlock.cpp
+Source/whelmed/MermaidSVGParser.h
+Source/whelmed/MermaidBlock.h
+Source/whelmed/MermaidBlock.cpp
+Source/whelmed/TableBlock.h
+Source/whelmed/TableBlock.cpp
+```
+
+### Files Deleted This Sprint
+```
+Source/whelmed/Block.h (renamed to TextBlock.h)
+Source/whelmed/Block.cpp (renamed to TextBlock.cpp)
+```
 
 ---
 

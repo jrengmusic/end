@@ -1,20 +1,22 @@
 #pragma once
 #include <JuceHeader.h>
+#include "Block.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-class TextBlock : public juce::Component
+class TextBlock : public Block
 {
 public:
     TextBlock();
 
+    void clear() noexcept;
     void appendStyledText (const juce::String& text,
                            const juce::FontOptions& fontOptions,
                            juce::Colour colour);
 
     void resized() override;
-    int getPreferredHeight() const noexcept;
+    int getPreferredHeight() const noexcept override;
 
 private:
     juce::TextEditor editor;
@@ -24,4 +26,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

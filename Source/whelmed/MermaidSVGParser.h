@@ -90,7 +90,7 @@ public:
     {
         MermaidParseResult result;
 
-        auto xml = juce::XmlDocument::parse (svgString);
+        auto xml { juce::XmlDocument::parse (svgString) };
 
         if (xml != nullptr and xml->getTagName().toLowerCase() == "svg")
         {
@@ -141,7 +141,7 @@ private:
 
     static juce::Colour parseColour (const juce::String& raw, const juce::Colour& currentColour)
     {
-        const auto s = raw.trim().toLowerCase();
+        const auto s { raw.trim().toLowerCase() };
 
         if (s.isEmpty() or s == "none")
             return juce::Colours::transparentBlack;
@@ -177,13 +177,13 @@ private:
 
     static juce::Colour parseHex (const juce::String& s)
     {
-        auto hex = s.trimCharactersAtStart ("#");
+        auto hex { s.trimCharactersAtStart ("#") };
 
         if (hex.length() == 3)
         {
-            const auto r = hex.substring (0, 1);
-            const auto g = hex.substring (1, 2);
-            const auto b = hex.substring (2, 3);
+            const auto r { hex.substring (0, 1) };
+            const auto g { hex.substring (1, 2) };
+            const auto b { hex.substring (2, 3) };
             hex = r + r + g + g + b + b;
         }
 
@@ -197,9 +197,9 @@ private:
     static juce::Colour parseRGB (const juce::String& s)
     {
         // rgb(r, g, b)
-        const auto inner = s.fromFirstOccurrenceOf ("(", false, false)
-                            .upToLastOccurrenceOf (")", false, false);
-        const auto tokens = juce::StringArray::fromTokens (inner, ",", "");
+        const auto inner { s.fromFirstOccurrenceOf ("(", false, false)
+                            .upToLastOccurrenceOf (")", false, false) };
+        const auto tokens { juce::StringArray::fromTokens (inner, ",", "") };
 
         juce::Colour result { juce::Colours::transparentBlack };
 
@@ -215,15 +215,15 @@ private:
 
     static juce::Colour parseRGBA (const juce::String& s)
     {
-        const auto inner = s.fromFirstOccurrenceOf ("(", false, false)
-                            .upToLastOccurrenceOf (")", false, false);
-        const auto tokens = juce::StringArray::fromTokens (inner, ",", "");
+        const auto inner { s.fromFirstOccurrenceOf ("(", false, false)
+                            .upToLastOccurrenceOf (")", false, false) };
+        const auto tokens { juce::StringArray::fromTokens (inner, ",", "") };
 
         juce::Colour result { parseRGB (s) };
 
         if (tokens.size() >= 4)
         {
-            const auto alpha = (uint8_t) juce::roundToInt (tokens[3].trim().getFloatValue() * 255.0f);
+            const auto alpha { (uint8_t) juce::roundToInt (tokens[3].trim().getFloatValue() * 255.0f) };
             result = juce::Colour ((uint8_t) tokens[0].trim().getIntValue(),
                                    (uint8_t) tokens[1].trim().getIntValue(),
                                    (uint8_t) tokens[2].trim().getIntValue(),
@@ -236,17 +236,17 @@ private:
     static juce::Colour parseHSL (const juce::String& s)
     {
         // hsl(h, s%, l%) — mermaid emits decimal h
-        const auto inner = s.fromFirstOccurrenceOf ("(", false, false)
-                            .upToLastOccurrenceOf (")", false, false);
-        const auto tokens = juce::StringArray::fromTokens (inner, ",", "");
+        const auto inner { s.fromFirstOccurrenceOf ("(", false, false)
+                            .upToLastOccurrenceOf (")", false, false) };
+        const auto tokens { juce::StringArray::fromTokens (inner, ",", "") };
 
         juce::Colour result { juce::Colours::transparentBlack };
 
         if (tokens.size() >= 3)
         {
-            const float h   = tokens[0].trim().getFloatValue() / 360.0f;
-            const float sat = tokens[1].trim().trimCharactersAtEnd ("%").getFloatValue() / 100.0f;
-            const float lum = tokens[2].trim().trimCharactersAtEnd ("%").getFloatValue() / 100.0f;
+            const float h   { tokens[0].trim().getFloatValue() / 360.0f };
+            const float sat { tokens[1].trim().trimCharactersAtEnd ("%").getFloatValue() / 100.0f };
+            const float lum { tokens[2].trim().trimCharactersAtEnd ("%").getFloatValue() / 100.0f };
             result = juce::Colour::fromHSL (h, sat, lum, 1.0f);
         }
 
@@ -258,10 +258,15 @@ private:
 
     static float parseStrokeWidth (const juce::String& raw)
     {
-        const auto s = raw.trim().toLowerCase();
-        if (s.endsWith ("px")) return s.dropLastCharacters (2).getFloatValue();
-        if (s.endsWith ("pt")) return s.dropLastCharacters (2).getFloatValue() * 1.333f;
-        return s.getFloatValue();  // bare float
+        const auto s { raw.trim().toLowerCase() };
+        float result { s.getFloatValue() };  // bare float fallback
+
+        if (s.endsWith ("px"))
+            result = s.dropLastCharacters (2).getFloatValue();
+        else if (s.endsWith ("pt"))
+            result = s.dropLastCharacters (2).getFloatValue() * 1.333f;
+
+        return result;
     }
 
     //==========================================================================
@@ -269,75 +274,79 @@ private:
 
     static juce::AffineTransform parseTransform (const juce::String& raw)
     {
-        const auto s = raw.trim();
+        const auto s { raw.trim() };
         juce::AffineTransform result;
 
         // Iterate: multiple transforms can be chained, e.g. "translate(x,y) scale(s)"
         int pos { 0 };
+        const int len { s.length() };
 
-        while (pos < s.length())
+        auto extractArgs = [&](const juce::String& after) -> juce::StringArray
+        {
+            const auto inner { after.fromFirstOccurrenceOf ("(", false, false)
+                                    .upToFirstOccurrenceOf (")", false, false) };
+            return juce::StringArray::fromTokens (inner, ", ", "");
+        };
+
+        while (pos < len)
         {
             // Skip whitespace
-            while (pos < s.length() and s[pos] == ' ') ++pos;
-            if (pos >= s.length()) break;
+            while (pos < len and s[pos] == ' ') ++pos;
 
-            const auto remaining = s.substring (pos);
-            const auto lower     = remaining.toLowerCase();
+            if (pos < len)
+            {
+                const auto remaining { s.substring (pos) };
+                const auto lower     { remaining.toLowerCase() };
 
-            auto extractArgs = [&](const juce::String& after) -> juce::StringArray
-            {
-                const auto inner = after.fromFirstOccurrenceOf ("(", false, false)
-                                        .upToFirstOccurrenceOf (")", false, false);
-                return juce::StringArray::fromTokens (inner, ", ", "");
-            };
-
-            if (lower.startsWith ("translate"))
-            {
-                const auto args = extractArgs (remaining);
-                const float tx = args.size() > 0 ? args[0].getFloatValue() : 0.0f;
-                const float ty = args.size() > 1 ? args[1].getFloatValue() : 0.0f;
-                result = result.followedBy (juce::AffineTransform::translation (tx, ty));
-            }
-            else if (lower.startsWith ("scale"))
-            {
-                const auto args = extractArgs (remaining);
-                const float sx = args.size() > 0 ? args[0].getFloatValue() : 1.0f;
-                const float sy = args.size() > 1 ? args[1].getFloatValue() : sx;
-                result = result.followedBy (juce::AffineTransform::scale (sx, sy));
-            }
-            else if (lower.startsWith ("rotate"))
-            {
-                const auto args  = extractArgs (remaining);
-                const float angle = args.size() > 0 ? args[0].getFloatValue() : 0.0f;
-                const float cx    = args.size() > 2 ? args[1].getFloatValue() : 0.0f;
-                const float cy    = args.size() > 2 ? args[2].getFloatValue() : 0.0f;
-                result = result.followedBy (
-                    juce::AffineTransform::rotation (juce::degreesToRadians (angle), cx, cy));
-            }
-            else if (lower.startsWith ("matrix"))
-            {
-                const auto args = extractArgs (remaining);
-
-                if (args.size() >= 6)
+                if (lower.startsWith ("translate"))
+                {
+                    const auto args { extractArgs (remaining) };
+                    const float tx { args.size() > 0 ? args[0].getFloatValue() : 0.0f };
+                    const float ty { args.size() > 1 ? args[1].getFloatValue() : 0.0f };
+                    result = result.followedBy (juce::AffineTransform::translation (tx, ty));
+                }
+                else if (lower.startsWith ("scale"))
+                {
+                    const auto args { extractArgs (remaining) };
+                    const float sx { args.size() > 0 ? args[0].getFloatValue() : 1.0f };
+                    const float sy { args.size() > 1 ? args[1].getFloatValue() : sx };
+                    result = result.followedBy (juce::AffineTransform::scale (sx, sy));
+                }
+                else if (lower.startsWith ("rotate"))
+                {
+                    const auto args  { extractArgs (remaining) };
+                    const float angle { args.size() > 0 ? args[0].getFloatValue() : 0.0f };
+                    const float cx    { args.size() > 2 ? args[1].getFloatValue() : 0.0f };
+                    const float cy    { args.size() > 2 ? args[2].getFloatValue() : 0.0f };
                     result = result.followedBy (
-                        juce::AffineTransform (args[0].getFloatValue(),
-                                               args[2].getFloatValue(),
-                                               args[4].getFloatValue(),
-                                               args[1].getFloatValue(),
-                                               args[3].getFloatValue(),
-                                               args[5].getFloatValue()));
-            }
+                        juce::AffineTransform::rotation (juce::degreesToRadians (angle), cx, cy));
+                }
+                else if (lower.startsWith ("matrix"))
+                {
+                    const auto args { extractArgs (remaining) };
 
-            // Advance past this transform call (find matching closing paren)
-            int parenDepth { 0 };
-            bool started { false };
+                    if (args.size() >= 6)
+                        result = result.followedBy (
+                            juce::AffineTransform (args[0].getFloatValue(),
+                                                   args[2].getFloatValue(),
+                                                   args[4].getFloatValue(),
+                                                   args[1].getFloatValue(),
+                                                   args[3].getFloatValue(),
+                                                   args[5].getFloatValue()));
+                }
 
-            while (pos < s.length())
-            {
-                if (s[pos] == '(') { parenDepth++; started = true; }
-                if (s[pos] == ')') { parenDepth--; }
-                pos++;
-                if (started and parenDepth == 0) break;
+                // Advance past this transform call (find matching closing paren)
+                int parenDepth { 0 };
+                bool started { false };
+                bool advanced { false };
+
+                while (pos < len and not advanced)
+                {
+                    if (s[pos] == '(') { parenDepth++; started = true; }
+                    if (s[pos] == ')') { parenDepth--; }
+                    ++pos;
+                    advanced = started and parenDepth == 0;
+                }
             }
         }
 
@@ -352,24 +361,28 @@ private:
     static void parseStyleBlock (const juce::XmlElement& svgRoot, StyleMap& out)
     {
         // Find <style> child — can be at root or inside first <g>
-        for (auto* child = svgRoot.getFirstChildElement(); child != nullptr; child = child->getNextElement())
+        bool foundRoot { false };
+
+        for (auto* child = svgRoot.getFirstChildElement(); child != nullptr and not foundRoot; child = child->getNextElement())
         {
             if (child->getTagName().toLowerCase() == "style")
             {
                 parseCSS (child->getAllSubText(), out);
-                break;
+                foundRoot = true;
             }
         }
 
         // Also check one level deeper
         for (auto* child = svgRoot.getFirstChildElement(); child != nullptr; child = child->getNextElement())
         {
-            for (auto* grandchild = child->getFirstChildElement(); grandchild != nullptr; grandchild = grandchild->getNextElement())
+            bool foundDeep { false };
+
+            for (auto* grandchild = child->getFirstChildElement(); grandchild != nullptr and not foundDeep; grandchild = grandchild->getNextElement())
             {
                 if (grandchild->getTagName().toLowerCase() == "style")
                 {
                     parseCSS (grandchild->getAllSubText(), out);
-                    break;
+                    foundDeep = true;
                 }
             }
         }
@@ -383,40 +396,53 @@ private:
 
         int i { 0 };
         const int len { css.length() };
+        bool hasMore { true };
 
-        while (i < len)
+        while (i < len and hasMore)
         {
             // Find a '{' — selector precedes it
             const int braceOpen { css.indexOfChar (i, '{') };
-            if (braceOpen < 0) break;
 
-            const auto selector = css.substring (i, braceOpen).trim();
-            const int braceClose { css.indexOfChar (braceOpen, '}') };
-            if (braceClose < 0) break;
-
-            const auto body = css.substring (braceOpen + 1, braceClose);
-
-            // Extract all class names from selector (tokens starting with '.')
-            // e.g. "#id .node rect, #id .node circle" -> extract "node" (ignore tag names)
-            const auto selectorTokens = juce::StringArray::fromTokens (selector, " ,\t\n", "");
-
-            for (auto& token : selectorTokens)
+            if (braceOpen >= 0)
             {
-                if (token.startsWith ("."))
-                {
-                    const auto className = token.substring (1).toStdString();
-                    const auto paint     = parseCSSBody (body);
-                    // Merge: later rules with same class name win
-                    auto existing = out.find (className);
+                const auto selector { css.substring (i, braceOpen).trim() };
+                const int braceClose { css.indexOfChar (braceOpen, '}') };
 
-                    if (existing != out.end())
-                        mergePaintState (existing->second, paint);
-                    else
-                        out[className] = paint;
+                if (braceClose >= 0)
+                {
+                    const auto body { css.substring (braceOpen + 1, braceClose) };
+
+                    // Extract all class names from selector (tokens starting with '.')
+                    // e.g. "#id .node rect, #id .node circle" -> extract "node" (ignore tag names)
+                    const auto selectorTokens { juce::StringArray::fromTokens (selector, " ,\t\n", "") };
+
+                    for (const auto& token : selectorTokens)
+                    {
+                        if (token.startsWith ("."))
+                        {
+                            const auto className { token.substring (1).toStdString() };
+                            const auto paint     { parseCSSBody (body) };
+                            // Merge: later rules with same class name win
+                            auto existing { out.find (className) };
+
+                            if (existing != out.end())
+                                mergePaintState (existing->second, paint);
+                            else
+                                out[className] = paint;
+                        }
+                    }
+
+                    i = braceClose + 1;
+                }
+                else
+                {
+                    hasMore = false;
                 }
             }
-
-            i = braceClose + 1;
+            else
+            {
+                hasMore = false;
+            }
         }
     }
 
@@ -426,49 +452,51 @@ private:
         ps.hasFill   = false;
         ps.hasStroke = false;
 
-        const auto declarations = juce::StringArray::fromTokens (body, ";", "");
+        const auto declarations { juce::StringArray::fromTokens (body, ";", "") };
 
-        for (auto& decl : declarations)
+        for (const auto& decl : declarations)
         {
             const int colonIdx { decl.indexOfChar (':') };
-            if (colonIdx < 0) continue;
 
-            const auto prop = decl.substring (0, colonIdx).trim().toLowerCase();
-            auto val        = decl.substring (colonIdx + 1).trim();
-            // Strip !important
-            val = val.replace ("!important", "").trim();
+            if (colonIdx >= 0)
+            {
+                const auto prop { decl.substring (0, colonIdx).trim().toLowerCase() };
+                auto val        { decl.substring (colonIdx + 1).trim() };
+                // Strip !important
+                val = val.replace ("!important", "").trim();
 
-            if (prop == "fill")
-            {
-                if (val != "none")
+                if (prop == "fill")
                 {
-                    ps.fill    = parseColour (val, juce::Colours::black);
-                    ps.hasFill = true;
+                    if (val != "none")
+                    {
+                        ps.fill    = parseColour (val, juce::Colours::black);
+                        ps.hasFill = true;
+                    }
+                    else
+                    {
+                        ps.hasFill = false;
+                    }
                 }
-                else
+                else if (prop == "stroke")
                 {
-                    ps.hasFill = false;
+                    if (val != "none")
+                    {
+                        ps.stroke    = parseColour (val, juce::Colours::black);
+                        ps.hasStroke = true;
+                    }
+                    else
+                    {
+                        ps.hasStroke = false;
+                    }
                 }
-            }
-            else if (prop == "stroke")
-            {
-                if (val != "none")
+                else if (prop == "stroke-width")
                 {
-                    ps.stroke    = parseColour (val, juce::Colours::black);
-                    ps.hasStroke = true;
+                    ps.strokeWidth = parseStrokeWidth (val);
                 }
-                else
+                else if (prop == "font-size")
                 {
-                    ps.hasStroke = false;
+                    ps.fontSize = parseStrokeWidth (val); // same unit handling
                 }
-            }
-            else if (prop == "stroke-width")
-            {
-                ps.strokeWidth = parseStrokeWidth (val);
-            }
-            else if (prop == "font-size")
-            {
-                ps.fontSize = parseStrokeWidth (val); // same unit handling
             }
         }
 
@@ -514,33 +542,35 @@ private:
                                    PaintState& ps,
                                    const juce::Colour& currentColour)
     {
-        const auto declarations = juce::StringArray::fromTokens (styleAttr, ";", "");
+        const auto declarations { juce::StringArray::fromTokens (styleAttr, ";", "") };
 
-        for (auto& decl : declarations)
+        for (const auto& decl : declarations)
         {
             const int colonIdx { decl.indexOfChar (':') };
-            if (colonIdx < 0) continue;
 
-            const auto prop = decl.substring (0, colonIdx).trim().toLowerCase();
-            const auto val  = decl.substring (colonIdx + 1).trim().replace ("!important", "").trim();
+            if (colonIdx >= 0)
+            {
+                const auto prop { decl.substring (0, colonIdx).trim().toLowerCase() };
+                const auto val  { decl.substring (colonIdx + 1).trim().replace ("!important", "").trim() };
 
-            if (prop == "fill")
-            {
-                if (val == "none") { ps.hasFill = false; }
-                else               { ps.fill = parseColour (val, currentColour); ps.hasFill = true; }
-            }
-            else if (prop == "stroke")
-            {
-                if (val == "none") { ps.hasStroke = false; }
-                else               { ps.stroke = parseColour (val, currentColour); ps.hasStroke = true; }
-            }
-            else if (prop == "stroke-width")
-            {
-                ps.strokeWidth = parseStrokeWidth (val);
-            }
-            else if (prop == "font-size")
-            {
-                ps.fontSize = parseStrokeWidth (val);
+                if (prop == "fill")
+                {
+                    if (val == "none") { ps.hasFill = false; }
+                    else               { ps.fill = parseColour (val, currentColour); ps.hasFill = true; }
+                }
+                else if (prop == "stroke")
+                {
+                    if (val == "none") { ps.hasStroke = false; }
+                    else               { ps.stroke = parseColour (val, currentColour); ps.hasStroke = true; }
+                }
+                else if (prop == "stroke-width")
+                {
+                    ps.strokeWidth = parseStrokeWidth (val);
+                }
+                else if (prop == "font-size")
+                {
+                    ps.fontSize = parseStrokeWidth (val);
+                }
             }
         }
     }
@@ -553,18 +583,18 @@ private:
                                             const PaintState& inherited,
                                             const StyleMap& classStyles)
     {
-        PaintState ps = inherited;
+        PaintState ps { inherited };
 
         // 1. Apply CSS classes (lower priority than inline)
-        const auto classAttr = el.getStringAttribute ("class");
+        const auto classAttr { el.getStringAttribute ("class") };
 
         if (classAttr.isNotEmpty())
         {
-            const auto classes = juce::StringArray::fromTokens (classAttr, " ", "");
+            const auto classes { juce::StringArray::fromTokens (classAttr, " ", "") };
 
-            for (auto& cls : classes)
+            for (const auto& cls : classes)
             {
-                const auto it = classStyles.find (cls.toStdString());
+                const auto it { classStyles.find (cls.toStdString()) };
 
                 if (it != classStyles.end())
                     mergePaintState (ps, it->second);
@@ -572,7 +602,7 @@ private:
         }
 
         // 2. Apply inline style= attribute
-        const auto styleAttr = el.getStringAttribute ("style");
+        const auto styleAttr { el.getStringAttribute ("style") };
 
         if (styleAttr.isNotEmpty())
             applyInlineStyle (styleAttr, ps, inherited.fill);
@@ -580,14 +610,14 @@ private:
         // 3. Apply direct attributes (highest priority)
         if (el.hasAttribute ("fill"))
         {
-            const auto val = el.getStringAttribute ("fill");
+            const auto val { el.getStringAttribute ("fill") };
             if (val == "none") { ps.hasFill = false; }
             else               { ps.fill = parseColour (val, inherited.fill); ps.hasFill = true; }
         }
 
         if (el.hasAttribute ("stroke"))
         {
-            const auto val = el.getStringAttribute ("stroke");
+            const auto val { el.getStringAttribute ("stroke") };
             if (val == "none") { ps.hasStroke = false; }
             else               { ps.stroke = parseColour (val, inherited.fill); ps.hasStroke = true; }
         }
@@ -607,12 +637,12 @@ private:
     static juce::Path pathFromRect (const juce::XmlElement& el,
                                     const juce::AffineTransform& xf)
     {
-        const float x  = (float) el.getDoubleAttribute ("x",      0.0);
-        const float y  = (float) el.getDoubleAttribute ("y",      0.0);
-        const float w  = (float) el.getDoubleAttribute ("width",  0.0);
-        const float h  = (float) el.getDoubleAttribute ("height", 0.0);
-        const float rx = (float) el.getDoubleAttribute ("rx",     0.0);
-        const float ry = (float) el.getDoubleAttribute ("ry",     rx);  // ry defaults to rx if unset
+        const float x  { (float) el.getDoubleAttribute ("x",      0.0) };
+        const float y  { (float) el.getDoubleAttribute ("y",      0.0) };
+        const float w  { (float) el.getDoubleAttribute ("width",  0.0) };
+        const float h  { (float) el.getDoubleAttribute ("height", 0.0) };
+        const float rx { (float) el.getDoubleAttribute ("rx",     0.0) };
+        const float ry { (float) el.getDoubleAttribute ("ry",     rx) };  // ry defaults to rx if unset
 
         juce::Path p;
 
@@ -628,9 +658,9 @@ private:
     static juce::Path pathFromCircle (const juce::XmlElement& el,
                                        const juce::AffineTransform& xf)
     {
-        const float cx = (float) el.getDoubleAttribute ("cx", 0.0);
-        const float cy = (float) el.getDoubleAttribute ("cy", 0.0);
-        const float r  = (float) el.getDoubleAttribute ("r",  0.0);
+        const float cx { (float) el.getDoubleAttribute ("cx", 0.0) };
+        const float cy { (float) el.getDoubleAttribute ("cy", 0.0) };
+        const float r  { (float) el.getDoubleAttribute ("r",  0.0) };
 
         juce::Path p;
         p.addEllipse (cx - r, cy - r, r * 2.0f, r * 2.0f);
@@ -641,10 +671,10 @@ private:
     static juce::Path pathFromEllipse (const juce::XmlElement& el,
                                         const juce::AffineTransform& xf)
     {
-        const float cx = (float) el.getDoubleAttribute ("cx", 0.0);
-        const float cy = (float) el.getDoubleAttribute ("cy", 0.0);
-        const float rx = (float) el.getDoubleAttribute ("rx", 0.0);
-        const float ry = (float) el.getDoubleAttribute ("ry", 0.0);
+        const float cx { (float) el.getDoubleAttribute ("cx", 0.0) };
+        const float cy { (float) el.getDoubleAttribute ("cy", 0.0) };
+        const float rx { (float) el.getDoubleAttribute ("rx", 0.0) };
+        const float ry { (float) el.getDoubleAttribute ("ry", 0.0) };
 
         juce::Path p;
         p.addEllipse (cx - rx, cy - ry, rx * 2.0f, ry * 2.0f);
@@ -655,10 +685,10 @@ private:
     static juce::Path pathFromLine (const juce::XmlElement& el,
                                      const juce::AffineTransform& xf)
     {
-        const float x1 = (float) el.getDoubleAttribute ("x1", 0.0);
-        const float y1 = (float) el.getDoubleAttribute ("y1", 0.0);
-        const float x2 = (float) el.getDoubleAttribute ("x2", 0.0);
-        const float y2 = (float) el.getDoubleAttribute ("y2", 0.0);
+        const float x1 { (float) el.getDoubleAttribute ("x1", 0.0) };
+        const float y1 { (float) el.getDoubleAttribute ("y1", 0.0) };
+        const float x2 { (float) el.getDoubleAttribute ("x2", 0.0) };
+        const float y2 { (float) el.getDoubleAttribute ("y2", 0.0) };
 
         juce::Path p;
         p.startNewSubPath (x1, y1);
@@ -670,15 +700,15 @@ private:
     static juce::Path pathFromPolygon (const juce::XmlElement& el,
                                         const juce::AffineTransform& xf)
     {
-        const auto pointsStr = el.getStringAttribute ("points");
-        const auto tokens    = juce::StringArray::fromTokens (pointsStr, " ,\t\n", "");
+        const auto pointsStr { el.getStringAttribute ("points") };
+        const auto tokens    { juce::StringArray::fromTokens (pointsStr, " ,\t\n", "") };
 
         juce::Path p;
 
         for (int i { 0 }; i + 1 < tokens.size(); i += 2)
         {
-            const float x = tokens[i].getFloatValue();
-            const float y = tokens[i + 1].getFloatValue();
+            const float x { tokens[i].getFloatValue() };
+            const float y { tokens[i + 1].getFloatValue() };
             if (i == 0) p.startNewSubPath (x, y);
             else        p.lineTo (x, y);
         }
@@ -691,15 +721,15 @@ private:
     static juce::Path pathFromPolyline (const juce::XmlElement& el,
                                          const juce::AffineTransform& xf)
     {
-        const auto pointsStr = el.getStringAttribute ("points");
-        const auto tokens    = juce::StringArray::fromTokens (pointsStr, " ,\t\n", "");
+        const auto pointsStr { el.getStringAttribute ("points") };
+        const auto tokens    { juce::StringArray::fromTokens (pointsStr, " ,\t\n", "") };
 
         juce::Path p;
 
         for (int i { 0 }; i + 1 < tokens.size(); i += 2)
         {
-            const float x = tokens[i].getFloatValue();
-            const float y = tokens[i + 1].getFloatValue();
+            const float x { tokens[i].getFloatValue() };
+            const float y { tokens[i + 1].getFloatValue() };
             if (i == 0) p.startNewSubPath (x, y);
             else        p.lineTo (x, y);
         }
@@ -711,7 +741,7 @@ private:
     static juce::Path pathFromSVGPath (const juce::XmlElement& el,
                                         const juce::AffineTransform& xf)
     {
-        const auto d = el.getStringAttribute ("d");
+        const auto d { el.getStringAttribute ("d") };
 
         juce::Path p;
 
@@ -736,35 +766,35 @@ private:
     {
         juce::Path result;
 
-        const float mw   = (float) markerEl.getDoubleAttribute ("markerWidth",  10.0);
-        const float mh   = (float) markerEl.getDoubleAttribute ("markerHeight", 10.0);
-        const float refX = (float) markerEl.getDoubleAttribute ("refX", 0.0);
-        const float refY = (float) markerEl.getDoubleAttribute ("refY", 0.0);
+        const float mw   { (float) markerEl.getDoubleAttribute ("markerWidth",  10.0) };
+        const float mh   { (float) markerEl.getDoubleAttribute ("markerHeight", 10.0) };
+        const float refX { (float) markerEl.getDoubleAttribute ("refX", 0.0) };
+        const float refY { (float) markerEl.getDoubleAttribute ("refY", 0.0) };
 
         // Parse viewBox to get scale from marker space to markerWidth/Height
         float vbScaleX { 1.0f };
         float vbScaleY { 1.0f };
-        const auto vbAttr = markerEl.getStringAttribute ("viewBox");
+        const auto vbAttr { markerEl.getStringAttribute ("viewBox") };
 
         if (vbAttr.isNotEmpty())
         {
-            const auto tokens = juce::StringArray::fromTokens (vbAttr, " ,", "");
+            const auto tokens { juce::StringArray::fromTokens (vbAttr, " ,", "") };
 
             if (tokens.size() >= 4)
             {
-                const float vbW = tokens[2].getFloatValue();
-                const float vbH = tokens[3].getFloatValue();
+                const float vbW { tokens[2].getFloatValue() };
+                const float vbH { tokens[3].getFloatValue() };
                 if (vbW > 0.0f) vbScaleX = mw / vbW;
                 if (vbH > 0.0f) vbScaleY = mh / vbH;
             }
         }
 
         // Build child shapes in marker local space
-        const juce::AffineTransform localScale = juce::AffineTransform::scale (vbScaleX, vbScaleY);
+        const juce::AffineTransform localScale { juce::AffineTransform::scale (vbScaleX, vbScaleY) };
 
         for (auto* child = markerEl.getFirstChildElement(); child != nullptr; child = child->getNextElement())
         {
-            const auto tag = child->getTagName().toLowerCase();
+            const auto tag { child->getTagName().toLowerCase() };
             juce::Path childPath;
 
             if      (tag == "path")    childPath = pathFromSVGPath (*child, localScale);
@@ -779,7 +809,7 @@ private:
 
         // Orient and position:
         // 1. Translate so refPoint is at origin
-        const auto orient = markerEl.getStringAttribute ("orient");
+        const auto orient { markerEl.getStringAttribute ("orient") };
         float angle { 0.0f };
 
         if (orient == "auto" or orient == "auto-start-reverse")
@@ -787,9 +817,9 @@ private:
         else if (orient.isNotEmpty())
             angle = juce::degreesToRadians (orient.getFloatValue());
 
-        const auto xf = juce::AffineTransform::translation (-(refX * vbScaleX), -(refY * vbScaleY))
+        const auto xf { juce::AffineTransform::translation (-(refX * vbScaleX), -(refY * vbScaleY))
                              .followedBy (juce::AffineTransform::rotation (angle, 0.0f, 0.0f))
-                             .followedBy (juce::AffineTransform::translation (endpoint.x, endpoint.y));
+                             .followedBy (juce::AffineTransform::translation (endpoint.x, endpoint.y)) };
 
         result.applyTransform (xf);
         return result;
@@ -899,13 +929,13 @@ private:
 
     static juce::Rectangle<float> parseViewBox (const juce::XmlElement& svg)
     {
-        const auto vb = svg.getStringAttribute ("viewBox");
+        const auto vb { svg.getStringAttribute ("viewBox") };
 
         juce::Rectangle<float> result;
 
         if (vb.isNotEmpty())
         {
-            const auto tokens = juce::StringArray::fromTokens (vb, " ,", "");
+            const auto tokens { juce::StringArray::fromTokens (vb, " ,", "") };
 
             if (tokens.size() >= 4)
             {
@@ -926,11 +956,11 @@ private:
                                      const StyleMap& classStyles,
                                      std::vector<SVGTextPrimitive>& texts)
     {
-        const auto paint = resolveElementPaint (el, ps, classStyles);
+        const auto paint { resolveElementPaint (el, ps, classStyles) };
 
-        const float x  = (float) el.getDoubleAttribute ("x",  0.0);
-        const float y  = (float) el.getDoubleAttribute ("y",  0.0);
-        const float dy = (float) el.getDoubleAttribute ("dy", 0.0);
+        const float x  { (float) el.getDoubleAttribute ("x",  0.0) };
+        const float y  { (float) el.getDoubleAttribute ("y",  0.0) };
+        const float dy { (float) el.getDoubleAttribute ("dy", 0.0) };
 
         // Collect text from tspan children or direct text content
         bool hasTspans { false };
@@ -941,46 +971,48 @@ private:
             if (child->getTagName().toLowerCase() == "tspan")
             {
                 hasTspans = true;
-                const float tdy = (float) child->getDoubleAttribute ("dy", 0.0);
-                const float tx  = (float) child->getDoubleAttribute ("x", x);
+                const float tdy { (float) child->getDoubleAttribute ("dy", 0.0) };
+                const float tx  { (float) child->getDoubleAttribute ("x", x) };
                 accumulatedDY += tdy;
 
-                const auto tContent = child->getAllSubText().trim();
-                if (tContent.isEmpty()) continue;
+                const auto tContent { child->getAllSubText().trim() };
 
-                SVGTextPrimitive tp;
-                tp.text     = tContent;
-                tp.colour   = paint.hasFill ? paint.fill : juce::Colours::black;
-                tp.fontSize = paint.fontSize;
+                if (tContent.isNotEmpty())
+                {
+                    SVGTextPrimitive tp;
+                    tp.text     = tContent;
+                    tp.colour   = paint.hasFill ? paint.fill : juce::Colours::black;
+                    tp.fontSize = paint.fontSize;
 
-                // Text anchor -> Justification
-                auto anchor = el.getStringAttribute ("text-anchor");
+                    // Text anchor -> Justification
+                    auto anchor { el.getStringAttribute ("text-anchor") };
 
-                if (anchor.isEmpty())
-                    anchor = child->getStringAttribute ("text-anchor");
+                    if (anchor.isEmpty())
+                        anchor = child->getStringAttribute ("text-anchor");
 
-                if      (anchor == "middle") tp.justification = juce::Justification::centred;
-                else if (anchor == "end")    tp.justification = juce::Justification::right;
-                else                         tp.justification = juce::Justification::left;
+                    if      (anchor == "middle") tp.justification = juce::Justification::centred;
+                    else if (anchor == "end")    tp.justification = juce::Justification::right;
+                    else                         tp.justification = juce::Justification::left;
 
-                // Position: centre the bounds on (tx, y + accumulatedDY)
-                const float estW = tContent.length() * paint.fontSize * 0.6f;
-                const float posX = tx;
-                const float posY = y + accumulatedDY;
+                    // Position: centre the bounds on (tx, y + accumulatedDY)
+                    const float estW { tContent.length() * paint.fontSize * kCharWidthEstimate };
+                    const float posX { tx };
+                    const float posY { y + accumulatedDY };
 
-                const juce::Point<float> topleft  = juce::Point<float> (posX - estW * 0.5f, posY - paint.fontSize).transformedBy (xf);
-                const juce::Point<float> botright = juce::Point<float> (posX + estW * 0.5f, posY).transformedBy (xf);
-                tp.bounds = juce::Rectangle<float> (topleft.x, topleft.y,
-                                                    botright.x - topleft.x,
-                                                    botright.y - topleft.y);
+                    const juce::Point<float> topleft  { juce::Point<float> (posX - estW * 0.5f, posY - paint.fontSize).transformedBy (xf) };
+                    const juce::Point<float> botright { juce::Point<float> (posX + estW * 0.5f, posY).transformedBy (xf) };
+                    tp.bounds = juce::Rectangle<float> (topleft.x, topleft.y,
+                                                        botright.x - topleft.x,
+                                                        botright.y - topleft.y);
 
-                texts.push_back (std::move (tp));
+                    texts.push_back (std::move (tp));
+                }
             }
         }
 
         if (not hasTspans)
         {
-            const auto tContent = el.getAllSubText().trim();
+            const auto tContent { el.getAllSubText().trim() };
 
             if (tContent.isNotEmpty())
             {
@@ -989,15 +1021,15 @@ private:
                 tp.colour   = paint.hasFill ? paint.fill : juce::Colours::black;
                 tp.fontSize = paint.fontSize;
 
-                const auto anchor = el.getStringAttribute ("text-anchor");
+                const auto anchor { el.getStringAttribute ("text-anchor") };
 
                 if      (anchor == "middle") tp.justification = juce::Justification::centred;
                 else if (anchor == "end")    tp.justification = juce::Justification::right;
                 else                         tp.justification = juce::Justification::left;
 
-                const float estW = tContent.length() * paint.fontSize * 0.6f;
-                const juce::Point<float> topleft  = juce::Point<float> (x - estW * 0.5f, y - paint.fontSize).transformedBy (xf);
-                const juce::Point<float> botright = juce::Point<float> (x + estW * 0.5f, y).transformedBy (xf);
+                const float estW { tContent.length() * paint.fontSize * kCharWidthEstimate };
+                const juce::Point<float> topleft  { juce::Point<float> (x - estW * 0.5f, y - paint.fontSize).transformedBy (xf) };
+                const juce::Point<float> botright { juce::Point<float> (x + estW * 0.5f, y).transformedBy (xf) };
                 tp.bounds = juce::Rectangle<float> (topleft.x, topleft.y,
                                                     botright.x - topleft.x,
                                                     botright.y - topleft.y);
@@ -1027,7 +1059,7 @@ private:
                               std::vector<SVGTextPrimitive>& texts)
     {
         std::vector<StackFrame> stack;
-        stack.reserve (64);
+        stack.reserve (kStackReserveSize);
 
         // Seed with children of root svg element
         // Push in reverse order so first child is processed first
@@ -1041,7 +1073,7 @@ private:
                 children.push_back (child);
 
             for (int i { (int) children.size() - 1 }; i >= 0; --i)
-                stack.push_back ({ children[(size_t) i], xf, pstate });
+                stack.push_back ({ children.at ((size_t) i), xf, pstate });
         };
 
         pushChildren (root, rootTransform, rootPaint);
@@ -1051,117 +1083,119 @@ private:
             auto [el, xf, ps] = stack.back();
             stack.pop_back();
 
-            const auto tag = el->getTagName().toLowerCase();
+            const auto tag { el->getTagName().toLowerCase() };
 
-            // Skip non-rendering elements
-            if (tag == "defs" or tag == "style" or tag == "marker" or
-                tag == "symbol" or tag == "foreignobject" or tag == "title" or
-                tag == "desc" or tag == "clippath" or tag == "filter")
-                continue;
+            // Non-rendering elements: skip; groups/svg: push children; text: build primitive;
+            // shape elements: build path + primitive; unknown: ignore
+            const bool isNonRendering { tag == "defs" or tag == "style" or tag == "marker" or
+                                        tag == "symbol" or tag == "foreignobject" or tag == "title" or
+                                        tag == "desc" or tag == "clippath" or tag == "filter" };
 
-            // Accumulate transform for this element
-            juce::AffineTransform elXF = xf;
-            const auto transformAttr = el->getStringAttribute ("transform");
-
-            if (transformAttr.isNotEmpty())
-                elXF = xf.followedBy (parseTransform (transformAttr));
-
-            // <g> — just inherit paint and push children
-            if (tag == "g" or tag == "svg")
+            if (not isNonRendering)
             {
-                const auto groupPaint = resolveElementPaint (*el, ps, classStyles);
-                pushChildren (*el, elXF, groupPaint);
-                continue;
-            }
+                // Accumulate transform for this element
+                juce::AffineTransform elXF { xf };
+                const auto transformAttr { el->getStringAttribute ("transform") };
 
-            // <text> — build text primitive
-            if (tag == "text")
-            {
-                buildTextPrimitive (*el, elXF, ps, classStyles, texts);
-                continue;
-            }
+                if (transformAttr.isNotEmpty())
+                    elXF = xf.followedBy (parseTransform (transformAttr));
 
-            // Shape elements — resolve paint and build path
-            const auto paint = resolveElementPaint (*el, ps, classStyles);
-
-            juce::Path path;
-            if      (tag == "path")     path = pathFromSVGPath  (*el, elXF);
-            else if (tag == "rect")     path = pathFromRect     (*el, elXF);
-            else if (tag == "circle")   path = pathFromCircle   (*el, elXF);
-            else if (tag == "ellipse")  path = pathFromEllipse  (*el, elXF);
-            else if (tag == "line")     path = pathFromLine     (*el, elXF);
-            else if (tag == "polygon")  path = pathFromPolygon  (*el, elXF);
-            else if (tag == "polyline") path = pathFromPolyline (*el, elXF);
-            else continue;  // unknown tag
-
-            if (path.isEmpty()) continue;
-
-            SVGPrimitive prim;
-            prim.path         = std::move (path);
-            prim.fillColour   = paint.fill;
-            prim.strokeColour = paint.stroke;
-            prim.strokeWidth  = paint.strokeWidth;
-            prim.hasFill      = paint.hasFill;
-            prim.hasStroke    = paint.hasStroke;
-            primitives.push_back (std::move (prim));
-
-            // --- Marker resolution ---
-            // marker-end
-            const auto markerEnd = el->getStringAttribute ("marker-end");
-
-            if (markerEnd.isNotEmpty())
-            {
-                const auto markerId = extractMarkerRef (markerEnd);
-                const auto it = markers.find (markerId.toStdString());
-
-                if (it != markers.end())
+                if (tag == "g" or tag == "svg")
                 {
-                    const auto endInfo = getPathEnd (primitives.back().path);
-
-                    if (endInfo.valid)
-                    {
-                        const auto markerPaint = resolveElementPaint (*it->second, paint, classStyles);
-                        const auto markerPath  = stampMarker (*it->second, endInfo.endpoint, endInfo.tangentAngle);
-
-                        if (not markerPath.isEmpty())
-                        {
-                            SVGPrimitive mp;
-                            mp.path         = std::move (markerPath);
-                            mp.fillColour   = markerPaint.hasFill ? markerPaint.fill : paint.stroke;
-                            mp.strokeColour = markerPaint.stroke;
-                            mp.strokeWidth  = markerPaint.strokeWidth;
-                            mp.hasFill      = true;  // arrowheads are always filled
-                            mp.hasStroke    = markerPaint.hasStroke;
-                            primitives.push_back (std::move (mp));
-                        }
-                    }
+                    // <g> — just inherit paint and push children
+                    const auto groupPaint { resolveElementPaint (*el, ps, classStyles) };
+                    pushChildren (*el, elXF, groupPaint);
                 }
-            }
-
-            // marker-start
-            const auto markerStart = el->getStringAttribute ("marker-start");
-
-            if (markerStart.isNotEmpty())
-            {
-                const auto markerId = extractMarkerRef (markerStart);
-                const auto it = markers.find (markerId.toStdString());
-
-                if (it != markers.end())
+                else if (tag == "text")
                 {
-                    const auto startInfo = getPathStart (primitives.back().path);
+                    // <text> — build text primitive
+                    buildTextPrimitive (*el, elXF, ps, classStyles, texts);
+                }
+                else
+                {
+                    // Shape elements — resolve paint and build path
+                    const auto paint { resolveElementPaint (*el, ps, classStyles) };
 
-                    if (startInfo.valid)
+                    juce::Path path;
+                    if      (tag == "path")     path = pathFromSVGPath  (*el, elXF);
+                    else if (tag == "rect")     path = pathFromRect     (*el, elXF);
+                    else if (tag == "circle")   path = pathFromCircle   (*el, elXF);
+                    else if (tag == "ellipse")  path = pathFromEllipse  (*el, elXF);
+                    else if (tag == "line")     path = pathFromLine     (*el, elXF);
+                    else if (tag == "polygon")  path = pathFromPolygon  (*el, elXF);
+                    else if (tag == "polyline") path = pathFromPolyline (*el, elXF);
+
+                    if (not path.isEmpty())
                     {
-                        const auto markerPath = stampMarker (*it->second, startInfo.endpoint, startInfo.tangentAngle);
+                        SVGPrimitive prim;
+                        prim.path         = std::move (path);
+                        prim.fillColour   = paint.fill;
+                        prim.strokeColour = paint.stroke;
+                        prim.strokeWidth  = paint.strokeWidth;
+                        prim.hasFill      = paint.hasFill;
+                        prim.hasStroke    = paint.hasStroke;
+                        primitives.push_back (std::move (prim));
 
-                        if (not markerPath.isEmpty())
+                        // --- Marker resolution ---
+                        // marker-end
+                        const auto markerEnd { el->getStringAttribute ("marker-end") };
+
+                        if (markerEnd.isNotEmpty())
                         {
-                            SVGPrimitive mp;
-                            mp.path       = std::move (markerPath);
-                            mp.fillColour = paint.stroke;
-                            mp.hasFill    = true;
-                            mp.hasStroke  = false;
-                            primitives.push_back (std::move (mp));
+                            const auto markerId { extractMarkerRef (markerEnd) };
+                            const auto it { markers.find (markerId.toStdString()) };
+
+                            if (it != markers.end())
+                            {
+                                const auto endInfo { getPathEnd (primitives.back().path) };
+
+                                if (endInfo.valid)
+                                {
+                                    const auto markerPaint { resolveElementPaint (*it->second, paint, classStyles) };
+                                    const auto markerPath  { stampMarker (*it->second, endInfo.endpoint, endInfo.tangentAngle) };
+
+                                    if (not markerPath.isEmpty())
+                                    {
+                                        SVGPrimitive mp;
+                                        mp.path         = std::move (markerPath);
+                                        mp.fillColour   = markerPaint.hasFill ? markerPaint.fill : paint.stroke;
+                                        mp.strokeColour = markerPaint.stroke;
+                                        mp.strokeWidth  = markerPaint.strokeWidth;
+                                        mp.hasFill      = true;  // arrowheads are always filled
+                                        mp.hasStroke    = markerPaint.hasStroke;
+                                        primitives.push_back (std::move (mp));
+                                    }
+                                }
+                            }
+                        }
+
+                        // marker-start
+                        const auto markerStart { el->getStringAttribute ("marker-start") };
+
+                        if (markerStart.isNotEmpty())
+                        {
+                            const auto markerId { extractMarkerRef (markerStart) };
+                            const auto it { markers.find (markerId.toStdString()) };
+
+                            if (it != markers.end())
+                            {
+                                const auto startInfo { getPathStart (primitives.back().path) };
+
+                                if (startInfo.valid)
+                                {
+                                    const auto markerPath { stampMarker (*it->second, startInfo.endpoint, startInfo.tangentAngle) };
+
+                                    if (not markerPath.isEmpty())
+                                    {
+                                        SVGPrimitive mp;
+                                        mp.path       = std::move (markerPath);
+                                        mp.fillColour = paint.stroke;
+                                        mp.hasFill    = true;
+                                        mp.hasStroke  = false;
+                                        primitives.push_back (std::move (mp));
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1180,8 +1214,17 @@ private:
                      .trim();
     }
 
+    //==========================================================================
+    // --- Constants -----------------------------------------------------------
+
+    // Estimated character width ratio relative to font size (used for text bounds)
+    static constexpr float kCharWidthEstimate { 0.6f };
+
+    // Initial stack reservation for iterative tree walk
+    static constexpr int kStackReserveSize { 64 };
+
     JUCE_DECLARE_NON_COPYABLE (MermaidSVGParser)
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

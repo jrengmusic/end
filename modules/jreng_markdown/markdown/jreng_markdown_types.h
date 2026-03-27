@@ -66,6 +66,11 @@ struct InlineSpan
     InlineStyle style;  ///< Bitmask: Bold | Italic | Code | Link
     int uriOffset;      ///< Into ParsedDocument::text (0 if not a link)
     int uriLength;
+
+    // Resolved style (filled by Parser when StyleConfig is provided)
+    float fontSize;      ///< Resolved point height
+    juce::Colour colour; ///< Resolved text colour
+    uint8_t fontFamily;  ///< 0 = body, 1 = code
 };
 
 // ============================================================================
@@ -82,6 +87,10 @@ struct Block
     int spanOffset;       ///< Index into ParsedDocument::spans
     int spanCount;
     int level;            ///< Heading level 1-6, 0 for non-headings
+
+    // Resolved style (filled by Parser when StyleConfig is provided)
+    float fontSize;      ///< Resolved from heading level
+    juce::Colour colour; ///< Resolved heading/body colour
 };
 
 static_assert (std::is_trivially_copyable_v<Block>,      "Block must be trivially copyable");

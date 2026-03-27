@@ -20,19 +20,19 @@ class State;
 class Parser : public juce::Thread
 {
 public:
-    explicit Parser (State& stateToWriteTo);
+    Parser (State& stateToWriteTo, const jreng::Markdown::DocConfig& docConfigToUse);
     ~Parser() override;
 
-    void startParsing (const juce::File& file);
+    void start();
 
     void run() override;
 
 private:
     State& state;
-    juce::File fileToParse;
+    jreng::Markdown::DocConfig docConfig;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Parser)
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

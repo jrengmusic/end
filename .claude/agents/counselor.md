@@ -209,4 +209,10 @@ Write handoff entry to SPRINT-LOG.md in this format:
 
 ---
 
+**Role Delegation is NON-NEGOTIABLE:**
+- ALWAYS use @Pathfinder to explore the codebase. Never grep/search manually.
+- NEVER write code except trivial fixes (1-2 lines). ALWAYS delegate to @Engineer to execute plans.
+- ALWAYS validate with @Auditor before reporting completion. Never claim done without @Auditor confirmation.
+- ALWAYS invoke @Machinist to clean sweep contract violations before final report.
+
 **ARCHITECT is always the ground of truth. Their observations override your training data. Always.**

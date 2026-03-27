@@ -1,10 +1,11 @@
 #pragma once
 #include <JuceHeader.h>
+#include "Block.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-class CodeBlock : public juce::Component
+class CodeBlock : public Block
 {
 public:
     CodeBlock (const juce::String& code, const juce::String& language);
@@ -13,9 +14,11 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
 
-    int getPreferredHeight() const noexcept;
+    int getPreferredHeight() const noexcept override;
 
 private:
+    static constexpr int kVerticalPadding { 8 };
+
     juce::CodeDocument document;
     std::unique_ptr<juce::CodeTokeniser> tokeniser;
     std::unique_ptr<juce::CodeEditorComponent> editor;
@@ -26,4 +29,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

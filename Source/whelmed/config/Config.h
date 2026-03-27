@@ -43,6 +43,10 @@ struct Config : jreng::Context<Config>
         inline static const juce::String h5Colour            { "h5_colour" };
         inline static const juce::String h6Colour            { "h6_colour" };
         inline static const juce::String codeFenceBackground { "code_fence_background" };
+        inline static const juce::String progressBackground   { "progress_background" };
+        inline static const juce::String progressForeground   { "progress_foreground" };
+        inline static const juce::String progressTextColour   { "progress_text_colour" };
+        inline static const juce::String progressSpinnerColour { "progress_spinner_colour" };
 
         inline static const juce::String paddingTop    { "padding_top" };
         inline static const juce::String paddingRight  { "padding_right" };
@@ -60,6 +64,12 @@ struct Config : jreng::Context<Config>
         inline static const juce::String tokenBracket      { "token_bracket" };
         inline static const juce::String tokenPunctuation  { "token_punctuation" };
         inline static const juce::String tokenPreprocessor { "token_preprocessor" };
+
+        inline static const juce::String scrollDown   { "scrollDown" };
+        inline static const juce::String scrollUp     { "scrollUp" };
+        inline static const juce::String scrollTop    { "scrollTop" };
+        inline static const juce::String scrollBottom { "scrollBottom" };
+        inline static const juce::String scrollStep   { "scrollStep" };
     };
 
     juce::String getString (const juce::String& key) const;

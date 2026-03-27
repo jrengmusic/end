@@ -20,6 +20,12 @@ WHELMED = {
 
     padding = { %%padding_top%%, %%padding_right%%, %%padding_bottom%%, %%padding_left%% },
 
+    -- progress bar colours (RRGGBBAA hex strings)
+    progress_background     = "%%progress_background%%",     -- bar background
+    progress_foreground     = "%%progress_foreground%%",     -- bar fill
+    progress_text_colour    = "%%progress_text_colour%%",    -- progress label
+    progress_spinner_colour = "%%progress_spinner_colour%%", -- braille spinner
+
     -- token colours (RRGGBBAA hex strings)
     token_error        = "%%token_error%%",        -- error tokens
     token_comment      = "%%token_comment%%",      -- comments

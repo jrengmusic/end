@@ -16,36 +16,36 @@ void MermaidBlock::setParseResult (MermaidParseResult&& result)
 
 void MermaidBlock::paint (juce::Graphics& g)
 {
-    if (not parseResult.ok)
-        return;
-
-    g.saveState();
-    g.addTransform (juce::AffineTransform::translation (offsetX, offsetY)
-                        .followedBy (juce::AffineTransform::scale (scale)));
-
-    for (const auto& prim : parseResult.primitives)
+    if (parseResult.ok)
     {
-        if (prim.hasFill)
+        g.saveState();
+        g.addTransform (juce::AffineTransform::translation (offsetX, offsetY)
+                            .followedBy (juce::AffineTransform::scale (scale)));
+
+        for (const auto& prim : parseResult.primitives)
         {
-            g.setColour (prim.fillColour);
-            g.fillPath (prim.path);
+            if (prim.hasFill)
+            {
+                g.setColour (prim.fillColour);
+                g.fillPath (prim.path);
+            }
+
+            if (prim.hasStroke)
+            {
+                g.setColour (prim.strokeColour);
+                g.strokePath (prim.path, juce::PathStrokeType (prim.strokeWidth));
+            }
         }
 
-        if (prim.hasStroke)
+        for (const auto& text : parseResult.texts)
         {
-            g.setColour (prim.strokeColour);
-            g.strokePath (prim.path, juce::PathStrokeType (prim.strokeWidth));
+            g.setColour (text.colour);
+            g.setFont (text.fontSize);
+            g.drawText (text.text, text.bounds, text.justification, true);
         }
-    }
 
-    for (const auto& text : parseResult.texts)
-    {
-        g.setColour (text.colour);
-        g.setFont (text.fontSize);
-        g.drawText (text.text, text.bounds, text.justification, true);
+        g.restoreState();
     }
-
-    g.restoreState();
 }
 
 void MermaidBlock::resized()
@@ -69,4 +69,4 @@ int MermaidBlock::getPreferredHeight() const noexcept
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

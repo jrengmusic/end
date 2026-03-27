@@ -70,6 +70,10 @@ void Whelmed::Config::initKeys()
     addKey (Key::h5Colour, juce::String ("CCCCCCFF"), { T::string });
     addKey (Key::h6Colour, juce::String ("CCCCCCFF"), { T::string });
     addKey (Key::codeFenceBackground, juce::String ("1A1A1AFF"), { T::string });
+    addKey (Key::progressBackground,    juce::String ("1A1A1AFF"), { T::string });
+    addKey (Key::progressForeground,    juce::String ("4488CCFF"), { T::string });
+    addKey (Key::progressTextColour,    juce::String ("CCCCCCFF"), { T::string });
+    addKey (Key::progressSpinnerColour, juce::String ("4488CCFF"), { T::string });
 
     addKey (Key::paddingTop, 10.0, { T::number, 0.0, 200.0, true });
     addKey (Key::paddingRight, 10.0, { T::number, 0.0, 200.0, true });
@@ -87,6 +91,12 @@ void Whelmed::Config::initKeys()
     addKey (Key::tokenBracket,      juce::String ("D4D4D4FF"), { T::string });
     addKey (Key::tokenPunctuation,  juce::String ("D4D4D4FF"), { T::string });
     addKey (Key::tokenPreprocessor, juce::String ("C586C0FF"), { T::string });
+
+    addKey (Key::scrollDown,   juce::String ("j"),  { T::string });
+    addKey (Key::scrollUp,     juce::String ("k"),  { T::string });
+    addKey (Key::scrollTop,    juce::String ("gg"), { T::string });
+    addKey (Key::scrollBottom, juce::String ("G"),  { T::string });
+    addKey (Key::scrollStep,   50.0,                { T::number, 1.0, 2000.0, true });
 }
 
 //==============================================================================
@@ -234,11 +244,10 @@ static void loadPadding (const sol::table& arr,
         if (v)
         {
             const auto& spec { schema.at (*paddingKeys.at (i)) };
+            const bool inRange { not spec.hasRange or (*v >= spec.minValue and *v <= spec.maxValue) };
 
-            if (spec.hasRange and (*v < spec.minValue or *v > spec.maxValue))
-                continue;
-
-            values.insert_or_assign (*paddingKeys.at (i), *v);
+            if (inRange)
+                values.insert_or_assign (*paddingKeys.at (i), *v);
         }
     }
 }
