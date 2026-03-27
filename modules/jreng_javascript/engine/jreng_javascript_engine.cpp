@@ -31,10 +31,7 @@ struct JavaScriptEngine::Impl : private juce::WebBrowserComponent
 
         evaluateJavascript (code, [callback] (const WebBrowserComponent::EvaluationResult& result)
         {
-            auto* r { result.getResult() };
-            jassert (r != nullptr);
-
-            if (r != nullptr)
+            if (auto* r { result.getResult() })
                 callback (r->toString());
         });
     }

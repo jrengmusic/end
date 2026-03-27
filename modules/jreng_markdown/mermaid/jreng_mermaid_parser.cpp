@@ -36,8 +36,6 @@ void Parser::onReady (std::function<void()> callback)
 void Parser::convertToSVG (const juce::String& mermaidCode,
                             std::function<void (const juce::String&)> onResult)
 {
-    jassert (isMermaidReady);
-
     const auto escaped { mermaidCode.replace ("\\", "\\\\")
                                     .replace ("\"", "\\\"")
                                     .replace ("\n", "\\n")

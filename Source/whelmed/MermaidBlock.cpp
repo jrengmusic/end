@@ -3,24 +3,47 @@
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-MermaidBlock::MermaidBlock()
-{
-    setOpaque (false);
-}
+MermaidBlock::MermaidBlock() = default;
 
 void MermaidBlock::setParseResult (MermaidParseResult&& result)
 {
     parseResult = std::move (result);
-    repaint();
 }
 
-void MermaidBlock::paint (juce::Graphics& g)
+bool MermaidBlock::hasResult() const noexcept
 {
-    if (parseResult.ok)
+    return parseResult.ok;
+}
+
+int MermaidBlock::getPreferredHeight (int width) const noexcept
+{
+    int height { kPlaceholderHeight };
+
+    if (parseResult.ok and parseResult.viewBox.getWidth() > 0.0f and width > 0)
     {
+        const float vbWidth  { parseResult.viewBox.getWidth() };
+        const float vbHeight { parseResult.viewBox.getHeight() };
+        const float scale    { static_cast<float> (width) / vbWidth };
+        height = juce::jmax (1, static_cast<int> (std::ceil (vbHeight * scale)));
+    }
+
+    return height;
+}
+
+void MermaidBlock::paint (juce::Graphics& g, juce::Rectangle<int> area) const
+{
+    if (parseResult.ok and parseResult.viewBox.getWidth() > 0.0f)
+    {
+        const float vbWidth { parseResult.viewBox.getWidth() };
+        const float scale   { static_cast<float> (area.getWidth()) / vbWidth };
+
         g.saveState();
-        g.addTransform (juce::AffineTransform::translation (offsetX, offsetY)
-                            .followedBy (juce::AffineTransform::scale (scale)));
+        g.addTransform (juce::AffineTransform::translation (-parseResult.viewBox.getX(),
+                                                              -parseResult.viewBox.getY())
+                            .followedBy (juce::AffineTransform::scale (scale))
+                            .followedBy (juce::AffineTransform::translation (
+                                static_cast<float> (area.getX()),
+                                static_cast<float> (area.getY()))));
 
         for (const auto& prim : parseResult.primitives)
         {
@@ -46,26 +69,6 @@ void MermaidBlock::paint (juce::Graphics& g)
 
         g.restoreState();
     }
-}
-
-void MermaidBlock::resized()
-{
-    if (parseResult.ok and parseResult.viewBox.getWidth() > 0.0f)
-    {
-        float vbWidth  { parseResult.viewBox.getWidth() };
-        float vbHeight { parseResult.viewBox.getHeight() };
-
-        scale = static_cast<float> (getWidth()) / vbWidth;
-        offsetX = -parseResult.viewBox.getX() * scale;
-        offsetY = -parseResult.viewBox.getY() * scale;
-
-        preferredHeight = juce::jmax (1, static_cast<int> (std::ceil (vbHeight * scale)));
-    }
-}
-
-int MermaidBlock::getPreferredHeight() const noexcept
-{
-    return preferredHeight;
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/

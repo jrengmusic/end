@@ -11,6 +11,8 @@ public:
     void convertToSVG (const juce::String& mermaidCode,
                        std::function<void (const juce::String&)> onResult);
 
+    juce::Component* getView() noexcept { return engine.getView(); }
+
 private:
     jreng::JavaScriptEngine engine;
     bool isMermaidReady { false };

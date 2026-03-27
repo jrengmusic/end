@@ -23,18 +23,15 @@ public:
     MermaidBlock();
 
     void setParseResult (MermaidParseResult&& result);
+    bool hasResult() const noexcept;
 
-    void paint (juce::Graphics& g) override;
-    void resized() override;
-
-    int getPreferredHeight() const noexcept override;
+    int getPreferredHeight (int width) const noexcept override;
+    void paint (juce::Graphics& g, juce::Rectangle<int> area) const override;
 
 private:
+    static constexpr int kPlaceholderHeight { 200 };
+
     MermaidParseResult parseResult;
-    int preferredHeight { 0 };
-    float scale { 1.0f };
-    float offsetX { 0.0f };
-    float offsetY { 0.0f };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MermaidBlock)
 };

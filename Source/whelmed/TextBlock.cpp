@@ -3,45 +3,38 @@
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-TextBlock::TextBlock()
+TextBlock::TextBlock (juce::AttributedString attributedText,
+                      juce::Colour background)
+    : source (std::move (attributedText))
+    , backgroundColour (background)
 {
-    editor.setMultiLine (true, true);
-    editor.setReadOnly (true);
-    editor.setScrollbarsShown (false);
-    editor.setCaretVisible (false);
-    editor.setColour (juce::TextEditor::backgroundColourId, juce::Colours::transparentBlack);
-    editor.setColour (juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
-    editor.setColour (juce::TextEditor::focusedOutlineColourId, juce::Colours::transparentBlack);
-    editor.setOpaque (false);
-    editor.setBorder (juce::BorderSize<int> (0, 0, 0, 0));
-    editor.setIndents (0, 0);
-    addAndMakeVisible (editor);
 }
 
-void TextBlock::clear() noexcept
+int TextBlock::getPreferredHeight (int /*width*/) const noexcept
 {
-    editor.clear();
-    preferredHeight = 0;
+    return cachedHeight;
 }
 
-void TextBlock::appendStyledText (const juce::String& text,
-                                   const juce::FontOptions& fontOptions,
-                                   juce::Colour colour)
+void TextBlock::paint (juce::Graphics& g, juce::Rectangle<int> area) const
 {
-    editor.setFont (fontOptions);
-    editor.setColour (juce::TextEditor::textColourId, colour);
-    editor.insertTextAtCaret (text);
+    if (backgroundColour != juce::Colours::transparentBlack)
+    {
+        g.setColour (backgroundColour);
+        g.fillRect (area);
+    }
+
+    textLayout.draw (g, area.toFloat());
 }
 
-void TextBlock::resized()
+void TextBlock::layout (int width)
 {
-    editor.setBounds (getLocalBounds());
-    preferredHeight = editor.getTextHeight();
-}
-
-int TextBlock::getPreferredHeight() const noexcept
-{
-    return preferredHeight;
+    if (width != cachedWidth and width > 0)
+    {
+        textLayout = juce::TextLayout();
+        textLayout.createLayout (source, static_cast<float> (width));
+        cachedHeight = juce::jmax (1, static_cast<int> (std::ceil (textLayout.getHeight())));
+        cachedWidth = width;
+    }
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/

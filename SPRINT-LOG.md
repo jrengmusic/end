@@ -2,6 +2,106 @@
 
 ---
 
+## Handoff to COUNSELOR: Whelmed Phase 2 — Mermaid Rendering + Remaining Issues
+
+**From:** COUNSELOR
+**Date:** 2026-03-27
+
+### Current State
+
+Sprint 129 in progress. Incremental block styling, progress bar, vim navigation, DocConfig all implemented. Mermaid rendering partially wired — engine loads, `onReady` registered, `convertToSVG` called, but blocks render at zero height.
+
+### What Works
+- State: adaptive timer (120Hz/60Hz), identical to Terminal::State pattern
+- Parser: synchronous parse in `openFile`, background style resolution per block
+- Component: immediate component creation by type, incremental styling via ValueTree listener (one block per tick)
+- SpinnerOverlay: thin bottom progress bar, event-driven (no timer), 4 configurable colours from DocConfig
+- Block base class: `virtual getPreferredHeight()`, single `Owner<Block>`, `dynamic_cast` in layout
+- DocConfig: renamed from FontConfig, pre-resolved styles on background thread (trivially copyable)
+- Vim navigation: j/k/gg/G with configurable keybindings and prefix state
+- `parseComplete` uses `exchange(false, acquire)` — one-shot, matches Terminal::State
+- WebView-based JS engine works without being in the component hierarchy — proven, tested, fact
+
+### What's Broken
+
+**P0 — MermaidBlock renders at zero height**
+
+Root cause: `setParseResult` is called from async `onReady`/`convertToSVG` callback AFTER the layout pass. `preferredHeight` is calculated in `resized()` which requires `parseResult.ok`. At initial layout, `parseResult.ok` is false → `preferredHeight = 0` → block invisible.
+
+`setParseResult` calls `repaint()` but not `resized()`. Even if it recalculated height internally, nobody calls `updateLayout()` on the parent Component to give the block new bounds.
+
+Fix needed: when `setParseResult` is called, MermaidBlock needs to signal the parent to re-layout. Options:
+- MermaidBlock calls `resized()` on itself (recalculates preferred height from viewBox), then signals parent via callback
+- Parent re-runs `updateLayout()` after all mermaid convertToSVG callbacks complete
+- Use a `std::function<void()> onContentReady` callback on MermaidBlock that parent sets
+
+Files: `Source/whelmed/MermaidBlock.cpp:11-15` (`setParseResult`), `Source/whelmed/MermaidBlock.cpp:51-64` (`resized`), `Source/whelmed/Component.cpp` (`onReady` callback, `updateLayout`)
+
+**P1 — onReady timing**
+
+`onReady` is registered in Component constructor. If the engine loads before `openFile` is called, `totalBlocks = 0` and the callback loop does nothing. Callback slot is consumed and nulled. When `openFile` is called later, no callback registered.
+
+If engine loads AFTER `openFile`, it works — `totalBlocks > 0`, mermaid blocks exist.
+
+Fix: re-register `onReady` in `openFile` to handle both timing cases. `onReady` fires immediately if engine already ready.
+
+Files: `Source/whelmed/Component.cpp:16-38` (constructor `onReady`), `Source/whelmed/Component.cpp:145-206` (`openFile`)
+
+**P2 — SpinnerOverlay not showing (unconfirmed)**
+
+Spinner is `addAndMakeVisible` in constructor. Shows in `openFile`. Hides when `blockCount >= totalBlocks`. May still not be visible due to z-order or bounds timing. Needs ARCHITECT confirmation.
+
+### Remaining Technical Debt (from Sprint 128/129)
+
+- **TableBlock runtime untested** — table detection wired but rendering not validated
+- **MermaidSVGParser.h contract violations** — pervasive `=` initialization, some `continue`/`break` patterns. Large refactor deferred.
+- **applyConfig for CodeBlock/MermaidBlock/TableBlock** — only TextBlock is restyled on config reload
+- **PLAN-WHELMED.md outdated** — does not reflect Sprint 128/129 changes
+
+### Files Modified This Sprint (Sprint 129)
+```
+Source/AppIdentifier.h
+Source/whelmed/Block.h (NEW)
+Source/whelmed/CodeBlock.h
+Source/whelmed/CodeBlock.cpp
+Source/whelmed/Component.h
+Source/whelmed/Component.cpp
+Source/whelmed/MermaidBlock.h
+Source/whelmed/MermaidBlock.cpp
+Source/whelmed/MermaidSVGParser.h
+Source/whelmed/Parser.h
+Source/whelmed/Parser.cpp
+Source/whelmed/SpinnerOverlay.h
+Source/whelmed/State.h
+Source/whelmed/State.cpp
+Source/whelmed/TableBlock.h
+Source/whelmed/TableBlock.cpp
+Source/whelmed/TextBlock.h
+Source/whelmed/TextBlock.cpp
+Source/whelmed/config/Config.h
+Source/whelmed/config/Config.cpp
+Source/whelmed/config/default_whelmed.lua
+modules/jreng_markdown/markdown/jreng_markdown_parser.h
+modules/jreng_markdown/markdown/jreng_markdown_types.h
+modules/jreng_markdown/mermaid/jreng_mermaid_parser.h
+modules/jreng_markdown/mermaid/jreng_mermaid_parser.cpp
+```
+
+### ARCHITECT Adjudications (Binding)
+- WebView works without component hierarchy — fact, proven, tested
+- `dynamic_cast` over `static_cast` — explicit, always correct, negligible overhead
+- `parseComplete` uses `exchange(false, acquire)` — one-shot
+- No state shadowing — derive from existing state
+- `jassert(isMermaidReady)` in convertToSVG — removed, garbage defensive programming
+- `jassert(isReady)` in engine evaluate — removed, garbage defensive programming
+- DocConfig carries colours, not just fonts
+- Progress bar has 4 separate configurable colours
+- Spinner is event-driven, no timer
+- State owns timer, Component never calls flush
+- Parser renamed: `startParsing` → `start`, `FontConfig` → `DocConfig`
+
+---
+
 ## Sprint 129: Whelmed Phase 2 — Incremental Styling, Progress Bar, Vim Navigation
 
 **Date:** 2026-03-27

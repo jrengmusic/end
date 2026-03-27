@@ -8,129 +8,50 @@ TableBlock::TableBlock (juce::Font bodyFont)
     : font       (bodyFont),
       headerFont (bodyFont.withStyle (juce::Font::bold))
 {
-    setOpaque (true);
-    setWantsKeyboardFocus (true);
 }
 
 //==============================================================================
 void TableBlock::setTableMarkdown (const juce::String& markdown)
 {
     parseMarkdown (markdown);
-
-    if (getWidth() > 0)
-        measureLayout (getWidth());
-}
-
-int TableBlock::getPreferredHeight() const noexcept
-{
-    return layout.totalHeight;
-}
-
-int TableBlock::getPreferredHeight (int forWidth) const
-{
-    int result { 0 };
-
-    if (not table.isEmpty() and forWidth > 0)
-    {
-        const auto colWidths { distributeColumns (forWidth) };
-
-        int h { measureHeaderHeight (forWidth, colWidths) };
-
-        for (int r { 0 }; r < table.rows.size(); ++r)
-            h += measureRowHeight (r, forWidth, colWidths);
-
-        // borders: top + bottom + header-bottom + one per data row
-        h += kBorderWidth * (2 + 1 + table.rows.size());
-
-        result = h;
-    }
-
-    return result;
 }
 
 void TableBlock::setColourScheme (const ColourScheme& scheme)
 {
     colours = scheme;
-    repaint();
+}
+
+void TableBlock::layout (int width)
+{
+    if (width != lastMeasuredWidth and width > 0)
+    {
+        measureLayout (width);
+        lastMeasuredWidth = width;
+    }
+}
+
+int TableBlock::getPreferredHeight (int /*width*/) const noexcept
+{
+    return layoutCache.totalHeight;
 }
 
 //==============================================================================
-void TableBlock::paint (juce::Graphics& g)
+void TableBlock::paint (juce::Graphics& g, juce::Rectangle<int> area) const
 {
-    if (layout.isValid())
+    if (layoutCache.isValid())
     {
-        g.fillAll (colours.background);
+        g.saveState();
+        g.setOrigin (area.getX(), area.getY());
 
-        paintRows      (g);
-        paintHeader    (g);
-        paintSelection (g);
-        paintBorders   (g);
+        g.setColour (colours.background);
+        g.fillRect (0, 0, layoutCache.measuredWidth, layoutCache.totalHeight);
+
+        paintRows   (g);
+        paintHeader (g);
+        paintBorders (g);
+
+        g.restoreState();
     }
-}
-
-void TableBlock::resized()
-{
-    const int w { getWidth() };
-
-    if (w != lastMeasuredWidth and w > 0)
-    {
-        measureLayout (w);
-        lastMeasuredWidth = w;
-    }
-}
-
-//==============================================================================
-void TableBlock::mouseDown (const juce::MouseEvent& e)
-{
-    const auto pos { cellAtPoint (e.getPosition()) };
-
-    if (pos.isValid())
-    {
-        selection.anchor = pos;
-        selection.pivot  = pos;
-        isDragging       = true;
-    }
-    else
-    {
-        selection = {};
-    }
-
-    repaint();
-}
-
-void TableBlock::mouseDrag (const juce::MouseEvent& e)
-{
-    if (isDragging)
-    {
-        const auto pos { cellAtPoint (e.getPosition()) };
-
-        if (pos.isValid())
-        {
-            selection.pivot = pos;
-            repaint();
-        }
-    }
-}
-
-void TableBlock::mouseUp (const juce::MouseEvent&)
-{
-    isDragging = false;
-}
-
-bool TableBlock::keyPressed (const juce::KeyPress& key)
-{
-    const bool isCopy { key == juce::KeyPress ('c', juce::ModifierKeys::commandModifier, 0)
-                     or key == juce::KeyPress ('c', juce::ModifierKeys::ctrlModifier, 0) };
-
-    bool handled { false };
-
-    if (isCopy and selection.isActive())
-    {
-        copySelectionToClipboard();
-        handled = true;
-    }
-
-    return handled;
 }
 
 //==============================================================================
@@ -144,7 +65,6 @@ void TableBlock::parseMarkdown (const juce::String& markdown)
 
     if (lines.size() >= 2)
     {
-        // Helper: split a markdown row into trimmed cells, strip leading/trailing pipes
         auto splitRow = [] (const juce::String& line) -> juce::StringArray
         {
             auto s { line.trim() };
@@ -161,7 +81,6 @@ void TableBlock::parseMarkdown (const juce::String& markdown)
             return cells;
         };
 
-        // Parse header row
         const auto headerCells { splitRow (lines[0]) };
         table.numCols = headerCells.size();
 
@@ -173,7 +92,6 @@ void TableBlock::parseMarkdown (const juce::String& markdown)
             table.headers.add (c);
         }
 
-        // Parse separator row for alignment hints
         juce::Array<Align> alignments;
 
         for (const auto& sep : splitRow (lines[1]))
@@ -189,11 +107,9 @@ void TableBlock::parseMarkdown (const juce::String& markdown)
                 alignments.add (Align::Left);
         }
 
-        // Apply alignments to headers
         for (int i { 0 }; i < juce::jmin (alignments.size(), table.headers.size()); ++i)
             table.headers.getReference (i).align = alignments[i];
 
-        // Parse data rows (skip header + separator)
         for (int lineIdx { 2 }; lineIdx < lines.size(); ++lineIdx)
         {
             const auto rawLine { lines[lineIdx].trim() };
@@ -226,8 +142,7 @@ juce::Array<int> TableBlock::distributeColumns (int forWidth) const
 
     if (table.numCols > 0)
     {
-        // Measure natural (single-line) width of each column
-        auto textWidth = [](const juce::Font& f, const juce::String& text) -> float
+        auto textWidth = [] (const juce::Font& f, const juce::String& text) -> float
         {
             juce::GlyphArrangement ga;
             ga.addLineOfText (f, text, 0.0f, 0.0f);
@@ -257,7 +172,6 @@ juce::Array<int> TableBlock::distributeColumns (int forWidth) const
             totalWeight += maxW;
         }
 
-        // Available width minus borders
         const int available { forWidth - kBorderWidth * (table.numCols + 1) };
 
         int allocated { 0 };
@@ -288,9 +202,9 @@ juce::TextLayout TableBlock::makeLayout (const Cell& cell, int colWidth,
 
     switch (cell.align)
     {
-        case Align::Centre: as.setJustification (juce::Justification::centredTop);    break;
-        case Align::Right:  as.setJustification (juce::Justification::topRight);      break;
-        default:            as.setJustification (juce::Justification::topLeft);       break;
+        case Align::Centre: as.setJustification (juce::Justification::centredTop); break;
+        case Align::Right:  as.setJustification (juce::Justification::topRight);   break;
+        default:            as.setJustification (juce::Justification::topLeft);    break;
     }
 
     juce::TextLayout tl;
@@ -338,52 +252,46 @@ int TableBlock::measureRowHeight (int rowIndex, int /*forWidth*/,
 
 void TableBlock::measureLayout (int forWidth)
 {
-    layout = {};
+    layoutCache = {};
 
     if (not table.isEmpty() and forWidth > 0)
     {
-        layout.measuredWidth = forWidth;
-        layout.colWidths     = distributeColumns (forWidth);
+        layoutCache.measuredWidth = forWidth;
+        layoutCache.colWidths     = distributeColumns (forWidth);
 
-        // Header
-        layout.headerHeight = measureHeaderHeight (forWidth, layout.colWidths);
+        layoutCache.headerHeight = measureHeaderHeight (forWidth, layoutCache.colWidths);
 
         for (int c { 0 }; c < table.headers.size(); ++c)
         {
-            const int colW { c < layout.colWidths.size() ? layout.colWidths[c] : kMinColWidth };
+            const int colW { c < layoutCache.colWidths.size() ? layoutCache.colWidths[c] : kMinColWidth };
             auto* tl { new juce::TextLayout (makeLayout (table.headers[c], colW, true, colW)) };
-            layout.headerLayouts.add (tl);
+            layoutCache.headerLayouts.add (tl);
         }
 
-        // Data rows
         for (int r { 0 }; r < table.rows.size(); ++r)
         {
-            layout.rowHeights.add (measureRowHeight (r, forWidth, layout.colWidths));
+            layoutCache.rowHeights.add (measureRowHeight (r, forWidth, layoutCache.colWidths));
 
             const auto& row { table.rows[r] };
 
             for (int c { 0 }; c < table.numCols; ++c)
             {
-                const int colW { c < layout.colWidths.size() ? layout.colWidths[c] : kMinColWidth };
+                const int colW { c < layoutCache.colWidths.size() ? layoutCache.colWidths[c] : kMinColWidth };
                 const Cell& cell { c < row.size() ? row[c] : Cell{} };
                 auto* tl { new juce::TextLayout (makeLayout (cell, colW, false, colW)) };
-                layout.cellLayouts.add (tl);
+                layoutCache.cellLayouts.add (tl);
             }
         }
 
-        // Total height: borders + header + all rows
-        layout.totalHeight = kBorderWidth;   // top border
-        layout.totalHeight += layout.headerHeight;
-        layout.totalHeight += kBorderWidth;  // header bottom
+        layoutCache.totalHeight = kBorderWidth;
+        layoutCache.totalHeight += layoutCache.headerHeight;
+        layoutCache.totalHeight += kBorderWidth;
 
-        for (int r { 0 }; r < layout.rowHeights.size(); ++r)
+        for (int r { 0 }; r < layoutCache.rowHeights.size(); ++r)
         {
-            layout.totalHeight += layout.rowHeights[r];
-            layout.totalHeight += kBorderWidth;
+            layoutCache.totalHeight += layoutCache.rowHeights[r];
+            layoutCache.totalHeight += kBorderWidth;
         }
-
-        // Notify parent the preferred height changed
-        setSize (forWidth, layout.totalHeight);
     }
 }
 
@@ -394,57 +302,27 @@ juce::Rectangle<int> TableBlock::getCellBounds (int row, int col) const
 {
     juce::Rectangle<int> result;
 
-    if (layout.isValid() and col >= 0 and col < layout.colWidths.size())
+    if (layoutCache.isValid() and col >= 0 and col < layoutCache.colWidths.size())
     {
-        // X: sum of preceding column widths + borders
         int x { kBorderWidth };
 
         for (int c { 0 }; c < col; ++c)
-            x += layout.colWidths[c] + kBorderWidth;
+            x += layoutCache.colWidths[c] + kBorderWidth;
 
-        const int w { layout.colWidths[col] };
+        const int w { layoutCache.colWidths[col] };
 
-        // Y: header or data row
         if (row == -1)
         {
-            result = { x, kBorderWidth, w, layout.headerHeight };
+            result = { x, kBorderWidth, w, layoutCache.headerHeight };
         }
         else
         {
-            int y { kBorderWidth + layout.headerHeight + kBorderWidth };
+            int y { kBorderWidth + layoutCache.headerHeight + kBorderWidth };
 
             for (int r { 0 }; r < row; ++r)
-                y += layout.rowHeights[r] + kBorderWidth;
+                y += layoutCache.rowHeights[r] + kBorderWidth;
 
-            result = { x, y, w, layout.rowHeights[row] };
-        }
-    }
-
-    return result;
-}
-
-TableBlock::CellPos TableBlock::cellAtPoint (juce::Point<int> p) const
-{
-    CellPos result;
-
-    if (layout.isValid())
-    {
-        for (int col { 0 }; col < table.numCols and not result.isValid(); ++col)
-        {
-            // Header
-            if (getCellBounds (-1, col).contains (p))
-            {
-                result = { -1, col };
-            }
-            else
-            {
-                // Data rows
-                for (int row { 0 }; row < table.rows.size() and not result.isValid(); ++row)
-                {
-                    if (getCellBounds (row, col).contains (p))
-                        result = { row, col };
-                }
-            }
+            result = { x, y, w, layoutCache.rowHeights[row] };
         }
     }
 
@@ -462,10 +340,10 @@ void TableBlock::paintHeader (juce::Graphics& g) const
         g.setColour (colours.headerBackground);
         g.fillRect (bounds);
 
-        if (c < layout.headerLayouts.size())
+        if (c < layoutCache.headerLayouts.size())
         {
             const auto inner { bounds.reduced (kCellPaddingH, kCellPaddingV).toFloat() };
-            layout.headerLayouts[c]->draw (g, inner);
+            layoutCache.headerLayouts[c]->draw (g, inner);
         }
     }
 }
@@ -485,30 +363,10 @@ void TableBlock::paintRows (juce::Graphics& g) const
 
             const int layoutIdx { r * table.numCols + c };
 
-            if (layoutIdx < layout.cellLayouts.size())
+            if (layoutIdx < layoutCache.cellLayouts.size())
             {
                 const auto inner { bounds.reduced (kCellPaddingH, kCellPaddingV).toFloat() };
-                layout.cellLayouts[layoutIdx]->draw (g, inner);
-            }
-        }
-    }
-}
-
-void TableBlock::paintSelection (juce::Graphics& g) const
-{
-    if (selection.isActive())
-    {
-        for (int r { selection.minRow() }; r <= selection.maxRow(); ++r)
-        {
-            for (int c { selection.minCol() }; c <= selection.maxCol(); ++c)
-            {
-                const auto bounds { getCellBounds (r, c) };
-
-                g.setColour (colours.selectionFill);
-                g.fillRect (bounds);
-
-                g.setColour (colours.selectionBorder);
-                g.drawRect (bounds, 1);
+                layoutCache.cellLayouts[layoutIdx]->draw (g, inner);
             }
         }
     }
@@ -518,79 +376,32 @@ void TableBlock::paintBorders (juce::Graphics& g) const
 {
     g.setColour (colours.borderColour);
 
-    const int totalW { getWidth() };
-    const int totalH { layout.totalHeight };
+    const int totalW { layoutCache.measuredWidth };
+    const int totalH { layoutCache.totalHeight };
 
-    // Outer border
     g.drawRect (0, 0, totalW, totalH, kBorderWidth);
 
-    // Vertical column borders
     int x { kBorderWidth };
 
-    for (int c { 0 }; c < layout.colWidths.size() - 1; ++c)
+    for (int c { 0 }; c < layoutCache.colWidths.size() - 1; ++c)
     {
-        x += layout.colWidths[c];
+        x += layoutCache.colWidths[c];
         g.drawVerticalLine (x, 0.0f, (float) totalH);
         x += kBorderWidth;
     }
 
-    // Horizontal header bottom border (slightly brighter)
-    const int headerBottom { kBorderWidth + layout.headerHeight };
+    const int headerBottom { kBorderWidth + layoutCache.headerHeight };
     g.setColour (colours.borderColour.brighter (0.3f));
     g.drawHorizontalLine (headerBottom, 0.0f, (float) totalW);
 
-    // Horizontal row borders
     g.setColour (colours.borderColour);
     int y { headerBottom + kBorderWidth };
 
-    for (int r { 0 }; r < layout.rowHeights.size() - 1; ++r)
+    for (int r { 0 }; r < layoutCache.rowHeights.size() - 1; ++r)
     {
-        y += layout.rowHeights[r];
+        y += layoutCache.rowHeights[r];
         g.drawHorizontalLine (y, 0.0f, (float) totalW);
         y += kBorderWidth;
-    }
-}
-
-//==============================================================================
-// Clipboard
-//==============================================================================
-juce::String TableBlock::getCellText (int row, int col) const
-{
-    juce::String result;
-
-    if (row == -1)
-    {
-        result = col < table.headers.size() ? table.headers[col].text : juce::String{};
-    }
-    else if (row < table.rows.size())
-    {
-        const auto& r { table.rows[row] };
-        result = col < r.size() ? r[col].text : juce::String{};
-    }
-
-    return result;
-}
-
-void TableBlock::copySelectionToClipboard() const
-{
-    if (selection.isActive())
-    {
-        juce::String result;
-
-        for (int r { selection.minRow() }; r <= selection.maxRow(); ++r)
-        {
-            for (int c { selection.minCol() }; c <= selection.maxCol(); ++c)
-            {
-                result += getCellText (r, c);
-
-                if (c < selection.maxCol())
-                    result += "\t";
-            }
-
-            result += "\n";
-        }
-
-        juce::SystemClipboard::copyTextToClipboard (result);
     }
 }
 
