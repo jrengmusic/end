@@ -240,10 +240,14 @@ void Config::initKeys()
     addKey (Key::paneBarColour, "#1B2A31", { T::string });///< dark
     addKey (Key::paneBarHighlight, "#4E8C93", { T::string });///< paradiso
 
-    addKey (Key::coloursStatusBar, "#090D12", { T::string });///< trappedDarkness
-    addKey (Key::coloursStatusBarLabelBg, "#01C2D2", { T::string });///< caribbeanBlue
-    addKey (Key::coloursStatusBarLabelFg, "#444444", { T::string });///< dark grey
+    addKey (Key::coloursStatusBar, "#090D12", { T::string });        ///< bunker
+    addKey (Key::coloursStatusBarLabelBg, "#112130", { T::string }); ///< trappedDarkness
+    addKey (Key::coloursStatusBarLabelFg, "#4E8C93", { T::string }); ///< paradiso
     addKey (Key::keysStatusBarPosition, "bottom", { T::string });
+    addKey (Key::statusBarFontFamily, juce::String ("Display Mono"), { T::string });
+    addKey (Key::statusBarFontSize,   12.0, { T::number, 6.0, 48.0, true });
+    addKey (Key::statusBarFontStyle,  juce::String ("Bold"), { T::string });
+    addKey (Key::statusBarSpinnerColour, "#00C8D8", { T::string }); ///< blueBikini
 
     addKey (Key::coloursHintLabelBg, "#00FFFF", { T::string });///< cyan
     addKey (Key::coloursHintLabelFg, "#111111", { T::string });///< near-black

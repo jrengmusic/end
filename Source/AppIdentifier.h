@@ -55,5 +55,7 @@ namespace ID
     static const juce::Identifier scrollOffset       { "scrollOffset" };
     static const juce::Identifier blockCount         { "blockCount" };
     static const juce::Identifier parseComplete      { "parseComplete" };
+    static const juce::Identifier pendingPrefix      { "pendingPrefix" };
+    static const juce::Identifier totalBlocks        { "totalBlocks" };
 }
 }

@@ -130,16 +130,25 @@ public:
         const auto* cfg { Config::getContext() };
         const auto bgColour { cfg->getColour (Config::Key::windowColour) };
         const auto fgColour { cfg->getColour (Config::Key::overlayColour) };
-        const juce::FontOptions fontOptions { juce::FontOptions()
-                                                .withName (cfg->getString (Config::Key::overlayFamily))
-                                                .withPointHeight (cfg->getFloat (Config::Key::overlaySize)) };
+        const juce::FontOptions font { juce::FontOptions()
+                                           .withName (cfg->getString (Config::Key::overlayFamily))
+                                           .withPointHeight (cfg->getFloat (Config::Key::overlaySize)) };
 
         g.fillAll (bgColour.withAlpha (backgroundAlpha));
-        g.setFont (fontOptions);
+        g.setFont (font);
         g.setColour (fgColour);
 
         if (resizeMode)
-            paintRulers (g, getLocalBounds(), resizeCols, resizeRows, resizePadTop, resizePadRight, resizePadBottom, resizePadLeft, fontOptions, fgColour);
+            paintRulers (g,
+                         getLocalBounds(),
+                         resizeCols,
+                         resizeRows,
+                         resizePadTop,
+                         resizePadRight,
+                         resizePadBottom,
+                         resizePadLeft,
+                         font,
+                         fgColour);
         else
             g.drawFittedText (message, getLocalBounds().reduced (textPadding), juce::Justification::centred, maxLines);
     }

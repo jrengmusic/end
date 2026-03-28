@@ -7,6 +7,7 @@
  */
 
 #include "LookAndFeel.h"
+#include "../config/WhelmedConfig.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -69,6 +70,16 @@ void LookAndFeel::setColours()
 
     setColour (juce::ResizableWindow::backgroundColourId,
                cfg->getColour (Config::Key::coloursBackground));
+
+    if (auto* whelmedCfg { Whelmed::Config::getContext() })
+    {
+        setColour (juce::ScrollBar::thumbColourId,
+                   whelmedCfg->getColour (Whelmed::Config::Key::scrollbarThumb));
+        setColour (juce::ScrollBar::trackColourId,
+                   whelmedCfg->getColour (Whelmed::Config::Key::scrollbarTrack));
+        setColour (juce::ScrollBar::backgroundColourId,
+                   whelmedCfg->getColour (Whelmed::Config::Key::scrollbarBackground));
+    }
 }
 
 /**

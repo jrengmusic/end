@@ -671,6 +671,18 @@ void State::setHintTotalPages (int total) noexcept
 
 int State::getHintTotalPages() const noexcept { return getRawValue<int> (ID::hintTotalPages); }
 
+// MESSAGE THREAD
+void State::setHintOverlay (const LinkSpan* data, int count) noexcept
+{
+    hintOverlayData  = data;
+    hintOverlayCount = count;
+    setSnapshotDirty();
+}
+
+const LinkSpan* State::getHintOverlayData() const noexcept { return hintOverlayData; }
+
+int State::getHintOverlayCount() const noexcept { return hintOverlayCount; }
+
 // --- Selection state convenience wrappers ---
 
 void State::setSelectionType (int type) noexcept

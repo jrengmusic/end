@@ -20,7 +20,7 @@
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 
-#include "Config.h"
+#include "WhelmedConfig.h"
 
 //==============================================================================
 /**
@@ -47,29 +47,31 @@ void Whelmed::Config::initKeys()
 {
     using T = Whelmed::Config::Value::Type;
 
-    addKey (Key::fontFamily, "Georgia", { T::string });
-    addKey (Key::fontSize, 14.0, { T::number, 8.0, 72.0, true });
+    addKey (Key::fontFamily, "Display",  { T::string });
+    addKey (Key::fontStyle,  "Medium",   { T::string });
+    addKey (Key::fontSize, 16.0, { T::number, 8.0, 72.0, true });
     addKey (Key::codeFamily, "Display Mono", { T::string });
-    addKey (Key::codeSize, 12.0, { T::number, 8.0, 72.0, true });
+    addKey (Key::codeSize,   12.0,           { T::number, 8.0, 72.0, true });
+    addKey (Key::codeStyle,  "Medium",       { T::string });
     addKey (Key::h1Size, 28.0, { T::number, 8.0, 72.0, true });
-    addKey (Key::h2Size, 24.0, { T::number, 8.0, 72.0, true });
-    addKey (Key::h3Size, 20.0, { T::number, 8.0, 72.0, true });
-    addKey (Key::h4Size, 18.0, { T::number, 8.0, 72.0, true });
-    addKey (Key::h5Size, 16.0, { T::number, 8.0, 72.0, true });
-    addKey (Key::h6Size, 14.0, { T::number, 8.0, 72.0, true });
-    addKey (Key::lineHeight, 1.4, { T::number, 0.8, 3.0, true });
+    addKey (Key::h2Size, 28.0, { T::number, 8.0, 72.0, true });
+    addKey (Key::h3Size, 24.0, { T::number, 8.0, 72.0, true });
+    addKey (Key::h4Size, 20.0, { T::number, 8.0, 72.0, true });
+    addKey (Key::h5Size, 18.0, { T::number, 8.0, 72.0, true });
+    addKey (Key::h6Size, 16.0, { T::number, 8.0, 72.0, true });
+    addKey (Key::lineHeight, 1.5, { T::number, 0.8, 3.0, true });
 
-    addKey (Key::background, juce::String ("00000000"), { T::string });
-    addKey (Key::bodyColour, juce::String ("CCCCCCFF"), { T::string });
-    addKey (Key::codeColour, juce::String ("00CCCCFF"), { T::string });
-    addKey (Key::linkColour, juce::String ("5599FFFF"), { T::string });
-    addKey (Key::h1Colour, juce::String ("CCCCCCFF"), { T::string });
-    addKey (Key::h2Colour, juce::String ("CCCCCCFF"), { T::string });
-    addKey (Key::h3Colour, juce::String ("CCCCCCFF"), { T::string });
-    addKey (Key::h4Colour, juce::String ("CCCCCCFF"), { T::string });
-    addKey (Key::h5Colour, juce::String ("CCCCCCFF"), { T::string });
-    addKey (Key::h6Colour, juce::String ("CCCCCCFF"), { T::string });
-    addKey (Key::codeFenceBackground, juce::String ("1A1A1AFF"), { T::string });
+    addKey (Key::background, juce::String ("0D141CFF"), { T::string });
+    addKey (Key::bodyColour, juce::String ("B3F9F5FF"), { T::string });
+    addKey (Key::codeColour, juce::String ("00D0FFFF"), { T::string });
+    addKey (Key::linkColour, juce::String ("01C2D2FF"), { T::string });
+    addKey (Key::h1Colour, juce::String ("D4C8A0FF"), { T::string });
+    addKey (Key::h2Colour, juce::String ("D4C8A0FF"), { T::string });
+    addKey (Key::h3Colour, juce::String ("D4C8A0FF"), { T::string });
+    addKey (Key::h4Colour, juce::String ("D4C8A0FF"), { T::string });
+    addKey (Key::h5Colour, juce::String ("D4C8A0FF"), { T::string });
+    addKey (Key::h6Colour, juce::String ("D4C8A0FF"), { T::string });
+    addKey (Key::codeFenceBackground, juce::String ("090D12FF"), { T::string });
     addKey (Key::progressBackground,    juce::String ("1A1A1AFF"), { T::string });
     addKey (Key::progressForeground,    juce::String ("4488CCFF"), { T::string });
     addKey (Key::progressTextColour,    juce::String ("CCCCCCFF"), { T::string });
@@ -80,23 +82,42 @@ void Whelmed::Config::initKeys()
     addKey (Key::paddingBottom, 10.0, { T::number, 0.0, 200.0, true });
     addKey (Key::paddingLeft, 10.0, { T::number, 0.0, 200.0, true });
 
-    addKey (Key::tokenError,        juce::String ("CC0000FF"), { T::string });
-    addKey (Key::tokenComment,      juce::String ("6A9955FF"), { T::string });
-    addKey (Key::tokenKeyword,      juce::String ("569CD6FF"), { T::string });
-    addKey (Key::tokenOperator,     juce::String ("D4D4D4FF"), { T::string });
-    addKey (Key::tokenIdentifier,   juce::String ("9CDCFEFF"), { T::string });
-    addKey (Key::tokenInteger,      juce::String ("B5CEA8FF"), { T::string });
-    addKey (Key::tokenFloat,        juce::String ("B5CEA8FF"), { T::string });
-    addKey (Key::tokenString,       juce::String ("CE9178FF"), { T::string });
-    addKey (Key::tokenBracket,      juce::String ("D4D4D4FF"), { T::string });
-    addKey (Key::tokenPunctuation,  juce::String ("D4D4D4FF"), { T::string });
-    addKey (Key::tokenPreprocessor, juce::String ("C586C0FF"), { T::string });
+    addKey (Key::tokenError,        juce::String ("F74A4AFF"), { T::string });
+    addKey (Key::tokenComment,      juce::String ("6080C0FF"), { T::string });
+    addKey (Key::tokenKeyword,      juce::String ("1919FFFF"), { T::string });
+    addKey (Key::tokenOperator,     juce::String ("B0B0B0FF"), { T::string });
+    addKey (Key::tokenIdentifier,   juce::String ("00C6FFFF"), { T::string });
+    addKey (Key::tokenInteger,      juce::String ("00FF00FF"), { T::string });
+    addKey (Key::tokenFloat,        juce::String ("00FF00FF"), { T::string });
+    addKey (Key::tokenString,       juce::String ("FFC0C0FF"), { T::string });
+    addKey (Key::tokenBracket,      juce::String ("80FFFFFF"), { T::string });
+    addKey (Key::tokenPunctuation,  juce::String ("FF9080FF"), { T::string });
+    addKey (Key::tokenPreprocessor, juce::String ("9AFF00FF"), { T::string });
+
+    addKey (Key::tableBackground,       juce::String ("090D12FF"), { T::string });
+    addKey (Key::tableHeaderBackground, juce::String ("112130FF"), { T::string });
+    addKey (Key::tableRowAlt,           juce::String ("0D141CFF"), { T::string });
+    addKey (Key::tableBorderColour,     juce::String ("2C4144FF"), { T::string });
+    addKey (Key::tableHeaderText,       juce::String ("BAFFFDFF"), { T::string });
+    addKey (Key::tableCellText,         juce::String ("B3F9F5FF"), { T::string });
+
+    addKey (Key::scrollbarThumb,      juce::String ("2C4144FF"), { T::string });  // littleMermaid
+    addKey (Key::scrollbarTrack,      juce::String ("0D141CFF"), { T::string });  // corbeau
+    addKey (Key::scrollbarBackground, juce::String ("0D141CFF"), { T::string });  // corbeau
 
     addKey (Key::scrollDown,   juce::String ("j"),  { T::string });
     addKey (Key::scrollUp,     juce::String ("k"),  { T::string });
     addKey (Key::scrollTop,    juce::String ("gg"), { T::string });
     addKey (Key::scrollBottom, juce::String ("G"),  { T::string });
     addKey (Key::scrollStep,   50.0,                { T::number, 1.0, 2000.0, true });
+
+    addKey (Key::loaderBackground,    juce::String ("333435FF"), { T::string });   // carbon
+    addKey (Key::loaderFill,          juce::String ("112130FF"), { T::string });   // trappedDarkness
+    addKey (Key::loaderSpinnerColour, juce::String ("F3F5C5FF"), { T::string });   // silkStar
+    addKey (Key::loaderTextColour,    juce::String ("00C8D8FF"), { T::string });   // blueBikini
+    addKey (Key::loaderFontFamily,    juce::String ("Display Mono"), { T::string });
+    addKey (Key::loaderFontSize,      12.0, { T::number, 6.0, 48.0, true });
+    addKey (Key::loaderFontStyle,     juce::String ("Bold"), { T::string });
 }
 
 //==============================================================================

@@ -296,6 +296,7 @@ void MainComponent::registerActions()
                            [this]() -> bool
                            {
                                const auto reloadError { config.reload() };
+                               Whelmed::Config::getContext()->reload();
 
                                if (reloadError.isEmpty())
                                {
@@ -688,6 +689,7 @@ void MainComponent::initialiseTabs()
     // TODO: State restoration disabled — fix after renderer and tabs cleanup
     appState.getTabs().removeAllChildren (nullptr);
     appState.setActiveTabIndex (0);
+    AppState::getContext()->setActivePaneType ("terminal");
     tabs->addNewTab();
 
     sendLookAndFeelChange();

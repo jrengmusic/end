@@ -203,23 +203,6 @@ void Screen<Renderer>::setSelection (const ScreenSelection* sel) noexcept
 }
 
 /**
- * @brief Sets the hint label overlay for Open File mode rendering.
- *
- * Stores a non-owning pointer to the active `LinkSpan` array.  Because every
- * row is rebuilt from `Grid` on every frame, the overlay is reflected
- * immediately on the next `render()` call.
- *
- * @param spans  Pointer to the `LinkSpan` array, or `nullptr` to clear.
- * @param count  Number of elements in @p spans.
- */
-template <typename Renderer>
-void Screen<Renderer>::setHintOverlay (const LinkSpan* spans, int count) noexcept
-{
-    hintOverlay      = spans;
-    hintOverlayCount = count;
-}
-
-/**
  * @brief Sets the always-on link underlay for click-mode underline rendering.
  *
  * Stores a non-owning pointer to the clickable link span array.  Because every

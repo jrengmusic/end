@@ -7,16 +7,13 @@
 
 #include "InputHandler.h"
 #include "../terminal/logic/Session.h"
-#include "../terminal/rendering/Screen.h"
 #include "../terminal/selection/LinkManager.h"
 #include "../terminal/action/Action.h"
 #include "../config/Config.h"
 
 InputHandler::InputHandler (Terminal::Session& s,
-                            Terminal::ScreenBase& sc,
                             Terminal::LinkManager& lm) noexcept
     : session (s)
-    , screen (sc)
     , linkManager (lm)
 {
 }
@@ -69,7 +66,7 @@ bool InputHandler::handleKey (const juce::KeyPress& key, bool isPopupTerminal) n
 void InputHandler::handleScrollNav (int code,
                                     std::function<void (int)> newOffsetFn) noexcept
 {
-    const int page { screen.getNumRows() };
+    const int page { session.getGrid().getVisibleRows() };
     const int current { session.getState().getScrollOffset() };
 
     if (code == juce::KeyPress::pageUpKey)
@@ -369,7 +366,7 @@ bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
 {
     if (key == juce::KeyPress::escapeKey)
     {
-        screen.setHintOverlay (nullptr, 0);
+        session.getState().setHintOverlay (nullptr, 0);
         linkManager.clearHints();
         session.getState().setModalType (Terminal::ModalType::none);
         return true;
@@ -379,8 +376,7 @@ bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
     {
         linkManager.advanceHintPage();
 
-        screen.setHintOverlay (linkManager.getActiveHintsData(), linkManager.getActiveHintsCount());
-        session.getState().setSnapshotDirty();
+        session.getState().setHintOverlay (linkManager.getActiveHintsData(), linkManager.getActiveHintsCount());
         return true;
     }
 
@@ -395,7 +391,7 @@ bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
         {
             linkManager.dispatch (*matched);
 
-            screen.setHintOverlay (nullptr, 0);
+            session.getState().setHintOverlay (nullptr, 0);
             linkManager.clearHints();
             session.getState().setModalType (Terminal::ModalType::none);
         }

@@ -46,9 +46,9 @@
 #include "terminal/action/Action.h"
 #include "terminal/action/ActionList.h"
 // jreng::Typeface is available via JuceHeader → jreng_glyph
-#include "terminal/selection/StatusBarOverlay.h"
+#include "component/StatusBarOverlay.h"
 #include "whelmed/Component.h"
-#include "whelmed/config/Config.h"
+#include "config/WhelmedConfig.h"
 
 /**
  * @class MainComponent
@@ -149,7 +149,7 @@ private:
     std::unique_ptr<MessageOverlay> messageOverlay;
 
     /** @brief Status bar overlay; shown during any active modal state (selection, open-file, etc.). */
-    Terminal::StatusBarOverlay statusBarOverlay;
+    StatusBarOverlay statusBarOverlay;
 
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;

@@ -33,12 +33,9 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "SelectionType.h"
-#include "../../config/Config.h"
-#include "../data/State.h"
-
-namespace Terminal
-{ /*____________________________________________________________________________*/
+#include "../terminal/selection/SelectionType.h"
+#include "../config/Config.h"
+#include "../terminal/data/State.h"
 
 /**
  * @class StatusBarOverlay
@@ -64,9 +61,9 @@ public:
      */
     enum ColourIds
     {
-        barBackgroundColourId = 0x2000100,  ///< Full bar background colour.
-        labelBackgroundColourId = 0x2000101,///< Mode label rectangle background colour.
-        labelTextColourId = 0x2000102       ///< Mode label text colour.
+        barBackgroundColourId   = 0x2000100, ///< Full bar background colour.
+        labelBackgroundColourId = 0x2000101, ///< Mode label rectangle background colour.
+        labelTextColourId       = 0x2000102  ///< Mode label text colour.
     };
 
     /**
@@ -98,24 +95,24 @@ public:
      * @param hintTotalPages Total number of hint pages.
      * @note MESSAGE THREAD.
      */
-    void update (ModalType modalType, int selectionType,
+    void update (Terminal::ModalType modalType, int selectionType,
                  int hintPage, int hintTotalPages) noexcept
     {
-        if (modalType == ModalType::selection)
+        if (modalType == Terminal::ModalType::selection)
         {
-            if (selectionType == static_cast<int> (SelectionType::visual))
+            if (selectionType == static_cast<int> (Terminal::SelectionType::visual))
             {
                 label = "VISUAL";
                 setVisible (true);
                 repaint();
             }
-            else if (selectionType == static_cast<int> (SelectionType::visualLine))
+            else if (selectionType == static_cast<int> (Terminal::SelectionType::visualLine))
             {
                 label = "V-LINE";
                 setVisible (true);
                 repaint();
             }
-            else if (selectionType == static_cast<int> (SelectionType::visualBlock))
+            else if (selectionType == static_cast<int> (Terminal::SelectionType::visualBlock))
             {
                 label = "V-BLOCK";
                 setVisible (true);
@@ -126,7 +123,7 @@ public:
                 setVisible (false);
             }
         }
-        else if (modalType == ModalType::openFile)
+        else if (modalType == Terminal::ModalType::openFile)
         {
             if (hintTotalPages > 1)
             {
@@ -157,7 +154,7 @@ public:
      */
     int getPreferredHeight() const noexcept
     {
-        const float fontSize { Config::getContext()->getFloat (Config::Key::fontSize) };
+        const float fontSize { Config::getContext()->getFloat (Config::Key::statusBarFontSize) };
         return juce::roundToInt (fontSize) + 2 * verticalPadding;
     }
 
@@ -184,9 +181,9 @@ public:
         const auto bounds { getLocalBounds() };
         const auto* cfg { Config::getContext() };
         const juce::Font font { juce::FontOptions {}
-                                    .withName (cfg->getString (Config::Key::fontFamily))
-                                    .withPointHeight (cfg->getFloat (Config::Key::fontSize))
-                                    .withStyle ("Bold") };
+                                    .withName (cfg->getString (Config::Key::statusBarFontFamily))
+                                    .withPointHeight (cfg->getFloat (Config::Key::statusBarFontSize))
+                                    .withStyle (cfg->getString (Config::Key::statusBarFontStyle)) };
 
         g.setColour (findColour (barBackgroundColourId));
         g.fillRect (bounds);
@@ -217,6 +214,3 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StatusBarOverlay)
 };
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal

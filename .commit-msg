@@ -1,0 +1,25 @@
+feat: Whelmed Phase 3 — Screen architecture, tokenization, config unification
+
+Architecture:
+- Blocks are data+render objects, not Components
+- Screen: single paint() with viewport culling
+- First-screen batch loading, incremental building via timer
+- CodeBlock merged into TextBlock
+
+Tokenization:
+- Code syntax highlighting via JUCE CodeTokeniser
+- GenericTokeniser for Python, JS, TS, Rust, Go, Bash, SQL, JSON, YAML, Swift
+
+Config:
+- WhelmedConfig moved to Source/config/
+- DocConfig eliminated — Screen reads config directly
+- StatusBarOverlay + LoaderOverlay unified at app level
+- Oblivion TET palette applied throughout
+
+Infrastructure:
+- InputHandler decoupled from ScreenBase — routed through State
+- Selection mode keyboard fix (buildKeyMap after construction)
+- Mermaid onReady timing fix
+- Hot reload wires both terminal and whelmed configs
+- Display proportional font embedded (Book/Medium/Bold)
+- DESIGN.md manifesto, PLAN-WHELMED.md rewritten

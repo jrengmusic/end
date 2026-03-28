@@ -480,6 +480,18 @@ struct Config : jreng::Context<Config>
         /** @brief Status bar position: "top" or "bottom". */
         inline static const juce::String keysStatusBarPosition { "keys.status_bar_position" };
 
+        /** @brief Font family for the status bar overlay. */
+        inline static const juce::String statusBarFontFamily { "colours.status_bar_font_family" };
+
+        /** @brief Font size in points for the status bar overlay. */
+        inline static const juce::String statusBarFontSize { "colours.status_bar_font_size" };
+
+        /** @brief Font style for the status bar overlay (e.g. "Bold"). */
+        inline static const juce::String statusBarFontStyle { "colours.status_bar_font_style" };
+
+        /** @brief Spinner glyph colour for the status bar and loader overlay (hex string). */
+        inline static const juce::String statusBarSpinnerColour { "colours.status_bar_spinner" };
+
         /** @brief Editor command used to open files from hyperlinks (e.g. "nvim", "vim"). */
         inline static const juce::String hyperlinksEditor { "hyperlinks.editor" };
     };

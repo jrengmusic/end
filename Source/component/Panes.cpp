@@ -96,9 +96,8 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
         auto component { std::make_unique<Whelmed::Component>() };
         component->setComponentID (activeUuid);
-        component->openFile (file);
         component->setBounds (activeTerminal->getBounds());
-        addChildComponent (component.get());
+        component->openFile (file);
         component->onRepaintNeeded = onRepaintNeeded;
 
         // Graft DOCUMENT alongside SESSION in the PANE node
@@ -111,7 +110,7 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
         if (isShowing())
         {
-            component->setVisible (true);
+            addAndMakeVisible (component.get());
             component->grabKeyboardFocus();
         }
 

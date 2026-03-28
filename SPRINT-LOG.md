@@ -2,6 +2,100 @@
 
 ---
 
+## Handoff to COUNSELOR: Whelmed Phase 3 — Screen Architecture, Tokenization, Config Unification
+
+**From:** COUNSELOR
+**Date:** 2026-03-28
+**Status:** In Progress
+
+### Context
+Major architectural refactor of Whelmed markdown viewer. Blocks changed from juce::Components to data+render objects. Single unified Screen component with viewport culling. First-screen batch loading. Code tokenization. Config reorganization. InputHandler decoupled from ScreenBase. Overlay components unified at app level.
+
+### Completed
+- **Block architecture rewrite**: Blocks are no longer juce::Components. TextBlock (juce::TextLayout), MermaidBlock (path/text primitives), TableBlock (TextLayout cache). All render via `Block::paint(g, area)`.
+- **Whelmed::Screen**: Single juce::Component inside Viewport. Owns all blocks. Single paint() with viewport culling. `load()` builds first-screen blocks instantly, returns batch count for incremental building.
+- **CodeBlock eliminated**: Merged into TextBlock (monospace font + background colour). No separate class.
+- **Code tokenization**: `Whelmed::tokenize()` free function using JUCE CodeTokeniser standalone. GenericTokeniser for 10 additional languages (Python, JS, TS, Rust, Go, Bash, SQL, JSON, YAML, Swift).
+- **Config reorganization**: `Whelmed::Config` moved to `Source/config/WhelmedConfig.h/.cpp`. DocConfig eliminated — Screen reads Config directly. Parser copies values at construction for thread safety.
+- **InputHandler decoupled from ScreenBase**: Hint overlay routed through State. InputHandler takes Session + LinkManager only. No reconstruction on renderer switch. Fixed keyboard dead-keys bug in selection mode.
+- **StatusBarOverlay + LoaderOverlay**: Moved to `Source/component/` as app-level components. Unified config from terminal Config (status bar colours/font).
+- **Mermaid spinner**: Screen paints inline braille spinner over pending mermaid blocks. 10fps timer, stops when all results arrive.
+- **Mermaid timing fix**: `onReady` re-registered in `openFile` to handle both early and late JS engine loading.
+- **Config hot reload**: Cmd+R now reloads both terminal and whelmed configs.
+- **Display font embedded**: Display-Book/Medium/Bold (proportional) registered at startup. Default whelmed font: Display Medium.
+- **Colour palette**: Oblivion TET-inspired palette applied to all whelmed elements. Code tokens use gfx nvim scheme. Headings khaki. Status bar: bunker bg, trappedDarkness fill, paradiso text, blueBikini spinner.
+- **ValueTree SSOT**: `pendingPrefix` and `totalBlocks` moved from Component members to ValueTree properties.
+- **Block spacing**: Block gap derived from `bodyFontSize * lineHeight`. Thematic breaks (`---`) rendered as empty line breaks.
+- **Typography**: Body 16pt Display Medium. Headings bold. Font sizes shifted up (h2=28, h3=24, h4=20, h5=18, h6=16).
+- **DESIGN.md**: Design manifesto documenting etymology, semiotics, aesthetic philosophy, icon decoding (morse E.N.D.).
+- **PLAN-WHELMED.md**: Rewritten to reflect current architecture.
+- **default_whelmed.lua**: Full rewrite with ASCII art, WHELMED acronym, comprehensive inline docs.
+
+### Remaining
+- **Mermaid rendering quality**: SVG parse results inconsistent. Text positioning needs tuning. Complex diagram types (sequence, state, class) may not parse correctly. Colour scheme not wired to config.
+- **Text selection and copy**: No text interaction in markdown viewer. ARCHITECT has scaffolded the design (Pos, hit testing, caret, selection rects). ~300-600 LOC.
+- **Table selection and copy**: Removed during refactor. Needs reimplementation through Screen mouse/key handling.
+- **Status bar for Whelmed**: StatusBarOverlay moved to app level but not yet wired to Whelmed pane. Should show document info (filename, block count, scroll position).
+- **MouseHandler still coupled to ScreenBase**: Same pattern as InputHandler was. Separate fix needed.
+- **Unused whelmed config keys**: `loader_*` and `progress_*` keys in WhelmedConfig are dead (LoaderOverlay moved to terminal Config). Clean up.
+- **Image protocol (sixel/kitty)**: Not implemented. Feature parity gap vs other terminals.
+
+### Key Decisions
+- Blocks are data, not Components — eliminates hundreds of Component creations, enables single paint() with culling
+- CodeBlock merged into TextBlock — same rendering path, monospace font + background is the only difference
+- Screen replaces old `content` Component — Viewport hosts Screen directly
+- First-screen batch loading — blocks filling viewport built synchronously, rest via timer
+- DocConfig eliminated — Screen reads Whelmed::Config directly, Parser copies values for thread safety
+- State is SSOT — all mutable state on ValueTree, no stray member variables
+- InputHandler routed through State for hint overlay — no direct Rendering layer reference
+- Oblivion TET palette is the design language — functional, not decorative
+- Generic keyword tokeniser for unsupported languages — one class, keyword list per language
+
+### Files Modified (significant, not exhaustive)
+- `Source/whelmed/Block.h` — pure data+render interface, no juce::Component
+- `Source/whelmed/TextBlock.h/.cpp` — juce::TextLayout + optional background
+- `Source/whelmed/Screen.h/.cpp` — unified rendering surface, load/build/updateLayout
+- `Source/whelmed/MermaidBlock.h/.cpp` — render-only, placeholder height, inline spinner
+- `Source/whelmed/TableBlock.h/.cpp` — render-only, layout cache
+- `Source/whelmed/Component.h/.cpp` — rewired to use Screen, ValueTree SSOT
+- `Source/whelmed/State.h/.cpp` — timer + atomics, hint overlay storage
+- `Source/whelmed/Parser.h/.cpp` — style resolution, startBlock offset
+- `Source/whelmed/Tokenizer.h/.cpp` — NEW, code tokenization free function
+- `Source/whelmed/GenericTokeniser.h/.cpp` — NEW, keyword-based tokeniser for 10 languages
+- `Source/config/WhelmedConfig.h/.cpp` — moved from whelmed/config/, expanded keys
+- `Source/config/default_whelmed.lua` — full rewrite with ASCII art + docs
+- `Source/config/Config.h/.cpp` — status bar font/spinner keys added
+- `Source/config/default_end.lua` — status bar keys added
+- `Source/component/StatusBarOverlay.h` — moved from terminal/selection/, app-level
+- `Source/component/LoaderOverlay.h` — moved from whelmed/, app-level
+- `Source/component/LookAndFeel.cpp` — scrollbar + status bar colours
+- `Source/component/InputHandler.h/.cpp` — decoupled from ScreenBase
+- `Source/component/TerminalComponent.cpp` — InputHandler constructed once
+- `Source/component/Panes.cpp` — openFile after setBounds
+- `Source/terminal/data/State.h/.cpp` — hint overlay storage
+- `Source/terminal/rendering/Screen.h/.cpp` — removed setHintOverlay, pulls from State
+- `Source/terminal/action/Action.cpp` — parseShortcut uppercase preserved
+- `Source/Main.cpp` — Display proportional fonts registered
+- `Source/MainComponent.cpp` — whelmed config reload wired
+- `Source/AppIdentifier.h` — pendingPrefix, totalBlocks added
+- `DESIGN.md` — NEW, design manifesto
+- `PLAN-WHELMED.md` — rewritten
+- `test/mermaid.md` — NEW, mermaid test file
+
+### Open Questions
+- MouseHandler ScreenBase dependency — same pattern as InputHandler, needs decoupling
+- Mermaid SVG parser quality — needs investigation, may need alternative approach
+- StatusBarOverlay for Whelmed pane — what info to show?
+
+### Next Steps
+1. Wire StatusBarOverlay to Whelmed pane
+2. Mermaid rendering improvements (P0)
+3. Text selection and copy (P1)
+4. Clean up dead whelmed config keys
+5. MouseHandler decoupling
+
+---
+
 ## Handoff to COUNSELOR: Whelmed Phase 2 — Mermaid Rendering + Remaining Issues
 
 **From:** COUNSELOR

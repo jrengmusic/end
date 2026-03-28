@@ -183,6 +183,18 @@ END = {
 		-- Status bar mode label text colour.
 		status_bar_label_fg = "%%colours_status_bar_label_fg%%",
 
+		-- Status bar spinner colour.
+		status_bar_spinner = "%%colours_status_bar_spinner%%",
+
+		-- Status bar font family.
+		status_bar_font_family = "%%colours_status_bar_font_family%%",
+
+		-- Status bar font size in points.
+		status_bar_font_size = %%colours_status_bar_font_size%%,
+
+		-- Status bar font style.
+		status_bar_font_style = "%%colours_status_bar_font_style%%",
+
 		-- Open File mode hint label background colour.
 		-- Shown as the badge background behind single- or double-letter hint keys.
 		hint_label_bg = "%%colours_hint_label_bg%%",

@@ -116,6 +116,9 @@ void Terminal::Component::initialise()
     setWantsKeyboardFocus (true);
     addKeyListener (this);
 
+    // Construct InputHandler once — no Screen dependency, never reconstructed.
+    inputHandler.emplace (session, linkManager);
+
     // Switch to the renderer stored in AppState (SSOT).
     // Emplaces correct Screen variant, handlers, opacity, and applies config.
     switchRenderer (getRendererType());
@@ -332,7 +335,7 @@ void Terminal::Component::enterOpenFileMode() noexcept
             const juce::String cwd { session.getState().get().getProperty (Terminal::ID::cwd).toString() };
             linkManager.scanForHints (cwd);
 
-            screenBase().setHintOverlay (linkManager.getActiveHintsData(), linkManager.getActiveHintsCount());
+            session.getState().setHintOverlay (linkManager.getActiveHintsData(), linkManager.getActiveHintsCount());
             session.getState().setModalType (ModalType::openFile);
         }
     }
@@ -742,7 +745,6 @@ void Terminal::Component::switchRenderer (PaneComponent::RendererType type)
         }
     }
 
-    inputHandler.emplace (session, screenBase(), linkManager);
     mouseHandler.emplace (session, screenBase(), linkManager);
 
     applyScreenSettings();

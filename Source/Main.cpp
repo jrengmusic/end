@@ -46,7 +46,7 @@
 #include "MainComponent.h"
 #include "AppState.h"
 #include "config/Config.h"
-#include "whelmed/config/Config.h"
+#include "config/WhelmedConfig.h"
 #include "terminal/action/Action.h"
 
 #if JUCE_WINDOWS
@@ -214,6 +214,17 @@ private:
                                                                              BinaryData::DisplayMonoMedium_ttfSize) };
         static inline auto bold { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBold_ttf,
                                                                            BinaryData::DisplayMonoBold_ttfSize) };
+    };
+
+    /** @brief Embedded Display proportional typefaces; held alive for DirectWrite on Windows. */
+    struct DisplayProp
+    {
+        static inline auto book { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayBook_ttf,
+                                                                           BinaryData::DisplayBook_ttfSize) };
+        static inline auto medium { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMedium_ttf,
+                                                                             BinaryData::DisplayMedium_ttfSize) };
+        static inline auto bold { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayBold_ttf,
+                                                                           BinaryData::DisplayBold_ttfSize) };
     };
 
     /** @brief The native OS window; null before initialise() and after shutdown(). */

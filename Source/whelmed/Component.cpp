@@ -1,14 +1,16 @@
 #include <JuceHeader.h>
 #include "Component.h"
 #include "MermaidSVGParser.h"
-#include "config/Config.h"
+#include "../config/WhelmedConfig.h"
 #include "../terminal/action/Action.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
 Component::Component()
+    : state { docState.getValueTree() }
 {
+    state.addListener (this);
     mermaidParser = std::make_unique<jreng::Mermaid::Parser>();
 
     mermaidParser->onReady (
@@ -20,26 +22,25 @@ Component::Component()
             for (const auto blockIndex : mermaidIndices)
             {
                 const auto& block { doc.blocks[blockIndex] };
-                juce::String code { juce::String::fromUTF8 (doc.text + block.contentOffset,
-                                                              block.contentLength) };
+                juce::String code { juce::String::fromUTF8 (doc.text + block.contentOffset, block.contentLength) };
 
                 mermaidParser->convertToSVG (code,
-                                              [this, blockIndex] (const juce::String& svg)
-                                              {
-                                                  auto result { MermaidSVGParser::parse (svg) };
-                                                  screen.updateMermaidBlock (blockIndex, std::move (result));
-                                                  screen.repaint();
-                                              });
+                                             [this, blockIndex] (const juce::String& svg)
+                                             {
+                                                 auto result { MermaidSVGParser::parse (svg) };
+                                                 screen.updateMermaidBlock (blockIndex, std::move (result));
+                                                 screen.repaint();
+                                             });
             }
         });
 
     viewport.setViewedComponent (&screen, false);
     viewport.setScrollBarsShown (true, false);
     addAndMakeVisible (viewport);
-    addAndMakeVisible (spinnerOverlay);
+    addAndMakeVisible (loaderOverlay);
 }
 
-Component::~Component() = default;
+Component::~Component() { state.removeListener (this); }
 
 // ============================================================================
 // PaneComponent interface
@@ -57,10 +58,12 @@ bool Component::keyPressed (const juce::KeyPress& key)
     const auto keyChar { key.getTextCharacter() };
     bool handled { false };
 
+    auto pendingPrefix { static_cast<juce::juce_wchar> (static_cast<int> (state.getProperty (App::ID::pendingPrefix))) };
+
     if (pendingPrefix != 0)
     {
         juce::String sequence { juce::String::charToString (pendingPrefix) + juce::String::charToString (keyChar) };
-        pendingPrefix = 0;
+        state.setProperty (App::ID::pendingPrefix, static_cast<int> (juce::juce_wchar { 0 }), nullptr);
 
         if (sequence == scrollTop)
         {
@@ -80,12 +83,12 @@ bool Component::keyPressed (const juce::KeyPress& key)
 
         if (scrollTop.length() > 1 and scrollTop.substring (0, 1) == keyString)
         {
-            pendingPrefix = keyChar;
+            state.setProperty (App::ID::pendingPrefix, static_cast<int> (keyChar), nullptr);
             handled = true;
         }
         else if (scrollBottom.length() > 1 and scrollBottom.substring (0, 1) == keyString)
         {
-            pendingPrefix = keyChar;
+            state.setProperty (App::ID::pendingPrefix, static_cast<int> (keyChar), nullptr);
             handled = true;
         }
         else if (keyString == scrollDown)
@@ -115,8 +118,7 @@ void Component::switchRenderer (PaneComponent::RendererType type) { juce::ignore
 
 void Component::applyConfig() noexcept
 {
-    buildDocConfig();
-    screen.buildFromDocument (docState.getDocument(), docConfig);
+    screen.load (docState.getDocument(), std::numeric_limits<int>::max());
     resized();
 }
 
@@ -140,10 +142,11 @@ void Component::resized()
     contentArea.removeFromLeft (config->getInt (Whelmed::Config::Key::paddingLeft));
 
     viewport.setBounds (contentArea);
-    static constexpr int progressBarHeight { 24 };
-    spinnerOverlay.setBounds (0, getHeight() - progressBarHeight, getWidth(), progressBarHeight);
+    screen.setSize (viewport.getMaximumVisibleWidth(), juce::jmax (1, screen.getHeight()));
+    screen.updateLayout();
 
-    screen.relayout (viewport.getMaximumVisibleWidth());
+    static constexpr int progressBarHeight { 24 };
+    loaderOverlay.setBounds (0, getHeight() - progressBarHeight, getWidth(), progressBarHeight);
 }
 
 // ============================================================================
@@ -152,65 +155,81 @@ void Component::resized()
 
 void Component::openFile (const juce::File& file)
 {
-    buildDocConfig();
-
     const juce::String fileContent { file.loadFileAsString() };
     auto parsed { jreng::Markdown::Parser::parse (fileContent) };
-    totalBlocks = parsed.blockCount;
+    state.setProperty (App::ID::totalBlocks, parsed.blockCount, nullptr);
 
-    // Store document
+    // Set ValueTree metadata before moving document
+    state.setProperty (App::ID::filePath, file.getFullPathName(), nullptr);
+    state.setProperty (App::ID::displayName, file.getFileNameWithoutExtension(), nullptr);
+    state.setProperty (App::ID::scrollOffset, 0.0f, nullptr);
+    state.setProperty (App::ID::blockCount, 0, nullptr);
+    state.setProperty (App::ID::parseComplete, false, nullptr);
+
+    // Move document to State
     docState.setDocument (std::move (parsed));
 
-    // Build screen from document — styles resolved inline, layout computed
-    screen.buildFromDocument (docState.getDocument(), docConfig);
+    screen.setSize (viewport.getMaximumVisibleWidth(), juce::jmax (1, screen.getHeight()));
+    const int initialBatch { screen.load (docState.getDocument(), viewport.getHeight()) };
+    docState.setInitialBlockCount (initialBatch);
 
-    // Set ValueTree metadata
-    juce::ValueTree tree { docState.getValueTree() };
-    tree.setProperty (App::ID::filePath, file.getFullPathName(), nullptr);
-    tree.setProperty (App::ID::displayName, file.getFileNameWithoutExtension(), nullptr);
-    tree.setProperty (App::ID::scrollOffset, 0.0f, nullptr);
+    loaderOverlay.show (static_cast<int> (state.getProperty (App::ID::totalBlocks)));
+    loaderOverlay.toFront (false);
 
-    // Show spinner for mermaid blocks (if any)
-    const auto mermaidIndices { screen.getMermaidBlockIndices() };
+    mermaidParser->onReady (
+        [this]
+        {
+            const auto& doc { docState.getDocument() };
+            const auto mermaidIndices { screen.getMermaidBlockIndices() };
 
-    if (mermaidIndices.size() > 0)
-    {
-        spinnerOverlay.show (mermaidIndices.size());
-        spinnerOverlay.toFront (false);
-    }
+            for (const auto blockIndex : mermaidIndices)
+            {
+                const auto& block { doc.blocks[blockIndex] };
+                juce::String code { juce::String::fromUTF8 (doc.text + block.contentOffset,
+                                                             block.contentLength) };
 
-    setBufferedToImage (true);
-    resized();
+                mermaidParser->convertToSVG (code,
+                                             [this, blockIndex] (const juce::String& svg)
+                                             {
+                                                 auto result { MermaidSVGParser::parse (svg) };
+                                                 screen.updateMermaidBlock (blockIndex, std::move (result));
+                                                 screen.repaint();
+                                             });
+            }
+        });
+
+    parser = std::make_unique<Parser> (docState, initialBatch);
+    parser->start();
+    repaint();
 }
 
-juce::ValueTree Component::getValueTree() noexcept { return docState.getValueTree(); }
+juce::ValueTree Component::getValueTree() noexcept { return state; }
 
 // ============================================================================
 // Private
 // ============================================================================
 
-void Component::buildDocConfig()
+void Component::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    const auto* config { Whelmed::Config::getContext() };
-    docConfig.bodyFamily = config->getString (Whelmed::Config::Key::fontFamily);
-    docConfig.bodySize = config->getFloat (Whelmed::Config::Key::fontSize);
-    docConfig.codeFamily = config->getString (Whelmed::Config::Key::codeFamily);
-    docConfig.codeSize = config->getFloat (Whelmed::Config::Key::codeSize);
-    docConfig.h1Size = config->getFloat (Whelmed::Config::Key::h1Size);
-    docConfig.h2Size = config->getFloat (Whelmed::Config::Key::h2Size);
-    docConfig.h3Size = config->getFloat (Whelmed::Config::Key::h3Size);
-    docConfig.h4Size = config->getFloat (Whelmed::Config::Key::h4Size);
-    docConfig.h5Size = config->getFloat (Whelmed::Config::Key::h5Size);
-    docConfig.h6Size = config->getFloat (Whelmed::Config::Key::h6Size);
-    docConfig.bodyColour = config->getColour (Whelmed::Config::Key::bodyColour);
-    docConfig.codeColour = config->getColour (Whelmed::Config::Key::codeColour);
-    docConfig.linkColour = config->getColour (Whelmed::Config::Key::linkColour);
-    docConfig.h1Colour = config->getColour (Whelmed::Config::Key::h1Colour);
-    docConfig.h2Colour = config->getColour (Whelmed::Config::Key::h2Colour);
-    docConfig.h3Colour = config->getColour (Whelmed::Config::Key::h3Colour);
-    docConfig.h4Colour = config->getColour (Whelmed::Config::Key::h4Colour);
-    docConfig.h5Colour = config->getColour (Whelmed::Config::Key::h5Colour);
-    docConfig.h6Colour = config->getColour (Whelmed::Config::Key::h6Colour);
+    if (property == App::ID::blockCount)
+    {
+        const int blockCount { static_cast<int> (tree.getProperty (App::ID::blockCount)) };
+        const int blockIndex { blockCount - 1 };
+
+        const int totalBlocks { static_cast<int> (state.getProperty (App::ID::totalBlocks)) };
+
+        if (blockIndex >= 0 and blockIndex < totalBlocks)
+        {
+            screen.build (blockIndex, docState.getDocument());
+            loaderOverlay.update (blockCount, totalBlocks);
+
+            if (blockCount >= totalBlocks)
+            {
+                loaderOverlay.hide();
+                setBufferedToImage (true);
+            }
+        }
+    }
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/

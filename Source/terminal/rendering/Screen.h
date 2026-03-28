@@ -239,7 +239,6 @@ public:
     virtual int getNumRows() const noexcept = 0;
     virtual int getNumCols() const noexcept = 0;
     virtual juce::Point<int> cellAtPoint (int x, int y) const noexcept = 0;
-    virtual void setHintOverlay (const LinkSpan* spans, int count) noexcept = 0;
 
 protected:
     ScreenBase() = default;
@@ -624,26 +623,6 @@ public:
     void setSelection (const ScreenSelection* sel) noexcept;
 
     /**
-     * @brief Sets the hint label overlay for Open File mode rendering.
-     *
-     * Stores a non-owning pointer to the active `LinkSpan` array.  When
-     * non-null, `processCellForSnapshot()` overrides cell content at hint
-     * label positions with the hint character and `Theme::hintLabelBg` /
-     * `Theme::hintLabelFg` colours.  Pass `nullptr` (with `count` 0) to clear
-     * the overlay.
-     *
-     * Because every row is rebuilt from `Grid` on every frame, the overlay is
-     * reflected immediately on the next `render()` call.
-     *
-     * @param spans  Pointer to the `LinkSpan` array, or `nullptr`.
-     * @param count  Number of elements in @p spans; ignored when @p spans is `nullptr`.
-     *
-     * @note **MESSAGE THREAD**.
-     * @see LinkSpan
-     */
-    void setHintOverlay (const LinkSpan* spans, int count) noexcept override;
-
-    /**
      * @brief Sets the always-on link underlay for click-mode underline rendering.
      *
      * Stores a non-owning pointer to the clickable link span array.  When
@@ -950,8 +929,8 @@ private:
 
     const ScreenSelection* selection   { nullptr }; ///< Non-owning pointer to the active selection; nullptr if none.
 
-    const LinkSpan* hintOverlay      { nullptr }; ///< Non-owning pointer to the active hint label spans; nullptr if none.
-    int             hintOverlayCount { 0 };       ///< Number of valid elements in @p hintOverlay.
+    const LinkSpan* hintOverlay      { nullptr }; ///< Pulled from State each frame by buildSnapshot(); nullptr if none.
+    int             hintOverlayCount { 0 };       ///< Number of valid elements in @p hintOverlay; pulled from State each frame.
 
     const LinkSpan* linkUnderlay      { nullptr }; ///< Non-owning pointer to always-on click-mode link spans for underline rendering; nullptr if none.
     int             linkUnderlayCount { 0 };       ///< Number of valid elements in @p linkUnderlay.

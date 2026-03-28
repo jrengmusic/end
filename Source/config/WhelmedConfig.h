@@ -21,9 +21,11 @@ struct Config : jreng::Context<Config>
     struct Key
     {
         inline static const juce::String fontFamily { "font_family" };
+        inline static const juce::String fontStyle  { "font_style" };
         inline static const juce::String fontSize { "font_size" };
         inline static const juce::String codeFamily { "code_family" };
-        inline static const juce::String codeSize { "code_size" };
+        inline static const juce::String codeSize   { "code_size" };
+        inline static const juce::String codeStyle  { "code_style" };
         inline static const juce::String h1Size { "h1_size" };
         inline static const juce::String h2Size { "h2_size" };
         inline static const juce::String h3Size { "h3_size" };
@@ -65,11 +67,30 @@ struct Config : jreng::Context<Config>
         inline static const juce::String tokenPunctuation  { "token_punctuation" };
         inline static const juce::String tokenPreprocessor { "token_preprocessor" };
 
+        inline static const juce::String tableBackground       { "table_background" };
+        inline static const juce::String tableHeaderBackground { "table_header_background" };
+        inline static const juce::String tableRowAlt           { "table_row_alt" };
+        inline static const juce::String tableBorderColour     { "table_border_colour" };
+        inline static const juce::String tableHeaderText       { "table_header_text" };
+        inline static const juce::String tableCellText         { "table_cell_text" };
+
+        inline static const juce::String scrollbarThumb      { "scrollbar_thumb" };
+        inline static const juce::String scrollbarTrack      { "scrollbar_track" };
+        inline static const juce::String scrollbarBackground { "scrollbar_background" };
+
         inline static const juce::String scrollDown   { "scrollDown" };
         inline static const juce::String scrollUp     { "scrollUp" };
         inline static const juce::String scrollTop    { "scrollTop" };
         inline static const juce::String scrollBottom { "scrollBottom" };
         inline static const juce::String scrollStep   { "scrollStep" };
+
+        inline static const juce::String loaderBackground    { "loader_background" };
+        inline static const juce::String loaderFill          { "loader_fill" };
+        inline static const juce::String loaderSpinnerColour { "loader_spinner_colour" };
+        inline static const juce::String loaderTextColour    { "loader_text_colour" };
+        inline static const juce::String loaderFontFamily    { "loader_font_family" };
+        inline static const juce::String loaderFontSize      { "loader_font_size" };
+        inline static const juce::String loaderFontStyle     { "loader_font_style" };
     };
 
     juce::String getString (const juce::String& key) const;

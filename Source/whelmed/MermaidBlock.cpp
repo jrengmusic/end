@@ -21,10 +21,9 @@ int MermaidBlock::getPreferredHeight (int width) const noexcept
 
     if (parseResult.ok and parseResult.viewBox.getWidth() > 0.0f and width > 0)
     {
-        const float vbWidth  { parseResult.viewBox.getWidth() };
-        const float vbHeight { parseResult.viewBox.getHeight() };
-        const float scale    { static_cast<float> (width) / vbWidth };
-        height = juce::jmax (1, static_cast<int> (std::ceil (vbHeight * scale)));
+        const float displayWidth { static_cast<float> (width) };
+        height = juce::jmax (1, static_cast<int> (std::ceil (
+            (displayWidth / parseResult.viewBox.getWidth()) * parseResult.viewBox.getHeight())));
     }
 
     return height;

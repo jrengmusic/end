@@ -64,6 +64,7 @@
 
 #include "Cell.h"
 #include "Identifier.h"
+#include "../selection/LinkSpan.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -838,6 +839,33 @@ struct State : public juce::Timer
      */
     int getHintTotalPages() const noexcept;
 
+    /**
+     * @brief Stores the active hint overlay pointer and count.
+     *
+     * Non-owning.  Caller (InputHandler) is responsible for keeping the
+     * pointed-to data valid until the overlay is cleared.  Marks the
+     * snapshot dirty so Screen picks it up on the next render.
+     *
+     * @param data   Pointer to the first `LinkSpan`, or `nullptr` to clear.
+     * @param count  Number of valid elements in @p data.
+     * @note MESSAGE THREAD — called from InputHandler only.
+     */
+    void setHintOverlay (const LinkSpan* data, int count) noexcept;
+
+    /**
+     * @brief Returns the active hint overlay pointer.
+     * @return Non-owning pointer, or `nullptr` when no overlay is active.
+     * @note MESSAGE THREAD.
+     */
+    const LinkSpan* getHintOverlayData() const noexcept;
+
+    /**
+     * @brief Returns the number of elements in the active hint overlay.
+     * @return Element count, or 0 when no overlay is active.
+     * @note MESSAGE THREAD.
+     */
+    int getHintOverlayCount() const noexcept;
+
     // =========================================================================
     /** @name Selection state convenience wrappers
      *  All selection state is stored in the parameterMap and flows through
@@ -1300,6 +1328,12 @@ private:
      * Allocated once in the constructor; never reallocated.
      */
     juce::HeapBlock<int> keyboardModeStackSize;
+
+    /** @brief Non-owning pointer to the active hint label spans; nullptr when no overlay. */
+    const LinkSpan* hintOverlayData  { nullptr };
+
+    /** @brief Number of valid elements in @p hintOverlayData. */
+    int             hintOverlayCount { 0 };
 
     // needsFlush, snapshotDirty, fullRebuild, cursorBlinkOn, cursorBlinkElapsed,
     // prevFlushedCursorRow, prevFlushedCursorCol, cursorBlinkInterval,

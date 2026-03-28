@@ -513,6 +513,10 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
         frameDirtyBits[i] |= dirtyBits[i];
     }
 
+    // Pull hint overlay from State (written by InputHandler via State::setHintOverlay).
+    hintOverlay      = state.getHintOverlayData();
+    hintOverlayCount = state.getHintOverlayCount();
+
     for (int r { 0 }; r < rows; ++r)
     {
         const int word { r >> 6 };

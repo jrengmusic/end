@@ -28,7 +28,6 @@
 namespace Terminal
 {
 class Session;
-class ScreenBase;
 class LinkManager;
 } // namespace Terminal
 
@@ -36,7 +35,7 @@ class LinkManager;
  * @class InputHandler
  * @brief Keyboard input dispatcher for a single terminal session.
  *
- * Constructed with references to the session, screen, and link manager.  All
+ * Constructed with references to the session and link manager.  All
  * references must remain valid for the lifetime of the `InputHandler`.
  *
  * @par Thread context
@@ -48,12 +47,10 @@ public:
     /**
      * @brief Constructs an InputHandler.
      * @param session     Terminal session (state, grid, key forwarding).
-     * @param screen      Terminal renderer (cursor overlay, scroll offset).
      * @param linkManager Link manager (used by `handleOpenFileKey`).
      * @note MESSAGE THREAD.
      */
     InputHandler (Terminal::Session& session,
-                  Terminal::ScreenBase& screen,
                   Terminal::LinkManager& linkManager) noexcept;
 
     /**
@@ -182,9 +179,6 @@ private:
 
     /** @brief Terminal session — provides state, grid, and key forwarding. */
     Terminal::Session& session;
-
-    /** @brief Terminal renderer — provides scroll offset and cursor queries. */
-    Terminal::ScreenBase& screen;
 
     /** @brief Link manager — used by open-file mode for dispatch. */
     Terminal::LinkManager& linkManager;

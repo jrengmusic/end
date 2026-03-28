@@ -9,43 +9,36 @@
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-/**
-    Unified rendering surface for the Whelmed document viewer.
-
-    Analogous to Terminal::Screen — the single Component that renders all content.
-    Owns all Block data objects and paints them in one pass with viewport culling.
-    Lives inside a juce::Viewport as its viewed component.
-*/
-class Screen : public juce::Component
+class Screen : public juce::Component,
+               private juce::Timer
 {
 public:
     Screen();
 
-    /** Builds block data from a parsed markdown document. Applies styles immediately.
-        Calls layout(width) internally if width is known. */
-    void buildFromDocument (const jreng::Markdown::ParsedDocument& doc,
-                            const jreng::Markdown::DocConfig& config);
+    /** Loads a document. Builds blocks until viewportHeight is filled, returns batch count. */
+    int load (const jreng::Markdown::ParsedDocument& doc, int viewportHeight);
 
-    /** Recomputes layout for all blocks at the given width. Sets component size. */
-    void relayout (int width);
+    /** Builds a single block by index. Idempotent — skips if already built. */
+    void build (int blockIndex, const jreng::Markdown::ParsedDocument& doc);
 
-    /** Updates a mermaid block's parse result and triggers relayout. */
+    /** Recomputes layout for all entries. */
+    void updateLayout();
+
     void updateMermaidBlock (int blockIndex, MermaidParseResult&& result);
-
-    /** Clears all blocks. */
     void clear();
 
-    /** Returns the number of blocks. */
     int getBlockCount() const noexcept;
-
-    /** Returns block indices that are mermaid type. */
+    int getBuiltCount() const noexcept;
     juce::Array<int> getMermaidBlockIndices() const;
 
-    // juce::Component
     void paint (juce::Graphics& g) override;
     void resized() override;
 
 private:
+    void timerCallback() override;
+    bool hasPendingMermaids() const noexcept;
+    void paintMermaidSpinner (juce::Graphics& g, juce::Rectangle<int> area) const;
+
     struct BlockEntry
     {
         std::unique_ptr<Block> block;
@@ -55,12 +48,16 @@ private:
     };
 
     std::vector<BlockEntry> entries;
+    int builtCount { 0 };
+    int spinnerFrame { 0 };
     int contentHeight { 0 };
     int layoutWidth { 0 };
+    float bodyFontSize { 16.0f };
+    float lineHeight { 1.5f };
 
-    juce::AttributedString buildAttributedString (const jreng::Markdown::ParsedDocument& doc,
-                                                   int blockIndex,
-                                                   const jreng::Markdown::DocConfig& config) const;
+    juce::AttributedString buildAttributedString (const jreng::Markdown::ParsedDocument& doc, int blockIndex) const;
+
+    std::unique_ptr<Block> createBlock (const jreng::Markdown::ParsedDocument& doc, int blockIndex);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)
 };
