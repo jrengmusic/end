@@ -17,8 +17,6 @@
 } always {
     # Load integration hooks for interactive shells
     if [[ -o interactive ]]; then
-        autoload -Uz -- "${${(%):-%x}:h}/end-integration"
-        end-integration
-        unfunction end-integration 2>/dev/null
+        source "${${(%):-%x}:h}/end-integration"
     fi
 }

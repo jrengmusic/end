@@ -39,6 +39,9 @@
 #include <JuceHeader.h>
 #include <atomic>
 #include <functional>
+#include <string>
+#include <utility>
+#include <vector>
 
 /**
  * @class TTY
@@ -222,6 +225,42 @@ public:
     /** @} */
 
     // =========================================================================
+    /** @name Shell integration environment
+     *  Env vars injected into the child shell process to enable OSC sequences.
+     *  Must be called before open().
+     * @{ */
+
+    /**
+     * @brief Adds a key-value pair to the shell integration environment.
+     *
+     * Each pair is injected into the child shell process before it starts.
+     * Must be called before `open()`.
+     *
+     * @param key    Environment variable name.
+     * @param value  Value to set.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void addShellEnv (const juce::String& key, const juce::String& value)
+    {
+        shellIntegrationEnv.emplace_back (key.toStdString(), value.toStdString());
+    }
+
+    /**
+     * @brief Clears all previously registered shell integration environment pairs.
+     *
+     * Call before re-populating for a new shell type.  Must be called before `open()`.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void clearShellEnv()
+    {
+        shellIntegrationEnv.clear();
+    }
+
+    /** @} */
+
+    // =========================================================================
     /** @name Process introspection
      *  Query the foreground process running in the terminal.
      *  Default implementations return empty/invalid values.
@@ -333,6 +372,9 @@ public:
     /** @} */
 
 protected:
+    /** @brief Shell integration environment variable pairs injected before shell start. */
+    std::vector<std::pair<std::string, std::string>> shellIntegrationEnv;
+
     /** @brief Set by the message thread via requestResize(); cleared by the reader thread. */
     std::atomic<bool> resizePending { false };
 

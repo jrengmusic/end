@@ -1,0 +1,27 @@
+[5987384] === APP START ===
+[5987405] glContextClosing() — before closeContext()
+[5987405] glContextClosing() — after closeContext()
+[5987406] ~Screen — before closeContext()
+[5987406] ~Screen — after closeContext(), members will destruct
+[5987447] glContextClosing() — before closeContext()
+[5987448] glContextClosing() — after closeContext()
+[5993035] ~TerminalComponent — start
+[5993035] ~TerminalComponent — body done, implicit member destruction next
+[5993035] ~Session — start
+[5993035] ~Session — before tty->close()
+[5993035] WindowsTTY::close() — start
+[5993036] WindowsTTY::close() — before ClosePseudoConsole
+[5993036] WindowsTTY::close() — after ClosePseudoConsole
+[5993036] WindowsTTY::close() — before stopThread(5000)
+[5993037] WindowsTTY::close() — after stopThread
+[5993037] WindowsTTY::close() — done
+[5993037] ~Session — after tty->close()
+[5993037] ~Session — done, members will destruct
+[5993038] WindowsTTY::close() — start
+[5993038] WindowsTTY::close() — before stopThread(5000)
+[5993038] WindowsTTY::close() — after stopThread
+[5993038] WindowsTTY::close() — done
+[5993045] ~Screen — before closeContext()
+[5993045] ~Screen — after closeContext(), members will destruct
+[5993047] ~PaneComponent — parent=0000000000000000 children=0 showing=0 focus=0
+[5993047] ~PaneComponent — after giveAwayKeyboardFocus

@@ -452,7 +452,26 @@ void Parser::handleOscCwd (const uint8_t* data, uint16_t dataLength) noexcept
     if (pathStart != nullptr)
     {
         const int length { juce::jmin (static_cast<int> (end - pathStart), State::maxStringLength - 1) };
-        state.setCwd (pathStart, length);
+
+#if JUCE_WINDOWS
+        // Convert MSYS2 POSIX paths (/c/Users/...) to Windows native (C:/Users/...)
+        if (length >= 3
+            and pathStart[0] == '/'
+            and std::isalpha (static_cast<unsigned char> (pathStart[1]))
+            and pathStart[2] == '/')
+        {
+            const char driveLetter { static_cast<char> (std::toupper (static_cast<unsigned char> (pathStart[1]))) };
+            juce::String converted;
+            converted += driveLetter;
+            converted += ':';
+            converted += juce::String (pathStart + 2, length - 2);
+            state.setCwd (converted.toRawUTF8(), converted.length());
+        }
+        else
+#endif
+        {
+            state.setCwd (pathStart, length);
+        }
     }
 }
 

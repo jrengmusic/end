@@ -116,20 +116,21 @@ void MainComponent::applyConfig()
     // Deferred via callAsync — at construction time the component has no peer,
     // and GlassWindow applies blur asynchronously via handleAsyncUpdate.
     // The deferred call runs after both, ensuring the correct final state.
-    juce::MessageManager::callAsync ([this]
-    {
-        if (getRendererType() == PaneComponent::RendererType::gpu)
+    juce::MessageManager::callAsync (
+        [this]
         {
-            jreng::BackgroundBlur::apply (
-                this,
-                config.getFloat (Config::Key::windowBlurRadius),
-                config.getColour (Config::Key::windowColour).withAlpha (config.getFloat (Config::Key::windowOpacity)));
-        }
-        else
-        {
-            jreng::BackgroundBlur::disableWindowTransparency (this);
-        }
-    });
+            if (getRendererType() == PaneComponent::RendererType::gpu)
+            {
+                jreng::BackgroundBlur::apply (this,
+                                              config.getFloat (Config::Key::windowBlurRadius),
+                                              config.getColour (Config::Key::windowColour)
+                                                  .withAlpha (config.getFloat (Config::Key::windowOpacity)));
+            }
+            else
+            {
+                jreng::BackgroundBlur::disableWindowTransparency (this);
+            }
+        });
 }
 
 void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
@@ -142,7 +143,7 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce:
 
         // Shared atlas: resize once for all terminals.
         const auto atlasSize { rendererType == PaneComponent::RendererType::gpu ? jreng::Glyph::AtlasSize::standard
-                                                                               : jreng::Glyph::AtlasSize::compact };
+                                                                                : jreng::Glyph::AtlasSize::compact };
         typeface.setAtlasSize (atlasSize);
 
         // GL lifecycle: detach first (required for setComponentPaintingEnabled).
@@ -344,25 +345,25 @@ void MainComponent::registerActions()
                                return true;
                            });
 
-    action.registerAction ("new_window",
-                           "New Window",
-                           "Open a new terminal window",
-                           "Window",
-                           false,
-                           []() -> bool
-                           {
-                               const juce::File app { juce::File::getSpecialLocation (
-                                   juce::File::currentApplicationFile) };
+    action.registerAction (
+        "new_window",
+        "New Window",
+        "Open a new terminal window",
+        "Window",
+        false,
+        []() -> bool
+        {
+            const juce::File app { juce::File::getSpecialLocation (juce::File::currentApplicationFile) };
 
-                           #if JUCE_MAC
-                               const juce::String cmd { "open -n \"" + app.getFullPathName() + "\" &" };
-                               std::system (cmd.toRawUTF8());
-                           #else
-                               app.startAsProcess();
-                           #endif
+#if JUCE_MAC
+            const juce::String cmd { "open -n \"" + app.getFullPathName() + "\" &" };
+            std::system (cmd.toRawUTF8());
+#else
+            app.startAsProcess();
+#endif
 
-                               return true;
-                           });
+            return true;
+        });
 
     action.registerAction ("new_tab",
                            "New Tab",
@@ -520,29 +521,27 @@ void MainComponent::registerActions()
                                return true;
                            });
 
-    action.registerAction ("open_markdown",
-                           "Open Markdown",
-                           "Open a .md file in a Whelmed pane",
-                           "Navigation",
-                           true,
-                           [this]() -> bool
-                           {
-                               auto chooser { std::make_shared<juce::FileChooser> (
-                                   "Open Markdown File", juce::File {}, "*.md") };
+    action.registerAction (
+        "open_markdown",
+        "Open Markdown",
+        "Open a .md file in a Whelmed pane",
+        "Navigation",
+        true,
+        [this]() -> bool
+        {
+            auto chooser { std::make_shared<juce::FileChooser> ("Open Markdown File", juce::File {}, "*.md") };
 
-                               chooser->launchAsync (
-                                   juce::FileBrowserComponent::openMode
-                                       | juce::FileBrowserComponent::canSelectFiles,
-                                   [this, chooser] (const juce::FileChooser& fc)
-                                   {
-                                       const auto result { fc.getResult() };
+            chooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+                                  [this, chooser] (const juce::FileChooser& fc)
+                                  {
+                                      const auto result { fc.getResult() };
 
-                                       if (result.existsAsFile())
-                                           tabs->openMarkdown (result);
-                                   });
+                                      if (result.existsAsFile())
+                                          tabs->openMarkdown (result);
+                                  });
 
-                               return true;
-                           });
+            return true;
+        });
 
     // Register popup actions from Config
     for (const auto& pair : config.getPopups())
@@ -675,10 +674,10 @@ void MainComponent::initialiseTabs()
     {
         if (auto* terminal { tabs->getActiveTerminal() }; terminal != nullptr)
         {
-            const auto modalType  { terminal->getModalType() };
-            const auto selType    { terminal->getSelectionType() };
-            const auto hintPage   { terminal->getHintPage() };
-            const auto hintTotal  { terminal->getHintTotalPages() };
+            const auto modalType { terminal->getModalType() };
+            const auto selType { terminal->getSelectionType() };
+            const auto hintPage { terminal->getHintPage() };
+            const auto hintTotal { terminal->getHintTotalPages() };
             statusBarOverlay.update (modalType, selType, hintPage, hintTotal);
             terminal->repaint();
         }
@@ -729,3 +728,4 @@ void MainComponent::initialiseMessageOverlay()
             });
     }
 }
+

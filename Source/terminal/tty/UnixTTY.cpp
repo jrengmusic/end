@@ -132,16 +132,6 @@ UnixTTY::~UnixTTY()
  *
  * @note MESSAGE THREAD context.
  */
-void UnixTTY::addShellEnv (const juce::String& key, const juce::String& value)
-{
-    shellIntegrationEnv.emplace_back (key.toStdString(), value.toStdString());
-}
-
-void UnixTTY::clearShellEnv()
-{
-    shellIntegrationEnv.clear();
-}
-
 bool UnixTTY::open (int cols, int rows, const juce::String& shell,
                     const juce::String& args, const juce::String& workingDirectory)
 {

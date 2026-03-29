@@ -2,6 +2,45 @@
 
 ---
 
+## Sprint 131: Windows Shell Integration — MSYS2 zsh/bash/fish support
+
+**Date:** 2026-03-29
+
+### Agents Participated
+- COUNSELOR — planned fix, identified root cause chain, directed execution
+- Pathfinder — discovered shell integration injection code, WindowsTTY env gap, LinkManager gating, OSC 7/133 flow
+- Engineer — implemented all 4 tasks (TTY base lift, WindowsTTY env injection, Session guard removal, MSYS2 path conversion)
+- Auditor — verified all 6 modified files, confirmed zero contract violations
+
+### Files Modified (8 total)
+- `Source/terminal/tty/TTY.h:227-261,376` — added `addShellEnv()`, `clearShellEnv()`, `shellIntegrationEnv` to base class
+- `Source/terminal/tty/UnixTTY.h` — removed `addShellEnv`/`clearShellEnv` declarations and `shellIntegrationEnv` member (now inherited)
+- `Source/terminal/tty/UnixTTY.cpp` — removed `addShellEnv`/`clearShellEnv` definitions (now inherited)
+- `Source/terminal/tty/WindowsTTY.cpp:556-580,598,743` — `buildEnvironmentBlock` and `spawnProcess` accept and inject `shellEnvVars` into ConPTY child environment
+- `Source/terminal/logic/Session.cpp:540-554,582,593,616` — removed all `#if JUCE_MAC || JUCE_LINUX` guards, removed `static_cast<UnixTTY*>`, all shells use `tty->` directly; `configPath` converted to MSYS2 POSIX format for env path values
+- `Source/terminal/logic/ParserESC.cpp:456-474` — MSYS2 path conversion in `handleOscCwd`: `/c/Users/...` to `C:/Users/...`
+- `Source/terminal/shell/zsh_zshenv.zsh:20` — replaced `autoload` with `source` for MSYS2 compatibility
+- `Source/terminal/shell/zsh_end_integration.zsh` — removed function wrapper, hooks install directly when sourced
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md followed
+
+### Problems Solved
+- **Shell integration completely non-functional on Windows:** `addShellEnv`/`clearShellEnv` existed only on `UnixTTY`, all env injection guarded behind `#if JUCE_MAC || JUCE_LINUX`. Lifted to `TTY` base class, removed all platform guards.
+- **WindowsTTY had no env injection mechanism:** `buildEnvironmentBlock` only copied parent env + TERM. Now accepts and injects shell integration env vars (same pattern as UnixTTY's `launchShell` parameter passing).
+- **File links gated on OSC 133 output blocks:** Without shell integration, OSC 133 C/D never fired, `hasOutputBlock()` stayed false, `LinkManager::scanViewport()` never allowed file links. Fixed by enabling shell integration on Windows.
+- **MSYS2 path mangling (bidirectional):** OSC 7 CWD arrives as `/c/Users/...` — converted to `C:/Users/...` in `handleOscCwd`. Env paths injected into MSYS2 shells converted from `C:\Users\...` to `/c/Users/...` via `configPath`.
+- **zsh autoload broken on MSYS2:** `autoload -Uz` cannot resolve paths with Windows drive letters (`C:`). Replaced with `source` which handles all path formats. Removed function wrapper from `end-integration` so hooks install directly.
+
+### Technical Debt / Follow-up
+- Hyperlinks not yet confirmed working end-to-end on Windows — ARCHITECT testing in progress
+- pwsh integration uses `args` only (no env injection needed) — works but `scriptFile.getFullPathName()` in args still uses backslash paths; pwsh handles this natively so no issue
+
+---
+
 ## Handoff to COUNSELOR: Whelmed Phase 3 — Screen Architecture, Tokenization, Config Unification
 
 **From:** COUNSELOR

@@ -45,7 +45,7 @@
 #include "freetype/src/winfonts/winfnt.c"
 
 // Platform-specific system interface
-#if JUCE_WINDOWS
+#if _WIN32
     #include "freetype/builds/windows/ftsystem.c"
     #include "freetype/builds/windows/ftdebug.c"
 #else

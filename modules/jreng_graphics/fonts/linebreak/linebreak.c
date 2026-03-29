@@ -61,7 +61,7 @@
 /* See the later `#if UB_LB25_OPT_HACK` for how this optimization
  * works.  It proves to work well on GCC and MSVC, but not Clang,
  * which optimizes quite well by itself. */
-#ifndef __clang__
+#if !defined(__clang__) && !defined(__cplusplus)
 #define UB_LB25_OPT_HACK 1
 #else
 #define UB_LB25_OPT_HACK 0

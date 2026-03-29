@@ -541,11 +541,19 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
 {
     const juce::File configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory)
                                      .getChildFile (".config/end") };
+    juce::String configPath { configDir.getFullPathName().replace (juce::File::getSeparatorString(), "/") };
 
-#if JUCE_MAC || JUCE_LINUX
-    auto* unixTty { static_cast<UnixTTY*> (tty.get()) };
-    unixTty->clearShellEnv();
-#endif
+    // Convert Windows drive path (C:/...) to MSYS2 POSIX path (/c/...)
+    if (configPath.length() >= 3
+        and std::isalpha (static_cast<unsigned char> (configPath[0]))
+        and configPath[1] == ':'
+        and configPath[2] == '/')
+    {
+        configPath = "/" + juce::String::charToString (std::tolower (static_cast<unsigned char> (configPath[0])))
+                   + configPath.substring (2);
+    }
+
+    tty->clearShellEnv();
 
     if (not Config::getContext()->getBool (Config::Key::shellIntegration))
     {
@@ -574,16 +582,14 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
                   .replaceWithData (endInteg.data, static_cast<size_t> (endInteg.size));
         }
 
-#if JUCE_MAC || JUCE_LINUX
         const char* origZdotdir { getenv ("ZDOTDIR") };
 
         if (origZdotdir != nullptr)
         {
-            unixTty->addShellEnv ("END_ORIG_ZDOTDIR", origZdotdir);
+            tty->addShellEnv ("END_ORIG_ZDOTDIR", origZdotdir);
         }
 
-        unixTty->addShellEnv ("ZDOTDIR", zshDir.getFullPathName().toStdString());
-#endif
+        tty->addShellEnv ("ZDOTDIR", configPath + "/zsh");
     }
     else if (shell.contains ("bash"))
     {
@@ -595,16 +601,14 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
             configDir.createDirectory();
             scriptFile.replaceWithData (bashScript.data, static_cast<size_t> (bashScript.size));
 
-#if JUCE_MAC || JUCE_LINUX
-            unixTty->addShellEnv ("ENV", scriptFile.getFullPathName().toStdString());
-            unixTty->addShellEnv ("END_BASH_INJECT", "1");
-            unixTty->addShellEnv ("END_BASH_UNEXPORT_HISTFILE", "1");
+            tty->addShellEnv ("ENV", configPath + "/bash_integration.bash");
+            tty->addShellEnv ("END_BASH_INJECT", "1");
+            tty->addShellEnv ("END_BASH_UNEXPORT_HISTFILE", "1");
 
             if (args.contains ("--norc"))
             {
-                unixTty->addShellEnv ("END_BASH_NORC", "1");
+                tty->addShellEnv ("END_BASH_NORC", "1");
             }
-#endif
 
             args = "--posix " + args;
         }
@@ -620,8 +624,7 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
             fishDir.getChildFile ("end-shell-integration.fish")
                    .replaceWithData (fishScript.data, static_cast<size_t> (fishScript.size));
 
-#if JUCE_MAC || JUCE_LINUX
-            const juce::String integDir { configDir.getFullPathName() };
+            const juce::String integDir { configPath };
             const char* origXdg { getenv ("XDG_DATA_DIRS") };
             juce::String newXdg { integDir };
 
@@ -630,9 +633,8 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
                 newXdg += ":" + juce::String (origXdg);
             }
 
-            unixTty->addShellEnv ("XDG_DATA_DIRS", newXdg.toStdString());
-            unixTty->addShellEnv ("END_FISH_XDG_DATA_DIR", integDir.toStdString());
-#endif
+            tty->addShellEnv ("XDG_DATA_DIRS", newXdg);
+            tty->addShellEnv ("END_FISH_XDG_DATA_DIR", integDir);
         }
     }
     else if (shell.contains ("pwsh") or shell.contains ("powershell"))

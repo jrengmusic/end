@@ -548,11 +548,13 @@ static bool createPseudoConsole (HPCON& pseudoConsoleOut, HANDLE client, COORD s
  * appends `TERM=xterm-256color`.  The resulting block is double-null-terminated
  * as required by `CreateProcessW` with `CREATE_UNICODE_ENVIRONMENT`.
  *
- * @param[out] envBlock  Receives the constructed environment block.
+ * @param[out] envBlock     Receives the constructed environment block.
+ * @param      shellEnvVars Shell integration env vars to inject after parent env.
  *
  * @note Called from `spawnProcess()` on the message thread.
  */
-static void buildEnvironmentBlock (std::wstring& envBlock) noexcept
+static void buildEnvironmentBlock (std::wstring& envBlock,
+                                   const std::vector<std::pair<std::string, std::string>>& shellEnvVars) noexcept
 {
     wchar_t* parentEnv { GetEnvironmentStringsW() };
 
@@ -568,6 +570,13 @@ static void buildEnvironmentBlock (std::wstring& envBlock) noexcept
         }
 
         FreeEnvironmentStringsW (parentEnv);
+    }
+
+    for (const auto& [key, value] : shellEnvVars)
+    {
+        const juce::String entry { key + "=" + value };
+        envBlock += entry.toWideCharPointer();
+        envBlock += L'\0';
     }
 
     envBlock += L"TERM=xterm-256color";
@@ -591,13 +600,15 @@ static void buildEnvironmentBlock (std::wstring& envBlock) noexcept
  * @param      shell          Shell program as a wide string.
  * @param      args           Shell arguments as a wide string (space-separated).
  * @param      workingDirectory Initial cwd for the child process.
+ * @param      shellEnvVars  Shell integration env vars to inject into the child environment.
  * @return                    `true` if `CreateProcessW()` succeeded.
  *
  * @note Called from `WindowsTTY::open()` on the message thread.
  */
 static bool spawnProcess (HPCON pseudoConsole, HANDLE& client, HANDLE& processOut,
                           const std::wstring& shell, const std::wstring& args,
-                          const std::wstring& workingDirectory) noexcept
+                          const std::wstring& workingDirectory,
+                          const std::vector<std::pair<std::string, std::string>>& shellEnvVars) noexcept
 {
     size_t attrSize { 0 };
     InitializeProcThreadAttributeList (nullptr, 1, 0, &attrSize);
@@ -626,7 +637,7 @@ static bool spawnProcess (HPCON pseudoConsole, HANDLE& client, HANDLE& processOu
         }
 
         std::wstring envBlock;
-        buildEnvironmentBlock (envBlock);
+        buildEnvironmentBlock (envBlock, shellEnvVars);
 
         const wchar_t* cwd { workingDirectory.empty() ? nullptr : workingDirectory.c_str() };
 
@@ -729,7 +740,7 @@ bool WindowsTTY::open (int cols, int rows, const juce::String& shell,
                 const std::wstring argsWide  { args.toWideCharPointer() };
                 const std::wstring cwdWide   { workingDirectory.toWideCharPointer() };
 
-                if (spawnProcess (pseudoConsole, client, process, shellWide, argsWide, cwdWide))
+                if (spawnProcess (pseudoConsole, client, process, shellWide, argsWide, cwdWide, shellIntegrationEnv))
                 {
                     readOverlapped  = {};
                     writeOverlapped = {};
@@ -797,7 +808,9 @@ void WindowsTTY::close()
         const ConPtyFuncs& funcs { loadConPtyFuncs() };
 
         if (funcs.close != nullptr)
+        {
             funcs.close (pseudoConsole);
+        }
 
         pseudoConsole = nullptr;
     }

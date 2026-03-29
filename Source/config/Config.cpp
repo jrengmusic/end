@@ -96,11 +96,7 @@ void Config::initKeys()
     using T = Value::Type;
 
     addKey (Key::fontFamily, "Display Mono", { T::string });
-#if JUCE_WINDOWS
-    addKey (Key::fontSize, 10.0, { T::number, 1.0, 200.0, true });
-#else
     addKey (Key::fontSize, 12.0, { T::number, 1.0, 200.0, true });
-#endif
     addKey (Key::fontLigatures, true, { T::boolean });
     addKey (Key::fontEmbolden, true, { T::boolean });
 
@@ -109,7 +105,7 @@ void Config::initKeys()
     addKey (Key::cursorBlinkInterval, 500.0, { T::number, 100.0, 5000.0, true });
     addKey (Key::cursorForce, false, { T::boolean });
 
-    addKey (Key::coloursForeground, "#4E8C93", { T::string });///< paradiso
+    addKey (Key::coloursForeground, "#5FAEB5", { T::string });///< text
     addKey (Key::coloursBackground, "#090D12E0", { T::string });///< bunker semi-transparent
     addKey (Key::coloursCursor, "#4E8C93", { T::string });///< paradiso
     addKey (Key::coloursSelection, "#00C8D880", { T::string });///< blueBikini semi-transparent
@@ -240,14 +236,14 @@ void Config::initKeys()
     addKey (Key::paneBarColour, "#1B2A31", { T::string });///< dark
     addKey (Key::paneBarHighlight, "#4E8C93", { T::string });///< paradiso
 
-    addKey (Key::coloursStatusBar, "#090D12", { T::string });        ///< bunker
-    addKey (Key::coloursStatusBarLabelBg, "#112130", { T::string }); ///< trappedDarkness
-    addKey (Key::coloursStatusBarLabelFg, "#4E8C93", { T::string }); ///< paradiso
+    addKey (Key::coloursStatusBar, "#090D12", { T::string });///< bunker
+    addKey (Key::coloursStatusBarLabelBg, "#112130", { T::string });///< trappedDarkness
+    addKey (Key::coloursStatusBarLabelFg, "#4E8C93", { T::string });///< paradiso
     addKey (Key::keysStatusBarPosition, "bottom", { T::string });
     addKey (Key::statusBarFontFamily, juce::String ("Display Mono"), { T::string });
-    addKey (Key::statusBarFontSize,   12.0, { T::number, 6.0, 48.0, true });
-    addKey (Key::statusBarFontStyle,  juce::String ("Bold"), { T::string });
-    addKey (Key::statusBarSpinnerColour, "#00C8D8", { T::string }); ///< blueBikini
+    addKey (Key::statusBarFontSize, 12.0, { T::number, 6.0, 48.0, true });
+    addKey (Key::statusBarFontStyle, juce::String ("Bold"), { T::string });
+    addKey (Key::statusBarSpinnerColour, "#00C8D8", { T::string });///< blueBikini
 
     addKey (Key::coloursHintLabelBg, "#00FFFF", { T::string });///< cyan
     addKey (Key::coloursHintLabelFg, "#111111", { T::string });///< near-black
@@ -1035,3 +1031,4 @@ bool Config::isClickableExtension (const juce::String& extension) const noexcept
 {
     return hyperlinkExtensions.count (extension) > 0 or hyperlinkHandlers.count (extension) > 0;
 }
+
