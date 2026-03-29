@@ -1,6 +1,6 @@
 # PATTERNS-WRITER.md - Pattern Discovery and Documentation Guide
 
-**Version:** 0.0.3
+**Version:** 0.0.4
 **Purpose:** How agents discover, validate, and document patterns in codebases
 **Audience:** MACHINIST, SURGEON (pattern discovery during work), COUNSELOR (documentation compilation)
 

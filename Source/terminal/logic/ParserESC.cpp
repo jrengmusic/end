@@ -107,11 +107,11 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
     {
         case 'D':
         {
-            if (not cursorGoToNextLine (scr, scrollBottom, grid.getVisibleRows()))
+            if (not cursorGoToNextLine (scr, activeScrollBottom(), grid.getVisibleRows()))
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
-                grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
+                grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
             }
             break;
         }
@@ -119,11 +119,11 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
         case 'E':
             state.setCursorCol (scr, 0);
             state.setWrapPending (scr, false);
-            if (not cursorGoToNextLine (scr, scrollBottom, grid.getVisibleRows()))
+            if (not cursorGoToNextLine (scr, activeScrollBottom(), grid.getVisibleRows()))
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
-                grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
+                grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
             }
             break;
 
@@ -137,7 +137,7 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
-                grid.scrollRegionDown (state.getScrollTop (scr), scrollBottom, 1, fill);
+                grid.scrollRegionDown (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
             }
             else if (state.getCursorRow (scr) > 0)
             {

@@ -467,16 +467,17 @@ private:
     uint32_t lastGraphicChar { 0 };
 
     /**
-     * @brief Cached bottom row of the current scrolling region (zero-based).
+     * @brief Returns the effective bottom row of the current scrolling region.
      *
-     * Kept in sync with `State::getScrollBottom()` by `calc()`.  Cached here
-     * to avoid repeated atomic loads in the hot path.  Updated by
-     * `cursorSetScrollRegion()` and `cursorResetScrollRegion()`.
+     * Reads directly from State atomics on every call — no caching.
+     * Wraps `effectiveScrollBottom()` with the current screen and visible rows.
      *
-     * @see calc()
      * @see effectiveScrollBottom()
      */
-    int scrollBottom { 0 };
+    int activeScrollBottom() const noexcept
+    {
+        return effectiveScrollBottom (state.getScreen(), state.getVisibleRows());
+    }
 
     /**
      * @brief Whether the VT100 line-drawing character set is active in GL.

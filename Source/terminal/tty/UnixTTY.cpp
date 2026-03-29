@@ -361,7 +361,7 @@ bool UnixTTY::write (const char* buf, int len)
  *
  * @note READER THREAD context (dispatched via TTY::run resize handling).
  */
-void UnixTTY::resize (int cols, int rows)
+void UnixTTY::platformResize (int cols, int rows)
 {
     struct winsize ws { static_cast<unsigned short> (rows), static_cast<unsigned short> (cols), 0, 0 };
     ioctl (master, TIOCSWINSZ, &ws);

@@ -33,9 +33,9 @@
  *
  * @par Resize handling
  * If `resizePending` is set the thread reads `pendingCols` / `pendingRows`,
- * fires `onResize` so the owner can update its grid, calls the platform
- * `resize()`, then clears the flag.  This ensures the PTY resize ioctl is
- * always issued from the thread that owns the fd.
+ * fires `onResize` so the owner can update its grid and parser, then clears
+ * the flag.  `platformResize()` was already called on the message thread by
+ * `resize()` — no second OS call is needed here.
  *
  * @par Data delivery
  * After `waitForData` returns `true` the inner loop calls `read()` repeatedly
@@ -72,7 +72,6 @@ void TTY::run()
 
             if (onResize)
                 onResize (cols, rows);
-            resize (cols, rows);
             resizePending.store (false, std::memory_order_release);
         }
     };

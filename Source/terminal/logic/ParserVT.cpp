@@ -267,6 +267,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
     const int visibleRows { grid.getVisibleRows() };
     const bool autoWrap { state.getMode (ID::autoWrap) };
     const int scrollTop { state.getScrollTop (scr) };
+    const int scrollBottomVal { activeScrollBottom() };
 
     Cell cellTemplate {};
     cellTemplate.style = stamp.style;
@@ -289,7 +290,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
 
         if (byte >= 0x20 and byte <= 0x7E)
         {
-            flushPrintRun (c, grid, scrollTop, scrollBottom, visibleRows, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill);
+            flushPrintRun (c, grid, scrollTop, scrollBottomVal, visibleRows, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill);
             lastGraphicChar = cellTemplate.codepoint;
             consumed = i + 1;
             continue;
@@ -298,7 +299,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
         if (byte == 0x0A or byte == 0x0B or byte == 0x0C)
         {
             localDirty[c.row >> 6] |= uint64_t { 1 } << (c.row & 63);
-            handleLineFeed (c, grid, scrollTop, scrollBottom, visibleRows, fill);
+            handleLineFeed (c, grid, scrollTop, scrollBottomVal, visibleRows, fill);
             state.extendOutputBlock (grid.getScrollbackUsed() + c.row);
             consumed = i + 1;
             continue;
@@ -366,13 +367,13 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
 
         const int row { state.getCursorRow (scr) };
 
-        if (row == scrollBottom)
+        if (row == activeScrollBottom())
         {
             Cell fill {};
             fill.bg = stamp.bg;
-            grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
+            grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
         }
-        else if (row > scrollBottom)
+        else if (row > activeScrollBottom())
         {
             state.setCursorRow (scr, juce::jmin (row + 1, grid.getVisibleRows() - 1));
         }
@@ -572,13 +573,13 @@ void Parser::print (uint32_t codepoint) noexcept
             {
                 grid.activeVisibleRowState (row).setWrapped (true);
 
-                if (row == scrollBottom)
+                if (row == activeScrollBottom())
                 {
                     Cell fill {};
                     fill.bg = stamp.bg;
-                    grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
+                    grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
                 }
-                else if (row > scrollBottom)
+                else if (row > activeScrollBottom())
                 {
                     state.setCursorRow (scr, juce::jmin (row + 1, grid.getVisibleRows() - 1));
                 }
@@ -660,11 +661,11 @@ void Parser::print (uint32_t codepoint) noexcept
  */
 void Parser::executeLineFeed (ActiveScreen scr) noexcept
 {
-    if (not cursorGoToNextLine (scr, scrollBottom, grid.getVisibleRows()))
+    if (not cursorGoToNextLine (scr, activeScrollBottom(), grid.getVisibleRows()))
     {
         Cell fill {};
         fill.bg = stamp.bg;
-        grid.scrollRegionUp (state.getScrollTop (scr), scrollBottom, 1, fill);
+        grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
     }
 
     state.extendOutputBlock (grid.getScrollbackUsed() + state.getCursorRow (scr));

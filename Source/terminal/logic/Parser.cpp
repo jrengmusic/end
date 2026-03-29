@@ -207,8 +207,6 @@ void Parser::calc() noexcept
     stamp.style = pen.style;
     stamp.fg = pen.fg;
     stamp.bg = pen.bg;
-    const int vr { state.getVisibleRows() };
-    scrollBottom = effectiveScrollBottom (state.getScreen(), vr);
 }
 
 // ============================================================================

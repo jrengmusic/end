@@ -475,8 +475,8 @@ int Parser::effectiveClampBottom (ActiveScreen s) const noexcept
 {
     const int row { state.getCursorRow (s) };
     const int top { state.getScrollTop (s) };
-    const bool withinMargins { row >= top and row <= scrollBottom };
-    return withinMargins ? scrollBottom : grid.getVisibleRows() - 1;
+    const bool withinMargins { row >= top and row <= activeScrollBottom() };
+    return withinMargins ? activeScrollBottom() : grid.getVisibleRows() - 1;
 }
 
 // ============================================================================

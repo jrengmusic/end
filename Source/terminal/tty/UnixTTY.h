@@ -158,9 +158,9 @@ public:
      * @param cols  New terminal width in character columns.
      * @param rows  New terminal height in character rows.
      *
-     * @note READER THREAD context (dispatched via TTY::run resize handling).
+     * @note MESSAGE THREAD context (called from TTY::resize).
      */
-    void resize (int cols, int rows) override;
+    void platformResize (int cols, int rows) override;
 
     /**
      * @brief Block until data is available on the master fd or the timeout expires.

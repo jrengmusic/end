@@ -103,7 +103,7 @@ public:
      * @brief Notifies the session of a terminal viewport resize.
      *
      * On the first call, opens the PTY with the given dimensions and marks the
-     * TTY as opened.  On subsequent calls, requests a resize via `tty->requestResize()`,
+     * TTY as opened.  On subsequent calls, requests a resize via `tty->resize()`,
      * which sends a `SIGWINCH` to the child process and triggers `tty->onResize`,
      * which in turn calls `parser.resize()` and `grid.resize()`.
      *

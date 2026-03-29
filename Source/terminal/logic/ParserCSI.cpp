@@ -651,7 +651,7 @@ void Parser::moveCursorTo (int row, int col) noexcept
 void Parser::scrollUp (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
-    const int bottom { scrollBottom };
+    const int bottom { activeScrollBottom() };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     Cell fill {};
@@ -681,7 +681,7 @@ void Parser::scrollUp (const CSI& params) noexcept
 void Parser::scrollDown (const CSI& params) noexcept
 {
     const auto scr { state.getScreen() };
-    const int bottom { scrollBottom };
+    const int bottom { activeScrollBottom() };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     Cell fill {};

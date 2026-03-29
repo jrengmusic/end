@@ -24,8 +24,8 @@ void Grid::scrollUp (int count, const Cell& fill) noexcept
     {
         buffer.head = (buffer.head + 1) & buffer.rowMask;
 
-        Cell* row { rowPtr (buffer, visibleRows - 1) };
-        std::fill (row, row + cols, fill);
+        Cell* row { rowPtr (buffer, state.getVisibleRows() - 1) };
+        std::fill (row, row + state.getCols(), fill);
 
         if (scr == normal and buffer.scrollbackUsed < scrollbackCapacity)
         {
@@ -35,7 +35,7 @@ void Grid::scrollUp (int count, const Cell& fill) noexcept
 
     scrollDelta.fetch_add (count, std::memory_order_relaxed);
 
-    for (int r { visibleRows - count }; r < visibleRows; ++r)
+    for (int r { state.getVisibleRows() - count }; r < state.getVisibleRows(); ++r)
     {
         if (r >= 0)
         {
@@ -59,7 +59,7 @@ void Grid::scrollDown (int count, const Cell& fill) noexcept
 
 void Grid::scrollRegionUp (int top, int bottom, int count, const Cell& fill) noexcept
 {
-    if (top == 0 and bottom == visibleRows - 1)
+    if (top == 0 and bottom == state.getVisibleRows() - 1)
     {
         scrollUp (count, fill);
     }
@@ -71,7 +71,7 @@ void Grid::scrollRegionUp (int top, int bottom, int count, const Cell& fill) noe
 
 void Grid::scrollRegionDown (int top, int bottom, int count, const Cell& fill) noexcept
 {
-    if (top == 0 and bottom == visibleRows - 1)
+    if (top == 0 and bottom == state.getVisibleRows() - 1)
     {
         scrollDown (count, fill);
     }
@@ -109,12 +109,12 @@ void Grid::shiftRegionDown (Buffer& buffer, int top, int bottom, int ec, size_t 
 
 void Grid::scrollRegion (int top, int bottom, int count, bool up, const Cell& fill) noexcept
 {
-    if (top >= 0 and bottom < visibleRows and top < bottom and count > 0)
+    if (top >= 0 and bottom < state.getVisibleRows() and top < bottom and count > 0)
     {
         Buffer& buffer { bufferForScreen() };
         const int regionSize { bottom - top + 1 };
         const int ec { juce::jmin (count, regionSize) };
-        const size_t rowBytes { static_cast<size_t> (cols) * sizeof (Cell) };
+        const size_t rowBytes { static_cast<size_t> (state.getCols()) * sizeof (Cell) };
 
         if (up)
         {

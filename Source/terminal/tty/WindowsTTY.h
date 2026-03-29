@@ -53,8 +53,8 @@
  * | `writeEvent`     | WindowsTTY          | Manual-reset event for write OVERLAPPED |
  *
  * ### Thread model
- * - `open()`, `close()`, `write()` — message thread
- * - `read()`, `resize()`, `waitForData()` — reader thread (called from TTY::run)
+ * - `open()`, `close()`, `write()`, `platformResize()` — message thread
+ * - `read()`, `waitForData()` — reader thread (called from TTY::run)
  *
  * ### Shutdown sequence
  * 1. `signalThreadShouldExit()` — tell reader thread to stop.
@@ -101,8 +101,8 @@
  * prevents double-issuing a read while one is already in flight.
  *
  * @par Thread model
- * - `open()`, `close()`, `write()` — message thread
- * - `read()`, `resize()`, `waitForData()` — reader thread (called from TTY::run)
+ * - `open()`, `close()`, `write()`, `platformResize()` — message thread
+ * - `read()`, `waitForData()` — reader thread (called from TTY::run)
  *
  * @see TTY
  */
@@ -215,9 +215,9 @@ public:
      * @param cols  New terminal width in character columns.
      * @param rows  New terminal height in character rows.
      *
-     * @note READER THREAD context (dispatched via TTY::run resize handling).
+     * @note MESSAGE THREAD context — called from TTY::resize().
      */
-    void resize (int cols, int rows) override;
+    void platformResize (int cols, int rows) override;
 
     /**
      * @brief Issue an overlapped read and block until data arrives or the timeout expires.

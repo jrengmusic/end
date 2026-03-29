@@ -32,3 +32,8 @@ fi
 _end_precmd() { printf '\033]7;file://%s%s\007\033]133;A\007' "$HOSTNAME" "$PWD"; }
 PS0=$'\033]133;C\007'
 PROMPT_COMMAND="_end_precmd${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+
+if [[ -n "$END_CWD" ]]; then
+    cd "$END_CWD"
+    unset END_CWD
+fi

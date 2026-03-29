@@ -336,7 +336,15 @@ void Panes::splitImpl (const juce::String& direction, bool isVertical)
  *
  * @note MESSAGE THREAD.
  */
-void Panes::resized() { jreng::PaneManager::layout (paneManager.getState(), getLocalBounds(), panes, resizerBars); }
+void Panes::resized()
+{
+    jreng::PaneManager::layout (paneManager.getState(), getLocalBounds(), panes, resizerBars);
+
+    for (auto& pane : panes)
+    {
+        pane->resized();
+    }
+}
 
 /**
  * @brief Propagates visibility to child terminals.

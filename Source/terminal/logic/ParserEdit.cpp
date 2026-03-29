@@ -293,7 +293,7 @@ void Parser::shiftLinesUp (int count) noexcept
 void Parser::shiftLines (int count, bool up) noexcept
 {
     const auto scr { state.getScreen() };
-    const int bottom { scrollBottom };
+    const int bottom { activeScrollBottom() };
 
     if (state.getCursorRow (scr) >= state.getScrollTop (scr) and state.getCursorRow (scr) <= bottom)
     {

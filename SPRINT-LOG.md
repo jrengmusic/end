@@ -2,6 +2,124 @@
 
 ---
 
+## Sprint 132: Windows Shell Integration, Reflow Cursor Tracking, SSOT Enforcement
+
+**Date:** 2026-03-29
+
+### Agents Participated
+- COUNSELOR — planned all fixes, root cause analysis, directed execution
+- Pathfinder — shell integration gaps, selection rendering, reflow cursor, MSVC C2228 root cause, resize chain tracing, shadow state inventory (~60 sites)
+- Engineer — shell integration (env injection, path conversion, zsh scripts), selection fix, reflow cursor tracking, Grid/Parser shadow state removal, TTY resize unification, pane resize force-call, alternate buffer preservation, CWD injection, install script
+- Auditor — shell integration (6 files, zero violations), reflow cursor tracking (6 edge cases, PASS)
+
+### Files Modified (25 total)
+- `Source/terminal/tty/TTY.h` — `addShellEnv`/`clearShellEnv`/`shellIntegrationEnv` lifted to base; `resize()` unified (non-virtual, stores atomics + calls `platformResize`); `requestResize()` removed
+- `Source/terminal/tty/TTY.cpp` — reader thread `handleResize` no longer calls `platformResize` (already called from `resize()`)
+- `Source/terminal/tty/UnixTTY.h` — removed `addShellEnv`/`clearShellEnv`; `resize` renamed to `platformResize`
+- `Source/terminal/tty/UnixTTY.cpp` — removed `addShellEnv`/`clearShellEnv` definitions; `resize` renamed to `platformResize`
+- `Source/terminal/tty/WindowsTTY.h` — `resize` renamed to `platformResize`
+- `Source/terminal/tty/WindowsTTY.cpp` — `buildEnvironmentBlock`/`spawnProcess` inject shell env vars; `resize` renamed to `platformResize`
+- `Source/terminal/logic/Session.cpp` — removed all `#if JUCE_MAC || JUCE_LINUX` guards; `configPath` MSYS2 POSIX conversion; `END_CWD` env var injection; `resized()` simplified to single `tty->resize()` call; removed message-thread State writes (SSOT)
+- `Source/terminal/logic/Session.h` — doc comment updated
+- `Source/terminal/logic/ParserESC.cpp` — MSYS2 `/c/` → `C:/` in `handleOscCwd`
+- `Source/terminal/logic/Grid.h` — removed `static` from `reflow`; removed `cols`/`visibleRows` shadow members; `getCols()`/`getVisibleRows()` inlined to read from State; removed `fillDeadSpaceAfterGrow` declaration
+- `Source/terminal/logic/Grid.cpp` — removed `getCols`/`getVisibleRows` out-of-line definitions; removed shadow member init; all reads replaced with `state.getCols()`/`state.getVisibleRows()`
+- `Source/terminal/logic/GridReflow.cpp` — cursor tracking through reflow; unified resize path (no normal/alternate branching); alternate buffer preserves content; `fillDeadSpaceAfterGrow` removed; `findLastContent` zero early returns; `linearToPhysical` uses `& mask`; `rowsToSkip` clamped to >= 0; all shadow reads replaced with State atomics
+- `Source/terminal/logic/GridErase.cpp` — all shadow reads replaced with `state.getCols()`/`state.getVisibleRows()`
+- `Source/terminal/logic/GridScroll.cpp` — all shadow reads replaced with `state.getCols()`/`state.getVisibleRows()`
+- `Source/terminal/logic/Parser.h` — removed `scrollBottom` shadow member; added `activeScrollBottom()` inline accessor
+- `Source/terminal/logic/Parser.cpp` — `calc()` no longer caches `scrollBottom`
+- `Source/terminal/logic/ParserVT.cpp` — all `scrollBottom` reads replaced with `activeScrollBottom()`
+- `Source/terminal/logic/ParserESC.cpp` — all `scrollBottom` reads replaced with `activeScrollBottom()`
+- `Source/terminal/logic/ParserEdit.cpp` — `scrollBottom` read replaced with `activeScrollBottom()`
+- `Source/terminal/logic/ParserCSI.cpp` — `scrollBottom` reads replaced with `activeScrollBottom()`
+- `Source/terminal/logic/ParserOps.cpp` — `scrollBottom` reads replaced with `activeScrollBottom()`
+- `Source/terminal/rendering/ScreenRender.cpp` — removed `hasContent()` guard from selection highlight
+- `Source/terminal/shell/zsh_zshenv.zsh` — `autoload` replaced with `source`
+- `Source/terminal/shell/zsh_end_integration.zsh` — function wrapper removed; `END_CWD` cd in precmd
+- `Source/terminal/shell/bash_integration.bash` — `END_CWD` cd after hook installation
+- `Source/component/Panes.cpp` — `Panes::resized()` forces `pane->resized()` on all children after layout
+- `install.sh` — NEW, cross-platform clean build + install script
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md followed
+- [x] SSOT enforced — Grid shadow `cols`/`visibleRows` removed (~40 sites), Parser shadow `scrollBottom` removed (~20 sites), TTY `requestResize` eliminated, Session no longer writes reader-thread-owned State values
+
+### Problems Solved
+- **Shell integration non-functional on Windows:** env injection lifted to TTY base, platform guards removed, MSYS2 path conversion bidirectional
+- **Zsh autoload broken on MSYS2:** replaced with `source`; function wrapper removed
+- **Selection highlight gaps:** `hasContent()` guard removed — all cells in range highlighted
+- **Reflow cursor tracking:** cursor row/col tracked through logical line walk in `countOutputRows`, written back to State after reflow
+- **Alternate buffer cleared on resize:** unified resize path preserves alternate buffer content via truncating copy
+- **Pane resize not propagating:** `Panes::resized()` forces `pane->resized()` on all children — uniform for window resize, resizer drag, split create/close
+- **TTY resize API split:** `requestResize()` eliminated; single `tty->resize()` stores atomics + calls `platformResize()` immediately
+- **SIGWINCH delivery:** `tty->resize()` called from message thread — immediate SIGWINCH, no waiting for reader thread
+- **SSOT violations (CRITICAL):** `Grid::cols`/`visibleRows` shadow state removed (~40 sites); `Parser::scrollBottom` shadow state removed (~20 sites); Session message-thread State writes removed; all state reads go through State atomics
+- **New pane CWD on Windows:** `END_CWD` env var injected in MSYS2 format; shell integration scripts `cd` to it at prompt time
+- **Pre-existing contract violations:** `findLastContent` early return refactored; `linearToPhysical` uses `& mask`; `rowsToSkip` clamped
+- **MSVC C2228:** `Grid::reflow` declared non-static (needs `this->state`)
+
+### Technical Debt / Follow-up
+- CC (alternate screen TUI) resize behavior depends on CC processing SIGWINCH — END sends it correctly but CC response timing varies
+- `Grid::scrollbackCapacity` is still a member, not on State — but it's immutable after construction (set once, never changes)
+- Stale doc comments referencing `scrollBottom` as cached value in Parser.cpp
+- C4661 template instantiation warnings in ScreenRender.cpp/ScreenGL.cpp remain (pre-existing, software renderer)
+- Fish/pwsh `END_CWD` handlers not implemented (zsh/bash only)
+- macOS/Linux testing needed for all changes (developed on Windows/MSYS2)
+
+---
+
+## Sprint 131: Windows Shell Integration — MSYS2 zsh/bash/fish support
+
+**Date:** 2026-03-29
+
+### Agents Participated
+- COUNSELOR — planned all fixes, directed execution, root cause analysis
+- Pathfinder — discovered shell integration gaps, paste handling, selection rendering, reflow cursor issue, MSVC C2228 root cause (static declaration mismatch)
+- Engineer — implemented shell integration (4 tasks), selection fix, reflow cursor tracking, fillDeadSpaceAfterGrow fix, findLastContent/linearToPhysical cleanup, install script
+- Auditor — verified shell integration (6 files, zero violations), verified reflow cursor tracking (6 edge cases, PASS)
+
+### Files Modified (12 total)
+- `Source/terminal/tty/TTY.h:227-261,376` — `addShellEnv()`, `clearShellEnv()`, `shellIntegrationEnv` lifted to base class
+- `Source/terminal/tty/UnixTTY.h` — removed `addShellEnv`/`clearShellEnv` declarations and member (now inherited)
+- `Source/terminal/tty/UnixTTY.cpp` — removed `addShellEnv`/`clearShellEnv` definitions (now inherited)
+- `Source/terminal/tty/WindowsTTY.cpp:556-580,598,743` — `buildEnvironmentBlock` and `spawnProcess` inject shell env vars into ConPTY child
+- `Source/terminal/logic/Session.cpp:540-554,582,593,616` — removed `#if JUCE_MAC || JUCE_LINUX` guards, `configPath` with MSYS2 POSIX conversion
+- `Source/terminal/logic/ParserESC.cpp:456-474` — MSYS2 `/c/Users/...` to `C:/Users/...` in `handleOscCwd`
+- `Source/terminal/shell/zsh_zshenv.zsh:20` — `autoload` replaced with `source` for MSYS2 compatibility
+- `Source/terminal/shell/zsh_end_integration.zsh` — function wrapper removed, hooks install directly
+- `Source/terminal/rendering/ScreenRender.cpp:410` — removed `hasContent()` guard from selection highlight
+- `Source/terminal/logic/GridReflow.cpp:117-146,248-251,275-294,554-584,697-729` — cursor tracking through reflow, `fillDeadSpaceAfterGrow` fires on any resize (not just height increase), `findLastContent` zero early returns, `linearToPhysical` uses `& mask`
+- `Source/terminal/logic/Grid.h:876` — removed `static` from `reflow` declaration (needs `this->state` for cursor tracking)
+- `install.sh` — NEW, cross-platform clean build + install script
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md followed
+- [x] SSOT: cursor reads/writes through State only, no shadow state introduced
+
+### Problems Solved
+- **Shell integration non-functional on Windows:** env injection lifted to TTY base, platform guards removed, WindowsTTY injects env vars into ConPTY child. MSYS2 path conversion bidirectional (OSC 7 inbound, env vars outbound).
+- **zsh autoload broken on MSYS2:** `autoload -Uz` cannot resolve Windows drive letter paths. Replaced with `source`, function wrapper removed.
+- **Selection highlight gaps:** `hasContent()` guard on selection quads skipped null cells, leaving dark holes in selection. Removed — selection highlights all cells in range.
+- **Reflow cursor tracking (CRITICAL):** `reflow()` did not update cursor position after rewrapping content. Cursor row/col now tracked through the count pass and written back to State. Fixes visual/data desync after split open/close.
+- **Dead space after vertical split close:** `fillDeadSpaceAfterGrow` only fired on height increase. After col-width increase, wrapped lines collapse into fewer rows, creating dead space. Now fires on any resize.
+- **Pre-existing contract violations:** `findLastContent` had early return (refactored to sentinel pattern). `linearToPhysical` used `% totalRows` instead of `& mask`.
+- **MSVC C2228 build error:** `reflow` declared `static` in Grid.h but accessed `this->state` for cursor tracking. Removed `static`.
+
+### Technical Debt / Follow-up
+- Reflow cursor tracking needs testing with alternate screen apps (vim, htop) — cursor save/restore interaction
+- C4661 template instantiation warnings in ScreenRender.cpp/ScreenGL.cpp are pre-existing noise (software renderer explicit instantiation)
+- `Grid::cols`/`Grid::visibleRows` shadow `State::cols`/`State::visibleRows` — ARCHITECT aware, deferred decision (performance cache vs SSOT)
+- Hyperlinks on Windows not yet confirmed working end-to-end
+
+---
+
 ## Sprint 131: Windows Shell Integration — MSYS2 zsh/bash/fish support
 
 **Date:** 2026-03-29

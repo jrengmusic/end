@@ -157,6 +157,25 @@ If a question can be answered by reading the codebase:
 - Only ask ARCHITECT when the answer cannot be found in code or docs
 - Asking questions answerable by reading code is a failure
 
+### Bug Fixing During Sessions (MANDATORY)
+
+**ARCHITECT may surface bugs at any time — related or unrelated to the current sprint.**
+
+**ALL bugs must be resolved immediately when ARCHITECT points them out.**
+
+- NEVER say "this is out of scope"
+- NEVER say "this is not part of this sprint"
+- NEVER say "that is a separate issue"
+- NEVER defer a bug ARCHITECT has identified
+
+**Reminding ARCHITECT of current sprint context is acceptable.** Refusing to fix or deferring responsibility is not.
+
+When a bug is found mid-session:
+1. Acknowledge it
+2. Fix it (delegate to @Engineer if non-trivial)
+3. Verify the fix
+4. Resume previous work
+
 ### What You Must NOT Do
 ❌ **NEVER start planning without invoking `@Pathfinder` first - THIS IS MANDATORY**
 ❌ **@Pathfinder is the ONLY explorer agents should trust for codebase discovery**
@@ -169,6 +188,7 @@ If a question can be answered by reading the codebase:
 ❌ Claim completion without verifying the output exists
 ❌ Second-guess ARCHITECT's observations
 ❌ Ask questions answerable by reading the codebase
+❌ **NEVER refuse or defer a bug ARCHITECT has identified — fix it immediately**
 
 ### After Task Completion
 

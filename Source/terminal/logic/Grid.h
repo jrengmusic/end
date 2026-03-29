@@ -153,14 +153,14 @@ public:
      * @return Number of columns in the active buffer.
      * @note Lock-free, noexcept.  Safe to call from any thread.
      */
-    int getCols() const noexcept;
+    int getCols() const noexcept { return state.getCols(); }
 
     /**
      * @brief Returns the number of visible rows in the terminal viewport.
      * @return Number of visible rows in the active buffer.
      * @note Lock-free, noexcept.  Safe to call from any thread.
      */
-    int getVisibleRows() const noexcept;
+    int getVisibleRows() const noexcept { return state.getVisibleRows(); }
 
     /**
      * @brief Marks a single visible row as dirty in the atomic bitmask.
@@ -656,24 +656,10 @@ private:
     /**
      * @brief Reference to the terminal parameter store.
      *
-     * Used to read `cols`, `visibleRows`, and the active screen index.
+     * Used to read `getCols()`, `getVisibleRows()`, and the active screen index.
      * Never written by Grid.
      */
     State& state;
-
-    /**
-     * @brief Current column count, mirrored from `State` at construction and resize.
-     *
-     * Cached here to avoid an atomic load on every cell access.
-     */
-    int cols { 0 };
-
-    /**
-     * @brief Current visible row count, mirrored from `State` at construction and resize.
-     *
-     * Cached here to avoid an atomic load on every row access.
-     */
-    int visibleRows { 0 };
 
     /**
      * @brief Maximum number of scrollback rows for the normal screen buffer.
@@ -829,29 +815,6 @@ private:
     const Grapheme* graphemePtr (const Buffer& buffer, int visibleRow, int col) const noexcept;
 
     /**
-     * @brief Fills dead space below the cursor after the terminal grew taller.
-     *
-     * Called from `resize()` after reflow, when:
-     * - the terminal grew taller (`newVisibleRows > oldVisibleRows`),
-     * - the normal screen is active, and
-     * - OSC 133 A has been received (`state.getPromptRow() >= 0`).
-     *
-     * If there are empty rows below the cursor in the new visible window, and
-     * the normal buffer has scrollback content available, this function adjusts
-     * the ring-buffer `head` backward to expose scrollback rows at the top of
-     * the viewport.  This eliminates the visual dead space that otherwise
-     * appears when an inline TUI app (e.g. Claude Code / Ink) is running and
-     * the terminal is resized to a larger height.
-     *
-     * The cursor row is updated in State to reflect the shift.
-     *
-     * @param oldVisibleRows  Visible row count before this resize.
-     * @param newVisibleRows  Visible row count after this resize.
-     * @note READER THREAD — called under `resizeLock`, lock-free, noexcept.
-     */
-    void fillDeadSpaceAfterGrow (int oldVisibleRows, int newVisibleRows) noexcept;
-
-    /**
      * @brief Reflows the content of `oldBuffer` into `newBuffer` at the new column width.
      *
      * Walks every logical line in `oldBuffer` (following soft-wrap chains),
@@ -873,7 +836,7 @@ private:
      * @param newVisibleRows Visible row count of the destination buffer.
      * @note READER THREAD — allocates temporary heap memory for the flat buffer.
      */
-    static void reflow (const Buffer& oldBuffer,
+    void reflow (const Buffer& oldBuffer,
                         int oldCols,
                         int oldVisibleRows,
                         Buffer& newBuffer,

@@ -74,7 +74,7 @@ void Session::setupCallbacks()
         state.clearPasteEchoGate();
 
         if (state.consumeSyncResize())
-            tty->requestResize (grid.getCols(), grid.getVisibleRows());
+            tty->resize (grid.getCols(), grid.getVisibleRows());
     };
     tty->onResize = [this] (int c, int r)
     {
@@ -208,7 +208,7 @@ Session::~Session()
  * 4. Sets `ttyOpened = true`.
  *
  * On **subsequent calls** (`ttyOpened == true`):
- * - Calls `tty->requestResize (cols, rows)`, which sets the pending resize
+ * - Calls `tty->resize (cols, rows)`, which sets the pending resize
  *   atomics.  The reader thread picks this up and calls `grid.resize()` then
  *   `parser.resize()`.
  *
@@ -245,6 +245,23 @@ void Session::resized (int cols, int rows)
                         ? shellArgsOverride
                         : Config::getContext()->getString (Config::Key::shellArgs) };
                     applyShellIntegration (shell, args);
+
+                    if (workingDirectory.isNotEmpty())
+                    {
+                        juce::String shellCwd { workingDirectory.replace (juce::File::getSeparatorString(), "/") };
+
+                        if (shellCwd.length() >= 3
+                            and std::isalpha (static_cast<unsigned char> (shellCwd[0]))
+                            and shellCwd[1] == ':'
+                            and shellCwd[2] == '/')
+                        {
+                            shellCwd = "/" + juce::String::charToString (std::tolower (static_cast<unsigned char> (shellCwd[0])))
+                                     + shellCwd.substring (2);
+                        }
+
+                        tty->addShellEnv ("END_CWD", shellCwd);
+                    }
+
                     tty->open (finalCols, finalRows, shell, args, workingDirectory);
                     const juce::String shellName { shell.contains (juce::File::getSeparatorString())
                         ? juce::File (shell).getFileName()
@@ -258,7 +275,7 @@ void Session::resized (int cols, int rows)
     }
     else
     {
-        tty->requestResize (cols, rows);
+        tty->resize (cols, rows);
     }
 }
 

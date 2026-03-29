@@ -738,7 +738,7 @@ bool WindowsTTY::open (int cols, int rows, const juce::String& shell,
             {
                 const std::wstring shellWide { shell.toWideCharPointer() };
                 const std::wstring argsWide  { args.toWideCharPointer() };
-                const std::wstring cwdWide   { workingDirectory.toWideCharPointer() };
+                const std::wstring cwdWide { workingDirectory.toWideCharPointer() };
 
                 if (spawnProcess (pseudoConsole, client, process, shellWide, argsWide, cwdWide, shellIntegrationEnv))
                 {
@@ -1061,7 +1061,7 @@ bool WindowsTTY::write (const char* buf, int len)
  *
  * @note READER THREAD context (dispatched via TTY::run resize handling).
  */
-void WindowsTTY::resize (int cols, int rows)
+void WindowsTTY::platformResize (int cols, int rows)
 {
     if (pseudoConsole != nullptr)
     {

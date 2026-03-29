@@ -1,8 +1,8 @@
 # CAROL
 ## Cognitive Amplification Role Orchestration with LLM agents
 
-**Version:** 0.0.3
-**Last Updated:** 10 March 2026
+**Version:** 0.0.4
+**Last Updated:** 29 March 2026
 
 ---
 
@@ -317,7 +317,7 @@ BRIEF:
 
 ---
 
-**End of CAROL v0.0.3**
+**End of CAROL v0.0.4**
 
 Rock 'n Roll!  
 **JRENG!**

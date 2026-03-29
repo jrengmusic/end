@@ -92,61 +92,6 @@ namespace Terminal
 // ============================================================================
 
 /**
- * @brief Fills dead space below the cursor after the terminal grew taller.
- *
- * After `reflow()` places content into the new buffer, if the content does not
- * fill the entire visible window there will be empty rows below the cursor.
- * This is visible as a dead area at the bottom of the screen when an inline
- * TUI app (e.g. Claude Code / Ink) is running.
- *
- * The fix: if the normal buffer has scrollback rows, decrement `head` by the
- * number of empty rows below the cursor (clamped to available scrollback).
- * This slides the visible window upward so that scrollback content fills the
- * top of the viewport, and the cursor shifts down to sit closer to the bottom.
- *
- * Only applied when:
- * - the terminal grew taller (`newVisibleRows > oldVisibleRows`),
- * - the normal screen is active (alternate screen has no scrollback), and
- * - OSC 133 A was received (`state.getPromptRow() >= 0`, indicating a shell
- *   integration session where the prompt position is meaningful).
- *
- * @param oldVisibleRows  Visible row count before this resize.
- * @param newVisibleRows  Visible row count after this resize.
- * @note READER THREAD — called under `resizeLock`, lock-free, noexcept.
- */
-void Grid::fillDeadSpaceAfterGrow (int oldVisibleRows, int newVisibleRows) noexcept
-{
-    const bool grew { newVisibleRows > oldVisibleRows };
-    const bool shellIntegrationActive { state.getPromptRow() >= 0 };
-    const bool onNormalScreen { state.getScreen() == normal };
-
-    if (grew and shellIntegrationActive and onNormalScreen)
-    {
-        const int cursorRow { state.getCursorRow (normal) };
-        const int emptyBelow { newVisibleRows - 1 - cursorRow };
-
-        if (emptyBelow > 0)
-        {
-            Buffer& buf { buffers.at (normal) };
-            const int available { buf.scrollbackUsed };
-            const int pull { juce::jmin (emptyBelow, available) };
-
-            if (pull > 0)
-            {
-                // Slide the visible window up by 'pull' rows: decrementing head
-                // makes the ring buffer expose 'pull' former-scrollback rows at
-                // the top of the viewport without moving any cell data.
-                buf.head = (buf.head - pull + buf.totalRows) & buf.rowMask;
-                buf.scrollbackUsed -= pull;
-
-                // Cursor shifts down by the same amount since content appeared above.
-                state.setCursorRow (normal, cursorRow + pull);
-            }
-        }
-    }
-}
-
-/**
  * @brief Re-allocates the active screen buffer to the new terminal dimensions
  *        and reflows content if the column count changed.
  *
@@ -177,40 +122,56 @@ void Grid::resize (int newCols, int newVisibleRows)
 {
     juce::ScopedLock lock (resizeLock);
 
+    const int oldCols { state.getCols() };
+    const int oldVisibleRows { state.getVisibleRows() };
+
     state.setCols (newCols);
     state.setVisibleRows (newVisibleRows);
 
-    const bool dimensionsChanged { newCols != cols or newVisibleRows != visibleRows };
+    const bool dimensionsChanged { newCols != oldCols or newVisibleRows != oldVisibleRows };
 
     if (dimensionsChanged)
     {
-        const int oldCols { cols };
-        const int oldVisibleRows { visibleRows };
+        // 1. Reflow normal buffer (always has scrollback + wrap chains)
+        Buffer newPrimary;
+        initBuffer (newPrimary, newCols, newVisibleRows + scrollbackCapacity, newVisibleRows);
+        reflow (buffers.at (normal), oldCols, oldVisibleRows, newPrimary, newCols, newVisibleRows);
+        buffers.at (normal) = std::move (newPrimary);
 
-        cols = newCols;
-        visibleRows = newVisibleRows;
+        // 2. Resize alternate buffer preserving content (no scrollback, no reflow)
+        Buffer newAlternate;
+        initBuffer (newAlternate, newCols, newVisibleRows, newVisibleRows);
 
-        const auto scr { state.getScreen() };
+        const int copyRows { juce::jmin (oldVisibleRows, newVisibleRows) };
+        const int copyCols { juce::jmin (oldCols, newCols) };
+        const Buffer& oldAlt { buffers.at (alternate) };
 
-        if (scr == normal)
+        for (int r { 0 }; r < copyRows; ++r)
         {
-            Buffer newPrimary;
-            initBuffer (newPrimary, cols, visibleRows + scrollbackCapacity, visibleRows);
-            reflow (buffers.at (normal), oldCols, oldVisibleRows, newPrimary, cols, visibleRows);
-            buffers.at (normal) = std::move (newPrimary);
-            initBuffer (buffers.at (alternate), cols, visibleRows, visibleRows);
-        }
-        else
-        {
-            initBuffer (buffers.at (alternate), cols, visibleRows, visibleRows);
-            Buffer newPrimary;
-            initBuffer (newPrimary, cols, visibleRows + scrollbackCapacity, visibleRows);
-            reflow (buffers.at (normal), oldCols, oldVisibleRows, newPrimary, cols, visibleRows);
-            buffers.at (normal) = std::move (newPrimary);
+            const int oldPhys { (oldAlt.head - oldVisibleRows + 1 + r + oldAlt.totalRows) & oldAlt.rowMask };
+            const int newPhys { r };
+
+            std::memcpy (newAlternate.cells.get() + newPhys * newCols,
+                         oldAlt.cells.get() + oldPhys * oldCols,
+                         static_cast<size_t> (copyCols) * sizeof (Cell));
+            std::memcpy (newAlternate.graphemes.get() + newPhys * newCols,
+                         oldAlt.graphemes.get() + oldPhys * oldCols,
+                         static_cast<size_t> (copyCols) * sizeof (Grapheme));
+            newAlternate.rowStates[newPhys] = oldAlt.rowStates[oldPhys];
         }
 
-        fillDeadSpaceAfterGrow (oldVisibleRows, newVisibleRows);
+        newAlternate.head = copyRows > 0 ? copyRows - 1 : 0;
+        newAlternate.scrollbackUsed = 0;
+        buffers.at (alternate) = std::move (newAlternate);
+
+        // Clamp alternate cursor to new dimensions
+        const int altCursorRow { state.getCursorRow (alternate) };
+        const int altCursorCol { state.getCursorCol (alternate) };
+        state.setCursorRow (alternate, juce::jlimit (0, newVisibleRows - 1, altCursorRow));
+        state.setCursorCol (alternate, juce::jlimit (0, newCols - 1, altCursorCol));
+
         markAllDirty();
+        state.setFullRebuild();
     }
 }
 
@@ -245,9 +206,9 @@ void Grid::resize (int newCols, int newVisibleRows)
 static int linearToPhysical (int head, int totalRows, int oldVisibleRows,
                              int scrollbackUsed, int linearRow) noexcept
 {
+    const int mask { totalRows - 1 };
     const int visibleRow { linearRow - scrollbackUsed };
-    const int raw { (head - oldVisibleRows + 1 + visibleRow) % totalRows };
-    return (raw + totalRows) % totalRows;
+    return (head - oldVisibleRows + 1 + visibleRow + totalRows) & mask;
 }
 
 /**
@@ -274,22 +235,24 @@ static int linearToPhysical (int head, int totalRows, int oldVisibleRows,
 static int findLastContent (const Cell* cells, int oldCols, int totalRows,
                             int head, int oldVisibleRows, int scrollbackUsed) noexcept
 {
-    for (int row { oldVisibleRows - 1 }; row >= 0; --row)
+    int result { -1 };
+
+    for (int row { oldVisibleRows - 1 }; row >= 0 and result < 0; --row)
     {
         const int linear { scrollbackUsed + row };
         const int phys { linearToPhysical (head, totalRows, oldVisibleRows, scrollbackUsed, linear) };
         const Cell* rowCells { cells + phys * oldCols };
 
-        for (int col { oldCols - 1 }; col >= 0; --col)
+        for (int col { oldCols - 1 }; col >= 0 and result < 0; --col)
         {
             if (rowCells[col].hasContent())
             {
-                return row;
+                result = row;
             }
         }
     }
 
-    return -1;
+    return result;
 }
 
 /**
@@ -529,16 +492,30 @@ static int nextLogicalLine (const WalkParams& wp, int r, int* outRunLen) noexcep
  * `rowsToSkip` — the number of rows at the top of the output that must be
  * discarded because they would overflow the new buffer's total capacity.
  *
- * @param wp         Walk parameters for the old buffer.
- * @param tempCells  Scratch buffer for `flattenLogicalLine()`; must hold at
- *                   least `wp.linearRows * wp.oldCols` Cell entries.
- * @param tempGraphs Scratch buffer for `flattenLogicalLine()`; same size.
- * @param newCols    Column count of the new buffer.
+ * @par Cursor tracking
+ * If `cursorLinear` falls within a logical line `[r, r + runLen)`, the
+ * function computes which output row and column the cursor lands on after
+ * rewrapping, writing the results to `*outCursorOutputRow` and
+ * `*outCursorNewCol`.  `*outCursorOutputRow` is initialised to -1; if the
+ * cursor was not found in any logical line it remains -1 on return.
+ *
+ * @param wp                Walk parameters for the old buffer.
+ * @param tempCells         Scratch buffer for `flattenLogicalLine()`; must hold at
+ *                          least `wp.linearRows * wp.oldCols` Cell entries.
+ * @param tempGraphs        Scratch buffer for `flattenLogicalLine()`; same size.
+ * @param newCols           Column count of the new buffer.
+ * @param cursorLinear      Linear row index of the cursor in the old buffer
+ *                          (`scrollbackUsed + cursorRow`).
+ * @param cursorCol         Column of the cursor in the old buffer.
+ * @param outCursorOutputRow Output: output row the cursor lands on, or -1 if not found.
+ * @param outCursorNewCol   Output: column of the cursor after rewrapping.
  * @return Total number of output rows that the reflowed content will occupy.
  */
 static int countOutputRows (const WalkParams& wp, Cell* tempCells, Grapheme* tempGraphs,
-                            int newCols) noexcept
+                            int newCols, int cursorLinear, int cursorCol,
+                            int* outCursorOutputRow, int* outCursorNewCol) noexcept
 {
+    *outCursorOutputRow = -1;
     int total { 0 };
     int r { 0 };
 
@@ -550,6 +527,15 @@ static int countOutputRows (const WalkParams& wp, Cell* tempCells, Grapheme* tem
         const int flatLen { flattenLogicalLine (wp.cells, wp.graphemes, wp.oldCols, wp.totalRows,
                                                 wp.head, wp.oldVisibleRows, wp.scrollbackUsed,
                                                 r, runLen, tempCells, tempGraphs) };
+
+        if (*outCursorOutputRow < 0 and cursorLinear >= r and cursorLinear < r + runLen)
+        {
+            const int flatCursorOffset { (cursorLinear - r) * wp.oldCols + cursorCol };
+            const int clampedOffset { juce::jmin (flatCursorOffset, juce::jmax (flatLen - 1, 0)) };
+            *outCursorOutputRow = total + clampedOffset / newCols;
+            *outCursorNewCol = clampedOffset % newCols;
+        }
+
         total += (flatLen > 0) ? (flatLen + newCols - 1) / newCols : 1;
         r += runLen;
     }
@@ -668,11 +654,20 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
         juce::HeapBlock<Cell> tempCells (static_cast<size_t> (maxFlatLen));
         juce::HeapBlock<Grapheme> tempGraphs (static_cast<size_t> (maxFlatLen));
 
-        const int totalOutputRows { countOutputRows (wp, tempCells.get(), tempGraphs.get(), newCols) };
+        const int cursorRow { state.getCursorRow (normal) };
+        const int cursorCol { state.getCursorCol (normal) };
+        const int cursorLinear { scrollbackUsed + cursorRow };
+
+        int cursorOutputRow { -1 };
+        int cursorNewCol { 0 };
+
+        const int totalOutputRows { countOutputRows (wp, tempCells.get(), tempGraphs.get(), newCols,
+                                                     cursorLinear, cursorCol,
+                                                     &cursorOutputRow, &cursorNewCol) };
         const int newScrollback { juce::jmax (0, totalOutputRows - newVisibleRows) };
         const int maxSc { newBuffer.totalRows - newVisibleRows };
         const int scClamped { juce::jmin (newScrollback, maxSc) };
-        const int rowsToSkip { totalOutputRows - (scClamped + newVisibleRows) };
+        const int rowsToSkip { juce::jmax (0, totalOutputRows - (scClamped + newVisibleRows)) };
 
         writeReflowedContent (wp, tempCells.get(), tempGraphs.get(),
                               newBuffer.cells.get(), newBuffer.graphemes.get(), newBuffer.rowStates.get(),
@@ -681,6 +676,16 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
         const int written { scClamped + newVisibleRows };
         newBuffer.head = ((written - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
         newBuffer.scrollbackUsed = scClamped;
+
+        if (cursorOutputRow < 0)
+        {
+            cursorOutputRow = totalOutputRows;
+            cursorNewCol = 0;
+        }
+
+        const int newCursorVisibleRow { cursorOutputRow - rowsToSkip - scClamped };
+        state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, newCursorVisibleRow));
+        state.setCursorCol (normal, juce::jlimit (0, newCols - 1, cursorNewCol));
     }
 }
 
