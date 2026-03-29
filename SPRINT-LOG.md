@@ -2,6 +2,88 @@
 
 ---
 
+## Sprint 132b: Audit Clean Sweep + TTY Resize Unification
+
+**Date:** 2026-03-30
+
+### Agents Participated
+- COUNSELOR — directed audit and clean sweep
+- Auditor — comprehensive audit of 25 files across sprints 130-132 (6 Critical, 7 High, 2 Medium, 5 Low)
+- Machinist — fixed all Critical/High findings + deferred refactors
+
+### Files Modified (6 total)
+- `Source/terminal/tty/TTY.cpp` — `&&` → `and` (C1)
+- `Source/terminal/tty/UnixTTY.cpp` — brace init `slaveFd` (H2); `write()` early return → sentinel flag; `resize` → `platformResize`
+- `Source/terminal/tty/UnixTTY.h` — `resize` → `platformResize`
+- `Source/terminal/tty/WindowsTTY.cpp` — brace init static local (H4); `createDuplexOverlappedPipe` early returns → nested positive checks; `createPseudoConsole` early return → sentinel; `read()` DRY → `consumeReadBuffer()` helper; `resize` → `platformResize`
+- `Source/AppState.cpp` — brace init loop vars (H3); `removeTab()` early return → found flag; `load()` early return → loaded flag; `getTab()` early return → result accumulator
+- `Source/terminal/logic/Session.cpp` — `toMsysPath()` extracted (H7 DRY); `resized()` simplified to `tty->resize()` only; removed message-thread State writes
+- `Source/terminal/logic/Grid.cpp` — `appendCellText()` extracted (H6 DRY); `extractText()`/`extractBoxText()` deduplicated
+
+### Alignment Check
+- [x] LIFESTAR principles followed
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md followed
+- [x] Zero early returns in modified functions
+- [x] Zero `!`/`&&`/`||` operators
+- [x] Zero `=` initialization (brace init everywhere)
+- [x] Zero SSOT violations
+
+### Problems Solved
+- **6 Critical early return / operator violations** — all fixed
+- **7 High findings** — brace init (3), DRY violations (2 extracted helpers + 1 utility), raw pointer access (accepted exception)
+- **TTY resize API** — `requestResize()` eliminated; single `tty->resize()` stores atomics + calls `platformResize()`; `Session::resized()` is one line
+
+### Technical Debt / Follow-up
+- Reflow active prompt off-by-one after vertical split close (handoff to SURGEON below)
+- `AppState::getTab()` uses `not result.isValid()` loop guard — functional but could be cleaner
+
+---
+
+## Handoff to SURGEON: Reflow Active Prompt Off-by-One
+
+**From:** COUNSELOR
+**Date:** 2026-03-30
+
+### Problem
+After closing a vertical split (cols increase, rows unchanged), the active prompt is 1 row too high. Content reflows to fewer rows (wider cols = less wrapping), cursor tracks correctly through content, but there's 1 empty row between the prompt and the bottom of the viewport.
+
+### What Works
+- Cursor tracking through reflow is correct — cursor lands on the right content row
+- Grid resize, SIGWINCH delivery, pane layout — all working
+- The 1-row gap is consistent and reproducible
+
+### What Failed
+- `fillDeadSpaceAfterGrow` (removed — was a separate function competing with cursor tracking)
+- Inline scrollback pull inside `reflow()` after cursor set — made things worse (reverted)
+
+### Root Cause Analysis
+After reflow, content shrinks (fewer rows). Cursor is at the last content row. The row BELOW the cursor is empty. Without scrollback pull, this empty row stays. With scrollback pull, the head/scrollback adjustment interacts badly with the cursor position already set by reflow.
+
+The fundamental tension: cursor tracking and scrollback pull both modify cursor position. When done sequentially, the second adjustment is based on stale assumptions from the first.
+
+### Recommended Approach
+Integrate scrollback pull INTO the cursor tracking computation — compute final cursor position AND scrollback adjustment in one pass, not two sequential passes. The `head`, `scrollbackUsed`, and `cursorRow` should all be computed together from `totalOutputRows`, `newVisibleRows`, and `cursorOutputRow`.
+
+### Files
+- `Source/terminal/logic/GridReflow.cpp` — `Grid::reflow()`, lines ~686-689 (cursor set)
+
+### Acceptance Criteria
+- [ ] After closing vertical split, prompt is at bottom of viewport (no empty row below)
+- [ ] After closing horizontal split, same behavior
+- [ ] After creating split (shrink), prompt at bottom of new smaller viewport
+- [ ] No regression in normal terminal output (ls, cat, etc.)
+- [ ] No regression in scrollback content
+
+### Notes
+- `fillDeadSpaceAfterGrow` is gone — do NOT resurrect it as a separate function
+- The fix must be inside `reflow()` — single mechanism for cursor + head + scrollback
+- State is SSOT — no shadow state, all reads through atomics
+- `state.setPromptRow()` is owned by OSC 133;A (shell integration) — do NOT write it from resize code
+
+---
+
 ## Sprint 132: Windows Shell Integration, Reflow Cursor Tracking, SSOT Enforcement
 
 **Date:** 2026-03-29

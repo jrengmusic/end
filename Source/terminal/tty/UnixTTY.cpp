@@ -135,7 +135,7 @@ UnixTTY::~UnixTTY()
 bool UnixTTY::open (int cols, int rows, const juce::String& shell,
                     const juce::String& args, const juce::String& workingDirectory)
 {
-    int slaveFd;
+    int slaveFd { -1 };
     struct winsize ws { static_cast<unsigned short> (rows), static_cast<unsigned short> (cols), 0, 0 };
     const auto shellUtf8 { shell.toStdString() };
     const char* shellCStr { shellUtf8.c_str() };
@@ -326,8 +326,9 @@ int UnixTTY::read (char* buf, int maxBytes)
 bool UnixTTY::write (const char* buf, int len)
 {
     int written { 0 };
+    bool success { true };
 
-    while (written < len)
+    while (success and written < len)
     {
         const auto result { ::write (master, buf + written, len - written) };
 
@@ -341,11 +342,11 @@ bool UnixTTY::write (const char* buf, int len)
         }
         else
         {
-            return false;
+            success = false;
         }
     }
 
-    return true;
+    return success;
 }
 
 /**

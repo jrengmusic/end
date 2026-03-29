@@ -29,6 +29,22 @@
 namespace Terminal
 { /*____________________________________________________________________________*/
 
+static juce::String toMsysPath (const juce::String& path)
+{
+    juce::String result { path.replace (juce::File::getSeparatorString(), "/") };
+
+    if (result.length() >= 3
+        and std::isalpha (static_cast<unsigned char> (result[0]))
+        and result[1] == ':'
+        and result[2] == '/')
+    {
+        result = "/" + juce::String::charToString (std::tolower (static_cast<unsigned char> (result[0])))
+               + result.substring (2);
+    }
+
+    return result;
+}
+
 /**
  * @brief Wires all inter-component callbacks.
  *
@@ -247,20 +263,7 @@ void Session::resized (int cols, int rows)
                     applyShellIntegration (shell, args);
 
                     if (workingDirectory.isNotEmpty())
-                    {
-                        juce::String shellCwd { workingDirectory.replace (juce::File::getSeparatorString(), "/") };
-
-                        if (shellCwd.length() >= 3
-                            and std::isalpha (static_cast<unsigned char> (shellCwd[0]))
-                            and shellCwd[1] == ':'
-                            and shellCwd[2] == '/')
-                        {
-                            shellCwd = "/" + juce::String::charToString (std::tolower (static_cast<unsigned char> (shellCwd[0])))
-                                     + shellCwd.substring (2);
-                        }
-
-                        tty->addShellEnv ("END_CWD", shellCwd);
-                    }
+                        tty->addShellEnv ("END_CWD", toMsysPath (workingDirectory));
 
                     tty->open (finalCols, finalRows, shell, args, workingDirectory);
                     const juce::String shellName { shell.contains (juce::File::getSeparatorString())
@@ -558,17 +561,7 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
 {
     const juce::File configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory)
                                      .getChildFile (".config/end") };
-    juce::String configPath { configDir.getFullPathName().replace (juce::File::getSeparatorString(), "/") };
-
-    // Convert Windows drive path (C:/...) to MSYS2 POSIX path (/c/...)
-    if (configPath.length() >= 3
-        and std::isalpha (static_cast<unsigned char> (configPath[0]))
-        and configPath[1] == ':'
-        and configPath[2] == '/')
-    {
-        configPath = "/" + juce::String::charToString (std::tolower (static_cast<unsigned char> (configPath[0])))
-                   + configPath.substring (2);
-    }
+    juce::String configPath { toMsysPath (configDir.getFullPathName()) };
 
     tty->clearShellEnv();
 

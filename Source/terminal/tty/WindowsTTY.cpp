@@ -389,116 +389,116 @@ static bool createDuplexOverlappedPipe (HANDLE& serverOut, HANDLE& clientOut) no
             GetProcAddress (GetModuleHandleW (L"ntdll.dll"), "NtCreateFile"))
     };
 
-    if (ntCreateNamedPipeFile == nullptr or ntCreateFile == nullptr)
-        return false;
-
-    // Cache a handle to the pipe driver directory — opened once per process.
-    static const HANDLE pipeDirectory = []() noexcept -> HANDLE
-    {
-        wchar_t pathBuf[] { L"\\Device\\NamedPipe\\" };
-        UnicodeString path
-        {
-            static_cast<USHORT> (wcslen (pathBuf) * sizeof (wchar_t)),
-            static_cast<USHORT> ((wcslen (pathBuf) + 1) * sizeof (wchar_t)),
-            pathBuf
-        };
-
-        ObjectAttributes attrs {};
-        attrs.Length     = sizeof (ObjectAttributes);
-        attrs.ObjectName = &path;
-
-        IoStatusBlock iosb {};
-        HANDLE dir { INVALID_HANDLE_VALUE };
-
-        const NTSTATUS status { reinterpret_cast<FnNtCreateFile> (
-            GetProcAddress (GetModuleHandleW (L"ntdll.dll"), "NtCreateFile")) (
-                &dir,
-                SYNCHRONIZE | GENERIC_READ,
-                &attrs,
-                &iosb,
-                nullptr,
-                0,
-                FILE_SHARE_READ | FILE_SHARE_WRITE,
-                ntFileOpen,
-                ntFileSynchronousIoNonAlert,
-                nullptr,
-                0) };
-
-        return NT_SUCCESS (status) ? dir : INVALID_HANDLE_VALUE;
-    }();
-
-    if (pipeDirectory == INVALID_HANDLE_VALUE)
-        return false;
-
-    static constexpr DWORD  bufferSize { 128 * 1024 };
-    static constexpr DWORD  duplexAccess { SYNCHRONIZE | GENERIC_READ | GENERIC_WRITE };
-    static constexpr DWORD  duplexShare  { FILE_SHARE_READ | FILE_SHARE_WRITE };
-
-    // 1 second timeout expressed as a negative 100-nanosecond interval.
-    LARGE_INTEGER timeout {};
-    timeout.QuadPart = -10'000'000'00LL;  // -1 000 000 000 * 100 ns = 1 s
-
-    UnicodeString emptyPath {};  // Unnamed pipe — empty name.
-
-    ObjectAttributes serverAttrs {};
-    serverAttrs.Length          = sizeof (ObjectAttributes);
-    serverAttrs.RootDirectory   = pipeDirectory;
-    serverAttrs.ObjectName      = &emptyPath;
-    serverAttrs.Attributes      = objCaseInsensitive;
-
-    IoStatusBlock iosb {};
-
-    HANDLE server { INVALID_HANDLE_VALUE };
-    const NTSTATUS serverStatus { ntCreateNamedPipeFile (
-        &server,
-        duplexAccess,
-        &serverAttrs,
-        &iosb,
-        duplexShare,
-        ntFileCreate,
-        0,                          // CreateOptions = 0 → overlapped (async) I/O
-        filePipeByteStreamType,
-        filePipeByteStreamMode,
-        filePipeQueueOperation,
-        1,                          // MaximumInstances
-        bufferSize,                 // InboundQuota
-        bufferSize,                 // OutboundQuota
-        &timeout) };
-
     bool result { false };
 
-    if (NT_SUCCESS (serverStatus))
+    if (ntCreateNamedPipeFile != nullptr and ntCreateFile != nullptr)
     {
-        // Open the client end relative to the server handle with an empty name.
-        ObjectAttributes clientAttrs {};
-        clientAttrs.Length        = sizeof (ObjectAttributes);
-        clientAttrs.RootDirectory = server;
-        clientAttrs.ObjectName    = &emptyPath;
-        clientAttrs.Attributes    = objCaseInsensitive;
-
-        HANDLE client { INVALID_HANDLE_VALUE };
-        const NTSTATUS clientStatus { ntCreateFile (
-            &client,
-            duplexAccess,
-            &clientAttrs,
-            &iosb,
-            nullptr,
-            0,
-            duplexShare,
-            ntFileOpen,
-            ntFileNonDirectoryFile,   // overlapped (async) I/O — no FILE_SYNCHRONOUS_IO_NONALERT
-            nullptr,
-            0) };
-
-        if (NT_SUCCESS (clientStatus))
+        // Cache a handle to the pipe driver directory — opened once per process.
+        static const HANDLE pipeDirectory { []() noexcept -> HANDLE
         {
-            serverOut = server;
-            clientOut = client;
-            result = true;
-        }
-        else
+            wchar_t pathBuf[] { L"\\Device\\NamedPipe\\" };
+            UnicodeString path
+            {
+                static_cast<USHORT> (wcslen (pathBuf) * sizeof (wchar_t)),
+                static_cast<USHORT> ((wcslen (pathBuf) + 1) * sizeof (wchar_t)),
+                pathBuf
+            };
+
+            ObjectAttributes attrs {};
+            attrs.Length     = sizeof (ObjectAttributes);
+            attrs.ObjectName = &path;
+
+            IoStatusBlock iosb {};
+            HANDLE dir { INVALID_HANDLE_VALUE };
+
+            const NTSTATUS status { reinterpret_cast<FnNtCreateFile> (
+                GetProcAddress (GetModuleHandleW (L"ntdll.dll"), "NtCreateFile")) (
+                    &dir,
+                    SYNCHRONIZE | GENERIC_READ,
+                    &attrs,
+                    &iosb,
+                    nullptr,
+                    0,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE,
+                    ntFileOpen,
+                    ntFileSynchronousIoNonAlert,
+                    nullptr,
+                    0) };
+
+            return NT_SUCCESS (status) ? dir : INVALID_HANDLE_VALUE;
+        }() };
+
+        if (pipeDirectory != INVALID_HANDLE_VALUE)
         {
-            CloseHandle (server);
+            static constexpr DWORD bufferSize   { 128 * 1024 };
+            static constexpr DWORD duplexAccess { SYNCHRONIZE | GENERIC_READ | GENERIC_WRITE };
+            static constexpr DWORD duplexShare  { FILE_SHARE_READ | FILE_SHARE_WRITE };
+
+            // 1 second timeout expressed as a negative 100-nanosecond interval.
+            LARGE_INTEGER timeout {};
+            timeout.QuadPart = -10'000'000'00LL;  // -1 000 000 000 * 100 ns = 1 s
+
+            UnicodeString emptyPath {};  // Unnamed pipe — empty name.
+
+            ObjectAttributes serverAttrs {};
+            serverAttrs.Length          = sizeof (ObjectAttributes);
+            serverAttrs.RootDirectory   = pipeDirectory;
+            serverAttrs.ObjectName      = &emptyPath;
+            serverAttrs.Attributes      = objCaseInsensitive;
+
+            IoStatusBlock iosb {};
+
+            HANDLE server { INVALID_HANDLE_VALUE };
+            const NTSTATUS serverStatus { ntCreateNamedPipeFile (
+                &server,
+                duplexAccess,
+                &serverAttrs,
+                &iosb,
+                duplexShare,
+                ntFileCreate,
+                0,                          // CreateOptions = 0 → overlapped (async) I/O
+                filePipeByteStreamType,
+                filePipeByteStreamMode,
+                filePipeQueueOperation,
+                1,                          // MaximumInstances
+                bufferSize,                 // InboundQuota
+                bufferSize,                 // OutboundQuota
+                &timeout) };
+
+            if (NT_SUCCESS (serverStatus))
+            {
+                // Open the client end relative to the server handle with an empty name.
+                ObjectAttributes clientAttrs {};
+                clientAttrs.Length        = sizeof (ObjectAttributes);
+                clientAttrs.RootDirectory = server;
+                clientAttrs.ObjectName    = &emptyPath;
+                clientAttrs.Attributes    = objCaseInsensitive;
+
+                HANDLE client { INVALID_HANDLE_VALUE };
+                const NTSTATUS clientStatus { ntCreateFile (
+                    &client,
+                    duplexAccess,
+                    &clientAttrs,
+                    &iosb,
+                    nullptr,
+                    0,
+                    duplexShare,
+                    ntFileOpen,
+                    ntFileNonDirectoryFile,   // overlapped (async) I/O — no FILE_SYNCHRONOUS_IO_NONALERT
+                    nullptr,
+                    0) };
+
+                if (NT_SUCCESS (clientStatus))
+                {
+                    serverOut = server;
+                    clientOut = client;
+                    result = true;
+                }
+                else
+                {
+                    CloseHandle (server);
+                }
+            }
         }
     }
 
@@ -531,12 +531,15 @@ static bool createPseudoConsole (HPCON& pseudoConsoleOut, HANDLE client, COORD s
     static constexpr DWORD pseudoconsoleWin32InputMode { 0x4 };
 
     const ConPtyFuncs& funcs { loadConPtyFuncs() };
+    bool result { false };
 
-    if (not funcs.isValid())
-        return false;
+    if (funcs.isValid())
+    {
+        const HRESULT hr { funcs.create (size, client, client, pseudoconsoleWin32InputMode, &pseudoConsoleOut) };
+        result = not FAILED (hr);
+    }
 
-    const HRESULT hr { funcs.create (size, client, client, pseudoconsoleWin32InputMode, &pseudoConsoleOut) };
-    return not FAILED (hr);
+    return result;
 }
 
 // =============================================================================
@@ -870,6 +873,44 @@ bool WindowsTTY::isRunning() const
 // =============================================================================
 
 /**
+ * @brief Copy bytes from a read buffer into a caller-supplied destination.
+ *
+ * Loads `bufferBytes = bytesAvailable` and `bufferOffset = 0`, then copies
+ * up to `maxBytes` bytes from `src` to `dst`.  Advances `bufferOffset` by the
+ * number of bytes copied.  When the buffer is fully consumed (`bufferOffset >=
+ * bufferBytes`), resets both fields to zero.
+ *
+ * @param dst            Destination buffer.
+ * @param maxBytes       Maximum bytes to copy into `dst`.
+ * @param src            Source pointer (start of the data to copy from).
+ * @param bufferBytes    Reference to the byte-count field; set to `bytesAvailable`.
+ * @param bufferOffset   Reference to the cursor field; reset to 0 then advanced.
+ * @param bytesAvailable Number of bytes available starting at `src`.
+ * @return               Number of bytes copied.
+ */
+static int consumeReadBuffer (char* dst, int maxBytes, const char* src,
+                               int& bufferBytes, int& bufferOffset,
+                               int bytesAvailable) noexcept
+{
+    bufferBytes  = bytesAvailable;
+    bufferOffset = 0;
+
+    const int toCopy { juce::jmin (bufferBytes, maxBytes) };
+    std::memcpy (dst, src, static_cast<size_t> (toCopy));
+    bufferOffset = toCopy;
+
+    if (bufferOffset >= bufferBytes)
+    {
+        bufferBytes  = 0;
+        bufferOffset = 0;
+    }
+
+    return toCopy;
+}
+
+// =============================================================================
+
+/**
  * @brief Copy bytes from the internal overlapped read buffer to the caller.
  *
  * Returns bytes from the internal buffer, which is filled by `waitForData()`.
@@ -898,18 +939,9 @@ int WindowsTTY::read (char* buf, int maxBytes)
     else if (readBufferBytes > 0)
     {
         const int remaining { readBufferBytes - readBufferOffset };
-        const int toCopy    { juce::jmin (remaining, maxBytes) };
-
-        std::memcpy (buf, readBuffer.getData() + readBufferOffset, static_cast<size_t> (toCopy));
-        readBufferOffset += toCopy;
-
-        if (readBufferOffset >= readBufferBytes)
-        {
-            readBufferBytes  = 0;
-            readBufferOffset = 0;
-        }
-
-        result = toCopy;
+        result = consumeReadBuffer (buf, maxBytes,
+                                    readBuffer.getData() + readBufferOffset,
+                                    readBufferBytes, readBufferOffset, remaining);
     }
     else if (pipe != INVALID_HANDLE_VALUE and not readPending)
     {
@@ -935,20 +967,10 @@ int WindowsTTY::read (char* buf, int maxBytes)
             }
             else
             {
-                readBufferBytes  = static_cast<int> (bytesRead);
-                readBufferOffset = 0;
-
-                const int toCopy { juce::jmin (readBufferBytes, maxBytes) };
-                std::memcpy (buf, readBuffer.getData(), static_cast<size_t> (toCopy));
-                readBufferOffset = toCopy;
-
-                if (readBufferOffset >= readBufferBytes)
-                {
-                    readBufferBytes  = 0;
-                    readBufferOffset = 0;
-                }
-
-                result = toCopy;
+                result = consumeReadBuffer (buf, maxBytes,
+                                            readBuffer.getData(),
+                                            readBufferBytes, readBufferOffset,
+                                            static_cast<int> (bytesRead));
             }
         }
         else
@@ -966,20 +988,10 @@ int WindowsTTY::read (char* buf, int maxBytes)
 
                     if (gotResult != FALSE and bytesRead > 0)
                     {
-                        readBufferBytes  = static_cast<int> (bytesRead);
-                        readBufferOffset = 0;
-
-                        const int toCopy { juce::jmin (readBufferBytes, maxBytes) };
-                        std::memcpy (buf, readBuffer.getData(), static_cast<size_t> (toCopy));
-                        readBufferOffset = toCopy;
-
-                        if (readBufferOffset >= readBufferBytes)
-                        {
-                            readBufferBytes  = 0;
-                            readBufferOffset = 0;
-                        }
-
-                        result = toCopy;
+                        result = consumeReadBuffer (buf, maxBytes,
+                                                    readBuffer.getData(),
+                                                    readBufferBytes, readBufferOffset,
+                                                    static_cast<int> (bytesRead));
                     }
                     else
                     {

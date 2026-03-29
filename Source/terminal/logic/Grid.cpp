@@ -654,6 +654,48 @@ const Grapheme* Grid::graphemePtr (const Buffer& buffer, int visibleRow, int col
     return buffer.graphemes.get() + physicalRow (buffer, visibleRow) * state.getCols() + col;
 }
 
+// =============================================================================
+
+/**
+ * @brief Append a single cell's text contribution to a row string.
+ *
+ * Skips wide-continuation cells entirely.  Appends a space for empty cells
+ * (`codepoint == 0`).  For all other cells, appends the base codepoint
+ * followed by any extra codepoints from the grapheme sidecar.
+ *
+ * @param cell      Cell to convert.
+ * @param grapheme  Grapheme sidecar entry co-indexed with the cell (may be nullptr).
+ * @param rowText   String to append to.
+ */
+static void appendCellText (const Cell& cell, const Grapheme* grapheme, juce::String& rowText)
+{
+    if (not cell.isWideContinuation())
+    {
+        if (cell.codepoint == 0)
+        {
+            rowText += " ";
+        }
+        else
+        {
+            rowText += juce::String::charToString (static_cast<juce::juce_wchar> (cell.codepoint));
+
+            if (cell.hasGrapheme() and grapheme != nullptr)
+            {
+                const uint8_t safeCount { std::min (grapheme->count,
+                    static_cast<uint8_t> (grapheme->extraCodepoints.size())) };
+
+                for (uint8_t g { 0 }; g < safeCount; ++g)
+                {
+                    rowText += juce::String::charToString (
+                        static_cast<juce::juce_wchar> (grapheme->extraCodepoints.at (g)));
+                }
+            }
+        }
+    }
+}
+
+// =============================================================================
+
 /**
  * @brief Extracts a rectangular region of text as a UTF-32 string.
  *
@@ -709,35 +751,8 @@ juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end) co
             for (int col { firstCol }; col <= lastCol; ++col)
             {
                 const Cell& cell { *(cells + col) };
-
-                if (not cell.isWideContinuation())
-                {
-                    if (cell.codepoint == 0)
-                    {
-                        rowText += " ";
-                    }
-                    else
-                    {
-                        rowText += juce::String::charToString (static_cast<juce::juce_wchar> (cell.codepoint));
-
-                        if (cell.hasGrapheme())
-                        {
-                            const Grapheme* grapheme { activeReadGrapheme (row, col) };
-
-                            if (grapheme != nullptr)
-                            {
-                                const uint8_t safeCount { std::min (grapheme->count,
-                                    static_cast<uint8_t> (grapheme->extraCodepoints.size())) };
-
-                                for (uint8_t g { 0 }; g < safeCount; ++g)
-                                {
-                                    rowText += juce::String::charToString (
-                                        static_cast<juce::juce_wchar> (grapheme->extraCodepoints.at (g)));
-                                }
-                            }
-                        }
-                    }
-                }
+                const Grapheme* grapheme { cell.hasGrapheme() ? activeReadGrapheme (row, col) : nullptr };
+                appendCellText (cell, grapheme, rowText);
             }
 
             rowText = rowText.trimEnd();
@@ -791,35 +806,8 @@ juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bo
             for (int col { startCol }; col <= endCol; ++col)
             {
                 const Cell& cell { *(cells + col) };
-
-                if (not cell.isWideContinuation())
-                {
-                    if (cell.codepoint == 0)
-                    {
-                        rowText += " ";
-                    }
-                    else
-                    {
-                        rowText += juce::String::charToString (static_cast<juce::juce_wchar> (cell.codepoint));
-
-                        if (cell.hasGrapheme())
-                        {
-                            const Grapheme* grapheme { activeReadGrapheme (row, col) };
-
-                            if (grapheme != nullptr)
-                            {
-                                const uint8_t safeCount { std::min (grapheme->count,
-                                    static_cast<uint8_t> (grapheme->extraCodepoints.size())) };
-
-                                for (uint8_t g { 0 }; g < safeCount; ++g)
-                                {
-                                    rowText += juce::String::charToString (
-                                        static_cast<juce::juce_wchar> (grapheme->extraCodepoints.at (g)));
-                                }
-                            }
-                        }
-                    }
-                }
+                const Grapheme* grapheme { cell.hasGrapheme() ? activeReadGrapheme (row, col) : nullptr };
+                appendCellText (cell, grapheme, rowText);
             }
 
             rowText = rowText.trimEnd();

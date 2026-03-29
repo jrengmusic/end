@@ -148,18 +148,21 @@ void AppState::removeTab (int index)
 {
     auto tabs { getTabs() };
     int tabIndex { 0 };
+    bool found { false };
 
-    for (int i = 0; i < tabs.getNumChildren(); ++i)
+    for (int i { 0 }; not found and i < tabs.getNumChildren(); ++i)
     {
         if (tabs.getChild (i).getType() == App::ID::TAB)
         {
             if (tabIndex == index)
             {
                 tabs.removeChild (i, nullptr);
-                return;
+                found = true;
             }
-
-            ++tabIndex;
+            else
+            {
+                ++tabIndex;
+            }
         }
     }
 }
@@ -167,20 +170,21 @@ void AppState::removeTab (int index)
 juce::ValueTree AppState::getTab (int index) noexcept
 {
     auto tabs { getTabs() };
+    juce::ValueTree result {};
     int tabIndex { 0 };
 
-    for (int i = 0; i < tabs.getNumChildren(); ++i)
+    for (int i { 0 }; not result.isValid() and i < tabs.getNumChildren(); ++i)
     {
         if (tabs.getChild (i).getType() == App::ID::TAB)
         {
             if (tabIndex == index)
-                return tabs.getChild (i);
-
-            ++tabIndex;
+                result = tabs.getChild (i);
+            else
+                ++tabIndex;
         }
     }
 
-    return juce::ValueTree();
+    return result;
 }
 
 juce::String AppState::getActivePaneUuid() const noexcept
@@ -258,22 +262,26 @@ void AppState::save()
 void AppState::load()
 {
     auto file { getStateFile() };
+    bool loaded { false };
 
     if (file.existsAsFile())
     {
         if (auto xml { juce::parseXML (file) })
         {
-            auto loaded { juce::ValueTree::fromXml (*xml) };
+            auto parsed { juce::ValueTree::fromXml (*xml) };
 
-            if (loaded.isValid() and loaded.getType() == App::ID::END)
+            if (parsed.isValid() and parsed.getType() == App::ID::END)
             {
-                state = loaded;
-                return;
+                state = parsed;
+                loaded = true;
             }
         }
     }
 
-    initDefaults();
+    if (not loaded)
+    {
+        initDefaults();
+    }
 }
 
 juce::File AppState::getStateFile() const

@@ -104,7 +104,7 @@ void TTY::run()
     while (not threadShouldExit())
     {
         handleResize();
-        if (waitForData (100) && drainPty())
+        if (waitForData (100) and drainPty())
             break;
     }
 }
