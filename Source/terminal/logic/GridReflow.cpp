@@ -526,12 +526,14 @@ static int countOutputRows (const WalkParams& wp, Cell* tempCells, Grapheme* tem
         if (*outCursorOutputRow < 0 and cursorLinear >= r and cursorLinear < r + runLen)
         {
             const int flatCursorOffset { (cursorLinear - r) * wp.oldCols + cursorCol };
-            const int clampedOffset { juce::jmin (flatCursorOffset, juce::jmax (flatLen - 1, 0)) };
+            const int maxOffset { (runLen == 1) ? juce::jmin (flatLen - 1, newCols - 1) : flatLen - 1 };
+            const int clampedOffset { juce::jmin (flatCursorOffset, juce::jmax (maxOffset, 0)) };
             *outCursorOutputRow = total + clampedOffset / newCols;
             *outCursorNewCol = clampedOffset % newCols;
         }
 
-        total += (flatLen > 0) ? (flatLen + newCols - 1) / newCols : 1;
+        const int effectiveLen { (runLen == 1) ? juce::jmin (flatLen, newCols) : flatLen };
+        total += (effectiveLen > 0) ? (effectiveLen + newCols - 1) / newCols : 1;
         r += runLen;
     }
 
@@ -574,7 +576,9 @@ static void writeReflowedContent (const WalkParams& wp, Cell* tempCells, Graphem
                                                 wp.head, wp.oldVisibleRows, wp.scrollbackUsed,
                                                 r, runLen, tempCells, tempGraphs) };
 
-        emitLogicalLine (tempCells, tempGraphs, flatLen,
+        const int effectiveLen { (runLen == 1) ? juce::jmin (flatLen, newCols) : flatLen };
+
+        emitLogicalLine (tempCells, tempGraphs, effectiveLen,
                          dstCells, dstGraphemes, dstStates,
                          newCols, newTotalRows,
                          rowsToSkip, &outputRowsSoFar, &writePhys);

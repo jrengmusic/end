@@ -81,7 +81,7 @@ void Tabs::addNewTab()
     tab.removeChild (tab.getChildWithName (App::ID::PANES), nullptr);
     tab.appendChild (newPanes.getState(), nullptr);
 
-    AppState::getContext()->setActivePaneUuid (uuid);
+    AppState::getContext()->setActivePaneID (uuid);
     auto paneNode { jreng::PaneManager::findLeaf (newPanes.getState(), uuid) };
     auto sessionTree { paneNode.getChild (0) };
     AppState::getContext()->setPwd (sessionTree);
@@ -134,7 +134,7 @@ void Tabs::globalFocusChanged (juce::Component* focusedComponent)
     if (auto* term { dynamic_cast<Terminal::Component*> (focusedComponent) }; term != nullptr)
     {
         const auto uuid { term->getValueTree().getProperty (jreng::ID::id).toString() };
-        AppState::getContext()->setActivePaneUuid (uuid);
+        AppState::getContext()->setActivePaneID (uuid);
         AppState::getContext()->setPwd (term->getValueTree());
         tabName.referTo (term->getValueTree().getPropertyAsValue (Terminal::ID::displayName, nullptr));
     }
@@ -176,26 +176,26 @@ void Tabs::closeActiveTab()
         }
         else if (activePanes->getPanes().size() > 1)
         {
-            const juce::String uuid { AppState::getContext()->getActivePaneUuid() };
+            const juce::String activeID { AppState::getContext()->getActivePaneID() };
 
             int closedIndex { 0 };
 
             for (size_t i { 0 }; i < activePanes->getPanes().size(); ++i)
             {
-                if (activePanes->getPanes().at (i)->getComponentID() == uuid)
+                if (activePanes->getPanes().at (i)->getComponentID() == activeID)
                 {
                     closedIndex = static_cast<int> (i);
                     break;
                 }
             }
 
-            activePanes->closePane (uuid);
+            activePanes->closePane (activeID);
 
             if (not activePanes->getPanes().isEmpty())
             {
                 const int nextIndex { juce::jmin (closedIndex, static_cast<int> (activePanes->getPanes().size()) - 1) };
                 auto* nearest { activePanes->getPanes().at (static_cast<size_t> (nextIndex)).get() };
-                AppState::getContext()->setActivePaneUuid (nearest->getComponentID());
+                AppState::getContext()->setActivePaneID (nearest->getComponentID());
 
                 if (nearest->isShowing())
                     nearest->grabKeyboardFocus();
@@ -270,13 +270,13 @@ int Tabs::getTabCount() const noexcept { return getNumTabs(); }
  */
 Terminal::Component* Tabs::getActiveTerminal() const noexcept
 {
-    const auto uuid { AppState::getContext()->getActivePaneUuid() };
+    const auto activeID { AppState::getContext()->getActivePaneID() };
 
     if (auto* active { getActivePanes() }; active != nullptr)
     {
         for (auto& pane : active->getPanes())
         {
-            if (pane->getComponentID() == uuid)
+            if (pane->getComponentID() == activeID)
             {
                 return dynamic_cast<Terminal::Component*> (pane.get());
             }
@@ -359,7 +359,7 @@ void Tabs::focusLastTerminal (Panes* active)
     if (not activePanes.isEmpty())
     {
         auto* lastPane { activePanes.back().get() };
-        AppState::getContext()->setActivePaneUuid (lastPane->getComponentID());
+        AppState::getContext()->setActivePaneID (lastPane->getComponentID());
 
         if (lastPane->isShowing())
             lastPane->grabKeyboardFocus();
@@ -450,7 +450,7 @@ void Tabs::currentTabChanged (int newIndex, const juce::String&)
         if (not activePanes.isEmpty())
         {
             auto* firstPane { activePanes.at (0).get() };
-            AppState::getContext()->setActivePaneUuid (firstPane->getComponentID());
+            AppState::getContext()->setActivePaneID (firstPane->getComponentID());
 
             if (firstPane->isShowing())
             {

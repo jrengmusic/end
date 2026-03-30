@@ -37,7 +37,7 @@ void PaneManager::addLeaf (const juce::String& uuid)
 
 //==============================================================================
 void PaneManager::split (const juce::String& uuid,
-                         const juce::String& newUuid,
+                         const juce::String& newID,
                          const juce::String& direction)
 {
     juce::ValueTree leaf { findLeaf (state, uuid) };
@@ -47,7 +47,7 @@ void PaneManager::split (const juce::String& uuid,
     jassert (parent.isValid());
 
     juce::ValueTree newLeaf { idPane };
-    newLeaf.setProperty (id, newUuid, nullptr);
+    newLeaf.setProperty (id, newID, nullptr);
 
     if (parent.getNumChildren() == 1)
     {

@@ -561,15 +561,15 @@ END = {
 	--
 	-- Examples:
 	--
-	-- popups = {
-	--     tit = {
-	--         command = "tit",
-	--         args = "",
-	--         cwd = "",
-	--         width = 0.8,
-	--         height = 0.6,
-	--         modal = "t",
-	--     },
+	popups = {
+	    tit = {
+	        command = "tit",
+	        args = "",
+	        cwd = "",
+	        width = 0.8,
+	        height = 0.6,
+	        modal = "t",
+	    },
 	--     btop = {
 	--         command = "htop",
 	--         cwd = "~",
@@ -578,5 +578,5 @@ END = {
 	--         modal = "p",
 	--         global = "cmd+shift+p",
 	--     },
-	-- },
+	},
 }

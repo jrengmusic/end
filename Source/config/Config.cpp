@@ -120,7 +120,7 @@ void Config::initKeys()
     addKey (Key::coloursBlue, "#8CC9D9", { T::string });///< dolphin
     addKey (Key::coloursMagenta, "#519299", { T::string });///< lagoon
     addKey (Key::coloursCyan, "#699DAA", { T::string });///< tranquiliTeal
-    addKey (Key::coloursWhite, "#FF0000", { T::string });///< frostbite
+    addKey (Key::coloursWhite, "#DDDDDD", { T::string });///< frostbite
     // Bright colours
     addKey (Key::coloursBrightBlack, "#33535B", { T::string });///< mediterranea
     addKey (Key::coloursBrightRed, "#FC704C", { T::string });///< preciousPersimmon

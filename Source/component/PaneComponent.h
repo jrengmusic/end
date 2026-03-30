@@ -46,7 +46,7 @@ public:
 
     void focusGained (FocusChangeType) override
     {
-        AppState::getContext()->setActivePaneUuid (getComponentID());
+        AppState::getContext()->setActivePaneID (getComponentID());
         AppState::getContext()->setActivePaneType (getPaneType());
     }
 

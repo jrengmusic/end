@@ -2,6 +2,49 @@
 
 ---
 
+## Sprint 136: Reflow truncation, pane fixes, Uuid rename
+
+**Date:** 2026-03-30
+
+### Agents Participated
+- COUNSELOR — root cause analysis for all three issues, directed execution
+- Pathfinder — pane close/resizer bar flow tracing, focusPane navigation tracing, Uuid identifier inventory
+- Engineer — all code changes (4 invocations: pinToBottom, non-wrapped truncation, orphaned resizer cleanup, focusPane visibility, Uuid rename)
+
+### Files Modified (13 total)
+- `Source/terminal/logic/GridReflow.cpp` — `pinToBottom` condition: bottom-align only when cursor was at last visible row; non-wrapped lines (`runLen == 1`) truncated to newCols instead of reflowed via `effectiveLen` cap in `countOutputRows`, cursor tracking, and `writeReflowedContent`
+- `Source/component/Panes.cpp` — orphaned resizer bar cleanup after `paneManager.remove()` (scan for detached split nodes); `focusPane()` visibility guards on both loops (skip hidden panes under Whelmed overlay)
+- `Source/AppIdentifier.h` — `activePaneUuid` renamed to `activePaneID`
+- `Source/AppState.h` — `getActivePaneUuid`/`setActivePaneUuid` renamed to `getActivePaneID`/`setActivePaneID`
+- `Source/AppState.cpp` — same renames in definitions + property references
+- `Source/component/PaneComponent.h` — `setActivePaneUuid` call renamed
+- `Source/component/Tabs.cpp` — all `*Uuid` calls/locals renamed to `*ID`
+- `Source/component/TerminalComponent.cpp` — `getActivePaneUuid` call renamed (juce::Uuid untouched)
+- `Source/config/Config.cpp` — renamed references
+- `Source/config/Config.h` — renamed references
+- `Source/config/default_end.lua` — renamed references
+- `modules/jreng_gui/layout/jreng_pane_manager.h` — `newUuid`/`nodeUuid` params renamed to `newID`/`nodeID`
+- `modules/jreng_gui/layout/jreng_pane_manager.cpp` — same renames
+
+### Alignment Check
+- [x] LIFESTAR principles followed — SSOT (pinToBottom uses actual cursor position), Lean (truncation simpler than full reflow for non-wrapped lines), Explicit Encapsulation (resizer bar cleanup checks own state via getParent)
+- [x] NAMING-CONVENTION.md adhered — `*Uuid` renamed to `*ID` (Rule 2: no type encoding; UUID is implementation detail, ID is semantic)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md followed — zero early returns, brace init, alternative tokens
+
+### Problems Solved
+- **Active prompt pinned to bottom on empty screen:** `pinToBottom = (cursorRow >= oldVisibleRows - 1)` — only bottom-aligns when cursor was at the last row of old viewport. Empty screen / sparse output keeps position.
+- **Columnar ls output mangled after split:** Non-wrapped lines (ended with newline, `runLen == 1`) now truncated to `newCols` instead of reflowed to multiple rows. Soft-wrapped lines still reflow correctly.
+- **Orphaned resizer bar after 3-pane close:** After `paneManager.remove()` restructures tree, orphaned bars (detached split node) are cleaned up in a second pass.
+- **Focus traversal skips Whelmed pane:** `focusPane()` now filters by `isVisible()` — hidden terminal under Whelmed overlay excluded from navigation.
+- **Uuid naming convention:** All user-defined `*Uuid` identifiers renamed to `*ID` across 9 files (41 occurrences).
+
+### Technical Debt / Follow-up
+- Non-wrapped line truncation loses characters beyond `newCols` permanently — acceptable for disposable output (ls), but long non-wrapped lines won't restore on re-widen
+- `activePaneID` property string change breaks existing state.xml on first launch (falls back to default, non-destructive)
+
+---
+
 ## Sprint 135: Comprehensive docs audit and debt cleanup
 
 **Date:** 2026-03-30

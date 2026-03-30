@@ -76,15 +76,15 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory)
  */
 juce::String Panes::createWhelmed (const juce::File& file)
 {
-    const juce::String activeUuid { AppState::getContext()->getActivePaneUuid() };
-    jassert (activeUuid.isNotEmpty());
+    const juce::String activeID { AppState::getContext()->getActivePaneID() };
+    jassert (activeID.isNotEmpty());
 
     // Find the active terminal
     PaneComponent* activeTerminal { nullptr };
 
     for (auto& pane : panes)
     {
-        if (pane->getComponentID() == activeUuid and pane->getPaneType() == "terminal")
+        if (pane->getComponentID() == activeID and pane->getPaneType() == "terminal")
             activeTerminal = pane.get();
     }
 
@@ -95,13 +95,13 @@ juce::String Panes::createWhelmed (const juce::File& file)
         activeTerminal->setVisible (false);
 
         auto component { std::make_unique<Whelmed::Component>() };
-        component->setComponentID (activeUuid);
+        component->setComponentID (activeID);
         component->setBounds (activeTerminal->getBounds());
         component->openFile (file);
         component->onRepaintNeeded = onRepaintNeeded;
 
         // Graft DOCUMENT alongside SESSION in the PANE node
-        auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeUuid) };
+        auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeID) };
         jassert (paneNode.isValid());
 
         auto valueTree { component->getValueTree() };
@@ -120,13 +120,13 @@ juce::String Panes::createWhelmed (const juce::File& file)
         resized();
     }
 
-    return activeUuid;
+    return activeID;
 }
 
 void Panes::closeWhelmed()
 {
-    const juce::String activeUuid { AppState::getContext()->getActivePaneUuid() };
-    jassert (activeUuid.isNotEmpty());
+    const juce::String activeID { AppState::getContext()->getActivePaneID() };
+    jassert (activeID.isNotEmpty());
 
     // Find whelmed and terminal with matching UUID
     PaneComponent* whelmedPane { nullptr };
@@ -135,7 +135,7 @@ void Panes::closeWhelmed()
 
     for (size_t i { 0 }; i < panes.size(); ++i)
     {
-        if (panes.at (i)->getComponentID() == activeUuid)
+        if (panes.at (i)->getComponentID() == activeID)
         {
             if (panes.at (i)->getPaneType() == "document")
             {
@@ -154,7 +154,7 @@ void Panes::closeWhelmed()
     if (whelmedPane != nullptr and terminalPane != nullptr)
     {
         // Remove DOCUMENT from PANE node
-        auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeUuid) };
+        auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeID) };
         jassert (paneNode.isValid());
 
         auto documentTree { whelmedPane->getValueTree() };
@@ -210,7 +210,7 @@ void Panes::setTerminalCallbacks (Terminal::Component* terminal)
         {
             const int nextIndex { juce::jmin (closedIndex, static_cast<int> (panes.size()) - 1) };
             auto* nearest { panes.at (static_cast<size_t> (nextIndex)).get() };
-            AppState::getContext()->setActivePaneUuid (nearest->getComponentID());
+            AppState::getContext()->setActivePaneID (nearest->getComponentID());
 
             if (nearest->isShowing())
                 nearest->grabKeyboardFocus();
@@ -274,6 +274,20 @@ void Panes::closePane (const juce::String& uuid)
     }
 
     paneManager.remove (uuid);
+
+    for (auto it { resizerBars.begin() }; it != resizerBars.end();)
+    {
+        if (not (*it)->getSplitNode().getParent().isValid())
+        {
+            removeChildComponent (it->get());
+            it = resizerBars.erase (it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
     resized();
 }
 
@@ -301,8 +315,8 @@ void Panes::splitVertical() { splitImpl ("horizontal", false); }
  */
 void Panes::splitImpl (const juce::String& direction, bool isVertical)
 {
-    const juce::String activeUuid { AppState::getContext()->getActivePaneUuid() };
-    jassert (activeUuid.isNotEmpty());
+    const juce::String activeID { AppState::getContext()->getActivePaneID() };
+    jassert (activeID.isNotEmpty());
 
     auto terminal { Terminal::Component::create (font, AppState::getContext()->getPwd()) };
     auto* term { terminal.get() };
@@ -310,10 +324,10 @@ void Panes::splitImpl (const juce::String& direction, bool isVertical)
     addChildComponent (term);
     setTerminalCallbacks (term);
 
-    const juce::String newUuid { term->getComponentID() };
-    paneManager.split (activeUuid, newUuid, direction);
+    const juce::String newID { term->getComponentID() };
+    paneManager.split (activeID, newID, direction);
 
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), newUuid) };
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), newID) };
     jassert (paneNode.isValid());
     paneNode.appendChild (term->getValueTree(), nullptr);
 
@@ -381,13 +395,15 @@ void Panes::visibilityChanged()
  */
 void Panes::focusPane (int deltaX, int deltaY)
 {
-    const auto activeUuid { AppState::getContext()->getActivePaneUuid() };
+    const auto activeID { AppState::getContext()->getActivePaneID() };
     PaneComponent* active { nullptr };
 
     for (auto& pane : panes)
     {
-        if (pane->getComponentID() == activeUuid)
+        if (pane->getComponentID() == activeID and pane->isVisible())
+        {
             active = pane.get();
+        }
     }
 
     if (active != nullptr)
@@ -399,7 +415,7 @@ void Panes::focusPane (int deltaX, int deltaY)
 
         for (auto& pane : panes)
         {
-            if (pane.get() != active)
+            if (pane.get() != active and pane->isVisible())
             {
                 const auto centre { pane->getBounds().getCentre() };
 
@@ -425,7 +441,7 @@ void Panes::focusPane (int deltaX, int deltaY)
 
         if (best != nullptr)
         {
-            AppState::getContext()->setActivePaneUuid (best->getComponentID());
+            AppState::getContext()->setActivePaneID (best->getComponentID());
 
             if (best->isShowing())
                 best->grabKeyboardFocus();

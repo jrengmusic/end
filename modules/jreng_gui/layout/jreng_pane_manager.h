@@ -38,12 +38,12 @@ public:
 
     /** @brief Splits an existing leaf into two.
         @param uuid      Existing leaf to split.
-        @param newUuid   New leaf UUID.
+        @param newID     New leaf UUID.
         @param direction Internal divider orientation: "vertical" = left/right divider,
                          "horizontal" = top/bottom divider.
     */
     void split (const juce::String& uuid,
-                const juce::String& newUuid,
+                const juce::String& newID,
                 const juce::String& direction);
 
     /** @brief Removes a leaf and promotes its sibling.
@@ -94,11 +94,11 @@ private:
     {
         if (node.getType() == idPane)
         {
-            const juce::String nodeUuid { node.getProperty (id).toString() };
+            const juce::String nodeID { node.getProperty (id).toString() };
 
             for (auto& component : components)
             {
-                if (component->getComponentID() == nodeUuid)
+                if (component->getComponentID() == nodeID)
                     component->setBounds (bounds);
             }
         }

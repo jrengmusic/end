@@ -187,25 +187,25 @@ juce::ValueTree AppState::getTab (int index) noexcept
     return result;
 }
 
-juce::String AppState::getActivePaneUuid() const noexcept
+juce::String AppState::getActivePaneID() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
 
-    if (tabs.isValid() and tabs.hasProperty (App::ID::activePaneUuid))
+    if (tabs.isValid() and tabs.hasProperty (App::ID::activePaneID))
     {
-        return tabs.getProperty (App::ID::activePaneUuid).toString();
+        return tabs.getProperty (App::ID::activePaneID).toString();
     }
 
     return {};
 }
 
-void AppState::setActivePaneUuid (const juce::String& uuid)
+void AppState::setActivePaneID (const juce::String& uuid)
 {
     auto tabs { getTabs() };
 
     if (tabs.isValid())
     {
-        tabs.setProperty (App::ID::activePaneUuid, uuid, nullptr);
+        tabs.setProperty (App::ID::activePaneID, uuid, nullptr);
     }
 }
 

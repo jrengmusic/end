@@ -6,7 +6,7 @@
  *
  *     END
  *     +-- WINDOW (width, height, zoom)
- *     +-- TABS (active, position, activePaneUuid)
+ *     +-- TABS (active, position, activePaneID)
  *         +-- TAB
  *             +-- PANES (direction, ratio)
  *                 +-- PANE (uuid) | PANES (nested split)
@@ -47,7 +47,7 @@ namespace ID
     static const juce::Identifier active             { "active" };
     static const juce::Identifier position           { "position" };
     static const juce::Identifier splitVertical      { "splitVertical" };
-    static const juce::Identifier activePaneUuid { "activePaneUuid" };
+    static const juce::Identifier activePaneID { "activePaneID" };
     static const juce::Identifier activePaneType { "activePaneType" };
     static const juce::Identifier renderer           { "renderer" };
     static const juce::Identifier filePath           { "filePath" };

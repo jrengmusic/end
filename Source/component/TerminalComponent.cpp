@@ -572,7 +572,7 @@ juce::ValueTree Terminal::Component::getValueTree() noexcept { return session.ge
  */
 void Terminal::Component::onVBlank()
 {
-    if (getComponentID() == AppState::getContext()->getActivePaneUuid())
+    if (getComponentID() == AppState::getContext()->getActivePaneID())
     {
         if (isShowing() and not hasKeyboardFocus (true)
             and juce::Component::getCurrentlyModalComponent() == nullptr)
