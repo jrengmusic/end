@@ -10,7 +10,7 @@
  *
  * 1. Thread starts inside the platform `open()` call via `startThread()`.
  * 2. `run()` sets thread priority to high and enters the main poll loop.
- * 3. Each iteration checks for a pending resize, then blocks on `waitForData`.
+ * 3. Each iteration blocks on `waitForData`.
  * 4. When data arrives the inner drain loop calls `read()` until no bytes
  *    remain, delivering each chunk to `onData`.
  * 5. After a full drain `onDrainComplete` is called once.
@@ -28,14 +28,8 @@
 /**
  * @brief Reader thread main loop.
  *
- * Runs at high priority.  Handles resize requests, data delivery, drain
+ * Runs at high priority.  Handles resize detection, data delivery, drain
  * notification, and shell-exit detection.
- *
- * @par Resize handling
- * If `resizePending` is set the thread reads `pendingCols` / `pendingRows`,
- * fires `onResize` so the owner can update its grid and parser, then clears
- * the flag.  `platformResize()` was already called on the message thread by
- * `resize()` — no second OS call is needed here.
  *
  * @par Data delivery
  * After `waitForData` returns `true` the inner loop calls `read()` repeatedly
@@ -62,19 +56,6 @@ void TTY::run()
 {
     setPriority (Thread::Priority::high);
     char chunk[READ_CHUNK_SIZE];
-
-    auto handleResize = [&]
-    {
-        if (resizePending.load (std::memory_order_acquire))
-        {
-            const int cols { pendingCols.load (std::memory_order_relaxed) };
-            const int rows { pendingRows.load (std::memory_order_relaxed) };
-
-            if (onResize)
-                onResize (cols, rows);
-            resizePending.store (false, std::memory_order_release);
-        }
-    };
 
     // returns true on EOF
     auto drainPty = [&]() -> bool
@@ -103,7 +84,6 @@ void TTY::run()
 
     while (not threadShouldExit())
     {
-        handleResize();
         if (waitForData (100) and drainPty())
             break;
     }

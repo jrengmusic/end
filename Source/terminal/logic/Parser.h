@@ -469,15 +469,12 @@ private:
     /**
      * @brief Returns the effective bottom row of the current scrolling region.
      *
-     * Reads directly from State atomics on every call — no caching.
+     * Reads from Grid buffer dims (safe on reader thread) on every call.
      * Wraps `effectiveScrollBottom()` with the current screen and visible rows.
      *
      * @see effectiveScrollBottom()
      */
-    int activeScrollBottom() const noexcept
-    {
-        return effectiveScrollBottom (state.getScreen(), state.getVisibleRows());
-    }
+    int activeScrollBottom() const noexcept;
 
     /**
      * @brief Whether the VT100 line-drawing character set is active in GL.

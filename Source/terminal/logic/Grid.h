@@ -48,7 +48,7 @@
  * |------------------------|----------------|
  * | `activeWrite*()`       | READER THREAD  |
  * | `scroll*()`, `erase*()` | READER THREAD |
- * | `resize()`, `clearBuffer()` | READER THREAD (holds resizeLock) |
+ * | `resize()`, `clearBuffer()` | MESSAGE THREAD (holds resizeLock) |
  * | `activeVisibleRow()` reads | MESSAGE THREAD |
  * | `consumeDirtyRows()`   | MESSAGE THREAD |
  * | `extractText()`        | MESSAGE THREAD (holds resizeLock) |
@@ -133,7 +133,7 @@ public:
      *
      * @param newCols        New terminal width in character columns.
      * @param newVisibleRows New terminal height in character rows.
-     * @note READER THREAD — acquires `resizeLock`.  Allocates heap memory.
+     * @note MESSAGE THREAD — acquires `resizeLock`.  Allocates heap memory.
      */
     void resize (int newCols, int newVisibleRows);
 
@@ -150,17 +150,19 @@ public:
 
     /**
      * @brief Returns the current column count.
-     * @return Number of columns in the active buffer.
-     * @note Lock-free, noexcept.  Safe to call from any thread.
+     * @return Allocated column count of the normal screen buffer.
+     * @note Safe from any thread when holding `resizeLock`.  Always equal to
+     *       State dims because grid.resize() runs on the message thread.
      */
-    int getCols() const noexcept { return state.getCols(); }
+    int getCols () const noexcept { return buffers.at (normal).allocatedCols; }
 
     /**
      * @brief Returns the number of visible rows in the terminal viewport.
-     * @return Number of visible rows in the active buffer.
-     * @note Lock-free, noexcept.  Safe to call from any thread.
+     * @return Allocated visible row count of the normal screen buffer.
+     * @note Safe from any thread when holding `resizeLock`.  Always equal to
+     *       State dims because grid.resize() runs on the message thread.
      */
-    int getVisibleRows() const noexcept { return state.getVisibleRows(); }
+    int getVisibleRows () const noexcept { return buffers.at (normal).allocatedVisibleRows; }
 
     /**
      * @brief Marks a single visible row as dirty in the atomic bitmask.
@@ -642,6 +644,12 @@ private:
          * `scrollbackCapacity`.  Always 0 for the alternate screen.
          */
         int scrollbackUsed { 0 };
+
+        /** @brief Column count this buffer was allocated for. */
+        int allocatedCols { 0 };
+
+        /** @brief Visible row count this buffer was allocated for. */
+        int allocatedVisibleRows { 0 };
     };
 
     /**

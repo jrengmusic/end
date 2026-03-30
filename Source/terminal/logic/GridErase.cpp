@@ -27,18 +27,18 @@ namespace Terminal
 void Grid::clearRow (Buffer& buffer, int visibleRow, const Cell& fill) noexcept
 {
     Cell* row { rowPtr (buffer, visibleRow) };
-    std::fill (row, row + state.getCols(), fill);
+    std::fill (row, row + getCols(), fill);
 
     const int phys { physicalRow (buffer, visibleRow) };
     buffer.rowStates[phys] = RowState {};
 
-    Grapheme* gRow { buffer.graphemes.get() + phys * state.getCols() };
-    std::fill (gRow, gRow + state.getCols(), Grapheme {});
+    Grapheme* gRow { buffer.graphemes.get() + phys * getCols() };
+    std::fill (gRow, gRow + getCols(), Grapheme {});
 }
 
 void Grid::eraseRow (int row, const Cell& fill) noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows())
+    if (row >= 0 and row < getVisibleRows())
     {
         Buffer& buffer { bufferForScreen() };
         clearRow (buffer, row, fill);
@@ -56,7 +56,7 @@ void Grid::eraseRowRange (int startRow, int endRow, const Cell& fill) noexcept
 
 void Grid::eraseCell (int row, int col, const Cell& fill) noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows() and col >= 0 and col < state.getCols())
+    if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
     {
         Buffer& buffer { bufferForScreen() };
         rowPtr (buffer, row)[col] = fill;
@@ -66,12 +66,12 @@ void Grid::eraseCell (int row, int col, const Cell& fill) noexcept
 
 void Grid::eraseCellRange (int row, int startCol, int endCol, const Cell& fill) noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows())
+    if (row >= 0 and row < getVisibleRows())
     {
         Buffer& buffer { bufferForScreen() };
         Cell* rowCells { rowPtr (buffer, row) };
         const int clampedStart { juce::jmax (0, startCol) };
-        const int clampedEnd { juce::jmin (state.getCols() - 1, endCol) };
+        const int clampedEnd { juce::jmin (getCols() - 1, endCol) };
 
         for (int c { clampedStart }; c <= clampedEnd; ++c)
         {

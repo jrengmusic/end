@@ -25,11 +25,8 @@
  * via `juce::MessageManager::callAsync`.
  *
  * ### Resize protocol
- * The message thread calls `resize()` which stores the new dimensions
- * atomically, sets `resizePending`, and immediately calls `platformResize()`.
- * The reader thread picks up the pending resize at the top of its next loop
- * iteration, fires `onResize` to update the grid and parser, and clears the
- * flag.
+ * The message thread calls `grid.resize()` and `parser.resize()` directly,
+ * then calls `platformResize()` to notify the shell via SIGWINCH.
  *
  * @see UnixTTY  macOS / Linux implementation via forkpty()
  * @see WindowsTTY  Windows implementation via ConPTY
@@ -163,33 +160,6 @@ public:
     /** @} */
 
     // =========================================================================
-    /** @name Resize
-     * @{ */
-
-    /**
-     * @brief Resize the terminal window.
-     *
-     * Stores the new dimensions atomically, sets `resizePending` so the reader
-     * thread fires `onResize` (grid + parser) on its next iteration, and calls
-     * `platformResize()` immediately to update the OS PTY (ResizePseudoConsole
-     * on Windows, ioctl TIOCSWINSZ + SIGWINCH on Unix).
-     *
-     * @param cols  New terminal width in character columns.
-     * @param rows  New terminal height in character rows.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void resize (int cols, int rows) noexcept
-    {
-        pendingCols.store (cols, std::memory_order_relaxed);
-        pendingRows.store (rows, std::memory_order_relaxed);
-        resizePending.store (true, std::memory_order_release);
-        platformResize (cols, rows);
-    }
-
-    /** @} */
-
-    // =========================================================================
     /** @name Shell exit query
      * @{ */
 
@@ -287,15 +257,14 @@ public:
      * @{ */
 
     /**
-     * @brief Reader thread main loop — drives data delivery and resize handling.
+     * @brief Reader thread main loop — drives data delivery and shell-exit detection.
      *
      * Runs at high priority.  Each iteration:
-     * 1. Checks `resizePending` and dispatches resize if set.
-     * 2. Calls `waitForData (100)` to block up to 100 ms.
-     * 3. If data is available, drains all bytes in a tight inner loop,
+     * 1. Calls `waitForData (100)` to block up to 100 ms.
+     * 2. If data is available, drains all bytes in a tight inner loop,
      *    calling `onData` for each chunk.
-     * 4. After the drain, calls `onDrainComplete` once.
-     * 5. On EOF (`read()` returns -1), sets `shellExited`, dispatches `onExit`
+     * 3. After the drain, calls `onDrainComplete` once.
+     * 4. On EOF (`read()` returns -1), sets `shellExited`, dispatches `onExit`
      *    to the message thread, and returns.
      *
      * @note Called by juce::Thread infrastructure — do not call directly.
@@ -327,16 +296,6 @@ public:
      */
     std::function<void()> onDrainComplete;
 
-    /** @brief Called on the reader thread when the PTY is resized.
-     *
-     *  Fired before the underlying `resize()` call so the owner can update
-     *  its grid dimensions synchronously with the PTY resize.
-     *
-     *  @param cols  New terminal width in character columns.
-     *  @param rows  New terminal height in character rows.
-     */
-    std::function<void (int, int)> onResize;
-
     /** @brief Called on the message thread when the shell process exits.
      *
      *  Dispatched via `juce::MessageManager::callAsync` from the reader thread.
@@ -358,32 +317,21 @@ public:
 
     /** @} */
 
-protected:
     /**
-     * @brief Platform-specific PTY resize implementation.
+     * @brief Performs the OS-level PTY resize.
      *
-     * Called by `resize()` on the message thread immediately after the pending
-     * atomics are stored.  Performs the OS-level resize: `ioctl TIOCSWINSZ` +
-     * `SIGWINCH` on Unix, `ResizePseudoConsole()` on Windows.
+     * Calls `ioctl TIOCSWINSZ` + `SIGWINCH` on Unix, or
+     * `ResizePseudoConsole()` on Windows.
      *
      * @param cols  New terminal width in character columns.
      * @param rows  New terminal height in character rows.
-     *
-     * @note MESSAGE THREAD — called from the non-virtual `resize()`.
+     * @note MESSAGE THREAD.
      */
     virtual void platformResize (int cols, int rows) = 0;
 
+protected:
     /** @brief Shell integration environment variable pairs injected before shell start. */
     std::vector<std::pair<std::string, std::string>> shellIntegrationEnv;
-
-    /** @brief Set by the message thread via resize(); cleared by the reader thread. */
-    std::atomic<bool> resizePending { false };
-
-    /** @brief Pending column count stored by resize(). */
-    std::atomic<int> pendingCols { 0 };
-
-    /** @brief Pending row count stored by resize(). */
-    std::atomic<int> pendingRows { 0 };
 
     /** @brief Set to `true` by the reader thread on EOF; read by any thread via hasShellExited(). */
     std::atomic<bool> shellExited { false };

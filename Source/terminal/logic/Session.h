@@ -102,10 +102,10 @@ public:
     /**
      * @brief Notifies the session of a terminal viewport resize.
      *
-     * On the first call, opens the PTY with the given dimensions and marks the
-     * TTY as opened.  On subsequent calls, requests a resize via `tty->resize()`,
-     * which sends a `SIGWINCH` to the child process and triggers `tty->onResize`,
-     * which in turn calls `parser.resize()` and `grid.resize()`.
+     * Always calls `grid.resize()` and `parser.resize()` directly on the
+     * message thread.  On the first call, defers `tty->open()` via
+     * `callAsync`.  On subsequent calls while the TTY is running, calls
+     * `platformResize()` to send SIGWINCH to the shell.
      *
      * @param cols  New terminal width in character columns.
      * @param rows  New terminal height in character rows.
@@ -282,7 +282,6 @@ private:
      * - `parser.writeToHost` → `tty->write()`
      * - `tty->onData` → `Session::process()`
      * - `tty->onDrainComplete` → `parser.flushResponses()`
-     * - `tty->onResize` → `parser.resize()` + `grid.resize()`
      * - `tty->onExit` → `onShellExited` (via callAsync)
      * - `parser.onClipboardChanged` → `onClipboardChanged` (via callAsync)
      * - `parser.onBell` → `onBell` (via callAsync)
@@ -342,11 +341,6 @@ private:
     /** @brief Shell arguments override; used only when shellOverride is set. */
     juce::String shellArgsOverride;
 
-    /** @brief `true` after the first `resized()` call opens the PTY. */
-    bool ttyOpened { false };
-
-    /** @brief `true` while a deferred tty->open() is pending via callAsync. */
-    bool ttyOpenPending { false };
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

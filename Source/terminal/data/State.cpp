@@ -15,6 +15,14 @@
  * The reader thread never touches the ValueTree.  The message thread never
  * touches the atomics except to read them during `flush()`.
  *
+ * ## Dimension parameters (cols / visibleRows)
+ *
+ * `cols` and `visibleRows` are managed exclusively on the MESSAGE THREAD via
+ * `CachedValue` — written by `setDimensions()`, read by `getCols()` and
+ * `getVisibleRows()`.  They are **not** in the atomic `parameterMap`.
+ * Reader-thread code reads dimensions directly from the Grid buffer under
+ * `resizeLock` rather than from State.
+ *
  * ## Adaptive timer rate
  *
  * `timerCallback()` uses a two-speed strategy:
@@ -139,8 +147,6 @@ State::State()
     : state (ID::SESSION)
 {
     addParam (state, ID::activeScreen, 0.0f);
-    addParam (state, ID::cols, 0.0f);
-    addParam (state, ID::visibleRows, 0.0f);
     addParam (state, ID::scrollOffset, 0);
     addParam (state, ID::modalType, 0.0f);
     addParam (state, ID::hintPage, 0.0f);
@@ -214,6 +220,9 @@ State::State()
 
     buildParameterMap();
 
+    cachedCols.referTo (state, ID::cols, nullptr, 0);
+    cachedVisibleRows.referTo (state, ID::visibleRows, nullptr, 0);
+
     keyboardModeStack.allocate (2 * maxKeyboardStackDepth, true);
     keyboardModeStackSize.allocate (2, true);
 
@@ -266,10 +275,6 @@ void State::storeAndFlush (const juce::Identifier& key, float v) noexcept
 
 /** @note READER THREAD — delegates to `storeAndFlush (ID::activeScreen, …)`. */
 void State::setScreen (ActiveScreen s) noexcept { storeAndFlush (ID::activeScreen, static_cast<float> (s)); }
-/** @note READER THREAD — delegates to `storeAndFlush (ID::cols, …)`. */
-void State::setCols (int c) noexcept { storeAndFlush (ID::cols, static_cast<float> (c)); }
-/** @note READER THREAD — delegates to `storeAndFlush (ID::visibleRows, …)`. */
-void State::setVisibleRows (int r) noexcept { storeAndFlush (ID::visibleRows, static_cast<float> (r)); }
 /** @note READER THREAD — key is built via `modeKey (id)`. */
 void State::setMode (const juce::Identifier& id, bool v) noexcept
 {
@@ -762,16 +767,16 @@ ActiveScreen State::getScreen() const noexcept { return getRawValue<ActiveScreen
 /**
  * @brief Returns the current terminal column count.
  * @return Number of columns (e.g. 80 or 132).
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
+ * @note MESSAGE THREAD — reads from CachedValue, noexcept.
  */
-int State::getCols() const noexcept { return getRawValue<int> (ID::cols); }
+int State::getCols() const noexcept { return cachedCols; }
 
 /**
  * @brief Returns the number of rows visible in the terminal viewport.
  * @return Number of visible rows (e.g. 24).
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
+ * @note MESSAGE THREAD — reads from CachedValue, noexcept.
  */
-int State::getVisibleRows() const noexcept { return getRawValue<int> (ID::visibleRows); }
+int State::getVisibleRows() const noexcept { return cachedVisibleRows; }
 
 /**
  * @brief Returns the current value of a named terminal mode flag.
@@ -993,6 +998,23 @@ void State::setScrollOffset (int offset) noexcept
         setFullRebuild();
         setSnapshotDirty();
     }
+}
+
+/**
+ * @brief Sets terminal dimensions from the message thread.
+ *
+ * Writes cols and visibleRows to the CachedValue store — ValueTree updated
+ * synchronously, listeners fire on the message thread.
+ *
+ * @param cols  New terminal width in character columns.
+ * @param rows  New terminal height in character rows.
+ * @note MESSAGE THREAD only.
+ * @see getCols(), getVisibleRows()
+ */
+void State::setDimensions (int cols, int rows) noexcept
+{
+    cachedCols = cols;
+    cachedVisibleRows = rows;
 }
 
 /**

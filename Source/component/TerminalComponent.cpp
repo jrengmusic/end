@@ -204,7 +204,12 @@ void Terminal::Component::resized()
             {
                 s.setViewport (contentArea);
             });
-        session.resized (screenBase().getNumCols(), screenBase().getNumRows());
+
+        const int cols { screenBase().getNumCols() };
+        const int rows { screenBase().getNumRows() };
+
+        session.getState().setDimensions (cols, rows);
+        session.resized (cols, rows);
         session.getState().setScrollOffset (0);
     }
 }

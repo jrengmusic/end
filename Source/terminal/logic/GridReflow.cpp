@@ -4,7 +4,7 @@
  *
  * This file implements `Grid::resize()` and the reflow algorithm that
  * re-wraps soft-wrapped lines when the terminal column width changes.
- * All public entry points are called on the **READER THREAD** under
+ * All public entry points are called on the **MESSAGE THREAD** under
  * `resizeLock`.
  *
  * ## Why reflow?
@@ -95,11 +95,9 @@ namespace Terminal
  * @brief Re-allocates the active screen buffer to the new terminal dimensions
  *        and reflows content if the column count changed.
  *
- * Acquires `resizeLock` and writes the new dimensions to State atomically
- * with the buffer reallocation.  This prevents the message thread from ever
- * observing State dimensions that do not match the Grid's actual allocation.
- * If neither `cols` nor `visibleRows` changed, the function returns
- * immediately (after updating State inside the lock for consistency).
+ * Called from the message thread.  Acquires `resizeLock` to synchronise with
+ * the reader thread's data processing.  If neither `cols` nor `visibleRows`
+ * changed, the function returns immediately.
  *
  * @par Normal screen
  * A new primary buffer is allocated at the new dimensions (with scrollback),
@@ -115,18 +113,15 @@ namespace Terminal
  *
  * @param newCols        New terminal width in character columns.
  * @param newVisibleRows New terminal height in character rows.
- * @note READER THREAD — acquires `resizeLock`.  Allocates heap memory.
+ * @note MESSAGE THREAD — acquires `resizeLock`.  Allocates heap memory.
  * @see reflow(), initBuffer(), markAllDirty()
  */
 void Grid::resize (int newCols, int newVisibleRows)
 {
     juce::ScopedLock lock (resizeLock);
 
-    const int oldCols { state.getCols() };
-    const int oldVisibleRows { state.getVisibleRows() };
-
-    state.setCols (newCols);
-    state.setVisibleRows (newVisibleRows);
+    const int oldCols { buffers.at (normal).allocatedCols };
+    const int oldVisibleRows { buffers.at (normal).allocatedVisibleRows };
 
     const bool dimensionsChanged { newCols != oldCols or newVisibleRows != oldVisibleRows };
 
@@ -633,7 +628,7 @@ static void writeReflowedContent (const WalkParams& wp, Cell* tempCells, Graphem
  * @param newBuffer      Destination buffer (already allocated by `initBuffer()`).
  * @param newCols        Column count of the destination buffer.
  * @param newVisibleRows Visible row count of the destination buffer.
- * @note READER THREAD — allocates temporary heap memory for scratch buffers.
+ * @note MESSAGE THREAD — allocates temporary heap memory for scratch buffers.
  * @see resize(), countOutputRows(), writeReflowedContent()
  */
 void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
@@ -673,17 +668,17 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
                               newBuffer.cells.get(), newBuffer.graphemes.get(), newBuffer.rowStates.get(),
                               newCols, newBuffer.totalRows, rowsToSkip);
 
-        const int written { scClamped + newVisibleRows };
-        newBuffer.head = ((written - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
-        newBuffer.scrollbackUsed = scClamped;
-
         if (cursorOutputRow < 0)
         {
             cursorOutputRow = totalOutputRows;
             cursorNewCol = 0;
         }
 
-        const int newCursorVisibleRow { cursorOutputRow - rowsToSkip - scClamped };
+        const int contentExtent { juce::jmax (totalOutputRows, cursorOutputRow + 1) - rowsToSkip };
+        newBuffer.head = ((contentExtent - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
+        newBuffer.scrollbackUsed = scClamped;
+
+        const int newCursorVisibleRow { cursorOutputRow - rowsToSkip + newVisibleRows - contentExtent };
         state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, newCursorVisibleRow));
         state.setCursorCol (normal, juce::jlimit (0, newCols - 1, cursorNewCol));
     }

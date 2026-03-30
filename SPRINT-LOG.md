@@ -2,6 +2,104 @@
 
 ---
 
+## Sprint 134: SSOT Resize with CachedValue
+
+**Date:** 2026-03-30
+
+### Agents Participated
+- COUNSELOR — root cause analysis, architecture plan, directed all execution
+- Pathfinder — codebase inventory (dim read/write sites, resizeLock acquisition, Buffer struct, State flush system)
+- Librarian — juce::CachedValue research (thread safety, referTo, listener behavior)
+- Engineer — all code changes across 3 phases (6 invocations)
+- Auditor — Phase 1 validation, final comprehensive audit (2 invocations)
+
+### Files Modified (15 total)
+- `Source/component/TerminalComponent.cpp:208-213` — `resized()` writes `state.setDimensions(cols, rows)` before `session.resized()`; dims computed into local vars
+- `Source/terminal/data/State.h` — added `juce::CachedValue<int> cachedCols`/`cachedVisibleRows` members; removed `setCols()`/`setVisibleRows()` declarations; `getCols()`/`getVisibleRows()` doc updated to MESSAGE THREAD + CachedValue
+- `Source/terminal/data/State.cpp` — `setDimensions()` writes CachedValue only (no atomics); `getCols()`/`getVisibleRows()` read from CachedValue; removed `setCols()`/`setVisibleRows()` impls; removed `addParam` for cols/visibleRows; CachedValue bound in constructor via `referTo()`
+- `Source/terminal/logic/Grid.h` — `getCols()`/`getVisibleRows()` return `buffers.at(normal).allocatedCols`/`allocatedVisibleRows` (buffer intrinsic, not State); removed `needsResize()` declaration; thread ownership table updated
+- `Source/terminal/logic/Grid.cpp` — `initBuffer()` stores `allocatedCols`/`allocatedVisibleRows` on Buffer; removed `needsResize()` impl; internal methods use `getCols()`/`getVisibleRows()` (buffer-based) instead of `state.getCols()`
+- `Source/terminal/logic/GridReflow.cpp` — `resize()` reads old dims from Buffer (not State), no longer writes State; `reflow()` cursor fallback moved before head calc; `contentExtent = jmax(totalOutputRows, cursorOutputRow+1) - rowsToSkip` for bottom-aligned head; cursor formula `cursorOutputRow - rowsToSkip + newVisibleRows - contentExtent`; doc comments updated MESSAGE THREAD
+- `Source/terminal/logic/GridErase.cpp` — `state.getCols()`/`getVisibleRows()` replaced with Grid's buffer-based `getCols()`/`getVisibleRows()`
+- `Source/terminal/logic/GridScroll.cpp` — same migration as GridErase
+- `Source/terminal/logic/Parser.h` — `activeScrollBottom()` declaration only (body moved out-of-line)
+- `Source/terminal/logic/Parser.cpp` — `activeScrollBottom()` out-of-line definition using `grid.getVisibleRows()` (was `state.getVisibleRows()` inline)
+- `Source/terminal/logic/Session.h` — removed `ttyOpened`/`ttyOpenPending` members
+- `Source/terminal/logic/Session.cpp` — `onData` acquires `grid.getResizeLock()` before `process()`; `resized()` always calls `grid.resize()`+`parser.resize()` on message thread; `tty->isThreadRunning()` replaces manual flags; removed `onBeforeDrain` setup; `onDrainComplete` uses `grid.getCols()`/`grid.getVisibleRows()`
+- `Source/terminal/tty/TTY.h` — removed `resize()` method, `onResize`/`onBeforeDrain` callbacks, `resizePending`/`pendingCols`/`pendingRows` atomics; `platformResize()` made public
+- `Source/terminal/tty/TTY.cpp` — `run()` simplified: no `handleResize`, no `onBeforeDrain`; doc comments updated
+
+### Alignment Check
+- [x] LIFESTAR principles followed — SSOT enforced, Explicit Encapsulation (objects manage own state via `isThreadRunning()`), Lean (removed 5 shadow stores)
+- [x] NAMING-CONVENTION.md adhered — `contentExtent`, `allocatedCols`, `allocatedVisibleRows` are semantic
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied — no state shadowing, no manual boolean flags, no layer violations
+- [x] JRENG-CODING-STANDARD.md followed — zero early returns, brace init, `not`/`and`/`or`, `.at()`
+
+### Problems Solved
+- **Cursor off-by-1 after split close:** Content was top-aligned with empty space below. Fixed: `contentExtent` includes cursor row when past content; `head` positions content at bottom of viewport
+- **Text outside bounds after horizontal split:** Parser read new dims from State while grid buffer had old dims (race condition). Fixed: `grid.resize()` runs on message thread; parser acquires `resizeLock` per data chunk — zero transition window
+- **Prompt jumps to row 0 on split create:** Same race — parser cursor calculations used wrong dims during transition. Fixed by same resizeLock approach
+- **5 shadow stores for dims removed:** `Screen::numRows`, `TTY::pendingCols`/`pendingRows`/`resizePending`, `Session::ttyOpened`/`ttyOpenPending` — all eliminated
+- **Manual callbacks removed:** `tty->onResize`, `handleResize` lambda — replaced by direct `grid.resize()` call on message thread
+- **Dims migrated to CachedValue:** `cols`/`visibleRows` removed from atomic parameterMap; CachedValue provides instant ValueTree sync on message thread; reader thread reads from grid buffer under resizeLock
+
+### Technical Debt / Follow-up
+- TTY.cpp `drainPty` lambda has pre-existing early returns and `int n = read(...)` (copy init) — not introduced by this sprint
+- `Grid::scrollbackCapacity` is still a member, not on State — immutable after construction
+- `clearBuffer()` doc says READER THREAD but may now be called from message thread contexts — verify all call sites
+
+---
+
+## Sprint 133: Cursor Position After Split/Close — Investigation (No Fix) ❌
+
+**Date:** 2026-03-30
+
+### Agents Participated
+- SURGEON — led investigation, proposed and tested fixes
+- Pathfinder — traced reflow cursor computation, resize chain, SSOT data flow
+
+### Files Modified (0 total)
+All changes reverted. Codebase is at pre-sprint state.
+
+### Alignment Check
+- [x] No code changes landed
+- [x] LIFESTAR principles followed during investigation
+
+### Problem
+After closing a vertical split (cols increase, rows unchanged), the active prompt is 1 row above the bottom of the viewport — 1 empty row persists between the cursor and the viewport bottom.
+
+### Approaches Attempted
+
+**1. Unified cursor formula in `reflow()` (reverted)**
+`GridReflow.cpp:676,686` — changed `written = scClamped + newVisibleRows` → `written = jmin(totalOutputRows, scClamped + newVisibleRows)` and `newCursorVisibleRow = cursorOutputRow - totalOutputRows + newVisibleRows`. Fixed close-split but broke open-split (content pinned to bottom instead of top when viewport is sparse).
+
+**2. `pinToBottom` 2-condition (reverted)**
+`GridReflow.cpp` — `pinToBottom = (cursorRow == oldVisibleRows - 1) and (totalOutputRows < newVisibleRows)`. Same result — triggered during open-split with sparse content and same row count.
+
+**3. `pinToBottom` 3-condition (tested by ARCHITECT, reverted)**
+Added `and (newCols > oldCols or newVisibleRows > oldVisibleRows)`. Did not fix the issue.
+
+**4. `handleResize()` in `drainPty()` (reverted)**
+`TTY.cpp:82` — added `handleResize()` at start of `drainPty()` to guarantee grid/parser are resized before processing shell's SIGWINCH response data. Did not fix.
+
+### Root Cause — Still Open
+ARCHITECT identifies an SSOT violation: grid, renderer, and active prompt for TTY are set with different row counts due to rounding when pixel height is divided into cell rows. Architecture contract:
+- All values written to `Terminal::State`
+- All readers consume from `Terminal::State`
+- Non-message-thread writers use atomics
+- No manual callbacks, no manual boolean flags
+- Changes propagated via ValueTree listeners
+
+Current violations: `Screen::numRows` is shadow state (not in State), `resizePending` is a manual boolean flag, `tty->onResize` is a manual callback. These allow transient divergence between what Screen computed, what the grid was told, and what SIGWINCH delivered.
+
+### Technical Debt / Follow-up
+- Root cause not resolved — cursor 1 row off after split close persists
+- The fix likely requires: write cols/rows to State immediately on message thread (in `TerminalComponent::resized()`) so all three consumers (grid, renderer, TTY) read from the same atomic in State, not from separate sources
+- `resizePending` flag and `tty->onResize` callback are architectural violations — should be replaced with ValueTree listeners
+- Need to understand exactly which of the three components reads a different N (requires runtime observation or targeted logging)
+
+---
+
 ## Sprint 132b: Audit Clean Sweep + TTY Resize Unification
 
 **Date:** 2026-03-30

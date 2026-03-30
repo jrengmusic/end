@@ -82,11 +82,11 @@ void Grid::clearBuffer()
 
     if (scr == normal)
     {
-        initBuffer (buffers.at (scr), state.getCols(), state.getVisibleRows() + scrollbackCapacity, state.getVisibleRows());
+        initBuffer (buffers.at (scr), getCols(), getVisibleRows() + scrollbackCapacity, getVisibleRows());
     }
     else
     {
-        initBuffer (buffers.at (scr), state.getCols(), state.getVisibleRows(), state.getVisibleRows());
+        initBuffer (buffers.at (scr), getCols(), getVisibleRows(), getVisibleRows());
     }
 
     markAllDirty();
@@ -138,6 +138,8 @@ void Grid::initBuffer (Buffer& buffer, int numCols, int totalLines, int numVisib
     buffer.rowMask = po2 - 1;
     buffer.head = numVisibleRows - 1;
     buffer.scrollbackUsed = 0;
+    buffer.allocatedCols = numCols;
+    buffer.allocatedVisibleRows = numVisibleRows;
 }
 
 // ============================================================================
@@ -299,7 +301,7 @@ const Grid::Buffer& Grid::bufferForScreen() const noexcept
  */
 int Grid::physicalRow (const Buffer& buffer, int visibleRow) const noexcept
 {
-    return (buffer.head - state.getVisibleRows() + 1 + visibleRow) & buffer.rowMask;
+    return (buffer.head - getVisibleRows() + 1 + visibleRow) & buffer.rowMask;
 }
 
 /**
@@ -312,7 +314,7 @@ int Grid::physicalRow (const Buffer& buffer, int visibleRow) const noexcept
  */
 Cell* Grid::rowPtr (Buffer& buffer, int visibleRow) noexcept
 {
-    return buffer.cells.get() + physicalRow (buffer, visibleRow) * state.getCols();
+    return buffer.cells.get() + physicalRow (buffer, visibleRow) * getCols();
 }
 
 /**
@@ -325,7 +327,7 @@ Cell* Grid::rowPtr (Buffer& buffer, int visibleRow) noexcept
  */
 const Cell* Grid::rowPtr (const Buffer& buffer, int visibleRow) const noexcept
 {
-    return buffer.cells.get() + physicalRow (buffer, visibleRow) * state.getCols();
+    return buffer.cells.get() + physicalRow (buffer, visibleRow) * getCols();
 }
 
 // ============================================================================
@@ -347,7 +349,7 @@ const Cell* Grid::rowPtr (const Buffer& buffer, int visibleRow) const noexcept
 Cell* Grid::directRowPtr (int visibleRow) noexcept
 {
     Buffer& buffer { bufferForScreen() };
-    return buffer.cells.get() + ((buffer.head - state.getVisibleRows() + 1 + visibleRow) & buffer.rowMask) * state.getCols();
+    return buffer.cells.get() + ((buffer.head - getVisibleRows() + 1 + visibleRow) & buffer.rowMask) * getCols();
 }
 
 /**
@@ -362,7 +364,7 @@ Cell* Grid::directRowPtr (int visibleRow) noexcept
  */
 Cell* Grid::activeVisibleRow (int row) noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows())
+    if (row >= 0 and row < getVisibleRows())
     {
         Buffer& buffer { bufferForScreen() };
         return rowPtr (buffer, row);
@@ -379,7 +381,7 @@ Cell* Grid::activeVisibleRow (int row) noexcept
  */
 const Cell* Grid::activeVisibleRow (int row) const noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows())
+    if (row >= 0 and row < getVisibleRows())
     {
         const Buffer& buffer { bufferForScreen() };
         return rowPtr (buffer, row);
@@ -399,10 +401,10 @@ const Cell* Grid::activeVisibleRow (int row) const noexcept
  */
 const Grapheme* Grid::activeVisibleGraphemeRow (int row) const noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows())
+    if (row >= 0 and row < getVisibleRows())
     {
         const Buffer& buffer { bufferForScreen() };
-        return buffer.graphemes.get() + physicalRow (buffer, row) * state.getCols();
+        return buffer.graphemes.get() + physicalRow (buffer, row) * getCols();
     }
     return nullptr;
 }
@@ -439,11 +441,11 @@ int Grid::getScrollbackUsed() const noexcept
  */
 const Cell* Grid::scrollbackRow (int visibleRow, int scrollOffset) const noexcept
 {
-    if (visibleRow >= 0 and visibleRow < state.getVisibleRows())
+    if (visibleRow >= 0 and visibleRow < getVisibleRows())
     {
         const Buffer& buffer { bufferForScreen() };
-        const int phys { (buffer.head - state.getVisibleRows() + 1 + visibleRow - scrollOffset) & buffer.rowMask };
-        return buffer.cells.get() + phys * state.getCols();
+        const int phys { (buffer.head - getVisibleRows() + 1 + visibleRow - scrollOffset) & buffer.rowMask };
+        return buffer.cells.get() + phys * getCols();
     }
     return nullptr;
 }
@@ -461,11 +463,11 @@ const Cell* Grid::scrollbackRow (int visibleRow, int scrollOffset) const noexcep
  */
 const Grapheme* Grid::scrollbackGraphemeRow (int visibleRow, int scrollOffset) const noexcept
 {
-    if (visibleRow >= 0 and visibleRow < state.getVisibleRows())
+    if (visibleRow >= 0 and visibleRow < getVisibleRows())
     {
         const Buffer& buffer { bufferForScreen() };
-        const int phys { (buffer.head - state.getVisibleRows() + 1 + visibleRow - scrollOffset) & buffer.rowMask };
-        return buffer.graphemes.get() + phys * state.getCols();
+        const int phys { (buffer.head - getVisibleRows() + 1 + visibleRow - scrollOffset) & buffer.rowMask };
+        return buffer.graphemes.get() + phys * getCols();
     }
     return nullptr;
 }
@@ -515,7 +517,7 @@ const RowState& Grid::activeVisibleRowState (int row) const noexcept
  */
 void Grid::activeWriteCell (int row, int col, const Cell& cellState) noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows() and col >= 0 and col < state.getCols())
+    if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
     {
         Buffer& buffer { bufferForScreen() };
         rowPtr (buffer, row)[col] = cellState;
@@ -538,8 +540,8 @@ void Grid::activeWriteCell (int row, int col, const Cell& cellState) noexcept
  */
 void Grid::activeWriteRun (int row, int startCol, const Cell* cells, int count) noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows()
-        and startCol >= 0 and startCol + count <= state.getCols()
+    if (row >= 0 and row < getVisibleRows()
+        and startCol >= 0 and startCol + count <= getCols()
         and count > 0)
     {
         Buffer& buffer { bufferForScreen() };
@@ -564,7 +566,7 @@ void Grid::activeWriteRun (int row, int startCol, const Cell* cells, int count) 
  */
 void Grid::activeWriteGrapheme (int row, int col, const Grapheme& grapheme) noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows() and col >= 0 and col < state.getCols())
+    if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
     {
         Buffer& buffer { bufferForScreen() };
         rowPtr (buffer, row)[col].layout |= Cell::LAYOUT_GRAPHEME;
@@ -586,7 +588,7 @@ void Grid::activeWriteGrapheme (int row, int col, const Grapheme& grapheme) noex
  */
 const Grapheme* Grid::activeReadGrapheme (int row, int col) const noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows() and col >= 0 and col < state.getCols())
+    if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
     {
         const Buffer& buffer { bufferForScreen() };
         const Cell& cell { rowPtr (buffer, row)[col] };
@@ -612,7 +614,7 @@ const Grapheme* Grid::activeReadGrapheme (int row, int col) const noexcept
  */
 void Grid::activeEraseGrapheme (int row, int col) noexcept
 {
-    if (row >= 0 and row < state.getVisibleRows() and col >= 0 and col < state.getCols())
+    if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
     {
         Buffer& buffer { bufferForScreen() };
         Cell& cell { rowPtr (buffer, row)[col] };
@@ -637,7 +639,7 @@ void Grid::activeEraseGrapheme (int row, int col) noexcept
  */
 Grapheme* Grid::graphemePtr (Buffer& buffer, int visibleRow, int col) noexcept
 {
-    return buffer.graphemes.get() + physicalRow (buffer, visibleRow) * state.getCols() + col;
+    return buffer.graphemes.get() + physicalRow (buffer, visibleRow) * getCols() + col;
 }
 
 /**
@@ -651,7 +653,7 @@ Grapheme* Grid::graphemePtr (Buffer& buffer, int visibleRow, int col) noexcept
  */
 const Grapheme* Grid::graphemePtr (const Buffer& buffer, int visibleRow, int col) const noexcept
 {
-    return buffer.graphemes.get() + physicalRow (buffer, visibleRow) * state.getCols() + col;
+    return buffer.graphemes.get() + physicalRow (buffer, visibleRow) * getCols() + col;
 }
 
 // =============================================================================
@@ -727,10 +729,10 @@ juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end) co
         std::swap (startCol, endCol);
     }
 
-    startRow = juce::jlimit (0, state.getVisibleRows() - 1, startRow);
-    endRow = juce::jlimit (0, state.getVisibleRows() - 1, endRow);
-    startCol = juce::jlimit (0, state.getCols() - 1, startCol);
-    endCol = juce::jlimit (0, state.getCols() - 1, endCol);
+    startRow = juce::jlimit (0, getVisibleRows() - 1, startRow);
+    endRow = juce::jlimit (0, getVisibleRows() - 1, endRow);
+    startCol = juce::jlimit (0, getCols() - 1, startCol);
+    endCol = juce::jlimit (0, getCols() - 1, endCol);
 
     juce::String result;
 
@@ -741,7 +743,7 @@ juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end) co
         if (cells != nullptr)
         {
             int firstCol { (row == startRow) ? startCol : 0 };
-            const int lastCol { (row == endRow) ? endCol : state.getCols() - 1 };
+            const int lastCol { (row == endRow) ? endCol : getCols() - 1 };
 
             if (firstCol > 0 and (*(cells + firstCol)).isWideContinuation())
                 --firstCol;
@@ -788,10 +790,10 @@ juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end) co
  */
 juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bottomRight) const
 {
-    const int startRow { juce::jlimit (0, state.getVisibleRows() - 1, topLeft.y) };
-    const int endRow   { juce::jlimit (0, state.getVisibleRows() - 1, bottomRight.y) };
-    const int startCol { juce::jlimit (0, state.getCols() - 1, topLeft.x) };
-    const int endCol   { juce::jlimit (0, state.getCols() - 1, bottomRight.x) };
+    const int startRow { juce::jlimit (0, getVisibleRows() - 1, topLeft.y) };
+    const int endRow   { juce::jlimit (0, getVisibleRows() - 1, bottomRight.y) };
+    const int startCol { juce::jlimit (0, getCols() - 1, topLeft.x) };
+    const int endCol   { juce::jlimit (0, getCols() - 1, bottomRight.x) };
 
     juce::String result;
 

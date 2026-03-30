@@ -209,6 +209,19 @@ void Parser::calc() noexcept
     stamp.bg = pen.bg;
 }
 
+/**
+ * @brief Returns the effective bottom row of the current scrolling region.
+ *
+ * Reads from Grid buffer dims (safe on reader thread) on every call.
+ * Wraps `effectiveScrollBottom()` with the current screen and visible rows.
+ *
+ * @see effectiveScrollBottom()
+ */
+int Parser::activeScrollBottom() const noexcept
+{
+    return effectiveScrollBottom (state.getScreen(), grid.getVisibleRows());
+}
+
 // ============================================================================
 // Parser Methods
 // ============================================================================

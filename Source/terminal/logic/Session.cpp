@@ -62,13 +62,6 @@ static juce::String toMsysPath (const juce::String& path)
  * `tty->onDrainComplete` calls `parser.flushResponses()` so that any
  * buffered response sequences are sent after the write buffer drains.
  *
- * @par TTY resize → Grid + Parser
- * `tty->onResize` calls `grid.resize()` first — which acquires `resizeLock`
- * and writes the new dimensions to State atomically with the buffer
- * reallocation — then calls `parser.resize()` to reset scroll regions and
- * tab stops.  The Grid-first ordering ensures that State dimensions always
- * match the Grid's actual allocation from the message thread's perspective.
- *
  * @par TTY exit → onShellExited callback
  * `tty->onExit` invokes the public `onShellExited` callback if set.
  *
@@ -83,19 +76,18 @@ void Session::setupCallbacks()
 {
     parser.writeToHost = [this] (const char* data, int len) { tty->write (data, len); };
 
-    tty->onData = [this] (const char* data, int len) { process (data, len); };
+    tty->onData = [this] (const char* data, int len)
+    {
+        const juce::ScopedLock lock (grid.getResizeLock());
+        process (data, len);
+    };
     tty->onDrainComplete = [this]
     {
         parser.flushResponses();
         state.clearPasteEchoGate();
 
         if (state.consumeSyncResize())
-            tty->resize (grid.getCols(), grid.getVisibleRows());
-    };
-    tty->onResize = [this] (int c, int r)
-    {
-        grid.resize (c, r);
-        parser.resize (c, r);
+            tty->platformResize (grid.getCols(), grid.getVisibleRows());
     };
     tty->onExit = [this]
     {
@@ -206,7 +198,6 @@ Session::~Session()
         tty->onExit    = nullptr;
         tty->close();
         tty->onData = nullptr;
-        tty->onResize = nullptr;
         tty->onDrainComplete = nullptr;
     }
 }
@@ -215,18 +206,17 @@ Session::~Session()
 /**
  * @brief Notifies the session of a terminal viewport resize.
  *
- * On the **first call** (`ttyOpened == false`):
- * 1. Calls `grid.resize (cols, rows)` to allocate the ring-buffer and write
- *    dimensions to State inside `resizeLock`.
- * 2. Calls `parser.resize (cols, rows)` to reset scroll regions and tab stops.
- * 3. Reads `Config::Key::shellProgram` and calls `tty->open()` to fork the
- *    shell and start the reader thread.
- * 4. Sets `ttyOpened = true`.
+ * `grid.resize()` and `parser.resize()` are ALWAYS called directly on the
+ * message thread, under `resizeLock`.  This is safe because `tty->onData`
+ * acquires `resizeLock` before calling `process()`, so the parser never
+ * observes a partially-resized grid.
  *
- * On **subsequent calls** (`ttyOpened == true`):
- * - Calls `tty->resize (cols, rows)`, which sets the pending resize
- *   atomics.  The reader thread picks this up and calls `grid.resize()` then
- *   `parser.resize()`.
+ * When the TTY reader thread is already running, `platformResize()` is called
+ * to send `SIGWINCH` to the shell.  Before the TTY has started, a `callAsync`
+ * defers `tty->open()` to allow additional `resized()` calls to coalesce;
+ * the guard `tty->isThreadRunning()` prevents double-open.  The async block
+ * re-reads final dims from State and calls `grid.resize()` / `parser.resize()`
+ * once more to ensure the grid matches the coalesced size before the TTY opens.
  *
  * @param cols  New terminal width in character columns.
  * @param rows  New terminal height in character rows.
@@ -235,50 +225,43 @@ Session::~Session()
  */
 void Session::resized (int cols, int rows)
 {
-    if (not ttyOpened)
+    grid.resize (cols, rows);
+    parser.resize (cols, rows);
+
+    if (tty->isThreadRunning())
     {
-        grid.resize (cols, rows);
-        parser.resize (cols, rows);
-
-        if (not ttyOpenPending)
-        {
-            ttyOpenPending = true;
-
-            juce::MessageManager::callAsync ([this]
-            {
-                if (not ttyOpened)
-                {
-                    const int finalCols { grid.getCols() };
-                    const int finalRows { grid.getVisibleRows() };
-
-                    grid.resize (finalCols, finalRows);
-                    parser.resize (finalCols, finalRows);
-
-                    const auto shell { shellOverride.isNotEmpty()
-                        ? shellOverride
-                        : Config::getContext()->getString (Config::Key::shellProgram) };
-                    auto args { shellOverride.isNotEmpty()
-                        ? shellArgsOverride
-                        : Config::getContext()->getString (Config::Key::shellArgs) };
-                    applyShellIntegration (shell, args);
-
-                    if (workingDirectory.isNotEmpty())
-                        tty->addShellEnv ("END_CWD", toMsysPath (workingDirectory));
-
-                    tty->open (finalCols, finalRows, shell, args, workingDirectory);
-                    const juce::String shellName { shell.contains (juce::File::getSeparatorString())
-                        ? juce::File (shell).getFileName()
-                        : shell };
-                    state.get().setProperty (ID::shellProgram, shellName, nullptr);
-                    ttyOpened = true;
-                    ttyOpenPending = false;
-                }
-            });
-        }
+        tty->platformResize (cols, rows);
     }
-    else
+    else if (cols > 0 and rows > 0)
     {
-        tty->resize (cols, rows);
+        juce::MessageManager::callAsync ([this]
+        {
+            if (not tty->isThreadRunning())
+            {
+                const int finalCols { state.getCols() };
+                const int finalRows { state.getVisibleRows() };
+
+                grid.resize (finalCols, finalRows);
+                parser.resize (finalCols, finalRows);
+
+                const auto shell { shellOverride.isNotEmpty()
+                    ? shellOverride
+                    : Config::getContext()->getString (Config::Key::shellProgram) };
+                auto args { shellOverride.isNotEmpty()
+                    ? shellArgsOverride
+                    : Config::getContext()->getString (Config::Key::shellArgs) };
+                applyShellIntegration (shell, args);
+
+                if (workingDirectory.isNotEmpty())
+                    tty->addShellEnv ("END_CWD", toMsysPath (workingDirectory));
+
+                tty->open (finalCols, finalRows, shell, args, workingDirectory);
+                const juce::String shellName { shell.contains (juce::File::getSeparatorString())
+                    ? juce::File (shell).getFileName()
+                    : shell };
+                state.get().setProperty (ID::shellProgram, shellName, nullptr);
+            }
+        });
     }
 }
 

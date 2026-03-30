@@ -25,7 +25,7 @@
  * | Parameter group     | Writer            | Reader (hot path)  | Reader (UI)       |
  * |---------------------|-------------------|--------------------|-------------------|
  * | activeScreen        | READER THREAD     | atomic getter      | ValueTree (timer) |
- * | cols / visibleRows  | READER THREAD     | atomic getter      | ValueTree (timer) |
+ * | cols / visibleRows  | MESSAGE THREAD    | CachedValue        | CachedValue       |
  * | cursor (row/col/…)  | READER THREAD     | atomic getter      | ValueTree (timer) |
  * | scroll region       | READER THREAD     | atomic getter      | ValueTree (timer) |
  * | mode flags          | READER THREAD     | atomic getter      | ValueTree (timer) |
@@ -250,20 +250,6 @@ struct State : public juce::Timer
      * @note READER THREAD — lock-free, noexcept.
      */
     void setScreen (ActiveScreen s) noexcept;
-
-    /**
-     * @brief Sets the terminal column count (width in characters).
-     * @param c  Number of columns (e.g. 80 or 132).
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    void setCols (int c) noexcept;
-
-    /**
-     * @brief Sets the number of rows visible in the terminal viewport.
-     * @param r  Number of visible rows (e.g. 24).
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    void setVisibleRows (int r) noexcept;
 
     /**
      * @brief Sets a named terminal mode flag.
@@ -514,14 +500,14 @@ struct State : public juce::Timer
     /**
      * @brief Returns the current terminal column count.
      * @return Number of columns (e.g. 80 or 132).
-     * @note READER THREAD — lock-free, noexcept.
+     * @note MESSAGE THREAD — reads from CachedValue, noexcept.
      */
     int getCols() const noexcept;
 
     /**
      * @brief Returns the number of rows visible in the terminal viewport.
      * @return Number of visible rows (e.g. 24).
-     * @note READER THREAD — lock-free, noexcept.
+     * @note MESSAGE THREAD — reads from CachedValue, noexcept.
      */
     int getVisibleRows() const noexcept;
 
@@ -1016,6 +1002,19 @@ struct State : public juce::Timer
     bool consumeSyncResize() noexcept;
 
     /**
+     * @brief Sets terminal dimensions from the message thread.
+     *
+     * Writes cols and visibleRows to the CachedValue store — ValueTree updated
+     * synchronously, listeners fire on the message thread.
+     *
+     * @param cols  New terminal width in character columns.
+     * @param rows  New terminal height in character rows.
+     * @note MESSAGE THREAD only.
+     * @see getCols(), getVisibleRows()
+     */
+    void setDimensions (int cols, int rows) noexcept;
+
+    /**
      * @brief Records the start of an OSC 133 command output block.
      *
      * Called when OSC 133 ; C is received.  Sets `outputBlockTop` to `row`,
@@ -1374,6 +1373,12 @@ private:
      * Mutable — emplaced by storeHyperlink, cleared by clearHyperlinks.
      */
     StateMap<HyperlinkEntry> hyperlinkMap;
+
+    /** @brief Cached terminal width in character columns (MESSAGE THREAD). */
+    juce::CachedValue<int> cachedCols;
+
+    /** @brief Cached terminal height in visible rows (MESSAGE THREAD). */
+    juce::CachedValue<int> cachedVisibleRows;
 
     /**
      * @brief Copies all atomic parameter values into the ValueTree.
