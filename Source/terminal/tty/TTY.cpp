@@ -57,34 +57,47 @@ void TTY::run()
     setPriority (Thread::Priority::high);
     char chunk[READ_CHUNK_SIZE];
 
-    // returns true on EOF
     auto drainPty = [&]() -> bool
     {
-        int n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));
+        int n { read (chunk, static_cast<int> (READ_CHUNK_SIZE)) };
 
         while (n > 0)
         {
             if (onData)
+            {
                 onData (chunk, n);
+            }
+
             n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));
         }
 
-        if (n == 0)
+        const bool isEof { n < 0 };
+
+        if (not isEof and onDrainComplete)
         {
-            if (onDrainComplete)
-                onDrainComplete();
-            return false;
+            onDrainComplete();
         }
 
-        shellExited.store (true, std::memory_order_release);
-        if (onExit)
-            juce::MessageManager::callAsync (onExit);
-        return true;
+        if (isEof)
+        {
+            shellExited.store (true, std::memory_order_release);
+
+            if (onExit)
+            {
+                juce::MessageManager::callAsync (onExit);
+            }
+        }
+
+        return isEof;
     };
 
-    while (not threadShouldExit())
+    bool shellDone { false };
+
+    while (not threadShouldExit() and not shellDone)
     {
-        if (waitForData (100) and drainPty())
-            break;
+        if (waitForData (100))
+        {
+            shellDone = drainPty();
+        }
     }
 }
