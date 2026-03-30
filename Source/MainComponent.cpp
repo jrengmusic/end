@@ -557,9 +557,21 @@ void MainComponent::registerActions()
                                    const auto shellArgs { juce::String ("-c ") + entry.command
                                                           + (entry.args.isNotEmpty() ? " " + entry.args : "") };
 
+                                   const int cols { entry.cols > 0 ? entry.cols
+                                                                   : config.getInt (Config::Key::popupCols) };
+                                   const int rows { entry.rows > 0 ? entry.rows
+                                                                   : config.getInt (Config::Key::popupRows) };
+
+                                   const auto fm { typeface.calcMetrics (Terminal::Component::dpiCorrectedFontSize()) };
+                                   const int pixelWidth  { cols * fm.logicalCellW };
+                                   const int pixelHeight { rows * fm.logicalCellH };
+
+                                   const auto cwd { entry.cwd.isNotEmpty() ? entry.cwd
+                                                                           : appState.getPwd() };
                                    auto terminal { std::make_unique<Terminal::Component> (
-                                       typeface, shell, shellArgs, entry.cwd) };
-                                   popup.show (*getTopLevelComponent(), std::move (terminal));
+                                       typeface, shell, shellArgs, cwd) };
+                                   popup.show (*getTopLevelComponent(), std::move (terminal),
+                                              pixelWidth, pixelHeight, glRenderer);
                                }
 
                                return true;

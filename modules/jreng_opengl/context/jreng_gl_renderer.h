@@ -9,6 +9,7 @@ public:
     GLRenderer();
     ~GLRenderer();
 
+    void setSharedRenderer (GLRenderer& source);
     void attachTo (juce::Component& target);
     void detach();
     void setComponentPaintingEnabled (bool enabled) noexcept;

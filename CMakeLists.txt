@@ -479,6 +479,7 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
     HAVE_FREETYPE
     $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_UNISTD_H>
     $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_FCNTL_H>
+    $<$<PLATFORM_ID:Windows>:JUCE_DLL_BUILD=1>
 )
 
 if(COMMAND _juce_fixup_module_source_groups)

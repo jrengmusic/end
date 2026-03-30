@@ -19,8 +19,10 @@ namespace Terminal
 // ContentView
 //==============================================================================
 
-Popup::ContentView::ContentView (std::unique_ptr<juce::Component> content)
+Popup::ContentView::ContentView (std::unique_ptr<juce::Component> content,
+                                  jreng::GLRenderer& sharedRenderer)
     : ownedContent (std::move (content))
+    , sharedSource (sharedRenderer)
 {
     setOpaque (false);
     glContent = dynamic_cast<jreng::GLComponent*> (ownedContent.get());
@@ -60,6 +62,7 @@ void Popup::ContentView::initialiseGL()
                     renderComponent (*glContent);
             });
         glRenderer.setComponentPaintingEnabled (true);
+        glRenderer.setSharedRenderer (sharedSource);
         glRenderer.attachTo (*this);
     }
 }
@@ -70,6 +73,7 @@ void Popup::ContentView::initialiseGL()
 
 Popup::Window::Window (std::unique_ptr<juce::Component> content,
                        juce::Component& centreAround,
+                       jreng::GLRenderer& sharedRenderer,
                        std::function<void()> dismissCallback)
     : juce::DialogWindow ({}, Config::getContext()->getColour (Config::Key::windowColour), false)
     , onDismissed (std::move (dismissCallback))
@@ -81,7 +85,7 @@ Popup::Window::Window (std::unique_ptr<juce::Component> content,
     const int desiredWidth  { content->getWidth() };
     const int desiredHeight { content->getHeight() };
 
-    auto contentView { std::make_unique<ContentView> (std::move (content)) };
+    auto contentView { std::make_unique<ContentView> (std::move (content), sharedRenderer) };
     auto* viewPtr { contentView.get() };
 
     setContentOwned (contentView.release(), false);
@@ -147,21 +151,18 @@ Popup::~Popup()
     dismiss();
 }
 
-void Popup::show (juce::Component& caller, std::unique_ptr<juce::Component> content)
+void Popup::show (juce::Component& caller, std::unique_ptr<juce::Component> content,
+                  int width, int height,
+                  jreng::GLRenderer& sharedRenderer)
 {
     dismiss();
 
-    const int contentWidth  { static_cast<int> (static_cast<float> (caller.getWidth())
-                                                * config.getFloat (Config::Key::popupWidth)) };
-    const int contentHeight { static_cast<int> (static_cast<float> (caller.getHeight())
-                                                * config.getFloat (Config::Key::popupHeight)) };
-
-    content->setSize (contentWidth, contentHeight);
+    content->setSize (width, height);
 
     if (auto* terminal { dynamic_cast<Terminal::Component*> (content.get()) })
         terminal->onProcessExited = [this] { dismiss(); };
 
-    window = std::make_unique<Window> (std::move (content), caller,
+    window = std::make_unique<Window> (std::move (content), caller, sharedRenderer,
         [this]
         {
             window.reset();

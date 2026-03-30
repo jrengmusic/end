@@ -1,1 +1,0 @@
-/Users/jreng/Documents/Poems/JUCE/modules/juce_graphics/unicode/juce_UnicodeBidi.cpp

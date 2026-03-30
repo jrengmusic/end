@@ -1,1 +1,0 @@
-/Users/jreng/Documents/Poems/JUCE/modules/juce_core/misc/juce_Result.h

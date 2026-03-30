@@ -496,13 +496,13 @@ END = {
 	-- ========================================================================
 
 	popup = {
-		-- Default popup width as a fraction of the window width (0.1 - 1.0).
+		-- Default popup width in columns.
 		-- Individual popup entries can override this.
-		width = %%popup_width%%,
+		cols = %%popup_cols%%,
 
-		-- Default popup height as a fraction of the window height (0.1 - 1.0).
+		-- Default popup height in rows.
 		-- Individual popup entries can override this.
-		height = %%popup_height%%,
+		rows = %%popup_rows%%,
 
 		-- Default popup position: "center".
 		position = "%%popup_position%%",
@@ -551,8 +551,8 @@ END = {
 	--   command  (string, required)  Shell command or executable to run.
 	--   args     (string, optional)  Arguments passed to the command.
 	--   cwd      (string, optional)  Working directory. Empty = inherit active terminal cwd.
-	--   width    (number, optional)  Fraction of window width (0.1-1.0). Overrides popup.width.
-	--   height   (number, optional)  Fraction of window height (0.1-1.0). Overrides popup.height.
+	--   cols     (number, optional)  Width in columns. Overrides popup.cols.
+	--   rows     (number, optional)  Height in rows. Overrides popup.rows.
 	--   modal    (string, optional)  Key pressed after the prefix key (e.g. "t").
 	--   global   (string, optional)  Global key: direct shortcut, no prefix needed.
 	--
@@ -566,15 +566,15 @@ END = {
 	        command = "tit",
 	        args = "",
 	        cwd = "",
-	        width = 0.8,
-	        height = 0.6,
+	        cols = 80,
+	        rows = 24,
 	        modal = "t",
 	    },
 	--     btop = {
 	--         command = "htop",
 	--         cwd = "~",
-	--         width = 0.7,
-	--         height = 0.5,
+	--         cols = 80,
+	--         rows = 24,
 	--         modal = "p",
 	--         global = "cmd+shift+p",
 	--     },

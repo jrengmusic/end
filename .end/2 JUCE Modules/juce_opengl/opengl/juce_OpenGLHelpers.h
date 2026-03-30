@@ -1,1 +1,0 @@
-/Users/jreng/Documents/Poems/JUCE/modules/juce_opengl/opengl/juce_OpenGLHelpers.h

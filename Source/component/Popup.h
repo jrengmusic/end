@@ -32,8 +32,6 @@
  *   (does NOT dismiss).
  *
  * ### Config keys read
- * - `Config::Key::popupWidth`       — fraction of caller width  (float, 0.1–1.0)
- * - `Config::Key::popupHeight`      — fraction of caller height (float, 0.1–1.0)
  * - `Config::Key::windowColour`     — glass tint colour (hex string)
  * - `Config::Key::windowOpacity`    — glass opacity (float, 0.0–1.0)
  * - `Config::Key::windowBlurRadius` — blur radius in points (float)
@@ -65,8 +63,6 @@ namespace Terminal
  * @par Thread context
  * **MESSAGE THREAD** — all public methods.
  *
- * @see Config::Key::popupWidth
- * @see Config::Key::popupHeight
  * @see juce::DialogWindow
  */
 class Popup
@@ -78,8 +74,7 @@ public:
     /**
      * @brief Shows a modal glass dialog centred on @p caller with @p content inside.
      *
-     * Reads `popupWidth` and `popupHeight` from Config, computes pixel size
-     * as fractions of @p caller's bounds, sets that size on the content, then
+     * Sets the given pixel @p width and @p height on the content, then
      * creates the dialog window, centres it on @p caller, and enters modal
      * state.
      *
@@ -88,12 +83,17 @@ public:
      *
      * Ownership of @p content transfers to the ContentView inside the dialog.
      *
-     * @param caller   The component to centre the dialog around.
-     * @param content  The component to host; ownership is transferred.
+     * @param caller          The component to centre the dialog around.
+     * @param content         The component to host; ownership is transferred.
+     * @param width           Popup width in logical pixels.
+     * @param height          Popup height in logical pixels.
+     * @param sharedRenderer  Main window's GL renderer; popup shares its GL context.
      * @note MESSAGE THREAD.
      * @see dismiss
      */
-    void show (juce::Component& caller, std::unique_ptr<juce::Component> content);
+    void show (juce::Component& caller, std::unique_ptr<juce::Component> content,
+               int width, int height,
+               jreng::GLRenderer& sharedRenderer);
 
     /**
      * @brief Dismisses the dialog if active.
@@ -144,7 +144,8 @@ private:
          *
          * @param content  The component to host; ownership is transferred.
          */
-        explicit ContentView (std::unique_ptr<juce::Component> content);
+        ContentView (std::unique_ptr<juce::Component> content,
+                     jreng::GLRenderer& sharedRenderer);
 
         ~ContentView() override;
 
@@ -165,6 +166,9 @@ private:
 
         /** @brief GL renderer attached to this component; active only for GL content. */
         jreng::GLRenderer glRenderer;
+
+        /** @brief Main window's GL renderer; used to share the GL context. */
+        jreng::GLRenderer& sharedSource;
 
         /** @brief Non-owning pointer to the GL content; nullptr for non-GL content. */
         jreng::GLComponent* glContent { nullptr };
@@ -203,6 +207,7 @@ private:
          */
         Window (std::unique_ptr<juce::Component> content,
                 juce::Component& centreAround,
+                jreng::GLRenderer& sharedRenderer,
                 std::function<void()> dismissCallback);
 
         void paint (juce::Graphics& g) override;

@@ -1,1 +1,0 @@
-/Users/jreng/Documents/Poems/JUCE/modules/juce_gui_basics/mouse/juce_MouseEvent.h

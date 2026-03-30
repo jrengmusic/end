@@ -142,11 +142,11 @@ struct Config : jreng::Context<Config>
         /** @brief Working directory. Empty = inherit active terminal's cwd. */
         juce::String cwd;
 
-        /** @brief Popup width as fraction of parent (0.1–1.0). Zero = use global default. */
-        float width { 0.0f };
+        /** @brief Popup width in columns. Zero = use global default. */
+        int cols { 0 };
 
-        /** @brief Popup height as fraction of parent (0.1–1.0). Zero = use global default. */
-        float height { 0.0f };
+        /** @brief Popup height in rows. Zero = use global default. */
+        int rows { 0 };
 
         /** @brief Modal key binding (prefix + key). Empty = no modal binding. */
         juce::String modal;
@@ -441,11 +441,8 @@ struct Config : jreng::Context<Config>
         /** @brief Exit selection mode. */
         inline static const juce::String keysSelectionExit { "keys.selection_exit" };
 
-        /** @brief Popup default width as a fraction of the parent width (0.1–1.0). */
-        inline static const juce::String popupWidth { "popup.width" };
-
-        /** @brief Popup default height as a fraction of the parent height (0.1–1.0). */
-        inline static const juce::String popupHeight { "popup.height" };
+        inline static const juce::String popupCols { "popup.cols" };
+        inline static const juce::String popupRows { "popup.rows" };
 
         /** @brief Popup default position: "center" for now. */
         inline static const juce::String popupPosition { "popup.position" };

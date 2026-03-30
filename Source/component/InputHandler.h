@@ -109,6 +109,8 @@ public:
      */
     void reset() noexcept;
 
+    bool isSelectionCopyKey (const juce::KeyPress& key) const noexcept;
+
 private:
     /**
      * @brief Dispatches a key to the handler for the currently active modal.

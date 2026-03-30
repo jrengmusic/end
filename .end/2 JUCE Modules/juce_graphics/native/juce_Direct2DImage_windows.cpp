@@ -1,1 +1,0 @@
-/Users/jreng/Documents/Poems/JUCE/modules/juce_graphics/native/juce_Direct2DImage_windows.cpp

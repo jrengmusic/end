@@ -4,6 +4,7 @@ build_ninja/
 Builds/
 
 # IDE / Tool directories
+.end/
 .opencode/
 .cache/
 

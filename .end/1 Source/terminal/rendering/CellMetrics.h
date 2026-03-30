@@ -1,1 +1,0 @@
-/Users/jreng/Documents/Poems/dev/end/Source/terminal/rendering/CellMetrics.h

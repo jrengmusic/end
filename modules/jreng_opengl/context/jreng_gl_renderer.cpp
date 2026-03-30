@@ -20,6 +20,12 @@ GLRenderer::~GLRenderer()
     openGLContext.detach();
 }
 
+void GLRenderer::setSharedRenderer (GLRenderer& source)
+{
+    jassert (not openGLContext.isAttached());
+    openGLContext.setNativeSharedContext (source.openGLContext.getRawContext());
+}
+
 void GLRenderer::attachTo (juce::Component& target)
 {
     if (not openGLContext.isAttached())

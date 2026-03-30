@@ -148,6 +148,11 @@ void InputHandler::reset() noexcept
     pendingG = false;
 }
 
+bool InputHandler::isSelectionCopyKey (const juce::KeyPress& key) const noexcept
+{
+    return key == selectionKeys.copy or key == selectionKeys.globalCopy;
+}
+
 bool InputHandler::handleModalKey (const juce::KeyPress& key) noexcept
 {
     const auto type { session.getState().getModalType() };

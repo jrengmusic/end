@@ -227,8 +227,8 @@ void Config::initKeys()
     addKey (Key::keysSelectionLineEnd, "$", { T::string });
     addKey (Key::keysSelectionExit, "escape", { T::string });
 
-    addKey (Key::popupWidth, 0.6, { T::number, 0.1, 1.0, true });
-    addKey (Key::popupHeight, 0.5, { T::number, 0.1, 1.0, true });
+    addKey (Key::popupCols, 70, { T::number, 1.0, 640.0, true });
+    addKey (Key::popupRows, 20, { T::number, 1.0, 480.0, true });
     addKey (Key::popupPosition, "center", { T::string });
     addKey (Key::popupBorderColour, "#4E8C93", { T::string });// paradiso (same as foreground)
     addKey (Key::popupBorderWidth, 1.0, { T::number, 0.0, 10.0, true });
@@ -531,11 +531,11 @@ static void loadPopups (const sol::table& popupsTable,
                 if (auto c { entry.get<sol::optional<std::string>> ("cwd") })
                     popup.cwd = juce::String (*c);
 
-                if (auto w { entry.get<sol::optional<double>> ("width") })
-                    popup.width = static_cast<float> (*w);
+                if (auto c { entry.get<sol::optional<int>> ("cols") })
+                    popup.cols = *c;
 
-                if (auto h { entry.get<sol::optional<double>> ("height") })
-                    popup.height = static_cast<float> (*h);
+                if (auto r { entry.get<sol::optional<int>> ("rows") })
+                    popup.rows = *r;
 
                 if (auto m { entry.get<sol::optional<std::string>> ("modal") })
                     popup.modal = juce::String (*m);

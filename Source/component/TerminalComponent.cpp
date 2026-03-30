@@ -247,6 +247,7 @@ void Terminal::Component::copySelection()
         juce::SystemClipboard::copyTextToClipboard (text);
 
         session.getState().setDragActive (false);
+        session.getState().setSelectionType (static_cast<int> (SelectionType::none));
         screenSelection.reset();
         visitScreen (
             [&] (auto& s)
@@ -284,6 +285,12 @@ void Terminal::Component::resetZoom()
 
 bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
+    if (screenSelection != nullptr and inputHandler->isSelectionCopyKey (key))
+    {
+        copySelection();
+        return true;
+    }
+
     return inputHandler->handleKey (key, onProcessExited != nullptr);
 }
 
