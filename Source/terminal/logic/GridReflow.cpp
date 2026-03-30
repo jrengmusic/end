@@ -674,12 +674,27 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
             cursorNewCol = 0;
         }
 
+        const bool pinToBottom { cursorRow >= oldVisibleRows - 1 };
         const int contentExtent { juce::jmax (totalOutputRows, cursorOutputRow + 1) - rowsToSkip };
-        newBuffer.head = ((contentExtent - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
-        newBuffer.scrollbackUsed = scClamped;
 
-        const int newCursorVisibleRow { cursorOutputRow - rowsToSkip + newVisibleRows - contentExtent };
-        state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, newCursorVisibleRow));
+        if (pinToBottom)
+        {
+            newBuffer.head = ((contentExtent - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
+            newBuffer.scrollbackUsed = scClamped;
+
+            const int newCursorVisibleRow { cursorOutputRow - rowsToSkip + newVisibleRows - contentExtent };
+            state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, newCursorVisibleRow));
+        }
+        else
+        {
+            const int written { scClamped + newVisibleRows };
+            newBuffer.head = ((written - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
+            newBuffer.scrollbackUsed = scClamped;
+
+            const int newCursorVisibleRow { cursorOutputRow - rowsToSkip - scClamped };
+            state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, newCursorVisibleRow));
+        }
+
         state.setCursorCol (normal, juce::jlimit (0, newCols - 1, cursorNewCol));
     }
 }
