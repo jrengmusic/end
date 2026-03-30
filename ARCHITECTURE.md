@@ -260,7 +260,7 @@ Keystroke -> Message Thread -> TTY::write()
 | `std::atomic<bool> needsFlush` | Reader -> Timer | ValueTree flush trigger |
 | `jreng::GLSnapshotBuffer` (atomic exchange) | Message -> GL | Double-buffered snapshot handoff |
 | `std::mutex` (uploadMutex) | Message -> GL | Staged bitmap queue |
-| `juce::CriticalSection` (resizeLock) | Message <-> Reader | Grid resize safety |
+| `juce::CriticalSection` (resizeLock) | Message <-> Reader | Grid resize + data processing safety |
 
 ---
 
@@ -577,6 +577,8 @@ Access: `setRGB()`, `setPalette()`, `setTheme()`, `paletteIndex()`
 ### Grid Ring Buffer
 
 Dual buffers (normal + alternate). Each buffer is a flat `HeapBlock<Cell>` with ring-buffer row indexing. `head` tracks the logical top row. Dirty tracking via `std::atomic<uint64_t> dirtyRows[4]` (256-bit bitmask).
+
+`getCols()` and `getVisibleRows()` return the buffer allocation dimensions. `resize()` runs on the message thread and holds `resizeLock` for the duration.
 
 ### GlyphConstraint
 

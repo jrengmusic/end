@@ -48,7 +48,7 @@ namespace Terminal
  * total rows (no scrollback).
  *
  * @param initState  Terminal parameter store; must outlive this Grid.
- * @note READER THREAD — called during terminal initialisation.
+ * @note MESSAGE THREAD — called during terminal initialisation.
  */
 Grid::Grid (State& initState)
     : state (initState)
@@ -116,7 +116,8 @@ void Grid::clearBuffer()
  * @param numCols        Number of columns.
  * @param totalLines     Desired total rows (rounded up to next power of two).
  * @param numVisibleRows Number of visible rows (used to set `head`).
- * @note READER THREAD — allocates heap memory.
+ * @note Called from both MESSAGE THREAD (`resize()`, constructor) and READER
+ *       THREAD (`clearBuffer()`).  Allocates heap memory.
  */
 void Grid::initBuffer (Buffer& buffer, int numCols, int totalLines, int numVisibleRows)
 {

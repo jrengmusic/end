@@ -129,14 +129,15 @@ static juce::ValueTree buildScreenNode (const juce::Identifier& nodeId)
  * ## Construction sequence
  *
  * 1. Root SESSION node is created and session-level PARAMs are appended:
- *    `activeScreen`, `cols`, `visibleRows`, `scrollOffset`.
+ *    `activeScreen`, `scrollOffset`, and transient state parameters.
+ *    `cols` and `visibleRows` are CachedValue properties bound in step 4.
  * 2. A MODES group node is built and all terminal mode flags are appended
  *    with their VT-spec defaults (most off, `autoWrap` and `cursorVisible` on).
  * 3. Two screen nodes (`NORMAL`, `ALTERNATE`) are built via `buildScreenNode()`
  *    and appended to SESSION.
  * 4. `buildParameterMap()` walks the completed tree and allocates one
- *    `std::atomic<float>` per PARAM node (except `scrollOffset`, which is
- *    UI-owned and stored as an integer in the ValueTree only).
+ *    `std::atomic<float>` per PARAM node (except `scrollOffset` (UI-owned
+ *    integer) and `cols`/`visibleRows` (CachedValue properties, not PARAMs)).
  * 5. The JUCE timer is started at 60 Hz.  `timerCallback()` will adapt the
  *    rate to 120 Hz when parameters are actively changing.
  *

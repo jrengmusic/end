@@ -48,7 +48,8 @@
  * |------------------------|----------------|
  * | `activeWrite*()`       | READER THREAD  |
  * | `scroll*()`, `erase*()` | READER THREAD |
- * | `resize()`, `clearBuffer()` | MESSAGE THREAD (holds resizeLock) |
+ * | `resize()`                   | MESSAGE THREAD (holds resizeLock) |
+ * | `clearBuffer()`              | READER THREAD (holds resizeLock)  |
  * | `activeVisibleRow()` reads | MESSAGE THREAD |
  * | `consumeDirtyRows()`   | MESSAGE THREAD |
  * | `extractText()`        | MESSAGE THREAD (holds resizeLock) |
@@ -113,9 +114,10 @@ public:
     /**
      * @brief Returns the resize lock used to synchronise resize and text extraction.
      *
-     * The READER THREAD acquires this lock during `resize()` and `clearBuffer()`.
-     * The MESSAGE THREAD acquires it during `extractText()`.  No other methods
-     * require the lock.
+     * The MESSAGE THREAD acquires this lock during `resize()`.  The READER
+     * THREAD acquires it during `clearBuffer()` and data processing
+     * (`tty->onData`).  The MESSAGE THREAD acquires it during `extractText()`.
+     * No other methods require the lock.
      *
      * @return Reference to the internal `juce::CriticalSection`.
      * @note Lock-free getter — the lock itself is not acquired here.
@@ -655,9 +657,10 @@ private:
     /**
      * @brief Lock that serialises `resize()` / `clearBuffer()` against `extractText()`.
      *
-     * The READER THREAD acquires this lock during resize and clear operations.
-     * The MESSAGE THREAD acquires it during text extraction.  No other methods
-     * require the lock.
+     * The MESSAGE THREAD acquires this lock during `resize()`.  The READER
+     * THREAD acquires it during `clearBuffer()` and data processing
+     * (`tty->onData`).  The MESSAGE THREAD acquires it during text extraction.
+     * No other methods require the lock.
      */
     juce::CriticalSection resizeLock;
 
@@ -842,7 +845,7 @@ private:
      * @param newBuffer      Destination buffer (already allocated by `initBuffer()`).
      * @param newCols        Column count of the destination buffer.
      * @param newVisibleRows Visible row count of the destination buffer.
-     * @note READER THREAD — allocates temporary heap memory for the flat buffer.
+     * @note MESSAGE THREAD — allocates temporary heap memory for the flat buffer.
      */
     void reflow (const Buffer& oldBuffer,
                         int oldCols,

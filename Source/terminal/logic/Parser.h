@@ -187,7 +187,7 @@ public:
      * @param newCols         New terminal width in character columns.
      * @param newVisibleRows  New terminal height in visible rows.
      *
-     * @note READER THREAD only.
+     * @note MESSAGE THREAD — called from Session::resized().
      *
      * @see calc()
      */

@@ -25,7 +25,7 @@
  * | Parameter group     | Writer            | Reader (hot path)  | Reader (UI)       |
  * |---------------------|-------------------|--------------------|-------------------|
  * | activeScreen        | READER THREAD     | atomic getter      | ValueTree (timer) |
- * | cols / visibleRows  | MESSAGE THREAD    | CachedValue        | CachedValue       |
+ * | cols / visibleRows  | MESSAGE THREAD    | Grid buffer (resizeLock) | CachedValue  |
  * | cursor (row/col/…)  | READER THREAD     | atomic getter      | ValueTree (timer) |
  * | scroll region       | READER THREAD     | atomic getter      | ValueTree (timer) |
  * | mode flags          | READER THREAD     | atomic getter      | ValueTree (timer) |
@@ -33,10 +33,8 @@
  *
  * ### ValueTree structure
  * ```
- * SESSION
+ * SESSION  uuid=<string>  cols=<int>  visibleRows=<int>
  * ├── PARAM id="activeScreen"  value=<float>
- * ├── PARAM id="cols"          value=<float>
- * ├── PARAM id="visibleRows"   value=<float>
  * ├── PARAM id="scrollOffset"  value=<float>
  * ├── MODES
  * │   ├── PARAM id="originMode"        value=<float>
@@ -1396,8 +1394,10 @@ private:
     /**
      * @brief Flushes PARAM children that are direct children of the root SESSION node.
      *
-     * Handles session-level parameters: `activeScreen`, `cols`, `visibleRows`.
+     * Handles session-level parameters: `activeScreen`.
      * (`scrollOffset` is skipped — it is UI-owned and never in `parameterMap`.)
+     * `cols` and `visibleRows` are CachedValue properties and are not processed
+     * by the flush system.
      *
      * @note MESSAGE THREAD — called from `flush()` only.
      */

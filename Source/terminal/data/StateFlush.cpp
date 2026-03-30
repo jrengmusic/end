@@ -17,7 +17,7 @@
  * ## Why a separate translation unit?
  *
  * The flush logic is isolated here so that `State.cpp` stays focused on
- * construction, key-building, and the reader-thread API.  The flush pass
+ * construction, key-building, and the reader-thread setters.  The flush pass
  * iterates the ValueTree and touches every parameter, making it the most
  * "expensive" operation in the class — keeping it separate makes profiling
  * and future optimisation easier.
@@ -34,7 +34,7 @@
  * provides the necessary ordering.
  *
  * @see State.h   — full architecture overview and thread ownership table.
- * @see State.cpp — construction, key-building, and reader-thread API.
+ * @see State.cpp — construction, key-building, and reader-thread setters.
  */
 
 #include "State.h"
@@ -53,8 +53,6 @@ namespace Terminal
  *
  * Parameters handled here:
  * - `activeScreen`  — which screen buffer is active (normal / alternate).
- * - `cols`          — terminal width in characters.
- * - `visibleRows`   — terminal height in characters.
  *
  * `scrollOffset` is intentionally skipped: it is stored as an integer
  * `juce::var` (not a `double`), so `buildParameterMap()` never registered it
@@ -134,8 +132,8 @@ void State::flushGroupParams (juce::ValueTree& group) noexcept
  *      thread's `memory_order_release` store in `storeAndFlush()`, making all
  *      preceding relaxed atomic stores visible here.
  *
- * 2. **`flushRootParams()`** — writes session-level PARAMs (`activeScreen`,
- *    `cols`, `visibleRows`) back to the ValueTree.
+ * 2. **`flushRootParams()`** — writes session-level PARAMs (`activeScreen`)
+ *    back to the ValueTree.
  *
  * 3. **Group loop** — iterates the children of SESSION and calls
  *    `flushGroupParams()` for each group node (MODES, NORMAL, ALTERNATE).

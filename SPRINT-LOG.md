@@ -2,6 +2,47 @@
 
 ---
 
+## Sprint 135: Comprehensive docs audit and debt cleanup
+
+**Date:** 2026-03-30
+
+### Agents Participated
+- COUNSELOR — directed audit scope and fix delegation
+- Auditor — comprehensive docs audit across 16 source files + ARCHITECTURE.md + SPEC.md + PLAN.md (17 findings: 8 High, 6 Medium, 3 Low)
+- Machinist — applied all doc fixes across 9 files, deleted PLAN.md
+- Engineer — fixed TTY.cpp contract violations (early returns, brace init, missing braces)
+- Pathfinder — TTY.cpp debt inventory, clearBuffer call site analysis
+
+### Files Modified (9 total)
+- `Source/terminal/data/State.h` — ValueTree structure diagram: removed PARAM lines for cols/visibleRows, added as direct SESSION properties; thread ownership table: dims reader column corrected to "Grid buffer (resizeLock)"; flushRootParams doc: removed cols/visibleRows from handled params
+- `Source/terminal/data/State.cpp` — constructor doc steps 1 and 4: cols/visibleRows described as CachedValue properties, not PARAMs
+- `Source/terminal/data/StateFlush.cpp` — removed cols/visibleRows from "Parameters handled here" list; changed "reader-thread API" to "reader-thread setters"; removed dims from flush() step 2 description
+- `Source/terminal/logic/Grid.h` — thread ownership table: split resize/clearBuffer into separate rows with correct threads; resizeLock docs updated for message-thread resize + reader-thread data processing; reflow @note corrected
+- `Source/terminal/logic/Grid.cpp` — constructor @note: READER THREAD to MESSAGE THREAD; initBuffer @note: documents both thread call sites
+- `Source/terminal/logic/Parser.h` — Parser::resize @note: READER THREAD to MESSAGE THREAD
+- `Source/terminal/logic/Parser.cpp` — Parser::resize @note: same fix
+- `Source/terminal/tty/TTY.cpp` — drainPty lambda: eliminated early return via isEof single return; brace init for n; all if bodies braced; main loop: break eliminated via shellDone predicate
+- `ARCHITECTURE.md` — resizeLock purpose: "Grid resize + data processing safety"; Grid Ring Buffer section: documents buffer-based dim accessors and message-thread resize
+- `PLAN.md` — deleted (Sprint 134 execution plan, fully implemented)
+
+### Alignment Check
+- [x] LIFESTAR principles followed — documentation now matches code reality (SSOT for docs)
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied — Explicit thread annotations corrected
+- [x] JRENG-CODING-STANDARD.md followed — TTY.cpp now contract-compliant (zero early returns, brace init, braces on all if bodies)
+
+### Problems Solved
+- 8 High-severity stale thread annotations fixed (resize/reflow/Parser::resize all annotated as READER THREAD, now correctly MESSAGE THREAD)
+- ValueTree structure diagram in State.h showed cols/visibleRows as PARAM children (removed in Sprint 134)
+- flushRootParams docs claimed to handle cols/visibleRows (they no longer exist as PARAMs)
+- TTY.cpp contract violations: early return in drainPty, copy init, break in loop, missing braces
+- PLAN.md deleted to prevent confusion with completed plan
+
+### Technical Debt / Follow-up
+- None identified from this sprint
+
+---
+
 ## Sprint 134: SSOT Resize with CachedValue
 
 **Date:** 2026-03-30
