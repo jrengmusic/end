@@ -284,13 +284,13 @@ bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
                 {
                     const juce::Point<int> start { anchorCol, anchorVisRow };
                     const juce::Point<int> end { cursorCol, cursorVisRow };
-                    text = session.getGrid().extractText (start, end);
+                    text = session.getGrid().extractText (start, end, scrollOffset);
                 }
                 else if (smType == Terminal::SelectionType::visualLine)
                 {
                     const juce::Point<int> start { 0, std::min (anchorVisRow, cursorVisRow) };
                     const juce::Point<int> end { cols - 1, std::max (anchorVisRow, cursorVisRow) };
-                    text = session.getGrid().extractText (start, end);
+                    text = session.getGrid().extractText (start, end, scrollOffset);
                 }
                 else
                 {
@@ -302,7 +302,7 @@ bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
                         std::max (anchorCol, cursorCol),
                         std::max (anchorVisRow, cursorVisRow)
                     };
-                    text = session.getGrid().extractBoxText (topLeft, bottomRight);
+                    text = session.getGrid().extractBoxText (topLeft, bottomRight, scrollOffset);
                 }
 
                 juce::SystemClipboard::copyTextToClipboard (text);

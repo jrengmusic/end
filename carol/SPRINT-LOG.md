@@ -15,6 +15,37 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 7: Fix copy buffer scroll drift, modal exit on yank
+
+**Date:** 2026-03-31
+
+### Agents Participated
+- COUNSELOR — root cause analysis (coordinate space mismatch, modal exit gap), plan, directed execution, applied trivial fix
+- Pathfinder — traced full mouse selection → copy → extractText coordinate flow, identified drift root cause
+- Engineer — scrollOffset parameter addition, caller updates
+- Auditor — verified all 6 call sites updated, no missed callers, backward compatibility confirmed
+
+### Files Modified (4 total)
+- `Source/terminal/logic/Grid.h:416,437` — `extractText` and `extractBoxText` declarations: added `int scrollOffset` parameter, updated doc comments
+- `Source/terminal/logic/Grid.cpp:720-771,792-826` — both functions use `scrollbackRow(row, scrollOffset)` and `scrollbackGraphemeRow(row, scrollOffset)` instead of `activeVisibleRow(row)` and `activeReadGrapheme(row, col)`
+- `Source/component/TerminalComponent.cpp:225,231,237,245,252` — `copySelection()` reads `scrollOffset` from state, passes to all three extract call sites; added `setModalType(none)` so yank from `keyPressed` shortcut exits modal selection
+- `Source/component/InputHandler.cpp:287,293,305` — keyboard yank path passes existing `scrollOffset` to all three extract call sites
+
+### Alignment Check
+- [x] LIFESTAR principles followed — Explicit Encapsulation (scroll offset passed through API, not reached into); SSOT (single coordinate translation point in Grid)
+- [x] NAMING-CONVENTION.md adhered — `scrollOffset` matches existing parameter naming in `scrollbackRow`/`scrollbackGraphemeRow`
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied — no layer violations, no new accessors needed
+- [x] JRENG-CODING-STANDARD.md followed — zero early returns, brace init, existing code style preserved
+
+### Problems Solved
+- **Copy drifts from visual selection when scrolled back:** `extractText`/`extractBoxText` called `activeVisibleRow(row)` which maps to the live viewport (scrollOffset=0). `screenSelection` coordinates were computed with scroll offset in `onVBlank`. When scrolled back N lines, copied text drifted by exactly N lines. Fix: both functions now take `scrollOffset` and use `scrollbackRow`/`scrollbackGraphemeRow` — when scrollOffset=0, formula is identical to `activeVisibleRow` (backward compatible).
+- **Modal selection not exiting after yank:** `keyPressed` intercepts copy key when `screenSelection != nullptr`, calls `copySelection()` and returns before `handleSelectionKey` runs. `copySelection()` cleared `selectionType` and `dragActive` but not `modalType`. Fix: added `setModalType(none)` to `copySelection()`.
+
+### Technical Debt / Follow-up
+- None identified from this sprint
+
+---
+
 ## Sprint 6: Popup fixes, yank from mouse selection, Windows drag-drop fix
 
 **Date:** 2026-03-30
@@ -146,34 +177,6 @@
 ### Technical Debt / Follow-up
 - None identified from this sprint
 
----
-
-## Sprint 3: SSOT Resize with CachedValue
-
-**Date:** 2026-03-30
-
-### Agents Participated
-- COUNSELOR — root cause analysis, architecture plan, directed all execution
-- Pathfinder — codebase inventory (dim read/write sites, resizeLock acquisition, Buffer struct, State flush system)
-- Librarian — juce::CachedValue research (thread safety, referTo, listener behavior)
-- Engineer — all code changes across 3 phases (6 invocations)
-- Auditor — Phase 1 validation, final comprehensive audit (2 invocations)
-
-### Files Modified (15 total)
-- `Source/component/TerminalComponent.cpp:208-213` — `resized()` writes `state.setDimensions(cols, rows)` before `session.resized()`; dims computed into local vars
-- `Source/terminal/data/State.h` — added `juce::CachedValue<int> cachedCols`/`cachedVisibleRows` members; removed `setCols()`/`setVisibleRows()` declarations; `getCols()`/`getVisibleRows()` doc updated to MESSAGE THREAD + CachedValue
-- `Source/terminal/data/State.cpp` — `setDimensions()` writes CachedValue only (no atomics); `getCols()`/`getVisibleRows()` read from CachedValue; removed `setCols()`/`setVisibleRows()` impls; removed `addParam` for cols/visibleRows; CachedValue bound in constructor via `referTo()`
-- `Source/terminal/logic/Grid.h` — `getCols()`/`getVisibleRows()` return `buffers.at(normal).allocatedCols`/`allocatedVisibleRows` (buffer intrinsic, not State); removed `needsResize()` declaration; thread ownership table updated
-- `Source/terminal/logic/Grid.cpp` — `initBuffer()` stores `allocatedCols`/`allocatedVisibleRows` on Buffer; removed `needsResize()` impl; internal methods use `getCols()`/`getVisibleRows()` (buffer-based) instead of `state.getCols()`
-- `Source/terminal/logic/GridReflow.cpp` — `resize()` reads old dims from Buffer (not State), no longer writes State; `reflow()` cursor fallback moved before head calc; `contentExtent = jmax(totalOutputRows, cursorOutputRow+1) - rowsToSkip` for bottom-aligned head; cursor formula `cursorOutputRow - rowsToSkip + newVisibleRows - contentExtent`; doc comments updated MESSAGE THREAD
-- `Source/terminal/logic/GridErase.cpp` — `state.getCols()`/`getVisibleRows()` replaced with Grid's buffer-based `getCols()`/`getVisibleRows()`
-- `Source/terminal/logic/GridScroll.cpp` — same migration as GridErase
-- `Source/terminal/logic/Parser.h` — `activeScrollBottom()` declaration only (body moved out-of-line)
-- `Source/terminal/logic/Parser.cpp` — `activeScrollBottom()` out-of-line definition using `grid.getVisibleRows()` (was `state.getVisibleRows()` inline)
-- `Source/terminal/logic/Session.h` — removed `ttyOpened`/`ttyOpenPending` members
-- `Source/terminal/logic/Session.cpp` — `onData` acquires `grid.getResizeLock()` before `process()`; `resized()` always calls `grid.resize()`+`parser.resize()` on message thread; `tty->isThreadRunning()` replaces manual flags; removed `onBeforeDrain` setup; `onDrainComplete` uses `grid.getCols()`/`grid.getVisibleRows()`
-- `Source/terminal/tty/TTY.h` — removed `resize()` method, `onResize`/`onBeforeDrain` callbacks, `resizePending`/`pendingCols`/`pendingRows` atomics; `platformResize()` made public
-- `Source/terminal/tty/TTY.cpp` — `run()` simplified: no `handleResize`, no `onBeforeDrain`; doc comments updated
 
 ### Alignment Check
 - [x] LIFESTAR principles followed — SSOT enforced, Explicit Encapsulation (objects manage own state via `isThreadRunning()`), Lean (removed 5 shadow stores)
@@ -192,4 +195,3 @@
 ### Technical Debt / Follow-up
 - `Grid::scrollbackCapacity` is still a member, not on State — immutable after construction
 - `clearBuffer()` doc says READER THREAD but may now be called from message thread contexts — verify all call sites
-

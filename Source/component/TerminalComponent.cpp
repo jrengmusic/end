@@ -222,18 +222,19 @@ void Terminal::Component::copySelection()
     {
         const juce::ScopedLock lock (session.getGrid().getResizeLock());
         const int cols { session.getGrid().getCols() };
+        const int scrollOffset { session.getState().getScrollOffset() };
 
         juce::String text;
 
         if (screenSelection->type == ScreenSelection::SelectionType::linear)
         {
-            text = session.getGrid().extractText (screenSelection->anchor, screenSelection->end);
+            text = session.getGrid().extractText (screenSelection->anchor, screenSelection->end, scrollOffset);
         }
         else if (screenSelection->type == ScreenSelection::SelectionType::line)
         {
             const juce::Point<int> start { 0, std::min (screenSelection->anchor.y, screenSelection->end.y) };
             const juce::Point<int> end { cols - 1, std::max (screenSelection->anchor.y, screenSelection->end.y) };
-            text = session.getGrid().extractText (start, end);
+            text = session.getGrid().extractText (start, end, scrollOffset);
         }
         else
         {
@@ -241,13 +242,14 @@ void Terminal::Component::copySelection()
                                              std::min (screenSelection->anchor.y, screenSelection->end.y) };
             const juce::Point<int> bottomRight { std::max (screenSelection->anchor.x, screenSelection->end.x),
                                                  std::max (screenSelection->anchor.y, screenSelection->end.y) };
-            text = session.getGrid().extractBoxText (topLeft, bottomRight);
+            text = session.getGrid().extractBoxText (topLeft, bottomRight, scrollOffset);
         }
 
         juce::SystemClipboard::copyTextToClipboard (text);
 
         session.getState().setDragActive (false);
         session.getState().setSelectionType (static_cast<int> (SelectionType::none));
+        session.getState().setModalType (ModalType::none);
         screenSelection.reset();
         visitScreen (
             [&] (auto& s)

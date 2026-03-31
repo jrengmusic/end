@@ -408,12 +408,13 @@ public:
      * Trailing whitespace is trimmed from each row.  Rows are separated by
      * `'\n'` except the last.
      *
-     * @param start  Top-left corner of the selection (x = col, y = row).
-     * @param end    Bottom-right corner of the selection (inclusive).
+     * @param start        Top-left corner of the selection (x = col, y = row).
+     * @param end          Bottom-right corner of the selection (inclusive).
+     * @param scrollOffset Number of rows the viewport is scrolled back (0 = live view).
      * @return A `juce::String` containing the selected text.
      * @note MESSAGE THREAD — caller must hold `resizeLock`.
      */
-    juce::String extractText (juce::Point<int> start, juce::Point<int> end) const;
+    juce::String extractText (juce::Point<int> start, juce::Point<int> end, int scrollOffset) const;
 
     /**
      * @brief Extracts a box (rectangle) selection of text as a UTF-32 string.
@@ -431,10 +432,11 @@ public:
      *                     Must already be normalised (min col/row of the selection).
      * @param bottomRight  Bottom-right corner of the rectangle (inclusive).
      *                     Must already be normalised (max col/row of the selection).
+     * @param scrollOffset Number of rows the viewport is scrolled back (0 = live view).
      * @return A `juce::String` containing the selected text.
      * @note MESSAGE THREAD — caller must hold `resizeLock`.
      */
-    juce::String extractBoxText (juce::Point<int> topLeft, juce::Point<int> bottomRight) const;
+    juce::String extractBoxText (juce::Point<int> topLeft, juce::Point<int> bottomRight, int scrollOffset) const;
 
     /** @name Scroll operations
      *  All scroll methods operate on the active screen buffer and are called

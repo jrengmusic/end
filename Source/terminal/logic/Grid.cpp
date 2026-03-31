@@ -712,12 +712,13 @@ static void appendCellText (const Cell& cell, const Grapheme* grapheme, juce::St
  * - Trailing whitespace is trimmed from each row.
  * - Rows are separated by `'\n'` except the last.
  *
- * @param start  Top-left corner of the selection (x = col, y = row).
- * @param end    Bottom-right corner of the selection (inclusive).
+ * @param start        Top-left corner of the selection (x = col, y = row).
+ * @param end          Bottom-right corner of the selection (inclusive).
+ * @param scrollOffset Number of rows the viewport is scrolled back (0 = live view).
  * @return A `juce::String` containing the selected text.
  * @note MESSAGE THREAD — caller must hold `resizeLock`.
  */
-juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end) const
+juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end, int scrollOffset) const
 {
     int startRow { start.y };
     int startCol { start.x };
@@ -739,7 +740,7 @@ juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end) co
 
     for (int row { startRow }; row <= endRow; ++row)
     {
-        const Cell* cells { activeVisibleRow (row) };
+        const Cell* cells { scrollbackRow (row, scrollOffset) };
 
         if (cells != nullptr)
         {
@@ -754,7 +755,8 @@ juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end) co
             for (int col { firstCol }; col <= lastCol; ++col)
             {
                 const Cell& cell { *(cells + col) };
-                const Grapheme* grapheme { cell.hasGrapheme() ? activeReadGrapheme (row, col) : nullptr };
+                const Grapheme* gRow { cell.hasGrapheme() ? scrollbackGraphemeRow (row, scrollOffset) : nullptr };
+                const Grapheme* grapheme { gRow != nullptr ? gRow + col : nullptr };
                 appendCellText (cell, grapheme, rowText);
             }
 
@@ -786,10 +788,11 @@ juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end) co
  *                     Must already be normalised (min col/row of the selection).
  * @param bottomRight  Bottom-right corner of the rectangle (inclusive).
  *                     Must already be normalised (max col/row of the selection).
+ * @param scrollOffset Number of rows the viewport is scrolled back (0 = live view).
  * @return A `juce::String` containing the selected text.
  * @note MESSAGE THREAD — caller must hold `resizeLock`.
  */
-juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bottomRight) const
+juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bottomRight, int scrollOffset) const
 {
     const int startRow { juce::jlimit (0, getVisibleRows() - 1, topLeft.y) };
     const int endRow   { juce::jlimit (0, getVisibleRows() - 1, bottomRight.y) };
@@ -800,7 +803,7 @@ juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bo
 
     for (int row { startRow }; row <= endRow; ++row)
     {
-        const Cell* cells { activeVisibleRow (row) };
+        const Cell* cells { scrollbackRow (row, scrollOffset) };
 
         if (cells != nullptr)
         {
@@ -809,7 +812,8 @@ juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bo
             for (int col { startCol }; col <= endCol; ++col)
             {
                 const Cell& cell { *(cells + col) };
-                const Grapheme* grapheme { cell.hasGrapheme() ? activeReadGrapheme (row, col) : nullptr };
+                const Grapheme* gRow { cell.hasGrapheme() ? scrollbackGraphemeRow (row, scrollOffset) : nullptr };
+                const Grapheme* grapheme { gRow != nullptr ? gRow + col : nullptr };
                 appendCellText (cell, grapheme, rowText);
             }
 
