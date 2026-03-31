@@ -294,7 +294,7 @@ void LookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
                 const auto* cfg { Config::getContext() };
                 const auto windowColour { cfg->getColour (Config::Key::windowColour) };
                 const auto menuOpacity { cfg->getFloat (Config::Key::menuOpacity) };
-                jreng::BackgroundBlur::apply (safeComponent.getComponent(),
+                jreng::BackgroundBlur::enable (safeComponent.getComponent(),
                                               cfg->getFloat (Config::Key::windowBlurRadius),
                                               windowColour.withAlpha (menuOpacity));
             }

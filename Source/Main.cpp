@@ -135,10 +135,22 @@ public:
             cfg->getBool (Config::Key::windowAlwaysOnTop),
             cfg->getBool (Config::Key::windowButtons)));
 
+#if JUCE_WINDOWS
+        {
+            const bool isGpu { cfg->getString (Config::Key::gpuAcceleration) != "false" };
+            mainWindow->setGlassEnabled (isGpu);
+        }
+#endif
+
         config.onReload = [this]
         {
             if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
+            {
                 content->applyConfig();
+
+                const bool isGpu { config.getString (Config::Key::gpuAcceleration) != "false" };
+                mainWindow->setGlassEnabled (isGpu);
+            }
         };
 
         whelmedConfig.onReload = [this]

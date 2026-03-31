@@ -2,11 +2,15 @@
  * @file jreng_glass_window.cpp
  * @brief Implementation of GlassWindow — glassmorphism DocumentWindow.
  *
- * @par Blur Deferral Strategy
- * The native peer (NSWindow) is not available at construction time.  JUCE
- * creates it lazily when the component first becomes visible.  By hooking
- * @c visibilityChanged() and posting an async update we guarantee that
- * @c getPeer() returns a valid pointer when BackgroundBlur::apply() is called.
+ * @par macOS
+ * Blur is deferred via AsyncUpdater because the window server requires
+ * the window to be fully presented before CoreGraphics blur APIs work.
+ * A one-shot guard (@c glassAppliedOnFirstShow) prevents re-triggering
+ * on subsequent visibility changes.
+ *
+ * @par Windows
+ * DWM glass is applied synchronously — the caller invokes
+ * @c setGlassEnabled() after construction.  No AsyncUpdater needed.
  *
  * @see jreng_glass_window.h
  * @see BackgroundBlur
@@ -17,26 +21,6 @@ namespace jreng
 {
 /*____________________________________________________________________________*/
 
-/**
- * @brief Constructs the glass window and makes it visible.
- *
- * Initialisation order:
- * 1. Base DocumentWindow constructed with native title bar and @p colour
- *    pre-multiplied by @p opacity.
- * 2. @c blurRadius and @c shouldShowWindowButtons stored for later use.
- * 3. Window configured: native title bar, content owned, always-on-top,
- *    non-opaque (required for blur transparency).
- * 4. Platform-specific sizing: full-screen on mobile, resizable on desktop.
- * 5. @c setVisible(true) triggers @c visibilityChanged() → async blur.
- *
- * @param mainComponent  Content component; ownership transferred.
- * @param name           Window title.
- * @param colour         Background colour (alpha overridden by @p opacity).
- * @param opacity        Window background alpha [0, 1].
- * @param blur           Blur radius forwarded to BackgroundBlur::apply().
- * @param alwaysOnTop    Float window above all others when @c true.
- * @param showWindowButtons  Hide traffic-light buttons when @c false.
- */
 GlassWindow::GlassWindow (juce::Component* mainComponent,
                           juce::String const& name,
                           juce::Colour colour,
@@ -44,14 +28,16 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
                           float blur,
                           bool alwaysOnTop,
                           bool showWindowButtons)
-    : juce::DocumentWindow (name, juce::Colours::transparentBlack,
 #if JUCE_WINDOWS
+    : juce::DocumentWindow (name, colour,
         showWindowButtons ? juce::DocumentWindow::allButtons : 0)
 #else
+    : juce::DocumentWindow (name, juce::Colours::transparentBlack,
         juce::DocumentWindow::allButtons)
 #endif
     , blurRadius (blur)
     , tintColour (colour.withAlpha (opacity))
+    , windowColour (colour)
     , shouldShowWindowButtons (showWindowButtons)
 {
 #if JUCE_WINDOWS
@@ -64,7 +50,11 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
 #else
     setUsingNativeTitleBar (true);
 #endif
+#if JUCE_WINDOWS
+    setOpaque (true);
+#else
     setOpaque (false);
+#endif
     setContentOwned (std::move (mainComponent), true);
     setAlwaysOnTop (alwaysOnTop);
 #if JUCE_IOS || JUCE_ANDROID
@@ -78,50 +68,57 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
     setVisible (true);
 }
 
-/**
- * @brief Forwards close-button press to the application quit mechanism.
- *
- * Calls juce::JUCEApplication::systemRequestedQuit() which dispatches
- * @c JUCEApplication::systemRequestedQuit() giving the app a chance to
- * cancel (e.g. unsaved-changes dialog).
- */
 void GlassWindow::closeButtonPressed() { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
 
-/**
- * @brief Schedules blur application on first visibility change.
- *
- * Guards with @c blurApplied so the async update is only triggered once.
- * Subsequent show/hide cycles are ignored.
- */
+// =============================================================================
+// Glass API
+// =============================================================================
+
+void GlassWindow::setGlassEnabled (bool enabled)
+{
+    if (enabled)
+    {
+        setOpaque (false);
+        setBackgroundColour (juce::Colours::transparentBlack);
+        BackgroundBlur::enable (this, blurRadius, tintColour);
+
+        if (not shouldShowWindowButtons)
+            BackgroundBlur::hideWindowButtons (this);
+    }
+    else
+    {
+        BackgroundBlur::disable (this);
+        setOpaque (true);
+        setBackgroundColour (windowColour);
+    }
+}
+
+// =============================================================================
+// macOS: deferred first-show blur
+// =============================================================================
+
+#if JUCE_MAC
+
 void GlassWindow::visibilityChanged()
 {
-    if (not blurApplied)
+    if (not isBlurApplied)
         triggerAsyncUpdate();
 }
 
-/**
- * @brief Applies blur (and optional button hiding) on the message thread.
- *
- * Execution flow:
- * 1. BackgroundBlur::apply() attempts CoreGraphics blur; falls back to
- *    NSVisualEffectView if unavailable.  Result stored in @c blurApplied.
- * 2. If blur succeeded and @c shouldShowWindowButtons is @c false, the
- *    native close/minimise/zoom buttons are hidden.
- * 3. Ensures the process is in the foreground so the window receives focus.
- *
- * @note Called automatically by JUCE's AsyncUpdater mechanism; never call
- *       directly.
- */
 void GlassWindow::handleAsyncUpdate()
 {
-    blurApplied = BackgroundBlur::apply (this, blurRadius, tintColour);
-
-    if (blurApplied and not shouldShowWindowButtons)
-        BackgroundBlur::hideWindowButtons (this);
+    isBlurApplied = true;
+    setGlassEnabled (true);
 
     if (not juce::Process::isForegroundProcess())
         juce::Process::makeForegroundProcess();
 }
+
+#endif
+
+// =============================================================================
+// Windows: meta-drag
+// =============================================================================
 
 #if JUCE_WINDOWS
 auto GlassWindow::findControlAtPoint (juce::Point<float> pt) const -> WindowControlKind

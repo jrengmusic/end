@@ -4,7 +4,7 @@
  *
  * @par Overview
  * GlassComponent is a thin wrapper around juce::Component that triggers a
- * fixed-radius (20 pt) background blur via BackgroundBlur::apply() the first
+ * fixed-radius (20 pt) background blur via BackgroundBlur::enable() the first
  * time the component becomes visible.  Blur application is deferred through
  * juce::AsyncUpdater to ensure the native peer exists before any platform
  * calls are made.
@@ -40,10 +40,10 @@ namespace jreng
  *
  * @par Platform Notes
  * The inner @c OS struct exposes @c makeGlass() only on macOS (@c JUCE_MAC).
- * On other platforms @c handleAsyncUpdate() calls BackgroundBlur::apply()
+ * On other platforms @c handleAsyncUpdate() calls BackgroundBlur::enable()
  * which is itself a no-op.
  *
- * @see BackgroundBlur::apply()
+ * @see BackgroundBlur::enable()
  */
 class GlassComponent : public juce::Component,
                        private juce::AsyncUpdater
@@ -71,12 +71,12 @@ public:
     /**
      * @brief Applies the background blur on the message thread.
      *
-     * Calls BackgroundBlur::apply() with a fixed radius of 20 pt.
+     * Calls BackgroundBlur::enable() with a fixed radius of 20 pt.
      *
      * @note Called automatically by JUCE's AsyncUpdater; do not invoke
      *       directly.
      *
-     * @see BackgroundBlur::apply()
+     * @see BackgroundBlur::enable()
      */
     void handleAsyncUpdate() override;
 
@@ -98,7 +98,7 @@ private:
         /**
          * @brief Applies a native macOS blur to @p component.
          *
-         * Delegates to BackgroundBlur::apply() with the given @p blurRadius.
+         * Delegates to BackgroundBlur::enable() with the given @p blurRadius.
          *
          * @param component   The JUCE component whose native window receives
          *                    the blur.  Must not be @c nullptr.

@@ -163,7 +163,7 @@ const bool BackgroundBlur::isCoreGraphicsAvailable()
  *         or the API is unavailable.
  */
 const bool
-BackgroundBlur::apply (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
+BackgroundBlur::enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
 {
     switch (type)
     {
@@ -341,7 +341,7 @@ const bool BackgroundBlur::enableWindowTransparency()
 /**
  * @brief Restores the window to opaque rendering.
  *
- * Reverses the effects of apply():
+ * Reverses the effects of enable():
  * 1. Sets blur radius to 0 via CGS private SPI (if available).
  * 2. Removes any NSVisualEffectView subview added by applyNSVisualEffect().
  * 3. Sets the window opaque with a solid background colour.
@@ -349,7 +349,7 @@ const bool BackgroundBlur::enableWindowTransparency()
  * @param component  JUCE component whose native NSWindow is restored.
  * @note MESSAGE THREAD.
  */
-void BackgroundBlur::disableWindowTransparency (juce::Component* component)
+void BackgroundBlur::disable (juce::Component* component)
 {
     NSWindow* window = nil;
 

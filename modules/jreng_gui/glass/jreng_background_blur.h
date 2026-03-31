@@ -19,15 +19,15 @@ struct BackgroundBlur
 #if JUCE_MAC
     static const bool isCoreGraphicsAvailable();
     static const bool
-    apply (juce::Component* component, float blurRadius, juce::Colour tint, Type type = Type::coreGraphics);
+    enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type = Type::coreGraphics);
     static const bool enableWindowTransparency();
-    static void disableWindowTransparency (juce::Component* component);
+    static void disable (juce::Component* component);
 #elif JUCE_WINDOWS
     static const bool isDwmAvailable();
     static const bool
-    apply (juce::Component* component, float blurRadius, juce::Colour tint, Type type = Type::dwmGlass);
+    enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type = Type::dwmGlass);
     static const bool enableWindowTransparency();
-    static void disableWindowTransparency (juce::Component* component);
+    static void disable (juce::Component* component);
 #endif
     static void setCloseCallback (std::function<void()> callback);
     static void hideWindowButtons (juce::Component* component);

@@ -110,27 +110,6 @@ void MainComponent::applyConfig()
 
     terminalLookAndFeel.setColours();
     sendLookAndFeelChange();
-
-    // Re-apply window appearance on every reload (colour, opacity, blur).
-    // GPU: native blur + transparent window. CPU: opaque, no blur.
-    // Deferred via callAsync — at construction time the component has no peer,
-    // and GlassWindow applies blur asynchronously via handleAsyncUpdate.
-    // The deferred call runs after both, ensuring the correct final state.
-    juce::MessageManager::callAsync (
-        [this]
-        {
-            if (getRendererType() == PaneComponent::RendererType::gpu)
-            {
-                jreng::BackgroundBlur::apply (this,
-                                              config.getFloat (Config::Key::windowBlurRadius),
-                                              config.getColour (Config::Key::windowColour)
-                                                  .withAlpha (config.getFloat (Config::Key::windowOpacity)));
-            }
-            else
-            {
-                jreng::BackgroundBlur::disableWindowTransparency (this);
-            }
-        });
 }
 
 void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)

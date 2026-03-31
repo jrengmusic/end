@@ -38,18 +38,18 @@ void GlassComponent::visibilityChanged()
 }
 
 /**
- * @brief Applies a 20 pt background blur via BackgroundBlur::apply().
+ * @brief Applies a 20 pt background blur via BackgroundBlur::enable().
  *
  * Runs on the JUCE message thread after @c triggerAsyncUpdate().  The fixed
  * radius of 20 pt matches the default glassmorphism aesthetic.  For a
  * configurable radius, use GlassWindow instead.
  *
- * @see BackgroundBlur::apply()
+ * @see BackgroundBlur::enable()
  * @see GlassWindow
  */
 void GlassComponent::handleAsyncUpdate()
 {
-    BackgroundBlur::apply (this, 20.0f, juce::Colours::transparentBlack);
+    BackgroundBlur::enable (this, 20.0f, juce::Colours::transparentBlack);
 }
 
 /**_____________________________END_OF_NAMESPACE______________________________*/

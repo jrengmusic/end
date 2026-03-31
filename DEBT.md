@@ -65,3 +65,39 @@
 - **`getTreeMode()` / `getTreeKeyboardFlags()` naming** — violates NAMING-CONVENTION Rule 2 (encodes "Tree" in name). Should be renamed to semantic names.
 - **`seq 1M` performance gap** — 2m33s vs Windows Terminal's 1m12s. Reader thread drain loop exits too early.
 - **`CursorComponent` missing `setInterceptsMouseClicks(false, false)`** — cursor cell swallows clicks.
+
+---
+
+### Font Fallback: Arrows Block (U+2190-U+21FF) Missing
+
+**Severity:** Medium
+**Found:** 2026-03-31 (whatdbg integration testing)
+**Reporter:** whatdbg COUNSELOR
+
+**Problem:**
+Unicode character U+2192 (RIGHTWARDS ARROW `→`) renders as blank in END's terminal. This character is used by nvim-dap as the `DapStopped` sign to indicate the current execution line during debugging. The sign is placed correctly by nvim-dap but is invisible because the glyph is missing.
+
+**Expected behavior:**
+When `DisplayMono` (primary font) does not contain a glyph, END should fall back to `SymbolsNerdFont-Regular.ttf` (bundled) or system fonts. The Arrows Unicode block (U+2190-U+21FF, 112 glyphs) should be covered by the fallback chain.
+
+**Reproduction:**
+1. In END terminal, run nvim with nvim-dap
+2. Set a breakpoint and trigger it
+3. The `DapStopped` sign (`→`) should appear in the gutter — it renders blank
+4. Alternative test: `echo -e '\u2192'` in terminal — should show `→`, shows blank
+
+**Workaround:**
+Replace `→` with ASCII `>>` in nvim-dap sign config (`dapui_config.lua`).
+
+**Investigation notes:**
+- `SymbolsNerdFont-Regular.ttf` is bundled in `Source/fonts/` — verify it contains the Arrows block
+- If it does, the font fallback lookup is not triggering for codepoints in U+2190-U+21FF
+- If it does not, the Arrows block needs to be added to the symbol font or a separate fallback font
+
+**Related codepoints that should be verified:**
+- U+2190 `←` LEFTWARDS ARROW
+- U+2191 `↑` UPWARDS ARROW
+- U+2192 `→` RIGHTWARDS ARROW
+- U+2193 `↓` DOWNWARDS ARROW
+- U+2194 `↔` LEFT RIGHT ARROW
+- U+2195 `↕` UP DOWN ARROW

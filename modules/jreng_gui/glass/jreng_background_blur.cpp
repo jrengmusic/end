@@ -68,7 +68,7 @@ const bool BackgroundBlur::isDwmAvailable()
     return true;
 }
 
-const bool BackgroundBlur::apply (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
+const bool BackgroundBlur::enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
 {
     switch (type)
     {
@@ -277,7 +277,7 @@ const bool BackgroundBlur::enableWindowTransparency()
  *
  * @note MESSAGE THREAD.
  */
-void BackgroundBlur::disableWindowTransparency (juce::Component* component)
+void BackgroundBlur::disable (juce::Component* component)
 {
     if (auto* peer { component->getPeer() })
     {
@@ -285,12 +285,38 @@ void BackgroundBlur::disableWindowTransparency (juce::Component* component)
 
         if (hwnd != nullptr)
         {
-            HWND root = GetAncestor (hwnd, GA_ROOT);
+            HWND root { GetAncestor (hwnd, GA_ROOT) };
 
             if (root != nullptr)
             {
+                // Reset DWM frame to default (no glass extension).
                 MARGINS margins { 0, 0, 0, 0 };
                 DwmExtendFrameIntoClientArea (root, &margins);
+
+                // Reset accent policy — removes acrylic/blur compositing.
+                auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
+                    GetProcAddress (GetModuleHandleW (L"user32.dll"),
+                        "SetWindowCompositionAttribute");
+
+                if (SetWindowCompositionAttribute != nullptr)
+                {
+                    ACCENT_POLICY accent {};
+                    accent.AccentState = ACCENT_DISABLED;
+
+                    WINDOWCOMPOSITIONATTRIBDATA data {};
+                    data.Attrib = WCA_ACCENT_POLICY;
+                    data.pvData = &accent;
+                    data.cbData = sizeof (accent);
+
+                    SetWindowCompositionAttribute (root, &data);
+                }
+
+                // Preserve rounded corners (Win11).
+                if (not isWindows10())
+                {
+                    DWORD cornerPref { 2 }; // DWMWCP_ROUND
+                    DwmSetWindowAttribute (root, 33, &cornerPref, sizeof (cornerPref));
+                }
             }
         }
     }

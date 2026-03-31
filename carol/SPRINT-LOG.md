@@ -15,6 +15,50 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 8: Fix CPU rendering on Windows, GlassWindow glass lifecycle
+
+**Date:** 2026-03-31
+
+### Agents Participated
+- COUNSELOR — root cause analysis (DWM timing race, incomplete accent reset, GlassWindow state model), plan, directed all execution
+- Pathfinder — traced full CPU/GPU rendering divergence path, viewport pipeline, DWM glass lifecycle, window opacity chain
+- Librarian — JUCE peer creation timing research (synchronous via addToDesktop, not lazy)
+- Engineer — GlassWindow rewrite (OS-divergent glass lifecycle), BackgroundBlur rename, disableWindowTransparency accent reset
+- Auditor — verified all new code against contracts (1 Critical pre-existing, 0 in new code)
+
+### Files Modified (10 total)
+- `modules/jreng_gui/glass/jreng_glass_window.h` — AsyncUpdater inheritance macOS-only (`#if JUCE_MAC`); removed `blurApplied`, added macOS-only `isBlurApplied` one-shot guard; added `windowColour` member; added `setGlassEnabled (bool)` public API; removed `visibilityChanged`/`handleAsyncUpdate` from Windows path
+- `modules/jreng_gui/glass/jreng_glass_window.cpp` — OS-divergent constructor: Windows starts opaque with real colour, macOS starts transparent; `setGlassEnabled(bool)` stateless instruction (enable/disable blur + opacity); macOS async first-show path preserved with one-shot guard; Windows meta-drag unchanged
+- `modules/jreng_gui/glass/jreng_background_blur.h` — `apply` → `enable`, `disableWindowTransparency` → `disable` (both platforms)
+- `modules/jreng_gui/glass/jreng_background_blur.cpp` — `disable()` now resets DWM accent policy to `ACCENT_DISABLED` via `SetWindowCompositionAttribute`; preserves Win11 rounded corners via `DwmSetWindowAttribute(DWMWCP_ROUND)`; definitions renamed
+- `modules/jreng_gui/glass/jreng_background_blur.mm` — definitions renamed `apply` → `enable`, `disableWindowTransparency` → `disable`; doc comments updated
+- `modules/jreng_gui/glass/jreng_glass_component.h` — doc comment references updated
+- `modules/jreng_gui/glass/jreng_glass_component.cpp` — call site renamed
+- `Source/Main.cpp` — Windows: calls `setGlassEnabled(isGpu)` synchronously after construction; config reload: calls `setGlassEnabled` on both platforms
+- `Source/MainComponent.cpp` — removed `BackgroundBlur::apply/disableWindowTransparency` from `applyConfig()` — glass is GlassWindow's concern, driven by Main.cpp
+- `Source/component/Popup.cpp` — call site renamed
+- `Source/component/LookAndFeel.cpp` — call site renamed
+
+### Alignment Check
+- [x] LIFESTAR principles followed — Lean (no state machine, `setGlassEnabled` is stateless instruction); Explicit Encapsulation (glass lifecycle owned by GlassWindow, MainComponent no longer pokes glass APIs); SSOT (`gpu_acceleration` config is single source for glass/renderer decisions)
+- [x] NAMING-CONVENTION.md adhered — `enable`/`disable` verb pair; `setGlassEnabled` is verb + adjective; `isBlurApplied` is boolean naming convention; `windowColour` is semantic
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied — no layer violations; module (jreng_gui) has no dependency on app layer (AppState); Main.cpp (app layer) drives glass state
+- [x] JRENG-CODING-STANDARD.md followed — zero early returns in new code, brace init, `not`/`and`/`or`, Allman braces
+
+### Problems Solved
+- **CPU rendering blank on Windows:** Root cause was DWM timing race — `handleAsyncUpdate` applied acrylic blur AFTER `disableWindowTransparency` cleanup ran (cleanup posted first, fired first, glass applied second with no further cleanup). Fix: Windows path is synchronous via `setGlassEnabled`, no async race.
+- **Incomplete DWM cleanup:** `disableWindowTransparency` only reset DWM margins, left `ACCENT_ENABLE_ACRYLICBLURBEHIND` accent policy active. Fix: `disable()` now resets accent to `ACCENT_DISABLED`.
+- **Window lost rounded corners in CPU mode:** `DwmSetWindowAttribute(DWMWCP_ROUND)` was only called inside `applyDwmGlass`. Fix: `disable()` also sets rounded corners on Win11.
+- **BackgroundBlur API naming:** `apply`/`disableWindowTransparency` asymmetric pair → `enable`/`disable` symmetric pair.
+- **Glass concern leaked into MainComponent:** `applyConfig()` directly called `BackgroundBlur::apply/disable`. Fix: glass lifecycle moved to GlassWindow, driven by Main.cpp via `setGlassEnabled`.
+
+### Technical Debt / Follow-up
+- `LookAndFeel.h` has CRLF→LF line ending changes in the diff (not intentional, git autocrlf artifact)
+- Hot reload on macOS: `config.onReload` calls `setGlassEnabled` which calls `BackgroundBlur::enable` — re-applies glass including potential duplicate `NSVisualEffectView`. `applyNSVisualEffect` is not idempotent (adds subview each call). Not a regression (same pre-existing behavior as old `apply` path).
+- Sprint 6 debt item resolved: "CPU rendering on Windows — grid is empty" — root cause was DWM glass, not grid dimensions
+
+---
+
 ## Sprint 7: Fix copy buffer scroll drift, modal exit on yank
 
 **Date:** 2026-03-31

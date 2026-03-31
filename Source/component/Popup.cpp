@@ -139,7 +139,7 @@ void Popup::Window::handleAsyncUpdate()
                            .withAlpha (config.getFloat (Config::Key::windowOpacity)) };
     const float blur { config.getFloat (Config::Key::windowBlurRadius) };
 
-    blurApplied = jreng::BackgroundBlur::apply (this, blur, tint);
+    blurApplied = jreng::BackgroundBlur::enable (this, blur, tint);
 }
 
 //==============================================================================
