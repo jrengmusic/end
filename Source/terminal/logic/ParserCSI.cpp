@@ -973,7 +973,6 @@ void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
         }
         else if (modeValue == 25)
         {
-            state.setMode (ID::cursorVisible, enable);
             state.setCursorVisible (scr, enable);
         }
         else if (modeValue == 47 or modeValue == 1047 or modeValue == 1049)

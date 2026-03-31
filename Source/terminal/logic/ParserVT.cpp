@@ -855,7 +855,7 @@ void Parser::resetModes() noexcept
     state.setMode (ID::mouseSgr, false);
     state.setMode (ID::focusEvents, false);
     state.setMode (ID::applicationKeypad, false);
-    state.setMode (ID::cursorVisible, true);
+    state.setCursorVisible (normal, true);
     state.setMode (ID::reverseVideo, false);
 
     state.resetKeyboardMode (normal);

@@ -208,7 +208,6 @@ State::State()
     addParam (modesNode, ID::mouseSgr, 0.0f);
     addParam (modesNode, ID::focusEvents, 0.0f);
     addParam (modesNode, ID::applicationKeypad, 0.0f);
-    addParam (modesNode, ID::cursorVisible, 1.0f);
     addParam (modesNode, ID::reverseVideo, 0.0f);
     addParam (modesNode, ID::win32InputMode, 0.0f);
     state.appendChild (modesNode, nullptr);

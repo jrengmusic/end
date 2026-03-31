@@ -15,6 +15,35 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 11: cursorVisible SSOT — remove MODES shadow
+
+**Date:** 2026-04-01
+
+### Agents Participated
+- COUNSELOR — identified dual-storage SSOT violation, directed fix, root cause analysis of crash (parameterMap.at() throws on missing key)
+- Pathfinder — exhaustive cursorVisible audit: all storage locations, all writers, all readers, full chain trace from CSI ?25h through atomic to ValueTree to snapshot
+
+### Files Modified (3 total)
+- `Source/terminal/data/State.cpp:211` — deleted `addParam (modesNode, ID::cursorVisible, 1.0f)` — removed MODES shadow PARAM
+- `Source/terminal/logic/ParserCSI.cpp:976` — deleted `state.setMode (ID::cursorVisible, enable)` — removed MODES write from DECTCEM ?25 handler; `setCursorVisible (scr, enable)` is the sole write
+- `Source/terminal/logic/ParserVT.cpp:858` — replaced `state.setMode (ID::cursorVisible, true)` with `state.setCursorVisible (normal, true)` in `resetModes()` — writes per-screen slot directly
+
+### Alignment Check
+- [x] LIFESTAR principles followed — SSOT (single per-screen storage, no shadow); Lean (removed dead storage)
+- [x] NAMING-CONVENTION.md adhered
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied — no state shadowing
+- [x] JRENG-CODING-STANDARD.md followed
+
+### Problems Solved
+- **cursorVisible dual storage:** `cursorVisible` existed in BOTH MODES subtree and per-screen (NORMAL/ALTERNATE) subtrees. `setCursorVisible` wrote per-screen, `setMode(ID::cursorVisible)` wrote MODES. `isCursorVisible()` read only per-screen. MODES slot was dead storage — written but never read. `resetModes()` wrote only MODES, leaving per-screen stale after soft-reset. Fix: removed MODES PARAM, all writes go through `setCursorVisible` (per-screen).
+- **Previous crash root cause identified:** removing the MODES PARAM without removing `setMode(ID::cursorVisible)` callers caused `parameterMap.at("MODES_cursorVisible")` to throw `std::out_of_range` on the reader thread — crash on first CSI ?25h from the shell.
+
+### Technical Debt / Follow-up
+- GPU availability probe deferred — `attachTo` on 1x1 throwaway component causes crash on some configurations. Needs further investigation into JUCE OpenGLContext lifecycle.
+- Check all other MODES params for similar shadow patterns — are any MODES values also stored per-screen with divergent read/write paths?
+
+---
+
 ## Sprint 10: Eliminate State atomic getters, rename getTreeMode/getKeyboardFlags
 
 **Date:** 2026-03-31
