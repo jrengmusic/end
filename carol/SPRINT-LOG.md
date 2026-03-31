@@ -15,6 +15,44 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 9: CSI 3J scrollback clear, lock unlocked grid reads
+
+**Date:** 2026-03-31
+
+### Agents Participated
+- COUNSELOR — root cause analysis (scrollback duplication via captured PTY logs, DWM timing race eliminated, ring buffer arithmetic verified, threading verified, CC escape sequence flow decoded), plan, directed all execution
+- Pathfinder — traced ring buffer architecture (head/scrollbackUsed/physicalRow), identified all unlocked `getScrollbackUsed()`/`scrollbackRow()`/`activeVisibleRow()` call sites (13 total across 4 files)
+- Librarian — compared scrollback implementations across kitty, WezTerm, Windows Terminal (data structures, CSI 2J behavior, thread safety patterns)
+- Researcher (×2) — researched Ink rendering patterns, CSI 22J adoption, alternate screen spec; decoded CC binary (`LcH` custom renderer, `clearTerminal` sequence: `CSI 2J + CSI 3J + CSI H`, offscreen detection trigger)
+- Oracle — brutal assessment of proposed State refactor (correctly killed the approach — head must stay with buffer for cell data consistency)
+- Engineer — CSI 3J implementation, ScopedLock wrapping for all unlocked call sites
+
+### Files Modified (7 total)
+- `Source/terminal/logic/ParserEdit.cpp:126-134` — separated CSI 2J (case 2) from CSI 3J (case 3); mode 3 now erases visible rows AND calls `grid.clearScrollback()` to reset `scrollbackUsed` to 0
+- `Source/terminal/logic/Grid.h:173` — added `clearScrollback() noexcept` declaration; added `getResizeLock() const noexcept` overload (line 136); marked `resizeLock` as `mutable` (line 689)
+- `Source/terminal/logic/Grid.cpp:96-99` — `clearScrollback()` implementation: resets `bufferForScreen().scrollbackUsed = 0`; added const overload of `getResizeLock()` (line 68)
+- `Source/component/TerminalComponent.cpp:304,777` — added `ScopedLock` to `enterSelectionMode()` and `setScrollOffsetClamped()`
+- `Source/component/InputHandler.cpp:82,171,410` — added `ScopedLock` to `handleScrollNav()`, `handleSelectionKey()` (covers lines 171 and 352), `setScrollOffsetClamped()`
+- `Source/component/MouseHandler.cpp:102,284` — added `ScopedLock` to `toAbsoluteRow()` and `handleDoubleClick()`
+- `Source/terminal/selection/LinkManager.cpp:scan(),scanForHints()` — added `ScopedLock` at entry points covering all `scanViewport()`/`buildPages()` grid reads
+
+### Alignment Check
+- [x] LIFESTAR principles followed — SSOT (scrollbackUsed written by reader thread, read under resizeLock by all consumers); Explicit Encapsulation (Grid::clearScrollback is a Grid instruction, Parser tells Grid what to do); Lean (minimal change — one new method, lock additions only)
+- [x] NAMING-CONVENTION.md adhered — `clearScrollback` is verb, consistent with `clearBuffer`
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied — no layer violations; mutable resizeLock is standard idiom for synchronization primitives in const contexts
+- [x] JRENG-CODING-STANDARD.md followed — zero early returns, brace init, `not`/`and`/`or`, Allman braces
+
+### Problems Solved
+- **Scrollback duplication with Claude Code:** CC's custom renderer sends `CSI 2J + CSI 3J + CSI H` during offscreen full resets to wipe scrollback before reprinting. END treated mode 3 identically to mode 2 (erase visible only), ignoring the scrollback clear. Old scrollback persisted, CC reprinted the same conversation, duplicate content appeared in scroll buffer. Confirmed via `script` capture: 3 occurrences of `[2J[3J` in session log matching the "couple of times" duplication observed. Fix: mode 3 now calls `grid.clearScrollback()`.
+- **Unlocked grid reads on message thread:** 13 call sites across TerminalComponent, InputHandler, MouseHandler, and LinkManager read `getScrollbackUsed()`, `scrollbackRow()`, or `activeVisibleRow()` without holding `resizeLock` — racing against the reader thread's `scrollUp()` writes. Fix: all call sites now acquire `ScopedLock` on `resizeLock`.
+
+### Technical Debt / Follow-up
+- Parser still holds `Grid&` directly (Explicit Encapsulation violation identified during investigation). Parser should not know Grid — discussed but deferred as a larger architectural refactor
+- `head` and `scrollbackUsed` remain as plain `int` in `Grid::Buffer` (not in State). Oracle assessment confirmed this is correct — head must be consistent with cell data under the same lock. Moving to State would split head from cells across time domains.
+- Sprint 6 debt item "CPU rendering on Windows" resolved in Sprint 8 (GlassWindow glass lifecycle)
+
+---
+
 ## Sprint 8: Fix CPU rendering on Windows, GlassWindow glass lifecycle
 
 **Date:** 2026-03-31

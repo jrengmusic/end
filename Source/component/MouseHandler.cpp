@@ -87,6 +87,8 @@ void MouseHandler::handleDown (const juce::MouseEvent& event)
 
 void MouseHandler::handleDoubleClick (const juce::MouseEvent& event)
 {
+    const juce::ScopedLock lock (session.getGrid().getResizeLock());
+
     if (shouldForwardToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
@@ -281,6 +283,7 @@ bool MouseHandler::shouldForwardToPty() const noexcept
 
 int MouseHandler::toAbsoluteRow (int visibleRow) const noexcept
 {
+    const juce::ScopedLock lock (session.getGrid().getResizeLock());
     const int scrollback { session.getGrid().getScrollbackUsed() };
     const int scrollOffset { session.getState().getScrollOffset() };
     return scrollback - scrollOffset + visibleRow;

@@ -298,6 +298,7 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
 
 void Terminal::Component::enterSelectionMode() noexcept
 {
+    const juce::ScopedLock lock (session.getGrid().getResizeLock());
     const auto activeScreen { session.getState().getActiveScreen() };
     const int screenCursorRow { session.getState().getCursorRow (activeScreen) };
     const int screenCursorCol { session.getState().getCursorCol (activeScreen) };
@@ -774,6 +775,7 @@ void Terminal::Component::switchRenderer (PaneComponent::RendererType type)
 
 void Terminal::Component::setScrollOffsetClamped (int newOffset) noexcept
 {
+    const juce::ScopedLock lock (session.getGrid().getResizeLock());
     const int maxOffset { session.getGrid().getScrollbackUsed() };
     const int current { session.getState().getScrollOffset() };
     const int clamped { juce::jlimit (0, maxOffset, newOffset) };

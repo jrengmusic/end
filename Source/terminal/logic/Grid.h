@@ -125,6 +125,17 @@ public:
     juce::CriticalSection& getResizeLock() noexcept;
 
     /**
+     * @brief Const overload of `getResizeLock()`.
+     *
+     * Allows read-only `const Grid&` holders (e.g. `LinkManager`) to acquire
+     * the resize lock without casting away const.
+     *
+     * @return Reference to the internal `juce::CriticalSection`.
+     * @note Lock-free getter — the lock itself is not acquired here.
+     */
+    juce::CriticalSection& getResizeLock() const noexcept;
+
+    /**
      * @brief Re-allocates both screen buffers to the new dimensions and reflows
      *        content on the normal screen.
      *
@@ -149,6 +160,17 @@ public:
      * @note READER THREAD — acquires `resizeLock`.
      */
     void clearBuffer();
+
+    /**
+     * @brief Resets the scrollback counter to zero without reallocating.
+     *
+     * Called by `CSI 3 J` (Erase Display mode 3) to discard scrollback
+     * history.  The ring buffer data is not cleared — only `scrollbackUsed`
+     * is reset so the message thread can no longer scroll back into it.
+     *
+     * @note READER THREAD only — called from Parser during VT processing.
+     */
+    void clearScrollback() noexcept;
 
     /**
      * @brief Returns the current column count.
@@ -664,7 +686,7 @@ private:
      * (`tty->onData`).  The MESSAGE THREAD acquires it during text extraction.
      * No other methods require the lock.
      */
-    juce::CriticalSection resizeLock;
+    mutable juce::CriticalSection resizeLock;
 
     /**
      * @brief Reference to the terminal parameter store.

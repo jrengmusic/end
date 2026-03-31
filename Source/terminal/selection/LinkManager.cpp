@@ -45,11 +45,13 @@ LinkManager::~LinkManager()
 
 void LinkManager::scan (const juce::String& cwd, bool outputRowsOnly)
 {
+    const juce::ScopedLock lock (grid.getResizeLock());
     clickableLinks = scanViewport (cwd, outputRowsOnly);
 }
 
 void LinkManager::scanForHints (const juce::String& cwd)
 {
+    const juce::ScopedLock lock (grid.getResizeLock());
     hintLinks = scanViewport (cwd, state.hasOutputBlock());
     buildPages();
     state.setHintPage (0);

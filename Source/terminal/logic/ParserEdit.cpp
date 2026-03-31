@@ -79,10 +79,12 @@ namespace Terminal
  * grid.eraseCellRange (row, 0, col);  // start of cursor row
  * @endcode
  *
- * @par Modes 2 and 3 — erase all
- * Both modes erase the entire visible screen (`eraseRowRange (0, visibleRows - 1)`).
- * Mode 3 additionally clears the scrollback buffer in xterm; this implementation
- * treats modes 2 and 3 identically (visible screen only).
+ * @par Mode 2 — erase all
+ * Erases the entire visible screen (`eraseRowRange (0, visibleRows - 1)`).
+ *
+ * @par Mode 3 — erase all + clear scrollback
+ * Erases the entire visible screen and resets the scrollback counter to zero
+ * via `Grid::clearScrollback()`, discarding scrollback history (xterm behaviour).
  *
  * @param mode  Erase mode (0 = below, 1 = above, 2 = all, 3 = scrollback).
  *              Unknown modes are silently ignored.
@@ -124,8 +126,12 @@ void Parser::eraseInDisplay (int mode) noexcept
             break;
 
         case 2:
+            grid.eraseRowRange (0, visibleRows - 1, fill);
+            break;
+
         case 3:
             grid.eraseRowRange (0, visibleRows - 1, fill);
+            grid.clearScrollback();
             break;
 
         default:

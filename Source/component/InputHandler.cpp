@@ -66,6 +66,7 @@ bool InputHandler::handleKey (const juce::KeyPress& key, bool isPopupTerminal) n
 void InputHandler::handleScrollNav (int code,
                                     std::function<void (int)> newOffsetFn) noexcept
 {
+    const juce::ScopedLock lock (session.getGrid().getResizeLock());
     const int page { session.getGrid().getVisibleRows() };
     const int current { session.getState().getScrollOffset() };
 
@@ -168,6 +169,7 @@ bool InputHandler::handleModalKey (const juce::KeyPress& key) noexcept
 
 bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
 {
+    const juce::ScopedLock lock (session.getGrid().getResizeLock());
     const int maxRow { session.getGrid().getVisibleRows() + session.getGrid().getScrollbackUsed() - 1 };
     const int maxCol { session.getGrid().getCols() - 1 };
 
@@ -407,6 +409,7 @@ bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
 
 void InputHandler::setScrollOffsetClamped (int newOffset) noexcept
 {
+    const juce::ScopedLock lock (session.getGrid().getResizeLock());
     const int maxOffset { session.getGrid().getScrollbackUsed() };
     const int current { session.getState().getScrollOffset() };
     const int clamped { juce::jlimit (0, maxOffset, newOffset) };

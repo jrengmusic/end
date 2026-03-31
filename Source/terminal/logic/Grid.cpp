@@ -65,6 +65,7 @@ Grid::Grid (State& initState)
  * @note Lock-free getter — the lock itself is not acquired here.
  */
 juce::CriticalSection& Grid::getResizeLock() noexcept { return resizeLock; }
+juce::CriticalSection& Grid::getResizeLock() const noexcept { return resizeLock; }
 
 /**
  * @brief Clears the active screen buffer and marks all rows dirty.
@@ -90,6 +91,11 @@ void Grid::clearBuffer()
     }
 
     markAllDirty();
+}
+
+void Grid::clearScrollback() noexcept
+{
+    bufferForScreen().scrollbackUsed = 0;
 }
 
 // ============================================================================
