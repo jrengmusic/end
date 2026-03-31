@@ -1143,8 +1143,21 @@ struct State : public juce::Timer
      */
     juce::Identifier modeKey (const juce::Identifier& property) const noexcept;
 
+    /**
+     * @brief Signals that the caller is about to read State values.
+     *
+     * Ensures all pending atomic writes from the reader thread are
+     * visible in the ValueTree before the caller proceeds.
+     * Call from `onVBlank` before reading cursor, selection, or
+     * any other State properties for rendering.
+     *
+     * @note MESSAGE THREAD only.
+     */
+    void refresh() noexcept;
+
 private:
     void timerCallback() override;
+    bool flush() noexcept;
 
     /**
      * @brief Root `SESSION` ValueTree — the Single Source of Truth for the UI.
@@ -1290,19 +1303,6 @@ private:
 
     /** @brief Cached terminal height in visible rows (MESSAGE THREAD). */
     juce::CachedValue<int> cachedVisibleRows;
-
-    /**
-     * @brief Copies all atomic parameter values into the ValueTree.
-     *
-     * Iterates `flushRootParams()` then `flushGroupParams()` for every group
-     * child of the root.  Returns `true` if at least one value was changed in
-     * the ValueTree (triggering listeners), `false` if all values were already
-     * up to date.
-     *
-     * @return `true` if the ValueTree was modified.
-     * @note MESSAGE THREAD — called from `timerCallback()` only.
-     */
-    bool flush() noexcept;
 
     /**
      * @brief Flushes PARAM children that are direct children of the root SESSION node.

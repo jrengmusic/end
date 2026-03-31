@@ -596,6 +596,8 @@ void Terminal::Component::onVBlank()
 
         if (lock.isLocked())
         {
+            session.getState().refresh();
+
             const int scrollback { session.getGrid().getScrollbackUsed() };
             const int scrollOffset { session.getState().getScrollOffset() };
             const int visibleStart { scrollback - scrollOffset };

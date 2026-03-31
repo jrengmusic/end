@@ -148,6 +148,11 @@ void State::flushGroupParams (juce::ValueTree& group) noexcept
  *         `false` if nothing had changed and the flush was skipped entirely.
  * @note MESSAGE THREAD — called from `timerCallback()` only.
  */
+void State::refresh() noexcept
+{
+    flush();
+}
+
 // MESSAGE THREAD
 bool State::flush() noexcept
 {
