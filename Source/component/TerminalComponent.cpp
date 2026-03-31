@@ -299,9 +299,8 @@ bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component
 void Terminal::Component::enterSelectionMode() noexcept
 {
     const juce::ScopedLock lock (session.getGrid().getResizeLock());
-    const auto activeScreen { session.getState().getActiveScreen() };
-    const int screenCursorRow { session.getState().getCursorRow (activeScreen) };
-    const int screenCursorCol { session.getState().getCursorCol (activeScreen) };
+    const int screenCursorRow { session.getState().getCursorRow() };
+    const int screenCursorCol { session.getState().getCursorCol() };
     const int scrollbackRows { session.getGrid().getScrollbackUsed() };
     const int absRow { scrollbackRows + screenCursorRow };
 

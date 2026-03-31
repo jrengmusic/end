@@ -15,6 +15,56 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 10: Eliminate State atomic getters, rename getTreeMode/getKeyboardFlags
+
+**Date:** 2026-03-31
+
+### Agents Participated
+- COUNSELOR — identified architectural violation (State exposing atomic reads as public API, bypassing ValueTree SSOT), directed elimination of all atomic getters, resolved getMode ODR collision
+- Pathfinder — exhaustive inventory of all 13 atomic getter methods, all call sites, thread ownership per caller, identified `getMode` duplicate declaration (ODR violation)
+- Oracle — brutal assessment of proposed head/scrollbackUsed-to-State refactor (killed it — head must stay with buffer for cell data consistency under resizeLock)
+- Engineer — eliminated all atomic getters, created ValueTree getters for cursor/shape/color, converted all Parser callers to getRawValue, converted Grid::bufferForScreen, renamed getTreeMode→getMode + getTreeKeyboardFlags→getKeyboardFlags
+
+### Files Modified (21 total)
+- `Source/terminal/data/State.h` — deleted 13 atomic getter declarations (getScreen, getMode atomic, getCursorRow/Col, isCursorVisible, isWrapPending, getScrollTop/Bottom, getCursorShape, getCursorColorR/G/B, getKeyboardFlags(screen)); added 7 ValueTree getters (getCursorRow/Col, isCursorVisible, getCursorShape, getCursorColorR/G/B); renamed getTreeMode→getMode, getTreeKeyboardFlags→getKeyboardFlags; made screenKey/modeKey/buildParamKey public
+- `Source/terminal/data/State.cpp` — deleted 13 atomic getter implementations; added getScreenParamInt/getScreenParamFloat helpers + 7 ValueTree getter implementations; deleted getTreeMode/getTreeKeyboardFlags implementations (replaced by renamed getMode/getKeyboardFlags)
+- `Source/terminal/logic/ParserVT.cpp` — all state.getScreen/getMode/getCursorRow/Col/isWrapPending/getScrollTop calls converted to getRawValue<T>(screenKey/modeKey)
+- `Source/terminal/logic/ParserCSI.cpp` — same conversions
+- `Source/terminal/logic/ParserEdit.cpp` — same conversions
+- `Source/terminal/logic/ParserESC.cpp` — same conversions
+- `Source/terminal/logic/ParserOps.cpp` — same conversions
+- `Source/terminal/logic/Parser.cpp` — same conversions
+- `Source/terminal/logic/Grid.cpp` — bufferForScreen() now uses getRawValue<ActiveScreen> for reader thread; added const overload of getResizeLock() for const Grid& holders
+- `Source/terminal/logic/GridReflow.cpp` — reflow() cursor reads converted to getRawValue
+- `Source/terminal/logic/GridScroll.cpp` — scrollUp() screen read converted to getRawValue
+- `Source/terminal/logic/Session.cpp` — getMode→getMode (ValueTree), getKeyboardFlags→getKeyboardFlags (ValueTree)
+- `Source/component/MouseHandler.cpp` — getMode→getMode (ValueTree), added ScopedLock to toAbsoluteRow + handleDoubleClick
+- `Source/component/TerminalComponent.cpp` — enterSelectionMode uses no-arg getCursorRow/Col; added ScopedLock
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — all cursor reads converted to no-arg ValueTree getters
+- `Source/terminal/rendering/ScreenRender.cpp` — previousCursorRow uses no-arg getCursorRow
+- `ARCHITECTURE.md` — getTreeKeyboardFlags references updated to getKeyboardFlags
+- `DEBT.md` — stale entries removed (CursorComponent, getTreeMode naming resolved), added Parser→Grid Explicit Encapsulation debt
+- `modules/jreng_gui/glass/jreng_glass_window.cpp` — reverted Windows constructor divergence (both platforms: transparentBlack + setOpaque(false))
+
+### Alignment Check
+- [x] LIFESTAR principles followed — SSOT (all getters now read ValueTree, atomics are write-only transport); Explicit Encapsulation (State no longer exposes atomic internals, tell-not-ask); Lean (getRawValue is the single raw accessor, APVTS pattern)
+- [x] NAMING-CONVENTION.md adhered — getMode (was getTreeMode, "Tree" was type encoding), getKeyboardFlags (was getTreeKeyboardFlags)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied — no layer violations; State atomic map is internal, never exposed; Parser uses getRawValue (APVTS pattern for reader thread)
+- [x] JRENG-CODING-STANDARD.md followed — zero early returns, brace init, `not`/`and`/`or`, Allman braces
+
+### Problems Solved
+- **State atomic getters violated SSOT:** 13 public methods read raw atomics, bypassing ValueTree. Message-thread callers (ScreenSnapshot, TerminalComponent, MouseHandler, Session) read pre-flush values instead of post-flush SSOT. Fix: all named getters now read ValueTree. Parser uses getRawValue<T> directly (APVTS pattern).
+- **getMode ODR violation:** Engineer's rename of getTreeMode→getMode created duplicate declaration (atomic at line 518, ValueTree at line 646). Both had identical signatures. Fix: deleted atomic version, kept ValueTree version as THE getMode.
+- **getTreeMode/getTreeKeyboardFlags naming:** "Tree" prefix encoded storage type (violated NAMING-CONVENTION Rule 2). Renamed to getMode/getKeyboardFlags after atomic versions were eliminated.
+- **GlassWindow white flash on Windows:** Sprint 8 made Windows constructor start opaque (setOpaque(true)), causing visible flash when setGlassEnabled switched to transparent. Fix: reverted to unified path — both platforms start setOpaque(false) + transparentBlack.
+
+### Technical Debt / Follow-up
+- GPU availability probe reverted — `attachTo` during MainComponent constructor causes side effects (flash, state corruption). Needs a different approach: probe timing must be after peer exists but before window visible, with no GL surface side effects.
+- Parser still holds Grid& directly (Explicit Encapsulation violation from Sprint 9). Grid::bufferForScreen uses getRawValue internally — acceptable compromise but not ideal per ARCHITECT's tell-not-ask principle.
+- `tickCursorBlink` in State.cpp still uses getRawValue internally (line 1076) — this is State reading its own atomics, acceptable.
+
+---
+
 ## Sprint 9: CSI 3J scrollback clear, lock unlocked grid reads
 
 **Date:** 2026-03-31
@@ -175,105 +225,4 @@
 - `setNativeSharedContext` WGL behaviour untested on Windows — popup GL confirmed on Mac only
 - CAROL SPRINT-LOG rotated: sprints 122-123 moved to git history
 
----
-
-## Sprint 5: Reflow truncation, pane fixes, Uuid rename
-
-**Date:** 2026-03-30
-
-### Agents Participated
-- COUNSELOR — root cause analysis for all three issues, directed execution
-- Pathfinder — pane close/resizer bar flow tracing, focusPane navigation tracing, Uuid identifier inventory
-- Engineer — all code changes (4 invocations: pinToBottom, non-wrapped truncation, orphaned resizer cleanup, focusPane visibility, Uuid rename)
-
-### Files Modified (13 total)
-- `Source/terminal/logic/GridReflow.cpp` — `pinToBottom` condition: bottom-align only when cursor was at last visible row; non-wrapped lines (`runLen == 1`) truncated to newCols instead of reflowed via `effectiveLen` cap in `countOutputRows`, cursor tracking, and `writeReflowedContent`
-- `Source/component/Panes.cpp` — orphaned resizer bar cleanup after `paneManager.remove()` (scan for detached split nodes); `focusPane()` visibility guards on both loops (skip hidden panes under Whelmed overlay)
-- `Source/AppIdentifier.h` — `activePaneUuid` renamed to `activePaneID`
-- `Source/AppState.h` — `getActivePaneUuid`/`setActivePaneUuid` renamed to `getActivePaneID`/`setActivePaneID`
-- `Source/AppState.cpp` — same renames in definitions + property references
-- `Source/component/PaneComponent.h` — `setActivePaneUuid` call renamed
-- `Source/component/Tabs.cpp` — all `*Uuid` calls/locals renamed to `*ID`
-- `Source/component/TerminalComponent.cpp` — `getActivePaneUuid` call renamed (juce::Uuid untouched)
-- `Source/config/Config.cpp` — renamed references
-- `Source/config/Config.h` — renamed references
-- `Source/config/default_end.lua` — renamed references
-- `modules/jreng_gui/layout/jreng_pane_manager.h` — `newUuid`/`nodeUuid` params renamed to `newID`/`nodeID`
-- `modules/jreng_gui/layout/jreng_pane_manager.cpp` — same renames
-
-### Alignment Check
-- [x] LIFESTAR principles followed — SSOT (pinToBottom uses actual cursor position), Lean (truncation simpler than full reflow for non-wrapped lines), Explicit Encapsulation (resizer bar cleanup checks own state via getParent)
-- [x] NAMING-CONVENTION.md adhered — `*Uuid` renamed to `*ID` (Rule 2: no type encoding; UUID is implementation detail, ID is semantic)
-- [x] ARCHITECTURAL-MANIFESTO.md principles applied
-- [x] JRENG-CODING-STANDARD.md followed — zero early returns, brace init, alternative tokens
-
-### Problems Solved
-- **Active prompt pinned to bottom on empty screen:** `pinToBottom = (cursorRow >= oldVisibleRows - 1)` — only bottom-aligns when cursor was at the last row of old viewport. Empty screen / sparse output keeps position.
-- **Columnar ls output mangled after split:** Non-wrapped lines (ended with newline, `runLen == 1`) now truncated to `newCols` instead of reflowed to multiple rows. Soft-wrapped lines still reflow correctly.
-- **Orphaned resizer bar after 3-pane close:** After `paneManager.remove()` restructures tree, orphaned bars (detached split node) are cleaned up in a second pass.
-- **Focus traversal skips Whelmed pane:** `focusPane()` now filters by `isVisible()` — hidden terminal under Whelmed overlay excluded from navigation.
-- **Uuid naming convention:** All user-defined `*Uuid` identifiers renamed to `*ID` across 9 files (41 occurrences).
-
-### Technical Debt / Follow-up
-- Non-wrapped line truncation loses characters beyond `newCols` permanently — acceptable for disposable output (ls), but long non-wrapped lines won't restore on re-widen
-- `activePaneID` property string change breaks existing state.xml on first launch (falls back to default, non-destructive)
-
----
-
-## Sprint 4: Comprehensive docs audit and debt cleanup
-
-**Date:** 2026-03-30
-
-### Agents Participated
-- COUNSELOR — directed audit scope and fix delegation
-- Auditor — comprehensive docs audit across 16 source files + ARCHITECTURE.md + SPEC.md + PLAN.md (17 findings: 8 High, 6 Medium, 3 Low)
-- Machinist — applied all doc fixes across 9 files, deleted PLAN.md
-- Engineer — fixed TTY.cpp contract violations (early returns, brace init, missing braces)
-- Pathfinder — TTY.cpp debt inventory, clearBuffer call site analysis
-
-### Files Modified (9 total)
-- `Source/terminal/data/State.h` — ValueTree structure diagram: removed PARAM lines for cols/visibleRows, added as direct SESSION properties; thread ownership table: dims reader column corrected to "Grid buffer (resizeLock)"; flushRootParams doc: removed cols/visibleRows from handled params
-- `Source/terminal/data/State.cpp` — constructor doc steps 1 and 4: cols/visibleRows described as CachedValue properties, not PARAMs
-- `Source/terminal/data/StateFlush.cpp` — removed cols/visibleRows from "Parameters handled here" list; changed "reader-thread API" to "reader-thread setters"; removed dims from flush() step 2 description
-- `Source/terminal/logic/Grid.h` — thread ownership table: split resize/clearBuffer into separate rows with correct threads; resizeLock docs updated for message-thread resize + reader-thread data processing; reflow @note corrected
-- `Source/terminal/logic/Grid.cpp` — constructor @note: READER THREAD to MESSAGE THREAD; initBuffer @note: documents both thread call sites
-- `Source/terminal/logic/Parser.h` — Parser::resize @note: READER THREAD to MESSAGE THREAD
-- `Source/terminal/logic/Parser.cpp` — Parser::resize @note: same fix
-- `Source/terminal/tty/TTY.cpp` — drainPty lambda: eliminated early return via isEof single return; brace init for n; all if bodies braced; main loop: break eliminated via shellDone predicate
-- `ARCHITECTURE.md` — resizeLock purpose: "Grid resize + data processing safety"; Grid Ring Buffer section: documents buffer-based dim accessors and message-thread resize
-- `PLAN.md` — deleted (Sprint 134 execution plan, fully implemented)
-
-### Alignment Check
-- [x] LIFESTAR principles followed — documentation now matches code reality (SSOT for docs)
-- [x] NAMING-CONVENTION.md adhered
-- [x] ARCHITECTURAL-MANIFESTO.md principles applied — Explicit thread annotations corrected
-- [x] JRENG-CODING-STANDARD.md followed — TTY.cpp now contract-compliant (zero early returns, brace init, braces on all if bodies)
-
-### Problems Solved
-- 8 High-severity stale thread annotations fixed (resize/reflow/Parser::resize all annotated as READER THREAD, now correctly MESSAGE THREAD)
-- ValueTree structure diagram in State.h showed cols/visibleRows as PARAM children (removed in Sprint 134)
-- flushRootParams docs claimed to handle cols/visibleRows (they no longer exist as PARAMs)
-- TTY.cpp contract violations: early return in drainPty, copy init, break in loop, missing braces
-- PLAN.md deleted to prevent confusion with completed plan
-
-### Technical Debt / Follow-up
-- None identified from this sprint
-
-
-### Alignment Check
-- [x] LIFESTAR principles followed — SSOT enforced, Explicit Encapsulation (objects manage own state via `isThreadRunning()`), Lean (removed 5 shadow stores)
-- [x] NAMING-CONVENTION.md adhered — `contentExtent`, `allocatedCols`, `allocatedVisibleRows` are semantic
-- [x] ARCHITECTURAL-MANIFESTO.md principles applied — no state shadowing, no manual boolean flags, no layer violations
-- [x] JRENG-CODING-STANDARD.md followed — zero early returns, brace init, `not`/`and`/`or`, `.at()`
-
-### Problems Solved
-- **Cursor off-by-1 after split close:** Content was top-aligned with empty space below. Fixed: `contentExtent` includes cursor row when past content; `head` positions content at bottom of viewport
-- **Text outside bounds after horizontal split:** Parser read new dims from State while grid buffer had old dims (race condition). Fixed: `grid.resize()` runs on message thread; parser acquires `resizeLock` per data chunk — zero transition window
-- **Prompt jumps to row 0 on split create:** Same race — parser cursor calculations used wrong dims during transition. Fixed by same resizeLock approach
-- **5 shadow stores for dims removed:** `Screen::numRows`, `TTY::pendingCols`/`pendingRows`/`resizePending`, `Session::ttyOpened`/`ttyOpenPending` — all eliminated
-- **Manual callbacks removed:** `tty->onResize`, `handleResize` lambda — replaced by direct `grid.resize()` call on message thread
-- **Dims migrated to CachedValue:** `cols`/`visibleRows` removed from atomic parameterMap; CachedValue provides instant ValueTree sync on message thread; reader thread reads from grid buffer under resizeLock
-
-### Technical Debt / Follow-up
-- `Grid::scrollbackCapacity` is still a member, not on State — immutable after construction
-- `clearBuffer()` doc says READER THREAD but may now be called from message thread contexts — verify all call sites
+<!-- Sprints 4-6 rotated to git history -->

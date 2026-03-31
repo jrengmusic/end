@@ -590,8 +590,7 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
         frameDirtyBits[word] |= bit;
     }
 
-    const ActiveScreen scr { state.getScreen() };
-    previousCursorRow = state.getCursorRow (scr);
+    previousCursorRow = state.getCursorRow();
 
     updateSnapshot (state, rows, maxGlyphsPerRow);
 }

@@ -276,9 +276,9 @@ void MouseHandler::handleWheel (const juce::MouseEvent& event,
 bool MouseHandler::shouldForwardToPty() const noexcept
 {
     const auto& st { session.getState() };
-    return st.getTreeMode (Terminal::ID::mouseTracking)
-        or st.getTreeMode (Terminal::ID::mouseMotionTracking)
-        or st.getTreeMode (Terminal::ID::mouseAllTracking);
+    return st.getMode (Terminal::ID::mouseTracking)
+        or st.getMode (Terminal::ID::mouseMotionTracking)
+        or st.getMode (Terminal::ID::mouseAllTracking);
 }
 
 int MouseHandler::toAbsoluteRow (int visibleRow) const noexcept

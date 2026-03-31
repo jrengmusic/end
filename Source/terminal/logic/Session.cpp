@@ -298,15 +298,15 @@ void Session::handleKeyPress (const juce::KeyPress& key)
     juce::String seq;
 
 #if JUCE_WINDOWS
-    if (state.getTreeMode (ID::win32InputMode))
+    if (state.getMode (ID::win32InputMode))
     {
         seq = Keyboard::encodeWin32Input (key);
     }
     else
 #endif
     {
-        const bool applicationCursor { state.getTreeMode (ID::applicationCursor) };
-        const uint32_t keyboardFlags { state.getTreeKeyboardFlags() };
+        const bool applicationCursor { state.getMode (ID::applicationCursor) };
+        const uint32_t keyboardFlags { state.getKeyboardFlags() };
         seq = Keyboard::map (key, applicationCursor, keyboardFlags);
     }
 
@@ -339,7 +339,7 @@ void Session::paste (const juce::String& text)
 {
     if (text.isNotEmpty() and tty != nullptr)
     {
-        const bool bracketed { state.getTreeMode (ID::bracketedPaste) };
+        const bool bracketed { state.getMode (ID::bracketedPaste) };
         const auto utf8 { text.toRawUTF8() };
         const int utf8Len { static_cast<int> (text.getNumBytesAsUTF8()) };
 
@@ -388,7 +388,7 @@ void Session::writeToPty (const char* data, int len)
 void Session::writeFocusEvent (bool gained) noexcept
 {
     // MESSAGE THREAD
-    if (state.getTreeMode (ID::focusEvents))
+    if (state.getMode (ID::focusEvents))
     {
         const char seq[3] { '\x1b', '[', gained ? 'I' : 'O' };
         tty->write (seq, 3);

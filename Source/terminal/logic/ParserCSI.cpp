@@ -213,7 +213,7 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
             const int ps { static_cast<int> (params.param (0, 0)) };
             if (ps == 0)
             {
-                clearTabStop (state.getScreen());
+                clearTabStop (state.getRawValue<ActiveScreen> (ID::activeScreen));
             }
             else if (ps == 3)
             {
@@ -239,7 +239,7 @@ void Parser::handleCursorStyle (const CSI& params) noexcept
 
     if (ps >= 0 and ps <= 6)
     {
-        state.setCursorShape (state.getScreen(), ps);
+        state.setCursorShape (state.getRawValue<ActiveScreen> (ID::activeScreen), ps);
     }
 }
 
@@ -269,7 +269,7 @@ void Parser::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_
 {
     if (interCount > 0)
     {
-        const auto scr { state.getScreen() };
+        const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
 
         if (inter[0] == '>')
         {
@@ -283,7 +283,7 @@ void Parser::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_
         }
         else if (inter[0] == '?')
         {
-            const auto flags { state.getKeyboardFlags (scr) };
+            const auto flags { state.getRawValue<int> (state.screenKey (scr, ID::keyboardFlags)) };
             char buf[32];
             std::snprintf (buf, sizeof (buf), "\x1b[?%uu", flags);
             sendResponse (buf);
@@ -320,7 +320,7 @@ void Parser::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_
  */
 void Parser::moveCursorUp (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     cursorMoveUp (scr, static_cast<int> (params.param (0, 1)));
 }
 
@@ -345,7 +345,7 @@ void Parser::moveCursorUp (const CSI& params) noexcept
  */
 void Parser::moveCursorDown (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     cursorMoveDown (scr, static_cast<int> (params.param (0, 1)), effectiveClampBottom (scr));
 }
 
@@ -368,7 +368,7 @@ void Parser::moveCursorDown (const CSI& params) noexcept
  */
 void Parser::moveCursorForward (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     cursorMoveForward (scr, static_cast<int> (params.param (0, 1)), grid.getCols());
 }
 
@@ -391,7 +391,7 @@ void Parser::moveCursorForward (const CSI& params) noexcept
  */
 void Parser::moveCursorBackward (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     cursorMoveBackward (scr, static_cast<int> (params.param (0, 1)));
 }
 
@@ -417,7 +417,7 @@ void Parser::moveCursorBackward (const CSI& params) noexcept
  */
 void Parser::moveCursorNextLine (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int count { static_cast<int> (params.param (0, 1)) };
     cursorMoveDown (scr, count, effectiveClampBottom (scr));
     state.setCursorCol (scr, 0);
@@ -442,7 +442,7 @@ void Parser::moveCursorNextLine (const CSI& params) noexcept
  */
 void Parser::moveCursorPrevLine (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int count { static_cast<int> (params.param (0, 1)) };
     cursorMoveUp (scr, count);
     state.setCursorCol (scr, 0);
@@ -469,7 +469,7 @@ void Parser::moveCursorPrevLine (const CSI& params) noexcept
  */
 void Parser::cursorForwardTab (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int cols { grid.getCols() };
     const int count { static_cast<int> (params.param (0, 1)) };
 
@@ -502,7 +502,7 @@ void Parser::cursorForwardTab (const CSI& params) noexcept
  */
 void Parser::cursorBackTab (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     for (int i { 0 }; i < count; ++i)
@@ -533,10 +533,10 @@ void Parser::cursorBackTab (const CSI& params) noexcept
  */
 void Parser::setCursorColumn (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     state.setCursorCol (scr, paramToIndex (params, 0, 1));
     state.setWrapPending (scr, false);
-    state.setCursorCol (scr, juce::jlimit (0, grid.getCols() - 1, state.getCursorCol (scr)));
+    state.setCursorCol (scr, juce::jlimit (0, grid.getCols() - 1, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol))));
 }
 
 /**
@@ -586,8 +586,8 @@ void Parser::setCursorPosition (const CSI& params) noexcept
  */
 void Parser::setCursorLine (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
-    moveCursorTo (paramToIndex (params, 0, 1), state.getCursorCol (scr));
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    moveCursorTo (paramToIndex (params, 0, 1), state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)));
 }
 
 /**
@@ -610,11 +610,11 @@ void Parser::setCursorLine (const CSI& params) noexcept
  */
 void Parser::moveCursorTo (int row, int col) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int cols { grid.getCols() };
     const int visibleRows { grid.getVisibleRows() };
 
-    if (state.getMode (ID::originMode))
+    if (state.getRawValue<bool> (state.modeKey (ID::originMode)))
     {
         cursorSetPositionInOrigin (scr, row, col, cols, visibleRows);
     }
@@ -650,14 +650,14 @@ void Parser::moveCursorTo (int row, int col) noexcept
  */
 void Parser::scrollUp (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int bottom { activeScrollBottom() };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     Cell fill {};
     fill.bg = stamp.bg;
 
-    grid.scrollRegionUp (state.getScrollTop (scr), bottom, count, fill);
+    grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), bottom, count, fill);
 }
 
 /**
@@ -680,14 +680,14 @@ void Parser::scrollUp (const CSI& params) noexcept
  */
 void Parser::scrollDown (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int bottom { activeScrollBottom() };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     Cell fill {};
     fill.bg = stamp.bg;
 
-    grid.scrollRegionDown (state.getScrollTop (scr), bottom, count, fill);
+    grid.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), bottom, count, fill);
 }
 
 /**
@@ -720,7 +720,7 @@ void Parser::scrollDown (const CSI& params) noexcept
  */
 void Parser::setScrollRegion (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int visibleRows { grid.getVisibleRows() };
     const int top { paramToIndex (params, 0, 1) };
     const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (visibleRows)) };
@@ -777,13 +777,13 @@ void Parser::setScrollRegion (const CSI& params) noexcept
  */
 void Parser::reportCursorPosition (const CSI& params) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const auto modeValue { params.param (0, 0) };
 
     if (modeValue == 6)
     {
         char buf[32];
-        std::snprintf (buf, sizeof (buf), "\x1b[%d;%dR", indexToParam (state.getCursorRow (scr)), indexToParam (state.getCursorCol (scr)));
+        std::snprintf (buf, sizeof (buf), "\x1b[%d;%dR", indexToParam (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))), indexToParam (state.getRawValue<int> (state.screenKey (scr, ID::cursorCol))));
         sendResponse (buf);
     }
     else if (modeValue == 5)
@@ -954,7 +954,7 @@ namespace
  */
 void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
 
     for (uint8_t i { 0 }; i < params.count; ++i)
     {

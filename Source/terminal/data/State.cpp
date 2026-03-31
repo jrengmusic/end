@@ -395,11 +395,6 @@ void State::setKeyboardMode (ActiveScreen s, uint32_t flags, int mode) noexcept
     storeAndFlush (screenKey (s, ID::keyboardFlags), static_cast<float> (top));
 }
 
-uint32_t State::getKeyboardFlags (ActiveScreen s) const noexcept
-{
-    return static_cast<uint32_t> (getRawValue<int> (screenKey (s, ID::keyboardFlags)));
-}
-
 void State::resetKeyboardMode (ActiveScreen s) noexcept
 {
     keyboardModeStackSize[static_cast<int> (s)] = 0;
@@ -753,17 +748,7 @@ bool State::consumeSyncResize() noexcept
     return getRawParam (ID::syncResizePending)->exchange (0.0f, std::memory_order_relaxed) != 0.0f;
 }
 
-// --- Reader thread getters (read from parameterMap) ---
-
-/**
- * @brief Returns the currently active screen buffer.
- *
- * Reads the atomic slot for `ID::activeScreen` via `getRawValue<ActiveScreen>`.
- *
- * @return `ActiveScreen::normal` or `ActiveScreen::alternate`.
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
- */
-ActiveScreen State::getScreen() const noexcept { return getRawValue<ActiveScreen> (ID::activeScreen); }
+// --- Message thread (read from ValueTree, the SSOT) ---
 
 /**
  * @brief Returns the current terminal column count.
@@ -778,91 +763,6 @@ int State::getCols() const noexcept { return cachedCols; }
  * @note MESSAGE THREAD — reads from CachedValue, noexcept.
  */
 int State::getVisibleRows() const noexcept { return cachedVisibleRows; }
-
-/**
- * @brief Returns the current value of a named terminal mode flag.
- *
- * The key is built via `modeKey (id)` which prepends `"MODES_"` to the
- * identifier string, matching the key format used by `setMode()`.
- *
- * @param id  A `Terminal::ID` mode identifier (e.g. `ID::autoWrap`).
- * @return `true` if the mode is enabled, `false` otherwise.
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
- */
-bool State::getMode (const juce::Identifier& id) const noexcept { return getRawValue<bool> (modeKey (id)); }
-
-/**
- * @brief Returns the cursor row for the specified screen buffer.
- * @param s  Target screen (`normal` or `alternate`).
- * @return Zero-based row index within the visible area.
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
- */
-int State::getCursorRow (ActiveScreen s) const noexcept { return getRawValue<int> (screenKey (s, ID::cursorRow)); }
-
-/**
- * @brief Returns the cursor column for the specified screen buffer.
- * @param s  Target screen (`normal` or `alternate`).
- * @return Zero-based column index.
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
- */
-int State::getCursorCol (ActiveScreen s) const noexcept { return getRawValue<int> (screenKey (s, ID::cursorCol)); }
-
-/**
- * @brief Returns whether the cursor is visible on the specified screen.
- * @param s  Target screen (`normal` or `alternate`).
- * @return `true` if the cursor is visible.
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
- */
-bool State::isCursorVisible (ActiveScreen s) const noexcept
-{
-    return getRawValue<bool> (screenKey (s, ID::cursorVisible));
-}
-
-/**
- * @brief Returns whether a wrap is pending on the specified screen.
- * @param s  Target screen (`normal` or `alternate`).
- * @return `true` if the next printable character will trigger a line wrap.
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
- */
-bool State::isWrapPending (ActiveScreen s) const noexcept { return getRawValue<bool> (screenKey (s, ID::wrapPending)); }
-
-/**
- * @brief Returns the top row of the scrolling region for the specified screen.
- * @param s  Target screen (`normal` or `alternate`).
- * @return Zero-based row index of the first scrolling row (DECSTBM top).
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
- */
-int State::getScrollTop (ActiveScreen s) const noexcept { return getRawValue<int> (screenKey (s, ID::scrollTop)); }
-
-/**
- * @brief Returns the bottom row of the scrolling region for the specified screen.
- * @param s  Target screen (`normal` or `alternate`).
- * @return Zero-based row index of the last scrolling row (DECSTBM bottom).
- * @note READER THREAD — `memory_order_relaxed` load, lock-free, noexcept.
- */
-int State::getScrollBottom (ActiveScreen s) const noexcept
-{
-    return getRawValue<int> (screenKey (s, ID::scrollBottom));
-}
-
-int State::getCursorShape (ActiveScreen s) const noexcept { return getRawValue<int> (screenKey (s, ID::cursorShape)); }
-
-float State::getCursorColorR (ActiveScreen s) const noexcept
-{
-    return getRawValue<float> (screenKey (s, ID::cursorColorR));
-}
-
-float State::getCursorColorG (ActiveScreen s) const noexcept
-{
-    return getRawValue<float> (screenKey (s, ID::cursorColorG));
-}
-
-float State::getCursorColorB (ActiveScreen s) const noexcept
-{
-    return getRawValue<float> (screenKey (s, ID::cursorColorB));
-}
-
-// --- Message thread (read from ValueTree, the SSOT) ---
 
 /**
  * @brief Returns the root SESSION ValueTree.
@@ -910,7 +810,7 @@ juce::Value State::getValue (const juce::Identifier& paramId)
  *         Returns `false` if the MODES node or the parameter is not found.
  * @note MESSAGE THREAD only.
  */
-bool State::getTreeMode (const juce::Identifier& id) const noexcept
+bool State::getMode (const juce::Identifier& id) const noexcept
 {
     auto modesNode { state.getChildWithName (ID::MODES) };
     auto param { jreng::ValueTree::getChildWithID (modesNode, id.toString()) };
@@ -959,7 +859,7 @@ ActiveScreen State::getActiveScreen() const noexcept
  * @return The active keyboard enhancement flags (0 = legacy mode).
  * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
  */
-uint32_t State::getTreeKeyboardFlags() const noexcept
+uint32_t State::getKeyboardFlags() const noexcept
 {
     const auto scr { getActiveScreen() };
     auto screenNode { state.getChildWithName (scr == normal ? ID::NORMAL : ID::ALTERNATE) };
@@ -972,6 +872,81 @@ uint32_t State::getTreeKeyboardFlags() const noexcept
     }
 
     return result;
+}
+
+// --- Per-screen ValueTree getters (MESSAGE THREAD, post-flush) ---
+
+/** @note Navigation pattern: get active screen → get screen node → find PARAM child → return value. */
+static int getScreenParamInt (const juce::ValueTree& root, const ActiveScreen scr,
+                               const juce::Identifier& paramId, int defaultValue = 0) noexcept
+{
+    auto screenNode { root.getChildWithName (scr == normal ? Terminal::ID::NORMAL : Terminal::ID::ALTERNATE) };
+    auto param { jreng::ValueTree::getChildWithID (screenNode, paramId.toString()) };
+    int result { defaultValue };
+
+    if (param.isValid())
+    {
+        result = static_cast<int> (param.getProperty (Terminal::ID::value));
+    }
+
+    return result;
+}
+
+static float getScreenParamFloat (const juce::ValueTree& root, const ActiveScreen scr,
+                                   const juce::Identifier& paramId, float defaultValue = 0.0f) noexcept
+{
+    auto screenNode { root.getChildWithName (scr == normal ? Terminal::ID::NORMAL : Terminal::ID::ALTERNATE) };
+    auto param { jreng::ValueTree::getChildWithID (screenNode, paramId.toString()) };
+    float result { defaultValue };
+
+    if (param.isValid())
+    {
+        result = static_cast<float> (static_cast<double> (param.getProperty (Terminal::ID::value)));
+    }
+
+    return result;
+}
+
+/** @note MESSAGE THREAD — reads cursor row for the active screen from ValueTree. */
+int State::getCursorRow() const noexcept
+{
+    return getScreenParamInt (state, getActiveScreen(), ID::cursorRow);
+}
+
+/** @note MESSAGE THREAD — reads cursor column for the active screen from ValueTree. */
+int State::getCursorCol() const noexcept
+{
+    return getScreenParamInt (state, getActiveScreen(), ID::cursorCol);
+}
+
+/** @note MESSAGE THREAD — reads cursor visibility for the active screen from ValueTree. */
+bool State::isCursorVisible() const noexcept
+{
+    return getScreenParamInt (state, getActiveScreen(), ID::cursorVisible, 1) != 0;
+}
+
+/** @note MESSAGE THREAD — reads cursor shape for the active screen from ValueTree. */
+int State::getCursorShape() const noexcept
+{
+    return getScreenParamInt (state, getActiveScreen(), ID::cursorShape);
+}
+
+/** @note MESSAGE THREAD — reads cursor colour red component for the active screen from ValueTree. */
+float State::getCursorColorR() const noexcept
+{
+    return getScreenParamFloat (state, getActiveScreen(), ID::cursorColorR, -1.0f);
+}
+
+/** @note MESSAGE THREAD — reads cursor colour green component for the active screen from ValueTree. */
+float State::getCursorColorG() const noexcept
+{
+    return getScreenParamFloat (state, getActiveScreen(), ID::cursorColorG, -1.0f);
+}
+
+/** @note MESSAGE THREAD — reads cursor colour blue component for the active screen from ValueTree. */
+float State::getCursorColorB() const noexcept
+{
+    return getScreenParamFloat (state, getActiveScreen(), ID::cursorColorB, -1.0f);
 }
 
 /**
@@ -1098,10 +1073,10 @@ void State::timerCallback()
  */
 void State::tickCursorBlink (int elapsedMs) noexcept
 {
-    const ActiveScreen scr { getScreen() };
-    const int row { getCursorRow (scr) };
-    const int col { getCursorCol (scr) };
-    const int shape { getCursorShape (scr) };
+    const ActiveScreen scr { getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int row { getRawValue<int> (screenKey (scr, ID::cursorRow)) };
+    const int col { getRawValue<int> (screenKey (scr, ID::cursorCol)) };
+    const int shape { getRawValue<int> (screenKey (scr, ID::cursorShape)) };
 
     const int prevRow { jreng::toInt (getRawParam (ID::prevFlushedCursorRow)->load (std::memory_order_relaxed)) };
     const int prevCol { jreng::toInt (getRawParam (ID::prevFlushedCursorCol)->load (std::memory_order_relaxed)) };

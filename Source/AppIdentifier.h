@@ -5,7 +5,7 @@
  * These identifiers define the schema for the application state tree:
  *
  *     END
- *     +-- WINDOW (width, height, zoom)
+ *     +-- WINDOW (width, height, zoom, renderer)
  *     +-- TABS (active, position, activePaneID)
  *         +-- TAB
  *             +-- PANES (direction, ratio)

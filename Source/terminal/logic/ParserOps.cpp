@@ -145,9 +145,9 @@ void Parser::resetCursor (int cols) noexcept
  */
 void Parser::cursorMoveUp (ActiveScreen s, int count) noexcept
 {
-    const int top { state.getScrollTop (s) };
+    const int top { state.getRawValue<int> (state.screenKey (s, ID::scrollTop)) };
     const int bottom { effectiveScrollBottom (s, grid.getVisibleRows()) };
-    const int row { state.getCursorRow (s) };
+    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
     const bool withinMargins { row >= top and row <= bottom };
     const int clampTop { withinMargins ? top : 0 };
     state.setCursorRow (s, juce::jmax (clampTop, row - count));
@@ -179,7 +179,7 @@ void Parser::cursorMoveUp (ActiveScreen s, int count) noexcept
  */
 void Parser::cursorMoveDown (ActiveScreen s, int count, int bottom) noexcept
 {
-    const int row { state.getCursorRow (s) };
+    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
     state.setCursorRow (s, juce::jmin (bottom, row + count));
     state.setWrapPending (s, false);
 }
@@ -206,7 +206,7 @@ void Parser::cursorMoveDown (ActiveScreen s, int count, int bottom) noexcept
  */
 void Parser::cursorMoveForward (ActiveScreen s, int count, int cols) noexcept
 {
-    const int col { state.getCursorCol (s) };
+    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
     state.setCursorCol (s, juce::jmin (cols - 1, col + count));
     state.setWrapPending (s, false);
 }
@@ -232,7 +232,7 @@ void Parser::cursorMoveForward (ActiveScreen s, int count, int cols) noexcept
  */
 void Parser::cursorMoveBackward (ActiveScreen s, int count) noexcept
 {
-    const int col { state.getCursorCol (s) };
+    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
     state.setCursorCol (s, juce::jmax (0, col - count));
     state.setWrapPending (s, false);
 }
@@ -296,7 +296,7 @@ void Parser::cursorSetPosition (ActiveScreen s, int row, int col, int cols, int 
  */
 void Parser::cursorSetPositionInOrigin (ActiveScreen s, int row, int col, int cols, int visibleRows) noexcept
 {
-    const int top { state.getScrollTop (s) };
+    const int top { state.getRawValue<int> (state.screenKey (s, ID::scrollTop)) };
     const int bottom { effectiveScrollBottom (s, visibleRows) };
     state.setCursorRow (s, juce::jlimit (top, bottom, row + top));
     state.setCursorCol (s, juce::jlimit (0, cols - 1, col));
@@ -332,7 +332,7 @@ void Parser::cursorSetPositionInOrigin (ActiveScreen s, int row, int col, int co
 bool Parser::cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) noexcept
 {
     state.setWrapPending (s, false);
-    const int row { state.getCursorRow (s) };
+    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
 
     if (row < bottom)
     {
@@ -372,8 +372,8 @@ bool Parser::cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) no
  */
 void Parser::cursorClamp (ActiveScreen s, int cols, int visibleRows) noexcept
 {
-    const int col { state.getCursorCol (s) };
-    const int row { state.getCursorRow (s) };
+    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
+    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
     state.setCursorCol (s, juce::jlimit (0, cols - 1, col));
     state.setCursorRow (s, juce::jlimit (0, visibleRows - 1, row));
 }
@@ -450,7 +450,7 @@ void Parser::cursorResetScrollRegion (ActiveScreen s) noexcept
  */
 int Parser::effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexcept
 {
-    const int sb { state.getScrollBottom (s) };
+    const int sb { state.getRawValue<int> (state.screenKey (s, ID::scrollBottom)) };
     return (sb > 0) ? sb : visibleRows - 1;
 }
 
@@ -473,8 +473,8 @@ int Parser::effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexce
  */
 int Parser::effectiveClampBottom (ActiveScreen s) const noexcept
 {
-    const int row { state.getCursorRow (s) };
-    const int top { state.getScrollTop (s) };
+    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
+    const int top { state.getRawValue<int> (state.screenKey (s, ID::scrollTop)) };
     const bool withinMargins { row >= top and row <= activeScrollBottom() };
     return withinMargins ? activeScrollBottom() : grid.getVisibleRows() - 1;
 }
@@ -557,7 +557,7 @@ void Parser::initializeTabStops (int numCols) noexcept
  */
 int Parser::nextTabStop (ActiveScreen s, int cols) noexcept
 {
-    int nextTab { state.getCursorCol (s) + 1 };
+    int nextTab { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) + 1 };
 
     while (nextTab < cols)
     {
@@ -599,7 +599,7 @@ int Parser::nextTabStop (ActiveScreen s, int cols) noexcept
  */
 int Parser::prevTabStop (ActiveScreen s) noexcept
 {
-    int prevTab { state.getCursorCol (s) - 1 };
+    int prevTab { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) - 1 };
 
     while (prevTab > 0)
     {
@@ -631,7 +631,7 @@ int Parser::prevTabStop (ActiveScreen s) noexcept
  */
 void Parser::setTabStop (ActiveScreen s) noexcept
 {
-    const int col { state.getCursorCol (s) };
+    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 1;
@@ -655,7 +655,7 @@ void Parser::setTabStop (ActiveScreen s) noexcept
  */
 void Parser::clearTabStop (ActiveScreen s) noexcept
 {
-    const int col { state.getCursorCol (s) };
+    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 0;

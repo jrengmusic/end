@@ -72,8 +72,6 @@ static constexpr float cursorColorNoOverride { -1.0f };
 template <typename Renderer>
 void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyphs) noexcept
 {
-    const ActiveScreen scr { state.getScreen() };
-
     auto& snapshot { resources.snapshotBuffer.getWriteBuffer() };
 
     int totalMono  { 0 };
@@ -161,13 +159,13 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
     }
     else
     {
-        snapshot.cursorPosition.x = state.getCursorCol (scr);
-        snapshot.cursorPosition.y = state.getCursorRow (scr);
-        snapshot.cursorVisible    = state.isCursorVisible (scr);
-        snapshot.cursorShape      = state.getCursorShape (scr);
-        snapshot.cursorColorR     = state.getCursorColorR (scr);
-        snapshot.cursorColorG     = state.getCursorColorG (scr);
-        snapshot.cursorColorB     = state.getCursorColorB (scr);
+        snapshot.cursorPosition.x = state.getCursorCol();
+        snapshot.cursorPosition.y = state.getCursorRow();
+        snapshot.cursorVisible    = state.isCursorVisible();
+        snapshot.cursorShape      = state.getCursorShape();
+        snapshot.cursorColorR     = state.getCursorColorR();
+        snapshot.cursorColorG     = state.getCursorColorG();
+        snapshot.cursorColorB     = state.getCursorColorB();
         snapshot.cursorBlinkOn    = state.isCursorBlinkOn();
         snapshot.scrollOffset     = state.getScrollOffset();
 

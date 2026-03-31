@@ -111,7 +111,7 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
-                grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
+                grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
             }
             break;
         }
@@ -123,7 +123,7 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
-                grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
+                grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
             }
             break;
 
@@ -133,15 +133,15 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
 
         case 'M':
         {
-            if (state.getCursorRow (scr) == state.getScrollTop (scr))
+            if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) == state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)))
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
-                grid.scrollRegionDown (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
+                grid.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
             }
-            else if (state.getCursorRow (scr) > 0)
+            else if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) > 0)
             {
-                state.setCursorRow (scr, state.getCursorRow (scr) - 1);
+                state.setCursorRow (scr, state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) - 1);
                 state.setWrapPending (scr, false);
             }
             break;
@@ -154,11 +154,11 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
         case '7':
         {
             auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-            sc.row = state.getCursorRow (scr);
-            sc.col = state.getCursorCol (scr);
+            sc.row = state.getRawValue<int> (state.screenKey (scr, ID::cursorRow));
+            sc.col = state.getRawValue<int> (state.screenKey (scr, ID::cursorCol));
             sc.pen = pen;
-            sc.wrapPending = state.isWrapPending (scr);
-            sc.originMode = state.getMode (ID::originMode);
+            sc.wrapPending = state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending));
+            sc.originMode = state.getRawValue<bool> (state.modeKey (ID::originMode));
             sc.lineDrawing = useLineDrawing;
             break;
         }
@@ -315,7 +315,7 @@ void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
  */
 void Parser::escDispatch (const uint8_t* inter, uint8_t interCount, uint8_t finalByte) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
 
     if (interCount == 0)
     {
@@ -694,7 +694,7 @@ void Parser::oscDispatch (const uint8_t* payload, uint16_t length) noexcept
                 case 9:     handleOscNotification (data, dataLength);            break;
                 case 12:    handleOscCursorColor (data, dataLength);             break;
                 case 52:    handleOscClipboard (data, dataLength);               break;
-                case 133:   handleOsc133 (state.getScreen(), data, dataLength);  break;
+                case 133:   handleOsc133 (state.getRawValue<ActiveScreen> (ID::activeScreen), data, dataLength);  break;
                 case 777:   handleOsc777 (data, dataLength);                     break;
                 default:    break;
             }
@@ -729,7 +729,7 @@ void Parser::handleOscCursorColor (const uint8_t* data, uint16_t dataLength) noe
                 const int gg { parts.getReference (1).length() > 2 ? (g >> 8) : g };
                 const int bb { parts.getReference (2).length() > 2 ? (b >> 8) : b };
 
-                state.setCursorColor (state.getScreen(),
+                state.setCursorColor (state.getRawValue<ActiveScreen> (ID::activeScreen),
                                       juce::jlimit (0, 255, rr),
                                       juce::jlimit (0, 255, gg),
                                       juce::jlimit (0, 255, bb));
@@ -738,7 +738,7 @@ void Parser::handleOscCursorColor (const uint8_t* data, uint16_t dataLength) noe
         else if (colorStr.startsWith ("#") and colorStr.length() >= 7)
         {
             const juce::Colour c { juce::Colour::fromString ("FF" + colorStr.substring (1, 7)) };
-            state.setCursorColor (state.getScreen(),
+            state.setCursorColor (state.getRawValue<ActiveScreen> (ID::activeScreen),
                                   c.getRed(), c.getGreen(), c.getBlue());
         }
     }
@@ -747,7 +747,7 @@ void Parser::handleOscCursorColor (const uint8_t* data, uint16_t dataLength) noe
 void Parser::handleOscResetCursorColor() noexcept
 {
     // READER THREAD
-    state.resetCursorColor (state.getScreen());
+    state.resetCursorColor (state.getRawValue<ActiveScreen> (ID::activeScreen));
 }
 
 /**
@@ -801,17 +801,17 @@ void Parser::handleOsc8 (const uint8_t* data, uint16_t dataLength) noexcept
                          static_cast<size_t> (len));
             activeOsc8Uri.buffer[len] = '\0';
 
-            const ActiveScreen scr { state.getScreen() };
-            osc8StartRow = grid.getScrollbackUsed() + state.getCursorRow (scr);
-            osc8StartCol = state.getCursorCol (scr);
+            const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+            osc8StartRow = grid.getScrollbackUsed() + state.getRawValue<int> (state.screenKey (scr, ID::cursorRow));
+            osc8StartCol = state.getRawValue<int> (state.screenKey (scr, ID::cursorCol));
         }
         else
         {
             // End of hyperlink — close the span if one was open and write to State
             if (activeOsc8Uri.buffer[0] != '\0' and osc8StartRow >= 0)
             {
-                const ActiveScreen scr { state.getScreen() };
-                const int endCol { state.getCursorCol (scr) };
+                const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+                const int endCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
                 // Derive a unique span key from start position: "row_startCol"
                 const juce::String spanKey { juce::String (osc8StartRow) + "_"
@@ -850,7 +850,7 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataL
 {
     if (dataLength >= 1)
     {
-        const int cursorRow { state.getCursorRow (scr) };
+        const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
         const int absoluteRow { grid.getScrollbackUsed() + cursorRow };
 
         switch (data[0])

@@ -262,11 +262,11 @@ namespace
 // READER THREAD — bulk ground-state: printable ASCII + LF/CR/BS
 size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int cols { grid.getCols() };
     const int visibleRows { grid.getVisibleRows() };
-    const bool autoWrap { state.getMode (ID::autoWrap) };
-    const int scrollTop { state.getScrollTop (scr) };
+    const bool autoWrap { state.getRawValue<bool> (state.modeKey (ID::autoWrap)) };
+    const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
     const int scrollBottomVal { activeScrollBottom() };
 
     Cell cellTemplate {};
@@ -278,8 +278,10 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
     Cell fill {};
     fill.bg = stamp.bg;
 
-    GroundCursor c { state.getCursorRow (scr), state.getCursorCol (scr),
-                     state.isWrapPending (scr), grid.directRowPtr (state.getCursorRow (scr)) };
+    GroundCursor c { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)),
+                     state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)),
+                     state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending)),
+                     grid.directRowPtr (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))) };
 
     uint64_t localDirty[4] { 0, 0, 0, 0 };
     size_t consumed { 0 };
@@ -361,17 +363,17 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
  */
 void Parser::resolveWrapPending (ActiveScreen scr) noexcept
 {
-    if (state.getMode (ID::autoWrap))
+    if (state.getRawValue<bool> (state.modeKey (ID::autoWrap)))
     {
-        grid.activeVisibleRowState (state.getCursorRow (scr)).setWrapped (true);
+        grid.activeVisibleRowState (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))).setWrapped (true);
 
-        const int row { state.getCursorRow (scr) };
+        const int row { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
 
         if (row == activeScrollBottom())
         {
             Cell fill {};
             fill.bg = stamp.bg;
-            grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
+            grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
         }
         else if (row > activeScrollBottom())
         {
@@ -435,7 +437,7 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
  */
 void Parser::print (uint32_t codepoint) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const auto props { charPropsFor (codepoint) };
     const auto segResult { graphemeSegmentationStep (graphemeState, props) };
 
@@ -443,10 +445,10 @@ void Parser::print (uint32_t codepoint) noexcept
 
     if (segResult.addToCurrentCell())
     {
-        const int curCol { state.getCursorCol (scr) };
-        const bool wrapping { state.isWrapPending (scr) };
+        const int curCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+        const bool wrapping { state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending)) };
         int prevCol { wrapping ? curCol : (curCol > 0 ? curCol - 1 : 0) };
-        const int row { state.getCursorRow (scr) };
+        const int row { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
 
         const Cell* rowCells { grid.activeVisibleRow (row) };
 
@@ -559,17 +561,17 @@ void Parser::print (uint32_t codepoint) noexcept
         const int cellWidth { rawWidth < 1 ? 1 : rawWidth };
         const int cols { grid.getCols() };
 
-        if (state.isWrapPending (scr))
+        if (state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending)))
         {
             resolveWrapPending (scr);
         }
 
-        const int row { state.getCursorRow (scr) };
-        const int col { state.getCursorCol (scr) };
+        const int row { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+        const int col { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
         if (cellWidth == 2 and col + 2 > cols)
         {
-            if (state.getMode (ID::autoWrap))
+            if (state.getRawValue<bool> (state.modeKey (ID::autoWrap)))
             {
                 grid.activeVisibleRowState (row).setWrapped (true);
 
@@ -577,7 +579,7 @@ void Parser::print (uint32_t codepoint) noexcept
                 {
                     Cell fill {};
                     fill.bg = stamp.bg;
-                    grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
+                    grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
                 }
                 else if (row > activeScrollBottom())
                 {
@@ -593,8 +595,8 @@ void Parser::print (uint32_t codepoint) noexcept
             }
         }
 
-        const int writeRow { state.getCursorRow (scr) };
-        const int writeCol { state.getCursorCol (scr) };
+        const int writeRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+        const int writeCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
         Cell cell {};
         cell.codepoint = translateCharset (codepoint, useLineDrawing);
@@ -665,10 +667,10 @@ void Parser::executeLineFeed (ActiveScreen scr) noexcept
     {
         Cell fill {};
         fill.bg = stamp.bg;
-        grid.scrollRegionUp (state.getScrollTop (scr), activeScrollBottom(), 1, fill);
+        grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
     }
 
-    state.extendOutputBlock (grid.getScrollbackUsed() + state.getCursorRow (scr));
+    state.extendOutputBlock (grid.getScrollbackUsed() + state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)));
 }
 
 /**
@@ -702,7 +704,7 @@ void Parser::executeLineFeed (ActiveScreen scr) noexcept
  */
 void Parser::execute (uint8_t controlByte) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int cols { grid.getCols() };
 
     switch (controlByte)
@@ -713,9 +715,9 @@ void Parser::execute (uint8_t controlByte) noexcept
             break;
 
         case 0x08:
-            if (state.getCursorCol (scr) > 0)
+            if (state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) > 0)
             {
-                state.setCursorCol (scr, state.getCursorCol (scr) - 1);
+                state.setCursorCol (scr, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) - 1);
                 state.setWrapPending (scr, false);
             }
             break;

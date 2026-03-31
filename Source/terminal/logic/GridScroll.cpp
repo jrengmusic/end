@@ -17,7 +17,7 @@ namespace Terminal
 
 void Grid::scrollUp (int count, const Cell& fill) noexcept
 {
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (Terminal::ID::activeScreen) };
     Buffer& buffer { bufferForScreen() };
 
     for (int i { 0 }; i < count; ++i)

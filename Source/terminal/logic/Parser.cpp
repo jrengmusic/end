@@ -219,7 +219,7 @@ void Parser::calc() noexcept
  */
 int Parser::activeScrollBottom() const noexcept
 {
-    return effectiveScrollBottom (state.getScreen(), grid.getVisibleRows());
+    return effectiveScrollBottom (state.getRawValue<ActiveScreen> (ID::activeScreen), grid.getVisibleRows());
 }
 
 // ============================================================================

@@ -17,7 +17,7 @@
  *   equivalent of `flushParameterValuesToValueTree()` in APVTS.
  *
  * - **Message thread** (UI / component code) reads exclusively from the
- *   ValueTree via `get()`, `getValue()`, and `getTreeMode()`.  It may also
+ *   ValueTree via `get()`, `getValue()`, and `getMode()`.  It may also
  *   write `scrollOffset` directly because that parameter is owned by the UI
  *   and never touched by the reader thread.
  *
@@ -193,7 +193,7 @@ enum class ModalType : uint8_t
  * ## Key invariants
  * - `set*()` methods: callable from ANY thread, lock-free, noexcept.
  * - `get*()` atomic getters: callable from ANY thread, lock-free, noexcept.
- * - `get()`, `getValue()`, `getTreeMode()`: MESSAGE THREAD only.
+ * - `get()`, `getValue()`, `getMode()`: MESSAGE THREAD only.
  * - `timerCallback()`: MESSAGE THREAD only (called by juce::Timer).
  * - `flush()` and its helpers: MESSAGE THREAD only (called from timerCallback).
  *
@@ -373,17 +373,6 @@ struct State : public juce::Timer
     void setKeyboardMode (ActiveScreen s, uint32_t flags, int mode) noexcept;
 
     /**
-     * @brief Returns the current keyboard flags for the specified screen.
-     *
-     * Reads the atomic slot directly — safe from any thread.
-     *
-     * @param s  Target screen (`normal` or `alternate`).
-     * @return The active keyboard enhancement flags (0 = legacy mode).
-     * @note ANY THREAD — lock-free, noexcept.
-     */
-    uint32_t getKeyboardFlags (ActiveScreen s) const noexcept;
-
-    /**
      * @brief Resets the keyboard mode stack for the specified screen.
      *
      * Clears the stack and flushes 0 to the atomic slot. Called during
@@ -466,29 +455,20 @@ struct State : public juce::Timer
     /** @} */
 
     // =========================================================================
-    /** @name Reader-thread getters
-     *  Read directly from `std::atomic<float>` slots — equivalent to calling
-     *  `getRawParameterValue()` in APVTS.  Safe to call from any thread.
-     *  Return the most recently stored value without waiting for a flush.
+    /** @name Message-thread ValueTree getters for active-screen cursor state
+     *  These getters determine the active screen internally from the ValueTree
+     *  and return post-flush values.  MESSAGE THREAD only.
      * @{ */
-
-    /**
-     * @brief Returns the currently active screen buffer.
-     * @return `ActiveScreen::normal` or `ActiveScreen::alternate`.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    ActiveScreen getScreen() const noexcept;
 
     /**
      * @brief Returns the currently active screen buffer from the ValueTree
      *        (post-flush value).
      *
-     * Reads the `activeScreen` PARAM child of the root SESSION node.  Unlike
-     * `getScreen()`, which reads the atomic directly, this method reflects the
-     * state as of the last timer flush and is therefore consistent with all
-     * other ValueTree properties.  Use this inside message-thread code (UI
-     * components, ValueTree listeners, mouse/keyboard handlers) where
-     * consistency with the rest of the flushed state matters.
+     * Reads the `activeScreen` PARAM child of the root SESSION node.  This
+     * method reflects the state as of the last timer flush and is therefore
+     * consistent with all other ValueTree properties.  Use this inside
+     * message-thread code (UI components, ValueTree listeners, mouse/keyboard
+     * handlers) where consistency with the rest of the flushed state matters.
      *
      * @return `ActiveScreen::normal` or `ActiveScreen::alternate`.
      * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
@@ -508,94 +488,6 @@ struct State : public juce::Timer
      * @note MESSAGE THREAD — reads from CachedValue, noexcept.
      */
     int getVisibleRows() const noexcept;
-
-    /**
-     * @brief Returns the current value of a named terminal mode flag.
-     * @param id  A `Terminal::ID` mode identifier (e.g. `ID::autoWrap`).
-     * @return `true` if the mode is enabled, `false` otherwise.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    bool getMode (const juce::Identifier& id) const noexcept;
-
-    /**
-     * @brief Returns the cursor row for the specified screen buffer.
-     * @param s  Target screen (`normal` or `alternate`).
-     * @return Zero-based row index.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    int getCursorRow (ActiveScreen s) const noexcept;
-
-    /**
-     * @brief Returns the cursor column for the specified screen buffer.
-     * @param s  Target screen (`normal` or `alternate`).
-     * @return Zero-based column index.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    int getCursorCol (ActiveScreen s) const noexcept;
-
-    /**
-     * @brief Returns whether the cursor is visible on the specified screen.
-     * @param s  Target screen (`normal` or `alternate`).
-     * @return `true` if the cursor is visible.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    bool isCursorVisible (ActiveScreen s) const noexcept;
-
-    /**
-     * @brief Returns whether a wrap is pending on the specified screen.
-     * @param s  Target screen (`normal` or `alternate`).
-     * @return `true` if the next printable character will trigger a line wrap.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    bool isWrapPending (ActiveScreen s) const noexcept;
-
-    /**
-     * @brief Returns the top row of the scrolling region for the specified screen.
-     * @param s  Target screen (`normal` or `alternate`).
-     * @return Zero-based row index of the first scrolling row.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    int getScrollTop (ActiveScreen s) const noexcept;
-
-    /**
-     * @brief Returns the bottom row of the scrolling region for the specified screen.
-     * @param s  Target screen (`normal` or `alternate`).
-     * @return Zero-based row index of the last scrolling row.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    int getScrollBottom (ActiveScreen s) const noexcept;
-
-    /**
-     * @brief Returns the DECSCUSR cursor shape for the specified screen.
-     * @param s  Target screen.
-     * @return DECSCUSR Ps value (0-6).
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    int getCursorShape (ActiveScreen s) const noexcept;
-
-    /**
-     * @brief Returns the OSC 12 cursor colour red component for the specified screen.
-     * @param s  Target screen.
-     * @return Red value 0–255, or -1 if no override is active.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    float getCursorColorR (ActiveScreen s) const noexcept;
-
-    /**
-     * @brief Returns the OSC 12 cursor colour green component for the specified screen.
-     * @param s  Target screen.
-     * @return Green value 0–255, or -1 if no override is active.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    float getCursorColorG (ActiveScreen s) const noexcept;
-
-    /**
-     * @brief Returns the OSC 12 cursor colour blue component for the specified screen.
-     * @param s  Target screen.
-     * @return Blue value 0–255, or -1 if no override is active.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    float getCursorColorB (ActiveScreen s) const noexcept;
 
     /** @} */
 
@@ -643,19 +535,40 @@ struct State : public juce::Timer
      * @return `true` if the mode is enabled in the ValueTree.
      * @note MESSAGE THREAD only.
      */
-    bool getTreeMode (const juce::Identifier& id) const noexcept;
+    bool getMode (const juce::Identifier& id) const noexcept;
 
     /**
      * @brief Reads the kitty keyboard flags from the ValueTree (post-flush value).
      *
-     * Determines the active screen via `getScreen()`, navigates to the
+     * Determines the active screen via `getActiveScreen()`, navigates to the
      * corresponding screen child node (`NORMAL` or `ALTERNATE`), and reads
      * the `keyboardFlags` parameter.
      *
      * @return The active keyboard enhancement flags (0 = legacy mode).
      * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
      */
-    uint32_t getTreeKeyboardFlags() const noexcept;
+    uint32_t getKeyboardFlags() const noexcept;
+
+    /** @brief Returns the cursor row for the active screen (post-flush). MESSAGE THREAD. */
+    int getCursorRow() const noexcept;
+
+    /** @brief Returns the cursor column for the active screen (post-flush). MESSAGE THREAD. */
+    int getCursorCol() const noexcept;
+
+    /** @brief Returns cursor visibility for the active screen (post-flush). MESSAGE THREAD. */
+    bool isCursorVisible() const noexcept;
+
+    /** @brief Returns the cursor shape for the active screen (post-flush). MESSAGE THREAD. */
+    int getCursorShape() const noexcept;
+
+    /** @brief Returns the cursor colour red component for the active screen (post-flush). MESSAGE THREAD. */
+    float getCursorColorR() const noexcept;
+
+    /** @brief Returns the cursor colour green component for the active screen (post-flush). MESSAGE THREAD. */
+    float getCursorColorG() const noexcept;
+
+    /** @brief Returns the cursor colour blue component for the active screen (post-flush). MESSAGE THREAD. */
+    float getCursorColorB() const noexcept;
 
     /**
      * @brief Sets the vertical scroll offset (UI-owned parameter).
@@ -1206,6 +1119,30 @@ struct State : public juce::Timer
      */
     static juce::Identifier buildParamKey (const juce::Identifier& parentType, const juce::String& paramId) noexcept;
 
+    /**
+     * @brief Builds the compound key for a per-screen parameter.
+     *
+     * Delegates to `buildParamKey (screenId, property)` where `screenId` is
+     * `ID::NORMAL` or `ID::ALTERNATE` depending on `s`.
+     *
+     * @param s         Target screen buffer.
+     * @param property  Per-screen parameter name (e.g. `ID::cursorRow`).
+     * @return Compound key suitable for `parameterMap` lookup.
+     * @note Pure function — noexcept.
+     */
+    juce::Identifier screenKey (ActiveScreen s, const juce::Identifier& property) const noexcept;
+
+    /**
+     * @brief Builds the compound key for a mode parameter.
+     *
+     * Delegates to `buildParamKey (ID::MODES, property)`.
+     *
+     * @param property  Mode parameter name (e.g. `ID::autoWrap`).
+     * @return Compound key suitable for `parameterMap` lookup.
+     * @note Pure function — noexcept.
+     */
+    juce::Identifier modeKey (const juce::Identifier& property) const noexcept;
+
 private:
     void timerCallback() override;
 
@@ -1276,30 +1213,6 @@ private:
      * @note READER THREAD — lock-free, noexcept.
      */
     void storeAndFlush (const juce::Identifier& key, float value) noexcept;
-
-    /**
-     * @brief Builds the compound key for a per-screen parameter.
-     *
-     * Delegates to `buildParamKey (screenId, property)` where `screenId` is
-     * `ID::NORMAL` or `ID::ALTERNATE` depending on `s`.
-     *
-     * @param s         Target screen buffer.
-     * @param property  Per-screen parameter name (e.g. `ID::cursorRow`).
-     * @return Compound key suitable for `parameterMap` lookup.
-     * @note Pure function — noexcept.
-     */
-    juce::Identifier screenKey (ActiveScreen s, const juce::Identifier& property) const noexcept;
-
-    /**
-     * @brief Builds the compound key for a mode parameter.
-     *
-     * Delegates to `buildParamKey (ID::MODES, property)`.
-     *
-     * @param property  Mode parameter name (e.g. `ID::autoWrap`).
-     * @return Compound key suitable for `parameterMap` lookup.
-     * @note Pure function — noexcept.
-     */
-    juce::Identifier modeKey (const juce::Identifier& property) const noexcept;
 
     /**
      * @brief Maximum depth of the per-screen keyboard mode stack.

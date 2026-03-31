@@ -28,11 +28,10 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
                           float blur,
                           bool alwaysOnTop,
                           bool showWindowButtons)
+    : juce::DocumentWindow (name, juce::Colours::transparentBlack,
 #if JUCE_WINDOWS
-    : juce::DocumentWindow (name, colour,
         showWindowButtons ? juce::DocumentWindow::allButtons : 0)
 #else
-    : juce::DocumentWindow (name, juce::Colours::transparentBlack,
         juce::DocumentWindow::allButtons)
 #endif
     , blurRadius (blur)
@@ -50,11 +49,7 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
 #else
     setUsingNativeTitleBar (true);
 #endif
-#if JUCE_WINDOWS
-    setOpaque (true);
-#else
     setOpaque (false);
-#endif
     setContentOwned (std::move (mainComponent), true);
     setAlwaysOnTop (alwaysOnTop);
 #if JUCE_IOS || JUCE_ANDROID

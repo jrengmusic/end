@@ -513,12 +513,12 @@ Per-screen stacks (normal/alternate) with max depth 16. Stacks cleared on RIS (`
 
 `keyboardFlags` is a per-screen parameter in the APVTS pattern:
 - **Reader thread:** `State::getKeyboardFlags(screen)` reads the atomic.
-- **Message thread:** `State::getTreeKeyboardFlags()` reads the ValueTree (post-flush).
+- **Message thread:** `State::getKeyboardFlags()` reads the ValueTree (post-flush).
 - Stack storage: `HeapBlock<uint32_t>` (flat) + `HeapBlock<int>` (stack sizes per screen).
 
 #### Flag-Aware Keyboard Encoding (Keyboard::map)
 
-`Session::handleKeyPress()` reads `getTreeKeyboardFlags()` and passes to `Keyboard::map()`.
+`Session::handleKeyPress()` reads `getKeyboardFlags()` and passes to `Keyboard::map()`.
 
 | Flag | Bit | Effect on encoding |
 |------|-----|--------------------|

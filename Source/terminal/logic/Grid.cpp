@@ -79,7 +79,7 @@ juce::CriticalSection& Grid::getResizeLock() const noexcept { return resizeLock;
 void Grid::clearBuffer()
 {
     juce::ScopedLock lock (resizeLock);
-    const auto scr { state.getScreen() };
+    const auto scr { state.getRawValue<ActiveScreen> (Terminal::ID::activeScreen) };
 
     if (scr == normal)
     {
@@ -271,18 +271,18 @@ int Grid::consumeScrollDelta() noexcept
  */
 Grid::Buffer& Grid::bufferForScreen() noexcept
 {
-    return buffers.at (static_cast<size_t> (state.getScreen()));
+    return buffers.at (static_cast<size_t> (state.getRawValue<ActiveScreen> (Terminal::ID::activeScreen)));
 }
 
 /**
  * @brief Returns a const reference to the buffer for the currently active screen.
  *
- * @return Const reference to `buffers[state.getScreen()]`.
+ * @return Const reference to `buffers[state.getActiveScreen()]`.
  * @note MESSAGE THREAD — lock-free, noexcept.
  */
 const Grid::Buffer& Grid::bufferForScreen() const noexcept
 {
-    return buffers.at (static_cast<size_t> (state.getScreen()));
+    return buffers.at (static_cast<size_t> (state.getRawValue<ActiveScreen> (Terminal::ID::activeScreen)));
 }
 
 // ============================================================================

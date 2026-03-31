@@ -160,8 +160,8 @@ void Grid::resize (int newCols, int newVisibleRows)
         buffers.at (alternate) = std::move (newAlternate);
 
         // Clamp alternate cursor to new dimensions
-        const int altCursorRow { state.getCursorRow (alternate) };
-        const int altCursorCol { state.getCursorCol (alternate) };
+        const int altCursorRow { state.getRawValue<int> (state.screenKey (alternate, Terminal::ID::cursorRow)) };
+        const int altCursorCol { state.getRawValue<int> (state.screenKey (alternate, Terminal::ID::cursorCol)) };
         state.setCursorRow (alternate, juce::jlimit (0, newVisibleRows - 1, altCursorRow));
         state.setCursorCol (alternate, juce::jlimit (0, newCols - 1, altCursorCol));
 
@@ -653,8 +653,8 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
         juce::HeapBlock<Cell> tempCells (static_cast<size_t> (maxFlatLen));
         juce::HeapBlock<Grapheme> tempGraphs (static_cast<size_t> (maxFlatLen));
 
-        const int cursorRow { state.getCursorRow (normal) };
-        const int cursorCol { state.getCursorCol (normal) };
+        const int cursorRow { state.getRawValue<int> (state.screenKey (normal, Terminal::ID::cursorRow)) };
+        const int cursorCol { state.getRawValue<int> (state.screenKey (normal, Terminal::ID::cursorCol)) };
         const int cursorLinear { scrollbackUsed + cursorRow };
 
         int cursorOutputRow { -1 };
