@@ -15,25 +15,12 @@
 
 ---
 
-## Parser holds Grid& directly (Explicit Encapsulation violation)
-
-**Priority:** Medium  
-**Sprint:** 9  
-**Context:** Parser holds `Grid&` via dependency injection and calls Grid methods directly (`scrollUp`, `eraseRowRange`, `activeWriteCell`, etc.). Per ARCHITECTURAL-MANIFESTO, objects should be dumb and communicate via API — Parser should tell, not poke.
-
-Cell buffer writes (hot path) must stay on Grid for performance — millions of cells/second. But `getCols()`, `getVisibleRows()`, `getScrollbackUsed()` are state queries that could route through State.
-
-**Why deferred:** Large refactor with no immediate functional benefit. Ring buffer `head` must stay with Grid for consistency with cell data (Oracle assessment confirmed). The current `resizeLock` serialization is correct.
-
-**Needs:** Architectural decision on where to draw the line between "buffer operation" (stays on Grid) and "state query" (moves to State).
-
----
-
 ## Pre-existing Debt (from Sprint 91+)
 
 - ~~**`getTreeMode()` / `getTreeKeyboardFlags()` naming**~~ — resolved: renamed to `getMode()` / `getKeyboardFlags()`.
+- ~~**Parser holds Grid& directly**~~ — resolved: Grid::Writer facade decouples Parser, geometry reads through State parameterMap.
 - ~~**`enableWindowTransparency()` redundancy on Windows 11**~~ — resolved: guarded with `isWindows10()` in `glContextCreated()`.
-- **`seq 1M` performance gap** — 2m33s vs Windows Terminal's 1m12s. Reader thread drain loop exits too early.
+- ~~**`seq 1M` performance gap**~~ — resolved: END matches Windows Terminal (~55s at 4K half-width). Investigated double-buffer pre-fetch and INFINITE drain wait — no improvement. Both terminals sit at ~45% CPU, IO-bound on ConPTY middleware. The bottleneck is ConPTY, not the drain loop.
 
 ---
 

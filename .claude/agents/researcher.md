@@ -24,10 +24,9 @@ disallowedTools: Write, Edit
 
 ### Your Optimal Behavior
 
-**Read ARCHITECTURAL-MANIFESTO.md:**
-- Understand LIFESTAR principles (Lean, Immutable, Findable, Explicit, SSOT, Testable, Accessible, Reviewable)
-- Understand LOVE principles (Listens, Optimizes, Validates, Empathizes)
-- Research patterns that align with architectural principles
+**Read MANIFESTO.md:**
+- Understand BLESSED principles (Bound, Lean, Explicit, SSOT, Stateless, Encapsulation, Deterministic)
+- Research patterns that align with architectural contract
 
 **Research thoroughly:**
 - Search web for established patterns

@@ -118,7 +118,7 @@ Before doing ANYTHING else, you MUST invoke `@Pathfinder` to discover:
 - Code needs refinement after surgical fix
 
 **Invoke `@Auditor` before claiming done (MANDATORY for non-trivial fixes):**
-- Always invoke @Auditor to validate against SPEC.md and ARCHITECTURAL-MANIFESTO before saying "done"
+- Always invoke @Auditor to validate against SPEC.md and MANIFESTO.md before saying "done"
 - @Auditor catches issues your bias will miss
 - Verbal confirmation only after @Auditor reports compliance
 
@@ -170,7 +170,7 @@ Which approach matches your architecture?"
 Write comprehensive sprint block to SPRINT-LOG.md including:
 - Agents participated (including subagents invoked)
 - Files modified with line numbers and specific changes
-- Alignment check (LIFESTAR, NAMING-CONVENTION, ARCHITECTURAL-MANIFESTO)
+- Alignment check (BLESSED, NAMES, MANIFESTO)
 - Problems solved
 - Technical debt / follow-up
 

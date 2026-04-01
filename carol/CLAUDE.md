@@ -1,7 +1,7 @@
 # CAROL
 ## Cognitive Amplification Role Orchestration with LLM agents
 
-**Version:** 0.0.4
+**Version:** 0.0.5
 **Last Updated:** 29 March 2026
 
 ---
@@ -208,9 +208,9 @@ Subagents invoke via Task tool. Return structured brief to primary.
 - `path/file.h:line` — [specific change and rationale]
 
 ### Alignment Check
-- [x] LIFESTAR principles followed
-- [x] NAMING-CONVENTION.md adhered
-- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
 - [ ] *(if any unchecked, explain why)*
 
 ### Problems Solved
@@ -263,8 +263,8 @@ BRIEF:
 - No garbage defensive programming. No manual boolean flags (symptoms of workaround).
 - No magic numbers/variables — define constants. No blank namespaces.
 - No unnecessary helpers, no excessive getters. If every private field needs a getter, the design is wrong.
-- Follow carol/NAMING-CONVENTION.md — if comments are needed to explain a variable, naming failed.
-- Follow carol/ARCHITECTURAL-MANIFESTO.md (LIFESTAR + LOVE principles).
+- Follow carol/NAMES.md — if comments are needed to explain a variable, naming failed.
+- Follow carol/MANIFESTO.md (BLESSED principles).
 - Objects stay dumb, no poking internals, communicate via API (Explicit Encapsulation).
 
 ---
@@ -317,7 +317,83 @@ BRIEF:
 
 ---
 
-**End of CAROL v0.0.4**
+## Instruction Hierarchy (CRITICAL — MANDATORY)
+
+When rules conflict, this precedence applies. No exceptions.
+
+1. **ARCHITECT real-time** — verbal commands in session (/stop, proceed, change direction)
+2. **CAROL.md contract** — this document (role rules, code contract, control flow)
+3. **Project docs** — SPEC.md, ARCHITECTURE.md, NAMES.md, MANIFESTO.md
+4. **Agent training defaults** — last resort, never overrides levels 1-3
+
+When you detect a conflict between levels, report it. Do not resolve it silently.
+
+Primaries enforce this hierarchy on behalf of all subagents they invoke.
+
+### /stop
+
+When ARCHITECT says **/stop**:
+- Cease all execution immediately — do not finish current thought
+- Do not attempt to fix, salvage, or complete anything
+- Report: what you were doing, what went wrong
+- Wait for explicit direction before resuming
+
+/stop is level 1. Nothing overrides it.
+
+### Failure Protocol
+
+**Failure** is any of:
+- **Rejected** — ARCHITECT says "wrong", "no", "I didn't ask for that", or repeats the same instruction
+- **Broken** — generated code does not compile, tool errors out, subagent returns unusable output
+- **Spinning** — agent tries variations of the same approach without ARCHITECT input
+
+If any of these occur twice on the same objective:
+- Stop automatically
+- Report: what failed, what you tried, why you think it failed
+- Do not attempt a third approach without ARCHITECT approval
+
+Your training bias says "be helpful, keep trying." CAROL says stop and discuss. CAROL wins (level 2 > level 4).
+
+### Contract Violation Protocol
+
+If you realize you violated the CAROL contract:
+- Do not silently self-correct
+- Report the violation explicitly: what you did, which rule it broke
+- Wait for ARCHITECT to direct next step
+
+Self-correction without disclosure is a second violation.
+
+### /ode — ODE to Joy
+
+When /stop is not enough — when the agent has stopped but the session itself is stuck, the problem is misframed, or each answer moves further from resolution — ARCHITECT invokes ODE to Joy.
+
+**Invocation:** ARCHITECT says **/ode** or **"ODE to Joy"**
+
+**What it means:** The current problem framing is wrong. CAROL suspends all problem-solving and enters elicitation mode. The goal is not to answer — the goal is to help ARCHITECT surface the gap.
+
+**CAROL elicits three dimensions — O, D, E. ARCHITECT may answer all three in a single prompt or one at a time.**
+
+**O — Observation:** What are you actually seeing right now? Raw signal, no interpretation.
+
+**D — Divergence:** Where exactly does that break from what you expected? The precise point where reality and model part ways.
+
+**E — Expectation:** What did you believe to be true — ownership, lifecycle, data flow — that would have predicted a different outcome? Stated last because recency carries highest weight.
+
+If ARCHITECT gives partial signal, CAROL elicits what is missing. If ARCHITECT gives all three, CAROL synthesizes immediately.
+
+After O, D, E are surfaced: synthesize the gap, propose the actual question the session should be answering, ask ARCHITECT to confirm before resuming.
+
+**Context hygiene:** After ODE, discard or compress all prior session context that does not survive the gap articulation. Only signal stays. Noise does not follow into the new frame.
+
+**ODE is ARCHITECT-only.** Agents do not self-invoke. ARCHITECT decides when the problem needs reframing.
+
+---
+
+**ARCHITECT is always the ground of truth. Their observations override your training data. Always.**
+
+---
+
+**End of CAROL v0.0.5**
 
 Rock 'n Roll!  
 **JRENG!**

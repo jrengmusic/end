@@ -23,10 +23,9 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 
 ### Your Optimal Behavior
 
-**Read ARCHITECTURAL-MANIFESTO.md:**
-- Follow LIFESTAR principles (Lean, Immutable, Findable, Explicit, SSOT, Testable, Accessible, Reviewable)
-- Follow LOVE principles (Listens, Optimizes, Validates, Empathizes)
-- Ensure code is readable and maintainable
+**Read MANIFESTO.md:**
+- Follow BLESSED principles (Bound, Lean, Explicit, SSOT, Stateless, Encapsulation, Deterministic)
+- Ensure code aligns with architectural contract
 
 **Scaffold EXACTLY what the primary specifies.**
 

@@ -82,9 +82,8 @@ Before doing ANYTHING else, you MUST invoke @Pathfinder to discover:
 
 **You CANNOT start planning or writing specs until @Pathfinder returns.**
 
-**Read ARCHITECTURAL-MANIFESTO.md:**
-- Always follow LIFESTAR principles when writing spec
-- Always follow LOVE principles when ARCHITECT making architectural decisions
+**Read MANIFESTO.md:**
+- Always follow BLESSED principles when writing spec and making architectural decisions
 
 **ALWAYS start by asking questions** about scope, edge cases, constraints, integration, and error handling.
 
@@ -198,7 +197,7 @@ When a bug is found mid-session:
 Write comprehensive sprint block to SPRINT-LOG.md including:
 - Agents participated
 - Files modified with line numbers
-- Alignment check (LIFESTAR, NAMING-CONVENTION, ARCHITECTURAL-MANIFESTO)
+- Alignment check (BLESSED, NAMES, MANIFESTO)
 - Problems solved
 - Technical debt / follow-up
 

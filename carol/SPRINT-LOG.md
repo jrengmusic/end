@@ -15,6 +15,97 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 13: seq 1M performance investigation — ConPTY ceiling confirmed
+
+**Date:** 2026-04-01
+
+### Agents Participated
+- COUNSELOR — root cause analysis, plan design, benchmark coordination, DEBT.md update
+- Pathfinder (x3) — reader thread drain loop trace (TTY::run, WindowsTTY::read, waitForData), macOS vs Windows read path comparison, TTY shutdown mechanism analysis
+- Researcher — Windows Terminal and WezTerm vendor source analysis (ConptyConnection.cpp read loop, WezTerm mux read/parse pipeline)
+- Engineer — double-buffer pre-fetch implementation (read() restructure + DRAIN_WAIT_MS constant)
+- Auditor — verified double-buffer implementation correctness (all call sites, branches, style, contract)
+
+### Files Modified (1 total)
+- `DEBT.md:23` — `seq 1M` performance gap marked resolved with investigation findings
+
+### Alignment Check
+- [x] BLESSED principles followed — investigation-only sprint; code changes reverted after benchmarks disproved hypothesis
+- [x] NAMES.md adhered — N/A (no persistent code changes)
+- [x] MANIFESTO.md principles applied — N/A (no persistent code changes)
+
+### Problems Solved
+- **`seq 1M` performance gap diagnosis was wrong.** DEBT.md claimed "reader thread drain loop exits too early" (2m33s vs WT 1m12s). Investigation revealed: (1) those numbers were from different window sizes; (2) at identical window dimensions (4K 125% half-width), END (~54.5s) matches Windows Terminal (~55.6s); (3) both sit at ~45% CPU — IO-bound on ConPTY middleware, not drain loop. Implemented double-buffer pre-fetch with both 3ms and INFINITE drain waits — no improvement in either case, confirming ConPTY is the ceiling. macOS achieves ~97% CPU because direct PTY has no middleware layer.
+- **Vendor terminal analysis:** Windows Terminal uses overlapped I/O with INFINITE wait + double-buffering in time (ReadFile issued before processing previous chunk). WezTerm uses blocking synchronous ReadFile + 3ms WSAPoll coalescing. Neither uses IOCP. Both block indefinitely waiting for data — no polling.
+
+### Technical Debt / Follow-up
+- Pre-existing: Windows 10 regression test; font fallback arrows block (U+2190-U+21FF).
+- The ~45% CPU ceiling on Windows is a ConPTY architectural limitation. No optimization on END's read path can push past it. Future Microsoft ConPTY improvements would benefit END automatically.
+
+---
+
+## Handoff: Comprehensive Audit Cleanup (Sprint 7-11)
+
+**Context:** COUNSELOR Sprint 12 session
+**Date:** 2026-04-01
+
+### Problem
+Comprehensive audit of Sprints 7-11 identified 48 findings across 4 dimensions: dead code (12), stale docs (17), SSOT violations (0 critical), refactoring opportunities (19). Most are maintenance debt — no runtime bugs, but LIFESTAR:Lean and LIFESTAR:Findable violations that degrade codebase quality.
+
+### Recommended Solution
+Address findings in priority order. Full audit report was generated during Sprint 12 session. Key items by priority:
+
+**Dead Code (HIGH):**
+- `Session::getParser()` both overloads — never called (Session.h:247-248, Session.cpp:505-506)
+- `Session::hasShellExited()` — never called externally (Session.h:255, Session.cpp:517-525)
+- `LinkManager::getHintLinks()` — never called (LinkManager.h:160, LinkManager.cpp:221)
+- `TerminalComponent::getGridRows()` / `getGridCols()` — never called (TerminalComponent.h:276,282)
+- `#include "Cell.h"` in State.h:63 — orphaned after Sprint 10
+- `class State;` forward decl in Grid.h:73 — redundant, full include exists
+- 7 dead Screen methods: toggleDebug, isDebugMode, hasNewSnapshot, getCellWidth, getCellHeight, getCellBounds, forEachCell
+- `BackgroundBlur::isDwmAvailable()` — returns true unconditionally, never called
+
+**Stale Docs (CRITICAL/HIGH):**
+- ARCHITECTURE.md:626 — ModalType enum lists `flashJump`, actual code has `openFile`
+- State.h:160-163 — ModalType doxygen lists `flashJump`, missing `openFile`
+- ARCHITECTURE.md:55,211,847 — 3 references to nonexistent `CursorComponent.h`
+- Grid.h/cpp — 7 references to deleted `state.getScreen()` in doxygen
+- State.h:34-51 — ValueTree diagram missing many params
+- SPEC.md:96-100 — Keybinding Reorganization described as future, already implemented
+
+**Write-only MODES (MEDIUM):**
+- `reverseVideo`, `insertMode`, `applicationKeypad` — written to parameterMap but never read. Either implement the read side or remove dead storage.
+
+**Potential Bug:**
+- InputHandler.cpp:127 — `raw.toLowerCase().contains("v") ? 'v' : 'v'` — ternary always returns same value
+
+### Files to Modify
+- `Source/terminal/logic/Session.h/cpp` — remove dead methods
+- `Source/terminal/selection/LinkManager.h/cpp` — remove getHintLinks
+- `Source/component/TerminalComponent.h/cpp` — remove getGridRows/getGridCols
+- `Source/terminal/data/State.h/cpp` — fix doxygen, remove Cell.h include
+- `Source/terminal/logic/Grid.h/cpp` — remove forward decl, fix doxygen
+- `Source/terminal/rendering/Screen.h/cpp` — remove 7 dead methods
+- `ARCHITECTURE.md` — fix ModalType, CursorComponent references
+- `SPEC.md` — update Keybinding section
+- `DEBT.md` — remove stale CursorComponent item (already done)
+- `modules/jreng_gui/glass/jreng_background_blur.h/cpp` — remove isDwmAvailable
+
+### Acceptance Criteria
+- [ ] Zero dead methods in Session, LinkManager, TerminalComponent, Screen
+- [ ] All doxygen references match actual code (no deleted APIs referenced)
+- [ ] ARCHITECTURE.md ModalType and CursorComponent references corrected
+- [ ] Write-only MODES disposition decided by ARCHITECT (implement or remove)
+- [ ] InputHandler.cpp:127 ternary investigated and fixed
+- [ ] Builds clean on Windows and macOS
+
+### Notes
+- The 3 write-only MODES (reverseVideo, insertMode, applicationKeypad) are functional gaps — applications send these sequences but END ignores them. ARCHITECT must decide: implement or remove.
+- Early return violations (~25) and large function decomposition (5 functions >100 lines) identified but are lower priority. Can be a separate sprint.
+- The audit was conducted at the start of the Sprint 12 session. Some items (CursorComponent debt, enableWindowTransparency) were already resolved during Sprint 12.
+
+---
+
 ## Sprint 12: Grid::Writer facade, cursor responsiveness, BackgroundBlur cleanup
 
 **Date:** 2026-04-01

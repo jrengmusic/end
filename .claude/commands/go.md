@@ -4,8 +4,8 @@ description: Affirm adherence to all coding contracts before execution
 
 Always ensure adherence to CONTRACTS:
 
-- carol/ARCHITECTURAL-MANIFESTO.md (LIFESTAR + LOVE principles)
-- carol/NAMING-CONVENTION.md
+- carol/MANIFESTO.md (BLESSED principles)
+- carol/NAMES.md
 - JRENG-CODING-STANDARD.md
 
 Rules:

@@ -79,14 +79,14 @@ Source/
 
     logic/                          Terminal emulation (parser, grid, session)
       Session.h/cpp                 Orchestrator: owns State, Grid, Parser, TTY
-      Parser.h/cpp                  VT state machine + dispatch
-      ParserVT.cpp                  Ground state: print, execute, LF
+      Parser.h/cpp                  VT state machine + dispatch (holds Grid::Writer, not Grid&)
+      ParserVT.cpp                  Ground state: print, execute, LF (GroundOps fast-path struct)
       ParserCSI.cpp                 CSI dispatch (cursor, erase, mode)
       ParserESC.cpp                 ESC dispatch (charset, OSC 0/2/7/8/9/12/52/112/133/777, DCS)
       ParserSGR.cpp                 SGR (text attributes, color)
       ParserEdit.cpp                Erase, scroll, screen switch
       ParserOps.cpp                 Cursor movement, tab, reset
-      Grid.h/cpp                    Ring buffer, dual screen, dirty tracking
+      Grid.h/cpp                    Ring buffer, dual screen, dirty tracking (nested Grid::Writer facade)
       GridScroll.cpp                Scroll region operations
       GridErase.cpp                 Erase operations
       GridReflow.cpp                Reflow on resize
@@ -181,7 +181,7 @@ modules/
  Component (UI)          pulls from State via ValueTree listeners + VBlank
     |
     v
- Logic (Parser/Grid)     writes atomics on reader thread
+ Logic (Parser→Writer→Grid)  writes atomics on reader thread
     |
     v
  Data (State/Cell)       pure types, atomic storage, timer flush
@@ -201,18 +201,20 @@ modules/
 - No allocation, no locks on this path
 
 **Logic -> Data:**
-- Parser calls `State::set*()` — stores to atomics, sets `needsFlush`
-- Parser calls `Grid::markRowDirty()` — sets dirty bits, sets `snapshotDirty`
+- Parser calls `Grid::Writer` methods — cell writes, scroll, erase, dirty tracking
+- Parser reads geometry (cols, visibleRows, scrollbackUsed) from `State` parameterMap atomics
 - All calls are `noexcept`, reader thread safe
 
 **Data -> Component (timer path):**
 - `State::timerCallback()` runs on message thread (60-120Hz)
 - Flushes atomics to ValueTree via `flush()`
 - ValueTree fires `valueTreePropertyChanged` -> CursorComponent updates
+- `State::refresh()` (public) also flushes atomics — called by `onVBlank` before rendering
 
 **Data -> Component (render path):**
 - `VBlankAttachment` fires on every display vsync (CVDisplayLink)
 - Calls `State::consumeSnapshotDirty()` — one atomic exchange
+- Calls `State::refresh()` to flush pending atomics before render
 - If dirty: `Screen::render()` reads Grid + State, builds snapshot, publishes to GLSnapshotBuffer
 
 **Component -> Rendering (GL path):**
@@ -235,7 +237,7 @@ modules/
 
 | Thread | QoS | Owns | Reads | Writes |
 |--------|-----|------|-------|--------|
-| **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Grid cells, dirty bits |
+| **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Grid cells, dirty bits, scrollbackUsed |
 | **Timer** (JUCE) | default | — | `needsFlush` atomic | ValueTree properties |
 | **Message** (main) | user-interactive | Component, Screen | ValueTree, `snapshotDirty` atomic, Grid cells | Snapshot (reads Grid cells directly) |
 | **GL** (OpenGL) | user-interactive | OpenGL context | Snapshot (via GLSnapshotBuffer), staged bitmaps | GPU textures, framebuffer |
@@ -247,7 +249,7 @@ Keystroke -> Message Thread -> TTY::write()
          -> Reader Thread reads response -> Parser::process()
          -> Grid cells written, State atomics set, snapshotDirty = true
          -> VBlank fires on Message Thread -> consumeSnapshotDirty()
-          -> Screen::render() reads Grid -> builds Snapshot -> GLSnapshotBuffer::write()
+         -> State::refresh() -> Screen::render() reads Grid + State -> builds Snapshot -> GLSnapshotBuffer::write()
           -> GL Thread -> GLSnapshotBuffer::read() -> uploadStagedBitmaps() -> draw
 ```
 
@@ -272,7 +274,7 @@ Keystroke -> Message Thread -> TTY::write()
 
 **Implementation:** `State.h/cpp`, `StateFlush.cpp`
 
-Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Render path bypasses timer via `snapshotDirty` atomic polled by VBlankAttachment.
+Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Render path calls `State::refresh()` to force-flush atomics before each frame, ensuring the snapshot reads current values without waiting for the timer.
 
 ### Pattern: Double-Buffered Snapshot (GLSnapshotBuffer)
 
@@ -579,6 +581,8 @@ Access: `setRGB()`, `setPalette()`, `setTheme()`, `paletteIndex()`
 Dual buffers (normal + alternate). Each buffer is a flat `HeapBlock<Cell>` with ring-buffer row indexing. `head` tracks the logical top row. Dirty tracking via `std::atomic<uint64_t> dirtyRows[4]` (256-bit bitmask).
 
 `getCols()` and `getVisibleRows()` return the buffer allocation dimensions. `resize()` runs on the message thread and holds `resizeLock` for the duration.
+
+Parser reads geometry via `state.getRawValue<int>(ID::cols)` etc. (lock-free atomics). `getCols()`/`getVisibleRows()` on Grid remain for message-thread consumers.
 
 ### GlyphConstraint
 

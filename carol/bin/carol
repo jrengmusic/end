@@ -1,8 +1,8 @@
 #!/bin/bash
 # carol - CAROL Framework CLI Tool
-# Version: 0.0.4
+# Version: 0.0.5
 
-VERSION="0.0.4"
+VERSION="0.0.5"
 
 # Resolve CAROL_ROOT handling symlinks (e.g. if /usr/local/bin/carol -> ~/.carol/bin/carol)
 SOURCE="${BASH_SOURCE[0]}"
@@ -277,8 +277,8 @@ cmd_init() {
         ln -sf "$CAROL_ROOT/PATTERNS-WRITER.md" carol/PATTERNS-WRITER.md
         ln -sf "$CAROL_ROOT/SPEC-WRITER.md" carol/SPEC-WRITER.md
         ln -sf "$CAROL_ROOT/ARCHITECTURE-WRITER.md" carol/ARCHITECTURE-WRITER.md
-        [ -f "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" ] && ln -sf "$CAROL_ROOT/ARCHITECTURAL-MANIFESTO.md" carol/ARCHITECTURAL-MANIFESTO.md
-        [ -f "$CAROL_ROOT/NAMING-CONVENTION.md" ] && ln -sf "$CAROL_ROOT/NAMING-CONVENTION.md" carol/NAMING-CONVENTION.md
+        [ -f "$CAROL_ROOT/MANIFESTO.md" ] && ln -sf "$CAROL_ROOT/MANIFESTO.md" carol/MANIFESTO.md
+        [ -f "$CAROL_ROOT/NAMES.md" ] && ln -sf "$CAROL_ROOT/NAMES.md" carol/NAMES.md
 
         # Restore SPRINT-LOG from backup or use template
         if [ -f ".carol-history/SPRINT-LOG.md" ]; then
@@ -544,9 +544,11 @@ cmd_help() {
     echo -e "  ${CYAN}Researcher${NC}    Domain research"
     echo -e "  ${CYAN}Validator${NC}     Spec & compliance checking"
     echo ""
-    echo -e "${MAGENTA}Activate:${NC}"
+    echo -e "${MAGENTA}Slash Commands:${NC}"
     echo -e "  ${YELLOW}/counselor${NC}   Activate COUNSELOR (default on init)"
     echo -e "  ${YELLOW}/surgeon${NC}     Activate SURGEON"
+    echo -e "  ${YELLOW}/stop${NC}        Emergency brake — cease all execution"
+    echo -e "  ${YELLOW}/ode${NC}         ODE to Joy — reframe the problem"
     echo ""
     echo -e "  CLAUDE.md auto-loaded — CAROL protocol always active"
     echo ""

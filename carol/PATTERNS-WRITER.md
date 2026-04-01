@@ -1,6 +1,6 @@
 # PATTERNS-WRITER.md - Pattern Discovery and Documentation Guide
 
-**Version:** 0.0.4
+**Version:** 0.0.5
 **Purpose:** How agents discover, validate, and document patterns in codebases
 **Audience:** MACHINIST, SURGEON (pattern discovery during work), COUNSELOR (documentation compilation)
 
@@ -154,7 +154,7 @@ Total: 4 instances
 
 ### Step 4: Validate Against Architectural Manifesto
 
-**Check alignment with LIFESTAR + LOVE:**
+**Check alignment with BLESSED (MANIFESTO.md):**
 
 ```
 [ ] Lean: Is pattern minimal?
@@ -169,13 +169,11 @@ Total: 4 instances
     - Works across similar contexts
     - Not duplicating other patterns
 
-[ ] Fail-Fast (LOVE): Does it catch errors early?
-    - Prevents late failures
-    - Clear error messages
+[ ] Bound: Is ownership clear?
+    - Lifecycle traceable, no floating resources
 
-[ ] Validates (LOVE): Does it enforce correctness?
-    - Type safety, bounds checking
-    - Architectural constraints
+[ ] Encapsulation: Single responsibility?
+    - Tell don't ask, no layer violations
 ```
 
 **If pattern violates principles:**
@@ -799,26 +797,19 @@ Found 12 instances of numeric literals assigned to float:
 
 ## Validation Against Architectural Manifesto
 
-Every pattern must align with **LIFESTAR + LOVE:**
+Every pattern must align with **BLESSED (MANIFESTO.md):**
 
 ### Checklist
 
 ```
-LIFESTAR:
+BLESSED:
+[ ] Bound: Ownership clear, lifecycle traceable
 [ ] Lean: Pattern is minimal, no unnecessary complexity
-[ ] Immutable: Pattern produces deterministic results
-[ ] Findable: Pattern documented in obvious location (ARCHITECTURE.md)
-[ ] Explicit: Intent and rationale clear
+[ ] Explicit: Intent and rationale clear, no magic values
 [ ] SSOT: Pattern defined once, referenced everywhere
-[ ] Testable: Validation script can verify compliance
-[ ] Accessible: Works across languages/frameworks (or language-specific noted)
-[ ] Reviewable: Clear examples, occurrences listed
-
-LOVE:
-[ ] Listens (Fail-Fast): Pattern catches errors early
-[ ] Optimizes: Pattern prevents wasted effort/bugs
-[ ] Validates: Pattern enforces correctness
-[ ] Empathizes: Pattern makes code easier to understand/maintain
+[ ] Stateless: No persistent machinery state
+[ ] Encapsulation: Single responsibility, no layer violations
+[ ] Deterministic: Same input always yields same output
 ```
 
 **If pattern fails checklist:**

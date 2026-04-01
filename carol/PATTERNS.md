@@ -1,6 +1,6 @@
 # PATTERNS.md - LLM Meta-Patterns for CAROL Agents
 
-**Version:** 0.0.4
+**Version:** 0.0.5
 **Purpose:** Systematic approaches to prevent cognitive overload, scope creep, and autonomous mistakes
 **Audience:** All CAROL agents (2 PRIMARY + 8 Secondary roles)
 
@@ -32,23 +32,16 @@
 
 ## Core Principles
 
-CAROL aligns with **LIFESTAR + LOVE** from Architectural Manifesto:
+CAROL aligns with **BLESSED** from MANIFESTO.md:
 
-### LIFESTAR
-- **Lean:** Simple solutions, minimal changes
-- **Immutable:** Deterministic, predictable behavior
-- **Findable:** Clear documentation, obvious locations
-- **Explicit:** No hidden assumptions, ask if unsure
-- **SSOT:** Single Source of Truth - check existing patterns first
-- **Testable:** Validate before committing
-- **Accessible:** Works across languages/frameworks
-- **Reviewable:** Clear attribution, trackable changes
-
-### LOVE
-- **Listens (Fail-Fast):** Check simple bugs BEFORE complex theories
-- **Optimizes:** Prevent wasted cycles, avoid overthinking
-- **Validates:** Self-check before responding
-- **Empathizes:** Human-centric, ask clarifying questions
+### BLESSED
+- **Bound:** Clear ownership, deterministic lifecycle, RAII enforced
+- **Lean:** 300/30/3 — quantity enforced, god objects forbidden
+- **Explicit:** No magic, semantic names, fail fast, all parameters visible
+- **SSOT:** Declare once, reference everywhere, no shadow state
+- **Stateless:** Objects are dumb workers, transient state only
+- **Encapsulation:** One responsibility, tell don't ask, unidirectional layers
+- **Deterministic:** The verdict — what you get when BLESSE is followed correctly
 
 ---
 

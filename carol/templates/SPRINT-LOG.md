@@ -39,7 +39,7 @@
 - Latest sprint at top, keep last 5 entries
 
 **NAMING RULE (CODE VOCABULARY)**
-- All identifiers must obey project-specific naming conventions (see NAMING-CONVENTION.md)
+- All identifiers must obey project-specific naming conventions (see NAMES.md)
 - Variable names: semantic + precise (not `temp`, `data`, `x`)
 - Function names: verb-noun pattern (initRepository, detectCanonBranch)
 - Struct fields: domain-specific terminology (not generic `value`, `item`, `entry`)
@@ -133,9 +133,9 @@
 - `README.md:1-20` — Project overview
 
 ### Alignment Check
-- [x] LIFESTAR principles followed (Lean, Immutable, Findable, Explicit, SSOT, Testable, Accessible, Reviewable)
-- [x] NAMING-CONVENTION.md adhered (semantic names, verb-noun functions, no type encoding)
-- [x] ARCHITECTURAL-MANIFESTO.md principles applied (no layer violations, explicit dependencies)
+- [x] BLESSED principles followed (Bound, Lean, Explicit, SSOT, Stateless, Encapsulation, Deterministic)
+- [x] NAMES.md adhered (semantic names, verb-noun functions, no type encoding)
+- [x] MANIFESTO.md principles applied (no layer violations, explicit dependencies)
 - [x] No early returns used
 - [x] Fail-fast error handling implemented
 

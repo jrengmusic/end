@@ -1,7 +1,7 @@
 # CAROL
 ## Cognitive Amplification Role Orchestration with LLM agents
 
-**Version:** 0.0.4
+**Version:** 0.0.5
 **Last Updated:** 29 March 2026
 
 ---
@@ -217,9 +217,9 @@ Subagents invoke via Task tool. Return structured brief to primary.
 - `path/file.h:line` — [specific change and rationale]
 
 ### Alignment Check
-- [x] LIFESTAR principles followed
-- [x] NAMING-CONVENTION.md adhered
-- [x] ARCHITECTURAL-MANIFESTO.md principles applied
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
 - [ ] *(if any unchecked, explain why)*
 
 ### Problems Solved
@@ -272,8 +272,8 @@ BRIEF:
 - No garbage defensive programming. No manual boolean flags (symptoms of workaround).
 - No magic numbers/variables — define constants. No blank namespaces.
 - No unnecessary helpers, no excessive getters. If every private field needs a getter, the design is wrong.
-- Follow carol/NAMING-CONVENTION.md — if comments are needed to explain a variable, naming failed.
-- Follow carol/ARCHITECTURAL-MANIFESTO.md (LIFESTAR + LOVE principles).
+- Follow carol/NAMES.md — if comments are needed to explain a variable, naming failed.
+- Follow carol/MANIFESTO.md (BLESSED principles).
 - Objects stay dumb, no poking internals, communicate via API (Explicit Encapsulation).
 
 ---
@@ -326,7 +326,7 @@ BRIEF:
 
 ---
 
-**End of CAROL v0.0.4**
+**End of CAROL v0.0.5**
 
 Rock 'n Roll!  
 **JRENG!**
