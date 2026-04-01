@@ -146,7 +146,7 @@ void Parser::resetCursor (int cols) noexcept
 void Parser::cursorMoveUp (ActiveScreen s, int count) noexcept
 {
     const int top { state.getRawValue<int> (state.screenKey (s, ID::scrollTop)) };
-    const int bottom { effectiveScrollBottom (s, grid.getVisibleRows()) };
+    const int bottom { effectiveScrollBottom (s, state.getRawValue<int> (ID::visibleRows)) };
     const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
     const bool withinMargins { row >= top and row <= bottom };
     const int clampTop { withinMargins ? top : 0 };
@@ -476,7 +476,7 @@ int Parser::effectiveClampBottom (ActiveScreen s) const noexcept
     const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
     const int top { state.getRawValue<int> (state.screenKey (s, ID::scrollTop)) };
     const bool withinMargins { row >= top and row <= activeScrollBottom() };
-    return withinMargins ? activeScrollBottom() : grid.getVisibleRows() - 1;
+    return withinMargins ? activeScrollBottom() : state.getRawValue<int> (ID::visibleRows) - 1;
 }
 
 // ============================================================================

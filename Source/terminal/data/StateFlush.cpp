@@ -12,6 +12,9 @@
  *   └─ flush()             [MESSAGE THREAD]
  *        ├─ flushRootParams()   — session-level PARAMs (activeScreen, cols, …)
  *        └─ flushGroupParams()  — per-group PARAMs (MODES, NORMAL, ALTERNATE)
+ *
+ * refresh()                [MESSAGE THREAD / onVBlank]
+ *   └─ flush()             [MESSAGE THREAD]  (same pass, driven by VBlank)
  * ```
  *
  * ## Why a separate translation unit?
@@ -52,7 +55,11 @@ namespace Terminal
  * to the ValueTree's `value` property.
  *
  * Parameters handled here:
- * - `activeScreen`  — which screen buffer is active (normal / alternate).
+ * - `activeScreen`   — which screen buffer is active (normal / alternate).
+ * - `cols`           — terminal width; written by `setDimensions()` on the message thread.
+ * - `visibleRows`    — terminal height; written by `setDimensions()` on the message thread.
+ * - `scrollbackUsed` — scrollback depth; written by the reader thread via `setScrollbackUsed()`.
+ * - All other root-level session PARAMs.
  *
  * `scrollOffset` is intentionally skipped: it is stored as an integer
  * `juce::var` (not a `double`), so `buildParameterMap()` never registered it
@@ -122,6 +129,19 @@ void State::flushGroupParams (juce::ValueTree& group) noexcept
 }
 
 /**
+ * @brief Signals that the caller is about to read State values.
+ *
+ * Ensures all pending atomic writes from the reader thread are
+ * visible in the ValueTree before the caller proceeds.
+ *
+ * @note MESSAGE THREAD only.
+ */
+void State::refresh() noexcept
+{
+    flush();
+}
+
+/**
  * @brief Copies all dirty atomic values into the ValueTree in a single pass.
  *
  * ## Flush sequence
@@ -132,13 +152,13 @@ void State::flushGroupParams (juce::ValueTree& group) noexcept
  *      thread's `memory_order_release` store in `storeAndFlush()`, making all
  *      preceding relaxed atomic stores visible here.
  *
- * 2. **`flushRootParams()`** — writes session-level PARAMs (`activeScreen`)
- *    back to the ValueTree.
- *
- * 3. **Group loop** — iterates the children of SESSION and calls
+ * 2. **Group loop** — iterates the children of SESSION and calls
  *    `flushGroupParams()` for each group node (MODES, NORMAL, ALTERNATE).
- *    Non-group children (i.e. root-level PARAMs already handled above) are
+ *    Non-group children (i.e. root-level PARAMs handled below) are
  *    skipped via the `isGroup` guard.
+ *
+ * 3. **`flushRootParams()`** — writes session-level PARAMs (`activeScreen`)
+ *    back to the ValueTree.
  *
  * 4. Returns `true` to signal to `timerCallback()` that the ValueTree was
  *    modified, prompting it to schedule the next tick at the higher 120 Hz
@@ -146,13 +166,8 @@ void State::flushGroupParams (juce::ValueTree& group) noexcept
  *
  * @return `true` if `needsFlush` was set and the ValueTree was updated;
  *         `false` if nothing had changed and the flush was skipped entirely.
- * @note MESSAGE THREAD — called from `timerCallback()` only.
+ * @note MESSAGE THREAD — called from `timerCallback()` and `refresh()`.
  */
-void State::refresh() noexcept
-{
-    flush();
-}
-
 // MESSAGE THREAD
 bool State::flush() noexcept
 {

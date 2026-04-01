@@ -76,6 +76,11 @@ void Session::setupCallbacks()
 {
     parser.writeToHost = [this] (const char* data, int len) { tty->write (data, len); };
 
+    parser.setScrollbackCallback ([this] (int count)
+    {
+        state.setScrollbackUsed (count);
+    });
+
     tty->onData = [this] (const char* data, int len)
     {
         const juce::ScopedLock lock (grid.getResizeLock());
@@ -155,7 +160,7 @@ void Session::setupCallbacks()
  */
 Session::Session()
     : grid (state)
-    , parser (state, grid)
+    , parser (state, Grid::Writer { grid })
 {
 #if JUCE_MAC || JUCE_LINUX
     tty = std::make_unique<UnixTTY> ();

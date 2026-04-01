@@ -97,9 +97,9 @@ namespace Terminal
  * @see calc()
  * @see Parser.h
  */
-Parser::Parser (State& state, Grid& grid) noexcept
+Parser::Parser (State& state, Grid::Writer writer) noexcept
     : state (state)
-    , grid (grid)
+    , writer (writer)
 {
 }
 
@@ -219,7 +219,7 @@ void Parser::calc() noexcept
  */
 int Parser::activeScrollBottom() const noexcept
 {
-    return effectiveScrollBottom (state.getRawValue<ActiveScreen> (ID::activeScreen), grid.getVisibleRows());
+    return effectiveScrollBottom (state.getRawValue<ActiveScreen> (ID::activeScreen), state.getRawValue<int> (ID::visibleRows));
 }
 
 // ============================================================================

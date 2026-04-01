@@ -583,7 +583,8 @@ void Terminal::Component::onVBlank()
 {
     if (getComponentID() == AppState::getContext()->getActivePaneID())
     {
-        if (isShowing() and not hasKeyboardFocus (true)
+        if (juce::Process::isForegroundProcess()
+            and isShowing() and not hasKeyboardFocus (true)
             and juce::Component::getCurrentlyModalComponent() == nullptr)
         {
             toFront (true);

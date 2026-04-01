@@ -369,7 +369,7 @@ void Parser::moveCursorDown (const CSI& params) noexcept
 void Parser::moveCursorForward (const CSI& params) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    cursorMoveForward (scr, static_cast<int> (params.param (0, 1)), grid.getCols());
+    cursorMoveForward (scr, static_cast<int> (params.param (0, 1)), state.getRawValue<int> (ID::cols));
 }
 
 /**
@@ -470,7 +470,7 @@ void Parser::moveCursorPrevLine (const CSI& params) noexcept
 void Parser::cursorForwardTab (const CSI& params) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { grid.getCols() };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     for (int i { 0 }; i < count; ++i)
@@ -536,7 +536,7 @@ void Parser::setCursorColumn (const CSI& params) noexcept
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     state.setCursorCol (scr, paramToIndex (params, 0, 1));
     state.setWrapPending (scr, false);
-    state.setCursorCol (scr, juce::jlimit (0, grid.getCols() - 1, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol))));
+    state.setCursorCol (scr, juce::jlimit (0, state.getRawValue<int> (ID::cols) - 1, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol))));
 }
 
 /**
@@ -611,8 +611,8 @@ void Parser::setCursorLine (const CSI& params) noexcept
 void Parser::moveCursorTo (int row, int col) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { grid.getCols() };
-    const int visibleRows { grid.getVisibleRows() };
+    const int cols { state.getRawValue<int> (ID::cols) };
+    const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
 
     if (state.getRawValue<bool> (state.modeKey (ID::originMode)))
     {
@@ -657,7 +657,7 @@ void Parser::scrollUp (const CSI& params) noexcept
     Cell fill {};
     fill.bg = stamp.bg;
 
-    grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), bottom, count, fill);
+    writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), bottom, count, fill);
 }
 
 /**
@@ -687,7 +687,7 @@ void Parser::scrollDown (const CSI& params) noexcept
     Cell fill {};
     fill.bg = stamp.bg;
 
-    grid.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), bottom, count, fill);
+    writer.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), bottom, count, fill);
 }
 
 /**
@@ -721,7 +721,7 @@ void Parser::scrollDown (const CSI& params) noexcept
 void Parser::setScrollRegion (const CSI& params) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int visibleRows { grid.getVisibleRows() };
+    const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
     const int top { paramToIndex (params, 0, 1) };
     const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (visibleRows)) };
 
@@ -736,7 +736,7 @@ void Parser::setScrollRegion (const CSI& params) noexcept
 
     calc();
 
-    const int cols { grid.getCols() };
+    const int cols { state.getRawValue<int> (ID::cols) };
     cursorSetPosition (scr, 0, 0, cols, visibleRows);
 }
 
@@ -969,7 +969,7 @@ void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
         {
             state.setMode (ID::originMode, enable);
             if (enable)
-                cursorSetPosition (scr, 0, 0, grid.getCols(), grid.getVisibleRows());
+                cursorSetPosition (scr, 0, 0, state.getRawValue<int> (ID::cols), state.getRawValue<int> (ID::visibleRows));
         }
         else if (modeValue == 25)
         {

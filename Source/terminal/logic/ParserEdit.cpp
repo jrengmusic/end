@@ -99,8 +99,8 @@ namespace Terminal
 void Parser::eraseInDisplay (int mode) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { grid.getCols() };
-    const int visibleRows { grid.getVisibleRows() };
+    const int cols { state.getRawValue<int> (ID::cols) };
+    const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
 
     Cell fill {};
     fill.bg = stamp.bg;
@@ -108,30 +108,30 @@ void Parser::eraseInDisplay (int mode) noexcept
     switch (mode)
     {
         case 0:
-            grid.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), cols - 1, fill);
+            writer.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), cols - 1, fill);
 
             if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) + 1 < visibleRows)
             {
-                grid.eraseRowRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) + 1, visibleRows - 1, fill);
+                writer.eraseRowRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) + 1, visibleRows - 1, fill);
             }
             break;
 
         case 1:
             if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) > 0)
             {
-                grid.eraseRowRange (0, state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) - 1, fill);
+                writer.eraseRowRange (0, state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) - 1, fill);
             }
 
-            grid.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), 0, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), fill);
+            writer.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), 0, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), fill);
             break;
 
         case 2:
-            grid.eraseRowRange (0, visibleRows - 1, fill);
+            writer.eraseRowRange (0, visibleRows - 1, fill);
             break;
 
         case 3:
-            grid.eraseRowRange (0, visibleRows - 1, fill);
-            grid.clearScrollback();
+            writer.eraseRowRange (0, visibleRows - 1, fill);
+            writer.clearScrollback();
             break;
 
         default:
@@ -185,7 +185,7 @@ void Parser::eraseInDisplay (int mode) noexcept
 void Parser::eraseInLine (int mode) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { grid.getCols() };
+    const int cols { state.getRawValue<int> (ID::cols) };
 
     Cell fill {};
     fill.bg = stamp.bg;
@@ -193,15 +193,15 @@ void Parser::eraseInLine (int mode) noexcept
     switch (mode)
     {
         case 0:
-            grid.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), cols - 1, fill);
+            writer.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), cols - 1, fill);
             break;
 
         case 1:
-            grid.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), 0, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), fill);
+            writer.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), 0, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), fill);
             break;
 
         case 2:
-            grid.eraseRow (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), fill);
+            writer.eraseRow (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), fill);
             break;
 
         default:
@@ -308,11 +308,11 @@ void Parser::shiftLines (int count, bool up) noexcept
 
         if (up)
         {
-            grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), bottom, count, fill);
+            writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), bottom, count, fill);
         }
         else
         {
-            grid.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), bottom, count, fill);
+            writer.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), bottom, count, fill);
         }
 
         state.setCursorCol (scr, 0);
@@ -356,10 +356,10 @@ void Parser::shiftLines (int count, bool up) noexcept
 void Parser::shiftCellsRight (int count) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { grid.getCols() };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
-    Cell* rowCells { grid.activeVisibleRow (cursorRow) };
+    Cell* rowCells { writer.activeVisibleRow (cursorRow) };
 
     if (rowCells != nullptr)
     {
@@ -374,10 +374,10 @@ void Parser::shiftCellsRight (int count) noexcept
         for (int col { cursorCol }; col < juce::jmin (cursorCol + count, cols); ++col)
         {
             rowCells[col] = fill;
-            grid.activeEraseGrapheme (cursorRow, col);
+            writer.activeEraseGrapheme (cursorRow, col);
         }
 
-        grid.markRowDirty (cursorRow);
+        writer.markRowDirty (cursorRow);
     }
 }
 
@@ -413,10 +413,10 @@ void Parser::shiftCellsRight (int count) noexcept
 void Parser::removeCells (int count) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { grid.getCols() };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
-    Cell* rowCells { grid.activeVisibleRow (cursorRow) };
+    Cell* rowCells { writer.activeVisibleRow (cursorRow) };
 
     if (rowCells != nullptr)
     {
@@ -431,10 +431,10 @@ void Parser::removeCells (int count) noexcept
         for (int col { cols - count }; col < cols; ++col)
         {
             rowCells[col] = fill;
-            grid.activeEraseGrapheme (cursorRow, col);
+            writer.activeEraseGrapheme (cursorRow, col);
         }
 
-        grid.markRowDirty (cursorRow);
+        writer.markRowDirty (cursorRow);
     }
 }
 
@@ -464,13 +464,13 @@ void Parser::removeCells (int count) noexcept
 void Parser::eraseCells (int count) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { grid.getCols() };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int endCol { juce::jmin (state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) + count - 1, cols - 1) };
 
     Cell fill {};
     fill.bg = stamp.bg;
 
-    grid.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), endCol, fill);
+    writer.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), endCol, fill);
 }
 
 // ============================================================================
@@ -551,14 +551,14 @@ void Parser::setScreen (bool shouldUseAlternate) noexcept
 
         if (target == alternate)
         {
-            grid.clearBuffer();
-            cursorClamp (scr, grid.getCols(), grid.getVisibleRows());
+            writer.clearBuffer();
+            cursorClamp (scr, state.getRawValue<int> (ID::cols), state.getRawValue<int> (ID::visibleRows));
             state.clearHyperlinks();
             activeOsc8Uri = {};
         }
         else
         {
-            grid.markAllDirty();
+            writer.markAllDirty();
         }
     }
 }

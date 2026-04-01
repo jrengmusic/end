@@ -70,13 +70,16 @@ const bool BackgroundBlur::isDwmAvailable()
 
 const bool BackgroundBlur::enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
 {
+    bool result { false };
+
     switch (type)
     {
         case Type::dwmGlass:
-            return applyDwmGlass (component, blurRadius, tint);
+            result = applyDwmGlass (component, blurRadius, tint);
+            break;
     }
 
-    return false;
+    return result;
 }
 
 /**
@@ -102,98 +105,100 @@ const bool BackgroundBlur::enable (juce::Component* component, float blurRadius,
  */
 const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blurRadius, juce::Colour tint)
 {
+    bool result { false };
+
     if (auto* peer = component->getPeer())
     {
         HWND hwnd = (HWND) peer->getNativeHandle();
 
-        if (hwnd == nullptr)
-            return false;
-
-        // --- Windows 11 (canon) ---
-        if (not isWindows10())
+        if (hwnd != nullptr)
         {
-            // Strip WS_EX_LAYERED — incompatible with DWM backdrop and rounded corners
-            LONG_PTR exStyle = GetWindowLongPtrW (hwnd, GWL_EXSTYLE);
-            if (exStyle & WS_EX_LAYERED)
-                SetWindowLongPtrW (hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
-
-            // Rounded corners
-            DWORD cornerPref = 2; // DWMWCP_ROUND
-            DwmSetWindowAttribute (hwnd, 33, &cornerPref, sizeof (cornerPref));
-
-            // Extend DWM frame into entire client area ("sheet of glass")
-            MARGINS margins { -1, -1, -1, -1 };
-            DwmExtendFrameIntoClientArea (hwnd, &margins);
-
-            auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
-                GetProcAddress (GetModuleHandleW (L"user32.dll"),
-                    "SetWindowCompositionAttribute");
-
-            if (SetWindowCompositionAttribute != nullptr)
+            // --- Windows 11 (canon) ---
+            if (not isWindows10())
             {
-                COLORREF abgr = ((COLORREF) tint.getAlpha() << 24)
-                              | ((COLORREF) tint.getBlue()  << 16)
-                              | ((COLORREF) tint.getGreen() <<  8)
-                              | ((COLORREF) tint.getRed());
+                // Strip WS_EX_LAYERED — incompatible with DWM backdrop and rounded corners
+                LONG_PTR exStyle = GetWindowLongPtrW (hwnd, GWL_EXSTYLE);
+                if (exStyle & WS_EX_LAYERED)
+                    SetWindowLongPtrW (hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
 
-                ACCENT_POLICY accent {};
-                accent.AccentState   = ACCENT_ENABLE_ACRYLICBLURBEHIND;
-                accent.AccentFlags   = 2;  // use GradientColor
-                accent.GradientColor = abgr;
-                accent.AnimationId   = 0;
+                // Rounded corners
+                DWORD cornerPref = 2; // DWMWCP_ROUND
+                DwmSetWindowAttribute (hwnd, 33, &cornerPref, sizeof (cornerPref));
 
-                WINDOWCOMPOSITIONATTRIBDATA data {};
-                data.Attrib = WCA_ACCENT_POLICY;
-                data.pvData = &accent;
-                data.cbData = sizeof (accent);
+                // Extend DWM frame into entire client area ("sheet of glass")
+                MARGINS margins { -1, -1, -1, -1 };
+                DwmExtendFrameIntoClientArea (hwnd, &margins);
 
-                return SetWindowCompositionAttribute (hwnd, &data) != FALSE;
+                auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
+                    GetProcAddress (GetModuleHandleW (L"user32.dll"),
+                        "SetWindowCompositionAttribute");
+
+                if (SetWindowCompositionAttribute != nullptr)
+                {
+                    COLORREF abgr = ((COLORREF) tint.getAlpha() << 24)
+                                  | ((COLORREF) tint.getBlue()  << 16)
+                                  | ((COLORREF) tint.getGreen() <<  8)
+                                  | ((COLORREF) tint.getRed());
+
+                    ACCENT_POLICY accent {};
+                    accent.AccentState   = ACCENT_ENABLE_ACRYLICBLURBEHIND;
+                    accent.AccentFlags   = 2;  // use GradientColor
+                    accent.GradientColor = abgr;
+                    accent.AnimationId   = 0;
+
+                    WINDOWCOMPOSITIONATTRIBDATA data {};
+                    data.Attrib = WCA_ACCENT_POLICY;
+                    data.pvData = &accent;
+                    data.cbData = sizeof (accent);
+
+                    result = SetWindowCompositionAttribute (hwnd, &data) != FALSE;
+                }
             }
+            else
+            {
+                // --- Windows 10 (special case): original working path, unchanged ---
+                auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
+                    GetProcAddress (GetModuleHandleW (L"user32.dll"),
+                        "SetWindowCompositionAttribute");
 
-            return false;
+                if (SetWindowCompositionAttribute != nullptr)
+                {
+                    COLORREF abgr = ((COLORREF) tint.getAlpha() << 24)
+                                  | ((COLORREF) tint.getBlue()  << 16)
+                                  | ((COLORREF) tint.getGreen() <<  8)
+                                  | ((COLORREF) tint.getRed());
+
+                    ACCENT_POLICY accent {};
+                    accent.AccentState   = ACCENT_ENABLE_BLURBEHIND;
+                    accent.AccentFlags   = 2;  // use GradientColor
+                    accent.GradientColor = abgr;
+                    accent.AnimationId   = 0;
+
+                    WINDOWCOMPOSITIONATTRIBDATA data {};
+                    data.Attrib = WCA_ACCENT_POLICY;
+                    data.pvData = &accent;
+                    data.cbData = sizeof (accent);
+
+                    result = SetWindowCompositionAttribute (hwnd, &data) != FALSE;
+                }
+                else
+                {
+                    // Fallback: legacy DwmEnableBlurBehindWindow
+                    DWM_BLURBEHIND blurBehind {};
+                    blurBehind.dwFlags  = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+                    blurBehind.hRgnBlur = CreateRectRgn (0, 0, -1, -1);
+                    blurBehind.fEnable  = TRUE;
+
+                    result = SUCCEEDED (DwmEnableBlurBehindWindow (hwnd, &blurBehind));
+
+                    if (blurBehind.hRgnBlur != nullptr)
+                        DeleteObject (blurBehind.hRgnBlur);
+                }
+            }
         }
-
-        // --- Windows 10 (special case): original working path, unchanged ---
-        auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
-            GetProcAddress (GetModuleHandleW (L"user32.dll"),
-                "SetWindowCompositionAttribute");
-
-        if (SetWindowCompositionAttribute != nullptr)
-        {
-            COLORREF abgr = ((COLORREF) tint.getAlpha() << 24)
-                          | ((COLORREF) tint.getBlue()  << 16)
-                          | ((COLORREF) tint.getGreen() <<  8)
-                          | ((COLORREF) tint.getRed());
-
-            ACCENT_POLICY accent {};
-            accent.AccentState   = ACCENT_ENABLE_BLURBEHIND;
-            accent.AccentFlags   = 2;  // use GradientColor
-            accent.GradientColor = abgr;
-            accent.AnimationId   = 0;
-
-            WINDOWCOMPOSITIONATTRIBDATA data {};
-            data.Attrib = WCA_ACCENT_POLICY;
-            data.pvData = &accent;
-            data.cbData = sizeof (accent);
-
-            return SetWindowCompositionAttribute (hwnd, &data) != FALSE;
-        }
-
-        // Fallback: legacy DwmEnableBlurBehindWindow
-        DWM_BLURBEHIND blurBehind {};
-        blurBehind.dwFlags  = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-        blurBehind.hRgnBlur = CreateRectRgn (0, 0, -1, -1);
-        blurBehind.fEnable  = TRUE;
-
-        bool ok = SUCCEEDED (DwmEnableBlurBehindWindow (hwnd, &blurBehind));
-
-        if (blurBehind.hRgnBlur != nullptr)
-            DeleteObject (blurBehind.hRgnBlur);
-
-        return ok;
     }
 
-    return false;
+    return result;
 }
 
 
@@ -231,41 +236,57 @@ void BackgroundBlur::hideWindowButtons (juce::Component*)
  */
 const bool BackgroundBlur::enableWindowTransparency()
 {
-    // Obtain the HWND from the current WGL device context.
-    // wglGetCurrentDC() returns the HDC that was passed to wglMakeCurrent()
-    // by JUCE's OpenGL context setup.  On Windows, JUCE creates an internal
-    // child window for the GL surface, so WindowFromDC() returns the child
-    // HWND — not the top-level window.  We must walk up to the root window
-    // because WS_EX_LAYERED and DwmExtendFrameIntoClientArea are top-level
-    // window attributes.
-    HDC hdc = wglGetCurrentDC();
+    bool result { true };
 
-    if (hdc == nullptr)
-        return false;
+    // On Windows 11, applyDwmGlass() already strips WS_EX_LAYERED and extends
+    // the DWM frame.  This function is only required on Windows 10, where
+    // applyDwmGlass() does not perform those operations for GL windows.
+    if (isWindows10())
+    {
+        // Obtain the HWND from the current WGL device context.
+        // wglGetCurrentDC() returns the HDC that was passed to wglMakeCurrent()
+        // by JUCE's OpenGL context setup.  On Windows, JUCE creates an internal
+        // child window for the GL surface, so WindowFromDC() returns the child
+        // HWND — not the top-level window.  We must walk up to the root window
+        // because WS_EX_LAYERED and DwmExtendFrameIntoClientArea are top-level
+        // window attributes.
+        HDC hdc { wglGetCurrentDC() };
 
-    HWND glHwnd = WindowFromDC (hdc);
+        if (hdc != nullptr)
+        {
+            HWND glHwnd { WindowFromDC (hdc) };
 
-    if (glHwnd == nullptr)
-        return false;
+            if (glHwnd != nullptr)
+            {
+                // Walk up to the top-level (root) window that owns this GL child.
+                HWND hwnd { GetAncestor (glHwnd, GA_ROOT) };
 
-    // Walk up to the top-level (root) window that owns this GL child.
-    HWND hwnd = GetAncestor (glHwnd, GA_ROOT);
+                if (hwnd == nullptr)
+                    hwnd = glHwnd; // fallback: use the GL window itself
 
-    if (hwnd == nullptr)
-        hwnd = glHwnd; // fallback: use the GL window itself
+                // Strip WS_EX_LAYERED so DWM composites the GL framebuffer per-pixel.
+                // GL does not use UpdateLayeredWindow, so removing this flag is safe.
+                LONG_PTR exStyle { GetWindowLongPtrW (hwnd, GWL_EXSTYLE) };
+                if (exStyle & WS_EX_LAYERED)
+                    SetWindowLongPtrW (hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
 
-    // Strip WS_EX_LAYERED so DWM composites the GL framebuffer per-pixel.
-    // GL does not use UpdateLayeredWindow, so removing this flag is safe.
-    LONG_PTR exStyle = GetWindowLongPtrW (hwnd, GWL_EXSTYLE);
-    if (exStyle & WS_EX_LAYERED)
-        SetWindowLongPtrW (hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
+                // Extend the DWM frame across the entire client area so DWM respects
+                // the alpha channel written by the GL renderer.
+                MARGINS margins { -1, -1, -1, -1 };
+                DwmExtendFrameIntoClientArea (hwnd, &margins);
+            }
+            else
+            {
+                result = false;
+            }
+        }
+        else
+        {
+            result = false;
+        }
+    }
 
-    // Extend the DWM frame across the entire client area so DWM respects
-    // the alpha channel written by the GL renderer.
-    MARGINS margins { -1, -1, -1, -1 };
-    DwmExtendFrameIntoClientArea (hwnd, &margins);
-
-    return true;
+    return result;
 }
 
 /**

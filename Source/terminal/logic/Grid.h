@@ -595,6 +595,74 @@ public:
      */
     Cell* directRowPtr (int visibleRow) noexcept;
 
+    //==========================================================================
+    /**
+     * @brief Write-only facade for Parser access to the Grid buffer.
+     *
+     * Restricts the caller to cell writes, scrolling, erasing, and dirty
+     * tracking — no geometry reads, no resize, no extract, no lock access.
+     * All methods are inline passthroughs with zero overhead.
+     *
+     * @note Constructed from a Grid reference.  Lifetime must not exceed
+     *       the Grid it wraps.
+     */
+    class Writer
+    {
+    public:
+        explicit Writer (Grid& g) noexcept : grid (g) {}
+
+        // -- Hot path (per-character) --
+        Cell*              directRowPtr (int visibleRow) noexcept                                         { return grid.directRowPtr (visibleRow); }
+        void               batchMarkDirty (const uint64_t localDirty[4]) noexcept                        { grid.batchMarkDirty (localDirty); }
+        void               markRowDirty (int row) noexcept                                               { grid.markRowDirty (row); }
+        void               activeWriteCell (int row, int col, const Cell& cellState) noexcept            { grid.activeWriteCell (row, col, cellState); }
+        void               activeWriteGrapheme (int row, int col, const Grapheme& grapheme) noexcept     { grid.activeWriteGrapheme (row, col, grapheme); }
+        void               activeEraseGrapheme (int row, int col) noexcept                               { grid.activeEraseGrapheme (row, col); }
+        Cell*              activeVisibleRow (int row) noexcept                                           { return grid.activeVisibleRow (row); }
+        const Cell*        activeVisibleRow (int row) const noexcept                                     { return grid.activeVisibleRow (row); }
+        const Grapheme*    activeReadGrapheme (int row, int col) const noexcept                          { return grid.activeReadGrapheme (row, col); }
+        RowState&          activeVisibleRowState (int row) noexcept                                      { return grid.activeVisibleRowState (row); }
+        const RowState&    activeVisibleRowState (int row) const noexcept                                { return grid.activeVisibleRowState (row); }
+
+        // -- Scroll --
+        void scrollRegionUp (int top, int bottom, int count, const Cell& fill = Cell {}) noexcept
+        {
+            grid.scrollRegionUp (top, bottom, count, fill);
+            if (onScrollbackChanged != nullptr)
+                onScrollbackChanged (grid.getScrollbackUsed());
+        }
+
+        void               scrollRegionDown (int top, int bottom, int count, const Cell& fill = Cell {}) noexcept { grid.scrollRegionDown (top, bottom, count, fill); }
+
+        // -- Erase --
+        void               eraseRow (int row, const Cell& fill = Cell {}) noexcept                      { grid.eraseRow (row, fill); }
+        void               eraseRowRange (int startRow, int endRow, const Cell& fill = Cell {}) noexcept { grid.eraseRowRange (startRow, endRow, fill); }
+        void               eraseCellRange (int row, int startCol, int endCol, const Cell& fill = Cell {}) noexcept { grid.eraseCellRange (row, startCol, endCol, fill); }
+
+        // -- Buffer management --
+        void clearScrollback() noexcept
+        {
+            grid.clearScrollback();
+            if (onScrollbackChanged != nullptr)
+                onScrollbackChanged (grid.getScrollbackUsed());
+        }
+
+        void clearBuffer()
+        {
+            grid.clearBuffer();
+            if (onScrollbackChanged != nullptr)
+                onScrollbackChanged (grid.getScrollbackUsed());
+        }
+
+        void               markAllDirty() noexcept    { grid.markAllDirty(); }
+
+        /** Fires after scroll or clear operations with the updated scrollback count. */
+        std::function<void (int)> onScrollbackChanged;
+
+    private:
+        Grid& grid;
+    };
+
 private:
     /**
      * @struct Buffer

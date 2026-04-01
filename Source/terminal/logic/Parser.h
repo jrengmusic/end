@@ -70,11 +70,10 @@
 #include "../data/CSI.h"
 #include "../data/State.h"
 #include "../data/CharProps.h"
+#include "Grid.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
-
-class Grid;
 
 /**
  * @class Parser
@@ -144,14 +143,14 @@ public:
      * @param state  Reference to the shared terminal parameter store.
      *               The parser reads cursor position, mode flags, and screen
      *               dimensions from State and writes updates back via setters.
-     * @param grid   Reference to the screen buffer.  The parser writes cells,
-     *               erases regions, and scrolls lines through Grid.
+     * @param writer Write-only facade to the screen buffer.  The parser writes
+     *               cells, erases regions, and scrolls lines through Writer.
      *
      * @note MESSAGE THREAD — construction happens before the reader thread starts.
      *
      * @see calc()
      */
-    explicit Parser (State& state, Grid& grid) noexcept;
+    explicit Parser (State& state, Grid::Writer writer) noexcept;
 
     /**
      * @brief Processes a block of raw bytes from the PTY.
@@ -289,6 +288,19 @@ public:
      */
     void flushResponses() noexcept;
 
+    /**
+     * @brief Sets the callback fired when the scrollback row count changes.
+     *
+     * Forwards the callback to the internal `Grid::Writer`.  Must be called on
+     * the MESSAGE THREAD before the reader thread starts.
+     *
+     * @param callback  Called with the updated scrollback count after any scroll
+     *                  or clear operation.
+     *
+     * @note MESSAGE THREAD — set before `process()` is first called.
+     */
+    void setScrollbackCallback (std::function<void (int)> callback) noexcept;
+
 private:
     /**
      * @brief Reference to the shared terminal parameter store.
@@ -302,13 +314,12 @@ private:
     State& state;
 
     /**
-     * @brief Reference to the terminal screen buffer.
+     * @brief Write-only facade to the terminal screen buffer.
      *
-     * The parser writes cells via `print()`, erases regions via `eraseInDisplay()`
-     * / `eraseInLine()`, and scrolls lines via `shiftLines()`.  Grid is not
-     * thread-safe; all accesses occur on the READER THREAD.
+     * The parser writes cells, erases regions, and scrolls lines through Writer.
+     * No geometry reads — those route through State.
      */
-    Grid& grid;
+    Grid::Writer writer;
 
     /**
      * @brief O(1) state transition lookup table.

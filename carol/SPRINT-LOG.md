@@ -15,6 +15,58 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 12: Grid::Writer facade, cursor responsiveness, BackgroundBlur cleanup
+
+**Date:** 2026-04-01
+
+### Agents Participated
+- COUNSELOR — comprehensive audit (Sprints 7-11), cursor lag root cause analysis (two-clock race between VBlank and State timer), Grid::Writer architecture planning, delegated all execution
+- Pathfinder — cursor update data flow trace (parameterMap → flush → ValueTree → snapshot), focus tracking trace (focusGained/focusLost vs onVBlank toFront), enableWindowTransparency include chain analysis, Grid method inventory for Writer
+- Oracle — Grid-Parser coupling analysis: cataloged all 20+ Grid methods Parser calls, categorized hot/cold/query, evaluated 6 decoupling options (virtual, template, callback, facade, split, status quo), recommended Option D (thin facade)
+- Auditor — 4-dimension audit (dead code, stale docs, SSOT violations, refactoring), Grid::Writer migration verification (7 checks all PASS), BackgroundBlur early return verification
+- Engineer — State::refresh(), isForegroundProcess guard, Grid::Writer class, Parser migration (6 files), State parameterMap registration (cols/visibleRows/scrollbackUsed), GroundOps struct, scrollback callback, enableWindowTransparency internal guard, BackgroundBlur early return elimination
+- Machinist — clean sweep on State.h, StateFlush.cpp, TerminalComponent.cpp (orphaned doxygen, stale caller annotations)
+
+### Files Modified (16 total)
+- `Source/terminal/data/State.h` — `refresh()` public API; `flush()` back to private; `setScrollbackUsed()` added; `setDimensions()` doxygen updated for parameterMap
+- `Source/terminal/data/State.cpp:152-154` — `cols`, `visibleRows`, `scrollbackUsed` registered as root-level PARAMs; `setDimensions()` writes parameterMap atomics alongside CachedValues
+- `Source/terminal/data/StateFlush.cpp` — `refresh()` definition; `flush()` doxygen step order corrected; caller annotations updated
+- `Source/terminal/data/Identifier.h` — added `scrollbackUsed` identifier
+- `Source/terminal/logic/Grid.h:598-660` — `Grid::Writer` nested public class: 19 forwarding methods (write/scroll/erase), `onScrollbackChanged` callback
+- `Source/terminal/logic/Parser.h` — `Grid& grid` → `Grid::Writer writer`; constructor takes `Grid::Writer`; removed `class Grid;` forward decl, added `#include "Grid.h"`; added `setScrollbackCallback()`
+- `Source/terminal/logic/Parser.cpp` — constructor updated; `grid.getVisibleRows()` → `state.getRawValue<int>(ID::visibleRows)`
+- `Source/terminal/logic/ParserVT.cpp` — anonymous namespace → `GroundOps` struct with `Cursor` nested type; all `grid.` → `writer.`; geometry reads through `state.getRawValue<int>()`; `setScrollbackCallback` implementation
+- `Source/terminal/logic/ParserCSI.cpp` — all `grid.` → `writer.`; geometry reads through State
+- `Source/terminal/logic/ParserEdit.cpp` — all `grid.` → `writer.`; geometry reads through State
+- `Source/terminal/logic/ParserESC.cpp` — all `grid.` → `writer.`; geometry reads through State
+- `Source/terminal/logic/ParserOps.cpp` — all `grid.` → `writer.`; geometry reads through State
+- `Source/terminal/logic/Session.cpp:158` — `Grid::Writer { grid }` construction; scrollback callback wired to `state.setScrollbackUsed()`
+- `Source/component/TerminalComponent.cpp:599` — `session.getState().refresh()` in onVBlank; `juce::Process::isForegroundProcess()` guard on `toFront(true)`
+- `modules/jreng_gui/glass/jreng_background_blur.cpp` — `enableWindowTransparency()` internally guards with `isWindows10()`; `enable()` and `applyDwmGlass()` early returns eliminated (single return per function)
+- `DEBT.md` — removed stale CursorComponent item; `enableWindowTransparency` marked resolved; `getTreeMode` naming marked resolved
+
+### Alignment Check
+- [x] LIFESTAR principles followed — Explicit Encapsulation (Grid::Writer restricts Parser's access surface; enableWindowTransparency decides internally); SSOT (geometry reads through State parameterMap, not Grid); Lean (Writer is ~30 lines of inline passthroughs, zero overhead)
+- [x] NAMING-CONVENTION.md adhered — `Writer` (noun, nested in Grid); `GroundOps` (noun, describes ground-state operations); `refresh` (verb, signals intent); `Cursor` (noun, lightweight snapshot)
+- [x] ARCHITECTURAL-MANIFESTO.md principles applied — APVTS pattern (atomics for reader thread, ValueTree for UI); tell-don't-ask (Writer writes, State reads); no layer violations
+- [x] JRENG-CODING-STANDARD.md followed — zero early returns in all modified/new code; brace init; alternative tokens; Allman braces; `noexcept` preserved
+
+### Problems Solved
+- **Cursor sluggish by 1 char:** Two independent clocks — VBlank (display-rate) and State timer (60-120 Hz) — raced. VBlank read cursor from ValueTree before timer flushed atomics. Fix: `State::refresh()` (public) calls `flush()` internally; Component calls `refresh()` in onVBlank before rendering. Atomic exchange makes timer and VBlank idempotent — no fighting.
+- **Cursor visible when window unfocused:** `onVBlank` called `toFront(true)` every frame when component lacked focus, re-stealing focus after OS window lost it. `focusGained` reset `cursorFocused = true`, making cursor reappear. Fix: `juce::Process::isForegroundProcess()` guard — only re-grab focus when the OS window is foreground.
+- **Parser held Grid& directly (Explicit Encapsulation violation):** Parser had unrestricted access to all Grid methods including message-thread-only methods (resize, extractText, getResizeLock). Fix: `Grid::Writer` facade exposes only the 19 methods Parser needs (cell writes, scroll, erase, dirty tracking). Geometry reads (getCols, getVisibleRows, scrollbackUsed) route through State parameterMap — APVTS pattern, lock-free atomic reads on reader thread.
+- **Anonymous namespace in ParserVT.cpp:** Violated coding standard (no blank namespaces). Fix: `GroundOps` struct with 4 static inline methods and nested `Cursor` type.
+- **enableWindowTransparency redundant on Win11:** Called from TerminalComponent unconditionally, but on Win11 `applyDwmGlass` already did the same work. Fix: guard lives inside the function (Explicit Encapsulation — caller tells, function decides). No include poisoning.
+- **Early returns in BackgroundBlur:** `enable()` and `applyDwmGlass()` had multiple early returns. Fix: restructured to single `return result` per function with nested positive checks.
+
+### Technical Debt / Follow-up
+- Comprehensive audit findings (Sprint 7-11) documented but not yet actioned: 12 dead code items, 17 stale doc items, 19 refactoring opportunities. See audit report in session context.
+- `scrollbackUsed` initial value: Grid's ring buffer counter is the source of truth at startup. First `scrollRegionUp` via Writer fires the callback and syncs State. Before that, State reads 0. Verify this is acceptable for the startup path.
+- `getScrollbackUsed()` remains on Grid (public) for message-thread consumers (TerminalComponent, InputHandler). Only Parser is decoupled via Writer. Full elimination would require those consumers to read from State ValueTree instead.
+- Pre-existing: `applyNSVisualEffect` not idempotent on macOS hot reload; GPU probe approach unresolved; `seq 1M` performance gap; font fallback arrows block.
+
+---
+
 ## Sprint 11: cursorVisible SSOT — remove MODES shadow
 
 **Date:** 2026-04-01

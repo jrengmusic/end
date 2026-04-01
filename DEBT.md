@@ -15,16 +15,6 @@
 
 ---
 
-## enableWindowTransparency() Redundancy on Windows 11
-
-**Priority:** Low  
-**Sprint:** 100  
-**Context:** On Windows 11, `applyDwmGlass()` already strips `WS_EX_LAYERED` and calls `DwmExtendFrameIntoClientArea`. `enableWindowTransparency()` does the same — idempotent but redundant. On Windows 10, `enableWindowTransparency()` is still required (applyDwmGlass doesn't do these operations on Win10).
-
-**Needs:** Could be guarded with `if (isWindows10())` inside `enableWindowTransparency()`, but the redundancy is harmless. Low priority.
-
----
-
 ## Parser holds Grid& directly (Explicit Encapsulation violation)
 
 **Priority:** Medium  
@@ -42,8 +32,8 @@ Cell buffer writes (hot path) must stay on Grid for performance — millions of 
 ## Pre-existing Debt (from Sprint 91+)
 
 - ~~**`getTreeMode()` / `getTreeKeyboardFlags()` naming**~~ — resolved: renamed to `getMode()` / `getKeyboardFlags()`.
+- ~~**`enableWindowTransparency()` redundancy on Windows 11**~~ — resolved: guarded with `isWindows10()` in `glContextCreated()`.
 - **`seq 1M` performance gap** — 2m33s vs Windows Terminal's 1m12s. Reader thread drain loop exits too early.
-- **`CursorComponent` missing `setInterceptsMouseClicks(false, false)`** — cursor cell swallows clicks.
 
 ---
 

@@ -107,11 +107,11 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
     {
         case 'D':
         {
-            if (not cursorGoToNextLine (scr, activeScrollBottom(), grid.getVisibleRows()))
+            if (not cursorGoToNextLine (scr, activeScrollBottom(), state.getRawValue<int> (ID::visibleRows)))
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
-                grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
+                writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
             }
             break;
         }
@@ -119,11 +119,11 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
         case 'E':
             state.setCursorCol (scr, 0);
             state.setWrapPending (scr, false);
-            if (not cursorGoToNextLine (scr, activeScrollBottom(), grid.getVisibleRows()))
+            if (not cursorGoToNextLine (scr, activeScrollBottom(), state.getRawValue<int> (ID::visibleRows)))
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
-                grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
+                writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
             }
             break;
 
@@ -137,7 +137,7 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
             {
                 Cell fill {};
                 fill.bg = stamp.bg;
-                grid.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
+                writer.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
             }
             else if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) > 0)
             {
@@ -262,8 +262,8 @@ void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
 {
     if (finalByte == '8')
     {
-        const int cols { grid.getCols() };
-        const int visibleRows { grid.getVisibleRows() };
+        const int cols { state.getRawValue<int> (ID::cols) };
+        const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
 
         for (int row { 0 }; row < visibleRows; ++row)
         {
@@ -274,8 +274,8 @@ void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
                 st.style = 0;
                 st.width = 1;
                 st.layout = 0;
-                grid.activeWriteCell (row, col, st);
-                grid.activeEraseGrapheme (row, col);
+                writer.activeWriteCell (row, col, st);
+                writer.activeEraseGrapheme (row, col);
             }
         }
 
@@ -802,7 +802,7 @@ void Parser::handleOsc8 (const uint8_t* data, uint16_t dataLength) noexcept
             activeOsc8Uri.buffer[len] = '\0';
 
             const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-            osc8StartRow = grid.getScrollbackUsed() + state.getRawValue<int> (state.screenKey (scr, ID::cursorRow));
+            osc8StartRow = state.getRawValue<int> (ID::scrollbackUsed) + state.getRawValue<int> (state.screenKey (scr, ID::cursorRow));
             osc8StartCol = state.getRawValue<int> (state.screenKey (scr, ID::cursorCol));
         }
         else
@@ -851,7 +851,7 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataL
     if (dataLength >= 1)
     {
         const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
-        const int absoluteRow { grid.getScrollbackUsed() + cursorRow };
+        const int absoluteRow { state.getRawValue<int> (ID::scrollbackUsed) + cursorRow };
 
         switch (data[0])
         {

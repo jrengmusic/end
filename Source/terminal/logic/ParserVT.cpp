@@ -20,9 +20,9 @@
  * contiguous run of printable ASCII bytes (0x20–0x7E) mixed with the most
  * common C0 codes (LF, CR, BS), `processGroundChunk()` processes the entire
  * run without per-byte dispatch table overhead.  File-local helpers
- * (`handleLineFeed`, `handleCarriageReturn`, `handleBackspace`,
- * `flushPrintRun`) operate on a `GroundCursor` snapshot to avoid repeated
- * atomic reads from State.
+ * (`GroundOps::handleLineFeed`, `GroundOps::handleCarriageReturn`,
+ * `GroundOps::handleBackspace`, `GroundOps::flushPrintRun`) operate on a
+ * `GroundOps::Cursor` snapshot to avoid repeated atomic reads from State.
  *
  * @par Thread model
  * All functions in this file run exclusively on the **READER THREAD**.
@@ -49,7 +49,13 @@ namespace Terminal
 // VT Handler: print
 // ============================================================================
 
-namespace
+/**
+ * @brief Ground-state fast-path operations.
+ *
+ * Static helper functions operating on a lightweight cursor snapshot.
+ * Extracted from the anonymous namespace to comply with naming standards.
+ */
+struct GroundOps
 {
     /**
      * @brief Lightweight cursor snapshot used by the ground-state fast path.
@@ -61,9 +67,9 @@ namespace
      * only if at least one byte was consumed.
      *
      * @see processGroundChunk()
-     * @see flushPrintRun()
+     * @see GroundOps::flushPrintRun()
      */
-    struct GroundCursor
+    struct Cursor
     {
         int row;           ///< Current cursor row (zero-based).
         int col;           ///< Current cursor column (zero-based).
@@ -82,20 +88,20 @@ namespace
      * Updates `c.cellRow` to point at the new row.
      *
      * @param c             Cursor snapshot to update in-place.
-     * @param grid          Terminal screen buffer (for scroll and row pointer).
+     * @param writer        Terminal screen buffer writer (for scroll and row pointer).
      * @param scrollTop     Zero-based index of the first row of the scroll region.
      * @param scrollBottom  Zero-based index of the last row of the scroll region.
      * @param visibleRows   Total number of visible rows in the terminal.
      *
      * @note READER THREAD only.
      */
-    inline void handleLineFeed (GroundCursor& c, Grid& grid, int scrollTop, int scrollBottom, int visibleRows, const Cell& fill) noexcept
+    static inline void handleLineFeed (Cursor& c, Grid::Writer& writer, int scrollTop, int scrollBottom, int visibleRows, const Cell& fill) noexcept
     {
         c.wrapPending = false;
 
         if (c.row == scrollBottom)
         {
-            grid.scrollRegionUp (scrollTop, scrollBottom, 1, fill);
+            writer.scrollRegionUp (scrollTop, scrollBottom, 1, fill);
         }
         else if (c.row > scrollBottom)
         {
@@ -106,7 +112,7 @@ namespace
             ++c.row;
         }
 
-        c.cellRow = grid.directRowPtr (c.row);
+        c.cellRow = writer.directRowPtr (c.row);
     }
 
     /**
@@ -118,7 +124,7 @@ namespace
      *
      * @note READER THREAD only.
      */
-    inline void handleCarriageReturn (GroundCursor& c) noexcept
+    static inline void handleCarriageReturn (Cursor& c) noexcept
     {
         c.col = 0;
         c.wrapPending = false;
@@ -134,7 +140,7 @@ namespace
      *
      * @note READER THREAD only.
      */
-    inline void handleBackspace (GroundCursor& c) noexcept
+    static inline void handleBackspace (Cursor& c) noexcept
     {
         if (c.col > 0)
         {
@@ -158,11 +164,11 @@ namespace
      *    or advances `c.col`.
      *
      * The dirty-bit for the current row is OR'd into `localDirty` so that a
-     * single `grid.batchMarkDirty()` call can flush all dirty rows at the end
+     * single `writer.batchMarkDirty()` call can flush all dirty rows at the end
      * of the chunk.
      *
      * @param c              Cursor snapshot (modified in-place).
-     * @param grid           Terminal screen buffer.
+     * @param writer         Terminal screen buffer writer.
      * @param scrollTop      Zero-based index of the first row of the scroll region.
      * @param scrollBottom   Zero-based index of the last row of the scroll region.
      * @param cols           Terminal column count (right margin = cols - 1).
@@ -177,17 +183,17 @@ namespace
      * @see processGroundChunk()
      * @see translateCharset()
      */
-    inline void flushPrintRun (GroundCursor& c, Grid& grid, int scrollTop, int scrollBottom,
-                                int visibleRows, int cols, bool autoWrap, uint64_t* localDirty,
-                                Cell& cellTemplate, uint8_t byte, bool useLineDrawing, const Cell& fill) noexcept
+    static inline void flushPrintRun (Cursor& c, Grid::Writer& writer, int scrollTop, int scrollBottom,
+                                      int visibleRows, int cols, bool autoWrap, uint64_t* localDirty,
+                                      Cell& cellTemplate, uint8_t byte, bool useLineDrawing, const Cell& fill) noexcept
     {
         if (c.wrapPending and autoWrap)
         {
-            grid.activeVisibleRowState (c.row).setWrapped (true);
+            writer.activeVisibleRowState (c.row).setWrapped (true);
 
             if (c.row == scrollBottom)
             {
-                grid.scrollRegionUp (scrollTop, scrollBottom, 1, fill);
+                writer.scrollRegionUp (scrollTop, scrollBottom, 1, fill);
             }
             else if (c.row > scrollBottom)
             {
@@ -199,7 +205,7 @@ namespace
             }
 
             c.col = 0;
-            c.cellRow = grid.directRowPtr (c.row);
+            c.cellRow = writer.directRowPtr (c.row);
         }
 
         c.wrapPending = false;
@@ -216,7 +222,7 @@ namespace
             ++c.col;
         }
     }
-}
+};
 
 /**
  * @brief Fast-path processor for ground-state printable ASCII and common C0 codes.
@@ -230,16 +236,16 @@ namespace
  * @par Handled byte ranges
  * | Byte(s)         | Action                                      |
  * |-----------------|---------------------------------------------|
- * | 0x20–0x7E       | `flushPrintRun()` — write cell to grid      |
- * | 0x0A / 0x0B / 0x0C | `handleLineFeed()` — LF / VT / FF      |
- * | 0x0D            | `handleCarriageReturn()` — CR               |
- * | 0x08            | `handleBackspace()` — BS                    |
+ * | 0x20–0x7E       | `GroundOps::flushPrintRun()` — write cell to grid      |
+ * | 0x0A / 0x0B / 0x0C | `GroundOps::handleLineFeed()` — LF / VT / FF      |
+ * | 0x0D            | `GroundOps::handleCarriageReturn()` — CR               |
+ * | 0x08            | `GroundOps::handleBackspace()` — BS                    |
  * | Any other byte  | Loop exits; byte is left for the state machine |
  *
  * @par Dirty tracking
- * Rather than calling `grid.markRowDirty()` on every cell write, the function
+ * Rather than calling `writer.markRowDirty()` on every cell write, the function
  * accumulates dirty bits in a local 256-bit array (`localDirty[4]`) and
- * flushes them with a single `grid.batchMarkDirty()` call at the end.
+ * flushes them with a single `writer.batchMarkDirty()` call at the end.
  *
  * @par State writeback
  * The cursor position is read from State once at the start and written back
@@ -256,15 +262,15 @@ namespace
  * @note READER THREAD only.
  *
  * @see process()
- * @see flushPrintRun()
- * @see handleLineFeed()
+ * @see GroundOps::flushPrintRun()
+ * @see GroundOps::handleLineFeed()
  */
 // READER THREAD — bulk ground-state: printable ASCII + LF/CR/BS
 size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { grid.getCols() };
-    const int visibleRows { grid.getVisibleRows() };
+    const int cols { state.getRawValue<int> (ID::cols) };
+    const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
     const bool autoWrap { state.getRawValue<bool> (state.modeKey (ID::autoWrap)) };
     const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
     const int scrollBottomVal { activeScrollBottom() };
@@ -278,10 +284,10 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
     Cell fill {};
     fill.bg = stamp.bg;
 
-    GroundCursor c { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)),
-                     state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)),
-                     state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending)),
-                     grid.directRowPtr (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))) };
+    GroundOps::Cursor c { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)),
+                          state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)),
+                          state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending)),
+                          writer.directRowPtr (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))) };
 
     uint64_t localDirty[4] { 0, 0, 0, 0 };
     size_t consumed { 0 };
@@ -292,7 +298,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
 
         if (byte >= 0x20 and byte <= 0x7E)
         {
-            flushPrintRun (c, grid, scrollTop, scrollBottomVal, visibleRows, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill);
+            GroundOps::flushPrintRun (c, writer, scrollTop, scrollBottomVal, visibleRows, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill);
             lastGraphicChar = cellTemplate.codepoint;
             consumed = i + 1;
             continue;
@@ -301,8 +307,8 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
         if (byte == 0x0A or byte == 0x0B or byte == 0x0C)
         {
             localDirty[c.row >> 6] |= uint64_t { 1 } << (c.row & 63);
-            handleLineFeed (c, grid, scrollTop, scrollBottomVal, visibleRows, fill);
-            state.extendOutputBlock (grid.getScrollbackUsed() + c.row);
+            GroundOps::handleLineFeed (c, writer, scrollTop, scrollBottomVal, visibleRows, fill);
+            state.extendOutputBlock (state.getRawValue<int> (ID::scrollbackUsed) + c.row);
             consumed = i + 1;
             continue;
         }
@@ -310,14 +316,14 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
         if (byte == 0x0D)
         {
             localDirty[c.row >> 6] |= uint64_t { 1 } << (c.row & 63);
-            handleCarriageReturn (c);
+            GroundOps::handleCarriageReturn (c);
             consumed = i + 1;
             continue;
         }
 
         if (byte == 0x08)
         {
-            handleBackspace (c);
+            GroundOps::handleBackspace (c);
             consumed = i + 1;
             continue;
         }
@@ -328,7 +334,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
     if (consumed > 0)
     {
         localDirty[c.row >> 6] |= uint64_t { 1 } << (c.row & 63);
-        grid.batchMarkDirty (localDirty);
+        writer.batchMarkDirty (localDirty);
         state.setCursorCol (scr, c.col);
         state.setCursorRow (scr, c.row);
         state.setWrapPending (scr, c.wrapPending);
@@ -345,7 +351,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
  * this method is called before the cell write to commit the deferred wrap:
  *
  * 1. If auto-wrap mode (DECAWM) is active, marks the current row as wrapped
- *    via `Grid::activeVisibleRowState().setWrapped(true)`.
+ *    via `Grid::Writer::activeVisibleRowState().setWrapped(true)`.
  * 2. Scrolls the scroll region up by one line if the cursor is at
  *    `scrollBottom`, otherwise increments the cursor row.
  * 3. Resets the cursor column to 0.
@@ -365,7 +371,7 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
 {
     if (state.getRawValue<bool> (state.modeKey (ID::autoWrap)))
     {
-        grid.activeVisibleRowState (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))).setWrapped (true);
+        writer.activeVisibleRowState (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))).setWrapped (true);
 
         const int row { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
 
@@ -373,11 +379,11 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
         {
             Cell fill {};
             fill.bg = stamp.bg;
-            grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
+            writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
         }
         else if (row > activeScrollBottom())
         {
-            state.setCursorRow (scr, juce::jmin (row + 1, grid.getVisibleRows() - 1));
+            state.setCursorRow (scr, juce::jmin (row + 1, state.getRawValue<int> (ID::visibleRows) - 1));
         }
         else
         {
@@ -450,14 +456,14 @@ void Parser::print (uint32_t codepoint) noexcept
         int prevCol { wrapping ? curCol : (curCol > 0 ? curCol - 1 : 0) };
         const int row { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
 
-        const Cell* rowCells { grid.activeVisibleRow (row) };
+        const Cell* rowCells { writer.activeVisibleRow (row) };
 
         if (rowCells != nullptr and prevCol > 0 and rowCells[prevCol].isWideContinuation())
         {
             --prevCol;
         }
 
-        const Grapheme* existing { grid.activeReadGrapheme (row, prevCol) };
+        const Grapheme* existing { writer.activeReadGrapheme (row, prevCol) };
         Grapheme g {};
 
         if (existing != nullptr)
@@ -471,11 +477,11 @@ void Parser::print (uint32_t codepoint) noexcept
             ++g.count;
         }
 
-        grid.activeWriteGrapheme (row, prevCol, g);
+        writer.activeWriteGrapheme (row, prevCol, g);
 
         if (props.isEmojiPresentation())
         {
-            Cell* rowPtr { grid.activeVisibleRow (row) };
+            Cell* rowPtr { writer.activeVisibleRow (row) };
 
             if (rowPtr != nullptr)
             {
@@ -485,7 +491,7 @@ void Parser::print (uint32_t codepoint) noexcept
 
         if (codepoint == 0xFE0F)
         {
-            Cell* rowPtr { grid.activeVisibleRow (row) };
+            Cell* rowPtr { writer.activeVisibleRow (row) };
 
             if (rowPtr != nullptr)
             {
@@ -494,7 +500,7 @@ void Parser::print (uint32_t codepoint) noexcept
 
                 if (baseProps.isEmojiVariationBase() and base.width == 1)
                 {
-                    const int cols { grid.getCols() };
+                    const int cols { state.getRawValue<int> (ID::cols) };
                     base.width = 2;
                     base.layout |= Cell::LAYOUT_EMOJI;
 
@@ -507,8 +513,8 @@ void Parser::print (uint32_t codepoint) noexcept
                         cont.fg = base.fg;
                         cont.bg = base.bg;
                         cont.layout = Cell::LAYOUT_WIDE_CONT;
-                        grid.activeWriteCell (row, prevCol + 1, cont);
-                        grid.activeEraseGrapheme (row, prevCol + 1);
+                        writer.activeWriteCell (row, prevCol + 1, cont);
+                        writer.activeEraseGrapheme (row, prevCol + 1);
                     }
 
                     const int newCursorCol { prevCol + 2 < cols ? prevCol + 2 : cols };
@@ -519,14 +525,14 @@ void Parser::print (uint32_t codepoint) noexcept
                         state.setWrapPending (scr, true);
                     }
 
-                    grid.markRowDirty (row);
+                    writer.markRowDirty (row);
                 }
             }
         }
 
         if (codepoint == 0xFE0E)
         {
-            Cell* rowPtr { grid.activeVisibleRow (row) };
+            Cell* rowPtr { writer.activeVisibleRow (row) };
 
             if (rowPtr != nullptr)
             {
@@ -538,19 +544,19 @@ void Parser::print (uint32_t codepoint) noexcept
                     base.width = 1;
                     base.layout &= static_cast<uint8_t> (~Cell::LAYOUT_EMOJI);
 
-                    const int cols { grid.getCols() };
+                    const int cols { state.getRawValue<int> (ID::cols) };
 
                     if (prevCol + 1 < cols)
                     {
                         Cell empty {};
-                        grid.activeWriteCell (row, prevCol + 1, empty);
-                        grid.activeEraseGrapheme (row, prevCol + 1);
+                        writer.activeWriteCell (row, prevCol + 1, empty);
+                        writer.activeEraseGrapheme (row, prevCol + 1);
                     }
 
                     state.setCursorCol (scr, prevCol + 1);
                     state.setWrapPending (scr, false);
 
-                    grid.markRowDirty (row);
+                    writer.markRowDirty (row);
                 }
             }
         }
@@ -559,7 +565,7 @@ void Parser::print (uint32_t codepoint) noexcept
     {
         const int rawWidth { props.width() };
         const int cellWidth { rawWidth < 1 ? 1 : rawWidth };
-        const int cols { grid.getCols() };
+        const int cols { state.getRawValue<int> (ID::cols) };
 
         if (state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending)))
         {
@@ -573,17 +579,17 @@ void Parser::print (uint32_t codepoint) noexcept
         {
             if (state.getRawValue<bool> (state.modeKey (ID::autoWrap)))
             {
-                grid.activeVisibleRowState (row).setWrapped (true);
+                writer.activeVisibleRowState (row).setWrapped (true);
 
                 if (row == activeScrollBottom())
                 {
                     Cell fill {};
                     fill.bg = stamp.bg;
-                    grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
+                    writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
                 }
                 else if (row > activeScrollBottom())
                 {
-                    state.setCursorRow (scr, juce::jmin (row + 1, grid.getVisibleRows() - 1));
+                    state.setCursorRow (scr, juce::jmin (row + 1, state.getRawValue<int> (ID::visibleRows) - 1));
                 }
                 else
                 {
@@ -610,8 +616,8 @@ void Parser::print (uint32_t codepoint) noexcept
             cell.layout |= Cell::LAYOUT_EMOJI;
         }
 
-        grid.activeWriteCell (writeRow, writeCol, cell);
-        grid.activeEraseGrapheme (writeRow, writeCol);
+        writer.activeWriteCell (writeRow, writeCol, cell);
+        writer.activeEraseGrapheme (writeRow, writeCol);
         lastGraphicChar = codepoint;
 
         if (cellWidth == 2 and writeCol + 1 < cols)
@@ -623,8 +629,8 @@ void Parser::print (uint32_t codepoint) noexcept
             cont.fg = stamp.fg;
             cont.bg = stamp.bg;
             cont.layout = Cell::LAYOUT_WIDE_CONT;
-            grid.activeWriteCell (writeRow, writeCol + 1, cont);
-            grid.activeEraseGrapheme (writeRow, writeCol + 1);
+            writer.activeWriteCell (writeRow, writeCol + 1, cont);
+            writer.activeEraseGrapheme (writeRow, writeCol + 1);
         }
 
         if (writeCol + cellWidth >= cols)
@@ -663,14 +669,14 @@ void Parser::print (uint32_t codepoint) noexcept
  */
 void Parser::executeLineFeed (ActiveScreen scr) noexcept
 {
-    if (not cursorGoToNextLine (scr, activeScrollBottom(), grid.getVisibleRows()))
+    if (not cursorGoToNextLine (scr, activeScrollBottom(), state.getRawValue<int> (ID::visibleRows)))
     {
         Cell fill {};
         fill.bg = stamp.bg;
-        grid.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
+        writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
     }
 
-    state.extendOutputBlock (grid.getScrollbackUsed() + state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)));
+    state.extendOutputBlock (state.getRawValue<int> (ID::scrollbackUsed) + state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)));
 }
 
 /**
@@ -705,7 +711,7 @@ void Parser::executeLineFeed (ActiveScreen scr) noexcept
 void Parser::execute (uint8_t controlByte) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { grid.getCols() };
+    const int cols { state.getRawValue<int> (ID::cols) };
 
     switch (controlByte)
     {
@@ -808,6 +814,11 @@ void Parser::flushResponses() noexcept
     }
 }
 
+void Parser::setScrollbackCallback (std::function<void (int)> callback) noexcept
+{
+    writer.onScrollbackChanged = std::move (callback);
+}
+
 // ============================================================================
 // VT Handler: Full Reset
 // ============================================================================
@@ -885,13 +896,13 @@ void Parser::resetModes() noexcept
 void Parser::reset() noexcept
 {
     state.setScreen (normal);
-    resetCursor (grid.getCols());
+    resetCursor (state.getRawValue<int> (ID::cols));
     resetModes();
     resetPen();
     useLineDrawing = false;
     g0LineDrawing = false;
     g1LineDrawing = false;
-    grid.eraseRowRange (0, grid.getVisibleRows() - 1);
+    writer.eraseRowRange (0, state.getRawValue<int> (ID::visibleRows) - 1);
     calc();
 }
 

@@ -195,7 +195,7 @@ enum class ModalType : uint8_t
  * - `get*()` atomic getters: callable from ANY thread, lock-free, noexcept.
  * - `get()`, `getValue()`, `getMode()`: MESSAGE THREAD only.
  * - `timerCallback()`: MESSAGE THREAD only (called by juce::Timer).
- * - `flush()` and its helpers: MESSAGE THREAD only (called from timerCallback).
+ * - `flush()` and its helpers: MESSAGE THREAD only (called from `timerCallback()` and `refresh()`).
  *
  * @note `State` inherits `juce::Timer` and starts the timer in its constructor.
  *       The timer interval is chosen to keep UI latency below one frame at
@@ -382,6 +382,21 @@ struct State : public juce::Timer
      * @note READER THREAD — lock-free, noexcept.
      */
     void resetKeyboardMode (ActiveScreen s) noexcept;
+
+    /**
+     * @brief Sets the number of rows currently used in the scrollback buffer.
+     *
+     * Written by the reader thread after scroll operations that change the
+     * scrollback depth.  Uses `storeAndFlush` so the value is visible to the
+     * message thread on the next flush pass.
+     *
+     * @param value  Row count currently occupied in the scrollback buffer.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setScrollbackUsed (int value) noexcept
+    {
+        storeAndFlush (ID::scrollbackUsed, static_cast<float> (value));
+    }
 
     /**
      * @brief Sets the window title from OSC 0/2 escape sequences.
@@ -916,7 +931,9 @@ struct State : public juce::Timer
      * @brief Sets terminal dimensions from the message thread.
      *
      * Writes cols and visibleRows to the CachedValue store — ValueTree updated
-     * synchronously, listeners fire on the message thread.
+     * synchronously, listeners fire on the message thread.  Also stores both
+     * values into the parameterMap atomics (`ID::cols`, `ID::visibleRows`) with
+     * `memory_order_release` so the reader thread can read them without locking.
      *
      * @param cols  New terminal width in character columns.
      * @param rows  New terminal height in character rows.
@@ -1013,17 +1030,6 @@ struct State : public juce::Timer
      */
     bool hasOutputBlock() const noexcept;
 
-    /**
-     * @brief Timer callback — flushes dirty atomics into the ValueTree.
-     *
-     * Called by the JUCE timer infrastructure on the message thread at the
-     * interval set in the constructor.  Checks `needsFlush`; if set, calls
-     * `flush()` to copy all atomic values into the ValueTree, triggering any
-     * attached `juce::ValueTree::Listener` callbacks.
-     *
-     * @note MESSAGE THREAD — called by juce::Timer, never call directly.
-     * @see flush()
-     */
     /** Called by `timerCallback()` after each flush cycle. MESSAGE THREAD only. */
     std::function<void()> onFlush;
 
@@ -1156,7 +1162,26 @@ struct State : public juce::Timer
     void refresh() noexcept;
 
 private:
+    /**
+     * @brief Timer callback — flushes dirty atomics into the ValueTree.
+     *
+     * Called by the JUCE timer infrastructure on the message thread at the
+     * interval set in the constructor.  Checks `needsFlush`; if set, calls
+     * `flush()` to copy all atomic values into the ValueTree, triggering any
+     * attached `juce::ValueTree::Listener` callbacks.
+     *
+     * @note MESSAGE THREAD — called by juce::Timer, never call directly.
+     * @see flush()
+     */
     void timerCallback() override;
+
+    /**
+     * @brief Copies all dirty atomic values into the ValueTree in a single pass.
+     *
+     * @return `true` if `needsFlush` was set and the ValueTree was updated;
+     *         `false` if nothing had changed and the flush was skipped.
+     * @note MESSAGE THREAD — called from `timerCallback()` and `refresh()`.
+     */
     bool flush() noexcept;
 
     /**

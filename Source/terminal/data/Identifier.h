@@ -129,6 +129,9 @@ namespace ID
     /** @brief Scroll offset for alternate screen buffer (scrollback position). */
     static const juce::Identifier scrollOffset  { "scrollOffset" };
 
+    /** @brief Number of rows currently used in the scrollback buffer. */
+    static const juce::Identifier scrollbackUsed { "scrollbackUsed" };
+
     /** @brief Active modal input type (cast from ModalType enum). 0 = none. */
     static const juce::Identifier modalType     { "modalType" };
 
