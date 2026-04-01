@@ -71,6 +71,15 @@ public:
      */
     virtual void applyConfig() noexcept = 0;
 
+    /** @brief Enters vim-style keyboard selection mode. @note MESSAGE THREAD. */
+    virtual void enterSelectionMode() noexcept = 0;
+
+    /** @brief Copies the active selection to the system clipboard and clears selection. @note MESSAGE THREAD. */
+    virtual void copySelection() noexcept = 0;
+
+    /** @brief Returns true if there is an active text selection. @note MESSAGE THREAD. */
+    virtual bool hasSelection() const noexcept = 0;
+
     /**
      * @brief Callback invoked after rendering to trigger a repaint.
      *

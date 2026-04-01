@@ -49,6 +49,8 @@ namespace ID
     static const juce::Identifier splitVertical      { "splitVertical" };
     static const juce::Identifier activePaneID { "activePaneID" };
     static const juce::Identifier activePaneType { "activePaneType" };
+    static const juce::Identifier modalType      { "modalType" };
+    static const juce::Identifier selectionType  { "selectionType" };
     static const juce::Identifier renderer           { "renderer" };
     static const juce::Identifier filePath           { "filePath" };
     static const juce::Identifier displayName        { "displayName" };
@@ -57,5 +59,9 @@ namespace ID
     static const juce::Identifier parseComplete      { "parseComplete" };
     static const juce::Identifier pendingPrefix      { "pendingPrefix" };
     static const juce::Identifier totalBlocks        { "totalBlocks" };
+    static const juce::Identifier selCursorBlock     { "selCursorBlock" };
+    static const juce::Identifier selCursorChar      { "selCursorChar" };
+    static const juce::Identifier selAnchorBlock     { "selAnchorBlock" };
+    static const juce::Identifier selAnchorChar      { "selAnchorChar" };
 }
 }

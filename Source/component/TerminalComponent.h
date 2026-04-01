@@ -43,7 +43,7 @@
 #include "../terminal/logic/Session.h"
 #include "../terminal/rendering/Screen.h"
 #include "../terminal/rendering/ScreenSelection.h"
-#include "../terminal/selection/SelectionType.h"
+#include "../SelectionType.h"
 #include "../terminal/selection/LinkSpan.h"
 #include "../terminal/selection/LinkManager.h"
 #include "InputHandler.h"
@@ -379,7 +379,7 @@ public:
      * @return `true` if `screenSelection` is non-null.
      * @note MESSAGE THREAD.
      */
-    bool hasSelection() const noexcept;
+    bool hasSelection() const noexcept override;
 
     /**
      * @brief Copies the current text selection to the system clipboard.
@@ -388,7 +388,7 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    void copySelection();
+    void copySelection() noexcept override;
 
     /**
      * @brief Reads the system clipboard and writes its text to the pty.
@@ -460,7 +460,7 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    void enterSelectionMode() noexcept;
+    void enterSelectionMode() noexcept override;
 
     /**
      * @brief Enters open-file hint-label mode.

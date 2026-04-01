@@ -23,7 +23,7 @@
 
 #include <JuceHeader.h>
 #include "../terminal/rendering/ScreenSelection.h"
-#include "../terminal/selection/SelectionType.h"
+#include "../SelectionType.h"
 
 namespace Terminal
 {

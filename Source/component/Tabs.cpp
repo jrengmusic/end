@@ -10,6 +10,7 @@
 #include "Tabs.h"
 #include "../AppState.h"
 #include "../terminal/data/Identifier.h"
+#include "../whelmed/Component.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -286,18 +287,55 @@ Terminal::Component* Tabs::getActiveTerminal() const noexcept
     return nullptr;
 }
 
+Whelmed::Component* Tabs::getActiveWhelmed() const noexcept
+{
+    const auto activeID { AppState::getContext()->getActivePaneID() };
+
+    if (auto* active { getActivePanes() }; active != nullptr)
+    {
+        for (auto& pane : active->getPanes())
+        {
+            if (pane->getComponentID() == activeID and pane->getPaneType() == "document")
+            {
+                return dynamic_cast<Whelmed::Component*> (pane.get());
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+PaneComponent* Tabs::getActivePane() const noexcept
+{
+    const auto activeID { AppState::getContext()->getActivePaneID() };
+    const auto activeType { AppState::getContext()->getActivePaneType() };
+
+    if (auto* active { getActivePanes() }; active != nullptr)
+    {
+        for (auto& pane : active->getPanes())
+        {
+            if (pane->getComponentID() == activeID and pane->getPaneType() == activeType)
+            {
+                return pane.get();
+            }
+        }
+    }
+
+    return nullptr;
+}
+
 bool Tabs::hasSelection() const noexcept
 {
-    if (const auto* t { getActiveTerminal() }; t != nullptr)
-        return t->hasSelection();
+    if (const auto* pane { getActivePane() }; pane != nullptr)
+        return pane->hasSelection();
 
     return false;
 }
 
 void Tabs::copySelection()
 {
-    if (auto* t { getActiveTerminal() }; t != nullptr)
-        t->copySelection();
+    if (auto* pane { getActivePane() }; pane != nullptr)
+        pane->copySelection();
 }
 
 void Tabs::pasteClipboard()
@@ -435,6 +473,9 @@ void Tabs::currentTabChanged (int newIndex, const juce::String&)
     {
         p->setVisible (false);
     }
+
+    AppState::getContext()->setModalType (0);
+    AppState::getContext()->setSelectionType (0);
 
     resized();
 

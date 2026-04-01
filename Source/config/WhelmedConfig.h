@@ -91,6 +91,8 @@ struct Config : jreng::Context<Config>
         inline static const juce::String loaderFontFamily    { "loader_font_family" };
         inline static const juce::String loaderFontSize      { "loader_font_size" };
         inline static const juce::String loaderFontStyle     { "loader_font_style" };
+
+        inline static const juce::String selectionColour { "selection_colour" };
     };
 
     juce::String getString (const juce::String& key) const;

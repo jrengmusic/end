@@ -74,6 +74,12 @@ struct AppState : jreng::Context<AppState>
     juce::String getActivePaneType() const noexcept;
     void setActivePaneType (const juce::String& type);
 
+    void setModalType (int type);
+    int  getModalType() const noexcept;
+
+    void setSelectionType (int type);
+    int  getSelectionType() const noexcept;
+
     juce::String getPwd() const noexcept;
     void setPwd (juce::ValueTree sessionTree);
 

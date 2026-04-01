@@ -149,7 +149,7 @@ private:
     std::unique_ptr<MessageOverlay> messageOverlay;
 
     /** @brief Status bar overlay; shown during any active modal state (selection, open-file, etc.). */
-    StatusBarOverlay statusBarOverlay;
+    StatusBarOverlay statusBarOverlay { AppState::getContext()->getTabs() };
 
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;

@@ -5,6 +5,7 @@
 #include "Screen.h"
 #include "../component/LoaderOverlay.h"
 #include "Parser.h"
+#include "InputHandler.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
@@ -22,10 +23,14 @@ public:
     void applyConfig() noexcept override;
 
     bool keyPressed (const juce::KeyPress& key) override;
+    void mouseDown (const juce::MouseEvent& event) override;
     void paint (juce::Graphics& g) override;
     void resized() override;
 
     void openFile (const juce::File& file);
+    void enterSelectionMode() noexcept override;
+    void copySelection() noexcept override;
+    bool hasSelection() const noexcept override;
     juce::ValueTree getValueTree() noexcept override;
 
 private:
@@ -34,11 +39,11 @@ private:
     State docState;
     juce::ValueTree state;
     std::unique_ptr<Parser> parser;
-    juce::juce_wchar pendingPrefix { 0 };
     int totalBlocks { 0 };
 
     juce::Viewport viewport;
     Screen screen;
+    InputHandler inputHandler { viewport, screen, state };
     ::LoaderOverlay loaderOverlay;
 
     std::unique_ptr<jreng::Mermaid::Parser> mermaidParser;

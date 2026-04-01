@@ -231,6 +231,46 @@ void AppState::setActivePaneType (const juce::String& type)
     }
 }
 
+void AppState::setModalType (int type)
+{
+    auto tabs { getTabs() };
+
+    if (tabs.isValid())
+    {
+        tabs.setProperty (App::ID::modalType, type, nullptr);
+    }
+}
+
+int AppState::getModalType() const noexcept
+{
+    auto tabs { state.getChildWithName (App::ID::TABS) };
+
+    if (tabs.isValid() and tabs.hasProperty (App::ID::modalType))
+        return static_cast<int> (tabs.getProperty (App::ID::modalType));
+
+    return 0;
+}
+
+void AppState::setSelectionType (int type)
+{
+    auto tabs { getTabs() };
+
+    if (tabs.isValid())
+    {
+        tabs.setProperty (App::ID::selectionType, type, nullptr);
+    }
+}
+
+int AppState::getSelectionType() const noexcept
+{
+    auto tabs { state.getChildWithName (App::ID::TABS) };
+
+    if (tabs.isValid() and tabs.hasProperty (App::ID::selectionType))
+        return static_cast<int> (tabs.getProperty (App::ID::selectionType));
+
+    return 0;
+}
+
 juce::String AppState::getPwd() const noexcept
 {
     const auto cwd { pwdValue.toString() };

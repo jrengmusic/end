@@ -28,6 +28,8 @@
 #include "Panes.h"
 #include "LookAndFeel.h"
 
+namespace Whelmed { class Component; }
+
 namespace Terminal
 { /*____________________________________________________________________________*/
 /**
@@ -120,6 +122,16 @@ public:
     Terminal::Component* getActiveTerminal() const noexcept;
 
     /**
+     * @brief Returns the active Whelmed document component, if any.
+     *
+     * Looks up the active pane by UUID and pane type "document".
+     *
+     * @return Pointer to the active Whelmed::Component, or nullptr if none.
+     * @note MESSAGE THREAD.
+     */
+    Whelmed::Component* getActiveWhelmed() const noexcept;
+
+    /**
      * @brief Returns the active Panes' pane owner for GL iteration.
      *
      * Returns a reference to a static empty owner if no active pane exists.
@@ -138,6 +150,11 @@ public:
      * @note MESSAGE THREAD.
      */
     void openMarkdown (const juce::File& file);
+
+    /**
+     * @brief Returns the active pane component regardless of type. @note MESSAGE THREAD.
+     */
+    PaneComponent* getActivePane() const noexcept;
 
     /**
      * @brief Returns `true` if the active terminal has a non-degenerate selection.

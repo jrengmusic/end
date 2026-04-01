@@ -63,6 +63,8 @@
 #include "Cell.h"
 #include "Identifier.h"
 #include "../selection/LinkSpan.h"
+#include "../../ModalType.h"
+#include "../../SelectionType.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -149,28 +151,9 @@ enum ActiveScreen : size_t
     alternate = 1///< Alternate screen buffer (full-screen apps).
 };
 
-/**
- * @enum ModalType
- * @brief Identifies which modal input mode is currently active in the terminal.
- *
- * State is the SSOT for "are we in a modal state".  The enum value is stored
- * as a standalone `std::atomic<uint8_t>` so any thread can check whether the
- * terminal is intercepting keys without holding a lock.
- *
- * - `none`        — normal terminal input; keys flow to the Action system and PTY.
- * - `selection`   — vim-style selection mode; `handleSelectionKey` handles navigation keys.
- * - `flashJump`   — reserved for flash-jump / EasyMotion mode (future).
- * - `uriAction`   — reserved for URI picker mode (future).
- *
- * @note Stored as `uint8_t` to keep the atomic lock-free on all platforms.
- */
-enum class ModalType : uint8_t
-{
-    none,///< No modal active — normal input routing.
-    selection,///< Vim-style keyboard selection mode.
-    openFile,///< Open file / hyperlink hint label mode.
-    uriAction///< URI picker overlay (reserved).
-};
+// ModalType and SelectionType are now app-level — see Source/ModalType.h, Source/SelectionType.h
+using ::ModalType;
+using ::SelectionType;
 
 /**
  * @struct State
@@ -712,11 +695,10 @@ struct State : public juce::Timer
     bool isSyncOutputActive() const noexcept;
 
     /**
-     * @brief Sets the active modal input type.
+     * @brief Sets the active modal input type via AppState and triggers render rebuild.
      *
-     * Writes `type` via `storeAndFlush (ID::modalType, …)` and fires
-     * `setSnapshotDirty()` so the renderer can update any modal overlay on the
-     * next frame.  The timer flushes the value into the ValueTree for the UI.
+     * Delegates storage to AppState (SSOT).  Also fires setFullRebuild() and
+     * setSnapshotDirty() so the renderer updates on the next frame.
      *
      * @param type  The modal to activate, or `ModalType::none` to deactivate.
      * @note MESSAGE THREAD — called from keyboard event handlers.
@@ -786,16 +768,16 @@ struct State : public juce::Timer
      * @{ */
 
     /**
-     * @brief Sets the active selection type.
+     * @brief Sets the active selection type via AppState and triggers render rebuild.
      * @param type  Integer cast of the SelectionType enum value.
-     * @note MESSAGE THREAD — calls storeAndFlush.
+     * @note MESSAGE THREAD — delegates to AppState.
      */
     void setSelectionType (int type) noexcept;
 
     /**
-     * @brief Returns the active selection type as an integer.
+     * @brief Returns the active selection type from AppState.
      * @return Integer cast of the current SelectionType.
-     * @note ANY THREAD — lock-free, noexcept.
+     * @note MESSAGE THREAD — reads from AppState ValueTree.
      */
     int getSelectionType() const noexcept;
 
@@ -890,13 +872,10 @@ struct State : public juce::Timer
     /** @} */
 
     /**
-     * @brief Returns the currently active modal input type.
-     *
-     * Reads `ID::modalType` from the parameterMap atomic.  Safe to call from
-     * any thread without a lock.
+     * @brief Returns the currently active modal input type from AppState.
      *
      * @return The active `ModalType`, or `ModalType::none` if no modal is active.
-     * @note ANY THREAD — lock-free, noexcept.
+     * @note MESSAGE THREAD — reads from AppState ValueTree.
      */
     ModalType getModalType() const noexcept;
 

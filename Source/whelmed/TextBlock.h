@@ -17,6 +17,28 @@ public:
     /** Re-creates the internal layout for a new width. Call when viewport width changes. */
     void layout (int width);
 
+    juce::RectangleList<float> getSelectionRects (int startChar, int endChar) const override;
+    juce::String getText() const override;
+    int getTextLength() const noexcept override;
+    juce::Rectangle<float> getGlyphBounds (int charIndex) const override;
+
+    /** Returns the number of visual lines in this block's layout. */
+    int getLineCount() const noexcept override;
+
+    /** Returns which visual line a character index falls on. */
+    int getLineForChar (int charIndex) const noexcept override;
+
+    /** Returns the start and end character indices for a visual line (half-open range). */
+    juce::Range<int> getLineCharRange (int lineIndex) const noexcept override;
+
+    /** Returns the character index closest to targetX on the given visual line. */
+    int getCharForLine (int lineIndex, float targetX) const noexcept override;
+
+    /** Returns the x-position of a character (for sticky column tracking). */
+    float getCharX (int charIndex) const noexcept override;
+
+    int hitTest (float localX, float localY) const noexcept override;
+
 private:
     juce::AttributedString source;
     juce::TextLayout textLayout;

@@ -37,6 +37,7 @@
 #include "State.h"
 #include <JuceHeader.h>
 #include "../../config/Config.h"
+#include "../../AppState.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -153,10 +154,8 @@ State::State()
     addParam (state, ID::visibleRows,    0.0f);
     addParam (state, ID::scrollbackUsed, 0.0f);
     addParam (state, ID::scrollOffset, 0);
-    addParam (state, ID::modalType, 0.0f);
     addParam (state, ID::hintPage, 0.0f);
     addParam (state, ID::hintTotalPages, 0.0f);
-    addParam (state, ID::selectionType, 0.0f);
     addParam (state, ID::selectionCursorRow, 0.0f);
     addParam (state, ID::selectionCursorCol, 0.0f);
     addParam (state, ID::selectionAnchorRow, 0.0f);
@@ -652,12 +651,12 @@ bool State::isSyncOutputActive() const noexcept
 // MESSAGE THREAD
 void State::setModalType (ModalType type) noexcept
 {
-    storeAndFlush (ID::modalType, static_cast<float> (type));
+    AppState::getContext()->setModalType (static_cast<int> (type));
     setFullRebuild();
     setSnapshotDirty();
 }
 
-ModalType State::getModalType() const noexcept { return static_cast<ModalType> (getRawValue<int> (ID::modalType)); }
+ModalType State::getModalType() const noexcept { return static_cast<ModalType> (AppState::getContext()->getModalType()); }
 
 bool State::isModal() const noexcept { return getModalType() != ModalType::none; }
 
@@ -691,12 +690,12 @@ int State::getHintOverlayCount() const noexcept { return hintOverlayCount; }
 
 void State::setSelectionType (int type) noexcept
 {
-    storeAndFlush (ID::selectionType, static_cast<float> (type));
+    AppState::getContext()->setSelectionType (type);
     setFullRebuild();
     setSnapshotDirty();
 }
 
-int State::getSelectionType() const noexcept { return getRawValue<int> (ID::selectionType); }
+int State::getSelectionType() const noexcept { return AppState::getContext()->getSelectionType(); }
 
 void State::setSelectionCursor (int row, int col) noexcept
 {

@@ -1,6 +1,6 @@
 /**
  * @file StatusBarOverlay.h
- * @brief Full-width status bar that reflects the active terminal modal state.
+ * @brief Full-width status bar that reflects the active pane modal state.
  *
  * StatusBarOverlay spans the entire MainComponent width and is positioned at
  * either the top or bottom edge, controlled by `keys.status_bar_position`
@@ -27,30 +27,36 @@
  *
  * @see MainComponent
  * @see Terminal::LookAndFeel
- * @see Terminal::ModalType
- * @see Terminal::SelectionType
+ * @see ModalType
+ * @see SelectionType
  */
 
 #pragma once
 #include <JuceHeader.h>
-#include "../terminal/selection/SelectionType.h"
+#include "../SelectionType.h"
+#include "../ModalType.h"
 #include "../config/Config.h"
-#include "../terminal/data/State.h"
+#include "../AppIdentifier.h"
 
 /**
  * @class StatusBarOverlay
- * @brief Full-width status bar for terminal modal state indicators.
+ * @brief Full-width status bar for pane modal state indicators.
  *
- * Header-only.  Inherits `juce::Component`.  Non-interactive.
- * Displays a mode label for each active `ModalType`: selection modes
- * ("VISUAL" etc.) and file-open mode ("OPEN").
+ * Header-only.  Inherits `juce::Component` and `juce::ValueTree::Listener`.
+ * Non-interactive.  Displays a mode label for each active `ModalType`:
+ * selection modes ("VISUAL" etc.) and file-open mode ("OPEN").
+ *
+ * Listens to the TABS subtree for `modalType` and `selectionType` property
+ * changes and self-updates via `refresh()`.  Hint page info (Terminal-specific,
+ * pane-local) is updated externally via `updateHintInfo()`.
  *
  * @par Thread context
  * **MESSAGE THREAD** — all public methods.
  *
  * @see MainComponent
  */
-class StatusBarOverlay : public juce::Component
+class StatusBarOverlay : public juce::Component,
+                         public juce::ValueTree::Listener
 {
 public:
     /**
@@ -67,52 +73,69 @@ public:
     };
 
     /**
-     * @brief Constructs StatusBarOverlay: opaque bar, no mouse interception.
+     * @brief Constructs StatusBarOverlay and registers as listener on the TABS subtree.
      *
      * Starts hidden via `addChildComponent` in MainComponent.
      *
+     * @param tabsTree  The TABS subtree from AppState; listened to for modal property changes.
      * @note MESSAGE THREAD.
      */
-    StatusBarOverlay()
+    StatusBarOverlay (juce::ValueTree tabsTree)
+        : tabs (tabsTree)
     {
         setOpaque (true);
         setInterceptsMouseClicks (false, false);
+        tabs.addListener (this);
+    }
+
+    ~StatusBarOverlay() override
+    {
+        tabs.removeListener (this);
     }
 
     /**
-     * @brief Updates the displayed modal state and toggles visibility.
+     * @brief ValueTree listener callback; triggers refresh on modal property changes.
      *
-     * When @p modalType is `ModalType::none`, hides the overlay.
-     * For `ModalType::selection`, shows a vim-style mode label derived from
-     * @p selectionType.  For `ModalType::openFile`, shows "OPEN N/T" where
-     * N is the 1-based current page and T is the total page count.
-     * Hidden when the selection type within a selection modal is unrecognised.
-     *
-     * @param modalType     The currently active modal type.
-     * @param selectionType Integer cast of the current SelectionType (used
-     *                      when @p modalType is `ModalType::selection`).
-     * @param hintPage      Current hint page index (0-based).
-     * @param hintTotalPages Total number of hint pages.
+     * @param tree      The tree whose property changed (unused).
+     * @param property  The identifier of the changed property.
      * @note MESSAGE THREAD.
      */
-    void update (Terminal::ModalType modalType, int selectionType,
-                 int hintPage, int hintTotalPages) noexcept
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override
     {
-        if (modalType == Terminal::ModalType::selection)
+        juce::ignoreUnused (tree);
+
+        if (property == App::ID::modalType or property == App::ID::selectionType)
+            refresh();
+    }
+
+    /**
+     * @brief Reads modal state from the TABS ValueTree and updates the overlay.
+     *
+     * Called by valueTreePropertyChanged when modalType or selectionType change.
+     * Also called externally for hint page updates (Terminal-specific, polled).
+     *
+     * @note MESSAGE THREAD.
+     */
+    void refresh() noexcept
+    {
+        const auto modal { static_cast<ModalType> (static_cast<int> (tabs.getProperty (App::ID::modalType))) };
+        const auto selType { static_cast<int> (tabs.getProperty (App::ID::selectionType)) };
+
+        if (modal == ModalType::selection)
         {
-            if (selectionType == static_cast<int> (Terminal::SelectionType::visual))
+            if (selType == static_cast<int> (SelectionType::visual))
             {
                 label = "VISUAL";
                 setVisible (true);
                 repaint();
             }
-            else if (selectionType == static_cast<int> (Terminal::SelectionType::visualLine))
+            else if (selType == static_cast<int> (SelectionType::visualLine))
             {
                 label = "V-LINE";
                 setVisible (true);
                 repaint();
             }
-            else if (selectionType == static_cast<int> (Terminal::SelectionType::visualBlock))
+            else if (selType == static_cast<int> (SelectionType::visualBlock))
             {
                 label = "V-BLOCK";
                 setVisible (true);
@@ -123,7 +146,7 @@ public:
                 setVisible (false);
             }
         }
-        else if (modalType == Terminal::ModalType::openFile)
+        else if (modal == ModalType::openFile)
         {
             if (hintTotalPages > 1)
             {
@@ -140,6 +163,26 @@ public:
         else
         {
             setVisible (false);
+        }
+    }
+
+    /**
+     * @brief Updates hint page info for open-file mode display.
+     *
+     * Called from MainComponent's VBlank lambda when the active pane is a terminal
+     * in openFile mode. Triggers refresh if values changed.
+     *
+     * @param page   Zero-based hint page index.
+     * @param total  Total hint page count.
+     * @note MESSAGE THREAD.
+     */
+    void updateHintInfo (int page, int total) noexcept
+    {
+        if (hintPage != page or hintTotalPages != total)
+        {
+            hintPage = page;
+            hintTotalPages = total;
+            refresh();
         }
     }
 
@@ -202,8 +245,17 @@ public:
     }
 
 private:
+    /** @brief The TABS subtree; listened to for modalType and selectionType changes. */
+    juce::ValueTree tabs;
+
     /** @brief The text currently shown in the overlay. */
     juce::String label;
+
+    /** @brief Zero-based current hint page index (openFile mode). */
+    int hintPage { 0 };
+
+    /** @brief Total hint page count (openFile mode). */
+    int hintTotalPages { 0 };
 
     /** @brief Horizontal padding on each side of the mode label text. */
     static constexpr int labelPadding { 8 };

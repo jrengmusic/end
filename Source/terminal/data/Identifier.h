@@ -132,9 +132,6 @@ namespace ID
     /** @brief Number of rows currently used in the scrollback buffer. */
     static const juce::Identifier scrollbackUsed { "scrollbackUsed" };
 
-    /** @brief Active modal input type (cast from ModalType enum). 0 = none. */
-    static const juce::Identifier modalType     { "modalType" };
-
     /** @brief Current hint page index (0-based). Updated on open-file mode entry and spacebar. */
     static const juce::Identifier hintPage       { "hintPage" };
 
@@ -261,9 +258,6 @@ namespace ID
     //==========================================================================
     // Selection state parameter IDs
     //==========================================================================
-
-    /** @brief Active selection type (cast from SelectionType enum). 0 = none. */
-    static const juce::Identifier selectionType        { "selectionType" };
 
     /** @brief Selection cursor row in scrollback-aware grid coordinates. */
     static const juce::Identifier selectionCursorRow   { "selectionCursorRow" };

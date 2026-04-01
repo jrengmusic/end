@@ -2,7 +2,9 @@
 #include "Component.h"
 #include "MermaidSVGParser.h"
 #include "../config/WhelmedConfig.h"
-#include "../terminal/action/Action.h"
+#include "../AppState.h"
+#include "../ModalType.h"
+#include "../SelectionType.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
@@ -36,11 +38,21 @@ Component::Component()
 
     viewport.setViewedComponent (&screen, false);
     viewport.setScrollBarsShown (true, false);
+    viewport.setMouseClickGrabsKeyboardFocus (false);
     addAndMakeVisible (viewport);
     addAndMakeVisible (loaderOverlay);
+    viewport.addMouseListener (this, true);
+    AppState::getContext()->getTabs().addListener (this);
+    inputHandler.buildKeyMap();
+    screen.setStateTree (state);
 }
 
-Component::~Component() { state.removeListener (this); }
+Component::~Component()
+{
+    AppState::getContext()->getTabs().removeListener (this);
+    viewport.removeMouseListener (this);
+    state.removeListener (this);
+}
 
 // ============================================================================
 // PaneComponent interface
@@ -48,70 +60,7 @@ Component::~Component() { state.removeListener (this); }
 
 bool Component::keyPressed (const juce::KeyPress& key)
 {
-    const auto* config { Whelmed::Config::getContext() };
-    const int scrollStep { config->getInt (Whelmed::Config::Key::scrollStep) };
-    const juce::String scrollDown { config->getString (Whelmed::Config::Key::scrollDown) };
-    const juce::String scrollUp { config->getString (Whelmed::Config::Key::scrollUp) };
-    const juce::String scrollTop { config->getString (Whelmed::Config::Key::scrollTop) };
-    const juce::String scrollBottom { config->getString (Whelmed::Config::Key::scrollBottom) };
-
-    const auto keyChar { key.getTextCharacter() };
-    bool handled { false };
-
-    auto pendingPrefix { static_cast<juce::juce_wchar> (static_cast<int> (state.getProperty (App::ID::pendingPrefix))) };
-
-    if (pendingPrefix != 0)
-    {
-        juce::String sequence { juce::String::charToString (pendingPrefix) + juce::String::charToString (keyChar) };
-        state.setProperty (App::ID::pendingPrefix, static_cast<int> (juce::juce_wchar { 0 }), nullptr);
-
-        if (sequence == scrollTop)
-        {
-            viewport.setViewPosition (0, 0);
-            handled = true;
-        }
-        else if (sequence == scrollBottom)
-        {
-            viewport.setViewPosition (0, screen.getHeight() - viewport.getHeight());
-            handled = true;
-        }
-    }
-
-    if (not handled)
-    {
-        const juce::String keyString { juce::String::charToString (keyChar) };
-
-        if (scrollTop.length() > 1 and scrollTop.substring (0, 1) == keyString)
-        {
-            state.setProperty (App::ID::pendingPrefix, static_cast<int> (keyChar), nullptr);
-            handled = true;
-        }
-        else if (scrollBottom.length() > 1 and scrollBottom.substring (0, 1) == keyString)
-        {
-            state.setProperty (App::ID::pendingPrefix, static_cast<int> (keyChar), nullptr);
-            handled = true;
-        }
-        else if (keyString == scrollDown)
-        {
-            viewport.setViewPosition (0, viewport.getViewPositionY() + scrollStep);
-            handled = true;
-        }
-        else if (keyString == scrollUp)
-        {
-            viewport.setViewPosition (0, juce::jmax (0, viewport.getViewPositionY() - scrollStep));
-            handled = true;
-        }
-        else if (keyString == scrollBottom)
-        {
-            viewport.setViewPosition (0, screen.getHeight() - viewport.getHeight());
-            handled = true;
-        }
-    }
-
-    if (not handled)
-        handled = Terminal::Action::getContext()->handleKeyPress (key);
-
-    return handled;
+    return inputHandler.handleKey (key);
 }
 
 void Component::switchRenderer (PaneComponent::RendererType type) { juce::ignoreUnused (type); }
@@ -120,6 +69,7 @@ void Component::applyConfig() noexcept
 {
     screen.load (docState.getDocument(), std::numeric_limits<int>::max());
     resized();
+    inputHandler.buildKeyMap();
 }
 
 // ============================================================================
@@ -200,7 +150,58 @@ void Component::openFile (const juce::File& file)
 
     parser = std::make_unique<Parser> (docState, initialBatch);
     parser->start();
+
     repaint();
+}
+
+void Component::mouseDown (const juce::MouseEvent& event)
+{
+    juce::ignoreUnused (event);
+    grabKeyboardFocus();
+}
+
+void Component::enterSelectionMode() noexcept
+{
+    const int firstVisible { screen.getFirstVisibleBlock (viewport.getViewPositionY()) };
+    state.setProperty (App::ID::selCursorBlock, firstVisible, nullptr);
+    state.setProperty (App::ID::selCursorChar, 0, nullptr);
+    state.setProperty (App::ID::selAnchorBlock, firstVisible, nullptr);
+    state.setProperty (App::ID::selAnchorChar, 0, nullptr);
+    AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
+    AppState::getContext()->setModalType (static_cast<int> (ModalType::selection));
+    inputHandler.reset();
+    screen.updateCursor (firstVisible, 0);
+    screen.repaint();
+}
+
+void Component::copySelection() noexcept
+{
+    const int anchorBlock { static_cast<int> (state.getProperty (App::ID::selAnchorBlock)) };
+    const int anchorChar  { static_cast<int> (state.getProperty (App::ID::selAnchorChar)) };
+    const int cursorBlock { static_cast<int> (state.getProperty (App::ID::selCursorBlock)) };
+    const int cursorChar  { static_cast<int> (state.getProperty (App::ID::selCursorChar)) };
+
+    const bool anchorFirst { anchorBlock < cursorBlock
+        or (anchorBlock == cursorBlock and anchorChar <= cursorChar) };
+    const int startBlock { anchorFirst ? anchorBlock : cursorBlock };
+    const int startChar  { anchorFirst ? anchorChar  : cursorChar };
+    const int endBlock   { anchorFirst ? cursorBlock : anchorBlock };
+    const int endChar    { anchorFirst ? cursorChar  : anchorChar };
+
+    const juce::String text { screen.extractText (startBlock, startChar, endBlock, endChar) };
+
+    if (text.isNotEmpty())
+        juce::SystemClipboard::copyTextToClipboard (text);
+
+    AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
+    AppState::getContext()->setModalType (static_cast<int> (ModalType::none));
+    screen.hideCursor();
+    screen.repaint();
+}
+
+bool Component::hasSelection() const noexcept
+{
+    return AppState::getContext()->getSelectionType() != static_cast<int> (SelectionType::none);
 }
 
 juce::ValueTree Component::getValueTree() noexcept { return state; }
@@ -227,6 +228,48 @@ void Component::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
             {
                 loaderOverlay.hide();
                 setBufferedToImage (true);
+            }
+        }
+    }
+
+    if (property == App::ID::modalType)
+    {
+        const int modal { static_cast<int> (tree.getProperty (App::ID::modalType)) };
+
+        if (modal == static_cast<int> (ModalType::none))
+        {
+            setBufferedToImage (true);
+        }
+    }
+
+    if (property == App::ID::selCursorBlock or property == App::ID::selCursorChar
+        or property == App::ID::selAnchorBlock or property == App::ID::selAnchorChar)
+    {
+        const int anchorBlock { static_cast<int> (state.getProperty (App::ID::selAnchorBlock)) };
+        const int anchorChar  { static_cast<int> (state.getProperty (App::ID::selAnchorChar)) };
+        const int cursorBlock { static_cast<int> (state.getProperty (App::ID::selCursorBlock)) };
+        const int cursorChar  { static_cast<int> (state.getProperty (App::ID::selCursorChar)) };
+
+        screen.setSelection (anchorBlock, anchorChar, cursorBlock, cursorChar);
+        screen.updateCursor (cursorBlock, cursorChar);
+        screen.repaint();
+
+        const auto cursorBounds { screen.getCursorBounds() };
+
+        if (not cursorBounds.isEmpty())
+        {
+            const int viewTop    { viewport.getViewPositionY() };
+            const int viewBottom { viewTop + viewport.getViewHeight() };
+            const int cursorTop    { static_cast<int> (cursorBounds.getY()) };
+            const int cursorBottom { static_cast<int> (cursorBounds.getBottom()) };
+
+            if (cursorTop < viewTop)
+            {
+                viewport.setViewPosition (0, cursorTop);
+            }
+            else if (cursorBottom > viewBottom)
+            {
+                viewport.setViewPosition (0, cursorBottom - viewport.getViewHeight());
             }
         }
     }

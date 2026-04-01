@@ -116,6 +116,8 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
         panes.add (std::move (component));
 
+        AppState::getContext()->setModalType (0);
+        AppState::getContext()->setSelectionType (0);
         AppState::getContext()->setActivePaneType ("document");
         resized();
     }
@@ -170,6 +172,8 @@ void Panes::closeWhelmed()
         if (isShowing())
             terminalPane->grabKeyboardFocus();
 
+        AppState::getContext()->setModalType (0);
+        AppState::getContext()->setSelectionType (0);
         AppState::getContext()->setActivePaneType ("terminal");
     }
 }

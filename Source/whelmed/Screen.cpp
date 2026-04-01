@@ -2,6 +2,9 @@
 #include "Tokenizer.h"
 #include "../config/WhelmedConfig.h"
 #include "../config/Config.h"
+#include "../AppState.h"
+#include "../SelectionType.h"
+#include "../ModalType.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
@@ -266,6 +269,340 @@ juce::AttributedString Screen::buildAttributedString (const jreng::Markdown::Par
     return as;
 }
 
+void Screen::setSelection (int anchorBlock, int anchorChar, int cursorBlock, int cursorChar) noexcept
+{
+    selAnchorBlock = anchorBlock;
+    selAnchorChar  = anchorChar;
+    selCursorBlock = cursorBlock;
+    selCursorChar  = cursorChar;
+}
+
+void Screen::setCursor (const Cursor& c) noexcept
+{
+    cursor = c;
+}
+
+void Screen::updateCursor (int blockIndex, int charIndex) noexcept
+{
+    const auto modal { static_cast<ModalType> (AppState::getContext()->getModalType()) };
+
+    if (modal == ModalType::selection
+        and blockIndex >= 0
+        and blockIndex < static_cast<int> (entries.size()))
+    {
+        const auto& entry { entries.at (static_cast<size_t> (blockIndex)) };
+
+        if (entry.block != nullptr)
+        {
+            auto glyphBounds { entry.block->getGlyphBounds (charIndex) };
+
+            if (not glyphBounds.isEmpty())
+            {
+                glyphBounds.translate (0.0f, static_cast<float> (entry.y));
+
+                const auto theme { ::Config::getContext()->buildTheme() };
+
+                cursor.bounds    = glyphBounds;
+                cursor.colour    = theme.selectionCursorColour;
+                cursor.codepoint = theme.cursorCodepoint;
+                cursor.shape     = 0;
+                cursor.visible   = true;
+                cursor.blinkOn   = true;
+            }
+            else
+            {
+                cursor.visible = false;
+            }
+        }
+        else
+        {
+            cursor.visible = false;
+        }
+    }
+    else
+    {
+        cursor.visible = false;
+    }
+}
+
+int Screen::getBlockTextLength (int blockIndex) const noexcept
+{
+    if (blockIndex >= 0 and blockIndex < static_cast<int> (entries.size()))
+    {
+        const auto& entry { entries.at (static_cast<size_t> (blockIndex)) };
+
+        if (entry.block != nullptr)
+            return entry.block->getTextLength();
+    }
+
+    return 0;
+}
+
+int Screen::getBlockLineCount (int blockIndex) const noexcept
+{
+    if (blockIndex >= 0 and blockIndex < static_cast<int> (entries.size()))
+    {
+        const auto& entry { entries.at (static_cast<size_t> (blockIndex)) };
+
+        if (entry.block != nullptr)
+            return entry.block->getLineCount();
+    }
+
+    return 1;
+}
+
+int Screen::getBlockLineForChar (int blockIndex, int charIndex) const noexcept
+{
+    if (blockIndex >= 0 and blockIndex < static_cast<int> (entries.size()))
+    {
+        const auto& entry { entries.at (static_cast<size_t> (blockIndex)) };
+
+        if (entry.block != nullptr)
+            return entry.block->getLineForChar (charIndex);
+    }
+
+    return 0;
+}
+
+juce::Range<int> Screen::getBlockLineCharRange (int blockIndex, int lineIndex) const noexcept
+{
+    if (blockIndex >= 0 and blockIndex < static_cast<int> (entries.size()))
+    {
+        const auto& entry { entries.at (static_cast<size_t> (blockIndex)) };
+
+        if (entry.block != nullptr)
+            return entry.block->getLineCharRange (lineIndex);
+    }
+
+    return { 0, 0 };
+}
+
+int Screen::getBlockCharForLine (int blockIndex, int lineIndex, float targetX) const noexcept
+{
+    if (blockIndex >= 0 and blockIndex < static_cast<int> (entries.size()))
+    {
+        const auto& entry { entries.at (static_cast<size_t> (blockIndex)) };
+
+        if (entry.block != nullptr)
+            return entry.block->getCharForLine (lineIndex, targetX);
+    }
+
+    return 0;
+}
+
+float Screen::getBlockCharX (int blockIndex, int charIndex) const noexcept
+{
+    if (blockIndex >= 0 and blockIndex < static_cast<int> (entries.size()))
+    {
+        const auto& entry { entries.at (static_cast<size_t> (blockIndex)) };
+
+        if (entry.block != nullptr)
+            return entry.block->getCharX (charIndex);
+    }
+
+    return 0.0f;
+}
+
+float Screen::getCursorPixelY() const noexcept
+{
+    if (cursor.visible)
+        return cursor.bounds.getY();
+
+    return -1.0f;
+}
+
+juce::Rectangle<float> Screen::getCursorBounds() const noexcept
+{
+    return cursor.bounds;
+}
+
+void Screen::hideCursor() noexcept
+{
+    cursor.visible = false;
+}
+
+Screen::HitResult Screen::hitTestAt (float x, float y) const noexcept
+{
+    for (int i { 0 }; i < static_cast<int> (entries.size()); ++i)
+    {
+        const auto& entry { entries.at (static_cast<size_t> (i)) };
+
+        if (entry.block != nullptr
+            and y >= static_cast<float> (entry.y)
+            and y < static_cast<float> (entry.y + entry.height))
+        {
+            const float localY { y - static_cast<float> (entry.y) };
+            const int charIdx { entry.block->hitTest (x, localY) };
+
+            if (charIdx >= 0)
+                return { i, charIdx };
+        }
+    }
+
+    return { -1, -1 };
+}
+
+void Screen::setStateTree (juce::ValueTree tree) noexcept
+{
+    stateTree = tree;
+}
+
+void Screen::mouseDown (const juce::MouseEvent& event)
+{
+    {
+        auto* parent { getParentComponent() };
+
+        if (parent != nullptr)
+        {
+            auto* pane { parent->getParentComponent() };
+
+            if (pane != nullptr)
+                pane->grabKeyboardFocus();
+        }
+    }
+
+    clickCount = event.getNumberOfClicks();
+    const auto hit { hitTestAt (static_cast<float> (event.x), static_cast<float> (event.y)) };
+
+    if (hit.block >= 0 and stateTree.isValid())
+    {
+        if (clickCount == 3)
+        {
+            const int lineIndex { getBlockLineForChar (hit.block, hit.character) };
+            const auto lineRange { getBlockLineCharRange (hit.block, lineIndex) };
+
+            AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::visualLine));
+            stateTree.setProperty (App::ID::selAnchorBlock, hit.block, nullptr);
+            stateTree.setProperty (App::ID::selAnchorChar, lineRange.getStart(), nullptr);
+            stateTree.setProperty (App::ID::selCursorBlock, hit.block, nullptr);
+            stateTree.setProperty (App::ID::selCursorChar, lineRange.getEnd() - 1, nullptr);
+            dragActive = false;
+        }
+        else if (clickCount == 2)
+        {
+            const int textLen { getBlockTextLength (hit.block) };
+
+            if (textLen > 0 and hit.block < static_cast<int> (entries.size()))
+            {
+                const auto& entry { entries.at (static_cast<size_t> (hit.block)) };
+
+                if (entry.block != nullptr)
+                {
+                    const juce::String text { entry.block->getText() };
+                    int wordStart { hit.character };
+                    int wordEnd { hit.character };
+
+                    while (wordStart > 0 and text[wordStart - 1] > ' ')
+                        --wordStart;
+
+                    while (wordEnd < textLen - 1 and text[wordEnd + 1] > ' ')
+                        ++wordEnd;
+
+                    AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::visual));
+                    stateTree.setProperty (App::ID::selAnchorBlock, hit.block, nullptr);
+                    stateTree.setProperty (App::ID::selAnchorChar, wordStart, nullptr);
+                    stateTree.setProperty (App::ID::selCursorBlock, hit.block, nullptr);
+                    stateTree.setProperty (App::ID::selCursorChar, wordEnd, nullptr);
+                }
+            }
+
+            dragActive = false;
+        }
+        else
+        {
+            AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
+            AppState::getContext()->setModalType (static_cast<int> (ModalType::none));
+            dragAnchor = hit;
+            dragActive = false;
+            hideCursor();
+        }
+
+        repaint();
+    }
+}
+
+void Screen::mouseDrag (const juce::MouseEvent& event)
+{
+    if (dragAnchor.block >= 0 and clickCount == 1 and stateTree.isValid())
+    {
+        const auto hit { hitTestAt (static_cast<float> (event.x), static_cast<float> (event.y)) };
+
+        if (hit.block >= 0)
+        {
+            const bool crossedThreshold { hit.block != dragAnchor.block
+                                          or hit.character != dragAnchor.character };
+
+            if (crossedThreshold and not dragActive)
+            {
+                AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::visual));
+                stateTree.setProperty (App::ID::selAnchorBlock, dragAnchor.block, nullptr);
+                stateTree.setProperty (App::ID::selAnchorChar, dragAnchor.character, nullptr);
+                dragActive = true;
+            }
+
+            if (dragActive)
+            {
+                stateTree.setProperty (App::ID::selCursorBlock, hit.block, nullptr);
+                stateTree.setProperty (App::ID::selCursorChar, hit.character, nullptr);
+                repaint();
+            }
+        }
+    }
+}
+
+void Screen::mouseUp (const juce::MouseEvent& event)
+{
+    juce::ignoreUnused (event);
+    dragActive = false;
+}
+
+int Screen::getFirstVisibleBlock (int viewportY) const noexcept
+{
+    for (int i { 0 }; i < static_cast<int> (entries.size()); ++i)
+    {
+        const auto& entry { entries.at (static_cast<size_t> (i)) };
+
+        if (entry.y + entry.height > viewportY and entry.block != nullptr)
+            return i;
+    }
+
+    return 0;
+}
+
+juce::String Screen::extractText (int startBlock, int startChar, int endBlock, int endChar) const
+{
+    juce::String result;
+    const int blockCount { static_cast<int> (entries.size()) };
+
+    for (int i { juce::jmax (0, startBlock) }; i <= juce::jmin (endBlock, blockCount - 1); ++i)
+    {
+        const auto& entry { entries.at (static_cast<size_t> (i)) };
+
+        if (entry.block != nullptr)
+        {
+            const juce::String blockText { entry.block->getText() };
+            const int textLen { blockText.length() };
+
+            int from { 0 };
+            int to   { textLen };
+
+            if (i == startBlock)
+                from = juce::jlimit (0, textLen, startChar);
+
+            if (i == endBlock)
+                to = juce::jlimit (0, textLen, endChar + 1);
+
+            if (to > from)
+                result += blockText.substring (from, to);
+
+            if (i < endBlock)
+                result += "\n";
+        }
+    }
+
+    return result;
+}
+
 void Screen::updateLayout()
 {
     const int width { getWidth() };
@@ -331,6 +668,64 @@ void Screen::paint (juce::Graphics& g)
                 if (mermaid != nullptr and not mermaid->hasResult())
                     paintMermaidSpinner (g, area);
             }
+        }
+    }
+
+    const auto selType { static_cast<SelectionType> (AppState::getContext()->getSelectionType()) };
+
+    if (selType != SelectionType::none)
+    {
+        const auto selColour { Whelmed::Config::getContext()->getColour (Whelmed::Config::Key::selectionColour) };
+        g.setColour (selColour);
+
+        const bool anchorFirst { selAnchorBlock < selCursorBlock
+            or (selAnchorBlock == selCursorBlock and selAnchorChar <= selCursorChar) };
+        const int startBlock { anchorFirst ? selAnchorBlock : selCursorBlock };
+        const int startChar  { anchorFirst ? selAnchorChar  : selCursorChar };
+        const int endBlock   { anchorFirst ? selCursorBlock : selAnchorBlock };
+        const int endChar    { anchorFirst ? selCursorChar  : selAnchorChar };
+
+        for (int i { startBlock }; i <= endBlock and i < static_cast<int> (entries.size()); ++i)
+        {
+            const auto& entry { entries.at (static_cast<size_t> (i)) };
+
+            if (entry.block != nullptr and entry.y + entry.height > clipBounds.getY() and entry.y < clipBounds.getBottom())
+            {
+                int blockStart { 0 };
+                int blockEnd   { entry.block->getTextLength() };
+
+                if (selType == SelectionType::visual)
+                {
+                    if (i == startBlock)
+                        blockStart = startChar;
+
+                    if (i == endBlock)
+                        blockEnd = endChar + 1;
+                }
+
+                if (blockEnd > blockStart)
+                {
+                    auto rects { entry.block->getSelectionRects (blockStart, blockEnd) };
+                    rects.offsetAll (0.0f, static_cast<float> (entry.y));
+                    g.fillRectList (rects);
+                }
+            }
+        }
+    }
+
+    // Cursor rendering
+    if (cursor.visible and cursor.blinkOn)
+    {
+        const auto cursorBounds { cursor.bounds };
+
+        if (cursorBounds.getY() + cursorBounds.getHeight() > static_cast<float> (clipBounds.getY())
+            and cursorBounds.getY() < static_cast<float> (clipBounds.getBottom()))
+        {
+            g.setColour (cursor.colour);
+
+            static constexpr float barWidth { 2.0f };
+            g.fillRect (cursorBounds.getX(), cursorBounds.getY(),
+                        barWidth, cursorBounds.getHeight());
         }
     }
 }

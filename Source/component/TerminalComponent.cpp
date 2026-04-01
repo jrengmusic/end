@@ -216,7 +216,7 @@ void Terminal::Component::resized()
 
 bool Terminal::Component::hasSelection() const noexcept { return screenSelection != nullptr; }
 
-void Terminal::Component::copySelection()
+void Terminal::Component::copySelection() noexcept
 {
     if (screenSelection != nullptr)
     {
@@ -603,11 +603,13 @@ void Terminal::Component::onVBlank()
             const int scrollOffset { session.getState().getScrollOffset() };
             const int visibleStart { scrollback - scrollOffset };
 
+            const bool isActivePane { AppState::getContext()->getActivePaneType() == "terminal" };
+
             // Compute visible-row coordinate for the selection cursor.
             // State stores absolute (scrollback-aware) rows;
             // the renderer needs visible rows (0 = topmost visible row).
             {
-                const bool active { session.getState().getModalType() == ModalType::selection };
+                const bool active { isActivePane and session.getState().getModalType() == ModalType::selection };
                 const int visibleRow { session.getState().getSelectionCursorRow() - visibleStart };
                 visitScreen (
                     [&] (auto& s)
@@ -621,7 +623,7 @@ void Terminal::Component::onVBlank()
             {
                 const auto smType { static_cast<SelectionType> (session.getState().getSelectionType()) };
 
-                if (smType != SelectionType::none)
+                if (isActivePane and smType != SelectionType::none)
                 {
                     if (screenSelection == nullptr)
                         screenSelection = std::make_unique<ScreenSelection>();

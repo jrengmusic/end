@@ -467,10 +467,8 @@ void MainComponent::registerActions()
                            true,
                            [this]() -> bool
                            {
-                               auto* terminal { tabs->getActiveTerminal() };
-
-                               if (terminal != nullptr)
-                                   terminal->enterSelectionMode();
+                               if (auto* pane { tabs->getActivePane() }; pane != nullptr)
+                                   pane->enterSelectionMode();
 
                                return true;
                            });
@@ -665,11 +663,7 @@ void MainComponent::initialiseTabs()
     {
         if (auto* terminal { tabs->getActiveTerminal() }; terminal != nullptr)
         {
-            const auto modalType { terminal->getModalType() };
-            const auto selType { terminal->getSelectionType() };
-            const auto hintPage { terminal->getHintPage() };
-            const auto hintTotal { terminal->getHintTotalPages() };
-            statusBarOverlay.update (modalType, selType, hintPage, hintTotal);
+            statusBarOverlay.updateHintInfo (terminal->getHintPage(), terminal->getHintTotalPages());
             terminal->repaint();
         }
 

@@ -19,7 +19,6 @@
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
-
 #include "WhelmedConfig.h"
 
 //==============================================================================
@@ -47,12 +46,12 @@ void Whelmed::Config::initKeys()
 {
     using T = Whelmed::Config::Value::Type;
 
-    addKey (Key::fontFamily, "Display",  { T::string });
-    addKey (Key::fontStyle,  "Medium",   { T::string });
+    addKey (Key::fontFamily, "Display", { T::string });
+    addKey (Key::fontStyle, "Medium", { T::string });
     addKey (Key::fontSize, 16.0, { T::number, 8.0, 72.0, true });
     addKey (Key::codeFamily, "Display Mono", { T::string });
-    addKey (Key::codeSize,   12.0,           { T::number, 8.0, 72.0, true });
-    addKey (Key::codeStyle,  "Medium",       { T::string });
+    addKey (Key::codeSize, 12.0, { T::number, 8.0, 72.0, true });
+    addKey (Key::codeStyle, "Medium", { T::string });
     addKey (Key::h1Size, 28.0, { T::number, 8.0, 72.0, true });
     addKey (Key::h2Size, 28.0, { T::number, 8.0, 72.0, true });
     addKey (Key::h3Size, 24.0, { T::number, 8.0, 72.0, true });
@@ -72,9 +71,9 @@ void Whelmed::Config::initKeys()
     addKey (Key::h5Colour, juce::String ("D4C8A0FF"), { T::string });
     addKey (Key::h6Colour, juce::String ("D4C8A0FF"), { T::string });
     addKey (Key::codeFenceBackground, juce::String ("090D12FF"), { T::string });
-    addKey (Key::progressBackground,    juce::String ("1A1A1AFF"), { T::string });
-    addKey (Key::progressForeground,    juce::String ("4488CCFF"), { T::string });
-    addKey (Key::progressTextColour,    juce::String ("CCCCCCFF"), { T::string });
+    addKey (Key::progressBackground, juce::String ("1A1A1AFF"), { T::string });
+    addKey (Key::progressForeground, juce::String ("4488CCFF"), { T::string });
+    addKey (Key::progressTextColour, juce::String ("CCCCCCFF"), { T::string });
     addKey (Key::progressSpinnerColour, juce::String ("4488CCFF"), { T::string });
 
     addKey (Key::paddingTop, 10.0, { T::number, 0.0, 200.0, true });
@@ -82,42 +81,44 @@ void Whelmed::Config::initKeys()
     addKey (Key::paddingBottom, 10.0, { T::number, 0.0, 200.0, true });
     addKey (Key::paddingLeft, 10.0, { T::number, 0.0, 200.0, true });
 
-    addKey (Key::tokenError,        juce::String ("F74A4AFF"), { T::string });
-    addKey (Key::tokenComment,      juce::String ("6080C0FF"), { T::string });
-    addKey (Key::tokenKeyword,      juce::String ("1919FFFF"), { T::string });
-    addKey (Key::tokenOperator,     juce::String ("B0B0B0FF"), { T::string });
-    addKey (Key::tokenIdentifier,   juce::String ("00C6FFFF"), { T::string });
-    addKey (Key::tokenInteger,      juce::String ("00FF00FF"), { T::string });
-    addKey (Key::tokenFloat,        juce::String ("00FF00FF"), { T::string });
-    addKey (Key::tokenString,       juce::String ("FFC0C0FF"), { T::string });
-    addKey (Key::tokenBracket,      juce::String ("80FFFFFF"), { T::string });
-    addKey (Key::tokenPunctuation,  juce::String ("FF9080FF"), { T::string });
+    addKey (Key::tokenError, juce::String ("F74A4AFF"), { T::string });
+    addKey (Key::tokenComment, juce::String ("6080C0FF"), { T::string });
+    addKey (Key::tokenKeyword, juce::String ("1919FFFF"), { T::string });
+    addKey (Key::tokenOperator, juce::String ("B0B0B0FF"), { T::string });
+    addKey (Key::tokenIdentifier, juce::String ("00C6FFFF"), { T::string });
+    addKey (Key::tokenInteger, juce::String ("00FF00FF"), { T::string });
+    addKey (Key::tokenFloat, juce::String ("00FF00FF"), { T::string });
+    addKey (Key::tokenString, juce::String ("FFC0C0FF"), { T::string });
+    addKey (Key::tokenBracket, juce::String ("80FFFFFF"), { T::string });
+    addKey (Key::tokenPunctuation, juce::String ("FF9080FF"), { T::string });
     addKey (Key::tokenPreprocessor, juce::String ("9AFF00FF"), { T::string });
 
-    addKey (Key::tableBackground,       juce::String ("090D12FF"), { T::string });
+    addKey (Key::tableBackground, juce::String ("090D12FF"), { T::string });
     addKey (Key::tableHeaderBackground, juce::String ("112130FF"), { T::string });
-    addKey (Key::tableRowAlt,           juce::String ("0D141CFF"), { T::string });
-    addKey (Key::tableBorderColour,     juce::String ("2C4144FF"), { T::string });
-    addKey (Key::tableHeaderText,       juce::String ("BAFFFDFF"), { T::string });
-    addKey (Key::tableCellText,         juce::String ("B3F9F5FF"), { T::string });
+    addKey (Key::tableRowAlt, juce::String ("0D141CFF"), { T::string });
+    addKey (Key::tableBorderColour, juce::String ("2C4144FF"), { T::string });
+    addKey (Key::tableHeaderText, juce::String ("BAFFFDFF"), { T::string });
+    addKey (Key::tableCellText, juce::String ("B3F9F5FF"), { T::string });
 
-    addKey (Key::scrollbarThumb,      juce::String ("2C4144FF"), { T::string });  // littleMermaid
-    addKey (Key::scrollbarTrack,      juce::String ("0D141CFF"), { T::string });  // corbeau
-    addKey (Key::scrollbarBackground, juce::String ("0D141CFF"), { T::string });  // corbeau
+    addKey (Key::scrollbarThumb, juce::String ("2C4144FF"), { T::string });// littleMermaid
+    addKey (Key::scrollbarTrack, juce::String ("0D141CFF"), { T::string });// corbeau
+    addKey (Key::scrollbarBackground, juce::String ("0D141CFF"), { T::string });// corbeau
 
-    addKey (Key::scrollDown,   juce::String ("j"),  { T::string });
-    addKey (Key::scrollUp,     juce::String ("k"),  { T::string });
-    addKey (Key::scrollTop,    juce::String ("gg"), { T::string });
-    addKey (Key::scrollBottom, juce::String ("G"),  { T::string });
-    addKey (Key::scrollStep,   50.0,                { T::number, 1.0, 2000.0, true });
+    addKey (Key::scrollDown, juce::String ("j"), { T::string });
+    addKey (Key::scrollUp, juce::String ("k"), { T::string });
+    addKey (Key::scrollTop, juce::String ("gg"), { T::string });
+    addKey (Key::scrollBottom, juce::String ("G"), { T::string });
+    addKey (Key::scrollStep, 50.0, { T::number, 1.0, 2000.0, true });
 
-    addKey (Key::loaderBackground,    juce::String ("333435FF"), { T::string });   // carbon
-    addKey (Key::loaderFill,          juce::String ("112130FF"), { T::string });   // trappedDarkness
-    addKey (Key::loaderSpinnerColour, juce::String ("F3F5C5FF"), { T::string });   // silkStar
-    addKey (Key::loaderTextColour,    juce::String ("00C8D8FF"), { T::string });   // blueBikini
-    addKey (Key::loaderFontFamily,    juce::String ("Display Mono"), { T::string });
-    addKey (Key::loaderFontSize,      12.0, { T::number, 6.0, 48.0, true });
-    addKey (Key::loaderFontStyle,     juce::String ("Bold"), { T::string });
+    addKey (Key::loaderBackground, juce::String ("333435FF"), { T::string });// carbon
+    addKey (Key::loaderFill, juce::String ("112130FF"), { T::string });// trappedDarkness
+    addKey (Key::loaderSpinnerColour, juce::String ("F3F5C5FF"), { T::string });// silkStar
+    addKey (Key::loaderTextColour, juce::String ("00C8D8FF"), { T::string });// blueBikini
+    addKey (Key::loaderFontFamily, juce::String ("Display Mono"), { T::string });
+    addKey (Key::loaderFontSize, 12.0, { T::number, 6.0, 48.0, true });
+    addKey (Key::loaderFontStyle, juce::String ("Bold"), { T::string });
+
+    addKey (Key::selectionColour, juce::String ("00C8D880"), { T::string });
 }
 
 //==============================================================================
@@ -490,3 +491,4 @@ juce::Colour Whelmed::Config::getColour (const juce::String& key) const
  * @return Reference to the internal error string.
  */
 const juce::String& Whelmed::Config::getLoadError() const noexcept { return loadError; }
+

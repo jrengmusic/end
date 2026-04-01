@@ -1,7 +1,7 @@
 # ARCHITECTURAL MANIFESTO
 ## BLESSED — The Contract
 
-**For:** Future JRENG, junior devs, CAROL agents.
+**For:** ARCHITECT and CAROL agents.
 **Version:** 0.1 — April 2026
 
 ---
@@ -292,7 +292,7 @@ Enforcement:
 
 *This document is the contract. All code, designs, and solutions must be evaluated against BLESSED.*
 
-Rock 'n Roll!
+*Rock 'n Roll!*
 **JRENG!**
 
 ---
