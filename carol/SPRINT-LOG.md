@@ -15,6 +15,40 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 14: Windows system font fallback via DirectWrite
+
+**Date:** 2026-04-01
+
+### Agents Participated
+- COUNSELOR — root cause analysis (SymbolsNerdFont lacks Arrows block, no system fallback on FreeType path), architecture plan (mirror macOS CTFontCreateForString pattern), vendor terminal research coordination
+- Pathfinder (x2) — font fallback chain trace (Registry, shapeFallback, rasterizeToImage pipeline), macOS vs Windows shapeFallback comparison
+- Librarian — Windows system font coverage research (Segoe UI Symbol guarantees, DirectWrite IDWriteFontFallback API, IDWriteLocalFontFileLoader pattern)
+- Engineer — full implementation: SingleCodepointSource, discoverFallbackFace via DirectWrite MapCharacters, shapeFallback rewrite with cache, destructor/setSize cleanup
+- Auditor — verified all COM cleanup paths, no early returns, FT_Face lifecycle, cache correctness, platform guards
+
+### Files Modified (4 total)
+- `modules/jreng_graphics/fonts/jreng_typeface.h:592` — updated `GlyphRun::fontHandle` doc (now documents both CTFontRef and FT_Face)
+- `modules/jreng_graphics/fonts/jreng_typeface.h:1082-1108` — added `fallbackFontCache` (`std::unordered_map<uint32_t, FT_Face>`) to FreeType section; `discoverFallbackFace` declaration inside `#if JUCE_WINDOWS`
+- `modules/jreng_graphics/fonts/jreng_typeface.cpp:155-161,551-558,692-968` — destructor and setSize cache cleanup; `discoverFallbackFace()` implementation (SingleCodepointSource, DWrite factory, MapCharacters, IDWriteLocalFontFileLoader path extraction, FT_New_Face + FT_Set_Char_Size); `#include <dwrite_2.h>` + `#pragma comment(lib, "dwrite.lib")`; fixed QueryInterface early return
+- `modules/jreng_graphics/fonts/jreng_typeface_shaping.cpp:237-328` — rewrote `shapeFallback()`: primary face check, fallbackFontCache lookup, discoverFallbackFace discovery (Windows), nullptr sentinel caching, advance from correct face, GlyphRun::fontHandle set to fallback FT_Face
+- `DEBT.md:27` — font fallback arrows block marked resolved
+
+### Alignment Check
+- [x] BLESSED principles followed — Explicit Encapsulation (DirectWrite discovery encapsulated in discoverFallbackFace, caller just caches result); SSOT (fallbackFontCache is single cache, cleared on setSize); Bound (FT_Face lifetime owned by cache, cleaned in destructor before FT_Done_FreeType)
+- [x] NAMES.md adhered — `discoverFallbackFace` (verb, discovers), `SingleCodepointSource` (noun, describes role), `fallbackFontCache` (noun, matches macOS naming)
+- [x] MANIFESTO.md principles applied — zero early returns in all new code (Auditor verified); no magic numbers; single return per function
+
+### Problems Solved
+- **Arrows block (U+2190-U+21FF) blank on Windows:** Root cause: SymbolsNerdFont lacks the Arrows block, and the FreeType `shapeFallback()` only checked the primary face — no system font substitution. macOS had this via `CTFontCreateForString` but Windows had no equivalent. Fix: `IDWriteFontFallback::MapCharacters` discovers which system font covers a codepoint, `IDWriteLocalFontFileLoader::GetFilePathFromKey` extracts the file path, `FT_New_Face` loads it. Cached per-codepoint with nullptr sentinel for "no font found". Resolves ALL missing Unicode on Windows, not just arrows.
+- **QueryInterface early return:** Engineer's `SingleCodepointSource::QueryInterface` had two return statements. Fixed to single return with result variable pattern.
+
+### Technical Debt / Follow-up
+- Pre-existing: Windows 10 regression test (needs hardware).
+- `rasterizeToImage()` does not consult `fallbackFontCache` — it has its own primary → emoji → nerdFont chain. If a glyph is shaped via system fallback but rasterized without it, there could be a mismatch. Currently works because the renderer passes `fontHandle` through `GlyphRun` → `Font::applyGlyphRun` → `Atlas::rasterizeGlyph(fontHandle)`, bypassing `rasterizeToImage`. Monitor for edge cases.
+- Linux has no system font fallback yet (no DirectWrite). `shapeFallback` on Linux still only checks primary face. Could add fontconfig-based fallback in the future.
+
+---
+
 ## Sprint 13: seq 1M performance investigation — ConPTY ceiling confirmed
 
 **Date:** 2026-04-01

@@ -589,7 +589,7 @@ struct Typeface
     {
         const Glyph* glyphs     { nullptr }; ///< Pointer into the internal shaping buffer.
         int          count      { 0 };       ///< Number of valid Glyph entries.
-        void*        fontHandle { nullptr }; ///< Fallback font handle (macOS only); nullptr for primary font.
+        void*        fontHandle { nullptr }; ///< Fallback font handle (CTFontRef on macOS, FT_Face on Windows); nullptr for primary font.
     };
 
     /**
@@ -1029,6 +1029,23 @@ private:
      * @return Absolute path to the font file, or empty if not found.
      */
     juce::String discoverFontWindows (const juce::String& familyName);
+
+    /**
+     * @brief Discovers a system fallback FT_Face for a Unicode codepoint via DirectWrite.
+     *
+     * Uses `IDWriteFactory2::GetSystemFontFallback()` and `MapCharacters()` to
+     * find which system font covers @p codepoint, then loads that font file with
+     * `FT_New_Face` and sizes it to the current `fontSize`.
+     *
+     * The caller is responsible for caching the returned face in
+     * `fallbackFontCache` and releasing it via `FT_Done_Face` when no longer
+     * needed.
+     *
+     * @param codepoint  Unicode scalar value to find a fallback font for.
+     * @return Loaded and sized `FT_Face`, or `nullptr` if no system font covers
+     *         @p codepoint or if any DirectWrite or FreeType call fails.
+     */
+    FT_Face discoverFallbackFace (uint32_t codepoint) noexcept;
     #endif
 
     // =========================================================================
@@ -1078,6 +1095,17 @@ private:
     hb_font_t* emojiShapingFont { nullptr }; ///< HarfBuzz font wrapping emojiFace.
     FT_Face    nfFace           { nullptr }; ///< FreeType face for Symbols Nerd Font (from BinaryData).
     hb_font_t* nerdShapingFont  { nullptr }; ///< HarfBuzz font wrapping nfFace.
+
+    /**
+     * @brief Cache of system fallback FT_Face handles keyed by Unicode codepoint.
+     *
+     * Populated lazily by `shapeFallback()` on Windows via DirectWrite font
+     * discovery.  Each entry maps a codepoint to the `FT_Face` that can render
+     * it, or `nullptr` if no suitable system font was found.  Cleared entirely
+     * by `setSize()` and the destructor (each cached face is released via
+     * `FT_Done_Face`).
+     */
+    std::unordered_map<uint32_t, FT_Face> fallbackFontCache;
 
     /** @} */
 #endif

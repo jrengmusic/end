@@ -57,6 +57,7 @@
 #else
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <vector>
 
 #if JUCE_MAC
     #include <CoreText/CoreText.h>
@@ -67,6 +68,8 @@
 #if JUCE_WINDOWS
     #define NOMINMAX
     #include <windows.h>
+    #include <dwrite_2.h>
+    #pragma comment(lib, "dwrite.lib")
 #endif
 
 #include <BinaryData.h>
@@ -148,6 +151,15 @@ jreng::Typeface::~Typeface()
     {
         FT_Done_Face (nfFace);
     }
+
+    for (auto& pair : fallbackFontCache)
+    {
+        if (pair.second != nullptr)
+        {
+            FT_Done_Face (pair.second);
+        }
+    }
+    fallbackFontCache.clear();
 
     if (library != nullptr)
     {
@@ -535,6 +547,15 @@ void jreng::Typeface::setSize (float pointSize) noexcept
         nfEntry->ftFace = nfFace;
         nfEntry->hbFont = nerdShapingFont;
     }
+
+    for (auto& pair : fallbackFontCache)
+    {
+        if (pair.second != nullptr)
+        {
+            FT_Done_Face (pair.second);
+        }
+    }
+    fallbackFontCache.clear();
 }
 
 // ============================================================================
@@ -734,6 +755,219 @@ juce::String jreng::Typeface::discoverFontWindows (const juce::String& familyNam
     }
 
     return path;
+}
+
+/**
+ * @brief Discovers a system fallback FT_Face for a Unicode codepoint via DirectWrite.
+ *
+ * Uses `IDWriteFactory2::GetSystemFontFallback()` and `MapCharacters()` to find
+ * which system font covers @p codepoint, extracts the font file path via
+ * `IDWriteLocalFontFileLoader`, loads it with `FT_New_Face`, and sizes it to
+ * the current `fontSize`.
+ *
+ * All COM objects are released before return.
+ *
+ * @param codepoint  Unicode scalar value to find a fallback font for.
+ * @return Loaded and sized `FT_Face`, or `nullptr` on any failure.
+ */
+FT_Face jreng::Typeface::discoverFallbackFace (uint32_t codepoint) noexcept
+{
+    // Convert codepoint to UTF-16 (surrogate pair for supplementary planes).
+    wchar_t utf16[2] {};
+    UINT32 utf16Len { 0 };
+
+    if (codepoint <= 0xFFFF)
+    {
+        utf16[0] = static_cast<wchar_t> (codepoint);
+        utf16Len = 1;
+    }
+    else
+    {
+        utf16[0] = static_cast<wchar_t> (0xD800 + ((codepoint - 0x10000) >> 10));
+        utf16[1] = static_cast<wchar_t> (0xDC00 + ((codepoint - 0x10000) & 0x3FF));
+        utf16Len = 2;
+    }
+
+    // Minimal IDWriteTextAnalysisSource implementation for MapCharacters().
+    class SingleCodepointSource : public IDWriteTextAnalysisSource
+    {
+    public:
+        SingleCodepointSource (const wchar_t* text, UINT32 length)
+            : textData (text), textLength (length) {}
+
+        ULONG STDMETHODCALLTYPE AddRef() override { return 1; }
+        ULONG STDMETHODCALLTYPE Release() override { return 1; }
+        HRESULT STDMETHODCALLTYPE QueryInterface (REFIID riid, void** ppv) override
+        {
+            HRESULT hr { E_NOINTERFACE };
+            *ppv = nullptr;
+
+            if (riid == __uuidof (IUnknown) or riid == __uuidof (IDWriteTextAnalysisSource))
+            {
+                *ppv = this;
+                hr = S_OK;
+            }
+
+            return hr;
+        }
+
+        HRESULT STDMETHODCALLTYPE GetTextAtPosition (UINT32 pos, const WCHAR** text, UINT32* length) override
+        {
+            if (pos < textLength)
+            {
+                *text = textData + pos;
+                *length = textLength - pos;
+            }
+            else
+            {
+                *text = nullptr;
+                *length = 0;
+            }
+            return S_OK;
+        }
+
+        HRESULT STDMETHODCALLTYPE GetTextBeforePosition (UINT32 pos, const WCHAR** text, UINT32* length) override
+        {
+            if (pos > 0 and pos <= textLength)
+            {
+                *text = textData;
+                *length = pos;
+            }
+            else
+            {
+                *text = nullptr;
+                *length = 0;
+            }
+            return S_OK;
+        }
+
+        DWRITE_READING_DIRECTION STDMETHODCALLTYPE GetParagraphReadingDirection() override
+        {
+            return DWRITE_READING_DIRECTION_LEFT_TO_RIGHT;
+        }
+
+        HRESULT STDMETHODCALLTYPE GetLocaleName (UINT32, UINT32*, const WCHAR** name) override
+        {
+            *name = L"en-us";
+            return S_OK;
+        }
+
+        HRESULT STDMETHODCALLTYPE GetNumberSubstitution (UINT32, UINT32*, IDWriteNumberSubstitution** sub) override
+        {
+            *sub = nullptr;
+            return S_OK;
+        }
+
+    private:
+        const wchar_t* textData;
+        UINT32 textLength;
+    };
+
+    FT_Face result { nullptr };
+
+    IDWriteFactory2* factory { nullptr };
+    const HRESULT hrFactory { DWriteCreateFactory (DWRITE_FACTORY_TYPE_SHARED,
+                                                    __uuidof (IDWriteFactory2),
+                                                    reinterpret_cast<IUnknown**> (&factory)) };
+
+    if (SUCCEEDED (hrFactory) and factory != nullptr)
+    {
+        IDWriteFontFallback* fallback { nullptr };
+        const HRESULT hrFallback { factory->GetSystemFontFallback (&fallback) };
+
+        if (SUCCEEDED (hrFallback) and fallback != nullptr)
+        {
+            SingleCodepointSource source { utf16, utf16Len };
+
+            UINT32 mappedLength { 0 };
+            IDWriteFont* mappedFont { nullptr };
+            FLOAT scale { 1.0f };
+
+            const HRESULT hrMap { fallback->MapCharacters (&source,
+                                                            0,
+                                                            utf16Len,
+                                                            nullptr,
+                                                            nullptr,
+                                                            DWRITE_FONT_WEIGHT_NORMAL,
+                                                            DWRITE_FONT_STYLE_NORMAL,
+                                                            DWRITE_FONT_STRETCH_NORMAL,
+                                                            &mappedLength,
+                                                            &mappedFont,
+                                                            &scale) };
+
+            if (SUCCEEDED (hrMap) and mappedFont != nullptr)
+            {
+                IDWriteFontFace* fontFace { nullptr };
+                const HRESULT hrFace { mappedFont->CreateFontFace (&fontFace) };
+
+                if (SUCCEEDED (hrFace) and fontFace != nullptr)
+                {
+                    UINT32 fileCount { 1 };
+                    IDWriteFontFile* fontFile { nullptr };
+                    const HRESULT hrFiles { fontFace->GetFiles (&fileCount, &fontFile) };
+
+                    if (SUCCEEDED (hrFiles) and fontFile != nullptr)
+                    {
+                        const void* refKey { nullptr };
+                        UINT32 refKeySize { 0 };
+                        fontFile->GetReferenceKey (&refKey, &refKeySize);
+
+                        IDWriteFontFileLoader* loader { nullptr };
+                        const HRESULT hrLoader { fontFile->GetLoader (&loader) };
+
+                        if (SUCCEEDED (hrLoader) and loader != nullptr)
+                        {
+                            IDWriteLocalFontFileLoader* localLoader { nullptr };
+                            const HRESULT hrLocal { loader->QueryInterface (__uuidof (IDWriteLocalFontFileLoader),
+                                                                             reinterpret_cast<void**> (&localLoader)) };
+
+                            if (SUCCEEDED (hrLocal) and localLoader != nullptr)
+                            {
+                                UINT32 pathLength { 0 };
+                                localLoader->GetFilePathLengthFromKey (refKey, refKeySize, &pathLength);
+
+                                std::vector<wchar_t> pathBuf (pathLength + 1, 0);
+                                const HRESULT hrPath { localLoader->GetFilePathFromKey (refKey,
+                                                                                         refKeySize,
+                                                                                         pathBuf.data(),
+                                                                                         pathLength + 1) };
+
+                                if (SUCCEEDED (hrPath))
+                                {
+                                    FT_Face loadedFace { nullptr };
+                                    const juce::String fontPath { juce::String (pathBuf.data()) };
+
+                                    if (FT_New_Face (library, fontPath.toRawUTF8(), 0, &loadedFace) == 0)
+                                    {
+                                        const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * getDisplayScale()) };
+                                        const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (fontSize * ftFixedScale) };
+                                        FT_Set_Char_Size (loadedFace, 0, size26_6, renderDpi, renderDpi);
+                                        result = loadedFace;
+                                    }
+                                }
+
+                                localLoader->Release();
+                            }
+
+                            loader->Release();
+                        }
+
+                        fontFile->Release();
+                    }
+
+                    fontFace->Release();
+                }
+
+                mappedFont->Release();
+            }
+
+            fallback->Release();
+        }
+
+        factory->Release();
+    }
+
+    return result;
 }
 #endif
 

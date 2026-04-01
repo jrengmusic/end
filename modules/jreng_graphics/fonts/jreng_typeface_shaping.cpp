@@ -208,38 +208,37 @@ jreng::Typeface::GlyphRun jreng::Typeface::shapeHarfBuzz (Style style,
 }
 
 /**
- * @brief Last-resort fallback shaper using the primary FreeType face.
+ * @brief Last-resort fallback shaper with Windows DirectWrite system font discovery.
  *
- * Called when `shapeHarfBuzz()` returns an empty result (all `.notdef`).  On
- * the FreeType backend there is no system font substitution mechanism, so this
- * method simply iterates the codepoints and writes only those that resolve to a
- * non-zero glyph index in the regular face.
+ * Called when `shapeHarfBuzz()` returns an empty result (all `.notdef`).  For
+ * each codepoint the shaper checks:
  *
- * For each codepoint:
- * 1. `FT_Get_Char_Index` looks up the glyph index in the regular face's cmap.
- * 2. If the index is non-zero, a `Glyph` is written with zero offsets and an
- *    advance of `x_ppem / count` — an equal share of the cell width distributed
- *    across the cluster.
- * 3. Codepoints with index 0 (`.notdef`) are silently skipped.
+ * 1. Primary face (`FT_Get_Char_Index`) — if found, use it directly.
+ * 2. `fallbackFontCache` — if a cached `FT_Face` (including `nullptr` sentinel)
+ *    exists for this codepoint, use or skip accordingly without re-querying.
+ * 3. On Windows: `discoverFallbackFace()` — queries DirectWrite to find a system
+ *    font covering the codepoint, caches the result (or `nullptr`) for next time.
+ * 4. On other platforms: no system fallback; codepoint is skipped.
+ *
+ * When a fallback face is used, glyph index and advance metrics are read from
+ * that face.  `GlyphRun::fontHandle` is set to the fallback `FT_Face` (as
+ * `void*`) so the renderer passes the correct handle to `Atlas::getOrRasterize`.
  *
  * @param codepoints  UTF-32 codepoint array.
  * @param count       Number of codepoints in the array.
  * @return GlyphRun with the subset of codepoints that could be resolved;
- *         `count == 0` if no codepoint has a glyph in the regular face.
+ *         `count == 0` if no codepoint could be shaped by any face.
  *
- * @note On macOS the fallback uses CoreText font substitution (`CTFontCreateForString`)
- *       and caches results in `fallbackFontCache`.  See `jreng_font.mm` for that path.
- *
- * @note The advance approximation (`x_ppem / count`) is intentionally coarse —
- *       this path is only reached for characters the primary font cannot render,
- *       so pixel-perfect metrics are not expected.
+ * @note `fallbackFontCache` maps codepoint → `FT_Face` (or `nullptr` if no
+ *       system font was found).  Lifetime of cached faces is managed by
+ *       `setSize()` (clears on resize) and the destructor.
  */
 jreng::Typeface::GlyphRun jreng::Typeface::shapeFallback (const uint32_t* codepoints, size_t count) noexcept
 {
     GlyphRun result;
-    FT_Face face { getFace (Style::regular) };
+    FT_Face primaryFace { getFace (Style::regular) };
 
-    if (face != nullptr)
+    if (primaryFace != nullptr)
     {
         const int needed { static_cast<int> (count) };
 
@@ -250,23 +249,79 @@ jreng::Typeface::GlyphRun jreng::Typeface::shapeFallback (const uint32_t* codepo
         }
 
         int written { 0 };
+        void* lastFallbackHandle { nullptr };
 
         for (size_t i { 0 }; i < count; ++i)
         {
-            const FT_UInt glyphIndex { FT_Get_Char_Index (face, codepoints[i]) };
+            const uint32_t cp { codepoints[i] };
+            const FT_UInt primaryIndex { FT_Get_Char_Index (primaryFace, cp) };
 
-            if (glyphIndex != 0)
+            FT_Face activeFace { nullptr };
+            FT_UInt activeIndex { 0 };
+
+            if (primaryIndex != 0)
             {
+                activeFace = primaryFace;
+                activeIndex = primaryIndex;
+            }
+            else
+            {
+                const auto cacheIt { fallbackFontCache.find (cp) };
+
+                if (cacheIt != fallbackFontCache.end())
+                {
+                    if (cacheIt->second != nullptr)
+                    {
+                        const FT_UInt fallbackIndex { FT_Get_Char_Index (cacheIt->second, cp) };
+
+                        if (fallbackIndex != 0)
+                        {
+                            activeFace = cacheIt->second;
+                            activeIndex = fallbackIndex;
+                            lastFallbackHandle = static_cast<void*> (activeFace);
+                        }
+                    }
+                }
+                else
+                {
+                    #if JUCE_WINDOWS
+                    FT_Face discovered { discoverFallbackFace (cp) };
+                    fallbackFontCache[cp] = discovered;
+
+                    if (discovered != nullptr)
+                    {
+                        const FT_UInt fallbackIndex { FT_Get_Char_Index (discovered, cp) };
+
+                        if (fallbackIndex != 0)
+                        {
+                            activeFace = discovered;
+                            activeIndex = fallbackIndex;
+                            lastFallbackHandle = static_cast<void*> (activeFace);
+                        }
+                    }
+                    #endif
+                }
+            }
+
+            if (activeFace != nullptr and activeIndex != 0)
+            {
+                float advance { static_cast<float> (activeFace->size->metrics.x_ppem) };
+
+                if (FT_Load_Glyph (activeFace, activeIndex, FT_LOAD_DEFAULT) == 0)
+                {
+                    advance = static_cast<float> (activeFace->glyph->metrics.horiAdvance) / static_cast<float> (ftFixedScale);
+                }
+
                 Glyph& g { shapingBuffer[written] };
-                g.glyphIndex = glyphIndex;
+                g.glyphIndex = activeIndex;
                 g.xOffset = 0.0f;
                 g.yOffset = 0.0f;
-                g.xAdvance = static_cast<float> (face->size->metrics.x_ppem) / static_cast<float> (count);
+                g.xAdvance = advance;
                 ++written;
             }
         }
 
-        result = { shapingBuffer.get(), written };
+        result = { shapingBuffer.get(), written, lastFallbackHandle };
     }
 
     return result;
