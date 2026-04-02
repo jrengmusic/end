@@ -1,3 +1,8 @@
+/**
+ * @file TextBlock.h
+ * @brief Block subtype for flowing styled text — headings, paragraphs, list items.
+ */
+
 #pragma once
 #include <JuceHeader.h>
 #include "Block.h"

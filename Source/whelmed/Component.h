@@ -1,3 +1,12 @@
+/**
+ * @file Component.h
+ * @brief Whelmed markdown viewer pane component.
+ *
+ * @see Whelmed::Screen
+ * @see Whelmed::InputHandler
+ * @see PaneComponent
+ */
+
 #pragma once
 #include <JuceHeader.h>
 #include "../component/PaneComponent.h"
@@ -10,6 +19,16 @@
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
+/**
+ * @class Whelmed::Component
+ * @brief PaneComponent subclass that hosts the Whelmed markdown viewer.
+ *
+ * Owns the document state, parser, Screen, and InputHandler. Implements the
+ * full PaneComponent interface (selection, renderer switching, config) so it
+ * can occupy any split pane alongside Terminal::Component instances.
+ *
+ * @note MESSAGE THREAD — all public methods.
+ */
 class Component
     : public PaneComponent
     , private juce::ValueTree::Listener
@@ -18,7 +37,7 @@ public:
     Component();
     ~Component() override;
 
-    juce::String getPaneType() const noexcept override { return "document"; }
+    juce::String getPaneType() const noexcept override { return App::ID::paneTypeDocument; }
     void switchRenderer (PaneComponent::RendererType type) override;
     void applyConfig() noexcept override;
 

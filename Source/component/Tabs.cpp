@@ -171,7 +171,7 @@ void Tabs::closeActiveTab()
         auto* activePanes { panes.at (index).get() };
         const juce::String paneType { AppState::getContext()->getActivePaneType() };
 
-        if (paneType == "document")
+        if (paneType == App::ID::paneTypeDocument)
         {
             activePanes->closeWhelmed();
         }
@@ -287,23 +287,6 @@ Terminal::Component* Tabs::getActiveTerminal() const noexcept
     return nullptr;
 }
 
-Whelmed::Component* Tabs::getActiveWhelmed() const noexcept
-{
-    const auto activeID { AppState::getContext()->getActivePaneID() };
-
-    if (auto* active { getActivePanes() }; active != nullptr)
-    {
-        for (auto& pane : active->getPanes())
-        {
-            if (pane->getComponentID() == activeID and pane->getPaneType() == "document")
-            {
-                return dynamic_cast<Whelmed::Component*> (pane.get());
-            }
-        }
-    }
-
-    return nullptr;
-}
 
 PaneComponent* Tabs::getActivePane() const noexcept
 {

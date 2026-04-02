@@ -55,13 +55,20 @@ namespace ID
     static const juce::Identifier filePath           { "filePath" };
     static const juce::Identifier displayName        { "displayName" };
     static const juce::Identifier scrollOffset       { "scrollOffset" };
+
     static const juce::Identifier blockCount         { "blockCount" };
     static const juce::Identifier parseComplete      { "parseComplete" };
-    static const juce::Identifier pendingPrefix      { "pendingPrefix" };
     static const juce::Identifier totalBlocks        { "totalBlocks" };
     static const juce::Identifier selCursorBlock     { "selCursorBlock" };
     static const juce::Identifier selCursorChar      { "selCursorChar" };
     static const juce::Identifier selAnchorBlock     { "selAnchorBlock" };
     static const juce::Identifier selAnchorChar      { "selAnchorChar" };
+
+    //==========================================================================
+    // Pane type string constants (used by PaneComponent::getPaneType())
+    //==========================================================================
+
+    static const juce::String paneTypeTerminal { "terminal" };
+    static const juce::String paneTypeDocument { "document" };
 }
 }

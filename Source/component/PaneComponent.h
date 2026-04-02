@@ -51,12 +51,20 @@ public:
     }
 
     /**
-     * @brief Switches the active rendering backend at runtime.
-     * @param type  The desired rendering backend.
+     * @brief Returns a string identifier for the pane type ("terminal" or "document").
+     *
+     * Used by Panes and Tabs to distinguish component types without RTTI.
+     *
+     * @return The pane type string — see App::ID::paneTypeTerminal / paneTypeDocument.
      * @note MESSAGE THREAD.
      */
     virtual juce::String getPaneType() const noexcept = 0;
 
+    /**
+     * @brief Switches the active rendering backend at runtime.
+     * @param type  The desired rendering backend.
+     * @note MESSAGE THREAD.
+     */
     virtual void switchRenderer (RendererType type) = 0;
 
     /**

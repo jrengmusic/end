@@ -287,13 +287,20 @@ void Terminal::Component::resetZoom()
 
 bool Terminal::Component::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
+    bool handled { false };
+
     if (screenSelection != nullptr and inputHandler->isSelectionCopyKey (key))
     {
         copySelection();
-        return true;
+        handled = true;
     }
 
-    return inputHandler->handleKey (key, onProcessExited != nullptr);
+    if (not handled)
+    {
+        handled = inputHandler->handleKey (key, onProcessExited != nullptr);
+    }
+
+    return handled;
 }
 
 void Terminal::Component::enterSelectionMode() noexcept
@@ -603,7 +610,7 @@ void Terminal::Component::onVBlank()
             const int scrollOffset { session.getState().getScrollOffset() };
             const int visibleStart { scrollback - scrollOffset };
 
-            const bool isActivePane { AppState::getContext()->getActivePaneType() == "terminal" };
+            const bool isActivePane { AppState::getContext()->getActivePaneType() == App::ID::paneTypeTerminal };
 
             // Compute visible-row coordinate for the selection cursor.
             // State stores absolute (scrollback-aware) rows;

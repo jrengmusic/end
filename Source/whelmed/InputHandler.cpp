@@ -52,56 +52,49 @@ void InputHandler::buildKeyMap() noexcept
 bool InputHandler::handleKey (const juce::KeyPress& key) noexcept
 {
     const auto modal { static_cast<ModalType> (AppState::getContext()->getModalType()) };
+    bool handled { false };
 
     if (modal == ModalType::selection)
     {
         if (handleCursorMovement (key))
         {
             screen.repaint();
-            return true;
+            handled = true;
         }
 
-        if (handleSelectionToggle (key))
-            return true;
-
-        return true;  // Selection mode is fully modal — consume all keys
-    }
-
-    // Handle copy keys when mouse selection is active (no modal)
-    const auto selType { static_cast<SelectionType> (AppState::getContext()->getSelectionType()) };
-
-    if (selType != SelectionType::none)
-    {
-        if (key == selectionKeys.copy or key == selectionKeys.globalCopy)
+        if (not handled and handleSelectionToggle (key))
         {
-            const int cursorBlock { static_cast<int> (state.getProperty (App::ID::selCursorBlock)) };
-            const int cursorChar  { static_cast<int> (state.getProperty (App::ID::selCursorChar)) };
-            const int anchorBlock { static_cast<int> (state.getProperty (App::ID::selAnchorBlock)) };
-            const int anchorChar  { static_cast<int> (state.getProperty (App::ID::selAnchorChar)) };
+            handled = true;
+        }
 
-            const bool anchorFirst { anchorBlock < cursorBlock
-                or (anchorBlock == cursorBlock and anchorChar <= cursorChar) };
-            const int startBlock { anchorFirst ? anchorBlock : cursorBlock };
-            const int startChar  { anchorFirst ? anchorChar  : cursorChar };
-            const int endBlock   { anchorFirst ? cursorBlock : anchorBlock };
-            const int endChar    { anchorFirst ? cursorChar  : anchorChar };
-
-            const juce::String text { screen.extractText (startBlock, startChar, endBlock, endChar) };
-
-            if (text.isNotEmpty())
-                juce::SystemClipboard::copyTextToClipboard (text);
-
-            AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
-            screen.hideCursor();
-            screen.repaint();
-            return true;
+        if (not handled)
+        {
+            handled = true;  // Selection mode is fully modal — consume all keys
         }
     }
-
-    bool handled { Terminal::Action::getContext()->handleKeyPress (key) };
 
     if (not handled)
+    {
+        // Handle copy keys when mouse selection is active (no modal)
+        const auto selType { static_cast<SelectionType> (AppState::getContext()->getSelectionType()) };
+
+        if (selType != SelectionType::none
+            and (key == selectionKeys.copy or key == selectionKeys.globalCopy))
+        {
+            copyAndClearSelection();
+            handled = true;
+        }
+    }
+
+    if (not handled)
+    {
+        handled = Terminal::Action::getContext()->handleKeyPress (key);
+    }
+
+    if (not handled)
+    {
         handled = handleNavigation (key);
+    }
 
     return handled;
 }
@@ -284,71 +277,71 @@ bool InputHandler::handleCursorMovement (const juce::KeyPress& key) noexcept
     return consumed;
 }
 
+void InputHandler::toggleSelectionType (SelectionType target) noexcept
+{
+    auto* appState { AppState::getContext() };
+    const auto current { static_cast<SelectionType> (appState->getSelectionType()) };
+    const int cursorBlock { static_cast<int> (state.getProperty (App::ID::selCursorBlock)) };
+    const int cursorChar  { static_cast<int> (state.getProperty (App::ID::selCursorChar)) };
+
+    if (current == target)
+    {
+        appState->setSelectionType (static_cast<int> (SelectionType::none));
+        appState->setModalType (static_cast<int> (ModalType::none));
+        screen.hideCursor();
+    }
+    else
+    {
+        state.setProperty (App::ID::selAnchorBlock, cursorBlock, nullptr);
+        state.setProperty (App::ID::selAnchorChar, cursorChar, nullptr);
+        appState->setSelectionType (static_cast<int> (target));
+        appState->setModalType (static_cast<int> (ModalType::selection));
+    }
+}
+
+void InputHandler::copyAndClearSelection() noexcept
+{
+    const int cursorBlock { static_cast<int> (state.getProperty (App::ID::selCursorBlock)) };
+    const int cursorChar  { static_cast<int> (state.getProperty (App::ID::selCursorChar)) };
+    const int anchorBlock { static_cast<int> (state.getProperty (App::ID::selAnchorBlock)) };
+    const int anchorChar  { static_cast<int> (state.getProperty (App::ID::selAnchorChar)) };
+
+    const bool anchorFirst { anchorBlock < cursorBlock
+        or (anchorBlock == cursorBlock and anchorChar <= cursorChar) };
+    const int startBlock { anchorFirst ? anchorBlock : cursorBlock };
+    const int startChar  { anchorFirst ? anchorChar  : cursorChar };
+    const int endBlock   { anchorFirst ? cursorBlock : anchorBlock };
+    const int endChar    { anchorFirst ? cursorChar  : anchorChar };
+
+    const juce::String text { screen.extractText (startBlock, startChar, endBlock, endChar) };
+
+    if (text.isNotEmpty())
+        juce::SystemClipboard::copyTextToClipboard (text);
+
+    AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::none));
+    AppState::getContext()->setModalType (static_cast<int> (ModalType::none));
+    screen.hideCursor();
+    screen.repaint();
+}
+
 bool InputHandler::handleSelectionToggle (const juce::KeyPress& key) noexcept
 {
     auto* appState { AppState::getContext() };
-    const int cursorBlock { static_cast<int> (state.getProperty (App::ID::selCursorBlock)) };
-    const int cursorChar  { static_cast<int> (state.getProperty (App::ID::selCursorChar)) };
     bool consumed { false };
 
     if (key == selectionKeys.visual)
     {
-        const auto current { static_cast<SelectionType> (appState->getSelectionType()) };
-
-        if (current == SelectionType::visual)
-        {
-            appState->setSelectionType (static_cast<int> (SelectionType::none));
-            appState->setModalType (static_cast<int> (ModalType::none));
-            screen.hideCursor();
-        }
-        else
-        {
-            state.setProperty (App::ID::selAnchorBlock, cursorBlock, nullptr);
-            state.setProperty (App::ID::selAnchorChar, cursorChar, nullptr);
-            appState->setSelectionType (static_cast<int> (SelectionType::visual));
-            appState->setModalType (static_cast<int> (ModalType::selection));
-        }
-
+        toggleSelectionType (SelectionType::visual);
         consumed = true;
     }
     else if (key == selectionKeys.visualLine)
     {
-        const auto current { static_cast<SelectionType> (appState->getSelectionType()) };
-
-        if (current == SelectionType::visualLine)
-        {
-            appState->setSelectionType (static_cast<int> (SelectionType::none));
-            appState->setModalType (static_cast<int> (ModalType::none));
-            screen.hideCursor();
-        }
-        else
-        {
-            state.setProperty (App::ID::selAnchorBlock, cursorBlock, nullptr);
-            state.setProperty (App::ID::selAnchorChar, cursorChar, nullptr);
-            appState->setSelectionType (static_cast<int> (SelectionType::visualLine));
-            appState->setModalType (static_cast<int> (ModalType::selection));
-        }
-
+        toggleSelectionType (SelectionType::visualLine);
         consumed = true;
     }
     else if (key == selectionKeys.visualBlock)
     {
-        const auto current { static_cast<SelectionType> (appState->getSelectionType()) };
-
-        if (current == SelectionType::visualBlock)
-        {
-            appState->setSelectionType (static_cast<int> (SelectionType::none));
-            appState->setModalType (static_cast<int> (ModalType::none));
-            screen.hideCursor();
-        }
-        else
-        {
-            state.setProperty (App::ID::selAnchorBlock, cursorBlock, nullptr);
-            state.setProperty (App::ID::selAnchorChar, cursorChar, nullptr);
-            appState->setSelectionType (static_cast<int> (SelectionType::visualBlock));
-            appState->setModalType (static_cast<int> (ModalType::selection));
-        }
-
+        toggleSelectionType (SelectionType::visualBlock);
         consumed = true;
     }
     else if (key == selectionKeys.exit)
@@ -364,25 +357,16 @@ bool InputHandler::handleSelectionToggle (const juce::KeyPress& key) noexcept
 
         if (selType != SelectionType::none)
         {
-            const int anchorBlock { static_cast<int> (state.getProperty (App::ID::selAnchorBlock)) };
-            const int anchorChar  { static_cast<int> (state.getProperty (App::ID::selAnchorChar)) };
-
-            const bool anchorFirst { anchorBlock < cursorBlock
-                or (anchorBlock == cursorBlock and anchorChar <= cursorChar) };
-            const int startBlock { anchorFirst ? anchorBlock : cursorBlock };
-            const int startChar  { anchorFirst ? anchorChar  : cursorChar };
-            const int endBlock   { anchorFirst ? cursorBlock : anchorBlock };
-            const int endChar    { anchorFirst ? cursorChar  : anchorChar };
-
-            const juce::String text { screen.extractText (startBlock, startChar, endBlock, endChar) };
-
-            if (text.isNotEmpty())
-                juce::SystemClipboard::copyTextToClipboard (text);
+            copyAndClearSelection();
+            pendingG = false;
+        }
+        else
+        {
+            appState->setSelectionType (static_cast<int> (SelectionType::none));
+            appState->setModalType (static_cast<int> (ModalType::none));
+            screen.hideCursor();
         }
 
-        appState->setSelectionType (static_cast<int> (SelectionType::none));
-        appState->setModalType (static_cast<int> (ModalType::none));
-        screen.hideCursor();
         consumed = true;
     }
 

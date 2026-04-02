@@ -1,3 +1,8 @@
+/**
+ * @file Block.h
+ * @brief Pure virtual base for renderable block types in the Whelmed document stack.
+ */
+
 #pragma once
 #include <JuceHeader.h>
 

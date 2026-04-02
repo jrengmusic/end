@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-03-26 (updated: CPU renderer, OSC 7/9/777, native notifications, new_window action, jreng_graphics module)
+**Last Updated:** 2026-04-01 (updated: Whelmed integration, PaneComponent, ModalType app-level storage, pane type constants, module map)
 
 ---
 
@@ -38,22 +38,35 @@ APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTr
 Source/
   Main.cpp                          Application entry, owns Config + MainWindow
   MainComponent.h/cpp               Root component, owns Fonts context, Tabs, Action, MessageOverlay, GLRenderer
-  AppState.h/cpp                    Application state: ValueTree root, pwdValue (live cwd binding), active terminal tracking
-  AppIdentifier.h                   App-level ValueTree identifiers (END, WINDOW, TABS, TAB, PANES)
+  AppState.h/cpp                    Application state: ValueTree root, pwdValue (live cwd binding), active pane tracking
+  AppIdentifier.h                   App-level ValueTree identifiers (END, WINDOW, TABS, TAB, PANES, DOCUMENT) + pane type string constants
+  SelectionType.h                   App-level SelectionType enum (none, visual, visualLine, visualBlock)
+  ModalType.h                       App-level ModalType enum (none, selection, openFile)
+  Cursor.h/cpp                      Shared cursor descriptor used by Whelmed::Screen
 
   config/
     Config.h/cpp                    Lua config loader, Context<Config> pattern
     (KeyBinding, ModalKeyBinding — dissolved into Terminal::Action, Sprint 93)
 
   component/
+    PaneComponent.h                 Pure virtual base for pane-hosted components (Terminal, Whelmed)
     TerminalComponent.h/cpp         UI host, VBlankAttachment render loop; delegates to InputHandler + MouseHandler
     InputHandler.h/cpp              Modal gate, selection keys, open-file keys, scroll nav
     MouseHandler.h/cpp              PTY forwarding, drag selection, click dispatch, wheel scroll
-    Tabs.h/cpp                      Tab container, manages multiple Terminal::Component instances
-    Panes.h/cpp                     Per-tab pane container, owns Terminal::Component instances and PaneResizerBars
+    Tabs.h/cpp                      Tab container, manages one Panes instance per tab
+    Panes.h/cpp                     Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
     LookAndFeel.h/cpp               Custom LookAndFeel: tab styling, popup menu, colour system
     CursorComponent.h               Cursor overlay, ValueTree-driven, uses Fonts::getContext()
     MessageOverlay.h                Transient overlay for status messages (reload, errors)
+    StatusBarOverlay.h              Overlay that listens to TABS subtree for modal/selection state display
+
+  whelmed/
+    Component.h/cpp                 Whelmed::Component — PaneComponent subclass, markdown viewer pane
+    Screen.h/cpp                    Block-based document renderer, owns Block instances, handles mouse selection
+    InputHandler.h/cpp              Modal gate, selection keys, scroll nav for Whelmed pane
+    Block.h                         Pure virtual base for all renderable block types
+    TextBlock.h/cpp                 Flowing styled text block (paragraphs, headings, lists)
+    State.h/cpp                     Whelmed document state: ValueTree, atomic block count, parse complete
 
   fonts/
     DisplayMono-Book.ttf            Embedded base font (BinaryData)
@@ -157,7 +170,8 @@ modules/
 
 | Module | Location | Responsibility | Dependencies |
 |--------|----------|----------------|--------------|
-| AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active terminal UUID | JUCE ValueTree, Terminal::ID |
+| AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active pane type + UUID | JUCE ValueTree, Terminal::ID |
+| AppIdentifier | `Source/` | ValueTree node and property identifiers; pane type string constants (paneTypeTerminal, paneTypeDocument) | JUCE |
 | Config | `config/` | Lua config load/save, Context-managed, platform config paths. `initKeys()` populates defaults before sol2 reads end.lua. Colour values parsed as RRGGBBAA hex strings. Colour cache invalidated on reload. | sol2, jreng::Context |
 | Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, Config, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
@@ -170,7 +184,8 @@ modules/
 | jreng_graphics | `modules/jreng_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jreng_core, FreeType, HarfBuzz |
 | jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
 | Action | `terminal/action/` | Unified action registry, key dispatch, prefix state machine | Config, jreng::Context |
-| Panes | `component/` | Per-tab pane container, owns terminals and resizer bars | PaneManager, Terminal::Component |
+| Panes | `component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
+| Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, InputHandler | PaneComponent, jreng_markdown |
 | jreng_gui | `modules/jreng_gui/` | Layout utilities: PaneManager binary tree, PaneResizerBar | JUCE core, jreng_core |
 
 ---
@@ -325,14 +340,16 @@ Each tab owns a `Panes` component that manages split pane layout via a `PaneMana
 TAB
   PANES (direction="vertical"|"horizontal", ratio=0.5, x, y, width, height)
     PANE (uuid="abc")
-      SESSION (uuid="abc", displayName, ...)
+      SESSION (uuid="abc", displayName, ...)          -- terminal pane
     PANE (uuid="def")
-      SESSION (uuid="def", displayName, ...)
+      SESSION (uuid="def", displayName, ...)          -- terminal pane with Whelmed open
+      DOCUMENT (filePath, displayName, scrollOffset)  -- grafted when Whelmed opens; removed on close
 ```
 
-- **Leaves** (`PANE` type) — each maps to one `Terminal::Component`
+- **Leaves** (`PANE` type) — each maps to one `PaneComponent` (Terminal::Component or Whelmed::Component)
 - **Internal nodes** (`PANES` type) — each represents a split with `direction` and `ratio`
-- **SESSION** — terminal state, grafted as child of PANE by `Panes` at creation time
+- **SESSION** — terminal state, grafted as child of PANE at creation time
+- **DOCUMENT** — Whelmed document state, grafted alongside SESSION when a .md file is opened; removed when Whelmed is closed
 
 ### PaneManager (Binary Tree Layout Engine)
 
@@ -364,9 +381,11 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 
 `Terminal::Panes` is the per-tab component that bridges `PaneManager` with `Terminal::Component` instances:
 
-- Owns `Owner<Terminal::Component> terminals` and `Owner<PaneResizerBar> resizerBars`
-- `createTerminal()` — adds a leaf to the tree, creates a terminal, grafts SESSION
-- `closePane(uuid)` — ungrafts SESSION, removes terminal, removes resizer bar, calls `paneManager.remove()`
+- Owns `Owner<PaneComponent> panes` and `Owner<PaneResizerBar> resizerBars`
+- `createTerminal()` — adds a leaf to the tree, creates a Terminal::Component, grafts SESSION
+- `createWhelmed(file)` — overlays a Whelmed::Component on the active terminal pane, grafts DOCUMENT
+- `closeWhelmed()` — removes Whelmed::Component and DOCUMENT, restores terminal visibility
+- `closePane(uuid)` — ungrafts SESSION, removes pane, removes resizer bar, calls `paneManager.remove()`
 - `splitHorizontal()` — left/right layout (calls `splitImpl("vertical", true)`)
 - `splitVertical()` — top/bottom layout (calls `splitImpl("horizontal", false)`)
 - `focusPane(deltaX, deltaY)` — spatial navigation by component bounds
@@ -624,27 +643,89 @@ Anchor + end `Point<int>` pair. `SelectionType` enum (linear/line/box). `contain
 
 ### ModalType
 
-`State` holds a `ModalType` atomic stored in the `parameterMap` via `storeAndFlush (ID::modalType, …)`. When non-none, ALL keys are intercepted by `TerminalComponent::keyPressed()` before the Action system or PTY.
+`ModalType` is an **app-level** enum stored as an integer property on the **TABS** subtree via `AppState::setModalType()` / `getModalType()`. Both Terminal::Component and Whelmed::Component read it to gate their key dispatch. `ModalType::none` means no modal is active.
 
 ```cpp
-enum class ModalType : uint8_t { none, selection, flashJump, uriAction };
+enum class ModalType : uint8_t { none, selection, openFile };
 ```
 
-`setModalType()` writes the atomic and calls `setSnapshotDirty()` to trigger re-render (selection cursor changes). `getModalType()` reads from the parameterMap atomic. `isModal()` is a convenience wrapper.
+Terminal::State also mirrors the active modal via its own atomic (for the render path). When non-none, ALL keys are intercepted by the active pane's key handler before the Action system or PTY.
 
-**Key dispatch chain (updated):**
+**Terminal key dispatch chain:**
 
 ```
 keyPressed()
     |
-    +-- State::isModal()? → InputHandler::handleKey()
-    |       +-- selection → handleSelectionKey()
-    |       +-- openFile  → handleOpenFileKey()
-    |
-    +-- Action::handleKeyPress()       (prefix state machine + global bindings)
-    +-- InputHandler::handleScrollNav()
-    +-- session.handleKeyPress()       (PTY forward)
+    +-- mouse copy shortcut? → copySelection()
+    +-- InputHandler::handleKey()
+            +-- isPopupTerminal? → session.handleKeyPress()
+            +-- State::isModal()? → handleModalKey()
+            |       +-- selection → handleSelectionKey()
+            |       +-- openFile  → handleOpenFileKey()
+            +-- Action::handleKeyPress()       (prefix state machine + global bindings)
+            +-- isScrollNav? → handleScrollNav()
+            +-- clearSelectionAndScroll() + session.handleKeyPress()
 ```
+
+**Whelmed key dispatch chain:**
+
+```
+keyPressed()
+    |
+    +-- Whelmed::InputHandler::handleKey()
+            +-- modal == selection? → handleCursorMovement() + handleSelectionToggle()
+            +-- mouse selection + copy key? → clipboard copy
+            +-- Action::handleKeyPress()
+            +-- handleNavigation()
+```
+
+### PaneComponent
+
+Pure virtual base (`Source/component/PaneComponent.h`) shared between Terminal::Component and Whelmed::Component. Inherits `jreng::GLComponent`.
+
+**Contract (all methods pure virtual unless noted):**
+
+| Method | Description |
+|--------|-------------|
+| `getPaneType()` | Returns `App::ID::paneTypeTerminal` or `App::ID::paneTypeDocument` |
+| `switchRenderer(type)` | Switches CPU/GPU backend at runtime |
+| `getValueTree()` | Returns root ValueTree (SESSION or DOCUMENT) for grafting |
+| `applyConfig()` | Applies current Config to the component |
+| `enterSelectionMode()` | Enters vim-style keyboard selection mode |
+| `copySelection()` | Copies active selection to clipboard and clears it |
+| `hasSelection()` | Returns true if a non-degenerate selection is active |
+| `focusGained()` | (non-virtual) Sets activePaneID and activePaneType in AppState |
+
+### StatusBarOverlay
+
+`StatusBarOverlay` is a `juce::Component` and `juce::ValueTree::Listener` that listens to the **TABS** subtree for `App::ID::modalType` and `App::ID::selectionType` property changes. Displays the active modal mode name (VISUAL / VISUAL LINE / VISUAL BLOCK) as a status bar.
+
+### Cursor (Whelmed)
+
+`Cursor` (`Source/Cursor.h/cpp`) is a shared descriptor for the Whelmed selection cursor. It stores pixel bounds, blink state, and block/character position. `Whelmed::Screen::updateCursor()` builds and stores the cursor for the current selection position; `Screen::paint()` renders it.
+
+### Whelmed
+
+`Whelmed::Component` is a `PaneComponent` subclass that hosts the markdown viewer. It owns:
+
+- **State** — document ValueTree, atomic block count, parse-complete flag
+- **Parser** — background markdown parse thread
+- **Screen** — block renderer (owns `Block` instances, handles mouse selection)
+- **InputHandler** — modal key dispatch, selection keys, scroll nav
+- **LoaderOverlay** — shown during async parse
+
+**Block hierarchy (`Whelmed::Block`):**
+
+```
+Block (pure virtual)
+  TextBlock     — juce::AttributedString + TextLayout; covers headings, paragraphs, list items, inline code
+  MermaidBlock  — SVG-rendered diagram via jreng_opengl path tessellation
+  TableBlock    — tabular layout
+```
+
+Blocks are not `juce::Component` instances — they are data objects that measure and paint themselves into a `juce::Graphics` context. Screen owns them in a flat `std::vector<BlockEntry>` and lays them out vertically.
+
+**Selection architecture:** Mouse events on Screen write anchor/cursor coordinates to the DOCUMENT ValueTree (`App::ID::selAnchorBlock`, `selCursorBlock`, etc.). InputHandler reads these same properties to perform keyboard navigation and copy operations. AppState::selectionType and modalType on TABS are the SSOT for selection state visible to the status bar.
 
 ### MessageOverlay
 

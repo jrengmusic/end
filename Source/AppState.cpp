@@ -218,7 +218,7 @@ juce::String AppState::getActivePaneType() const noexcept
         return tabs.getProperty (App::ID::activePaneType).toString();
     }
 
-    return "terminal";
+    return App::ID::paneTypeTerminal;
 }
 
 void AppState::setActivePaneType (const juce::String& type)

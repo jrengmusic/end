@@ -19,7 +19,7 @@
 
 **Design Philosophy:** Performance and beauty. Opinionated defaults, everything overridable.
 
-**End Game:** Integrate WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer. Both END and WHELMED share a common GL text rendering module.
+**End Game:** WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer — is integrated as `Whelmed::Component` in split panes. Both END and WHELMED share a common GL text rendering module (planned: `jreng_text`).
 
 ---
 
@@ -391,9 +391,9 @@ Input is `juce::AttributedString` — no custom string type. Two `draw()` overlo
 
 **WHELMED:** WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid diagram renderer.
 
-**Standalone project:** `~/Documents/Poems/dev/WHELMED/` — working scaffolding. Better architecture developed there first, then integrated into END.
+**Status:** `Whelmed::Component` is integrated into END's split pane system as a `PaneComponent` subclass. Opening a `.md` file from a terminal link (`onOpenMarkdown` callback) overlays a Whelmed pane on the active terminal. The terminal is restored when the Whelmed pane is closed.
 
-**Integration model:** WHELMED is a `juce::Component`. END already has a working split pane system where any `juce::Component` can occupy a pane. WHELMED component slots into a pane or popup alongside terminal panes.
+**Integration model:** `Whelmed::Component` subclasses `PaneComponent`, the same base as `Terminal::Component`. `Panes::createWhelmed()` overlays it on the active pane. `Panes::closeWhelmed()` removes it. DOCUMENT ValueTree is grafted alongside SESSION in the PANE node.
 
 **Shared infrastructure with END:**
 - `jreng_text` module — GL text rendering (attributed mode for WHELMED, monospace for END)
@@ -452,8 +452,8 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 
 - [ ] Extract `jreng_text` module (glyph atlas, shaping, instanced rendering)
 - [ ] Attributed text layout mode (proportional, styled runs)
-- [ ] WHELMED component (markdown rendering, mermaid diagrams)
-- [ ] WHELMED integration into END split panes
+- [x] WHELMED component (markdown rendering, mermaid diagrams) — integrated as Whelmed::Component
+- [x] WHELMED integration into END split panes — Panes::createWhelmed(), PaneComponent interface
 - [ ] WHELMED standalone wrapper
 
 ---
@@ -493,7 +493,7 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 - [x] Popup terminals spawn and close correctly
 - [x] Flash-jump labels resolve to correct files
 - [ ] Sixel images render in correct cell positions
-- [ ] WHELMED markdown renders with correct typography
+- [x] WHELMED markdown renders with correct typography — TextBlock, MermaidBlock, TableBlock
 
 ### Performance
 - [ ] State serialization < 1s for 10 terminals

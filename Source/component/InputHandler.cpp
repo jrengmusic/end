@@ -20,19 +20,23 @@ InputHandler::InputHandler (Terminal::Session& s,
 
 bool InputHandler::handleKey (const juce::KeyPress& key, bool isPopupTerminal) noexcept
 {
+    bool handled { false };
+
     if (isPopupTerminal)
     {
         session.handleKeyPress (key);
-        return true;
+        handled = true;
     }
 
-    if (session.getState().isModal())
+    if (not handled and session.getState().isModal())
     {
-        if (handleModalKey (key))
-            return true;
+        handled = handleModalKey (key);
     }
 
-    bool handled { Terminal::Action::getContext()->handleKeyPress (key) };
+    if (not handled)
+    {
+        handled = Terminal::Action::getContext()->handleKeyPress (key);
+    }
 
     if (not handled)
     {
@@ -124,8 +128,7 @@ void InputHandler::buildKeyMap() noexcept
 
         if (hasCtrl)
         {
-            const int vChar { raw.toLowerCase().contains ("v") ? 'v' : 'v' };
-            selectionKeys.visualBlock = juce::KeyPress (vChar, juce::ModifierKeys::ctrlModifier, 0);
+            selectionKeys.visualBlock = juce::KeyPress ('v', juce::ModifierKeys::ctrlModifier, 0);
         }
         else
         {
@@ -157,14 +160,18 @@ bool InputHandler::isSelectionCopyKey (const juce::KeyPress& key) const noexcept
 bool InputHandler::handleModalKey (const juce::KeyPress& key) noexcept
 {
     const auto type { session.getState().getModalType() };
+    bool handled { false };
 
     if (type == Terminal::ModalType::selection)
-        return handleSelectionKey (key);
+    {
+        handled = handleSelectionKey (key);
+    }
+    else if (type == Terminal::ModalType::openFile)
+    {
+        handled = handleOpenFileKey (key);
+    }
 
-    if (type == Terminal::ModalType::openFile)
-        return handleOpenFileKey (key);
-
-    return false;
+    return handled;
 }
 
 bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept

@@ -76,6 +76,8 @@ private:
     bool handleCursorMovement (const juce::KeyPress& key) noexcept;
     bool handleSelectionToggle (const juce::KeyPress& key) noexcept;
     bool handleNavigation (const juce::KeyPress& key) noexcept;
+    void toggleSelectionType (SelectionType target) noexcept;
+    void copyAndClearSelection() noexcept;
 
     juce::Viewport& viewport;
     Screen& screen;

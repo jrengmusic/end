@@ -15,6 +15,92 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 15: App-level modal handling, Whelmed selection, shared Cursor
+
+**Date:** 2026-04-01 — 2026-04-02
+
+### Agents Participated
+- COUNSELOR — SPEC-MODAL.md authorship, architecture planning, execution coordination, bug triage, all delegation
+- Pathfinder (x6) — keyboard handling architecture, StatusBarOverlay data flow, Whelmed component architecture, Terminal cursor system, focus chain tracing, pane switching mechanism
+- Oracle — TextBlock line-navigation API design (5-method minimal surface)
+- Librarian — Windows/Whelmed config patterns, default_whelmed.lua structure
+- Engineer (x10) — enum move + AppState facade, StatusBarOverlay rewire, Whelmed InputHandler, selection rendering, cursor rendering, mouse selection, focus fix, PaneComponent lift, cursor-always revert to modal, Cursor static functions
+- Auditor (x3) — Phase 1 include chain validation, Phase 1+2 comprehensive audit, full sprint audit (29 findings)
+- Machinist (x2) — clean sweep of all audit findings, skipped findings fix
+
+### Files Modified (34 total)
+
+**New (6):**
+- `Source/ModalType.h` — app-level ModalType enum, no namespace
+- `Source/SelectionType.h` — app-level SelectionType enum, no namespace
+- `Source/Cursor.h` — shared cursor descriptor struct + 8 static position functions
+- `Source/Cursor.cpp` — static position function implementations
+- `Source/whelmed/InputHandler.h` — Whelmed keyboard modal handler
+- `Source/whelmed/InputHandler.cpp` — navigation (j/k scroll), cursor movement (h/j/k/l with sticky column), selection toggle (v/V), copy, Action fallthrough
+
+**Deleted (1):**
+- `Source/terminal/selection/SelectionType.h` — backwards alias removed, MouseHandler.cpp include updated
+
+**Modified (27):**
+- `Source/AppIdentifier.h` — added modalType, selectionType, selCursorBlock/Char, selAnchorBlock/Char, paneTypeTerminal, paneTypeDocument constants
+- `Source/AppState.h:77-81` — added modal/selection getters/setters
+- `Source/AppState.cpp:233-268` — implemented modal/selection on TABS subtree
+- `Source/MainComponent.h:152` — StatusBarOverlay inline init with AppState TABS tree
+- `Source/MainComponent.cpp:464-480` — enter_selection dispatches via getActivePane(), VBlank lambda stripped to hint-only
+- `Source/component/PaneComponent.h:73-81` — added enterSelectionMode, copySelection, hasSelection pure virtuals; fixed getPaneType/switchRenderer doxygen
+- `Source/component/StatusBarOverlay.h` — ValueTree::Listener on TABS subtree, refresh() replaces polled update()
+- `Source/component/TerminalComponent.h:382,391,463` — added override + noexcept to selection methods
+- `Source/component/TerminalComponent.cpp:289,610,624` — keyPressed early return fixed, isActivePane guard for selection rendering
+- `Source/component/InputHandler.h:26` — include path updated to app-level SelectionType
+- `Source/component/InputHandler.cpp:21-64,157-168` — early returns refactored to single-return pattern, dead ternary fixed
+- `Source/component/Tabs.h:157` — added getActivePane(); removed getActiveWhelmed (dead code)
+- `Source/component/Tabs.cpp:308-339` — hasSelection/copySelection dispatch via PaneComponent; getActivePane implementation
+- `Source/component/Panes.cpp:119-120,175-176` — modal clear on createWhelmed/closeWhelmed; paneType constants
+- `Source/component/MouseHandler.cpp:1` — include updated to app-level SelectionType
+- `Source/terminal/data/State.h:66-67,154-156` — includes app-level enums, using aliases in Terminal namespace
+- `Source/terminal/data/State.cpp:654-698` — setModalType/getModalType/setSelectionType/getSelectionType delegate to AppState
+- `Source/terminal/data/Identifier.h:136,266` — removed dead modalType/selectionType identifiers
+- `Source/whelmed/Component.h` — added enterSelectionMode/copySelection/hasSelection override, mouseDown, file+class doxygen
+- `Source/whelmed/Component.cpp` — enterSelectionMode (first visible block), copySelection, hasSelection, mouseDown focus, viewport mouse listener, TABS listener for buffering, cursor init
+- `Source/whelmed/Block.h` — added virtual getSelectionRects, getText, getTextLength, getGlyphBounds, hitTest, 5 line-nav methods
+- `Source/whelmed/TextBlock.h` — override declarations for all Block virtuals
+- `Source/whelmed/TextBlock.cpp` — implementations: getSelectionRects (glyph-level), getText, getTextLength, getGlyphBounds, hitTest, getLineCount, getLineForChar, getLineCharRange, getCharForLine, getCharX
+- `Source/whelmed/Screen.h` — setSelection, setCursor, updateCursor, hideCursor, hitTestAt, setStateTree, extractText, block query wrappers, getCursorBounds, getFirstVisibleBlock, mouse handlers, HitResult struct, Cursor + drag state members
+- `Source/whelmed/Screen.cpp` — selection highlight rendering, cursor bar rendering, mouse selection (click/drag/double/triple), hit testing, block query wrappers, viewport-aware cursor positioning
+- `Source/whelmed/State.cpp` — removed pendingPrefix ValueTree init
+- `Source/config/WhelmedConfig.h` — added selectionColour key
+- `Source/config/WhelmedConfig.cpp` — added selectionColour default (00C8D880)
+- `Source/config/default_whelmed.lua` — added selection_colour entry
+- `ARCHITECTURE.md` — full update: module map, Whelmed section, PaneComponent contract, StatusBarOverlay, Cursor, ModalType rewrite, split pane schema
+- `SPEC.md` — Whelmed selection status updated
+- `SPEC-MODAL.md` — new spec document for this sprint
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT (ModalType/SelectionType exclusively in AppState), Explicit (pane type constants, no magic strings), Lean (toggleSelectionType/copyAndClearSelection extracted), Encapsulation (PaneComponent pure virtuals eliminate type inspection), Bound (Cursor lifecycle scoped to Screen)
+- [x] NAMES.md adhered — `Cursor` (noun, descriptor), `toggleSelectionType` (verb), `copyAndClearSelection` (verb), `hitTestAt` (verb), `getFirstVisibleBlock` (verb+noun)
+- [x] MANIFESTO.md principles applied — zero early returns in all new and refactored code (Auditor verified + Machinist fixed), objects stateless (Cursor is pure data, no history)
+
+### Problems Solved
+- **ModalType/SelectionType SSOT:** Moved from Terminal::State atomics to AppState ValueTree. Terminal::State methods now thin facades. Both pane types read/write the same source.
+- **StatusBarOverlay pane-agnostic:** Rewired from VBlank polling of Terminal getters to ValueTree listener on AppState TABS subtree. Works for both Terminal and Whelmed without type inspection.
+- **Whelmed keyboard selection:** Full vim-style modal selection: prefix+[ enters, h/j/k/l cursor navigation with visual-line awareness and sticky column, v/V toggle visual/line, y copy, Escape exit. Cursor starts at first visible block.
+- **Whelmed mouse selection:** Click/drag (visual), double-click (word), triple-click (line). No modal entry — keyboard navigation unaffected.
+- **Shared Cursor:** Project-level Cursor struct with 8 static position functions. Both pane types use identical movement logic.
+- **PaneComponent contract:** enterSelectionMode, copySelection, hasSelection lifted to base. MainComponent/Tabs dispatch through PaneComponent without type inspection.
+- **Terminal selection bleed:** Terminal's onVBlank now guards selection rendering with isActivePane check. Whelmed selection doesn't bleed to Terminal.
+- **Focus chain:** Viewport mouse listener forwards all clicks to Whelmed::Component::grabKeyboardFocus. Prefix+hjkl pane switching works bidirectionally.
+- **Early returns:** Refactored in Terminal::InputHandler::handleKey, handleModalKey, Whelmed::InputHandler::handleKey, Terminal::Component::keyPressed.
+- **DRY:** toggleSelectionType extracts 3 identical toggle blocks. copyAndClearSelection extracts 2 identical copy blocks. SelectionType.h backwards alias eliminated.
+
+### Technical Debt / Follow-up
+- Terminal::InputHandler::handleSelectionKey and handleOpenFileKey still contain early returns (pre-existing, not in audit scope — separate sprint)
+- Cursor struct static functions are Whelmed-only consumers currently. Terminal refactoring to consume Cursor::moveUp/Down/etc is a future sprint.
+- Whelmed::Screen shadow state (selAnchorBlock/Char, selCursorBlock/Char members duplicate ValueTree) — acceptable as render cache, but monitor for drift
+- TextBlock line-navigation methods iterate glyphs linearly (O(n) per query) — acceptable for document sizes but could cache line boundaries if profiling shows hot path
+- handleCursorMovement (110 lines) and handleSelectionToggle (reduced but still >30 lines after extraction) exceed Lean guideline — further decomposition possible but diminishing returns
+
+---
+
 ## Sprint 14: Windows system font fallback via DirectWrite
 
 **Date:** 2026-04-01

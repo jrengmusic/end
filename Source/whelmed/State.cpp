@@ -11,7 +11,6 @@ State::State()
     state.setProperty (App::ID::scrollOffset,  0.0f,  nullptr);
     state.setProperty (App::ID::blockCount,    0,     nullptr);
     state.setProperty (App::ID::parseComplete, false, nullptr);
-    state.setProperty (App::ID::pendingPrefix, 0,     nullptr);
     state.setProperty (App::ID::totalBlocks,   0,     nullptr);
 
     startTimerHz (60);

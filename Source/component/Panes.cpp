@@ -84,7 +84,7 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
     for (auto& pane : panes)
     {
-        if (pane->getComponentID() == activeID and pane->getPaneType() == "terminal")
+        if (pane->getComponentID() == activeID and pane->getPaneType() == App::ID::paneTypeTerminal)
             activeTerminal = pane.get();
     }
 
@@ -118,7 +118,7 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
         AppState::getContext()->setModalType (0);
         AppState::getContext()->setSelectionType (0);
-        AppState::getContext()->setActivePaneType ("document");
+        AppState::getContext()->setActivePaneType (App::ID::paneTypeDocument);
         resized();
     }
 
@@ -139,13 +139,13 @@ void Panes::closeWhelmed()
     {
         if (panes.at (i)->getComponentID() == activeID)
         {
-            if (panes.at (i)->getPaneType() == "document")
+            if (panes.at (i)->getPaneType() == App::ID::paneTypeDocument)
             {
                 whelmedPane = panes.at (i).get();
                 whelmedIndex = i;
             }
 
-            if (panes.at (i)->getPaneType() == "terminal")
+            if (panes.at (i)->getPaneType() == App::ID::paneTypeTerminal)
                 terminalPane = panes.at (i).get();
         }
     }
@@ -174,7 +174,7 @@ void Panes::closeWhelmed()
 
         AppState::getContext()->setModalType (0);
         AppState::getContext()->setSelectionType (0);
-        AppState::getContext()->setActivePaneType ("terminal");
+        AppState::getContext()->setActivePaneType (App::ID::paneTypeTerminal);
     }
 }
 
@@ -375,7 +375,7 @@ void Panes::visibilityChanged()
 
     for (auto& pane : panes)
     {
-        if (visible and pane->getPaneType() == "terminal")
+        if (visible and pane->getPaneType() == App::ID::paneTypeTerminal)
         {
             auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), pane->getComponentID()) };
             const bool hasDocument { paneNode.isValid() and paneNode.getChildWithName (App::ID::DOCUMENT).isValid() };

@@ -13,7 +13,7 @@
 #include "../terminal/logic/Session.h"
 #include "../terminal/rendering/Screen.h"
 #include "../terminal/selection/LinkManager.h"
-#include "../terminal/selection/SelectionType.h"
+#include "../SelectionType.h"
 #include "../terminal/data/Identifier.h"
 #include "../terminal/data/State.h"
 #include "../config/Config.h"

@@ -122,16 +122,6 @@ public:
     Terminal::Component* getActiveTerminal() const noexcept;
 
     /**
-     * @brief Returns the active Whelmed document component, if any.
-     *
-     * Looks up the active pane by UUID and pane type "document".
-     *
-     * @return Pointer to the active Whelmed::Component, or nullptr if none.
-     * @note MESSAGE THREAD.
-     */
-    Whelmed::Component* getActiveWhelmed() const noexcept;
-
-    /**
      * @brief Returns the active Panes' pane owner for GL iteration.
      *
      * Returns a reference to a static empty owner if no active pane exists.
@@ -157,10 +147,10 @@ public:
     PaneComponent* getActivePane() const noexcept;
 
     /**
-     * @brief Returns `true` if the active terminal has a non-degenerate selection.
+     * @brief Returns `true` if the active pane has a non-degenerate selection.
      *
-     * Forwards to `Terminal::Component::hasSelection()` on the active terminal.
-     * Returns `false` if there is no active terminal.
+     * Forwards to the active PaneComponent::hasSelection().
+     * Returns `false` if there is no active pane.
      *
      * @return `true` if a selection is active and can be copied.
      * @note MESSAGE THREAD.
@@ -170,7 +160,7 @@ public:
     /**
      * @brief Copy the current selection to clipboard.
      *
-     * Forwards to getActiveTerminal().
+     * Forwards to the active PaneComponent::copySelection().
      *
      * @note MESSAGE THREAD.
      */

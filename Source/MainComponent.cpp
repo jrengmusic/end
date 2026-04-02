@@ -673,7 +673,7 @@ void MainComponent::initialiseTabs()
     // TODO: State restoration disabled — fix after renderer and tabs cleanup
     appState.getTabs().removeAllChildren (nullptr);
     appState.setActiveTabIndex (0);
-    AppState::getContext()->setActivePaneType ("terminal");
+    AppState::getContext()->setActivePaneType (App::ID::paneTypeTerminal);
     tabs->addNewTab();
 
     sendLookAndFeelChange();

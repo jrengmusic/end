@@ -408,7 +408,7 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    juce::String getPaneType() const noexcept override { return "terminal"; }
+    juce::String getPaneType() const noexcept override { return App::ID::paneTypeTerminal; }
     void applyConfig() noexcept override;
 
     /**
