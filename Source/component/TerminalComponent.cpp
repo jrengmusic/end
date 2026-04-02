@@ -709,6 +709,8 @@ void Terminal::Component::applyScreenSettings() noexcept
         {
             s.setLigatures (cfg->getBool (Config::Key::fontLigatures));
             s.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
+            s.setLineHeight (cfg->getFloat (Config::Key::fontLineHeight));
+            s.setCellWidth (cfg->getFloat (Config::Key::fontCellWidth));
             s.setTheme (cfg->buildTheme());
             s.setFontSize (dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
         });

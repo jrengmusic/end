@@ -243,6 +243,10 @@ jreng::Typeface::Metrics jreng::Typeface::calcMetrics (float heightPx) noexcept
                 metrics.physCellW = static_cast<int> (static_cast<float> (metrics.logicalCellW) * displayScale);
                 metrics.physCellH = static_cast<int> (static_cast<float> (metrics.logicalCellH) * displayScale);
                 metrics.physBaseline = static_cast<int> (static_cast<float> (metrics.logicalBaseline) * displayScale);
+
+                // Restore face to render DPI for subsequent rasterization.
+                const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * displayScale) };
+                FT_Set_Char_Size (face, 0, height26_6, renderDpi, renderDpi);
             }
         }
 

@@ -191,6 +191,12 @@ struct Config : jreng::Context<Config>
         /** @brief Whether synthetic bold (embolden) is applied to the main font. */
         inline static const juce::String fontEmbolden { "font.embolden" };
 
+        /** @brief Line height multiplier applied to terminal cell height (default 1.0). */
+        inline static const juce::String fontLineHeight { "font.line_height" };
+
+        /** @brief Cell width multiplier applied to terminal cell width (default 1.0). */
+        inline static const juce::String fontCellWidth { "font.cell_width" };
+
         /** @brief Unicode codepoint string used as the cursor glyph. */
         inline static const juce::String cursorChar { "cursor.char" };
 

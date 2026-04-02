@@ -540,8 +540,21 @@ void MainComponent::registerActions()
                                                                    : config.getInt (Config::Key::popupRows) };
 
                                    const auto fm { typeface.calcMetrics (Terminal::Component::dpiCorrectedFontSize()) };
-                                   const int pixelWidth  { cols * fm.logicalCellW };
-                                   const int pixelHeight { rows * fm.logicalCellH };
+
+                                   const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? 24 : 0 };
+                                   const int paddingTop    { config.getInt (Config::Key::terminalPaddingTop) };
+                                   const int paddingRight  { config.getInt (Config::Key::terminalPaddingRight) };
+                                   const int paddingBottom { config.getInt (Config::Key::terminalPaddingBottom) };
+                                   const int paddingLeft   { config.getInt (Config::Key::terminalPaddingLeft) };
+
+                                   const float lineHeightMultiplier { config.getFloat (Config::Key::fontLineHeight) };
+                                   const float cellWidthMultiplier  { config.getFloat (Config::Key::fontCellWidth) };
+
+                                   const int effectiveCellW { static_cast<int> (static_cast<float> (fm.logicalCellW) * cellWidthMultiplier) };
+                                   const int effectiveCellH { static_cast<int> (static_cast<float> (fm.logicalCellH) * lineHeightMultiplier) };
+
+                                   const int pixelWidth  { cols * effectiveCellW + paddingLeft + paddingRight };
+                                   const int pixelHeight { rows * effectiveCellH + paddingTop + paddingBottom + titleBarHeight };
 
                                    const auto cwd { entry.cwd.isNotEmpty() ? entry.cwd
                                                                            : appState.getPwd() };

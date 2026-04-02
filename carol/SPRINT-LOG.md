@@ -15,6 +15,51 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 19: Font metrics — aspect ratio, DPI restore, popup sizing
+
+**Date:** 2026-04-02
+
+### Agents Participated
+- COUNSELOR — analysis of cell metrics vs Kitty/Ghostty/WezTerm, plan design, delegation, auditor coordination
+- Pathfinder (x5) — font metrics code discovery, FreeType/CoreText paths, config key patterns, embedded font data, popup padding flow
+- Librarian — JUCE Windows DPI awareness research
+- Engineer (x3) — font.line_height config + calc(), font.cell_width config + calc(), popup sizing fix
+- Auditor (x2) — verified line_height implementation (found placeholder mismatch C1), verified popup sizing (found rounding divergence M1, naming m1)
+
+### Files Modified (8 total)
+- `Source/config/Config.h:195-198` — added `fontLineHeight` ("font.line_height") and `fontCellWidth` ("font.cell_width") key declarations
+- `Source/config/Config.cpp:102-103` — registered both keys: number, range 0.5–3.0, default 1.0
+- `Source/config/default_end.lua:71-77` — added `line_height = %%font_line_height%%` and `cell_width = %%font_cell_width%%` to font section
+- `Source/terminal/rendering/Screen.h:373,379,921-922` — added `setLineHeight()` and `setCellWidth()` declarations, `lineHeightMultiplier` and `cellWidthMultiplier` members (default 1.0f)
+- `Source/terminal/rendering/Screen.cpp:66-86` — `calc()` applies both multipliers: height with baseline centering (extra/2 shift), width with truncation
+- `Source/terminal/rendering/Screen.cpp:271-285` — `setLineHeight()` and `setCellWidth()` implementations (guard + recalc pattern matching `setFontSize`)
+- `Source/component/TerminalComponent.cpp:712-713` — `applyScreenSettings()` reads config, calls `setLineHeight()` and `setCellWidth()`
+- `Source/MainComponent.cpp:544-557` — popup pixel sizing now includes terminal padding (all 4 sides), titleBarHeight, and cell multipliers
+- `modules/jreng_graphics/fonts/jreng_typeface_metrics.cpp:247-249` — added render DPI restore after metric computation (implements documented step 8)
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT (cell multipliers from Config, popup sizing reads same Config keys as TerminalComponent), Explicit (multiplier names semantic, all params visible), Encapsulation (Screen owns multipliers, told via setLineHeight/setCellWidth API), Lean (minimal additions)
+- [x] NAMES.md adhered — `lineHeightMultiplier`, `cellWidthMultiplier`, `effectiveCellW/H`, `paddingTop/Right/Bottom/Left` match established patterns
+- [x] MANIFESTO.md principles applied — no new patterns invented, follows existing setFontSize guard+recalc pattern
+- [x] JRENG-CODING-STANDARD — brace init, `not`/`and`/`or` tokens, no early returns, space after function names
+
+### Problems Solved
+- **Cell aspect ratio** — terminal had no user control over cell dimensions. Added `font.line_height` (height multiplier) and `font.cell_width` (width multiplier), matching Kitty/Ghostty/WezTerm pattern. Extra height centered via baseline shift (half above, half below).
+- **DPI restore bug** — `calcMetrics()` doc promised step 8 (restore face to renderDpi) but code never did it. Face left at baseDpi (96) after every cache miss. On HiDPI (scale > 1.0), glyphs rasterized at wrong DPI — 43% too small at 175% scaling (UTM Windows 11). Fixed by adding `FT_Set_Char_Size` restore after metric read.
+- **Popup sizing** — popup pixel dimensions computed from raw `cols * cellW` without accounting for terminal padding (default 10px all sides) or titleBarHeight. Grid always smaller than configured cols/rows. Fixed by adding padding + titleBar + multipliers to pixel calculation.
+
+### Analysis Data (for future reference)
+- Display Mono Book: UPM=1003, hhea ascender=881, descender=-122, lineGap=250
+- Competitor cell width: all use max ASCII advance (32-127), same as end
+- Competitor cell height: Kitty/WezTerm use `face->height` (design units, includes lineGap), Ghostty reads hhea tables directly. End uses `face->size->metrics.height` (should be equivalent per FreeType internals)
+- DPI restore bug: only affects non-Mac (FreeType path). Severity = `1 - 1/scale` (20% at 125%, 43% at 175%)
+- Mac calcMetrics (CoreText) measures only space glyph for width; Kitty measures max across ASCII 32-127. For true monospace fonts these should be equal.
+
+### Technical Debt / Follow-up
+- `PLAN-font-metrics.md` at project root — should be removed after commit (analysis artifact)
+- Mac CoreText `calcMetrics` measures space glyph only for width vs competitors measuring max ASCII — investigate if this causes width mismatch for non-monospace fallback fonts
+- The `24` magic number for titleBarHeight appears in TerminalComponent.h:699 and now MainComponent.cpp — consider extracting to a named constant
+
 ## Sprint 18: Menu font sizing, popup scaling fix
 
 **Date:** 2026-04-02

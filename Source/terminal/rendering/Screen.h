@@ -361,6 +361,29 @@ public:
     void setFontSize (float pointSize) noexcept;
 
     /**
+     * @brief Sets the line-height multiplier and recomputes cell dimensions.
+     *
+     * Values greater than 1.0 increase cell height (more line spacing).
+     * Values less than 1.0 decrease it (tighter spacing).
+     * Extra space is split evenly above and below the text baseline.
+     *
+     * @param multiplier  Line-height multiplier (clamped to 0.5–3.0 by config).
+     * @note **MESSAGE THREAD**.
+     */
+    void setLineHeight (float multiplier) noexcept;
+
+    /**
+     * @brief Sets the cell-width multiplier and recomputes cell dimensions.
+     *
+     * Values less than 1.0 narrow the cell (more columns fit).
+     * Values greater than 1.0 widen it (fewer columns).
+     *
+     * @param multiplier  Cell-width multiplier (clamped to 0.5–3.0 by config).
+     * @note **MESSAGE THREAD**.
+     */
+    void setCellWidth (float multiplier) noexcept;
+
+    /**
      * @brief Enables or disables HarfBuzz ligature shaping.
      *
      * When enabled, `tryLigature()` is called for ASCII sequences before
@@ -905,7 +928,9 @@ private:
     int viewportY    { 0 };  ///< Logical pixel Y origin of the viewport.
     int viewportWidth  { 0 }; ///< Logical pixel width of the viewport.
     int viewportHeight { 0 }; ///< Logical pixel height of the viewport.
-    float baseFontSize { 14.0f }; ///< Current font size in points; updated by setFontSize().
+    float baseFontSize       { 14.0f }; ///< Current font size in points; updated by setFontSize().
+    float lineHeightMultiplier { 1.0f }; ///< User line-height multiplier from config; 1.0 = no adjustment.
+    float cellWidthMultiplier { 1.0f }; ///< User cell-width multiplier from config; 1.0 = no adjustment.
 
     jreng::Typeface& font;             ///< Font instance providing metrics, shaping, and rasterisation.
     Resources resources;           ///< All shared rendering resources (atlas, mailbox, theme).

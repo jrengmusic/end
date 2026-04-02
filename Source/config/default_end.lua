@@ -67,6 +67,14 @@ END = {
 		-- Make text appear bolder.
 		-- Useful for thin fonts that are hard to read at small sizes.
 		embolden = %%font_embolden%%,
+
+		-- Line height multiplier applied to terminal cell height (0.5 - 3.0).
+		-- 1.0 = no adjustment. Values above 1.0 increase spacing, below decrease it.
+		line_height = %%font_line_height%%,
+
+		-- Cell width multiplier applied to terminal cell width (0.5 - 3.0).
+		-- 1.0 = no adjustment. Values above 1.0 widen cells, below narrow them.
+		cell_width = %%font_cell_width%%,
 	},
 
 	-- ========================================================================

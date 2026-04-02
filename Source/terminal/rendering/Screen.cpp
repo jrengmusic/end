@@ -63,9 +63,13 @@ void Screen<Renderer>::calc() noexcept
 
     if (fm.isValid())
     {
-        physCellWidth  = fm.physCellW;
-        physCellHeight = fm.physCellH;
-        physBaseline   = fm.physBaseline;
+        const int adjustedPhysCellH  { static_cast<int> (static_cast<float> (fm.physCellH) * lineHeightMultiplier) };
+        const int extraPixels        { adjustedPhysCellH - fm.physCellH };
+        const int adjustedPhysBaseline { fm.physBaseline + extraPixels / 2 };
+
+        physCellWidth  = static_cast<int> (static_cast<float> (fm.physCellW) * cellWidthMultiplier);
+        physCellHeight = adjustedPhysCellH;
+        physBaseline   = adjustedPhysBaseline;
 
         if (physCellWidth > 0 and physCellHeight > 0 and glViewportWidth > 0 and glViewportHeight > 0)
         {
@@ -254,6 +258,36 @@ void Screen<Renderer>::setFontSize (float pointSize) noexcept
         font.setSize (pointSize);
         font.setAtlasDisplayScale (jreng::Typeface::getDisplayScale());
         font.clearAtlas();
+        calc();
+    }
+}
+
+/**
+ * @brief Sets the line-height multiplier and recomputes cell dimensions.
+ *
+ * @param multiplier  Line-height multiplier (clamped to 0.5–3.0 by config).
+ */
+template <typename Renderer>
+void Screen<Renderer>::setLineHeight (float multiplier) noexcept
+{
+    if (multiplier != lineHeightMultiplier)
+    {
+        lineHeightMultiplier = multiplier;
+        calc();
+    }
+}
+
+/**
+ * @brief Sets the cell-width multiplier and recomputes cell dimensions.
+ *
+ * @param multiplier  Cell-width multiplier (clamped to 0.5–3.0 by config).
+ */
+template <typename Renderer>
+void Screen<Renderer>::setCellWidth (float multiplier) noexcept
+{
+    if (multiplier != cellWidthMultiplier)
+    {
+        cellWidthMultiplier = multiplier;
         calc();
     }
 }

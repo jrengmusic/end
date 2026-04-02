@@ -99,6 +99,8 @@ void Config::initKeys()
     addKey (Key::fontSize, 12.0, { T::number, 1.0, 200.0, true });
     addKey (Key::fontLigatures, true, { T::boolean });
     addKey (Key::fontEmbolden, true, { T::boolean });
+    addKey (Key::fontLineHeight, 1.0, { T::number, 0.5, 3.0, true });
+    addKey (Key::fontCellWidth, 1.0, { T::number, 0.5, 3.0, true });
 
     addKey (Key::cursorChar, juce::String::charToString (static_cast<juce::juce_wchar> (0x2588)), { T::string });
     addKey (Key::cursorBlink, true, { T::boolean });
