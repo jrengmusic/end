@@ -9,6 +9,7 @@
 #include "LookAndFeel.h"
 #include "../config/WhelmedConfig.h"
 
+
 namespace Terminal
 { /*____________________________________________________________________________*/
 /**
@@ -97,9 +98,10 @@ void LookAndFeel::setColours()
 juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float height)
 {
     const auto* cfg { Config::getContext() };
-    float fontHeight { 0.5f * getTabBarHeight() };
     return juce::Font {
-        juce::FontOptions().withName (cfg->getString (Config::Key::tabFamily)).withPointHeight (fontHeight)
+        juce::FontOptions()
+            .withName (cfg->getString (Config::Key::tabFamily))
+            .withPointHeight (cfg->getFloat (Config::Key::tabSize))
     };
 }
 
@@ -107,7 +109,7 @@ juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float heig
  * @brief Computes the tab bar height from the configured tab font.
  *
  * Queries the real rendered font height from `getTabButtonFont()` and
- * derives the bar height so the font occupies 60% of the bar.
+ * derives the bar height so the font occupies 50% of the bar.
  *
  * @return Tab bar height in pixels, rounded to nearest integer.
  * @note MESSAGE THREAD.
@@ -115,7 +117,12 @@ juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float heig
 int LookAndFeel::getTabBarHeight() noexcept
 {
     const auto* cfg { Config::getContext() };
-    return juce::roundToInt (cfg->getFloat (Config::Key::tabSize));
+    const juce::Font font {
+        juce::FontOptions()
+            .withName (cfg->getString (Config::Key::tabFamily))
+            .withPointHeight (cfg->getFloat (Config::Key::tabSize))
+    };
+    return juce::roundToInt (font.getHeight() / tabFontRatio);
 }
 
 /**

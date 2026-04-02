@@ -143,7 +143,7 @@ void Config::initKeys()
     addKey (Key::gpuAcceleration, "auto", { T::string });
 
     addKey (Key::tabFamily, "Display Mono", { T::string });
-    addKey (Key::tabSize, 24.0, { T::number, 1.0, 200.0, true });
+    addKey (Key::tabSize, 12.0, { T::number, 1.0, 200.0, true });
     addKey (Key::tabForeground, "#00C8D8", { T::string });///< blueBikini
     addKey (Key::tabInactive, "#33535B", { T::string });///< mediterranea
     addKey (Key::tabPosition, "left", { T::string });

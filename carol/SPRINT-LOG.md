@@ -15,6 +15,42 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 18: Menu font sizing, popup scaling fix
+
+**Date:** 2026-04-02
+
+### Agents Participated
+- COUNSELOR — diagnosis, plan design, delegation, research coordination
+- Pathfinder (x3) — LookAndFeel code discovery, BackgroundBlur caller search, popup scaling investigation
+- Researcher (x2) — Mac NSWindow corner radius approaches, NSView tint layer over NSVisualEffectView
+- Librarian (x2) — JUCE Font scaling on retina displays, JUCE popup menu text rendering architecture
+- Engineer (x6) — NSVisualEffectView + cornerRadius implementation, CGS restore, font sizing fixes, tabFontRatio iterations, revert
+- Auditor — verified blur path and font changes
+
+### Files Modified (3 total)
+- `Source/config/Config.cpp:146` — `tabSize` default 24.0 → 12.0 (was bar height, now font size)
+- `Source/component/LookAndFeel.h:109-110,202,210` — added `shouldPopupMenuScaleWithTargetComponent` override (returns false); added `tabFontRatio { 0.5f }` constant; updated `getTabBarHeight` doc
+- `Source/component/LookAndFeel.cpp:98-105,117-125,265-271` — `getTabButtonFont` uses `tabSize` directly; `getTabBarHeight` computes bar from font height / tabFontRatio; `getPopupMenuFont` uses `tabSize` directly
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT (tabSize is single source for font size, bar height derived), Explicit (tabFontRatio named constant, no magic 0.5 multiplier), Lean (no extra helpers)
+- [x] NAMES.md adhered — `tabFontRatio` (noun, describes relationship), `tabSize` semantic meaning corrected (font size, not bar height)
+- [x] MANIFESTO.md principles applied — no new patterns, existing LookAndFeel override mechanism used
+
+### Problems Solved
+- **Menu font doubled on retina:** `shouldPopupMenuScaleWithTargetComponent` defaulted to `true`, causing JUCE to scale popup menus with the target component's display scale factor. Override returns `false`.
+- **Menu font too large:** `getPopupMenuFont()` used raw `tabSize` (24pt bar height) as font size. Fixed: `tabSize` is now a font size (default 12pt). Both `getTabButtonFont` and `getPopupMenuFont` use it directly.
+- **Tab bar height hack:** `getTabButtonFont` used `0.5 * getTabBarHeight()` to derive font size from bar height. Inverted: `tabSize` is the font size, `getTabBarHeight` derives bar height as `font.getHeight() / tabFontRatio`.
+- **Mac popup rounded corners:** Investigated NSVisualEffectView + maskImage approach. NSVisualEffectView as subview of JUCE contentView breaks text rendering (layer tree rebuild disrupts compositor). CGS blur has no corner radius API. Deferred — requires NSVisualEffectView as contentView (view hierarchy swap) which is invasive for a separate sprint.
+
+### Technical Debt / Follow-up
+- Mac popup menu has no rounded corners. NSVisualEffectView as contentView (with JUCE view re-parented as subview) is the correct approach but requires careful JUCE view hierarchy management. Separate sprint.
+- Mac opacity binary feel — still unaddressed. Separate sprint.
+- Pre-existing: early returns in `jreng_background_blur.mm`.
+- `LookAndFeel.h` has line ending issues (mixed CRLF) — normalize in a cleanup pass.
+
+---
+
 ## Sprint 17: Config fixes — version placeholder, glass hot reload
 
 **Date:** 2026-04-02
