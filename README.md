@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="___display___/end-icon.svg" alt="END">
+  <img src="Source/icons/end-icon.png" alt="END">
 </div>
 
 # END
