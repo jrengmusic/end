@@ -44,11 +44,6 @@
 #include "freetype/src/type42/type42.c"
 #include "freetype/src/winfonts/winfnt.c"
 
-// Platform-specific system interface
-#if _WIN32
-    #include "freetype/builds/windows/ftsystem.c"
-    #include "freetype/builds/windows/ftdebug.c"
-#else
-    #include "freetype/builds/unix/ftsystem.c"
-    #include "freetype/src/base/ftdebug.c"
-#endif
+// System interface
+#include "freetype/src/base/ftsystem.c"
+#include "freetype/src/base/ftdebug.c"

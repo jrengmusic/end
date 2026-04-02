@@ -15,6 +15,33 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 16: Fix mac build — freetype include path
+
+**Date:** 2026-04-02
+
+### Agents Participated
+- COUNSELOR — diagnosis, fix applied
+- Pathfinder (x3) — freetype directory structure, git history, tracked files
+
+### Files Modified (1 total)
+- `modules/jreng_freetype/jreng_freetype.cpp:47-54` — removed nonexistent platform-specific `builds/` includes, replaced with generic `src/base/ftsystem.c` and `src/base/ftdebug.c`
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Mac build failed: `freetype/builds/unix/ftsystem.c` not found. The `builds/` directory was never vendored. Replaced platform-branched includes with generic ANSI implementations already present in tree.
+
+### Technical Debt / Follow-up
+- None
+
+### Lessons
+- COUNSELOR violated "never second-guess ARCHITECT" by questioning Windows build status instead of trusting ARCHITECT's observation and applying the fix immediately. Wasted tokens on unnecessary investigation.
+
+---
+
 ## Sprint 15: App-level modal handling, Whelmed selection, shared Cursor
 
 **Date:** 2026-04-01 — 2026-04-02
