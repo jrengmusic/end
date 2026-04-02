@@ -37,10 +37,10 @@ namespace jreng
  * On macOS, blur is deferred via juce::AsyncUpdater because the window
  * server requires the window to be fully presented before CoreGraphics
  * blur APIs take effect.  On Windows, DWM glass is applied synchronously
- * via @c setGlassEnabled().
+ * via @c setGlass().
  *
  * @par Usage
- * Construct the window, then call @c setGlassEnabled(true) to activate
+ * Construct the window, then call @c setGlass(true, ...) to activate
  * glass, or leave it disabled for a standard opaque window.  On macOS
  * the first-show blur is applied automatically via the async path.
  *
@@ -66,17 +66,13 @@ public:
     void closeButtonPressed() override;
 
     /**
-     * @brief Enables or disables glass (blur + transparency).
+     * @brief Sets glass properties — blur, tint, and opacity.
      *
-     * When enabled: window becomes non-opaque and native blur is applied.
-     * When disabled: blur is removed and window becomes opaque with a
-     * solid background colour — identical to a standard DocumentWindow.
-     *
-     * On Windows this is the primary entry point for glass lifecycle.
-     * On macOS the first-show blur is driven by the async path, but
-     * runtime toggling (e.g. GPU ↔ CPU switch) goes through here.
+     * When enabled: updates stored values, makes window non-opaque,
+     * and applies native blur via BackgroundBlur.
+     * When disabled: removes blur and restores opaque background.
      */
-    void setGlassEnabled (bool enabled);
+    void setGlass (bool enabled, juce::Colour colour, float opacity, float blur);
 
 #if JUCE_MAC
     /** @brief One-shot: triggers deferred blur on first visibility. */

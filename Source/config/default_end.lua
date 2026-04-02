@@ -10,7 +10,7 @@
 --	████████████████████  ████    ████████████  ████████████████████
 --	░░░░░░░░░░░░░░░░░░░░  ░░░░    ░░░░░░░░░░░░  ░░░░░░░░░░░░░░░░░░░░
 --
---	                Ephemeral Nexus Display  v%versionString%
+--	                Ephemeral Nexus Display  v%%versionString%%
 -- ============================================================================
 -- Configuration
 -- https://github.com/jrengmusic/end
@@ -566,8 +566,8 @@ END = {
 	        command = "tit",
 	        args = "",
 	        cwd = "",
-	        cols = 80,
-	        rows = 24,
+	        cols = 70,
+	        rows = 30,
 	        modal = "t",
 	    },
 	--     btop = {

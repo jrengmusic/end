@@ -15,6 +15,41 @@
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
 
+## Sprint 17: Config fixes — version placeholder, glass hot reload
+
+**Date:** 2026-04-02
+
+### Agents Participated
+- COUNSELOR — diagnosis of 3 issues, plan design, delegation, revert coordination
+- Pathfinder (x2) — Config system discovery, BackgroundBlur caller enumeration
+- Engineer (x5) — default_end.lua fix, glass API iterations, revert, final setGlass implementation
+- Auditor — verified glass changes (reported 4 findings: C1 early returns, M1 null-check, M2 isBlurApplied flag)
+
+### Files Modified (4 total)
+- `Source/config/default_end.lua:13` — `%versionString%` → `%%versionString%%` (single percent never matched `replaceholder()` which uses double percent)
+- `modules/jreng_gui/glass/jreng_glass_window.h:68-75` — renamed `setGlassEnabled(bool)` → `setGlass(bool, Colour, float, float)` with updated doc block
+- `modules/jreng_gui/glass/jreng_glass_window.cpp:73-94,108-115` — `setGlass` updates members then applies blur; `handleAsyncUpdate` calls `setGlass` with stored values
+- `Source/Main.cpp:141-144,155-158` — Windows init and reload callback pass fresh config values to `setGlass`
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT (glass params set in one function, no shadow state), Explicit (all params visible in `setGlass` signature), Encapsulation (GlassWindow owns its config, callers tell don't ask)
+- [x] NAMES.md adhered — `setGlass` (verb, sets properties), not `setGlassEnabled` (was lying about scope)
+- [x] MANIFESTO.md principles applied — no new patterns invented, same `BackgroundBlur::enable()` path for creation and reload
+
+### Problems Solved
+- **Version placeholder:** `default_end.lua` line 13 used single `%versionString%` but `replaceholder()` wraps with `%%`. Never matched. Fixed to `%%versionString%%`.
+- **Glass hot reload:** `GlassWindow` baked colour/opacity/blur at construction. Reload called `setGlassEnabled(true)` with stale values. Fix: `setGlass` takes all params, updates members, then applies. Same function for creation and reload.
+- **API rename:** `setGlassEnabled` implied a simple toggle but actually sets window properties. Renamed to `setGlass` to match actual responsibility.
+
+### Technical Debt / Follow-up
+- Mac opacity binary feel (issue 3) — not addressed this sprint. Requires research into `NSWindow setAlphaValue` vs `setBackgroundColor` alpha compositing model with CGS blur. Separate sprint.
+- Pre-existing: early returns in `jreng_background_blur.mm` (enable, applyBackgroundBlur, applyNSVisualEffect, enableWindowTransparency). Auditor flagged as C1.
+
+### Lessons
+- COUNSELOR violated role boundaries by writing code directly instead of delegating to @Engineer. Wasted multiple iterations on opacity compositing model (Option A/B) without proper research. Should have invoked @Librarian for NSWindow alpha compositing behavior before attempting implementation. Trying to fix all 3 issues simultaneously created cascading failures — should have shipped issue 1+2 first, researched issue 3 separately.
+
+---
+
 ## Sprint 16: Fix mac build — freetype include path
 
 **Date:** 2026-04-02

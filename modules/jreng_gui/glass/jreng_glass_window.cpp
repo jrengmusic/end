@@ -10,7 +10,7 @@
  *
  * @par Windows
  * DWM glass is applied synchronously — the caller invokes
- * @c setGlassEnabled() after construction.  No AsyncUpdater needed.
+ * @c setGlass() after construction.  No AsyncUpdater needed.
  *
  * @see jreng_glass_window.h
  * @see BackgroundBlur
@@ -28,11 +28,12 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
                           float blur,
                           bool alwaysOnTop,
                           bool showWindowButtons)
-    : juce::DocumentWindow (name, juce::Colours::transparentBlack,
+    : juce::DocumentWindow (name,
+                            juce::Colours::transparentBlack,
 #if JUCE_WINDOWS
-        showWindowButtons ? juce::DocumentWindow::allButtons : 0)
+                            showWindowButtons ? juce::DocumentWindow::allButtons : 0)
 #else
-        juce::DocumentWindow::allButtons)
+                            juce::DocumentWindow::allButtons)
 #endif
     , blurRadius (blur)
     , tintColour (colour.withAlpha (opacity))
@@ -69,8 +70,12 @@ void GlassWindow::closeButtonPressed() { juce::JUCEApplication::getInstance()->s
 // Glass API
 // =============================================================================
 
-void GlassWindow::setGlassEnabled (bool enabled)
+void GlassWindow::setGlass (bool enabled, juce::Colour colour, float opacity, float blur)
 {
+    windowColour = colour;
+    tintColour = colour.withAlpha (opacity);
+    blurRadius = blur;
+
     if (enabled)
     {
         setOpaque (false);
@@ -103,7 +108,7 @@ void GlassWindow::visibilityChanged()
 void GlassWindow::handleAsyncUpdate()
 {
     isBlurApplied = true;
-    setGlassEnabled (true);
+    setGlass (true, windowColour, tintColour.getFloatAlpha(), blurRadius);
 
     if (not juce::Process::isForegroundProcess())
         juce::Process::makeForegroundProcess();

@@ -138,7 +138,10 @@ public:
 #if JUCE_WINDOWS
         {
             const bool isGpu { cfg->getString (Config::Key::gpuAcceleration) != "false" };
-            mainWindow->setGlassEnabled (isGpu);
+            mainWindow->setGlass (isGpu,
+                cfg->getColour (Config::Key::windowColour),
+                cfg->getFloat (Config::Key::windowOpacity),
+                cfg->getFloat (Config::Key::windowBlurRadius));
         }
 #endif
 
@@ -149,7 +152,10 @@ public:
                 content->applyConfig();
 
                 const bool isGpu { config.getString (Config::Key::gpuAcceleration) != "false" };
-                mainWindow->setGlassEnabled (isGpu);
+                mainWindow->setGlass (isGpu,
+                    config.getColour (Config::Key::windowColour),
+                    config.getFloat (Config::Key::windowOpacity),
+                    config.getFloat (Config::Key::windowBlurRadius));
             }
         };
 
