@@ -573,6 +573,16 @@ int Terminal::Component::getGridCols() const noexcept
 
 juce::ValueTree Terminal::Component::getValueTree() noexcept { return session.getState().get(); }
 
+juce::String Terminal::Component::getShellEnvVar (const juce::String& varName) const
+{
+    return session.getShellEnvVar (varName);
+}
+
+void Terminal::Component::addExtraEnv (const juce::String& key, const juce::String& value)
+{
+    session.addExtraEnv (key, value);
+}
+
 /**
  * @brief VBlank callback: renders the grid if dirty, repositions cursor, updates visibility.
  *

@@ -1,72 +1,109 @@
+<div align="center">
+  <img src="___display___/end-icon.svg" alt="END">
+</div>
+
 # END
 
-The journey of finding the best terminal is finally comes to END.
+**Ephemeral Nexus Display**
+
+The long and winding road finding the truly best opinionated cross-platform, dual-backend renderer, rich-featured, modern terminal emulator with non-web stack true Markdown and Mermaid renderer that can run on your grandma's PC finally comes to END.
 
 ---
 
 ## What is END?
 
-**Ephemeral Nexus Display** -- a GPU-accelerated terminal emulator built from scratch in C++17 and JUCE. OpenGL-rendered text, HarfBuzz shaping, full Unicode support, sub-frame latency.
+A GPU/CPU-rendered terminal emulator built from scratch in C++17 and JUCE. OpenGL instanced rendering or SIMD-optimised software fallback, HarfBuzz shaping, full Unicode support, sub-frame latency. Runtime-switchable between GPU and CPU with a config reload.
 
-END is opinionated: it does terminal rendering well. Tabs and split panes built-in, glass blur UI, Lua-configurable everything. You use tmux for session management. END handles the pixels.
+END is opinionated: it does terminal rendering well. Tabs, split panes, popup terminals, command palette, vim-like selection, file opener with flash-jump hints — all built in. Glass blur UI on macOS and Windows. Lua-configurable everything. You use tmux for session management. END handles the pixels.
+
+And when you open a Markdown file, END doesn't shell out to a browser. It renders it natively in a split pane — headings, tables, code blocks, Mermaid diagrams — same rendering stack, same window. That's WHELMED.
 
 
 ## Features
 
-**Rendering**
-- GPU-instanced text rendering -- glyph atlas, instanced quads, 3 draw calls per frame at 120fps
-- Dual texture atlas: mono glyphs (R8) + color emoji (RGBA8)
-- CoreText on macOS, FreeType on Linux -- native quality on each platform
+**Dual Renderer**
+- GPU: OpenGL instanced text rendering — glyph atlas, instanced quads, 3 draw calls per frame at 120fps
+- CPU: SIMD-optimised software renderer (SSE2/NEON) — same quality, no GPU required
+- Runtime GPU/CPU switching via config hot-reload (Cmd+R)
+- Dual texture atlas: mono glyphs (R8) + colour emoji (RGBA8)
+- Shelf-packed atlas with LRU eviction
+
+**Text**
+- CoreText on macOS, FreeType on Linux/Windows — native quality on each platform
 - HarfBuzz text shaping with ligature support
 - Nerd Font icons with per-glyph constraint scaling (ported from NF patcher v3.4.0)
-- Procedural box drawing, block elements, and braille -- pixel-perfect at any cell size, no font dependency
+- Procedural box drawing, block elements, and braille — pixel-perfect at any cell size, no font dependency
 - System font fallback via CoreText cascade for missing glyphs
-- Color emoji (Apple Color Emoji, Noto, system fonts)
-- Configurable zoom (Cmd+/-/0) with full font resize across all font handles
+- Colour emoji (Apple Color Emoji, Noto, system fonts)
+- Configurable cell width, line height, and emboldening
 
 **Terminal**
-- Full xterm-256color + 24-bit true color
+- Full xterm-256color + 24-bit true colour
 - Unicode grapheme segmentation (UAX #29 state machine, Unicode 17.0)
-- Wide character support (CJK, EAW)
-- SGR mouse tracking (modes 1000/1002/1003/1006 -- tmux and vim just work)
-- Bracketed paste
+- Wide character support (CJK, East Asian Width)
+- Kitty keyboard protocol (progressive enhancement, per-screen flag stacks)
+- SGR mouse tracking (modes 1000/1002/1003/1006 — tmux and vim just work)
+- Bracketed paste, focus events, bell
 - Alternate screen buffer (vim, htop, less, TUI apps)
 - DECTCEM cursor visibility
 - Scrollback with configurable history
-- Text selection with transparent overlay
+- Ring buffer grid with reflow-on-resize
 
-**Platform**
-- Native glass blur on macOS -- your desktop bleeds through
-- Borderless window with configurable title bar buttons
-- Window state persistence (size, zoom saved across sessions)
-- Lua configuration with hot-reload (Cmd+R)
-- Lock-free render pipeline -- reader thread writes atomics, VBlank polls dirty flags, GL thread acquires snapshot via atomic pointer exchange
-- Zero allocations on the render path
+**OSC and Shell Integration**
+- OSC 7: working directory tracking
+- OSC 8: hyperlinks (parsed and merged with heuristic link detection)
+- OSC 9/777: native desktop notifications (macOS UNUserNotificationCenter, Windows/Linux fallback)
+- OSC 52: clipboard access (base64)
+- OSC 133: shell integration markers (A/B/C/D output block tracking)
+- Automatic shell integration injection (zsh, bash, fish)
+- Clickable hyperlinks on command output rows
 
 **UI**
 - Tabbed interface with configurable position (top, bottom, left, right)
-- Active tab line indicator with configurable colour
-- Native glass blur popup menus on macOS
-- Custom LookAndFeel colour system driven by Lua config
-- Transient message overlay for config reload and errors
-- Split panes with binary tree layout -- horizontal and vertical splits, draggable dividers
-- Prefix-key pane navigation (tmux-style) -- fully configurable keys and timeout
+- Split panes with binary tree layout — horizontal and vertical, draggable dividers
+- Prefix-key pane navigation (tmux-style) — fully configurable keys and timeout
+- Command palette: fuzzy-searchable action list with glass blur overlay
+- Popup terminals: user-defined modal floating terminals for TUI apps (lazygit, htop, tit, etc.)
+- File opener with flash-jump hint labels — keyboard-jumpable file paths from command output
+- Vim-like selection mode: visual, visual-line, visual-block with keyboard cursor navigation in scrollback
+- Word selection (double-click), line selection (triple-click)
+- Status bar with modal state display
+- Configurable cursor: any character, Nerd Font icon, or colour emoji — with optional blink
+- Text selection with transparent overlay
+- Drag-and-drop file paths with configurable quoting
 
-**Architecture**
-- C++17 + JUCE 8 cross-platform framework
-- CoreText + HarfBuzz on macOS, FreeType + HarfBuzz on Linux
-- OpenGL instanced rendering with shelf-packed dual atlas
-- VT100/xterm parser (ground, escape, CSI, DCS, OSC state machine)
-- Ring buffer grid with reflow-on-resize
-- ValueTree as single source of truth for all terminal state
+**Platform**
+- macOS: CoreText rendering, native glass blur, UNUserNotificationCenter
+- Linux: FreeType rendering, notify-send notifications
+- Windows: ConPTY backend (NT API duplex pipe, overlapped I/O), glass blur (Win10 DWM / Win11 system effect)
+- Borderless window with configurable title bar buttons
+- Multi-window support (Cmd+N)
+- Window state persistence (size, zoom saved across sessions)
+- Configurable zoom (Cmd+/-/0) with full font resize
+
+**Configuration**
+- Lua hot-reload (Cmd+R, no restart)
+- Lock-free render pipeline — reader thread writes atomics, VBlank polls dirty flags, GL thread acquires snapshot via atomic pointer exchange
+- Zero allocations on the render path
+- Unified action registry: every keybinding is configurable, global or modal, or both
 
 
-## Roadmap
+## WHELMED
 
-- **Split panes** -- implemented (binary tree layout, prefix-key navigation, configurable dividers)
-- **Tabs** -- implemented (configurable position, styling, hot-reload)
-- **Windows support** -- ConPTY backend in progress, rendering pipeline ready
-- **Inline images** -- Sixel protocol support
+**WYSIWYG Hybrid Encoder Lightweight Markdown/Mermaid**
+
+WHELMED is END's built-in Markdown and Mermaid renderer. Click a `.md` hyperlink in the terminal and it opens as a native split pane — no browser, no electron, no external process. Same window, same rendering stack.
+
+**Rendering:**
+- Headings (h1-h6), paragraphs, lists with full styled text
+- Inline code and fenced code blocks with syntax colouring
+- Tables with header rows, column alignment, alternating row colours
+- Mermaid diagrams rendered from SVG parse — viewbox-driven scaling
+- Vim-style keyboard navigation and text selection
+
+WHELMED shares END's font system, glyph atlas, and GL/CPU renderer. It runs as a `PaneComponent` — the same interface as a terminal pane.
+
+**Status:** Headings, paragraphs, lists, code blocks, tables, and basic Mermaid rendering are working. Mermaid support is being expanded.
 
 
 ## Get Started
@@ -76,186 +113,57 @@ cmake -S . -B Builds/Xcode -G Xcode
 cmake --build Builds/Xcode --config Release
 ```
 
-Requirements: C++17 compiler, CMake, JUCE 8, macOS (primary), Linux (supported), Windows (in progress)
+Requirements: C++17 compiler, CMake, JUCE 8
 
 
 ## Configuration
 
-Everything lives in `~/.config/end/end.lua`:
+Everything lives in `~/.config/end/`:
 
-```lua
-END = {
-    font = {
-        family = "Display Mono",
-        size = 14,
-        ligatures = true,
-        embolden = true,
-    },
-    cursor = {
-        char = "\u{2588}",
-        blink = true,
-        blink_interval = 500,
-    },
-    colours = {
-        foreground = "#FFB3F9F5",
-        background = "#E0090D12",
-        cursor = "#CCB3F9F5",
-        selection = "#8000C8D8",
-    },
-    window = {
-        title = "END",
-        colour = "#090D12",
-        opacity = 0.75,
-        blur_radius = 32.0,
-        always_on_top = true,
-        buttons = false,
-    },
-    tab = {
-        family = "Display Mono",
-        size = 14,
-        position = "left",
-        foreground = "#FF00C8D8",
-        inactive = "#FF2E4D53",
-        line = "#FF8CC9D9",
-    },
-    scrollback = {
-        num_lines = 10000,
-        step = 5,
-    },
-    pane = {
-        bar_colour = "#FF2E4D53",
-        bar_highlight = "#FF00C8D8",
-    },
-    keys = {
-        prefix = "`",
-        prefix_timeout = 1000,
-        split_horizontal = "\\",
-        split_vertical = "-",
-        pane_left = "h",
-        pane_down = "j",
-        pane_up = "k",
-        pane_right = "l",
-    },
-}
-```
+| File | Purpose |
+|------|---------|
+| `end.lua` | Terminal configuration: font, colours, cursor, window, tabs, panes, keybindings, popups, shell, hyperlinks |
+| `whelmed.lua` | Markdown viewer configuration: typography, heading sizes, colours, code block syntax colours, layout |
+| `state.lua` | Auto-saved window state (size, zoom) — not user-edited |
 
-Window size and zoom are saved automatically in `~/.config/end/state.lua`.
+Both config files are auto-generated with documented defaults on first launch. Every value has inline comments explaining what it does. Edit any value, press Cmd+R to reload. Invalid or missing values fall back to defaults silently.
+
+Keybindings are fully configurable through `end.lua`. Every action — copy, paste, zoom, split, navigate, command palette, popups — is assignable as a global shortcut (`cmd+c`), a prefix-mode key (backtick then `h`), or both. The config file documents the format and all available actions.
 
 
-## Keybinds
-
-All keyboard shortcuts are configurable via `end.lua`. Defaults:
-
-| Key | Action | Config key |
-|-----|--------|------------|
-| Cmd+C | Copy selection | `keys.copy` |
-| Cmd+V | Paste | `keys.paste` |
-| Cmd+R | Reload config | `keys.reload` |
-| Cmd+Q | Quit (saves window state) | `keys.quit` |
-| Cmd+T | New tab | `keys.new_tab` |
-| Cmd+W | Close tab (quits if last) | `keys.close_tab` |
-| Cmd+Shift+[ | Previous tab | `keys.prev_tab` |
-| Cmd+Shift+] | Next tab | `keys.next_tab` |
-| Cmd+= | Zoom in | `keys.zoom_in` |
-| Cmd+- | Zoom out | `keys.zoom_out` |
-| Cmd+0 | Reset zoom | `keys.zoom_reset` |
-| Shift+PageUp | Scroll up | -- |
-| Shift+PageDown | Scroll down | -- |
-| Shift+Home | Scroll to top | -- |
-| Shift+End | Scroll to bottom | -- |
-
-On Windows/Linux, `cmd` maps to `Ctrl`.
-
-### Pane keybinds (prefix key)
-
-Pane actions use a prefix key (default: backtick `` ` ``). Press prefix, then the action key:
-
-| Key | Action | Config key |
-|-----|--------|------------|
-| `` ` `` then `\` | Split horizontal (left/right) | `keys.split_horizontal` |
-| `` ` `` then `-` | Split vertical (top/bottom) | `keys.split_vertical` |
-| `` ` `` then `h` | Focus pane left | `keys.pane_left` |
-| `` ` `` then `j` | Focus pane down | `keys.pane_down` |
-| `` ` `` then `k` | Focus pane up | `keys.pane_up` |
-| `` ` `` then `l` | Focus pane right | `keys.pane_right` |
-
-Prefix key and timeout are configurable:
-
-| Config key | Default | Description |
-|------------|---------|-------------|
-| `keys.prefix` | `` ` `` (backtick) | Prefix key to enter pane mode |
-| `keys.prefix_timeout` | `1000` | Timeout in ms before prefix mode cancels |
-
-### Customizing keybinds
-
-```lua
-END = {
-    keys = {
-        copy = "cmd+shift+c",
-        paste = "cmd+shift+v",
-        reload = "F5",
-        quit = "cmd+shift+q",
-        zoom_in = "cmd+]",
-        zoom_out = "cmd+[",
-        zoom_reset = "cmd+\\",
-    },
-}
-```
-
-### Shortcut format
-
-Modifiers and key separated by `+`:
-
-| Modifier | Token |
-|----------|-------|
-| Command (Mac) / Ctrl (Win/Linux) | `cmd` or `ctrl` |
-| Shift | `shift` |
-| Alt / Option | `alt` or `opt` |
-
-| Key | Token |
-|-----|-------|
-| Letters | `a`-`z` |
-| Digits / symbols | `0`-`9`, `=`, `-`, `[`, `]`, `\`, etc. |
-| Function keys | `F1`-`F12` |
-| Navigation | `pageup`, `pagedown`, `home`, `end` |
-| Special | `escape`, `return`, `tab`, `space`, `backspace`, `delete`, `insert` |
-
-Single keys without modifiers are supported: `keys.reload = "F5"`
-
-
-## What END Does Not Handle (Yet)
+## Roadmap
 
 | Feature | Status |
 |---------|--------|
-| Split panes | Implemented |
-| Tabs | Implemented |
-| Sessions | tmux |
-| Shell integration | Complexity, low value |
-| Hyperlinks | Not yet |
-| Sixel images | Planned |
+| WHELMED Mermaid | In progress — basic rendering works, expanding coverage |
+| Sixel inline images | Planned |
+| iTerm2 inline images (OSC 1337) | Planned |
+| Terminal state serialization | Spec written |
+| `jreng_text` module extraction | Planned — shared GL text rendering for END + WHELMED |
+| WHELMED standalone | Planned — same code, separate entry point |
 
 
 ## Documentation
 
 | Doc | Contents |
 |-----|----------|
-| [SPEC.md](SPEC.md) | Complete technical specification |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, threading model, data flow |
-| Source code | Comprehensive Doxygen annotations on all 77 source files |
+| [SPEC.md](SPEC.md) | Roadmap and feature specifications |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, threading model, data flow, module map |
+| Source code | Doxygen annotations across all source files |
 
 
 ## Platform Support
 
 | Platform | Status |
 |----------|--------|
-| macOS | Primary -- CoreText rendering, native glass blur |
-| Linux | Supported -- FreeType rendering |
-| Windows | In progress -- ConPTY backend |
+| macOS | Primary — CoreText, native glass blur, desktop notifications |
+| Linux | Supported — FreeType rendering |
+| Windows | Supported — ConPTY backend, glass blur |
 
 
 ## License
 
-Proprietary -- JRENG
+Proprietary — JRENG
 
 ---
 

@@ -250,6 +250,17 @@ public:
      */
     virtual int getCwd (int pid, char* buffer, int maxLength) const noexcept { return 0; }
 
+    /**
+     * @brief Reads an environment variable from the given PID's environment.
+     * @param pid        The process ID to query.
+     * @param varName    The environment variable name (e.g. "PATH").
+     * @param buffer     Destination buffer for the null-terminated value.
+     * @param maxLength  Size of the destination buffer in bytes.
+     * @return Number of bytes written (excluding null terminator), or 0 on failure.
+     * @note READER THREAD — no allocation, writes directly into caller's buffer.
+     */
+    virtual int getEnvVar (int pid, const char* varName, char* buffer, int maxLength) const { return 0; }
+
     /** @} */
 
     // =========================================================================

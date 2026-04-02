@@ -207,6 +207,21 @@ public:
      */
     int getCwd (int pid, char* buffer, int maxLength) const noexcept override;
 
+    /**
+     * @brief Reads an environment variable from the given PID's environment.
+     *
+     * Uses sysctl with KERN_PROCARGS2 on macOS.
+     * Reads /proc/<pid>/environ on Linux.
+     *
+     * @param pid        The process ID to query.
+     * @param varName    The environment variable name.
+     * @param buffer     Destination buffer.
+     * @param maxLength  Buffer size in bytes.
+     * @return Bytes written (excluding null), or 0 on failure.
+     * @note READER THREAD.
+     */
+    int getEnvVar (int pid, const char* varName, char* buffer, int maxLength) const override;
+
     /** @} */
 
 private:

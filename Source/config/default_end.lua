@@ -570,21 +570,21 @@ END = {
 	-- Examples:
 	--
 	popups = {
-	    tit = {
-	        command = "tit",
-	        args = "",
-	        cwd = "",
-	        cols = 70,
-	        rows = 30,
-	        modal = "t",
-	    },
-	--     btop = {
-	--         command = "htop",
-	--         cwd = "~",
-	--         cols = 80,
-	--         rows = 24,
-	--         modal = "p",
-	--         global = "cmd+shift+p",
+		tit = {
+			command = "tit",
+			args = "",
+			cwd = "",
+			cols = 70,
+			rows = 30,
+			modal = "t",
+		},
+	--	btop = {
+	--		command = "htop",
+	--		cwd = "~",
+	--		cols = 80,
+	--		rows = 24,
+	--		modal = "p",
+	--		global = "cmd+shift+p",
 	--     },
 	},
 }

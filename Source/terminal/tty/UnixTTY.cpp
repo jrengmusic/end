@@ -27,6 +27,7 @@
 #ifdef __APPLE__
 #include <util.h>
 #include <libproc.h>
+#include <sys/sysctl.h>
 #else
 #include <pty.h>
 #endif
@@ -488,6 +489,123 @@ int UnixTTY::getCwd (int pid, char* buffer, int maxLength) const noexcept
             const int length { static_cast<int> (bytesRead) };
             buffer[length] = '\0';
             return length;
+        }
+#endif
+    }
+
+    return 0;
+}
+
+int UnixTTY::getEnvVar (int pid, const char* varName, char* buffer, int maxLength) const
+{
+    if (pid > 0 and varName != nullptr and buffer != nullptr and maxLength > 0)
+    {
+#if JUCE_MAC
+        int mib[3] { CTL_KERN, KERN_PROCARGS2, pid };
+        size_t argmax { 0 };
+
+        if (sysctl (mib, 3, nullptr, &argmax, nullptr, 0) == 0 and argmax > 0)
+        {
+            std::vector<char> procargs (argmax);
+
+            if (sysctl (mib, 3, procargs.data(), &argmax, nullptr, 0) == 0)
+            {
+                const size_t varNameLen { std::strlen (varName) };
+                const char* p { procargs.data() };
+                const char* end { p + argmax };
+
+                // Skip argc (first sizeof(int) bytes)
+                if (argmax > sizeof (int))
+                {
+                    int argc { 0 };
+                    std::memcpy (&argc, p, sizeof (int));
+                    p += sizeof (int);
+
+                    // Skip exec path (null-terminated)
+                    while (p < end and *p != '\0')
+                        ++p;
+
+                    // Skip padding nulls after exec path
+                    while (p < end and *p == '\0')
+                        ++p;
+
+                    // Skip argc argument strings
+                    for (int i { 0 }; i < argc and p < end; ++i)
+                    {
+                        while (p < end and *p != '\0')
+                            ++p;
+
+                        if (p < end)
+                            ++p;
+                    }
+
+                    // Now at environment variables — null-separated KEY=VALUE pairs
+                    while (p < end and *p != '\0')
+                    {
+                        const char* entry { p };
+
+                        while (p < end and *p != '\0')
+                            ++p;
+
+                        const size_t entryLen { static_cast<size_t> (p - entry) };
+
+                        if (entryLen > varNameLen and entry[varNameLen] == '='
+                            and std::strncmp (entry, varName, varNameLen) == 0)
+                        {
+                            const char* value { entry + varNameLen + 1 };
+                            const int valueLen { juce::jmin (static_cast<int> (entryLen - varNameLen - 1), maxLength - 1) };
+                            std::memcpy (buffer, value, static_cast<size_t> (valueLen));
+                            buffer[valueLen] = '\0';
+                            return valueLen;
+                        }
+
+                        if (p < end)
+                            ++p;
+                    }
+                }
+            }
+        }
+#elif JUCE_LINUX
+        char path[64] {};
+        std::snprintf (path, sizeof (path), "/proc/%d/environ", pid);
+        const int fd { ::open (path, O_RDONLY) };
+
+        if (fd >= 0)
+        {
+            constexpr int envBufSize { 65536 };
+            std::vector<char> envBuf (envBufSize);
+            const auto bytesRead { ::read (fd, envBuf.data(), envBufSize) };
+            ::close (fd);
+
+            if (bytesRead > 0)
+            {
+                const size_t varNameLen { std::strlen (varName) };
+                const char* p { envBuf.data() };
+                const char* end { p + bytesRead };
+
+                while (p < end)
+                {
+                    const char* entry { p };
+
+                    while (p < end and *p != '\0')
+                        ++p;
+
+                    const size_t entryLen { static_cast<size_t> (p - entry) };
+
+                    if (entryLen > varNameLen and entry[varNameLen] == '='
+                        and std::strncmp (entry, varName, varNameLen) == 0)
+                    {
+                        const char* value { entry + varNameLen + 1 };
+                        const int valueLen { juce::jmin (static_cast<int> (entryLen - varNameLen - 1), maxLength - 1) };
+                        std::memcpy (buffer, value, static_cast<size_t> (valueLen));
+                        buffer[valueLen] = '\0';
+                        return valueLen;
+                    }
+
+                    if (p < end)
+                        ++p;
+                }
+            }
         }
 #endif
     }

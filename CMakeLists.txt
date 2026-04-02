@@ -22,7 +22,7 @@ cmake_minimum_required(VERSION 4.2.0)
 # ============================================================================
 
 set(PROJECT_NAME "END")
-set(PROJECT_VERSION "0.1.0")
+set(PROJECT_VERSION "0.0.1")
 set(PROJECT_COMPANY "JRENG")
 set(PROJECT_WEBSITE "https://jrengmusic.com")
 

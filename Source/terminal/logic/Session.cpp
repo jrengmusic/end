@@ -281,6 +281,35 @@ void Session::setShellProgram (const juce::String& program, const juce::String& 
     shellArgsOverride = args;
 }
 
+juce::String Session::getShellEnvVar (const juce::String& varName) const
+{
+    juce::String result;
+
+    if (tty != nullptr)
+    {
+        const int fgPid { tty->getForegroundPid() };
+
+        if (fgPid > 0)
+        {
+            constexpr int maxEnvValueLength { 8192 };
+            char buf[maxEnvValueLength] {};
+            const int len { tty->getEnvVar (fgPid, varName.toRawUTF8(), buf, maxEnvValueLength) };
+
+            if (len > 0)
+            {
+                result = juce::String::fromUTF8 (buf, len);
+            }
+        }
+    }
+
+    return result;
+}
+
+void Session::addExtraEnv (const juce::String& key, const juce::String& value)
+{
+    tty->addShellEnv (key, value);
+}
+
 /**
  * @brief Translates a JUCE key press into a VT escape sequence and writes it to the PTY.
  *

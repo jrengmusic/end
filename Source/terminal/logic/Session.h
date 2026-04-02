@@ -138,6 +138,30 @@ public:
     void setShellProgram (const juce::String& program, const juce::String& args);
 
     /**
+     * @brief Reads an environment variable from the shell's foreground process.
+     *
+     * Queries the TTY for the foreground PID and reads the named variable
+     * from that process's environment.  Returns an empty string on failure.
+     *
+     * @param varName  The environment variable name (e.g. "PATH").
+     * @return The variable's value, or empty on failure.
+     * @note MESSAGE THREAD.
+     */
+    juce::String getShellEnvVar (const juce::String& varName) const;
+
+    /**
+     * @brief Injects an environment variable into the shell startup environment.
+     *
+     * Must be called before the first resized() call which opens the PTY.
+     * Delegates to TTY::addShellEnv().
+     *
+     * @param key    The environment variable name.
+     * @param value  The environment variable value.
+     * @note MESSAGE THREAD.
+     */
+    void addExtraEnv (const juce::String& key, const juce::String& value);
+
+    /**
      * @brief Translates a JUCE key press into a VT escape sequence and writes it to the PTY.
      *
      * Reads `ID::applicationCursor` from the ValueTree (message-thread SSOT) to

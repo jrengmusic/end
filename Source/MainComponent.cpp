@@ -560,6 +560,17 @@ void MainComponent::registerActions()
                                                                            : appState.getPwd() };
                                    auto terminal { std::make_unique<Terminal::Component> (
                                        typeface, shell, shellArgs, cwd) };
+
+                                   if (auto* active { tabs->getActiveTerminal() })
+                                   {
+                                       const auto shellPath { active->getShellEnvVar ("PATH") };
+
+                                       if (shellPath.isNotEmpty())
+                                       {
+                                           terminal->addExtraEnv ("PATH", shellPath);
+                                       }
+                                   }
+
                                    popup.show (*getTopLevelComponent(), std::move (terminal),
                                               pixelWidth, pixelHeight, glRenderer);
                                }
