@@ -51,8 +51,10 @@ if not exist !VCVARSALL! (
     exit /b 1
 )
 
-echo Setting up MSVC x64 environment...
-call !VCVARSALL! x64
+set ARCH=x64
+if "%PROCESSOR_ARCHITECTURE%"=="ARM64" set ARCH=arm64
+echo Setting up MSVC !ARCH! environment...
+call !VCVARSALL! !ARCH!
 
 :: Use cl.exe (MSVC) -- produces PDB symbols readable by whatdbg (dbgeng.dll)
 set CC=cl

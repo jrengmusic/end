@@ -1,5 +1,29 @@
 # SPRINT-LOG
 
+## Sprint 2: Build Architecture Auto-Detection
+
+**Date:** 2026-04-02
+
+### Agents Participated
+- COUNSELOR: Led analysis, planned fix, directed Engineer
+- Pathfinder: Discovered build configuration — `build.bat` hardcoded x64, host is ARM64 Windows
+- Engineer: Implemented architecture auto-detection in `build.bat`
+
+### Files Modified (1 total)
+- `build.bat:54-57` — Replaced hardcoded `vcvarsall.bat x64` with `%PROCESSOR_ARCHITECTURE%` detection. Defaults to `x64`, overrides to `arm64` on ARM64 Windows. `install.sh` verified clean — no changes needed.
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- `build.bat` hardcoded `vcvarsall.bat x64` — ARM64 Windows host (UTM on M4 MBP) was building x64 binaries running under emulation instead of native ARM64
+- `install.sh` verified to delegate arch decisions entirely to `build.bat` — no coupling
+
+### Technical Debt / Follow-up
+- Existing `Builds/Ninja` directory contains x64 CMake cache — needs `build.bat clean` to reconfigure for ARM64
+
 ## Sprint 1: README Rewrite
 
 **Date:** 2026-04-02
