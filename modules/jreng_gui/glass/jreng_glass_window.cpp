@@ -5,39 +5,39 @@
  * @par macOS
  * Blur is deferred via AsyncUpdater because the window server requires
  * the window to be fully presented before CoreGraphics blur APIs work.
- * A one-shot guard (@c glassAppliedOnFirstShow) prevents re-triggering
+ * A one-shot guard (@c isBlurApplied) prevents re-triggering
  * on subsequent visibility changes.
  *
  * @par Windows
- * DWM glass is applied synchronously — the caller invokes
- * @c setGlass() after construction.  No AsyncUpdater needed.
+ * Glass and DWM rounded corners are applied synchronously on first
+ * visibility.  No AsyncUpdater needed.
  *
  * @see jreng_glass_window.h
  * @see BackgroundBlur
  */
 
 #include "MainComponent.h"
+
+#if JUCE_WINDOWS
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
+#endif
+
 namespace jreng
 {
 /*____________________________________________________________________________*/
 
 GlassWindow::GlassWindow (juce::Component* mainComponent,
                           juce::String const& name,
-                          juce::Colour colour,
-                          float opacity,
-                          float blur,
                           bool alwaysOnTop,
                           bool showWindowButtons)
     : juce::DocumentWindow (name,
-                            juce::Colours::transparentBlack,
+                            juce::Colours::black,
 #if JUCE_WINDOWS
                             showWindowButtons ? juce::DocumentWindow::allButtons : 0)
 #else
                             juce::DocumentWindow::allButtons)
 #endif
-    , blurRadius (blur)
-    , tintColour (colour.withAlpha (opacity))
-    , windowColour (colour)
     , shouldShowWindowButtons (showWindowButtons)
 {
 #if JUCE_WINDOWS
@@ -50,7 +50,7 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
 #else
     setUsingNativeTitleBar (true);
 #endif
-    setOpaque (false);
+    setOpaque (true);
     setContentOwned (std::move (mainComponent), true);
     setAlwaysOnTop (alwaysOnTop);
 #if JUCE_IOS || JUCE_ANDROID
@@ -61,7 +61,6 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
     setResizable (true, true);
 #endif
     centreWithSize (getWidth(), getHeight());
-    setVisible (true);
 }
 
 void GlassWindow::closeButtonPressed() { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
@@ -70,45 +69,66 @@ void GlassWindow::closeButtonPressed() { juce::JUCEApplication::getInstance()->s
 // Glass API
 // =============================================================================
 
-void GlassWindow::setGlass (bool enabled, juce::Colour colour, float opacity, float blur)
+void GlassWindow::setGlass (juce::Colour colour, float opacity, float blur)
 {
     windowColour = colour;
     tintColour = colour.withAlpha (opacity);
     blurRadius = blur;
 
-    if (enabled)
+    if (opacity < 1.0f)
     {
         setOpaque (false);
         setBackgroundColour (juce::Colours::transparentBlack);
-        BackgroundBlur::enable (this, blurRadius, tintColour);
 
-        if (not shouldShowWindowButtons)
-            BackgroundBlur::hideWindowButtons (this);
+        if (isBlurApplied)
+        {
+            BackgroundBlur::enable (this, blurRadius, tintColour);
+
+            if (not shouldShowWindowButtons)
+                BackgroundBlur::hideWindowButtons (this);
+        }
     }
     else
     {
-        BackgroundBlur::disable (this);
+        if (isBlurApplied)
+            BackgroundBlur::disable (this);
+
         setOpaque (true);
         setBackgroundColour (windowColour);
     }
 }
 
 // =============================================================================
-// macOS: deferred first-show blur
+// Deferred first-show blur
 // =============================================================================
-
-#if JUCE_MAC
 
 void GlassWindow::visibilityChanged()
 {
     if (not isBlurApplied)
+    {
+        isBlurApplied = true;
+
+#if JUCE_MAC
         triggerAsyncUpdate();
+#elif JUCE_WINDOWS
+        setGlass (windowColour, tintColour.getFloatAlpha(), blurRadius);
+
+        if (auto* peer { getPeer() })
+        {
+            auto hwnd { static_cast<HWND> (peer->getNativeHandle()) };
+            DWORD cornerPreference { 2 };  // DWMWCP_ROUND
+            DwmSetWindowAttribute (hwnd, 33, &cornerPreference, sizeof (cornerPreference));
+        }
+#endif
+    }
 }
+
+#if JUCE_MAC
 
 void GlassWindow::handleAsyncUpdate()
 {
     isBlurApplied = true;
-    setGlass (true, windowColour, tintColour.getFloatAlpha(), blurRadius);
+    setGlass (windowColour, tintColour.getFloatAlpha(), blurRadius);
 
     if (not juce::Process::isForegroundProcess())
         juce::Process::makeForegroundProcess();
@@ -132,3 +152,4 @@ auto GlassWindow::findControlAtPoint (juce::Point<float> pt) const -> WindowCont
 
 /**_____________________________END_OF_NAMESPACE______________________________*/
 } /** namespace jreng */
+

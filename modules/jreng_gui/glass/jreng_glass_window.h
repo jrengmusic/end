@@ -13,11 +13,10 @@
  * auto* win = new jreng::GlassWindow (
  *     std::make_unique<MainComponent>().release(),
  *     "My App",
- *     juce::Colours::black,
- *     0.6f,   // opacity
- *     20.0f,  // blur radius
  *     false,  // alwaysOnTop
  *     true);  // showWindowButtons
+ * win->setGlass (juce::Colours::black, 0.6f, 20.0f);
+ * win->setVisible (true);
  * @endcode
  *
  * @note macOS only — BackgroundBlur is a no-op on other platforms.
@@ -36,13 +35,14 @@ namespace jreng
  *
  * On macOS, blur is deferred via juce::AsyncUpdater because the window
  * server requires the window to be fully presented before CoreGraphics
- * blur APIs take effect.  On Windows, DWM glass is applied synchronously
- * via @c setGlass().
+ * blur APIs take effect.  On Windows, glass and DWM rounded corners are
+ * applied synchronously on first visibility.
  *
  * @par Usage
- * Construct the window, then call @c setGlass(true, ...) to activate
- * glass, or leave it disabled for a standard opaque window.  On macOS
- * the first-show blur is applied automatically via the async path.
+ * Construct the window, call setGlass() to configure colour/opacity/blur,
+ * then call setVisible(true).  opacity < 1.0 activates glass on first show.
+ * opacity >= 1.0 produces a standard opaque window.
+ * First-show blur is applied automatically on both platforms.
  *
  * @see BackgroundBlur
  */
@@ -55,9 +55,6 @@ class GlassWindow
 public:
     GlassWindow (juce::Component* mainComponent,
                  juce::String const& name,
-                 juce::Colour colour,
-                 float opacity,
-                 float blur,
                  bool alwaysOnTop,
                  bool showWindowButtons = true);
 
@@ -72,11 +69,11 @@ public:
      * and applies native blur via BackgroundBlur.
      * When disabled: removes blur and restores opaque background.
      */
-    void setGlass (bool enabled, juce::Colour colour, float opacity, float blur);
+    void setGlass (juce::Colour colour, float opacity, float blur);
 
-#if JUCE_MAC
     /** @brief One-shot: triggers deferred blur on first visibility. */
     void visibilityChanged() override;
+#if JUCE_MAC
     void handleAsyncUpdate() override;
 #endif
 
@@ -101,18 +98,16 @@ private:
     float blurRadius { 0.0f };
 
     /** @brief Tint colour (with alpha) forwarded to BackgroundBlur::enable(). */
-    juce::Colour tintColour { juce::Colours::transparentBlack };
+    juce::Colour tintColour { juce::Colours::black };
 
     /** @brief Opaque background colour used when glass is disabled. */
-    juce::Colour windowColour;
+    juce::Colour windowColour { juce::Colours::black };
 
     /** @brief When @c false, traffic-light buttons are hidden after blur. */
     bool shouldShowWindowButtons { true };
 
-#if JUCE_MAC
     /** @brief One-shot guard — prevents re-triggering async blur. */
     bool isBlurApplied { false };
-#endif
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GlassWindow)

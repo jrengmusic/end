@@ -66,7 +66,7 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
                        jreng::Glyph::AtlasSize::standard,
                        true)
 {
-    setOpaque (false);
+    setOpaque (appState.getRendererType() == App::RendererType::cpu);
 
     //==============================================================================
     initialiseTabs();
@@ -74,9 +74,9 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     addChildComponent (statusBarOverlay);
     //==============================================================================
 
-    setSize (appState.getWindowWidth(), appState.getWindowHeight());
     setLookAndFeel (&terminalLookAndFeel);
     juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
+    setSize (appState.getWindowWidth(), appState.getWindowHeight());
     //==============================================================================
     applyConfig();
 }

@@ -4,6 +4,7 @@
  */
 
 #include "ActionList.h"
+#include "../../Gpu.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -12,16 +13,21 @@ ActionList::ActionList (juce::Component& caller)
     : jreng::GlassWindow (
         new juce::TextEditor(),
         "",
-        Config::getContext()->getColour (Config::Key::windowColour),
-        Config::getContext()->getFloat (Config::Key::windowOpacity),
-        Config::getContext()->getFloat (Config::Key::windowBlurRadius),
         true,
         false)
 {
+    auto* cfg { Config::getContext() };
+
+    setGlass (
+        cfg->getColour (Config::Key::windowColour),
+        Gpu::resolveOpacity (cfg->getFloat (Config::Key::windowOpacity)),
+        cfg->getFloat (Config::Key::windowBlurRadius));
+
     const int width { static_cast<int> (static_cast<float> (caller.getWidth()) * 0.6f) };
 
     setSize (width, searchBoxHeight);
     centreAroundComponent (&caller, width, searchBoxHeight);
+    setVisible (true);
     enterModalState (true);
 
     if (auto* editor { dynamic_cast<juce::TextEditor*> (getContentComponent()) })

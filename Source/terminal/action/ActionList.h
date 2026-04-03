@@ -1,6 +1,6 @@
-/**
- * @file ActionList.h
- * @brief Command palette — a GlassWindow with search box.
+/**
+ * @file ActionList.h
+ * @brief Command palette — a GlassWindow with search box.
  */
 
 #pragma once
@@ -11,11 +11,11 @@
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-/**
- * @class ActionList
- * @brief Command palette glass window. Inherits jreng::GlassWindow.
- *
- * Created on the fly, enters modal state, destroyed on dismiss.
+/**
+ * @class ActionList
+ * @brief Command palette glass window. Inherits jreng::GlassWindow.
+ *
+ * Created on the fly, enters modal state, destroyed on dismiss.
  */
 class ActionList : public jreng::GlassWindow
 {
@@ -29,8 +29,10 @@ public:
 private:
     static constexpr int searchBoxHeight { 24 };
 
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ActionList)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal
+

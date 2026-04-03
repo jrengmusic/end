@@ -10,6 +10,7 @@
 
 #include "Popup.h"
 #include "../AppState.h"
+#include "../Gpu.h"
 #include "TerminalComponent.h"
 
 namespace Terminal
@@ -78,7 +79,8 @@ Popup::Window::Window (std::unique_ptr<juce::Component> content,
     : juce::DialogWindow ({}, Config::getContext()->getColour (Config::Key::windowColour), false)
     , onDismissed (std::move (dismissCallback))
 {
-    setOpaque (false);
+    const float resolvedOpacity { Gpu::resolveOpacity (config.getFloat (Config::Key::windowOpacity)) };
+    setOpaque (resolvedOpacity >= 1.0f);
     setUsingNativeTitleBar (false);
     setTitleBarHeight (0);
 
@@ -135,11 +137,20 @@ void Popup::Window::visibilityChanged()
 
 void Popup::Window::handleAsyncUpdate()
 {
-    const auto tint { config.getColour (Config::Key::windowColour)
-                           .withAlpha (config.getFloat (Config::Key::windowOpacity)) };
-    const float blur { config.getFloat (Config::Key::windowBlurRadius) };
+    const float resolvedOpacity { Gpu::resolveOpacity (config.getFloat (Config::Key::windowOpacity)) };
 
-    blurApplied = jreng::BackgroundBlur::enable (this, blur, tint);
+    if (resolvedOpacity < 1.0f)
+    {
+        const auto tint { config.getColour (Config::Key::windowColour)
+                               .withAlpha (resolvedOpacity) };
+        const float blur { config.getFloat (Config::Key::windowBlurRadius) };
+
+        blurApplied = jreng::BackgroundBlur::enable (this, blur, tint);
+    }
+    else
+    {
+        blurApplied = true;
+    }
 }
 
 //==============================================================================

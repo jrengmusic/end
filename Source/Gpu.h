@@ -16,6 +16,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "AppState.h"
 
 struct Gpu
 {
@@ -36,6 +37,21 @@ struct Gpu
      * Stateless — holds nothing, caches nothing. Caller stores result.
      */
     static ProbeResult probe() noexcept;
+
+    /**
+     * @brief Resolves window opacity based on renderer type.
+     *
+     * GPU path returns the given config opacity (enables glass).
+     * CPU path returns 1.0 (fully opaque, no glass).
+     *
+     * @param configOpacity  The opacity value from config (0.0–1.0).
+     * @return Resolved opacity: configOpacity on GPU, 1.0f on CPU.
+     */
+    static float resolveOpacity (float configOpacity) noexcept
+    {
+        const bool isGpu { AppState::getContext()->getRendererType() == App::RendererType::gpu };
+        return isGpu ? configOpacity : 1.0f;
+    }
 
     /**
      * @brief Checks a GL_RENDERER string against known software renderers.

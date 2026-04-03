@@ -81,7 +81,12 @@ class ENDApplication : public juce::JUCEApplication
 {
 public:
     //==============================================================================
-    ENDApplication() = default;
+    ENDApplication()
+    {
+        const auto probeResult { Gpu::probe() };
+        appState.setGpuAvailable (probeResult.isAvailable);
+        appState.setRendererType (Config::getContext()->getString (Config::Key::gpuAcceleration));
+    }
 
     /** @return The human-readable application name from ProjectInfo. */
     const juce::String getApplicationName() override { return ProjectInfo::projectName; }
@@ -127,34 +132,24 @@ public:
 
         auto* cfg { Config::getContext() };
 
-        {
-            const auto probeResult { Gpu::probe() };
-            appState.setGpuAvailable (probeResult.isAvailable);
-            appState.setRendererType (cfg->getString (Config::Key::gpuAcceleration));
-
-            DBG ("GPU probe: renderer=\"" + probeResult.rendererName
-                 + "\" available=" + juce::String (probeResult.isAvailable ? "true" : "false")
-                 + " resolved=" + (appState.getRendererType() == App::RendererType::gpu ? App::ID::rendererGpu : App::ID::rendererCpu));
-        }
-
         mainWindow.reset (new jreng::GlassWindow (
             new MainComponent (fontRegistry),
             cfg->getString (Config::Key::windowTitle),
-            cfg->getColour (Config::Key::windowColour),
-            cfg->getFloat (Config::Key::windowOpacity),
-            cfg->getFloat (Config::Key::windowBlurRadius),
             cfg->getBool (Config::Key::windowAlwaysOnTop),
             cfg->getBool (Config::Key::windowButtons)));
 
-#if JUCE_WINDOWS
+        mainWindow->setGlass (
+            cfg->getColour (Config::Key::windowColour),
+            Gpu::resolveOpacity (cfg->getFloat (Config::Key::windowOpacity)),
+            cfg->getFloat (Config::Key::windowBlurRadius));
+
+        mainWindow->setVisible (true);
+
+        juce::MessageManager::callAsync ([this]
         {
-            const bool isGpu { appState.getRendererType() == App::RendererType::gpu };
-            mainWindow->setGlass (isGpu,
-                cfg->getColour (Config::Key::windowColour),
-                cfg->getFloat (Config::Key::windowOpacity),
-                cfg->getFloat (Config::Key::windowBlurRadius));
-        }
-#endif
+            if (auto* content { mainWindow->getContentComponent() })
+                content->grabKeyboardFocus();
+        });
 
         config.onReload = [this]
         {
@@ -162,10 +157,9 @@ public:
             {
                 content->applyConfig();
 
-                const bool isGpu { appState.getRendererType() == App::RendererType::gpu };
-                mainWindow->setGlass (isGpu,
+                mainWindow->setGlass (
                     config.getColour (Config::Key::windowColour),
-                    config.getFloat (Config::Key::windowOpacity),
+                    Gpu::resolveOpacity (config.getFloat (Config::Key::windowOpacity)),
                     config.getFloat (Config::Key::windowBlurRadius));
             }
         };
