@@ -63,7 +63,7 @@ bool Component::keyPressed (const juce::KeyPress& key)
     return inputHandler.handleKey (key);
 }
 
-void Component::switchRenderer (PaneComponent::RendererType type) { juce::ignoreUnused (type); }
+void Component::switchRenderer (App::RendererType type) { juce::ignoreUnused (type); }
 
 void Component::applyConfig() noexcept
 {

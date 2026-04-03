@@ -50,11 +50,28 @@ struct AppState : jreng::Context<AppState>
     void setWindowSize (int width, int height);
     void setWindowZoom (float zoom);
 
-    /** @brief Returns the resolved renderer type string ("gpu" or "cpu"). */
-    juce::String getRendererType() const noexcept;
+    /** @brief Returns the resolved renderer type enum. */
+    App::RendererType getRendererType() const noexcept;
 
-    /** @brief Stores the resolved renderer type string in the WINDOW subtree. */
-    void setRendererType (const juce::String& type);
+    /**
+     * @brief Resolves and stores the renderer type from a config setting.
+     *
+     * Takes the raw config value ("auto", "true", or "false") and resolves
+     * against the stored gpuAvailable flag:
+     * - setting != "false" AND gpuAvailable → "gpu"
+     * - otherwise → "cpu"
+     *
+     * @param setting The raw gpu.acceleration config value.
+     */
+    void setRendererType (const juce::String& setting);
+
+    /**
+     * @brief Stores the GPU availability flag from a probe result.
+     *
+     * Call once at startup before setRendererType(). The probe determines
+     * whether the GL pipeline is hardware-accelerated.
+     */
+    void setGpuAvailable (bool available);
 
     int getActiveTabIndex() const noexcept;
     void setActiveTabIndex (int index);

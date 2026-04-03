@@ -12,6 +12,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "../AppIdentifier.h"
 #include "../AppState.h"
 
 /**
@@ -26,16 +27,6 @@
 class PaneComponent : public jreng::GLComponent
 {
 public:
-    /**
-     * @enum RendererType
-     * @brief Active rendering backend for pane components.
-     */
-    enum class RendererType
-    {
-        gpu,  ///< OpenGL accelerated — GLContext, glassmorphism enabled.
-        cpu   ///< Software rendered — GraphicsContext, opaque background.
-    };
-
     PaneComponent()
     {
         setWantsKeyboardFocus (true);
@@ -65,7 +56,7 @@ public:
      * @param type  The desired rendering backend.
      * @note MESSAGE THREAD.
      */
-    virtual void switchRenderer (RendererType type) = 0;
+    virtual void switchRenderer (App::RendererType type) = 0;
 
     /**
      * @brief Returns the pane's root ValueTree for grafting into AppState.

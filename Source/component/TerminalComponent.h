@@ -49,7 +49,6 @@
 #include "InputHandler.h"
 #include "MouseHandler.h"
 #include "PaneComponent.h"
-#include "RendererType.h"
 #include "config/Config.h"
 
 namespace Terminal
@@ -441,7 +440,7 @@ public:
      * @param type  The desired rendering backend.
      * @note MESSAGE THREAD.
      */
-    void switchRenderer (PaneComponent::RendererType type) override;
+    void switchRenderer (App::RendererType type) override;
 
     /**
      * @brief Increases the zoom multiplier by one step.

@@ -23,6 +23,16 @@
 
 namespace App
 {
+    //==========================================================================
+    // Renderer type
+    //==========================================================================
+
+    enum class RendererType
+    {
+        gpu,
+        cpu
+    };
+
 namespace ID
 {
     //==========================================================================
@@ -52,6 +62,7 @@ namespace ID
     static const juce::Identifier modalType      { "modalType" };
     static const juce::Identifier selectionType  { "selectionType" };
     static const juce::Identifier renderer           { "renderer" };
+    static const juce::Identifier gpuAvailable       { "gpuAvailable" };
     static const juce::Identifier filePath           { "filePath" };
     static const juce::Identifier displayName        { "displayName" };
     static const juce::Identifier scrollOffset       { "scrollOffset" };
@@ -63,6 +74,13 @@ namespace ID
     static const juce::Identifier selCursorChar      { "selCursorChar" };
     static const juce::Identifier selAnchorBlock     { "selAnchorBlock" };
     static const juce::Identifier selAnchorChar      { "selAnchorChar" };
+
+    //==========================================================================
+    // Renderer type string constants (used by AppState::getRendererType())
+    //==========================================================================
+
+    static const juce::String rendererGpu { "gpu" };
+    static const juce::String rendererCpu { "cpu" };
 
     //==========================================================================
     // Pane type string constants (used by PaneComponent::getPaneType())

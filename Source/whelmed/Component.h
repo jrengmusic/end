@@ -38,7 +38,7 @@ public:
     ~Component() override;
 
     juce::String getPaneType() const noexcept override { return App::ID::paneTypeDocument; }
-    void switchRenderer (PaneComponent::RendererType type) override;
+    void switchRenderer (App::RendererType type) override;
     void applyConfig() noexcept override;
 
     bool keyPressed (const juce::KeyPress& key) override;

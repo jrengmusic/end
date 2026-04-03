@@ -121,7 +121,7 @@ void Terminal::Component::initialise()
 
     // Switch to the renderer stored in AppState (SSOT).
     // Emplaces correct Screen variant, handlers, opacity, and applies config.
-    switchRenderer (getRendererType());
+    switchRenderer (AppState::getContext()->getRendererType());
     inputHandler->buildKeyMap();
 
     session.onShellExited = [this]
@@ -453,7 +453,7 @@ void Terminal::Component::glContextCreated() noexcept
     if (std::holds_alternative<Screen<jreng::Glyph::GLContext>> (screen))
     {
         // GL surface opacity only — AppKit blur is applied on the message thread
-        // by MainComponent::valueTreePropertyChanged.
+        // by MainComponent::setRenderer.
         jreng::BackgroundBlur::enableWindowTransparency();
         std::get<Screen<jreng::Glyph::GLContext>> (screen).glContextCreated();
         session.getGrid().markAllDirty();
@@ -756,7 +756,7 @@ void Terminal::Component::applyZoom (float zoom) noexcept
     resized();
 }
 
-void Terminal::Component::switchRenderer (PaneComponent::RendererType type)
+void Terminal::Component::switchRenderer (App::RendererType type)
 {
     // Release current renderer's GL resources before switching.
     // The contextInitialised guard in each renderer prevents
@@ -768,7 +768,7 @@ void Terminal::Component::switchRenderer (PaneComponent::RendererType type)
         });
 
     // Atlas resize is handled once by MainComponent's ValueTree listener.
-    if (type == PaneComponent::RendererType::cpu)
+    if (type == App::RendererType::cpu)
     {
         if (not std::holds_alternative<Screen<jreng::Glyph::GraphicsContext>> (screen))
         {

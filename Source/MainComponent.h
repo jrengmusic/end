@@ -38,7 +38,7 @@
 #include <JuceHeader.h>
 #include "AppState.h"
 #include "component/LookAndFeel.h"
-#include "component/RendererType.h"
+#include "component/PaneComponent.h"
 #include "component/MessageOverlay.h"
 #include "component/Popup.h"
 #include "component/Tabs.h"
@@ -72,8 +72,7 @@
  * @see Config::Key::windowOpacity
  * @see Terminal::Action
  */
-class MainComponent : public juce::Component,
-                      private juce::ValueTree::Listener
+class MainComponent : public juce::Component
 {
 public:
     /**
@@ -118,14 +117,17 @@ private:
      */
     void registerActions();
 
-    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+    /**
+     * @brief Sets the renderer type — GL lifecycle, atlas, and terminal switching.
+     *
+     * @param rendererType  The renderer type to apply.
+     * @note MESSAGE THREAD.
+     */
+    void setRenderer (App::RendererType rendererType);
 
     /** @brief Cached context references; resolved once, used everywhere. */
     Config& config { *Config::getContext() };
     AppState& appState { *AppState::getContext() };
-
-    /** @brief Retained reference to AppState WINDOW subtree for listener registration. */
-    juce::ValueTree windowState;
 
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
     Terminal::LookAndFeel terminalLookAndFeel;

@@ -53,8 +53,7 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     : typeface (fontRegistry,
                 config.getString (Config::Key::fontFamily),
                 config.getFloat (Config::Key::fontSize),
-                config.getString (Config::Key::gpuAcceleration) != "false" ? jreng::Glyph::AtlasSize::standard
-                                                                           : jreng::Glyph::AtlasSize::compact,
+                jreng::Glyph::AtlasSize::compact,
                 true)
     , whelmedBodyFont (fontRegistry,
                        Whelmed::Config::getContext()->getString (Whelmed::Config::Key::fontFamily),
@@ -69,15 +68,6 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
 {
     setOpaque (false);
 
-    // Store resolved renderer in AppState. The ValueTree listener handles
-    // GL lifecycle, atlas resize, and terminal switching.
-    const auto gpuSetting { config.getString (Config::Key::gpuAcceleration) };
-    appState.setRendererType (gpuSetting == "false" ? "cpu" : "gpu");
-
-    // Retain the WINDOW subtree reference and listen for renderer changes.
-    windowState = appState.getWindow();
-    windowState.addListener (this);
-
     //==============================================================================
     initialiseTabs();
     initialiseMessageOverlay();
@@ -89,18 +79,14 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
     //==============================================================================
     applyConfig();
-    // Apply initial renderer state. The listener won't fire when appState
-    // already holds the same value, so call directly to set up GL and atlas.
-    valueTreePropertyChanged (windowState, App::ID::renderer);
 }
 
 void MainComponent::applyConfig()
 {
     registerActions();
 
-    // Config → AppState. The ValueTree listener handles GL lifecycle + terminals.
-    const auto gpuSetting { config.getString (Config::Key::gpuAcceleration) };
-    appState.setRendererType (gpuSetting == "false" ? "cpu" : "gpu");
+    appState.setRendererType (config.getString (Config::Key::gpuAcceleration));
+    setRenderer (appState.getRendererType());
 
     if (tabs != nullptr)
     {
@@ -112,38 +98,29 @@ void MainComponent::applyConfig()
     sendLookAndFeelChange();
 }
 
-void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+void MainComponent::setRenderer (App::RendererType rendererType)
 {
-    juce::ignoreUnused (tree);
+    const auto atlasSize { rendererType == App::RendererType::gpu
+                               ? jreng::Glyph::AtlasSize::standard
+                               : jreng::Glyph::AtlasSize::compact };
+    typeface.setAtlasSize (atlasSize);
 
-    if (property == App::ID::renderer)
+    glRenderer.detach();
+    glRenderer.setComponentPaintingEnabled (true);
+
+    if (rendererType == App::RendererType::gpu)
     {
-        const auto rendererType { getRendererType() };
+        glRenderer.attachTo (*this);
+        setOpaque (false);
+    }
+    else
+    {
+        setOpaque (true);
+    }
 
-        // Shared atlas: resize once for all terminals.
-        const auto atlasSize { rendererType == PaneComponent::RendererType::gpu ? jreng::Glyph::AtlasSize::standard
-                                                                                : jreng::Glyph::AtlasSize::compact };
-        typeface.setAtlasSize (atlasSize);
-
-        // GL lifecycle: detach first (required for setComponentPaintingEnabled).
-        glRenderer.detach();
-        glRenderer.setComponentPaintingEnabled (true);
-
-        if (rendererType == PaneComponent::RendererType::gpu)
-        {
-            glRenderer.attachTo (*this);
-            setOpaque (false);
-        }
-        else
-        {
-            setOpaque (true);
-        }
-
-        // Switch all terminal instances.
-        if (tabs != nullptr)
-        {
-            tabs->switchRenderer (rendererType);
-        }
+    if (tabs != nullptr)
+    {
+        tabs->switchRenderer (rendererType);
     }
 }
 
@@ -182,7 +159,6 @@ void MainComponent::resized()
  */
 MainComponent::~MainComponent()
 {
-    windowState.removeListener (this);
     setLookAndFeel (nullptr);
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
     jreng::BackgroundBlur::setCloseCallback (nullptr);
@@ -280,7 +256,10 @@ void MainComponent::registerActions()
 
                                if (reloadError.isEmpty())
                                {
-                                   const auto rendererName { AppState::getContext()->getRendererType().toUpperCase() };
+                                   const auto rendererType { AppState::getContext()->getRendererType() };
+                                   const juce::String rendererName { rendererType == App::RendererType::gpu
+                                                                          ? App::ID::rendererGpu.toUpperCase()
+                                                                          : App::ID::rendererCpu.toUpperCase() };
                                    messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
                                }
                                else

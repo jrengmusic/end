@@ -344,7 +344,7 @@ void Tabs::applyConfig()
     }
 }
 
-void Tabs::switchRenderer (PaneComponent::RendererType type)
+void Tabs::switchRenderer (App::RendererType type)
 {
     for (auto& p : panes)
     {

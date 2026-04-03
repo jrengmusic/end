@@ -82,20 +82,31 @@ void AppState::setWindowZoom (float zoom)
     window.setProperty (App::ID::zoom, clamped, nullptr);
 }
 
-juce::String AppState::getRendererType() const noexcept
+App::RendererType AppState::getRendererType() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
 
-    if (window.isValid() and window.hasProperty (App::ID::renderer))
-        return window.getProperty (App::ID::renderer).toString();
+    if (window.isValid() and window.hasProperty (App::ID::renderer)
+        and window.getProperty (App::ID::renderer).toString() == App::ID::rendererCpu)
+    {
+        return App::RendererType::cpu;
+    }
 
-    return "cpu";
+    return App::RendererType::gpu;
 }
 
-void AppState::setRendererType (const juce::String& type)
+void AppState::setRendererType (const juce::String& setting)
 {
     auto window { getWindow() };
-    window.setProperty (App::ID::renderer, type, nullptr);
+    const bool gpuAvailable { static_cast<bool> (window.getProperty (App::ID::gpuAvailable, false)) };
+    const bool wantsGpu { setting != "false" };
+    const juce::String resolved { wantsGpu and gpuAvailable ? App::ID::rendererGpu : App::ID::rendererCpu };
+    window.setProperty (App::ID::renderer, resolved, nullptr);
+}
+
+void AppState::setGpuAvailable (bool available)
+{
+    getWindow().setProperty (App::ID::gpuAvailable, available, nullptr);
 }
 
 int AppState::getActiveTabIndex() const noexcept
@@ -338,10 +349,6 @@ void AppState::initDefaults()
     window.setProperty (App::ID::width, cfg->getInt (Config::Key::windowWidth), nullptr);
     window.setProperty (App::ID::height, cfg->getInt (Config::Key::windowHeight), nullptr);
     window.setProperty (App::ID::zoom, cfg->getFloat (Config::Key::windowZoom), nullptr);
-
-    // Resolve renderer from config. "auto" and "true" → "gpu", "false" → "cpu".
-    const auto gpuSetting { cfg->getString (Config::Key::gpuAcceleration) };
-    window.setProperty (App::ID::renderer, gpuSetting == "false" ? "cpu" : "gpu", nullptr);
 
     state.appendChild (window, nullptr);
 

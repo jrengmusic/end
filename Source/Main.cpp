@@ -45,6 +45,7 @@
 #include <JuceHeader.h>
 #include "MainComponent.h"
 #include "AppState.h"
+#include "Gpu.h"
 #include "config/Config.h"
 #include "config/WhelmedConfig.h"
 #include "terminal/action/Action.h"
@@ -126,6 +127,16 @@ public:
 
         auto* cfg { Config::getContext() };
 
+        {
+            const auto probeResult { Gpu::probe() };
+            appState.setGpuAvailable (probeResult.isAvailable);
+            appState.setRendererType (cfg->getString (Config::Key::gpuAcceleration));
+
+            DBG ("GPU probe: renderer=\"" + probeResult.rendererName
+                 + "\" available=" + juce::String (probeResult.isAvailable ? "true" : "false")
+                 + " resolved=" + (appState.getRendererType() == App::RendererType::gpu ? App::ID::rendererGpu : App::ID::rendererCpu));
+        }
+
         mainWindow.reset (new jreng::GlassWindow (
             new MainComponent (fontRegistry),
             cfg->getString (Config::Key::windowTitle),
@@ -137,7 +148,7 @@ public:
 
 #if JUCE_WINDOWS
         {
-            const bool isGpu { cfg->getString (Config::Key::gpuAcceleration) != "false" };
+            const bool isGpu { appState.getRendererType() == App::RendererType::gpu };
             mainWindow->setGlass (isGpu,
                 cfg->getColour (Config::Key::windowColour),
                 cfg->getFloat (Config::Key::windowOpacity),
@@ -151,7 +162,7 @@ public:
             {
                 content->applyConfig();
 
-                const bool isGpu { config.getString (Config::Key::gpuAcceleration) != "false" };
+                const bool isGpu { appState.getRendererType() == App::RendererType::gpu };
                 mainWindow->setGlass (isGpu,
                     config.getColour (Config::Key::windowColour),
                     config.getFloat (Config::Key::windowOpacity),

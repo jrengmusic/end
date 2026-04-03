@@ -23,7 +23,6 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "RendererType.h"
 #include "TerminalComponent.h"
 #include "Panes.h"
 #include "LookAndFeel.h"
@@ -249,7 +248,7 @@ public:
     void focusPaneRight();
 
     /** @brief Switches all terminals to the given renderer type. */
-    void switchRenderer (PaneComponent::RendererType type);
+    void switchRenderer (App::RendererType type);
 
     /**
      * @brief Reads tab.position from Config and applies the orientation.

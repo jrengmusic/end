@@ -9,7 +9,7 @@
  */
 
 #include "Popup.h"
-#include "RendererType.h"
+#include "../AppState.h"
 #include "TerminalComponent.h"
 
 namespace Terminal
@@ -53,7 +53,7 @@ void Popup::ContentView::resized()
 
 void Popup::ContentView::initialiseGL()
 {
-    if (glContent != nullptr and getRendererType() == PaneComponent::RendererType::gpu)
+    if (glContent != nullptr and AppState::getContext()->getRendererType() == App::RendererType::gpu)
     {
         glRenderer.setComponentIterator (
             [this] (std::function<void (jreng::GLComponent&)> renderComponent)
