@@ -407,6 +407,40 @@ struct Config : jreng::Context<Config>
         inline static const juce::String keysNewline { "keys.newline" };
         inline static const juce::String keysActionList { "keys.action_list" };
         inline static const juce::String keysActionListPosition { "keys.action_list_position" };
+
+        /** @brief Close the action list after running an action. */
+        inline static const juce::String keysActionListCloseOnRun { "action_list.close_on_run" };
+
+        /** @brief Font family for action list name labels. */
+        inline static const juce::String actionListNameFamily { "action_list.name_font_family" };
+
+        /** @brief Font size in points for action list name labels (6–72). */
+        inline static const juce::String actionListNameSize { "action_list.name_font_size" };
+
+        /** @brief Font family for action list shortcut labels. */
+        inline static const juce::String actionListShortcutFamily { "action_list.shortcut_font_family" };
+
+        /** @brief Font size in points for action list shortcut labels (6–72). */
+        inline static const juce::String actionListShortcutSize { "action_list.shortcut_font_size" };
+
+        /** @brief Action list padding — top edge inset in logical pixels (0–200). */
+        inline static const juce::String actionListPaddingTop { "action_list.padding_top" };
+
+        /** @brief Action list padding — right edge inset in logical pixels (0–200). */
+        inline static const juce::String actionListPaddingRight { "action_list.padding_right" };
+
+        /** @brief Action list padding — bottom edge inset in logical pixels (0–200). */
+        inline static const juce::String actionListPaddingBottom { "action_list.padding_bottom" };
+
+        /** @brief Action list padding — left edge inset in logical pixels (0–200). */
+        inline static const juce::String actionListPaddingLeft { "action_list.padding_left" };
+
+        /** @brief Text colour for action list name labels (hex string). */
+        inline static const juce::String actionListNameColour { "action_list.name_colour" };
+
+        /** @brief Text colour for action list shortcut labels (hex string). */
+        inline static const juce::String actionListShortcutColour { "action_list.shortcut_colour" };
+
         inline static const juce::String keysEnterSelection { "keys.enter_selection" };
         inline static const juce::String keysEnterOpenFile { "keys.enter_open_file" };
         inline static const juce::String keysOpenFileNextPage { "keys.open_file_next_page" };
@@ -639,6 +673,19 @@ struct Config : jreng::Context<Config>
      * @see Terminal::Component::keyPressed
      */
     juce::String reload();
+
+    /**
+     * @brief Patches a single key-value pair in `end.lua` without reloading.
+     *
+     * Performs targeted line replacement inside the user config file.
+     * Does NOT call `onReload` — the caller is responsible for any
+     * post-patch action (e.g. `Action::Registry::buildKeyMap()`).
+     *
+     * @param key    Dot-notation config key (e.g. `"keys.copy"`).
+     * @param value  The new value string (e.g. `"cmd+shift+c"`).
+     * @note MESSAGE THREAD.
+     */
+    void patchKey (const juce::String& key, const juce::String& value);
 
     /**
      * @brief Callback fired after `reload()` completes successfully.

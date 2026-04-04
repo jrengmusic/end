@@ -72,7 +72,7 @@ enum class ParserState : uint8_t
  * Each action represents a specific handling routine for the current byte.
  *
  * @note Renamed from `Action` to `ParserAction` to avoid a name collision with
- *       `Terminal::Action` (the user-facing action registry in action/Action.h).
+ *       `Action::Registry` (the user-facing action registry in action/Action.h).
  */
 enum class ParserAction : uint8_t
 {

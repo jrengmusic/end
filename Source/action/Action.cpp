@@ -48,19 +48,33 @@ static const ActionKeyEntry actionKeyTable[]
 
 } // anonymous namespace
 
-namespace Terminal
+namespace Action
 {
 
 //==============================================================================
-Action::Action() = default;
+juce::String Registry::configKeyForAction (const juce::String& actionId)
+{
+    juce::String result;
 
-Action::~Action()
+    for (const auto& row : actionKeyTable)
+    {
+        if (juce::String (row.actionId) == actionId and result.isEmpty())
+            result = row.configKey;
+    }
+
+    return result;
+}
+
+//==============================================================================
+Registry::Registry() = default;
+
+Registry::~Registry()
 {
     stopTimer();
 }
 
 //==============================================================================
-void Action::registerAction (const juce::String& id,
+void Registry::registerAction (const juce::String& id,
                               const juce::String& name,
                               const juce::String& description,
                               const juce::String& category,
@@ -83,7 +97,7 @@ void Action::registerAction (const juce::String& id,
 }
 
 //==============================================================================
-bool Action::handleKeyPress (const juce::KeyPress& key)
+bool Registry::handleKeyPress (const juce::KeyPress& key)
 {
     bool consumed { false };
 
@@ -158,7 +172,7 @@ bool Action::handleKeyPress (const juce::KeyPress& key)
 }
 
 //==============================================================================
-void Action::clear()
+void Registry::clear()
 {
     stopTimer();
     prefixState = PrefixState::idle;
@@ -168,7 +182,7 @@ void Action::clear()
 }
 
 //==============================================================================
-void Action::reload()
+void Registry::reload()
 {
     stopTimer();
     prefixState = PrefixState::idle;
@@ -176,13 +190,13 @@ void Action::reload()
 }
 
 //==============================================================================
-const std::vector<Action::Entry>& Action::getEntries() const noexcept
+const std::vector<Registry::Entry>& Registry::getEntries() const noexcept
 {
     return entries;
 }
 
 //==============================================================================
-void Action::buildKeyMap()
+void Registry::buildKeyMap()
 {
     globalBindings.clear();
     modalBindings.clear();
@@ -217,6 +231,8 @@ void Action::buildKeyMap()
                     modalBindings.insert_or_assign (kp, idxIt->second);
                 else
                     globalBindings.insert_or_assign (kp, idxIt->second);
+
+                entries.at (static_cast<std::size_t> (idxIt->second)).shortcut = kp;
             }
         }
     }
@@ -233,7 +249,10 @@ void Action::buildKeyMap()
                 const auto idxIt { idToIndex.find ("popup:" + name) };
 
                 if (idxIt != idToIndex.end())
+                {
                     modalBindings.insert_or_assign (kp, idxIt->second);
+                    entries.at (static_cast<std::size_t> (idxIt->second)).shortcut = kp;
+                }
             }
         }
 
@@ -246,14 +265,17 @@ void Action::buildKeyMap()
                 const auto idxIt { idToIndex.find ("popup_global:" + name) };
 
                 if (idxIt != idToIndex.end())
+                {
                     globalBindings.insert_or_assign (kp, idxIt->second);
+                    entries.at (static_cast<std::size_t> (idxIt->second)).shortcut = kp;
+                }
             }
         }
     }
 }
 
 //==============================================================================
-juce::KeyPress Action::parseShortcut (const juce::String& shortcutString)
+juce::KeyPress Registry::parseShortcut (const juce::String& shortcutString)
 {
     juce::StringArray tokens;
     tokens.addTokens (shortcutString.toLowerCase().trim(), "+", "");
@@ -320,10 +342,61 @@ juce::KeyPress Action::parseShortcut (const juce::String& shortcutString)
 }
 
 //==============================================================================
-void Action::timerCallback()
+juce::String Registry::shortcutToString (const juce::KeyPress& key)
+{
+    juce::String result;
+
+    const auto mods { key.getModifiers() };
+
+    if (mods.isCommandDown())
+    {
+#if JUCE_MAC
+        result += "cmd+";
+#else
+        result += "ctrl+";
+#endif
+    }
+
+    if (mods.isShiftDown())
+        result += "shift+";
+
+    if (mods.isAltDown())
+        result += "alt+";
+
+    const int code { key.getKeyCode() };
+
+    if      (code == juce::KeyPress::pageUpKey)    result += "pageup";
+    else if (code == juce::KeyPress::pageDownKey)  result += "pagedown";
+    else if (code == juce::KeyPress::homeKey)      result += "home";
+    else if (code == juce::KeyPress::endKey)       result += "end";
+    else if (code == juce::KeyPress::deleteKey)    result += "delete";
+    else if (code == juce::KeyPress::insertKey)    result += "insert";
+    else if (code == juce::KeyPress::escapeKey)    result += "escape";
+    else if (code == juce::KeyPress::returnKey)    result += "return";
+    else if (code == juce::KeyPress::tabKey)       result += "tab";
+    else if (code == juce::KeyPress::spaceKey)     result += "space";
+    else if (code == juce::KeyPress::backspaceKey) result += "backspace";
+    else if (code >= juce::KeyPress::F1Key and code <= juce::KeyPress::F12Key)
+    {
+        result += "f" + juce::String (code - juce::KeyPress::F1Key + 1);
+    }
+    else if (code >= 'A' and code <= 'Z')
+    {
+        result += juce::String::charToString (static_cast<juce::juce_wchar> (code - 'A' + 'a'));
+    }
+    else if (code > 0)
+    {
+        result += juce::String::charToString (static_cast<juce::juce_wchar> (code));
+    }
+
+    return result;
+}
+
+//==============================================================================
+void Registry::timerCallback()
 {
     stopTimer();
     prefixState = PrefixState::idle;
 }
 
-} // namespace Terminal
+}// namespace Action

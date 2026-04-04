@@ -12,7 +12,7 @@
  *   dimensions are persisted to `AppState` when the native close button is
  *   pressed (in addition to the Cmd+Q path handled by ENDApplication).
  * - Delegates all keyboard, mouse, and terminal I/O to `Terminal::Tabs`.
- * - Registers all user-performable action callbacks with `Terminal::Action`.
+ * - Registers all user-performable action callbacks with `Action::Registry`.
  *
  * @par Thread context
  * All methods are called on the **MESSAGE THREAD**.
@@ -20,7 +20,7 @@
  * @see Terminal::Tabs
  * @see Config
  * @see ENDApplication::systemRequestedQuit
- * @see Terminal::Action
+ * @see Action::Registry
  */
 
 /*
@@ -43,8 +43,8 @@
 #include "component/Popup.h"
 #include "component/Tabs.h"
 #include "config/Config.h"
-#include "terminal/action/Action.h"
-#include "terminal/action/ActionList.h"
+#include "action/Action.h"
+#include "action/ActionList.h"
 // jreng::Typeface is available via JuceHeader → jreng_glyph
 #include "component/StatusBarOverlay.h"
 #include "whelmed/Component.h"
@@ -70,7 +70,7 @@
  * @see Terminal::Tabs
  * @see Config::Key::windowColour
  * @see Config::Key::windowOpacity
- * @see Terminal::Action
+ * @see Action::Registry
  */
 class MainComponent : public juce::Component
 {
@@ -107,13 +107,13 @@ public:
 
 private:
     /**
-     * @brief Registers all user-performable actions with `Terminal::Action`.
+     * @brief Registers all user-performable actions with `Action::Registry`.
      *
      * Clears existing actions, registers all fixed actions and popup actions
      * from Config, then rebuilds the key map.
      *
      * @note MESSAGE THREAD.
-     * @see Terminal::Action
+     * @see Action::Registry
      */
     void registerActions();
 
@@ -157,7 +157,7 @@ private:
     Terminal::Popup popup;
 
     /** @brief Command palette glass window; created on demand. */
-    std::unique_ptr<Terminal::ActionList> actionList;
+    std::unique_ptr<Action::List> actionList;
 
 #if JUCE_WINDOWS
     /** @brief Fires when the native scale factor changes.

@@ -8,7 +8,7 @@
 #include "InputHandler.h"
 #include "../terminal/logic/Session.h"
 #include "../terminal/selection/LinkManager.h"
-#include "../terminal/action/Action.h"
+#include "../action/Action.h"
 #include "../config/Config.h"
 
 InputHandler::InputHandler (Terminal::Session& s,
@@ -35,7 +35,7 @@ bool InputHandler::handleKey (const juce::KeyPress& key, bool isPopupTerminal) n
 
     if (not handled)
     {
-        handled = Terminal::Action::getContext()->handleKeyPress (key);
+        handled = Action::Registry::getContext()->handleKeyPress (key);
     }
 
     if (not handled)
@@ -111,12 +111,12 @@ void InputHandler::buildKeyMap() noexcept
 {
     auto* cfg { Config::getContext() };
 
-    selectionKeys.up = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionUp));
-    selectionKeys.down = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionDown));
-    selectionKeys.left = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLeft));
-    selectionKeys.right = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionRight));
-    selectionKeys.visual = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionVisual));
-    selectionKeys.visualLine = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionVisualLine));
+    selectionKeys.up = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionUp));
+    selectionKeys.down = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionDown));
+    selectionKeys.left = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionLeft));
+    selectionKeys.right = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionRight));
+    selectionKeys.visual = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionVisual));
+    selectionKeys.visualLine = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionVisualLine));
 
     // Visual block uses real Ctrl (not Cmd on macOS).  parseShortcut maps
     // "ctrl" → commandModifier on macOS, which conflicts with paste.  We
@@ -132,19 +132,19 @@ void InputHandler::buildKeyMap() noexcept
         }
         else
         {
-            selectionKeys.visualBlock = Terminal::Action::parseShortcut (raw);
+            selectionKeys.visualBlock = Action::Registry::parseShortcut (raw);
         }
     }
 
-    selectionKeys.copy = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionCopy));
-    selectionKeys.globalCopy = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysCopy));
-    selectionKeys.top = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionTop));
-    selectionKeys.bottom = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionBottom));
-    selectionKeys.lineStart = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineStart));
-    selectionKeys.lineEnd = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionLineEnd));
-    selectionKeys.exit = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysSelectionExit));
+    selectionKeys.copy = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionCopy));
+    selectionKeys.globalCopy = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysCopy));
+    selectionKeys.top = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionTop));
+    selectionKeys.bottom = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionBottom));
+    selectionKeys.lineStart = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionLineStart));
+    selectionKeys.lineEnd = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionLineEnd));
+    selectionKeys.exit = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionExit));
 
-    openFileNextPage = Terminal::Action::parseShortcut (cfg->getString (Config::Key::keysOpenFileNextPage));
+    openFileNextPage = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysOpenFileNextPage));
 }
 
 void InputHandler::reset() noexcept

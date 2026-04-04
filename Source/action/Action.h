@@ -2,7 +2,7 @@
  * @file Action.h
  * @brief Standalone action registry with key dispatch and prefix state machine.
  *
- * `Terminal::Action` is the single owner of all user-performable actions in
+ * `Action::Registry` is the single owner of all user-performable actions in
  * END.  It holds a fixed action table (entries never change after construction),
  * a key map rebuilt on every config reload, and the prefix state machine
  * previously implemented in `ModalKeyBinding`.
@@ -30,7 +30,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../../config/Config.h"
+#include "../config/Config.h"
 
 // ---------------------------------------------------------------------------
 // std::hash specialisation for juce::KeyPress
@@ -51,18 +51,18 @@ struct hash<juce::KeyPress>
 };
 }
 
-namespace Terminal
+namespace Action
 {
 
 /**
- * @class Action
+ * @class Registry
  * @brief Global action registry, key dispatcher, and prefix state machine.
  *
- * Inherits `jreng::Context<Action>` for process-wide singleton access via
- * `Action::getContext()`.  Inherits `juce::Timer` (privately) to implement
+ * Inherits `jreng::Context<Registry>` for process-wide singleton access via
+ * `Registry::getContext()`.  Inherits `juce::Timer` (privately) to implement
  * the prefix-sequence timeout.
  *
- * Action is deliberately ignorant of `Terminal::Component`, `Session`,
+ * Registry is deliberately ignorant of `Terminal::Component`, `Session`,
  * `Grid`, `Tabs`, or any other subsystem.  All behaviour is injected as
  * `std::function<bool()>` callbacks at registration time.
  *
@@ -70,8 +70,8 @@ namespace Terminal
  * **MESSAGE THREAD** — all public methods must be called from the JUCE
  * message thread.
  */
-class Action
-    : public jreng::Context<Action>
+class Registry
+    : public jreng::Context<Registry>
     , private juce::Timer
 {
 public:
@@ -117,14 +117,14 @@ public:
 
     //==========================================================================
     /**
-     * @brief Constructs the registry and builds the initial key map from Config.
+     * @brief Constructs the registry. Key map must be built after actions are registered via `buildKeyMap()`.
      *
      * Config must already be constructed before calling this constructor.
      */
-    Action();
+    Registry();
 
     /** @brief Stops any active prefix timer before destruction. */
-    ~Action() override;
+    ~Registry() override;
 
     //==========================================================================
     /**
@@ -207,6 +207,29 @@ public:
      */
     static juce::KeyPress parseShortcut (const juce::String& shortcutString);
 
+    /**
+     * @brief Converts a KeyPress back to its canonical shortcut string.
+     *
+     * Inverse of `parseShortcut`.  Produces the same `"modifier+key"` format
+     * so that `parseShortcut (shortcutToString (kp)) == kp` for any valid
+     * KeyPress.
+     *
+     * @param key  The KeyPress to serialise.
+     * @return Canonical shortcut string (e.g. `"cmd+c"`, `"shift+f1"`).
+     */
+    static juce::String shortcutToString (const juce::KeyPress& key);
+
+    /**
+     * @brief Returns the Config key string for a given action ID, or empty if none.
+     *
+     * Looks up the action ID in the internal config key table.  Actions that
+     * are not backed by a Config key (e.g. popup actions) return an empty string.
+     *
+     * @param actionId  The action ID (e.g. `"copy"`).
+     * @return The config key string (e.g. `"keys.copy"`), or empty.
+     */
+    static juce::String configKeyForAction (const juce::String& actionId);
+
 private:
     //==========================================================================
     /** @brief All registered actions, in registration order. */
@@ -244,8 +267,7 @@ private:
     void timerCallback() override;
 
     //==========================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Action)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Registry)
 };
 
-}// namespace Terminal
-
+}// namespace Action

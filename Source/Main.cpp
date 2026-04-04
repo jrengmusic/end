@@ -48,7 +48,7 @@
 #include "Gpu.h"
 #include "config/Config.h"
 #include "config/WhelmedConfig.h"
-#include "terminal/action/Action.h"
+#include "action/Action.h"
 
 #if JUCE_WINDOWS
 #include <windows.h>
@@ -284,7 +284,7 @@ private:
     jreng::Typeface::Registry fontRegistry;
 
     /** @brief Global action registry. Must be constructed after Config. */
-    Terminal::Action action;
+    Action::Registry action;
 
     /** @brief Embedded Display Mono typefaces; held alive for DirectWrite on Windows. */
     struct DisplayMono

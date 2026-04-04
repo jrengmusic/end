@@ -14,7 +14,6 @@
 #include "TerminalComponent.h"
 #include "../AppState.h"
 #include "../config/Config.h"
-#include "../terminal/action/Action.h"
 #include "../terminal/notifications/Notifications.h"
 
 /**

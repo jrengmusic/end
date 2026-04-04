@@ -6,7 +6,7 @@
  * and falls through to the global Action system for unhandled keys.
  *
  * @see Whelmed::Component
- * @see Terminal::Action
+ * @see Action::Registry
  */
 
 #pragma once

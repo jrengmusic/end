@@ -14,6 +14,106 @@
 ---
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
+## Handoff to COUNSELOR: Action::List (Command Palette)
+
+**From:** COUNSELOR
+**Date:** 2026-04-04
+**Status:** In Progress
+
+### Context
+Building the command palette (Action::List) for END. Restructured `Terminal::Action` → `Action::Registry`, built full command palette with fuzzy search, keyboard navigation, shortcut display, and inline key remap dialog.
+
+SPEC document: `SPEC-ACTION-LIST.md` (project root) — 10-step plan, Steps 1-10 complete with modifications.
+
+### Completed
+- **Steps 1-3:** Namespace restructure — moved `Source/terminal/action/` → `Source/action/`, renamed `Terminal::Action` → `Action::Registry`, `Terminal::ActionList` → `Action::List`, updated all call sites (Main.cpp, MainComponent.h/cpp, both InputHandler.cpp)
+- **Step 4:** `Registry::shortcutToString` — inverse of `parseShortcut`, round-trips correctly
+- **Step 5:** Config additions — `action_list.*` keys for fonts, colours, padding, close_on_run
+- **Step 6:** `Config::patchKey` — targeted line replacement in end.lua
+- **Step 7:** `Action::LookAndFeel` — `getLabelFont` dispatch via `dynamic_cast` on `NameLabel`/`ShortcutLabel`
+- **Step 8:** `Action::Row` — name + shortcut labels, double-click handlers
+- **Step 9:** `Action::KeyRemapDialog` — rewritten from ModalWindow to inline child Component with learn mode, modal toggle, OK/Cancel
+- **Step 10:** `Action::List` — full implementation with fuzzy search, keyboard nav, popup-level window flags
+- **`Registry::configKeyForAction`** — resolves action ID to config key via actionKeyTable
+- **`Registry::buildKeyMap`** — now populates `Entry::shortcut` field
+- **`jreng::ChildWindow`** — OS-level child window utility (macOS + Windows) in jreng_gui module
+- **Window flags** — `getDesktopWindowStyleFlags` returns `windowIsTemporary | windowHasTitleBar | windowHasDropShadow` (popup-level, invisible to tiling WMs)
+- **Hammerspoon config** — `~/.config/hammerspoon/paper-wm/init.lua` updated with `rejectTitles` filter for END
+
+### Remaining
+- **Build verification** — full build not yet confirmed after KeyRemapDialog rewrite to child Component
+- **KeyRemapDialog visual polish** — buttons, toggle, layout need glass-style colours and font consistency
+- **KeyRemapDialog modal toggle** — `isModal` parameter passed through `onCommit` but not yet consumed (patchKey writes shortcut only, doesn't change modal/global slot)
+- **ValueTree cleanup** — `jreng::ValueTree state` member removed from List, but `handleValueChanged` wiring and `jreng::ValueTree::attach` calls were removed. Verify no dangling references
+- **Shortcut remap end-to-end** — `onCommit` calls `patchKey` + `reload()` + `closeButtonPressed()`. Needs testing that reload doesn't crash (rebuilds all actions while List is alive)
+- **`ActionList.cpp` exceeds 300 lines** (378) — BLESSED Lean violation, may need further extraction
+- **Block caret** — ARCHITECT deferred, using JUCE default caret for now
+- **`jreng::ChildWindow`** — created but may be unused now (popup-level flags solved the PaperWM problem). ARCHITECT may want to keep or remove
+
+### Key Decisions
+- `Terminal::Action` → `Action::Registry` namespace restructure (ARCHITECT approved)
+- `Action::List` inherits `jreng::ModalWindow` (not child Component) — keeps glass blur, modal semantics
+- `getDesktopWindowStyleFlags` returns `windowIsTemporary` — makes window popup-level, invisible to tiling WMs (PaperWM, Yabai)
+- `windowHasTitleBar` added back for native rounded corners (macOS)
+- `KeyRemapDialog` changed from separate ModalWindow to inline child Component — avoids nested modal crash
+- Font names: `"Display"` (proportional) and `"Display Mono Bold"` (mono bold) — matches embedded binary font family names
+- Config colours: `#A1D6E5` (skyFall) for action names, `#00C8D8` (blueBikini) for shortcuts
+- `Config::patchKey` + `Config::reload()` for shortcut remapping — writes to end.lua, reloads everything
+- After remap commit, List closes via `closeButtonPressed()` to avoid stale entry references
+
+### Files Modified (26 total)
+
+**New files (Source/action/):**
+- `Source/action/Action.h` — `Action::Registry` (was `Terminal::Action`)
+- `Source/action/Action.cpp` — registry impl + `shortcutToString` + `configKeyForAction`
+- `Source/action/ActionList.h` — `Action::List` class
+- `Source/action/ActionList.cpp` — full command palette implementation
+- `Source/action/ActionRow.h` — `Row`, `NameLabel`, `ShortcutLabel`
+- `Source/action/ActionRow.cpp` — row layout, double-click, config-driven colours
+- `Source/action/KeyRemapDialog.h` — inline remap overlay (child Component)
+- `Source/action/KeyRemapDialog.cpp` — learn mode, OK/Cancel, modal toggle
+- `Source/action/LookAndFeel.h` — font dispatch for labels
+- `Source/action/LookAndFeel.cpp` — `getLabelFont` override
+
+**New files (jreng_gui module):**
+- `modules/jreng_gui/glass/jreng_child_window.h` — `jreng::ChildWindow` utility
+- `modules/jreng_gui/glass/jreng_child_window.mm` — macOS impl (NSWindow addChildWindow)
+- `modules/jreng_gui/glass/jreng_child_window.cpp` — Windows impl (GWLP_HWNDPARENT)
+
+**Modified files:**
+- `Source/Main.cpp` — `Action::Registry action;`, include path
+- `Source/MainComponent.h` — includes, `std::unique_ptr<Action::List>`
+- `Source/MainComponent.cpp` — `Action::Registry::getContext()`, `onModalDismissed` wiring
+- `Source/component/InputHandler.cpp` — include path, `Action::Registry::` namespace
+- `Source/component/TerminalComponent.cpp` — removed stale include
+- `Source/whelmed/InputHandler.cpp` — include path, `Action::Registry::` namespace
+- `Source/config/Config.h` — action_list Key constants, `patchKey` declaration
+- `Source/config/Config.cpp` — action_list defaults, `patchKey` implementation
+- `Source/config/default_end.lua` — action_list block with all config keys
+- `modules/jreng_gui/jreng_gui.h` — `jreng_child_window.h` include
+- `modules/jreng_gui/jreng_gui.cpp` — `jreng_child_window.cpp` include
+- `modules/jreng_gui/jreng_gui.mm` — `jreng_child_window.mm` include
+
+**Deleted:**
+- `Source/terminal/action/` — entire directory (4 files moved to Source/action/)
+
+**External:**
+- `~/.config/hammerspoon/paper-wm/init.lua` — END window filter
+
+### Open Questions
+- Should `jreng::ChildWindow` be kept (general utility) or removed (popup-level flags solved the immediate need)?
+- Should the modal toggle in KeyRemapDialog actually change the binding type (modal ↔ global)? Currently the `isModal` flag is passed to `onCommit` but not consumed
+- `ActionList.cpp` at 378 lines violates BLESSED Lean 300-line limit — needs further method extraction
+
+### Next Steps
+1. Build and verify no compilation errors after KeyRemapDialog rewrite
+2. Test Action::List end-to-end: open, search, navigate, execute, dismiss
+3. Test shortcut remap: click shortcut → dialog → learn/type → OK → verify end.lua patched → verify new binding works
+4. Visual polish: KeyRemapDialog needs glass-consistent styling (button colours, label fonts)
+5. Address 300-line violation in ActionList.cpp
+
+---
+
 ## Sprint 23: JRENG — Debt Cleanup, GLAtlasRenderer, Popup Shell Fix
 
 **Date:** 2026-04-04

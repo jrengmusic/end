@@ -9,7 +9,7 @@
 #include "Screen.h"
 #include "../config/WhelmedConfig.h"
 #include "../config/Config.h"
-#include "../terminal/action/Action.h"
+#include "../action/Action.h"
 #include "../AppIdentifier.h"
 
 namespace Whelmed
@@ -19,19 +19,19 @@ void InputHandler::buildKeyMap() noexcept
 {
     auto* cfg { ::Config::getContext() };
 
-    selectionKeys.up         = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionUp));
-    selectionKeys.down       = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionDown));
-    selectionKeys.left       = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionLeft));
-    selectionKeys.right      = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionRight));
-    selectionKeys.visual     = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionVisual));
-    selectionKeys.visualLine = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionVisualLine));
-    selectionKeys.copy       = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionCopy));
-    selectionKeys.globalCopy = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysCopy));
-    selectionKeys.top        = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionTop));
-    selectionKeys.bottom     = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionBottom));
-    selectionKeys.lineStart  = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionLineStart));
-    selectionKeys.lineEnd    = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionLineEnd));
-    selectionKeys.exit       = Terminal::Action::parseShortcut (cfg->getString (::Config::Key::keysSelectionExit));
+    selectionKeys.up         = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionUp));
+    selectionKeys.down       = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionDown));
+    selectionKeys.left       = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionLeft));
+    selectionKeys.right      = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionRight));
+    selectionKeys.visual     = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionVisual));
+    selectionKeys.visualLine = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionVisualLine));
+    selectionKeys.copy       = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionCopy));
+    selectionKeys.globalCopy = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysCopy));
+    selectionKeys.top        = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionTop));
+    selectionKeys.bottom     = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionBottom));
+    selectionKeys.lineStart  = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionLineStart));
+    selectionKeys.lineEnd    = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionLineEnd));
+    selectionKeys.exit       = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionExit));
 
     // Visual block: same Ctrl+V handling as Terminal::InputHandler
     {
@@ -44,7 +44,7 @@ void InputHandler::buildKeyMap() noexcept
         }
         else
         {
-            selectionKeys.visualBlock = Terminal::Action::parseShortcut (raw);
+            selectionKeys.visualBlock = Action::Registry::parseShortcut (raw);
         }
     }
 }
@@ -88,7 +88,7 @@ bool InputHandler::handleKey (const juce::KeyPress& key) noexcept
 
     if (not handled)
     {
-        handled = Terminal::Action::getContext()->handleKeyPress (key);
+        handled = Action::Registry::getContext()->handleKeyPress (key);
     }
 
     if (not handled)

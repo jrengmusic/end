@@ -211,6 +211,17 @@ void Config::initKeys()
     addKey (Key::keysNewline, "shift+return", { T::string });
     addKey (Key::keysActionList, "?", { T::string });
     addKey (Key::keysActionListPosition, "top", { T::string });
+    addKey (Key::keysActionListCloseOnRun, true, { T::boolean });
+    addKey (Key::actionListNameFamily, "Display", { T::string });
+    addKey (Key::actionListNameSize, 13.0, { T::number, 6.0, 72.0, true });
+    addKey (Key::actionListShortcutFamily,  "Display Mono Bold",   { T::string });
+    addKey (Key::actionListShortcutSize, 12.0, { T::number, 6.0, 72.0, true });
+    addKey (Key::actionListPaddingTop,    10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::actionListPaddingRight,  10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::actionListPaddingBottom, 10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::actionListPaddingLeft,   10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::actionListNameColour,     "#A1D6E5", { T::string });///< skyFall (same as foreground)
+    addKey (Key::actionListShortcutColour, "#00C8D8", { T::string });///< blueBikini (vivid)
     addKey (Key::keysEnterSelection, "[", { T::string });
     addKey (Key::keysEnterOpenFile, "o", { T::string });
     addKey (Key::keysOpenFileNextPage, "space", { T::string });
@@ -786,6 +797,142 @@ juce::String Config::reload()
         onReload();
 
     return error;
+}
+
+//==============================================================================
+/**
+ * @brief Patches a single key-value pair in end.lua without reloading.
+ *
+ * Splits the dot-notation key into table name and leaf name, locates the
+ * table block in the file, then either replaces the existing value or
+ * appends a new line.  String-typed values are quoted; boolean and number
+ * values are written unquoted.
+ *
+ * Does NOT call `onReload`.  Caller handles post-patch actions.
+ */
+void Config::patchKey (const juce::String& key, const juce::String& value)
+{
+    const int dotIndex { key.indexOfChar ('.') };
+    jassert (dotIndex > 0);
+
+    const juce::String tableName { key.substring (0, dotIndex) };
+    const juce::String leafName  { key.substring (dotIndex + 1) };
+
+    auto configFile { getConfigFile() };
+    juce::String content { configFile.loadFileAsString() };
+
+    // Determine whether the value needs quoting by consulting the schema.
+    bool needsQuotes { true };
+    const auto schemaIt { schema.find (key) };
+
+    if (schemaIt != schema.end())
+    {
+        if (schemaIt->second.expectedType == Value::Type::boolean
+            or schemaIt->second.expectedType == Value::Type::number)
+        {
+            needsQuotes = false;
+        }
+    }
+
+    const juce::String formattedValue { needsQuotes
+        ? "\"" + value + "\""
+        : value };
+
+    // Locate the table block: find a line matching `tableName = {`
+    // (with optional leading whitespace/tabs).
+    const juce::String tablePattern { tableName + " = {" };
+    const int tableStart { content.indexOf (tablePattern) };
+
+    if (tableStart >= 0)
+    {
+        // Find the closing brace for this table block.
+        // Walk from tableStart to find the matching `},` or `}` line.
+        const int openBrace { content.indexOf (tableStart, "{") };
+        int braceDepth { 1 };
+        int pos { openBrace + 1 };
+
+        while (pos < content.length() and braceDepth > 0)
+        {
+            const juce::juce_wchar ch { content[pos] };
+
+            if (ch == '{')
+                ++braceDepth;
+            else if (ch == '}')
+                --braceDepth;
+
+            if (braceDepth > 0)
+                ++pos;
+        }
+
+        const int tableEnd { pos };
+
+        // Search for existing leaf within [tableStart, tableEnd).
+        const juce::String leafPattern { leafName + " = " };
+        const int leafSearch { content.indexOf (tableStart, leafPattern) };
+        const int leafPos { (leafSearch >= 0 and leafSearch < tableEnd) ? leafSearch : -1 };
+
+        if (leafPos >= 0)
+        {
+            // Replace the value token on this line.
+            const int valueStart { leafPos + leafPattern.length() };
+            int valueEnd { content.indexOf (valueStart, "\n") };
+
+            if (valueEnd < 0)
+                valueEnd = content.length();
+
+            // Trim trailing comma and whitespace from the value region.
+            juce::String lineRemainder { content.substring (valueStart, valueEnd) };
+            const bool hadComma { lineRemainder.trimEnd().endsWithChar (',') };
+
+            // Find where the comment starts (if any) to preserve it.
+            // Look for ` --` (Lua comment) outside of quotes.
+            int commentStart { -1 };
+            bool inQuote { false };
+
+            for (int i { 0 }; i < lineRemainder.length(); ++i)
+            {
+                if (lineRemainder[i] == '"')
+                    inQuote = not inQuote;
+
+                if (not inQuote and i + 1 < lineRemainder.length()
+                    and lineRemainder[i] == '-' and lineRemainder[i + 1] == '-')
+                {
+                    commentStart = i;
+                    break;
+                }
+            }
+
+            juce::String trailingComment;
+
+            if (commentStart >= 0)
+                trailingComment = lineRemainder.substring (commentStart);
+
+            juce::String replacement { formattedValue };
+
+            if (hadComma)
+                replacement += ",";
+
+            if (trailingComment.isNotEmpty())
+                replacement += " " + trailingComment;
+
+            content = content.substring (0, valueStart)
+                    + replacement
+                    + content.substring (valueEnd);
+        }
+        else
+        {
+            // Key not present — append before the closing brace.
+            // Use the same indentation as existing lines in this block.
+            const juce::String indent { "\t\t" };
+            const juce::String newLine { indent + leafName + " = " + formattedValue + ",\n" };
+
+            content = content.substring (0, tableEnd)
+                    + newLine
+                    + content.substring (tableEnd);
+        }
+
+        configFile.replaceWithText (content);
+    }
 }
 
 //==============================================================================

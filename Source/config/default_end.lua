@@ -509,6 +509,38 @@ END = {
 	},
 
 	-- ========================================================================
+	-- ACTION LIST
+	-- ========================================================================
+
+	action_list = {
+		-- Close the action list after running an action.
+		-- When false, the list stays open after execution.
+		close_on_run = %%action_list_close_on_run%%,
+
+		-- Font family for action name labels.
+		name_font_family = "%%action_list_name_font_family%%",
+
+		-- Font size for action name labels in points (6 - 72).
+		name_font_size = %%action_list_name_font_size%%,
+
+		-- Font family for keyboard shortcut labels. Should be monospace.
+		shortcut_font_family = "%%action_list_shortcut_font_family%%",
+
+		-- Font size for keyboard shortcut labels in points (6 - 72).
+		shortcut_font_size = %%action_list_shortcut_font_size%%,
+
+		-- Space between the action list edge and content, in pixels.
+		-- Four values: { top, right, bottom, left }. Valid range: 0 - 200.
+		padding = { %%action_list_padding_top%%, %%action_list_padding_right%%, %%action_list_padding_bottom%%, %%action_list_padding_left%% },
+
+		-- Text colour for action name labels.
+		name_colour = "%%action_list_name_colour%%",
+
+		-- Text colour for keyboard shortcut labels.
+		shortcut_colour = "%%action_list_shortcut_colour%%",
+	},
+
+	-- ========================================================================
 	-- POPUP DEFAULTS
 	-- ========================================================================
 

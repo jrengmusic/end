@@ -6,13 +6,13 @@
  * persisted state, and registers a close callback so that window dimensions
  * are saved when the native close button is pressed.
  *
- * Owns `Terminal::Action` and registers all user-performable action callbacks
+ * Owns `Action::Registry` and registers all user-performable action callbacks
  * via `registerActions()`.
  *
  * @see MainComponent
  * @see Terminal::Tabs
  * @see Config
- * @see Terminal::Action
+ * @see Action::Registry
  */
 
 /*
@@ -166,7 +166,7 @@ MainComponent::~MainComponent()
 }
 
 /**
- * @brief Registers all user-performable actions with `Terminal::Action`.
+ * @brief Registers all user-performable actions with `Action::Registry`.
  *
  * Wires every action callback into `action` and sets the BackgroundBlur
  * close callback.  Called once from the constructor after `tabs` and
@@ -182,11 +182,11 @@ MainComponent::~MainComponent()
  * then applies the new config to all terminals and the look-and-feel.
  *
  * @note MESSAGE THREAD.
- * @see Terminal::Action
+ * @see Action::Registry
  */
 void MainComponent::registerActions()
 {
-    auto& action { *Terminal::Action::getContext() };
+    auto& action { *Action::Registry::getContext() };
     action.clear();
 
     action.registerAction ("copy",
@@ -472,7 +472,8 @@ void MainComponent::registerActions()
                            true,
                            [this]() -> bool
                            {
-                               actionList = std::make_unique<Terminal::ActionList> (*this);
+                               actionList = std::make_unique<Action::List> (*this);
+                               actionList->onModalDismissed = [this] { actionList.reset(); };
 
                                return true;
                            });

@@ -1,1 +1,1 @@
-// DELETED — replaced by Terminal::Action
+// DELETED — replaced by Action::Registry
