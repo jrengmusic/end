@@ -287,7 +287,9 @@ public:
      * @return The variable's value, or empty on failure.
      * @note MESSAGE THREAD.
      */
+  #if ! JUCE_WINDOWS
     juce::String getShellEnvVar (const juce::String& varName) const;
+  #endif
 
     /**
      * @brief Injects an environment variable for the shell startup.
@@ -715,7 +717,7 @@ private:
      * Read from Config at construction.  When `window.buttons = true` the
      * traffic-light buttons occupy 24 px at the top of the component.
      */
-    const int titleBarHeight { Config::getContext()->getBool (Config::Key::windowButtons) ? 24 : 0 };
+    const int titleBarHeight { Config::getContext()->getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
 
     /** @brief Grid padding — top edge inset in logical pixels (from `terminal.padding`). */
     const int paddingTop    { Config::getContext()->getInt (Config::Key::terminalPaddingTop) };

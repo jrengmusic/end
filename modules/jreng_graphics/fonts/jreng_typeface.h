@@ -825,6 +825,28 @@ struct Typeface
     juce::Image& getCpuEmojiAtlas() noexcept { return cpuEmojiAtlas; }
 
     // =========================================================================
+    // GL atlas handles (GL THREAD)
+    //
+    // Exception to the class-level MESSAGE THREAD contract: these handles are
+    // written and read exclusively on the GL thread.  No cross-thread access.
+    // =========================================================================
+
+    /** @brief Returns the GL mono atlas texture handle. @note **GL THREAD** only. */
+    uint32_t getGlMonoAtlas() const noexcept { return glMonoAtlas; }
+
+    /** @brief Returns the GL emoji atlas texture handle. @note **GL THREAD** only. */
+    uint32_t getGlEmojiAtlas() const noexcept { return glEmojiAtlas; }
+
+    /** @brief Sets the GL mono atlas texture handle. @note **GL THREAD** only. */
+    void setGlMonoAtlas (uint32_t handle) noexcept { glMonoAtlas = handle; }
+
+    /** @brief Sets the GL emoji atlas texture handle. @note **GL THREAD** only. */
+    void setGlEmojiAtlas (uint32_t handle) noexcept { glEmojiAtlas = handle; }
+
+    /** @brief Resets both GL atlas handles to zero. @note **GL THREAD** only. */
+    void resetGlAtlas() noexcept { glMonoAtlas = 0; glEmojiAtlas = 0; }
+
+    // =========================================================================
     // Metrics and rasterization
     // =========================================================================
 
@@ -1178,6 +1200,9 @@ private:
 
     juce::Image cpuMonoAtlas;    ///< CPU rendering mono atlas (SingleChannel). Owned here, accessed by GraphicsContext.
     juce::Image cpuEmojiAtlas;   ///< CPU rendering emoji atlas (ARGB). Owned here, accessed by GraphicsContext.
+
+    uint32_t glMonoAtlas  { 0 };  ///< GL mono atlas texture handle. Stored here, GPU resource managed by GLAtlasRenderer.
+    uint32_t glEmojiAtlas { 0 };  ///< GL emoji atlas texture handle. Stored here, GPU resource managed by GLAtlasRenderer.
 };
 
 } // namespace jreng

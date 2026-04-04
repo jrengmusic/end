@@ -132,9 +132,6 @@ private:
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
     Terminal::LookAndFeel terminalLookAndFeel;
 
-    /** @brief Shared OpenGL renderer; attached to this component, renders all GL children. */
-    jreng::GLRenderer glRenderer;
-
     /** @brief Global typeface instance; provides font metrics and shaping for all terminals. */
     jreng::Typeface typeface;
 
@@ -143,6 +140,9 @@ private:
 
     /** @brief Monospace typeface for Whelmed code blocks. */
     jreng::Typeface whelmedCodeFont;
+
+    /** @brief Shared OpenGL atlas renderer; attached to this component, renders all GL children. */
+    jreng::GLAtlasRenderer glRenderer { &typeface, &whelmedBodyFont, &whelmedCodeFont };
 
     /** @brief Tabbed terminal container; owns all Terminal::Component instances. */
     std::unique_ptr<Terminal::Tabs> tabs;

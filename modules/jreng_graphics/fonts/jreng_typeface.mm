@@ -720,10 +720,10 @@ juce::String jreng::Typeface::discoverEmojiFont()
  * - `CTFontGetAscent` — distance from baseline to top of cell.
  * - `CTFontGetDescent` — distance from baseline to bottom of cell.
  * - `CTFontGetLeading` — inter-line gap (clamped to ≥ 0).
- * - `CTFontGetAdvancesForGlyphs` for the space glyph — cell width.
+ * - `CTFontGetAdvancesForGlyphs` for max advance across ASCII 32–127 — cell width.
  *
- * Falls back to `CTFontGetSize` for cell width if the space glyph advance is
- * zero or negative.
+ * Falls back to `CTFontGetSize` for cell width if no ASCII glyph has a
+ * positive advance.
  *
  * Fills all three coordinate spaces (logical, physical, fixed-point) in the
  * returned `Metrics` struct.
@@ -757,14 +757,23 @@ jreng::Typeface::Metrics jreng::Typeface::calcMetrics (float heightPx) noexcept
                 const float leading { std::max (0.0f, static_cast<float> (CTFontGetLeading (scaledFont))) };
                 const float lineH   { ascent + descent + leading };
 
-                CGGlyph spaceGlyph { jreng::glyphForCodepoint (scaledFont, static_cast<uint32_t> (' ')) };
                 float cellW { 0.0f };
 
-                if (spaceGlyph != 0)
+                for (int code { 32 }; code <= 127; ++code)
                 {
-                    CGSize advance {};
-                    CTFontGetAdvancesForGlyphs (scaledFont, kCTFontOrientationHorizontal, &spaceGlyph, &advance, 1);
-                    cellW = static_cast<float> (advance.width);
+                    CGGlyph glyph { jreng::glyphForCodepoint (scaledFont, static_cast<uint32_t> (code)) };
+
+                    if (glyph != 0)
+                    {
+                        CGSize advance {};
+                        CTFontGetAdvancesForGlyphs (scaledFont, kCTFontOrientationHorizontal, &glyph, &advance, 1);
+                        const float w { static_cast<float> (advance.width) };
+
+                        if (w > cellW)
+                        {
+                            cellW = w;
+                        }
+                    }
                 }
 
                 if (cellW <= 0.0f)

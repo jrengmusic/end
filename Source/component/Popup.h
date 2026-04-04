@@ -212,7 +212,11 @@ private:
         bool keyPressed (const juce::KeyPress& key) override;
 
         /** @brief Window corner radius in float */
+#if JUCE_MAC
+        static constexpr float cornerSize { 14.0f };
+#elif JUCE_WINDOWS
         static constexpr float cornerSize { 8.0f };
+#endif
 
     private:
         Config& config { *Config::getContext() };
@@ -231,4 +235,3 @@ private:
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal
-

@@ -15,11 +15,19 @@
 
 ---
 
-## Pre-existing Debt (from Sprint 91+)
+## Resolved Debt
 
 - ~~**`getTreeMode()` / `getTreeKeyboardFlags()` naming**~~ — resolved: renamed to `getMode()` / `getKeyboardFlags()`.
 - ~~**Parser holds Grid& directly**~~ — resolved: Grid::Writer facade decouples Parser, geometry reads through State parameterMap.
 - ~~**`enableWindowTransparency()` redundancy on Windows 11**~~ — resolved: guarded with `isWindows10()` in `glContextCreated()`.
-- ~~**`seq 1M` performance gap**~~ — resolved: END matches Windows Terminal (~55s at 4K half-width). Investigated double-buffer pre-fetch and INFINITE drain wait — no improvement. Both terminals sit at ~45% CPU, IO-bound on ConPTY middleware. The bottleneck is ConPTY, not the drain loop.
-
-- ~~**Font Fallback: Arrows Block (U+2190-U+21FF)**~~ — resolved: added Windows system font fallback via DirectWrite `IDWriteFontFallback::MapCharacters` in `shapeFallback()`, mirroring macOS `CTFontCreateForString`. Segoe UI Symbol provides arrow glyphs. Covers all missing Unicode, not just arrows.
+- ~~**`seq 1M` performance gap**~~ — resolved: END matches Windows Terminal (~55s at 4K half-width). IO-bound on ConPTY middleware.
+- ~~**Font Fallback: Arrows Block (U+2190-U+21FF)**~~ — resolved: DirectWrite `IDWriteFontFallback::MapCharacters` in `shapeFallback()`.
+- ~~**GLContext static refcount (B violation)**~~ — resolved Sprint 23: atlas ownership moved to Typeface (mirroring CPU pattern). `GLAtlasRenderer` subclass manages GL atlas lifecycle. Static refcount eliminated.
+- ~~**GLContext::~GLContext() = default (resource leak)**~~ — resolved Sprint 23: destructor calls `closeContext()`.
+- ~~**titleBarHeight magic number**~~ — resolved Sprint 23: extracted to `App::titleBarHeight` constant.
+- ~~**Dead stub files**~~ — resolved Sprint 23: `git rm` of `Gpu_windows.cpp`, `Gpu_mac.mm`, `RendererType.h`, `PLAN-font-metrics.md`.
+- ~~**drawVertices early return**~~ — resolved Sprint 23: converted to positive nested check.
+- ~~**CoreText calcMetrics space glyph only**~~ — resolved Sprint 23: now scans max across ASCII 32-127, matching FreeType.
+- ~~**getEnvVar on base TTY (leaky abstraction)**~~ — resolved Sprint 23: platform-guarded to `#if ! JUCE_WINDOWS`. Unix-only feature no longer exposed on Windows.
+- ~~**WindowsTTY missing getEnvVar**~~ — resolved Sprint 23: not debt, Windows doesn't need it. Full chain platform-guarded.
+- ~~**getEnvVar early returns**~~ — not debt: audit found no early returns in `getEnvVar`, `getCwd`, `getProcessName`. All use positive nested checks.

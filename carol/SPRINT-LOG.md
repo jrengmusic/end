@@ -14,6 +14,77 @@
 ---
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
+## Sprint 23: JRENG — Debt Cleanup
+
+**Date:** 2026-04-04
+
+### Agents Participated
+- COUNSELOR — debt inventory across SPRINT-LOG/DEBT.md/SPEC.md/SPEC-MODAL.md/SPEC-details.md, cross-referenced codebase state, planned all fixes, delegated to subagents
+- Pathfinder (x5) — GLContext atlas/destructor analysis, kuassa GL module comparison, CoreText calcMetrics code, TTY getEnvVar call chain, titleBarHeight sites
+- Engineer (x6) — titleBarHeight constant, Typeface GL atlas storage, GLContext statics removal, GLRenderer decoupling, GLAtlasRenderer subclass, CoreText max ASCII fix, platform-guard getEnvVar chain
+- Auditor (x2) — full audit of GL refactor (found 4 flags: C-1 early return, H-1 ownership comment, H-2 thread contract, L-2 terse naming), re-verification pass (all PASS)
+
+### Files Modified (20 total)
+
+**Dead file cleanup:**
+- `Source/Gpu_windows.cpp` — `git rm` (dead stub)
+- `Source/Gpu_mac.mm` — `git rm` (dead stub)
+- `Source/component/RendererType.h` — `git rm` (dead stub)
+- `PLAN-font-metrics.md` — `git rm` (analysis artifact)
+
+**titleBarHeight constant:**
+- `Source/AppIdentifier.h:36` — added `App::titleBarHeight` constexpr
+- `Source/component/TerminalComponent.h:718` — replaced magic `24` with `App::titleBarHeight`
+- `Source/MainComponent.cpp:523,609` — replaced magic `24` with `App::titleBarHeight` (2 sites)
+
+**GL atlas ownership (B violation fix):**
+- `modules/jreng_graphics/fonts/jreng_typeface.h:827-840,1204-1205` — added `glMonoAtlas`/`glEmojiAtlas` uint32_t handles + get/set/reset accessors, GL THREAD section comment
+- `modules/jreng_opengl/renderers/jreng_gl_context.h` — removed 3 statics, added per-frame cached `monoAtlas`/`emojiAtlas` members, destructor calls `closeContext()`, `createAtlasTexture` made public
+- `modules/jreng_opengl/renderers/jreng_gl_context.cpp` — removed static definitions, `createContext()` shaders+buffers only, `closeContext()` shaders+buffers only, `uploadStagedBitmaps()` lazy-creates atlas on Typeface and caches per-frame, `drawQuads()` uses member handles
+
+**GLRenderer decoupling:**
+- `modules/jreng_opengl/context/jreng_gl_renderer.h` — `private` inheritance to `protected`, virtual destructor, removed `glyphContext` member, added `contextReady()`/`contextClosing()`/`renderText()` virtual hooks, `renderComponent` protected virtual, `notifyComponentsCreated()`/`notifyComponentsClosing()` helpers
+- `modules/jreng_opengl/context/jreng_gl_renderer.cpp` — lifecycle restructured with hooks, text rendering removed from `renderComponent`, `renderText()` called after path/shape, `drawVertices` early return converted to positive nested check
+
+**GLAtlasRenderer subclass:**
+- `modules/jreng_opengl/context/jreng_gl_atlas_renderer.h` — NEW: `GLAtlasRenderer : public GLRenderer`, owns `Glyph::GLContext`, manages typeface GL atlas lifecycle via initializer_list
+- `modules/jreng_opengl/context/jreng_gl_atlas_renderer.cpp` — NEW: `contextReady()` creates glyph context, `contextClosing()` closes glyph context + deletes typeface GL textures, `renderText()` merged upload+draw loop per font command
+
+**Module + call site updates:**
+- `modules/jreng_opengl/jreng_opengl.h` — added `#include "context/jreng_gl_atlas_renderer.h"`
+- `modules/jreng_opengl/jreng_opengl.cpp` — added `#include "context/jreng_gl_atlas_renderer.cpp"`
+- `Source/MainComponent.h` — member reorder (typefaces before glRenderer), type changed to `GLAtlasRenderer` with brace-init typeface list
+
+**CoreText max ASCII cell width:**
+- `modules/jreng_graphics/fonts/jreng_typeface.mm:760-773` — replaced space-glyph-only measurement with max-advance scan across ASCII 32-127, matching FreeType path
+
+**Platform-guard getEnvVar chain:**
+- `Source/terminal/tty/TTY.h:253-264` — `getEnvVar` virtual wrapped with `#if ! JUCE_WINDOWS`
+- `Source/terminal/logic/Session.h:150` — `getShellEnvVar` declaration guarded
+- `Source/terminal/logic/Session.cpp:284-306` — `getShellEnvVar` implementation guarded
+- `Source/component/TerminalComponent.h:290` — `getShellEnvVar` declaration guarded
+- `Source/component/TerminalComponent.cpp:576-579` — `getShellEnvVar` implementation guarded
+- `Source/MainComponent.cpp:543-551` — popup PATH injection block guarded
+
+### Alignment Check
+- [x] BLESSED principles followed — B: atlas ownership explicit (Typeface stores handles, GLAtlasRenderer owns GPU resource, one owner one lifecycle), no refcount; L: GLAtlasRenderer is lean subclass, no god objects; E: all names semantic, no magic numbers, thread contracts documented; S(SOT): atlas source is Typeface (single truth, mirrors CPU); S(tateless): GLContext caches per-frame, holds no persistent atlas state; E(ncapsulation): GLRenderer general-purpose, text capability via subclass, Unix-only feature platform-guarded; D: same typeface + same atlas = same rendering
+- [x] NAMES.md adhered — `contextReady`/`contextClosing`/`renderText` (verbs, tell-don't-ask), `GLAtlasRenderer` (semantic), `monoHandle`/`emojiHandle` (clarity over brevity), `App::titleBarHeight` (named constant)
+- [x] MANIFESTO.md principles applied — no early returns (drawVertices fixed), positive nested checks throughout, no manual boolean flags, no refcount
+
+### Problems Solved
+- **GLContext static refcount (B violation)** — `sharedMonoAtlas`/`sharedEmojiAtlas`/`sharedAtlasRefCount` were statics shared across GLContext instances via manual refcount. Same bug pattern as the CPU atlas crash (Sprint 22). Fixed by moving atlas handle storage to Typeface (mirroring CPU pattern), lazy creation in `uploadStagedBitmaps`, lifecycle managed by single `GLAtlasRenderer` instance. No refcount, no manual tracking.
+- **GLContext destructor resource leak** — `~GLContext() = default` never called `closeContext()`. GL shaders/VAO/VBOs leaked on pane close. Fixed: destructor calls `closeContext()` (guarded by `contextInitialised` for idempotency).
+- **GLRenderer text coupling** — GLRenderer owned `Glyph::GLContext glyphContext` and rendered text in `renderComponent()`, coupling the general-purpose renderer to text. Blocks clean fork-back to kuassa. Fixed: extracted text to `GLAtlasRenderer` subclass via virtual hooks. GLRenderer is now general-purpose.
+- **titleBarHeight magic number** — `24` appeared in 3 locations. Extracted to `App::titleBarHeight` constant.
+- **drawVertices early return** — pre-existing MANIFESTO E violation. Converted to positive nested check.
+- **CoreText cell width measurement** — Mac measured only space glyph advance for cell width. FreeType scanned max across ASCII 32-127. Asymmetry could cause width mismatch with non-monospace fallback fonts. Fixed: CoreText now scans ASCII 32-127 max advance.
+- **getEnvVar leaky abstraction** — base `TTY` exposed Unix-only `getEnvVar` virtual. Windows inherits full user env — never needs it. Fixed: entire `getEnvVar`/`getShellEnvVar` chain platform-guarded to `#if ! JUCE_WINDOWS`.
+
+### Technical Debt / Follow-up
+- `addMouseListener(this, true)` on GlassWindows — verify middle-click drag doesn't interfere with popup/ActionList behavior. Deferred: ActionList rework planned for future sprint.
+- Windows 10 regression test (DEBT.md) — needs Windows 10 22H2 hardware.
+- macOS GPU probe untested (Sprint 21).
+
 ## Sprint 22: ModalWindow refactor, forceDWM, middle-click drag, ligature fix, CPU atlas ownership
 
 **Date:** 2026-04-03 — 2026-04-04
@@ -73,9 +144,9 @@
 - **CPU atlas destruction on first pane close** — `GraphicsContext` used static shared atlas images with manual refcount. Second pane never called `createContext()` because `isReady()` checked global atlas state (already valid from first pane). First pane close decremented refcount to 0, destroying atlas. Fix: moved atlas ownership to `Typeface` (outlives all renderers). No refcount needed. `GraphicsContext` caches atlas pointers per-frame via `uploadStagedBitmaps(typeface)`.
 
 ### Technical Debt / Follow-up
-- `GLContext` has the same static refcount pattern for GL textures (`sharedMonoAtlas`/`sharedEmojiAtlas`/`sharedAtlasRefCount`). Currently works because GL context outlives panes, but same B violation exists. Consider moving GL atlas texture ownership to a long-lived GL-thread object.
-- `GLContext::~GLContext() = default` never calls `closeContext()` — GL resources (shaders, VAO, VBOs) leaked when pane closes. Separate from the atlas bug but related B violation.
-- `addMouseListener(this, true)` on all GlassWindows (including ModalWindow subclasses) — verify middle-click drag doesn't interfere with popup/ActionList behavior.
+- ~~`GLContext` static refcount for GL textures~~ — resolved Sprint 23: atlas ownership on Typeface, `GLAtlasRenderer` subclass, no refcount.
+- ~~`GLContext::~GLContext() = default` never calls `closeContext()`~~ — resolved Sprint 23: destructor calls `closeContext()`.
+- `addMouseListener(this, true)` on all GlassWindows (including ModalWindow subclasses) — verify middle-click drag doesn't interfere with popup/ActionList behavior. Deferred: ActionList rework planned.
 
 ## Sprint 21: GPU Probe Auto-Detection
 
@@ -149,9 +220,9 @@ Moved RendererType enum from PaneComponent to App namespace — renderer type is
 
 ### Technical Debt / Follow-up
 
-Source/Gpu_windows.cpp, Source/Gpu_mac.mm, Source/component/RendererType.h — dead stub files, need git rm
+~~Source/Gpu_windows.cpp, Source/Gpu_mac.mm, Source/component/RendererType.h — dead stub files, need git rm~~ — resolved Sprint 23
 
-PLAN-GPU-PROBE.md — can be deleted after commit
+~~PLAN-GPU-PROBE.md — can be deleted after commit~~ — already gone
 
 macOS probe untested (implemented, platform-guarded, mirrors Windows pattern)
 
@@ -187,10 +258,10 @@ macOS probe untested (implemented, platform-guarded, mirrors Windows pattern)
 - **Popup commands not found on macOS** — popups run `zsh -c "command"` which only sources `.zshenv` (non-interactive, non-login). If user's PATH additions are in `.zshrc`/`.zprofile`, popup can't find commands in `~/.local/bin` etc. Fixed by reading PATH from the active terminal's shell process (which has the full interactive PATH) and injecting it into the popup's environment before PTY open. Works on MSYS2 already because Windows GUI apps inherit full user env.
 
 ### Technical Debt / Follow-up
-- Early returns in `getEnvVar` match pre-existing pattern in `getCwd`/`getProcessName` — accepted as TTY layer convention, not refactored
+- ~~Early returns in `getEnvVar`~~ — resolved Sprint 23: audit found no early returns, debt was stale
 - `std::vector` heap allocation in `getEnvVar` (macOS path: variable-size `sysctl` buffer) — `noexcept` correctly removed, but stack allocation alternative could be considered if OOM is a concern
 - Linux `/proc/pid/environ` reads up to 64KB (`envBufSize`) — sufficient for typical PATH but could theoretically truncate extreme environments
-- WindowsTTY has no `getEnvVar` override (returns 0 from base) — not needed since Windows popup PATH works OOTB, but could be added for completeness
+- ~~WindowsTTY has no `getEnvVar` override~~ — resolved Sprint 23: not debt. Full `getEnvVar`/`getShellEnvVar` chain platform-guarded to `#if ! JUCE_WINDOWS`. Unix-only feature no longer exposed on Windows.
 
 ## Sprint 19: Font metrics — aspect ratio, DPI restore, popup sizing
 
@@ -233,6 +304,6 @@ macOS probe untested (implemented, platform-guarded, mirrors Windows pattern)
 - Mac calcMetrics (CoreText) measures only space glyph for width; Kitty measures max across ASCII 32-127. For true monospace fonts these should be equal.
 
 ### Technical Debt / Follow-up
-- `PLAN-font-metrics.md` at project root — should be removed after commit (analysis artifact)
-- Mac CoreText `calcMetrics` measures space glyph only for width vs competitors measuring max ASCII — investigate if this causes width mismatch for non-monospace fallback fonts
-- The `24` magic number for titleBarHeight appears in TerminalComponent.h:699 and now MainComponent.cpp — consider extracting to a named constant
+- ~~`PLAN-font-metrics.md` at project root~~ — resolved Sprint 23: `git rm`
+- ~~Mac CoreText `calcMetrics` measures space glyph only~~ — resolved Sprint 23: now scans max across ASCII 32-127, matching FreeType
+- ~~`24` magic number for titleBarHeight~~ — resolved Sprint 23: extracted to `App::titleBarHeight` constant

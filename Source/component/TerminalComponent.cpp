@@ -573,10 +573,12 @@ int Terminal::Component::getGridCols() const noexcept
 
 juce::ValueTree Terminal::Component::getValueTree() noexcept { return session.getState().get(); }
 
+#if ! JUCE_WINDOWS
 juce::String Terminal::Component::getShellEnvVar (const juce::String& varName) const
 {
     return session.getShellEnvVar (varName);
 }
+#endif
 
 void Terminal::Component::addExtraEnv (const juce::String& key, const juce::String& value)
 {

@@ -71,8 +71,12 @@ void GLRenderer::newOpenGLContextCreated()
         juce::gl::glGenBuffers (1, &vbo);
     }
 
-    glyphContext.createContext();
+    contextReady();
+    notifyComponentsCreated();
+}
 
+void GLRenderer::notifyComponentsCreated()
+{
     if (componentIterator)
     {
         componentIterator ([] (GLComponent& comp)
@@ -158,42 +162,47 @@ void GLRenderer::drawVertices (const std::vector<GLVertex>& vertices,
                               float offsetX, float offsetY,
                               GLenum mode)
 {
-    if (vertices.empty())
-        return;
-
-    std::vector<GLVertex> offsetVerts { vertices };
-
-    for (auto& v : offsetVerts)
+    if (not vertices.empty())
     {
-        v.x = v.x + offsetX;
-        v.y = v.y + offsetY;
+        std::vector<GLVertex> offsetVerts { vertices };
+
+        for (auto& v : offsetVerts)
+        {
+            v.x = v.x + offsetX;
+            v.y = v.y + offsetY;
+        }
+
+        juce::gl::glBindBuffer (juce::gl::GL_ARRAY_BUFFER, vbo);
+        juce::gl::glBufferData (juce::gl::GL_ARRAY_BUFFER,
+                                static_cast<GLsizeiptr> (offsetVerts.size() * sizeof (GLVertex)),
+                                offsetVerts.data(),
+                                juce::gl::GL_DYNAMIC_DRAW);
+
+        juce::gl::glVertexAttribPointer (0, 2, juce::gl::GL_FLOAT, juce::gl::GL_FALSE,
+                                         sizeof (GLVertex),
+                                         reinterpret_cast<void*> (0));
+        juce::gl::glEnableVertexAttribArray (0);
+
+        juce::gl::glVertexAttribPointer (1, 4, juce::gl::GL_FLOAT, juce::gl::GL_FALSE,
+                                         sizeof (GLVertex),
+                                         reinterpret_cast<void*> (2 * sizeof (float)));
+        juce::gl::glEnableVertexAttribArray (1);
+
+        juce::gl::glDrawArrays (mode, 0,
+                                static_cast<GLsizei> (offsetVerts.size()));
     }
-
-    juce::gl::glBindBuffer (juce::gl::GL_ARRAY_BUFFER, vbo);
-    juce::gl::glBufferData (juce::gl::GL_ARRAY_BUFFER,
-                            static_cast<GLsizeiptr> (offsetVerts.size() * sizeof (GLVertex)),
-                            offsetVerts.data(),
-                            juce::gl::GL_DYNAMIC_DRAW);
-
-    juce::gl::glVertexAttribPointer (0, 2, juce::gl::GL_FLOAT, juce::gl::GL_FALSE,
-                                     sizeof (GLVertex),
-                                     reinterpret_cast<void*> (0));
-    juce::gl::glEnableVertexAttribArray (0);
-
-    juce::gl::glVertexAttribPointer (1, 4, juce::gl::GL_FLOAT, juce::gl::GL_FALSE,
-                                     sizeof (GLVertex),
-                                     reinterpret_cast<void*> (2 * sizeof (float)));
-    juce::gl::glEnableVertexAttribArray (1);
-
-    juce::gl::glDrawArrays (mode, 0,
-                            static_cast<GLsizei> (offsetVerts.size()));
 }
 
 void GLRenderer::openGLContextClosing()
 {
     // GL THREAD
-    glyphContext.closeContext();
+    notifyComponentsClosing();
+    contextClosing();
+    destroyGLResources();
+}
 
+void GLRenderer::notifyComponentsClosing()
+{
     if (componentIterator)
     {
         componentIterator ([] (GLComponent& comp)
@@ -201,8 +210,6 @@ void GLRenderer::openGLContextClosing()
             comp.glContextClosing();
         });
     }
-
-    destroyGLResources();
 }
 
 void GLRenderer::compileFlatColourShader()
@@ -327,36 +334,7 @@ void GLRenderer::renderComponent (GLComponent* comp, const juce::Component* targ
         juce::gl::glDisable (juce::gl::GL_STENCIL_TEST);
     }
 
-    if (not g.getTextCommands().empty() and glyphContext.isReady())
-    {
-        const auto origin { target->getLocalPoint (comp, juce::Point<float> (0.0f, 0.0f)) };
-        const int destX { static_cast<int> (origin.x * totalScale) };
-        const int destY { static_cast<int> (origin.y * totalScale) };
-        const int physW { static_cast<int> (compWidth * totalScale) };
-        const int physH { static_cast<int> (compHeight * totalScale) };
-        const int fullH { static_cast<int> (vpHeight) };
-
-        glyphContext.push (destX, destY, physW, physH, fullH);
-
-        // Upload bitmaps staged on message thread by TextLayout::createLayout
-        for (const auto& textCmd : g.getTextCommands())
-        {
-            jreng::Font fontCopy { textCmd.font };
-            glyphContext.uploadStagedBitmaps (fontCopy.getTypeface());
-        }
-
-        // Draw — atlas is populated, texture coordinates are valid
-        for (const auto& textCmd : g.getTextCommands())
-        {
-            jreng::Font fontCopy { textCmd.font };
-            glyphContext.setFont (fontCopy);
-            glyphContext.drawGlyphs (textCmd.glyphCodes.data(),
-                                     textCmd.positions.data(),
-                                     textCmd.numGlyphs);
-        }
-
-        glyphContext.pop();
-    }
+    renderText (g, target, comp, totalScale, vpHeight);
 }
 
 } // namespace jreng

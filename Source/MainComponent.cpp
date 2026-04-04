@@ -520,7 +520,7 @@ void MainComponent::registerActions()
 
                                    const auto fm { typeface.calcMetrics (Terminal::Component::dpiCorrectedFontSize()) };
 
-                                   const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? 24 : 0 };
+                                   const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
                                    const int paddingTop    { config.getInt (Config::Key::terminalPaddingTop) };
                                    const int paddingRight  { config.getInt (Config::Key::terminalPaddingRight) };
                                    const int paddingBottom { config.getInt (Config::Key::terminalPaddingBottom) };
@@ -540,6 +540,7 @@ void MainComponent::registerActions()
                                    auto terminal { std::make_unique<Terminal::Component> (
                                        typeface, shell, shellArgs, cwd) };
 
+                                 #if ! JUCE_WINDOWS
                                    if (auto* active { tabs->getActiveTerminal() })
                                    {
                                        const auto shellPath { active->getShellEnvVar ("PATH") };
@@ -549,6 +550,7 @@ void MainComponent::registerActions()
                                            terminal->addExtraEnv ("PATH", shellPath);
                                        }
                                    }
+                                 #endif
 
                                    popup.show (*getTopLevelComponent(), std::move (terminal),
                                               pixelWidth, pixelHeight, glRenderer);
@@ -606,7 +608,7 @@ void MainComponent::showMessageOverlay()
             else if (orientation == juce::TabbedButtonBar::TabsAtRight)
                 content = content.withTrimmedRight (depth);
 
-            const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? 24 : 0 };
+            const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
             const int padTop { config.getInt (Config::Key::terminalPaddingTop) };
             const int padRight { config.getInt (Config::Key::terminalPaddingRight) };
             const int padBottom { config.getInt (Config::Key::terminalPaddingBottom) };

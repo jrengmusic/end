@@ -250,6 +250,7 @@ public:
      */
     virtual int getCwd (int pid, char* buffer, int maxLength) const noexcept { return 0; }
 
+  #if ! JUCE_WINDOWS
     /**
      * @brief Reads an environment variable from the given PID's environment.
      * @param pid        The process ID to query.
@@ -258,8 +259,10 @@ public:
      * @param maxLength  Size of the destination buffer in bytes.
      * @return Number of bytes written (excluding null terminator), or 0 on failure.
      * @note READER THREAD — no allocation, writes directly into caller's buffer.
+     * @note Unix only — Windows GUI apps inherit the full user environment.
      */
     virtual int getEnvVar (int pid, const char* varName, char* buffer, int maxLength) const { return 0; }
+  #endif
 
     /** @} */
 

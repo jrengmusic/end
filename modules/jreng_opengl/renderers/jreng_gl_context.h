@@ -3,9 +3,11 @@
  * @brief Standalone instanced quad renderer for glyph and background draw calls.
  *
  * `GLContext` owns all OpenGL resources required to draw glyph and
- * background instances: shader programs, atlas textures, VAO, and VBOs.
- * It exposes a minimal GL-thread API so any host component can delegate
- * instanced rendering without owning GL state directly.
+ * background instances: shader programs, VAO, and VBOs.  It caches
+ * non-owning atlas texture handles from Typeface per-frame, mirroring
+ * the CPU `GraphicsContext` pattern.  It exposes a minimal GL-thread
+ * API so any host component can delegate instanced rendering without
+ * owning GL state directly.
  *
  * ### Shader pipeline
  *
@@ -69,7 +71,7 @@ class GLContext
 {
 public:
     GLContext()  = default;
-    ~GLContext() = default;
+    ~GLContext() { closeContext(); }
 
     // =========================================================================
     // GL lifecycle
@@ -248,6 +250,25 @@ public:
         return static_cast<int> (AtlasSize::standard);
     }
 
+    /**
+     * @brief Allocate a 2-D OpenGL texture for an atlas.
+     *
+     * Creates a `GL_TEXTURE_2D` with `GL_LINEAR` filtering and
+     * `GL_CLAMP_TO_EDGE` wrap, then calls `glTexImage2D` to allocate
+     * @p width × @p height texels of the requested format.
+     *
+     * @param width           Texture width in texels.
+     * @param height          Texture height in texels.
+     * @param internalFormat  OpenGL internal format (e.g. `GL_R8`, `GL_RGBA`).
+     * @param format          Pixel data format matching @p internalFormat.
+     * @return                The new texture handle, or 0 on failure.
+     *
+     * @note **GL THREAD**.
+     */
+    static GLuint createAtlasTexture (int width, int height,
+                                      GLenum internalFormat,
+                                      GLenum format) noexcept;
+
 private:
     // =========================================================================
     // Private helpers
@@ -274,25 +295,6 @@ private:
      */
     void createBuffers() noexcept;
 
-    /**
-     * @brief Allocate a 2-D OpenGL texture for an atlas.
-     *
-     * Creates a `GL_TEXTURE_2D` with `GL_LINEAR` filtering and
-     * `GL_CLAMP_TO_EDGE` wrap, then calls `glTexImage2D` to allocate
-     * @p width × @p height texels of the requested format.
-     *
-     * @param width           Texture width in texels.
-     * @param height          Texture height in texels.
-     * @param internalFormat  OpenGL internal format (e.g. `GL_R8`, `GL_RGBA`).
-     * @param format          Pixel data format matching @p internalFormat.
-     * @return                The new texture handle, or 0 on failure.
-     *
-     * @note **GL THREAD**.
-     */
-    static GLuint createAtlasTexture (int width, int height,
-                                      GLenum internalFormat,
-                                      GLenum format) noexcept;
-
     // =========================================================================
     // Data
     // =========================================================================
@@ -306,14 +308,11 @@ private:
     /** @brief Compiled background quad shader program. Null until `createContext()`. */
     std::unique_ptr<juce::OpenGLShaderProgram> backgroundShader;
 
-    /** @brief Shared mono (R8) atlas texture. Created by the first instance, deleted by the last. */
-    static GLuint sharedMonoAtlas;
+    /** @brief Per-frame cached mono atlas texture; set in uploadStagedBitmaps(). */
+    GLuint monoAtlas { 0 };
 
-    /** @brief Shared emoji (RGBA8) atlas texture. Created by the first instance, deleted by the last. */
-    static GLuint sharedEmojiAtlas;
-
-    /** @brief Reference count for shared atlas textures. Incremented in createContext, decremented in closeContext. */
-    static int sharedAtlasRefCount;
+    /** @brief Per-frame cached emoji atlas texture; set in uploadStagedBitmaps(). */
+    GLuint emojiAtlas { 0 };
 
     /** @brief True if this instance called createContext(). Guards closeContext(). */
     bool contextInitialised { false };

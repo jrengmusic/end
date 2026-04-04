@@ -3,11 +3,11 @@
 namespace jreng
 {
 
-class GLRenderer : private juce::OpenGLRenderer
+class GLRenderer : protected juce::OpenGLRenderer
 {
 public:
     GLRenderer();
-    ~GLRenderer();
+    virtual ~GLRenderer();
 
     void setSharedRenderer (GLRenderer& source);
     void attachTo (juce::Component& target);
@@ -20,13 +20,28 @@ public:
     void triggerRepaint();
     void setClippingMask (const juce::Image& mask) noexcept;
 
+protected:
+    /** @brief Initialise subclass GL resources. Called after base GL init, before component notification. @note GL THREAD. */
+    virtual void contextReady() {}
+
+    /** @brief Release subclass GL resources. Called after component notification, before base GL teardown. @note GL THREAD. */
+    virtual void contextClosing() {}
+
+    /** @brief Render text commands collected in @p g. Called after path/shape rendering. @note GL THREAD. */
+    virtual void renderText (GLGraphics& g, const juce::Component* target,
+                             GLComponent* comp, float totalScale, float vpHeight) {}
+
+    virtual void renderComponent (GLComponent* comp, const juce::Component* target, float totalScale, float vpWidth, float vpHeight);
+
+    void notifyComponentsCreated();
+    void notifyComponentsClosing();
+
 private:
     void newOpenGLContextCreated() override;
     void renderOpenGL() override;
     void openGLContextClosing() override;
 
     juce::OpenGLContext openGLContext;
-    jreng::Glyph::GLContext glyphContext;
     ComponentIterator componentIterator;
     float renderingScale { 1.0f };
 
@@ -49,7 +64,6 @@ private:
                        float offsetX, float offsetY,
                        GLenum mode = juce::gl::GL_TRIANGLES);
     static void enableSurfaceTransparency();
-    void renderComponent (GLComponent* comp, const juce::Component* target, float totalScale, float vpWidth, float vpHeight);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GLRenderer)
 };

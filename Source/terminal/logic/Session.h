@@ -147,7 +147,9 @@ public:
      * @return The variable's value, or empty on failure.
      * @note MESSAGE THREAD.
      */
+  #if ! JUCE_WINDOWS
     juce::String getShellEnvVar (const juce::String& varName) const;
+  #endif
 
     /**
      * @brief Injects an environment variable into the shell startup environment.

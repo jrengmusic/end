@@ -281,6 +281,7 @@ void Session::setShellProgram (const juce::String& program, const juce::String& 
     shellArgsOverride = args;
 }
 
+#if ! JUCE_WINDOWS
 juce::String Session::getShellEnvVar (const juce::String& varName) const
 {
     juce::String result;
@@ -304,6 +305,7 @@ juce::String Session::getShellEnvVar (const juce::String& varName) const
 
     return result;
 }
+#endif
 
 void Session::addExtraEnv (const juce::String& key, const juce::String& value)
 {

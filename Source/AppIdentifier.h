@@ -33,6 +33,8 @@ namespace App
         cpu
     };
 
+    static constexpr int titleBarHeight { 24 };
+
 namespace ID
 {
     //==========================================================================

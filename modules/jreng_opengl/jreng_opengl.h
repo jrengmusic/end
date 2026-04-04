@@ -27,4 +27,5 @@
 #include "renderers/jreng_glyph_shaders.h"
 #include "renderers/jreng_gl_context.h"
 #include "context/jreng_gl_renderer.h"
+#include "context/jreng_gl_atlas_renderer.h"
 #include "context/jreng_gl_overlay.h"
