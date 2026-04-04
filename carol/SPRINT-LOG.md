@@ -14,7 +14,7 @@
 ---
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
-## Sprint 23: JRENG — Debt Cleanup
+## Sprint 23: JRENG — Debt Cleanup, GLAtlasRenderer, Popup Shell Fix
 
 **Date:** 2026-04-04
 
@@ -66,6 +66,9 @@
 - `Source/component/TerminalComponent.cpp:576-579` — `getShellEnvVar` implementation guarded
 - `Source/MainComponent.cpp:543-551` — popup PATH injection block guarded
 
+**Popup shell fix:**
+- `Source/MainComponent.cpp:513-514` — popup shellArgs now prepends `config.getString(Config::Key::shellArgs)` before `-c`
+
 ### Alignment Check
 - [x] BLESSED principles followed — B: atlas ownership explicit (Typeface stores handles, GLAtlasRenderer owns GPU resource, one owner one lifecycle), no refcount; L: GLAtlasRenderer is lean subclass, no god objects; E: all names semantic, no magic numbers, thread contracts documented; S(SOT): atlas source is Typeface (single truth, mirrors CPU); S(tateless): GLContext caches per-frame, holds no persistent atlas state; E(ncapsulation): GLRenderer general-purpose, text capability via subclass, Unix-only feature platform-guarded; D: same typeface + same atlas = same rendering
 - [x] NAMES.md adhered — `contextReady`/`contextClosing`/`renderText` (verbs, tell-don't-ask), `GLAtlasRenderer` (semantic), `monoHandle`/`emojiHandle` (clarity over brevity), `App::titleBarHeight` (named constant)
@@ -79,6 +82,7 @@
 - **drawVertices early return** — pre-existing MANIFESTO E violation. Converted to positive nested check.
 - **CoreText cell width measurement** — Mac measured only space glyph advance for cell width. FreeType scanned max across ASCII 32-127. Asymmetry could cause width mismatch with non-monospace fallback fonts. Fixed: CoreText now scans ASCII 32-127 max advance.
 - **getEnvVar leaky abstraction** — base `TTY` exposed Unix-only `getEnvVar` virtual. Windows inherits full user env — never needs it. Fixed: entire `getEnvVar`/`getShellEnvVar` chain platform-guarded to `#if ! JUCE_WINDOWS`.
+- **Popup shell ignoring config shell.args** — popup hardcoded `-c <cmd>`, ignoring `Config::Key::shellArgs` (defaults to `-l` on macOS/Linux). Main terminal used config args, popup didn't — shell mode mismatch. From Finder launch: popup ran `zsh -c tit` (non-login, non-interactive → minimal PATH → command not found → immediate exit). Fixed: popup now prepends config `shell.args` → `zsh -l -c tit` (login shell, sources full env). Cross-platform — Windows config sets appropriate args.
 
 ### Technical Debt / Follow-up
 - `addMouseListener(this, true)` on GlassWindows — verify middle-click drag doesn't interfere with popup/ActionList behavior. Deferred: ActionList rework planned for future sprint.

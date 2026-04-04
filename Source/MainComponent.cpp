@@ -510,7 +510,9 @@ void MainComponent::registerActions()
                                if (not popup.isActive())
                                {
                                    const auto shell { config.getString (Config::Key::shellProgram) };
-                                   const auto shellArgs { juce::String ("-c ") + entry.command
+                                   const auto configShellArgs { config.getString (Config::Key::shellArgs) };
+                                   const auto shellArgs { (configShellArgs.isNotEmpty() ? configShellArgs + " " : juce::String())
+                                                          + "-c " + entry.command
                                                           + (entry.args.isNotEmpty() ? " " + entry.args : "") };
 
                                    const int cols { entry.cols > 0 ? entry.cols
