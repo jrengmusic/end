@@ -2,9 +2,9 @@
  * @file jreng_platform.h
  * @brief Windows platform version detection utilities.
  *
- * Provides `isWindows10()` — a cached runtime check that returns true when
- * the process is running on Windows 10 (build < 22000).  Windows 11 and later
- * is the canonical path; Windows 10 is the special-case branch.
+ * Provides `isWindows10()` and `isWindows11()` — cached runtime checks using
+ * `RtlGetVersion` to obtain the real OS build number.  Windows 11 is
+ * build >= 22000; Windows 10 is build < 22000.
  *
  * @note This header is Windows-only.  Include it only inside `#if JUCE_WINDOWS`
  *       guards at the call site.
@@ -62,4 +62,17 @@ static bool isWindows10() noexcept
     }() };
 
     return cached;
+}
+
+/**
+ * @brief Returns true if the current OS is Windows 11 (build >= 22000).
+ *
+ * Inverse of `isWindows10()`.  Uses the same cached `RtlGetVersion` probe.
+ *
+ * @return @c true  on Windows 11+ (build >= 22000).
+ * @return @c false on Windows 10 or if version detection fails.
+ */
+static bool isWindows11 () noexcept
+{
+    return not isWindows10();
 }

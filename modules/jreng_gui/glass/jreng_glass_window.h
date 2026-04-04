@@ -78,22 +78,25 @@ public:
 #endif
 
 #if JUCE_WINDOWS
-    /** @brief Meta+click anywhere drags the window (no title bar on Windows). */
-    WindowControlKind findControlAtPoint (juce::Point<float> pt) const override;
+    /** @brief Middle-click anywhere initiates a window drag (Windows). */
+    void mouseDown (const juce::MouseEvent& event) override;
+    /** @brief Continues the middle-click window drag (Windows). */
+    void mouseDrag (const juce::MouseEvent& event) override;
 #endif
 
 private:
 #if JUCE_WINDOWS
-    struct TransparentTitleBarLookAndFeel : public juce::LookAndFeel_V4
+    struct WindowsTitleBarLookAndFeel : public juce::LookAndFeel_V4
     {
-        void drawDocumentWindowTitleBar (juce::DocumentWindow&, juce::Graphics&,
-                                        int, int, int, int,
-                                        const juce::Image*, bool) override {}
+        void
+        drawDocumentWindowTitleBar (juce::DocumentWindow&, juce::Graphics&, int, int, int, int, const juce::Image*, bool)
+            override
+        {
+        }
     };
 
-    TransparentTitleBarLookAndFeel transparentTitleBarLnf;
+    WindowsTitleBarLookAndFeel windowsTitleBar;
 #endif
-
     /** @brief Blur radius (in points) forwarded to BackgroundBlur::enable(). */
     float blurRadius { 0.0f };
 
@@ -109,9 +112,15 @@ private:
     /** @brief One-shot guard — prevents re-triggering async blur. */
     bool isBlurApplied { false };
 
+#if JUCE_WINDOWS
+    /** @brief Handles middle-click window dragging. */
+    juce::ComponentDragger windowDragger;
+#endif
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GlassWindow)
 };
 
 /**_____________________________END_OF_NAMESPACE______________________________*/
 } /** namespace jreng */
+

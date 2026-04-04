@@ -106,12 +106,11 @@ void Config::initKeys()
     addKey (Key::cursorBlink, true, { T::boolean });
     addKey (Key::cursorBlinkInterval, 500.0, { T::number, 100.0, 5000.0, true });
     addKey (Key::cursorForce, false, { T::boolean });
-
-    addKey (Key::coloursForeground, "#5FAEB5", { T::string });///< text
-    addKey (Key::coloursBackground, "#090D12E0", { T::string });///< bunker semi-transparent
+    addKey (Key::coloursForeground, "#A1D6E5", { T::string });///<  skyFall
+    addKey (Key::coloursBackground, "#090D12FF", { T::string });///< bunker
     addKey (Key::coloursCursor, "#4E8C93", { T::string });///< paradiso
-    addKey (Key::coloursSelection, "#00C8D880", { T::string });///< blueBikini semi-transparent
-    addKey (Key::coloursSelectionCursor, "#00D8FF", { T::string });///< bright cyan
+    addKey (Key::coloursSelection, "#00DDEE10", { T::string });///< fishBoy semi-transparent
+    addKey (Key::coloursSelectionCursor, "#00DDEE", { T::string });///< fishBoy
 
     // ---- ANSI palette (indices 0–15) ----------------------------------------
     // Normal colours
@@ -141,6 +140,7 @@ void Config::initKeys()
     addKey (Key::windowBlurRadius, 32.0, { T::number, 0.0, 100.0, true });
     addKey (Key::windowAlwaysOnTop, false, { T::boolean });
     addKey (Key::windowButtons, false, { T::boolean });
+    addKey (Key::windowForceDwm, true, { T::boolean });
     addKey (Key::windowZoom, 1.0, { T::number, 0.0, 0.0, false });
     addKey (Key::gpuAcceleration, "auto", { T::string });
 

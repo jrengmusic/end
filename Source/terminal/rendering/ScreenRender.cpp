@@ -263,7 +263,7 @@ static void emitShapedGlyphsToCache (
         if (atlasGlyph != nullptr)
         {
             const float ascender { static_cast<float> (physBaseline) };
-            const float glyphX { currentX + static_cast<float> (atlasGlyph->bearingX) };
+            const float glyphX { currentX + sg.xOffset + static_cast<float> (atlasGlyph->bearingX) };
             const float glyphY { cellPixelY + ascender - static_cast<float> (atlasGlyph->bearingY) };
 
             Render::Glyph& instance { slot[count] };
@@ -936,7 +936,7 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jreng
                     const jreng::Typeface::GlyphRun shaped { font.shapeText (style, codepoints,
                                                                             static_cast<size_t> (tryLen)) };
 
-                    if (shaped.count > 0 and shaped.count < tryLen)
+                    if (shaped.count == 1)
                     {
                         int& count { monoCount[row] };
                         Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };

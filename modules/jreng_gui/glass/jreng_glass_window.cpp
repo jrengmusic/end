@@ -16,8 +16,6 @@
  * @see BackgroundBlur
  */
 
-#include "MainComponent.h"
-
 #if JUCE_WINDOWS
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
@@ -32,7 +30,7 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
                           bool alwaysOnTop,
                           bool showWindowButtons)
     : juce::DocumentWindow (name,
-                            juce::Colours::black,
+                            juce::Colours::transparentBlack,
 #if JUCE_WINDOWS
                             showWindowButtons ? juce::DocumentWindow::allButtons : 0)
 #else
@@ -45,7 +43,9 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
     if (not showWindowButtons)
     {
         setTitleBarHeight (0);
-        setLookAndFeel (&transparentTitleBarLnf);
+        windowsTitleBar.setColour (
+            juce::DocumentWindow::backgroundColourId, findColour (juce::DocumentWindow::backgroundColourId));
+        setLookAndFeel (&windowsTitleBar);
     }
 #else
     setUsingNativeTitleBar (true);
@@ -61,6 +61,9 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
     setResizable (true, true);
 #endif
     centreWithSize (getWidth(), getHeight());
+#if JUCE_WINDOWS
+    addMouseListener (this, true);
+#endif
 }
 
 void GlassWindow::closeButtonPressed() { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
@@ -116,7 +119,7 @@ void GlassWindow::visibilityChanged()
         if (auto* peer { getPeer() })
         {
             auto hwnd { static_cast<HWND> (peer->getNativeHandle()) };
-            DWORD cornerPreference { 2 };  // DWMWCP_ROUND
+            DWORD cornerPreference { 2 };// DWMWCP_ROUND
             DwmSetWindowAttribute (hwnd, 33, &cornerPreference, sizeof (cornerPreference));
         }
 #endif
@@ -137,16 +140,24 @@ void GlassWindow::handleAsyncUpdate()
 #endif
 
 // =============================================================================
-// Windows: meta-drag
+// Windows: middle-click drag
 // =============================================================================
 
 #if JUCE_WINDOWS
-auto GlassWindow::findControlAtPoint (juce::Point<float> pt) const -> WindowControlKind
+void GlassWindow::mouseDown (const juce::MouseEvent& event)
 {
-    if ((GetAsyncKeyState (VK_LWIN) | GetAsyncKeyState (VK_RWIN)) & 0x8000)
-        return WindowControlKind::caption;
+    if (event.mods.isMiddleButtonDown())
+        windowDragger.startDraggingComponent (this, event);
 
-    return DocumentWindow::findControlAtPoint (pt);
+    DocumentWindow::mouseDown (event);
+}
+
+void GlassWindow::mouseDrag (const juce::MouseEvent& event)
+{
+    if (event.mods.isMiddleButtonDown())
+        windowDragger.dragComponent (this, event, nullptr);
+
+    DocumentWindow::mouseDrag (event);
 }
 #endif
 

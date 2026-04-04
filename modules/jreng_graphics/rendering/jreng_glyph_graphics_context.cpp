@@ -8,9 +8,6 @@
 namespace jreng::Glyph
 {
 
-juce::Image GraphicsContext::sharedMonoAtlas;
-juce::Image GraphicsContext::sharedEmojiAtlas;
-int GraphicsContext::sharedAtlasRefCount { 0 };
 
 // =========================================================================
 // Lifecycle
@@ -18,34 +15,14 @@ int GraphicsContext::sharedAtlasRefCount { 0 };
 
 void GraphicsContext::createContext() noexcept
 {
-    if (sharedAtlasRefCount == 0)
-    {
-        const int dim { getAtlasDimension() };
-
-        sharedMonoAtlas  = juce::Image (juce::Image::SingleChannel, dim, dim, true,
-                                         juce::SoftwareImageType());
-        sharedEmojiAtlas = juce::Image (juce::Image::ARGB, dim, dim, true,
-                                         juce::SoftwareImageType());
-    }
-
-    ++sharedAtlasRefCount;
     contextInitialised = true;
 }
 
 void GraphicsContext::closeContext() noexcept
 {
-    if (contextInitialised)
-    {
-        contextInitialised = false;
-        --sharedAtlasRefCount;
-
-        if (sharedAtlasRefCount == 0)
-        {
-            sharedMonoAtlas  = juce::Image();
-            sharedEmojiAtlas = juce::Image();
-        }
-    }
-
+    contextInitialised = false;
+    monoAtlas  = nullptr;
+    emojiAtlas = nullptr;
     renderTarget = juce::Image();
 }
 
@@ -55,6 +32,10 @@ void GraphicsContext::closeContext() noexcept
 
 void GraphicsContext::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
 {
+    typeface.ensureCpuAtlas (getAtlasDimension());
+    monoAtlas  = &typeface.getCpuMonoAtlas();
+    emojiAtlas = &typeface.getCpuEmojiAtlas();
+
     typeface.consumeStagedBitmaps (stagedBuffer, stagedCount);
 
     if (stagedCount > 0)
@@ -64,7 +45,7 @@ void GraphicsContext::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
             auto& staged { stagedBuffer[i] };
             const auto region { staged.region };
             const bool isMono { staged.type == Type::mono };
-            auto& atlas { isMono ? sharedMonoAtlas : sharedEmojiAtlas };
+            auto& atlas { isMono ? *monoAtlas : *emojiAtlas };
             const int pixelStride { isMono ? 1 : 4 };
 
             juce::Image::BitmapData destData (atlas, region.getX(), region.getY(),
@@ -184,7 +165,7 @@ void GraphicsContext::drawQuads (const Render::Quad* data, int count, bool isEmo
         if (isEmoji)
         {
             juce::Image::BitmapData targetData (renderTarget, juce::Image::BitmapData::readWrite);
-            juce::Image::BitmapData atlasData  (sharedEmojiAtlas, juce::Image::BitmapData::readOnly);
+            juce::Image::BitmapData atlasData  (*emojiAtlas, juce::Image::BitmapData::readOnly);
 
             for (int i { 0 }; i < count; ++i)
             {
@@ -194,7 +175,7 @@ void GraphicsContext::drawQuads (const Render::Quad* data, int count, bool isEmo
         else
         {
             juce::Image::BitmapData targetData (renderTarget, juce::Image::BitmapData::readWrite);
-            juce::Image::BitmapData atlasData  (sharedMonoAtlas, juce::Image::BitmapData::readOnly);
+            juce::Image::BitmapData atlasData  (*monoAtlas, juce::Image::BitmapData::readOnly);
 
             for (int i { 0 }; i < count; ++i)
             {
@@ -443,11 +424,12 @@ void GraphicsContext::drawGlyphs (const uint16_t* glyphCodes,
                                         int count) noexcept
 {
     jassert (currentFont != nullptr);
+    jassert (monoAtlas != nullptr and emojiAtlas != nullptr);
 
     if (count > 0 and renderTarget.isValid() and currentFont != nullptr)
     {
         const bool isMono { not currentFont->isEmoji() };
-        auto& atlas { isMono ? sharedMonoAtlas : sharedEmojiAtlas };
+        auto& atlas { isMono ? *monoAtlas : *emojiAtlas };
 
         juce::Image::BitmapData targetData (renderTarget, juce::Image::BitmapData::readWrite);
         juce::Image::BitmapData atlasData  (atlas, juce::Image::BitmapData::readOnly);
@@ -483,7 +465,7 @@ void GraphicsContext::drawGlyphs (const uint16_t* glyphCodes,
 
 bool GraphicsContext::isReady() const noexcept
 {
-    return sharedMonoAtlas.isValid();
+    return contextInitialised;
 }
 
 // =========================================================================

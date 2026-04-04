@@ -802,6 +802,28 @@ struct Typeface
         return atlas.getCacheStats();
     }
 
+    /**
+     * @brief Ensures the CPU atlas images exist at the given dimension.
+     * @param dimension  Atlas side length in texels (e.g. 2048).
+     * @note **MESSAGE THREAD** only.
+     */
+    void ensureCpuAtlas (int dimension) noexcept
+    {
+        if (not cpuMonoAtlas.isValid())
+        {
+            cpuMonoAtlas  = juce::Image (juce::Image::SingleChannel, dimension, dimension, true,
+                                          juce::SoftwareImageType());
+            cpuEmojiAtlas = juce::Image (juce::Image::ARGB, dimension, dimension, true,
+                                          juce::SoftwareImageType());
+        }
+    }
+
+    /** @brief Returns the CPU mono atlas image. @note **MESSAGE THREAD** only. */
+    juce::Image& getCpuMonoAtlas() noexcept { return cpuMonoAtlas; }
+
+    /** @brief Returns the CPU emoji atlas image. @note **MESSAGE THREAD** only. */
+    juce::Image& getCpuEmojiAtlas() noexcept { return cpuEmojiAtlas; }
+
     // =========================================================================
     // Metrics and rasterization
     // =========================================================================
@@ -1153,6 +1175,9 @@ private:
     Metrics cachedMetrics;
 
     jreng::Glyph::Atlas atlas;   ///< Internal glyph rasterization cache.
+
+    juce::Image cpuMonoAtlas;    ///< CPU rendering mono atlas (SingleChannel). Owned here, accessed by GraphicsContext.
+    juce::Image cpuEmojiAtlas;   ///< CPU rendering emoji atlas (ARGB). Owned here, accessed by GraphicsContext.
 };
 
 } // namespace jreng

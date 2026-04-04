@@ -296,6 +296,9 @@ struct Config : jreng::Context<Config>
         /** @brief Whether native traffic-light window buttons are shown. */
         inline static const juce::String windowButtons { "window.buttons" };
 
+        /** @brief Force DWM effects on Windows 11 VMs for rounded corners. */
+        inline static const juce::String windowForceDwm { "window.force_dwm" };
+
         /** @brief Persisted zoom multiplier in [zoomMin, zoomMax]. */
         inline static const juce::String windowZoom { "window.zoom" };
 

@@ -14,6 +14,146 @@
 ---
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
+## Sprint 22: ModalWindow refactor, forceDWM, middle-click drag, ligature fix, CPU atlas ownership
+
+**Date:** 2026-04-03 — 2026-04-04
+
+### Agents Participated
+- COUNSELOR — root cause analysis for all issues, architectural decisions (ModalWindow extraction, atlas ownership in Typeface over static refcount), plan design, delegation
+- Pathfinder (x6) — glass window analysis, Popup vs DialogWindow comparison, window drag code, terminal text rendering pipeline, pane/split font ownership, CPU renderer font lifecycle
+- Engineer (x5) — ModalWindow module, Popup refactor, forceDWM registry, middle-click drag, ligature/xOffset fixes, DWM corner fix, CPU atlas ownership refactor
+- Auditor (x2) — verified ligature/xOffset/DWM fixes (flagged stale DWM corner value), verified atlas ownership refactor (full PASS)
+
+### Files Modified (18 total)
+
+**ModalWindow refactor:**
+- `modules/jreng_gui/glass/jreng_modal_window.h` — NEW: `ModalWindow : public GlassWindow` with Escape dismiss, input blocking, close button handling, `onModalDismissed` callback
+- `modules/jreng_gui/glass/jreng_modal_window.cpp` — NEW: constructor delegates to GlassWindow, `closeButtonPressed` exits modal and invokes callback
+- `modules/jreng_gui/jreng_gui.h` — added `#include "glass/jreng_modal_window.h"`
+- `modules/jreng_gui/jreng_gui.cpp` — added `#include "glass/jreng_modal_window.cpp"`
+- `Source/terminal/action/ActionList.h` — changed base from `GlassWindow` to `ModalWindow`, removed redundant override declarations
+- `Source/terminal/action/ActionList.cpp` — changed base init, removed `closeButtonPressed`/`keyPressed` implementations
+- `Source/component/Popup.h` — changed `Window` base from `DialogWindow` to `ModalWindow`, removed reimplemented glass/modal overrides
+- `Source/component/Popup.cpp` — IIFE constructor for ContentView, LookAndFeel propagation, `keyPressed` returns false, deferred focus via `callAsync`
+
+**forceDWM registry:**
+- `Source/config/Config.h` — added `windowForceDwm` key
+- `Source/config/Config.cpp` — registered boolean key
+- `Source/config/default_end.lua` — documented entry in window section
+- `Source/Main.cpp` — `applyForceDwmRegistry()` with named constants, call sites in `initialise()` and `config.onReload`
+- `modules/jreng_core/utilities/jreng_platform.h` — added `isWindows11()` next to `isWindows10()`
+
+**Rendering fixes and window drag:**
+- `modules/jreng_gui/glass/jreng_glass_window.h:80-84,111-114` — replaced `findControlAtPoint` with `mouseDown`/`mouseDrag` overrides, added `ComponentDragger` member
+- `modules/jreng_gui/glass/jreng_glass_window.cpp:63-65,119,142-162` — added `addMouseListener(this,true)`, fixed DWM corner value 4→2, mouseDown/mouseDrag with ComponentDragger
+- `Source/terminal/rendering/ScreenRender.cpp:266,939` — added `sg.xOffset` to glyph positioning, reject partial ligatures (`shaped.count == 1`)
+
+**CPU atlas ownership:**
+- `modules/jreng_graphics/fonts/jreng_typeface.h:810-825,1179-1180` — added `cpuMonoAtlas`/`cpuEmojiAtlas` members and `ensureCpuAtlas`/`getCpuMonoAtlas`/`getCpuEmojiAtlas` accessors
+- `modules/jreng_graphics/rendering/jreng_glyph_graphics_context.h:275-278` — removed static shared atlas + refcount, replaced with per-frame cached pointers
+- `modules/jreng_graphics/rendering/jreng_glyph_graphics_context.cpp` — rewrote lifecycle: no refcount, atlas access through Typeface via `uploadStagedBitmaps`
+- `Source/terminal/rendering/ScreenGL.cpp:189` — unconditional `textRenderer.createContext()` (idempotent)
+- `Source/terminal/rendering/ScreenGL.cpp:189` — unconditional `textRenderer.createContext()` (idempotent, no isReady guard)
+
+### Alignment Check
+- [x] BLESSED principles followed — B: atlas owned by Typeface (clear owner, RAII), no manual refcount; S(SOT): single atlas source in Typeface; S(tateless): GraphicsContext holds no persistent atlas state, caches per-frame; E(xplicit): jassert added for atlas pointer contract; E(ncapsulation): Typeface owns, renderer accesses via API
+- [x] NAMES.md adhered — `cpuMonoAtlas`, `cpuEmojiAtlas`, `ensureCpuAtlas`, `windowDragger` follow semantic naming
+- [x] MANIFESTO.md principles applied — no new patterns invented, follows existing Typeface delegation pattern
+
+### Problems Solved
+- **Popup white flash and reimplemented glass** — Popup subclassed `juce::DialogWindow` and reimplemented glass blur with `AsyncUpdater`, creating a visible white flash on Windows. Extracted `jreng::ModalWindow` (GlassWindow subclass with modal semantics). Popup now inherits ModalWindow — unified glass lifecycle, synchronous blur on Windows, no flash.
+- **Popup missing LookAndFeel** — Popup is a separate top-level window, doesn't inherit MainComponent's Terminal::LookAndFeel. Fix: set LookAndFeel on ContentView from `centreAround` component.
+- **ESC dismissing Popup** — ModalWindow::keyPressed intercepts Escape. But Popup hosts Terminal::Component which needs Escape for terminal operations. Fix: override `keyPressed` in Popup::Window to return false unconditionally.
+- **Popup keyboard focus** — `enterModalState(true)` stole focus after initial grab. Fix: deferred focus via `juce::MessageManager::callAsync` after `enterModalState`.
+- **forceDWM for Windows 11 VMs** — DWM rounded corners not applied on VMs without GPU compositing. Added `window.force_dwm` config entry that writes `ForceEffectMode=2` to HKLM registry.
+- **Middle-click window drag** — Meta+left-click replaced with middle mouse button drag. `findControlAtPoint` only works for left-click hit-testing (WM_NCHITTEST). Replaced with `mouseDown`/`mouseDrag` overrides using `juce::ComponentDragger` and `addMouseListener(this, true)` to receive child events.
+- **Double-colon glyph overlap** — character after `::` drawn one cell left. Root cause: `tryLigature` accepted 3→2 partial ligatures (e.g. `::c` shaped as 2 glyphs), but assigned fixed `xAdvance=physCellWidth` per glyph, mispositioning the second glyph. Fix: only accept full-collapse ligatures (`shaped.count == 1`).
+- **HarfBuzz xOffset dropped** — `emitShapedGlyphsToCache` computed `glyphX = currentX + bearingX` without `sg.xOffset`. GPOS mark/kern adjustments were silently ignored. Fix: added `sg.xOffset` term.
+- **DWM corner value** — `DWMWCP_ROUND` is 2, not 4. Stale comment/value mismatch from previous sprint.
+- **CPU atlas destruction on first pane close** — `GraphicsContext` used static shared atlas images with manual refcount. Second pane never called `createContext()` because `isReady()` checked global atlas state (already valid from first pane). First pane close decremented refcount to 0, destroying atlas. Fix: moved atlas ownership to `Typeface` (outlives all renderers). No refcount needed. `GraphicsContext` caches atlas pointers per-frame via `uploadStagedBitmaps(typeface)`.
+
+### Technical Debt / Follow-up
+- `GLContext` has the same static refcount pattern for GL textures (`sharedMonoAtlas`/`sharedEmojiAtlas`/`sharedAtlasRefCount`). Currently works because GL context outlives panes, but same B violation exists. Consider moving GL atlas texture ownership to a long-lived GL-thread object.
+- `GLContext::~GLContext() = default` never calls `closeContext()` — GL resources (shaders, VAO, VBOs) leaked when pane closes. Separate from the atlas bug but related B violation.
+- `addMouseListener(this, true)` on all GlassWindows (including ModalWindow subclasses) — verify middle-click drag doesn't interfere with popup/ActionList behavior.
+
+## Sprint 21: GPU Probe Auto-Detection
+
+Date: 2026-04-03
+
+### Agents Participated
+
+COUNSELOR: Led requirements gathering, designed resolution flow and truth table, planned all steps, directed all subagents
+
+Pathfinder: Discovered GPU acceleration code paths, Config/AppState patterns, Context CRTP pattern, GL header/link setup
+
+Librarian: Researched JUCE juceopengl GL symbol namespace (juce::gl::) and function pointer loading
+
+Engineer: Implemented Gpu struct, platform probes, AppState changes, MainComponent refactor, App::RendererType enum migration
+
+Auditor: Three audit passes — caught SSOT violations (duplicated constants/functions, magic strings), stale includes, naming issues
+
+Machinist: Cleaned stale includes from MainComponent.h and TerminalComponent.h
+
+Files Modified (15 total)
+
+Source/Gpu.h — NEW struct with probe(), isSoftwareRenderer(), probe constants, softwareRenderers StringArray
+
+Source/Gpu.cpp — NEW Windows WGL probe: dummy HWND, 3.2 Core context bootstrap, pixel readback, RAII ProbeContext
+
+Source/Gpu.mm — NEW macOS NSOpenGLContext probe: NSOpenGLPFAAccelerated, pixel readback
+
+Source/AppIdentifier.h — Added App::RendererType enum (gpu/cpu), gpuAvailable identifier, rendererGpu/rendererCpu string constants
+
+Source/AppState.h — getRendererType() returns App::RendererType enum; added setGpuAvailable(bool); setRendererType() takes raw config string
+
+Source/AppState.cpp — setRendererType() resolves internally (config setting AND gpuAvailable); getRendererType() maps ValueTree string to enum; removed renderer from initDefaults()
+
+Source/Main.cpp — Probe at startup before window creation, store result in AppState, glass/reload read AppState enum
+
+Source/MainComponent.h — Removed ValueTree::Listener, removed windowState member, added setRenderer(App::RendererType)
+
+Source/MainComponent.cpp — Removed all config ternaries, direct setRenderer() calls from applyConfig(), default compact atlas in constructor
+
+Source/component/PaneComponent.h — Removed RendererType enum (moved to App namespace), uses App::RendererType
+
+Source/component/TerminalComponent.h — Updated include chain, uses App::RendererType
+
+Source/component/TerminalComponent.cpp — switchRenderer uses AppState::getContext()->getRendererType(), updated stale comment
+
+Source/component/Tabs.h / Tabs.cpp — Updated to App::RendererType
+
+Source/component/Popup.cpp — Updated to App::RendererType, reads AppState directly
+
+Source/whelmed/Component.h / Component.cpp — Updated to App::RendererType
+
+### Alignment Check
+
+x BLESSED principles followed — stateless probe, SSOT in AppState, RAII resource management, no shadow state
+
+x NAMES.md adhered — semantic naming, verbs for actions, no hungarian notation
+
+x MANIFESTO.md principles applied — unidirectional flow, tell-don't-ask, encapsulation
+
+### Problems Solved
+
+gpu.acceleration = "auto" blindly selected GPU — no actual hardware detection existed. On Windows ARM64 UTM (no real GPU), OpenGL context creation failed silently and terminals never rendered
+
+GPU probe now creates a native GL context, queries GLRENDERER against known software renderers (GDI Generic, llvmpipe, SwiftShader, etc.), runs FBO pixel readback verification
+
+Resolution truth table: renderer = wantsGpu AND gpuAvailable — encapsulated in AppState::setRendererType()
+
+Removed self-listening ValueTree pattern from MainComponent — was reacting to its own writes
+
+Moved RendererType enum from PaneComponent to App namespace — renderer type is an app concern, not a component concern
+
+### Technical Debt / Follow-up
+
+Source/Gpu_windows.cpp, Source/Gpu_mac.mm, Source/component/RendererType.h — dead stub files, need git rm
+
+PLAN-GPU-PROBE.md — can be deleted after commit
+
+macOS probe untested (implemented, platform-guarded, mirrors Windows pattern)
 
 ## Sprint 20: Popup PATH injection from active terminal
 
@@ -97,21 +237,3 @@
 - Mac CoreText `calcMetrics` measures space glyph only for width vs competitors measuring max ASCII — investigate if this causes width mismatch for non-monospace fallback fonts
 - The `24` magic number for titleBarHeight appears in TerminalComponent.h:699 and now MainComponent.cpp — consider extracting to a named constant
 
-## Sprint 18: Menu font sizing, popup scaling fix
-
-**Date:** 2026-04-02
-
-### Agents Participated
-- COUNSELOR — diagnosis, plan design, delegation, research coordination
-- Pathfinder (x3) — LookAndFeel code discovery, BackgroundBlur caller search, popup scaling investigation
-- Researcher (x2) — Mac NSWindow corner radius approaches, NSView tint layer over NSVisualEffectView
-- Librarian (x2) — JUCE Font scaling on retina displays, JUCE popup menu text rendering architecture
-- Engineer (x6) — NSVisualEffectView + cornerRadius implementation, CGS restore, font sizing fixes, tabFontRatio iterations, revert
-- Auditor — verified blur path and font changes
-
-### Files Modified (3 total)
-- `Source/config/Config.cpp:146` — `tabSize` default 24.0 → 12.0 (was bar height, now font size)
-- `Source/component/LookAndFeel.h:109-110,202,210` — added `shouldPopupMenuScaleWithTargetComponent` override (returns false); added `tabFontRatio { 0.5f }` constant; updated `getTabBarHeight` doc
-- `Source/component/LookAndFeel.cpp:98-105,117-125,265-271` — `getTabButtonFont` uses `tabSize` directly; `getTabBarHeight` computes bar from font height / tabFontRatio; `getPopupMenuFont` uses `tabSize` directly
-
-### Alignment Check

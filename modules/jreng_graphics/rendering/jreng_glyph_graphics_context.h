@@ -271,14 +271,11 @@ private:
     // Data
     // =========================================================================
 
-    /** @brief Shared mono glyph atlas (SingleChannel, alpha coverage). Created by the first instance, released by the last. */
-    static juce::Image sharedMonoAtlas;
+    /** @brief Per-frame cached mono atlas; set in uploadStagedBitmaps(), used by drawQuads(). */
+    juce::Image* monoAtlas { nullptr };
 
-    /** @brief Shared emoji glyph atlas (ARGB, full colour). Created by the first instance, released by the last. */
-    static juce::Image sharedEmojiAtlas;
-
-    /** @brief Reference count for shared atlas images. Incremented in createContext, decremented in closeContext. */
-    static int sharedAtlasRefCount;
+    /** @brief Per-frame cached emoji atlas; set in uploadStagedBitmaps(), used by drawQuads(). */
+    juce::Image* emojiAtlas { nullptr };
 
     /** @brief True if this instance called createContext(). Guards closeContext() from unmatched decrement. */
     bool contextInitialised { false };

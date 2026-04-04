@@ -51,9 +51,53 @@
 #include "terminal/action/Action.h"
 
 #if JUCE_WINDOWS
+#include <windows.h>
+#include "../modules/jreng_core/utilities/jreng_platform.h"
 #pragma comment(lib, "winmm.lib")
 extern "C" __declspec (dllimport) unsigned int __stdcall timeBeginPeriod (unsigned int uPeriod);
 extern "C" __declspec (dllimport) unsigned int __stdcall timeEndPeriod (unsigned int uPeriod);
+#endif
+
+#if JUCE_WINDOWS
+
+/** @brief DWM corner preference value: DWMWCP_ROUND (rounded corners). */
+static constexpr DWORD dwmForceEffectEnabled { 2 };
+
+/**
+ * @brief Applies or removes the DWM ForceEffectMode registry key.
+ *
+ * On Windows 11 VMs (detected via software GL renderer), DWM disables
+ * rounded corners by default.  Setting ForceEffectMode=2 re-enables them.
+ *
+ * @param enable  true → set DWORD to 2; false → delete the value.
+ *
+ * @note Requires elevated privileges (HKEY_LOCAL_MACHINE).
+ *       Changes take effect after END restarts.
+ */
+static void applyForceDwmRegistry (bool enable) noexcept
+{
+    HKEY hKey { nullptr };
+    const auto opened { RegOpenKeyExW (HKEY_LOCAL_MACHINE,
+                                       L"SOFTWARE\\Microsoft\\Windows\\Dwm",
+                                       0, KEY_SET_VALUE, &hKey) };
+
+    if (opened == ERROR_SUCCESS)
+    {
+        if (enable)
+        {
+            DWORD value { dwmForceEffectEnabled };
+            RegSetValueExW (hKey, L"ForceEffectMode", 0, REG_DWORD,
+                            reinterpret_cast<const BYTE*> (&value), sizeof (value));
+        }
+        else
+        {
+            RegDeleteValueW (hKey, L"ForceEffectMode");
+        }
+
+        RegCloseKey (hKey);
+    }
+}
+
 #endif
 
 //==============================================================================
@@ -132,6 +176,13 @@ public:
 
         auto* cfg { Config::getContext() };
 
+#if JUCE_WINDOWS
+        if (isWindows11 () and appState.getRendererType () == App::RendererType::cpu)
+        {
+            applyForceDwmRegistry (cfg->getBool (Config::Key::windowForceDwm));
+        }
+#endif
+
         mainWindow.reset (new jreng::GlassWindow (
             new MainComponent (fontRegistry),
             cfg->getString (Config::Key::windowTitle),
@@ -156,6 +207,13 @@ public:
             if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
             {
                 content->applyConfig();
+
+#if JUCE_WINDOWS
+                if (isWindows11 () and appState.getRendererType () == App::RendererType::cpu)
+                {
+                    applyForceDwmRegistry (config.getBool (Config::Key::windowForceDwm));
+                }
+#endif
 
                 mainWindow->setGlass (
                     config.getColour (Config::Key::windowColour),

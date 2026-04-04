@@ -2,13 +2,13 @@
  * @file Popup.h
  * @brief Modal glass dialog for the terminal emulator.
  *
- * Terminal::Popup creates a modal `juce::DialogWindow` with native glass blur
+ * Terminal::Popup creates a modal `jreng::ModalWindow` with native glass blur
  * that hosts any `juce::Component` as content.  The dialog blocks input to all
  * other components while active and dismisses on Escape or close button.
  *
  * ### Ownership
- * - Popup owns the `DialogWindow` via `std::unique_ptr`.
- * - The `DialogWindow` owns the ContentView via `setContentOwned()`.
+ * - Popup owns the `ModalWindow` via `std::unique_ptr`.
+ * - The `ModalWindow` owns the ContentView via `setContentOwned()`.
  * - ContentView owns the actual content component via `std::unique_ptr`.
  * - Content size is computed from Config fractions in `show()`.
  *
@@ -20,13 +20,12 @@
  * without any GL setup.
  *
  * ### Glass blur
- * The inner `Window` class applies `jreng::BackgroundBlur` on first
- * visibility via deferred `juce::AsyncUpdater`, identical to the pattern
- * in `jreng::GlassWindow`.
+ * The inner `Window` class inherits `jreng::ModalWindow` which inherits
+ * `jreng::GlassWindow`.  Blur is applied on first visibility via the
+ * GlassWindow deferred mechanism.
  *
  * ### Dismiss mechanisms
- * - **Escape** — `escapeKeyTriggersCloseButton` is `true` in the
- *   `DialogWindow` constructor, so JUCE calls `closeButtonPressed()`.
+ * - **Escape** — `ModalWindow::keyPressed()` handles Escape and calls `closeButtonPressed()`.
  * - **Close button** — `closeButtonPressed()` calls `exitModalState (0)`.
  * - **Click outside** — `inputAttemptWhenModal()` brings window to front
  *   (does NOT dismiss).
@@ -41,7 +40,7 @@
  * @see Config
  * @see jreng::BackgroundBlur
  * @see jreng::GLRenderer
- * @see juce::DialogWindow
+ * @see jreng::ModalWindow
  */
 
 #pragma once
@@ -63,7 +62,7 @@ namespace Terminal
  * @par Thread context
  * **MESSAGE THREAD** — all public methods.
  *
- * @see juce::DialogWindow
+ * @see jreng::ModalWindow
  */
 class Popup
 {
@@ -91,8 +90,10 @@ public:
      * @note MESSAGE THREAD.
      * @see dismiss
      */
-    void show (juce::Component& caller, std::unique_ptr<juce::Component> content,
-               int width, int height,
+    void show (juce::Component& caller,
+               std::unique_ptr<juce::Component> content,
+               int width,
+               int height,
                jreng::GLRenderer& sharedRenderer);
 
     /**
@@ -144,8 +145,7 @@ private:
          *
          * @param content  The component to host; ownership is transferred.
          */
-        ContentView (std::unique_ptr<juce::Component> content,
-                     jreng::GLRenderer& sharedRenderer);
+        ContentView (std::unique_ptr<juce::Component> content, jreng::GLRenderer& sharedRenderer);
 
         ~ContentView() override;
 
@@ -180,20 +180,18 @@ private:
     //==========================================================================
     /**
      * @struct Window
-     * @brief Glass DialogWindow with native blur and Escape dismiss.
+     * @brief Glass ModalWindow with border paint and GL content support.
      *
-     * Subclasses `juce::DialogWindow` with `escapeKeyTriggersCloseButton = true`
-     * so JUCE handles Escape -> `closeButtonPressed()` automatically.
-     * Inherits `juce::AsyncUpdater` to defer blur application until the native
-     * peer is ready.
+     * Subclasses `jreng::ModalWindow` which provides Escape dismiss,
+     * close button handling, input blocking, and deferred glass blur
+     * via `jreng::GlassWindow`.
      *
      * GL rendering is delegated entirely to the `ContentView` content component.
      *
-     * @see jreng::BackgroundBlur
+     * @see jreng::ModalWindow
      * @see ContentView
      */
-    struct Window : public juce::DialogWindow
-                  , private juce::AsyncUpdater
+    struct Window : public jreng::ModalWindow
     {
         /**
          * @brief Constructs the glass dialog window.
@@ -211,15 +209,13 @@ private:
                 std::function<void()> dismissCallback);
 
         void paint (juce::Graphics& g) override;
-        void closeButtonPressed() override;
-        void inputAttemptWhenModal() override;
-        void visibilityChanged() override;
-        void handleAsyncUpdate() override;
+        bool keyPressed (const juce::KeyPress& key) override;
+
+        /** @brief Window corner radius in float */
+        static constexpr float cornerSize { 8.0f };
 
     private:
         Config& config { *Config::getContext() };
-        std::function<void()> onDismissed;
-        bool blurApplied { false };
 
         //======================================================================
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Window)
@@ -235,3 +231,4 @@ private:
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal
+

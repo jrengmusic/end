@@ -1,6 +1,6 @@
 /**
  * @file ActionList.cpp
- * @brief Command palette — a GlassWindow with search box.
+ * @brief Command palette — a ModalWindow with search box.
  */
 
 #include "ActionList.h"
@@ -10,7 +10,7 @@ namespace Terminal
 { /*____________________________________________________________________________*/
 
 ActionList::ActionList (juce::Component& caller)
-    : jreng::GlassWindow (
+    : jreng::ModalWindow (
         new juce::TextEditor(),
         "",
         true,
@@ -56,22 +56,6 @@ ActionList::ActionList (juce::Component& caller)
 
         editor->grabKeyboardFocus();
     }
-}
-
-void ActionList::closeButtonPressed()
-{
-    exitModalState (0);
-}
-
-bool ActionList::keyPressed (const juce::KeyPress& key)
-{
-    if (key == juce::KeyPress::escapeKey)
-    {
-        exitModalState (0);
-        return true;
-    }
-
-    return false;
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

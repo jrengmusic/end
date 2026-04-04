@@ -246,6 +246,15 @@ END = {
 		-- Show native window buttons (close / minimise / maximise).
 		buttons = %%window_buttons%%,
 
+		-- Force DWM visual effects on Windows 11 virtual machines.
+		-- When true, injects the ForceEffectMode registry key to enable
+		-- rounded window corners that DWM normally disables inside VMs.
+		-- Only takes effect on Windows 11 running on a software renderer (VM).
+		-- Requires elevated privileges (Run as Administrator).
+		-- Reload config and restart END to apply.
+		-- No effect on macOS, Linux, or physical Windows machines.
+		force_dwm = %%window_force_dwm%%,
+
 		-- Zoom multiplier (1.0 - 4.0).
 		-- Scales the terminal grid and font proportionally.
 		zoom = %%window_zoom%%,

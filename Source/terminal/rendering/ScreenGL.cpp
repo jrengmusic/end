@@ -186,8 +186,7 @@ void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY,
 {
     textRenderer.setGraphicsContext (g);
 
-    if (not textRenderer.isReady())
-        textRenderer.createContext();
+    textRenderer.createContext();
 
     if (textRenderer.isReady())
     {

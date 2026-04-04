@@ -1,6 +1,6 @@
-/**
- * @file ActionList.h
- * @brief Command palette — a GlassWindow with search box.
+/**
+ * @file ActionList.h
+ * @brief Command palette — a ModalWindow with search box.
  */
 
 #pragma once
@@ -11,20 +11,17 @@
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-/**
- * @class ActionList
- * @brief Command palette glass window. Inherits jreng::GlassWindow.
- *
- * Created on the fly, enters modal state, destroyed on dismiss.
+/**
+ * @class ActionList
+ * @brief Command palette modal glass window. Inherits jreng::ModalWindow.
+ *
+ * Created on the fly, enters modal state, destroyed on dismiss.
  */
-class ActionList : public jreng::GlassWindow
+class ActionList : public jreng::ModalWindow
 {
 public:
     explicit ActionList (juce::Component& caller);
-    ~ActionList() override = default;
-
-    void closeButtonPressed() override;
-    bool keyPressed (const juce::KeyPress& key) override;
+    ~ActionList () override = default;
 
 private:
     static constexpr int searchBoxHeight { 24 };
@@ -35,4 +32,3 @@ private:
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal
-

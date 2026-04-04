@@ -20,8 +20,7 @@ namespace Terminal
 // ContentView
 //==============================================================================
 
-Popup::ContentView::ContentView (std::unique_ptr<juce::Component> content,
-                                  jreng::GLRenderer& sharedRenderer)
+Popup::ContentView::ContentView (std::unique_ptr<juce::Component> content, jreng::GLRenderer& sharedRenderer)
     : ownedContent (std::move (content))
     , sharedSource (sharedRenderer)
 {
@@ -41,10 +40,7 @@ Popup::ContentView::ContentView (std::unique_ptr<juce::Component> content,
     addAndMakeVisible (ownedContent.get());
 }
 
-Popup::ContentView::~ContentView()
-{
-    glRenderer.detach();
-}
+Popup::ContentView::~ContentView() { glRenderer.detach(); }
 
 void Popup::ContentView::resized()
 {
@@ -76,94 +72,70 @@ Popup::Window::Window (std::unique_ptr<juce::Component> content,
                        juce::Component& centreAround,
                        jreng::GLRenderer& sharedRenderer,
                        std::function<void()> dismissCallback)
-    : juce::DialogWindow ({}, Config::getContext()->getColour (Config::Key::windowColour), false)
-    , onDismissed (std::move (dismissCallback))
+    : jreng::ModalWindow (
+          [&content, &sharedRenderer]
+          {
+              const int w { content->getWidth() };
+              const int h { content->getHeight() };
+              auto view { new ContentView (std::move (content), sharedRenderer) };
+              view->setSize (w, h);
+              return view;
+          }(),
+          {},
+          true,
+          false)
 {
-    const float resolvedOpacity { Gpu::resolveOpacity (config.getFloat (Config::Key::windowOpacity)) };
-    setOpaque (resolvedOpacity >= 1.0f);
-    setUsingNativeTitleBar (false);
-    setTitleBarHeight (0);
+    onModalDismissed = std::move (dismissCallback);
 
-    const int desiredWidth  { content->getWidth() };
-    const int desiredHeight { content->getHeight() };
+    if (auto* viewPtr { dynamic_cast<ContentView*> (getContentComponent()) })
+        viewPtr->setLookAndFeel (&centreAround.getLookAndFeel());
 
-    auto contentView { std::make_unique<ContentView> (std::move (content), sharedRenderer) };
-    auto* viewPtr { contentView.get() };
-
-    setContentOwned (contentView.release(), false);
-    setSize (desiredWidth, desiredHeight);
-    setAlwaysOnTop (true);
-    centreAroundComponent (&centreAround, desiredWidth, desiredHeight);
     setResizable (false, false);
+    centreAroundComponent (&centreAround, getWidth(), getHeight());
+
+    setGlass (config.getColour (Config::Key::windowColour),
+              Gpu::resolveOpacity (config.getFloat (Config::Key::windowOpacity)),
+              config.getFloat (Config::Key::windowBlurRadius));
+
     setVisible (true);
 
-    viewPtr->initialiseGL();
+    if (auto* viewPtr { dynamic_cast<ContentView*> (getContentComponent()) })
+        viewPtr->initialiseGL();
 
     enterModalState (true);
 
-    if (auto* focusTarget { viewPtr->getChildComponent (0) })
-        focusTarget->grabKeyboardFocus();
+    juce::MessageManager::callAsync (
+        [this]
+        {
+            if (auto* viewPtr { dynamic_cast<ContentView*> (getContentComponent()) })
+            {
+                if (auto* focusTarget { viewPtr->getChildComponent (0) })
+                    focusTarget->grabKeyboardFocus();
+            }
+        });
 }
 
 void Popup::Window::paint (juce::Graphics& g)
 {
     const auto borderWidth { config.getFloat (Config::Key::popupBorderWidth) };
 
-    if (borderWidth > 0.0f)
-    {
-        g.setColour (config.getColour (Config::Key::popupBorderColour));
-        g.drawRect (getLocalBounds().toFloat(), borderWidth);
-    }
+    g.setColour (config.getColour (Config::Key::popupBorderColour));
+
+    g.drawRoundedRectangle (getLocalBounds().reduced (2 * borderWidth).toFloat(), Window::cornerSize, borderWidth);
 }
 
-void Popup::Window::closeButtonPressed()
-{
-    exitModalState (0);
-
-    if (onDismissed != nullptr)
-        onDismissed();
-}
-
-void Popup::Window::inputAttemptWhenModal()
-{
-    toFront (true);
-}
-
-void Popup::Window::visibilityChanged()
-{
-    if (isVisible() and not blurApplied)
-        triggerAsyncUpdate();
-}
-
-void Popup::Window::handleAsyncUpdate()
-{
-    const float resolvedOpacity { Gpu::resolveOpacity (config.getFloat (Config::Key::windowOpacity)) };
-
-    if (resolvedOpacity < 1.0f)
-    {
-        const auto tint { config.getColour (Config::Key::windowColour)
-                               .withAlpha (resolvedOpacity) };
-        const float blur { config.getFloat (Config::Key::windowBlurRadius) };
-
-        blurApplied = jreng::BackgroundBlur::enable (this, blur, tint);
-    }
-    else
-    {
-        blurApplied = true;
-    }
-}
+bool Popup::Window::keyPressed (const juce::KeyPress&) { return false; }
 
 //==============================================================================
 // Popup
 //==============================================================================
 
-Popup::~Popup()
-{
-    dismiss();
-}
+Popup::~Popup() { dismiss(); }
 
-void Popup::show (juce::Component& caller, std::unique_ptr<juce::Component> content,
-                  int width, int height,
+void Popup::show (juce::Component& caller,
+                  std::unique_ptr<juce::Component> content,
+                  int width,
+                  int height,
                   jreng::GLRenderer& sharedRenderer)
 {
     dismiss();
@@ -171,16 +143,21 @@ void Popup::show (juce::Component& caller, std::unique_ptr<juce::Component> cont
     content->setSize (width, height);
 
     if (auto* terminal { dynamic_cast<Terminal::Component*> (content.get()) })
-        terminal->onProcessExited = [this] { dismiss(); };
-
-    window = std::make_unique<Window> (std::move (content), caller, sharedRenderer,
-        [this]
+        terminal->onProcessExited = [this]
         {
-            window.reset();
+            dismiss();
+        };
 
-            if (onDismiss != nullptr)
-                onDismiss();
-        });
+    window = std::make_unique<Window> (std::move (content),
+                                       caller,
+                                       sharedRenderer,
+                                       [this]
+                                       {
+                                           window.reset();
+
+                                           if (onDismiss != nullptr)
+                                               onDismiss();
+                                       });
 }
 
 void Popup::dismiss()
@@ -192,10 +169,8 @@ void Popup::dismiss()
     }
 }
 
-bool Popup::isActive() const noexcept
-{
-    return window != nullptr;
-}
+bool Popup::isActive() const noexcept { return window != nullptr; }
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal
+
