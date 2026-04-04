@@ -236,4 +236,3 @@ macOS probe untested (implemented, platform-guarded, mirrors Windows pattern)
 - `PLAN-font-metrics.md` at project root — should be removed after commit (analysis artifact)
 - Mac CoreText `calcMetrics` measures space glyph only for width vs competitors measuring max ASCII — investigate if this causes width mismatch for non-monospace fallback fonts
 - The `24` magic number for titleBarHeight appears in TerminalComponent.h:699 and now MainComponent.cpp — consider extracting to a named constant
-

@@ -13,7 +13,8 @@
 
 #define GL_SILENCE_DEPRECATION
 #import <Cocoa/Cocoa.h>
-#import <OpenGL/gl3.h>
+
+using namespace juce::gl;
 
 namespace
 {
@@ -90,6 +91,7 @@ Gpu::ProbeResult Gpu::probe() noexcept
         if (ctx != nil)
         {
             [ctx makeCurrentContext];
+            juce::gl::loadFunctions();
 
             const char* raw { reinterpret_cast<const char*> (
                 glGetString (GL_RENDERER)) };
