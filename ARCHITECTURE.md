@@ -141,8 +141,12 @@ Source/
       Notifications.cpp             Windows: MessageBeep + stderr; Linux: notify-send
 
     action/                         Unified action registry + key dispatch
-      Action.h/cpp                  Action table, key map, prefix state machine, Context<Action>
+      Action.h/cpp                  Action table, key map, prefix state machine, Context<Registry>
       ActionList.h/cpp              Command palette component (GlassWindow, fuzzy-searchable action list)
+      ActionRow.h/cpp               Row component for ActionList (displays action name + keybinding)
+      KeyHandler.h/cpp              Key event routing for ActionList modal input
+      LookAndFeel.h/cpp             LookAndFeel overrides for ActionList styling
+      KeyRemapDialog.h              Deprecated stub (inline remap now handled in ActionList)
 
 modules/
   jreng_core/                       Shared utilities (Owner, identifiers, Context, BinaryData)
@@ -183,7 +187,7 @@ modules/
 | jreng_core | `modules/jreng_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jreng_graphics | `modules/jreng_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jreng_core, FreeType, HarfBuzz |
 | jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
-| Action | `terminal/action/` | Unified action registry, key dispatch, prefix state machine | Config, jreng::Context |
+| Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | Config, jreng::Context |
 | Panes | `component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
 | Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, InputHandler | PaneComponent, jreng_markdown |
 | jreng_gui | `modules/jreng_gui/` | Layout utilities: PaneManager binary tree, PaneResizerBar | JUCE core, jreng_core |
@@ -392,9 +396,9 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 
 **Split naming convention:** `splitHorizontal` produces a left/right layout. The internal direction string `"vertical"` describes the divider orientation, not the layout direction.
 
-### Action Registry (Terminal::Action)
+### Action Registry (Action::Registry)
 
-`Terminal::Action` inherits `jreng::Context<Action>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
+`Action::Registry` inherits `jreng::Context<Registry>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
 
 **Architecture:**
 - Fixed action table: 19 entries with ID, name, description, category, callback

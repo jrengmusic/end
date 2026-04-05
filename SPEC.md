@@ -19,7 +19,7 @@
 
 **Design Philosophy:** Performance and beauty. Opinionated defaults, everything overridable.
 
-**End Game:** WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer — is integrated as `Whelmed::Component` in split panes. Both END and WHELMED share a common GL text rendering module (planned: `jreng_text`).
+**End Game:** WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer — is integrated as `Whelmed::Component` in split panes. Both END and WHELMED share a common GL text rendering module (shared via `jreng_graphics` module (`jreng::TextLayout`)).
 
 ---
 
@@ -32,7 +32,7 @@
 | Focus events (`\x1b[I`/`\x1b[O`) | **Done** | `session.writeFocusEvent()` on `focusGained`/`focusLost` |
 | Unified keybinding system | **Done** | Action registry, global + modal, configurable via end.lua |
 | Command palette | **Done** | ActionList with GlassWindow |
-| Cross-platform modifier mapping | Not implemented | Ctrl+Shift on Linux/Windows |
+| Cross-platform modifier mapping | **Done** | `parseShortcut` handles cmd/ctrl mapping per platform |
 
 ### Selection
 
@@ -97,9 +97,7 @@ BEL character (`\x07`) — **Done**. Passes BEL to stderr.
 
 **Goal:** Fully configurable keybinding system. Nothing hardcoded except defaults. All actions assignable globally (direct shortcut) or modally (prefix key + action key), or both. User overrides everything via `end.lua`.
 
-**Current state:** Hardcoded Cmd shortcuts (Cmd+C/V/Q/R, zoom). Prefix key system (`ModalKeyBinding`) handles pane actions only. Two separate systems that don't talk to each other.
-
-**Target state:** Single unified action registry. Every action has a name, a default binding, and is overridable.
+**Implemented.** Single unified action registry (`Action::Registry`) with global and modal bindings, fully configurable via `end.lua`. Prefix key system with configurable timeout. Command palette (`Action::List`) for discovery and inline shortcut remapping.
 
 **Design:**
 
@@ -169,7 +167,7 @@ BEL character (`\x07`) — **Done**. Passes BEL to stderr.
 **Behavior:**
 
 1. User presses command palette shortcut
-2. Native OS text input dialog appears with dropdown menu
+2. Modal glass window appears with fuzzy search dropdown
 3. All registered actions listed (from action registry)
 4. Fuzzy search filters as user types
 5. Each entry shows: action name + current keybinding (if any)
@@ -375,7 +373,7 @@ namespace jreng
 
 Input is `juce::AttributedString` — no custom string type. Two `draw()` overloads: GL (instanced quads) and CPU (`juce::Image` blit). Same layout, different surface.
 
-**Module location:** `modules/jreng_text/`
+**Current location:** `modules/jreng_graphics/fonts/jreng_text_layout.h`. Standalone `jreng_text` module extraction is a future organizational step.
 
 **Dependencies:** `jreng_opengl`, `jreng_core`, `jreng_freetype`, `jreng_harfbuzz`, `juce_graphics`
 
@@ -450,8 +448,9 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 
 ### Phase 5: Module Extraction + WHELMED
 
-- [ ] Extract `jreng_text` module (glyph atlas, shaping, instanced rendering)
-- [ ] Attributed text layout mode (proportional, styled runs)
+- [x] GL text rendering infrastructure (jreng::TextLayout in jreng_graphics)
+- [ ] Extract to standalone jreng_text module
+- [x] Attributed text layout mode (jreng::TextLayout)
 - [x] WHELMED component (markdown rendering, mermaid diagrams) — integrated as Whelmed::Component
 - [x] WHELMED integration into END split panes — Panes::createWhelmed(), PaneComponent interface
 - [ ] WHELMED standalone wrapper

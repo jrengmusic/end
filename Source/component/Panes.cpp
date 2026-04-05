@@ -214,6 +214,8 @@ void Panes::setTerminalCallbacks (Terminal::Component* terminal)
         {
             const int nextIndex { juce::jmin (closedIndex, static_cast<int> (panes.size()) - 1) };
             auto* nearest { panes.at (static_cast<size_t> (nextIndex)).get() };
+            AppState::getContext()->setModalType (0);
+            AppState::getContext()->setSelectionType (0);
             AppState::getContext()->setActivePaneID (nearest->getComponentID());
 
             if (nearest->isShowing())
@@ -445,6 +447,8 @@ void Panes::focusPane (int deltaX, int deltaY)
 
         if (best != nullptr)
         {
+            AppState::getContext()->setModalType (0);
+            AppState::getContext()->setSelectionType (0);
             AppState::getContext()->setActivePaneID (best->getComponentID());
 
             if (best->isShowing())

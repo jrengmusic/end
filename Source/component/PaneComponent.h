@@ -37,6 +37,8 @@ public:
 
     void focusGained (FocusChangeType) override
     {
+        AppState::getContext()->setModalType (0);
+        AppState::getContext()->setSelectionType (0);
         AppState::getContext()->setActivePaneID (getComponentID());
         AppState::getContext()->setActivePaneType (getPaneType());
     }

@@ -14,6 +14,66 @@
 ---
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
+## Sprint 26: Action::List sections, modal guard, platform defaults, docs cleanup
+
+**Date:** 2026-04-05
+
+### Agents Participated
+- COUNSELOR — debt audit across 3 SPECs, planned separator/prefix/dirty-tracking feature, planned modal guard, coordinated docs audit, delegated all implementation
+- Pathfinder (x4) — SPEC vs implementation gap analysis, jreng_text/TextLayout existence check, cross-platform modifier verification, pane switch dispatch points
+- Auditor (x3) — BLESSED compliance sweep (11 findings), separator implementation verification, comprehensive docs audit (17 files)
+- Machinist (x2) — early returns, `.at()`, lookup tables, magic numbers; `getSelectedIndex` single exit
+- Engineer (x4) — separator rows + prefix binding + dirty tracking, `getSelectedIndex`/`separatorAlpha` fixes, platform-branch default keys, docs delete/update
+
+### Files Modified (15 total)
+
+**Action module:**
+- `Source/action/ActionRow.h:20-26,47-48,59-60,77-78,81` — `RowKind` enum, separator constructor, `isSelectable()`/`getKind()`, constants
+- `Source/action/ActionRow.cpp:11-14,21-24,44-50,70-83,118-127` — three constructors with `kind` init, separator paint, new methods
+- `Source/action/ActionList.h:40-43` — `separatorRowHeight`, `bindingModeTimeoutMs`, `bindingsDirtyId`
+- `Source/action/ActionList.cpp` — section ordering (global→separator→prefix→modal), dirty tracking, separator skip in selectRow/filterRows/layoutRows/visibleRowCount, config reload on dismissal
+- `Source/action/Action.cpp:311-324,351-370,368-381` — lookup tables for parseShortcut/shortcutToString, ctrlModifier non-Mac fix
+- `Source/action/KeyHandler.cpp:78-95` — early return eliminated
+- `Source/action/LookAndFeel.cpp:14-32` — early returns eliminated
+
+**Config:**
+- `Source/config/Config.cpp:186-214` — unified `#if JUCE_MAC` / `#else` block for all 12 default key bindings
+
+**Modal guard (SPEC-MODAL Step 8):**
+- `Source/component/PaneComponent.h:38-42` — modal reset in `focusGained()`
+- `Source/component/Panes.cpp:217,448` — modal reset in shell-exit handler and `focusPane()`
+
+**Documentation:**
+- `SPEC-ACTION-LIST.md` — deleted (feature shipped)
+- `RECOMMENDATION-ACTION-LIST.md` — deleted (consumed)
+- `PLAN-ACTION-LIST-REFACTOR.md` — deleted (executed)
+- `SPEC-MODAL.md` — deleted (all 13 steps implemented)
+- `ARCHITECTURE.md` — action module path/namespace/class updated, missing files added
+- `SPEC.md` — cross-platform modifier marked Done, jreng_text references corrected, command palette description fixed, Phase 5 checkboxes updated
+- `PLAN-WHELMED.md` — contract names updated (BLESSED/NAMES.md/MANIFESTO.md), P0 tokenization marked done
+
+### Alignment Check
+- [x] BLESSED principles followed — all early returns eliminated, lookup tables, `.at()`, named constants, dirty state on ValueTree
+- [x] NAMES.md adhered — `RowKind`, `separatorAlpha`, `bindingsDirtyId`, `separatorRowHeight`, `bindingModeTimeoutMs`
+- [x] MANIFESTO.md principles applied — B (ownership), L (lookup tables, Lean files), E (no early returns, no magic), S (SSOT on ValueTree), S (stateless Row), E (encapsulation), D (deterministic)
+
+### Problems Solved
+- `shortcutToString` non-Mac round-trip — `ctrlModifier` vs `commandModifier` bit mismatch on Windows
+- No visual distinction between global and prefix-gated keys — separator + section ordering
+- Prefix key not remappable — synthetic prefix row with `actionConfigKey = Config::Key::keysPrefix`
+- Config stale after remap — dirty tracking, `Config::reload()` on dismissal
+- Default key bindings show `"cmd+q"` on Linux/Windows — platform-branched defaults
+- SPEC-MODAL Step 8 missing — modal transition guard added at 3 pane-switch sites
+- 4 stale docs deleted, 3 docs updated to match codebase reality
+
+### Technical Debt / Follow-up
+- `ActionList.cpp` at 566 lines — exceeds BLESSED Lean 300-line threshold
+- `Action.cpp` at 423 lines — exceeds 300-line threshold
+- Build verification pending after all changes
+- Visual testing pending — separator rendering, prefix row, dirty-reload flow
+
+---
+
 ## Sprint 25: Action::List — BLESSED compliance, separators, prefix binding, dirty tracking
 
 **Date:** 2026-04-05

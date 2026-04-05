@@ -186,10 +186,6 @@ void Config::initKeys()
 #if JUCE_MAC
     addKey (Key::keysCopy, "cmd+c", { T::string });
     addKey (Key::keysPaste, "cmd+v", { T::string });
-#else
-    addKey (Key::keysCopy, "ctrl+c", { T::string });
-    addKey (Key::keysPaste, "ctrl+v", { T::string });
-#endif
     addKey (Key::keysQuit, "cmd+q", { T::string });
     addKey (Key::keysCloseTab, "cmd+w", { T::string });
     addKey (Key::keysReload, "cmd+r", { T::string });
@@ -200,6 +196,20 @@ void Config::initKeys()
     addKey (Key::keysNewTab, "cmd+t", { T::string });
     addKey (Key::keysPrevTab, "cmd+[", { T::string });
     addKey (Key::keysNextTab, "cmd+]", { T::string });
+#else
+    addKey (Key::keysCopy, "ctrl+c", { T::string });
+    addKey (Key::keysPaste, "ctrl+v", { T::string });
+    addKey (Key::keysQuit, "ctrl+q", { T::string });
+    addKey (Key::keysCloseTab, "ctrl+w", { T::string });
+    addKey (Key::keysReload, "ctrl+r", { T::string });
+    addKey (Key::keysZoomIn, "ctrl+=", { T::string });
+    addKey (Key::keysZoomOut, "ctrl+-", { T::string });
+    addKey (Key::keysZoomReset, "ctrl+0", { T::string });
+    addKey (Key::keysNewWindow, "ctrl+n", { T::string });
+    addKey (Key::keysNewTab, "ctrl+t", { T::string });
+    addKey (Key::keysPrevTab, "ctrl+[", { T::string });
+    addKey (Key::keysNextTab, "ctrl+]", { T::string });
+#endif
     addKey (Key::keysSplitHorizontal, juce::String::charToString (static_cast<juce::juce_wchar> ('\\')), { T::string });
     addKey (Key::keysSplitVertical, "-", { T::string });
     addKey (Key::keysPrefix, "`", { T::string });

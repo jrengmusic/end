@@ -5,7 +5,7 @@
 **Author:** COUNSELOR
 **Status:** Active — Phase 1 consolidation
 
-**Contracts:** LIFESTAR, NAMING-CONVENTION, ARCHITECTURAL-MANIFESTO, JRENG-CODING-STANDARD
+**Contracts:** BLESSED, NAMES.md, MANIFESTO.md, JRENG-CODING-STANDARD
 
 ---
 
@@ -131,7 +131,7 @@ Component reads/writes state exclusively through ValueTree properties. No stray 
 
 ## What Needs Work
 
-### P0 — Code block tokenization
+### P0 — Code block tokenization — DONE
 
 CodeFence blocks render as plain monospace text. No syntax highlighting.
 
@@ -236,7 +236,7 @@ END app          (Whelmed::Component, Whelmed::Screen, Whelmed::State,
 2. **Validate each step before proceeding** — ARCHITECT builds and tests
 3. **Never assume, never decide** — discrepancy between plan and code, discuss with ARCHITECT
 4. **No new types without ARCHITECT approval** — check if existing types can be reused
-5. **Follow all contracts** — JRENG-CODING-STANDARD, NAMING-CONVENTION, ARCHITECTURAL-MANIFESTO
+5. **Follow all contracts** — JRENG-CODING-STANDARD, NAMES.md, MANIFESTO.md
 6. **Incremental execution** — one step at a time, ARCHITECT confirms before next step
 7. **ARCHITECT runs all git commands** — agents prepare changes only
 8. **When uncertain — STOP and ASK**
