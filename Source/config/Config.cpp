@@ -109,7 +109,7 @@ void Config::initKeys()
     addKey (Key::coloursForeground, "#A1D6E5", { T::string });///<  skyFall
     addKey (Key::coloursBackground, "#090D12FF", { T::string });///< bunker
     addKey (Key::coloursCursor, "#4E8C93", { T::string });///< paradiso
-    addKey (Key::coloursSelection, "#00DDEE10", { T::string });///< fishBoy semi-transparent
+    addKey (Key::coloursSelection, "#00DDEE20", { T::string });///< fishBoy semi-transparent
     addKey (Key::coloursSelectionCursor, "#00DDEE", { T::string });///< fishBoy
 
     // ---- ANSI palette (indices 0–15) ----------------------------------------
@@ -176,10 +176,10 @@ void Config::initKeys()
 
     addKey (Key::terminalScrollbackLines, 10000.0, { T::number, 100.0, 1000000.0, true });
     addKey (Key::terminalScrollStep, 5.0, { T::number, 1.0, 100.0, true });
-    addKey (Key::terminalPaddingTop, 10.0, { T::number, 0.0, 200.0, true });
-    addKey (Key::terminalPaddingRight, 10.0, { T::number, 0.0, 200.0, true });
-    addKey (Key::terminalPaddingBottom, 10.0, { T::number, 0.0, 200.0, true });
-    addKey (Key::terminalPaddingLeft, 10.0, { T::number, 0.0, 200.0, true });
+    addKey (Key::terminalPaddingTop, 10.0, { T::number, 0.0, 50.0, true });
+    addKey (Key::terminalPaddingRight, 10.0, { T::number, 0.0, 50.0, true });
+    addKey (Key::terminalPaddingBottom, 10.0, { T::number, 0.0, 50.0, true });
+    addKey (Key::terminalPaddingLeft, 10.0, { T::number, 0.0, 50.0, true });
     addKey (Key::terminalDropMultifiles, "space", { T::string });
     addKey (Key::terminalDropQuoted, true, { T::boolean });
 
@@ -211,17 +211,6 @@ void Config::initKeys()
     addKey (Key::keysNewline, "shift+return", { T::string });
     addKey (Key::keysActionList, "?", { T::string });
     addKey (Key::keysActionListPosition, "top", { T::string });
-    addKey (Key::keysActionListCloseOnRun, true, { T::boolean });
-    addKey (Key::actionListNameFamily, "Display", { T::string });
-    addKey (Key::actionListNameSize, 13.0, { T::number, 6.0, 72.0, true });
-    addKey (Key::actionListShortcutFamily,  "Display Mono Bold",   { T::string });
-    addKey (Key::actionListShortcutSize, 12.0, { T::number, 6.0, 72.0, true });
-    addKey (Key::actionListPaddingTop,    10.0, { T::number, 0.0, 200.0, true });
-    addKey (Key::actionListPaddingRight,  10.0, { T::number, 0.0, 200.0, true });
-    addKey (Key::actionListPaddingBottom, 10.0, { T::number, 0.0, 200.0, true });
-    addKey (Key::actionListPaddingLeft,   10.0, { T::number, 0.0, 200.0, true });
-    addKey (Key::actionListNameColour,     "#A1D6E5", { T::string });///< skyFall (same as foreground)
-    addKey (Key::actionListShortcutColour, "#00C8D8", { T::string });///< blueBikini (vivid)
     addKey (Key::keysEnterSelection, "[", { T::string });
     addKey (Key::keysEnterOpenFile, "o", { T::string });
     addKey (Key::keysOpenFileNextPage, "space", { T::string });
@@ -245,6 +234,22 @@ void Config::initKeys()
     addKey (Key::popupPosition, "center", { T::string });
     addKey (Key::popupBorderColour, "#4E8C93", { T::string });// paradiso (same as foreground)
     addKey (Key::popupBorderWidth, 1.0, { T::number, 0.0, 10.0, true });
+
+    // ---- Action list (command palette) --------------------------------------
+    addKey (Key::keysActionListCloseOnRun, true, { T::boolean });
+    addKey (Key::actionListWidth, 0.3, { T::number, 0.1, 1.0, true });
+    addKey (Key::actionListHeight, 0.4, { T::number, 0.1, 1.0, true });
+    addKey (Key::actionListNameFamily, "Display", { T::string });
+    addKey (Key::actionListNameSize, 13.0, { T::number, 6.0, 72.0, true });
+    addKey (Key::actionListShortcutFamily, "Display Mono Bold", { T::string });
+    addKey (Key::actionListShortcutSize, 12.0, { T::number, 6.0, 72.0, true });
+    addKey (Key::actionListPaddingTop, 10.0, { T::number, 0.0, 50.0, true });
+    addKey (Key::actionListPaddingRight, 10.0, { T::number, 0.0, 50.0, true });
+    addKey (Key::actionListPaddingBottom, 10.0, { T::number, 0.0, 50.0, true });
+    addKey (Key::actionListPaddingLeft, 10.0, { T::number, 0.0, 50.0, true });
+    addKey (Key::actionListNameColour, "#A1D6E5", { T::string });///< skyFall
+    addKey (Key::actionListShortcutColour, "#00C8D8", { T::string });///< blueBikini
+    addKey (Key::actionListHighlightColour, "#00DDEE20", { T::string });///< fishBoy semi-transparent
 
     addKey (Key::paneBarColour, "#1B2A31", { T::string });///< dark
     addKey (Key::paneBarHighlight, "#4E8C93", { T::string });///< paradiso
@@ -475,7 +480,7 @@ static void validateAndStore (const juce::String& dotKey,
 }
 
 /**
- * @brief Parses the `terminal.padding` four-element Lua array into flat keys.
+ * @brief Parses a four-element Lua padding array into flat keys.
  *
  * The Lua config exposes padding as `{ top, right, bottom, left }`.  Reads
  * that array and stores each value under its individual flat key.
@@ -484,27 +489,24 @@ static void validateAndStore (const juce::String& dotKey,
  * sol2 types in Config.h.
  *
  * @param arr     The Lua array table (1-indexed, four numeric elements).
+ * @param keys    The four key pointers: top, right, bottom, left.
  * @param values  The config values map to store into.
  * @param schema  The schema map used for clamping range.
  */
 static void loadPadding (const sol::table& arr,
+                         const std::array<const juce::String*, 4>& keys,
                          std::unordered_map<juce::String, juce::var>& values,
                          const std::unordered_map<juce::String, Config::Value>& schema)
 {
-    static const std::array<const juce::String*, 4> paddingKeys { &Config::Key::terminalPaddingTop,
-                                                                  &Config::Key::terminalPaddingRight,
-                                                                  &Config::Key::terminalPaddingBottom,
-                                                                  &Config::Key::terminalPaddingLeft };
-
     for (int i { 0 }; i < 4; ++i)
     {
         sol::optional<double> v { arr.get<sol::optional<double>> (i + 1) };
 
         if (v)
         {
-            const auto& spec { schema.at (*paddingKeys[i]) };
+            const auto& spec { schema.at (*keys[i]) };
             const double clamped { juce::jlimit (spec.minValue, spec.maxValue, *v) };
-            values.insert_or_assign (*paddingKeys[i], clamped);
+            values.insert_or_assign (*keys[i], clamped);
         }
     }
 }
@@ -712,12 +714,24 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                         {
                                             const juce::String fieldName { fieldKey.as<std::string>() };
 
-                                            // terminal.padding is a 4-element array { top, right, bottom, left }.
+                                            // Padding tables are 4-element arrays { top, right, bottom, left }.
                                             // Dispatched to loadPadding() rather than treated as a scalar.
-                                            if (groupName == "terminal" and fieldName == "padding"
-                                                and fieldVal.get_type() == sol::type::table)
+                                            if (fieldName == "padding" and fieldVal.get_type() == sol::type::table)
                                             {
-                                                loadPadding (fieldVal.as<sol::table>(), values, schema);
+                                                static const std::array<const juce::String*, 4> terminalPaddingKeys {
+                                                    &Config::Key::terminalPaddingTop,  &Config::Key::terminalPaddingRight,
+                                                    &Config::Key::terminalPaddingBottom, &Config::Key::terminalPaddingLeft };
+
+                                                static const std::array<const juce::String*, 4> actionListPaddingKeys {
+                                                    &Config::Key::actionListPaddingTop,  &Config::Key::actionListPaddingRight,
+                                                    &Config::Key::actionListPaddingBottom, &Config::Key::actionListPaddingLeft };
+
+                                                if (groupName == "terminal")
+                                                    loadPadding (fieldVal.as<sol::table>(), terminalPaddingKeys, values, schema);
+
+                                                if (groupName == "action_list")
+                                                    loadPadding (fieldVal.as<sol::table>(), actionListPaddingKeys, values, schema);
+
                                                 return;
                                             }
 
@@ -816,7 +830,7 @@ void Config::patchKey (const juce::String& key, const juce::String& value)
     jassert (dotIndex > 0);
 
     const juce::String tableName { key.substring (0, dotIndex) };
-    const juce::String leafName  { key.substring (dotIndex + 1) };
+    const juce::String leafName { key.substring (dotIndex + 1) };
 
     auto configFile { getConfigFile() };
     juce::String content { configFile.loadFileAsString() };
@@ -834,9 +848,7 @@ void Config::patchKey (const juce::String& key, const juce::String& value)
         }
     }
 
-    const juce::String formattedValue { needsQuotes
-        ? "\"" + value + "\""
-        : value };
+    const juce::String formattedValue { needsQuotes ? "\"" + value + "\"" : value };
 
     // Locate the table block: find a line matching `tableName = {`
     // (with optional leading whitespace/tabs).
@@ -894,8 +906,8 @@ void Config::patchKey (const juce::String& key, const juce::String& value)
                 if (lineRemainder[i] == '"')
                     inQuote = not inQuote;
 
-                if (not inQuote and i + 1 < lineRemainder.length()
-                    and lineRemainder[i] == '-' and lineRemainder[i + 1] == '-')
+                if (not inQuote and i + 1 < lineRemainder.length() and lineRemainder[i] == '-'
+                    and lineRemainder[i + 1] == '-')
                 {
                     commentStart = i;
                     break;
@@ -915,9 +927,7 @@ void Config::patchKey (const juce::String& key, const juce::String& value)
             if (trailingComment.isNotEmpty())
                 replacement += " " + trailingComment;
 
-            content = content.substring (0, valueStart)
-                    + replacement
-                    + content.substring (valueEnd);
+            content = content.substring (0, valueStart) + replacement + content.substring (valueEnd);
         }
         else
         {
@@ -926,9 +936,7 @@ void Config::patchKey (const juce::String& key, const juce::String& value)
             const juce::String indent { "\t\t" };
             const juce::String newLine { indent + leafName + " = " + formattedValue + ",\n" };
 
-            content = content.substring (0, tableEnd)
-                    + newLine
-                    + content.substring (tableEnd);
+            content = content.substring (0, tableEnd) + newLine + content.substring (tableEnd);
         }
 
         configFile.replaceWithText (content);
@@ -1180,4 +1188,3 @@ bool Config::isClickableExtension (const juce::String& extension) const noexcept
 {
     return hyperlinkExtensions.count (extension) > 0 or hyperlinkHandlers.count (extension) > 0;
 }
-

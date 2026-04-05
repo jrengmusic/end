@@ -322,19 +322,22 @@ JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MyClass)
 
 ## CONTROL FLOW
 
-**No `else` after `return`:**
+**No early returns — use positive checks and assert:**
 ```cpp
-// WRONG
-if (foobar())
-    return doSomething();
-else
-    doSomethingElse();
+// WRONG: early return
+if (not foobar())
+    return;
+doSomething();
 
-// CORRECT
+// CORRECT: assert precondition, positive check
+assert(foobar() and "precondition: foobar must be valid");
+doSomething();
+
+// CORRECT: positive nested check
 if (foobar())
-    return doSomething();
-    
-doSomethingElse();
+{
+    doSomething();
+}
 ```
 
 **Narrow pointer scope:**

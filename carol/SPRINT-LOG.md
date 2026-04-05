@@ -14,6 +14,86 @@
 ---
 
 <!-- SPRINT HISTORY — latest first, keep last 5, rotate older to git history -->
+## Sprint 25: Action::List — BLESSED compliance, separators, prefix binding, dirty tracking
+
+**Date:** 2026-04-05
+
+### Agents Participated
+- COUNSELOR — debt audit against SPEC, plan separator/prefix/dirty-tracking feature, delegated all implementation
+- Pathfinder — SPEC vs implementation gap analysis, Row constructor/buildRows/selectRow pattern discovery
+- Auditor (x2) — first pass: 11 findings (2 CRITICAL, 5 MAJOR, 4 MINOR); second pass after separator impl: 5 findings, all resolved
+- Machinist (x2) — first sweep: early returns, `.at()`, lookup tables, magic numbers, dead code; second sweep: `getSelectedIndex` early return, `separatorAlpha` constant
+- Engineer — separator rows, prefix key row, section ordering, dirty-binding tracking
+
+### Files Modified (7 total)
+
+**Source/action/ActionRow.h**
+- `:20-26` — added `RowKind` enum (search, action, separator)
+- `:47-48` — separator constructor declaration
+- `:59-60` — `isSelectable()`, `getKind()` declarations
+- `:77-78` — `separatorHeight`, `separatorAlpha` constants
+- `:81` — `kind` member with default
+
+**Source/action/ActionRow.cpp**
+- `:11-14` — search constructor sets `kind (RowKind::search)` in init list
+- `:21-24` — action constructor sets `kind (RowKind::action)` in init list
+- `:32` — removed dead `setComponentID ("shortcut")`
+- `:44-50` — separator constructor (no children, no run)
+- `:70-83` — `paint()` extended: separator draws horizontal line, action draws highlight
+- `:118-127` — `isSelectable()`, `getKind()` implementations
+
+**Source/action/ActionList.h**
+- `:40` — `separatorRowHeight` constant
+- `:41` — `bindingModeTimeoutMs` constant (was magic 60000)
+- `:43` — `bindingsDirtyId` identifier declaration
+
+**Source/action/ActionList.cpp**
+- `:13` — `bindingsDirtyId` static definition
+- `:32` — dirty property initialized false on ValueTree
+- `:71-74` — destructor calls `Config::reload()` when dirty
+- `:150` — `handleValueChanged()` sets dirty flag
+- `:158-267` — `buildRows()` restructured: global → separator → prefix → modal
+- `:283` — `filterRows()` skips separators in hide-all pass
+- `:328-332` — `layoutRows()` uses `separatorRowHeight` for separator rows
+- `:348-359` — `selectRow()` skips non-selectable rows in direction of movement
+- `:422-423` — `visibleRowCount()` excludes non-selectable rows
+- `:431-440` — `getSelectedIndex()` refactored to single exit point
+- `:461` — `enterBindingMode()` uses `bindingModeTimeoutMs` constant
+- `:498` — `handleBindingKey()` sets dirty flag
+
+**Source/action/Action.cpp**
+- `:311-324` — `parseShortcut()` branch chain → static `keyNameTable` lookup
+- `:351-361` — `shortcutToString()` ctrlModifier fix for non-Mac round-trip
+- `:368-381` — `shortcutToString()` branch chain → static `keyCodeTable` lookup
+
+**Source/action/KeyHandler.cpp**
+- `:78-95` — `handleKey()` early return replaced with `handled` variable + else branch
+
+**Source/action/LookAndFeel.cpp**
+- `:14-32` — `getLabelFont()` early returns replaced with single `result` variable
+
+### Alignment Check
+- [x] BLESSED principles followed — all early returns eliminated, lookup tables replace branch chains, `.at()` for all container access, no magic numbers, dirty state on ValueTree (not bool member)
+- [x] NAMES.md adhered — `RowKind`, `separatorAlpha`, `bindingsDirtyId`, `separatorRowHeight`, `bindingModeTimeoutMs` all semantic
+- [x] MANIFESTO.md principles applied — B (ValueTree ownership), L (lookup tables), E (no early returns, named constants), S (SSOT on tree), S (Row stateless beyond Value), E (tell-don't-ask), D (deterministic pipeline)
+
+### Problems Solved
+- `shortcutToString` non-Mac round-trip broken — `ctrlModifier` bit differs from `commandModifier`, was checking wrong bit on Windows
+- No visual distinction between global and prefix-gated shortcuts — separator + section ordering
+- Prefix key not remappable from Action::List — synthetic prefix row with `actionConfigKey = Config::Key::keysPrefix`
+- Config stale after shortcut remap — dirty tracking triggers `Config::reload()` on dismissal
+- 12-13 branch chains in `parseShortcut`/`shortcutToString` — BLESSED L violation, replaced with `static const` lookup tables
+- Early returns in `getLabelFont`, `handleKey`, `getSelectedIndex` — BLESSED E violations
+- 23 unchecked `rows[i]` accesses — all converted to `.at()`
+
+### Technical Debt / Follow-up
+- `ActionList.cpp` at 566 lines — exceeds BLESSED Lean 300-line threshold. Binding-mode methods or row-building could be extracted
+- `Action.cpp` at 423 lines — exceeds 300-line threshold. `parseShortcut`/`shortcutToString` could be a separate translation unit
+- Build verification pending — not yet compiled after this sprint's changes
+- Visual testing pending — separator rendering, prefix row display, dirty-reload flow
+
+---
+
 ## Handoff to COUNSELOR: Action::List (Command Palette)
 
 **From:** COUNSELOR

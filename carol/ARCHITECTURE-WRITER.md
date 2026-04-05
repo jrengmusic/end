@@ -3,7 +3,7 @@
 
 **Purpose:** Step-by-step protocol for PRIMARY agents (COUNSELOR, SURGEON) to write or update ARCHITECTURE.md. PRIMARY agents delegate analysis tasks to secondary agents (subagents) as needed.
 
-**Version:** 0.0.5
+**Version:** 0.0.6
 
 **File Location:** Create ARCHITECTURE.md at project root (not in carol/)
 
@@ -13,19 +13,9 @@
 
 ---
 
-## 📖 Notation Reference
+## Notation Reference
 
 **[N]** = Sprint Number (e.g., `1`, `2`, `3`...)
-
-**File Naming Convention:**
-- `[N]-[ROLE]-[OBJECTIVE].md` — Task summary files written by agents
-- `[N]-COUNSELOR-[OBJECTIVE]-KICKOFF.md` — Phase kickoff plans (COUNSELOR)
-- `[N]-AUDITOR-[OBJECTIVE]-AUDIT.md` — Audit reports (AUDITOR)
-
-**Example Filenames:**
-- `[N]-COUNSELOR-INITIAL-PLANNING-KICKOFF.md` — COUNSELOR's plan for sprint 1
-- `[N]-ENGINEER-MODULE-SCAFFOLD.md` — ENGINEER's task in sprint 2
-- `[N]-AUDITOR-QUALITY-CHECK-AUDIT.md` — AUDITOR's audit after sprint 2
 
 ---
 
@@ -517,8 +507,8 @@ Which should I propose in ARCHITECTURE.md?
 ### Information Flow
 
 **Subagent → PRIMARY:**
-- Subagent writes `[N]-[ROLE]-[OBJECTIVE].md` task file
-- PRIMARY reads task file, integrates findings
+- Subagent returns structured brief to PRIMARY
+- PRIMARY integrates findings
 - PRIMARY updates ARCHITECTURE.md with discovered patterns
 
 **PRIMARY → ARCHITECTURE.md:**

@@ -441,6 +441,10 @@ struct Config : jreng::Context<Config>
         /** @brief Text colour for action list shortcut labels (hex string). */
         inline static const juce::String actionListShortcutColour { "action_list.shortcut_colour" };
 
+        inline static const juce::String actionListWidth          { "action_list.width" };
+        inline static const juce::String actionListHeight         { "action_list.height" };
+        inline static const juce::String actionListHighlightColour { "action_list.highlight_colour" };
+
         inline static const juce::String keysEnterSelection { "keys.enter_selection" };
         inline static const juce::String keysEnterOpenFile { "keys.enter_open_file" };
         inline static const juce::String keysOpenFileNextPage { "keys.open_file_next_page" };

@@ -12,6 +12,8 @@
 
 This document is the single source of truth for architectural decisions, code design, and problem-solving. It is a contract — not a guideline. All code is evaluated against it.
 
+**Language-specific compliance:** See `LANGUAGE.md` for per-language overrides and framework adaptations. LANGUAGE.md adapts how principles are enforced — it does not override what they mean.
+
 ---
 
 ## BLESSED

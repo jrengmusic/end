@@ -9,153 +9,260 @@
 namespace Action
 { /*____________________________________________________________________________*/
 
+const juce::Identifier List::bindingRowIndexId { "bindingRowIndex" };
+const juce::Identifier List::bindingsDirtyId   { "bindingsDirty" };
+
 List::List (juce::Component& caller)
     : jreng::ModalWindow (new juce::Component(), "Action List", true, false)
+    , callerRef (caller)
 {
     setLookAndFeel (&lookAndFeel);
+    setWantsKeyboardFocus (true);
 
     auto* cfg { Config::getContext() };
     auto* content { getContentComponent() };
-
-    content->addAndMakeVisible (searchBox);
-    setupSearchBox();
 
     content->addAndMakeVisible (viewport);
     viewport.setViewedComponent (&rowContainer, false);
     viewport.setScrollBarsShown (true, false);
 
-    content->addAndMakeVisible (remapDialog);
+    content->addChildComponent (messageOverlay);
+
+    state.get().setProperty (bindingRowIndexId, -1, nullptr);
+    state.get().setProperty (bindingsDirtyId, false, nullptr);
 
     buildRows();
-
-    searchBox.onTextChange = [this] { filterRows (searchBox.getText()); };
-
-    remapDialog.onCommit = [this] (const juce::String& shortcut, bool /*isModal*/)
-    {
-        if (activeRemapRow != nullptr and activeRemapRow->actionConfigKey.isNotEmpty())
-        {
-            Config::getContext()->patchKey (activeRemapRow->actionConfigKey, shortcut);
-            Config::getContext()->reload();
-        }
-
-        activeRemapRow = nullptr;
-        closeButtonPressed();
-    };
-
-    remapDialog.onCancel = [this]
-    {
-        activeRemapRow = nullptr;
-        remapDialog.setVisible (false);
-        searchBox.grabKeyboardFocus();
-    };
 
     setGlass (
         cfg->getColour (Config::Key::windowColour),
         Gpu::resolveOpacity (cfg->getFloat (Config::Key::windowOpacity)),
         cfg->getFloat (Config::Key::windowBlurRadius));
 
+    // Fixed window size from config proportions.
     const int padH { cfg->getInt (Config::Key::actionListPaddingLeft)
                    + cfg->getInt (Config::Key::actionListPaddingRight) };
     const int padV { cfg->getInt (Config::Key::actionListPaddingTop)
                    + cfg->getInt (Config::Key::actionListPaddingBottom) };
 
-    const int width { static_cast<int> (static_cast<float> (caller.getWidth()) * 0.6f) + padH };
-    const int visibleRows { juce::jmin (visibleRowCount(), maxVisibleRows) };
-    const int height { searchBoxHeight + visibleRows * rowHeight + padV };
+    const int width { static_cast<int> (static_cast<float> (caller.getWidth())
+                    * cfg->getFloat (Config::Key::actionListWidth)) + padH };
+    const int height { static_cast<int> (static_cast<float> (caller.getHeight())
+                     * cfg->getFloat (Config::Key::actionListHeight)) + padV };
 
     setSize (width, height);
     centreAroundComponent (&caller, width, height);
     setVisible (true);
     enterModalState (true);
 
-    searchBox.grabKeyboardFocus();
+    selectRow (0);
+
+    keyHandler.emplace (KeyHandler::Callbacks {
+        [this]      { executeSelected(); },
+        [this]      { jreng::ModalWindow::keyPressed (juce::KeyPress (juce::KeyPress::escapeKey)); },
+        [this]      { enterBindingMode(); },
+        [this] (int i) { selectRow (i); },
+        [this]      { return visibleRowCount(); },
+        [this]      { return getSelectedIndex(); }
+    });
 }
 
 List::~List()
 {
+    if (static_cast<bool> (state.get().getProperty (bindingsDirtyId)))
+    {
+        Config::getContext()->reload();
+    }
+
     setLookAndFeel (nullptr);
 }
 
 //==============================================================================
-void List::setupSearchBox()
+juce::Colour List::getHighlightColour() const
+{
+    return Config::getContext()->getColour (Config::Key::actionListHighlightColour);
+}
+
+//==============================================================================
+void List::configureSearchBox (juce::TextEditor& editor)
 {
     auto* cfg { Config::getContext() };
 
-    searchBox.setMultiLine (false);
-    searchBox.setReturnKeyStartsNewLine (false);
-    searchBox.setScrollbarsShown (false);
-    searchBox.setPopupMenuEnabled (false);
-    searchBox.setTextToShowWhenEmpty ("Type to search...", juce::Colours::grey);
-    searchBox.setWantsKeyboardFocus (true);
+    editor.setMultiLine (false);
+    editor.setReturnKeyStartsNewLine (false);
+    editor.setScrollbarsShown (false);
+    editor.setPopupMenuEnabled (false);
+    editor.setTextToShowWhenEmpty ("Type to search...", juce::Colours::grey);
+    editor.setWantsKeyboardFocus (true);
+    editor.setEscapeAndReturnKeysConsumed (false);
 
-    searchBox.setColour (juce::TextEditor::backgroundColourId,
+    editor.setColour (juce::TextEditor::backgroundColourId,
         cfg->getColour (Config::Key::windowColour)
             .withAlpha (cfg->getFloat (Config::Key::windowOpacity)));
-    searchBox.setColour (juce::TextEditor::textColourId,
+    editor.setColour (juce::TextEditor::textColourId,
         cfg->getColour (Config::Key::coloursForeground));
-    searchBox.setColour (juce::CaretComponent::caretColourId,
+    editor.setColour (juce::CaretComponent::caretColourId,
         cfg->getColour (Config::Key::coloursCursor));
-    searchBox.setColour (juce::TextEditor::outlineColourId,
+    editor.setColour (juce::TextEditor::outlineColourId,
         juce::Colours::transparentBlack);
-    searchBox.setColour (juce::TextEditor::focusedOutlineColourId,
+    editor.setColour (juce::TextEditor::focusedOutlineColourId,
         juce::Colours::transparentBlack);
 
-    searchBox.setFont (juce::Font (juce::FontOptions()
+    editor.setFont (juce::Font (juce::FontOptions()
         .withName (cfg->getString (Config::Key::fontFamily))
         .withPointHeight (cfg->getFloat (Config::Key::fontSize))));
 }
 
 //==============================================================================
-void List::handleShortcutClicked (Row* clickedRow)
+void List::configureActionRow (Row& row)
 {
-    if (clickedRow != nullptr and clickedRow->actionConfigKey.isNotEmpty())
+    auto* cfg { Config::getContext() };
+
+    row.highlightColour = getHighlightColour();
+
+    if (auto* name { row.getNameLabel() }; name != nullptr)
+        name->setColour (juce::Label::textColourId,
+                         cfg->getColour (Config::Key::actionListNameColour));
+
+    if (auto* shortcut { row.getShortcutLabel() }; shortcut != nullptr)
+        shortcut->setColour (juce::Label::textColourId,
+                             cfg->getColour (Config::Key::actionListShortcutColour));
+}
+
+//==============================================================================
+void List::handleValueChanged()
+{
+    auto* cfg      { Config::getContext() };
+    auto* registry { Action::Registry::getContext() };
+
+    for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
     {
-        activeRemapRow = clickedRow;
-
-        bool isModal { false };
-        auto* registry { Registry::getContext() };
-        const auto& entries { registry->getEntries() };
-        bool found { false };
-
-        for (const auto& entry : entries)
+        if (rows.at (static_cast<std::size_t> (i))->actionConfigKey.isNotEmpty())
         {
-            if (not found and entry.name == clickedRow->nameLabel.getText())
+            if (auto* label { rows.at (static_cast<std::size_t> (i))->getShortcutLabel() }; label != nullptr)
             {
-                isModal = entry.isModal;
-                found = true;
+                const auto currentShortcut { label->getText() };
+                const auto configShortcut  { cfg->getString (rows.at (static_cast<std::size_t> (i))->actionConfigKey) };
+
+                if (currentShortcut != configShortcut)
+                {
+                    cfg->patchKey (rows.at (static_cast<std::size_t> (i))->actionConfigKey, currentShortcut);
+                    registry->buildKeyMap();
+                    state.get().setProperty (bindingsDirtyId, true, nullptr);
+                }
             }
         }
-
-        remapDialog.show (clickedRow->shortcutLabel.getText(),
-                          isModal,
-                          clickedRow->nameLabel.getText());
     }
 }
 
 //==============================================================================
 void List::buildRows()
 {
+    auto* content { getContentComponent() };
     auto* registry { Registry::getContext() };
     jassert (registry != nullptr);
 
-    const auto& entries { registry->getEntries() };
-
-    for (const auto& entry : entries)
+    // Row 0: search box.
     {
         const juce::String uuid { juce::Uuid().toString() };
-        auto row { std::make_unique<Row> (entry, uuid) };
+        auto row { std::make_unique<Row> (0, uuid) };
 
-        row->onExecuted = [this] (Row*)
+        auto* searchBox { row->getSearchBox() };
+        jassert (searchBox != nullptr);
+
+        configureSearchBox (*searchBox);
+        searchBox->onTextChange = [this, searchBox] { filterRows (searchBox->getText()); };
+
+        juce::ValueTree node { "ACTION" };
+        node.setProperty (jreng::ID::id, uuid, nullptr);
+        state.get().appendChild (node, nullptr);
+        jreng::ValueTree::attach (state, row.get());
+
+        content->addAndMakeVisible (row.get());
+        rows.push_back (std::move (row));
+    }
+
+    const auto& entries { registry->getEntries() };
+
+    // Global action rows (non-modal).
+    for (const auto& entry : entries)
+    {
+        if (not entry.isModal)
         {
-            if (Config::getContext()->getBool (Config::Key::keysActionListCloseOnRun))
-                closeButtonPressed();
-        };
+            const juce::String uuid { juce::Uuid().toString() };
+            auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, entry) };
 
-        row->onShortcutClicked = [this] (Row* clickedRow) { handleShortcutClicked (clickedRow); };
+            configureActionRow (*row);
+
+            juce::ValueTree node { "ACTION" };
+            node.setProperty (jreng::ID::id, uuid, nullptr);
+            state.get().appendChild (node, nullptr);
+            jreng::ValueTree::attach (state, row.get());
+
+            rowContainer.addAndMakeVisible (row.get());
+            rows.push_back (std::move (row));
+        }
+    }
+
+    // Separator between global and modal groups.
+    {
+        const juce::String uuid { juce::Uuid().toString() };
+        auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, RowKind::separator) };
+        row->highlightColour = getHighlightColour();
+
+        juce::ValueTree node { "ACTION" };
+        node.setProperty (jreng::ID::id, uuid, nullptr);
+        state.get().appendChild (node, nullptr);
+        jreng::ValueTree::attach (state, row.get());
 
         rowContainer.addAndMakeVisible (row.get());
         rows.push_back (std::move (row));
     }
+
+    // Prefix key row.
+    {
+        auto* cfg { Config::getContext() };
+        const juce::String uuid { juce::Uuid().toString() };
+
+        Registry::Entry prefixEntry;
+        prefixEntry.id = "prefix";
+        prefixEntry.name = "Prefix";
+        prefixEntry.shortcut = Registry::parseShortcut (cfg->getString (Config::Key::keysPrefix));
+
+        auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, prefixEntry) };
+        row->actionConfigKey = Config::Key::keysPrefix;
+
+        configureActionRow (*row);
+
+        juce::ValueTree node { "ACTION" };
+        node.setProperty (jreng::ID::id, uuid, nullptr);
+        state.get().appendChild (node, nullptr);
+        jreng::ValueTree::attach (state, row.get());
+
+        rowContainer.addAndMakeVisible (row.get());
+        rows.push_back (std::move (row));
+    }
+
+    // Modal action rows.
+    for (const auto& entry : entries)
+    {
+        if (entry.isModal)
+        {
+            const juce::String uuid { juce::Uuid().toString() };
+            auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, entry) };
+
+            configureActionRow (*row);
+
+            juce::ValueTree node { "ACTION" };
+            node.setProperty (jreng::ID::id, uuid, nullptr);
+            state.get().appendChild (node, nullptr);
+            jreng::ValueTree::attach (state, row.get());
+
+            rowContainer.addAndMakeVisible (row.get());
+            rows.push_back (std::move (row));
+        }
+    }
+
+    state.onValueChanged = [this] { handleValueChanged(); };
 
     layoutRows();
 }
@@ -163,55 +270,67 @@ void List::buildRows()
 //==============================================================================
 void List::filterRows (const juce::String& query)
 {
-    if (query.isEmpty())
+    // Row 0 is always visible (it IS the search box).
+    for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
     {
-        for (auto& row : rows)
-            row->setVisible (true);
+        if (query.isEmpty())
+        {
+            rows.at (static_cast<std::size_t> (i))->setVisible (true);
+        }
+        else
+        {
+            // Simple containsIgnoreCase check — FuzzySearch integration preserved below.
+            if (rows.at (static_cast<std::size_t> (i))->getKind() != RowKind::separator)
+                rows.at (static_cast<std::size_t> (i))->setVisible (false);
+        }
     }
-    else
-    {
-        // Build dataset of action names for fuzzy search.
-        jreng::FuzzySearch::Data::vector dataset;
-        dataset.reserve (rows.size());
 
-        for (const auto& row : rows)
-            dataset.push_back (row->nameLabel.getText().toStdString());
+    if (query.isNotEmpty())
+    {
+        jreng::FuzzySearch::Data::vector dataset;
+        dataset.reserve (rows.size() - 1);
+
+        for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
+        {
+            if (auto* label { rows.at (static_cast<std::size_t> (i))->getNameLabel() }; label != nullptr)
+                dataset.push_back (label->getText().toStdString());
+        }
 
         const auto results { jreng::FuzzySearch::getResult (query, dataset) };
 
-        // Build a set of matched names for O(1) lookup.
         std::unordered_set<std::string> matchedNames;
 
         for (const auto& result : results)
             matchedNames.insert (result.second);
 
-        for (auto& row : rows)
+        for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
         {
-            const bool isMatch { matchedNames.count (row->nameLabel.getText().toStdString()) > 0 };
-            row->setVisible (isMatch);
+            if (auto* label { rows.at (static_cast<std::size_t> (i))->getNameLabel() }; label != nullptr)
+            {
+                const bool isMatch { matchedNames.count (label->getText().toStdString()) > 0 };
+                rows.at (static_cast<std::size_t> (i))->setVisible (isMatch);
+            }
         }
     }
 
-    selectedIndex = -1;
     layoutRows();
-
-    // Auto-select first visible row if any exist.
-    if (visibleRowCount() > 0)
-        selectRow (0);
+    selectRow (0);
 }
 
 //==============================================================================
 void List::layoutRows()
 {
-    const int rowWidth { viewport.getMaximumVisibleWidth() };
+    const int rowWidth { viewport.getWidth() - viewport.getScrollBarThickness() };
     int yPos { 0 };
 
-    for (auto& row : rows)
+    for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
     {
-        if (row->isVisible())
+        if (rows.at (static_cast<std::size_t> (i))->isVisible())
         {
-            row->setBounds (0, yPos, rowWidth, rowHeight);
-            yPos += rowHeight;
+            const int height { rows.at (static_cast<std::size_t> (i))->getKind() == RowKind::separator
+                                   ? separatorRowHeight : rowHeight };
+            rows.at (static_cast<std::size_t> (i))->setBounds (0, yPos, rowWidth, height);
+            yPos += height;
         }
     }
 
@@ -221,75 +340,75 @@ void List::layoutRows()
 //==============================================================================
 void List::selectRow (int index)
 {
-    const int total { visibleRowCount() };
+    const int count { static_cast<int> (rows.size()) };
 
-    if (total > 0)
+    int target { juce::jlimit (0, count - 1, index) };
+
+    // Skip non-selectable rows (separators) in the direction of movement.
+    if (target > 0 and not rows.at (static_cast<std::size_t> (target))->isSelectable())
     {
-        int targetVisible { index };
+        const int current { getSelectedIndex() };
+        const int direction { target >= current ? 1 : -1 };
 
-        if (targetVisible < 0)
-            targetVisible = total - 1;
-
-        if (targetVisible >= total)
-            targetVisible = 0;
-
-        // Deselect all rows.
-        for (auto& row : rows)
-            row->setAlpha (1.0f);
-
-        // Find and highlight the target visible row.
-        int visibleCount { 0 };
-
-        for (auto& row : rows)
+        while (target > 0 and target < count
+               and not rows.at (static_cast<std::size_t> (target))->isSelectable())
         {
-            if (row->isVisible())
-            {
-                if (visibleCount == targetVisible)
-                {
-                    row->setAlpha (0.7f);
-                    selectedIndex = targetVisible;
-
-                    // Ensure selected row is visible in viewport.
-                    viewport.setViewPosition (0,
-                        juce::jmax (0, row->getY() - viewport.getHeight() / 2));
-                }
-
-                ++visibleCount;
-            }
+            target += direction;
         }
+
+        target = juce::jlimit (0, count - 1, target);
     }
-    else
+
+    // If target row (beyond 0) is hidden, stay at 0.
+    if (target > 0 and not rows.at (static_cast<std::size_t> (target))->isVisible())
+        target = 0;
+
+    for (auto& row : rows)
+        row->getValueObject().setValue (false);
+
+    if (target >= 0 and target < count)
     {
-        selectedIndex = -1;
+        rows.at (static_cast<std::size_t> (target))->getValueObject().setValue (true);
+
+        if (target > 0)
+        {
+            grabKeyboardFocus();
+
+            const int rowY { rows.at (static_cast<std::size_t> (target))->getY() };
+            const int viewTop { viewport.getViewPositionY() };
+            const int viewBottom { viewTop + viewport.getViewHeight() };
+
+            if (rowY < viewTop)
+                viewport.setViewPosition (0, rowY);
+
+            if (rowY + rowHeight > viewBottom)
+                viewport.setViewPosition (0, rowY + rowHeight - viewport.getViewHeight());
+        }
     }
 }
 
 //==============================================================================
 void List::executeSelected()
 {
-    if (selectedIndex >= 0)
+    int target { getSelectedIndex() };
+
+    // Row 0 = search. Enter from search executes first visible action.
+    if (target == 0)
     {
-        int visibleCount { 0 };
-        bool found { false };
-
-        for (auto& row : rows)
+        for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
         {
-            if (row->isVisible() and not found)
-            {
-                if (visibleCount == selectedIndex)
-                {
-                    found = true;
-
-                    if (row->run != nullptr)
-                        row->run();
-
-                    if (Config::getContext()->getBool (Config::Key::keysActionListCloseOnRun))
-                        closeButtonPressed();
-                }
-
-                ++visibleCount;
-            }
+            if (rows.at (static_cast<std::size_t> (i))->isVisible() and target == 0)
+                target = i;
         }
+    }
+
+    if (target > 0 and target < static_cast<int> (rows.size()))
+    {
+        if (rows.at (static_cast<std::size_t> (target))->run != nullptr)
+            rows.at (static_cast<std::size_t> (target))->run();
+
+        if (Config::getContext()->getBool (Config::Key::keysActionListCloseOnRun))
+            closeButtonPressed();
     }
 }
 
@@ -298,9 +417,10 @@ int List::visibleRowCount() const noexcept
 {
     int count { 0 };
 
-    for (const auto& row : rows)
+    for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
     {
-        if (row->isVisible())
+        if (rows.at (static_cast<std::size_t> (i))->isVisible()
+            and rows.at (static_cast<std::size_t> (i))->isSelectable())
             ++count;
     }
 
@@ -308,37 +428,102 @@ int List::visibleRowCount() const noexcept
 }
 
 //==============================================================================
+int List::getSelectedIndex() const noexcept
+{
+    int result { 0 };
+
+    for (int i { 0 }; i < static_cast<int> (rows.size()); ++i)
+    {
+        if (rows.at (static_cast<std::size_t> (i))->isSelected() and result == 0)
+            result = i;
+    }
+
+    return result;
+}
+
+//==============================================================================
+int List::getBindingRowIndex() const
+{
+    return static_cast<int> (state.get().getProperty (bindingRowIndexId));
+}
+
+void List::setBindingRowIndex (int index)
+{
+    state.get().setProperty (bindingRowIndexId, index, nullptr);
+}
+
+//==============================================================================
+void List::enterBindingMode()
+{
+    const int selected { getSelectedIndex() };
+
+    if (selected > 0)
+    {
+        setBindingRowIndex (selected);
+        messageOverlay.showMessage ("Type key to remap", bindingModeTimeoutMs);
+    }
+}
+
+void List::exitBindingMode()
+{
+    setBindingRowIndex (-1);
+    jreng::Animator::toggleFade (&messageOverlay, false);
+    grabKeyboardFocus();
+}
+
+bool List::handleBindingKey (const juce::KeyPress& key)
+{
+    bool handled { false };
+
+    if (getBindingRowIndex() >= 1)
+    {
+        // Ctrl+C cancels binding mode.
+        if (key.getKeyCode() == 'C' and key.getModifiers().isCtrlDown())
+        {
+            exitBindingMode();
+            handled = true;
+        }
+        else
+        {
+            const int targetIndex { getBindingRowIndex() };
+
+            if (targetIndex < static_cast<int> (rows.size()))
+            {
+                auto* cfg { Config::getContext() };
+                auto* registry { Registry::getContext() };
+                const auto shortcutString { Registry::shortcutToString (key) };
+
+                if (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey.isNotEmpty())
+                {
+                    cfg->patchKey (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
+                    registry->buildKeyMap();
+                    state.get().setProperty (bindingsDirtyId, true, nullptr);
+
+                    if (auto* label { rows.at (static_cast<std::size_t> (targetIndex))->getShortcutLabel() }; label != nullptr)
+                        label->setText (shortcutString, juce::dontSendNotification);
+                }
+            }
+
+            exitBindingMode();
+            handled = true;
+        }
+    }
+
+    return handled;
+}
+
+//==============================================================================
 bool List::keyPressed (const juce::KeyPress& key)
 {
     bool handled { false };
 
-    if (remapDialog.isVisible() and remapDialog.isLearning())
+    if (getBindingRowIndex() >= 1)
     {
-        handled = remapDialog.handleLearnKey (key);
+        handled = handleBindingKey (key);
     }
-    else if (remapDialog.isVisible() and key == juce::KeyPress::escapeKey)
+    else
     {
-        remapDialog.onCancel();
-        handled = true;
-    }
-    else if (key == juce::KeyPress::escapeKey)
-    {
-        handled = jreng::ModalWindow::keyPressed (key);
-    }
-    else if (key == juce::KeyPress (juce::KeyPress::upKey))
-    {
-        selectRow (selectedIndex - 1);
-        handled = true;
-    }
-    else if (key == juce::KeyPress (juce::KeyPress::downKey))
-    {
-        selectRow (selectedIndex + 1);
-        handled = true;
-    }
-    else if (key == juce::KeyPress (juce::KeyPress::returnKey))
-    {
-        executeSelected();
-        handled = true;
+        handled = keyHandler->handleKey (key);
     }
 
     return handled;
@@ -359,9 +544,12 @@ void List::resized()
         bounds.removeFromBottom (cfg->getInt (Config::Key::actionListPaddingBottom));
         bounds.removeFromLeft (cfg->getInt (Config::Key::actionListPaddingLeft));
 
-        searchBox.setBounds (bounds.removeFromTop (searchBoxHeight));
+        // Row 0 fixed at top, outside viewport.
+        if (not rows.empty())
+            rows.at (0)->setBounds (bounds.removeFromTop (rowHeight));
+
         viewport.setBounds (bounds);
-        remapDialog.setBounds (content->getLocalBounds());
+        messageOverlay.setBounds (content->getLocalBounds());
         layoutRows();
     }
 }

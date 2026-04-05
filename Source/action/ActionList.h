@@ -7,9 +7,10 @@
 
 #include <JuceHeader.h>
 #include "../config/Config.h"
+#include "../component/MessageOverlay.h"
 #include "Action.h"
 #include "ActionRow.h"
-#include "KeyRemapDialog.h"
+#include "KeyHandler.h"
 #include "LookAndFeel.h"
 
 namespace Action
@@ -20,11 +21,10 @@ namespace Action
  * @brief Command palette modal glass window with fuzzy search and keyboard navigation.
  *
  * Created on the fly by MainComponent, enters modal state, destroyed on dismiss.
- * Owns a jreng::ValueTree for ephemeral shortcut binding state.
+ * Owns a jreng::ValueTree for ephemeral state. Row selection is Value-driven.
  *
  * @see Action::Registry
  * @see Action::Row
- * @see Action::KeyRemapDialog
  */
 class List : public jreng::ModalWindow
 {
@@ -36,31 +36,41 @@ public:
     int getDesktopWindowStyleFlags() const override;
 
 private:
-    static constexpr int searchBoxHeight { 24 };
-    static constexpr int rowHeight       { 28 };
-    static constexpr int maxVisibleRows  { 12 };
+    static constexpr int rowHeight              { 28 };
+    static constexpr int separatorRowHeight     { 12 };
+    static constexpr int bindingModeTimeoutMs   { 60000 };
+    static const juce::Identifier bindingRowIndexId;
+    static const juce::Identifier bindingsDirtyId;
 
-    Action::LookAndFeel       lookAndFeel;
-    juce::TextEditor          searchBox;
-    juce::Viewport            viewport;
-    juce::Component           rowContainer;
-    jreng::Owner<Action::Row> rows;
+    jreng::ValueTree           state { "ACTION_LIST" };
+    Action::LookAndFeel        lookAndFeel;
+    juce::Viewport             viewport;
+    juce::Component            rowContainer;
+    jreng::Owner<Action::Row>  rows;
+    MessageOverlay             messageOverlay;
 
-    int selectedIndex { -1 };
-
-    KeyRemapDialog remapDialog;
-    Row*           activeRemapRow { nullptr };
+    juce::Component&           callerRef;
+    std::optional<KeyHandler>  keyHandler;
 
     void buildRows();
+    void configureSearchBox (juce::TextEditor& editor);
+    void configureActionRow (Row& row);
     void filterRows (const juce::String& query);
     void layoutRows();
     void selectRow (int index);
     void executeSelected();
-    int visibleRowCount() const noexcept;
+    int  visibleRowCount() const noexcept;
+    int  getSelectedIndex() const noexcept;
     void resized() override;
+    juce::Colour getHighlightColour() const;
 
-    void setupSearchBox();
-    void handleShortcutClicked (Row* clickedRow);
+    int  getBindingRowIndex() const;
+    void setBindingRowIndex (int index);
+    void enterBindingMode();
+    void exitBindingMode();
+    bool handleBindingKey (const juce::KeyPress& key);
+
+    void handleValueChanged();
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (List)

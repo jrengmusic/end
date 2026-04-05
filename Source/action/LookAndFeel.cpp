@@ -13,22 +13,21 @@ namespace Action
 juce::Font LookAndFeel::getLabelFont (juce::Label& label)
 {
     auto* cfg { Config::getContext() };
+    juce::Font result { juce::LookAndFeel_V4::getLabelFont (label) };
 
     if (dynamic_cast<NameLabel*> (&label) != nullptr)
     {
-        return juce::Font { juce::FontOptions()
-                                .withName (cfg->getString (Config::Key::actionListNameFamily))
-                                .withPointHeight (cfg->getFloat (Config::Key::actionListNameSize)) };
+        result = juce::Font { juce::FontOptions()
+                                  .withName (cfg->getString (Config::Key::actionListNameFamily))
+                                  .withPointHeight (cfg->getFloat (Config::Key::actionListNameSize)) };
     }
-
-    if (dynamic_cast<ShortcutLabel*> (&label) != nullptr)
+    else if (dynamic_cast<ShortcutLabel*> (&label) != nullptr)
     {
-        return juce::Font { juce::FontOptions()
-                                .withName (cfg->getString (Config::Key::actionListShortcutFamily))
-                                .withPointHeight (cfg->getFloat (Config::Key::actionListShortcutSize)) };
+        result = juce::Font { juce::FontOptions()
+                                  .withName (cfg->getString (Config::Key::actionListShortcutFamily))
+                                  .withPointHeight (cfg->getFloat (Config::Key::actionListShortcutSize)) };
     }
 
-    juce::Font result { juce::LookAndFeel_V4::getLabelFont (label) };
     return result;
 }
 

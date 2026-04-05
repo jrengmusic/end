@@ -538,6 +538,17 @@ END = {
 
 		-- Text colour for keyboard shortcut labels.
 		shortcut_colour = "%%action_list_shortcut_colour%%",
+
+		-- Proportional width of the action list relative to the terminal window (0.1 - 1.0).
+		width = %%action_list_width%%,
+
+		-- Maximum proportional height of the action list relative to the terminal window (0.1 - 1.0).
+		-- When all results exceed this height, the list scrolls.
+		height = %%action_list_height%%,
+
+		-- Background colour for the highlighted/selected row.
+		-- Leave empty to use the terminal selection colour (colours.selection).
+		highlight_colour = "%%action_list_highlight_colour%%",
 	},
 
 	-- ========================================================================
@@ -615,9 +626,17 @@ END = {
 			command = "tit",
 			args = "",
 			cwd = "",
-			cols = 70,
+			cols = 80,
 			rows = 30,
 			modal = "t",
+		},
+		cake = {
+			command = "cake",
+			args = "",
+			cwd = "",
+			cols = 80,
+			rows = 30,
+			modal = "c",
 		},
 	--	btop = {
 	--		command = "htop",

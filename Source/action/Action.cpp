@@ -308,17 +308,27 @@ juce::KeyPress Registry::parseShortcut (const juce::String& shortcutString)
         }
         else
         {
-            if      (token == "pageup")    keyCode = juce::KeyPress::pageUpKey;
-            else if (token == "pagedown")  keyCode = juce::KeyPress::pageDownKey;
-            else if (token == "home")      keyCode = juce::KeyPress::homeKey;
-            else if (token == "end")       keyCode = juce::KeyPress::endKey;
-            else if (token == "delete")    keyCode = juce::KeyPress::deleteKey;
-            else if (token == "insert")    keyCode = juce::KeyPress::insertKey;
-            else if (token == "escape")    keyCode = juce::KeyPress::escapeKey;
-            else if (token == "return")    keyCode = juce::KeyPress::returnKey;
-            else if (token == "tab")       keyCode = juce::KeyPress::tabKey;
-            else if (token == "space")     keyCode = juce::KeyPress::spaceKey;
-            else if (token == "backspace") keyCode = juce::KeyPress::backspaceKey;
+            static const std::unordered_map<juce::String, int> keyNameTable
+            {
+                { "pageup",    juce::KeyPress::pageUpKey    },
+                { "pagedown",  juce::KeyPress::pageDownKey  },
+                { "home",      juce::KeyPress::homeKey      },
+                { "end",       juce::KeyPress::endKey       },
+                { "delete",    juce::KeyPress::deleteKey    },
+                { "insert",    juce::KeyPress::insertKey    },
+                { "escape",    juce::KeyPress::escapeKey    },
+                { "return",    juce::KeyPress::returnKey    },
+                { "tab",       juce::KeyPress::tabKey       },
+                { "space",     juce::KeyPress::spaceKey     },
+                { "backspace", juce::KeyPress::backspaceKey },
+            };
+
+            const auto it { keyNameTable.find (token) };
+
+            if (it != keyNameTable.end())
+            {
+                keyCode = it->second;
+            }
             else if (token.length() >= 2 and token[0] == 'f')
             {
                 const int fNum { token.substring (1).getIntValue() };
@@ -348,14 +358,16 @@ juce::String Registry::shortcutToString (const juce::KeyPress& key)
 
     const auto mods { key.getModifiers() };
 
-    if (mods.isCommandDown())
-    {
 #if JUCE_MAC
+    if (mods.isCommandDown())
         result += "cmd+";
+
+    if (mods.isCtrlDown())
+        result += "ctrl+";
 #else
+    if (mods.isCtrlDown())
         result += "ctrl+";
 #endif
-    }
 
     if (mods.isShiftDown())
         result += "shift+";
@@ -363,19 +375,28 @@ juce::String Registry::shortcutToString (const juce::KeyPress& key)
     if (mods.isAltDown())
         result += "alt+";
 
-    const int code { key.getKeyCode() };
+    static const std::unordered_map<int, juce::String> keyCodeTable
+    {
+        { juce::KeyPress::pageUpKey,    "pageup"    },
+        { juce::KeyPress::pageDownKey,  "pagedown"  },
+        { juce::KeyPress::homeKey,      "home"      },
+        { juce::KeyPress::endKey,       "end"       },
+        { juce::KeyPress::deleteKey,    "delete"    },
+        { juce::KeyPress::insertKey,    "insert"    },
+        { juce::KeyPress::escapeKey,    "escape"    },
+        { juce::KeyPress::returnKey,    "return"    },
+        { juce::KeyPress::tabKey,       "tab"       },
+        { juce::KeyPress::spaceKey,     "space"     },
+        { juce::KeyPress::backspaceKey, "backspace" },
+    };
 
-    if      (code == juce::KeyPress::pageUpKey)    result += "pageup";
-    else if (code == juce::KeyPress::pageDownKey)  result += "pagedown";
-    else if (code == juce::KeyPress::homeKey)      result += "home";
-    else if (code == juce::KeyPress::endKey)       result += "end";
-    else if (code == juce::KeyPress::deleteKey)    result += "delete";
-    else if (code == juce::KeyPress::insertKey)    result += "insert";
-    else if (code == juce::KeyPress::escapeKey)    result += "escape";
-    else if (code == juce::KeyPress::returnKey)    result += "return";
-    else if (code == juce::KeyPress::tabKey)       result += "tab";
-    else if (code == juce::KeyPress::spaceKey)     result += "space";
-    else if (code == juce::KeyPress::backspaceKey) result += "backspace";
+    const int code { key.getKeyCode() };
+    const auto it { keyCodeTable.find (code) };
+
+    if (it != keyCodeTable.end())
+    {
+        result += it->second;
+    }
     else if (code >= juce::KeyPress::F1Key and code <= juce::KeyPress::F12Key)
     {
         result += "f" + juce::String (code - juce::KeyPress::F1Key + 1);
