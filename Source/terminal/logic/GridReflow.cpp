@@ -132,16 +132,26 @@ void Grid::resize (int newCols, int newVisibleRows)
     if (heightOnly)
     {
         // Fast path: columns unchanged — no reflow needed, just adjust metadata.
-        // head does NOT change; the viewport expands or contracts from the top.
         Buffer& buffer { buffers.at (normal) };
         const int heightDelta { newVisibleRows - oldVisibleRows };
         const int maxScrollback { buffer.totalRows - newVisibleRows };
-
-        buffer.scrollbackUsed = juce::jlimit (0, maxScrollback, buffer.scrollbackUsed - heightDelta);
-        buffer.allocatedVisibleRows = newVisibleRows;
-
         const int cursorRow { state.getRawValue<int> (state.screenKey (normal, Terminal::ID::cursorRow)) };
-        state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, cursorRow + heightDelta));
+        const bool pinToBottom { cursorRow >= oldVisibleRows - 1 };
+
+        if (pinToBottom)
+        {
+            // Viewport expands from top: head stays, reveal more scrollback above
+            buffer.scrollbackUsed = juce::jlimit (0, maxScrollback, buffer.scrollbackUsed - heightDelta);
+            buffer.allocatedVisibleRows = newVisibleRows;
+            state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, cursorRow + heightDelta));
+        }
+        else
+        {
+            // Viewport expands from bottom: content stays at top, empty space below
+            buffer.head = (buffer.head + heightDelta) & buffer.rowMask;
+            buffer.allocatedVisibleRows = newVisibleRows;
+            // cursorRow unchanged — content stays at same visible position
+        }
 
         // Adjust alternate buffer metadata (no scrollback, no reflow)
         Buffer& altBuffer { buffers.at (alternate) };
