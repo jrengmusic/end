@@ -21,6 +21,7 @@ struct BackgroundBlur
     static const bool
     enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type = Type::coreGraphics);
     static const bool enableWindowTransparency();
+    static void configureWindowChrome (juce::Component* component, bool shouldShowWindowButtons);
     static void disable (juce::Component* component);
 #elif JUCE_WINDOWS
     static const bool isDwmAvailable();
@@ -30,7 +31,6 @@ struct BackgroundBlur
     static void disable (juce::Component* component);
 #endif
     static void setCloseCallback (std::function<void()> callback);
-    static void hideWindowButtons (juce::Component* component);
 
 private:
 #if JUCE_MAC

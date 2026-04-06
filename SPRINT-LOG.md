@@ -1,5 +1,37 @@
 # SPRINT-LOG
 
+## Sprint 2: Fix macOS Titlebar Flash on Window Creation
+
+**Date:** 2026-04-06
+**Duration:** ~30m
+
+### Agents Participated
+- COUNSELOR: Root cause analysis, plan, orchestration
+- Pathfinder: Codebase exploration (GlassWindow init sequence, BackgroundBlur API, renderer probe timing)
+- Engineer: Code changes (configureWindowChrome, sync/async separation, dead code removal)
+- Auditor: Validation (BLESSED compliance, dead code detection, idempotency check)
+
+### Files Modified (4 total)
+- `modules/jreng_gui/glass/jreng_background_blur.h:24` -- Added `configureWindowChrome` declaration; removed dead `hideWindowButtons` declaration
+- `modules/jreng_gui/glass/jreng_background_blur.mm:162-184` -- Added `configureWindowChrome` implementation (synchronous NSWindow title hiding, style mask, button hiding); removed duplicated title/style mutations from `applyBackgroundBlur` and `applyNSVisualEffect`; removed dead `hideWindowButtons` implementation
+- `modules/jreng_gui/glass/jreng_background_blur.cpp:210-212` -- Removed dead `hideWindowButtons` Windows stub
+- `modules/jreng_gui/glass/jreng_glass_window.cpp:115` -- `visibilityChanged()` calls `configureWindowChrome` synchronously before `triggerAsyncUpdate()`; removed redundant `isBlurApplied = true` from `handleAsyncUpdate()`; removed redundant `hideWindowButtons` call from `setGlass()`; updated file and class doc comments
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **macOS titlebar flash on first show**: When GlassWindow became visible, the native titlebar was briefly rendered before being hidden by the async blur handler. Root cause: titlebar hiding was bundled with blur application in `handleAsyncUpdate()`, deferred to the next message pump cycle. Only blur requires async deferral (window server needs the window fully presented for CoreGraphics blur APIs). Fix: extract NSWindow chrome mutations (setTitleVisibility, setTitlebarAppearsTransparent, FullSizeContentView mask, button hiding) into `BackgroundBlur::configureWindowChrome()`, called synchronously in `visibilityChanged()` before `triggerAsyncUpdate()`. Blur remains async.
+- **SSOT violation**: Title/style mutations were duplicated in `applyBackgroundBlur()` and `applyNSVisualEffect()`. Extracted to single `configureWindowChrome()` called once synchronously.
+- **Dead code**: `hideWindowButtons()` had zero callers after refactor — removed from header, macOS implementation, and Windows stub.
+
+### Technical Debt / Follow-up
+- Pre-existing early returns in `BackgroundBlur::enable()`, `applyBackgroundBlur()`, `applyNSVisualEffect()`, `enableWindowTransparency()` violate BLESSED E (Explicit). Not introduced by this sprint. New code (`configureWindowChrome`) is compliant.
+
+---
+
 ## Sprint 1: Fix Active Prompt Misalignment After Pane Close
 
 **Date:** 2026-04-06

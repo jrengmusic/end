@@ -3,10 +3,13 @@
  * @brief Implementation of GlassWindow — glassmorphism DocumentWindow.
  *
  * @par macOS
- * Blur is deferred via AsyncUpdater because the window server requires
- * the window to be fully presented before CoreGraphics blur APIs work.
- * A one-shot guard (@c isBlurApplied) prevents re-triggering
- * on subsequent visibility changes.
+ * Window chrome (title hiding, style mask, traffic-light buttons) is applied
+ * synchronously in visibilityChanged() via BackgroundBlur::configureWindowChrome()
+ * to eliminate the native titlebar flash on first show.  Blur itself is still
+ * deferred via AsyncUpdater because the window server requires the window to be
+ * fully presented before CoreGraphics blur APIs take effect.
+ * A one-shot guard (@c isBlurApplied) prevents re-triggering on subsequent
+ * visibility changes.
  *
  * @par Windows
  * Glass and DWM rounded corners are applied synchronously on first
@@ -86,9 +89,6 @@ void GlassWindow::setGlass (juce::Colour colour, float opacity, float blur)
         if (isBlurApplied)
         {
             BackgroundBlur::enable (this, blurRadius, tintColour);
-
-            if (not shouldShowWindowButtons)
-                BackgroundBlur::hideWindowButtons (this);
         }
     }
     else
@@ -112,6 +112,7 @@ void GlassWindow::visibilityChanged()
         isBlurApplied = true;
 
 #if JUCE_MAC
+        BackgroundBlur::configureWindowChrome (this, shouldShowWindowButtons);
         triggerAsyncUpdate();
 #elif JUCE_WINDOWS
         setGlass (windowColour, tintColour.getFloatAlpha(), blurRadius);
@@ -130,7 +131,6 @@ void GlassWindow::visibilityChanged()
 
 void GlassWindow::handleAsyncUpdate()
 {
-    isBlurApplied = true;
     setGlass (windowColour, tintColour.getFloatAlpha(), blurRadius);
 
     if (not juce::Process::isForegroundProcess())

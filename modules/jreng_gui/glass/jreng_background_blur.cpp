@@ -207,10 +207,6 @@ void BackgroundBlur::setCloseCallback (std::function<void()> callback)
     onWindowClosed = std::move (callback);
 }
 
-void BackgroundBlur::hideWindowButtons (juce::Component*)
-{
-}
-
 /**
  * @brief Prepares the current OpenGL window for DWM alpha compositing.
  *

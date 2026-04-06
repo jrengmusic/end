@@ -145,6 +145,45 @@ const bool BackgroundBlur::isCoreGraphicsAvailable()
 }
 
 /**
+ * @brief Applies synchronous window chrome configuration — title hiding and
+ *        optional traffic-light button hiding.
+ *
+ * Called from GlassWindow::visibilityChanged() on the message thread, before
+ * the async blur is triggered, to eliminate the native titlebar flash that
+ * occurs when chrome configuration is deferred alongside blur.
+ *
+ * @param component              JUCE component whose native NSWindow is styled.
+ * @param shouldShowWindowButtons When @c false, the close, minimise, and zoom
+ *                               buttons are hidden immediately.
+ *
+ * @note Must be called on the message thread.  Has no effect if the peer or
+ *       NSWindow cannot be obtained.
+ */
+void BackgroundBlur::configureWindowChrome (juce::Component* component, bool shouldShowWindowButtons)
+{
+    if (auto* peer { component->getPeer() })
+    {
+        NSView* view = (NSView*) peer->getNativeHandle();
+        NSWindow* window = [view window];
+
+        if (window != nil)
+        {
+            [window setTitleVisibility:NSWindowTitleHidden];
+            [window setTitlebarAppearsTransparent:YES];
+            [window setStyleMask:window.styleMask |
+                                 NSWindowStyleMaskFullSizeContentView];
+
+            if (not shouldShowWindowButtons)
+            {
+                [[window standardWindowButton:NSWindowCloseButton] setHidden:YES];
+                [[window standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
+                [[window standardWindowButton:NSWindowZoomButton] setHidden:YES];
+            }
+        }
+    }
+}
+
+/**
  * @brief Dispatches to the appropriate blur implementation.
  *
  * When @c Type::coreGraphics is requested:
@@ -221,10 +260,6 @@ const bool BackgroundBlur::applyBackgroundBlur (juce::Component* component,
                                                        green:tint.getFloatGreen()
                                                         blue:tint.getFloatBlue()
                                                        alpha:tint.getFloatAlpha()]];
-            [window setTitleVisibility:NSWindowTitleHidden];
-            [window setTitlebarAppearsTransparent:YES];
-            [window setStyleMask:window.styleMask |
-                                 NSWindowStyleMaskFullSizeContentView];
 
             auto CGSMainConnectionID = (CGSMainConnectionID_Func) dlsym (
                 RTLD_DEFAULT, "CGSMainConnectionID");
@@ -281,10 +316,6 @@ const bool BackgroundBlur::applyNSVisualEffect (juce::Component* component,
                                                        green:tint.getFloatGreen()
                                                         blue:tint.getFloatBlue()
                                                        alpha:tint.getFloatAlpha()]];
-            [window setTitleVisibility:NSWindowTitleHidden];
-            [window setTitlebarAppearsTransparent:YES];
-            [window setStyleMask:window.styleMask |
-                                 NSWindowStyleMaskFullSizeContentView];
 
             NSRect frame = [[window contentView] frame];
             NSVisualEffectView* visualEffect =
@@ -411,36 +442,6 @@ void BackgroundBlur::setCloseCallback (std::function<void()> callback)
     g_windowCloseCallback = std::move (callback);
 }
 
-/**
- * @brief Hides the native close, minimise, and zoom (traffic-light) buttons.
- *
- * Retrieves the NSWindow from @p component's peer and sets @c hidden = YES
- * on each of the three standard window buttons.
- *
- * @param component  JUCE component whose native window buttons are hidden.
- *                   Must not be @c nullptr.  Has no effect if the peer or
- *                   NSWindow cannot be obtained.
- *
- * @note Typically called from GlassWindow::handleAsyncUpdate() after blur is
- *       applied, so the window is fully configured before buttons are hidden.
- *
- * @see GlassWindow::handleAsyncUpdate()
- */
-void BackgroundBlur::hideWindowButtons (juce::Component* component)
-{
-    if (auto* peer { component->getPeer() })
-    {
-        NSView* view = (NSView*) peer->getNativeHandle();
-        NSWindow* window = [view window];
-
-        if (window != nil)
-        {
-            [[window standardWindowButton:NSWindowCloseButton] setHidden:YES];
-            [[window standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
-            [[window standardWindowButton:NSWindowZoomButton] setHidden:YES];
-        }
-    }
-}
 
 /**_____________________________END_OF_NAMESPACE______________________________*/
 }// namespace jreng

@@ -4,9 +4,11 @@
  *
  * @par Overview
  * GlassWindow wraps juce::DocumentWindow and applies a native macOS background
- * blur via BackgroundBlur after the window becomes visible.  Blur application
- * is deferred through juce::AsyncUpdater so that the native peer is guaranteed
- * to exist before any Objective-C / CoreGraphics calls are made.
+ * blur via BackgroundBlur after the window becomes visible.  Window chrome
+ * (title hiding, style mask, traffic-light buttons) is configured synchronously
+ * in visibilityChanged() to eliminate the native titlebar flash on first show.
+ * Blur itself is deferred through juce::AsyncUpdater so that the native peer is
+ * guaranteed to be fully presented before CoreGraphics blur APIs are called.
  *
  * @par Usage
  * @code
@@ -33,10 +35,13 @@ namespace jreng
  * @class GlassWindow
  * @brief DocumentWindow with optional glassmorphism (frosted-glass blur).
  *
- * On macOS, blur is deferred via juce::AsyncUpdater because the window
- * server requires the window to be fully presented before CoreGraphics
- * blur APIs take effect.  On Windows, glass and DWM rounded corners are
- * applied synchronously on first visibility.
+ * On macOS, window chrome (title hiding, style mask, traffic-light buttons)
+ * is configured synchronously on first visibility via
+ * BackgroundBlur::configureWindowChrome() to prevent the native titlebar
+ * flash.  Blur is deferred via juce::AsyncUpdater because the window server
+ * requires the window to be fully presented before CoreGraphics blur APIs
+ * take effect.  On Windows, glass and DWM rounded corners are applied
+ * synchronously on first visibility.
  *
  * @par Usage
  * Construct the window, call setGlass() to configure colour/opacity/blur,
