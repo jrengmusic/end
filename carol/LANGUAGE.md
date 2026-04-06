@@ -68,11 +68,17 @@ MANIFESTO says: *No early returns. One exit point. Positive nested checks.*
 **Go contracts:**
 - **Error guard returns are permitted** — `if err != nil { return ..., fmt.Errorf("context: %w", err) }` is compliant
 - **Precondition guard returns are permitted** — `if input == nil { return ..., errors.New("input required") }` is compliant
+- **Exceptional condition guard returns are permitted** — `if msg.ConflictDetected { return handleConflict(...) }` is compliant when the guard is at the top of a scope (function or case arm), routes to a distinct handler, and the happy path continues below
 - **Business logic uses positive nesting** — once guards pass, the happy path reads top to bottom without further returns
 - **Every error return includes context** — bare `return err` is a violation. Wrap with `fmt.Errorf` or meaningful message.
 - **No silent swallowing** — `_ = SomeFunc()` on an error-returning function is a violation unless the discard is documented with a comment naming the specific reason
 
-**The boundary:** Guards at the top, happy path below. A return statement inside business logic (not error/precondition) is still a violation.
+**The boundary:** Guards at the top, happy path below. The guard topology — not the guard type — determines compliance. A guard is any early return that:
+1. Sits at the top of its scope (function entry or case arm entry)
+2. Handles an exceptional/divergent condition
+3. Leaves the happy path reading top to bottom below it
+
+A return statement inside business logic (after guards, within the happy path) is still a violation.
 
 ```go
 // COMPLIANT — guards at top, happy path below

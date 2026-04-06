@@ -125,7 +125,36 @@ void Grid::resize (int newCols, int newVisibleRows)
 
     const bool dimensionsChanged { newCols != oldCols or newVisibleRows != oldVisibleRows };
 
-    if (dimensionsChanged)
+    const bool heightOnly { dimensionsChanged and newCols == oldCols
+                            and newVisibleRows <= buffers.at (normal).totalRows
+                            and newVisibleRows <= buffers.at (alternate).totalRows };
+
+    if (heightOnly)
+    {
+        // Fast path: columns unchanged — no reflow needed, just adjust metadata.
+        // head does NOT change; the viewport expands or contracts from the top.
+        Buffer& buffer { buffers.at (normal) };
+        const int heightDelta { newVisibleRows - oldVisibleRows };
+        const int maxScrollback { buffer.totalRows - newVisibleRows };
+
+        buffer.scrollbackUsed = juce::jlimit (0, maxScrollback, buffer.scrollbackUsed - heightDelta);
+        buffer.allocatedVisibleRows = newVisibleRows;
+
+        const int cursorRow { state.getRawValue<int> (state.screenKey (normal, Terminal::ID::cursorRow)) };
+        state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, cursorRow + heightDelta));
+
+        // Adjust alternate buffer metadata (no scrollback, no reflow)
+        Buffer& altBuffer { buffers.at (alternate) };
+        altBuffer.allocatedVisibleRows = newVisibleRows;
+
+        const int altCursorRow { state.getRawValue<int> (state.screenKey (alternate, Terminal::ID::cursorRow)) };
+        state.setCursorRow (alternate, juce::jlimit (0, newVisibleRows - 1, altCursorRow));
+
+        state.setScrollbackUsed (buffer.scrollbackUsed);
+        markAllDirty();
+        state.setFullRebuild();
+    }
+    else if (dimensionsChanged)
     {
         // 1. Reflow normal buffer (always has scrollback + wrap chains)
         Buffer newPrimary;
@@ -165,6 +194,7 @@ void Grid::resize (int newCols, int newVisibleRows)
         state.setCursorRow (alternate, juce::jlimit (0, newVisibleRows - 1, altCursorRow));
         state.setCursorCol (alternate, juce::jlimit (0, newCols - 1, altCursorCol));
 
+        state.setScrollbackUsed (buffers.at (normal).scrollbackUsed);
         markAllDirty();
         state.setFullRebuild();
     }
@@ -674,8 +704,8 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
 
         if (cursorOutputRow < 0)
         {
-            cursorOutputRow = totalOutputRows;
-            cursorNewCol = 0;
+            cursorOutputRow = totalOutputRows - 1;
+            cursorNewCol = cursorCol;
         }
 
         const bool pinToBottom { cursorRow >= oldVisibleRows - 1 };

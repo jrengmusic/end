@@ -207,9 +207,9 @@ private:
     void showMessageOverlay();
 
     //==============================================================================
-    // #if JUCE_DEBUG
-    //     jreng::debug::Widget debug { this, false };
-    // #endif
+    #if JUCE_DEBUG
+        jreng::debug::Widget debug { this, false };
+    #endif
     //==============================================================================
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

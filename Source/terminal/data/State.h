@@ -370,11 +370,12 @@ struct State : public juce::Timer
      * @brief Sets the number of rows currently used in the scrollback buffer.
      *
      * Written by the reader thread after scroll operations that change the
-     * scrollback depth.  Uses `storeAndFlush` so the value is visible to the
-     * message thread on the next flush pass.
+     * scrollback depth, and by the message thread during `Grid::resize()`.
+     * Uses `storeAndFlush` so the value is visible to the message thread on
+     * the next flush pass.
      *
      * @param value  Row count currently occupied in the scrollback buffer.
-     * @note READER THREAD — lock-free, noexcept.
+     * @note READER THREAD or MESSAGE THREAD — lock-free, noexcept.
      */
     void setScrollbackUsed (int value) noexcept
     {

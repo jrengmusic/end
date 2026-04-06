@@ -204,6 +204,14 @@ cmd_init() {
     cd "$project_path" || error "Cannot access directory: $project_path"
     project_path="$(pwd)"
 
+    # Inside CAROL repo itself — skip init, just launch
+    if [ "$project_path" = "$CAROL_ROOT" ]; then
+        show_banner
+        echo -e "${GREY}✓ v${VERSION} This is HOME${NC}"
+        echo ""
+        return 0
+    fi
+
     if [ -d "carol" ] || [ -d ".carol" ]; then
         # Ensure commands are populated even if already initiated
         if [ -d ".claude/commands" ] && [ -z "$(ls -A .claude/commands 2>/dev/null)" ]; then
