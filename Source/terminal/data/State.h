@@ -226,6 +226,18 @@ struct State : public juce::Timer
      * @{ */
 
     /**
+     * @brief Sets the session UUID identifier on the root ValueTree node.
+     *
+     * Called once at construction by `Nexus::Session::create` to stamp each
+     * Processor's state with its owning session's UUID.  Consumers (e.g.
+     * `Tabs::globalFocusChanged`) read this via `getValueTree().getProperty(jreng::ID::id)`.
+     *
+     * @param uuid  The session UUID to store.
+     * @note MESSAGE THREAD.
+     */
+    void setId (const juce::String& uuid);
+
+    /**
      * @brief Sets the currently active screen buffer.
      * @param s  `ActiveScreen::normal` or `ActiveScreen::alternate`.
      * @note READER THREAD — lock-free, noexcept.
@@ -506,6 +518,7 @@ struct State : public juce::Timer
      * @note MESSAGE THREAD only.
      */
     juce::ValueTree get() noexcept;
+    juce::ValueTree get() const noexcept;
 
     /**
      * @brief Returns a `juce::Value` bound to a specific parameter in the tree.
@@ -587,6 +600,15 @@ struct State : public juce::Timer
      * @note MESSAGE THREAD only.
      */
     int getScrollOffset() const noexcept;
+
+    /** @brief Returns the number of scrollback lines currently stored (post-flush). MESSAGE THREAD. */
+    int getScrollbackUsed() const noexcept;
+
+    /** @brief Returns the terminal window title (post-flush). MESSAGE THREAD. */
+    juce::String getTitle() const noexcept;
+
+    /** @brief Returns the current working directory (post-flush). MESSAGE THREAD. */
+    juce::String getCwd() const noexcept;
 
     /**
      * @brief Returns the current cursor blink phase.
@@ -1140,6 +1162,85 @@ struct State : public juce::Timer
      * @note MESSAGE THREAD only.
      */
     void refresh() noexcept;
+
+    // =========================================================================
+    /** @name Subscriber seqno tracking (sidecar / NEXUS PROCESS side)
+     *  Manage per-subscriber last-delivered seqno inside the SUBSCRIBERS child
+     *  tree of this State's root SESSION ValueTree.  All methods operate
+     *  directly on the ValueTree — they are called on the message thread by
+     *  the fan-out machinery in SessionFanout.cpp.
+     * @{ */
+
+    /**
+     * @brief Adds a SUBSCRIBER child node for @p subscriberId with lastKnownSeqno = 0.
+     *
+     * No-op if the subscriber is already present.
+     *
+     * @param subscriberId  Stable UUID string of the connecting ServerConnection.
+     * @note MESSAGE THREAD.
+     */
+    void attachSubscriber (juce::StringRef subscriberId);
+
+    /**
+     * @brief Removes the SUBSCRIBER child node for @p subscriberId.
+     *
+     * No-op if the subscriber is not found.
+     *
+     * @param subscriberId  Stable UUID string of the disconnecting ServerConnection.
+     * @note MESSAGE THREAD.
+     */
+    void detachSubscriber (juce::StringRef subscriberId);
+
+    /**
+     * @brief Writes the last-delivered seqno for @p subscriberId.
+     *
+     * Called by SessionFanout after each successful fan-out for this subscriber.
+     *
+     * @param subscriberId  Subscriber UUID.
+     * @param seqno         Most-recently delivered seqno.
+     * @note MESSAGE THREAD.
+     */
+    void setSubscriberSeqno (juce::StringRef subscriberId, uint64_t seqno);
+
+    /**
+     * @brief Returns the last-delivered seqno for @p subscriberId.
+     *
+     * Returns 0 if the subscriber is not found (triggers a full delta on the
+     * first fan-out cycle).
+     *
+     * @param subscriberId  Subscriber UUID.
+     * @return Last-delivered seqno, or 0.
+     * @note MESSAGE THREAD.
+     */
+    uint64_t getSubscriberSeqno (juce::StringRef subscriberId) const;
+
+    /** @} */
+
+    // =========================================================================
+    /** @name Last-known seqno (reserved — no longer used in byte-forward architecture)
+     *  Previously tracked the seqno of the most recently applied state snapshot.
+     *  Retained for binary compatibility; not called in normal operation.
+     * @{ */
+
+    /**
+     * @brief Stores the last-known grid seqno (reserved, not called in byte-forward mode).
+     *
+     * @param seqno  seqno value.
+     * @note MESSAGE THREAD.
+     */
+    void setLastKnownSeqno (uint64_t seqno);
+
+    /**
+     * @brief Returns the seqno of the most recently applied StateInfo snapshot.
+     *
+     * Returns 0 if no snapshot has been applied yet.
+     *
+     * @return Last-applied seqno, or 0.
+     * @note MESSAGE THREAD.
+     */
+    uint64_t getLastKnownSeqno() const;
+
+    /** @} */
 
 private:
     /**

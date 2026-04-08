@@ -49,6 +49,10 @@
 #include "config/Config.h"
 #include "config/WhelmedConfig.h"
 #include "action/Action.h"
+#include "nexus/Session.h"
+#include "nexus/Server.h"
+#include "nexus/Log.h"
+#include "nexus/NexusDaemon.h"
 
 #if JUCE_WINDOWS
 #include <windows.h>
@@ -77,17 +81,16 @@ static constexpr DWORD dwmForceEffectEnabled { 2 };
 static void applyForceDwmRegistry (bool enable) noexcept
 {
     HKEY hKey { nullptr };
-    const auto opened { RegOpenKeyExW (HKEY_LOCAL_MACHINE,
-                                       L"SOFTWARE\\Microsoft\\Windows\\Dwm",
-                                       0, KEY_SET_VALUE, &hKey) };
+    const auto opened { RegOpenKeyExW (
+        HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\Dwm", 0, KEY_SET_VALUE, &hKey) };
 
     if (opened == ERROR_SUCCESS)
     {
         if (enable)
         {
             DWORD value { dwmForceEffectEnabled };
-            RegSetValueExW (hKey, L"ForceEffectMode", 0, REG_DWORD,
-                            reinterpret_cast<const BYTE*> (&value), sizeof (value));
+            RegSetValueExW (
+                hKey, L"ForceEffectMode", 0, REG_DWORD, reinterpret_cast<const BYTE*> (&value), sizeof (value));
         }
         else
         {
@@ -166,6 +169,8 @@ public:
      */
     void initialise (const juce::String& commandLine) override
     {
+        juce::ignoreUnused (commandLine);
+
 #if JUCE_WINDOWS
         // Unlock 1 ms timer resolution so the 8 ms flush timer fires at its
         // intended rate rather than the default 15 ms WM_TIMER granularity.
@@ -174,72 +179,192 @@ public:
         timeBeginPeriod (1);
 #endif
 
+        const auto args { getCommandLineParameterArray() };
+        const bool isNexusMode { args.contains ("--nexus") };
+
         auto* cfg { Config::getContext() };
 
-#if JUCE_WINDOWS
-        if (isWindows11 () and appState.getRendererType () == App::RendererType::cpu)
+        if (isNexusMode)
         {
-            applyForceDwmRegistry (cfg->getBool (Config::Key::windowForceDwm));
-        }
-#endif
+            // ---- Headless daemon mode ----------------------------------------
+            // Hide dock icon, start IPC server, wire exit callback, and return.
+            // No window is created.  The JUCE message loop runs until all sessions exit.
+            Nexus::initLog ("end-nexus-daemon.log");
+            Nexus::logLine ("daemon: after initLog, calling hideDockIcon");
+            Nexus::hideDockIcon();
+            Nexus::logLine ("daemon: hideDockIcon done, constructing Session (DaemonTag)");
 
-        mainWindow.reset (new jreng::GlassWindow (
-            new MainComponent (fontRegistry),
-            cfg->getString (Config::Key::windowTitle),
-            cfg->getBool (Config::Key::windowAlwaysOnTop),
-            cfg->getBool (Config::Key::windowButtons)));
+            nexus = std::make_unique<Nexus::Session> (Nexus::Session::DaemonTag{});
+            Nexus::logLine ("daemon: Session (daemon mode) constructed, wiring onAllSessionsExited");
 
-        mainWindow->setGlass (
-            cfg->getColour (Config::Key::windowColour),
-            Gpu::resolveOpacity (cfg->getFloat (Config::Key::windowOpacity)),
-            cfg->getFloat (Config::Key::windowBlurRadius));
-
-        mainWindow->setVisible (true);
-
-        juce::MessageManager::callAsync ([this]
-        {
-            if (auto* content { mainWindow->getContentComponent() })
-                content->grabKeyboardFocus();
-        });
-
-        config.onReload = [this]
-        {
-            if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
+            nexus->onAllSessionsExited = [this]
             {
-                content->applyConfig();
+                quit();
+            };
+            Nexus::logLine ("daemon: onAllSessionsExited wired, entering message loop");
+        }
+        else
+        {
+            Nexus::initLog ("end-nexus-client.log");
+
+            const bool nexusEnabled { cfg->getBool (Config::Key::nexus) };
+
+            if (not nexusEnabled)
+            {
+                // ---- Single-process mode (nexus = false) --------------------
+                // No daemon, no IPC.  Sessions die with the window.
+                // Host is alive in-process for session ownership; server is NOT started.
+                nexus = std::make_unique<Nexus::Session>();
+            }
 
 #if JUCE_WINDOWS
-                if (isWindows11 () and appState.getRendererType () == App::RendererType::cpu)
-                {
-                    applyForceDwmRegistry (config.getBool (Config::Key::windowForceDwm));
-                }
+            if (isWindows11() and appState.getRendererType() == App::RendererType::cpu)
+            {
+                applyForceDwmRegistry (cfg->getBool (Config::Key::windowForceDwm));
+            }
 #endif
 
-                mainWindow->setGlass (
-                    config.getColour (Config::Key::windowColour),
-                    Gpu::resolveOpacity (config.getFloat (Config::Key::windowOpacity)),
-                    config.getFloat (Config::Key::windowBlurRadius));
-            }
-        };
+            // Nexus mode: set optimistically — window appears before connection settles.
+            appState.setNexusMode (nexusEnabled);
 
-        whelmedConfig.onReload = [this]
-        {
-            if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
-                content->applyConfig();
-        };
+            mainWindow.reset (new jreng::GlassWindow (new MainComponent (fontRegistry),
+                                                      cfg->getString (Config::Key::windowTitle),
+                                                      cfg->getBool (Config::Key::windowAlwaysOnTop),
+                                                      cfg->getBool (Config::Key::windowButtons)));
+
+            mainWindow->setGlass (cfg->getColour (Config::Key::windowColour),
+                                  Gpu::resolveOpacity (cfg->getFloat (Config::Key::windowOpacity)),
+                                  cfg->getFloat (Config::Key::windowBlurRadius));
+
+            // JUCE InterprocessConnection manages its own reader thread internally.
+            // No startThread() call is needed.
+
+            mainWindow->setVisible (true);
+
+            if (nexusEnabled)
+            {
+                // ---- Client mode (nexus = true, no --nexus flag) -------------
+                // Window is up immediately.  Show spinner while the daemon connection settles.
+                // If no daemon lockfile exists, spawn one first; then connect asynchronously.
+                auto* mainComponent { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) };
+
+                if (mainComponent != nullptr)
+                    mainComponent->getLoaderOverlay().show (0, "Connecting to nexus");
+
+                const juce::File lockfilePath { Nexus::Server::getLockfile() };
+
+                bool daemonAlive { false };
+
+                if (lockfilePath.existsAsFile())
+                {
+                    const int port { lockfilePath.loadFileAsString().trim().getIntValue() };
+
+                    if (port > 0)
+                    {
+                        juce::StreamingSocket probe;
+
+                        if (probe.connect ("127.0.0.1", port, 200))
+                        {
+                            probe.close();
+                            daemonAlive = true;
+                        }
+                    }
+                }
+
+                if (daemonAlive)
+                {
+                    Nexus::logLine ("ENDApplication: existing nexus daemon is alive, connecting");
+                }
+                else
+                {
+                    if (lockfilePath.existsAsFile())
+                    {
+                        Nexus::logLine ("ENDApplication: stale lockfile detected, deleting and spawning daemon");
+                        lockfilePath.deleteFile();
+                    }
+                    else
+                    {
+                        Nexus::logLine ("ENDApplication: no lockfile, spawning daemon");
+                    }
+
+                    Nexus::spawnDaemon();
+                }
+
+                // Session (ClientTag) constructs Client internally and begins connect attempts.
+                nexus = std::make_unique<Nexus::Session> (Nexus::Session::ClientTag{});
+
+                nexus->onConnectionMade = [this]
+                {
+                    Nexus::logLine ("ENDApplication: onConnectionMade fired - hiding loader, calling onNexusConnected");
+
+                    if (mainWindow != nullptr)
+                    {
+                        if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
+                        {
+                            content->getLoaderOverlay().hide();
+                            content->onNexusConnected();
+                        }
+                    }
+                };
+
+                nexus->onConnectionFailed = [this]
+                {
+                    Nexus::logLine ("ENDApplication: connection failed after maximum retry attempts - daemon unreachable.");
+                };
+            }
+
+            juce::MessageManager::callAsync (
+                [this]
+                {
+                    if (auto* content { mainWindow->getContentComponent() })
+                        content->grabKeyboardFocus();
+                });
+
+            config.onReload = [this]
+            {
+                if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
+                {
+                    content->applyConfig();
+
+#if JUCE_WINDOWS
+                    if (isWindows11() and appState.getRendererType() == App::RendererType::cpu)
+                    {
+                        applyForceDwmRegistry (config.getBool (Config::Key::windowForceDwm));
+                    }
+#endif
+
+                    mainWindow->setGlass (config.getColour (Config::Key::windowColour),
+                                          Gpu::resolveOpacity (config.getFloat (Config::Key::windowOpacity)),
+                                          config.getFloat (Config::Key::windowBlurRadius));
+                }
+            };
+
+            whelmedConfig.onReload = [this]
+            {
+                if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
+                    content->applyConfig();
+            };
+        }
     }
 
     /**
      * @brief Destroys the main window and releases all resources.
      *
      * Resetting `mainWindow` triggers the full component teardown chain:
-     * GlassWindow → MainComponent → Terminal::Component → Session / Screen.
+     * GlassWindow → MainComponent → Terminal::Display → Session / Screen.
      *
      * @note MESSAGE THREAD — called once at shutdown.
      */
     void shutdown() override
     {
         mainWindow = nullptr;
+
+        // Session dtor handles client disconnect and server stop.
+        nexus = nullptr;
+
+        // Destroy the FileLogger before JUCE's leak detector runs.
+        Nexus::shutdownLog();
+
 #if JUCE_WINDOWS
         timeEndPeriod (1);
 #endif
@@ -249,8 +374,11 @@ public:
     /**
      * @brief Handles OS quit requests (Cmd+Q, window close, SIGTERM).
      *
-     * Saves the application state to `state.xml` via `AppState` before
-     * calling `quit()`, so the next launch restores the same layout.
+     * When live sessions exist the process becomes a headless daemon: the
+     * window is destroyed but the message loop continues.  The daemon exits
+     * when all sessions subsequently die via `onAllSessionsExited`.
+     *
+     * When no live sessions remain, saves `state.xml` and exits immediately.
      *
      * @note MESSAGE THREAD — called by the OS or by `JUCEApplication::quit()`.
      *
@@ -258,6 +386,11 @@ public:
      */
     void systemRequestedQuit() override
     {
+        // UI process always quits unconditionally.
+        // - nexus = true (client mode): daemon lives on in its own process.
+        // - nexus = false (single-process): sessions die with the window by design.
+        // - --nexus (daemon mode): OS quit means all sessions should die; message loop
+        //   exits via onAllSessionsExited after sessions are destroyed.
         if (mainWindow != nullptr)
         {
             if (auto* content { mainWindow->getContentComponent() })
@@ -285,6 +418,9 @@ private:
 
     /** @brief Global action registry. Must be constructed after Config. */
     Action::Registry action;
+
+    /** @brief In-process session pool. Non-null in daemon mode and single-process mode. Null in client mode. */
+    std::unique_ptr<Nexus::Session> nexus;
 
     /** @brief Embedded Display Mono typefaces; held alive for DirectWrite on Windows. */
     struct DisplayMono
@@ -315,4 +451,3 @@ private:
 //==============================================================================
 // This macro generates the main() routine that launches the app.
 START_JUCE_APPLICATION (ENDApplication)
-

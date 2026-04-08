@@ -83,8 +83,7 @@ public:
      *
      * @return Reference to the active ObjectType instance.
      */
-    static ObjectType* getContext() noexcept
-    {
+    static ObjectType* getContext() noexcept {
         jassert (context != nullptr
                  && "Context is not set! Ensure an instance exists before calling getContext().");
         return context;

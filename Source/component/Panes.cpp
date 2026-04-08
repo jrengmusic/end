@@ -3,7 +3,7 @@
  * @brief Terminal::Panes implementation — pane lifecycle and layout management.
  *
  * @see Panes.h
- * @see Terminal::Component
+ * @see Terminal::Display
  * @see Terminal::Tabs
  */
 
@@ -11,6 +11,8 @@
 #include "../AppState.h"
 #include "../terminal/data/Identifier.h"
 #include "../whelmed/Component.h"
+#include "../nexus/Session.h"
+#include "../nexus/Log.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -35,28 +37,84 @@ Panes::Panes (jreng::Typeface& font_, jreng::Typeface& whelmedBodyFont_, jreng::
 Panes::~Panes() = default;
 
 /**
+ * @brief Constructs a Processor for a new terminal via the unified Session API.
+ *
+ * Delegates to `Nexus::Session::getContext()->create()` which routes internally
+ * through local, daemon, or client mode.  Returns the UUID and a non-owning
+ * pointer into the Session (or Client) pool.
+ *
+ * @param shell      Shell program path.  Empty = use Config default.
+ * @param args       Shell arguments.  Empty = use Config default.
+ * @param cwd        Initial working directory.  Empty = inherit.
+ * @param uuidHint   UUID hint (nexus restore or split).  Empty = generate new.
+ * @return CreatedTerminal { uuid, processor* }.
+ * @note MESSAGE THREAD.
+ */
+Panes::CreatedTerminal Panes::buildTerminal (const juce::String& shell,
+                                              const juce::String& args,
+                                              const juce::String& cwd,
+                                              const juce::String& uuidHint)
+{
+    CreatedTerminal result;
+
+    Terminal::Processor& processor { uuidHint.isNotEmpty()
+        ? Nexus::Session::getContext()->create (shell, args, cwd, uuidHint)
+        : Nexus::Session::getContext()->create (shell, args, cwd) };
+
+    result.uuid = processor.uuid;
+    result.processor = &processor;
+
+    return result;
+}
+
+/**
+ * @brief Tears down a terminal via the unified Session API.
+ *
+ * Delegates to `Nexus::Session::getContext()->remove()` which routes internally
+ * through local, daemon, or client mode.  Display must be erased from panes
+ * before this call so no dangling reference exists at destruction time.
+ *
+ * @param uuid  The UUID of the terminal to tear down.
+ * @note MESSAGE THREAD.
+ */
+void Panes::teardownTerminal (const juce::String& uuid)
+{
+    Nexus::Session::getContext()->remove (uuid);
+}
+
+// =============================================================================
+
+/**
  * @brief Creates a new terminal session as the first (or only) leaf in this pane.
  *
- * Creates a Terminal::Component via Terminal::Component::create(), wires its
- * callbacks, registers it with PaneManager via addLeaf, and grafts its SESSION
+ * Delegates construction to buildTerminal() which routes through Session::create().
+ * Wires callbacks, registers with PaneManager via addLeaf, and grafts the session
  * ValueTree into the corresponding PANE node.
  *
  * @param workingDirectory  Initial cwd for the shell. Empty = inherit parent cwd.
+ * @param uuid              UUID hint for nexus-mode restoration. Empty = spawn new.
  * @return The UUID of the newly created terminal (its componentID).
  * @note MESSAGE THREAD.
  */
-juce::String Panes::createTerminal (const juce::String& workingDirectory)
+juce::String Panes::createTerminal (const juce::String& workingDirectory,
+                                     const juce::String& uuid)
 {
-    auto terminal { Terminal::Component::create (font, workingDirectory) };
+    auto created { buildTerminal ({}, {}, workingDirectory, uuid) };
+
+    jassert (created.processor != nullptr);
+
+    std::unique_ptr<Terminal::Display> terminal { created.processor->createDisplay (font) };
+
+    jassert (terminal != nullptr);
+
     auto* term { terminal.get() };
     term->setBounds (getLocalBounds());
     addChildComponent (term);
     setTerminalCallbacks (term);
 
-    const juce::String uuid { term->getComponentID() };
-    paneManager.addLeaf (uuid);
+    paneManager.addLeaf (created.uuid);
 
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), uuid) };
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), created.uuid) };
     jassert (paneNode.isValid());
     paneNode.appendChild (term->getValueTree(), nullptr);
 
@@ -64,7 +122,8 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory)
         term->setVisible (true);
 
     panes.add (std::move (terminal));
-    return uuid;
+
+    return created.uuid;
 }
 
 /**
@@ -90,37 +149,34 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
     jassert (activeTerminal != nullptr);
 
-    if (activeTerminal != nullptr)
+    activeTerminal->setVisible (false);
+
+    auto component { std::make_unique<Whelmed::Component>() };
+    component->setComponentID (activeID);
+    component->setBounds (activeTerminal->getBounds());
+    component->openFile (file);
+    component->onRepaintNeeded = onRepaintNeeded;
+
+    // Graft DOCUMENT alongside SESSION in the PANE node
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeID) };
+    jassert (paneNode.isValid());
+
+    auto valueTree { component->getValueTree() };
+    jassert (valueTree.isValid());
+    paneNode.appendChild (valueTree, nullptr);
+
+    if (isShowing())
     {
-        activeTerminal->setVisible (false);
-
-        auto component { std::make_unique<Whelmed::Component>() };
-        component->setComponentID (activeID);
-        component->setBounds (activeTerminal->getBounds());
-        component->openFile (file);
-        component->onRepaintNeeded = onRepaintNeeded;
-
-        // Graft DOCUMENT alongside SESSION in the PANE node
-        auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeID) };
-        jassert (paneNode.isValid());
-
-        auto valueTree { component->getValueTree() };
-        jassert (valueTree.isValid());
-        paneNode.appendChild (valueTree, nullptr);
-
-        if (isShowing())
-        {
-            addAndMakeVisible (component.get());
-            component->grabKeyboardFocus();
-        }
-
-        panes.add (std::move (component));
-
-        AppState::getContext()->setModalType (0);
-        AppState::getContext()->setSelectionType (0);
-        AppState::getContext()->setActivePaneType (App::ID::paneTypeDocument);
-        resized();
+        addAndMakeVisible (component.get());
+        component->grabKeyboardFocus();
     }
+
+    panes.add (std::move (component));
+
+    AppState::getContext()->setModalType (0);
+    AppState::getContext()->setSelectionType (0);
+    AppState::getContext()->setActivePaneType (App::ID::paneTypeDocument);
+    resized();
 
     return activeID;
 }
@@ -153,29 +209,26 @@ void Panes::closeWhelmed()
     jassert (whelmedPane != nullptr);
     jassert (terminalPane != nullptr);
 
-    if (whelmedPane != nullptr and terminalPane != nullptr)
-    {
-        // Remove DOCUMENT from PANE node
-        auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeID) };
-        jassert (paneNode.isValid());
+    // Remove DOCUMENT from PANE node
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeID) };
+    jassert (paneNode.isValid());
 
-        auto documentTree { whelmedPane->getValueTree() };
+    auto documentTree { whelmedPane->getValueTree() };
 
-        if (documentTree.isValid())
-            paneNode.removeChild (documentTree, nullptr);
+    if (documentTree.isValid())
+        paneNode.removeChild (documentTree, nullptr);
 
-        removeChildComponent (whelmedPane);
-        panes.erase (panes.begin() + static_cast<int> (whelmedIndex));
+    removeChildComponent (whelmedPane);
+    panes.erase (panes.begin() + static_cast<int> (whelmedIndex));
 
-        terminalPane->setVisible (true);
+    terminalPane->setVisible (true);
 
-        if (isShowing())
-            terminalPane->grabKeyboardFocus();
+    if (isShowing())
+        terminalPane->grabKeyboardFocus();
 
-        AppState::getContext()->setModalType (0);
-        AppState::getContext()->setSelectionType (0);
-        AppState::getContext()->setActivePaneType (App::ID::paneTypeTerminal);
-    }
+    AppState::getContext()->setModalType (0);
+    AppState::getContext()->setSelectionType (0);
+    AppState::getContext()->setActivePaneType (App::ID::paneTypeTerminal);
 }
 
 /**
@@ -184,7 +237,7 @@ void Panes::closeWhelmed()
  * @param terminal  The terminal to wire.
  * @note MESSAGE THREAD.
  */
-void Panes::setTerminalCallbacks (Terminal::Component* terminal)
+void Panes::setTerminalCallbacks (Terminal::Display* terminal)
 {
     jassert (onRepaintNeeded != nullptr);
     terminal->onRepaintNeeded = onRepaintNeeded;
@@ -259,6 +312,8 @@ void Panes::closePane (const juce::String& uuid)
     auto splitNode { paneNode.getParent() };
     paneNode.removeAllChildren (nullptr);
 
+    // Erase the Display first — ~Display() unwires all Session callbacks.
+    // Session is removed after the Display is destroyed.
     for (auto it { panes.begin() }; it != panes.end(); ++it)
     {
         if ((*it)->getComponentID() == uuid)
@@ -294,6 +349,10 @@ void Panes::closePane (const juce::String& uuid)
         }
     }
 
+    // teardownTerminal routes through Session::remove(), which handles local and client modes.
+    // Display is already erased above so no dangling reference exists when the Processor is destroyed.
+    teardownTerminal (uuid);
+
     resized();
 }
 
@@ -312,28 +371,42 @@ void Panes::splitHorizontal() { splitImpl ("vertical", true); }
 void Panes::splitVertical() { splitImpl ("horizontal", false); }
 
 /**
- * @brief Shared split implementation.
+ * @brief Splits a specific target pane using an explicit new UUID and cwd.
  *
- * @param direction  PaneManager direction string: "vertical" = left/right
- *                   divider; "horizontal" = top/bottom divider.
- * @param isVertical True when the resizer bar is vertical (splitHorizontal).
+ * Used by the restore walker in MainComponent to reconstruct a saved split tree,
+ * and internally by splitImpl() for keyboard-shortcut splits.
+ *
+ * @param targetUuid  UUID of the existing leaf to split.
+ * @param newUuid     UUID hint for the new terminal. Empty = generate fresh.
+ * @param cwd         Working directory for the new terminal. Empty = inherit.
+ * @param direction   "vertical" for left/right divider; "horizontal" for top/bottom.
+ * @param isVertical  True when the resizer bar is vertical (direction == "vertical").
  * @note MESSAGE THREAD.
  */
-void Panes::splitImpl (const juce::String& direction, bool isVertical)
+void Panes::splitAt (const juce::String& targetUuid,
+                     const juce::String& newUuid,
+                     const juce::String& cwd,
+                     const juce::String& direction,
+                     bool isVertical)
 {
-    const juce::String activeID { AppState::getContext()->getActivePaneID() };
-    jassert (activeID.isNotEmpty());
+    jassert (targetUuid.isNotEmpty());
 
-    auto terminal { Terminal::Component::create (font, AppState::getContext()->getPwd()) };
+    auto created { buildTerminal ({}, {}, cwd, newUuid) };
+
+    jassert (created.processor != nullptr);
+
+    std::unique_ptr<Terminal::Display> terminal { created.processor->createDisplay (font) };
+
+    jassert (terminal != nullptr);
+
     auto* term { terminal.get() };
     term->setBounds (getLocalBounds());
     addChildComponent (term);
     setTerminalCallbacks (term);
 
-    const juce::String newID { term->getComponentID() };
-    paneManager.split (activeID, newID, direction);
+    paneManager.split (targetUuid, created.uuid, direction);
 
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), newID) };
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), created.uuid) };
     jassert (paneNode.isValid());
     paneNode.appendChild (term->getValueTree(), nullptr);
 
@@ -349,6 +422,22 @@ void Panes::splitImpl (const juce::String& direction, bool isVertical)
         term->setVisible (true);
 
     resized();
+}
+
+/**
+ * @brief Shared split implementation for keyboard-shortcut splits.
+ *
+ * @param direction  PaneManager direction string: "vertical" = left/right
+ *                   divider; "horizontal" = top/bottom divider.
+ * @param isVertical True when the resizer bar is vertical (splitHorizontal).
+ * @note MESSAGE THREAD.
+ */
+void Panes::splitImpl (const juce::String& direction, bool isVertical)
+{
+    const juce::String activeID { AppState::getContext()->getActivePaneID() };
+    jassert (activeID.isNotEmpty());
+
+    splitAt (activeID, {}, AppState::getContext()->getPwd(), direction, isVertical);
 }
 
 /**

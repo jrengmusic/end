@@ -9,9 +9,10 @@
  */
 
 #include "Popup.h"
+#include "Panes.h"
 #include "../AppState.h"
 #include "../Gpu.h"
-#include "TerminalComponent.h"
+#include "TerminalDisplay.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -27,7 +28,7 @@ Popup::ContentView::ContentView (std::unique_ptr<juce::Component> content, jreng
     setOpaque (false);
     glContent = dynamic_cast<jreng::GLComponent*> (ownedContent.get());
 
-    if (auto* terminal { dynamic_cast<Terminal::Component*> (ownedContent.get()) })
+    if (auto* terminal { dynamic_cast<Terminal::Display*> (ownedContent.get()) })
     {
         terminal->onRepaintNeeded = [this, terminal]
         {
@@ -44,8 +45,8 @@ Popup::ContentView::~ContentView() { glRenderer.detach(); }
 
 void Popup::ContentView::resized()
 {
-    if (ownedContent != nullptr)
-        ownedContent->setBounds (getLocalBounds());
+    jassert (ownedContent != nullptr);
+    ownedContent->setBounds (getLocalBounds());
 }
 
 void Popup::ContentView::initialiseGL()
@@ -142,11 +143,14 @@ void Popup::show (juce::Component& caller,
 
     content->setSize (width, height);
 
-    if (auto* terminal { dynamic_cast<Terminal::Component*> (content.get()) })
+    if (auto* terminal { dynamic_cast<Terminal::Display*> (content.get()) })
+    {
+        popupSessionUuid = terminal->getComponentID();
         terminal->onProcessExited = [this]
         {
             dismiss();
         };
+    }
 
     window = std::make_unique<Window> (std::move (content),
                                        caller,
@@ -154,10 +158,22 @@ void Popup::show (juce::Component& caller,
                                        [this]
                                        {
                                            window.reset();
+                                           removePopupSession();
 
                                            if (onDismiss != nullptr)
                                                onDismiss();
                                        });
+}
+
+void Popup::removePopupSession()
+{
+    if (popupSessionUuid.isNotEmpty())
+    {
+        // teardownTerminal delegates to Session::remove which handles mode routing internally.
+        Terminal::Panes::teardownTerminal (popupSessionUuid);
+
+        popupSessionUuid = {};
+    }
 }
 
 void Popup::dismiss()
@@ -166,6 +182,7 @@ void Popup::dismiss()
     {
         window->exitModalState (0);
         window.reset();
+        removePopupSession();
     }
 }
 

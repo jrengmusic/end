@@ -4,7 +4,7 @@
  *
  * Terminal::Panes subclasses juce::Component to provide a paned layout
  * where one or more terminal sessions are hosted side-by-side or stacked.
- * Each pane owns exactly one Terminal::Component. The ValueTree hierarchy
+ * Each pane owns exactly one Terminal::Display. The ValueTree hierarchy
  * is TAB > PANES > PANE > SESSION, owned by PaneManager and grafted into
  * the application state tree by the owning Tab.
  *
@@ -12,7 +12,7 @@
  * jreng::PaneManager::findLeaf. Panes are owned by
  * jreng::Owner<PaneComponent>; each pane's componentID is its UUID.
  *
- * @see Terminal::Component
+ * @see Terminal::Display
  * @see Terminal::Tabs
  * @see jreng::PaneManager
  */
@@ -20,7 +20,8 @@
 #pragma once
 #include <JuceHeader.h>
 #include "PaneComponent.h"
-#include "TerminalComponent.h"
+#include "TerminalDisplay.h"
+#include "../terminal/logic/Processor.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -53,15 +54,22 @@ public:
     /**
      * @brief Create a new terminal session in this pane.
      *
-     * Terminal::Component::create() handles construction and adding to the
-     * owner. Wires callbacks, registers with PaneManager via addLeaf, and
-     * grafts the SESSION ValueTree into the corresponding PANE node.
+     * In host mode: creates a session via Nexus::Session and calls Session::createDisplay().
+     * In client mode: spawns or attaches a remote session via Nexus::Client and
+     * creates a client-mode Display backed by a hosted Terminal::Processor.
+     *
+     * Wires callbacks, registers with PaneManager via addLeaf, and grafts
+     * the session ValueTree into the corresponding PANE node.
      *
      * @param workingDirectory  Initial cwd for the shell. Empty = inherit parent cwd.
+     * @param uuid              UUID hint for state restoration. In client mode, if this
+     *                          UUID is live on the host the session is attached; otherwise
+     *                          a new session is spawned. Empty = always spawn new.
      * @return The UUID of the newly created terminal (its componentID).
      * @note MESSAGE THREAD.
      */
-    juce::String createTerminal (const juce::String& workingDirectory = {});
+    juce::String createTerminal (const juce::String& workingDirectory = {},
+                                 const juce::String& uuid = {});
 
     /**
      * @brief Create a new Whelmed markdown viewer pane and open the given file.
@@ -138,6 +146,25 @@ public:
     void closePane (const juce::String& uuid);
 
     /**
+     * @brief Split a specific target pane, using an explicit new UUID and cwd.
+     *
+     * Used by the restore walker in MainComponent to reconstruct a saved split
+     * tree. Also used internally by splitImpl() for keyboard-shortcut splits.
+     *
+     * @param targetUuid  UUID of the existing leaf to split.
+     * @param newUuid     UUID hint for the new terminal. Empty = generate fresh.
+     * @param cwd         Working directory for the new terminal. Empty = inherit.
+     * @param direction   "vertical" for left/right divider; "horizontal" for top/bottom.
+     * @param isVertical  True when the resizer bar is vertical (direction == "vertical").
+     * @note MESSAGE THREAD.
+     */
+    void splitAt (const juce::String& targetUuid,
+                  const juce::String& newUuid,
+                  const juce::String& cwd,
+                  const juce::String& direction,
+                  bool isVertical);
+
+    /**
      * @brief Split the active pane into side-by-side columns.
      *
      * Delegates to splitImpl ("vertical", true).
@@ -163,6 +190,64 @@ public:
      * @note MESSAGE THREAD.
      */
     void focusPane (int deltaX, int deltaY);
+
+    // =========================================================================
+    /** @name Terminal lifecycle helpers
+     *
+     * These two helpers centralise session creation and teardown.  All
+     * other call sites (createTerminal, splitImpl, MainComponent popup,
+     * Tabs::closeActiveTab, Popup::removePopupSession) delegate here.
+     * Mode routing (local / daemon / client) is owned by Nexus::Session.
+     * @{ */
+
+    /**
+     * @brief Result type returned by buildTerminal.
+     *
+     * `processor` is always non-null and is used to call createDisplay.
+     * Processor ownership lives in Nexus::Session (local/daemon) or the
+     * Session-internal Client (client mode).  Callers receive only a non-owning pointer.
+     */
+    struct CreatedTerminal
+    {
+        juce::String uuid;
+        Terminal::Processor* processor;
+    };
+
+    /**
+     * @brief Constructs a terminal Processor via the unified Nexus::Session API.
+     *
+     * Delegates to `Nexus::Session::getContext()->create()` which routes
+     * internally through local, daemon, or client mode.  Returns a non-owning
+     * pointer into the Session (or Client) pool.
+     *
+     * @param shell      Shell program path.  Empty = use Config default.
+     * @param args       Shell arguments.  Empty = use Config default.
+     * @param cwd        Initial working directory.  Empty = inherit.
+     * @param uuidHint   UUID hint (nexus restore).  Empty = generate new.
+     * @return CreatedTerminal with uuid and non-owning processor*.
+     * @note MESSAGE THREAD.
+     */
+    static CreatedTerminal buildTerminal (const juce::String& shell,
+                                          const juce::String& args,
+                                          const juce::String& cwd,
+                                          const juce::String& uuidHint);
+
+    /**
+     * @brief Tears down a terminal session.
+     *
+     * Delegates to `Nexus::Session::getContext()->remove(uuid)` which handles
+     * mode routing internally — local, daemon, and client modes are all covered
+     * by Session's unified remove() implementation.
+     *
+     * Display must be erased before this call so no dangling reference exists
+     * at destruction time.
+     *
+     * @param uuid  The UUID of the terminal to tear down.
+     * @note MESSAGE THREAD.
+     */
+    static void teardownTerminal (const juce::String& uuid);
+
+    /** @} */
 
     /**
      * @brief Handle component resize events.
@@ -190,7 +275,7 @@ private:
      * @param terminal  The terminal to wire.
      * @note MESSAGE THREAD.
      */
-    void setTerminalCallbacks (Terminal::Component* terminal);
+    void setTerminalCallbacks (Terminal::Display* terminal);
 
     /**
      * @brief Shared implementation for splitHorizontal and splitVertical.

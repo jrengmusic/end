@@ -1,13 +1,13 @@
 /**
  * @file MouseHandler.h
- * @brief Handles all mouse input routing for a terminal session.
+ * @brief Handles all mouse input routing for a terminal processor.
  *
  * MouseHandler centralises all mouse event logic previously spread across
- * TerminalComponent: PTY forwarding, selection anchor/drag, link hit-testing,
+ * TerminalDisplay: PTY forwarding, selection anchor/drag, link hit-testing,
  * scroll accumulation for smooth trackpad input, and word/line selection.
  *
  * All selection state is written to `State` parameters.  `ScreenSelection`
- * construction happens in `TerminalComponent::onVBlank()` from those State
+ * construction happens in `TerminalDisplay::onVBlank()` from those State
  * params — MouseHandler never writes to `ScreenSelection` directly.
  *
  * ### Coordinate convention
@@ -16,7 +16,7 @@
  * **absolute (scrollback-aware)** coordinates before writing to State, matching
  * the keyboard selection path.
  *
- * @see Terminal::Session
+ * @see Terminal::Processor
  * @see Terminal::Screen
  * @see LinkManager
  */
@@ -28,15 +28,15 @@
 namespace Terminal
 {
 
-class Session;
+class Processor;
 class ScreenBase;
 class LinkManager;
 
 /**
  * @class MouseHandler
- * @brief Mouse event dispatcher for a single terminal session.
+ * @brief Mouse event dispatcher for a single terminal processor.
  *
- * Constructed with references to the session, screen, and link manager.  All
+ * Constructed with references to the processor, screen, and link manager.  All
  * references must remain valid for the lifetime of the `MouseHandler`.
  *
  * @par Thread context
@@ -60,12 +60,12 @@ public:
 
     /**
      * @brief Constructs a MouseHandler.
-     * @param session     Terminal session (state, grid, PTY write).
+     * @param processor   Terminal processor (state, grid, PTY write).
      * @param screen      Terminal renderer (cell coordinate mapping).
      * @param linkManager Link manager (hit-testing, dispatch).
      * @note MESSAGE THREAD.
      */
-    MouseHandler (Session& session,
+    MouseHandler (Processor& processor,
                   ScreenBase& screen,
                   LinkManager& linkManager) noexcept;
 
@@ -165,8 +165,8 @@ private:
      */
     int toAbsoluteRow (int visibleRow) const noexcept;
 
-    /** @brief Terminal session — provides state, grid, and PTY write access. */
-    Session& session;
+    /** @brief Terminal processor — provides state, grid, and PTY write access. */
+    Processor& processor;
 
     /** @brief Terminal renderer — provides cell coordinate mapping. */
     ScreenBase& screen;

@@ -25,7 +25,7 @@ namespace Whelmed
  *
  * Owns the document state, parser, Screen, and InputHandler. Implements the
  * full PaneComponent interface (selection, renderer switching, config) so it
- * can occupy any split pane alongside Terminal::Component instances.
+ * can occupy any split pane alongside Terminal::Display instances.
  *
  * @note MESSAGE THREAD — all public methods.
  */

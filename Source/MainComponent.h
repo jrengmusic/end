@@ -47,6 +47,7 @@
 #include "action/ActionList.h"
 // jreng::Typeface is available via JuceHeader → jreng_glyph
 #include "component/StatusBarOverlay.h"
+#include "component/LoaderOverlay.h"
 #include "whelmed/Component.h"
 #include "config/WhelmedConfig.h"
 
@@ -78,11 +79,11 @@ public:
     /**
      * @brief Constructs the component, creates Terminal::Tabs, sets initial size.
      *
-     * @param collection  Font slot registry owned by ENDApplication.  Passed
-     *                    through to the `Fonts` instance so font slots can be
-     *                    populated and resolved without a singleton.
+     * @param fontRegistry  Font slot registry owned by ENDApplication.  Passed
+     *                      through to the `Fonts` instance so font slots can be
+     *                      populated and resolved without a singleton.
      */
-    explicit MainComponent (jreng::Typeface::Registry& fontRegistry);
+    MainComponent (jreng::Typeface::Registry& fontRegistry);
 
     /** @brief Clears the BackgroundBlur close callback before destruction. */
     ~MainComponent() override;
@@ -104,6 +105,30 @@ public:
      * @see Config::onReload
      */
     void applyConfig();
+
+    /**
+     * @brief Returns a reference to the `LoaderOverlay` child component.
+     *
+     * Called by `ENDApplication` to show/hide the overlay during async nexus
+     * connection.  The overlay is a permanent child of `MainComponent`; it is
+     * hidden by default and has no impact on layout.
+     *
+     * @return Reference to the `LoaderOverlay`.
+     * @note MESSAGE THREAD.
+     */
+    LoaderOverlay& getLoaderOverlay() noexcept;
+
+    /**
+     * @brief Called by ENDApplication when the nexus client connection is made.
+     *
+     * In nexus mode the constructor defers `initialiseTabs()` until a live
+     * `Nexus::Client` context exists.  This method is the deferred entry point;
+     * it is called from the `client->onConnectionMade` lambda in Main.cpp after
+     * the loader overlay has been hidden.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void onNexusConnected();
 
 private:
     /**
@@ -144,14 +169,17 @@ private:
     /** @brief Shared OpenGL atlas renderer; attached to this component, renders all GL children. */
     jreng::GLAtlasRenderer glRenderer { &typeface, &whelmedBodyFont, &whelmedCodeFont };
 
-    /** @brief Tabbed terminal container; owns all Terminal::Component instances. */
+    /** @brief Tabbed terminal container; owns all Terminal::Display instances. */
     std::unique_ptr<Terminal::Tabs> tabs;
 
     /** @brief Transient overlay for grid-size and status messages. */
     std::unique_ptr<MessageOverlay> messageOverlay;
 
     /** @brief Status bar overlay; shown during any active modal state (selection, open-file, etc.). */
-    StatusBarOverlay statusBarOverlay { AppState::getContext()->getTabs() };
+    std::unique_ptr<StatusBarOverlay> statusBarOverlay;
+
+    /** @brief Indeterminate spinner shown while the nexus daemon connection is pending. */
+    std::unique_ptr<LoaderOverlay> loaderOverlay;
 
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;
@@ -196,7 +224,7 @@ private:
      * @see MessageOverlay
      * @see Config::getLoadError()
      */
-    void initialiseMessageOverlay();
+    void initialiseOverlays();
 
     /**
      * @brief Computes grid dimensions from font metrics and window bounds, displays "cols * rows" overlay on resize.
@@ -207,9 +235,9 @@ private:
     void showMessageOverlay();
 
     //==============================================================================
-    #if JUCE_DEBUG
-        jreng::debug::Widget debug { this, false };
-    #endif
+    // #if JUCE_DEBUG
+    //     jreng::debug::Widget debug { this, false };
+    // #endif
     //==============================================================================
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

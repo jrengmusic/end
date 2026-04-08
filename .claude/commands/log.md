@@ -1,8 +1,13 @@
 ---
-description: Write commit message and log sprint to SPRINT-LOG.md
+description: Write commit message (in chat) and log sprint to carol/SPRINT-LOG.md
 ---
 
-Do both:
+Do both, no approval gate between them:
 
-1. Write a commit message for all current changes. Follow the repository's existing commit message style from git log.
-2. Log sprint to SPRINT-LOG.md — full sprint block with agents participated, files modified, alignment check, problems solved, and technical debt.
+**1. Write commit message in CHAT ONLY.**
+- Draft a commit message for all current changes, following the repository's existing commit style (check recent `git log`).
+- Output the message directly in chat as a code block so ARCHITECT can copy it.
+- Do NOT write the commit message into SPRINT-LOG.md or any other file.
+- Do NOT run `git commit` yourself — ARCHITECT commits manually.
+
+**2. Append sprint entry to carol/SPRINT-LOG.md** using the format defined in CAROL.md (Sprint [N]: [Objective], Date, Duration, Agents Participated, Files Modified, Alignment Check, Problems Solved, Technical Debt). The sprint entry does NOT contain the commit message.

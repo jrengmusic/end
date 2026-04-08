@@ -1,0 +1,110 @@
+/**
+ * @file NexusDaemon.mm
+ * @brief macOS and Linux implementations of NexusDaemon platform helpers.
+ *
+ * macOS:  `hideDockIcon()` uses NSApplicationActivationPolicyAccessory.
+ *         `spawnDaemon()` uses `posix_spawn` with `POSIX_SPAWN_SETSID`.
+ *
+ * Linux:  `hideDockIcon()` is a no-op.
+ *         `spawnDaemon()` uses `posix_spawn` with `POSIX_SPAWN_SETSID`.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD — both functions are called from ENDApplication::initialise().
+ */
+
+#include "NexusDaemon.h"
+#include <JuceHeader.h>
+
+#if JUCE_MAC
+
+#import <Cocoa/Cocoa.h>
+#include <spawn.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+extern char** environ;
+
+namespace Nexus
+{
+/*____________________________________________________________________________*/
+
+void hideDockIcon() noexcept
+{
+    [NSApp setActivationPolicy: NSApplicationActivationPolicyAccessory];
+}
+
+bool spawnDaemon() noexcept
+{
+    const auto execPath { juce::File::getSpecialLocation (juce::File::currentExecutableFile).getFullPathName() };
+
+    posix_spawnattr_t attr;
+    posix_spawnattr_init (&attr);
+    posix_spawnattr_setflags (&attr, POSIX_SPAWN_SETSID);
+
+    posix_spawn_file_actions_t actions;
+    posix_spawn_file_actions_init (&actions);
+    posix_spawn_file_actions_addopen (&actions, STDIN_FILENO,  "/dev/null", O_RDONLY, 0);
+    posix_spawn_file_actions_addopen (&actions, STDOUT_FILENO, "/dev/null", O_WRONLY, 0);
+    posix_spawn_file_actions_addopen (&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
+
+    const char* argv[] { execPath.toRawUTF8(), "--nexus", nullptr };
+
+    pid_t pid { 0 };
+    const int result { posix_spawn (&pid, argv[0], &actions,
+                                    &attr, const_cast<char**> (argv), environ) };
+
+    posix_spawn_file_actions_destroy (&actions);
+    posix_spawnattr_destroy (&attr);
+
+    return result == 0;
+}
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace Nexus
+
+#elif JUCE_LINUX
+
+#include <spawn.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+extern char** environ;
+
+namespace Nexus
+{
+/*____________________________________________________________________________*/
+
+void hideDockIcon() noexcept
+{
+    // No-op on Linux — no single dock API to abstract.
+}
+
+bool spawnDaemon() noexcept
+{
+    const auto execPath { juce::File::getSpecialLocation (juce::File::currentExecutableFile).getFullPathName() };
+
+    posix_spawnattr_t attr;
+    posix_spawnattr_init (&attr);
+    posix_spawnattr_setflags (&attr, POSIX_SPAWN_SETSID);
+
+    posix_spawn_file_actions_t actions;
+    posix_spawn_file_actions_init (&actions);
+    posix_spawn_file_actions_addopen (&actions, STDIN_FILENO,  "/dev/null", O_RDONLY, 0);
+    posix_spawn_file_actions_addopen (&actions, STDOUT_FILENO, "/dev/null", O_WRONLY, 0);
+    posix_spawn_file_actions_addopen (&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
+
+    const char* argv[] { execPath.toRawUTF8(), "--nexus", nullptr };
+
+    pid_t pid { 0 };
+    const int result { posix_spawn (&pid, argv[0], &actions,
+                                    &attr, const_cast<char**> (argv), environ) };
+
+    posix_spawn_file_actions_destroy (&actions);
+    posix_spawnattr_destroy (&attr);
+
+    return result == 0;
+}
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace Nexus
+
+#endif

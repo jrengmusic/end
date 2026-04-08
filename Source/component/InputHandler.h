@@ -1,20 +1,21 @@
 /**
  * @file InputHandler.h
- * @brief Handles all keyboard input routing for a terminal session.
+ * @brief Handles all keyboard input routing for a terminal processor.
  *
  * InputHandler centralises modal key dispatch, vim-style selection navigation,
  * open-file hint-label key matching, scrollback navigation, and the two-key `gg`
  * sequence.  It reads and writes terminal selection state via `State` parameters
- * directly — no `TerminalComponent` members are touched.
+ * directly — no `TerminalDisplay` members are touched.
  *
  * ### Responsibilities
- * - `handleKey()` — top-level dispatch: modal intercept → action system → scroll nav → PTY.
+ * - `handleKey()` — top-level dispatch for normal terminals: modal intercept → action system → scroll nav → PTY.
+ * - `handleKeyDirect()` — direct PTY forward for popup terminals, bypasses action system.
  * - `handleScrollNav()` — Shift+PgUp/PgDn/Home/End scrollback scrolling.
  * - `clearSelectionAndScroll()` — clears drag/selection state and resets scroll offset.
  * - `buildKeyMap()` — parses Config key strings into cached `KeyPress` objects.
  * - `reset()` — clears `pendingG`; called when exiting selection mode.
  *
- * @see Terminal::Session
+ * @see Terminal::Processor
  * @see Terminal::Screen
  * @see LinkManager
  */
@@ -27,15 +28,15 @@
 
 namespace Terminal
 {
-class Session;
+class Processor;
 class LinkManager;
 } // namespace Terminal
 
 /**
  * @class InputHandler
- * @brief Keyboard input dispatcher for a single terminal session.
+ * @brief Keyboard input dispatcher for a single terminal processor.
  *
- * Constructed with references to the session and link manager.  All
+ * Constructed with references to the processor and link manager.  All
  * references must remain valid for the lifetime of the `InputHandler`.
  *
  * @par Thread context
@@ -46,15 +47,15 @@ class InputHandler
 public:
     /**
      * @brief Constructs an InputHandler.
-     * @param session     Terminal session (state, grid, key forwarding).
+     * @param processor   Terminal processor (state, grid, key forwarding).
      * @param linkManager Link manager (used by `handleOpenFileKey`).
      * @note MESSAGE THREAD.
      */
-    InputHandler (Terminal::Session& session,
+    InputHandler (Terminal::Processor& processor,
                   Terminal::LinkManager& linkManager) noexcept;
 
     /**
-     * @brief Top-level key handler.
+     * @brief Top-level key handler for normal (non-popup) terminals.
      *
      * Dispatches:
      * 1. Modal intercept (`handleModalKey`) when a modal is active.
@@ -62,12 +63,24 @@ public:
      * 3. Scroll navigation (Shift+PgUp/PgDn/Home/End).
      * 4. Clear-and-forward — clears selection/scroll, then sends to PTY.
      *
-     * @param key           The key press to handle.
-     * @param isPopupTerminal  When `true`, bypasses the action system (popup model).
+     * @param key  The key press to handle.
      * @return `true` — all key events are consumed.
      * @note MESSAGE THREAD.
      */
-    bool handleKey (const juce::KeyPress& key, bool isPopupTerminal) noexcept;
+    bool handleKey (const juce::KeyPress& key) noexcept;
+
+    /**
+     * @brief Key handler for popup terminals — bypasses the action system.
+     *
+     * Forwards the key directly to the processor PTY without action-system
+     * interception.  Used when the terminal is hosted inside a popup where
+     * the action system must not fire.
+     *
+     * @param key  The key press to handle.
+     * @return `true` — all key events are consumed.
+     * @note MESSAGE THREAD.
+     */
+    bool handleKeyDirect (const juce::KeyPress& key) noexcept;
 
     /**
      * @brief Handles Shift+PgUp/PgDn/Home/End scrollback navigation.
@@ -92,7 +105,7 @@ public:
     /**
      * @brief Parses all selection-mode key strings from Config into the cached key map.
      *
-     * Called from `TerminalComponent::initialise()` and `applyConfig()` so config
+     * Called from `TerminalDisplay::initialise()` and `applyConfig()` so config
      * reloads take effect without restarting.
      *
      * @note MESSAGE THREAD.
@@ -102,7 +115,7 @@ public:
     /**
      * @brief Clears the pending-g flag.
      *
-     * Called by `TerminalComponent::exitSelectionMode()` and `enterSelectionMode()`
+     * Called by `TerminalDisplay::exitSelectionMode()` and `enterSelectionMode()`
      * to reset the two-key `gg` sequence state.
      *
      * @note MESSAGE THREAD.
@@ -179,8 +192,8 @@ private:
         juce::KeyPress exit;
     };
 
-    /** @brief Terminal session — provides state, grid, and key forwarding. */
-    Terminal::Session& session;
+    /** @brief Terminal processor — provides state, grid, and key forwarding. */
+    Terminal::Processor& processor;
 
     /** @brief Link manager — used by open-file mode for dispatch. */
     Terminal::LinkManager& linkManager;

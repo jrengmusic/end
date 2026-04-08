@@ -73,6 +73,16 @@ struct AppState : jreng::Context<AppState>
      */
     void setGpuAvailable (bool available);
 
+    /**
+     * @brief Stores whether this instance is running as a Nexus client.
+     *
+     * Call once in initialise() before creating the main window.
+     */
+    void setNexusMode (bool isNexus);
+
+    /** @brief Returns true when this instance is running as a Nexus client. */
+    bool isNexusMode() const noexcept;
+
     int getActiveTabIndex() const noexcept;
     void setActiveTabIndex (int index);
 

@@ -1,21 +1,14 @@
 /**
  * @file Session.cpp
- * @brief Implementation of the terminal session orchestrator.
- *
- * Implements Session — the top-level object that wires `State`, `Grid`,
- * `Parser`, and `TTY` together.  See Session.h for the full architectural
- * overview and thread-safety contract.
- *
- * ### Thread contexts used in this file
- * - **MESSAGE THREAD** — JUCE message loop; all public methods except `process()`.
- * - **READER THREAD**  — background thread owned by TTY; only `process()`.
+ * @brief Implementation of Terminal::Session — PTY-side terminal session.
  *
  * @see Session.h
  */
 
 #include "Session.h"
-
-#include <cstring>
+#include "../tty/TTY.h"
+#include "../../config/Config.h"
+#include "../../nexus/Log.h"
 
 #if JUCE_MAC || JUCE_LINUX
 #include "../tty/UnixTTY.h"
@@ -23,661 +16,162 @@
 #include "../tty/WindowsTTY.h"
 #endif
 
-#include "../data/Keyboard.h"
-#include "../../config/Config.h"
-
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-static juce::String toMsysPath (const juce::String& path)
-{
-    juce::String result { path.replace (juce::File::getSeparatorString(), "/") };
-
-    if (result.length() >= 3
-        and std::isalpha (static_cast<unsigned char> (result[0]))
-        and result[1] == ':'
-        and result[2] == '/')
-    {
-        result = "/" + juce::String::charToString (std::tolower (static_cast<unsigned char> (result[0])))
-               + result.substring (2);
-    }
-
-    return result;
-}
-
 /**
- * @brief Wires all inter-component callbacks.
+ * @brief Constructs the Session, creates the TTY, and opens the shell.
  *
- * Called once from the constructor.  Establishes the full data-flow graph:
+ * History capacity comes from `Config::Key::terminalScrollbackLines`.
+ * The `onBytes`, `onDrainComplete`, and `onExit` callbacks are wired by the
+ * owner (Nexus::Session) after construction.
  *
- * @par Parser → TTY (host writes)
- * `parser.writeToHost` forwards VT response bytes (e.g. cursor-position
- * reports, device-attribute replies) directly to `tty->write()`.
- *
- * @par TTY → Session (incoming PTY data)
- * `tty->onData` calls `Session::process()` on the **reader thread**, which
- * forwards the raw bytes to `Parser::process()`.
- *
- * @par TTY drain → Parser flush
- * `tty->onDrainComplete` calls `parser.flushResponses()` so that any
- * buffered response sequences are sent after the write buffer drains.
- *
- * @par TTY exit → onShellExited callback
- * `tty->onExit` invokes the public `onShellExited` callback if set.
- *
- * @par Parser clipboard/bell → public callbacks
- * `parser.onClipboardChanged` and `parser.onBell` forward to the
- * corresponding public `Session` callbacks. Title is now written
- * directly to State by Parser (no callback).
- *
- * @note MESSAGE THREAD — called once from the constructor.
+ * @note MESSAGE THREAD.
  */
-void Session::setupCallbacks()
-{
-    parser.writeToHost = [this] (const char* data, int len) { tty->write (data, len); };
-
-    parser.setScrollbackCallback ([this] (int count)
-    {
-        state.setScrollbackUsed (count);
-    });
-
-    tty->onData = [this] (const char* data, int len)
-    {
-        const juce::ScopedLock lock (grid.getResizeLock());
-        process (data, len);
-    };
-    tty->onDrainComplete = [this]
-    {
-        parser.flushResponses();
-        state.clearPasteEchoGate();
-
-        if (state.consumeSyncResize())
-            tty->platformResize (grid.getCols(), grid.getVisibleRows());
-    };
-    tty->onExit = [this]
-    {
-        if (onShellExited)
-        {
-            onShellExited();
-        }
-    };
-
-    parser.onClipboardChanged = [this] (const juce::String& c)
-    {
-        if (onClipboardChanged)
-        {
-            onClipboardChanged (c);
-        }
-    };
-    parser.onBell = [this]
-    {
-        if (onBell)
-        {
-            onBell();
-        }
-    };
-    parser.onDesktopNotification = [this] (const juce::String& title, const juce::String& body)
-    {
-        if (onDesktopNotification)
-        {
-            onDesktopNotification (title, body);
-        }
-    };
-
-    state.onFlush = [this]
-    {
-        if (tty != nullptr)
-        {
-            const int fgPid { tty->getForegroundPid() };
-
-            if (fgPid > 0)
-            {
-                char fgNameBuf[State::maxStringLength] {};
-                tty->getProcessName (fgPid, fgNameBuf, State::maxStringLength);
-                state.setForegroundProcess (fgNameBuf, static_cast<int> (std::strlen (fgNameBuf)));
-
-                char cwdBuf[State::maxStringLength] {};
-                tty->getCwd (fgPid, cwdBuf, State::maxStringLength);
-                state.setCwd (cwdBuf, static_cast<int> (std::strlen (cwdBuf)));
-            }
-        }
-    };
-}
-
-/**
- * @brief Constructs the Session, creates the platform TTY, and wires callbacks.
- *
- * Member initialisation order (matches declaration order in Session.h):
- * 1. `state`  — default-constructed terminal parameter store.
- * 2. `grid`   — constructed with a reference to `state` (reads dimensions).
- * 3. `parser` — constructed with references to `state` and `grid`.
- * 4. `tty`    — platform-specific PTY created via `std::make_unique`.
- *
- * After construction, `setupCallbacks()` connects all inter-component lambdas.
- * The PTY is **not** opened here; it is opened on the first `resized()` call.
- *
- * @note MESSAGE THREAD — must be constructed on the message thread.
- */
-Session::Session()
-    : grid (state)
-    , parser (state, Grid::Writer { grid })
+Session::Session (int cols, int rows,
+                  const juce::String& shell,
+                  const juce::String& args,
+                  const juce::String& cwd)
+    : history { Config::getContext()->getInt (Config::Key::terminalScrollbackLines) }
 {
 #if JUCE_MAC || JUCE_LINUX
-    tty = std::make_unique<UnixTTY> ();
+    tty = std::make_unique<UnixTTY>();
 #elif JUCE_WINDOWS
-    tty = std::make_unique<WindowsTTY> ();
+    tty = std::make_unique<WindowsTTY>();
 #endif
 
-    setupCallbacks();
+    tty->onData = [this] (const char* bytes, int len)
+    {
+        history.append (bytes, static_cast<size_t> (len));
+
+        if (onBytes != nullptr)
+            onBytes (bytes, len);
+    };
+
+    tty->onDrainComplete = [this]
+    {
+        if (onDrainComplete != nullptr)
+            onDrainComplete();
+    };
+
+    tty->onExit = [this]
+    {
+        if (onExit != nullptr)
+            onExit();
+    };
+
+    tty->open (cols, rows, shell, args, cwd);
+
+    Nexus::logLine ("Terminal::Session ctor: shell=" + shell + " cols=" + juce::String (cols)
+                    + " rows=" + juce::String (rows));
 }
 
 /**
- * @brief Destroys the Session.
- *
- * The compiler-generated destructor destroys members in reverse declaration
- * order: `tty` first (stops the reader thread and closes the PTY fd), then
- * `parser`, `grid`, and finally `state`.  This ordering ensures the reader
- * thread cannot call `process()` after `parser` or `grid` are torn down.
- *
- * @note MESSAGE THREAD — must be destroyed on the message thread.
+ * @brief Stops the PTY and releases all resources.
+ * @note MESSAGE THREAD.
  */
 Session::~Session()
 {
-    if (tty != nullptr)
-    {
-        // Threat: onExit is dispatched via callAsync (TTY.cpp:100).  If we
-        // close() first, the reader thread may post callAsync(onExit) just
-        // before stopping.  That async callback captures `this` (Session)
-        // and will fire on the message thread after Session is destroyed.
-        //
-        // Fix: null onExit BEFORE close().  The reader thread checks
-        // `if (onExit)` before posting callAsync — if we null it first and
-        // the reader hasn't posted yet, no async callback is queued.  If the
-        // reader already posted, the lambda captured a copy of onExit by
-        // reference through `this`, which will be dangling.  To handle that
-        // case, close() calls stopThread() which waits for the reader to
-        // fully exit.  After stopThread() returns, no more callbacks will be
-        // posted.  Any already-posted callAsync is harmless because
-        // onShellExited is a stateless lambda (captures nothing from Session).
-        onShellExited  = nullptr;
-        tty->onExit    = nullptr;
-        tty->close();
-        tty->onData = nullptr;
-        tty->onDrainComplete = nullptr;
-    }
+    stop();
 }
 
+/**
+ * @brief Writes raw input bytes to the PTY.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Session::sendInput (const char* data, int len)
+{
+    jassert (tty != nullptr);
+    jassert (data != nullptr);
+    jassert (len > 0);
+
+    tty->write (data, len);
+}
 
 /**
- * @brief Notifies the session of a terminal viewport resize.
+ * @brief Notifies the shell of a terminal resize via SIGWINCH.
  *
- * `grid.resize()` and `parser.resize()` are ALWAYS called directly on the
- * message thread, under `resizeLock`.  This is safe because `tty->onData`
- * acquires `resizeLock` before calling `process()`, so the parser never
- * observes a partially-resized grid.
- *
- * When the TTY reader thread is already running, `platformResize()` is called
- * to send `SIGWINCH` to the shell.  Before the TTY has started, a `callAsync`
- * defers `tty->open()` to allow additional `resized()` calls to coalesce;
- * the guard `tty->isThreadRunning()` prevents double-open.  The async block
- * re-reads final dims from State and calls `grid.resize()` / `parser.resize()`
- * once more to ensure the grid matches the coalesced size before the TTY opens.
- *
- * @param cols  New terminal width in character columns.
- * @param rows  New terminal height in character rows.
- *
- * @note MESSAGE THREAD only.
+ * @note MESSAGE THREAD.
  */
-void Session::resized (int cols, int rows)
+void Session::resize (int cols, int rows)
 {
-    grid.resize (cols, rows);
-    parser.resize (cols, rows);
+    jassert (tty != nullptr);
 
     if (tty->isThreadRunning())
-    {
         tty->platformResize (cols, rows);
-    }
-    else if (cols > 0 and rows > 0)
-    {
-        juce::MessageManager::callAsync ([this]
-        {
-            if (not tty->isThreadRunning())
-            {
-                const int finalCols { state.getCols() };
-                const int finalRows { state.getVisibleRows() };
-
-                grid.resize (finalCols, finalRows);
-                parser.resize (finalCols, finalRows);
-
-                const auto shell { shellOverride.isNotEmpty()
-                    ? shellOverride
-                    : Config::getContext()->getString (Config::Key::shellProgram) };
-                auto args { shellOverride.isNotEmpty()
-                    ? shellArgsOverride
-                    : Config::getContext()->getString (Config::Key::shellArgs) };
-                applyShellIntegration (shell, args);
-
-                if (workingDirectory.isNotEmpty())
-                    tty->addShellEnv ("END_CWD", toMsysPath (workingDirectory));
-
-                tty->open (finalCols, finalRows, shell, args, workingDirectory);
-                const juce::String shellName { shell.contains (juce::File::getSeparatorString())
-                    ? juce::File (shell).getFileName()
-                    : shell };
-                state.get().setProperty (ID::shellProgram, shellName, nullptr);
-            }
-        });
-    }
-}
-
-void Session::setWorkingDirectory (const juce::String& path)
-{
-    workingDirectory = path;
-}
-
-void Session::setShellProgram (const juce::String& program, const juce::String& args)
-{
-    shellOverride = program;
-    shellArgsOverride = args;
-}
-
-#if ! JUCE_WINDOWS
-juce::String Session::getShellEnvVar (const juce::String& varName) const
-{
-    juce::String result;
-
-    if (tty != nullptr)
-    {
-        const int fgPid { tty->getForegroundPid() };
-
-        if (fgPid > 0)
-        {
-            constexpr int maxEnvValueLength { 8192 };
-            char buf[maxEnvValueLength] {};
-            const int len { tty->getEnvVar (fgPid, varName.toRawUTF8(), buf, maxEnvValueLength) };
-
-            if (len > 0)
-            {
-                result = juce::String::fromUTF8 (buf, len);
-            }
-        }
-    }
-
-    return result;
-}
-#endif
-
-void Session::addExtraEnv (const juce::String& key, const juce::String& value)
-{
-    tty->addShellEnv (key, value);
 }
 
 /**
- * @brief Translates a JUCE key press into a VT escape sequence and writes it to the PTY.
+ * @brief Performs the OS-level PTY resize.
  *
- * Reads `ID::applicationCursor` from the ValueTree (message-thread SSOT) to
- * select the correct cursor-key encoding:
- * - **Normal mode** — ANSI sequences (`ESC[A` … `ESC[D`).
- * - **Application mode** — SS3 sequences (`ESSA` … `ESSD`).
+ * Called by the pipeline during sync-resize (from onDrainComplete on READER THREAD).
  *
- * Delegates the translation to `Keyboard::map()`.  If the key has no VT
- * mapping (returns an empty string), nothing is written to the PTY.
- *
- * @param key  The JUCE key press event to translate and forward.
- *
- * @note MESSAGE THREAD only — reads from the ValueTree.
- * @see Keyboard::map()
+ * @note READER THREAD.
  */
-void Session::handleKeyPress (const juce::KeyPress& key)
+void Session::platformResize (int cols, int rows)
 {
-    // MESSAGE THREAD — read from ValueTree, the SSOT
-    juce::String seq;
-
-#if JUCE_WINDOWS
-    if (state.getMode (ID::win32InputMode))
-    {
-        seq = Keyboard::encodeWin32Input (key);
-    }
-    else
-#endif
-    {
-        const bool applicationCursor { state.getMode (ID::applicationCursor) };
-        const uint32_t keyboardFlags { state.getKeyboardFlags() };
-        seq = Keyboard::map (key, applicationCursor, keyboardFlags);
-    }
-
-    if (seq.isNotEmpty())
-    {
-        tty->write (seq.toRawUTF8(), static_cast<int> (seq.getNumBytesAsUTF8()));
-    }
+    jassert (tty != nullptr);
+    tty->platformResize (cols, rows);
 }
 
 /**
- * @brief Pastes text into the terminal, optionally wrapping in bracketed-paste markers.
+ * @brief Returns the PID of the foreground process running in the PTY.
  *
- * Reads `ID::bracketedPaste` from the ValueTree.  If bracketed paste mode is
- * active (set by the application via `ESC[?2004h`), wraps the text:
- *
- * @code
- * ESC[200~  <text>  ESC[201~
- * @endcode
- *
- * This allows the receiving application to distinguish pasted text from typed
- * input and suppress newline interpretation.
- *
- * Does nothing if `text` is empty or `tty` is null.
- *
- * @param text  The UTF-8 text to paste.
- *
- * @note MESSAGE THREAD only — reads from the ValueTree.
+ * @note READER THREAD.
  */
-void Session::paste (const juce::String& text)
+int Session::getForegroundPid() const noexcept
 {
-    if (text.isNotEmpty() and tty != nullptr)
-    {
-        const bool bracketed { state.getMode (ID::bracketedPaste) };
-        const auto utf8 { text.toRawUTF8() };
-        const int utf8Len { static_cast<int> (text.getNumBytesAsUTF8()) };
-
-        if (bracketed)
-        {
-            static constexpr const char open[]  { "\x1b[200~" };
-            static constexpr const char close[] { "\x1b[201~" };
-            static constexpr int bracketLen { 6 };
-
-            juce::HeapBlock<char> buf (static_cast<size_t> (bracketLen + utf8Len + bracketLen));
-            std::memcpy (buf.get(), open, bracketLen);
-            std::memcpy (buf.get() + bracketLen, utf8, static_cast<size_t> (utf8Len));
-            std::memcpy (buf.get() + bracketLen + utf8Len, close, bracketLen);
-            tty->write (buf.get(), bracketLen + utf8Len + bracketLen);
-        }
-        else
-        {
-            state.setPasteEchoGate (utf8Len);
-            tty->write (utf8, utf8Len);
-        }
-    }
+    jassert (tty != nullptr);
+    return tty->getForegroundPid();
 }
 
-void Session::writeToPty (const char* data, int len)
+/**
+ * @brief Writes the process name for the given PID into the buffer.
+ *
+ * @note READER THREAD.
+ */
+int Session::getProcessName (int pid, char* buffer, int maxLength) const noexcept
+{
+    jassert (tty != nullptr);
+    return tty->getProcessName (pid, buffer, maxLength);
+}
+
+/**
+ * @brief Writes the current working directory for the given PID into the buffer.
+ *
+ * @note READER THREAD.
+ */
+int Session::getCwd (int pid, char* buffer, int maxLength) const noexcept
+{
+    jassert (tty != nullptr);
+    return tty->getCwd (pid, buffer, maxLength);
+}
+
+/**
+ * @brief Returns a snapshot of all buffered history bytes.
+ *
+ * @note MESSAGE THREAD.
+ */
+juce::MemoryBlock Session::snapshotHistory() const
+{
+    return history.snapshot();
+}
+
+/**
+ * @brief Closes the PTY and stops the reader thread.  Idempotent.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Session::stop()
 {
     if (tty != nullptr)
     {
-        tty->write (data, len);
-    }
-}
-
-/**
- * @brief Writes a focus-in or focus-out event to the PTY.
- *
- * Sends a 3-byte sequence to the PTY if `ID::focusEvents` mode is enabled
- * (set by the application via `ESC[?1004h`):
- * - Focus gained: `ESC [ I`
- * - Focus lost:   `ESC [ O`
- *
- * Does nothing if focus-event mode is disabled.
- *
- * @param gained  `true` when the terminal window gained focus, `false` when lost.
- *
- * @note MESSAGE THREAD only — reads from the ValueTree.
- */
-void Session::writeFocusEvent (bool gained) noexcept
-{
-    // MESSAGE THREAD
-    if (state.getMode (ID::focusEvents))
-    {
-        const char seq[3] { '\x1b', '[', gained ? 'I' : 'O' };
-        tty->write (seq, 3);
-    }
-}
-
-/**
- * @brief Encodes and writes a mouse event to the PTY.
- *
- * Reads `ID::mouseSgr` from the ValueTree to select the encoding format:
- *
- * @par SGR encoding (`ESC[<Pb;Px;PyM` / `ESC[<Pb;Px;Pym`)
- * Used when `ID::mouseSgr` is true (set by `ESC[?1006h`).  Supports
- * unlimited column/row values.  Final character is `M` for press, `m` for
- * release.
- *
- * @par X10 encoding (`ESC[M Pb Px Py`)
- * Legacy 6-byte encoding.  Button, column, and row are each clamped to
- * `[0, 223]` (X10 offset 32, max byte value 255) to fit in a single byte.
- * Columns and rows are 1-based in the encoded sequence.
- *
- * @param button  Mouse button index (0 = left, 1 = middle, 2 = right).
- * @param col     Zero-based column of the mouse event (converted to 1-based internally).
- * @param row     Zero-based row of the mouse event (converted to 1-based internally).
- * @param press   `true` for button press, `false` for button release.
- *
- * @note MESSAGE THREAD only — reads from the ValueTree.
- */
-void Session::writeMouseEvent (int button, int col, int row, bool press) noexcept
-{
-    const bool useSgr { true };
-
-    if (useSgr)
-    {
-        // SGR encoding
-        const char finalChar { press ? 'M' : 'm' };
-        const juce::String seq { juce::String ("\x1b[<")
-                                 + juce::String (button) + ";"
-                                 + juce::String (col + 1) + ";"
-                                 + juce::String (row + 1)
-                                 + finalChar };
-        tty->write (seq.toRawUTF8(), static_cast<int> (seq.getNumBytesAsUTF8()));
-    }
-    else
-    {
-        // X10 encoding - 6-byte sequence
-        // Clamp to [0, 223] (X10 offset 32, max byte value 255)
-        const int clampedButton { juce::jlimit (0, 223, button + 32) };
-        const int clampedCol { juce::jlimit (0, 223, col + 1 + 32) };
-        const int clampedRow { juce::jlimit (0, 223, row + 1 + 32) };
-
-        char seq[6] { '\x1b', '[', 'M',
-                      static_cast<char> (clampedButton),
-                      static_cast<char> (clampedCol),
-                      static_cast<char> (clampedRow) };
-        tty->write (seq, 6);
-    }
-}
-
-/**
- * @brief Processes raw bytes received from the PTY.
- *
- * Casts the byte buffer to `const uint8_t*` and forwards it to
- * `Parser::process()`, which drives the VT100/VT520 state machine.  The
- * parser writes decoded cells to `Grid` and updates `State` atomics; it also
- * buffers any response sequences that will be flushed via
- * `tty->onDrainComplete → parser.flushResponses()`.
- *
- * @param data    Pointer to the raw byte buffer received from the PTY.
- * @param length  Number of valid bytes in the buffer.
- *
- * @note READER THREAD only — called exclusively from `tty->onData`.
- *       Never call this from the message thread.
- */
-void Session::process (const char* data, int length) noexcept
-{
-    // READER THREAD — keep absolutely minimal
-    parser.process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
-    state.consumePasteEcho (length);
-}
-
-/**
- * @brief Returns a const reference to the terminal State.
- * @return Const reference to the owned `State` object.
- * @note Atomic reads are safe from any thread; ValueTree reads are MESSAGE THREAD only.
- */
-const State& Session::getState() const noexcept { return state; }
-
-/**
- * @brief Returns a mutable reference to the terminal State.
- * @return Mutable reference to the owned `State` object.
- * @note Atomic reads are safe from any thread; ValueTree reads are MESSAGE THREAD only.
- */
-State& Session::getState() noexcept { return state; }
-
-/**
- * @brief Returns a mutable reference to the terminal Grid.
- * @return Mutable reference to the owned `Grid` object.
- * @note Cell reads on the message thread must hold `grid.getResizeLock()`.
- */
-Grid& Session::getGrid() noexcept { return grid; }
-
-/**
- * @brief Returns a const reference to the terminal Grid.
- * @return Const reference to the owned `Grid` object.
- * @note Cell reads on the message thread must hold `grid.getResizeLock()`.
- */
-const Grid& Session::getGrid() const noexcept { return grid; }
-
-/**
- * @brief Returns a const reference to the VT parser.
- * @return Const reference to the owned `Parser` object.
- */
-const Parser& Session::getParser() const noexcept { return parser; }
-Parser& Session::getParser() noexcept { return parser; }
-
-/**
- * @brief Returns whether the child shell process has exited.
- *
- * Delegates to `tty->hasShellExited()`.  Returns `false` if `tty` is null
- * (i.e. before the first `resized()` call).
- *
- * @return `true` if the PTY child process has terminated, `false` otherwise.
- * @note MESSAGE THREAD only.
- */
-bool Session::hasShellExited() const noexcept
-{
-    bool exited { false };
-
-    if (tty != nullptr)
-    {
-        exited = tty->hasShellExited();
-    }
-
-    return exited;
-}
-
-/**
- * @brief Sideloads shell integration scripts and configures env var injection.
- *
- * Dispatches to the appropriate shell-specific integration strategy based on
- * the shell name.  All integration files live under `~/.config/end/`.
- *
- * When integration is disabled: deletes all integration artefacts and clears
- * all env overrides via `clearShellEnv()`.
- *
- * @param shell  Full shell program string used to detect the shell type.
- * @param args   Shell arguments string; modified in-place for bash/powershell.
- *
- * @note MESSAGE THREAD — must be called BEFORE tty->open().
- */
-void Session::applyShellIntegration (const juce::String& shell, juce::String& args)
-{
-    const juce::File configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-                                     .getChildFile (".config/end") };
-    juce::String configPath { toMsysPath (configDir.getFullPathName()) };
-
-    tty->clearShellEnv();
-
-    if (not Config::getContext()->getBool (Config::Key::shellIntegration))
-    {
-        configDir.getChildFile ("zsh").deleteRecursively();
-        configDir.getChildFile ("bash_integration.bash").deleteFile();
-        configDir.getChildFile ("fish").deleteRecursively();
-        configDir.getChildFile ("powershell_integration.ps1").deleteFile();
-    }
-    else if (shell.contains ("zsh"))
-    {
-        const juce::File zshDir { configDir.getChildFile ("zsh") };
-        zshDir.createDirectory();
-
-        const BinaryData::Raw zshenv { "zsh_zshenv.zsh" };
-        const BinaryData::Raw endInteg { "zsh_end_integration.zsh" };
-
-        if (zshenv.exists())
-        {
-            zshDir.getChildFile (".zshenv")
-                  .replaceWithData (zshenv.data, static_cast<size_t> (zshenv.size));
-        }
-
-        if (endInteg.exists())
-        {
-            zshDir.getChildFile ("end-integration")
-                  .replaceWithData (endInteg.data, static_cast<size_t> (endInteg.size));
-        }
-
-        const char* origZdotdir { getenv ("ZDOTDIR") };
-
-        if (origZdotdir != nullptr)
-        {
-            tty->addShellEnv ("END_ORIG_ZDOTDIR", origZdotdir);
-        }
-
-        tty->addShellEnv ("ZDOTDIR", configPath + "/zsh");
-    }
-    else if (shell.contains ("bash"))
-    {
-        const BinaryData::Raw bashScript { "bash_integration.bash" };
-
-        if (bashScript.exists())
-        {
-            const juce::File scriptFile { configDir.getChildFile ("bash_integration.bash") };
-            configDir.createDirectory();
-            scriptFile.replaceWithData (bashScript.data, static_cast<size_t> (bashScript.size));
-
-            tty->addShellEnv ("ENV", configPath + "/bash_integration.bash");
-            tty->addShellEnv ("END_BASH_INJECT", "1");
-            tty->addShellEnv ("END_BASH_UNEXPORT_HISTFILE", "1");
-
-            if (args.contains ("--norc"))
-            {
-                tty->addShellEnv ("END_BASH_NORC", "1");
-            }
-
-            args = "--posix " + args;
-        }
-    }
-    else if (shell.contains ("fish"))
-    {
-        const BinaryData::Raw fishScript { "end-shell-integration.fish" };
-
-        if (fishScript.exists())
-        {
-            const juce::File fishDir { configDir.getChildFile ("fish/vendor_conf.d") };
-            fishDir.createDirectory();
-            fishDir.getChildFile ("end-shell-integration.fish")
-                   .replaceWithData (fishScript.data, static_cast<size_t> (fishScript.size));
-
-            const juce::String integDir { configPath };
-            const char* origXdg { getenv ("XDG_DATA_DIRS") };
-            juce::String newXdg { integDir };
-
-            if (origXdg != nullptr and juce::String (origXdg).isNotEmpty())
-            {
-                newXdg += ":" + juce::String (origXdg);
-            }
-
-            tty->addShellEnv ("XDG_DATA_DIRS", newXdg);
-            tty->addShellEnv ("END_FISH_XDG_DATA_DIR", integDir);
-        }
-    }
-    else if (shell.contains ("pwsh") or shell.contains ("powershell"))
-    {
-        const BinaryData::Raw psScript { "powershell_integration.ps1" };
-
-        if (psScript.exists())
-        {
-            const juce::File scriptFile { configDir.getChildFile ("powershell_integration.ps1") };
-            configDir.createDirectory();
-            scriptFile.replaceWithData (psScript.data, static_cast<size_t> (psScript.size));
-
-            args = "-NoLogo -NoProfile -NoExit -Command \". '" + scriptFile.getFullPathName() + "'\"";
-        }
+        tty->onExit          = nullptr;
+        tty->onData          = nullptr;
+        tty->onDrainComplete = nullptr;
+        tty->close();
+        tty = nullptr;
     }
 }
 

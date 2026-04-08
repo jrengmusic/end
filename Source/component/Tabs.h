@@ -23,7 +23,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "TerminalComponent.h"
+#include "TerminalDisplay.h"
 #include "Panes.h"
 #include "LookAndFeel.h"
 
@@ -83,6 +83,19 @@ public:
     void addNewTab();
 
     /**
+     * @brief Create and add a new terminal tab with an explicit cwd and UUID hint.
+     *
+     * Used by client-mode state.xml restoration to create a tab whose first
+     * terminal attaches to the given UUID (if live on the host) or spawns a new
+     * session in @p workingDirectory.
+     *
+     * @param workingDirectory  Initial cwd for the first terminal.
+     * @param uuid              UUID hint passed through to Panes::createTerminal().
+     * @note MESSAGE THREAD.
+     */
+    void addNewTab (const juce::String& workingDirectory, const juce::String& uuid);
+
+    /**
      * @brief Close the currently active tab and its terminal.
      *
      * If the last tab is closed, the caller (MainComponent) handles quit.
@@ -113,12 +126,12 @@ public:
     /**
      * @brief Get the currently active terminal component.
      *
-     * Returns a pointer to the focused Terminal::Component.
+     * Returns a pointer to the focused Terminal::Display.
      *
      * @return Pointer to the active terminal, or nullptr if none.
      * @note MESSAGE THREAD.
      */
-    Terminal::Component* getActiveTerminal() const noexcept;
+    Terminal::Display* getActiveTerminal() const noexcept;
 
     /**
      * @brief Returns the active Panes' pane owner for GL iteration.
@@ -129,6 +142,17 @@ public:
      * @note MESSAGE THREAD.
      */
     jreng::Owner<PaneComponent>& getPanes() noexcept;
+
+    /**
+     * @brief Returns the Panes instance for the currently active tab.
+     *
+     * Used by MainComponent's restore walker to call splitAt and read getState()
+     * on the newly created Panes immediately after addNewTab().
+     *
+     * @return Pointer to the active Panes, or nullptr if none.
+     * @note MESSAGE THREAD.
+     */
+    Panes* getActivePanes() const noexcept;
 
     /**
      * @brief Opens the given .md file as a Whelmed pane in the active tab.
@@ -296,13 +320,6 @@ private:
      * @note MESSAGE THREAD.
      */
     void updateTabBarVisibility();
-
-    /**
-     * @brief Returns the Panes instance for the active tab.
-     * @return Pointer to the active Panes, or nullptr if none.
-     * @note MESSAGE THREAD.
-     */
-    Panes* getActivePanes() const noexcept;
 
     /** @brief Tracks focus changes to update the active terminal UUID in AppState. */
     void globalFocusChanged (juce::Component* focusedComponent) override;

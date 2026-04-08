@@ -221,6 +221,9 @@ State::State()
     // HYPERLINKS container node — children are created/removed by flushHyperlinks().
     state.appendChild (juce::ValueTree { ID::HYPERLINKS }, nullptr);
 
+    // SUBSCRIBERS container node — children are created/removed by attachSubscriber/detachSubscriber.
+    state.appendChild (juce::ValueTree { ID::SUBSCRIBERS }, nullptr);
+
     buildParameterMap();
 
     cachedCols.referTo (state, ID::cols, nullptr, 0);
@@ -274,6 +277,12 @@ void State::storeAndFlush (const juce::Identifier& key, float v) noexcept
 {
     parameterMap.at (key).get()->store (v, std::memory_order_relaxed);
     getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
+}
+
+/** @note MESSAGE THREAD — writes the session UUID to the root node as a string property. */
+void State::setId (const juce::String& uuid)
+{
+    state.setProperty (jreng::ID::id, uuid, nullptr);
 }
 
 /** @note READER THREAD — delegates to `storeAndFlush (ID::activeScreen, …)`. */
@@ -777,6 +786,7 @@ int State::getVisibleRows() const noexcept { return cachedVisibleRows; }
  * @note MESSAGE THREAD only.
  */
 juce::ValueTree State::get() noexcept { return state; }
+juce::ValueTree State::get() const noexcept { return state; }
 
 /**
  * @brief Returns a live `juce::Value` bound to a specific parameter in the tree.
@@ -1020,6 +1030,33 @@ int State::getScrollOffset() const noexcept
     return result;
 }
 
+/** @note MESSAGE THREAD — reads scrollbackUsed from root param ValueTree node. */
+int State::getScrollbackUsed() const noexcept
+{
+    // MESSAGE THREAD
+    auto param { jreng::ValueTree::getChildWithID (state, ID::scrollbackUsed.toString()) };
+    int result { 0 };
+
+    if (param.isValid())
+    {
+        result = static_cast<int> (param.getProperty (ID::value));
+    }
+
+    return result;
+}
+
+/** @note MESSAGE THREAD — reads title property flushed by flushStrings(). */
+juce::String State::getTitle() const noexcept
+{
+    return state.getProperty (ID::title).toString();
+}
+
+/** @note MESSAGE THREAD — reads cwd property flushed by flushStrings(). */
+juce::String State::getCwd() const noexcept
+{
+    return state.getProperty (ID::cwd).toString();
+}
+
 /**
  * @brief JUCE timer callback — flushes dirty atomics into the ValueTree.
  *
@@ -1244,6 +1281,134 @@ void State::flushStrings() noexcept
     {
         state.setProperty (ID::displayName, name, nullptr);
     }
+}
+
+// =============================================================================
+// Subscriber seqno tracking — MESSAGE THREAD.
+// =============================================================================
+
+/**
+ * @brief Adds a SUBSCRIBER child for @p subscriberId with lastKnownSeqno = 0.
+ *
+ * No-op if a child with matching subscriberId already exists.
+ *
+ * @note MESSAGE THREAD.
+ */
+void State::attachSubscriber (juce::StringRef subscriberId)
+{
+    juce::ValueTree subscribersNode { state.getChildWithName (ID::SUBSCRIBERS) };
+    bool found { false };
+
+    for (int i { 0 }; i < subscribersNode.getNumChildren() and not found; ++i)
+    {
+        juce::ValueTree child { subscribersNode.getChild (i) };
+
+        if (child.getProperty (ID::subscriberId).toString() == juce::String (subscriberId))
+            found = true;
+    }
+
+    if (not found)
+    {
+        juce::ValueTree child { ID::SUBSCRIBER };
+        child.setProperty (ID::subscriberId, juce::String (subscriberId), nullptr);
+        child.setProperty (ID::lastKnownSeqno, juce::int64 { 0 }, nullptr);
+        subscribersNode.appendChild (child, nullptr);
+    }
+}
+
+/**
+ * @brief Removes the SUBSCRIBER child for @p subscriberId.
+ *
+ * No-op if the subscriber is not found.
+ *
+ * @note MESSAGE THREAD.
+ */
+void State::detachSubscriber (juce::StringRef subscriberId)
+{
+    juce::ValueTree subscribersNode { state.getChildWithName (ID::SUBSCRIBERS) };
+    int indexToRemove { -1 };
+
+    for (int i { 0 }; i < subscribersNode.getNumChildren() and indexToRemove < 0; ++i)
+    {
+        juce::ValueTree child { subscribersNode.getChild (i) };
+
+        if (child.getProperty (ID::subscriberId).toString() == juce::String (subscriberId))
+            indexToRemove = i;
+    }
+
+    if (indexToRemove >= 0)
+        subscribersNode.removeChild (indexToRemove, nullptr);
+}
+
+/**
+ * @brief Writes @p seqno as the last-delivered value for @p subscriberId.
+ *
+ * @note MESSAGE THREAD.
+ */
+void State::setSubscriberSeqno (juce::StringRef subscriberId, uint64_t seqno)
+{
+    juce::ValueTree subscribersNode { state.getChildWithName (ID::SUBSCRIBERS) };
+    bool found { false };
+
+    for (int i { 0 }; i < subscribersNode.getNumChildren() and not found; ++i)
+    {
+        juce::ValueTree child { subscribersNode.getChild (i) };
+
+        if (child.getProperty (ID::subscriberId).toString() == juce::String (subscriberId))
+        {
+            child.setProperty (ID::lastKnownSeqno, static_cast<juce::int64> (seqno), nullptr);
+            found = true;
+        }
+    }
+}
+
+/**
+ * @brief Returns the last-delivered seqno for @p subscriberId, or 0 if not found.
+ *
+ * @note MESSAGE THREAD.
+ */
+uint64_t State::getSubscriberSeqno (juce::StringRef subscriberId) const
+{
+    const juce::ValueTree subscribersNode { state.getChildWithName (ID::SUBSCRIBERS) };
+    uint64_t result { 0 };
+    bool found { false };
+
+    for (int i { 0 }; i < subscribersNode.getNumChildren() and not found; ++i)
+    {
+        const juce::ValueTree child { subscribersNode.getChild (i) };
+
+        if (child.getProperty (ID::subscriberId).toString() == juce::String (subscriberId))
+        {
+            result = static_cast<uint64_t> (static_cast<juce::int64> (child.getProperty (ID::lastKnownSeqno)));
+            found  = true;
+        }
+    }
+
+    return result;
+}
+
+// =============================================================================
+// Last-known seqno — proxy / client side.  MESSAGE THREAD.
+// =============================================================================
+
+/**
+ * @brief Stores the seqno of the most recently applied StateInfo snapshot.
+ *
+ * @note MESSAGE THREAD.
+ */
+void State::setLastKnownSeqno (uint64_t seqno)
+{
+    state.setProperty (ID::lastKnownSeqnoRoot, static_cast<juce::int64> (seqno), nullptr);
+}
+
+/**
+ * @brief Returns the seqno of the most recently applied StateInfo snapshot, or 0.
+ *
+ * @note MESSAGE THREAD.
+ */
+uint64_t State::getLastKnownSeqno() const
+{
+    return static_cast<uint64_t> (static_cast<juce::int64> (state.getProperty (ID::lastKnownSeqnoRoot, juce::int64 { 0 })));
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -41,31 +41,34 @@ juce::ValueTree AppState::getTabs() noexcept
 int AppState::getWindowWidth() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
+    int result { static_cast<int> (Config::getContext()->getInt (Config::Key::windowWidth)) };
 
     if (window.isValid() and window.hasProperty (App::ID::width))
-        return static_cast<int> (window.getProperty (App::ID::width));
+        result = static_cast<int> (window.getProperty (App::ID::width));
 
-    return static_cast<int> (Config::getContext()->getInt (Config::Key::windowWidth));
+    return result;
 }
 
 int AppState::getWindowHeight() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
+    int result { static_cast<int> (Config::getContext()->getInt (Config::Key::windowHeight)) };
 
     if (window.isValid() and window.hasProperty (App::ID::height))
-        return static_cast<int> (window.getProperty (App::ID::height));
+        result = static_cast<int> (window.getProperty (App::ID::height));
 
-    return static_cast<int> (Config::getContext()->getInt (Config::Key::windowHeight));
+    return result;
 }
 
 float AppState::getWindowZoom() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
+    float result { Config::getContext()->getFloat (Config::Key::windowZoom) };
 
     if (window.isValid() and window.hasProperty (App::ID::zoom))
-        return static_cast<float> (window.getProperty (App::ID::zoom));
+        result = static_cast<float> (window.getProperty (App::ID::zoom));
 
-    return Config::getContext()->getFloat (Config::Key::windowZoom);
+    return result;
 }
 
 void AppState::setWindowSize (int width, int height)
@@ -109,14 +112,31 @@ void AppState::setGpuAvailable (bool available)
     getWindow().setProperty (App::ID::gpuAvailable, available, nullptr);
 }
 
+void AppState::setNexusMode (bool isNexus)
+{
+    getWindow().setProperty (App::ID::nexusMode, isNexus, nullptr);
+}
+
+bool AppState::isNexusMode() const noexcept
+{
+    auto window { state.getChildWithName (App::ID::WINDOW) };
+    bool result { false };
+
+    if (window.isValid() and window.hasProperty (App::ID::nexusMode))
+        result = static_cast<bool> (window.getProperty (App::ID::nexusMode));
+
+    return result;
+}
+
 int AppState::getActiveTabIndex() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
+    int result { 0 };
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::active))
-        return static_cast<int> (tabs.getProperty (App::ID::active));
+        result = static_cast<int> (tabs.getProperty (App::ID::active));
 
-    return 0;
+    return result;
 }
 
 void AppState::setActiveTabIndex (int index)
@@ -128,11 +148,12 @@ void AppState::setActiveTabIndex (int index)
 juce::String AppState::getTabPosition() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
+    juce::String result { Config::getContext()->getString (Config::Key::tabPosition) };
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::position))
-        return tabs.getProperty (App::ID::position).toString();
+        result = tabs.getProperty (App::ID::position).toString();
 
-    return Config::getContext()->getString (Config::Key::tabPosition);
+    return result;
 }
 
 void AppState::setTabPosition (const juce::String& position)
@@ -201,13 +222,12 @@ juce::ValueTree AppState::getTab (int index) noexcept
 juce::String AppState::getActivePaneID() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
+    juce::String result {};
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::activePaneID))
-    {
-        return tabs.getProperty (App::ID::activePaneID).toString();
-    }
+        result = tabs.getProperty (App::ID::activePaneID).toString();
 
-    return {};
+    return result;
 }
 
 void AppState::setActivePaneID (const juce::String& uuid)
@@ -223,13 +243,12 @@ void AppState::setActivePaneID (const juce::String& uuid)
 juce::String AppState::getActivePaneType() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
+    juce::String result { App::ID::paneTypeTerminal };
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::activePaneType))
-    {
-        return tabs.getProperty (App::ID::activePaneType).toString();
-    }
+        result = tabs.getProperty (App::ID::activePaneType).toString();
 
-    return App::ID::paneTypeTerminal;
+    return result;
 }
 
 void AppState::setActivePaneType (const juce::String& type)
@@ -255,11 +274,12 @@ void AppState::setModalType (int type)
 int AppState::getModalType() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
+    int result { 0 };
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::modalType))
-        return static_cast<int> (tabs.getProperty (App::ID::modalType));
+        result = static_cast<int> (tabs.getProperty (App::ID::modalType));
 
-    return 0;
+    return result;
 }
 
 void AppState::setSelectionType (int type)
@@ -275,23 +295,23 @@ void AppState::setSelectionType (int type)
 int AppState::getSelectionType() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
+    int result { 0 };
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::selectionType))
-        return static_cast<int> (tabs.getProperty (App::ID::selectionType));
+        result = static_cast<int> (tabs.getProperty (App::ID::selectionType));
 
-    return 0;
+    return result;
 }
 
 juce::String AppState::getPwd() const noexcept
 {
     const auto cwd { pwdValue.toString() };
+    juce::String result { juce::File::getSpecialLocation (juce::File::userHomeDirectory).getFullPathName() };
 
     if (cwd.isNotEmpty())
-    {
-        return cwd;
-    }
+        result = cwd;
 
-    return juce::File::getSpecialLocation (juce::File::userHomeDirectory).getFullPathName();
+    return result;
 }
 
 void AppState::setPwd (juce::ValueTree sessionTree)

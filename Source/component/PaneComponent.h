@@ -3,10 +3,10 @@
  * @brief Pure virtual base for pane-hosted components (Terminal, Whelmed).
  *
  * PaneComponent provides the shared interface that Panes uses to manage
- * heterogeneous pane types without type inspection.  Both Terminal::Component
+ * heterogeneous pane types without type inspection.  Both Terminal::Display
  * and Whelmed::Component inherit from this.
  *
- * @see Terminal::Component
+ * @see Terminal::Display
  * @see jreng::GLComponent
  */
 

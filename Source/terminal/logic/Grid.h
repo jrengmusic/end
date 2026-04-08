@@ -460,6 +460,9 @@ public:
      */
     juce::String extractBoxText (juce::Point<int> topLeft, juce::Point<int> bottomRight, int scrollOffset) const;
 
+    /** @brief Returns the current monotonic seqno. READER THREAD — relaxed load. */
+    uint64_t currentSeqno() const noexcept { return seqno.load (std::memory_order_relaxed); }
+
     /** @name Scroll operations
      *  All scroll methods operate on the active screen buffer and are called
      *  exclusively on the READER THREAD.
@@ -706,6 +709,18 @@ private:
         juce::HeapBlock<Grapheme> graphemes;
 
         /**
+         * @brief Per-row write sequence numbers: `totalRows` entries, parallel to `rowStates`.
+         *
+         * `rowSeqnos[physicalRow]` is updated by `markRowDirty()`,
+         * `batchMarkDirty()`, and `markAllDirty()` to the Grid-level `seqno`
+         * counter at the time the row was last dirtied.  Allocated with
+         * `true` (zero-init).
+         *
+         * `currentSeqno()` returns the current value for client use.
+         */
+        juce::HeapBlock<uint64_t> rowSeqnos;
+
+        /**
          * @brief Total number of rows allocated (always a power of two).
          *
          * Equals `visibleRows + scrollbackCapacity` rounded up to the next
@@ -781,6 +796,22 @@ private:
      * except `consumeDirtyRows()` which uses `memory_order_acq_rel`.
      */
     std::atomic<uint64_t> dirtyRows[4] { {~ uint64_t {0}}, {~ uint64_t {0}}, {~ uint64_t {0}}, {~ uint64_t {0}} };
+
+    /**
+     * @brief Monotonic write sequence number.
+     *
+     * Incremented by `markRowDirty()`, `batchMarkDirty()`, and `markAllDirty()`
+     * each time one or more rows are dirtied.  The per-row seqno in
+     * `Buffer::rowSeqnos` records the value of this counter at the time each
+     * row was last marked dirty.
+     *
+     * Per-row seqnos in `Buffer::rowSeqnos` record the value of this counter
+     * at the time each row was last marked dirty.
+     *
+     * @note READER THREAD writes (relaxed).  MESSAGE THREAD reads (relaxed).
+     *       Same concurrency contract as `dirtyRows`.
+     */
+    std::atomic<uint64_t> seqno { 0 };
 
     /**
      * @brief Net lines scrolled up since the last `consumeScrollDelta()` call.

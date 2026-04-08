@@ -348,6 +348,21 @@ namespace ID
     // OSC 8 hyperlink tree node and properties
     //==========================================================================
 
+    /** @brief Container node for per-subscriber seqno tracking (children of SESSION). */
+    static const juce::Identifier SUBSCRIBERS          { "SUBSCRIBERS" };
+
+    /** @brief Child node type for one subscriber entry (children of SUBSCRIBERS). */
+    static const juce::Identifier SUBSCRIBER           { "SUBSCRIBER" };
+
+    /** @brief Property on a SUBSCRIBER node: the subscriber's stable UUID string. */
+    static const juce::Identifier subscriberId         { "subscriberId" };
+
+    /** @brief Property on a SUBSCRIBER node: the last seqno delivered to this subscriber. Stored as int64. */
+    static const juce::Identifier lastKnownSeqno       { "lastKnownSeqno" };
+
+    /** @brief Root-level SESSION property: the last seqno applied to this State (proxy/client side). */
+    static const juce::Identifier lastKnownSeqnoRoot   { "lastKnownSeqnoRoot" };
+
     /** @brief Container node for OSC 8 hyperlink spans (children of SESSION). */
     static const juce::Identifier HYPERLINKS           { "HYPERLINKS" };
 

@@ -4,12 +4,12 @@
  *
  * A LinkSpan records the grid coordinates, resolved URI, type, and hint label
  * for one file path or URL found during an on-demand viewport scan.  It is
- * produced by `Terminal::Component::scanViewportForLinks()` and stored in
- * `Terminal::Component::activeLinks` for the duration of an open-file modal
+ * produced by `Terminal::Display::scanViewportForLinks()` and stored in
+ * `Terminal::Display::activeLinks` for the duration of an open-file modal
  * session.
  *
  * @see LinkDetector
- * @see Terminal::Component::scanViewportForLinks
+ * @see Terminal::Display::scanViewportForLinks
  */
 
 #pragma once
@@ -35,7 +35,7 @@ namespace Terminal
  *
  * @note Header-only — no linkage required.
  * @see LinkDetector::LinkType
- * @see Terminal::Component::scanViewportForLinks
+ * @see Terminal::Display::scanViewportForLinks
  */
 struct LinkSpan
 {

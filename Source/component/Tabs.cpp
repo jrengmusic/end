@@ -3,7 +3,7 @@
  * @brief Terminal::Tabs implementation — tab lifecycle and visibility management.
  *
  * @see Tabs.h
- * @see Terminal::Component
+ * @see Terminal::Display
  * @see Terminal::LookAndFeel
  */
 
@@ -11,6 +11,9 @@
 #include "../AppState.h"
 #include "../terminal/data/Identifier.h"
 #include "../whelmed/Component.h"
+#include "../nexus/Session.h"
+#include "../nexus/Client.h"
+#include "../nexus/Log.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -97,6 +100,55 @@ void Tabs::addNewTab()
 }
 
 /**
+ * @brief Creates a new Panes instance in a new tab, using the given cwd and UUID hint.
+ *
+ * Used by client-mode state.xml restoration.  Passes @p workingDirectory and
+ * @p uuid through to Panes::createTerminal() so the first terminal attaches to
+ * the persisted session (if live on the host) or spawns a fresh shell in @p
+ * workingDirectory.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid)
+{
+    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, whelmedBodyFont, whelmedCodeFont)) };
+    auto& newPanes { *newPanesPtr };
+    newPanes.onRepaintNeeded = onRepaintNeeded;
+    newPanes.onOpenMarkdown = [this] (const juce::File& file)
+    {
+        if (auto* active { getActivePanes() }; active != nullptr)
+            active->createWhelmed (file);
+    };
+    newPanes.onLastPaneClosed = [this]
+    {
+        closeActiveTab();
+
+        if (getTabCount() == 0)
+            juce::JUCEApplication::getInstance()->systemRequestedQuit();
+    };
+    addChildComponent (&newPanes);
+
+    const auto sessionUuid { newPanes.createTerminal (workingDirectory, uuid) };
+
+    auto tab { AppState::getContext()->addTab() };
+    tab.removeChild (tab.getChildWithName (App::ID::PANES), nullptr);
+    tab.appendChild (newPanes.getState(), nullptr);
+
+    AppState::getContext()->setActivePaneID (sessionUuid);
+    auto paneNode { jreng::PaneManager::findLeaf (newPanes.getState(), sessionUuid) };
+    auto sessionTree { paneNode.getChild (0) };
+    AppState::getContext()->setPwd (sessionTree);
+    tabName.referTo (sessionTree.getPropertyAsValue (Terminal::ID::displayName, nullptr));
+
+    const auto initialName { juce::File (AppState::getContext()->getPwd()).getFileName() };
+    const int tabIndex { getNumTabs() };
+    addTab (initialName, juce::Colours::transparentBlack, nullptr, false, tabIndex);
+    setCurrentTabIndex (tabIndex);
+
+    updateTabBarVisibility();
+}
+
+/**
  * @brief Returns the Panes instance for the active tab.
  *
  * @return Pointer to the active Panes, or nullptr if none.
@@ -105,13 +157,12 @@ void Tabs::addNewTab()
 Panes* Tabs::getActivePanes() const noexcept
 {
     const int index { getCurrentTabIndex() };
+    Panes* result { nullptr };
 
     if (index >= 0 and index < static_cast<int> (panes.size()))
-    {
-        return panes.at (index).get();
-    }
+        result = panes.at (index).get();
 
-    return nullptr;
+    return result;
 }
 
 /**
@@ -123,16 +174,17 @@ Panes* Tabs::getActivePanes() const noexcept
 jreng::Owner<PaneComponent>& Tabs::getPanes() noexcept
 {
     static jreng::Owner<PaneComponent> empty;
+    jreng::Owner<PaneComponent>* result { &empty };
 
     if (auto* active { getActivePanes() }; active != nullptr)
-        return active->getPanes();
+        result = &active->getPanes();
 
-    return empty;
+    return *result;
 }
 
 void Tabs::globalFocusChanged (juce::Component* focusedComponent)
 {
-    if (auto* term { dynamic_cast<Terminal::Component*> (focusedComponent) }; term != nullptr)
+    if (auto* term { dynamic_cast<Terminal::Display*> (focusedComponent) }; term != nullptr)
     {
         const auto uuid { term->getValueTree().getProperty (jreng::ID::id).toString() };
         AppState::getContext()->setActivePaneID (uuid);
@@ -204,8 +256,25 @@ void Tabs::closeActiveTab()
         }
         else
         {
+            // C1 fix: collect terminal UUIDs BEFORE destroying Panes, then
+            // remove sessions from Host AFTER Panes (and its Displays) are destroyed.
+            // Destruction order: Display (~Display unwires callbacks) → Host::remove().
+            // This matches the Panes::closePane() contract.
+            juce::StringArray terminalUuids;
+
+            for (const auto& pane : activePanes->getPanes())
+            {
+                if (pane->getPaneType() == App::ID::paneTypeTerminal)
+                    terminalUuids.add (pane->getComponentID());
+            }
+
             removeChildComponent (activePanes);
             panes.erase (panes.begin() + index);
+
+            // Displays are now destroyed (Panes erased). teardownTerminal delegates to Session::remove
+            // which handles mode routing internally.
+            for (const auto& uuid : terminalUuids)
+                Terminal::Panes::teardownTerminal (uuid);
 
             removeTab (index);
             AppState::getContext()->removeTab (index);
@@ -269,22 +338,21 @@ int Tabs::getTabCount() const noexcept { return getNumTabs(); }
  * @return Pointer to the active terminal, or nullptr if none.
  * @note MESSAGE THREAD.
  */
-Terminal::Component* Tabs::getActiveTerminal() const noexcept
+Terminal::Display* Tabs::getActiveTerminal() const noexcept
 {
     const auto activeID { AppState::getContext()->getActivePaneID() };
+    Terminal::Display* result { nullptr };
 
     if (auto* active { getActivePanes() }; active != nullptr)
     {
         for (auto& pane : active->getPanes())
         {
             if (pane->getComponentID() == activeID)
-            {
-                return dynamic_cast<Terminal::Component*> (pane.get());
-            }
+                result = dynamic_cast<Terminal::Display*> (pane.get());
         }
     }
 
-    return nullptr;
+    return result;
 }
 
 
@@ -292,27 +360,28 @@ PaneComponent* Tabs::getActivePane() const noexcept
 {
     const auto activeID { AppState::getContext()->getActivePaneID() };
     const auto activeType { AppState::getContext()->getActivePaneType() };
+    PaneComponent* result { nullptr };
 
     if (auto* active { getActivePanes() }; active != nullptr)
     {
         for (auto& pane : active->getPanes())
         {
             if (pane->getComponentID() == activeID and pane->getPaneType() == activeType)
-            {
-                return pane.get();
-            }
+                result = pane.get();
         }
     }
 
-    return nullptr;
+    return result;
 }
 
 bool Tabs::hasSelection() const noexcept
 {
-    if (const auto* pane { getActivePane() }; pane != nullptr)
-        return pane->hasSelection();
+    bool result { false };
 
-    return false;
+    if (const auto* pane { getActivePane() }; pane != nullptr)
+        result = pane->hasSelection();
+
+    return result;
 }
 
 void Tabs::copySelection()
@@ -511,16 +580,21 @@ void Tabs::applyOrientation()
 
 juce::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::String& position)
 {
-    if (position == "top")
-        return juce::TabbedButtonBar::TabsAtTop;
+    static const std::unordered_map<juce::String, juce::TabbedButtonBar::Orientation> table
+    {
+        { "top",    juce::TabbedButtonBar::TabsAtTop    },
+        { "bottom", juce::TabbedButtonBar::TabsAtBottom },
+        { "right",  juce::TabbedButtonBar::TabsAtRight  },
+        { "left",   juce::TabbedButtonBar::TabsAtLeft   },
+    };
 
-    if (position == "bottom")
-        return juce::TabbedButtonBar::TabsAtBottom;
+    juce::TabbedButtonBar::Orientation result { juce::TabbedButtonBar::TabsAtLeft };
+    const auto it { table.find (position) };
 
-    if (position == "right")
-        return juce::TabbedButtonBar::TabsAtRight;
+    if (it != table.end())
+        result = it->second;
 
-    return juce::TabbedButtonBar::TabsAtLeft;
+    return result;
 }
 
 void Tabs::openMarkdown (const juce::File& file)

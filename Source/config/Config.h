@@ -27,12 +27,12 @@
  *
  * ### Zoom
  * Zoom is stored as a multiplier in `[zoomMin, zoomMax]` by `AppState`.
- * `Terminal::Component::applyZoom()` applies it to the renderer by scaling
+ * `Terminal::Display::applyZoom()` applies it to the renderer by scaling
  * the base font size.
  *
  * @note All public methods are called on the **MESSAGE THREAD**.
  *
- * @see Terminal::Component
+ * @see Terminal::Display
  * @see Config::Theme
  * @see Config::Key
  */
@@ -54,14 +54,14 @@
  * ### Lifecycle
  * 1. `Config()` — calls `initKeys()`, loads `end.lua`.
  * 2. `reload()` — re-runs `initKeys()` then re-loads `end.lua`; used by
- *    Cmd+R in `Terminal::Component`.
+ *    Cmd+R in `Terminal::Display`.
  *
  * @par Thread context
  * **MESSAGE THREAD** — all methods must be called from the JUCE message thread.
  *
  * @see Config::Key
  * @see Config::Theme
- * @see Terminal::Component::applyConfig
+ * @see Terminal::Display::applyConfig
  */
 struct Config : jreng::Context<Config>
 {
@@ -304,6 +304,9 @@ struct Config : jreng::Context<Config>
 
         /** @brief GPU acceleration mode: "auto", "true", or "false". */
         inline static const juce::String gpuAcceleration { "gpu.acceleration" };
+
+        /** @brief Whether the Nexus background daemon is enabled. When true, sessions survive window close. */
+        inline static const juce::String nexus { "nexus" };
 
         /** @brief Font family for the tab bar labels. */
         inline static const juce::String tabFamily { "tab.family" };
@@ -573,7 +576,7 @@ struct Config : jreng::Context<Config>
      *
      * If `~/.config/end/end.lua` does not exist it is created with an empty
      * `END = {}` table.  Errors from `end.lua` are stored in `loadError` and
-     * displayed by `Terminal::Component` at startup.
+     * displayed by `Terminal::Display` at startup.
      *
      * @note MESSAGE THREAD — called once from ENDApplication member init.
      */
@@ -670,11 +673,11 @@ struct Config : jreng::Context<Config>
     /**
      * @brief Resets to defaults and reloads `end.lua`.
      *
-     * Called by `Terminal::Component` on Cmd+R.  Window size and zoom are
+     * Called by `Terminal::Display` on Cmd+R.  Window size and zoom are
      * managed by `AppState` and preserved across reloads.
      *
      * @return The error/warning string from the reload, or empty if clean.
-     * @see Terminal::Component::keyPressed
+     * @see Terminal::Display::keyPressed
      */
     juce::String reload();
 
@@ -713,7 +716,7 @@ struct Config : jreng::Context<Config>
      * @brief Returns the last load error/warning string.
      *
      * Non-empty after a load that produced warnings or a fatal Lua error.
-     * Displayed by `Terminal::Component` as a `MessageOverlay` at startup.
+     * Displayed by `Terminal::Display` as a `MessageOverlay` at startup.
      *
      * @return Reference to the internal error string.
      */

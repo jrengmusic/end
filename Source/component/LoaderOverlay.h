@@ -1,13 +1,14 @@
 /**
  * @file LoaderOverlay.h
- * @brief Braille spinner progress bar shown during markdown file parsing.
+ * @brief Full-screen spinner overlay shown during connection / loading operations.
  *
- * Displays a thin bar at the bottom of the parent component. Fills left-to-right
- * as blocks complete. Text reads: "⠋ [message] (5/194)".
- * Frame advancement is driven by ValueTree events via update().
+ * Covers the entire parent component. Text reads: "⠋ [message] (5/194)".
+ * Frame advancement is driven exclusively by a 10 Hz juce::Timer when the overlay is visible.
+ *
+ * Font and colours match MessageOverlay (overlayFamily / overlaySize / overlayColour).
  *
  * @note All methods MESSAGE THREAD.
- * @see Whelmed::Component
+ * @see MessageOverlay
  */
 
 #pragma once
@@ -15,6 +16,7 @@
 #include "../config/Config.h"
 
 class LoaderOverlay : public juce::Component
+                    , private juce::Timer
 {
 public:
     LoaderOverlay()
@@ -30,38 +32,40 @@ public:
         frameIndex = 0;
         displayMessage = message;
         setVisible (true);
+        startTimerHz (10);
     }
 
     void update (int built, int total)
     {
         builtCount = built;
         totalCount = total;
-        frameIndex = (frameIndex + 1) % frameCount;
         repaint();
     }
 
-    void hide() { setVisible (false); }
+    void hide()
+    {
+        stopTimer();
+        setVisible (false);
+    }
 
     void paint (juce::Graphics& g) override
     {
         const auto* cfg { Config::getContext() };
 
-        const auto bgColour      { cfg->getColour (Config::Key::coloursStatusBar) };
-        const auto fgColour      { cfg->getColour (Config::Key::coloursStatusBarLabelBg) };
-        const auto spinnerColour { cfg->getColour (Config::Key::statusBarSpinnerColour) };
-        const auto textColour    { cfg->getColour (Config::Key::coloursStatusBarLabelFg) };
+        const auto bgColour      { cfg->getColour (Config::Key::windowColour) };
+        const auto fgColour      { cfg->getColour (Config::Key::overlayColour) };
 
-        // Background bar
-        g.setColour (bgColour);
+        // Full-screen background — match MessageOverlay alpha
+        g.setColour (bgColour.withAlpha (0.8f));
         g.fillRect (getLocalBounds());
 
-        // Progress fill
+        // Progress fill strip at bottom when total is known
         if (totalCount > 0)
         {
             const float ratio { static_cast<float> (builtCount) / static_cast<float> (totalCount) };
             const int fillWidth { static_cast<int> (ratio * static_cast<float> (getWidth())) };
-            g.setColour (fgColour);
-            g.fillRect (0, 0, fillWidth, getHeight());
+            g.setColour (fgColour.withAlpha (0.3f));
+            g.fillRect (0, getHeight() - 2, fillWidth, 2);
         }
 
         // Spinner + text
@@ -70,9 +74,8 @@ public:
                                               : juce::String() };
 
         g.setFont (juce::FontOptions()
-                       .withName (cfg->getString (Config::Key::statusBarFontFamily))
-                       .withPointHeight (cfg->getFloat (Config::Key::statusBarFontSize))
-                       .withStyle (cfg->getString (Config::Key::statusBarFontStyle)));
+                       .withName (cfg->getString (Config::Key::overlayFamily))
+                       .withPointHeight (cfg->getFloat (Config::Key::overlaySize)));
 
         const juce::String spinnerChar { juce::String::charToString (frames.at ((size_t) frameIndex)) };
         const juce::String labelText { " " + displayMessage + progressText };
@@ -93,15 +96,21 @@ public:
         const float spinnerCharWidth { gaSpinner.getBoundingBox (0, -1, false).getWidth() };
 
         // Draw spinner char
-        g.setColour (spinnerColour);
+        g.setColour (fgColour);
         g.drawSingleLineText (spinnerChar, static_cast<int> (originX), static_cast<int> (originY), juce::Justification::left);
 
         // Draw label text offset by spinner width
-        g.setColour (textColour);
+        g.setColour (fgColour);
         g.drawSingleLineText (labelText, static_cast<int> (originX + spinnerCharWidth), static_cast<int> (originY), juce::Justification::left);
     }
 
 private:
+    void timerCallback() override
+    {
+        frameIndex = (frameIndex + 1) % frameCount;
+        repaint();
+    }
+
     int frameIndex { 0 };
     int builtCount { 0 };
     int totalCount { 0 };

@@ -143,6 +143,7 @@ void Config::initKeys()
     addKey (Key::windowForceDwm, true, { T::boolean });
     addKey (Key::windowZoom, 1.0, { T::number, 0.0, 0.0, false });
     addKey (Key::gpuAcceleration, "auto", { T::string });
+    addKey (Key::nexus, true, { T::boolean });
 
     addKey (Key::tabFamily, "Display Mono", { T::string });
     addKey (Key::tabSize, 12.0, { T::number, 1.0, 200.0, true });
@@ -285,7 +286,7 @@ void Config::initKeys()
  *
  * If `end.lua` does not exist it is created with an empty `END = {}` table via
  * `writeDefaults()`.  Any load errors are stored in `loadError` and surfaced by
- * `Terminal::Component` as a startup `MessageOverlay`.
+ * `Terminal::Display` as a startup `MessageOverlay`.
  *
  * @note MESSAGE THREAD — called once from ENDApplication member initialisation.
  */
@@ -707,6 +708,14 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                     root.for_each (
                         [this, &warnings] (const sol::object& groupKey, const sol::object& groupVal)
                         {
+                            if (groupKey.get_type() == sol::type::string and groupVal.get_type() != sol::type::table)
+                            {
+                                // Flat scalar at root level (e.g. nexus = true).
+                                const juce::String flatName { groupKey.as<std::string>() };
+                                validateAndStore (flatName, groupVal, values, schema, warnings);
+                                return;
+                            }
+
                             if (groupKey.get_type() == sol::type::string and groupVal.get_type() == sol::type::table)
                             {
                                 const juce::String groupName { groupKey.as<std::string>() };
@@ -804,10 +813,10 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
  * @brief Resets to defaults and reloads `end.lua`.
  *
  * Window size and zoom are managed by `AppState` and preserved across
- * config reloads.  Called by `Terminal::Component` on Cmd+R.
+ * config reloads.  Called by `Terminal::Display` on Cmd+R.
  *
  * @return The error/warning string from the reload, or empty if clean.
- * @see Terminal::Component::keyPressed
+ * @see Terminal::Display::keyPressed
  */
 juce::String Config::reload()
 {

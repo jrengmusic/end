@@ -1,8 +1,8 @@
 /**
  * @file MouseHandler.cpp
- * @brief Implementation of mouse input routing for a terminal session.
+ * @brief Implementation of mouse input routing for a terminal processor.
  *
- * All selection state is written to State parameters.  TerminalComponent::onVBlank()
+ * All selection state is written to State parameters.  TerminalDisplay::onVBlank()
  * builds ScreenSelection from those State params — this handler never touches
  * ScreenSelection directly.
  *
@@ -10,21 +10,22 @@
  */
 
 #include "MouseHandler.h"
-#include "../terminal/logic/Session.h"
+#include "../terminal/logic/Processor.h"
 #include "../terminal/rendering/Screen.h"
 #include "../terminal/selection/LinkManager.h"
 #include "../SelectionType.h"
 #include "../terminal/data/Identifier.h"
 #include "../terminal/data/State.h"
 #include "../config/Config.h"
+#include "../nexus/Session.h"
 
 namespace Terminal
 {
 
-MouseHandler::MouseHandler (Session& s,
+MouseHandler::MouseHandler (Processor& p,
                             ScreenBase& sc,
                             LinkManager& lm) noexcept
-    : session (s)
+    : processor (p)
     , screen (sc)
     , linkManager (lm)
 {
@@ -35,7 +36,8 @@ void MouseHandler::handleDown (const juce::MouseEvent& event)
     if (shouldForwardToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
-        session.writeMouseEvent (0, cell.x, cell.y, true);
+        const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
+        Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else if (event.getNumberOfClicks() == 3)
     {
@@ -43,11 +45,11 @@ void MouseHandler::handleDown (const juce::MouseEvent& event)
         const auto cell { screen.cellAtPoint (event.x, event.y) };
         const int absRow { toAbsoluteRow (cell.y) };
 
-        session.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::visualLine));
-        session.getState().setSelectionAnchor (absRow, 0);
-        session.getState().setSelectionCursor (absRow, 0);
-        session.getState().setDragAnchor (absRow, 0);
-        session.getState().setDragActive (false);
+        processor.state.setSelectionType (static_cast<int> (Terminal::SelectionType::visualLine));
+        processor.state.setSelectionAnchor (absRow, 0);
+        processor.state.setSelectionCursor (absRow, 0);
+        processor.state.setDragAnchor (absRow, 0);
+        processor.state.setDragActive (false);
     }
     else
     {
@@ -56,7 +58,7 @@ void MouseHandler::handleDown (const juce::MouseEvent& event)
 
         // Click-mode dispatch: hit-test against clickable link spans.
         // Only active when no modal is open.
-        if (not session.getState().isModal())
+        if (not processor.state.isModal())
         {
             const Terminal::LinkSpan* matched { linkManager.hitTest (cell.y, cell.x) };
 
@@ -68,18 +70,18 @@ void MouseHandler::handleDown (const juce::MouseEvent& event)
             {
                 // Single click on non-link: record anchor for potential drag.
                 // Clear any existing drag selection.
-                session.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
-                session.getState().setDragAnchor (absRow, cell.x);
-                session.getState().setDragActive (false);
+                processor.state.setSelectionType (static_cast<int> (Terminal::SelectionType::none));
+                processor.state.setDragAnchor (absRow, cell.x);
+                processor.state.setDragActive (false);
             }
         }
         else
         {
             // Single click: record anchor for potential drag.
             // Clear any existing drag selection.
-            session.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
-            session.getState().setDragAnchor (absRow, cell.x);
-            session.getState().setDragActive (false);
+            processor.state.setSelectionType (static_cast<int> (Terminal::SelectionType::none));
+            processor.state.setDragAnchor (absRow, cell.x);
+            processor.state.setDragActive (false);
         }
     }
 
@@ -87,21 +89,22 @@ void MouseHandler::handleDown (const juce::MouseEvent& event)
 
 void MouseHandler::handleDoubleClick (const juce::MouseEvent& event)
 {
-    const juce::ScopedLock lock (session.getGrid().getResizeLock());
+    const juce::ScopedLock lock (processor.grid.getResizeLock());
 
     if (shouldForwardToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
-        session.writeMouseEvent (0, cell.x, cell.y, true);
+        const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
+        Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
-        const int scrollOffset { session.getState().getScrollOffset() };
-        const int cols { session.getGrid().getCols() };
+        const int scrollOffset { processor.state.getScrollOffset() };
+        const int cols { processor.grid.getCols() };
 
         // Scan the visible row (with scroll offset applied) to find word boundaries.
-        const Terminal::Cell* rowCells { session.getGrid().scrollbackRow (cell.y, scrollOffset) };
+        const Terminal::Cell* rowCells { processor.grid.scrollbackRow (cell.y, scrollOffset) };
 
         int wordStart { cell.x };
         int wordEnd { cell.x };
@@ -128,11 +131,11 @@ void MouseHandler::handleDoubleClick (const juce::MouseEvent& event)
         // Write to State selection params — screenSelection rebuilt in onVBlank.
         const int absRow { toAbsoluteRow (cell.y) };
 
-        session.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::visual));
-        session.getState().setSelectionAnchor (absRow, wordStart);
-        session.getState().setSelectionCursor (absRow, wordEnd);
-        session.getState().setDragAnchor (absRow, wordStart);
-        session.getState().setDragActive (false);
+        processor.state.setSelectionType (static_cast<int> (Terminal::SelectionType::visual));
+        processor.state.setSelectionAnchor (absRow, wordStart);
+        processor.state.setSelectionCursor (absRow, wordEnd);
+        processor.state.setDragAnchor (absRow, wordStart);
+        processor.state.setDragActive (false);
     }
 }
 
@@ -141,37 +144,38 @@ void MouseHandler::handleDrag (const juce::MouseEvent& event)
     if (shouldForwardToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
-        session.writeMouseEvent (32, cell.x, cell.y, true);
+        const auto bytes { processor.encodeMouseEvent (32, cell.x, cell.y, true) };
+        Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
-        const int maxCol { session.getGrid().getCols() - 1 };
-        const int maxVisRow { session.getGrid().getVisibleRows() - 1 };
+        const int maxCol { processor.grid.getCols() - 1 };
+        const int maxVisRow { processor.grid.getVisibleRows() - 1 };
 
         const int clampedCol { juce::jlimit (0, maxCol, cell.x) };
         const int clampedVisRow { juce::jlimit (0, maxVisRow, cell.y) };
         const int clampedAbsRow { toAbsoluteRow (clampedVisRow) };
 
         // 2-cell Manhattan distance threshold before starting a drag selection.
-        const int anchorAbsRow { session.getState().getDragAnchorRow() };
-        const int anchorCol { session.getState().getDragAnchorCol() };
+        const int anchorAbsRow { processor.state.getDragAnchorRow() };
+        const int anchorCol { processor.state.getDragAnchorCol() };
         const int manhattanDist { std::abs (clampedCol - anchorCol)
                                 + std::abs (clampedAbsRow - anchorAbsRow) };
 
         if (manhattanDist >= 2)
         {
-            if (not session.getState().isDragActive())
+            if (not processor.state.isDragActive())
             {
                 // Threshold crossed — write anchor and cursor to State.
                 // onVBlank builds screenSelection from State params.
-                session.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::visual));
-                session.getState().setSelectionAnchor (anchorAbsRow, anchorCol);
-                session.getState().setDragActive (true);
+                processor.state.setSelectionType (static_cast<int> (Terminal::SelectionType::visual));
+                processor.state.setSelectionAnchor (anchorAbsRow, anchorCol);
+                processor.state.setDragActive (true);
             }
 
             // Extend or update the drag cursor to current cell.
-            session.getState().setSelectionCursor (clampedAbsRow, clampedCol);
+            processor.state.setSelectionCursor (clampedAbsRow, clampedCol);
         }
     }
 }
@@ -181,20 +185,21 @@ void MouseHandler::handleUp (const juce::MouseEvent& event)
     if (shouldForwardToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
-        session.writeMouseEvent (0, cell.x, cell.y, false);
+        const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, false) };
+        Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else
     {
         // If a drag selection was active, keep the selection highlighted.
         // The user can Cmd+C to copy or click elsewhere to clear it.
         // Reset active flag so subsequent clicks don't extend the selection.
-        session.getState().setDragActive (false);
+        processor.state.setDragActive (false);
     }
 }
 
 void MouseHandler::handleMove (const juce::MouseEvent& event, juce::Component& component)
 {
-    if (not shouldForwardToPty() and not session.getState().isModal())
+    if (not shouldForwardToPty() and not processor.state.isModal())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
         const bool overLink { linkManager.hitTest (cell.y, cell.x) != nullptr };
@@ -219,7 +224,7 @@ void MouseHandler::handleWheel (const juce::MouseEvent& event,
                                 std::function<void (int)> setScrollFn)
 {
     const int scrollLines { Config::getContext()->getInt (Config::Key::terminalScrollStep) };
-    const auto activeScreen { session.getState().getActiveScreen() };
+    const auto activeScreen { processor.state.getActiveScreen() };
 
     if (not wheel.isSmooth)
     {
@@ -233,13 +238,16 @@ void MouseHandler::handleWheel (const juce::MouseEvent& event,
                 const auto cell { screen.cellAtPoint (event.x, event.y) };
 
                 for (int i { 0 }; i < scrollLines; ++i)
-                    session.writeMouseEvent (button, cell.x, cell.y, true);
+                {
+                    const auto bytes { processor.encodeMouseEvent (button, cell.x, cell.y, true) };
+                    Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+                }
             }
         }
         else
         {
             const int delta { scrollUp ? scrollLines : -scrollLines };
-            setScrollFn (session.getState().getScrollOffset() + delta);
+            setScrollFn (processor.state.getScrollOffset() + delta);
         }
     }
     else
@@ -262,12 +270,15 @@ void MouseHandler::handleWheel (const juce::MouseEvent& event,
                     const int count { std::abs (lines) };
 
                     for (int i { 0 }; i < count; ++i)
-                        session.writeMouseEvent (button, cell.x, cell.y, true);
+                    {
+                        const auto bytes { processor.encodeMouseEvent (button, cell.x, cell.y, true) };
+                        Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+                    }
                 }
             }
             else
             {
-                setScrollFn (session.getState().getScrollOffset() + lines);
+                setScrollFn (processor.state.getScrollOffset() + lines);
             }
         }
     }
@@ -275,7 +286,7 @@ void MouseHandler::handleWheel (const juce::MouseEvent& event,
 
 bool MouseHandler::shouldForwardToPty() const noexcept
 {
-    const auto& st { session.getState() };
+    const auto& st { processor.state };
     return st.getMode (Terminal::ID::mouseTracking)
         or st.getMode (Terminal::ID::mouseMotionTracking)
         or st.getMode (Terminal::ID::mouseAllTracking);
@@ -283,9 +294,9 @@ bool MouseHandler::shouldForwardToPty() const noexcept
 
 int MouseHandler::toAbsoluteRow (int visibleRow) const noexcept
 {
-    const juce::ScopedLock lock (session.getGrid().getResizeLock());
-    const int scrollback { session.getGrid().getScrollbackUsed() };
-    const int scrollOffset { session.getState().getScrollOffset() };
+    const juce::ScopedLock lock (processor.grid.getResizeLock());
+    const int scrollback { processor.grid.getScrollbackUsed() };
+    const int scrollOffset { processor.state.getScrollOffset() };
     return scrollback - scrollOffset + visibleRow;
 }
 

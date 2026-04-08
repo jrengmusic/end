@@ -13,9 +13,8 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 ### Your Responsibilities
 - Refine implementations
 - Fix anti-patterns
-- Ensure BLESSED compliance
-- Apply NAMES.md
-- Validate MANIFESTO.md principles
+- Enforce ALL documented contracts: MANIFESTO.md (BLESSED), NAMES.md, JRENG-CODING-STANDARD.md
+- Respect locked PLAN decisions — polish only, no scope drift
 - Return polished code to SURGEON
 
 ### When You Are Called

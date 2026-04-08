@@ -13,7 +13,7 @@
  * - Content size is computed from Config fractions in `show()`.
  *
  * ### GL rendering
- * If the content is a `jreng::GLComponent` (e.g. `Terminal::Component`), the
+ * If the content is a `jreng::GLComponent` (e.g. `Terminal::Display`), the
  * ContentView creates its own `jreng::GLRenderer`, attaches it to itself, and
  * wires the component iterator and repaint callback.  This mirrors the pattern
  * used by `jreng::GlassWindow` + `MainComponent`.  Non-GL content works
@@ -55,7 +55,7 @@ namespace Terminal
  *
  * @par Usage
  * @code
- * auto content { std::make_unique<Terminal::Component>() };
+ * auto content { std::make_unique<Terminal::Display>() };
  * popup.show (*getTopLevelComponent(), std::move (content));
  * @endcode
  *
@@ -117,6 +117,7 @@ public:
     /** @brief Callback invoked when the dialog is dismissed (Escape or close button). */
     std::function<void()> onDismiss;
 
+
 private:
     //==========================================================================
     /**
@@ -141,7 +142,7 @@ private:
          *
          * Detects whether @p content is a `jreng::GLComponent` and, if so,
          * stores a non-owning pointer for the renderer iterator.  Also wires
-         * `Terminal::Component::onRepaintNeeded` if applicable.
+         * `Terminal::Display::onRepaintNeeded` if applicable.
          *
          * @param content  The component to host; ownership is transferred.
          */
@@ -226,8 +227,12 @@ private:
     };
 
     //==========================================================================
+    void removePopupSession();
+
+    //==========================================================================
     Config& config { *Config::getContext() };
     std::unique_ptr<Window> window;
+    juce::String popupSessionUuid;
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Popup)

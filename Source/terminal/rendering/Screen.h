@@ -436,13 +436,13 @@ public:
     void setSelectionCursor (bool active, int row, int col) noexcept;
 
     // =========================================================================
-    // GL lifecycle (called by Terminal::Component from GLComponent overrides)
+    // GL lifecycle (called by Terminal::Display from GLComponent overrides)
     // =========================================================================
 
     /**
      * @brief Called when the GL context is first created.
      *
-     * Called by `Terminal::Component::glContextCreated()`.  Compiles shaders
+     * Called by `Terminal::Display::glContextCreated()`.  Compiles shaders
      * and creates GPU buffers.
      *
      * @note **GL THREAD**.
@@ -452,7 +452,7 @@ public:
     /**
      * @brief Called when the GL context is closing.
      *
-     * Called by `Terminal::Component::glContextClosing()`.  Releases all
+     * Called by `Terminal::Display::glContextClosing()`.  Releases all
      * GPU resources.
      *
      * @note **GL THREAD**.
@@ -462,7 +462,7 @@ public:
     /**
      * @brief Renders a frame to the GL context with viewport offset.
      *
-     * Called by `Terminal::Component::paintGL()`.  Draws backgrounds,
+     * Called by `Terminal::Display::paintGL()`.  Draws backgrounds,
      * mono glyphs, and emoji glyphs using the physical pixel origin offset
      * so the GL viewport accounts for the tab bar.
      *

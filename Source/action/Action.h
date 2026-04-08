@@ -11,7 +11,7 @@
  * 1. Constructed once (typically by `MainComponent`).
  * 2. Caller registers every action via `registerAction()`.
  * 3. `buildKeyMap()` is called automatically at construction and on `reload()`.
- * 4. `TerminalComponent::keyPressed` delegates to `handleKeyPress()`.
+ * 4. `TerminalDisplay::keyPressed` delegates to `handleKeyPress()`.
  * 5. If `handleKeyPress()` returns `true` the key is consumed; otherwise the
  *    caller forwards it to the PTY.
  *
@@ -62,7 +62,7 @@ namespace Action
  * `Registry::getContext()`.  Inherits `juce::Timer` (privately) to implement
  * the prefix-sequence timeout.
  *
- * Registry is deliberately ignorant of `Terminal::Component`, `Session`,
+ * Registry is deliberately ignorant of `Terminal::Display`, `Session`,
  * `Grid`, `Tabs`, or any other subsystem.  All behaviour is injected as
  * `std::function<bool()>` callbacks at registration time.
  *

@@ -7,11 +7,11 @@ version: "1.0"
 project:
   name: "end"
   path: "/Users/jreng/Documents/Poems/dev/end"
-  initialized: "2026-04-04"
+  initialized: "2026-04-07"
 
 carol:
   mode: "portable"  # or "portable"
-  version: "1.0.0"
+  version: "0.0.7"
 
 agents:
   # Track which agents are assigned to roles
@@ -26,4 +26,3 @@ agents:
   machinist: "Not Assigned"
   pathfinder: "Not Assigned"
   researcher: "Not Assigned"
-  validator: "Not Assigned"

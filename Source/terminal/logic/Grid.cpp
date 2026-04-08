@@ -135,6 +135,7 @@ void Grid::initBuffer (Buffer& buffer, int numCols, int totalLines, int numVisib
     const size_t cellCount { static_cast<size_t> (po2) * static_cast<size_t> (numCols) };
     buffer.cells.allocate (cellCount, false);
     buffer.rowStates.allocate (static_cast<size_t> (po2), true);
+    buffer.rowSeqnos.allocate (static_cast<size_t> (po2), true);  // zero-init
 
     const Cell defaultCell {};
     std::fill (buffer.cells.get(), buffer.cells.get() + cellCount, defaultCell);
@@ -174,11 +175,18 @@ void Grid::initBuffer (Buffer& buffer, int numCols, int totalLines, int numVisib
 void Grid::markRowDirty (int row) noexcept
 {
     static constexpr int maxTrackedRows { 256 };
+
     if (row >= 0 and row < maxTrackedRows)
     {
         const int word { row >> 6 };
         const uint64_t bit { uint64_t { 1 } << (row & 63) };
         dirtyRows[word].fetch_or (bit, std::memory_order_relaxed);
+
+        const uint64_t currentSeqno { seqno.fetch_add (1, std::memory_order_relaxed) + 1 };
+        auto& buffer { bufferForScreen() };
+        const int physRow { physicalRow (buffer, row) };
+        buffer.rowSeqnos[static_cast<size_t> (physRow)] = currentSeqno;
+
         state.setSnapshotDirty();
     }
 }
@@ -195,13 +203,32 @@ void Grid::markRowDirty (int row) noexcept
  */
 void Grid::batchMarkDirty (const uint64_t localDirty[4]) noexcept
 {
+    const uint64_t currentSeqno { seqno.fetch_add (1, std::memory_order_relaxed) + 1 };
+    auto& buffer { bufferForScreen() };
+    const int visibleRows { getVisibleRows() };
+
     for (int i { 0 }; i < 4; ++i)
     {
         if (localDirty[i] != 0)
         {
             dirtyRows[i].fetch_or (localDirty[i], std::memory_order_relaxed);
+
+            for (int bit { 0 }; bit < 64; ++bit)
+            {
+                if ((localDirty[i] & (uint64_t { 1 } << bit)) != 0)
+                {
+                    const int row { i * 64 + bit };
+
+                    if (row < visibleRows)
+                    {
+                        const int physRow { physicalRow (buffer, row) };
+                        buffer.rowSeqnos[static_cast<size_t> (physRow)] = currentSeqno;
+                    }
+                }
+            }
         }
     }
+
     state.setSnapshotDirty();
 }
 
@@ -217,10 +244,16 @@ void Grid::batchMarkDirty (const uint64_t localDirty[4]) noexcept
 void Grid::markAllDirty() noexcept
 {
     for (int i { 0 }; i < 4; ++i)
-    {
         dirtyRows[i].store (~uint64_t { 0 }, std::memory_order_relaxed);
-    }
+
     scrollDelta.store (0, std::memory_order_relaxed);
+
+    const uint64_t currentSeqno { seqno.fetch_add (1, std::memory_order_relaxed) + 1 };
+    auto& buffer { bufferForScreen() };
+
+    for (int row { 0 }; row < buffer.totalRows; ++row)
+        buffer.rowSeqnos[static_cast<size_t> (row)] = currentSeqno;
+
     state.setSnapshotDirty();
 }
 
@@ -834,6 +867,7 @@ juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bo
 
     return result;
 }
+
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

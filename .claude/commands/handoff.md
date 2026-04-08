@@ -2,18 +2,17 @@
 description: Freeze session state as handoff for future COUNSELOR pickup
 ---
 
-This session is being frozen. Write a handoff entry to SPRINT-LOG.md so a future COUNSELOR can pick up exactly where we left off.
+This session is being frozen. Do both, no approval gate between them:
 
-Include:
-- Current objective and progress
-- What was completed
-- What remains unfinished
-- Key decisions made and rationale
-- Files modified and their current state
-- Open questions or blockers
-- Recommended next steps
+**1. Write commit message in CHAT ONLY** for any uncommitted changes.
+- Follow the repository's existing commit style (check recent `git log`).
+- Output the message directly in chat as a code block so ARCHITECT can copy it.
+- Do NOT write the commit message into SPRINT-LOG.md or any other file.
+- Do NOT run `git commit` yourself — ARCHITECT commits manually.
 
-Format as:
+**2. Append handoff entry to carol/SPRINT-LOG.md** so a future COUNSELOR can pick up exactly where we left off. The handoff entry does NOT contain the commit message.
+
+Format:
 ```markdown
 ## Handoff to COUNSELOR: [Objective]
 
@@ -42,5 +41,3 @@ Format as:
 ### Next Steps
 - [Where to pick up]
 ```
-
-Also write a commit message for any uncommitted changes.

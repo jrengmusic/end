@@ -1,7 +1,7 @@
 # CAROL
 ## Cognitive Amplifier Role Orchestration with LLM agents
 
-**Version:** 0.0.6
+**Version:** 0.0.7
 **Last Updated:** 5 April 2026
 
 ---
@@ -145,7 +145,7 @@ BRAINSTORMER reads codebase but never executes. Produces RFC.md → COUNSELOR co
 | **COUNSELOR** | Domain specific strategic analysis | Requirements, specs, documentation | `@CAROL.md COUNSELOR: Rock 'n Roll` |
 | **SURGEON** | Surgical precision problem solving | Execution, fixes, implementation | `@CAROL.md SURGEON: Rock 'n Roll` |
 
-**Calling is assignment.** No registration ceremony. Role identification written in SPRINT-LOG only.
+**Calling is assignment.** No registration ceremony. Role identification written in carol/SPRINT-LOG only.
 
 **CRITICAL: Upon Activation Protocol (MANDATORY)**
 
@@ -244,7 +244,7 @@ Subagents invoke via Task tool. Return structured brief to primary.
 - **ALL debt found during sprint MUST be resolved before logging** — no deferral
 ```
 
-**Location:** Append to SPRINT-LOG.md (latest first, keep last 5)
+**Location:** Append to carol/SPRINT-LOG.md (latest first, keep last 5)
 
 **Sprint boundary:** A sprint ends when logged. Any work in the same session after logging is a new sprint. Primaries must not carry over scope assumptions — ARCHITECT defines scope for each sprint.
 
@@ -255,7 +255,7 @@ Subagents invoke via Task tool. Return structured brief to primary.
 ### Primary Agents Maintain Context
 - Accumulate running brief from secondaries/tertiaries
 - Track: files touched, changes made, issues encountered
-- Discard on "log sprint" (written to SPRINT-LOG)
+- Discard on "log sprint" (written to carol/SPRINT-LOG)
 
 ### Subagent Return Format
 ```
@@ -335,10 +335,11 @@ BRIEF:
 - Immutable protocol
 - Single Source of Truth for agent behavior
 
-**SPRINT-LOG.md**
+**carol/SPRINT-LOG.md**
 - Mutable runtime state
 - Long-term context memory across sessions
 - Written by primaries only on explicit request
+- Lives inside carol/ — protocol-specific context, not project deliverable
 
 **RFC.md** — Request for Comments
 - Pre-flight research, rationale, scaffold, open questions
@@ -440,7 +441,7 @@ After O, D, E are surfaced: synthesize the gap, propose the actual question the 
 
 ---
 
-**End of CAROL v0.0.6**
+**End of CAROL v0.0.7**
 
 Rock 'n Roll!  
 **JRENG!**

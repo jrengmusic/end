@@ -465,7 +465,7 @@ void Parser::handleOscCwd (const uint8_t* data, uint16_t dataLength) noexcept
             converted += driveLetter;
             converted += ':';
             converted += juce::String (pathStart + 2, length - 2);
-            state.setCwd (converted.toRawUTF8(), converted.length());
+            state.setCwd (converted.toRawUTF8(), (int) converted.getNumBytesAsUTF8());
         }
         else
 #endif

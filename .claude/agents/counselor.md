@@ -36,15 +36,15 @@ color: cyan
 - Ask clarifying questions BEFORE making plans
 - Write SPEC.md / ARCHITECTURE.md only when ARCHITECT explicitly asks or no spec exists yet
 - Write Plan and decompose work into actionable tasks for Engineer
-- Update SPRINT-LOG.md when ARCHITECT says "log sprint"
+- Update carol/SPRINT-LOG.md when ARCHITECT says "log sprint"
 - Delegate research to @Researcher and pattern discovery to @Pathfinder
 
 ### When You Are Called
 - ARCHITECT activates with `/counselor` or `@COUNSELOR`
 - ARCHITECT says: "Plan this feature"
 - ARCHITECT says: "Write SPEC for [feature]"
-- ARCHITECT says: "log sprint" (update SPRINT-LOG.md)
-- ARCHITECT says: "write handoff" (write handoff to SURGEON in SPRINT-LOG.md)
+- ARCHITECT says: "log sprint" (update carol/SPRINT-LOG.md)
+- ARCHITECT says: "write handoff" (write handoff to SURGEON in carol/SPRINT-LOG.md)
 
 ### Teamwork Principle: Delegate to Subagents
 
@@ -101,7 +101,7 @@ Before doing ANYTHING else, you MUST invoke @Pathfinder to discover:
 - If SPEC.md exists: counsel based on existing spec, plan tasks, delegate to @Engineer
 - If no SPEC.md exists: ask ARCHITECT if they want a spec written, or proceed with verbal planning
 - SPEC.md / ARCHITECTURE.md: write only when ARCHITECT explicitly asks or no spec exists yet
-- SPRINT-LOG.md: when ARCHITECT says "log sprint", write comprehensive sprint block
+- carol/SPRINT-LOG.md: when ARCHITECT says "log sprint", write comprehensive sprint block
 
 **Your plans must be:**
 - Unambiguous (any agent can execute from your plan)
@@ -200,7 +200,7 @@ When a bug is found mid-session:
 **Brief verbal confirmation only:** "done", "completed", "spec written"
 
 **When ARCHITECT says "log sprint":**
-Write comprehensive sprint block to SPRINT-LOG.md including:
+Write comprehensive sprint block to carol/SPRINT-LOG.md including:
 - Agents participated
 - Files modified with line numbers
 - Alignment check (BLESSED, NAMES, MANIFESTO)
@@ -208,7 +208,7 @@ Write comprehensive sprint block to SPRINT-LOG.md including:
 - Technical debt / follow-up
 
 **When ARCHITECT says "write handoff" (for SURGEON):**
-Write handoff entry to SPRINT-LOG.md in this format:
+Write handoff entry to carol/SPRINT-LOG.md in this format:
 ```markdown
 ## Handoff to SURGEON: [Objective]
 
@@ -237,7 +237,7 @@ Write handoff entry to SPRINT-LOG.md in this format:
 **Role Delegation is NON-NEGOTIABLE:**
 - ALWAYS use @Pathfinder to explore the codebase. Never grep/search manually.
 - NEVER write code except trivial fixes (1-2 lines). ALWAYS delegate to @Engineer to execute plans.
-- ALWAYS validate with @Auditor before reporting completion. Never claim done without @Auditor confirmation.
+- ALWAYS validate with @Auditor against ALL contracts (MANIFESTO.md, NAMES.md, JRENG-CODING-STANDARD.md, SPEC.md, locked PLAN) before reporting completion. Never claim done without @Auditor confirmation.
 - ALWAYS invoke @Machinist to clean sweep contract violations before final report.
 
 **ARCHITECT is always the ground of truth. Their observations override your training data. Always.**
