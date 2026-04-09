@@ -10,7 +10,6 @@
 #include "Server.h"
 #include "Session.h"
 #include "ServerConnection.h"
-#include "Log.h"
 #include <algorithm>
 
 namespace Nexus
@@ -82,33 +81,16 @@ Server::~Server()
  */
 bool Server::start (int port)
 {
-    Nexus::logLine ("Server::start: entry port=" + juce::String (port));
-    Nexus::logLine ("Server::start: calling beginWaitingForSocket");
     const bool listening { beginWaitingForSocket (port, "127.0.0.1") };
-    Nexus::logLine ("Server::start: beginWaitingForSocket returned result=" + juce::String (listening ? 1 : 0));
 
     if (listening)
     {
         activePort = getBoundPort();
 
         if (activePort > 0)
-        {
-            const juce::String lockfilePath { getLockfile().getFullPathName() };
-            Nexus::logLine ("Server::start: writing lockfile at " + lockfilePath);
             writeLockfile (activePort);
-            Nexus::logLine ("Server::start: lockfile written port=" + juce::String (activePort));
-        }
-        else
-        {
-            Nexus::logLine ("Server::start: listening but getBoundPort returned 0 - lockfile NOT written");
-        }
-    }
-    else
-    {
-        Nexus::logLine ("Server::start: beginWaitingForSocket failed - not listening");
     }
 
-    Nexus::logLine ("Server::start: exit listening=" + juce::String (listening ? 1 : 0));
     return listening;
 }
 

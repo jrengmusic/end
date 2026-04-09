@@ -9,7 +9,6 @@
 #include "ServerConnection.h"
 #include "Server.h"
 #include "Session.h"
-#include "Log.h"
 #include "Wire.h"
 #include "../terminal/logic/Processor.h"
 
@@ -67,7 +66,6 @@ void ServerConnection::connectionMade()
  */
 void ServerConnection::connectionLost()
 {
-    Nexus::logLine ("NEXUS: connectionLost fired");
     session.detach (*this);
     server.removeConnection (this);
 }
@@ -89,14 +87,7 @@ void ServerConnection::sendPdu (Message kind, const juce::MemoryBlock& payload)
     const auto kindValue { static_cast<uint16_t> (kind) };
     message.append (&kindValue, sizeof (kindValue));
     message.append (payload.getData(), payload.getSize());
-
-    Nexus::logLine ("NEXUS: sendPdu begin kind=" + juce::String ((int) kindValue)
-                    + " totalBytes=" + juce::String ((int) message.getSize()));
-
-    const bool sent { sendMessage (message) };
-
-    Nexus::logLine ("NEXUS: sendPdu end kind=" + juce::String ((int) kindValue)
-                    + " sent=" + juce::String ((int) sent));
+    sendMessage (message);
 }
 
 // =============================================================================
@@ -123,7 +114,6 @@ void ServerConnection::sendPdu (Message kind, const juce::MemoryBlock& payload)
 void ServerConnection::messageReceived (const juce::MemoryBlock& message)
 {
     const auto total { static_cast<int> (message.getSize()) };
-    Nexus::logLine ("NEXUS: messageReceived entry size=" + juce::String (total));
 
     if (total >= 2)
     {
@@ -152,9 +142,6 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
             case Message::createProcessor:
             {
                 const auto parsed { parseSpawnPayload (payload, payloadSize) };
-
-                Nexus::logLine ("NEXUS: received createProcessor uuid=" + parsed.uuid
-                                + " valid=" + juce::String (parsed.valid ? 1 : 0));
 
                 if (parsed.valid)
                 {
@@ -234,9 +221,6 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
                 juce::String uuid;
                 const int uuidConsumed { readString (payload, payloadSize, uuid) };
 
-                Nexus::logLine ("NEXUS: received removeProcessor uuid=" + uuid
-                                + " uuidConsumed=" + juce::String (uuidConsumed));
-
                 if (uuidConsumed > 0 and uuid.isNotEmpty())
                     session.remove (uuid);
 
@@ -244,8 +228,6 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
             }
 
             default:
-                Nexus::logLine ("NEXUS: messageReceived exit kind=unknown rawKind="
-                                + juce::String ((int) rawKind));
                 break;
         }
     }

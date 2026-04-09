@@ -27,7 +27,6 @@
 */
 
 #include "MainComponent.h"
-#include "nexus/Log.h"
 #include "nexus/Session.h"
 #include "terminal/data/Identifier.h"
 
@@ -99,11 +98,8 @@ void MainComponent::onNexusConnected()
 {
     if (tabs == nullptr)
     {
-        Nexus::logLine ("MainComponent::onNexusConnected: before initialiseTabs");
         initialiseTabs();
-        Nexus::logLine ("MainComponent::onNexusConnected: after initialiseTabs, calling resized");
         resized();
-        Nexus::logLine ("MainComponent::onNexusConnected: resized done");
     }
 }
 

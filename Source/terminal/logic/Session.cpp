@@ -8,8 +8,6 @@
 #include "Session.h"
 #include "../tty/TTY.h"
 #include "../../config/Config.h"
-#include "../../nexus/Log.h"
-
 #if JUCE_MAC || JUCE_LINUX
 #include "../tty/UnixTTY.h"
 #elif JUCE_WINDOWS
@@ -55,9 +53,6 @@ Session::Session (int cols, int rows,
         tty->addShellEnv (key, seedEnv[key]);
 
     tty->open (cols, rows, shell, args, cwd);
-
-    Nexus::logLine ("Terminal::Session ctor: shell=" + shell + " cols=" + juce::String (cols)
-                    + " rows=" + juce::String (rows));
 
     // Force clear-screen on first prompt. Readline picks up this buffered byte when it
     // initializes and fires its clear-screen widget, wiping any stale bytes from the

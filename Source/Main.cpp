@@ -52,7 +52,6 @@
 #include "action/Action.h"
 #include "nexus/Session.h"
 #include "nexus/Server.h"
-#include "nexus/Log.h"
 #include "nexus/NexusDaemon.h"
 
 #if JUCE_WINDOWS
@@ -190,24 +189,16 @@ public:
             // ---- Headless daemon mode ----------------------------------------
             // Hide dock icon, start IPC server, wire exit callback, and return.
             // No window is created.  The JUCE message loop runs until all sessions exit.
-            Nexus::initLog ("end-nexus-daemon.log");
-            Nexus::logLine ("daemon: after initLog, calling hideDockIcon");
             Nexus::hideDockIcon();
-            Nexus::logLine ("daemon: hideDockIcon done, constructing Session (DaemonTag)");
-
             nexus = std::make_unique<Nexus::Session> (Nexus::Session::DaemonTag{});
-            Nexus::logLine ("daemon: Session (daemon mode) constructed, wiring onAllSessionsExited");
 
             nexus->onAllSessionsExited = [this]
             {
                 quit();
             };
-            Nexus::logLine ("daemon: onAllSessionsExited wired, entering message loop");
         }
         else
         {
-            Nexus::initLog ("end-nexus-client.log");
-
             const bool nexusEnabled { cfg->getBool (Config::Key::nexus) };
 
             if (not nexusEnabled)
@@ -276,21 +267,10 @@ public:
                     }
                 }
 
-                if (daemonAlive)
-                {
-                    Nexus::logLine ("ENDApplication: existing nexus daemon is alive, connecting");
-                }
-                else
+                if (not daemonAlive)
                 {
                     if (lockfilePath.existsAsFile())
-                    {
-                        Nexus::logLine ("ENDApplication: stale lockfile detected, deleting and spawning daemon");
                         lockfilePath.deleteFile();
-                    }
-                    else
-                    {
-                        Nexus::logLine ("ENDApplication: no lockfile, spawning daemon");
-                    }
 
                     Nexus::spawnDaemon();
                 }
@@ -349,9 +329,6 @@ public:
 
         // Session dtor handles client disconnect and server stop.
         nexus = nullptr;
-
-        // Destroy the FileLogger before JUCE's leak detector runs.
-        Nexus::shutdownLog();
 
 #if JUCE_WINDOWS
         timeEndPeriod (1);

@@ -13,7 +13,6 @@
 #include "../whelmed/Component.h"
 #include "../nexus/Session.h"
 #include "../nexus/Client.h"
-#include "../nexus/Log.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/

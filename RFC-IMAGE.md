@@ -203,6 +203,10 @@ const ImageCell* scrollbackImageRow     (int visibleRow, int scrollOffset) const
 `Grid::Writer` gets the same passthrough wrappers. `reflow()` and `clearBuffer()`
 mirror every existing `graphemes` operation for `imageCells`.
 
+**Serialization**: `Grid::getStateInformation` / `setStateInformation` must include
+`imageCells` alongside `cells`, `graphemes`, and `rowStates`. Same memcpy pattern —
+`totalRows × cols × sizeof(ImageCell)` per buffer. Both normal and alternate screens.
+
 ### 4. ImageAtlas (Source/terminal/rendering/ImageAtlas.h/.cpp)
 
 ```cpp
@@ -296,49 +300,55 @@ Inserted at the very top of `processCellForSnapshot`, BEFORE the hint label bloc
 Image cells must never be overridden by hint labels.
 
 ```cpp
-// LAYOUT_IMAGE_CONT: continuation cell. Emit background if non-default, then return.
-if (cell.layout & Cell::LAYOUT_IMAGE_CONT)
+// Image cells are checked first — must never be overridden by hint labels or text paths.
+// Positive nesting, no early returns (JRENG-CODING-STANDARD).
+
+if (cell.isImageContinuation())
 {
-    const juce::Colour bg { resolveBackground(cell.bg, resources.terminalColors) };
+    // CONT cell: emit background quad if non-default. No text, no image quad.
+    const juce::Colour bg { resolveBackground (cell.bg, resources.terminalColors) };
+
     if (bg != resources.terminalColors.defaultBackground)
     {
         cachedBg[row * bgCacheCols + bgCount[row]++] = {
-            { static_cast<float>(col * physCellWidth),
-              static_cast<float>(row * physCellHeight),
-              static_cast<float>(physCellWidth),
-              static_cast<float>(physCellHeight) },
+            { static_cast<float> (col * physCellWidth),
+              static_cast<float> (row * physCellHeight),
+              static_cast<float> (physCellWidth),
+              static_cast<float> (physCellHeight) },
             bg.getFloatRed(), bg.getFloatGreen(), bg.getFloatBlue(), bg.getFloatAlpha()
         };
     }
-    return;
 }
-
-// LAYOUT_IMAGE: head cell. Emit one ImageQuad, skip all text paths.
-if (cell.layout & Cell::LAYOUT_IMAGE)
+else if (cell.isImage())
 {
+    // Head cell: emit one ImageQuad. No text paths.
     const uint32_t imageId { cell.codepoint };
-    const ImageRegion* reg { resources.imageAtlas.lookup(imageId) };
+    const ImageRegion* reg { resources.imageAtlas.lookup (imageId) };
 
     if (reg != nullptr and rowImageCells != nullptr)
     {
         const ImageCell& ic { rowImageCells[col] };
-        const float fw { static_cast<float>(reg->widthPx) };
-        const float fh { static_cast<float>(reg->heightPx) };
+        const float fw { static_cast<float> (reg->widthPx) };
+        const float fh { static_cast<float> (reg->heightPx) };
         const float uL { ic.offsetX / fw };
         const float uT { ic.offsetY / fh };
         const float uR { (ic.offsetX + physCellWidth)  / fw };
         const float uB { (ic.offsetY + physCellHeight) / fh };
 
         cachedImages[row * maxImagesPerRow + imageCacheCount[row]++] = {
-            { static_cast<float>(col * physCellWidth),
-              static_cast<float>(row * physCellHeight),
-              static_cast<float>(physCellWidth),
-              static_cast<float>(physCellHeight) },
+            { static_cast<float> (col * physCellWidth),
+              static_cast<float> (row * physCellHeight),
+              static_cast<float> (physCellWidth),
+              static_cast<float> (physCellHeight) },
             { uL, uT, uR - uL, uB - uT },
             reg->glTexture
         };
     }
-    return;
+}
+else
+{
+    // Normal cell — existing hint label / colour / shaping / selection / underlay paths.
+    // ... (all existing processCellForSnapshot logic lives here)
 }
 ```
 
@@ -473,7 +483,7 @@ None. All decisions settled by ARCHITECT.
   trimmed at row edges with default bg. Acceptable: CONT cells emit no quads.
 - `previousCells` memcmp skip: works correctly — `imageId` change or `layout` byte
   change detected by memcmp, row rebuilt. No special handling needed.
-- `PLAN-GPU-PROBE.md` exists in root — review before implementing `GLContext::drawImages`
-  to ensure instanced draw approach aligns with existing GL probe results.
+- `drawImages` reuses the emoji shader (instanced RGBA8 + UV sampling). Verify
+  instanced draw approach aligns with existing GL pipeline before implementation.
 - WHELMED image rendering (Phase 5): `ImageAtlas` and `ImageQuad` designed for eventual
   extraction into `jreng_text`, but extraction is out of scope for this feature.

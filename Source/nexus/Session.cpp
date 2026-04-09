@@ -14,7 +14,6 @@
 #include "Server.h"
 #include "ServerConnection.h"
 #include "Message.h"
-#include "Log.h"
 #include "Wire.h"
 #include "../terminal/logic/Processor.h"
 #include "../terminal/logic/Session.h"
@@ -35,7 +34,6 @@ namespace Nexus
  */
 Session::Session()
 {
-    Nexus::logLine ("Session ctor: local mode");
     juce::ValueTree processorsNode { App::ID::PROCESSORS };
     AppState::getContext()->getNexusNode().appendChild (processorsNode, nullptr);
 }
@@ -47,7 +45,6 @@ Session::Session()
  */
 Session::Session (DaemonTag)
 {
-    Nexus::logLine ("Session ctor: daemon mode, starting server");
     startServer();
 }
 
@@ -61,12 +58,8 @@ Session::Session (DaemonTag)
  */
 Session::Session (ClientTag)
 {
-    Nexus::logLine ("Session ctor: client mode, constructing Client");
     client = std::make_unique<Client>();
-
-    const juce::File lockfilePath { Server::getLockfile() };
-    Nexus::logLine ("Session ctor: calling beginConnectAttempts on " + lockfilePath.getFullPathName());
-    client->beginConnectAttempts (lockfilePath);
+    client->beginConnectAttempts (Server::getLockfile());
 }
 
 /**
@@ -129,13 +122,10 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
 
     if (alreadyExists)
     {
-        Nexus::logLine ("Session::create: uuid=" + uuid + " already exists, returning existing");
         result = &existingTerm->second->getProcessor();
     }
     else if (client != nullptr)
     {
-        Nexus::logLine ("Session::create (client mode): uuid=" + uuid);
-
         client->createSession (cols, rows, shell, cwd, uuid, envID);
 
         auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
@@ -434,7 +424,6 @@ void Session::sendInput (const juce::String& uuid, const void* data, int size)
     }
     else
     {
-        Nexus::logLine ("Session::sendInput uuid=" + uuid + " size=" + juce::String (size) + " (local/daemon mode -> Terminal::Session::sendInput)");
         const auto it { terminalSessions.find (uuid) };
         jassert (it != terminalSessions.end());
         it->second->sendInput (static_cast<const char*> (data), size);
@@ -509,11 +498,8 @@ void Session::startLoading (const juce::String& uuid, juce::MemoryBlock&& bytes)
  */
 void Session::startServer()
 {
-    Nexus::logLine ("startServer: entry");
     server = std::make_unique<Server> (*this);
-    Nexus::logLine ("startServer: Server constructed, calling start");
     server->start();
-    Nexus::logLine ("startServer: Server::start returned, isServing=" + juce::String (isServing() ? 1 : 0));
 }
 
 /**

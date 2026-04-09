@@ -16,7 +16,6 @@
 #include "../config/Config.h"
 #include "../terminal/notifications/Notifications.h"
 #include "../nexus/Client.h"
-#include "../nexus/Log.h"
 
 /**
  * @brief Constructs Terminal::Display for the given Processor.
@@ -74,9 +73,6 @@ Terminal::Display::~Display()
  */
 void Terminal::Display::changeListenerCallback (juce::ChangeBroadcaster* /*source*/)
 {
-    const bool callbackSet { onRepaintNeeded != nullptr };
-    Nexus::logLine ("Display::changeListenerCallback: fired for uuid=" + processor.getUuid()
-                    + " onRepaintNeeded set=" + juce::String (callbackSet ? "yes" : "no"));
     processor.getState().setSnapshotDirty();
 
     if (onRepaintNeeded != nullptr)

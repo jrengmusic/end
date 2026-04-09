@@ -8,7 +8,6 @@
  */
 
 #include "Client.h"
-#include "Log.h"
 #include "Server.h"
 #include "Session.h"
 #include "Wire.h"
@@ -119,13 +118,10 @@ void Client::ConnectTimer::timerCallback()
     bool connected { false };
 
     const bool lockfileExists { lockfile.existsAsFile() };
-    Nexus::logLine ("Nexus::Client ConnectTimer: tick, attemptsRemaining=" + juce::String (attemptsRemaining)
-                    + " lockfileExists=" + juce::String (lockfileExists ? "yes" : "no"));
 
     if (lockfileExists)
     {
         const int port { lockfile.loadFileAsString().getIntValue() };
-        Nexus::logLine ("Nexus::Client ConnectTimer: port=" + juce::String (port));
 
         if (port > 0)
         {
@@ -133,13 +129,11 @@ void Client::ConnectTimer::timerCallback()
             // for the full connectTimeoutMs on each 100 ms tick.
             static constexpr int probeTimeoutMs { 200 };
             connected = owner.connectToSocket ("127.0.0.1", port, probeTimeoutMs);
-            Nexus::logLine ("Nexus::Client ConnectTimer: connectToSocket returned " + juce::String (connected ? "true" : "false"));
         }
     }
 
     if (connected)
     {
-        Nexus::logLine ("Nexus::Client ConnectTimer: connection succeeded - stopping timer");
         stopTimer();
         // Defer self-destruction: nulling connectTimer destroys `this`, which must
         // not happen inside the timer callback.  Post to the message thread so the
@@ -154,14 +148,12 @@ void Client::ConnectTimer::timerCallback()
 
         if (attemptsRemaining <= 0)
         {
-            Nexus::logLine ("Nexus::Client ConnectTimer: exhausted all attempts");
             stopTimer();
             auto* ownerPtr { &owner };
             juce::MessageManager::callAsync (
                 [ownerPtr]
                 {
                     ownerPtr->connectTimer = nullptr;
-                    Nexus::logLine ("Client: connection failed after maximum retry attempts");
                 });
         }
     }
@@ -179,7 +171,6 @@ void Client::ConnectTimer::timerCallback()
  */
 void Client::connectionMade()
 {
-    Nexus::logLine ("Nexus::Client: connectionMade() - sending hello PDU");
     sendPdu (Message::hello);
 }
 
@@ -209,13 +200,6 @@ void Client::createSession (int cols, int rows,
                              const juce::String& uuid,
                              const juce::String& envID)
 {
-    Nexus::logLine ("Client::createSession: sending createProcessor uuid=" + uuid
-                    + " cols=" + juce::String (cols)
-                    + " rows=" + juce::String (rows)
-                    + " shell=" + shell
-                    + " cwd=" + cwd
-                    + " envID=" + envID);
-
     {
         const juce::ScopedLock lock (attachedUuidsLock);
         attachedUuids.add (uuid);
@@ -292,8 +276,6 @@ void Client::sendResize (const juce::String& uuid, int cols, int rows)
  */
 void Client::sendRemove (const juce::String& uuid)
 {
-    Nexus::logLine ("Client::sendRemove: sending removeProcessor uuid=" + uuid);
-
     juce::MemoryBlock payload;
     writeString (payload, uuid);
     sendPdu (Message::removeProcessor, payload);
@@ -314,10 +296,7 @@ void Client::registerProcessor (std::unique_ptr<Terminal::Processor> processor)
     jassert (processor != nullptr);
 
     const juce::String uuid { processor->getUuid() };
-    Nexus::logLine ("Client::registerProcessor: uuid=" + uuid
-                    + " mapSizeBefore=" + juce::String ((int) hostedProcessors.size()));
     hostedProcessors[uuid] = std::move (processor);
-    Nexus::logLine ("Client::registerProcessor: mapSizeAfter=" + juce::String ((int) hostedProcessors.size()));
 }
 
 /**
@@ -496,16 +475,10 @@ void Client::handleOutput (const uint8_t* payload, int payloadSize)
     juce::String uuid;
     const int uuidConsumed { readString (payload, payloadSize, uuid) };
 
-    Nexus::logLine ("Client::handleOutput: uuid=" + uuid
-                    + " payloadSize=" + juce::String (payloadSize)
-                    + " uuidConsumed=" + juce::String (uuidConsumed));
-
     if (uuid.isNotEmpty() and uuidConsumed > 0)
     {
         const void* bytes { payload + uuidConsumed };
         const int byteCount { payloadSize - uuidConsumed };
-
-        Nexus::logLine ("Client::handleOutput: byteCount=" + juce::String (byteCount));
 
         if (byteCount > 0)
             Nexus::Session::getContext()->feedBytes (uuid, bytes, byteCount);
@@ -532,15 +505,9 @@ void Client::handleLoading (const uint8_t* payload, int payloadSize)
     juce::String uuid;
     const int uuidConsumed { readString (payload, payloadSize, uuid) };
 
-    Nexus::logLine ("Client::handleLoading: uuid=" + uuid
-                    + " payloadSize=" + juce::String (payloadSize)
-                    + " uuidConsumed=" + juce::String (uuidConsumed));
-
     if (uuid.isNotEmpty() and uuidConsumed > 0)
     {
         const int byteCount { payloadSize - uuidConsumed };
-
-        Nexus::logLine ("Client::handleLoading: byteCount=" + juce::String (byteCount));
 
         if (byteCount > 0)
         {

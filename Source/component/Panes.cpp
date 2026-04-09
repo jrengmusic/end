@@ -12,7 +12,6 @@
 #include "../terminal/data/Identifier.h"
 #include "../whelmed/Component.h"
 #include "../nexus/Session.h"
-#include "../nexus/Log.h"
 #include "../config/Config.h"
 
 namespace Terminal

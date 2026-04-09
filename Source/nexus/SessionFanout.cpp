@@ -17,7 +17,6 @@
 #include "ServerConnection.h"
 #include "Message.h"
 #include "Wire.h"
-#include "Log.h"
 #include "../terminal/logic/Processor.h"
 #include "../terminal/logic/Session.h"
 
@@ -115,17 +114,11 @@ void Session::attach (const juce::String& uuid, ServerConnection& target,
                 writeString (payload, uuid);
                 payload.append (snapshot.getData(), snapshot.getSize());
 
-                Nexus::logLine ("Session::attach: sending snapshot uuid=" + uuid
-                                + " snapshotBytes=" + juce::String ((int) snapshot.getSize()));
-
                 target.sendPdu (Message::loading, payload);
             }
         }
 
         subscribers[uuid].push_back (&target);
-
-        Nexus::logLine ("Session::attach: subscriber registered uuid=" + uuid
-                        + " sendHistory=" + juce::String (sendHistory ? "yes" : "no"));
     }
 
     // Resize after lock release — SIGWINCH output broadcast acquires connectionsLock.

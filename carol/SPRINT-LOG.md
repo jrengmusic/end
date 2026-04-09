@@ -1,5 +1,82 @@
 # SPRINT-LOG
 
+## Handoff to COUNSELOR: Inline Image Rendering (Sixel + iTerm2)
+
+**From:** COUNSELOR
+**Date:** 2026-04-09
+**Status:** Ready for Implementation
+
+### Context
+Multi-sprint session covering nexus session restoration, BLESSED audit sweep, and architectural cleanup. Session evolved from fixing per-pane loader overlays through a full architecture shift: Terminal::Session now owns Processor, Grid+State snapshot replaces raw byte history replay, Terminal layer decoupled from Nexus. Concluded with comprehensive audit, production quality cleanup, and PLAN-IMAGE.md written for the next major feature.
+
+### Completed
+- **Sprint 3:** BLESSED audit sweep — Processor encapsulation, Input/Mouse rename+relocate, Session::create decomposition, Client dispatch refactor
+- **Sprint 4:** Per-pane loader overlay, daemon cwd relay (stateUpdate PDU), DSR response flush, shutdown crash fix (Loader destruction order)
+- **Sprint 5:** Grid snapshot architecture — Processor::getStateInformation/setStateInformation, daemon real Processor, Loader deleted
+- **Sprint 6:** Terminal::Session owns Processor (PTY+pipeline wired internally), Nexus decoupled from Terminal layer (writeInput/onResize callbacks), popup standalone, unified createProcessor PDU, handle* methods inlined, GlassWindow→jreng::Window
+- **Sprint 7:** Production audit — early returns fixed, SSOT extractions (setScrollOffsetClamped, broadcastProcessorList, addNewTab), all Nexus::logLine deleted (Log.h/cpp removed), stale docs fixed (ARCHITECTURE.md, SPEC.md, README.md), PLAN-nexus.md deleted
+- **RFC-IMAGE.md** updated for BLESSED compliance (no early returns in scaffold, Grid serialization note, stale reference removed)
+- **PLAN-IMAGE.md** written — 9-step incremental plan with validation gates
+
+### Remaining
+- **PLAN-IMAGE.md execution:** 9 steps, ~5-8 sprints
+  - Step 1: Cell flags + ImageCell struct
+  - Step 2: Grid::Buffer imageCells HeapBlock + serialization
+  - Step 3: ImageAtlas (staging, upload, lookup, LRU eviction)
+  - Step 4: ImageQuad + Snapshot + per-row cache
+  - Step 5: processCellForSnapshot image branch
+  - Step 6: drawImages GL + CPU backends
+  - Step 7: Sixel decoder
+  - Step 8: iTerm2 decoder (OSC 1337)
+  - Step 9: Polish + edge cases
+- **WHELMED Mermaid:** broken, needs polish (separate from image rendering)
+
+### Key Decisions
+- **Terminal::Session owns Processor** — creates PTY + Processor, wires all 6 callbacks internally. Callers get Processor via getProcessor(). ARCHITECT decided.
+- **Grid+State snapshot replaces raw byte history** — daemon Processor is real (processes all bytes), serializes Grid+State on reattach. No Loader thread. ARCHITECT decided after tmux research showed virtual-grid-redraw pattern.
+- **Popup is standalone** — creates Terminal::Session directly. No Nexus involvement. ARCHITECT: "Popup has NOTHING TO DO WITH NEXUS."
+- **Terminal layer Nexus-free** — Input, Mouse, Display route through Processor callbacks (writeInput, onResize). No Nexus::Session dependency in Terminal namespace.
+- **One createProcessor PDU** — daemon decides create-vs-attach via hasSession(). Dead PDUs deleted (spawnProcessorResponse, attachProcessor, attachProcessorResponse).
+- **Resize overlay via ComponentBoundsConstrainer** — jreng::Window inherits constrainer, resizeStart/resizeEnd drive isUserResizing flag. No boolean flags, no timers.
+- **cellsFromRect physical-pixel SSOT** — matches Screen::calc exactly. Eliminated 1-row divergence.
+- **Image rendering design** — side-table (ImageCell) mirroring Grapheme pattern. Single shelf-packed RGBA8 atlas. Emoji shader reused for drawImages. Decoders are pure Grid writers + staging producers.
+
+### Files Modified (this session, across all sprints)
+- `Source/terminal/logic/Session.h/cpp` — owns Processor, getProcessor(), onStateFlush, writeInput/onResize wiring, uuid parameter
+- `Source/terminal/logic/Processor.h/cpp` — getStateInformation/setStateInformation, writeInput, onResize, setScrollOffsetClamped, deleted onLoadingStarted/onLoadingFinished
+- `Source/terminal/logic/Grid.h/cpp` — getStateInformation/setStateInformation
+- `Source/terminal/logic/Input.h/cpp` — Nexus→processor.writeInput, deleted local setScrollOffsetClamped
+- `Source/terminal/logic/Mouse.cpp` — Nexus→processor.writeInput
+- `Source/component/TerminalDisplay.h/cpp` — removed Nexus dependency, LoaderOverlay, titleBarHeight; writeInput/onResize callbacks
+- `Source/component/Panes.h/cpp` — deleted buildTerminal/teardownTerminal/CreatedTerminal
+- `Source/component/Tabs.cpp` — restore sub-rect descent, cellsFromRect physical pixels, addNewTab delegation
+- `Source/component/Popup.h/cpp` — owns Terminal::Session directly
+- `Source/MainComponent.h/cpp` — removed titleBarHeight from getContentRect, resize overlay via Window
+- `Source/MainComponentActions.cpp` — popup creates Terminal::Session, actions extracted
+- `Source/nexus/Session.h/cpp` — single create(), deleted mode helpers, deleted processors map, client writeInput/onResize wiring
+- `Source/nexus/SessionFanout.cpp` — attach(uuid, target, sendHistory, cols, rows), snapshot via getStateInformation
+- `Source/nexus/ServerConnection.h/cpp` — handle* inlined, unified createProcessor
+- `Source/nexus/Client.h/cpp` — createSession, handleStateUpdate, deleted attachSession
+- `Source/nexus/Message.h` — createProcessor, stateUpdate, deleted 3 dead PDUs
+- `Source/Main.cpp` — jreng::Window
+- `modules/jreng_gui/glass/jreng_window.h/cpp` — renamed, ComponentBoundsConstrainer
+- `modules/jreng_gui/glass/jreng_modal_window.h/cpp` — Window base
+- `ARCHITECTURE.md`, `SPEC.md`, `README.md` — updated
+- Deleted: `Loader.h/cpp`, `Phrases.h`, `Log.h/Log.cpp`, `PLAN-nexus.md`
+- Created: `PLAN-IMAGE.md`, `RFC-IMAGE.md` (updated)
+
+### Open Questions
+1. **Sixel aspect ratio** — honour DCS intro params or ignore? Most modern terminals ignore. ARCHITECT decides at Step 7.
+2. **Large Sixel decode time** — if reader thread blocks too long, consider async decode. Monitor at Step 9.
+3. **Nexus image restore** — after snapshot restore, imageIds reference images not in new client's atlas. Re-stage mechanism or accept blank until app redraws. ARCHITECT decides at Step 9.
+4. **createClientSession** — inlined into Session::create client branch but conceptually the client-side Processor creation (with IPC wiring) still exists as a code path. Future cleanup: END creates its own Processor, Nexus only routes bytes.
+
+### Next Steps
+1. ARCHITECT commits current changes
+2. Next COUNSELOR reads PLAN-IMAGE.md and begins Step 1 (Cell flags + ImageCell)
+3. Each step validated by @Auditor before proceeding
+4. Steps 7 and 8 (Sixel + iTerm2 decoders) can run in parallel
+
 ## Sprint 7: BLESSED Audit — Production Quality
 
 **Date:** 2026-04-09
