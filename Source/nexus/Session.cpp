@@ -18,7 +18,10 @@
 #include "Wire.h"
 #include "../terminal/logic/Processor.h"
 #include "../terminal/logic/Session.h"
+#include "../terminal/data/Identifier.h"
 #include "../config/Config.h"
+#include "../AppState.h"
+#include "../AppIdentifier.h"
 
 #include <algorithm>
 #include <cstring>
@@ -33,6 +36,8 @@ namespace Nexus
 Session::Session()
 {
     Nexus::logLine ("Session ctor: local mode");
+    juce::ValueTree processorsNode { App::ID::PROCESSORS };
+    AppState::getContext()->getNexusNode().appendChild (processorsNode, nullptr);
 }
 
 /**
@@ -49,8 +54,8 @@ Session::Session (DaemonTag)
 /**
  * @brief Constructs the Session in client mode — constructs Client and begins connect attempts.
  *
- * `onConnectionMade` and `onConnectionFailed` must be set on this Session before
- * or immediately after construction; they are forwarded to the owned Client.
+ * Adds a LOADING OPERATION child for the initial connection phase.  The child
+ * is removed when the first processorList PDU arrives in Client::messageReceived.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -59,17 +64,10 @@ Session::Session (ClientTag)
     Nexus::logLine ("Session ctor: client mode, constructing Client");
     client = std::make_unique<Client>();
 
-    client->onConnectionMade = [this]
-    {
-        if (onConnectionMade != nullptr)
-            onConnectionMade();
-    };
-
-    client->onConnectionFailed = [this]
-    {
-        if (onConnectionFailed != nullptr)
-            onConnectionFailed();
-    };
+    auto loadingNode { AppState::getContext()->getLoadingNode() };
+    juce::ValueTree op { App::ID::OPERATION };
+    op.setProperty (jreng::ID::id, nexusConnectOperationId, nullptr);
+    loadingNode.appendChild (op, nullptr);
 
     const juce::File lockfilePath { Server::getLockfile() };
     Nexus::logLine ("Session ctor: calling beginConnectAttempts on " + lockfilePath.getFullPathName());
@@ -95,14 +93,15 @@ Session::~Session()
 /**
  * @brief Creates a new session with a freshly-generated UUID.  Returns Processor reference.
  *
- * Delegates to the 4-argument overload with a generated UUID.
+ * Delegates to the 7-argument overload with a generated UUID.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 Terminal::Processor&
-Session::create (const juce::String& shell, const juce::String& args, const juce::String& cwd)
+Session::create (const juce::String& shell, const juce::String& args, const juce::String& cwd,
+                 int cols, int rows, const juce::String& envID)
 {
-    return create (shell, args, cwd, juce::Uuid().toString());
+    return create (shell, args, cwd, juce::Uuid().toString(), cols, rows, envID);
 }
 
 /**
@@ -129,9 +128,12 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 Terminal::Processor&
-Session::create (const juce::String& shell, const juce::String& args, const juce::String& cwd, const juce::String& uuid)
+Session::create (const juce::String& shell, const juce::String& args, const juce::String& cwd,
+                 const juce::String& uuid, int cols, int rows, const juce::String& envID)
 {
     jassert (uuid.isNotEmpty());
+    jassert (cols > 0);
+    jassert (rows > 0);
 
     // Idempotency: if a session with this uuid already exists, return it.
     // Happens on GUI reconnect — client restores saved uuid and re-sends
@@ -153,24 +155,31 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
         // Client mode — pipeline side only.
         Nexus::logLine ("Session::create (client mode): uuid=" + uuid);
 
-        const auto liveUuids { client->getProcessorList() };
-        const bool isLive { liveUuids.contains (uuid) };
+        auto processorsNode { AppState::getContext()->getProcessorsNode() };
+        bool isLive { false };
+
+        for (int i { 0 }; i < processorsNode.getNumChildren(); ++i)
+        {
+            if (processorsNode.getChild (i).getProperty (jreng::ID::id).toString() == uuid)
+            {
+                isLive = true;
+                i = processorsNode.getNumChildren();
+            }
+        }
 
         if (not isLive)
         {
-            client->spawnSession (Terminal::Processor::defaultCols,
-                                  Terminal::Processor::defaultRows,
+            client->spawnSession (cols,
+                                  rows,
                                   shell,
                                   cwd,
-                                  uuid);
+                                  uuid,
+                                  envID);
         }
 
         client->attachSession (uuid);
 
-        auto proc { std::make_unique<Terminal::Processor> (
-            Terminal::Processor::defaultCols,
-            Terminal::Processor::defaultRows,
-            uuid) };
+        auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
 
         proc->state.setId (uuid);
 
@@ -197,12 +206,37 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
         ? args
         : Config::getContext()->getString (Config::Key::shellArgs) };
 
+    juce::StringPairArray seedEnv;
+
+#if ! JUCE_WINDOWS
+    if (envID.isNotEmpty())
+    {
+        const auto parentIt { terminalSessions.find (envID) };
+
+        if (parentIt != terminalSessions.end())
+        {
+            const int fgPid { parentIt->second->getForegroundPid() };
+
+            if (fgPid > 0)
+            {
+                const juce::String resolvedPath { parentIt->second->getEnvVar (fgPid, "PATH") };
+
+                if (resolvedPath.isNotEmpty())
+                    seedEnv.set ("PATH", resolvedPath);
+            }
+        }
+    }
+#else
+    juce::ignoreUnused (envID);
+#endif
+
     auto termSession { std::make_unique<Terminal::Session> (
-        Terminal::Processor::defaultCols,
-        Terminal::Processor::defaultRows,
+        cols,
+        rows,
         effectiveShell,
         effectiveArgs,
-        cwd) };
+        cwd,
+        seedEnv) };
 
     if (server != nullptr)
     {
@@ -245,18 +279,14 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
                     remove (uuid);
                     broadcastProcessorList();
 
-                    if (list().isEmpty() and onAllSessionsExited != nullptr)
-                        onAllSessionsExited();
+                    fireIfAllExited();
                 });
         };
 
         terminalSessions.emplace (uuid, std::move (termSession));
 
         // Daemon also needs a stub Processor so get() and forEachProcessor() work.
-        auto proc { std::make_unique<Terminal::Processor> (
-            Terminal::Processor::defaultCols,
-            Terminal::Processor::defaultRows,
-            uuid) };
+        auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
 
         proc->state.setId (uuid);
 
@@ -267,10 +297,7 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
     }
 
     // Local mode — wire onBytes → processor.process; wire parser.writeToHost → sendInput.
-    auto proc { std::make_unique<Terminal::Processor> (
-        Terminal::Processor::defaultCols,
-        Terminal::Processor::defaultRows,
-        uuid) };
+    auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
 
     proc->state.setId (uuid);
 
@@ -389,6 +416,7 @@ void Session::remove (const juce::String& uuid)
 {
     if (client != nullptr)
     {
+        client->sendRemove (uuid);
         client->unregisterProcessor (uuid);
         client->detachSession (uuid);
     }
@@ -403,6 +431,8 @@ void Session::remove (const juce::String& uuid)
         }
 
         terminalSessions.erase (uuid);
+
+        fireIfAllExited();
     }
 }
 
@@ -417,11 +447,16 @@ juce::StringArray Session::list() const
 
     if (client != nullptr)
     {
-        return client->getProcessorList();
-    }
+        auto processorsNode { AppState::getContext()->getProcessorsNode() };
 
-    for (const auto& pair : processors)
-        uuids.add (pair.first);
+        for (int i { 0 }; i < processorsNode.getNumChildren(); ++i)
+            uuids.add (processorsNode.getChild (i).getProperty (jreng::ID::id).toString());
+    }
+    else
+    {
+        for (const auto& pair : processors)
+            uuids.add (pair.first);
+    }
 
     return uuids;
 }
@@ -472,40 +507,6 @@ void Session::sendResize (const juce::String& uuid, int cols, int rows)
 }
 
 /**
- * @brief Sends the history snapshot for @p uuid to @p target via Message::history.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-void Session::sendHistorySnapshot (const juce::String& uuid, ServerConnection& target)
-{
-    const auto it { terminalSessions.find (uuid) };
-
-    if (it != terminalSessions.end())
-    {
-        const juce::MemoryBlock historyBytes { it->second->snapshotHistory() };
-
-        // Resolve current dims from the daemon's stub Processor grid — it is kept
-        // up to date by every resizeSession message the client sends.
-        const auto procIt { processors.find (uuid) };
-        const int cols { procIt != processors.end() ? procIt->second->grid.getCols() : Terminal::Processor::defaultCols };
-        const int rows { procIt != processors.end() ? procIt->second->grid.getVisibleRows() : Terminal::Processor::defaultRows };
-
-        juce::MemoryBlock payload;
-        writeString (payload, uuid);
-        writeUint16 (payload, static_cast<uint16_t> (cols));
-        writeUint16 (payload, static_cast<uint16_t> (rows));
-        payload.append (historyBytes.getData(), historyBytes.getSize());
-
-        Nexus::logLine ("Session::sendHistorySnapshot: uuid=" + uuid
-                        + " cols=" + juce::String (cols)
-                        + " rows=" + juce::String (rows)
-                        + " historyBytes=" + juce::String ((int) historyBytes.getSize()));
-
-        target.sendPdu (Message::history, payload);
-    }
-}
-
-/**
  * @brief Routes incoming bytes from daemon to the Processor for @p uuid.
  *
  * @note MESSAGE THREAD (called from Client::messageReceived).
@@ -524,6 +525,37 @@ void Session::feedBytes (const juce::String& uuid, const void* data, int size)
 
     if (proc != nullptr and size > 0)
         proc->process (static_cast<const char*> (data), size);
+}
+
+/**
+ * @brief Constructs a `Nexus::Loader` to parse @p bytes into the Processor for @p uuid.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Session::startLoading (const juce::String& uuid, juce::MemoryBlock&& bytes)
+{
+    Terminal::Processor* proc { client != nullptr ? client->getProcessor (uuid) : nullptr };
+    jassert (proc != nullptr);
+
+    auto loadingNode { AppState::getContext()->getLoadingNode() };
+    juce::ValueTree op { App::ID::OPERATION };
+    op.setProperty (jreng::ID::id, uuid, nullptr);
+    loadingNode.appendChild (op, nullptr);
+
+    auto loader { std::make_unique<Loader> (*proc, std::move (bytes), uuid) };
+
+    loader->onFinished = [this, uuid]
+    {
+        auto loadingNode { AppState::getContext()->getLoadingNode() };
+        auto finishedOp { jreng::ValueTree::getChildWithID (loadingNode, uuid) };
+
+        if (finishedOp.isValid())
+            finishedOp.getParent().removeChild (finishedOp, nullptr);
+
+        loaders.erase (uuid);
+    };
+
+    loaders.emplace (uuid, std::move (loader));
 }
 
 // =============================================================================
@@ -628,6 +660,23 @@ void Session::changeListenerCallback (juce::ChangeBroadcaster* /*source*/)
 void Session::handleAsyncUpdate()
 {
     Nexus::logLine ("Session::handleAsyncUpdate: entry (byte-forward mode, no fan-out needed)");
+}
+
+/**
+ * @brief Fires onAllSessionsExited if the processor map is now empty.
+ *
+ * `processors` is the SSOT for session liveness in local and daemon modes.
+ * Both maps (`processors` and `terminalSessions`) are erased together at every
+ * exit path before this helper is called, so checking `processors` is correct
+ * for both.  Client mode never sets onAllSessionsExited, so this is safe
+ * unconditionally.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Session::fireIfAllExited() noexcept
+{
+    if (processors.empty() and onAllSessionsExited != nullptr)
+        onAllSessionsExited();
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

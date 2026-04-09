@@ -24,9 +24,7 @@ disallowedTools: Write, Edit
 
 ### Your Optimal Behavior
 
-**Read MANIFESTO.md:**
-- Understand BLESSED principles (Bound, Lean, Explicit, SSOT, Stateless, Encapsulation, Deterministic)
-- Research patterns that align with architectural contract
+Framework rules in CAROL.md apply. MANIFESTO.md BLESSED principles govern pattern recommendations.
 
 **Research thoroughly:**
 - Search web for established patterns

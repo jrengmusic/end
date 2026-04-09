@@ -6,6 +6,7 @@
  *
  *     END
  *     +-- WINDOW (width, height, zoom, renderer)
+ *     +-- NEXUS (PROCESSORS [PROCESSOR{id}*], LOADING [OPERATION{id}*])
  *     +-- TABS (active, position, activePaneID)
  *         +-- TAB
  *             +-- PANES (direction, ratio)
@@ -41,13 +42,18 @@ namespace ID
     // Node types
     //==========================================================================
 
-    static const juce::Identifier END       { "END" };
-    static const juce::Identifier WINDOW    { "WINDOW" };
-    static const juce::Identifier TABS      { "TABS" };
-    static const juce::Identifier TAB       { "TAB" };
-    static const juce::Identifier PANES     { "PANES" };
-    static const juce::Identifier PANE      { "PANE" };
-    static const juce::Identifier DOCUMENT  { "DOCUMENT" };
+    static const juce::Identifier END        { "END" };
+    static const juce::Identifier WINDOW     { "WINDOW" };
+    static const juce::Identifier NEXUS      { "NEXUS" };
+    static const juce::Identifier PROCESSORS { "PROCESSORS" };
+    static const juce::Identifier PROCESSOR  { "PROCESSOR" };
+    static const juce::Identifier LOADING    { "LOADING" };
+    static const juce::Identifier OPERATION  { "OPERATION" };
+    static const juce::Identifier TABS       { "TABS" };
+    static const juce::Identifier TAB        { "TAB" };
+    static const juce::Identifier PANES      { "PANES" };
+    static const juce::Identifier PANE       { "PANE" };
+    static const juce::Identifier DOCUMENT   { "DOCUMENT" };
 
     //==========================================================================
     // Properties

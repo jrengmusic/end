@@ -31,6 +31,26 @@ juce::ValueTree AppState::getWindow() noexcept
     return state.getOrCreateChildWithName (App::ID::WINDOW, nullptr);
 }
 
+juce::ValueTree AppState::getNexusNode() noexcept
+{
+    return state.getOrCreateChildWithName (App::ID::NEXUS, nullptr);
+}
+
+juce::ValueTree AppState::getProcessorsNode() noexcept
+{
+    return getNexusNode().getOrCreateChildWithName (App::ID::PROCESSORS, nullptr);
+}
+
+void AppState::ensureProcessorsNode() noexcept
+{
+    getProcessorsNode();
+}
+
+juce::ValueTree AppState::getLoadingNode() noexcept
+{
+    return getNexusNode().getOrCreateChildWithName (App::ID::LOADING, nullptr);
+}
+
 juce::ValueTree AppState::getTabs() noexcept
 {
     return state.getOrCreateChildWithName (App::ID::TABS, nullptr);
@@ -321,15 +341,48 @@ void AppState::setPwd (juce::ValueTree sessionTree)
 
 //==============================================================================
 
-void AppState::save()
+void AppState::save (bool isNexusMode)
 {
     auto file { getStateFile() };
     file.getParentDirectory().createDirectory();
 
-    if (auto xml { state.createXml() })
-        xml->writeTo (file);
+    if (isNexusMode)
+    {
+        juce::ValueTree persist { state.createCopy() };
+        auto nexusNode { persist.getChildWithName (App::ID::NEXUS) };
+
+        if (nexusNode.isValid())
+            persist.removeChild (nexusNode, nullptr);
+
+        if (auto xml { persist.createXml() })
+            xml->writeTo (file);
+    }
+    else
+    {
+        juce::ValueTree windowOnly { App::ID::END };
+        const auto window { state.getChildWithName (App::ID::WINDOW) };
+
+        if (window.isValid())
+            windowOnly.appendChild (window.createCopy(), nullptr);
+
+        if (auto xml { windowOnly.createXml() })
+            xml->writeTo (file);
+    }
 }
 
+/**
+ * @brief Parses state.xml and replaces the entire in-memory tree.
+ *
+ * **CRITICAL:** this replaces `state` wholesale via `state = parsed`. ANY
+ * property written to AppState before `load()` runs will be lost. The
+ * `AppState` ctor calls `load()` so that subsequent code can write freely.
+ * Do NOT call `load()` again after construction unless you intend to wipe
+ * every runtime-only property on the tree.
+ *
+ * On parse failure or missing file, falls back to `initDefaults()`.
+ *
+ * @note MESSAGE THREAD.
+ */
 void AppState::load()
 {
     auto file { getStateFile() };
@@ -344,6 +397,12 @@ void AppState::load()
             if (parsed.isValid() and parsed.getType() == App::ID::END)
             {
                 state = parsed;
+
+                auto staleNexus { state.getChildWithName (App::ID::NEXUS) };
+
+                if (staleNexus.isValid())
+                    state.removeChild (staleNexus, nullptr);
+
                 loaded = true;
             }
         }

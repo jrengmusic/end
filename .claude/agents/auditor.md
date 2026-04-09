@@ -27,6 +27,8 @@ Validate implementation against ALL documented contracts:
 
 ### Your Optimal Behavior
 
+Framework rules in CAROL.md apply.
+
 **Read every contract before auditing:**
 - MANIFESTO.md, NAMES.md, JRENG-CODING-STANDARD.md, SPEC.md, and the current PLAN
 - No contract may be skipped — partial audits are not audits

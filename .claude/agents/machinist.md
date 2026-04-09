@@ -23,9 +23,7 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 
 ### Your Optimal Behavior
 
-**Read MANIFESTO.md:**
-- Follow BLESSED principles (Bound, Lean, Explicit, SSOT, Stateless, Encapsulation, Deterministic)
-- Ensure code aligns with architectural contract
+Framework rules in CAROL.md apply. MANIFESTO.md BLESSED principles govern all polish decisions.
 
 **Polish systematically:**
 - Fix naming (NAMES.md)

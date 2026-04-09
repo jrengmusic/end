@@ -1,0 +1,819 @@
+#!/bin/bash
+# carol - CAROL Framework CLI Tool
+# Version is SSOT'd in /VERSION — read at runtime below.
+
+# Resolve CAROL_ROOT handling symlinks (e.g. if /usr/local/bin/carol -> ~/.carol/bin/carol)
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+CAROL_ROOT="$( cd -P "$( dirname "$SOURCE" )/.." >/dev/null 2>&1 && pwd )"
+
+VERSION="$(cat "$CAROL_ROOT/VERSION" 2>/dev/null | tr -d '[:space:]')"
+[ -z "$VERSION" ] && VERSION="unknown"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+GREY='\033[0;37m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+# Logo banner with gradient (cyan → magenta)
+ansi_art_lines=(
+    "\033[38;2;0;212;255m    ████████     ████     ██████████     ████████   ████        \033[0m"
+    "\033[38;2;51;170;255m  ████░░░░░░   ████████   ████░░░░████ ████░░░░████ ████        \033[0m"
+    "\033[38;2;102;128;255m████░░       ████░░░░████ ████    ████ ████    ████ ████        \033[0m"
+    "\033[38;2;153;102;255m████         ████    ████ ██████████░░ ████    ████ ████        \033[0m"
+    "\033[38;2;178;76;230m████         ████████████ ████░░████   ████    ████ ████        \033[0m"
+    "\033[38;2;204;51;204m░░████       ████░░░░████ ████  ░░████ ████    ████ ████        \033[0m"
+    "\033[38;2;230;25;179m  ░░████████ ████    ████ ████    ████ ░░████████░░ ████████████\033[0m"
+    "\033[38;2;255;0;153m    ░░░░░░░░ ░░░░    ░░░░ ░░░░    ░░░░   ░░░░░░░░   ░░░░░░░░░░░░\033[0m"
+)
+
+show_banner() {
+    echo ""
+    for line in "${ansi_art_lines[@]}"; do
+        echo -e "$line"
+    done
+    echo ""
+    echo -e "${CYAN}Cognitive Amplifier Role Orchestration for LLM agents${NC}"
+}
+
+# Helper functions
+error() {
+    echo -e "${RED}Error: $1${NC}" >&2
+    exit 1
+}
+
+success() {
+    echo -e "${GREEN}✓ $1${NC}"
+}
+
+info() {
+    echo -e "${YELLOW}→ $1${NC}"
+}
+
+notice() {
+    echo -e "${BLUE}ℹ $1${NC}"
+}
+
+warning() {
+    echo -e "${YELLOW}⚠ $1${NC}"
+}
+
+get_remote_version() {
+    local version=""
+    version=$(curl -fsSL https://raw.githubusercontent.com/jrengmusic/carol/main/bin/carol 2>/dev/null | grep '^VERSION=' | head -1 | cut -d'"' -f2)
+    echo "$version"
+}
+
+version_greater_than() {
+    [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" != "$1" ]
+}
+
+
+CAROL_PERMISSIONS='{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)"
+    ],
+    "deny": [
+      "Bash(git reset --hard*)",
+      "Bash(git checkout --*)",
+      "Bash(git branch -D*)"
+    ]
+  }
+}'
+
+CAROL_CLAUDE_SETTINGS='{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.carol/bin/carol-statusline.sh"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '"'"'{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"CAROL PROTOCOL ACTIVE — CAROL.md is already loaded as CLAUDE.md. Address the user as ARCHITECT. Be concise — no flattery, no emojis, no trailing summaries. The execution gate is at EXECUTION, not at understanding. Read @mentioned files, referenced paths, and project docs IMMEDIATELY without asking permission. Never ask a question that can be answered by reading. Never assume. Never decide. Always discuss before EXECUTING changes.\"}}'"'"'"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.carol/bin/hey-carol.sh"
+          }
+        ]
+      }
+    ]
+  }
+}'
+
+setup_statusline() {
+    local settings=".claude/settings.json"
+    mkdir -p .claude
+
+    if [ ! -f "$settings" ]; then
+        echo "$CAROL_CLAUDE_SETTINGS" > "$settings"
+        success "Context rot meter + protocol hooks configured"
+        return 0
+    fi
+
+    if ! command -v jq &>/dev/null; then
+        warning "Install jq to auto-configure statusLine + hooks, or merge manually from $CAROL_ROOT/.claude/settings.json"
+        return 0
+    fi
+
+    local tmp
+    tmp=$(jq --argjson carol "$CAROL_CLAUDE_SETTINGS" '. * $carol' "$settings")
+    echo "$tmp" > "$settings"
+    success "Context rot meter + protocol hooks configured"
+}
+
+setup_global_permissions() {
+    local settings="$HOME/.claude/settings.json"
+    mkdir -p "$HOME/.claude"
+
+    if [ ! -f "$settings" ]; then
+        echo "$CAROL_PERMISSIONS" > "$settings"
+        success "Global Claude Code permissions configured"
+        return 0
+    fi
+
+    if grep -q '"permissions"' "$settings"; then
+        notice "Global permissions already set — skipping"
+        return 0
+    fi
+
+    if command -v jq &>/dev/null; then
+        local tmp
+        tmp=$(jq --argjson perms "$CAROL_PERMISSIONS" '. + $perms' "$settings")
+        echo "$tmp" > "$settings"
+        success "Global Claude Code permissions merged into settings.json"
+    else
+        warning "~/.claude/settings.json exists but has no permissions block"
+        warning "Install jq or add permissions manually"
+    fi
+}
+
+customize_templates() {
+    local project_path="$1"
+    local project_name=$(basename "$project_path")
+    local date=$(date +"%Y-%m-%d")
+
+    if [ -f "carol/SPRINT-LOG.md" ]; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/\[Project Name\]/$project_name/g" carol/SPRINT-LOG.md
+            sed -i '' "s/\[YYYY-MM-DD\]/$date/g" carol/SPRINT-LOG.md
+            sed -i '' "s|\[repo-url or local path\]|$project_path|g" carol/SPRINT-LOG.md
+        else
+            sed -i "s/\[Project Name\]/$project_name/g" carol/SPRINT-LOG.md
+            sed -i "s/\[YYYY-MM-DD\]/$date/g" carol/SPRINT-LOG.md
+            sed -i "s|\[repo-url or local path\]|$project_path|g" carol/SPRINT-LOG.md
+        fi
+    fi
+
+    if [ -f "carol/config.yml" ]; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/\[PROJECT_NAME\]/$project_name/g" carol/config.yml
+            sed -i '' "s|\[PROJECT_PATH\]|$project_path|g" carol/config.yml
+            sed -i '' "s/\[DATE\]/$date/g" carol/config.yml
+        else
+            sed -i "s/\[PROJECT_NAME\]/$project_name/g" carol/config.yml
+            sed -i "s|\[PROJECT_PATH\]|$project_path|g" carol/config.yml
+            sed -i "s/\[DATE\]/$date/g" carol/config.yml
+        fi
+    fi
+}
+
+cmd_init() {
+    local project_path="."
+    local portable=true
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --symlink)
+                portable=false
+                shift
+                ;;
+            -*)
+                error "Unknown flag: $1"
+                ;;
+            *)
+                if [ "$project_path" = "." ]; then
+                    project_path="$1"
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    cd "$project_path" || error "Cannot access directory: $project_path"
+    project_path="$(pwd)"
+
+    # Inside CAROL repo itself — skip init, just launch
+    if [ "$project_path" = "$CAROL_ROOT" ]; then
+        show_banner
+        echo -e "${GREY}✓ v${VERSION} This is HOME${NC}"
+        echo ""
+        return 0
+    fi
+
+    if [ -d "carol" ] || [ -d ".carol" ]; then
+        # Ensure commands are populated even if already initiated
+        if [ -d ".claude/commands" ] && [ -z "$(ls -A .claude/commands 2>/dev/null)" ]; then
+            if [ -d "$CAROL_ROOT/.claude/commands" ]; then
+                cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+                success "Restored missing commands"
+            fi
+        fi
+        echo -e "${MAGENTA}${BOLD}ℹ CAROL already initiated.${NC}"
+        echo ""
+        echo "  carol reset   Remove and start fresh"
+        echo "  carol update  Update framework"
+        echo ""
+        exit 0
+    fi
+
+    mkdir -p carol
+    # Hide directory (without dot-prefix, keeps LLM tools happy)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        chflags hidden carol
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        attrib +h carol 2>/dev/null
+    fi
+
+    if $portable; then
+        # Copy only framework files (not bin, tests, install scripts, etc.)
+        for item in "$CAROL_ROOT"/*; do
+            local base=$(basename "$item")
+            case "$base" in
+                bin|tests|.git|.gitignore|.DS_Store|.claude|install.sh|uninstall.sh|LICENSE|README.md)
+                    continue
+                    ;;
+            esac
+            cp -r "$item" carol/
+        done
+
+        # Restore SPRINT-LOG from backup or use template
+        if [ -f ".carol-history/SPRINT-LOG.md" ]; then
+            cp ".carol-history/SPRINT-LOG.md" carol/SPRINT-LOG.md
+            rm -rf .carol-history
+            notice "SPRINT-LOG.md restored from backup"
+        elif [ -f "carol/templates/SPRINT-LOG.md" ]; then
+            cp carol/templates/SPRINT-LOG.md carol/SPRINT-LOG.md
+        fi
+
+        # Copy CAROL.md as CLAUDE.md — auto-loaded by Claude Code as operating protocol
+        cp "$CAROL_ROOT/CAROL.md" CLAUDE.md
+
+        # Create Claude Code commands and agent definitions
+        mkdir -p .claude/commands .claude/agents
+        if [ -d "$CAROL_ROOT/.claude/commands" ]; then
+            cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+        fi
+        if [ -d "$CAROL_ROOT/.claude/agents" ]; then
+            cp "$CAROL_ROOT/.claude/agents"/*.md .claude/agents/
+        fi
+
+        if [ -f "carol/templates/config.yml" ]; then
+            cp carol/templates/config.yml carol/config.yml
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' 's/mode: "symlink"/mode: "portable"/' carol/config.yml
+            else
+                sed -i 's/mode: "symlink"/mode: "portable"/' carol/config.yml
+            fi
+        fi
+    else
+        # Use ABSOLUTE paths for symlinks - LLM tools often don't follow relative symlinks
+        ln -sf "$CAROL_ROOT/SPEC-WRITER.md" carol/SPEC-WRITER.md
+        ln -sf "$CAROL_ROOT/ARCHITECTURE-WRITER.md" carol/ARCHITECTURE-WRITER.md
+        [ -f "$CAROL_ROOT/MANIFESTO.md" ] && ln -sf "$CAROL_ROOT/MANIFESTO.md" carol/MANIFESTO.md
+        [ -f "$CAROL_ROOT/NAMES.md" ] && ln -sf "$CAROL_ROOT/NAMES.md" carol/NAMES.md
+
+        # Restore SPRINT-LOG from backup or use template
+        if [ -f ".carol-history/SPRINT-LOG.md" ]; then
+            cp ".carol-history/SPRINT-LOG.md" carol/SPRINT-LOG.md
+            rm -rf .carol-history
+            notice "SPRINT-LOG.md restored from backup"
+        elif [ -f "$CAROL_ROOT/templates/SPRINT-LOG.md" ]; then
+            cp "$CAROL_ROOT/templates/SPRINT-LOG.md" carol/SPRINT-LOG.md
+        fi
+
+        if [ -f "$CAROL_ROOT/templates/config.yml" ]; then
+            cp "$CAROL_ROOT/templates/config.yml" carol/config.yml
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' 's/mode: "portable"/mode: "symlink"/' carol/config.yml
+            else
+                sed -i 's/mode: "portable"/mode: "symlink"/' carol/config.yml
+            fi
+        fi
+
+        # Symlink CAROL.md as CLAUDE.md — auto-loaded by Claude Code as operating protocol
+        ln -sf "$CAROL_ROOT/CAROL.md" CLAUDE.md
+
+        # Create Claude Code commands and agent definitions
+        mkdir -p .claude/commands .claude/agents
+        if [ -d "$CAROL_ROOT/.claude/commands" ]; then
+            cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+        fi
+        if [ -d "$CAROL_ROOT/.claude/agents" ]; then
+            cp "$CAROL_ROOT/.claude/agents"/*.md .claude/agents/
+        fi
+    fi
+
+    customize_templates "$project_path"
+    setup_global_permissions
+    setup_statusline
+
+    show_banner
+    echo -e "${GREY}✓ v${VERSION} System initiated.${NC}"
+    echo ""
+    echo "Rock 'n Roll!"
+}
+
+cmd_update() {
+    show_banner
+    
+    if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
+        info "Updating CAROL..."
+        
+        local old_pwd="$PWD"
+        cd "$CAROL_ROOT" || error "Cannot access CAROL root"
+        
+        local current_version="$VERSION"
+        
+        info "Fetching latest version..."
+        git fetch origin main || error "Failed to fetch from remote"
+        
+        local current_commit=$(git rev-parse HEAD)
+        local remote_commit=$(git rev-parse origin/main)
+        
+        if [ "$current_commit" = "$remote_commit" ]; then
+            success "Already up to date (v$current_version)"
+            cd "$old_pwd"
+            return 0
+        fi
+        
+        local remote_version=$(get_remote_version)
+        
+        if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$current_version"; then
+            notice "New version available: v$current_version → v$remote_version"
+        fi
+        
+        info "Updating CAROL SSOT at $CAROL_ROOT..."
+        git reset --hard origin/main || error "Failed to update"
+        
+        local new_version=$(grep '^VERSION=' bin/carol | head -1 | cut -d'"' -f2)
+        success "Updated CAROL SSOT: v$current_version → v$new_version"
+        
+        cd "$old_pwd"
+        
+        notice "All symlinked projects now use the updated version"
+        return 0
+    fi
+
+    # Determine carol directory (new: carol, legacy: .carol)
+    local carol_dir="carol"
+    [ -d ".carol" ] && carol_dir=".carol"
+
+    # Detect mode from config.yml
+    local is_portable=false
+    if [ -f "$carol_dir/config.yml" ] && grep -q 'mode: "portable"' "$carol_dir/config.yml"; then
+        is_portable=true
+    fi
+
+    # Update CAROL SSOT first (both modes need this)
+    local old_pwd="$PWD"
+    cd "$CAROL_ROOT" || error "Cannot access CAROL root"
+
+    local current_version="$VERSION"
+
+    info "Fetching latest version..."
+    git fetch origin main || error "Failed to fetch from remote"
+
+    local current_commit=$(git rev-parse HEAD)
+    local remote_commit=$(git rev-parse origin/main)
+
+    if [ "$current_commit" = "$remote_commit" ]; then
+        success "Already up to date (v$current_version)"
+        cd "$old_pwd"
+        if $is_portable; then
+            notice "Re-copying files to project..."
+        else
+            return 0
+        fi
+    else
+        local remote_version=$(get_remote_version)
+
+        if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$current_version"; then
+            notice "New version available: v$current_version → v$remote_version"
+        fi
+
+        info "Updating CAROL SSOT..."
+        git reset --hard origin/main || error "Failed to update"
+
+        local new_version=$(grep '^VERSION=' bin/carol | head -1 | cut -d'"' -f2)
+        success "Updated CAROL SSOT: v$current_version → v$new_version"
+    fi
+
+    cd "$old_pwd"
+
+    if $is_portable; then
+        info "Updating CAROL (portable mode)..."
+
+        # Re-copy framework files (preserve SPRINT-LOG and config)
+        local sprint_log_backup=""
+        if [ -f "$carol_dir/SPRINT-LOG.md" ]; then
+            sprint_log_backup=$(cat "$carol_dir/SPRINT-LOG.md")
+        fi
+        local config_backup=""
+        if [ -f "$carol_dir/config.yml" ]; then
+            config_backup=$(cat "$carol_dir/config.yml")
+        fi
+
+        for item in "$CAROL_ROOT"/*; do
+            local base=$(basename "$item")
+            [ "$base" = "carol" ] && continue
+            cp -r "$item" "$carol_dir/"
+        done
+        rm -rf "$carol_dir/.git" "$carol_dir/.gitignore"
+
+        # Restore project-specific files
+        if [ -n "$sprint_log_backup" ]; then
+            echo "$sprint_log_backup" > "$carol_dir/SPRINT-LOG.md"
+        fi
+        if [ -n "$config_backup" ]; then
+            echo "$config_backup" > "$carol_dir/config.yml"
+        fi
+
+        # Refresh CLAUDE.md from SSOT
+        cp "$CAROL_ROOT/CAROL.md" CLAUDE.md
+        success "CLAUDE.md refreshed"
+
+        # Update Claude Code commands and agent definitions
+        if [ -d "$CAROL_ROOT/.claude/commands" ] && [ -d ".claude/commands" ]; then
+            cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+            success "Commands updated"
+        fi
+        if [ -d "$CAROL_ROOT/.claude/agents" ]; then
+            mkdir -p .claude/agents
+            cp "$CAROL_ROOT/.claude/agents"/*.md .claude/agents/
+            success "Agent definitions updated"
+        fi
+
+        setup_statusline
+
+        success "Portable files updated"
+    else
+        notice "All symlinked projects now use the updated version"
+    fi
+}
+
+cmd_version() {
+    show_banner
+    echo -e "${GREY}✓ v${VERSION}${NC}"
+    echo ""
+    
+    local remote_version=$(get_remote_version)
+    if [ -n "$remote_version" ] && version_greater_than "$remote_version" "$VERSION"; then
+        notice "Update available: v$VERSION → v$remote_version"
+        echo "  Run 'carol update' to upgrade"
+        echo ""
+    fi
+}
+
+cmd_reset() {
+    if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
+        notice "No CAROL workflow found in current directory"
+        return 0
+    fi
+
+    echo ""
+    echo -e "${CYAN}${BOLD}⚠ This will remove CAROL from:${NC}"
+    echo "  $(pwd)"
+    echo ""
+    echo -en "${MAGENTA}Are you sure? [y/N]${NC} "
+    read -r response
+    
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        # Preserve SPRINT-LOG.md if it exists
+        local sprint_log=""
+        if [ -f "carol/SPRINT-LOG.md" ]; then
+            sprint_log=$(cat "carol/SPRINT-LOG.md")
+        elif [ -f ".carol/SPRINT-LOG.md" ]; then
+            sprint_log=$(cat ".carol/SPRINT-LOG.md")
+        fi
+        
+        rm -rf carol .carol
+        rm -rf .claude
+        rm -f CLAUDE.md
+
+        # Restore SPRINT-LOG.md for next init
+        if [ -n "$sprint_log" ]; then
+            mkdir -p .carol-history
+            echo "$sprint_log" > .carol-history/SPRINT-LOG.md
+            notice "SPRINT-LOG.md preserved in .carol-history/"
+        fi
+        
+        echo -e "${YELLOW}✓ No CAROL, no cigar${NC}"
+    else
+        info "Cancelled"
+    fi
+}
+
+cmd_help() {
+    show_banner
+    echo ""
+    echo -e "${CYAN}Usage:${NC}"
+    echo "  carol <command> [options]"
+    echo ""
+    echo -e "${MAGENTA}Commands:${NC}"
+    echo -e "  ${YELLOW}init${NC}           Initialize CAROL in current project (portable)"
+    echo -e "  ${YELLOW}init --symlink${NC} Initialize with symlinks to SSOT"
+    echo -e "  ${YELLOW}brainstormer${NC} [name] Launch BRAINSTORMER session (pre-flight)"
+    echo -e "  ${YELLOW}counselor${NC} [name]  Launch COUNSELOR session (default model)"
+    echo -e "  ${YELLOW}surgeon${NC} [name]    Launch SURGEON session (Sonnet)"
+    echo -e "  ${YELLOW}continue${NC}       Resume last CAROL session"
+    echo -e "  ${YELLOW}sessions${NC}       List sessions for current project"
+    echo -e "  ${YELLOW}resume <id>${NC}    Resume session by short ID or name"
+    echo -e "  ${YELLOW}reset${NC}          Remove CAROL from current project"
+    echo -e "  ${YELLOW}update${NC}         Update CAROL framework"
+    echo -e "  ${YELLOW}version${NC}        Show CAROL version"
+    echo -e "  ${YELLOW}help${NC}           Show this help message"
+    echo ""
+    echo -e "${MAGENTA}Upstream Agent:${NC}"
+    echo -e "  ${CYAN}BRAINSTORMER${NC}  Pre-flight research, RFC production"
+    echo ""
+    echo -e "${MAGENTA}PRIMARY Agents:${NC}"
+    echo -e "  ${CYAN}COUNSELOR${NC}     Planning, specs, docs, SPRINT-LOG"
+    echo -e "  ${CYAN}SURGEON${NC}       Execution, fixes, surgical precision"
+    echo ""
+    echo -e "${MAGENTA}Secondary Agents:${NC}"
+    echo -e "  ${CYAN}Engineer${NC}      Code generation"
+    echo -e "  ${CYAN}Oracle${NC}        Deep analysis, research"
+    echo -e "  ${CYAN}Librarian${NC}     Library/framework research"
+    echo -e "  ${CYAN}Auditor${NC}       QA/QC validation"
+    echo -e "  ${CYAN}Machinist${NC}     Polish, finish"
+    echo -e "  ${CYAN}Pathfinder${NC}    Pattern discovery"
+    echo -e "  ${CYAN}Researcher${NC}    Domain research"
+    echo ""
+    echo -e "${MAGENTA}Slash Commands:${NC}"
+    echo -e "  ${YELLOW}/counselor${NC}   Activate COUNSELOR (default on init)"
+    echo -e "  ${YELLOW}/surgeon${NC}     Activate SURGEON"
+    echo -e "  ${YELLOW}/stop${NC}        Emergency brake — cease all execution"
+    echo -e "  ${YELLOW}/ode${NC}         ODE to Joy — reframe the problem"
+    echo ""
+    echo -e "  CLAUDE.md auto-loaded — CAROL protocol always active"
+    echo ""
+    echo -e "${GREY}https://github.com/jrengmusic/carol${NC}"
+    echo ""
+}
+
+
+get_project_hash() {
+    local cwd
+    if command -v cygpath &>/dev/null; then
+        cwd=$(cygpath -w "$(pwd)")
+    else
+        cwd=$(pwd)
+    fi
+    echo "$cwd" | sed 's/[^a-zA-Z0-9]/-/g'
+}
+
+cmd_sessions() {
+    local project_hash
+    project_hash=$(get_project_hash)
+    local sessions_dir="$HOME/.claude/projects/$project_hash"
+
+    if [ ! -d "$sessions_dir" ]; then
+        notice "No sessions found for this project"
+        return 0
+    fi
+
+    local jsonl_files
+    jsonl_files=$(ls -t "$sessions_dir"/*.jsonl 2>/dev/null)
+
+    if [ -z "$jsonl_files" ]; then
+        notice "No sessions found"
+        return 0
+    fi
+
+    echo ""
+    echo -e "${CYAN}Sessions — $(pwd)${NC}"
+    echo ""
+    printf "${BOLD}%-10s %-44s %s${NC}\n" "ID" "NAME" "DATE"
+    echo "──────────────────────────────────────────────────────────────"
+
+    while IFS= read -r file; do
+        local uuid
+        uuid=$(basename "$file" .jsonl)
+        local short_id="${uuid:0:8}"
+        local date
+        date=$(date -r "$file" "+%d-%m-%Y" 2>/dev/null)
+
+        local python_file="$file"
+        command -v cygpath &>/dev/null && python_file=$(cygpath -w "$file")
+        local label
+        label=$(python3 -c "
+import json
+label = ''
+try:
+    with open(r'$python_file', encoding='utf-8') as f:
+        lines = f.readlines()
+    # Prefer custom-title (set by /rename)
+    for line in reversed(lines):
+        try:
+            d = json.loads(line)
+            if d.get('type') == 'custom-title':
+                label = d.get('customTitle', '')
+                break
+        except: continue
+    # Fall back to first real user message
+    if not label:
+        for line in lines:
+            try:
+                d = json.loads(line)
+                if d.get('type') == 'user':
+                    content = d.get('message', {}).get('content', '')
+                    text = content if isinstance(content, str) else next((b.get('text','') for b in content if isinstance(b,dict) and b.get('text')), '')
+                    text = text.strip()
+                    if text and not text.startswith('<'):
+                        label = ' '.join(text.split())[:50]
+                        break
+            except: continue
+except: pass
+print(label)
+" 2>/dev/null)
+
+        [ -z "$label" ] && label="(no label)"
+        printf "${YELLOW}%-10s${NC} %-44s ${GREY}%s${NC}\n" "$short_id" "${label:0:44}" "$date"
+    done <<< "$jsonl_files"
+
+    echo ""
+}
+
+cmd_resume() {
+    local id="$1"
+    [ -z "$id" ] && error "Usage: carol resume <session-id>"
+
+    local project_hash
+    project_hash=$(get_project_hash)
+    local sessions_dir="$HOME/.claude/projects/$project_hash"
+
+    local full_uuid=""
+
+    # Resolve by short ID prefix
+    if [ -d "$sessions_dir" ]; then
+        full_uuid=$(ls "$sessions_dir"/*.jsonl 2>/dev/null | xargs -I{} basename {} .jsonl | grep "^$id" | head -1)
+    fi
+
+    # Use as-is (full UUID or whatever was passed)
+    [ -z "$full_uuid" ] && full_uuid="$id"
+
+    local model_flag=()
+    local session_file="$sessions_dir/$full_uuid.jsonl"
+    if [ -f "$session_file" ]; then
+        local python_file="$session_file"
+        command -v cygpath &>/dev/null && python_file=$(cygpath -w "$session_file")
+        local model
+        model=$(python3 -c "
+import json
+model = ''
+try:
+    with open(r'$python_file', encoding='utf-8') as f:
+        for line in reversed(f.readlines()):
+            try:
+                d = json.loads(line)
+                if d.get('type') == 'assistant':
+                    m = (d.get('message') or {}).get('model', '')
+                    if m:
+                        model = m
+                        break
+            except: continue
+except: pass
+print(model)
+" 2>/dev/null)
+        [ -n "$model" ] && model_flag=(--model "$model")
+    fi
+
+    exec claude --resume "$full_uuid" "${model_flag[@]}"
+}
+
+cmd_continue() {
+    cmd_run --continue
+}
+
+cmd_run() {
+    local claude_args=()
+    local session_name=""
+
+    # Separate claude flags from session name
+    # Session name is the first non-flag argument after known flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --agent|--model)
+                claude_args+=("$1" "$2")
+                shift 2
+                ;;
+            --*)
+                claude_args+=("$1")
+                shift
+                ;;
+            *)
+                session_name="$1"
+                shift
+                ;;
+        esac
+    done
+
+    if [ ! -d "carol" ] && [ ! -d ".carol" ]; then
+        cmd_init
+    else
+        # Ensure commands exist (recover from empty .claude/commands/)
+        if [ -d ".claude/commands" ] && [ -z "$(ls -A .claude/commands 2>/dev/null)" ]; then
+            if [ -d "$CAROL_ROOT/.claude/commands" ]; then
+                cp "$CAROL_ROOT/.claude/commands"/*.md .claude/commands/
+                success "Restored missing commands"
+            fi
+        fi
+        show_banner
+    fi
+
+    # Pass session name as /rename prompt
+    if [ -n "$session_name" ]; then
+        MSYS_NO_PATHCONV=1 exec claude "${claude_args[@]}" "/rename $session_name"
+    fi
+
+    exec claude "${claude_args[@]}"
+}
+
+# Main command dispatcher
+case "${1:-run}" in
+    init)
+        shift
+        cmd_init "$@"
+        ;;
+    reset)
+        cmd_reset
+        ;;
+    update)
+        cmd_update
+        ;;
+    version)
+        cmd_version
+        ;;
+    help|--help|-h)
+        cmd_help
+        ;;
+    run)
+        shift
+        cmd_run --agent COUNSELOR "$@"
+        ;;
+    continue|--continue|-c)
+        cmd_continue
+        ;;
+    brainstormer)
+        shift
+        cmd_run --agent BRAINSTORMER "$@"
+        ;;
+    counselor)
+        shift
+        cmd_run --agent COUNSELOR "$@"
+        ;;
+    surgeon)
+        shift
+        cmd_run --agent SURGEON --model claude-sonnet-4-6 "$@"
+        ;;
+    sessions)
+        cmd_sessions
+        ;;
+    resume)
+        shift
+        cmd_resume "$@"
+        ;;
+    *)
+        echo "Unknown command: $1"
+        echo "Run 'carol help' for usage"
+        exit 1
+        ;;
+esac

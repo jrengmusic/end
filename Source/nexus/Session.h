@@ -13,8 +13,8 @@
  *   `Terminal::Session` objects.  Wires onBytes → broadcast `Message::output` to
  *   attached subscribers.
  * - **Client** (`Session(ClientTag)`) — IPC client.  Owns only
- *   `Terminal::Processor` objects.  Receives `Message::output` / `Message::history`
- *   from daemon and feeds Processor::process.
+ *   `Terminal::Processor` objects.  Receives `Message::output` / `Message::loading`
+ *   from daemon via `Nexus::Loader`.
  *
  * ### Byte-forward flow
  * ```
@@ -44,12 +44,17 @@
 #include <memory>
 
 #include "../terminal/logic/Processor.h"
+#include "Loader.h"
 
 namespace Terminal { class Session; }
 
 namespace Nexus
 {
 /*____________________________________________________________________________*/
+
+/** ID value used for the LOADING operation that represents
+ *  'waiting for daemon's initial processor list'. */
+inline constexpr const char* nexusConnectOperationId { "nexus-connect" };
 
 class Client;
 class Server;
@@ -122,15 +127,22 @@ public:
      * In client mode: constructs a `Terminal::Processor` (pipeline side only),
      * sends `Message::spawnProcessor` to daemon, returns Processor&.
      *
-     * @param shell  Shell program override.  Empty = use Config default.
-     * @param args   Shell arguments override.  Empty = use Config default.
-     * @param cwd    Initial working directory.  Empty = inherit.
+     * @param shell   Shell program override.  Empty = use Config default.
+     * @param args    Shell arguments override.  Empty = use Config default.
+     * @param cwd     Initial working directory.  Empty = inherit.
+     * @param cols    Initial column count.  Must be > 0.
+     * @param rows    Initial row count.  Must be > 0.
+     * @param envID   UUID of the parent session whose live PATH seeds the new shell.
+     *                Empty = no seed env.  Ignored on Windows.
      * @return Mutable reference to the newly constructed Processor.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    Terminal::Processor& create (const juce::String& shell = {},
-                                  const juce::String& args = {},
-                                  const juce::String& cwd = {});
+    Terminal::Processor& create (const juce::String& shell,
+                                  const juce::String& args,
+                                  const juce::String& cwd,
+                                  int cols,
+                                  int rows,
+                                  const juce::String& envID = {});
 
     /**
      * @brief Creates a terminal session with an explicit UUID.
@@ -138,17 +150,24 @@ public:
      * Used for state restoration and for the daemon-side spawnProcessor handler
      * which receives the client-assigned UUID over the wire.
      *
-     * @param shell  Shell program override.  Empty = use Config default.
-     * @param args   Shell arguments override.  Empty = use Config default.
-     * @param cwd    Initial working directory.  Empty = inherit.
-     * @param uuid   Explicit UUID to assign.  Must be non-empty.
+     * @param shell   Shell program override.  Empty = use Config default.
+     * @param args    Shell arguments override.  Empty = use Config default.
+     * @param cwd     Initial working directory.  Empty = inherit.
+     * @param uuid    Explicit UUID to assign.  Must be non-empty.
+     * @param cols    Initial column count.  Must be > 0.
+     * @param rows    Initial row count.  Must be > 0.
+     * @param envID   UUID of the parent session whose live PATH seeds the new shell.
+     *                Empty = no seed env.  Ignored on Windows.
      * @return Mutable reference to the newly constructed Processor.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     Terminal::Processor& create (const juce::String& shell,
                                   const juce::String& args,
                                   const juce::String& cwd,
-                                  const juce::String& uuid);
+                                  const juce::String& uuid,
+                                  int cols,
+                                  int rows,
+                                  const juce::String& envID = {});
 
     /**
      * @brief Returns a mutable reference to the Processor with the given UUID.
@@ -216,24 +235,11 @@ public:
     void sendResize (const juce::String& uuid, int cols, int rows);
 
     /**
-     * @brief Sends the history snapshot for @p uuid to @p target via Message::history.
-     *
-     * Daemon mode only.  Called from ServerConnection when a client attaches.
-     * Reads the Terminal::Session's byte history and sends it as a
-     * `Message::history` PDU to the requesting connection.
-     *
-     * @param uuid    UUID of the session whose history to send.
-     * @param target  The ServerConnection to send to.
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    void sendHistorySnapshot (const juce::String& uuid, ServerConnection& target);
-
-    /**
      * @brief Routes incoming bytes from daemon to the Processor for @p uuid.
      *
-     * Client mode: called by Client when `Message::output` or `Message::history`
-     * arrives.  Looks up the Processor by UUID and feeds bytes through
-     * `Processor::process`.
+     * Client mode: called by Client when `Message::output` arrives.
+     * Looks up the Processor by UUID and feeds bytes through `Processor::process`.
+     * `Message::loading` bytes are handled by `Nexus::Loader` via `startLoading`.
      *
      * @param uuid   UUID of the target Processor.
      * @param data   Raw byte buffer.
@@ -241,6 +247,19 @@ public:
      * @note MESSAGE THREAD (called from Client::messageReceived).
      */
     void feedBytes (const juce::String& uuid, const void* data, int size);
+
+    /**
+     * @brief Constructs a `Nexus::Loader` to parse @p bytes into the Processor for @p uuid.
+     *
+     * Called from Client::messageReceived when `Message::loading` arrives.
+     * Appends an OPERATION child to the AppState LOADING node, then starts the Loader thread.
+     * When the Loader finishes it erases itself from `loaders` and removes the OPERATION child.
+     *
+     * @param uuid   UUID of the target Processor.
+     * @param bytes  Backlog byte buffer (moved into Loader ownership).
+     * @note MESSAGE THREAD.
+     */
+    void startLoading (const juce::String& uuid, juce::MemoryBlock&& bytes);
 
     // =========================================================================
     /** @name Server
@@ -353,32 +372,29 @@ public:
      */
     std::function<void()> onAllSessionsExited;
 
-    /**
-     * @brief Called on the message thread when the client connection is established.
-     *
-     * Set by ENDApplication before constructing the client-mode Session (or
-     * immediately after).  Forwarded to `Client::onConnectionMade`.
-     */
-    std::function<void()> onConnectionMade;
-
-    /**
-     * @brief Called on the message thread when all client connection attempts fail.
-     *
-     * Set by ENDApplication before constructing the client-mode Session (or
-     * immediately after).  Forwarded to `Client::onConnectionFailed`.
-     */
-    std::function<void()> onConnectionFailed;
-
     // =========================================================================
     /** @name Byte-output subscriber registry
      *  Implemented in SessionFanout.cpp.
      * @{ */
 
     /**
+     * @brief Atomically sends loading snapshot then registers the connection as a subscriber.
+     *
+     * Holds `connectionsLock` across both operations so the reader thread's
+     * onBytes broadcast cannot race between them.  Guarantees the target
+     * receives history BEFORE any Message::output for the same uuid.
+     *
+     * @param uuid    Session UUID to sync.
+     * @param target  Connection to register and send to.
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    void attachAndSync (const juce::String& uuid, ServerConnection& target);
+
+    /**
      * @brief Registers @p connection as a byte-output subscriber for @p uuid.
      *
      * Called from ServerConnection when `Message::attachProcessor` is received.
-     * Daemon sends `Message::history` snapshot, then wires the Terminal::Session
+     * Daemon sends `Message::loading` snapshot, then wires the Terminal::Session
      * onBytes to also broadcast to this connection via `Message::output`.
      *
      * @param uuid        UUID of the session to subscribe to.
@@ -399,6 +415,15 @@ public:
     /** @} */
 
 private:
+    /**
+     * @brief Active Loader map: UUID → unique_ptr<Loader>.
+     *
+     * Non-empty only in client mode while a backlog is being replayed off the
+     * message thread.  Each entry is erased from the Loader's own onFinished
+     * callback, which fires on the message thread after `run()` completes.
+     */
+    std::map<juce::String, std::unique_ptr<Loader>> loaders;
+
     /**
      * @brief Owned Processor map: UUID → unique_ptr<Processor>.
      *
@@ -470,6 +495,18 @@ private:
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     void changeListenerCallback (juce::ChangeBroadcaster* source) override;
+
+    /**
+     * @brief Fires onAllSessionsExited if the processor map is now empty.
+     *
+     * Called at every exit path (shell-exit and removeProcessor) after the
+     * departing entry has already been erased from both `processors` and
+     * `terminalSessions`.  `processors` is the SSOT for liveness in local and
+     * daemon modes (client mode never sets onAllSessionsExited).
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    void fireIfAllExited() noexcept;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

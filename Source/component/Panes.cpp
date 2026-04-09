@@ -13,6 +13,7 @@
 #include "../whelmed/Component.h"
 #include "../nexus/Session.h"
 #include "../nexus/Log.h"
+#include "../config/Config.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -53,13 +54,19 @@ Panes::~Panes() = default;
 Panes::CreatedTerminal Panes::buildTerminal (const juce::String& shell,
                                               const juce::String& args,
                                               const juce::String& cwd,
-                                              const juce::String& uuidHint)
+                                              const juce::String& uuidHint,
+                                              int cols,
+                                              int rows,
+                                              const juce::String& envID)
 {
+    jassert (cols > 0);
+    jassert (rows > 0);
+
     CreatedTerminal result;
 
     Terminal::Processor& processor { uuidHint.isNotEmpty()
-        ? Nexus::Session::getContext()->create (shell, args, cwd, uuidHint)
-        : Nexus::Session::getContext()->create (shell, args, cwd) };
+        ? Nexus::Session::getContext()->create (shell, args, cwd, uuidHint, cols, rows, envID)
+        : Nexus::Session::getContext()->create (shell, args, cwd, cols, rows, envID) };
 
     result.uuid = processor.uuid;
     result.processor = &processor;
@@ -85,6 +92,88 @@ void Panes::teardownTerminal (const juce::String& uuid)
 // =============================================================================
 
 /**
+ * @brief Converts a pixel rect into terminal cell dimensions.
+ *
+ * Subtracts terminal padding from the rect, then divides by the effective
+ * cell size derived from font metrics and config multipliers.
+ *
+ * @param paneRect  Target pixel rect for the pane (chrome already subtracted by caller).
+ * @param font_     Typeface providing cell metrics.
+ * @return {cols, rows}. jasserts cols > 0 and rows > 0.
+ * @note Pure math — no instance state.
+ */
+std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
+                                           jreng::Typeface& font_) noexcept
+{
+    const auto fm { font_.calcMetrics (Terminal::Display::dpiCorrectedFontSize()) };
+    const auto* cfg { Config::getContext() };
+    const float cellWidthMultiplier  { cfg->getFloat (Config::Key::fontCellWidth) };
+    const float lineHeightMultiplier { cfg->getFloat (Config::Key::fontLineHeight) };
+    const int effectiveCellW { static_cast<int> (static_cast<float> (fm.logicalCellW) * cellWidthMultiplier) };
+    const int effectiveCellH { static_cast<int> (static_cast<float> (fm.logicalCellH) * lineHeightMultiplier) };
+
+    jassert (effectiveCellW > 0 and effectiveCellH > 0);
+
+    const int paddingTop    { cfg->getInt (Config::Key::terminalPaddingTop) };
+    const int paddingRight  { cfg->getInt (Config::Key::terminalPaddingRight) };
+    const int paddingBottom { cfg->getInt (Config::Key::terminalPaddingBottom) };
+    const int paddingLeft   { cfg->getInt (Config::Key::terminalPaddingLeft) };
+
+    const int contentW { paneRect.getWidth()  - paddingLeft - paddingRight };
+    const int contentH { paneRect.getHeight() - paddingTop  - paddingBottom };
+
+    const int cols { (contentW > 0 and effectiveCellW > 0) ? contentW / effectiveCellW : 1 };
+    const int rows { (contentH > 0 and effectiveCellH > 0) ? contentH / effectiveCellH : 1 };
+
+    jassert (cols > 0 and rows > 0);
+    return { cols, rows };
+}
+
+/**
+ * @brief Splits a pixel rect by direction and ratio.
+ *
+ * Uses jreng::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
+ * "vertical" splits width (left/right target/new). "horizontal" splits height (top/bottom).
+ *
+ * @param parent     Parent pixel rect.
+ * @param direction  "vertical" or "horizontal".
+ * @param ratio      Split ratio in (0,1).
+ * @return {targetRect, newRect}.
+ * @note Pure math — no instance state.
+ */
+std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
+    Panes::splitRect (juce::Rectangle<int> parent,
+                      const juce::String& direction,
+                      double ratio) noexcept
+{
+    juce::Rectangle<int> targetRect;
+    juce::Rectangle<int> newRect;
+
+    if (direction == "vertical")
+    {
+        const int totalWidth  { parent.getWidth() };
+        const int firstWidth  { juce::roundToInt (static_cast<double> (totalWidth - jreng::PaneManager::resizerBarSize) * ratio) };
+        const int secondWidth { totalWidth - firstWidth - jreng::PaneManager::resizerBarSize };
+
+        targetRect = parent.withWidth (firstWidth);
+        newRect    = parent.withX (parent.getX() + firstWidth + jreng::PaneManager::resizerBarSize).withWidth (secondWidth);
+    }
+    else
+    {
+        const int totalHeight  { parent.getHeight() };
+        const int firstHeight  { juce::roundToInt (static_cast<double> (totalHeight - jreng::PaneManager::resizerBarSize) * ratio) };
+        const int secondHeight { totalHeight - firstHeight - jreng::PaneManager::resizerBarSize };
+
+        targetRect = parent.withHeight (firstHeight);
+        newRect    = parent.withY (parent.getY() + firstHeight + jreng::PaneManager::resizerBarSize).withHeight (secondHeight);
+    }
+
+    return { targetRect, newRect };
+}
+
+// =============================================================================
+
+/**
  * @brief Creates a new terminal session as the first (or only) leaf in this pane.
  *
  * Delegates construction to buildTerminal() which routes through Session::create().
@@ -93,13 +182,18 @@ void Panes::teardownTerminal (const juce::String& uuid)
  *
  * @param workingDirectory  Initial cwd for the shell. Empty = inherit parent cwd.
  * @param uuid              UUID hint for nexus-mode restoration. Empty = spawn new.
+ * @param cols              Terminal column count. Must be > 0.
+ * @param rows              Terminal row count. Must be > 0.
  * @return The UUID of the newly created terminal (its componentID).
  * @note MESSAGE THREAD.
  */
 juce::String Panes::createTerminal (const juce::String& workingDirectory,
-                                     const juce::String& uuid)
+                                     const juce::String& uuid,
+                                     int cols,
+                                     int rows)
 {
-    auto created { buildTerminal ({}, {}, workingDirectory, uuid) };
+    jassert (cols > 0 and rows > 0);
+    auto created { buildTerminal ({}, {}, workingDirectory, uuid, cols, rows) };
 
     jassert (created.processor != nullptr);
 
@@ -381,17 +475,21 @@ void Panes::splitVertical() { splitImpl ("horizontal", false); }
  * @param cwd         Working directory for the new terminal. Empty = inherit.
  * @param direction   "vertical" for left/right divider; "horizontal" for top/bottom.
  * @param isVertical  True when the resizer bar is vertical (direction == "vertical").
+ * @param cols        Terminal column count for the new pane. Must be > 0.
+ * @param rows        Terminal row count for the new pane. Must be > 0.
  * @note MESSAGE THREAD.
  */
 void Panes::splitAt (const juce::String& targetUuid,
                      const juce::String& newUuid,
                      const juce::String& cwd,
                      const juce::String& direction,
-                     bool isVertical)
+                     bool isVertical,
+                     int cols,
+                     int rows)
 {
     jassert (targetUuid.isNotEmpty());
-
-    auto created { buildTerminal ({}, {}, cwd, newUuid) };
+    jassert (cols > 0 and rows > 0);
+    auto created { buildTerminal ({}, {}, cwd, newUuid, cols, rows) };
 
     jassert (created.processor != nullptr);
 
@@ -427,6 +525,10 @@ void Panes::splitAt (const juce::String& targetUuid,
 /**
  * @brief Shared split implementation for keyboard-shortcut splits.
  *
+ * Reads the active pane's live pixel bounds (laid out at runtime), computes
+ * the new pane's rect via splitRect at ratio 0.5, then derives cell dims via
+ * cellsFromRect before forwarding to splitAt.
+ *
  * @param direction  PaneManager direction string: "vertical" = left/right
  *                   divider; "horizontal" = top/bottom divider.
  * @param isVertical True when the resizer bar is vertical (splitHorizontal).
@@ -437,7 +539,22 @@ void Panes::splitImpl (const juce::String& direction, bool isVertical)
     const juce::String activeID { AppState::getContext()->getActivePaneID() };
     jassert (activeID.isNotEmpty());
 
-    splitAt (activeID, {}, AppState::getContext()->getPwd(), direction, isVertical);
+    // Find the active pane's current pixel bounds. At runtime the Panes instance
+    // is fully laid out, so the pane component has valid bounds.
+    // Initialise to full Panes bounds as fallback (used if the active pane is not found,
+    // which should not happen in normal operation).
+    juce::Rectangle<int> activeBounds { getLocalBounds() };
+
+    for (const auto& pane : panes)
+    {
+        if (pane->getComponentID() == activeID and pane->isVisible())
+            activeBounds = pane->getBounds();
+    }
+
+    const auto [targetRect, newRect] { splitRect (activeBounds, direction, 0.5) };
+    const auto [cols, rows] { cellsFromRect (newRect, font) };
+
+    splitAt (activeID, {}, AppState::getContext()->getPwd(), direction, isVertical, cols, rows);
 }
 
 /**

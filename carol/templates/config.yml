@@ -11,7 +11,7 @@ project:
 
 carol:
   mode: "symlink"  # or "portable"
-  version: "0.0.7"
+  version: "0.0.8"
 
 agents:
   # Track which agents are assigned to roles

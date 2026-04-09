@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="1400px" height="1000px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
     <rect x="0" y="0" width="1400" height="1000" style="fill:#090d12;"/>
-    <text x="627.554px" y="30px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:20px;fill:#b3f9f5;">CAROL v0.0.7</text>
+    <text x="627.554px" y="30px" style="font-family:'Menlo-Bold', 'Menlo', monospace;font-weight:700;font-size:20px;fill:#b3f9f5;">CAROL v0.0.8</text>
     <text x="524.674px" y="50px" style="font-family:'Menlo-Regular', 'Menlo', monospace;font-size:11px;fill:#699daa;">Cognitive Ampliﬁer Role Orchestration with LLM agents</text>
     <g>
         <g>

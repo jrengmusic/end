@@ -84,6 +84,25 @@ public:
     */
     static juce::ValueTree findLeaf (juce::ValueTree node, const juce::String& uuid);
 
+    //==============================================================================
+    /** @brief Pixel size of the resizer bar that separates split panes. */
+    static constexpr int resizerBarSize { 4 };
+
+    /** @brief Root node type identifier ("PANES"). */
+    static const juce::Identifier idPanes;
+
+    /** @brief Leaf node type identifier ("PANE"). */
+    static const juce::Identifier idPane;
+
+    /** @brief Property key for split direction ("vertical" or "horizontal"). */
+    static const juce::Identifier idDirection;
+
+    /** @brief Property key for the split ratio in [0.0, 1.0]. */
+    static const juce::Identifier idRatio;
+
+    /** @brief Property key for the leaf ID matching componentID. */
+    static const juce::Identifier id;
+
 private:
     //==============================================================================
     template <typename ComponentType>
@@ -172,26 +191,7 @@ private:
     //==============================================================================
     juce::ValueTree state;
 
-    static constexpr int resizerBarSize { 4 };
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaneManager)
-
-public:
-    //==============================================================================
-    /** @brief Root node type identifier ("PANES"). */
-    static const juce::Identifier idPanes;
-
-    /** @brief Leaf node type identifier ("PANE"). */
-    static const juce::Identifier idPane;
-
-    /** @brief Property key for split direction ("vertical" or "horizontal"). */
-    static const juce::Identifier idDirection;
-
-    /** @brief Property key for the split ratio in [0.0, 1.0]. */
-    static const juce::Identifier idRatio;
-
-    /** @brief Property key for the leaf ID matching componentID. */
-    static const juce::Identifier id;
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

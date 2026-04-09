@@ -174,6 +174,7 @@ void Terminal::Display::resized()
         const int rows { screenBase().getNumRows() };
 
         processor.state.setDimensions (cols, rows);
+        processor.resized (cols, rows);
         Nexus::Session::getContext()->sendResize (processor.uuid, cols, rows);
         processor.state.setScrollOffset (0);
     }
@@ -576,23 +577,6 @@ int Terminal::Display::getGridCols() const noexcept
 }
 
 juce::ValueTree Terminal::Display::getValueTree() noexcept { return processor.state.get(); }
-
-#if ! JUCE_WINDOWS
-juce::String Terminal::Display::getShellEnvVar (const juce::String& varName) const
-{
-    // TTY-side env var query is no longer accessible from the pipeline side.
-    // Returns empty — callers must route this through Nexus::Session's Terminal::Session if needed.
-    juce::ignoreUnused (varName);
-    return {};
-}
-#endif
-
-void Terminal::Display::addExtraEnv (const juce::String& key, const juce::String& value)
-{
-    // Shell env injection must happen before shell open, which is inside Terminal::Session's ctor.
-    // This call is now a no-op — env setup must be done before Session::create().
-    juce::ignoreUnused (key, value);
-}
 
 /**
  * @brief VBlank callback: renders the grid if dirty, repositions cursor, updates visibility.

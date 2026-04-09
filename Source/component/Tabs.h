@@ -83,17 +83,21 @@ public:
     void addNewTab();
 
     /**
-     * @brief Create and add a new terminal tab with an explicit cwd and UUID hint.
+     * @brief Create and add a new terminal tab with explicit cwd, UUID hint, and spawn dims.
      *
-     * Used by client-mode state.xml restoration to create a tab whose first
+     * Used by the state.xml restoration walker to create a tab whose first
      * terminal attaches to the given UUID (if live on the host) or spawns a new
-     * session in @p workingDirectory.
+     * session in @p workingDirectory, with deterministic PTY dimensions derived
+     * from the saved split tree rather than zero/fallback bounds.
      *
      * @param workingDirectory  Initial cwd for the first terminal.
      * @param uuid              UUID hint passed through to Panes::createTerminal().
+     * @param cols              Terminal column count. Must be > 0.
+     * @param rows              Terminal row count. Must be > 0.
      * @note MESSAGE THREAD.
      */
-    void addNewTab (const juce::String& workingDirectory, const juce::String& uuid);
+    void addNewTab (const juce::String& workingDirectory, const juce::String& uuid,
+                    int cols, int rows);
 
     /**
      * @brief Close the currently active tab and its terminal.
@@ -329,6 +333,18 @@ private:
 
     /** @brief Sets the active terminal UUID and grabs focus for the last terminal in @p active. */
     void focusLastTerminal (Panes* active);
+
+    /**
+     * @brief Returns the content rect available for Panes given a tab-bar depth.
+     *
+     * Uses jreng::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
+     * Falls back to AppState window size when getLocalBounds() is empty (pre-layout on first spawn).
+     *
+     * @param tabBarDepth  Tab-bar pixel depth to subtract from the base bounds.
+     * @return Pixel rect available for the active Panes component.
+     * @note MESSAGE THREAD.
+     */
+    juce::Rectangle<int> computeContentRect (int tabBarDepth) const noexcept;
 
     jreng::Typeface& font;
     jreng::Typeface& whelmedBodyFont;

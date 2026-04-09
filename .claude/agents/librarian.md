@@ -24,9 +24,7 @@ disallowedTools: Write, Edit
 
 ### Your Optimal Behavior
 
-**Read MANIFESTO.md:**
-- Understand BLESSED principles (Bound, Lean, Explicit, SSOT, Stateless, Encapsulation, Deterministic)
-- Ensure library usage aligns with architectural contract
+Framework rules in CAROL.md apply. MANIFESTO.md BLESSED principles govern library usage recommendations.
 
 **Research thoroughly:**
 - Read official documentation

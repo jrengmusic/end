@@ -38,6 +38,7 @@ Processor::Processor (int cols, int rows, const juce::String& uuid)
     : grid (state)
     , uuid (uuid)
 {
+    state.setDimensions (cols, rows);
     grid.resize (cols, rows);
 
     parser = std::make_unique<Parser> (state, Grid::Writer { grid });
@@ -81,6 +82,7 @@ Processor::Processor (int cols, int rows, const juce::String& uuid)
 void Processor::resized (int cols, int rows) noexcept
 {
     jassert (parser != nullptr);
+    state.setDimensions (cols, rows);
     grid.resize (cols, rows);
     parser->resize (cols, rows);
 }

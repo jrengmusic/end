@@ -72,11 +72,22 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     setOpaque (appState.getRendererType() == App::RendererType::cpu);
 
     //==============================================================================
-    if (not appState.isNexusMode())
-        initialiseTabs();
-
     initialiseOverlays();
     //==============================================================================
+
+    nexusNode = appState.getNexusNode();
+    nexusNode.addListener (this);
+
+    // Session is constructed AFTER MainComponent in both modes, so listeners are live
+    // before any tree mutations occur.
+    // Local mode: Session ctor creates the PROCESSORS node → fires
+    //   valueTreeChildAdded(nexusNode, PROCESSORS) → walker triggered.
+    // Client mode: Session ctor adds a "nexus-connect" LOADING op → overlay shows.
+    //   When Message::processorList arrives, Client rewrites the PROCESSORS subtree →
+    //   fires valueTreeChildAdded(processorsNode, PROCESSOR) → walker triggered.
+    // processorsNode and loadingNode are assigned lazily inside valueTreeChildAdded
+    // when PROCESSORS and LOADING are created under nexusNode.  No getOrCreate here —
+    // premature creation would prevent the child-added events from firing.
 
     setLookAndFeel (&terminalLookAndFeel);
     juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
@@ -87,11 +98,14 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
 
 void MainComponent::onNexusConnected()
 {
-    Nexus::logLine ("MainComponent::onNexusConnected: before initialiseTabs");
-    initialiseTabs();
-    Nexus::logLine ("MainComponent::onNexusConnected: after initialiseTabs, calling resized");
-    resized();
-    Nexus::logLine ("MainComponent::onNexusConnected: resized done");
+    if (tabs == nullptr)
+    {
+        Nexus::logLine ("MainComponent::onNexusConnected: before initialiseTabs");
+        initialiseTabs();
+        Nexus::logLine ("MainComponent::onNexusConnected: after initialiseTabs, calling resized");
+        resized();
+        Nexus::logLine ("MainComponent::onNexusConnected: resized done");
+    }
 }
 
 void MainComponent::applyConfig()
@@ -172,6 +186,13 @@ void MainComponent::resized()
  */
 MainComponent::~MainComponent()
 {
+    if (loadingNode.isValid())
+        loadingNode.removeListener (this);
+
+    if (processorsNode.isValid())
+        processorsNode.removeListener (this);
+
+    nexusNode.removeListener (this);
     setLookAndFeel (nullptr);
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
     jreng::BackgroundBlur::setCloseCallback (nullptr);
@@ -179,10 +200,63 @@ MainComponent::~MainComponent()
 }
 
 /**
- * @brief Returns a reference to the `LoaderOverlay` child component.
+ * @brief Fires when a property on a listened ValueTree node changes.
  *
- * Called by `ENDApplication` to show the spinner during async nexus connection
- * and hide it once `onConnectionMade` fires.
+ * All connection and loading signals are now driven by child-add/remove events.
+ * This override is retained as required by the ValueTree::Listener interface.
+ *
+ * @note MESSAGE THREAD.
+ */
+void MainComponent::valueTreePropertyChanged (juce::ValueTree& /*tree*/,
+                                              const juce::Identifier& /*property*/)
+{
+}
+
+/**
+ * @brief Fires when a direct child is added to nexusNode, processorsNode, or loadingNode.
+ *
+ * - parent == nexusNode and child type == PROCESSORS → PROCESSORS node arrived (both modes), call onNexusConnected.
+ * - parent == nexusNode and child type == LOADING → assign loadingNode, attach listener.
+ * - parent == loadingNode → any operation in flight, show loaderOverlay.
+ *
+ * @note MESSAGE THREAD.
+ */
+void MainComponent::valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child)
+{
+    if (parent == nexusNode and child.getType() == App::ID::PROCESSORS)
+    {
+        processorsNode = child;
+        processorsNode.addListener (this);
+        onNexusConnected();
+    }
+    else if (parent == nexusNode and child.getType() == App::ID::LOADING)
+    {
+        loadingNode = child;
+        loadingNode.addListener (this);
+    }
+    else if (parent == loadingNode)
+    {
+        loaderOverlay->show (0, "Loading session");
+    }
+}
+
+/**
+ * @brief Fires when a direct child is removed from nexusNode, processorsNode, or loadingNode.
+ *
+ * - parent == loadingNode and numChildren == 0 → all operations done, hide loaderOverlay.
+ *
+ * @note MESSAGE THREAD.
+ */
+void MainComponent::valueTreeChildRemoved (juce::ValueTree& parent,
+                                           juce::ValueTree& /*child*/,
+                                           int /*index*/)
+{
+    if (parent == loadingNode and loadingNode.getNumChildren() == 0)
+        loaderOverlay->hide();
+}
+
+/**
+ * @brief Returns a reference to the `LoaderOverlay` child component.
  *
  * @note MESSAGE THREAD.
  */
@@ -567,24 +641,17 @@ void MainComponent::registerActions()
 
                     const auto cwd { entry.cwd.isNotEmpty() ? entry.cwd : appState.getPwd() };
 
+                    juce::String envID;
+
+                    if (auto* active { tabs->getActiveTerminal() })
+                        envID = active->getComponentID();
+
                     // buildTerminal delegates to Nexus::Session::getContext() which handles mode routing internally.
-                    auto created { Terminal::Panes::buildTerminal (shell, shellArgs, cwd, {}) };
+                    // envID seeds the new shell's PATH from the active terminal's live process environment.
+                    auto created { Terminal::Panes::buildTerminal (shell, shellArgs, cwd, {}, cols, rows, envID) };
                     jassert (created.processor != nullptr);
 
                     auto terminal { created.processor->createDisplay (typeface) };
-
-#if ! JUCE_WINDOWS
-                    if (not appState.isNexusMode())
-                    {
-                        if (auto* active { tabs->getActiveTerminal() })
-                        {
-                            const auto shellPath { active->getShellEnvVar ("PATH") };
-
-                            if (shellPath.isNotEmpty())
-                                terminal->addExtraEnv ("PATH", shellPath);
-                        }
-                    }
-#endif
 
                     popup.show (*getTopLevelComponent(), std::move (terminal), pixelWidth, pixelHeight, glRenderer);
                 }
@@ -611,6 +678,45 @@ void MainComponent::registerActions()
         {
             appState.setWindowSize (getWidth(), getHeight());
         });
+}
+
+/**
+ * @brief Returns the pixel rect available for terminal panes after subtracting chrome.
+ *
+ * Subtracts: title bar (when windowButtons is enabled) and tab bar (when tabCount > 1).
+ * Tab bar depth and orientation are derived from LookAndFeel and the configured tab position.
+ * Terminal padding is NOT subtracted here — that is done inside Panes::cellsFromRect.
+ *
+ * @param windowWidth   Window pixel width.
+ * @param windowHeight  Window pixel height.
+ * @param tabCount      Number of tabs (determines tab bar visibility).
+ * @return Content rect for the panes area.
+ * @note MESSAGE THREAD.
+ */
+juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowHeight, int tabCount) const noexcept
+{
+    auto content { juce::Rectangle<int> (0, 0, windowWidth, windowHeight) };
+
+    const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
+    content.removeFromTop (titleBarHeight);
+
+    const int tabBarDepth { (tabCount > 1) ? Terminal::LookAndFeel::getTabBarHeight() : 0 };
+
+    if (tabBarDepth > 0)
+    {
+        const auto orientation { Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)) };
+
+        if (orientation == juce::TabbedButtonBar::TabsAtTop)
+            content = content.withTrimmedTop (tabBarDepth);
+        else if (orientation == juce::TabbedButtonBar::TabsAtBottom)
+            content = content.withTrimmedBottom (tabBarDepth);
+        else if (orientation == juce::TabbedButtonBar::TabsAtLeft)
+            content = content.withTrimmedLeft (tabBarDepth);
+        else if (orientation == juce::TabbedButtonBar::TabsAtRight)
+            content = content.withTrimmedRight (tabBarDepth);
+    }
+
+    return content;
 }
 
 /**
@@ -721,6 +827,8 @@ void MainComponent::initialiseTabs()
     {
         juce::String uuid;
         juce::String cwd;
+        int cols { 80 };
+        int rows { 24 };
     };
 
     struct SplitOp
@@ -730,6 +838,8 @@ void MainComponent::initialiseTabs()
         juce::String cwd;
         juce::String direction;
         double savedRatio;
+        int cols { 80 };
+        int rows { 24 };
     };
 
     struct TabRestoreEntry
@@ -794,10 +904,71 @@ void MainComponent::initialiseTabs()
         }
     };
 
+    // Count saved tabs to determine if tab bar will be visible (depth > 0 when > 1 tab).
+    // Used by getContentRect to produce the correct chrome-subtracted rect for dim computation.
+    const int savedTabCount { [this]() -> int
+    {
+        int count { 0 };
+        const auto savedTabs { appState.getTabs() };
+
+        for (int t { 0 }; t < savedTabs.getNumChildren(); ++t)
+        {
+            if (savedTabs.getChild (t).getType() == App::ID::TAB)
+                ++count;
+        }
+
+        return count;
+    }() };
+
+    // Recursively walk a saved PANES subtree and build a map uuid → {cols, rows}.
+    // parentRect is the pixel rect assigned to this node (chrome already subtracted).
+    // Leaf PANE nodes compute cols/rows from parentRect via cellsFromRect.
+    // Internal PANES nodes call splitRect to derive child rects and recurse.
+    std::function<void (const juce::ValueTree&, juce::Rectangle<int>,
+                        std::unordered_map<juce::String, std::pair<int,int>>&)> buildDimsMap;
+    buildDimsMap = [this, &buildDimsMap] (const juce::ValueTree& node,
+                                           juce::Rectangle<int> parentRect,
+                                           std::unordered_map<juce::String, std::pair<int,int>>& dimsMap)
+    {
+        if (node.getType() == App::ID::PANE)
+        {
+            const auto sessionNode { node.getChildWithName (Terminal::ID::SESSION) };
+
+            if (sessionNode.isValid())
+            {
+                const juce::String uuid { sessionNode.getProperty (jreng::ID::id).toString() };
+
+                if (uuid.isNotEmpty())
+                    dimsMap[uuid] = Terminal::Panes::cellsFromRect (parentRect, typeface);
+            }
+        }
+        else if (node.getType() == App::ID::PANES and node.getNumChildren() == 2)
+        {
+            const juce::String direction { node.getProperty (jreng::PaneManager::idDirection).toString() };
+            const double ratio { static_cast<double> (node.getProperty (jreng::PaneManager::idRatio, 0.5)) };
+
+            const auto [targetRect, newRect] { Terminal::Panes::splitRect (parentRect, direction, ratio) };
+
+            buildDimsMap (node.getChild (0), targetRect, dimsMap);
+            buildDimsMap (node.getChild (1), newRect, dimsMap);
+        }
+        else
+        {
+            // Single-child PANES (root before first split) — pass rect through.
+            for (int i { 0 }; i < node.getNumChildren(); ++i)
+                buildDimsMap (node.getChild (i), parentRect, dimsMap);
+        }
+    };
+
     std::vector<TabRestoreEntry> entriesToRestore;
 
     {
         const auto savedTabs { appState.getTabs() };
+        // Content rect is the same for every tab (shared window, same chrome).
+        // Tab bar is visible when there are > 1 saved tabs.
+        const auto contentRect { getContentRect (appState.getWindowWidth(),
+                                                  appState.getWindowHeight(),
+                                                  savedTabCount) };
 
         for (int t { 0 }; t < savedTabs.getNumChildren(); ++t)
         {
@@ -810,8 +981,29 @@ void MainComponent::initialiseTabs()
 
                 if (panesNode.isValid())
                 {
+                    // Build uuid → dims map by recursing the saved PANES tree.
+                    std::unordered_map<juce::String, std::pair<int,int>> dimsMap;
+                    buildDimsMap (panesNode, contentRect, dimsMap);
+
+                    // Collect first leaf and splits, then patch dims from map.
                     entry.firstLeaf = collectFirstLeaf (panesNode);
+
+                    if (dimsMap.count (entry.firstLeaf.uuid) > 0)
+                    {
+                        entry.firstLeaf.cols = dimsMap.at (entry.firstLeaf.uuid).first;
+                        entry.firstLeaf.rows = dimsMap.at (entry.firstLeaf.uuid).second;
+                    }
+
                     collectSplits (panesNode, entry.splits);
+
+                    for (auto& op : entry.splits)
+                    {
+                        if (dimsMap.count (op.newUuid) > 0)
+                        {
+                            op.cols = dimsMap.at (op.newUuid).first;
+                            op.rows = dimsMap.at (op.newUuid).second;
+                        }
+                    }
                 }
 
                 entriesToRestore.push_back (std::move (entry));
@@ -827,7 +1019,8 @@ void MainComponent::initialiseTabs()
     {
         for (const auto& entry : entriesToRestore)
         {
-            tabs->addNewTab (entry.firstLeaf.cwd, entry.firstLeaf.uuid);
+            tabs->addNewTab (entry.firstLeaf.cwd, entry.firstLeaf.uuid,
+                             entry.firstLeaf.cols, entry.firstLeaf.rows);
 
             auto* activePanes { tabs->getActivePanes() };
             jassert (activePanes != nullptr);
@@ -835,7 +1028,8 @@ void MainComponent::initialiseTabs()
             for (const auto& op : entry.splits)
             {
                 const bool isVertical { op.direction == "vertical" };
-                activePanes->splitAt (op.targetUuid, op.newUuid, op.cwd, op.direction, isVertical);
+                activePanes->splitAt (op.targetUuid, op.newUuid, op.cwd, op.direction, isVertical,
+                                      op.cols, op.rows);
 
                 // Restore the saved ratio on the internal PANES node that was just created.
                 // splitAt always sets ratio=0.5 by default; overwrite it with the saved value.

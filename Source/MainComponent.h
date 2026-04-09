@@ -73,7 +73,8 @@
  * @see Config::Key::windowOpacity
  * @see Action::Registry
  */
-class MainComponent : public juce::Component
+class MainComponent : public juce::Component,
+                      public juce::ValueTree::Listener
 {
 public:
     /**
@@ -119,12 +120,11 @@ public:
     LoaderOverlay& getLoaderOverlay() noexcept;
 
     /**
-     * @brief Called by ENDApplication when the nexus client connection is made.
+     * @brief Called when nexus connection is established.
      *
-     * In nexus mode the constructor defers `initialiseTabs()` until a live
-     * `Nexus::Client` context exists.  This method is the deferred entry point;
-     * it is called from the `client->onConnectionMade` lambda in Main.cpp after
-     * the loader overlay has been hidden.
+     * In nexus mode the constructor defers `initialiseTabs()` until the PROCESSORS
+     * node is created (local mode) or its first PROCESSOR child arrives (client mode).
+     * Triggered by `valueTreeChildAdded`.
      *
      * @note MESSAGE THREAD.
      */
@@ -181,6 +181,20 @@ private:
     /** @brief Indeterminate spinner shown while the nexus daemon connection is pending. */
     std::unique_ptr<LoaderOverlay> loaderOverlay;
 
+    /** @brief Persistent wrapper for the AppState NEXUS child node. Must outlive the
+     *         listener registration — `addListener` stores the listener in the wrapper
+     *         instance, not in the underlying shared object. A temporary wrapper would
+     *         destroy its listener list at end-of-statement. */
+    juce::ValueTree nexusNode;
+
+    /** @brief Persistent wrapper for the AppState PROCESSORS child node.  Listener
+     *         registration requires the wrapper to outlive it. */
+    juce::ValueTree processorsNode;
+
+    /** @brief Persistent wrapper for the AppState LOADING child node.  Listener
+     *         registration requires the wrapper to outlive it. */
+    juce::ValueTree loadingNode;
+
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;
 
@@ -206,6 +220,52 @@ private:
      * @see AppState
      */
     void initialiseTabs();
+
+    /**
+     * @brief Returns the content area available for terminal panes after subtracting chrome.
+     *
+     * Subtracts: title bar (when windowButtons is enabled), tab bar (when multiple tabs shown),
+     * and terminal padding from each edge. Used by the restore walker and fresh-tab dim
+     * computation to guarantee deterministic spawn dims from AppState window size.
+     *
+     * @param windowWidth   Pixel width of the window (from AppState or getWidth()).
+     * @param windowHeight  Pixel height of the window (from AppState or getHeight()).
+     * @param tabCount      Number of tabs currently open (determines tab bar visibility).
+     * @return Content rect with chrome removed, ready to pass to Panes::cellsFromRect.
+     * @note MESSAGE THREAD.
+     */
+    juce::Rectangle<int> getContentRect (int windowWidth, int windowHeight, int tabCount) const noexcept;
+
+    /**
+     * @brief Fires when a property on a listened ValueTree node changes.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void valueTreePropertyChanged (juce::ValueTree& tree,
+                                   const juce::Identifier& property) override;
+
+    /**
+     * @brief Fires when a direct child is added to a listened node.
+     *
+     * In local mode: PROCESSORS node created under nexusNode triggers onNexusConnected.
+     * In client mode: first PROCESSOR child under processorsNode triggers onNexusConnected.
+     * Any child added to loadingNode shows loaderOverlay.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void valueTreeChildAdded (juce::ValueTree& parent,
+                              juce::ValueTree& child) override;
+
+    /**
+     * @brief Fires when a direct child is removed from a listened node.
+     *
+     * Handles loadingNode becoming empty (hides loaderOverlay).
+     *
+     * @note MESSAGE THREAD.
+     */
+    void valueTreeChildRemoved (juce::ValueTree& parent,
+                                juce::ValueTree& child,
+                                int index) override;
 
     //==============================================================================
     /**

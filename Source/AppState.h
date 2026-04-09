@@ -9,8 +9,9 @@
  * `AppState::getContext()` without passing references.
  *
  * ### Serialization
- * `save()` writes `~/.config/end/state.xml` on quit.
- * `load()` reads it on launch to restore the previous session layout.
+ * `save(true)` writes the full ValueTree to `~/.config/end/state.xml` on quit (nexus mode).
+ * `save(false)` writes only the WINDOW subtree (standalone mode — preserves window size/zoom).
+ * `load()` reads state.xml unconditionally on launch to restore the previous session layout.
  *
  * ### Replaces
  * - `Config::loadState()` (was reading state.lua)
@@ -39,6 +40,15 @@ struct AppState : jreng::Context<AppState>
     juce::ValueTree& get() noexcept;
 
     juce::ValueTree getWindow() noexcept;
+    juce::ValueTree getNexusNode() noexcept;
+    juce::ValueTree getProcessorsNode() noexcept;
+
+    /** Creates the PROCESSORS child under NEXUS if absent. Side-effect only;
+        used by local-mode Session ctor to fire valueTreeChildAdded on the
+        MainComponent listener and trigger walker initialisation. */
+    void ensureProcessorsNode() noexcept;
+
+    juce::ValueTree getLoadingNode() noexcept;
     juce::ValueTree getTabs() noexcept;
 
     //==============================================================================
@@ -112,7 +122,14 @@ struct AppState : jreng::Context<AppState>
 
     //==============================================================================
 
-    void save();
+    /**
+     * @brief Persists application state to disk.
+     *
+     * @param isNexusMode When true, writes the full ValueTree to state.xml.
+     *                    When false, writes only the WINDOW subtree (preserving
+     *                    window size/zoom for standalone mode).
+     */
+    void save (bool isNexusMode = true);
     void load();
 
     juce::File getStateFile() const;

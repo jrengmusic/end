@@ -74,13 +74,6 @@ class Processor : public juce::ChangeBroadcaster
 {
 public:
     //==============================================================================
-    /** @brief Default terminal column count used when no geometry is known yet. */
-    static constexpr int defaultCols { 80 };
-
-    /** @brief Default terminal row count used when no geometry is known yet. */
-    static constexpr int defaultRows { 24 };
-
-    //==============================================================================
     /** @brief Terminal parameter store — accessible directly by Display and Nexus. */
     State state;
 

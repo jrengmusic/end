@@ -19,6 +19,7 @@
 #include "Wire.h"
 #include "Log.h"
 #include "../terminal/logic/Processor.h"
+#include "../terminal/logic/Session.h"
 
 #include <algorithm>
 
@@ -76,6 +77,47 @@ void Session::broadcastProcessorList()
 }
 
 // =============================================================================
+
+/**
+ * @brief Atomically sends history snapshot then registers the connection as a subscriber.
+ *
+ * Inlines both operations under a single connectionsLock acquisition so the
+ * reader thread's onBytes broadcast (which also acquires connectionsLock) cannot
+ * interleave between history send and subscriber registration.
+ *
+ * NOTE: `attachConnection` is intentionally NOT called here to avoid recursive
+ * lock acquisition confusion even though CriticalSection is recursive.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Session::attachAndSync (const juce::String& uuid, ServerConnection& target)
+{
+    const juce::ScopedLock lock (connectionsLock);
+
+    // Send loading snapshot FIRST so the client is fully synced before live bytes arrive.
+    const auto tsIt { terminalSessions.find (uuid) };
+
+    if (tsIt != terminalSessions.end())
+    {
+        const juce::MemoryBlock historyBytes { tsIt->second->snapshotHistory() };
+
+        juce::MemoryBlock payload;
+        writeString (payload, uuid);
+        payload.append (historyBytes.getData(), historyBytes.getSize());
+
+        Nexus::logLine ("Session::attachAndSync: sending loading uuid=" + uuid
+                        + " historyBytes=" + juce::String ((int) historyBytes.getSize()));
+
+        target.sendPdu (Message::loading, payload);
+    }
+
+    // Register as subscriber — any onBytes broadcast after this point will
+    // include `target`, but it cannot run until we release connectionsLock.
+    // (Inlined from attachConnection.)
+    subscribers[uuid].push_back (&target);
+
+    Nexus::logLine ("Session::attachAndSync: subscriber registered uuid=" + uuid);
+}
 
 /**
  * @brief Registers @p connection as a byte-output subscriber for @p uuid.

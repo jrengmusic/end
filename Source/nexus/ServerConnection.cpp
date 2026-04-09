@@ -115,7 +115,7 @@ void ServerConnection::sendPdu (Message kind, const juce::MemoryBlock& payload)
  *                       then session.sendResize, then broadcastProcessorList
  * - `input`           → decodes uuid + bytes, calls session.sendInput
  * - `resizeSession`   → decodes uuid + cols + rows, calls session.sendResize
- * - `attachProcessor` → registers subscription, sends Message::history snapshot
+ * - `attachProcessor` → registers subscription, sends Message::loading snapshot
  * - `detachProcessor` → unregisters subscription
  *
  * @param message  Raw MemoryBlock received from the JUCE IPC layer.
@@ -123,8 +123,7 @@ void ServerConnection::sendPdu (Message kind, const juce::MemoryBlock& payload)
  */
 void ServerConnection::messageReceived (const juce::MemoryBlock& message)
 {
-    const int total { static_cast<int> (message.getSize()) };
-
+    const auto total { static_cast<int> (message.getSize()) };
     Nexus::logLine ("NEXUS: messageReceived entry size=" + juce::String (total));
 
     if (total >= 2)
@@ -137,145 +136,189 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
         const uint8_t* payload { data + 2 };
         const int payloadSize { total - 2 };
 
-        if (kind == Message::hello)
+        switch (kind)
         {
-            sendPdu (Message::helloResponse);
-            Nexus::logLine ("NEXUS: messageReceived exit kind=hello");
-        }
-        else if (kind == Message::ping)
-        {
-            sendPdu (Message::pong);
-            Nexus::logLine ("NEXUS: messageReceived exit kind=ping");
-        }
-        else if (kind == Message::spawnProcessor)
-        {
-            // Payload: shell | args | cwd | uuid | cols (uint16_t LE) | rows (uint16_t LE)
-            int cursor { 0 };
-            juce::String shell, args, cwd, uuid;
-
-            const int shellConsumed { readString (payload + cursor, payloadSize - cursor, shell) };
-            cursor += shellConsumed;
-
-            const int argsConsumed { readString (payload + cursor, payloadSize - cursor, args) };
-            cursor += argsConsumed;
-
-            const int cwdConsumed { readString (payload + cursor, payloadSize - cursor, cwd) };
-            cursor += cwdConsumed;
-
-            const int uuidConsumed { readString (payload + cursor, payloadSize - cursor, uuid) };
-            cursor += uuidConsumed;
-
-            Nexus::logLine ("NEXUS: received spawnProcessor client-uuid=" + uuid
-                            + " shellConsumed=" + juce::String (shellConsumed)
-                            + " argsConsumed=" + juce::String (argsConsumed)
-                            + " cwdConsumed=" + juce::String (cwdConsumed)
-                            + " uuidConsumed=" + juce::String (uuidConsumed));
-
-            if (shellConsumed > 0 and argsConsumed > 0 and cwdConsumed > 0
-                and uuidConsumed > 0 and (payloadSize - cursor) >= 4)
-            {
-                const uint16_t cols { readUint16 (payload + cursor) };
-                cursor += 2;
-                const uint16_t rows { readUint16 (payload + cursor) };
-
-                Nexus::logLine ("NEXUS: spawnProcessor shell=" + shell);
-
-                Terminal::Processor& newProcessor { session.create (shell, args, cwd, uuid) };
-                const juce::String sessionUuid { newProcessor.uuid };
-                Nexus::logLine ("NEXUS: session.create returned actual-uuid=" + sessionUuid
-                                + " cols=" + juce::String ((int) cols)
-                                + " rows=" + juce::String ((int) rows));
-
-                // Resize grid pipeline side; PTY side resize is via sendResize.
-                newProcessor.resized (static_cast<int> (cols), static_cast<int> (rows));
-                session.sendResize (sessionUuid, static_cast<int> (cols), static_cast<int> (rows));
-
-                juce::MemoryBlock response;
-                writeString (response, sessionUuid);
-                sendPdu (Message::spawnProcessorResponse, response);
-
-                // Push updated processor list to all connected clients.
-                session.broadcastProcessorList();
-            }
-
-            Nexus::logLine ("NEXUS: messageReceived exit kind=spawnProcessor");
-        }
-        else if (kind == Message::input)
-        {
-            // Payload: uuid | raw input bytes
-            juce::String uuid;
-            const int uuidConsumed { readString (payload, payloadSize, uuid) };
-
-            if (uuidConsumed > 0 and uuid.isNotEmpty())
-            {
-                const int inputLen { payloadSize - uuidConsumed };
-
-                if (inputLen > 0)
-                {
-                    session.sendInput (uuid,
-                                       reinterpret_cast<const char*> (payload + uuidConsumed),
-                                       inputLen);
-                }
-            }
-
-            Nexus::logLine ("NEXUS: messageReceived exit kind=input");
-        }
-        else if (kind == Message::resizeSession)
-        {
-            // Payload: uuid | cols (uint16_t LE) | rows (uint16_t LE)
-            juce::String uuid;
-            const int uuidConsumed { readString (payload, payloadSize, uuid) };
-
-            if (uuidConsumed > 0 and uuid.isNotEmpty() and (payloadSize - uuidConsumed) >= 4)
-            {
-                const uint16_t cols { readUint16 (payload + uuidConsumed) };
-                const uint16_t rows { readUint16 (payload + uuidConsumed + 2) };
-                // Grid pipeline side resize (stub processor on daemon).
-                session.get (uuid).resized (static_cast<int> (cols), static_cast<int> (rows));
-                // PTY side resize.
-                session.sendResize (uuid, static_cast<int> (cols), static_cast<int> (rows));
-            }
-
-            Nexus::logLine ("NEXUS: messageReceived exit kind=resizeSession");
-        }
-        else if (kind == Message::attachProcessor)
-        {
-            // Payload: uuid (length-prefixed)
-            juce::String uuid;
-            const int uuidConsumed { readString (payload, payloadSize, uuid) };
-
-            Nexus::logLine ("NEXUS: received attachProcessor uuid=" + uuid
-                            + " uuidConsumed=" + juce::String (uuidConsumed));
-
-            if (uuidConsumed > 0 and uuid.isNotEmpty())
-            {
-                // Register as byte-output subscriber.
-                session.attachConnection (uuid, *this);
-
-                // Send history snapshot so client can replay to the current state.
-                session.sendHistorySnapshot (uuid, *this);
-
-                Nexus::logLine ("NEXUS: post-history send complete uuid=" + uuid);
-            }
-
-            Nexus::logLine ("NEXUS: messageReceived exit kind=attachProcessor");
-        }
-        else if (kind == Message::detachProcessor)
-        {
-            // Payload: uuid (length-prefixed)
-            juce::String uuid;
-            const int uuidConsumed { readString (payload, payloadSize, uuid) };
-
-            if (uuidConsumed > 0 and uuid.isNotEmpty())
-                session.detachConnection (uuid, *this);
-
-            Nexus::logLine ("NEXUS: messageReceived exit kind=detachProcessor");
-        }
-        else
-        {
-            Nexus::logLine ("NEXUS: messageReceived exit kind=unknown rawKind=" + juce::String ((int) rawKind));
+            case Message::hello:           handleHello();                                break;
+            case Message::ping:            handlePing();                                 break;
+            case Message::spawnProcessor:  handleSpawnProcessor  (payload, payloadSize); break;
+            case Message::input:           handleInput           (payload, payloadSize); break;
+            case Message::resizeSession:   handleResizeSession   (payload, payloadSize); break;
+            case Message::attachProcessor: handleAttachProcessor (payload, payloadSize); break;
+            case Message::detachProcessor: handleDetachProcessor (payload, payloadSize); break;
+            case Message::removeProcessor: handleRemoveProcessor (payload, payloadSize); break;
+            default:
+                Nexus::logLine ("NEXUS: messageReceived exit kind=unknown rawKind="
+                                + juce::String ((int) rawKind));
+                break;
         }
     }
+}
+
+// =============================================================================
+
+void ServerConnection::handleHello()
+{
+    sendPdu (Message::helloResponse);
+    Nexus::logLine ("NEXUS: messageReceived exit kind=hello");
+}
+
+void ServerConnection::handlePing()
+{
+    sendPdu (Message::pong);
+    Nexus::logLine ("NEXUS: messageReceived exit kind=ping");
+}
+
+ServerConnection::SpawnPayload
+ServerConnection::parseSpawnPayload (const uint8_t* payload, int payloadSize)
+{
+    SpawnPayload out;
+    int cursor { 0 };
+
+    const int shellConsumed { readString (payload + cursor, payloadSize - cursor, out.shell) };
+    cursor += shellConsumed;
+
+    const int argsConsumed { readString (payload + cursor, payloadSize - cursor, out.args) };
+    cursor += argsConsumed;
+
+    const int cwdConsumed { readString (payload + cursor, payloadSize - cursor, out.cwd) };
+    cursor += cwdConsumed;
+
+    const int uuidConsumed { readString (payload + cursor, payloadSize - cursor, out.uuid) };
+    cursor += uuidConsumed;
+
+    if (shellConsumed > 0 and argsConsumed > 0 and cwdConsumed > 0
+        and uuidConsumed > 0 and (payloadSize - cursor) >= 4)
+    {
+        out.cols = static_cast<int> (readUint16 (payload + cursor));
+        cursor += 2;
+        out.rows = static_cast<int> (readUint16 (payload + cursor));
+        cursor += 2;
+
+        readString (payload + cursor, payloadSize - cursor, out.envID);
+
+        out.valid = true;
+    }
+
+    return out;
+}
+
+void ServerConnection::handleSpawnProcessor (const uint8_t* payload, int payloadSize)
+{
+    const auto parsed { parseSpawnPayload (payload, payloadSize) };
+
+    Nexus::logLine ("NEXUS: received spawnProcessor client-uuid=" + parsed.uuid
+                    + " valid=" + juce::String (parsed.valid ? 1 : 0));
+
+    if (parsed.valid)
+    {
+        Nexus::logLine ("NEXUS: spawnProcessor shell=" + parsed.shell + " envID=" + parsed.envID);
+
+        Terminal::Processor& newProcessor { session.create (parsed.shell, parsed.args, parsed.cwd,
+                                                             parsed.uuid, parsed.cols, parsed.rows,
+                                                             parsed.envID) };
+        const juce::String sessionUuid { newProcessor.uuid };
+
+        Nexus::logLine ("NEXUS: session.create returned actual-uuid=" + sessionUuid
+                        + " cols=" + juce::String (parsed.cols)
+                        + " rows=" + juce::String (parsed.rows));
+
+        session.sendResize (sessionUuid, parsed.cols, parsed.rows);
+
+        juce::MemoryBlock response;
+        writeString (response, sessionUuid);
+        sendPdu (Message::spawnProcessorResponse, response);
+
+        session.broadcastProcessorList();
+    }
+
+    Nexus::logLine ("NEXUS: messageReceived exit kind=spawnProcessor");
+}
+
+void ServerConnection::handleInput (const uint8_t* payload, int payloadSize)
+{
+    // Payload: uuid | raw input bytes
+    juce::String uuid;
+    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+
+    if (uuidConsumed > 0 and uuid.isNotEmpty())
+    {
+        const int inputLen { payloadSize - uuidConsumed };
+
+        if (inputLen > 0)
+        {
+            session.sendInput (uuid,
+                               reinterpret_cast<const char*> (payload + uuidConsumed),
+                               inputLen);
+        }
+    }
+
+    Nexus::logLine ("NEXUS: messageReceived exit kind=input");
+}
+
+void ServerConnection::handleResizeSession (const uint8_t* payload, int payloadSize)
+{
+    // Payload: uuid | cols (uint16_t LE) | rows (uint16_t LE)
+    juce::String uuid;
+    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+
+    if (uuidConsumed > 0 and uuid.isNotEmpty() and (payloadSize - uuidConsumed) >= 4)
+    {
+        const uint16_t cols { readUint16 (payload + uuidConsumed) };
+        const uint16_t rows { readUint16 (payload + uuidConsumed + 2) };
+        // Grid pipeline side resize (stub processor on daemon).
+        session.get (uuid).resized (static_cast<int> (cols), static_cast<int> (rows));
+        // PTY side resize.
+        session.sendResize (uuid, static_cast<int> (cols), static_cast<int> (rows));
+    }
+
+    Nexus::logLine ("NEXUS: messageReceived exit kind=resizeSession");
+}
+
+void ServerConnection::handleAttachProcessor (const uint8_t* payload, int payloadSize)
+{
+    // Payload: uuid (length-prefixed)
+    juce::String uuid;
+    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+
+    Nexus::logLine ("NEXUS: received attachProcessor uuid=" + uuid
+                    + " uuidConsumed=" + juce::String (uuidConsumed));
+
+    if (uuidConsumed > 0 and uuid.isNotEmpty())
+    {
+        // Atomically send loading snapshot then register as subscriber — prevents
+        // Message::output arriving before Message::loading on reattach.
+        session.attachAndSync (uuid, *this);
+        Nexus::logLine ("NEXUS: post-attachAndSync complete uuid=" + uuid);
+    }
+
+    Nexus::logLine ("NEXUS: messageReceived exit kind=attachProcessor");
+}
+
+void ServerConnection::handleDetachProcessor (const uint8_t* payload, int payloadSize)
+{
+    // Payload: uuid (length-prefixed)
+    juce::String uuid;
+    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+
+    if (uuidConsumed > 0 and uuid.isNotEmpty())
+        session.detachConnection (uuid, *this);
+
+    Nexus::logLine ("NEXUS: messageReceived exit kind=detachProcessor");
+}
+
+void ServerConnection::handleRemoveProcessor (const uint8_t* payload, int payloadSize)
+{
+    // Payload: uuid (length-prefixed)
+    juce::String uuid;
+    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+
+    Nexus::logLine ("NEXUS: received removeProcessor uuid=" + uuid
+                    + " uuidConsumed=" + juce::String (uuidConsumed));
+
+    if (uuidConsumed > 0 and uuid.isNotEmpty())
+        session.remove (uuid);
+
+    Nexus::logLine ("NEXUS: messageReceived exit kind=removeProcessor");
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -62,16 +62,20 @@ public:
      *
      * History capacity is read from `Config::Key::terminalScrollbackLines`.
      *
-     * @param cols   Initial terminal width in character columns.
-     * @param rows   Initial terminal height in character rows.
-     * @param shell  Shell program path (e.g. "zsh", "/usr/bin/fish").
-     * @param args   Shell arguments string.  Empty = none.
-     * @param cwd    Initial working directory.  Empty = inherit.
+     * @param cols     Initial terminal width in character columns.
+     * @param rows     Initial terminal height in character rows.
+     * @param shell    Shell program path (e.g. "zsh", "/usr/bin/fish").
+     * @param args     Shell arguments string.  Empty = none.
+     * @param cwd      Initial working directory.  Empty = inherit.
+     * @param seedEnv  Extra environment variables injected before shell open.
+     *                 Iterated and pushed via TTY::addShellEnv before tty->open().
+     *                 Default empty — preserves all existing callers unchanged.
      */
     Session (int cols, int rows,
              const juce::String& shell,
              const juce::String& args,
-             const juce::String& cwd);
+             const juce::String& cwd,
+             const juce::StringPairArray& seedEnv = {});
 
     /**
      * @brief Stops the PTY and releases all resources.
@@ -133,6 +137,20 @@ public:
      */
     int getCwd (int pid, char* buffer, int maxLength) const noexcept;
 
+  #if ! JUCE_WINDOWS
+    /**
+     * @brief Reads an environment variable from the given PID's live environment.
+     *
+     * Pass-through to TTY::getEnvVar.  Uses a stack buffer internally.
+     *
+     * @param pid   The process ID to query.
+     * @param name  The variable name (e.g. "PATH").
+     * @return The variable's value as a juce::String, or empty on failure.
+     * @note MESSAGE THREAD.
+     */
+    juce::String getEnvVar (int pid, const juce::String& name) const;
+  #endif
+
     /**
      * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
      *
@@ -165,7 +183,7 @@ public:
     /**
      * @brief Returns a snapshot of all buffered PTY output bytes.
      *
-     * Used to produce the `Message::history` payload sent to a newly-attaching
+     * Used to produce the `Message::loading` payload sent to a newly-attaching
      * client so it can reconstruct the display from scratch.
      *
      * @return `juce::MemoryBlock` containing the history, oldest bytes first.

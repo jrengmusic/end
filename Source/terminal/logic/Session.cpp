@@ -31,7 +31,8 @@ namespace Terminal
 Session::Session (int cols, int rows,
                   const juce::String& shell,
                   const juce::String& args,
-                  const juce::String& cwd)
+                  const juce::String& cwd,
+                  const juce::StringPairArray& seedEnv)
     : history { Config::getContext()->getInt (Config::Key::terminalScrollbackLines) }
 {
 #if JUCE_MAC || JUCE_LINUX
@@ -60,10 +61,21 @@ Session::Session (int cols, int rows,
             onExit();
     };
 
+    const auto& keys { seedEnv.getAllKeys() };
+
+    for (const auto& key : keys)
+        tty->addShellEnv (key, seedEnv[key]);
+
     tty->open (cols, rows, shell, args, cwd);
 
     Nexus::logLine ("Terminal::Session ctor: shell=" + shell + " cols=" + juce::String (cols)
                     + " rows=" + juce::String (rows));
+
+    // Force clear-screen on first prompt. Readline picks up this buffered byte when it
+    // initializes and fires its clear-screen widget, wiping any stale bytes from the
+    // resize chain and redrawing the prompt at the current PTY winsize.
+    const char clearScreen { '\x0c' };
+    tty->write (&clearScreen, 1);
 }
 
 /**
@@ -147,6 +159,30 @@ int Session::getCwd (int pid, char* buffer, int maxLength) const noexcept
     jassert (tty != nullptr);
     return tty->getCwd (pid, buffer, maxLength);
 }
+
+#if ! JUCE_WINDOWS
+/**
+ * @brief Reads an environment variable from the given PID's live environment.
+ *
+ * Uses a stack buffer and delegates to TTY::getEnvVar.
+ *
+ * @note MESSAGE THREAD.
+ */
+juce::String Session::getEnvVar (int pid, const juce::String& name) const
+{
+    jassert (tty != nullptr);
+
+    char buf[8192] {};
+    const int written { tty->getEnvVar (pid, name.toRawUTF8(), buf, static_cast<int> (sizeof (buf))) };
+
+    juce::String result;
+
+    if (written > 0)
+        result = juce::String::fromUTF8 (buf, written);
+
+    return result;
+}
+#endif
 
 /**
  * @brief Returns a snapshot of all buffered history bytes.

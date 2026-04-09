@@ -16,7 +16,7 @@
  * History is owned by `Terminal::Session` alongside the TTY.  It is the
  * daemon-side record of all bytes that flowed through the PTY.  On client
  * attach, `Session::snapshotHistory()` returns a `juce::MemoryBlock` that
- * is forwarded to the client as a `Message::history` PDU and fed through
+ * is forwarded to the client as a `Message::loading` PDU and fed through
  * `Processor::process` to reconstruct the display state.
  *
  * @see Terminal::Session
@@ -77,7 +77,7 @@ public:
      * The returned block is a contiguous copy — safe to forward over IPC.
      *
      * @return A `juce::MemoryBlock` containing the history bytes oldest-first.
-     * @note MESSAGE THREAD — called to produce the initial `Message::history` payload.
+     * @note MESSAGE THREAD — called to produce the initial `Message::loading` payload.
      */
     juce::MemoryBlock snapshot() const noexcept;
 

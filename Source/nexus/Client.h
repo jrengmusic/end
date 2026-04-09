@@ -88,32 +88,24 @@ public:
     void disconnectFromHost();
 
     /**
-     * @brief Returns a snapshot of all live processor UUIDs known to this client.
-     *
-     * Populated by unsolicited `Message::processorList` pushes from the host.
-     * Non-blocking — returns whatever the last push delivered.
-     *
-     * @return Snapshot of processor UUID strings.
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    juce::StringArray getProcessorList() const;
-
-    /**
      * @brief Requests the host to spawn a new PTY session.
      *
-     * Payload: shell | args | cwd | uuid | cols (uint16_t LE) | rows (uint16_t LE)
+     * Payload: shell | args | cwd | uuid | cols (uint16_t LE) | rows (uint16_t LE) | envID
      *
      * @param cols    Initial column count.
      * @param rows    Initial row count.
      * @param shell   Shell program path.  Empty = host default.
      * @param cwd     Initial working directory.  Empty = inherit.
      * @param uuid    UUID hint for the new session.  Empty = host generates one.
+     * @param envID   UUID of the parent session whose live PATH seeds the new shell.
+     *                Empty = no seed env.  Forwarded to daemon; never resolved on client.
      * @note Any thread.
      */
     void spawnSession (int cols, int rows,
                        const juce::String& shell,
                        const juce::String& cwd,
-                       const juce::String& uuid = {});
+                       const juce::String& uuid = {},
+                       const juce::String& envID = {});
 
     /**
      * @brief Subscribes to render deltas for a session.
@@ -151,10 +143,22 @@ public:
      */
     void sendResize (const juce::String& uuid, int cols, int rows);
 
+    /**
+     * @brief Requests the host to kill the shell for a session.
+     *
+     * Sent before local processor cleanup so the socket is still live when the
+     * PDU is written.  Triggers the daemon-side Session::remove which destroys
+     * the Terminal::Session and its PTY process.
+     *
+     * @param uuid  UUID of the session to destroy.
+     * @note Any thread.
+     */
+    void sendRemove (const juce::String& uuid);
+
 
     /**
      * @brief Takes ownership of @p processor and registers it to receive incoming
-     *        `Message::output` / `Message::history` PDUs for its UUID.
+     *        `Message::output` / `Message::loading` PDUs for its UUID.
      *
      * The UUID is read from `processor->uuid`.  Ownership transfers to Client;
      * the Processor is destroyed when `unregisterProcessor` is called or when
@@ -200,31 +204,11 @@ public:
     std::function<void (const Message kind, const juce::MemoryBlock& payload)> onPdu;
 
     /**
-     * @brief Fired on the message thread when the async connection attempt succeeds.
-     *
-     * Set by `ENDApplication` before calling `beginConnectAttempts()`.
-     * Called from `connectionMade()` once the socket handshake completes.
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    std::function<void()> onConnectionMade;
-
-    /**
-     * @brief Fired on the message thread when all retry attempts are exhausted.
-     *
-     * Set by `ENDApplication` before calling `beginConnectAttempts()`.
-     * Called when the 5-second retry window expires without a successful connect.
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    std::function<void()> onConnectionFailed;
-
-    /**
      * @brief Kicks off async connection attempts, polling the lockfile every 100 ms.
      *
      * Reads @p lockfilePath, parses the port, and attempts `connectToSocket`.
-     * On success, stops retrying — JUCE fires `connectionMade()` which invokes
-     * `onConnectionMade`.  On timeout (50 × 100 ms = 5 s), fires `onConnectionFailed`.
+     * On success, stops retrying — JUCE fires `connectionMade()`.
+     * On timeout (50 × 100 ms = 5 s), logs a failure line.
      *
      * @param lockfilePath  Path to the port lockfile written by the daemon.
      * @note NEXUS PROCESS MESSAGE THREAD — must be called on the message thread.
@@ -239,13 +223,6 @@ private:
     void sendPdu (Message kind, const juce::MemoryBlock& payload = {});
 
     static juce::File getLockfile();
-
-    /**
-     * @brief Live processor UUID list populated by unsolicited `Message::processorList` pushes.
-     *
-     * All access on the message thread.
-     */
-    juce::StringArray processorUuids;
 
     /** @brief UUIDs of sessions this client has attached to (for DetachSession on disconnect). */
     juce::StringArray attachedUuids;

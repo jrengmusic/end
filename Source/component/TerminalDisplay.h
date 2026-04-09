@@ -277,28 +277,6 @@ public:
     int getGridCols() const noexcept;
 
     /**
-     * @brief Reads an environment variable from the active shell process.
-     *
-     * @param varName  The variable name (e.g. "PATH").
-     * @return The variable's value, or empty on failure.
-     * @note MESSAGE THREAD.
-     */
-  #if ! JUCE_WINDOWS
-    juce::String getShellEnvVar (const juce::String& varName) const;
-  #endif
-
-    /**
-     * @brief Injects an environment variable for the shell startup.
-     *
-     * Must be called before the component is first resized (which opens the PTY).
-     *
-     * @param key    The environment variable name.
-     * @param value  The environment variable value.
-     * @note MESSAGE THREAD.
-     */
-    void addExtraEnv (const juce::String& key, const juce::String& value);
-
-    /**
      * @brief Returns the terminal session's root ValueTree.
      *
      * Convenience accessor for grafting the SESSION subtree into the

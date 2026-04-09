@@ -13,9 +13,10 @@
  * ### Startup sequence
  * @code
  * Config ctor        → loads ~/.config/end/end.lua
- * AppState ctor      → loads ~/.config/end/state.xml (or creates defaults)
+ * AppState ctor      → initialises defaults (no filesystem access)
  * FontCollection ctor → loads font handles at default size
- * initialise()       → creates GlassWindow(new MainComponent())
+ * initialise()       → sets nexus mode, loads state.xml if nexus=true,
+ *                      creates GlassWindow(new MainComponent())
  * @endcode
  *
  * ### Shutdown sequence
@@ -214,7 +215,6 @@ public:
                 // ---- Single-process mode (nexus = false) --------------------
                 // No daemon, no IPC.  Sessions die with the window.
                 // Host is alive in-process for session ownership; server is NOT started.
-                nexus = std::make_unique<Nexus::Session>();
             }
 
 #if JUCE_WINDOWS
@@ -241,16 +241,20 @@ public:
 
             mainWindow->setVisible (true);
 
+            if (not nexusEnabled)
+            {
+                // MainComponent listeners are now registered.  Session ctor creates the
+                // PROCESSORS ValueTree child, which fires valueTreeChildAdded and
+                // naturally triggers onNexusConnected() on the live listener.
+                nexus = std::make_unique<Nexus::Session>();
+            }
+
             if (nexusEnabled)
             {
                 // ---- Client mode (nexus = true, no --nexus flag) -------------
-                // Window is up immediately.  Show spinner while the daemon connection settles.
+                // Window is up immediately.  Session(ClientTag) ctor adds a LOADING child
+                // which fires valueTreeChildAdded and shows the loaderOverlay automatically.
                 // If no daemon lockfile exists, spawn one first; then connect asynchronously.
-                auto* mainComponent { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) };
-
-                if (mainComponent != nullptr)
-                    mainComponent->getLoaderOverlay().show (0, "Connecting to nexus");
-
                 const juce::File lockfilePath { Nexus::Server::getLockfile() };
 
                 bool daemonAlive { false };
@@ -290,27 +294,10 @@ public:
                     Nexus::spawnDaemon();
                 }
 
-                // Session (ClientTag) constructs Client internally and begins connect attempts.
+                // Session (ClientTag) constructs Client internally, adds a nexus-connect LOADING op,
+                // and begins connect attempts.  When processorList arrives, PROCESSORS is rewritten
+                // and the LOADING op is removed.  MainComponent::valueTreeChildAdded reacts to both.
                 nexus = std::make_unique<Nexus::Session> (Nexus::Session::ClientTag{});
-
-                nexus->onConnectionMade = [this]
-                {
-                    Nexus::logLine ("ENDApplication: onConnectionMade fired - hiding loader, calling onNexusConnected");
-
-                    if (mainWindow != nullptr)
-                    {
-                        if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
-                        {
-                            content->getLoaderOverlay().hide();
-                            content->onNexusConnected();
-                        }
-                    }
-                };
-
-                nexus->onConnectionFailed = [this]
-                {
-                    Nexus::logLine ("ENDApplication: connection failed after maximum retry attempts - daemon unreachable.");
-                };
             }
 
             juce::MessageManager::callAsync (
@@ -374,11 +361,10 @@ public:
     /**
      * @brief Handles OS quit requests (Cmd+Q, window close, SIGTERM).
      *
-     * When live sessions exist the process becomes a headless daemon: the
-     * window is destroyed but the message loop continues.  The daemon exits
-     * when all sessions subsequently die via `onAllSessionsExited`.
-     *
-     * When no live sessions remain, saves `state.xml` and exits immediately.
+     * Saves `state.xml` (nexus mode only) and quits.  In the byte-forward
+     * architecture, the GUI process and the daemon process are separate —
+     * quitting the GUI does not affect the daemon, which outlives the GUI
+     * until its own shell count hits zero.
      *
      * @note MESSAGE THREAD — called by the OS or by `JUCEApplication::quit()`.
      *
@@ -399,7 +385,7 @@ public:
             }
         }
 
-        appState.save();
+        appState.save (appState.isNexusMode());
         quit();
     }
 

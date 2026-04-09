@@ -58,6 +58,10 @@ Tabs::~Tabs()
 /**
  * @brief Creates a new Panes instance in a new tab and switches to it.
  *
+ * Computes terminal dimensions from the current Tabs component bounds minus the
+ * (soon-to-be-updated) tab bar depth. Tabs is always laid out by the time the
+ * user triggers cmd+T (window is visible and sized).
+ *
  * @note MESSAGE THREAD.
  */
 void Tabs::addNewTab()
@@ -79,7 +83,15 @@ void Tabs::addNewTab()
     };
     addChildComponent (&newPanes);
 
-    const auto uuid { newPanes.createTerminal (AppState::getContext()->getPwd()) };
+    // Compute the content rect for the new pane's spawn dims.
+    // newDepth is the tab-bar depth that will apply AFTER this tab is added.
+    const int newTabCount { getNumTabs() + 1 };
+    const int newDepth { (newTabCount > 1) ? LookAndFeel::getTabBarHeight() : 0 };
+    const auto contentRect { computeContentRect (newDepth) };
+
+    const auto [cols, rows] { Panes::cellsFromRect (contentRect, font) };
+
+    const auto uuid { newPanes.createTerminal (AppState::getContext()->getPwd(), {}, cols, rows) };
 
     auto tab { AppState::getContext()->addTab() };
     tab.removeChild (tab.getChildWithName (App::ID::PANES), nullptr);
@@ -100,17 +112,23 @@ void Tabs::addNewTab()
 }
 
 /**
- * @brief Creates a new Panes instance in a new tab, using the given cwd and UUID hint.
+ * @brief Creates a new Panes instance in a new tab, using the given cwd, UUID hint, and spawn dims.
  *
- * Used by client-mode state.xml restoration.  Passes @p workingDirectory and
- * @p uuid through to Panes::createTerminal() so the first terminal attaches to
- * the persisted session (if live on the host) or spawns a fresh shell in @p
- * workingDirectory.
+ * Used by the state.xml restoration walker. Passes all parameters through to
+ * Panes::createTerminal() so the first terminal spawns with deterministic PTY dims
+ * derived from the saved split tree, rather than zero bounds.
  *
+ * @param workingDirectory  Initial cwd for the first terminal.
+ * @param uuid              UUID hint.
+ * @param cols              Terminal column count. Must be > 0.
+ * @param rows              Terminal row count. Must be > 0.
  * @note MESSAGE THREAD.
  */
-void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid)
+void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid,
+                      int cols, int rows)
 {
+    jassert (cols > 0 and rows > 0);
+
     auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, whelmedBodyFont, whelmedCodeFont)) };
     auto& newPanes { *newPanesPtr };
     newPanes.onRepaintNeeded = onRepaintNeeded;
@@ -128,7 +146,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
     };
     addChildComponent (&newPanes);
 
-    const auto sessionUuid { newPanes.createTerminal (workingDirectory, uuid) };
+    const auto sessionUuid { newPanes.createTerminal (workingDirectory, uuid, cols, rows) };
 
     auto tab { AppState::getContext()->addTab() };
     tab.removeChild (tab.getChildWithName (App::ID::PANES), nullptr);
@@ -483,30 +501,9 @@ void Tabs::resized()
 {
     juce::TabbedComponent::resized();
 
-    const auto depth { getTabBarDepth() };
-    const auto orientation { getOrientation() };
-    auto content { getLocalBounds() };
-
-    if (orientation == juce::TabbedButtonBar::TabsAtTop)
-    {
-        content = content.withTrimmedTop (depth);
-    }
-    else if (orientation == juce::TabbedButtonBar::TabsAtBottom)
-    {
-        content = content.withTrimmedBottom (depth);
-    }
-    else if (orientation == juce::TabbedButtonBar::TabsAtLeft)
-    {
-        content = content.withTrimmedLeft (depth);
-    }
-    else if (orientation == juce::TabbedButtonBar::TabsAtRight)
-    {
-        content = content.withTrimmedRight (depth);
-    }
-
     if (auto* active { getActivePanes() }; active != nullptr)
     {
-        active->setBounds (content);
+        active->setBounds (computeContentRect (getTabBarDepth()));
     }
 }
 
@@ -625,6 +622,45 @@ void Tabs::focusPaneRight()
 {
     if (auto* active { getActivePanes() }; active != nullptr)
         active->focusPane (1, 0);
+}
+
+/**
+ * @brief Returns the content rect available for Panes given a tab-bar depth.
+ *
+ * Uses getLocalBounds() when the component is fully laid out (runtime). Falls back
+ * to AppState window dimensions when bounds are empty (pre-layout on first spawn).
+ * Applies the orientation-appropriate trim for the given @p depth.
+ *
+ * @param tabBarDepth  Tab-bar pixel depth to subtract from the base bounds.
+ * @return Pixel rect available for the active Panes component.
+ * @note MESSAGE THREAD.
+ */
+juce::Rectangle<int> Tabs::computeContentRect (int tabBarDepth) const noexcept
+{
+    const auto liveRect { getLocalBounds() };
+    auto base { liveRect.isEmpty()
+                ? juce::Rectangle<int> (0, 0,
+                                        AppState::getContext()->getWindowWidth(),
+                                        AppState::getContext()->getWindowHeight())
+                : liveRect };
+
+    juce::Rectangle<int> result { base };
+
+    if (tabBarDepth > 0)
+    {
+        const auto orientation { getOrientation() };
+
+        if (orientation == juce::TabbedButtonBar::TabsAtTop)
+            result = base.withTrimmedTop (tabBarDepth);
+        else if (orientation == juce::TabbedButtonBar::TabsAtBottom)
+            result = base.withTrimmedBottom (tabBarDepth);
+        else if (orientation == juce::TabbedButtonBar::TabsAtLeft)
+            result = base.withTrimmedLeft (tabBarDepth);
+        else if (orientation == juce::TabbedButtonBar::TabsAtRight)
+            result = base.withTrimmedRight (tabBarDepth);
+    }
+
+    return result;
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

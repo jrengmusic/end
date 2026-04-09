@@ -11,11 +11,12 @@
  * - `spawnProcessor(uuid, shell, args, cwd, cols, rows)` — client→daemon
  * - `spawnProcessorResponse(uuid)` — daemon→client ack
  * - `attachProcessor(uuid)` — client→daemon "I want bytes for this uuid"
- * - `history(uuid, bytes)` — daemon→client initial byte snapshot
+ * - `loading(uuid, bytes)` — daemon→client initial byte snapshot for the loading phase
  * - `output(uuid, bytes)` — daemon→client live PTY bytes
  * - `input(uuid, bytes)` — client→daemon keyboard/mouse input
  * - `resizeSession(uuid, cols, rows)` — client→daemon
- * - `detachProcessor(uuid)` — client→daemon "stop forwarding"
+ * - `detachProcessor(uuid)` — client→daemon "stop forwarding" (session keeps running)
+ * - `removeProcessor(uuid)` — client→daemon "kill this shell" (session destroyed)
  * - `processorExited(uuid)` — daemon→client "shell exited"
  * - `processorList(uuids)` — daemon→client initial session list on hello
  * - `hello` / `helloResponse` / `ping` / `pong` / `shutdown` — control
@@ -52,8 +53,9 @@ enum class Message : uint16_t
     detachProcessor         = 0x14, ///< Client → Host: unsubscribe from a session (session keeps running).
     resizeSession           = 0x15, ///< Client → Host: change PTY dimensions for a session.
     input                   = 0x16, ///< Client → Host: raw bytes to write to PTY stdin.
+    removeProcessor         = 0x17, ///< Client → Host: kill the shell for a session (session is destroyed).
 
-    history                 = 0x20, ///< Host → Client: initial byte snapshot for a newly-attached session.
+    loading                 = 0x20, ///< Host → Client: loading-phase byte snapshot for a newly-attached session.
                                     ///<   Payload: uuid (length-prefixed string) + raw PTY bytes.
     output                  = 0x21, ///< Host → Client: live PTY byte output for a running session.
                                     ///<   Payload: uuid (length-prefixed string) + raw PTY bytes.

@@ -19,6 +19,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <utility>
 #include "PaneComponent.h"
 #include "TerminalDisplay.h"
 #include "../terminal/logic/Processor.h"
@@ -52,6 +53,41 @@ public:
     ~Panes() override;
 
     /**
+     * @brief Converts a pixel rect into terminal cell dimensions.
+     *
+     * Pure math: subtracts terminal padding from the rect, divides by
+     * effective cell width/height. Used by the restore walker to
+     * pre-compute per-pane dims and by splitImpl for fresh splits.
+     *
+     * @param paneRect    Target pixel rect for the pane (AFTER chrome subtracted).
+     * @param font        Typeface providing cell metrics.
+     * @return (cols, rows). jasserts cols > 0 and rows > 0.
+     * @note Pure math — no instance state. noexcept.
+     */
+    static std::pair<int, int> cellsFromRect (juce::Rectangle<int> paneRect,
+                                              jreng::Typeface& font) noexcept;
+
+    /**
+     * @brief Splits a pixel rect by direction and ratio.
+     *
+     * Pure math: given a parent rect, a direction string ("vertical" or
+     * "horizontal" — matching PaneManager idDirection semantics), and a
+     * ratio in (0,1), returns the two child rects after the split. The
+     * first rect is the "target" (left/top), the second is the "new" (right/bottom).
+     * Uses jreng::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
+     *
+     * @param parent     Parent pixel rect.
+     * @param direction  "vertical" or "horizontal" (matches PaneManager idDirection).
+     * @param ratio      Split ratio in (0,1).
+     * @return {targetRect, newRect}.
+     * @note Pure math — no instance state. noexcept.
+     */
+    static std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
+        splitRect (juce::Rectangle<int> parent,
+                   const juce::String& direction,
+                   double ratio) noexcept;
+
+    /**
      * @brief Create a new terminal session in this pane.
      *
      * In host mode: creates a session via Nexus::Session and calls Session::createDisplay().
@@ -65,11 +101,15 @@ public:
      * @param uuid              UUID hint for state restoration. In client mode, if this
      *                          UUID is live on the host the session is attached; otherwise
      *                          a new session is spawned. Empty = always spawn new.
+     * @param cols              Terminal column count. Must be > 0.
+     * @param rows              Terminal row count. Must be > 0.
      * @return The UUID of the newly created terminal (its componentID).
      * @note MESSAGE THREAD.
      */
-    juce::String createTerminal (const juce::String& workingDirectory = {},
-                                 const juce::String& uuid = {});
+    juce::String createTerminal (const juce::String& workingDirectory,
+                                 const juce::String& uuid,
+                                 int cols,
+                                 int rows);
 
     /**
      * @brief Create a new Whelmed markdown viewer pane and open the given file.
@@ -156,13 +196,17 @@ public:
      * @param cwd         Working directory for the new terminal. Empty = inherit.
      * @param direction   "vertical" for left/right divider; "horizontal" for top/bottom.
      * @param isVertical  True when the resizer bar is vertical (direction == "vertical").
+     * @param cols        Terminal column count for the new pane. Must be > 0.
+     * @param rows        Terminal row count for the new pane. Must be > 0.
      * @note MESSAGE THREAD.
      */
     void splitAt (const juce::String& targetUuid,
                   const juce::String& newUuid,
                   const juce::String& cwd,
                   const juce::String& direction,
-                  bool isVertical);
+                  bool isVertical,
+                  int cols,
+                  int rows);
 
     /**
      * @brief Split the active pane into side-by-side columns.
@@ -224,13 +268,20 @@ public:
      * @param args       Shell arguments.  Empty = use Config default.
      * @param cwd        Initial working directory.  Empty = inherit.
      * @param uuidHint   UUID hint (nexus restore).  Empty = generate new.
+     * @param cols       Initial column count.  Must be > 0.
+     * @param rows       Initial row count.  Must be > 0.
+     * @param envID      UUID of the parent session whose live PATH seeds the new
+     *                   shell env.  Empty = no seed.  Default empty.
      * @return CreatedTerminal with uuid and non-owning processor*.
      * @note MESSAGE THREAD.
      */
     static CreatedTerminal buildTerminal (const juce::String& shell,
                                           const juce::String& args,
                                           const juce::String& cwd,
-                                          const juce::String& uuidHint);
+                                          const juce::String& uuidHint,
+                                          int cols,
+                                          int rows,
+                                          const juce::String& envID = {});
 
     /**
      * @brief Tears down a terminal session.
