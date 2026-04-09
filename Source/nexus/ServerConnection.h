@@ -101,14 +101,6 @@ private:
     Server&  server;
     Session& session;
 
-    void handleHello            ();
-    void handlePing             ();
-    void handleCreateProcessor  (const uint8_t* payload, int payloadSize);
-    void handleInput            (const uint8_t* payload, int payloadSize);
-    void handleResizeSession    (const uint8_t* payload, int payloadSize);
-    void handleDetachProcessor  (const uint8_t* payload, int payloadSize);
-    void handleRemoveProcessor  (const uint8_t* payload, int payloadSize);
-
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ServerConnection)
 };

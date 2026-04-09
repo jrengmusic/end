@@ -49,7 +49,6 @@
 #include "../SelectionType.h"
 #include "../terminal/selection/LinkSpan.h"
 #include "../terminal/selection/LinkManager.h"
-#include "../nexus/Session.h"
 #include "PaneComponent.h"
 #include "config/Config.h"
 

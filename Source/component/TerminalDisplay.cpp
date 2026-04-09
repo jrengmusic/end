@@ -16,7 +16,6 @@
 #include "../config/Config.h"
 #include "../terminal/notifications/Notifications.h"
 #include "../nexus/Client.h"
-#include "../nexus/Session.h"
 #include "../nexus/Log.h"
 
 /**
@@ -54,6 +53,8 @@ Terminal::Display::~Display()
 {
     processor.removeChangeListener (this);
 
+    processor.writeInput = nullptr;
+    processor.onResize = nullptr;
     processor.onShellExited = nullptr;
     processor.onClipboardChanged = nullptr;
     processor.onBell = nullptr;
@@ -174,7 +175,8 @@ void Terminal::Display::resized()
 
         processor.getState().setDimensions (cols, rows);
         processor.resized (cols, rows);
-        Nexus::Session::getContext()->sendResize (processor.getUuid(), cols, rows);
+        if (processor.onResize != nullptr)
+            processor.onResize (cols, rows);
         processor.getState().setScrollOffset (0);
     }
 }
@@ -239,14 +241,14 @@ void Terminal::Display::pasteClipboard()
             if (not bracketed)
                 processor.getState().setPasteEchoGate (static_cast<int> (bytes.getNumBytesAsUTF8()));
 
-            Nexus::Session::getContext()->sendInput (processor.getUuid(), bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+            processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
         }
     }
 }
 
 void Terminal::Display::writeToPty (const char* data, int len)
 {
-    Nexus::Session::getContext()->sendInput (processor.getUuid(), data, len);
+    processor.writeInput (data, len);
 }
 
 void Terminal::Display::increaseZoom()
@@ -448,7 +450,7 @@ void Terminal::Display::filesDropped (const juce::StringArray& files, int, int)
             const auto bytes { processor.encodePaste (joined) };
 
             if (bytes.isNotEmpty())
-                Nexus::Session::getContext()->sendInput (processor.getUuid(), bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+                processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
         }
     }
 }
@@ -532,7 +534,7 @@ void Terminal::Display::focusGained (FocusChangeType cause)
     const auto focusBytes { processor.encodeFocusEvent (true) };
 
     if (focusBytes.isNotEmpty())
-        Nexus::Session::getContext()->sendInput (processor.getUuid(), focusBytes.toRawUTF8(), static_cast<int> (focusBytes.getNumBytesAsUTF8()));
+        processor.writeInput (focusBytes.toRawUTF8(), static_cast<int> (focusBytes.getNumBytesAsUTF8()));
 
     repaint();
 }
@@ -548,7 +550,7 @@ void Terminal::Display::focusLost (FocusChangeType)
     const auto focusBytes { processor.encodeFocusEvent (false) };
 
     if (focusBytes.isNotEmpty())
-        Nexus::Session::getContext()->sendInput (processor.getUuid(), focusBytes.toRawUTF8(), static_cast<int> (focusBytes.getNumBytesAsUTF8()));
+        processor.writeInput (focusBytes.toRawUTF8(), static_cast<int> (focusBytes.getNumBytesAsUTF8()));
 
     repaint();
 }

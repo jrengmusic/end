@@ -287,6 +287,16 @@ public:
      */
     std::unique_ptr<Display> createDisplay (jreng::Typeface& font);
 
+    /** @brief Writes user input bytes (keyboard, mouse) to the PTY.
+     *  Set by Terminal::Session to route input to the TTY.
+     *  @note MESSAGE THREAD. */
+    std::function<void (const char*, int)> writeInput;
+
+    /** @brief Notifies the PTY of a terminal resize.
+     *  Set by Terminal::Session to route resize to the TTY.
+     *  @note MESSAGE THREAD. */
+    std::function<void (int, int)> onResize;
+
     /** @name Lifecycle callbacks
      *  Set these to receive asynchronous notifications.
      *  All callbacks are invoked on the **message thread** via `callAsync`.

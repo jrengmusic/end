@@ -1,19 +1,19 @@
 /**
  * @file Session.h
- * @brief Unified session pool — owns Terminal::Session (PTY side) and
- *        Terminal::Processor (pipeline side) objects and routes input across
- *        local, daemon, and client modes.
+ * @brief Unified session pool — owns Terminal::Session objects and routes input
+ *        across local, daemon, and client modes.
  *
  * `Nexus::Session` is the single owner and router for terminal sessions in all
  * three process modes:
  *
- * - **Local** (`Session()`) — no IPC.  Owns both `Terminal::Session` (TTY+History)
- *   and `Terminal::Processor` (pipeline).  Wires onBytes → Processor::process.
- * - **Daemon** (`Session(DaemonTag)`) — headless IPC server.  Owns only
- *   `Terminal::Session` objects.  Wires onBytes → broadcast `Message::output` to
- *   attached subscribers.
- * - **Client** (`Session(ClientTag)`) — IPC client.  Owns only
- *   `Terminal::Processor` objects.  Receives `Message::output` / `Message::loading`
+ * - **Local** (`Session()`) — no IPC.  Owns `Terminal::Session` objects (each of
+ *   which owns its `Terminal::Processor` internally).  PTY pipeline wired internally
+ *   by Terminal::Session.
+ * - **Daemon** (`Session(DaemonTag)`) — headless IPC server.  Owns `Terminal::Session`
+ *   objects.  Nexus wires `onBytes` to broadcast `Message::output` to attached subscribers
+ *   and `onStateFlush` to broadcast `Message::stateUpdate`.
+ * - **Client** (`Session(ClientTag)`) — IPC client.  Owns only `Terminal::Processor`
+ *   objects (via `Client`).  Receives `Message::output` / `Message::loading`
  *   from daemon via `Nexus::Loader`.
  *
  * ### Byte-forward flow
@@ -110,15 +110,7 @@ public:
     /**
      * @brief Creates a new terminal session with a freshly-generated UUID.
      *
-     * In local mode: constructs both a `Terminal::Session` (PTY side) and a
-     * `Terminal::Processor` (pipeline side), wires onBytes, returns Processor&.
-     *
-     * In daemon mode: constructs a `Terminal::Session` (PTY side only), wires
-     * onBytes to broadcast `Message::output` to attached subscribers, returns a
-     * stub Processor& (daemon has no display, but callers may inspect the uuid).
-     *
-     * In client mode: constructs a `Terminal::Processor` (pipeline side only),
-     * sends `Message::createProcessor` to daemon, returns Processor&.
+     * Delegates to the uuid overload with a generated UUID.
      *
      * @param shell   Shell program override.  Empty = use Config default.
      * @param args    Shell arguments override.  Empty = use Config default.
@@ -140,8 +132,12 @@ public:
     /**
      * @brief Creates a terminal session with an explicit UUID.
      *
-     * Used for state restoration and for the daemon-side createProcessor handler
-     * which receives the client-assigned UUID over the wire.
+     * In local/daemon mode: constructs a `Terminal::Session` (which owns its
+     * `Terminal::Processor` internally), wires Nexus-level IPC callbacks, and
+     * returns the Processor reference.
+     * In client mode: constructs a client-side `Terminal::Processor` pipeline,
+     * sends `Message::createProcessor` to daemon, returns Processor&.
+     * Returns the existing Processor immediately if @p uuid already exists (idempotency).
      *
      * @param shell   Shell program override.  Empty = use Config default.
      * @param args    Shell arguments override.  Empty = use Config default.
@@ -195,10 +191,8 @@ public:
     /**
      * @brief Returns true if a session with @p uuid is live on this daemon.
      *
-     * Checks both the Processor map and the Terminal::Session map.
-     *
      * @param uuid  UUID to test.
-     * @return true if the uuid is found in either map.
+     * @return true if the uuid is found in terminalSessions.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     bool hasSession (const juce::String& uuid) const noexcept;
@@ -335,22 +329,6 @@ public:
 
     /** @} */
 
-    // =========================================================================
-    /**
-     * @brief Calls @p visitor with each live Processor, holding no lock.
-     *
-     * @param visitor  Callable with signature `void(Terminal::Processor&)`.
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    template <typename Visitor>
-    void forEachProcessor (Visitor&& visitor)
-    {
-        for (auto& [uuid, ptr] : processors)
-        {
-            juce::ignoreUnused (uuid);
-            visitor (*ptr);
-        }
-    }
 
     /**
      * @brief Calls @p visitor with each currently-attached ServerConnection.
@@ -411,17 +389,9 @@ public:
 
 private:
     /**
-     * @brief Owned Processor map: UUID → unique_ptr<Processor>.
-     *
-     * Present in local mode (both sides) and client mode (pipeline side only).
-     * Empty in daemon mode (daemon has no display pipeline).
-     */
-    std::map<juce::String, std::unique_ptr<Terminal::Processor>> processors;
-
-    /**
      * @brief Owned Terminal::Session map: UUID → unique_ptr<Terminal::Session>.
      *
-     * Present in local mode (both sides) and daemon mode (PTY side only).
+     * Present in local and daemon modes.  Each Terminal::Session owns its Processor.
      * Empty in client mode (client has no PTY).
      */
     std::map<juce::String, std::unique_ptr<Terminal::Session>> terminalSessions;
@@ -462,12 +432,10 @@ private:
     juce::CriticalSection connectionsLock;
 
     /**
-     * @brief Fires onAllSessionsExited if the processor map is now empty.
+     * @brief Fires onAllSessionsExited if the terminalSessions map is now empty.
      *
-     * Called at every exit path (shell-exit and removeProcessor) after the
-     * departing entry has already been erased from both `processors` and
-     * `terminalSessions`.  `processors` is the SSOT for liveness in local and
-     * daemon modes (client mode never sets onAllSessionsExited).
+     * Called at every exit path after the departing entry has been erased from
+     * `terminalSessions`.  Client mode never sets onAllSessionsExited.
      *
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
@@ -486,37 +454,6 @@ private:
                                               const juce::String& uuid,
                                               int cols, int rows,
                                               const juce::String& envID);
-
-    /**
-     * @brief Creates the daemon-mode PTY session for @p uuid.
-     *
-     * Constructs a Terminal::Session, wires onBytes to broadcast Message::output
-     * to subscribers and onExit to broadcast Message::processorExited, then
-     * constructs a stub Processor for UUID tracking.
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    Terminal::Processor& createDaemonSession (const juce::String& effectiveShell,
-                                              const juce::String& effectiveArgs,
-                                              const juce::String& cwd,
-                                              const juce::String& uuid,
-                                              int cols, int rows,
-                                              juce::StringPairArray seedEnv);
-
-    /**
-     * @brief Creates the local-mode PTY + Processor pair for @p uuid.
-     *
-     * Constructs both a Terminal::Session (PTY side) and a Terminal::Processor
-     * (pipeline side), wires all callbacks, and returns the Processor reference.
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    Terminal::Processor& createLocalSession (const juce::String& effectiveShell,
-                                             const juce::String& effectiveArgs,
-                                             const juce::String& cwd,
-                                             const juce::String& uuid,
-                                             int cols, int rows,
-                                             juce::StringPairArray seedEnv);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

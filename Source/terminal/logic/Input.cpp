@@ -10,7 +10,6 @@
 #include "../selection/LinkManager.h"
 #include "../../action/Action.h"
 #include "../../config/Config.h"
-#include "../../nexus/Session.h"
 
 namespace Terminal
 {
@@ -27,7 +26,7 @@ bool Input::handleKeyDirect (const juce::KeyPress& key) noexcept
     const auto bytes { processor.encodeKeyPress (key) };
 
     if (bytes.isNotEmpty())
-        Nexus::Session::getContext()->sendInput (processor.getUuid(), bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+        processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
 
     return true;
 }
@@ -56,7 +55,7 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
                 const auto bytes { processor.encodeKeyPress (key) };
 
                 if (bytes.isNotEmpty())
-                    Nexus::Session::getContext()->sendInput (processor.getUuid(), bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+                    processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
 
                 return true;
             }()

@@ -37,58 +37,6 @@ Panes::Panes (jreng::Typeface& font_, jreng::Typeface& whelmedBodyFont_, jreng::
  */
 Panes::~Panes() = default;
 
-/**
- * @brief Constructs a Processor for a new terminal via the unified Session API.
- *
- * Delegates to `Nexus::Session::getContext()->create()` which routes internally
- * through local, daemon, or client mode.  Returns the UUID and a non-owning
- * pointer into the Session (or Client) pool.
- *
- * @param shell      Shell program path.  Empty = use Config default.
- * @param args       Shell arguments.  Empty = use Config default.
- * @param cwd        Initial working directory.  Empty = inherit.
- * @param uuidHint   UUID hint (nexus restore or split).  Empty = generate new.
- * @return CreatedTerminal { uuid, processor* }.
- * @note MESSAGE THREAD.
- */
-Panes::CreatedTerminal Panes::buildTerminal (const juce::String& shell,
-                                              const juce::String& args,
-                                              const juce::String& cwd,
-                                              const juce::String& uuidHint,
-                                              int cols,
-                                              int rows,
-                                              const juce::String& envID)
-{
-    jassert (cols > 0);
-    jassert (rows > 0);
-
-    CreatedTerminal result;
-
-    Terminal::Processor& processor { uuidHint.isNotEmpty()
-        ? Nexus::Session::getContext()->create (shell, args, cwd, uuidHint, cols, rows, envID)
-        : Nexus::Session::getContext()->create (shell, args, cwd, cols, rows, envID) };
-
-    result.uuid = processor.getUuid();
-    result.processor = &processor;
-
-    return result;
-}
-
-/**
- * @brief Tears down a terminal via the unified Session API.
- *
- * Delegates to `Nexus::Session::getContext()->remove()` which routes internally
- * through local, daemon, or client mode.  Display must be erased from panes
- * before this call so no dangling reference exists at destruction time.
- *
- * @param uuid  The UUID of the terminal to tear down.
- * @note MESSAGE THREAD.
- */
-void Panes::teardownTerminal (const juce::String& uuid)
-{
-    Nexus::Session::getContext()->remove (uuid);
-}
-
 // =============================================================================
 
 /**
@@ -181,7 +129,7 @@ std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
 /**
  * @brief Creates a new terminal session as the first (or only) leaf in this pane.
  *
- * Delegates construction to buildTerminal() which routes through Session::create().
+ * Delegates construction to Nexus::Session::getContext()->create() for mode-transparent session creation.
  * Wires callbacks, registers with PaneManager via addLeaf, and grafts the session
  * ValueTree into the corresponding PANE node.
  *
@@ -198,11 +146,14 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
                                      int rows)
 {
     jassert (cols > 0 and rows > 0);
-    auto created { buildTerminal ({}, {}, workingDirectory, uuid, cols, rows) };
 
-    jassert (created.processor != nullptr);
+    Terminal::Processor& processor { uuid.isNotEmpty()
+        ? Nexus::Session::getContext()->create ({}, {}, workingDirectory, uuid, cols, rows)
+        : Nexus::Session::getContext()->create ({}, {}, workingDirectory, cols, rows) };
 
-    std::unique_ptr<Terminal::Display> terminal { created.processor->createDisplay (font) };
+    const juce::String termUuid { processor.getUuid() };
+
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font) };
 
     jassert (terminal != nullptr);
 
@@ -211,9 +162,9 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
     addChildComponent (term);
     setTerminalCallbacks (term);
 
-    paneManager.addLeaf (created.uuid);
+    paneManager.addLeaf (termUuid);
 
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), created.uuid) };
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), termUuid) };
     jassert (paneNode.isValid());
     paneNode.appendChild (term->getValueTree(), nullptr);
 
@@ -222,7 +173,7 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 
     panes.add (std::move (terminal));
 
-    return created.uuid;
+    return termUuid;
 }
 
 /**
@@ -448,9 +399,9 @@ void Panes::closePane (const juce::String& uuid)
         }
     }
 
-    // teardownTerminal routes through Session::remove(), which handles local and client modes.
+    // Session::remove() handles mode routing internally (local, daemon, client).
     // Display is already erased above so no dangling reference exists when the Processor is destroyed.
-    teardownTerminal (uuid);
+    Nexus::Session::getContext()->remove (uuid);
 
     resized();
 }
@@ -494,11 +445,14 @@ void Panes::splitAt (const juce::String& targetUuid,
 {
     jassert (targetUuid.isNotEmpty());
     jassert (cols > 0 and rows > 0);
-    auto created { buildTerminal ({}, {}, cwd, newUuid, cols, rows) };
 
-    jassert (created.processor != nullptr);
+    Terminal::Processor& processor { newUuid.isNotEmpty()
+        ? Nexus::Session::getContext()->create ({}, {}, cwd, newUuid, cols, rows)
+        : Nexus::Session::getContext()->create ({}, {}, cwd, cols, rows) };
 
-    std::unique_ptr<Terminal::Display> terminal { created.processor->createDisplay (font) };
+    const juce::String splitUuid { processor.getUuid() };
+
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font) };
 
     jassert (terminal != nullptr);
 
@@ -507,9 +461,9 @@ void Panes::splitAt (const juce::String& targetUuid,
     addChildComponent (term);
     setTerminalCallbacks (term);
 
-    paneManager.split (targetUuid, created.uuid, direction);
+    paneManager.split (targetUuid, splitUuid, direction);
 
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), created.uuid) };
+    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), splitUuid) };
     jassert (paneNode.isValid());
     paneNode.appendChild (term->getValueTree(), nullptr);
 

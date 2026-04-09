@@ -9,7 +9,6 @@
  */
 
 #include "Popup.h"
-#include "Panes.h"
 #include "../AppState.h"
 #include "../Gpu.h"
 #include "TerminalDisplay.h"
@@ -167,13 +166,8 @@ void Popup::show (juce::Component& caller,
 
 void Popup::removePopupSession()
 {
-    if (popupSessionUuid.isNotEmpty())
-    {
-        // teardownTerminal delegates to Session::remove which handles mode routing internally.
-        Terminal::Panes::teardownTerminal (popupSessionUuid);
-
-        popupSessionUuid = {};
-    }
+    terminalSession.reset();
+    popupSessionUuid = {};
 }
 
 void Popup::dismiss()

@@ -289,10 +289,9 @@ void Tabs::closeActiveTab()
             removeChildComponent (activePanes);
             panes.erase (panes.begin() + index);
 
-            // Displays are now destroyed (Panes erased). teardownTerminal delegates to Session::remove
-            // which handles mode routing internally.
+            // Displays are now destroyed (Panes erased). Session::remove handles mode routing internally.
             for (const auto& uuid : terminalUuids)
-                Terminal::Panes::teardownTerminal (uuid);
+                Nexus::Session::getContext()->remove (uuid);
 
             removeTab (index);
             AppState::getContext()->removeTab (index);

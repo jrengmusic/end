@@ -400,19 +400,17 @@ void MainComponent::registerPopupActions (Action::Registry& action)
 
                     const auto cwd { entry.cwd.isNotEmpty() ? entry.cwd : appState.getPwd() };
 
-                    juce::String envID;
+                    auto termSession { std::make_unique<Terminal::Session> (cols, rows, shell, shellArgs, cwd) };
 
-                    if (auto* active { tabs->getActiveTerminal() })
-                        envID = active->getComponentID();
+                    termSession->onExit = [this]
+                    {
+                        juce::MessageManager::callAsync ([this] { popup.dismiss(); });
+                    };
 
-                    // buildTerminal delegates to Nexus::Session::getContext() which handles mode routing internally.
-                    // envID seeds the new shell's PATH from the active terminal's live process environment.
-                    auto created { Terminal::Panes::buildTerminal (shell, shellArgs, cwd, {}, cols, rows, envID) };
-                    jassert (created.processor != nullptr);
-
-                    auto terminal { created.processor->createDisplay (typeface) };
+                    auto terminal { termSession->getProcessor().createDisplay (typeface) };
 
                     popup.show (*getTopLevelComponent(), std::move (terminal), pixelWidth, pixelHeight, glRenderer);
+                    popup.terminalSession = std::move (termSession);
                 }
 
                 return true;

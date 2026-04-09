@@ -41,11 +41,11 @@ namespace Nexus
 void Session::broadcastProcessorList (ServerConnection& target)
 {
     juce::MemoryBlock payload;
-    writeUint16 (payload, static_cast<uint16_t> (processors.size()));
+    writeUint16 (payload, static_cast<uint16_t> (terminalSessions.size()));
 
-    for (const auto& [uuid, proc] : processors)
+    for (const auto& [uuid, termSession] : terminalSessions)
     {
-        juce::ignoreUnused (proc);
+        juce::ignoreUnused (termSession);
         writeString (payload, uuid);
     }
 
@@ -62,11 +62,11 @@ void Session::broadcastProcessorList (ServerConnection& target)
 void Session::broadcastProcessorList()
 {
     juce::MemoryBlock payload;
-    writeUint16 (payload, static_cast<uint16_t> (processors.size()));
+    writeUint16 (payload, static_cast<uint16_t> (terminalSessions.size()));
 
-    for (const auto& [uuid, proc] : processors)
+    for (const auto& [uuid, termSession] : terminalSessions)
     {
-        juce::ignoreUnused (proc);
+        juce::ignoreUnused (termSession);
         writeString (payload, uuid);
     }
 
@@ -101,12 +101,12 @@ void Session::attach (const juce::String& uuid, ServerConnection& target,
 
         if (sendHistory)
         {
-            const auto procIt { processors.find (uuid) };
+            const auto termIt { terminalSessions.find (uuid) };
 
-            if (procIt != processors.end())
+            if (termIt != terminalSessions.end())
             {
                 juce::MemoryBlock snapshot;
-                procIt->second->getStateInformation (snapshot);
+                termIt->second->getProcessor().getStateInformation (snapshot);
 
                 juce::MemoryBlock payload;
                 writeString (payload, uuid);

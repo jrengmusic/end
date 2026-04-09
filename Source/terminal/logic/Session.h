@@ -1,17 +1,16 @@
 /**
  * @file Session.h
- * @brief PTY-side terminal session: owns TTY and byte history.
+ * @brief PTY-side terminal session: owns TTY, byte history, and Processor.
  *
  * `Terminal::Session` is the data-source half of a terminal connection.  It owns:
  * - The PTY (`TTY`) that communicates with the shell process.
  * - A `Terminal::History` ring buffer that records every byte the shell emits.
- *
- * The pipeline half (`Terminal::Processor` — Parser → Grid → Display) lives
- * separately and is wired to this Session via the `onBytes` callback.
+ * - The `Terminal::Processor` pipeline (Parser → Grid → Display).
  *
  * ### Data flow
  * ```
- * PTY → History::append → onBytes (feeds Processor::process or IPC broadcast)
+ * PTY → History::append → onBytes (IPC broadcast in daemon mode)
+ *                       → Processor::processWithLock (local + daemon)
  * ```
  *
  * ### Thread ownership
@@ -20,8 +19,7 @@
  *
  * ### Naming disambiguation
  * This class is `Terminal::Session`.  `Nexus::Session` is the cross-mode
- * session pool that owns one or more `Terminal::Session` objects (and the
- * corresponding `Terminal::Processor` objects in non-nexus or client modes).
+ * session pool that owns one or more `Terminal::Session` objects.
  * The two classes live in different namespaces; all source files that need
  * both must qualify fully.
  *
@@ -37,6 +35,7 @@
 #include <memory>
 
 #include "../data/History.h"
+#include "Processor.h"
 
 class TTY;
 
@@ -45,7 +44,7 @@ namespace Terminal
 
 /**
  * @class Terminal::Session
- * @brief PTY-side terminal session — owns TTY and byte history.
+ * @brief PTY-side terminal session — owns TTY, byte history, and Processor.
  *
  * Constructed by `Nexus::Session` (or its mode-specific delegates).  Caller
  * sets `onBytes` before calling any method that starts the reader thread.
@@ -75,7 +74,8 @@ public:
              const juce::String& shell,
              const juce::String& args,
              const juce::String& cwd,
-             const juce::StringPairArray& seedEnv = {});
+             const juce::StringPairArray& seedEnv = {},
+             const juce::String& uuid = {});
 
     /**
      * @brief Stops the PTY and releases all resources.
@@ -106,6 +106,17 @@ public:
      * Set by `Nexus::Session` to handle lifecycle cleanup.
      */
     std::function<void()> onExit;
+
+    /**
+     * @brief Called on the READER THREAD after each state flush (cwd and foreground process updated in State).
+     *
+     * Fires at the end of the internal `state.onFlush` lambda, after cwd and
+     * foreground process have been written into State.  `Nexus::Session` sets
+     * this in daemon mode to broadcast a `Message::stateUpdate` PDU.
+     *
+     * @note READER THREAD.
+     */
+    std::function<void()> onStateFlush;
 
     /**
      * @brief Returns the PID of the foreground process running in the PTY.
@@ -201,9 +212,16 @@ public:
      */
     void stop();
 
+    /**
+     * @brief Returns the owned Processor.
+     * @note MESSAGE THREAD.
+     */
+    Terminal::Processor& getProcessor() noexcept;
+
 private:
     std::unique_ptr<TTY> tty;
     History history;
+    std::unique_ptr<Terminal::Processor> processor;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

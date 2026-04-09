@@ -46,6 +46,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../config/Config.h"
+#include "../terminal/logic/Session.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -113,6 +114,9 @@ public:
      * @note MESSAGE THREAD.
      */
     bool isActive() const noexcept;
+
+    /** @brief Owned PTY session; destroyed on dismiss after Display is gone. */
+    std::unique_ptr<Terminal::Session> terminalSession;
 
     /** @brief Callback invoked when the dialog is dismissed (Escape or close button). */
     std::function<void()> onDismiss;

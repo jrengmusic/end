@@ -166,7 +166,7 @@ public:
      * @brief Removes and destroys the Processor registered for @p uuid.
      *
      * The Display referencing this Processor must be destroyed before this call.
-     * Panes calls this from `teardownTerminal()` after the Display is erased.
+     * Called from `Nexus::Session::remove()` after the Display is erased.
      *
      * @param uuid  UUID to unregister and destroy.
      * @note NEXUS PROCESS MESSAGE THREAD.
