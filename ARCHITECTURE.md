@@ -50,9 +50,9 @@ Source/
 
   component/
     PaneComponent.h                 Pure virtual base for pane-hosted components (Terminal, Whelmed)
-    TerminalComponent.h/cpp         UI host, VBlankAttachment render loop; delegates to InputHandler + MouseHandler
-    InputHandler.h/cpp              Modal gate, selection keys, open-file keys, scroll nav
-    MouseHandler.h/cpp              PTY forwarding, drag selection, click dispatch, wheel scroll
+    TerminalDisplay.h/cpp           UI host, VBlankAttachment render loop; delegates to Terminal::Input + Terminal::Mouse
+    Terminal::Input.h/cpp           Modal gate, selection keys, open-file keys, scroll nav
+    Terminal::Mouse.h/cpp           PTY forwarding, drag selection, click dispatch, wheel scroll
     Tabs.h/cpp                      Tab container, manages one Panes instance per tab
     Panes.h/cpp                     Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
     LookAndFeel.h/cpp               Custom LookAndFeel: tab styling, popup menu, colour system
@@ -63,7 +63,7 @@ Source/
   whelmed/
     Component.h/cpp                 Whelmed::Component — PaneComponent subclass, markdown viewer pane
     Screen.h/cpp                    Block-based document renderer, owns Block instances, handles mouse selection
-    InputHandler.h/cpp              Modal gate, selection keys, scroll nav for Whelmed pane
+    Whelmed::Input.h/cpp            Modal gate, selection keys, scroll nav for Whelmed pane
     Block.h                         Pure virtual base for all renderable block types
     TextBlock.h/cpp                 Flowing styled text block (paragraphs, headings, lists)
     State.h/cpp                     Whelmed document state: ValueTree, atomic block count, parse complete
@@ -91,7 +91,7 @@ Source/
       Keyboard.h                    Keypress -> escape sequence mapping (kitty keyboard protocol)
 
     logic/                          Terminal emulation (parser, grid, session)
-      Session.h/cpp                 Orchestrator: owns State, Grid, Parser, TTY
+      Session.h/cpp                 PTY orchestrator: owns TTY + History. Processor owns State, Grid, Parser.
       Parser.h/cpp                  VT state machine + dispatch (holds Grid::Writer, not Grid&)
       ParserVT.cpp                  Ground state: print, execute, LF (GroundOps fast-path struct)
       ParserCSI.cpp                 CSI dispatch (cursor, erase, mode)
@@ -142,7 +142,7 @@ Source/
 
     action/                         Unified action registry + key dispatch
       Action.h/cpp                  Action table, key map, prefix state machine, Context<Registry>
-      ActionList.h/cpp              Command palette component (GlassWindow, fuzzy-searchable action list)
+      ActionList.h/cpp              Command palette component (jreng::Window, fuzzy-searchable action list)
       ActionRow.h/cpp               Row component for ActionList (displays action name + keybinding)
       KeyHandler.h/cpp              Key event routing for ActionList modal input
       LookAndFeel.h/cpp             LookAndFeel overrides for ActionList styling
@@ -189,8 +189,36 @@ modules/
 | jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
 | Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | Config, jreng::Context |
 | Panes | `component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
-| Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, InputHandler | PaneComponent, jreng_markdown |
+| Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, Whelmed::Input | PaneComponent, jreng_markdown |
 | jreng_gui | `modules/jreng_gui/` | Layout utilities: PaneManager binary tree, PaneResizerBar | JUCE core, jreng_core |
+
+---
+
+## Nexus (Daemon Mode and Session Continuity)
+
+`Nexus::Session` manages IPC between a headless daemon process and one or more client processes.  The daemon owns real `Terminal::Session` (PTY + History) and real `Terminal::Processor` instances.  Clients own `Terminal::Processor` instances only — no PTY.
+
+### Roles
+
+- **Daemon** (`Session(DaemonTag)`) — headless IPC server.  Owns `Terminal::Session` objects.  Wires `onBytes` to broadcast `Message::output` to subscribers and `onStateFlush` to broadcast `Message::stateUpdate`.
+- **Client** (`Session(ClientTag)`) — IPC client.  Owns `Terminal::Processor` objects (via `Client`).  Receives `Message::output` / `Message::loading` from daemon.
+
+### Grid+State Snapshot Restore
+
+On client attach, the daemon serializes each Processor's current state via `Processor::getStateInformation()` — a `juce::MemoryBlock` containing Grid cells and State atomics.  This snapshot is sent as `Message::loading`.  The client's `Session::startLoading()` receives it and calls `Processor::setStateInformation()` directly on the message thread.  No Loader thread is involved.
+
+```
+Daemon:  Processor::getStateInformation() → Message::loading → Client
+Client:  handleLoading → Session::startLoading → Processor::setStateInformation
+```
+
+### Byte-Forward Flow (Live)
+
+```
+Daemon:  PTY → Terminal::Session::onBytes → Message::output → Client
+Client:  Message::output → Session::feedBytes → Processor::process → Grid → Display
+Local:   PTY → Terminal::Session::onBytes → Processor::process → Grid → Display
+```
 
 ---
 
@@ -447,7 +475,7 @@ Two entry points feed into the same cascade: explicit close action and shell exi
 
 **Explicit close:** `Action::close_pane` callback calls `Panes::closePane(uuid)`.
 
-**Shell exit:** `TTY` reader thread detects EOF/process exit → posts `onProcessExited` lambda to message thread → `TerminalComponent::onProcessExited()` → calls `Panes::closePane(uuid)`.
+**Shell exit:** `TTY` reader thread detects EOF/process exit → posts `onProcessExited` lambda to message thread → `TerminalDisplay::onProcessExited()` → calls `Panes::closePane(uuid)`.
 
 Cascade from `closePane()`:
 
@@ -661,7 +689,7 @@ Terminal::State also mirrors the active modal via its own atomic (for the render
 keyPressed()
     |
     +-- mouse copy shortcut? → copySelection()
-    +-- InputHandler::handleKey()
+    +-- Terminal::Input::handleKey()
             +-- isPopupTerminal? → session.handleKeyPress()
             +-- State::isModal()? → handleModalKey()
             |       +-- selection → handleSelectionKey()
@@ -676,7 +704,7 @@ keyPressed()
 ```
 keyPressed()
     |
-    +-- Whelmed::InputHandler::handleKey()
+    +-- Whelmed::Input::handleKey()
             +-- modal == selection? → handleCursorMovement() + handleSelectionToggle()
             +-- mouse selection + copy key? → clipboard copy
             +-- Action::handleKeyPress()
@@ -715,7 +743,7 @@ Pure virtual base (`Source/component/PaneComponent.h`) shared between Terminal::
 - **State** — document ValueTree, atomic block count, parse-complete flag
 - **Parser** — background markdown parse thread
 - **Screen** — block renderer (owns `Block` instances, handles mouse selection)
-- **InputHandler** — modal key dispatch, selection keys, scroll nav
+- **Whelmed::Input** — modal key dispatch, selection keys, scroll nav
 - **LoaderOverlay** — shown during async parse
 
 **Block hierarchy (`Whelmed::Block`):**
@@ -729,7 +757,7 @@ Block (pure virtual)
 
 Blocks are not `juce::Component` instances — they are data objects that measure and paint themselves into a `juce::Graphics` context. Screen owns them in a flat `std::vector<BlockEntry>` and lays them out vertically.
 
-**Selection architecture:** Mouse events on Screen write anchor/cursor coordinates to the DOCUMENT ValueTree (`App::ID::selAnchorBlock`, `selCursorBlock`, etc.). InputHandler reads these same properties to perform keyboard navigation and copy operations. AppState::selectionType and modalType on TABS are the SSOT for selection state visible to the status bar.
+**Selection architecture:** Mouse events on Screen write anchor/cursor coordinates to the DOCUMENT ValueTree (`App::ID::selAnchorBlock`, `selCursorBlock`, etc.). `Whelmed::Input` reads these same properties to perform keyboard navigation and copy operations. AppState::selectionType and modalType on TABS are the SSOT for selection state visible to the status bar.
 
 ### MessageOverlay
 
@@ -757,7 +785,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Timer-based render trigger (60-120Hz) suffered latency under CPU contention because macOS deprioritizes the JUCE timer thread.
 
-**Decision:** Replace timer-driven render with CVDisplayLink-driven polling via `juce::VBlankAttachment`. State stays pure (timer + atomics only). TerminalComponent polls `consumeSnapshotDirty()` on every vsync.
+**Decision:** Replace timer-driven render with CVDisplayLink-driven polling via `juce::VBlankAttachment`. State stays pure (timer + atomics only). `TerminalDisplay` polls `consumeSnapshotDirty()` on every vsync.
 
 **Rationale:** CVDisplayLink runs at display-driver priority, immune to timer QoS coalescing. Worst-case latency is one frame (8-16ms), imperceptible for terminal text. State remains a pure data layer with no UI knowledge.
 
@@ -958,14 +986,14 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 
 ---
 
-## Component Extraction (TerminalComponent)
+## Component Extraction (TerminalDisplay)
 
-TerminalComponent delegates to three focused handlers:
+`TerminalDisplay` delegates to three focused handlers:
 
 | Class | File | Responsibility |
 |-------|------|----------------|
-| InputHandler | component/InputHandler.h/cpp | Modal gate, selection keys, open-file keys, scroll nav |
-| MouseHandler | component/MouseHandler.h/cpp | PTY forwarding, drag selection, click dispatch, wheel scroll |
+| Terminal::Input | component/Terminal/Input.h/cpp | Modal gate, selection keys, open-file keys, scroll nav |
+| Terminal::Mouse | component/Terminal/Mouse.h/cpp | PTY forwarding, drag selection, click dispatch, wheel scroll |
 | LinkManager | terminal/selection/LinkManager.h/cpp | Viewport scan, hit-test, dispatch, OSC 8 span merging |
 
 All selection/gesture state in State parameterMap. ScreenSelection rebuilt from State in onVBlank.
@@ -1014,7 +1042,7 @@ Click-mode link underlines only render on OSC 133 output rows.
 | LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via Config |
 | MessageOverlay | Transient overlay for status messages (reload confirmation, config errors) |
 | Action | Unified action registry: action table + key map + prefix state machine, Context-managed, owned by MainComponent |
-| ActionList | Command palette component: GlassWindow with fuzzy-searchable list of all registered actions |
+| ActionList | Command palette component: jreng::Window with fuzzy-searchable list of all registered actions |
 | PaneManager | Binary tree ValueTree layout engine for recursive split pane layout |
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
 | Panes | Per-tab component owning Terminal::Component instances and managing split layout via PaneManager |

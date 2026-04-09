@@ -162,17 +162,6 @@ private:
     bool handleOpenFileKey (const juce::KeyPress& key) noexcept;
 
     /**
-     * @brief Clamps and applies a new scroll offset.
-     *
-     * Reads the current offset and the scrollback high-water mark, clamps
-     * @p newOffset to [0, scrollbackUsed], and writes it back if changed.
-     *
-     * @param newOffset  Desired scroll offset in lines (positive = scrolled back).
-     * @note MESSAGE THREAD.
-     */
-    void setScrollOffsetClamped (int newOffset) noexcept;
-
-    /**
      * @brief Parsed KeyPress objects for every selection-mode binding.
      *
      * Built by `buildKeyMap()` from Config strings.

@@ -20,7 +20,7 @@ END solves all of these.
 
 **Dual renderer.** OpenGL instanced rendering when a GPU is available. SIMD-optimised software renderer (SSE2/NEON) when it is not. Switch between them at runtime with a config reload — no restart. END runs on a 2015 iMac, a headless Linux box, or a Windows 10 machine with integrated graphics. If it has a screen, END runs on it.
 
-**Built-in multiplexing.** Tabs, binary tree split panes, popup terminals — no tmux, no server process, no socket management. Application state is a ValueTree (XML). The final milestone is full session serialization that restores every tab, pane, and working directory on relaunch.
+**Built-in multiplexing.** Tabs, binary tree split panes, popup terminals — no tmux, no server process, no socket management. Application state is a ValueTree (XML). Nexus daemon mode attaches multiple client windows to persistent PTY sessions: the daemon owns the TTY and forwards byte streams to attached clients; on reattach, a Grid+State snapshot is sent via `Processor::getStateInformation/setStateInformation` to restore the terminal state instantly.
 
 **Native Markdown and Mermaid.** Open a `.md` file from the terminal and it renders natively in a split pane — headings, tables, code blocks, Mermaid diagrams — same rendering stack, same window, same font system. No browser, no Electron, no external process. That is WHELMED.
 
@@ -206,7 +206,7 @@ Auto-saved window state (size, zoom). Not user-edited.
 | WHELMED Mermaid | In progress — basic rendering works, expanding coverage |
 | Sixel inline images | Planned |
 | iTerm2 inline images (OSC 1337) | Planned |
-| Terminal state serialization | Spec written |
+| Terminal state serialization | **Done** — Grid+State snapshot |
 
 
 ## Documentation

@@ -519,10 +519,10 @@ void Client::handleOutput (const uint8_t* payload, int payloadSize)
 }
 
 /**
- * @brief Handles `Message::loading` — starts a Nexus::Loader for history replay.
+ * @brief Handles `Message::loading` — receives Grid+State snapshot for restore.
  *
- * Payload: uuid (length-prefixed) + raw backlog bytes.
- * Moves the backlog into Session::startLoading which constructs a Loader thread.
+ * Payload: uuid (length-prefixed) + snapshot bytes.
+ * Passes the snapshot to `Session::startLoading`, which calls `setStateInformation` directly.
  * Also forwards to `onPdu` if set.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.

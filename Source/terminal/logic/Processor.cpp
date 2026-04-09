@@ -16,7 +16,6 @@
 #include "../../component/TerminalDisplay.h"
 
 #include "../data/Keyboard.h"
-#include "../../nexus/Log.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -197,7 +196,6 @@ void Processor::process (const char* data, int length) noexcept
     parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
     state.consumePasteEcho (length);
     sendChangeMessage();
-    Nexus::logLine ("Processor::process: data length=" + juce::String (length) + " bytes, sendChangeMessage fired");
 }
 
 State& Processor::getState() noexcept       { return state; }
@@ -207,6 +205,25 @@ Grid& Processor::getGrid() noexcept        { return grid; }
 const Grid& Processor::getGrid() const noexcept { return grid; }
 
 const juce::String& Processor::getUuid() const noexcept { return uuid; }
+
+/**
+ * @brief Sets the scroll offset, clamped to [0, scrollbackUsed].
+ *
+ * Acquires the Grid resize lock, clamps @p newOffset, and writes to State
+ * only when the value changes.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Processor::setScrollOffsetClamped (int newOffset) noexcept
+{
+    const juce::ScopedLock lock (grid.getResizeLock());
+    const int maxOffset { grid.getScrollbackUsed() };
+    const int current { state.getScrollOffset() };
+    const int clamped { juce::jlimit (0, maxOffset, newOffset) };
+
+    if (clamped != current)
+        state.setScrollOffset (clamped);
+}
 
 /**
  * @brief Returns a const reference to the VT parser.
@@ -227,8 +244,8 @@ Parser& Processor::getParser() noexcept
 /**
  * @brief Acquires the grid resize lock and calls process().
  *
- * Convenience for reader-thread callers (e.g. Loader) that must hold the
- * resize lock for the duration of the parse.
+ * Convenience for reader-thread callers (e.g. the daemon's `onBytes` callback) that must hold
+ * the resize lock for the duration of the parse.
  *
  * @note READER THREAD only.
  */
@@ -359,115 +376,117 @@ void Processor::setStateInformation (const void* data, int size)
 
     static constexpr int headerBytes { static_cast<int> (sizeof (uint32_t)) + 3 * static_cast<int> (sizeof (int32_t)) };
 
-    if ((cursor + headerBytes) > end)
-        return;
-
-    uint32_t version     { 0 };
-    int32_t  cols        { 0 };
-    int32_t  visibleRows { 0 };
-    int32_t  activeScr   { 0 };
-
-    std::memcpy (&version,     cursor, sizeof (uint32_t)); cursor += sizeof (uint32_t);
-    std::memcpy (&cols,        cursor, sizeof (int32_t));  cursor += sizeof (int32_t);
-    std::memcpy (&visibleRows, cursor, sizeof (int32_t));  cursor += sizeof (int32_t);
-    std::memcpy (&activeScr,   cursor, sizeof (int32_t));  cursor += sizeof (int32_t);
-
-    if (version != 1)
-        return;
-
-    state.setDimensions (static_cast<int> (cols), static_cast<int> (visibleRows));
-
-    // Delegate grid section to Grid (cursor points to start of grid section)
-    const int gridRemaining { static_cast<int> (end - cursor) };
-    grid.setStateInformation (cursor, gridRemaining);
-
-    // Walk cursor past the grid section (2 buffers × [5 scalars + bulk arrays])
-    for (int screenIndex { 0 }; screenIndex < 2; ++screenIndex)
+    if ((cursor + headerBytes) <= end)
     {
-        static constexpr int scalarBytes { 5 * static_cast<int> (sizeof (int32_t)) };
+        uint32_t version     { 0 };
+        int32_t  cols        { 0 };
+        int32_t  visibleRows { 0 };
+        int32_t  activeScr   { 0 };
 
-        if ((cursor + scalarBytes) > end)
-            return;
+        std::memcpy (&version,     cursor, sizeof (uint32_t)); cursor += sizeof (uint32_t);
+        std::memcpy (&cols,        cursor, sizeof (int32_t));  cursor += sizeof (int32_t);
+        std::memcpy (&visibleRows, cursor, sizeof (int32_t));  cursor += sizeof (int32_t);
+        std::memcpy (&activeScr,   cursor, sizeof (int32_t));  cursor += sizeof (int32_t);
 
-        int32_t sTotalRows { 0 };
-        int32_t sCols      { 0 };
+        if (version == 1)
+        {
+            state.setDimensions (static_cast<int> (cols), static_cast<int> (visibleRows));
 
-        cursor += sizeof (int32_t); // head
-        cursor += sizeof (int32_t); // scrollbackUsed
-        std::memcpy (&sTotalRows, cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&sCols,      cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-        cursor += sizeof (int32_t); // allocatedVisibleRows
+            // Delegate grid section to Grid (cursor points to start of grid section)
+            const int gridRemaining { static_cast<int> (end - cursor) };
+            grid.setStateInformation (cursor, gridRemaining);
 
-        const size_t cellCount { static_cast<size_t> (sTotalRows) * static_cast<size_t> (sCols) };
-        const ptrdiff_t bulkBytes { static_cast<ptrdiff_t> (cellCount * sizeof (Cell)
-                                  + cellCount * sizeof (Grapheme)
-                                  + static_cast<size_t> (sTotalRows) * sizeof (RowState)) };
+            // Walk cursor past the grid section (2 buffers × [5 scalars + bulk arrays])
+            bool gridWalkOk { true };
 
-        if ((cursor + bulkBytes) > end)
-            return;
+            for (int screenIndex { 0 }; screenIndex < 2 and gridWalkOk; ++screenIndex)
+            {
+                static constexpr int scalarBytes { 5 * static_cast<int> (sizeof (int32_t)) };
 
-        cursor += bulkBytes;
+                if ((cursor + scalarBytes) <= end)
+                {
+                    int32_t sTotalRows { 0 };
+                    int32_t sCols      { 0 };
+
+                    cursor += sizeof (int32_t); // head
+                    cursor += sizeof (int32_t); // scrollbackUsed
+                    std::memcpy (&sTotalRows, cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+                    std::memcpy (&sCols,      cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+                    cursor += sizeof (int32_t); // allocatedVisibleRows
+
+                    const size_t cellCount { static_cast<size_t> (sTotalRows) * static_cast<size_t> (sCols) };
+                    const ptrdiff_t bulkBytes { static_cast<ptrdiff_t> (cellCount * sizeof (Cell)
+                                              + cellCount * sizeof (Grapheme)
+                                              + static_cast<size_t> (sTotalRows) * sizeof (RowState)) };
+
+                    if ((cursor + bulkBytes) <= end)
+                        cursor += bulkBytes;
+                    else
+                        gridWalkOk = false;
+                }
+                else
+                {
+                    gridWalkOk = false;
+                }
+            }
+
+            // cursor now points to the State section
+            static constexpr int perScreenBytes { 7 * static_cast<int> (sizeof (int32_t)) };
+            static constexpr int modeCount      { 13 };
+            static constexpr int stateBytes     { 2 * perScreenBytes + modeCount * static_cast<int> (sizeof (int32_t)) };
+
+            if (gridWalkOk and (cursor + stateBytes) <= end)
+            {
+                const ActiveScreen screens[2] { normal, alternate };
+
+                for (const ActiveScreen screen : screens)
+                {
+                    int32_t cursorRow     { 0 };
+                    int32_t cursorCol     { 0 };
+                    int32_t cursorVisible { 1 };
+                    int32_t cursorShape   { 0 };
+                    int32_t scrollTop     { 0 };
+                    int32_t scrollBottom  { 0 };
+                    int32_t wrapPending   { 0 };
+
+                    std::memcpy (&cursorRow,     cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+                    std::memcpy (&cursorCol,     cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+                    std::memcpy (&cursorVisible, cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+                    std::memcpy (&cursorShape,   cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+                    std::memcpy (&scrollTop,     cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+                    std::memcpy (&scrollBottom,  cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+                    std::memcpy (&wrapPending,   cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+
+                    state.setCursorRow     (screen, static_cast<int> (cursorRow));
+                    state.setCursorCol     (screen, static_cast<int> (cursorCol));
+                    state.setCursorVisible (screen, cursorVisible != 0);
+                    state.setCursorShape   (screen, static_cast<int> (cursorShape));
+                    state.setScrollTop     (screen, static_cast<int> (scrollTop));
+                    state.setScrollBottom  (screen, static_cast<int> (scrollBottom));
+                    state.setWrapPending   (screen, wrapPending != 0);
+                }
+
+                const juce::Identifier modeIds[modeCount]
+                {
+                    ID::originMode, ID::autoWrap, ID::applicationCursor, ID::bracketedPaste,
+                    ID::insertMode, ID::mouseTracking, ID::mouseMotionTracking, ID::mouseAllTracking,
+                    ID::mouseSgr, ID::focusEvents, ID::applicationKeypad, ID::reverseVideo,
+                    ID::win32InputMode
+                };
+
+                for (const juce::Identifier& modeId : modeIds)
+                {
+                    int32_t flag { 0 };
+                    std::memcpy (&flag, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
+                    state.setMode (modeId, flag != 0);
+                }
+            }
+
+            state.setScreen (static_cast<ActiveScreen> (activeScr));
+            state.refresh();
+        }
     }
-
-    // cursor now points to the State section
-    static constexpr int perScreenBytes { 7 * static_cast<int> (sizeof (int32_t)) };
-    static constexpr int modeCount      { 13 };
-    static constexpr int stateBytes     { 2 * perScreenBytes + modeCount * static_cast<int> (sizeof (int32_t)) };
-
-    if ((cursor + stateBytes) > end)
-    {
-        state.setScreen (static_cast<ActiveScreen> (activeScr));
-        state.refresh();
-        return;
-    }
-
-    const ActiveScreen screens[2] { normal, alternate };
-
-    for (const ActiveScreen screen : screens)
-    {
-        int32_t cursorRow     { 0 };
-        int32_t cursorCol     { 0 };
-        int32_t cursorVisible { 1 };
-        int32_t cursorShape   { 0 };
-        int32_t scrollTop     { 0 };
-        int32_t scrollBottom  { 0 };
-        int32_t wrapPending   { 0 };
-
-        std::memcpy (&cursorRow,     cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&cursorCol,     cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&cursorVisible, cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&cursorShape,   cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&scrollTop,     cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&scrollBottom,  cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&wrapPending,   cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-
-        state.setCursorRow     (screen, static_cast<int> (cursorRow));
-        state.setCursorCol     (screen, static_cast<int> (cursorCol));
-        state.setCursorVisible (screen, cursorVisible != 0);
-        state.setCursorShape   (screen, static_cast<int> (cursorShape));
-        state.setScrollTop     (screen, static_cast<int> (scrollTop));
-        state.setScrollBottom  (screen, static_cast<int> (scrollBottom));
-        state.setWrapPending   (screen, wrapPending != 0);
-    }
-
-    const juce::Identifier modeIds[modeCount]
-    {
-        ID::originMode, ID::autoWrap, ID::applicationCursor, ID::bracketedPaste,
-        ID::insertMode, ID::mouseTracking, ID::mouseMotionTracking, ID::mouseAllTracking,
-        ID::mouseSgr, ID::focusEvents, ID::applicationKeypad, ID::reverseVideo,
-        ID::win32InputMode
-    };
-
-    for (const juce::Identifier& modeId : modeIds)
-    {
-        int32_t flag { 0 };
-        std::memcpy (&flag, cursor, sizeof (int32_t));
-        cursor += sizeof (int32_t);
-        state.setMode (modeId, flag != 0);
-    }
-
-    state.setScreen (static_cast<ActiveScreen> (activeScr));
-    state.refresh();
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

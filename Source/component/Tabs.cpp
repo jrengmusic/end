@@ -66,49 +66,14 @@ Tabs::~Tabs()
  */
 void Tabs::addNewTab()
 {
-    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, whelmedBodyFont, whelmedCodeFont)) };
-    auto& newPanes { *newPanesPtr };
-    newPanes.onRepaintNeeded = onRepaintNeeded;
-    newPanes.onOpenMarkdown = [this] (const juce::File& file)
-    {
-        if (auto* active { getActivePanes() }; active != nullptr)
-            active->createWhelmed (file);
-    };
-    newPanes.onLastPaneClosed = [this]
-    {
-        closeActiveTab();
-
-        if (getTabCount() == 0)
-            juce::JUCEApplication::getInstance()->systemRequestedQuit();
-    };
-    addChildComponent (&newPanes);
-
     // Compute the content rect for the new pane's spawn dims.
     // newDepth is the tab-bar depth that will apply AFTER this tab is added.
     const int newTabCount { getNumTabs() + 1 };
     const int newDepth { (newTabCount > 1) ? LookAndFeel::getTabBarHeight() : 0 };
     const auto contentRect { computeContentRect (newDepth) };
-
     const auto [cols, rows] { Panes::cellsFromRect (contentRect, font) };
 
-    const auto uuid { newPanes.createTerminal (AppState::getContext()->getPwd(), {}, cols, rows) };
-
-    auto tab { AppState::getContext()->addTab() };
-    tab.removeChild (tab.getChildWithName (App::ID::PANES), nullptr);
-    tab.appendChild (newPanes.getState(), nullptr);
-
-    AppState::getContext()->setActivePaneID (uuid);
-    auto paneNode { jreng::PaneManager::findLeaf (newPanes.getState(), uuid) };
-    auto sessionTree { paneNode.getChild (0) };
-    AppState::getContext()->setPwd (sessionTree);
-    tabName.referTo (sessionTree.getPropertyAsValue (Terminal::ID::displayName, nullptr));
-
-    const auto initialName { juce::File (AppState::getContext()->getPwd()).getFileName() };
-    const int tabIndex { getNumTabs() };
-    addTab (initialName, juce::Colours::transparentBlack, nullptr, false, tabIndex);
-    setCurrentTabIndex (tabIndex);
-
-    updateTabBarVisibility();
+    addNewTab (AppState::getContext()->getPwd(), {}, cols, rows);
 }
 
 /**

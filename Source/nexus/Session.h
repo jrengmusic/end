@@ -14,7 +14,7 @@
  *   and `onStateFlush` to broadcast `Message::stateUpdate`.
  * - **Client** (`Session(ClientTag)`) — IPC client.  Owns only `Terminal::Processor`
  *   objects (via `Client`).  Receives `Message::output` / `Message::loading`
- *   from daemon via `Nexus::Loader`.
+ *   from daemon via Grid+State snapshot; `startLoading` calls `setStateInformation` directly.
  *
  * ### Byte-forward flow
  * ```
@@ -237,7 +237,7 @@ public:
      *
      * Client mode: called by Client when `Message::output` arrives.
      * Looks up the Processor by UUID and feeds bytes through `Processor::process`.
-     * `Message::loading` bytes are handled by `Nexus::Loader` via `startLoading`.
+     * `Message::loading` bytes carry a Grid+State snapshot; `startLoading` calls `setStateInformation` directly.
      *
      * @param uuid   UUID of the target Processor.
      * @param data   Raw byte buffer.
@@ -442,18 +442,13 @@ private:
     void fireIfAllExited() noexcept;
 
     /**
-     * @brief Creates the client-mode Processor pipeline for @p uuid.
+     * @brief Builds the `Message::processorList` payload from the current terminalSessions map.
      *
-     * Sends createProcessor to the daemon, constructs and registers a Processor,
-     * and returns a reference to it.
+     * Wire format: uint16_t count | N × (uint32_t len + UTF-8 bytes).
      *
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    Terminal::Processor& createClientSession (const juce::String& shell,
-                                              const juce::String& cwd,
-                                              const juce::String& uuid,
-                                              int cols, int rows,
-                                              const juce::String& envID);
+    juce::MemoryBlock buildProcessorListPayload() const;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

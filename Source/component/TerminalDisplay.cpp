@@ -362,7 +362,7 @@ void Terminal::Display::mouseWheelMove (const juce::MouseEvent& event, const juc
                                    wheel,
                                    [this] (int offset)
                                    {
-                                       setScrollOffsetClamped (offset);
+                                       processor.setScrollOffsetClamped (offset);
                                    });
     }
 }
@@ -770,15 +770,3 @@ void Terminal::Display::switchRenderer (App::RendererType type)
     }
 }
 
-void Terminal::Display::setScrollOffsetClamped (int newOffset) noexcept
-{
-    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
-    const int maxOffset { processor.getGrid().getScrollbackUsed() };
-    const int current { processor.getState().getScrollOffset() };
-    const int clamped { juce::jlimit (0, maxOffset, newOffset) };
-
-    if (clamped != current)
-    {
-        processor.getState().setScrollOffset (clamped);
-    }
-}

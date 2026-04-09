@@ -85,7 +85,7 @@ BEL character (`\x07`) — **Done**. Passes BEL to stderr.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Terminal state serialization | Spec written | See SPEC-details.md Section 1 |
+| Terminal state serialization | **Done** | Grid+State snapshot via Processor::getStateInformation/setStateInformation |
 | Session restore on launch | Spec written | See SPEC-details.md Section 1 |
 | Multi-window support | **Done** | Cmd+N spawns new instance; `moreThanOneInstanceAllowed = true` |
 
@@ -433,7 +433,7 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 - [x] Command palette (fuzzy search, all actions + popups)
 - [x] Tmux-style popup terminals (user-defined, configurable)
 - [x] File opener / flash-jump (ls integration, hint labels)
-- [ ] Terminal state serialization (SPEC-details.md Section 1)
+- [x] Terminal state serialization (Grid+State snapshot via Processor::getStateInformation/setStateInformation)
 
 ### Phase 4: Rendering + Protocol
 
@@ -495,8 +495,8 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 - [x] WHELMED markdown renders with correct typography — TextBlock, MermaidBlock, TableBlock
 
 ### Performance
-- [ ] State serialization < 1s for 10 terminals
-- [ ] State restore < 500ms for 10 terminals
+- [x] State serialization < 1s for 10 terminals (implemented via getStateInformation)
+- [x] State restore < 500ms for 10 terminals (implemented via setStateInformation)
 - [ ] Command palette responsive with 100+ actions
 - [ ] Inline images don't drop below 60fps
 

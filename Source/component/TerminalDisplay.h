@@ -602,19 +602,6 @@ private:
      */
     juce::Point<int> getOriginInTopLevel() const noexcept;
 
-    /**
-     * @brief Clamps @p newOffset to [0, scrollbackUsed] and applies it if changed.
-     *
-     * Single SSOT for all scrollback offset mutations.  Reads the current
-     * offset and the scrollback high-water mark, clamps @p newOffset into the
-     * valid range, and — only if the clamped value differs from the current
-     * offset — writes it back and marks the snapshot dirty.
-     *
-     * @param newOffset  Desired scroll offset in lines (positive = scrolled back).
-     * @note MESSAGE THREAD.
-     */
-    void setScrollOffsetClamped (int newOffset) noexcept;
-
     /** @brief Returns the ScreenBase interface for the active Screen variant. */
     ScreenBase& screenBase() noexcept
     {

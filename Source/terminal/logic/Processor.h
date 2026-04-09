@@ -221,6 +221,17 @@ public:
     const juce::String& getUuid() const noexcept;
 
     /**
+     * @brief Sets the scroll offset, clamped to [0, scrollbackUsed].
+     *
+     * Acquires the Grid resize lock, clamps @p newOffset to the live scrollback
+     * extent, and writes the result to State only when it differs from the
+     * current value.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void setScrollOffsetClamped (int newOffset) noexcept;
+
+    /**
      * @brief Returns a const reference to the VT parser.
      *
      * Used by `Terminal::Display::scanViewportForLinks()` to read OSC 8
@@ -238,7 +249,7 @@ public:
      *
      * Wraps `process()` under `ScopedLock (grid.getResizeLock())`.  Use this
      * overload from the reader thread when the caller must hold the resize lock
-     * for the duration of the parse (e.g. `Loader::run()`).
+     * for the duration of the parse (e.g. the daemon's `onBytes` callback).
      *
      * @param data    Pointer to the raw byte buffer.
      * @param len     Number of bytes in the buffer.

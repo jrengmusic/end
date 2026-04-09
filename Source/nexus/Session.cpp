@@ -102,8 +102,8 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
 /**
  * @brief Creates a new session with an explicit UUID.  Returns Processor reference.
  *
- * In client mode: dispatches to createClientSession (pipeline-side Processor only).
- * In local and daemon mode: creates a Terminal::Session (which owns the Processor and
+ * In client mode: constructs the pipeline-side Processor, wires IPC callbacks, and registers
+ * it with Client.  In local and daemon mode: creates a Terminal::Session (which owns the Processor and
  * wires the full PTY pipeline internally), then wires Nexus-level callbacks on top.
  * If a session with @p uuid already exists the existing Processor is returned
  * immediately (idempotency guard for GUI reconnect).
@@ -134,7 +134,38 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
     }
     else if (client != nullptr)
     {
-        result = &createClientSession (shell, cwd, uuid, cols, rows, envID);
+        Nexus::logLine ("Session::create (client mode): uuid=" + uuid);
+
+        client->createSession (cols, rows, shell, cwd, uuid, envID);
+
+        auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
+
+        proc->getState().setId (uuid);
+        proc->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
+
+        // Wire parser responses (DSR, DA, CPR, etc.) back to the daemon via Client::sendInput.
+        proc->setHostWriter ([this, uuid] (const char* data, int len)
+        {
+            client->sendInput (uuid, data, len);
+        });
+
+        // Wire user input (keyboard, mouse) to daemon via Client IPC.
+        proc->writeInput = [this, uuid] (const char* data, int len)
+        {
+            client->sendInput (uuid, data, len);
+        };
+
+        // Wire resize to daemon via Client IPC.
+        proc->onResize = [this, uuid] (int cols, int rows)
+        {
+            client->sendResize (uuid, cols, rows);
+        };
+
+        client->registerProcessor (std::move (proc));
+
+        Terminal::Processor* procPtr { client->getProcessor (uuid) };
+        jassert (procPtr != nullptr);
+        result = procPtr;
     }
     else
     {
@@ -331,54 +362,6 @@ const Terminal::Processor& Session::get (const juce::String& uuid) const
 }
 
 // =============================================================================
-
-/**
- * @brief Client-mode helper: constructs the pipeline-side Processor for @p uuid.
- *
- * Sends createProcessor to the daemon, constructs and registers the Processor,
- * and returns a reference to it.  The daemon creates if uuid is new, or resizes
- * and attaches if uuid already exists.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-Terminal::Processor&
-Session::createClientSession (const juce::String& shell, const juce::String& cwd,
-                               const juce::String& uuid, int cols, int rows,
-                               const juce::String& envID)
-{
-    Nexus::logLine ("Session::create (client mode): uuid=" + uuid);
-
-    client->createSession (cols, rows, shell, cwd, uuid, envID);
-
-    auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
-
-    proc->getState().setId (uuid);
-    proc->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
-
-    // Wire parser responses (DSR, DA, CPR, etc.) back to the daemon via Client::sendInput.
-    proc->setHostWriter ([this, uuid] (const char* data, int len)
-    {
-        client->sendInput (uuid, data, len);
-    });
-
-    // Wire user input (keyboard, mouse) to daemon via Client IPC.
-    proc->writeInput = [this, uuid] (const char* data, int len)
-    {
-        client->sendInput (uuid, data, len);
-    };
-
-    // Wire resize to daemon via Client IPC.
-    proc->onResize = [this, uuid] (int cols, int rows)
-    {
-        client->sendResize (uuid, cols, rows);
-    };
-
-    client->registerProcessor (std::move (proc));
-
-    Terminal::Processor* procPtr { client->getProcessor (uuid) };
-    jassert (procPtr != nullptr);
-    return *procPtr;
-}
 
 /**
  * @brief Removes and destroys the session with the given UUID.

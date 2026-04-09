@@ -46,7 +46,7 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
         or Action::Registry::getContext()->handleKeyPress (key)
         or (isScrollNav and [this, code]
             {
-                handleScrollNav (code, [this] (int offset) { setScrollOffsetClamped (offset); });
+                handleScrollNav (code, [this] (int offset) { processor.setScrollOffsetClamped (offset); });
                 return true;
             }())
         or [this, &key]
@@ -361,11 +361,11 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
         if (cursorRow < visibleStart)
         {
-            setScrollOffsetClamped (scrollback - cursorRow);
+            processor.setScrollOffsetClamped (scrollback - cursorRow);
         }
         else if (cursorRow > visibleEnd)
         {
-            setScrollOffsetClamped (scrollback - (cursorRow - visibleRows + 1));
+            processor.setScrollOffsetClamped (scrollback - (cursorRow - visibleRows + 1));
         }
 
     }
@@ -408,19 +408,6 @@ bool Input::handleOpenFileKey (const juce::KeyPress& key) noexcept
     }
 
     return true;
-}
-
-void Input::setScrollOffsetClamped (int newOffset) noexcept
-{
-    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
-    const int maxOffset { processor.getGrid().getScrollbackUsed() };
-    const int current { processor.getState().getScrollOffset() };
-    const int clamped { juce::jlimit (0, maxOffset, newOffset) };
-
-    if (clamped != current)
-    {
-        processor.getState().setScrollOffset (clamped);
-    }
 }
 
 } // namespace Terminal

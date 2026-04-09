@@ -1,5 +1,113 @@
 # SPRINT-LOG
 
+## Sprint 7: BLESSED Audit — Production Quality
+
+**Date:** 2026-04-09
+
+### Agents Participated
+- COUNSELOR: Directed audit resolution, prioritized findings
+- Auditor: Comprehensive 2-critical/5-violation/6-stale/4-improvement sweep across 30+ files
+- Engineer: All fixes — early returns, SSOT extraction, doc updates, dead code removal
+
+### Files Modified (15 total)
+- `Source/terminal/logic/Processor.h` — setScrollOffsetClamped declaration
+- `Source/terminal/logic/Processor.cpp` — setStateInformation early returns→positive nesting, setScrollOffsetClamped definition, removed Nexus::logLine from process(), removed Log.h include
+- `Source/terminal/logic/Input.h/cpp` — deleted local setScrollOffsetClamped, routes to Processor
+- `Source/component/TerminalDisplay.h/cpp` — deleted local setScrollOffsetClamped, routes to Processor
+- `Source/component/Tabs.cpp` — addNewTab no-args delegates to parameterized overload
+- `Source/nexus/Session.h` — deleted createClientSession declaration, added buildProcessorListPayload, stale docs fixed
+- `Source/nexus/Session.cpp` — createClientSession inlined into create(), stale docs fixed
+- `Source/nexus/SessionFanout.cpp` — broadcastProcessorList payload extracted to buildProcessorListPayload
+- `Source/nexus/Client.cpp` — stale Loader doc references updated
+- `Source/action/Action.cpp` — TODO removed
+- `ARCHITECTURE.md` — filenames updated, Session description corrected, Grid snapshot section added, GlassWindow→Window
+- `SPEC.md` — terminal state serialization marked Done
+- `README.md` — roadmap updated, Nexus daemon mention added
+- `PLAN-nexus.md` — deleted
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- 5 early returns in setStateInformation eliminated (BLESSED-E, JRENG)
+- createClientSession deleted as separate method (dead pattern)
+- setScrollOffsetClamped duplicated in Display + Input → single Processor method (SSOT)
+- broadcastProcessorList duplicated payload → extracted helper (SSOT)
+- addNewTab duplication → no-args delegates to parameterized (SSOT)
+- Nexus::logLine in Processor::process hot path removed (Lean)
+- 6 stale Loader doc references fixed
+- ARCHITECTURE.md brought current with Sprint 4-6 architecture
+- SPEC.md terminal state serialization marked implemented
+- PLAN-nexus.md deleted (superseded)
+- TODO in Action.cpp removed
+
+### Technical Debt / Follow-up
+- None deferred — all audit findings resolved
+
+## Sprint 6: Terminal Owns Processor, Nexus Decoupled
+
+**Date:** 2026-04-09
+
+### Agents Participated
+- COUNSELOR: Architecture analysis, Nexus contamination discovery, staged execution direction
+- Pathfinder: Grid/State internals, call site mapping, Nexus reference sweep
+- Researcher: tmux reattach architecture (virtual grid redraw pattern)
+- Librarian: JUCE ComponentBoundsConstrainer API
+- Engineer: Serialization, Terminal::Session ownership, Nexus removal from Terminal layer, ServerConnection inline, popup fix
+
+### Files Modified (25+ total)
+- `Source/terminal/logic/Session.h` — owns Processor, getProcessor(), onStateFlush callback, uuid parameter
+- `Source/terminal/logic/Session.cpp` — creates Processor in ctor, wires all 6 callbacks (onBytes, onDrainComplete, onFlush, setHostWriter, writeInput, onResize), stop() destroys Processor before TTY
+- `Source/terminal/logic/Processor.h` — getStateInformation/setStateInformation, writeInput callback, onResize callback, deleted onLoadingStarted/onLoadingFinished
+- `Source/terminal/logic/Processor.cpp` — serialization implementations
+- `Source/terminal/logic/Grid.h/cpp` — getStateInformation/setStateInformation (dual buffer memcpy)
+- `Source/terminal/logic/Input.cpp` — Nexus::Session→processor.writeInput (2 sites)
+- `Source/terminal/logic/Mouse.cpp` — Nexus::Session→processor.writeInput (6 sites)
+- `Source/component/TerminalDisplay.h/cpp` — removed Nexus::Session dependency, LoaderOverlay, titleBarHeight; sendInput→writeInput, sendResize→onResize
+- `Source/component/Panes.h/cpp` — deleted buildTerminal/teardownTerminal/CreatedTerminal, direct Session::create/remove calls
+- `Source/component/Tabs.cpp` — teardownTerminal→Session::remove, first-leaf sub-rect descent, cellsFromRect physical pixels, computeContentRect jassert
+- `Source/component/Popup.h/cpp` — owns Terminal::Session directly, no Nexus, no buildTerminal
+- `Source/MainComponent.h/cpp` — removed titleBarHeight from getContentRect, resize overlay via Window::isUserResizing
+- `Source/MainComponentActions.cpp` — popup creates Terminal::Session directly
+- `Source/nexus/Session.h/cpp` — single create() (no mode helpers), deleted processors map, deleted createLocalSession/createDaemonSession, client-side Processor wired with writeInput/onResize
+- `Source/nexus/SessionFanout.cpp` — attach uses getStateInformation snapshot, terminalSessions lookups
+- `Source/nexus/ServerConnection.h/cpp` — handle* methods inlined into messageReceived, unified createProcessor PDU
+- `Source/nexus/Client.h/cpp` — createSession (renamed), deleted attachSession, handleStateUpdate
+- `Source/nexus/Message.h` — createProcessor=0x10, stateUpdate=0x22, deleted 3 dead PDUs
+- `Source/Main.cpp` — jreng::Window
+- `modules/jreng_gui/glass/jreng_window.h/cpp` — renamed from GlassWindow, ComponentBoundsConstrainer inheritance
+- `modules/jreng_gui/glass/jreng_modal_window.h/cpp` — GlassWindow→Window
+- `modules/jreng_gui/jreng_gui.h/cpp` — updated module includes
+- Deleted: `Source/nexus/Loader.h`, `Source/nexus/Loader.cpp`, `Source/nexus/Phrases.h`
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Terminal::Session owns Processor — single owner, deterministic lifecycle (B)
+- Grid+State snapshot replaces raw byte history replay — eliminates dim-garble bug class
+- Terminal layer decoupled from Nexus — Input, Mouse, Display use Processor callbacks
+- Popup creates Terminal::Session directly — ephemeral terminal, no Nexus routing
+- ServerConnection handle* methods inlined — no unnecessary helpers
+- buildTerminal/teardownTerminal/CreatedTerminal deleted — wrong placement, raw pointer struct
+- Unified createProcessor PDU — 3 dead PDUs deleted
+- Double titleBarHeight subtraction — getContentRect and Display::resized
+- cellsFromRect physical-pixel SSOT — eliminates 1-row divergence with Screen::calc
+- First-leaf sub-rect descent — correct dims for split-pane restore
+- Resize overlay via ComponentBoundsConstrainer — no flags, no timers
+- Client-side Processor writeInput/onResize wired for IPC routing
+
+### Technical Debt / Follow-up
+- createClientSession still exists in Nexus::Session — should be eliminated (END creates its own Processor)
+- Nexus::logLine referenced from Terminal::Session.cpp and Processor.cpp — logging dependency
+- Stale doc comments referencing Nexus in Terminal headers
+- forEachAttached template in Session.h — verify callers exist
+- Session::create still has envID resolution logic that may belong elsewhere
+
 ## Sprint 5: Grid Snapshot Architecture
 
 **Date:** 2026-04-09

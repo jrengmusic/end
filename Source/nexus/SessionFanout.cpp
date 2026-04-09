@@ -30,15 +30,13 @@ namespace Nexus
 // =============================================================================
 
 /**
- * @brief Sends a `Message::processorList` PDU to @p target only.
+ * @brief Builds the `Message::processorList` payload from the current terminalSessions map.
  *
  * Wire format: uint16_t count | N × (uint32_t len + UTF-8 bytes).
- * Called from ServerConnection::connectionMade() to deliver the current list
- * to a newly connected client.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Session::broadcastProcessorList (ServerConnection& target)
+juce::MemoryBlock Session::buildProcessorListPayload() const
 {
     juce::MemoryBlock payload;
     writeUint16 (payload, static_cast<uint16_t> (terminalSessions.size()));
@@ -49,7 +47,20 @@ void Session::broadcastProcessorList (ServerConnection& target)
         writeString (payload, uuid);
     }
 
-    target.sendPdu (Message::processorList, payload);
+    return payload;
+}
+
+/**
+ * @brief Sends a `Message::processorList` PDU to @p target only.
+ *
+ * Called from ServerConnection::connectionMade() to deliver the current list
+ * to a newly connected client.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Session::broadcastProcessorList (ServerConnection& target)
+{
+    target.sendPdu (Message::processorList, buildProcessorListPayload());
 }
 
 /**
@@ -61,15 +72,7 @@ void Session::broadcastProcessorList (ServerConnection& target)
  */
 void Session::broadcastProcessorList()
 {
-    juce::MemoryBlock payload;
-    writeUint16 (payload, static_cast<uint16_t> (terminalSessions.size()));
-
-    for (const auto& [uuid, termSession] : terminalSessions)
-    {
-        juce::ignoreUnused (termSession);
-        writeString (payload, uuid);
-    }
-
+    const juce::MemoryBlock payload { buildProcessorListPayload() };
     const juce::ScopedLock lock (connectionsLock);
 
     for (auto* conn : attached)
