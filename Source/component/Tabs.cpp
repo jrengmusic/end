@@ -594,6 +594,119 @@ juce::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::Stri
     return result;
 }
 
+/**
+ * @brief Walks saved TAB nodes, creates tabs, and replays splits.
+ *
+ * Caller must pass a deep copy of the saved TABS tree detached from the live
+ * AppState tree — this method walks it directly without aliasing live state.
+ *
+ * For each TAB child: locates the first PANE leaf (DFS, left-first) to obtain
+ * uuid and cwd for addNewTab, then recursively descends the PANES subtree
+ * pre-order, deriving child rects via Panes::splitRect and emitting one
+ * splitAt call per internal PANES node with 2 children. Overwrites the default
+ * ratio on each new split node with the saved value.
+ *
+ * @param savedTabs   Deep copy of the TABS node — not aliased with live AppState.
+ * @param contentRect Chrome-subtracted pixel rect for dim computation.
+ * @note MESSAGE THREAD.
+ */
+void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
+{
+    // Recursive leaf finder — returns {uuid, cwd} of the first PANE with a SESSION.
+    std::function<std::pair<juce::String, juce::String> (const juce::ValueTree&)> findFirstLeaf;
+    findFirstLeaf = [&] (const juce::ValueTree& node) -> std::pair<juce::String, juce::String>
+    {
+        std::pair<juce::String, juce::String> result;
+
+        if (node.getType() == App::ID::PANE)
+        {
+            const auto sessionNode { node.getChildWithName (Terminal::ID::SESSION) };
+
+            if (sessionNode.isValid())
+            {
+                result.first  = sessionNode.getProperty (jreng::ID::id).toString();
+                result.second = sessionNode.getProperty (Terminal::ID::cwd).toString();
+            }
+        }
+        else
+        {
+            for (int i { 0 }; i < node.getNumChildren() and result.first.isEmpty(); ++i)
+                result = findFirstLeaf (node.getChild (i));
+        }
+
+        return result;
+    };
+
+    // Recursive PANES descent — emits splitAt calls pre-order and descends rects.
+    // parentRect is the pixel rect assigned to this node (chrome already subtracted).
+    std::function<void (const juce::ValueTree&, juce::Rectangle<int>, Panes*)> walkPanes;
+    walkPanes = [&] (const juce::ValueTree& node,
+                     juce::Rectangle<int> parentRect,
+                     Panes* activePanes)
+    {
+        if (node.getType() == App::ID::PANES and node.getNumChildren() == 2)
+        {
+            const juce::String direction { node.getProperty (jreng::PaneManager::idDirection).toString() };
+            const double savedRatio { static_cast<double> (node.getProperty (jreng::PaneManager::idRatio, 0.5)) };
+
+            const auto [targetRect, newRect] { Panes::splitRect (parentRect, direction, savedRatio) };
+
+            const auto [targetUuid, targetCwd] { findFirstLeaf (node.getChild (0)) };
+            const auto [newUuid,    newCwd]    { findFirstLeaf (node.getChild (1)) };
+
+            if (targetUuid.isNotEmpty() and newUuid.isNotEmpty())
+            {
+                const auto [newCols, newRows] { Panes::cellsFromRect (newRect, font) };
+                const bool isVertical { direction == "vertical" };
+                activePanes->splitAt (targetUuid, newUuid, newCwd, direction, isVertical, newCols, newRows);
+
+                auto newLeafNode { jreng::PaneManager::findLeaf (activePanes->getState(), newUuid) };
+                jassert (newLeafNode.isValid());
+
+                auto splitNode { newLeafNode.getParent() };
+                jassert (splitNode.isValid());
+
+                splitNode.setProperty (jreng::PaneManager::idRatio, savedRatio, nullptr);
+            }
+
+            walkPanes (node.getChild (0), targetRect, activePanes);
+            walkPanes (node.getChild (1), newRect,    activePanes);
+        }
+        else
+        {
+            // Single-child PANES root (before first split) or PANE leaf — pass rect through.
+            for (int i { 0 }; i < node.getNumChildren(); ++i)
+                walkPanes (node.getChild (i), parentRect, activePanes);
+        }
+    };
+
+    for (int t { 0 }; t < savedTabs.getNumChildren(); ++t)
+    {
+        const auto tabNode { savedTabs.getChild (t) };
+
+        if (tabNode.getType() == App::ID::TAB)
+        {
+            const auto panesNode { tabNode.getChildWithName (App::ID::PANES) };
+
+            if (panesNode.isValid())
+            {
+                const auto [firstUuid, firstCwd] { findFirstLeaf (panesNode) };
+
+                if (firstUuid.isNotEmpty())
+                {
+                    const auto [firstCols, firstRows] { Panes::cellsFromRect (contentRect, font) };
+                    addNewTab (firstCwd, firstUuid, firstCols, firstRows);
+
+                    auto* activePanes { getActivePanes() };
+                    jassert (activePanes != nullptr);
+
+                    walkPanes (panesNode, contentRect, activePanes);
+                }
+            }
+        }
+    }
+}
+
 void Tabs::openMarkdown (const juce::File& file)
 {
     if (auto* active { getActivePanes() }; active != nullptr)

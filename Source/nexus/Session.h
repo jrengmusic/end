@@ -78,9 +78,7 @@ class ServerConnection;
  * @see Terminal::Processor
  * @see Nexus::ServerConnection
  */
-class Session : public jreng::Context<Session>,
-                public juce::AsyncUpdater,
-                public juce::ChangeListener
+class Session : public jreng::Context<Session>
 {
 public:
     /**
@@ -476,27 +474,6 @@ private:
     juce::CriticalSection connectionsLock;
 
     /**
-     * @brief AsyncUpdater callback — no-op in the byte-forward architecture.
-     *
-     * In the byte-forward model, live output is pushed eagerly via
-     * Terminal::Session::onBytes → Message::output.  This handler is retained
-     * for ChangeListener coalescing compatibility but performs no fan-out.
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    void handleAsyncUpdate() override;
-
-    /**
-     * @brief ChangeListener callback — fired when an owned Processor broadcasts a change.
-     *
-     * Processor calls sendChangeMessage() from its reader-thread data path.
-     * Session responds by calling triggerAsyncUpdate().
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    void changeListenerCallback (juce::ChangeBroadcaster* source) override;
-
-    /**
      * @brief Fires onAllSessionsExited if the processor map is now empty.
      *
      * Called at every exit path (shell-exit and removeProcessor) after the
@@ -507,6 +484,52 @@ private:
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     void fireIfAllExited() noexcept;
+
+    /**
+     * @brief Creates the client-mode Processor pipeline for @p uuid.
+     *
+     * Sends spawnProcessor to the daemon if the uuid is not yet live, then
+     * sends attachProcessor, constructs and registers a Processor, and returns
+     * a reference to it.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    Terminal::Processor& createClientSession (const juce::String& shell,
+                                              const juce::String& cwd,
+                                              const juce::String& uuid,
+                                              int cols, int rows,
+                                              const juce::String& envID);
+
+    /**
+     * @brief Creates the daemon-mode PTY session for @p uuid.
+     *
+     * Constructs a Terminal::Session, wires onBytes to broadcast Message::output
+     * to subscribers and onExit to broadcast Message::processorExited, then
+     * constructs a stub Processor for UUID tracking.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    Terminal::Processor& createDaemonSession (const juce::String& effectiveShell,
+                                              const juce::String& effectiveArgs,
+                                              const juce::String& cwd,
+                                              const juce::String& uuid,
+                                              int cols, int rows,
+                                              juce::StringPairArray seedEnv);
+
+    /**
+     * @brief Creates the local-mode PTY + Processor pair for @p uuid.
+     *
+     * Constructs both a Terminal::Session (PTY side) and a Terminal::Processor
+     * (pipeline side), wires all callbacks, and returns the Processor reference.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    Terminal::Processor& createLocalSession (const juce::String& effectiveShell,
+                                             const juce::String& effectiveArgs,
+                                             const juce::String& cwd,
+                                             const juce::String& uuid,
+                                             int cols, int rows,
+                                             juce::StringPairArray seedEnv);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

@@ -8,7 +8,7 @@
  * Wire format inside each JUCE IPC frame: uint16_t kind (LE) | payload bytes.
  *
  * ### Wire protocol
- * - `spawnProcessor(uuid, shell, args, cwd, cols, rows)` — client→daemon
+ * - `spawnProcessor(shell, args, cwd, uuid, cols, rows, envID)` — client→daemon
  * - `spawnProcessorResponse(uuid)` — daemon→client ack
  * - `attachProcessor(uuid)` — client→daemon "I want bytes for this uuid"
  * - `loading(uuid, bytes)` — daemon→client initial byte snapshot for the loading phase

@@ -36,7 +36,7 @@ Loader::Loader (Terminal::Processor& processorIn,
  */
 Loader::~Loader()
 {
-    stopThread (5000);
+    stopThread (loaderJoinTimeoutMs);
 }
 
 /**
@@ -62,8 +62,7 @@ void Loader::run()
         const int chunk { remaining < chunkBytes ? remaining : chunkBytes };
 
         {
-            const juce::ScopedLock lock (processor.grid.getResizeLock());
-            processor.process (static_cast<const char*> (bytes.getData()) + offset, chunk);
+            processor.processWithLock (static_cast<const char*> (bytes.getData()) + offset, chunk);
         }
 
         offset += chunk;

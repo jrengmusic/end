@@ -1,8 +1,8 @@
 /**
- * @file InputHandler.h
+ * @file Input.h
  * @brief Handles all keyboard input routing for a terminal processor.
  *
- * InputHandler centralises modal key dispatch, vim-style selection navigation,
+ * Terminal::Input centralises modal key dispatch, vim-style selection navigation,
  * open-file hint-label key matching, scrollback navigation, and the two-key `gg`
  * sequence.  It reads and writes terminal selection state via `State` parameters
  * directly — no `TerminalDisplay` members are touched.
@@ -17,14 +17,14 @@
  *
  * @see Terminal::Processor
  * @see Terminal::Screen
- * @see LinkManager
+ * @see Terminal::LinkManager
  */
 
 #pragma once
 
 #include <JuceHeader.h>
-#include "../terminal/rendering/ScreenSelection.h"
-#include "../SelectionType.h"
+#include "../rendering/ScreenSelection.h"
+#include "../../SelectionType.h"
 
 namespace Terminal
 {
@@ -32,27 +32,30 @@ class Processor;
 class LinkManager;
 } // namespace Terminal
 
+namespace Terminal
+{
+
 /**
- * @class InputHandler
+ * @class Terminal::Input
  * @brief Keyboard input dispatcher for a single terminal processor.
  *
  * Constructed with references to the processor and link manager.  All
- * references must remain valid for the lifetime of the `InputHandler`.
+ * references must remain valid for the lifetime of the `Input` instance.
  *
  * @par Thread context
  * All public methods are **MESSAGE THREAD** only.
  */
-class InputHandler
+class Input
 {
 public:
     /**
-     * @brief Constructs an InputHandler.
+     * @brief Constructs an Input handler.
      * @param processor   Terminal processor (state, grid, key forwarding).
      * @param linkManager Link manager (used by `handleOpenFileKey`).
      * @note MESSAGE THREAD.
      */
-    InputHandler (Terminal::Processor& processor,
-                  Terminal::LinkManager& linkManager) noexcept;
+    Input (Terminal::Processor& processor,
+           Terminal::LinkManager& linkManager) noexcept;
 
     /**
      * @brief Top-level key handler for normal (non-popup) terminals.
@@ -207,3 +210,5 @@ private:
     /** @brief Pending-g flag for the two-key `gg` (go-to-top) sequence. */
     bool pendingG { false };
 };
+
+} // namespace Terminal

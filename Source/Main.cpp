@@ -265,9 +265,10 @@ public:
 
                     if (port > 0)
                     {
+                        static constexpr int nexusProbeTimeoutMs { 200 };
                         juce::StreamingSocket probe;
 
-                        if (probe.connect ("127.0.0.1", port, 200))
+                        if (probe.connect ("127.0.0.1", port, nexusProbeTimeoutMs))
                         {
                             probe.close();
                             daemonAlive = true;

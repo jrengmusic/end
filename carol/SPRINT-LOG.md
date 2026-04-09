@@ -1,5 +1,67 @@
 # SPRINT-LOG
 
+## Sprint 3: BLESSED Audit Sweep
+
+**Date:** 2026-04-09
+
+### Agents Participated
+- COUNSELOR: Led audit analysis, directed all passes, wrote cleanup plan
+- Pathfinder: Codebase discovery, file-size scoping, direct-access sweep
+- Auditor: Comprehensive BLESSED/NAMES/JRENG audit (14 dimensions)
+- Engineer: Encapsulation refactor, decomposition, file extraction, rename/relocate
+
+### Files Modified (18 total)
+- `Source/terminal/logic/Processor.h` — private members, reference getters, bundled methods (processWithLock, setHostWriter)
+- `Source/terminal/logic/Processor.cpp` — bundled method definitions
+- `Source/terminal/logic/Input.h` — new (relocated from component/InputHandler.h, renamed InputHandler to Terminal::Input)
+- `Source/terminal/logic/Input.cpp` — new (relocated from component/InputHandler.cpp, all access via getters)
+- `Source/terminal/logic/Mouse.h` — new (relocated from component/MouseHandler.h, renamed MouseHandler to Terminal::Mouse)
+- `Source/terminal/logic/Mouse.cpp` — new (relocated from component/MouseHandler.cpp, all access via getters)
+- `Source/component/InputHandler.h` — deleted
+- `Source/component/InputHandler.cpp` — deleted
+- `Source/component/MouseHandler.h` — deleted
+- `Source/component/MouseHandler.cpp` — deleted
+- `Source/component/TerminalDisplay.h` — updated includes, member types to Terminal::Input/Mouse
+- `Source/component/TerminalDisplay.cpp` — all direct Processor access replaced with getters
+- `Source/component/Panes.cpp` — processor.uuid to processor.getUuid()
+- `Source/component/Tabs.h` — added Tabs::restore declaration
+- `Source/component/Tabs.cpp` — added Tabs::restore definition (recursive walk, no intermediate types)
+- `Source/MainComponent.h` — deleted broken TabRestoreEntry method declarations
+- `Source/MainComponent.cpp` — deleted anon namespace, file-scope constants, collect/replay methods; initialiseTabs calls Tabs::restore
+- `Source/MainComponentActions.cpp` — new (6 register*Actions method definitions extracted)
+- `Source/nexus/Session.h` — 3 private mode helpers declared, setHostWriter
+- `Source/nexus/Session.cpp` — create() decomposed into createClientSession/createDaemonSession/createLocalSession, single-exit
+- `Source/nexus/Client.h` — removed processorUuids shadow state, stale docs fixed
+- `Source/nexus/Client.cpp` — switch dispatch with 5 handler methods, shadow state eliminated, processor->getUuid()
+- `Source/nexus/Loader.h` — onFinished takes no args, loaderJoinTimeoutMs constant
+- `Source/nexus/Loader.cpp` — uuid captured by value in onFinished lambda (UseAfterFree fix)
+- `Source/nexus/ServerConnection.cpp` — processor.uuid to processor.getUuid()
+- `Source/nexus/Message.h` — stale doc comment corrected
+- `Source/AppState.h` — dead ensureProcessorsNode removed, getProcessorsNode/getLoadingNode added
+- `Source/AppState.cpp` — dead method removed, accessor implementations
+- `Source/Main.cpp` — nexus construction reordered after mainWindow for listener availability
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Processor encapsulation: 100+ direct member accesses routed through getters/bundled API
+- UseAfterFree in Loader::onFinished lambda (const ref to destroyed Loader::uuid)
+- ProcessorList arrival race (connected=true before processorList PDU round-trip)
+- AppState ctor regression (load() vs initDefaults() ordering)
+- MainComponent listener bootstrap (lazy processorsNode/loadingNode assignment)
+- Broken MainComponent.h (TabRestoreEntry referenced but only defined in anon-ns)
+- Anonymous namespace violation in MainComponent.cpp eliminated
+- File-scope statics (fake VT100 fallback constants) eliminated
+- InputHandler/MouseHandler naming and location (component/ to terminal/logic/)
+- Session::create 5 early returns eliminated via single-exit with mode helpers
+- Client::messageReceived if-else chain replaced with switch dispatch
+
+### Technical Debt / Follow-up
+- None deferred — all audit findings resolved or accepted as KEEP with BLESSED justification
+
 ## Handoff to COUNSELOR: Nexus Byte-Forward Architecture — Session Continuity + Final BLESSED Pass
 
 **From:** COUNSELOR

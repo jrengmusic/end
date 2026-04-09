@@ -43,11 +43,6 @@ struct AppState : jreng::Context<AppState>
     juce::ValueTree getNexusNode() noexcept;
     juce::ValueTree getProcessorsNode() noexcept;
 
-    /** Creates the PROCESSORS child under NEXUS if absent. Side-effect only;
-        used by local-mode Session ctor to fire valueTreeChildAdded on the
-        MainComponent listener and trigger walker initialisation. */
-    void ensureProcessorsNode() noexcept;
-
     juce::ValueTree getLoadingNode() noexcept;
     juce::ValueTree getTabs() noexcept;
 

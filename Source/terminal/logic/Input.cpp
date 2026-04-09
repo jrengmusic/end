@@ -1,35 +1,38 @@
 /**
- * @file InputHandler.cpp
+ * @file Input.cpp
  * @brief Implementation of keyboard input routing for a terminal processor.
  *
- * @see InputHandler.h
+ * @see Terminal::Input
  */
 
-#include "InputHandler.h"
-#include "../terminal/logic/Processor.h"
-#include "../terminal/selection/LinkManager.h"
-#include "../action/Action.h"
-#include "../config/Config.h"
-#include "../nexus/Session.h"
+#include "Input.h"
+#include "Processor.h"
+#include "../selection/LinkManager.h"
+#include "../../action/Action.h"
+#include "../../config/Config.h"
+#include "../../nexus/Session.h"
 
-InputHandler::InputHandler (Terminal::Processor& p,
-                            Terminal::LinkManager& lm) noexcept
+namespace Terminal
+{
+
+Input::Input (Terminal::Processor& p,
+              Terminal::LinkManager& lm) noexcept
     : processor (p)
     , linkManager (lm)
 {
 }
 
-bool InputHandler::handleKeyDirect (const juce::KeyPress& key) noexcept
+bool Input::handleKeyDirect (const juce::KeyPress& key) noexcept
 {
     const auto bytes { processor.encodeKeyPress (key) };
 
     if (bytes.isNotEmpty())
-        Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+        Nexus::Session::getContext()->sendInput (processor.getUuid(), bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
 
     return true;
 }
 
-bool InputHandler::handleKey (const juce::KeyPress& key) noexcept
+bool Input::handleKey (const juce::KeyPress& key) noexcept
 {
     const int code { key.getKeyCode() };
     const auto mods { key.getModifiers() };
@@ -40,7 +43,7 @@ bool InputHandler::handleKey (const juce::KeyPress& key) noexcept
 
     const bool result
     {
-        (processor.state.isModal() and handleModalKey (key))
+        (processor.getState().isModal() and handleModalKey (key))
         or Action::Registry::getContext()->handleKeyPress (key)
         or (isScrollNav and [this, code]
             {
@@ -53,7 +56,7 @@ bool InputHandler::handleKey (const juce::KeyPress& key) noexcept
                 const auto bytes { processor.encodeKeyPress (key) };
 
                 if (bytes.isNotEmpty())
-                    Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+                    Nexus::Session::getContext()->sendInput (processor.getUuid(), bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
 
                 return true;
             }()
@@ -62,12 +65,12 @@ bool InputHandler::handleKey (const juce::KeyPress& key) noexcept
     return result;
 }
 
-void InputHandler::handleScrollNav (int code,
-                                    std::function<void (int)> newOffsetFn) noexcept
+void Input::handleScrollNav (int code,
+                              std::function<void (int)> newOffsetFn) noexcept
 {
-    const juce::ScopedLock lock (processor.grid.getResizeLock());
-    const int page { processor.grid.getVisibleRows() };
-    const int current { processor.state.getScrollOffset() };
+    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
+    const int page { processor.getGrid().getVisibleRows() };
+    const int current { processor.getState().getScrollOffset() };
 
     if (code == juce::KeyPress::pageUpKey)
     {
@@ -79,7 +82,7 @@ void InputHandler::handleScrollNav (int code,
     }
     else if (code == juce::KeyPress::homeKey)
     {
-        newOffsetFn (processor.grid.getScrollbackUsed());
+        newOffsetFn (processor.getGrid().getScrollbackUsed());
     }
     else if (code == juce::KeyPress::endKey)
     {
@@ -87,22 +90,22 @@ void InputHandler::handleScrollNav (int code,
     }
 }
 
-void InputHandler::clearSelectionAndScroll() noexcept
+void Input::clearSelectionAndScroll() noexcept
 {
-    if (processor.state.isDragActive()
-        or processor.state.getSelectionType() != static_cast<int> (Terminal::SelectionType::none))
+    if (processor.getState().isDragActive()
+        or processor.getState().getSelectionType() != static_cast<int> (Terminal::SelectionType::none))
     {
-        processor.state.setDragActive (false);
-        processor.state.setSelectionType (static_cast<int> (Terminal::SelectionType::none));
+        processor.getState().setDragActive (false);
+        processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
     }
 
-    if (processor.state.getScrollOffset() > 0)
+    if (processor.getState().getScrollOffset() > 0)
     {
-        processor.state.setScrollOffset (0);
+        processor.getState().setScrollOffset (0);
     }
 }
 
-void InputHandler::buildKeyMap() noexcept
+void Input::buildKeyMap() noexcept
 {
     auto* cfg { Config::getContext() };
 
@@ -142,19 +145,19 @@ void InputHandler::buildKeyMap() noexcept
     openFileNextPage = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysOpenFileNextPage));
 }
 
-void InputHandler::reset() noexcept
+void Input::reset() noexcept
 {
     pendingG = false;
 }
 
-bool InputHandler::isSelectionCopyKey (const juce::KeyPress& key) const noexcept
+bool Input::isSelectionCopyKey (const juce::KeyPress& key) const noexcept
 {
     return key == selectionKeys.copy or key == selectionKeys.globalCopy;
 }
 
-bool InputHandler::handleModalKey (const juce::KeyPress& key) noexcept
+bool Input::handleModalKey (const juce::KeyPress& key) noexcept
 {
-    const auto type { processor.state.getModalType() };
+    const auto type { processor.getState().getModalType() };
     bool handled { false };
 
     if (type == Terminal::ModalType::selection)
@@ -169,13 +172,13 @@ bool InputHandler::handleModalKey (const juce::KeyPress& key) noexcept
     return handled;
 }
 
-bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
+bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 {
-    const juce::ScopedLock lock (processor.grid.getResizeLock());
-    const int maxRow { processor.grid.getVisibleRows() + processor.grid.getScrollbackUsed() - 1 };
-    const int maxCol { processor.grid.getCols() - 1 };
+    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
+    const int maxRow { processor.getGrid().getVisibleRows() + processor.getGrid().getScrollbackUsed() - 1 };
+    const int maxCol { processor.getGrid().getCols() - 1 };
 
-    auto& st { processor.state };
+    auto& st { processor.getState() };
 
     bool consumed { false };
 
@@ -268,14 +271,14 @@ bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
 
         if (smType != Terminal::SelectionType::none)
         {
-            const juce::ScopedTryLock tryLock (processor.grid.getResizeLock());
+            const juce::ScopedTryLock tryLock (processor.getGrid().getResizeLock());
 
             if (tryLock.isLocked())
             {
-                const int scrollback { processor.grid.getScrollbackUsed() };
+                const int scrollback { processor.getGrid().getScrollbackUsed() };
                 const int scrollOffset { st.getScrollOffset() };
                 const int visibleStart { scrollback - scrollOffset };
-                const int cols { processor.grid.getCols() };
+                const int cols { processor.getGrid().getCols() };
 
                 const int anchorVisRow { st.getSelectionAnchorRow() - visibleStart };
                 const int cursorVisRow { st.getSelectionCursorRow() - visibleStart };
@@ -288,13 +291,13 @@ bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
                 {
                     const juce::Point<int> start { anchorCol, anchorVisRow };
                     const juce::Point<int> end { cursorCol, cursorVisRow };
-                    text = processor.grid.extractText (start, end, scrollOffset);
+                    text = processor.getGrid().extractText (start, end, scrollOffset);
                 }
                 else if (smType == Terminal::SelectionType::visualLine)
                 {
                     const juce::Point<int> start { 0, std::min (anchorVisRow, cursorVisRow) };
                     const juce::Point<int> end { cols - 1, std::max (anchorVisRow, cursorVisRow) };
-                    text = processor.grid.extractText (start, end, scrollOffset);
+                    text = processor.getGrid().extractText (start, end, scrollOffset);
                 }
                 else
                 {
@@ -306,7 +309,7 @@ bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
                         std::max (anchorCol, cursorCol),
                         std::max (anchorVisRow, cursorVisRow)
                     };
-                    text = processor.grid.extractBoxText (topLeft, bottomRight, scrollOffset);
+                    text = processor.getGrid().extractBoxText (topLeft, bottomRight, scrollOffset);
                 }
 
                 juce::SystemClipboard::copyTextToClipboard (text);
@@ -352,8 +355,8 @@ bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
     if (consumed)
     {
         const int cursorRow { st.getSelectionCursorRow() };
-        const int visibleRows { processor.grid.getVisibleRows() };
-        const int scrollback { processor.grid.getScrollbackUsed() };
+        const int visibleRows { processor.getGrid().getVisibleRows() };
+        const int scrollback { processor.getGrid().getScrollbackUsed() };
         const int visibleStart { scrollback - st.getScrollOffset() };
         const int visibleEnd { visibleStart + visibleRows - 1 };
 
@@ -371,19 +374,19 @@ bool InputHandler::handleSelectionKey (const juce::KeyPress& key) noexcept
     return true;
 }
 
-bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
+bool Input::handleOpenFileKey (const juce::KeyPress& key) noexcept
 {
     if (key == juce::KeyPress::escapeKey)
     {
-        processor.state.setHintOverlay (nullptr, 0);
+        processor.getState().setHintOverlay (nullptr, 0);
         linkManager.clearHints();
-        processor.state.setModalType (Terminal::ModalType::none);
+        processor.getState().setModalType (Terminal::ModalType::none);
     }
     else if (key.getKeyCode() == juce::KeyPress::spaceKey)
     {
         linkManager.advanceHintPage();
 
-        processor.state.setHintOverlay (linkManager.getActiveHintsData(), linkManager.getActiveHintsCount());
+        processor.getState().setHintOverlay (linkManager.getActiveHintsData(), linkManager.getActiveHintsCount());
     }
     else
     {
@@ -398,9 +401,9 @@ bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
             {
                 linkManager.dispatch (*matched);
 
-                processor.state.setHintOverlay (nullptr, 0);
+                processor.getState().setHintOverlay (nullptr, 0);
                 linkManager.clearHints();
-                processor.state.setModalType (Terminal::ModalType::none);
+                processor.getState().setModalType (Terminal::ModalType::none);
             }
         }
     }
@@ -408,15 +411,17 @@ bool InputHandler::handleOpenFileKey (const juce::KeyPress& key) noexcept
     return true;
 }
 
-void InputHandler::setScrollOffsetClamped (int newOffset) noexcept
+void Input::setScrollOffsetClamped (int newOffset) noexcept
 {
-    const juce::ScopedLock lock (processor.grid.getResizeLock());
-    const int maxOffset { processor.grid.getScrollbackUsed() };
-    const int current { processor.state.getScrollOffset() };
+    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
+    const int maxOffset { processor.getGrid().getScrollbackUsed() };
+    const int current { processor.getState().getScrollOffset() };
     const int clamped { juce::jlimit (0, maxOffset, newOffset) };
 
     if (clamped != current)
     {
-        processor.state.setScrollOffset (clamped);
+        processor.getState().setScrollOffset (clamped);
     }
 }
+
+} // namespace Terminal

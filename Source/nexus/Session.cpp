@@ -107,22 +107,9 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
 /**
  * @brief Creates a new session with an explicit UUID.  Returns Processor reference.
  *
- * ### Local mode
- * Constructs a `Terminal::Session` (PTY+History) and a `Terminal::Processor`
- * (Parser+Grid).  Wires `terminalSession.onBytes → processor.process`.
- * Wires `tty.onDrainComplete → parser.flushResponses / state.clearPasteEchoGate`.
- * Wires `tty.onExit → processorExited lifecycle`.
- * Wires `parser.writeToHost → terminalSession.sendInput`.
- *
- * ### Daemon mode
- * Constructs a `Terminal::Session` (PTY+History) only.  Wires `onBytes` to
- * broadcast `Message::output` to all subscribers of this UUID.  Returns a
- * freshly constructed (but pipeline-only) Processor so callers always get a
- * valid Processor& — daemon processors are just stubs for UUID tracking.
- *
- * ### Client mode
- * Constructs a `Terminal::Processor` (pipeline side) only.  Sends
- * `Message::spawnProcessor` to the daemon.  Returns the new Processor&.
+ * Dispatches to `createClientSession`, `createDaemonSession`, or `createLocalSession`
+ * based on the current mode.  If a session with @p uuid already exists the existing
+ * Processor is returned immediately (idempotency guard for GUI reconnect).
  *
  * @param uuid  Must be non-empty.
  * @note NEXUS PROCESS MESSAGE THREAD.
@@ -140,96 +127,185 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
     // spawnProcessor before the processorList push has updated its isLive cache.
     // Without this guard, the daemon would fork a second shell, fail to emplace,
     // and leave a dangling Processor reference.
-    {
-        const auto existing { processors.find (uuid) };
+    const auto existing { processors.find (uuid) };
+    const bool alreadyExists { existing != processors.end() };
 
-        if (existing != processors.end())
-        {
-            Nexus::logLine ("Session::create: uuid=" + uuid + " already exists, returning existing");
-            return *(existing->second);
-        }
+    Terminal::Processor* result { nullptr };
+
+    if (alreadyExists)
+    {
+        Nexus::logLine ("Session::create: uuid=" + uuid + " already exists, returning existing");
+        result = existing->second.get();
     }
+    else if (client != nullptr)
+    {
+        result = &createClientSession (shell, cwd, uuid, cols, rows, envID);
+    }
+    else
+    {
+        const juce::String effectiveShell { shell.isNotEmpty()
+            ? shell
+            : Config::getContext()->getString (Config::Key::shellProgram) };
+        const juce::String effectiveArgs { shell.isNotEmpty()
+            ? args
+            : Config::getContext()->getString (Config::Key::shellArgs) };
+
+        juce::StringPairArray seedEnv;
+
+#if ! JUCE_WINDOWS
+        if (envID.isNotEmpty())
+        {
+            const auto parentIt { terminalSessions.find (envID) };
+
+            if (parentIt != terminalSessions.end())
+            {
+                const int fgPid { parentIt->second->getForegroundPid() };
+
+                if (fgPid > 0)
+                {
+                    const juce::String resolvedPath { parentIt->second->getEnvVar (fgPid, "PATH") };
+
+                    if (resolvedPath.isNotEmpty())
+                        seedEnv.set ("PATH", resolvedPath);
+                }
+            }
+        }
+#else
+        juce::ignoreUnused (envID);
+#endif
+
+        if (server != nullptr)
+            result = &createDaemonSession (effectiveShell, effectiveArgs, cwd, uuid, cols, rows, seedEnv);
+        else
+            result = &createLocalSession (effectiveShell, effectiveArgs, cwd, uuid, cols, rows, seedEnv);
+    }
+
+    jassert (result != nullptr);
+    return *result;
+}
+
+/**
+ * @brief Returns a mutable reference to the Processor with the given UUID.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+Terminal::Processor& Session::get (const juce::String& uuid)
+{
+    Terminal::Processor* result { nullptr };
 
     if (client != nullptr)
     {
-        // Client mode — pipeline side only.
-        Nexus::logLine ("Session::create (client mode): uuid=" + uuid);
-
-        auto processorsNode { AppState::getContext()->getProcessorsNode() };
-        bool isLive { false };
-
-        for (int i { 0 }; i < processorsNode.getNumChildren(); ++i)
-        {
-            if (processorsNode.getChild (i).getProperty (jreng::ID::id).toString() == uuid)
-            {
-                isLive = true;
-                i = processorsNode.getNumChildren();
-            }
-        }
-
-        if (not isLive)
-        {
-            client->spawnSession (cols,
-                                  rows,
-                                  shell,
-                                  cwd,
-                                  uuid,
-                                  envID);
-        }
-
-        client->attachSession (uuid);
-
-        auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
-
-        proc->state.setId (uuid);
-
-        // Wire parser responses (DSR, DA, CPR, etc.) back to the daemon via Client::sendInput.
-        // Without this, vim/neovim start in degraded mode because terminal capability queries
-        // get no reply.
-        proc->parser->writeToHost = [this, uuid] (const char* data, int len)
-        {
-            client->sendInput (uuid, data, len);
-        };
-
-        client->registerProcessor (std::move (proc));
-
-        auto* procPtr { client->getProcessor (uuid) };
-        jassert (procPtr != nullptr);
-        return *procPtr;
+        result = client->getProcessor (uuid);
     }
-
-    // Local or daemon mode — construct Terminal::Session (PTY side).
-    const juce::String effectiveShell { shell.isNotEmpty()
-        ? shell
-        : Config::getContext()->getString (Config::Key::shellProgram) };
-    const juce::String effectiveArgs { shell.isNotEmpty()
-        ? args
-        : Config::getContext()->getString (Config::Key::shellArgs) };
-
-    juce::StringPairArray seedEnv;
-
-#if ! JUCE_WINDOWS
-    if (envID.isNotEmpty())
+    else
     {
-        const auto parentIt { terminalSessions.find (envID) };
+        const auto it { processors.find (uuid) };
+        jassert (it != processors.end());
 
-        if (parentIt != terminalSessions.end())
+        if (it != processors.end())
+            result = it->second.get();
+    }
+
+    jassert (result != nullptr);
+    return *result;
+}
+
+/**
+ * @brief Returns a const reference to the Processor with the given UUID.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+const Terminal::Processor& Session::get (const juce::String& uuid) const
+{
+    const Terminal::Processor* result { nullptr };
+
+    if (client != nullptr)
+    {
+        result = client->getProcessor (uuid);
+    }
+    else
+    {
+        const auto it { processors.find (uuid) };
+        jassert (it != processors.end());
+
+        if (it != processors.end())
+            result = it->second.get();
+    }
+
+    jassert (result != nullptr);
+    return *result;
+}
+
+// =============================================================================
+
+/**
+ * @brief Client-mode helper: constructs the pipeline-side Processor for @p uuid.
+ *
+ * Sends spawnProcessor to the daemon if the uuid is not yet live, sends
+ * attachProcessor, constructs and registers the Processor, and returns a
+ * reference to it.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+Terminal::Processor&
+Session::createClientSession (const juce::String& shell, const juce::String& cwd,
+                               const juce::String& uuid, int cols, int rows,
+                               const juce::String& envID)
+{
+    Nexus::logLine ("Session::create (client mode): uuid=" + uuid);
+
+    auto processorsNode { AppState::getContext()->getProcessorsNode() };
+    bool isLive { false };
+
+    for (int i { 0 }; i < processorsNode.getNumChildren(); ++i)
+    {
+        if (processorsNode.getChild (i).getProperty (jreng::ID::id).toString() == uuid)
         {
-            const int fgPid { parentIt->second->getForegroundPid() };
-
-            if (fgPid > 0)
-            {
-                const juce::String resolvedPath { parentIt->second->getEnvVar (fgPid, "PATH") };
-
-                if (resolvedPath.isNotEmpty())
-                    seedEnv.set ("PATH", resolvedPath);
-            }
+            isLive = true;
+            i = processorsNode.getNumChildren();
         }
     }
-#else
-    juce::ignoreUnused (envID);
-#endif
 
+    if (not isLive)
+        client->spawnSession (cols, rows, shell, cwd, uuid, envID);
+
+    client->attachSession (uuid);
+
+    auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
+
+    proc->getState().setId (uuid);
+
+    // Wire parser responses (DSR, DA, CPR, etc.) back to the daemon via Client::sendInput.
+    // Without this, vim/neovim start in degraded mode because terminal capability queries
+    // get no reply.
+    proc->setHostWriter ([this, uuid] (const char* data, int len)
+    {
+        client->sendInput (uuid, data, len);
+    });
+
+    client->registerProcessor (std::move (proc));
+
+    Terminal::Processor* procPtr { client->getProcessor (uuid) };
+    jassert (procPtr != nullptr);
+    return *procPtr;
+}
+
+/**
+ * @brief Daemon-mode helper: constructs the PTY session + stub Processor for @p uuid.
+ *
+ * Wires onBytes to broadcast Message::output to subscribers and onExit to
+ * broadcast Message::processorExited to all attached connections.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+Terminal::Processor&
+Session::createDaemonSession (const juce::String& effectiveShell,
+                               const juce::String& effectiveArgs,
+                               const juce::String& cwd,
+                               const juce::String& uuid,
+                               int cols, int rows,
+                               juce::StringPairArray seedEnv)
+{
     auto termSession { std::make_unique<Terminal::Session> (
         cols,
         rows,
@@ -238,89 +314,110 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
         cwd,
         seedEnv) };
 
-    if (server != nullptr)
+    // Daemon mode — wire onBytes to broadcast Message::output to subscribers.
+    termSession->onBytes = [this, uuid] (const char* bytes, int len)
     {
-        // Daemon mode — wire onBytes to broadcast Message::output to subscribers.
-        termSession->onBytes = [this, uuid] (const char* bytes, int len)
-        {
-            // READER THREAD — build output PDU and push to all subscribers.
-            juce::MemoryBlock payload;
-            writeString (payload, uuid);
-            payload.append (bytes, static_cast<size_t> (len));
+        // READER THREAD — build output PDU and push to all subscribers.
+        juce::MemoryBlock payload;
+        writeString (payload, uuid);
+        payload.append (bytes, static_cast<size_t> (len));
 
+        const juce::ScopedLock lock (connectionsLock);
+        const auto it { subscribers.find (uuid) };
+
+        if (it != subscribers.end())
+        {
+            for (auto* conn : it->second)
+                conn->sendPdu (Message::output, payload);
+        }
+    };
+
+    termSession->onExit = [this, uuid]
+    {
+        juce::MemoryBlock payload;
+        const auto* utf8 { uuid.toRawUTF8() };
+        const auto len { static_cast<uint32_t> (uuid.getNumBytesAsUTF8()) };
+        payload.append (&len, sizeof (len));
+        payload.append (utf8, static_cast<size_t> (len));
+
+        {
             const juce::ScopedLock lock (connectionsLock);
-            const auto it { subscribers.find (uuid) };
 
-            if (it != subscribers.end())
+            for (auto* conn : attached)
+                conn->sendPdu (Message::processorExited, payload);
+        }
+
+        juce::MessageManager::callAsync (
+            [this, uuid]
             {
-                for (auto* conn : it->second)
-                    conn->sendPdu (Message::output, payload);
-            }
-        };
+                remove (uuid);
+                broadcastProcessorList();
+                fireIfAllExited();
+            });
+    };
 
-        termSession->onExit = [this, uuid]
-        {
-            juce::MemoryBlock payload;
-            const auto* utf8 { uuid.toRawUTF8() };
-            const auto len { static_cast<uint32_t> (uuid.getNumBytesAsUTF8()) };
-            payload.append (&len, sizeof (len));
-            payload.append (utf8, static_cast<size_t> (len));
+    terminalSessions.emplace (uuid, std::move (termSession));
 
-            {
-                const juce::ScopedLock lock (connectionsLock);
+    // Daemon also needs a stub Processor so get() and forEachProcessor() work.
+    auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
 
-                for (auto* conn : attached)
-                    conn->sendPdu (Message::processorExited, payload);
-            }
+    proc->getState().setId (uuid);
 
-            juce::MessageManager::callAsync (
-                [this, uuid]
-                {
-                    remove (uuid);
-                    broadcastProcessorList();
+    Terminal::Processor& result { *proc };
+    processors.emplace (uuid, std::move (proc));
 
-                    fireIfAllExited();
-                });
-        };
+    return result;
+}
 
-        terminalSessions.emplace (uuid, std::move (termSession));
-
-        // Daemon also needs a stub Processor so get() and forEachProcessor() work.
-        auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
-
-        proc->state.setId (uuid);
-
-        Terminal::Processor& result { *proc };
-        processors.emplace (uuid, std::move (proc));
-
-        return result;
-    }
+/**
+ * @brief Local-mode helper: constructs the PTY + Processor pair for @p uuid.
+ *
+ * Wires onBytes → Processor::processWithLock, onDrainComplete → parser flush,
+ * state onFlush → foreground process introspection, and onExit → onShellExited.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+Terminal::Processor&
+Session::createLocalSession (const juce::String& effectiveShell,
+                              const juce::String& effectiveArgs,
+                              const juce::String& cwd,
+                              const juce::String& uuid,
+                              int cols, int rows,
+                              juce::StringPairArray seedEnv)
+{
+    auto termSession { std::make_unique<Terminal::Session> (
+        cols,
+        rows,
+        effectiveShell,
+        effectiveArgs,
+        cwd,
+        seedEnv) };
 
     // Local mode — wire onBytes → processor.process; wire parser.writeToHost → sendInput.
     auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
 
-    proc->state.setId (uuid);
+    proc->getState().setId (uuid);
 
     // Wire parser responses back to PTY.
     Terminal::Session* termSessionPtr { termSession.get() };
-    proc->parser->writeToHost = [termSessionPtr] (const char* data, int len)
+    proc->setHostWriter ([termSessionPtr] (const char* data, int len)
     {
         termSessionPtr->sendInput (data, len);
-    };
+    });
 
     // Wire drain-complete: flush parser responses and handle sync-resize.
     Terminal::Processor* procRawPtr { proc.get() };
     termSession->onDrainComplete = [procRawPtr, termSessionPtr]
     {
-        procRawPtr->parser->flushResponses();
-        procRawPtr->state.clearPasteEchoGate();
+        procRawPtr->getParser().flushResponses();
+        procRawPtr->getState().clearPasteEchoGate();
 
-        if (procRawPtr->state.consumeSyncResize())
-            termSessionPtr->platformResize (procRawPtr->grid.getCols(), procRawPtr->grid.getVisibleRows());
+        if (procRawPtr->getState().consumeSyncResize())
+            termSessionPtr->platformResize (procRawPtr->getGrid().getCols(), procRawPtr->getGrid().getVisibleRows());
     };
 
     // Wire state flush (foreground process introspection).
-    procRawPtr->state.onFlush = [procRawPtr, termSessionPtr]
+    procRawPtr->getState().onFlush = [procRawPtr, termSessionPtr]
     {
         const int fgPid { termSessionPtr->getForegroundPid() };
 
@@ -328,11 +425,11 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
         {
             char fgNameBuf[Terminal::State::maxStringLength] {};
             termSessionPtr->getProcessName (fgPid, fgNameBuf, Terminal::State::maxStringLength);
-            procRawPtr->state.setForegroundProcess (fgNameBuf, static_cast<int> (std::strlen (fgNameBuf)));
+            procRawPtr->getState().setForegroundProcess (fgNameBuf, static_cast<int> (std::strlen (fgNameBuf)));
 
             char cwdBuf[Terminal::State::maxStringLength] {};
             termSessionPtr->getCwd (fgPid, cwdBuf, Terminal::State::maxStringLength);
-            procRawPtr->state.setCwd (cwdBuf, static_cast<int> (std::strlen (cwdBuf)));
+            procRawPtr->getState().setCwd (cwdBuf, static_cast<int> (std::strlen (cwdBuf)));
         }
     };
 
@@ -352,12 +449,8 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
     // Wire onBytes → processor.process (with resize lock as before).
     termSession->onBytes = [procRawPtr] (const char* bytes, int len)
     {
-        const juce::ScopedLock lock (procRawPtr->grid.getResizeLock());
-        procRawPtr->process (bytes, len);
+        procRawPtr->processWithLock (bytes, len);
     };
-
-    // Register processor as ChangeListener for local fan-out.
-    proc->addChangeListener (this);
 
     terminalSessions.emplace (uuid, std::move (termSession));
 
@@ -365,46 +458,6 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
     processors.emplace (uuid, std::move (proc));
 
     return result;
-}
-
-/**
- * @brief Returns a mutable reference to the Processor with the given UUID.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-Terminal::Processor& Session::get (const juce::String& uuid)
-{
-    if (client != nullptr)
-    {
-        auto* proc { client->getProcessor (uuid) };
-        jassert (proc != nullptr);
-        return *proc;
-    }
-
-    const auto it { processors.find (uuid) };
-    jassert (it != processors.end());
-
-    return *(it->second);
-}
-
-/**
- * @brief Returns a const reference to the Processor with the given UUID.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-const Terminal::Processor& Session::get (const juce::String& uuid) const
-{
-    if (client != nullptr)
-    {
-        const auto* proc { client->getProcessor (uuid) };
-        jassert (proc != nullptr);
-        return *proc;
-    }
-
-    const auto it { processors.find (uuid) };
-    jassert (it != processors.end());
-
-    return *(it->second);
 }
 
 /**
@@ -425,10 +478,7 @@ void Session::remove (const juce::String& uuid)
         const auto procIt { processors.find (uuid) };
 
         if (procIt != processors.end())
-        {
-            procIt->second->removeChangeListener (this);
             processors.erase (procIt);
-        }
 
         terminalSessions.erase (uuid);
 
@@ -633,33 +683,6 @@ void Session::detach (ServerConnection& connection)
         else
             ++it;
     }
-}
-
-/**
- * @brief ChangeListener callback — fired when an owned Processor broadcasts a change.
- *
- * In the byte-forward model, live bytes are pushed eagerly via Terminal::Session::onBytes.
- * This callback is retained so local-mode Display repaint still works.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-void Session::changeListenerCallback (juce::ChangeBroadcaster* /*source*/)
-{
-    Nexus::logLine ("Session::changeListenerCallback fired, calling triggerAsyncUpdate");
-    triggerAsyncUpdate();
-}
-
-/**
- * @brief AsyncUpdater callback — no-op in the byte-forward architecture.
- *
- * Live output is pushed eagerly via Terminal::Session::onBytes → Message::output.
- * This handler is retained for compatibility with ChangeListener coalescing.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-void Session::handleAsyncUpdate()
-{
-    Nexus::logLine ("Session::handleAsyncUpdate: entry (byte-forward mode, no fan-out needed)");
 }
 
 /**

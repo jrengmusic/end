@@ -52,6 +52,7 @@ private:
     const juce::String   uuid;
 
     static constexpr int chunkBytes { 4096 };
+    static constexpr int loaderJoinTimeoutMs { 5000 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Loader)
 };

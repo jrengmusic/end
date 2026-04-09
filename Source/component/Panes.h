@@ -8,7 +8,7 @@
  * is TAB > PANES > PANE > SESSION, owned by PaneManager and grafted into
  * the application state tree by the owning Tab.
  *
- * Split operations delegate to splitImpl. Leaf lookup delegates to
+ * Split operations delegate to splitActive. Leaf lookup delegates to
  * jreng::PaneManager::findLeaf. Panes are owned by
  * jreng::Owner<PaneComponent>; each pane's componentID is its UUID.
  *
@@ -57,7 +57,7 @@ public:
      *
      * Pure math: subtracts terminal padding from the rect, divides by
      * effective cell width/height. Used by the restore walker to
-     * pre-compute per-pane dims and by splitImpl for fresh splits.
+     * pre-compute per-pane dims and by splitActive for fresh splits.
      *
      * @param paneRect    Target pixel rect for the pane (AFTER chrome subtracted).
      * @param font        Typeface providing cell metrics.
@@ -189,7 +189,7 @@ public:
      * @brief Split a specific target pane, using an explicit new UUID and cwd.
      *
      * Used by the restore walker in MainComponent to reconstruct a saved split
-     * tree. Also used internally by splitImpl() for keyboard-shortcut splits.
+     * tree. Also used internally by splitActive() for keyboard-shortcut splits.
      *
      * @param targetUuid  UUID of the existing leaf to split.
      * @param newUuid     UUID hint for the new terminal. Empty = generate fresh.
@@ -211,7 +211,7 @@ public:
     /**
      * @brief Split the active pane into side-by-side columns.
      *
-     * Delegates to splitImpl ("vertical", true).
+     * Delegates to splitActive ("vertical", true).
      * @note MESSAGE THREAD.
      */
     void splitHorizontal();
@@ -219,7 +219,7 @@ public:
     /**
      * @brief Split the active pane into stacked rows.
      *
-     * Delegates to splitImpl ("horizontal", false).
+     * Delegates to splitActive ("horizontal", false).
      * @note MESSAGE THREAD.
      */
     void splitVertical();
@@ -239,7 +239,7 @@ public:
     /** @name Terminal lifecycle helpers
      *
      * These two helpers centralise session creation and teardown.  All
-     * other call sites (createTerminal, splitImpl, MainComponent popup,
+     * other call sites (createTerminal, splitActive, MainComponent popup,
      * Tabs::closeActiveTab, Popup::removePopupSession) delegate here.
      * Mode routing (local / daemon / client) is owned by Nexus::Session.
      * @{ */
@@ -337,7 +337,7 @@ private:
      * @param isVertical True when the resizer bar is vertical (splitHorizontal).
      * @note MESSAGE THREAD.
      */
-    void splitImpl (const juce::String& direction, bool isVertical);
+    void splitActive (const juce::String& direction, bool isVertical);
 
     jreng::Typeface& font;
     jreng::Typeface& whelmedBodyFont;

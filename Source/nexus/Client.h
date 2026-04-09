@@ -9,8 +9,9 @@
  *
  * ### Lifecycle
  * 1. Construct with default constructor.
- * 2. Call `connectToHost()` — reads port from lockfile, connects socket, performs
- *    hello handshake.  Returns `true` on success.
+ * 2. Call `beginConnectAttempts()` — polls the lockfile every 100 ms and calls
+ *    `connectToSocket` on each tick.  On success JUCE fires `connectionMade()`
+ *    which sends the hello handshake.
  * 3. For ongoing delta requests: register hosted Processor objects via
  *    `registerProcessor()`.
  * 4. Call `disconnectFromHost()` on shutdown.  Destructor also calls it.
@@ -160,7 +161,7 @@ public:
      * @brief Takes ownership of @p processor and registers it to receive incoming
      *        `Message::output` / `Message::loading` PDUs for its UUID.
      *
-     * The UUID is read from `processor->uuid`.  Ownership transfers to Client;
+     * The UUID is read from `processor->getUuid()`.  Ownership transfers to Client;
      * the Processor is destroyed when `unregisterProcessor` is called or when
      * Client is destroyed.  Must be called before `attachSession()` so that the
      * first output/history push is not missed.
@@ -196,8 +197,8 @@ public:
     /**
      * @brief Callback fired on the message thread for every incoming host PDU.
      *
-     * Receives all async frames: RenderDelta, AttachSessionResponse,
-     * SpawnSessionResponse, SessionExited, etc.
+     * Receives all async frames: helloResponse, attachProcessorResponse,
+     * spawnProcessorResponse, processorExited, etc.
      *
      * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
      */
@@ -219,6 +220,12 @@ private:
     void connectionMade() override;
     void connectionLost() override;
     void messageReceived (const juce::MemoryBlock& message) override;
+
+    void handleProcessorList      (const uint8_t* payload, int payloadSize);
+    void handleProcessorExited    (const uint8_t* payload, int payloadSize);
+    void handleOutput             (const uint8_t* payload, int payloadSize);
+    void handleLoading            (const uint8_t* payload, int payloadSize);
+    void handleUnknown            (Message kind, const uint8_t* payload, int payloadSize);
 
     void sendPdu (Message kind, const juce::MemoryBlock& payload = {});
 

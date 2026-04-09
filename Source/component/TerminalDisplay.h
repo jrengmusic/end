@@ -42,14 +42,14 @@
 #include <variant>
 #include <JuceHeader.h>
 #include "../terminal/logic/Processor.h"
+#include "../terminal/logic/Input.h"
+#include "../terminal/logic/Mouse.h"
 #include "../terminal/rendering/Screen.h"
 #include "../terminal/rendering/ScreenSelection.h"
 #include "../SelectionType.h"
 #include "../terminal/selection/LinkSpan.h"
 #include "../terminal/selection/LinkManager.h"
 #include "../nexus/Session.h"
-#include "InputHandler.h"
-#include "MouseHandler.h"
 #include "PaneComponent.h"
 #include "config/Config.h"
 
@@ -410,7 +410,7 @@ public:
      * @brief Switches the active rendering backend at runtime.
      *
      * Replaces the active Screen variant with the appropriate renderer for
-     * @p type, reconstructs InputHandler and MouseHandler with the new
+     * @p type, reconstructs Terminal::Mouse and Terminal::Input with the new
      * ScreenBase reference, reapplies config, and forces a full repaint.
      *
      * @param type  The desired rendering backend.
@@ -660,14 +660,14 @@ private:
      * Held as optional so it can be emplaced after screen is initialised and
      * re-emplaced when switchRenderer() swaps the Screen variant.
      */
-    std::optional<InputHandler> inputHandler;
+    std::optional<Terminal::Input> inputHandler;
 
     /**
      * @brief Mouse input handler: PTY forwarding, drag selection, link dispatch.
      *
      * Held as optional for the same reason as inputHandler.
      */
-    std::optional<MouseHandler> mouseHandler;
+    std::optional<Terminal::Mouse> mouseHandler;
 
     /**
      * @brief Link manager: owns viewport scanning, hit-testing, and dispatch.

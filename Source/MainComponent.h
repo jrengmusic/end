@@ -134,13 +134,31 @@ private:
     /**
      * @brief Registers all user-performable actions with `Action::Registry`.
      *
-     * Clears existing actions, registers all fixed actions and popup actions
-     * from Config, then rebuilds the key map.
+     * Clears existing actions, delegates to grouped register* methods, then
+     * rebuilds the key map and wires the BackgroundBlur close callback.
      *
      * @note MESSAGE THREAD.
      * @see Action::Registry
      */
     void registerActions();
+
+    /** @brief Registers copy, paste, and newline actions. @note MESSAGE THREAD. */
+    void registerEditActions (Action::Registry& action);
+
+    /** @brief Registers quit, reload_config, new_window, and action_list actions. @note MESSAGE THREAD. */
+    void registerApplicationActions (Action::Registry& action);
+
+    /** @brief Registers close_tab, new_tab, prev_tab, and next_tab actions. @note MESSAGE THREAD. */
+    void registerTabActions (Action::Registry& action);
+
+    /** @brief Registers split and pane-focus actions. @note MESSAGE THREAD. */
+    void registerPaneActions (Action::Registry& action);
+
+    /** @brief Registers zoom, selection, open-file, and open-markdown actions. @note MESSAGE THREAD. */
+    void registerNavigationActions (Action::Registry& action);
+
+    /** @brief Registers config-driven popup actions (modal and global variants). @note MESSAGE THREAD. */
+    void registerPopupActions (Action::Registry& action);
 
     /**
      * @brief Sets the renderer type — GL lifecycle, atlas, and terminal switching.

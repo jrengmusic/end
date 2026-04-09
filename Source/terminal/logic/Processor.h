@@ -60,10 +60,19 @@ namespace Terminal
  * `sendChangeMessage()` so that `Terminal::Display` (subscribed as a
  * `juce::ChangeListener`) repaints after each update.
  *
+ * ### Boundary contract
+ * `State`, `Grid`, `uuid`, and `parser` are private.  External callers access
+ * them only through the public getter API:
+ * - `getState()` / `getGrid()` — mutable and const references.
+ * - `getUuid()` — const reference to the stable session UUID.
+ * - `getParser()` — const and mutable reference to the VT state machine.
+ * - `processWithLock()` — acquires the grid resize lock and calls `process()`.
+ * - `setHostWriter()` — wires `parser.writeToHost` to the caller's sink.
+ *
+ * ### Public surface
  * - **Input encoding** — `encodeKeyPress()`, `encodePaste()`, `encodeMouseEvent()`, `encodeFocusEvent()` (const, no side effects)
  * - **Resize** — `resized()` resizes grid and parser only; PTY SIGWINCH is handled by Terminal::Session.
  * - **Output** — `process()` (called on the reader thread by the byte source)
- * - **State/Grid** — public `state`, `grid`, `uuid` members
  * - **Lifecycle callbacks** — `onShellExited`, `onClipboardChanged`, `onBell`
  *
  * @note Construct and destroy on the **message thread**.
@@ -74,23 +83,13 @@ class Processor : public juce::ChangeBroadcaster
 {
 public:
     //==============================================================================
-    /** @brief Terminal parameter store — accessible directly by Display and Nexus. */
-    State state;
-
-    /** @brief Ring-buffer cell grid with dual-screen and dirty tracking. */
-    Grid grid;
-
-    /** @brief Stable UUID identifying this Processor across process boundaries. */
-    const juce::String uuid;
-
-    //==============================================================================
     /**
      * @brief Constructs the Processor and wires the parser callbacks.
      *
      * Constructs State, Grid, and Parser.  UUID is provided by the caller — no
-     * internal generation.  The `parser.writeToHost` callback must be set by the
-     * owner immediately after construction to route parser responses (e.g.
-     * cursor-position reports) to the appropriate sink.
+     * internal generation.  Call `setHostWriter()` immediately after construction
+     * to route parser responses (e.g. cursor-position reports) to the appropriate
+     * sink.
      *
      * @param cols  Initial terminal column count.
      * @param rows  Initial terminal row count.
@@ -187,6 +186,41 @@ public:
     void process (const char* data, int length) noexcept;
 
     /**
+     * @brief Returns a mutable reference to the terminal parameter store.
+     * @return Mutable reference to the owned `State` object.
+     * @note MESSAGE THREAD only (or locked reader thread via processWithLock).
+     */
+    State& getState() noexcept;
+
+    /**
+     * @brief Returns a const reference to the terminal parameter store.
+     * @return Const reference to the owned `State` object.
+     * @note MESSAGE THREAD only.
+     */
+    const State& getState() const noexcept;
+
+    /**
+     * @brief Returns a mutable reference to the ring-buffer cell grid.
+     * @return Mutable reference to the owned `Grid` object.
+     * @note MESSAGE THREAD only (or locked reader thread via processWithLock).
+     */
+    Grid& getGrid() noexcept;
+
+    /**
+     * @brief Returns a const reference to the ring-buffer cell grid.
+     * @return Const reference to the owned `Grid` object.
+     * @note MESSAGE THREAD only.
+     */
+    const Grid& getGrid() const noexcept;
+
+    /**
+     * @brief Returns the stable UUID identifying this Processor across process boundaries.
+     * @return Const reference to the UUID string.
+     * @note ANY THREAD — UUID is immutable after construction.
+     */
+    const juce::String& getUuid() const noexcept;
+
+    /**
      * @brief Returns a const reference to the VT parser.
      *
      * Used by `Terminal::Display::scanViewportForLinks()` to read OSC 8
@@ -198,6 +232,32 @@ public:
      */
     const Parser& getParser() const noexcept;
     Parser& getParser() noexcept;
+
+    /**
+     * @brief Acquires the grid resize lock, then processes raw bytes through the parser pipeline.
+     *
+     * Wraps `process()` under `ScopedLock (grid.getResizeLock())`.  Use this
+     * overload from the reader thread when the caller must hold the resize lock
+     * for the duration of the parse (e.g. `Loader::run()`).
+     *
+     * @param data    Pointer to the raw byte buffer.
+     * @param len     Number of bytes in the buffer.
+     * @note READER THREAD only.
+     */
+    void processWithLock (const char* data, int len) noexcept;
+
+    /**
+     * @brief Wires `parser.writeToHost` to the given callback.
+     *
+     * Replaces the parser's host-write callback so parser responses (DSR, DA,
+     * CPR, etc.) are forwarded to the caller's sink — local TTY write or IPC
+     * output.  Must be called by the owner before bytes start flowing.
+     *
+     * @param writer  Callback invoked with `(const char* data, int len)` on the
+     *                reader thread whenever the parser produces a response.
+     * @note MESSAGE THREAD — call before the first `process()` invocation.
+     */
+    void setHostWriter (std::function<void (const char*, int)> writer) noexcept;
 
     /**
      * @brief Creates and returns a Display for this Processor.
@@ -232,10 +292,20 @@ public:
 
     /** @} */
 
+private:
+    //==============================================================================
+    /** @brief Terminal parameter store. */
+    State state;
+
+    /** @brief Ring-buffer cell grid with dual-screen and dirty tracking. */
+    Grid grid;
+
+    /** @brief Stable UUID identifying this Processor across process boundaries. */
+    const juce::String uuid;
+
     /** @brief VT100/VT520 state machine that decodes PTY output. */
     std::unique_ptr<Parser> parser;
 
-private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Processor)
 };

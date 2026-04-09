@@ -74,9 +74,9 @@ Terminal::Display::~Display()
 void Terminal::Display::changeListenerCallback (juce::ChangeBroadcaster* /*source*/)
 {
     const bool callbackSet { onRepaintNeeded != nullptr };
-    Nexus::logLine ("Display::changeListenerCallback: fired for uuid=" + processor.uuid
+    Nexus::logLine ("Display::changeListenerCallback: fired for uuid=" + processor.getUuid()
                     + " onRepaintNeeded set=" + juce::String (callbackSet ? "yes" : "no"));
-    processor.state.setSnapshotDirty();
+    processor.getState().setSnapshotDirty();
 
     if (onRepaintNeeded != nullptr)
         onRepaintNeeded();
@@ -100,11 +100,11 @@ void Terminal::Display::initialise()
 
     // Construct LinkManager — requires Processor state and grid references.
     // Routes PTY writes through Display::writeToPty → Nexus::Session::sendInput (mode-agnostic).
-    linkManager.emplace (processor.state,
-                         processor.grid,
+    linkManager.emplace (processor.getState(),
+                         processor.getGrid(),
                          [this] (const char* data, int len) { writeToPty (data, len); });
 
-    // Construct InputHandler once — no Screen dependency, never reconstructed.
+    // Construct Terminal::Input once — no Screen dependency, never reconstructed.
     inputHandler.emplace (processor, *linkManager);
 
     // Switch to the renderer stored in AppState (SSOT).
@@ -173,10 +173,10 @@ void Terminal::Display::resized()
         const int cols { screenBase().getNumCols() };
         const int rows { screenBase().getNumRows() };
 
-        processor.state.setDimensions (cols, rows);
+        processor.getState().setDimensions (cols, rows);
         processor.resized (cols, rows);
-        Nexus::Session::getContext()->sendResize (processor.uuid, cols, rows);
-        processor.state.setScrollOffset (0);
+        Nexus::Session::getContext()->sendResize (processor.getUuid(), cols, rows);
+        processor.getState().setScrollOffset (0);
     }
 }
 
@@ -186,21 +186,21 @@ void Terminal::Display::copySelection() noexcept
 {
     if (screenSelection != nullptr)
     {
-        const juce::ScopedLock lock (processor.grid.getResizeLock());
-        const int cols { processor.grid.getCols() };
-        const int scrollOffset { processor.state.getScrollOffset() };
+        const juce::ScopedLock lock (processor.getGrid().getResizeLock());
+        const int cols { processor.getGrid().getCols() };
+        const int scrollOffset { processor.getState().getScrollOffset() };
 
         juce::String text;
 
         if (screenSelection->type == ScreenSelection::SelectionType::linear)
         {
-            text = processor.grid.extractText (screenSelection->anchor, screenSelection->end, scrollOffset);
+            text = processor.getGrid().extractText (screenSelection->anchor, screenSelection->end, scrollOffset);
         }
         else if (screenSelection->type == ScreenSelection::SelectionType::line)
         {
             const juce::Point<int> start { 0, std::min (screenSelection->anchor.y, screenSelection->end.y) };
             const juce::Point<int> end { cols - 1, std::max (screenSelection->anchor.y, screenSelection->end.y) };
-            text = processor.grid.extractText (start, end, scrollOffset);
+            text = processor.getGrid().extractText (start, end, scrollOffset);
         }
         else
         {
@@ -208,14 +208,14 @@ void Terminal::Display::copySelection() noexcept
                                              std::min (screenSelection->anchor.y, screenSelection->end.y) };
             const juce::Point<int> bottomRight { std::max (screenSelection->anchor.x, screenSelection->end.x),
                                                  std::max (screenSelection->anchor.y, screenSelection->end.y) };
-            text = processor.grid.extractBoxText (topLeft, bottomRight, scrollOffset);
+            text = processor.getGrid().extractBoxText (topLeft, bottomRight, scrollOffset);
         }
 
         juce::SystemClipboard::copyTextToClipboard (text);
 
-        processor.state.setDragActive (false);
-        processor.state.setSelectionType (static_cast<int> (SelectionType::none));
-        processor.state.setModalType (ModalType::none);
+        processor.getState().setDragActive (false);
+        processor.getState().setSelectionType (static_cast<int> (SelectionType::none));
+        processor.getState().setModalType (ModalType::none);
         screenSelection.reset();
         visitScreen (
             [&] (auto& s)
@@ -235,19 +235,19 @@ void Terminal::Display::pasteClipboard()
 
         if (bytes.isNotEmpty())
         {
-            const bool bracketed { processor.state.getMode (Terminal::ID::bracketedPaste) };
+            const bool bracketed { processor.getState().getMode (Terminal::ID::bracketedPaste) };
 
             if (not bracketed)
-                processor.state.setPasteEchoGate (static_cast<int> (bytes.getNumBytesAsUTF8()));
+                processor.getState().setPasteEchoGate (static_cast<int> (bytes.getNumBytesAsUTF8()));
 
-            Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+            Nexus::Session::getContext()->sendInput (processor.getUuid(), bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
         }
     }
 }
 
 void Terminal::Display::writeToPty (const char* data, int len)
 {
-    Nexus::Session::getContext()->sendInput (processor.uuid, data, len);
+    Nexus::Session::getContext()->sendInput (processor.getUuid(), data, len);
 }
 
 void Terminal::Display::increaseZoom()
@@ -291,16 +291,16 @@ bool Terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
 
 void Terminal::Display::enterSelectionMode() noexcept
 {
-    const juce::ScopedLock lock (processor.grid.getResizeLock());
-    const int screenCursorRow { processor.state.getCursorRow() };
-    const int screenCursorCol { processor.state.getCursorCol() };
-    const int scrollbackRows { processor.grid.getScrollbackUsed() };
+    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
+    const int screenCursorRow { processor.getState().getCursorRow() };
+    const int screenCursorCol { processor.getState().getCursorCol() };
+    const int scrollbackRows { processor.getGrid().getScrollbackUsed() };
     const int absRow { scrollbackRows + screenCursorRow };
 
-    processor.state.setSelectionCursor (absRow, screenCursorCol);
-    processor.state.setSelectionAnchor (absRow, screenCursorCol);
-    processor.state.setSelectionType (static_cast<int> (SelectionType::none));
-    processor.state.setModalType (ModalType::selection);
+    processor.getState().setSelectionCursor (absRow, screenCursorCol);
+    processor.getState().setSelectionAnchor (absRow, screenCursorCol);
+    processor.getState().setSelectionType (static_cast<int> (SelectionType::none));
+    processor.getState().setModalType (ModalType::selection);
 
     if (inputHandler.has_value())
         inputHandler->reset();
@@ -308,26 +308,26 @@ void Terminal::Display::enterSelectionMode() noexcept
 
 bool Terminal::Display::isInSelectionMode() const noexcept
 {
-    return processor.state.getModalType() == ModalType::selection;
+    return processor.getState().getModalType() == ModalType::selection;
 }
 
-int Terminal::Display::getSelectionType() const noexcept { return processor.state.getSelectionType(); }
+int Terminal::Display::getSelectionType() const noexcept { return processor.getState().getSelectionType(); }
 
-Terminal::ModalType Terminal::Display::getModalType() const noexcept { return processor.state.getModalType(); }
+Terminal::ModalType Terminal::Display::getModalType() const noexcept { return processor.getState().getModalType(); }
 
-int Terminal::Display::getHintPage() const noexcept { return processor.state.getHintPage(); }
+int Terminal::Display::getHintPage() const noexcept { return processor.getState().getHintPage(); }
 
-int Terminal::Display::getHintTotalPages() const noexcept { return processor.state.getHintTotalPages(); }
+int Terminal::Display::getHintTotalPages() const noexcept { return processor.getState().getHintTotalPages(); }
 
 void Terminal::Display::exitSelectionMode() noexcept
 {
-    processor.state.setSelectionType (static_cast<int> (SelectionType::none));
-    processor.state.setModalType (ModalType::none);
+    processor.getState().setSelectionType (static_cast<int> (SelectionType::none));
+    processor.getState().setModalType (ModalType::none);
 
     if (inputHandler.has_value())
         inputHandler->reset();
 
-    processor.state.setDragActive (false);
+    processor.getState().setDragActive (false);
     screenSelection.reset();
     visitScreen (
         [&] (auto& s)
@@ -338,17 +338,17 @@ void Terminal::Display::exitSelectionMode() noexcept
 
 void Terminal::Display::enterOpenFileMode() noexcept
 {
-    if (processor.state.hasOutputBlock())
+    if (processor.getState().hasOutputBlock())
     {
-        const juce::ScopedTryLock stl { processor.grid.getResizeLock() };
+        const juce::ScopedTryLock stl { processor.getGrid().getResizeLock() };
 
         if (stl.isLocked() and linkManager.has_value())
         {
-            const juce::String cwd { processor.state.get().getProperty (Terminal::ID::cwd).toString() };
+            const juce::String cwd { processor.getState().get().getProperty (Terminal::ID::cwd).toString() };
             linkManager->scanForHints (cwd);
 
-            processor.state.setHintOverlay (linkManager->getActiveHintsData(), linkManager->getActiveHintsCount());
-            processor.state.setModalType (ModalType::openFile);
+            processor.getState().setHintOverlay (linkManager->getActiveHintsData(), linkManager->getActiveHintsCount());
+            processor.getState().setModalType (ModalType::openFile);
         }
     }
 }
@@ -449,7 +449,7 @@ void Terminal::Display::filesDropped (const juce::StringArray& files, int, int)
             const auto bytes { processor.encodePaste (joined) };
 
             if (bytes.isNotEmpty())
-                Nexus::Session::getContext()->sendInput (processor.uuid, bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+                Nexus::Session::getContext()->sendInput (processor.getUuid(), bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
         }
     }
 }
@@ -461,8 +461,8 @@ void Terminal::Display::glContextCreated() noexcept
     {
         jreng::BackgroundBlur::enableWindowTransparency();
         std::get<Screen<jreng::Glyph::GLContext>> (screen).glContextCreated();
-        processor.grid.markAllDirty();
-        processor.state.setSnapshotDirty();
+        processor.getGrid().markAllDirty();
+        processor.getState().setSnapshotDirty();
     }
 }
 
@@ -516,8 +516,8 @@ void Terminal::Display::visibilityChanged()
 {
     if (isVisible())
     {
-        processor.grid.markAllDirty();
-        processor.state.setSnapshotDirty();
+        processor.getGrid().markAllDirty();
+        processor.getState().setSnapshotDirty();
     }
 }
 
@@ -529,11 +529,11 @@ void Terminal::Display::visibilityChanged()
 void Terminal::Display::focusGained (FocusChangeType cause)
 {
     PaneComponent::focusGained (cause);
-    processor.state.setCursorFocused (true);
+    processor.getState().setCursorFocused (true);
     const auto focusBytes { processor.encodeFocusEvent (true) };
 
     if (focusBytes.isNotEmpty())
-        Nexus::Session::getContext()->sendInput (processor.uuid, focusBytes.toRawUTF8(), static_cast<int> (focusBytes.getNumBytesAsUTF8()));
+        Nexus::Session::getContext()->sendInput (processor.getUuid(), focusBytes.toRawUTF8(), static_cast<int> (focusBytes.getNumBytesAsUTF8()));
 
     repaint();
 }
@@ -545,11 +545,11 @@ void Terminal::Display::focusGained (FocusChangeType cause)
  */
 void Terminal::Display::focusLost (FocusChangeType)
 {
-    processor.state.setCursorFocused (false);
+    processor.getState().setCursorFocused (false);
     const auto focusBytes { processor.encodeFocusEvent (false) };
 
     if (focusBytes.isNotEmpty())
-        Nexus::Session::getContext()->sendInput (processor.uuid, focusBytes.toRawUTF8(), static_cast<int> (focusBytes.getNumBytesAsUTF8()));
+        Nexus::Session::getContext()->sendInput (processor.getUuid(), focusBytes.toRawUTF8(), static_cast<int> (focusBytes.getNumBytesAsUTF8()));
 
     repaint();
 }
@@ -576,7 +576,7 @@ int Terminal::Display::getGridCols() const noexcept
         screen);
 }
 
-juce::ValueTree Terminal::Display::getValueTree() noexcept { return processor.state.get(); }
+juce::ValueTree Terminal::Display::getValueTree() noexcept { return processor.getState().get(); }
 
 /**
  * @brief VBlank callback: renders the grid if dirty, repositions cursor, updates visibility.
@@ -595,43 +595,43 @@ void Terminal::Display::onVBlank()
         }
     }
 
-    if (processor.state.consumeSnapshotDirty())
+    if (processor.getState().consumeSnapshotDirty())
     {
-        const juce::ScopedTryLock lock (processor.grid.getResizeLock());
+        const juce::ScopedTryLock lock (processor.getGrid().getResizeLock());
 
         if (lock.isLocked())
         {
-            processor.state.refresh();
+            processor.getState().refresh();
 
-            const int scrollback { processor.grid.getScrollbackUsed() };
-            const int scrollOffset { processor.state.getScrollOffset() };
+            const int scrollback { processor.getGrid().getScrollbackUsed() };
+            const int scrollOffset { processor.getState().getScrollOffset() };
             const int visibleStart { scrollback - scrollOffset };
 
             const bool isActivePane { AppState::getContext()->getActivePaneType() == App::ID::paneTypeTerminal };
 
             {
-                const bool active { isActivePane and processor.state.getModalType() == ModalType::selection };
-                const int visibleRow { processor.state.getSelectionCursorRow() - visibleStart };
+                const bool active { isActivePane and processor.getState().getModalType() == ModalType::selection };
+                const int visibleRow { processor.getState().getSelectionCursorRow() - visibleStart };
                 visitScreen (
                     [&] (auto& s)
                     {
-                        s.setSelectionCursor (active, visibleRow, processor.state.getSelectionCursorCol());
+                        s.setSelectionCursor (active, visibleRow, processor.getState().getSelectionCursorCol());
                     });
             }
 
             {
-                const auto smType { static_cast<SelectionType> (processor.state.getSelectionType()) };
+                const auto smType { static_cast<SelectionType> (processor.getState().getSelectionType()) };
 
                 if (isActivePane and smType != SelectionType::none)
                 {
                     if (screenSelection == nullptr)
                         screenSelection = std::make_unique<ScreenSelection>();
 
-                    const int anchorVisRow { processor.state.getSelectionAnchorRow() - visibleStart };
-                    const int cursorVisRow { processor.state.getSelectionCursorRow() - visibleStart };
+                    const int anchorVisRow { processor.getState().getSelectionAnchorRow() - visibleStart };
+                    const int cursorVisRow { processor.getState().getSelectionCursorRow() - visibleStart };
 
-                    screenSelection->anchor = { processor.state.getSelectionAnchorCol(), anchorVisRow };
-                    screenSelection->end = { processor.state.getSelectionCursorCol(), cursorVisRow };
+                    screenSelection->anchor = { processor.getState().getSelectionAnchorCol(), anchorVisRow };
+                    screenSelection->end = { processor.getState().getSelectionCursorCol(), cursorVisRow };
 
                     if (smType == SelectionType::visual)
                         screenSelection->type = ScreenSelection::SelectionType::linear;
@@ -646,7 +646,7 @@ void Terminal::Display::onVBlank()
                             s.setSelection (screenSelection.get());
                         });
                 }
-                else if (not processor.state.isDragActive())
+                else if (not processor.getState().isDragActive())
                 {
                     screenSelection.reset();
                     visitScreen (
@@ -672,7 +672,7 @@ void Terminal::Display::onVBlank()
             visitScreen (
                 [&] (auto& s)
                 {
-                    s.render (processor.state, processor.grid);
+                    s.render (processor.getState(), processor.getGrid());
                 });
 
             if (onRepaintNeeded != nullptr)
@@ -680,7 +680,7 @@ void Terminal::Display::onVBlank()
         }
         else
         {
-            processor.state.setSnapshotDirty();
+            processor.getState().setSnapshotDirty();
         }
     }
 }
@@ -712,8 +712,8 @@ void Terminal::Display::applyConfig() noexcept
     if (inputHandler.has_value())
         inputHandler->buildKeyMap();
 
-    processor.grid.markAllDirty();
-    processor.state.setSnapshotDirty();
+    processor.getGrid().markAllDirty();
+    processor.getState().setSnapshotDirty();
     resized();
 }
 
@@ -760,8 +760,8 @@ void Terminal::Display::switchRenderer (App::RendererType type)
 
     applyScreenSettings();
 
-    processor.grid.markAllDirty();
-    processor.state.setSnapshotDirty();
+    processor.getGrid().markAllDirty();
+    processor.getState().setSnapshotDirty();
 
     if (getWidth() > 0 and getHeight() > 0)
     {
@@ -771,13 +771,13 @@ void Terminal::Display::switchRenderer (App::RendererType type)
 
 void Terminal::Display::setScrollOffsetClamped (int newOffset) noexcept
 {
-    const juce::ScopedLock lock (processor.grid.getResizeLock());
-    const int maxOffset { processor.grid.getScrollbackUsed() };
-    const int current { processor.state.getScrollOffset() };
+    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
+    const int maxOffset { processor.getGrid().getScrollbackUsed() };
+    const int current { processor.getState().getScrollOffset() };
     const int clamped { juce::jlimit (0, maxOffset, newOffset) };
 
     if (clamped != current)
     {
-        processor.state.setScrollOffset (clamped);
+        processor.getState().setScrollOffset (clamped);
     }
 }

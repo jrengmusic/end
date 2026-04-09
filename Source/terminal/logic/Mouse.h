@@ -1,24 +1,24 @@
 /**
- * @file MouseHandler.h
+ * @file Mouse.h
  * @brief Handles all mouse input routing for a terminal processor.
  *
- * MouseHandler centralises all mouse event logic previously spread across
+ * Terminal::Mouse centralises all mouse event logic previously spread across
  * TerminalDisplay: PTY forwarding, selection anchor/drag, link hit-testing,
  * scroll accumulation for smooth trackpad input, and word/line selection.
  *
  * All selection state is written to `State` parameters.  `ScreenSelection`
  * construction happens in `TerminalDisplay::onVBlank()` from those State
- * params — MouseHandler never writes to `ScreenSelection` directly.
+ * params — Mouse never writes to `ScreenSelection` directly.
  *
  * ### Coordinate convention
  * Grid positions received from `Screen::cellAtPoint()` are **visible-row**
- * coordinates (0 = topmost visible row).  MouseHandler converts them to
+ * coordinates (0 = topmost visible row).  Mouse converts them to
  * **absolute (scrollback-aware)** coordinates before writing to State, matching
  * the keyboard selection path.
  *
  * @see Terminal::Processor
  * @see Terminal::Screen
- * @see LinkManager
+ * @see Terminal::LinkManager
  */
 
 #pragma once
@@ -33,16 +33,16 @@ class ScreenBase;
 class LinkManager;
 
 /**
- * @class MouseHandler
+ * @class Terminal::Mouse
  * @brief Mouse event dispatcher for a single terminal processor.
  *
  * Constructed with references to the processor, screen, and link manager.  All
- * references must remain valid for the lifetime of the `MouseHandler`.
+ * references must remain valid for the lifetime of the `Mouse` instance.
  *
  * @par Thread context
  * All public methods are **MESSAGE THREAD** only.
  */
-class MouseHandler
+class Mouse
 {
 public:
     /**
@@ -59,15 +59,15 @@ public:
     static constexpr float trackpadDeltaScale { 8.0f };
 
     /**
-     * @brief Constructs a MouseHandler.
+     * @brief Constructs a Mouse handler.
      * @param processor   Terminal processor (state, grid, PTY write).
      * @param screen      Terminal renderer (cell coordinate mapping).
      * @param linkManager Link manager (hit-testing, dispatch).
      * @note MESSAGE THREAD.
      */
-    MouseHandler (Processor& processor,
-                  ScreenBase& screen,
-                  LinkManager& linkManager) noexcept;
+    Mouse (Processor& processor,
+           ScreenBase& screen,
+           LinkManager& linkManager) noexcept;
 
     /**
      * @brief Handles a mouse-down event.

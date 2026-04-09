@@ -320,7 +320,7 @@ void Client::sendRemove (const juce::String& uuid)
 /**
  * @brief Takes ownership of @p processor and registers it for output/history PDU routing.
  *
- * UUID is read from processor->uuid.  The Processor is owned by Client until
+ * UUID is read from processor->getUuid().  The Processor is owned by Client until
  * unregisterProcessor or Client destruction.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
@@ -329,7 +329,7 @@ void Client::registerProcessor (std::unique_ptr<Terminal::Processor> processor)
 {
     jassert (processor != nullptr);
 
-    const juce::String uuid { processor->uuid };
+    const juce::String uuid { processor->getUuid() };
     Nexus::logLine ("Client::registerProcessor: uuid=" + uuid
                     + " mapSizeBefore=" + juce::String ((int) hostedProcessors.size()));
     hostedProcessors[uuid] = std::move (processor);
@@ -383,19 +383,15 @@ void Client::sendPdu (Message kind, const juce::MemoryBlock& payload)
 /**
  * @brief Dispatches an incoming message from the host.
  *
- * Runs on the JUCE message thread (callbacksOnMessageThread = true).  Decodes
- * `Message` kind from the first 2 bytes and dispatches in-place.
+ * Decodes `Message` kind from the first 2 bytes and delegates to the
+ * appropriate private handler method.  Mirrors ServerConnection::messageReceived.
  *
  * PDU kinds handled:
- * - `helloResponse`   → acknowledged (no-op)
- * - `pong`            → acknowledged (no-op)
- * - `processorList`   → parses uint16 count + N length-prefixed UUID strings,
- *                       rewrites AppState PROCESSORS subtree; removes nexus-connect LOADING op
- * - `processorExited` → reads UUID, removes matching child from AppState PROCESSORS subtree
- * - `output`          → reads uuid from payload, feeds remaining bytes to Session::feedBytes
- * - `loading`         → reads uuid from payload, moves remaining bytes to Session::startLoading
- *                       which constructs a Nexus::Loader to parse them off the message thread
- * - all others        → forwarded to `onPdu` callback
+ * - `processorList`   → handleProcessorList
+ * - `processorExited` → handleProcessorExited
+ * - `output`          → handleOutput
+ * - `loading`         → handleLoading
+ * - all others        → handleUnknown (forwarded to onPdu)
  *
  * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  */
@@ -413,138 +409,187 @@ void Client::messageReceived (const juce::MemoryBlock& message)
         const uint8_t* payload { data + 2 };
         const int payloadSize { total - 2 };
 
-        if (kind == Message::processorList)
+        switch (kind)
         {
-            // Wire format: uint16_t count | N × (uint32_t len + UTF-8 bytes)
-            if (payloadSize >= 2)
+            case Message::processorList:    handleProcessorList   (payload, payloadSize); break;
+            case Message::processorExited:  handleProcessorExited (payload, payloadSize); break;
+            case Message::output:           handleOutput          (payload, payloadSize); break;
+            case Message::loading:          handleLoading         (payload, payloadSize); break;
+            default:                        handleUnknown         (kind, payload, payloadSize); break;
+        }
+    }
+}
+
+// =============================================================================
+
+/**
+ * @brief Handles `Message::processorList` — rewrites AppState PROCESSORS subtree.
+ *
+ * Wire format: uint16_t count | N × (uint32_t len + UTF-8 bytes).
+ * Removes the nexus-connect LOADING operation on first receipt.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Client::handleProcessorList (const uint8_t* payload, int payloadSize)
+{
+    if (payloadSize >= 2)
+    {
+        const uint16_t count { readUint16 (payload) };
+        int cursor { 2 };
+
+        juce::StringArray list;
+
+        for (uint16_t i { 0 }; i < count; ++i)
+        {
+            juce::String entry;
+            const int consumed { readString (payload + cursor, payloadSize - cursor, entry) };
+
+            if (consumed > 0)
             {
-                const uint16_t count { readUint16 (payload) };
-                int cursor { 2 };
-
-                juce::StringArray list;
-
-                for (uint16_t i { 0 }; i < count; ++i)
-                {
-                    juce::String entry;
-                    const int consumed { readString (payload + cursor, payloadSize - cursor, entry) };
-
-                    if (consumed > 0)
-                    {
-                        list.add (entry);
-                        cursor += consumed;
-                    }
-                }
-
-                juce::ValueTree processorsNode { App::ID::PROCESSORS };
-
-                for (const auto& uuid : list)
-                {
-                    juce::ValueTree processor { App::ID::PROCESSOR };
-                    processor.setProperty (jreng::ID::id, uuid, nullptr);
-                    processorsNode.appendChild (processor, nullptr);
-                }
-
-                auto nexusNode { AppState::getContext()->getNexusNode() };
-                auto existing { nexusNode.getChildWithName (App::ID::PROCESSORS) };
-
-                if (existing.isValid())
-                    nexusNode.removeChild (existing, nullptr);
-
-                nexusNode.appendChild (processorsNode, nullptr);
-
-                auto loadingNode { AppState::getContext()->getLoadingNode() };
-                auto nexusConnectOp { jreng::ValueTree::getChildWithID (loadingNode, nexusConnectOperationId) };
-
-                if (nexusConnectOp.isValid())
-                    nexusConnectOp.getParent().removeChild (nexusConnectOp, nullptr);
+                list.add (entry);
+                cursor += consumed;
             }
         }
-        else if (kind == Message::processorExited)
+
+        juce::ValueTree processorsNode { App::ID::PROCESSORS };
+
+        for (const auto& uuid : list)
         {
-            juce::String uuid;
-            readString (payload, payloadSize, uuid);
-
-            if (uuid.isNotEmpty())
-            {
-                auto processorsNode { AppState::getContext()->getProcessorsNode() };
-                auto exitedProcessor { jreng::ValueTree::getChildWithID (processorsNode, uuid) };
-
-                if (exitedProcessor.isValid())
-                    exitedProcessor.getParent().removeChild (exitedProcessor, nullptr);
-            }
-
-            if (onPdu != nullptr)
-            {
-                const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
-                onPdu (Message::processorExited, payloadBlock);
-            }
+            juce::ValueTree processor { App::ID::PROCESSOR };
+            processor.setProperty (jreng::ID::id, uuid, nullptr);
+            processorsNode.appendChild (processor, nullptr);
         }
-        else if (kind == Message::output)
+
+        auto nexusNode { AppState::getContext()->getNexusNode() };
+        auto existing { nexusNode.getChildWithName (App::ID::PROCESSORS) };
+
+        if (existing.isValid())
+            nexusNode.removeChild (existing, nullptr);
+
+        nexusNode.appendChild (processorsNode, nullptr);
+
+        auto loadingNode { AppState::getContext()->getLoadingNode() };
+        auto nexusConnectOp { jreng::ValueTree::getChildWithID (loadingNode, nexusConnectOperationId) };
+
+        if (nexusConnectOp.isValid())
+            nexusConnectOp.getParent().removeChild (nexusConnectOp, nullptr);
+    }
+}
+
+/**
+ * @brief Handles `Message::processorExited` — removes the exited UUID from AppState.
+ *
+ * Also forwards to `onPdu` if set.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Client::handleProcessorExited (const uint8_t* payload, int payloadSize)
+{
+    juce::String uuid;
+    readString (payload, payloadSize, uuid);
+
+    if (uuid.isNotEmpty())
+    {
+        auto processorsNode { AppState::getContext()->getProcessorsNode() };
+        auto exitedProcessor { jreng::ValueTree::getChildWithID (processorsNode, uuid) };
+
+        if (exitedProcessor.isValid())
+            exitedProcessor.getParent().removeChild (exitedProcessor, nullptr);
+    }
+
+    if (onPdu != nullptr)
+    {
+        const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
+        onPdu (Message::processorExited, payloadBlock);
+    }
+}
+
+/**
+ * @brief Handles `Message::output` — feeds raw PTY bytes into the target Processor.
+ *
+ * Payload: uuid (length-prefixed) + raw PTY bytes.
+ * Also forwards to `onPdu` if set.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Client::handleOutput (const uint8_t* payload, int payloadSize)
+{
+    juce::String uuid;
+    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+
+    Nexus::logLine ("Client::handleOutput: uuid=" + uuid
+                    + " payloadSize=" + juce::String (payloadSize)
+                    + " uuidConsumed=" + juce::String (uuidConsumed));
+
+    if (uuid.isNotEmpty() and uuidConsumed > 0)
+    {
+        const void* bytes { payload + uuidConsumed };
+        const int byteCount { payloadSize - uuidConsumed };
+
+        Nexus::logLine ("Client::handleOutput: byteCount=" + juce::String (byteCount));
+
+        if (byteCount > 0)
+            Nexus::Session::getContext()->feedBytes (uuid, bytes, byteCount);
+    }
+
+    if (onPdu != nullptr)
+    {
+        const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
+        onPdu (Message::output, payloadBlock);
+    }
+}
+
+/**
+ * @brief Handles `Message::loading` — starts a Nexus::Loader for history replay.
+ *
+ * Payload: uuid (length-prefixed) + raw backlog bytes.
+ * Moves the backlog into Session::startLoading which constructs a Loader thread.
+ * Also forwards to `onPdu` if set.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Client::handleLoading (const uint8_t* payload, int payloadSize)
+{
+    juce::String uuid;
+    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+
+    Nexus::logLine ("Client::handleLoading: uuid=" + uuid
+                    + " payloadSize=" + juce::String (payloadSize)
+                    + " uuidConsumed=" + juce::String (uuidConsumed));
+
+    if (uuid.isNotEmpty() and uuidConsumed > 0)
+    {
+        const int byteCount { payloadSize - uuidConsumed };
+
+        Nexus::logLine ("Client::handleLoading: byteCount=" + juce::String (byteCount));
+
+        if (byteCount > 0)
         {
-            // Payload: uuid (length-prefixed) + raw PTY bytes.
-            juce::String uuid;
-            const int uuidConsumed { readString (payload, payloadSize, uuid) };
+            juce::MemoryBlock backlog;
+            backlog.append (payload + uuidConsumed, static_cast<size_t> (byteCount));
 
-            Nexus::logLine ("Client::messageReceived output: uuid=" + uuid
-                            + " payloadSize=" + juce::String (payloadSize)
-                            + " uuidConsumed=" + juce::String (uuidConsumed));
-
-            if (uuid.isNotEmpty() and uuidConsumed > 0)
-            {
-                const void* bytes { payload + uuidConsumed };
-                const int byteCount { payloadSize - uuidConsumed };
-
-                Nexus::logLine ("Client::messageReceived output: byteCount=" + juce::String (byteCount));
-
-                if (byteCount > 0)
-                    Nexus::Session::getContext()->feedBytes (uuid, bytes, byteCount);
-            }
-
-            if (onPdu != nullptr)
-            {
-                const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
-                onPdu (Message::output, payloadBlock);
-            }
+            Nexus::Session::getContext()->startLoading (uuid, std::move (backlog));
         }
-        else if (kind == Message::loading)
-        {
-            // Payload: uuid (length-prefixed) + raw backlog bytes.
-            juce::String uuid;
-            const int uuidConsumed { readString (payload, payloadSize, uuid) };
+    }
 
-            Nexus::logLine ("Client::messageReceived loading: uuid=" + uuid
-                            + " payloadSize=" + juce::String (payloadSize)
-                            + " uuidConsumed=" + juce::String (uuidConsumed));
+    if (onPdu != nullptr)
+    {
+        const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
+        onPdu (Message::loading, payloadBlock);
+    }
+}
 
-            if (uuid.isNotEmpty() and uuidConsumed > 0)
-            {
-                const int byteCount { payloadSize - uuidConsumed };
-
-                Nexus::logLine ("Client::messageReceived loading: byteCount=" + juce::String (byteCount));
-
-                if (byteCount > 0)
-                {
-                    juce::MemoryBlock backlog;
-                    backlog.append (payload + uuidConsumed, static_cast<size_t> (byteCount));
-
-                    Nexus::Session::getContext()->startLoading (uuid, std::move (backlog));
-                }
-            }
-
-            if (onPdu != nullptr)
-            {
-                const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
-                onPdu (Message::loading, payloadBlock);
-            }
-        }
-        else
-        {
-            if (onPdu != nullptr)
-            {
-                const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
-                onPdu (kind, payloadBlock);
-            }
-        }
+/**
+ * @brief Handles all unrecognised PDU kinds — forwards to `onPdu` if set.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Client::handleUnknown (Message kind, const uint8_t* payload, int payloadSize)
+{
+    if (onPdu != nullptr)
+    {
+        const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
+        onPdu (kind, payloadBlock);
     }
 }
 

@@ -216,7 +216,7 @@ void ServerConnection::handleSpawnProcessor (const uint8_t* payload, int payload
         Terminal::Processor& newProcessor { session.create (parsed.shell, parsed.args, parsed.cwd,
                                                              parsed.uuid, parsed.cols, parsed.rows,
                                                              parsed.envID) };
-        const juce::String sessionUuid { newProcessor.uuid };
+        const juce::String sessionUuid { newProcessor.getUuid() };
 
         Nexus::logLine ("NEXUS: session.create returned actual-uuid=" + sessionUuid
                         + " cols=" + juce::String (parsed.cols)

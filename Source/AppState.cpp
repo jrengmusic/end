@@ -41,11 +41,6 @@ juce::ValueTree AppState::getProcessorsNode() noexcept
     return getNexusNode().getOrCreateChildWithName (App::ID::PROCESSORS, nullptr);
 }
 
-void AppState::ensureProcessorsNode() noexcept
-{
-    getProcessorsNode();
-}
-
 juce::ValueTree AppState::getLoadingNode() noexcept
 {
     return getNexusNode().getOrCreateChildWithName (App::ID::LOADING, nullptr);

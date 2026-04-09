@@ -83,6 +83,18 @@ public:
     void addNewTab();
 
     /**
+     * @brief Walks saved TAB nodes, creates tabs, and replays splits.
+     *
+     * Caller must pass a deep copy of the saved TABS tree detached from
+     * the live AppState tree — this method walks it directly without aliasing.
+     *
+     * @param savedTabs   Deep copy of the TABS node from state.xml.
+     * @param contentRect Chrome-subtracted content rect for dim computation.
+     * @note MESSAGE THREAD.
+     */
+    void restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect);
+
+    /**
      * @brief Create and add a new terminal tab with explicit cwd, UUID hint, and spawn dims.
      *
      * Used by the state.xml restoration walker to create a tab whose first

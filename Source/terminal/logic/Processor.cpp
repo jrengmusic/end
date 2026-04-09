@@ -200,6 +200,14 @@ void Processor::process (const char* data, int length) noexcept
     Nexus::logLine ("Processor::process: data length=" + juce::String (length) + " bytes, sendChangeMessage fired");
 }
 
+State& Processor::getState() noexcept       { return state; }
+const State& Processor::getState() const noexcept { return state; }
+
+Grid& Processor::getGrid() noexcept        { return grid; }
+const Grid& Processor::getGrid() const noexcept { return grid; }
+
+const juce::String& Processor::getUuid() const noexcept { return uuid; }
+
 /**
  * @brief Returns a const reference to the VT parser.
  * @note Asserts if parser is null (should never be in this new design).
@@ -214,6 +222,31 @@ Parser& Processor::getParser() noexcept
 {
     jassert (parser != nullptr);
     return *parser;
+}
+
+/**
+ * @brief Acquires the grid resize lock and calls process().
+ *
+ * Convenience for reader-thread callers (e.g. Loader) that must hold the
+ * resize lock for the duration of the parse.
+ *
+ * @note READER THREAD only.
+ */
+void Processor::processWithLock (const char* data, int len) noexcept
+{
+    const juce::ScopedLock lock (grid.getResizeLock());
+    process (data, len);
+}
+
+/**
+ * @brief Wires parser.writeToHost to the given callback.
+ *
+ * @note MESSAGE THREAD — call before the first process() invocation.
+ */
+void Processor::setHostWriter (std::function<void (const char*, int)> writer) noexcept
+{
+    jassert (parser != nullptr);
+    parser->writeToHost = std::move (writer);
 }
 
 /**

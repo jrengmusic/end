@@ -68,7 +68,7 @@ Panes::CreatedTerminal Panes::buildTerminal (const juce::String& shell,
         ? Nexus::Session::getContext()->create (shell, args, cwd, uuidHint, cols, rows, envID)
         : Nexus::Session::getContext()->create (shell, args, cwd, cols, rows, envID) };
 
-    result.uuid = processor.uuid;
+    result.uuid = processor.getUuid();
     result.processor = &processor;
 
     return result;
@@ -455,20 +455,20 @@ void Panes::closePane (const juce::String& uuid)
  *
  * @note MESSAGE THREAD.
  */
-void Panes::splitHorizontal() { splitImpl ("vertical", true); }
+void Panes::splitHorizontal() { splitActive ("vertical", true); }
 
 /**
  * @brief Splits the active pane into stacked rows.
  *
  * @note MESSAGE THREAD.
  */
-void Panes::splitVertical() { splitImpl ("horizontal", false); }
+void Panes::splitVertical() { splitActive ("horizontal", false); }
 
 /**
  * @brief Splits a specific target pane using an explicit new UUID and cwd.
  *
  * Used by the restore walker in MainComponent to reconstruct a saved split tree,
- * and internally by splitImpl() for keyboard-shortcut splits.
+ * and internally by splitActive() for keyboard-shortcut splits.
  *
  * @param targetUuid  UUID of the existing leaf to split.
  * @param newUuid     UUID hint for the new terminal. Empty = generate fresh.
@@ -534,7 +534,7 @@ void Panes::splitAt (const juce::String& targetUuid,
  * @param isVertical True when the resizer bar is vertical (splitHorizontal).
  * @note MESSAGE THREAD.
  */
-void Panes::splitImpl (const juce::String& direction, bool isVertical)
+void Panes::splitActive (const juce::String& direction, bool isVertical)
 {
     const juce::String activeID { AppState::getContext()->getActivePaneID() };
     jassert (activeID.isNotEmpty());

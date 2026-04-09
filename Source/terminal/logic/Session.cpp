@@ -172,7 +172,8 @@ juce::String Session::getEnvVar (int pid, const juce::String& name) const
 {
     jassert (tty != nullptr);
 
-    char buf[8192] {};
+    static constexpr int envVarBufferBytes { 8192 };
+    char buf[envVarBufferBytes] {};
     const int written { tty->getEnvVar (pid, name.toRawUTF8(), buf, static_cast<int> (sizeof (buf))) };
 
     juce::String result;
