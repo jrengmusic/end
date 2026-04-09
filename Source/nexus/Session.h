@@ -52,10 +52,6 @@ namespace Nexus
 {
 /*____________________________________________________________________________*/
 
-/** ID value used for the LOADING operation that represents
- *  'waiting for daemon's initial processor list'. */
-inline constexpr const char* nexusConnectOperationId { "nexus-connect" };
-
 class Client;
 class Server;
 class ServerConnection;
@@ -414,15 +410,6 @@ public:
 
 private:
     /**
-     * @brief Active Loader map: UUID → unique_ptr<Loader>.
-     *
-     * Non-empty only in client mode while a backlog is being replayed off the
-     * message thread.  Each entry is erased from the Loader's own onFinished
-     * callback, which fires on the message thread after `run()` completes.
-     */
-    std::map<juce::String, std::unique_ptr<Loader>> loaders;
-
-    /**
      * @brief Owned Processor map: UUID → unique_ptr<Processor>.
      *
      * Present in local mode (both sides) and client mode (pipeline side only).
@@ -530,6 +517,19 @@ private:
                                              const juce::String& uuid,
                                              int cols, int rows,
                                              juce::StringPairArray seedEnv);
+
+    /**
+     * @brief Active Loader map: UUID → unique_ptr<Loader>.
+     *
+     * Non-empty only in client mode while a backlog is being replayed off the
+     * message thread.  Each entry is erased from the Loader's own onFinished
+     * callback, which fires on the message thread after `run()` completes.
+     *
+     * Declared last so it is destroyed first — joining Loader threads while
+     * Processors are still alive.  The destructor also calls loaders.clear()
+     * explicitly as the primary join mechanism.
+     */
+    std::map<juce::String, std::unique_ptr<Loader>> loaders;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

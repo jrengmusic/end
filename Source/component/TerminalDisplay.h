@@ -51,6 +51,7 @@
 #include "../terminal/selection/LinkManager.h"
 #include "../nexus/Session.h"
 #include "PaneComponent.h"
+#include "LoaderOverlay.h"
 #include "config/Config.h"
 
 namespace Terminal
@@ -683,6 +684,9 @@ private:
 
     /** @brief VBlank attachment that drives the render loop at display refresh rate. */
     juce::VBlankAttachment vblank;
+
+    /** @brief Per-pane loading overlay shown during session history replay. */
+    LoaderOverlay loaderOverlay;
 
     //==============================================================================
     /**

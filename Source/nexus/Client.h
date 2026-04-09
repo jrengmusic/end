@@ -225,6 +225,7 @@ private:
     void handleProcessorExited    (const uint8_t* payload, int payloadSize);
     void handleOutput             (const uint8_t* payload, int payloadSize);
     void handleLoading            (const uint8_t* payload, int payloadSize);
+    void handleStateUpdate        (const uint8_t* payload, int payloadSize);
     void handleUnknown            (Message kind, const uint8_t* payload, int payloadSize);
 
     void sendPdu (Message kind, const juce::MemoryBlock& payload = {});

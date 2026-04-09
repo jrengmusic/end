@@ -10,6 +10,7 @@
  */
 
 #include "Session.h"
+#include "Phrases.h"
 #include "Client.h"
 #include "Server.h"
 #include "ServerConnection.h"
@@ -64,11 +65,6 @@ Session::Session (ClientTag)
     Nexus::logLine ("Session ctor: client mode, constructing Client");
     client = std::make_unique<Client>();
 
-    auto loadingNode { AppState::getContext()->getLoadingNode() };
-    juce::ValueTree op { App::ID::OPERATION };
-    op.setProperty (jreng::ID::id, nexusConnectOperationId, nullptr);
-    loadingNode.appendChild (op, nullptr);
-
     const juce::File lockfilePath { Server::getLockfile() };
     Nexus::logLine ("Session ctor: calling beginConnectAttempts on " + lockfilePath.getFullPathName());
     client->beginConnectAttempts (lockfilePath);
@@ -79,6 +75,8 @@ Session::Session (ClientTag)
  */
 Session::~Session()
 {
+    loaders.clear();
+
     if (client != nullptr)
     {
         client->disconnectFromHost();
@@ -274,6 +272,7 @@ Session::createClientSession (const juce::String& shell, const juce::String& cwd
     auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
 
     proc->getState().setId (uuid);
+    proc->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
 
     // Wire parser responses (DSR, DA, CPR, etc.) back to the daemon via Client::sendInput.
     // Without this, vim/neovim start in degraded mode because terminal capability queries
@@ -362,6 +361,52 @@ Session::createDaemonSession (const juce::String& effectiveShell,
     auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
 
     proc->getState().setId (uuid);
+
+    // Wire state flush — query cwd + foreground process and broadcast stateUpdate PDU to subscribers.
+    Terminal::Session* termSessionPtr { terminalSessions[uuid].get() };
+    Terminal::Processor* procRawPtr { proc.get() };
+
+    procRawPtr->getState().onFlush = [this, uuid, termSessionPtr, procRawPtr]
+    {
+        const int fgPid { termSessionPtr->getForegroundPid() };
+
+        if (fgPid > 0)
+        {
+            char cwdBuf[Terminal::State::maxStringLength] {};
+            termSessionPtr->getCwd (fgPid, cwdBuf, Terminal::State::maxStringLength);
+
+            char fgNameBuf[Terminal::State::maxStringLength] {};
+            termSessionPtr->getProcessName (fgPid, fgNameBuf, Terminal::State::maxStringLength);
+
+            const juce::String cwdStr { juce::String::fromUTF8 (cwdBuf) };
+            const juce::String fgStr  { juce::String::fromUTF8 (fgNameBuf) };
+
+            // Only send when changed — avoid 60Hz noise.
+            const juce::String lastCwd { procRawPtr->getState().get().getProperty (Terminal::ID::cwd).toString() };
+            const juce::String lastFg  { procRawPtr->getState().get().getProperty (Terminal::ID::foregroundProcess).toString() };
+
+            if (cwdStr != lastCwd or fgStr != lastFg)
+            {
+                // Update daemon-side stub State for change detection on next tick.
+                procRawPtr->getState().get().setProperty (Terminal::ID::cwd, cwdStr, nullptr);
+                procRawPtr->getState().get().setProperty (Terminal::ID::foregroundProcess, fgStr, nullptr);
+
+                juce::MemoryBlock payload;
+                Nexus::writeString (payload, uuid);
+                Nexus::writeString (payload, cwdStr);
+                Nexus::writeString (payload, fgStr);
+
+                const juce::ScopedLock lock (connectionsLock);
+                const auto it { subscribers.find (uuid) };
+
+                if (it != subscribers.end())
+                {
+                    for (auto* conn : it->second)
+                        conn->sendPdu (Message::stateUpdate, payload);
+                }
+            }
+        }
+    };
 
     Terminal::Processor& result { *proc };
     processors.emplace (uuid, std::move (proc));
@@ -574,7 +619,10 @@ void Session::feedBytes (const juce::String& uuid, const void* data, int size)
     }
 
     if (proc != nullptr and size > 0)
+    {
         proc->process (static_cast<const char*> (data), size);
+        proc->getParser().flushResponses();
+    }
 }
 
 /**
@@ -587,20 +635,17 @@ void Session::startLoading (const juce::String& uuid, juce::MemoryBlock&& bytes)
     Terminal::Processor* proc { client != nullptr ? client->getProcessor (uuid) : nullptr };
     jassert (proc != nullptr);
 
-    auto loadingNode { AppState::getContext()->getLoadingNode() };
-    juce::ValueTree op { App::ID::OPERATION };
-    op.setProperty (jreng::ID::id, uuid, nullptr);
-    loadingNode.appendChild (op, nullptr);
+    if (proc->onLoadingStarted != nullptr)
+        proc->onLoadingStarted (Nexus::Phrases::pick() + " Nexus");
 
     auto loader { std::make_unique<Loader> (*proc, std::move (bytes), uuid) };
 
     loader->onFinished = [this, uuid]
     {
-        auto loadingNode { AppState::getContext()->getLoadingNode() };
-        auto finishedOp { jreng::ValueTree::getChildWithID (loadingNode, uuid) };
+        auto* finishedProc { client != nullptr ? client->getProcessor (uuid) : nullptr };
 
-        if (finishedOp.isValid())
-            finishedOp.getParent().removeChild (finishedOp, nullptr);
+        if (finishedProc != nullptr and finishedProc->onLoadingFinished != nullptr)
+            finishedProc->onLoadingFinished();
 
         loaders.erase (uuid);
     };

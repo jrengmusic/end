@@ -415,6 +415,7 @@ void Client::messageReceived (const juce::MemoryBlock& message)
             case Message::processorExited:  handleProcessorExited (payload, payloadSize); break;
             case Message::output:           handleOutput          (payload, payloadSize); break;
             case Message::loading:          handleLoading         (payload, payloadSize); break;
+            case Message::stateUpdate:      handleStateUpdate     (payload, payloadSize); break;
             default:                        handleUnknown         (kind, payload, payloadSize); break;
         }
     }
@@ -467,12 +468,6 @@ void Client::handleProcessorList (const uint8_t* payload, int payloadSize)
             nexusNode.removeChild (existing, nullptr);
 
         nexusNode.appendChild (processorsNode, nullptr);
-
-        auto loadingNode { AppState::getContext()->getLoadingNode() };
-        auto nexusConnectOp { jreng::ValueTree::getChildWithID (loadingNode, nexusConnectOperationId) };
-
-        if (nexusConnectOp.isValid())
-            nexusConnectOp.getParent().removeChild (nexusConnectOp, nullptr);
     }
 }
 
@@ -576,6 +571,43 @@ void Client::handleLoading (const uint8_t* payload, int payloadSize)
     {
         const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
         onPdu (Message::loading, payloadBlock);
+    }
+}
+
+/**
+ * @brief Handles `Message::stateUpdate` — writes cwd and foreground process into the target Processor's ValueTree.
+ *
+ * Payload: uuid (length-prefixed) + cwd (length-prefixed) + fgProcess (length-prefixed).
+ * Mirrors the standalone flush→setCwd / setForegroundProcess path, but driven by daemon push.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Client::handleStateUpdate (const uint8_t* payload, int payloadSize)
+{
+    juce::String uuid;
+    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+
+    if (uuidConsumed > 0)
+    {
+        juce::String cwd;
+        const int cwdConsumed { readString (payload + uuidConsumed, payloadSize - uuidConsumed, cwd) };
+
+        juce::String fgProcess;
+        const int fgConsumed { readString (payload + uuidConsumed + cwdConsumed,
+                                           payloadSize - uuidConsumed - cwdConsumed, fgProcess) };
+
+        if (cwdConsumed > 0)
+        {
+            auto* proc { getProcessor (uuid) };
+
+            if (proc != nullptr)
+            {
+                proc->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
+
+                if (fgConsumed > 0)
+                    proc->getState().get().setProperty (Terminal::ID::foregroundProcess, fgProcess, nullptr);
+            }
+        }
     }
 }
 

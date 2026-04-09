@@ -47,7 +47,6 @@
 #include "action/ActionList.h"
 // jreng::Typeface is available via JuceHeader → jreng_glyph
 #include "component/StatusBarOverlay.h"
-#include "component/LoaderOverlay.h"
 #include "whelmed/Component.h"
 #include "config/WhelmedConfig.h"
 
@@ -106,18 +105,6 @@ public:
      * @see Config::onReload
      */
     void applyConfig();
-
-    /**
-     * @brief Returns a reference to the `LoaderOverlay` child component.
-     *
-     * Called by `ENDApplication` to show/hide the overlay during async nexus
-     * connection.  The overlay is a permanent child of `MainComponent`; it is
-     * hidden by default and has no impact on layout.
-     *
-     * @return Reference to the `LoaderOverlay`.
-     * @note MESSAGE THREAD.
-     */
-    LoaderOverlay& getLoaderOverlay() noexcept;
 
     /**
      * @brief Called when nexus connection is established.
@@ -196,9 +183,6 @@ private:
     /** @brief Status bar overlay; shown during any active modal state (selection, open-file, etc.). */
     std::unique_ptr<StatusBarOverlay> statusBarOverlay;
 
-    /** @brief Indeterminate spinner shown while the nexus daemon connection is pending. */
-    std::unique_ptr<LoaderOverlay> loaderOverlay;
-
     /** @brief Persistent wrapper for the AppState NEXUS child node. Must outlive the
      *         listener registration — `addListener` stores the listener in the wrapper
      *         instance, not in the underlying shared object. A temporary wrapper would
@@ -208,10 +192,6 @@ private:
     /** @brief Persistent wrapper for the AppState PROCESSORS child node.  Listener
      *         registration requires the wrapper to outlive it. */
     juce::ValueTree processorsNode;
-
-    /** @brief Persistent wrapper for the AppState LOADING child node.  Listener
-     *         registration requires the wrapper to outlive it. */
-    juce::ValueTree loadingNode;
 
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;
@@ -267,7 +247,6 @@ private:
      *
      * In local mode: PROCESSORS node created under nexusNode triggers onNexusConnected.
      * In client mode: first PROCESSOR child under processorsNode triggers onNexusConnected.
-     * Any child added to loadingNode shows loaderOverlay.
      *
      * @note MESSAGE THREAD.
      */
@@ -276,8 +255,6 @@ private:
 
     /**
      * @brief Fires when a direct child is removed from a listened node.
-     *
-     * Handles loadingNode becoming empty (hides loaderOverlay).
      *
      * @note MESSAGE THREAD.
      */

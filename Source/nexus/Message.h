@@ -19,6 +19,7 @@
  * - `removeProcessor(uuid)` — client→daemon "kill this shell" (session destroyed)
  * - `processorExited(uuid)` — daemon→client "shell exited"
  * - `processorList(uuids)` — daemon→client initial session list on hello
+ * - `stateUpdate(uuid, cwd, fgProcess)` — daemon→client state sync (cwd + foreground process)
  * - `hello` / `helloResponse` / `ping` / `pong` / `shutdown` — control
  */
 
@@ -59,6 +60,8 @@ enum class Message : uint16_t
                                     ///<   Payload: uuid (length-prefixed string) + raw PTY bytes.
     output                  = 0x21, ///< Host → Client: live PTY byte output for a running session.
                                     ///<   Payload: uuid (length-prefixed string) + raw PTY bytes.
+    stateUpdate             = 0x22, ///< Host → Client: Processor state update (cwd, foreground process).
+                                    ///<   Payload: uuid (length-prefixed) + cwd (length-prefixed) + fgProcess (length-prefixed).
 
     processorExited         = 0x40, ///< Host → Client: shell process exited, session will be removed.
     processorList           = 0x50, ///< Host → Client: full list of live session UUIDs (pushed unsolicited).

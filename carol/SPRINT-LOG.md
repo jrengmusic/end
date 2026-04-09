@@ -1,5 +1,41 @@
 # SPRINT-LOG
 
+## Sprint 4: Nexus Parity — Loader, CWD, DSR, Shutdown
+
+**Date:** 2026-04-09
+
+### Agents Participated
+- COUNSELOR: Root cause analysis, flow tracing, directed all fixes
+- Pathfinder: Byte path tracing, destruction order analysis, cwd flow discovery
+- Engineer: Per-pane overlay, stateUpdate PDU, Phrases, shutdown fix
+
+### Files Modified (10 total)
+- `Source/terminal/logic/Processor.h:292-297` — added onLoadingStarted/onLoadingFinished callbacks
+- `Source/nexus/Phrases.h` — new, random verb pool for loading messages
+- `Source/component/TerminalDisplay.h` — added LoaderOverlay member, include
+- `Source/component/TerminalDisplay.cpp` — wired onLoadingStarted/onLoadingFinished, addChildComponent, resized
+- `Source/MainComponent.h` — removed global LoaderOverlay, loadingNode, getLoaderOverlay
+- `Source/MainComponent.cpp` — removed LOADING ValueTree listener, overlay management, nexus-connect op
+- `Source/nexus/Message.h` — added stateUpdate (0x22) PDU kind
+- `Source/nexus/Session.h` — moved loaders to last member (destruction order)
+- `Source/nexus/Session.cpp` — wired onFlush in createDaemonSession (cwd+fgProcess relay), flushResponses in feedBytes, loaders.clear() in dtor, initial cwd write in createClientSession
+- `Source/nexus/Client.h` — declared handleStateUpdate
+- `Source/nexus/Client.cpp` — implemented handleStateUpdate, added switch case
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Global LoaderOverlay replaced with per-pane overlay (Encapsulation — each pane manages its own loading state)
+- Nexus cwd tracking: daemon relays getCwd via stateUpdate PDU, identical flow to standalone (BLESSED violation — standalone/nexus divergence eliminated)
+- DSR responses dropped in client mode: flushResponses() never called after process() in feedBytes (nvim startup degraded)
+- Shutdown crash: Loader threads accessing freed Processors due to wrong member destruction order (use-after-free)
+
+### Technical Debt / Follow-up
+- None deferred
+
 ## Sprint 3: BLESSED Audit Sweep
 
 **Date:** 2026-04-09

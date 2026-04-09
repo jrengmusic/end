@@ -290,6 +290,12 @@ public:
      *  `title` is empty for OSC 9. */
     std::function<void (const juce::String&, const juce::String&)> onDesktopNotification;
 
+    /** Called when session history loading begins. Argument is the display message. */
+    std::function<void (const juce::String&)> onLoadingStarted;
+
+    /** Called when session history loading completes. Display hides its overlay. */
+    std::function<void()> onLoadingFinished;
+
     /** @} */
 
 private:

@@ -82,11 +82,10 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     // before any tree mutations occur.
     // Local mode: Session ctor creates the PROCESSORS node → fires
     //   valueTreeChildAdded(nexusNode, PROCESSORS) → walker triggered.
-    // Client mode: Session ctor adds a "nexus-connect" LOADING op → overlay shows.
-    //   When Message::processorList arrives, Client rewrites the PROCESSORS subtree →
-    //   fires valueTreeChildAdded(processorsNode, PROCESSOR) → walker triggered.
-    // processorsNode and loadingNode are assigned lazily inside valueTreeChildAdded
-    // when PROCESSORS and LOADING are created under nexusNode.  No getOrCreate here —
+    // Client mode: When Message::processorList arrives, Client rewrites the PROCESSORS subtree →
+    //   fires valueTreeChildAdded(nexusNode, PROCESSORS) → walker triggered.
+    // processorsNode is assigned lazily inside valueTreeChildAdded
+    // when PROCESSORS is created under nexusNode.  No getOrCreate here —
     // premature creation would prevent the child-added events from firing.
 
     setLookAndFeel (&terminalLookAndFeel);
@@ -171,9 +170,6 @@ void MainComponent::resized()
         statusBarOverlay->setBounds (0, y, getWidth(), barHeight);
     }
 
-    // Loader overlay: full-screen, covers all content while connecting.
-    // Sits above statusBarOverlay->in Z-order because it is added after it.
-    loaderOverlay->setBounds (getLocalBounds());
 }
 
 /**
@@ -186,9 +182,6 @@ void MainComponent::resized()
  */
 MainComponent::~MainComponent()
 {
-    if (loadingNode.isValid())
-        loadingNode.removeListener (this);
-
     if (processorsNode.isValid())
         processorsNode.removeListener (this);
 
@@ -213,11 +206,9 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& /*tree*/,
 }
 
 /**
- * @brief Fires when a direct child is added to nexusNode, processorsNode, or loadingNode.
+ * @brief Fires when a direct child is added to nexusNode or processorsNode.
  *
  * - parent == nexusNode and child type == PROCESSORS → PROCESSORS node arrived (both modes), call onNexusConnected.
- * - parent == nexusNode and child type == LOADING → assign loadingNode, attach listener.
- * - parent == loadingNode → any operation in flight, show loaderOverlay.
  *
  * @note MESSAGE THREAD.
  */
@@ -229,38 +220,18 @@ void MainComponent::valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTre
         processorsNode.addListener (this);
         onNexusConnected();
     }
-    else if (parent == nexusNode and child.getType() == App::ID::LOADING)
-    {
-        loadingNode = child;
-        loadingNode.addListener (this);
-    }
-    else if (parent == loadingNode)
-    {
-        loaderOverlay->show (0, "Loading session");
-    }
 }
 
 /**
- * @brief Fires when a direct child is removed from nexusNode, processorsNode, or loadingNode.
- *
- * - parent == loadingNode and numChildren == 0 → all operations done, hide loaderOverlay.
+ * @brief Fires when a direct child is removed from a listened node.
  *
  * @note MESSAGE THREAD.
  */
-void MainComponent::valueTreeChildRemoved (juce::ValueTree& parent,
+void MainComponent::valueTreeChildRemoved (juce::ValueTree& /*parent*/,
                                            juce::ValueTree& /*child*/,
                                            int /*index*/)
 {
-    if (parent == loadingNode and loadingNode.getNumChildren() == 0)
-        loaderOverlay->hide();
 }
-
-/**
- * @brief Returns a reference to the `LoaderOverlay` child component.
- *
- * @note MESSAGE THREAD.
- */
-LoaderOverlay& MainComponent::getLoaderOverlay() noexcept { return *loaderOverlay.get(); }
 
 /**
  * @brief Registers all user-performable actions with `Action::Registry`.
@@ -492,11 +463,9 @@ void MainComponent::exitActiveTerminalSelectionMode() noexcept
 void MainComponent::initialiseOverlays()
 {
     messageOverlay = std::make_unique<MessageOverlay>();
-    loaderOverlay = std::make_unique<LoaderOverlay>();
     statusBarOverlay = std::make_unique<StatusBarOverlay> (appState.getContext()->getTabs());
 
     addChildComponent (messageOverlay.get());
-    addChildComponent (loaderOverlay.get());
     addChildComponent (statusBarOverlay.get());
 
     if (const auto& startupError { config.getLoadError() }; startupError.isNotEmpty())
