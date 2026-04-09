@@ -89,7 +89,7 @@ public:
     void disconnectFromHost();
 
     /**
-     * @brief Requests the host to spawn a new PTY session.
+     * @brief Requests the host to create or attach to a PTY session.
      *
      * Payload: shell | args | cwd | uuid | cols (uint16_t LE) | rows (uint16_t LE) | envID
      *
@@ -102,19 +102,11 @@ public:
      *                Empty = no seed env.  Forwarded to daemon; never resolved on client.
      * @note Any thread.
      */
-    void spawnSession (int cols, int rows,
-                       const juce::String& shell,
-                       const juce::String& cwd,
-                       const juce::String& uuid = {},
-                       const juce::String& envID = {});
-
-    /**
-     * @brief Subscribes to render deltas for a session.
-     *
-     * @param uuid  UUID of the session to attach.
-     * @note Any thread.
-     */
-    void attachSession (const juce::String& uuid);
+    void createSession (int cols, int rows,
+                        const juce::String& shell,
+                        const juce::String& cwd,
+                        const juce::String& uuid = {},
+                        const juce::String& envID = {});
 
     /**
      * @brief Unsubscribes from render deltas for a session.
@@ -163,8 +155,7 @@ public:
      *
      * The UUID is read from `processor->getUuid()`.  Ownership transfers to Client;
      * the Processor is destroyed when `unregisterProcessor` is called or when
-     * Client is destroyed.  Must be called before `attachSession()` so that the
-     * first output/history push is not missed.
+     * Client is destroyed.
      *
      * @param processor  Owning pointer to the Processor.  Must not be null.
      * @note NEXUS PROCESS MESSAGE THREAD.
@@ -197,8 +188,7 @@ public:
     /**
      * @brief Callback fired on the message thread for every incoming host PDU.
      *
-     * Receives all async frames: helloResponse, attachProcessorResponse,
-     * spawnProcessorResponse, processorExited, etc.
+     * Receives all async frames: helloResponse, processorExited, etc.
      *
      * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
      */

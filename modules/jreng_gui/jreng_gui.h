@@ -24,7 +24,7 @@
 #include "glass/jreng_background_blur.h"
 #include "glass/jreng_child_window.h"
 #include "glass/jreng_glass_component.h"
-#include "glass/jreng_glass_window.h"
+#include "glass/jreng_window.h"
 #include "glass/jreng_modal_window.h"
 #include "animation/jreng_animator.h"
 #include "layout/jreng_pane_manager.h"

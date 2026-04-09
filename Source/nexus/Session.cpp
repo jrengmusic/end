@@ -10,7 +10,6 @@
  */
 
 #include "Session.h"
-#include "Phrases.h"
 #include "Client.h"
 #include "Server.h"
 #include "ServerConnection.h"
@@ -75,8 +74,6 @@ Session::Session (ClientTag)
  */
 Session::~Session()
 {
-    loaders.clear();
-
     if (client != nullptr)
     {
         client->disconnectFromHost();
@@ -122,7 +119,7 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
 
     // Idempotency: if a session with this uuid already exists, return it.
     // Happens on GUI reconnect — client restores saved uuid and re-sends
-    // spawnProcessor before the processorList push has updated its isLive cache.
+    // createProcessor before the daemon-side guard triggers.
     // Without this guard, the daemon would fork a second shell, fail to emplace,
     // and leave a dangling Processor reference.
     const auto existing { processors.find (uuid) };
@@ -239,9 +236,9 @@ const Terminal::Processor& Session::get (const juce::String& uuid) const
 /**
  * @brief Client-mode helper: constructs the pipeline-side Processor for @p uuid.
  *
- * Sends spawnProcessor to the daemon if the uuid is not yet live, sends
- * attachProcessor, constructs and registers the Processor, and returns a
- * reference to it.
+ * Sends createProcessor to the daemon, constructs and registers the Processor,
+ * and returns a reference to it.  The daemon creates if uuid is new, or resizes
+ * and attaches if uuid already exists.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -252,22 +249,7 @@ Session::createClientSession (const juce::String& shell, const juce::String& cwd
 {
     Nexus::logLine ("Session::create (client mode): uuid=" + uuid);
 
-    auto processorsNode { AppState::getContext()->getProcessorsNode() };
-    bool isLive { false };
-
-    for (int i { 0 }; i < processorsNode.getNumChildren(); ++i)
-    {
-        if (processorsNode.getChild (i).getProperty (jreng::ID::id).toString() == uuid)
-        {
-            isLive = true;
-            i = processorsNode.getNumChildren();
-        }
-    }
-
-    if (not isLive)
-        client->spawnSession (cols, rows, shell, cwd, uuid, envID);
-
-    client->attachSession (uuid);
+    client->createSession (cols, rows, shell, cwd, uuid, envID);
 
     auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
 
@@ -313,22 +295,36 @@ Session::createDaemonSession (const juce::String& effectiveShell,
         cwd,
         seedEnv) };
 
-    // Daemon mode — wire onBytes to broadcast Message::output to subscribers.
-    termSession->onBytes = [this, uuid] (const char* bytes, int len)
+    // Daemon Processor — must be created before onBytes is wired so procRawPtr is valid.
+    auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
+    proc->getState().setId (uuid);
+
+    Terminal::Session* termSessionPtr { termSession.get() };
+    Terminal::Processor* procRawPtr { proc.get() };
+
+    // Daemon mode — wire onBytes to broadcast Message::output to subscribers,
+    // then feed the daemon Processor so it maintains a real Grid+State snapshot.
+    termSession->onBytes = [this, uuid, procRawPtr] (const char* bytes, int len)
     {
         // READER THREAD — build output PDU and push to all subscribers.
         juce::MemoryBlock payload;
         writeString (payload, uuid);
         payload.append (bytes, static_cast<size_t> (len));
 
-        const juce::ScopedLock lock (connectionsLock);
-        const auto it { subscribers.find (uuid) };
-
-        if (it != subscribers.end())
         {
-            for (auto* conn : it->second)
-                conn->sendPdu (Message::output, payload);
+            const juce::ScopedLock lock (connectionsLock);
+            const auto it { subscribers.find (uuid) };
+
+            if (it != subscribers.end())
+            {
+                for (auto* conn : it->second)
+                    conn->sendPdu (Message::output, payload);
+            }
         }
+
+        // Feed daemon Processor after broadcast — processWithLock takes the
+        // grid resize lock, which must not be held simultaneously with connectionsLock.
+        procRawPtr->processWithLock (bytes, len);
     };
 
     termSession->onExit = [this, uuid]
@@ -357,14 +353,7 @@ Session::createDaemonSession (const juce::String& effectiveShell,
 
     terminalSessions.emplace (uuid, std::move (termSession));
 
-    // Daemon also needs a stub Processor so get() and forEachProcessor() work.
-    auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
-
-    proc->getState().setId (uuid);
-
     // Wire state flush — query cwd + foreground process and broadcast stateUpdate PDU to subscribers.
-    Terminal::Session* termSessionPtr { terminalSessions[uuid].get() };
-    Terminal::Processor* procRawPtr { proc.get() };
 
     procRawPtr->getState().onFlush = [this, uuid, termSessionPtr, procRawPtr]
     {
@@ -532,6 +521,17 @@ void Session::remove (const juce::String& uuid)
 }
 
 /**
+ * @brief Returns true if a session with @p uuid is live on this daemon.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+bool Session::hasSession (const juce::String& uuid) const noexcept
+{
+    return processors.find (uuid) != processors.end()
+        or terminalSessions.find (uuid) != terminalSessions.end();
+}
+
+/**
  * @brief Returns a snapshot of all live session UUIDs.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
@@ -626,7 +626,9 @@ void Session::feedBytes (const juce::String& uuid, const void* data, int size)
 }
 
 /**
- * @brief Constructs a `Nexus::Loader` to parse @p bytes into the Processor for @p uuid.
+ * @brief Restores Processor state from a snapshot sent by the daemon on attach.
+ *
+ * Calls setStateInformation directly on the message thread — no Loader thread.
  *
  * @note MESSAGE THREAD.
  */
@@ -635,22 +637,10 @@ void Session::startLoading (const juce::String& uuid, juce::MemoryBlock&& bytes)
     Terminal::Processor* proc { client != nullptr ? client->getProcessor (uuid) : nullptr };
     jassert (proc != nullptr);
 
-    if (proc->onLoadingStarted != nullptr)
-        proc->onLoadingStarted (Nexus::Phrases::pick() + " Nexus");
-
-    auto loader { std::make_unique<Loader> (*proc, std::move (bytes), uuid) };
-
-    loader->onFinished = [this, uuid]
+    if (proc != nullptr)
     {
-        auto* finishedProc { client != nullptr ? client->getProcessor (uuid) : nullptr };
-
-        if (finishedProc != nullptr and finishedProc->onLoadingFinished != nullptr)
-            finishedProc->onLoadingFinished();
-
-        loaders.erase (uuid);
-    };
-
-    loaders.emplace (uuid, std::move (loader));
+        proc->setStateInformation (bytes.getData(), static_cast<int> (bytes.getSize()));
+    }
 }
 
 // =============================================================================

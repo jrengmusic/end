@@ -1,6 +1,6 @@
 /**
- * @file jreng_glass_window.cpp
- * @brief Implementation of GlassWindow — glassmorphism DocumentWindow.
+ * @file jreng_window.cpp
+ * @brief Implementation of Window — glassmorphism DocumentWindow.
  *
  * @par macOS
  * Window chrome (title hiding, style mask, traffic-light buttons) is applied
@@ -15,7 +15,7 @@
  * Glass and DWM rounded corners are applied synchronously on first
  * visibility.  No AsyncUpdater needed.
  *
- * @see jreng_glass_window.h
+ * @see jreng_window.h
  * @see BackgroundBlur
  */
 
@@ -28,10 +28,10 @@ namespace jreng
 {
 /*____________________________________________________________________________*/
 
-GlassWindow::GlassWindow (juce::Component* mainComponent,
-                          juce::String const& name,
-                          bool alwaysOnTop,
-                          bool showWindowButtons)
+Window::Window (juce::Component* mainComponent,
+                juce::String const& name,
+                bool alwaysOnTop,
+                bool showWindowButtons)
     : juce::DocumentWindow (name,
                             juce::Colours::transparentBlack,
 #if JUCE_WINDOWS
@@ -63,19 +63,20 @@ GlassWindow::GlassWindow (juce::Component* mainComponent,
 #else
     setResizable (true, true);
 #endif
+    setConstrainer (this);
     centreWithSize (getWidth(), getHeight());
 #if JUCE_WINDOWS
     addMouseListener (this, true);
 #endif
 }
 
-void GlassWindow::closeButtonPressed() { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
+void Window::closeButtonPressed() { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
 
 // =============================================================================
 // Glass API
 // =============================================================================
 
-void GlassWindow::setGlass (juce::Colour colour, float opacity, float blur)
+void Window::setGlass (juce::Colour colour, float opacity, float blur)
 {
     windowColour = colour;
     tintColour = colour.withAlpha (opacity);
@@ -105,7 +106,7 @@ void GlassWindow::setGlass (juce::Colour colour, float opacity, float blur)
 // Deferred first-show blur
 // =============================================================================
 
-void GlassWindow::visibilityChanged()
+void Window::visibilityChanged()
 {
     if (not isBlurApplied)
     {
@@ -129,7 +130,7 @@ void GlassWindow::visibilityChanged()
 
 #if JUCE_MAC
 
-void GlassWindow::handleAsyncUpdate()
+void Window::handleAsyncUpdate()
 {
     setGlass (windowColour, tintColour.getFloatAlpha(), blurRadius);
 
@@ -140,11 +141,25 @@ void GlassWindow::handleAsyncUpdate()
 #endif
 
 // =============================================================================
+// Resize tracking
+// =============================================================================
+
+void Window::resizeStart()
+{
+    userResizing = true;
+}
+
+void Window::resizeEnd()
+{
+    userResizing = false;
+}
+
+// =============================================================================
 // Windows: middle-click drag
 // =============================================================================
 
 #if JUCE_WINDOWS
-void GlassWindow::mouseDown (const juce::MouseEvent& event)
+void Window::mouseDown (const juce::MouseEvent& event)
 {
     if (event.mods.isMiddleButtonDown())
         windowDragger.startDraggingComponent (this, event);
@@ -152,7 +167,7 @@ void GlassWindow::mouseDown (const juce::MouseEvent& event)
     DocumentWindow::mouseDown (event);
 }
 
-void GlassWindow::mouseDrag (const juce::MouseEvent& event)
+void Window::mouseDrag (const juce::MouseEvent& event)
 {
     if (event.mods.isMiddleButtonDown())
         windowDragger.dragComponent (this, event, nullptr);

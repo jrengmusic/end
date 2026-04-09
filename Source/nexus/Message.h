@@ -8,9 +8,8 @@
  * Wire format inside each JUCE IPC frame: uint16_t kind (LE) | payload bytes.
  *
  * ### Wire protocol
- * - `spawnProcessor(shell, args, cwd, uuid, cols, rows, envID)` — client→daemon
- * - `spawnProcessorResponse(uuid)` — daemon→client ack
- * - `attachProcessor(uuid)` — client→daemon "I want bytes for this uuid"
+ * - `createProcessor(shell, args, cwd, uuid, cols, rows, envID)` — client→daemon;
+ *   daemon creates if uuid is new, resizes+attaches if uuid exists
  * - `loading(uuid, bytes)` — daemon→client initial byte snapshot for the loading phase
  * - `output(uuid, bytes)` — daemon→client live PTY bytes
  * - `input(uuid, bytes)` — client→daemon keyboard/mouse input
@@ -47,10 +46,9 @@ enum class Message : uint16_t
     ping                    = 0x03, ///< Either direction: liveness probe.
     pong                    = 0x04, ///< Either direction: reply to Ping.
 
-    spawnProcessor          = 0x10, ///< Client → Host: create a new PTY session.
-    spawnProcessorResponse  = 0x11, ///< Host → Client: confirm session creation, carry UUID.
-    attachProcessor         = 0x12, ///< Client → Host: subscribe to byte output for a session.
-    attachProcessorResponse = 0x13, ///< Host → Client: confirm attach (reserved for future use).
+    createProcessor         = 0x10, ///< Client → Host: create or attach to a PTY session.
+                                    ///<   Payload: shell | args | cwd | uuid | cols (uint16) | rows (uint16) | envID.
+                                    ///<   Daemon creates if uuid is new, resizes + attaches if uuid exists.
     detachProcessor         = 0x14, ///< Client → Host: unsubscribe from a session (session keeps running).
     resizeSession           = 0x15, ///< Client → Host: change PTY dimensions for a session.
     input                   = 0x16, ///< Client → Host: raw bytes to write to PTY stdin.

@@ -247,6 +247,21 @@ public:
     void processWithLock (const char* data, int len) noexcept;
 
     /**
+     * @brief Serializes Grid and State into a portable snapshot for session restore.
+     * @param destData  MemoryBlock to append the snapshot to.
+     * @note MESSAGE THREAD.
+     */
+    void getStateInformation (juce::MemoryBlock& destData) const;
+
+    /**
+     * @brief Restores Grid and State from a snapshot produced by getStateInformation.
+     * @param data  Pointer to the snapshot bytes.
+     * @param size  Size in bytes.
+     * @note MESSAGE THREAD.
+     */
+    void setStateInformation (const void* data, int size);
+
+    /**
      * @brief Wires `parser.writeToHost` to the given callback.
      *
      * Replaces the parser's host-write callback so parser responses (DSR, DA,
@@ -289,12 +304,6 @@ public:
     /** Called when the terminal requests a desktop notification (OSC 9 / OSC 777).
      *  `title` is empty for OSC 9. */
     std::function<void (const juce::String&, const juce::String&)> onDesktopNotification;
-
-    /** Called when session history loading begins. Argument is the display message. */
-    std::function<void (const juce::String&)> onLoadingStarted;
-
-    /** Called when session history loading completes. Display hides its overlay. */
-    std::function<void()> onLoadingFinished;
 
     /** @} */
 

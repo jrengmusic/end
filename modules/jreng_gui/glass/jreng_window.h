@@ -1,9 +1,9 @@
 /**
- * @file jreng_glass_window.h
+ * @file jreng_window.h
  * @brief JUCE DocumentWindow with glassmorphism (frosted-glass) visual effect.
  *
  * @par Overview
- * GlassWindow wraps juce::DocumentWindow and applies a native macOS background
+ * Window wraps juce::DocumentWindow and applies a native macOS background
  * blur via BackgroundBlur after the window becomes visible.  Window chrome
  * (title hiding, style mask, traffic-light buttons) is configured synchronously
  * in visibilityChanged() to eliminate the native titlebar flash on first show.
@@ -12,7 +12,7 @@
  *
  * @par Usage
  * @code
- * auto* win = new jreng::GlassWindow (
+ * auto* win = new jreng::Window (
  *     std::make_unique<MainComponent>().release(),
  *     "My App",
  *     false,  // alwaysOnTop
@@ -32,7 +32,7 @@ namespace jreng
 /*____________________________________________________________________________*/
 
 /**
- * @class GlassWindow
+ * @class Window
  * @brief DocumentWindow with optional glassmorphism (frosted-glass blur).
  *
  * On macOS, window chrome (title hiding, style mask, traffic-light buttons)
@@ -51,19 +51,20 @@ namespace jreng
  *
  * @see BackgroundBlur
  */
-class GlassWindow
+class Window
     : public juce::DocumentWindow
+    , public juce::ComponentBoundsConstrainer
 #if JUCE_MAC
     , private juce::AsyncUpdater
 #endif
 {
 public:
-    GlassWindow (juce::Component* mainComponent,
-                 juce::String const& name,
-                 bool alwaysOnTop,
-                 bool showWindowButtons = true);
+    Window (juce::Component* mainComponent,
+            juce::String const& name,
+            bool alwaysOnTop,
+            bool showWindowButtons = true);
 
-    ~GlassWindow() override { setLookAndFeel (nullptr); }
+    ~Window() override { setLookAndFeel (nullptr); }
 
     void closeButtonPressed() override;
 
@@ -88,6 +89,12 @@ public:
     /** @brief Continues the middle-click window drag (Windows). */
     void mouseDrag (const juce::MouseEvent& event) override;
 #endif
+
+    /** @brief Returns true while the user is actively resizing the window. */
+    bool isUserResizing() const noexcept { return userResizing; }
+
+    void resizeStart() override;
+    void resizeEnd() override;
 
 private:
 #if JUCE_WINDOWS
@@ -117,13 +124,16 @@ private:
     /** @brief One-shot guard — prevents re-triggering async blur. */
     bool isBlurApplied { false };
 
+    /** @brief True while the user is actively dragging a resize handle. */
+    bool userResizing { false };
+
 #if JUCE_WINDOWS
     /** @brief Handles middle-click window dragging. */
     juce::ComponentDragger windowDragger;
 #endif
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GlassWindow)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Window)
 };
 
 /**_____________________________END_OF_NAMESPACE______________________________*/

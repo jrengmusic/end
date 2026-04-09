@@ -1,8 +1,8 @@
 /**
  * @file jreng_modal_window.h
- * @brief GlassWindow subclass with modal dialog semantics.
+ * @brief Window subclass with modal dialog semantics.
  *
- * ModalWindow combines GlassWindow's glassmorphism (blur, DWM corners,
+ * ModalWindow combines Window's glassmorphism (blur, DWM corners,
  * deferred first-show) with modal input blocking and Escape dismiss.
  * Replaces the need to subclass juce::DialogWindow for glass modals.
  *
@@ -11,7 +11,7 @@
  * enterModalState(true).  Escape and close button call closeButtonPressed()
  * which exits modal state and invokes the onModalDismissed callback.
  *
- * @see GlassWindow
+ * @see Window
  */
 
 namespace jreng
@@ -20,7 +20,7 @@ namespace jreng
 
 /**
  * @class ModalWindow
- * @brief GlassWindow with modal semantics: Escape dismiss, input blocking.
+ * @brief Window with modal semantics: Escape dismiss, input blocking.
  *
  * Provides the common pattern shared by all modal glass windows:
  * - Escape key exits modal state
@@ -28,9 +28,9 @@ namespace jreng
  * - Clicks outside bring window to front (does not dismiss)
  * - Optional dismiss callback
  *
- * @see GlassWindow
+ * @see Window
  */
-class ModalWindow : public GlassWindow
+class ModalWindow : public Window
 {
 public:
     /**

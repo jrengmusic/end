@@ -105,14 +105,16 @@ void Panes::teardownTerminal (const juce::String& uuid)
 std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
                                            jreng::Typeface& font_) noexcept
 {
+    // Physical-pixel math — matches Screen::calc() exactly (SSOT).
     const auto fm { font_.calcMetrics (Terminal::Display::dpiCorrectedFontSize()) };
     const auto* cfg { Config::getContext() };
+    const float scale { jreng::Typeface::getDisplayScale() };
     const float cellWidthMultiplier  { cfg->getFloat (Config::Key::fontCellWidth) };
     const float lineHeightMultiplier { cfg->getFloat (Config::Key::fontLineHeight) };
-    const int effectiveCellW { static_cast<int> (static_cast<float> (fm.logicalCellW) * cellWidthMultiplier) };
-    const int effectiveCellH { static_cast<int> (static_cast<float> (fm.logicalCellH) * lineHeightMultiplier) };
+    const int physCellW { static_cast<int> (static_cast<float> (fm.physCellW) * cellWidthMultiplier) };
+    const int physCellH { static_cast<int> (static_cast<float> (fm.physCellH) * lineHeightMultiplier) };
 
-    jassert (effectiveCellW > 0 and effectiveCellH > 0);
+    jassert (physCellW > 0 and physCellH > 0);
 
     const int paddingTop    { cfg->getInt (Config::Key::terminalPaddingTop) };
     const int paddingRight  { cfg->getInt (Config::Key::terminalPaddingRight) };
@@ -122,8 +124,11 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
     const int contentW { paneRect.getWidth()  - paddingLeft - paddingRight };
     const int contentH { paneRect.getHeight() - paddingTop  - paddingBottom };
 
-    const int cols { (contentW > 0 and effectiveCellW > 0) ? contentW / effectiveCellW : 1 };
-    const int rows { (contentH > 0 and effectiveCellH > 0) ? contentH / effectiveCellH : 1 };
+    const int physContentW { static_cast<int> (static_cast<float> (contentW) * scale) };
+    const int physContentH { static_cast<int> (static_cast<float> (contentH) * scale) };
+
+    const int cols { (physContentW > 0 and physCellW > 0) ? physContentW / physCellW : 1 };
+    const int rows { (physContentH > 0 and physCellH > 0) ? physContentH / physCellH : 1 };
 
     jassert (cols > 0 and rows > 0);
     return { cols, rows };

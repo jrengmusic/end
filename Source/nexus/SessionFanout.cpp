@@ -7,7 +7,7 @@
  * is no fan-out loop needed in handleAsyncUpdate — that method is a no-op here.
  *
  * This file implements:
- * - `attachConnection` / `detachConnection` — per-session subscriber registry.
+ * - `attach` / `detachConnection` — per-session subscriber registry.
  * - `broadcastProcessorList` — push processor UUID list to one or all clients.
  *
  * @see Nexus::Session
@@ -79,55 +79,54 @@ void Session::broadcastProcessorList()
 // =============================================================================
 
 /**
- * @brief Atomically sends history snapshot then registers the connection as a subscriber.
+ * @brief Registers @p target as a byte-output subscriber for @p uuid.
  *
- * Inlines both operations under a single connectionsLock acquisition so the
- * reader thread's onBytes broadcast (which also acquires connectionsLock) cannot
- * interleave between history send and subscriber registration.
+ * When @p sendHistory is true, snapshots the session's byte history and sends
+ * it as a Message::loading PDU before registering the subscriber.  The lock
+ * is held across both operations so the reader thread's onBytes broadcast
+ * cannot interleave between history send and subscriber registration.
  *
- * NOTE: `attachConnection` is intentionally NOT called here to avoid recursive
- * lock acquisition confusion even though CriticalSection is recursive.
- *
+ * @param uuid         Session UUID.
+ * @param target       Connection to register and send to.
+ * @param sendHistory  When true, send history snapshot before subscribing.
+ * @param cols         Terminal column count for PTY resize after subscribing.
+ * @param rows         Terminal row count for PTY resize after subscribing.
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Session::attachAndSync (const juce::String& uuid, ServerConnection& target)
+void Session::attach (const juce::String& uuid, ServerConnection& target,
+                      bool sendHistory, int cols, int rows)
 {
-    const juce::ScopedLock lock (connectionsLock);
-
-    // Send loading snapshot FIRST so the client is fully synced before live bytes arrive.
-    const auto tsIt { terminalSessions.find (uuid) };
-
-    if (tsIt != terminalSessions.end())
     {
-        const juce::MemoryBlock historyBytes { tsIt->second->snapshotHistory() };
+        const juce::ScopedLock lock (connectionsLock);
 
-        juce::MemoryBlock payload;
-        writeString (payload, uuid);
-        payload.append (historyBytes.getData(), historyBytes.getSize());
+        if (sendHistory)
+        {
+            const auto procIt { processors.find (uuid) };
 
-        Nexus::logLine ("Session::attachAndSync: sending loading uuid=" + uuid
-                        + " historyBytes=" + juce::String ((int) historyBytes.getSize()));
+            if (procIt != processors.end())
+            {
+                juce::MemoryBlock snapshot;
+                procIt->second->getStateInformation (snapshot);
 
-        target.sendPdu (Message::loading, payload);
+                juce::MemoryBlock payload;
+                writeString (payload, uuid);
+                payload.append (snapshot.getData(), snapshot.getSize());
+
+                Nexus::logLine ("Session::attach: sending snapshot uuid=" + uuid
+                                + " snapshotBytes=" + juce::String ((int) snapshot.getSize()));
+
+                target.sendPdu (Message::loading, payload);
+            }
+        }
+
+        subscribers[uuid].push_back (&target);
+
+        Nexus::logLine ("Session::attach: subscriber registered uuid=" + uuid
+                        + " sendHistory=" + juce::String (sendHistory ? "yes" : "no"));
     }
 
-    // Register as subscriber — any onBytes broadcast after this point will
-    // include `target`, but it cannot run until we release connectionsLock.
-    // (Inlined from attachConnection.)
-    subscribers[uuid].push_back (&target);
-
-    Nexus::logLine ("Session::attachAndSync: subscriber registered uuid=" + uuid);
-}
-
-/**
- * @brief Registers @p connection as a byte-output subscriber for @p uuid.
- *
- * @note Acquires connectionsLock.
- */
-void Session::attachConnection (const juce::String& uuid, ServerConnection& connection)
-{
-    const juce::ScopedLock lock (connectionsLock);
-    subscribers[uuid].push_back (&connection);
+    // Resize after lock release — SIGWINCH output broadcast acquires connectionsLock.
+    sendResize (uuid, cols, rows);
 }
 
 /**

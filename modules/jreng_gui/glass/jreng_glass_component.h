@@ -21,9 +21,9 @@
  * @endcode
  *
  * @note The blur radius is fixed at 20 pt.  For a configurable radius use
- *       GlassWindow instead.
+ *       Window instead.
  *
- * @see GlassWindow
+ * @see Window
  * @see BackgroundBlur
  */
 

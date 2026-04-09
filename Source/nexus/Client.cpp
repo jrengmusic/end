@@ -197,24 +197,29 @@ void Client::connectionLost()
 // =============================================================================
 
 /**
- * @brief Requests the host to spawn a new PTY session.
+ * @brief Requests the host to create or attach to a PTY session.
  *
  * Payload: shell | args | cwd | uuid | cols (uint16_t LE) | rows (uint16_t LE) | envID
  *
  * @note Any thread.
  */
-void Client::spawnSession (int cols, int rows,
-                            const juce::String& shell,
-                            const juce::String& cwd,
-                            const juce::String& uuid,
-                            const juce::String& envID)
+void Client::createSession (int cols, int rows,
+                             const juce::String& shell,
+                             const juce::String& cwd,
+                             const juce::String& uuid,
+                             const juce::String& envID)
 {
-    Nexus::logLine ("Client::spawnSession: sending spawnProcessor uuid=" + uuid
+    Nexus::logLine ("Client::createSession: sending createProcessor uuid=" + uuid
                     + " cols=" + juce::String (cols)
                     + " rows=" + juce::String (rows)
                     + " shell=" + shell
                     + " cwd=" + cwd
                     + " envID=" + envID);
+
+    {
+        const juce::ScopedLock lock (attachedUuidsLock);
+        attachedUuids.add (uuid);
+    }
 
     juce::MemoryBlock payload;
     writeString (payload, shell);
@@ -224,28 +229,7 @@ void Client::spawnSession (int cols, int rows,
     writeUint16 (payload, static_cast<uint16_t> (cols));
     writeUint16 (payload, static_cast<uint16_t> (rows));
     writeString (payload, envID);
-    sendPdu (Message::spawnProcessor, payload);
-}
-
-/**
- * @brief Subscribes to render deltas for a session.
- *
- * Tracks attached UUIDs so `disconnectFromHost()` can detach them.
- *
- * @note Any thread.
- */
-void Client::attachSession (const juce::String& uuid)
-{
-    Nexus::logLine ("Client::attachSession: sending attachProcessor uuid=" + uuid);
-
-    {
-        const juce::ScopedLock lock (attachedUuidsLock);
-        attachedUuids.add (uuid);
-    }
-
-    juce::MemoryBlock payload;
-    writeString (payload, uuid);
-    sendPdu (Message::attachProcessor, payload);
+    sendPdu (Message::createProcessor, payload);
 }
 
 /**

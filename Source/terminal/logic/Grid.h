@@ -439,6 +439,30 @@ public:
     juce::String extractText (juce::Point<int> start, juce::Point<int> end, int scrollOffset) const;
 
     /**
+     * @brief Serializes both screen buffers into destData.
+     *
+     * Acquires resizeLock and writes a flat binary snapshot of both the normal
+     * and alternate Buffer structs (scalars + cells + graphemes + rowStates).
+     * Called by Processor::getStateInformation to delegate grid serialization.
+     *
+     * @param destData  MemoryBlock to append the snapshot to.
+     * @note MESSAGE THREAD.
+     */
+    void getStateInformation (juce::MemoryBlock& destData) const;
+
+    /**
+     * @brief Restores both screen buffers from a snapshot produced by getStateInformation.
+     *
+     * Acquires resizeLock, reads scalars, allocates HeapBlocks to match, and
+     * memcpys bulk data. Called by Processor::setStateInformation.
+     *
+     * @param data  Pointer to the snapshot bytes positioned at the grid section.
+     * @param size  Size in bytes of the grid section.
+     * @note MESSAGE THREAD.
+     */
+    void setStateInformation (const void* data, int size);
+
+    /**
      * @brief Extracts a box (rectangle) selection of text as a UTF-32 string.
      *
      * Unlike `extractText()`, which uses row-wrapped selection semantics, this

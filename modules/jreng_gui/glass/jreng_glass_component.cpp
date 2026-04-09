@@ -42,10 +42,10 @@ void GlassComponent::visibilityChanged()
  *
  * Runs on the JUCE message thread after @c triggerAsyncUpdate().  The fixed
  * radius of 20 pt matches the default glassmorphism aesthetic.  For a
- * configurable radius, use GlassWindow instead.
+ * configurable radius, use Window instead.
  *
  * @see BackgroundBlur::enable()
- * @see GlassWindow
+ * @see Window
  */
 void GlassComponent::handleAsyncUpdate()
 {

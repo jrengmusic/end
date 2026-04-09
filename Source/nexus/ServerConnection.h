@@ -103,10 +103,9 @@ private:
 
     void handleHello            ();
     void handlePing             ();
-    void handleSpawnProcessor   (const uint8_t* payload, int payloadSize);
+    void handleCreateProcessor  (const uint8_t* payload, int payloadSize);
     void handleInput            (const uint8_t* payload, int payloadSize);
     void handleResizeSession    (const uint8_t* payload, int payloadSize);
-    void handleAttachProcessor  (const uint8_t* payload, int payloadSize);
     void handleDetachProcessor  (const uint8_t* payload, int payloadSize);
     void handleRemoveProcessor  (const uint8_t* payload, int payloadSize);
 

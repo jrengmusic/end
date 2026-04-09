@@ -109,14 +109,13 @@ void ServerConnection::sendPdu (Message kind, const juce::MemoryBlock& payload)
  * is `true`.
  *
  * PDU kinds handled:
- * - `hello`           → sends `helloResponse`
- * - `ping`            → sends `pong`
- * - `spawnProcessor`  → decodes shell/args/cwd/uuid/cols/rows, calls session.create,
- *                       then session.sendResize, then broadcastProcessorList
- * - `input`           → decodes uuid + bytes, calls session.sendInput
- * - `resizeSession`   → decodes uuid + cols + rows, calls session.sendResize
- * - `attachProcessor` → registers subscription, sends Message::loading snapshot
- * - `detachProcessor` → unregisters subscription
+ * - `hello`            → sends `helloResponse`
+ * - `ping`             → sends `pong`
+ * - `createProcessor`  → decodes shell/args/cwd/uuid/cols/rows; creates if new,
+ *                        resizes+attaches if existing, then broadcastProcessorList
+ * - `input`            → decodes uuid + bytes, calls session.sendInput
+ * - `resizeSession`    → decodes uuid + cols + rows, calls session.sendResize
+ * - `detachProcessor`  → unregisters subscription
  *
  * @param message  Raw MemoryBlock received from the JUCE IPC layer.
  * @note NEXUS PROCESS MESSAGE THREAD.
@@ -138,14 +137,13 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
 
         switch (kind)
         {
-            case Message::hello:           handleHello();                                break;
-            case Message::ping:            handlePing();                                 break;
-            case Message::spawnProcessor:  handleSpawnProcessor  (payload, payloadSize); break;
-            case Message::input:           handleInput           (payload, payloadSize); break;
-            case Message::resizeSession:   handleResizeSession   (payload, payloadSize); break;
-            case Message::attachProcessor: handleAttachProcessor (payload, payloadSize); break;
-            case Message::detachProcessor: handleDetachProcessor (payload, payloadSize); break;
-            case Message::removeProcessor: handleRemoveProcessor (payload, payloadSize); break;
+            case Message::hello:            handleHello();                                 break;
+            case Message::ping:             handlePing();                                  break;
+            case Message::createProcessor:  handleCreateProcessor (payload, payloadSize);  break;
+            case Message::input:            handleInput           (payload, payloadSize);  break;
+            case Message::resizeSession:    handleResizeSession   (payload, payloadSize);  break;
+            case Message::detachProcessor:  handleDetachProcessor (payload, payloadSize);  break;
+            case Message::removeProcessor:  handleRemoveProcessor (payload, payloadSize);  break;
             default:
                 Nexus::logLine ("NEXUS: messageReceived exit kind=unknown rawKind="
                                 + juce::String ((int) rawKind));
@@ -202,36 +200,31 @@ ServerConnection::parseSpawnPayload (const uint8_t* payload, int payloadSize)
     return out;
 }
 
-void ServerConnection::handleSpawnProcessor (const uint8_t* payload, int payloadSize)
+void ServerConnection::handleCreateProcessor (const uint8_t* payload, int payloadSize)
 {
     const auto parsed { parseSpawnPayload (payload, payloadSize) };
 
-    Nexus::logLine ("NEXUS: received spawnProcessor client-uuid=" + parsed.uuid
+    Nexus::logLine ("NEXUS: received createProcessor uuid=" + parsed.uuid
                     + " valid=" + juce::String (parsed.valid ? 1 : 0));
 
     if (parsed.valid)
     {
-        Nexus::logLine ("NEXUS: spawnProcessor shell=" + parsed.shell + " envID=" + parsed.envID);
+        const bool exists { session.hasSession (parsed.uuid) };
 
-        Terminal::Processor& newProcessor { session.create (parsed.shell, parsed.args, parsed.cwd,
-                                                             parsed.uuid, parsed.cols, parsed.rows,
-                                                             parsed.envID) };
-        const juce::String sessionUuid { newProcessor.getUuid() };
+        if (not exists)
+        {
+            session.create (parsed.shell, parsed.args, parsed.cwd,
+                            parsed.uuid, parsed.cols, parsed.rows, parsed.envID);
+        }
 
-        Nexus::logLine ("NEXUS: session.create returned actual-uuid=" + sessionUuid
-                        + " cols=" + juce::String (parsed.cols)
-                        + " rows=" + juce::String (parsed.rows));
-
-        session.sendResize (sessionUuid, parsed.cols, parsed.rows);
-
-        juce::MemoryBlock response;
-        writeString (response, sessionUuid);
-        sendPdu (Message::spawnProcessorResponse, response);
+        // Subscribe, send history (rebuilds terminal state: alt screen, cursor, etc.),
+        // then resize PTY. SIGWINCH redraw overwrites any dim-garbled history output.
+        session.attach (parsed.uuid, *this, true, parsed.cols, parsed.rows);
 
         session.broadcastProcessorList();
     }
 
-    Nexus::logLine ("NEXUS: messageReceived exit kind=spawnProcessor");
+    Nexus::logLine ("NEXUS: messageReceived exit kind=createProcessor");
 }
 
 void ServerConnection::handleInput (const uint8_t* payload, int payloadSize)
@@ -272,26 +265,6 @@ void ServerConnection::handleResizeSession (const uint8_t* payload, int payloadS
     }
 
     Nexus::logLine ("NEXUS: messageReceived exit kind=resizeSession");
-}
-
-void ServerConnection::handleAttachProcessor (const uint8_t* payload, int payloadSize)
-{
-    // Payload: uuid (length-prefixed)
-    juce::String uuid;
-    const int uuidConsumed { readString (payload, payloadSize, uuid) };
-
-    Nexus::logLine ("NEXUS: received attachProcessor uuid=" + uuid
-                    + " uuidConsumed=" + juce::String (uuidConsumed));
-
-    if (uuidConsumed > 0 and uuid.isNotEmpty())
-    {
-        // Atomically send loading snapshot then register as subscriber — prevents
-        // Message::output arriving before Message::loading on reattach.
-        session.attachAndSync (uuid, *this);
-        Nexus::logLine ("NEXUS: post-attachAndSync complete uuid=" + uuid);
-    }
-
-    Nexus::logLine ("NEXUS: messageReceived exit kind=attachProcessor");
 }
 
 void ServerConnection::handleDetachProcessor (const uint8_t* payload, int payloadSize)

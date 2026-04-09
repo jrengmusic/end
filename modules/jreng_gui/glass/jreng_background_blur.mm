@@ -29,7 +29,7 @@
  *       @c JUCE_MAC.
  *
  * @see jreng_background_blur.h
- * @see GlassWindow
+ * @see Window
  * @see GlassComponent
  */
 
@@ -148,7 +148,7 @@ const bool BackgroundBlur::isCoreGraphicsAvailable()
  * @brief Applies synchronous window chrome configuration — title hiding and
  *        optional traffic-light button hiding.
  *
- * Called from GlassWindow::visibilityChanged() on the message thread, before
+ * Called from Window::visibilityChanged() on the message thread, before
  * the async blur is triggered, to eliminate the native titlebar flash that
  * occurs when chrome configuration is deferred alongside blur.
  *

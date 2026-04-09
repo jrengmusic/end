@@ -694,7 +694,22 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
 
                 if (firstUuid.isNotEmpty())
                 {
-                    const auto [firstCols, firstRows] { Panes::cellsFromRect (contentRect, font) };
+                    // Compute the first leaf's actual sub-rect by descending the
+                    // left branch of the saved split tree.  Each PANES node with
+                    // 2 children narrows the rect via splitRect.
+                    auto firstLeafRect { contentRect };
+                    auto walkNode { panesNode };
+
+                    while (walkNode.getType() == App::ID::PANES and walkNode.getNumChildren() == 2)
+                    {
+                        const juce::String dir { walkNode.getProperty (jreng::PaneManager::idDirection).toString() };
+                        const double ratio { static_cast<double> (walkNode.getProperty (jreng::PaneManager::idRatio, 0.5)) };
+                        const auto [targetRect, newRect] { Panes::splitRect (firstLeafRect, dir, ratio) };
+                        firstLeafRect = targetRect;
+                        walkNode = walkNode.getChild (0);
+                    }
+
+                    const auto [firstCols, firstRows] { Panes::cellsFromRect (firstLeafRect, font) };
                     addNewTab (firstCwd, firstUuid, firstCols, firstRows);
 
                     auto* activePanes { getActivePanes() };
@@ -750,12 +765,8 @@ void Tabs::focusPaneRight()
  */
 juce::Rectangle<int> Tabs::computeContentRect (int tabBarDepth) const noexcept
 {
-    const auto liveRect { getLocalBounds() };
-    auto base { liveRect.isEmpty()
-                ? juce::Rectangle<int> (0, 0,
-                                        AppState::getContext()->getWindowWidth(),
-                                        AppState::getContext()->getWindowHeight())
-                : liveRect };
+    const auto base { getLocalBounds() };
+    jassert (not base.isEmpty());
 
     juce::Rectangle<int> result { base };
 

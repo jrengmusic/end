@@ -8,7 +8,7 @@
  * - **Config** — Lua config loader; registered as a `jreng::Context<Config>`
  *   singleton so any subsystem can call `Config::getContext()`.
  * - **FontCollection** — pre-loaded font handles shared across the renderer.
- * - **GlassWindow** — the native OS window with optional background blur.
+ * - **Window** — the native OS window with optional background blur.
  *
  * ### Startup sequence
  * @code
@@ -16,7 +16,7 @@
  * AppState ctor      → initialises defaults (no filesystem access)
  * FontCollection ctor → loads font handles at default size
  * initialise()       → sets nexus mode, loads state.xml if nexus=true,
- *                      creates GlassWindow(new MainComponent())
+ *                      creates Window(new MainComponent())
  * @endcode
  *
  * ### Shutdown sequence
@@ -153,7 +153,7 @@ public:
      * @brief Creates the main window and wires up all subsystems.
      *
      * Called by JUCE after the message loop starts.  Reads window geometry and
-     * appearance from Config, then constructs a `jreng::GlassWindow` wrapping a
+     * appearance from Config, then constructs a `jreng::Window` wrapping a
      * freshly allocated `MainComponent`.
      *
      * @param commandLine  The raw command-line string passed to the process.
@@ -227,7 +227,7 @@ public:
             // Nexus mode: set optimistically — window appears before connection settles.
             appState.setNexusMode (nexusEnabled);
 
-            mainWindow.reset (new jreng::GlassWindow (new MainComponent (fontRegistry),
+            mainWindow.reset (new jreng::Window (new MainComponent (fontRegistry),
                                                       cfg->getString (Config::Key::windowTitle),
                                                       cfg->getBool (Config::Key::windowAlwaysOnTop),
                                                       cfg->getBool (Config::Key::windowButtons)));
@@ -339,7 +339,7 @@ public:
      * @brief Destroys the main window and releases all resources.
      *
      * Resetting `mainWindow` triggers the full component teardown chain:
-     * GlassWindow → MainComponent → Terminal::Display → Session / Screen.
+     * Window → MainComponent → Terminal::Display → Session / Screen.
      *
      * @note MESSAGE THREAD — called once at shutdown.
      */
@@ -432,7 +432,7 @@ private:
     };
 
     /** @brief The native OS window; null before initialise() and after shutdown(). */
-    std::unique_ptr<jreng::GlassWindow> mainWindow;
+    std::unique_ptr<jreng::Window> mainWindow;
 };
 
 //==============================================================================

@@ -2,7 +2,7 @@
  * @file MainComponent.h
  * @brief Root JUCE component that hosts the terminal UI.
  *
- * MainComponent is the content component of the application's `GlassWindow`.
+ * MainComponent is the content component of the application's `Window`.
  * It owns a `Terminal::Tabs` child that manages multiple terminal sessions,
  * and paints the window background with the configured colour and opacity.
  *
@@ -54,7 +54,7 @@
  * @class MainComponent
  * @brief Root content component of the END application window.
  *
- * Placed inside `jreng::GlassWindow` by `ENDApplication::initialise()`.
+ * Placed inside `jreng::Window` by `ENDApplication::initialise()`.
  * Owns the `Terminal::Tabs` container and paints the translucent background
  * layer that shows through the native window blur effect.
  *

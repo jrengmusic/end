@@ -58,8 +58,6 @@ Terminal::Display::~Display()
     processor.onClipboardChanged = nullptr;
     processor.onBell = nullptr;
     processor.onDesktopNotification = nullptr;
-    processor.onLoadingStarted = nullptr;
-    processor.onLoadingFinished = nullptr;
 
     visitScreen ([&] (auto& scr) { scr.setSelection (nullptr); });
     screenSelection.reset();
@@ -143,19 +141,6 @@ void Terminal::Display::initialise()
         Terminal::Notifications::show (title, body);
     };
 
-    processor.onLoadingStarted = [this] (const juce::String& message)
-    {
-        loaderOverlay.show (0, message);
-        loaderOverlay.setBounds (getLocalBounds());
-    };
-
-    processor.onLoadingFinished = [this]
-    {
-        loaderOverlay.hide();
-    };
-
-    addChildComponent (&loaderOverlay);
-
     linkManager->onOpenMarkdown = [this] (const juce::File& file)
     {
         if (onOpenMarkdown != nullptr)
@@ -171,7 +156,6 @@ void Terminal::Display::initialise()
 void Terminal::Display::resized()
 {
     auto contentArea { getLocalBounds() };
-    contentArea.removeFromTop (titleBarHeight);
     contentArea.removeFromTop (paddingTop);
     contentArea.removeFromRight (paddingRight);
     contentArea.removeFromBottom (paddingBottom);
@@ -193,8 +177,6 @@ void Terminal::Display::resized()
         Nexus::Session::getContext()->sendResize (processor.getUuid(), cols, rows);
         processor.getState().setScrollOffset (0);
     }
-
-    loaderOverlay.setBounds (getLocalBounds());
 }
 
 bool Terminal::Display::hasSelection() const noexcept { return screenSelection != nullptr; }

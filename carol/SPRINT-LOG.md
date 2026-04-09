@@ -1,5 +1,61 @@
 # SPRINT-LOG
 
+## Sprint 5: Grid Snapshot Architecture
+
+**Date:** 2026-04-09
+
+### Agents Participated
+- COUNSELOR: Architecture analysis, tmux research, flow tracing, directed all changes
+- Pathfinder: Grid/State internals discovery, destruction order analysis, dims divergence tracing
+- Researcher: tmux reattach architecture research (virtual grid redraw vs raw byte replay)
+- Librarian: JUCE ComponentBoundsConstrainer API research
+- Engineer: Serialization implementation, daemon rewire, Loader deletion, Window rename
+
+### Files Modified (20+ total)
+- `Source/terminal/logic/Processor.h` — getStateInformation/setStateInformation declarations, deleted onLoadingStarted/onLoadingFinished
+- `Source/terminal/logic/Processor.cpp` — serialization implementations delegating to Grid + State
+- `Source/terminal/logic/Grid.h` — getStateInformation/setStateInformation declarations
+- `Source/terminal/logic/Grid.cpp` — dual-buffer serialization (cells, graphemes, rowStates, ring metadata)
+- `Source/terminal/data/Cell.h` — (read only, trivially copyable confirmed)
+- `Source/nexus/Session.h` — deleted Loader includes/members, updated startLoading doc
+- `Source/nexus/Session.cpp` — daemon Processor real (processWithLock in onBytes), startLoading calls setStateInformation, deleted Loader machinery, createClientSession initial cwd write
+- `Source/nexus/SessionFanout.cpp` — attach sends getStateInformation snapshot, merged attachAndSync+attachConnection into attach(uuid, target, sendHistory, cols, rows)
+- `Source/nexus/ServerConnection.h/cpp` — handleCreateProcessor (unified), hasSession check, attach with dims, deleted handleAttachProcessor
+- `Source/nexus/Client.h/cpp` — createSession (renamed from spawnSession), deleted attachSession, handleStateUpdate for cwd/fgProcess
+- `Source/nexus/Message.h` — createProcessor=0x10, stateUpdate=0x22, deleted 3 dead PDUs
+- `Source/component/TerminalDisplay.h` — deleted LoaderOverlay member, titleBarHeight member
+- `Source/component/TerminalDisplay.cpp` — deleted loading overlay wiring, removed titleBarHeight from resized
+- `Source/component/Tabs.cpp` — Tabs::restore first-leaf sub-rect descent, cellsFromRect physical-pixel math, removed AppState fallback from computeContentRect
+- `Source/component/Panes.cpp` — cellsFromRect uses physical pixels (Screen::calc SSOT)
+- `Source/MainComponent.h/cpp` — removed getContentRect titleBarHeight subtraction, resize overlay via Window::isUserResizing
+- `Source/Main.cpp` — jreng::GlassWindow → jreng::Window
+- `modules/jreng_gui/glass/jreng_window.h/cpp` — renamed from jreng_glass_window, added ComponentBoundsConstrainer inheritance, resizeStart/resizeEnd/isUserResizing
+- `modules/jreng_gui/glass/jreng_modal_window.h/cpp` — GlassWindow → Window
+- `modules/jreng_gui/jreng_gui.h/cpp` — updated module includes
+- Deleted: `Source/nexus/Loader.h`, `Source/nexus/Loader.cpp`, `Source/nexus/Phrases.h`
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Raw byte history replay replaced with Grid+State snapshot (eliminates dim-garble class of bugs)
+- Daemon Processor real — parses all bytes, maintains live Grid+State for snapshot
+- Unified createProcessor PDU — daemon decides create-vs-attach, deleted 3 dead PDUs
+- cellsFromRect/Screen::calc SSOT — physical-pixel math eliminates 1-row divergence
+- Double titleBarHeight subtraction in getContentRect and Display::resized
+- First-leaf dims computed from actual sub-rect (split tree descent), not full content rect
+- Resize overlay driven by ComponentBoundsConstrainer (no flags, no timers)
+- GlassWindow → Window rename (domain naming)
+- Loader thread + LoaderOverlay + loading callbacks deleted (entire subsystem)
+
+### Technical Debt / Follow-up
+- Session::create mode helpers (createClientSession/createDaemonSession/createLocalSession) to be unified into one path — byte source is configuration, not architecture
+- Generic naming (daemon/client) to be purged — domain is Nexus/END
+- startLoading naming is stale — now calls setStateInformation, not loading
+- Daemon stub Processor concept eliminated but processors map still exists on daemon side
+
 ## Sprint 4: Nexus Parity — Loader, CWD, DSR, Shutdown
 
 **Date:** 2026-04-09

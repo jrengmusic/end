@@ -51,7 +51,6 @@
 #include "../terminal/selection/LinkManager.h"
 #include "../nexus/Session.h"
 #include "PaneComponent.h"
-#include "LoaderOverlay.h"
 #include "config/Config.h"
 
 namespace Terminal
@@ -685,18 +684,7 @@ private:
     /** @brief VBlank attachment that drives the render loop at display refresh rate. */
     juce::VBlankAttachment vblank;
 
-    /** @brief Per-pane loading overlay shown during session history replay. */
-    LoaderOverlay loaderOverlay;
-
     //==============================================================================
-    /**
-     * @brief Height of the native title bar in pixels; 0 when buttons are hidden.
-     *
-     * Read from Config at construction.  When `window.buttons = true` the
-     * traffic-light buttons occupy 24 px at the top of the component.
-     */
-    const int titleBarHeight { Config::getContext()->getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
-
     /** @brief Grid padding — top edge inset in logical pixels (from `terminal.padding`). */
     const int paddingTop    { Config::getContext()->getInt (Config::Key::terminalPaddingTop) };
 

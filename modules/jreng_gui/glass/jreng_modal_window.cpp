@@ -1,9 +1,9 @@
 /**
  * @file jreng_modal_window.cpp
- * @brief Implementation of ModalWindow — modal GlassWindow.
+ * @brief Implementation of ModalWindow — modal Window.
  *
  * @see jreng_modal_window.h
- * @see GlassWindow
+ * @see Window
  */
 
 namespace jreng
@@ -14,7 +14,7 @@ ModalWindow::ModalWindow (juce::Component* mainComponent,
                           const juce::String& name,
                           bool alwaysOnTop,
                           bool showWindowButtons)
-    : GlassWindow (mainComponent, name, alwaysOnTop, showWindowButtons)
+    : Window (mainComponent, name, alwaysOnTop, showWindowButtons)
 {
 }
 

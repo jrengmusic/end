@@ -44,7 +44,6 @@
 #include <memory>
 
 #include "../terminal/logic/Processor.h"
-#include "Loader.h"
 
 namespace Terminal { class Session; }
 
@@ -68,7 +67,7 @@ class ServerConnection;
  * Session methods: **NEXUS PROCESS MESSAGE THREAD**.
  * Server methods: **NEXUS PROCESS MESSAGE THREAD** (startServer / stopServer / isServing).
  * `attach()` / `detach()` — any thread (lock guarded).
- * `attachConnection()` / `detachConnection()` — any thread (lock guarded).
+ * `attach(uuid, target, sendHistory)` / `detachConnection()` — any thread (lock guarded).
  *
  * @see Terminal::Session
  * @see Terminal::Processor
@@ -119,7 +118,7 @@ public:
      * stub Processor& (daemon has no display, but callers may inspect the uuid).
      *
      * In client mode: constructs a `Terminal::Processor` (pipeline side only),
-     * sends `Message::spawnProcessor` to daemon, returns Processor&.
+     * sends `Message::createProcessor` to daemon, returns Processor&.
      *
      * @param shell   Shell program override.  Empty = use Config default.
      * @param args    Shell arguments override.  Empty = use Config default.
@@ -141,7 +140,7 @@ public:
     /**
      * @brief Creates a terminal session with an explicit UUID.
      *
-     * Used for state restoration and for the daemon-side spawnProcessor handler
+     * Used for state restoration and for the daemon-side createProcessor handler
      * which receives the client-assigned UUID over the wire.
      *
      * @param shell   Shell program override.  Empty = use Config default.
@@ -194,6 +193,17 @@ public:
     void remove (const juce::String& uuid);
 
     /**
+     * @brief Returns true if a session with @p uuid is live on this daemon.
+     *
+     * Checks both the Processor map and the Terminal::Session map.
+     *
+     * @param uuid  UUID to test.
+     * @return true if the uuid is found in either map.
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    bool hasSession (const juce::String& uuid) const noexcept;
+
+    /**
      * @brief Returns a snapshot of all live session UUIDs.
      *
      * @return StringArray of UUID strings for all currently live sessions.
@@ -243,14 +253,13 @@ public:
     void feedBytes (const juce::String& uuid, const void* data, int size);
 
     /**
-     * @brief Constructs a `Nexus::Loader` to parse @p bytes into the Processor for @p uuid.
+     * @brief Restores Processor state from a snapshot sent by the daemon on attach.
      *
      * Called from Client::messageReceived when `Message::loading` arrives.
-     * Appends an OPERATION child to the AppState LOADING node, then starts the Loader thread.
-     * When the Loader finishes it erases itself from `loaders` and removes the OPERATION child.
+     * Calls setStateInformation directly on the message thread.
      *
      * @param uuid   UUID of the target Processor.
-     * @param bytes  Backlog byte buffer (moved into Loader ownership).
+     * @param bytes  Snapshot bytes (Grid+State) produced by daemon Processor::getStateInformation.
      * @note MESSAGE THREAD.
      */
     void startLoading (const juce::String& uuid, juce::MemoryBlock&& bytes);
@@ -372,30 +381,22 @@ public:
      * @{ */
 
     /**
-     * @brief Atomically sends loading snapshot then registers the connection as a subscriber.
+     * @brief Registers @p target as a byte-output subscriber for @p uuid.
      *
-     * Holds `connectionsLock` across both operations so the reader thread's
-     * onBytes broadcast cannot race between them.  Guarantees the target
-     * receives history BEFORE any Message::output for the same uuid.
+     * When @p sendHistory is true, snapshots the session's byte history and sends
+     * it as a Message::loading PDU before registering the subscriber.  The lock
+     * is held across both operations so the reader thread's onBytes broadcast
+     * cannot interleave between history send and subscriber registration.
      *
-     * @param uuid    Session UUID to sync.
-     * @param target  Connection to register and send to.
+     * @param uuid         Session UUID.
+     * @param target       Connection to register and send to.
+     * @param sendHistory  When true, send history snapshot before subscribing.
+     * @param cols         Terminal column count for PTY resize after subscribing.
+     * @param rows         Terminal row count for PTY resize after subscribing.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    void attachAndSync (const juce::String& uuid, ServerConnection& target);
-
-    /**
-     * @brief Registers @p connection as a byte-output subscriber for @p uuid.
-     *
-     * Called from ServerConnection when `Message::attachProcessor` is received.
-     * Daemon sends `Message::loading` snapshot, then wires the Terminal::Session
-     * onBytes to also broadcast to this connection via `Message::output`.
-     *
-     * @param uuid        UUID of the session to subscribe to.
-     * @param connection  The ServerConnection to register.
-     * @note Acquires connectionsLock.  Any thread.
-     */
-    void attachConnection (const juce::String& uuid, ServerConnection& connection);
+    void attach (const juce::String& uuid, ServerConnection& target,
+                 bool sendHistory, int cols, int rows);
 
     /**
      * @brief Unregisters @p connection as a byte-output subscriber for @p uuid.
@@ -429,7 +430,7 @@ private:
      * @brief Per-session subscriber registry: UUID → list of raw ServerConnection pointers.
      *
      * Raw pointers are safe: ServerConnection ownership lives in
-     * Server::connections (jreng::Owner).  Entries are registered via attachConnection()
+     * Server::connections (jreng::Owner).  Entries are registered via attach()
      * and removed via detachConnection() or Session::detach() before the
      * ServerConnection is destroyed.
      *
@@ -475,9 +476,8 @@ private:
     /**
      * @brief Creates the client-mode Processor pipeline for @p uuid.
      *
-     * Sends spawnProcessor to the daemon if the uuid is not yet live, then
-     * sends attachProcessor, constructs and registers a Processor, and returns
-     * a reference to it.
+     * Sends createProcessor to the daemon, constructs and registers a Processor,
+     * and returns a reference to it.
      *
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
@@ -517,19 +517,6 @@ private:
                                              const juce::String& uuid,
                                              int cols, int rows,
                                              juce::StringPairArray seedEnv);
-
-    /**
-     * @brief Active Loader map: UUID → unique_ptr<Loader>.
-     *
-     * Non-empty only in client mode while a backlog is being replayed off the
-     * message thread.  Each entry is erased from the Loader's own onFinished
-     * callback, which fires on the message thread after `run()` completes.
-     *
-     * Declared last so it is destroyed first — joining Loader threads while
-     * Processors are still alive.  The destructor also calls loaders.clear()
-     * explicitly as the primary join mechanism.
-     */
-    std::map<juce::String, std::unique_ptr<Loader>> loaders;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

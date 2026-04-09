@@ -16,13 +16,13 @@
  * If the content is a `jreng::GLComponent` (e.g. `Terminal::Display`), the
  * ContentView creates its own `jreng::GLRenderer`, attaches it to itself, and
  * wires the component iterator and repaint callback.  This mirrors the pattern
- * used by `jreng::GlassWindow` + `MainComponent`.  Non-GL content works
+ * used by `jreng::Window` + `MainComponent`.  Non-GL content works
  * without any GL setup.
  *
  * ### Glass blur
  * The inner `Window` class inherits `jreng::ModalWindow` which inherits
- * `jreng::GlassWindow`.  Blur is applied on first visibility via the
- * GlassWindow deferred mechanism.
+ * `jreng::Window`.  Blur is applied on first visibility via the
+ * Window deferred mechanism.
  *
  * ### Dismiss mechanisms
  * - **Escape** — `ModalWindow::keyPressed()` handles Escape and calls `closeButtonPressed()`.
@@ -185,7 +185,7 @@ private:
      *
      * Subclasses `jreng::ModalWindow` which provides Escape dismiss,
      * close button handling, input blocking, and deferred glass blur
-     * via `jreng::GlassWindow`.
+     * via `jreng::Window`.
      *
      * GL rendering is delegated entirely to the `ContentView` content component.
      *

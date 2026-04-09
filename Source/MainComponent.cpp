@@ -159,7 +159,11 @@ void MainComponent::resized()
     if (tabs != nullptr)
         tabs->setBounds (getLocalBounds());
 
-    showMessageOverlay();
+    if (auto* window { dynamic_cast<jreng::Window*> (getTopLevelComponent()) }; window != nullptr)
+    {
+        if (window->isUserResizing())
+            showMessageOverlay();
+    }
 
     // Position status bar overlay: full-width at configured edge.
     // No space is reserved when hidden — the bar overlays the terminal area.
@@ -169,7 +173,6 @@ void MainComponent::resized()
         const int y { (position == "top") ? 0 : getHeight() - barHeight };
         statusBarOverlay->setBounds (0, y, getWidth(), barHeight);
     }
-
 }
 
 /**
@@ -200,10 +203,7 @@ MainComponent::~MainComponent()
  *
  * @note MESSAGE THREAD.
  */
-void MainComponent::valueTreePropertyChanged (juce::ValueTree& /*tree*/,
-                                              const juce::Identifier& /*property*/)
-{
-}
+void MainComponent::valueTreePropertyChanged (juce::ValueTree& /*tree*/, const juce::Identifier& /*property*/) {}
 
 /**
  * @brief Fires when a direct child is added to nexusNode or processorsNode.
@@ -227,11 +227,7 @@ void MainComponent::valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTre
  *
  * @note MESSAGE THREAD.
  */
-void MainComponent::valueTreeChildRemoved (juce::ValueTree& /*parent*/,
-                                           juce::ValueTree& /*child*/,
-                                           int /*index*/)
-{
-}
+void MainComponent::valueTreeChildRemoved (juce::ValueTree& /*parent*/, juce::ValueTree& /*child*/, int /*index*/) {}
 
 /**
  * @brief Registers all user-performable actions with `Action::Registry`.
@@ -280,10 +276,9 @@ void MainComponent::registerActions()
  */
 juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowHeight, int tabCount) const noexcept
 {
+    // windowWidth/windowHeight are MainComponent bounds (content area) —
+    // native title bar is already excluded by JUCE's setUsingNativeTitleBar.
     auto content { juce::Rectangle<int> (0, 0, windowWidth, windowHeight) };
-
-    const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
-    content.removeFromTop (titleBarHeight);
 
     const int tabBarDepth { (tabCount > 1) ? Terminal::LookAndFeel::getTabBarHeight() : 0 };
 
@@ -376,6 +371,7 @@ void MainComponent::initialiseTabs()
         whelmedCodeFont,
         Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
     addAndMakeVisible (tabs.get());
+    tabs->setBounds (getLocalBounds());
 
     glRenderer.setComponentIterator (
         [this] (std::function<void (jreng::GLComponent&)> renderComponent)
@@ -418,9 +414,7 @@ void MainComponent::initialiseTabs()
             ++savedTabCount;
     }
 
-    const auto contentRect { getContentRect (appState.getWindowWidth(),
-                                              appState.getWindowHeight(),
-                                              savedTabCount) };
+    const auto contentRect { getContentRect (appState.getWindowWidth(), appState.getWindowHeight(), savedTabCount) };
     const auto savedSnapshot { savedTabs.createCopy() };
 
     appState.getTabs().removeAllChildren (nullptr);
