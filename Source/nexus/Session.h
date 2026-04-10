@@ -35,7 +35,7 @@
  *
  * @see Terminal::Session  — PTY side (TTY + History).
  * @see Terminal::Processor — pipeline side (Parser + Grid + Display).
- * @see Nexus::ServerConnection
+ * @see Nexus::Channel
  * @see jreng::Context
  */
 
@@ -54,9 +54,9 @@ namespace Nexus
 {
 /*____________________________________________________________________________*/
 
-class Client;
-class Server;
-class ServerConnection;
+class Link;
+class Daemon;
+class Channel;
 
 /**
  * @class Nexus::Session
@@ -68,13 +68,13 @@ class ServerConnection;
  *
  * @par Thread context
  * Session methods: **NEXUS PROCESS MESSAGE THREAD**.
- * Server methods: **NEXUS PROCESS MESSAGE THREAD** (startServer / stopServer / isServing).
+ * Daemon methods: **NEXUS PROCESS MESSAGE THREAD** (startServer / stopServer / isServing).
  * `attach()` / `detach()` — any thread (lock guarded).
  * `attach(uuid, target, sendHistory)` / `detachConnection()` — any thread (lock guarded).
  *
  * @see Terminal::Session
  * @see Terminal::Processor
- * @see Nexus::ServerConnection
+ * @see Nexus::Channel
  */
 class Session : public jreng::Context<Session>
 {
@@ -97,13 +97,13 @@ public:
     Session();
 
     /**
-     * @brief Constructs Session in daemon mode — constructs Server internally and calls startServer().
+     * @brief Constructs Session in daemon mode — constructs Daemon internally and calls startServer().
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     explicit Session (DaemonTag);
 
     /**
-     * @brief Constructs Session in client mode — constructs Client internally and calls beginConnectAttempts().
+     * @brief Constructs Session in client mode — constructs Link internally and calls beginConnectAttempts().
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     explicit Session (ClientTag);
@@ -184,7 +184,7 @@ public:
      *
      * Local/daemon mode: looks up the `Terminal::Session` by @p uuid and calls
      * `Terminal::Session::sendInput`.
-     * Client mode: calls `Client::sendInput` to forward bytes over IPC to the daemon.
+     * Client mode: calls `Link::sendInput` to forward bytes over IPC to the daemon.
      *
      * @param uuid  UUID of the target session.
      * @param data  Pointer to the raw byte buffer.
@@ -197,7 +197,7 @@ public:
      * @brief Forwards a terminal resize to the target session's PTY.
      *
      * Local/daemon mode: looks up `Terminal::Session` by @p uuid and calls resize.
-     * Client mode: calls `Client::sendResize` to forward the resize over IPC.
+     * Client mode: calls `Link::sendResize` to forward the resize over IPC.
      *
      * @param uuid  UUID of the target session.
      * @param cols  New column count.
@@ -209,21 +209,21 @@ public:
     /**
      * @brief Routes incoming bytes from daemon to the Processor for @p uuid.
      *
-     * Client mode: called by Client when `Message::output` arrives.
+     * Client mode: called by Link when `Message::output` arrives.
      * Looks up the Terminal::Session in terminalSessions by UUID and feeds bytes
      * through `Processor::process`.
      *
      * @param uuid   UUID of the target session.
      * @param data   Raw byte buffer.
      * @param size   Number of bytes.
-     * @note MESSAGE THREAD (called from Client::messageReceived).
+     * @note MESSAGE THREAD (called from Link::messageReceived).
      */
     void feedBytes (const juce::String& uuid, const void* data, int size);
 
     /**
      * @brief Restores Processor state from a snapshot sent by the daemon on attach.
      *
-     * Called from Client::messageReceived when `Message::loading` arrives.
+     * Called from Link::messageReceived when `Message::loading` arrives.
      * Calls setStateInformation directly on the message thread.
      *
      * @param uuid   UUID of the target Processor.
@@ -233,24 +233,24 @@ public:
     void startLoading (const juce::String& uuid, juce::MemoryBlock&& bytes);
 
     // =========================================================================
-    /** @name Server
+    /** @name Daemon
      *  Implemented in Session.cpp.
      * @{ */
 
     /**
-     * @brief Creates the Server and starts listening.
+     * @brief Creates the Daemon and starts listening.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     void startServer();
 
     /**
-     * @brief Stops the server and removes the lockfile.
+     * @brief Stops the daemon and removes the lockfile.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     void stopServer();
 
     /**
-     * @brief Returns true if the server is active.
+     * @brief Returns true if the daemon is active.
      * @note Any thread.
      */
     bool isServing() const noexcept;
@@ -259,55 +259,55 @@ public:
 
     // =========================================================================
     /** @name Broadcast registry
-     *  Called by ServerConnection on the message thread.
+     *  Called by Channel on the message thread.
      * @{ */
 
     /**
      * @brief Adds @p connection to the broadcast list.
      *
-     * Called from ServerConnection::connectionMade().
+     * Called from Channel::connectionMade().
      *
-     * @param connection  The newly connected ServerConnection.
+     * @param connection  The newly connected Channel.
      * @note Acquires connectionsLock.  Any thread.
      */
-    void attach (ServerConnection& connection);
+    void attach (Channel& connection);
 
     /**
-     * @brief Sends a `Message::processorList` PDU to @p target only.
+     * @brief Sends a `Message::sessions` PDU to @p target only.
      *
      * Wire format: uint16_t count | N × (uint32_t len + UTF-8 bytes).
-     * Called from ServerConnection::connectionMade().
+     * Called from Channel::connectionMade().
      *
-     * @param target  The newly connected ServerConnection to send to.
+     * @param target  The newly connected Channel to send to.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    void broadcastProcessorList (ServerConnection& target);
+    void broadcastSessions (Channel& target);
 
     /**
-     * @brief Sends a `Message::processorList` PDU to every attached connection.
+     * @brief Sends a `Message::sessions` PDU to every attached connection.
      *
      * Called after processor creation or exit so all connected clients re-sync.
      *
      * @note Acquires connectionsLock.  NEXUS PROCESS MESSAGE THREAD.
      */
-    void broadcastProcessorList();
+    void broadcastSessions();
 
     /**
      * @brief Removes @p connection from the broadcast list AND all per-processor
      *        subscriber lists.
      *
-     * @param connection  The disconnecting ServerConnection.
+     * @param connection  The disconnecting Channel.
      * @note Acquires connectionsLock.  Any thread.
      */
-    void detach (ServerConnection& connection);
+    void detach (Channel& connection);
 
     /** @} */
 
 
     /**
-     * @brief Calls @p visitor with each currently-attached ServerConnection.
+     * @brief Calls @p visitor with each currently-attached Channel.
      *
-     * @param visitor  Callable with signature `void(ServerConnection&)`.
+     * @param visitor  Callable with signature `void(Channel&)`.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     template <typename Visitor>
@@ -347,17 +347,17 @@ public:
      * @param rows         Terminal row count for PTY resize after subscribing.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    void attach (const juce::String& uuid, ServerConnection& target,
+    void attach (const juce::String& uuid, Channel& target,
                  bool sendHistory, int cols, int rows);
 
     /**
      * @brief Unregisters @p connection as a byte-output subscriber for @p uuid.
      *
      * @param uuid        UUID of the session to unsubscribe from.
-     * @param connection  The ServerConnection to unregister.
+     * @param connection  The Channel to unregister.
      * @note Acquires connectionsLock.  Any thread.
      */
-    void detachConnection (const juce::String& uuid, ServerConnection& connection);
+    void detachConnection (const juce::String& uuid, Channel& connection);
 
     /** @} */
 
@@ -372,36 +372,36 @@ private:
     std::map<juce::String, std::unique_ptr<Terminal::Session>> terminalSessions;
 
     /**
-     * @brief Per-session subscriber registry: UUID → list of raw ServerConnection pointers.
+     * @brief Per-session subscriber registry: UUID → list of raw Channel pointers.
      *
-     * Raw pointers are safe: ServerConnection ownership lives in
-     * Server::connections (jreng::Owner).  Entries are registered via attach()
+     * Raw pointers are safe: Channel ownership lives in
+     * Daemon::connections (jreng::Owner).  Entries are registered via attach()
      * and removed via detachConnection() or Session::detach() before the
-     * ServerConnection is destroyed.
+     * Channel is destroyed.
      *
      * Guarded by connectionsLock.
      */
-    std::map<juce::String, std::vector<ServerConnection*>> subscribers;
+    std::map<juce::String, std::vector<Channel*>> subscribers;
 
     /** @brief JUCE-backed TCP listener.  Non-null in daemon mode after construction. */
-    std::unique_ptr<Server> server;
+    std::unique_ptr<Daemon> daemon;
 
     /**
      * @brief IPC client connector.  Non-null in client mode after construction.
      *
-     * Private — no external caller sees or touches Client directly.
+     * Private — no external caller sees or touches Link directly.
      */
-    std::unique_ptr<Client> client;
+    std::unique_ptr<Link> link;
 
     /**
      * @brief Non-owning broadcast list of active connections.
      *
-     * Ownership lives in `Nexus::Server::connections` (jreng::Owner).
+     * Ownership lives in `Nexus::Daemon::connections` (jreng::Owner).
      * Every connected client receives session-lifecycle messages.
      *
      * Guarded by connectionsLock.
      */
-    std::vector<ServerConnection*> attached;
+    std::vector<Channel*> attached;
 
     /** @brief Guards `attached` and `subscribers` for cross-thread access. */
     juce::CriticalSection connectionsLock;
@@ -417,13 +417,13 @@ private:
     void fireIfAllExited() noexcept;
 
     /**
-     * @brief Builds the `Message::processorList` payload from the current terminalSessions map.
+     * @brief Builds the `Message::sessions` payload from the current terminalSessions map.
      *
      * Wire format: uint16_t count | N × (uint32_t len + UTF-8 bytes).
      *
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    juce::MemoryBlock buildProcessorListPayload() const;
+    juce::MemoryBlock buildSessionsPayload() const;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

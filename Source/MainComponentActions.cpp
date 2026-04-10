@@ -157,7 +157,16 @@ void MainComponent::registerTabActions (Action::Registry& action)
                                tabs->closeActiveTab();
 
                                if (tabs->getTabCount() == 0)
+                               {
+                                   if (appState.isNexusMode())
+                                       appState.getStateFile().deleteFile();
+
                                    juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                               }
+                               else if (appState.isNexusMode())
+                               {
+                                   appState.save();
+                               }
 
                                return true;
                            });

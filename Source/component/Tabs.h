@@ -121,6 +121,18 @@ public:
     void closeActiveTab();
 
     /**
+     * @brief Close the pane identified by @p uuid across all tabs.
+     *
+     * Iterates all Panes instances to locate which tab owns the UUID, calls
+     * closePane on that Panes instance, and removes the tab if it becomes empty.
+     * Handles nexus save/delete identically to the onLastPaneClosed path.
+     *
+     * @param uuid  The session UUID to close.
+     * @note MESSAGE THREAD.
+     */
+    void closeSession (const juce::String& uuid);
+
+    /**
      * @brief Select the previous tab, wrapping to the last tab if at the beginning.
      * @note MESSAGE THREAD.
      */

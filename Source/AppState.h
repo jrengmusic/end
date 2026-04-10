@@ -16,13 +16,13 @@
  * `~/.config/end/nexus/<uuid>.nexus` — plain-text port number only; daemon writes;
  * daemon deletes on exit.  Written by `setPort()`.  Read by startup scan (plain text).
  *
- * `~/.config/end/nexus/<uuid>.state` — full state (window + sessions + connected);
+ * `~/.config/end/nexus/<uuid>.display` — full state (window + sessions + connected);
  * nexus client writes; daemon deletes both files on clean exit.
  * Written by `save()`.  Read on startup by `load()`.
  *
  * ### SSOT
- * - Daemon owns `.nexus` (port).  Daemon never touches `.state`.
- * - Client owns `.state` (full state).  Client never writes `.nexus`.
+ * - Daemon owns `.nexus` (port).  Daemon never touches `.display`.
+ * - MainComponent owns `.display` (full state).  MainComponent never writes `.nexus`.
  * - `getStateFile()` returns the correct path for the current mode.
  *
  * ### Instance UUID
@@ -31,8 +31,11 @@
  * from the stored UUID and whether nexus mode is active.
  *
  * ### Connected flag and port
- * `setConnected(true/false)` writes the full state to disk immediately via `save()`.
+ * `setConnected(true/false)` sets the property only — caller must call `save()` when needed.
  * `setPort(n)` writes the port as plain text to `<uuid>.nexus` immediately.
+ *
+ * ### Destructor
+ * The dtor is trivial — no file I/O.  Main owns all file decisions via `systemRequestedQuit()`.
  *
  * @par Thread context
  * All methods are called on the **MESSAGE THREAD**.
@@ -57,7 +60,7 @@ struct AppState : jreng::Context<AppState>
 
     juce::ValueTree getWindow() noexcept;
     juce::ValueTree getNexusNode() noexcept;
-    juce::ValueTree getProcessorsNode() noexcept;
+    juce::ValueTree getSessionsNode() noexcept;
 
     juce::ValueTree getLoadingNode() noexcept;
     juce::ValueTree getTabs() noexcept;
@@ -149,7 +152,9 @@ struct AppState : jreng::Context<AppState>
     //==============================================================================
 
     /**
-     * @brief Sets the connected flag and writes the full state to disk immediately.
+     * @brief Sets the connected flag on the state tree.
+     *
+     * Does not save to disk — caller is responsible for calling save() when needed.
      *
      * @param isConnected  true = a client has established IPC; false = disconnected.
      *
@@ -166,10 +171,10 @@ struct AppState : jreng::Context<AppState>
     /**
      * @brief Stores the daemon's bound TCP port and writes it to `<uuid>.nexus` as plain text.
      *
-     * Called by Server::start() after binding.  Reading this value from the
+     * Called by Daemon::start() after binding.  Reading this value from the
      * nexus file during the startup scan tells the client which port to probe.
      * Writes ONLY the plain-text port number — no XML, no ValueTree.
-     * Daemon calls this.  Daemon never touches `.state`.
+     * Daemon calls this.  Daemon never touches `.display`.
      *
      * @param activePort  The bound TCP port.
      * @note MESSAGE THREAD.
@@ -188,7 +193,7 @@ struct AppState : jreng::Context<AppState>
      * @brief Writes the full state (window + sessions + connected) to `getStateFile()`.
      *
      * Standalone mode: writes to `~/.config/end/end.state`.
-     * Nexus client mode: writes to `~/.config/end/nexus/<uuid>.state`.
+     * Nexus client mode: writes to `~/.config/end/nexus/<uuid>.display`.
      *
      * The NEXUS subtree (processors, loading ops) is excluded from persistence
      * because it is rebuilt live when the daemon reconnects.
@@ -203,7 +208,7 @@ struct AppState : jreng::Context<AppState>
      * @brief Reads the full state from `getStateFile()` into the in-memory tree.
      *
      * Standalone mode: reads from `~/.config/end/end.state`.
-     * Nexus client mode: reads from `~/.config/end/nexus/<uuid>.state`.
+     * Nexus client mode: reads from `~/.config/end/nexus/<uuid>.display`.
      * Falls back silently to initDefaults() values if the file is absent or
      * cannot be parsed.
      *
@@ -214,8 +219,8 @@ struct AppState : jreng::Context<AppState>
     /**
      * @brief Deletes `~/.config/end/nexus/<uuid>.nexus`.
      *
-     * Called by daemon on clean exit via Server::deleteLockfile().
-     * Client never calls this.
+     * Called by daemon on clean exit via `AppState::getContext()->deleteNexusFile()`.
+     * Link never calls this.
      *
      * @note MESSAGE THREAD.
      */
@@ -223,7 +228,7 @@ struct AppState : jreng::Context<AppState>
 
     /** @brief Returns the state file path for the current mode.
      *
-     *  UUID set (nexus client or daemon): `~/.config/end/nexus/<uuid>.state`.
+     *  UUID set (nexus client or daemon): `~/.config/end/nexus/<uuid>.display`.
      *  No UUID (standalone): `~/.config/end/end.state`.
      */
     juce::File getStateFile() const;

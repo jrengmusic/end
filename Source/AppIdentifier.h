@@ -4,14 +4,14 @@
  *
  * These identifiers define the schema for the two persisted files:
  *
- * end.state  — window dimensions only (all modes):
+ * end.state  — window dimensions only (standalone mode):
  *     END
  *     +-- WINDOW (width, height, zoom, renderer)
  *
- * nexus/<uuid>.nexus  — session state (nexus mode only):
+ * nexus/<uuid>.display  — full display state (nexus client mode only):
  *     END (connected, port)
  *     +-- WINDOW (width, height, zoom, renderer, nexusMode)
- *     +-- NEXUS (PROCESSORS [PROCESSOR{id}*], LOADING [OPERATION{id}*])
+ *     +-- NEXUS (SESSIONS [SESSION{id}*], LOADING [OPERATION{id}*])
  *     +-- TABS (active, position, activePaneID)
  *         +-- TAB
  *             +-- PANES (direction, ratio)
@@ -50,8 +50,8 @@ namespace ID
     static const juce::Identifier END        { "END" };
     static const juce::Identifier WINDOW     { "WINDOW" };
     static const juce::Identifier NEXUS      { "NEXUS" };
-    static const juce::Identifier PROCESSORS { "PROCESSORS" };
-    static const juce::Identifier PROCESSOR  { "PROCESSOR" };
+    static const juce::Identifier SESSIONS { "SESSIONS" };
+    static const juce::Identifier SESSION  { "SESSION" };
     static const juce::Identifier LOADING    { "LOADING" };
     static const juce::Identifier OPERATION  { "OPERATION" };
     static const juce::Identifier TABS       { "TABS" };

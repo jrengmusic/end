@@ -1,13 +1,13 @@
 /**
- * @file ServerConnection.cpp
- * @brief Implementation of Nexus::ServerConnection — server-side JUCE IPC connection.
+ * @file Channel.cpp
+ * @brief Implementation of Nexus::Channel — server-side JUCE IPC connection.
  *
- * @see Nexus::ServerConnection
+ * @see Nexus::Channel
  * @see Nexus::Session
  */
 
-#include "ServerConnection.h"
-#include "Server.h"
+#include "Channel.h"
+#include "Daemon.h"
 #include "Session.h"
 #include "Wire.h"
 #include "../terminal/logic/Processor.h"
@@ -19,14 +19,14 @@ namespace Nexus
 // =============================================================================
 
 /**
- * @brief Constructs the ServerConnection with message-thread callbacks and custom magic.
+ * @brief Constructs the Channel with message-thread callbacks and custom magic.
  *
- * @param server_   Owning Server — used in connectionLost() to release this object.
+ * @param daemon_   Owning Daemon — used in connectionLost() to release this object.
  * @param session_  Session pool — used in connectionMade/Lost and messageReceived.
  */
-ServerConnection::ServerConnection (Server& server_, Session& session_)
+Channel::Channel (Daemon& daemon_, Session& session_)
     : juce::InterprocessConnection (true, magicHeader)
-    , server (server_)
+    , daemon (daemon_)
     , session (session_)
 {
 }
@@ -34,7 +34,7 @@ ServerConnection::ServerConnection (Server& server_, Session& session_)
 /**
  * @brief Calls `disconnect()` before the vtable is torn down — JUCE contract.
  */
-ServerConnection::~ServerConnection()
+Channel::~Channel()
 {
     disconnect();
 }
@@ -45,29 +45,29 @@ ServerConnection::~ServerConnection()
  * @brief Called on the message thread when a client connects.
  *
  * Adds this connection to the Session broadcast list, then immediately pushes
- * a `processorList` PDU containing the UUIDs of all currently-live Processors.
+ * a `sessions` PDU containing the UUIDs of all currently-live Processors.
  * The client does not need to request the list — it arrives unsolicited.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void ServerConnection::connectionMade()
+void Channel::connectionMade()
 {
     session.attach (*this);
-    session.broadcastProcessorList (*this);
+    session.broadcastSessions (*this);
 }
 
 /**
  * @brief Called on the message thread when the connection is lost.
  *
  * Removes this connection from the Session broadcast list and all per-processor
- * subscriber lists.  `server.removeConnection` destroys this object last.
+ * subscriber lists.  `daemon.removeConnection` destroys this object last.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void ServerConnection::connectionLost()
+void Channel::connectionLost()
 {
     session.detach (*this);
-    server.removeConnection (this);
+    daemon.removeConnection (this);
 }
 
 // =============================================================================
@@ -81,7 +81,7 @@ void ServerConnection::connectionLost()
  * @param payload  Optional payload bytes.
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void ServerConnection::sendPdu (Message kind, const juce::MemoryBlock& payload)
+void Channel::sendPdu (Message kind, const juce::MemoryBlock& payload)
 {
     juce::MemoryBlock message;
     const auto kindValue { static_cast<uint16_t> (kind) };
@@ -102,16 +102,16 @@ void ServerConnection::sendPdu (Message kind, const juce::MemoryBlock& payload)
  * PDU kinds handled:
  * - `hello`            → sends `helloResponse`
  * - `ping`             → sends `pong`
- * - `createProcessor`  → decodes shell/args/cwd/uuid/cols/rows; creates if new,
- *                        resizes+attaches if existing, then broadcastProcessorList
- * - `input`            → decodes uuid + bytes, calls session.sendInput
- * - `resizeSession`    → decodes uuid + cols + rows, calls session.sendResize
- * - `detachProcessor`  → unregisters subscription
+ * - `createSession`  → decodes shell/args/cwd/uuid/cols/rows; creates if new,
+ *                      resizes+attaches if existing, then broadcastSessions
+ * - `input`          → decodes uuid + bytes, calls session.sendInput
+ * - `resizeSession`  → decodes uuid + cols + rows, calls session.sendResize
+ * - `detachSession`  → unregisters subscription
  *
  * @param message  Raw MemoryBlock received from the JUCE IPC layer.
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void ServerConnection::messageReceived (const juce::MemoryBlock& message)
+void Channel::messageReceived (const juce::MemoryBlock& message)
 {
     const auto total { static_cast<int> (message.getSize()) };
 
@@ -139,7 +139,7 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
                 break;
             }
 
-            case Message::createProcessor:
+            case Message::createSession:
             {
                 const auto parsed { parseSpawnPayload (payload, payloadSize) };
 
@@ -154,7 +154,7 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
                     // then resize PTY. SIGWINCH redraw overwrites any dim-garbled history output.
                     session.attach (parsed.uuid, *this, true, parsed.cols, parsed.rows);
 
-                    session.broadcastProcessorList();
+                    session.broadcastSessions();
                 }
 
                 break;
@@ -200,7 +200,7 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
                 break;
             }
 
-            case Message::detachProcessor:
+            case Message::detachSession:
             {
                 // Payload: uuid (length-prefixed)
                 juce::String uuid;
@@ -212,7 +212,7 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
                 break;
             }
 
-            case Message::removeProcessor:
+            case Message::killSession:
             {
                 // Payload: uuid (length-prefixed)
                 juce::String uuid;
@@ -232,8 +232,8 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
 
 // =============================================================================
 
-ServerConnection::SpawnPayload
-ServerConnection::parseSpawnPayload (const uint8_t* payload, int payloadSize)
+Channel::SpawnPayload
+Channel::parseSpawnPayload (const uint8_t* payload, int payloadSize)
 {
     SpawnPayload out;
     int cursor { 0 };

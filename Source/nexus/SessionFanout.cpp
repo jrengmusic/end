@@ -1,6 +1,6 @@
 /**
  * @file SessionFanout.cpp
- * @brief Nexus::Session subscriber registry and processorList broadcast.
+ * @brief Nexus::Session subscriber registry and sessions broadcast.
  *
  * In the byte-forward architecture, live PTY output is pushed eagerly from
  * the READER THREAD via `Terminal::Session::onBytes → Message::output`.  There
@@ -8,13 +8,13 @@
  *
  * This file implements:
  * - `attach` / `detachConnection` — per-session subscriber registry.
- * - `broadcastProcessorList` — push processor UUID list to one or all clients.
+ * - `broadcastSessions` — push session UUID list to one or all clients.
  *
  * @see Nexus::Session
  */
 
 #include "Session.h"
-#include "ServerConnection.h"
+#include "Channel.h"
 #include "Message.h"
 #include "Wire.h"
 #include "../terminal/logic/Processor.h"
@@ -29,13 +29,13 @@ namespace Nexus
 // =============================================================================
 
 /**
- * @brief Builds the `Message::processorList` payload from the current terminalSessions map.
+ * @brief Builds the `Message::sessions` payload from the current terminalSessions map.
  *
  * Wire format: uint16_t count | N × (uint32_t len + UTF-8 bytes).
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-juce::MemoryBlock Session::buildProcessorListPayload() const
+juce::MemoryBlock Session::buildSessionsPayload() const
 {
     juce::MemoryBlock payload;
     writeUint16 (payload, static_cast<uint16_t> (terminalSessions.size()));
@@ -50,32 +50,32 @@ juce::MemoryBlock Session::buildProcessorListPayload() const
 }
 
 /**
- * @brief Sends a `Message::processorList` PDU to @p target only.
+ * @brief Sends a `Message::sessions` PDU to @p target only.
  *
- * Called from ServerConnection::connectionMade() to deliver the current list
+ * Called from Channel::connectionMade() to deliver the current list
  * to a newly connected client.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Session::broadcastProcessorList (ServerConnection& target)
+void Session::broadcastSessions (Channel& target)
 {
-    target.sendPdu (Message::processorList, buildProcessorListPayload());
+    target.sendPdu (Message::sessions, buildSessionsPayload());
 }
 
 /**
- * @brief Sends a `Message::processorList` PDU to every attached connection.
+ * @brief Sends a `Message::sessions` PDU to every attached connection.
  *
  * Called after processor creation or exit so all connected clients re-sync.
  *
  * @note Acquires connectionsLock.  NEXUS PROCESS MESSAGE THREAD.
  */
-void Session::broadcastProcessorList()
+void Session::broadcastSessions()
 {
-    const juce::MemoryBlock payload { buildProcessorListPayload() };
+    const juce::MemoryBlock payload { buildSessionsPayload() };
     const juce::ScopedLock lock (connectionsLock);
 
     for (auto* conn : attached)
-        conn->sendPdu (Message::processorList, payload);
+        conn->sendPdu (Message::sessions, payload);
 }
 
 // =============================================================================
@@ -95,7 +95,7 @@ void Session::broadcastProcessorList()
  * @param rows         Terminal row count for PTY resize after subscribing.
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Session::attach (const juce::String& uuid, ServerConnection& target,
+void Session::attach (const juce::String& uuid, Channel& target,
                       bool sendHistory, int cols, int rows)
 {
     {
@@ -130,7 +130,7 @@ void Session::attach (const juce::String& uuid, ServerConnection& target,
  *
  * @note Acquires connectionsLock.
  */
-void Session::detachConnection (const juce::String& uuid, ServerConnection& connection)
+void Session::detachConnection (const juce::String& uuid, Channel& connection)
 {
     const juce::ScopedLock lock (connectionsLock);
     auto it { subscribers.find (uuid) };

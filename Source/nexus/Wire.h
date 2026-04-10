@@ -6,8 +6,8 @@
  * length-prefixed string serialisation used by the Nexus IPC protocol.
  *
  * Previously these helpers were duplicated as file-local statics in:
- *   - Client.cpp
- *   - ServerConnection.cpp
+ *   - Link.cpp
+ *   - Channel.cpp
  *   - SessionFanout.cpp
  *
  * All functions operate on `juce::MemoryBlock` (writers) or raw `uint8_t*`
@@ -27,7 +27,7 @@ namespace Nexus
 /*____________________________________________________________________________*/
 
 /**
- * @brief Magic header shared between Client and ServerConnection.
+ * @brief Magic header shared between Link and Channel.
  *
  * Single source of truth — declared here, referenced by both connection classes.
  * Passed to juce::InterprocessConnection as the magic number for frame validation.

@@ -1,13 +1,13 @@
 /**
- * @file Client.cpp
- * @brief Implementation of Nexus::Client — JUCE IPC connector to a remote Host.
+ * @file Link.cpp
+ * @brief Implementation of Nexus::Link — JUCE IPC connector to a remote Host.
  *
- * @see Nexus::Client
+ * @see Nexus::Link
  * @see Nexus::Session
- * @see Nexus::ServerConnection
+ * @see Nexus::Channel
  */
 
-#include "Client.h"
+#include "Link.h"
 #include "Session.h"
 #include "Wire.h"
 #include "../AppState.h"
@@ -22,13 +22,13 @@ namespace Nexus
 // =============================================================================
 
 /**
- * @brief Constructs the Client with message-thread callbacks (callbacksOnMessageThread=true).
+ * @brief Constructs the Link with message-thread callbacks (callbacksOnMessageThread=true).
  *
  * Using `callbacksOnMessageThread = true` so `connectionMade`, `connectionLost`,
  * and `messageReceived` all fire on the JUCE message thread.  No `callAsync`
  * indirection is needed in `messageReceived`.
  */
-Client::Client()
+Link::Link()
     : juce::InterprocessConnection (true, magicHeader)
 {
 }
@@ -36,7 +36,7 @@ Client::Client()
 /**
  * @brief Calls `disconnect()` — JUCE contract.
  */
-Client::~Client()
+Link::~Link()
 {
     disconnect();
 }
@@ -44,35 +44,10 @@ Client::~Client()
 // =============================================================================
 
 /**
- * @brief Reads port from the `.nexus` file and connects to host at 127.0.0.1.
- *
- * Reads the port directly from the `.nexus` file on disk so that this call is
- * valid even before the daemon has written its port into AppState in-memory.
- *
- * @return `true` if connection succeeded.
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-bool Client::connectToHost()
-{
-    bool connected { false };
-    const juce::File nexusFile { AppState::getContext()->getNexusFile() };
-
-    if (nexusFile.existsAsFile())
-    {
-        const int port { nexusFile.loadFileAsString().trim().getIntValue() };
-
-        if (port > 0)
-            connected = connectToSocket ("127.0.0.1", port, connectTimeoutMs);
-    }
-
-    return connected;
-}
-
-/**
  * @brief Disconnects from the host.
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Client::disconnectFromHost()
+void Link::disconnectFromHost()
 {
     disconnect();
 }
@@ -89,7 +64,7 @@ void Client::disconnectFromHost()
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Client::beginConnectAttempts() noexcept
+void Link::beginConnectAttempts() noexcept
 {
     connectTimer = std::make_unique<ConnectTimer> (*this, connectMaxAttempts);
     connectTimer->startTimer (connectRetryIntervalMs);
@@ -102,12 +77,12 @@ void Client::beginConnectAttempts() noexcept
  * `connectToSocket`.  Reading from disk rather than AppState in-memory means
  * the timer can succeed on the very first tick that the daemon has written its
  * port file, even before AppState has been updated.
- * On success the timer stops itself; JUCE will fire `Client::connectionMade`.
+ * On success the timer stops itself; JUCE will fire `Link::connectionMade`.
  * On exhaustion the timer stops and a failure line is logged.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Client::ConnectTimer::timerCallback()
+void Link::ConnectTimer::timerCallback()
 {
     bool connected { false };
     const juce::File nexusFile { AppState::getContext()->getNexusFile() };
@@ -157,11 +132,11 @@ void Client::ConnectTimer::timerCallback()
  * @brief Called by JUCE when the socket connects successfully.
  *
  * Sends the hello PDU and marks this instance as connected in AppState.
- * The PROCESSORS subtree is written later when the daemon's `processorList` PDU arrives.
+ * The SESSIONS subtree is written later when the daemon's `sessions` PDU arrives.
  *
  * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  */
-void Client::connectionMade()
+void Link::connectionMade()
 {
     AppState::getContext()->setConnected (true);
     sendPdu (Message::hello);
@@ -174,7 +149,7 @@ void Client::connectionMade()
  *
  * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  */
-void Client::connectionLost()
+void Link::connectionLost()
 {
     AppState::getContext()->setConnected (false);
 }
@@ -188,11 +163,11 @@ void Client::connectionLost()
  *
  * @note Any thread.
  */
-void Client::detachSession (const juce::String& uuid)
+void Link::detachSession (const juce::String& uuid)
 {
     juce::MemoryBlock payload;
     writeString (payload, uuid);
-    sendPdu (Message::detachProcessor, payload);
+    sendPdu (Message::detachSession, payload);
 }
 
 /**
@@ -202,7 +177,7 @@ void Client::detachSession (const juce::String& uuid)
  *
  * @note Any thread.
  */
-void Client::sendInput (const juce::String& uuid, const void* data, int size)
+void Link::sendInput (const juce::String& uuid, const void* data, int size)
 {
     if (size > 0)
     {
@@ -220,7 +195,7 @@ void Client::sendInput (const juce::String& uuid, const void* data, int size)
  *
  * @note Any thread.
  */
-void Client::sendResize (const juce::String& uuid, int cols, int rows)
+void Link::sendResize (const juce::String& uuid, int cols, int rows)
 {
     juce::MemoryBlock payload;
     writeString (payload, uuid);
@@ -236,11 +211,11 @@ void Client::sendResize (const juce::String& uuid, int cols, int rows)
  *
  * @note Any thread.
  */
-void Client::sendRemove (const juce::String& uuid)
+void Link::sendRemove (const juce::String& uuid)
 {
     juce::MemoryBlock payload;
     writeString (payload, uuid);
-    sendPdu (Message::removeProcessor, payload);
+    sendPdu (Message::killSession, payload);
 }
 
 // =============================================================================
@@ -252,7 +227,7 @@ void Client::sendRemove (const juce::String& uuid)
  *
  * @note Any thread.
  */
-void Client::sendPdu (Message kind, const juce::MemoryBlock& payload)
+void Link::sendPdu (Message kind, const juce::MemoryBlock& payload)
 {
     juce::MemoryBlock message;
     const auto kindValue { static_cast<uint16_t> (kind) };
@@ -267,18 +242,19 @@ void Client::sendPdu (Message kind, const juce::MemoryBlock& payload)
  * @brief Dispatches an incoming message from the host.
  *
  * Decodes `Message` kind from the first 2 bytes and delegates to the
- * appropriate private handler method.  Mirrors ServerConnection::messageReceived.
+ * appropriate private handler method.  Mirrors Channel::messageReceived.
  *
  * PDU kinds handled:
- * - `processorList`   → handleProcessorList
- * - `processorExited` → handleProcessorExited
- * - `output`          → handleOutput
- * - `loading`         → handleLoading
- * - all others        → handleUnknown (forwarded to onPdu)
+ * - `sessions`      → handleSessions
+ * - `sessionKilled` → handleSessionKilled
+ * - `output`        → handleOutput
+ * - `loading`       → handleLoading
+ * - `stateUpdate`   → handleStateUpdate
+ * - all others      → ignored (logged in debug)
  *
  * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  */
-void Client::messageReceived (const juce::MemoryBlock& message)
+void Link::messageReceived (const juce::MemoryBlock& message)
 {
     const int total { static_cast<int> (message.getSize()) };
 
@@ -294,12 +270,12 @@ void Client::messageReceived (const juce::MemoryBlock& message)
 
         switch (kind)
         {
-            case Message::processorList:    handleProcessorList   (payload, payloadSize); break;
-            case Message::processorExited:  handleProcessorExited (payload, payloadSize); break;
+            case Message::sessions:      handleSessions      (payload, payloadSize); break;
+            case Message::sessionKilled: handleSessionKilled (payload, payloadSize); break;
             case Message::output:           handleOutput          (payload, payloadSize); break;
             case Message::loading:          handleLoading         (payload, payloadSize); break;
             case Message::stateUpdate:      handleStateUpdate     (payload, payloadSize); break;
-            default:                        handleUnknown         (kind, payload, payloadSize); break;
+            default:                        break;
         }
     }
 }
@@ -307,14 +283,14 @@ void Client::messageReceived (const juce::MemoryBlock& message)
 // =============================================================================
 
 /**
- * @brief Handles `Message::processorList` — rewrites AppState PROCESSORS subtree.
+ * @brief Handles `Message::sessions` — rewrites AppState SESSIONS subtree.
  *
  * Wire format: uint16_t count | N × (uint32_t len + UTF-8 bytes).
  * Removes the nexus-connect LOADING operation on first receipt.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Client::handleProcessorList (const uint8_t* payload, int payloadSize)
+void Link::handleSessions (const uint8_t* payload, int payloadSize)
 {
     if (payloadSize >= 2)
     {
@@ -335,50 +311,42 @@ void Client::handleProcessorList (const uint8_t* payload, int payloadSize)
             }
         }
 
-        juce::ValueTree processorsNode { App::ID::PROCESSORS };
+        juce::ValueTree sessionsNode { App::ID::SESSIONS };
 
         for (const auto& uuid : list)
         {
-            juce::ValueTree processor { App::ID::PROCESSOR };
-            processor.setProperty (jreng::ID::id, uuid, nullptr);
-            processorsNode.appendChild (processor, nullptr);
+            juce::ValueTree session { App::ID::SESSION };
+            session.setProperty (jreng::ID::id, uuid, nullptr);
+            sessionsNode.appendChild (session, nullptr);
         }
 
         auto nexusNode { AppState::getContext()->getNexusNode() };
-        auto existing { nexusNode.getChildWithName (App::ID::PROCESSORS) };
+        auto existing { nexusNode.getChildWithName (App::ID::SESSIONS) };
 
         if (existing.isValid())
             nexusNode.removeChild (existing, nullptr);
 
-        nexusNode.appendChild (processorsNode, nullptr);
+        nexusNode.appendChild (sessionsNode, nullptr);
     }
 }
 
 /**
- * @brief Handles `Message::processorExited` — removes the exited UUID from AppState.
- *
- * Also forwards to `onPdu` if set.
+ * @brief Handles `Message::sessionKilled` — removes the exited UUID from AppState.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Client::handleProcessorExited (const uint8_t* payload, int payloadSize)
+void Link::handleSessionKilled (const uint8_t* payload, int payloadSize)
 {
     juce::String uuid;
     readString (payload, payloadSize, uuid);
 
     if (uuid.isNotEmpty())
     {
-        auto processorsNode { AppState::getContext()->getProcessorsNode() };
-        auto exitedProcessor { jreng::ValueTree::getChildWithID (processorsNode, uuid) };
+        auto sessionsNode { AppState::getContext()->getSessionsNode() };
+        auto exitedSession { jreng::ValueTree::getChildWithID (sessionsNode, uuid) };
 
-        if (exitedProcessor.isValid())
-            exitedProcessor.getParent().removeChild (exitedProcessor, nullptr);
-    }
-
-    if (onPdu != nullptr)
-    {
-        const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
-        onPdu (Message::processorExited, payloadBlock);
+        if (exitedSession.isValid())
+            exitedSession.getParent().removeChild (exitedSession, nullptr);
     }
 }
 
@@ -386,11 +354,10 @@ void Client::handleProcessorExited (const uint8_t* payload, int payloadSize)
  * @brief Handles `Message::output` — feeds raw PTY bytes into the target Processor.
  *
  * Payload: uuid (length-prefixed) + raw PTY bytes.
- * Also forwards to `onPdu` if set.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Client::handleOutput (const uint8_t* payload, int payloadSize)
+void Link::handleOutput (const uint8_t* payload, int payloadSize)
 {
     juce::String uuid;
     const int uuidConsumed { readString (payload, payloadSize, uuid) };
@@ -403,12 +370,6 @@ void Client::handleOutput (const uint8_t* payload, int payloadSize)
         if (byteCount > 0)
             Nexus::Session::getContext()->feedBytes (uuid, bytes, byteCount);
     }
-
-    if (onPdu != nullptr)
-    {
-        const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
-        onPdu (Message::output, payloadBlock);
-    }
 }
 
 /**
@@ -416,11 +377,10 @@ void Client::handleOutput (const uint8_t* payload, int payloadSize)
  *
  * Payload: uuid (length-prefixed) + snapshot bytes.
  * Passes the snapshot to `Session::startLoading`, which calls `setStateInformation` directly.
- * Also forwards to `onPdu` if set.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Client::handleLoading (const uint8_t* payload, int payloadSize)
+void Link::handleLoading (const uint8_t* payload, int payloadSize)
 {
     juce::String uuid;
     const int uuidConsumed { readString (payload, payloadSize, uuid) };
@@ -437,12 +397,6 @@ void Client::handleLoading (const uint8_t* payload, int payloadSize)
             Nexus::Session::getContext()->startLoading (uuid, std::move (backlog));
         }
     }
-
-    if (onPdu != nullptr)
-    {
-        const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
-        onPdu (Message::loading, payloadBlock);
-    }
 }
 
 /**
@@ -454,7 +408,7 @@ void Client::handleLoading (const uint8_t* payload, int payloadSize)
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Client::handleStateUpdate (const uint8_t* payload, int payloadSize)
+void Link::handleStateUpdate (const uint8_t* payload, int payloadSize)
 {
     juce::String uuid;
     const int uuidConsumed { readString (payload, payloadSize, uuid) };
@@ -483,20 +437,6 @@ void Client::handleStateUpdate (const uint8_t* payload, int payloadSize)
                     proc.getState().get().setProperty (Terminal::ID::foregroundProcess, fgProcess, nullptr);
             }
         }
-    }
-}
-
-/**
- * @brief Handles all unrecognised PDU kinds — forwards to `onPdu` if set.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-void Client::handleUnknown (Message kind, const uint8_t* payload, int payloadSize)
-{
-    if (onPdu != nullptr)
-    {
-        const juce::MemoryBlock payloadBlock { payload, static_cast<size_t> (payloadSize) };
-        onPdu (kind, payloadBlock);
     }
 }
 

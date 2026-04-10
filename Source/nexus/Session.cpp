@@ -5,14 +5,14 @@
  * @see Nexus::Session
  * @see Terminal::Session
  * @see Terminal::Processor
- * @see Nexus::Server
- * @see Nexus::ServerConnection
+ * @see Nexus::Daemon
+ * @see Nexus::Channel
  */
 
 #include "Session.h"
-#include "Client.h"
-#include "Server.h"
-#include "ServerConnection.h"
+#include "Link.h"
+#include "Daemon.h"
+#include "Channel.h"
 #include "Message.h"
 #include "Wire.h"
 #include "../terminal/logic/Processor.h"
@@ -36,40 +36,40 @@ namespace Nexus
  */
 Session::Session()
 {
-    juce::ValueTree processorsNode { App::ID::PROCESSORS };
-    AppState::getContext()->getNexusNode().appendChild (processorsNode, nullptr);
+    juce::ValueTree sessionsNode { App::ID::SESSIONS };
+    AppState::getContext()->getNexusNode().appendChild (sessionsNode, nullptr);
 }
 
 /**
- * @brief Constructs the Session in daemon mode — constructs Server and starts listening.
+ * @brief Constructs the Session in daemon mode — constructs Daemon and starts listening.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 Session::Session (DaemonTag) { startServer(); }
 
 /**
- * @brief Constructs the Session in client mode — constructs Client and begins connect attempts.
+ * @brief Constructs the Session in client mode — constructs Link and begins connect attempts.
  *
  * Adds a LOADING OPERATION child for the initial connection phase.  The child
- * is removed when the first processorList PDU arrives in Client::messageReceived.
+ * is removed when the first sessions PDU arrives in Link::messageReceived.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 Session::Session (ClientTag)
 {
-    client = std::make_unique<Client>();
-    client->beginConnectAttempts();
+    link = std::make_unique<Link>();
+    link->beginConnectAttempts();
 }
 
 /**
- * @brief Destructs the Session — disconnects client or stops server before releasing sessions.
+ * @brief Destructs the Session — disconnects link or stops daemon before releasing sessions.
  */
 Session::~Session()
 {
-    if (client != nullptr)
+    if (link != nullptr)
     {
-        client->disconnectFromHost();
-        client = nullptr;
+        link->disconnectFromHost();
+        link = nullptr;
     }
 
     stopServer();
@@ -83,7 +83,7 @@ Session::~Session()
  * Single entry point for all session creation across all three modes.
  * All three modes store the resulting Terminal::Session in terminalSessions.
  * - Client mode: reads shell from Config locally; constructs a remote Terminal::Session (no TTY);
- *   sends minimal PDU (cwd | uuid | cols | rows) to daemon; wires IPC callbacks.
+ *   sends minimal `createSession` PDU (cwd | uuid | cols | rows) to daemon; wires IPC callbacks.
  * - Local/daemon mode: constructs a full Terminal::Session via Terminal::Session::create
  *   (resolves shell/args from Config internally); then wires Nexus callbacks.
  *
@@ -107,7 +107,7 @@ Terminal::Processor& Session::openTerminal (const juce::String& cwd,
 
     // Idempotency: if a session with this uuid already exists, return it.
     // Happens on GUI reconnect — client restores saved uuid and re-sends
-    // createProcessor before the daemon-side guard triggers.
+    // createSession before the daemon-side guard triggers.
     const auto existingTerm { terminalSessions.find (uuid) };
     const bool alreadyExists { existingTerm != terminalSessions.end() };
 
@@ -117,7 +117,7 @@ Terminal::Processor& Session::openTerminal (const juce::String& cwd,
     {
         result = &existingTerm->second->getProcessor();
     }
-    else if (client != nullptr)
+    else if (link != nullptr)
     {
         // Send minimal PDU: cwd | uuid | cols | rows.  Daemon resolves shell/args from its config.
         juce::MemoryBlock payload;
@@ -125,7 +125,7 @@ Terminal::Processor& Session::openTerminal (const juce::String& cwd,
         Nexus::writeString (payload, uuid);
         Nexus::writeUint16 (payload, static_cast<uint16_t> (cols));
         Nexus::writeUint16 (payload, static_cast<uint16_t> (rows));
-        client->sendPdu (Message::createProcessor, payload);
+        link->sendPdu (Message::createSession, payload);
 
         // Remote session — Processor + State, no TTY.  Daemon owns the PTY.
         // Read shell from local Config so State/display logic has a shell name.
@@ -134,16 +134,16 @@ Terminal::Processor& Session::openTerminal (const juce::String& cwd,
 
         Terminal::Processor* procRawPtr { &termSession->getProcessor() };
 
-        // Wire user input (keyboard, mouse) to daemon via Client IPC.
+        // Wire user input (keyboard, mouse) to daemon via Link IPC.
         procRawPtr->writeInput = [this, uuid] (const char* data, int len)
         {
-            client->sendInput (uuid, data, len);
+            link->sendInput (uuid, data, len);
         };
 
-        // Wire resize to daemon via Client IPC.
+        // Wire resize to daemon via Link IPC.
         procRawPtr->onResize = [this, uuid] (int cols, int rows)
         {
-            client->sendResize (uuid, cols, rows);
+            link->sendResize (uuid, cols, rows);
         };
 
         result = procRawPtr;
@@ -155,7 +155,7 @@ Terminal::Processor& Session::openTerminal (const juce::String& cwd,
 
         Terminal::Processor* procRawPtr { &termSession->getProcessor() };
 
-        if (server != nullptr)
+        if (daemon != nullptr)
         {
             // Daemon mode — Terminal::Session already wires processWithLock internally.
             // Nexus wires onBytes to ALSO broadcast output PDU to subscribers.
@@ -211,7 +211,7 @@ Terminal::Processor& Session::openTerminal (const juce::String& cwd,
                 }
             };
 
-            // Daemon mode — wire onExit to broadcast processorExited to all attached connections.
+            // Daemon mode — wire onExit to broadcast sessionKilled to all attached connections.
             termSession->onExit = [this, uuid]
             {
                 juce::MemoryBlock payload;
@@ -224,14 +224,14 @@ Terminal::Processor& Session::openTerminal (const juce::String& cwd,
                     const juce::ScopedLock lock (connectionsLock);
 
                     for (auto* conn : attached)
-                        conn->sendPdu (Message::processorExited, payload);
+                        conn->sendPdu (Message::sessionKilled, payload);
                 }
 
                 juce::MessageManager::callAsync (
                     [this, uuid]
                     {
                         remove (uuid);
-                        broadcastProcessorList();
+                        broadcastSessions();
                         fireIfAllExited();
                     });
             };
@@ -308,11 +308,11 @@ const Terminal::Processor& Session::get (const juce::String& uuid) const
  */
 void Session::remove (const juce::String& uuid)
 {
-    if (client != nullptr)
+    if (link != nullptr)
     {
         // Notify daemon to destroy the PTY process and unsubscribe from output.
-        client->sendRemove (uuid);
-        client->detachSession (uuid);
+        link->sendRemove (uuid);
+        link->detachSession (uuid);
     }
 
     // Terminal::Session (remote or local) is always owned by terminalSessions.
@@ -339,12 +339,12 @@ juce::StringArray Session::list() const
 {
     juce::StringArray uuids;
 
-    if (client != nullptr)
+    if (link != nullptr)
     {
-        auto processorsNode { AppState::getContext()->getProcessorsNode() };
+        auto sessionsNode { AppState::getContext()->getSessionsNode() };
 
-        for (int i { 0 }; i < processorsNode.getNumChildren(); ++i)
-            uuids.add (processorsNode.getChild (i).getProperty (jreng::ID::id).toString());
+        for (int i { 0 }; i < sessionsNode.getNumChildren(); ++i)
+            uuids.add (sessionsNode.getChild (i).getProperty (jreng::ID::id).toString());
     }
     else
     {
@@ -359,15 +359,15 @@ juce::StringArray Session::list() const
  * @brief Forwards raw input bytes to the target session's PTY.
  *
  * Local/daemon mode: looks up Terminal::Session by uuid and calls sendInput.
- * Client mode: calls Client::sendInput to forward over IPC.
+ * Client mode: calls Link::sendInput to forward over IPC.
  *
  * @note MESSAGE THREAD.
  */
 void Session::sendInput (const juce::String& uuid, const void* data, int size)
 {
-    if (client != nullptr)
+    if (link != nullptr)
     {
-        client->sendInput (uuid, data, size);
+        link->sendInput (uuid, data, size);
     }
     else
     {
@@ -381,15 +381,15 @@ void Session::sendInput (const juce::String& uuid, const void* data, int size)
  * @brief Forwards a terminal resize to the target session's PTY.
  *
  * Local/daemon mode: looks up Terminal::Session by uuid and calls resize.
- * Client mode: calls Client::sendResize to forward over IPC.
+ * Client mode: calls Link::sendResize to forward over IPC.
  *
  * @note MESSAGE THREAD.
  */
 void Session::sendResize (const juce::String& uuid, int cols, int rows)
 {
-    if (client != nullptr)
+    if (link != nullptr)
     {
-        client->sendResize (uuid, cols, rows);
+        link->sendResize (uuid, cols, rows);
     }
     else
     {
@@ -402,10 +402,10 @@ void Session::sendResize (const juce::String& uuid, int cols, int rows)
 /**
  * @brief Routes incoming bytes from daemon to the Processor for @p uuid.
  *
- * Client mode only: called by Client when Message::output arrives.
+ * Client mode only: called by Link when Message::output arrives.
  * Looks up the Terminal::Session by UUID and feeds bytes to its Processor.
  *
- * @note MESSAGE THREAD (called from Client::messageReceived).
+ * @note MESSAGE THREAD (called from Link::messageReceived).
  */
 void Session::feedBytes (const juce::String& uuid, const void* data, int size)
 {
@@ -441,27 +441,27 @@ void Session::startLoading (const juce::String& uuid, juce::MemoryBlock&& bytes)
 // =============================================================================
 
 /**
- * @brief Creates the Server and starts listening on the default port.
+ * @brief Creates the Daemon and starts listening on the default port.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 void Session::startServer()
 {
-    server = std::make_unique<Server> (*this);
-    server->start();
+    daemon = std::make_unique<Daemon> (*this);
+    daemon->start();
 }
 
 /**
- * @brief Stops the server and removes the lockfile.
+ * @brief Stops the daemon and removes the lockfile.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 void Session::stopServer()
 {
-    if (server != nullptr)
+    if (daemon != nullptr)
     {
-        server->stop();
-        server = nullptr;
+        daemon->stop();
+        daemon = nullptr;
 
         const juce::ScopedLock lock (connectionsLock);
         attached.clear();
@@ -469,11 +469,11 @@ void Session::stopServer()
 }
 
 /**
- * @brief Returns true if the server is active.
+ * @brief Returns true if the daemon is active.
  *
  * @note Any thread.
  */
-bool Session::isServing() const noexcept { return server != nullptr and server->getPort() > 0; }
+bool Session::isServing() const noexcept { return daemon != nullptr and daemon->getPort() > 0; }
 
 // =============================================================================
 
@@ -482,7 +482,7 @@ bool Session::isServing() const noexcept { return server != nullptr and server->
  *
  * @note Acquires connectionsLock.  Any thread.
  */
-void Session::attach (ServerConnection& connection)
+void Session::attach (Channel& connection)
 {
     const juce::ScopedLock lock (connectionsLock);
     attached.push_back (&connection);
@@ -494,7 +494,7 @@ void Session::attach (ServerConnection& connection)
  *
  * @note Acquires connectionsLock.  Any thread.
  */
-void Session::detach (ServerConnection& connection)
+void Session::detach (Channel& connection)
 {
     const juce::ScopedLock lock (connectionsLock);
 
@@ -528,4 +528,3 @@ void Session::fireIfAllExited() noexcept
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Nexus
-

@@ -7,7 +7,7 @@
  * and paints the window background with the configured colour and opacity.
  *
  * ### Responsibilities
- * - Sets the initial window size from `AppState` (persisted in `end-<id>.state`).
+ * - Sets the initial window size from `AppState` (persisted in `end.state`).
  * - Registers a close callback with `jreng::BackgroundBlur` so that window
  *   dimensions are persisted to `AppState` when the native close button is
  *   pressed (in addition to the Cmd+Q path handled by ENDApplication).
@@ -106,17 +106,6 @@ public:
      */
     void applyConfig();
 
-    /**
-     * @brief Called when nexus connection is established.
-     *
-     * In nexus mode the constructor defers `initialiseTabs()` until the PROCESSORS
-     * node is created (local mode) or its first PROCESSOR child arrives (client mode).
-     * Triggered by `valueTreeChildAdded`.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void onNexusConnected();
-
 private:
     /**
      * @brief Registers all user-performable actions with `Action::Registry`.
@@ -189,9 +178,9 @@ private:
      *         destroy its listener list at end-of-statement. */
     juce::ValueTree nexusNode;
 
-    /** @brief Persistent wrapper for the AppState PROCESSORS child node.  Listener
+    /** @brief Persistent wrapper for the AppState SESSIONS child node.  Listener
      *         registration requires the wrapper to outlive it. */
-    juce::ValueTree processorsNode;
+    juce::ValueTree sessionsNode;
 
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;
@@ -245,8 +234,8 @@ private:
     /**
      * @brief Fires when a direct child is added to a listened node.
      *
-     * In local mode: PROCESSORS node created under nexusNode triggers onNexusConnected.
-     * In client mode: first PROCESSOR child under processorsNode triggers onNexusConnected.
+     * In local mode: SESSIONS node created under nexusNode triggers tab initialisation.
+     * In client mode: first SESSION child under sessionsNode triggers tab initialisation.
      *
      * @note MESSAGE THREAD.
      */

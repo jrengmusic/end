@@ -12,7 +12,6 @@
 #include "../terminal/data/Identifier.h"
 #include "../whelmed/Component.h"
 #include "../nexus/Session.h"
-#include "../nexus/Client.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -106,7 +105,13 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
         closeActiveTab();
 
         if (getTabCount() == 0)
+        {
             juce::JUCEApplication::getInstance()->systemRequestedQuit();
+        }
+        else if (AppState::getContext()->isNexusMode())
+        {
+            AppState::getContext()->save();
+        }
     };
     addChildComponent (&newPanes);
 
@@ -128,6 +133,9 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
     setCurrentTabIndex (tabIndex);
 
     updateTabBarVisibility();
+
+    if (AppState::getContext()->isNexusMode())
+        AppState::getContext()->save();
 }
 
 /**
@@ -208,6 +216,9 @@ void Tabs::closeActiveTab()
         if (paneType == App::ID::paneTypeDocument)
         {
             activePanes->closeWhelmed();
+
+            if (AppState::getContext()->isNexusMode())
+                AppState::getContext()->save();
         }
         else if (activePanes->getPanes().size() > 1)
         {
@@ -235,6 +246,9 @@ void Tabs::closeActiveTab()
                 if (nearest->isShowing())
                     nearest->grabKeyboardFocus();
             }
+
+            if (AppState::getContext()->isNexusMode())
+                AppState::getContext()->save();
         }
         else
         {
@@ -267,6 +281,75 @@ void Tabs::closeActiveTab()
             }
 
             updateTabBarVisibility();
+        }
+    }
+}
+
+/**
+ * @brief Closes the pane identified by @p uuid, removing the tab if it becomes empty.
+ *
+ * Iterates all Panes instances. When the owning Panes is found (at least one pane
+ * componentID matches the UUID), delegates to Panes::closePane. If the Panes
+ * instance is then empty (last pane in the tab), the tab itself is removed via
+ * the same single-pane branch as closeActiveTab.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Tabs::closeSession (const juce::String& uuid)
+{
+    int ownerIndex { -1 };
+
+    for (int i { 0 }; i < static_cast<int> (panes.size()) and ownerIndex < 0; ++i)
+    {
+        const auto& panePanes { panes.at (i)->getPanes() };
+
+        for (size_t j { 0 }; j < panePanes.size() and ownerIndex < 0; ++j)
+        {
+            if (panePanes.at (j)->getComponentID() == uuid)
+                ownerIndex = i;
+        }
+    }
+
+    if (ownerIndex >= 0)
+    {
+        auto* ownerPanes { panes.at (ownerIndex).get() };
+
+        if (ownerPanes->getPanes().size() > 1)
+        {
+            ownerPanes->closePane (uuid);
+
+            if (AppState::getContext()->isNexusMode())
+                AppState::getContext()->save();
+        }
+        else
+        {
+            juce::StringArray terminalUuids;
+
+            for (const auto& pane : ownerPanes->getPanes())
+            {
+                if (pane->getPaneType() == App::ID::paneTypeTerminal)
+                    terminalUuids.add (pane->getComponentID());
+            }
+
+            removeChildComponent (ownerPanes);
+            panes.erase (panes.begin() + ownerIndex);
+
+            for (const auto& termUuid : terminalUuids)
+                Nexus::Session::getContext()->remove (termUuid);
+
+            removeTab (ownerIndex);
+            AppState::getContext()->removeTab (ownerIndex);
+
+            if (not panes.isEmpty())
+            {
+                const int newIndex { (ownerIndex > 0) ? ownerIndex - 1 : 0 };
+                setCurrentTabIndex (newIndex);
+            }
+
+            updateTabBarVisibility();
+
+            if (not panes.isEmpty() and AppState::getContext()->isNexusMode())
+                AppState::getContext()->save();
         }
     }
 }
@@ -443,6 +526,9 @@ void Tabs::splitHorizontal()
     {
         active->splitHorizontal();
         focusLastTerminal (active);
+
+        if (AppState::getContext()->isNexusMode())
+            AppState::getContext()->save();
     }
 }
 
@@ -452,6 +538,9 @@ void Tabs::splitVertical()
     {
         active->splitVertical();
         focusLastTerminal (active);
+
+        if (AppState::getContext()->isNexusMode())
+            AppState::getContext()->save();
     }
 }
 

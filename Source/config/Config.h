@@ -11,7 +11,7 @@
  * | File                        | Purpose                                  |
  * |-----------------------------|------------------------------------------|
  * | `~/.config/end/end.lua`     | User config (loaded at startup, reloaded on Cmd+R) |
- * | `~/.config/end/end-<id>.state` | Persisted application state (managed by AppState) |
+ * | `~/.config/end/end.state`      | Persisted application state (managed by AppState) |
  *
  * ### Config format (end.lua)
  * @code{.lua}

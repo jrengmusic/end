@@ -1,9 +1,9 @@
 /**
- * @file ServerConnection.h
+ * @file Channel.h
  * @brief One accepted client connection to the Nexus host.
  *
- * `Nexus::ServerConnection` is the server-side half of a JUCE IPC connection.
- * It is created by `Nexus::Server::createConnectionObject()` and its lifetime
+ * `Nexus::Channel` is the server-side half of a JUCE IPC connection.
+ * It is created by `Nexus::Daemon::createConnectionObject()` and its lifetime
  * is managed by the `juce::InterprocessConnectionServer` base.
  *
  * ### Thread model
@@ -15,7 +15,7 @@
  * Derived classes MUST call `disconnect()` in their own destructor to cancel
  * any pending message delivery before the vtable is torn down.
  *
- * @see Nexus::Server
+ * @see Nexus::Daemon
  * @see Nexus::Session
  * @see Nexus::Message
  */
@@ -29,35 +29,35 @@ namespace Nexus
 {
 /*____________________________________________________________________________*/
 
-class Server;
+class Daemon;
 class Session;
 
 /**
- * @class Nexus::ServerConnection
+ * @class Nexus::Channel
  * @brief Message-thread IPC connection representing one connected Nexus client.
  *
- * Created and owned by `Nexus::Server::connections` (a `jreng::Owner<ServerConnection>`).
+ * Created and owned by `Nexus::Daemon::connections` (a `jreng::Owner<Channel>`).
  * The base `InterprocessConnectionServer` receives a non-owning raw pointer.
  * Registered with `Session::attach()` in `connectionMade()` and cleaned up via
- * `Session::detach()` + `Server::removeConnection()` in `connectionLost()`.
+ * `Session::detach()` + `Daemon::removeConnection()` in `connectionLost()`.
  * All PDU dispatch happens on the message thread.
  *
  * @par Thread context
  * All callbacks — NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  * `sendPdu()` — NEXUS PROCESS MESSAGE THREAD (called from dispatch / fanout).
  */
-class ServerConnection : public juce::InterprocessConnection
+class Channel : public juce::InterprocessConnection
 {
 public:
     /** @brief Magic header — single source of truth is Nexus::wireMagicHeader in Wire.h. */
     static constexpr juce::uint32 magicHeader { wireMagicHeader };
 
-    ServerConnection (Server& server, Session& session);
+    Channel (Daemon& daemon, Session& session);
 
     /**
      * @brief Disconnects before the vtable is torn down — JUCE contract.
      */
-    ~ServerConnection() override;
+    ~Channel() override;
 
     void connectionMade() override;
     void connectionLost() override;
@@ -95,11 +95,11 @@ private:
 
     static SpawnPayload parseSpawnPayload (const uint8_t* payload, int payloadSize);
 
-    Server&  server;
+    Daemon&  daemon;
     Session& session;
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ServerConnection)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Channel)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

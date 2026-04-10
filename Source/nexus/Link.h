@@ -1,22 +1,22 @@
 /**
- * @file Client.h
+ * @file Link.h
  * @brief Client-side JUCE IPC connector to a remote Nexus::Session.
  *
- * `Nexus::Client` connects to a running daemon via TCP, performs the hello
+ * `Nexus::Link` connects to a running daemon via TCP, performs the hello
  * handshake, and provides the send API for all client-to-host PDU kinds.
  * Incoming PDUs are delivered to the message thread by JUCE and dispatched
  * to `Nexus::Session` for routing to the appropriate `Terminal::Session`.
  *
  * ### Lifecycle
  * 1. Construct with default constructor.
- * 2. Call `beginConnectAttempts()` — polls AppState for the daemon port every
- *    100 ms and calls `connectToSocket` on each tick.  On success JUCE fires
- *    `connectionMade()` which sends the hello handshake.
+ * 2. Call `beginConnectAttempts()` — polls the nexus file for the daemon port
+ *    every 100 ms and calls `connectToSocket` on each tick.  On success JUCE
+ *    fires `connectionMade()` which sends the hello handshake.
  * 3. Call `disconnectFromHost()` on shutdown.  Destructor also calls it.
  *
  * ### Port resolution
  * The daemon port is read from `AppState::getContext()->getPort()`.  The port
- * is written to AppState by `Server::start()` and persisted to
+ * is written to AppState by `Daemon::start()` and persisted to
  * `~/.config/end/nexus/<uuid>.nexus`.  During the startup scan in Main.cpp
  * the nexus file is parsed and the port is loaded into AppState before
  * `beginConnectAttempts()` is called.
@@ -31,7 +31,7 @@
  * Derived classes MUST call `disconnect()` in their own destructor.
  *
  * ### Access
- * Client is owned privately by `Nexus::Session` in client mode.  All external
+ * Link is owned privately by `Nexus::Session` in client mode.  All external
  * callers reach session operations via `Nexus::Session::getContext()`.
  *
  * @see Nexus::Session
@@ -49,18 +49,18 @@ namespace Nexus
 /*____________________________________________________________________________*/
 
 /**
- * @class Nexus::Client
+ * @class Nexus::Link
  * @brief JUCE IPC client connector to a remote Nexus::Session.
  *
  * Owned privately by `Nexus::Session` in client mode.  No external caller
- * instantiates or holds a pointer to Client directly.
+ * instantiates or holds a pointer to Link directly.
  *
  * @par Thread context
- * `connectToHost()` / `disconnectFromHost()` — NEXUS PROCESS MESSAGE THREAD.
+ * `disconnectFromHost()` — NEXUS PROCESS MESSAGE THREAD.
  * `messageReceived()` — NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  * `send*()` methods — any thread (sendMessage is thread-safe).
  */
-class Client : public juce::InterprocessConnection
+class Link : public juce::InterprocessConnection
 {
 public:
     /** @brief Magic header — single source of truth is Nexus::wireMagicHeader in Wire.h. */
@@ -69,20 +69,12 @@ public:
     /** @brief Timeout for initial connection attempt in milliseconds. */
     static constexpr int connectTimeoutMs { 3000 };
 
-    Client();
+    Link();
 
     /**
      * @brief Calls `disconnect()` — JUCE contract.
      */
-    ~Client() override;
-
-    /**
-     * @brief Reads port from AppState and connects to host.
-     *
-     * @return `true` if the connection succeeded.
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    bool connectToHost();
+    ~Link() override;
 
     /**
      * @brief Disconnects from host.
@@ -141,15 +133,6 @@ public:
 
 
     /**
-     * @brief Callback fired on the message thread for every incoming host PDU.
-     *
-     * Receives all async frames: helloResponse, processorExited, etc.
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
-     */
-    std::function<void (const Message kind, const juce::MemoryBlock& payload)> onPdu;
-
-    /**
      * @brief Kicks off async connection attempts, polling AppState for the port every 100 ms.
      *
      * Reads `AppState::getContext()->getPort()` on each tick and attempts
@@ -165,12 +148,11 @@ private:
     void connectionLost() override;
     void messageReceived (const juce::MemoryBlock& message) override;
 
-    void handleProcessorList      (const uint8_t* payload, int payloadSize);
-    void handleProcessorExited    (const uint8_t* payload, int payloadSize);
+    void handleSessions            (const uint8_t* payload, int payloadSize);
+    void handleSessionKilled       (const uint8_t* payload, int payloadSize);
     void handleOutput             (const uint8_t* payload, int payloadSize);
     void handleLoading            (const uint8_t* payload, int payloadSize);
     void handleStateUpdate        (const uint8_t* payload, int payloadSize);
-    void handleUnknown            (Message kind, const uint8_t* payload, int payloadSize);
 
     /**
      * @brief Inner timer that drives async connect retries.
@@ -183,10 +165,10 @@ private:
      */
     struct ConnectTimer : public juce::Timer
     {
-        Client& owner;
-        int     attemptsRemaining { 0 };
+        Link& owner;
+        int   attemptsRemaining { 0 };
 
-        ConnectTimer (Client& ownerIn, int maxAttempts) noexcept
+        ConnectTimer (Link& ownerIn, int maxAttempts) noexcept
             : owner (ownerIn)
             , attemptsRemaining (maxAttempts)
         {
@@ -205,7 +187,7 @@ private:
     static constexpr int connectRetryIntervalMs { 100 };
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Client)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Link)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

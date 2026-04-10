@@ -1,5 +1,79 @@
 # SPRINT-LOG
 
+## Sprint 8: BLESSED Cleanup — CWD SSOT, Config, Nexus Rename, Instance Isolation
+
+**Date:** 2026-04-10
+
+### Agents Participated
+- COUNSELOR: session lead, planning, delegation, discussion
+- Engineer: all code implementation
+- Pathfinder: codebase exploration, git history, blast radius surveys
+- Auditor: PLAN-nexus-cleanup validation
+- Librarian: juce::var behavior research
+- Oracle: (not invoked)
+
+### Files Modified (35+ total)
+- `modules/jreng_gui/glass/jreng_window.cpp` — middle-click drag only (removed DocumentWindow fall-through)
+- `Source/nexus/Session.cpp` — openTerminal (was create), client branch inline PDU, remote Terminal::Session, detach cleanup, session vocabulary
+- `Source/nexus/Session.h` — openTerminal, member renames (daemon/link), forward decls, session vocabulary
+- `Source/nexus/SessionFanout.cpp` — broadcastSessions (was broadcastProcessorList), Channel refs
+- `Source/nexus/Daemon.h` (was Server.h) — class rename, folded hideDockIcon/spawnDaemon, removed lockfile wrappers
+- `Source/nexus/Daemon.cpp` (was Server.cpp) — class rename, Windows spawnDaemon impl
+- `Source/nexus/Daemon.mm` (new) — macOS hideDockIcon/spawnDaemon
+- `Source/nexus/Link.h` (was Client.h) — class rename, removed dead connectToHost/onPdu/handleUnknown
+- `Source/nexus/Link.cpp` (was Client.cpp) — class rename, port from .nexus file, handleSessions/handleSessionKilled, connectionMade/Lost connected flag
+- `Source/nexus/Channel.h` (was ServerConnection.h) — class rename, Daemon& ref
+- `Source/nexus/Channel.cpp` (was ServerConnection.cpp) — class rename, broadcastSessions, minimal createSession PDU
+- `Source/nexus/Message.h` — createSession/killSession/detachSession/sessionKilled/sessions
+- `Source/nexus/Wire.h` — doc updates
+- `Source/nexus/NexusDaemon.h` — DELETED (folded into Daemon)
+- `Source/nexus/NexusDaemon.mm` — DELETED
+- `Source/nexus/NexusDaemon_win.cpp` — DELETED
+- `Source/terminal/logic/Session.h` — Terminal::Session::create factory, applyShellIntegration static, remote constructor
+- `Source/terminal/logic/Session.cpp` — create factory, applyShellIntegration impl, remote constructor, shellProgram write, onFlush guards
+- `Source/terminal/tty/WindowsTTY.h` — getForegroundPid, getProcessName, childPid member
+- `Source/terminal/tty/WindowsTTY.cpp` — getForegroundPid/getProcessName impl, spawnProcess pidOut
+- `Source/config/Config.h` — Type enum (removed boolean), gpu key flattened
+- `Source/config/Config.cpp` — boolean defaults as strings, getBool toString, validateAndStore, writeDefaults, patchKey
+- `Source/config/WhelmedConfig.h` — Type enum unified, dead loader keys removed
+- `Source/config/WhelmedConfig.cpp` — dead loader keys, scroll key names fixed, dead isBool branch
+- `Source/config/default_end.lua` — gpu flattened, booleans quoted
+- `Source/AppIdentifier.h` — SESSIONS/SESSION identifiers, removed instanceID
+- `Source/AppState.h` — instanceUuid, connected, port, getNexusFile, getStateFile (.display), setConnected (no save), dtor trivial
+- `Source/AppState.cpp` — split state files, save/load, setPort read-modify-write, dtor = default, setConnected property only
+- `Source/Main.cpp` — startup scan (nexus/*.nexus + *.display), daemon UUID via CLI, systemRequestedQuit file decisions, shutdown order (nexus before mainWindow), spawnDaemon(uuid)
+- `Source/MainComponent.h` — removed onNexusConnected, sessionsNode member
+- `Source/MainComponent.cpp` — inlined onNexusConnected into valueTreeChildAdded, implemented valueTreeChildRemoved (closeSession), SESSIONS/SESSION refs
+- `Source/MainComponentActions.cpp` — save on tab mutation (nexus mode)
+- `Source/component/Tabs.h` — closeSession declaration
+- `Source/component/Tabs.cpp` — closeSession impl, save on mutation, removed file ops
+- `Source/component/Panes.h` — doc updates
+- `Source/component/Panes.cpp` — openTerminal call sites updated
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT for CWD (Terminal::State → AppState → new terminal), Bound (AppState created first destroyed last, daemon lifecycle explicit), Lean (removed wrappers, dead code, folded files), Explicit (names match reality), Encapsulation (AppState dumb storage, Main owns file I/O)
+- [x] NAMES.md adhered — Daemon/Link/Channel/createSession/killSession/sessions approved by ARCHITECT
+- [x] MANIFESTO.md principles applied — no early returns, positive checks, brace init, alternative tokens
+
+### Problems Solved
+- Window drag: left-click collision with text selection (Windows) — middle-click only
+- Byte trails: duplicate DA/DSR response from client Processor — removed setHostWriter from display-only Processor
+- CWD not propagating (Windows): shell integration env injection lost during Nexus arch shift — ported applyShellIntegration to Terminal::Session::create
+- CWD overwrite: WindowsTTY::getCwd returning stale PEB data overwrote OSC 7 — removed getCwd, added onFlush guards
+- CWD in nexus client: handleStateUpdate overwrote initial CWD with empty — added isNotEmpty guard
+- CWD SSOT: Terminal::Session::create single entry point for all modes, daemon resolves shell/args from own config
+- Config inconsistency: booleans as strings, gpu table flattened, Type enum unified
+- Instance collision: per-UUID lockfile/state in nexus/ directory, startup scan with probe
+- Session restoration: separated .nexus (daemon) and .display (client) ownership
+- Stale .display cleanup: MainComponent owns .display lifecycle, valueTreeChildRemoved handles daemon-killed sessions
+- shellProgram never written to State: fixed displayName always showing "zsh"
+
+### Technical Debt / Follow-up
+- `State.h:1179,1189` — doc comments still reference "ServerConnection" as subscriber ID description
+- Standalone mode uses `end.state` at `~/.config/end/` — no UUID, no nexus directory. Consider unifying path convention.
+- PLAN-IMAGE.md execution pending (9 steps for inline image rendering)
+- WHELMED Mermaid still broken
+
 ## Handoff to COUNSELOR: Inline Image Rendering (Sixel + iTerm2)
 
 **From:** COUNSELOR

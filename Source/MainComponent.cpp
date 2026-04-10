@@ -79,12 +79,12 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
 
     // Session is constructed AFTER MainComponent in both modes, so listeners are live
     // before any tree mutations occur.
-    // Local mode: Session ctor creates the PROCESSORS node → fires
-    //   valueTreeChildAdded(nexusNode, PROCESSORS) → walker triggered.
-    // Client mode: When Message::processorList arrives, Client rewrites the PROCESSORS subtree →
-    //   fires valueTreeChildAdded(nexusNode, PROCESSORS) → walker triggered.
-    // processorsNode is assigned lazily inside valueTreeChildAdded
-    // when PROCESSORS is created under nexusNode.  No getOrCreate here —
+    // Local mode: Session ctor creates the SESSIONS node → fires
+    //   valueTreeChildAdded(nexusNode, SESSIONS) → walker triggered.
+    // Client mode: When Message::sessions arrives, Client rewrites the SESSIONS subtree →
+    //   fires valueTreeChildAdded(nexusNode, SESSIONS) → walker triggered.
+    // sessionsNode is assigned lazily inside valueTreeChildAdded
+    // when SESSIONS is created under nexusNode.  No getOrCreate here —
     // premature creation would prevent the child-added events from firing.
 
     setLookAndFeel (&terminalLookAndFeel);
@@ -92,15 +92,6 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
     //==============================================================================
     applyConfig();
-}
-
-void MainComponent::onNexusConnected()
-{
-    if (tabs == nullptr)
-    {
-        initialiseTabs();
-        resized();
-    }
 }
 
 void MainComponent::applyConfig()
@@ -181,8 +172,8 @@ void MainComponent::resized()
  */
 MainComponent::~MainComponent()
 {
-    if (processorsNode.isValid())
-        processorsNode.removeListener (this);
+    if (sessionsNode.isValid())
+        sessionsNode.removeListener (this);
 
     nexusNode.removeListener (this);
     setLookAndFeel (nullptr);
@@ -202,19 +193,24 @@ MainComponent::~MainComponent()
 void MainComponent::valueTreePropertyChanged (juce::ValueTree& /*tree*/, const juce::Identifier& /*property*/) {}
 
 /**
- * @brief Fires when a direct child is added to nexusNode or processorsNode.
+ * @brief Fires when a direct child is added to nexusNode or sessionsNode.
  *
- * - parent == nexusNode and child type == PROCESSORS → PROCESSORS node arrived (both modes), call onNexusConnected.
+ * - parent == nexusNode and child type == SESSIONS → SESSIONS node arrived (both modes), initialise tabs.
  *
  * @note MESSAGE THREAD.
  */
 void MainComponent::valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child)
 {
-    if (parent == nexusNode and child.getType() == App::ID::PROCESSORS)
+    if (parent == nexusNode and child.getType() == App::ID::SESSIONS)
     {
-        processorsNode = child;
-        processorsNode.addListener (this);
-        onNexusConnected();
+        sessionsNode = child;
+        sessionsNode.addListener (this);
+
+        if (tabs == nullptr)
+        {
+            initialiseTabs();
+            resized();
+        }
     }
 }
 
@@ -223,7 +219,21 @@ void MainComponent::valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTre
  *
  * @note MESSAGE THREAD.
  */
-void MainComponent::valueTreeChildRemoved (juce::ValueTree& /*parent*/, juce::ValueTree& /*child*/, int /*index*/) {}
+void MainComponent::valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueTree& child, int /*index*/)
+{
+    if (parent == sessionsNode and tabs != nullptr)
+    {
+        const juce::String uuid { child.getProperty (jreng::ID::id).toString() };
+
+        if (uuid.isNotEmpty())
+        {
+            tabs->closeSession (uuid);
+
+            if (tabs->getTabCount() == 0)
+                juce::JUCEApplication::getInstance()->systemRequestedQuit();
+        }
+    }
+}
 
 /**
  * @brief Registers all user-performable actions with `Action::Registry`.
@@ -392,7 +402,7 @@ void MainComponent::initialiseTabs()
         glRenderer.triggerRepaint();
     };
 
-    // Restore tabs and split layout from end-<id>.state.
+    // Restore tabs and split layout from end.state.
     // Works identically in standalone and nexus modes — Session::create routes
     // internally to local or client path; the walker is oblivious to mode.
 

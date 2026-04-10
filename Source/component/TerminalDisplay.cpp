@@ -15,7 +15,6 @@
 #include "../AppState.h"
 #include "../config/Config.h"
 #include "../terminal/notifications/Notifications.h"
-#include "../nexus/Client.h"
 
 /**
  * @brief Constructs Terminal::Display for the given Processor.

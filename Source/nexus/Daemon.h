@@ -1,14 +1,18 @@
 /**
- * @file Server.h
+ * @file Daemon.h
  * @brief JUCE-backed TCP server that accepts Nexus client connections.
  *
- * `Nexus::Server` wraps `juce::InterprocessConnectionServer` to listen on a
+ * `Nexus::Daemon` wraps `juce::InterprocessConnectionServer` to listen on a
  * TCP port, write the bound port to AppState (which persists it to
- * `~/.config/end/nexus/<uuid>.nexus`), and create a `Nexus::ServerConnection`
+ * `~/.config/end/nexus/<uuid>.nexus`), and create a `Nexus::Channel`
  * for each accepted client.
  *
+ * Static platform helpers (`hideDockIcon`, `spawnDaemon`) are declared here so
+ * callers need only one include.  Implementations live in `Daemon.mm` (macOS /
+ * Linux) and `Daemon.cpp` (Windows).
+ *
  * @see Nexus::Session
- * @see Nexus::ServerConnection
+ * @see Nexus::Channel
  */
 
 #pragma once
@@ -20,11 +24,11 @@ namespace Nexus
 /*____________________________________________________________________________*/
 
 class Session;
-class ServerConnection;
+class Channel;
 
 /**
- * @class Nexus::Server
- * @brief InterprocessConnectionServer that creates ServerConnection objects.
+ * @class Nexus::Daemon
+ * @brief InterprocessConnectionServer that creates Channel objects.
  *
  * Owned by `Nexus::Session`.  `start()` calls `beginWaitingForSocket()`, writes
  * the bound port to AppState (persisted to the nexus state file), and caches
@@ -37,14 +41,38 @@ class ServerConnection;
  *
  * @see juce::InterprocessConnectionServer
  */
-class Server : public juce::InterprocessConnectionServer
+class Daemon : public juce::InterprocessConnectionServer
 {
 public:
     /** @brief Default port: 0 instructs the OS to assign a free ephemeral port. */
     static constexpr int defaultPort { 0 };
 
-    explicit Server (Session& host);
-    ~Server() override;
+    /**
+     * @brief Hides the application from the Dock / taskbar.
+     *
+     * macOS: sets `NSApplicationActivationPolicyAccessory`.
+     * Windows / Linux: no-op.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.  Must be called early in `initialise()`.
+     */
+    static void hideDockIcon() noexcept;
+
+    /**
+     * @brief Spawns a detached `end --nexus <uuid>` daemon process.
+     *
+     * Reads the current executable path, spawns a child with `--nexus <uuid>` in a new
+     * session (POSIX) or as a detached process (Windows), then returns immediately.
+     * The child inherits no file descriptors (stdin/stdout/stderr redirected to
+     * /dev/null on POSIX, or default DETACHED_PROCESS on Windows).
+     *
+     * @param uuid  The instance UUID the daemon should use for its lockfile and state file.
+     * @return `true` if the OS accepted the spawn call.
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    static bool spawnDaemon (const juce::String& uuid) noexcept;
+
+    explicit Daemon (Session& host);
+    ~Daemon() override;
 
     /**
      * @brief Starts listening on @p port and writes the bound port to AppState.
@@ -61,7 +89,7 @@ public:
     bool start (int port = defaultPort);
 
     /**
-     * @brief Stops the server.
+     * @brief Stops the daemon.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     void stop();
@@ -73,46 +101,15 @@ public:
     int getPort() const noexcept;
 
     /**
-     * @brief Returns the nexus port file (`~/.config/end/nexus/<uuid>.nexus`).
+     * @brief Removes and destroys the connection owned by this daemon.
      *
-     * The nexus port file IS the lockfile — it contains the plain-text port number
-     * so client startup scans can discover a running daemon.
-     *
-     * @return Path to the nexus port file.
-     * @note Any thread.
-     */
-    static juce::File getLockfile();
-
-    /**
-     * @brief Persists @p port to the nexus port file via AppState.
-     *
-     * Delegates to `AppState::getContext()->setPort(port)` which writes the
-     * plain-text port number to `<uuid>.nexus` immediately.
-     *
-     * @param port  The bound TCP port to persist.
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    void writeLockfile (int port);
-
-    /**
-     * @brief Deletes the nexus port file via AppState.
-     *
-     * Delegates to `AppState::getContext()->deleteNexusFile()`.
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    void deleteLockfile();
-
-    /**
-     * @brief Removes and destroys the connection owned by this server.
-     *
-     * Called from ServerConnection::connectionLost() on the message thread.
-     * Triggers destruction of the ServerConnection.
+     * Called from Channel::connectionLost() on the message thread.
+     * Triggers destruction of the Channel.
      *
      * @param connection  Raw pointer to the connection to remove.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    void removeConnection (ServerConnection* connection);
+    void removeConnection (Channel* connection);
 
 private:
     juce::InterprocessConnection* createConnectionObject() override;
@@ -120,11 +117,11 @@ private:
     Session& host;
     int activePort { 0 };
 
-    /** @brief Owns all live ServerConnection objects. */
-    jreng::Owner<ServerConnection> connections;
+    /** @brief Owns all live Channel objects. */
+    jreng::Owner<Channel> connections;
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Server)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Daemon)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

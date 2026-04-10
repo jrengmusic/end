@@ -15,9 +15,7 @@ AppState::AppState()
     initDefaults();
 }
 
-AppState::~AppState()
-{
-}
+AppState::~AppState() = default;
 
 //==============================================================================
 
@@ -36,9 +34,9 @@ juce::ValueTree AppState::getNexusNode() noexcept
     return state.getOrCreateChildWithName (App::ID::NEXUS, nullptr);
 }
 
-juce::ValueTree AppState::getProcessorsNode() noexcept
+juce::ValueTree AppState::getSessionsNode() noexcept
 {
-    return getNexusNode().getOrCreateChildWithName (App::ID::PROCESSORS, nullptr);
+    return getNexusNode().getOrCreateChildWithName (App::ID::SESSIONS, nullptr);
 }
 
 juce::ValueTree AppState::getLoadingNode() noexcept
@@ -156,7 +154,6 @@ bool AppState::isNexusMode() const noexcept
 void AppState::setConnected (bool isConnectedFlag)
 {
     state.setProperty (App::ID::connected, isConnectedFlag, nullptr);
-    save();
 }
 
 bool AppState::isConnected() const noexcept
@@ -384,7 +381,7 @@ void AppState::setPwd (juce::ValueTree sessionTree)
 /**
  * @brief Writes the full state to `getStateFile()`.
  *
- * The NEXUS subtree (processors, loading ops) is excluded — it is rebuilt live
+ * The NEXUS subtree (sessions, loading ops) is excluded — it is rebuilt live
  * on reconnect.  Port is NOT written here — port lives in `<uuid>.nexus`.
  * Daemon never calls this — daemon only writes its port via setPort().
  *
@@ -471,7 +468,7 @@ void AppState::load()
 /**
  * @brief Deletes `~/.config/end/nexus/<uuid>.nexus`.
  *
- * Called by daemon on clean exit via Server::deleteLockfile().
+ * Called by daemon on clean exit (`onAllSessionsExited` lambda in Main.cpp).
  *
  * @note MESSAGE THREAD.
  */
@@ -487,7 +484,7 @@ juce::File AppState::getStateFile() const
     if (instanceUuid.isNotEmpty())
     {
         result = juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-                     .getChildFile (".config/end/nexus/" + instanceUuid + ".state");
+                     .getChildFile (".config/end/nexus/" + instanceUuid + ".display");
     }
     else
     {

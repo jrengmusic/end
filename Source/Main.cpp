@@ -21,8 +21,8 @@
  *
  * ### Shutdown sequence
  * `systemRequestedQuit()` is called by the OS (Cmd+Q, window close button, or
- * `JUCEApplication::quit()`).  It deletes `end-<id>.state` so no trace is left
- * on disk after the last instance exits.
+ * `JUCEApplication::quit()`).  It owns all file decisions: saves state in standalone
+ * and nexus-with-sessions modes; deletes both nexus files when no sessions remain.
  *
  * @note The `START_JUCE_APPLICATION` macro at the bottom generates the platform
  *       `main()` / `WinMain()` entry point.
@@ -51,8 +51,7 @@
 #include "config/WhelmedConfig.h"
 #include "action/Action.h"
 #include "nexus/Session.h"
-#include "nexus/Server.h"
-#include "nexus/NexusDaemon.h"
+#include "nexus/Daemon.h"
 
 #if JUCE_WINDOWS
 #include <windows.h>
@@ -201,12 +200,11 @@ public:
 
             // Hide dock icon, start IPC server, wire exit callback, and return.
             // No window is created.  The JUCE message loop runs until all sessions exit.
-            Nexus::hideDockIcon();
+            Nexus::Daemon::hideDockIcon();
             nexus = std::make_unique<Nexus::Session> (Nexus::Session::DaemonTag{});
 
             nexus->onAllSessionsExited = [this]
             {
-                appState.getStateFile().deleteFile();
                 appState.deleteNexusFile();
                 quit();
             };
@@ -249,10 +247,10 @@ public:
                         nexusFile.getFileNameWithoutExtension()
                     };
 
-                    // Check <uuid>.state for connected flag (client-owned file).
+                    // Check <uuid>.display for the connected flag (client-owned file).
                     // If connected=true another client owns this daemon — skip.
                     const juce::File stateFile {
-                        nexusDir.getChildFile (candidateUuid + ".state")
+                        nexusDir.getChildFile (candidateUuid + ".display")
                     };
 
                     bool connected { false };
@@ -306,7 +304,7 @@ public:
                 {
                     // No usable daemon found — generate a fresh UUID and spawn a daemon.
                     resolvedUuid = juce::Uuid().toString();
-                    Nexus::spawnDaemon (resolvedUuid);
+                    Nexus::Daemon::spawnDaemon (resolvedUuid);
                 }
 
                 appState.setInstanceUuid (resolvedUuid);
@@ -338,14 +336,14 @@ public:
             if (not nexusEnabled)
             {
                 // MainComponent listeners are now registered.  Session ctor creates the
-                // PROCESSORS ValueTree child, which fires valueTreeChildAdded and
+                // SESSIONS ValueTree child, which fires valueTreeChildAdded and
                 // naturally triggers onNexusConnected() on the live listener.
                 nexus = std::make_unique<Nexus::Session>();
             }
             else
             {
-                // Session (ClientTag) constructs Client internally, adds a nexus-connect LOADING op,
-                // and begins connect attempts.  When processorList arrives, PROCESSORS is rewritten
+                // Session (ClientTag) constructs Link internally, adds a nexus-connect LOADING op,
+                // and begins connect attempts.  When sessions PDU arrives, SESSIONS is rewritten
                 // and the LOADING op is removed.  MainComponent::valueTreeChildAdded reacts to both.
                 nexus = std::make_unique<Nexus::Session> (Nexus::Session::ClientTag{});
             }
@@ -394,10 +392,12 @@ public:
      */
     void shutdown() override
     {
-        mainWindow = nullptr;
-
         // Session dtor handles client disconnect and server stop.
+        // Must be destroyed before mainWindow so the IPC teardown
+        // does not race with component destruction.
         nexus = nullptr;
+
+        mainWindow = nullptr;
 
 #if JUCE_WINDOWS
         timeEndPeriod (1);
@@ -408,10 +408,13 @@ public:
     /**
      * @brief Handles OS quit requests (Cmd+Q, window close, SIGTERM).
      *
-     * Saves full state to disk and quits.  In the byte-forward
-     * architecture, the GUI process and the daemon process are separate —
-     * quitting the GUI does not affect the daemon, which outlives the GUI
-     * until its own shell count hits zero.
+     * Saves window size then quits.  In nexus mode with live sessions, marks the
+     * client as disconnected and persists so the next client sees `connected=false`.
+     * In nexus mode with no sessions, deletes both `.display` and `.nexus`.
+     * In standalone mode, always saves.  Main owns all file I/O decisions.
+     * In the byte-forward architecture the GUI process and the daemon process are
+     * separate — quitting the GUI does not affect the daemon, which outlives the
+     * GUI until its own shell count hits zero.
      *
      * @note MESSAGE THREAD — called by the OS or by `JUCEApplication::quit()`.
      *
@@ -427,15 +430,32 @@ public:
         if (mainWindow != nullptr)
         {
             if (auto* content { mainWindow->getContentComponent() })
-            {
                 appState.setWindowSize (content->getWidth(), content->getHeight());
-            }
         }
 
         if (appState.isNexusMode())
-            appState.setConnected (false);
+        {
+            const int tabCount { appState.getTabs().getNumChildren() };
+
+            if (tabCount > 0)
+            {
+                // Sessions alive — mark disconnected and persist so the next client
+                // reads connected=false and knows the daemon is free to reconnect.
+                appState.setConnected (false);
+                appState.save();
+            }
+            else
+            {
+                // No sessions — clean up both files.
+                appState.getStateFile().deleteFile();
+                appState.getNexusFile().deleteFile();
+            }
+        }
         else
+        {
+            // Standalone mode — always save on quit.
             appState.save();
+        }
 
         quit();
     }

@@ -1,6 +1,6 @@
 /**
- * @file NexusDaemon.mm
- * @brief macOS and Linux implementations of NexusDaemon platform helpers.
+ * @file Daemon.mm
+ * @brief macOS and Linux implementations of Daemon platform helpers.
  *
  * macOS:  `hideDockIcon()` uses NSApplicationActivationPolicyAccessory.
  *         `spawnDaemon(uuid)` uses `posix_spawn` with `POSIX_SPAWN_SETSID`.
@@ -11,7 +11,7 @@
  * @note NEXUS PROCESS MESSAGE THREAD — both functions are called from ENDApplication::initialise().
  */
 
-#include "NexusDaemon.h"
+#include "Daemon.h"
 #include <JuceHeader.h>
 
 #if JUCE_MAC
@@ -27,12 +27,12 @@ namespace Nexus
 {
 /*____________________________________________________________________________*/
 
-void hideDockIcon() noexcept
+void Daemon::hideDockIcon() noexcept
 {
     [NSApp setActivationPolicy: NSApplicationActivationPolicyAccessory];
 }
 
-bool spawnDaemon (const juce::String& uuid) noexcept
+bool Daemon::spawnDaemon (const juce::String& uuid) noexcept
 {
     const auto execPath { juce::File::getSpecialLocation (juce::File::currentExecutableFile).getFullPathName() };
 
@@ -73,12 +73,12 @@ namespace Nexus
 {
 /*____________________________________________________________________________*/
 
-void hideDockIcon() noexcept
+void Daemon::hideDockIcon() noexcept
 {
     // No-op on Linux — no single dock API to abstract.
 }
 
-bool spawnDaemon (const juce::String& uuid) noexcept
+bool Daemon::spawnDaemon (const juce::String& uuid) noexcept
 {
     const auto execPath { juce::File::getSpecialLocation (juce::File::currentExecutableFile).getFullPathName() };
 
