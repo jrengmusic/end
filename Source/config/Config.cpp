@@ -15,7 +15,7 @@
  *     lua.safe_script_file(end.lua)       ← execute user config
  *     iterate _undefined → warnings
  *     iterate END.* → validate + store
- *   (AppState loads state.xml separately)
+ *   (AppState loads end.state and nexus/<uuid>.nexus separately)
  * @endcode
  *
  * ### Colour parsing
@@ -97,15 +97,15 @@ void Config::initKeys()
 
     addKey (Key::fontFamily, "Display Mono", { T::string });
     addKey (Key::fontSize, 12.0, { T::number, 1.0, 200.0, true });
-    addKey (Key::fontLigatures, true, { T::boolean });
-    addKey (Key::fontEmbolden, true, { T::boolean });
+    addKey (Key::fontLigatures, "true", { T::string });
+    addKey (Key::fontEmbolden, "true", { T::string });
     addKey (Key::fontLineHeight, 1.0, { T::number, 0.5, 3.0, true });
     addKey (Key::fontCellWidth, 1.0, { T::number, 0.5, 3.0, true });
 
     addKey (Key::cursorChar, juce::String::charToString (static_cast<juce::juce_wchar> (0x2588)), { T::string });
-    addKey (Key::cursorBlink, true, { T::boolean });
+    addKey (Key::cursorBlink, "true", { T::string });
     addKey (Key::cursorBlinkInterval, 500.0, { T::number, 100.0, 5000.0, true });
-    addKey (Key::cursorForce, false, { T::boolean });
+    addKey (Key::cursorForce, "false", { T::string });
     addKey (Key::coloursForeground, "#A1D6E5", { T::string });///<  skyFall
     addKey (Key::coloursBackground, "#090D12FF", { T::string });///< bunker
     addKey (Key::coloursCursor, "#4E8C93", { T::string });///< paradiso
@@ -138,12 +138,12 @@ void Config::initKeys()
     addKey (Key::windowColour, "#090D12", { T::string });///< bunker
     addKey (Key::windowOpacity, 0.75, { T::number, 0.0, 1.0, true });
     addKey (Key::windowBlurRadius, 32.0, { T::number, 0.0, 100.0, true });
-    addKey (Key::windowAlwaysOnTop, false, { T::boolean });
-    addKey (Key::windowButtons, false, { T::boolean });
-    addKey (Key::windowForceDwm, true, { T::boolean });
+    addKey (Key::windowAlwaysOnTop, "false", { T::string });
+    addKey (Key::windowButtons, "false", { T::string });
+    addKey (Key::windowForceDwm, "true", { T::string });
     addKey (Key::windowZoom, 1.0, { T::number, 0.0, 0.0, false });
     addKey (Key::gpuAcceleration, "auto", { T::string });
-    addKey (Key::nexus, true, { T::boolean });
+    addKey (Key::nexus, "true", { T::string });
 
     addKey (Key::tabFamily, "Display Mono", { T::string });
     addKey (Key::tabSize, 12.0, { T::number, 1.0, 200.0, true });
@@ -173,7 +173,7 @@ void Config::initKeys()
     }
 #endif
 
-    addKey (Key::shellIntegration, true, { T::boolean });
+    addKey (Key::shellIntegration, "true", { T::string });
 
     addKey (Key::terminalScrollbackLines, 10000.0, { T::number, 100.0, 1000000.0, true });
     addKey (Key::terminalScrollStep, 5.0, { T::number, 1.0, 100.0, true });
@@ -182,7 +182,7 @@ void Config::initKeys()
     addKey (Key::terminalPaddingBottom, 10.0, { T::number, 0.0, 50.0, true });
     addKey (Key::terminalPaddingLeft, 10.0, { T::number, 0.0, 50.0, true });
     addKey (Key::terminalDropMultifiles, "space", { T::string });
-    addKey (Key::terminalDropQuoted, true, { T::boolean });
+    addKey (Key::terminalDropQuoted, "true", { T::string });
 
 #if JUCE_MAC
     addKey (Key::keysCopy, "cmd+c", { T::string });
@@ -247,7 +247,7 @@ void Config::initKeys()
     addKey (Key::popupBorderWidth, 1.0, { T::number, 0.0, 10.0, true });
 
     // ---- Action list (command palette) --------------------------------------
-    addKey (Key::keysActionListCloseOnRun, true, { T::boolean });
+    addKey (Key::keysActionListCloseOnRun, "true", { T::string });
     addKey (Key::actionListWidth, 0.3, { T::number, 0.1, 1.0, true });
     addKey (Key::actionListHeight, 0.4, { T::number, 0.1, 1.0, true });
     addKey (Key::actionListNameFamily, "Display", { T::string });
@@ -344,15 +344,10 @@ void Config::writeDefaults (const juce::File& file) const
     {
         const auto placeholder { key.replaceCharacter ('.', '_') };
 
-        if (value.isBool())
-            content = jreng::String::replaceholder (content, placeholder, static_cast<bool> (value) ? "true" : "false");
-        else
-        {
-            // Escape backslashes for valid Lua string syntax
-            auto str { value.toString() };
-            str = str.replace ("\\", "\\\\");
-            content = jreng::String::replaceholder (content, placeholder, str);
-        }
+        // Escape backslashes for valid Lua string syntax
+        auto str { value.toString() };
+        str = str.replace ("\\", "\\\\");
+        content = jreng::String::replaceholder (content, placeholder, str);
     }
 
     file.replaceWithText (content);
@@ -424,8 +419,8 @@ static void validateAndStore (const juce::String& dotKey,
                               const std::unordered_map<juce::String, Config::Value>& schema,
                               juce::StringArray& warnings)
 {
-    static constexpr std::array<const char*, 3> specTypeNames {
-        { "string", "number", "boolean" }
+    static constexpr std::array<const char*, 2> specTypeNames {
+        { "string", "number" }
     };
 
     const bool keyKnown { values.find (dotKey) != values.end() };
@@ -445,9 +440,6 @@ static void validateAndStore (const juce::String& dotKey,
         {
             case Config::Value::Type::number:
                 typeOk = (fieldVal.get_type() == sol::type::number);
-                break;
-            case Config::Value::Type::boolean:
-                typeOk = (fieldVal.get_type() == sol::type::boolean);
                 break;
             case Config::Value::Type::string:
                 typeOk = (fieldVal.get_type() == sol::type::string);
@@ -481,9 +473,6 @@ static void validateAndStore (const juce::String& dotKey,
                 }
                 case Config::Value::Type::string:
                     values.insert_or_assign (dotKey, juce::String (fieldVal.as<std::string>()));
-                    break;
-                case Config::Value::Type::boolean:
-                    values.insert_or_assign (dotKey, fieldVal.as<bool>());
                     break;
             }
         }
@@ -860,11 +849,8 @@ void Config::patchKey (const juce::String& key, const juce::String& value)
 
     if (schemaIt != schema.end())
     {
-        if (schemaIt->second.expectedType == Value::Type::boolean
-            or schemaIt->second.expectedType == Value::Type::number)
-        {
+        if (schemaIt->second.expectedType == Value::Type::number)
             needsQuotes = false;
-        }
     }
 
     const juce::String formattedValue { needsQuotes ? "\"" + value + "\"" : value };
@@ -989,7 +975,7 @@ float Config::getFloat (const juce::String& key) const { return static_cast<floa
  * @param key  A `Config::Key` constant.
  * @return The stored boolean value.
  */
-bool Config::getBool (const juce::String& key) const { return static_cast<bool> (values.at (key)); }
+bool Config::getBool (const juce::String& key) const { return values.at (key).toString() == "true"; }
 
 /**
  * @brief Returns a config value parsed as a JUCE Colour.

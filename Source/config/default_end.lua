@@ -45,20 +45,18 @@ END = {
 	-- "false" — Force CPU rendering. No GPU used.
 	--
 
-	gpu = {
-		acceleration = "%%gpu_acceleration%%",
-	},
+	gpu = "%%gpu%%",
 
 	-- ========================================================================
 	-- NEXUS
 	-- ========================================================================
 	--
 	-- Enable the Nexus background daemon.
-	-- When true, sessions survive window close. Relaunch reconnects.
-	-- When false, sessions die with the window (no daemon).
+	-- When "true", sessions survive window close. Relaunch reconnects.
+	-- When "false", sessions die with the window (no daemon).
 	--
 
-	nexus = %%nexus%%,
+	nexus = "%%nexus%%",
 
 	-- ========================================================================
 	-- FONT
@@ -73,11 +71,11 @@ END = {
 		size = %%font_size%%,
 
 		-- Combine certain character sequences into symbols (e.g. -> becomes an arrow).
-		ligatures = %%font_ligatures%%,
+		ligatures = "%%font_ligatures%%",
 
 		-- Make text appear bolder.
 		-- Useful for thin fonts that are hard to read at small sizes.
-		embolden = %%font_embolden%%,
+		embolden = "%%font_embolden%%",
 
 		-- Line height multiplier applied to terminal cell height (0.5 - 3.0).
 		-- 1.0 = no adjustment. Values above 1.0 increase spacing, below decrease it.
@@ -102,15 +100,15 @@ END = {
 		char = "%%cursor_char%%",
 
 		-- Enable cursor blinking.
-		blink = %%cursor_blink%%,
+		blink = "%%cursor_blink%%",
 
 		-- Blink interval in milliseconds (100 - 5000).
 		-- Full cycle = 2x this value (on for interval, off for interval).
 		blink_interval = %%cursor_blink_interval%%,
 
 		-- Lock the cursor to your configured shape and colour. Programs cannot change it.
-		-- When true, programs cannot change cursor shape or colour.
-		force = %%cursor_force%%,
+		-- When "true", programs cannot change cursor shape or colour.
+		force = "%%cursor_force%%",
 	},
 
 	-- ========================================================================
@@ -252,19 +250,19 @@ END = {
 		blur_radius = %%window_blur_radius%%,
 
 		-- Keep window above all other windows.
-		always_on_top = %%window_always_on_top%%,
+		always_on_top = "%%window_always_on_top%%",
 
 		-- Show native window buttons (close / minimise / maximise).
-		buttons = %%window_buttons%%,
+		buttons = "%%window_buttons%%",
 
 		-- Force DWM visual effects on Windows 11 virtual machines.
-		-- When true, injects the ForceEffectMode registry key to enable
+		-- When "true", injects the ForceEffectMode registry key to enable
 		-- rounded window corners that DWM normally disables inside VMs.
 		-- Only takes effect on Windows 11 running on a software renderer (VM).
 		-- Requires elevated privileges (Run as Administrator).
 		-- Reload config and restart END to apply.
 		-- No effect on macOS, Linux, or physical Windows machines.
-		force_dwm = %%window_force_dwm%%,
+		force_dwm = "%%window_force_dwm%%",
 
 		-- Zoom multiplier (1.0 - 4.0).
 		-- Scales the terminal grid and font proportionally.
@@ -337,13 +335,13 @@ END = {
 		args = "%%shell_args%%",
 
 		-- Enable automatic shell integration.
-		-- When true, END creates shell hook scripts in ~/.config/end/
+		-- When "true", END creates shell hook scripts in ~/.config/end/
 		-- and injects them on shell startup. This enables:
 		--   - Clickable file links in command output
 		--   - Output block detection for the Open File feature
 		-- Supported shells: zsh, bash, fish.
-		-- Set to false to disable and remove integration scripts.
-		integration = %%shell_integration%%,
+		-- Set to "false" to disable and remove integration scripts.
+		integration = "%%shell_integration%%",
 	},
 
 	-- ========================================================================
@@ -370,9 +368,9 @@ END = {
 		drop_multifiles = "%%terminal_drop_multifiles%%",
 
 		-- Wrap dropped file paths in quotes so spaces and special characters work correctly.
-		-- true: paths with special characters are quoted for the active shell.
-		-- false: paths are pasted raw (for TUI apps that handle paths directly).
-		drop_quoted = %%terminal_drop_quoted%%,
+		-- "true": paths with special characters are quoted for the active shell.
+		-- "false": paths are pasted raw (for TUI apps that handle paths directly).
+		drop_quoted = "%%terminal_drop_quoted%%",
 	},
 
 	-- ========================================================================
@@ -525,8 +523,8 @@ END = {
 
 	action_list = {
 		-- Close the action list after running an action.
-		-- When false, the list stays open after execution.
-		close_on_run = %%action_list_close_on_run%%,
+		-- When "false", the list stays open after execution.
+		close_on_run = "%%action_list_close_on_run%%",
 
 		-- Font family for action name labels.
 		name_font_family = "%%action_list_name_font_family%%",

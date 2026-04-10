@@ -12,9 +12,12 @@
  * - **Daemon** (`Session(DaemonTag)`) — headless IPC server.  Owns `Terminal::Session`
  *   objects.  Nexus wires `onBytes` to broadcast `Message::output` to attached subscribers
  *   and `onStateFlush` to broadcast `Message::stateUpdate`.
- * - **Client** (`Session(ClientTag)`) — IPC client.  Owns only `Terminal::Processor`
- *   objects (via `Client`).  Receives `Message::output` / `Message::loading`
- *   from daemon via Grid+State snapshot; `startLoading` calls `setStateInformation` directly.
+ * - **Client** (`Session(ClientTag)`) — IPC client.  Owns `Terminal::Session` objects
+ *   (remote constructor — no TTY) in `terminalSessions`.  Receives `Message::output` /
+ *   `Message::loading` from daemon via Grid+State snapshot; `startLoading` calls
+ *   `setStateInformation` directly.
+ *
+ * `openTerminal` is the single entry point for session creation across all modes.
  *
  * ### Byte-forward flow
  * ```
@@ -108,62 +111,33 @@ public:
     ~Session() override;
 
     /**
-     * @brief Creates a new terminal session with a freshly-generated UUID.
+     * @brief Opens a terminal session with an explicit UUID.
      *
-     * Delegates to the uuid overload with a generated UUID.
-     *
-     * @param shell   Shell program override.  Empty = use Config default.
-     * @param args    Shell arguments override.  Empty = use Config default.
-     * @param cwd     Initial working directory.  Empty = inherit.
-     * @param cols    Initial column count.  Must be > 0.
-     * @param rows    Initial row count.  Must be > 0.
-     * @param envID   UUID of the parent session whose live PATH seeds the new shell.
-     *                Empty = no seed env.  Ignored on Windows.
-     * @return Mutable reference to the newly constructed Processor.
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    Terminal::Processor& create (const juce::String& shell,
-                                  const juce::String& args,
-                                  const juce::String& cwd,
-                                  int cols,
-                                  int rows,
-                                  const juce::String& envID = {});
-
-    /**
-     * @brief Creates a terminal session with an explicit UUID.
-     *
-     * In local/daemon mode: constructs a `Terminal::Session` (which owns its
-     * `Terminal::Processor` internally), wires Nexus-level IPC callbacks, and
-     * returns the Processor reference.
-     * In client mode: constructs a client-side `Terminal::Processor` pipeline,
-     * sends `Message::createProcessor` to daemon, returns Processor&.
+     * Single entry point for all session creation across all three modes.
+     * All three modes construct a `Terminal::Session` stored in `terminalSessions`
+     * and return a reference to its Processor.
+     * Local/daemon mode: full session with TTY via Terminal::Session::create (resolves shell/args from config).
+     * Client mode: remote session (no TTY); reads shell from Config locally; sends minimal PDU to daemon.
      * Returns the existing Processor immediately if @p uuid already exists (idempotency).
      *
-     * @param shell   Shell program override.  Empty = use Config default.
-     * @param args    Shell arguments override.  Empty = use Config default.
-     * @param cwd     Initial working directory.  Empty = inherit.
-     * @param uuid    Explicit UUID to assign.  Must be non-empty.
-     * @param cols    Initial column count.  Must be > 0.
-     * @param rows    Initial row count.  Must be > 0.
-     * @param envID   UUID of the parent session whose live PATH seeds the new shell.
-     *                Empty = no seed env.  Ignored on Windows.
+     * @param cwd   Initial working directory.  Empty = inherit.
+     * @param uuid  Explicit UUID to assign.  Must be non-empty.
+     * @param cols  Initial column count.  Must be > 0.
+     * @param rows  Initial row count.  Must be > 0.
      * @return Mutable reference to the newly constructed Processor.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    Terminal::Processor& create (const juce::String& shell,
-                                  const juce::String& args,
-                                  const juce::String& cwd,
-                                  const juce::String& uuid,
-                                  int cols,
-                                  int rows,
-                                  const juce::String& envID = {});
+    Terminal::Processor& openTerminal (const juce::String& cwd,
+                                        const juce::String& uuid,
+                                        int cols,
+                                        int rows);
 
     /**
      * @brief Returns a mutable reference to the Processor with the given UUID.
      *
      * jasserts if no Processor with @p uuid exists.
      *
-     * @param uuid  The UUID returned by `create()`.
+     * @param uuid  The UUID returned by `openTerminal()`.
      * @return Mutable reference to the owned Processor.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
@@ -174,7 +148,7 @@ public:
      *
      * jasserts if no Processor with @p uuid exists.
      *
-     * @param uuid  The UUID returned by `create()`.
+     * @param uuid  The UUID returned by `openTerminal()`.
      * @return Const reference to the owned Processor.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
@@ -236,10 +210,10 @@ public:
      * @brief Routes incoming bytes from daemon to the Processor for @p uuid.
      *
      * Client mode: called by Client when `Message::output` arrives.
-     * Looks up the Processor by UUID and feeds bytes through `Processor::process`.
-     * `Message::loading` bytes carry a Grid+State snapshot; `startLoading` calls `setStateInformation` directly.
+     * Looks up the Terminal::Session in terminalSessions by UUID and feeds bytes
+     * through `Processor::process`.
      *
-     * @param uuid   UUID of the target Processor.
+     * @param uuid   UUID of the target session.
      * @param data   Raw byte buffer.
      * @param size   Number of bytes.
      * @note MESSAGE THREAD (called from Client::messageReceived).
@@ -391,8 +365,9 @@ private:
     /**
      * @brief Owned Terminal::Session map: UUID → unique_ptr<Terminal::Session>.
      *
-     * Present in local and daemon modes.  Each Terminal::Session owns its Processor.
-     * Empty in client mode (client has no PTY).
+     * Present in all three modes.  Each Terminal::Session owns its Processor.
+     * Local/daemon: full sessions with TTY.
+     * Client: remote sessions (no TTY) constructed via Terminal::Session remote constructor.
      */
     std::map<juce::String, std::unique_ptr<Terminal::Session>> terminalSessions;
 

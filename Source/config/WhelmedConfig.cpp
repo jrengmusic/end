@@ -110,14 +110,6 @@ void Whelmed::Config::initKeys()
     addKey (Key::scrollBottom, juce::String ("G"), { T::string });
     addKey (Key::scrollStep, 50.0, { T::number, 1.0, 2000.0, true });
 
-    addKey (Key::loaderBackground, juce::String ("333435FF"), { T::string });// carbon
-    addKey (Key::loaderFill, juce::String ("112130FF"), { T::string });// trappedDarkness
-    addKey (Key::loaderSpinnerColour, juce::String ("F3F5C5FF"), { T::string });// silkStar
-    addKey (Key::loaderTextColour, juce::String ("00C8D8FF"), { T::string });// blueBikini
-    addKey (Key::loaderFontFamily, juce::String ("Display Mono"), { T::string });
-    addKey (Key::loaderFontSize, 12.0, { T::number, 6.0, 48.0, true });
-    addKey (Key::loaderFontStyle, juce::String ("Bold"), { T::string });
-
     addKey (Key::selectionColour, juce::String ("00C8D880"), { T::string });
 }
 
@@ -180,16 +172,9 @@ void Whelmed::Config::writeDefaults (const juce::File& file) const
 
     for (const auto& [key, value] : values)
     {
-        if (value.isBool())
-        {
-            content = jreng::String::replaceholder (content, key, static_cast<bool> (value) ? "true" : "false");
-        }
-        else
-        {
-            auto str { value.toString() };
-            str = str.replace ("\\", "\\\\");
-            content = jreng::String::replaceholder (content, key, str);
-        }
+        auto str { value.toString() };
+        str = str.replace ("\\", "\\\\");
+        content = jreng::String::replaceholder (content, key, str);
     }
 
     file.replaceWithText (content);
@@ -291,8 +276,8 @@ static void validateAndStore (const juce::String& key,
                               const std::unordered_map<juce::String, Whelmed::Config::Value>& schema,
                               juce::String& errorOut)
 {
-    static constexpr std::array<const char*, 3> specTypeNames {
-        { "string", "number", "boolean" }
+    static constexpr std::array<const char*, 2> specTypeNames {
+        { "string", "number" }
     };
 
     const bool keyKnown { values.find (key) != values.end() };
@@ -314,9 +299,6 @@ static void validateAndStore (const juce::String& key,
         {
             case Whelmed::Config::Value::Type::number:
                 typeOk = (value.get_type() == sol::type::number);
-                break;
-            case Whelmed::Config::Value::Type::boolean:
-                typeOk = (value.get_type() == sol::type::boolean);
                 break;
             case Whelmed::Config::Value::Type::string:
                 typeOk = (value.get_type() == sol::type::string);
@@ -356,9 +338,6 @@ static void validateAndStore (const juce::String& key,
                 }
                 case Whelmed::Config::Value::Type::string:
                     values.insert_or_assign (key, juce::String (value.as<std::string>()));
-                    break;
-                case Whelmed::Config::Value::Type::boolean:
-                    values.insert_or_assign (key, value.as<bool>());
                     break;
             }
         }

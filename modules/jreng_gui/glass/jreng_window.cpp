@@ -163,16 +163,12 @@ void Window::mouseDown (const juce::MouseEvent& event)
 {
     if (event.mods.isMiddleButtonDown())
         windowDragger.startDraggingComponent (this, event);
-
-    DocumentWindow::mouseDown (event);
 }
 
 void Window::mouseDrag (const juce::MouseEvent& event)
 {
     if (event.mods.isMiddleButtonDown())
         windowDragger.dragComponent (this, event, nullptr);
-
-    DocumentWindow::mouseDrag (event);
 }
 #endif
 

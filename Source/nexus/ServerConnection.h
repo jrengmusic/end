@@ -86,11 +86,8 @@ public:
 private:
     struct SpawnPayload
     {
-        juce::String shell;
-        juce::String args;
         juce::String cwd;
         juce::String uuid;
-        juce::String envID;
         int cols { 0 };
         int rows { 0 };
         bool valid { false };

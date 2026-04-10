@@ -78,7 +78,7 @@ void Tabs::addNewTab()
 /**
  * @brief Creates a new Panes instance in a new tab, using the given cwd, UUID hint, and spawn dims.
  *
- * Used by the state.xml restoration walker. Passes all parameters through to
+ * Used by the state restoration walker. Passes all parameters through to
  * Panes::createTerminal() so the first terminal spawns with deterministic PTY dims
  * derived from the saved split tree, rather than zero bounds.
  *

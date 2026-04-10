@@ -2,10 +2,15 @@
  * @file AppIdentifier.h
  * @brief juce::Identifier constants for the application-level ValueTree.
  *
- * These identifiers define the schema for the application state tree:
+ * These identifiers define the schema for the two persisted files:
  *
+ * end.state  — window dimensions only (all modes):
  *     END
  *     +-- WINDOW (width, height, zoom, renderer)
+ *
+ * nexus/<uuid>.nexus  — session state (nexus mode only):
+ *     END (connected, port)
+ *     +-- WINDOW (width, height, zoom, renderer, nexusMode)
  *     +-- NEXUS (PROCESSORS [PROCESSOR{id}*], LOADING [OPERATION{id}*])
  *     +-- TABS (active, position, activePaneID)
  *         +-- TAB
@@ -75,6 +80,8 @@ namespace ID
     static const juce::Identifier filePath           { "filePath" };
     static const juce::Identifier displayName        { "displayName" };
     static const juce::Identifier scrollOffset       { "scrollOffset" };
+    static const juce::Identifier connected          { "connected" };
+    static const juce::Identifier port              { "port" };
 
     static const juce::Identifier blockCount         { "blockCount" };
     static const juce::Identifier parseComplete      { "parseComplete" };

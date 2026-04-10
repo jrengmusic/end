@@ -12,17 +12,17 @@
  *
  * ### Startup sequence
  * @code
- * Config ctor        → loads ~/.config/end/end.lua
- * AppState ctor      → initialises defaults (no filesystem access)
+ * Config ctor         → loads ~/.config/end/end.lua
+ * AppState ctor       → initDefaults() only (no filesystem access)
  * FontCollection ctor → loads font handles at default size
- * initialise()       → sets nexus mode, loads state.xml if nexus=true,
- *                      creates Window(new MainComponent())
+ * initialise()        → resolves UUID, sets nexus mode, calls appState.load() (reads full state from mode-appropriate file),
+ *                       creates Window(new MainComponent()), then Nexus::Session
  * @endcode
  *
  * ### Shutdown sequence
  * `systemRequestedQuit()` is called by the OS (Cmd+Q, window close button, or
- * `JUCEApplication::quit()`).  Before quitting it snapshots the current window
- * dimensions into `state.xml` via `AppState` so the next launch restores the same size.
+ * `JUCEApplication::quit()`).  It deletes `end-<id>.state` so no trace is left
+ * on disk after the last instance exits.
  *
  * @note The `START_JUCE_APPLICATION` macro at the bottom generates the platform
  *       `main()` / `WinMain()` entry point.
@@ -180,13 +180,25 @@ public:
 #endif
 
         const auto args { getCommandLineParameterArray() };
-        const bool isNexusMode { args.contains ("--nexus") };
+        const int nexusFlagIndex { args.indexOf ("--nexus") };
+        const bool isNexusFlag { nexusFlagIndex >= 0 };
 
         auto* cfg { Config::getContext() };
 
-        if (isNexusMode)
+        if (isNexusFlag)
         {
             // ---- Headless daemon mode ----------------------------------------
+            // Parse UUID from the argument immediately following --nexus.
+            // Set UUID on AppState before any state file access.
+            const juce::String daemonUuid { nexusFlagIndex + 1 < args.size()
+                                                ? args[nexusFlagIndex + 1]
+                                                : juce::Uuid().toString() };
+            appState.setInstanceUuid (daemonUuid);
+            appState.load();
+
+            // Ensure nexus/ directory exists before the server writes its port.
+            appState.getNexusFile().getParentDirectory().createDirectory();
+
             // Hide dock icon, start IPC server, wire exit callback, and return.
             // No window is created.  The JUCE message loop runs until all sessions exit.
             Nexus::hideDockIcon();
@@ -194,6 +206,8 @@ public:
 
             nexus->onAllSessionsExited = [this]
             {
+                appState.getStateFile().deleteFile();
+                appState.deleteNexusFile();
                 quit();
             };
         }
@@ -204,8 +218,100 @@ public:
             if (not nexusEnabled)
             {
                 // ---- Single-process mode (nexus = false) --------------------
-                // No daemon, no IPC.  Sessions die with the window.
-                // Host is alive in-process for session ownership; server is NOT started.
+                // No daemon, no IPC.  Load full state from end.state.
+                appState.load();
+            }
+
+            if (nexusEnabled)
+            {
+                // ---- Client mode (nexus = true, no --nexus flag) -------------
+                // Scan nexus/*.nexus files to find a live daemon without a connected client.
+                static constexpr int nexusProbeTimeoutMs { 200 };
+
+                const juce::File nexusDir {
+                    juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+                        .getChildFile (".config/end/nexus")
+                };
+
+                nexusDir.createDirectory();
+
+                juce::String resolvedUuid;
+
+                const auto nexusFiles { nexusDir.findChildFiles (
+                    juce::File::findFiles, false, "*.nexus") };
+
+                for (int i { 0 }; resolvedUuid.isEmpty() and i < nexusFiles.size(); ++i)
+                {
+                    const juce::File& nexusFile { nexusFiles.getReference (i) };
+
+                    // UUID is the filename stem: <uuid>.nexus
+                    const juce::String candidateUuid {
+                        nexusFile.getFileNameWithoutExtension()
+                    };
+
+                    // Check <uuid>.state for connected flag (client-owned file).
+                    // If connected=true another client owns this daemon — skip.
+                    const juce::File stateFile {
+                        nexusDir.getChildFile (candidateUuid + ".state")
+                    };
+
+                    bool connected { false };
+
+                    if (stateFile.existsAsFile())
+                    {
+                        if (auto xml { juce::parseXML (stateFile) })
+                        {
+                            auto parsed { juce::ValueTree::fromXml (*xml) };
+
+                            if (parsed.isValid() and parsed.getType() == App::ID::END)
+                                connected = static_cast<bool> (parsed.getProperty (App::ID::connected, false));
+                        }
+                    }
+
+                    if (not connected)
+                    {
+                        // Read port as plain text from <uuid>.nexus (daemon-owned file).
+                        const int port { nexusFile.loadFileAsString().getIntValue() };
+
+                        bool daemonAlive { false };
+
+                        if (port > 0)
+                        {
+                            juce::StreamingSocket probe;
+
+                            if (probe.connect ("127.0.0.1", port, nexusProbeTimeoutMs))
+                            {
+                                probe.close();
+                                daemonAlive = true;
+                            }
+                        }
+
+                        if (daemonAlive)
+                        {
+                            // Store the port in-memory so Client can connect.
+                            appState.setInstanceUuid (candidateUuid);
+                            appState.get().setProperty (App::ID::port, port, nullptr);
+                            resolvedUuid = candidateUuid;
+                        }
+                        else
+                        {
+                            // Stale files — daemon is dead.  Delete both.
+                            nexusFile.deleteFile();
+                            stateFile.deleteFile();
+                        }
+                    }
+                }
+
+                if (resolvedUuid.isEmpty())
+                {
+                    // No usable daemon found — generate a fresh UUID and spawn a daemon.
+                    resolvedUuid = juce::Uuid().toString();
+                    Nexus::spawnDaemon (resolvedUuid);
+                }
+
+                appState.setInstanceUuid (resolvedUuid);
+                appState.setNexusMode (true);
+                appState.load();
             }
 
 #if JUCE_WINDOWS
@@ -214,9 +320,6 @@ public:
                 applyForceDwmRegistry (cfg->getBool (Config::Key::windowForceDwm));
             }
 #endif
-
-            // Nexus mode: set optimistically — window appears before connection settles.
-            appState.setNexusMode (nexusEnabled);
 
             mainWindow.reset (new jreng::Window (new MainComponent (fontRegistry),
                                                       cfg->getString (Config::Key::windowTitle),
@@ -239,42 +342,8 @@ public:
                 // naturally triggers onNexusConnected() on the live listener.
                 nexus = std::make_unique<Nexus::Session>();
             }
-
-            if (nexusEnabled)
+            else
             {
-                // ---- Client mode (nexus = true, no --nexus flag) -------------
-                // Window is up immediately.  Session(ClientTag) ctor adds a LOADING child
-                // which fires valueTreeChildAdded and shows the loaderOverlay automatically.
-                // If no daemon lockfile exists, spawn one first; then connect asynchronously.
-                const juce::File lockfilePath { Nexus::Server::getLockfile() };
-
-                bool daemonAlive { false };
-
-                if (lockfilePath.existsAsFile())
-                {
-                    const int port { lockfilePath.loadFileAsString().trim().getIntValue() };
-
-                    if (port > 0)
-                    {
-                        static constexpr int nexusProbeTimeoutMs { 200 };
-                        juce::StreamingSocket probe;
-
-                        if (probe.connect ("127.0.0.1", port, nexusProbeTimeoutMs))
-                        {
-                            probe.close();
-                            daemonAlive = true;
-                        }
-                    }
-                }
-
-                if (not daemonAlive)
-                {
-                    if (lockfilePath.existsAsFile())
-                        lockfilePath.deleteFile();
-
-                    Nexus::spawnDaemon();
-                }
-
                 // Session (ClientTag) constructs Client internally, adds a nexus-connect LOADING op,
                 // and begins connect attempts.  When processorList arrives, PROCESSORS is rewritten
                 // and the LOADING op is removed.  MainComponent::valueTreeChildAdded reacts to both.
@@ -339,7 +408,7 @@ public:
     /**
      * @brief Handles OS quit requests (Cmd+Q, window close, SIGTERM).
      *
-     * Saves `state.xml` (nexus mode only) and quits.  In the byte-forward
+     * Saves full state to disk and quits.  In the byte-forward
      * architecture, the GUI process and the daemon process are separate —
      * quitting the GUI does not affect the daemon, which outlives the GUI
      * until its own shell count hits zero.
@@ -363,7 +432,11 @@ public:
             }
         }
 
-        appState.save (appState.isNexusMode());
+        if (appState.isNexusMode())
+            appState.setConnected (false);
+        else
+            appState.save();
+
         quit();
     }
 

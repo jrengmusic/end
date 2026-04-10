@@ -5,7 +5,7 @@
  * `hideDockIcon()` is a no-op on Windows (the taskbar button is managed by the
  * window, which is not created in daemon mode).
  *
- * `spawnDaemon()` uses `CreateProcessW` with `DETACHED_PROCESS |
+ * `spawnDaemon(uuid)` uses `CreateProcessW` with `DETACHED_PROCESS |
  * CREATE_NEW_PROCESS_GROUP` to launch `end --nexus` fully detached from the
  * parent console/window.
  *
@@ -28,10 +28,10 @@ void hideDockIcon() noexcept
     // No-op on Windows — no dock icon exists when no window is created.
 }
 
-bool spawnDaemon() noexcept
+bool spawnDaemon (const juce::String& uuid) noexcept
 {
     const auto execPath { juce::File::getSpecialLocation (juce::File::currentExecutableFile).getFullPathName() };
-    const juce::String cmdLine { "\"" + execPath + "\" --nexus" };
+    const juce::String cmdLine { "\"" + execPath + "\" --nexus " + uuid };
 
     STARTUPINFOW si {};
     si.cb = sizeof (si);

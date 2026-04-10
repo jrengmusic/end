@@ -18,12 +18,14 @@
 #include "../terminal/logic/Processor.h"
 #include "../terminal/logic/Session.h"
 #include "../terminal/data/Identifier.h"
-#include "../config/Config.h"
 #include "../AppState.h"
 #include "../AppIdentifier.h"
+#include "../config/Config.h"
 
 #include <algorithm>
 #include <cstring>
+
+// =============================================================================
 
 namespace Nexus
 {
@@ -43,10 +45,7 @@ Session::Session()
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-Session::Session (DaemonTag)
-{
-    startServer();
-}
+Session::Session (DaemonTag) { startServer(); }
 
 /**
  * @brief Constructs the Session in client mode — constructs Client and begins connect attempts.
@@ -59,7 +58,7 @@ Session::Session (DaemonTag)
 Session::Session (ClientTag)
 {
     client = std::make_unique<Client>();
-    client->beginConnectAttempts (Server::getLockfile());
+    client->beginConnectAttempts();
 }
 
 /**
@@ -79,34 +78,28 @@ Session::~Session()
 // =============================================================================
 
 /**
- * @brief Creates a new session with a freshly-generated UUID.  Returns Processor reference.
+ * @brief Opens a terminal session with an explicit UUID.  Returns Processor reference.
  *
- * Delegates to the 7-argument overload with a generated UUID.
+ * Single entry point for all session creation across all three modes.
+ * All three modes store the resulting Terminal::Session in terminalSessions.
+ * - Client mode: reads shell from Config locally; constructs a remote Terminal::Session (no TTY);
+ *   sends minimal PDU (cwd | uuid | cols | rows) to daemon; wires IPC callbacks.
+ * - Local/daemon mode: constructs a full Terminal::Session via Terminal::Session::create
+ *   (resolves shell/args from Config internally); then wires Nexus callbacks.
  *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-Terminal::Processor&
-Session::create (const juce::String& shell, const juce::String& args, const juce::String& cwd,
-                 int cols, int rows, const juce::String& envID)
-{
-    return create (shell, args, cwd, juce::Uuid().toString(), cols, rows, envID);
-}
-
-/**
- * @brief Creates a new session with an explicit UUID.  Returns Processor reference.
- *
- * In client mode: constructs the pipeline-side Processor, wires IPC callbacks, and registers
- * it with Client.  In local and daemon mode: creates a Terminal::Session (which owns the Processor and
- * wires the full PTY pipeline internally), then wires Nexus-level callbacks on top.
  * If a session with @p uuid already exists the existing Processor is returned
  * immediately (idempotency guard for GUI reconnect).
  *
+ * @param cwd   Initial working directory.  Empty = inherit.
  * @param uuid  Must be non-empty.
+ * @param cols  Must be > 0.
+ * @param rows  Must be > 0.
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-Terminal::Processor&
-Session::create (const juce::String& shell, const juce::String& args, const juce::String& cwd,
-                 const juce::String& uuid, int cols, int rows, const juce::String& envID)
+Terminal::Processor& Session::openTerminal (const juce::String& cwd,
+                                             const juce::String& uuid,
+                                             int cols,
+                                             int rows)
 {
     jassert (uuid.isNotEmpty());
     jassert (cols > 0);
@@ -126,72 +119,39 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
     }
     else if (client != nullptr)
     {
-        client->createSession (cols, rows, shell, cwd, uuid, envID);
+        // Send minimal PDU: cwd | uuid | cols | rows.  Daemon resolves shell/args from its config.
+        juce::MemoryBlock payload;
+        Nexus::writeString (payload, cwd);
+        Nexus::writeString (payload, uuid);
+        Nexus::writeUint16 (payload, static_cast<uint16_t> (cols));
+        Nexus::writeUint16 (payload, static_cast<uint16_t> (rows));
+        client->sendPdu (Message::createProcessor, payload);
 
-        auto proc { std::make_unique<Terminal::Processor> (cols, rows, uuid) };
+        // Remote session — Processor + State, no TTY.  Daemon owns the PTY.
+        // Read shell from local Config so State/display logic has a shell name.
+        const juce::String shell { Config::getContext()->getString (Config::Key::shellProgram) };
+        auto termSession { std::make_unique<Terminal::Session> (cols, rows, cwd, shell, uuid) };
 
-        proc->getState().setId (uuid);
-        proc->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
-
-        // Wire parser responses (DSR, DA, CPR, etc.) back to the daemon via Client::sendInput.
-        proc->setHostWriter ([this, uuid] (const char* data, int len)
-        {
-            client->sendInput (uuid, data, len);
-        });
+        Terminal::Processor* procRawPtr { &termSession->getProcessor() };
 
         // Wire user input (keyboard, mouse) to daemon via Client IPC.
-        proc->writeInput = [this, uuid] (const char* data, int len)
+        procRawPtr->writeInput = [this, uuid] (const char* data, int len)
         {
             client->sendInput (uuid, data, len);
         };
 
         // Wire resize to daemon via Client IPC.
-        proc->onResize = [this, uuid] (int cols, int rows)
+        procRawPtr->onResize = [this, uuid] (int cols, int rows)
         {
             client->sendResize (uuid, cols, rows);
         };
 
-        client->registerProcessor (std::move (proc));
-
-        Terminal::Processor* procPtr { client->getProcessor (uuid) };
-        jassert (procPtr != nullptr);
-        result = procPtr;
+        result = procRawPtr;
+        terminalSessions.emplace (uuid, std::move (termSession));
     }
     else
     {
-        const juce::String effectiveShell { shell.isNotEmpty()
-            ? shell
-            : Config::getContext()->getString (Config::Key::shellProgram) };
-        const juce::String effectiveArgs { shell.isNotEmpty()
-            ? args
-            : Config::getContext()->getString (Config::Key::shellArgs) };
-
-        juce::StringPairArray seedEnv;
-
-#if ! JUCE_WINDOWS
-        if (envID.isNotEmpty())
-        {
-            const auto parentIt { terminalSessions.find (envID) };
-
-            if (parentIt != terminalSessions.end())
-            {
-                const int fgPid { parentIt->second->getForegroundPid() };
-
-                if (fgPid > 0)
-                {
-                    const juce::String resolvedPath { parentIt->second->getEnvVar (fgPid, "PATH") };
-
-                    if (resolvedPath.isNotEmpty())
-                        seedEnv.set ("PATH", resolvedPath);
-                }
-            }
-        }
-#else
-        juce::ignoreUnused (envID);
-#endif
-
-        auto termSession { std::make_unique<Terminal::Session> (cols, rows, effectiveShell,
-                                                                effectiveArgs, cwd, seedEnv, uuid) };
+        auto termSession { Terminal::Session::create (cwd, cols, rows, {}, {}, {}, uuid) };
 
         Terminal::Processor* procRawPtr { &termSession->getProcessor() };
 
@@ -221,17 +181,19 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
             // time onStateFlush fires.  lastSentCwd and lastSentFg track the previously-broadcast
             // values to avoid 60Hz noise on unchanged state.
             auto lastSentCwd { std::make_shared<juce::String>() };
-            auto lastSentFg  { std::make_shared<juce::String>() };
+            auto lastSentFg { std::make_shared<juce::String>() };
 
             termSession->onStateFlush = [this, uuid, procRawPtr, lastSentCwd, lastSentFg]
             {
                 const juce::String cwdStr { procRawPtr->getState().get().getProperty (Terminal::ID::cwd).toString() };
-                const juce::String fgStr  { procRawPtr->getState().get().getProperty (Terminal::ID::foregroundProcess).toString() };
+                const juce::String fgStr {
+                    procRawPtr->getState().get().getProperty (Terminal::ID::foregroundProcess).toString()
+                };
 
                 if (cwdStr != *lastSentCwd or fgStr != *lastSentFg)
                 {
                     *lastSentCwd = cwdStr;
-                    *lastSentFg  = fgStr;
+                    *lastSentFg = fgStr;
 
                     juce::MemoryBlock payload;
                     Nexus::writeString (payload, uuid);
@@ -306,20 +268,13 @@ Session::create (const juce::String& shell, const juce::String& args, const juce
  */
 Terminal::Processor& Session::get (const juce::String& uuid)
 {
+    const auto it { terminalSessions.find (uuid) };
+    jassert (it != terminalSessions.end());
+
     Terminal::Processor* result { nullptr };
 
-    if (client != nullptr)
-    {
-        result = client->getProcessor (uuid);
-    }
-    else
-    {
-        const auto it { terminalSessions.find (uuid) };
-        jassert (it != terminalSessions.end());
-
-        if (it != terminalSessions.end())
-            result = &it->second->getProcessor();
-    }
+    if (it != terminalSessions.end())
+        result = &it->second->getProcessor();
 
     jassert (result != nullptr);
     return *result;
@@ -332,20 +287,13 @@ Terminal::Processor& Session::get (const juce::String& uuid)
  */
 const Terminal::Processor& Session::get (const juce::String& uuid) const
 {
+    const auto it { terminalSessions.find (uuid) };
+    jassert (it != terminalSessions.end());
+
     const Terminal::Processor* result { nullptr };
 
-    if (client != nullptr)
-    {
-        result = client->getProcessor (uuid);
-    }
-    else
-    {
-        const auto it { terminalSessions.find (uuid) };
-        jassert (it != terminalSessions.end());
-
-        if (it != terminalSessions.end())
-            result = &it->second->getProcessor();
-    }
+    if (it != terminalSessions.end())
+        result = &it->second->getProcessor();
 
     jassert (result != nullptr);
     return *result;
@@ -362,15 +310,14 @@ void Session::remove (const juce::String& uuid)
 {
     if (client != nullptr)
     {
+        // Notify daemon to destroy the PTY process and unsubscribe from output.
         client->sendRemove (uuid);
-        client->unregisterProcessor (uuid);
         client->detachSession (uuid);
     }
-    else
-    {
-        terminalSessions.erase (uuid);
-        fireIfAllExited();
-    }
+
+    // Terminal::Session (remote or local) is always owned by terminalSessions.
+    terminalSessions.erase (uuid);
+    fireIfAllExited();
 }
 
 /**
@@ -456,18 +403,19 @@ void Session::sendResize (const juce::String& uuid, int cols, int rows)
  * @brief Routes incoming bytes from daemon to the Processor for @p uuid.
  *
  * Client mode only: called by Client when Message::output arrives.
- * Looks up the Processor via Client::getProcessor (which owns client-side Processors).
+ * Looks up the Terminal::Session by UUID and feeds bytes to its Processor.
  *
  * @note MESSAGE THREAD (called from Client::messageReceived).
  */
 void Session::feedBytes (const juce::String& uuid, const void* data, int size)
 {
-    Terminal::Processor* proc { client != nullptr ? client->getProcessor (uuid) : nullptr };
+    const auto it { terminalSessions.find (uuid) };
 
-    if (proc != nullptr and size > 0)
+    if (it != terminalSessions.end() and size > 0)
     {
-        proc->process (static_cast<const char*> (data), size);
-        proc->getParser().flushResponses();
+        Terminal::Processor& proc { it->second->getProcessor() };
+        proc.process (static_cast<const char*> (data), size);
+        proc.getParser().flushResponses();
     }
 }
 
@@ -480,12 +428,13 @@ void Session::feedBytes (const juce::String& uuid, const void* data, int size)
  */
 void Session::startLoading (const juce::String& uuid, juce::MemoryBlock&& bytes)
 {
-    Terminal::Processor* proc { client != nullptr ? client->getProcessor (uuid) : nullptr };
-    jassert (proc != nullptr);
+    const auto it { terminalSessions.find (uuid) };
+    jassert (it != terminalSessions.end());
 
-    if (proc != nullptr)
+    if (it != terminalSessions.end())
     {
-        proc->setStateInformation (bytes.getData(), static_cast<int> (bytes.getSize()));
+        Terminal::Processor& proc { it->second->getProcessor() };
+        proc.setStateInformation (bytes.getData(), static_cast<int> (bytes.getSize()));
     }
 }
 
@@ -579,3 +528,4 @@ void Session::fireIfAllExited() noexcept
 
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Nexus
+

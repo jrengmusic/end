@@ -7,7 +7,7 @@
  * and paints the window background with the configured colour and opacity.
  *
  * ### Responsibilities
- * - Sets the initial window size from `AppState` (persisted in `state.xml`).
+ * - Sets the initial window size from `AppState` (persisted in `end-<id>.state`).
  * - Registers a close callback with `jreng::BackgroundBlur` so that window
  *   dimensions are persisted to `AppState` when the native close button is
  *   pressed (in addition to the Cmd+Q path handled by ENDApplication).

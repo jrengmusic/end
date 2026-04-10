@@ -90,7 +90,7 @@ public:
     /**
      * @brief Create a new terminal session in this pane.
      *
-     * In host mode: creates a session via Nexus::Session and calls Session::createDisplay().
+     * In host mode: opens a session via Nexus::Session::openTerminal and calls Session::createDisplay().
      * In client mode: spawns or attaches a remote session via Nexus::Client and
      * creates a client-mode Display backed by a hosted Terminal::Processor.
      *

@@ -236,6 +236,31 @@ public:
      */
     bool waitForData (int timeoutMs) override;
 
+    /**
+     * @brief Returns the PID of the child shell process.
+     *
+     * ConPTY does not expose a foreground process group like Unix tcgetpgrp.
+     * Returns the shell PID obtained from CreateProcessW at open() time.
+     *
+     * @return The shell PID, or -1 if not running.
+     * @note Any thread.
+     */
+    int getForegroundPid() const noexcept override;
+
+    /**
+     * @brief Writes the process name for the given PID into the buffer.
+     *
+     * Uses QueryFullProcessImageNameW to obtain the executable path,
+     * then extracts the filename stem.
+     *
+     * @param pid        The process ID to query.
+     * @param buffer     Destination buffer for the null-terminated name.
+     * @param maxLength  Size of the destination buffer in bytes.
+     * @return Number of bytes written (excluding null terminator), or 0 on failure.
+     * @note Any thread.
+     */
+    int getProcessName (int pid, char* buffer, int maxLength) const noexcept override;
+
     /** @} */
 
 private:
@@ -290,6 +315,9 @@ private:
 
     /** @brief Serialises `write()` calls from the message thread. */
     juce::CriticalSection writeLock;
+
+    /** @brief PID of the child shell process, obtained from CreateProcessW.  0 when not running. */
+    DWORD childPid { 0 };
 };
 
 #endif

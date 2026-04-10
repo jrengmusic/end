@@ -3,8 +3,9 @@
  * @brief JUCE-backed TCP server that accepts Nexus client connections.
  *
  * `Nexus::Server` wraps `juce::InterprocessConnectionServer` to listen on a
- * TCP port, write the bound port to `~/.config/end/end.port`, and create a
- * `Nexus::ServerConnection` for each accepted client.
+ * TCP port, write the bound port to AppState (which persists it to
+ * `~/.config/end/nexus/<uuid>.nexus`), and create a `Nexus::ServerConnection`
+ * for each accepted client.
  *
  * @see Nexus::Session
  * @see Nexus::ServerConnection
@@ -26,9 +27,9 @@ class ServerConnection;
  * @brief InterprocessConnectionServer that creates ServerConnection objects.
  *
  * Owned by `Nexus::Session`.  `start()` calls `beginWaitingForSocket()`, writes
- * the bound port to the lockfile, and caches it in `activePort`.  `stop()`
- * calls the base `InterprocessConnectionServer::stop()` and deletes the
- * lockfile.
+ * the bound port to AppState (persisted to the nexus state file), and caches
+ * it in `activePort`.  `stop()` calls the base `InterprocessConnectionServer::stop()`.
+ * Nexus port file deletion is handled by AppState::deleteNexusFile() on quit.
  *
  * @par Thread context
  * `start()` / `stop()` — NEXUS PROCESS MESSAGE THREAD.
@@ -46,10 +47,12 @@ public:
     ~Server() override;
 
     /**
-     * @brief Starts listening on @p port and writes the bound port to lockfile.
+     * @brief Starts listening on @p port and writes the bound port to AppState.
      *
      * Tries @p port first.  If @p port is 0, `beginWaitingForSocket` returns the
-     * OS-assigned port via `getBoundPort()`.
+     * OS-assigned port via `getBoundPort()`.  On success, calls
+     * `AppState::getContext()->setPort(activePort)` which persists the port to
+     * `~/.config/end/nexus/<uuid>.nexus` so clients can probe it.
      *
      * @param port  Port to try.  0 = let OS choose.
      * @return `true` if `beginWaitingForSocket` succeeded.
@@ -58,7 +61,7 @@ public:
     bool start (int port = defaultPort);
 
     /**
-     * @brief Stops the server and deletes the lockfile.
+     * @brief Stops the server.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     void stop();
@@ -68,6 +71,37 @@ public:
      * @note Any thread.
      */
     int getPort() const noexcept;
+
+    /**
+     * @brief Returns the nexus port file (`~/.config/end/nexus/<uuid>.nexus`).
+     *
+     * The nexus port file IS the lockfile — it contains the plain-text port number
+     * so client startup scans can discover a running daemon.
+     *
+     * @return Path to the nexus port file.
+     * @note Any thread.
+     */
+    static juce::File getLockfile();
+
+    /**
+     * @brief Persists @p port to the nexus port file via AppState.
+     *
+     * Delegates to `AppState::getContext()->setPort(port)` which writes the
+     * plain-text port number to `<uuid>.nexus` immediately.
+     *
+     * @param port  The bound TCP port to persist.
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    void writeLockfile (int port);
+
+    /**
+     * @brief Deletes the nexus port file via AppState.
+     *
+     * Delegates to `AppState::getContext()->deleteNexusFile()`.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    void deleteLockfile();
 
     /**
      * @brief Removes and destroys the connection owned by this server.
@@ -80,20 +114,8 @@ public:
      */
     void removeConnection (ServerConnection* connection);
 
-    /**
-     * @brief Returns the path to the port lockfile: `~/.config/end/end.port`.
-     *
-     * Single source of truth for the lockfile path — all callers use this method.
-     *
-     * @note Any thread.
-     */
-    static juce::File getLockfile();
-
 private:
     juce::InterprocessConnection* createConnectionObject() override;
-
-    static void writeLockfile (int port);
-    static void deleteLockfile();
 
     Session& host;
     int activePort { 0 };

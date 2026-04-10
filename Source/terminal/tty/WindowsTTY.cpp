@@ -600,6 +600,7 @@ static void buildEnvironmentBlock (std::wstring& envBlock,
  * @param      pseudoConsole  The ConPTY handle to attach to the child.
  * @param[in,out] client      Client pipe end — closed on success (ConPTY owns it).
  * @param[out] processOut     Receives the child process handle on success.
+ * @param[out] pidOut         Receives the child process ID on success.
  * @param      shell          Shell program as a wide string.
  * @param      args           Shell arguments as a wide string (space-separated).
  * @param      workingDirectory Initial cwd for the child process.
@@ -608,7 +609,7 @@ static void buildEnvironmentBlock (std::wstring& envBlock,
  *
  * @note Called from `WindowsTTY::open()` on the message thread.
  */
-static bool spawnProcess (HPCON pseudoConsole, HANDLE& client, HANDLE& processOut,
+static bool spawnProcess (HPCON pseudoConsole, HANDLE& client, HANDLE& processOut, DWORD& pidOut,
                           const std::wstring& shell, const std::wstring& args,
                           const std::wstring& workingDirectory,
                           const std::vector<std::pair<std::string, std::string>>& shellEnvVars) noexcept
@@ -668,6 +669,7 @@ static bool spawnProcess (HPCON pseudoConsole, HANDLE& client, HANDLE& processOu
         {
             CloseHandle (pi.hThread);
             processOut = pi.hProcess;
+            pidOut     = pi.dwProcessId;
             result = true;
         }
     }
@@ -743,7 +745,7 @@ bool WindowsTTY::open (int cols, int rows, const juce::String& shell,
                 const std::wstring argsWide  { args.toWideCharPointer() };
                 const std::wstring cwdWide { workingDirectory.toWideCharPointer() };
 
-                if (spawnProcess (pseudoConsole, client, process, shellWide, argsWide, cwdWide, shellIntegrationEnv))
+                if (spawnProcess (pseudoConsole, client, process, childPid, shellWide, argsWide, cwdWide, shellIntegrationEnv))
                 {
                     readOverlapped  = {};
                     writeOverlapped = {};
@@ -844,6 +846,7 @@ void WindowsTTY::close()
     readBufferBytes  = 0;
     readBufferOffset = 0;
     readPending      = false;
+    childPid         = 0;
 }
 
 // =============================================================================
@@ -868,6 +871,72 @@ bool WindowsTTY::isRunning() const
     }
 
     return running;
+}
+
+// =============================================================================
+
+/**
+ * @brief Returns the PID of the child shell process.
+ *
+ * ConPTY does not expose a foreground process group like Unix tcgetpgrp.
+ * Returns the shell PID stored at open() time.
+ *
+ * @return The shell PID, or -1 if not running.
+ * @note Any thread.
+ */
+int WindowsTTY::getForegroundPid() const noexcept
+{
+    int result { -1 };
+
+    if (childPid != 0)
+        result = static_cast<int> (childPid);
+
+    return result;
+}
+
+// =============================================================================
+
+/**
+ * @brief Writes the process name for the given PID into the buffer.
+ *
+ * Uses QueryFullProcessImageNameW to obtain the executable path,
+ * then extracts the filename stem.
+ *
+ * @param pid        The process ID to query.
+ * @param buffer     Destination buffer for the null-terminated name.
+ * @param maxLength  Size of the destination buffer in bytes.
+ * @return Number of bytes written (excluding null terminator), or 0 on failure.
+ * @note Any thread.
+ */
+int WindowsTTY::getProcessName (int pid, char* buffer, int maxLength) const noexcept
+{
+    int result { 0 };
+
+    if (pid > 0 and buffer != nullptr and maxLength > 0)
+    {
+        const HANDLE hProcess { OpenProcess (PROCESS_QUERY_LIMITED_INFORMATION, FALSE,
+                                             static_cast<DWORD> (pid)) };
+
+        if (hProcess != nullptr)
+        {
+            WCHAR pathBuf[MAX_PATH] {};
+            DWORD pathLen { MAX_PATH };
+
+            if (QueryFullProcessImageNameW (hProcess, 0, pathBuf, &pathLen) != 0)
+            {
+                const juce::String fullPath { pathBuf };
+                const juce::String name { juce::File (fullPath).getFileNameWithoutExtension() };
+                const int length { juce::jmin (name.length(), maxLength - 1) };
+                std::memcpy (buffer, name.toRawUTF8(), static_cast<size_t> (length));
+                buffer[length] = '\0';
+                result = length;
+            }
+
+            CloseHandle (hProcess);
+        }
+    }
+
+    return result;
 }
 
 // =============================================================================

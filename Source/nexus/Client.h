@@ -2,19 +2,24 @@
  * @file Client.h
  * @brief Client-side JUCE IPC connector to a remote Nexus::Session.
  *
- * `Nexus::Client` connects to a running Host via TCP, performs the hello
+ * `Nexus::Client` connects to a running daemon via TCP, performs the hello
  * handshake, and provides the send API for all client-to-host PDU kinds.
  * Incoming PDUs are delivered to the message thread by JUCE and dispatched
- * to registered `Terminal::Processor` objects.
+ * to `Nexus::Session` for routing to the appropriate `Terminal::Session`.
  *
  * ### Lifecycle
  * 1. Construct with default constructor.
- * 2. Call `beginConnectAttempts()` — polls the lockfile every 100 ms and calls
- *    `connectToSocket` on each tick.  On success JUCE fires `connectionMade()`
- *    which sends the hello handshake.
- * 3. For ongoing delta requests: register hosted Processor objects via
- *    `registerProcessor()`.
- * 4. Call `disconnectFromHost()` on shutdown.  Destructor also calls it.
+ * 2. Call `beginConnectAttempts()` — polls AppState for the daemon port every
+ *    100 ms and calls `connectToSocket` on each tick.  On success JUCE fires
+ *    `connectionMade()` which sends the hello handshake.
+ * 3. Call `disconnectFromHost()` on shutdown.  Destructor also calls it.
+ *
+ * ### Port resolution
+ * The daemon port is read from `AppState::getContext()->getPort()`.  The port
+ * is written to AppState by `Server::start()` and persisted to
+ * `~/.config/end/nexus/<uuid>.nexus`.  During the startup scan in Main.cpp
+ * the nexus file is parsed and the port is loaded into AppState before
+ * `beginConnectAttempts()` is called.
  *
  * ### Threading
  * JUCE delivers `connectionMade`, `connectionLost`, and `messageReceived` on
@@ -30,7 +35,7 @@
  * callers reach session operations via `Nexus::Session::getContext()`.
  *
  * @see Nexus::Session
- * @see Terminal::Processor
+ * @see Terminal::Session
  */
 
 #pragma once
@@ -38,9 +43,6 @@
 #include "Message.h"
 #include "Wire.h"
 #include <memory>
-#include <map>
-
-namespace Terminal { class Processor; }
 
 namespace Nexus
 {
@@ -75,7 +77,7 @@ public:
     ~Client() override;
 
     /**
-     * @brief Reads port from lockfile and connects to host.
+     * @brief Reads port from AppState and connects to host.
      *
      * @return `true` if the connection succeeded.
      * @note NEXUS PROCESS MESSAGE THREAD.
@@ -87,26 +89,6 @@ public:
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     void disconnectFromHost();
-
-    /**
-     * @brief Requests the host to create or attach to a PTY session.
-     *
-     * Payload: shell | args | cwd | uuid | cols (uint16_t LE) | rows (uint16_t LE) | envID
-     *
-     * @param cols    Initial column count.
-     * @param rows    Initial row count.
-     * @param shell   Shell program path.  Empty = host default.
-     * @param cwd     Initial working directory.  Empty = inherit.
-     * @param uuid    UUID hint for the new session.  Empty = host generates one.
-     * @param envID   UUID of the parent session whose live PATH seeds the new shell.
-     *                Empty = no seed env.  Forwarded to daemon; never resolved on client.
-     * @note Any thread.
-     */
-    void createSession (int cols, int rows,
-                        const juce::String& shell,
-                        const juce::String& cwd,
-                        const juce::String& uuid = {},
-                        const juce::String& envID = {});
 
     /**
      * @brief Unsubscribes from render deltas for a session.
@@ -148,42 +130,15 @@ public:
      */
     void sendRemove (const juce::String& uuid);
 
-
     /**
-     * @brief Takes ownership of @p processor and registers it to receive incoming
-     *        `Message::output` / `Message::loading` PDUs for its UUID.
+     * @brief Encodes @p kind and @p payload, then calls sendMessage().
      *
-     * The UUID is read from `processor->getUuid()`.  Ownership transfers to Client;
-     * the Processor is destroyed when `unregisterProcessor` is called or when
-     * Client is destroyed.
+     * Wire format: uint16_t kind (LE) | payload bytes.
      *
-     * @param processor  Owning pointer to the Processor.  Must not be null.
-     * @note NEXUS PROCESS MESSAGE THREAD.
+     * @note Any thread.
      */
-    void registerProcessor (std::unique_ptr<Terminal::Processor> processor);
+    void sendPdu (Message kind, const juce::MemoryBlock& payload = {});
 
-    /**
-     * @brief Removes and destroys the Processor registered for @p uuid.
-     *
-     * The Display referencing this Processor must be destroyed before this call.
-     * Called from `Nexus::Session::remove()` after the Display is erased.
-     *
-     * @param uuid  UUID to unregister and destroy.
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    void unregisterProcessor (const juce::String& uuid);
-
-    /**
-     * @brief Returns a non-owning pointer to the Processor registered for @p uuid.
-     *
-     * Returns nullptr if @p uuid is not registered.  The pointer is valid until
-     * `unregisterProcessor` is called for the same uuid.
-     *
-     * @param uuid  UUID to look up.
-     * @return Non-owning pointer, or nullptr.
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    Terminal::Processor* getProcessor (const juce::String& uuid) const;
 
     /**
      * @brief Callback fired on the message thread for every incoming host PDU.
@@ -195,16 +150,15 @@ public:
     std::function<void (const Message kind, const juce::MemoryBlock& payload)> onPdu;
 
     /**
-     * @brief Kicks off async connection attempts, polling the lockfile every 100 ms.
+     * @brief Kicks off async connection attempts, polling AppState for the port every 100 ms.
      *
-     * Reads @p lockfilePath, parses the port, and attempts `connectToSocket`.
-     * On success, stops retrying — JUCE fires `connectionMade()`.
+     * Reads `AppState::getContext()->getPort()` on each tick and attempts
+     * `connectToSocket`.  On success, stops retrying — JUCE fires `connectionMade()`.
      * On timeout (50 × 100 ms = 5 s), logs a failure line.
      *
-     * @param lockfilePath  Path to the port lockfile written by the daemon.
      * @note NEXUS PROCESS MESSAGE THREAD — must be called on the message thread.
      */
-    void beginConnectAttempts (const juce::File& lockfilePath) noexcept;
+    void beginConnectAttempts() noexcept;
 
 private:
     void connectionMade() override;
@@ -218,43 +172,22 @@ private:
     void handleStateUpdate        (const uint8_t* payload, int payloadSize);
     void handleUnknown            (Message kind, const uint8_t* payload, int payloadSize);
 
-    void sendPdu (Message kind, const juce::MemoryBlock& payload = {});
-
-    static juce::File getLockfile();
-
-    /** @brief UUIDs of sessions this client has attached to (for DetachSession on disconnect). */
-    juce::StringArray attachedUuids;
-
-    /** @brief Guards attachedUuids for cross-thread access. */
-    juce::CriticalSection attachedUuidsLock;
-
-    /**
-     * @brief Maps session UUID → owned Terminal::Processor for output/history PDU routing.
-     *
-     * Client owns the Processor lifetime.  All access on the message thread.
-     * Processors are inserted by registerProcessor and destroyed by unregisterProcessor
-     * or when Client itself is destroyed (before JUCE leak detector runs).
-     */
-    std::map<juce::String, std::unique_ptr<Terminal::Processor>> hostedProcessors;
-
     /**
      * @brief Inner timer that drives async connect retries.
      *
-     * Fires every 100 ms on the JUCE message thread.  On each tick it reads the
-     * lockfile, parses the port, and calls `connectToSocket`.  Stops itself when
+     * Fires every 100 ms on the JUCE message thread.  On each tick it reads
+     * the port from AppState and calls `connectToSocket`.  Stops itself when
      * the connection succeeds or when `maxAttempts` is reached.
      *
      * @note All callbacks — NEXUS PROCESS MESSAGE THREAD.
      */
     struct ConnectTimer : public juce::Timer
     {
-        Client&     owner;
-        juce::File  lockfile;
-        int         attemptsRemaining { 0 };
+        Client& owner;
+        int     attemptsRemaining { 0 };
 
-        ConnectTimer (Client& ownerIn, const juce::File& lockfileIn, int maxAttempts) noexcept
+        ConnectTimer (Client& ownerIn, int maxAttempts) noexcept
             : owner (ownerIn)
-            , lockfile (lockfileIn)
             , attemptsRemaining (maxAttempts)
         {
         }

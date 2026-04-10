@@ -10,47 +10,18 @@
 #include "Server.h"
 #include "Session.h"
 #include "ServerConnection.h"
+#include "../AppIdentifier.h"
+#include "../AppState.h"
 #include <algorithm>
 
 namespace Nexus
 {
 /*____________________________________________________________________________*/
 
-/**
- * @brief Returns the path to the port lockfile: `~/.config/end/end.port`.
- */
-juce::File Server::getLockfile()
-{
-    return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-               .getChildFile (".config/end/end.port");
-}
-
-/**
- * @brief Writes @p port as a decimal string to the lockfile.
- *
- * Creates `~/.config/end/` if it does not exist.
- *
- * @param port  Bound TCP port number.
- */
-void Server::writeLockfile (int port)
-{
-    const juce::File lockfile { getLockfile() };
-    lockfile.getParentDirectory().createDirectory();
-    lockfile.replaceWithText (juce::String (port));
-}
-
-/**
- * @brief Deletes the lockfile if it exists.
- */
-void Server::deleteLockfile()
-{
-    getLockfile().deleteFile();
-}
-
 // =============================================================================
 
 /**
- * @brief Constructs the Server with a reference to the owning Host.
+ * @brief Constructs the Server with a reference to the owning Session.
  *
  * @param host_  Owning Session — passed through to each ServerConnection.
  */
@@ -60,7 +31,7 @@ Server::Server (Session& host_)
 }
 
 /**
- * @brief Stops the server and removes the lockfile.
+ * @brief Stops the server.
  */
 Server::~Server()
 {
@@ -70,10 +41,12 @@ Server::~Server()
 // =============================================================================
 
 /**
- * @brief Starts listening and writes the bound port to the lockfile.
+ * @brief Starts listening and writes the bound port to AppState.
  *
  * Calls `beginWaitingForSocket (port, "127.0.0.1")`.  After a successful
  * bind, `getBoundPort()` returns the actual port (useful when @p port == 0).
+ * On success, calls `AppState::getContext()->setPort(activePort)` which
+ * persists the port to `~/.config/end/nexus/<uuid>.nexus`.
  *
  * @param port  Preferred port.  0 = OS-assigned.
  * @return `true` if the server started listening successfully.
@@ -88,24 +61,23 @@ bool Server::start (int port)
         activePort = getBoundPort();
 
         if (activePort > 0)
-            writeLockfile (activePort);
+            AppState::getContext()->setPort (activePort);
     }
 
     return listening;
 }
 
 /**
- * @brief Stops the server and deletes the lockfile.
+ * @brief Stops the server.
  *
- * Calls the base `InterprocessConnectionServer::stop()` then removes the port
- * file.  Safe to call when not listening.
+ * Calls the base `InterprocessConnectionServer::stop()`.  Nexus state file
+ * deletion is handled by AppState::deleteNexusFile() on quit.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 void Server::stop()
 {
     InterprocessConnectionServer::stop();
-    deleteLockfile();
     activePort = 0;
 }
 
@@ -118,6 +90,48 @@ void Server::stop()
 int Server::getPort() const noexcept
 {
     return activePort;
+}
+
+// =============================================================================
+
+/**
+ * @brief Returns the nexus port file (`~/.config/end/nexus/<uuid>.nexus`).
+ *
+ * The nexus port file IS the lockfile — it contains the plain-text port number
+ * so client startup scans can discover a running daemon.
+ *
+ * @return Path to the nexus port file.
+ * @note Any thread.
+ */
+juce::File Server::getLockfile()
+{
+    return AppState::getContext()->getNexusFile();
+}
+
+/**
+ * @brief Persists @p port to the nexus state file via AppState.
+ *
+ * Delegates to `AppState::getContext()->setPort(port)` which writes the
+ * nexus file immediately.
+ *
+ * @param port  The bound TCP port to persist.
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Server::writeLockfile (int port)
+{
+    AppState::getContext()->setPort (port);
+}
+
+/**
+ * @brief Deletes the nexus port file via AppState.
+ *
+ * Delegates to `AppState::getContext()->deleteNexusFile()`.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Server::deleteLockfile()
+{
+    AppState::getContext()->deleteNexusFile();
 }
 
 // =============================================================================

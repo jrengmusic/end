@@ -372,9 +372,9 @@ void MainComponent::registerPopupActions (Action::Registry& action)
                 {
                     const auto shell { config.getString (Config::Key::shellProgram) };
                     const auto configShellArgs { config.getString (Config::Key::shellArgs) };
-                    const auto shellArgs { (configShellArgs.isNotEmpty() ? configShellArgs + " " : juce::String())
-                                           + "-c " + entry.command
-                                           + (entry.args.isNotEmpty() ? " " + entry.args : "") };
+                    auto shellArgs { (configShellArgs.isNotEmpty() ? configShellArgs + " " : juce::String())
+                                    + "-c " + entry.command
+                                    + (entry.args.isNotEmpty() ? " " + entry.args : "") };
 
                     const int cols { entry.cols > 0 ? entry.cols : config.getInt (Config::Key::popupCols) };
                     const int rows { entry.rows > 0 ? entry.rows : config.getInt (Config::Key::popupRows) };
@@ -400,7 +400,7 @@ void MainComponent::registerPopupActions (Action::Registry& action)
 
                     const auto cwd { entry.cwd.isNotEmpty() ? entry.cwd : appState.getPwd() };
 
-                    auto termSession { std::make_unique<Terminal::Session> (cols, rows, shell, shellArgs, cwd) };
+                    auto termSession { Terminal::Session::create (cwd, cols, rows, shell, shellArgs) };
 
                     termSession->onExit = [this]
                     {

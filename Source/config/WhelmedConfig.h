@@ -11,7 +11,7 @@ struct Config : jreng::Context<Config>
 
     struct Value
     {
-        enum class Type { string, number, boolean };
+        enum class Type { string, number };
         Type expectedType;
         double minValue { 0.0 };
         double maxValue { 0.0 };
@@ -78,19 +78,11 @@ struct Config : jreng::Context<Config>
         inline static const juce::String scrollbarTrack      { "scrollbar_track" };
         inline static const juce::String scrollbarBackground { "scrollbar_background" };
 
-        inline static const juce::String scrollDown   { "scrollDown" };
-        inline static const juce::String scrollUp     { "scrollUp" };
-        inline static const juce::String scrollTop    { "scrollTop" };
-        inline static const juce::String scrollBottom { "scrollBottom" };
-        inline static const juce::String scrollStep   { "scrollStep" };
-
-        inline static const juce::String loaderBackground    { "loader_background" };
-        inline static const juce::String loaderFill          { "loader_fill" };
-        inline static const juce::String loaderSpinnerColour { "loader_spinner_colour" };
-        inline static const juce::String loaderTextColour    { "loader_text_colour" };
-        inline static const juce::String loaderFontFamily    { "loader_font_family" };
-        inline static const juce::String loaderFontSize      { "loader_font_size" };
-        inline static const juce::String loaderFontStyle     { "loader_font_style" };
+        inline static const juce::String scrollDown   { "scroll_down" };
+        inline static const juce::String scrollUp     { "scroll_up" };
+        inline static const juce::String scrollTop    { "scroll_top" };
+        inline static const juce::String scrollBottom { "scroll_bottom" };
+        inline static const juce::String scrollStep   { "scroll_step" };
 
         inline static const juce::String selectionColour { "selection_colour" };
     };

@@ -392,7 +392,7 @@ void MainComponent::initialiseTabs()
         glRenderer.triggerRepaint();
     };
 
-    // Restore tabs and split layout from state.xml.
+    // Restore tabs and split layout from end-<id>.state.
     // Works identically in standalone and nexus modes — Session::create routes
     // internally to local or client path; the walker is oblivious to mode.
 

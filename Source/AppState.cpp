@@ -12,7 +12,7 @@
 AppState::AppState()
     : state (App::ID::END)
 {
-    load();
+    initDefaults();
 }
 
 AppState::~AppState()
@@ -127,6 +127,16 @@ void AppState::setGpuAvailable (bool available)
     getWindow().setProperty (App::ID::gpuAvailable, available, nullptr);
 }
 
+void AppState::setInstanceUuid (const juce::String& uuid)
+{
+    instanceUuid = uuid;
+}
+
+juce::String AppState::getInstanceUuid() const noexcept
+{
+    return instanceUuid;
+}
+
 void AppState::setNexusMode (bool isNexus)
 {
     getWindow().setProperty (App::ID::nexusMode, isNexus, nullptr);
@@ -139,6 +149,41 @@ bool AppState::isNexusMode() const noexcept
 
     if (window.isValid() and window.hasProperty (App::ID::nexusMode))
         result = static_cast<bool> (window.getProperty (App::ID::nexusMode));
+
+    return result;
+}
+
+void AppState::setConnected (bool isConnectedFlag)
+{
+    state.setProperty (App::ID::connected, isConnectedFlag, nullptr);
+    save();
+}
+
+bool AppState::isConnected() const noexcept
+{
+    bool result { false };
+
+    if (state.hasProperty (App::ID::connected))
+        result = static_cast<bool> (state.getProperty (App::ID::connected));
+
+    return result;
+}
+
+void AppState::setPort (int activePort)
+{
+    state.setProperty (App::ID::port, activePort, nullptr);
+
+    const juce::File nexusFile { getNexusFile() };
+    nexusFile.getParentDirectory().createDirectory();
+    nexusFile.replaceWithText (juce::String (activePort));
+}
+
+int AppState::getPort() const noexcept
+{
+    int result { 0 };
+
+    if (state.hasProperty (App::ID::port))
+        result = static_cast<int> (state.getProperty (App::ID::port));
 
     return result;
 }
@@ -336,52 +381,46 @@ void AppState::setPwd (juce::ValueTree sessionTree)
 
 //==============================================================================
 
-void AppState::save (bool isNexusMode)
+/**
+ * @brief Writes the full state to `getStateFile()`.
+ *
+ * The NEXUS subtree (processors, loading ops) is excluded — it is rebuilt live
+ * on reconnect.  Port is NOT written here — port lives in `<uuid>.nexus`.
+ * Daemon never calls this — daemon only writes its port via setPort().
+ *
+ * @note MESSAGE THREAD.
+ */
+void AppState::save()
 {
-    auto file { getStateFile() };
+    const juce::File file { getStateFile() };
     file.getParentDirectory().createDirectory();
 
-    if (isNexusMode)
-    {
-        juce::ValueTree persist { state.createCopy() };
-        auto nexusNode { persist.getChildWithName (App::ID::NEXUS) };
+    juce::ValueTree persist { state.createCopy() };
+    auto nexusNode { persist.getChildWithName (App::ID::NEXUS) };
 
-        if (nexusNode.isValid())
-            persist.removeChild (nexusNode, nullptr);
+    if (nexusNode.isValid())
+        persist.removeChild (nexusNode, nullptr);
 
-        if (auto xml { persist.createXml() })
-            xml->writeTo (file);
-    }
-    else
-    {
-        juce::ValueTree windowOnly { App::ID::END };
-        const auto window { state.getChildWithName (App::ID::WINDOW) };
+    persist.removeProperty (App::ID::port, nullptr);
 
-        if (window.isValid())
-            windowOnly.appendChild (window.createCopy(), nullptr);
-
-        if (auto xml { windowOnly.createXml() })
-            xml->writeTo (file);
-    }
+    if (auto xml { persist.createXml() })
+        xml->writeTo (file);
 }
 
 /**
- * @brief Parses state.xml and replaces the entire in-memory tree.
+ * @brief Reads the full state from `getStateFile()` into the in-memory tree.
  *
- * **CRITICAL:** this replaces `state` wholesale via `state = parsed`. ANY
- * property written to AppState before `load()` runs will be lost. The
- * `AppState` ctor calls `load()` so that subsequent code can write freely.
- * Do NOT call `load()` again after construction unless you intend to wipe
- * every runtime-only property on the tree.
- *
- * On parse failure or missing file, falls back to `initDefaults()`.
+ * Merges WINDOW subtree, TABS subtree, and root properties (connected).
+ * Falls back silently to initDefaults() values on parse failure or missing file.
+ * Port is NOT read here — port is read as plain text from `<uuid>.nexus`
+ * during the startup scan and stored via setPort().
+ * The NEXUS subtree from the file is discarded — rebuilt on reconnect.
  *
  * @note MESSAGE THREAD.
  */
 void AppState::load()
 {
-    auto file { getStateFile() };
-    bool loaded { false };
+    const juce::File file { getStateFile() };
 
     if (file.existsAsFile())
     {
@@ -391,27 +430,78 @@ void AppState::load()
 
             if (parsed.isValid() and parsed.getType() == App::ID::END)
             {
-                state = parsed;
+                auto parsedWindow { parsed.getChildWithName (App::ID::WINDOW) };
 
-                auto staleNexus { state.getChildWithName (App::ID::NEXUS) };
+                if (parsedWindow.isValid())
+                {
+                    auto currentWindow { getWindow() };
 
-                if (staleNexus.isValid())
-                    state.removeChild (staleNexus, nullptr);
+                    if (parsedWindow.hasProperty (App::ID::width))
+                        currentWindow.setProperty (App::ID::width, parsedWindow.getProperty (App::ID::width), nullptr);
 
-                loaded = true;
+                    if (parsedWindow.hasProperty (App::ID::height))
+                        currentWindow.setProperty (App::ID::height, parsedWindow.getProperty (App::ID::height), nullptr);
+
+                    if (parsedWindow.hasProperty (App::ID::zoom))
+                        currentWindow.setProperty (App::ID::zoom, parsedWindow.getProperty (App::ID::zoom), nullptr);
+
+                    if (parsedWindow.hasProperty (App::ID::renderer))
+                        currentWindow.setProperty (App::ID::renderer, parsedWindow.getProperty (App::ID::renderer), nullptr);
+                }
+
+                if (parsed.hasProperty (App::ID::connected))
+                    state.setProperty (App::ID::connected, parsed.getProperty (App::ID::connected), nullptr);
+
+                auto parsedTabs { parsed.getChildWithName (App::ID::TABS) };
+
+                if (parsedTabs.isValid())
+                {
+                    auto existingTabs { state.getChildWithName (App::ID::TABS) };
+
+                    if (existingTabs.isValid())
+                        state.removeChild (existingTabs, nullptr);
+
+                    state.appendChild (parsedTabs.createCopy(), nullptr);
+                }
             }
         }
     }
+}
 
-    if (not loaded)
-    {
-        initDefaults();
-    }
+/**
+ * @brief Deletes `~/.config/end/nexus/<uuid>.nexus`.
+ *
+ * Called by daemon on clean exit via Server::deleteLockfile().
+ *
+ * @note MESSAGE THREAD.
+ */
+void AppState::deleteNexusFile()
+{
+    getNexusFile().deleteFile();
 }
 
 juce::File AppState::getStateFile() const
 {
-    return Config::getContext()->getConfigFile().getParentDirectory().getChildFile ("state.xml");
+    juce::File result {};
+
+    if (instanceUuid.isNotEmpty())
+    {
+        result = juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+                     .getChildFile (".config/end/nexus/" + instanceUuid + ".state");
+    }
+    else
+    {
+        result = juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+                     .getChildFile (".config/end/end.state");
+    }
+
+    return result;
+}
+
+juce::File AppState::getNexusFile() const
+{
+    return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+               .getChildFile (".config/end/nexus/" + instanceUuid + ".nexus");
 }
 
 void AppState::initDefaults()

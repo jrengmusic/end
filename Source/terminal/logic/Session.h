@@ -57,6 +57,57 @@ class Session
 {
 public:
     /**
+     * @brief Populates shell integration env vars and sideloads hook scripts.
+     *
+     * Detects the shell type from @p shell, sideloads the matching integration
+     * scripts from BinaryData to `~/.config/end/`, and sets the env vars that
+     * cause the shell to source them on startup (ZDOTDIR for zsh, ENV for bash,
+     * XDG_DATA_DIRS for fish, launch args for pwsh).
+     *
+     * Gated on `Config::Key::shellIntegration` (default true).
+     *
+     * @param shell    Shell program path — used for type detection (contains "zsh", "bash", etc.).
+     * @param args     Shell arguments — modified in place for bash (--posix) and pwsh (launch command).
+     * @param seedEnv  Env var accumulator — populated with shell-specific integration vars.
+     *
+     * @note MESSAGE THREAD.  Called before Terminal::Session construction.
+     */
+    static void applyShellIntegration (const juce::String& shell, juce::String& args,
+                                       juce::StringPairArray& seedEnv);
+
+    /**
+     * @brief Factory — resolves shell/args from config, applies shell integration, and constructs.
+     *
+     * This is the single creation entry point for all PTY-backed terminal sessions.
+     * When @p shell is empty, reads `Config::Key::shellProgram`.
+     * When @p args is empty, reads `Config::Key::shellArgs`.
+     * Calls `applyShellIntegration` before construction.
+     * UUID defaults to empty — constructor generates one when empty.
+     *
+     * The caller is responsible for seeding additional env vars (e.g. PATH from a
+     * parent session on non-Windows) by constructing with the lower-level constructor
+     * after reading from the returned session if needed — or by passing a pre-built
+     * seedEnv to the constructor directly.
+     *
+     * @param cwd    Initial working directory.  Empty = inherit.
+     * @param cols   Initial column count.  Must be > 0.
+     * @param rows   Initial row count.  Must be > 0.
+     * @param shell  Shell program override.  Empty = read from config.
+     * @param args   Shell arguments override.  Empty = read from config.
+     * @param seedEnv  Extra environment variables.  Merged before construction.
+     * @param uuid   Explicit UUID.  Empty = auto-generated.
+     * @return Owning unique_ptr to the constructed Terminal::Session.
+     * @note MESSAGE THREAD.
+     */
+    static std::unique_ptr<Session> create (const juce::String& cwd,
+                                             int cols,
+                                             int rows,
+                                             const juce::String& shell = {},
+                                             const juce::String& args = {},
+                                             const juce::StringPairArray& seedEnv = {},
+                                             const juce::String& uuid = {});
+
+    /**
      * @brief Constructs the Session, creates the TTY, and opens the shell.
      *
      * History capacity is read from `Config::Key::terminalScrollbackLines`.
@@ -68,14 +119,33 @@ public:
      * @param cwd      Initial working directory.  Empty = inherit.
      * @param seedEnv  Extra environment variables injected before shell open.
      *                 Iterated and pushed via TTY::addShellEnv before tty->open().
-     *                 Default empty — preserves all existing callers unchanged.
+     * @param uuid     Session UUID.  Empty = auto-generated.
      */
     Session (int cols, int rows,
              const juce::String& shell,
              const juce::String& args,
              const juce::String& cwd,
-             const juce::StringPairArray& seedEnv = {},
-             const juce::String& uuid = {});
+             const juce::StringPairArray& seedEnv,
+             const juce::String& uuid);
+
+    /**
+     * @brief Constructs a remote Session — Processor + State only, no TTY.
+     *
+     * Used by Nexus client mode where the daemon owns the shell process.
+     * Bytes are fed externally via `getProcessor().process()`.
+     * CWD and shellProgram are written to State so display logic works identically.
+     *
+     * @param cols   Terminal width.  Must be > 0.
+     * @param rows   Terminal height.  Must be > 0.
+     * @param cwd    Initial working directory — written to State.
+     * @param shell  Shell program name — written to State for displayName logic.
+     * @param uuid   Session UUID.  Empty = auto-generated.
+     * @note MESSAGE THREAD.
+     */
+    Session (int cols, int rows,
+             const juce::String& cwd,
+             const juce::String& shell,
+             const juce::String& uuid);
 
     /**
      * @brief Stops the PTY and releases all resources.

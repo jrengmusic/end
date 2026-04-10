@@ -128,7 +128,7 @@ std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
 /**
  * @brief Creates a new terminal session as the first (or only) leaf in this pane.
  *
- * Delegates construction to Nexus::Session::getContext()->create() for mode-transparent session creation.
+ * Delegates construction to Nexus::Session::getContext()->openTerminal() for mode-transparent session creation.
  * Wires callbacks, registers with PaneManager via addLeaf, and grafts the session
  * ValueTree into the corresponding PANE node.
  *
@@ -146,9 +146,8 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 {
     jassert (cols > 0 and rows > 0);
 
-    Terminal::Processor& processor { uuid.isNotEmpty()
-        ? Nexus::Session::getContext()->create ({}, {}, workingDirectory, uuid, cols, rows)
-        : Nexus::Session::getContext()->create ({}, {}, workingDirectory, cols, rows) };
+    const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
+    Terminal::Processor& processor { Nexus::Session::getContext()->openTerminal (workingDirectory, effectiveUuid, cols, rows) };
 
     const juce::String termUuid { processor.getUuid() };
 
@@ -445,9 +444,8 @@ void Panes::splitAt (const juce::String& targetUuid,
     jassert (targetUuid.isNotEmpty());
     jassert (cols > 0 and rows > 0);
 
-    Terminal::Processor& processor { newUuid.isNotEmpty()
-        ? Nexus::Session::getContext()->create ({}, {}, cwd, newUuid, cols, rows)
-        : Nexus::Session::getContext()->create ({}, {}, cwd, cols, rows) };
+    const juce::String effectiveSplitUuid { newUuid.isNotEmpty() ? newUuid : juce::Uuid().toString() };
+    Terminal::Processor& processor { Nexus::Session::getContext()->openTerminal (cwd, effectiveSplitUuid, cols, rows) };
 
     const juce::String splitUuid { processor.getUuid() };
 

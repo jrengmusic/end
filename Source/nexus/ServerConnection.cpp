@@ -148,10 +148,7 @@ void ServerConnection::messageReceived (const juce::MemoryBlock& message)
                     const bool exists { session.hasSession (parsed.uuid) };
 
                     if (not exists)
-                    {
-                        session.create (parsed.shell, parsed.args, parsed.cwd,
-                                        parsed.uuid, parsed.cols, parsed.rows, parsed.envID);
-                    }
+                        session.openTerminal (parsed.cwd, parsed.uuid, parsed.cols, parsed.rows);
 
                     // Subscribe, send history (rebuilds terminal state: alt screen, cursor, etc.),
                     // then resize PTY. SIGWINCH redraw overwrites any dim-garbled history output.
@@ -241,27 +238,17 @@ ServerConnection::parseSpawnPayload (const uint8_t* payload, int payloadSize)
     SpawnPayload out;
     int cursor { 0 };
 
-    const int shellConsumed { readString (payload + cursor, payloadSize - cursor, out.shell) };
-    cursor += shellConsumed;
-
-    const int argsConsumed { readString (payload + cursor, payloadSize - cursor, out.args) };
-    cursor += argsConsumed;
-
     const int cwdConsumed { readString (payload + cursor, payloadSize - cursor, out.cwd) };
     cursor += cwdConsumed;
 
     const int uuidConsumed { readString (payload + cursor, payloadSize - cursor, out.uuid) };
     cursor += uuidConsumed;
 
-    if (shellConsumed > 0 and argsConsumed > 0 and cwdConsumed > 0
-        and uuidConsumed > 0 and (payloadSize - cursor) >= 4)
+    if (cwdConsumed > 0 and uuidConsumed > 0 and (payloadSize - cursor) >= 4)
     {
         out.cols = static_cast<int> (readUint16 (payload + cursor));
         cursor += 2;
         out.rows = static_cast<int> (readUint16 (payload + cursor));
-        cursor += 2;
-
-        readString (payload + cursor, payloadSize - cursor, out.envID);
 
         out.valid = true;
     }

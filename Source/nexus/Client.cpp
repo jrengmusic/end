@@ -8,7 +8,6 @@
  */
 
 #include "Client.h"
-#include "Server.h"
 #include "Session.h"
 #include "Wire.h"
 #include "../AppState.h"
@@ -19,18 +18,6 @@
 namespace Nexus
 {
 /*____________________________________________________________________________*/
-
-// =============================================================================
-
-/**
- * @brief Returns the path to the port lockfile — delegates to Server::getLockfile().
- *
- * Single source of truth for the lockfile path lives in Nexus::Server.
- */
-juce::File Client::getLockfile()
-{
-    return Server::getLockfile();
-}
 
 // =============================================================================
 
@@ -57,7 +44,10 @@ Client::~Client()
 // =============================================================================
 
 /**
- * @brief Reads port from lockfile and connects to host at 127.0.0.1.
+ * @brief Reads port from the `.nexus` file and connects to host at 127.0.0.1.
+ *
+ * Reads the port directly from the `.nexus` file on disk so that this call is
+ * valid even before the daemon has written its port into AppState in-memory.
  *
  * @return `true` if connection succeeded.
  * @note NEXUS PROCESS MESSAGE THREAD.
@@ -65,11 +55,11 @@ Client::~Client()
 bool Client::connectToHost()
 {
     bool connected { false };
-    const juce::File lockfile { getLockfile() };
+    const juce::File nexusFile { AppState::getContext()->getNexusFile() };
 
-    if (lockfile.existsAsFile())
+    if (nexusFile.existsAsFile())
     {
-        const int port { lockfile.loadFileAsString().getIntValue() };
+        const int port { nexusFile.loadFileAsString().trim().getIntValue() };
 
         if (port > 0)
             connected = connectToSocket ("127.0.0.1", port, connectTimeoutMs);
@@ -92,22 +82,26 @@ void Client::disconnectFromHost()
 /**
  * @brief Kicks off async connection attempts to the daemon at 100 ms intervals.
  *
- * Reads @p lockfilePath on each tick for up to 50 ticks (5 seconds total).
- * On a successful socket connect JUCE fires `connectionMade()`, which sends
- * the hello PDU.  On exhaustion, a failure line is logged.
+ * Reads the port from the `.nexus` file on disk on each tick for up to 50
+ * ticks (5 seconds total).  On a successful socket connect JUCE fires
+ * `connectionMade()`, which sends the hello PDU.  On exhaustion, a failure
+ * line is logged.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-void Client::beginConnectAttempts (const juce::File& lockfilePath) noexcept
+void Client::beginConnectAttempts() noexcept
 {
-    connectTimer = std::make_unique<ConnectTimer> (*this, lockfilePath, connectMaxAttempts);
+    connectTimer = std::make_unique<ConnectTimer> (*this, connectMaxAttempts);
     connectTimer->startTimer (connectRetryIntervalMs);
 }
 
 /**
  * @brief Periodic retry callback fired every 100 ms by the JUCE timer.
  *
- * Each tick reads the lockfile, parses the port, and attempts `connectToSocket`.
+ * Each tick reads the port from the `.nexus` file on disk and attempts
+ * `connectToSocket`.  Reading from disk rather than AppState in-memory means
+ * the timer can succeed on the very first tick that the daemon has written its
+ * port file, even before AppState has been updated.
  * On success the timer stops itself; JUCE will fire `Client::connectionMade`.
  * On exhaustion the timer stops and a failure line is logged.
  *
@@ -116,19 +110,17 @@ void Client::beginConnectAttempts (const juce::File& lockfilePath) noexcept
 void Client::ConnectTimer::timerCallback()
 {
     bool connected { false };
+    const juce::File nexusFile { AppState::getContext()->getNexusFile() };
 
-    const bool lockfileExists { lockfile.existsAsFile() };
-
-    if (lockfileExists)
+    if (nexusFile.existsAsFile())
     {
-        const int port { lockfile.loadFileAsString().getIntValue() };
+        const int port { nexusFile.loadFileAsString().trim().getIntValue() };
 
         if (port > 0)
         {
             // Use a short per-probe timeout so the message thread is not blocked
             // for the full connectTimeoutMs on each 100 ms tick.
-            static constexpr int probeTimeoutMs { 200 };
-            connected = owner.connectToSocket ("127.0.0.1", port, probeTimeoutMs);
+            connected = owner.connectToSocket ("127.0.0.1", port, 200);
         }
     }
 
@@ -164,57 +156,32 @@ void Client::ConnectTimer::timerCallback()
 /**
  * @brief Called by JUCE when the socket connects successfully.
  *
- * Sends the hello PDU only.  The PROCESSORS subtree is written later
- * when the daemon's `processorList` PDU arrives.
+ * Sends the hello PDU and marks this instance as connected in AppState.
+ * The PROCESSORS subtree is written later when the daemon's `processorList` PDU arrives.
  *
  * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  */
 void Client::connectionMade()
 {
+    AppState::getContext()->setConnected (true);
     sendPdu (Message::hello);
 }
 
 /**
  * @brief Called by JUCE when the connection is lost.
  *
+ * Marks this instance as disconnected in AppState and writes state to disk immediately.
+ *
  * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  */
 void Client::connectionLost()
 {
+    AppState::getContext()->setConnected (false);
 }
 
 // =============================================================================
 
 // =============================================================================
-
-/**
- * @brief Requests the host to create or attach to a PTY session.
- *
- * Payload: shell | args | cwd | uuid | cols (uint16_t LE) | rows (uint16_t LE) | envID
- *
- * @note Any thread.
- */
-void Client::createSession (int cols, int rows,
-                             const juce::String& shell,
-                             const juce::String& cwd,
-                             const juce::String& uuid,
-                             const juce::String& envID)
-{
-    {
-        const juce::ScopedLock lock (attachedUuidsLock);
-        attachedUuids.add (uuid);
-    }
-
-    juce::MemoryBlock payload;
-    writeString (payload, shell);
-    writeString (payload, {});          // args — empty
-    writeString (payload, cwd);
-    writeString (payload, uuid);
-    writeUint16 (payload, static_cast<uint16_t> (cols));
-    writeUint16 (payload, static_cast<uint16_t> (rows));
-    writeString (payload, envID);
-    sendPdu (Message::createProcessor, payload);
-}
 
 /**
  * @brief Unsubscribes from render deltas for a session.
@@ -223,11 +190,6 @@ void Client::createSession (int cols, int rows,
  */
 void Client::detachSession (const juce::String& uuid)
 {
-    {
-        const juce::ScopedLock lock (attachedUuidsLock);
-        attachedUuids.removeString (uuid);
-    }
-
     juce::MemoryBlock payload;
     writeString (payload, uuid);
     sendPdu (Message::detachProcessor, payload);
@@ -279,48 +241,6 @@ void Client::sendRemove (const juce::String& uuid)
     juce::MemoryBlock payload;
     writeString (payload, uuid);
     sendPdu (Message::removeProcessor, payload);
-}
-
-// =============================================================================
-
-/**
- * @brief Takes ownership of @p processor and registers it for output/history PDU routing.
- *
- * UUID is read from processor->getUuid().  The Processor is owned by Client until
- * unregisterProcessor or Client destruction.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-void Client::registerProcessor (std::unique_ptr<Terminal::Processor> processor)
-{
-    jassert (processor != nullptr);
-
-    const juce::String uuid { processor->getUuid() };
-    hostedProcessors[uuid] = std::move (processor);
-}
-
-/**
- * @brief Removes and destroys the Processor registered for @p uuid.
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-void Client::unregisterProcessor (const juce::String& uuid)
-{
-    hostedProcessors.erase (uuid);
-}
-
-/**
- * @brief Returns a non-owning pointer to the Processor for @p uuid, or nullptr.
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-Terminal::Processor* Client::getProcessor (const juce::String& uuid) const
-{
-    Terminal::Processor* result { nullptr };
-    const auto it { hostedProcessors.find (uuid) };
-
-    if (it != hostedProcessors.end())
-        result = it->second.get();
-
-    return result;
 }
 
 // =============================================================================
@@ -530,6 +450,7 @@ void Client::handleLoading (const uint8_t* payload, int payloadSize)
  *
  * Payload: uuid (length-prefixed) + cwd (length-prefixed) + fgProcess (length-prefixed).
  * Mirrors the standalone flush→setCwd / setForegroundProcess path, but driven by daemon push.
+ * Routes via Nexus::Session::get() — Terminal::Session (remote) is owned by terminalSessions.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -549,14 +470,17 @@ void Client::handleStateUpdate (const uint8_t* payload, int payloadSize)
 
         if (cwdConsumed > 0)
         {
-            auto* proc { getProcessor (uuid) };
+            auto* nexus { Nexus::Session::getContext() };
 
-            if (proc != nullptr)
+            if (nexus != nullptr and nexus->hasSession (uuid))
             {
-                proc->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
+                auto& proc { nexus->get (uuid) };
 
-                if (fgConsumed > 0)
-                    proc->getState().get().setProperty (Terminal::ID::foregroundProcess, fgProcess, nullptr);
+                if (cwd.isNotEmpty())
+                    proc.getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
+
+                if (fgProcess.isNotEmpty())
+                    proc.getState().get().setProperty (Terminal::ID::foregroundProcess, fgProcess, nullptr);
             }
         }
     }

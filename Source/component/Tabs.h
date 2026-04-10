@@ -88,7 +88,7 @@ public:
      * Caller must pass a deep copy of the saved TABS tree detached from
      * the live AppState tree — this method walks it directly without aliasing.
      *
-     * @param savedTabs   Deep copy of the TABS node from state.xml.
+     * @param savedTabs   Deep copy of the TABS node from `end-<id>.state`.
      * @param contentRect Chrome-subtracted content rect for dim computation.
      * @note MESSAGE THREAD.
      */
@@ -97,7 +97,7 @@ public:
     /**
      * @brief Create and add a new terminal tab with explicit cwd, UUID hint, and spawn dims.
      *
-     * Used by the state.xml restoration walker to create a tab whose first
+     * Used by the state restoration walker to create a tab whose first
      * terminal attaches to the given UUID (if live on the host) or spawns a new
      * session in @p workingDirectory, with deterministic PTY dimensions derived
      * from the saved split tree rather than zero/fallback bounds.

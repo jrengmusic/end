@@ -3,10 +3,10 @@
  * @brief macOS and Linux implementations of NexusDaemon platform helpers.
  *
  * macOS:  `hideDockIcon()` uses NSApplicationActivationPolicyAccessory.
- *         `spawnDaemon()` uses `posix_spawn` with `POSIX_SPAWN_SETSID`.
+ *         `spawnDaemon(uuid)` uses `posix_spawn` with `POSIX_SPAWN_SETSID`.
  *
  * Linux:  `hideDockIcon()` is a no-op.
- *         `spawnDaemon()` uses `posix_spawn` with `POSIX_SPAWN_SETSID`.
+ *         `spawnDaemon(uuid)` uses `posix_spawn` with `POSIX_SPAWN_SETSID`.
  *
  * @note NEXUS PROCESS MESSAGE THREAD — both functions are called from ENDApplication::initialise().
  */
@@ -32,7 +32,7 @@ void hideDockIcon() noexcept
     [NSApp setActivationPolicy: NSApplicationActivationPolicyAccessory];
 }
 
-bool spawnDaemon() noexcept
+bool spawnDaemon (const juce::String& uuid) noexcept
 {
     const auto execPath { juce::File::getSpecialLocation (juce::File::currentExecutableFile).getFullPathName() };
 
@@ -46,7 +46,7 @@ bool spawnDaemon() noexcept
     posix_spawn_file_actions_addopen (&actions, STDOUT_FILENO, "/dev/null", O_WRONLY, 0);
     posix_spawn_file_actions_addopen (&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
 
-    const char* argv[] { execPath.toRawUTF8(), "--nexus", nullptr };
+    const char* argv[] { execPath.toRawUTF8(), "--nexus", uuid.toRawUTF8(), nullptr };
 
     pid_t pid { 0 };
     const int result { posix_spawn (&pid, argv[0], &actions,
@@ -78,7 +78,7 @@ void hideDockIcon() noexcept
     // No-op on Linux — no single dock API to abstract.
 }
 
-bool spawnDaemon() noexcept
+bool spawnDaemon (const juce::String& uuid) noexcept
 {
     const auto execPath { juce::File::getSpecialLocation (juce::File::currentExecutableFile).getFullPathName() };
 
@@ -92,7 +92,7 @@ bool spawnDaemon() noexcept
     posix_spawn_file_actions_addopen (&actions, STDOUT_FILENO, "/dev/null", O_WRONLY, 0);
     posix_spawn_file_actions_addopen (&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
 
-    const char* argv[] { execPath.toRawUTF8(), "--nexus", nullptr };
+    const char* argv[] { execPath.toRawUTF8(), "--nexus", uuid.toRawUTF8(), nullptr };
 
     pid_t pid { 0 };
     const int result { posix_spawn (&pid, argv[0], &actions,

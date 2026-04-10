@@ -11,7 +11,7 @@
  * | File                        | Purpose                                  |
  * |-----------------------------|------------------------------------------|
  * | `~/.config/end/end.lua`     | User config (loaded at startup, reloaded on Cmd+R) |
- * | `~/.config/end/state.xml`   | Persisted application state (managed by AppState) |
+ * | `~/.config/end/end-<id>.state` | Persisted application state (managed by AppState) |
  *
  * ### Config format (end.lua)
  * @code{.lua}
@@ -303,7 +303,7 @@ struct Config : jreng::Context<Config>
         inline static const juce::String windowZoom { "window.zoom" };
 
         /** @brief GPU acceleration mode: "auto", "true", or "false". */
-        inline static const juce::String gpuAcceleration { "gpu.acceleration" };
+        inline static const juce::String gpuAcceleration { "gpu" };
 
         /** @brief Whether the Nexus background daemon is enabled. When true, sessions survive window close. */
         inline static const juce::String nexus { "nexus" };
@@ -759,8 +759,7 @@ struct Config : jreng::Context<Config>
         enum class Type
         {
             string,
-            number,
-            boolean
+            number
         };
 
         /** @brief The expected Lua type. */
