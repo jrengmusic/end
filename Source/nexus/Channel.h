@@ -74,15 +74,6 @@ public:
      */
     void sendPdu (Message kind, const juce::MemoryBlock& payload = {});
 
-    /**
-     * @brief Returns the stable UUID string that identifies this connection in subscriber maps.
-     * @note Any thread — `id` is const, no synchronization needed.
-     */
-    juce::StringRef getId() const noexcept { return id; }
-
-    /** @brief Stable UUID assigned at construction — unique for the lifetime of this connection. */
-    const juce::String id { juce::Uuid().toString() };
-
 private:
     struct SpawnPayload
     {

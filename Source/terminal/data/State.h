@@ -1176,7 +1176,7 @@ struct State : public juce::Timer
      *
      * No-op if the subscriber is already present.
      *
-     * @param subscriberId  Stable UUID string of the connecting ServerConnection.
+     * @param subscriberId  Stable UUID string of the connecting Channel.
      * @note MESSAGE THREAD.
      */
     void attachSubscriber (juce::StringRef subscriberId);
@@ -1186,7 +1186,7 @@ struct State : public juce::Timer
      *
      * No-op if the subscriber is not found.
      *
-     * @param subscriberId  Stable UUID string of the disconnecting ServerConnection.
+     * @param subscriberId  Stable UUID string of the disconnecting Channel.
      * @note MESSAGE THREAD.
      */
     void detachSubscriber (juce::StringRef subscriberId);

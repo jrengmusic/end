@@ -118,7 +118,7 @@ void Session::attach (const juce::String& uuid, Channel& target,
             }
         }
 
-        subscribers[uuid].push_back (&target);
+        subscribers[uuid].push_back (&target); // operator[] intentional — inserts empty list for new uuid
     }
 
     // Resize after lock release — SIGWINCH output broadcast acquires connectionsLock.

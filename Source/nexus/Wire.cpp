@@ -97,5 +97,18 @@ int readString (const uint8_t* data, int available, juce::String& out) noexcept
     return consumed;
 }
 
+// =============================================================================
+// PDU encoding
+// =============================================================================
+
+juce::MemoryBlock encodePdu (Message kind, const juce::MemoryBlock& payload) noexcept
+{
+    juce::MemoryBlock message;
+    const auto kindValue { static_cast<uint16_t> (kind) };
+    message.append (&kindValue, sizeof (kindValue));
+    message.append (payload.getData(), payload.getSize());
+    return message;
+}
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Nexus

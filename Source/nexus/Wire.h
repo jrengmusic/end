@@ -19,6 +19,7 @@
 #pragma once
 
 #include <juce_core/juce_core.h>
+#include "Message.h"
 
 #include <cstdint>
 
@@ -32,7 +33,7 @@ namespace Nexus
  * Single source of truth — declared here, referenced by both connection classes.
  * Passed to juce::InterprocessConnection as the magic number for frame validation.
  */
-static constexpr juce::uint32 wireMagicHeader { 0xe4d52a7f };
+constexpr juce::uint32 wireMagicHeader { 0xe4d52a7f };
 
 // =============================================================================
 // Writers — append a value to a MemoryBlock.
@@ -52,6 +53,22 @@ void writeInt32 (juce::MemoryBlock& block, int32_t value) noexcept;
 
 /** @brief Appends a length-prefixed (uint32_t LE) UTF-8 string to @p block. */
 void writeString (juce::MemoryBlock& block, const juce::String& str) noexcept;
+
+// =============================================================================
+// PDU encoding
+// =============================================================================
+
+/**
+ * @brief Encodes @p kind and @p payload into a single MemoryBlock.
+ *
+ * Wire format: uint16_t kind (LE) | payload bytes.
+ * Single source of truth — used by both Channel::sendPdu and Link::sendPdu.
+ *
+ * @param kind     PDU kind identifier.
+ * @param payload  Optional payload bytes.
+ * @return MemoryBlock ready for sendMessage().
+ */
+juce::MemoryBlock encodePdu (Message kind, const juce::MemoryBlock& payload) noexcept;
 
 // =============================================================================
 // Readers — decode a value from a raw byte pointer.

@@ -186,6 +186,9 @@ private:
     /** @brief Interval between retry ticks in milliseconds. */
     static constexpr int connectRetryIntervalMs { 100 };
 
+    /** @brief Per-probe socket connect timeout in milliseconds. Short so the message thread is not blocked for the full 5 s on each 100 ms tick. */
+    static constexpr int perProbeTimeoutMs { 200 };
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Link)
 };

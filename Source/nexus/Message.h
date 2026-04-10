@@ -19,7 +19,7 @@
  * - `sessionKilled(uuid)` — daemon→client "shell exited"
  * - `sessions(uuids)` — daemon→client initial session list on hello
  * - `stateUpdate(uuid, cwd, fgProcess)` — daemon→client state sync (cwd + foreground process)
- * - `hello` / `helloResponse` / `ping` / `pong` / `shutdown` — control
+ * - `hello` / `helloResponse` / `ping` / `pong` — control
  */
 
 #pragma once
@@ -63,8 +63,6 @@ enum class Message : uint16_t
 
     sessionKilled           = 0x40, ///< Host → Client: shell process exited, session will be removed.
     sessions                = 0x50, ///< Host → Client: full list of live session UUIDs (pushed unsolicited).
-
-    shutdown                = 0x60, ///< Client → Host: request graceful host shutdown.
 };
 
 

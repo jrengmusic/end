@@ -83,11 +83,7 @@ void Channel::connectionLost()
  */
 void Channel::sendPdu (Message kind, const juce::MemoryBlock& payload)
 {
-    juce::MemoryBlock message;
-    const auto kindValue { static_cast<uint16_t> (kind) };
-    message.append (&kindValue, sizeof (kindValue));
-    message.append (payload.getData(), payload.getSize());
-    sendMessage (message);
+    sendMessage (encodePdu (kind, payload));
 }
 
 // =============================================================================

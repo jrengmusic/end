@@ -114,57 +114,104 @@ Terminal::Processor& Session::openTerminal (const juce::String& cwd,
     Terminal::Processor* result { nullptr };
 
     if (alreadyExists)
-    {
         result = &existingTerm->second->getProcessor();
-    }
     else if (link != nullptr)
-    {
-        // Send minimal PDU: cwd | uuid | cols | rows.  Daemon resolves shell/args from its config.
-        juce::MemoryBlock payload;
-        Nexus::writeString (payload, cwd);
-        Nexus::writeString (payload, uuid);
-        Nexus::writeUint16 (payload, static_cast<uint16_t> (cols));
-        Nexus::writeUint16 (payload, static_cast<uint16_t> (rows));
-        link->sendPdu (Message::createSession, payload);
-
-        // Remote session — Processor + State, no TTY.  Daemon owns the PTY.
-        // Read shell from local Config so State/display logic has a shell name.
-        const juce::String shell { Config::getContext()->getString (Config::Key::shellProgram) };
-        auto termSession { std::make_unique<Terminal::Session> (cols, rows, cwd, shell, uuid) };
-
-        Terminal::Processor* procRawPtr { &termSession->getProcessor() };
-
-        // Wire user input (keyboard, mouse) to daemon via Link IPC.
-        procRawPtr->writeInput = [this, uuid] (const char* data, int len)
-        {
-            link->sendInput (uuid, data, len);
-        };
-
-        // Wire resize to daemon via Link IPC.
-        procRawPtr->onResize = [this, uuid] (int cols, int rows)
-        {
-            link->sendResize (uuid, cols, rows);
-        };
-
-        result = procRawPtr;
-        terminalSessions.emplace (uuid, std::move (termSession));
-    }
+        result = &openTerminalRemote (cwd, uuid, cols, rows);
     else
+        result = &openTerminalLocal (cwd, uuid, cols, rows);
+
+    jassert (result != nullptr);
+    return *result;
+}
+
+Terminal::Processor& Session::openTerminalRemote (const juce::String& cwd,
+                                                   const juce::String& uuid,
+                                                   int cols,
+                                                   int rows)
+{
+    // Send minimal PDU: cwd | uuid | cols | rows.  Daemon resolves shell/args from its config.
+    juce::MemoryBlock payload;
+    Nexus::writeString (payload, cwd);
+    Nexus::writeString (payload, uuid);
+    Nexus::writeUint16 (payload, static_cast<uint16_t> (cols));
+    Nexus::writeUint16 (payload, static_cast<uint16_t> (rows));
+    link->sendPdu (Message::createSession, payload);
+
+    // Remote session — Processor + State, no TTY.  Daemon owns the PTY.
+    // Read shell from local Config so State/display logic has a shell name.
+    const juce::String shell { Config::getContext()->getString (Config::Key::shellProgram) };
+    auto termSession { std::make_unique<Terminal::Session> (cols, rows, cwd, shell, uuid) };
+
+    Terminal::Processor* procRawPtr { &termSession->getProcessor() };
+
+    // Wire user input (keyboard, mouse) to daemon via Link IPC.
+    procRawPtr->writeInput = [this, uuid] (const char* data, int len)
     {
-        auto termSession { Terminal::Session::create (cwd, cols, rows, {}, {}, {}, uuid) };
+        link->sendInput (uuid, data, len);
+    };
 
-        Terminal::Processor* procRawPtr { &termSession->getProcessor() };
+    // Wire resize to daemon via Link IPC.
+    procRawPtr->onResize = [this, uuid] (int cols, int rows)
+    {
+        link->sendResize (uuid, cols, rows);
+    };
 
-        if (daemon != nullptr)
+    terminalSessions.emplace (uuid, std::move (termSession));
+    return *procRawPtr;
+}
+
+Terminal::Processor& Session::openTerminalLocal (const juce::String& cwd,
+                                                  const juce::String& uuid,
+                                                  int cols,
+                                                  int rows)
+{
+    auto termSession { Terminal::Session::create (cwd, cols, rows, {}, {}, {}, uuid) };
+    Terminal::Processor* procRawPtr { &termSession->getProcessor() };
+
+    if (daemon != nullptr)
+    {
+        // Daemon mode — Terminal::Session already wires processWithLock internally.
+        // Nexus wires onBytes to ALSO broadcast output PDU to subscribers.
+        termSession->onBytes = [this, uuid] (const char* bytes, int len)
         {
-            // Daemon mode — Terminal::Session already wires processWithLock internally.
-            // Nexus wires onBytes to ALSO broadcast output PDU to subscribers.
-            termSession->onBytes = [this, uuid] (const char* bytes, int len)
+            // READER THREAD — build output PDU and push to all subscribers.
+            juce::MemoryBlock outputPayload;
+            writeString (outputPayload, uuid);
+            outputPayload.append (bytes, static_cast<size_t> (len));
+
+            const juce::ScopedLock lock (connectionsLock);
+            const auto it { subscribers.find (uuid) };
+
+            if (it != subscribers.end())
             {
-                // READER THREAD — build output PDU and push to all subscribers.
-                juce::MemoryBlock payload;
-                writeString (payload, uuid);
-                payload.append (bytes, static_cast<size_t> (len));
+                for (auto* conn : it->second)
+                    conn->sendPdu (Message::output, outputPayload);
+            }
+        };
+
+        // Daemon mode — wire onStateFlush to broadcast stateUpdate PDU to subscribers.
+        // Terminal::Session has already updated cwd and foreground process in State by the
+        // time onStateFlush fires.  lastSentCwd and lastSentFg track the previously-broadcast
+        // values to avoid 60Hz noise on unchanged state.
+        auto lastSentCwd { std::make_shared<juce::String>() };
+        auto lastSentFg { std::make_shared<juce::String>() };
+
+        termSession->onStateFlush = [this, uuid, procRawPtr, lastSentCwd, lastSentFg]
+        {
+            const juce::String cwdStr { procRawPtr->getState().get().getProperty (Terminal::ID::cwd).toString() };
+            const juce::String fgStr {
+                procRawPtr->getState().get().getProperty (Terminal::ID::foregroundProcess).toString()
+            };
+
+            if (cwdStr != *lastSentCwd or fgStr != *lastSentFg)
+            {
+                *lastSentCwd = cwdStr;
+                *lastSentFg = fgStr;
+
+                juce::MemoryBlock statePayload;
+                Nexus::writeString (statePayload, uuid);
+                Nexus::writeString (statePayload, cwdStr);
+                Nexus::writeString (statePayload, fgStr);
 
                 const juce::ScopedLock lock (connectionsLock);
                 const auto it { subscribers.find (uuid) };
@@ -172,93 +219,52 @@ Terminal::Processor& Session::openTerminal (const juce::String& cwd,
                 if (it != subscribers.end())
                 {
                     for (auto* conn : it->second)
-                        conn->sendPdu (Message::output, payload);
+                        conn->sendPdu (Message::stateUpdate, statePayload);
                 }
-            };
+            }
+        };
 
-            // Daemon mode — wire onStateFlush to broadcast stateUpdate PDU to subscribers.
-            // Terminal::Session has already updated cwd and foreground process in State by the
-            // time onStateFlush fires.  lastSentCwd and lastSentFg track the previously-broadcast
-            // values to avoid 60Hz noise on unchanged state.
-            auto lastSentCwd { std::make_shared<juce::String>() };
-            auto lastSentFg { std::make_shared<juce::String>() };
-
-            termSession->onStateFlush = [this, uuid, procRawPtr, lastSentCwd, lastSentFg]
-            {
-                const juce::String cwdStr { procRawPtr->getState().get().getProperty (Terminal::ID::cwd).toString() };
-                const juce::String fgStr {
-                    procRawPtr->getState().get().getProperty (Terminal::ID::foregroundProcess).toString()
-                };
-
-                if (cwdStr != *lastSentCwd or fgStr != *lastSentFg)
-                {
-                    *lastSentCwd = cwdStr;
-                    *lastSentFg = fgStr;
-
-                    juce::MemoryBlock payload;
-                    Nexus::writeString (payload, uuid);
-                    Nexus::writeString (payload, cwdStr);
-                    Nexus::writeString (payload, fgStr);
-
-                    const juce::ScopedLock lock (connectionsLock);
-                    const auto it { subscribers.find (uuid) };
-
-                    if (it != subscribers.end())
-                    {
-                        for (auto* conn : it->second)
-                            conn->sendPdu (Message::stateUpdate, payload);
-                    }
-                }
-            };
-
-            // Daemon mode — wire onExit to broadcast sessionKilled to all attached connections.
-            termSession->onExit = [this, uuid]
-            {
-                juce::MemoryBlock payload;
-                const auto* utf8 { uuid.toRawUTF8() };
-                const auto len { static_cast<uint32_t> (uuid.getNumBytesAsUTF8()) };
-                payload.append (&len, sizeof (len));
-                payload.append (utf8, static_cast<size_t> (len));
-
-                {
-                    const juce::ScopedLock lock (connectionsLock);
-
-                    for (auto* conn : attached)
-                        conn->sendPdu (Message::sessionKilled, payload);
-                }
-
-                juce::MessageManager::callAsync (
-                    [this, uuid]
-                    {
-                        remove (uuid);
-                        broadcastSessions();
-                        fireIfAllExited();
-                    });
-            };
-        }
-        else
+        // Daemon mode — wire onExit to broadcast sessionKilled to all attached connections.
+        termSession->onExit = [this, uuid]
         {
-            // Local mode — Terminal::Session already wires the full pipeline internally.
-            // Nexus only needs to fire onShellExited on the Processor when the TTY exits.
-            termSession->onExit = [this, uuid]
+            juce::MemoryBlock exitPayload;
+            writeString (exitPayload, uuid);
+
             {
-                juce::MessageManager::callAsync (
-                    [this, uuid]
-                    {
-                        const auto it { terminalSessions.find (uuid) };
+                const juce::ScopedLock lock (connectionsLock);
 
-                        if (it != terminalSessions.end() and it->second->getProcessor().onShellExited != nullptr)
-                            it->second->getProcessor().onShellExited();
-                    });
-            };
-        }
+                for (auto* conn : attached)
+                    conn->sendPdu (Message::sessionKilled, exitPayload);
+            }
 
-        result = procRawPtr;
-        terminalSessions.emplace (uuid, std::move (termSession));
+            juce::MessageManager::callAsync (
+                [this, uuid]
+                {
+                    remove (uuid);
+                    broadcastSessions();
+                    fireIfAllExited();
+                });
+        };
+    }
+    else
+    {
+        // Local mode — Terminal::Session already wires the full pipeline internally.
+        // Nexus only needs to fire onShellExited on the Processor when the TTY exits.
+        termSession->onExit = [this, uuid]
+        {
+            juce::MessageManager::callAsync (
+                [this, uuid]
+                {
+                    const auto it { terminalSessions.find (uuid) };
+
+                    if (it != terminalSessions.end() and it->second->getProcessor().onShellExited != nullptr)
+                        it->second->getProcessor().onShellExited();
+                });
+        };
     }
 
-    jassert (result != nullptr);
-    return *result;
+    terminalSessions.emplace (uuid, std::move (termSession));
+    return *procRawPtr;
 }
 
 /**

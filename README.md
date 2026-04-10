@@ -194,9 +194,9 @@ Everything lives in `~/.config/end/`. Both config files are auto-generated with 
 | Selection | Highlight colour |
 | Navigation | Vim-style scroll keys (j/k/gg/G), scroll step in pixels |
 
-### `state.lua`
+### `end.state`
 
-Auto-saved window state (size, zoom). Not user-edited.
+Auto-saved window state (size, zoom, tab layout). XML format. Not user-edited.
 
 
 ## Roadmap

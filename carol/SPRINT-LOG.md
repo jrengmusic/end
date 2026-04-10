@@ -6,26 +6,26 @@
 
 ### Agents Participated
 - COUNSELOR: session lead, planning, delegation, discussion
-- Engineer: all code implementation
+- Engineer: all code implementation (35+ delegations)
 - Pathfinder: codebase exploration, git history, blast radius surveys
-- Auditor: PLAN-nexus-cleanup validation
-- Librarian: juce::var behavior research
-- Oracle: (not invoked)
+- Auditor: PLAN-nexus-cleanup validation, comprehensive final audit (22 findings, all resolved)
+- Librarian: juce::var bool-vs-string behavior research
 
 ### Files Modified (35+ total)
 - `modules/jreng_gui/glass/jreng_window.cpp` — middle-click drag only (removed DocumentWindow fall-through)
-- `Source/nexus/Session.cpp` — openTerminal (was create), client branch inline PDU, remote Terminal::Session, detach cleanup, session vocabulary
-- `Source/nexus/Session.h` — openTerminal, member renames (daemon/link), forward decls, session vocabulary
-- `Source/nexus/SessionFanout.cpp` — broadcastSessions (was broadcastProcessorList), Channel refs
+- `Source/nexus/Session.cpp` — openTerminal decomposed (dispatcher + openTerminalRemote + openTerminalLocal), inline PDU, remote Terminal::Session, manual encode replaced with writeString, session vocabulary
+- `Source/nexus/Session.h` — openTerminal, removed dead forEachAttached, member renames (daemon/link), forward decls, session vocabulary
+- `Source/nexus/SessionFanout.cpp` — broadcastSessions (was broadcastProcessorList), Channel refs, operator[] comment
 - `Source/nexus/Daemon.h` (was Server.h) — class rename, folded hideDockIcon/spawnDaemon, removed lockfile wrappers
 - `Source/nexus/Daemon.cpp` (was Server.cpp) — class rename, Windows spawnDaemon impl
-- `Source/nexus/Daemon.mm` (new) — macOS hideDockIcon/spawnDaemon
-- `Source/nexus/Link.h` (was Client.h) — class rename, removed dead connectToHost/onPdu/handleUnknown
-- `Source/nexus/Link.cpp` (was Client.cpp) — class rename, port from .nexus file, handleSessions/handleSessionKilled, connectionMade/Lost connected flag
-- `Source/nexus/Channel.h` (was ServerConnection.h) — class rename, Daemon& ref
-- `Source/nexus/Channel.cpp` (was ServerConnection.cpp) — class rename, broadcastSessions, minimal createSession PDU
-- `Source/nexus/Message.h` — createSession/killSession/detachSession/sessionKilled/sessions
-- `Source/nexus/Wire.h` — doc updates
+- `Source/nexus/Daemon.mm` (new) — macOS hideDockIcon/spawnDaemon, merged macOS+Linux spawnDaemon (SSOT)
+- `Source/nexus/Link.h` (was Client.h) — class rename, removed dead connectToHost/onPdu/handleUnknown, perProbeTimeoutMs constant
+- `Source/nexus/Link.cpp` (was Client.cpp) — class rename, port from .nexus file, handleSessions/handleSessionKilled, removed dead fgConsumed, sendPdu delegates to encodePdu
+- `Source/nexus/Channel.h` (was ServerConnection.h) — class rename, Daemon& ref, removed dead getId/id member
+- `Source/nexus/Channel.cpp` (was ServerConnection.cpp) — class rename, broadcastSessions, minimal createSession PDU, sendPdu delegates to encodePdu
+- `Source/nexus/Message.h` — createSession/killSession/detachSession/sessionKilled/sessions, removed dead shutdown enum
+- `Source/nexus/Wire.h` — doc updates, encodePdu extracted (SSOT), removed redundant static from constexpr
+- `Source/nexus/Wire.cpp` — encodePdu implementation
 - `Source/nexus/NexusDaemon.h` — DELETED (folded into Daemon)
 - `Source/nexus/NexusDaemon.mm` — DELETED
 - `Source/nexus/NexusDaemon_win.cpp` — DELETED
@@ -41,7 +41,11 @@
 - `Source/AppIdentifier.h` — SESSIONS/SESSION identifiers, removed instanceID
 - `Source/AppState.h` — instanceUuid, connected, port, getNexusFile, getStateFile (.display), setConnected (no save), dtor trivial
 - `Source/AppState.cpp` — split state files, save/load, setPort read-modify-write, dtor = default, setConnected property only
-- `Source/Main.cpp` — startup scan (nexus/*.nexus + *.display), daemon UUID via CLI, systemRequestedQuit file decisions, shutdown order (nexus before mainWindow), spawnDaemon(uuid)
+- `Source/Main.cpp` — startup scan extracted to resolveNexusInstance(), daemon UUID via CLI, systemRequestedQuit file decisions, shutdown order (nexus before mainWindow), spawnDaemon(uuid), stale comments fixed
+- `Source/terminal/data/State.h` — "ServerConnection" → "Channel" in doxygen
+- `ARCHITECTURE.md` — nexus/ module map added, state.xml → end.state/uuid.display
+- `README.md` — state.lua → end.state (XML format)
+- `PLAN-nexus-cleanup.md` — DELETED (completed)
 - `Source/MainComponent.h` — removed onNexusConnected, sessionsNode member
 - `Source/MainComponent.cpp` — inlined onNexusConnected into valueTreeChildAdded, implemented valueTreeChildRemoved (closeSession), SESSIONS/SESSION refs
 - `Source/MainComponentActions.cpp` — save on tab mutation (nexus mode)
@@ -68,88 +72,16 @@
 - Stale .display cleanup: MainComponent owns .display lifecycle, valueTreeChildRemoved handles daemon-killed sessions
 - shellProgram never written to State: fixed displayName always showing "zsh"
 
+### Audit Sweep (22 findings, all resolved)
+- Dead code: Message::shutdown, forEachAttached, Channel::getId/id, fgConsumed
+- SSOT: sendPdu extracted to Wire::encodePdu, spawnDaemon merged macOS+Linux, manual encode replaced with writeString
+- Stale docs: State.h, Main.cpp, MainComponent.cpp, ARCHITECTURE.md, README.md
+- BLESSED L: openTerminal decomposed, initialise() scan extracted to resolveNexusInstance()
+- Low: magic 200ms named, operator[] commented, redundant static removed, PLAN-nexus-cleanup.md deleted
+
 ### Technical Debt / Follow-up
-- `State.h:1179,1189` — doc comments still reference "ServerConnection" as subscriber ID description
-- Standalone mode uses `end.state` at `~/.config/end/` — no UUID, no nexus directory. Consider unifying path convention.
 - PLAN-IMAGE.md execution pending (9 steps for inline image rendering)
 - WHELMED Mermaid still broken
-
-## Handoff to COUNSELOR: Inline Image Rendering (Sixel + iTerm2)
-
-**From:** COUNSELOR
-**Date:** 2026-04-09
-**Status:** Ready for Implementation
-
-### Context
-Multi-sprint session covering nexus session restoration, BLESSED audit sweep, and architectural cleanup. Session evolved from fixing per-pane loader overlays through a full architecture shift: Terminal::Session now owns Processor, Grid+State snapshot replaces raw byte history replay, Terminal layer decoupled from Nexus. Concluded with comprehensive audit, production quality cleanup, and PLAN-IMAGE.md written for the next major feature.
-
-### Completed
-- **Sprint 3:** BLESSED audit sweep — Processor encapsulation, Input/Mouse rename+relocate, Session::create decomposition, Client dispatch refactor
-- **Sprint 4:** Per-pane loader overlay, daemon cwd relay (stateUpdate PDU), DSR response flush, shutdown crash fix (Loader destruction order)
-- **Sprint 5:** Grid snapshot architecture — Processor::getStateInformation/setStateInformation, daemon real Processor, Loader deleted
-- **Sprint 6:** Terminal::Session owns Processor (PTY+pipeline wired internally), Nexus decoupled from Terminal layer (writeInput/onResize callbacks), popup standalone, unified createProcessor PDU, handle* methods inlined, GlassWindow→jreng::Window
-- **Sprint 7:** Production audit — early returns fixed, SSOT extractions (setScrollOffsetClamped, broadcastProcessorList, addNewTab), all Nexus::logLine deleted (Log.h/cpp removed), stale docs fixed (ARCHITECTURE.md, SPEC.md, README.md), PLAN-nexus.md deleted
-- **RFC-IMAGE.md** updated for BLESSED compliance (no early returns in scaffold, Grid serialization note, stale reference removed)
-- **PLAN-IMAGE.md** written — 9-step incremental plan with validation gates
-
-### Remaining
-- **PLAN-IMAGE.md execution:** 9 steps, ~5-8 sprints
-  - Step 1: Cell flags + ImageCell struct
-  - Step 2: Grid::Buffer imageCells HeapBlock + serialization
-  - Step 3: ImageAtlas (staging, upload, lookup, LRU eviction)
-  - Step 4: ImageQuad + Snapshot + per-row cache
-  - Step 5: processCellForSnapshot image branch
-  - Step 6: drawImages GL + CPU backends
-  - Step 7: Sixel decoder
-  - Step 8: iTerm2 decoder (OSC 1337)
-  - Step 9: Polish + edge cases
-- **WHELMED Mermaid:** broken, needs polish (separate from image rendering)
-
-### Key Decisions
-- **Terminal::Session owns Processor** — creates PTY + Processor, wires all 6 callbacks internally. Callers get Processor via getProcessor(). ARCHITECT decided.
-- **Grid+State snapshot replaces raw byte history** — daemon Processor is real (processes all bytes), serializes Grid+State on reattach. No Loader thread. ARCHITECT decided after tmux research showed virtual-grid-redraw pattern.
-- **Popup is standalone** — creates Terminal::Session directly. No Nexus involvement. ARCHITECT: "Popup has NOTHING TO DO WITH NEXUS."
-- **Terminal layer Nexus-free** — Input, Mouse, Display route through Processor callbacks (writeInput, onResize). No Nexus::Session dependency in Terminal namespace.
-- **One createProcessor PDU** — daemon decides create-vs-attach via hasSession(). Dead PDUs deleted (spawnProcessorResponse, attachProcessor, attachProcessorResponse).
-- **Resize overlay via ComponentBoundsConstrainer** — jreng::Window inherits constrainer, resizeStart/resizeEnd drive isUserResizing flag. No boolean flags, no timers.
-- **cellsFromRect physical-pixel SSOT** — matches Screen::calc exactly. Eliminated 1-row divergence.
-- **Image rendering design** — side-table (ImageCell) mirroring Grapheme pattern. Single shelf-packed RGBA8 atlas. Emoji shader reused for drawImages. Decoders are pure Grid writers + staging producers.
-
-### Files Modified (this session, across all sprints)
-- `Source/terminal/logic/Session.h/cpp` — owns Processor, getProcessor(), onStateFlush, writeInput/onResize wiring, uuid parameter
-- `Source/terminal/logic/Processor.h/cpp` — getStateInformation/setStateInformation, writeInput, onResize, setScrollOffsetClamped, deleted onLoadingStarted/onLoadingFinished
-- `Source/terminal/logic/Grid.h/cpp` — getStateInformation/setStateInformation
-- `Source/terminal/logic/Input.h/cpp` — Nexus→processor.writeInput, deleted local setScrollOffsetClamped
-- `Source/terminal/logic/Mouse.cpp` — Nexus→processor.writeInput
-- `Source/component/TerminalDisplay.h/cpp` — removed Nexus dependency, LoaderOverlay, titleBarHeight; writeInput/onResize callbacks
-- `Source/component/Panes.h/cpp` — deleted buildTerminal/teardownTerminal/CreatedTerminal
-- `Source/component/Tabs.cpp` — restore sub-rect descent, cellsFromRect physical pixels, addNewTab delegation
-- `Source/component/Popup.h/cpp` — owns Terminal::Session directly
-- `Source/MainComponent.h/cpp` — removed titleBarHeight from getContentRect, resize overlay via Window
-- `Source/MainComponentActions.cpp` — popup creates Terminal::Session, actions extracted
-- `Source/nexus/Session.h/cpp` — single create(), deleted mode helpers, deleted processors map, client writeInput/onResize wiring
-- `Source/nexus/SessionFanout.cpp` — attach(uuid, target, sendHistory, cols, rows), snapshot via getStateInformation
-- `Source/nexus/ServerConnection.h/cpp` — handle* inlined, unified createProcessor
-- `Source/nexus/Client.h/cpp` — createSession, handleStateUpdate, deleted attachSession
-- `Source/nexus/Message.h` — createProcessor, stateUpdate, deleted 3 dead PDUs
-- `Source/Main.cpp` — jreng::Window
-- `modules/jreng_gui/glass/jreng_window.h/cpp` — renamed, ComponentBoundsConstrainer
-- `modules/jreng_gui/glass/jreng_modal_window.h/cpp` — Window base
-- `ARCHITECTURE.md`, `SPEC.md`, `README.md` — updated
-- Deleted: `Loader.h/cpp`, `Phrases.h`, `Log.h/Log.cpp`, `PLAN-nexus.md`
-- Created: `PLAN-IMAGE.md`, `RFC-IMAGE.md` (updated)
-
-### Open Questions
-1. **Sixel aspect ratio** — honour DCS intro params or ignore? Most modern terminals ignore. ARCHITECT decides at Step 7.
-2. **Large Sixel decode time** — if reader thread blocks too long, consider async decode. Monitor at Step 9.
-3. **Nexus image restore** — after snapshot restore, imageIds reference images not in new client's atlas. Re-stage mechanism or accept blank until app redraws. ARCHITECT decides at Step 9.
-4. **createClientSession** — inlined into Session::create client branch but conceptually the client-side Processor creation (with IPC wiring) still exists as a code path. Future cleanup: END creates its own Processor, Nexus only routes bytes.
-
-### Next Steps
-1. ARCHITECT commits current changes
-2. Next COUNSELOR reads PLAN-IMAGE.md and begins Step 1 (Cell flags + ImageCell)
-3. Each step validated by @Auditor before proceeding
-4. Steps 7 and 8 (Sixel + iTerm2 decoders) can run in parallel
 
 ## Sprint 7: BLESSED Audit — Production Quality
 

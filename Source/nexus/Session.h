@@ -304,21 +304,6 @@ public:
     /** @} */
 
 
-    /**
-     * @brief Calls @p visitor with each currently-attached Channel.
-     *
-     * @param visitor  Callable with signature `void(Channel&)`.
-     * @note NEXUS PROCESS MESSAGE THREAD.
-     */
-    template <typename Visitor>
-    void forEachAttached (Visitor&& visitor)
-    {
-        const juce::ScopedLock lock (connectionsLock);
-
-        for (auto* conn : attached)
-            visitor (*conn);
-    }
-
     // =========================================================================
     /**
      * @brief Called when the last session exits and no window is visible.
@@ -424,6 +409,33 @@ private:
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     juce::MemoryBlock buildSessionsPayload() const;
+
+    /**
+     * @brief openTerminal branch: client/Link mode.
+     *
+     * Sends a `createSession` PDU to the daemon, constructs a remote Terminal::Session,
+     * and wires writeInput/onResize callbacks to Link.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    Terminal::Processor& openTerminalRemote (const juce::String& cwd,
+                                              const juce::String& uuid,
+                                              int cols,
+                                              int rows);
+
+    /**
+     * @brief openTerminal branch: local/daemon mode.
+     *
+     * Constructs a full Terminal::Session via Terminal::Session::create and wires
+     * Nexus callbacks (onBytes, onStateFlush, onExit) in daemon mode, or the
+     * minimal onExit in local mode.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    Terminal::Processor& openTerminalLocal (const juce::String& cwd,
+                                             const juce::String& uuid,
+                                             int cols,
+                                             int rows);
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

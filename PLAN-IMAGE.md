@@ -1,3 +1,23 @@
+## Handoff: Inline Image Rendering (Sixel + iTerm2)
+
+**From:** COUNSELOR
+**Date:** 2026-04-09
+**Status:** Ready for Implementation
+
+### Key Decisions
+- **Terminal::Session owns Processor** — creates PTY + Processor, wires all 6 callbacks internally. Callers get Processor via getProcessor(). ARCHITECT decided.
+- **Grid+State snapshot replaces raw byte history** — daemon Processor is real (processes all bytes), serializes Grid+State on reattach. No Loader thread. ARCHITECT decided after tmux research showed virtual-grid-redraw pattern.
+- **Popup is standalone** — creates Terminal::Session directly. No Nexus involvement. ARCHITECT: "Popup has NOTHING TO DO WITH NEXUS."
+- **Terminal layer Nexus-free** — Input, Mouse, Display route through Processor callbacks (writeInput, onResize). No Nexus::Session dependency in Terminal namespace.
+- **Image rendering design** — side-table (ImageCell) mirroring Grapheme pattern. Single shelf-packed RGBA8 atlas. Emoji shader reused for drawImages. Decoders are pure Grid writers + staging producers.
+
+### Open Questions
+1. **Sixel aspect ratio** — honour DCS intro params or ignore? Most modern terminals ignore. ARCHITECT decides at Step 7.
+2. **Large Sixel decode time** — if reader thread blocks too long, consider async decode. Monitor at Step 9.
+3. **Nexus image restore** — after snapshot restore, imageIds reference images not in new client's atlas. Re-stage mechanism or accept blank until app redraws. ARCHITECT decides at Step 9.
+
+---
+
 # PLAN: Inline Image Rendering
 
 **RFC:** RFC-IMAGE.md

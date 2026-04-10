@@ -81,7 +81,7 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     // before any tree mutations occur.
     // Local mode: Session ctor creates the SESSIONS node → fires
     //   valueTreeChildAdded(nexusNode, SESSIONS) → walker triggered.
-    // Client mode: When Message::sessions arrives, Client rewrites the SESSIONS subtree →
+    // Client mode: When Message::sessions arrives, Link rewrites the SESSIONS subtree →
     //   fires valueTreeChildAdded(nexusNode, SESSIONS) → walker triggered.
     // sessionsNode is assigned lazily inside valueTreeChildAdded
     // when SESSIONS is created under nexusNode.  No getOrCreate here —

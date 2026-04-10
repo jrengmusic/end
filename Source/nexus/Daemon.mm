@@ -14,12 +14,15 @@
 #include "Daemon.h"
 #include <JuceHeader.h>
 
+#if JUCE_MAC || JUCE_LINUX
+
+#include <spawn.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 #if JUCE_MAC
-
 #import <Cocoa/Cocoa.h>
-#include <spawn.h>
-#include <fcntl.h>
-#include <unistd.h>
+#endif
 
 extern char** environ;
 
@@ -29,52 +32,9 @@ namespace Nexus
 
 void Daemon::hideDockIcon() noexcept
 {
+#if JUCE_MAC
     [NSApp setActivationPolicy: NSApplicationActivationPolicyAccessory];
-}
-
-bool Daemon::spawnDaemon (const juce::String& uuid) noexcept
-{
-    const auto execPath { juce::File::getSpecialLocation (juce::File::currentExecutableFile).getFullPathName() };
-
-    posix_spawnattr_t attr;
-    posix_spawnattr_init (&attr);
-    posix_spawnattr_setflags (&attr, POSIX_SPAWN_SETSID);
-
-    posix_spawn_file_actions_t actions;
-    posix_spawn_file_actions_init (&actions);
-    posix_spawn_file_actions_addopen (&actions, STDIN_FILENO,  "/dev/null", O_RDONLY, 0);
-    posix_spawn_file_actions_addopen (&actions, STDOUT_FILENO, "/dev/null", O_WRONLY, 0);
-    posix_spawn_file_actions_addopen (&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
-
-    const char* argv[] { execPath.toRawUTF8(), "--nexus", uuid.toRawUTF8(), nullptr };
-
-    pid_t pid { 0 };
-    const int result { posix_spawn (&pid, argv[0], &actions,
-                                    &attr, const_cast<char**> (argv), environ) };
-
-    posix_spawn_file_actions_destroy (&actions);
-    posix_spawnattr_destroy (&attr);
-
-    return result == 0;
-}
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace Nexus
-
-#elif JUCE_LINUX
-
-#include <spawn.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-extern char** environ;
-
-namespace Nexus
-{
-/*____________________________________________________________________________*/
-
-void Daemon::hideDockIcon() noexcept
-{
+#endif
     // No-op on Linux — no single dock API to abstract.
 }
 
@@ -107,4 +67,4 @@ bool Daemon::spawnDaemon (const juce::String& uuid) noexcept
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Nexus
 
-#endif
+#endif // JUCE_MAC || JUCE_LINUX

@@ -95,7 +95,7 @@ void Link::ConnectTimer::timerCallback()
         {
             // Use a short per-probe timeout so the message thread is not blocked
             // for the full connectTimeoutMs on each 100 ms tick.
-            connected = owner.connectToSocket ("127.0.0.1", port, 200);
+            connected = owner.connectToSocket ("127.0.0.1", port, perProbeTimeoutMs);
         }
     }
 
@@ -229,11 +229,7 @@ void Link::sendRemove (const juce::String& uuid)
  */
 void Link::sendPdu (Message kind, const juce::MemoryBlock& payload)
 {
-    juce::MemoryBlock message;
-    const auto kindValue { static_cast<uint16_t> (kind) };
-    message.append (&kindValue, sizeof (kindValue));
-    message.append (payload.getData(), payload.getSize());
-    sendMessage (message);
+    sendMessage (encodePdu (kind, payload));
 }
 
 // =============================================================================
@@ -419,8 +415,8 @@ void Link::handleStateUpdate (const uint8_t* payload, int payloadSize)
         const int cwdConsumed { readString (payload + uuidConsumed, payloadSize - uuidConsumed, cwd) };
 
         juce::String fgProcess;
-        const int fgConsumed { readString (payload + uuidConsumed + cwdConsumed,
-                                           payloadSize - uuidConsumed - cwdConsumed, fgProcess) };
+        readString (payload + uuidConsumed + cwdConsumed,
+                    payloadSize - uuidConsumed - cwdConsumed, fgProcess);
 
         if (cwdConsumed > 0)
         {

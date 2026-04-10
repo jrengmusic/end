@@ -148,6 +148,16 @@ Source/
       LookAndFeel.h/cpp             LookAndFeel overrides for ActionList styling
       KeyRemapDialog.h              Deprecated stub (inline remap now handled in ActionList)
 
+    nexus/                          IPC session continuity — daemon/client process split
+      Session.h/cpp                 Unified session pool: owns Terminal::Session objects; local, daemon, and client modes
+      SessionFanout.cpp             Subscriber registry and sessions broadcast (attach/detach/broadcastSessions)
+      Link.h/cpp                    Client-side JUCE IPC connector; sends PDUs to daemon, dispatches incoming PDUs
+      Channel.h/cpp                 Server-side JUCE IPC connection (one per connected client); dispatches incoming PDUs
+      Daemon.h/cpp                  JUCE-backed TCP server; owns Channel instances via jreng::Owner
+      Daemon.mm                     macOS/Linux platform helpers: hideDockIcon(), spawnDaemon()
+      Wire.h/cpp                    Binary wire-format encode/decode helpers (writeString, readString, encodePdu, etc.)
+      Message.h                     Protocol message-kind enumeration (Message::hello, output, createSession, etc.)
+
 modules/
   jreng_core/                       Shared utilities (Owner, identifiers, Context, BinaryData)
   jreng_graphics/                   Graphics utilities
@@ -188,6 +198,7 @@ modules/
 | jreng_graphics | `modules/jreng_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jreng_core, FreeType, HarfBuzz |
 | jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
 | Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | Config, jreng::Context |
+| Nexus | `nexus/` | IPC session continuity; daemon/client process split. Session owns Terminal::Session objects in all modes. Link (client) and Channel (server) carry PDUs over JUCE IPC. Daemon listens for connections. Wire/Message encode the binary protocol. | JUCE IPC, Terminal::Session, AppState |
 | Panes | `component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
 | Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, Whelmed::Input | PaneComponent, jreng_markdown |
 | jreng_gui | `modules/jreng_gui/` | Layout utilities: PaneManager binary tree, PaneResizerBar | JUCE core, jreng_core |
@@ -596,14 +607,14 @@ CSI u format: `CSI keycode ; modifiers u` where modifiers = `1 + shift(1) + alt(
 
 ### Config File Paths
 
-| Platform | Config path | State path |
-|----------|------------|------------|
-| macOS/Linux | `~/.config/end/end.lua` | `~/.config/end/state.xml` |
-| Windows | `%APPDATA%\end\end.lua` | `%APPDATA%\end\state.xml` |
+| Platform | Config path | State path (standalone) | State path (nexus) |
+|----------|------------|------------------------|-------------------|
+| macOS/Linux | `~/.config/end/end.lua` | `~/.config/end/end.state` | `~/.config/end/nexus/<uuid>.display` |
+| Windows | `%APPDATA%\end\end.lua` | `%APPDATA%\end\end.state` | `%APPDATA%\end\nexus\<uuid>.display` |
 
 `Config::getConfigFile()` uses `juce::File::userApplicationDataDirectory` on Windows, `userHomeDirectory/.config/end/` on macOS/Linux. Creates directory and writes defaults if absent.
 
-`state.xml` (window size, zoom) is derived from the config file's parent directory.
+`end.state` (window size, zoom, tab layout) is derived from the config file's parent directory and used in standalone mode. In nexus mode the client reads and writes `nexus/<uuid>.display` instead.
 
 ---
 
