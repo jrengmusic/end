@@ -135,18 +135,18 @@ juce::String AppState::getInstanceUuid() const noexcept
     return instanceUuid;
 }
 
-void AppState::setNexusMode (bool isNexus)
+void AppState::setDaemonMode (bool isDaemon)
 {
-    getWindow().setProperty (App::ID::nexusMode, isNexus, nullptr);
+    getWindow().setProperty (App::ID::daemonMode, isDaemon, nullptr);
 }
 
-bool AppState::isNexusMode() const noexcept
+bool AppState::isDaemonMode() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
     bool result { false };
 
-    if (window.isValid() and window.hasProperty (App::ID::nexusMode))
-        result = static_cast<bool> (window.getProperty (App::ID::nexusMode));
+    if (window.isValid() and window.hasProperty (App::ID::daemonMode))
+        result = static_cast<bool> (window.getProperty (App::ID::daemonMode));
 
     return result;
 }

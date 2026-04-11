@@ -143,7 +143,7 @@ void Config::initKeys()
     addKey (Key::windowForceDwm, "true", { T::string });
     addKey (Key::windowZoom, 1.0, { T::number, 0.0, 0.0, false });
     addKey (Key::gpuAcceleration, "auto", { T::string });
-    addKey (Key::nexus, "true", { T::string });
+    addKey (Key::daemon, "true", { T::string });
 
     addKey (Key::tabFamily, "Display Mono", { T::string });
     addKey (Key::tabSize, 12.0, { T::number, 1.0, 200.0, true });

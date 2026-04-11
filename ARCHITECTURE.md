@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-04-01 (updated: Whelmed integration, PaneComponent, ModalType app-level storage, pane type constants, module map)
+**Last Updated:** 2026-04-11 (updated: Nexus refactor — Nexus class replaces Nexus::Session three-mode dispatcher; Interprocess namespace; EncoderDecoder replaces Wire; Terminal::Session two-factory overloads; daemonMode ValueTree ID; daemon config key; Windows Job Object; WindowsTTY getCwd PEB query; shouldTrackCwdFromOs; CHERE_INVOKING env var; layer separation rules)
 
 ---
 
@@ -148,15 +148,17 @@ Source/
       LookAndFeel.h/cpp             LookAndFeel overrides for ActionList styling
       KeyRemapDialog.h              Deprecated stub (inline remap now handled in ActionList)
 
-    nexus/                          IPC session continuity — daemon/client process split
-      Session.h/cpp                 Unified session pool: owns Terminal::Session objects; local, daemon, and client modes
-      SessionFanout.cpp             Subscriber registry and sessions broadcast (attach/detach/broadcastSessions)
-      Link.h/cpp                    Client-side JUCE IPC connector; sends PDUs to daemon, dispatches incoming PDUs
-      Channel.h/cpp                 Server-side JUCE IPC connection (one per connected client); dispatches incoming PDUs
-      Daemon.h/cpp                  JUCE-backed TCP server; owns Channel instances via jreng::Owner
+    nexus/                          Session manager — owns all Terminal::Session instances
+      Nexus.h/cpp                   jreng::Context<Nexus> session container; create/remove/get/has/list; attach(Daemon&)/attach(Link&) for mode wiring
+
+  interprocess/                     IPC transport layer (daemon/client process split)
+      Daemon.h/cpp                  JUCE InterprocessConnectionServer; owns Channel objects; broadcast + per-session subscriber registries; wireSessionCallbacks
+      DaemonWindows.cpp             Windows-specific platform helpers: Job Object (cascade-kill), spawnDaemon()
       Daemon.mm                     macOS/Linux platform helpers: hideDockIcon(), spawnDaemon()
-      Wire.h/cpp                    Binary wire-format encode/decode helpers (writeString, readString, encodePdu, etc.)
-      Message.h                     Protocol message-kind enumeration (Message::hello, output, createSession, etc.)
+      Link.h/cpp                    Client-side JUCE IPC connector; connect-retry timer; sends PDUs to daemon; dispatches incoming PDUs to Nexus
+      Channel.h/cpp                 Server-side JUCE IPC connection (one per connected client); dispatches incoming PDUs to Nexus + Daemon
+      EncoderDecoder.h/cpp          Binary wire-format encode/decode helpers (writeUint16/32/64, writeString, readUint16/32/64, readString, encodePdu)
+      Message.h                     Protocol message-kind enumeration (uint16_t wire values: hello, createSession, output, loading, stateUpdate, sessionKilled, sessions, etc.)
 
 modules/
   jreng_core/                       Shared utilities (Owner, identifiers, Context, BinaryData)
@@ -198,58 +200,173 @@ modules/
 | jreng_graphics | `modules/jreng_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jreng_core, FreeType, HarfBuzz |
 | jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
 | Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | Config, jreng::Context |
-| Nexus | `nexus/` | IPC session continuity; daemon/client process split. Session owns Terminal::Session objects in all modes. Link (client) and Channel (server) carry PDUs over JUCE IPC. Daemon listens for connections. Wire/Message encode the binary protocol. | JUCE IPC, Terminal::Session, AppState |
+| Nexus | `nexus/` | Session container. Owns `unordered_map<String, unique_ptr<Terminal::Session>>`. Mode determined by `attach(Daemon&)` / `attach(Link&)` / no attachment. `jreng::Context<Nexus>` singleton owned by ENDApplication. | Terminal::Session, jreng::Context |
+| Interprocess | `interprocess/` | IPC transport layer. Daemon (TCP server), Link (client), Channel (per-client server-side connection), EncoderDecoder (wire format), Message (PDU kind enum). Daemon owns broadcast + subscriber registries, wires session callbacks. | JUCE IPC, Nexus, Terminal::Session, AppState |
 | Panes | `component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
 | Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, Whelmed::Input | PaneComponent, jreng_markdown |
 | jreng_gui | `modules/jreng_gui/` | Layout utilities: PaneManager binary tree, PaneResizerBar | JUCE core, jreng_core |
 
 ---
 
-## Nexus (Daemon Mode and Session Continuity)
+## Nexus and Interprocess
 
-`Nexus::Session` manages IPC between a headless daemon process and one or more client processes.  The daemon owns real `Terminal::Session` (PTY + History) and real `Terminal::Processor` instances.  Clients own `Terminal::Processor` instances only — no PTY.
+### Nexus — Session Manager
 
-### Roles
+`Nexus` is a pure session container.  It inherits `jreng::Context<Nexus>` and is owned as a value member of `ENDApplication`.  It holds an `unordered_map<String, unique_ptr<Terminal::Session>>` and exposes a lifecycle API: `create`, `remove`, `get`, `has`, `list`.
 
-- **Daemon** (`Session(DaemonTag)`) — headless IPC server.  Owns `Terminal::Session` objects.  Wires `onBytes` to broadcast `Message::output` to subscribers and `onStateFlush` to broadcast `Message::stateUpdate`.
-- **Client** (`Session(ClientTag)`) — IPC client.  Owns `Terminal::Processor` objects (via `Client`).  Receives `Message::output` / `Message::loading` from daemon.
+Data flow mode (standalone, daemon, client) is determined at runtime by which `attach` overload is called — not by a constructor tag:
 
-### Grid+State Snapshot Restore
+- **No attachment** — standalone.  Sessions fire `onExit` locally; when the last session exits `onAllSessionsExited` is called.
+- **`attach(Interprocess::Daemon&)`** — daemon mode.  After `Nexus::create(cwd, uuid, cols, rows)` succeeds, Nexus calls `Daemon::wireSessionCallbacks(uuid, session)` to wire IPC broadcast.
+- **`attach(Interprocess::Link&)`** — client mode.  `Nexus::create(cwd, uuid, cols, rows)` creates a no-TTY session and sends a `createSession` PDU to the daemon via Link.
 
-On client attach, the daemon serializes each Processor's current state via `Processor::getStateInformation()` — a `juce::MemoryBlock` containing Grid cells and State atomics.  This snapshot is sent as `Message::loading`.  The client's `Session::startLoading()` receives it and calls `Processor::setStateInformation()` directly on the message thread.  No Loader thread is involved.
+`Nexus::create(cwd, uuid, cols, rows)` is the mode-routing entry point used by `Panes` and `Tabs`.  It returns an existing session immediately if the UUID already exists (idempotency guard for GUI reconnect).
+
+### Process Configurations
 
 ```
-Daemon:  Processor::getStateInformation() → Message::loading → Client
-Client:  handleLoading → Session::startLoading → Processor::setStateInformation
+Standalone:              ENDApplication + Nexus (no IPC)
+Daemon process:          ENDApplication + Nexus + Interprocess::Daemon (headless, owns shells)
+GUI connected to daemon: ENDApplication + Nexus + Interprocess::Link  (renders daemon's sessions)
+```
+
+The daemon process suppresses its Dock icon via `Daemon::hideDockIcon()` and writes its bound TCP port to `~/.config/end/nexus/<uuid>.nexus`.  The GUI reads that file and begins connect attempts via `Link::beginConnectAttempts()`.
+
+### Interprocess — IPC Transport Layer
+
+The `Interprocess` namespace contains the TCP-based IPC transport between a daemon process and one or more GUI clients.  It does not include any terminal emulation logic.
+
+**Classes:**
+
+| Class | Role |
+|-------|------|
+| `Interprocess::Daemon` | TCP server (`juce::InterprocessConnectionServer`).  Owns `Channel` objects via `jreng::Owner`.  Holds the broadcast list (`attached`) and per-session subscriber registry (`subscribers`).  Installs a Windows Job Object for cascade-kill of OpenConsole.exe grandchildren. |
+| `Interprocess::Channel` | Server-side connection representing one connected GUI client.  Created by `Daemon::createConnectionObject()`.  Dispatches incoming PDUs to `Nexus` and `Daemon`. |
+| `Interprocess::Link` | Client-side connector (`juce::InterprocessConnection`).  Polls the nexus file for the daemon port and retries every 100 ms via an inner `ConnectTimer`.  Dispatches incoming PDUs directly on the message thread. |
+| `Interprocess::EncoderDecoder` | Binary wire-format helpers: `writeUint16/32/64`, `writeString`, `readUint16/32/64`, `readString`, `encodePdu`.  Single source of truth for wire encoding — used by both `Channel::sendPdu` and `Link::sendPdu`. |
+| `Interprocess::Message` | `enum class Message : uint16_t` — PDU kind identifiers with stable wire values. |
+
+**Wire format:** Every JUCE IPC frame payload begins with a `uint16_t` kind (LE), followed by kind-specific payload bytes.
+
+**PDU kinds:**
+
+| Kind | Direction | Payload |
+|------|-----------|---------|
+| `hello` / `helloResponse` | client↔host | version |
+| `createSession` | client→host | cwd, uuid, cols (uint16), rows (uint16) |
+| `loading` | host→client | uuid + raw PTY history bytes |
+| `output` | host→client | uuid + raw PTY bytes |
+| `input` | client→host | uuid + raw bytes to PTY stdin |
+| `resizeSession` | client→host | uuid, cols (uint16), rows (uint16) |
+| `detachSession` | client→host | uuid (stop forwarding, session keeps running) |
+| `killSession` | client→host | uuid (destroy shell) |
+| `sessionKilled` | host→client | uuid (shell exited) |
+| `sessions` | host→client | count + N × length-prefixed UUID strings |
+| `stateUpdate` | host→client | uuid, cwd, fgProcess |
+
+### Daemon Session Callback Wiring
+
+`Daemon::wireSessionCallbacks(uuid, session)` is called by `Nexus::create` in daemon mode after each `Terminal::Session` is constructed.  It installs three callbacks via three helper methods:
+
+- `wireOnBytes` — wires `session.onBytes` to broadcast `Message::output` to per-session subscribers.  Runs on the reader thread; acquires `connectionsLock`.
+- `wireOnStateFlush` — wires `session.onStateFlush` to broadcast `Message::stateUpdate` (cwd + foreground process).  Fires on the message thread; suppresses redundant broadcasts via shared-ptr captured previous values.
+- `wireOnExit` — wires `session.onExit` to broadcast `Message::sessionKilled`, schedule async `Nexus::remove`, re-broadcast sessions list, and fire `onAllSessionsExited` if empty.
+
+### Snapshot Restore on Client Attach
+
+When a GUI client sends `createSession` for an existing UUID, `Daemon::attachSession` sends the current byte history as `Message::loading`, then registers the client as a subscriber.  The lock is held across both operations to prevent the reader thread's `onBytes` broadcast from interleaving between history send and subscriber registration.
+
+```
+Daemon:  Terminal::Session::snapshotHistory() → Message::loading → Link
+Link:    handleLoading → Terminal::Session::process → Processor → Grid → Display
 ```
 
 ### Byte-Forward Flow (Live)
 
 ```
-Daemon:  PTY → Terminal::Session::onBytes → Message::output → Client
-Client:  Message::output → Session::feedBytes → Processor::process → Grid → Display
-Local:   PTY → Terminal::Session::onBytes → Processor::process → Grid → Display
+Daemon:  PTY → Session::onBytes → Message::output → Channel → Link
+Link:    handleOutput → Terminal::Session::process → Processor → Grid → Display
+
+Standalone:
+         PTY → Session::onBytes → Processor::processWithLock → Grid → Display
 ```
+
+### Terminal::Session
+
+`Terminal::Session` is the singular owner of one terminal instance.  It holds:
+- `unique_ptr<TTY>` — the platform PTY (null in client mode).
+- `History` — ring buffer of raw PTY bytes.
+- `unique_ptr<Terminal::Processor>` — Parser + Grid + State pipeline.
+- `bool shouldTrackCwdFromOs` — when true, `onFlush` queries the OS for cwd via the PTY's PEB (Windows) or `/proc` (Linux).  Set to `false` when shell integration is active (OSC 7 provides cwd directly).
+
+**Factory — two overloads:**
+
+```cpp
+// PTY-backed session (standalone / daemon mode)
+static unique_ptr<Session> create(cwd, cols, rows, shell, args, seedEnv, uuid);
+
+// No-TTY session (GUI connected to daemon)
+static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
+```
+
+**Public API:**
+
+| Method | Purpose |
+|--------|---------|
+| `process(data, len)` | Feed raw bytes from daemon IPC into the Processor |
+| `sendInput(data, len)` | Write raw bytes to PTY stdin |
+| `resize(cols, rows)` | Signal PTY resize (SIGWINCH) |
+| `getStateInformation(block)` | Serialize Processor state for daemon → GUI sync |
+| `setStateInformation(data, size)` | Restore Processor state from daemon snapshot |
+| `getProcessor()` | Returns the owned `Terminal::Processor` |
+| `snapshotHistory()` | Returns a `MemoryBlock` of buffered PTY output (for `Message::loading`) |
+
+**Callbacks (set by Nexus or Interprocess layer):**
+
+| Callback | Thread | Purpose |
+|----------|--------|---------|
+| `onBytes` | Reader | PTY output chunk — broadcast in daemon mode, process locally in standalone |
+| `onExit` | Message | Shell process exited |
+| `onStateFlush` | Message | cwd + foreground process updated in State — daemon mode broadcasts `stateUpdate` |
+
+### Windows Job Object (Cascade-Kill)
+
+`Daemon::installPlatformProcessCleanup()` creates a Windows Job Object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE` and assigns the daemon process to it.  When the daemon process exits (normally or abnormally), the OS closes the Job Object handle and kills all child processes — including `OpenConsole.exe` grandchildren spawned by ConPTY.  The handle is stored in `Daemon::jobObject` and released in `releasePlatformProcessCleanup()`.
 
 ---
 
 ## Layer Separation Rules
 
 ```
- Component (UI)          pulls from State via ValueTree listeners + VBlank
+ Application (ENDApplication, MainComponent, Tabs, Panes)
+    — wires Nexus + Interprocess; owns all top-level lifetimes
     |
     v
- Logic (Parser→Writer→Grid)  writes atomics on reader thread
+ Interprocess (Daemon, Link, Channel, EncoderDecoder, Message)
+    — IPC transport; includes Nexus forward declaration; does NOT include Terminal headers directly
     |
     v
- Data (State/Cell)       pure types, atomic storage, timer flush
+ Nexus (session container)
+    — includes Terminal::Session; forward-declares Interprocess::Daemon and Interprocess::Link
     |
     v
- Rendering (Screen/GL)   reads from Grid + State, builds GPU snapshots
+ Terminal / Logic (Parser→Writer→Grid)   writes atomics on reader thread
     |
     v
- TTY (platform)          reader thread feeds raw bytes to Parser
+ Terminal / Data (State/Cell)            pure types, atomic storage, timer flush
+    |
+    v
+ Terminal / Rendering (Screen/GL)        reads from Grid + State, builds GPU snapshots
+    |
+    v
+ Terminal / TTY (platform)               reader thread feeds raw bytes to Parser
 ```
+
+**Header inclusion rules:**
+- `terminal/` headers MUST NOT include `Nexus.h` or any `interprocess/` header.
+- `nexus/Nexus.h` forward-declares `Interprocess::Daemon` and `Interprocess::Link`; includes `terminal/logic/Session.h`.
+- `interprocess/` headers forward-declare `Nexus`; include `terminal/logic/Session.h` only from `.cpp` files as needed.
+- `Application` layer (`Main.cpp`, `MainComponent`, `Tabs`, `Panes`) includes all layers.
 
 ### Communication Contracts
 
@@ -280,12 +397,33 @@ Local:   PTY → Terminal::Session::onBytes → Processor::process → Grid → 
 - `GLSnapshotBuffer::read()` — GL thread acquires latest snapshot (retains previous if none new)
 - Lock-free: double-buffered with atomic pointer exchange via `GLMailbox`
 
+**Panes/Tabs -> Nexus (session lifecycle):**
+- `Panes::createTerminal(cwd)` calls `Nexus::getContext()->create(cwd, uuid, cols, rows)` — mode-routing entry point
+- `Tabs::closeSession(uuid)` calls `Nexus::getContext()->remove(uuid)`
+- In client mode, `Nexus::create` additionally calls `Link::sendCreateSession(cwd, uuid, cols, rows)`
+- In daemon mode, `Nexus::create` additionally calls `Daemon::wireSessionCallbacks(uuid, session)` after the PTY session is constructed
+
+**Interprocess::Link -> Nexus (incoming PDU dispatch):**
+- `Link::handleOutput(uuid, bytes)` → `Nexus::get(uuid).process(bytes, len)`
+- `Link::handleLoading(uuid, bytes)` → `Nexus::get(uuid).process(bytes, len)` (initial snapshot)
+- `Link::handleStateUpdate(uuid, cwd, fgProcess)` → `Nexus::get(uuid).getProcessor().getState()` ValueTree write
+- `Link::handleSessionKilled(uuid)` → destroys local no-TTY session via `Nexus::remove(uuid)`
+- `Link::handleSessions(uuids)` → creates no-TTY sessions for any UUIDs not yet present
+
+**Interprocess::Channel -> Daemon/Nexus (incoming PDU dispatch, daemon side):**
+- `createSession` PDU → `Nexus::getContext()->create(cwd, uuid, cols, rows)` + `Daemon::attachSession(uuid, channel, sendHistory, cols, rows)`
+- `input` PDU → `Nexus::get(uuid).sendInput(data, len)`
+- `resizeSession` PDU → `Nexus::get(uuid).resize(cols, rows)`
+- `killSession` PDU → `Nexus::get(uuid).stop()` + `Nexus::remove(uuid)`
+- `detachSession` PDU → `Daemon::detachSession(uuid, channel)`
+
 ### Layer Violations (FORBIDDEN)
 
 - Rendering must NEVER call Parser or Grid mutators
 - TTY must NEVER call UI/Component code
 - Parser must NEVER allocate on reader thread
 - GL thread must NEVER write to Grid or State
+- `terminal/` headers must NEVER include `Nexus.h` or any `interprocess/` header
 
 ---
 
@@ -607,14 +745,18 @@ CSI u format: `CSI keycode ; modifiers u` where modifiers = `1 + shift(1) + alt(
 
 ### Config File Paths
 
-| Platform | Config path | State path (standalone) | State path (nexus) |
-|----------|------------|------------------------|-------------------|
-| macOS/Linux | `~/.config/end/end.lua` | `~/.config/end/end.state` | `~/.config/end/nexus/<uuid>.display` |
-| Windows | `%APPDATA%\end\end.lua` | `%APPDATA%\end\end.state` | `%APPDATA%\end\nexus\<uuid>.display` |
+| Platform | Config path | State path (standalone) | State path (daemon client) | State path (daemon port) |
+|----------|------------|------------------------|--------------------------|--------------------------|
+| macOS/Linux | `~/.config/end/end.lua` | `~/.config/end/end.state` | `~/.config/end/nexus/<uuid>.display` | `~/.config/end/nexus/<uuid>.nexus` |
+| Windows | `%APPDATA%\end\end.lua` | `%APPDATA%\end\end.state` | `%APPDATA%\end\nexus\<uuid>.display` | `%APPDATA%\end\nexus\<uuid>.nexus` |
 
 `Config::getConfigFile()` uses `juce::File::userApplicationDataDirectory` on Windows, `userHomeDirectory/.config/end/` on macOS/Linux. Creates directory and writes defaults if absent.
 
-`end.state` (window size, zoom, tab layout) is derived from the config file's parent directory and used in standalone mode. In nexus mode the client reads and writes `nexus/<uuid>.display` instead.
+`end.state` (window size, zoom, tab layout) is derived from the config file's parent directory and used in standalone mode. In daemon client mode the client reads and writes `nexus/<uuid>.display` instead.
+
+The daemon's TCP port is written to `nexus/<uuid>.nexus` (plain text) by `Daemon::start()` via `AppState::setPort()`.  GUI clients read this file during startup to discover the port before beginning connect attempts.  The NEXUS directory/file subtree is `nexus/`, regardless of the config key rename.
+
+The config key controlling daemon mode is `Config::Key::daemon` (`"daemon"` in end.lua).  The ValueTree property is `App::ID::daemonMode` on the WINDOW subtree.
 
 ---
 

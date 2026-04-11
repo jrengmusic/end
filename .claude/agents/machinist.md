@@ -1,1 +1,1 @@
-/Users/jreng/.carol/agents/machinist.md
+C:/Users/jreng/.carol/agents/machinist.md

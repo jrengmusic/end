@@ -11,7 +11,8 @@
 #include "../AppState.h"
 #include "../terminal/data/Identifier.h"
 #include "../whelmed/Component.h"
-#include "../nexus/Session.h"
+#include "../nexus/Nexus.h"
+#include "../terminal/logic/Session.h"
 #include "../config/Config.h"
 
 namespace Terminal
@@ -128,7 +129,7 @@ std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
 /**
  * @brief Creates a new terminal session as the first (or only) leaf in this pane.
  *
- * Delegates construction to Nexus::Session::getContext()->openTerminal() for mode-transparent session creation.
+ * Delegates construction to `Nexus::getContext()->create()` for mode-transparent session creation.
  * Wires callbacks, registers with PaneManager via addLeaf, and grafts the session
  * ValueTree into the corresponding PANE node.
  *
@@ -147,7 +148,7 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
     jassert (cols > 0 and rows > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    Terminal::Processor& processor { Nexus::Session::getContext()->openTerminal (workingDirectory, effectiveUuid, cols, rows) };
+    Terminal::Processor& processor { Nexus::getContext()->create (workingDirectory, effectiveUuid, cols, rows).getProcessor() };
 
     const juce::String termUuid { processor.getUuid() };
 
@@ -397,9 +398,8 @@ void Panes::closePane (const juce::String& uuid)
         }
     }
 
-    // Session::remove() handles mode routing internally (local, daemon, client).
-    // Display is already erased above so no dangling reference exists when the Processor is destroyed.
-    Nexus::Session::getContext()->remove (uuid);
+    // Nexus::remove() handles session teardown — Display already erased above.
+    Nexus::getContext()->remove (uuid);
 
     resized();
 }
@@ -445,7 +445,7 @@ void Panes::splitAt (const juce::String& targetUuid,
     jassert (cols > 0 and rows > 0);
 
     const juce::String effectiveSplitUuid { newUuid.isNotEmpty() ? newUuid : juce::Uuid().toString() };
-    Terminal::Processor& processor { Nexus::Session::getContext()->openTerminal (cwd, effectiveSplitUuid, cols, rows) };
+    Terminal::Processor& processor { Nexus::getContext()->create (cwd, effectiveSplitUuid, cols, rows).getProcessor() };
 
     const juce::String splitUuid { processor.getUuid() };
 

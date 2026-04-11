@@ -1,11 +1,11 @@
 /**
  * @file Link.h
- * @brief Client-side JUCE IPC connector to a remote Nexus::Session.
+ * @brief Client-side JUCE IPC connector to a remote Nexus daemon.
  *
- * `Nexus::Link` connects to a running daemon via TCP, performs the hello
+ * `Interprocess::Link` connects to a running daemon via TCP, performs the hello
  * handshake, and provides the send API for all client-to-host PDU kinds.
  * Incoming PDUs are delivered to the message thread by JUCE and dispatched
- * to `Nexus::Session` for routing to the appropriate `Terminal::Session`.
+ * to `Nexus` for routing to the appropriate `Terminal::Session`.
  *
  * ### Lifecycle
  * 1. Construct with default constructor.
@@ -31,28 +31,28 @@
  * Derived classes MUST call `disconnect()` in their own destructor.
  *
  * ### Access
- * Link is owned privately by `Nexus::Session` in client mode.  All external
- * callers reach session operations via `Nexus::Session::getContext()`.
+ * Link is owned privately by `Nexus` in client mode.  All external
+ * callers reach session operations via `Nexus::getContext()`.
  *
- * @see Nexus::Session
+ * @see Nexus
  * @see Terminal::Session
  */
 
 #pragma once
 #include <juce_events/juce_events.h>
 #include "Message.h"
-#include "Wire.h"
+#include "EncoderDecoder.h"
 #include <memory>
 
-namespace Nexus
+namespace Interprocess
 {
 /*____________________________________________________________________________*/
 
 /**
- * @class Nexus::Link
- * @brief JUCE IPC client connector to a remote Nexus::Session.
+ * @class Interprocess::Link
+ * @brief JUCE IPC client connector to a remote Nexus daemon.
  *
- * Owned privately by `Nexus::Session` in client mode.  No external caller
+ * Owned privately by `Nexus` in client mode.  No external caller
  * instantiates or holds a pointer to Link directly.
  *
  * @par Thread context
@@ -63,7 +63,7 @@ namespace Nexus
 class Link : public juce::InterprocessConnection
 {
 public:
-    /** @brief Magic header — single source of truth is Nexus::wireMagicHeader in Wire.h. */
+    /** @brief Magic header — single source of truth is Interprocess::wireMagicHeader in EncoderDecoder.h. */
     static constexpr juce::uint32 magicHeader { wireMagicHeader };
 
     /** @brief Timeout for initial connection attempt in milliseconds. */
@@ -109,6 +109,20 @@ public:
      * @note Any thread.
      */
     void sendResize (const juce::String& uuid, int cols, int rows);
+
+    /**
+     * @brief Sends a `Message::createSession` PDU to the daemon.
+     *
+     * Wire format: cwd (length-prefixed) | uuid (length-prefixed) | cols (uint16 LE) | rows (uint16 LE).
+     * Daemon will create the session (or return idempotent existing) and attach this client as subscriber.
+     *
+     * @param cwd   Initial working directory for the session.
+     * @param uuid  UUID to assign to the session.
+     * @param cols  Initial column count.
+     * @param rows  Initial row count.
+     * @note Any thread.
+     */
+    void sendCreateSession (const juce::String& cwd, const juce::String& uuid, int cols, int rows);
 
     /**
      * @brief Requests the host to kill the shell for a session.
@@ -194,4 +208,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Nexus
+}// namespace Interprocess

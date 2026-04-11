@@ -228,7 +228,7 @@ struct State : public juce::Timer
     /**
      * @brief Sets the session UUID identifier on the root ValueTree node.
      *
-     * Called once at construction by `Nexus::Session::create` to stamp each
+     * Called once at construction by `Nexus::create` to stamp each
      * Processor's state with its owning session's UUID.  Consumers (e.g.
      * `Tabs::globalFocusChanged`) read this via `getValueTree().getProperty(jreng::ID::id)`.
      *

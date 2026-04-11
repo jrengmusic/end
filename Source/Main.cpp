@@ -16,7 +16,7 @@
  * AppState ctor       → initDefaults() only (no filesystem access)
  * FontCollection ctor → loads font handles at default size
  * initialise()        → resolves UUID, sets nexus mode, calls appState.load() (reads full state from mode-appropriate file),
- *                       creates Window(new MainComponent()), then Nexus::Session
+ *                       creates Window(new MainComponent()), then Nexus + Daemon/Link
  * @endcode
  *
  * ### Shutdown sequence
@@ -50,8 +50,9 @@
 #include "config/Config.h"
 #include "config/WhelmedConfig.h"
 #include "action/Action.h"
-#include "nexus/Session.h"
-#include "nexus/Daemon.h"
+#include "nexus/Nexus.h"
+#include "interprocess/Daemon.h"
+#include "interprocess/Link.h"
 
 #if JUCE_WINDOWS
 #include <windows.h>
@@ -115,7 +116,8 @@ static void applyForceDwmRegistry (bool enable) noexcept
  *
  * @par Ownership
  * - `config` and `fontCollection` are value members — they are destroyed last.
- * - `mainWindow` is a `unique_ptr` reset in `shutdown()`.
+ * - `nexus`, `daemon`, `link`, and `mainWindow` are `unique_ptr` members reset
+ *   in `shutdown()` in dependency order.
  *
  * @par Thread context
  * All methods are called on the **MESSAGE THREAD** by the JUCE event loop.
@@ -198,12 +200,15 @@ public:
             // Ensure nexus/ directory exists before the server writes its port.
             appState.getNexusFile().getParentDirectory().createDirectory();
 
-            // Hide dock icon, start IPC server, wire exit callback, and return.
+            // Hide dock icon, construct nexus + daemon, attach, start, wire exit callback.
             // No window is created.  The JUCE message loop runs until all sessions exit.
-            Nexus::Daemon::hideDockIcon();
-            nexus = std::make_unique<Nexus::Session> (Nexus::Session::DaemonTag{});
+            Interprocess::Daemon::hideDockIcon();
+            nexus = std::make_unique<Nexus>();
+            daemon = std::make_unique<Interprocess::Daemon> (*nexus);
+            nexus->attach (*daemon);
+            daemon->start();
 
-            nexus->onAllSessionsExited = [this]
+            daemon->onAllSessionsExited = [this]
             {
                 appState.deleteNexusFile();
                 quit();
@@ -211,21 +216,21 @@ public:
         }
         else
         {
-            const bool nexusEnabled { cfg->getBool (Config::Key::nexus) };
+            const bool daemonEnabled { cfg->getBool (Config::Key::daemon) };
 
-            if (not nexusEnabled)
+            if (not daemonEnabled)
             {
                 // ---- Single-process mode (nexus = false) --------------------
                 // No daemon, no IPC.  Load full state from end.state.
                 appState.load();
             }
 
-            if (nexusEnabled)
+            if (daemonEnabled)
             {
                 // ---- Client mode (nexus = true, no --nexus flag) -------------
                 const juce::String resolvedUuid { resolveNexusInstance() };
                 appState.setInstanceUuid (resolvedUuid);
-                appState.setNexusMode (true);
+                appState.setDaemonMode (true);
                 appState.load();
             }
 
@@ -250,19 +255,23 @@ public:
 
             mainWindow->setVisible (true);
 
-            if (not nexusEnabled)
+            nexus = std::make_unique<Nexus>();
+
+            if (not daemonEnabled)
             {
-                // MainComponent listeners are now registered.  Session ctor creates the
-                // SESSIONS ValueTree child, which fires valueTreeChildAdded on the live
-                // ValueTree::Listener (MainComponent), triggering the tab-open walker.
-                nexus = std::make_unique<Nexus::Session>();
+                // Standalone mode — MainComponent listeners are now registered.
+                // Append SESSIONS child to trigger valueTreeChildAdded → initialiseTabs.
+                juce::ValueTree sessionsNode { App::ID::SESSIONS };
+                appState.getNexusNode().appendChild (sessionsNode, nullptr);
             }
             else
             {
-                // Session (ClientTag) constructs Link internally, adds a nexus-connect LOADING op,
-                // and begins connect attempts.  When sessions PDU arrives, SESSIONS is rewritten
-                // and the LOADING op is removed.  MainComponent::valueTreeChildAdded reacts to both.
-                nexus = std::make_unique<Nexus::Session> (Nexus::Session::ClientTag{});
+                // Client mode — construct Link, attach to nexus, begin connect attempts.
+                // When the sessions PDU arrives, SESSIONS is rewritten and the LOADING
+                // op is removed.  MainComponent::valueTreeChildAdded reacts to both.
+                link = std::make_unique<Interprocess::Link>();
+                nexus->attach (*link);
+                link->beginConnectAttempts();
             }
 
             juce::MessageManager::callAsync (
@@ -302,19 +311,20 @@ public:
     /**
      * @brief Destroys the main window and releases all resources.
      *
-     * Resetting `mainWindow` triggers the full component teardown chain:
-     * Window → MainComponent → Terminal::Display → Session / Screen.
+     * Destruction order:
+     * 1. link   — disconnect IPC before sessions die.
+     * 2. daemon — stop server.
+     * 3. mainWindow — tears down component tree (Display → Processor refs).
+     * 4. nexus  — releases all Terminal::Session objects.
      *
      * @note MESSAGE THREAD — called once at shutdown.
      */
     void shutdown() override
     {
-        // Session dtor handles client disconnect and server stop.
-        // Must be destroyed before mainWindow so the IPC teardown
-        // does not race with component destruction.
-        nexus = nullptr;
-
+        link = nullptr;
+        daemon = nullptr;
         mainWindow = nullptr;
+        nexus = nullptr;
 
 #if JUCE_WINDOWS
         timeEndPeriod (1);
@@ -350,7 +360,7 @@ public:
                 appState.setWindowSize (content->getWidth(), content->getHeight());
         }
 
-        if (appState.isNexusMode())
+        if (appState.isDaemonMode())
         {
             const int tabCount { appState.getTabs().getNumChildren() };
 
@@ -393,8 +403,28 @@ private:
     /** @brief Global action registry. Must be constructed after Config. */
     Action::Registry action;
 
-    /** @brief In-process session pool. Non-null in daemon mode and single-process mode. Null in client mode. */
-    std::unique_ptr<Nexus::Session> nexus;
+    /**
+     * @brief Session pool — owns all Terminal::Session objects.
+     *
+     * Non-null in all three modes.  Destroyed after mainWindow (declared before
+     * mainWindow so member destruction — reverse declaration order — runs it last).
+     */
+    std::unique_ptr<Nexus> nexus;
+
+    /**
+     * @brief IPC server.  Non-null in daemon mode (--nexus flag) only.
+     *
+     * Destroyed in shutdown() before mainWindow.
+     */
+    std::unique_ptr<Interprocess::Daemon> daemon;
+
+    /**
+     * @brief IPC client connector.  Non-null in client mode (nexus=true, no --nexus flag) only.
+     *
+     * Destroyed in shutdown() before mainWindow so the link is torn down before
+     * component destruction races with incoming IPC callbacks.
+     */
+    std::unique_ptr<Interprocess::Link> link;
 
     /** @brief Embedded Display Mono typefaces; held alive for DirectWrite on Windows. */
     struct DisplayMono
@@ -525,7 +555,7 @@ juce::String ENDApplication::resolveNexusInstance()
     {
         // No usable daemon found — generate a fresh UUID and spawn a daemon.
         resolvedUuid = juce::Uuid().toString();
-        Nexus::Daemon::spawnDaemon (resolvedUuid);
+        Interprocess::Daemon::spawnDaemon (resolvedUuid);
     }
 
     return resolvedUuid;

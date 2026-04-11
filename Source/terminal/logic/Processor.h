@@ -110,7 +110,7 @@ public:
      * Resizes Grid and Parser only.  Does NOT touch any TTY — SIGWINCH is
      * handled by Terminal::Session.  Called from Display when its component
      * resizes; the caller also routes the resize to the appropriate TTY side
-     * via `Nexus::Session::getContext()->sendResize()`.
+     * via `Terminal::Session::resize()` or `Interprocess::Link::sendResize()`.
      *
      * @param cols  New terminal width in character columns.
      * @param rows  New terminal height in character rows.

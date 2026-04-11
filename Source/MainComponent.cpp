@@ -27,7 +27,7 @@
 */
 
 #include "MainComponent.h"
-#include "nexus/Session.h"
+#include "nexus/Nexus.h"
 #include "terminal/data/Identifier.h"
 
 /**

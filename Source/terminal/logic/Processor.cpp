@@ -24,7 +24,7 @@ namespace Terminal
  * @brief Constructs the Processor: State, Grid, Parser.
  *
  * UUID is provided by the caller — no internal generation.  The
- * `parser->writeToHost` callback is initially null; the owner (Nexus::Session)
+ * `parser->writeToHost` callback is initially null; the owner (`Nexus`)
  * wires it to the appropriate sink before bytes start flowing.
  *
  * @param cols  Initial terminal column count.

@@ -8,9 +8,9 @@
  *     END
  *     +-- WINDOW (width, height, zoom, renderer)
  *
- * nexus/<uuid>.display  — full display state (nexus client mode only):
+ * nexus/<uuid>.display  — full display state (daemon mode only):
  *     END (connected, port)
- *     +-- WINDOW (width, height, zoom, renderer, nexusMode)
+ *     +-- WINDOW (width, height, zoom, renderer, daemonMode)
  *     +-- NEXUS (SESSIONS [SESSION{id}*], LOADING [OPERATION{id}*])
  *     +-- TABS (active, position, activePaneID)
  *         +-- TAB
@@ -76,7 +76,7 @@ namespace ID
     static const juce::Identifier selectionType  { "selectionType" };
     static const juce::Identifier renderer           { "renderer" };
     static const juce::Identifier gpuAvailable       { "gpuAvailable" };
-    static const juce::Identifier nexusMode          { "nexusMode" };
+    static const juce::Identifier daemonMode          { "daemonMode" };
     static const juce::Identifier filePath           { "filePath" };
     static const juce::Identifier displayName        { "displayName" };
     static const juce::Identifier scrollOffset       { "scrollOffset" };

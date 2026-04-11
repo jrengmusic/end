@@ -113,14 +113,14 @@ struct AppState : jreng::Context<AppState>
     juce::String getInstanceUuid() const noexcept;
 
     /**
-     * @brief Stores whether this instance is running as a Nexus client.
+     * @brief Stores whether this instance is running as a daemon client.
      *
      * Call once in initialise() before creating the main window.
      */
-    void setNexusMode (bool isNexus);
+    void setDaemonMode (bool isDaemon);
 
-    /** @brief Returns true when this instance is running as a Nexus client. */
-    bool isNexusMode() const noexcept;
+    /** @brief Returns true when this instance is running as a daemon client. */
+    bool isDaemonMode() const noexcept;
 
     int getActiveTabIndex() const noexcept;
     void setActiveTabIndex (int index);

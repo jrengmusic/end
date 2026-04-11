@@ -1,6 +1,6 @@
 /**
  * @file Message.h
- * @brief Nexus protocol message types.
+ * @brief Interprocess protocol message types.
  *
  * Defines the message kind enumeration used by Channel and Link to
  * identify messages exchanged over JUCE's InterprocessConnection (TCP).
@@ -26,13 +26,13 @@
 
 #include <juce_core/juce_core.h>
 
-namespace Nexus
+namespace Interprocess
 {
 /*____________________________________________________________________________*/
 
 /**
  * @enum Message
- * @brief Identifies the type of a Nexus protocol message.
+ * @brief Identifies the type of an Interprocess protocol message.
  *
  * Each enumerator maps to a fixed uint16_t wire value.  The kind occupies the
  * first 2 bytes of every JUCE IPC message payload (after JUCE's 8-byte header).
@@ -67,4 +67,4 @@ enum class Message : uint16_t
 
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Nexus
+}// namespace Interprocess

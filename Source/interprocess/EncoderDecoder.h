@@ -1,9 +1,9 @@
 /**
- * @file Wire.h
- * @brief Nexus binary wire-format encode/decode helpers.
+ * @file EncoderDecoder.h
+ * @brief Interprocess binary wire-format encode/decode helpers.
  *
  * Single source of truth for all little-endian fixed-width integer and
- * length-prefixed string serialisation used by the Nexus IPC protocol.
+ * length-prefixed string serialisation used by the Interprocess IPC protocol.
  *
  * Previously these helpers were duplicated as file-local statics in:
  *   - Link.cpp
@@ -13,7 +13,7 @@
  * All functions operate on `juce::MemoryBlock` (writers) or raw `uint8_t*`
  * pointers (readers).  No allocation beyond MemoryBlock::append.
  *
- * @see Nexus::Message
+ * @see Interprocess::Message
  */
 
 #pragma once
@@ -23,7 +23,7 @@
 
 #include <cstdint>
 
-namespace Nexus
+namespace Interprocess
 {
 /*____________________________________________________________________________*/
 
@@ -97,4 +97,4 @@ int32_t readInt32 (const uint8_t* data) noexcept;
 int readString (const uint8_t* data, int available, juce::String& out) noexcept;
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Nexus
+}// namespace Interprocess

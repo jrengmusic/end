@@ -55,6 +55,10 @@ namespace Terminal
  */
 void Session::applyShellIntegration (const juce::String& shell, juce::String& args, juce::StringPairArray& seedEnv)
 {
+    // Prevent MSYS2 /etc/post-install/05-home-dir.post from cd-ing to $HOME in
+    // login shells when SHLVL<=1.  Harmless on macOS/Linux where it is unused.
+    seedEnv.set ("CHERE_INVOKING", "1");
+
     if (Config::getContext()->getBool (Config::Key::shellIntegration))
     {
         const juce::File configDir {
@@ -176,16 +180,20 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
     juce::StringPairArray mergedEnv { seedEnv };
     applyShellIntegration (effectiveShell, effectiveArgs, mergedEnv);
 
-    return std::make_unique<Session> (cols, rows, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid);
+    const bool integrationEnabled { Config::getContext()->getBool (Config::Key::shellIntegration) };
+
+    auto session { std::make_unique<Session> (cols, rows, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid) };
+    session->shouldTrackCwdFromOs = not integrationEnabled;
+    return session;
 }
 
 /**
  * @brief Constructs the Session, creates the TTY, opens the shell, and wires the Processor.
  *
  * History capacity comes from `Config::Key::terminalScrollbackLines`.
- * The `onBytes` and `onExit` callbacks may be overridden by the owner (Nexus::Session)
- * after construction for daemon-mode byte broadcasting.  The Processor pipeline
- * callbacks (onDrainComplete, state.onFlush, setHostWriter) are wired internally.
+ * The `onBytes` and `onExit` callbacks may be overridden by the owner (`Nexus` /
+ * `Interprocess::Daemon`) after construction for daemon-mode byte broadcasting.  The Processor pipeline
+ * callbacks (tty->onDrainComplete, state.onFlush, setHostWriter) are wired internally.
  *
  * @note MESSAGE THREAD.
  */
@@ -269,9 +277,6 @@ Session::Session (int cols,
 
         if (procRawPtr->getState().consumeSyncResize())
             platformResize (procRawPtr->getGrid().getCols(), procRawPtr->getGrid().getVisibleRows());
-
-        if (onDrainComplete != nullptr)
-            onDrainComplete();
     };
 
     // 4. State flush: query cwd + foreground process from PTY, then fire external onStateFlush.
@@ -287,11 +292,14 @@ Session::Session (int cols,
             if (fgNameLen > 0)
                 procRawPtr->getState().setForegroundProcess (fgNameBuf, fgNameLen);
 
-            char cwdBuf[Terminal::State::maxStringLength] {};
-            const int cwdLen { getCwd (fgPid, cwdBuf, Terminal::State::maxStringLength) };
+            if (shouldTrackCwdFromOs)
+            {
+                char cwdBuf[Terminal::State::maxStringLength] {};
+                const int cwdLen { getCwd (fgPid, cwdBuf, Terminal::State::maxStringLength) };
 
-            if (cwdLen > 0)
-                procRawPtr->getState().setCwd (cwdBuf, cwdLen);
+                if (cwdLen > 0)
+                    procRawPtr->getState().setCwd (cwdBuf, cwdLen);
+            }
         }
 
         if (onStateFlush != nullptr)
@@ -436,6 +444,66 @@ juce::String Session::getEnvVar (int pid, const juce::String& name) const
 juce::MemoryBlock Session::snapshotHistory() const { return history.snapshot(); }
 
 /**
+ * @brief Factory overload — creates a Processor-only Session with no TTY.
+ *
+ * @see Session::create (int, int, const juce::String&, const juce::String&, const juce::String&)
+ *      in Session.h for full documentation.
+ * @note MESSAGE THREAD.
+ */
+std::unique_ptr<Session> Session::create (int cols, int rows,
+                                           const juce::String& cwd,
+                                           const juce::String& shell,
+                                           const juce::String& uuid)
+{
+    jassert (cols > 0);
+    jassert (rows > 0);
+
+    const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
+
+    return std::make_unique<Session> (cols, rows, cwd, shell, effectiveUuid);
+}
+
+/**
+ * @brief Feeds raw bytes into the Processor pipeline and flushes parser responses.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Session::process (const char* data, int len)
+{
+    jassert (processor != nullptr);
+    jassert (data != nullptr);
+    jassert (len > 0);
+
+    processor->process (data, len);
+    processor->getParser().flushResponses();
+}
+
+/**
+ * @brief Serializes Processor state into @p block for daemon → GUI sync.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Session::getStateInformation (juce::MemoryBlock& block) const
+{
+    jassert (processor != nullptr);
+    processor->getStateInformation (block);
+}
+
+/**
+ * @brief Restores Processor state from a snapshot received from the daemon.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Session::setStateInformation (const void* data, int size)
+{
+    jassert (processor != nullptr);
+    jassert (data != nullptr);
+    jassert (size > 0);
+
+    processor->setStateInformation (data, size);
+}
+
+/**
  * @brief Returns the owned Processor.
  *
  * @note MESSAGE THREAD.
@@ -464,7 +532,6 @@ void Session::stop()
         // stops the timer (via State::~State → stopTimer) while tty is still
         // valid, preventing a use-after-free if a final tick fires mid-shutdown.
         processor.reset();
-
         tty->close();
         tty = nullptr;
     }

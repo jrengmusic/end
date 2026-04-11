@@ -22,3 +22,6 @@ _build_log.bat
 _build_output.txt
 _preprocess.bat
 nul
+
+# Diagnostic logs
+*.log

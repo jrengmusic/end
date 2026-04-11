@@ -11,7 +11,7 @@
 #include "../AppState.h"
 #include "../terminal/data/Identifier.h"
 #include "../whelmed/Component.h"
-#include "../nexus/Session.h"
+#include "../nexus/Nexus.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -108,7 +108,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
         {
             juce::JUCEApplication::getInstance()->systemRequestedQuit();
         }
-        else if (AppState::getContext()->isNexusMode())
+        else if (AppState::getContext()->isDaemonMode())
         {
             AppState::getContext()->save();
         }
@@ -134,7 +134,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
 
     updateTabBarVisibility();
 
-    if (AppState::getContext()->isNexusMode())
+    if (AppState::getContext()->isDaemonMode())
         AppState::getContext()->save();
 }
 
@@ -217,7 +217,7 @@ void Tabs::closeActiveTab()
         {
             activePanes->closeWhelmed();
 
-            if (AppState::getContext()->isNexusMode())
+            if (AppState::getContext()->isDaemonMode())
                 AppState::getContext()->save();
         }
         else if (activePanes->getPanes().size() > 1)
@@ -247,7 +247,7 @@ void Tabs::closeActiveTab()
                     nearest->grabKeyboardFocus();
             }
 
-            if (AppState::getContext()->isNexusMode())
+            if (AppState::getContext()->isDaemonMode())
                 AppState::getContext()->save();
         }
         else
@@ -269,7 +269,7 @@ void Tabs::closeActiveTab()
 
             // Displays are now destroyed (Panes erased). Session::remove handles mode routing internally.
             for (const auto& uuid : terminalUuids)
-                Nexus::Session::getContext()->remove (uuid);
+                Nexus::getContext()->remove (uuid);
 
             removeTab (index);
             AppState::getContext()->removeTab (index);
@@ -318,7 +318,7 @@ void Tabs::closeSession (const juce::String& uuid)
         {
             ownerPanes->closePane (uuid);
 
-            if (AppState::getContext()->isNexusMode())
+            if (AppState::getContext()->isDaemonMode())
                 AppState::getContext()->save();
         }
         else
@@ -335,7 +335,7 @@ void Tabs::closeSession (const juce::String& uuid)
             panes.erase (panes.begin() + ownerIndex);
 
             for (const auto& termUuid : terminalUuids)
-                Nexus::Session::getContext()->remove (termUuid);
+                Nexus::getContext()->remove (termUuid);
 
             removeTab (ownerIndex);
             AppState::getContext()->removeTab (ownerIndex);
@@ -348,7 +348,7 @@ void Tabs::closeSession (const juce::String& uuid)
 
             updateTabBarVisibility();
 
-            if (not panes.isEmpty() and AppState::getContext()->isNexusMode())
+            if (not panes.isEmpty() and AppState::getContext()->isDaemonMode())
                 AppState::getContext()->save();
         }
     }
@@ -527,7 +527,7 @@ void Tabs::splitHorizontal()
         active->splitHorizontal();
         focusLastTerminal (active);
 
-        if (AppState::getContext()->isNexusMode())
+        if (AppState::getContext()->isDaemonMode())
             AppState::getContext()->save();
     }
 }
@@ -539,7 +539,7 @@ void Tabs::splitVertical()
         active->splitVertical();
         focusLastTerminal (active);
 
-        if (AppState::getContext()->isNexusMode())
+        if (AppState::getContext()->isDaemonMode())
             AppState::getContext()->save();
     }
 }

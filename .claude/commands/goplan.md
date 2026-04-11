@@ -1,1 +1,1 @@
-/Users/jreng/.carol/commands/goplan.md
+C:/Users/jreng/.carol/commands/goplan.md

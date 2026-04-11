@@ -1,5 +1,106 @@
 # SPRINT-LOG
 
+## Sprint 9: Nexus Architectural Refactor + CWD Propagation Fix + Audit Cleanup
+
+**Date:** 2026-04-11
+
+### Agents Participated
+- COUNSELOR: session lead, planning, 6-wave audit-driven fix sprint, delegation
+- Pathfinder: codebase surveys (Nexus call sites, file layout, caller migration scope)
+- Engineer: all code implementation (Waves 1–6 fix sprint, ~15 delegations)
+- Auditor: comprehensive post-refactor audit (2 critical, 12 high, 5 medium, 4 low)
+- MACHINIST: stale file deletion + .gitignore update (Wave 5)
+
+### Files Modified (50+ total)
+
+**Config:**
+- `Source/config/Config.h` — `Key::nexus` → `Key::daemon`
+- `Source/config/Config.cpp:146` — `addKey(Key::daemon, ...)`
+- `Source/config/default_end.lua:59` — `daemon = "%%daemon%%"`
+
+**Nexus (new class, replaces Nexus::Session):**
+- `Source/nexus/Nexus.h` — NEW — session manager class (`jreng::Context<Nexus>`), `unordered_map<uuid, Terminal::Session>`, attach(Daemon&)/attach(Link&), three create overloads (with TTY / no TTY / routing)
+- `Source/nexus/Nexus.cpp` — NEW — implementation. Client branch uses `Link::sendCreateSession` + factory (SSOT + Encapsulation fix)
+- `Source/nexus/Session.h/cpp` — DELETED
+- `Source/nexus/SessionFanout.cpp` — DELETED
+
+**Interprocess (new namespace, IPC layer):**
+- `Source/interprocess/Daemon.h/cpp` — moved from nexus/, namespace `Interprocess`, absorbs broadcast/subscriber registry from SessionFanout, `wireSessionCallbacks` split into `wireOnBytes`/`wireOnStateFlush`/`wireOnExit` helpers, `installPlatformProcessCleanup`/`releasePlatformProcessCleanup`
+- `Source/interprocess/Daemon.mm` — moved, namespace `Interprocess`, added POSIX no-op platform cleanup
+- `Source/interprocess/DaemonWindows.cpp` — NEW — extracted Windows platform helpers (hideDockIcon, spawnDaemon, Job Object setup) to parallel `Daemon.mm` (H9 resolution, Daemon.cpp back under 300 code lines)
+- `Source/interprocess/Link.h/cpp` — moved from nexus/, namespace `Interprocess`, added typed `sendCreateSession(cwd, uuid, cols, rows)` method
+- `Source/interprocess/Channel.h/cpp` — moved from nexus/, namespace `Interprocess`, constructor takes `Nexus&` (not `Nexus::Session&`)
+- `Source/interprocess/EncoderDecoder.h/cpp` — moved and renamed from `Wire.h/cpp`
+- `Source/interprocess/Message.h` — moved from nexus/
+
+**Terminal layer:**
+- `Source/terminal/logic/Session.h` — added `process`, `getStateInformation`, `setStateInformation` public API; `shouldTrackCwdFromOs` private member; deleted dead `onDrainComplete` public callback
+- `Source/terminal/logic/Session.cpp` — two `create` factory overloads (with TTY / no TTY), `applyShellIntegration` sets `CHERE_INVOKING=1` unconditionally; onFlush gates getCwd on `shouldTrackCwdFromOs`
+- `Source/terminal/tty/WindowsTTY.h` — added `getCwd` override declaration
+- `Source/terminal/tty/WindowsTTY.cpp` — implemented `getCwd` via PEB query (NtQueryInformationProcess + ReadProcessMemory), split into 4 file-local static helpers (queryPebAddress, readProcessParametersAddress, readCurrentDirectoryUnicodeString, readAndConvertWidePath); Job Object setup moved out to DaemonWindows.cpp
+
+**Application:**
+- `Source/Main.cpp` — rewired ENDApplication: `unique_ptr<Nexus>`, `unique_ptr<Interprocess::Daemon>`, `unique_ptr<Interprocess::Link>`; daemon branch constructs+attaches; client branch constructs Link+attaches; standalone appends SESSIONS ValueTree; `shutdown()` orders teardown (link → daemon → mainWindow → nexus)
+- `Source/AppState.h/cpp` — `isDaemonMode`/`setDaemonMode` (renamed from Nexus variant)
+- `Source/AppIdentifier.h:79` — `App::ID::nexusMode` → `App::ID::daemonMode` (C++ identifier + XML string key)
+- `Source/MainComponent.h/cpp` — include path update (`nexus/Nexus.h`)
+- `Source/MainComponentActions.cpp` — `isDaemonMode` rename call sites
+- `Source/component/Tabs.cpp` — `Nexus::getContext()->remove(uuid)` (2 sites), `isDaemonMode` renames (6 sites)
+- `Source/component/Panes.cpp` — `Nexus::getContext()->create(...)` + `.getProcessor()` (2 sites)
+
+**Diagnostics (temporary, removed before sprint close):**
+- `Source/TeardownLog.h` — ADDED then DELETED (diagnostic logger for CWD trace + shutdown hang investigation)
+- Temporary `TEARDOWN_LOG` calls in 7 files — added then removed
+
+**Docs:**
+- `ARCHITECTURE.md` — full rewrite: new module map with `interprocess/` tree, new Nexus+Interprocess section, layer separation diagram, communication contracts table, PDU kind table, data flow for all three configurations, Windows Job Object subsection
+- `.gitignore` — added `# Diagnostic logs` section with `*.log` pattern
+- `PLAN-nexus-refactor.md` — DELETED (all 7 steps executed)
+- `teardown.log` — DELETED (30MB leftover)
+
+### Alignment Check
+- [x] BLESSED principles followed — Bound (clear ownership chain ENDApplication→Nexus→Terminal::Session), Lean (Nexus=pure container, Interprocess=IPC only, all files under 300 code lines, all functions under 30), Explicit (no mode flags, attach IS the mode; no early returns; no magic values), SSOT (one session map, one create factory with typed overloads, one Link::sendCreateSession method), Stateless (Nexus has attachment pointers but is dumb about IPC internals), Encapsulation (Terminal layer does not include Nexus or Interprocess headers; Nexus does not include Interprocess implementations), Deterministic (same create call produces same Session regardless of mode)
+- [x] NAMES.md adhered — all new names ARCHITECT-approved: `Nexus`, `Interprocess::{Daemon,Link,Channel,EncoderDecoder,Message}`, `Terminal::Session::process/getStateInformation/setStateInformation`, `shouldTrackCwdFromOs`, `Link::sendCreateSession`, `Daemon::wireOnBytes/wireOnStateFlush/wireOnExit`, `Daemon::installPlatformProcessCleanup/releasePlatformProcessCleanup`, `App::ID::daemonMode`
+- [x] MANIFESTO.md principles applied — zero stale `Nexus::Session` references, zero early returns, positive nesting, alternative tokens, brace init, `const` everywhere, `jassert` preconditions, no anonymous namespaces (static file-local where needed), no `namespace detail`
+
+### Problems Solved
+
+**Architectural rot:**
+- `Nexus::Session` was a three-mode dispatcher (standalone/daemon/client) with null-check mode routing (`link != nullptr`, `daemon != nullptr`). Replaced with `Nexus` class owning sessions + `Interprocess::` transport layer; mode determined by `attach(Daemon&)` vs `attach(Link&)` vs nothing. Mode IS the attached object.
+- `Terminal::Session` had two personalities (full with TTY, "remote" without TTY). Unified under single class with two `create` factory overloads.
+- Nexus::Session was reaching into Terminal::Session::Processor internals for state sync. Session now exposes `process`, `getStateInformation`, `setStateInformation` — callers talk to Session, not Processor.
+
+**CWD propagation (Explorer launch case):**
+- Root cause: MSYS2 `/etc/post-install/05-home-dir.post` sources via `/etc/profile` when shell launched with `-l`; if `CHERE_INVOKING` unset AND `SHLVL<=1`, it executes `cd "$HOME"` BEFORE first prompt. END spawned shells at the intended cwd via `CreateProcessW lpCurrentDirectory`, but MSYS2 overrode it 60ms later during shell init. Vim-launched END inherited SHLVL≥2 from nested context, so the cd was skipped there — which is why "from vim works."
+- Fix: `seedEnv.set("CHERE_INVOKING", "1")` unconditionally in `Terminal::Session::applyShellIntegration`. Cross-platform safe (harmless on macOS/Linux).
+- Verified via diagnostic TEARDOWN_LOG sweep across the chain: Parser OSC 7 → State.setCwd → flushStrings → ValueTree → onStateFlush → stateUpdate PDU → Link handler → client ValueTree → pwdValue → getPwd → split. Chain was intact; the shell was just cd-ing away from the intended dir.
+
+**OpenConsole.exe surviving daemon death:**
+- Root cause: OpenConsole.exe is spawned internally by `conpty.dll::CreatePseudoConsole` — it's a grandchild of the daemon. If the daemon process is killed externally (taskkill, crash), destructors never run, `ClosePseudoConsole` never fires, OpenConsole.exe orphans.
+- Fix: Windows Job Object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE` assigned to the daemon process in `installPlatformProcessCleanup()`. All children (including OpenConsole.exe grandchildren) killed by kernel when job handle closes — even on crash.
+
+**BLESSED audit findings (15 total, all resolved):**
+- C1 — Nexus.cpp client branch used raw `make_unique<Terminal::Session>` constructor instead of `Terminal::Session::create` factory (SSOT). Fixed by routing through factory.
+- C2 — Nexus hand-rolling `createSession` PDU payload (Encapsulation). Added typed `Interprocess::Link::sendCreateSession` method.
+- H1 — dead `Nexus::create(cols, rows, uuid)` overload. Resolved by C1/C2 fix which now uses it with extended signature.
+- H2 — dead `Terminal::Session::onDrainComplete` public member. Removed.
+- H3 — stale `Nexus::Session` doxygen references across 13+ files. Swept.
+- H4 — ARCHITECTURE.md Nexus section described deleted class. Fully rewritten.
+- H5 — stale `PLAN-nexus-refactor.md` at repo root. Deleted.
+- H6 — `teardown.log` 30MB leftover. Deleted; `*.log` added to `.gitignore`.
+- H7 — `Nexus::create(cwd, uuid, cols, rows)` > 30 lines. Shrunk to 23 via C1/C2 fix.
+- H8 — `Daemon::wireSessionCallbacks` 78 lines. Split into 3 helpers.
+- H9 — `Daemon.cpp` 340 code lines (>300). Extracted Windows platform code to `DaemonWindows.cpp` → 212 lines.
+- H10 — `WindowsTTY::getCwd` 158 lines, 10-level nesting. Split into 4 file-local helpers, flat body.
+- H11 — `App::ID::nexusMode` → `App::ID::daemonMode` (identifier + XML string key).
+- H12 — 3 defensive `Nexus::getContext() != nullptr` guards in `Link.cpp` without named threat. Replaced with `jassert`.
+
+### Debts Paid
+- None (no formal DEBT.md entries existed at sprint start)
+
+### Debts Deferred
+- None explicitly pushed to DEBT.md this sprint. One pre-existing observation flagged during audit: `Source/config/Config.cpp:705,713,743` contain three early returns in the Lua loader root-iteration lambda (pre-Sprint 9 debt). Not fixed this sprint — out of scope.
+
 ## Sprint 8: BLESSED Cleanup — CWD SSOT, Config, Nexus Rename, Instance Isolation
 
 **Date:** 2026-04-10

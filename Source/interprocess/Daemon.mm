@@ -26,7 +26,7 @@
 
 extern char** environ;
 
-namespace Nexus
+namespace Interprocess
 {
 /*____________________________________________________________________________*/
 
@@ -64,7 +64,11 @@ bool Daemon::spawnDaemon (const juce::String& uuid) noexcept
     return result == 0;
 }
 
+void Daemon::installPlatformProcessCleanup() noexcept { }
+
+void Daemon::releasePlatformProcessCleanup() noexcept { }
+
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Nexus
+}// namespace Interprocess
 
 #endif // JUCE_MAC || JUCE_LINUX

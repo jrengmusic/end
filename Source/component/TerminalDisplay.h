@@ -8,7 +8,7 @@
  * - **Display** (Editor) — ephemeral UI; created on demand, destroyed on pane close.
  *
  * Display holds a `sessionId` string and reaches its Session via
- * `Nexus::Session::getContext()->get(sessionId)`.  It never owns the Session.
+ * `Nexus::getContext()->get(sessionId)`.  It never owns the Session.
  *
  * ### Render loop
  * A `juce::VBlankAttachment` calls `onVBlank()` every display refresh.
@@ -33,7 +33,7 @@
  *
  * @see Terminal::Screen
  * @see Terminal::Processor
- * @see Nexus::Session
+ * @see Nexus
  * @see MessageOverlay
  * @see Config
  */
@@ -80,7 +80,7 @@ namespace Terminal
  *
  * @see Terminal::Screen
  * @see Terminal::Processor
- * @see Nexus::Session
+ * @see Nexus
  */
 class Display
     : public PaneComponent

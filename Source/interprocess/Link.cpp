@@ -1,21 +1,22 @@
 /**
  * @file Link.cpp
- * @brief Implementation of Nexus::Link — JUCE IPC connector to a remote Host.
+ * @brief Implementation of Interprocess::Link — JUCE IPC connector to a remote Host.
  *
- * @see Nexus::Link
- * @see Nexus::Session
- * @see Nexus::Channel
+ * @see Interprocess::Link
+ * @see Nexus
+ * @see Interprocess::Channel
  */
 
 #include "Link.h"
-#include "Session.h"
-#include "Wire.h"
+#include "../nexus/Nexus.h"
+#include "EncoderDecoder.h"
 #include "../AppState.h"
 #include "../AppIdentifier.h"
 #include "../terminal/data/Identifier.h"
 #include "../terminal/logic/Processor.h"
+#include "../terminal/logic/Session.h"
 
-namespace Nexus
+namespace Interprocess
 {
 /*____________________________________________________________________________*/
 
@@ -205,6 +206,23 @@ void Link::sendResize (const juce::String& uuid, int cols, int rows)
 }
 
 /**
+ * @brief Sends a `Message::createSession` PDU to the daemon.
+ *
+ * Payload: cwd (length-prefixed) | uuid (length-prefixed) | cols (uint16_t LE) | rows (uint16_t LE).
+ *
+ * @note Any thread.
+ */
+void Link::sendCreateSession (const juce::String& cwd, const juce::String& uuid, int cols, int rows)
+{
+    juce::MemoryBlock payload;
+    writeString (payload, cwd);
+    writeString (payload, uuid);
+    writeUint16 (payload, static_cast<uint16_t> (cols));
+    writeUint16 (payload, static_cast<uint16_t> (rows));
+    sendPdu (Message::createSession, payload);
+}
+
+/**
  * @brief Requests the host to kill the shell for a session.
  *
  * Payload: uuid (length-prefixed string).
@@ -364,7 +382,13 @@ void Link::handleOutput (const uint8_t* payload, int payloadSize)
         const int byteCount { payloadSize - uuidConsumed };
 
         if (byteCount > 0)
-            Nexus::Session::getContext()->feedBytes (uuid, bytes, byteCount);
+        {
+            Nexus* ctx { Nexus::getContext() };
+            jassert (ctx != nullptr);
+
+            if (ctx->has (uuid))
+                ctx->get (uuid).process (static_cast<const char*> (bytes), byteCount);
+        }
     }
 }
 
@@ -372,7 +396,7 @@ void Link::handleOutput (const uint8_t* payload, int payloadSize)
  * @brief Handles `Message::loading` — receives Grid+State snapshot for restore.
  *
  * Payload: uuid (length-prefixed) + snapshot bytes.
- * Passes the snapshot to `Session::startLoading`, which calls `setStateInformation` directly.
+ * Passes the snapshot to `Terminal::Session::setStateInformation` directly.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -390,7 +414,11 @@ void Link::handleLoading (const uint8_t* payload, int payloadSize)
             juce::MemoryBlock backlog;
             backlog.append (payload + uuidConsumed, static_cast<size_t> (byteCount));
 
-            Nexus::Session::getContext()->startLoading (uuid, std::move (backlog));
+            Nexus* ctx { Nexus::getContext() };
+            jassert (ctx != nullptr);
+
+            if (ctx->has (uuid))
+                ctx->get (uuid).setStateInformation (backlog.getData(), static_cast<int> (backlog.getSize()));
         }
     }
 }
@@ -400,7 +428,7 @@ void Link::handleLoading (const uint8_t* payload, int payloadSize)
  *
  * Payload: uuid (length-prefixed) + cwd (length-prefixed) + fgProcess (length-prefixed).
  * Mirrors the standalone flush→setCwd / setForegroundProcess path, but driven by daemon push.
- * Routes via Nexus::Session::get() — Terminal::Session (remote) is owned by terminalSessions.
+ * Routes via Nexus::get() — Terminal::Session (remote) is owned by the Nexus sessions map.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -420,11 +448,12 @@ void Link::handleStateUpdate (const uint8_t* payload, int payloadSize)
 
         if (cwdConsumed > 0)
         {
-            auto* nexus { Nexus::Session::getContext() };
+            Nexus* ctx { Nexus::getContext() };
+            jassert (ctx != nullptr);
 
-            if (nexus != nullptr and nexus->hasSession (uuid))
+            if (ctx->has (uuid))
             {
-                auto& proc { nexus->get (uuid) };
+                auto& proc { ctx->get (uuid).getProcessor() };
 
                 if (cwd.isNotEmpty())
                     proc.getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
@@ -437,4 +466,4 @@ void Link::handleStateUpdate (const uint8_t* payload, int payloadSize)
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Nexus
+}// namespace Interprocess

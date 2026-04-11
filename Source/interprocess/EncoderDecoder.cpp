@@ -1,15 +1,15 @@
 /**
- * @file Wire.cpp
- * @brief Nexus binary wire-format encode/decode helpers — implementation.
+ * @file EncoderDecoder.cpp
+ * @brief Interprocess binary wire-format encode/decode helpers — implementation.
  *
- * @see Wire.h
+ * @see EncoderDecoder.h
  */
 
-#include "Wire.h"
+#include "EncoderDecoder.h"
 
 #include <cstring>
 
-namespace Nexus
+namespace Interprocess
 {
 /*____________________________________________________________________________*/
 
@@ -111,4 +111,4 @@ juce::MemoryBlock encodePdu (Message kind, const juce::MemoryBlock& payload) noe
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Nexus
+}// namespace Interprocess

@@ -305,8 +305,8 @@ struct Config : jreng::Context<Config>
         /** @brief GPU acceleration mode: "auto", "true", or "false". */
         inline static const juce::String gpuAcceleration { "gpu" };
 
-        /** @brief Whether the Nexus background daemon is enabled. When true, sessions survive window close. */
-        inline static const juce::String nexus { "nexus" };
+        /** @brief Whether the background daemon is enabled. When true, sessions survive window close. */
+        inline static const juce::String daemon { "daemon" };
 
         /** @brief Font family for the tab bar labels. */
         inline static const juce::String tabFamily { "tab.family" };

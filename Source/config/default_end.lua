@@ -56,7 +56,7 @@ END = {
 	-- When "false", sessions die with the window (no daemon).
 	--
 
-	nexus = "%%nexus%%",
+	daemon = "%%daemon%%",
 
 	-- ========================================================================
 	-- FONT

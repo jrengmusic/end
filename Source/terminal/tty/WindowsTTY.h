@@ -261,6 +261,26 @@ public:
      */
     int getProcessName (int pid, char* buffer, int maxLength) const noexcept override;
 
+    /**
+     * @brief Reads the current working directory of the given process via its PEB.
+     *
+     * Opens the target process, walks its Process Environment Block (PEB) via
+     * NtQueryInformationProcess and ReadProcessMemory, extracts the
+     * RTL_USER_PROCESS_PARAMETERS::CurrentDirectory.DosPath UNICODE_STRING,
+     * converts it to UTF-8, replaces backslashes with forward slashes, and
+     * writes the result into @p buffer.
+     *
+     * NtQueryInformationProcess is resolved once per process from ntdll.dll via
+     * GetProcAddress.
+     *
+     * @param pid        The process ID to query.
+     * @param buffer     Destination buffer for the null-terminated UTF-8 path.
+     * @param maxLength  Size of the destination buffer in bytes.
+     * @return           Number of bytes written (excluding null terminator), or 0 on failure.
+     * @note Any thread.
+     */
+    int getCwd (int pid, char* buffer, int maxLength) const noexcept override;
+
     /** @} */
 
 private:

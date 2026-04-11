@@ -1,18 +1,19 @@
 /**
  * @file Channel.cpp
- * @brief Implementation of Nexus::Channel — server-side JUCE IPC connection.
+ * @brief Implementation of Interprocess::Channel — server-side JUCE IPC connection.
  *
- * @see Nexus::Channel
- * @see Nexus::Session
+ * @see Interprocess::Channel
+ * @see Nexus
  */
 
 #include "Channel.h"
 #include "Daemon.h"
-#include "Session.h"
-#include "Wire.h"
+#include "../nexus/Nexus.h"
+#include "EncoderDecoder.h"
 #include "../terminal/logic/Processor.h"
+#include "../terminal/logic/Session.h"
 
-namespace Nexus
+namespace Interprocess
 {
 /*____________________________________________________________________________*/
 
@@ -21,13 +22,14 @@ namespace Nexus
 /**
  * @brief Constructs the Channel with message-thread callbacks and custom magic.
  *
- * @param daemon_   Owning Daemon — used in connectionLost() to release this object.
- * @param session_  Session pool — used in connectionMade/Lost and messageReceived.
+ * @param daemon_  Owning Daemon — used in connectionLost() to release this object
+ *                 and for all subscriber/broadcast registry operations.
+ * @param nexus_   Session pool — used in messageReceived for session lookup and creation.
  */
-Channel::Channel (Daemon& daemon_, Session& session_)
+Channel::Channel (Daemon& daemon_, Nexus& nexus_)
     : juce::InterprocessConnection (true, magicHeader)
     , daemon (daemon_)
-    , session (session_)
+    , nexus (nexus_)
 {
 }
 
@@ -44,29 +46,29 @@ Channel::~Channel()
 /**
  * @brief Called on the message thread when a client connects.
  *
- * Adds this connection to the Session broadcast list, then immediately pushes
- * a `sessions` PDU containing the UUIDs of all currently-live Processors.
+ * Adds this connection to the Daemon broadcast list, then immediately pushes
+ * a `sessions` PDU containing the UUIDs of all currently-live sessions.
  * The client does not need to request the list — it arrives unsolicited.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 void Channel::connectionMade()
 {
-    session.attach (*this);
-    session.broadcastSessions (*this);
+    daemon.attach (*this);
+    daemon.broadcastSessions (*this);
 }
 
 /**
  * @brief Called on the message thread when the connection is lost.
  *
- * Removes this connection from the Session broadcast list and all per-processor
+ * Removes this connection from the Daemon broadcast list and all per-session
  * subscriber lists.  `daemon.removeConnection` destroys this object last.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 void Channel::connectionLost()
 {
-    session.detach (*this);
+    daemon.detach (*this);
     daemon.removeConnection (this);
 }
 
@@ -96,13 +98,14 @@ void Channel::sendPdu (Message kind, const juce::MemoryBlock& payload)
  * is `true`.
  *
  * PDU kinds handled:
- * - `hello`            → sends `helloResponse`
- * - `ping`             → sends `pong`
- * - `createSession`  → decodes shell/args/cwd/uuid/cols/rows; creates if new,
- *                      resizes+attaches if existing, then broadcastSessions
- * - `input`          → decodes uuid + bytes, calls session.sendInput
- * - `resizeSession`  → decodes uuid + cols + rows, calls session.sendResize
- * - `detachSession`  → unregisters subscription
+ * - `hello`           → sends `helloResponse`
+ * - `ping`            → sends `pong`
+ * - `createSession`   → decodes cwd/uuid/cols/rows; creates if new via nexus.create,
+ *                       subscribes+sends history, then broadcastSessions
+ * - `input`           → decodes uuid + bytes, calls nexus.get(uuid).sendInput
+ * - `resizeSession`   → decodes uuid + cols + rows, resizes Processor then PTY
+ * - `detachSession`   → unregisters subscription via daemon.detachSession
+ * - `killSession`     → calls nexus.remove(uuid)
  *
  * @param message  Raw MemoryBlock received from the JUCE IPC layer.
  * @note NEXUS PROCESS MESSAGE THREAD.
@@ -141,16 +144,16 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
 
                 if (parsed.valid)
                 {
-                    const bool exists { session.hasSession (parsed.uuid) };
+                    const bool exists { nexus.has (parsed.uuid) };
 
                     if (not exists)
-                        session.openTerminal (parsed.cwd, parsed.uuid, parsed.cols, parsed.rows);
+                        nexus.create (parsed.cwd, parsed.cols, parsed.rows, {}, {}, {}, parsed.uuid);
 
                     // Subscribe, send history (rebuilds terminal state: alt screen, cursor, etc.),
                     // then resize PTY. SIGWINCH redraw overwrites any dim-garbled history output.
-                    session.attach (parsed.uuid, *this, true, parsed.cols, parsed.rows);
+                    daemon.attachSession (parsed.uuid, *this, true, parsed.cols, parsed.rows);
 
-                    session.broadcastSessions();
+                    daemon.broadcastSessions();
                 }
 
                 break;
@@ -166,11 +169,11 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
                 {
                     const int inputLen { payloadSize - uuidConsumed };
 
-                    if (inputLen > 0)
+                    if (inputLen > 0 and nexus.has (uuid))
                     {
-                        session.sendInput (uuid,
-                                           reinterpret_cast<const char*> (payload + uuidConsumed),
-                                           inputLen);
+                        nexus.get (uuid).sendInput (
+                            reinterpret_cast<const char*> (payload + uuidConsumed),
+                            inputLen);
                     }
                 }
 
@@ -187,10 +190,14 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
                 {
                     const uint16_t cols { readUint16 (payload + uuidConsumed) };
                     const uint16_t rows { readUint16 (payload + uuidConsumed + 2) };
-                    // Grid pipeline side resize (stub processor on daemon).
-                    session.get (uuid).resized (static_cast<int> (cols), static_cast<int> (rows));
-                    // PTY side resize.
-                    session.sendResize (uuid, static_cast<int> (cols), static_cast<int> (rows));
+
+                    if (nexus.has (uuid))
+                    {
+                        // Grid pipeline side resize (stub processor on daemon).
+                        nexus.get (uuid).getProcessor().resized (static_cast<int> (cols), static_cast<int> (rows));
+                        // PTY side resize.
+                        nexus.get (uuid).resize (static_cast<int> (cols), static_cast<int> (rows));
+                    }
                 }
 
                 break;
@@ -203,7 +210,7 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
                 const int uuidConsumed { readString (payload, payloadSize, uuid) };
 
                 if (uuidConsumed > 0 and uuid.isNotEmpty())
-                    session.detachConnection (uuid, *this);
+                    daemon.detachSession (uuid, *this);
 
                 break;
             }
@@ -215,7 +222,7 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
                 const int uuidConsumed { readString (payload, payloadSize, uuid) };
 
                 if (uuidConsumed > 0 and uuid.isNotEmpty())
-                    session.remove (uuid);
+                    nexus.remove (uuid);
 
                 break;
             }
@@ -253,4 +260,4 @@ Channel::parseSpawnPayload (const uint8_t* payload, int payloadSize)
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Nexus
+}// namespace Interprocess

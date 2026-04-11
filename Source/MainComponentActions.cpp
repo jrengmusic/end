@@ -158,12 +158,12 @@ void MainComponent::registerTabActions (Action::Registry& action)
 
                                if (tabs->getTabCount() == 0)
                                {
-                                   if (appState.isNexusMode())
+                                   if (appState.isDaemonMode())
                                        appState.getStateFile().deleteFile();
 
                                    juce::JUCEApplication::getInstance()->systemRequestedQuit();
                                }
-                               else if (appState.isNexusMode())
+                               else if (appState.isDaemonMode())
                                {
                                    appState.save();
                                }

@@ -940,6 +940,323 @@ int WindowsTTY::getProcessName (int pid, char* buffer, int maxLength) const noex
 }
 
 // =============================================================================
+// PEB offsets for x64 Windows — fixed by ABI, not subject to change.
+// =============================================================================
+
+/** Offset of PebBaseAddress within PROCESS_BASIC_INFORMATION (x64). */
+static constexpr SIZE_T pbiOffsetPebBaseAddress        { 0x08 };
+
+/** Offset of ProcessParameters pointer within PEB (x64). */
+static constexpr SIZE_T pebOffsetProcessParameters     { 0x20 };
+
+/** Offset of CurrentDirectory (CURDIR) within RTL_USER_PROCESS_PARAMETERS (x64).
+ *  CURDIR begins with a UNICODE_STRING (DosPath) immediately at offset 0x38. */
+static constexpr SIZE_T rtlOffsetCurrentDirectory      { 0x38 };
+
+/** Byte offset of the UNICODE_STRING.Length field within UNICODE_STRING. */
+static constexpr SIZE_T unicodeStringOffsetLength      { 0x00 };
+
+/** Byte offset of the UNICODE_STRING.Buffer field within UNICODE_STRING (x64). */
+static constexpr SIZE_T unicodeStringOffsetBuffer      { 0x08 };
+
+/** Maximum wide-char path length we will read off the heap (chars, not bytes).
+ *  Windows path limit is 32767 wide chars; we cap at MAX_PATH for stack safety. */
+static constexpr SIZE_T cwdMaxWideChars                { MAX_PATH };
+
+// =============================================================================
+
+// =============================================================================
+// getCwd helpers — file-local static functions
+// =============================================================================
+
+/**
+ * @brief Holds the buffer address and wide-char count for a UNICODE_STRING read
+ *        from target process memory.
+ *
+ * `bufferAddress` is the in-target-process pointer to the wide character buffer.
+ * `wideCharCount` is the character count (bytes / sizeof(WCHAR)).
+ * Both fields are zero/null when the read failed.
+ */
+struct UnicodeStringRef
+{
+    void*  bufferAddress { nullptr };
+    size_t wideCharCount { 0 };
+};
+
+// NtQueryInformationProcess function pointer type (see getCwd).
+// Signature: (HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG) → NTSTATUS
+using FnNtQueryInformationProcess = NTSTATUS (NTAPI*) (
+    HANDLE  ProcessHandle,
+    ULONG   ProcessInformationClass,
+    PVOID   ProcessInformation,
+    ULONG   ProcessInformationLength,
+    PULONG  ReturnLength);
+
+// ProcessBasicInformation class index — documented in MSDN.
+static constexpr ULONG processBasicInformation { 0 };
+
+// Raw PROCESS_BASIC_INFORMATION blob size (x64).
+// We only need PebBaseAddress at pbiOffsetPebBaseAddress; the full 48-byte read
+// satisfies the API size requirement without depending on winternl.h.
+static constexpr ULONG pbiSize { 48 };
+
+// Size of a UNICODE_STRING in memory (x64):
+//   +0x00  USHORT  Length         (byte count, not char count)
+//   +0x02  USHORT  MaximumLength
+//   +0x04  ULONG   padding
+//   +0x08  PWSTR   Buffer
+static constexpr SIZE_T unicodeStringSize { 0x10 };
+
+// =============================================================================
+
+/**
+ * @brief Queries the PEB base address of @p hProcess via NtQueryInformationProcess.
+ *
+ * Resolves `NtQueryInformationProcess` from ntdll.dll once per process lifetime
+ * (cached in a static local).  Reads a 48-byte PROCESS_BASIC_INFORMATION blob
+ * and extracts the PebBaseAddress pointer at byte offset `pbiOffsetPebBaseAddress`.
+ *
+ * @param hProcess  Open process handle with PROCESS_QUERY_INFORMATION access.
+ * @return          PEB base address in the target process, or nullptr on failure.
+ * @note Any thread.  noexcept — no heap allocation.
+ */
+static void* queryPebAddress (HANDLE hProcess) noexcept
+{
+    static const FnNtQueryInformationProcess ntQueryInformationProcess
+    {
+        reinterpret_cast<FnNtQueryInformationProcess> (
+            GetProcAddress (GetModuleHandleW (L"ntdll.dll"), "NtQueryInformationProcess"))
+    };
+
+    void* pebAddress { nullptr };
+
+    if (ntQueryInformationProcess != nullptr)
+    {
+        BYTE pbiBlob[pbiSize] {};
+        const NTSTATUS status
+        {
+            ntQueryInformationProcess (hProcess, processBasicInformation,
+                                       pbiBlob, pbiSize, nullptr)
+        };
+
+        if (NT_SUCCESS (status))
+            std::memcpy (&pebAddress, pbiBlob + pbiOffsetPebBaseAddress, sizeof (PVOID));
+    }
+
+    return pebAddress;
+}
+
+// =============================================================================
+
+/**
+ * @brief Reads the ProcessParameters pointer from the target process's PEB.
+ *
+ * Issues a single `ReadProcessMemory` call to read the pointer-sized field at
+ * `pebAddress + pebOffsetProcessParameters` from the target process.
+ *
+ * @param hProcess    Open process handle with PROCESS_VM_READ access.
+ * @param pebAddress  PEB base address in the target process (from queryPebAddress).
+ * @return            RTL_USER_PROCESS_PARAMETERS address in the target process,
+ *                    or nullptr on failure.
+ * @note Any thread.  noexcept — no heap allocation.
+ */
+static void* readProcessParametersAddress (HANDLE hProcess, void* pebAddress) noexcept
+{
+    PVOID ppAddress { nullptr };
+    SIZE_T bytesRead { 0 };
+
+    const BOOL ok
+    {
+        ReadProcessMemory (hProcess,
+                           static_cast<BYTE*> (pebAddress) + pebOffsetProcessParameters,
+                           &ppAddress,
+                           sizeof (PVOID),
+                           &bytesRead)
+    };
+
+    return (ok != 0 and bytesRead == sizeof (PVOID)) ? ppAddress : nullptr;
+}
+
+// =============================================================================
+
+/**
+ * @brief Reads the CurrentDirectory UNICODE_STRING from RTL_USER_PROCESS_PARAMETERS.
+ *
+ * Issues a single `ReadProcessMemory` call to read the 16-byte UNICODE_STRING at
+ * `processParametersAddress + rtlOffsetCurrentDirectory`.  Extracts the Length
+ * (in bytes) and Buffer pointer, converts byte count to wide-char count.
+ *
+ * @param hProcess                  Open process handle with PROCESS_VM_READ access.
+ * @param processParametersAddress  RTL_USER_PROCESS_PARAMETERS base address in target process.
+ * @return                          UnicodeStringRef with buffer address and wide-char count.
+ *                                  Both fields are zero/null on failure.
+ * @note Any thread.  noexcept — no heap allocation.
+ */
+static UnicodeStringRef readCurrentDirectoryUnicodeString (HANDLE hProcess,
+                                                            void* processParametersAddress) noexcept
+{
+    BYTE blob[unicodeStringSize] {};
+    SIZE_T bytesRead { 0 };
+
+    const BOOL ok
+    {
+        ReadProcessMemory (hProcess,
+                           static_cast<BYTE*> (processParametersAddress) + rtlOffsetCurrentDirectory,
+                           blob,
+                           unicodeStringSize,
+                           &bytesRead)
+    };
+
+    UnicodeStringRef ref {};
+
+    if (ok != 0 and bytesRead == unicodeStringSize)
+    {
+        USHORT lengthBytes { 0 };
+        std::memcpy (&lengthBytes, blob + unicodeStringOffsetLength, sizeof (USHORT));
+
+        PVOID bufPtr { nullptr };
+        std::memcpy (&bufPtr, blob + unicodeStringOffsetBuffer, sizeof (PVOID));
+
+        const size_t wideCharCount { static_cast<size_t> (lengthBytes) / sizeof (WCHAR) };
+
+        if (wideCharCount > 0 and wideCharCount <= cwdMaxWideChars and bufPtr != nullptr)
+        {
+            ref.bufferAddress = bufPtr;
+            ref.wideCharCount = wideCharCount;
+        }
+    }
+
+    return ref;
+}
+
+// =============================================================================
+
+/**
+ * @brief Reads a wide-character path from target process memory and converts it to UTF-8.
+ *
+ * Issues a single `ReadProcessMemory` to fetch `wideString.wideCharCount` wide chars
+ * from `wideString.bufferAddress` in the target process.  Converts backslashes to
+ * forward slashes in-place.  Strips the trailing slash unless the path is a drive
+ * root (≤ 3 wide chars, e.g. `C:/`).  Converts to UTF-8 via `WideCharToMultiByte`
+ * and writes the result into @p utf8Buffer (null-terminated).
+ *
+ * @param hProcess      Open process handle with PROCESS_VM_READ access.
+ * @param wideString    Ref from readCurrentDirectoryUnicodeString — buffer address + count.
+ * @param utf8Buffer    Caller-supplied destination for the null-terminated UTF-8 path.
+ * @param utf8MaxLength Size of @p utf8Buffer in bytes (includes null terminator).
+ * @return              Bytes written to @p utf8Buffer (excluding null terminator), or 0 on failure.
+ * @note Any thread.  noexcept — no heap allocation.
+ */
+static int readAndConvertWidePath (HANDLE hProcess, const UnicodeStringRef& wideString,
+                                   char* utf8Buffer, int utf8MaxLength) noexcept
+{
+    const USHORT lengthBytes { static_cast<USHORT> (wideString.wideCharCount * sizeof (WCHAR)) };
+    WCHAR widePath[cwdMaxWideChars + 1] {};
+    SIZE_T bytesRead { 0 };
+
+    const BOOL ok
+    {
+        ReadProcessMemory (hProcess,
+                           wideString.bufferAddress,
+                           widePath,
+                           lengthBytes,
+                           &bytesRead)
+    };
+
+    int result { 0 };
+
+    if (ok != 0 and bytesRead == static_cast<SIZE_T> (lengthBytes))
+    {
+        widePath[wideString.wideCharCount] = L'\0';
+
+        // Replace backslashes with forward slashes in-place.
+        for (SIZE_T i { 0 }; i < wideString.wideCharCount; ++i)
+        {
+            if (widePath[i] == L'\\')
+                widePath[i] = L'/';
+        }
+
+        // Strip trailing slash — PEB CWD always has one; OSC 7 does not.
+        // Preserve drive roots (e.g. "C:/") — effectiveCount must stay > 3.
+        SIZE_T effectiveCount { wideString.wideCharCount };
+
+        if (effectiveCount > 3 and widePath[effectiveCount - 1] == L'/')
+            --effectiveCount;
+
+        widePath[effectiveCount] = L'\0';
+
+        // Convert to UTF-8.
+        const int utf8Len
+        {
+            WideCharToMultiByte (CP_UTF8, 0,
+                                 widePath,
+                                 static_cast<int> (effectiveCount),
+                                 utf8Buffer,
+                                 utf8MaxLength - 1,
+                                 nullptr, nullptr)
+        };
+
+        if (utf8Len > 0)
+        {
+            utf8Buffer[utf8Len] = '\0';
+            result = utf8Len;
+        }
+    }
+
+    return result;
+}
+
+// =============================================================================
+
+/**
+ * @brief Reads the current working directory of the given process via its PEB.
+ *
+ * Walks PEB → ProcessParameters → CurrentDirectory.DosPath using four helpers:
+ * - queryPebAddress                    — NtQueryInformationProcess → PEB address
+ * - readProcessParametersAddress       — PEB → RTL_USER_PROCESS_PARAMETERS address
+ * - readCurrentDirectoryUnicodeString  — RTL_USER_PROCESS_PARAMETERS → UNICODE_STRING
+ * - readAndConvertWidePath             — wide buffer → UTF-8 with slash normalisation
+ *
+ * @param pid        The process ID to query.
+ * @param buffer     Destination buffer for the null-terminated UTF-8 path.
+ * @param maxLength  Size of the destination buffer in bytes.
+ * @return           Number of bytes written (excluding null terminator), or 0 on failure.
+ * @note Any thread.
+ */
+int WindowsTTY::getCwd (int pid, char* buffer, int maxLength) const noexcept
+{
+    int result { 0 };
+
+    if (pid > 0 and buffer != nullptr and maxLength > 0)
+    {
+        const HANDLE hProcess { OpenProcess (PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+                                             FALSE, static_cast<DWORD> (pid)) };
+
+        if (hProcess != nullptr)
+        {
+            void* pebAddress { queryPebAddress (hProcess) };
+
+            if (pebAddress != nullptr)
+            {
+                void* ppAddress { readProcessParametersAddress (hProcess, pebAddress) };
+
+                if (ppAddress != nullptr)
+                {
+                    const UnicodeStringRef cwdString { readCurrentDirectoryUnicodeString (hProcess, ppAddress) };
+
+                    if (cwdString.wideCharCount > 0)
+                        result = readAndConvertWidePath (hProcess, cwdString, buffer, maxLength);
+                }
+            }
+
+            CloseHandle (hProcess);
+        }
+    }
+
+    return result;
+}
+
+// =============================================================================
 
 /**
  * @brief Copy bytes from a read buffer into a caller-supplied destination.

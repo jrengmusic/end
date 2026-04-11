@@ -1,1 +1,1 @@
-/Users/jreng/.carol/agents/brainstormer.md
+C:/Users/jreng/.carol/agents/brainstormer.md

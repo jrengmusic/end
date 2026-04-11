@@ -95,7 +95,7 @@ void Terminal::Display::initialise()
     addKeyListener (this);
 
     // Construct LinkManager — requires Processor state and grid references.
-    // Routes PTY writes through Display::writeToPty → Nexus::Session::sendInput (mode-agnostic).
+    // Routes PTY writes through Display::writeToPty → Terminal::Session::sendInput or Interprocess::Link::sendInput (mode-agnostic).
     linkManager.emplace (processor.getState(),
                          processor.getGrid(),
                          [this] (const char* data, int len) { writeToPty (data, len); });
