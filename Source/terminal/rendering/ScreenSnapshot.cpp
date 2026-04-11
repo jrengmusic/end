@@ -266,7 +266,7 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
                     {
                         fontObj.applyGlyphRun (textShaped);
                         glyphIndex = textShaped.glyphs[0].glyphIndex;
-                        resolved = true;
+                        resolved   = true;
                     }
                 }
             }

@@ -697,7 +697,7 @@ void Terminal::Display::applyScreenSettings() noexcept
             s.setLineHeight (cfg->getFloat (Config::Key::fontLineHeight));
             s.setCellWidth (cfg->getFloat (Config::Key::fontCellWidth));
             s.setTheme (cfg->buildTheme());
-            s.setFontSize (dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
+            s.setFontSize (Config::getContext()->dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
         });
 }
 
@@ -723,7 +723,7 @@ void Terminal::Display::applyZoom (float zoom) noexcept
     visitScreen (
         [&] (auto& s)
         {
-            s.setFontSize (dpiCorrectedFontSize() * zoom);
+            s.setFontSize (Config::getContext()->dpiCorrectedFontSize() * zoom);
         });
     resized();
 }

@@ -37,7 +37,7 @@ template <typename Renderer>
 Screen<Renderer>::Screen (jreng::Typeface& font_)
     : font (font_)
     , resources()
-    , baseFontSize (Config::getContext()->getFloat (Config::Key::fontSize))
+    , baseFontSize (Config::getContext()->dpiCorrectedFontSize())
 {
     calc();
     reset();

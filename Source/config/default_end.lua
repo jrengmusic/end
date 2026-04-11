@@ -84,6 +84,13 @@ END = {
 		-- Cell width multiplier applied to terminal cell width (0.5 - 3.0).
 		-- 1.0 = no adjustment. Values above 1.0 widen cells, below narrow them.
 		cell_width = %%font_cell_width%%,
+
+		-- Whether font size follows the Windows desktop scale.
+		-- "true"  — font size scales with the desktop scale (system default behaviour).
+		-- "false" — font stays at its configured point size in physical pixels
+		--           regardless of the desktop scale slider (12pt always looks 12pt).
+		-- Windows only. No effect on macOS or Linux.
+		desktop_scale = "%%font_desktop_scale%%",
 	},
 
 	-- ========================================================================

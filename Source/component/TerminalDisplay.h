@@ -551,12 +551,6 @@ public:
      */
     void initialise();
 
-    /** @brief Returns the config font size, currently unmodified on all platforms. */
-    static float dpiCorrectedFontSize() noexcept
-    {
-        return Config::getContext()->getFloat (Config::Key::fontSize);
-    }
-
 private:
     //==============================================================================
     /**

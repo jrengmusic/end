@@ -2,8 +2,5 @@
   "statusLine": {
     "type": "command",
     "command": "~/.carol/bin/carol-statusline.sh"
-  },
-  "enabledPlugins": {
-    "carol@carol-marketplace": true
   }
 }

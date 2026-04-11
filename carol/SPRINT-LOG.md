@@ -1,5 +1,70 @@
 # SPRINT-LOG
 
+## Sprint 10: Windows Font Rendering + Box Drawing Kitty AA + Daemon Cleanup
+
+**Date:** 2026-04-11 / 2026-04-12
+**Duration:** ~16:00
+
+### Agents Participated
+- COUNSELOR: session lead, planning, multi-wave delegation, role drift correction mid-session
+- Pathfinder: codebase surveys (config key layout, daemon lifecycle, rounded corner primitive search, terminal vs popup vs DWM rounded corner disambiguation, box drawing helpers, fallback glyph sizing path)
+- Engineer: all code implementation across the waves listed below
+- Researcher: kitty / wezterm / JUCE rounded rectangle prior art, kitty fallback glyph scaling prior art
+
+### Files Modified
+
+**Config / font routing (Ask A — `font.desktop_scale`):**
+- `Source/config/Config.h:200-202` — added `Config::Key::fontDesktopScale { "font.desktop_scale" }` with windows-only semantic doc
+- `Source/config/Config.h:645-647` — declared `Config::dpiCorrectedFontSize() const noexcept`
+- `Source/config/Config.cpp:104` — `addKey (Key::fontDesktopScale, "false", { T::string })`
+- `Source/config/Config.cpp:985-1003` — implemented `Config::dpiCorrectedFontSize()`: returns `Key::fontSize`, on Windows divides by `jreng::Typeface::getDisplayScale()` when `fontDesktopScale == "false"`
+- `Source/config/default_end.lua:88-93` — `desktop_scale = "%%font_desktop_scale%%"` entry under `font` table with docs
+- `Source/component/TerminalDisplay.h:554-558` — deleted stub `dpiCorrectedFontSize`
+- `Source/component/TerminalDisplay.cpp:700,726` — route through `Config::getContext()->dpiCorrectedFontSize()`
+- `Source/MainComponent.cpp:320` — same
+- `Source/MainComponentActions.cpp:391` — same
+- `Source/component/Panes.cpp:57` — same
+- `Source/terminal/rendering/Screen.cpp:40` — `baseFontSize` initialised via `Config::getContext()->dpiCorrectedFontSize()` (eliminates transient pre-applyScreenSettings mismatch)
+- `Source/config/Config.cpp:698-760` — BLESSED cleanup of `Config::load` lambdas (removed 3 early returns inside `sol::table::for_each`, restructured as nested positive checks with `isTableVal`/`isSpecialGroup`/`isPadding` locals)
+- `Source/config/Config.cpp:847-858` — BLESSED cleanup of `patchKey` (collapsed mutable `needsQuotes` flag into `const bool isNumberType`)
+
+**Windows glyph scale (Ask B — `windowsGlyphScale`):**
+- `modules/jreng_graphics/fonts/jreng_typeface_metrics.cpp:86-88` — `static constexpr float windowsGlyphScale { 0.90f }` inside `namespace jreng` (JUCE_WINDOWS only)
+- `modules/jreng_graphics/fonts/jreng_typeface_metrics.cpp:252-257` — `#if JUCE_WINDOWS` branch multiplies final render DPI by `windowsGlyphScale`; logical metrics pass untouched, so cell dimensions stay at the unscaled size while FreeType rasterises the glyph outline slightly smaller
+
+**Daemon cleanup (DEBT-20260411T101344):**
+- `Source/interprocess/Daemon.cpp:134-145` — after `connections.remove(index)`, if `connections.isEmpty() and onAllSessionsExited != nullptr`, fire the callback; reuses the existing shell-exit quit path
+
+**Box drawing (DEBT-20260411T083315):**
+- `modules/jreng_graphics/fonts/jreng_box_drawing.h:235-260` — `lightThickness(w, embolden)` doubles base thickness when embolden is true; `heavyThickness` delegates through (effective ×4 under embolden, correct — embolden is orthogonal to light/heavy weight)
+- `modules/jreng_graphics/fonts/jreng_box_drawing.h` — threaded `bool embolden` through `BoxDrawing::rasterize`, `drawLines`, `drawDashedLine`, `drawDiagonal`, `drawDoubleLines`, `drawRoundedCorner`; block elements and braille unchanged (they don't use thickness)
+- `modules/jreng_graphics/fonts/jreng_box_drawing.h:680-749` — `drawRoundedCorner` replaced with 4× supersampled SDF + 4×4 box-filter downsample. Port of `kitty/decorations.c::rounded_corner`. `adjustedHxSs` / `adjustedHySs` derived from `drawLines`' actual line-range centres (`cxNative - lt/2 + lt * 0.5f`, times `supersampleFactor`) so the arc's attachment pole tangents the straight stroke at the same pixel column. `aaSs = supersampleFactor * 0.5f` widens the AA band in SS space. `juce::HeapBlock<uint8_t>` scratch buffer at `4w × 4h`, unconditional max-blend into `buf` on downsample.
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.cpp:232` — `Atlas::getOrRasterizeBoxDrawing` passes `embolden` member to `BoxDrawing::rasterize`
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT (one `dpiCorrectedFontSize` source in Config, referenced by 5 call sites; single `windowsGlyphScale` constexpr; single `lightThickness`/`heavyThickness` source with embolden parameter), Lean (one method per concept, no speculative helpers), Explicit (no magic numbers — `windowsGlyphScale`, `supersampleFactor`, `renderDpiUnit` are named constexpr), Stateless (daemon quit gate is derived from connection list state, not a flag), Encapsulation (Box drawing, font metrics, and config are separate concerns touched through their public APIs), Bound (ScopedFaceSize experiment was reverted on failure — no lingering ownership concerns)
+- [x] NAMES.md adhered — all new names ARCHITECT-approved: `Config::Key::fontDesktopScale`, `Config::dpiCorrectedFontSize`, `windowsGlyphScale`, `platformCellWidthCorrection` (superseded by `windowsGlyphScale`), `supersampleFactor`, embolden parameter on box drawing helpers
+- [x] MANIFESTO.md principles applied — no early returns introduced; all new code uses positive nesting and alternative tokens; brace initialisation throughout; `const` where practical; no new helper types introduced at class scope; file-local `static` for utility symbols
+
+### Problems Solved
+- **`font.desktop_scale` (Windows-only):** Windows desktop scale slider previously ballooned the configured font size because JUCE's `getDisplayScale()` returns the OS scale. Users wanted 12pt to stay 12pt physical on any scale setting. Implemented upstream in `Config::dpiCorrectedFontSize` as an optional divide-by-scale when the key is `"false"`; default is `"false"` (persistent), user can opt into OS-scale-following by setting `"true"`. No-op on macOS/Linux.
+- **`windowsGlyphScale`:** Display Mono visually felt heavier on Windows than macOS because FreeType's rasteriser at the full render DPI produced slightly wider strokes than CoreText at the equivalent size. Applied a downstream 0.90× scale to the final `FT_Set_Char_Size` render DPI only; cell metrics remain at unscaled size. Net effect: glyph bitmap is slightly smaller within the (unchanged) cell, matching macOS visual weight.
+- **Embolden x2 for box drawing:** Embolden config flag previously only affected font glyphs via `FT_Outline_Embolden`. Now also doubles `lightThickness` / `heavyThickness` used by all procedural box-drawing helpers, so rounded corners and straight lines inherit the same weight adjustment as the surrounding font.
+- **Rounded corner AA (DEBT-20260411T083315):** Original SDF at native resolution was visibly jaggy at small cell sizes. Ported kitty's 4× supersampling pattern: render SDF into a `4w × 4h` scratch buffer with `aa = supersampleFactor * 0.5f` (wider AA band in SS space), then box-filter down to native. Visual quality improved significantly per ARCHITECT's visual verification. Minor sub-pixel drift on even cell widths remains inherent to integer pixel grids.
+- **Daemon cleanup on last close (DEBT-20260411T101344):** Daemon process previously outlived the GUI after the last terminal was closed. 1:1 daemon↔GUI lifecycle established by having `Daemon::removeConnection` trigger the existing `onAllSessionsExited` quit path when the connection list drains empty. `Main.cpp` wiring to `appState.deleteNexusFile(); quit()` unchanged.
+
+### Failed Attempt (Not in Sprint Scope)
+- **Fallback glyph advance width** (RFC-FALLBACK-ADVANCE.md): attempted to fix the "arrow too close to comma" visual bug where proportional system fallback fonts (Segoe UI Symbol) broke the monospace grid. Three iterations: (1) `xAdvance = cellAdvance` with centering xOffset — shifted further; (2) per-glyph FreeType rescale via `ScopedFaceSize` RAII, new `renderScale` field on `Glyph` and `Key` — all text rendered as dots (unconditional guard); (3) conditional guard + `shapeASCII`/`shapeHarfBuzz` renderScale init — artifacts remained, still shifted. Root cause of residual artifacts not diagnosed within the session's diagnostic budget. COUNSELOR's mental model of the shaping→rasterization interaction was incomplete; each fix iteration compounded the problem. **Full revert of all 8 touched files via `git show HEAD:<path>` readback, restoring shaping pipeline to HEAD state.** RFC-FALLBACK-ADVANCE.md stays open for a future sprint with deeper pre-investigation.
+
+### Debts Paid
+- `DEBT-20260411T101344` — daemon not killed on last terminal close; fixed via `Source/interprocess/Daemon.cpp:134-145` (`removeConnection` fires `onAllSessionsExited` on empty connection list)
+- `DEBT-20260411T083315` — rounded rectangle misalignment; diminished via `modules/jreng_graphics/fonts/jreng_box_drawing.h:680-749` (4× supersample SDF port of kitty's `rounded_corner`, attachment-aware `adjustedHx/Hy`). Residual sub-pixel drift on even cell widths is mathematical, not algorithmic
+
+### Debts Deferred
+- None (no ARCHITECT-commanded mid-sprint deferrals)
+
+---
+
 ## Sprint 9: Nexus Architectural Refactor + CWD Propagation Fix + Audit Cleanup
 
 **Date:** 2026-04-11

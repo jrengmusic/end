@@ -81,7 +81,11 @@
 #else
 
 namespace jreng
-{
+{ /*____________________________________________________________________________*/
+
+#if JUCE_WINDOWS
+static constexpr float windowsGlyphScale { 0.90f };
+#endif
 
 /**
  * @struct MaxCellMeasure
@@ -91,7 +95,11 @@ namespace jreng
  * so that `calcMetrics()` can store both the logical and fixed representations
  * without re-converting.
  */
-struct MaxCellMeasure { int maxCellW; FT_Pos maxW26_6; };
+struct MaxCellMeasure
+{
+    int maxCellW;
+    FT_Pos maxW26_6;
+};
 
 /**
  * @brief Scans printable ASCII glyphs to find the maximum horizontal advance.
@@ -128,7 +136,8 @@ static MaxCellMeasure measureMaxCellWidth (FT_Face face) noexcept
             if (loadError == 0)
             {
                 const FT_Pos horiAdvance26_6 { face->glyph->metrics.horiAdvance };
-                const int cellW { static_cast<int> (ceilf (static_cast<float> (horiAdvance26_6) / static_cast<float> (jreng::Typeface::ftFixedScale))) };
+                const int cellW { static_cast<int> (ceilf (static_cast<float> (horiAdvance26_6)
+                                                           / static_cast<float> (jreng::Typeface::ftFixedScale))) };
 
                 if (cellW > result.maxCellW)
                 {
@@ -141,8 +150,6 @@ static MaxCellMeasure measureMaxCellWidth (FT_Face face) noexcept
 
     return result;
 }
-
-} // namespace jreng
 
 /**
  * @brief Calculates cell geometry metrics for a given cell height.
@@ -193,7 +200,7 @@ static MaxCellMeasure measureMaxCellWidth (FT_Face face) noexcept
  * @see roundFloatPxTo26_6
  * @see getDisplayScale
  */
-jreng::Typeface::Metrics jreng::Typeface::calcMetrics (float heightPx) noexcept
+Typeface::Metrics Typeface::calcMetrics (float heightPx) noexcept
 {
     Metrics metrics;
 
@@ -245,7 +252,12 @@ jreng::Typeface::Metrics jreng::Typeface::calcMetrics (float heightPx) noexcept
                 metrics.physBaseline = static_cast<int> (static_cast<float> (metrics.logicalBaseline) * displayScale);
 
                 // Restore face to render DPI for subsequent rasterization.
+#if JUCE_WINDOWS
+                const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * displayScale
+                                                                * windowsGlyphScale) };
+#else
                 const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * displayScale) };
+#endif
                 FT_Set_Char_Size (face, 0, height26_6, renderDpi, renderDpi);
             }
         }
@@ -258,3 +270,7 @@ jreng::Typeface::Metrics jreng::Typeface::calcMetrics (float heightPx) noexcept
 }
 
 #endif
+
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace jreng
+

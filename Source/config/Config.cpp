@@ -101,6 +101,7 @@ void Config::initKeys()
     addKey (Key::fontEmbolden, "true", { T::string });
     addKey (Key::fontLineHeight, 1.0, { T::number, 0.5, 3.0, true });
     addKey (Key::fontCellWidth, 1.0, { T::number, 0.5, 3.0, true });
+    addKey (Key::fontDesktopScale, "false", { T::string });
 
     addKey (Key::cursorChar, juce::String::charToString (static_cast<juce::juce_wchar> (0x2588)), { T::string });
     addKey (Key::cursorBlink, "true", { T::string });
@@ -697,56 +698,64 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                     root.for_each (
                         [this, &warnings] (const sol::object& groupKey, const sol::object& groupVal)
                         {
-                            if (groupKey.get_type() == sol::type::string and groupVal.get_type() != sol::type::table)
+                            if (groupKey.get_type() == sol::type::string)
                             {
-                                // Flat scalar at root level (e.g. nexus = true).
-                                const juce::String flatName { groupKey.as<std::string>() };
-                                validateAndStore (flatName, groupVal, values, schema, warnings);
-                                return;
-                            }
+                                const bool isTableVal { groupVal.get_type() == sol::type::table };
 
-                            if (groupKey.get_type() == sol::type::string and groupVal.get_type() == sol::type::table)
-                            {
-                                const juce::String groupName { groupKey.as<std::string>() };
+                                if (not isTableVal)
+                                {
+                                    // Flat scalar at root level (e.g. nexus = true).
+                                    const juce::String flatName { groupKey.as<std::string>() };
+                                    validateAndStore (flatName, groupVal, values, schema, warnings);
+                                }
 
-                                if (groupName == "popups" or groupName == "hyperlinks")
-                                    return;
+                                if (isTableVal)
+                                {
+                                    const juce::String groupName { groupKey.as<std::string>() };
+                                    const bool isSpecialGroup { groupName == "popups" or groupName == "hyperlinks" };
 
-                                sol::table group { groupVal.as<sol::table>() };
-
-                                group.for_each (
-                                    [this, &groupName, &warnings] (
-                                        const sol::object& fieldKey, const sol::object& fieldVal)
+                                    if (not isSpecialGroup)
                                     {
-                                        if (fieldKey.get_type() == sol::type::string)
-                                        {
-                                            const juce::String fieldName { fieldKey.as<std::string>() };
+                                        sol::table group { groupVal.as<sol::table>() };
 
-                                            // Padding tables are 4-element arrays { top, right, bottom, left }.
-                                            // Dispatched to loadPadding() rather than treated as a scalar.
-                                            if (fieldName == "padding" and fieldVal.get_type() == sol::type::table)
+                                        group.for_each (
+                                            [this, &groupName, &warnings] (
+                                                const sol::object& fieldKey, const sol::object& fieldVal)
                                             {
-                                                static const std::array<const juce::String*, 4> terminalPaddingKeys {
-                                                    &Config::Key::terminalPaddingTop,  &Config::Key::terminalPaddingRight,
-                                                    &Config::Key::terminalPaddingBottom, &Config::Key::terminalPaddingLeft };
+                                                if (fieldKey.get_type() == sol::type::string)
+                                                {
+                                                    const juce::String fieldName { fieldKey.as<std::string>() };
 
-                                                static const std::array<const juce::String*, 4> actionListPaddingKeys {
-                                                    &Config::Key::actionListPaddingTop,  &Config::Key::actionListPaddingRight,
-                                                    &Config::Key::actionListPaddingBottom, &Config::Key::actionListPaddingLeft };
+                                                    // Padding tables are 4-element arrays { top, right, bottom, left }.
+                                                    // Dispatched to loadPadding() rather than treated as a scalar.
+                                                    const bool isPadding { fieldName == "padding" and fieldVal.get_type() == sol::type::table };
 
-                                                if (groupName == "terminal")
-                                                    loadPadding (fieldVal.as<sol::table>(), terminalPaddingKeys, values, schema);
+                                                    if (isPadding)
+                                                    {
+                                                        static const std::array<const juce::String*, 4> terminalPaddingKeys {
+                                                            &Config::Key::terminalPaddingTop,  &Config::Key::terminalPaddingRight,
+                                                            &Config::Key::terminalPaddingBottom, &Config::Key::terminalPaddingLeft };
 
-                                                if (groupName == "action_list")
-                                                    loadPadding (fieldVal.as<sol::table>(), actionListPaddingKeys, values, schema);
+                                                        static const std::array<const juce::String*, 4> actionListPaddingKeys {
+                                                            &Config::Key::actionListPaddingTop,  &Config::Key::actionListPaddingRight,
+                                                            &Config::Key::actionListPaddingBottom, &Config::Key::actionListPaddingLeft };
 
-                                                return;
-                                            }
+                                                        if (groupName == "terminal")
+                                                            loadPadding (fieldVal.as<sol::table>(), terminalPaddingKeys, values, schema);
 
-                                            validateAndStore (
-                                                groupName + "." + fieldName, fieldVal, values, schema, warnings);
-                                        }
-                                    });
+                                                        if (groupName == "action_list")
+                                                            loadPadding (fieldVal.as<sol::table>(), actionListPaddingKeys, values, schema);
+                                                    }
+
+                                                    if (not isPadding)
+                                                    {
+                                                        validateAndStore (
+                                                            groupName + "." + fieldName, fieldVal, values, schema, warnings);
+                                                    }
+                                                }
+                                            });
+                                    }
+                                }
                             }
                         });
 
@@ -844,16 +853,9 @@ void Config::patchKey (const juce::String& key, const juce::String& value)
     juce::String content { configFile.loadFileAsString() };
 
     // Determine whether the value needs quoting by consulting the schema.
-    bool needsQuotes { true };
     const auto schemaIt { schema.find (key) };
-
-    if (schemaIt != schema.end())
-    {
-        if (schemaIt->second.expectedType == Value::Type::number)
-            needsQuotes = false;
-    }
-
-    const juce::String formattedValue { needsQuotes ? "\"" + value + "\"" : value };
+    const bool isNumberType { schemaIt != schema.end() and schemaIt->second.expectedType == Value::Type::number };
+    const juce::String formattedValue { isNumberType ? value : "\"" + value + "\"" };
 
     // Locate the table block: find a line matching `tableName = {`
     // (with optional leading whitespace/tabs).
@@ -976,6 +978,30 @@ float Config::getFloat (const juce::String& key) const { return static_cast<floa
  * @return The stored boolean value.
  */
 bool Config::getBool (const juce::String& key) const { return values.at (key).toString() == "true"; }
+
+/**
+ * @brief Returns the configured font size with the Windows desktop-scale correction
+ *        applied per `Key::fontDesktopScale`. On macOS/Linux returns the raw size.
+ */
+float Config::dpiCorrectedFontSize() const noexcept
+{
+    const float configured { getFloat (Key::fontSize) };
+    float corrected { configured };
+
+#if JUCE_WINDOWS
+    const bool honourDesktopScale { getString (Key::fontDesktopScale) == "true" };
+
+    if (not honourDesktopScale)
+    {
+        const float scale { jreng::Typeface::getDisplayScale() };
+
+        if (scale > 0.0f)
+            corrected = configured / scale;
+    }
+#endif
+
+    return corrected;
+}
 
 /**
  * @brief Returns a config value parsed as a JUCE Colour.

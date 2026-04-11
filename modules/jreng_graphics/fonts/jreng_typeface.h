@@ -363,10 +363,10 @@ struct Typeface
      */
     struct Glyph
     {
-        uint32_t glyphIndex { 0 };    ///< Font-internal glyph ID (not a Unicode codepoint).
-        float    xOffset    { 0.0f }; ///< Horizontal offset from pen position, in pixels.
-        float    yOffset    { 0.0f }; ///< Vertical offset from baseline, in pixels.
-        float    xAdvance   { 0.0f }; ///< Horizontal advance to next glyph, in pixels.
+        uint32_t glyphIndex   { 0 };    ///< Font-internal glyph ID (not a Unicode codepoint).
+        float    xOffset      { 0.0f }; ///< Horizontal offset from pen position, in pixels.
+        float    yOffset      { 0.0f }; ///< Vertical offset from baseline, in pixels.
+        float    xAdvance     { 0.0f }; ///< Horizontal advance to next glyph, in pixels.
     };
 
     /**

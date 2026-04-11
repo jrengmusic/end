@@ -229,7 +229,7 @@ Region* Atlas::getOrRasterizeBoxDrawing (uint32_t codepoint, int cellWidth, int 
         const size_t bufSize { static_cast<size_t> (bitmapW) * static_cast<size_t> (bitmapH) };
         juce::HeapBlock<uint8_t> buf (bufSize, true);
 
-        BoxDrawing::rasterize (codepoint, bitmapW, bitmapH, buf.get());
+        BoxDrawing::rasterize (codepoint, bitmapW, bitmapH, buf.get(), embolden);
 
         auto region { monoPacker.allocate (bitmapW, bitmapH) };
 

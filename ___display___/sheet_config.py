@@ -168,6 +168,17 @@ LIGATURES_3 = [
 ]
 
 # ---------------------------------------------------------------------------
+# Arrows (single-codepoint symbols placed after ligatures in the sheet)
+# ---------------------------------------------------------------------------
+ARROWS = [
+    "\u2190",  # ← leftwards arrow
+    "\u2191",  # ↑ upwards arrow
+    "\u2192",  # → rightwards arrow
+    "\u2193",  # ↓ downwards arrow
+    "\u2194",  # ↔ left right arrow
+]
+
+# ---------------------------------------------------------------------------
 # Font metadata
 # ---------------------------------------------------------------------------
 FAMILY = "Display Mono"

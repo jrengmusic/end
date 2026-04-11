@@ -54,7 +54,7 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
                                            jreng::Typeface& font_) noexcept
 {
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
-    const auto fm { font_.calcMetrics (Terminal::Display::dpiCorrectedFontSize()) };
+    const auto fm { font_.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
     const auto* cfg { Config::getContext() };
     const float scale { jreng::Typeface::getDisplayScale() };
     const float cellWidthMultiplier  { cfg->getFloat (Config::Key::fontCellWidth) };

@@ -5,6 +5,7 @@ import os
 import xml.etree.ElementTree as ET
 
 from sheet_config import (
+    ARROWS,
     BG_COLOR,
     CELL_H,
     CELL_STROKE,
@@ -73,7 +74,9 @@ def build_svg():
     lig3_cols = COLS // 3
     lig3_rows = math.ceil(len(LIGATURES_3) / lig3_cols) if LIGATURES_3 else 0
 
-    total_rows = char_rows + lig2_rows + lig3_rows
+    arrow_rows = math.ceil(len(ARROWS) / COLS) if ARROWS else 0
+
+    total_rows = char_rows + lig2_rows + lig3_rows + arrow_rows
 
     svg_w = MARGIN_LEFT + COLS * COL_STEP - GUTTER + MARGIN_LEFT
     svg_h = MARGIN_TOP + total_rows * ROW_STEP - GUTTER + 20
@@ -116,6 +119,14 @@ def build_svg():
         y = MARGIN_TOP + (lig3_row_offset + row) * ROW_STEP
         emit_guides(guides_g, x, y, lig3_w, lig)
 
+    arrow_row_offset = char_rows + lig2_rows + lig3_rows
+    for idx, ch in enumerate(ARROWS):
+        row = idx // COLS
+        col = idx % COLS
+        x = MARGIN_LEFT + col * COL_STEP
+        y = MARGIN_TOP + (arrow_row_offset + row) * ROW_STEP
+        emit_guides(guides_g, x, y, CELL_W, ch)
+
     for idx, ch in enumerate(CHARS):
         row = idx // COLS
         col = idx % COLS
@@ -137,12 +148,20 @@ def build_svg():
         y = MARGIN_TOP + (lig3_row_offset + row) * ROW_STEP
         emit_cell_group(svg, char_id(lig), x, y, lig3_w)
 
+    for idx, ch in enumerate(ARROWS):
+        row = idx // COLS
+        col = idx % COLS
+        x = MARGIN_LEFT + col * COL_STEP
+        y = MARGIN_TOP + (arrow_row_offset + row) * ROW_STEP
+        emit_cell_group(svg, char_id(ch), x, y, CELL_W)
+
     ET.indent(svg, space="  ")
     return (
         ET.tostring(svg, encoding="unicode", xml_declaration=False),
         char_rows,
         lig2_rows,
         lig3_rows,
+        arrow_rows,
         total_rows,
         svg_w,
         svg_h,
@@ -152,15 +171,16 @@ def build_svg():
 out_dir = os.path.join(os.path.dirname(__file__), "svg-mono")
 os.makedirs(out_dir, exist_ok=True)
 
-svg_str, char_rows, lig2_rows, lig3_rows, total_rows, svg_w, svg_h = build_svg()
+svg_str, char_rows, lig2_rows, lig3_rows, arrow_rows, total_rows, svg_w, svg_h = build_svg()
 
 print(f"grid: {total_rows} rows, {svg_w}x{svg_h}px")
 print(
     f"  cell: {CELL_W}x{CELL_H}, gutter: {GUTTER}, col_step: {COL_STEP}, row_step: {ROW_STEP}"
 )
-print(f"  chars: {len(CHARS)} ({char_rows} rows, 0-{char_rows - 1})")
-print(f"  lig2:  {len(LIGATURES_2)} ({lig2_rows} rows, cols={COLS // 2})")
-print(f"  lig3:  {len(LIGATURES_3)} ({lig3_rows} rows, cols={COLS // 3})")
+print(f"  chars:  {len(CHARS)} ({char_rows} rows, 0-{char_rows - 1})")
+print(f"  lig2:   {len(LIGATURES_2)} ({lig2_rows} rows, cols={COLS // 2})")
+print(f"  lig3:   {len(LIGATURES_3)} ({lig3_rows} rows, cols={COLS // 3})")
+print(f"  arrows: {len(ARROWS)} ({arrow_rows} rows, cols={COLS})")
 
 for w in WEIGHTS:
     path = os.path.join(out_dir, w["svg"])

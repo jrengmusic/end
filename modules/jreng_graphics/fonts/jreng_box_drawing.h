@@ -21,9 +21,9 @@
  * - **Integer arithmetic** for straight lines and block fills (`fillRect()`).
  * - **Anti-aliased Bresenham** for diagonal lines (`drawDiagonal()`): distance
  *   to the line is computed analytically and mapped to alpha.
- * - **SDF-based smoothstep** for rounded corners (`drawRoundedCorner()`):
- *   a signed-distance field of a rounded rectangle drives a `smoothstep()`
- *   anti-aliasing kernel.
+ * - **4× supersampled SDF, box-averaged down** for rounded corners
+ *   (`drawRoundedCorner()`): mirrors kitty's `rounded_corner()` for smooth
+ *   arc rendering that aligns tangentially with `drawLines()` strokes.
  * - **Cell-relative metrics**: line thickness is derived from `cellWidth` via
  *   `lightThickness()` / `heavyThickness()`, so the output scales correctly
  *   at any font size.
@@ -45,16 +45,8 @@
  * @see jreng::Glyph::Atlas::getOrRasterizeBoxDrawing()
  */
 
-#pragma once
-
-#include <cstdint>
-#include <cstring>
-#include <cmath>
-#include <algorithm>
-#include <array>
-
 namespace jreng::Glyph
-{
+{ /*____________________________________________________________________________*/
 
 struct BoxDrawing
 {
@@ -67,7 +59,13 @@ struct BoxDrawing
      * - `heavy`  — bold line (≈ 2× light thickness).
      * - `double_` — two parallel light lines (handled by `drawDoubleLines()`).
      */
-    enum class Weight : uint8_t { none, light, heavy, double_ };
+    enum class Weight : uint8_t
+    {
+        none,
+        light,
+        heavy,
+        double_
+    };
 
     /**
      * @struct Lines
@@ -82,16 +80,16 @@ struct BoxDrawing
     struct Lines
     {
         /** @brief Weight of the line segment extending upward from the cell centre. */
-        Weight up    { Weight::none };
+        Weight up { Weight::none };
 
         /** @brief Weight of the line segment extending rightward from the cell centre. */
         Weight right { Weight::none };
 
         /** @brief Weight of the line segment extending downward from the cell centre. */
-        Weight down  { Weight::none };
+        Weight down { Weight::none };
 
         /** @brief Weight of the line segment extending leftward from the cell centre. */
-        Weight left  { Weight::none };
+        Weight left { Weight::none };
     };
 
     static_assert (std::is_trivially_copyable_v<Lines>);
@@ -109,9 +107,8 @@ struct BoxDrawing
      */
     static bool isProcedural (uint32_t codepoint) noexcept
     {
-        return (codepoint >= 0x2500 and codepoint <= 0x257F)
-            or (codepoint >= 0x2580 and codepoint <= 0x259F)
-            or (codepoint >= 0x2800 and codepoint <= 0x28FF);
+        return (codepoint >= 0x2500 and codepoint <= 0x257F) or (codepoint >= 0x2580 and codepoint <= 0x259F)
+               or (codepoint >= 0x2800 and codepoint <= 0x28FF);
     }
 
     /**
@@ -135,13 +132,15 @@ struct BoxDrawing
      * @param h         Output bitmap height in pixels (= cell height).
      * @param buf       Output buffer of `w × h` bytes (R8 greyscale).
      *                  Must be pre-allocated by the caller.
+     * @param embolden  When `true`, doubles effective line thickness for both
+     *                  light and heavy weight strokes.
      *
      * @note The buffer is zeroed at the start of this function regardless of
      *       the codepoint.
      * @see isProcedural()
      * @see GlyphAtlas::getOrRasterizeBoxDrawing()
      */
-    static void rasterize (uint32_t codepoint, int w, int h, uint8_t* buf) noexcept
+    static void rasterize (uint32_t codepoint, int w, int h, uint8_t* buf, bool embolden) noexcept
     {
         std::memset (buf, 0, static_cast<size_t> (w) * static_cast<size_t> (h));
 
@@ -151,34 +150,34 @@ struct BoxDrawing
 
             if (idx >= 0x6D and idx <= 0x70)
             {
-                drawRoundedCorner (idx, w, h, buf);
+                drawRoundedCorner (idx, w, h, buf, embolden);
             }
             else if (idx >= 0x04 and idx <= 0x0B)
             {
-                drawDashedLine (idx, w, h, buf);
+                drawDashedLine (idx, w, h, buf, embolden);
             }
             else if (idx >= 0x71 and idx <= 0x73)
             {
-                drawDiagonal (idx, w, h, buf);
+                drawDiagonal (idx, w, h, buf, embolden);
             }
             else if (idx <= 0x4B)
             {
                 const Lines& lines { TABLE.at (idx) };
-                drawLines (lines, w, h, buf);
+                drawLines (lines, w, h, buf, embolden);
             }
             else if (idx >= 0x50 and idx <= 0x6C)
             {
-                drawDoubleLines (idx, w, h, buf);
+                drawDoubleLines (idx, w, h, buf, embolden);
             }
             else if (idx >= 0x74 and idx <= 0x7F)
             {
                 const Lines& lines { HALF_TABLE.at (idx - 0x74) };
-                drawLines (lines, w, h, buf);
+                drawLines (lines, w, h, buf, embolden);
             }
             else
             {
                 const Lines fallback { Weight::light, Weight::light, Weight::light, Weight::light };
-                drawLines (fallback, w, h, buf);
+                drawLines (fallback, w, h, buf, embolden);
             }
         }
 
@@ -226,28 +225,35 @@ private:
     /**
      * @brief Compute the light (thin) line thickness for the given cell width.
      *
-     * Returns `max(1, cellWidth / 8)`.  At typical terminal font sizes
-     * (8–16 px wide cells) this yields 1–2 px.
+     * Base value is `max(1, cellWidth / 8)`.  When `embolden` is `true` the
+     * result is doubled, making light strokes match the embolden-off heavy
+     * stroke at small cell sizes.
      *
      * @param cellWidth Cell width in pixels.
+     * @param embolden  When `true`, doubles the base thickness.
      * @return Light line thickness in pixels (≥ 1).
      */
-    static int lightThickness (int cellWidth) noexcept
+    static int lightThickness (int cellWidth, bool embolden) noexcept
     {
-        return std::max (1, cellWidth / 8);
+        const int base { std::max (1, cellWidth / 8) };
+        return embolden ? base * 2 : base;
     }
 
     /**
      * @brief Compute the heavy (bold) line thickness for the given cell width.
      *
-     * Returns `max(2, lightThickness(cellWidth) * 2)`.
+     * Returns `max(2, lightThickness(cellWidth, embolden) * 2)`.  When
+     * `embolden` is `true`, the effective result is `×4` the base light
+     * thickness — embolden is an orthogonal multiplier on top of weight.
      *
      * @param cellWidth Cell width in pixels.
+     * @param embolden  When `true`, doubles the base light thickness before
+     *                  applying the heavy ×2 factor.
      * @return Heavy line thickness in pixels (≥ 2).
      */
-    static int heavyThickness (int cellWidth) noexcept
+    static int heavyThickness (int cellWidth, bool embolden) noexcept
     {
-        return std::max (2, lightThickness (cellWidth) * 2);
+        return std::max (2, lightThickness (cellWidth, embolden) * 2);
     }
 
     /**
@@ -263,17 +269,18 @@ private:
      * - Left:  `x` range `[0, cx + t/2]`
      * - Right: `x` range `[cx - t/2, w]`
      *
-     * @param lines Line weight descriptor.
-     * @param w     Bitmap width in pixels.
-     * @param h     Bitmap height in pixels.
-     * @param buf   Output buffer (R8, `w × h` bytes).
+     * @param lines    Line weight descriptor.
+     * @param w        Bitmap width in pixels.
+     * @param h        Bitmap height in pixels.
+     * @param buf      Output buffer (R8, `w × h` bytes).
+     * @param embolden When `true`, doubles effective stroke thickness.
      */
-    static void drawLines (const Lines& lines, int w, int h, uint8_t* buf) noexcept
+    static void drawLines (const Lines& lines, int w, int h, uint8_t* buf, bool embolden) noexcept
     {
         const int cx { w / 2 };
         const int cy { h / 2 };
-        const int lt { lightThickness (w) };
-        const int ht { heavyThickness (w) };
+        const int lt { lightThickness (w, embolden) };
+        const int ht { heavyThickness (w, embolden) };
 
         if (lines.up != Weight::none)
         {
@@ -319,19 +326,20 @@ private:
      * | 0x0A | U+250A ┊  | vertical   | light  | 4      |
      * | 0x0B | U+250B ┋  | vertical   | heavy  | 4      |
      *
-     * @param idx Box-drawing table index (codepoint − 0x2500).
-     * @param w   Bitmap width in pixels.
-     * @param h   Bitmap height in pixels.
-     * @param buf Output buffer (R8, `w × h` bytes).
+     * @param idx      Box-drawing table index (codepoint − 0x2500).
+     * @param w        Bitmap width in pixels.
+     * @param h        Bitmap height in pixels.
+     * @param buf      Output buffer (R8, `w × h` bytes).
+     * @param embolden When `true`, doubles effective stroke thickness.
      */
-    static void drawDashedLine (uint32_t idx, int w, int h, uint8_t* buf) noexcept
+    static void drawDashedLine (uint32_t idx, int w, int h, uint8_t* buf, bool embolden) noexcept
     {
         const int cx { w / 2 };
         const int cy { h / 2 };
         const bool horizontal { idx == 0x04 or idx == 0x05 or idx == 0x08 or idx == 0x09 };
         const bool heavy { idx == 0x05 or idx == 0x07 or idx == 0x09 or idx == 0x0B };
         const int numDashes { (idx == 0x04 or idx == 0x05 or idx == 0x06 or idx == 0x07) ? 3 : 4 };
-        const int t { heavy ? heavyThickness (w) : lightThickness (w) };
+        const int t { heavy ? heavyThickness (w, embolden) : lightThickness (w, embolden) };
 
         if (horizontal)
         {
@@ -380,14 +388,15 @@ private:
      * | 0x72 | U+2572 ╲  | Top-left to bottom-right       |
      * | 0x73 | U+2573 ╳  | Both diagonals                 |
      *
-     * @param idx Box-drawing table index (codepoint − 0x2500).
-     * @param w   Bitmap width in pixels.
-     * @param h   Bitmap height in pixels.
-     * @param buf Output buffer (R8, `w × h` bytes).
+     * @param idx      Box-drawing table index (codepoint − 0x2500).
+     * @param w        Bitmap width in pixels.
+     * @param h        Bitmap height in pixels.
+     * @param buf      Output buffer (R8, `w × h` bytes).
+     * @param embolden When `true`, doubles effective stroke thickness.
      */
-    static void drawDiagonal (uint32_t idx, int w, int h, uint8_t* buf) noexcept
+    static void drawDiagonal (uint32_t idx, int w, int h, uint8_t* buf, bool embolden) noexcept
     {
-        const int t { lightThickness (w) };
+        const int t { lightThickness (w, embolden) };
         const float halfT { static_cast<float> (t) * 0.5f };
         const float fw { static_cast<float> (w) };
         const float fh { static_cast<float> (h) };
@@ -441,16 +450,17 @@ private:
      * Corner and junction characters are handled case-by-case to correctly
      * connect the rail pairs.
      *
-     * @param idx Box-drawing table index (codepoint − 0x2500), range 0x50–0x6C.
-     * @param w   Bitmap width in pixels.
-     * @param h   Bitmap height in pixels.
-     * @param buf Output buffer (R8, `w × h` bytes).
+     * @param idx      Box-drawing table index (codepoint − 0x2500), range 0x50–0x6C.
+     * @param w        Bitmap width in pixels.
+     * @param h        Bitmap height in pixels.
+     * @param buf      Output buffer (R8, `w × h` bytes).
+     * @param embolden When `true`, doubles effective stroke thickness.
      */
-    static void drawDoubleLines (uint32_t idx, int w, int h, uint8_t* buf) noexcept
+    static void drawDoubleLines (uint32_t idx, int w, int h, uint8_t* buf, bool embolden) noexcept
     {
         const int cx { w / 2 };
         const int cy { h / 2 };
-        const int lt { lightThickness (w) };
+        const int lt { lightThickness (w, embolden) };
         const int gap { std::max (1, lt) };
 
         const int outerH { cy - gap };
@@ -460,153 +470,153 @@ private:
 
         switch (idx)
         {
-            case 0x50: // ═
+            case 0x50:// ═
                 fillRect (buf, w, 0, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x51: // ║
+            case 0x51:// ║
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, h, 255);
                 break;
-            case 0x52: // ╒  down=light, right=double
+            case 0x52:// ╒  down=light, right=double
                 fillRect (buf, w, cx - lt / 2, cy, cx - lt / 2 + lt, h, 255);
                 fillRect (buf, w, cx, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, cx, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x53: // ╓  down=double, right=light
+            case 0x53:// ╓  down=double, right=light
                 fillRect (buf, w, outerV - lt / 2, cy, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, cy, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, cx, cy - lt / 2, w, cy - lt / 2 + lt, 255);
                 break;
-            case 0x54: // ╔  down=double, right=double
+            case 0x54:// ╔  down=double, right=double
                 fillRect (buf, w, outerV - lt / 2, cy, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, cy, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, cx, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, innerV, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x55: // ╕  down=light, left=double
+            case 0x55:// ╕  down=light, left=double
                 fillRect (buf, w, cx - lt / 2, cy, cx - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, cx, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, cx, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x56: // ╖  down=double, left=light
+            case 0x56:// ╖  down=double, left=light
                 fillRect (buf, w, outerV - lt / 2, cy, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, cy, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, cy - lt / 2, cx, cy - lt / 2 + lt, 255);
                 break;
-            case 0x57: // ╗  down=double, left=double
+            case 0x57:// ╗  down=double, left=double
                 fillRect (buf, w, outerV - lt / 2, cy, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, cy, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, cx, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, outerV, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x58: // ╘  up=light, right=double
+            case 0x58:// ╘  up=light, right=double
                 fillRect (buf, w, cx - lt / 2, 0, cx - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, cx, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, cx, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x59: // ╙  up=double, right=light
+            case 0x59:// ╙  up=double, right=light
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, cx, cy - lt / 2, w, cy - lt / 2 + lt, 255);
                 break;
-            case 0x5A: // ╚  up=double, right=double
+            case 0x5A:// ╚  up=double, right=double
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, cx, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, innerV, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x5B: // ╛  up=light, left=double
+            case 0x5B:// ╛  up=light, left=double
                 fillRect (buf, w, cx - lt / 2, 0, cx - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, cx, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, cx, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x5C: // ╜  up=double, left=light
+            case 0x5C:// ╜  up=double, left=light
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, 0, cy - lt / 2, cx, cy - lt / 2 + lt, 255);
                 break;
-            case 0x5D: // ╝  up=double, left=double
+            case 0x5D:// ╝  up=double, left=double
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, cx, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, outerV, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x5E: // ╞  up=light, down=light, right=double
+            case 0x5E:// ╞  up=light, down=light, right=double
                 fillRect (buf, w, cx - lt / 2, 0, cx - lt / 2 + lt, h, 255);
                 fillRect (buf, w, cx, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, cx, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x5F: // ╟  up=double, down=double, right=light
+            case 0x5F:// ╟  up=double, down=double, right=light
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, cx, cy - lt / 2, w, cy - lt / 2 + lt, 255);
                 break;
-            case 0x60: // ╠  up=double, down=double, right=double
+            case 0x60:// ╠  up=double, down=double, right=double
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, innerV, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x61: // ╡  up=light, down=light, left=double
+            case 0x61:// ╡  up=light, down=light, left=double
                 fillRect (buf, w, cx - lt / 2, 0, cx - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, cx, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, cx, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x62: // ╢  up=double, down=double, left=light
+            case 0x62:// ╢  up=double, down=double, left=light
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, cy - lt / 2, cx, cy - lt / 2 + lt, 255);
                 break;
-            case 0x63: // ╣  up=double, down=double, left=double
+            case 0x63:// ╣  up=double, down=double, left=double
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, outerV, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, outerV, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x64: // ╤  down=light, left=double, right=double
+            case 0x64:// ╤  down=light, left=double, right=double
                 fillRect (buf, w, cx - lt / 2, cy, cx - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x65: // ╥  down=double, left=light, right=light
+            case 0x65:// ╥  down=double, left=light, right=light
                 fillRect (buf, w, outerV - lt / 2, cy, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, cy, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, cy - lt / 2, w, cy - lt / 2 + lt, 255);
                 break;
-            case 0x66: // ╦  down=double, left=double, right=double
+            case 0x66:// ╦  down=double, left=double, right=double
                 fillRect (buf, w, outerV - lt / 2, cy, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, cy, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, outerV, innerH - lt / 2, innerV, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x67: // ╧  up=light, left=double, right=double
+            case 0x67:// ╧  up=light, left=double, right=double
                 fillRect (buf, w, cx - lt / 2, 0, cx - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x68: // ╨  up=double, left=light, right=light
+            case 0x68:// ╨  up=double, left=light, right=light
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, 0, cy - lt / 2, w, cy - lt / 2 + lt, 255);
                 break;
-            case 0x69: // ╩  up=double, left=double, right=double
+            case 0x69:// ╩  up=double, left=double, right=double
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, cy, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, outerV, innerH - lt / 2, innerV, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x6A: // ╪  up=light, down=light, left=double, right=double
+            case 0x6A:// ╪  up=light, down=light, left=double, right=double
                 fillRect (buf, w, cx - lt / 2, 0, cx - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, w, outerH - lt / 2 + lt, 255);
                 fillRect (buf, w, 0, innerH - lt / 2, w, innerH - lt / 2 + lt, 255);
                 break;
-            case 0x6B: // ╫  up=double, down=double, left=light, right=light
+            case 0x6B:// ╫  up=double, down=double, left=light, right=light
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, cy - lt / 2, w, cy - lt / 2 + lt, 255);
                 break;
-            case 0x6C: // ╬  up=double, down=double, left=double, right=double
+            case 0x6C:// ╬  up=double, down=double, left=double, right=double
                 fillRect (buf, w, outerV - lt / 2, 0, outerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, innerV - lt / 2, 0, innerV - lt / 2 + lt, h, 255);
                 fillRect (buf, w, 0, outerH - lt / 2, outerV, outerH - lt / 2 + lt, 255);
@@ -620,112 +630,150 @@ private:
     }
 
     /**
-     * @brief Cubic Hermite smoothstep interpolation.
+     * @brief Smoothstep anti-aliasing kernel: Hermite interpolation.
      *
-     * Returns 0 for `x ≤ edge0`, 1 for `x ≥ edge1`, and a smooth cubic
-     * interpolation in between.  Used by `drawRoundedCorner()` to produce
-     * anti-aliased stroke edges.
+     * Returns 0 for `x <= edge0`, 1 for `x >= edge1`, smooth cubic transition
+     * in between.  Used by `drawRoundedCorner()` to soften the SDF stroke edge.
      *
-     * @param edge0 Lower edge of the transition band.
-     * @param edge1 Upper edge of the transition band.
+     * @param edge0 Lower edge of the smoothstep band.
+     * @param edge1 Upper edge of the smoothstep band.
      * @param x     Input value.
-     * @return Smoothly interpolated value in [0, 1].
-     *
-     * @note Returns 0 or 1 immediately when `edge0 == edge1` to avoid
-     *       division by zero.
+     * @return Smoothed result in `[0, 1]`.
      */
     static float smoothstep (float edge0, float edge1, float x) noexcept
     {
-        float result { x < edge0 ? 0.0f : 1.0f };
-
-        if (edge0 != edge1)
-        {
-            const float t { std::clamp ((x - edge0) / (edge1 - edge0), 0.0f, 1.0f) };
-            result = t * t * (3.0f - 2.0f * t);
-        }
-
-        return result;
+        const float t { std::clamp ((x - edge0) / (edge1 - edge0), 0.0f, 1.0f) };
+        return t * t * (3.0f - 2.0f * t);
     }
 
     /**
      * @brief Render an SDF-based rounded corner (U+256D–U+2570).
      *
-     * Computes a signed-distance field of a rounded rectangle centred at the
-     * cell midpoint.  The SDF value drives a `smoothstep()` anti-aliasing
-     * kernel to produce a smooth stroke of `lightThickness()` width.
+     * 4× supersampled SDF, box-averaged down — mirrors kitty's `rounded_corner()`
+     * (kitty/decorations.c).  The geometry is rasterized into a scratch buffer at
+     * 4× native resolution using the same rounded-rectangle SDF kernel, then
+     * box-filtered back to the native cell size.  This eliminates the jagginess
+     * of the previous 2×2 per-pixel approach.
+     *
+     * SDF geometry parameters (`adjustedHx`, `adjustedHy`) are derived from the
+     * actual pixel range that `drawLines()` uses for the straight │ and ─ strokes,
+     * so the arc tangent point aligns with those strokes regardless of cell size.
      *
      * Each corner is rendered by shifting the sample coordinates so that the
      * arc centre falls at the appropriate cell corner:
-     * - 0x6D (╭): top-left corner — shift `(-cx, -cy)`
-     * - 0x6E (╮): top-right corner — shift `(+cx, -cy)`
-     * - 0x6F (╯): bottom-right corner — shift `(+cx, +cy)`
-     * - 0x70 (╰): bottom-left corner — shift `(-cx, +cy)`
+     * - 0x6D (╭): top-left corner
+     * - 0x6E (╮): top-right corner
+     * - 0x6F (╯): bottom-right corner
+     * - 0x70 (╰): bottom-left corner
      *
-     * @param idx Box-drawing table index (codepoint − 0x2500), range 0x6D–0x70.
-     * @param w   Bitmap width in pixels.
-     * @param h   Bitmap height in pixels.
-     * @param buf Output buffer (R8, `w × h` bytes).
+     * @param idx      Box-drawing table index (codepoint − 0x2500), range 0x6D–0x70.
+     * @param w        Bitmap width in pixels.
+     * @param h        Bitmap height in pixels.
+     * @param buf      Output buffer (R8, `w × h` bytes).
+     * @param embolden When `true`, doubles effective stroke thickness.
      *
      * @see smoothstep()
      */
-    static void drawRoundedCorner (uint32_t idx, int w, int h, uint8_t* buf) noexcept
+    static void drawRoundedCorner (uint32_t idx, int w, int h, uint8_t* buf, bool embolden) noexcept
     {
-        const float cx { static_cast<float> (w) / 2.0f };
-        const float cy { static_cast<float> (h) / 2.0f };
-        const float thickness { static_cast<float> (lightThickness (w)) };
-        const float radius { std::min (cx, cy) };
-        const float bx { cx - radius };
-        const float by { cy - radius };
+        static constexpr int supersampleFactor { 4 };
 
-        float xShift { 0.0f };
-        float yShift { 0.0f };
+        const int scratchWidth { w * supersampleFactor };
+        const int scratchHeight { h * supersampleFactor };
+        juce::HeapBlock<uint8_t> scratch (
+            static_cast<size_t> (scratchWidth) * static_cast<size_t> (scratchHeight), true);
+
+        // Derive SDF centre from the actual pixel range drawLines() uses for │/─.
+        // drawLines() places the vertical stroke at [cx - t/2, cx - t/2 + t),
+        // so its geometric centre is (cx - t/2) + t/2.0f.
+        const int lightT { lightThickness (w, embolden) };
+        const int cxNative { w / 2 };
+        const int cyNative { h / 2 };
+        const float adjustedHxSs { (static_cast<float> (cxNative - lightT / 2) + static_cast<float> (lightT) * 0.5f)
+                                   * static_cast<float> (supersampleFactor) };
+        const float adjustedHySs { (static_cast<float> (cyNative - lightT / 2) + static_cast<float> (lightT) * 0.5f)
+                                   * static_cast<float> (supersampleFactor) };
+
+        const float strokeSs { static_cast<float> (lightT * supersampleFactor) };
+        const float halfStrokeSs { strokeSs * 0.5f };
+        const float radiusSs { std::min (adjustedHxSs, adjustedHySs) };
+        const float bxSs { adjustedHxSs - radiusSs };
+        const float bySs { adjustedHySs - radiusSs };
+        const float aaSs { static_cast<float> (supersampleFactor) * 0.5f };
+
+        float xShiftSs { 0.0f };
+        float yShiftSs { 0.0f };
 
         switch (idx)
         {
             case 0x6D:
-                xShift = -cx;
-                yShift = -cy;
+                xShiftSs = -adjustedHxSs;
+                yShiftSs = -adjustedHySs;
                 break;
             case 0x6E:
-                xShift = +cx;
-                yShift = -cy;
+                xShiftSs = +adjustedHxSs;
+                yShiftSs = -adjustedHySs;
                 break;
             case 0x6F:
-                xShift = +cx;
-                yShift = +cy;
+                xShiftSs = +adjustedHxSs;
+                yShiftSs = +adjustedHySs;
                 break;
             case 0x70:
-                xShift = -cx;
-                yShift = +cy;
+                xShiftSs = -adjustedHxSs;
+                yShiftSs = +adjustedHySs;
                 break;
             default:
                 break;
         }
 
-        const float halfStroke { thickness * 0.5f };
+        for (int sy { 0 }; sy < scratchHeight; ++sy)
+        {
+            for (int sx { 0 }; sx < scratchWidth; ++sx)
+            {
+                const float sampleX { static_cast<float> (sx) + 0.5f + xShiftSs };
+                const float sampleY { static_cast<float> (sy) + 0.5f + yShiftSs };
+                const float posX { sampleX - adjustedHxSs };
+                const float posY { sampleY - adjustedHySs };
+                const float qx { std::abs (posX) - bxSs };
+                const float qy { std::abs (posY) - bySs };
+                const float dx { std::max (qx, 0.0f) };
+                const float dy { std::max (qy, 0.0f) };
+                const float dist { std::sqrt (dx * dx + dy * dy) + std::min (std::max (qx, qy), 0.0f) - radiusSs };
+                const float aa { (qx > 1e-7f and qy > 1e-7f) ? aaSs : 0.0f };
+                const float outer { halfStrokeSs - dist };
+                const float inner { -halfStrokeSs - dist };
+                const float alpha { smoothstep (-aa, aa, outer) - smoothstep (-aa, aa, inner) };
+
+                if (alpha > 0.0f)
+                    scratch[sy * scratchWidth + sx] = static_cast<uint8_t> (alpha * 255.0f);
+            }
+        }
+
+        const int samplesPerPixel { supersampleFactor * supersampleFactor };
 
         for (int py { 0 }; py < h; ++py)
         {
             for (int px { 0 }; px < w; ++px)
             {
-                const float sampleX { static_cast<float> (px) + 0.5f + xShift };
-                const float sampleY { static_cast<float> (py) + 0.5f + yShift };
-                const float posX { sampleX - cx };
-                const float posY { sampleY - cy };
-                const float qx { std::abs (posX) - bx };
-                const float qy { std::abs (posY) - by };
-                const float dx { std::max (qx, 0.0f) };
-                const float dy { std::max (qy, 0.0f) };
-                const float dist { std::sqrt (dx * dx + dy * dy) + std::min (std::max (qx, qy), 0.0f) - radius };
-                const float aa { (qx > 1e-7f and qy > 1e-7f) ? 0.5f : 0.0f };
-                const float outer { halfStroke - dist };
-                const float inner { -halfStroke - dist };
-                const float alpha { smoothstep (-aa, aa, outer) - smoothstep (-aa, aa, inner) };
+                int accumulator { 0 };
 
-                if (alpha > 0.0f)
+                const int ssBaseX { px * supersampleFactor };
+                const int ssBaseY { py * supersampleFactor };
+
+                for (int dy { 0 }; dy < supersampleFactor; ++dy)
+                {
+                    for (int dx { 0 }; dx < supersampleFactor; ++dx)
+                    {
+                        accumulator += scratch[(ssBaseY + dy) * scratchWidth + (ssBaseX + dx)];
+                    }
+                }
+
+                const int averaged { accumulator / samplesPerPixel };
+
+                if (averaged > 0)
                 {
                     const int existing { buf[py * w + px] };
-                    buf[py * w + px] = static_cast<uint8_t> (std::max (existing, static_cast<int> (alpha * 255.0f)));
+                    buf[py * w + px] = static_cast<uint8_t> (std::max (existing, averaged));
                 }
             }
         }
@@ -773,31 +821,81 @@ private:
 
         switch (codepoint)
         {
-            case 0x2580: fillRect (buf, w, 0, 0, w, halfH, 255); break;
-            case 0x2581: fillRect (buf, w, 0, h * 7 / 8, w, h, 255); break;
-            case 0x2582: fillRect (buf, w, 0, h * 6 / 8, w, h, 255); break;
-            case 0x2583: fillRect (buf, w, 0, h * 5 / 8, w, h, 255); break;
-            case 0x2584: fillRect (buf, w, 0, h * 4 / 8, w, h, 255); break;
-            case 0x2585: fillRect (buf, w, 0, h * 3 / 8, w, h, 255); break;
-            case 0x2586: fillRect (buf, w, 0, h * 2 / 8, w, h, 255); break;
-            case 0x2587: fillRect (buf, w, 0, h * 1 / 8, w, h, 255); break;
-            case 0x2588: fillRect (buf, w, 0, 0, w, h, 255); break;
-            case 0x2589: fillRect (buf, w, 0, 0, w * 7 / 8, h, 255); break;
-            case 0x258A: fillRect (buf, w, 0, 0, w * 6 / 8, h, 255); break;
-            case 0x258B: fillRect (buf, w, 0, 0, w * 5 / 8, h, 255); break;
-            case 0x258C: fillRect (buf, w, 0, 0, w * 4 / 8, h, 255); break;
-            case 0x258D: fillRect (buf, w, 0, 0, w * 3 / 8, h, 255); break;
-            case 0x258E: fillRect (buf, w, 0, 0, w * 2 / 8, h, 255); break;
-            case 0x258F: fillRect (buf, w, 0, 0, w * 1 / 8, h, 255); break;
-            case 0x2590: fillRect (buf, w, halfW, 0, w, h, 255); break;
-            case 0x2591: drawShade (w, h, buf, 64); break;
-            case 0x2592: drawShade (w, h, buf, 128); break;
-            case 0x2593: drawShade (w, h, buf, 191); break;
-            case 0x2594: fillRect (buf, w, 0, 0, w, h * 1 / 8, 255); break;
-            case 0x2595: fillRect (buf, w, w * 7 / 8, 0, w, h, 255); break;
-            case 0x2596: fillRect (buf, w, 0, halfH, halfW, h, 255); break;
-            case 0x2597: fillRect (buf, w, halfW, halfH, w, h, 255); break;
-            case 0x2598: fillRect (buf, w, 0, 0, halfW, halfH, 255); break;
+            case 0x2580:
+                fillRect (buf, w, 0, 0, w, halfH, 255);
+                break;
+            case 0x2581:
+                fillRect (buf, w, 0, h * 7 / 8, w, h, 255);
+                break;
+            case 0x2582:
+                fillRect (buf, w, 0, h * 6 / 8, w, h, 255);
+                break;
+            case 0x2583:
+                fillRect (buf, w, 0, h * 5 / 8, w, h, 255);
+                break;
+            case 0x2584:
+                fillRect (buf, w, 0, h * 4 / 8, w, h, 255);
+                break;
+            case 0x2585:
+                fillRect (buf, w, 0, h * 3 / 8, w, h, 255);
+                break;
+            case 0x2586:
+                fillRect (buf, w, 0, h * 2 / 8, w, h, 255);
+                break;
+            case 0x2587:
+                fillRect (buf, w, 0, h * 1 / 8, w, h, 255);
+                break;
+            case 0x2588:
+                fillRect (buf, w, 0, 0, w, h, 255);
+                break;
+            case 0x2589:
+                fillRect (buf, w, 0, 0, w * 7 / 8, h, 255);
+                break;
+            case 0x258A:
+                fillRect (buf, w, 0, 0, w * 6 / 8, h, 255);
+                break;
+            case 0x258B:
+                fillRect (buf, w, 0, 0, w * 5 / 8, h, 255);
+                break;
+            case 0x258C:
+                fillRect (buf, w, 0, 0, w * 4 / 8, h, 255);
+                break;
+            case 0x258D:
+                fillRect (buf, w, 0, 0, w * 3 / 8, h, 255);
+                break;
+            case 0x258E:
+                fillRect (buf, w, 0, 0, w * 2 / 8, h, 255);
+                break;
+            case 0x258F:
+                fillRect (buf, w, 0, 0, w * 1 / 8, h, 255);
+                break;
+            case 0x2590:
+                fillRect (buf, w, halfW, 0, w, h, 255);
+                break;
+            case 0x2591:
+                drawShade (w, h, buf, 64);
+                break;
+            case 0x2592:
+                drawShade (w, h, buf, 128);
+                break;
+            case 0x2593:
+                drawShade (w, h, buf, 191);
+                break;
+            case 0x2594:
+                fillRect (buf, w, 0, 0, w, h * 1 / 8, 255);
+                break;
+            case 0x2595:
+                fillRect (buf, w, w * 7 / 8, 0, w, h, 255);
+                break;
+            case 0x2596:
+                fillRect (buf, w, 0, halfH, halfW, h, 255);
+                break;
+            case 0x2597:
+                fillRect (buf, w, halfW, halfH, w, h, 255);
+                break;
+            case 0x2598:
+                fillRect (buf, w, 0, 0, halfW, halfH, 255);
+                break;
             case 0x2599:
                 fillRect (buf, w, 0, 0, halfW, halfH, 255);
                 fillRect (buf, w, 0, halfH, halfW, h, 255);
@@ -817,7 +915,9 @@ private:
                 fillRect (buf, w, halfW, 0, w, halfH, 255);
                 fillRect (buf, w, halfW, halfH, w, h, 255);
                 break;
-            case 0x259D: fillRect (buf, w, halfW, 0, w, halfH, 255); break;
+            case 0x259D:
+                fillRect (buf, w, halfW, 0, w, halfH, 255);
+                break;
             case 0x259E:
                 fillRect (buf, w, halfW, 0, w, halfH, 255);
                 fillRect (buf, w, 0, halfH, halfW, h, 255);
@@ -827,7 +927,8 @@ private:
                 fillRect (buf, w, 0, halfH, halfW, h, 255);
                 fillRect (buf, w, halfW, halfH, w, h, 255);
                 break;
-            default: break;
+            default:
+                break;
         }
     }
 
@@ -864,8 +965,12 @@ private:
         const int dotW { std::max (1, cellW / 2) };
         const int dotH { std::max (1, cellH / 2) };
 
-        static constexpr std::array<int, 8> dotCol {{ 0, 0, 0, 1, 1, 1, 0, 1 }};
-        static constexpr std::array<int, 8> dotRow {{ 0, 1, 2, 0, 1, 2, 3, 3 }};
+        static constexpr std::array<int, 8> dotCol {
+            { 0, 0, 0, 1, 1, 1, 0, 1 }
+        };
+        static constexpr std::array<int, 8> dotRow {
+            { 0, 1, 2, 0, 1, 2, 3, 3 }
+        };
 
         for (int i { 0 }; i < 8; ++i)
         {
@@ -890,85 +995,86 @@ private:
      * @see rasterize()
      * @see drawLines()
      */
-    static constexpr std::array<Lines, 76> TABLE
-    {{
-        { Weight::none,  Weight::light, Weight::none,  Weight::light }, // 0x2500 ─
-        { Weight::none,  Weight::heavy, Weight::none,  Weight::heavy }, // 0x2501 ━
-        { Weight::light, Weight::none,  Weight::light, Weight::none  }, // 0x2502 │
-        { Weight::heavy, Weight::none,  Weight::heavy, Weight::none  }, // 0x2503 ┃
-        { Weight::none,  Weight::light, Weight::none,  Weight::light }, // 0x2504 ┄
-        { Weight::none,  Weight::heavy, Weight::none,  Weight::heavy }, // 0x2505 ┅
-        { Weight::light, Weight::none,  Weight::light, Weight::none  }, // 0x2506 ┆
-        { Weight::heavy, Weight::none,  Weight::heavy, Weight::none  }, // 0x2507 ┇
-        { Weight::none,  Weight::light, Weight::none,  Weight::light }, // 0x2508 ┈
-        { Weight::none,  Weight::heavy, Weight::none,  Weight::heavy }, // 0x2509 ┉
-        { Weight::light, Weight::none,  Weight::light, Weight::none  }, // 0x250A ┊
-        { Weight::heavy, Weight::none,  Weight::heavy, Weight::none  }, // 0x250B ┋
-        { Weight::none,  Weight::light, Weight::light, Weight::none  }, // 0x250C ┌
-        { Weight::none,  Weight::heavy, Weight::light, Weight::none  }, // 0x250D ┍
-        { Weight::none,  Weight::light, Weight::heavy, Weight::none  }, // 0x250E ┎
-        { Weight::none,  Weight::heavy, Weight::heavy, Weight::none  }, // 0x250F ┏
-        { Weight::none,  Weight::none,  Weight::light, Weight::light }, // 0x2510 ┐
-        { Weight::none,  Weight::none,  Weight::light, Weight::heavy }, // 0x2511 ┑
-        { Weight::none,  Weight::none,  Weight::heavy, Weight::light }, // 0x2512 ┒
-        { Weight::none,  Weight::none,  Weight::heavy, Weight::heavy }, // 0x2513 ┓
-        { Weight::light, Weight::light, Weight::none,  Weight::none  }, // 0x2514 └
-        { Weight::light, Weight::heavy, Weight::none,  Weight::none  }, // 0x2515 ┕
-        { Weight::heavy, Weight::light, Weight::none,  Weight::none  }, // 0x2516 ┖
-        { Weight::heavy, Weight::heavy, Weight::none,  Weight::none  }, // 0x2517 ┗
-        { Weight::light, Weight::none,  Weight::none,  Weight::light }, // 0x2518 ┘
-        { Weight::light, Weight::none,  Weight::none,  Weight::heavy }, // 0x2519 ┙
-        { Weight::heavy, Weight::none,  Weight::none,  Weight::light }, // 0x251A ┚
-        { Weight::heavy, Weight::none,  Weight::none,  Weight::heavy }, // 0x251B ┛
-        { Weight::light, Weight::light, Weight::light, Weight::none  }, // 0x251C ├
-        { Weight::light, Weight::heavy, Weight::light, Weight::none  }, // 0x251D ┝
-        { Weight::heavy, Weight::light, Weight::light, Weight::none  }, // 0x251E ┞
-        { Weight::light, Weight::light, Weight::heavy, Weight::none  }, // 0x251F ┟
-        { Weight::heavy, Weight::light, Weight::heavy, Weight::none  }, // 0x2520 ┠
-        { Weight::heavy, Weight::heavy, Weight::light, Weight::none  }, // 0x2521 ┡
-        { Weight::light, Weight::heavy, Weight::heavy, Weight::none  }, // 0x2522 ┢
-        { Weight::heavy, Weight::heavy, Weight::heavy, Weight::none  }, // 0x2523 ┣
-        { Weight::light, Weight::none,  Weight::light, Weight::light }, // 0x2524 ┤
-        { Weight::light, Weight::none,  Weight::light, Weight::heavy }, // 0x2525 ┥
-        { Weight::heavy, Weight::none,  Weight::light, Weight::light }, // 0x2526 ┦
-        { Weight::light, Weight::none,  Weight::heavy, Weight::light }, // 0x2527 ┧
-        { Weight::heavy, Weight::none,  Weight::heavy, Weight::light }, // 0x2528 ┨
-        { Weight::heavy, Weight::none,  Weight::light, Weight::heavy }, // 0x2529 ┩
-        { Weight::light, Weight::none,  Weight::heavy, Weight::heavy }, // 0x252A ┪
-        { Weight::heavy, Weight::none,  Weight::heavy, Weight::heavy }, // 0x252B ┫
-        { Weight::none,  Weight::light, Weight::light, Weight::light }, // 0x252C ┬
-        { Weight::none,  Weight::light, Weight::light, Weight::heavy }, // 0x252D ┭
-        { Weight::none,  Weight::heavy, Weight::light, Weight::light }, // 0x252E ┮
-        { Weight::none,  Weight::heavy, Weight::light, Weight::heavy }, // 0x252F ┯
-        { Weight::none,  Weight::light, Weight::heavy, Weight::light }, // 0x2530 ┰
-        { Weight::none,  Weight::light, Weight::heavy, Weight::heavy }, // 0x2531 ┱
-        { Weight::none,  Weight::heavy, Weight::heavy, Weight::light }, // 0x2532 ┲
-        { Weight::none,  Weight::heavy, Weight::heavy, Weight::heavy }, // 0x2533 ┳
-        { Weight::light, Weight::light, Weight::none,  Weight::light }, // 0x2534 ┴
-        { Weight::light, Weight::light, Weight::none,  Weight::heavy }, // 0x2535 ┵
-        { Weight::light, Weight::heavy, Weight::none,  Weight::light }, // 0x2536 ┶
-        { Weight::light, Weight::heavy, Weight::none,  Weight::heavy }, // 0x2537 ┷
-        { Weight::heavy, Weight::light, Weight::none,  Weight::light }, // 0x2538 ┸
-        { Weight::heavy, Weight::light, Weight::none,  Weight::heavy }, // 0x2539 ┹
-        { Weight::heavy, Weight::heavy, Weight::none,  Weight::light }, // 0x253A ┺
-        { Weight::heavy, Weight::heavy, Weight::none,  Weight::heavy }, // 0x253B ┻
-        { Weight::light, Weight::light, Weight::light, Weight::light }, // 0x253C ┼
-        { Weight::light, Weight::light, Weight::light, Weight::heavy }, // 0x253D ┽
-        { Weight::light, Weight::heavy, Weight::light, Weight::light }, // 0x253E ┾
-        { Weight::light, Weight::heavy, Weight::light, Weight::heavy }, // 0x253F ┿
-        { Weight::heavy, Weight::light, Weight::light, Weight::light }, // 0x2540 ╀
-        { Weight::light, Weight::light, Weight::heavy, Weight::light }, // 0x2541 ╁
-        { Weight::heavy, Weight::light, Weight::heavy, Weight::light }, // 0x2542 ╂
-        { Weight::heavy, Weight::light, Weight::light, Weight::heavy }, // 0x2543 ╃
-        { Weight::heavy, Weight::heavy, Weight::light, Weight::light }, // 0x2544 ╄
-        { Weight::light, Weight::light, Weight::heavy, Weight::heavy }, // 0x2545 ╅
-        { Weight::light, Weight::heavy, Weight::heavy, Weight::light }, // 0x2546 ╆
-        { Weight::light, Weight::heavy, Weight::light, Weight::heavy }, // 0x2547 ╇
-        { Weight::heavy, Weight::light, Weight::heavy, Weight::heavy }, // 0x2548 ╈
-        { Weight::heavy, Weight::heavy, Weight::heavy, Weight::light }, // 0x2549 ╉
-        { Weight::heavy, Weight::heavy, Weight::light, Weight::heavy }, // 0x254A ╊
-        { Weight::heavy, Weight::heavy, Weight::heavy, Weight::heavy }, // 0x254B ╋
-    }};
+    static constexpr std::array<Lines, 76> TABLE {
+        {
+         { Weight::none, Weight::light, Weight::none, Weight::light },// 0x2500 ─
+            { Weight::none, Weight::heavy, Weight::none, Weight::heavy },// 0x2501 ━
+            { Weight::light, Weight::none, Weight::light, Weight::none },// 0x2502 │
+            { Weight::heavy, Weight::none, Weight::heavy, Weight::none },// 0x2503 ┃
+            { Weight::none, Weight::light, Weight::none, Weight::light },// 0x2504 ┄
+            { Weight::none, Weight::heavy, Weight::none, Weight::heavy },// 0x2505 ┅
+            { Weight::light, Weight::none, Weight::light, Weight::none },// 0x2506 ┆
+            { Weight::heavy, Weight::none, Weight::heavy, Weight::none },// 0x2507 ┇
+            { Weight::none, Weight::light, Weight::none, Weight::light },// 0x2508 ┈
+            { Weight::none, Weight::heavy, Weight::none, Weight::heavy },// 0x2509 ┉
+            { Weight::light, Weight::none, Weight::light, Weight::none },// 0x250A ┊
+            { Weight::heavy, Weight::none, Weight::heavy, Weight::none },// 0x250B ┋
+            { Weight::none, Weight::light, Weight::light, Weight::none },// 0x250C ┌
+            { Weight::none, Weight::heavy, Weight::light, Weight::none },// 0x250D ┍
+            { Weight::none, Weight::light, Weight::heavy, Weight::none },// 0x250E ┎
+            { Weight::none, Weight::heavy, Weight::heavy, Weight::none },// 0x250F ┏
+            { Weight::none, Weight::none, Weight::light, Weight::light },// 0x2510 ┐
+            { Weight::none, Weight::none, Weight::light, Weight::heavy },// 0x2511 ┑
+            { Weight::none, Weight::none, Weight::heavy, Weight::light },// 0x2512 ┒
+            { Weight::none, Weight::none, Weight::heavy, Weight::heavy },// 0x2513 ┓
+            { Weight::light, Weight::light, Weight::none, Weight::none },// 0x2514 └
+            { Weight::light, Weight::heavy, Weight::none, Weight::none },// 0x2515 ┕
+            { Weight::heavy, Weight::light, Weight::none, Weight::none },// 0x2516 ┖
+            { Weight::heavy, Weight::heavy, Weight::none, Weight::none },// 0x2517 ┗
+            { Weight::light, Weight::none, Weight::none, Weight::light },// 0x2518 ┘
+            { Weight::light, Weight::none, Weight::none, Weight::heavy },// 0x2519 ┙
+            { Weight::heavy, Weight::none, Weight::none, Weight::light },// 0x251A ┚
+            { Weight::heavy, Weight::none, Weight::none, Weight::heavy },// 0x251B ┛
+            { Weight::light, Weight::light, Weight::light, Weight::none },// 0x251C ├
+            { Weight::light, Weight::heavy, Weight::light, Weight::none },// 0x251D ┝
+            { Weight::heavy, Weight::light, Weight::light, Weight::none },// 0x251E ┞
+            { Weight::light, Weight::light, Weight::heavy, Weight::none },// 0x251F ┟
+            { Weight::heavy, Weight::light, Weight::heavy, Weight::none },// 0x2520 ┠
+            { Weight::heavy, Weight::heavy, Weight::light, Weight::none },// 0x2521 ┡
+            { Weight::light, Weight::heavy, Weight::heavy, Weight::none },// 0x2522 ┢
+            { Weight::heavy, Weight::heavy, Weight::heavy, Weight::none },// 0x2523 ┣
+            { Weight::light, Weight::none, Weight::light, Weight::light },// 0x2524 ┤
+            { Weight::light, Weight::none, Weight::light, Weight::heavy },// 0x2525 ┥
+            { Weight::heavy, Weight::none, Weight::light, Weight::light },// 0x2526 ┦
+            { Weight::light, Weight::none, Weight::heavy, Weight::light },// 0x2527 ┧
+            { Weight::heavy, Weight::none, Weight::heavy, Weight::light },// 0x2528 ┨
+            { Weight::heavy, Weight::none, Weight::light, Weight::heavy },// 0x2529 ┩
+            { Weight::light, Weight::none, Weight::heavy, Weight::heavy },// 0x252A ┪
+            { Weight::heavy, Weight::none, Weight::heavy, Weight::heavy },// 0x252B ┫
+            { Weight::none, Weight::light, Weight::light, Weight::light },// 0x252C ┬
+            { Weight::none, Weight::light, Weight::light, Weight::heavy },// 0x252D ┭
+            { Weight::none, Weight::heavy, Weight::light, Weight::light },// 0x252E ┮
+            { Weight::none, Weight::heavy, Weight::light, Weight::heavy },// 0x252F ┯
+            { Weight::none, Weight::light, Weight::heavy, Weight::light },// 0x2530 ┰
+            { Weight::none, Weight::light, Weight::heavy, Weight::heavy },// 0x2531 ┱
+            { Weight::none, Weight::heavy, Weight::heavy, Weight::light },// 0x2532 ┲
+            { Weight::none, Weight::heavy, Weight::heavy, Weight::heavy },// 0x2533 ┳
+            { Weight::light, Weight::light, Weight::none, Weight::light },// 0x2534 ┴
+            { Weight::light, Weight::light, Weight::none, Weight::heavy },// 0x2535 ┵
+            { Weight::light, Weight::heavy, Weight::none, Weight::light },// 0x2536 ┶
+            { Weight::light, Weight::heavy, Weight::none, Weight::heavy },// 0x2537 ┷
+            { Weight::heavy, Weight::light, Weight::none, Weight::light },// 0x2538 ┸
+            { Weight::heavy, Weight::light, Weight::none, Weight::heavy },// 0x2539 ┹
+            { Weight::heavy, Weight::heavy, Weight::none, Weight::light },// 0x253A ┺
+            { Weight::heavy, Weight::heavy, Weight::none, Weight::heavy },// 0x253B ┻
+            { Weight::light, Weight::light, Weight::light, Weight::light },// 0x253C ┼
+            { Weight::light, Weight::light, Weight::light, Weight::heavy },// 0x253D ┽
+            { Weight::light, Weight::heavy, Weight::light, Weight::light },// 0x253E ┾
+            { Weight::light, Weight::heavy, Weight::light, Weight::heavy },// 0x253F ┿
+            { Weight::heavy, Weight::light, Weight::light, Weight::light },// 0x2540 ╀
+            { Weight::light, Weight::light, Weight::heavy, Weight::light },// 0x2541 ╁
+            { Weight::heavy, Weight::light, Weight::heavy, Weight::light },// 0x2542 ╂
+            { Weight::heavy, Weight::light, Weight::light, Weight::heavy },// 0x2543 ╃
+            { Weight::heavy, Weight::heavy, Weight::light, Weight::light },// 0x2544 ╄
+            { Weight::light, Weight::light, Weight::heavy, Weight::heavy },// 0x2545 ╅
+            { Weight::light, Weight::heavy, Weight::heavy, Weight::light },// 0x2546 ╆
+            { Weight::light, Weight::heavy, Weight::light, Weight::heavy },// 0x2547 ╇
+            { Weight::heavy, Weight::light, Weight::heavy, Weight::heavy },// 0x2548 ╈
+            { Weight::heavy, Weight::heavy, Weight::heavy, Weight::light },// 0x2549 ╉
+            { Weight::heavy, Weight::heavy, Weight::light, Weight::heavy },// 0x254A ╊
+            { Weight::heavy, Weight::heavy, Weight::heavy, Weight::heavy },// 0x254B ╋
+        }
+    };
 
     /**
      * @brief Lookup table for half-line characters U+2574–U+257F.
@@ -979,21 +1085,24 @@ private:
      * @see rasterize()
      * @see drawLines()
      */
-    static constexpr std::array<Lines, 12> HALF_TABLE
-    {{
-        { Weight::none,  Weight::none,  Weight::none,  Weight::light }, // 0x2574 ╴
-        { Weight::light, Weight::none,  Weight::none,  Weight::none  }, // 0x2575 ╵
-        { Weight::none,  Weight::light, Weight::none,  Weight::none  }, // 0x2576 ╶
-        { Weight::none,  Weight::none,  Weight::light, Weight::none  }, // 0x2577 ╷
-        { Weight::none,  Weight::none,  Weight::none,  Weight::heavy }, // 0x2578 ╸
-        { Weight::heavy, Weight::none,  Weight::none,  Weight::none  }, // 0x2579 ╹
-        { Weight::none,  Weight::heavy, Weight::none,  Weight::none  }, // 0x257A ╺
-        { Weight::none,  Weight::none,  Weight::heavy, Weight::none  }, // 0x257B ╻
-        { Weight::none,  Weight::heavy, Weight::none,  Weight::light }, // 0x257C ╼
-        { Weight::light, Weight::none,  Weight::heavy, Weight::none  }, // 0x257D ╽
-        { Weight::none,  Weight::light, Weight::none,  Weight::heavy }, // 0x257E ╾
-        { Weight::heavy, Weight::none,  Weight::light, Weight::none  }, // 0x257F ╿
-    }};
+    static constexpr std::array<Lines, 12> HALF_TABLE {
+        {
+         { Weight::none, Weight::none, Weight::none, Weight::light },// 0x2574 ╴
+            { Weight::light, Weight::none, Weight::none, Weight::none },// 0x2575 ╵
+            { Weight::none, Weight::light, Weight::none, Weight::none },// 0x2576 ╶
+            { Weight::none, Weight::none, Weight::light, Weight::none },// 0x2577 ╷
+            { Weight::none, Weight::none, Weight::none, Weight::heavy },// 0x2578 ╸
+            { Weight::heavy, Weight::none, Weight::none, Weight::none },// 0x2579 ╹
+            { Weight::none, Weight::heavy, Weight::none, Weight::none },// 0x257A ╺
+            { Weight::none, Weight::none, Weight::heavy, Weight::none },// 0x257B ╻
+            { Weight::none, Weight::heavy, Weight::none, Weight::light },// 0x257C ╼
+            { Weight::light, Weight::none, Weight::heavy, Weight::none },// 0x257D ╽
+            { Weight::none, Weight::light, Weight::none, Weight::heavy },// 0x257E ╾
+            { Weight::heavy, Weight::none, Weight::light, Weight::none },// 0x257F ╿
+        }
+    };
 };
 
-} // namespace jreng::Glyph
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace jreng::Glyph
+

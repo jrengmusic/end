@@ -317,7 +317,7 @@ void MainComponent::showMessageOverlay()
     {
         messageOverlay->setBounds (getLocalBounds());
 
-        const auto fm { typeface.calcMetrics (Terminal::Display::dpiCorrectedFontSize()) };
+        const auto fm { typeface.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
 
         if (fm.isValid())
         {

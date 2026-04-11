@@ -197,6 +197,10 @@ struct Config : jreng::Context<Config>
         /** @brief Cell width multiplier applied to terminal cell width (default 1.0). */
         inline static const juce::String fontCellWidth { "font.cell_width" };
 
+        /** @brief Windows only. When "true", font size follows the Windows desktop scale.
+         *         When "false" (default), font size is persistent across desktop scales. No-op on macOS/Linux. */
+        inline static const juce::String fontDesktopScale { "font.desktop_scale" };
+
         /** @brief Unicode codepoint string used as the cursor glyph. */
         inline static const juce::String cursorChar { "cursor.char" };
 
@@ -635,6 +639,12 @@ struct Config : jreng::Context<Config>
      * @see Screen::setTheme
      */
     Theme buildTheme() const;
+
+    /**
+     * @brief Returns the configured font size with the Windows desktop-scale correction
+     *         applied per `Key::fontDesktopScale`. On macOS/Linux returns the raw size.
+     */
+    float dpiCorrectedFontSize() const noexcept;
 
     /**
      * @brief Returns the parsed popup entries from the `popups` Lua table.

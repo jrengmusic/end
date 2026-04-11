@@ -388,7 +388,7 @@ void MainComponent::registerPopupActions (Action::Registry& action)
                     const int cols { entry.cols > 0 ? entry.cols : config.getInt (Config::Key::popupCols) };
                     const int rows { entry.rows > 0 ? entry.rows : config.getInt (Config::Key::popupRows) };
 
-                    const auto fm { typeface.calcMetrics (Terminal::Display::dpiCorrectedFontSize()) };
+                    const auto fm { typeface.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
 
                     const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
                     const int paddingTop { config.getInt (Config::Key::terminalPaddingTop) };
