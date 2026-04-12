@@ -297,7 +297,7 @@ static const char* embeddedFontForFamily (const juce::String& family, int& size)
  */
 void jreng::Typeface::loadFaces()
 {
-    const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * getDisplayScale()) };
+    const FT_UInt renderDpi { computeRenderDpi (getDisplayScale()) };
     const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (fontSize * ftFixedScale) };
 
     FT_Face face { nullptr };
@@ -508,7 +508,7 @@ float jreng::Typeface::getPixelsPerEm (Style style) noexcept
 void jreng::Typeface::setSize (float pointSize) noexcept
 {
     fontSize = pointSize;
-    const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * getDisplayScale()) };
+    const FT_UInt renderDpi { computeRenderDpi (getDisplayScale()) };
     const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (fontSize * ftFixedScale) };
 
     for (int i { 0 }; i < 4; ++i)
@@ -939,7 +939,7 @@ FT_Face jreng::Typeface::discoverFallbackFace (uint32_t codepoint) noexcept
 
                                     if (FT_New_Face (library, fontPath.toRawUTF8(), 0, &loadedFace) == 0)
                                     {
-                                        const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * getDisplayScale()) };
+                                        const FT_UInt renderDpi { computeRenderDpi (getDisplayScale()) };
                                         const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (fontSize * ftFixedScale) };
                                         FT_Set_Char_Size (loadedFace, 0, size26_6, renderDpi, renderDpi);
                                         result = loadedFace;

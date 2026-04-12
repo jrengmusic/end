@@ -88,6 +88,29 @@ static constexpr float windowsGlyphScale { 0.90f };
 #endif
 
 /**
+ * @brief Computes the canonical render DPI used by all FT_Set_Char_Size sites.
+ *
+ * On Windows the value is `baseDpi * displayScale * windowsGlyphScale`.
+ * On Linux it is `baseDpi * displayScale`.  This is the only place
+ * `windowsGlyphScale` is applied — `loadFaces()`, `setSize()`, and
+ * `calcMetrics()` all route through this helper so every face is sized
+ * with identical DPI.
+ *
+ * @param displayScale  Device pixel ratio.
+ * @return Render DPI in `FT_UInt`.
+ */
+FT_UInt Typeface::computeRenderDpi (float displayScale) noexcept
+{
+    float dpi { static_cast<float> (baseDpi) * displayScale };
+
+#if JUCE_WINDOWS
+    dpi *= windowsGlyphScale;
+#endif
+
+    return static_cast<FT_UInt> (dpi);
+}
+
+/**
  * @struct MaxCellMeasure
  * @brief Result of scanning ASCII glyphs for the maximum advance width.
  *
@@ -252,12 +275,7 @@ Typeface::Metrics Typeface::calcMetrics (float heightPx) noexcept
                 metrics.physBaseline = static_cast<int> (static_cast<float> (metrics.logicalBaseline) * displayScale);
 
                 // Restore face to render DPI for subsequent rasterization.
-#if JUCE_WINDOWS
-                const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * displayScale
-                                                                * windowsGlyphScale) };
-#else
-                const FT_UInt renderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * displayScale) };
-#endif
+                const FT_UInt renderDpi { computeRenderDpi (displayScale) };
                 FT_Set_Char_Size (face, 0, height26_6, renderDpi, renderDpi);
             }
         }

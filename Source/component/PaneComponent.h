@@ -72,6 +72,13 @@ public:
      */
     virtual void applyConfig() noexcept = 0;
 
+    /**
+     * @brief Applies the given zoom factor to the pane's rendering.
+     * @param zoom  Zoom multiplier (1.0 = default).
+     * @note MESSAGE THREAD.
+     */
+    virtual void applyZoom (float zoom) noexcept = 0;
+
     /** @brief Enters vim-style keyboard selection mode. @note MESSAGE THREAD. */
     virtual void enterSelectionMode() noexcept = 0;
 

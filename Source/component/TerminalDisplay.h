@@ -442,6 +442,15 @@ public:
     void resetZoom();
 
     /**
+     * @brief Scales the font size by @p zoom and re-lays out the component.
+     *
+     * @param zoom  The zoom multiplier to apply (already clamped by the caller).
+     * @note MESSAGE THREAD — called from Tabs (global zoom) and increaseZoom(), decreaseZoom(), resetZoom().
+     * @see Screen::setFontSize
+     */
+    void applyZoom (float zoom) noexcept override;
+
+    /**
      * @brief Enters vim-style selection mode, placing the cursor at the current
      *        terminal cursor position.
      *
@@ -574,15 +583,6 @@ private:
      * @note MESSAGE THREAD.
      */
     void applyScreenSettings() noexcept;
-
-    /**
-     * @brief Scales the font size by @p zoom and re-lays out the component.
-     *
-     * @param zoom  The zoom multiplier to apply (already clamped by the caller).
-     * @note MESSAGE THREAD — called from increaseZoom(), decreaseZoom(), resetZoom().
-     * @see Screen::setFontSize
-     */
-    void applyZoom (float zoom) noexcept;
 
     /**
      * @brief Computes this component's pixel offset relative to the top-level window.

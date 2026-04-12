@@ -40,6 +40,7 @@ public:
     juce::String getPaneType() const noexcept override { return App::ID::paneTypeDocument; }
     void switchRenderer (App::RendererType type) override;
     void applyConfig() noexcept override;
+    void applyZoom (float) noexcept override {}
 
     bool keyPressed (const juce::KeyPress& key) override;
     void mouseDown (const juce::MouseEvent& event) override;

@@ -490,20 +490,45 @@ void Tabs::switchRenderer (App::RendererType type)
 
 void Tabs::increaseZoom()
 {
-    if (auto* t { getActiveTerminal() }; t != nullptr)
-        t->increaseZoom();
+    const float current { AppState::getContext()->getWindowZoom() };
+    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current + 0.25f) };
+    AppState::getContext()->setWindowZoom (newZoom);
+
+    for (auto& p : panes)
+    {
+        for (auto& pane : p->getPanes())
+        {
+            pane->applyZoom (newZoom);
+        }
+    }
 }
 
 void Tabs::decreaseZoom()
 {
-    if (auto* t { getActiveTerminal() }; t != nullptr)
-        t->decreaseZoom();
+    const float current { AppState::getContext()->getWindowZoom() };
+    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current - 0.25f) };
+    AppState::getContext()->setWindowZoom (newZoom);
+
+    for (auto& p : panes)
+    {
+        for (auto& pane : p->getPanes())
+        {
+            pane->applyZoom (newZoom);
+        }
+    }
 }
 
 void Tabs::resetZoom()
 {
-    if (auto* t { getActiveTerminal() }; t != nullptr)
-        t->resetZoom();
+    AppState::getContext()->setWindowZoom (Config::zoomMin);
+
+    for (auto& p : panes)
+    {
+        for (auto& pane : p->getPanes())
+        {
+            pane->applyZoom (Config::zoomMin);
+        }
+    }
 }
 
 void Tabs::focusLastTerminal (Panes* active)

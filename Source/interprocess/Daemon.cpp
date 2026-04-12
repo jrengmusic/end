@@ -138,9 +138,6 @@ void Daemon::removeConnection (Channel* connection)
     if (index >= 0)
     {
         connections.remove (index);
-
-        if (connections.isEmpty() and onAllSessionsExited != nullptr)
-            onAllSessionsExited();
     }
 }
 

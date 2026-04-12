@@ -455,6 +455,38 @@ Region Atlas::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
 
                     FT_Render_Glyph (face->glyph, FT_RENDER_MODE_LIGHT);
 
+                    const int originalBitmapTop { face->glyph->bitmap_top };
+                    const int originalBitmapRows { static_cast<int> (face->glyph->bitmap.rows) };
+
+                    // Kitty-style oversize rescale: if the rasterized bitmap is wider
+                    // than the cell, shrink the face proportionally and re-render.
+                    // Prevents proportional fallback glyphs (e.g. Segoe UI Symbol
+                    // arrows) from bleeding into adjacent cells.
+                    // Reference: kitty/freetype.c:624-631.
+                    const int effectiveWidth { cellWidth * std::max (1, static_cast<int> (key.span)) };
+
+                    if (face->glyph->bitmap.width > static_cast<unsigned int> (effectiveWidth)
+                        and FT_IS_SCALABLE (face))
+                    {
+                        const FT_UInt savedXppem { face->size->metrics.x_ppem };
+                        const FT_UInt savedYppem { face->size->metrics.y_ppem };
+                        const float scale { static_cast<float> (effectiveWidth)
+                                            / static_cast<float> (face->glyph->bitmap.width) };
+                        const FT_UInt scaledX { std::max (1u, static_cast<FT_UInt> (static_cast<float> (savedXppem) * scale)) };
+                        const FT_UInt scaledY { std::max (1u, static_cast<FT_UInt> (static_cast<float> (savedYppem) * scale)) };
+
+                        FT_Set_Pixel_Sizes (face, scaledX, scaledY);
+                        FT_Load_Glyph (face, key.glyphIndex, FT_LOAD_TARGET_LIGHT);
+
+                        if (embolden)
+                        {
+                            FT_Outline_Embolden (&face->glyph->outline, jreng::Typeface::ftFixedScale);
+                        }
+
+                        FT_Render_Glyph (face->glyph, FT_RENDER_MODE_LIGHT);
+                        FT_Set_Pixel_Sizes (face, savedXppem, savedYppem);
+                    }
+
                     auto& bitmap { face->glyph->bitmap };
 
                     if (bitmap.width > 0 and bitmap.rows > 0)
@@ -466,7 +498,8 @@ Region Atlas::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
                             glyph.widthPixels = static_cast<int> (bitmap.width);
                             glyph.heightPixels = static_cast<int> (bitmap.rows);
                             glyph.bearingX = face->glyph->bitmap_left;
-                            glyph.bearingY = face->glyph->bitmap_top;
+                            const int verticalCenter { originalBitmapTop - originalBitmapRows / 2 };
+                            glyph.bearingY = verticalCenter + static_cast<int> (bitmap.rows) / 2;
 
                             const float aw { static_cast<float> (atlasWidth) };
                             const float ah { static_cast<float> (atlasHeight) };

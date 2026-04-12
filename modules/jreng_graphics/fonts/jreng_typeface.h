@@ -664,6 +664,19 @@ struct Typeface
     static float getDisplayScale() noexcept;
 
     /**
+     * @brief Computes the canonical FreeType render DPI for the platform.
+     *
+     * Centralizes the render DPI calculation so that `loadFaces()`, `setSize()`,
+     * and `calcMetrics()` all size their faces with the same value.  On Windows
+     * the result is multiplied by a glyph weight correction factor; on other
+     * platforms it is `baseDpi * displayScale` unchanged.
+     *
+     * @param displayScale  Device pixel ratio (e.g. 2.0f on HiDPI).
+     * @return Render DPI in `FT_UInt`, ready to pass to `FT_Set_Char_Size`.
+     */
+    static FT_UInt computeRenderDpi (float displayScale) noexcept;
+
+    /**
      * @brief Registers embedded Display Mono font data with the platform font system.
      *
      * On macOS: registers `DisplayMonoBook_ttf`, `DisplayMonoMedium_ttf`, and

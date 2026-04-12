@@ -45,9 +45,11 @@
  * `shapeFallback()` is the last resort on the FreeType backend.  It iterates
  * the codepoints and calls `FT_Get_Char_Index` on the regular face, writing
  * only the codepoints that resolve to a non-zero glyph index.  The advance
- * width is approximated as `x_ppem / count` (equal distribution across the
- * cluster).  On macOS the fallback uses CoreText font substitution instead
- * (see `jreng_font.mm`).
+ * width is taken from the **primary face's** `max_advance` (cell width),
+ * matching `shapeASCII`.  This enforces strict-monospace cell-grid alignment
+ * regardless of whether the resolved glyph came from the primary face or a
+ * system fallback face.  On macOS the fallback uses CoreText font substitution
+ * instead (see `jreng_font.mm`).
  *
  * ### Fixed-point utilities
  * `ceil26_6ToPx` and `roundFloatPxTo26_6` convert between FreeType's 26.6
@@ -220,8 +222,10 @@ jreng::Typeface::GlyphRun jreng::Typeface::shapeHarfBuzz (Style style,
  *    font covering the codepoint, caches the result (or `nullptr`) for next time.
  * 4. On other platforms: no system fallback; codepoint is skipped.
  *
- * When a fallback face is used, glyph index and advance metrics are read from
- * that face.  `GlyphRun::fontHandle` is set to the fallback `FT_Face` (as
+ * When a fallback face is used, only the glyph index is read from it.  The
+ * advance is always sourced from the primary face's cell width — fallback fonts
+ * are typically proportional, so using their natural advance breaks the
+ * monospace grid.  `GlyphRun::fontHandle` is set to the fallback `FT_Face` (as
  * `void*`) so the renderer passes the correct handle to `Atlas::getOrRasterize`.
  *
  * @param codepoints  UTF-32 codepoint array.
@@ -305,12 +309,7 @@ jreng::Typeface::GlyphRun jreng::Typeface::shapeFallback (const uint32_t* codepo
 
             if (activeFace != nullptr and activeIndex != 0)
             {
-                float advance { static_cast<float> (activeFace->size->metrics.x_ppem) };
-
-                if (FT_Load_Glyph (activeFace, activeIndex, FT_LOAD_DEFAULT) == 0)
-                {
-                    advance = static_cast<float> (activeFace->glyph->metrics.horiAdvance) / static_cast<float> (ftFixedScale);
-                }
+                const float advance { static_cast<float> (primaryFace->size->metrics.max_advance >> 6) };
 
                 Glyph& g { shapingBuffer[written] };
                 g.glyphIndex = activeIndex;

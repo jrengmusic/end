@@ -165,6 +165,9 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
  */
 void Nexus::remove (const juce::String& uuid)
 {
+    if (attachedLink != nullptr)
+        attachedLink->sendRemove (uuid);
+
     sessions.erase (uuid);
     fireIfAllExited();
 }
