@@ -106,6 +106,7 @@ void Channel::sendPdu (Message kind, const juce::MemoryBlock& payload)
  * - `resizeSession`   → decodes uuid + cols + rows, resizes Processor then PTY
  * - `detachSession`   → unregisters subscription via daemon.detachSession
  * - `killSession`     → calls nexus.remove(uuid)
+ * - `killDaemon`     → calls daemon.killAll() to shut down the daemon process
  *
  * @param message  Raw MemoryBlock received from the JUCE IPC layer.
  * @note NEXUS PROCESS MESSAGE THREAD.
@@ -222,8 +223,20 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
                 const int uuidConsumed { readString (payload, payloadSize, uuid) };
 
                 if (uuidConsumed > 0 and uuid.isNotEmpty())
+                {
                     nexus.remove (uuid);
+                    daemon.broadcastSessions();
 
+                    if (nexus.list().isEmpty() and daemon.onAllSessionsExited != nullptr)
+                        daemon.onAllSessionsExited();
+                }
+
+                break;
+            }
+
+            case Message::killDaemon:
+            {
+                daemon.killAll();
                 break;
             }
 

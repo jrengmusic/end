@@ -132,27 +132,23 @@ void Link::ConnectTimer::timerCallback()
 /**
  * @brief Called by JUCE when the socket connects successfully.
  *
- * Sends the hello PDU and marks this instance as connected in AppState.
+ * Sends the hello PDU to initiate the handshake.
  * The SESSIONS subtree is written later when the daemon's `sessions` PDU arrives.
  *
  * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  */
 void Link::connectionMade()
 {
-    AppState::getContext()->setConnected (true);
     sendPdu (Message::hello);
 }
 
 /**
  * @brief Called by JUCE when the connection is lost.
  *
- * Marks this instance as disconnected in AppState and writes state to disk immediately.
- *
  * @note NEXUS PROCESS MESSAGE THREAD (callbacksOnMessageThread = true).
  */
 void Link::connectionLost()
 {
-    AppState::getContext()->setConnected (false);
 }
 
 // =============================================================================

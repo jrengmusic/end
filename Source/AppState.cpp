@@ -151,21 +151,6 @@ bool AppState::isDaemonMode() const noexcept
     return result;
 }
 
-void AppState::setConnected (bool isConnectedFlag)
-{
-    state.setProperty (App::ID::connected, isConnectedFlag, nullptr);
-}
-
-bool AppState::isConnected() const noexcept
-{
-    bool result { false };
-
-    if (state.hasProperty (App::ID::connected))
-        result = static_cast<bool> (state.getProperty (App::ID::connected));
-
-    return result;
-}
-
 void AppState::setPort (int activePort)
 {
     state.setProperty (App::ID::port, activePort, nullptr);
@@ -379,7 +364,7 @@ void AppState::setPwd (juce::ValueTree sessionTree)
 //==============================================================================
 
 /**
- * @brief Writes the full state to `getStateFile()`.
+ * @brief Writes the full state (window + sessions) to `getStateFile()`.
  *
  * The NEXUS subtree (sessions, loading ops) is excluded — it is rebuilt live
  * on reconnect.  Port is NOT written here — port lives in `<uuid>.nexus`.
@@ -407,7 +392,7 @@ void AppState::save()
 /**
  * @brief Reads the full state from `getStateFile()` into the in-memory tree.
  *
- * Merges WINDOW subtree, TABS subtree, and root properties (connected).
+ * Merges WINDOW subtree and TABS subtree.
  * Falls back silently to initDefaults() values on parse failure or missing file.
  * Port is NOT read here — port is read as plain text from `<uuid>.nexus`
  * during the startup scan and stored via setPort().
@@ -445,9 +430,6 @@ void AppState::load()
                     if (parsedWindow.hasProperty (App::ID::renderer))
                         currentWindow.setProperty (App::ID::renderer, parsedWindow.getProperty (App::ID::renderer), nullptr);
                 }
-
-                if (parsed.hasProperty (App::ID::connected))
-                    state.setProperty (App::ID::connected, parsed.getProperty (App::ID::connected), nullptr);
 
                 auto parsedTabs { parsed.getChildWithName (App::ID::TABS) };
 

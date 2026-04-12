@@ -122,6 +122,16 @@ public:
      */
     void removeConnection (Channel* connection);
 
+    /**
+     * @brief Removes all sessions and triggers daemon shutdown.
+     *
+     * Iterates all live sessions via `nexus.list()`, calls `nexus.remove()` for each,
+     * then fires `onAllSessionsExited` to trigger the existing quit path.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD.
+     */
+    void killAll();
+
     // =========================================================================
     /** @name Broadcast registry
      *  Called by Channel on the message thread.

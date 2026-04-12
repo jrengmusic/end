@@ -142,6 +142,29 @@ void Daemon::removeConnection (Channel* connection)
 }
 
 // =============================================================================
+
+/**
+ * @brief Removes all sessions and triggers daemon shutdown.
+ *
+ * Snapshots the session list via `nexus.list()` before iterating so that
+ * each `nexus.remove()` call does not invalidate the iterator.  After all
+ * sessions are removed, fires `onAllSessionsExited` to trigger the existing
+ * quit path (deleteNexusFile + quit).
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Daemon::killAll()
+{
+    const juce::StringArray uuids { nexus.list() };
+
+    for (const auto& uuid : uuids)
+        nexus.remove (uuid);
+
+    if (onAllSessionsExited != nullptr)
+        onAllSessionsExited();
+}
+
+// =============================================================================
 // Broadcast registry
 
 /**

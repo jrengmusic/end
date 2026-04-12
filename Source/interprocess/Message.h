@@ -53,6 +53,7 @@ enum class Message : uint16_t
     resizeSession           = 0x15, ///< Client → Host: change PTY dimensions for a session.
     input                   = 0x16, ///< Client → Host: raw bytes to write to PTY stdin.
     killSession             = 0x17, ///< Client → Host: kill the shell for a session (session is destroyed).
+    killDaemon              = 0x18, ///< Client -> Host: shut down the daemon process.
 
     loading                 = 0x20, ///< Host → Client: loading-phase byte snapshot for a newly-attached session.
                                     ///<   Payload: uuid (length-prefixed string) + raw PTY bytes.

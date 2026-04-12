@@ -16,7 +16,7 @@
  * `~/.config/end/nexus/<uuid>.nexus` — plain-text port number only; daemon writes;
  * daemon deletes on exit.  Written by `setPort()`.  Read by startup scan (plain text).
  *
- * `~/.config/end/nexus/<uuid>.display` — full state (window + sessions + connected);
+ * `~/.config/end/nexus/<uuid>.display` — full state (window + sessions);
  * nexus client writes; daemon deletes both files on clean exit.
  * Written by `save()`.  Read on startup by `load()`.
  *
@@ -30,8 +30,7 @@
  * `setInstanceUuid()` first, then `load()` explicitly.  File paths derive
  * from the stored UUID and whether nexus mode is active.
  *
- * ### Connected flag and port
- * `setConnected(true/false)` sets the property only — caller must call `save()` when needed.
+ * ### Port
  * `setPort(n)` writes the port as plain text to `<uuid>.nexus` immediately.
  *
  * ### Destructor
@@ -152,23 +151,6 @@ struct AppState : jreng::Context<AppState>
     //==============================================================================
 
     /**
-     * @brief Sets the connected flag on the state tree.
-     *
-     * Does not save to disk — caller is responsible for calling save() when needed.
-     *
-     * @param isConnected  true = a client has established IPC; false = disconnected.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void setConnected (bool isConnected);
-
-    /**
-     * @brief Returns the current connected flag from the state tree.
-     * @note Any thread (reads ValueTree property — message-thread safe).
-     */
-    bool isConnected() const noexcept;
-
-    /**
      * @brief Stores the daemon's bound TCP port and writes it to `<uuid>.nexus` as plain text.
      *
      * Called by Daemon::start() after binding.  Reading this value from the
@@ -190,7 +172,7 @@ struct AppState : jreng::Context<AppState>
     //==============================================================================
 
     /**
-     * @brief Writes the full state (window + sessions + connected) to `getStateFile()`.
+     * @brief Writes the full state (window + sessions) to `getStateFile()`.
      *
      * Standalone mode: writes to `~/.config/end/end.state`.
      * Nexus client mode: writes to `~/.config/end/nexus/<uuid>.display`.

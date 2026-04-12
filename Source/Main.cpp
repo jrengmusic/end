@@ -188,31 +188,111 @@ public:
 
         if (isNexusFlag)
         {
-            // ---- Headless daemon mode ----------------------------------------
-            // Parse UUID from the argument immediately following --nexus.
-            // Set UUID on AppState before any state file access.
-            const juce::String daemonUuid { nexusFlagIndex + 1 < args.size()
-                                                ? args[nexusFlagIndex + 1]
-                                                : juce::Uuid().toString() };
-            appState.setInstanceUuid (daemonUuid);
-            appState.load();
+            const juce::String nexusArg { nexusFlagIndex + 1 < args.size()
+                                              ? args[nexusFlagIndex + 1]
+                                              : juce::String() };
 
-            // Ensure nexus/ directory exists before the server writes its port.
-            appState.getNexusFile().getParentDirectory().createDirectory();
-
-            // Hide dock icon, construct nexus + daemon, attach, start, wire exit callback.
-            // No window is created.  The JUCE message loop runs until all sessions exit.
-            Interprocess::Daemon::hideDockIcon();
-            nexus = std::make_unique<Nexus>();
-            daemon = std::make_unique<Interprocess::Daemon> (*nexus);
-            nexus->attach (*daemon);
-            daemon->start();
-
-            daemon->onAllSessionsExited = [this]
+            if (nexusArg == "kill" or nexusArg == "kill-all")
             {
-                appState.deleteNexusFile();
+                // ---- Ephemeral kill command --------------------------------------
+                // Connects to the daemon, sends killDaemon PDU, exits.
+                // No window, no nexus, no state.
+
+                static constexpr int killProbeTimeoutMs { 200 };
+
+                // Minimal InterprocessConnection for fire-and-forget PDU send.
+                struct KillConn : public juce::InterprocessConnection
+                {
+                    KillConn() : juce::InterprocessConnection (false, Interprocess::wireMagicHeader) {}
+                    void connectionMade() override {}
+                    void connectionLost() override {}
+                    void messageReceived (const juce::MemoryBlock&) override {}
+                };
+
+                const juce::File nexusDir {
+                    juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+                        .getChildFile (".config/end/nexus")
+                };
+
+                if (nexusArg == "kill")
+                {
+                    const juce::String targetUuid { nexusFlagIndex + 2 < args.size()
+                                                        ? args[nexusFlagIndex + 2]
+                                                        : juce::String() };
+
+                    if (targetUuid.isNotEmpty())
+                    {
+                        const juce::File nexusFile { nexusDir.getChildFile (targetUuid + ".nexus") };
+
+                        if (nexusFile.existsAsFile())
+                        {
+                            const int port { nexusFile.loadFileAsString().trim().getIntValue() };
+
+                            if (port > 0)
+                            {
+                                KillConn conn;
+
+                                if (conn.connectToSocket ("127.0.0.1", port, killProbeTimeoutMs))
+                                {
+                                    conn.sendMessage (Interprocess::encodePdu (Interprocess::Message::killDaemon, {}));
+                                    conn.disconnect();
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // kill-all: scan every .nexus file and send killDaemon to each live daemon.
+                    const auto nexusFiles { nexusDir.findChildFiles (
+                        juce::File::findFiles, false, "*.nexus") };
+
+                    for (const auto& nexusFile : nexusFiles)
+                    {
+                        const int port { nexusFile.loadFileAsString().trim().getIntValue() };
+
+                        if (port > 0)
+                        {
+                            KillConn conn;
+
+                            if (conn.connectToSocket ("127.0.0.1", port, killProbeTimeoutMs))
+                            {
+                                conn.sendMessage (Interprocess::encodePdu (Interprocess::Message::killDaemon, {}));
+                                conn.disconnect();
+                            }
+                        }
+                    }
+                }
+
                 quit();
-            };
+            }
+            else
+            {
+                // ---- Headless daemon mode ----------------------------------------
+                // nexusArg is the UUID.
+                const juce::String daemonUuid { nexusArg.isNotEmpty()
+                                                    ? nexusArg
+                                                    : juce::Uuid().toString() };
+                appState.setInstanceUuid (daemonUuid);
+                appState.load();
+
+                // Ensure nexus/ directory exists before the server writes its port.
+                appState.getNexusFile().getParentDirectory().createDirectory();
+
+                // Hide dock icon, construct nexus + daemon, attach, start, wire exit callback.
+                // No window is created.  The JUCE message loop runs until all sessions exit.
+                Interprocess::Daemon::hideDockIcon();
+                nexus = std::make_unique<Nexus>();
+                daemon = std::make_unique<Interprocess::Daemon> (*nexus);
+                nexus->attach (*daemon);
+                daemon->start();
+
+                daemon->onAllSessionsExited = [this]
+                {
+                    appState.deleteNexusFile();
+                    quit();
+                };
+            }
         }
         else
         {
@@ -335,8 +415,8 @@ public:
     /**
      * @brief Handles OS quit requests (Cmd+Q, window close, SIGTERM).
      *
-     * Saves window size then quits.  In nexus mode with live sessions, marks the
-     * client as disconnected and persists so the next client sees `connected=false`.
+     * Saves window size then quits.  In nexus mode with live sessions, persists
+     * UI state so the next client can restore window and tab layout.
      * In nexus mode with no sessions, deletes both `.display` and `.nexus`.
      * In standalone mode, always saves.  Main owns all file I/O decisions.
      * In the byte-forward architecture the GUI process and the daemon process are
@@ -366,9 +446,9 @@ public:
 
             if (tabCount > 0)
             {
-                // Sessions alive — mark disconnected and persist so the next client
-                // reads connected=false and knows the daemon is free to reconnect.
-                appState.setConnected (false);
+                // Sessions alive — persist UI state (window, tabs) so the next
+                // client can restore layout.  The InterProcessLock auto-releases
+                // on quit, signalling the daemon is free to reconnect.
                 appState.save();
             }
             else
@@ -426,6 +506,15 @@ private:
      */
     std::unique_ptr<Interprocess::Link> link;
 
+    /**
+     * @brief OS-level lock held while this client is connected to a daemon.
+     *
+     * Lock name = daemon's UUID.  Acquired in resolveNexusInstance() when claiming
+     * a daemon, held for the process lifetime.  Auto-releases on crash or quit.
+     * Replaces the crash-unsafe `connected` XML property in `.display`.
+     */
+    std::unique_ptr<juce::InterProcessLock> clientLock;
+
     /** @brief Embedded Display Mono typefaces; held alive for DirectWrite on Windows. */
     struct DisplayMono
     {
@@ -452,7 +541,7 @@ private:
     std::unique_ptr<jreng::Window> mainWindow;
 
     /**
-     * @brief Scans nexus/*.nexus files to find a live daemon without a connected client.
+     * @brief Scans nexus/*.nexus files to find a live unclaimed daemon.
      *
      * Returns the UUID of the first usable daemon, or spawns a new daemon and returns
      * its fresh UUID if no usable daemon is found.  Deletes stale .nexus/.display file
@@ -467,10 +556,10 @@ private:
 //==============================================================================
 
 /**
- * @brief Scans nexus/*.nexus files to find a live daemon without a connected client.
+ * @brief Scans nexus/*.nexus files to find a live unclaimed daemon.
  *
- * For each .nexus file: reads the connected flag from the corresponding .display file
- * (skips if connected=true), probes the port, and returns that UUID if the daemon is alive.
+ * For each .nexus file: tries an InterProcessLock on the UUID (skips if another client
+ * holds the lock), probes the port, and returns that UUID if the daemon is alive.
  * Deletes stale .nexus/.display pairs where the daemon is dead.
  * If no usable daemon is found, spawns a fresh one and returns its UUID.
  *
@@ -496,32 +585,18 @@ juce::String ENDApplication::resolveNexusInstance()
     for (int i { 0 }; resolvedUuid.isEmpty() and i < nexusFiles.size(); ++i)
     {
         const juce::File& nexusFile { nexusFiles.getReference (i) };
-
-        // UUID is the filename stem: <uuid>.nexus
         const juce::String candidateUuid { nexusFile.getFileNameWithoutExtension() };
-
-        // Check <uuid>.display for the connected flag (client-owned file).
-        // If connected=true another client owns this daemon — skip.
         const juce::File stateFile { nexusDir.getChildFile (candidateUuid + ".display") };
 
-        bool connected { false };
+        // Try to claim this daemon via OS-level lock.
+        // Lock name = UUID.  If another client holds it, skip.
+        auto candidateLock { std::make_unique<juce::InterProcessLock> (candidateUuid) };
 
-        if (stateFile.existsAsFile())
+        if (candidateLock->enter (0))
         {
-            if (auto xml { juce::parseXML (stateFile) })
-            {
-                auto parsed { juce::ValueTree::fromXml (*xml) };
-
-                if (parsed.isValid() and parsed.getType() == App::ID::END)
-                    connected = static_cast<bool> (parsed.getProperty (App::ID::connected, false));
-            }
-        }
-
-        if (not connected)
-        {
-            // Read port as plain text from <uuid>.nexus (daemon-owned file).
-            const int port { nexusFile.loadFileAsString().getIntValue() };
-
+            // Lock acquired — no other client owns this daemon.
+            // Probe the TCP port to check if the daemon process is alive.
+            const int port { nexusFile.loadFileAsString().trim().getIntValue() };
             bool daemonAlive { false };
 
             if (port > 0)
@@ -537,14 +612,15 @@ juce::String ENDApplication::resolveNexusInstance()
 
             if (daemonAlive)
             {
-                // Store the port in-memory so Link can connect.
+                // Claim succeeded — keep the lock for the process lifetime.
+                clientLock = std::move (candidateLock);
                 appState.setInstanceUuid (candidateUuid);
                 appState.get().setProperty (App::ID::port, port, nullptr);
                 resolvedUuid = candidateUuid;
             }
             else
             {
-                // Stale files — daemon is dead.  Delete both.
+                // Stale files — daemon is dead.  Release lock (goes out of scope) and delete.
                 nexusFile.deleteFile();
                 stateFile.deleteFile();
             }
@@ -553,8 +629,10 @@ juce::String ENDApplication::resolveNexusInstance()
 
     if (resolvedUuid.isEmpty())
     {
-        // No usable daemon found — generate a fresh UUID and spawn a daemon.
+        // No usable daemon found — generate a fresh UUID, claim it, and spawn.
         resolvedUuid = juce::Uuid().toString();
+        clientLock = std::make_unique<juce::InterProcessLock> (resolvedUuid);
+        clientLock->enter (0);
         Interprocess::Daemon::spawnDaemon (resolvedUuid);
     }
 

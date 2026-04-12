@@ -1,5 +1,46 @@
 # SPRINT-LOG
 
+## Sprint 12: Daemon Lifecycle — Clean Start, Clean Kill, tmux Alignment
+
+**Date:** 2026-04-12
+**Duration:** ~02:00
+
+### Agents Participated
+- COUNSELOR: session lead, PLAN authorship, 5-step delegation, bug root-cause analysis (killSession path missing quit trigger)
+- Pathfinder: daemon/nexus infrastructure survey (2 invocations — lifecycle + detailed line-level)
+- Engineer: all code implementation (Steps 1–5)
+- Auditor: post-implementation validation (found orphaned App::ID::connected — resolved)
+
+### Files Modified (8 total)
+- `Source/interprocess/Message.h:56` — added `killDaemon = 0x18` PDU enum value
+- `Source/interprocess/Daemon.h:123-133` — declared `killAll()` public method
+- `Source/interprocess/Daemon.cpp:144-165` — implemented `killAll()`: snapshot session list, iterate `nexus.remove()`, fire `onAllSessionsExited`
+- `Source/interprocess/Channel.cpp:108,219-236` — added `case Message::killDaemon` → `daemon.killAll()`; fixed `killSession` handler to broadcast sessions and fire `onAllSessionsExited` when last session removed
+- `Source/Main.cpp:189-295,429-436,487-640` — added `clientLock` (InterProcessLock) member; restructured `initialise()` with kill/kill-all CLI dispatch; rewrote `resolveNexusInstance()` with lock-based claim; removed `setConnected(false)` from `systemRequestedQuit()`
+- `Source/AppState.h:19,33-35,155-169` — removed `setConnected`/`isConnected` declarations and doc references
+- `Source/AppState.cpp:154-167,390,410,449-450` — removed `setConnected`/`isConnected` implementations; removed `connected` property from `load()`/`save()` docs
+- `Source/AppIdentifier.h:12,83` — removed `App::ID::connected` identifier and schema comment
+- `Source/interprocess/Link.cpp:140-156` — removed `setConnected` calls from `connectionMade()`/`connectionLost()`
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT (InterProcessLock IS the connected truth, no shadow boolean), Bound (lock has RAII lifecycle, auto-releases on crash), Lean (net code reduction — removed connected flag, added minimal killAll/killDaemon), Stateless (removed manual `connected` boolean flag from AppState), Encapsulation (daemon handles its own shutdown via killAll), Deterministic (lock acquire is atomic OS operation, no TOCTOU)
+- [x] NAMES.md adhered — `killDaemon` (PDU), `killAll` (method), `clientLock` (member), `KillConn` (function-local struct) all ARCHITECT-approved
+- [x] MANIFESTO.md principles applied — no early returns, positive nesting, alternative tokens, brace init throughout
+
+### Problems Solved
+- **Crash-unsafe connected flag:** `.display` XML `connected=true` persisted after crash, blocking future clients from claiming daemon. Replaced with `juce::InterProcessLock` (named by UUID) — OS auto-releases on crash. `resolveNexusInstance()` now uses `enter(0)` for non-blocking lock-based claim.
+- **No explicit daemon kill command:** Added `killDaemon` PDU + `Daemon::killAll()`. CLI: `end --nexus kill <uuid>` and `end --nexus kill-all` — ephemeral fire-and-forget connections.
+- **ctrl+w on last pane leaves daemon alive:** `Channel::messageReceived` killSession handler only called `nexus.remove()` which checked `Nexus::onAllSessionsExited` (nullptr in daemon mode). Fixed by adding `daemon.broadcastSessions()` + `daemon.onAllSessionsExited` check after removal — mirrors the `wireOnExit` path.
+- **Dead code:** Removed all `connected` flag infrastructure (AppState, AppIdentifier, Link, Main) — ~30 lines of dead code eliminated.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 10: Windows Font Rendering + Box Drawing Kitty AA + Daemon Cleanup
 
 **Date:** 2026-04-11 / 2026-04-12

@@ -9,7 +9,7 @@
  *     +-- WINDOW (width, height, zoom, renderer)
  *
  * nexus/<uuid>.display  — full display state (daemon mode only):
- *     END (connected, port)
+ *     END (port)
  *     +-- WINDOW (width, height, zoom, renderer, daemonMode)
  *     +-- NEXUS (SESSIONS [SESSION{id}*], LOADING [OPERATION{id}*])
  *     +-- TABS (active, position, activePaneID)
@@ -80,7 +80,6 @@ namespace ID
     static const juce::Identifier filePath           { "filePath" };
     static const juce::Identifier displayName        { "displayName" };
     static const juce::Identifier scrollOffset       { "scrollOffset" };
-    static const juce::Identifier connected          { "connected" };
     static const juce::Identifier port              { "port" };
 
     static const juce::Identifier blockCount         { "blockCount" };
