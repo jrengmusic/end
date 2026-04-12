@@ -1,5 +1,40 @@
 # SPRINT-LOG
 
+## Sprint 13: Arrow Glyphs + Ligature Span Fix
+
+**Date:** 2026-04-13
+**Duration:** ~02:30
+
+### Agents Participated
+- COUNSELOR: session lead, rendering pipeline trace, root-cause analysis (Kitty oversize rescale + span=1 hardcode)
+- Pathfinder: codebase survey (font pipeline, rendering dispatch)
+- Engineer: build_fonts.py execution, build_monolithic.py execution, GSUB/HarfBuzz verification
+
+### Files Modified (7 total)
+- `___display___/sheet_config.py` — added ARROWS list (U+2190-U+2194)
+- `___display___/generate_unified_sheets.py` — added arrow row calculation, guide/cell emission blocks, updated total_rows and print output
+- `___display___/svg-mono/GlyphSheet_Display-MONO-Book.svg` — height 3622→3875, 5 arrow guide blocks, 5 arrow cell groups with artwork
+- `___display___/svg-mono/GlyphSheet_Display-MONO-Medium.svg` — same as Book
+- `___display___/svg-mono/GlyphSheet_Display-MONO-Bold.svg` — same as Book (rgb() style convention preserved)
+- `Source/terminal/rendering/ScreenRender.cpp:962` — tryLigature: span 0 → `static_cast<uint8_t>(tryLen)` so Kitty oversize rescale uses correct multi-cell width
+- `Source/terminal/rendering/ScreenRender.cpp:259-261` — emitShapedGlyphsToCache: route through span-aware `getGlyph` when `span > 1` even without active constraint
+### Alignment Check
+- [x] BLESSED principles followed — SSOT (sheet_config.py drives generator and manual edits identically), Deterministic (HarfBuzz verified: lig_002D_003E glyph_id=107 independent of uni2192 glyph_id=102), Encapsulation (span flows through existing getGlyph API, no new surface)
+- [x] NAMES.md adhered — no new names introduced
+- [x] MANIFESTO.md principles applied — no early returns, positive checks, alternative tokens
+
+### Problems Solved
+- **Arrow glyphs missing from Display Mono:** OS fallback arrows rendered ugly on Windows (proportional advance, wrong style). Added 5 arrow codepoints to GlyphSheets, drew artwork in all 3 weights, rebuilt Display Mono + Monolith.
+- **Ligature oversize rescale bug:** `tryLigature` passed `span=0` to `emitShapedGlyphsToCache`, which called `font.getGlyph(glyphIndex)` (single-arg overload hardcoding `span=1`). Kitty-style oversize rescale in `rasterizeGlyph` computed `effectiveWidth = cellWidth * 1`, shrinking 2-cell ligature bitmaps to 1 cell. Previously invisible because OS-fallback arrows looked different; exposed when Display Mono arrows matched the rescaled ligature. Fix: pass `tryLen` as span, route through span-aware `getGlyph` overload.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 12: Daemon Lifecycle — Clean Start, Clean Kill, tmux Alignment
 
 **Date:** 2026-04-12

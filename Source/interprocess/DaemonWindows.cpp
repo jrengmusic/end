@@ -53,7 +53,7 @@ bool Daemon::spawnDaemon (const juce::String& uuid) noexcept
         nullptr,
         nullptr,
         FALSE,
-        DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP | CREATE_UNICODE_ENVIRONMENT,
+        DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP | CREATE_UNICODE_ENVIRONMENT | CREATE_BREAKAWAY_FROM_JOB,
         nullptr,
         nullptr,
         &si,
@@ -83,7 +83,8 @@ void Daemon::installPlatformProcessCleanup() noexcept
     if (jobObject != nullptr)
     {
         JOBOBJECT_EXTENDED_LIMIT_INFORMATION info {};
-        info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+                                              | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
         SetInformationJobObject (jobObject, JobObjectExtendedLimitInformation, &info, sizeof (info));
         AssignProcessToJobObject (jobObject, GetCurrentProcess());
     }

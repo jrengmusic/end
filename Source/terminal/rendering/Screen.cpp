@@ -125,6 +125,10 @@ int Screen<Renderer>::getCellWidth() const noexcept { return cellWidth; }
 template <typename Renderer>
 int Screen<Renderer>::getCellHeight() const noexcept { return cellHeight; }
 
+/// @return `baseFontSize` in points (includes zoom).
+template <typename Renderer>
+float Screen<Renderer>::getBaseFontSize() const noexcept { return baseFontSize; }
+
 /**
  * @brief Returns the logical pixel bounds of the cell at (@p col, @p row).
  *
@@ -258,7 +262,6 @@ void Screen<Renderer>::setFontSize (float pointSize) noexcept
         font.setSize (pointSize);
         font.setAtlasDisplayScale (jreng::Typeface::getDisplayScale());
         font.clearAtlas();
-        calc();
     }
 }
 

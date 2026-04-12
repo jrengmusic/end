@@ -26,18 +26,19 @@
  * empty trailing rows.
  *
  * @par Pass 2 — Count output rows (dry run)
- * `countOutputRows()` walks every logical line in the old buffer (following
- * soft-wrap chains via `nextLogicalLine()`), flattens each logical line into a
- * temporary buffer via `flattenLogicalLine()`, and counts how many new rows
- * each logical line will occupy at the new column width.  This total is used
- * to compute how many rows to skip at the top so that the new buffer's
- * scrollback does not overflow.
+ * `reflowPass()` (dry-run mode: `dstCells == nullptr`) walks every logical
+ * line in the old buffer (following soft-wrap chains via `nextLogicalLine()`),
+ * flattens each logical line into a temporary buffer via
+ * `flattenLogicalLine()`, and counts how many new rows each logical line will
+ * occupy at the new column width.  This total is used to compute how many rows
+ * to skip at the top so that the new buffer's scrollback does not overflow.
  *
  * @par Pass 3 — Write reflowed content
- * `writeReflowedContent()` repeats the same logical-line walk, this time
- * writing each re-wrapped row into the new buffer via `writeNewRow()`.  Rows
- * that would overflow the new buffer's total capacity are skipped (counted by
- * `rowsToSkip`).
+ * `reflowPass()` (write mode: `dstCells != nullptr`) runs the identical
+ * logical-line walk and writes each re-wrapped row into the new buffer via
+ * `writeNewRow()`.  Rows that would overflow the new buffer's total capacity
+ * are skipped (counted by `rowsToSkip`).  Because both passes call the same
+ * function body, count and write can never disagree — SSOT.
  *
  * @par Pass 4 — Update buffer metadata
  * `Grid::reflow()` sets `newBuffer.head` and `newBuffer.scrollbackUsed` based
@@ -388,71 +389,16 @@ static void writeNewRow (Cell* dstCells, Grapheme* dstGraphemes, RowState* dstSt
     dstStates[writePhys].setWrapped (wrapped);
 }
 
-/**
- * @brief Emits all output rows for one logical line into the new buffer.
- *
- * Divides the flat logical line (`flat`, length `flatLen`) into chunks of
- * `newCols` cells and calls `writeNewRow()` for each chunk.  Rows that fall
- * before `rowsToSkip` (i.e. rows that would overflow the new buffer's total
- * capacity) are counted but not written.
- *
- * @par Wrap flag
- * All output rows except the last carry `wrapped = true`.  The last row
- * carries `wrapped = false`, marking the end of the logical line.
- *
- * @par Empty logical lines
- * A logical line with `flatLen == 0` (entirely blank) still emits exactly one
- * output row (a blank row), so that blank lines in the original content are
- * preserved.
- *
- * @param flat            Flat cell array for this logical line.
- * @param flatG           Flat grapheme array for this logical line.
- * @param flatLen         Number of content cells in the flat buffer.
- * @param dstCells        Flat cell array of the new buffer.
- * @param dstGraphemes    Flat grapheme array of the new buffer.
- * @param dstStates       RowState array of the new buffer.
- * @param newCols         Column count of the new buffer.
- * @param newTotalRows    Total allocated rows in the new buffer (for modular wrap).
- * @param rowsToSkip      Number of output rows to skip at the start (overflow rows).
- * @param outputRowsSoFar Running count of output rows emitted so far (updated in place).
- * @param writePhys       Physical write head in the new buffer (updated in place).
- */
-static void emitLogicalLine (const Cell* flat, const Grapheme* flatG, int flatLen,
-                             Cell* dstCells, Grapheme* dstGraphemes, RowState* dstStates,
-                             int newCols, int newTotalRows,
-                             int rowsToSkip, int* outputRowsSoFar, int* writePhys) noexcept
-{
-    const int rowsNeeded { (flatLen > 0) ? (flatLen + newCols - 1) / newCols : 1 };
-
-    for (int r { 0 }; r < rowsNeeded; ++r)
-    {
-        if (*outputRowsSoFar + r >= rowsToSkip)
-        {
-            const int offset { r * newCols };
-            const int remaining { flatLen - offset };
-            const int count { juce::jmax (0, juce::jmin (remaining, newCols)) };
-            const bool wrapped { r < rowsNeeded - 1 };
-
-            writeNewRow (dstCells, dstGraphemes, dstStates, newCols,
-                         *writePhys, flat, flatG, offset, count, wrapped);
-            *writePhys = (*writePhys + 1) % newTotalRows;
-        }
-    }
-
-    *outputRowsSoFar += rowsNeeded;
-}
-
 // ============================================================================
-// Logical line walk — shared by count and write passes
+// Logical line walk — single pass (count + write)
 // ============================================================================
 
 /**
  * @struct WalkParams
  * @brief Read-only parameters shared by the logical-line walk functions.
  *
- * Bundles all the old-buffer geometry needed by `nextLogicalLine()`,
- * `countOutputRows()`, and `writeReflowedContent()` into a single struct to
- * avoid long parameter lists.
+ * Bundles all the old-buffer geometry needed by `nextLogicalLine()` and
+ * `reflowPass()` into a single struct to avoid long parameter lists.
  */
 struct WalkParams
 {
@@ -516,42 +462,55 @@ static int nextLogicalLine (const WalkParams& wp, int r, int* outRunLen) noexcep
 }
 
 /**
- * @brief Dry-run pass: counts the total number of output rows after reflow.
+ * @brief Single-pass reflow: counts output rows, tracks cursor, and optionally
+ *        writes reflowed content into the new buffer.
  *
  * Walks every logical line in the old buffer using `nextLogicalLine()` and
- * `flattenLogicalLine()`, and accumulates the number of new rows each logical
- * line will occupy at `newCols`.  No data is written to the new buffer.
+ * `flattenLogicalLine()`.  Both the count pass and the write pass call this
+ * function — SSOT guarantee: count and write can never disagree.
  *
- * @par Purpose
- * The total output row count is used by `Grid::reflow()` to compute
- * `rowsToSkip` — the number of rows at the top of the output that must be
- * discarded because they would overflow the new buffer's total capacity.
+ * @par Dry-run mode (count only)
+ * When `dstCells == nullptr`, the function counts output rows and tracks the
+ * cursor position without writing anything.  Used for Pass 2.
+ *
+ * @par Write mode (count + write)
+ * When `dstCells != nullptr`, the function counts output rows, tracks the
+ * cursor, and writes reflowed rows into the new buffer via `writeNewRow()`,
+ * skipping rows before `rowsToSkip`.  Used for Pass 3.
  *
  * @par Cursor tracking
  * If `cursorLinear` falls within a logical line `[r, r + runLen)`, the
  * function computes which output row and column the cursor lands on after
- * rewrapping, writing the results to `*outCursorOutputRow` and
- * `*outCursorNewCol`.  `*outCursorOutputRow` is initialised to -1; if the
- * cursor was not found in any logical line it remains -1 on return.
+ * rewrapping.  `*outCursorOutputRow` is initialised to -1; if the cursor was
+ * not found in any logical line it remains -1 on return.
  *
- * @param wp                Walk parameters for the old buffer.
- * @param tempCells         Scratch buffer for `flattenLogicalLine()`; must hold at
- *                          least `wp.linearRows * wp.oldCols` Cell entries.
- * @param tempGraphs        Scratch buffer for `flattenLogicalLine()`; same size.
- * @param newCols           Column count of the new buffer.
- * @param cursorLinear      Linear row index of the cursor in the old buffer
- *                          (`scrollbackUsed + cursorRow`).
- * @param cursorCol         Column of the cursor in the old buffer.
+ * @param wp                 Walk parameters for the old buffer.
+ * @param tempCells          Scratch buffer for `flattenLogicalLine()`; must hold at
+ *                           least `wp.linearRows * wp.oldCols` Cell entries.
+ * @param tempGraphs         Scratch buffer for `flattenLogicalLine()`; same size.
+ * @param newCols            Column count of the new buffer.
+ * @param cursorLinear       Linear row index of the cursor in the old buffer.
+ * @param cursorCol          Column of the cursor in the old buffer.
  * @param outCursorOutputRow Output: output row the cursor lands on, or -1 if not found.
- * @param outCursorNewCol   Output: column of the cursor after rewrapping.
- * @return Total number of output rows that the reflowed content will occupy.
+ * @param outCursorNewCol    Output: column of the cursor after rewrapping.
+ * @param dstCells           New buffer cell array, or `nullptr` for dry-run mode.
+ * @param dstGraphemes       New buffer grapheme array, or `nullptr` for dry-run mode.
+ * @param dstStates          New buffer RowState array, or `nullptr` for dry-run mode.
+ * @param newTotalRows       Total allocated rows in the new buffer (write mode only).
+ * @param rowsToSkip         Rows at the top of output to skip (write mode only).
+ * @return Total number of output rows the reflowed content occupies.
  */
-static int countOutputRows (const WalkParams& wp, Cell* tempCells, Grapheme* tempGraphs,
-                            int newCols, int cursorLinear, int cursorCol,
-                            int* outCursorOutputRow, int* outCursorNewCol) noexcept
+static int reflowPass (const WalkParams& wp, Cell* tempCells, Grapheme* tempGraphs,
+                       int newCols,
+                       int cursorLinear, int cursorCol,
+                       int* outCursorOutputRow, int* outCursorNewCol,
+                       Cell* dstCells, Grapheme* dstGraphemes, RowState* dstStates,
+                       int newTotalRows, int rowsToSkip) noexcept
 {
     *outCursorOutputRow = -1;
     int total { 0 };
+    int writePhys { 0 };
+    int outputRowsSoFar { 0 };
     int r { 0 };
 
     while (r < wp.linearRows)
@@ -566,64 +525,40 @@ static int countOutputRows (const WalkParams& wp, Cell* tempCells, Grapheme* tem
         if (*outCursorOutputRow < 0 and cursorLinear >= r and cursorLinear < r + runLen)
         {
             const int flatCursorOffset { (cursorLinear - r) * wp.oldCols + cursorCol };
-            const int maxOffset { (runLen == 1) ? juce::jmin (flatLen - 1, newCols - 1) : flatLen - 1 };
+            const int maxOffset { flatLen - 1 };
             const int clampedOffset { juce::jmin (flatCursorOffset, juce::jmax (maxOffset, 0)) };
             *outCursorOutputRow = total + clampedOffset / newCols;
             *outCursorNewCol = clampedOffset % newCols;
         }
 
-        const int effectiveLen { (runLen == 1) ? juce::jmin (flatLen, newCols) : flatLen };
-        total += (effectiveLen > 0) ? (effectiveLen + newCols - 1) / newCols : 1;
+        const int effectiveLen { flatLen };
+        const int rowsNeeded { (effectiveLen > 0) ? (effectiveLen + newCols - 1) / newCols : 1 };
+
+        if (dstCells != nullptr)
+        {
+            for (int row { 0 }; row < rowsNeeded; ++row)
+            {
+                if (outputRowsSoFar + row >= rowsToSkip)
+                {
+                    const int offset { row * newCols };
+                    const int remaining { effectiveLen - offset };
+                    const int count { juce::jmax (0, juce::jmin (remaining, newCols)) };
+                    const bool wrapped { row < rowsNeeded - 1 };
+
+                    writeNewRow (dstCells, dstGraphemes, dstStates, newCols,
+                                 writePhys, tempCells, tempGraphs, offset, count, wrapped);
+                    writePhys = (writePhys + 1) % newTotalRows;
+                }
+            }
+
+            outputRowsSoFar += rowsNeeded;
+        }
+
+        total += rowsNeeded;
         r += runLen;
     }
 
     return total;
-}
-
-/**
- * @brief Write pass: emits all reflowed rows into the new buffer.
- *
- * Walks every logical line in the old buffer (same traversal as
- * `countOutputRows()`), flattens each logical line, and calls
- * `emitLogicalLine()` to write the re-wrapped rows into the new buffer.
- * Rows before `rowsToSkip` are counted but not written.
- *
- * @param wp           Walk parameters for the old buffer.
- * @param tempCells    Scratch buffer for `flattenLogicalLine()`.
- * @param tempGraphs   Scratch buffer for `flattenLogicalLine()`.
- * @param dstCells     Flat cell array of the new buffer.
- * @param dstGraphemes Flat grapheme array of the new buffer.
- * @param dstStates    RowState array of the new buffer.
- * @param newCols      Column count of the new buffer.
- * @param newTotalRows Total allocated rows in the new buffer.
- * @param rowsToSkip   Number of output rows to skip at the start (computed by
- *                     `Grid::reflow()` from `countOutputRows()` output).
- */
-static void writeReflowedContent (const WalkParams& wp, Cell* tempCells, Grapheme* tempGraphs,
-                                  Cell* dstCells, Grapheme* dstGraphemes, RowState* dstStates,
-                                  int newCols, int newTotalRows, int rowsToSkip) noexcept
-{
-    int writePhys { 0 };
-    int outputRowsSoFar { 0 };
-    int r { 0 };
-
-    while (r < wp.linearRows)
-    {
-        int runLen { 0 };
-        nextLogicalLine (wp, r, &runLen);
-
-        const int flatLen { flattenLogicalLine (wp.cells, wp.graphemes, wp.oldCols, wp.totalRows,
-                                                wp.head, wp.oldVisibleRows, wp.scrollbackUsed,
-                                                r, runLen, tempCells, tempGraphs) };
-
-        const int effectiveLen { (runLen == 1) ? juce::jmin (flatLen, newCols) : flatLen };
-
-        emitLogicalLine (tempCells, tempGraphs, effectiveLen,
-                         dstCells, dstGraphemes, dstStates,
-                         newCols, newTotalRows,
-                         rowsToSkip, &outputRowsSoFar, &writePhys);
-        r += runLen;
-    }
 }
 
 // ============================================================================
@@ -649,8 +584,8 @@ static void writeReflowedContent (const WalkParams& wp, Cell* tempCells, Graphem
  * `flattenLogicalLine()`.  These are reused across all logical-line iterations.
  *
  * @par Step 3 — Dry run
- * `countOutputRows()` computes the total number of output rows.  From this,
- * the function computes:
+ * `reflowPass()` (dry-run mode) computes the total number of output rows.
+ * From this, the function computes:
  * - `newScrollback` — how many rows of scrollback the reflowed content would
  *   produce.
  * - `scClamped` — `newScrollback` clamped to the new buffer's scrollback
@@ -659,8 +594,10 @@ static void writeReflowedContent (const WalkParams& wp, Cell* tempCells, Graphem
  *   written content fits exactly into `scClamped + newVisibleRows` rows.
  *
  * @par Step 4 — Write pass
- * `writeReflowedContent()` writes the reflowed rows into `newBuffer`, starting
- * at physical row 0 and advancing the write head modulo `newBuffer.totalRows`.
+ * `reflowPass()` (write mode) writes the reflowed rows into `newBuffer`,
+ * starting at physical row 0 and advancing the write head modulo
+ * `newBuffer.totalRows`.  The identical function body guarantees count and
+ * write cannot disagree.
  *
  * @par Step 5 — Update metadata
  * `newBuffer.head` is set to the physical index of the last written row.
@@ -673,7 +610,7 @@ static void writeReflowedContent (const WalkParams& wp, Cell* tempCells, Graphem
  * @param newCols        Column count of the destination buffer.
  * @param newVisibleRows Visible row count of the destination buffer.
  * @note MESSAGE THREAD — allocates temporary heap memory for scratch buffers.
- * @see resize(), countOutputRows(), writeReflowedContent()
+ * @see resize(), reflowPass()
  */
 void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
                    Buffer& newBuffer, int newCols, int newVisibleRows)
@@ -697,20 +634,29 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
         const int cursorCol { state.getRawValue<int> (state.screenKey (normal, Terminal::ID::cursorCol)) };
         const int cursorLinear { scrollbackUsed + cursorRow };
 
-        int cursorOutputRow { -1 };
-        int cursorNewCol { 0 };
+        // Pass 1: count output rows (dry run — no writing)
+        int cursorOutputRowDry { -1 };
+        int cursorNewColDry { 0 };
 
-        const int totalOutputRows { countOutputRows (wp, tempCells.get(), tempGraphs.get(), newCols,
-                                                     cursorLinear, cursorCol,
-                                                     &cursorOutputRow, &cursorNewCol) };
+        const int totalOutputRows { reflowPass (wp, tempCells.get(), tempGraphs.get(), newCols,
+                                                cursorLinear, cursorCol,
+                                                &cursorOutputRowDry, &cursorNewColDry,
+                                                nullptr, nullptr, nullptr, 0, 0) };
+
         const int newScrollback { juce::jmax (0, totalOutputRows - newVisibleRows) };
         const int maxSc { newBuffer.totalRows - newVisibleRows };
         const int scClamped { juce::jmin (newScrollback, maxSc) };
         const int rowsToSkip { juce::jmax (0, totalOutputRows - (scClamped + newVisibleRows)) };
 
-        writeReflowedContent (wp, tempCells.get(), tempGraphs.get(),
-                              newBuffer.cells.get(), newBuffer.graphemes.get(), newBuffer.rowStates.get(),
-                              newCols, newBuffer.totalRows, rowsToSkip);
+        // Pass 2: write reflowed content (same function — count and write cannot disagree)
+        int cursorOutputRow { -1 };
+        int cursorNewCol { 0 };
+
+        reflowPass (wp, tempCells.get(), tempGraphs.get(), newCols,
+                    cursorLinear, cursorCol,
+                    &cursorOutputRow, &cursorNewCol,
+                    newBuffer.cells.get(), newBuffer.graphemes.get(), newBuffer.rowStates.get(),
+                    newBuffer.totalRows, rowsToSkip);
 
         if (cursorOutputRow < 0)
         {
@@ -718,26 +664,12 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
             cursorNewCol = cursorCol;
         }
 
-        const bool pinToBottom { cursorRow >= oldVisibleRows - 1 };
-        const int contentExtent { juce::jmax (totalOutputRows, cursorOutputRow + 1) - rowsToSkip };
+        const int written { scClamped + newVisibleRows };
+        newBuffer.head = ((written - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
+        newBuffer.scrollbackUsed = scClamped;
 
-        if (pinToBottom)
-        {
-            newBuffer.head = ((contentExtent - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
-            newBuffer.scrollbackUsed = scClamped;
-
-            const int newCursorVisibleRow { cursorOutputRow - rowsToSkip + newVisibleRows - contentExtent };
-            state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, newCursorVisibleRow));
-        }
-        else
-        {
-            const int written { scClamped + newVisibleRows };
-            newBuffer.head = ((written - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
-            newBuffer.scrollbackUsed = scClamped;
-
-            const int newCursorVisibleRow { cursorOutputRow - rowsToSkip - scClamped };
-            state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, newCursorVisibleRow));
-        }
+        const int newCursorVisibleRow { cursorOutputRow - rowsToSkip - scClamped };
+        state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, newCursorVisibleRow));
 
         state.setCursorCol (normal, juce::jlimit (0, newCols - 1, cursorNewCol));
     }

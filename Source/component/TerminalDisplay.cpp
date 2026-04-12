@@ -246,27 +246,6 @@ void Terminal::Display::writeToPty (const char* data, int len)
     processor.writeInput (data, len);
 }
 
-void Terminal::Display::increaseZoom()
-{
-    const float current { AppState::getContext()->getWindowZoom() };
-    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current + 0.25f) };
-    AppState::getContext()->setWindowZoom (newZoom);
-    applyZoom (newZoom);
-}
-
-void Terminal::Display::decreaseZoom()
-{
-    const float current { AppState::getContext()->getWindowZoom() };
-    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current - 0.25f) };
-    AppState::getContext()->setWindowZoom (newZoom);
-    applyZoom (newZoom);
-}
-
-void Terminal::Display::resetZoom()
-{
-    AppState::getContext()->setWindowZoom (Config::zoomMin);
-    applyZoom (Config::zoomMin);
-}
 
 bool Terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
@@ -718,14 +697,46 @@ void Terminal::Display::applyConfig() noexcept
  *
  * @note MESSAGE THREAD.
  */
-void Terminal::Display::applyZoom (float zoom) noexcept
+void Terminal::Display::applyZoom (float) noexcept
 {
-    visitScreen (
-        [&] (auto& s)
+    // Old font size from Screen — the last value set before AppState was updated.
+    // No shadow copy: Screen::getBaseFontSize() reads the live field.
+    float oldFontSize { 0.0f };
+    visitScreen ([&] (auto& s) { oldFontSize = s.getBaseFontSize(); });
+
+    // New font size from SSOT — Config (base) * AppState (zoom), computed fresh.
+    const float newFontSize { Config::getContext()->dpiCorrectedFontSize()
+                              * AppState::getContext()->getWindowZoom() };
+
+    // Raw font metrics for both sizes — multiplier cancels in the ratio.
+    const jreng::Typeface::Metrics oldMetrics { font.calcMetrics (oldFontSize) };
+    const jreng::Typeface::Metrics newMetrics { font.calcMetrics (newFontSize) };
+
+    visitScreen ([&] (auto& s) { s.setFontSize (newFontSize); });
+
+    if (oldMetrics.physCellW > 0 and oldMetrics.physCellH > 0
+        and newMetrics.physCellW > 0 and newMetrics.physCellH > 0)
+    {
+        if (auto* topLevel { getTopLevelComponent() })
         {
-            s.setFontSize (Config::getContext()->dpiCorrectedFontSize() * zoom);
-        });
-    resized();
+            const int decorW { topLevel->getWidth() - getWidth() };
+            const int decorH { topLevel->getHeight() - getHeight() };
+
+            const int oldContentW { getWidth() - paddingLeft - paddingRight };
+            const int oldContentH { getHeight() - paddingTop - paddingBottom };
+
+            const float ratioW { static_cast<float> (newMetrics.physCellW)
+                                 / static_cast<float> (oldMetrics.physCellW) };
+            const float ratioH { static_cast<float> (newMetrics.physCellH)
+                                 / static_cast<float> (oldMetrics.physCellH) };
+
+            const int newContentW { juce::roundToInt (static_cast<float> (oldContentW) * ratioW) };
+            const int newContentH { juce::roundToInt (static_cast<float> (oldContentH) * ratioH) };
+
+            topLevel->setSize (newContentW + paddingLeft + paddingRight + decorW,
+                               newContentH + paddingTop + paddingBottom + decorH);
+        }
+    }
 }
 
 void Terminal::Display::switchRenderer (App::RendererType type)

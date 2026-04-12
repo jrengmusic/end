@@ -491,7 +491,7 @@ void Tabs::switchRenderer (App::RendererType type)
 void Tabs::increaseZoom()
 {
     const float current { AppState::getContext()->getWindowZoom() };
-    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current + 0.25f) };
+    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current + Config::zoomStep) };
     AppState::getContext()->setWindowZoom (newZoom);
 
     for (auto& p : panes)
@@ -506,7 +506,7 @@ void Tabs::increaseZoom()
 void Tabs::decreaseZoom()
 {
     const float current { AppState::getContext()->getWindowZoom() };
-    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current - 0.25f) };
+    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current - Config::zoomStep) };
     AppState::getContext()->setWindowZoom (newZoom);
 
     for (auto& p : panes)
@@ -520,13 +520,14 @@ void Tabs::decreaseZoom()
 
 void Tabs::resetZoom()
 {
-    AppState::getContext()->setWindowZoom (Config::zoomMin);
+    const float defaultZoom { Config::getContext()->getFloat (Config::Key::windowZoom) };
+    AppState::getContext()->setWindowZoom (defaultZoom);
 
     for (auto& p : panes)
     {
         for (auto& pane : p->getPanes())
         {
-            pane->applyZoom (Config::zoomMin);
+            pane->applyZoom (defaultZoom);
         }
     }
 }

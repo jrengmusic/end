@@ -604,6 +604,18 @@ public:
     int getCellHeight() const noexcept;
 
     /**
+     * @brief Returns the current font size in points (includes zoom).
+     *
+     * Used by Display::applyZoom() to derive old font metrics for window resize
+     * ratio computation without caching a shadow copy of the font size.
+     *
+     * @return `baseFontSize` as set by the most recent `setFontSize()` call.
+     *
+     * @note **MESSAGE THREAD**.
+     */
+    float getBaseFontSize() const noexcept;
+
+    /**
      * @brief Returns the logical pixel bounds of the cell at (@p col, @p row).
      *
      * Clamps @p col and @p row to the valid grid range before computing the
@@ -928,7 +940,7 @@ private:
     int viewportY    { 0 };  ///< Logical pixel Y origin of the viewport.
     int viewportWidth  { 0 }; ///< Logical pixel width of the viewport.
     int viewportHeight { 0 }; ///< Logical pixel height of the viewport.
-    float baseFontSize       { 14.0f }; ///< Current font size in points; updated by setFontSize().
+    float baseFontSize       { 14.0f }; ///< Current font size in points (includes zoom); updated by setFontSize().
     float lineHeightMultiplier { 1.0f }; ///< User line-height multiplier from config; 1.0 = no adjustment.
     float cellWidthMultiplier { 1.0f }; ///< User cell-width multiplier from config; 1.0 = no adjustment.
 

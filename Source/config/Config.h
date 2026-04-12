@@ -71,6 +71,9 @@ struct Config : jreng::Context<Config>
     /** @brief Maximum zoom multiplier (4× = quadruple size). */
     static constexpr float zoomMax { 4.0f };
 
+    /** @brief Zoom increment/decrement step size. */
+    static constexpr float zoomStep { 0.25f };
+
     //==============================================================================
     /**
      * @struct Theme

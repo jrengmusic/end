@@ -418,34 +418,15 @@ public:
     void switchRenderer (App::RendererType type) override;
 
     /**
-     * @brief Increases the zoom multiplier by one step.
+     * @brief Applies the current zoom level and re-lays out the component.
      *
-     * @note MESSAGE THREAD.
-     * @see applyZoom
-     */
-    void increaseZoom();
-
-    /**
-     * @brief Decreases the zoom multiplier by one step.
+     * Reads the new font size from SSOT: `Config::dpiCorrectedFontSize() * AppState::getWindowZoom()`.
+     * The caller (Tabs) must set AppState zoom before invoking this method.
+     * The @p zoom parameter is accepted for interface compatibility but ignored —
+     * AppState is the single source of truth.
      *
-     * @note MESSAGE THREAD.
-     * @see applyZoom
-     */
-    void decreaseZoom();
-
-    /**
-     * @brief Resets the zoom multiplier to 1.0.
-     *
-     * @note MESSAGE THREAD.
-     * @see applyZoom
-     */
-    void resetZoom();
-
-    /**
-     * @brief Scales the font size by @p zoom and re-lays out the component.
-     *
-     * @param zoom  The zoom multiplier to apply (already clamped by the caller).
-     * @note MESSAGE THREAD — called from Tabs (global zoom) and increaseZoom(), decreaseZoom(), resetZoom().
+     * @param zoom  Unused; zoom is read from AppState by this method.
+     * @note MESSAGE THREAD — called from Tabs (global zoom).
      * @see Screen::setFontSize
      */
     void applyZoom (float zoom) noexcept override;

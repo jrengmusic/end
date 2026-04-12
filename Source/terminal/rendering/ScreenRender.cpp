@@ -256,8 +256,8 @@ static void emitShapedGlyphsToCache (
     {
         const jreng::Typeface::Glyph& sg { shapedGlyphs[i] };
 
-        jreng::Glyph::Region* atlasGlyph { constraint.isActive()
-            ? font.getGlyph (static_cast<uint16_t> (sg.glyphIndex), constraint, span)
+        jreng::Glyph::Region* atlasGlyph { (constraint.isActive() or span > 1)
+            ? font.getGlyph (static_cast<uint16_t> (sg.glyphIndex), constraint, std::max (span, static_cast<uint8_t> (1)))
             : font.getGlyph (static_cast<uint16_t> (sg.glyphIndex)) };
 
         if (atlasGlyph != nullptr)
@@ -959,7 +959,7 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jreng
                         const jreng::Glyph::Constraint noConstraint;
 
                         emitShapedGlyphsToCache (fixedGlyphs, shaped.count, fontObj,
-                                                 noConstraint, 0,
+                                                 noConstraint, static_cast<uint8_t> (tryLen),
                                                  static_cast<float> (col * physCellWidth),
                                                  static_cast<float> (row * physCellHeight),
                                                  physBaseline, foreground,

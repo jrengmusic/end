@@ -88,7 +88,11 @@ void Daemon::stop()
 {
     InterprocessConnectionServer::stop();
     activePort = 0;
-    releasePlatformProcessCleanup();
+
+    // Job Object handle is NOT closed here.  The OS closes it on process exit,
+    // which fires KILL_ON_JOB_CLOSE as a safety net — after destructors have
+    // already run ClosePseudoConsole for each session.  Closing it here would
+    // terminate the daemon itself mid-shutdown (self-kill via KILL_ON_JOB_CLOSE).
 
     const juce::ScopedLock lock (connectionsLock);
     attached.clear();

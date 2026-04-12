@@ -982,8 +982,8 @@ private:
      *
      * @par Algorithm overview
      * 1. `findLastContent()` — find the last non-empty visible row.
-     * 2. `countOutputRows()` — dry-run to compute total output row count.
-     * 3. `writeReflowedContent()` — write rows, skipping overflow at the top.
+     * 2. `reflowPass()` (dry-run) — compute total output row count.
+     * 3. `reflowPass()` (write)   — write rows, skipping overflow at the top.
      * 4. Update `newBuffer.head` and `newBuffer.scrollbackUsed`.
      *
      * @param oldBuffer      Source buffer (read-only).
