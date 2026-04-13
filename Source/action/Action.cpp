@@ -417,4 +417,4 @@ void Registry::timerCallback()
     prefixState = PrefixState::idle;
 }
 
-}// namespace Action
+} // namespace Action

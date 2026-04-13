@@ -248,4 +248,4 @@ void State::flushHyperlinks() noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

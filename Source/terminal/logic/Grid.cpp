@@ -976,4 +976,4 @@ void Grid::setStateInformation (const void* data, int size)
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

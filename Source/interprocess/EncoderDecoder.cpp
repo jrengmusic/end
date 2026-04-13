@@ -111,4 +111,4 @@ juce::MemoryBlock encodePdu (Message kind, const juce::MemoryBlock& payload) noe
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Interprocess
+} // namespace Interprocess

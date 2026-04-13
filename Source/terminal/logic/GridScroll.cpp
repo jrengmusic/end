@@ -133,4 +133,4 @@ void Grid::scrollRegion (int top, int bottom, int count, bool up, const Cell& fi
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

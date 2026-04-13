@@ -202,7 +202,7 @@ void Config::initKeys()
     addKey (Key::keysPaste, "ctrl+v", { T::string });
     addKey (Key::keysQuit, "ctrl+q", { T::string });
     addKey (Key::keysCloseTab, "ctrl+w", { T::string });
-    addKey (Key::keysReload, "ctrl+r", { T::string });
+    addKey (Key::keysReload, "ctrl+/", { T::string });
     addKey (Key::keysZoomIn, "ctrl+=", { T::string });
     addKey (Key::keysZoomOut, "ctrl+-", { T::string });
     addKey (Key::keysZoomReset, "ctrl+0", { T::string });
@@ -248,8 +248,8 @@ void Config::initKeys()
 
     // ---- Action list (command palette) --------------------------------------
     addKey (Key::keysActionListCloseOnRun, "true", { T::string });
-    addKey (Key::actionListWidth, 0.3, { T::number, 0.1, 1.0, true });
-    addKey (Key::actionListHeight, 0.4, { T::number, 0.1, 1.0, true });
+    addKey (Key::actionListWidth, 0.6, { T::number, 0.1, 1.0, true });
+    addKey (Key::actionListHeight, 0.6, { T::number, 0.1, 1.0, true });
     addKey (Key::actionListNameFamily, "Display", { T::string });
     addKey (Key::actionListNameSize, 13.0, { T::number, 6.0, 72.0, true });
     addKey (Key::actionListShortcutFamily, "Display Mono Bold", { T::string });
@@ -727,29 +727,46 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
 
                                                     // Padding tables are 4-element arrays { top, right, bottom, left }.
                                                     // Dispatched to loadPadding() rather than treated as a scalar.
-                                                    const bool isPadding { fieldName == "padding" and fieldVal.get_type() == sol::type::table };
+                                                    const bool isPadding { fieldName == "padding"
+                                                                           and fieldVal.get_type()
+                                                                                   == sol::type::table };
 
                                                     if (isPadding)
                                                     {
-                                                        static const std::array<const juce::String*, 4> terminalPaddingKeys {
-                                                            &Config::Key::terminalPaddingTop,  &Config::Key::terminalPaddingRight,
-                                                            &Config::Key::terminalPaddingBottom, &Config::Key::terminalPaddingLeft };
+                                                        static const std::array<const juce::String*, 4>
+                                                            terminalPaddingKeys { &Config::Key::terminalPaddingTop,
+                                                                                  &Config::Key::terminalPaddingRight,
+                                                                                  &Config::Key::terminalPaddingBottom,
+                                                                                  &Config::Key::terminalPaddingLeft };
 
-                                                        static const std::array<const juce::String*, 4> actionListPaddingKeys {
-                                                            &Config::Key::actionListPaddingTop,  &Config::Key::actionListPaddingRight,
-                                                            &Config::Key::actionListPaddingBottom, &Config::Key::actionListPaddingLeft };
+                                                        static const std::array<const juce::String*, 4>
+                                                            actionListPaddingKeys {
+                                                                &Config::Key::actionListPaddingTop,
+                                                                &Config::Key::actionListPaddingRight,
+                                                                &Config::Key::actionListPaddingBottom,
+                                                                &Config::Key::actionListPaddingLeft
+                                                            };
 
                                                         if (groupName == "terminal")
-                                                            loadPadding (fieldVal.as<sol::table>(), terminalPaddingKeys, values, schema);
+                                                            loadPadding (fieldVal.as<sol::table>(),
+                                                                         terminalPaddingKeys,
+                                                                         values,
+                                                                         schema);
 
                                                         if (groupName == "action_list")
-                                                            loadPadding (fieldVal.as<sol::table>(), actionListPaddingKeys, values, schema);
+                                                            loadPadding (fieldVal.as<sol::table>(),
+                                                                         actionListPaddingKeys,
+                                                                         values,
+                                                                         schema);
                                                     }
 
                                                     if (not isPadding)
                                                     {
-                                                        validateAndStore (
-                                                            groupName + "." + fieldName, fieldVal, values, schema, warnings);
+                                                        validateAndStore (groupName + "." + fieldName,
+                                                                          fieldVal,
+                                                                          values,
+                                                                          schema,
+                                                                          warnings);
                                                     }
                                                 }
                                             });
@@ -1218,3 +1235,4 @@ bool Config::isClickableExtension (const juce::String& extension) const noexcept
 {
     return hyperlinkExtensions.count (extension) > 0 or hyperlinkHandlers.count (extension) > 0;
 }
+

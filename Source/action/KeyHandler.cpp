@@ -18,14 +18,6 @@ KeyHandler::KeyHandler (Callbacks cbs)
 //==============================================================================
 void KeyHandler::buildSearchTable()
 {
-    searchTable[juce::KeyPress::escapeKey] = [this]
-    {
-        if (callbacks.visibleRowCount() > 0)
-            callbacks.selectRow (1);
-        else
-            callbacks.dismiss();
-    };
-
     searchTable[juce::KeyPress::returnKey] = [this]
     {
         callbacks.executeSelected();
@@ -58,11 +50,6 @@ void KeyHandler::buildNavigationTable()
     navigationTable[juce::KeyPress::upKey] = [this]
     {
         callbacks.selectRow (callbacks.selectedIndex() - 1);
-    };
-
-    navigationTable[juce::KeyPress::escapeKey] = [this]
-    {
-        callbacks.dismiss();
     };
 
     navigationTable[juce::KeyPress::returnKey] = [this]
@@ -99,4 +86,4 @@ bool KeyHandler::handleKey (const juce::KeyPress& key)
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Action
+} // namespace Action

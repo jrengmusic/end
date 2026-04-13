@@ -571,4 +571,4 @@ void Parser::performEntryAction (ParserState newState) noexcept
 
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

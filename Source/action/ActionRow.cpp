@@ -23,12 +23,14 @@ Row::Row (int index, const juce::String& uuid, const Registry::Entry& entry)
     , rowIndex (index)
     , kind (RowKind::action)
 {
-    nameLabel = std::make_unique<NameLabel>();
+    nameLabel = std::make_unique<juce::Label>();
+    nameLabel->getProperties().set (jreng::ID::font, jreng::ID::name.toString());
     nameLabel->setText (entry.name, juce::dontSendNotification);
     nameLabel->setInterceptsMouseClicks (false, false);
     addAndMakeVisible (nameLabel.get());
 
-    shortcutLabel = std::make_unique<ShortcutLabel>();
+    shortcutLabel = std::make_unique<juce::Label>();
+    shortcutLabel->getProperties().set (jreng::ID::font, jreng::ID::keyPress.toString());
     shortcutLabel->setText (Registry::shortcutToString (entry.shortcut),
                             juce::dontSendNotification);
     shortcutLabel->setJustificationType (juce::Justification::centredRight);
@@ -130,15 +132,15 @@ juce::TextEditor* Row::getSearchBox() noexcept
     return searchBox.get();
 }
 
-NameLabel* Row::getNameLabel() noexcept
+juce::Label* Row::getNameLabel() noexcept
 {
     return nameLabel.get();
 }
 
-ShortcutLabel* Row::getShortcutLabel() noexcept
+juce::Label* Row::getShortcutLabel() noexcept
 {
     return shortcutLabel.get();
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Action
+} // namespace Action

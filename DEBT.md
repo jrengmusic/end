@@ -40,10 +40,4 @@
 
 ---
 
-## DEBT-20260411T083120
-
-**Observation:** action list on windows rendered solid white
-**Divergence:** there are some tweaks to jreng_window module, popup looks correct, action list need to be exactly setup like popup
-**Expectation:** all modal window rendering with blur and transparency must be rendered like main window
-
 ---

@@ -276,4 +276,4 @@ void Component::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-}// namespace Whelmed
+} // namespace Whelmed

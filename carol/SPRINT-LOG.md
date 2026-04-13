@@ -1,5 +1,86 @@
 # SPRINT-LOG
 
+## Sprint 15: Action List Window — Glass Modal + Plain Component Refactor
+
+**Date:** 2026-04-13
+**Duration:** ~10:00
+
+### Agents Participated
+- COUNSELOR: session lead, /pay planning, architecture analysis, DWM glass root cause investigation, PLAN-window-glass-modes.md
+- Pathfinder: codebase survey (action list, popup, window module, glass pipeline)
+- Librarian: JUCE internals — DWM glass + software rendering incompatibility (computeTransparencyKind, StretchDIBits alpha)
+- Researcher: JUCE Windows peer rendering pipeline, child HWND patterns, DWM composition research
+- Engineer: all code implementation (~25 delegations)
+- Auditor: full BLESSED/NAMES/CODING-STANDARD sweep (19 findings)
+
+### Files Modified (80+ total)
+
+**jreng::Window glass modes:**
+- `modules/jreng_gui/window/jreng_window.h` — `setGlass(Colour, float blur)` (removed opacity param), `setGpuRenderer(bool)`, `gpuRenderer` member
+- `modules/jreng_gui/window/jreng_window.cpp` — GPU/CPU branching in `visibilityChanged()`, DWM rounded corners decoupled from glass, CPU path = solid opaque + rounded corners
+
+**setGlass API change:**
+- `modules/jreng_gui/window/jreng_window.h/.cpp` — 2-param signature, colour alpha carries tint
+- `Source/Main.cpp:348,396` — callers updated to `.withAlpha(opacity)`
+- `Source/component/ModalWindow.cpp:78` — caller updated
+- `Source/Gpu.h` — `resolveOpacity` removed (dead code)
+
+**Module rename:**
+- `modules/jreng_gui/glass/` renamed to `modules/jreng_gui/window/`
+- `modules/jreng_gui/jreng_gui.h/.cpp/.mm` — include paths updated
+- `modules/jreng_gui/window/jreng_child_window.h/.cpp/.mm` — deleted (unused)
+
+**Terminal::ModalWindow (extracted from Popup::Window):**
+- `Source/component/ModalWindow.h` — new file, GL and non-GL constructors, ContentView (GL only), setupWindow shared helper
+- `Source/component/ModalWindow.cpp` — new file, full implementation
+
+**Popup refactor:**
+- `Source/component/Popup.h` — removed ContentView + Window structs, uses Terminal::ModalWindow, `setTerminalSession` setter (was public member), non-GL `show()` overload
+- `Source/component/Popup.cpp` — removed ContentView + Window impl, non-GL show() implementation
+
+**Action::List refactor (ModalWindow subclass -> plain Component):**
+- `Source/action/ActionList.h` — plain `juce::Component` + `juce::ValueTree::Listener`, full doxygen, `onActionRun` callback, minimum size 600x400
+- `Source/action/ActionList.cpp` — self-contained construction, `valueTreePropertyChanged`, direct member access, size clamped at minimum
+- `Source/action/ActionRow.h` — removed NameLabel/ShortcutLabel type tags, plain juce::Label with ID::font property
+- `Source/action/ActionRow.cpp` — property-based font dispatch via `getProperties().set(ID::font, ...)`
+- `Source/action/LookAndFeel.h/.cpp` — deleted (merged into Terminal::LookAndFeel)
+- `Source/action/KeyHandler.h/.cpp` — removed dismiss callback from Callbacks struct
+
+**Font dispatch:**
+- `Source/component/LookAndFeel.h` — `getLabelFont` override, `separatorAlpha` constant, ColourIds JUCE convention comment
+- `Source/component/LookAndFeel.cpp` — `getLabelFont` implementation (property-based dispatch via ID::font/ID::name/ID::keyPress)
+- `modules/jreng_core/identifier/jreng_identifier_core.h` — added `keyPress` identifier
+
+**MainComponent:**
+- `Source/MainComponent.h` — removed `actionList` member
+- `Source/MainComponentActions.cpp` — uses `popup.show()` non-GL overload, `onActionRun` wired to `popup.dismiss()`
+- `Source/Main.cpp` — `setGpuRenderer` call on main window
+
+**Audit fixes (19 findings):**
+- `modules/jreng_gui/window/jreng_background_blur.h` — removed `const` on return-by-value, space before `//`
+- `modules/jreng_gui/window/jreng_background_blur.cpp` — C-style casts -> static_cast, brace init, explicit bitwise bool, enum class ACCENT_STATE, extracted `applyAccentPolicy`+`buildAbgrColorref` helpers, named DWM constants
+- `modules/jreng_gui/window/jreng_window.cpp` — named DWM constants
+- `Source/component/LookAndFeel.cpp` — JUCE API comment on raw new, extracted `applyVerticalTabTransform`+`truncateTabText`+`drawPopupMenuSeparator`+`drawSubmenuArrow` helpers
+
+**Codebase-wide:**
+- 63 files: `}//` -> `} //` spacing fix
+
+### Alignment Check
+- [x] BLESSED principles followed — E (Explicit): setGlass no magic opacity threshold, named DWM constants, property-based font dispatch; S (SSOT): AppState is renderer type SSOT, font config read once in getLabelFont, no duplicated ABGR conversion; E (Encapsulation): jreng::Window self-manages GPU/CPU mode, Action::List is plain component, Terminal::ModalWindow encapsulates glass setup; B (Bound): ModalWindow owns content lifecycle, RAII cleanup; L (Lean): extracted helpers for 30-line compliance, deleted dead LookAndFeel/ChildWindow files
+- [x] NAMES.md adhered — `onActionRun`, `setGpuRenderer`, `gpuRenderer`, `minimumWidth`/`minimumHeight`, `setupWindow`, `hasChildPeer` (removed), `ContentView` (follows Popup pattern)
+- [x] MANIFESTO.md principles applied — no early returns, alternative tokens, brace init, const, .at() access, explicit nullptr checks
+
+### Problems Solved
+- **Action list rendered solid white on Windows:** Root cause was Action::LookAndFeel replacing WindowsTitleBarLookAndFeel (which suppressed title bar paint). Fixed by merging into Terminal::LookAndFeel with property-based font dispatch.
+- **DWM glass + software rendering incompatible:** JUCE software renderer writes Image::RGB with zero alpha via StretchDIBits. DWM reads alpha=0 as transparent. GL renderer writes correct alpha. Resolution: CPU path uses solid opaque background + DWM rounded corners. GPU path unchanged.
+- **Action::List architecture:** Refactored from ModalWindow subclass to plain Component hosted via Popup::show(). Eliminated window construction complexity, content sizing chicken-and-egg problems, and L&F conflicts.
+
+### Debts Paid
+- `DEBT-20260411T083120` — action list on windows rendered solid white — resolved via Terminal::ModalWindow extraction + jreng::Window GPU/CPU modes + plain component refactor
+
+### Debts Deferred
+- None
+
 ## Sprint 14: Fallback Advance + Zoom + Non-Destructive Reflow + Daemon Lifecycle
 
 **Date:** 2026-04-12 / 2026-04-13

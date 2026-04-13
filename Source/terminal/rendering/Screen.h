@@ -219,7 +219,7 @@ struct Snapshot : jreng::Glyph::Render::SnapshotBase
 };  // struct Render
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -981,4 +981,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

@@ -345,9 +345,13 @@ public:
                                                       cfg->getBool (Config::Key::windowAlwaysOnTop),
                                                       cfg->getBool (Config::Key::windowButtons)));
 
-            mainWindow->setGlass (cfg->getColour (Config::Key::windowColour),
-                                  Gpu::resolveOpacity (cfg->getFloat (Config::Key::windowOpacity)),
+            mainWindow->setGlass (cfg->getColour (Config::Key::windowColour)
+                                      .withAlpha (cfg->getFloat (Config::Key::windowOpacity)),
                                   cfg->getFloat (Config::Key::windowBlurRadius));
+
+#if JUCE_WINDOWS
+            mainWindow->setGpuRenderer (appState.getRendererType() == App::RendererType::gpu);
+#endif
 
             // JUCE InterprocessConnection manages its own reader thread internally.
             // No startThread() call is needed.
@@ -393,8 +397,8 @@ public:
                     }
 #endif
 
-                    mainWindow->setGlass (config.getColour (Config::Key::windowColour),
-                                          Gpu::resolveOpacity (config.getFloat (Config::Key::windowOpacity)),
+                    mainWindow->setGlass (config.getColour (Config::Key::windowColour)
+                                              .withAlpha (config.getFloat (Config::Key::windowOpacity)),
                                           config.getFloat (Config::Key::windowBlurRadius));
                 }
             };

@@ -40,6 +40,9 @@ class LookAndFeel : public juce::LookAndFeel_V4
 public:
     /**
      * @brief Custom colour IDs for terminal theme.
+     *
+     * @note JUCE convention: ColourIds are plain enums (int-based colour ID system).
+     *       Converting to enum class would require explicit casts at every setColour/findColour call.
      */
     enum ColourIds
     {
@@ -94,6 +97,20 @@ public:
      * @note MESSAGE THREAD.
      */
     juce::Font getPopupMenuFont() override;
+
+    /**
+     * @brief Dispatches label fonts via component property inspection.
+     *
+     * Reads the `font` property from the label's property map.  When the value
+     * matches `jreng::ID::name`, the action list name font is returned.  When it
+     * matches `jreng::ID::keyPress`, the action list shortcut font is returned.
+     * All other labels fall back to the default LookAndFeel_V4 behaviour.
+     *
+     * @param label  The label being queried.
+     * @return       The resolved font for the given label.
+     * @note MESSAGE THREAD.
+     */
+    juce::Font getLabelFont (juce::Label& label) override;
 
     /**
      * @brief Makes the popup window transparent and applies native background blur.
@@ -208,6 +225,7 @@ public:
 
 private:
     static constexpr float tabFontRatio { 0.5f };
+    static constexpr float separatorAlpha { 0.3f };
     static constexpr int horizontalPadding { 24 };
     static constexpr float skew { 10.0f };
     static constexpr float strokeWidth { 1.0f };
@@ -223,5 +241,5 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal
 

@@ -69,6 +69,6 @@ void Daemon::installPlatformProcessCleanup() noexcept { }
 void Daemon::releasePlatformProcessCleanup() noexcept { }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Interprocess
+} // namespace Interprocess
 
 #endif // JUCE_MAC || JUCE_LINUX

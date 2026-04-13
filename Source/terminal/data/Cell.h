@@ -455,4 +455,4 @@ inline uint32_t getCellKey (int row, int col) noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

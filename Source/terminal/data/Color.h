@@ -150,4 +150,4 @@ static_assert (std::is_trivially_copyable_v<Color>);
 static_assert (sizeof (Color) == 4);
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

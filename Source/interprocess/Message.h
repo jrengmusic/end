@@ -68,4 +68,4 @@ enum class Message : uint16_t
 
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Interprocess
+} // namespace Interprocess

@@ -462,4 +462,4 @@ void Link::handleStateUpdate (const uint8_t* payload, int payloadSize)
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Interprocess
+} // namespace Interprocess

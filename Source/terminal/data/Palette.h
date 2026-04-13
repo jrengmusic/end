@@ -339,4 +339,4 @@ inline juce::Colour resolvePalette (const Color& color) noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

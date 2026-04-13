@@ -97,4 +97,4 @@ int32_t readInt32 (const uint8_t* data) noexcept;
 int readString (const uint8_t* data, int available, juce::String& out) noexcept;
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Interprocess
+} // namespace Interprocess

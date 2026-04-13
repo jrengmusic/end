@@ -1036,4 +1036,4 @@ void Parser::handleMode (const CSI& params, bool enable) noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

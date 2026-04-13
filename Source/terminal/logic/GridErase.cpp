@@ -83,4 +83,4 @@ void Grid::eraseCellRange (int row, int startCol, int endCol, const Cell& fill) 
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

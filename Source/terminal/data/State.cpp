@@ -1412,4 +1412,4 @@ uint64_t State::getLastKnownSeqno() const
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

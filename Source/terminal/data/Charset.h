@@ -87,4 +87,4 @@ inline uint32_t translateCharset (uint32_t codepoint, bool lineDrawing) noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

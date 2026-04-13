@@ -938,4 +938,4 @@ void Parser::dcsPut (uint8_t /*byte*/) noexcept {}
 void Parser::dcsUnhook() noexcept {}
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

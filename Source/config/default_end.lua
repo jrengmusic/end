@@ -650,13 +650,13 @@ END = {
 			rows = 30,
 			modal = "c",
 		},
-	--	btop = {
-	--		command = "htop",
-	--		cwd = "~",
-	--		cols = 80,
-	--		rows = 24,
-	--		modal = "p",
-	--		global = "cmd+shift+p",
-	--     },
+		btop = {
+			command = "btop",
+			args = "",
+			cwd = "",
+			cols = 100,
+			rows = 40,
+			modal = "q",
+		},
 	},
 }

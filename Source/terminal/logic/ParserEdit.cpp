@@ -564,4 +564,4 @@ void Parser::setScreen (bool shouldUseAlternate) noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

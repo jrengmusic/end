@@ -385,4 +385,4 @@ static_assert (std::is_trivially_copyable_v<CSI>,
                "CSI must be trivially copyable");
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

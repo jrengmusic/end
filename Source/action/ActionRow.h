@@ -11,12 +11,6 @@
 namespace Action
 { /*____________________________________________________________________________*/
 
-/** @brief Type tag for name labels; used by LookAndFeel font dispatch. */
-class NameLabel : public juce::Label {};
-
-/** @brief Type tag for shortcut labels; used by LookAndFeel font dispatch. */
-class ShortcutLabel : public juce::Label {};
-
 /** @brief Distinguishes row variants in the command palette. */
 enum class RowKind
 {
@@ -67,10 +61,10 @@ public:
     std::function<bool()> run;
 
     /** @brief Access name label (index > 0 only). */
-    NameLabel* getNameLabel() noexcept;
+    juce::Label* getNameLabel() noexcept;
 
     /** @brief Access shortcut label (index > 0 only). */
-    ShortcutLabel* getShortcutLabel() noexcept;
+    juce::Label* getShortcutLabel() noexcept;
 
 private:
     static constexpr int   shortcutWidthDivisor { 3 };
@@ -85,8 +79,8 @@ private:
     std::unique_ptr<juce::TextEditor> searchBox;
 
     // Index > 0 content.
-    std::unique_ptr<NameLabel>     nameLabel;
-    std::unique_ptr<ShortcutLabel> shortcutLabel;
+    std::unique_ptr<juce::Label> nameLabel;
+    std::unique_ptr<juce::Label> shortcutLabel;
 
     void valueChanged (juce::Value& value) override;
 
@@ -95,4 +89,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Action
+} // namespace Action

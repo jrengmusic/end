@@ -24,12 +24,11 @@ class KeyHandler
 public:
     struct Callbacks
     {
-        std::function<void()>      executeSelected;
-        std::function<void()>      dismiss;
-        std::function<void()>      enterBindingMode;
-        std::function<void(int)>   selectRow;
-        std::function<int()>       visibleRowCount;
-        std::function<int()>       selectedIndex;
+        std::function<void()>      executeSelected;   ///< Invoked when Return is pressed on a selected row.
+        std::function<void()>      enterBindingMode;  ///< Invoked when Shift+Return is pressed in navigation mode.
+        std::function<void(int)>   selectRow;         ///< Invoked with the target row index to select.
+        std::function<int()>       visibleRowCount;   ///< Returns the number of visible, selectable rows.
+        std::function<int()>       selectedIndex;     ///< Returns the currently selected row index.
     };
 
     explicit KeyHandler (Callbacks callbacks);
@@ -53,4 +52,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Action
+} // namespace Action

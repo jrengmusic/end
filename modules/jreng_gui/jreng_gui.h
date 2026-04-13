@@ -21,11 +21,10 @@
 #include <juce_events/juce_events.h>
 #include <jreng_core/jreng_core.h>
 
-#include "glass/jreng_background_blur.h"
-#include "glass/jreng_child_window.h"
-#include "glass/jreng_glass_component.h"
-#include "glass/jreng_window.h"
-#include "glass/jreng_modal_window.h"
+#include "window/jreng_background_blur.h"
+#include "window/jreng_glass_component.h"
+#include "window/jreng_window.h"
+#include "window/jreng_modal_window.h"
 #include "animation/jreng_animator.h"
 #include "layout/jreng_pane_manager.h"
 #include "layout/jreng_pane_resizer_bar.h"

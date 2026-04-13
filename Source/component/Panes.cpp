@@ -615,4 +615,4 @@ void Panes::focusPane (int deltaX, int deltaY)
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

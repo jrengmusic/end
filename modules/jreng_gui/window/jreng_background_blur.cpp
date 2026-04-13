@@ -20,7 +20,7 @@
 
 // Undocumented SetWindowCompositionAttribute API (user32.dll, Windows 10+)
 
-enum ACCENT_STATE
+enum class ACCENT_STATE
 {
     ACCENT_DISABLED                   = 0,
     ACCENT_ENABLE_GRADIENT            = 1,
@@ -48,7 +48,17 @@ struct WINDOWCOMPOSITIONATTRIBDATA
 
 using SetWindowCompositionAttribute_t = BOOL (WINAPI*) (HWND, WINDOWCOMPOSITIONATTRIBDATA*);
 
-static constexpr DWORD WCA_ACCENT_POLICY = 19;
+static constexpr DWORD WCA_ACCENT_POLICY { 19 };
+
+/*____________________________________________________________________________*/
+
+// Named constants for DWM window attribute IDs and values.
+// DWMWA_WINDOW_CORNER_PREFERENCE = 33, DWMWCP_ROUND = 2.
+static constexpr DWORD dwmWindowCornerPreference { 33 };
+static constexpr DWORD dwmCornerRound { 2 };
+
+// Accent flag: instruct the compositor to use the GradientColor field.
+static constexpr UINT accentFlagUseGradientColor { 2 };
 
 /*____________________________________________________________________________*/
 
@@ -63,12 +73,68 @@ namespace jreng
 
 /**____________________________________________________________________________*/
 
-const bool BackgroundBlur::isDwmAvailable()
+/**
+ * @brief Builds the ABGR COLORREF from a juce::Colour in ARGB order.
+ *
+ * The Windows accent API expects ABGR channel order, not ARGB.
+ *
+ * @param tint  Source colour (ARGB).
+ * @return      COLORREF in ABGR order.
+ */
+static COLORREF buildAbgrColorref (juce::Colour tint) noexcept
+{
+    return (static_cast<COLORREF> (tint.getAlpha())  << 24)
+         | (static_cast<COLORREF> (tint.getBlue())   << 16)
+         | (static_cast<COLORREF> (tint.getGreen())  <<  8)
+         |  static_cast<COLORREF> (tint.getRed());
+}
+
+/**
+ * @brief Applies a SetWindowCompositionAttribute accent policy to an HWND.
+ *
+ * Loads SetWindowCompositionAttribute dynamically from user32.dll,
+ * constructs the ACCENT_POLICY and WINDOWCOMPOSITIONATTRIBDATA structs,
+ * and invokes the API.
+ *
+ * @param hwnd   Target window handle.
+ * @param state  Accent state to apply.
+ * @param tint   Tint colour (ARGB); converted to ABGR internally.
+ * @return @c true if SetWindowCompositionAttribute succeeded; @c false otherwise.
+ */
+static bool applyAccentPolicy (HWND hwnd, ACCENT_STATE state, juce::Colour tint)
+{
+    bool result { false };
+
+    auto SetWindowCompositionAttribute { reinterpret_cast<SetWindowCompositionAttribute_t> (
+        GetProcAddress (GetModuleHandleW (L"user32.dll"), "SetWindowCompositionAttribute")) };
+
+    if (SetWindowCompositionAttribute != nullptr)
+    {
+        COLORREF abgr { buildAbgrColorref (tint) };
+
+        ACCENT_POLICY accent {};
+        accent.AccentState   = state;
+        accent.AccentFlags   = accentFlagUseGradientColor;
+        accent.GradientColor = abgr;
+        accent.AnimationId   = 0;
+
+        WINDOWCOMPOSITIONATTRIBDATA data {};
+        data.Attrib = WCA_ACCENT_POLICY;
+        data.pvData = &accent;
+        data.cbData = sizeof (accent);
+
+        result = SetWindowCompositionAttribute (hwnd, &data) != FALSE;
+    }
+
+    return result;
+}
+
+bool BackgroundBlur::isDwmAvailable()
 {
     return true;
 }
 
-const bool BackgroundBlur::enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
+bool BackgroundBlur::enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
 {
     bool result { false };
 
@@ -103,13 +169,13 @@ const bool BackgroundBlur::enable (juce::Component* component, float blurRadius,
  *
  * @see enableWindowTransparency()
  */
-const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blurRadius, juce::Colour tint)
+bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blurRadius, juce::Colour tint)
 {
     bool result { false };
 
-    if (auto* peer = component->getPeer())
+    if (auto* peer { component->getPeer() })
     {
-        HWND hwnd = (HWND) peer->getNativeHandle();
+        auto hwnd { static_cast<HWND> (peer->getNativeHandle()) };
 
         if (hwnd != nullptr)
         {
@@ -117,69 +183,29 @@ const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blur
             if (not isWindows10())
             {
                 // Strip WS_EX_LAYERED — incompatible with DWM backdrop and rounded corners
-                LONG_PTR exStyle = GetWindowLongPtrW (hwnd, GWL_EXSTYLE);
-                if (exStyle & WS_EX_LAYERED)
+                LONG_PTR exStyle { GetWindowLongPtrW (hwnd, GWL_EXSTYLE) };
+
+                if ((exStyle & WS_EX_LAYERED) != 0)
                     SetWindowLongPtrW (hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
 
                 // Rounded corners
-                DWORD cornerPref = 2; // DWMWCP_ROUND
-                DwmSetWindowAttribute (hwnd, 33, &cornerPref, sizeof (cornerPref));
+                DWORD cornerPref { dwmCornerRound };
+                DwmSetWindowAttribute (hwnd, dwmWindowCornerPreference, &cornerPref, sizeof (cornerPref));
 
                 // Extend DWM frame into entire client area ("sheet of glass")
                 MARGINS margins { -1, -1, -1, -1 };
                 DwmExtendFrameIntoClientArea (hwnd, &margins);
 
-                auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
-                    GetProcAddress (GetModuleHandleW (L"user32.dll"),
-                        "SetWindowCompositionAttribute");
-
-                if (SetWindowCompositionAttribute != nullptr)
-                {
-                    COLORREF abgr = ((COLORREF) tint.getAlpha() << 24)
-                                  | ((COLORREF) tint.getBlue()  << 16)
-                                  | ((COLORREF) tint.getGreen() <<  8)
-                                  | ((COLORREF) tint.getRed());
-
-                    ACCENT_POLICY accent {};
-                    accent.AccentState   = ACCENT_ENABLE_ACRYLICBLURBEHIND;
-                    accent.AccentFlags   = 2;  // use GradientColor
-                    accent.GradientColor = abgr;
-                    accent.AnimationId   = 0;
-
-                    WINDOWCOMPOSITIONATTRIBDATA data {};
-                    data.Attrib = WCA_ACCENT_POLICY;
-                    data.pvData = &accent;
-                    data.cbData = sizeof (accent);
-
-                    result = SetWindowCompositionAttribute (hwnd, &data) != FALSE;
-                }
+                result = applyAccentPolicy (hwnd, ACCENT_STATE::ACCENT_ENABLE_ACRYLICBLURBEHIND, tint);
             }
             else
             {
                 // --- Windows 10 (special case): original working path, unchanged ---
-                auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
-                    GetProcAddress (GetModuleHandleW (L"user32.dll"),
-                        "SetWindowCompositionAttribute");
+                bool accentApplied { applyAccentPolicy (hwnd, ACCENT_STATE::ACCENT_ENABLE_BLURBEHIND, tint) };
 
-                if (SetWindowCompositionAttribute != nullptr)
+                if (accentApplied)
                 {
-                    COLORREF abgr = ((COLORREF) tint.getAlpha() << 24)
-                                  | ((COLORREF) tint.getBlue()  << 16)
-                                  | ((COLORREF) tint.getGreen() <<  8)
-                                  | ((COLORREF) tint.getRed());
-
-                    ACCENT_POLICY accent {};
-                    accent.AccentState   = ACCENT_ENABLE_BLURBEHIND;
-                    accent.AccentFlags   = 2;  // use GradientColor
-                    accent.GradientColor = abgr;
-                    accent.AnimationId   = 0;
-
-                    WINDOWCOMPOSITIONATTRIBDATA data {};
-                    data.Attrib = WCA_ACCENT_POLICY;
-                    data.pvData = &accent;
-                    data.cbData = sizeof (accent);
-
-                    result = SetWindowCompositionAttribute (hwnd, &data) != FALSE;
+                    result = true;
                 }
                 else
                 {
@@ -230,7 +256,7 @@ void BackgroundBlur::setCloseCallback (std::function<void()> callback)
  *
  * @see applyDwmGlass()
  */
-const bool BackgroundBlur::enableWindowTransparency()
+bool BackgroundBlur::enableWindowTransparency()
 {
     bool result { true };
 
@@ -263,7 +289,8 @@ const bool BackgroundBlur::enableWindowTransparency()
                 // Strip WS_EX_LAYERED so DWM composites the GL framebuffer per-pixel.
                 // GL does not use UpdateLayeredWindow, so removing this flag is safe.
                 LONG_PTR exStyle { GetWindowLongPtrW (hwnd, GWL_EXSTYLE) };
-                if (exStyle & WS_EX_LAYERED)
+
+                if ((exStyle & WS_EX_LAYERED) != 0)
                     SetWindowLongPtrW (hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_LAYERED);
 
                 // Extend the DWM frame across the entire client area so DWM respects
@@ -298,7 +325,7 @@ void BackgroundBlur::disable (juce::Component* component)
 {
     if (auto* peer { component->getPeer() })
     {
-        HWND hwnd = (HWND) peer->getNativeHandle();
+        auto hwnd { static_cast<HWND> (peer->getNativeHandle()) };
 
         if (hwnd != nullptr)
         {
@@ -311,28 +338,25 @@ void BackgroundBlur::disable (juce::Component* component)
                 DwmExtendFrameIntoClientArea (root, &margins);
 
                 // Reset accent policy — removes acrylic/blur compositing.
-                auto SetWindowCompositionAttribute = (SetWindowCompositionAttribute_t)
-                    GetProcAddress (GetModuleHandleW (L"user32.dll"),
-                        "SetWindowCompositionAttribute");
+                ACCENT_POLICY accent {};
+                accent.AccentState = ACCENT_STATE::ACCENT_DISABLED;
+
+                WINDOWCOMPOSITIONATTRIBDATA data {};
+                data.Attrib = WCA_ACCENT_POLICY;
+                data.pvData = &accent;
+                data.cbData = sizeof (accent);
+
+                auto SetWindowCompositionAttribute { reinterpret_cast<SetWindowCompositionAttribute_t> (
+                    GetProcAddress (GetModuleHandleW (L"user32.dll"), "SetWindowCompositionAttribute")) };
 
                 if (SetWindowCompositionAttribute != nullptr)
-                {
-                    ACCENT_POLICY accent {};
-                    accent.AccentState = ACCENT_DISABLED;
-
-                    WINDOWCOMPOSITIONATTRIBDATA data {};
-                    data.Attrib = WCA_ACCENT_POLICY;
-                    data.pvData = &accent;
-                    data.cbData = sizeof (accent);
-
                     SetWindowCompositionAttribute (root, &data);
-                }
 
                 // Preserve rounded corners (Win11).
                 if (not isWindows10())
                 {
-                    DWORD cornerPref { 2 }; // DWMWCP_ROUND
-                    DwmSetWindowAttribute (root, 33, &cornerPref, sizeof (cornerPref));
+                    DWORD cornerPref { dwmCornerRound };
+                    DwmSetWindowAttribute (root, dwmWindowCornerPreference, &cornerPref, sizeof (cornerPref));
                 }
             }
         }
@@ -340,6 +364,6 @@ void BackgroundBlur::disable (juce::Component* component)
 }
 
 /**_____________________________END_OF_NAMESPACE______________________________*/
-}// namespace jreng
+} // namespace jreng
 
 #endif

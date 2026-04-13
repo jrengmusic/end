@@ -544,5 +544,5 @@ void Session::stop()
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal
 

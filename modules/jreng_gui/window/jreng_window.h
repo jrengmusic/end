@@ -17,7 +17,7 @@
  *     "My App",
  *     false,  // alwaysOnTop
  *     true);  // showWindowButtons
- * win->setGlass (juce::Colours::black, 0.6f, 20.0f);
+ * win->setGlass (juce::Colours::black.withAlpha (0.6f), 20.0f);
  * win->setVisible (true);
  * @endcode
  *
@@ -44,9 +44,9 @@ namespace jreng
  * synchronously on first visibility.
  *
  * @par Usage
- * Construct the window, call setGlass() to configure colour/opacity/blur,
- * then call setVisible(true).  opacity < 1.0 activates glass on first show.
- * opacity >= 1.0 produces a standard opaque window.
+ * Construct the window, call setGlass() to configure colour/blur,
+ * then call setVisible(true).  colour.getFloatAlpha() < 1.0 activates glass
+ * on first show.  Alpha >= 1.0 produces a standard opaque window.
  * First-show blur is applied automatically on both platforms.
  *
  * @see BackgroundBlur
@@ -64,18 +64,21 @@ public:
             bool alwaysOnTop,
             bool showWindowButtons = true);
 
-    ~Window() override { setLookAndFeel (nullptr); }
+    ~Window() override;
+
+    void resized() override;
 
     void closeButtonPressed() override;
 
     /**
-     * @brief Sets glass properties — blur, tint, and opacity.
+     * @brief Sets glass properties — colour (with alpha as tint) and blur radius.
      *
      * When enabled: updates stored values, makes window non-opaque,
      * and applies native blur via BackgroundBlur.
      * When disabled: removes blur and restores opaque background.
+     * Alpha < 1.0 enables glass; alpha >= 1.0 produces opaque window.
      */
-    void setGlass (juce::Colour colour, float opacity, float blur);
+    void setGlass (juce::Colour colour, float blur);
 
     /** @brief One-shot: triggers deferred blur on first visibility. */
     void visibilityChanged() override;
@@ -89,6 +92,18 @@ public:
     /** @brief Continues the middle-click window drag (Windows). */
     void mouseDrag (const juce::MouseEvent& event) override;
 #endif
+
+    /**
+     * @brief Tells the window whether the GPU renderer is active.
+     *
+     * Must be called by the application layer before setVisible(true).
+     * On Windows, visibilityChanged() reads this flag to select the glass
+     * strategy: GPU path uses BackgroundBlur (DWM acrylic); CPU path uses
+     * child-HWND compositing (Step 4).
+     *
+     * @param isGpu  True when the OpenGL renderer is active.
+     */
+    void setGpuRenderer (bool isGpu) noexcept;
 
     /** @brief Returns true while the user is actively resizing the window. */
     bool isUserResizing() const noexcept { return userResizing; }
@@ -123,6 +138,9 @@ private:
 
     /** @brief One-shot guard — prevents re-triggering async blur. */
     bool isBlurApplied { false };
+
+    /** @brief True when the OpenGL renderer is active — governs Windows glass strategy. */
+    bool gpuRenderer { true };
 
     /** @brief True while the user is actively dragging a resize handle. */
     bool userResizing { false };

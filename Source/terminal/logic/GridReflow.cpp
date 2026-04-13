@@ -676,4 +676,4 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

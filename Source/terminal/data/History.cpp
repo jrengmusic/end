@@ -121,4 +121,4 @@ juce::MemoryBlock History::snapshot() const noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

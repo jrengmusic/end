@@ -415,4 +415,4 @@ void LinkManager::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

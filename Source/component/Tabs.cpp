@@ -866,4 +866,4 @@ juce::Rectangle<int> Tabs::computeContentRect (int tabBarDepth) const noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

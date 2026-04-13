@@ -361,4 +361,4 @@ void Parser::applySGR (const CSI& params) noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

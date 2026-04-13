@@ -185,9 +185,6 @@ private:
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;
 
-    /** @brief Command palette glass window; created on demand. */
-    std::unique_ptr<Action::List> actionList;
-
 #if JUCE_WINDOWS
     /** @brief Fires when the native scale factor changes.
      *  Updates AppState and resets zoom on all terminals. */

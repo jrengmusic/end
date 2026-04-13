@@ -1517,4 +1517,4 @@ ValueType State::getRawValue (const juce::Identifier& id) const noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

@@ -361,4 +361,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Interprocess
+} // namespace Interprocess

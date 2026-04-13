@@ -22,6 +22,11 @@
 #if JUCE_WINDOWS
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
+
+// Named constants for DWM window attribute IDs and values.
+// DWMWA_WINDOW_CORNER_PREFERENCE = 33, DWMWCP_ROUND = 2.
+static constexpr DWORD dwmWindowCornerPreferenceId { 33 };
+static constexpr DWORD dwmCornerRoundValue { 2 };
 #endif
 
 namespace jreng
@@ -70,19 +75,30 @@ Window::Window (juce::Component* mainComponent,
 #endif
 }
 
+Window::~Window() { setLookAndFeel (nullptr); }
+
 void Window::closeButtonPressed() { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
+
+// =============================================================================
+// Renderer type
+// =============================================================================
+
+void Window::setGpuRenderer (bool isGpu) noexcept
+{
+    gpuRenderer = isGpu;
+}
 
 // =============================================================================
 // Glass API
 // =============================================================================
 
-void Window::setGlass (juce::Colour colour, float opacity, float blur)
+void Window::setGlass (juce::Colour colour, float blur)
 {
     windowColour = colour;
-    tintColour = colour.withAlpha (opacity);
+    tintColour = colour; // colour already carries alpha
     blurRadius = blur;
 
-    if (opacity < 1.0f)
+    if (colour.getFloatAlpha() < 1.0f)
     {
         setOpaque (false);
         setBackgroundColour (juce::Colours::transparentBlack);
@@ -116,13 +132,22 @@ void Window::visibilityChanged()
         BackgroundBlur::configureWindowChrome (this, shouldShowWindowButtons);
         triggerAsyncUpdate();
 #elif JUCE_WINDOWS
-        setGlass (windowColour, tintColour.getFloatAlpha(), blurRadius);
-
         if (auto* peer { getPeer() })
         {
             auto hwnd { static_cast<HWND> (peer->getNativeHandle()) };
-            DWORD cornerPreference { 2 };// DWMWCP_ROUND
-            DwmSetWindowAttribute (hwnd, 33, &cornerPreference, sizeof (cornerPreference));
+            DWORD cornerPreference { dwmCornerRoundValue };
+            DwmSetWindowAttribute (hwnd, dwmWindowCornerPreferenceId, &cornerPreference, sizeof (cornerPreference));
+        }
+
+        if (gpuRenderer)
+        {
+            setGlass (tintColour, blurRadius);
+        }
+        else
+        {
+            // CPU renderer: solid opaque background, no glass blur
+            setOpaque (true);
+            setBackgroundColour (windowColour);
         }
 #endif
     }
@@ -132,13 +157,22 @@ void Window::visibilityChanged()
 
 void Window::handleAsyncUpdate()
 {
-    setGlass (windowColour, tintColour.getFloatAlpha(), blurRadius);
+    setGlass (tintColour, blurRadius);
 
     if (not juce::Process::isForegroundProcess())
         juce::Process::makeForegroundProcess();
 }
 
 #endif
+
+// =============================================================================
+// Layout
+// =============================================================================
+
+void Window::resized()
+{
+    juce::DocumentWindow::resized();
+}
 
 // =============================================================================
 // Resize tracking

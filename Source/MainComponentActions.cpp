@@ -134,11 +134,20 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                            true,
                            [this]() -> bool
                            {
-                               actionList = std::make_unique<Action::List> (*this);
-                               actionList->onModalDismissed = [this]
+                               if (not popup.isActive())
                                {
-                                   actionList.reset();
-                               };
+                                   auto list { std::make_unique<Action::List> (*this) };
+
+                                   list->onActionRun = [this]
+                                   {
+                                       popup.dismiss();
+                                   };
+
+                                   const int width { list->getWidth() };
+                                   const int height { list->getHeight() };
+
+                                   popup.show (*this, std::move (list), width, height);
+                               }
 
                                return true;
                            });
@@ -419,7 +428,7 @@ void MainComponent::registerPopupActions (Action::Registry& action)
                     auto terminal { termSession->getProcessor().createDisplay (typeface) };
 
                     popup.show (*getTopLevelComponent(), std::move (terminal), pixelWidth, pixelHeight, glRenderer);
-                    popup.terminalSession = std::move (termSession);
+                    popup.setTerminalSession (std::move (termSession));
                 }
 
                 return true;

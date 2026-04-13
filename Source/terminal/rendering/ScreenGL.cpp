@@ -240,4 +240,4 @@ template class Screen<jreng::Glyph::GLContext>;
 template class Screen<jreng::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

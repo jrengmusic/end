@@ -17,6 +17,7 @@ namespace jreng
     X(init,        "init") \
     X(interface,   "interface") \
     X(isDirty,     "isDirty") \
+    X(keyPress,    "keyPress") \
     X(mode,        "mode") \
     X(name,        "name") \
     X(page,        "page") \

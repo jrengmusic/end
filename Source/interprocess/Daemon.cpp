@@ -470,4 +470,4 @@ void Daemon::wireOnExit (const juce::String& uuid, Terminal::Session& session)
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Interprocess
+} // namespace Interprocess

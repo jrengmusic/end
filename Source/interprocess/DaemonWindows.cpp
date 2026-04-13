@@ -105,6 +105,6 @@ void Daemon::releasePlatformProcessCleanup() noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Interprocess
+} // namespace Interprocess
 
 #endif // JUCE_WINDOWS

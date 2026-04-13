@@ -1,79 +1,83 @@
 /**
  * @file ActionList.cpp
- * @brief Command palette — modal glass window with fuzzy search and action list.
+ * @brief Command palette — self-contained component with fuzzy search and action list.
  */
 
 #include "ActionList.h"
-#include "../Gpu.h"
 
 namespace Action
 { /*____________________________________________________________________________*/
 
 const juce::Identifier List::bindingRowIndexId { "bindingRowIndex" };
-const juce::Identifier List::bindingsDirtyId   { "bindingsDirty" };
+const juce::Identifier List::bindingsDirtyId { "bindingsDirty" };
 
-List::List (juce::Component& caller)
-    : jreng::ModalWindow (new juce::Component(), "Action List", true, false)
-    , callerRef (caller)
+//==============================================================================
+List::List (juce::Component& mainWindow)
+    : main (mainWindow)
 {
-    setLookAndFeel (&lookAndFeel);
+    setOpaque (false);
     setWantsKeyboardFocus (true);
+    toFront (true);
 
-    auto* cfg { Config::getContext() };
-    auto* content { getContentComponent() };
-
-    content->addAndMakeVisible (viewport);
+    addAndMakeVisible (viewport);
     viewport.setViewedComponent (&rowContainer, false);
     viewport.setScrollBarsShown (true, false);
 
-    content->addChildComponent (messageOverlay);
+    addChildComponent (messageOverlay);
 
     state.get().setProperty (bindingRowIndexId, -1, nullptr);
     state.get().setProperty (bindingsDirtyId, false, nullptr);
+    state.get().addListener (this);
 
     buildRows();
 
-    setGlass (
-        cfg->getColour (Config::Key::windowColour),
-        Gpu::resolveOpacity (cfg->getFloat (Config::Key::windowOpacity)),
-        cfg->getFloat (Config::Key::windowBlurRadius));
+    const int padH { config.getInt (Config::Key::actionListPaddingLeft)
+                     + config.getInt (Config::Key::actionListPaddingRight) };
+    const int padV { config.getInt (Config::Key::actionListPaddingTop)
+                     + config.getInt (Config::Key::actionListPaddingBottom) };
 
-    // Fixed window size from config proportions.
-    const int padH { cfg->getInt (Config::Key::actionListPaddingLeft)
-                   + cfg->getInt (Config::Key::actionListPaddingRight) };
-    const int padV { cfg->getInt (Config::Key::actionListPaddingTop)
-                   + cfg->getInt (Config::Key::actionListPaddingBottom) };
+    const int proportionalWidth { jreng::toInt (config.getFloat (Config::Key::actionListWidth)
+                                  * main.getWidth() + padH) };
+    const int proportionalHeight { jreng::toInt (config.getFloat (Config::Key::actionListHeight)
+                                   * main.getHeight() + padV) };
 
-    const int width { static_cast<int> (static_cast<float> (caller.getWidth())
-                    * cfg->getFloat (Config::Key::actionListWidth)) + padH };
-    const int height { static_cast<int> (static_cast<float> (caller.getHeight())
-                     * cfg->getFloat (Config::Key::actionListHeight)) + padV };
+    const int width { juce::jmax (minimumWidth, proportionalWidth) };
+    const int height { juce::jmax (minimumHeight, proportionalHeight) };
 
     setSize (width, height);
-    centreAroundComponent (&caller, width, height);
-    setVisible (true);
-    enterModalState (true);
 
     selectRow (0);
 
-    keyHandler.emplace (KeyHandler::Callbacks {
-        [this]      { executeSelected(); },
-        [this]      { jreng::ModalWindow::keyPressed (juce::KeyPress (juce::KeyPress::escapeKey)); },
-        [this]      { enterBindingMode(); },
-        [this] (int i) { selectRow (i); },
-        [this]      { return visibleRowCount(); },
-        [this]      { return getSelectedIndex(); }
-    });
+    keyHandler.emplace (KeyHandler::Callbacks { [this]
+                                                {
+                                                    executeSelected();
+                                                },
+                                                [this]
+                                                {
+                                                    enterBindingMode();
+                                                },
+                                                [this] (int i)
+                                                {
+                                                    selectRow (i);
+                                                },
+                                                [this]
+                                                {
+                                                    return visibleRowCount();
+                                                },
+                                                [this]
+                                                {
+                                                    return getSelectedIndex();
+                                                } });
 }
 
 List::~List()
 {
+    state.get().removeListener (this);
+
     if (static_cast<bool> (state.get().getProperty (bindingsDirtyId)))
     {
         Config::getContext()->reload();
     }
-
-    setLookAndFeel (nullptr);
 }
 
 //==============================================================================
@@ -85,8 +89,6 @@ juce::Colour List::getHighlightColour() const
 //==============================================================================
 void List::configureSearchBox (juce::TextEditor& editor)
 {
-    auto* cfg { Config::getContext() };
-
     editor.setMultiLine (false);
     editor.setReturnKeyStartsNewLine (false);
     editor.setScrollbarsShown (false);
@@ -95,43 +97,34 @@ void List::configureSearchBox (juce::TextEditor& editor)
     editor.setWantsKeyboardFocus (true);
     editor.setEscapeAndReturnKeysConsumed (false);
 
-    editor.setColour (juce::TextEditor::backgroundColourId,
-        cfg->getColour (Config::Key::windowColour)
-            .withAlpha (cfg->getFloat (Config::Key::windowOpacity)));
-    editor.setColour (juce::TextEditor::textColourId,
-        cfg->getColour (Config::Key::coloursForeground));
-    editor.setColour (juce::CaretComponent::caretColourId,
-        cfg->getColour (Config::Key::coloursCursor));
-    editor.setColour (juce::TextEditor::outlineColourId,
-        juce::Colours::transparentBlack);
-    editor.setColour (juce::TextEditor::focusedOutlineColourId,
-        juce::Colours::transparentBlack);
+    editor.setColour (
+        juce::TextEditor::backgroundColourId,
+        config.getColour (Config::Key::windowColour).withAlpha (config.getFloat (Config::Key::windowOpacity)));
+    editor.setColour (juce::TextEditor::textColourId, config.getColour (Config::Key::coloursForeground));
+    editor.setColour (juce::CaretComponent::caretColourId, config.getColour (Config::Key::coloursCursor));
+    editor.setColour (juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
+    editor.setColour (juce::TextEditor::focusedOutlineColourId, juce::Colours::transparentBlack);
 
     editor.setFont (juce::Font (juce::FontOptions()
-        .withName (cfg->getString (Config::Key::fontFamily))
-        .withPointHeight (cfg->getFloat (Config::Key::fontSize))));
+                                    .withName (config.getString (Config::Key::fontFamily))
+                                    .withPointHeight (config.getFloat (Config::Key::fontSize))));
 }
 
 //==============================================================================
 void List::configureActionRow (Row& row)
 {
-    auto* cfg { Config::getContext() };
-
     row.highlightColour = getHighlightColour();
 
     if (auto* name { row.getNameLabel() }; name != nullptr)
-        name->setColour (juce::Label::textColourId,
-                         cfg->getColour (Config::Key::actionListNameColour));
+        name->setColour (juce::Label::textColourId, config.getColour (Config::Key::actionListNameColour));
 
     if (auto* shortcut { row.getShortcutLabel() }; shortcut != nullptr)
-        shortcut->setColour (juce::Label::textColourId,
-                             cfg->getColour (Config::Key::actionListShortcutColour));
+        shortcut->setColour (juce::Label::textColourId, config.getColour (Config::Key::actionListShortcutColour));
 }
 
 //==============================================================================
-void List::handleValueChanged()
+void List::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
 {
-    auto* cfg      { Config::getContext() };
     auto* registry { Action::Registry::getContext() };
 
     for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
@@ -141,11 +134,11 @@ void List::handleValueChanged()
             if (auto* label { rows.at (static_cast<std::size_t> (i))->getShortcutLabel() }; label != nullptr)
             {
                 const auto currentShortcut { label->getText() };
-                const auto configShortcut  { cfg->getString (rows.at (static_cast<std::size_t> (i))->actionConfigKey) };
+                const auto configShortcut { config.getString (rows.at (static_cast<std::size_t> (i))->actionConfigKey) };
 
                 if (currentShortcut != configShortcut)
                 {
-                    cfg->patchKey (rows.at (static_cast<std::size_t> (i))->actionConfigKey, currentShortcut);
+                    config.patchKey (rows.at (static_cast<std::size_t> (i))->actionConfigKey, currentShortcut);
                     registry->buildKeyMap();
                     state.get().setProperty (bindingsDirtyId, true, nullptr);
                 }
@@ -157,7 +150,6 @@ void List::handleValueChanged()
 //==============================================================================
 void List::buildRows()
 {
-    auto* content { getContentComponent() };
     auto* registry { Registry::getContext() };
     jassert (registry != nullptr);
 
@@ -170,14 +162,17 @@ void List::buildRows()
         jassert (searchBox != nullptr);
 
         configureSearchBox (*searchBox);
-        searchBox->onTextChange = [this, searchBox] { filterRows (searchBox->getText()); };
+        searchBox->onTextChange = [this, searchBox]
+        {
+            filterRows (searchBox->getText());
+        };
 
         juce::ValueTree node { "ACTION" };
         node.setProperty (jreng::ID::id, uuid, nullptr);
         state.get().appendChild (node, nullptr);
         jreng::ValueTree::attach (state, row.get());
 
-        content->addAndMakeVisible (row.get());
+        addAndMakeVisible (row.get());
         rows.push_back (std::move (row));
     }
 
@@ -220,13 +215,12 @@ void List::buildRows()
 
     // Prefix key row.
     {
-        auto* cfg { Config::getContext() };
         const juce::String uuid { juce::Uuid().toString() };
 
         Registry::Entry prefixEntry;
         prefixEntry.id = "prefix";
         prefixEntry.name = "Prefix";
-        prefixEntry.shortcut = Registry::parseShortcut (cfg->getString (Config::Key::keysPrefix));
+        prefixEntry.shortcut = Registry::parseShortcut (config.getString (Config::Key::keysPrefix));
 
         auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, prefixEntry) };
         row->actionConfigKey = Config::Key::keysPrefix;
@@ -262,8 +256,44 @@ void List::buildRows()
         }
     }
 
-    state.onValueChanged = [this] { handleValueChanged(); };
+    layoutRows();
+}
 
+//==============================================================================
+void List::layoutRows()
+{
+    const int rowWidth { viewport.getWidth() - viewport.getScrollBarThickness() };
+    int yPos { 0 };
+
+    for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
+    {
+        if (rows.at (static_cast<std::size_t> (i))->isVisible())
+        {
+            const int height { rows.at (static_cast<std::size_t> (i))->getKind() == RowKind::separator
+                                   ? separatorRowHeight
+                                   : rowHeight };
+            rows.at (static_cast<std::size_t> (i))->setBounds (0, yPos, rowWidth, height);
+            yPos += height;
+        }
+    }
+
+    rowContainer.setSize (rowWidth, yPos);
+}
+
+//==============================================================================
+void List::resized()
+{
+    auto bounds { getLocalBounds() };
+    bounds.removeFromTop (config.getInt (Config::Key::actionListPaddingTop));
+    bounds.removeFromRight (config.getInt (Config::Key::actionListPaddingRight));
+    bounds.removeFromBottom (config.getInt (Config::Key::actionListPaddingBottom));
+    bounds.removeFromLeft (config.getInt (Config::Key::actionListPaddingLeft));
+
+    if (not rows.empty())
+        rows.at (0)->setBounds (bounds.removeFromTop (rowHeight));
+
+    viewport.setBounds (bounds);
+    messageOverlay.setBounds (getLocalBounds());
     layoutRows();
 }
 
@@ -279,7 +309,6 @@ void List::filterRows (const juce::String& query)
         }
         else
         {
-            // Simple containsIgnoreCase check — FuzzySearch integration preserved below.
             if (rows.at (static_cast<std::size_t> (i))->getKind() != RowKind::separator)
                 rows.at (static_cast<std::size_t> (i))->setVisible (false);
         }
@@ -318,40 +347,18 @@ void List::filterRows (const juce::String& query)
 }
 
 //==============================================================================
-void List::layoutRows()
-{
-    const int rowWidth { viewport.getWidth() - viewport.getScrollBarThickness() };
-    int yPos { 0 };
-
-    for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
-    {
-        if (rows.at (static_cast<std::size_t> (i))->isVisible())
-        {
-            const int height { rows.at (static_cast<std::size_t> (i))->getKind() == RowKind::separator
-                                   ? separatorRowHeight : rowHeight };
-            rows.at (static_cast<std::size_t> (i))->setBounds (0, yPos, rowWidth, height);
-            yPos += height;
-        }
-    }
-
-    rowContainer.setSize (rowWidth, yPos);
-}
-
-//==============================================================================
 void List::selectRow (int index)
 {
     const int count { static_cast<int> (rows.size()) };
 
     int target { juce::jlimit (0, count - 1, index) };
 
-    // Skip non-selectable rows (separators) in the direction of movement.
     if (target > 0 and not rows.at (static_cast<std::size_t> (target))->isSelectable())
     {
         const int current { getSelectedIndex() };
         const int direction { target >= current ? 1 : -1 };
 
-        while (target > 0 and target < count
-               and not rows.at (static_cast<std::size_t> (target))->isSelectable())
+        while (target > 0 and target < count and not rows.at (static_cast<std::size_t> (target))->isSelectable())
         {
             target += direction;
         }
@@ -359,7 +366,6 @@ void List::selectRow (int index)
         target = juce::jlimit (0, count - 1, target);
     }
 
-    // If target row (beyond 0) is hidden, stay at 0.
     if (target > 0 and not rows.at (static_cast<std::size_t> (target))->isVisible())
         target = 0;
 
@@ -392,7 +398,6 @@ void List::executeSelected()
 {
     int target { getSelectedIndex() };
 
-    // Row 0 = search. Enter from search executes first visible action.
     if (target == 0)
     {
         for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
@@ -407,8 +412,11 @@ void List::executeSelected()
         if (rows.at (static_cast<std::size_t> (target))->run != nullptr)
             rows.at (static_cast<std::size_t> (target))->run();
 
-        if (Config::getContext()->getBool (Config::Key::keysActionListCloseOnRun))
-            closeButtonPressed();
+        if (config.getBool (Config::Key::keysActionListCloseOnRun))
+        {
+            if (onActionRun != nullptr)
+                onActionRun();
+        }
     }
 }
 
@@ -442,15 +450,9 @@ int List::getSelectedIndex() const noexcept
 }
 
 //==============================================================================
-int List::getBindingRowIndex() const
-{
-    return static_cast<int> (state.get().getProperty (bindingRowIndexId));
-}
+int List::getBindingRowIndex() const { return static_cast<int> (state.get().getProperty (bindingRowIndexId)); }
 
-void List::setBindingRowIndex (int index)
-{
-    state.get().setProperty (bindingRowIndexId, index, nullptr);
-}
+void List::setBindingRowIndex (int index) { state.get().setProperty (bindingRowIndexId, index, nullptr); }
 
 //==============================================================================
 void List::enterBindingMode()
@@ -477,7 +479,6 @@ bool List::handleBindingKey (const juce::KeyPress& key)
 
     if (getBindingRowIndex() >= 1)
     {
-        // Ctrl+C cancels binding mode.
         if (key.getKeyCode() == 'C' and key.getModifiers().isCtrlDown())
         {
             exitBindingMode();
@@ -489,17 +490,17 @@ bool List::handleBindingKey (const juce::KeyPress& key)
 
             if (targetIndex < static_cast<int> (rows.size()))
             {
-                auto* cfg { Config::getContext() };
                 auto* registry { Registry::getContext() };
                 const auto shortcutString { Registry::shortcutToString (key) };
 
                 if (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey.isNotEmpty())
                 {
-                    cfg->patchKey (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
+                    config.patchKey (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
                     registry->buildKeyMap();
                     state.get().setProperty (bindingsDirtyId, true, nullptr);
 
-                    if (auto* label { rows.at (static_cast<std::size_t> (targetIndex))->getShortcutLabel() }; label != nullptr)
+                    if (auto* label { rows.at (static_cast<std::size_t> (targetIndex))->getShortcutLabel() };
+                        label != nullptr)
                         label->setText (shortcutString, juce::dontSendNotification);
                 }
             }
@@ -529,38 +530,6 @@ bool List::keyPressed (const juce::KeyPress& key)
     return handled;
 }
 
-//==============================================================================
-void List::resized()
-{
-    juce::DocumentWindow::resized();
-
-    if (auto* content { getContentComponent() }; content != nullptr)
-    {
-        auto* cfg { Config::getContext() };
-
-        auto bounds { content->getLocalBounds() };
-        bounds.removeFromTop (cfg->getInt (Config::Key::actionListPaddingTop));
-        bounds.removeFromRight (cfg->getInt (Config::Key::actionListPaddingRight));
-        bounds.removeFromBottom (cfg->getInt (Config::Key::actionListPaddingBottom));
-        bounds.removeFromLeft (cfg->getInt (Config::Key::actionListPaddingLeft));
-
-        // Row 0 fixed at top, outside viewport.
-        if (not rows.empty())
-            rows.at (0)->setBounds (bounds.removeFromTop (rowHeight));
-
-        viewport.setBounds (bounds);
-        messageOverlay.setBounds (content->getLocalBounds());
-        layoutRows();
-    }
-}
-
-//==============================================================================
-int List::getDesktopWindowStyleFlags() const
-{
-    return juce::ComponentPeer::windowIsTemporary
-         | juce::ComponentPeer::windowHasTitleBar
-         | juce::ComponentPeer::windowHasDropShadow;
-}
-
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Action
+} // namespace Action
+
