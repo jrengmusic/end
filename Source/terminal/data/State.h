@@ -332,7 +332,7 @@ struct State : public juce::Timer
     /**
      * @brief Pushes keyboard mode flags onto the per-screen stack.
      *
-     * Implements `CSI > flags u` from the kitty keyboard protocol.
+     * Implements `CSI > flags u` from the progressive keyboard protocol (CSI u).
      * Stores `flags` on the stack and flushes the top-of-stack value
      * to the atomic slot for the given screen.
      *
@@ -345,7 +345,7 @@ struct State : public juce::Timer
     /**
      * @brief Pops entries from the per-screen keyboard mode stack.
      *
-     * Implements `CSI < number u` from the kitty keyboard protocol.
+     * Implements `CSI < number u` from the progressive keyboard protocol (CSI u).
      * Pops up to `count` entries and flushes the new top-of-stack
      * (or 0 if the stack is empty) to the atomic slot.
      *
@@ -358,7 +358,7 @@ struct State : public juce::Timer
     /**
      * @brief Sets keyboard mode flags directly on the per-screen stack top.
      *
-     * Implements `CSI = flags ; mode u` from the kitty keyboard protocol.
+     * Implements `CSI = flags ; mode u` from the progressive keyboard protocol (CSI u).
      *
      * @param s      Target screen (`normal` or `alternate`).
      * @param flags  Bitmask of keyboard enhancement flags.
@@ -550,7 +550,7 @@ struct State : public juce::Timer
     bool getMode (const juce::Identifier& id) const noexcept;
 
     /**
-     * @brief Reads the kitty keyboard flags from the ValueTree (post-flush value).
+     * @brief Reads the progressive keyboard protocol flags from the ValueTree (post-flush value).
      *
      * Determines the active screen via `getActiveScreen()`, navigates to the
      * corresponding screen child node (`NORMAL` or `ALTERNATE`), and reads
@@ -1336,7 +1336,7 @@ private:
     /**
      * @brief Maximum depth of the per-screen keyboard mode stack.
      *
-     * The kitty keyboard protocol uses a push/pop stack for keyboard
+     * The progressive keyboard protocol (CSI u) uses a push/pop stack for keyboard
      * enhancement flags.  Capped to prevent unbounded growth from
      * misbehaving programs.
      */

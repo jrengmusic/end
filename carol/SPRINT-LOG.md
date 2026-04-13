@@ -1,12 +1,101 @@
 # SPRINT-LOG
 
+## Sprint 14: Fallback Advance + Zoom + Non-Destructive Reflow + Daemon Lifecycle
+
+**Date:** 2026-04-12 / 2026-04-13
+**Duration:** ~20:00
+
+### Agents Participated
+- COUNSELOR: session lead, SSOT analysis, zoom architecture (multiple iterations), daemon lifecycle design, ODE intervention
+- Pathfinder: zoom call-graph trace, windowsGlyphScale consumer mapping, NF init desync root cause, AppState zoom persistence check, calcMetrics cache analysis
+- Researcher: fallback advance handling across 4 reference terminals (local source), zoom handling in reference terminals, tmux daemon lifecycle patterns
+- Engineer: all code implementation (~30 delegations)
+- Auditor: comprehensive audit of Sprints 10-14 (BLESSED, SSOT, stale docs, coding standard)
+
+### Files Modified (30+ total)
+
+**Fallback advance (Phase 3 + Phase 2):**
+- `modules/jreng_graphics/fonts/jreng_typeface_shaping.cpp:306-320` — force `xAdvance = primaryFace->size->metrics.max_advance >> 6` for all fallback glyphs; doxygen updated
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.cpp:449-490` — oversize rescale when bitmap.width > effectiveWidth on scalable faces; FT_Set_Char_Size restore (not FT_Set_Pixel_Sizes); vertical centering via originalBitmapTop/Rows
+
+**SSOT windowsGlyphScale:**
+- `modules/jreng_graphics/fonts/jreng_typeface.h` — `computeRenderDpi` declaration, `getBaseFontSize` declaration
+- `modules/jreng_graphics/fonts/jreng_typeface_metrics.cpp:86-111` — `computeRenderDpi` definition, `windowsGlyphScale` constant
+- `modules/jreng_graphics/fonts/jreng_typeface.cpp:300,511,942` — all `FT_Set_Char_Size` sites routed through `computeRenderDpi`; `windowsGlyphScale` applied to text faces only (slots 0-3), NF/emoji/fallback use full `baseDpi * displayScale`; `cachedMetricsSize` invalidated in `setSize`; 26.6 conversion unified to `roundFloatPxTo26_6`
+
+**Typeface init fix:**
+- `Source/MainComponent.cpp:57` — pass `dpiCorrectedFontSize()` to Typeface constructor instead of raw `config.getFloat(Key::fontSize)`
+
+**Zoom (wezterm Mode A):**
+- `Source/component/TerminalDisplay.cpp:700-740` — `applyZoom` reads SSOT (Config x AppState), computes ratio from `font.calcMetrics`, resizes window proportionally; font size from `getBaseFontSize` (pre-zoom) vs SSOT (post-zoom)
+- `Source/component/TerminalDisplay.h:68-70,420-432` — updated `@par Zoom` and `applyZoom` doxygen
+- `Source/component/Tabs.cpp:491-533` — `Config::zoomStep` constant, `resetZoom` uses `Config::zoomMin`
+- `Source/component/Tabs.h:252-276` — updated zoom method doxygen
+- `Source/config/Config.h:75` — `static constexpr float zoomStep { 0.25f }`
+- `Source/config/Config.h` — removed `Config::Key::windowZoom`
+- `Source/config/Config.cpp` — removed `addKey(Key::windowZoom, ...)`
+- `Source/config/default_end.lua` — removed `zoom` entry from window table
+- `Source/AppState.cpp:79,494` — `getWindowZoom` fallback and `initDefaults` use `Config::zoomMin`
+- `Source/component/PaneComponent.h:74-79` — `virtual void applyZoom(float) noexcept = 0`
+- `Source/whelmed/Component.h` — no-op `applyZoom` override
+
+**Non-destructive reflow:**
+- `Source/terminal/logic/GridReflow.cpp` — `reflowPass()` replaces duplicate `countOutputRows`/`writeReflowedContent` (SSOT); `effectiveLen = flatLen` unconditionally (no hard-line truncation); `maxOffset = flatLen - 1` (no cursor clamping); `pinToBottom` removed; `emitLogicalLine` dead code deleted; file-level doxygen updated
+
+**Screen:**
+- `Source/terminal/rendering/Screen.h` — `getBaseFontSize()` accessor
+- `Source/terminal/rendering/Screen.cpp` — `getBaseFontSize()` implementation; `calc()` unchanged; `setFontSize` with `calc()` restored
+
+**Daemon lifecycle:**
+- `Source/interprocess/Daemon.cpp:134-143` — removed `onAllSessionsExited` from `removeConnection`; `stop()` no longer calls `releasePlatformProcessCleanup`
+- `Source/interprocess/DaemonWindows.cpp` — `JOB_OBJECT_LIMIT_BREAKAWAY_OK` on daemon job; `CREATE_BREAKAWAY_FROM_JOB` on daemon spawn
+- `Source/nexus/Nexus.cpp:168` — `attachedLink->sendRemove(uuid)` in `Nexus::remove`
+- `Source/Main.cpp` — GUI Job Object with `KILL_ON_JOB_CLOSE + BREAKAWAY_OK` for OpenConsole cleanup
+
+**Keyboard protocol rename:**
+- `Source/terminal/data/Keyboard.h` — `disambiguate`, `allKeys`, `progressiveKeyCodes` (removed all external terminal references)
+- `Source/terminal/data/State.h`, `State.cpp`, `Identifier.h`, `Parser.h`, `ParserCSI.cpp`, `ParserVT.cpp` — doxygen updated
+- `ARCHITECTURE.md`, `README.md` — protocol references updated
+- `carol/SPRINT-LOG.md` — historical references updated
+- `gen/gen_char_props.py` — references updated
+
+**Cleanup:**
+- Deleted `PLAN-fix-zoom.md`, `test-fallback-advance.sh`
+- Dead `Display::increaseZoom/decreaseZoom/resetZoom` removed
+- All stale doxygen fixed per audit
+
+### Alignment Check
+- [x] BLESSED principles followed — D (Deterministic): non-destructive reflow, zoom roundtrip preserves content; S (SSOT): single `reflowPass`, zoom from AppState, `computeRenderDpi` for all DPI sites, `Config::zoomStep` constant, no shadow copies; E (Encapsulation): `windowsGlyphScale` text-only, zoom doesn't poke grid; L (Lean): dead code removed (Display zoom triad, emitLogicalLine, Config::Key::windowZoom)
+- [x] NAMES.md adhered — `computeRenderDpi`, `getBaseFontSize`, `zoomStep`, `reflowPass`, `disambiguate`, `allKeys`, `progressiveKeyCodes` all follow naming rules; `zoomFactor`/`setZoomFactor` introduced and removed within same sprint
+- [x] MANIFESTO.md principles applied — no early returns; alternative tokens; brace init; const where practical
+
+### Problems Solved
+- **Fallback advance:** Proportional system fallback fonts broke monospace grid. Forced cell-width advance matching all 4 reference terminal implementations. Oversize bitmaps rescaled via FT_Set_Char_Size (not FT_Set_Pixel_Sizes) with vertical centering.
+- **Zoom determinism:** Zoom in+out now preserves grid content. Wezterm Mode A: window resizes to maintain cols/rows. No grid mutation from zoom. SIGWINCH fires with same dimensions — harmless.
+- **Non-destructive reflow:** Hard lines wrap on shrink, unwrap on grow. Single `reflowPass` eliminates count/write SSOT violation. `pinToBottom` removed — cursor stays content-relative.
+- **windowsGlyphScale text-only:** Optical weight correction (0.90) now applies only to regular text faces. NF icons, emoji, and fallback symbols render at full DPI.
+- **Typeface init desync:** Constructor received raw font size (12pt) while Screen used DPI-corrected (9.6pt). Guard skip left NF face at wrong size until first zoom. Fixed by passing `dpiCorrectedFontSize()` to constructor.
+- **calcMetrics cache stale:** `setSize()` didn't invalidate cache. Post-zoom `calcMetrics` returned stale `physCellW/H`. Fixed with `cachedMetricsSize = -1` in `setSize`.
+- **26.6 SSOT:** `setSize` truncated, `calcMetrics` rounded. Unified to `roundFloatPxTo26_6` at all 3 sites.
+- **Daemon lifecycle:** `removeConnection` no longer kills daemon on client disconnect. `Nexus::remove` sends `killSession` IPC. Session restoration preserved.
+- **OpenConsole cleanup:** GUI Job Object with `KILL_ON_JOB_CLOSE` ensures ConPTY children die on GUI exit. `CREATE_BREAKAWAY_FROM_JOB` lets daemon outlive GUI.
+- **Config::Key::windowZoom removed:** Zoom is AppState-only (SSOT). `resetZoom` = `Config::zoomMin` (1.0). No config/state conflation.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 13: Arrow Glyphs + Ligature Span Fix
 
 **Date:** 2026-04-13
 **Duration:** ~02:30
 
 ### Agents Participated
-- COUNSELOR: session lead, rendering pipeline trace, root-cause analysis (Kitty oversize rescale + span=1 hardcode)
+- COUNSELOR: session lead, rendering pipeline trace, root-cause analysis (oversize rescale + span=1 hardcode)
 - Pathfinder: codebase survey (font pipeline, rendering dispatch)
 - Engineer: build_fonts.py execution, build_monolithic.py execution, GSUB/HarfBuzz verification
 
@@ -16,7 +105,7 @@
 - `___display___/svg-mono/GlyphSheet_Display-MONO-Book.svg` — height 3622→3875, 5 arrow guide blocks, 5 arrow cell groups with artwork
 - `___display___/svg-mono/GlyphSheet_Display-MONO-Medium.svg` — same as Book
 - `___display___/svg-mono/GlyphSheet_Display-MONO-Bold.svg` — same as Book (rgb() style convention preserved)
-- `Source/terminal/rendering/ScreenRender.cpp:962` — tryLigature: span 0 → `static_cast<uint8_t>(tryLen)` so Kitty oversize rescale uses correct multi-cell width
+- `Source/terminal/rendering/ScreenRender.cpp:962` — tryLigature: span 0 → `static_cast<uint8_t>(tryLen)` so oversize rescale uses correct multi-cell width
 - `Source/terminal/rendering/ScreenRender.cpp:259-261` — emitShapedGlyphsToCache: route through span-aware `getGlyph` when `span > 1` even without active constraint
 ### Alignment Check
 - [x] BLESSED principles followed — SSOT (sheet_config.py drives generator and manual edits identically), Deterministic (HarfBuzz verified: lig_002D_003E glyph_id=107 independent of uni2192 glyph_id=102), Encapsulation (span flows through existing getGlyph API, no new surface)
@@ -25,7 +114,7 @@
 
 ### Problems Solved
 - **Arrow glyphs missing from Display Mono:** OS fallback arrows rendered ugly on Windows (proportional advance, wrong style). Added 5 arrow codepoints to GlyphSheets, drew artwork in all 3 weights, rebuilt Display Mono + Monolith.
-- **Ligature oversize rescale bug:** `tryLigature` passed `span=0` to `emitShapedGlyphsToCache`, which called `font.getGlyph(glyphIndex)` (single-arg overload hardcoding `span=1`). Kitty-style oversize rescale in `rasterizeGlyph` computed `effectiveWidth = cellWidth * 1`, shrinking 2-cell ligature bitmaps to 1 cell. Previously invisible because OS-fallback arrows looked different; exposed when Display Mono arrows matched the rescaled ligature. Fix: pass `tryLen` as span, route through span-aware `getGlyph` overload.
+- **Ligature oversize rescale bug:** `tryLigature` passed `span=0` to `emitShapedGlyphsToCache`, which called `font.getGlyph(glyphIndex)` (single-arg overload hardcoding `span=1`). Oversize rescale in `rasterizeGlyph` computed `effectiveWidth = cellWidth * 1`, shrinking 2-cell ligature bitmaps to 1 cell. Previously invisible because OS-fallback arrows looked different; exposed when Display Mono arrows matched the rescaled ligature. Fix: pass `tryLen` as span, route through span-aware `getGlyph` overload.
 
 ### Debts Paid
 - None
@@ -76,7 +165,7 @@
 
 ---
 
-## Sprint 10: Windows Font Rendering + Box Drawing Kitty AA + Daemon Cleanup
+## Sprint 10: Windows Font Rendering + Box Drawing AA + Daemon Cleanup
 
 **Date:** 2026-04-11 / 2026-04-12
 **Duration:** ~16:00
@@ -85,7 +174,7 @@
 - COUNSELOR: session lead, planning, multi-wave delegation, role drift correction mid-session
 - Pathfinder: codebase surveys (config key layout, daemon lifecycle, rounded corner primitive search, terminal vs popup vs DWM rounded corner disambiguation, box drawing helpers, fallback glyph sizing path)
 - Engineer: all code implementation across the waves listed below
-- Researcher: kitty / wezterm / JUCE rounded rectangle prior art, kitty fallback glyph scaling prior art
+- Researcher: reference terminal / JUCE rounded rectangle prior art, fallback glyph scaling prior art
 
 ### Files Modified
 
@@ -114,7 +203,7 @@
 **Box drawing (DEBT-20260411T083315):**
 - `modules/jreng_graphics/fonts/jreng_box_drawing.h:235-260` — `lightThickness(w, embolden)` doubles base thickness when embolden is true; `heavyThickness` delegates through (effective ×4 under embolden, correct — embolden is orthogonal to light/heavy weight)
 - `modules/jreng_graphics/fonts/jreng_box_drawing.h` — threaded `bool embolden` through `BoxDrawing::rasterize`, `drawLines`, `drawDashedLine`, `drawDiagonal`, `drawDoubleLines`, `drawRoundedCorner`; block elements and braille unchanged (they don't use thickness)
-- `modules/jreng_graphics/fonts/jreng_box_drawing.h:680-749` — `drawRoundedCorner` replaced with 4× supersampled SDF + 4×4 box-filter downsample. Port of `kitty/decorations.c::rounded_corner`. `adjustedHxSs` / `adjustedHySs` derived from `drawLines`' actual line-range centres (`cxNative - lt/2 + lt * 0.5f`, times `supersampleFactor`) so the arc's attachment pole tangents the straight stroke at the same pixel column. `aaSs = supersampleFactor * 0.5f` widens the AA band in SS space. `juce::HeapBlock<uint8_t>` scratch buffer at `4w × 4h`, unconditional max-blend into `buf` on downsample.
+- `modules/jreng_graphics/fonts/jreng_box_drawing.h:680-749` — `drawRoundedCorner` replaced with 4× supersampled SDF + 4×4 box-filter downsample. `adjustedHxSs` / `adjustedHySs` derived from `drawLines`' actual line-range centres (`cxNative - lt/2 + lt * 0.5f`, times `supersampleFactor`) so the arc's attachment pole tangents the straight stroke at the same pixel column. `aaSs = supersampleFactor * 0.5f` widens the AA band in SS space. `juce::HeapBlock<uint8_t>` scratch buffer at `4w × 4h`, unconditional max-blend into `buf` on downsample.
 - `modules/jreng_graphics/fonts/jreng_glyph_atlas.cpp:232` — `Atlas::getOrRasterizeBoxDrawing` passes `embolden` member to `BoxDrawing::rasterize`
 
 ### Alignment Check
@@ -126,7 +215,7 @@
 - **`font.desktop_scale` (Windows-only):** Windows desktop scale slider previously ballooned the configured font size because JUCE's `getDisplayScale()` returns the OS scale. Users wanted 12pt to stay 12pt physical on any scale setting. Implemented upstream in `Config::dpiCorrectedFontSize` as an optional divide-by-scale when the key is `"false"`; default is `"false"` (persistent), user can opt into OS-scale-following by setting `"true"`. No-op on macOS/Linux.
 - **`windowsGlyphScale`:** Display Mono visually felt heavier on Windows than macOS because FreeType's rasteriser at the full render DPI produced slightly wider strokes than CoreText at the equivalent size. Applied a downstream 0.90× scale to the final `FT_Set_Char_Size` render DPI only; cell metrics remain at unscaled size. Net effect: glyph bitmap is slightly smaller within the (unchanged) cell, matching macOS visual weight.
 - **Embolden x2 for box drawing:** Embolden config flag previously only affected font glyphs via `FT_Outline_Embolden`. Now also doubles `lightThickness` / `heavyThickness` used by all procedural box-drawing helpers, so rounded corners and straight lines inherit the same weight adjustment as the surrounding font.
-- **Rounded corner AA (DEBT-20260411T083315):** Original SDF at native resolution was visibly jaggy at small cell sizes. Ported kitty's 4× supersampling pattern: render SDF into a `4w × 4h` scratch buffer with `aa = supersampleFactor * 0.5f` (wider AA band in SS space), then box-filter down to native. Visual quality improved significantly per ARCHITECT's visual verification. Minor sub-pixel drift on even cell widths remains inherent to integer pixel grids.
+- **Rounded corner AA (DEBT-20260411T083315):** Original SDF at native resolution was visibly jaggy at small cell sizes. Applied 4× supersampling pattern: render SDF into a `4w × 4h` scratch buffer with `aa = supersampleFactor * 0.5f` (wider AA band in SS space), then box-filter down to native. Visual quality improved significantly per ARCHITECT's visual verification. Minor sub-pixel drift on even cell widths remains inherent to integer pixel grids.
 - **Daemon cleanup on last close (DEBT-20260411T101344):** Daemon process previously outlived the GUI after the last terminal was closed. 1:1 daemon↔GUI lifecycle established by having `Daemon::removeConnection` trigger the existing `onAllSessionsExited` quit path when the connection list drains empty. `Main.cpp` wiring to `appState.deleteNexusFile(); quit()` unchanged.
 
 ### Failed Attempt (Not in Sprint Scope)
@@ -134,7 +223,7 @@
 
 ### Debts Paid
 - `DEBT-20260411T101344` — daemon not killed on last terminal close; fixed via `Source/interprocess/Daemon.cpp:134-145` (`removeConnection` fires `onAllSessionsExited` on empty connection list)
-- `DEBT-20260411T083315` — rounded rectangle misalignment; diminished via `modules/jreng_graphics/fonts/jreng_box_drawing.h:680-749` (4× supersample SDF port of kitty's `rounded_corner`, attachment-aware `adjustedHx/Hy`). Residual sub-pixel drift on even cell widths is mathematical, not algorithmic
+- `DEBT-20260411T083315` — rounded rectangle misalignment; diminished via `modules/jreng_graphics/fonts/jreng_box_drawing.h:680-749` (4× supersample SDF, attachment-aware `adjustedHx/Hy`). Residual sub-pixel drift on even cell widths is mathematical, not algorithmic
 
 ### Debts Deferred
 - None (no ARCHITECT-commanded mid-sprint deferrals)

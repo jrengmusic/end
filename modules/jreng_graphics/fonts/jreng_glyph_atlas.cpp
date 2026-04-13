@@ -458,12 +458,13 @@ Region Atlas::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
                     const int originalBitmapTop { face->glyph->bitmap_top };
                     const int originalBitmapRows { static_cast<int> (face->glyph->bitmap.rows) };
 
-                    // Kitty-style oversize rescale: if the rasterized bitmap is wider
+                    // Oversize rescale: if the rasterized bitmap is wider
                     // than the cell, shrink the face proportionally and re-render.
                     // Prevents proportional fallback glyphs (e.g. Segoe UI Symbol
                     // arrows) from bleeding into adjacent cells.
-                    // Reference: kitty/freetype.c:624-631.
                     const int effectiveWidth { cellWidth * std::max (1, static_cast<int> (key.span)) };
+                    const FT_F26Dot6 restoreSize26_6 { static_cast<FT_F26Dot6> (key.fontSize * jreng::Typeface::ftFixedScale) };
+                    const FT_UInt restoreDpi { jreng::Typeface::computeRenderDpi (jreng::Typeface::getDisplayScale()) };
 
                     if (face->glyph->bitmap.width > static_cast<unsigned int> (effectiveWidth)
                         and FT_IS_SCALABLE (face))
@@ -484,7 +485,7 @@ Region Atlas::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
                         }
 
                         FT_Render_Glyph (face->glyph, FT_RENDER_MODE_LIGHT);
-                        FT_Set_Pixel_Sizes (face, savedXppem, savedYppem);
+                        FT_Set_Char_Size (face, 0, restoreSize26_6, restoreDpi, restoreDpi);
                     }
 
                     auto& bitmap { face->glyph->bitmap };

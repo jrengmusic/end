@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 gen_char_props.py — Unicode character property table generator for C++17 terminal emulator.
-Port of Kitty's approach. Outputs Source/terminal/data/CharPropsData.h.
+Outputs Source/terminal/data/CharPropsData.h.
 
 Usage: python3 gen/gen_char_props.py [--output path/to/CharPropsData.h]
 """
@@ -638,7 +638,7 @@ def grapheme_seg_result_encode(new_state: int, add_to_current_cell: int) -> int:
 def compute_grapheme_seg_transition(state_enc: int, props_enc: int) -> int:
     """Compute the grapheme segmentation transition for (state, props).
     Returns encoded GraphemeSegmentationResult (16-bit).
-    Implements UAX #29 rules GB3-GB13, GB999 as Kitty does.
+    Implements UAX #29 rules GB3-GB13, GB999.
     """
     state = GraphemeSegState.decode(state_enc)
     p = GraphemeSegProps.decode(props_enc)

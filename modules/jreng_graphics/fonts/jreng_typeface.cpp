@@ -298,7 +298,13 @@ static const char* embeddedFontForFamily (const juce::String& family, int& size)
 void jreng::Typeface::loadFaces()
 {
     const FT_UInt renderDpi { computeRenderDpi (getDisplayScale()) };
-    const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (fontSize * ftFixedScale) };
+    const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (roundFloatPxTo26_6 (fontSize)) };
+
+#if JUCE_WINDOWS
+    const FT_UInt fullRenderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * getDisplayScale()) };
+#else
+    const FT_UInt fullRenderDpi { renderDpi };
+#endif
 
     FT_Face face { nullptr };
     const juce::String fontPath { resolveFontPath() };
@@ -338,7 +344,7 @@ void jreng::Typeface::loadFaces()
 
         if (emojiFace != nullptr)
         {
-            FT_Set_Char_Size (emojiFace, 0, size26_6, renderDpi, renderDpi);
+            FT_Set_Char_Size (emojiFace, 0, size26_6, fullRenderDpi, fullRenderDpi);
             emojiShapingFont = hb_ft_font_create_referenced (emojiFace);
         }
     }
@@ -360,7 +366,7 @@ void jreng::Typeface::loadFaces()
 
     if (nfFace != nullptr)
     {
-        FT_Set_Char_Size (nfFace, 0, size26_6, renderDpi, renderDpi);
+        FT_Set_Char_Size (nfFace, 0, size26_6, fullRenderDpi, fullRenderDpi);
         nerdShapingFont = hb_ft_font_create_referenced (nfFace);
 
         Registry::Entry nfEntry;
@@ -508,8 +514,16 @@ float jreng::Typeface::getPixelsPerEm (Style style) noexcept
 void jreng::Typeface::setSize (float pointSize) noexcept
 {
     fontSize = pointSize;
-    const FT_UInt renderDpi { computeRenderDpi (getDisplayScale()) };
-    const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (fontSize * ftFixedScale) };
+    cachedMetricsSize = -1.0f;
+    const float displayScale { getDisplayScale() };
+    const FT_UInt renderDpi { computeRenderDpi (displayScale) };
+    const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (roundFloatPxTo26_6 (fontSize)) };
+
+#if JUCE_WINDOWS
+    const FT_UInt fullRenderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * displayScale) };
+#else
+    const FT_UInt fullRenderDpi { renderDpi };
+#endif
 
     for (int i { 0 }; i < 4; ++i)
     {
@@ -521,12 +535,12 @@ void jreng::Typeface::setSize (float pointSize) noexcept
 
     if (emojiFace != nullptr)
     {
-        FT_Set_Char_Size (emojiFace, 0, size26_6, renderDpi, renderDpi);
+        FT_Set_Char_Size (emojiFace, 0, size26_6, fullRenderDpi, fullRenderDpi);
     }
 
     if (nfFace != nullptr)
     {
-        FT_Set_Char_Size (nfFace, 0, size26_6, renderDpi, renderDpi);
+        FT_Set_Char_Size (nfFace, 0, size26_6, fullRenderDpi, fullRenderDpi);
     }
 
     if (nerdShapingFont != nullptr)
@@ -556,6 +570,7 @@ void jreng::Typeface::setSize (float pointSize) noexcept
         }
     }
     fallbackFontCache.clear();
+
 }
 
 // ============================================================================
@@ -939,9 +954,14 @@ FT_Face jreng::Typeface::discoverFallbackFace (uint32_t codepoint) noexcept
 
                                     if (FT_New_Face (library, fontPath.toRawUTF8(), 0, &loadedFace) == 0)
                                     {
+                                        const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (roundFloatPxTo26_6 (fontSize)) };
+#if JUCE_WINDOWS
+                                        const FT_UInt fullRenderDpi { static_cast<FT_UInt> (static_cast<float> (baseDpi) * getDisplayScale()) };
+                                        FT_Set_Char_Size (loadedFace, 0, size26_6, fullRenderDpi, fullRenderDpi);
+#else
                                         const FT_UInt renderDpi { computeRenderDpi (getDisplayScale()) };
-                                        const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (fontSize * ftFixedScale) };
                                         FT_Set_Char_Size (loadedFace, 0, size26_6, renderDpi, renderDpi);
+#endif
                                         result = loadedFace;
                                     }
                                 }

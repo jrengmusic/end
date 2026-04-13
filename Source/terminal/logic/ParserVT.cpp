@@ -846,7 +846,7 @@ void Parser::setScrollbackCallback (std::function<void (int)> callback) noexcept
  * | cursorVisible      | true    |
  * | reverseVideo       | false   |
  *
- * Also clears the kitty keyboard mode stacks for both screens via
+ * Also clears the progressive keyboard mode stacks for both screens via
  * `resetKeyboardMode()`, restoring flags to 0 (legacy mode).
  *
  * @note READER THREAD only.

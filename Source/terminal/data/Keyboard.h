@@ -86,7 +86,7 @@ struct Keyboard
      *                           (`\x1bOA`) instead of CSI sequences (`\x1b[A`),
      *                           matching xterm's "application cursor keys" mode
      *                           (DECCKM, `\x1b[?1h`).
-     * @param keyboardFlags  Kitty keyboard protocol flags from the active screen.
+     * @param keyboardFlags  Progressive keyboard protocol (CSI u) flags from the active screen.
      *                       0 = legacy mode (no enhanced encoding).
      *                       Bit 0 (1): disambiguate escape codes.
      *                       Bit 3 (8): report all keys as escape codes.
@@ -153,14 +153,14 @@ private:
      * - Ctrl+[ → ESC (0x1B), Ctrl+\\ → FS (0x1C), Ctrl+] → GS (0x1D),
      *   Ctrl+^ → RS (0x1E), Ctrl+_ → US (0x1F)
      *
-     * When kitty keyboard flag 1 (disambiguate) or flag 8 (all keys) is
+     * When progressive keyboard protocol flag 1 (disambiguate) or flag 8 (all keys) is
      * active, Ctrl+key combinations produce CSI u sequences instead of
      * legacy control characters, using the lowercase codepoint as the key
      * number (e.g. Ctrl+C → `CSI 99;5u`).
      *
      * @param code  The raw JUCE key code (from `KeyPress::getKeyCode()`).
      * @param mods  Full modifier state (Ctrl is always set; Shift may be).
-     * @param keyboardFlags  Kitty keyboard protocol flags.
+     * @param keyboardFlags  Progressive keyboard protocol (CSI u) flags.
      * @return The control-character sequence or CSI u sequence, or an
      *         empty string if @p code has no Ctrl mapping.
      */
@@ -168,7 +168,7 @@ private:
     {
         juce::String result;
 
-        if (keyboardFlags & (kittyDisambiguate | kittyAllKeys))
+        if (keyboardFlags & (disambiguate | allKeys))
         {
             if (code >= 'A' and code <= 'Z')
             {
@@ -232,7 +232,7 @@ private:
      * @param mods             Full modifier state (including Alt).
      * @param ch               Text character associated with the key event.
      * @param applicationCursor Forwarded to the inner `map()` call.
-     * @param keyboardFlags  Kitty keyboard protocol flags (forwarded to inner
+     * @param keyboardFlags  Progressive keyboard protocol (CSI u) flags (forwarded to inner
      *                       `map()` call).
      * @return ESC-prefixed sequence, or an empty string if neither a special
      *         sequence nor a printable character is available.
@@ -241,7 +241,7 @@ private:
     {
         juce::String result;
 
-        if ((keyboardFlags & (kittyDisambiguate | kittyAllKeys)) and isTextKey (code))
+        if ((keyboardFlags & (disambiguate | allKeys)) and isTextKey (code))
         {
             const int codepoint { (code >= 'A' and code <= 'Z') ? (code - 'A' + 'a') : code };
             result = encodeCsiU (codepoint, mods);
@@ -315,7 +315,7 @@ private:
      * @param mods             Modifier state (Shift may be set; Ctrl/Alt are not).
      * @param ch               Text character associated with the key event.
      * @param applicationCursor Forwarded to `cursorKey()`.
-     * @param keyboardFlags  Kitty keyboard protocol flags.
+     * @param keyboardFlags  Progressive keyboard protocol (CSI u) flags.
      * @return The escape sequence or character string, or empty if unmapped.
      */
     static inline juce::String mapPlain (int code, const juce::ModifierKeys& mods, juce::juce_wchar ch, bool applicationCursor, uint32_t keyboardFlags)
@@ -328,11 +328,11 @@ private:
         {
             if (shouldUseCsiU (code, mods, keyboardFlags))
             {
-                const auto kittyIt { kittyKeyCodes.find (code) };
+                const auto progressiveIt { progressiveKeyCodes.find (code) };
 
-                if (kittyIt != kittyKeyCodes.end())
+                if (progressiveIt != progressiveKeyCodes.end())
                 {
-                    result = encodeCsiU (kittyIt->second, mods);
+                    result = encodeCsiU (progressiveIt->second, mods);
                 }
             }
             else
@@ -356,7 +356,7 @@ private:
         }
         else if (ch > 0 and not mods.isCtrlDown())
         {
-            if ((keyboardFlags & kittyAllKeys) and isTextKey (code))
+            if ((keyboardFlags & allKeys) and isTextKey (code))
             {
                 const int codepoint { (code >= 'A' and code <= 'Z') ? (code - 'A' + 'a') : code };
                 result = encodeCsiU (codepoint, mods);
@@ -547,7 +547,7 @@ private:
      * @endcode
      *
      * Meta maps to Cmd on macOS (modifier code 9 = meta-only, same as
-     * iTerm2/Kitty).  When `N == 1` (no modifiers active), callers omit the
+     * iTerm2).  When `N == 1` (no modifiers active), callers omit the
      * modifier parameter from the sequence entirely.
      *
      * @param mods  The modifier key state to encode.
@@ -583,17 +583,17 @@ private:
     }
 
     // -------------------------------------------------------------------------
-    // Kitty keyboard protocol — CSI u encoding
+    // Progressive keyboard protocol (CSI u) — encoding
     // -------------------------------------------------------------------------
 
-    /// Kitty keyboard flag: disambiguate escape codes (bit 0).
-    static constexpr uint32_t kittyDisambiguate { 1 };
+    /// Progressive keyboard protocol flag: disambiguate escape codes (bit 0).
+    static constexpr uint32_t disambiguate { 1 };
 
-    /// Kitty keyboard flag: report all keys as escape codes (bit 3).
-    static constexpr uint32_t kittyAllKeys { 8 };
+    /// Progressive keyboard protocol flag: report all keys as escape codes (bit 3).
+    static constexpr uint32_t allKeys { 8 };
 
     /**
-     * @brief Maps JUCE simple key codes to their kitty CSI u key numbers.
+     * @brief Maps JUCE simple key codes to their CSI u key numbers.
      *
      * | Key       | CSI u code |
      * |-----------|------------|
@@ -602,7 +602,7 @@ private:
      * | Tab       | 9          |
      * | Escape    | 27         |
      */
-    static inline const std::unordered_map<int, int> kittyKeyCodes
+    static inline const std::unordered_map<int, int> progressiveKeyCodes
     {
         { juce::KeyPress::returnKey,    13 },
         { juce::KeyPress::backspaceKey, 127 },
@@ -613,7 +613,7 @@ private:
     /**
      * @brief Encodes a key event in CSI u format.
      *
-     * Produces the kitty keyboard protocol encoding:
+     * Produces the progressive keyboard protocol (CSI u) encoding:
      * - `CSI keycode u` when no modifiers are present.
      * - `CSI keycode ; modifiers u` when modifiers are active.
      *
@@ -642,7 +642,7 @@ private:
     /**
      * @brief Determines whether a simple key should use CSI u encoding.
      *
-     * Applies the kitty keyboard protocol rules (matching kitty source):
+     * Applies the progressive keyboard protocol (CSI u) rules:
      * - Legacy (flags=0): never CSI u.
      * - Disambiguate (flag 1): Escape always gets CSI u.
      *   Enter/Tab/Backspace get CSI u only when a non-lock modifier
@@ -652,18 +652,18 @@ private:
      *
      * @param code           JUCE key code.
      * @param mods           Active modifier keys.
-     * @param keyboardFlags  Kitty keyboard protocol flags.
+     * @param keyboardFlags  Progressive keyboard protocol (CSI u) flags.
      * @return `true` if the key should be encoded as CSI u.
      */
     static inline bool shouldUseCsiU (int code, const juce::ModifierKeys& mods, uint32_t keyboardFlags) noexcept
     {
         bool result { false };
 
-        if (keyboardFlags & kittyAllKeys)
+        if (keyboardFlags & allKeys)
         {
             result = true;
         }
-        else if (keyboardFlags & kittyDisambiguate)
+        else if (keyboardFlags & disambiguate)
         {
             const bool hasModifiers { mods.isShiftDown() or mods.isCtrlDown() or mods.isAltDown() };
 
@@ -684,7 +684,7 @@ private:
      * @brief Tests whether a key code is an ASCII text key.
      *
      * Text keys are the set of keys that produce printable ASCII characters
-     * in the kitty protocol spec: a-z (JUCE codes A-Z), 0-9, and the
+     * in the CSI u protocol spec: a-z (JUCE codes A-Z), 0-9, and the
      * punctuation keys: ` - = [ ] \\ ; ' , . / and space.
      *
      * @param code  JUCE key code.

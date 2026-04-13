@@ -861,7 +861,7 @@ ActiveScreen State::getActiveScreen() const noexcept
 }
 
 /**
- * @brief Reads the kitty keyboard flags from the ValueTree (post-flush value).
+ * @brief Reads the progressive keyboard protocol flags from the ValueTree (post-flush value).
  *
  * Determines the active screen via `getActiveScreen()`, navigates to the
  * corresponding screen child node (`NORMAL` or `ALTERNATE`), and reads

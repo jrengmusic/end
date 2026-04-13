@@ -262,6 +262,7 @@ void Screen<Renderer>::setFontSize (float pointSize) noexcept
         font.setSize (pointSize);
         font.setAtlasDisplayScale (jreng::Typeface::getDisplayScale());
         font.clearAtlas();
+        calc();
     }
 }
 

@@ -22,7 +22,7 @@
  * - **Anti-aliased Bresenham** for diagonal lines (`drawDiagonal()`): distance
  *   to the line is computed analytically and mapped to alpha.
  * - **4× supersampled SDF, box-averaged down** for rounded corners
- *   (`drawRoundedCorner()`): mirrors kitty's `rounded_corner()` for smooth
+ *   (`drawRoundedCorner()`): uses 4× supersampled SDF for smooth
  *   arc rendering that aligns tangentially with `drawLines()` strokes.
  * - **Cell-relative metrics**: line thickness is derived from `cellWidth` via
  *   `lightThickness()` / `heavyThickness()`, so the output scales correctly
@@ -649,8 +649,8 @@ private:
     /**
      * @brief Render an SDF-based rounded corner (U+256D–U+2570).
      *
-     * 4× supersampled SDF, box-averaged down — mirrors kitty's `rounded_corner()`
-     * (kitty/decorations.c).  The geometry is rasterized into a scratch buffer at
+     * 4× supersampled SDF, box-averaged down to native resolution.
+     * The geometry is rasterized into a scratch buffer at
      * 4× native resolution using the same rounded-rectangle SDF kernel, then
      * box-filtered back to the native cell size.  This eliminates the jagginess
      * of the previous 2×2 per-pixel approach.

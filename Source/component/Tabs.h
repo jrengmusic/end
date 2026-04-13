@@ -251,7 +251,7 @@ public:
     /**
      * @brief Increase the terminal zoom level.
      *
-     * Forwards to getActiveTerminal().
+     * Increases zoom by `Config::zoomStep` and applies to all panes across all tabs.
      *
      * @note MESSAGE THREAD.
      */
@@ -260,7 +260,7 @@ public:
     /**
      * @brief Decrease the terminal zoom level.
      *
-     * Forwards to getActiveTerminal().
+     * Decreases zoom by `Config::zoomStep` and applies to all panes across all tabs.
      *
      * @note MESSAGE THREAD.
      */
@@ -269,7 +269,7 @@ public:
     /**
      * @brief Reset the terminal zoom level to default.
      *
-     * Forwards to getActiveTerminal().
+     * Resets zoom to the configured default and applies to all panes across all tabs.
      *
      * @note MESSAGE THREAD.
      */

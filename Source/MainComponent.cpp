@@ -54,7 +54,7 @@
 MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     : typeface (fontRegistry,
                 config.getString (Config::Key::fontFamily),
-                config.getFloat (Config::Key::fontSize),
+                config.dpiCorrectedFontSize(),
                 jreng::Glyph::AtlasSize::compact,
                 true)
     , whelmedBodyFont (fontRegistry,

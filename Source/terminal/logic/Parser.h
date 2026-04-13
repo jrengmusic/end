@@ -1429,7 +1429,7 @@ private:
     void handleCursorStyle (const CSI& params) noexcept;
 
     /**
-     * @brief Handles kitty keyboard protocol sequences (`CSI … u`).
+     * @brief Handles progressive keyboard protocol sequences (`CSI … u`).
      *
      * Dispatches based on intermediate byte:
      * - `>` — push flags onto per-screen keyboard mode stack

@@ -252,7 +252,7 @@ namespace ID
     /** @brief OSC 12 cursor color blue component (0-255). -1 = not set (use config default). */
     static const juce::Identifier cursorColorB         { "cursorColorB" };
 
-    /** @brief Kitty keyboard protocol flags (bitmask). 0 = legacy mode. */
+    /** @brief Progressive keyboard protocol flags (CSI u bitmask). 0 = legacy mode. */
     static const juce::Identifier keyboardFlags        { "keyboardFlags" };
 
     //==========================================================================

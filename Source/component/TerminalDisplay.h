@@ -66,8 +66,8 @@ namespace Terminal
  * Destroyed when the pane or popup is closed; destructor unwires all Session callbacks.
  *
  * @par Zoom
- * `applyZoom()` scales the base font size by the zoom multiplier and calls
- * `Screen::setFontSize()`.
+ * `applyZoom()` reads the zoom from AppState, recomputes the font size via Config,
+ * and resizes the top-level window to maintain consistent cell count.
  *
  * @par Selection
  * `screenSelection` is a `unique_ptr<ScreenSelection>` that is non-null while

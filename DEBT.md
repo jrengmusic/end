@@ -8,6 +8,14 @@
 
 ---
 
+## DEBT-20260412T234116
+
+**Observation:** need to add confirmation dialog with ctrl+q
+**Divergence:** when daemon=true, confirmation dialog should ask whether to save session or not. save session keep daemon alive, not kill all
+**Expectation:** confirmation dialog, modal
+
+---
+
 ## DEBT-20260411T125015
 
 **Observation:** windows: tab name not updated according to active terminal

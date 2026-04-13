@@ -51,7 +51,7 @@ END solves all of these.
 - Full xterm-256color + 24-bit true colour
 - Unicode grapheme segmentation (UAX #29 state machine, Unicode 17.0)
 - Wide character support (CJK, East Asian Width)
-- Kitty keyboard protocol (progressive enhancement, per-screen flag stacks)
+- Progressive keyboard protocol (CSI u, per-screen flag stacks)
 - SGR mouse tracking (modes 1000/1002/1003/1006 — tmux and vim just work)
 - Bracketed paste, focus events, bell
 - Alternate screen buffer (vim, htop, less, TUI apps)

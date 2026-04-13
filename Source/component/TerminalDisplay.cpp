@@ -693,7 +693,9 @@ void Terminal::Display::applyConfig() noexcept
 }
 
 /**
- * @brief Scales the font size by @p zoom and re-lays out the component.
+ * @brief Reads the current zoom from AppState and recomputes the font size
+ *        from Config (base) * AppState (zoom).  Resizes the top-level window
+ *        proportionally to the cell metric change to preserve grid dimensions.
  *
  * @note MESSAGE THREAD.
  */

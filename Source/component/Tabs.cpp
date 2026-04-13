@@ -520,7 +520,7 @@ void Tabs::decreaseZoom()
 
 void Tabs::resetZoom()
 {
-    const float defaultZoom { Config::getContext()->getFloat (Config::Key::windowZoom) };
+    const float defaultZoom { Config::zoomMin };
     AppState::getContext()->setWindowZoom (defaultZoom);
 
     for (auto& p : panes)

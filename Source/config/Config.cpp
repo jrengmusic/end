@@ -142,7 +142,6 @@ void Config::initKeys()
     addKey (Key::windowAlwaysOnTop, "false", { T::string });
     addKey (Key::windowButtons, "false", { T::string });
     addKey (Key::windowForceDwm, "true", { T::string });
-    addKey (Key::windowZoom, 1.0, { T::number, 0.0, 0.0, false });
     addKey (Key::gpuAcceleration, "auto", { T::string });
     addKey (Key::daemon, "true", { T::string });
 

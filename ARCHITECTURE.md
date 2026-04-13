@@ -88,7 +88,7 @@ Source/
       State.h/cpp                   APVTS-style atomic + timer + ValueTree
       StateFlush.cpp                Timer flush implementation
       ValueTreeUtilities.h          ValueTree traversal helpers
-      Keyboard.h                    Keypress -> escape sequence mapping (kitty keyboard protocol)
+      Keyboard.h                    Keypress -> escape sequence mapping (progressive keyboard protocol, CSI u)
 
     logic/                          Terminal emulation (parser, grid, session)
       Session.h/cpp                 PTY orchestrator: owns TTY + History. Processor owns State, Grid, Parser.
@@ -696,9 +696,9 @@ SESSION nodes use `jreng::ID::id` (not a Terminal-specific UUID identifier). Thi
 
 ## Input Encoding
 
-### Kitty Keyboard Protocol
+### Progressive Keyboard Protocol (CSI u)
 
-Full implementation of the [kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/) progressive enhancement system.
+Full implementation of the progressive keyboard enhancement system (CSI u protocol).
 
 #### Protocol Handshake (Parser → State)
 
@@ -735,7 +735,7 @@ CSI u format: `CSI keycode ; modifiers u` where modifiers = `1 + shift(1) + alt(
 
 #### Key Dispatch by Flag
 
-- **`mapPlain`:** Simple keys (Enter=13, Tab=9, Backspace=127, Escape=27) check `shouldUseCsiU()`. Text keys check `kittyAllKeys` flag. Functional keys (cursor, F-keys, editing) always use legacy CSI encoding.
+- **`mapPlain`:** Simple keys (Enter=13, Tab=9, Backspace=127, Escape=27) check `shouldUseCsiU()`. Text keys check `kbAllKeys` flag. Functional keys (cursor, F-keys, editing) always use legacy CSI encoding.
 - **`mapCtrl`:** Under flags 1/8, Ctrl+letter sends `CSI lowercase_codepoint ; modifiers u` instead of control characters. Ctrl+Shift properly encoded with both modifier bits.
 - **`mapAlt`:** Under flags 1/8, Alt+text-key sends `CSI lowercase_codepoint ; modifiers u` instead of ESC-prefix. Alt+functional-key keeps legacy ESC-prefix encoding.
 
@@ -964,7 +964,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Decision:** All box drawing, block elements, and braille rendered procedurally in `BoxDrawing.h`. No font lookup for these ranges.
 
-**Rationale:** Pixel-perfect alignment at any cell size. Font glyphs often have inconsistent metrics causing visible gaps at cell boundaries. Kitty, Ghostty, and WezTerm all use procedural rendering for these ranges.
+**Rationale:** Pixel-perfect alignment at any cell size. Font glyphs often have inconsistent metrics causing visible gaps at cell boundaries. Other modern terminals (Ghostty, WezTerm) all use procedural rendering for these ranges.
 
 ### Decision: Glyph-Based Cursor over Geometric Shapes
 

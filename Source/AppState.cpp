@@ -76,7 +76,7 @@ int AppState::getWindowHeight() const noexcept
 float AppState::getWindowZoom() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
-    float result { Config::getContext()->getFloat (Config::Key::windowZoom) };
+    float result { Config::zoomMin };
 
     if (window.isValid() and window.hasProperty (App::ID::zoom))
         result = static_cast<float> (window.getProperty (App::ID::zoom));
@@ -491,7 +491,7 @@ void AppState::initDefaults()
     auto* cfg { Config::getContext() };
     window.setProperty (App::ID::width, cfg->getInt (Config::Key::windowWidth), nullptr);
     window.setProperty (App::ID::height, cfg->getInt (Config::Key::windowHeight), nullptr);
-    window.setProperty (App::ID::zoom, cfg->getFloat (Config::Key::windowZoom), nullptr);
+    window.setProperty (App::ID::zoom, Config::zoomMin, nullptr);
 
     state.appendChild (window, nullptr);
 

@@ -98,7 +98,7 @@ namespace Terminal
  *
  * Called from the message thread.  Acquires `resizeLock` to synchronise with
  * the reader thread's data processing.  If neither `cols` nor `visibleRows`
- * changed, the function returns immediately.
+ * changed, no work is performed.
  *
  * @par Normal screen
  * A new primary buffer is allocated at the new dimensions (with scrollback),

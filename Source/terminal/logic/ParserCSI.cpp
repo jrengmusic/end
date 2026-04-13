@@ -244,11 +244,11 @@ void Parser::handleCursorStyle (const CSI& params) noexcept
 }
 
 // ============================================================================
-// CSI Handler — Kitty Keyboard Protocol
+// CSI Handler — Progressive Keyboard Protocol (CSI u)
 // ============================================================================
 
 /**
- * @brief Handles kitty keyboard protocol sequences (`CSI … u`).
+ * @brief Handles progressive keyboard protocol sequences (`CSI … u`).
  *
  * Dispatches based on the intermediate byte collected before the params:
  *

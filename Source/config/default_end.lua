@@ -270,10 +270,6 @@ END = {
 		-- Reload config and restart END to apply.
 		-- No effect on macOS, Linux, or physical Windows machines.
 		force_dwm = "%%window_force_dwm%%",
-
-		-- Zoom multiplier (1.0 - 4.0).
-		-- Scales the terminal grid and font proportionally.
-		zoom = %%window_zoom%%,
 	},
 
 	-- ========================================================================

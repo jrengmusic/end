@@ -306,9 +306,6 @@ struct Config : jreng::Context<Config>
         /** @brief Force DWM effects on Windows 11 VMs for rounded corners. */
         inline static const juce::String windowForceDwm { "window.force_dwm" };
 
-        /** @brief Persisted zoom multiplier in [zoomMin, zoomMax]. */
-        inline static const juce::String windowZoom { "window.zoom" };
-
         /** @brief GPU acceleration mode: "auto", "true", or "false". */
         inline static const juce::String gpuAcceleration { "gpu" };
 
