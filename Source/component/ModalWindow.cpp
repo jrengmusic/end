@@ -138,6 +138,8 @@ ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
     onModalDismissed = std::move (dismissCallback);
     setGpuRenderer (false);
     setupWindow (centreAround);
+    setOpaque (true);
+    setBackgroundColour (config.getColour (Config::Key::windowColour));
     setVisible (true);
     enterModalState (true);
 }

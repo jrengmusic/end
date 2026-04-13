@@ -53,8 +53,15 @@
 
 **MainComponent:**
 - `Source/MainComponent.h` — removed `actionList` member
-- `Source/MainComponentActions.cpp` — uses `popup.show()` non-GL overload, `onActionRun` wired to `popup.dismiss()`
+- `Source/MainComponentActions.cpp` — uses `popup.show()` non-GL overload, `onActionRun` + `onDismiss` wired to `popup.dismiss()`
 - `Source/Main.cpp` — `setGpuRenderer` call on main window
+
+**Escape/dismiss restore + close-on-run:**
+- `Source/action/KeyHandler.h` — restored `dismiss` callback in Callbacks struct
+- `Source/action/KeyHandler.cpp` — restored Escape in key tables (search mode → select row 1, navigation mode → dismiss)
+- `Source/action/ActionList.h` — `onDismiss` + `onActionRun` callbacks, minimum size 600x400
+- `Source/action/ActionList.cpp` — KeyHandler wired with dismiss, executeSelected fires `onActionRun` on close-on-run
+- `Source/component/ModalWindow.cpp` — `keyPressed` returns false (content owns all keys), non-GL constructor pre-sets opaque background before setVisible to prevent white flash
 
 **Audit fixes (19 findings):**
 - `modules/jreng_gui/window/jreng_background_blur.h` — removed `const` on return-by-value, space before `//`
@@ -74,6 +81,8 @@
 - **Action list rendered solid white on Windows:** Root cause was Action::LookAndFeel replacing WindowsTitleBarLookAndFeel (which suppressed title bar paint). Fixed by merging into Terminal::LookAndFeel with property-based font dispatch.
 - **DWM glass + software rendering incompatible:** JUCE software renderer writes Image::RGB with zero alpha via StretchDIBits. DWM reads alpha=0 as transparent. GL renderer writes correct alpha. Resolution: CPU path uses solid opaque background + DWM rounded corners. GPU path unchanged.
 - **Action::List architecture:** Refactored from ModalWindow subclass to plain Component hosted via Popup::show(). Eliminated window construction complexity, content sizing chicken-and-egg problems, and L&F conflicts.
+- **Escape two-state behavior restored:** Search mode Escape → selection mode. Selection mode Escape → dismiss. Broken by premature removal of KeyHandler dismiss callback, restored.
+- **White flash on open:** Pre-set opaque background colour before setVisible in non-GL ModalWindow constructor.
 
 ### Debts Paid
 - `DEBT-20260411T083120` — action list on windows rendered solid white — resolved via Terminal::ModalWindow extraction + jreng::Window GPU/CPU modes + plain component refactor

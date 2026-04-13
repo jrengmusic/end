@@ -143,6 +143,11 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                                        popup.dismiss();
                                    };
 
+                                   list->onDismiss = [this]
+                                   {
+                                       popup.dismiss();
+                                   };
+
                                    const int width { list->getWidth() };
                                    const int height { list->getHeight() };
 

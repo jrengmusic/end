@@ -54,6 +54,11 @@ List::List (juce::Component& mainWindow)
                                                 },
                                                 [this]
                                                 {
+                                                    if (onDismiss != nullptr)
+                                                        onDismiss();
+                                                },
+                                                [this]
+                                                {
                                                     enterBindingMode();
                                                 },
                                                 [this] (int i)

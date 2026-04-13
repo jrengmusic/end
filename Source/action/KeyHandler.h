@@ -25,6 +25,7 @@ public:
     struct Callbacks
     {
         std::function<void()>      executeSelected;   ///< Invoked when Return is pressed on a selected row.
+        std::function<void()>      dismiss;           ///< Invoked when Escape is pressed in navigation mode.
         std::function<void()>      enterBindingMode;  ///< Invoked when Shift+Return is pressed in navigation mode.
         std::function<void(int)>   selectRow;         ///< Invoked with the target row index to select.
         std::function<int()>       visibleRowCount;   ///< Returns the number of visible, selectable rows.

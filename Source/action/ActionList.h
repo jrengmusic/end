@@ -63,6 +63,9 @@ public:
     /** @brief Called after an action is executed; used for close-on-run behavior. */
     std::function<void()> onActionRun;
 
+    /** @brief Called when the user dismisses the action list via Escape from selection mode. */
+    std::function<void()> onDismiss;
+
 private:
     /** @brief Minimum width in logical pixels. */
     static constexpr int minimumWidth { 600 };
