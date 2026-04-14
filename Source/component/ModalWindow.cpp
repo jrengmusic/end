@@ -54,12 +54,7 @@ ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
     {
         if (auto* glContent { dynamic_cast<jreng::GLComponent*> (getContentComponent()) })
         {
-            renderer->setComponentIterator (
-                [glContent] (std::function<void (jreng::GLComponent&)> renderComponent)
-                {
-                    if (glContent->isVisible())
-                        renderComponent (*glContent);
-                });
+            jreng::GLRenderer::setRenderable (*renderer, *glContent);
         }
     }
 

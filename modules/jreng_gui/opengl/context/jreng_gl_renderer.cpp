@@ -42,9 +42,19 @@ void GLRenderer::setComponentPaintingEnabled (bool enabled) noexcept
     openGLContext.setComponentPaintingEnabled (enabled);
 }
 
-void GLRenderer::setComponentIterator (ComponentIterator iterator) noexcept
+void GLRenderer::setRenderables (ComponentIterator iterator) noexcept
 {
     componentIterator = std::move (iterator);
+}
+
+void GLRenderer::setRenderable (GLRenderer& renderer, jreng::GLComponent& content)
+{
+    renderer.setRenderables (
+        [&content] (std::function<void (jreng::GLComponent&)> renderComponent)
+        {
+            if (content.isVisible())
+                renderComponent (content);
+        });
 }
 
 void GLRenderer::triggerRepaint()

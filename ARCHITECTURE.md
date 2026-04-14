@@ -476,7 +476,7 @@ Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls 
 
 **Used for:** Lock-free handoff of render data from message thread to GL thread.
 
-**Implementation:** `modules/jreng_opengl/` — `jreng::GLSnapshotBuffer<T>`, `jreng::GLMailbox<T>`
+**Implementation:** `modules/jreng_gui/opengl/context/` — `jreng::GLSnapshotBuffer<T>`, `jreng::GLMailbox<T>`
 
 `GLSnapshotBuffer` owns two snapshot instances and a `GLMailbox`. Message thread calls `getWriteBuffer()`, fills the snapshot, calls `write()`. GL thread calls `read()` — returns latest snapshot, or retains the previous one if nothing new. Double-buffer rotation is encapsulated. Zero allocation, zero locking. Forked from KANJUT `kuassa_opengl`.
 

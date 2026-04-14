@@ -1,5 +1,91 @@
 # SPRINT-LOG
 
+## Sprint 17: jreng::Window Self-Managed Dual Backend + jreng_opengl Dissolved into jreng_gui ✅
+
+**Date:** 2026-04-14
+**Duration:** full session
+
+### Agents Participated
+- COUNSELOR: session lead, RFC-less plan grounded in two-edit probe baseline, four-step PLAN, decision-gate orchestration, audit triage
+- Pathfinder: HEAD survey (×3 — initial GL surface, pane/renderer/font lifecycle, jreng_opengl module footprint), git-log + DEBT.md inventory
+- Librarian: JUCE OpenGL design (Context↔Renderer cardinality, setNativeSharedContext / wglShareLists semantics, setComponentPaintingEnabled mechanism, nesting prohibition)
+- Engineer: ~9 delegations (S0 module dissolution, S1 dead-code removal, S2 API extension, S3 atomic migration, focus-grab fixes, audit-fix batch, GLOverlay rename)
+- Auditor: full S0–S4 audit with entanglement scope (1 Critical, 2 Major, 7 Minor — all resolved)
+
+### Files Modified
+
+**Module restructure (S0):**
+- `modules/jreng_opengl/` deleted entirely; 27 files relocated via `git mv` to `modules/jreng_gui/opengl/{context,renderers,shaders}/`
+- `modules/jreng_gui/jreng_gui.h` — added `juce_opengl, jreng_graphics` deps; appended absorbed module includes prefixed with `opengl/`
+- `modules/jreng_gui/jreng_gui.cpp` — appended absorbed `.cpp` unity-build includes
+- `modules/jreng_gui/jreng_gui.mm` — added `opengl/context/jreng_gl_renderer_mac.mm` under JUCE_MAC
+- `Builds/Ninja/END_App_artefacts/JuceLibraryCode/JuceHeader.h` — removed jreng_opengl include
+- `CMakeLists.txt:44` — removed jreng_opengl from JUCE_MODULES
+- `END.jucer` — removed jreng_opengl module entry
+- `ARCHITECTURE.md`, `SPEC.md`, `PLAN-WHELMED.md` — prose path updates
+
+**Whelmed font dead-code removal (S1):**
+- `Source/MainComponent.h:158,161,164` — deleted whelmedBodyFont + whelmedCodeFont members; collapsed glRenderer NSDMI initializer to `{ &typeface }`
+- `Source/MainComponent.cpp:60-69,374` — deleted both Typeface ctor inits; updated initialiseTabs to two-arg Tabs ctor
+- `Source/component/Tabs.h/.cpp` — dropped whelmed params from ctor signature + members; updated internal Panes ctor call
+- `Source/component/Panes.h/.cpp` — dropped whelmed params from ctor signature + members
+- Net: −22 LOC, zero behavior change (Whelmed::Component reads own Whelmed::Config keys)
+
+**jreng::Window API extension (S2):**
+- `modules/jreng_gui/window/jreng_window.h/.cpp` — added private `glRenderer` (uptr) + `nativeSharedContext` (void*) members; public `setRenderer`, `setNativeSharedContext`, `getNativeSharedContext`, `triggerRepaint`; private `attachRendererToContent` helper enforcing F9 pre-attach order
+- `modules/jreng_gui/opengl/context/jreng_gl_renderer.h/.cpp` — added `setNativeSharedContext(void*)`, `getNativeContext()`, `isAttached()` passthroughs
+
+**Atomic migration (S3):**
+- `modules/jreng_gui/window/jreng_window.h/.cpp` — deleted `setGpuRenderer(bool)` + `gpuRenderer` member; swapped `visibilityChanged` GPU-branch trigger to `if (glRenderer != nullptr)`; inserted `attachRendererToContent()` call before `setGlass`
+- `Source/Main.cpp:343-359` — captured `mainComponent` ptr, deleted `setGpuRenderer` call, inserted `mainComponent->applyConfig()` after `setGlass` (decision P)
+- `Source/MainComponent.h:164` — deleted `glRenderer` member
+- `Source/MainComponent.cpp` — deleted `applyConfig()` from ctor body; rewrote `setRenderer` to `make_unique<GLAtlasRenderer>({&typeface})` + iterator config + `window->setRenderer(std::move(...))`; deleted `glRenderer.detach()` from dtor; deleted `glRenderer.setComponentIterator` block from `initialiseTabs`; rewrote `tabs->onRepaintNeeded` to call `window->triggerRepaint()` via dynamic_cast lookup
+- `Source/component/Popup.h/.cpp` — collapsed two `show()` overloads into single 5-arg form taking `std::unique_ptr<jreng::GLRenderer>`; extracts shared-context handle from caller's top-level Window
+- `Source/component/ModalWindow.h/.cpp` — deleted `ContentView` struct entirely; collapsed two ctors into single ctor accepting renderer uptr + shared-context handle; routed through base Window's `setNativeSharedContext` + `setRenderer`; removed `setGpuRenderer(false)`/`setOpaque(true)`/`setBackgroundColour` block; relocated Display::onRepaintNeeded wiring
+- `Source/MainComponentActions.cpp:154,435` — both popup call sites updated to construct appropriate renderer subclass conditional on AppState::getRendererType
+- `Source/component/TerminalDisplay.cpp:500-513` — added `parentHierarchyChanged` override that grabs keyboard focus on Display itself (async via `MessageManager::callAsync` + `SafePointer<Display>` guard, deferring past `enterModalState`); removed external focus-grab from ModalWindow
+
+**Focus + iterator patches:**
+- `Source/component/ModalWindow.cpp` — deleted async focus-grab block (moved into Display); added per-frame iterator wiring for GLComponent content via `setRenderable` static helper
+
+**Doxygen (S4):**
+- `modules/jreng_gui/window/jreng_window.h` — `@par Render backend` section documenting dual-backend contract
+- `modules/jreng_gui/opengl/context/jreng_gl_component.h` — `@class GLComponent` doxygen formalizing paint()-baseline + paintGL()-optimization
+
+**Audit fixes:**
+- `modules/jreng_gui/opengl/context/jreng_gl_renderer.h/.cpp` — renamed `setComponentIterator` → `setRenderables` (instance, plural); added public static `setRenderable(GLRenderer&, GLComponent&)` single-content convenience
+- `modules/jreng_gui/opengl/context/jreng_gl_overlay.h` — full rename to match (`setComponentIterator` → `setRenderables`); plugin API breaking change accepted by ARCHITECT
+- `Source/MainComponent.cpp` — uses `setRenderables`
+- `Source/component/ModalWindow.cpp` — uses `jreng::GLRenderer::setRenderable(*renderer, *glContent)` static helper
+- `modules/jreng_gui/window/jreng_window.cpp:104-110` — `getNativeSharedContext` rewritten to positive nested + single return (Critical fix)
+- `modules/jreng_gui/window/jreng_window.cpp:82-84` — orphan `// Renderer type` banner deleted
+- `modules/jreng_gui/window/jreng_window.h:24,116,191,210` — stale macOS-only `@note` replaced; "after S3 trigger swap" sprint-state parentheticals stripped (3 sites)
+- `Source/component/Tabs.h:65-67` — onRepaintNeeded doxygen updated to `Window::triggerRepaint()` with CPU-mode no-op note
+- `ARCHITECTURE.md:479` — `modules/jreng_opengl/` → `modules/jreng_gui/opengl/context/`
+
+### Alignment Check
+- [x] BLESSED principles followed — `B` (Bound): Window owns renderer via unique_ptr, RAII detach in dtor; `L` (Lean): net deletion, ContentView gone, two ctors collapse to one, two show overloads to one, setGpuRenderer/gpuRenderer/MainComponent::glRenderer all deleted; `E` (Explicit): caller intent in unique_ptr present/null, all new methods documented with @param/@note, positive nested checks, no early returns; `S` (SSOT): render mode = renderer presence on Window, no parallel boolean; `S` (Stateless): orchestrator TELLs setRenderer, Window self-manages attach lifecycle; `E` (Encapsulation): GL wiring lives inside jreng_gui/window/, callers see only Window verbs; `D` (Deterministic): same content + same renderer-presence yields same render path
+- [x] NAMES.md adhered — `setRenderer`, `setNativeSharedContext`, `getNativeSharedContext`, `getNativeContext`, `triggerRepaint`, `attachRendererToContent`, `isAttached`, `setRenderables`, `setRenderable`, `bindContentToRender` (rejected during deliberation in favor of setRenderable), `glRenderer`, `nativeSharedContext` — all gated through ARCHITECT approval per Rule -1; all verbs-for-functions, nouns-for-members, no type-encoding suffixes, consistent with JUCE's `setNativeSharedContext`/`getRawContext` naming
+- [x] MANIFESTO.md / JRENG-CODING-STANDARD.md — alternative tokens (`not`, `and`, `or`); brace init; `noexcept`; positive nested checks; no early returns; no anonymous namespaces; no `namespace detail`
+- [x] Sprint 16 failure filter (F1-F10) honored — F1/F9: jreng::GLRenderer ctor's 5 config calls (setPixelFormat, setOpenGLVersionRequired, setRenderer(this), setComponentPaintingEnabled(false), setContinuousRepainting(false)) untouched throughout sprint; F4: only ARCHITECT ran build.bat; F5: S3 atomic batch; F7: CPU branch body in Window::visibilityChanged unchanged from HEAD; F10: exactly one attachTo site (Window::attachRendererToContent)
+
+### Problems Solved
+- **Action::List CPU-mode rendering**: probe-validated baseline (plain juce::Component on glass via setComponentPaintingEnabled(true) rasterizing JUCE tree into GL FBO) relocated from Terminal::ModalWindow::ContentView into jreng::Window itself
+- **API encapsulation**: callers no longer touch attachTo, setComponentPaintingEnabled, setSharedRenderer, setNativeSharedContext on the renderer object — Window does it
+- **Mode-check duplication eliminated**: AppState::getRendererType reads remain at construction sites only; the GPU-vs-CPU branch in visibilityChanged lives ONCE in Window
+- **Module dependency hygiene**: dissolving jreng_opengl into jreng_gui/opengl/ eliminates the rejected jreng_gui→jreng_opengl dep entirely (Sprint 16 F6)
+- **Whelmed coupling broken**: MainComponent no longer holds zombie whelmed Typeface scaffolding; Whelmed::Component's font lifecycle is fully self-contained via Whelmed::Config
+- **Display popup focus**: relocated from ModalWindow's async grab into Terminal::Display::parentHierarchyChanged (deferred via MessageManager::callAsync + SafePointer to clear modal-state-entry timing)
+- **Iterator API confusion**: setComponentIterator (named after parameter type) renamed to setRenderables (named after semantic role); new static setRenderable convenience wraps the single-content modal case
+
+### Debts Paid
+None — none of the 4 open DEBT.md entries map to this sprint's scope.
+
+### Debts Deferred
+None — no out-of-scope findings pushed to DEBT.md during this sprint.
+
+---
+
 ## Sprint 16: GOBLOK — Window-Owned GL Context Refactor (FAILED, REVERTED)
 
 **Date:** 2026-04-14

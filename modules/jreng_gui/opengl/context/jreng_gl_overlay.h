@@ -34,10 +34,10 @@ public:
         syncWithTarget();
     }
 
-    void setComponentIterator (GLRenderer::ComponentIterator iter)
+    void setRenderables (GLRenderer::ComponentIterator iter)
     {
         if (renderer != nullptr)
-            renderer->setComponentIterator (std::move (iter));
+            renderer->setRenderables (std::move (iter));
     }
 
     void triggerRepaint()

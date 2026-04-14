@@ -63,7 +63,8 @@ public:
     /**
      * @brief Callback invoked when any terminal needs a repaint.
      *
-     * This callback is set by MainComponent to trigger GLRenderer::triggerRepaint().
+     * This callback is set by MainComponent to trigger Window::triggerRepaint(), which
+     * delegates to the internal renderer if present and is a no-op in CPU mode.
      * It is forwarded to each new terminal's own onRepaintNeeded callback.
      *
      * @note MESSAGE THREAD.

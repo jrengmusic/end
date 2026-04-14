@@ -113,7 +113,7 @@ void MainComponent::setRenderer (App::RendererType rendererType)
             auto renderer { std::make_unique<jreng::GLAtlasRenderer> (
                 std::initializer_list<jreng::Typeface*> { &typeface }) };
 
-            renderer->setComponentIterator (
+            renderer->setRenderables (
                 [this] (std::function<void (jreng::GLComponent&)> renderComponent)
                 {
                     if (tabs != nullptr)

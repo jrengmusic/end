@@ -80,10 +80,6 @@ Window::~Window() { setLookAndFeel (nullptr); }
 void Window::closeButtonPressed() { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
 
 // =============================================================================
-// Renderer type
-// =============================================================================
-
-// =============================================================================
 // GL renderer ownership
 // =============================================================================
 
@@ -103,10 +99,12 @@ void Window::setNativeSharedContext (void* sharedContext) noexcept
 
 void* Window::getNativeSharedContext() const noexcept
 {
-    if (glRenderer != nullptr)
-        return glRenderer->getNativeContext();
+    void* result { nullptr };
 
-    return nullptr;
+    if (glRenderer != nullptr)
+        result = glRenderer->getNativeContext();
+
+    return result;
 }
 
 void Window::triggerRepaint()

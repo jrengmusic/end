@@ -14,8 +14,31 @@ public:
     void detach();
     void setComponentPaintingEnabled (bool enabled) noexcept;
 
+    /**
+     * @brief Sets the iterator function used to enumerate renderable components each frame.
+     *
+     * The caller controls enumeration: the iterator receives a render callback and is
+     * responsible for invoking it on each component that should be rendered this frame.
+     * Replaces any previously set iterator.
+     *
+     * @param iterator  Function that enumerates components by calling the provided render callback.
+     * @note MESSAGE THREAD.
+     */
     using ComponentIterator = std::function<void (std::function<void (GLComponent&)>)>;
-    void setComponentIterator (ComponentIterator iterator) noexcept;
+    void setRenderables (ComponentIterator iterator) noexcept;
+
+    /**
+     * @brief Convenience helper for the common single-content modal case.
+     *
+     * Wraps the iterator pattern: registers an iterator on @p renderer that calls the
+     * render callback for @p content if it is visible.  Equivalent to calling
+     * setRenderables with a capturing lambda over a single GLComponent.
+     *
+     * @param renderer  The GLRenderer to configure.
+     * @param content   The single GLComponent to render when visible.
+     * @note MESSAGE THREAD.
+     */
+    static void setRenderable (GLRenderer& renderer, jreng::GLComponent& content);
 
     void triggerRepaint();
     void setClippingMask (const juce::Image& mask) noexcept;

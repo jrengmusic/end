@@ -21,7 +21,8 @@
  * win->setVisible (true);
  * @endcode
  *
- * @note macOS only — BackgroundBlur is a no-op on other platforms.
+ * @note macOS: BackgroundBlur uses CoreGraphics blur APIs.
+ * Windows: glass applies DWM acrylic and rounded corners.
  *
  * @see BackgroundBlur
  * @see GlassComponent
@@ -52,7 +53,19 @@ class GLRenderer;
  * on first show.  Alpha >= 1.0 produces a standard opaque window.
  * First-show blur is applied automatically on both platforms.
  *
+ * @par Render backend
+ * Window self-manages its render backend by renderer ownership.  Pass a
+ * @c std::unique_ptr<jreng::GLRenderer> via setRenderer() to enable GPU mode
+ * (DWM acrylic on Windows, CoreGraphics blur on macOS).  Pass @c nullptr (or
+ * never call setRenderer()) for CPU mode (solid @c windowColour, DWM rounded
+ * corners on Windows).  Any @c juce::Component or @c jreng::GLComponent works
+ * as content in either mode.  The @c paint(juce::Graphics&) software path is
+ * the baseline contract honored by every subclass; @c paintGL() is an optional
+ * GPU-accelerated optimization that fires only in GPU mode.
+ *
  * @see BackgroundBlur
+ * @see jreng::GLRenderer
+ * @see jreng::GLComponent
  */
 class Window
     : public juce::DocumentWindow
@@ -101,7 +114,7 @@ public:
      *
      * Pass non-null to enable GPU mode; pass nullptr to switch to CPU mode.
      * If Window already has a peer (visible), the attach sequence fires immediately.
-     * Otherwise, attach is deferred until first visibility (after S3 trigger swap).
+     * Otherwise, attach is deferred until first visibility.
      *
      * @param renderer  Renderer to take ownership of, or nullptr for CPU mode.
      * @note MESSAGE THREAD.
@@ -176,7 +189,7 @@ private:
     /** @brief True while the user is actively dragging a resize handle. */
     bool userResizing { false };
 
-    /** @brief Owned GL renderer for this Window. Null = CPU mode (after S3 trigger swap). */
+    /** @brief Owned GL renderer for this Window. Null = CPU mode. */
     std::unique_ptr<jreng::GLRenderer> glRenderer;
 
     /** @brief Native shared HGLRC for inheriting GL context from a root Window. nullptr = root. */
@@ -195,8 +208,7 @@ private:
      *   2. setComponentPaintingEnabled(true)
      *   3. attachTo(content)
      *
-     * Called from visibilityChanged (after S3 trigger swap) and from setRenderer
-     * when invoked post-setVisible.
+     * Called from visibilityChanged and from setRenderer when invoked post-setVisible.
      *
      * @note MESSAGE THREAD. Precondition: glRenderer != nullptr and Window has peer.
      */
