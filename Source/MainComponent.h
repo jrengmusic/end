@@ -154,14 +154,8 @@ private:
     /** @brief Global typeface instance; provides font metrics and shaping for all terminals. */
     jreng::Typeface typeface;
 
-    /** @brief Body typeface for Whelmed markdown renderer. */
-    jreng::Typeface whelmedBodyFont;
-
-    /** @brief Monospace typeface for Whelmed code blocks. */
-    jreng::Typeface whelmedCodeFont;
-
     /** @brief Shared OpenGL atlas renderer; attached to this component, renders all GL children. */
-    jreng::GLAtlasRenderer glRenderer { &typeface, &whelmedBodyFont, &whelmedCodeFont };
+    jreng::GLAtlasRenderer glRenderer { &typeface };
 
     /** @brief Tabbed terminal container; owns all Terminal::Display instances. */
     std::unique_ptr<Terminal::Tabs> tabs;

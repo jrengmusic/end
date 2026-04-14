@@ -22,10 +22,8 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Panes::Panes (jreng::Typeface& font_, jreng::Typeface& whelmedBodyFont_, jreng::Typeface& whelmedCodeFont_)
+Panes::Panes (jreng::Typeface& font_)
     : font (font_)
-    , whelmedBodyFont (whelmedBodyFont_)
-    , whelmedCodeFont (whelmedCodeFont_)
 {
     setOpaque (false);
 }

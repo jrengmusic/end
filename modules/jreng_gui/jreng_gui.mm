@@ -13,4 +13,5 @@
 #if JUCE_MAC
 #import <Cocoa/Cocoa.h>
 #include "window/jreng_background_blur.mm"
+#include "opengl/context/jreng_gl_renderer_mac.mm"
 #endif

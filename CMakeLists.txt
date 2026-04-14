@@ -41,7 +41,6 @@ set(JUCE_MODULES
     jreng_graphics
     jreng_javascript
     jreng_markdown
-    jreng_opengl
 )
 
 set(USER_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")

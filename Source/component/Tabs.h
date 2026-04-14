@@ -52,8 +52,6 @@ public:
      * @note MESSAGE THREAD.
      */
     explicit Tabs (jreng::Typeface& font,
-                   jreng::Typeface& whelmedBodyFont,
-                   jreng::Typeface& whelmedCodeFont,
                    juce::TabbedButtonBar::Orientation orientation);
 
     /**
@@ -371,8 +369,6 @@ private:
     juce::Rectangle<int> computeContentRect (int tabBarDepth) const noexcept;
 
     jreng::Typeface& font;
-    jreng::Typeface& whelmedBodyFont;
-    jreng::Typeface& whelmedCodeFont;
     juce::Value tabName;
     jreng::Owner<Panes> panes;
 

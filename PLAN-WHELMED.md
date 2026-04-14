@@ -218,7 +218,7 @@ jreng_core       (Owner, Context, Mailbox)
 jreng_graphics   (Font, Atlas, Typeface, TextLayout, GraphicsContext)
      ^
      |
-jreng_opengl     (GLContext, GLRenderer, shaders)
+jreng_gui/opengl (GLContext, GLRenderer, shaders)
      ^
      |
 jreng_markdown   (Parser, ParsedDocument, Block, InlineSpan, Mermaid)

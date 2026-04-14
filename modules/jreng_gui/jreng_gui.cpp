@@ -5,4 +5,11 @@
 #include "window/jreng_modal_window.cpp"
 #include "layout/jreng_pane_manager.cpp"
 #include "layout/jreng_pane_resizer_bar.cpp"
-
+#include "opengl/renderers/jreng_gl_path.cpp"
+#include "opengl/context/jreng_gl_graphics.cpp"
+#include "opengl/context/jreng_gl_component.cpp"
+#include "opengl/context/jreng_gl_shader_compiler.cpp"
+#include "opengl/context/jreng_gl_vertex_layout.cpp"
+#include "opengl/context/jreng_gl_renderer.cpp"
+#include "opengl/context/jreng_gl_atlas_renderer.cpp"
+#include "opengl/renderers/jreng_gl_context.cpp"

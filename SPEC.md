@@ -330,7 +330,7 @@ END = {
 **Goal:** Extract END's glyph atlas, HarfBuzz shaping, and instanced quad rendering into a reusable JUCE module. Provides `juce::AttributedString`-compatible surface API with OpenGL backend rendering.
 
 **Parallel to existing modules:**
-- `jreng_opengl` provides `GLGraphics` (like `juce::Graphics`) and `GLPath` (like `juce::Path`)
+- `jreng_gui/opengl` provides `GLGraphics` (like `juce::Graphics`) and `GLPath` (like `juce::Path`)
 - `jreng_text` provides GL text rendering (like `juce::AttributedString` / `juce::TextLayout`)
 
 **Two rendering modes:**
@@ -375,7 +375,7 @@ Input is `juce::AttributedString` — no custom string type. Two `draw()` overlo
 
 **Current location:** `modules/jreng_graphics/fonts/jreng_text_layout.h`. Standalone `jreng_text` module extraction is a future organizational step.
 
-**Dependencies:** `jreng_opengl`, `jreng_core`, `jreng_freetype`, `jreng_harfbuzz`, `juce_graphics`
+**Dependencies:** `jreng_gui` (opengl), `jreng_core`, `jreng_freetype`, `jreng_harfbuzz`, `juce_graphics`
 
 **Migration path:**
 1. Extract shared types (GlyphAtlas, FontCollection, Fonts, shaping) from `Source/terminal/rendering/` into `modules/jreng_text/`
@@ -395,7 +395,7 @@ Input is `juce::AttributedString` — no custom string type. Two `draw()` overlo
 
 **Shared infrastructure with END:**
 - `jreng_text` module — GL text rendering (attributed mode for WHELMED, monospace for END)
-- `jreng_opengl` module — `GLGraphics` for path/shape rendering, `GLComponent` base class
+- `jreng_gui/opengl` — `GLGraphics` for path/shape rendering, `GLComponent` base class
 - Same glyph atlas, same font handles, same GL context
 
 **WHELMED rendering stack:**
@@ -404,7 +404,7 @@ Input is `juce::AttributedString` — no custom string type. Two `draw()` overlo
 |---------|----------|
 | Markdown text (headings, paragraphs, lists, inline code) | `jreng_text` attributed mode (proportional fonts, styled runs) |
 | Code blocks | `jreng_text` monospace mode (same as END terminal) |
-| Mermaid diagrams | Parsed to SVG -> `juce::Path` -> `GLPath` (tessellated via `jreng_opengl`) |
+| Mermaid diagrams | Parsed to SVG -> `juce::Path` -> `GLPath` (tessellated via `jreng_gui/opengl`) |
 | Inline images | Same image rendering as END's Sixel/iTerm2 support |
 
 **Standalone comes for free:** WHELMED as a standalone app is just a `MainComponent` wrapping the WHELMED component. Same code, different entry point.

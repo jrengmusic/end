@@ -27,13 +27,9 @@ namespace Terminal
  * @note MESSAGE THREAD.
  */
 Tabs::Tabs (jreng::Typeface& font_,
-            jreng::Typeface& whelmedBodyFont_,
-            jreng::Typeface& whelmedCodeFont_,
             juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)
     , font (font_)
-    , whelmedBodyFont (whelmedBodyFont_)
-    , whelmedCodeFont (whelmedCodeFont_)
 {
     setOpaque (false);
     setTabBarDepth (0);
@@ -92,7 +88,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
 {
     jassert (cols > 0 and rows > 0);
 
-    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, whelmedBodyFont, whelmedCodeFont)) };
+    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font)) };
     auto& newPanes { *newPanesPtr };
     newPanes.onRepaintNeeded = onRepaintNeeded;
     newPanes.onOpenMarkdown = [this] (const juce::File& file)

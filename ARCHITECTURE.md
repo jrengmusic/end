@@ -163,20 +163,20 @@ Source/
 modules/
   jreng_core/                       Shared utilities (Owner, identifiers, Context, BinaryData)
   jreng_graphics/                   Graphics utilities
-  jreng_opengl/                     OpenGL-accelerated rendering (forked from KANJUT kuassa_opengl)
-    context/
-      jreng_gl_mailbox.h            Lock-free atomic pointer exchange (generic template)
-      jreng_gl_snapshot_buffer.h    Double-buffered snapshot with mailbox (generic template)
-      jreng_gl_graphics.h/cpp       juce::Graphics-like command buffer API for OpenGL
-      jreng_gl_component.h/cpp      Base class for GL-rendered components
-      jreng_gl_renderer.h/cpp       OpenGL renderer (shader management, draw dispatch)
-      jreng_gl_overlay.h            Integration overlay for JUCE components
-    renderers/
-      jreng_gl_path.h/cpp           juce::Path tessellation to GL vertices
-      jreng_gl_vignette.h           Vignette edge effect component
-    shaders/
-      flat_colour.vert/frag         Vertex colour shader with optional alpha mask
-  jreng_gui/                        Layout utilities (PaneManager, PaneResizerBar)
+  jreng_gui/                        Window, layout utilities, and OpenGL rendering (PaneManager, PaneResizerBar, GLRenderer)
+    opengl/
+      context/
+        jreng_gl_mailbox.h          Lock-free atomic pointer exchange (generic template)
+        jreng_gl_snapshot_buffer.h  Double-buffered snapshot with mailbox (generic template)
+        jreng_gl_graphics.h/cpp     juce::Graphics-like command buffer API for OpenGL
+        jreng_gl_component.h/cpp    Base class for GL-rendered components
+        jreng_gl_renderer.h/cpp     OpenGL renderer (shader management, draw dispatch)
+        jreng_gl_overlay.h          Integration overlay for JUCE components
+      renderers/
+        jreng_gl_path.h/cpp         juce::Path tessellation to GL vertices
+        jreng_gl_vignette.h         Vignette edge effect component
+      shaders/
+        flat_colour.vert/frag       Vertex colour shader with optional alpha mask
     layout/
       jreng_pane_manager.h/cpp      Binary tree ValueTree layout engine for split panes
       jreng_pane_resizer_bar.h/cpp  Draggable divider bar between panes
@@ -198,13 +198,13 @@ modules/
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jreng_core | `modules/jreng_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jreng_graphics | `modules/jreng_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jreng_core, FreeType, HarfBuzz |
-| jreng_opengl | `modules/jreng_opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
+| jreng_gui/opengl | `modules/jreng_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
 | Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | Config, jreng::Context |
 | Nexus | `nexus/` | Session container. Owns `unordered_map<String, unique_ptr<Terminal::Session>>`. Mode determined by `attach(Daemon&)` / `attach(Link&)` / no attachment. `jreng::Context<Nexus>` singleton owned by ENDApplication. | Terminal::Session, jreng::Context |
 | Interprocess | `interprocess/` | IPC transport layer. Daemon (TCP server), Link (client), Channel (per-client server-side connection), EncoderDecoder (wire format), Message (PDU kind enum). Daemon owns broadcast + subscriber registries, wires session callbacks. | JUCE IPC, Nexus, Terminal::Session, AppState |
 | Panes | `component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
 | Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, Whelmed::Input | PaneComponent, jreng_markdown |
-| jreng_gui | `modules/jreng_gui/` | Layout utilities: PaneManager binary tree, PaneResizerBar | JUCE core, jreng_core |
+| jreng_gui | `modules/jreng_gui/` | Window, layout utilities, and OpenGL rendering: PaneManager binary tree, PaneResizerBar, GLRenderer, GLComponent | juce_opengl, jreng_core, jreng_graphics |
 
 ---
 
@@ -904,7 +904,7 @@ Pure virtual base (`Source/component/PaneComponent.h`) shared between Terminal::
 ```
 Block (pure virtual)
   TextBlock     — juce::AttributedString + TextLayout; covers headings, paragraphs, list items, inline code
-  MermaidBlock  — SVG-rendered diagram via jreng_opengl path tessellation
+  MermaidBlock  — SVG-rendered diagram via jreng_gui/opengl path tessellation
   TableBlock    — tabular layout
 ```
 

@@ -57,16 +57,6 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
                 config.dpiCorrectedFontSize(),
                 jreng::Glyph::AtlasSize::compact,
                 true)
-    , whelmedBodyFont (fontRegistry,
-                       Whelmed::Config::getContext()->getString (Whelmed::Config::Key::fontFamily),
-                       Whelmed::Config::getContext()->getFloat (Whelmed::Config::Key::fontSize),
-                       jreng::Glyph::AtlasSize::standard,
-                       false)
-    , whelmedCodeFont (fontRegistry,
-                       Whelmed::Config::getContext()->getString (Whelmed::Config::Key::codeFamily),
-                       Whelmed::Config::getContext()->getFloat (Whelmed::Config::Key::codeSize),
-                       jreng::Glyph::AtlasSize::standard,
-                       true)
 {
     setOpaque (appState.getRendererType() == App::RendererType::cpu);
 
@@ -373,8 +363,6 @@ void MainComponent::initialiseTabs()
 {
     tabs = std::make_unique<Terminal::Tabs> (
         typeface,
-        whelmedBodyFont,
-        whelmedCodeFont,
         Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
     addAndMakeVisible (tabs.get());
     tabs->setBounds (getLocalBounds());
