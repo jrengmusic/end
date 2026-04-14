@@ -49,14 +49,17 @@ void ModalWindow::ContentView::resized()
 
 void ModalWindow::ContentView::initialiseGL()
 {
-    if (glContent != nullptr and AppState::getContext()->getRendererType() == App::RendererType::gpu)
+    if (AppState::getContext()->getRendererType() == App::RendererType::gpu)
     {
-        glRenderer.setComponentIterator (
-            [this] (std::function<void (jreng::GLComponent&)> renderComponent)
-            {
-                if (glContent != nullptr and glContent->isVisible())
-                    renderComponent (*glContent);
-            });
+        if (glContent != nullptr)
+        {
+            glRenderer.setComponentIterator (
+                [this] (std::function<void (jreng::GLComponent&)> renderComponent)
+                {
+                    if (glContent->isVisible())
+                        renderComponent (*glContent);
+                });
+        }
         glRenderer.setComponentPaintingEnabled (true);
         glRenderer.setSharedRenderer (sharedSource);
         glRenderer.attachTo (*this);

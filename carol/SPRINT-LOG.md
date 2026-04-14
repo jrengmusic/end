@@ -1,5 +1,81 @@
 # SPRINT-LOG
 
+## Sprint 16: GOBLOK — Window-Owned GL Context Refactor (FAILED, REVERTED)
+
+**Date:** 2026-04-14
+**Duration:** full session
+**Outcome:** Hard reset to HEAD. No code shipped. This entry is the filter for next COUNSELOR.
+
+### Agents Participated
+- COUNSELOR: session lead, PLAN-window-context-ownership.md, repeated micro-fix cycles
+- Pathfinder: HEAD/current survey, GL lifecycle trace (multiple rounds)
+- Librarian: JUCE `OpenGLContext` internals, D2D backend, Windows peer `computeTransparencyKind`, PopupMenu paint path, DWM DComp
+- Oracle: two deep-analysis rounds — both produced plausible hypotheses acted on without runtime verification
+- Researcher: DWM acrylic + GDI alpha docs, Windows Terminal AtlasEngine / DirectComposition patterns
+- Engineer: ~12 delegations — additive Window API, GLRenderer decoupling, downstream migration, multiple reactive micro-fixes
+- Auditor: one full-sprint audit, caught control-flow, jassert idiom, and stale-dep findings
+
+### Files Modified (0 shipped — all reverted)
+- `PLAN-window-context-ownership.md` (root) — deleted by revert
+- `Source/component/ConfirmationDialog.cpp/.h` (new, untracked) — deleted by revert
+- Touched but reverted: `Source/Main.cpp`, `Source/MainComponent.cpp/.h`, `Source/MainComponentActions.cpp`, `Source/action/ActionList.cpp/.h`, `Source/component/LookAndFeel.cpp/.h`, `Source/component/ModalWindow.cpp/.h`, `Source/component/Popup.cpp/.h`, `Source/config/Config.cpp/.h`, `Source/config/default_end.lua`, `Source/interprocess/Link.cpp/.h`, `Source/nexus/Nexus.cpp/.h`, `modules/jreng_graphics/fonts/jreng_typeface_metrics.cpp`, `modules/jreng_graphics/glyph/jreng_atlas_glyph.h`, `modules/jreng_gui/jreng_gui.h`, `modules/jreng_gui/window/jreng_background_blur.cpp`, `modules/jreng_gui/window/jreng_window.cpp/.h`, `modules/jreng_opengl/context/jreng_gl_overlay.h`, `modules/jreng_opengl/context/jreng_gl_renderer.cpp/.h`
+
+### Alignment Check
+- [x] Changes reverted — repo matches HEAD `08c396f`
+- [x] Failure filter captured for next sprint
+- [ ] Objective not achieved
+- [ ] DEBT-20260412T234116 (confirmation dialog on Ctrl+Q) remains UNPAID — reverted with sprint
+
+### Problems Solved
+None.
+
+### Problems Caused
+- Wasted session tokens and ARCHITECT time
+- Six+ reactive micro-fixes on a broken foundation
+- Author's disposable revert script blew away own Sprint 16 entry on first write (uncommitted); had to be rewritten under `/log`
+
+### Debts Paid
+None.
+
+### Debts Deferred
+None. DEBT-20260412T234116 (confirmation dialog) was attempted in scope, reverted, remains open in DEBT.md.
+
+---
+
+### Causal chain (hypothesis — not runtime-verified)
+
+Attempted refactor: move `juce::OpenGLContext` ownership from `jreng::GLRenderer` into `jreng::Window` as `std::optional<juce::OpenGLContext>`. Establish Context-is-per-HWND / Renderer-is-callback contract.
+
+**Root cause of persistent blank-window + focus-loss:** Step 2 deleted HEAD's `GLRenderer` ctor context configuration (`setPixelFormat(stencilBits=8)`, `setOpenGLVersionRequired(openGL3_2)`, `setContinuousRepainting(false)`). Default-emplaced Context in new `Window::setGpuRenderer(true)` lacked them. GLSL 3.2+ shaders failed to compile silently; `flatColourShader` stayed null; `renderOpenGL` skipped its render block; blank. Focus loss likely secondary GL child-HWND mis-init.
+
+Late restoration via `GLRenderer::configureContext(...)` called from `MainComponent::setRenderer` did NOT resolve the symptom when ARCHITECT rebuilt. Additional contributing factors (attach target choice, DWM acrylic coexistence with `WS_EX_LAYERED`, content-vs-window paint pipeline) were hypothesized repeatedly but never definitively isolated. Session ended with revert.
+
+---
+
+### FILTER FOR NEXT COUNSELOR — F1–F10
+
+**F1. READ HEAD BEFORE CHANGING IT.** Before Step 1 of any ownership/lifecycle refactor, `git show HEAD:<file>` on every touched file AND every caller. Diff HEAD vs. current mentally. Enumerate every HEAD config call; guarantee a migration path for each. GL example: HEAD `GLRenderer` ctor does FIVE things (`setPixelFormat`, `setOpenGLVersionRequired`, `setRenderer`, `setComponentPaintingEnabled`, `setContinuousRepainting`). All five must be migrated, not just the obvious one.
+
+**F2. NEVER DELEGATE UNDERSTANDING.** `@Oracle`/`@Librarian` produce hypotheses, not truth. Treat their output as a lead to verify by reading source yourself. Do not approve fixes based on agent diagnosis alone.
+
+**F3. WHEN ARCHITECT SAYS "FROM STEP 1", REVERT TO STEP 1 AND VERIFY.** Not a diagnostic mystery — a direct instruction that the foundation is broken. First response: `git stash` / revert, rebuild, confirm symptom clears or persists. Only proceed if foundation is confirmed clean. Micro-fixing on top of a broken foundation is the canonical wrong move.
+
+**F4. DO NOT ACCEPT "BUILD SUCCEEDED" WITHOUT EVIDENCE.** END uses `build.bat` (MSVC via Windows cmd). Bash-based Engineer sessions cannot invoke it. Engineer claims of "build succeeded" from bash are unverified. Only ARCHITECT's `build.bat` run counts.
+
+**F5. GATE VALIDATION ON COMPILATION, NOT STATIC REVIEW.** Steps that remove public API must gate on ARCHITECT's build before the next step. Auditor static review is necessary but not sufficient. "Build breaks here, fixed in later step" is a signal to BATCH those steps, not proceed on faith.
+
+**F6. BLESSED SIMPLICITY FIRST.** First instincts this sprint (all rejected by ARCHITECT): `Window::setComponentIterator`, `Window::attachRenderer(jreng::GLRenderer&)`-with-jreng-type, `jreng_gui → jreng_opengl` module dependency, `GLOverlay::setHostWindow`, `dynamic_cast`-based modal iterator. Default to the simplest shape satisfying BLESSED. If it feels clever or elegant, it is probably adding coupling. Caller uses JUCE native API on returned observers when possible — wrappers are rarely needed.
+
+**F7. DWM ACRYLIC + GDI CONTENT IS ARCHITECTURALLY INCOMPATIBLE.** `DwmExtendFrameIntoClientArea({-1,-1,-1,-1})` + `ACCENT_ENABLE_ACRYLICBLURBEHIND` makes DWM composite per-pixel alpha. GDI writes RGB without alpha → pixels land `alpha=0` → composited fully transparent → invisible. Only alpha-aware pipelines survive (GL with `setComponentPaintingEnabled(true)`, D2D via DComp composition surface). `juce::PopupMenu` renders on glass because its window has no native title bar → JUCE `computeTransparencyKind` returns `perPixelTransparent` → `UpdateLayeredWindow` preserves alpha. `juce::DocumentWindow` with `setUsingNativeTitleBar(true)` cannot take that path — JUCE asserts it (`juce_Windowing_windows.cpp:2620`).
+
+**F8. `juce::OpenGLContext::getContextAttachedTo(Component&)` DOES NOT WALK PARENT CHAIN.** Returns context directly attached to the queried component; `nullptr` otherwise. Do not use it to discover an ancestor Window's context from a child component.
+
+**F9. JUCE PRE-ATTACH CONSTRAINTS ARE ASSERTED.** `setRenderer`, `setNativeSharedContext`, `setComponentPaintingEnabled`, `setPixelFormat`, `setOpenGLVersionRequired` — all assert `nativeContext == nullptr`. Must be called BEFORE `attachTo`. Any API exposing attach/configure separately must document and `jassert` the ordering; orchestrator must respect it.
+
+**F10. ONE HWND = ONE OpenGLContext.** Double-attach during refactor (e.g. residual `glRenderer.attachTo(*this)` coexisting with new `window.attachRenderer(glRenderer)`) is UB. During Context ownership relocation, exhaustively grep every `attachTo` site AFTER removal and confirm exactly one context attaches per HWND.
+
+---
+
 ## Sprint 15: Action List Window — Glass Modal + Plain Component Refactor
 
 **Date:** 2026-04-13

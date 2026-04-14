@@ -151,7 +151,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                                    const int width { list->getWidth() };
                                    const int height { list->getHeight() };
 
-                                   popup.show (*this, std::move (list), width, height);
+                                   popup.show (*this, std::move (list), width, height, glRenderer);
                                }
 
                                return true;
