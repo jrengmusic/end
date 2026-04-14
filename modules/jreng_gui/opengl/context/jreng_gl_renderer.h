@@ -20,6 +20,35 @@ public:
     void triggerRepaint();
     void setClippingMask (const juce::Image& mask) noexcept;
 
+    /**
+     * @brief Sets the native shared GL context handle on the underlying juce::OpenGLContext.
+     *
+     * JUCE pre-attach invariant: must be called before attachTo.
+     *
+     * @param handle  Raw native GL context handle (HGLRC on Windows, NSOpenGLContext on macOS).
+     * @note MESSAGE THREAD.
+     */
+    void setNativeSharedContext (void* handle) noexcept;
+
+    /**
+     * @brief Returns the underlying juce::OpenGLContext's raw native handle.
+     *
+     * Used by parent Window to expose its HGLRC for shared-context inheritance
+     * by modal/child Windows.
+     *
+     * @return Raw native handle, or nullptr if context is not yet attached.
+     * @note MESSAGE THREAD.
+     */
+    void* getNativeContext() const noexcept;
+
+    /**
+     * @brief Returns whether the underlying juce::OpenGLContext is attached.
+     *
+     * @return true if attached, false otherwise.
+     * @note MESSAGE THREAD.
+     */
+    bool isAttached() const noexcept;
+
 protected:
     /** @brief Initialise subclass GL resources. Called after base GL init, before component notification. @note GL THREAD. */
     virtual void contextReady() {}

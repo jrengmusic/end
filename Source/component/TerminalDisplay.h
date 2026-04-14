@@ -142,6 +142,21 @@ public:
     void visibilityChanged() override;
 
     /**
+     * @brief Grabs keyboard focus when this Display is parented and showing.
+     *
+     * Fires whenever the component's parent hierarchy changes — including when
+     * the Display is first added to a ModalWindow and becomes visible.  Checks
+     * `isShowing()` before grabbing so the call is a no-op for hidden or
+     * not-yet-parented states (e.g. pane construction before the window exists).
+     *
+     * The main Tabs path is unaffected: Tabs calls `grabKeyboardFocus()` on
+     * the pane directly at activation sites and wins the race independently.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void parentHierarchyChanged() override;
+
+    /**
      * @brief Dispatches keyboard shortcuts and forwards remaining keys to Session.
      *
      * The `isScrollNav` guard ensures that Shift+PgUp/Dn/Home/End scroll the

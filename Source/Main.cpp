@@ -340,18 +340,20 @@ public:
             }
 #endif
 
-            mainWindow.reset (new jreng::Window (new MainComponent (fontRegistry),
-                                                      cfg->getString (Config::Key::windowTitle),
-                                                      cfg->getBool (Config::Key::windowAlwaysOnTop),
-                                                      cfg->getBool (Config::Key::windowButtons)));
+            auto* mainComponent { new MainComponent (fontRegistry) };
+            mainWindow.reset (new jreng::Window (mainComponent,
+                                                 cfg->getString (Config::Key::windowTitle),
+                                                 cfg->getBool (Config::Key::windowAlwaysOnTop),
+                                                 cfg->getBool (Config::Key::windowButtons)));
 
             mainWindow->setGlass (cfg->getColour (Config::Key::windowColour)
                                       .withAlpha (cfg->getFloat (Config::Key::windowOpacity)),
                                   cfg->getFloat (Config::Key::windowBlurRadius));
 
-#if JUCE_WINDOWS
-            mainWindow->setGpuRenderer (appState.getRendererType() == App::RendererType::gpu);
-#endif
+            // P: applyConfig fires here — after Window exists — so that
+            // dynamic_cast<jreng::Window*>(getTopLevelComponent()) inside
+            // MainComponent::setRenderer succeeds.
+            mainComponent->applyConfig();
 
             // JUCE InterprocessConnection manages its own reader thread internally.
             // No startThread() call is needed.

@@ -23,7 +23,7 @@ void Popup::show (juce::Component& caller,
                   std::unique_ptr<juce::Component> content,
                   int width,
                   int height,
-                  jreng::GLRenderer& sharedRenderer)
+                  std::unique_ptr<jreng::GLRenderer> renderer)
 {
     dismiss();
 
@@ -38,9 +38,15 @@ void Popup::show (juce::Component& caller,
         };
     }
 
+    void* sharedContext { nullptr };
+
+    if (auto* rootWindow { dynamic_cast<jreng::Window*> (caller.getTopLevelComponent()) })
+        sharedContext = rootWindow->getNativeSharedContext();
+
     window = std::make_unique<Terminal::ModalWindow> (std::move (content),
                                                       caller,
-                                                      sharedRenderer,
+                                                      std::move (renderer),
+                                                      sharedContext,
                                                       [this]
                                                       {
                                                           window.reset();
@@ -49,27 +55,6 @@ void Popup::show (juce::Component& caller,
                                                           if (onDismiss != nullptr)
                                                               onDismiss();
                                                       });
-}
-
-void Popup::show (juce::Component& caller,
-                  std::unique_ptr<juce::Component> content,
-                  int width,
-                  int height)
-{
-    dismiss();
-
-    content->setSize (width, height);
-
-    window = std::make_unique<Terminal::ModalWindow> (
-        std::move (content),
-        caller,
-        [this]
-        {
-            window.reset();
-
-            if (onDismiss != nullptr)
-                onDismiss();
-        });
 }
 
 void Popup::setTerminalSession (std::unique_ptr<Terminal::Session> session)

@@ -8,16 +8,15 @@
  *
  * ### Ownership
  * - Popup owns the ModalWindow via std::unique_ptr.
- * - The ModalWindow owns the ContentView via setContentOwned().
- * - ContentView owns the actual content component via std::unique_ptr.
+ * - The ModalWindow owns the content component via setContentOwned().
  * - Content size is computed from Config fractions in show().
  *
  * ### GL rendering
- * If the content is a jreng::GLComponent (e.g. Terminal::Display), the
- * ContentView creates its own jreng::GLRenderer, attaches it to itself, and
- * wires the component iterator and repaint callback.  This mirrors the pattern
- * used by jreng::Window + MainComponent.  Non-GL content works
- * without any GL setup.
+ * Pass a non-null `std::unique_ptr<jreng::GLRenderer>` to `show()` for GPU
+ * mode. The renderer ownership is transferred to `jreng::Window` (via
+ * `Terminal::ModalWindow`). Pass `nullptr` for CPU mode. In either case the
+ * caller extracts the shared context handle from the root `jreng::Window` and
+ * forwards it so the popup renderer inherits the same GL context.
  *
  * ### Glass blur
  * Terminal::ModalWindow inherits jreng::ModalWindow which inherits
@@ -57,8 +56,8 @@ namespace Terminal
  *
  * @par Usage
  * @code
- * auto content { std::make_unique<Terminal::Display>() };
- * popup.show (*getTopLevelComponent(), std::move (content));
+ * auto renderer { std::make_unique<jreng::GLAtlasRenderer>(...) }; // or nullptr
+ * popup.show (*this, std::move (content), width, height, std::move (renderer));
  * @endcode
  *
  * @par Thread context
@@ -79,16 +78,17 @@ public:
      * creates the dialog window, centres it on @p caller, and enters modal
      * state.
      *
-     * If the content is a jreng::GLComponent, the ContentView sets up its
-     * own GL rendering pipeline (renderer, iterator, repaint callback).
+     * The shared context handle is extracted from @p caller's top-level
+     * `jreng::Window` and forwarded to the `Terminal::ModalWindow`. Pass a
+     * non-null @p renderer for GPU mode; pass `nullptr` for CPU mode.
      *
-     * Ownership of @p content transfers to the ContentView inside the dialog.
+     * Ownership of @p content and @p renderer transfers to the dialog.
      *
-     * @param caller          The component to centre the dialog around.
-     * @param content         The component to host; ownership is transferred.
-     * @param width           Popup width in logical pixels.
-     * @param height          Popup height in logical pixels.
-     * @param sharedRenderer  Main window's GL renderer; popup shares its GL context.
+     * @param caller    The component to centre the dialog around.
+     * @param content   The component to host; ownership is transferred.
+     * @param width     Popup width in logical pixels.
+     * @param height    Popup height in logical pixels.
+     * @param renderer  GL renderer; ownership transferred. nullptr = CPU mode.
      * @note MESSAGE THREAD.
      * @see dismiss
      */
@@ -96,21 +96,7 @@ public:
                std::unique_ptr<juce::Component> content,
                int width,
                int height,
-               jreng::GLRenderer& sharedRenderer);
-
-    /**
-     * @brief Shows a modal glass dialog without GL rendering.
-     *
-     * @param caller   The component to centre the dialog around.
-     * @param content  The component to host; ownership is transferred.
-     * @param width    Popup width in logical pixels.
-     * @param height   Popup height in logical pixels.
-     * @note MESSAGE THREAD.
-     */
-    void show (juce::Component& caller,
-               std::unique_ptr<juce::Component> content,
-               int width,
-               int height);
+               std::unique_ptr<jreng::GLRenderer> renderer);
 
     /**
      * @brief Dismisses the dialog if active.

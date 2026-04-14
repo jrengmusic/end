@@ -52,6 +52,22 @@ void GLRenderer::triggerRepaint()
     openGLContext.triggerRepaint();
 }
 
+void GLRenderer::setNativeSharedContext (void* handle) noexcept
+{
+    jassert (not openGLContext.isAttached());
+    openGLContext.setNativeSharedContext (handle);
+}
+
+void* GLRenderer::getNativeContext() const noexcept
+{
+    return openGLContext.getRawContext();
+}
+
+bool GLRenderer::isAttached() const noexcept
+{
+    return openGLContext.isAttached();
+}
+
 void GLRenderer::setClippingMask (const juce::Image& mask) noexcept
 {
     // UI THREAD

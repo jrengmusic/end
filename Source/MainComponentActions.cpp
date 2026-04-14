@@ -151,7 +151,11 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                                    const int width { list->getWidth() };
                                    const int height { list->getHeight() };
 
-                                   popup.show (*this, std::move (list), width, height, glRenderer);
+                                   auto renderer { (appState.getRendererType() == App::RendererType::gpu)
+                                       ? std::unique_ptr<jreng::GLRenderer> { std::make_unique<jreng::GLRenderer>() }
+                                       : nullptr };
+
+                                   popup.show (*this, std::move (list), width, height, std::move (renderer));
                                }
 
                                return true;
@@ -432,7 +436,12 @@ void MainComponent::registerPopupActions (Action::Registry& action)
 
                     auto terminal { termSession->getProcessor().createDisplay (typeface) };
 
-                    popup.show (*getTopLevelComponent(), std::move (terminal), pixelWidth, pixelHeight, glRenderer);
+                    auto renderer { (appState.getRendererType() == App::RendererType::gpu)
+                        ? std::unique_ptr<jreng::GLRenderer> { std::make_unique<jreng::GLAtlasRenderer> (
+                              std::initializer_list<jreng::Typeface*> { &typeface }) }
+                        : nullptr };
+
+                    popup.show (*getTopLevelComponent(), std::move (terminal), pixelWidth, pixelHeight, std::move (renderer));
                     popup.setTerminalSession (std::move (termSession));
                 }
 

@@ -496,6 +496,22 @@ void Terminal::Display::visibilityChanged()
     }
 }
 
+// MESSAGE THREAD
+void Terminal::Display::parentHierarchyChanged()
+{
+    if (isShowing())
+    {
+        auto safeThis { juce::Component::SafePointer<Display> (this) };
+
+        juce::MessageManager::callAsync (
+            [safeThis]
+            {
+                if (safeThis != nullptr)
+                    safeThis->grabKeyboardFocus();
+            });
+    }
+}
+
 /**
  * @brief Notifies the shell of focus gain and triggers a repaint.
  *

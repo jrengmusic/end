@@ -143,7 +143,7 @@ void Config::initKeys()
     addKey (Key::windowButtons, "false", { T::string });
     addKey (Key::windowForceDwm, "true", { T::string });
     addKey (Key::gpuAcceleration, "auto", { T::string });
-    addKey (Key::daemon, "true", { T::string });
+    addKey (Key::daemon, "false", { T::string });
 
     addKey (Key::tabFamily, "Display Mono", { T::string });
     addKey (Key::tabSize, 12.0, { T::number, 1.0, 200.0, true });
@@ -248,8 +248,8 @@ void Config::initKeys()
 
     // ---- Action list (command palette) --------------------------------------
     addKey (Key::keysActionListCloseOnRun, "true", { T::string });
-    addKey (Key::actionListWidth, 0.6, { T::number, 0.1, 1.0, true });
-    addKey (Key::actionListHeight, 0.6, { T::number, 0.1, 1.0, true });
+    addKey (Key::actionListWidth, 0.3, { T::number, 0.1, 1.0, true });
+    addKey (Key::actionListHeight, 0.3, { T::number, 0.1, 1.0, true });
     addKey (Key::actionListNameFamily, "Display", { T::string });
     addKey (Key::actionListNameSize, 13.0, { T::number, 6.0, 72.0, true });
     addKey (Key::actionListShortcutFamily, "Display Mono Bold", { T::string });

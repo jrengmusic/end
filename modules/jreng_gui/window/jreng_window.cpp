@@ -83,9 +83,50 @@ void Window::closeButtonPressed() { juce::JUCEApplication::getInstance()->system
 // Renderer type
 // =============================================================================
 
-void Window::setGpuRenderer (bool isGpu) noexcept
+// =============================================================================
+// GL renderer ownership
+// =============================================================================
+
+void Window::setRenderer (std::unique_ptr<jreng::GLRenderer> renderer)
 {
-    gpuRenderer = isGpu;
+    glRenderer = std::move (renderer);
+
+    if (glRenderer != nullptr and getPeer() != nullptr)
+        attachRendererToContent();
+}
+
+void Window::setNativeSharedContext (void* sharedContext) noexcept
+{
+    jassert (glRenderer == nullptr or not glRenderer->isAttached());
+    nativeSharedContext = sharedContext;
+}
+
+void* Window::getNativeSharedContext() const noexcept
+{
+    if (glRenderer != nullptr)
+        return glRenderer->getNativeContext();
+
+    return nullptr;
+}
+
+void Window::triggerRepaint()
+{
+    if (glRenderer != nullptr)
+        glRenderer->triggerRepaint();
+}
+
+void Window::attachRendererToContent()
+{
+    jassert (glRenderer != nullptr);
+    jassert (getPeer() != nullptr);
+
+    if (nativeSharedContext != nullptr)
+        glRenderer->setNativeSharedContext (nativeSharedContext);
+
+    glRenderer->setComponentPaintingEnabled (true);
+
+    if (auto* content { getContentComponent() })
+        glRenderer->attachTo (*content);
 }
 
 // =============================================================================
@@ -139,8 +180,9 @@ void Window::visibilityChanged()
             DwmSetWindowAttribute (hwnd, dwmWindowCornerPreferenceId, &cornerPreference, sizeof (cornerPreference));
         }
 
-        if (gpuRenderer)
+        if (glRenderer != nullptr)
         {
+            attachRendererToContent();
             setGlass (tintColour, blurRadius);
         }
         else

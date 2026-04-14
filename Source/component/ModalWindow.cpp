@@ -8,63 +8,10 @@
  */
 
 #include "ModalWindow.h"
-#include "../AppState.h"
-#include "../Gpu.h"
 #include "TerminalDisplay.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
-
-//==============================================================================
-// ContentView
-//==============================================================================
-
-ModalWindow::ContentView::ContentView (std::unique_ptr<juce::Component> content, jreng::GLRenderer& sharedRenderer)
-    : ownedContent (std::move (content))
-    , sharedSource (sharedRenderer)
-{
-    setOpaque (false);
-    glContent = dynamic_cast<jreng::GLComponent*> (ownedContent.get());
-
-    if (auto* terminal { dynamic_cast<Terminal::Display*> (ownedContent.get()) })
-    {
-        terminal->onRepaintNeeded = [this, terminal]
-        {
-            terminal->repaint();
-            glRenderer.triggerRepaint();
-        };
-    }
-
-    setSize (ownedContent->getWidth(), ownedContent->getHeight());
-    addAndMakeVisible (ownedContent.get());
-}
-
-ModalWindow::ContentView::~ContentView() { glRenderer.detach(); }
-
-void ModalWindow::ContentView::resized()
-{
-    jassert (ownedContent != nullptr);
-    ownedContent->setBounds (getLocalBounds());
-}
-
-void ModalWindow::ContentView::initialiseGL()
-{
-    if (AppState::getContext()->getRendererType() == App::RendererType::gpu)
-    {
-        if (glContent != nullptr)
-        {
-            glRenderer.setComponentIterator (
-                [this] (std::function<void (jreng::GLComponent&)> renderComponent)
-                {
-                    if (glContent->isVisible())
-                        renderComponent (*glContent);
-                });
-        }
-        glRenderer.setComponentPaintingEnabled (true);
-        glRenderer.setSharedRenderer (sharedSource);
-        glRenderer.attachTo (*this);
-    }
-}
 
 //==============================================================================
 // ModalWindow
@@ -85,65 +32,55 @@ void ModalWindow::setupWindow (juce::Component& centreAround)
 
 ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
                           juce::Component& centreAround,
-                          jreng::GLRenderer& sharedRenderer,
-                          std::function<void()> dismissCallback)
-    : jreng::ModalWindow (
-          [&content, &sharedRenderer]
-          {
-              const int w { content->getWidth() };
-              const int h { content->getHeight() };
-              auto view { new ContentView (std::move (content), sharedRenderer) };
-              view->setSize (w, h);
-              return view;
-          }(),
-          {},
-          true,
-          false)
-{
-    onModalDismissed = std::move (dismissCallback);
-
-    setupWindow (centreAround);
-
-    setVisible (true);
-
-    if (auto* viewPtr { dynamic_cast<ContentView*> (getContentComponent()) })
-        viewPtr->initialiseGL();
-
-    enterModalState (true);
-
-    juce::MessageManager::callAsync (
-        [this]
-        {
-            if (auto* content { getContentComponent() })
-            {
-                if (auto* focusTarget { content->getChildComponent (0) })
-                    focusTarget->grabKeyboardFocus();
-            }
-        });
-}
-
-ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
-                          juce::Component& centreAround,
+                          std::unique_ptr<jreng::GLRenderer> renderer,
+                          void* nativeSharedContext,
                           std::function<void()> dismissCallback)
     : jreng::ModalWindow (
           [&content]
           {
               const int w { content->getWidth() };
               const int h { content->getHeight() };
-              auto* view { content.release() };
-              view->setSize (w, h);
-              return view;
+              auto* raw { content.release() };
+              raw->setSize (w, h);
+              return raw;
           }(),
           {},
           true,
           false)
 {
     onModalDismissed = std::move (dismissCallback);
-    setGpuRenderer (false);
+
+    if (renderer != nullptr)
+    {
+        if (auto* glContent { dynamic_cast<jreng::GLComponent*> (getContentComponent()) })
+        {
+            renderer->setComponentIterator (
+                [glContent] (std::function<void (jreng::GLComponent&)> renderComponent)
+                {
+                    if (glContent->isVisible())
+                        renderComponent (*glContent);
+                });
+        }
+    }
+
+    if (nativeSharedContext != nullptr)
+        setNativeSharedContext (nativeSharedContext);
+
+    setRenderer (std::move (renderer));
+
     setupWindow (centreAround);
-    setOpaque (true);
-    setBackgroundColour (config.getColour (Config::Key::windowColour));
+
     setVisible (true);
+
+    if (auto* terminal { dynamic_cast<Terminal::Display*> (getContentComponent()) })
+    {
+        terminal->onRepaintNeeded = [this, terminal]
+        {
+            terminal->repaint();
+            triggerRepaint();
+        };
+    }
+
     enterModalState (true);
 }
 
@@ -160,4 +97,3 @@ bool ModalWindow::keyPressed (const juce::KeyPress&) { return false; }
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal
-

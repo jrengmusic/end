@@ -154,9 +154,6 @@ private:
     /** @brief Global typeface instance; provides font metrics and shaping for all terminals. */
     jreng::Typeface typeface;
 
-    /** @brief Shared OpenGL atlas renderer; attached to this component, renders all GL children. */
-    jreng::GLAtlasRenderer glRenderer { &typeface };
-
     /** @brief Tabbed terminal container; owns all Terminal::Display instances. */
     std::unique_ptr<Terminal::Tabs> tabs;
 
@@ -191,10 +188,9 @@ private:
 #endif
 
     /**
-     * @brief Creates Terminal::Tabs, attaches GL renderer, wires repaint callback, restores tabs.
+     * @brief Creates Terminal::Tabs, wires repaint callback, restores tabs.
      * @note MESSAGE THREAD.
      * @see Terminal::Tabs
-     * @see glRenderer
      * @see AppState
      */
     void initialiseTabs();

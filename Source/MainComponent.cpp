@@ -37,17 +37,18 @@
  * - `config`, `appState` — cached context references
  * - `action` — global action registry (constructed after Config)
  * - `terminalLookAndFeel` — application-wide LookAndFeel
- * - `glRenderer` — OpenGL renderer
  * - `fonts` — global font context (from config)
  *
  * Constructor body:
  * 1. `setOpaque(false)` — tells JUCE the component has transparency.
- * 2. `initialiseTabs()` — creates Tabs, attaches GL renderer, adds first tab.
- * 3. `initialiseMessageOverlay()` — creates overlay, shows startup errors.
- * 4. `registerActions()` — wires all action callbacks into `action`, sets
- *    BackgroundBlur close callback.
- * 5. `setSize()` — reads window dimensions from AppState.
- * 6. `setDefaultLookAndFeel()` — applies terminalLookAndFeel to all children.
+ * 2. `initialiseOverlays()` — creates overlays, shows startup errors.
+ * 3. `setSize()` — reads window dimensions from AppState.
+ * 4. `setDefaultLookAndFeel()` — applies terminalLookAndFeel to all children.
+ *
+ * Note: `applyConfig()` is NOT called from the ctor. It is called from
+ * Main.cpp after `jreng::Window` is constructed, so that
+ * `dynamic_cast<jreng::Window*>(getTopLevelComponent())` inside
+ * `setRenderer` succeeds (decision P).
  *
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
@@ -80,8 +81,6 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
     setLookAndFeel (&terminalLookAndFeel);
     juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
-    //==============================================================================
-    applyConfig();
 }
 
 void MainComponent::applyConfig()
@@ -107,20 +106,38 @@ void MainComponent::setRenderer (App::RendererType rendererType)
     const auto atlasSize { isUsingGpu ? jreng::Glyph::AtlasSize::standard : jreng::Glyph::AtlasSize::compact };
     typeface.setAtlasSize (atlasSize);
 
-    glRenderer.detach();
-    glRenderer.setComponentPaintingEnabled (true);
-
-    if (isUsingGpu)
+    if (auto* window { dynamic_cast<jreng::Window*> (getTopLevelComponent()) })
     {
-        glRenderer.attachTo (*this);
+        if (isUsingGpu)
+        {
+            auto renderer { std::make_unique<jreng::GLAtlasRenderer> (
+                std::initializer_list<jreng::Typeface*> { &typeface }) };
+
+            renderer->setComponentIterator (
+                [this] (std::function<void (jreng::GLComponent&)> renderComponent)
+                {
+                    if (tabs != nullptr)
+                    {
+                        for (auto& pane : tabs->getPanes())
+                        {
+                            if (pane->isVisible())
+                                renderComponent (*pane);
+                        }
+                    }
+                });
+
+            window->setRenderer (std::move (renderer));
+        }
+        else
+        {
+            window->setRenderer (nullptr);
+        }
     }
 
     setOpaque (not isUsingGpu);
 
     if (tabs != nullptr)
-    {
         tabs->switchRenderer (rendererType);
-    }
 }
 
 void MainComponent::paint (juce::Graphics& g)
@@ -169,7 +186,6 @@ MainComponent::~MainComponent()
     setLookAndFeel (nullptr);
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
     jreng::BackgroundBlur::setCloseCallback (nullptr);
-    glRenderer.detach();
 }
 
 /**
@@ -348,7 +364,7 @@ void MainComponent::showMessageOverlay()
 }
 
 /**
- * @brief Creates Terminal::Tabs, attaches GL renderer, wires repaint callback, restores tabs.
+ * @brief Creates Terminal::Tabs, wires repaint callback, restores tabs.
  *
  * Reads the saved tab count from AppState. If tabs were saved, clears the
  * TABS subtree and recreates that many tabs (addNewTab rebuilds the tree).
@@ -356,7 +372,6 @@ void MainComponent::showMessageOverlay()
  *
  * @note MESSAGE THREAD.
  * @see Terminal::Tabs
- * @see glRenderer
  * @see AppState
  */
 void MainComponent::initialiseTabs()
@@ -367,18 +382,6 @@ void MainComponent::initialiseTabs()
     addAndMakeVisible (tabs.get());
     tabs->setBounds (getLocalBounds());
 
-    glRenderer.setComponentIterator (
-        [this] (std::function<void (jreng::GLComponent&)> renderComponent)
-        {
-            for (auto& pane : tabs->getPanes())
-            {
-                if (pane->isVisible())
-                {
-                    renderComponent (*pane);
-                }
-            }
-        });
-
     tabs->onRepaintNeeded = [this]
     {
         if (auto* terminal { tabs->getActiveTerminal() }; terminal != nullptr)
@@ -387,7 +390,8 @@ void MainComponent::initialiseTabs()
             terminal->repaint();
         }
 
-        glRenderer.triggerRepaint();
+        if (auto* window { dynamic_cast<jreng::Window*> (getTopLevelComponent()) })
+            window->triggerRepaint();
     };
 
     // Restore tabs and split layout from end.state.

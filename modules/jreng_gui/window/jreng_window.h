@@ -29,6 +29,9 @@
 
 namespace jreng
 {
+// Forward declaration — full type needed only at destruction site (jreng_window.cpp).
+class GLRenderer;
+
 /*____________________________________________________________________________*/
 
 /**
@@ -94,16 +97,47 @@ public:
 #endif
 
     /**
-     * @brief Tells the window whether the GPU renderer is active.
+     * @brief Transfers ownership of a GL renderer into this Window.
      *
-     * Must be called by the application layer before setVisible(true).
-     * On Windows, visibilityChanged() reads this flag to select the glass
-     * strategy: GPU path uses BackgroundBlur (DWM acrylic); CPU path uses
-     * child-HWND compositing (Step 4).
+     * Pass non-null to enable GPU mode; pass nullptr to switch to CPU mode.
+     * If Window already has a peer (visible), the attach sequence fires immediately.
+     * Otherwise, attach is deferred until first visibility (after S3 trigger swap).
      *
-     * @param isGpu  True when the OpenGL renderer is active.
+     * @param renderer  Renderer to take ownership of, or nullptr for CPU mode.
+     * @note MESSAGE THREAD.
      */
-    void setGpuRenderer (bool isGpu) noexcept;
+    void setRenderer (std::unique_ptr<jreng::GLRenderer> renderer);
+
+    /**
+     * @brief Sets the native shared GL context handle.
+     *
+     * Used by modal/child Windows to share the root Window's HGLRC for resource
+     * sharing (display lists, textures, FBOs). Must be called BEFORE setRenderer
+     * if the renderer should inherit the shared context (JUCE pre-attach invariant).
+     *
+     * @param sharedContext  Raw native context handle (HGLRC on Windows), or nullptr.
+     * @note MESSAGE THREAD.
+     */
+    void setNativeSharedContext (void* sharedContext) noexcept;
+
+    /**
+     * @brief Returns this Window's native GL context handle.
+     *
+     * Modal Windows query this on the root Window to obtain the shared context.
+     *
+     * @return Native handle if a renderer is attached; nullptr otherwise.
+     * @note MESSAGE THREAD.
+     */
+    void* getNativeSharedContext() const noexcept;
+
+    /**
+     * @brief Triggers a repaint on the GL renderer if present.
+     *
+     * No-op in CPU mode.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void triggerRepaint();
 
     /** @brief Returns true while the user is actively resizing the window. */
     bool isUserResizing() const noexcept { return userResizing; }
@@ -139,16 +173,34 @@ private:
     /** @brief One-shot guard — prevents re-triggering async blur. */
     bool isBlurApplied { false };
 
-    /** @brief True when the OpenGL renderer is active — governs Windows glass strategy. */
-    bool gpuRenderer { true };
-
     /** @brief True while the user is actively dragging a resize handle. */
     bool userResizing { false };
+
+    /** @brief Owned GL renderer for this Window. Null = CPU mode (after S3 trigger swap). */
+    std::unique_ptr<jreng::GLRenderer> glRenderer;
+
+    /** @brief Native shared HGLRC for inheriting GL context from a root Window. nullptr = root. */
+    void* nativeSharedContext { nullptr };
 
 #if JUCE_WINDOWS
     /** @brief Handles middle-click window dragging. */
     juce::ComponentDragger windowDragger;
 #endif
+
+    /**
+     * @brief Wires the GL renderer to the content component.
+     *
+     * Order strictly per JUCE pre-attach invariants (F9):
+     *   1. setNativeSharedContext (if shared context stored)
+     *   2. setComponentPaintingEnabled(true)
+     *   3. attachTo(content)
+     *
+     * Called from visibilityChanged (after S3 trigger swap) and from setRenderer
+     * when invoked post-setVisible.
+     *
+     * @note MESSAGE THREAD. Precondition: glRenderer != nullptr and Window has peer.
+     */
+    void attachRendererToContent();
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Window)
