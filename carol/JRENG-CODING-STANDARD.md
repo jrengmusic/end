@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/JRENG-CODING-STANDARD.md
+/Users/jreng/.carol/JRENG-CODING-STANDARD.md

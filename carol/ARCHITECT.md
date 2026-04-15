@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/ARCHITECT.md
+/Users/jreng/.carol/ARCHITECT.md

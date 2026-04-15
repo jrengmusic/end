@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/commands/surgeon.md
+/Users/jreng/.carol/commands/surgeon.md

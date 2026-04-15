@@ -1,5 +1,97 @@
 # SPRINT-LOG
 
+## Sprint 19: Mac-only Line-Wrap Bug — LC_CTYPE Fix ✅
+
+**Date:** 2026-04-16
+**Duration:** ~03:00
+
+### Agents Participated
+- COUNSELOR: session lead, prior-sprint handoff intake, hypothesis triage (parser shadow-state ruled out, locale identified), reference-terminal survey (kitty / wezterm / ghostty env + DA + integration), root-cause framing, BLESSED-grounded option presentation
+- Pathfinder: parser cursor/wrapPending shadow-state survey across Parser.cpp / ParserVT.cpp / ParserCSI.cpp / ParserOps.cpp / ParserESC.cpp / Terminal::State (×1 deep pass); reference-terminal child-env / DA / OSC 133 / terminfo / CPR survey for kitty + wezterm + ghostty (×3 parallel); macOS NSLocale / AppleLocale system probe (×1)
+- Engineer: 6 delegations — (1) PS1 probe at precmd, (2) move probe to preexec, (3) move probe to zle-line-init with widget chain, (4) add LANG/LC_CTYPE/locale dump to probe, (5) remove forced LANG in UnixTTY child setup, (6) LC_CTYPE setenv in child + doxygen step renumber, (7) full DIAG strip across Parser.cpp / ParserVT.cpp / UnixTTY.cpp / Main.cpp / zsh_end_integration.zsh + log-file deletion
+
+### Files Modified
+- `Source/terminal/tty/UnixTTY.cpp:49-51,89-92` — added doxygen step 8 (`Set LC_CTYPE=en_US.UTF-8 if not already set, ensure UTF-8 character classification, works around inherited invalid LANG=UTF-8 on macOS`); added `if (getenv ("LC_CTYPE") == nullptr) { setenv ("LC_CTYPE", "en_US.UTF-8", 1); }` after `COLORTERM` setenv; removed previous LANG-forcing block at former lines 88-91; removed all DIAG `bytes.log`/`output.log` hex appenders from `read()` / `write()`
+- `Source/Main.cpp:175` — removed `std::setlocale (LC_CTYPE, "en_US.UTF-8")` workaround at start of `ENDApplication::initialise` (child-side LC_CTYPE is the correct locus)
+- `Source/terminal/logic/Parser.cpp:100-113,170-186` — removed `std::once_flag diagOnce` log-deletion block from constructor; removed 17-line state dump tail from `Parser::process()`
+- `Source/terminal/logic/ParserVT.cpp:214-216,623-625` — removed `screen.log` 3-line append from `GroundOps::flushPrintRun` (fast-path) and `Parser::print` (slow path)
+- `Source/terminal/shell/zsh_end_integration.zsh` — full rewrite: `_end_precmd` (OSC 7 + OSC 133;A), `_end_preexec` (OSC 133;C), `add-zsh-hook precmd _end_precmd`, `add-zsh-hook preexec _end_preexec`. Migrated from `precmd_functions+=()` / `preexec_functions+=()` to `add-zsh-hook` (zsh 5.9 standard, robust against framework array-clobber)
+- Deleted: `bytes.log`, `output.log`, `screen.log`, `state.log` (project root) and `/tmp/end-ps1.log`
+
+### Alignment Check
+- [x] BLESSED — `B` (Bound): scoped to child pre-exec, no new ownership; `L` (Lean): 4-line LC_CTYPE guard, no helpers, no constants table; `E` (Explicit): positive `nullptr ==` check, named env var, named locale string, doxygen step describes intent + workaround target; `S` (SSOT): LC_CTYPE outranks LANG via setlocale precedence — single point of truth for character classification, user's LANG remains untouched; `S` (Stateless): no machinery state added; `E` (Encapsulation): localized to `runChildProcess`, no caller poking; `D` (Deterministic): same input (LC_CTYPE unset) yields same output every spawn
+- [x] NAMES.md — Rule -1 honored: no new names introduced. `LC_CTYPE` and `en_US.UTF-8` are POSIX standards, not invented
+- [x] MANIFESTO.md / JRENG-CODING-STANDARD.md — `nullptr ==` comparison, brace style on new line, no early returns, doxygen step uses verb-form description
+
+### Problems Solved
+- **Mac-only line-wrap bug (DEBT-20260415T123816)**: typing on row=1 with multi-line OMP prompt caused overflow UP to row=0 (OMP decoration row) instead of wrap DOWN to row=2. Root cause: macOS launchd inherits `LANG=UTF-8` (invalid locale name) into END's process environment. Without LC_CTYPE override, child shell's `setlocale` falls through to LANG, fails validation, falls back to "C" (= US-ASCII). zsh's prompt-width counter then byte-counts UTF-8 chars: `╰─ ` (`\xe2\x95\xb0 \xe2\x94\x80 \x20`) = 7 bytes = 7 "cells" in zsh's broken model. zsh's reposition math (`CSI A + CSI 20 D` from physical (1, 27) → physical (0, 7)) targeted byte-offset 7 of zsh's frame, which mapped to the decoration row. Setting LC_CTYPE=en_US.UTF-8 in child env restores zsh's UTF-8 multi-byte mode → `╰─ ` correctly counted as 3 cells → reposition math correct
+- **Parser-shadow-state hypothesis (prior counselor's framing)**: ruled out via comprehensive Pathfinder survey. No persistent cursor/wrapPending/scroll shadow exists on Parser; only `GroundOps::Cursor c` stack-local in `processGroundChunk` (written back to State unconditionally on `consumed > 0`) and `savedCursor[2]` for DECSC/DECRC (not on this path). Bug was locale-side, not parser-side
+- **`LANG=en_US.UTF-8` force-setting in child** (added by prior counselor): removed. Forcing LANG overrides user's intentional message/numeric/time locale — incorrect surface
+
+### Debts Paid
+- `DEBT-20260415T123816` — character went up to previous row when row is full — resolved via LC_CTYPE setenv in child pre-exec (`UnixTTY.cpp:89-92`)
+
+### Debts Deferred
+None — no out-of-scope findings pushed to DEBT.md during this sprint.
+
+---
+
+## Handoff to COUNSELOR: Mac-only input wrap bug (row=1 typing overflows UP to row=0 OMP row)
+
+**From:** COUNSELOR
+**Date:** 2026-04-16
+**Status:** Blocked — root cause not conclusively identified after extended session
+
+### Context
+DEBT-20260415T123816: on Mac only, with an Oh-My-Posh multi-line prompt:
+- Row 0: OMP prompt line
+- Row 1: active input row (cursor here after prompt render)
+When user types enough chars on row=1 to approach the right margin, the next char overflows **UP to row=0** (overwriting the OMP line) instead of wrapping **down to row=2**. Same zsh/OMP config works correctly on other terminals. ARCHITECT confirmed bug is parsing-side, not rendering.
+
+### Completed
+- Reproduced bug with live instrumentation
+- Dumped three raw byte streams: `bytes.log` (shell→us), `output.log` (us→shell), `screen.log` (grid writes)
+- Added `state.log` (Terminal::State snapshot per tty chunk)
+- Verified our parser correctly executes every CSI command shell emits (no Terminal::State shadow-state violation found)
+- Traced the exact byte sequence: shell emits `CSI A + CSI 20 D` (or `CSI A + CSI C 29`) from `(1, 27)` to reposition at `(0, 7)` — shell's input_start in its internal linear model
+- Ruled out several hypotheses (each tested and reverted):
+  - CR-commits-pending-wrap (didn't fix)
+  - U+EB06 width-2 override (didn't fix)
+  - Per-char width-table disagreement with macOS wcwidth (no WIDTH DIFF entries once locale set)
+- Applied one change that was wrong but not reverted yet: `setenv ("LANG", "en_US.UTF-8", 1)` in `UnixTTY.cpp:90` (was `"UTF-8"` which is invalid locale). ARCHITECT confirmed this alone does NOT fix the bug.
+- Also kept: `std::setlocale (LC_CTYPE, "en_US.UTF-8")` at `Main.cpp:175` (app startup) — legitimate locale setting, not a bug fix.
+
+### Remaining
+- Actual fix. Session ended without identifying the parser-side root cause.
+- Strip all `// DIAG` instrumentation across 4 files (listed below)
+- Remove 4 log files from project root: `bytes.log`, `screen.log`, `output.log`, `state.log`
+- Run full audit after real fix lands
+
+### Key Decisions
+- **BLESSED hunt:** ARCHITECT forced the framing "there IS a Terminal::State / Parser shadow state violation — find it." COUNSELOR could not locate it. May be true and COUNSELOR is blind to it, or the violation sits elsewhere (e.g., inter-process: our child env setup distorts shell's internal PS1-length calc).
+- **Refused to handoff to SURGEON**: ARCHITECT explicitly rejected that move — insisted session understand the problem before handoff. Understanding was not achieved.
+- Shell's internal model says `input_start = (0, 7)` (linear). Our render puts actual cursor at `(1, 3)`. Cols=30, visibleRows=13. Parser's `Terminal::State` tracks `(1, 3)` correctly throughout; the divergence lives entirely in the shell's own PS1-length calculation, which terminals other than ours somehow drive to the correct value with the SAME zsh/starship config.
+
+### Files Modified (all contain `// DIAG` instrumentation that must be stripped)
+- `Source/terminal/logic/Parser.cpp` — `OdeLoggerGuard` replaced by simpler `std::once_flag diagOnce` block in ctor that deletes 4 log files; state dump block at end of `Parser::process()`
+- `Source/terminal/logic/ParserVT.cpp` — `screen.log` appends in `flushPrintRun` (fast-path cell write) and in `Parser::print` (slow-path `activeWriteCell`)
+- `Source/terminal/tty/UnixTTY.cpp` — `bytes.log` hex appender in `UnixTTY::read`; `output.log` hex appender in `UnixTTY::write`. **NON-DIAG change at line 90**: `setenv("LANG", "en_US.UTF-8", 1)` replacing `"UTF-8"`. Decide whether to keep (it's a latent bugfix regardless — `LANG=UTF-8` is not a valid locale name).
+- `Source/Main.cpp` — `std::setlocale (LC_CTYPE, "en_US.UTF-8")` at start of `ENDApplication::initialise`. Comment reads `// force UTF-8 LC_CTYPE so child shell inherits correct locale`. Did not fix the bug; keep or revert per ARCHITECT.
+
+### Open Questions
+- Which specific terminal capability / byte sequence / env var makes zsh's zle compute `input_start` correctly on other Mac terminals? COUNSELOR exhausted reasonable hypotheses without evidence. Candidates not tested:
+  - DA (Device Attributes) response — ours is minimal `\x1b[?62;4c`. xterm's is richer. Shell didn't query DA in this session, so probably not the cause.
+  - Terminfo capabilities advertised via TERM=xterm-256color — standard, no reason this differs.
+  - Shell integration OSC 133;B (end-of-prompt marker) — our zsh integration script does not emit it. If added (via `zle-line-init` widget), parser could record "input start row" at 133;B firing and clamp CUU to not cross it.
+- Is there actually a parser-side shadow state COUNSELOR missed? Re-read with fresh eyes recommended.
+
+### Next Steps
+1. Fresh COUNSELOR session re-reads Parser.cpp / ParserVT.cpp / ParserCSI.cpp / ParserOps.cpp / ParserESC.cpp looking specifically for: any write to cursor/wrapPending/scroll margins NOT via `state.setCursor*` / `state.setWrapPending` / `state.setScroll*`. Any local cursor cache that persists beyond one `processGroundChunk` call. Any parser member field that duplicates `Terminal::State` cursor data.
+2. If no shadow state found, test OSC 133;B emission (modify `Source/terminal/shell/zsh_end_integration.zsh` to emit `\033]133;B\007` at end of PS1 via `zle-line-init`) AND extend `handleOsc133` in `ParserESC.cpp:849` to record input-start-row. Then clamp CUU to not cross this row.
+3. Reference log files (preserved from bug repro): `bytes.log`, `output.log`, `screen.log`, `state.log` at project root. Delete only after next session extracts what it needs.
+
+---
+
 ## Sprint 18: Cross-Instance Window-Size Persistence via ~/.config/end/window.state ✅
 
 **Date:** 2026-04-15

@@ -17,27 +17,27 @@ struct BackgroundBlur
     };
 
 #if JUCE_MAC
-    static bool isCoreGraphicsAvailable();
-    static bool
+    static const bool isCoreGraphicsAvailable();
+    static const bool
     enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type = Type::coreGraphics);
-    static bool enableWindowTransparency();
+    static const bool enableWindowTransparency();
     static void configureWindowChrome (juce::Component* component, bool shouldShowWindowButtons);
     static void disable (juce::Component* component);
 #elif JUCE_WINDOWS
-    static bool isDwmAvailable();
-    static bool
+    static const bool isDwmAvailable();
+    static const bool
     enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type = Type::dwmGlass);
-    static bool enableWindowTransparency();
+    static const bool enableWindowTransparency();
     static void disable (juce::Component* component);
 #endif
     static void setCloseCallback (std::function<void()> callback);
 
 private:
 #if JUCE_MAC
-    static bool applyBackgroundBlur (juce::Component* component, float blurRadius, juce::Colour tint);
-    static bool applyNSVisualEffect (juce::Component* component, float blurRadius, juce::Colour tint);
+    static const bool applyBackgroundBlur (juce::Component* component, float blurRadius, juce::Colour tint);
+    static const bool applyNSVisualEffect (juce::Component* component, float blurRadius, juce::Colour tint);
 #elif JUCE_WINDOWS
-    static bool applyDwmGlass (juce::Component* component, float blurRadius, juce::Colour tint);
+    static const bool applyDwmGlass (juce::Component* component, float blurRadius, juce::Colour tint);
 #endif
 };
 

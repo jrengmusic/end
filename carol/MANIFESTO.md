@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/MANIFESTO.md
+/Users/jreng/.carol/MANIFESTO.md

@@ -12,9 +12,10 @@
  */
 
 #include "Daemon.h"
-#include <windows.h>
 
 #if JUCE_WINDOWS
+
+#include <windows.h>
 
 namespace Interprocess
 {

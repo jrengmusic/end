@@ -47,7 +47,8 @@
  * 5. `dup2` slave → stdin / stdout / stderr.
  * 6. Close the slave fd if it is not already one of the standard fds.
  * 7. Set `TERM=xterm-256color` so the shell and TUI apps use 256-colour sequences.
- * 8. Set `LANG=UTF-8` if not already set, to enable Unicode output.
+ * 8. Set `LC_CTYPE=en_US.UTF-8` if not already set, so child shell uses UTF-8 character
+ *    classification (works around inherited invalid `LANG=UTF-8` on macOS).
  * 9. `execvp(shell, argv)` — replace the process image with the shell.
  *    Short names (e.g. "zsh") are resolved via `$PATH`.
  *
@@ -85,9 +86,9 @@ static void runChildProcess (int master, int slaveFd, const char* shell,
     setenv ("TERM", "xterm-256color", 1);
     setenv ("COLORTERM", "truecolor", 1);
 
-    if (getenv ("LANG") == nullptr)
+    if (getenv ("LC_CTYPE") == nullptr)
     {
-        setenv ("LANG", "UTF-8", 1);
+        setenv ("LC_CTYPE", "en_US.UTF-8", 1);
     }
 
     for (const auto& [key, value] : shellEnvVars)

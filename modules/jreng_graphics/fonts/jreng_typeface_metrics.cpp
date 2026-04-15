@@ -287,8 +287,8 @@ Typeface::Metrics Typeface::calcMetrics (float heightPx) noexcept
     return metrics;
 }
 
-#endif
-
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace jreng
+
+#endif
 

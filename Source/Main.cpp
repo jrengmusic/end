@@ -578,7 +578,7 @@ private:
     std::unique_ptr<jreng::Window> mainWindow;
 
     /**
-     * @brief Scans nexus/*.nexus files to find a live unclaimed daemon.
+     * @brief Scans nexus/\*.nexus files to find a live unclaimed daemon.
      *
      * Returns the UUID of the first usable daemon, or spawns a new daemon and returns
      * its fresh UUID if no usable daemon is found.  Deletes stale .nexus/.display file
@@ -593,7 +593,7 @@ private:
 //==============================================================================
 
 /**
- * @brief Scans nexus/*.nexus files to find a live unclaimed daemon.
+ * @brief Scans nexus/\*.nexus files to find a live unclaimed daemon.
  *
  * For each .nexus file: tries an InterProcessLock on the UUID (skips if another client
  * holds the lock), probes the port, and returns that UUID if the daemon is alive.

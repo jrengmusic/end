@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/ARCHITECTURE-WRITER.md
+/Users/jreng/.carol/ARCHITECTURE-WRITER.md

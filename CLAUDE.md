@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/CAROL.md
+/Users/jreng/.carol/CAROL.md

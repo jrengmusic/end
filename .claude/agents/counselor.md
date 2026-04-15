@@ -1,1 +1,1 @@
-C:/Users/jreng/.carol/agents/counselor.md
+/Users/jreng/.carol/agents/counselor.md
