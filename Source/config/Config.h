@@ -306,6 +306,9 @@ struct Config : jreng::Context<Config>
         /** @brief Force DWM effects on Windows 11 VMs for rounded corners. */
         inline static const juce::String windowForceDwm { "window.force_dwm" };
 
+        /** @brief Whether the window size is persisted across instances to `~/.config/end/window.state`. */
+        inline static const juce::String windowSaveSize { "window.save_size" };
+
         /** @brief GPU acceleration mode: "auto", "true", or "false". */
         inline static const juce::String gpuAcceleration { "gpu" };
 

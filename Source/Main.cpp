@@ -321,7 +321,11 @@ public:
             {
                 // ---- Single-process mode (nexus = false) --------------------
                 // No daemon, no IPC.  Load full state from end.state.
+                const bool hadState { appState.getStateFile().existsAsFile() };
                 appState.load();
+
+                if (not hadState and cfg->getBool (Config::Key::windowSaveSize))
+                    appState.loadWindowState();
             }
 
             if (daemonEnabled)
@@ -330,7 +334,12 @@ public:
                 const juce::String resolvedUuid { resolveNexusInstance() };
                 appState.setInstanceUuid (resolvedUuid);
                 appState.setDaemonMode (true);
+
+                const bool hadState { appState.getStateFile().existsAsFile() };
                 appState.load();
+
+                if (not hadState and cfg->getBool (Config::Key::windowSaveSize))
+                    appState.loadWindowState();
             }
 
 #if JUCE_WINDOWS
@@ -463,6 +472,9 @@ public:
         {
             if (auto* content { mainWindow->getContentComponent() })
                 appState.setWindowSize (content->getWidth(), content->getHeight());
+
+            if (Config::getContext()->getBool (Config::Key::windowSaveSize))
+                appState.saveWindowState();
         }
 
         if (appState.isDaemonMode())

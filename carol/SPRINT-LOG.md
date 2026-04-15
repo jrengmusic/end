@@ -1,5 +1,47 @@
 # SPRINT-LOG
 
+## Sprint 18: Cross-Instance Window-Size Persistence via ~/.config/end/window.state ✅
+
+**Date:** 2026-04-15
+**Duration:** brief session
+
+### Agents Participated
+- COUNSELOR: session lead, scope gating (ARCHITECT clarified "NEW INSTANCE ONLY" precedence rule after two plan iterations), NAMES Rule -1 gate on `windowSaveSize` / `getWindowState` / `saveWindowState` / `loadWindowState`
+- Pathfinder: HEAD survey of window-size path (Config defaults, AppState WINDOW ValueTree, MainComponent ctor sizing, systemRequestedQuit save, daemon vs standalone state files, jreng::Window API surface)
+- Engineer: single delegation — six-site implementation across Config / AppState / Main / lua template
+
+### Files Modified
+- `Source/config/Config.h:308-309` — added `Key::windowSaveSize` identifier ("window.save_size") adjacent to `windowForceDwm` with doxygen brief
+- `Source/config/Config.cpp:145` — registered default value `"true"` for `Key::windowSaveSize` alongside other `window.*` keys
+- `Source/config/default_end.lua:274-281` — added `save_size = "%%window_save_size%%"` line inside the `window = { ... }` block with doc comment spelling out the read/write gating and the "restored sessions ignore this" caveat
+- `Source/AppState.h:187-209` — declared `saveWindowState()` and `loadWindowState()` next to existing `save()` / `load()`; doxygen @note MESSAGE THREAD, behavior spec for each
+- `Source/AppState.h:244` — declared `juce::File getWindowState() const` next to `getStateFile()` / `getNexusFile()`
+- `Source/AppState.cpp:486-490` — `getWindowState()` returns `~/.config/end/window.state` (sibling of end.state, not nested under nexus/)
+- `Source/AppState.cpp:492-504` — `saveWindowState()` creates parent dir, serializes `state.getChildWithName(App::ID::WINDOW)` XML via `createXml()->writeTo()`, positive nested guard on window validity + xml creation
+- `Source/AppState.cpp:506-528` — `loadWindowState()` parses file, validates `parsed.getType() == App::ID::WINDOW`, copies `width` / `height` properties into current WINDOW node; silent no-op on missing file / parse failure / type mismatch
+- `Source/Main.cpp:324-328` — standalone branch: `const bool hadState { appState.getStateFile().existsAsFile() }` captured BEFORE `appState.load()`; post-load conditional `if (not hadState and cfg->getBool (Config::Key::windowSaveSize)) appState.loadWindowState();`
+- `Source/Main.cpp:338-342` — daemon-client branch: identical capture-before-load + conditional loadWindowState() pattern, placed after `setInstanceUuid` / `setDaemonMode` so `getStateFile()` resolves the `<uuid>.display` path correctly
+- `Source/Main.cpp:476-477` — inside existing `if (mainWindow != nullptr)` guard in `systemRequestedQuit`, added `if (Config::getContext()->getBool (Config::Key::windowSaveSize)) appState.saveWindowState();` — runs after existing `setWindowSize` so the current resize is persisted before XML dump
+
+### Alignment Check
+- [x] BLESSED — `B` (Bound): new file I/O scoped to AppState, no new owners; `L` (Lean): three small methods + one config key, WINDOW ValueTree reused (no parallel size store); `E` (Explicit): config key gates read and write symmetrically, positive nested checks throughout, no early returns, doxygen @note MESSAGE THREAD on every new AppState method; `S` (SSOT): WINDOW ValueTree remains the sole in-memory truth for size — window.state is a serialization sink, end.state WINDOW overrides it on load; `S` (Stateless): no new members, no flags, no machinery state; `E` (Encapsulation): Main calls AppState verbs (`saveWindowState` / `loadWindowState` / `getStateFile`), never pokes internals; `D` (Deterministic): precedence rule is a pure function of file existence + config bool
+- [x] NAMES.md — Rule -1 gated through ARCHITECT; `windowSaveSize` (bool, is-prefix-free adjective matches existing `windowForceDwm`/`windowAlwaysOnTop` pattern), `getWindowState` (verb + noun, returns juce::File), `saveWindowState` / `loadWindowState` (symmetric verbs matching existing `save()` / `load()` family), `window.save_size` (lua dot-convention, `save_size` snake_case inside window table)
+- [x] MANIFESTO.md / JRENG-CODING-STANDARD.md — `not`/`and`/`or` alternative tokens (Main.cpp:327,341), brace init (`const bool hadState { ... }`, `const juce::File file { ... }`), positive nested checks in both saveWindowState and loadWindowState, no early returns, no anonymous namespaces, no `namespace detail`
+
+### Problems Solved
+- **Cross-instance size memory**: new END instance (no prior session) now inherits the last-closed size from any peer instance via the shared `window.state` file, instead of always falling back to `Config::Key::windowWidth` / `windowHeight` defaults
+- **Precedence clarity**: explicit rule — `end.state` / `<uuid>.display` WINDOW (session restore) > `window.state` (cross-instance) > Config defaults. Restored sessions NEVER consult `window.state` for reading, per ARCHITECT directive
+- **Config-driven opt-out**: `window.save_size = "false"` fully disables the feature (no reads, no writes, no stale file creation). Existing `window.state` left alone when disabled — never auto-deleted
+- **Symmetric file I/O**: save and load both gated by the same config key; write happens on every quit regardless of daemon/standalone, matching ARCHITECT's "always save on quit" requirement
+
+### Debts Paid
+None — this sprint introduces a new feature, does not close any DEBT.md entry.
+
+### Debts Deferred
+None — no out-of-scope findings surfaced during this sprint.
+
+---
+
 ## Sprint 17: jreng::Window Self-Managed Dual Backend + jreng_opengl Dissolved into jreng_gui ✅
 
 **Date:** 2026-04-14

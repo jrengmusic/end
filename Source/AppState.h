@@ -187,6 +187,28 @@ struct AppState : jreng::Context<AppState>
     void save();
 
     /**
+     * @brief Writes the current WINDOW subtree XML to `getWindowState()`.
+     *
+     * Cross-instance shared file, independent of session restore state.
+     * Called on every quit when Config::Key::windowSaveSize is "true".
+     *
+     * @note MESSAGE THREAD.
+     */
+    void saveWindowState();
+
+    /**
+     * @brief Reads `getWindowState()` and copies width / height into the
+     *        in-memory WINDOW node.
+     *
+     * Called only for new instances (no prior session state) when
+     * Config::Key::windowSaveSize is "true". Silently no-ops on missing file
+     * or parse failure — defaults from initDefaults() remain.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void loadWindowState();
+
+    /**
      * @brief Reads the full state from `getStateFile()` into the in-memory tree.
      *
      * Standalone mode: reads from `~/.config/end/end.state`.
@@ -217,6 +239,9 @@ struct AppState : jreng::Context<AppState>
 
     /** @brief Returns `~/.config/end/nexus/<uuid>.nexus` (daemon's port file). */
     juce::File getNexusFile() const;
+
+    /** @brief Returns `~/.config/end/window.state` — cross-instance window size file. */
+    juce::File getWindowState() const;
 
 private:
     juce::ValueTree state;

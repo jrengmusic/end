@@ -483,6 +483,50 @@ juce::File AppState::getNexusFile() const
                .getChildFile (".config/end/nexus/" + instanceUuid + ".nexus");
 }
 
+juce::File AppState::getWindowState() const
+{
+    return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+               .getChildFile (".config/end/window.state");
+}
+
+void AppState::saveWindowState()
+{
+    const juce::File file { getWindowState() };
+    file.getParentDirectory().createDirectory();
+
+    auto window { state.getChildWithName (App::ID::WINDOW) };
+
+    if (window.isValid())
+    {
+        if (auto xml { window.createXml() })
+            xml->writeTo (file);
+    }
+}
+
+void AppState::loadWindowState()
+{
+    const juce::File file { getWindowState() };
+
+    if (file.existsAsFile())
+    {
+        if (auto xml { juce::parseXML (file) })
+        {
+            auto parsed { juce::ValueTree::fromXml (*xml) };
+
+            if (parsed.isValid() and parsed.getType() == App::ID::WINDOW)
+            {
+                auto currentWindow { getWindow() };
+
+                if (parsed.hasProperty (App::ID::width))
+                    currentWindow.setProperty (App::ID::width, parsed.getProperty (App::ID::width), nullptr);
+
+                if (parsed.hasProperty (App::ID::height))
+                    currentWindow.setProperty (App::ID::height, parsed.getProperty (App::ID::height), nullptr);
+            }
+        }
+    }
+}
+
 void AppState::initDefaults()
 {
     state = juce::ValueTree (App::ID::END);

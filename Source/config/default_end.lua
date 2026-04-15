@@ -270,6 +270,15 @@ END = {
 		-- Reload config and restart END to apply.
 		-- No effect on macOS, Linux, or physical Windows machines.
 		force_dwm = "%%window_force_dwm%%",
+
+		-- Persist window size across instances to ~/.config/end/window.state.
+		-- When "true", every quit writes the current window size; new instances
+		-- (with no session to restore) load it as their initial size.
+		-- When "false", the file is neither read nor written; new instances
+		-- fall back to window.width and window.height above.
+		-- Restored sessions always use their own persisted window size and
+		-- ignore window.state regardless of this setting.
+		save_size = "%%window_save_size%%",
 	},
 
 	-- ========================================================================
