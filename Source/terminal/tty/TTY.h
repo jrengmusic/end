@@ -332,21 +332,40 @@ public:
     /** @} */
 
     /**
-     * @brief Performs the OS-level PTY resize.
+     * @brief Resize the PTY. Skipped if dimensions are unchanged from last call.
      *
-     * Calls `ioctl TIOCSWINSZ` + `SIGWINCH` on Unix, or
-     * `ResizePseudoConsole()` on Windows.
+     * Callers fire resize on every JUCE layout pass; this gate avoids a
+     * redundant OS-level resize (and the SIGWINCH / ResizePseudoConsole
+     * side-effect) when nothing actually changed.
      *
-     * @param cols  New terminal width in character columns.
-     * @param rows  New terminal height in character rows.
      * @note MESSAGE THREAD.
      */
-    virtual void platformResize (int cols, int rows) = 0;
+    void platformResize (int cols, int rows);
 
 protected:
+    /**
+     * @brief Platform-specific PTY resize hook — subclasses implement the actual
+     * `ioctl TIOCSWINSZ` (Unix) or `ResizePseudoConsole` (Windows) call.
+     *
+     * @note MESSAGE THREAD. Called by `platformResize` only when dims changed.
+     */
+    virtual void doPlatformResize (int cols, int rows) = 0;
+
+    /**
+     * @brief Record the dimensions the PTY was opened with so the first
+     * `platformResize(sameDims)` is correctly suppressed.
+     *
+     * Subclasses call this from `open()` after the OS PTY is created.
+     */
+    void rememberDimensions (int cols, int rows) noexcept;
+
     /** @brief Shell integration environment variable pairs injected before shell start. */
     std::vector<std::pair<std::string, std::string>> shellIntegrationEnv;
 
     /** @brief Set to `true` by the reader thread on EOF; read by any thread via hasShellExited(). */
     std::atomic<bool> shellExited { false };
+
+private:
+    int lastResizeCols { -1 };
+    int lastResizeRows { -1 };
 };

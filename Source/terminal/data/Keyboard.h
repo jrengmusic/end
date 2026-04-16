@@ -546,9 +546,14 @@ private:
      *   N = 1 + (shift ? 1 : 0) + (alt ? 2 : 0) + (ctrl ? 4 : 0) + (meta ? 8 : 0)
      * @endcode
      *
-     * Meta maps to Cmd on macOS (modifier code 9 = meta-only, same as
-     * iTerm2).  When `N == 1` (no modifiers active), callers omit the
-     * modifier parameter from the sequence entirely.
+     * The Super/Meta kitty bit is applied only on macOS, where `isCommandDown()` reflects the
+     * physical Cmd key (Super/Meta-equivalent, distinct from Ctrl).  On
+     * Windows and Linux, JUCE aliases `commandModifier` to `ctrlModifier`, so
+     * `isCommandDown()` returns the same value as `isCtrlDown()`.  Adding that bit
+     * there would double-count Ctrl (producing modifier 13 instead
+     * of 5 for a plain Ctrl+key), which terminals and editors do not recognise
+     * as Ctrl.  When `N == 1` (no modifiers active), callers omit the modifier
+     * parameter from the sequence entirely.
      *
      * @param mods  The modifier key state to encode.
      * @return Integer modifier code in the range [1, 16].
@@ -574,10 +579,15 @@ private:
             code += ctrlBit;
         }
 
+    #if JUCE_MAC
+        // Cmd key on macOS maps to the kitty Super/Meta modifier bit.
+        // On Windows/Linux, isCommandDown() is aliased to isCtrlDown() by JUCE,
+        // so the Ctrl bit above already covers it — do NOT double-count.
         if (mods.isCommandDown())
         {
             code += metaBit;
         }
+    #endif
 
         return code;
     }

@@ -59,7 +59,6 @@ private:
     State docState;
     juce::ValueTree state;
     std::unique_ptr<Parser> parser;
-    int totalBlocks { 0 };
 
     juce::Viewport viewport;
     Screen screen;

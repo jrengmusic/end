@@ -149,20 +149,6 @@ public:
     bool write (const char* buf, int len) override;
 
     /**
-     * @brief Resize the terminal window via ioctl and SIGWINCH.
-     *
-     * Issues `ioctl (master, TIOCSWINSZ, &ws)` to update the kernel's idea of
-     * the window size, then sends `SIGWINCH` to the child process so the shell
-     * and any running TUI application can re-query the size.
-     *
-     * @param cols  New terminal width in character columns.
-     * @param rows  New terminal height in character rows.
-     *
-     * @note MESSAGE THREAD context (called from TTY::resize).
-     */
-    void platformResize (int cols, int rows) override;
-
-    /**
      * @brief Block until data is available on the master fd or the timeout expires.
      *
      * Uses `poll()` with `POLLIN` on the master fd.
@@ -223,6 +209,21 @@ public:
     int getEnvVar (int pid, const char* varName, char* buffer, int maxLength) const override;
 
     /** @} */
+
+protected:
+    /**
+     * @brief Resize the terminal window via ioctl and SIGWINCH.
+     *
+     * Issues `ioctl (master, TIOCSWINSZ, &ws)` to update the kernel's idea of
+     * the window size, then sends `SIGWINCH` to the child process so the shell
+     * and any running TUI application can re-query the size.
+     *
+     * @param cols  New terminal width in character columns.
+     * @param rows  New terminal height in character rows.
+     *
+     * @note MESSAGE THREAD context (called by TTY::platformResize() when dims changed).
+     */
+    void doPlatformResize (int cols, int rows) override;
 
 private:
     /** @brief Master side of the PTY pair.  -1 when not open. */

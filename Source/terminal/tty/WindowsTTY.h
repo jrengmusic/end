@@ -207,19 +207,6 @@ public:
     bool write (const char* buf, int len) override;
 
     /**
-     * @brief Resize the ConPTY window.
-     *
-     * Calls `ResizePseudoConsole()` with the new dimensions.  The child
-     * process receives a `WINDOW_BUFFER_SIZE_EVENT` console event.
-     *
-     * @param cols  New terminal width in character columns.
-     * @param rows  New terminal height in character rows.
-     *
-     * @note MESSAGE THREAD context — called from TTY::resize().
-     */
-    void platformResize (int cols, int rows) override;
-
-    /**
      * @brief Issue an overlapped read and block until data arrives or the timeout expires.
      *
      * If no read is already pending, issues `ReadFile` with the `readOverlapped`
@@ -282,6 +269,20 @@ public:
     int getCwd (int pid, char* buffer, int maxLength) const noexcept override;
 
     /** @} */
+
+protected:
+    /**
+     * @brief Resize the ConPTY window.
+     *
+     * Calls `ResizePseudoConsole()` with the new dimensions.  The child
+     * process receives a `WINDOW_BUFFER_SIZE_EVENT` console event.
+     *
+     * @param cols  New terminal width in character columns.
+     * @param rows  New terminal height in character rows.
+     *
+     * @note MESSAGE THREAD context — called by TTY::platformResize() when dims changed.
+     */
+    void doPlatformResize (int cols, int rows) override;
 
 private:
     /** @brief ConPTY handle created by `CreatePseudoConsole()`.  nullptr when not open. */

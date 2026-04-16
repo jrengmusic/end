@@ -129,12 +129,12 @@ static bool applyAccentPolicy (HWND hwnd, ACCENT_STATE state, juce::Colour tint)
     return result;
 }
 
-bool BackgroundBlur::isDwmAvailable()
+const bool BackgroundBlur::isDwmAvailable()
 {
     return true;
 }
 
-bool BackgroundBlur::enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
+const bool BackgroundBlur::enable (juce::Component* component, float blurRadius, juce::Colour tint, Type type)
 {
     bool result { false };
 
@@ -169,7 +169,7 @@ bool BackgroundBlur::enable (juce::Component* component, float blurRadius, juce:
  *
  * @see enableWindowTransparency()
  */
-bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blurRadius, juce::Colour tint)
+const bool BackgroundBlur::applyDwmGlass (juce::Component* component, float blurRadius, juce::Colour tint)
 {
     bool result { false };
 
@@ -256,7 +256,7 @@ void BackgroundBlur::setCloseCallback (std::function<void()> callback)
  *
  * @see applyDwmGlass()
  */
-bool BackgroundBlur::enableWindowTransparency()
+const bool BackgroundBlur::enableWindowTransparency()
 {
     bool result { true };
 

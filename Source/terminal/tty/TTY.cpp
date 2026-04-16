@@ -101,3 +101,19 @@ void TTY::run()
         }
     }
 }
+
+void TTY::platformResize (int cols, int rows)
+{
+    if (cols != lastResizeCols or rows != lastResizeRows)
+    {
+        doPlatformResize (cols, rows);
+        lastResizeCols = cols;
+        lastResizeRows = rows;
+    }
+}
+
+void TTY::rememberDimensions (int cols, int rows) noexcept
+{
+    lastResizeCols = cols;
+    lastResizeRows = rows;
+}

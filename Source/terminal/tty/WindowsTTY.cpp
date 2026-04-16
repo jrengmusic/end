@@ -752,6 +752,7 @@ bool WindowsTTY::open (int cols, int rows, const juce::String& shell,
                     readOverlapped.hEvent  = readEvent;
                     writeOverlapped.hEvent = writeEvent;
 
+                    rememberDimensions (cols, rows);
                     startThread();
                     result = true;
                 }
@@ -1457,9 +1458,9 @@ bool WindowsTTY::write (const char* buf, int len)
  * @param cols  New terminal width in character columns.
  * @param rows  New terminal height in character rows.
  *
- * @note READER THREAD context (dispatched via TTY::run resize handling).
+ * @note MESSAGE THREAD context.
  */
-void WindowsTTY::platformResize (int cols, int rows)
+void WindowsTTY::doPlatformResize (int cols, int rows)
 {
     if (pseudoConsole != nullptr)
     {

@@ -210,7 +210,22 @@ void LinkManager::dispatch (const LinkSpan& span) const
             const juce::String opener { handler.isNotEmpty() and handler != "whelmed"
                                             ? handler
                                             : Config::getContext()->getString (Config::Key::hyperlinksEditor) };
-            const juce::String command { opener + " " + path + "\r" };
+            const bool bracketed { state.getMode (ID::bracketedPaste) };
+            const juce::String payload { opener + " \"" + path + "\"" };
+
+            juce::String command;
+
+            if (bracketed)
+            {
+                static constexpr const char open[]  { "\x1b[200~" };
+                static constexpr const char close[] { "\x1b[201~" };
+                command = juce::String (open) + payload + juce::String (close) + "\r";
+            }
+            else
+            {
+                command = payload + "\r";
+            }
+
             writeToPty (command.toRawUTF8(), static_cast<int> (command.getNumBytesAsUTF8()));
         }
     }

@@ -16,13 +16,6 @@
 
 ---
 
-## DEBT-20260416T083624
-
-**Observation:** windows open file : UsersjrengDocumentsPoemsdevendCMakeLists.txt
-**Divergence:** should preserve separator
-**Expectation:** open file on windows should be handled with preserving separator
-
----
 
 ## DEBT-20260412T234116
 
@@ -48,12 +41,5 @@
 
 ---
 
-## DEBT-20260411T095809
-
-**Observation:** whelmed loading blocks stuck when block counts total height less than available height
-**Divergence:** loading bar stuck, should never be rendered when documents total height less than viewport height
-**Expectation:** loader overlay should only be rendered when documents blocks total height exceed viewport height
-
----
 
 ---

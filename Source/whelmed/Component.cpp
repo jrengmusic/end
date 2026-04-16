@@ -40,7 +40,7 @@ Component::Component()
     viewport.setScrollBarsShown (true, false);
     viewport.setMouseClickGrabsKeyboardFocus (false);
     addAndMakeVisible (viewport);
-    addAndMakeVisible (loaderOverlay);
+    addChildComponent (loaderOverlay);
     viewport.addMouseListener (this, true);
     AppState::getContext()->getTabs().addListener (this);
     inputHandler.buildKeyMap();
@@ -123,8 +123,13 @@ void Component::openFile (const juce::File& file)
     const int initialBatch { screen.load (docState.getDocument(), viewport.getHeight()) };
     docState.setInitialBlockCount (initialBatch);
 
-    loaderOverlay.show (static_cast<int> (state.getProperty (App::ID::totalBlocks)));
-    loaderOverlay.toFront (false);
+    const int totalBlocks { static_cast<int> (state.getProperty (App::ID::totalBlocks)) };
+
+    if (initialBatch < totalBlocks)
+    {
+        loaderOverlay.show (totalBlocks);
+        loaderOverlay.toFront (false);
+    }
 
     mermaidParser->onReady (
         [this]

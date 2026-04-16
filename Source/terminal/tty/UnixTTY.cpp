@@ -187,6 +187,7 @@ bool UnixTTY::open (int cols, int rows, const juce::String& shell,
                 fcntl (master, F_SETFL, flags | O_NONBLOCK);
             }
 
+            rememberDimensions (cols, rows);
             startThread();
 
             result = true;
@@ -362,9 +363,9 @@ bool UnixTTY::write (const char* buf, int len)
  * @param cols  New terminal width in character columns.
  * @param rows  New terminal height in character rows.
  *
- * @note READER THREAD context (dispatched via TTY::run resize handling).
+ * @note MESSAGE THREAD context.
  */
-void UnixTTY::platformResize (int cols, int rows)
+void UnixTTY::doPlatformResize (int cols, int rows)
 {
     struct winsize ws { static_cast<unsigned short> (rows), static_cast<unsigned short> (cols), 0, 0 };
     ioctl (master, TIOCSWINSZ, &ws);

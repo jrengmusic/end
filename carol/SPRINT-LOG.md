@@ -1,5 +1,55 @@
 # SPRINT-LOG
 
+## Sprint 21: Ledger Drain + Pane-0 SIGWINCH + Ctrl+C Kitty Keymap ✅
+
+**Date:** 2026-04-16
+**Duration:** ~03:00
+
+### Agents Participated
+- COUNSELOR: session lead, `/pay` ordering, diagnostic strategy, ODE-style runtime instrumentation coordination, post-fix verification against `ctrlc.log` evidence
+- Pathfinder: four surveys — file-open dispatch path, Whelmed loader lifecycle, TTY abstraction + resize emit site, kitty keyboard encoder + per-session mode state
+- Oracle: root-cause analysis of pane-0 spurious SIGWINCH, pinpointed `Display::resized()` unconditional `onResize` with three candidate gate layers
+- Engineer: 7 delegations — path quoting, bracketed-paste wrap for opener, loader guard + addChildComponent, 4× `const` return restore, TTY Template Method refactor, `modifierCode` JUCE_MAC guard, audit cleanup pass (DIAG strip + visibility tightening + doxygen fixes)
+- Auditor: pre-log audit, 6 findings surfaced and resolved in single cleanup pass
+
+### Files Modified
+- `Source/terminal/selection/LinkManager.cpp:213-228` — `LinkManager::dispatch()` now wraps path in `"..."` for shell quoting and wraps full opener command in `\x1b[200~…\x1b[201~\r` when `state.getMode(ID::bracketedPaste)` is true. Mirrors `Processor::encodePaste` bracketed-paste pattern; `\r` placed after close marker so readline inserts before executing
+- `Source/whelmed/Component.cpp:43` — `addAndMakeVisible(loaderOverlay)` → `addChildComponent(loaderOverlay)`; overlay starts hidden
+- `Source/whelmed/Component.cpp:126-132` — `openFile()` extracts `const int totalBlocks` from state once, gates `loaderOverlay.show()` + `toFront()` on `if (initialBatch < totalBlocks)` — no async parser work means no loader
+- `Source/whelmed/Component.h:62` — dead `int totalBlocks { 0 };` member removed (all reads went through `state.getProperty(App::ID::totalBlocks)`)
+- `modules/jreng_gui/window/jreng_background_blur.cpp:132,137,172,259` — `const bool` return type restored on `isDwmAvailable`, `enable`, `applyDwmGlass`, `enableWindowTransparency` definitions to match header declarations (build fix)
+- `Source/terminal/tty/TTY.h:343-370` — Template Method: `platformResize(int,int)` promoted to non-virtual public with same-dim suppression gate; new pure virtual protected `doPlatformResize` hook; new protected `rememberDimensions(int,int) noexcept` for subclass priming; new private `lastResizeCols{-1}`, `lastResizeRows{-1}`
+- `Source/terminal/tty/TTY.cpp:103-120` — `platformResize` body (gate + hook dispatch + dim record) and `rememberDimensions` body
+- `Source/terminal/tty/WindowsTTY.h:220,285` — override renamed `platformResize` → `doPlatformResize`, moved to `protected:`
+- `Source/terminal/tty/WindowsTTY.cpp:755,1462,1498` — `open()` calls `rememberDimensions(cols, rows)` before `startThread()`; override body renamed; stale `READER THREAD` doxygen → `MESSAGE THREAD`
+- `Source/terminal/tty/UnixTTY.h:163,226` — override renamed and moved to `protected:`
+- `Source/terminal/tty/UnixTTY.cpp:190,366` — matching `open()` priming and doxygen fix
+- `Source/terminal/data/Keyboard.h:541-596` — `modifierCode()` `metaBit` contribution now `#if JUCE_MAC`. Doxygen rewritten to describe JUCE's `commandModifier == ctrlModifier` aliasing on Windows/Linux and why the bit is macOS-only
+
+### Alignment Check
+- [x] BLESSED — `B` (Bound): TTY owns PTY size truth via `lastResizeCols/Rows`; `L` (Lean): all edits scoped; `E` (Explicit): platform `#if` justified by actual JUCE semantic divergence, positive checks throughout; `S` (SSOT): TTY is single authority on "what size did we tell the kernel"; `S` (Stateless): no new machinery state, `lastResize*` are calculation-input shadows; `E` (Encapsulation): Template Method keeps gate in one place, subclass hook is pure; `D` (Deterministic): same-dim resize produces no side effect
+- [x] NAMES.md — Rule -1 honored. New names: `doPlatformResize` (subclass hook), `rememberDimensions` (explicit priming action), `lastResizeCols`/`lastResizeRows` (semantic state labels). All verb/noun alignment consistent
+- [x] JRENG-CODING-STANDARD.md — alt tokens, brace init, no early returns, const return types restored on blur methods, no magic numbers (bracketed-paste open/close use `static constexpr const char[]` mirroring existing pattern)
+- [x] ODE protocol — instrumented `TTY::platformResize`, `WindowsTTY::write`, `TTY::run` (PTY-READ), `TerminalDisplay::keyPressed`, `State::pushKeyboardMode`/`popKeyboardMode`/`getKeyboardFlags` to `ctrlc.log` at project root; runtime evidence confirmed `modifier=13` double-count and revealed `win32InputMode` branch bypass explained the "random kitty" apparent race; all instrumentation stripped and log files deleted same sprint
+
+### Problems Solved
+- **Windows open-file path separator loss** (`DEBT-20260416T083624`) — `LinkManager::dispatch` was concatenating `opener + " " + path + "\r"` with no shell quoting. Path `C:\Users\jreng\...` reached shell as raw bytes; shell interpreted backslashes as escapes, collapsing to `UsersjrengDocuments...`. Fix quotes the path inside `"..."` so every shell on Windows (cmd, pwsh, bash, zsh) preserves the literals
+- **File-open command echoed char-by-char in terminal** (mid-sprint surface, not in DEBT.md) — PTY line discipline's ECHO flag is intrinsic; no master-side suppression available. Wrap in bracketed paste so readline inserts atomically
+- **Whelmed loader visible on short documents** (`DEBT-20260411T095809`) — `addAndMakeVisible` made overlay visible at construction before any `show()` guard could fire. `Parser::run` only increments `blockCount` for blocks past `startBlock`; when `initialBatch == totalBlocks` the async thread does no work, `valueTreePropertyChanged` never fires, `hide()` never called. Fix: default-hidden via `addChildComponent`, `show()` only when async work is needed
+- **Windows build failure** (`const`-return mismatch on 4 `BackgroundBlur` methods) — header declared `static const bool` on all four Windows methods; `.cpp` definitions had `bool` — `error C2373: different type modifiers`. Restored per NAMES.md Rule 5 (consistency with existing header pattern for this class)
+- **Spurious SIGWINCH on pane 0 mid-nvim session** (Ctrl+C race surface) — root cause: `Display::resized()` unconditionally forwarded `onResize` to `Session::resize` → `tty->platformResize` even when dims were unchanged from what the Session was constructed with. Pane 0's first deferred `resized()` (it's the only pane `setVisible(true)` at creation) landed AFTER nvim had launched, emitting a redundant SIGWINCH. Template Method gate in base TTY silently no-ops same-dim calls; subclass `open()` primes the cache so the first post-layout resize is correctly suppressed
+- **Ctrl+C bypass of user's nvim `<C-c>` → `:qa` mapping** (surfaced after SIGWINCH fix) — kitty keyboard protocol Ctrl+C was encoded as `ESC[99;13u` instead of `ESC[99;5u`. Modifier `13 = 1+4+8` = base + ctrl + super; modifier `5 = 1+4` = base + ctrl. nvim received an unrecognised modifier combination and fell through to its default alert instead of firing the user's mapping. Root cause: `modifierCode` added `metaBit` on `isCommandDown()`; JUCE aliases `commandModifier` to `ctrlModifier` on Windows/Linux, so every plain Ctrl+X double-counted. Platform-gated with `#if JUCE_MAC` — Cmd on macOS correctly maps to Super/Meta, Windows/Linux no longer double-counts
+- **Apparent "random 1 of 5 tabs" broken Ctrl+C** — runtime evidence in `ctrlc.log` showed `Processor::encodeKeyPress` has two branches: `win32InputMode` ON uses `Keyboard::encodeWin32Input` (direct `0x03` encoding, bypasses `getKeyboardFlags`); `win32InputMode` OFF falls to `Keyboard::map` which reads kitty flags. The "randomness" was `win32InputMode` toggle, not a kitty state race. No fix needed
+
+### Debts Paid
+- `DEBT-20260416T083624` — Windows open-file path separator preserved via shell quoting (`LinkManager.cpp:214`)
+- `DEBT-20260411T095809` — Whelmed loader no longer rendered when content fits viewport (`Component.cpp:128-132` + `:43`)
+
+### Debts Deferred
+None.
+
+---
+
 ## Sprint 20: Bracketed Paste CRLF Normalization ✅
 
 **Date:** 2026-04-16
