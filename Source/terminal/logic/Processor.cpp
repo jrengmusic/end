@@ -134,7 +134,8 @@ juce::String Processor::encodePaste (const juce::String& text) const noexcept
         {
             static constexpr const char open[]  { "\x1b[200~" };
             static constexpr const char close[] { "\x1b[201~" };
-            result = juce::String (open) + text + juce::String (close);
+            const juce::String normalized { text.replace ("\r\n", "\n").replace ("\r", "\n") };
+            result = juce::String (open) + normalized + juce::String (close);
         }
         else
         {

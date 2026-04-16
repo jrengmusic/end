@@ -1,5 +1,34 @@
 # SPRINT-LOG
 
+## Sprint 20: Bracketed Paste CRLF Normalization ✅
+
+**Date:** 2026-04-16
+**Duration:** ~00:10
+
+### Agents Participated
+- COUNSELOR: session lead, symptom triage, reference-terminal convention recall (xterm / alacritty / wezterm / kitty), fix-location selection, post-edit verification
+- Pathfinder: bracketed-paste surface survey — mode toggle sites, clipboard entry point, PTY write path, normalization audit (none found)
+- Engineer: single delegation — 3-line change inside `Processor::encodePaste` bracketed branch
+
+### Files Modified
+- `Source/terminal/logic/Processor.cpp:137-138` — inside `if (bracketed)` branch: introduced `const juce::String normalized { text.replace ("\r\n", "\n").replace ("\r", "\n") }` and swapped `text` → `normalized` in the wrapper concatenation. Two-step replace: CRLF first, then lone CR. Non-bracketed else branch untouched.
+
+### Alignment Check
+- [x] BLESSED — `B` (Bound): change scoped to one branch of one method; `L` (Lean): 2 lines, no helpers, no new names; `E` (Explicit): `const` local, literal control bytes, replace chain reads as the algorithm; `S` (SSOT): paste normalization lives where bracketed-paste semantics already live (`encodePaste`); `S` (Stateless): no state added; `E` (Encapsulation): Processor owns paste encoding, no caller poking; `D` (Deterministic): same input always yields same output
+- [x] NAMES.md — Rule -1 honored: no new names. `normalized` is a local intermediate, direct transformation label
+- [x] MANIFESTO.md / JRENG-CODING-STANDARD.md — no early returns, positive checks, brace style preserved, no magic numbers (`"\r\n"` / `"\r"` / `"\n"` are the ASCII bytes they name), existing doxygen unchanged
+
+### Problems Solved
+- **CRLF doubling on pasted multi-line content**: pasting C++ code from nvim into Claude Code inside END produced a blank line between every source line. Root cause: Windows clipboard CRLF passed verbatim through bracketed-paste wrapper; readline consumers render `\r` and `\n` as two separate breaks. Fix collapses to single LF — matches xterm/alacritty/wezterm/kitty convention.
+
+### Debts Paid
+None — symptom surfaced mid-session, not previously logged to DEBT.md.
+
+### Debts Deferred
+None.
+
+---
+
 ## Sprint 19: Mac-only Line-Wrap Bug — LC_CTYPE Fix ✅
 
 **Date:** 2026-04-16
