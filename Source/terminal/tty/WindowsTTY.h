@@ -234,6 +234,9 @@ public:
      */
     int getForegroundPid() const noexcept override;
 
+    /** @copydoc TTY::getShellPid */
+    int getShellPid() const noexcept override;
+
     /**
      * @brief Writes the process name for the given PID into the buffer.
      *
@@ -339,6 +342,12 @@ private:
 
     /** @brief PID of the child shell process, obtained from CreateProcessW.  0 when not running. */
     DWORD childPid { 0 };
+
+    /** @brief TTL-cached foreground PID — memoizes process-tree walk result. */
+    mutable DWORD cachedForegroundPid { 0 };
+
+    /** @brief Wall-clock time (ms) of the last process-tree walk — 0 = never. */
+    mutable int64_t lastForegroundQueryTimeMs { 0 };
 };
 
 #endif

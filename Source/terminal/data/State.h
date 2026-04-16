@@ -1458,8 +1458,8 @@ private:
      * `generation` read after the copy detects torn writes; if detected, the
      * copy is repeated once.  The resulting string is written to the ValueTree
      * via `juce::String::fromUTF8`.  Then `displayName` is recomputed from
-     * the priority: foreground process (when different from shell) → cwd leaf
-     * name.
+     * the priority: foreground process (when non-empty) → cwd leaf name.
+     * The shell-filter logic lives in Session::onFlush (PID-based).
      *
      * @note MESSAGE THREAD — called from timerCallback() only.
      */

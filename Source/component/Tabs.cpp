@@ -121,7 +121,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
     auto paneNode { jreng::PaneManager::findLeaf (newPanes.getState(), sessionUuid) };
     auto sessionTree { paneNode.getChild (0) };
     AppState::getContext()->setPwd (sessionTree);
-    tabName.referTo (sessionTree.getPropertyAsValue (Terminal::ID::displayName, nullptr));
+    tabName.referTo (sessionTree.getPropertyAsValue (App::ID::displayName, nullptr));
 
     const auto initialName { juce::File (AppState::getContext()->getPwd()).getFileName() };
     const int tabIndex { getNumTabs() };
@@ -170,12 +170,16 @@ jreng::Owner<PaneComponent>& Tabs::getPanes() noexcept
 
 void Tabs::globalFocusChanged (juce::Component* focusedComponent)
 {
-    if (auto* term { dynamic_cast<Terminal::Display*> (focusedComponent) }; term != nullptr)
+    if (auto* pane { dynamic_cast<PaneComponent*> (focusedComponent) }; pane != nullptr)
     {
-        const auto uuid { term->getValueTree().getProperty (jreng::ID::id).toString() };
-        AppState::getContext()->setActivePaneID (uuid);
-        AppState::getContext()->setPwd (term->getValueTree());
-        tabName.referTo (term->getValueTree().getPropertyAsValue (Terminal::ID::displayName, nullptr));
+        tabName.referTo (pane->getValueTree().getPropertyAsValue (App::ID::displayName, nullptr));
+
+        if (auto* term { dynamic_cast<Terminal::Display*> (focusedComponent) }; term != nullptr)
+        {
+            const auto uuid { term->getValueTree().getProperty (jreng::ID::id).toString() };
+            AppState::getContext()->setActivePaneID (uuid);
+            AppState::getContext()->setPwd (term->getValueTree());
+        }
     }
 }
 

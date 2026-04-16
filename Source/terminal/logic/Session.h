@@ -111,7 +111,7 @@ public:
      * @brief Factory overload — creates a Processor-only Session with no TTY.
      *
      * Used by GUI connected to a daemon where the shell runs on the daemon process.
-     * Bytes are fed externally via `process()`.  CWD and shellProgram are written
+     * Bytes are fed externally via `process()`.  CWD is written
      * to State so display logic (tab title, cwd badge) works identically to a local session.
      *
      * History capacity is read from `Config::Key::terminalScrollbackLines`.
@@ -119,7 +119,7 @@ public:
      * @param cols   Terminal width in character columns.  Must be > 0.
      * @param rows   Terminal height in character rows.  Must be > 0.
      * @param cwd    Initial working directory — written to State.
-     * @param shell  Shell program name — written to State for displayName logic.
+     * @param shell  Shell program name (passed through to TTY but not stored in State).
      * @param uuid   Session UUID.  Empty = auto-generated.
      * @return Owning unique_ptr to the constructed Terminal::Session.
      * @note MESSAGE THREAD.
@@ -155,12 +155,12 @@ public:
      *
      * Used by Nexus client mode where the daemon owns the shell process.
      * Bytes are fed externally via `getProcessor().process()`.
-     * CWD and shellProgram are written to State so display logic works identically.
+     * CWD is written to State so display logic works identically.
      *
      * @param cols   Terminal width.  Must be > 0.
      * @param rows   Terminal height.  Must be > 0.
      * @param cwd    Initial working directory — written to State.
-     * @param shell  Shell program name — written to State for displayName logic.
+     * @param shell  Shell program name (not stored in State; reserved for future use).
      * @param uuid   Session UUID.  Empty = auto-generated.
      * @note MESSAGE THREAD.
      */
@@ -208,9 +208,20 @@ public:
      * Delegates to TTY::getForegroundPid().
      *
      * @return The foreground PID, or -1 if unavailable.
-     * @note READER THREAD — called from state.onFlush.
+     * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
      */
     int getForegroundPid() const noexcept;
+
+    /**
+     * @brief Returns the PID of the spawned shell process.
+     *
+     * Delegates to TTY::getShellPid(). Used in onFlush to detect the
+     * "at prompt" condition (foreground PID equals shell PID).
+     *
+     * @return The shell PID, or 0 if the shell is not running.
+     * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
+     */
+    int getShellPid() const noexcept;
 
     /**
      * @brief Writes the process name for the given PID into the buffer.

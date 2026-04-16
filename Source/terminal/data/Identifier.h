@@ -151,9 +151,6 @@ namespace ID
     /** @brief Name of the foreground process running in the terminal. */
     static const juce::Identifier foregroundProcess   { "foregroundProcess" };
 
-    /** @brief Derived display name for the tab (computed from foregroundProcess, cwd). */
-    static const juce::Identifier displayName         { "displayName" };
-
     /** @brief Write generation counter for the title string slot. */
     static const juce::Identifier titleGeneration                       { "titleGeneration" };
 
@@ -171,9 +168,6 @@ namespace ID
 
     /** @brief Last-flushed generation for the foregroundProcess string slot (message thread only). */
     static const juce::Identifier foregroundProcessLastFlushedGeneration { "foregroundProcessLastFlushedGeneration" };
-
-    /** @brief Shell program name, stored at session creation for display name filtering. */
-    static const juce::Identifier shellProgram        { "shellProgram" };
 
     //==========================================================================
     // Mode parameter IDs (DEC terminal mode flags)

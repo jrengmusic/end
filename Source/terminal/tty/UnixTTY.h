@@ -167,6 +167,9 @@ public:
      */
     int getForegroundPid() const noexcept override;
 
+    /** @copydoc TTY::getShellPid */
+    int getShellPid() const noexcept override;
+
     /**
      * @brief Writes the process name for the given PID into the buffer.
      *

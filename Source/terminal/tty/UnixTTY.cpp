@@ -422,6 +422,11 @@ int UnixTTY::getForegroundPid() const noexcept
     return -1;
 }
 
+int UnixTTY::getShellPid() const noexcept
+{
+    return static_cast<int> (childProcess);
+}
+
 int UnixTTY::getProcessName (int pid, char* buffer, int maxLength) const noexcept
 {
     if (pid > 0 and buffer != nullptr and maxLength > 0)

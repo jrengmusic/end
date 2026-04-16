@@ -235,7 +235,6 @@ Session::Session (int cols,
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
     processor = std::make_unique<Terminal::Processor> (cols, rows, effectiveUuid);
     processor->getState().setId (effectiveUuid);
-    processor->getState().get().setProperty (Terminal::ID::shellProgram, shell, nullptr);
 
     Terminal::Processor* procRawPtr { processor.get() };
 
@@ -283,14 +282,22 @@ Session::Session (int cols,
     procRawPtr->getState().onFlush = [this, procRawPtr]
     {
         const int fgPid { getForegroundPid() };
+        const int shellPid { getShellPid() };
 
         if (fgPid > 0)
         {
-            char fgNameBuf[Terminal::State::maxStringLength] {};
-            const int fgNameLen { getProcessName (fgPid, fgNameBuf, Terminal::State::maxStringLength) };
+            if (fgPid == shellPid)
+            {
+                procRawPtr->getState().setForegroundProcess ("", 0);
+            }
+            else
+            {
+                char fgNameBuf[Terminal::State::maxStringLength] {};
+                const int fgNameLen { getProcessName (fgPid, fgNameBuf, Terminal::State::maxStringLength) };
 
-            if (fgNameLen > 0)
-                procRawPtr->getState().setForegroundProcess (fgNameBuf, fgNameLen);
+                if (fgNameLen > 0)
+                    procRawPtr->getState().setForegroundProcess (fgNameBuf, fgNameLen);
+            }
 
             if (shouldTrackCwdFromOs)
             {
@@ -310,7 +317,7 @@ Session::Session (int cols,
 /**
  * @brief Constructs a remote Session — Processor + State only, no TTY.
  *
- * Creates Processor and wires CWD + shellProgram into State so display logic
+ * Creates Processor and wires CWD into State so display logic
  * (tab title, cwd badge) works identically to a local session.  TTY is not
  * created.  Bytes must be fed externally via getProcessor().process().
  *
@@ -328,7 +335,6 @@ Session::Session (int cols, int rows,
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
     processor = std::make_unique<Terminal::Processor> (cols, rows, effectiveUuid);
     processor->getState().setId (effectiveUuid);
-    processor->getState().get().setProperty (Terminal::ID::shellProgram, shell, nullptr);
     processor->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
 }
 
@@ -381,7 +387,7 @@ void Session::platformResize (int cols, int rows)
 /**
  * @brief Returns the PID of the foreground process running in the PTY.
  *
- * @note READER THREAD.
+ * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
  */
 int Session::getForegroundPid() const noexcept
 {
@@ -390,9 +396,20 @@ int Session::getForegroundPid() const noexcept
 }
 
 /**
+ * @brief Returns the PID of the spawned shell process.
+ *
+ * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
+ */
+int Session::getShellPid() const noexcept
+{
+    jassert (tty != nullptr);
+    return tty->getShellPid();
+}
+
+/**
  * @brief Writes the process name for the given PID into the buffer.
  *
- * @note READER THREAD.
+ * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
  */
 int Session::getProcessName (int pid, char* buffer, int maxLength) const noexcept
 {
@@ -403,7 +420,7 @@ int Session::getProcessName (int pid, char* buffer, int maxLength) const noexcep
 /**
  * @brief Writes the current working directory for the given PID into the buffer.
  *
- * @note READER THREAD.
+ * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
  */
 int Session::getCwd (int pid, char* buffer, int maxLength) const noexcept
 {

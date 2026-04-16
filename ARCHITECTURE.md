@@ -673,18 +673,21 @@ Passes `workingDirectory` through to `Terminal::Component::create()`, which cons
 
 `Tabs` uses `juce::Value::Listener` (not `ValueTree::Listener`) to track the active terminal's display name:
 
-- **Member:** `juce::Value tabName` — bound via `referTo` to active terminal's `Terminal::ID::displayName`
+- **Member:** `juce::Value tabName` — bound via `referTo` to active terminal's `App::ID::displayName`
 - **Binding:** `globalFocusChanged()` rebinds `tabName` when focus changes
 - **Update:** `valueChanged()` calls `setTabName()` on the tab bar
 
-### displayName Computation (State::flushStrings)
+### displayName Computation (Session::onFlush + State::flushStrings)
 
-`State::flushStrings()` computes `displayName` with priority:
+`Session::onFlush` runs on the message thread (via `State::timerCallback`).  It calls
+`tty->getForegroundPid()` and `tty->getShellPid()`.  When the two PIDs are equal (shell
+at prompt), it writes an empty string to the `foregroundProcess` slot.  When they differ
+(a TUI or child process is running), it writes the foreground process name.
 
-1. **foregroundProcess** — only when it differs from `shellProgram` (filters out "zsh", "bash", etc.)
+`State::flushStrings()` then computes `displayName` stored as `App::ID::displayName` with priority:
+
+1. **foregroundProcess** — when non-empty (set by `Session::onFlush` when fgPid != shellPid)
 2. **cwd leaf** — `juce::File(cwdPath).getFileName()` (e.g., "end" from "/Users/me/dev/end")
-
-`Terminal::ID::shellProgram` is stored on the SESSION ValueTree at TTY open time (`Session::resized()`) so `flushStrings` can compare against it without crossing layers to Config.
 
 `title` (OSC 0/2) is NOT used in displayName computation — it's shell prompt noise that overrides everything else.
 
@@ -1183,7 +1186,7 @@ Click-mode link underlines only render on OSC 133 output rows.
 | ConPTY sideload | Runtime extraction of conpty.dll + OpenConsole.exe from BinaryData to ~/.config/end/conpty/ (all Windows versions — inbox ConPTY broken on both Win10 and Win11) |
 | getActiveScreen | Message-thread ValueTree reader for active screen state (normal/alternate) |
 | Cell | 16-byte struct representing one terminal character position |
-| displayName | Derived tab label: foregroundProcess (when != shell) > cwd leaf name |
+| displayName | Derived tab label from `App::ID::displayName`.  Terminal panes: foregroundProcess (non-empty, set by Session::onFlush when fgPid != shellPid) > cwd leaf name.  Whelmed panes: file basename set at openFile time. |
 | Embolden | Platform stroke-widening for bold: kCGTextFillStroke (macOS), FT_Outline_Embolden (Linux) |
 | FontCollection | Flat int8_t[0x110000] codepoint-to-font-slot dispatch table, O(1) lookup |
 | GlyphConstraint | Per-codepoint NF icon scaling/alignment descriptor applied at rasterization time |
@@ -1202,7 +1205,6 @@ Click-mode link underlines only render on OSC 133 output rows.
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
 | pwdValue | juce::Value in AppState bound via referTo to active terminal's cwd property |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
-| shellProgram | Shell basename stored on SESSION at TTY open; used to filter displayName |
 | Snapshot | Pre-built GPU instance data (glyphs + backgrounds) for one frame |
 | StagedBitmap | Cross-thread upload packet: pixel data + atlas region + mono/emoji kind |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state |

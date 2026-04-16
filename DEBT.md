@@ -18,13 +18,6 @@
 
 ---
 
-## DEBT-20260411T125015
-
-**Observation:** windows: tab name not updated according to active terminal
-**Divergence:** tab label always show shell name i.e zsh
-**Expectation:** tab label should always fresh, updated from last active terminal on particular tab, either cwd or running tui
-
----
 
 ## DEBT-20260411T100058
 

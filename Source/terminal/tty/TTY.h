@@ -226,9 +226,20 @@ public:
     /**
      * @brief Returns the PID of the foreground process group leader.
      * @return The foreground PID, or -1 if unavailable.
-     * @note READER THREAD — called from Session::process().
+     * @note Any thread.  Called from Session::onFlush (message thread) in the default wiring.
      */
     virtual int getForegroundPid() const noexcept { return -1; }
+
+    /**
+     * @brief Returns the PID of the spawned shell process.
+     *
+     * Used by Session to distinguish "at prompt" (foreground PID equals shell PID)
+     * from "TUI running" (foreground PID is a descendant).
+     *
+     * @return The shell PID, or 0 if the shell is not running.
+     * @note Any thread.
+     */
+    virtual int getShellPid() const noexcept { return 0; }
 
     /**
      * @brief Writes the process name for the given PID into the buffer.

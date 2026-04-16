@@ -1,5 +1,66 @@
 # SPRINT-LOG
 
+## Sprint 23: Tab Label Crossplatform TUI/cwd + displayName SSOT ✅
+
+**Date:** 2026-04-17
+**Duration:** ~02:00
+
+### Agents Participated
+- COUNSELOR: session lead, `/pay` targeting, contract audit per ARCHITECT challenge ("including whelmed? crossplatform? SSOT? BLESSED?"), scope discipline (Rule 7), post-audit remediation plan
+- Pathfinder: three surveys — (1) Windows tab-label codepath + foregroundPid + OSC 7 path forms, (2) tab-label binding topology for multi-pane tabs + Whelmed focus gap, (3) OSC 133 command-state tracking + foregroundProcess clearing semantics + displayName identifier scopes across codebase
+- Researcher: reference-terminal survey at `~/Documents/Poems/dev/TERMINAL` — Windows Terminal (OSC 0/2 only, no OSC 7, no process walk), Alacritty (OSC only, no Windows process walk), WezTerm (hybrid: OSC title first + CreateToolhelp32Snapshot/th32ParentProcessID walk + youngest-by-start_time + NtQueryInformationProcess PEB read for cwd), ConPTY API constraints (`GetConsoleProcessList` is attached-process-only, unusable from terminal side), OSC 7 path-form variance survey (MSYS2 `/c/...`, powershell backslash + no separator, wezterm forward-slash variants)
+- Engineer: three delegations — (1) WindowsTTY process-tree walk with TTL cache + OSC 7 parser `/C:/...` branch + powershell integration fix, (2) displayName SSOT unification across Terminal/Whelmed via PaneComponent + TTY::getShellPid virtual chain + Session::onFlush PID-based clear + flushStrings redundant compare removal, (3) 14-finding audit remediation (shellProgram dead-state deletion, WindowsTTY helper decomposition, ParserESC DRY collapse + modern cast, thread doxygen corrections, State/Parser doc fixes, ARCHITECTURE.md sync)
+- Auditor: pre-log audit returned 14 findings — 8 sprint-introduced + 6 pre-existing in touched files; all 14 resolved per CAROL clean-sweep rule
+
+### Files Modified
+- `Source/terminal/tty/WindowsTTY.cpp:120` — `static constexpr int64_t foregroundQueryCacheTtlMs { 500 }` named constant
+- `Source/terminal/tty/WindowsTTY.cpp:131,176` — new `static` file-local helpers `collectDescendantPids` (BFS via Process32FirstW/NextW filtering by `th32ParentProcessID` from shell root) and `findYoungestDescendant` (GetProcessTimes + CompareFileTime across candidates)
+- `Source/terminal/tty/WindowsTTY.cpp:1020,1037-1040` — `getForegroundPid` decomposed to 38-line orchestrator: cache check → snapshot → `collectDescendantPids` → `findYoungestDescendant` → cache write; `getShellPid` override returns `childPid`
+- `Source/terminal/tty/WindowsTTY.h` — `mutable DWORD cachedForegroundPid { 0 }` + `mutable int64_t lastForegroundQueryTimeMs { 0 }` members (memoization, MESSAGE THREAD only); `getShellPid` override declaration
+- `Source/terminal/tty/TTY.h` — `virtual int getShellPid() const noexcept { return 0; }` base declaration; thread doxygen on `getForegroundPid` corrected ("Any thread. Called from Session::onFlush (message thread)")
+- `Source/terminal/tty/UnixTTY.h,cpp` — `getShellPid` override returning `static_cast<int> (childProcess)`
+- `Source/terminal/logic/Session.h:211,222` — `Session::getForegroundPid` + `Session::getShellPid` doxygen corrected to MESSAGE THREAD
+- `Source/terminal/logic/Session.cpp:283-307` — `onFlush` lambda: `if (fgPid == shellPid)` clears foregroundProcess via `setForegroundProcess ("", 0)`; else existing name-write path
+- `Source/terminal/logic/Session.cpp:386-397,400` — `Session::getShellPid` passthrough to `tty->getShellPid()` with corrected thread doxygen
+- `Source/terminal/logic/Session.cpp:238,339` — dead `setProperty (Terminal::ID::shellProgram, ...)` writes deleted from both Session constructors
+- `Source/terminal/logic/ParserESC.cpp:452-496` — OSC 7 Windows branches collapsed: one block handles both `/c/...` MSYS and `/C:/...` native forms via conditional `:` insertion; `static_cast<int>` replaces C-style cast
+- `Source/terminal/data/Identifier.h` — deleted duplicate `Terminal::ID::displayName` and dead `Terminal::ID::shellProgram` identifiers
+- `Source/terminal/data/State.cpp:1266-1282` — removed `shell` local + `foreground != shell` compare; writes `App::ID::displayName`
+- `Source/terminal/data/State.h:1461` — `flushStrings` doxygen updated: "foreground process (when non-empty) → cwd leaf name"; shell-filter note relocated to Session::onFlush
+- `Source/component/Tabs.cpp:124,175` — `tabName.referTo` reads `App::ID::displayName` at new-tab creation and in `globalFocusChanged`
+- `Source/component/Tabs.cpp:171-183` — `globalFocusChanged` restructured: outer `dynamic_cast<PaneComponent*>` rebinds tabName via `pane->getValueTree().getPropertyAsValue(App::ID::displayName, ...)` (covers Whelmed); inner `dynamic_cast<Terminal::Display*>` preserves terminal-only side effects
+- `Source/terminal/logic/Parser.{h,cpp}` — stale `Session::resized()` doxygen references corrected to actual caller
+- `Source/terminal/shell/powershell_integration.ps1:15` — OSC 7 emits `file://$HOST/$($PWD.Path -replace '\\','/')` so payload is `file://HOST/C:/Users/...` (parser-compatible)
+- `ARCHITECTURE.md` — line 676 identifier swap; lines 680-689 displayName Computation section rewritten for PID-based filter at Session layer + App-scoped identifier; line 1186 glossary entry updated; line 1205 `shellProgram` glossary entry deleted
+
+### Alignment Check
+- [x] BLESSED — `B` (Bound): cache members owned by WindowsTTY, lifecycle matches; `getShellPid` owned by TTY. `L` (Lean): `getForegroundPid` 90→38 lines via helper decomposition; ParserESC DRY collapse; shellProgram dead state removed. `E` (Explicit): PID comparison replaces string-match heuristic; named constant `foregroundQueryCacheTtlMs`; `static_cast` throughout; positive nested checks; `not/and/or` tokens. `S` (SSOT): one `displayName` identifier (App::ID) for both Terminal + Whelmed; one at-prompt decision point (Session::onFlush). `S` (Stateless): Session tells State to clear; State doesn't infer. `E` (Encapsulation): PaneComponent::getValueTree() virtual reused; no new pattern invented. `D` (Deterministic): same PID → same outcome across platforms
+- [x] NAMES.md — Rule -1 honored. New names ARCHITECT-approved: `getShellPid` (verb+noun, semantic), `cachedForegroundPid` + `lastForegroundQueryTimeMs` + `foregroundQueryCacheTtlMs` (semantic memoization labels), `collectDescendantPids` + `findYoungestDescendant` (verb+noun, action-clear). All alphabetic English, non-redundant with type
+- [x] JRENG-CODING-STANDARD.md — brace init, `not/and/or`, positive nested checks, `.at()` where applicable, `static_cast` modern, explicit `nullptr`/`INVALID_HANDLE_VALUE` checks, no early returns, `noexcept` on all new methods, `override` consistently, no anonymous namespaces (file-local helpers use `static` linkage per Rule)
+
+### Problems Solved
+- **Windows ConPTY has no `tcgetpgrp` equivalent** — `WindowsTTY::getForegroundPid` originally returned shell `childPid` unconditionally, making tab-label `foreground != shell` name-compare at `State.cpp:1271` meaningless. Fix: walk the process tree with `CreateToolhelp32Snapshot` + BFS from `childPid` via `th32ParentProcessID`, pick descendant with latest `CreationTime` via `GetProcessTimes` + `CompareFileTime`. TTL cache bounded to 500ms prevents the 120Hz snapshot cost from `State::timerCallback → onFlush`. WezTerm-validated heuristic
+- **PowerShell integration emitted malformed OSC 7** — `file://$HOST$($PWD.Path)` had no separator between hostname and `C:\Users\...` drive + raw backslashes. Parser third-slash finder never matched; `setCwd` never fired. Fix emits `file://HOST/C:/Users/...` via path separator + `-replace '\\','/'`
+- **OSC 7 parser only handled MSYS form** — `/c/Users/...` mapped to `C:/Users/...`, but native Windows `/C:/Users/...` (drive+colon) fell through to non-Windows path. Added sibling branch; later collapsed per DRY with MSYS branch into one conditional
+- **TUI name stuck after command exits** (ARCHITECT: "it always show running tui. we also want cwd") — `foregroundProcess` was never cleared when walk fell back to shell PID. Guard `if (fgNameLen > 0)` at `Session.cpp:293` skipped setForegroundProcess on query failure, leaving stale "nvim" name indefinitely. Fix: Session::onFlush now compares `fgPid == shellPid` (PID-based, crossplatform); when equal (at-prompt case on both Unix via `tcgetpgrp == shell pgid` and Windows via walk fallback), explicitly writes empty foregroundProcess. `State::flushStrings` `name.isNotEmpty()` guard then correctly falls to cwd leaf
+- **Two identifier declarations for one concept** (ARCHITECT: "i thought tab name is single source? why whelmed on different valuetree?") — `Terminal::ID::displayName` + `App::ID::displayName` both `juce::Identifier{"displayName"}` but declared in separate namespaces. Shadow state / SSOT violation. Deleted Terminal scope; App::ID::displayName is now the sole pane-label identifier. Terminal `State::flushStrings` writes it; Whelmed `Component::openFile` already wrote it; `Tabs.cpp` reads it
+- **Whelmed panes didn't participate in tab-label binding** — `globalFocusChanged` dynamic_cast to `Terminal::Display*` failed for Whelmed, so `tabName.referTo` never re-bound when Whelmed gained focus. Fix: outer `dynamic_cast<PaneComponent*>` handles the rebind generically via `getValueTree()` virtual; inner Terminal cast retained for terminal-only side effects
+- **Shadow state** (Audit Finding #1) — `Terminal::ID::shellProgram` was still written by Session constructors after the PID-comparison fix removed the only reader. Deleted identifier + both writes; ARCHITECTURE.md glossary entry removed
+- **getForegroundPid monolithic** (Audit Finding #2) — 90 lines / 5+ nested branches flagged as Lean smell. Decomposed to two named `static` helpers + 38-line orchestrator (cache + snapshot + delegate). Single responsibility each
+- **OSC 7 Windows branches duplicated** (Audit Finding #3) — two near-identical branches differing by `:` presence. Collapsed under one guard with conditional colon insertion; `static_cast<int>` replaces C-style `(int)` (Finding #4)
+- **Thread doxygen stale** (Audit Findings #5–#8) — `getForegroundPid` / `getShellPid` claimed READER THREAD on base (`TTY.h:229`), Session declaration (`Session.h:211,222`), and Session definition (`Session.cpp:400`). Actual invocation path: `State::timerCallback` (juce::Timer → MESSAGE THREAD) → `state.onFlush` lambda. All four sites corrected
+- **State.h flushStrings doc stale** (Audit Finding #9) — claimed "foreground process (when different from shell)"; after filter relocation, corrected to "foreground process (when non-empty) → cwd leaf name" with shell-filter note pointing to Session::onFlush
+- **ARCHITECTURE.md drift** (Audit Findings #10–#13) — four sites referenced deleted identifier or old filter logic. All synced to current codebase-as-SSOT
+- **Parser stale `Session::resized()` reference** (Audit Finding #14) — method does not exist; both `Parser.h:189` and `Parser.cpp:172` corrected to actual caller
+
+### Debts Paid
+- `DEBT-20260411T125015` — tab label now updates crossplatform from active terminal pane's foreground TUI (when running) or cwd leaf (at prompt); Windows ConPTY foreground detection via process-tree walk; OSC 7 parser + PowerShell integration produce valid cwd signal; displayName identifier unified so Whelmed panes participate in tab binding
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 22: Selection Bleed Isolation ✅
 
 **Date:** 2026-04-16

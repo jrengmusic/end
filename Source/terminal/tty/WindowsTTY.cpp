@@ -58,6 +58,8 @@
 #ifdef JUCE_WINDOWS
 
 #include <BinaryData.h>
+#include <tlhelp32.h>
+#include <unordered_set>
 
 #pragma comment(lib, "kernel32.lib")
 
@@ -113,6 +115,98 @@ static void safeCloseHandle (HANDLE& h) noexcept
         h = INVALID_HANDLE_VALUE;
     }
 }
+
+/**
+ * @brief Collect transitive descendant PIDs of @p rootPid from a toolhelp snapshot.
+ *
+ * BFS: iterate Process32FirstW/NextW, pick up any process whose parent is in
+ * the current frontier, add it to the descendant set and next frontier, repeat
+ * until no new descendants are found.
+ *
+ * @param snapshot  Handle from CreateToolhelp32Snapshot — not owned, caller closes.
+ * @param rootPid   The PID whose descendants to collect.  Excluded from the result.
+ * @return          Set of descendant PIDs.  Empty if no descendants exist.
+ * @note Any thread.
+ */
+static std::unordered_set<DWORD> collectDescendantPids (HANDLE snapshot, DWORD rootPid) noexcept
+{
+    std::unordered_set<DWORD> descendants;
+    std::unordered_set<DWORD> frontier;
+    frontier.insert (rootPid);
+
+    bool expanded { true };
+
+    while (expanded)
+    {
+        expanded = false;
+        PROCESSENTRY32W entry {};
+        entry.dwSize = sizeof (PROCESSENTRY32W);
+
+        if (Process32FirstW (snapshot, &entry) != FALSE)
+        {
+            do
+            {
+                if (frontier.find (entry.th32ParentProcessID) != frontier.end()
+                    and descendants.find (entry.th32ProcessID) == descendants.end()
+                    and entry.th32ProcessID != rootPid)
+                {
+                    descendants.insert (entry.th32ProcessID);
+                    frontier.insert (entry.th32ProcessID);
+                    expanded = true;
+                }
+            }
+            while (Process32NextW (snapshot, &entry) != FALSE);
+        }
+    }
+
+    return descendants;
+}
+
+/**
+ * @brief Return the PID in @p descendants with the latest CreationTime.
+ *
+ * Opens each PID with PROCESS_QUERY_LIMITED_INFORMATION, queries GetProcessTimes,
+ * tracks the one with the greatest creation time via CompareFileTime.
+ *
+ * @param descendants  Candidate PIDs.  Empty → returns @p fallback.
+ * @param fallback     PID returned if no descendant can be queried.
+ * @return             Youngest descendant, or @p fallback.
+ * @note Any thread.
+ */
+static DWORD findYoungestDescendant (const std::unordered_set<DWORD>& descendants, DWORD fallback) noexcept
+{
+    DWORD bestPid { fallback };
+    FILETIME bestCreationTime {};
+
+    for (const DWORD pid : descendants)
+    {
+        const HANDLE hProc { OpenProcess (PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid) };
+
+        if (hProc != nullptr)
+        {
+            FILETIME creationTime {};
+            FILETIME exitTime {};
+            FILETIME kernelTime {};
+            FILETIME userTime {};
+
+            if (GetProcessTimes (hProc, &creationTime, &exitTime, &kernelTime, &userTime) != FALSE)
+            {
+                if (CompareFileTime (&creationTime, &bestCreationTime) > 0)
+                {
+                    bestCreationTime = creationTime;
+                    bestPid = pid;
+                }
+            }
+
+            CloseHandle (hProc);
+        }
+    }
+
+    return bestPid;
+}
+
+/** @brief TTL (ms) for the foreground-PID process-tree walk cache. */
+static constexpr int64_t foregroundQueryCacheTtlMs { 500 };
 
 // =============================================================================
 
@@ -877,22 +971,85 @@ bool WindowsTTY::isRunning() const
 // =============================================================================
 
 /**
- * @brief Returns the PID of the child shell process.
+ * @brief Returns the PID of the most recently spawned descendant of the shell process.
  *
- * ConPTY does not expose a foreground process group like Unix tcgetpgrp.
- * Returns the shell PID stored at open() time.
+ * ### ConPTY limitation
+ * ConPTY has no `tcgetpgrp` equivalent.  Instead of returning the shell PID
+ * unconditionally, this function walks the system process tree rooted at
+ * `childPid` and returns the descendant with the latest creation time —
+ * which is the process most recently forked by the shell and therefore the
+ * most likely foreground process.
  *
- * @return The shell PID, or -1 if not running.
- * @note Any thread.
+ * ### Walk algorithm
+ * 1. Snapshot all processes via `CreateToolhelp32Snapshot`.
+ * 2. BFS from `childPid`: collect all transitive descendants via parent-PID
+ *    links.
+ * 3. For each descendant, open with `PROCESS_QUERY_LIMITED_INFORMATION` and
+ *    call `GetProcessTimes`.  Track the one with the latest `CreationTime`.
+ * 4. Return that descendant's PID, or `childPid` if no descendants exist.
+ *
+ * ### TTL cache
+ * The walk is bounded to one execution per `foregroundQueryCacheTtlMs` (500 ms).
+ * On a cache hit, `cachedForegroundPid` is returned immediately without
+ * touching the Win32 API.  The cache is cold-started on the first call
+ * (`cachedForegroundPid == 0`), which forces an immediate walk regardless of
+ * the TTL.
+ *
+ * ### Fallback
+ * If `CreateToolhelp32Snapshot` fails, `childPid` is returned so the tab label
+ * continues to show the shell name rather than going blank.
+ *
+ * ### Thread safety
+ * `cachedForegroundPid` and `lastForegroundQueryTimeMs` are `mutable` and are
+ * written only from `Session::onFlush`, which is invoked exclusively on the
+ * JUCE message thread via `State::timerCallback`.  No lock is required.
+ *
+ * @return The most-recently-spawned descendant PID (or `childPid` as fallback),
+ *         or -1 if `childPid` is 0 (shell not running).
+ * @note MESSAGE THREAD context (via State::timerCallback → Session::onFlush).
  */
 int WindowsTTY::getForegroundPid() const noexcept
 {
+    jassert (childPid != 0);
+
     int result { -1 };
 
     if (childPid != 0)
-        result = static_cast<int> (childPid);
+    {
+        const int64_t nowMs { juce::Time::currentTimeMillis() };
+        const bool cacheValid { cachedForegroundPid != 0
+                                and (nowMs - lastForegroundQueryTimeMs) < foregroundQueryCacheTtlMs };
+
+        if (cacheValid)
+        {
+            result = static_cast<int> (cachedForegroundPid);
+        }
+        else
+        {
+            const HANDLE snapshot { CreateToolhelp32Snapshot (TH32CS_SNAPPROCESS, 0) };
+
+            if (snapshot == INVALID_HANDLE_VALUE)
+            {
+                result = static_cast<int> (childPid);
+            }
+            else
+            {
+                const auto descendants { collectDescendantPids (snapshot, childPid) };
+                CloseHandle (snapshot);
+
+                cachedForegroundPid = findYoungestDescendant (descendants, childPid);
+                lastForegroundQueryTimeMs = nowMs;
+                result = static_cast<int> (cachedForegroundPid);
+            }
+        }
+    }
 
     return result;
+}
+
+int WindowsTTY::getShellPid() const noexcept
+{
+    return static_cast<int> (childPid);
 }
 
 // =============================================================================
