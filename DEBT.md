@@ -8,13 +8,6 @@
 
 ---
 
-## DEBT-20260416T091057
-
-**Observation:** text selection, mouse, line, bleed to other terminal split
-**Divergence:** when selecting text in one terminal, sometimes visually other terminal get selection too. although the copied text was correct
-**Expectation:** text selection should be isoloated only to active terminal
-
----
 
 
 ## DEBT-20260412T234116

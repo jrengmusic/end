@@ -598,7 +598,7 @@ void Terminal::Display::onVBlank()
             const int scrollOffset { processor.getState().getScrollOffset() };
             const int visibleStart { scrollback - scrollOffset };
 
-            const bool isActivePane { AppState::getContext()->getActivePaneType() == App::ID::paneTypeTerminal };
+            const bool isActivePane { getComponentID() == AppState::getContext()->getActivePaneID() };
 
             {
                 const bool active { isActivePane and processor.getState().getModalType() == ModalType::selection };

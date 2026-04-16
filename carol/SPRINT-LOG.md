@@ -1,5 +1,34 @@
 # SPRINT-LOG
 
+## Sprint 22: Selection Bleed Isolation ✅
+
+**Date:** 2026-04-16
+**Duration:** ~00:20
+
+### Agents Participated
+- COUNSELOR: session lead, `/pay` targeting, approach selection (identity gate vs per-pane state), Whelmed constraint verification before approval
+- Pathfinder: two surveys — (1) selection state ownership + render path + pane architecture + shared ValueTree suspect, (2) pane identity accessor confirmation + Whelmed selection path + Whelmed split capability
+- Engineer: one surgical edit, identity-gate swap
+
+### Files Modified
+- `Source/component/TerminalDisplay.cpp:601` — `isActivePane` computation changed from pane-type check (`AppState::getActivePaneType() == App::ID::paneTypeTerminal`) to pane-identity check (`getComponentID() == AppState::getActivePaneID()`). Matches the identity pattern already in use at line 579 for the focus-toFront gate. Sibling terminal panes now fail the gate; selection render branch at line 616 skipped entirely, preventing phantom highlights from stale `selectionAnchorRow/Col` in inactive panes
+
+### Alignment Check
+- [x] BLESSED — `B` (Bound): active pane UUID is the sole owner of "who currently shows selection"; `L` (Lean): one-line change, no new members/methods/helpers; `E` (Explicit): positive check, alternative tokens preserved, no early return; `S` (SSOT): `AppState::getActivePaneID()` is the single truth; `S` (Stateless): no new state; `E` (Encapsulation): reuses existing identity accessor pattern already present in same callback; `D` (Deterministic): identical inputs yield identical render branch decisions
+- [x] NAMES.md — no new names introduced; reuses `getComponentID()` and `getActivePaneID()`
+- [x] JRENG-CODING-STANDARD — alternative tokens, brace init, positive check all preserved
+
+### Problems Solved
+- Selection highlight bleeding into sibling terminal panes when one pane had an active selection. Root cause: `isActivePane` gated on pane *type*, not pane *identity*, so every terminal pane in a split passed the gate and painted its own stale `selectionAnchor/selectionCursor` coords while the global `AppState::selectionType` was non-none. Copy payload was always correct because extraction reads from the active pane's `State` only — bleed was render-only. Whelmed unaffected: separate `paint()` codepath, no `onVBlank` participation, structurally excluded, and cannot be split (one instance maximum per `createWhelmed` in-place swap)
+
+### Debts Paid
+- `DEBT-20260416T091057` — selection highlight now isolated to active pane via identity gate at `TerminalDisplay.cpp:601`
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 21: Ledger Drain + Pane-0 SIGWINCH + Ctrl+C Kitty Keymap ✅
 
 **Date:** 2026-04-16
