@@ -22,6 +22,7 @@
 */
 
 #include "MainComponent.h"
+#include "component/Dialog.h"
 
 /** @note MESSAGE THREAD. */
 void MainComponent::registerEditActions (Action::Registry& action)
@@ -77,7 +78,66 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                            false,
                            [this]() -> bool
                            {
-                               juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                               if (not popup.isActive())
+                               {
+                                   if (not config.getBool (Config::Key::windowConfirmationOnExit))
+                                   {
+                                       juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                                   }
+                                   else
+                                   {
+                                       const bool daemonMode { appState.isDaemonMode() };
+
+                                       const juce::String message { daemonMode
+                                           ? "Save this session?"
+                                           : "Are you sure you wanna quit?" };
+
+                                       auto dialog { std::make_unique<Terminal::Dialog> (message) };
+
+                                       if (daemonMode)
+                                       {
+                                           dialog->onYes = [this]
+                                           {
+                                               popup.dismiss();
+                                               juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                                           };
+
+                                           dialog->onNo = [this]
+                                           {
+                                               popup.dismiss();
+
+                                               while (tabs->getTabCount() > 0)
+                                                   tabs->closeActiveTab();
+
+                                               appState.getStateFile().deleteFile();
+                                               juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                                           };
+                                       }
+                                       else
+                                       {
+                                           dialog->onYes = [this]
+                                           {
+                                               popup.dismiss();
+                                               juce::JUCEApplication::getInstance()->systemRequestedQuit();
+                                           };
+
+                                           dialog->onNo = [this]
+                                           {
+                                               popup.dismiss();
+                                           };
+                                       }
+
+                                       const int width  { dialog->getPreferredWidth() };
+                                       const int height { dialog->getPreferredHeight() };
+
+                                       auto renderer { (appState.getRendererType() == App::RendererType::gpu)
+                                           ? std::unique_ptr<jreng::GLRenderer> { std::make_unique<jreng::GLRenderer>() }
+                                           : nullptr };
+
+                                       popup.show (*this, std::move (dialog), width, height, std::move (renderer));
+                                   }
+                               }
+
                                return true;
                            });
 

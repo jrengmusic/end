@@ -9,7 +9,6 @@
 #include "LookAndFeel.h"
 #include "../config/WhelmedConfig.h"
 
-
 namespace Terminal
 { /*____________________________________________________________________________*/
 /**
@@ -56,6 +55,8 @@ void LookAndFeel::setColours()
     setColour (juce::PopupMenu::highlightedBackgroundColourId, windowColour.brighter (0.15f));///< corbeau
     setColour (juce::PopupMenu::highlightedTextColourId, fg);
 
+    setColour (juce::Label::textColourId, fg);
+
     setColour (juce::TextButton::textColourOffId, fg);
     setColour (juce::TextButton::textColourOnId, fg);
     setColour (juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
@@ -69,17 +70,14 @@ void LookAndFeel::setColours()
     setColour (statusBarLabelBackgroundColourId, cfg->getColour (Config::Key::coloursStatusBarLabelBg));
     setColour (statusBarLabelTextColourId, cfg->getColour (Config::Key::coloursStatusBarLabelFg));
 
-    setColour (juce::ResizableWindow::backgroundColourId,
-               cfg->getColour (Config::Key::coloursBackground));
+    setColour (juce::ResizableWindow::backgroundColourId, cfg->getColour (Config::Key::coloursBackground));
 
     if (auto* whelmedCfg { Whelmed::Config::getContext() })
     {
-        setColour (juce::ScrollBar::thumbColourId,
-                   whelmedCfg->getColour (Whelmed::Config::Key::scrollbarThumb));
-        setColour (juce::ScrollBar::trackColourId,
-                   whelmedCfg->getColour (Whelmed::Config::Key::scrollbarTrack));
-        setColour (juce::ScrollBar::backgroundColourId,
-                   whelmedCfg->getColour (Whelmed::Config::Key::scrollbarBackground));
+        setColour (juce::ScrollBar::thumbColourId, whelmedCfg->getColour (Whelmed::Config::Key::scrollbarThumb));
+        setColour (juce::ScrollBar::trackColourId, whelmedCfg->getColour (Whelmed::Config::Key::scrollbarTrack));
+        setColour (
+            juce::ScrollBar::backgroundColourId, whelmedCfg->getColour (Whelmed::Config::Key::scrollbarBackground));
     }
 }
 
@@ -98,11 +96,9 @@ void LookAndFeel::setColours()
 juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float height)
 {
     const auto* cfg { Config::getContext() };
-    return juce::Font {
-        juce::FontOptions()
-            .withName (cfg->getString (Config::Key::tabFamily))
-            .withPointHeight (cfg->getFloat (Config::Key::tabSize))
-    };
+    return juce::Font { juce::FontOptions()
+                            .withName (cfg->getString (Config::Key::tabFamily))
+                            .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
 }
 
 /**
@@ -117,11 +113,9 @@ juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float heig
 int LookAndFeel::getTabBarHeight() noexcept
 {
     const auto* cfg { Config::getContext() };
-    const juce::Font font {
-        juce::FontOptions()
-            .withName (cfg->getString (Config::Key::tabFamily))
-            .withPointHeight (cfg->getFloat (Config::Key::tabSize))
-    };
+    const juce::Font font { juce::FontOptions()
+                                .withName (cfg->getString (Config::Key::tabFamily))
+                                .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
     return juce::roundToInt (font.getHeight() / tabFontRatio);
 }
 
@@ -137,14 +131,13 @@ int LookAndFeel::getTabBarHeight() noexcept
  * @return             The transformed draw area (width and height swapped).
  */
 static juce::Rectangle<float> applyVerticalTabTransform (juce::Graphics& g,
-                                                          const juce::Rectangle<float>& area,
-                                                          juce::TabbedButtonBar::Orientation orientation)
+                                                         const juce::Rectangle<float>& area,
+                                                         juce::TabbedButtonBar::Orientation orientation)
 {
     const auto centreX { area.getCentreX() };
     const auto centreY { area.getCentreY() };
-    const auto angle { orientation == juce::TabbedButtonBar::TabsAtLeft
-                           ? -juce::MathConstants<float>::halfPi
-                           :  juce::MathConstants<float>::halfPi };
+    const auto angle { orientation == juce::TabbedButtonBar::TabsAtLeft ? -juce::MathConstants<float>::halfPi
+                                                                        : juce::MathConstants<float>::halfPi };
 
     g.addTransform (juce::AffineTransform::rotation (angle, centreX, centreY));
 
@@ -335,8 +328,8 @@ void LookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
                 const auto windowColour { cfg->getColour (Config::Key::windowColour) };
                 const auto menuOpacity { cfg->getFloat (Config::Key::menuOpacity) };
                 jreng::BackgroundBlur::enable (safeComponent.getComponent(),
-                                              cfg->getFloat (Config::Key::windowBlurRadius),
-                                              windowColour.withAlpha (menuOpacity));
+                                               cfg->getFloat (Config::Key::windowBlurRadius),
+                                               windowColour.withAlpha (menuOpacity));
             }
         });
 #endif
@@ -365,9 +358,7 @@ static void drawPopupMenuSeparator (juce::Graphics& g, const juce::Rectangle<int
  * @param area        Bounding rectangle for the full menu item.
  * @param fontHeight  Font height — used to derive arrow proportions.
  */
-static void drawSubmenuArrow (juce::Graphics& g,
-                               const juce::Rectangle<int>& area,
-                               float fontHeight)
+static void drawSubmenuArrow (juce::Graphics& g, const juce::Rectangle<int>& area, float fontHeight)
 {
     const auto arrowSize { fontHeight * 0.4f };
     const auto arrowX { static_cast<float> (area.getRight()) - arrowSize * 2.0f };
@@ -484,19 +475,37 @@ juce::Button* LookAndFeel::createTabBarExtrasButton()
 }
 
 /**
- * @brief Returns the font for text buttons using the configured tab font.
+ * @brief Dispatches text button fonts via component property inspection.
+ *
+ * Reads the `font` property from the button's property map.  A value equal to
+ * `jreng::ID::name` selects the action list name font (same branch as
+ * getLabelFont's `name`-role path).  All other buttons fall back to the
+ * configured tab font at 60 % of the button height.
  *
  * @param button       The text button being queried.
  * @param buttonHeight The button height in pixels.
- * @return The tab font at configured point size.
+ * @return             The resolved font for the given button.
  * @note MESSAGE THREAD.
  */
 juce::Font LookAndFeel::getTextButtonFont (juce::TextButton& button, int buttonHeight)
 {
     const auto* cfg { Config::getContext() };
-    return juce::Font {
+
+    juce::Font result {
         juce::FontOptions().withName (cfg->getString (Config::Key::tabFamily)).withPointHeight (buttonHeight * 0.6f)
     };
+
+    const auto fontRole { button.getProperties()[jreng::ID::font].toString() };
+
+    if (fontRole == jreng::ID::name.toString())
+    {
+        result = juce::Font { juce::FontOptions()
+                                  .withName (cfg->getString (Config::Key::actionListNameFamily))
+                                  .withStyle (cfg->getString (Config::Key::actionListNameStyle))
+                                  .withPointHeight (cfg->getFloat (Config::Key::actionListNameSize)) };
+    }
+
+    return result;
 }
 
 void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
@@ -546,6 +555,7 @@ juce::Font LookAndFeel::getLabelFont (juce::Label& label)
         const auto* cfg { Config::getContext() };
         result = juce::Font { juce::FontOptions()
                                   .withName (cfg->getString (Config::Key::actionListNameFamily))
+                                  .withStyle (cfg->getString (Config::Key::actionListNameStyle))
                                   .withPointHeight (cfg->getFloat (Config::Key::actionListNameSize)) };
     }
     else if (fontRole == jreng::ID::keyPress.toString())
@@ -553,6 +563,7 @@ juce::Font LookAndFeel::getLabelFont (juce::Label& label)
         const auto* cfg { Config::getContext() };
         result = juce::Font { juce::FontOptions()
                                   .withName (cfg->getString (Config::Key::actionListShortcutFamily))
+                                  .withStyle (cfg->getString (Config::Key::actionListShortcutStyle))
                                   .withPointHeight (cfg->getFloat (Config::Key::actionListShortcutSize)) };
     }
 
@@ -581,5 +592,5 @@ juce::Path LookAndFeel::getTabButtonShape (const juce::Rectangle<float>& area) n
     return p;
 }
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal
 

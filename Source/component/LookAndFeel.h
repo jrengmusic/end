@@ -182,11 +182,16 @@ public:
     juce::Button* createTabBarExtrasButton() override;
 
     /**
-     * @brief Returns the font for text buttons using the configured tab font.
+     * @brief Dispatches text button fonts via component property inspection.
+     *
+     * Reads the `font` property from the button's property map.  When the
+     * value matches `jreng::ID::name`, the action list name font is returned
+     * (matching the `name`-role branch of getLabelFont).  All other buttons
+     * fall back to the tab font at 60 % of the button height.
      *
      * @param button       The text button being queried.
      * @param buttonHeight The button height in pixels.
-     * @return The tab font at configured point size.
+     * @return             The resolved font for the given button.
      * @note MESSAGE THREAD.
      */
     juce::Font getTextButtonFont (juce::TextButton& button, int buttonHeight) override;

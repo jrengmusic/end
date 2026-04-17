@@ -1,0 +1,1 @@
+C:/Users/jreng/.carol/agents/researcher.md

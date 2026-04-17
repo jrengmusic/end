@@ -309,6 +309,9 @@ struct Config : jreng::Context<Config>
         /** @brief Whether the window size is persisted across instances to `~/.config/end/window.state`. */
         inline static const juce::String windowSaveSize { "window.save_size" };
 
+        /** @brief Whether Ctrl+Q shows a confirmation dialog before quitting. */
+        inline static const juce::String windowConfirmationOnExit { "window.confirmation_on_exit" };
+
         /** @brief GPU acceleration mode: "auto", "true", or "false". */
         inline static const juce::String gpuAcceleration { "gpu" };
 
@@ -424,11 +427,17 @@ struct Config : jreng::Context<Config>
         /** @brief Font family for action list name labels. */
         inline static const juce::String actionListNameFamily { "action_list.name_font_family" };
 
+        /** @brief Action-list name font style (e.g. "Regular", "Bold", "Book", "Medium"). */
+        inline static const juce::String actionListNameStyle { "action_list.name_font_style" };
+
         /** @brief Font size in points for action list name labels (6–72). */
         inline static const juce::String actionListNameSize { "action_list.name_font_size" };
 
         /** @brief Font family for action list shortcut labels. */
         inline static const juce::String actionListShortcutFamily { "action_list.shortcut_font_family" };
+
+        /** @brief Action-list shortcut font style (e.g. "Regular", "Bold"). */
+        inline static const juce::String actionListShortcutStyle { "action_list.shortcut_font_style" };
 
         /** @brief Font size in points for action list shortcut labels (6–72). */
         inline static const juce::String actionListShortcutSize { "action_list.shortcut_font_size" };
@@ -451,8 +460,8 @@ struct Config : jreng::Context<Config>
         /** @brief Text colour for action list shortcut labels (hex string). */
         inline static const juce::String actionListShortcutColour { "action_list.shortcut_colour" };
 
-        inline static const juce::String actionListWidth          { "action_list.width" };
-        inline static const juce::String actionListHeight         { "action_list.height" };
+        inline static const juce::String actionListWidth { "action_list.width" };
+        inline static const juce::String actionListHeight { "action_list.height" };
         inline static const juce::String actionListHighlightColour { "action_list.highlight_colour" };
 
         inline static const juce::String keysEnterSelection { "keys.enter_selection" };

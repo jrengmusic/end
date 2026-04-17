@@ -279,6 +279,11 @@ END = {
 		-- Restored sessions always use their own persisted window size and
 		-- ignore window.state regardless of this setting.
 		save_size = "%%window_save_size%%",
+
+		-- Show a confirmation dialog when Ctrl+Q is pressed.
+		-- When "true", a Yes/No dialog asks before quitting (or saving the session
+		-- in daemon mode).  When "false", Ctrl+Q quits immediately with no prompt.
+		confirmation_on_exit = "%%window_confirmation_on_exit%%",
 	},
 
 	-- ========================================================================
@@ -541,11 +546,17 @@ END = {
 		-- Font family for action name labels.
 		name_font_family = "%%action_list_name_font_family%%",
 
+		-- Action-list action-name font style (Regular, Bold, Book, Medium).
+		name_font_style = "%%action_list_name_font_style%%",
+
 		-- Font size for action name labels in points (6 - 72).
 		name_font_size = %%action_list_name_font_size%%,
 
 		-- Font family for keyboard shortcut labels. Should be monospace.
 		shortcut_font_family = "%%action_list_shortcut_font_family%%",
+
+		-- Action-list shortcut font style (Regular, Bold).
+		shortcut_font_style = "%%action_list_shortcut_font_style%%",
 
 		-- Font size for keyboard shortcut labels in points (6 - 72).
 		shortcut_font_size = %%action_list_shortcut_font_size%%,

@@ -1,5 +1,49 @@
 # SPRINT-LOG
 
+## Sprint 24: Ctrl+Q Confirmation Dialog + Display Font Resolution ✅
+
+**Date:** 2026-04-17
+**Duration:** ~02:30
+
+### Agents Participated
+- COUNSELOR: session lead, `/pay` ordering (newest-first → DEBT-20260412T234116), per-question decision discipline (kill-all semantics, Dialog naming, button widget choice, message copy, confirmation key), TTF metadata root-cause triage, handoff authorship to the `___display___` font project
+- Pathfinder: surveyed Ctrl+Q binding (Config.cpp:204, Action.cpp:23, MainComponentActions.cpp:73), daemon-mode detection (AppState.cpp:138-151), session save/restore (AppState.cpp:375-448), existing modal infra (Terminal::Popup + ModalWindow, MessageOverlay, LoaderOverlay), font-role dispatch pattern at ActionRow.cpp:27,33 + LookAndFeel.cpp:541-559
+- Engineer: six delegations — (1) scaffold `Terminal::Dialog` + `getTextButtonFont` font-role dispatch + wire quit action, (2) add `window.confirmation_on_exit` gate + content-driven sizing + explicit child-LAF propagation via `lookAndFeelChanged`, (3) diagnostic logging instrumentation to prove font dispatch, (4) strip logging + set `actionListNameFamily` default to `"Display Bold"`, (5) TTF `name` table inspection of Display {Book,Medium,Bold}.ttf + Display Mono Bold.ttf via fontTools — confirmed Display Prop metadata broken (uppercase subfamily, missing ID 16/17), (6) split `actionListName*`/`actionListShortcut*` config into separate family + style keys, chain `.withStyle(...)` in all five font-construction sites
+- ARCHITECT: diagnostic runtime logs pasted back, TTF rebuilt with correct `name` table, spotted pre-existing `Display Mono Bold` misconfiguration (shortcut font was also substituted silently)
+
+### Files Modified (9 Source + 3 binary + 2 docs)
+- NEW `Source/component/Dialog.h` — `Terminal::Dialog : juce::Component` with `onYes`/`onNo`/`onDismiss` callbacks, `keyPressed` for Y/N, `parentHierarchyChanged` + `visibilityChanged` + `lookAndFeelChanged` overrides; `static constexpr` paddings; LookAndFeel-derived font via `jreng::ID::font = jreng::ID::name` tagging on messageLabel + yesButton + noButton
+- NEW `Source/component/Dialog.cpp` — content-driven `getPreferredWidth/Height` (measures text width in Display font + button widths + padding), `resized` lays out message-above-buttons, `callAsync` + `SafePointer` deferred focus grab, explicit `setLookAndFeel(&laf)` on each child in `lookAndFeelChanged` for deterministic dispatch
+- `Source/MainComponentActions.cpp:74-135` — `"quit"` action: `if (not popup.isActive())` guard → `if (not config.getBool(windowConfirmationOnExit))` direct-quit path → `else` Popup+Dialog path with `daemonMode` branch (Save/Yes → systemRequestedQuit; No/kill-all → loop closeActiveTab + delete state file + quit) vs standalone (Yes → quit; No → dismiss only)
+- `Source/component/LookAndFeel.cpp:499-517` — rewrote `getTextButtonFont` to dispatch via `button.getProperties()[jreng::ID::font]` (name role → Display family + style + size; fallback → tab font)
+- `Source/component/LookAndFeel.cpp:555-567` — `getLabelFont` name + keyPress branches chain `.withStyle(...)` using new style keys
+- `Source/component/LookAndFeel.cpp:58` — added `setColour (juce::Label::textColourId, fg)` so Dialog messageLabel inherits terminal foreground
+- `Source/config/Config.h:313,431,440` — new `windowConfirmationOnExit`, `actionListNameStyle`, `actionListShortcutStyle` keys with Doxygen
+- `Source/config/Config.cpp:146,255-260` — registered the three new keys; family defaults reverted from `"Display Bold"`/`"Display Mono Bold"` to bare `"Display"`/`"Display Mono"` with separate `"Bold"` style
+- `Source/config/default_end.lua` — `confirmation_on_exit` entry under `window = {}` table; `name_font_style` / `shortcut_font_style` entries under action-list section
+- `___display___/fonts/Display/{Book,Medium,Bold}.ttf` — name-table rebuilt: Bold is RIBBI (ID 1=`Display`, ID 2=`Bold`); Book/Medium non-RIBBI (ID 1=`Display Book`/`Display Medium`, ID 2=`Regular`); all three populate ID 16=`Display` + ID 17=`{Book,Medium,Bold}`
+- `___display___/carol/SPRINT-LOG.md` — handoff appended: rebuild `fonts/Display/*.ttf` metadata (completed by ARCHITECT)
+
+### Alignment Check
+- [x] BLESSED principles followed (no early returns, positive checks, `static constexpr` for all dimensions, no magic numbers, explicit LAF propagation)
+- [x] NAMES.md adhered (`Dialog`, `onYes`/`onNo`/`onDismiss`, `messageLabel`/`yesButton`/`noButton`, `getPreferredWidth/Height`, `windowConfirmationOnExit`, `actionListNameStyle`, `actionListShortcutStyle` — all self-describing)
+- [x] MANIFESTO.md principles applied (Explicit Encapsulation — Dialog exposes only callbacks, children stay private; Single Responsibility — Dialog is generic 2-choice body, quit semantics live in MainComponentActions)
+- [x] Code contract — no early returns, no logging in final diff (diagnostics stripped per sprint protocol after root cause found), no magic numbers
+
+### Problems Solved
+- **Ctrl+Q had no confirmation** — raw `systemRequestedQuit()` on Ctrl+Q offered no chance to abort. Now gated by `window.confirmation_on_exit = true` (default) with mode-aware copy: daemon asks about session persistence ("Save this session?" — Yes = save + quit client / daemon persists; No = close all tabs → daemon exits via onAllSessionsExited); standalone asks explicit "Are you sure you wanna quit?".
+- **Action::List `name` font was always substituted** — pre-existing bug discovered mid-sprint. Config had `actionListNameFamily = "Display Bold"`, but `juce::FontOptions().withName(...)` matches TTF family (ID 1) only. TTF ID 1 = `Display`, not `Display Bold`. JUCE silently fell back to a default face. Same bug affected `actionListShortcutFamily = "Display Mono Bold"`.
+- **Display Prop TTF metadata was broken** — subfamily encoded `BOLD`/`MEDIUM`/`BOOK` (uppercase); no typographic preferred family (ID 16/17) entries. Rebuilt TTFs now encode Bold as RIBBI, populate ID 16/17, make family lookup deterministic across JUCE/DirectWrite.
+- **Dialog messageLabel rendered in default white** — `juce::Label::textColourId` was never wired to terminal foreground in `Terminal::LookAndFeel::setColours()`. Added the one-line colour registration; all labels now inherit `coloursForeground` by default (explicit per-component `setColour` still wins where set, e.g. Action::List rows).
+
+### Debts Paid
+- `DEBT-20260412T234116` — Ctrl+Q confirmation dialog, daemon + standalone modes, Save/Kill-all semantics per Files Modified entries in `MainComponentActions.cpp` + `Dialog.{h,cpp}`
+
+### Debts Deferred
+- `DEBT-20260411T100058` — mermaid rendering broken (stuck, no loader overlay) — ARCHITECT scoped this sprint to the dialog entry only ("one by one. focus on dialog"). Stays on ledger for next sprint.
+
+---
+
 ## Sprint 23: Tab Label Crossplatform TUI/cwd + displayName SSOT ✅
 
 **Date:** 2026-04-17

@@ -8,6 +8,84 @@
 
 ---
 
+## Handoff: Rebuild `fonts/Display/*.ttf` with correct name-table metadata
+
+**From:** COUNSELOR (END project, Sprint 24 — Ctrl+Q confirmation dialog)
+**Date:** 2026-04-17
+
+### Problem
+
+END resolves the Action::List action-name font and the new `Terminal::Dialog` via `juce::FontOptions().withName("Display Bold")`. Lookup fails — JUCE substitutes to a fallback face. Root cause is broken metadata in the three proportional TTFs at `___display___/fonts/Display/`.
+
+Inspection of the TTF `name` tables (via fontTools):
+
+| File                  | ID 1 Family | ID 2 Subfamily | ID 4 Full Name   | ID 6 PostScript    | ID 16 | ID 17 |
+|-----------------------|-------------|----------------|------------------|--------------------|-------|-------|
+| `Display Book.ttf`    | `Display`   | **`BOOK`**     | `Display BOOK`   | `Display-BOOK`     | N/A   | N/A   |
+| `Display Medium.ttf`  | `Display`   | **`MEDIUM`**   | `Display MEDIUM` | `Display-MEDIUM`   | N/A   | N/A   |
+| `Display Bold.ttf`    | `Display`   | **`BOLD`**     | `Display BOLD`   | `Display-BOLD`     | N/A   | N/A   |
+
+Contrast with correctly-built `Display Mono Bold.ttf` (produced by `build_fonts.py`): ID 2 = `Bold`, ID 4 = `Display Mono Bold`, ID 16 = `Display Mono`, ID 17 = `Bold`. DirectWrite/JUCE match by Full Name or Family+Subfamily; the uppercase subfamily + missing preferred-family entries break the non-mono Display lookup path.
+
+### Recommended Solution
+
+**Metadata-only rewrite.** The glyph outlines are correct — only the `name` table needs repair. No SVG rebuild required (these three TTFs are external imports, not built from the local GlyphSheet pipeline at `build_fonts.py`).
+
+Write a one-shot Python script (`___display___/fix_display_names.py`) that, for each of the three TTFs, opens via `fontTools.ttLib.TTFont`, rewrites the Windows-platform (platformID=3, platEncID=1, langID=0x0409) entries of the `name` table to:
+
+| Name ID | Value                                                     |
+|--------:|-----------------------------------------------------------|
+| 1       | `Display` (RIBBI) — or `Display {Style}` for non-RIBBI    |
+| 2       | `Bold` for RIBBI Bold; `Regular` otherwise                |
+| 4       | `Display {Style}` (`Display Book`, `Display Medium`, `Display Bold`) |
+| 6       | `Display-{Style}` (`Display-Book`, etc.)                  |
+| 16      | `Display` (typographic family — always)                   |
+| 17      | `{Style}` — `Book`, `Medium`, `Bold`                      |
+
+`Bold` is RIBBI; `Book` and `Medium` are non-RIBBI. RIBBI logic matches `build_fonts.py:644-646` exactly — copy the pattern:
+
+```python
+style = "Book" | "Medium" | "Bold"
+is_ribbi = style in ("Regular", "Bold", "Italic", "Bold Italic")
+win_family = FAMILY if is_ribbi else f"{FAMILY} {style}"
+win_style  = style  if is_ribbi else "Regular"
+```
+
+Also remove any stale `name` entries at IDs 1, 2 (matching `build_fonts.py:670-677`) before re-inserting, so DirectWrite doesn't see mixed old+new rows.
+
+Save over the existing files in-place (overwriting `fonts/Display/Display {Style}.ttf`). Re-run `Projucer` (or equivalent JUCE binary-resource refresh) so `BinaryData::DisplayBook_ttf` / `DisplayMedium_ttf` / `DisplayBold_ttf` pick up the new bytes — currently baked into the END build via `Source/Main.cpp:569-574`.
+
+### Acceptance Criteria
+
+- [ ] `python -c "from fontTools.ttLib import TTFont; f = TTFont(r'___display___/fonts/Display/Display Bold.ttf'); [print(r.nameID, repr(str(r))) for r in f['name'].names]"` shows:
+  - ID 1 = `Display`
+  - ID 2 = `Bold`
+  - ID 4 = `Display Bold`
+  - ID 16 = `Display`
+  - ID 17 = `Bold`
+- [ ] Same shape for `Display Book.ttf` (ID 1 = `Display Book`, ID 2 = `Regular`, ID 16 = `Display`, ID 17 = `Book`) and `Display Medium.ttf` (ID 1 = `Display Medium`, ID 2 = `Regular`, ID 16 = `Display`, ID 17 = `Medium`) — non-RIBBI.
+- [ ] END is rebuilt (BinaryData refreshed, JUCE rebuild).
+- [ ] Launch END, open Action::List — action name labels render in the Display Bold face (not fallback).
+- [ ] Launch END, press Ctrl+Q — `Terminal::Dialog` message label and Yes/No buttons render in Display Bold.
+- [ ] Visual comparison: glyph shapes match the pre-rebuild outlines exactly (metadata-only change; outlines untouched).
+
+### Files to Modify
+
+- `___display___/fonts/Display/Display Book.ttf` — overwrite (metadata only)
+- `___display___/fonts/Display/Display Medium.ttf` — overwrite (metadata only)
+- `___display___/fonts/Display/Display Bold.ttf` — overwrite (metadata only)
+- NEW `___display___/fix_display_names.py` — one-shot rewrite script (idempotent, safe to re-run)
+
+**Do NOT modify** `build_fonts.py` (correct as-is) nor any END C++ source — once the TTF metadata is clean, `actionListNameFamily = "Display Bold"` in `Source/config/Config.cpp:255` resolves correctly with no code change.
+
+### Notes
+
+- The uppercase subfamily (`BOLD`, `MEDIUM`, `BOOK`) is almost certainly an artifact of the source font's original generator. `build_fonts.py` avoids this by writing names explicitly via `setName`/`setupNameTable`.
+- `fix_nf_names.py` already exists at `___display___/` but is empty (0 bytes). Fill it with the Display-prop rewrite logic, OR use a new filename (`fix_display_names.py`) — either is acceptable; match whichever the Display-project prefers.
+- The END Sprint 24 work (Ctrl+Q dialog) unblocks itself with `Display Bold` once TTFs are rebuilt. Until then, the dialog renders in JUCE's fallback. No blocker for merging END Sprint 24 — the dialog logic is correct; only the glyph surface is temporarily off.
+
+---
+
 ## 📖 Notation Reference
 
 **[N]** = Sprint Number (e.g., `1`, `2`, `3`...)

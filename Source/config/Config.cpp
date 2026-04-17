@@ -143,6 +143,7 @@ void Config::initKeys()
     addKey (Key::windowButtons, "false", { T::string });
     addKey (Key::windowForceDwm, "true", { T::string });
     addKey (Key::windowSaveSize, "true", { T::string });
+    addKey (Key::windowConfirmationOnExit, "true", { T::string });
     addKey (Key::gpuAcceleration, "auto", { T::string });
     addKey (Key::daemon, "false", { T::string });
 
@@ -251,10 +252,12 @@ void Config::initKeys()
     addKey (Key::keysActionListCloseOnRun, "true", { T::string });
     addKey (Key::actionListWidth, 0.3, { T::number, 0.1, 1.0, true });
     addKey (Key::actionListHeight, 0.3, { T::number, 0.1, 1.0, true });
-    addKey (Key::actionListNameFamily, "Display", { T::string });
-    addKey (Key::actionListNameSize, 13.0, { T::number, 6.0, 72.0, true });
-    addKey (Key::actionListShortcutFamily, "Display Mono Bold", { T::string });
-    addKey (Key::actionListShortcutSize, 12.0, { T::number, 6.0, 72.0, true });
+    addKey (Key::actionListNameFamily,     "Display",      { T::string });
+    addKey (Key::actionListNameStyle,      "Bold",         { T::string });
+    addKey (Key::actionListNameSize,       13.0,           { T::number, 6.0, 72.0, true });
+    addKey (Key::actionListShortcutFamily, "Display Mono", { T::string });
+    addKey (Key::actionListShortcutStyle,  "Bold",         { T::string });
+    addKey (Key::actionListShortcutSize,   12.0,           { T::number, 6.0, 72.0, true });
     addKey (Key::actionListPaddingTop, 10.0, { T::number, 0.0, 50.0, true });
     addKey (Key::actionListPaddingRight, 10.0, { T::number, 0.0, 50.0, true });
     addKey (Key::actionListPaddingBottom, 10.0, { T::number, 0.0, 50.0, true });
