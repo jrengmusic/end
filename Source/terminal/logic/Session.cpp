@@ -544,12 +544,14 @@ void Session::stop()
         tty->onData = nullptr;
         tty->onDrainComplete = nullptr;
 
-        // Destroy Processor before TTY — Processor's State timer fires onFlush
-        // at 60 Hz and captures raw pointers into this Session.  Resetting here
-        // stops the timer (via State::~State → stopTimer) while tty is still
-        // valid, preventing a use-after-free if a final tick fires mid-shutdown.
-        processor.reset();
+        // Close TTY first — joins the reader thread.  Processor must outlive
+        // the reader because TTY::onData captures procRawPtr and the reader
+        // may be mid-processWithLock when close() is called.  Once close()
+        // returns, the reader thread is gone and Processor can be destroyed
+        // safely.  The State timer runs on the message thread (same thread
+        // as stop()), so it cannot fire mid-shutdown.
         tty->close();
+        processor.reset();
         tty = nullptr;
     }
     else

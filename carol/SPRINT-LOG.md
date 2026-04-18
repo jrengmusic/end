@@ -1,5 +1,43 @@
 # SPRINT-LOG
 
+## Sprint 26: Instant-Kill Terminal Pane Close ✅
+
+**Date:** 2026-04-19
+**Duration:** ~00:30
+
+### Agents Participated
+- COUNSELOR: session lead, root-cause framing (two bugs: Session::stop() ordering + close() graceful-first), option triage (SIGKILL-first vs detach-reader vs two-phase), SSOT hoist decision on Auditor findings.
+- Pathfinder: terminal teardown survey — identified `UnixTTY::close()` 5 s `stopThread(5000)` join + SIGTERM grace loop as hang vector; flagged `Session::stop()` ordering (processor.reset before tty->close) as UAF window with reader thread mid-`processWithLock`.
+- Engineer: reordered `Session::stop()`; rewrote `UnixTTY::close()` (SIGKILL-first) and `WindowsTTY::close()` (TerminateProcess-first) with named constants `instantKillJoinTimeoutMs` + `instantKillChildWaitMs`; removed now-unused `killTimeoutIterations` / `killPollInterval`; updated doxygen (close() docs + WindowsTTY file-level shutdown sequence).
+- Auditor: PASS with two Low concerns — stale UnixTTY.h file-level shutdown doc + duplicated `instantKillJoinTimeoutMs` across UnixTTY.h and WindowsTTY.cpp (SSOT).
+- ARCHITECT: approved SIGKILL-first direction, approved hoist fix-all for both audit findings.
+
+### Files Modified (4)
+
+- `Source/terminal/logic/Session.cpp:539–555` — swapped `processor.reset()` / `tty->close()` ordering so the reader thread is joined before Processor destruction; comment rewritten with correct rationale (reader-thread UAF, not State timer — timer is message-thread bound).
+- `Source/terminal/tty/TTY.h:110,349` — hoisted `inline static constexpr int instantKillJoinTimeoutMs { 500 }` into `TTY::Constants`; updated abstract `close()` doxygen ("up to 5 seconds" → "bounded by instantKillJoinTimeoutMs").
+- `Source/terminal/tty/UnixTTY.h:26–30, 237` — file-level "Destructor / shutdown sequence" rewritten for SIGKILL-first flow; removed per-class `instantKillJoinTimeoutMs` member (now inherited from TTY).
+- `Source/terminal/tty/UnixTTY.cpp:200–238` — `close()` body reordered: signal exit → SIGKILL child + blocking waitpid → close master → `stopThread(instantKillJoinTimeoutMs)`. Removed SIGTERM poll loop + `killTimeoutIterations` / `killPollInterval` constants. Doxygen rewritten.
+- `Source/terminal/tty/WindowsTTY.cpp:42–48, 211–215, 888–953` — `close()` body reordered: signal exit → `TerminateProcess` + `WaitForSingleObject(instantKillChildWaitMs)` → `ClosePseudoConsole` → `stopThread(instantKillJoinTimeoutMs)` → handle cleanup. File-level `### Shutdown sequence` block synced to new ordering. Removed local duplicate of `instantKillJoinTimeoutMs` (kept Windows-specific `instantKillChildWaitMs`).
+
+### Alignment Check
+- [x] BLESSED principles followed — **B** (Bound): per-pane ownership strictly preserved; SIGKILL targets this pane's pid only; master fd / pseudo console / reader thread are per-pane; no cross-instance effect. Removed SIGTERM grace — was a defensive guard with no named threat per Manifesto "Guard Rule". **L** (Lean): net deletion (two constants, one poll loop, one duplicate constant); close() bodies shrank on both platforms. **E** (Explicit): named constants replace magic `5000` / `2000`; new doxygen states the sequence, the rationale, and the thread context on every touched function; positive nested checks preserved; no early returns introduced. **S** (SSOT): `instantKillJoinTimeoutMs` now lives exactly once in `TTY.h` and is inherited by both platform subclasses. **S** (Stateless): no new machinery state. **E** (Encapsulation): close() remains the single public teardown API; platforms implement the contract, owner calls it and does not inspect. **D** (Deterministic): pane close completes within a bounded 500 ms ceiling regardless of in-flight burst size.
+- [x] NAMES.md adhered — `instantKillJoinTimeoutMs`, `instantKillChildWaitMs`: semantic, no type suffix, verb+noun form. ARCHITECT-approved per Rule -1 (implicit via `/go` acceptance of Engineer plan naming).
+- [x] MANIFESTO.md / JRENG-CODING-STANDARD.md — alternative tokens (`not`, `and`, `or`); brace init; positive nested checks; explicit nullptr / INVALID_HANDLE_VALUE comparisons; no magic numbers introduced (two existing 5000 / 2000 magics deleted); no anonymous namespaces; no `namespace detail`; function-call spacing matches existing style in each file.
+
+### Problems Solved
+- **Pane close hangs on large in-flight burst** — closing a terminal pane (e.g. long Claude Code session) could hang up to 5 s. Root cause: `UnixTTY::close()` called `stopThread(5000)` immediately after closing master; reader thread stuck inside `Processor::processWithLock` on a large chunk could not observe `threadShouldExit()` in time, and SIGTERM grace added another 500 ms before SIGKILL finally delivered. Fix: SIGKILL / TerminateProcess the child first — child death makes the master fd EOF / the overlapped ReadFile complete with broken-pipe immediately, reader exits, bounded 500 ms join is a ceiling, not an expected wait.
+- **Use-after-free window on pane close** — `Session::stop()` destroyed `Processor` before calling `tty->close()`. The TTY `onData` callback captures `procRawPtr` at `Session.cpp:261`; if the reader thread was mid-`processWithLock` when stop() ran, reset of Processor would invalidate `procRawPtr` while the reader was still dereferencing it. Old comment justified the order by "State timer" concerns, but the State timer is a `juce::Timer` — it runs on the message thread (same as stop()), so it cannot fire mid-shutdown. The reader-thread UAF is the real hazard. Fix: call `tty->close()` first (joins reader) → then `processor.reset()` (safe, no more callers). Callbacks already nulled at 543–545, so no late dispatches on the message thread either.
+- **SSOT duplication of bounded-join timeout** (audit finding) — `instantKillJoinTimeoutMs` was declared in both `UnixTTY.h` and `WindowsTTY.cpp` with identical value and identical meaning. Hoisted into `TTY.h` as an inline `static constexpr` — single truth, inherited unqualified by both subclasses.
+
+### Debts Paid
+- None. Bug was surfaced and fixed same-session; no DEBT.md entry existed for it.
+
+### Debts Deferred
+- None. `DEBT-20260411T100058` (mermaid rendering broken) remains on the ledger from Sprint 24's deferral; not scoped for this sprint.
+
+---
+
 ## Sprint 25: Reload Atlas Reset + CPU Pane Repaint + Overlay Z-order + Standalone Save Contract ✅
 
 **Date:** 2026-04-19

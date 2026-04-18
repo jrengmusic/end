@@ -41,10 +41,10 @@
  *
  * ### Shutdown sequence
  * 1. `signalThreadShouldExit()` — tell reader thread to stop.
- * 2. `ClosePseudoConsole()` — sends CTRL_CLOSE_EVENT to clients, then breaks
- *    the pipe.  **Must** happen while the reader thread is still alive.
- * 3. `stopThread (5000)` — wait for reader thread to exit.
- * 4. Clean up process handle (TerminateProcess as last resort).
+ * 2. `TerminateProcess()` child immediately — fastest path to unblock the
+ *    reader's overlapped `ReadFile`.  No SIGTERM grace; instant kill per ARCHITECT.
+ * 3. `ClosePseudoConsole()` — breaks the pipe; reader observes `ERROR_BROKEN_PIPE`.
+ * 4. `stopThread (instantKillJoinTimeoutMs)` — bounded join on the reader.
  * 5. Close pipe and event handles.
  *
  * @see WindowsTTY.h  Class declaration and member documentation
@@ -207,6 +207,9 @@ static DWORD findYoungestDescendant (const std::unordered_set<DWORD>& descendant
 
 /** @brief TTL (ms) for the foreground-PID process-tree walk cache. */
 static constexpr int64_t foregroundQueryCacheTtlMs { 500 };
+
+/** @brief Milliseconds to wait for the child process to terminate after TerminateProcess(). */
+static constexpr int instantKillChildWaitMs { 500 };
 
 // =============================================================================
 
@@ -887,11 +890,12 @@ bool WindowsTTY::open (int cols, int rows, const juce::String& shell,
  *
  * @par Shutdown sequence
  * 1. `signalThreadShouldExit()` — ask the reader thread to stop.
- * 2. `ClosePseudoConsole()` — sends CTRL_CLOSE_EVENT to clients, then breaks
- *    the pipe.  Called while the reader thread is still alive so that ConPTY
- *    does not deadlock.  The broken pipe unblocks the reader's overlapped read.
- * 3. `stopThread (5000)` — wait up to 5 s for the reader thread to exit.
- * 4. Check if child process is still alive; if so, `TerminateProcess()`.
+ * 2. `TerminateProcess()` child immediately — fastest path to unblock the
+ *    reader's overlapped `ReadFile`.  No graceful shutdown; instant kill on
+ *    pane close per ARCHITECT.
+ * 3. `ClosePseudoConsole()` — breaks the pipe; reader observes
+ *    `ERROR_BROKEN_PIPE` on its next `ReadFile` completion.
+ * 4. `stopThread (instantKillJoinTimeoutMs)` — bounded join on the reader.
  * 5. Close all remaining handles.
  *
  * @note MESSAGE THREAD context.
@@ -900,9 +904,25 @@ void WindowsTTY::close()
 {
     signalThreadShouldExit();
 
-    // Step 2: Close the pseudo console while the reader thread is still alive.
-    // ClosePseudoConsole sends CTRL_CLOSE_EVENT to all attached clients and
-    // then breaks the pipe, which unblocks the reader's overlapped ReadFile.
+    // Step 2: Kill the child process immediately — fastest path to unblock
+    // the reader's overlapped ReadFile.  No graceful shutdown; instant kill
+    // on pane close per ARCHITECT.
+    if (process != INVALID_HANDLE_VALUE)
+    {
+        DWORD exitCode { 0 };
+
+        if (GetExitCodeProcess (process, &exitCode) and exitCode == STILL_ACTIVE)
+        {
+            TerminateProcess (process, 0);
+            WaitForSingleObject (process, instantKillChildWaitMs);
+        }
+
+        CloseHandle (process);
+        process = INVALID_HANDLE_VALUE;
+    }
+
+    // Step 3: Close the pseudo console — breaks the pipe, reader observes
+    // ERROR_BROKEN_PIPE on its next ReadFile completion.
     if (pseudoConsole != nullptr)
     {
         const ConPtyFuncs& funcs { loadConPtyFuncs() };
@@ -915,25 +935,10 @@ void WindowsTTY::close()
         pseudoConsole = nullptr;
     }
 
-    // Step 3: Wait for the reader thread to see the broken pipe and exit.
-    stopThread (5000);
+    // Step 4: Bounded join on the reader thread.
+    stopThread (instantKillJoinTimeoutMs);
 
-    // Step 4: Clean up the child process.
-    if (process != INVALID_HANDLE_VALUE)
-    {
-        DWORD exitCode { 0 };
-
-        if (GetExitCodeProcess (process, &exitCode) and exitCode == STILL_ACTIVE)
-        {
-            TerminateProcess (process, 0);
-            WaitForSingleObject (process, 2000);
-        }
-
-        CloseHandle (process);
-        process = INVALID_HANDLE_VALUE;
-    }
-
-    // Step 5: Close all remaining handles.
+    // Step 5: Close remaining handles.
     safeCloseHandle (pipe);
     safeCloseHandle (readEvent);
     safeCloseHandle (writeEvent);

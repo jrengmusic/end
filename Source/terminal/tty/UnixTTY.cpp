@@ -202,27 +202,17 @@ bool UnixTTY::open (int cols, int rows, const juce::String& shell,
  *
  * @par Shutdown sequence
  * 1. `signalThreadShouldExit()` — ask the reader thread to stop.
- * 2. Close master fd — causes the child's next read to return EOF.
- * 3. `stopThread (5000)` — wait up to 5 s for the reader thread to exit.
- * 4. Non-blocking `waitpid (WNOHANG)` — check if child already exited.
- * 5. If still alive: send `SIGTERM`, then poll every `killPollInterval` µs
- *    for up to `killTimeoutIterations` iterations (500 ms total).
- * 6. If still alive after SIGTERM grace period: send `SIGKILL` and block on
- *    `waitpid()` to reap the zombie.
+ * 2. `SIGKILL` child immediately — child death is the fastest path to
+ *    unblock the reader's blocking `read()`.  SIGTERM grace is omitted
+ *    because ARCHITECT requires instant kill on pane close.
+ * 3. Close master fd — causes the reader to see EOF if still in `read()`.
+ * 4. `stopThread (instantKillJoinTimeoutMs)` — bounded join on the reader.
  *
  * @note MESSAGE THREAD context.
  */
 void UnixTTY::close()
 {
     signalThreadShouldExit();
-
-    if (master >= 0)
-    {
-        ::close (master);
-        master = -1;
-    }
-
-    stopThread (5000);
 
     if (childProcess > 0)
     {
@@ -231,27 +221,20 @@ void UnixTTY::close()
 
         if (result == 0)
         {
-            kill (childProcess, SIGTERM);
-
-            for (int i { 0 }; i < killTimeoutIterations; ++i)
-            {
-                usleep (killPollInterval);
-                result = waitpid (childProcess, &status, WNOHANG);
-                if (result != 0)
-                {
-                    break;
-                }
-            }
-
-            if (result == 0)
-            {
-                kill (childProcess, SIGKILL);
-                waitpid (childProcess, nullptr, 0);
-            }
+            kill (childProcess, SIGKILL);
+            waitpid (childProcess, nullptr, 0);
         }
 
         childProcess = -1;
     }
+
+    if (master >= 0)
+    {
+        ::close (master);
+        master = -1;
+    }
+
+    stopThread (instantKillJoinTimeoutMs);
 }
 
 /**

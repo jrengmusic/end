@@ -23,11 +23,11 @@
  * if not already present in the environment.  The shell binary is taken from
  * the `SHELL` environment variable, falling back to `/bin/bash`.
  *
- * ### Destructor / shutdown sequence
+ * ### Destructor / shutdown sequence (instant kill)
  * 1. Signal reader thread to exit.
- * 2. Close master fd (causes the child's read to return EOF).
- * 3. Wait up to 500 ms for the child to exit voluntarily (SIGTERM + poll).
- * 4. Send SIGKILL and block on waitpid if the child is still alive.
+ * 2. Send SIGKILL to the child and block on waitpid to reap.
+ * 3. Close master fd — reader observes EOF on its next read.
+ * 4. Bounded join on the reader thread (TTY::instantKillJoinTimeoutMs).
  *
  * @see TTY       Abstract base class and reader thread
  * @see UnixTTY.cpp  Implementation details
@@ -102,12 +102,12 @@ public:
      * @brief Close the PTY and terminate the shell process.
      *
      * Sequence:
-     * 1. Signal reader thread to exit.
-     * 2. Close master fd.
-     * 3. Wait up to 5 seconds for the reader thread to stop.
-     * 4. Non-blocking `waitpid()` — if child is still alive, send SIGTERM.
-     * 5. Poll up to `killTimeoutIterations × killPollInterval` µs for exit.
-     * 6. If still alive, send SIGKILL and block on `waitpid()`.
+     * 1. `signalThreadShouldExit()` — ask the reader thread to stop.
+     * 2. `SIGKILL` child immediately — child death is the fastest path to
+     *    unblock the reader's blocking `read()`.  SIGTERM grace is omitted
+     *    because ARCHITECT requires instant kill on pane close.
+     * 3. Close master fd — causes the reader to see EOF if still in `read()`.
+     * 4. `stopThread (instantKillJoinTimeoutMs)` — bounded join on the reader.
      *
      * @note MESSAGE THREAD context.
      */
@@ -234,15 +234,6 @@ private:
 
     /** @brief PID of the forked shell process.  -1 when not running. */
     pid_t childProcess { -1 };
-
-    /** @brief Number of 10 ms poll iterations before escalating to SIGKILL.
-     *
-     *  Total grace period = killTimeoutIterations × killPollInterval µs = 500 ms.
-     */
-    static constexpr int killTimeoutIterations { 50 };
-
-    /** @brief Microseconds to sleep between SIGTERM poll iterations. */
-    static constexpr useconds_t killPollInterval { 10000 };
 };
 
 #endif

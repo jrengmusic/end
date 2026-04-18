@@ -105,7 +105,7 @@ public:
      * thread to stop, then terminates the child process if still alive.
      *
      * @note Called from the message thread.  Blocks until the reader thread
-     *       has stopped (up to 5 seconds).
+     *       has stopped (bounded by instantKillJoinTimeoutMs).
      */
     virtual void close() = 0;
 
@@ -339,6 +339,15 @@ public:
      *  reader to drain a full burst in a single syscall.
      */
     inline static constexpr size_t READ_CHUNK_SIZE { 65536 };
+
+    /** @brief Bounded reader-thread join timeout on close() in milliseconds.
+     *
+     *  After the child has been killed and the PTY master / pseudo console
+     *  torn down, the reader thread must observe EOF / broken-pipe and exit.
+     *  This constant bounds the join so close() never blocks the message
+     *  thread indefinitely on a pane tear-down.  Shared by all platforms.
+     */
+    inline static constexpr int instantKillJoinTimeoutMs { 500 };
 
     /** @} */
 
