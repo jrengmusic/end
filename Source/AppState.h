@@ -8,22 +8,22 @@
  * Inherits `jreng::Context<AppState>` so any subsystem can call
  * `AppState::getContext()` without passing references.
  *
- * ### Serialization — two files, two concerns
+ * ### Serialization — three files, three concerns
  *
- * `~/.config/end/end.state` — full state (window + sessions); standalone mode only.
+ * `~/.config/end/window.state` — WINDOW width/height only (standalone, cross-instance).
+ * Written by `saveWindowState()`.  Read by `loadWindowState()`.
+ *
+ * `~/.config/end/nexus/<uuid>.display` — full state (WINDOW + TABS);
+ * daemon client writes on quit; daemon deletes on clean exit.
  * Written by `save()`.  Read on startup by `load()`.
  *
  * `~/.config/end/nexus/<uuid>.nexus` — plain-text port number only; daemon writes;
  * daemon deletes on exit.  Written by `setPort()`.  Read by startup scan (plain text).
  *
- * `~/.config/end/nexus/<uuid>.display` — full state (window + sessions);
- * nexus client writes; daemon deletes both files on clean exit.
- * Written by `save()`.  Read on startup by `load()`.
- *
  * ### SSOT
  * - Daemon owns `.nexus` (port).  Daemon never touches `.display`.
- * - MainComponent owns `.display` (full state).  MainComponent never writes `.nexus`.
- * - `getStateFile()` returns the correct path for the current mode.
+ * - Daemon client owns `.display` (full state).  Client never writes `.nexus`.
+ * - `getStateFile()` returns `nexus/<uuid>.display` (daemon client mode only).
  *
  * ### Instance UUID
  * The ctor calls only `initDefaults()`.  `initialise()` must call
@@ -172,15 +172,12 @@ struct AppState : jreng::Context<AppState>
     //==============================================================================
 
     /**
-     * @brief Writes the full state (window + sessions) to `getStateFile()`.
+     * @brief Writes the full state (WINDOW + TABS) to `nexus/<uuid>.display`.
      *
-     * Standalone mode: writes to `~/.config/end/end.state`.
-     * Nexus client mode: writes to `~/.config/end/nexus/<uuid>.display`.
-     *
-     * The NEXUS subtree (processors, loading ops) is excluded from persistence
-     * because it is rebuilt live when the daemon reconnects.
-     * Port is NOT written here — port lives in `<uuid>.nexus` (daemon's file).
-     * Daemon never calls this directly — daemon only writes its port via setPort().
+     * Daemon client mode only.  The NEXUS subtree (sessions, loading ops) is
+     * excluded — rebuilt live on reconnect.  Port is NOT written here — port
+     * lives in `<uuid>.nexus` (daemon's file).
+     * Daemon never calls this — daemon only writes its port via setPort().
      *
      * @note MESSAGE THREAD.
      */
@@ -209,12 +206,10 @@ struct AppState : jreng::Context<AppState>
     void loadWindowState();
 
     /**
-     * @brief Reads the full state from `getStateFile()` into the in-memory tree.
+     * @brief Reads the full state from `nexus/<uuid>.display` into the in-memory tree.
      *
-     * Standalone mode: reads from `~/.config/end/end.state`.
-     * Nexus client mode: reads from `~/.config/end/nexus/<uuid>.display`.
-     * Falls back silently to initDefaults() values if the file is absent or
-     * cannot be parsed.
+     * Daemon client mode only.  Falls back silently to initDefaults() values
+     * if the file is absent or cannot be parsed.
      *
      * @note MESSAGE THREAD.
      */
@@ -230,11 +225,7 @@ struct AppState : jreng::Context<AppState>
      */
     void deleteNexusFile();
 
-    /** @brief Returns the state file path for the current mode.
-     *
-     *  UUID set (nexus client or daemon): `~/.config/end/nexus/<uuid>.display`.
-     *  No UUID (standalone): `~/.config/end/end.state`.
-     */
+    /** @brief Returns `~/.config/end/nexus/<uuid>.display` (daemon client mode only). */
     juce::File getStateFile() const;
 
     /** @brief Returns `~/.config/end/nexus/<uuid>.nexus` (daemon's port file). */

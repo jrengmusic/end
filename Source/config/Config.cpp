@@ -15,7 +15,7 @@
  *     lua.safe_script_file(end.lua)       ← execute user config
  *     iterate _undefined → warnings
  *     iterate END.* → validate + store
- *   (AppState loads end.state and nexus/<uuid>.nexus separately)
+ *   (AppState loads nexus/<uuid>.display and window.state separately)
  * @endcode
  *
  * ### Colour parsing

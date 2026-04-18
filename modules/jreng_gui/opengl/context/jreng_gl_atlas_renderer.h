@@ -13,6 +13,9 @@
  * the GL atlas lifecycle for all typefaces passed at construction.
  * Atlas textures are created lazily on the GL thread (first
  * `uploadStagedBitmaps` call) and deleted in `contextClosing()`.
+ * The typeface's atlas handles are reset in `contextClosing()`; because the destructor calls
+ * `detachContext()` at the top of its body, `contextClosing()` fires on the derived vtable and
+ * the reset runs correctly on destruction too.
  *
  * ### Thread contract
  *

@@ -572,6 +572,11 @@ juce::ValueTree Terminal::Display::getValueTree() noexcept { return processor.ge
 /**
  * @brief VBlank callback: renders the grid if dirty, repositions cursor, updates visibility.
  *
+ * After render, calls `repaint()` to self-invalidate so JUCE's `paint(Graphics&)` fires for
+ * this Display — necessary in CPU mode where each pane must receive its own repaint signal.
+ * Also fires `onRepaintNeeded()` for cross-cutting concerns: `Window::triggerRepaint()` in GPU
+ * mode and status-bar-hint refresh.
+ *
  * @note MESSAGE THREAD — VBlankAttachment callbacks run on the message thread.
  */
 void Terminal::Display::onVBlank()
@@ -665,6 +670,8 @@ void Terminal::Display::onVBlank()
                 {
                     s.render (processor.getState(), processor.getGrid());
                 });
+
+            repaint();
 
             if (onRepaintNeeded != nullptr)
                 onRepaintNeeded();

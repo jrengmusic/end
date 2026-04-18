@@ -79,6 +79,8 @@ public:
      * @param durationMs  How long to show the message before fading out.
      *                    Defaults to `messageDelayMs` (5000 ms).
      * @note MESSAGE THREAD.
+     * @note Calls `toFront(false)` after fade-in to guarantee sibling z-order lift
+     *       (CPU mode respects sibling order literally; GPU composites via GL).
      */
     void showMessage (const juce::String& text, int durationMs = messageDelayMs)
     {
@@ -86,6 +88,7 @@ public:
         message = text;
         repaint();
         jreng::Animator::toggleFade (this, true, fadeInMs);
+        toFront (false);
         startTimer (durationMs);
     }
 
@@ -104,6 +107,8 @@ public:
      * @param padBottom Grid padding — bottom edge in logical pixels.
      * @param padLeft   Grid padding — left edge in logical pixels.
      * @note MESSAGE THREAD.
+     * @note Calls `toFront(false)` after fade-in to guarantee sibling z-order lift
+     *       (CPU mode respects sibling order literally; GPU composites via GL).
      */
     void showResize (int cols, int rows, int padTop, int padRight, int padBottom, int padLeft)
     {
@@ -116,6 +121,7 @@ public:
         resizePadLeft = padLeft;
         repaint();
         jreng::Animator::toggleFade (this, true, fadeInMs);
+        toFront (false);
         startTimer (resizeDelayMs);
     }
 

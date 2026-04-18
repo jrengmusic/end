@@ -364,10 +364,10 @@ void AppState::setPwd (juce::ValueTree sessionTree)
 //==============================================================================
 
 /**
- * @brief Writes the full state (window + sessions) to `getStateFile()`.
+ * @brief Writes the full state (WINDOW + TABS) to `nexus/<uuid>.display`.
  *
- * The NEXUS subtree (sessions, loading ops) is excluded — it is rebuilt live
- * on reconnect.  Port is NOT written here — port lives in `<uuid>.nexus`.
+ * Daemon client mode only.  The NEXUS subtree is excluded — rebuilt live on
+ * reconnect.  Port is NOT written here — port lives in `<uuid>.nexus`.
  * Daemon never calls this — daemon only writes its port via setPort().
  *
  * @note MESSAGE THREAD.
@@ -390,13 +390,12 @@ void AppState::save()
 }
 
 /**
- * @brief Reads the full state from `getStateFile()` into the in-memory tree.
+ * @brief Reads the full state from `nexus/<uuid>.display` into the in-memory tree.
  *
- * Merges WINDOW subtree and TABS subtree.
- * Falls back silently to initDefaults() values on parse failure or missing file.
- * Port is NOT read here — port is read as plain text from `<uuid>.nexus`
- * during the startup scan and stored via setPort().
- * The NEXUS subtree from the file is discarded — rebuilt on reconnect.
+ * Daemon client mode only.  Merges WINDOW and TABS subtrees.  Falls back
+ * silently to initDefaults() values on parse failure or missing file.
+ * Port is NOT read here — read as plain text from `<uuid>.nexus` during startup.
+ * The NEXUS subtree from the file is discarded — rebuilt live on reconnect.
  *
  * @note MESSAGE THREAD.
  */
@@ -461,20 +460,8 @@ void AppState::deleteNexusFile()
 
 juce::File AppState::getStateFile() const
 {
-    juce::File result {};
-
-    if (instanceUuid.isNotEmpty())
-    {
-        result = juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-                     .getChildFile (".config/end/nexus/" + instanceUuid + ".display");
-    }
-    else
-    {
-        result = juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-                     .getChildFile (".config/end/end.state");
-    }
-
-    return result;
+    return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+               .getChildFile (".config/end/nexus/" + instanceUuid + ".display");
 }
 
 juce::File AppState::getNexusFile() const

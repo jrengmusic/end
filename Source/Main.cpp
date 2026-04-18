@@ -15,7 +15,7 @@
  * Config ctor         → loads ~/.config/end/end.lua
  * AppState ctor       → initDefaults() only (no filesystem access)
  * FontCollection ctor → loads font handles at default size
- * initialise()        → resolves UUID, sets nexus mode, calls appState.load() (reads full state from mode-appropriate file),
+ * initialise()        → resolves UUID, sets nexus mode, loads state (daemon: full via appState.load(); standalone: window size only),
  *                       creates Window(new MainComponent()), then Nexus + Daemon/Link
  * @endcode
  *
@@ -320,11 +320,9 @@ public:
             if (not daemonEnabled)
             {
                 // ---- Single-process mode (nexus = false) --------------------
-                // No daemon, no IPC.  Load full state from end.state.
-                const bool hadState { appState.getStateFile().existsAsFile() };
-                appState.load();
-
-                if (not hadState and cfg->getBool (Config::Key::windowSaveSize))
+                // No daemon, no IPC.  Standalone persists only window size
+                // via loadWindowState/saveWindowState (window.state).
+                if (cfg->getBool (Config::Key::windowSaveSize))
                     appState.loadWindowState();
             }
 
@@ -452,7 +450,8 @@ public:
      * Saves window size then quits.  In nexus mode with live sessions, persists
      * UI state so the next client can restore window and tab layout.
      * In nexus mode with no sessions, deletes both `.display` and `.nexus`.
-     * In standalone mode, always saves.  Main owns all file I/O decisions.
+     * In standalone mode, only window size persists (via `saveWindowState`).
+     * Sessions die with the window by design.  Main owns all file I/O decisions.
      * In the byte-forward architecture the GUI process and the daemon process are
      * separate — quitting the GUI does not affect the daemon, which outlives the
      * GUI until its own shell count hits zero.
@@ -494,11 +493,6 @@ public:
                 appState.getStateFile().deleteFile();
                 appState.getNexusFile().deleteFile();
             }
-        }
-        else
-        {
-            // Standalone mode — always save on quit.
-            appState.save();
         }
 
         quit();

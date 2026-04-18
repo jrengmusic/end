@@ -1,5 +1,69 @@
 # SPRINT-LOG
 
+## Sprint 25: Reload Atlas Reset + CPU Pane Repaint + Overlay Z-order + Standalone Save Contract ✅
+
+**Date:** 2026-04-19
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: session lead. Initial sprint surface (renderer-type guard, save/load narrowing, onContextReady, switchRenderer idempotency) was over-scoped and wrong on multiple fronts; reverted in full to HEAD after ARCHITECT /stop, then re-applied minimal targeted fixes grounded in ODE runtime evidence. Decision-gate discipline failures (proposing hedges for ARCHITECT-already-decided questions, bailing toward SPEC-violating single-atlas-size shortcut) were surfaced by ARCHITECT and corrected.
+- Pathfinder: surveys — (1) Cmd+R reload path end-to-end (keybind → Action::Registry → config.reload → onReload → MainComponent::applyConfig → setRenderer → window->setRenderer → tabs->switchRenderer → Display::switchRenderer → onVBlank → Screen::render → GLSnapshotBuffer → uploadStagedBitmaps), (2) jreng_animator.h diff vs Kuassa's `___lib___/kuassa_animation/fade/kuassa_toggle_fade.h` (byte-identical — confirmed animator NOT the bug), (3) ModalWindow.cpp:74 entanglement check (single-terminal modal, not the active-only starvation pattern), (4) MessageOverlay CPU-vs-GPU paint trigger divergence survey, (5) CPU non-active pane repaint starvation trace, (6) `MessageOverlay::setBounds` git blame → commit 1a63528 (Apr 9) regression.
+- Engineer: many delegations — initial (reverted) sprint edits, full HEAD revert + reapply two minimal fixes, two ODE instrumentation passes (`juce::FileLogger` at project-root `end-debug.log`, `threadTag()` helpers at 6 sites), both instrumentation passes stripped within sprint per ODE protocol, `detachContext()` protected base-method addition, CPU non-active repaint fix (Display::onVBlank self-repaint + MainComponent lambda simplification), MessageOverlay z-order + bounds, standalone save/load contract split, audit cleanup batch (dead code, doxygen sync, schema fixes, ARCHITECTURE.md state-persistence section).
+- Auditor: two passes — post-revert intermediate (caught lingering pre-sprint virtual-dispatch hazard + doc gaps) and final pre-log (caught stray `public:` in animator header, dead `end.state` references across 7 files, `getStateFile()` dead fallback, `AppIdentifier.h` `port` schema drift, MessageOverlay doxygen gaps, ARCHITECTURE.md state-persistence drift).
+- ARCHITECT: diagnostic log inspection, /stop + /ode protocol invocations, contract reassertion ("daemon must restore session fully"), naming correction (`setOnContextReady` → `onContextReady` matching codebase pattern), evidence-grounded redirect from patch-chasing to ODE diagnosis, revert directive when sprint over-scoped.
+
+### Files Modified (15 source + 1 docs)
+
+**Primary fixes (DEBT target + regression + starvation):**
+- `modules/jreng_gui/opengl/context/jreng_gl_renderer.h` — new `protected: void detachContext()` + doxygen explaining subclass-dtor contract and virtual-dispatch-during-base-destructor rationale; removed unused public `void detach()`.
+- `modules/jreng_gui/opengl/context/jreng_gl_renderer.cpp` — `GLRenderer::detachContext()` impl (delegates to `openGLContext.detach()`); removed `GLRenderer::detach()` def.
+- `modules/jreng_gui/opengl/context/jreng_gl_atlas_renderer.cpp` — `~GLAtlasRenderer()` replaced `= default` with body calling `detachContext()` at top; `contextClosing()` unchanged (its existing `typeface->resetGlAtlas()` now fires via derived vtable); doxygen explains the fix.
+- `modules/jreng_gui/opengl/context/jreng_gl_atlas_renderer.h` — file-level doxygen notes destructor path through `detachContext()` → derived `contextClosing()` → atlas reset.
+- `Source/component/TerminalDisplay.cpp::onVBlank()` — `repaint()` on `this` after `visitScreen(s.render(...))`; each Display triggers its own JUCE paint invalidation. Doxygen updated.
+- `Source/MainComponent.cpp::initialiseTabs()` — `tabs->onRepaintNeeded` lambda no longer calls `terminal->repaint()` (Display self-repaints in onVBlank); retains `statusBarOverlay->updateHintInfo()` + `window->triggerRepaint()`.
+- `Source/MainComponent.cpp::resized()` — unconditional `messageOverlay->setBounds(getLocalBounds())` added after `tabs->setBounds`; doxygen added. Restores pre-commit-1a63528 behavior.
+- `Source/MainComponent.cpp::showMessageOverlay()` — removed redundant `setBounds` line (now owned by `resized()`); doxygen clarifies geometry ownership.
+- `Source/MainComponent.cpp::initialiseTabs()` — removed redundant `tabs->setBounds(getLocalBounds())` (resized() fires immediately after via valueTreeChildAdded).
+- `Source/component/MessageOverlay.h::showMessage()` + `showResize()` — `toFront(false)` after `toggleFade(this, true, fadeInMs)` for consistent sibling z-order; `@note` doxygen added to both.
+
+**Standalone save/load contract split:**
+- `Source/Main.cpp::initialise()` — standalone branch: removed `appState.load()` and `hadState` guard; only `loadWindowState()` when `Config::Key::windowSaveSize` is set. Daemon paths untouched. Also removed the now-obsolete file-level doxygen reference to `end.state`.
+- `Source/Main.cpp::systemRequestedQuit()` — standalone branch: removed `appState.save()` call; window size persisted via existing `saveWindowState()` earlier in same method. Doxygen updated: "standalone mode persists only window size; sessions die with the window by design."
+- `Source/AppState.cpp::getStateFile()` — removed dead no-UUID fallback branch (all call sites are daemon-gated post-sprint); body simplified to always return `nexus/<uuid>.display` path.
+- `Source/AppState.cpp` — `save()` and `load()` doxygen updated to reflect daemon-only contract.
+- `Source/AppState.h` — 4 doxygen sites updated (file-level, `save()`, `load()`, `getStateFile()`).
+
+**Audit sync (doc + dead refs):**
+- `Source/AppIdentifier.h` — file-level schema comment rewrote: `window.state` schema (standalone), `<uuid>.display` schema (daemon); corrected prior claim that `<uuid>.display` carries `port` (save() strips port before writing; port lives in `<uuid>.nexus`).
+- `Source/MainComponent.h:10` — doxygen reference to `end.state` replaced with `window.state` (standalone) / `<uuid>.display` (daemon client).
+- `Source/MainComponent.cpp` — inline comment at tab-restore site updated from "from `end.state`" to "from `<uuid>.display` when present (daemon client mode)."
+- `Source/component/Tabs.h::onRepaintNeeded` doxygen — added `StatusBarOverlay::updateHintInfo()` refresh to the stated responsibilities (pre-existing gap surfaced by audit).
+- `Source/config/Config.h:14` + `Source/config/Config.cpp:18` — state-path documentation row split: `window.state` (standalone) + `<uuid>.display` (daemon client).
+- `ARCHITECTURE.md:751-760` — Platform Configuration table + prose rewritten to reflect post-sprint contract (window.state for standalone, `<uuid>.display` for daemon, `<uuid>.nexus` for port).
+- `modules/jreng_gui/animation/jreng_animator.h` — stray `public:` access-specifier inside `struct Animator` removed (struct is already public by default).
+
+### Alignment Check
+- [x] BLESSED principles followed — `B` (Bound): base `~GLRenderer()` safety-net detach retained, idempotent with derived's explicit `detachContext()`; standalone/daemon persistence contracts cleanly bounded. `L` (Lean): net deletion (dead public `detach()`, dead fallback branch, redundant setBounds + tabs->setBounds, end.state machinery). `E` (Explicit): new virtual-dispatch contract documented on protected `detachContext()`; each Display owns its repaint trigger explicitly. `S` (SSOT): typeface atlas handles always zero when owning renderer dies; each Display the single truth for its own paint invalidation. `S` (Stateless): no new machinery state. `E` (Encapsulation): Display owns paint lifecycle, not a global lambda picking active; MessageOverlay owns z-order via its own `toFront()` call. `D` (Deterministic): reload + renderer-type swap now produces consistent render output regardless of mode or reload count.
+- [x] NAMES.md adhered — `detachContext` (protected, subclass-hook semantic; ARCHITECT-approved per Rule -1); `onContextReady` was attempted mid-sprint and reverted when the real root cause (virtual-dispatch trap) made the callback dead weight.
+- [x] MANIFESTO.md / JRENG-CODING-STANDARD.md — alternative tokens (`not`, `and`, `or`); brace init; `noexcept` retained; positive nested checks; no early returns; no anonymous namespaces; no `namespace detail`; no magic numbers introduced.
+- [x] ODE instrumentation removed — two passes added and stripped within sprint; `end-debug.log` deleted; final grep confirms zero `juce::Logger::writeToLog` / `threadTag()` / `FileLogger` residue in touched files.
+
+### Problems Solved
+- **Cmd+R reload made all text disappear** (DEBT target) — root cause was C++ virtual-dispatch-during-base-destructor. `~GLRenderer()` calls `openGLContext.detach()` which fires `openGLContextClosing()` → virtual `contextClosing()` — but at that point the derived portion is destroyed and dispatch lands on the base's empty override instead of `GLAtlasRenderer::contextClosing()` (which resets typeface atlas handles). Stale handles persisted across renderer instances; next GL context's `uploadStagedBitmaps()` saw non-zero handles, skipped texture creation, and uploaded to invalid IDs. Fix: protected `detachContext()` on base, derived destructor calls it at top of body — detach fires while derived vtable is still active, `contextClosing()` correctly dispatches to derived, handles reset. Base destructor's own `detach()` retained as idempotent safety net.
+- **CPU-mode non-active panes blank on session restore** — `tabs->onRepaintNeeded` lambda only called `getActiveTerminal()->repaint()`, starving non-active Display components in CPU mode (where each JUCE component must receive explicit `repaint()` to have `paint(Graphics&)` invoked). GPU mode masked this because `GLRenderer::renderComponent` iterates all renderables per GL frame. Fix: Display self-repaints in `onVBlank` after render; MainComponent lambda simplified to window triggerRepaint + status bar hint only.
+- **MessageOverlay invisible on launch / non-resize reload** — commit 1a63528 (Apr 9) gated `showMessageOverlay()` behind `isUserResizing()`, which inadvertently dragged the `messageOverlay->setBounds(getLocalBounds())` call inside the gate. Bounds stayed 0×0 on non-resize code paths, making every `showMessage()` paint invisibly. Fix: unconditional `setBounds` in `resized()`; `showMessageOverlay()` retains only the ruler-metrics computation + `showResize()` trigger.
+- **MessageOverlay z-order inconsistency in CPU mode** — second cmd+r reload painted overlay underneath siblings (CPU mode respects sibling declaration order literally; GPU GL-composites mask this). Fix: `toFront(false)` after fade-in in both `showMessage()` and `showResize()`.
+- **Standalone mode was persisting full state** — prior contract saved WINDOW+TABS+zoom+renderer to `end.state` on standalone quit, then restored all on next launch. Per ARCHITECT contract: standalone persists only window size; sessions die with window by design. Fix: standalone quit writes only `window.state` via `saveWindowState()`; launch loads only `loadWindowState()` (when configured); `appState.save()/load()` gated to daemon mode only; dead fallback branch of `getStateFile()` removed.
+- **Sprint scope over-reach** (process) — initial sprint interpreted ARCHITECT's "DROP EVERYTHING, only store and restore WINDOW size" as a literal full gut of `save()/load()` (which also broke daemon layout restore), added an `onContextReady` callback + `switchRenderer` idempotency fix as speculative mechanism before diagnosing. After ARCHITECT /stop and contract re-assertion, reverted entire sprint surface to HEAD, re-applied minimal targeted fixes grounded in ODE-instrumentation runtime evidence.
+
+### Debts Paid
+- `DEBT-20260418T111325` — mac Cmd+R reload made all text disappear. Resolved via `~GLAtlasRenderer` destructor calling `GLRenderer::detachContext()` at top of body, making `contextClosing()` virtual dispatch land on the derived vtable while it is still active and correctly reset typeface atlas handles. See Files Modified entries in `jreng_gl_atlas_renderer.{h,cpp}` + `jreng_gl_renderer.{h,cpp}`.
+
+### Debts Deferred
+- None. `DEBT-20260411T100058` (mermaid rendering broken) remains on the ledger from Sprint 24's deferral; not scoped for this sprint.
+
+---
+
 ## Sprint 24: Ctrl+Q Confirmation Dialog + Display Font Resolution ✅
 
 **Date:** 2026-04-17

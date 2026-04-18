@@ -11,7 +11,8 @@
  * | File                        | Purpose                                  |
  * |-----------------------------|------------------------------------------|
  * | `~/.config/end/end.lua`     | User config (loaded at startup, reloaded on Cmd+R) |
- * | `~/.config/end/end.state`      | Persisted application state (managed by AppState) |
+ * | `~/.config/end/window.state`        | Standalone window geometry (managed by AppState)     |
+ * | `~/.config/end/nexus/<uuid>.display` | Full state — daemon client mode (managed by AppState) |
  *
  * ### Config format (end.lua)
  * @code{.lua}

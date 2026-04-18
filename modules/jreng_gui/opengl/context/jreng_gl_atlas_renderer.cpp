@@ -12,7 +12,21 @@ GLAtlasRenderer::GLAtlasRenderer (std::initializer_list<jreng::Typeface*> typefa
 {
 }
 
-GLAtlasRenderer::~GLAtlasRenderer() = default;
+/**
+ * @brief Destroys the renderer, firing `contextClosing()` on the derived vtable.
+ *
+ * Calls `detachContext()` at the top of the body so the `juce::OpenGLContext`
+ * tears down while this class's vtable is still active.  `contextClosing()`
+ * then runs its `glDeleteTextures` + `typeface->resetGlAtlas()` cleanup on
+ * the live derived class, not the base's empty override.
+ *
+ * @see detachContext
+ * @see contextClosing
+ */
+GLAtlasRenderer::~GLAtlasRenderer()
+{
+    detachContext();
+}
 
 void GLAtlasRenderer::contextReady()
 {

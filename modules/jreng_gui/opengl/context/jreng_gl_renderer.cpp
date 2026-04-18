@@ -32,7 +32,7 @@ void GLRenderer::attachTo (juce::Component& target)
         openGLContext.attachTo (target);
 }
 
-void GLRenderer::detach()
+void GLRenderer::detachContext()
 {
     openGLContext.detach();
 }

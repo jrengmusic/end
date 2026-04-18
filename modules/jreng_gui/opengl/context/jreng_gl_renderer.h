@@ -11,7 +11,6 @@ public:
 
     void setSharedRenderer (GLRenderer& source);
     void attachTo (juce::Component& target);
-    void detach();
     void setComponentPaintingEnabled (bool enabled) noexcept;
 
     /**
@@ -73,6 +72,24 @@ public:
     bool isAttached() const noexcept;
 
 protected:
+    /**
+     * @brief Detaches the underlying `juce::OpenGLContext`, firing `contextClosing()` synchronously.
+     *
+     * **Must be called from every subclass destructor at the top of its body**, before
+     * the base destructor runs.  Rationale: `~GLRenderer()` also calls `detach()`,
+     * but at that point the derived portion has been destroyed and virtual dispatch
+     * of `contextClosing()` lands on this class's empty override instead of the
+     * subclass's.  Calling `detachContext()` from the derived destructor ensures
+     * virtual dispatch is still on the derived vtable, so GL resource cleanup
+     * declared in the subclass's `contextClosing()` actually runs.
+     *
+     * The base `~GLRenderer()` still calls `openGLContext.detach()` as a safety
+     * net — `detach()` is idempotent, so a second call after this one is a no-op.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void detachContext();
+
     /** @brief Initialise subclass GL resources. Called after base GL init, before component notification. @note GL THREAD. */
     virtual void contextReady() {}
 

@@ -66,6 +66,8 @@ public:
      * This callback is set by MainComponent to trigger Window::triggerRepaint(), which
      * delegates to the internal renderer if present and is a no-op in CPU mode.
      * It is forwarded to each new terminal's own onRepaintNeeded callback.
+     * MainComponent's binding additionally refreshes `StatusBarOverlay::updateHintInfo()`
+     * with the active terminal's hint state.
      *
      * @note MESSAGE THREAD.
      */

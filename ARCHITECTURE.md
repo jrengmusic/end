@@ -748,16 +748,16 @@ CSI u format: `CSI keycode ; modifiers u` where modifiers = `1 + shift(1) + alt(
 
 ### Config File Paths
 
-| Platform | Config path | State path (standalone) | State path (daemon client) | State path (daemon port) |
-|----------|------------|------------------------|--------------------------|--------------------------|
-| macOS/Linux | `~/.config/end/end.lua` | `~/.config/end/end.state` | `~/.config/end/nexus/<uuid>.display` | `~/.config/end/nexus/<uuid>.nexus` |
-| Windows | `%APPDATA%\end\end.lua` | `%APPDATA%\end\end.state` | `%APPDATA%\end\nexus\<uuid>.display` | `%APPDATA%\end\nexus\<uuid>.nexus` |
+| Platform | Config path | Window geometry (standalone) | Full state (daemon client) | Daemon port |
+|----------|------------|------------------------------|---------------------------|-------------|
+| macOS/Linux | `~/.config/end/end.lua` | `~/.config/end/window.state` | `~/.config/end/nexus/<uuid>.display` | `~/.config/end/nexus/<uuid>.nexus` |
+| Windows | `%APPDATA%\end\end.lua` | `%APPDATA%\end\window.state` | `%APPDATA%\end\nexus\<uuid>.display` | `%APPDATA%\end\nexus\<uuid>.nexus` |
 
 `Config::getConfigFile()` uses `juce::File::userApplicationDataDirectory` on Windows, `userHomeDirectory/.config/end/` on macOS/Linux. Creates directory and writes defaults if absent.
 
-`end.state` (window size, zoom, tab layout) is derived from the config file's parent directory and used in standalone mode. In daemon client mode the client reads and writes `nexus/<uuid>.display` instead.
+`window.state` persists WINDOW width/height only (standalone mode, cross-instance geometry). In daemon client mode the client reads and writes `nexus/<uuid>.display` (full WINDOW + TABS state) for session restore.
 
-The daemon's TCP port is written to `nexus/<uuid>.nexus` (plain text) by `Daemon::start()` via `AppState::setPort()`.  GUI clients read this file during startup to discover the port before beginning connect attempts.  The NEXUS directory/file subtree is `nexus/`, regardless of the config key rename.
+The daemon's TCP port is written to `nexus/<uuid>.nexus` (plain text) by `Daemon::start()` via `AppState::setPort()`. GUI clients read this file during startup to discover the port before beginning connect attempts. The NEXUS directory/file subtree is `nexus/`, regardless of the config key rename.
 
 The config key controlling daemon mode is `Config::Key::daemon` (`"daemon"` in end.lua).  The ValueTree property is `App::ID::daemonMode` on the WINDOW subtree.
 

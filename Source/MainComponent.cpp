@@ -148,10 +148,24 @@ void MainComponent::paint (juce::Graphics& g)
     }
 }
 
+/**
+ * @brief Lays out child components: tabs, messageOverlay, statusBarOverlay.
+ *
+ * Called by JUCE on every size change (including initial layout).  Assigns
+ * full-bounds to `tabs` and `messageOverlay`; positions `statusBarOverlay`
+ * at top or bottom edge per `keys.status_bar.position`.  Triggers the
+ * `showMessageOverlay()` resize ruler only while the user is actively
+ * dragging the window border (`jreng::Window::isUserResizing()`).
+ *
+ * @note MESSAGE THREAD.
+ */
 void MainComponent::resized()
 {
     if (tabs != nullptr)
         tabs->setBounds (getLocalBounds());
+
+    if (messageOverlay != nullptr)
+        messageOverlay->setBounds (getLocalBounds());
 
     if (auto* window { dynamic_cast<jreng::Window*> (getTopLevelComponent()) }; window != nullptr)
     {
@@ -313,6 +327,10 @@ juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowH
 
 /**
  * @brief Computes grid dimensions from font metrics and window bounds, displays "cols * rows" overlay.
+ *
+ * Bounds are set by `resized()`; this method only computes ruler content (cols × rows from font
+ * metrics) and triggers `MessageOverlay::showResize()`.
+ *
  * @note MESSAGE THREAD — called from resized().
  * @see MessageOverlay
  * @see fonts
@@ -321,8 +339,6 @@ void MainComponent::showMessageOverlay()
 {
     if (messageOverlay != nullptr)
     {
-        messageOverlay->setBounds (getLocalBounds());
-
         const auto fm { typeface.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
 
         if (fm.isValid())
@@ -380,23 +396,20 @@ void MainComponent::initialiseTabs()
         typeface,
         Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
     addAndMakeVisible (tabs.get());
-    tabs->setBounds (getLocalBounds());
 
     tabs->onRepaintNeeded = [this]
     {
         if (auto* terminal { tabs->getActiveTerminal() }; terminal != nullptr)
         {
             statusBarOverlay->updateHintInfo (terminal->getHintPage(), terminal->getHintTotalPages());
-            terminal->repaint();
         }
 
         if (auto* window { dynamic_cast<jreng::Window*> (getTopLevelComponent()) })
             window->triggerRepaint();
     };
 
-    // Restore tabs and split layout from end.state.
-    // Works identically in standalone and nexus modes — Session::create routes
-    // internally to local or client path; the walker is oblivious to mode.
+    // Restore tabs and split layout from `<uuid>.display` when present (daemon client mode).
+    // Session::create routes internally to client path; the walker is oblivious to mode.
 
     // Snapshot the saved TABS tree before clearing it.
     // addNewTab() mutates the live TABS node, so we must capture a deep copy

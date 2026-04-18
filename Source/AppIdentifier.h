@@ -2,22 +2,22 @@
  * @file AppIdentifier.h
  * @brief juce::Identifier constants for the application-level ValueTree.
  *
- * These identifiers define the schema for the two persisted files:
+ * These identifiers define the schema for the three persisted files:
  *
- * end.state  — window dimensions only (standalone mode):
+ * window.state  — window geometry only (standalone, cross-instance):
+ *     WINDOW (width, height)
+ *
+ * nexus/<uuid>.display  — full display state (daemon client mode only):
  *     END
- *     +-- WINDOW (width, height, zoom, renderer)
- *
- * nexus/<uuid>.display  — full display state (daemon mode only):
- *     END (port)
  *     +-- WINDOW (width, height, zoom, renderer, daemonMode)
- *     +-- NEXUS (SESSIONS [SESSION{id}*], LOADING [OPERATION{id}*])
  *     +-- TABS (active, position, activePaneID)
  *         +-- TAB
  *             +-- PANES (direction, ratio)
  *                 +-- PANE (uuid) | PANES (nested split)
  *                     +-- SESSION (terminal state, grafted from Terminal::State)
  *                     +-- DOCUMENT (whelmed state, grafted from Whelmed::State)
+ *
+ * nexus/<uuid>.nexus  — daemon port only (plain text, no ValueTree).
  *
  * @see AppState
  * @see Terminal::ID (terminal-level identifiers in Source/terminal/data/Identifier.h)
