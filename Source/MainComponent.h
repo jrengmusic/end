@@ -155,6 +155,9 @@ private:
     /** @brief Global typeface instance; provides font metrics and shaping for all terminals. */
     jreng::Typeface typeface;
 
+    /** @brief GL texture handle store; shared by all GLAtlasRenderer instances. */
+    jreng::GlyphAtlas glyphAtlas;
+
     /** @brief Tabbed terminal container; owns all Terminal::Display instances. */
     std::unique_ptr<Terminal::Tabs> tabs;
 

@@ -7,25 +7,10 @@
 namespace jreng
 { /*____________________________________________________________________________*/
 
-GLAtlasRenderer::GLAtlasRenderer (std::initializer_list<jreng::Typeface*> typefaces)
-    : managedTypefaces (typefaces)
+GLAtlasRenderer::GLAtlasRenderer (jreng::Typeface& typeface)
+    : typefaceRef  (typeface),
+      glyphContext {}
 {
-}
-
-/**
- * @brief Destroys the renderer, firing `contextClosing()` on the derived vtable.
- *
- * Calls `detachContext()` at the top of the body so the `juce::OpenGLContext`
- * tears down while this class's vtable is still active.  `contextClosing()`
- * then runs its `glDeleteTextures` + `typeface->resetGlAtlas()` cleanup on
- * the live derived class, not the base's empty override.
- *
- * @see detachContext
- * @see contextClosing
- */
-GLAtlasRenderer::~GLAtlasRenderer()
-{
-    detachContext();
 }
 
 void GLAtlasRenderer::contextReady()
@@ -36,23 +21,6 @@ void GLAtlasRenderer::contextReady()
 void GLAtlasRenderer::contextClosing()
 {
     glyphContext.closeContext();
-
-    for (auto* typeface : managedTypefaces)
-    {
-        if (typeface != nullptr)
-        {
-            auto monoHandle { static_cast<GLuint> (typeface->getGlMonoAtlas()) };
-            auto emojiHandle { static_cast<GLuint> (typeface->getGlEmojiAtlas()) };
-
-            if (monoHandle != 0)
-                juce::gl::glDeleteTextures (1, &monoHandle);
-
-            if (emojiHandle != 0)
-                juce::gl::glDeleteTextures (1, &emojiHandle);
-
-            typeface->resetGlAtlas();
-        }
-    }
 }
 
 void GLAtlasRenderer::renderText (GLGraphics& g, const juce::Component* target,
@@ -72,11 +40,11 @@ void GLAtlasRenderer::renderText (GLGraphics& g, const juce::Component* target,
         const int fullH { static_cast<int> (vpHeight) };
 
         glyphContext.push (destX, destY, physW, physH, fullH);
+        glyphContext.uploadStagedBitmaps (typefaceRef);
 
         for (const auto& textCmd : g.getTextCommands())
         {
             jreng::Font fontCopy { textCmd.font };
-            glyphContext.uploadStagedBitmaps (fontCopy.getTypeface());
             glyphContext.setFont (fontCopy);
             glyphContext.drawGlyphs (textCmd.glyphCodes.data(),
                                      textCmd.positions.data(),

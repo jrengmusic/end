@@ -498,7 +498,7 @@ void MainComponent::registerPopupActions (Action::Registry& action)
 
                     auto renderer { (appState.getRendererType() == App::RendererType::gpu)
                         ? std::unique_ptr<jreng::GLRenderer> { std::make_unique<jreng::GLAtlasRenderer> (
-                              std::initializer_list<jreng::Typeface*> { &typeface }) }
+                              typeface) }
                         : nullptr };
 
                     popup.show (*getTopLevelComponent(), std::move (terminal), pixelWidth, pixelHeight, std::move (renderer));

@@ -1,5 +1,76 @@
 # SPRINT-LOG
 
+## Sprint 27: GlyphAtlas Singleton + Typeface deGL + Config-Reload Rebuild ✅
+
+**Date:** 2026-04-19
+**Duration:** ~03:30
+
+### Agents Participated
+- COUNSELOR: session lead, foundation-scope framing (ARCHITECT "proper foundation now"), multiple Decision Gate escalations (atomic placement, layer boundary, Context pattern adoption, TextLayout drop-in constraint), plan drafting and iterative correction, compile-failure triage (include order, Atlas::Type straggler, stale texture IDs on reload).
+- Pathfinder: 6 surveys — popup close→atlas destroy path, GL context sharing hypothesis, atlas ownership structure (Typeface/Glyph::Atlas/GLContext/GLAtlasRenderer mapping), reload-trigger chain, popup renderer construction + MainComponent wiring + jreng::Window API, commit-style reference (git log).
+- Engineer: 6 execution passes — Step 0 (class + file rename, 100+ refs, git mv), Step 1 (GlyphAtlas creation), Step 2 (Typeface setFontFamily/setFontSize on both platforms), Step 3 (strip GL handles from Typeface), Steps 4-7 chained (GLContext/GLAtlasRenderer/MainComponent/popup wiring), Context-pattern refactor (abandoned ctor threading after Screen<Renderer> template collision), Steps 8-12 (AppState properties + atomic + listener + two consumers), ARCHITECTURE.md update.
+- Auditor: 2 validation passes — post-Step 0 (git mv status + build system), post-Steps 4-7 (ctor parameter order discrepancy flagged — amended PLAN rather than swap), final end-to-end sweep (grep sanity + contract compliance + doc drift).
+- ARCHITECT: locked BLESSED-proper direction at every Decision Gate — rejected atomic-on-Typeface, rejected atomic-on-GlyphAtlas (kept AppState as state-machine home per State.h precedent), rejected CPU-atlas refactor (kept scope honest — CPU path has no bug, jreng_graphics cannot reach jreng_gui), chose GlyphAtlas location (jreng_gui/opengl/context/), approved Context<T> pattern adoption when template threading hit Screen<Renderer> wall, directed pre-existing macOS setSize cachedMetricsSize bug fixed in-sprint.
+
+### Files Modified (~25)
+
+**New files:**
+- `modules/jreng_gui/opengl/context/jreng_glyph_atlas.h` — `jreng::GlyphAtlas` declaration, inherits `jreng::Context<GlyphAtlas>`, 89 lines, pure GL resource holder (monoAtlas/emojiAtlas handles + atlasSize).
+- `modules/jreng_gui/opengl/context/jreng_glyph_atlas.cpp` — `rebuildAtlas()` impl (glDeleteTextures + zero non-zero handles).
+- `PLAN-atlas-ownership.md` — project-root plan document, 14 steps, all gates resolved before execution.
+
+**Renamed (git mv):**
+- `modules/jreng_graphics/fonts/jreng_glyph_atlas.{h,cpp,mm}` → `jreng_glyph_packer.{h,cpp,mm}` — class `jreng::Glyph::Atlas` → `jreng::Glyph::Packer`. Rename touches 9 source files (typeface.h, typeface.mm, typeface.cpp, typeface_shaping.cpp, glyph_constraint.h, box_drawing.h, staged_bitmap.h, text_layout.h, gl_context.h).
+
+**Modified — Typeface (pure machinery):**
+- `modules/jreng_graphics/fonts/jreng_typeface.h` — removed glMonoAtlas/glEmojiAtlas members + 5 public GL accessors (getGl*/setGl*/resetGlAtlas); `atlas` member → `packer`; added setFontFamily/setFontSize declarations; ctor param `atlasSize` retained (CPU packer still needs it).
+- `modules/jreng_graphics/fonts/jreng_typeface.mm` — `setFontFamily` implementation (CoreText: tear down primary font handles, reload via descriptor-create, clear fallbackFontCache, cachedMetricsSize = -1, packer.clear); `setFontSize` delegates to `setSize` + `packer.clear`; `setSize` now resets `cachedMetricsSize = -1.0f` (parity with FreeType path, pre-existing asymmetry closed).
+- `modules/jreng_graphics/fonts/jreng_typeface.cpp` — `setFontFamily` implementation (FreeType: teardown/reload sequence from `loadFaces` regular-face block, registry slot 0 update); `setFontSize` analogous.
+
+**Modified — jreng_gui module:**
+- `modules/jreng_gui/jreng_gui.h` — umbrella include order: `jreng_glyph_atlas.h` before `jreng_gl_context.h` (GLContext references GlyphAtlas via Context).
+- `modules/jreng_gui/jreng_gui.cpp` — umbrella .cpp include for `jreng_glyph_atlas.cpp`.
+- `modules/jreng_gui/opengl/renderers/jreng_gl_context.h` — `GLContext() = default` (ctor threading abandoned post Context-pattern adoption); removed `GlyphAtlas&` member; doxygen updated.
+- `modules/jreng_gui/opengl/renderers/jreng_gl_context.cpp` — `uploadStagedBitmaps` uses `auto& atlas { *jreng::GlyphAtlas::getContext() }` local alias; read/write handles via atlas; `Atlas::Type::emoji` references → `Packer::Type::emoji`.
+- `modules/jreng_gui/opengl/context/jreng_gl_atlas_renderer.h` — ctor `explicit GLAtlasRenderer(jreng::Typeface&)`; removed `managedTypefaces` + `glyphAtlasRef`; `typefaceRef` retained; `~GLAtlasRenderer() = default` preserved (no dtor-driven teardown).
+- `modules/jreng_gui/opengl/context/jreng_gl_atlas_renderer.cpp` — ctor mem-init simplified; `uploadStagedBitmaps` hoisted out of per-command loop (once-per-frame, correct since staging is per-typeface).
+
+**Modified — App layer (Source/):**
+- `Source/AppIdentifier.h` — `App::ID::fontFamily` + `App::ID::fontSize` Identifiers added.
+- `Source/AppState.h` — added `getFontFamily`/`setFontFamily`/`getFontSize`/`setFontSize` public API; added `markAtlasDirty`/`consumeAtlasDirty`; added `std::atomic<bool> atlasDirty { false }` private member.
+- `Source/AppState.cpp` — getter/setter impls mirroring `getWindowWidth`/`setWindowSize` pattern; atomic methods use release-store / acquire-exchange.
+- `Source/MainComponent.h:159` — `jreng::GlyphAtlas glyphAtlas;` value member after `typeface`.
+- `Source/MainComponent.cpp` — `glyphAtlas.setAtlasSize(compact)` in ctor; `appState.getWindow().addListener(this)` / `removeListener(this)` ctor/dtor pair; `applyConfig` writes font family/size/renderer to AppState and calls `setRenderer`; `setRenderer` calls `typeface.setAtlasSize` + `glyphAtlas.setAtlasSize` + `markAtlasDirty` (renderer replacement unconditionally invalidates GL texture IDs); `setRenderables` lambda consumes atlasDirty → `glyphAtlas.rebuildAtlas()`; `valueTreePropertyChanged` body dispatches WINDOW property changes to typeface setters + `markAtlasDirty`.
+- `Source/MainComponentActions.cpp:500` — popup GLAtlasRenderer ctor simplified to `(typeface)` (shared GlyphAtlas via Context, no param).
+- `Source/terminal/rendering/ScreenGL.cpp` — `#include "../../AppState.h"`; `Screen<Renderer>::renderPaint` checks `consumeAtlasDirty()` → calls `GlyphAtlas::getContext()->rebuildAtlas()` (message-thread safe no-op in CPU-only runtime where handles are 0).
+- `Source/component/Tabs.cpp:833-866` — `computeContentRect` reads window dimensions from AppState (SSOT) instead of `getLocalBounds()`; removed `jassert(not base.isEmpty())` startup-path failure.
+
+**Documentation:**
+- `ARCHITECTURE.md` — L125 (jreng_glyph_packer rename), L796/1008/1095 (Glyph::Packer references in constraint/NF docs), new GlyphAtlas entry under Context pattern section, new APVTS subsection for fontFamily/fontSize/atlasDirty signal path.
+
+### Alignment Check
+- [x] BLESSED — Bound (GlyphAtlas single owner, MainComponent); Lean (one new class, dead `managedTypefaces` removed, 13-branch listener within MANIFESTO-L); Explicit (writer → ValueTree → listener → atomic → consumer, every hop visible); SSOT (handles live once on GlyphAtlas; font values on AppState ValueTree once); Stateless (Typeface no longer holds GL state, GlyphAtlas is dumb resource holder); Encapsulation (Typeface no longer knows GL, consumers tell GlyphAtlas to rebuild); Deterministic (config → AppState → listener → atomic → consumer → rebuild).
+- [x] NAMES.md — `GlyphAtlas`, `Packer`, `atlasDirty` (noun-adjective per State.h `snapshotDirty` Rule 5), `fontFamily`/`fontSize` (match existing Config::Key naming), `markAtlasDirty`/`consumeAtlasDirty` (verb-form, State.h `setFullRebuild`/`consumeFullRebuild` pattern).
+- [x] JRENG-CODING-STANDARD — `not`/`and`/`or`, positive nested checks, brace-init, braces on new line, no early returns, memory-order acquire/release explicit.
+- [x] CONTRACT adherence — all Decision Gates honored, plan locked before execution, no improvisation.
+
+### Problems Solved
+- **Popup close destroys shared atlas** — fixed at architectural level: popup's GLAtlasRenderer shares MainComponent-owned GlyphAtlas via `jreng::Context<>` singleton; popup destruction touches no atlas state.  Reverts the 491db0a dtor-driven `detachContext` workaround.
+- **Cmd+R reload makes text disappear** — `setRenderer` creates a new `juce::OpenGLContext`; the old context's texture IDs become invalid on teardown, but `GlyphAtlas` retained the stale numbers.  Fixed by unconditional `appState.markAtlasDirty()` in `setRenderer`; first frame of the new context consumes the signal and runs `rebuildAtlas` → zeroes handles → `uploadStagedBitmaps` allocates fresh textures.
+- **Font family / size hot-reload** — new `Typeface::setFontFamily` / `setFontSize` tear down and rebuild platform-specific font handles, clear fallback cache, invalidate `cachedMetricsSize`, and drop stale CPU-rasterized glyphs via `packer.clear()`.  Works on both GPU and CPU paths (CPU consumer hook in `Screen::renderPaint`).
+- **Typeface BLESSED-S violation** — Typeface was machinery holding persistent GL resource state.  Stripped GL handles + accessors; Typeface is now pure rasterization + shaping.
+- **macOS setSize cachedMetricsSize asymmetry** — FreeType `setSize` reset the metrics cache; macOS did not.  Closed the gap (pre-existing bug, fixed in-sprint per ARCHITECT direction).
+- **Glyph::Atlas name conflation** — old name referred to CPU packer + LRU + staging queue, not the GPU atlas.  Renamed to `Glyph::Packer`; `GlyphAtlas` now names the GPU resource owner.
+- **Tabs::computeContentRect startup assertion** — `getLocalBounds()` was empty before JUCE layout ran; replaced with `AppState` dimension read (SSOT).
+
+### Debts Paid
+- None. The atlas-destruction and reload-disappearance bugs were surfaced and fixed same-session; no DEBT.md entry existed for them. `DEBT-20260418T111325` (cmd+r reload → blank text) was already superseded by 491db0a but that fix was architecturally wrong; Sprint 27 supersedes the superseding.
+
+### Debts Deferred
+- None introduced this sprint. `DEBT-20260411T100058` (mermaid rendering broken) remains on the ledger from Sprint 24's deferral; not scoped for this sprint.
+
+---
+
 ## Sprint 26: Instant-Kill Terminal Pane Close ✅
 
 **Date:** 2026-04-19

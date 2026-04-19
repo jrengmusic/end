@@ -226,7 +226,7 @@ jreng::Typeface::GlyphRun jreng::Typeface::shapeHarfBuzz (Style style,
  * advance is always sourced from the primary face's cell width — fallback fonts
  * are typically proportional, so using their natural advance breaks the
  * monospace grid.  `GlyphRun::fontHandle` is set to the fallback `FT_Face` (as
- * `void*`) so the renderer passes the correct handle to `Atlas::getOrRasterize`.
+ * `void*`) so the renderer passes the correct handle to `Packer::getOrRasterize`.
  *
  * @param codepoints  UTF-32 codepoint array.
  * @param count       Number of codepoints in the array.

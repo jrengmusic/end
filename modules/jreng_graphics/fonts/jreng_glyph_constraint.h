@@ -4,7 +4,7 @@
  *
  * Constraint encodes how a single Nerd Font icon glyph should be scaled,
  * aligned, and padded within a terminal cell at rasterization time.  The
- * constraint is applied by `jreng::Glyph::Atlas::rasterizeGlyph()` before the
+ * constraint is applied by `jreng::Glyph::Packer::rasterizeGlyph()` before the
  * glyph bitmap is stored in the atlas.
  *
  * ### Data source
@@ -34,7 +34,7 @@
  * @note `Constraint` is trivially copyable and stored by value in the
  *       generated lookup table.
  *
- * @see jreng::Glyph::Atlas::rasterizeGlyph()
+ * @see jreng::Glyph::Packer::rasterizeGlyph()
  * @see jreng::Glyph::getConstraint()
  */
 
@@ -59,7 +59,7 @@ namespace jreng::Glyph
  * `Constraint` is `std::is_trivially_copyable` so it can be stored
  * directly in the generated lookup table without heap allocation.
  *
- * @see jreng::Glyph::Atlas::rasterizeGlyph()
+ * @see jreng::Glyph::Packer::rasterizeGlyph()
  * @see jreng::Glyph::getConstraint()
  */
 // Per-glyph scaling and positioning constraint for Nerd Font icons.
@@ -74,7 +74,7 @@ struct Constraint
      * @enum ScaleMode
      * @brief Controls how the glyph is scaled to fit the terminal cell.
      *
-     * @see jreng::Glyph::Atlas::rasterizeGlyph()
+     * @see jreng::Glyph::Packer::rasterizeGlyph()
      */
     enum class ScaleMode : uint8_t
     {
@@ -252,7 +252,7 @@ static_assert (std::is_trivially_copyable_v<Constraint>, "jreng::Glyph::Constrai
  * @note Implemented in `constraint/jreng_glyph_constraint_table.cpp` (generated file — do
  *       not edit manually).
  * @see Constraint::isActive()
- * @see jreng::Glyph::Atlas::rasterizeGlyph()
+ * @see jreng::Glyph::Packer::rasterizeGlyph()
  */
 // Lookup constraint for a codepoint. Returns default (inactive) constraint
 // for codepoints that are not Nerd Font icons.

@@ -74,7 +74,9 @@ namespace ID
     static const juce::Identifier activePaneType { "activePaneType" };
     static const juce::Identifier modalType      { "modalType" };
     static const juce::Identifier selectionType  { "selectionType" };
-    static const juce::Identifier renderer           { "renderer" };
+    static const juce::Identifier fontFamily          { "fontFamily" };
+    static const juce::Identifier fontSize            { "fontSize" };
+    static const juce::Identifier renderer            { "renderer" };
     static const juce::Identifier gpuAvailable       { "gpuAvailable" };
     static const juce::Identifier daemonMode          { "daemonMode" };
     static const juce::Identifier filePath           { "filePath" };

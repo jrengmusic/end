@@ -61,7 +61,7 @@
 #include "fonts/jreng_glyph_constraint.h"
 #include "fonts/jreng_constraint_transform.h"
 #include "fonts/jreng_box_drawing.h"
-#include "fonts/jreng_glyph_atlas.h"
+#include "fonts/jreng_glyph_packer.h"
 
 #include "fonts/jreng_typeface.h"
 #include "fonts/jreng_font.h"

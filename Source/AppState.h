@@ -73,6 +73,13 @@ struct AppState : jreng::Context<AppState>
     void setWindowSize (int width, int height);
     void setWindowZoom (float zoom);
 
+    juce::String getFontFamily() const noexcept;
+    void setFontFamily (const juce::String& family);
+    float getFontSize() const noexcept;
+    void setFontSize (float size);
+    void markAtlasDirty() noexcept;
+    bool consumeAtlasDirty() noexcept;
+
     /** @brief Returns the resolved renderer type enum. */
     App::RendererType getRendererType() const noexcept;
 
@@ -238,6 +245,7 @@ private:
     juce::ValueTree state;
     juce::Value pwdValue;
     juce::String instanceUuid;
+    std::atomic<bool> atlasDirty { false };
 
     void initDefaults();
 

@@ -40,6 +40,7 @@
 #include "opengl/context/jreng_gl_shader_compiler.h"
 #include "opengl/context/jreng_gl_vertex_layout.h"
 #include "opengl/renderers/jreng_glyph_shaders.h"
+#include "opengl/context/jreng_glyph_atlas.h"
 #include "opengl/renderers/jreng_gl_context.h"
 #include "opengl/context/jreng_gl_renderer.h"
 #include "opengl/context/jreng_gl_atlas_renderer.h"

@@ -122,7 +122,7 @@ Source/
       GlyphConstraint.h             Per-codepoint NF icon scaling/alignment descriptor
       GlyphConstraintTable.cpp      Generated table: 10,470 codepoints, 88 switch arms
       BoxDrawing.h                  Procedural rasterizer: box drawing, block elements, braille
-      GlyphAtlas.h/cpp              LRU glyph cache + atlas packer + staged upload
+      jreng_glyph_packer.h/cpp      LRU glyph cache + atlas packer + staged upload (class jreng::Glyph::Packer)
       AtlasPacker.h                 Shelf-based rectangle packer
       TerminalGLRenderer.cpp        OpenGL renderer (shaders, draw calls)
       TerminalGLDraw.cpp            Instance upload + draw
@@ -472,6 +472,12 @@ Keystroke -> Message Thread -> TTY::write()
 
 Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Render path calls `State::refresh()` to force-flush atomics before each frame, ensuring the snapshot reads current values without waiting for the timer.
 
+WINDOW-subtree properties `App::ID::fontFamily` and `App::ID::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `std::atomic<bool>`. Two consumers:
+- **GL thread** — GPU lambda calls `consumeAtlasDirty()` and invokes `GlyphAtlas::getContext()->rebuildAtlas()` to tear down and re-upload GPU textures.
+- **Message thread** — `renderPaint` CPU path calls `consumeAtlasDirty()` before rasterizing to avoid stale CPU atlas.
+
+`markAtlasDirty()` / `consumeAtlasDirty()` are the only public API. No caller reads `atlasDirty` directly.
+
 ### Pattern: Double-Buffered Snapshot (GLSnapshotBuffer)
 
 **Used for:** Lock-free handoff of render data from message thread to GL thread.
@@ -487,6 +493,8 @@ Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls 
 **Implementation:** `Config.h` inherits `jreng::Context<Config>`, `Fonts.h` inherits `jreng::Context<Fonts>`
 
 Config lifetime owned by `ENDApplication` (Main.cpp). Fonts lifetime owned by `MainComponent`. Access via `Config::getContext()->` / `Fonts::getContext()->`. Fail-fast jassert if accessed before construction.
+
+`GlyphAtlas` (`modules/jreng_gui/opengl/context/jreng_glyph_atlas.h`) also inherits `jreng::Context<GlyphAtlas>`. Pure GL texture handle holder: `monoAtlas`, `emojiAtlas`, `atlasSize`. Owned by `MainComponent` (value member). Shared by all `GLAtlasRenderer` instances (main + popup). `rebuildAtlas()` runs on the GL thread — calls `glDeleteTextures` and zeroes handles, triggering re-upload. CPU atlas images remain on `Typeface`; `GlyphAtlas` owns only the GPU handles.
 
 ### Pattern: Shelf-Based Atlas Packing
 
@@ -793,7 +801,7 @@ Parser reads geometry via `state.getRawValue<int>(ID::cols)` etc. (lock-free ato
 
 ### GlyphConstraint
 
-Per-codepoint scaling and alignment descriptor for Nerd Font icons. Applied at rasterization time in GlyphAtlas.
+Per-codepoint scaling and alignment descriptor for Nerd Font icons. Applied at rasterization time in `jreng::Glyph::Packer`.
 
 Fields:
 - `ScaleMode` — none / fit / cover / adaptiveScale / stretch
@@ -1005,7 +1013,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Nerd Font icons have wildly varying aspect ratios and need per-glyph positioning to look correct in a monospace grid.
 
-**Decision:** Generated constraint table (10,470 codepoints, 88 switch arms) from NF patcher v3.4.0 data. Applied at rasterization time in GlyphAtlas.
+**Decision:** Generated constraint table (10,470 codepoints, 88 switch arms) from NF patcher v3.4.0 data. Applied at rasterization time in `jreng::Glyph::Packer`.
 
 **Rationale:** Matches NF patcher's own scaling logic. Icons render identically to how they appear in patched fonts, but with runtime flexibility for any cell size.
 
@@ -1092,7 +1100,7 @@ The NF icon font (`SymbolsNerdFont-Regular.ttf`) is loaded from BinaryData, not 
 
 ### GlyphConstraint Subsystem
 
-`GlyphConstraintTable.cpp` is a generated file. It maps NF icon codepoints to `GlyphConstraint` descriptors that replicate the scaling decisions made by the NF patcher. GlyphAtlas applies the constraint before writing pixels to the atlas, so icons are positioned and scaled identically to how they appear in a patched font — but at any runtime cell size.
+`GlyphConstraintTable.cpp` is a generated file. It maps NF icon codepoints to `GlyphConstraint` descriptors that replicate the scaling decisions made by the NF patcher. `jreng::Glyph::Packer` applies the constraint before writing pixels to the atlas, so icons are positioned and scaled identically to how they appear in a patched font — but at any runtime cell size.
 
 ### BoxDrawing Subsystem
 

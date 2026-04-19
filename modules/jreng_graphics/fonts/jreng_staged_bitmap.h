@@ -20,12 +20,12 @@ enum class Type { mono, emoji };
  * @struct StagedBitmap
  * @brief Pixel data queued for renderer upload.
  *
- * Produced on the **MESSAGE THREAD** by `Atlas::stageForUpload()` and
+ * Produced on the **MESSAGE THREAD** by `Packer::stageForUpload()` and
  * consumed by the renderer at frame start.  Ownership of `pixelData`
  * transfers to the consumer via `std::move`.
  *
- * @see Atlas::stageForUpload()
- * @see Atlas::consumeStagedBitmaps()
+ * @see Packer::stageForUpload()
+ * @see Packer::consumeStagedBitmaps()
  */
 struct StagedBitmap
 {

@@ -59,21 +59,23 @@ void GLContext::closeContext() noexcept
 
 void GLContext::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
 {
-    if (typeface.getGlMonoAtlas() == 0)
+    auto& atlas { *jreng::GlyphAtlas::getContext() };
+
+    if (atlas.getMonoAtlas() == 0)
     {
         const int atlasDim { getAtlasDimension() };
-        typeface.setGlMonoAtlas (static_cast<uint32_t> (
+        atlas.setMonoAtlas (static_cast<uint32_t> (
             createAtlasTexture (atlasDim, atlasDim,
                                 juce::gl::GL_R8,
                                 juce::gl::GL_RED)));
-        typeface.setGlEmojiAtlas (static_cast<uint32_t> (
+        atlas.setEmojiAtlas (static_cast<uint32_t> (
             createAtlasTexture (atlasDim, atlasDim,
                                 juce::gl::GL_RGBA,
                                 juce::gl::GL_RGBA)));
     }
 
-    monoAtlas  = static_cast<GLuint> (typeface.getGlMonoAtlas());
-    emojiAtlas = static_cast<GLuint> (typeface.getGlEmojiAtlas());
+    monoAtlas  = static_cast<GLuint> (atlas.getMonoAtlas());
+    emojiAtlas = static_cast<GLuint> (atlas.getEmojiAtlas());
 
     juce::HeapBlock<StagedBitmap> stagedBitmaps;
     int stagedCount { 0 };
@@ -86,7 +88,7 @@ void GLContext::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
         for (int i { 0 }; i < stagedCount; ++i)
         {
             const auto& staged { stagedBitmaps[i] };
-            GLuint targetTexture { (staged.type == Atlas::Type::emoji)
+            GLuint targetTexture { (staged.type == Packer::Type::emoji)
                                        ? emojiAtlas
                                        : monoAtlas };
 
@@ -94,7 +96,7 @@ void GLContext::uploadStagedBitmaps (jreng::Typeface& typeface) noexcept
             {
                 juce::gl::glBindTexture (juce::gl::GL_TEXTURE_2D, targetTexture);
 
-                const GLenum pixelFormat { (staged.type == Atlas::Type::emoji)
+                const GLenum pixelFormat { (staged.type == Packer::Type::emoji)
                                                ? juce::gl::GL_BGRA
                                                : juce::gl::GL_RED };
 

@@ -42,7 +42,7 @@
  * @note All methods are `static` and `noexcept`.  `BoxDrawing` has no instance
  *       state and is never instantiated.
  *
- * @see jreng::Glyph::Atlas::getOrRasterizeBoxDrawing()
+ * @see jreng::Glyph::Packer::getOrRasterizeBoxDrawing()
  */
 
 namespace jreng::Glyph

@@ -4,18 +4,15 @@
  *
  * `GLAtlasRenderer` extends `GLRenderer` with atlas texture lifecycle
  * management and instanced glyph rendering via `jreng::Glyph::GLContext`.
- * Atlas textures are stored on `jreng::Typeface` (mirroring the CPU atlas
- * pattern) and managed exclusively by this renderer.
+ * Atlas texture GL handles are stored on `jreng::GlyphAtlas` and accessed via
+ * `GlyphAtlas::getContext()`.
  *
  * ### Ownership
  *
- * One `GLAtlasRenderer` instance exists per application window.  It owns
- * the GL atlas lifecycle for all typefaces passed at construction.
- * Atlas textures are created lazily on the GL thread (first
- * `uploadStagedBitmaps` call) and deleted in `contextClosing()`.
- * The typeface's atlas handles are reset in `contextClosing()`; because the destructor calls
- * `detachContext()` at the top of its body, `contextClosing()` fires on the derived vtable and
- * the reset runs correctly on destruction too.
+ * One `GLAtlasRenderer` instance exists per application window.  It holds a
+ * non-owning reference to `Typeface` (CPU bitmaps).  Atlas textures are created
+ * lazily on the GL thread (first `uploadStagedBitmaps` call).  The atlas is a
+ * process-lifetime resource; `GlyphAtlas::rebuildAtlas()` handles teardown.
  *
  * ### Thread contract
  *
@@ -42,7 +39,7 @@ namespace jreng
  *
  * @par Usage
  * @code
- * jreng::GLAtlasRenderer renderer { &monoTypeface, &bodyTypeface };
+ * jreng::GLAtlasRenderer renderer { typeface };
  * renderer.attachTo (targetComponent);
  * @endcode
  *
@@ -52,18 +49,18 @@ class GLAtlasRenderer : public GLRenderer
 {
 public:
     /**
-     * @brief Constructs the renderer with a set of managed typefaces.
+     * @brief Constructs the renderer with a typeface.
      *
-     * Each typeface's GL atlas texture handles are managed by this renderer:
-     * created lazily on the GL thread, deleted in `contextClosing()`.
+     * `GlyphAtlas` is accessed via `GlyphAtlas::getContext()` — no reference
+     * threading required.
      *
-     * @param typefaces  Non-owning pointers to typefaces whose GL atlas
-     *                   lifecycle this renderer manages.  Must outlive
-     *                   this renderer (enforced by member declaration order).
+     * @param typeface  Non-owning reference to the typeface whose staged
+     *                  bitmaps are uploaded each frame.  Must outlive this
+     *                  renderer.
      */
-    GLAtlasRenderer (std::initializer_list<jreng::Typeface*> typefaces);
+    explicit GLAtlasRenderer (jreng::Typeface& typeface);
 
-    ~GLAtlasRenderer() override;
+    ~GLAtlasRenderer() override = default;
 
 protected:
     void contextReady() override;
@@ -72,8 +69,8 @@ protected:
                      GLComponent* comp, float totalScale, float vpHeight) override;
 
 private:
+    jreng::Typeface&        typefaceRef;
     jreng::Glyph::GLContext glyphContext;
-    std::vector<jreng::Typeface*> managedTypefaces;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GLAtlasRenderer)
 };

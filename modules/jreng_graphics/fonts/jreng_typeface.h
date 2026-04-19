@@ -36,7 +36,7 @@
  * @note All methods must be called on the **MESSAGE THREAD**.
  *
  * @see jreng::Typeface::Registry
- * @see jreng::Glyph::Atlas
+ * @see jreng::Glyph::Packer
  * @see jreng::Glyph::Constraint
  */
 
@@ -75,7 +75,7 @@ namespace jreng
  * thread.  No internal locking is performed.
  *
  * @see jreng::Typeface::Registry
- * @see jreng::Glyph::Atlas
+ * @see jreng::Glyph::Packer
  */
 // MESSAGE THREAD
 struct Typeface
@@ -137,7 +137,7 @@ struct Typeface
      *       Typeface and any subsystem that requires font slot resolution.
      *
      * @see jreng::Typeface
-     * @see jreng::Glyph::Atlas
+     * @see jreng::Glyph::Packer
      *
      * @par Thread context
      * **MESSAGE THREAD** — all methods must be called from the JUCE message thread.
@@ -570,6 +570,38 @@ struct Typeface
      */
     void setSize (float pointSize) noexcept;
 
+    /**
+     * @brief Switches the primary font to a new family.
+     *
+     * No-op if @p family equals the current `userFamily`.  Otherwise tears down
+     * the existing primary font handle(s), loads replacements from the new
+     * family, clears the fallback cache, invalidates the metrics cache, and
+     * calls `packer.clear()` to drop all stale CPU-rasterized glyphs.
+     *
+     * **macOS:** Replaces `mainFont` + `shapingFont` via a new
+     * `CTFontDescriptor`.  `emojiFont`, `identityFont`, and `nerdFont` are
+     * family-independent and are not touched.
+     *
+     * **Linux/Windows:** Destroys `faces[regular].hbFont` and
+     * `faces[regular].face`, reloads from the resolved font path at the current
+     * `fontSize`, and updates `Registry` slot 0.
+     *
+     * @param family  Font family name (e.g. "JetBrains Mono").  Empty string
+     *                falls back to the platform default monospace font.
+     */
+    void setFontFamily (const juce::String& family) noexcept;
+
+    /**
+     * @brief Changes the font size.
+     *
+     * No-op if @p size equals the current `fontSize`.  Otherwise delegates to
+     * `setSize (size)` then calls `packer.clear()` to drop all stale
+     * CPU-rasterized glyphs.
+     *
+     * @param size  New font size in CSS points.
+     */
+    void setFontSize (float size) noexcept;
+
     // =========================================================================
     // Shaping
     // =========================================================================
@@ -583,7 +615,7 @@ struct Typeface
      *
      * @note `fontHandle` is set by `shapeFallback()` to identify which fallback
      *       `CTFontRef` was used, so the renderer can pass the correct handle to
-     *       `Atlas::getOrRasterize`.  It is `nullptr` for normal shaping.
+     *       `Packer::getOrRasterize`.  It is `nullptr` for normal shaping.
      */
     struct GlyphRun
     {
@@ -696,104 +728,104 @@ struct Typeface
 
     /**
      * @brief Return a cached glyph or rasterize it on demand.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      * @note **MESSAGE THREAD** only.
      */
     jreng::Glyph::Region* getOrRasterize (const jreng::Glyph::Key& key, void* fontHandle, bool isEmoji,
                                           const jreng::Glyph::Constraint& constraint,
                                           int cellWidth, int cellHeight, int baseline) noexcept
     {
-        return atlas.getOrRasterize (key, fontHandle, isEmoji, constraint, cellWidth, cellHeight, baseline);
+        return packer.getOrRasterize (key, fontHandle, isEmoji, constraint, cellWidth, cellHeight, baseline);
     }
 
     /**
      * @brief Return a cached box-drawing glyph or rasterize it procedurally.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      * @note **MESSAGE THREAD** only.
      */
     jreng::Glyph::Region* getOrRasterizeBoxDrawing (uint32_t codepoint, int cellWidth, int cellHeight, int baseline) noexcept
     {
-        return atlas.getOrRasterizeBoxDrawing (codepoint, cellWidth, cellHeight, baseline);
+        return packer.getOrRasterizeBoxDrawing (codepoint, cellWidth, cellHeight, baseline);
     }
 
     /**
      * @brief Drain the staged-bitmap queue for renderer upload.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      * @note **GL THREAD** only.
      */
     void consumeStagedBitmaps (juce::HeapBlock<jreng::Glyph::StagedBitmap>& out, int& outCount) noexcept
     {
-        atlas.consumeStagedBitmaps (out, outCount);
+        packer.consumeStagedBitmaps (out, outCount);
     }
 
     /**
      * @brief Check whether any bitmaps are waiting for upload.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      * @note **GL THREAD** only.
      */
     bool hasStagedBitmaps() const noexcept
     {
-        return atlas.hasStagedBitmaps();
+        return packer.hasStagedBitmaps();
     }
 
     /**
      * @brief Advance the LRU frame counter.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      * @note **MESSAGE THREAD** only.
      */
     void advanceFrame() noexcept
     {
-        atlas.advanceFrame();
+        packer.advanceFrame();
     }
 
     /**
      * @brief Enable or disable synthetic bold.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      * @note **MESSAGE THREAD** only.
      */
     void setEmbolden (bool enabled) noexcept
     {
-        atlas.setEmbolden (enabled);
+        packer.setEmbolden (enabled);
     }
 
     /**
      * @brief Query whether synthetic bold is enabled.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      */
     bool getEmbolden() const noexcept
     {
-        return atlas.getEmbolden();
+        return packer.getEmbolden();
     }
 
     /**
      * @brief Invalidate all cached glyphs and reset atlas packers.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      * @note **MESSAGE THREAD** only.
      */
     void clearAtlas() noexcept
     {
-        atlas.clear();
+        packer.clear();
     }
 
     /**
      * @brief Resize the atlas and clear all cached glyphs.
-     * Delegates to the internal Atlas. All glyphs re-rasterize on demand.
+     * Delegates to the internal Packer. All glyphs re-rasterize on demand.
      * @param size  New atlas dimension.
      * @note **MESSAGE THREAD** only.
      */
     void setAtlasSize (jreng::Glyph::AtlasSize size) noexcept
     {
-        atlas.setAtlasSize (size);
+        packer.setAtlasSize (size);
     }
 
     /**
      * @brief Set the display scale for rasterization.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      * @note **MESSAGE THREAD** only.
      */
     void setAtlasDisplayScale (float scale) noexcept
     {
-        atlas.setDisplayScale (scale);
+        packer.setDisplayScale (scale);
     }
 
     /**
@@ -802,17 +834,17 @@ struct Typeface
      */
     int getAtlasDimension() const noexcept
     {
-        return atlas.getAtlasDimension();
+        return packer.getAtlasDimension();
     }
 
     /**
      * @brief Return snapshot of LRU cache occupancy.
-     * Delegates to the internal Atlas.
+     * Delegates to the internal Packer.
      * @note **MESSAGE THREAD** only.
      */
-    jreng::Glyph::Atlas::CacheStats getCacheStats() const noexcept
+    jreng::Glyph::Packer::CacheStats getCacheStats() const noexcept
     {
-        return atlas.getCacheStats();
+        return packer.getCacheStats();
     }
 
     /**
@@ -838,27 +870,6 @@ struct Typeface
     juce::Image& getCpuEmojiAtlas() noexcept { return cpuEmojiAtlas; }
 
     // =========================================================================
-    // GL atlas handles (GL THREAD)
-    //
-    // Exception to the class-level MESSAGE THREAD contract: these handles are
-    // written and read exclusively on the GL thread.  No cross-thread access.
-    // =========================================================================
-
-    /** @brief Returns the GL mono atlas texture handle. @note **GL THREAD** only. */
-    uint32_t getGlMonoAtlas() const noexcept { return glMonoAtlas; }
-
-    /** @brief Returns the GL emoji atlas texture handle. @note **GL THREAD** only. */
-    uint32_t getGlEmojiAtlas() const noexcept { return glEmojiAtlas; }
-
-    /** @brief Sets the GL mono atlas texture handle. @note **GL THREAD** only. */
-    void setGlMonoAtlas (uint32_t handle) noexcept { glMonoAtlas = handle; }
-
-    /** @brief Sets the GL emoji atlas texture handle. @note **GL THREAD** only. */
-    void setGlEmojiAtlas (uint32_t handle) noexcept { glEmojiAtlas = handle; }
-
-    /** @brief Resets both GL atlas handles to zero. @note **GL THREAD** only. */
-    void resetGlAtlas() noexcept { glMonoAtlas = 0; glEmojiAtlas = 0; }
-
     // =========================================================================
     // Metrics and rasterization
     // =========================================================================
@@ -884,7 +895,7 @@ struct Typeface
     /**
      * @brief Rasterizes a single Unicode codepoint to a JUCE image.
      *
-     * Used by `Atlas` to produce bitmaps for atlas upload.  Font selection
+     * Used by `Packer` to produce bitmaps for atlas upload.  Font selection
      * priority:
      * 1. Primary font (`mainFont` / regular face).
      * 2. Emoji font — if the primary has no glyph for `codepoint`.
@@ -1037,7 +1048,7 @@ private:
      * CoreText lookups.  Fonts identified as "LastResort" are rejected.
      *
      * The `GlyphRun::fontHandle` is set to the fallback `CTFontRef` so the
-     * renderer can pass the correct handle to `Atlas::getOrRasterize`.
+     * renderer can pass the correct handle to `Packer::getOrRasterize`.
      *
      * @param codepoints  UTF-32 codepoint array.
      * @param count       Number of codepoints.
@@ -1209,13 +1220,11 @@ private:
     /** @brief Result of the last `calcMetrics()` call, valid when `cachedMetricsSize >= 0`. */
     Metrics cachedMetrics;
 
-    jreng::Glyph::Atlas atlas;   ///< Internal glyph rasterization cache.
+    jreng::Glyph::Packer packer;   ///< Internal glyph rasterization cache.
 
     juce::Image cpuMonoAtlas;    ///< CPU rendering mono atlas (SingleChannel). Owned here, accessed by GraphicsContext.
     juce::Image cpuEmojiAtlas;   ///< CPU rendering emoji atlas (ARGB). Owned here, accessed by GraphicsContext.
 
-    uint32_t glMonoAtlas  { 0 };  ///< GL mono atlas texture handle. Stored here, GPU resource managed by GLAtlasRenderer.
-    uint32_t glEmojiAtlas { 0 };  ///< GL emoji atlas texture handle. Stored here, GPU resource managed by GLAtlasRenderer.
 };
 
 } // namespace jreng

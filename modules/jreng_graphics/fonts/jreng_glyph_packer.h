@@ -1,8 +1,8 @@
 /**
- * @file jreng_glyph_atlas.h
+ * @file jreng_glyph_packer.h
  * @brief LRU glyph cache with staged GPU upload for the terminal renderer.
  *
- * Atlas is the central glyph-rasterization and texture-management system.
+ * Packer is the central glyph-rasterization and texture-management system.
  * It owns two 4096×4096 OpenGL texture atlases — one for monochrome (R8) glyphs
  * and one for RGBA8 color emoji — and keeps them populated via an LRU eviction
  * policy.
@@ -12,8 +12,8 @@
  * ```
  * MESSAGE THREAD                          GL THREAD
  * ─────────────────────────────────────   ──────────────────────────────
- * Atlas::getOrRasterize()                 Atlas::consumeStagedBitmaps()
- *   └─ LRUGlyphCache::get()                 └─ glTexSubImage2D() per region
+ * Packer::getOrRasterize()                Packer::consumeStagedBitmaps()
+ *   └─ LRUGlyphCache::get()                └─ glTexSubImage2D() per region
  *   └─ rasterizeGlyph()  (FT / CT)
  *   └─ AtlasPacker::allocate()
  *   └─ stageForUpload()  ──────────────► uploadQueue  (mutex-protected)
@@ -26,8 +26,8 @@
  * | emoji      | RGBA8  | 4 000    | Color emoji bitmaps               |
  *
  * ### Platform backends
- * - **macOS** (`jreng_glyph_atlas.mm`) — CoreText + CGBitmapContext.
- * - **Linux / Windows** (`jreng_glyph_atlas.cpp`) — FreeType outline rendering.
+ * - **macOS** (`jreng_glyph_packer.mm`) — CoreText + CGBitmapContext.
+ * - **Linux / Windows** (`jreng_glyph_packer.cpp`) — FreeType outline rendering.
  *
  * ### LRU eviction
  * Each atlas has an independent LRUGlyphCache.  When the cache reaches
@@ -41,7 +41,7 @@
  * `uploadMutex`.  The GL THREAD calls `consumeStagedBitmaps()` once per frame
  * to drain the queue and issue `glTexSubImage2D` calls.
  *
- * @note `Atlas` itself is **not** thread-safe.  The only cross-thread
+ * @note `Packer` itself is **not** thread-safe.  The only cross-thread
  *       operation is the upload queue, which is protected by `uploadMutex`.
  *
  * @see AtlasPacker
@@ -74,10 +74,10 @@ enum class AtlasSize : int
 };
 
 /**
- * @class Atlas
+ * @class Packer
  * @brief Two-atlas glyph cache: rasterizes on MESSAGE THREAD, uploads on GL THREAD.
  *
- * Atlas is the primary interface between the font subsystem and the OpenGL
+ * Packer is the primary interface between the font subsystem and the OpenGL
  * renderer.  It manages two 4096×4096 texture atlases (mono R8 and emoji RGBA8),
  * rasterizes missing glyphs on demand, and stages the resulting bitmaps for
  * upload by the GL thread.
@@ -85,15 +85,15 @@ enum class AtlasSize : int
  * @par Usage pattern
  * @code
  * // MESSAGE THREAD — called once per cell per frame
- * jreng::Glyph::Region* g = atlas.getOrRasterize (key, fontHandle, isEmoji,
- *                                               constraint, cellW, cellH, baseline);
+ * jreng::Glyph::Region* g = packer.getOrRasterize (key, fontHandle, isEmoji,
+ *                                                constraint, cellW, cellH, baseline);
  * if (g != nullptr)
  *     renderer.submitQuad (*g);
  *
  * // GL THREAD — called once per frame before draw
  * juce::HeapBlock<jreng::Glyph::StagedBitmap> pending;
  * int count { 0 };
- * atlas.consumeStagedBitmaps (pending, count);
+ * packer.consumeStagedBitmaps (pending, count);
  * for (int i = 0; i < count; ++i)
  *     uploadToTexture (pending[i]);
  * @endcode
@@ -120,7 +120,7 @@ enum class AtlasSize : int
  */
 // MESSAGE THREAD - Rasterization and staging
 // GL THREAD - Texture upload
-class Atlas
+class Packer
 {
 public:
     /**
@@ -132,21 +132,21 @@ public:
     using Type = jreng::Glyph::Type;
 
     /**
-     * @brief Constructs an atlas with the specified dimension.
+     * @brief Constructs a packer with the specified dimension.
      * @param size  Preset atlas dimension.
      */
-    explicit Atlas (AtlasSize size) noexcept;
+    explicit Packer (AtlasSize size) noexcept;
 
     /**
-     * @brief Constructs a standard-size atlas (4096×4096).
+     * @brief Constructs a standard-size packer (4096×4096).
      *
      * Both atlases are set to `AtlasSize::standard` (4096×4096).  The mono
      * LRU is capped at 19 000 entries; the emoji LRU at 4 000 entries.
      */
-    Atlas() : Atlas (AtlasSize::standard) {}
+    Packer() : Packer (AtlasSize::standard) {}
 
     /** @brief Destructor; releases pooled CGColorSpaceRef objects on macOS. */
-    ~Atlas();
+    ~Packer();
 
     /**
      * @brief Return a cached glyph or rasterize it on demand.
@@ -274,7 +274,7 @@ public:
      * @struct CacheStats
      * @brief Snapshot of LRU cache occupancy for diagnostics.
      *
-     * @see Atlas::getCacheStats()
+     * @see Packer::getCacheStats()
      */
     struct CacheStats
     {
@@ -367,8 +367,8 @@ private:
      * @brief Rasterize a single glyph and stage it for atlas upload.
      *
      * Platform-specific implementation:
-     * - **macOS** (`jreng_glyph_atlas.mm`): CoreText + CGBitmapContext.
-     * - **Linux/Windows** (`jreng_glyph_atlas.cpp`): FreeType outline rendering.
+     * - **macOS** (`jreng_glyph_packer.mm`): CoreText + CGBitmapContext.
+     * - **Linux/Windows** (`jreng_glyph_packer.cpp`): FreeType outline rendering.
      *
      * When `constraint.isActive()` is `true`, the glyph outline is transformed
      * to fit the constraint's scale mode, alignment, and padding before
@@ -420,7 +420,7 @@ private:
      * @param height        Image height in pixels.
      * @param bytesPerPixel Bytes per pixel (1 for mono, 4 for RGBA).
      *
-     * @note macOS (`jreng_glyph_atlas.mm`) only.
+     * @note macOS (`jreng_glyph_packer.mm`) only.
      */
     static void flipBitmapVertically (uint8_t* data, int width, int height, int bytesPerPixel) noexcept;
 

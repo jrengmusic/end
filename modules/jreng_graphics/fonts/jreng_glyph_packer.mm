@@ -1,14 +1,14 @@
 /**
- * @file jreng_glyph_atlas.mm
- * @brief CoreText rasterization backend for Atlas (macOS only).
+ * @file jreng_glyph_packer.mm
+ * @brief CoreText rasterization backend for Packer (macOS only).
  *
  * This translation unit is compiled **only on macOS** (`JUCE_MAC`).  It
  * provides the macOS-specific implementations of:
- * - `Atlas::flipBitmapVertically()` — in-place vertical flip for
+ * - `Packer::flipBitmapVertically()` — in-place vertical flip for
  *   CoreText bitmaps (CGBitmapContext uses bottom-left origin).
- * - `Atlas::rasterizeGlyph()` — CoreText + CGBitmapContext rasterization.
+ * - `Packer::rasterizeGlyph()` — CoreText + CGBitmapContext rasterization.
  *
- * On Linux and Windows, `jreng_glyph_atlas.cpp` provides the FreeType equivalents.
+ * On Linux and Windows, `jreng_glyph_packer.cpp` provides the FreeType equivalents.
  *
  * ### CoreText rasterization paths
  *
@@ -27,8 +27,8 @@
  * `displayScale` (one screen pixel in physical coords) before calling
  * `CGRectIntegral` to capture the full AA fringe.
  *
- * @see jreng_glyph_atlas.h
- * @see jreng_glyph_atlas.cpp
+ * @see jreng_glyph_packer.h
+ * @see jreng_glyph_packer.cpp
  */
 
 // Included via unity build (jreng_glyph.mm → jreng_glyph.cpp) — jreng_glyph.h already in scope
@@ -92,7 +92,7 @@ static void ensurePooledContext (int neededW, int neededH,
  *
  * @note MESSAGE THREAD only.
  */
-void Atlas::flipBitmapVertically (uint8_t* data, int width, int height, int bytesPerPixel) noexcept
+void Packer::flipBitmapVertically (uint8_t* data, int width, int height, int bytesPerPixel) noexcept
 {
     const size_t rowBytes { static_cast<size_t> (width * bytesPerPixel) };
     juce::HeapBlock<uint8_t> tempRow (rowBytes);
@@ -108,7 +108,7 @@ void Atlas::flipBitmapVertically (uint8_t* data, int width, int height, int byte
     }
 }
 
-Atlas::Atlas (AtlasSize size) noexcept
+Packer::Packer (AtlasSize size) noexcept
     : atlasWidth (static_cast<int> (size))
     , atlasHeight (static_cast<int> (size))
     , monoPacker (static_cast<int> (size), static_cast<int> (size))
@@ -120,7 +120,7 @@ Atlas::Atlas (AtlasSize size) noexcept
     emojiColorSpace = CGColorSpaceCreateDeviceRGB();
 }
 
-Atlas::~Atlas()
+Packer::~Packer()
 {
     if (monoPoolContext != nullptr)
     {
@@ -182,7 +182,7 @@ Atlas::~Atlas()
  * @see Constraint
  * @see flipBitmapVertically()
  */
-Region Atlas::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
+Region Packer::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
                               const Constraint& constraint,
                               int cellWidth, int cellHeight, int baseline) noexcept
 {

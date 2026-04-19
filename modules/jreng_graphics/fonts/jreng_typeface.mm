@@ -35,7 +35,7 @@
  *
  * @see jreng_font.h
  * @see jreng::Typeface::Registry
- * @see jreng::Glyph::Atlas
+ * @see jreng::Glyph::Packer
  */
 
 // Included via unity build (jreng_glyph.mm) — jreng_glyph.h already in scope
@@ -128,7 +128,7 @@ jreng::Typeface::Typeface (Registry& fontRegistry,
                    float pointSize,
                    jreng::Glyph::AtlasSize atlasSize,
                    bool shouldBeMonospace)
-    : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize), atlas (atlasSize), isMonospace (shouldBeMonospace)
+    : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize), packer (atlasSize), isMonospace (shouldBeMonospace)
 {
     initialize();
 }
@@ -627,6 +627,105 @@ void jreng::Typeface::setSize (float pointSize) noexcept
     {
         nfEntry->ctFont = nerdFont;
         nfEntry->hbFont = nerdShapingFont;
+    }
+
+    cachedMetricsSize = -1.0f;
+}
+
+// ============================================================================
+// Family / Size mutation
+// ============================================================================
+
+/**
+ * @brief Switches the primary font to a new family.
+ *
+ * No-op if @p family equals `userFamily`.  Otherwise replaces `mainFont` and
+ * `shapingFont` with handles for the new family at the current `fontSize *
+ * displayScale`, clears `fallbackFontCache`, invalidates the metrics cache,
+ * and calls `packer.clear()`.
+ *
+ * `emojiFont`, `identityFont`, and `nerdFont` are family-independent and are
+ * not touched.
+ *
+ * @param family  Font family name.  Empty string falls back to "Menlo".
+ */
+void jreng::Typeface::setFontFamily (const juce::String& family) noexcept
+{
+    if (family != userFamily)
+    {
+        userFamily = family;
+        cachedMetricsSize = -1.0f;
+
+        const float displayScale { getDisplayScale() };
+        const CGFloat scaledSize { static_cast<CGFloat> (fontSize * displayScale) };
+        const juce::String familyName { userFamily.isNotEmpty() ? userFamily : juce::String ("Menlo") };
+
+        if (shapingFont != nullptr)
+        {
+            hb_font_destroy (shapingFont);
+            shapingFont = nullptr;
+        }
+
+        if (mainFont != nullptr)
+        {
+            CFRelease (jreng::toCTFont (mainFont));
+            mainFont = nullptr;
+        }
+
+        auto cfName { familyName.toCFString() };
+        auto descriptor { CTFontDescriptorCreateWithNameAndSize (cfName, scaledSize) };
+        CFRelease (cfName);
+
+        if (descriptor != nullptr)
+        {
+            auto font { CTFontCreateWithFontDescriptor (descriptor, scaledSize, nullptr) };
+            CFRelease (descriptor);
+
+            if (font != nullptr)
+            {
+                mainFont = const_cast<void*> (static_cast<const void*> (font));
+                shapingFont = hb_coretext_font_create (font);
+            }
+        }
+
+        if (mainFont == nullptr)
+        {
+            auto font { CTFontCreateWithName (CFSTR ("Display Mono"), scaledSize, nullptr) };
+
+            if (font != nullptr)
+            {
+                mainFont = const_cast<void*> (static_cast<const void*> (font));
+                shapingFont = hb_coretext_font_create (font);
+            }
+        }
+
+        for (auto& pair : fallbackFontCache)
+        {
+            if (pair.second != nullptr)
+            {
+                CFRelease (jreng::toCTFont (pair.second));
+            }
+        }
+        fallbackFontCache.clear();
+
+        packer.clear();
+    }
+}
+
+/**
+ * @brief Changes the font size.
+ *
+ * No-op if @p size equals `fontSize`.  Otherwise delegates to `setSize (size)`
+ * then calls `packer.clear()` to drop all stale CPU-rasterized glyphs.
+ *
+ * @param size  New font size in CSS points.
+ */
+void jreng::Typeface::setFontSize (float size) noexcept
+{
+    if (size != fontSize)
+    {
+        setSize (size);
+        packer.clear();
     }
 }
 
@@ -1199,7 +1298,7 @@ jreng::Typeface::GlyphRun jreng::Typeface::shapeHarfBuzz (Style style,
  * rejected and stored as `nullptr` in the cache to prevent future lookups.
  *
  * The `GlyphRun::fontHandle` is set to the fallback `CTFontRef` so the
- * renderer can pass the correct handle to `Atlas::getOrRasterize`.
+ * renderer can pass the correct handle to `Packer::getOrRasterize`.
  *
  * @param codepoints  UTF-32 codepoint array.
  * @param count       Number of codepoints.

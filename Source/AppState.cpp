@@ -98,6 +98,50 @@ void AppState::setWindowZoom (float zoom)
     window.setProperty (App::ID::zoom, clamped, nullptr);
 }
 
+juce::String AppState::getFontFamily() const noexcept
+{
+    auto window { state.getChildWithName (App::ID::WINDOW) };
+    juce::String result { Config::getContext()->getString (Config::Key::fontFamily) };
+
+    if (window.isValid() and window.hasProperty (App::ID::fontFamily))
+        result = window.getProperty (App::ID::fontFamily).toString();
+
+    return result;
+}
+
+void AppState::setFontFamily (const juce::String& family)
+{
+    auto window { getWindow() };
+    window.setProperty (App::ID::fontFamily, family, nullptr);
+}
+
+float AppState::getFontSize() const noexcept
+{
+    auto window { state.getChildWithName (App::ID::WINDOW) };
+    float result { static_cast<float> (Config::getContext()->dpiCorrectedFontSize()) };
+
+    if (window.isValid() and window.hasProperty (App::ID::fontSize))
+        result = static_cast<float> (window.getProperty (App::ID::fontSize));
+
+    return result;
+}
+
+void AppState::setFontSize (float size)
+{
+    auto window { getWindow() };
+    window.setProperty (App::ID::fontSize, size, nullptr);
+}
+
+void AppState::markAtlasDirty() noexcept
+{
+    atlasDirty.store (true, std::memory_order_release);
+}
+
+bool AppState::consumeAtlasDirty() noexcept
+{
+    return atlasDirty.exchange (false, std::memory_order_acquire);
+}
+
 App::RendererType AppState::getRendererType() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };

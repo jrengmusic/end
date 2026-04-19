@@ -59,6 +59,8 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
                 jreng::Glyph::AtlasSize::compact,
                 true)
 {
+    glyphAtlas.setAtlasSize (jreng::Glyph::AtlasSize::compact);
+
     setOpaque (appState.getRendererType() == App::RendererType::cpu);
 
     //==============================================================================
@@ -67,6 +69,7 @@ MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
 
     nexusNode = appState.getNexusNode();
     nexusNode.addListener (this);
+    appState.getWindow().addListener (this);
 
     // Session is constructed AFTER MainComponent in both modes, so listeners are live
     // before any tree mutations occur.
@@ -87,6 +90,8 @@ void MainComponent::applyConfig()
 {
     registerActions();
 
+    appState.setFontFamily (config.getString (Config::Key::fontFamily));
+    appState.setFontSize   (static_cast<float> (config.dpiCorrectedFontSize()));
     appState.setRendererType (config.getString (Config::Key::gpuAcceleration));
     setRenderer (appState.getRendererType());
 
@@ -105,17 +110,24 @@ void MainComponent::setRenderer (App::RendererType rendererType)
     const bool isUsingGpu { rendererType == App::RendererType::gpu };
     const auto atlasSize { isUsingGpu ? jreng::Glyph::AtlasSize::standard : jreng::Glyph::AtlasSize::compact };
     typeface.setAtlasSize (atlasSize);
+    glyphAtlas.setAtlasSize (atlasSize);
+
+    // Renderer replacement invalidates GL textures (context-specific handles).
+    // Signal the new context to rebuild the atlas on its first frame.
+    appState.markAtlasDirty();
 
     if (auto* window { dynamic_cast<jreng::Window*> (getTopLevelComponent()) })
     {
         if (isUsingGpu)
         {
-            auto renderer { std::make_unique<jreng::GLAtlasRenderer> (
-                std::initializer_list<jreng::Typeface*> { &typeface }) };
+            auto renderer { std::make_unique<jreng::GLAtlasRenderer> (typeface) };
 
             renderer->setRenderables (
                 [this] (std::function<void (jreng::GLComponent&)> renderComponent)
                 {
+                    if (appState.consumeAtlasDirty())
+                        glyphAtlas.rebuildAtlas();
+
                     if (tabs != nullptr)
                     {
                         for (auto& pane : tabs->getPanes())
@@ -197,6 +209,7 @@ MainComponent::~MainComponent()
         sessionsNode.removeListener (this);
 
     nexusNode.removeListener (this);
+    appState.getWindow().removeListener (this);
     setLookAndFeel (nullptr);
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
     jreng::BackgroundBlur::setCloseCallback (nullptr);
@@ -210,7 +223,26 @@ MainComponent::~MainComponent()
  *
  * @note MESSAGE THREAD.
  */
-void MainComponent::valueTreePropertyChanged (juce::ValueTree& /*tree*/, const juce::Identifier& /*property*/) {}
+void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    if (tree.getType() == App::ID::WINDOW)
+    {
+        if (property == App::ID::fontFamily)
+        {
+            typeface.setFontFamily (appState.getFontFamily());
+            appState.markAtlasDirty();
+        }
+        else if (property == App::ID::fontSize)
+        {
+            typeface.setFontSize (appState.getFontSize());
+            appState.markAtlasDirty();
+        }
+        else if (property == App::ID::renderer)
+        {
+            appState.markAtlasDirty();
+        }
+    }
+}
 
 /**
  * @brief Fires when a direct child is added to nexusNode or sessionsNode.

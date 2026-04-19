@@ -4,7 +4,7 @@
  *
  * `GLContext` owns all OpenGL resources required to draw glyph and
  * background instances: shader programs, VAO, and VBOs.  It caches
- * non-owning atlas texture handles from Typeface per-frame, mirroring
+ * atlas texture handles from `GlyphAtlas::getContext()` per-frame, mirroring
  * the CPU `GraphicsContext` pattern.  It exposes a minimal GL-thread
  * API so any host component can delegate instanced rendering without
  * owning GL state directly.
@@ -27,7 +27,7 @@
  * No method is thread-safe; the caller is responsible for synchronisation.
  *
  * @see jreng::Glyph::Shaders
- * @see jreng::Glyph::Atlas
+ * @see jreng::Glyph::Packer
  * @see jreng::Glyph::Render
  */
 #pragma once
@@ -52,7 +52,7 @@ namespace jreng::Glyph
  *
  * // Each frame (GL THREAD):
  * renderer.setViewportSize (w, h);
- * renderer.uploadStagedBitmaps (atlas);
+ * renderer.uploadStagedBitmaps (typeface);
  * renderer.drawBackgrounds (bgData, bgCount);
  * renderer.drawQuads (monoData, monoCount, false);
  * renderer.drawQuads (emojiData, emojiCount, true);
@@ -63,14 +63,14 @@ namespace jreng::Glyph
  *
  * @note **GL THREAD** only for all methods.
  *
- * @see jreng::Glyph::Atlas
+ * @see jreng::Glyph::Packer
  * @see jreng::Glyph::Render::Quad
  * @see jreng::Glyph::Render::Background
  */
 class GLContext
 {
 public:
-    GLContext()  = default;
+    GLContext() = default;
     ~GLContext() { closeContext(); }
 
     // =========================================================================
@@ -84,7 +84,7 @@ public:
      * any draw calls.  Compiles the three shader programs from the embedded
      * `jreng::Glyph::Shaders` constexpr strings, creates the shared VAO and
      * VBOs, and allocates a mono (R8) and an emoji (RGBA8) atlas texture,
-     * each `Atlas::getAtlasDimension() × Atlas::getAtlasDimension()` texels.
+     * each `Packer::getAtlasDimension() × Packer::getAtlasDimension()` texels.
      *
      * @note **GL THREAD**.
      */
@@ -93,8 +93,8 @@ public:
     /**
      * @brief Release all GL resources owned by this renderer.
      *
-     * Resets the three shader unique_ptrs and deletes the atlas textures,
-     * VAO, and VBOs.  Safe to call even if `createContext()` was never
+     * Resets the three shader unique_ptrs and deletes the VAO and VBOs.
+     * Atlas texture handles are owned by `GlyphAtlas` and are not deleted here.  Safe to call even if `createContext()` was never
      * called (all handles initialise to 0).
      *
      * @note **GL THREAD**.

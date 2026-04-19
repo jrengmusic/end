@@ -17,7 +17,7 @@
  * only.  draw(GLContext&) is called on the **GL THREAD** after layout is built.
  *
  * @see jreng::Typeface
- * @see jreng::Glyph::Atlas
+ * @see jreng::Glyph::Packer
  * @see jreng::Glyph::GLContext
  */
 

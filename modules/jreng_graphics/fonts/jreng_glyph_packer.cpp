@@ -1,13 +1,13 @@
 /**
- * @file jreng_glyph_atlas.cpp
- * @brief FreeType rasterization backend for Atlas (Linux / Windows).
+ * @file jreng_glyph_packer.cpp
+ * @brief FreeType rasterization backend for Packer (Linux / Windows).
  *
  * This translation unit is compiled on all platforms **except** macOS
- * (`JUCE_MAC`).  On macOS, `jreng_glyph_atlas.mm` provides the CoreText
- * implementation of `Atlas::rasterizeGlyph()` instead.
+ * (`JUCE_MAC`).  On macOS, `jreng_glyph_packer.mm` provides the CoreText
+ * implementation of `Packer::rasterizeGlyph()` instead.
  *
  * ### Responsibilities
- * - `Atlas` constructor / `clear()` / `advanceFrame()` — platform-neutral.
+ * - `Packer` constructor / `clear()` / `advanceFrame()` — platform-neutral.
  * - `getOrRasterize()` — cache lookup + rasterization dispatch.
  * - `getOrRasterizeBoxDrawing()` — procedural box/braille rasterization.
  * - `stageForUpload()` — thread-safe bitmap staging for GL upload.
@@ -21,8 +21,8 @@
  * | Constrained NF icon (outline)    | Outline transform → light mode         |
  * | Color emoji (`FT_PIXEL_MODE_BGRA`)| `FT_LOAD_RENDER | FT_LOAD_COLOR`      |
  *
- * @see jreng_glyph_atlas.h
- * @see jreng_glyph_atlas.mm
+ * @see jreng_glyph_packer.h
+ * @see jreng_glyph_packer.mm
  * @see BoxDrawing
  */
 
@@ -37,7 +37,7 @@ namespace jreng::Glyph
 #if ! JUCE_MAC
 
 /**
- * @brief Construct the atlas with both packers and LRU caches initialized.
+ * @brief Construct the packer with both atlas packers and LRU caches initialized.
  *
  * Sets atlas dimensions from `size`, constructs both `AtlasPacker` instances
  * at that dimension, and initializes the mono and emoji LRU caches at their
@@ -45,7 +45,7 @@ namespace jreng::Glyph
  *
  * @param size  Preset atlas dimension.
  */
-Atlas::Atlas (AtlasSize size) noexcept
+Packer::Packer (AtlasSize size) noexcept
     : atlasWidth (static_cast<int> (size))
     , atlasHeight (static_cast<int> (size))
     , monoPacker (static_cast<int> (size), static_cast<int> (size))
@@ -55,7 +55,7 @@ Atlas::Atlas (AtlasSize size) noexcept
 {
 }
 
-Atlas::~Atlas()
+Packer::~Packer()
 {
 }
 
@@ -80,7 +80,7 @@ Atlas::~Atlas()
  *
  * @note MESSAGE THREAD only.
  */
-Region* Atlas::getOrRasterize (const Key& key, void* fontHandle, bool isEmoji,
+Region* Packer::getOrRasterize (const Key& key, void* fontHandle, bool isEmoji,
                                const Constraint& constraint,
                                int cellWidth, int cellHeight, int baseline) noexcept
 {
@@ -118,7 +118,7 @@ Region* Atlas::getOrRasterize (const Key& key, void* fontHandle, bool isEmoji,
  *
  * @note MESSAGE THREAD only (acquires `uploadMutex`).
  */
-void Atlas::stageForUpload (uint8_t* pixelData, int width, int height,
+void Packer::stageForUpload (uint8_t* pixelData, int width, int height,
                             const juce::Rectangle<int>& region, bool isEmoji) noexcept
 {
     const std::lock_guard<std::mutex> lock (uploadMutex);
@@ -163,7 +163,7 @@ void Atlas::stageForUpload (uint8_t* pixelData, int width, int height,
  *
  * @note MESSAGE THREAD only.
  */
-void Atlas::clear() noexcept
+void Packer::clear() noexcept
 {
     monoLRU.clear();
     emojiLRU.clear();
@@ -180,7 +180,7 @@ void Atlas::clear() noexcept
  *
  * @note MESSAGE THREAD only.
  */
-void Atlas::advanceFrame() noexcept
+void Packer::advanceFrame() noexcept
 {
     monoLRU.advanceFrame();
     emojiLRU.advanceFrame();
@@ -211,7 +211,7 @@ void Atlas::advanceFrame() noexcept
  * @note MESSAGE THREAD only.
  * @see BoxDrawing::rasterize()
  */
-Region* Atlas::getOrRasterizeBoxDrawing (uint32_t codepoint, int cellWidth, int cellHeight, int baseline) noexcept
+Region* Packer::getOrRasterizeBoxDrawing (uint32_t codepoint, int cellWidth, int cellHeight, int baseline) noexcept
 {
     Key key;
     key.glyphIndex = codepoint;
@@ -259,7 +259,7 @@ Region* Atlas::getOrRasterizeBoxDrawing (uint32_t codepoint, int cellWidth, int 
 }
 
 #if JUCE_MAC
-// CoreText implementation in jreng_glyph_atlas.mm
+// CoreText implementation in jreng_glyph_packer.mm
 #else
 
 /**
@@ -332,7 +332,7 @@ static void copyBitmapRows (const FT_Bitmap& bitmap,
  * @see Constraint
  * @see copyBitmapRows()
  */
-Region Atlas::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
+Region Packer::rasterizeGlyph (const Key& key, void* fontHandle, bool isEmoji,
                               const Constraint& constraint,
                               int cellWidth, int cellHeight, int baseline) noexcept
 {

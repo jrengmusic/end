@@ -26,8 +26,7 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Tabs::Tabs (jreng::Typeface& font_,
-            juce::TabbedButtonBar::Orientation orientation)
+Tabs::Tabs (jreng::Typeface& font_, juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)
     , font (font_)
 {
@@ -83,8 +82,7 @@ void Tabs::addNewTab()
  * @param rows              Terminal row count. Must be > 0.
  * @note MESSAGE THREAD.
  */
-void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid,
-                      int cols, int rows)
+void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid, int cols, int rows)
 {
     jassert (cols > 0 and rows > 0);
 
@@ -419,7 +417,6 @@ Terminal::Display* Tabs::getActiveTerminal() const noexcept
     return result;
 }
 
-
 PaneComponent* Tabs::getActivePane() const noexcept
 {
     const auto activeID { AppState::getContext()->getActivePaneID() };
@@ -655,8 +652,7 @@ void Tabs::applyOrientation()
 
 juce::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::String& position)
 {
-    static const std::unordered_map<juce::String, juce::TabbedButtonBar::Orientation> table
-    {
+    static const std::unordered_map<juce::String, juce::TabbedButtonBar::Orientation> table {
         { "top",    juce::TabbedButtonBar::TabsAtTop    },
         { "bottom", juce::TabbedButtonBar::TabsAtBottom },
         { "right",  juce::TabbedButtonBar::TabsAtRight  },
@@ -702,7 +698,7 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
 
             if (sessionNode.isValid())
             {
-                result.first  = sessionNode.getProperty (jreng::ID::id).toString();
+                result.first = sessionNode.getProperty (jreng::ID::id).toString();
                 result.second = sessionNode.getProperty (Terminal::ID::cwd).toString();
             }
         }
@@ -718,9 +714,7 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
     // Recursive PANES descent — emits splitAt calls pre-order and descends rects.
     // parentRect is the pixel rect assigned to this node (chrome already subtracted).
     std::function<void (const juce::ValueTree&, juce::Rectangle<int>, Panes*)> walkPanes;
-    walkPanes = [&] (const juce::ValueTree& node,
-                     juce::Rectangle<int> parentRect,
-                     Panes* activePanes)
+    walkPanes = [&] (const juce::ValueTree& node, juce::Rectangle<int> parentRect, Panes* activePanes)
     {
         if (node.getType() == App::ID::PANES and node.getNumChildren() == 2)
         {
@@ -730,7 +724,7 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
             const auto [targetRect, newRect] { Panes::splitRect (parentRect, direction, savedRatio) };
 
             const auto [targetUuid, targetCwd] { findFirstLeaf (node.getChild (0)) };
-            const auto [newUuid,    newCwd]    { findFirstLeaf (node.getChild (1)) };
+            const auto [newUuid, newCwd] { findFirstLeaf (node.getChild (1)) };
 
             if (targetUuid.isNotEmpty() and newUuid.isNotEmpty())
             {
@@ -748,7 +742,7 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
             }
 
             walkPanes (node.getChild (0), targetRect, activePanes);
-            walkPanes (node.getChild (1), newRect,    activePanes);
+            walkPanes (node.getChild (1), newRect, activePanes);
         }
         else
         {
@@ -781,7 +775,8 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
                     while (walkNode.getType() == App::ID::PANES and walkNode.getNumChildren() == 2)
                     {
                         const juce::String dir { walkNode.getProperty (jreng::PaneManager::idDirection).toString() };
-                        const double ratio { static_cast<double> (walkNode.getProperty (jreng::PaneManager::idRatio, 0.5)) };
+                        const double ratio { static_cast<double> (
+                            walkNode.getProperty (jreng::PaneManager::idRatio, 0.5)) };
                         const auto [targetRect, newRect] { Panes::splitRect (firstLeafRect, dir, ratio) };
                         firstLeafRect = targetRect;
                         walkNode = walkNode.getChild (0);
@@ -831,11 +826,10 @@ void Tabs::focusPaneRight()
 }
 
 /**
- * @brief Returns the content rect available for Panes given a tab-bar depth.
+ * @brief Returns the content rect available for Panes given a tab-bar depthh
  *
- * Uses getLocalBounds() when the component is fully laid out (runtime). Falls back
- * to AppState window dimensions when bounds are empty (pre-layout on first spawn).
- * Applies the orientation-appropriate trim for the given @p depth.
+ * Reads window dimensions from AppState (SSOT) and applies the
+ * orientation-appropriate trim for the given @p depth.
  *
  * @param tabBarDepth  Tab-bar pixel depth to subtract from the base bounds.
  * @return Pixel rect available for the active Panes component.
@@ -843,8 +837,8 @@ void Tabs::focusPaneRight()
  */
 juce::Rectangle<int> Tabs::computeContentRect (int tabBarDepth) const noexcept
 {
-    const auto base { getLocalBounds() };
-    jassert (not base.isEmpty());
+    const auto* ctx { AppState::getContext() };
+    const juce::Rectangle<int> base { 0, 0, ctx->getWindowWidth(), ctx->getWindowHeight() };
 
     juce::Rectangle<int> result { base };
 
@@ -866,4 +860,4 @@ juce::Rectangle<int> Tabs::computeContentRect (int tabBarDepth) const noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

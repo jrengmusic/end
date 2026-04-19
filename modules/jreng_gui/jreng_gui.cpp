@@ -11,5 +11,6 @@
 #include "opengl/context/jreng_gl_shader_compiler.cpp"
 #include "opengl/context/jreng_gl_vertex_layout.cpp"
 #include "opengl/context/jreng_gl_renderer.cpp"
+#include "opengl/context/jreng_glyph_atlas.cpp"
 #include "opengl/context/jreng_gl_atlas_renderer.cpp"
 #include "opengl/renderers/jreng_gl_context.cpp"

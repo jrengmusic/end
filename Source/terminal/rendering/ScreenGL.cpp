@@ -14,6 +14,7 @@
  * @see jreng::Glyph::GLContext
  */
 #include "Screen.h"
+#include "../../AppState.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -194,6 +195,10 @@ void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY,
         const int y { originY + glViewportY };
 
         textRenderer.push (x, y, glViewportWidth, glViewportHeight, fullHeight);
+
+        if (AppState::getContext()->consumeAtlasDirty())
+            jreng::GlyphAtlas::getContext()->rebuildAtlas();
+
         textRenderer.uploadStagedBitmaps (font);
 
         Render::Snapshot* snapshot { resources.snapshotBuffer.read() };

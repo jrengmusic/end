@@ -47,7 +47,7 @@
  *
  * @see jreng_font.h
  * @see jreng::Typeface::Registry
- * @see jreng::Glyph::Atlas
+ * @see jreng::Glyph::Packer
  */
 
 // Included via unity build (jreng_glyph.cpp/mm) — jreng_glyph.h already in scope
@@ -94,7 +94,7 @@ jreng::Typeface::Typeface (Registry& fontRegistry,
                    float pointSize,
                    jreng::Glyph::AtlasSize atlasSize,
                    bool shouldBeMonospace)
-    : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize), atlas (atlasSize), isMonospace (shouldBeMonospace)
+    : registry (fontRegistry), userFamily (userFamilyName), fontSize (pointSize), packer (atlasSize), isMonospace (shouldBeMonospace)
 {
     initialize();
 }
@@ -571,6 +571,117 @@ void jreng::Typeface::setSize (float pointSize) noexcept
     }
     fallbackFontCache.clear();
 
+}
+
+// ============================================================================
+// Family / Size mutation
+// ============================================================================
+
+/**
+ * @brief Switches the primary font to a new family.
+ *
+ * No-op if @p family equals `userFamily`.  Otherwise tears down the regular
+ * FreeType face and its HarfBuzz shaping font, reloads from the resolved file
+ * path for the new family at the current `fontSize`, updates `Registry` slot 0,
+ * clears `fallbackFontCache`, invalidates the metrics cache, and calls
+ * `packer.clear()`.
+ *
+ * `emojiFace` and `nfFace` are family-independent and are not touched.
+ *
+ * @param family  Font family name.  Empty string falls back to the embedded
+ *                Display Mono.
+ */
+void jreng::Typeface::setFontFamily (const juce::String& family) noexcept
+{
+    if (family != userFamily)
+    {
+        userFamily = family;
+        cachedMetricsSize = -1.0f;
+
+        const FT_UInt renderDpi { computeRenderDpi (getDisplayScale()) };
+        const FT_F26Dot6 size26_6 { static_cast<FT_F26Dot6> (roundFloatPxTo26_6 (fontSize)) };
+
+        const int regularIdx { static_cast<int> (Style::regular) };
+
+        if (faces.at (regularIdx).hbFont != nullptr)
+        {
+            hb_font_destroy (faces.at (regularIdx).hbFont);
+            faces.at (regularIdx).hbFont = nullptr;
+        }
+
+        if (faces.at (regularIdx).face != nullptr)
+        {
+            FT_Done_Face (faces.at (regularIdx).face);
+            faces.at (regularIdx).face = nullptr;
+        }
+
+        FT_Face face { nullptr };
+        const juce::String fontPath { resolveFontPath() };
+
+        if (fontPath.isNotEmpty())
+        {
+            FT_New_Face (library, fontPath.toRawUTF8(), 0, &face);
+        }
+
+        if (face == nullptr)
+        {
+            int dataSize { 0 };
+            const char* data { jreng::embeddedFontForFamily (userFamily, dataSize) };
+
+            if (data == nullptr)
+            {
+                data = jreng::embeddedFontForFamily ("Display Mono", dataSize);
+            }
+
+            if (data != nullptr)
+            {
+                FT_New_Memory_Face (library, reinterpret_cast<const FT_Byte*> (data), dataSize, 0, &face);
+            }
+        }
+
+        if (face != nullptr)
+        {
+            FT_Set_Char_Size (face, 0, size26_6, renderDpi, renderDpi);
+            faces.at (regularIdx).face = face;
+            faces.at (regularIdx).hbFont = hb_ft_font_create_referenced (face);
+        }
+
+        auto* dmEntry { registry.getEntry (0) };
+
+        if (dmEntry != nullptr)
+        {
+            dmEntry->ftFace = faces.at (regularIdx).face;
+            dmEntry->hbFont = faces.at (regularIdx).hbFont;
+        }
+
+        for (auto& pair : fallbackFontCache)
+        {
+            if (pair.second != nullptr)
+            {
+                FT_Done_Face (pair.second);
+            }
+        }
+        fallbackFontCache.clear();
+
+        packer.clear();
+    }
+}
+
+/**
+ * @brief Changes the font size.
+ *
+ * No-op if @p size equals `fontSize`.  Otherwise delegates to `setSize (size)`
+ * then calls `packer.clear()` to drop all stale CPU-rasterized glyphs.
+ *
+ * @param size  New font size in CSS points.
+ */
+void jreng::Typeface::setFontSize (float size) noexcept
+{
+    if (size != fontSize)
+    {
+        setSize (size);
+        packer.clear();
+    }
 }
 
 // ============================================================================
