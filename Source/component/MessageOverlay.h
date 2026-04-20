@@ -18,7 +18,7 @@
  * `--- 24 row ---`) with a gap cut out of the line behind the text.
  *
  * ### Fade animation
- * Visibility transitions use `jreng::Animator::toggleFade()` for smooth
+ * Visibility transitions use `jam::Animator::toggleFade()` for smooth
  * fade-in / fade-out.  A `juce::Timer` triggers the fade-out after the
  * configured display duration.
  *
@@ -59,7 +59,7 @@ public:
      * @brief Constructs MessageOverlay: sets non-opaque, disables mouse interception.
      *
      * The component starts hidden (`addChildComponent` in MainComponent).
-     * Visibility is managed entirely by `jreng::Animator::toggleFade()`.
+     * Visibility is managed entirely by `jam::Animator::toggleFade()`.
      *
      * @note MESSAGE THREAD.
      */
@@ -87,7 +87,7 @@ public:
         resizeMode = false;
         message = text;
         repaint();
-        jreng::Animator::toggleFade (this, true, fadeInMs);
+        jam::Animator::toggleFade (this, true, fadeInMs);
         toFront (false);
         startTimer (durationMs);
     }
@@ -120,7 +120,7 @@ public:
         resizePadBottom = padBottom;
         resizePadLeft = padLeft;
         repaint();
-        jreng::Animator::toggleFade (this, true, fadeInMs);
+        jam::Animator::toggleFade (this, true, fadeInMs);
         toFront (false);
         startTimer (resizeDelayMs);
     }
@@ -296,7 +296,7 @@ private:
     void timerCallback() override
     {
         stopTimer();
-        jreng::Animator::toggleFade (this, false);
+        jam::Animator::toggleFade (this, false);
     }
 
     //==============================================================================

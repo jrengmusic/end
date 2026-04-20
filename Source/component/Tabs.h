@@ -10,7 +10,7 @@
  * stops naturally.
  *
  * @par Ownership
- * Each tab owns one Panes instance via `jreng::Owner<Panes>`. The ValueTree
+ * Each tab owns one Panes instance via `jam::Owner<Panes>`. The ValueTree
  * defines hierarchy (TAB > PANES > SESSION).
  *
  * @par Tab bar visibility
@@ -47,12 +47,16 @@ class Tabs : public juce::TabbedComponent
 public:
     /**
      * @brief Construct a new Tabs container.
-     * @param font        Font instance providing metrics, shaping, and rasterisation.
-     * @param orientation The tab bar orientation (top, bottom, left, or right).
+     * @param font          Font instance providing metrics, shaping, and rasterisation.
+     * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
+     * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
+     * @param orientation   The tab bar orientation (top, bottom, left, or right).
      * @note MESSAGE THREAD.
      */
-    explicit Tabs (jreng::Typeface& font,
-                   juce::TabbedButtonBar::Orientation orientation);
+    Tabs (jam::Typeface& font,
+          jam::GlyphAtlas& glAtlas,
+          jam::GraphicsAtlas& graphicsAtlas,
+          juce::TabbedButtonBar::Orientation orientation);
 
     /**
      * @brief Destructor.
@@ -170,7 +174,7 @@ public:
      * @return Reference to the active pane owner, or a static empty owner.
      * @note MESSAGE THREAD.
      */
-    jreng::Owner<PaneComponent>& getPanes() noexcept;
+    jam::Owner<PaneComponent>& getPanes() noexcept;
 
     /**
      * @brief Returns the Panes instance for the currently active tab.
@@ -362,7 +366,7 @@ private:
     /**
      * @brief Returns the content rect available for Panes given a tab-bar depth.
      *
-     * Uses jreng::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
+     * Uses jam::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
      * Falls back to AppState window size when getLocalBounds() is empty (pre-layout on first spawn).
      *
      * @param tabBarDepth  Tab-bar pixel depth to subtract from the base bounds.
@@ -371,9 +375,11 @@ private:
      */
     juce::Rectangle<int> computeContentRect (int tabBarDepth) const noexcept;
 
-    jreng::Typeface& font;
+    jam::Typeface& font;
+    jam::GlyphAtlas& glAtlasRef;
+    jam::GraphicsAtlas& graphicsAtlasRef;
     juce::Value tabName;
-    jreng::Owner<Panes> panes;
+    jam::Owner<Panes> panes;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Tabs)

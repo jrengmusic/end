@@ -65,7 +65,7 @@ private:
     InputHandler inputHandler { viewport, screen, state };
     ::LoaderOverlay loaderOverlay;
 
-    std::unique_ptr<jreng::Mermaid::Parser> mermaidParser;
+    std::unique_ptr<jam::Mermaid::Parser> mermaidParser;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Component)

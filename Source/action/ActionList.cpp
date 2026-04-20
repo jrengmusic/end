@@ -36,9 +36,9 @@ List::List (juce::Component& mainWindow)
     const int padV { config.getInt (Config::Key::actionListPaddingTop)
                      + config.getInt (Config::Key::actionListPaddingBottom) };
 
-    const int proportionalWidth { jreng::toInt (config.getFloat (Config::Key::actionListWidth)
+    const int proportionalWidth { jam::toInt (config.getFloat (Config::Key::actionListWidth)
                                   * main.getWidth() + padH) };
-    const int proportionalHeight { jreng::toInt (config.getFloat (Config::Key::actionListHeight)
+    const int proportionalHeight { jam::toInt (config.getFloat (Config::Key::actionListHeight)
                                    * main.getHeight() + padV) };
 
     const int width { juce::jmax (minimumWidth, proportionalWidth) };
@@ -173,9 +173,9 @@ void List::buildRows()
         };
 
         juce::ValueTree node { "ACTION" };
-        node.setProperty (jreng::ID::id, uuid, nullptr);
+        node.setProperty (jam::ID::id, uuid, nullptr);
         state.get().appendChild (node, nullptr);
-        jreng::ValueTree::attach (state, row.get());
+        jam::ValueTree::attach (state, row.get());
 
         addAndMakeVisible (row.get());
         rows.push_back (std::move (row));
@@ -194,9 +194,9 @@ void List::buildRows()
             configureActionRow (*row);
 
             juce::ValueTree node { "ACTION" };
-            node.setProperty (jreng::ID::id, uuid, nullptr);
+            node.setProperty (jam::ID::id, uuid, nullptr);
             state.get().appendChild (node, nullptr);
-            jreng::ValueTree::attach (state, row.get());
+            jam::ValueTree::attach (state, row.get());
 
             rowContainer.addAndMakeVisible (row.get());
             rows.push_back (std::move (row));
@@ -210,9 +210,9 @@ void List::buildRows()
         row->highlightColour = getHighlightColour();
 
         juce::ValueTree node { "ACTION" };
-        node.setProperty (jreng::ID::id, uuid, nullptr);
+        node.setProperty (jam::ID::id, uuid, nullptr);
         state.get().appendChild (node, nullptr);
-        jreng::ValueTree::attach (state, row.get());
+        jam::ValueTree::attach (state, row.get());
 
         rowContainer.addAndMakeVisible (row.get());
         rows.push_back (std::move (row));
@@ -233,9 +233,9 @@ void List::buildRows()
         configureActionRow (*row);
 
         juce::ValueTree node { "ACTION" };
-        node.setProperty (jreng::ID::id, uuid, nullptr);
+        node.setProperty (jam::ID::id, uuid, nullptr);
         state.get().appendChild (node, nullptr);
-        jreng::ValueTree::attach (state, row.get());
+        jam::ValueTree::attach (state, row.get());
 
         rowContainer.addAndMakeVisible (row.get());
         rows.push_back (std::move (row));
@@ -252,9 +252,9 @@ void List::buildRows()
             configureActionRow (*row);
 
             juce::ValueTree node { "ACTION" };
-            node.setProperty (jreng::ID::id, uuid, nullptr);
+            node.setProperty (jam::ID::id, uuid, nullptr);
             state.get().appendChild (node, nullptr);
-            jreng::ValueTree::attach (state, row.get());
+            jam::ValueTree::attach (state, row.get());
 
             rowContainer.addAndMakeVisible (row.get());
             rows.push_back (std::move (row));
@@ -321,7 +321,7 @@ void List::filterRows (const juce::String& query)
 
     if (query.isNotEmpty())
     {
-        jreng::FuzzySearch::Data::vector dataset;
+        jam::FuzzySearch::Data::vector dataset;
         dataset.reserve (rows.size() - 1);
 
         for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
@@ -330,7 +330,7 @@ void List::filterRows (const juce::String& query)
                 dataset.push_back (label->getText().toStdString());
         }
 
-        const auto results { jreng::FuzzySearch::getResult (query, dataset) };
+        const auto results { jam::FuzzySearch::getResult (query, dataset) };
 
         std::unordered_set<std::string> matchedNames;
 
@@ -474,7 +474,7 @@ void List::enterBindingMode()
 void List::exitBindingMode()
 {
     setBindingRowIndex (-1);
-    jreng::Animator::toggleFade (&messageOverlay, false);
+    jam::Animator::toggleFade (&messageOverlay, false);
     grabKeyboardFocus();
 }
 

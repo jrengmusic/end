@@ -24,13 +24,13 @@ Row::Row (int index, const juce::String& uuid, const Registry::Entry& entry)
     , kind (RowKind::action)
 {
     nameLabel = std::make_unique<juce::Label>();
-    nameLabel->getProperties().set (jreng::ID::font, jreng::ID::name.toString());
+    nameLabel->getProperties().set (jam::ID::font, jam::ID::name.toString());
     nameLabel->setText (entry.name, juce::dontSendNotification);
     nameLabel->setInterceptsMouseClicks (false, false);
     addAndMakeVisible (nameLabel.get());
 
     shortcutLabel = std::make_unique<juce::Label>();
-    shortcutLabel->getProperties().set (jreng::ID::font, jreng::ID::keyPress.toString());
+    shortcutLabel->getProperties().set (jam::ID::font, jam::ID::keyPress.toString());
     shortcutLabel->setText (Registry::shortcutToString (entry.shortcut),
                             juce::dontSendNotification);
     shortcutLabel->setJustificationType (juce::Justification::centredRight);

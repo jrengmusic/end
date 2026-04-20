@@ -282,7 +282,7 @@ void State::storeAndFlush (const juce::Identifier& key, float v) noexcept
 /** @note MESSAGE THREAD — writes the session UUID to the root node as a string property. */
 void State::setId (const juce::String& uuid)
 {
-    state.setProperty (jreng::ID::id, uuid, nullptr);
+    state.setProperty (jam::ID::id, uuid, nullptr);
 }
 
 /** @note READER THREAD — delegates to `storeAndFlush (ID::activeScreen, …)`. */
@@ -439,13 +439,13 @@ void State::extendOutputBlock (int row) noexcept
 /** @note MESSAGE THREAD — relaxed load (snapshot-dirty handshake provides ordering). */
 int State::getOutputBlockTop() const noexcept
 {
-    return jreng::toInt (getRawParam (ID::outputBlockTop)->load (std::memory_order_relaxed));
+    return jam::toInt (getRawParam (ID::outputBlockTop)->load (std::memory_order_relaxed));
 }
 
 /** @note MESSAGE THREAD — relaxed load (snapshot-dirty handshake provides ordering). */
 int State::getOutputBlockBottom() const noexcept
 {
-    return jreng::toInt (getRawParam (ID::outputBlockBottom)->load (std::memory_order_relaxed));
+    return jam::toInt (getRawParam (ID::outputBlockBottom)->load (std::memory_order_relaxed));
 }
 
 /**
@@ -473,7 +473,7 @@ void State::setPromptRow (int row) noexcept { storeAndFlush (ID::promptRow, stat
 /** @note READER THREAD — relaxed load; called from resize on the reader thread. */
 int State::getPromptRow() const noexcept
 {
-    return jreng::toInt (getRawParam (ID::promptRow)->load (std::memory_order_relaxed));
+    return jam::toInt (getRawParam (ID::promptRow)->load (std::memory_order_relaxed));
 }
 
 /**
@@ -803,7 +803,7 @@ juce::ValueTree State::get() const noexcept { return state; }
  */
 juce::Value State::getValue (const juce::Identifier& paramId)
 {
-    return jreng::ValueTree::getValueFromChildWithID (state, paramId);
+    return jam::ValueTree::getValueFromChildWithID (state, paramId);
 }
 
 /**
@@ -825,7 +825,7 @@ juce::Value State::getValue (const juce::Identifier& paramId)
 bool State::getMode (const juce::Identifier& id) const noexcept
 {
     auto modesNode { state.getChildWithName (ID::MODES) };
-    auto param { jreng::ValueTree::getChildWithID (modesNode, id.toString()) };
+    auto param { jam::ValueTree::getChildWithID (modesNode, id.toString()) };
     bool result { false };
 
     if (param.isValid())
@@ -849,7 +849,7 @@ bool State::getMode (const juce::Identifier& id) const noexcept
  */
 ActiveScreen State::getActiveScreen() const noexcept
 {
-    auto param { jreng::ValueTree::getChildWithID (state, ID::activeScreen.toString()) };
+    auto param { jam::ValueTree::getChildWithID (state, ID::activeScreen.toString()) };
     ActiveScreen result { normal };
 
     if (param.isValid())
@@ -875,7 +875,7 @@ uint32_t State::getKeyboardFlags() const noexcept
 {
     const auto scr { getActiveScreen() };
     auto screenNode { state.getChildWithName (scr == normal ? ID::NORMAL : ID::ALTERNATE) };
-    auto param { jreng::ValueTree::getChildWithID (screenNode, ID::keyboardFlags.toString()) };
+    auto param { jam::ValueTree::getChildWithID (screenNode, ID::keyboardFlags.toString()) };
     uint32_t result { 0 };
 
     if (param.isValid())
@@ -893,7 +893,7 @@ static int getScreenParamInt (const juce::ValueTree& root, const ActiveScreen sc
                                const juce::Identifier& paramId, int defaultValue = 0) noexcept
 {
     auto screenNode { root.getChildWithName (scr == normal ? Terminal::ID::NORMAL : Terminal::ID::ALTERNATE) };
-    auto param { jreng::ValueTree::getChildWithID (screenNode, paramId.toString()) };
+    auto param { jam::ValueTree::getChildWithID (screenNode, paramId.toString()) };
     int result { defaultValue };
 
     if (param.isValid())
@@ -908,7 +908,7 @@ static float getScreenParamFloat (const juce::ValueTree& root, const ActiveScree
                                    const juce::Identifier& paramId, float defaultValue = 0.0f) noexcept
 {
     auto screenNode { root.getChildWithName (scr == normal ? Terminal::ID::NORMAL : Terminal::ID::ALTERNATE) };
-    auto param { jreng::ValueTree::getChildWithID (screenNode, paramId.toString()) };
+    auto param { jam::ValueTree::getChildWithID (screenNode, paramId.toString()) };
     float result { defaultValue };
 
     if (param.isValid())
@@ -978,7 +978,7 @@ float State::getCursorColorB() const noexcept
 void State::setScrollOffset (int offset) noexcept
 {
     // MESSAGE THREAD
-    auto param { jreng::ValueTree::getChildWithID (state, ID::scrollOffset.toString()) };
+    auto param { jam::ValueTree::getChildWithID (state, ID::scrollOffset.toString()) };
 
     if (param.isValid())
     {
@@ -1019,7 +1019,7 @@ void State::setDimensions (int cols, int rows) noexcept
 int State::getScrollOffset() const noexcept
 {
     // MESSAGE THREAD
-    auto param { jreng::ValueTree::getChildWithID (state, ID::scrollOffset.toString()) };
+    auto param { jam::ValueTree::getChildWithID (state, ID::scrollOffset.toString()) };
     int result { 0 };
 
     if (param.isValid())
@@ -1034,7 +1034,7 @@ int State::getScrollOffset() const noexcept
 int State::getScrollbackUsed() const noexcept
 {
     // MESSAGE THREAD
-    auto param { jreng::ValueTree::getChildWithID (state, ID::scrollbackUsed.toString()) };
+    auto param { jam::ValueTree::getChildWithID (state, ID::scrollbackUsed.toString()) };
     int result { 0 };
 
     if (param.isValid())
@@ -1084,16 +1084,21 @@ void State::timerCallback()
     // MESSAGE THREAD
     static constexpr int flushHz { 120 };
     static constexpr int idleHz { 60 };
+
     const bool anythingUpdated { flush() };
+
     flushStrings();
     flushHyperlinks();
 
     const int interval { anythingUpdated ? 1000 / flushHz : 1000 / idleHz };
     tickCursorBlink (interval);
+
     startTimer (interval);
 
     if (onFlush != nullptr)
+    {
         onFlush();
+    }
 }
 
 /**
@@ -1119,8 +1124,8 @@ void State::tickCursorBlink (int elapsedMs) noexcept
     const int col { getRawValue<int> (screenKey (scr, ID::cursorCol)) };
     const int shape { getRawValue<int> (screenKey (scr, ID::cursorShape)) };
 
-    const int prevRow { jreng::toInt (getRawParam (ID::prevFlushedCursorRow)->load (std::memory_order_relaxed)) };
-    const int prevCol { jreng::toInt (getRawParam (ID::prevFlushedCursorCol)->load (std::memory_order_relaxed)) };
+    const int prevRow { jam::toInt (getRawParam (ID::prevFlushedCursorRow)->load (std::memory_order_relaxed)) };
+    const int prevCol { jam::toInt (getRawParam (ID::prevFlushedCursorCol)->load (std::memory_order_relaxed)) };
     const bool cursorMoved { row != prevRow or col != prevCol };
     getRawParam (ID::prevFlushedCursorRow)->store (static_cast<float> (row), std::memory_order_relaxed);
     getRawParam (ID::prevFlushedCursorCol)->store (static_cast<float> (col), std::memory_order_relaxed);
@@ -1175,7 +1180,7 @@ void State::tickCursorBlink (int elapsedMs) noexcept
  */
 void State::buildParameterMap() noexcept
 {
-    jreng::ValueTree::applyFunctionRecursively (
+    jam::ValueTree::applyFunctionRecursively (
         state,
         [this] (const juce::ValueTree& node) -> bool
         {

@@ -16,13 +16,13 @@
  * 3. **Cursor state** — writing the cursor position and visibility from
  *    `State` into the snapshot.
  *
- * 4. **Publication** — calling `jreng::GLSnapshotBuffer::write()` to hand
+ * 4. **Publication** — calling `jam::GLSnapshotBuffer::write()` to hand
  *    the snapshot to the GL THREAD.  Double-buffer rotation is handled
  *    internally by `GLSnapshotBuffer`.
  *
  * @see Screen.h
  * @see ScreenRender.cpp
- * @see jreng::GLSnapshotBuffer
+ * @see jam::GLSnapshotBuffer
  * @see Render::Snapshot
  */
 
@@ -56,7 +56,7 @@ static constexpr float cursorColorNoOverride { -1.0f };
  *    and cursor state (`cursorPosition`, `cursorVisible`, `cursorShape`,
  *    `cursorColorR/G/B`, `scrollOffset`, `cursorBlinkOn`, `cursorFocused`)
  *    into the snapshot.
- * 7. Calls `jreng::GLSnapshotBuffer::write()` to hand the snapshot to the GL THREAD.
+ * 7. Calls `jam::GLSnapshotBuffer::write()` to hand the snapshot to the GL THREAD.
  *
  * @param state      Current terminal state; provides cursor position,
  *                   visibility, and active screen type.
@@ -66,7 +66,7 @@ static constexpr float cursorColorNoOverride { -1.0f };
  * @note **MESSAGE THREAD** only.  Must not be called from the GL THREAD.
  *
  * @see Render::Snapshot::ensureCapacity()
- * @see jreng::GLSnapshotBuffer::write()
+ * @see jam::GLSnapshotBuffer::write()
  * @see Screen::buildSnapshot()
  */
 template <typename Renderer>
@@ -201,11 +201,11 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
         // Block elements and box drawing characters are rendered procedurally
         // by the terminal renderer — they have no font glyph.  Skip the glyph
         // path so drawCursor() falls through to the geometric block.
-        if (not jreng::Glyph::BoxDrawing::isProcedural (cp))
+        if (not jam::Glyph::BoxDrawing::isProcedural (cp))
         {
             // Try the emoji font first — if the codepoint shapes there it must be
             // drawn via the RGBA atlas so the native colour is preserved.
-            const jreng::Typeface::GlyphRun emojiShaped { font.shapeEmoji (&cp, 1) };
+            const jam::Typeface::GlyphRun emojiShaped { font.shapeEmoji (&cp, 1) };
 
             // HarfBuzz returns count > 0 even for .notdef (glyph index 0).
             // Only treat as emoji when the font actually has the codepoint.
@@ -213,8 +213,8 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
                                  and emojiShaped.glyphs[0].glyphIndex != 0 };
 
             uint32_t glyphIndex { 0 };
-            jreng::Font fontObj (font, baseFontSize,
-                                 jreng::Typeface::Style::regular);
+            jam::Font fontObj (font, baseFontSize,
+                                 jam::Typeface::Style::regular);
 
             if (isEmoji)
             {
@@ -226,7 +226,7 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
             {
                 // FontCollection first — resolves NF icons and fallback-font codepoints
                 // exactly as buildCellInstance does for normal cells.
-                jreng::Typeface::Registry& fc { font.registry };
+                jam::Typeface::Registry& fc { font.registry };
                 bool resolved { false };
 
                 {
@@ -234,7 +234,7 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
 
                     if (fcSlot > 0)
                     {
-                        const jreng::Typeface::Registry::Entry* entry { fc.getEntry (static_cast<int> (fcSlot)) };
+                        const jam::Typeface::Registry::Entry* entry { fc.getEntry (static_cast<int> (fcSlot)) };
 
                         if (entry != nullptr and entry->hbFont != nullptr)
                         {
@@ -242,7 +242,7 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
 
                             if (hb_font_get_nominal_glyph (entry->hbFont, cp, &glyphId) and glyphId != 0)
                             {
-                                jreng::Typeface::GlyphRun registryRun;
+                                jam::Typeface::GlyphRun registryRun;
 #if JUCE_MAC
                                 registryRun.fontHandle = entry->ctFont;
 #else
@@ -259,8 +259,8 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
                 // ShapeText fallback — regular chars ("a", digits, punctuation, etc.)
                 if (not resolved)
                 {
-                    const jreng::Typeface::GlyphRun textShaped { font.shapeText (
-                        jreng::Typeface::Style::regular, &cp, 1) };
+                    const jam::Typeface::GlyphRun textShaped { font.shapeText (
+                        jam::Typeface::Style::regular, &cp, 1) };
 
                     if (textShaped.count > 0)
                     {
@@ -273,7 +273,7 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
 
             if (glyphIndex != 0)
             {
-                jreng::Glyph::Region* ag { fontObj.getGlyph (static_cast<uint16_t> (glyphIndex)) };
+                jam::Glyph::Region* ag { fontObj.getGlyph (static_cast<uint16_t> (glyphIndex)) };
 
                 if (ag != nullptr)
                 {
@@ -315,8 +315,8 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
         resources.snapshotBuffer.write();
 }
 
-template class Screen<jreng::Glyph::GLContext>;
-template class Screen<jreng::Glyph::GraphicsContext>;
+template class Screen<jam::Glyph::GLContext>;
+template class Screen<jam::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

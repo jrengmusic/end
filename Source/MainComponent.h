@@ -9,9 +9,6 @@
  * ### Responsibilities
  * - Sets the initial window size from `AppState` (persisted in `window.state` (standalone)
  *   or `<uuid>.display` (daemon client)).
- * - Registers a close callback with `jreng::BackgroundBlur` so that window
- *   dimensions are persisted to `AppState` when the native close button is
- *   pressed (in addition to the Cmd+Q path handled by ENDApplication).
  * - Delegates all keyboard, mouse, and terminal I/O to `Terminal::Tabs`.
  * - Registers all user-performable action callbacks with `Action::Registry`.
  *
@@ -39,6 +36,7 @@
 #include <JuceHeader.h>
 #include "AppState.h"
 #include "component/LookAndFeel.h"
+#include "component/TerminalWindow.h"
 #include "component/PaneComponent.h"
 #include "component/MessageOverlay.h"
 #include "component/Popup.h"
@@ -46,7 +44,7 @@
 #include "config/Config.h"
 #include "action/Action.h"
 #include "action/ActionList.h"
-// jreng::Typeface is available via JuceHeader → jreng_glyph
+// jam::Typeface is available via JuceHeader → jam_graphics
 #include "component/StatusBarOverlay.h"
 #include "whelmed/Component.h"
 #include "config/WhelmedConfig.h"
@@ -55,7 +53,7 @@
  * @class MainComponent
  * @brief Root content component of the END application window.
  *
- * Placed inside `jreng::Window` by `ENDApplication::initialise()`.
+ * Placed inside `jam::Window` by `ENDApplication::initialise()`.
  * Owns the `Terminal::Tabs` container and paints the translucent background
  * layer that shows through the native window blur effect.
  *
@@ -84,9 +82,9 @@ public:
      *                      through to the `Fonts` instance so font slots can be
      *                      populated and resolved without a singleton.
      */
-    MainComponent (jreng::Typeface::Registry& fontRegistry);
+    MainComponent (jam::Typeface::Registry& fontRegistry);
 
-    /** @brief Clears the BackgroundBlur close callback before destruction. */
+    /** @brief Removes ValueTree listeners and tears down LookAndFeel. */
     ~MainComponent() override;
 
     /**
@@ -112,7 +110,7 @@ private:
      * @brief Registers all user-performable actions with `Action::Registry`.
      *
      * Clears existing actions, delegates to grouped register* methods, then
-     * rebuilds the key map and wires the BackgroundBlur close callback.
+     * rebuilds the key map.
      *
      * @note MESSAGE THREAD.
      * @see Action::Registry
@@ -153,10 +151,13 @@ private:
     Terminal::LookAndFeel terminalLookAndFeel;
 
     /** @brief Global typeface instance; provides font metrics and shaping for all terminals. */
-    jreng::Typeface typeface;
+    jam::Typeface typeface;
 
-    /** @brief GL texture handle store; shared by all GLAtlasRenderer instances. */
-    jreng::GlyphAtlas glyphAtlas;
+    /** @brief GL texture handle store; shared by all Screen<GLContext> instances. */
+    jam::GlyphAtlas glyphAtlas;
+
+    /** @brief CPU atlas image store; shared by all Screen<GraphicsContext> instances. */
+    jam::GraphicsAtlas graphicsAtlas;
 
     /** @brief Tabbed terminal container; owns all Terminal::Display instances. */
     std::unique_ptr<Terminal::Tabs> tabs;
@@ -271,7 +272,7 @@ private:
 
     //==============================================================================
     // #if JUCE_DEBUG
-    //     jreng::debug::Widget debug { this, false };
+    //     jam::debug::Widget debug { this, false };
     // #endif
     //==============================================================================
 

@@ -30,7 +30,7 @@ namespace Action
  * @see Action::KeyHandler
  */
 class List
-    : public juce::Component
+    : public jam::NativeContextResource
     , private juce::ValueTree::Listener
 {
 public:
@@ -95,7 +95,7 @@ private:
     juce::Component& main;
 
     /** @brief ValueTree root holding ACTION nodes and binding state. */
-    jreng::ValueTree state { "ACTION_LIST" };
+    jam::ValueTree state { "ACTION_LIST" };
 
     /** @brief Scrollable viewport hosting the rowContainer. */
     juce::Viewport viewport;
@@ -104,7 +104,7 @@ private:
     juce::Component rowContainer;
 
     /** @brief Owned list of all rows: index 0 is the search box, 1..N are action rows. */
-    jreng::Owner<Action::Row> rows;
+    jam::Owner<Action::Row> rows;
 
     /** @brief Overlay that shows transient messages (e.g. binding mode prompt). */
     MessageOverlay messageOverlay;

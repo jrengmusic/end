@@ -13,7 +13,7 @@ Component::Component()
     : state { docState.getValueTree() }
 {
     state.addListener (this);
-    mermaidParser = std::make_unique<jreng::Mermaid::Parser>();
+    mermaidParser = std::make_unique<jam::Mermaid::Parser>();
 
     mermaidParser->onReady (
         [this]
@@ -106,7 +106,7 @@ void Component::resized()
 void Component::openFile (const juce::File& file)
 {
     const juce::String fileContent { file.loadFileAsString() };
-    auto parsed { jreng::Markdown::Parser::parse (fileContent) };
+    auto parsed { jam::Markdown::Parser::parse (fileContent) };
     state.setProperty (App::ID::totalBlocks, parsed.blockCount, nullptr);
 
     // Set ValueTree metadata before moving document

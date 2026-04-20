@@ -11,13 +11,13 @@ public:
     State();
     ~State() override;
 
-    void setDocument (jreng::Markdown::ParsedDocument&& doc);
+    void setDocument (jam::Markdown::ParsedDocument&& doc);
     void setInitialBlockCount (int count) noexcept;
     void appendBlock() noexcept;
     void setParseComplete() noexcept;
 
-    const jreng::Markdown::ParsedDocument& getDocument() const noexcept;
-    jreng::Markdown::ParsedDocument& getDocumentForWriting() noexcept;
+    const jam::Markdown::ParsedDocument& getDocument() const noexcept;
+    jam::Markdown::ParsedDocument& getDocumentForWriting() noexcept;
     juce::ValueTree getValueTree() const noexcept;
 
 private:
@@ -25,7 +25,7 @@ private:
     bool flush();
 
     juce::ValueTree state;
-    jreng::Markdown::ParsedDocument document;
+    jam::Markdown::ParsedDocument document;
 
     std::atomic<int>  completedBlockCount { 0 };
     std::atomic<bool> parseComplete       { false };

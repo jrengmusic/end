@@ -1,5 +1,198 @@
 # SPRINT-LOG
 
+## Sprint 28: Post-JAM Stabilization — Atlas Symmetry, Context Dual-Impl, Style::Manager Drop, Phase 4 Cleanup ✅
+
+**Date:** 2026-04-21
+**Duration:** ~full session (multi-day span; session ran through multiple compacts)
+
+### Agents Participated
+- COUNSELOR: session lead, multiple Decision Gate cycles, audit orchestration, clean-sweep direction, commit message draft
+- Pathfinder: 12+ surveys — reload-chain investigation (pre-compact), window race tracing, DEC 1049 site analysis, Parser↔State topology map, Context jam-vs-kuassa diff, Config surface + consumer map, Style::Manager surface, BackgroundBlur glass path, GlyphAtlas↔Context thread analysis, jam project-type macro check, popup/modal setupWindow chain, shell-exit VBlank UAF, Tabs addNewTab quit chain
+- Engineer: 20+ execution passes — saveCursor/restoreCursor extraction, ?1049 dispatch, resize→AppState, clean-sweep batches (ODE drain, forwarder refactor, setWindowSize dedup, doc drift), Dialog + whelmed Config migrations, Main.cpp Style::Manager drop (245 lines), DisplayMono/Prop restoration, EndColourId.cpp deletion + option 2a setColourIdMap migration (jam + kuassa), jam_context.h dual-impl, GlyphAtlas Context drop + reference threading (18 files), GraphicsAtlas extraction + symmetric Renderer::Atlas alias, Option 5 default-walker relocation, ModalWindow opacity+blur ctor overload + delegation, Session shell-exit wire, explicit markAtlasDirty restore, Phase 4 module deletion, many surgical doc/stub fixes
+- Auditor: 2 passes — mid-session (M1-M7, Mi1-Mi7) and final (B1, M1-M5, m1-m10) — drove multiple clean-sweep rounds to resolution
+- ARCHITECT: locked BLESSED-proper direction at every Decision Gate, rejected invented abstractions, redirected from name-invention multiple times, corrected thread_local-context assumption, chose option 2a for ColourIdMap migration, chose option B for TextLayout atlas injection, chose symmetric-atlas (path B) over Typeface re-absorption
+
+### Files Modified (major)
+
+**END Source:**
+- `Source/MainComponent.cpp` / `.h` — setWindowSize at resized() (SSOT), setRenderer getRenderer→setRenderables forwarder, markAtlasDirty restoration, GraphicsAtlas member, doc drift cleanups, dead setCloseCallback removal
+- `Source/Main.cpp` — rebuildStyleManager deleted (~245 lines), DisplayMono/DisplayProp structs restored, shell-exit onAllSessionsExited wire added then reverted (double-quit)
+- `Source/component/Dialog.cpp` / `.h` — Font::getStringWidthFloat → juce::TextLayout::getStringWidth, Config-direct migration, stale setupWindow doc rewrite
+- `Source/component/LookAndFeel.cpp` — Style::Manager consumers → Config direct, WhelmedConfig include
+- `Source/component/Tabs.cpp` / `.h`, `Panes.cpp` / `.h`, `TerminalDisplay.cpp` / `.h` — GraphicsAtlas threaded through ctor chain
+- `Source/component/ModalWindow.cpp` — Terminal::ModalWindow passes Config opacity/blur to new jam overload, doc trimmed
+- `Source/terminal/logic/Parser.h` — saveCursor/restoreCursor method decls
+- `Source/terminal/logic/ParserESC.cpp` — method impls + ESC 7/8 updates + anonymous namespace → static
+- `Source/terminal/logic/ParserCSI.cpp` — ?47/?1047/?1049 dispatch differentiation, anonymous namespace → static
+- `Source/terminal/logic/Processor.h` / `.cpp` — createDisplay gains GraphicsAtlas&
+- `Source/terminal/logic/Session.cpp` — tty->onExit invokes processor->onShellExited() before Session::onExit
+- `Source/terminal/rendering/Screen.h` / `.cpp`, `ScreenGL.cpp` — atlasRef typed typename Renderer::Atlas&, uploadStagedBitmaps calls updated
+- `Source/terminal/tty/TTY.h` / `.cpp`, `UnixTTY.h` / `.cpp` — ODE instrumentation drained
+- `Source/whelmed/Parser.cpp`, `Tokenizer.cpp`, `Screen.cpp`, `Component.cpp`, `State.cpp` — Style::Manager → Whelmed::Config direct
+- `Source/EndColourId.cpp` — deleted (migrated to jam setColourIdMap runtime registration)
+- `Source/whelmed/ColourIds.h` — deleted (zero consumers)
+- `Source/config/Config.h` / `.cpp` — getStyleMetrics removed
+- `CMakeLists.txt:285` — FreeType status message updated to `${JAM_ROOT}/jam_freetype`
+- `end/modules/jreng_*` (7 directories) — deleted; `end/modules/` removed
+- `ARCHITECTURE.md` (48 refs), `SPEC.md` (18 refs) — jreng → jam rename; glyph_packer entry corrected
+- `PLAN-jam-migration.md` — Phase 3.6 ongoing, Phase 4 complete
+- `DEBT.md` — whitespace tidied
+
+**jam:**
+- `jam_core/context/jam_context.h` — dual-impl (`JUCE_STANDALONE_APPLICATION` → single global pointer; else → kuassa-verbatim thread_local LIFO)
+- `jam_gui/window/jam_window.h` / `.cpp` — Window::setRenderables forwarder, attachRendererToContent no longer installs walker (Option 5)
+- `jam_gui/window/jam_modal_window.h` / `.cpp` — explicit (opacity, blurRadius) ctor overload; Style::Manager ctor delegates via C++ ctor delegation; dead setupWindow(Component&) removed
+- `jam_gui/opengl/context/jam_gl_atlas_renderer.h` / `.cpp` — GLAtlasRenderer ctor takes GlyphAtlas&
+- `jam_gui/opengl/context/jam_glyph_atlas.h` / `.cpp` — drops jam::Context<T> inheritance
+- `jam_gui/opengl/renderers/jam_gl_renderer.h` / `.cpp` — ctor installs default walker rooted at openGLContext.getTargetComponent()
+- `jam_gui/opengl/renderers/jam_gl_context.h` / `.cpp` — uploadStagedBitmaps gains GlyphAtlas&, Atlas type alias
+- `jam_graphics/fonts/jam_typeface.h` / `.cpp` — CPU atlas methods + members removed (moved to GraphicsAtlas)
+- `jam_graphics/fonts/jam_text_layout.h` / `.cpp` — draw() gains GraphicsAtlas&
+- `jam_graphics/rendering/jam_graphics_atlas.h` / `.cpp` — new class, CPU-side atlas owner symmetric to GlyphAtlas
+- `jam_graphics/rendering/jam_glyph_graphics_context.h` / `.cpp` — uploadStagedBitmaps gains GraphicsAtlas&, Atlas type alias, @file tag corrected
+- `jam_graphics/jam_graphics.h` / `.cpp` — new header includes
+- `jam_data_structures/style_manager/jam_style_manager.h` / `.cpp` — setColourIdMap static method added; getColourIdMap defined internally
+
+**kuassa (option 2a migration):**
+- `___lib___/kuassa_data_structures/style_manager/kuassa_style_manager.h` / `.cpp` — parallel fork of jam's setColourIdMap pattern
+- `jreng-filter-strip/Source/PluginEditorColourId.cpp` — deleted
+- `jreng-filter-strip/Source/PluginEditor.cpp:119` — initialiseTheme calls ku::Style::Manager::setColourIdMap with 100 ColourId entries preserved
+- `jreng-filter-strip/CMakeLists.txt` — PluginEditorColourId.cpp removed from explicit SOURCES list
+
+### Alignment Check
+- [x] BLESSED principles applied (SSOT enforced for AppState window size + atlas ownership; Encapsulation preserved; Explicit atlas + opacity + blur passed through ctor chains; Stateless — atlas Ptrs now lifetime-bound to owner; Bound — GraphicsAtlas RAII)
+- [x] NAMES.md: every new name approved at Decision Gate (`jam::GraphicsAtlas`, `setColourIdMap`, `Atlas` type alias, `saveCursor`/`restoreCursor`, ModalWindow ctor overload parameters, `graphicsAtlas` member, `atlasRef`)
+- [x] JRENG-CODING-STANDARD: `not`/`and`/`or`, brace init, no early returns, `.at()` container access, no anonymous namespaces (Mi2 converted to `static`)
+- [x] MANIFESTO: all Auditor findings resolved before sprint log (2 audit rounds, full clean sweep)
+
+### Problems Solved
+- Reload (Cmd+R) destroys text — explicit markAtlasDirty restoration in setRenderer (listener-only path missed same-type reloads)
+- CPU→GPU switch crash on reload — Context thread_local boundary exposed; fix via GlyphAtlas Context drop + reference threading + Context dual-impl on JUCE_STANDALONE_APPLICATION
+- Popup window lost glass — jam::ModalWindow::setupWindow depended on Style::Manager; explicit (opacity, blur) ctor overload takes values from Config directly
+- Standalone shell-exit crash (`:q` / `exit`) — Display::onVBlank race with State destruction; fix via wiring Processor::onShellExited to destroy Display before Session teardown
+- DEC 1049 scrollback garbage — added cursor save/restore at ?1049h/?1049l boundary (?47/?1047 unchanged)
+- Resize → wrong split dimensions — Tabs::computeContentRect reads AppState which stayed stale during live resize; fix via MainComponent::resized writing live dimensions to AppState as SSOT
+- Style::Manager architectural rot — dropped entirely from END; 9 consumer files migrated to direct Config reads; EndColourId.cpp migrated to jam-owned setColourIdMap (kuassa migrated in parallel)
+- GlyphAtlas/CPU-atlas asymmetry — GraphicsAtlas extracted, Typeface fully atlas-agnostic, Renderer::Atlas type alias for symmetric templated consumption
+- Phase 4 JAM migration cleanup — end/modules/jreng_* (7 directories) deleted
+- ODE instrumentation drain (96 lines across 15 files)
+
+### Debts Paid
+- `DEBT-20260420T070224` — Resize → pane stale dimension on split (Tabs::computeContentRect now reads live AppState via MainComponent::resized)
+- `DEBT-20260420T062722` — Claude Code scrollback garbage (DEC 1049 cursor save/restore via new Parser::saveCursor / restoreCursor methods + differentiated dispatch)
+
+### Debts Deferred
+- `DEBT-20260420T062717` — Ctrl+C vim dead pane — instrumented mid-session but bug did not reproduce under ODE harness on ARCHITECT's macOS environment; instrumentation drained per ODE protocol; bug likely remains in daily-usage observation
+- `DEBT-20260411T100058` — mermaid rendering broken — not addressed this sprint
+
+---
+
+## Handoff to SURGEON: END→JAM Migration — Parity Stuck on Reload-Text-Disappears
+
+**From:** COUNSELOR
+**Date:** 2026-04-20
+
+### Problem
+
+END→JAM migration (PLAN-jam-migration.md) is code-complete through Phase 3.5. Phase 3.6 functional parity testing surfaced two bugs:
+
+1. **Terminal popup window opaque (was: should be glass)** — RESOLVED. Root cause: terminal popup's `popup.show` caller arg was `*getTopLevelComponent()` (Terminal::Window) instead of `*this` (MainComponent). Window has its own `backgroundColourId` set to `transparentBlack` by JUCE DocumentWindow base ctor; MainComponent has no own colour and inherits the configured `windowColour` from `Terminal::LookAndFeel` via global default. Fixed at `MainComponentActions.cpp:504`.
+
+2. **Cmd+R reload makes text disappear** — ACTIVE. Sprint 27 (commit `dd3c2ce`) explicitly fixed this exact bug via `markAtlasDirty` → `setRenderables` lambda → `consumeAtlasDirty` → `rebuildAtlas` (zeros GL handles). Pathfinder confirmed the post-migration `jam_gl_context.cpp` and surrounding code are byte-identical to `dd3c2ce` (modulo `jreng_*` → `jam_*` rename). Clean build done — bug persists. The Sprint 27 mechanism is in place but not producing the expected behavior. Suspected: GL context lifecycle (`Terminal::Display::glContextCreated` firing on new context, which calls `processor.getGrid().markAllDirty()` triggering full re-stage) is not actually firing on the reload path post-migration. Needs runtime instrumentation to verify.
+
+### Recommended Solution
+
+**Step 1:** Instrument the reload chain to identify the specific gap.
+
+Add `jam::debug::Log::write(...)` traces (the existing diagnostic primitive added during migration) to:
+- `MainComponent::setRenderer` entry — confirm reload calls it
+- The `setRenderables` lambda (`MainComponent.cpp:128-129`) — confirm `consumeAtlasDirty` returns true and `rebuildAtlas` fires
+- `Terminal::Display::glContextCreated` — confirm it fires after reload's renderer replacement
+- `processor.getGrid().markAllDirty()` — confirm it runs
+- `jam_gl_context.cpp::uploadStagedBitmaps` — confirm `stagedCount` is non-zero on the first paint after reload (if zero, packer was never told to re-stage)
+
+If `stagedCount` is zero after reload — Pathfinder's earlier diagnosis stands: `Typeface::Packer` (CPU cache) doesn't know textures were destroyed; needs `typeface.clearAtlas()` call in the reload path. Sprint 27 may have implicitly relied on `glContextCreated`'s `markAllDirty` to force re-stage, but that may not be firing.
+
+**Step 2:** Based on trace findings, either:
+- (a) Fix the broken link in the existing chain (e.g., `glContextCreated` not firing → fix the GL context lifecycle wiring)
+- (b) Add explicit `typeface.clearAtlas()` call in `MainComponent::setRenderer` (message thread) before `markAtlasDirty()` — bypass the implicit chain entirely
+
+**Step 3:** Drain Auditor findings (B1, C1-C5, D1-D5 — see Auditor report below).
+
+**Step 4:** ARCHITECT functional parity smoke test on the cleaned, fixed build. On green → Phase 4 cleanup (delete `end/modules/jreng_*`).
+
+### Files to Modify
+
+**Active bug (instrument first, fix second):**
+- `Source/MainComponent.cpp` — instrument `setRenderer`, `setRenderables` lambda. Possibly add `typeface.clearAtlas()` call.
+- `Source/component/TerminalDisplay.cpp` — instrument `glContextCreated`. Verify it fires on new context.
+- `jam/jam_gui/opengl/context/jam_gl_context.cpp` — instrument `uploadStagedBitmaps` to log `stagedCount`.
+
+**Audit cleanup (BLOCKING per ODE protocol):**
+- 15 `// ODE` lines + the `Log::init` line — grep recipe: `grep -rn "// ODE" ~/Documents/Poems/dev/end ~/Documents/Poems/dev/jam`
+- `~/Documents/Poems/dev/end/ode.log` — delete file at project root
+
+**Audit cleanup (CLEANUP):**
+- `Source/Main.cpp:134` — hardcoded absolute path `/Users/jreng/...` to ode.log (covered by ODE drain)
+- `CMakeLists.txt:285` — stale `message(STATUS "FreeType: modules/jreng_freetype...")` — module is now `${JAM_ROOT}/jam_freetype`
+- `Source/component/MainComponent.h:50` — comment-as-explanation, NAMES.md infraction
+- `PLAN-jam-migration.md` — update status (Phases 0-3.5 done; 3.6 + 4 deferred) or convert to sprint receipt
+
+**Audit cleanup (DOC):**
+- `Source/component/Dialog.h:7,38-50,153-160` — stale doc references obsolete `Terminal::ModalWindow::setupWindow`
+- `Source/component/LookAndFeel.cpp:29,247-252` — stale "via Config" / "via AppState" references; now via Style::Manager / ENDApplication
+
+**Decision Gate items (audit-discovered emergent decisions not in original PLAN — ARCHITECT triage):**
+- `jam::AnyMap`, `Style::Manager::createFromMetrics/clear/setMetrics`, `Config::getStyleMetrics`, `ENDApplication::rebuildStyleManager`
+- `EndColourId.cpp` + `Source/whelmed/ColourIds.h` (mirrors JFS `PluginEditorColourId.cpp` pattern)
+- `jam::NativeContextResource` (still active — Dialog + ActionList depend on it; ARCHITECT once called it "wrong abstraction" but it wasn't retired)
+- `jam_log.cpp` (file-logger primitive — ARCHITECT directed its creation)
+- `jam_lua` module (PLAN had 10 modules; jam_lua is the 11th, added mid-sprint)
+- `Terminal::Window` extraction (PLAN Step 1.8.4 said absorb into jam::Window; instead extracted to END subclass per ARCHITECT correction)
+- Whelmed Style::Manager migration scope (11 files, broader than PLAN Step 3.2's mechanical rename)
+
+**Documentation drift (recommend DEBT.md capture — own sprint):**
+- `ARCHITECTURE.md` — 48 jreng references; codebase is SSOT, full rewrite needed
+- `SPEC.md` — 9 jreng references in jreng_text/jreng_graphics/jreng_gui module-organization sections
+
+### Acceptance Criteria
+
+- [ ] Reload (Cmd+R) preserves all text on screen — no blank atlas
+- [ ] All ODE instrumentation removed; ode.log file deleted
+- [ ] Stale comments and doc-blocks updated
+- [ ] PLAN-jam-migration.md status reconciled
+- [ ] ARCHITECT functional parity smoke test green: terminal flows, glass blur (macOS Apple Silicon CALayer residue absent via GLRoot+setRenderables), DWM glass (Windows), modal popups, mermaid rendering, hot reload, multi-window
+- [ ] Phase 4 cleanup: `end/modules/jreng_*` (all 7 directories) deleted
+- [ ] No residual `jreng::` namespace or `<jreng_*/...>` includes anywhere in END source
+
+### Notes
+
+**JAM migration scope summary:**
+- 11 jam_* modules created/consolidated under `~/Documents/Poems/dev/jam/`: jam_core, jam_data_structures, jam_freetype, jam_javascript, jam_markdown, jam_graphics, jam_animation, jam_gui, jam_fonts, jam_look_and_feel, jam_lua
+- New jam-side primitives: `jam::AnyMap`, `jam::debug::Log`, `jam::Style::Manager::createFromMetrics/clear/setMetrics/setAppearance(LAF&)`, `jam::NativeContextResource`
+- END source: 352 namespace rename sites across 51 files, 4 explicit include rewrites, `Source/Gpu.{h,cpp,mm}` deleted (replaced by jam::GpuProbe), `Library/lua` + `Library/sol` deleted (moved to jam_lua), 11 Whelmed files migrated to Style::Manager
+- New END files: `EndColourId.cpp` (Style::Manager ColourId map mirroring JFS pattern), `Source/whelmed/ColourIds.h` (Whelmed ColourId enums), `Source/component/TerminalWindow.{h,cpp}` (END subclass of jam::Window adding resize tracking)
+
+**JFS (jreng-filter-strip) is the BLESSED reference for plugin patterns. kuassa/jam relationship: jam was forked from kuassa; kuassa-verbatim wherever possible. END uses jam as foundation.**
+
+**ARCHITECT-locked architectural decisions throughout sprint:**
+- Universal `jam_` prefix; `jam::` namespace only; no `jm` alias
+- jam::Window owns native shared context (extension on top of verbatim kuassa::Window)
+- ENDApplication owns Style::Manager (not AppState); Style::Manager mutated in place via clear/setMetrics/register*, NEVER destroyed
+- Config + jam::GpuProbe → AppState → all renderer consumers (`AppState::setRendererType` calls `jam::BackgroundBlur::setEnabled` on render-mode change)
+- LAF reads colours/fonts from Style::Manager only (never Config directly)
+- `Terminal::LookAndFeel` houses END's `WindowsTitleBarLookAndFeel` behavior (relocated from jam::Window during the verbatim revert)
+- Popup `getNativeSharedContext` flows through `jam::Window` → its glRenderer
+
+**Test environment:** Apple M4 macOS (per ode.log earlier in sprint).
+
+**Known divergences from PLAN that ARCHITECT confirmed:**
+- jam_lua addition (Phase 1 expanded from 10 to 11 modules)
+- Terminal::Window extraction (PLAN said absorb resize tracking into jam::Window; reverted to verbatim kuassa, extracted END-side)
+- Style::Manager API extensions (createFromMetrics, clear, setMetrics, setAppearance(LAF&))
+
+---
+
 ## Sprint 27: GlyphAtlas Singleton + Typeface deGL + Config-Reload Rebuild ✅
 
 **Date:** 2026-04-19

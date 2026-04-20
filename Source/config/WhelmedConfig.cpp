@@ -2,7 +2,7 @@
  * @file Config.cpp
  * @brief Implementation of the Lua-driven configuration loader for Whelmed.
  *
- * Uses sol2 (`sol::state`) to execute Lua scripts in a sandboxed environment.
+ * Uses sol2 (`jam::lua::state`) to execute Lua scripts in a sandboxed environment.
  *
  * ### Load pipeline
  * @code
@@ -17,8 +17,7 @@
  * @see Whelmed::Config::Key
  */
 
-#define SOL_ALL_SAFETIES_ON 1
-#include <sol/sol.hpp>
+#include <jam_lua/jam_lua.h>
 #include "WhelmedConfig.h"
 
 //==============================================================================
@@ -174,7 +173,7 @@ void Whelmed::Config::writeDefaults (const juce::File& file) const
     {
         auto str { value.toString() };
         str = str.replace ("\\", "\\\\");
-        content = jreng::String::replaceholder (content, key, str);
+        content = jam::String::replaceholder (content, key, str);
     }
 
     file.replaceWithText (content);
@@ -187,27 +186,27 @@ void Whelmed::Config::writeDefaults (const juce::File& file) const
  * @param t  The sol2 type value.
  * @return A string such as "number", "string", "boolean", "nil", etc.
  */
-static juce::String luaTypeName (sol::type t)
+static juce::String luaTypeName (jam::lua::type t)
 {
     switch (t)
     {
-        case sol::type::lua_nil:
+        case jam::lua::type::lua_nil:
             return "nil";
-        case sol::type::boolean:
+        case jam::lua::type::boolean:
             return "boolean";
-        case sol::type::number:
+        case jam::lua::type::number:
             return "number";
-        case sol::type::string:
+        case jam::lua::type::string:
             return "string";
-        case sol::type::table:
+        case jam::lua::type::table:
             return "table";
-        case sol::type::function:
+        case jam::lua::type::function:
             return "function";
-        case sol::type::userdata:
+        case jam::lua::type::userdata:
             return "userdata";
-        case sol::type::lightuserdata:
+        case jam::lua::type::lightuserdata:
             return "lightuserdata";
-        case sol::type::thread:
+        case jam::lua::type::thread:
             return "thread";
         default:
             return "unknown";
@@ -235,7 +234,7 @@ bool Whelmed::Config::load (const juce::File& file) { return load (file, loadErr
  * @param values  The runtime value store to write into.
  * @param schema  The type/range schema to validate against.
  */
-static void loadPadding (const sol::table& arr,
+static void loadPadding (const jam::lua::table& arr,
                          std::unordered_map<juce::String, juce::var>& values,
                          const std::unordered_map<juce::String, Whelmed::Config::Value>& schema)
 {
@@ -246,7 +245,7 @@ static void loadPadding (const sol::table& arr,
 
     for (int i { 0 }; i < 4; ++i)
     {
-        sol::optional<double> v { arr.get<sol::optional<double>> (i + 1) };
+        jam::lua::optional<double> v { arr.get<jam::lua::optional<double>> (i + 1) };
 
         if (v)
         {
@@ -271,7 +270,7 @@ static void loadPadding (const sol::table& arr,
  * @param errorOut  Warning string; entries are appended on failure.
  */
 static void validateAndStore (const juce::String& key,
-                              const sol::object& value,
+                              const jam::lua::object& value,
                               std::unordered_map<juce::String, juce::var>& values,
                               const std::unordered_map<juce::String, Whelmed::Config::Value>& schema,
                               juce::String& errorOut)
@@ -298,10 +297,10 @@ static void validateAndStore (const juce::String& key,
         switch (spec.expectedType)
         {
             case Whelmed::Config::Value::Type::number:
-                typeOk = (value.get_type() == sol::type::number);
+                typeOk = (value.get_type() == jam::lua::type::number);
                 break;
             case Whelmed::Config::Value::Type::string:
-                typeOk = (value.get_type() == sol::type::string);
+                typeOk = (value.get_type() == jam::lua::type::string);
                 break;
         }
 
@@ -364,15 +363,15 @@ bool Whelmed::Config::load (const juce::File& file, juce::String& errorOut)
 
     if (file.existsAsFile())
     {
-        sol::state lua;
+        jam::lua::state lua;
         lua.open_libraries (
-            sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::os, sol::lib::debug, sol::lib::package);
+            jam::lua::lib::base, jam::lua::lib::string, jam::lua::lib::table, jam::lua::lib::os, jam::lua::lib::debug, jam::lua::lib::package);
 
-        auto result { lua.safe_script_file (file.getFullPathName().toStdString(), sol::script_pass_on_error) };
+        auto result { lua.safe_script_file (file.getFullPathName().toStdString(), jam::lua::script_pass_on_error) };
 
         if (result.valid())
         {
-            sol::table whelmedTable = lua["WHELMED"];
+            jam::lua::table whelmedTable = lua["WHELMED"];
 
             if (whelmedTable.valid())
             {
@@ -382,9 +381,9 @@ bool Whelmed::Config::load (const juce::File& file, juce::String& errorOut)
                     {
                         const auto key { juce::String (fieldKey.as<std::string>()) };
 
-                        if (key == "padding" and fieldVal.get_type() == sol::type::table)
+                        if (key == "padding" and fieldVal.get_type() == jam::lua::type::table)
                         {
-                            loadPadding (fieldVal.as<sol::table>(), values, schema);
+                            loadPadding (fieldVal.as<jam::lua::table>(), values, schema);
                         }
                         else
                         {
@@ -398,7 +397,7 @@ bool Whelmed::Config::load (const juce::File& file, juce::String& errorOut)
         }
         else
         {
-            sol::error err = result;
+            jam::lua::error err = result;
             errorOut = juce::String (err.what());
         }
     }

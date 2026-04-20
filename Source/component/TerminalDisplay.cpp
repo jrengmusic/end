@@ -27,10 +27,15 @@
  *
  * @note MESSAGE THREAD — called from Processor::createDisplay().
  */
-Terminal::Display::Display (Terminal::Processor& proc, jreng::Typeface& font_)
+Terminal::Display::Display (Terminal::Processor& proc,
+                             jam::Typeface& font_,
+                             jam::GlyphAtlas& glAtlas_,
+                             jam::GraphicsAtlas& graphicsAtlas_)
     : processor (proc)
     , font (font_)
-    , screen (std::in_place_type<Screen<jreng::Glyph::GraphicsContext>>, font_)
+    , glAtlasRef (glAtlas_)
+    , graphicsAtlasRef (graphicsAtlas_)
+    , screen (std::in_place_type<Screen<jam::Glyph::GraphicsContext>>, font_, graphicsAtlas_)
     , vblank (this,
               [this]
               {
@@ -58,7 +63,11 @@ Terminal::Display::~Display()
     processor.onBell = nullptr;
     processor.onDesktopNotification = nullptr;
 
-    visitScreen ([&] (auto& scr) { scr.setSelection (nullptr); });
+    visitScreen (
+        [&] (auto& scr)
+        {
+            scr.setSelection (nullptr);
+        });
     screenSelection.reset();
     removeKeyListener (this);
 }
@@ -98,7 +107,10 @@ void Terminal::Display::initialise()
     // Routes PTY writes through Display::writeToPty → Terminal::Session::sendInput or Interprocess::Link::sendInput (mode-agnostic).
     linkManager.emplace (processor.getState(),
                          processor.getGrid(),
-                         [this] (const char* data, int len) { writeToPty (data, len); });
+                         [this] (const char* data, int len)
+                         {
+                             writeToPty (data, len);
+                         });
 
     // Construct Terminal::Input once — no Screen dependency, never reconstructed.
     inputHandler.emplace (processor, *linkManager);
@@ -241,25 +253,19 @@ void Terminal::Display::pasteClipboard()
     }
 }
 
-void Terminal::Display::writeToPty (const char* data, int len)
-{
-    processor.writeInput (data, len);
-}
-
+void Terminal::Display::writeToPty (const char* data, int len) { processor.writeInput (data, len); }
 
 bool Terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
-    const bool isCopy { inputHandler.has_value()
-                        and screenSelection != nullptr
+    const bool isCopy { inputHandler.has_value() and screenSelection != nullptr
                         and inputHandler->isSelectionCopyKey (key) };
 
     if (isCopy)
         copySelection();
 
     const bool dispatched { inputHandler.has_value() and not isCopy
-                                and (onProcessExited != nullptr
-                                         ? inputHandler->handleKeyDirect (key)
-                                         : inputHandler->handleKey (key)) };
+                            and (onProcessExited != nullptr ? inputHandler->handleKeyDirect (key)
+                                                            : inputHandler->handleKey (key)) };
 
     return isCopy or dispatched;
 }
@@ -432,10 +438,10 @@ void Terminal::Display::filesDropped (const juce::StringArray& files, int, int)
 // GL THREAD
 void Terminal::Display::glContextCreated() noexcept
 {
-    if (std::holds_alternative<Screen<jreng::Glyph::GLContext>> (screen))
+    if (std::holds_alternative<Screen<jam::Glyph::GLContext>> (screen))
     {
-        jreng::BackgroundBlur::enableWindowTransparency();
-        std::get<Screen<jreng::Glyph::GLContext>> (screen).glContextCreated();
+        jam::BackgroundBlur::enableWindowTransparency();
+        std::get<Screen<jam::Glyph::GLContext>> (screen).glContextCreated();
         processor.getGrid().markAllDirty();
         processor.getState().setSnapshotDirty();
     }
@@ -444,15 +450,15 @@ void Terminal::Display::glContextCreated() noexcept
 // GL THREAD
 void Terminal::Display::glContextClosing() noexcept
 {
-    if (std::holds_alternative<Screen<jreng::Glyph::GLContext>> (screen))
+    if (std::holds_alternative<Screen<jam::Glyph::GLContext>> (screen))
     {
-        std::get<Screen<jreng::Glyph::GLContext>> (screen).glContextClosing();
+        std::get<Screen<jam::Glyph::GLContext>> (screen).glContextClosing();
     }
 }
 
 juce::Point<int> Terminal::Display::getOriginInTopLevel() const noexcept
 {
-    const float scale { jreng::Typeface::getDisplayScale() };
+    const float scale { jam::Typeface::getDisplayScale() };
     const auto* topLevel { getTopLevelComponent() };
     const auto relative { topLevel != nullptr ? topLevel->getLocalPoint (this, juce::Point<int> (0, 0))
                                               : juce::Point<int> (0, 0) };
@@ -464,9 +470,9 @@ juce::Point<int> Terminal::Display::getOriginInTopLevel() const noexcept
 // GL THREAD
 void Terminal::Display::paintGL() noexcept
 {
-    if (isVisible() and std::holds_alternative<Screen<jreng::Glyph::GLContext>> (screen))
+    if (isVisible() and std::holds_alternative<Screen<jam::Glyph::GLContext>> (screen))
     {
-        auto& glScreen { std::get<Screen<jreng::Glyph::GLContext>> (screen) };
+        auto& glScreen { std::get<Screen<jam::Glyph::GLContext>> (screen) };
 
         if (not glScreen.isGLContextReady())
             glScreen.glContextCreated();
@@ -479,10 +485,10 @@ void Terminal::Display::paintGL() noexcept
 // MESSAGE THREAD
 void Terminal::Display::paint (juce::Graphics& g)
 {
-    if (isVisible() and std::holds_alternative<Screen<jreng::Glyph::GraphicsContext>> (screen))
+    if (isVisible() and std::holds_alternative<Screen<jam::Glyph::GraphicsContext>> (screen))
     {
         g.fillAll (findColour (juce::ResizableWindow::backgroundColourId));
-        std::get<Screen<jreng::Glyph::GraphicsContext>> (screen).renderPaint (g, 0, 0, getHeight());
+        std::get<Screen<jam::Glyph::GraphicsContext>> (screen).renderPaint (g, 0, 0, getHeight());
     }
 }
 
@@ -583,8 +589,7 @@ void Terminal::Display::onVBlank()
 {
     if (getComponentID() == AppState::getContext()->getActivePaneID())
     {
-        if (juce::Process::isForegroundProcess()
-            and isShowing() and not hasKeyboardFocus (true)
+        if (juce::Process::isForegroundProcess() and isShowing() and not hasKeyboardFocus (true)
             and juce::Component::getCurrentlyModalComponent() == nullptr)
         {
             toFront (true);
@@ -727,20 +732,26 @@ void Terminal::Display::applyZoom (float) noexcept
     // Old font size from Screen — the last value set before AppState was updated.
     // No shadow copy: Screen::getBaseFontSize() reads the live field.
     float oldFontSize { 0.0f };
-    visitScreen ([&] (auto& s) { oldFontSize = s.getBaseFontSize(); });
+    visitScreen (
+        [&] (auto& s)
+        {
+            oldFontSize = s.getBaseFontSize();
+        });
 
     // New font size from SSOT — Config (base) * AppState (zoom), computed fresh.
-    const float newFontSize { Config::getContext()->dpiCorrectedFontSize()
-                              * AppState::getContext()->getWindowZoom() };
+    const float newFontSize { Config::getContext()->dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom() };
 
     // Raw font metrics for both sizes — multiplier cancels in the ratio.
-    const jreng::Typeface::Metrics oldMetrics { font.calcMetrics (oldFontSize) };
-    const jreng::Typeface::Metrics newMetrics { font.calcMetrics (newFontSize) };
+    const jam::Typeface::Metrics oldMetrics { font.calcMetrics (oldFontSize) };
+    const jam::Typeface::Metrics newMetrics { font.calcMetrics (newFontSize) };
 
-    visitScreen ([&] (auto& s) { s.setFontSize (newFontSize); });
+    visitScreen (
+        [&] (auto& s)
+        {
+            s.setFontSize (newFontSize);
+        });
 
-    if (oldMetrics.physCellW > 0 and oldMetrics.physCellH > 0
-        and newMetrics.physCellW > 0 and newMetrics.physCellH > 0)
+    if (oldMetrics.physCellW > 0 and oldMetrics.physCellH > 0 and newMetrics.physCellW > 0 and newMetrics.physCellH > 0)
     {
         if (auto* topLevel { getTopLevelComponent() })
         {
@@ -758,8 +769,8 @@ void Terminal::Display::applyZoom (float) noexcept
             const int newContentW { juce::roundToInt (static_cast<float> (oldContentW) * ratioW) };
             const int newContentH { juce::roundToInt (static_cast<float> (oldContentH) * ratioH) };
 
-            topLevel->setSize (newContentW + paddingLeft + paddingRight + decorW,
-                               newContentH + paddingTop + paddingBottom + decorH);
+            topLevel->setSize (
+                newContentW + paddingLeft + paddingRight + decorW, newContentH + paddingTop + paddingBottom + decorH);
         }
     }
 }
@@ -774,16 +785,16 @@ void Terminal::Display::switchRenderer (App::RendererType type)
 
     if (type == App::RendererType::cpu)
     {
-        if (not std::holds_alternative<Screen<jreng::Glyph::GraphicsContext>> (screen))
+        if (not std::holds_alternative<Screen<jam::Glyph::GraphicsContext>> (screen))
         {
-            screen.emplace<Screen<jreng::Glyph::GraphicsContext>> (font);
+            screen.emplace<Screen<jam::Glyph::GraphicsContext>> (font, graphicsAtlasRef);
         }
     }
     else
     {
-        if (not std::holds_alternative<Screen<jreng::Glyph::GLContext>> (screen))
+        if (not std::holds_alternative<Screen<jam::Glyph::GLContext>> (screen))
         {
-            screen.emplace<Screen<jreng::Glyph::GLContext>> (font);
+            screen.emplace<Screen<jam::Glyph::GLContext>> (font, glAtlasRef);
         }
     }
 
@@ -800,4 +811,3 @@ void Terminal::Display::switchRenderer (App::RendererType type)
         resized();
     }
 }
-

@@ -22,7 +22,7 @@
 
 #pragma once
 #include <juce_events/juce_events.h>
-#include <jreng_core/jreng_core.h>
+#include <jam_core/jam_core.h>
 #include <vector>
 #include <unordered_map>
 
@@ -330,12 +330,12 @@ private:
 #endif
 
     /** @brief Owns all live Channel objects. */
-    jreng::Owner<Channel> connections;
+    jam::Owner<Channel> connections;
 
     /**
      * @brief Non-owning broadcast list of active connections.
      *
-     * Ownership lives in `connections` (jreng::Owner).
+     * Ownership lives in `connections` (jam::Owner).
      * Every connected client receives session-lifecycle messages.
      *
      * Guarded by connectionsLock.
@@ -345,7 +345,7 @@ private:
     /**
      * @brief Per-session subscriber registry: UUID → list of raw Channel pointers.
      *
-     * Raw pointers are safe: Channel ownership lives in `connections` (jreng::Owner).
+     * Raw pointers are safe: Channel ownership lives in `connections` (jam::Owner).
      * Entries are registered via attachSession() and removed via detachSession() or
      * detach() before the Channel is destroyed.
      *

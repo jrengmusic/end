@@ -122,7 +122,6 @@ Source/
       GlyphConstraint.h             Per-codepoint NF icon scaling/alignment descriptor
       GlyphConstraintTable.cpp      Generated table: 10,470 codepoints, 88 switch arms
       BoxDrawing.h                  Procedural rasterizer: box drawing, block elements, braille
-      jreng_glyph_packer.h/cpp      LRU glyph cache + atlas packer + staged upload (class jreng::Glyph::Packer)
       AtlasPacker.h                 Shelf-based rectangle packer
       TerminalGLRenderer.cpp        OpenGL renderer (shaders, draw calls)
       TerminalGLDraw.cpp            Instance upload + draw
@@ -142,14 +141,14 @@ Source/
 
     action/                         Unified action registry + key dispatch
       Action.h/cpp                  Action table, key map, prefix state machine, Context<Registry>
-      ActionList.h/cpp              Command palette component (jreng::Window, fuzzy-searchable action list)
+      ActionList.h/cpp              Command palette component (jam::Window, fuzzy-searchable action list)
       ActionRow.h/cpp               Row component for ActionList (displays action name + keybinding)
       KeyHandler.h/cpp              Key event routing for ActionList modal input
       LookAndFeel.h/cpp             LookAndFeel overrides for ActionList styling
       KeyRemapDialog.h              Deprecated stub (inline remap now handled in ActionList)
 
     nexus/                          Session manager — owns all Terminal::Session instances
-      Nexus.h/cpp                   jreng::Context<Nexus> session container; create/remove/get/has/list; attach(Daemon&)/attach(Link&) for mode wiring
+      Nexus.h/cpp                   jam::Context<Nexus> session container; create/remove/get/has/list; attach(Daemon&)/attach(Link&) for mode wiring
 
   interprocess/                     IPC transport layer (daemon/client process split)
       Daemon.h/cpp                  JUCE InterprocessConnectionServer; owns Channel objects; broadcast + per-session subscriber registries; wireSessionCallbacks
@@ -160,26 +159,26 @@ Source/
       EncoderDecoder.h/cpp          Binary wire-format encode/decode helpers (writeUint16/32/64, writeString, readUint16/32/64, readString, encodePdu)
       Message.h                     Protocol message-kind enumeration (uint16_t wire values: hello, createSession, output, loading, stateUpdate, sessionKilled, sessions, etc.)
 
-modules/
-  jreng_core/                       Shared utilities (Owner, identifiers, Context, BinaryData)
-  jreng_graphics/                   Graphics utilities
-  jreng_gui/                        Window, layout utilities, and OpenGL rendering (PaneManager, PaneResizerBar, GLRenderer)
+~/Documents/Poems/dev/jam/
+  jam_core/                         Shared utilities (Owner, identifiers, Context, BinaryData)
+  jam_graphics/                     Graphics utilities
+  jam_gui/                          Window, layout utilities, and OpenGL rendering (PaneManager, PaneResizerBar, GLRenderer)
     opengl/
       context/
-        jreng_gl_mailbox.h          Lock-free atomic pointer exchange (generic template)
-        jreng_gl_snapshot_buffer.h  Double-buffered snapshot with mailbox (generic template)
-        jreng_gl_graphics.h/cpp     juce::Graphics-like command buffer API for OpenGL
-        jreng_gl_component.h/cpp    Base class for GL-rendered components
-        jreng_gl_renderer.h/cpp     OpenGL renderer (shader management, draw dispatch)
-        jreng_gl_overlay.h          Integration overlay for JUCE components
+        jam_gl_mailbox.h            Lock-free atomic pointer exchange (generic template)
+        jam_gl_snapshot_buffer.h    Double-buffered snapshot with mailbox (generic template)
+        jam_gl_graphics.h/cpp       juce::Graphics-like command buffer API for OpenGL
+        jam_gl_component.h/cpp      Base class for GL-rendered components
+        jam_gl_renderer.h/cpp       OpenGL renderer (shader management, draw dispatch)
+        jam_gl_overlay.h            Integration overlay for JUCE components
       renderers/
-        jreng_gl_path.h/cpp         juce::Path tessellation to GL vertices
-        jreng_gl_vignette.h         Vignette edge effect component
+        jam_gl_path.h/cpp           juce::Path tessellation to GL vertices
+        jam_gl_vignette.h           Vignette edge effect component
       shaders/
         flat_colour.vert/frag       Vertex colour shader with optional alpha mask
     layout/
-      jreng_pane_manager.h/cpp      Binary tree ValueTree layout engine for split panes
-      jreng_pane_resizer_bar.h/cpp  Draggable divider bar between panes
+      jam_pane_manager.h/cpp        Binary tree ValueTree layout engine for split panes
+      jam_pane_resizer_bar.h/cpp    Draggable divider bar between panes
 ```
 
 ### Module Inventory
@@ -188,23 +187,23 @@ modules/
 |--------|----------|----------------|--------------|
 | AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active pane type + UUID | JUCE ValueTree, Terminal::ID |
 | AppIdentifier | `Source/` | ValueTree node and property identifiers; pane type string constants (paneTypeTerminal, paneTypeDocument) | JUCE |
-| Config | `config/` | Lua config load/save, Context-managed, platform config paths. `initKeys()` populates defaults before sol2 reads end.lua. Colour values parsed as RRGGBBAA hex strings. Colour cache invalidated on reload. | sol2, jreng::Context |
+| Config | `config/` | Lua config load/save, Context-managed, platform config paths. `initKeys()` populates defaults before sol2 reads end.lua. Colour values parsed as RRGGBBAA hex strings. Colour cache invalidated on reload. | sol2, jam::Context |
 | Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, Config, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Data | `terminal/data/` | Pure value types, state atomics, IDs | JUCE ValueTree |
 | Logic | `terminal/logic/` | VT parsing, grid storage, session orchestration | Data |
-| Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL/CPU draw, Fonts (Context-managed) | Data, FreeType, HarfBuzz, OpenGL, jreng_graphics |
+| Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL/CPU draw, Fonts (Context-managed) | Data, FreeType, HarfBuzz, OpenGL, jam_graphics |
 | Notifications | `terminal/notifications/` | Native desktop notification dispatch (OSC 9/777) | JUCE, UserNotifications (macOS) |
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
-| jreng_core | `modules/jreng_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
-| jreng_graphics | `modules/jreng_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jreng_core, FreeType, HarfBuzz |
-| jreng_gui/opengl | `modules/jreng_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jreng_core |
-| Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | Config, jreng::Context |
-| Nexus | `nexus/` | Session container. Owns `unordered_map<String, unique_ptr<Terminal::Session>>`. Mode determined by `attach(Daemon&)` / `attach(Link&)` / no attachment. `jreng::Context<Nexus>` singleton owned by ENDApplication. | Terminal::Session, jreng::Context |
+| jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
+| jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jam_core, FreeType, HarfBuzz |
+| jam_gui/opengl | `~/Documents/Poems/dev/jam/jam_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jam_core |
+| Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | Config, jam::Context |
+| Nexus | `nexus/` | Session container. Owns `unordered_map<String, unique_ptr<Terminal::Session>>`. Mode determined by `attach(Daemon&)` / `attach(Link&)` / no attachment. `jam::Context<Nexus>` singleton owned by ENDApplication. | Terminal::Session, jam::Context |
 | Interprocess | `interprocess/` | IPC transport layer. Daemon (TCP server), Link (client), Channel (per-client server-side connection), EncoderDecoder (wire format), Message (PDU kind enum). Daemon owns broadcast + subscriber registries, wires session callbacks. | JUCE IPC, Nexus, Terminal::Session, AppState |
 | Panes | `component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
-| Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, Whelmed::Input | PaneComponent, jreng_markdown |
-| jreng_gui | `modules/jreng_gui/` | Window, layout utilities, and OpenGL rendering: PaneManager binary tree, PaneResizerBar, GLRenderer, GLComponent | juce_opengl, jreng_core, jreng_graphics |
+| Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, Whelmed::Input | PaneComponent, jam_markdown |
+| jam_gui | `~/Documents/Poems/dev/jam/jam_gui/` | Window, layout utilities, and OpenGL rendering: PaneManager binary tree, PaneResizerBar, GLRenderer, GLComponent | juce_opengl, jam_core, jam_graphics |
 
 ---
 
@@ -212,7 +211,7 @@ modules/
 
 ### Nexus — Session Manager
 
-`Nexus` is a pure session container.  It inherits `jreng::Context<Nexus>` and is owned as a value member of `ENDApplication`.  It holds an `unordered_map<String, unique_ptr<Terminal::Session>>` and exposes a lifecycle API: `create`, `remove`, `get`, `has`, `list`.
+`Nexus` is a pure session container.  It inherits `jam::Context<Nexus>` and is owned as a value member of `ENDApplication`.  It holds an `unordered_map<String, unique_ptr<Terminal::Session>>` and exposes a lifecycle API: `create`, `remove`, `get`, `has`, `list`.
 
 Data flow mode (standalone, daemon, client) is determined at runtime by which `attach` overload is called — not by a constructor tag:
 
@@ -240,7 +239,7 @@ The `Interprocess` namespace contains the TCP-based IPC transport between a daem
 
 | Class | Role |
 |-------|------|
-| `Interprocess::Daemon` | TCP server (`juce::InterprocessConnectionServer`).  Owns `Channel` objects via `jreng::Owner`.  Holds the broadcast list (`attached`) and per-session subscriber registry (`subscribers`).  Installs a Windows Job Object for cascade-kill of OpenConsole.exe grandchildren. |
+| `Interprocess::Daemon` | TCP server (`juce::InterprocessConnectionServer`).  Owns `Channel` objects via `jam::Owner`.  Holds the broadcast list (`attached`) and per-session subscriber registry (`subscribers`).  Installs a Windows Job Object for cascade-kill of OpenConsole.exe grandchildren. |
 | `Interprocess::Channel` | Server-side connection representing one connected GUI client.  Created by `Daemon::createConnectionObject()`.  Dispatches incoming PDUs to `Nexus` and `Daemon`. |
 | `Interprocess::Link` | Client-side connector (`juce::InterprocessConnection`).  Polls the nexus file for the daemon port and retries every 100 ms via an inner `ConnectTimer`.  Dispatches incoming PDUs directly on the message thread. |
 | `Interprocess::EncoderDecoder` | Binary wire-format helpers: `writeUint16/32/64`, `writeString`, `readUint16/32/64`, `readString`, `encodePdu`.  Single source of truth for wire encoding — used by both `Channel::sendPdu` and `Link::sendPdu`. |
@@ -456,7 +455,7 @@ Keystroke -> Message Thread -> TTY::write()
 | `std::atomic<float>` | Reader -> Timer/Message | State parameter transport |
 | `std::atomic<bool> snapshotDirty` | Reader -> Message (VBlank) | Render trigger |
 | `std::atomic<bool> needsFlush` | Reader -> Timer | ValueTree flush trigger |
-| `jreng::GLSnapshotBuffer` (atomic exchange) | Message -> GL | Double-buffered snapshot handoff |
+| `jam::GLSnapshotBuffer` (atomic exchange) | Message -> GL | Double-buffered snapshot handoff |
 | `std::mutex` (uploadMutex) | Message -> GL | Staged bitmap queue |
 | `juce::CriticalSection` (resizeLock) | Message <-> Reader | Grid resize + data processing safety |
 
@@ -482,7 +481,7 @@ WINDOW-subtree properties `App::ID::fontFamily` and `App::ID::fontSize` drive fo
 
 **Used for:** Lock-free handoff of render data from message thread to GL thread.
 
-**Implementation:** `modules/jreng_gui/opengl/context/` — `jreng::GLSnapshotBuffer<T>`, `jreng::GLMailbox<T>`
+**Implementation:** `~/Documents/Poems/dev/jam/jam_gui/opengl/context/` — `jam::GLSnapshotBuffer<T>`, `jam::GLMailbox<T>`
 
 `GLSnapshotBuffer` owns two snapshot instances and a `GLMailbox`. Message thread calls `getWriteBuffer()`, fills the snapshot, calls `write()`. GL thread calls `read()` — returns latest snapshot, or retains the previous one if nothing new. Double-buffer rotation is encapsulated. Zero allocation, zero locking. Forked from KANJUT `kuassa_opengl`.
 
@@ -490,11 +489,11 @@ WINDOW-subtree properties `App::ID::fontFamily` and `App::ID::fontSize` drive fo
 
 **Used for:** Global access without Meyer's singleton.
 
-**Implementation:** `Config.h` inherits `jreng::Context<Config>`, `Fonts.h` inherits `jreng::Context<Fonts>`
+**Implementation:** `Config.h` inherits `jam::Context<Config>`, `Fonts.h` inherits `jam::Context<Fonts>`
 
 Config lifetime owned by `ENDApplication` (Main.cpp). Fonts lifetime owned by `MainComponent`. Access via `Config::getContext()->` / `Fonts::getContext()->`. Fail-fast jassert if accessed before construction.
 
-`GlyphAtlas` (`modules/jreng_gui/opengl/context/jreng_glyph_atlas.h`) also inherits `jreng::Context<GlyphAtlas>`. Pure GL texture handle holder: `monoAtlas`, `emojiAtlas`, `atlasSize`. Owned by `MainComponent` (value member). Shared by all `GLAtlasRenderer` instances (main + popup). `rebuildAtlas()` runs on the GL thread — calls `glDeleteTextures` and zeroes handles, triggering re-upload. CPU atlas images remain on `Typeface`; `GlyphAtlas` owns only the GPU handles.
+`GlyphAtlas` (`~/Documents/Poems/dev/jam/jam_gui/opengl/context/jam_glyph_atlas.h`) also inherits `jam::Context<GlyphAtlas>`. Pure GL texture handle holder: `monoAtlas`, `emojiAtlas`, `atlasSize`. Owned by `MainComponent` (value member). Shared by all `GLAtlasRenderer` instances (main + popup). `rebuildAtlas()` runs on the GL thread — calls `glDeleteTextures` and zeroes handles, triggering re-upload. CPU atlas images remain on `Typeface`; `GlyphAtlas` owns only the GPU handles.
 
 ### Pattern: Shelf-Based Atlas Packing
 
@@ -542,7 +541,7 @@ TAB
 
 ### PaneManager (Binary Tree Layout Engine)
 
-`jreng::PaneManager` owns the `PANES` ValueTree and provides:
+`jam::PaneManager` owns the `PANES` ValueTree and provides:
 
 | Method | Purpose |
 |--------|---------|
@@ -560,7 +559,7 @@ Ratio is clamped to `[0.1, 0.9]`. Bounds are stored as `ID::x/y/width/height` pr
 
 ### PaneResizerBar (Draggable Divider)
 
-`jreng::PaneResizerBar` is a `juce::Component` subclass that acts as a draggable divider between panes. Each split node in the tree has a paired resizer bar.
+`jam::PaneResizerBar` is a `juce::Component` subclass that acts as a draggable divider between panes. Each split node in the tree has a paired resizer bar.
 
 On drag: queries `PaneManager::getItemCurrentPosition()`, computes desired position from mouse delta, calls `setItemPosition()`. `hasBeenMoved()` triggers `parent->resized()` to re-layout.
 
@@ -583,13 +582,13 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 
 ### Action Registry (Action::Registry)
 
-`Action::Registry` inherits `jreng::Context<Registry>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
+`Action::Registry` inherits `jam::Context<Registry>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
 
 **Architecture:**
 - Fixed action table: 19 entries with ID, name, description, category, callback
 - Hot-reloadable key map: reads `end.lua`, rebuilds KeyPress → action ID mapping on `reload()`
 - Prefix state machine: tmux-style two-keystroke input (prefix key + action key with timeout)
-- Global singleton via `jreng::Context<Action>`
+- Global singleton via `jam::Context<Action>`
 
 **Key resolution order in `handleKeyPress()`:**
 1. If in **waiting** state: match by text character in modal bindings → execute → idle
@@ -701,7 +700,7 @@ at prompt), it writes an empty string to the `foregroundProcess` slot.  When the
 
 ### SESSION Node Identification
 
-SESSION nodes use `jreng::ID::id` (not a Terminal-specific UUID identifier). This makes SESSION nodes compatible with `jreng::ValueTree::getChildWithID()` — a recursive lookup utility in the jreng_data_structures module.
+SESSION nodes use `jam::ID::id` (not a Terminal-specific UUID identifier). This makes SESSION nodes compatible with `jam::ValueTree::getChildWithID()` — a recursive lookup utility in the jam_data_structures module.
 
 ---
 
@@ -801,7 +800,7 @@ Parser reads geometry via `state.getRawValue<int>(ID::cols)` etc. (lock-free ato
 
 ### GlyphConstraint
 
-Per-codepoint scaling and alignment descriptor for Nerd Font icons. Applied at rasterization time in `jreng::Glyph::Packer`.
+Per-codepoint scaling and alignment descriptor for Nerd Font icons. Applied at rasterization time in `jam::Glyph::Packer`.
 
 Fields:
 - `ScaleMode` — none / fit / cover / adaptiveScale / stretch
@@ -877,7 +876,7 @@ keyPressed()
 
 ### PaneComponent
 
-Pure virtual base (`Source/component/PaneComponent.h`) shared between Terminal::Component and Whelmed::Component. Inherits `jreng::GLComponent`.
+Pure virtual base (`Source/component/PaneComponent.h`) shared between Terminal::Component and Whelmed::Component. Inherits `jam::GLComponent`.
 
 **Contract (all methods pure virtual unless noted):**
 
@@ -915,7 +914,7 @@ Pure virtual base (`Source/component/PaneComponent.h`) shared between Terminal::
 ```
 Block (pure virtual)
   TextBlock     — juce::AttributedString + TextLayout; covers headings, paragraphs, list items, inline code
-  MermaidBlock  — SVG-rendered diagram via jreng_gui/opengl path tessellation
+  MermaidBlock  — SVG-rendered diagram via jam_gui/opengl path tessellation
   TableBlock    — tabular layout
 ```
 
@@ -925,7 +924,7 @@ Blocks are not `juce::Component` instances — they are data objects that measur
 
 ### MessageOverlay
 
-Transient overlay component. Shows grid dimensions (columns x rows) during resize. Accepts arbitrary string messages on demand. Fade-in/out animation driven by `jreng::Animator`. Replaces the earlier GridSizeOverlay.
+Transient overlay component. Shows grid dimensions (columns x rows) during resize. Accepts arbitrary string messages on demand. Fade-in/out animation driven by `jam::Animator`. Replaces the earlier GridSizeOverlay.
 
 ### StagedBitmap
 
@@ -957,7 +956,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Config was a Meyer's singleton (`static Config& get()`). This caused static initialization order issues and hid lifetime management.
 
-**Decision:** Config inherits `jreng::Context<Config>`. Owned by `ENDApplication`. Accessed via `Config::getContext()->`.
+**Decision:** Config inherits `jam::Context<Config>`. Owned by `ENDApplication`. Accessed via `Config::getContext()->`.
 
 **Rationale:** Explicit lifetime, fail-fast on misuse, no static init ordering problems.
 
@@ -1013,7 +1012,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Nerd Font icons have wildly varying aspect ratios and need per-glyph positioning to look correct in a monospace grid.
 
-**Decision:** Generated constraint table (10,470 codepoints, 88 switch arms) from NF patcher v3.4.0 data. Applied at rasterization time in `jreng::Glyph::Packer`.
+**Decision:** Generated constraint table (10,470 codepoints, 88 switch arms) from NF patcher v3.4.0 data. Applied at rasterization time in `jam::Glyph::Packer`.
 
 **Rationale:** Matches NF patcher's own scaling logic. Icons render identically to how they appear in patched fonts, but with runtime flexibility for any cell size.
 
@@ -1021,7 +1020,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Each `Screen` owned its own `Fonts` instance inside a `Resources` struct. When closing tabs rapidly, the GL thread could access a destroyed font while mid-render, causing a HarfBuzz crash.
 
-**Decision:** `Fonts` inherits `jreng::Context<Fonts>`, owned by `MainComponent`. All terminals share a single instance via `Fonts::getContext()`.
+**Decision:** `Fonts` inherits `jam::Context<Fonts>`, owned by `MainComponent`. All terminals share a single instance via `Fonts::getContext()`.
 
 **Rationale:** Font metrics are global (zoom is global via state.lua). Shared ownership ensures font lifetime exceeds all terminal components. Enables global grid size computation from `Fonts::getContext()->calcMetrics()` without querying individual terminals.
 
@@ -1100,7 +1099,7 @@ The NF icon font (`SymbolsNerdFont-Regular.ttf`) is loaded from BinaryData, not 
 
 ### GlyphConstraint Subsystem
 
-`GlyphConstraintTable.cpp` is a generated file. It maps NF icon codepoints to `GlyphConstraint` descriptors that replicate the scaling decisions made by the NF patcher. `jreng::Glyph::Packer` applies the constraint before writing pixels to the atlas, so icons are positioned and scaled identically to how they appear in a patched font — but at any runtime cell size.
+`GlyphConstraintTable.cpp` is a generated file. It maps NF icon codepoints to `GlyphConstraint` descriptors that replicate the scaling decisions made by the NF patcher. `jam::Glyph::Packer` applies the constraint before writing pixels to the atlas, so icons are positioned and scaled identically to how they appear in a patched font — but at any runtime cell size.
 
 ### BoxDrawing Subsystem
 
@@ -1125,7 +1124,7 @@ Display Monolithic -> OS system fonts (CJK/exotic) -> OS color emoji
 
 ### Font Ownership
 
-`Fonts` inherits `jreng::Context<Fonts>` — single global instance owned by `MainComponent`. All terminals share the same font handles, shaping buffers, and metrics. `Screen` and `CursorComponent` access fonts via `Fonts::getContext()`. This ensures font lifetime exceeds all terminal components, preventing use-after-free when closing tabs.
+`Fonts` inherits `jam::Context<Fonts>` — single global instance owned by `MainComponent`. All terminals share the same font handles, shaping buffers, and metrics. `Screen` and `CursorComponent` access fonts via `Fonts::getContext()`. This ensures font lifetime exceeds all terminal components, preventing use-after-free when closing tabs.
 
 ### Platform Font Dispatch
 
@@ -1201,12 +1200,12 @@ Click-mode link underlines only render on OSC 133 output rows.
 | Grapheme | Multi-codepoint character cluster (e.g., flag emoji, combining marks) |
 | Grid | Ring-buffer storage for terminal cells, dual-screen (normal/alternate) |
 | LRUGlyphCache | Frame-stamped LRU map; evicts oldest 10% when over capacity |
-| GLMailbox | Generic lock-free atomic pointer exchange template (`jreng::GLMailbox<T>`) |
-| GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jreng::GLSnapshotBuffer<T>`) |
+| GLMailbox | Generic lock-free atomic pointer exchange template (`jam::GLMailbox<T>`) |
+| GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jam::GLSnapshotBuffer<T>`) |
 | LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via Config |
 | MessageOverlay | Transient overlay for status messages (reload confirmation, config errors) |
 | Action | Unified action registry: action table + key map + prefix state machine, Context-managed, owned by MainComponent |
-| ActionList | Command palette component: jreng::Window with fuzzy-searchable list of all registered actions |
+| ActionList | Command palette component: jam::Window with fuzzy-searchable list of all registered actions |
 | PaneManager | Binary tree ValueTree layout engine for recursive split pane layout |
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
 | Panes | Per-tab component owning Terminal::Component instances and managing split layout via PaneManager |

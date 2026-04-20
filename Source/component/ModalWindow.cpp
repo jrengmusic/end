@@ -1,10 +1,10 @@
 /**
  * @file ModalWindow.cpp
- * @brief Implementation of Terminal::ModalWindow — reusable glass modal.
+ * @brief Terminal::ModalWindow — thin wrapper over jam::ModalWindow that adds
+ *        border paint, keyPressed override, cornerSize constants, and
+ *        Terminal::Display::onRepaintNeeded wiring.
  *
- * @see Terminal::ModalWindow
- * @see Terminal::Popup
- * @see Action::List
+ * @see jam::ModalWindow
  */
 
 #include "ModalWindow.h"
@@ -17,56 +17,19 @@ namespace Terminal
 // ModalWindow
 //==============================================================================
 
-void ModalWindow::setupWindow (juce::Component& centreAround)
-{
-    if (auto* content { getContentComponent() })
-        content->setLookAndFeel (&centreAround.getLookAndFeel());
-
-    setResizable (false, false);
-    centreAroundComponent (&centreAround, getWidth(), getHeight());
-
-    setGlass (config.getColour (Config::Key::windowColour)
-                  .withAlpha (config.getFloat (Config::Key::windowOpacity)),
-              config.getFloat (Config::Key::windowBlurRadius));
-}
-
 ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
                           juce::Component& centreAround,
-                          std::unique_ptr<jreng::GLRenderer> renderer,
+                          std::unique_ptr<jam::GLRenderer> renderer,
                           void* nativeSharedContext,
                           std::function<void()> dismissCallback)
-    : jreng::ModalWindow (
-          [&content]
-          {
-              const int w { content->getWidth() };
-              const int h { content->getHeight() };
-              auto* raw { content.release() };
-              raw->setSize (w, h);
-              return raw;
-          }(),
-          {},
-          true,
-          false)
+    : jam::ModalWindow (std::move (content),
+                        centreAround,
+                        std::move (renderer),
+                        nativeSharedContext,
+                        std::move (dismissCallback),
+                        Config::getContext()->getFloat (Config::Key::windowOpacity),
+                        Config::getContext()->getFloat (Config::Key::windowBlurRadius))
 {
-    onModalDismissed = std::move (dismissCallback);
-
-    if (renderer != nullptr)
-    {
-        if (auto* glContent { dynamic_cast<jreng::GLComponent*> (getContentComponent()) })
-        {
-            jreng::GLRenderer::setRenderable (*renderer, *glContent);
-        }
-    }
-
-    if (nativeSharedContext != nullptr)
-        setNativeSharedContext (nativeSharedContext);
-
-    setRenderer (std::move (renderer));
-
-    setupWindow (centreAround);
-
-    setVisible (true);
-
     if (auto* terminal { dynamic_cast<Terminal::Display*> (getContentComponent()) })
     {
         terminal->onRepaintNeeded = [this, terminal]
@@ -75,8 +38,6 @@ ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
             triggerRepaint();
         };
     }
-
-    enterModalState (true);
 }
 
 void ModalWindow::paint (juce::Graphics& g)

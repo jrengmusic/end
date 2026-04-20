@@ -16,7 +16,7 @@
  * - **attach(Link&)** — client mode.  Same: IPC wiring applied externally.
  *
  * ### Context
- * Nexus extends `jreng::Context<Nexus>` so any subsystem can reach it via
+ * Nexus extends `jam::Context<Nexus>` so any subsystem can reach it via
  * `Nexus::getContext()` without a singleton pattern.  The single instance is
  * owned as a value member of `ENDApplication`.
  *
@@ -26,13 +26,13 @@
  * @see Terminal::Session
  * @see Interprocess::Daemon
  * @see Interprocess::Link
- * @see jreng::Context
+ * @see jam::Context
  */
 
 #pragma once
 
 #include <juce_data_structures/juce_data_structures.h>
-#include <jreng_core/jreng_core.h>
+#include <jam_core/jam_core.h>
 #include <unordered_map>
 #include <memory>
 #include <functional>
@@ -53,7 +53,7 @@ namespace Interprocess { class Daemon; class Link; }
  * All session-management methods: **NEXUS PROCESS MESSAGE THREAD**.
  * `attach` overloads: any thread (pointer store only — no contention).
  */
-class Nexus : public jreng::Context<Nexus>
+class Nexus : public jam::Context<Nexus>
 {
 public:
     /** @brief Constructs Nexus with no attachment — standalone mode. */

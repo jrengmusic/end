@@ -5,7 +5,7 @@
  * Defines ENDApplication, the top-level JUCE application object.  It owns the
  * three long-lived singletons that must outlive every other object:
  *
- * - **Config** — Lua config loader; registered as a `jreng::Context<Config>`
+ * - **Config** — Lua config loader; registered as a `jam::Context<Config>`
  *   singleton so any subsystem can call `Config::getContext()`.
  * - **FontCollection** — pre-loaded font handles shared across the renderer.
  * - **Window** — the native OS window with optional background blur.
@@ -46,17 +46,17 @@
 #include <JuceHeader.h>
 #include "MainComponent.h"
 #include "AppState.h"
-#include "Gpu.h"
 #include "config/Config.h"
 #include "config/WhelmedConfig.h"
 #include "action/Action.h"
 #include "nexus/Nexus.h"
 #include "interprocess/Daemon.h"
 #include "interprocess/Link.h"
+#include "component/TerminalWindow.h"
 
 #if JUCE_WINDOWS
 #include <windows.h>
-#include "../modules/jreng_core/utilities/jreng_platform.h"
+#include <jam_core/utilities/jam_platform.h>
 #pragma comment(lib, "winmm.lib")
 extern "C" __declspec (dllimport) unsigned int __stdcall timeBeginPeriod (unsigned int uPeriod);
 extern "C" __declspec (dllimport) unsigned int __stdcall timeEndPeriod (unsigned int uPeriod);
@@ -131,7 +131,7 @@ public:
     //==============================================================================
     ENDApplication()
     {
-        const auto probeResult { Gpu::probe() };
+        const auto probeResult { jam::GpuProbe::probe() };
         appState.setGpuAvailable (probeResult.isAvailable);
         appState.setRendererType (Config::getContext()->getString (Config::Key::gpuAcceleration));
     }
@@ -153,7 +153,7 @@ public:
      * @brief Creates the main window and wires up all subsystems.
      *
      * Called by JUCE after the message loop starts.  Reads window geometry and
-     * appearance from Config, then constructs a `jreng::Window` wrapping a
+     * appearance from Config, then constructs a `jam::Window` wrapping a
      * freshly allocated `MainComponent`.
      *
      * @param commandLine  The raw command-line string passed to the process.
@@ -348,7 +348,7 @@ public:
 #endif
 
             auto* mainComponent { new MainComponent (fontRegistry) };
-            mainWindow.reset (new jreng::Window (mainComponent,
+            mainWindow.reset (new Terminal::Window (mainComponent,
                                                  cfg->getString (Config::Key::windowTitle),
                                                  cfg->getBool (Config::Key::windowAlwaysOnTop),
                                                  cfg->getBool (Config::Key::windowButtons)));
@@ -358,7 +358,7 @@ public:
                                   cfg->getFloat (Config::Key::windowBlurRadius));
 
             // P: applyConfig fires here — after Window exists — so that
-            // dynamic_cast<jreng::Window*>(getTopLevelComponent()) inside
+            // dynamic_cast<jam::Window*>(getTopLevelComponent()) inside
             // MainComponent::setRenderer succeeds.
             mainComponent->applyConfig();
 
@@ -375,6 +375,7 @@ public:
                 // Append SESSIONS child to trigger valueTreeChildAdded → initialiseTabs.
                 juce::ValueTree sessionsNode { App::ID::SESSIONS };
                 appState.getNexusNode().appendChild (sessionsNode, nullptr);
+
             }
             else
             {
@@ -417,6 +418,7 @@ public:
                 if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
                     content->applyConfig();
             };
+
         }
     }
 
@@ -469,9 +471,6 @@ public:
         //   exits via onAllSessionsExited after sessions are destroyed.
         if (mainWindow != nullptr)
         {
-            if (auto* content { mainWindow->getContentComponent() })
-                appState.setWindowSize (content->getWidth(), content->getHeight());
-
             if (Config::getContext()->getBool (Config::Key::windowSaveSize))
                 appState.saveWindowState();
         }
@@ -509,7 +508,7 @@ private:
     AppState appState;
 
     /** @brief Pre-loaded font handles shared by the renderer. */
-    jreng::Typeface::Registry fontRegistry;
+    jam::Typeface::Registry fontRegistry;
 
     /** @brief Global action registry. Must be constructed after Config. */
     Action::Registry action;
@@ -550,26 +549,26 @@ private:
     struct DisplayMono
     {
         static inline auto book { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBook_ttf,
-                                                                           BinaryData::DisplayMonoBook_ttfSize) };
+                                                                            BinaryData::DisplayMonoBook_ttfSize) };
         static inline auto medium { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoMedium_ttf,
-                                                                             BinaryData::DisplayMonoMedium_ttfSize) };
+                                                                              BinaryData::DisplayMonoMedium_ttfSize) };
         static inline auto bold { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMonoBold_ttf,
-                                                                           BinaryData::DisplayMonoBold_ttfSize) };
+                                                                            BinaryData::DisplayMonoBold_ttfSize) };
     };
 
     /** @brief Embedded Display proportional typefaces; held alive for DirectWrite on Windows. */
     struct DisplayProp
     {
         static inline auto book { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayBook_ttf,
-                                                                           BinaryData::DisplayBook_ttfSize) };
+                                                                            BinaryData::DisplayBook_ttfSize) };
         static inline auto medium { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayMedium_ttf,
-                                                                             BinaryData::DisplayMedium_ttfSize) };
+                                                                              BinaryData::DisplayMedium_ttfSize) };
         static inline auto bold { juce::Typeface::createSystemTypefaceFor (BinaryData::DisplayBold_ttf,
-                                                                           BinaryData::DisplayBold_ttfSize) };
+                                                                            BinaryData::DisplayBold_ttfSize) };
     };
 
     /** @brief The native OS window; null before initialise() and after shutdown(). */
-    std::unique_ptr<jreng::Window> mainWindow;
+    std::unique_ptr<Terminal::Window> mainWindow;
 
     /**
      * @brief Scans nexus/\*.nexus files to find a live unclaimed daemon.

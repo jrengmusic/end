@@ -26,9 +26,14 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Tabs::Tabs (jreng::Typeface& font_, juce::TabbedButtonBar::Orientation orientation)
+Tabs::Tabs (jam::Typeface& font_,
+            jam::GlyphAtlas& glAtlas_,
+            jam::GraphicsAtlas& graphicsAtlas_,
+            juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)
     , font (font_)
+    , glAtlasRef (glAtlas_)
+    , graphicsAtlasRef (graphicsAtlas_)
 {
     setOpaque (false);
     setTabBarDepth (0);
@@ -86,7 +91,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
 {
     jassert (cols > 0 and rows > 0);
 
-    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font)) };
+    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, glAtlasRef, graphicsAtlasRef)) };
     auto& newPanes { *newPanesPtr };
     newPanes.onRepaintNeeded = onRepaintNeeded;
     newPanes.onOpenMarkdown = [this] (const juce::File& file)
@@ -116,7 +121,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
     tab.appendChild (newPanes.getState(), nullptr);
 
     AppState::getContext()->setActivePaneID (sessionUuid);
-    auto paneNode { jreng::PaneManager::findLeaf (newPanes.getState(), sessionUuid) };
+    auto paneNode { jam::PaneManager::findLeaf (newPanes.getState(), sessionUuid) };
     auto sessionTree { paneNode.getChild (0) };
     AppState::getContext()->setPwd (sessionTree);
     tabName.referTo (sessionTree.getPropertyAsValue (App::ID::displayName, nullptr));
@@ -155,10 +160,10 @@ Panes* Tabs::getActivePanes() const noexcept
  * @return Reference to the active pane owner, or a static empty owner.
  * @note MESSAGE THREAD.
  */
-jreng::Owner<PaneComponent>& Tabs::getPanes() noexcept
+jam::Owner<PaneComponent>& Tabs::getPanes() noexcept
 {
-    static jreng::Owner<PaneComponent> empty;
-    jreng::Owner<PaneComponent>* result { &empty };
+    static jam::Owner<PaneComponent> empty;
+    jam::Owner<PaneComponent>* result { &empty };
 
     if (auto* active { getActivePanes() }; active != nullptr)
         result = &active->getPanes();
@@ -174,7 +179,7 @@ void Tabs::globalFocusChanged (juce::Component* focusedComponent)
 
         if (auto* term { dynamic_cast<Terminal::Display*> (focusedComponent) }; term != nullptr)
         {
-            const auto uuid { term->getValueTree().getProperty (jreng::ID::id).toString() };
+            const auto uuid { term->getValueTree().getProperty (jam::ID::id).toString() };
             AppState::getContext()->setActivePaneID (uuid);
             AppState::getContext()->setPwd (term->getValueTree());
         }
@@ -698,7 +703,7 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
 
             if (sessionNode.isValid())
             {
-                result.first = sessionNode.getProperty (jreng::ID::id).toString();
+                result.first = sessionNode.getProperty (jam::ID::id).toString();
                 result.second = sessionNode.getProperty (Terminal::ID::cwd).toString();
             }
         }
@@ -718,8 +723,8 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
     {
         if (node.getType() == App::ID::PANES and node.getNumChildren() == 2)
         {
-            const juce::String direction { node.getProperty (jreng::PaneManager::idDirection).toString() };
-            const double savedRatio { static_cast<double> (node.getProperty (jreng::PaneManager::idRatio, 0.5)) };
+            const juce::String direction { node.getProperty (jam::PaneManager::idDirection).toString() };
+            const double savedRatio { static_cast<double> (node.getProperty (jam::PaneManager::idRatio, 0.5)) };
 
             const auto [targetRect, newRect] { Panes::splitRect (parentRect, direction, savedRatio) };
 
@@ -732,13 +737,13 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
                 const bool isVertical { direction == "vertical" };
                 activePanes->splitAt (targetUuid, newUuid, newCwd, direction, isVertical, newCols, newRows);
 
-                auto newLeafNode { jreng::PaneManager::findLeaf (activePanes->getState(), newUuid) };
+                auto newLeafNode { jam::PaneManager::findLeaf (activePanes->getState(), newUuid) };
                 jassert (newLeafNode.isValid());
 
                 auto splitNode { newLeafNode.getParent() };
                 jassert (splitNode.isValid());
 
-                splitNode.setProperty (jreng::PaneManager::idRatio, savedRatio, nullptr);
+                splitNode.setProperty (jam::PaneManager::idRatio, savedRatio, nullptr);
             }
 
             walkPanes (node.getChild (0), targetRect, activePanes);
@@ -774,9 +779,9 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
 
                     while (walkNode.getType() == App::ID::PANES and walkNode.getNumChildren() == 2)
                     {
-                        const juce::String dir { walkNode.getProperty (jreng::PaneManager::idDirection).toString() };
+                        const juce::String dir { walkNode.getProperty (jam::PaneManager::idDirection).toString() };
                         const double ratio { static_cast<double> (
-                            walkNode.getProperty (jreng::PaneManager::idRatio, 0.5)) };
+                            walkNode.getProperty (jam::PaneManager::idRatio, 0.5)) };
                         const auto [targetRect, newRect] { Panes::splitRect (firstLeafRect, dir, ratio) };
                         firstLeafRect = targetRect;
                         walkNode = walkNode.getChild (0);

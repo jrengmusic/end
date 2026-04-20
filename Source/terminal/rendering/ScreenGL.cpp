@@ -4,14 +4,14 @@
  *
  * @note All functions in this file run on the **GL THREAD**.
  *
- * GL resource ownership has been delegated to `jreng::Glyph::GLContext`.
+ * GL resource ownership has been delegated to `jam::Glyph::GLContext`.
  * `Screen` retains only terminal-specific GL concerns: viewport management,
  * background blur transparency, snapshot acquisition, and cursor rendering.
  *
  * @see Screen
  * @see Screen.h
  * @see Screen.cpp (MESSAGE THREAD methods)
- * @see jreng::Glyph::GLContext
+ * @see jam::Glyph::GLContext
  */
 #include "Screen.h"
 #include "../../AppState.h"
@@ -34,7 +34,7 @@ void Screen<Renderer>::renderOpenGL (int originX, int originY, int fullHeight)
         const int y { originY + glViewportY };
 
         textRenderer.push (x, y, glViewportWidth, glViewportHeight, fullHeight);
-        textRenderer.uploadStagedBitmaps (font);
+        textRenderer.uploadStagedBitmaps (font, atlasRef);
 
         Render::Snapshot* snapshot { resources.snapshotBuffer.read() };
 
@@ -197,9 +197,9 @@ void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY,
         textRenderer.push (x, y, glViewportWidth, glViewportHeight, fullHeight);
 
         if (AppState::getContext()->consumeAtlasDirty())
-            jreng::GlyphAtlas::getContext()->rebuildAtlas();
+            atlasRef.rebuildAtlas();
 
-        textRenderer.uploadStagedBitmaps (font);
+        textRenderer.uploadStagedBitmaps (font, atlasRef);
 
         Render::Snapshot* snapshot { resources.snapshotBuffer.read() };
 
@@ -241,8 +241,8 @@ void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY,
     }
 }
 
-template class Screen<jreng::Glyph::GLContext>;
-template class Screen<jreng::Glyph::GraphicsContext>;
+template class Screen<jam::Glyph::GLContext>;
+template class Screen<jam::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

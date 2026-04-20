@@ -326,7 +326,7 @@ void Link::handleSessions (const uint8_t* payload, int payloadSize)
         for (const auto& uuid : list)
         {
             juce::ValueTree session { App::ID::SESSION };
-            session.setProperty (jreng::ID::id, uuid, nullptr);
+            session.setProperty (jam::ID::id, uuid, nullptr);
             sessionsNode.appendChild (session, nullptr);
         }
 
@@ -353,7 +353,7 @@ void Link::handleSessionKilled (const uint8_t* payload, int payloadSize)
     if (uuid.isNotEmpty())
     {
         auto sessionsNode { AppState::getContext()->getSessionsNode() };
-        auto exitedSession { jreng::ValueTree::getChildWithID (sessionsNode, uuid) };
+        auto exitedSession { jam::ValueTree::getChildWithID (sessionsNode, uuid) };
 
         if (exitedSession.isValid())
             exitedSession.getParent().removeChild (exitedSession, nullptr);

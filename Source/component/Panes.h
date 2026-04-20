@@ -9,12 +9,12 @@
  * the application state tree by the owning Tab.
  *
  * Split operations delegate to splitActive. Leaf lookup delegates to
- * jreng::PaneManager::findLeaf. Panes are owned by
- * jreng::Owner<PaneComponent>; each pane's componentID is its UUID.
+ * jam::PaneManager::findLeaf. Panes are owned by
+ * jam::Owner<PaneComponent>; each pane's componentID is its UUID.
  *
  * @see Terminal::Display
  * @see Terminal::Tabs
- * @see jreng::PaneManager
+ * @see jam::PaneManager
  */
 
 #pragma once
@@ -41,10 +41,12 @@ class Panes : public juce::Component
 public:
     /**
      * @brief Construct a new Panes container.
-     * @param font  Font instance providing metrics, shaping, and rasterisation.
+     * @param font          Font instance providing metrics, shaping, and rasterisation.
+     * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
+     * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
      * @note MESSAGE THREAD.
      */
-    explicit Panes (jreng::Typeface& font);
+    Panes (jam::Typeface& font, jam::GlyphAtlas& glAtlas, jam::GraphicsAtlas& graphicsAtlas);
 
     /**
      * @brief Destructor.
@@ -65,7 +67,7 @@ public:
      * @note Pure math — no instance state. noexcept.
      */
     static std::pair<int, int> cellsFromRect (juce::Rectangle<int> paneRect,
-                                              jreng::Typeface& font) noexcept;
+                                              jam::Typeface& font) noexcept;
 
     /**
      * @brief Splits a pixel rect by direction and ratio.
@@ -74,7 +76,7 @@ public:
      * "horizontal" — matching PaneManager idDirection semantics), and a
      * ratio in (0,1), returns the two child rects after the split. The
      * first rect is the "target" (left/top), the second is the "new" (right/bottom).
-     * Uses jreng::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
+     * Uses jam::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
      *
      * @param parent     Parent pixel rect.
      * @param direction  "vertical" or "horizontal" (matches PaneManager idDirection).
@@ -131,7 +133,7 @@ public:
      * @return Reference to the pane owner container.
      * @note MESSAGE THREAD.
      */
-    jreng::Owner<PaneComponent>& getPanes() noexcept;
+    jam::Owner<PaneComponent>& getPanes() noexcept;
 
     /**
      * @brief Access the PANES ValueTree for attachment to AppState.
@@ -274,10 +276,12 @@ private:
      */
     void splitActive (const juce::String& direction, bool isVertical);
 
-    jreng::Typeface& font;
-    jreng::Owner<PaneComponent> panes;
-    jreng::PaneManager paneManager;
-    jreng::Owner<jreng::PaneResizerBar> resizerBars;
+    jam::Typeface& font;
+    jam::GlyphAtlas& glAtlasRef;
+    jam::GraphicsAtlas& graphicsAtlasRef;
+    jam::Owner<PaneComponent> panes;
+    jam::PaneManager paneManager;
+    jam::Owner<jam::PaneResizerBar> resizerBars;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Panes)

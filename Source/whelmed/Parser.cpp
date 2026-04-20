@@ -64,8 +64,8 @@ void Parser::run()
 
             span.fontSize = block.fontSize;
 
-            const bool isCode { (span.style & jreng::Markdown::Code) != jreng::Markdown::None };
-            const bool isLink { (span.style & jreng::Markdown::Link) != jreng::Markdown::None };
+            const bool isCode { (span.style & jam::Markdown::Code) != jam::Markdown::None };
+            const bool isLink { (span.style & jam::Markdown::Link) != jam::Markdown::None };
 
             if (isCode)
             {

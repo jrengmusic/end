@@ -1,21 +1,21 @@
 #include "Screen.h"
 #include "Tokenizer.h"
-#include "../config/WhelmedConfig.h"
-#include "../config/Config.h"
 #include "../AppState.h"
 #include "../SelectionType.h"
 #include "../ModalType.h"
+#include "../config/Config.h"
+#include "../config/WhelmedConfig.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
 Screen::Screen() { setOpaque (false); }
 
-int Screen::load (const jreng::Markdown::ParsedDocument& doc, int viewportHeight)
+int Screen::load (const jam::Markdown::ParsedDocument& doc, int viewportHeight)
 {
     clear();
     bodyFontSize = Whelmed::Config::getContext()->getFloat (Whelmed::Config::Key::fontSize);
-    lineHeight = Whelmed::Config::getContext()->getFloat (Whelmed::Config::Key::lineHeight);
+    lineHeight   = Whelmed::Config::getContext()->getFloat (Whelmed::Config::Key::lineHeight);
 
     // Create all entries
     for (int i { 0 }; i < doc.blockCount; ++i)
@@ -53,7 +53,7 @@ int Screen::load (const jreng::Markdown::ParsedDocument& doc, int viewportHeight
     return initialBatch;
 }
 
-void Screen::build (int blockIndex, const jreng::Markdown::ParsedDocument& doc)
+void Screen::build (int blockIndex, const jam::Markdown::ParsedDocument& doc)
 {
     jassert (blockIndex >= 0 and blockIndex < static_cast<int> (entries.size()));
 
@@ -89,7 +89,7 @@ void Screen::build (int blockIndex, const jreng::Markdown::ParsedDocument& doc)
     }
 }
 
-std::unique_ptr<Block> Screen::createBlock (const jreng::Markdown::ParsedDocument& doc, int blockIndex)
+std::unique_ptr<Block> Screen::createBlock (const jam::Markdown::ParsedDocument& doc, int blockIndex)
 {
     const int width { getWidth() };
     const auto& block { doc.blocks[blockIndex] };
@@ -97,7 +97,7 @@ std::unique_ptr<Block> Screen::createBlock (const jreng::Markdown::ParsedDocumen
 
     const auto* cfg { Whelmed::Config::getContext() };
 
-    if (block.type == jreng::Markdown::BlockType::Markdown)
+    if (block.type == jam::Markdown::BlockType::Markdown)
     {
         const bool isThematicBreak { block.contentLength == 3
             and std::memcmp (doc.text + block.contentOffset, "---", 3) == 0 };
@@ -128,7 +128,7 @@ std::unique_ptr<Block> Screen::createBlock (const jreng::Markdown::ParsedDocumen
             result = std::move (textBlock);
         }
     }
-    else if (block.type == jreng::Markdown::BlockType::CodeFence)
+    else if (block.type == jam::Markdown::BlockType::CodeFence)
     {
         juce::String code { juce::String::fromUTF8 (doc.text + block.contentOffset, block.contentLength) };
         juce::String language { juce::String::fromUTF8 (doc.text + block.languageOffset, block.languageLength) };
@@ -144,11 +144,11 @@ std::unique_ptr<Block> Screen::createBlock (const jreng::Markdown::ParsedDocumen
 
         result = std::move (textBlock);
     }
-    else if (block.type == jreng::Markdown::BlockType::Mermaid)
+    else if (block.type == jam::Markdown::BlockType::Mermaid)
     {
         result = std::make_unique<MermaidBlock>();
     }
-    else if (block.type == jreng::Markdown::BlockType::Table)
+    else if (block.type == jam::Markdown::BlockType::Table)
     {
         juce::String tableMarkdown { juce::String::fromUTF8 (doc.text + block.contentOffset, block.contentLength) };
         auto tableBlock { std::make_unique<TableBlock> (
@@ -176,7 +176,7 @@ std::unique_ptr<Block> Screen::createBlock (const jreng::Markdown::ParsedDocumen
     return result;
 }
 
-juce::AttributedString Screen::buildAttributedString (const jreng::Markdown::ParsedDocument& doc,
+juce::AttributedString Screen::buildAttributedString (const jam::Markdown::ParsedDocument& doc,
                                                       int blockIndex) const
 {
     const auto& block { doc.blocks[blockIndex] };
@@ -186,7 +186,7 @@ juce::AttributedString Screen::buildAttributedString (const jreng::Markdown::Par
 
     const auto* cfg { Whelmed::Config::getContext() };
 
-    auto resolveBlockStyle = [&] (const jreng::Markdown::Block& b) -> std::pair<float, juce::Colour>
+    auto resolveBlockStyle = [&] (const jam::Markdown::Block& b) -> std::pair<float, juce::Colour>
     {
         const float sizes[] { cfg->getFloat (Whelmed::Config::Key::fontSize),
                               cfg->getFloat (Whelmed::Config::Key::h1Size),
@@ -214,7 +214,7 @@ juce::AttributedString Screen::buildAttributedString (const jreng::Markdown::Par
 
     if (block.spanCount == 0)
     {
-        juce::String fontStyle { block.level > 0 ? "Bold" : cfg->getString (Whelmed::Config::Key::fontStyle) };
+        const juce::String fontStyle { block.level > 0 ? "Bold" : cfg->getString (Whelmed::Config::Key::fontStyle) };
         as.append (blockContent + "\n",
                    juce::Font (juce::FontOptions()
                        .withName (cfg->getString (Whelmed::Config::Key::fontFamily))
@@ -229,10 +229,10 @@ juce::AttributedString Screen::buildAttributedString (const jreng::Markdown::Par
             const auto& span { doc.spans[s] };
             juce::String spanText { blockContent.substring (span.startOffset, span.endOffset) };
 
-            const bool isCode { (span.style & jreng::Markdown::Code) != jreng::Markdown::None };
-            const bool isLink { (span.style & jreng::Markdown::Link) != jreng::Markdown::None };
-            const bool isBold { (span.style & jreng::Markdown::Bold) != jreng::Markdown::None };
-            const bool isItalic { (span.style & jreng::Markdown::Italic) != jreng::Markdown::None };
+            const bool isCode { (span.style & jam::Markdown::Code) != jam::Markdown::None };
+            const bool isLink { (span.style & jam::Markdown::Link) != jam::Markdown::None };
+            const bool isBold { (span.style & jam::Markdown::Bold) != jam::Markdown::None };
+            const bool isItalic { (span.style & jam::Markdown::Italic) != jam::Markdown::None };
 
             const juce::String family { isCode ? cfg->getString (Whelmed::Config::Key::codeFamily)
                                                : cfg->getString (Whelmed::Config::Key::fontFamily) };
@@ -253,10 +253,9 @@ juce::AttributedString Screen::buildAttributedString (const jreng::Markdown::Par
             else if (isItalic)
                 style = "Italic";
 
-            as.append (
-                spanText,
-                juce::Font (juce::FontOptions().withName (family).withPointHeight (blockFontSize).withStyle (style)),
-                spanColour);
+            as.append (spanText,
+                       juce::Font (juce::FontOptions().withName (family).withPointHeight (blockFontSize).withStyle (style)),
+                       spanColour);
         }
 
         as.append ("\n",
@@ -661,7 +660,7 @@ void Screen::paint (juce::Graphics& g)
             const juce::Rectangle<int> area { 0, entry.y, getWidth(), entry.height };
             entry.block->paint (g, area);
 
-            if (entry.type == jreng::Markdown::BlockType::Mermaid)
+            if (entry.type == jam::Markdown::BlockType::Mermaid)
             {
                 auto* mermaid { dynamic_cast<MermaidBlock*> (entry.block.get()) };
 
@@ -754,7 +753,7 @@ juce::Array<int> Screen::getMermaidBlockIndices() const
 
     for (int i { 0 }; i < static_cast<int> (entries.size()); ++i)
     {
-        if (entries.at (static_cast<size_t> (i)).type == jreng::Markdown::BlockType::Mermaid)
+        if (entries.at (static_cast<size_t> (i)).type == jam::Markdown::BlockType::Mermaid)
             indices.add (i);
     }
 
@@ -793,7 +792,7 @@ bool Screen::hasPendingMermaids() const noexcept
 
     for (const auto& entry : entries)
     {
-        if (entry.type == jreng::Markdown::BlockType::Mermaid and entry.block != nullptr)
+        if (entry.type == jam::Markdown::BlockType::Mermaid and entry.block != nullptr)
         {
             auto* mermaid { dynamic_cast<MermaidBlock*> (entry.block.get()) };
 
@@ -823,7 +822,7 @@ void Screen::paintMermaidSpinner (juce::Graphics& g, juce::Rectangle<int> area) 
     const auto* loaderCfg { ::Config::getContext() };
 
     const auto spinnerColour { loaderCfg->getColour (::Config::Key::statusBarSpinnerColour) };
-    const auto textColour { loaderCfg->getColour (::Config::Key::coloursStatusBarLabelFg) };
+    const auto textColour    { loaderCfg->getColour (::Config::Key::coloursStatusBarLabelFg) };
 
     g.setFont (juce::FontOptions()
                    .withName (loaderCfg->getString (::Config::Key::statusBarFontFamily))

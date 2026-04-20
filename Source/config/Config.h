@@ -3,7 +3,7 @@
  * @brief Lua-driven configuration system for END.
  *
  * Config is the single source of truth for every user-tunable setting in the
- * terminal emulator.  It inherits `jreng::Context<Config>` so that any
+ * terminal emulator.  It inherits `jam::Context<Config>` so that any
  * subsystem can retrieve the singleton via `Config::getContext()` without
  * passing references through the call stack.
  *
@@ -48,7 +48,7 @@
  * @struct Config
  * @brief Lua config loader and runtime value store for END.
  *
- * Inherits `jreng::Context<Config>` to provide a process-wide singleton
+ * Inherits `jam::Context<Config>` to provide a process-wide singleton
  * accessible via `Config::getContext()`.  Constructed once in `ENDApplication`
  * before any other subsystem.
  *
@@ -64,7 +64,7 @@
  * @see Config::Theme
  * @see Terminal::Display::applyConfig
  */
-struct Config : jreng::Context<Config>
+struct Config : jam::Context<Config>
 {
     /** @brief Minimum zoom multiplier (1× = no zoom). */
     static constexpr float zoomMin { 1.0f };

@@ -7,7 +7,7 @@ CompileFlags:
     - -DJUCE_IOS=0
     - -DJUCE_WINDOWS=0
     - -DJUCE_LINUX=0
-    - -I/Users/jreng/Documents/Poems/dev/end/modules
+    - -I/Users/jreng/Documents/Poems/dev/jam
 Diagnostics:
   MissingIncludes: None
   UnusedIncludes: None

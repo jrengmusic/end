@@ -214,6 +214,9 @@ Session::Session (int cols,
 
     tty->onExit = [this]
     {
+        if (processor != nullptr and processor->onShellExited != nullptr)
+            processor->onShellExited();
+
         if (onExit != nullptr)
             onExit();
     };

@@ -37,7 +37,7 @@ class Daemon;
  * @class Interprocess::Channel
  * @brief Message-thread IPC connection representing one connected Interprocess client.
  *
- * Created and owned by `Interprocess::Daemon::connections` (a `jreng::Owner<Channel>`).
+ * Created and owned by `Interprocess::Daemon::connections` (a `jam::Owner<Channel>`).
  * The base `InterprocessConnectionServer` receives a non-owning raw pointer.
  * Registered with `Daemon::attach()` in `connectionMade()` and cleaned up via
  * `Daemon::detach()` + `Daemon::removeConnection()` in `connectionLost()`.

@@ -12,13 +12,13 @@
  *    directly from `Grid`.
  * 2. **Snapshot builder** — `buildSnapshot()` / `updateSnapshot()` pack the
  *    per-row caches into a contiguous `Render::Snapshot` and publish it via
- *    `jreng::SnapshotBuffer`.
+ *    `jam::SnapshotBuffer`.
  * 3. **GPU/CPU presenter** — reads snapshots from the snapshot buffer and draws
  *    them to the attached component.
  *
  * ## Double-buffered snapshots
  *
- * `jreng::SnapshotBuffer<Render::Snapshot>` owns two snapshot instances
+ * `jam::SnapshotBuffer<Render::Snapshot>` owns two snapshot instances
  * internally and manages double-buffer rotation.  The MESSAGE THREAD writes
  * to `getWriteBuffer()` and calls `write()`; the GL THREAD calls `read()`
  * to acquire the latest snapshot.  Lock-free via atomic pointer exchange.
@@ -35,7 +35,7 @@
  *
  * @see Grid
  * @see State
- * @see jreng::SnapshotBuffer
+ * @see jam::SnapshotBuffer
  * @see Render::Snapshot
  * @see ScreenSelection
  * @see FontCollection
@@ -153,45 +153,45 @@ using Theme = Config::Theme;
  * `Render` is a plain struct used as a namespace to group the types that
  * cross the MESSAGE THREAD / GL THREAD boundary:
  *
- * - `Render::Background` — alias for `jreng::Glyph::Render::Background`.
- * - `Render::Glyph`      — alias for `jreng::Glyph::Render::Quad` (kept for
+ * - `Render::Background` — alias for `jam::Glyph::Render::Background`.
+ * - `Render::Glyph`      — alias for `jam::Glyph::Render::Quad` (kept for
  *                          minimal consumer churn; the canonical module name
- *                          is `Quad` to avoid collision with `jreng::Typeface::Glyph`).
+ *                          is `Quad` to avoid collision with `jam::Typeface::Glyph`).
  * - `Render::Snapshot`   — terminal-specific snapshot: inherits the generic
- *                          `jreng::Glyph::Render::SnapshotBase` arrays and
+ *                          `jam::Glyph::Render::SnapshotBase` arrays and
  *                          adds cursor state fields.
- * - `jreng::SnapshotBuffer` — double-buffered lock-free snapshot exchange.
+ * - `jam::SnapshotBuffer` — double-buffered lock-free snapshot exchange.
  *
  * @see Screen
- * @see jreng::Glyph::Render
+ * @see jam::Glyph::Render
  */
 struct Render
 {
 
 /// @brief Alias for the module-level coloured rectangle type.
-using Background = jreng::Glyph::Render::Background;
+using Background = jam::Glyph::Render::Background;
 
 /// @brief Alias for the module-level positioned quad type.
-/// @note The canonical module name is `jreng::Glyph::Render::Quad`; this
+/// @note The canonical module name is `jam::Glyph::Render::Quad`; this
 ///       alias preserves existing consumer code at `Terminal::Render::Glyph`.
-using Glyph = jreng::Glyph::Render::Quad;
+using Glyph = jam::Glyph::Render::Quad;
 
 /**
  * @struct Snapshot
  * @brief A complete rendered frame: glyph instances + background quads + cursor state.
  *
- * Inherits the generic `jreng::Glyph::Render::SnapshotBase` which owns the
+ * Inherits the generic `jam::Glyph::Render::SnapshotBase` which owns the
  * three `HeapBlock` arrays (`mono`, `emoji`, `backgrounds`) and
  * `ensureCapacity()`.  Terminal-specific cursor state fields are added here.
  *
- * Two `Snapshot` instances are owned internally by `jreng::SnapshotBuffer`
+ * Two `Snapshot` instances are owned internally by `jam::SnapshotBuffer`
  * and recycled via atomic pointer exchange to avoid per-frame allocation.
  *
- * @see jreng::Glyph::Render::SnapshotBase
- * @see jreng::SnapshotBuffer
+ * @see jam::Glyph::Render::SnapshotBase
+ * @see jam::SnapshotBuffer
  * @see Screen::updateSnapshot()
  */
-struct Snapshot : jreng::Glyph::Render::SnapshotBase
+struct Snapshot : jam::Glyph::Render::SnapshotBase
 {
     juce::Point<int> cursorPosition;           ///< Cursor position in grid coordinates (col, row).
     bool             cursorVisible  { false }; ///< True if DECTCEM cursor mode is on.
@@ -262,18 +262,18 @@ protected:
  *   pre-built glyph/background instances per row.  `buildSnapshot()` rebuilds
  *   all rows every frame by reading directly from `Grid`.
  * - **Snapshot publication**: `updateSnapshot()` packs the per-row caches into
- *   a `Render::Snapshot` and publishes it via `jreng::SnapshotBuffer`.
+ *   a `Render::Snapshot` and publishes it via `jam::SnapshotBuffer`.
  * - **Selection overlay**: a `ScreenSelection*` pointer is checked per cell in
  *   `processCellForSnapshot()` to emit selection highlight quads.
  *
  * @par Thread context
  * All public methods except `getSnapshotBuffer()` must be called on the
  * **MESSAGE THREAD**.  The GL thread methods run on the **GL THREAD**
- * and communicate only through the `jreng::SnapshotBuffer`.
+ * and communicate only through the `jam::SnapshotBuffer`.
  *
  * @see Grid
  * @see State
- * @see jreng::SnapshotBuffer
+ * @see jam::SnapshotBuffer
  * @see Render::Snapshot
  * @see ScreenSelection
  * @see FontCollection
@@ -300,7 +300,7 @@ public:
     {
         Resources() = default;
 
-        jreng::SnapshotBuffer<Render::Snapshot> snapshotBuffer; ///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
+        jam::SnapshotBuffer<Render::Snapshot> snapshotBuffer; ///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
         Theme            terminalColors;   ///< Active colour theme (ANSI palette + default fg/bg/selection).
     };
 
@@ -315,10 +315,13 @@ public:
      * then calls `reset()`.
      *
      * @param typeface  Font instance providing metrics, shaping, and rasterisation.
+     * @param atlas     Renderer-specific atlas store; `jam::GlyphAtlas` for the GL
+     *                  path, `jam::GraphicsAtlas` for the CPU path.  Passed through
+     *                  to `uploadStagedBitmaps()` each frame.
      *
      * @note **MESSAGE THREAD**.
      */
-    explicit Screen (jreng::Typeface& typeface);
+    Screen (jam::Typeface& typeface, typename Renderer::Atlas& atlas);
 
     /**
      * @brief Destroys the screen and releases all resources.
@@ -723,9 +726,9 @@ public:
      * @return Reference to `resources.snapshotBuffer`.
      *
      * @note Thread-safe: the snapshot buffer uses atomic pointer exchange.
-     * @see jreng::SnapshotBuffer
+     * @see jam::SnapshotBuffer
      */
-    jreng::SnapshotBuffer<Render::Snapshot>& getSnapshotBuffer() noexcept;
+    jam::SnapshotBuffer<Render::Snapshot>& getSnapshotBuffer() noexcept;
 
 private:
     // =========================================================================
@@ -762,7 +765,7 @@ private:
      *
      * Totals the per-row counts, ensures snapshot capacity, copies glyph and
      * background data via `memcpy`, sets cursor state, and calls
-     * `jreng::SnapshotBuffer::write()`.
+     * `jam::SnapshotBuffer::write()`.
      *
      * @param state      Current terminal state (cursor position, screen type).
      * @param rows       Number of visible rows.
@@ -853,7 +856,7 @@ private:
      *
      * @note **MESSAGE THREAD**.
      */
-    int tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface::Style style,
+    int tryLigature (const Cell* rowCells, int col, int row, jam::Typeface::Style style,
                      const juce::Colour& foreground) noexcept;
 
     /**
@@ -881,7 +884,7 @@ private:
      * @param cell  Cell whose `isBold()` and `isItalic()` flags are tested.
      * @return      `boldItalic`, `bold`, `italic`, or `regular`.
      */
-    static jreng::Typeface::Style selectFontStyle (const Cell& cell) noexcept;
+    static jam::Typeface::Style selectFontStyle (const Cell& cell) noexcept;
 
     /**
      * @brief Returns true if row @p r should be included in the current snapshot.
@@ -902,7 +905,7 @@ private:
     {
         bool result { true };
 
-        if constexpr (std::is_same_v<Renderer, jreng::Glyph::GraphicsContext>)
+        if constexpr (std::is_same_v<Renderer, jam::Glyph::GraphicsContext>)
         {
             const int word { r >> 6 };
             const uint64_t bit { static_cast<uint64_t> (1) << (r & 63) };
@@ -944,7 +947,8 @@ private:
     float lineHeightMultiplier { 1.0f }; ///< User line-height multiplier from config; 1.0 = no adjustment.
     float cellWidthMultiplier { 1.0f }; ///< User cell-width multiplier from config; 1.0 = no adjustment.
 
-    jreng::Typeface& font;             ///< Font instance providing metrics, shaping, and rasterisation.
+    jam::Typeface& font;                          ///< Font instance providing metrics, shaping, and rasterisation.
+    typename Renderer::Atlas& atlasRef;           ///< Renderer-specific atlas store; passed through to uploadStagedBitmaps().
     Resources resources;           ///< All shared rendering resources (atlas, mailbox, theme).
     bool ligatureEnabled { false }; ///< True if HarfBuzz ligature shaping is active.
     bool debugMode       { false }; ///< True if debug rendering overlays are enabled.

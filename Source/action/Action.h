@@ -24,7 +24,7 @@
  * @note All methods must be called on the **MESSAGE THREAD**.
  *
  * @see Config::Key
- * @see jreng::Context
+ * @see jam::Context
  */
 
 #pragma once
@@ -58,7 +58,7 @@ namespace Action
  * @class Registry
  * @brief Global action registry, key dispatcher, and prefix state machine.
  *
- * Inherits `jreng::Context<Registry>` for process-wide singleton access via
+ * Inherits `jam::Context<Registry>` for process-wide singleton access via
  * `Registry::getContext()`.  Inherits `juce::Timer` (privately) to implement
  * the prefix-sequence timeout.
  *
@@ -71,7 +71,7 @@ namespace Action
  * message thread.
  */
 class Registry
-    : public jreng::Context<Registry>
+    : public jam::Context<Registry>
     , private juce::Timer
 {
 public:

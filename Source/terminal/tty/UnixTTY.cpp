@@ -290,7 +290,8 @@ int UnixTTY::read (char* buf, int maxBytes)
     }
     else
     {
-        result = (errno == EAGAIN or errno == EWOULDBLOCK) ? 0 : -1;
+        const int savedErrno { errno };
+        result = (savedErrno == EAGAIN or savedErrno == EWOULDBLOCK) ? 0 : -1;
     }
 
     return result;
@@ -352,7 +353,7 @@ void UnixTTY::doPlatformResize (int cols, int rows)
 {
     struct winsize ws { static_cast<unsigned short> (rows), static_cast<unsigned short> (cols), 0, 0 };
     ioctl (master, TIOCSWINSZ, &ws);
-    
+
     if (childProcess > 0)
     {
         kill (childProcess, SIGWINCH);

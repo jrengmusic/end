@@ -842,86 +842,83 @@ void Parser::reportDeviceAttributes (bool isPrivate) noexcept
 // VT Handler: Private Mode (DECSET / DECRST)
 // ============================================================================
 
-namespace
+/**
+ * @brief Lookup-table entry mapping a DECSET/DECRST mode number to a State ID.
+ *
+ * Used by `applyPrivateModeTable()` to resolve the most common private
+ * mode numbers without a large switch statement.
+ *
+ * @see privateModeTable
+ * @see applyPrivateModeTable()
+ */
+struct PrivateModeEntry { uint16_t modeValue; juce::Identifier id; };
+
+/**
+ * @brief Table of DECSET/DECRST mode numbers and their corresponding State IDs.
+ *
+ * Covers the private modes that map directly to a single `State::setMode()`
+ * call.  Modes that require additional side effects (e.g. ?6 origin mode,
+ * ?25 cursor visibility, ?1049 alternate screen) are handled separately in
+ * `handlePrivateMode()`.
+ *
+ * | Mode | Name                  | State ID                  |
+ * |------|-----------------------|---------------------------|
+ * |    1 | DECCKM                | applicationCursor         |
+ * |    5 | DECSCNM               | reverseVideo              |
+ * |    7 | DECAWM                | autoWrap                  |
+ * |   66 | DECNKM                | applicationKeypad         |
+ * | 1000 | X10 mouse tracking    | mouseTracking             |
+ * | 1002 | Button-event tracking | mouseMotionTracking       |
+ * | 1003 | Any-event tracking    | mouseAllTracking          |
+ * | 1004 | Focus events          | focusEvents               |
+ * | 1006 | SGR mouse encoding    | mouseSgr                  |
+ * | 2004 | Bracketed paste       | bracketedPaste            |
+ * | 9001 | Win32 input mode      | win32InputMode            |
+ */
+static const PrivateModeEntry privateModeTable[]
 {
-    /**
-     * @brief Lookup-table entry mapping a DECSET/DECRST mode number to a State ID.
-     *
-     * Used by `applyPrivateModeTable()` to resolve the most common private
-     * mode numbers without a large switch statement.
-     *
-     * @see privateModeTable
-     * @see applyPrivateModeTable()
-     */
-    struct PrivateModeEntry { uint16_t modeValue; juce::Identifier id; };
+    {    1, ID::applicationCursor    },
+    {    5, ID::reverseVideo         },
+    {    7, ID::autoWrap             },
+    {   66, ID::applicationKeypad   },
+    { 1000, ID::mouseTracking        },
+    { 1002, ID::mouseMotionTracking  },
+    { 1003, ID::mouseAllTracking     },
+    { 1004, ID::focusEvents          },
+    { 1006, ID::mouseSgr             },
+    { 2004, ID::bracketedPaste       },
+    { 9001, ID::win32InputMode       },
+};
 
-    /**
-     * @brief Table of DECSET/DECRST mode numbers and their corresponding State IDs.
-     *
-     * Covers the private modes that map directly to a single `State::setMode()`
-     * call.  Modes that require additional side effects (e.g. ?6 origin mode,
-     * ?25 cursor visibility, ?1049 alternate screen) are handled separately in
-     * `handlePrivateMode()`.
-     *
-     * | Mode | Name                  | State ID                  |
-     * |------|-----------------------|---------------------------|
-     * |    1 | DECCKM                | applicationCursor         |
-     * |    5 | DECSCNM               | reverseVideo              |
-     * |    7 | DECAWM                | autoWrap                  |
-     * |   66 | DECNKM                | applicationKeypad         |
-     * | 1000 | X10 mouse tracking    | mouseTracking             |
-     * | 1002 | Button-event tracking | mouseMotionTracking       |
-     * | 1003 | Any-event tracking    | mouseAllTracking          |
-     * | 1004 | Focus events          | focusEvents               |
-     * | 1006 | SGR mouse encoding    | mouseSgr                  |
-     * | 2004 | Bracketed paste       | bracketedPaste            |
-     * | 9001 | Win32 input mode      | win32InputMode            |
-     */
-    static const PrivateModeEntry privateModeTable[]
+/**
+ * @brief Applies a private mode number via the lookup table.
+ *
+ * Searches `privateModeTable` for an entry matching `modeValue`.  If found,
+ * calls `State::setMode()` with the corresponding ID and `enable`.
+ *
+ * @param state      Terminal parameter store to update.
+ * @param modeValue  The DECSET/DECRST mode number.
+ * @param enable     `true` to set the mode, `false` to reset it.
+ *
+ * @return `true` if the mode was found in the table and applied;
+ *         `false` if the caller must handle it separately.
+ *
+ * @note READER THREAD only.
+ */
+static bool applyPrivateModeTable (State& state, uint16_t modeValue, bool enable) noexcept
+{
+    bool found { false };
+
+    for (const auto& entry : privateModeTable)
     {
-        {    1, ID::applicationCursor    },
-        {    5, ID::reverseVideo         },
-        {    7, ID::autoWrap             },
-        {   66, ID::applicationKeypad   },
-        { 1000, ID::mouseTracking        },
-        { 1002, ID::mouseMotionTracking  },
-        { 1003, ID::mouseAllTracking     },
-        { 1004, ID::focusEvents          },
-        { 1006, ID::mouseSgr             },
-        { 2004, ID::bracketedPaste       },
-        { 9001, ID::win32InputMode       },
-    };
-
-    /**
-     * @brief Applies a private mode number via the lookup table.
-     *
-     * Searches `privateModeTable` for an entry matching `modeValue`.  If found,
-     * calls `State::setMode()` with the corresponding ID and `enable`.
-     *
-     * @param state      Terminal parameter store to update.
-     * @param modeValue  The DECSET/DECRST mode number.
-     * @param enable     `true` to set the mode, `false` to reset it.
-     *
-     * @return `true` if the mode was found in the table and applied;
-     *         `false` if the caller must handle it separately.
-     *
-     * @note READER THREAD only.
-     */
-    static bool applyPrivateModeTable (State& state, uint16_t modeValue, bool enable) noexcept
-    {
-        bool found { false };
-
-        for (const auto& entry : privateModeTable)
+        if (entry.modeValue == modeValue and not found)
         {
-            if (entry.modeValue == modeValue and not found)
-            {
-                state.setMode (entry.id, enable);
-                found = true;
-            }
+            state.setMode (entry.id, enable);
+            found = true;
         }
-
-        return found;
     }
+
+    return found;
 }
 
 /**
@@ -954,6 +951,7 @@ namespace
  */
 void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
 {
+    // ?1049h/?1049l re-read activeScreen inline to capture pre-switch / post-switch values.
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
 
     for (uint8_t i { 0 }; i < params.count; ++i)
@@ -975,9 +973,22 @@ void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
         {
             state.setCursorVisible (scr, enable);
         }
-        else if (modeValue == 47 or modeValue == 1047 or modeValue == 1049)
+        else if (modeValue == 47 or modeValue == 1047)
         {
             setScreen (enable);
+        }
+        else if (modeValue == 1049)
+        {
+            if (enable)
+            {
+                saveCursor (state.getRawValue<ActiveScreen> (ID::activeScreen));
+                setScreen (true);
+            }
+            else
+            {
+                setScreen (false);
+                restoreCursor (state.getRawValue<ActiveScreen> (ID::activeScreen));
+            }
         }
         else if (modeValue == 2026)
         {

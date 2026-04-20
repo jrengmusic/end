@@ -34,8 +34,9 @@ namespace Terminal
  * then calls `reset()` to zero the cache dimension sentinels.
  */
 template <typename Renderer>
-Screen<Renderer>::Screen (jreng::Typeface& font_)
+Screen<Renderer>::Screen (jam::Typeface& font_, typename Renderer::Atlas& atlas_)
     : font (font_)
+    , atlasRef (atlas_)
     , resources()
     , baseFontSize (Config::getContext()->dpiCorrectedFontSize())
 {
@@ -59,7 +60,7 @@ Screen<Renderer>::~Screen()
 template <typename Renderer>
 void Screen<Renderer>::calc() noexcept
 {
-    const jreng::Typeface::Metrics fm { font.calcMetrics (baseFontSize) };
+    const jam::Typeface::Metrics fm { font.calcMetrics (baseFontSize) };
 
     if (fm.isValid())
     {
@@ -77,7 +78,7 @@ void Screen<Renderer>::calc() noexcept
             numRows = glViewportHeight / physCellHeight;
         }
 
-        const float scale { jreng::Typeface::getDisplayScale() };
+        const float scale { jam::Typeface::getDisplayScale() };
 
         cellWidth  = scale > 0.0f ? static_cast<int> (static_cast<float> (physCellWidth)  / scale) : fm.logicalCellW;
         cellHeight = scale > 0.0f ? static_cast<int> (static_cast<float> (physCellHeight) / scale) : fm.logicalCellH;
@@ -100,7 +101,7 @@ void Screen<Renderer>::setViewport (const juce::Rectangle<int>& bounds) noexcept
     viewportWidth = bounds.getWidth();
     viewportHeight = bounds.getHeight();
 
-    const float scale { jreng::Typeface::getDisplayScale() };
+    const float scale { jam::Typeface::getDisplayScale() };
     glViewportX      = static_cast<int> (static_cast<float> (bounds.getX())      * scale);
     glViewportY      = static_cast<int> (static_cast<float> (bounds.getY())      * scale);
     glViewportWidth  = static_cast<int> (static_cast<float> (bounds.getWidth())  * scale);
@@ -153,7 +154,7 @@ juce::Rectangle<int> Screen<Renderer>::getCellBounds (int col, int row) const no
         // GL renderer (row * physCellHeight) divided back by display scale.
         // This eliminates per-row rounding drift at fractional scales (e.g.
         // 150%) between the JUCE component overlay and GL-rendered glyphs.
-        const float scale { jreng::Typeface::getDisplayScale() };
+        const float scale { jam::Typeface::getDisplayScale() };
         const int x { viewportX + static_cast<int> (static_cast<float> (clampedCol * physCellWidth) / scale) };
         const int y { viewportY + static_cast<int> (static_cast<float> (clampedRow * physCellHeight) / scale) };
         const int w { static_cast<int> (static_cast<float> (physCellWidth) / scale) };
@@ -186,7 +187,7 @@ juce::Point<int> Screen<Renderer>::cellAtPoint (int x, int y) const noexcept
 
     if (physCellWidth > 0 and physCellHeight > 0)
     {
-        const float scale { jreng::Typeface::getDisplayScale() };
+        const float scale { jam::Typeface::getDisplayScale() };
         const int physX { static_cast<int> (static_cast<float> (x - viewportX) * scale) };
         const int physY { static_cast<int> (static_cast<float> (y - viewportY) * scale) };
         const int col { juce::jlimit (0, numCols - 1, physX / physCellWidth) };
@@ -239,7 +240,7 @@ const Theme& Screen<Renderer>::getTheme() const noexcept
 }
 
 template <typename Renderer>
-jreng::SnapshotBuffer<Render::Snapshot>& Screen<Renderer>::getSnapshotBuffer() noexcept
+jam::SnapshotBuffer<Render::Snapshot>& Screen<Renderer>::getSnapshotBuffer() noexcept
 {
     return resources.snapshotBuffer;
 }
@@ -260,7 +261,7 @@ void Screen<Renderer>::setFontSize (float pointSize) noexcept
     {
         baseFontSize = pointSize;
         font.setSize (pointSize);
-        font.setAtlasDisplayScale (jreng::Typeface::getDisplayScale());
+        font.setAtlasDisplayScale (jam::Typeface::getDisplayScale());
         font.clearAtlas();
         calc();
     }
@@ -444,8 +445,8 @@ void Screen<Renderer>::render (State& state, Grid& grid) noexcept
     }
 }
 
-template class Screen<jreng::Glyph::GLContext>;
-template class Screen<jreng::Glyph::GraphicsContext>;
+template class Screen<jam::Glyph::GLContext>;
+template class Screen<jam::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

@@ -36,10 +36,10 @@ public:
     Screen();
 
     /** Loads a document. Builds blocks until viewportHeight is filled, returns batch count. */
-    int load (const jreng::Markdown::ParsedDocument& doc, int viewportHeight);
+    int load (const jam::Markdown::ParsedDocument& doc, int viewportHeight);
 
     /** Builds a single block by index. Idempotent — skips if already built. */
-    void build (int blockIndex, const jreng::Markdown::ParsedDocument& doc);
+    void build (int blockIndex, const jam::Markdown::ParsedDocument& doc);
 
     /** Recomputes layout for all entries. */
     void updateLayout();
@@ -107,7 +107,7 @@ private:
     struct BlockEntry
     {
         std::unique_ptr<Block> block;
-        jreng::Markdown::BlockType type;
+        jam::Markdown::BlockType type;
         int y { 0 };
         int height { 0 };
     };
@@ -132,9 +132,9 @@ private:
     bool dragActive { false };
     int clickCount { 0 };
 
-    juce::AttributedString buildAttributedString (const jreng::Markdown::ParsedDocument& doc, int blockIndex) const;
+    juce::AttributedString buildAttributedString (const jam::Markdown::ParsedDocument& doc, int blockIndex) const;
 
-    std::unique_ptr<Block> createBlock (const jreng::Markdown::ParsedDocument& doc, int blockIndex);
+    std::unique_ptr<Block> createBlock (const jam::Markdown::ParsedDocument& doc, int blockIndex);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)
 };

@@ -5,7 +5,7 @@
  * AppState owns the root `END` ValueTree that holds window dimensions, tab layout,
  * split pane configuration, and (via grafted subtrees) each terminal's session state.
  *
- * Inherits `jreng::Context<AppState>` so any subsystem can call
+ * Inherits `jam::Context<AppState>` so any subsystem can call
  * `AppState::getContext()` without passing references.
  *
  * ### Serialization — three files, three concerns
@@ -48,7 +48,7 @@
 #include <JuceHeader.h>
 #include "AppIdentifier.h"
 
-struct AppState : jreng::Context<AppState>
+struct AppState : jam::Context<AppState>
 {
     AppState();
     ~AppState();
@@ -240,6 +240,8 @@ struct AppState : jreng::Context<AppState>
 
     /** @brief Returns `~/.config/end/window.state` — cross-instance window size file. */
     juce::File getWindowState() const;
+
+    //==============================================================================
 
 private:
     juce::ValueTree state;

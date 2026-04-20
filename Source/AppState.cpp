@@ -6,7 +6,9 @@
  */
 
 #include "AppState.h"
+#include "component/LookAndFeel.h"
 #include "config/Config.h"
+#include "config/WhelmedConfig.h"
 #include "terminal/data/Identifier.h"
 
 AppState::AppState()
@@ -162,6 +164,7 @@ void AppState::setRendererType (const juce::String& setting)
     const bool wantsGpu { setting != "false" };
     const juce::String resolved { wantsGpu and gpuAvailable ? App::ID::rendererGpu : App::ID::rendererCpu };
     window.setProperty (App::ID::renderer, resolved, nullptr);
+    jam::BackgroundBlur::setEnabled (getRendererType() == App::RendererType::gpu);
 }
 
 void AppState::setGpuAvailable (bool available)

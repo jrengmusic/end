@@ -5,7 +5,7 @@
 namespace Whelmed
 {
 
-struct Config : jreng::Context<Config>
+struct Config : jam::Context<Config>
 {
     Config();
 

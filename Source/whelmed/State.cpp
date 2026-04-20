@@ -21,7 +21,7 @@ State::~State()
     stopTimer();
 }
 
-void State::setDocument (jreng::Markdown::ParsedDocument&& doc)
+void State::setDocument (jam::Markdown::ParsedDocument&& doc)
 {
     document = std::move (doc);
     completedBlockCount.store (0, std::memory_order_relaxed);
@@ -77,12 +77,12 @@ bool State::flush()
     return updated;
 }
 
-const jreng::Markdown::ParsedDocument& State::getDocument() const noexcept
+const jam::Markdown::ParsedDocument& State::getDocument() const noexcept
 {
     return document;
 }
 
-jreng::Markdown::ParsedDocument& State::getDocumentForWriting() noexcept
+jam::Markdown::ParsedDocument& State::getDocumentForWriting() noexcept
 {
     return document;
 }

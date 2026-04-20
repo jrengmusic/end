@@ -21,11 +21,11 @@ LinkManager::LinkManager (State& s, const Grid& g,
     : state (s)
     , grid (g)
     , writeToPty (std::move (writeToPtyCallback))
-    , promptRowNode         (jreng::ValueTree::getChildWithID (state.get(), ID::promptRow.toString()))
-    , activeScreenNode      (jreng::ValueTree::getChildWithID (state.get(), ID::activeScreen.toString()))
+    , promptRowNode         (jam::ValueTree::getChildWithID (state.get(), ID::promptRow.toString()))
+    , activeScreenNode      (jam::ValueTree::getChildWithID (state.get(), ID::activeScreen.toString()))
     , hyperlinksNode        (state.get().getChildWithName (ID::HYPERLINKS))
-    , scrollOffsetNode      (jreng::ValueTree::getChildWithID (state.get(), ID::scrollOffset.toString()))
-    , outputBlockBottomNode (jreng::ValueTree::getChildWithID (state.get(), ID::outputBlockBottom.toString()))
+    , scrollOffsetNode      (jam::ValueTree::getChildWithID (state.get(), ID::scrollOffset.toString()))
+    , outputBlockBottomNode (jam::ValueTree::getChildWithID (state.get(), ID::outputBlockBottom.toString()))
 {
     promptRowNode.addListener (this);
     activeScreenNode.addListener (this);

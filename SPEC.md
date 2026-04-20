@@ -19,7 +19,7 @@
 
 **Design Philosophy:** Performance and beauty. Opinionated defaults, everything overridable.
 
-**End Game:** WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer — is integrated as `Whelmed::Component` in split panes. Both END and WHELMED share a common GL text rendering module (shared via `jreng_graphics` module (`jreng::TextLayout`)).
+**End Game:** WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer — is integrated as `Whelmed::Component` in split panes. Both END and WHELMED share a common GL text rendering module (shared via `jam_graphics` module (`jam::TextLayout`)).
 
 ---
 
@@ -325,13 +325,13 @@ END = {
 
 ---
 
-### Generalized GL Text Rendering Module (jreng_text)
+### Generalized GL Text Rendering Module (jam_text)
 
 **Goal:** Extract END's glyph atlas, HarfBuzz shaping, and instanced quad rendering into a reusable JUCE module. Provides `juce::AttributedString`-compatible surface API with OpenGL backend rendering.
 
 **Parallel to existing modules:**
-- `jreng_gui/opengl` provides `GLGraphics` (like `juce::Graphics`) and `GLPath` (like `juce::Path`)
-- `jreng_text` provides GL text rendering (like `juce::AttributedString` / `juce::TextLayout`)
+- `jam_gui/opengl` provides `GLGraphics` (like `juce::Graphics`) and `GLPath` (like `juce::Path`)
+- `jam_text` provides GL text rendering (like `juce::AttributedString` / `juce::TextLayout`)
 
 **Two rendering modes:**
 
@@ -357,7 +357,7 @@ END = {
 **API surface (attributed mode) — drop-in replacement for `juce::TextLayout`:**
 
 ```cpp
-namespace jreng
+namespace jam
 {
     class TextLayout
     {
@@ -373,14 +373,14 @@ namespace jreng
 
 Input is `juce::AttributedString` — no custom string type. Two `draw()` overloads: GL (instanced quads) and CPU (`juce::Image` blit). Same layout, different surface.
 
-**Current location:** `modules/jreng_graphics/fonts/jreng_text_layout.h`. Standalone `jreng_text` module extraction is a future organizational step.
+**Current location:** `~/Documents/Poems/dev/jam/jam_graphics/fonts/jam_text_layout.h`. Standalone `jam_text` module extraction is a future organizational step.
 
-**Dependencies:** `jreng_gui` (opengl), `jreng_core`, `jreng_freetype`, `jreng_harfbuzz`, `juce_graphics`
+**Dependencies:** `jam_gui` (opengl), `jam_core`, `jam_freetype`, `jam_harfbuzz`, `juce_graphics`
 
 **Migration path:**
-1. Extract shared types (GlyphAtlas, FontCollection, Fonts, shaping) from `Source/terminal/rendering/` into `modules/jreng_text/`
-2. END's `Screen` and `TerminalGLRenderer` become consumers of `jreng_text` monospace API
-3. WHELMED consumes `jreng_text` attributed API
+1. Extract shared types (GlyphAtlas, FontCollection, Fonts, shaping) from `Source/terminal/rendering/` into `~/Documents/Poems/dev/jam/jam_text/`
+2. END's `Screen` and `TerminalGLRenderer` become consumers of `jam_text` monospace API
+3. WHELMED consumes `jam_text` attributed API
 4. Both share the same atlas instance and font handles
 
 ---
@@ -394,17 +394,17 @@ Input is `juce::AttributedString` — no custom string type. Two `draw()` overlo
 **Integration model:** `Whelmed::Component` subclasses `PaneComponent`, the same base as `Terminal::Component`. `Panes::createWhelmed()` overlays it on the active pane. `Panes::closeWhelmed()` removes it. DOCUMENT ValueTree is grafted alongside SESSION in the PANE node.
 
 **Shared infrastructure with END:**
-- `jreng_text` module — GL text rendering (attributed mode for WHELMED, monospace for END)
-- `jreng_gui/opengl` — `GLGraphics` for path/shape rendering, `GLComponent` base class
+- `jam_text` module — GL text rendering (attributed mode for WHELMED, monospace for END)
+- `jam_gui/opengl` — `GLGraphics` for path/shape rendering, `GLComponent` base class
 - Same glyph atlas, same font handles, same GL context
 
 **WHELMED rendering stack:**
 
 | Content | Renderer |
 |---------|----------|
-| Markdown text (headings, paragraphs, lists, inline code) | `jreng_text` attributed mode (proportional fonts, styled runs) |
-| Code blocks | `jreng_text` monospace mode (same as END terminal) |
-| Mermaid diagrams | Parsed to SVG -> `juce::Path` -> `GLPath` (tessellated via `jreng_gui/opengl`) |
+| Markdown text (headings, paragraphs, lists, inline code) | `jam_text` attributed mode (proportional fonts, styled runs) |
+| Code blocks | `jam_text` monospace mode (same as END terminal) |
+| Mermaid diagrams | Parsed to SVG -> `juce::Path` -> `GLPath` (tessellated via `jam_gui/opengl`) |
 | Inline images | Same image rendering as END's Sixel/iTerm2 support |
 
 **Standalone comes for free:** WHELMED as a standalone app is just a `MainComponent` wrapping the WHELMED component. Same code, different entry point.
@@ -448,9 +448,9 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 
 ### Phase 5: Module Extraction + WHELMED
 
-- [x] GL text rendering infrastructure (jreng::TextLayout in jreng_graphics)
-- [ ] Extract to standalone jreng_text module
-- [x] Attributed text layout mode (jreng::TextLayout)
+- [x] GL text rendering infrastructure (jam::TextLayout in jam_graphics)
+- [ ] Extract to standalone jam_text module
+- [x] Attributed text layout mode (jam::TextLayout)
 - [x] WHELMED component (markdown rendering, mermaid diagrams) — integrated as Whelmed::Component
 - [x] WHELMED integration into END split panes — Panes::createWhelmed(), PaneComponent interface
 - [ ] WHELMED standalone wrapper

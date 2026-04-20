@@ -55,6 +55,33 @@ namespace Terminal
 { /*____________________________________________________________________________*/
 
 // ============================================================================
+// Cursor save / restore (DECSC / DECRC)
+// ============================================================================
+
+void Parser::saveCursor (ActiveScreen scr) noexcept
+{
+    auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
+    sc.row         = state.getRawValue<int>  (state.screenKey (scr, ID::cursorRow));
+    sc.col         = state.getRawValue<int>  (state.screenKey (scr, ID::cursorCol));
+    sc.pen         = pen;
+    sc.wrapPending = state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending));
+    sc.originMode  = state.getRawValue<bool> (state.modeKey (ID::originMode));
+    sc.lineDrawing = useLineDrawing;
+}
+
+void Parser::restoreCursor (ActiveScreen scr) noexcept
+{
+    const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
+    state.setCursorRow   (scr, sc.row);
+    state.setCursorCol   (scr, sc.col);
+    pen            = sc.pen;
+    stamp          = sc.pen;
+    state.setWrapPending (scr, sc.wrapPending);
+    state.setMode        (ID::originMode, sc.originMode);
+    useLineDrawing = sc.lineDrawing;
+}
+
+// ============================================================================
 // VT Handler: ESC dispatch
 // ============================================================================
 
@@ -152,29 +179,12 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
             break;
 
         case '7':
-        {
-            auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-            sc.row = state.getRawValue<int> (state.screenKey (scr, ID::cursorRow));
-            sc.col = state.getRawValue<int> (state.screenKey (scr, ID::cursorCol));
-            sc.pen = pen;
-            sc.wrapPending = state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending));
-            sc.originMode = state.getRawValue<bool> (state.modeKey (ID::originMode));
-            sc.lineDrawing = useLineDrawing;
+            saveCursor (scr);
             break;
-        }
 
         case '8':
-        {
-            const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-            state.setCursorRow (scr, sc.row);
-            state.setCursorCol (scr, sc.col);
-            pen = sc.pen;
-            stamp = sc.pen;
-            state.setWrapPending (scr, sc.wrapPending);
-            state.setMode (ID::originMode, sc.originMode);
-            useLineDrawing = sc.lineDrawing;
+            restoreCursor (scr);
             break;
-        }
 
         case '=':
             state.setMode (ID::applicationKeypad, true);
@@ -335,60 +345,57 @@ void Parser::escDispatch (const uint8_t* inter, uint8_t interCount, uint8_t fina
 // VT Handler: OSC dispatch
 // ============================================================================
 
-namespace
+/**
+ * @brief Parsed header of an OSC payload.
+ *
+ * An OSC payload has the form `<command>;<data>`.  `parseOscHeader()`
+ * extracts the numeric command code and the byte offset at which the data
+ * portion begins.
+ *
+ * @see parseOscHeader()
+ * @see oscDispatch()
+ */
+struct OscHeader
 {
-    /**
-     * @brief Parsed header of an OSC payload.
-     *
-     * An OSC payload has the form `<command>;<data>`.  `parseOscHeader()`
-     * extracts the numeric command code and the byte offset at which the data
-     * portion begins.
-     *
-     * @see parseOscHeader()
-     * @see oscDispatch()
-     */
-    struct OscHeader
-    {
-        int commandNumber { 0 };   ///< Numeric OSC command code (e.g. 0, 2, 52).
-        uint16_t dataStart { 0 };  ///< Byte offset of the first data byte after ';'.
-    };
+    int commandNumber { 0 };   ///< Numeric OSC command code (e.g. 0, 2, 52).
+    uint16_t dataStart { 0 };  ///< Byte offset of the first data byte after ';'.
+};
 
-    /**
-     * @brief Parses the numeric command code and data offset from an OSC payload.
-     *
-     * Scans `payload` for the first `;` separator.  Bytes before the separator
-     * that are ASCII digits are accumulated into `commandNumber`.  `dataStart`
-     * is set to the index immediately after the `;`.
-     *
-     * If no `;` is found, `dataStart` remains 0 and the caller treats the
-     * payload as having no data portion.
-     *
-     * @param payload  Pointer to the raw OSC payload bytes (not null-terminated).
-     * @param length   Number of valid bytes in `payload`.
-     *
-     * @return Parsed `OscHeader` with `commandNumber` and `dataStart`.
-     *
-     * @note Pure function — no side effects.
-     * @note READER THREAD only.
-     */
-    inline OscHeader parseOscHeader (const uint8_t* payload, uint16_t length) noexcept
+/**
+ * @brief Parses the numeric command code and data offset from an OSC payload.
+ *
+ * Scans `payload` for the first `;` separator.  Bytes before the separator
+ * that are ASCII digits are accumulated into `commandNumber`.  `dataStart`
+ * is set to the index immediately after the `;`.
+ *
+ * If no `;` is found, `dataStart` remains 0 and the caller treats the
+ * payload as having no data portion.
+ *
+ * @param payload  Pointer to the raw OSC payload bytes (not null-terminated).
+ * @param length   Number of valid bytes in `payload`.
+ *
+ * @return Parsed `OscHeader` with `commandNumber` and `dataStart`.
+ *
+ * @note Pure function — no side effects.
+ * @note READER THREAD only.
+ */
+static inline OscHeader parseOscHeader (const uint8_t* payload, uint16_t length) noexcept
+{
+    OscHeader h;
+    for (uint16_t i { 0 }; i < length; ++i)
     {
-        OscHeader h;
-        for (uint16_t i { 0 }; i < length; ++i)
+        if (payload[i] == ';')
         {
-            if (payload[i] == ';')
-            {
-                h.dataStart = static_cast<uint16_t> (i + 1);
-                break;
-            }
-
-            if (payload[i] >= '0' and payload[i] <= '9')
-            {
-                h.commandNumber = h.commandNumber * 10 + (payload[i] - '0');
-            }
+            h.dataStart = static_cast<uint16_t> (i + 1);
+            break;
         }
-        return h;
+
+        if (payload[i] >= '0' and payload[i] <= '9')
+        {
+            h.commandNumber = h.commandNumber * 10 + (payload[i] - '0');
+        }
     }
+    return h;
 }
 
 /**

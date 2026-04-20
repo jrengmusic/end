@@ -7,7 +7,7 @@
  * and Whelmed::Component inherit from this.
  *
  * @see Terminal::Display
- * @see jreng::GLComponent
+ * @see jam::GLComponent
  */
 
 #pragma once
@@ -19,12 +19,12 @@
  * @class PaneComponent
  * @brief Pure virtual base for renderable pane components.
  *
- * Inherits jreng::GLComponent for GL lifecycle hooks.
+ * Inherits jam::GLComponent for GL lifecycle hooks.
  * Subclasses implement switchRenderer and applyConfig.
  *
  * @note App-level — not in any namespace. Shared between Terminal and Whelmed.
  */
-class PaneComponent : public jreng::GLComponent
+class PaneComponent : public jam::GLComponent
 {
 public:
     PaneComponent()

@@ -131,7 +131,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                                        const int height { dialog->getPreferredHeight() };
 
                                        auto renderer { (appState.getRendererType() == App::RendererType::gpu)
-                                           ? std::unique_ptr<jreng::GLRenderer> { std::make_unique<jreng::GLRenderer>() }
+                                           ? std::unique_ptr<jam::GLRenderer> { std::make_unique<jam::GLRenderer>() }
                                            : nullptr };
 
                                        popup.show (*this, std::move (dialog), width, height, std::move (renderer));
@@ -212,7 +212,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                                    const int height { list->getHeight() };
 
                                    auto renderer { (appState.getRendererType() == App::RendererType::gpu)
-                                       ? std::unique_ptr<jreng::GLRenderer> { std::make_unique<jreng::GLRenderer>() }
+                                       ? std::unique_ptr<jam::GLRenderer> { std::make_unique<jam::GLRenderer>() }
                                        : nullptr };
 
                                    popup.show (*this, std::move (list), width, height, std::move (renderer));
@@ -494,14 +494,14 @@ void MainComponent::registerPopupActions (Action::Registry& action)
                         juce::MessageManager::callAsync ([this] { popup.dismiss(); });
                     };
 
-                    auto terminal { termSession->getProcessor().createDisplay (typeface) };
+                    auto terminal { termSession->getProcessor().createDisplay (typeface, glyphAtlas, graphicsAtlas) };
 
                     auto renderer { (appState.getRendererType() == App::RendererType::gpu)
-                        ? std::unique_ptr<jreng::GLRenderer> { std::make_unique<jreng::GLAtlasRenderer> (
-                              typeface) }
+                        ? std::unique_ptr<jam::GLRenderer> { std::make_unique<jam::GLAtlasRenderer> (
+                              typeface, glyphAtlas) }
                         : nullptr };
 
-                    popup.show (*getTopLevelComponent(), std::move (terminal), pixelWidth, pixelHeight, std::move (renderer));
+                    popup.show (*this, std::move (terminal), pixelWidth, pixelHeight, std::move (renderer));
                     popup.setTerminalSession (std::move (termSession));
                 }
 

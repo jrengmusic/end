@@ -23,7 +23,7 @@ void Popup::show (juce::Component& caller,
                   std::unique_ptr<juce::Component> content,
                   int width,
                   int height,
-                  std::unique_ptr<jreng::GLRenderer> renderer)
+                  std::unique_ptr<jam::GLRenderer> renderer)
 {
     dismiss();
 
@@ -40,7 +40,7 @@ void Popup::show (juce::Component& caller,
 
     void* sharedContext { nullptr };
 
-    if (auto* rootWindow { dynamic_cast<jreng::Window*> (caller.getTopLevelComponent()) })
+    if (auto* rootWindow { dynamic_cast<jam::Window*> (caller.getTopLevelComponent()) })
         sharedContext = rootWindow->getNativeSharedContext();
 
     window = std::make_unique<Terminal::ModalWindow> (std::move (content),

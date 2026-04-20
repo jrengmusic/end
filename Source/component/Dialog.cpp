@@ -19,11 +19,11 @@ Dialog::Dialog (const juce::String& message)
 {
     messageLabel.setText (message, juce::dontSendNotification);
     messageLabel.setJustificationType (juce::Justification::centred);
-    messageLabel.getProperties().set (jreng::ID::font, jreng::ID::name.toString());
+    messageLabel.getProperties().set (jam::ID::font, jam::ID::name.toString());
     addAndMakeVisible (messageLabel);
 
-    yesButton.getProperties().set (jreng::ID::font, jreng::ID::name.toString());
-    noButton.getProperties().set  (jreng::ID::font, jreng::ID::name.toString());
+    yesButton.getProperties().set (jam::ID::font, jam::ID::name.toString());
+    noButton.getProperties().set  (jam::ID::font, jam::ID::name.toString());
 
     yesButton.onClick = [this]
     {
@@ -65,9 +65,9 @@ void Dialog::resized()
 
     const int lineH    { static_cast<int> (std::ceil (font.getHeight())) };
     const int buttonH  { lineH + verticalPadding * 2 };
-    const int yesW     { static_cast<int> (std::ceil (font.getStringWidthFloat ("Yes")))
+    const int yesW     { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, "Yes")))
                          + buttonTextPadding * 2 };
-    const int noW      { static_cast<int> (std::ceil (font.getStringWidthFloat ("No")))
+    const int noW      { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, "No")))
                          + buttonTextPadding * 2 };
 
     auto bounds { getLocalBounds() };
@@ -114,10 +114,10 @@ int Dialog::getPreferredWidth() const noexcept
                                 .withStyle (config.getString (Config::Key::actionListNameStyle))
                                 .withPointHeight (config.getFloat (Config::Key::actionListNameSize)) };
 
-    const int messageW    { static_cast<int> (std::ceil (font.getStringWidthFloat (messageLabel.getText()))) };
-    const int yesW        { static_cast<int> (std::ceil (font.getStringWidthFloat ("Yes")))
+    const int messageW    { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, messageLabel.getText()))) };
+    const int yesW        { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, "Yes")))
                             + buttonTextPadding * 2 };
-    const int noW         { static_cast<int> (std::ceil (font.getStringWidthFloat ("No")))
+    const int noW         { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, "No")))
                             + buttonTextPadding * 2 };
     const int buttonRowW  { yesW + buttonGap + noW };
 

@@ -2,7 +2,7 @@
  * @file Config.cpp
  * @brief Implementation of the Lua-driven configuration loader.
  *
- * Uses sol2 (`sol::state`) to execute Lua scripts in a sandboxed environment.
+ * Uses sol2 (`jam::lua::state`) to execute Lua scripts in a sandboxed environment.
  * The validation script injected before the user config detects undefined
  * global accesses and reports them as warnings rather than silent failures.
  *
@@ -28,8 +28,7 @@
  * @see Config::Theme
  */
 
-#define SOL_ALL_SAFETIES_ON 1
-#include <sol/sol.hpp>
+#include <jam_lua/jam_lua.h>
 
 #include "Config.h"
 
@@ -342,7 +341,7 @@ void Config::writeDefaults (const juce::File& file) const
 {
     juce::String content { BinaryData::getString ("default_end.lua") };
 
-    content = jreng::String::replaceholder (content, "versionString", ProjectInfo::versionString);
+    content = jam::String::replaceholder (content, "versionString", ProjectInfo::versionString);
 
     for (const auto& [key, value] : values)
     {
@@ -351,7 +350,7 @@ void Config::writeDefaults (const juce::File& file) const
         // Escape backslashes for valid Lua string syntax
         auto str { value.toString() };
         str = str.replace ("\\", "\\\\");
-        content = jreng::String::replaceholder (content, placeholder, str);
+        content = jam::String::replaceholder (content, placeholder, str);
     }
 
     file.replaceWithText (content);
@@ -364,27 +363,27 @@ void Config::writeDefaults (const juce::File& file) const
  * @param t  The sol2 type value.
  * @return A string such as "number", "string", "boolean", "nil", etc.
  */
-static juce::String luaTypeName (sol::type t)
+static juce::String luaTypeName (jam::lua::type t)
 {
     switch (t)
     {
-        case sol::type::lua_nil:
+        case jam::lua::type::lua_nil:
             return "nil";
-        case sol::type::boolean:
+        case jam::lua::type::boolean:
             return "boolean";
-        case sol::type::number:
+        case jam::lua::type::number:
             return "number";
-        case sol::type::string:
+        case jam::lua::type::string:
             return "string";
-        case sol::type::table:
+        case jam::lua::type::table:
             return "table";
-        case sol::type::function:
+        case jam::lua::type::function:
             return "function";
-        case sol::type::userdata:
+        case jam::lua::type::userdata:
             return "userdata";
-        case sol::type::lightuserdata:
+        case jam::lua::type::lightuserdata:
             return "lightuserdata";
-        case sol::type::thread:
+        case jam::lua::type::thread:
             return "thread";
         default:
             return "unknown";
@@ -418,7 +417,7 @@ bool Config::load (const juce::File& file) { return load (file, loadError); }
  * @param warnings  Warning list; entries are appended on failure.
  */
 static void validateAndStore (const juce::String& dotKey,
-                              const sol::object& fieldVal,
+                              const jam::lua::object& fieldVal,
                               std::unordered_map<juce::String, juce::var>& values,
                               const std::unordered_map<juce::String, Config::Value>& schema,
                               juce::StringArray& warnings)
@@ -443,10 +442,10 @@ static void validateAndStore (const juce::String& dotKey,
         switch (spec.expectedType)
         {
             case Config::Value::Type::number:
-                typeOk = (fieldVal.get_type() == sol::type::number);
+                typeOk = (fieldVal.get_type() == jam::lua::type::number);
                 break;
             case Config::Value::Type::string:
-                typeOk = (fieldVal.get_type() == sol::type::string);
+                typeOk = (fieldVal.get_type() == jam::lua::type::string);
                 break;
         }
 
@@ -497,14 +496,14 @@ static void validateAndStore (const juce::String& dotKey,
  * @param values  The config values map to store into.
  * @param schema  The schema map used for clamping range.
  */
-static void loadPadding (const sol::table& arr,
+static void loadPadding (const jam::lua::table& arr,
                          const std::array<const juce::String*, 4>& keys,
                          std::unordered_map<juce::String, juce::var>& values,
                          const std::unordered_map<juce::String, Config::Value>& schema)
 {
     for (int i { 0 }; i < 4; ++i)
     {
-        sol::optional<double> v { arr.get<sol::optional<double>> (i + 1) };
+        jam::lua::optional<double> v { arr.get<jam::lua::optional<double>> (i + 1) };
 
         if (v)
         {
@@ -528,38 +527,38 @@ static void loadPadding (const sol::table& arr,
  * @param popups       The popup entries map to insert into.
  * @param warnings     Warning list; entries are appended on validation failure.
  */
-static void loadPopups (const sol::table& popupsTable,
+static void loadPopups (const jam::lua::table& popupsTable,
                         std::unordered_map<juce::String, Config::PopupEntry>& popups,
                         juce::StringArray& warnings)
 {
     popupsTable.for_each (
-        [&popups, &warnings] (const sol::object& nameKey, const sol::object& entryVal)
+        [&popups, &warnings] (const jam::lua::object& nameKey, const jam::lua::object& entryVal)
         {
-            if (nameKey.get_type() == sol::type::string and entryVal.get_type() == sol::type::table)
+            if (nameKey.get_type() == jam::lua::type::string and entryVal.get_type() == jam::lua::type::table)
             {
                 const juce::String name { nameKey.as<std::string>() };
-                sol::table entry { entryVal.as<sol::table>() };
+                jam::lua::table entry { entryVal.as<jam::lua::table>() };
                 Config::PopupEntry popup;
 
-                if (auto cmd { entry.get<sol::optional<std::string>> ("command") })
+                if (auto cmd { entry.get<jam::lua::optional<std::string>> ("command") })
                     popup.command = juce::String (*cmd);
 
-                if (auto a { entry.get<sol::optional<std::string>> ("args") })
+                if (auto a { entry.get<jam::lua::optional<std::string>> ("args") })
                     popup.args = juce::String (*a);
 
-                if (auto c { entry.get<sol::optional<std::string>> ("cwd") })
+                if (auto c { entry.get<jam::lua::optional<std::string>> ("cwd") })
                     popup.cwd = juce::String (*c);
 
-                if (auto c { entry.get<sol::optional<int>> ("cols") })
+                if (auto c { entry.get<jam::lua::optional<int>> ("cols") })
                     popup.cols = *c;
 
-                if (auto r { entry.get<sol::optional<int>> ("rows") })
+                if (auto r { entry.get<jam::lua::optional<int>> ("rows") })
                     popup.rows = *r;
 
-                if (auto m { entry.get<sol::optional<std::string>> ("modal") })
+                if (auto m { entry.get<jam::lua::optional<std::string>> ("modal") })
                     popup.modal = juce::String (*m);
 
-                if (auto g { entry.get<sol::optional<std::string>> ("global") })
+                if (auto g { entry.get<jam::lua::optional<std::string>> ("global") })
                     popup.global = juce::String (*g);
 
                 if (popup.command.isEmpty())
@@ -592,35 +591,35 @@ static void loadPopups (const sol::table& popupsTable,
  * @param handlers         Map to populate with `{ lowercase extension → command }` entries.
  * @param extensions       Set to populate with lowercase extension strings.
  */
-static void loadHyperlinks (const sol::table& hyperlinksTable,
+static void loadHyperlinks (const jam::lua::table& hyperlinksTable,
                             std::unordered_map<juce::String, juce::String>& handlers,
                             std::unordered_set<juce::String>& extensions)
 {
     hyperlinksTable.for_each (
-        [&handlers, &extensions] (const sol::object& fieldKey, const sol::object& fieldVal)
+        [&handlers, &extensions] (const jam::lua::object& fieldKey, const jam::lua::object& fieldVal)
         {
-            if (fieldKey.get_type() == sol::type::string)
+            if (fieldKey.get_type() == jam::lua::type::string)
             {
                 const juce::String fieldName { fieldKey.as<std::string>() };
 
-                if (fieldName == "handlers" and fieldVal.get_type() == sol::type::table)
+                if (fieldName == "handlers" and fieldVal.get_type() == jam::lua::type::table)
                 {
-                    fieldVal.as<sol::table>().for_each (
-                        [&handlers] (const sol::object& extKey, const sol::object& cmdVal)
+                    fieldVal.as<jam::lua::table>().for_each (
+                        [&handlers] (const jam::lua::object& extKey, const jam::lua::object& cmdVal)
                         {
-                            if (extKey.get_type() == sol::type::string and cmdVal.get_type() == sol::type::string)
+                            if (extKey.get_type() == jam::lua::type::string and cmdVal.get_type() == jam::lua::type::string)
                             {
                                 const juce::String ext { juce::String (extKey.as<std::string>()).toLowerCase() };
                                 handlers.insert_or_assign (ext, juce::String (cmdVal.as<std::string>()));
                             }
                         });
                 }
-                else if (fieldName == "extensions" and fieldVal.get_type() == sol::type::table)
+                else if (fieldName == "extensions" and fieldVal.get_type() == jam::lua::type::table)
                 {
-                    fieldVal.as<sol::table>().for_each (
-                        [&extensions] (const sol::object&, const sol::object& extVal)
+                    fieldVal.as<jam::lua::table>().for_each (
+                        [&extensions] (const jam::lua::object&, const jam::lua::object& extVal)
                         {
-                            if (extVal.get_type() == sol::type::string)
+                            if (extVal.get_type() == jam::lua::type::string)
                             {
                                 extensions.insert (juce::String (extVal.as<std::string>()).toLowerCase());
                             }
@@ -661,30 +660,30 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
 
     if (file.existsAsFile())
     {
-        sol::state lua;
+        jam::lua::state lua;
         lua.open_libraries (
-            sol::lib::base, sol::lib::string, sol::lib::table, sol::lib::os, sol::lib::debug, sol::lib::package);
+            jam::lua::lib::base, jam::lua::lib::string, jam::lua::lib::table, jam::lua::lib::os, jam::lua::lib::debug, jam::lua::lib::package);
 
-        auto setupResult { lua.safe_script (validationScript, sol::script_pass_on_error) };
+        auto setupResult { lua.safe_script (validationScript, jam::lua::script_pass_on_error) };
 
         if (setupResult.valid())
         {
-            auto result { lua.safe_script_file (file.getFullPathName().toStdString(), sol::script_pass_on_error) };
+            auto result { lua.safe_script_file (file.getFullPathName().toStdString(), jam::lua::script_pass_on_error) };
 
             if (result.valid())
             {
                 juce::StringArray warnings;
 
-                sol::table undefinedAccesses = lua["_undefined"];
+                jam::lua::table undefinedAccesses = lua["_undefined"];
 
                 if (undefinedAccesses.valid())
                 {
                     undefinedAccesses.for_each (
-                        [&warnings] (const sol::object&, const sol::object& entry)
+                        [&warnings] (const jam::lua::object&, const jam::lua::object& entry)
                         {
-                            if (entry.get_type() == sol::type::table)
+                            if (entry.get_type() == jam::lua::type::table)
                             {
-                                sol::table t { entry.as<sol::table>() };
+                                jam::lua::table t { entry.as<jam::lua::table>() };
                                 const juce::String name { t["name"].get<std::string>() };
                                 const int line { t["line"].get<int>() };
                                 warnings.add ("line " + juce::String (line) + ": undefined variable '" + name + "'");
@@ -692,18 +691,18 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                         });
                 }
 
-                sol::object rootObj { lua["END"] };
+                jam::lua::object rootObj { lua["END"] };
 
-                if (rootObj.get_type() == sol::type::table)
+                if (rootObj.get_type() == jam::lua::type::table)
                 {
-                    sol::table root { rootObj.as<sol::table>() };
+                    jam::lua::table root { rootObj.as<jam::lua::table>() };
 
                     root.for_each (
-                        [this, &warnings] (const sol::object& groupKey, const sol::object& groupVal)
+                        [this, &warnings] (const jam::lua::object& groupKey, const jam::lua::object& groupVal)
                         {
-                            if (groupKey.get_type() == sol::type::string)
+                            if (groupKey.get_type() == jam::lua::type::string)
                             {
-                                const bool isTableVal { groupVal.get_type() == sol::type::table };
+                                const bool isTableVal { groupVal.get_type() == jam::lua::type::table };
 
                                 if (not isTableVal)
                                 {
@@ -719,13 +718,13 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
 
                                     if (not isSpecialGroup)
                                     {
-                                        sol::table group { groupVal.as<sol::table>() };
+                                        jam::lua::table group { groupVal.as<jam::lua::table>() };
 
                                         group.for_each (
                                             [this, &groupName, &warnings] (
-                                                const sol::object& fieldKey, const sol::object& fieldVal)
+                                                const jam::lua::object& fieldKey, const jam::lua::object& fieldVal)
                                             {
-                                                if (fieldKey.get_type() == sol::type::string)
+                                                if (fieldKey.get_type() == jam::lua::type::string)
                                                 {
                                                     const juce::String fieldName { fieldKey.as<std::string>() };
 
@@ -733,7 +732,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                                     // Dispatched to loadPadding() rather than treated as a scalar.
                                                     const bool isPadding { fieldName == "padding"
                                                                            and fieldVal.get_type()
-                                                                                   == sol::type::table };
+                                                                                   == jam::lua::type::table };
 
                                                     if (isPadding)
                                                     {
@@ -752,13 +751,13 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                                             };
 
                                                         if (groupName == "terminal")
-                                                            loadPadding (fieldVal.as<sol::table>(),
+                                                            loadPadding (fieldVal.as<jam::lua::table>(),
                                                                          terminalPaddingKeys,
                                                                          values,
                                                                          schema);
 
                                                         if (groupName == "action_list")
-                                                            loadPadding (fieldVal.as<sol::table>(),
+                                                            loadPadding (fieldVal.as<jam::lua::table>(),
                                                                          actionListPaddingKeys,
                                                                          values,
                                                                          schema);
@@ -779,23 +778,23 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                             }
                         });
 
-                    sol::object popupsObj { root["popups"] };
+                    jam::lua::object popupsObj { root["popups"] };
 
-                    if (popupsObj.get_type() == sol::type::table)
-                        loadPopups (popupsObj.as<sol::table>(), popups, warnings);
+                    if (popupsObj.get_type() == jam::lua::type::table)
+                        loadPopups (popupsObj.as<jam::lua::table>(), popups, warnings);
 
-                    sol::object hyperlinksObj { root["hyperlinks"] };
+                    jam::lua::object hyperlinksObj { root["hyperlinks"] };
 
-                    if (hyperlinksObj.get_type() == sol::type::table)
+                    if (hyperlinksObj.get_type() == jam::lua::type::table)
                     {
-                        sol::table hyperlinksTable { hyperlinksObj.as<sol::table>() };
+                        jam::lua::table hyperlinksTable { hyperlinksObj.as<jam::lua::table>() };
 
                         // Scalar keys (e.g. editor) go through normal validation.
                         hyperlinksTable.for_each (
-                            [this, &warnings] (const sol::object& fieldKey, const sol::object& fieldVal)
+                            [this, &warnings] (const jam::lua::object& fieldKey, const jam::lua::object& fieldVal)
                             {
-                                if (fieldKey.get_type() == sol::type::string
-                                    and fieldVal.get_type() != sol::type::table)
+                                if (fieldKey.get_type() == jam::lua::type::string
+                                    and fieldVal.get_type() != jam::lua::type::table)
                                 {
                                     const juce::String fieldName { fieldKey.as<std::string>() };
                                     validateAndStore ("hyperlinks." + fieldName, fieldVal, values, schema, warnings);
@@ -817,7 +816,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
             }
             else
             {
-                sol::error err = result;
+                jam::lua::error err = result;
                 errorOut = juce::String (configErrorPrefix) + juce::String (err.what());
             }
         }
@@ -1013,7 +1012,7 @@ float Config::dpiCorrectedFontSize() const noexcept
 
     if (not honourDesktopScale)
     {
-        const float scale { jreng::Typeface::getDisplayScale() };
+        const float scale { jam::Typeface::getDisplayScale() };
 
         if (scale > 0.0f)
             corrected = configured / scale;

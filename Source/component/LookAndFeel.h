@@ -102,8 +102,8 @@ public:
      * @brief Dispatches label fonts via component property inspection.
      *
      * Reads the `font` property from the label's property map.  When the value
-     * matches `jreng::ID::name`, the action list name font is returned.  When it
-     * matches `jreng::ID::keyPress`, the action list shortcut font is returned.
+     * matches `jam::ID::name`, the action list name font is returned.  When it
+     * matches `jam::ID::keyPress`, the action list shortcut font is returned.
      * All other labels fall back to the default LookAndFeel_V4 behaviour.
      *
      * @param label  The label being queried.
@@ -116,7 +116,7 @@ public:
      * @brief Makes the popup window transparent and applies native background blur.
      *
      * Sets the popup window to non-opaque and applies background blur via
-     * jreng::BackgroundBlur. Uses callAsync with a SafePointer to defer
+     * jam::BackgroundBlur. Uses callAsync with a SafePointer to defer
      * blur application until the window has a native peer.
      *
      * @param newWindow  The popup menu window to prepare.
@@ -185,7 +185,7 @@ public:
      * @brief Dispatches text button fonts via component property inspection.
      *
      * Reads the `font` property from the button's property map.  When the
-     * value matches `jreng::ID::name`, the action list name font is returned
+     * value matches `jam::ID::name`, the action list name font is returned
      * (matching the `name`-role branch of getLabelFont).  All other buttons
      * fall back to the tab font at 60 % of the button height.
      *
@@ -227,6 +227,23 @@ public:
      * @note MESSAGE THREAD.
      */
     static int getTabBarHeight() noexcept;
+
+#if JUCE_WINDOWS
+    /**
+     * @brief Suppresses the JUCE default title bar on Windows.
+     *
+     * When END runs without native window buttons (showWindowButtons = false),
+     * jam::Window sets title bar height to 0.  This override prevents JUCE from
+     * painting any title bar chrome into that zero-height region.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void drawDocumentWindowTitleBar (juce::DocumentWindow&,
+                                     juce::Graphics&,
+                                     int, int, int, int,
+                                     const juce::Image*,
+                                     bool) override {}
+#endif
 
 private:
     static constexpr float tabFontRatio { 0.5f };

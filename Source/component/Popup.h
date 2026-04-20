@@ -12,15 +12,15 @@
  * - Content size is computed from Config fractions in show().
  *
  * ### GL rendering
- * Pass a non-null `std::unique_ptr<jreng::GLRenderer>` to `show()` for GPU
- * mode. The renderer ownership is transferred to `jreng::Window` (via
+ * Pass a non-null `std::unique_ptr<jam::GLRenderer>` to `show()` for GPU
+ * mode. The renderer ownership is transferred to `jam::Window` (via
  * `Terminal::ModalWindow`). Pass `nullptr` for CPU mode. In either case the
- * caller extracts the shared context handle from the root `jreng::Window` and
+ * caller extracts the shared context handle from the root `jam::Window` and
  * forwards it so the popup renderer inherits the same GL context.
  *
  * ### Glass blur
- * Terminal::ModalWindow inherits jreng::ModalWindow which inherits
- * jreng::Window.  Blur is applied on first visibility via the
+ * Terminal::ModalWindow inherits jam::ModalWindow which inherits
+ * jam::Window.  Blur is applied on first visibility via the
  * Window deferred mechanism.
  *
  * ### Dismiss mechanisms
@@ -37,8 +37,8 @@
  * @note All methods are called on the MESSAGE THREAD.
  *
  * @see Config
- * @see jreng::BackgroundBlur
- * @see jreng::GLRenderer
+ * @see jam::BackgroundBlur
+ * @see jam::GLRenderer
  * @see Terminal::ModalWindow
  */
 
@@ -56,7 +56,7 @@ namespace Terminal
  *
  * @par Usage
  * @code
- * auto renderer { std::make_unique<jreng::GLAtlasRenderer>(...) }; // or nullptr
+ * auto renderer { std::make_unique<jam::GLAtlasRenderer>(...) }; // or nullptr
  * popup.show (*this, std::move (content), width, height, std::move (renderer));
  * @endcode
  *
@@ -79,7 +79,7 @@ public:
      * state.
      *
      * The shared context handle is extracted from @p caller's top-level
-     * `jreng::Window` and forwarded to the `Terminal::ModalWindow`. Pass a
+     * `jam::Window` and forwarded to the `Terminal::ModalWindow`. Pass a
      * non-null @p renderer for GPU mode; pass `nullptr` for CPU mode.
      *
      * Ownership of @p content and @p renderer transfers to the dialog.
@@ -96,7 +96,7 @@ public:
                std::unique_ptr<juce::Component> content,
                int width,
                int height,
-               std::unique_ptr<jreng::GLRenderer> renderer);
+               std::unique_ptr<jam::GLRenderer> renderer);
 
     /**
      * @brief Dismisses the dialog if active.

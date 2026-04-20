@@ -148,9 +148,9 @@ juce::AttributedString tokenize (const juce::String& code,
     const auto* cfg { Whelmed::Config::getContext() };
 
     const juce::Font monoFont { juce::FontOptions()
-        .withName (cfg->getString (Whelmed::Config::Key::codeFamily))
-        .withPointHeight (cfg->getFloat (Whelmed::Config::Key::codeSize))
-        .withStyle (cfg->getString (Whelmed::Config::Key::codeStyle)) };
+                                    .withName (cfg->getString (Whelmed::Config::Key::codeFamily))
+                                    .withPointHeight (cfg->getFloat (Whelmed::Config::Key::codeSize))
+                                    .withStyle (cfg->getString (Whelmed::Config::Key::codeStyle)) };
 
     const juce::Colour fallbackColour { cfg->getColour (Whelmed::Config::Key::codeColour) };
 

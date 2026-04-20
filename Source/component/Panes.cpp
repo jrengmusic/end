@@ -22,8 +22,10 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Panes::Panes (jreng::Typeface& font_)
+Panes::Panes (jam::Typeface& font_, jam::GlyphAtlas& glAtlas_, jam::GraphicsAtlas& graphicsAtlas_)
     : font (font_)
+    , glAtlasRef (glAtlas_)
+    , graphicsAtlasRef (graphicsAtlas_)
 {
     setOpaque (false);
 }
@@ -49,12 +51,12 @@ Panes::~Panes() = default;
  * @note Pure math — no instance state.
  */
 std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
-                                           jreng::Typeface& font_) noexcept
+                                           jam::Typeface& font_) noexcept
 {
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
     const auto fm { font_.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
     const auto* cfg { Config::getContext() };
-    const float scale { jreng::Typeface::getDisplayScale() };
+    const float scale { jam::Typeface::getDisplayScale() };
     const float cellWidthMultiplier  { cfg->getFloat (Config::Key::fontCellWidth) };
     const float lineHeightMultiplier { cfg->getFloat (Config::Key::fontLineHeight) };
     const int physCellW { static_cast<int> (static_cast<float> (fm.physCellW) * cellWidthMultiplier) };
@@ -83,7 +85,7 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
 /**
  * @brief Splits a pixel rect by direction and ratio.
  *
- * Uses jreng::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
+ * Uses jam::PaneManager::resizerBarSize as SSOT — matches layoutNode arithmetic exactly.
  * "vertical" splits width (left/right target/new). "horizontal" splits height (top/bottom).
  *
  * @param parent     Parent pixel rect.
@@ -103,20 +105,20 @@ std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
     if (direction == "vertical")
     {
         const int totalWidth  { parent.getWidth() };
-        const int firstWidth  { juce::roundToInt (static_cast<double> (totalWidth - jreng::PaneManager::resizerBarSize) * ratio) };
-        const int secondWidth { totalWidth - firstWidth - jreng::PaneManager::resizerBarSize };
+        const int firstWidth  { juce::roundToInt (static_cast<double> (totalWidth - jam::PaneManager::resizerBarSize) * ratio) };
+        const int secondWidth { totalWidth - firstWidth - jam::PaneManager::resizerBarSize };
 
         targetRect = parent.withWidth (firstWidth);
-        newRect    = parent.withX (parent.getX() + firstWidth + jreng::PaneManager::resizerBarSize).withWidth (secondWidth);
+        newRect    = parent.withX (parent.getX() + firstWidth + jam::PaneManager::resizerBarSize).withWidth (secondWidth);
     }
     else
     {
         const int totalHeight  { parent.getHeight() };
-        const int firstHeight  { juce::roundToInt (static_cast<double> (totalHeight - jreng::PaneManager::resizerBarSize) * ratio) };
-        const int secondHeight { totalHeight - firstHeight - jreng::PaneManager::resizerBarSize };
+        const int firstHeight  { juce::roundToInt (static_cast<double> (totalHeight - jam::PaneManager::resizerBarSize) * ratio) };
+        const int secondHeight { totalHeight - firstHeight - jam::PaneManager::resizerBarSize };
 
         targetRect = parent.withHeight (firstHeight);
-        newRect    = parent.withY (parent.getY() + firstHeight + jreng::PaneManager::resizerBarSize).withHeight (secondHeight);
+        newRect    = parent.withY (parent.getY() + firstHeight + jam::PaneManager::resizerBarSize).withHeight (secondHeight);
     }
 
     return { targetRect, newRect };
@@ -150,7 +152,7 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 
     const juce::String termUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, glAtlasRef, graphicsAtlasRef) };
 
     jassert (terminal != nullptr);
 
@@ -161,7 +163,7 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 
     paneManager.addLeaf (termUuid);
 
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), termUuid) };
+    auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), termUuid) };
     jassert (paneNode.isValid());
     paneNode.appendChild (term->getValueTree(), nullptr);
 
@@ -205,7 +207,7 @@ juce::String Panes::createWhelmed (const juce::File& file)
     component->onRepaintNeeded = onRepaintNeeded;
 
     // Graft DOCUMENT alongside SESSION in the PANE node
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeID) };
+    auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), activeID) };
     jassert (paneNode.isValid());
 
     auto valueTree { component->getValueTree() };
@@ -257,7 +259,7 @@ void Panes::closeWhelmed()
     jassert (terminalPane != nullptr);
 
     // Remove DOCUMENT from PANE node
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), activeID) };
+    auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), activeID) };
     jassert (paneNode.isValid());
 
     auto documentTree { whelmedPane->getValueTree() };
@@ -335,7 +337,7 @@ void Panes::setTerminalCallbacks (Terminal::Display* terminal)
  * @return Reference to the pane owner container.
  * @note MESSAGE THREAD.
  */
-jreng::Owner<PaneComponent>& Panes::getPanes() noexcept { return panes; }
+jam::Owner<PaneComponent>& Panes::getPanes() noexcept { return panes; }
 
 /**
  * @brief Returns the PANES ValueTree owned by PaneManager.
@@ -353,7 +355,7 @@ juce::ValueTree& Panes::getState() noexcept { return paneManager.getState(); }
  */
 void Panes::closePane (const juce::String& uuid)
 {
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), uuid) };
+    auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), uuid) };
     jassert (paneNode.isValid());
 
     auto splitNode { paneNode.getParent() };
@@ -447,7 +449,7 @@ void Panes::splitAt (const juce::String& targetUuid,
 
     const juce::String splitUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, glAtlasRef, graphicsAtlasRef) };
 
     jassert (terminal != nullptr);
 
@@ -458,7 +460,7 @@ void Panes::splitAt (const juce::String& targetUuid,
 
     paneManager.split (targetUuid, splitUuid, direction);
 
-    auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), splitUuid) };
+    auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), splitUuid) };
     jassert (paneNode.isValid());
     paneNode.appendChild (term->getValueTree(), nullptr);
 
@@ -467,7 +469,7 @@ void Panes::splitAt (const juce::String& targetUuid,
 
     panes.add (std::move (terminal));
 
-    resizerBars.add (std::make_unique<jreng::PaneResizerBar> (&paneManager, splitNode, isVertical));
+    resizerBars.add (std::make_unique<jam::PaneResizerBar> (&paneManager, splitNode, isVertical));
     addAndMakeVisible (resizerBars.back().get());
 
     if (isShowing())
@@ -518,7 +520,7 @@ void Panes::splitActive (const juce::String& direction, bool isVertical)
  */
 void Panes::resized()
 {
-    jreng::PaneManager::layout (paneManager.getState(), getLocalBounds(), panes, resizerBars);
+    jam::PaneManager::layout (paneManager.getState(), getLocalBounds(), panes, resizerBars);
 }
 
 /**
@@ -534,7 +536,7 @@ void Panes::visibilityChanged()
     {
         if (visible and pane->getPaneType() == App::ID::paneTypeTerminal)
         {
-            auto paneNode { jreng::PaneManager::findLeaf (paneManager.getState(), pane->getComponentID()) };
+            auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), pane->getComponentID()) };
             const bool hasDocument { paneNode.isValid() and paneNode.getChildWithName (App::ID::DOCUMENT).isValid() };
 
             if (not hasDocument)

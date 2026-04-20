@@ -1,18 +1,20 @@
 /**
  * @file ModalWindow.h
- * @brief Reusable glass modal window for the terminal emulator.
+ * @brief Terminal-specific modal window wrapper over jam::ModalWindow.
  *
- * Terminal::ModalWindow wraps jreng::ModalWindow with glass blur,
- * DWM rounded corners, L&F inheritance from the caller, and optional
- * GL rendering via the base `jreng::Window` renderer ownership model.
+ * Terminal::ModalWindow is a thin wrapper that delegates the generic modal
+ * setup sequence (setNativeSharedContext, setRenderer, centreAroundComponent,
+ * setGlass, setVisible, enterModalState) to jam::ModalWindow's caller-ctor.
+ * Renderer flows through the base; derived does not manually wire renderable.
  *
- * The single constructor accepts a `std::unique_ptr<jreng::GLRenderer>` —
- * pass non-null for GPU mode, nullptr for CPU mode.  The renderer is
- * forwarded to `jreng::Window::setRenderer`; the shared context handle
- * (HGLRC) is forwarded to `jreng::Window::setNativeSharedContext` so the
- * popup renderer inherits the root window's GL context.
+ * This wrapper retains Terminal-specific concerns only:
+ *  - Terminal::Display::onRepaintNeeded callback
+ *  - paint() border drawn from Config colour/size keys
+ *  - keyPressed() override
+ *  - cornerSize platform constants
+ *  - Config injection (config member)
  *
- * @see jreng::ModalWindow
+ * @see jam::ModalWindow
  * @see Terminal::Popup
  * @see Action::List
  */
@@ -26,26 +28,28 @@ namespace Terminal
 
 /**
  * @class ModalWindow
- * @brief Reusable glass modal for the terminal emulator.
+ * @brief Terminal-specific modal wrapper over jam::ModalWindow.
  *
- * Provides glass blur, DWM rounded corners, L&F inheritance, border paint,
- * and GL rendering via `jreng::Window::setRenderer`. Content is passed
- * directly to the base window (no ContentView wrapper).
+ * Delegates generic modal setup (L&F inheritance, centring, glass,
+ * setVisible, enterModalState) to jam::ModalWindow's caller-ctor.
+ * Renderer flows through the base. Adds Terminal-specific
+ * Display::onRepaintNeeded callback, paint border, and Config injection.
  *
- * @see jreng::ModalWindow
+ * @see jam::ModalWindow
  * @see Terminal::Popup
  * @see Action::List
  */
-class ModalWindow : public jreng::ModalWindow
+class ModalWindow : public jam::ModalWindow
 {
 public:
     /**
-     * @brief Constructs a modal glass window.
+     * @brief Constructs a Terminal modal glass window.
      *
-     * Calls `setNativeSharedContext`, `setRenderer`, `setupWindow`,
-     * `setVisible`, and `enterModalState` in order. Wires
-     * `Terminal::Display::onRepaintNeeded` if @p content is a
-     * `Terminal::Display`.
+     * Forwards all args to jam::ModalWindow's caller-ctor, which handles
+     * setNativeSharedContext, setRenderer (including attachRendererToContent
+     * tree-walk), centreAroundComponent, setGlass, setVisible, and
+     * enterModalState. Wires Terminal::Display::onRepaintNeeded if content
+     * is a Terminal::Display.
      *
      * @param content              Content component; ownership transferred.
      * @param centreAround         Component to centre the dialog on; L&F inherited.
@@ -56,7 +60,7 @@ public:
      */
     ModalWindow (std::unique_ptr<juce::Component> content,
                  juce::Component& centreAround,
-                 std::unique_ptr<jreng::GLRenderer> renderer,
+                 std::unique_ptr<jam::GLRenderer> renderer,
                  void* nativeSharedContext,
                  std::function<void()> dismissCallback);
 
@@ -74,15 +78,6 @@ protected:
     Config& config { *Config::getContext() };
 
 private:
-    //==========================================================================
-    /**
-     * @brief Shared setup: sets L&F on content, calls setResizable,
-     * centreAroundComponent, and setGlass.
-     *
-     * @param centreAround  Component to centre around; L&F inherited from this.
-     */
-    void setupWindow (juce::Component& centreAround);
-
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ModalWindow)
 };

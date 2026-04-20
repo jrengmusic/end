@@ -230,7 +230,7 @@ struct State : public juce::Timer
      *
      * Called once at construction by `Nexus::create` to stamp each
      * Processor's state with its owning session's UUID.  Consumers (e.g.
-     * `Tabs::globalFocusChanged`) read this via `getValueTree().getProperty(jreng::ID::id)`.
+     * `Tabs::globalFocusChanged`) read this via `getValueTree().getProperty(jam::ID::id)`.
      *
      * @param uuid  The session UUID to store.
      * @note MESSAGE THREAD.
@@ -1305,7 +1305,7 @@ private:
      */
     std::atomic<float>* getRawParam (const juce::Identifier& id) const noexcept
     {
-        jassert (jreng::Map::contains (parameterMap, id));
+        jassert (jam::Map::contains (parameterMap, id));
         return parameterMap.at (id).get();
     }
 
@@ -1501,17 +1501,17 @@ private:
 template <typename ValueType>
 ValueType State::getRawValue (const juce::Identifier& id) const noexcept
 {
-    jassert (jreng::Map::contains (parameterMap, id));
+    jassert (jam::Map::contains (parameterMap, id));
     const float raw { parameterMap.at (id).get()->load (std::memory_order_relaxed) };
 
     if constexpr (std::is_same_v<ValueType, bool>)
-        return jreng::toBool (raw);
+        return jam::toBool (raw);
 
     if constexpr (std::is_same_v<ValueType, int>)
-        return jreng::toInt (raw);
+        return jam::toInt (raw);
 
     if constexpr (std::is_same_v<ValueType, ActiveScreen>)
-        return static_cast<ActiveScreen> (jreng::toInt (raw));
+        return static_cast<ActiveScreen> (jam::toInt (raw));
 
     return static_cast<ValueType> (raw);
 }

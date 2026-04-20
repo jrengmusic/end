@@ -7,7 +7,7 @@
  * ("Yes" / "No") and exposes callbacks for each choice plus Esc dismissal.
  *
  * ### Font tagging
- * All labels and buttons are tagged with `jreng::ID::name` so
+ * All labels and buttons are tagged with `jam::ID::name` so
  * Terminal::LookAndFeel::getLabelFont / getTextButtonFont dispatches the
  * action-list name font without hardcoding a family here.
  *
@@ -48,13 +48,13 @@ namespace Terminal
  *
  * @see Terminal::Popup
  */
-class Dialog : public juce::Component
+class Dialog : public jam::NativeContextResource
 {
 public:
     /**
      * @brief Constructs the dialog with the given confirmation message.
      *
-     * Tags all child components with the `jreng::ID::name` font role so
+     * Tags all child components with the `jam::ID::name` font role so
      * LookAndFeel dispatches the action-list name font.  Keyboard focus is
      * requested so Y / N key events arrive without a mouse click first.
      *
@@ -152,7 +152,8 @@ public:
      * @brief Propagates the resolved LookAndFeel to all child components.
      *
      * Called by JUCE when this component's effective LookAndFeel changes (e.g.
-     * after Terminal::ModalWindow::setupWindow sets Terminal::LookAndFeel).
+     * after Terminal::ModalWindow is mounted by jam::ModalWindow and the
+     * resolved LookAndFeel propagates down the component hierarchy).
      * Explicitly setting LookAndFeel on each button ensures getTextButtonFont
      * dispatch uses Terminal::LookAndFeel regardless of hierarchy-walk order.
      *

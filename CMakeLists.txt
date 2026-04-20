@@ -36,15 +36,10 @@ set(JUCE_MODULES
     juce_gui_basics
     juce_gui_extra
     juce_opengl
-    jreng_core
-    jreng_freetype
-    jreng_graphics
-    jreng_javascript
-    jreng_markdown
 )
 
-set(USER_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
-set(USER_MODULES)
+include("$ENV{HOME}/Documents/Poems/dev/jam/Jam.cmake")
+jam_set_root()
 
 set(SOURCE_MODE "AUTO_GLOB")
 set(SOURCE_FILES)
@@ -136,57 +131,6 @@ message(STATUS "Target type: ${TARGET_TYPE}")
 message(STATUS "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
 # ============================================================================
-# USER MODULE DISCOVERY
-# ============================================================================
-
-if(DEFINED USER_MODULE_PATH AND EXISTS "${USER_MODULE_PATH}")
-    message(STATUS "User module path: ${USER_MODULE_PATH}")
-
-    if(NOT USER_MODULES)
-        message(STATUS "Auto-discovering user modules...")
-
-        file(GLOB POTENTIAL_MODULES "${USER_MODULE_PATH}/*")
-
-        foreach(MODULE_DIR ${POTENTIAL_MODULES})
-            if(IS_DIRECTORY "${MODULE_DIR}")
-                get_filename_component(MODULE_NAME "${MODULE_DIR}" NAME)
-
-                if(EXISTS "${MODULE_DIR}/${MODULE_NAME}.h" OR
-                   EXISTS "${MODULE_DIR}/juce_module_info")
-
-                    juce_add_module("${MODULE_DIR}")
-                    message(STATUS "  ✓ ${MODULE_NAME}")
-                    list(APPEND USER_MODULES ${MODULE_NAME})
-                endif()
-            endif()
-        endforeach()
-
-        if(NOT USER_MODULES)
-            message(STATUS "  (no user modules found)")
-        endif()
-
-    else()
-        message(STATUS "Loading explicit user modules...")
-
-        foreach(MODULE_NAME ${USER_MODULES})
-            set(MODULE_DIR "${USER_MODULE_PATH}/${MODULE_NAME}")
-
-            if(EXISTS "${MODULE_DIR}")
-                juce_add_module("${MODULE_DIR}")
-                message(STATUS "  ✓ ${MODULE_NAME}")
-            else()
-                message(FATAL_ERROR "User module not found: ${MODULE_NAME}")
-            endif()
-        endforeach()
-    endif()
-
-else()
-    message(STATUS "User modules: disabled")
-endif()
-
-message(STATUS "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-
-# ============================================================================
 # SOURCE FILE ORGANIZATION
 # ============================================================================
 
@@ -257,6 +201,9 @@ if(AUTO_BINARY_DATA)
         "${CMAKE_CURRENT_SOURCE_DIR}/modules/**/*.frag"
         "${CMAKE_CURRENT_SOURCE_DIR}/modules/**/*.vert"
         "${CMAKE_CURRENT_SOURCE_DIR}/modules/**/*.glsl"
+        "${JAM_ROOT}/**/*.frag"
+        "${JAM_ROOT}/**/*.vert"
+        "${JAM_ROOT}/**/*.glsl"
     )
 
     list(APPEND BINARY_DATA_FILES
@@ -307,7 +254,7 @@ target_sources(${TARGET_NAME} PRIVATE ${SOURCES})
 
 target_include_directories(${TARGET_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/Source"
-    "${CMAKE_CURRENT_SOURCE_DIR}/modules/jreng_freetype/freetype/include"
+    "${JAM_ROOT}/jam_freetype/freetype/include"
     "${JUCE_PATH}/modules/juce_graphics/fonts/harfbuzz"
 )
 
@@ -315,25 +262,27 @@ message(STATUS "Target created: ${TARGET_NAME}")
 message(STATUS "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
 # ============================================================================
-# LUA + SOL2 EMBEDDING (Portable - inside Library/)
+# JAM MODULE REGISTRATION + LINKING
 # ============================================================================
 
-set(LUA_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Library/lua")
-set(SOL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Library/sol")
+jam_add_modules(${TARGET_NAME}
+    jam_core
+    jam_data_structures
+    jam_freetype
+    jam_graphics
+    jam_gui
+    jam_javascript
+    jam_lua
+    jam_markdown
+    jam_animation
+)
 
-# Lua source files (manually add since Library/ is outside AUTO_GLOB)
-file(GLOB LUA_SOURCES "${LUA_PATH}/*.c")
-target_sources(${TARGET_NAME} PRIVATE ${LUA_SOURCES})
+# sol3 headers use <sol/...> includes; expose jam_lua/ so they resolve
+target_include_directories(${TARGET_NAME} PRIVATE "${JAM_ROOT}/jam_lua")
 
-# Lua compiles as C
-set_source_files_properties(${LUA_SOURCES} PROPERTIES LANGUAGE C)
-
-# Add include paths
-target_include_directories(${TARGET_NAME} PRIVATE "${LUA_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/Library")
-
-message(STATUS "Lua: ${LUA_PATH} (vendored)")
-message(STATUS "sol2: ${SOL_PATH} (vendored)")
-message(STATUS "FreeType: modules/jreng_freetype (JUCE module, vendored)")
+message(STATUS "Lua: jam_lua module (vendored)")
+message(STATUS "sol2: jam_lua module (jam::lua:: namespace)")
+message(STATUS "FreeType: ${JAM_ROOT}/jam_freetype (JAM module, vendored)")
 message(STATUS "HarfBuzz: ${JUCE_PATH}/modules/juce_graphics/fonts/harfbuzz (JUCE internal)")
 
 message(STATUS "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -459,16 +408,6 @@ foreach(MODULE ${JUCE_MODULES})
     endif()
 endforeach()
 
-if(USER_MODULES)
-    message(STATUS "Linking user modules:")
-    foreach(MODULE ${USER_MODULES})
-        if(TARGET ${MODULE})
-            target_link_libraries(${TARGET_NAME} PRIVATE ${MODULE})
-            message(STATUS "  ✓ ${MODULE}")
-        endif()
-    endforeach()
-endif()
-
 target_compile_definitions(${TARGET_NAME} PRIVATE
     JUCE_WEB_BROWSER=1
     JUCE_USE_CURL=0
@@ -568,8 +507,8 @@ elseif(UNIX)
     string(APPEND CLANGD_CONTENT "    - -DJUCE_WINDOWS=0\n")
 endif()
 
-if(DEFINED USER_MODULE_PATH AND EXISTS "${USER_MODULE_PATH}")
-    string(APPEND CLANGD_CONTENT "    - -I${USER_MODULE_PATH}\n")
+if(DEFINED JAM_ROOT AND EXISTS "${JAM_ROOT}")
+    string(APPEND CLANGD_CONTENT "    - -I${JAM_ROOT}\n")
 endif()
 
 string(APPEND CLANGD_CONTENT "Diagnostics:\n  MissingIncludes: None\n  UnusedIncludes: None\n")

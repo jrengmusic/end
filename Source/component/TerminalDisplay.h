@@ -58,7 +58,7 @@ namespace Terminal
  * @class Terminal::Display
  * @brief Ephemeral JUCE component that renders a Terminal::Processor.
  *
- * Inherits `jreng::GLComponent` for GL-backed rendering and layout, `juce::KeyListener` for
+ * Inherits `jam::GLComponent` for GL-backed rendering and layout, `juce::KeyListener` for
  * keyboard input.  Cursor rendering is handled by `Screen::drawCursor()` in
  * the GL pipeline — no JUCE component overlay.
  *
@@ -99,11 +99,16 @@ public:
      * the screen renderer and VBlank loop, wires all Processor callbacks, and
      * applies the current Config.
      *
-     * @param proc  The Processor this Display renders.
-     * @param font  Font instance providing metrics, shaping, and rasterisation.
+     * @param proc          The Processor this Display renders.
+     * @param font          Font instance providing metrics, shaping, and rasterisation.
+     * @param glAtlas       GL texture handle store; passed to Screen<GLContext> for atlas rebuild.
+     * @param graphicsAtlas CPU atlas image store; passed to Screen<GraphicsContext> for atlas rebuild.
      * @note MESSAGE THREAD.
      */
-    Display (Terminal::Processor& proc, jreng::Typeface& font);
+    Display (Terminal::Processor& proc,
+             jam::Typeface& font,
+             jam::GlyphAtlas& glAtlas,
+             jam::GraphicsAtlas& graphicsAtlas);
 
     /**
      * @brief Unwires all Processor callbacks, unsubscribes as ChangeListener,
@@ -305,7 +310,7 @@ public:
      * @brief Called by GLRenderer when the shared OpenGL context is first created.
      *
      * Forwards to Screen::glContextCreated() to compile shaders and create GPU
-     * buffers.  Also calls jreng::BackgroundBlur::enableWindowTransparency() for
+     * buffers.  Also calls jam::BackgroundBlur::enableWindowTransparency() for
      * native window transparency.
      *
      * @note GL THREAD.
@@ -612,7 +617,13 @@ private:
 
     //==============================================================================
     /** @brief Font reference; lifetime owned by MainComponent. */
-    jreng::Typeface& font;
+    jam::Typeface& font;
+
+    /** @brief GL atlas reference; lifetime owned by MainComponent. Passed to Screen<GLContext>. */
+    jam::GlyphAtlas& glAtlasRef;
+
+    /** @brief CPU atlas reference; lifetime owned by MainComponent. Passed to Screen<GraphicsContext>. */
+    jam::GraphicsAtlas& graphicsAtlasRef;
 
     /**
      * @brief Terminal renderer — variant over CPU and GPU Screen specialisations.
@@ -621,8 +632,8 @@ private:
      * switchRenderer() emplaces the appropriate alternative at runtime.
      */
     using ScreenVariant = std::variant<
-        Screen<jreng::Glyph::GraphicsContext>,
-        Screen<jreng::Glyph::GLContext>>;
+        Screen<jam::Glyph::GraphicsContext>,
+        Screen<jam::Glyph::GLContext>>;
 
     ScreenVariant screen;
 

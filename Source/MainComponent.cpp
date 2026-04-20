@@ -46,20 +46,20 @@
  * 4. `setDefaultLookAndFeel()` — applies terminalLookAndFeel to all children.
  *
  * Note: `applyConfig()` is NOT called from the ctor. It is called from
- * Main.cpp after `jreng::Window` is constructed, so that
- * `dynamic_cast<jreng::Window*>(getTopLevelComponent())` inside
- * `setRenderer` succeeds (decision P).
+ * Main.cpp after `jam::Window` is constructed, so that
+ * `dynamic_cast<jam::Window*>(getTopLevelComponent())` inside
+ * `setRenderer` resolves to the fully constructed window.
  *
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
-MainComponent::MainComponent (jreng::Typeface::Registry& fontRegistry)
+MainComponent::MainComponent (jam::Typeface::Registry& fontRegistry)
     : typeface (fontRegistry,
                 config.getString (Config::Key::fontFamily),
                 config.dpiCorrectedFontSize(),
-                jreng::Glyph::AtlasSize::compact,
+                jam::Glyph::AtlasSize::compact,
                 true)
 {
-    glyphAtlas.setAtlasSize (jreng::Glyph::AtlasSize::compact);
+    glyphAtlas.setAtlasSize (jam::Glyph::AtlasSize::compact);
 
     setOpaque (appState.getRendererType() == App::RendererType::cpu);
 
@@ -108,22 +108,18 @@ void MainComponent::applyConfig()
 void MainComponent::setRenderer (App::RendererType rendererType)
 {
     const bool isUsingGpu { rendererType == App::RendererType::gpu };
-    const auto atlasSize { isUsingGpu ? jreng::Glyph::AtlasSize::standard : jreng::Glyph::AtlasSize::compact };
+    const auto atlasSize { isUsingGpu ? jam::Glyph::AtlasSize::standard : jam::Glyph::AtlasSize::compact };
     typeface.setAtlasSize (atlasSize);
     glyphAtlas.setAtlasSize (atlasSize);
 
-    // Renderer replacement invalidates GL textures (context-specific handles).
-    // Signal the new context to rebuild the atlas on its first frame.
-    appState.markAtlasDirty();
-
-    if (auto* window { dynamic_cast<jreng::Window*> (getTopLevelComponent()) })
+    if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
     {
         if (isUsingGpu)
         {
-            auto renderer { std::make_unique<jreng::GLAtlasRenderer> (typeface) };
+            window->setRenderer (std::make_unique<jam::GLAtlasRenderer> (typeface, glyphAtlas));
 
-            renderer->setRenderables (
-                [this] (std::function<void (jreng::GLComponent&)> renderComponent)
+            window->setRenderables (
+                [this] (std::function<void (jam::GLComponent&)> renderComponent)
                 {
                     if (appState.consumeAtlasDirty())
                         glyphAtlas.rebuildAtlas();
@@ -138,7 +134,7 @@ void MainComponent::setRenderer (App::RendererType rendererType)
                     }
                 });
 
-            window->setRenderer (std::move (renderer));
+            appState.markAtlasDirty();
         }
         else
         {
@@ -167,19 +163,21 @@ void MainComponent::paint (juce::Graphics& g)
  * full-bounds to `tabs` and `messageOverlay`; positions `statusBarOverlay`
  * at top or bottom edge per `keys.status_bar.position`.  Triggers the
  * `showMessageOverlay()` resize ruler only while the user is actively
- * dragging the window border (`jreng::Window::isUserResizing()`).
+ * dragging the window border (`Terminal::Window::isUserResizing()`).
  *
  * @note MESSAGE THREAD.
  */
 void MainComponent::resized()
 {
+    appState.setWindowSize (getWidth(), getHeight());
+
     if (tabs != nullptr)
         tabs->setBounds (getLocalBounds());
 
     if (messageOverlay != nullptr)
         messageOverlay->setBounds (getLocalBounds());
 
-    if (auto* window { dynamic_cast<jreng::Window*> (getTopLevelComponent()) }; window != nullptr)
+    if (auto* window { dynamic_cast<Terminal::Window*> (getTopLevelComponent()) }; window != nullptr)
     {
         if (window->isUserResizing())
             showMessageOverlay();
@@ -196,10 +194,11 @@ void MainComponent::resized()
 }
 
 /**
- * @brief Clears the BackgroundBlur close callback.
+ * @brief Removes ValueTree listeners and tears down LookAndFeel.
  *
- * Passing `nullptr` prevents the lambda (which captures `this`) from being
- * invoked after this component has been destroyed.
+ * Unregisters from `sessionsNode` (if valid), `nexusNode`, and the window
+ * ValueTree node, then clears the component and default LookAndFeel to avoid
+ * dangling references during JUCE shutdown.
  *
  * @note MESSAGE THREAD — called during window teardown.
  */
@@ -212,7 +211,6 @@ MainComponent::~MainComponent()
     appState.getWindow().removeListener (this);
     setLookAndFeel (nullptr);
     juce::LookAndFeel::setDefaultLookAndFeel (nullptr);
-    jreng::BackgroundBlur::setCloseCallback (nullptr);
 }
 
 /**
@@ -275,7 +273,7 @@ void MainComponent::valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueT
 {
     if (parent == sessionsNode and tabs != nullptr)
     {
-        const juce::String uuid { child.getProperty (jreng::ID::id).toString() };
+        const juce::String uuid { child.getProperty (jam::ID::id).toString() };
 
         if (uuid.isNotEmpty())
         {
@@ -291,7 +289,7 @@ void MainComponent::valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueT
  * @brief Registers all user-performable actions with `Action::Registry`.
  *
  * Clears existing actions, delegates to grouped register* methods, then
- * rebuilds the key map and sets the BackgroundBlur close callback.
+ * rebuilds the key map.
  *
  * @note MESSAGE THREAD.
  * @see Action::Registry
@@ -310,13 +308,6 @@ void MainComponent::registerActions()
 
     //==============================================================================
     action.buildKeyMap();
-
-    //==============================================================================
-    jreng::BackgroundBlur::setCloseCallback (
-        [this]()
-        {
-            appState.setWindowSize (getWidth(), getHeight());
-        });
 }
 
 /**
@@ -426,6 +417,8 @@ void MainComponent::initialiseTabs()
 {
     tabs = std::make_unique<Terminal::Tabs> (
         typeface,
+        glyphAtlas,
+        graphicsAtlas,
         Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
     addAndMakeVisible (tabs.get());
 
@@ -436,7 +429,7 @@ void MainComponent::initialiseTabs()
             statusBarOverlay->updateHintInfo (terminal->getHintPage(), terminal->getHintTotalPages());
         }
 
-        if (auto* window { dynamic_cast<jreng::Window*> (getTopLevelComponent()) })
+        if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
             window->triggerRepaint();
     };
 

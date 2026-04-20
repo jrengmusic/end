@@ -281,9 +281,9 @@ static juce::File extractConPtyBinaries() noexcept
     return (allOk and dllPath.existsAsFile()) ? dllPath : juce::File {};
 }
 
-// isWindows10() — defined in jreng_platform.h, included via WindowsTTY.h → JuceHeader.h → windows.h
+// isWindows10() — defined in jam_platform.h, included via WindowsTTY.h → JuceHeader.h → windows.h
 // The header is safe to include here because windows.h is already pulled in by WindowsTTY.h.
-#include "../../../modules/jreng_core/utilities/jreng_platform.h"
+#include <jam_core/utilities/jam_platform.h>
 
 // =============================================================================
 

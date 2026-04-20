@@ -28,7 +28,7 @@ enum class RowKind
  * Self-managing: paints highlight and grabs focus based on its own Value.
  */
 class Row : public juce::Component,
-            public jreng::Value::ObjectID<Row>,
+            public jam::Value::ObjectID<Row>,
             private juce::Value::Listener
 {
 public:

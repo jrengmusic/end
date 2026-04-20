@@ -292,11 +292,15 @@ public:
      * back-reference to this Processor.  Caller is responsible for placing the
      * Display in the component hierarchy.
      *
-     * @param font  Font instance providing metrics, shaping, and rasterisation.
+     * @param font          Font instance providing metrics, shaping, and rasterisation.
+     * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
+     * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
      * @return Unique pointer to the newly created Display.
      * @note MESSAGE THREAD.
      */
-    std::unique_ptr<Display> createDisplay (jreng::Typeface& font);
+    std::unique_ptr<Display> createDisplay (jam::Typeface& font,
+                                            jam::GlyphAtlas& glAtlas,
+                                            jam::GraphicsAtlas& graphicsAtlas);
 
     /** @brief Writes user input bytes (keyboard, mouse) to the PTY.
      *  Set by Terminal::Session to route input to the TTY.

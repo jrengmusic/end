@@ -226,7 +226,7 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
  *
  * @param shapedGlyphs   Array of shaped glyphs from HarfBuzz.
  * @param shapedCount    Number of elements in @p shapedGlyphs.
- * @param font           Configured jreng::Font with size, style, face context applied.
+ * @param font           Configured jam::Font with size, style, face context applied.
  * @param constraint     Nerd Font scaling / alignment constraint (inactive = default).
  * @param span           Number of cells the glyph spans horizontally (0 = default).
  * @param cellPixelX     Physical X origin of the cell (col * physCellWidth).
@@ -238,13 +238,13 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
  * @param count          In/out: current number of instances written; incremented per glyph.
  *
  * @note **MESSAGE THREAD**.
- * @see jreng::Font::getGlyph()
+ * @see jam::Font::getGlyph()
  * @see Screen::buildCellInstance()
  */
 static void emitShapedGlyphsToCache (
-    const jreng::Typeface::Glyph* shapedGlyphs, int shapedCount,
-    jreng::Font& font,
-    const jreng::Glyph::Constraint& constraint, uint8_t span,
+    const jam::Typeface::Glyph* shapedGlyphs, int shapedCount,
+    jam::Font& font,
+    const jam::Glyph::Constraint& constraint, uint8_t span,
     float cellPixelX, float cellPixelY,
     int physBaseline,
     const juce::Colour& foreground,
@@ -254,9 +254,9 @@ static void emitShapedGlyphsToCache (
 
     for (int i { 0 }; i < shapedCount and count < maxSlots; ++i)
     {
-        const jreng::Typeface::Glyph& sg { shapedGlyphs[i] };
+        const jam::Typeface::Glyph& sg { shapedGlyphs[i] };
 
-        jreng::Glyph::Region* atlasGlyph { (constraint.isActive() or span > 1)
+        jam::Glyph::Region* atlasGlyph { (constraint.isActive() or span > 1)
             ? font.getGlyph (static_cast<uint16_t> (sg.glyphIndex), constraint, std::max (span, static_cast<uint8_t> (1)))
             : font.getGlyph (static_cast<uint16_t> (sg.glyphIndex)) };
 
@@ -678,9 +678,9 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
         // Box-drawing uses direct atlas rasterisation (no HarfBuzz shaping, no GlyphRun).
         // This path is intentionally separate from emitShapedGlyphsToCache — merging
         // them would require fabricating a GlyphRun for a codepoint that was never shaped.
-        if (jreng::Glyph::BoxDrawing::isProcedural (cell.codepoint))
+        if (jam::Glyph::BoxDrawing::isProcedural (cell.codepoint))
         {
-            jreng::Glyph::Region* atlasGlyph { font.getOrRasterizeBoxDrawing (
+            jam::Glyph::Region* atlasGlyph { font.getOrRasterizeBoxDrawing (
                 cell.codepoint, physCellWidth, physCellHeight, physBaseline) };
 
             if (atlasGlyph != nullptr)
@@ -709,12 +709,12 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
         }
         else
         {
-            const jreng::Typeface::Style style { selectFontStyle (cell) };
+            const jam::Typeface::Style style { selectFontStyle (cell) };
             void* fontHandle { font.getFontHandle (style) };
 
             if (fontHandle == nullptr)
             {
-                fontHandle = font.getFontHandle (jreng::Typeface::Style::regular);
+                fontHandle = font.getFontHandle (jam::Typeface::Style::regular);
             }
 
             if (fontHandle != nullptr)
@@ -725,7 +725,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
 
                 const bool isEmoji { cell.isEmoji() };
 
-                const jreng::Glyph::Constraint constraint { jreng::Glyph::getConstraint (cell.codepoint) };
+                const jam::Glyph::Constraint constraint { jam::Glyph::getConstraint (cell.codepoint) };
                 uint8_t cellSpan { 0 };
 
                 if (constraint.isActive() and not isEmoji)
@@ -744,9 +744,9 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                 }
 
                 bool usedFontCollection { false };
-                jreng::Typeface::Glyph fcGlyph;
+                jam::Typeface::Glyph fcGlyph;
 
-                jreng::Typeface::Registry& fontRegistry { font.registry };
+                jam::Typeface::Registry& fontRegistry { font.registry };
 
                 const bool isBoxDrawing { cell.codepoint >= boxDrawingFirst and cell.codepoint <= boxDrawingLast };
 
@@ -756,7 +756,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
 
                     if (registrySlot > 0)
                     {
-                        const jreng::Typeface::Registry::Entry* entry { fontRegistry.getEntry (static_cast<int> (registrySlot)) };
+                        const jam::Typeface::Registry::Entry* entry { fontRegistry.getEntry (static_cast<int> (registrySlot)) };
 
                         if (entry != nullptr and entry->hbFont != nullptr)
                         {
@@ -790,8 +790,8 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                     int& count { monoCount[row] };
                     Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
 
-                    jreng::Font fontObj (font, baseFontSize, style);
-                    jreng::Typeface::GlyphRun registryRun;
+                    jam::Font fontObj (font, baseFontSize, style);
+                    jam::Typeface::GlyphRun registryRun;
                     registryRun.fontHandle = fontHandle;
                     fontObj.applyGlyphRun (registryRun);
 
@@ -812,7 +812,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                     }
                     else
                     {
-                        const jreng::Typeface::GlyphRun shaped { font.shapeText (style, codepoints,
+                        const jam::Typeface::GlyphRun shaped { font.shapeText (style, codepoints,
                                                                                   static_cast<size_t> (codepointCount)) };
 
                         if (shaped.count > 0)
@@ -820,7 +820,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                             int& count { monoCount[row] };
                             Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
 
-                            jreng::Font fontObj (font, baseFontSize, style);
+                            jam::Font fontObj (font, baseFontSize, style);
 
                             if (shaped.fontHandle != nullptr)
                             {
@@ -838,7 +838,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                 }
                 else
                 {
-                    const jreng::Typeface::GlyphRun shaped { isEmoji
+                    const jam::Typeface::GlyphRun shaped { isEmoji
                         ? font.shapeEmoji (codepoints, static_cast<size_t> (codepointCount))
                         : font.shapeText (style, codepoints, static_cast<size_t> (codepointCount)) };
 
@@ -849,7 +849,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                             ? cachedEmoji.get() + row * maxGlyphsPerRow
                             : cachedMono.get() + row * maxGlyphsPerRow };
 
-                        jreng::Font fontObj (font, baseFontSize, style);
+                        jam::Font fontObj (font, baseFontSize, style);
                         fontObj.setEmoji (isEmoji);
 
                         if (not isEmoji and shaped.fontHandle != nullptr)
@@ -900,7 +900,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
  * @see emitShapedGlyphsToCache()
  */
 template <typename Renderer>
-int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jreng::Typeface::Style style,
+int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jam::Typeface::Style style,
                          const juce::Colour& foreground) noexcept
 {
     int result { 0 };
@@ -933,7 +933,7 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jreng
 
                 if (eligible)
                 {
-                    const jreng::Typeface::GlyphRun shaped { font.shapeText (style, codepoints,
+                    const jam::Typeface::GlyphRun shaped { font.shapeText (style, codepoints,
                                                                             static_cast<size_t> (tryLen)) };
 
                     if (shaped.count == 1)
@@ -941,14 +941,14 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jreng
                         int& count { monoCount[row] };
                         Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
 
-                        jreng::Font fontObj (font, baseFontSize, style);
+                        jam::Font fontObj (font, baseFontSize, style);
 
                         if (shaped.fontHandle != nullptr)
                         {
                             fontObj.applyGlyphRun (shaped);
                         }
 
-                        jreng::Typeface::Glyph fixedGlyphs[maxLigatureLength];
+                        jam::Typeface::Glyph fixedGlyphs[maxLigatureLength];
 
                         for (int i { 0 }; i < shaped.count; ++i)
                         {
@@ -956,7 +956,7 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jreng
                             fixedGlyphs[i].xAdvance = static_cast<float> (physCellWidth);
                         }
 
-                        const jreng::Glyph::Constraint noConstraint;
+                        const jam::Glyph::Constraint noConstraint;
 
                         emitShapedGlyphsToCache (fixedGlyphs, shaped.count, fontObj,
                                                  noConstraint, static_cast<uint8_t> (tryLen),
@@ -1033,28 +1033,28 @@ Render::Background Screen<Renderer>::buildBlockRect (uint32_t codepoint, int col
  * @see buildCellInstance()
  */
 template <typename Renderer>
-jreng::Typeface::Style Screen<Renderer>::selectFontStyle (const Cell& cell) noexcept
+jam::Typeface::Style Screen<Renderer>::selectFontStyle (const Cell& cell) noexcept
 {
-    jreng::Typeface::Style result { jreng::Typeface::Style::regular };
+    jam::Typeface::Style result { jam::Typeface::Style::regular };
 
     if (cell.isBold() and cell.isItalic())
     {
-        result = jreng::Typeface::Style::boldItalic;
+        result = jam::Typeface::Style::boldItalic;
     }
     else if (cell.isBold())
     {
-        result = jreng::Typeface::Style::bold;
+        result = jam::Typeface::Style::bold;
     }
     else if (cell.isItalic())
     {
-        result = jreng::Typeface::Style::italic;
+        result = jam::Typeface::Style::italic;
     }
 
     return result;
 }
 
-template class Screen<jreng::Glyph::GLContext>;
-template class Screen<jreng::Glyph::GraphicsContext>;
+template class Screen<jam::Glyph::GLContext>;
+template class Screen<jam::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

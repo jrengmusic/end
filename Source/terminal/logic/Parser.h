@@ -751,6 +751,39 @@ private:
     void cursorClamp (ActiveScreen s, int cols, int visibleRows) noexcept;
 
     /**
+     * @brief Saves cursor position and associated state for DECSC (ESC 7).
+     *
+     * Captures cursor row, column, pen, wrap-pending flag, origin mode, and
+     * line-drawing charset into `savedCursor[scr]`.  Called by ESC 7 and by
+     * the ?1049h alternate-screen entry path.
+     *
+     * @param scr  Target screen whose cursor state is saved.
+     *
+     * @note READER THREAD only.
+     *
+     * @see restoreCursor()
+     * @see savedCursor
+     */
+    void saveCursor (ActiveScreen scr) noexcept;
+
+    /**
+     * @brief Restores cursor position and associated state for DECRC (ESC 8).
+     *
+     * Applies the state previously saved by `saveCursor()` back to live State
+     * and Parser members: cursor row/col, pen, stamp, wrap-pending, origin
+     * mode, and line-drawing charset.  Called by ESC 8 and by the ?1049l
+     * alternate-screen exit path.
+     *
+     * @param scr  Target screen whose cursor state is restored.
+     *
+     * @note READER THREAD only.
+     *
+     * @see saveCursor()
+     * @see savedCursor
+     */
+    void restoreCursor (ActiveScreen scr) noexcept;
+
+    /**
      * @brief Sets the scrolling region (DECSTBM) for the specified screen.
      *
      * The scrolling region is defined by `top` and `bottom` (zero-based).
