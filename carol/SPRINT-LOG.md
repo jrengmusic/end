@@ -1,5 +1,68 @@
 # SPRINT-LOG
 
+## Sprint 29: Release Build Fix + jam_fonts/jam_debug Module Extraction ✅
+
+**Date:** 2026-04-21
+
+### Agents Participated
+- COUNSELOR: planning, delegation, namespace collision diagnosis
+- Pathfinder: JAM module structure survey, font reference discovery
+- Engineer: module creation, file moves, code edits, warning suppression
+
+### Files Modified (2 repos)
+
+**END (9 files)**
+- `CMakeLists.txt:268-279` — added jam_fonts, jam_debug to jam_add_modules
+- `CMakeLists.txt:285-296` — set_source_files_properties for jam_lua, jam_freetype warning suppression
+- `CMakeLists.txt:422` — GL_SILENCE_DEPRECATION (Darwin-scoped)
+- `Source/Main.cpp:47` — added #include <JamFontsBinaryData.h>
+- `Source/Main.cpp:551-567` — BinaryData::Display* → jam::Fonts::Display*
+- `Source/fonts/Display-{Book,Medium,Bold}.ttf` — moved to jam_fonts/display/
+- `Source/fonts/DisplayMono-{Book,Medium,Bold}.ttf` — moved to jam_fonts/display_mono/
+- `Source/interprocess/EncoderDecoder.h` — replaced with `using jam::BinaryCodec::` re-exports, `#include <JuceHeader.h>`
+- `Source/interprocess/EncoderDecoder.cpp` — stripped to `encodePdu` only
+
+**JAM (16 files)**
+- `Jam.cmake:28-39` — auto-glob TTF/OTF → juce_add_binary_data (namespace jam::Fonts, header JamFontsBinaryData.h)
+- `jam_core/jam_core.h:77` — removed #if JUCE_DEBUG guard from debug include, then removed debug include entirely
+- `jam_core/jam_core.cpp:16-19` — removed debug/jam_log.cpp + debug/jam_debug.cpp includes
+- `jam_core/debug/` — entire directory deleted (moved to jam_debug)
+- `jam_core/gpu_probe/jam_gpu_probe.mm:14` — #ifndef guard on GL_SILENCE_DEPRECATION
+- `jam_fonts/jam_fonts.h` — removed open_sans include
+- `jam_fonts/jam_fonts.cpp` — removed open_sans include
+- `jam_fonts/open_sans/` — deleted (2 files)
+- `jam_fonts/display_mono/` — created with DisplayMono{Book,Medium,Bold}.ttf
+- `jam_fonts/display/` — created with Display{Book,Medium,Bold}.ttf
+- `jam_debug/` — new module: jam_debug.h, jam_debug.cpp, jam_log.cpp, build_info/, console/, valueTree_monitor/
+- `jam_debug/console/jam_console.cpp:37,58-64` — JamFontsBinaryData.h include + jam::Fonts::DisplayMonoBook for console font
+- `jam_graphics/fonts/jam_typeface.cpp:76,248-259` — JamFontsBinaryData.h include + BinaryData::DisplayMono → jam::Fonts::
+- `jam_graphics/fonts/jam_typeface.mm:43,232-234,252` — JamFontsBinaryData.h include + jam::Fonts:: namespace + CTFontManager pragma suppression
+- `jam_core/binary_codec/jam_binary_codec.h` — created, 9 read/write primitives in jam::BinaryCodec
+- `jam_core/binary_codec/jam_binary_codec.cpp` — created, implementation
+- `jam_core/jam_core.h` — added binary_codec include
+- `jam_core/jam_core.cpp` — added binary_codec amalgamation include
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (jam::Fonts — established namespace)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Release build failure: jam_core.h gated jam_debug.h include on JUCE_DEBUG, hiding Log struct from jam_log.cpp
+- Release build failure: jam_core/debug/fonts/ binary data CPPs included inside JUCE_DEBUG guard in jam_debug.cpp
+- Linker error: BinaryData::SymbolsNerdFontRegular_ttf not found due to two BinaryData.h headers (namespace collision) — resolved with JamFontsBinaryData.h
+- Linker error: jam::Fonts::InputMono* symbols missing after font file deletion
+- Module extraction: debug instruments (console, log, VTM) isolated from jam_core into standalone jam_debug module
+- Module extraction: Display/DisplayMono fonts moved from END binary data to jam_fonts module with CMake auto-glob
+- Warning suppression: GL_SILENCE_DEPRECATION, CTFontManager, vendored Lua tmpnam, vendored FreeType ONE_PIXEL
+- Extracted jam::BinaryCodec to jam_core — 9 binary serialization primitives from END's Interprocess::EncoderDecoder
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 28: Post-JAM Stabilization — Atlas Symmetry, Context Dual-Impl, Style::Manager Drop, Phase 4 Cleanup ✅
 
 **Date:** 2026-04-21
