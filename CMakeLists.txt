@@ -283,17 +283,21 @@ jam_add_modules(${TARGET_NAME}
 target_include_directories(${TARGET_NAME} PRIVATE "${JAM_ROOT}/jam_lua")
 
 # Suppress tmpnam deprecation from vendored Lua C source — scoped to jam_lua only
-set_source_files_properties(
-    "${JAM_ROOT}/jam_lua/jam_lua.cpp"
-    PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations"
-)
+if(NOT MSVC)
+    set_source_files_properties(
+        "${JAM_ROOT}/jam_lua/jam_lua.cpp"
+        PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations"
+    )
+endif()
 
 # Suppress ONE_PIXEL macro-redefined from vendored FreeType amalgamation — scoped to jam_freetype only
-set_source_files_properties(
-    "${JAM_ROOT}/jam_freetype/jam_freetype.mm"
-    "${JAM_ROOT}/jam_freetype/jam_freetype.cpp"
-    PROPERTIES COMPILE_FLAGS "-Wno-macro-redefined"
-)
+if(NOT MSVC)
+    set_source_files_properties(
+        "${JAM_ROOT}/jam_freetype/jam_freetype.mm"
+        "${JAM_ROOT}/jam_freetype/jam_freetype.cpp"
+        PROPERTIES COMPILE_FLAGS "-Wno-macro-redefined"
+    )
+endif()
 
 message(STATUS "Lua: jam_lua module (vendored)")
 message(STATUS "sol2: jam_lua module (jam::lua:: namespace)")

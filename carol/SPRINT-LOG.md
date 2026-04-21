@@ -1,5 +1,56 @@
 # SPRINT-LOG
 
+## Sprint 30: Windows MSVC Build Regression Fix ✅
+
+**Date:** 2026-04-21
+
+### Agents Participated
+- COUNSELOR: diagnosis, planning, delegation
+- Pathfinder: Windows macro collision analysis, Kuassa pattern discovery, JUCE module include-order tracing
+- Engineer: code edits across jam and END
+
+### Files Modified (2 repos)
+
+**JAM (11 files)**
+- `Jam.cmake:42-59` — MSVC per-module warning suppression (/wd4005, /wd4804, /wd4297) + global /wd4661
+- `jam_core/utilities/jam_platform.h:15-30` — NOMINMAX + #undef interface/small/ALTERNATE/MessageBox (single protection point)
+- `jam_core/identifier/jam_identifier.h:54-57` — removed push/pop block, macros dead globally via jam_platform.h
+- `jam_graphics/fonts/jam_typeface.cpp:69-73` — surgical #define interface before dwrite_2.h, #undef after
+- `jam_graphics/blur/background_blur/jam_background_blur.cpp:1-4` — removed redundant <windows.h> + manual undefs, uses jam_platform.h
+- `jam_gui/style_window/jam_style_window.cpp:1-3` — same as above
+- `jam_gui/component/browser/jam_native_file_chooser.cpp:3-6` — jam_platform.h + surgical #define interface for shlobj.h
+- `jam_core/gpu_probe/jam_gpu_probe.cpp:15` — <windows.h> → jam_platform.h
+- `jam_debug/console/jam_console.cpp:25,46,182` — #ifdef → #if JUCE_WINDOWS (3 sites)
+- `jam_tui/input/jam_tui_input.h:6-10` — NOMINMAX block → jam_platform.h
+- `jam_tui/input/jam_tui_input.cpp:11-13` — <windows.h> → jam_platform.h
+- `jam_tui/metrics/jam_tui_metrics.h:8-13` — NOMINMAX block → jam_platform.h
+
+**END (2 files)**
+- `CMakeLists.txt:286-291` — if(NOT MSVC) guard on -Wno-deprecated-declarations
+- `CMakeLists.txt:293-300` — if(NOT MSVC) guard on -Wno-macro-redefined
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- MSVC C2236: `interface` macro (`#define interface struct`) colliding with jam X-macro identifier `X(interface, "interface")` — killed globally in jam_platform.h, surgically re-enabled for DWrite/shlobj includes
+- MSVC C4003: `min`/`max` macros colliding with jam struct fields — NOMINMAX in jam_platform.h
+- MSVC C4141: double `__declspec(novtable)` from `#define interface struct __declspec(novtable)` — simplified to `#define interface struct`
+- MSVC C2653: `MessageBox` macro clobbering `jam::MessageBox` namespace — added #undef MessageBox
+- MSVC D8021: clang-only flags (-Wno-macro-redefined, -Wno-deprecated-declarations) rejected by cl.exe — guarded with if(NOT MSVC)
+- Inconsistent Windows header protection (3 patterns: NOMINMAX, post-include #undef, none) — unified to single jam_platform.h protection point
+- MSVC vendored-code warnings (C4005, C4804, C4297, C4661) — suppressed in Jam.cmake, available to all consumers
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 29: Release Build Fix + jam_fonts/jam_debug Module Extraction ✅
 
 **Date:** 2026-04-21

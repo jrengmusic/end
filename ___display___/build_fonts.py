@@ -592,7 +592,7 @@ def build_font(cfg):
             else:
                 lsb = 0
             tt_glyphs[gname] = g
-            metrics[gname] = (advance_w, lsb)
+            metrics[gname] = (round(cw / CELL_W * advance_w), lsb)
         except Exception as e:
             errors.append((c, str(e)))
             tt_glyphs[gname] = TTGlyphPen(None).glyph()
