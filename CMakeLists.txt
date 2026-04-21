@@ -268,6 +268,7 @@ message(STATUS "━━━━━━━━━━━━━━━━━━━━━�
 jam_add_modules(${TARGET_NAME}
     jam_core
     jam_data_structures
+    jam_fonts
     jam_freetype
     jam_graphics
     jam_gui
@@ -275,10 +276,24 @@ jam_add_modules(${TARGET_NAME}
     jam_lua
     jam_markdown
     jam_animation
+    jam_debug
 )
 
 # sol3 headers use <sol/...> includes; expose jam_lua/ so they resolve
 target_include_directories(${TARGET_NAME} PRIVATE "${JAM_ROOT}/jam_lua")
+
+# Suppress tmpnam deprecation from vendored Lua C source — scoped to jam_lua only
+set_source_files_properties(
+    "${JAM_ROOT}/jam_lua/jam_lua.cpp"
+    PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations"
+)
+
+# Suppress ONE_PIXEL macro-redefined from vendored FreeType amalgamation — scoped to jam_freetype only
+set_source_files_properties(
+    "${JAM_ROOT}/jam_freetype/jam_freetype.mm"
+    "${JAM_ROOT}/jam_freetype/jam_freetype.cpp"
+    PROPERTIES COMPILE_FLAGS "-Wno-macro-redefined"
+)
 
 message(STATUS "Lua: jam_lua module (vendored)")
 message(STATUS "sol2: jam_lua module (jam::lua:: namespace)")
@@ -417,6 +432,7 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
     HAVE_FREETYPE
     $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_UNISTD_H>
     $<$<NOT:$<PLATFORM_ID:Windows>>:HAVE_FCNTL_H>
+    $<$<PLATFORM_ID:Darwin>:GL_SILENCE_DEPRECATION>
 )
 
 if(COMMAND _juce_fixup_module_source_groups)
