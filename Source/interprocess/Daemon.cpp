@@ -217,10 +217,10 @@ juce::MemoryBlock Daemon::buildSessionsPayload() const
 {
     const juce::StringArray uuids { nexus.list() };
     juce::MemoryBlock payload;
-    writeUint16 (payload, static_cast<uint16_t> (uuids.size()));
+    Codec::writeUint16 (payload, static_cast<uint16_t> (uuids.size()));
 
     for (const auto& uuid : uuids)
-        writeString (payload, uuid);
+        Codec::writeString (payload, uuid);
 
     return payload;
 }
@@ -284,7 +284,7 @@ void Daemon::attachSession (const juce::String& uuid, Channel& target,
             nexus.get (uuid).getStateInformation (snapshot);
 
             juce::MemoryBlock payload;
-            writeString (payload, uuid);
+            Codec::writeString (payload, uuid);
             payload.append (snapshot.getData(), snapshot.getSize());
 
             target.sendPdu (Message::loading, payload);
@@ -362,7 +362,7 @@ void Daemon::wireOnBytes (const juce::String& uuid, Terminal::Session& session)
     session.onBytes = [this, uuid] (const char* bytes, int len)
     {
         juce::MemoryBlock outputPayload;
-        writeString (outputPayload, uuid);
+        Codec::writeString (outputPayload, uuid);
         outputPayload.append (bytes, static_cast<size_t> (len));
 
         const juce::ScopedLock lock (connectionsLock);
@@ -412,9 +412,9 @@ void Daemon::wireOnStateFlush (const juce::String& uuid, Terminal::Session& sess
             *lastSentFg  = fgStr;
 
             juce::MemoryBlock statePayload;
-            writeString (statePayload, uuid);
-            writeString (statePayload, cwdStr);
-            writeString (statePayload, fgStr);
+            Codec::writeString (statePayload, uuid);
+            Codec::writeString (statePayload, cwdStr);
+            Codec::writeString (statePayload, fgStr);
 
             const juce::ScopedLock lock (connectionsLock);
             const auto it { subscribers.find (uuid) };
@@ -448,7 +448,7 @@ void Daemon::wireOnExit (const juce::String& uuid, Terminal::Session& session)
     session.onExit = [this, uuid]
     {
         juce::MemoryBlock exitPayload;
-        writeString (exitPayload, uuid);
+        Codec::writeString (exitPayload, uuid);
 
         {
             const juce::ScopedLock lock (connectionsLock);

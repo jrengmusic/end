@@ -299,7 +299,7 @@ public:
      * @note MESSAGE THREAD.
      */
     std::unique_ptr<Display> createDisplay (jam::Typeface& font,
-                                            jam::GlyphAtlas& glAtlas,
+                                            jam::gl::GlyphAtlas& glAtlas,
                                             jam::GraphicsAtlas& graphicsAtlas);
 
     /** @brief Writes user input bytes (keyboard, mouse) to the PTY.

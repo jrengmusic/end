@@ -29,7 +29,7 @@
  */
 Terminal::Display::Display (Terminal::Processor& proc,
                              jam::Typeface& font_,
-                             jam::GlyphAtlas& glAtlas_,
+                             jam::gl::GlyphAtlas& glAtlas_,
                              jam::GraphicsAtlas& graphicsAtlas_)
     : processor (proc)
     , font (font_)

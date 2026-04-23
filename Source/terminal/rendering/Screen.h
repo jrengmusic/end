@@ -278,7 +278,7 @@ protected:
  * @see ScreenSelection
  * @see FontCollection
  * @see Fonts
- * @see GlyphAtlas
+ * @see gl::GlyphAtlas
  */
 template <typename Renderer>
 class Screen : public ScreenBase
@@ -315,7 +315,7 @@ public:
      * then calls `reset()`.
      *
      * @param typeface  Font instance providing metrics, shaping, and rasterisation.
-     * @param atlas     Renderer-specific atlas store; `jam::GlyphAtlas` for the GL
+     * @param atlas     Renderer-specific atlas store; `jam::gl::GlyphAtlas` for the GL
      *                  path, `jam::GraphicsAtlas` for the CPU path.  Passed through
      *                  to `uploadStagedBitmaps()` each frame.
      *
@@ -401,7 +401,7 @@ public:
     /**
      * @brief Enables or disables synthetic bold (embolden) rendering.
      *
-     * Forwards to `GlyphAtlas::setEmbolden()` and clears the atlas if the
+     * Forwards to `gl::GlyphAtlas::setEmbolden()` and clears the atlas if the
      * value changed.
      *
      * @param enabled  `true` to enable embolden.
@@ -439,7 +439,7 @@ public:
     void setSelectionCursor (bool active, int row, int col) noexcept;
 
     // =========================================================================
-    // GL lifecycle (called by Terminal::Display from GLComponent overrides)
+    // GL lifecycle (called by Terminal::Display from gl::Component overrides)
     // =========================================================================
 
     /**

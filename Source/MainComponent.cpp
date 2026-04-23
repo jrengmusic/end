@@ -119,7 +119,7 @@ void MainComponent::setRenderer (App::RendererType rendererType)
             window->setRenderer (std::make_unique<jam::GLAtlasRenderer> (typeface, glyphAtlas));
 
             window->setRenderables (
-                [this] (std::function<void (jam::GLComponent&)> renderComponent)
+                [this] (std::function<void (jam::gl::Component&)> renderComponent)
                 {
                     if (appState.consumeAtlasDirty())
                         glyphAtlas.rebuildAtlas();

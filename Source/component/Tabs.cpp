@@ -27,7 +27,7 @@ namespace Terminal
  * @note MESSAGE THREAD.
  */
 Tabs::Tabs (jam::Typeface& font_,
-            jam::GlyphAtlas& glAtlas_,
+            jam::gl::GlyphAtlas& glAtlas_,
             jam::GraphicsAtlas& graphicsAtlas_,
             juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)

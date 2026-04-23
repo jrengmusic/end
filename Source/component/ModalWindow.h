@@ -60,7 +60,7 @@ public:
      */
     ModalWindow (std::unique_ptr<juce::Component> content,
                  juce::Component& centreAround,
-                 std::unique_ptr<jam::GLRenderer> renderer,
+                 std::unique_ptr<jam::gl::Renderer> renderer,
                  void* nativeSharedContext,
                  std::function<void()> dismissCallback);
 

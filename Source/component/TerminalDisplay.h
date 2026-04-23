@@ -58,7 +58,7 @@ namespace Terminal
  * @class Terminal::Display
  * @brief Ephemeral JUCE component that renders a Terminal::Processor.
  *
- * Inherits `jam::GLComponent` for GL-backed rendering and layout, `juce::KeyListener` for
+ * Inherits `jam::gl::Component` for GL-backed rendering and layout, `juce::KeyListener` for
  * keyboard input.  Cursor rendering is handled by `Screen::drawCursor()` in
  * the GL pipeline — no JUCE component overlay.
  *
@@ -107,7 +107,7 @@ public:
      */
     Display (Terminal::Processor& proc,
              jam::Typeface& font,
-             jam::GlyphAtlas& glAtlas,
+             jam::gl::GlyphAtlas& glAtlas,
              jam::GraphicsAtlas& graphicsAtlas);
 
     /**
@@ -307,7 +307,7 @@ public:
     juce::ValueTree getValueTree() noexcept override;
 
     /**
-     * @brief Called by GLRenderer when the shared OpenGL context is first created.
+     * @brief Called by gl::Renderer when the shared OpenGL context is first created.
      *
      * Forwards to Screen::glContextCreated() to compile shaders and create GPU
      * buffers.  Also calls jam::BackgroundBlur::enableWindowTransparency() for
@@ -319,7 +319,7 @@ public:
     void glContextCreated() noexcept override;
 
     /**
-     * @brief Called by GLRenderer when the shared OpenGL context is about to close.
+     * @brief Called by gl::Renderer when the shared OpenGL context is about to close.
      *
      * Forwards to Screen::glContextClosing() to release GPU resources.
      *
@@ -329,7 +329,7 @@ public:
     void glContextClosing() noexcept override;
 
     /**
-     * @brief Called by GLRenderer each frame to render the terminal.
+     * @brief Called by gl::Renderer each frame to render the terminal.
      *
      * Computes the viewport origin offset via getOriginInTopLevel() and forwards
      * to Screen::renderOpenGL().  Performs lazy GL initialisation if isGLContextReady()
@@ -620,7 +620,7 @@ private:
     jam::Typeface& font;
 
     /** @brief GL atlas reference; lifetime owned by MainComponent. Passed to Screen<GLContext>. */
-    jam::GlyphAtlas& glAtlasRef;
+    jam::gl::GlyphAtlas& glAtlasRef;
 
     /** @brief CPU atlas reference; lifetime owned by MainComponent. Passed to Screen<GraphicsContext>. */
     jam::GraphicsAtlas& graphicsAtlasRef;

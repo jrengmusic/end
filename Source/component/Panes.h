@@ -46,7 +46,7 @@ public:
      * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
      * @note MESSAGE THREAD.
      */
-    Panes (jam::Typeface& font, jam::GlyphAtlas& glAtlas, jam::GraphicsAtlas& graphicsAtlas);
+    Panes (jam::Typeface& font, jam::gl::GlyphAtlas& glAtlas, jam::GraphicsAtlas& graphicsAtlas);
 
     /**
      * @brief Destructor.
@@ -277,7 +277,7 @@ private:
     void splitActive (const juce::String& direction, bool isVertical);
 
     jam::Typeface& font;
-    jam::GlyphAtlas& glAtlasRef;
+    jam::gl::GlyphAtlas& glAtlasRef;
     jam::GraphicsAtlas& graphicsAtlasRef;
     jam::Owner<PaneComponent> panes;
     jam::PaneManager paneManager;

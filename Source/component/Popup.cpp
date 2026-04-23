@@ -23,7 +23,7 @@ void Popup::show (juce::Component& caller,
                   std::unique_ptr<juce::Component> content,
                   int width,
                   int height,
-                  std::unique_ptr<jam::GLRenderer> renderer)
+                  std::unique_ptr<jam::gl::Renderer> renderer)
 {
     dismiss();
 

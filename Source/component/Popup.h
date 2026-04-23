@@ -12,7 +12,7 @@
  * - Content size is computed from Config fractions in show().
  *
  * ### GL rendering
- * Pass a non-null `std::unique_ptr<jam::GLRenderer>` to `show()` for GPU
+ * Pass a non-null `std::unique_ptr<jam::gl::Renderer>` to `show()` for GPU
  * mode. The renderer ownership is transferred to `jam::Window` (via
  * `Terminal::ModalWindow`). Pass `nullptr` for CPU mode. In either case the
  * caller extracts the shared context handle from the root `jam::Window` and
@@ -38,7 +38,7 @@
  *
  * @see Config
  * @see jam::BackgroundBlur
- * @see jam::GLRenderer
+ * @see jam::gl::Renderer
  * @see Terminal::ModalWindow
  */
 
@@ -96,7 +96,7 @@ public:
                std::unique_ptr<juce::Component> content,
                int width,
                int height,
-               std::unique_ptr<jam::GLRenderer> renderer);
+               std::unique_ptr<jam::gl::Renderer> renderer);
 
     /**
      * @brief Dismisses the dialog if active.

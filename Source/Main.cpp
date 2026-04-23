@@ -549,23 +549,23 @@ private:
     /** @brief Embedded Display Mono typefaces; held alive for DirectWrite on Windows. */
     struct DisplayMono
     {
-        static inline auto book { juce::Typeface::createSystemTypefaceFor (jam::Fonts::DisplayMonoBook_ttf,
-                                                                            jam::Fonts::DisplayMonoBook_ttfSize) };
-        static inline auto medium { juce::Typeface::createSystemTypefaceFor (jam::Fonts::DisplayMonoMedium_ttf,
-                                                                              jam::Fonts::DisplayMonoMedium_ttfSize) };
-        static inline auto bold { juce::Typeface::createSystemTypefaceFor (jam::Fonts::DisplayMonoBold_ttf,
-                                                                            jam::Fonts::DisplayMonoBold_ttfSize) };
+        static inline auto book { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayMonoBook_ttf,
+                                                                            jam::fonts::DisplayMonoBook_ttfSize) };
+        static inline auto medium { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayMonoMedium_ttf,
+                                                                              jam::fonts::DisplayMonoMedium_ttfSize) };
+        static inline auto bold { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayMonoBold_ttf,
+                                                                            jam::fonts::DisplayMonoBold_ttfSize) };
     };
 
     /** @brief Embedded Display proportional typefaces; held alive for DirectWrite on Windows. */
     struct DisplayProp
     {
-        static inline auto book { juce::Typeface::createSystemTypefaceFor (jam::Fonts::DisplayBook_ttf,
-                                                                            jam::Fonts::DisplayBook_ttfSize) };
-        static inline auto medium { juce::Typeface::createSystemTypefaceFor (jam::Fonts::DisplayMedium_ttf,
-                                                                              jam::Fonts::DisplayMedium_ttfSize) };
-        static inline auto bold { juce::Typeface::createSystemTypefaceFor (jam::Fonts::DisplayBold_ttf,
-                                                                            jam::Fonts::DisplayBold_ttfSize) };
+        static inline auto book { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayBook_ttf,
+                                                                            jam::fonts::DisplayBook_ttfSize) };
+        static inline auto medium { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayMedium_ttf,
+                                                                              jam::fonts::DisplayMedium_ttfSize) };
+        static inline auto bold { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayBold_ttf,
+                                                                            jam::fonts::DisplayBold_ttfSize) };
     };
 
     /** @brief The native OS window; null before initialise() and after shutdown(). */

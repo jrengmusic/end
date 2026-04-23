@@ -164,7 +164,7 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
             {
                 // Payload: uuid | raw input bytes
                 juce::String uuid;
-                const int uuidConsumed { readString (payload, payloadSize, uuid) };
+                const int uuidConsumed { Codec::readString (payload, payloadSize, uuid) };
 
                 if (uuidConsumed > 0 and uuid.isNotEmpty())
                 {
@@ -185,12 +185,12 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
             {
                 // Payload: uuid | cols (uint16_t LE) | rows (uint16_t LE)
                 juce::String uuid;
-                const int uuidConsumed { readString (payload, payloadSize, uuid) };
+                const int uuidConsumed { Codec::readString (payload, payloadSize, uuid) };
 
                 if (uuidConsumed > 0 and uuid.isNotEmpty() and (payloadSize - uuidConsumed) >= 4)
                 {
-                    const uint16_t cols { readUint16 (payload + uuidConsumed) };
-                    const uint16_t rows { readUint16 (payload + uuidConsumed + 2) };
+                    const uint16_t cols { Codec::readUint16 (payload + uuidConsumed) };
+                    const uint16_t rows { Codec::readUint16 (payload + uuidConsumed + 2) };
 
                     if (nexus.has (uuid))
                     {
@@ -208,7 +208,7 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
             {
                 // Payload: uuid (length-prefixed)
                 juce::String uuid;
-                const int uuidConsumed { readString (payload, payloadSize, uuid) };
+                const int uuidConsumed { Codec::readString (payload, payloadSize, uuid) };
 
                 if (uuidConsumed > 0 and uuid.isNotEmpty())
                     daemon.detachSession (uuid, *this);
@@ -220,7 +220,7 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
             {
                 // Payload: uuid (length-prefixed)
                 juce::String uuid;
-                const int uuidConsumed { readString (payload, payloadSize, uuid) };
+                const int uuidConsumed { Codec::readString (payload, payloadSize, uuid) };
 
                 if (uuidConsumed > 0 and uuid.isNotEmpty())
                 {
@@ -254,17 +254,17 @@ Channel::parseSpawnPayload (const uint8_t* payload, int payloadSize)
     SpawnPayload out;
     int cursor { 0 };
 
-    const int cwdConsumed { readString (payload + cursor, payloadSize - cursor, out.cwd) };
+    const int cwdConsumed { Codec::readString (payload + cursor, payloadSize - cursor, out.cwd) };
     cursor += cwdConsumed;
 
-    const int uuidConsumed { readString (payload + cursor, payloadSize - cursor, out.uuid) };
+    const int uuidConsumed { Codec::readString (payload + cursor, payloadSize - cursor, out.uuid) };
     cursor += uuidConsumed;
 
     if (cwdConsumed > 0 and uuidConsumed > 0 and (payloadSize - cursor) >= 4)
     {
-        out.cols = static_cast<int> (readUint16 (payload + cursor));
+        out.cols = static_cast<int> (Codec::readUint16 (payload + cursor));
         cursor += 2;
-        out.rows = static_cast<int> (readUint16 (payload + cursor));
+        out.rows = static_cast<int> (Codec::readUint16 (payload + cursor));
 
         out.valid = true;
     }

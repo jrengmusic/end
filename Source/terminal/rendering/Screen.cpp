@@ -311,7 +311,7 @@ void Screen<Renderer>::setLigatures (bool enabled) noexcept
 /**
  * @brief Enables or disables synthetic bold (embolden) rendering.
  *
- * Forwards to `GlyphAtlas::setEmbolden()` and clears the atlas if the value
+ * Forwards to `gl::GlyphAtlas::setEmbolden()` and clears the atlas if the value
  * changed, so all glyphs are re-rasterised with the new setting.
  *
  * @param enabled  `true` to enable embolden.

@@ -29,19 +29,10 @@ namespace Interprocess
 constexpr juce::uint32 wireMagicHeader { 0xe4d52a7f };
 
 // =============================================================================
-// Generic primitives — re-exported from jam::BinaryCodec
+// Generic primitives — convenience alias for jam::BinaryCodec
 // =============================================================================
 
-using jam::BinaryCodec::writeUint16;
-using jam::BinaryCodec::writeUint32;
-using jam::BinaryCodec::writeUint64;
-using jam::BinaryCodec::writeInt32;
-using jam::BinaryCodec::writeString;
-using jam::BinaryCodec::readUint16;
-using jam::BinaryCodec::readUint32;
-using jam::BinaryCodec::readUint64;
-using jam::BinaryCodec::readInt32;
-using jam::BinaryCodec::readString;
+using Codec = jam::BinaryCodec;
 
 // =============================================================================
 // PDU encoding

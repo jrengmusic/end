@@ -54,7 +54,7 @@ public:
      * @note MESSAGE THREAD.
      */
     Tabs (jam::Typeface& font,
-          jam::GlyphAtlas& glAtlas,
+          jam::gl::GlyphAtlas& glAtlas,
           jam::GraphicsAtlas& graphicsAtlas,
           juce::TabbedButtonBar::Orientation orientation);
 
@@ -376,7 +376,7 @@ private:
     juce::Rectangle<int> computeContentRect (int tabBarDepth) const noexcept;
 
     jam::Typeface& font;
-    jam::GlyphAtlas& glAtlasRef;
+    jam::gl::GlyphAtlas& glAtlasRef;
     jam::GraphicsAtlas& graphicsAtlasRef;
     juce::Value tabName;
     jam::Owner<Panes> panes;

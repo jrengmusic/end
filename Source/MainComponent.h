@@ -154,7 +154,7 @@ private:
     jam::Typeface typeface;
 
     /** @brief GL texture handle store; shared by all Screen<GLContext> instances. */
-    jam::GlyphAtlas glyphAtlas;
+    jam::gl::GlyphAtlas glyphAtlas;
 
     /** @brief CPU atlas image store; shared by all Screen<GraphicsContext> instances. */
     jam::GraphicsAtlas graphicsAtlas;

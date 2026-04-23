@@ -22,7 +22,7 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Panes::Panes (jam::Typeface& font_, jam::GlyphAtlas& glAtlas_, jam::GraphicsAtlas& graphicsAtlas_)
+Panes::Panes (jam::Typeface& font_, jam::gl::GlyphAtlas& glAtlas_, jam::GraphicsAtlas& graphicsAtlas_)
     : font (font_)
     , glAtlasRef (glAtlas_)
     , graphicsAtlasRef (graphicsAtlas_)

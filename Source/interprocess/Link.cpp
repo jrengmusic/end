@@ -163,7 +163,7 @@ void Link::connectionLost()
 void Link::detachSession (const juce::String& uuid)
 {
     juce::MemoryBlock payload;
-    writeString (payload, uuid);
+    Codec::writeString (payload, uuid);
     sendPdu (Message::detachSession, payload);
 }
 
@@ -179,7 +179,7 @@ void Link::sendInput (const juce::String& uuid, const void* data, int size)
     if (size > 0)
     {
         juce::MemoryBlock payload;
-        writeString (payload, uuid);
+        Codec::writeString (payload, uuid);
         payload.append (data, static_cast<size_t> (size));
         sendPdu (Message::input, payload);
     }
@@ -195,9 +195,9 @@ void Link::sendInput (const juce::String& uuid, const void* data, int size)
 void Link::sendResize (const juce::String& uuid, int cols, int rows)
 {
     juce::MemoryBlock payload;
-    writeString (payload, uuid);
-    writeUint16 (payload, static_cast<uint16_t> (cols));
-    writeUint16 (payload, static_cast<uint16_t> (rows));
+    Codec::writeString (payload, uuid);
+    Codec::writeUint16 (payload, static_cast<uint16_t> (cols));
+    Codec::writeUint16 (payload, static_cast<uint16_t> (rows));
     sendPdu (Message::resizeSession, payload);
 }
 
@@ -211,10 +211,10 @@ void Link::sendResize (const juce::String& uuid, int cols, int rows)
 void Link::sendCreateSession (const juce::String& cwd, const juce::String& uuid, int cols, int rows)
 {
     juce::MemoryBlock payload;
-    writeString (payload, cwd);
-    writeString (payload, uuid);
-    writeUint16 (payload, static_cast<uint16_t> (cols));
-    writeUint16 (payload, static_cast<uint16_t> (rows));
+    Codec::writeString (payload, cwd);
+    Codec::writeString (payload, uuid);
+    Codec::writeUint16 (payload, static_cast<uint16_t> (cols));
+    Codec::writeUint16 (payload, static_cast<uint16_t> (rows));
     sendPdu (Message::createSession, payload);
 }
 
@@ -228,7 +228,7 @@ void Link::sendCreateSession (const juce::String& cwd, const juce::String& uuid,
 void Link::sendRemove (const juce::String& uuid)
 {
     juce::MemoryBlock payload;
-    writeString (payload, uuid);
+    Codec::writeString (payload, uuid);
     sendPdu (Message::killSession, payload);
 }
 
@@ -304,7 +304,7 @@ void Link::handleSessions (const uint8_t* payload, int payloadSize)
 {
     if (payloadSize >= 2)
     {
-        const uint16_t count { readUint16 (payload) };
+        const uint16_t count { Codec::readUint16 (payload) };
         int cursor { 2 };
 
         juce::StringArray list;
@@ -312,7 +312,7 @@ void Link::handleSessions (const uint8_t* payload, int payloadSize)
         for (uint16_t i { 0 }; i < count; ++i)
         {
             juce::String entry;
-            const int consumed { readString (payload + cursor, payloadSize - cursor, entry) };
+            const int consumed { Codec::readString (payload + cursor, payloadSize - cursor, entry) };
 
             if (consumed > 0)
             {
@@ -348,7 +348,7 @@ void Link::handleSessions (const uint8_t* payload, int payloadSize)
 void Link::handleSessionKilled (const uint8_t* payload, int payloadSize)
 {
     juce::String uuid;
-    readString (payload, payloadSize, uuid);
+    Codec::readString (payload, payloadSize, uuid);
 
     if (uuid.isNotEmpty())
     {
@@ -370,7 +370,7 @@ void Link::handleSessionKilled (const uint8_t* payload, int payloadSize)
 void Link::handleOutput (const uint8_t* payload, int payloadSize)
 {
     juce::String uuid;
-    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+    const int uuidConsumed { Codec::readString (payload, payloadSize, uuid) };
 
     if (uuid.isNotEmpty() and uuidConsumed > 0)
     {
@@ -399,7 +399,7 @@ void Link::handleOutput (const uint8_t* payload, int payloadSize)
 void Link::handleLoading (const uint8_t* payload, int payloadSize)
 {
     juce::String uuid;
-    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+    const int uuidConsumed { Codec::readString (payload, payloadSize, uuid) };
 
     if (uuid.isNotEmpty() and uuidConsumed > 0)
     {
@@ -431,16 +431,16 @@ void Link::handleLoading (const uint8_t* payload, int payloadSize)
 void Link::handleStateUpdate (const uint8_t* payload, int payloadSize)
 {
     juce::String uuid;
-    const int uuidConsumed { readString (payload, payloadSize, uuid) };
+    const int uuidConsumed { Codec::readString (payload, payloadSize, uuid) };
 
     if (uuidConsumed > 0)
     {
         juce::String cwd;
-        const int cwdConsumed { readString (payload + uuidConsumed, payloadSize - uuidConsumed, cwd) };
+        const int cwdConsumed { Codec::readString (payload + uuidConsumed, payloadSize - uuidConsumed, cwd) };
 
         juce::String fgProcess;
-        readString (payload + uuidConsumed + cwdConsumed,
-                    payloadSize - uuidConsumed - cwdConsumed, fgProcess);
+        Codec::readString (payload + uuidConsumed + cwdConsumed,
+                           payloadSize - uuidConsumed - cwdConsumed, fgProcess);
 
         if (cwdConsumed > 0)
         {

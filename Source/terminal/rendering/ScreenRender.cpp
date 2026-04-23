@@ -44,7 +44,7 @@
  * @see Screen.h
  * @see ScreenSnapshot.cpp
  * @see FontCollection
- * @see GlyphAtlas
+ * @see gl::GlyphAtlas
  * @see BoxDrawing
  * @see GlyphConstraint
  */
@@ -637,7 +637,7 @@ static void buildCodepointSequence (const Cell& cell, const Grapheme* grapheme,
  * Dispatches through the following priority chain:
  *
  * 1. **Box-drawing** (U+2500–U+259F via `BoxDrawing::isProcedural()`):
- *    rasterises procedurally via `GlyphAtlas::getOrRasterizeBoxDrawing()` and
+ *    rasterises procedurally via `gl::GlyphAtlas::getOrRasterizeBoxDrawing()` and
  *    emits a mono `Render::Glyph` instance.
  *
  * 2. **FontCollection fallback** (non-emoji, non-box-drawing):
