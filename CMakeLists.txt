@@ -272,6 +272,7 @@ jam_add_modules(${TARGET_NAME}
     jam_freetype
     jam_graphics
     jam_gui
+    jam_look_and_feel
     jam_javascript
     jam_lua
     jam_markdown

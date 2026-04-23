@@ -1,5 +1,157 @@
 # SPRINT-LOG
 
+## Sprint 31: JAM Namespace Conformance to Kuassa Convention ✅
+
+**Date:** 2026-04-23
+
+### Agents Participated
+- COUNSELOR: divergence analysis, plan, delegation, verification
+- Pathfinder: codebase survey (jam, kuassa, END), namespace spread analysis, binary data config discovery
+- Oracle: deep file-by-file diff of kuassa vs jam modules, ModalWindow/style::Manager/MapType comparison
+- Engineer: namespace lowercasing, GL re-namespace, ModalWindow cleanup, applyFontsTo restore, MapType import, BinaryCodec struct conversion, END reference updates, stale doxygen sweep
+- Auditor: Phase 1 verification, final 7-point audit
+
+### Files Modified (2 repos, ~112 files)
+
+**JAM (87 files)**
+- `Jam.cmake:34` — NAMESPACE "jam::Fonts" → "jam::fonts"
+- `jam_animation/common/jam_animation_common.h` — namespace Animation → animation
+- `jam_animation/scrolling_text/jam_scrolling_text.h` — namespace Animation → animation
+- `jam_animation/scrolling_text/jam_scrolling_text.cpp` — namespace Animation → animation
+- `jam_graphics/colours/jam_colours_names.h` — namespace Colours → colours
+- `jam_graphics/colours/jam_colours_names.cpp` — namespace Colours → colours
+- `jam_graphics/colours/jam_colours_utilities.h` — namespace Colours → colours
+- `jam_graphics/graphics/jam_graphics_fader.h` — namespace Graphics → graphics
+- `jam_graphics/graphics/jam_graphics_perimeter.h` — namespace Graphics → graphics
+- `jam_graphics/graphics/jam_graphics_segment.h` — namespace Graphics → graphics
+- `jam_graphics/graphics/jam_graphics_rotary.h` — namespace Graphics → graphics
+- `jam_graphics/graphics/jam_graphics_rotary.cpp` — namespace Graphics → graphics
+- `jam_graphics/graphics/jam_graphics_utilities.h` — namespace Graphics → graphics
+- `jam_graphics/utilities/jam_graphics_utilities.h` — namespace Graphics → graphics
+- `jam_graphics/vignette/jam_graphics_vignette.h` — namespace Graphics → graphics
+- `jam_graphics/rendering/jam_graphics_atlas.h` — doxygen GL refs updated
+- `jam_graphics/glyph/jam_glyph_key.h` — doxygen updated
+- `jam_graphics/glyph/jam_atlas_glyph.h` — doxygen updated
+- `jam_graphics/glyph/jam_atlas_packer.h` — doxygen updated
+- `jam_graphics/fonts/jam_typeface.cpp` — jam::Fonts → jam::fonts
+- `jam_graphics/fonts/jam_typeface.mm` — jam::Fonts → jam::fonts
+- `jam_graphics/fonts/jam_atlas_packer.h` — doxygen updated
+- `jam_graphics/fonts/jam_glyph_key.h` — doxygen updated
+- `jam_graphics/fonts/jam_atlas_glyph.h` — doxygen updated
+- `jam_graphics/fonts/jam_box_drawing.h` — doxygen updated
+- `jam_graphics/fonts/jam_lru_glyph_cache.h` — doxygen updated
+- `jam_graphics/fonts/jam_text_layout.h` — doxygen updated
+- `jam_graphics/blur/background_blur/jam_background_blur.cpp` — doxygen updated
+- `jam_gui/menu/jam_menu.h` — namespace Menu → menu, self-refs Menu:: → menu::
+- `jam_gui/mouse/jam_mouse_enter_parent.h` — namespace Mouse → mouse
+- `jam_gui/mouse/jam_mouse_events.h` — namespace Mouse → mouse
+- `jam_gui/style_window/jam_style_window.h` — namespace Style::Window → style::window
+- `jam_gui/style_window/jam_style_window.cpp` — namespace Style::Window → style::window
+- `jam_gui/style_window/jam_style_window.mm` — namespace Style::Window → style::window
+- `jam_gui/window/jam_window.h` — GL forward decls → gl::, doxygen updated
+- `jam_gui/window/jam_window.cpp` — gl:: namespace refs
+- `jam_gui/window/jam_modal_window.h` — removed style::getSafeMetrics ctor, doxygen updated
+- `jam_gui/window/jam_modal_window.cpp` — removed style::getSafeMetrics ctor impl
+- `jam_gui/opengl/context/jam_gl_renderer.h` — GLRenderer → gl::Renderer
+- `jam_gui/opengl/context/jam_gl_renderer.cpp` — gl:: namespace
+- `jam_gui/opengl/context/jam_gl_renderer_mac.mm` — gl:: namespace
+- `jam_gui/opengl/context/jam_gl_component.h` — GLComponent → gl::Component, setGLRenderer → setRenderer
+- `jam_gui/opengl/context/jam_gl_component.cpp` — gl:: namespace
+- `jam_gui/opengl/context/jam_gl_graphics.h` — GLGraphics → gl::Graphics
+- `jam_gui/opengl/context/jam_gl_graphics.cpp` — gl:: namespace
+- `jam_gui/opengl/context/jam_gl_vertex_layout.h` — GLVertexLayout → struct gl::VertexLayout
+- `jam_gui/opengl/context/jam_gl_vertex_layout.cpp` — gl:: namespace
+- `jam_gui/opengl/context/jam_gl_shader_compiler.h` — GLShaderCompiler → struct gl::ShaderCompiler
+- `jam_gui/opengl/context/jam_gl_shader_compiler.cpp` — gl:: namespace
+- `jam_gui/opengl/context/jam_glyph_atlas.h` — GlyphAtlas → gl::GlyphAtlas
+- `jam_gui/opengl/context/jam_glyph_atlas.cpp` — gl:: namespace
+- `jam_gui/opengl/context/jam_gl_atlas_renderer.h` — gl:: type refs
+- `jam_gui/opengl/context/jam_gl_atlas_renderer.cpp` — gl:: type refs
+- `jam_gui/opengl/context/jam_native_context_resource.h` — gl::Component, doxygen updated
+- `jam_gui/opengl/context/jam_gl_overlay.h` — gl::Renderer
+- `jam_gui/opengl/context/jam_native_shared_context_owner.h` — doxygen updated
+- `jam_gui/opengl/renderers/jam_gl_path.h` — GLVertex → gl::Vertex, GLTexVertex → gl::TexVertex
+- `jam_gui/opengl/renderers/jam_gl_path.cpp` — gl:: refs
+- `jam_gui/opengl/renderers/jam_gl_vignette.h` — gl::Component, gl::Graphics
+- `jam_gui/opengl/renderers/jam_gl_context.h` — gl::GlyphAtlas, doxygen updated
+- `jam_gui/opengl/renderers/jam_gl_context.cpp` — gl:: refs
+- `jam_gui/opengl/renderers/jam_glyph_shaders.h` — namespace Glyph::Shaders → struct Shaders
+- `jam_gui/opengl/component/jam_gl_frequency_grid.h` — gl::Component, gl::Graphics
+- `jam_gui/component/comboBox/jam_comboBox.h` — Menu:: → menu::
+- `jam_gui/jam_gui.h` — include comment updated
+- `jam_gui/jam_gui.cpp` — include comment updated
+- `jam_core/map/jam_map.h` — namespace Map → struct Map with static methods
+- `jam_core/binary_codec/jam_binary_codec.h` — namespace binaryCodec → struct BinaryCodec
+- `jam_core/binary_codec/jam_binary_codec.cpp` — struct BinaryCodec:: method defs
+- `jam_core/binary_data/jam_binary_data.h` — doc comment updated
+- `jam_core/function_map/jam_function_map.h` — added TypeEntry + MapType from kuassa
+- `jam_data_structures/style_manager/jam_style_manager.h` — namespace Style → style, added applyFontsTo
+- `jam_data_structures/style_manager/jam_style_manager.cpp` — style:: refs, applyFontsTo impl
+- `jam_fonts/segment/jam_fonts_segment.h` — namespace Fonts::Segment → fonts::segment
+- `jam_fonts/segment/jam_fonts_segment.cpp` — namespace fonts::segment
+- `jam_debug/console/jam_console.cpp` — jam::Fonts → jam::fonts
+- `jam_look_and_feel/graphics/knob_v1/jam_look_and_feel_graphics_knob_v1.h` — style::Manager
+- `jam_look_and_feel/graphics/knob_v1/jam_look_and_feel_graphics_knob_v1.cpp` — style::, colours::
+- `jam_look_and_feel/graphics/toggle_push/jam_look_and_feel_graphics_toggle_push.cpp` — colours::
+- `jam_look_and_feel/graphics/toggle_slide/jam_look_and_feel_graphics_toggle_slide.cpp` — colours::
+- `jam_look_and_feel/popup_text_box/jam_look_and_feel_popup_text_box.h` — style::getSafeFont
+- `jam_look_and_feel/seven_segment/jam_look_and_feel_seven_segment.h` — style::, fonts::segment
+- `jam_look_and_feel/seven_segment/jam_look_and_feel_seven_segment.cpp` — style::Manager
+- `jam_look_and_feel/theme/jam_look_and_feel_theme.h` — style::Manager
+- `jam_look_and_feel/theme/jam_look_and_feel_theme.cpp` — style::, style::window::
+- `jam_look_and_feel/vari_display/jam_vari_display.h` — style::, fonts::segment
+- `jam_look_and_feel/vari_display/jam_vari_display.cpp` — style::Manager
+
+**END (25 files)**
+- `Source/Main.cpp:552-568` — jam::Fonts → jam::fonts
+- `Source/MainComponent.h` — jam::gl::GlyphAtlas
+- `Source/MainComponent.cpp` — jam::gl::Component
+- `Source/MainComponentActions.cpp` — jam::gl::Renderer
+- `Source/interprocess/EncoderDecoder.h` — using Codec = jam::BinaryCodec
+- `Source/interprocess/Channel.cpp` — Codec:: prefix
+- `Source/interprocess/Daemon.cpp` — Codec:: prefix
+- `Source/interprocess/Link.cpp` — Codec:: prefix
+- `Source/component/PaneComponent.h` — jam::gl::Component, doxygen
+- `Source/component/Popup.h` — jam::gl::Renderer, doxygen
+- `Source/component/Popup.cpp` — jam::gl::Renderer
+- `Source/component/ModalWindow.h` — jam::gl::Renderer
+- `Source/component/ModalWindow.cpp` — jam::gl::Renderer
+- `Source/component/TerminalDisplay.h` — jam::gl::GlyphAtlas, doxygen
+- `Source/component/TerminalDisplay.cpp` — jam::gl::GlyphAtlas
+- `Source/component/Tabs.h` — jam::gl::GlyphAtlas
+- `Source/component/Tabs.cpp` — jam::gl::GlyphAtlas
+- `Source/component/Panes.h` — jam::gl::GlyphAtlas
+- `Source/component/Panes.cpp` — jam::gl::GlyphAtlas
+- `Source/terminal/logic/Processor.h` — jam::gl::GlyphAtlas
+- `Source/terminal/logic/Processor.cpp` — jam::gl::GlyphAtlas
+- `Source/terminal/rendering/Screen.h` — doxygen updated
+- `Source/terminal/rendering/Screen.cpp` — doxygen updated
+- `Source/terminal/rendering/ScreenRender.cpp` — doxygen updated
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — (no changes, already clean)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered — namespace lowercase, struct/class PascalCase
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- JAM sub-namespaces diverged from kuassa upstream (PascalCase vs lowercase) — conformed all to lowercase
+- GL classes used flat GL-prefix naming instead of kuassa's `gl::` namespace — re-namespaced to `jam::gl::`
+- Closed single-block namespaces (Map, Shaders, BinaryCodec, ShaderCompiler, VertexLayout) — converted to structs with static methods per contract
+- ModalWindow coupled to style::Manager via getSafeMetrics ctor — removed, caller provides explicit params
+- JAM missing `applyFontsTo` from kuassa — restored
+- JAM missing `MapType`/`TypeEntry` from kuassa — imported
+- BinaryCodec struct `using` declarations invalid in END — replaced with type alias + qualified calls
+- `.mm` file missed in Phase 1 namespace rename — fixed
+- `Menu::` self-references in jam_menu.h and jam_comboBox.h not updated — fixed
+- JUCE binary data namespace `jam::Fonts` not lowercased — updated Jam.cmake + all call sites
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 30: Windows MSVC Build Regression Fix ✅
 
 **Date:** 2026-04-21
