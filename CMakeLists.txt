@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 4.2.0)
 # JAM BUILD SYSTEM
 # ============================================================================
 
-set(JAM_ROOT "$ENV{HOME}/Documents/Poems/dev/jam")
+set(JAM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../jam")
 list(APPEND CMAKE_MODULE_PATH "${JAM_ROOT}/cmake")
 include(BuildSetup)
 

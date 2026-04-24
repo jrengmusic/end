@@ -234,7 +234,8 @@ void Engine::parseSelectionKeys()
         // parseShortcut maps "ctrl" to Cmd on macOS. For visual block we need
         // real ctrlModifier so Ctrl+V doesn't conflict with paste.
         {
-            jam::lua::optional<std::string> raw { keysTable["selection_visual_block"] };
+            const char* key { "selection_visual_block" };
+            jam::lua::optional<std::string> raw { keysTable[key] };
 
             if (raw.has_value())
             {

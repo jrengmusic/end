@@ -146,7 +146,7 @@ void Engine::load()
 
         if (not result.valid())
         {
-            jam::lua::error err { result };
+            jam::lua::error err { result.get<jam::lua::error>() };
             loadError = juce::String (err.what());
         }
         else
@@ -207,7 +207,7 @@ void Engine::registerActions (Action::Registry& registry)
 
                 if (not result.valid())
                 {
-                    jam::lua::error err { result };
+                    jam::lua::error err { result.get<jam::lua::error>() };
                     DBG ("Lua action error (" + action.id + "): " + juce::String (err.what()));
                 }
 
