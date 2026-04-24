@@ -65,34 +65,34 @@ void Engine::writeDefaults (const juce::File& file)
 //==============================================================================
 void Engine::parseKeys()
 {
-    jam::lua::optional<jam::lua::table> keysOpt { lua["keys"] };
+    jam::lua::optional<jam::lua::table> keysOpt { lua["keys"].get<jam::lua::optional<jam::lua::table>>() };
 
     if (keysOpt.has_value())
     {
         auto& keysTable { keysOpt.value() };
-        const auto* mappings { getKeyMappings() };
-        const int count { getKeyMappingCount() };
+        const auto& mappings { keyMappings };
+        const int count { static_cast<int> (mappings.size()) };
 
         for (int i { 0 }; i < count; ++i)
         {
-            jam::lua::optional<std::string> val { keysTable[mappings[i].luaKey] };
+            jam::lua::optional<std::string> val { keysTable[mappings.at (i).luaKey].get<jam::lua::optional<std::string>>() };
 
             if (val.has_value())
             {
                 KeyBinding binding;
-                binding.actionId       = juce::String (mappings[i].actionId);
+                binding.actionId       = juce::String (mappings.at (i).actionId);
                 binding.shortcutString = juce::String (val.value());
-                binding.isModal        = mappings[i].isModal;
+                binding.isModal        = mappings.at (i).isModal;
                 keyBindings.push_back (std::move (binding));
             }
         }
 
-        jam::lua::optional<std::string> prefix { keysTable["prefix"] };
+        jam::lua::optional<std::string> prefix { keysTable["prefix"].get<jam::lua::optional<std::string>>() };
 
         if (prefix.has_value())
             prefixString = juce::String (prefix.value());
 
-        jam::lua::optional<int> timeout { keysTable["prefix_timeout"] };
+        jam::lua::optional<int> timeout { keysTable["prefix_timeout"].get<jam::lua::optional<int>>() };
 
         if (timeout.has_value())
             prefixTimeoutMs = timeout.value();
@@ -102,7 +102,7 @@ void Engine::parseKeys()
 //==============================================================================
 void Engine::parsePopups()
 {
-    jam::lua::optional<jam::lua::table> popupsOpt { lua["popups"] };
+    jam::lua::optional<jam::lua::table> popupsOpt { lua["popups"].get<jam::lua::optional<jam::lua::table>>() };
 
     if (popupsOpt.has_value())
     {
@@ -116,28 +116,28 @@ void Engine::parsePopups()
                 PopupEntry popup;
                 popup.name = juce::String (key.as<std::string>());
 
-                jam::lua::optional<std::string> command { entry["command"] };
+                jam::lua::optional<std::string> command { entry["command"].get<jam::lua::optional<std::string>>() };
 
                 if (command.has_value())
                 {
                     popup.command = juce::String (command.value());
 
-                    jam::lua::optional<std::string> args { entry["args"] };
+                    jam::lua::optional<std::string> args { entry["args"].get<jam::lua::optional<std::string>>() };
                     if (args.has_value()) popup.args = juce::String (args.value());
 
-                    jam::lua::optional<std::string> cwd { entry["cwd"] };
+                    jam::lua::optional<std::string> cwd { entry["cwd"].get<jam::lua::optional<std::string>>() };
                     if (cwd.has_value()) popup.cwd = juce::String (cwd.value());
 
-                    jam::lua::optional<int> cols { entry["cols"] };
+                    jam::lua::optional<int> cols { entry["cols"].get<jam::lua::optional<int>>() };
                     if (cols.has_value()) popup.cols = cols.value();
 
-                    jam::lua::optional<int> rows { entry["rows"] };
+                    jam::lua::optional<int> rows { entry["rows"].get<jam::lua::optional<int>>() };
                     if (rows.has_value()) popup.rows = rows.value();
 
-                    jam::lua::optional<std::string> modal { entry["modal"] };
+                    jam::lua::optional<std::string> modal { entry["modal"].get<jam::lua::optional<std::string>>() };
                     if (modal.has_value()) popup.modal = juce::String (modal.value());
 
-                    jam::lua::optional<std::string> global { entry["global"] };
+                    jam::lua::optional<std::string> global { entry["global"].get<jam::lua::optional<std::string>>() };
                     if (global.has_value()) popup.global = juce::String (global.value());
 
                     popupEntries.push_back (std::move (popup));
@@ -150,7 +150,7 @@ void Engine::parsePopups()
 //==============================================================================
 void Engine::parseActions()
 {
-    jam::lua::optional<jam::lua::table> actionsOpt { lua["actions"] };
+    jam::lua::optional<jam::lua::table> actionsOpt { lua["actions"].get<jam::lua::optional<jam::lua::table>>() };
 
     if (actionsOpt.has_value())
     {
@@ -164,14 +164,14 @@ void Engine::parseActions()
                 CustomAction action;
                 action.id = "lua:" + juce::String (key.as<std::string>());
 
-                jam::lua::optional<std::string> name { entry["name"] };
+                jam::lua::optional<std::string> name { entry["name"].get<jam::lua::optional<std::string>>() };
                 if (name.has_value()) action.name = juce::String (name.value());
 
-                jam::lua::optional<std::string> desc { entry["description"] };
+                jam::lua::optional<std::string> desc { entry["description"].get<jam::lua::optional<std::string>>() };
                 if (desc.has_value()) action.description = juce::String (desc.value());
 
-                jam::lua::optional<std::string> modal  { entry["modal"] };
-                jam::lua::optional<std::string> global { entry["global"] };
+                jam::lua::optional<std::string> modal  { entry["modal"].get<jam::lua::optional<std::string>>() };
+                jam::lua::optional<std::string> global { entry["global"].get<jam::lua::optional<std::string>>() };
 
                 if (modal.has_value())
                 {
@@ -184,7 +184,7 @@ void Engine::parseActions()
                     action.isModal  = false;
                 }
 
-                jam::lua::optional<jam::lua::protected_function> exec { entry["execute"] };
+                jam::lua::optional<jam::lua::protected_function> exec { entry["execute"].get<jam::lua::optional<jam::lua::protected_function>>() };
 
                 if (exec.has_value())
                 {
@@ -199,7 +199,7 @@ void Engine::parseActions()
 //==============================================================================
 void Engine::parseSelectionKeys()
 {
-    jam::lua::optional<jam::lua::table> keysOpt { lua["keys"] };
+    jam::lua::optional<jam::lua::table> keysOpt { lua["keys"].get<jam::lua::optional<jam::lua::table>>() };
 
     if (keysOpt.has_value())
     {
@@ -207,12 +207,13 @@ void Engine::parseSelectionKeys()
 
         auto parse = [] (jam::lua::table& t, const char* field) -> juce::KeyPress
         {
-            jam::lua::optional<std::string> val { t[field] };
+            jam::lua::optional<std::string> val { t[field].get<jam::lua::optional<std::string>>() };
+            juce::KeyPress result {};
 
             if (val.has_value())
-                return Action::Registry::parseShortcut (juce::String (val.value()));
+                result = Action::Registry::parseShortcut (juce::String (val.value()));
 
-            return {};
+            return result;
         };
 
         selectionKeys.up               = parse (keysTable, "selection_up");
@@ -234,8 +235,7 @@ void Engine::parseSelectionKeys()
         // parseShortcut maps "ctrl" to Cmd on macOS. For visual block we need
         // real ctrlModifier so Ctrl+V doesn't conflict with paste.
         {
-            const char* key { "selection_visual_block" };
-            jam::lua::optional<std::string> raw { keysTable[key] };
+            jam::lua::optional<std::string> raw { keysTable["selection_visual_block"].get<jam::lua::optional<std::string>>() };
 
             if (raw.has_value())
             {

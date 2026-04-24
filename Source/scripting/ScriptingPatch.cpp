@@ -118,15 +118,15 @@ void Engine::patchKey (const juce::String& key, const juce::String& value)
 //==============================================================================
 juce::String Engine::getActionLuaKey (const juce::String& actionId) const
 {
-    const auto* mappings { getKeyMappings() };
-    const int count { getKeyMappingCount() };
+    const auto& mappings { keyMappings };
+    const int count { static_cast<int> (mappings.size()) };
 
     juce::String result;
 
     for (int i { 0 }; i < count and result.isEmpty(); ++i)
     {
-        if (juce::String (mappings[i].actionId) == actionId)
-            result = "keys." + juce::String (mappings[i].luaKey);
+        if (juce::String (mappings.at (i).actionId) == actionId)
+            result = "keys." + juce::String (mappings.at (i).luaKey);
     }
 
     if (actionId == "prefix" and result.isEmpty())
@@ -141,27 +141,31 @@ juce::String Engine::getShortcutString (const juce::String& actionLuaKey) const
     const int dotIndex { actionLuaKey.indexOfChar ('.') };
     const juce::String leafName { dotIndex >= 0 ? actionLuaKey.substring (dotIndex + 1) : actionLuaKey };
 
-    if (leafName == "prefix")
-        return prefixString;
-
-    // Find the actionId for this leaf name.
-    const auto* mappings { getKeyMappings() };
-    const int count { getKeyMappingCount() };
-    juce::String targetActionId;
-
-    for (int i { 0 }; i < count and targetActionId.isEmpty(); ++i)
-    {
-        if (juce::String (mappings[i].luaKey) == leafName)
-            targetActionId = juce::String (mappings[i].actionId);
-    }
-
-    // Find the binding for this action.
     juce::String result;
 
-    for (const auto& kb : keyBindings)
+    if (leafName == "prefix")
     {
-        if (kb.actionId == targetActionId and result.isEmpty())
-            result = kb.shortcutString;
+        result = prefixString;
+    }
+    else
+    {
+        // Find the actionId for this leaf name.
+        const auto& mappings { keyMappings };
+        const int count { static_cast<int> (mappings.size()) };
+        juce::String targetActionId;
+
+        for (int i { 0 }; i < count and targetActionId.isEmpty(); ++i)
+        {
+            if (juce::String (mappings.at (i).luaKey) == leafName)
+                targetActionId = juce::String (mappings.at (i).actionId);
+        }
+
+        // Find the binding for this action.
+        for (const auto& kb : keyBindings)
+        {
+            if (kb.actionId == targetActionId and result.isEmpty())
+                result = kb.shortcutString;
+        }
     }
 
     return result;

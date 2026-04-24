@@ -1,5 +1,48 @@
 # SPRINT-LOG
 
+## Sprint 33: MSVC Build Regression Fixes + Audit ✅
+
+**Date:** 2026-04-25
+
+### Agents Participated
+- **COUNSELOR:** Claude Sonnet — Build error analysis, audit orchestration, fix delegation
+- **Pathfinder** (via COUNSELOR) — CMakeLists diff, KeyMapping git history, brace-init pattern inventory, private static member access investigation
+- **Engineer** (via COUNSELOR) — All code fixes: brace-init MSVC ambiguity, KeyMapping refactor, uint8 qualification, taper narrowing, audit resolution (early returns, anonymous namespace, enum class, boolean flag, std::array, formatting)
+- **Auditor** (via COUNSELOR) — Full session audit: 13 findings across END and jam, all resolved
+
+### Files Modified (2 repos)
+
+**END (5 files modified)**
+- `Source/scripting/Scripting.h:245-270` — KeyMapping: removed raw pointer accessors, refactored to `static constexpr std::array<KeyMapping, 22> keyMappings` inline; fixed `} //` formatting
+- `Source/scripting/Scripting.cpp:149,210,247` — `jam::lua::error` brace-init via `.get<jam::lua::error>()`; fixed `} //` formatting
+- `Source/scripting/ScriptingParse.cpp:68-238` — 21 sites: `.get<jam::lua::optional<T>>()` on sol table proxy brace-init; early return fix in `parse` lambda
+- `Source/scripting/ScriptingPatch.cpp:121-168` — `keyMappings` direct access via `.at()`; early return fix in `getShortcutString()`
+
+**JAM (3 files modified)**
+- `jam_style/system_colour/jam_system_colour.cpp:13-55` — `uint8` → `juce::uint8`; refactored 5 if-return branches to lookup table with `static` helper; eliminated DRY violation
+- `jam_core/utilities/jam_taper.h:15-242` — plain enum → `enum class Type`; early returns → single exit point in 5 functions; copy-assignment → brace-init; `[]` → `.at()`; fixed latent bug in `inverseAnti()` map key formula
+- `jam_data_structures/parameter/jam_parameter_layout.cpp:17-113` — Updated `Taper::Type::` enum class references; early return fix in `getParameterName`; eliminated `isUsingDecibelTaper` boolean flag
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- MSVC C2440 brace-init ambiguity: sol table proxy → `jam::lua::optional<T>` and `jam::lua::error` — resolved via explicit `.get<>()`
+- MSVC C2248 private nested type at file scope — resolved by refactoring to `static constexpr` inline member
+- MSVC C2061 unqualified `uint8` — resolved with `juce::` prefix
+- MSVC C4244 double→float narrowing in taper lambdas — resolved with `static_cast<FloatType>`
+- Latent bug: `inverseAnti()` used wrong map key formula `(logTaper/5)-1` instead of enum key directly
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 32: Lua-Scriptable Custom Actions + Action Binding Migration ✅
 
 **Date:** 2026-04-24

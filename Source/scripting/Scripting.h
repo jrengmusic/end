@@ -13,9 +13,10 @@
 
 #pragma once
 
+#include <array>
 #include <JuceHeader.h>
-#include <jam_lua/jam_lua.h>
 #include "../action/Action.h"
+#include "../config/Config.h"
 
 namespace Scripting
 {
@@ -31,8 +32,9 @@ namespace Scripting
  * @par Thread context
  * All public methods are MESSAGE THREAD only.
  */
-class Engine : public jam::Context<Engine>,
-               public jam::File::Watcher::Listener
+class Engine
+    : public jam::Context<Engine>
+    , public jam::File::Watcher::Listener
 {
 public:
     /**
@@ -43,15 +45,15 @@ public:
      */
     struct DisplayCallbacks
     {
-        std::function<void()>                                    splitHorizontal;
-        std::function<void()>                                    splitVertical;
-        std::function<void (const juce::String&, bool, double)>  splitWithRatio;
-        std::function<void()>                                    newTab;
-        std::function<void()>                                    closeTab;
-        std::function<void()>                                    nextTab;
-        std::function<void()>                                    prevTab;
-        std::function<void (int, int)>                           focusPane;
-        std::function<void()>                                    closePane;
+        std::function<void()> splitHorizontal;
+        std::function<void()> splitVertical;
+        std::function<void (const juce::String&, bool, double)> splitWithRatio;
+        std::function<void()> newTab;
+        std::function<void()> closeTab;
+        std::function<void()> nextTab;
+        std::function<void()> prevTab;
+        std::function<void (int, int)> focusPane;
+        std::function<void()> closePane;
     };
 
     /**
@@ -66,7 +68,8 @@ public:
                             const juce::String& args,
                             const juce::String& cwd,
                             int cols,
-                            int rows)> launchPopup;
+                            int rows)>
+            launchPopup;
     };
 
     /**
@@ -242,8 +245,36 @@ private:
         bool isModal;
     };
 
-    static const KeyMapping* getKeyMappings() noexcept;
-    static int getKeyMappingCount() noexcept;
+    static constexpr int keyMappingCount { 22 };
+
+    // clang-format off
+    static constexpr std::array<KeyMapping, keyMappingCount> keyMappings
+    {{
+        { "copy",             "copy",             false },
+        { "paste",            "paste",            false },
+        { "quit",             "quit",             false },
+        { "close_tab",        "close_tab",        false },
+        { "reload",           "reload_config",    false },
+        { "zoom_in",          "zoom_in",          false },
+        { "zoom_out",         "zoom_out",         false },
+        { "zoom_reset",       "zoom_reset",       false },
+        { "new_window",       "new_window",       false },
+        { "new_tab",          "new_tab",          false },
+        { "prev_tab",         "prev_tab",         false },
+        { "next_tab",         "next_tab",         false },
+        { "split_horizontal", "split_horizontal", true  },
+        { "split_vertical",   "split_vertical",   true  },
+        { "pane_left",        "pane_left",        true  },
+        { "pane_down",        "pane_down",        true  },
+        { "pane_up",          "pane_up",          true  },
+        { "pane_right",       "pane_right",       true  },
+        { "newline",          "newline",          false },
+        { "action_list",      "action_list",      true  },
+        { "enter_selection",  "enter_selection",  true  },
+        { "enter_open_file",  "enter_open_file",  true  },
+    }};
+    // clang-format on
+
     static juce::File getActionFile();
 
     static void writeDefaults (const juce::File& file);
@@ -276,3 +307,4 @@ private:
 };
 
 } // namespace Scripting
+
