@@ -409,14 +409,19 @@ void Panes::closePane (const juce::String& uuid)
  *
  * @note MESSAGE THREAD.
  */
-void Panes::splitHorizontal() { splitActive ("vertical", true); }
+void Panes::splitHorizontal() { splitActive ("vertical", true, 0.5); }
 
 /**
  * @brief Splits the active pane into stacked rows.
  *
  * @note MESSAGE THREAD.
  */
-void Panes::splitVertical() { splitActive ("horizontal", false); }
+void Panes::splitVertical() { splitActive ("horizontal", false, 0.5); }
+
+void Panes::splitActiveWithRatio (const juce::String& direction, bool isVertical, double ratio)
+{
+    splitActive (direction, isVertical, ratio);
+}
 
 /**
  * @brief Splits a specific target pane using an explicit new UUID and cwd.
@@ -439,7 +444,8 @@ void Panes::splitAt (const juce::String& targetUuid,
                      const juce::String& direction,
                      bool isVertical,
                      int cols,
-                     int rows)
+                     int rows,
+                     double ratio)
 {
     jassert (targetUuid.isNotEmpty());
     jassert (cols > 0 and rows > 0);
@@ -458,7 +464,7 @@ void Panes::splitAt (const juce::String& targetUuid,
     addChildComponent (term);
     setTerminalCallbacks (term);
 
-    paneManager.split (targetUuid, splitUuid, direction);
+    paneManager.split (targetUuid, splitUuid, direction, ratio);
 
     auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), splitUuid) };
     jassert (paneNode.isValid());
@@ -488,9 +494,10 @@ void Panes::splitAt (const juce::String& targetUuid,
  * @param direction  PaneManager direction string: "vertical" = left/right
  *                   divider; "horizontal" = top/bottom divider.
  * @param isVertical True when the resizer bar is vertical (splitHorizontal).
+ * @param ratio      Split ratio (0.0–1.0). 0.5 = equal halves.
  * @note MESSAGE THREAD.
  */
-void Panes::splitActive (const juce::String& direction, bool isVertical)
+void Panes::splitActive (const juce::String& direction, bool isVertical, double ratio)
 {
     const juce::String activeID { AppState::getContext()->getActivePaneID() };
     jassert (activeID.isNotEmpty());
@@ -507,10 +514,10 @@ void Panes::splitActive (const juce::String& direction, bool isVertical)
             activeBounds = pane->getBounds();
     }
 
-    const auto [targetRect, newRect] { splitRect (activeBounds, direction, 0.5) };
+    const auto [targetRect, newRect] { splitRect (activeBounds, direction, ratio) };
     const auto [cols, rows] { cellsFromRect (newRect, font) };
 
-    splitAt (activeID, {}, AppState::getContext()->getPwd(), direction, isVertical, cols, rows);
+    splitAt (activeID, {}, AppState::getContext()->getPwd(), direction, isVertical, cols, rows, ratio);
 }
 
 /**

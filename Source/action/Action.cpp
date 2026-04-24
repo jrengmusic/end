@@ -1,66 +1,7 @@
 #include "Action.h"
 
-// ---------------------------------------------------------------------------
-// Config key → action ID mapping table
-// Each row maps a Config::Key constant to the action ID string it configures.
-// Used by buildKeyMap() to resolve shortcuts without hard-coding key strings.
-// ---------------------------------------------------------------------------
-namespace
-{
-
-struct ActionKeyEntry
-{
-    const juce::String& configKey;
-    const char* actionId;
-    bool isModal;
-};
-
-// clang-format off
-static const ActionKeyEntry actionKeyTable[]
-{
-    { Config::Key::keysCopy,             "copy",             false },
-    { Config::Key::keysPaste,            "paste",            false },
-    { Config::Key::keysQuit,             "quit",             false },
-    { Config::Key::keysCloseTab,         "close_tab",        false },
-    { Config::Key::keysReload,           "reload_config",    false },
-    { Config::Key::keysZoomIn,           "zoom_in",          false },
-    { Config::Key::keysZoomOut,          "zoom_out",         false },
-    { Config::Key::keysZoomReset,        "zoom_reset",       false },
-    { Config::Key::keysNewWindow,        "new_window",       false },
-    { Config::Key::keysNewTab,           "new_tab",          false },
-    { Config::Key::keysPrevTab,          "prev_tab",         false },
-    { Config::Key::keysNextTab,          "next_tab",         false },
-    { Config::Key::keysSplitHorizontal,  "split_horizontal", true  },
-    { Config::Key::keysSplitVertical,    "split_vertical",   true  },
-    { Config::Key::keysPaneLeft,         "pane_left",        true  },
-    { Config::Key::keysPaneDown,         "pane_down",        true  },
-    { Config::Key::keysPaneUp,           "pane_up",          true  },
-    { Config::Key::keysPaneRight,        "pane_right",       true  },
-    { Config::Key::keysNewline,          "newline",          false },
-    { Config::Key::keysActionList,       "action_list",      true  },
-    { Config::Key::keysEnterSelection,   "enter_selection",  true  },
-    { Config::Key::keysEnterOpenFile,    "enter_open_file",  true  },
-};
-// clang-format on
-
-} // anonymous namespace
-
 namespace Action
 {
-
-//==============================================================================
-juce::String Registry::configKeyForAction (const juce::String& actionId)
-{
-    juce::String result;
-
-    for (const auto& row : actionKeyTable)
-    {
-        if (juce::String (row.actionId) == actionId and result.isEmpty())
-            result = row.configKey;
-    }
-
-    return result;
-}
 
 //==============================================================================
 Registry::Registry() = default;
@@ -179,93 +120,46 @@ void Registry::clear()
 }
 
 //==============================================================================
-void Registry::reload()
-{
-    stopTimer();
-    prefixState = PrefixState::idle;
-    buildKeyMap();
-}
-
-//==============================================================================
 const std::vector<Registry::Entry>& Registry::getEntries() const noexcept
 {
     return entries;
 }
 
 //==============================================================================
-void Registry::buildKeyMap()
+void Registry::buildKeyMap (const juce::String& prefixShortcut,
+                            int prefixTimeout,
+                            const std::vector<Binding>& bindings)
 {
     globalBindings.clear();
     modalBindings.clear();
 
-    auto* cfg { Config::getContext() };
-    jassert (cfg != nullptr);
+    prefixKey       = parseShortcut (prefixShortcut);
+    prefixTimeoutMs = prefixTimeout;
 
-    // Resolve prefix key and timeout.
-    prefixKey      = parseShortcut (cfg->getString (Config::Key::keysPrefix));
-    prefixTimeoutMs = cfg->getInt (Config::Key::keysPrefixTimeout);
-
-    // Build a lookup from action ID → index into entries for fast resolution.
+    // Build a lookup from action ID -> index into entries.
     std::unordered_map<juce::String, int> idToIndex;
     idToIndex.reserve (entries.size());
 
     for (int i { 0 }; i < static_cast<int> (entries.size()); ++i)
         idToIndex.insert_or_assign (entries.at (static_cast<std::size_t> (i)).id, i);
 
-    // Walk the config key table and populate the appropriate binding map.
-    for (const auto& row : actionKeyTable)
+    // Walk the provided bindings and populate the appropriate binding map.
+    for (const auto& binding : bindings)
     {
-        const juce::String shortcutStr { cfg->getString (row.configKey) };
-        const juce::KeyPress kp { parseShortcut (shortcutStr) };
+        const juce::KeyPress kp { parseShortcut (binding.shortcutString) };
 
         if (kp.isValid())
         {
-            const auto idxIt { idToIndex.find (juce::String (row.actionId)) };
+            const auto idxIt { idToIndex.find (binding.actionId) };
 
             if (idxIt != idToIndex.end())
             {
-                if (row.isModal)
+                if (binding.isModal)
                     modalBindings.insert_or_assign (kp, idxIt->second);
                 else
                     globalBindings.insert_or_assign (kp, idxIt->second);
 
                 entries.at (static_cast<std::size_t> (idxIt->second)).shortcut = kp;
-            }
-        }
-    }
-
-    // Walk popup entries and populate modal/global bindings.
-    for (const auto& [name, entry] : cfg->getPopups())
-    {
-        if (entry.modal.isNotEmpty())
-        {
-            const juce::KeyPress kp { parseShortcut (entry.modal) };
-
-            if (kp.isValid())
-            {
-                const auto idxIt { idToIndex.find ("popup:" + name) };
-
-                if (idxIt != idToIndex.end())
-                {
-                    modalBindings.insert_or_assign (kp, idxIt->second);
-                    entries.at (static_cast<std::size_t> (idxIt->second)).shortcut = kp;
-                }
-            }
-        }
-
-        if (entry.global.isNotEmpty())
-        {
-            const juce::KeyPress kp { parseShortcut (entry.global) };
-
-            if (kp.isValid())
-            {
-                const auto idxIt { idToIndex.find ("popup_global:" + name) };
-
-                if (idxIt != idToIndex.end())
-                {
-                    globalBindings.insert_or_assign (kp, idxIt->second);
-                    entries.at (static_cast<std::size_t> (idxIt->second)).shortcut = kp;
-                }
             }
         }
     }

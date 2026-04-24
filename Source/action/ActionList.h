@@ -8,6 +8,7 @@
 #include <JuceHeader.h>
 #include "../config/Config.h"
 #include "../component/MessageOverlay.h"
+#include "../scripting/Scripting.h"
 #include "Action.h"
 #include "ActionRow.h"
 #include "KeyHandler.h"
@@ -40,9 +41,10 @@ public:
      * configures fonts and colours. Ready to be hosted in a Terminal::ModalWindow
      * via Popup::show().
      *
-     * @param main  The main component used for size calculations; L&F inherited from this.
+     * @param main    The main component used for size calculations; L&F inherited from this.
+     * @param engine  Scripting engine for key lookup and patching. Must outlive the List.
      */
-    explicit List (juce::Component& main);
+    List (juce::Component& main, Scripting::Engine& engine);
 
     /** @brief Destructor. Reloads Config if bindings were modified during the session. */
     ~List() override;
@@ -93,6 +95,9 @@ private:
 
     /** @brief Reference to the main component; used for size calculations. */
     juce::Component& main;
+
+    /** @brief Scripting engine reference; used for key lookup and patching. */
+    Scripting::Engine& scriptingEngine;
 
     /** @brief ValueTree root holding ACTION nodes and binding state. */
     jam::ValueTree state { "ACTION_LIST" };

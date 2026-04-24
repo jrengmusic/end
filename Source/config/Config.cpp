@@ -145,6 +145,7 @@ void Config::initKeys()
     addKey (Key::windowConfirmationOnExit, "true", { T::string });
     addKey (Key::gpuAcceleration, "auto", { T::string });
     addKey (Key::daemon, "false", { T::string });
+    addKey (Key::autoReload, "true", { T::string });
 
     addKey (Key::tabFamily, "Display Mono", { T::string });
     addKey (Key::tabSize, 12.0, { T::number, 1.0, 200.0, true });
@@ -185,62 +186,6 @@ void Config::initKeys()
     addKey (Key::terminalDropMultifiles, "space", { T::string });
     addKey (Key::terminalDropQuoted, "true", { T::string });
 
-#if JUCE_MAC
-    addKey (Key::keysCopy, "cmd+c", { T::string });
-    addKey (Key::keysPaste, "cmd+v", { T::string });
-    addKey (Key::keysQuit, "cmd+q", { T::string });
-    addKey (Key::keysCloseTab, "cmd+w", { T::string });
-    addKey (Key::keysReload, "cmd+r", { T::string });
-    addKey (Key::keysZoomIn, "cmd+=", { T::string });
-    addKey (Key::keysZoomOut, "cmd+-", { T::string });
-    addKey (Key::keysZoomReset, "cmd+0", { T::string });
-    addKey (Key::keysNewWindow, "cmd+n", { T::string });
-    addKey (Key::keysNewTab, "cmd+t", { T::string });
-    addKey (Key::keysPrevTab, "cmd+[", { T::string });
-    addKey (Key::keysNextTab, "cmd+]", { T::string });
-#else
-    addKey (Key::keysCopy, "ctrl+c", { T::string });
-    addKey (Key::keysPaste, "ctrl+v", { T::string });
-    addKey (Key::keysQuit, "ctrl+q", { T::string });
-    addKey (Key::keysCloseTab, "ctrl+w", { T::string });
-    addKey (Key::keysReload, "ctrl+/", { T::string });
-    addKey (Key::keysZoomIn, "ctrl+=", { T::string });
-    addKey (Key::keysZoomOut, "ctrl+-", { T::string });
-    addKey (Key::keysZoomReset, "ctrl+0", { T::string });
-    addKey (Key::keysNewWindow, "ctrl+n", { T::string });
-    addKey (Key::keysNewTab, "ctrl+t", { T::string });
-    addKey (Key::keysPrevTab, "ctrl+[", { T::string });
-    addKey (Key::keysNextTab, "ctrl+]", { T::string });
-#endif
-    addKey (Key::keysSplitHorizontal, juce::String::charToString (static_cast<juce::juce_wchar> ('\\')), { T::string });
-    addKey (Key::keysSplitVertical, "-", { T::string });
-    addKey (Key::keysPrefix, "`", { T::string });
-    addKey (Key::keysPrefixTimeout, 1000.0, { T::number, 100.0, 5000.0, true });
-    addKey (Key::keysPaneLeft, "h", { T::string });
-    addKey (Key::keysPaneDown, "j", { T::string });
-    addKey (Key::keysPaneUp, "k", { T::string });
-    addKey (Key::keysPaneRight, "l", { T::string });
-    addKey (Key::keysNewline, "shift+return", { T::string });
-    addKey (Key::keysActionList, "?", { T::string });
-    addKey (Key::keysActionListPosition, "top", { T::string });
-    addKey (Key::keysEnterSelection, "[", { T::string });
-    addKey (Key::keysEnterOpenFile, "o", { T::string });
-    addKey (Key::keysOpenFileNextPage, "space", { T::string });
-
-    addKey (Key::keysSelectionUp, "k", { T::string });
-    addKey (Key::keysSelectionDown, "j", { T::string });
-    addKey (Key::keysSelectionLeft, "h", { T::string });
-    addKey (Key::keysSelectionRight, "l", { T::string });
-    addKey (Key::keysSelectionVisual, "v", { T::string });
-    addKey (Key::keysSelectionVisualLine, "shift+v", { T::string });
-    addKey (Key::keysSelectionVisualBlock, "ctrl+v", { T::string });
-    addKey (Key::keysSelectionCopy, "y", { T::string });
-    addKey (Key::keysSelectionTop, "g", { T::string });
-    addKey (Key::keysSelectionBottom, "shift+g", { T::string });
-    addKey (Key::keysSelectionLineStart, "0", { T::string });
-    addKey (Key::keysSelectionLineEnd, "$", { T::string });
-    addKey (Key::keysSelectionExit, "escape", { T::string });
-
     addKey (Key::popupCols, 70, { T::number, 1.0, 640.0, true });
     addKey (Key::popupRows, 20, { T::number, 1.0, 480.0, true });
     addKey (Key::popupPosition, "center", { T::string });
@@ -248,7 +193,8 @@ void Config::initKeys()
     addKey (Key::popupBorderWidth, 1.0, { T::number, 0.0, 10.0, true });
 
     // ---- Action list (command palette) --------------------------------------
-    addKey (Key::keysActionListCloseOnRun, "true", { T::string });
+    addKey (Key::actionListCloseOnRun, "true", { T::string });
+    addKey (Key::actionListPosition, "top", { T::string });
     addKey (Key::actionListWidth, 0.3, { T::number, 0.1, 1.0, true });
     addKey (Key::actionListHeight, 0.3, { T::number, 0.1, 1.0, true });
     addKey (Key::actionListNameFamily,     "Display",      { T::string });
@@ -271,7 +217,7 @@ void Config::initKeys()
     addKey (Key::coloursStatusBar, "#090D12", { T::string });///< bunker
     addKey (Key::coloursStatusBarLabelBg, "#112130", { T::string });///< trappedDarkness
     addKey (Key::coloursStatusBarLabelFg, "#4E8C93", { T::string });///< paradiso
-    addKey (Key::keysStatusBarPosition, "bottom", { T::string });
+    addKey (Key::statusBarPosition, "bottom", { T::string });
     addKey (Key::statusBarFontFamily, juce::String ("Display Mono"), { T::string });
     addKey (Key::statusBarFontSize, 12.0, { T::number, 6.0, 48.0, true });
     addKey (Key::statusBarFontStyle, juce::String ("Bold"), { T::string });
@@ -515,69 +461,6 @@ static void loadPadding (const jam::lua::table& arr,
 }
 
 /**
- * @brief Parses the `popups` three-level Lua table into `PopupEntry` records.
- *
- * Each named entry under `END.popups` becomes a `PopupEntry`.  Entries missing
- * a `command` field or lacking any key binding are rejected with a warning.
- *
- * Free function; operates on the caller's maps directly to avoid exposing
- * sol2 types in Config.h.
- *
- * @param popupsTable  The `END.popups` Lua table.
- * @param popups       The popup entries map to insert into.
- * @param warnings     Warning list; entries are appended on validation failure.
- */
-static void loadPopups (const jam::lua::table& popupsTable,
-                        std::unordered_map<juce::String, Config::PopupEntry>& popups,
-                        juce::StringArray& warnings)
-{
-    popupsTable.for_each (
-        [&popups, &warnings] (const jam::lua::object& nameKey, const jam::lua::object& entryVal)
-        {
-            if (nameKey.get_type() == jam::lua::type::string and entryVal.get_type() == jam::lua::type::table)
-            {
-                const juce::String name { nameKey.as<std::string>() };
-                jam::lua::table entry { entryVal.as<jam::lua::table>() };
-                Config::PopupEntry popup;
-
-                if (auto cmd { entry.get<jam::lua::optional<std::string>> ("command") })
-                    popup.command = juce::String (*cmd);
-
-                if (auto a { entry.get<jam::lua::optional<std::string>> ("args") })
-                    popup.args = juce::String (*a);
-
-                if (auto c { entry.get<jam::lua::optional<std::string>> ("cwd") })
-                    popup.cwd = juce::String (*c);
-
-                if (auto c { entry.get<jam::lua::optional<int>> ("cols") })
-                    popup.cols = *c;
-
-                if (auto r { entry.get<jam::lua::optional<int>> ("rows") })
-                    popup.rows = *r;
-
-                if (auto m { entry.get<jam::lua::optional<std::string>> ("modal") })
-                    popup.modal = juce::String (*m);
-
-                if (auto g { entry.get<jam::lua::optional<std::string>> ("global") })
-                    popup.global = juce::String (*g);
-
-                if (popup.command.isEmpty())
-                {
-                    warnings.add ("popups." + name + ": missing 'command'");
-                }
-                else if (popup.modal.isEmpty() and popup.global.isEmpty())
-                {
-                    warnings.add ("popups." + name + ": needs 'modal' or 'global' key binding");
-                }
-                else
-                {
-                    popups.insert_or_assign (name, std::move (popup));
-                }
-            }
-        });
-}
-
-/**
  * @brief Parses the `hyperlinks.handlers` and `hyperlinks.extensions` sub-tables.
  *
  * `handlers` is a string-keyed table mapping extensions to shell commands.
@@ -714,7 +597,7 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                                 if (isTableVal)
                                 {
                                     const juce::String groupName { groupKey.as<std::string>() };
-                                    const bool isSpecialGroup { groupName == "popups" or groupName == "hyperlinks" };
+                                    const bool isSpecialGroup { groupName == "hyperlinks" };
 
                                     if (not isSpecialGroup)
                                     {
@@ -778,11 +661,6 @@ bool Config::load (const juce::File& file, juce::String& errorOut)
                             }
                         });
 
-                    jam::lua::object popupsObj { root["popups"] };
-
-                    if (popupsObj.get_type() == jam::lua::type::table)
-                        loadPopups (popupsObj.as<jam::lua::table>(), popups, warnings);
-
                     jam::lua::object hyperlinksObj { root["hyperlinks"] };
 
                     if (hyperlinksObj.get_type() == jam::lua::type::table)
@@ -839,7 +717,6 @@ juce::String Config::reload()
 {
     colourCache.clear();
     initKeys();
-    clearPopups();
     juce::String error;
     load (getConfigFile(), error);
 
@@ -1204,11 +1081,6 @@ juce::Colour Config::parseColour (const juce::String& input)
 
     return result;
 }
-
-//==============================================================================
-const std::unordered_map<juce::String, Config::PopupEntry>& Config::getPopups() const noexcept { return popups; }
-
-void Config::clearPopups() { popups.clear(); }
 
 //==============================================================================
 /**

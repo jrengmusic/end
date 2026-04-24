@@ -15,6 +15,7 @@
 #include "../ModalType.h"
 #include "../SelectionType.h"
 #include "../AppState.h"
+#include "../scripting/Scripting.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
@@ -47,10 +48,11 @@ public:
     }
 
     /**
-     * @brief Parses selection key bindings from Config.
+     * @brief Copies selection key bindings from the scripting engine.
+     * @param keys  Parsed selection keys from Scripting::Engine.
      * @note MESSAGE THREAD.
      */
-    void buildKeyMap() noexcept;
+    void buildKeyMap (const Scripting::Engine::SelectionKeys& keys) noexcept;
 
     /**
      * @brief Top-level key handler.

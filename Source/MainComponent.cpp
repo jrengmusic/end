@@ -84,6 +84,126 @@ MainComponent::MainComponent (jam::Typeface::Registry& fontRegistry)
     setLookAndFeel (&terminalLookAndFeel);
     juce::LookAndFeel::setDefaultLookAndFeel (&terminalLookAndFeel);
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
+
+    //==============================================================================
+    // Construct Scripting::Engine — sole provider of key bindings and popup/custom actions.
+    Scripting::Engine::DisplayCallbacks displayCb;
+    displayCb.splitHorizontal = [this] { tabs->splitHorizontal(); };
+    displayCb.splitVertical   = [this] { tabs->splitVertical(); };
+    displayCb.splitWithRatio  = [this] (const juce::String& dir, bool isVert, double ratio)
+        { tabs->splitActiveWithRatio (dir, isVert, ratio); };
+    displayCb.newTab    = [this] { tabs->addNewTab(); };
+    displayCb.closeTab  = [this] { tabs->closeActiveTab(); };
+    displayCb.nextTab   = [this] { tabs->selectNextTab(); };
+    displayCb.prevTab   = [this] { tabs->selectPreviousTab(); };
+    displayCb.focusPane = [this] (int dx, int dy)
+    {
+        if (dx < 0) tabs->focusPaneLeft();
+        else if (dx > 0) tabs->focusPaneRight();
+        else if (dy < 0) tabs->focusPaneUp();
+        else if (dy > 0) tabs->focusPaneDown();
+    };
+    displayCb.closePane = [this] { tabs->closeActiveTab(); };
+
+    Scripting::Engine::PopupCallbacks popupCb;
+    popupCb.launchPopup = [this] (const juce::String& /*name*/,
+                                  const juce::String& command,
+                                  const juce::String& args,
+                                  const juce::String& cwd,
+                                  int popupCols,
+                                  int popupRows)
+    {
+        if (not popup.isActive())
+        {
+            const auto shell { config.getString (Config::Key::shellProgram) };
+            const auto configShellArgs { config.getString (Config::Key::shellArgs) };
+            auto shellArgs { (configShellArgs.isNotEmpty() ? configShellArgs + " " : juce::String())
+                             + "-c " + command
+                             + (args.isNotEmpty() ? " " + args : "") };
+
+            const int cols { popupCols > 0 ? popupCols : config.getInt (Config::Key::popupCols) };
+            const int rows { popupRows > 0 ? popupRows : config.getInt (Config::Key::popupRows) };
+
+            const auto fm { typeface.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
+
+            const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
+            const int paddingTop { config.getInt (Config::Key::terminalPaddingTop) };
+            const int paddingRight { config.getInt (Config::Key::terminalPaddingRight) };
+            const int paddingBottom { config.getInt (Config::Key::terminalPaddingBottom) };
+            const int paddingLeft { config.getInt (Config::Key::terminalPaddingLeft) };
+
+            const float lineHeightMultiplier { config.getFloat (Config::Key::fontLineHeight) };
+            const float cellWidthMultiplier { config.getFloat (Config::Key::fontCellWidth) };
+
+            const int effectiveCellW { static_cast<int> (static_cast<float> (fm.logicalCellW)
+                                                         * cellWidthMultiplier) };
+            const int effectiveCellH { static_cast<int> (static_cast<float> (fm.logicalCellH)
+                                                         * lineHeightMultiplier) };
+
+            const int pixelWidth { cols * effectiveCellW + paddingLeft + paddingRight };
+            const int pixelHeight { rows * effectiveCellH + paddingTop + paddingBottom + titleBarHeight };
+
+            const auto effectiveCwd { cwd.isNotEmpty() ? cwd : appState.getPwd() };
+
+            auto termSession { Terminal::Session::create (effectiveCwd, cols, rows, shell, shellArgs) };
+
+            termSession->onExit = [this]
+            {
+                juce::MessageManager::callAsync ([this] { popup.dismiss(); });
+            };
+
+            auto terminal { termSession->getProcessor().createDisplay (typeface, glyphAtlas, graphicsAtlas) };
+
+            auto renderer { (appState.getRendererType() == App::RendererType::gpu)
+                ? std::unique_ptr<jam::gl::Renderer> { std::make_unique<jam::GLAtlasRenderer> (typeface, glyphAtlas) }
+                : nullptr };
+
+            popup.show (*this, std::move (terminal), pixelWidth, pixelHeight, std::move (renderer));
+            popup.setTerminalSession (std::move (termSession));
+        }
+    };
+
+    scriptingEngine = std::make_unique<Scripting::Engine> (std::move (displayCb), std::move (popupCb));
+    scriptingEngine->load();
+
+    scriptingEngine->onActionReload = [this]
+    {
+        scriptingEngine->load();
+        registerActions();
+
+        const auto& error { scriptingEngine->getLoadError() };
+
+        if (error.isEmpty())
+        {
+            const auto rendererType { AppState::getContext()->getRendererType() };
+            const juce::String rendererName { rendererType == App::RendererType::gpu
+                                                  ? App::ID::rendererGpu.toUpperCase()
+                                                  : App::ID::rendererCpu.toUpperCase() };
+            messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
+        }
+        else
+        {
+            messageOverlay->showMessage (error);
+        }
+    };
+
+    scriptingEngine->onConfigReload = [this]
+    {
+        const auto reloadError { config.reload() };
+
+        if (reloadError.isEmpty())
+        {
+            const auto rendererType { AppState::getContext()->getRendererType() };
+            const juce::String rendererName { rendererType == App::RendererType::gpu
+                                                  ? App::ID::rendererGpu.toUpperCase()
+                                                  : App::ID::rendererCpu.toUpperCase() };
+            messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
+        }
+        else
+        {
+            messageOverlay->showMessage (reloadError);
+        }
+    };
 }
 
 void MainComponent::applyConfig()
@@ -186,7 +306,7 @@ void MainComponent::resized()
     // Position status bar overlay: full-width at configured edge.
     // No space is reserved when hidden — the bar overlays the terminal area.
     {
-        const juce::String position { config.getString (Config::Key::keysStatusBarPosition) };
+        const juce::String position { config.getString (Config::Key::statusBarPosition) };
         const int barHeight { statusBarOverlay->getPreferredHeight() };
         const int y { (position == "top") ? 0 : getHeight() - barHeight };
         statusBarOverlay->setBounds (0, y, getWidth(), barHeight);
@@ -304,10 +424,12 @@ void MainComponent::registerActions()
     registerTabActions (action);
     registerPaneActions (action);
     registerNavigationActions (action);
-    registerPopupActions (action);
 
-    //==============================================================================
-    action.buildKeyMap();
+    // Register popup + custom Lua actions from action.lua.
+    scriptingEngine->registerActions (action);
+
+    // Build key maps from action.lua bindings (replaces old Config-based buildKeyMap).
+    scriptingEngine->buildKeyMap (action);
 }
 
 /**

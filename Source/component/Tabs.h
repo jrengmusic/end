@@ -292,6 +292,15 @@ public:
      */
     void splitVertical();
 
+    /**
+     * @brief Split the active pane at a given ratio.
+     * @param direction  PaneManager direction string.
+     * @param isVertical True when the resizer bar is vertical.
+     * @param ratio      Split ratio (0.0–1.0).
+     * @note MESSAGE THREAD.
+     */
+    void splitActiveWithRatio (const juce::String& direction, bool isVertical, double ratio);
+
     /** @brief Focus the nearest pane to the left of the active pane. @note MESSAGE THREAD. */
     void focusPaneLeft();
 

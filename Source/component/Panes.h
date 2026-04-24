@@ -208,7 +208,8 @@ public:
                   const juce::String& direction,
                   bool isVertical,
                   int cols,
-                  int rows);
+                  int rows,
+                  double ratio = 0.5);
 
     /**
      * @brief Split the active pane into side-by-side columns.
@@ -225,6 +226,17 @@ public:
      * @note MESSAGE THREAD.
      */
     void splitVertical();
+
+    /**
+     * @brief Split the active pane at a given ratio.
+     *
+     * @param direction  PaneManager direction: "vertical" for side-by-side columns,
+     *                   "horizontal" for stacked rows.
+     * @param isVertical True when the resizer bar is vertical (direction == "vertical").
+     * @param ratio      Split ratio (0.0–1.0). 0.5 = equal halves.
+     * @note MESSAGE THREAD.
+     */
+    void splitActiveWithRatio (const juce::String& direction, bool isVertical, double ratio);
 
     /**
      * @brief Focus the nearest pane in the given direction.
@@ -274,7 +286,7 @@ private:
      * @param isVertical True when the resizer bar is vertical (splitHorizontal).
      * @note MESSAGE THREAD.
      */
-    void splitActive (const juce::String& direction, bool isVertical);
+    void splitActive (const juce::String& direction, bool isVertical, double ratio);
 
     jam::Typeface& font;
     jam::gl::GlyphAtlas& glAtlasRef;

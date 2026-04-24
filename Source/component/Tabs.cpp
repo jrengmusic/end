@@ -572,6 +572,18 @@ void Tabs::splitVertical()
     }
 }
 
+void Tabs::splitActiveWithRatio (const juce::String& direction, bool isVertical, double ratio)
+{
+    if (auto* active { getActivePanes() }; active != nullptr)
+    {
+        active->splitActiveWithRatio (direction, isVertical, ratio);
+        focusLastTerminal (active);
+
+        if (AppState::getContext()->isDaemonMode())
+            AppState::getContext()->save();
+    }
+}
+
 /**
  * @brief Lays out the active Panes to fill the content area.
  *

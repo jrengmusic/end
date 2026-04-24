@@ -9,7 +9,6 @@
 #include "Processor.h"
 #include "../selection/LinkManager.h"
 #include "../../action/Action.h"
-#include "../../config/Config.h"
 
 namespace Terminal
 {
@@ -104,44 +103,24 @@ void Input::clearSelectionAndScroll() noexcept
     }
 }
 
-void Input::buildKeyMap() noexcept
+void Input::buildKeyMap (const Scripting::Engine::SelectionKeys& keys) noexcept
 {
-    auto* cfg { Config::getContext() };
+    selectionKeys.up          = keys.up;
+    selectionKeys.down        = keys.down;
+    selectionKeys.left        = keys.left;
+    selectionKeys.right       = keys.right;
+    selectionKeys.visual      = keys.visual;
+    selectionKeys.visualLine  = keys.visualLine;
+    selectionKeys.visualBlock = keys.visualBlock;
+    selectionKeys.copy        = keys.copy;
+    selectionKeys.globalCopy  = keys.globalCopy;
+    selectionKeys.top         = keys.top;
+    selectionKeys.bottom      = keys.bottom;
+    selectionKeys.lineStart   = keys.lineStart;
+    selectionKeys.lineEnd     = keys.lineEnd;
+    selectionKeys.exit        = keys.exit;
 
-    selectionKeys.up = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionUp));
-    selectionKeys.down = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionDown));
-    selectionKeys.left = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionLeft));
-    selectionKeys.right = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionRight));
-    selectionKeys.visual = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionVisual));
-    selectionKeys.visualLine = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionVisualLine));
-
-    // Visual block uses real Ctrl (not Cmd on macOS).  parseShortcut maps
-    // "ctrl" → commandModifier on macOS, which conflicts with paste.  We
-    // build the KeyPress directly with ctrlModifier so Ctrl+V is unambiguous
-    // on all platforms.  The config value is still read so users can remap.
-    {
-        const juce::String raw { cfg->getString (Config::Key::keysSelectionVisualBlock) };
-        const bool hasCtrl { raw.containsIgnoreCase ("ctrl") and not raw.containsIgnoreCase ("cmd") };
-
-        if (hasCtrl)
-        {
-            selectionKeys.visualBlock = juce::KeyPress ('v', juce::ModifierKeys::ctrlModifier, 0);
-        }
-        else
-        {
-            selectionKeys.visualBlock = Action::Registry::parseShortcut (raw);
-        }
-    }
-
-    selectionKeys.copy = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionCopy));
-    selectionKeys.globalCopy = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysCopy));
-    selectionKeys.top = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionTop));
-    selectionKeys.bottom = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionBottom));
-    selectionKeys.lineStart = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionLineStart));
-    selectionKeys.lineEnd = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionLineEnd));
-    selectionKeys.exit = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysSelectionExit));
-
-    openFileNextPage = Action::Registry::parseShortcut (cfg->getString (Config::Key::keysOpenFileNextPage));
+    openFileNextPage = keys.openFileNextPage;
 }
 
 void Input::reset() noexcept

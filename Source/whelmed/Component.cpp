@@ -2,6 +2,7 @@
 #include "Component.h"
 #include "MermaidSVGParser.h"
 #include "../config/WhelmedConfig.h"
+#include "../scripting/Scripting.h"
 #include "../AppState.h"
 #include "../ModalType.h"
 #include "../SelectionType.h"
@@ -43,7 +44,10 @@ Component::Component()
     addChildComponent (loaderOverlay);
     viewport.addMouseListener (this, true);
     AppState::getContext()->getTabs().addListener (this);
-    inputHandler.buildKeyMap();
+
+    if (auto* engine { Scripting::Engine::getContext() }; engine != nullptr)
+        inputHandler.buildKeyMap (engine->getSelectionKeys());
+
     screen.setStateTree (state);
 }
 
@@ -69,7 +73,9 @@ void Component::applyConfig() noexcept
 {
     screen.load (docState.getDocument(), std::numeric_limits<int>::max());
     resized();
-    inputHandler.buildKeyMap();
+
+    if (auto* engine { Scripting::Engine::getContext() }; engine != nullptr)
+        inputHandler.buildKeyMap (engine->getSelectionKeys());
 }
 
 // ============================================================================

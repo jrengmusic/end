@@ -95,9 +95,9 @@ BEL character (`\x07`) — **Done**. Passes BEL to stderr.
 
 ### Keybinding Reorganization
 
-**Goal:** Fully configurable keybinding system. Nothing hardcoded except defaults. All actions assignable globally (direct shortcut) or modally (prefix key + action key), or both. User overrides everything via `end.lua`.
+**Goal:** Fully configurable keybinding system. Nothing hardcoded except defaults. All actions assignable globally (direct shortcut) or modally (prefix key + action key), or both. User overrides everything via `~/.config/end/action.lua`.
 
-**Implemented.** Single unified action registry (`Action::Registry`) with global and modal bindings, fully configurable via `end.lua`. Prefix key system with configurable timeout. Command palette (`Action::List`) for discovery and inline shortcut remapping.
+**Implemented.** Single unified action registry (`Action::Registry`) with global and modal bindings, fully configurable via `action.lua`. Prefix key system with configurable timeout. Command palette (`Action::List`) for discovery and inline shortcut remapping. Lua-scriptable custom actions with `display` API for composing pane/tab operations. File watcher auto-reloads on save (gated by `auto_reload` in `end.lua`).
 
 **Design:**
 
@@ -109,7 +109,7 @@ BEL character (`\x07`) — **Done**. Passes BEL to stderr.
   - `close_pane`, `close_tab`, `new_tab`
   - `scroll_up`, `scroll_down`, `scroll_top`, `scroll_bottom`
   - User-defined popup actions (see Popup section)
-  - Any future actions
+  - User-defined custom Lua actions (see Custom Actions section)
 
 - **Binding modes:**
   - **Global** — direct shortcut, no prefix. e.g., `Cmd+C` -> `copy`
@@ -118,43 +118,38 @@ BEL character (`\x07`) — **Done**. Passes BEL to stderr.
 
 - **Prefix key** — optional. If user sets `keys.prefix = ""` or omits it, modal mode is disabled entirely. All actions must then have global bindings.
 
+- **Config location:** `~/.config/end/action.lua` — SSOT for all keybindings, popup definitions, and custom actions. Parsed by `Scripting::Engine`, which owns a persistent Lua state for custom action function execution.
+
 - **Config schema:**
   ```lua
-  END = {
-      keys = {
-          prefix = "`",              -- optional, "" disables modal mode
-          prefix_timeout = 1000,     -- ms
+  -- ~/.config/end/action.lua (top-level tables, not nested in END)
+  keys = {
+      prefix = "`",              -- optional, "" disables modal mode
+      prefix_timeout = 1000,     -- ms
 
-          -- global bindings (no prefix needed)
-          copy = "cmd+c",
-          paste = "cmd+v",
-          quit = "cmd+q",
-          reload_config = "cmd+r",
-          zoom_in = "cmd+=",
-          zoom_out = "cmd+-",
-          zoom_reset = "cmd+0",
-          new_tab = "cmd+t",
-          close_tab = "cmd+w",
-          command_palette = "cmd+p",
+      -- global bindings (no prefix needed)
+      copy = "cmd+c",
+      paste = "cmd+v",
+      quit = "cmd+q",
+      reload = "cmd+r",
+      zoom_in = "cmd+=",
+      zoom_out = "cmd+-",
+      zoom_reset = "cmd+0",
+      new_tab = "cmd+t",
+      close_tab = "cmd+w",
 
-          -- modal bindings (prefix + key)
-          split_horizontal = "\\",
-          split_vertical = "-",
-          pane_left = "h",
-          pane_right = "l",
-          pane_up = "k",
-          pane_down = "j",
-          close_pane = "x",
-
-          -- user can override anything:
-          -- split_horizontal = "cmd+shift+\\",  -- global, no prefix needed
-      },
+      -- modal bindings (prefix + key)
+      split_horizontal = "\\",
+      split_vertical = "-",
+      pane_left = "h",
+      pane_right = "l",
+      pane_up = "k",
+      pane_down = "j",
+      action_list = "?",
   }
   ```
 
 - **Resolution order:** User config overrides defaults. If a key string contains `+` modifiers (cmd, ctrl, shift, alt), it's a global binding. If it's a single character, it's a modal binding (requires prefix). User can force global by writing `"cmd+h"` instead of `"h"`.
-
-- **Replaces:** Current `KeyBinding` (ApplicationCommandManager wrapper) and `ModalKeyBinding` (prefix-key system) merge into one unified system.
 
 ---
 
@@ -199,35 +194,24 @@ BEL character (`\x07`) — **Done**. Passes BEL to stderr.
    - END quits (all popup PTYs killed)
 6. Popup is modal — input goes to popup until dismissed
 
-**Config schema:**
+**Config location:** `~/.config/end/action.lua` — popups table alongside keybindings and custom actions.
 
 ```lua
-END = {
-    popups = {
-        {
-            name = "TIT",
-            command = "nvim",
-            cwd = "~/Documents/Poems/dev/TIT/",
-            width = 0.8,       -- fraction of terminal width
-            height = 0.6,      -- fraction of terminal height
-            key = "t",         -- modal: prefix + t. or "cmd+shift+t" for global
-        },
-        {
-            name = "lazygit",
-            command = "lazygit",
-            cwd = "",          -- empty = inherit current terminal cwd
-            width = 0.9,
-            height = 0.9,
-            key = "g",
-        },
-        {
-            name = "htop",
-            command = "htop",
-            cwd = "~",
-            width = 0.7,
-            height = 0.5,
-            key = "p",
-        },
+-- ~/.config/end/action.lua
+popups = {
+    tit = {
+        command = "tit",
+        cwd = "",
+        cols = 80,
+        rows = 30,
+        modal = "t",
+    },
+    lazygit = {
+        command = "lazygit",
+        cwd = "",
+        cols = 100,
+        rows = 40,
+        modal = "g",
     },
 }
 ```
@@ -236,12 +220,13 @@ END = {
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `name` | string | Display name (shown in command palette) |
 | `command` | string | Shell command or path to executable |
+| `args` | string | Arguments passed to the command |
 | `cwd` | string | Working directory. Empty = inherit active terminal's cwd |
-| `width` | float | Fraction of parent terminal width (0.0-1.0) |
-| `height` | float | Fraction of parent terminal height (0.0-1.0) |
-| `key` | string | Keyboard shortcut (modal or global, same rules as keybinding) |
+| `cols` | number | Width in columns. Zero = use global default from `end.lua` |
+| `rows` | number | Height in rows. Zero = use global default from `end.lua` |
+| `modal` | string | Key pressed after prefix (e.g. `"t"`) |
+| `global` | string | Direct shortcut, no prefix needed (e.g. `"cmd+g"`) |
 
 **Popup actions are registered in the action registry** and appear in the command palette as `popup:<name>` (e.g., `popup:lazygit`).
 

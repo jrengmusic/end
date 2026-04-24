@@ -12,8 +12,9 @@ const juce::Identifier List::bindingRowIndexId { "bindingRowIndex" };
 const juce::Identifier List::bindingsDirtyId { "bindingsDirty" };
 
 //==============================================================================
-List::List (juce::Component& mainWindow)
+List::List (juce::Component& mainWindow, Scripting::Engine& engine)
     : main (mainWindow)
+    , scriptingEngine (engine)
 {
     setOpaque (false);
     setWantsKeyboardFocus (true);
@@ -81,7 +82,10 @@ List::~List()
 
     if (static_cast<bool> (state.get().getProperty (bindingsDirtyId)))
     {
-        Config::getContext()->reload();
+        scriptingEngine.load();
+
+        if (auto* registry { Action::Registry::getContext() }; registry != nullptr)
+            scriptingEngine.buildKeyMap (*registry);
     }
 }
 
@@ -139,12 +143,16 @@ void List::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
             if (auto* label { rows.at (static_cast<std::size_t> (i))->getShortcutLabel() }; label != nullptr)
             {
                 const auto currentShortcut { label->getText() };
-                const auto configShortcut { config.getString (rows.at (static_cast<std::size_t> (i))->actionConfigKey) };
+                const auto engineShortcut { scriptingEngine.getShortcutString (rows.at (static_cast<std::size_t> (i))->actionConfigKey) };
 
-                if (currentShortcut != configShortcut)
+                if (currentShortcut != engineShortcut)
                 {
-                    config.patchKey (rows.at (static_cast<std::size_t> (i))->actionConfigKey, currentShortcut);
-                    registry->buildKeyMap();
+                    scriptingEngine.patchKey (rows.at (static_cast<std::size_t> (i))->actionConfigKey, currentShortcut);
+                    scriptingEngine.load();
+
+                    if (registry != nullptr)
+                        scriptingEngine.buildKeyMap (*registry);
+
                     state.get().setProperty (bindingsDirtyId, true, nullptr);
                 }
             }
@@ -190,6 +198,7 @@ void List::buildRows()
         {
             const juce::String uuid { juce::Uuid().toString() };
             auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, entry) };
+            row->actionConfigKey = scriptingEngine.getActionLuaKey (entry.id);
 
             configureActionRow (*row);
 
@@ -225,10 +234,10 @@ void List::buildRows()
         Registry::Entry prefixEntry;
         prefixEntry.id = "prefix";
         prefixEntry.name = "Prefix";
-        prefixEntry.shortcut = Registry::parseShortcut (config.getString (Config::Key::keysPrefix));
+        prefixEntry.shortcut = Registry::parseShortcut (scriptingEngine.getPrefixString());
 
         auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, prefixEntry) };
-        row->actionConfigKey = Config::Key::keysPrefix;
+        row->actionConfigKey = "keys.prefix";
 
         configureActionRow (*row);
 
@@ -248,6 +257,7 @@ void List::buildRows()
         {
             const juce::String uuid { juce::Uuid().toString() };
             auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, entry) };
+            row->actionConfigKey = scriptingEngine.getActionLuaKey (entry.id);
 
             configureActionRow (*row);
 
@@ -417,7 +427,7 @@ void List::executeSelected()
         if (rows.at (static_cast<std::size_t> (target))->run != nullptr)
             rows.at (static_cast<std::size_t> (target))->run();
 
-        if (config.getBool (Config::Key::keysActionListCloseOnRun))
+        if (config.getBool (Config::Key::actionListCloseOnRun))
         {
             if (onActionRun != nullptr)
                 onActionRun();
@@ -500,8 +510,9 @@ bool List::handleBindingKey (const juce::KeyPress& key)
 
                 if (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey.isNotEmpty())
                 {
-                    config.patchKey (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
-                    registry->buildKeyMap();
+                    scriptingEngine.patchKey (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
+                    scriptingEngine.load();
+                    scriptingEngine.buildKeyMap (*registry);
                     state.get().setProperty (bindingsDirtyId, true, nullptr);
 
                     if (auto* label { rows.at (static_cast<std::size_t> (targetIndex))->getShortcutLabel() };

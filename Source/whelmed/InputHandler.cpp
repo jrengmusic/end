@@ -8,45 +8,28 @@
 #include "InputHandler.h"
 #include "Screen.h"
 #include "../config/WhelmedConfig.h"
-#include "../config/Config.h"
 #include "../action/Action.h"
 #include "../AppIdentifier.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-void InputHandler::buildKeyMap() noexcept
+void InputHandler::buildKeyMap (const Scripting::Engine::SelectionKeys& keys) noexcept
 {
-    auto* cfg { ::Config::getContext() };
-
-    selectionKeys.up         = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionUp));
-    selectionKeys.down       = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionDown));
-    selectionKeys.left       = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionLeft));
-    selectionKeys.right      = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionRight));
-    selectionKeys.visual     = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionVisual));
-    selectionKeys.visualLine = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionVisualLine));
-    selectionKeys.copy       = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionCopy));
-    selectionKeys.globalCopy = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysCopy));
-    selectionKeys.top        = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionTop));
-    selectionKeys.bottom     = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionBottom));
-    selectionKeys.lineStart  = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionLineStart));
-    selectionKeys.lineEnd    = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionLineEnd));
-    selectionKeys.exit       = Action::Registry::parseShortcut (cfg->getString (::Config::Key::keysSelectionExit));
-
-    // Visual block: same Ctrl+V handling as Terminal::InputHandler
-    {
-        const juce::String raw { cfg->getString (::Config::Key::keysSelectionVisualBlock) };
-        const bool hasCtrl { raw.containsIgnoreCase ("ctrl") and not raw.containsIgnoreCase ("cmd") };
-
-        if (hasCtrl)
-        {
-            selectionKeys.visualBlock = juce::KeyPress ('v', juce::ModifierKeys::ctrlModifier, 0);
-        }
-        else
-        {
-            selectionKeys.visualBlock = Action::Registry::parseShortcut (raw);
-        }
-    }
+    selectionKeys.up          = keys.up;
+    selectionKeys.down        = keys.down;
+    selectionKeys.left        = keys.left;
+    selectionKeys.right       = keys.right;
+    selectionKeys.visual      = keys.visual;
+    selectionKeys.visualLine  = keys.visualLine;
+    selectionKeys.visualBlock = keys.visualBlock;
+    selectionKeys.copy        = keys.copy;
+    selectionKeys.globalCopy  = keys.globalCopy;
+    selectionKeys.top         = keys.top;
+    selectionKeys.bottom      = keys.bottom;
+    selectionKeys.lineStart   = keys.lineStart;
+    selectionKeys.lineEnd     = keys.lineEnd;
+    selectionKeys.exit        = keys.exit;
 }
 
 bool InputHandler::handleKey (const juce::KeyPress& key) noexcept

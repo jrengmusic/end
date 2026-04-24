@@ -196,7 +196,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                            {
                                if (not popup.isActive())
                                {
-                                   auto list { std::make_unique<Action::List> (*this) };
+                                   auto list { std::make_unique<Action::List> (*this, *scriptingEngine) };
 
                                    list->onActionRun = [this]
                                    {
@@ -444,77 +444,3 @@ void MainComponent::registerNavigationActions (Action::Registry& action)
         });
 }
 
-/** @note MESSAGE THREAD. */
-void MainComponent::registerPopupActions (Action::Registry& action)
-{
-    for (const auto& pair : config.getPopups())
-    {
-        const auto& name { pair.first };
-        const auto& entry { pair.second };
-
-        auto launchPopup {
-            [this, entry]() -> bool
-            {
-                if (not popup.isActive())
-                {
-                    const auto shell { config.getString (Config::Key::shellProgram) };
-                    const auto configShellArgs { config.getString (Config::Key::shellArgs) };
-                    auto shellArgs { (configShellArgs.isNotEmpty() ? configShellArgs + " " : juce::String())
-                                    + "-c " + entry.command
-                                    + (entry.args.isNotEmpty() ? " " + entry.args : "") };
-
-                    const int cols { entry.cols > 0 ? entry.cols : config.getInt (Config::Key::popupCols) };
-                    const int rows { entry.rows > 0 ? entry.rows : config.getInt (Config::Key::popupRows) };
-
-                    const auto fm { typeface.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
-
-                    const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
-                    const int paddingTop { config.getInt (Config::Key::terminalPaddingTop) };
-                    const int paddingRight { config.getInt (Config::Key::terminalPaddingRight) };
-                    const int paddingBottom { config.getInt (Config::Key::terminalPaddingBottom) };
-                    const int paddingLeft { config.getInt (Config::Key::terminalPaddingLeft) };
-
-                    const float lineHeightMultiplier { config.getFloat (Config::Key::fontLineHeight) };
-                    const float cellWidthMultiplier { config.getFloat (Config::Key::fontCellWidth) };
-
-                    const int effectiveCellW { static_cast<int> (static_cast<float> (fm.logicalCellW)
-                                                                 * cellWidthMultiplier) };
-                    const int effectiveCellH { static_cast<int> (static_cast<float> (fm.logicalCellH)
-                                                                 * lineHeightMultiplier) };
-
-                    const int pixelWidth { cols * effectiveCellW + paddingLeft + paddingRight };
-                    const int pixelHeight { rows * effectiveCellH + paddingTop + paddingBottom + titleBarHeight };
-
-                    const auto cwd { entry.cwd.isNotEmpty() ? entry.cwd : appState.getPwd() };
-
-                    auto termSession { Terminal::Session::create (cwd, cols, rows, shell, shellArgs) };
-
-                    termSession->onExit = [this]
-                    {
-                        juce::MessageManager::callAsync ([this] { popup.dismiss(); });
-                    };
-
-                    auto terminal { termSession->getProcessor().createDisplay (typeface, glyphAtlas, graphicsAtlas) };
-
-                    auto renderer { (appState.getRendererType() == App::RendererType::gpu)
-                        ? std::unique_ptr<jam::gl::Renderer> { std::make_unique<jam::GLAtlasRenderer> (
-                              typeface, glyphAtlas) }
-                        : nullptr };
-
-                    popup.show (*this, std::move (terminal), pixelWidth, pixelHeight, std::move (renderer));
-                    popup.setTerminalSession (std::move (termSession));
-                }
-
-                return true;
-            }
-        };
-
-        if (entry.modal.isNotEmpty())
-            action.registerAction (
-                "popup:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", true, launchPopup);
-
-        if (entry.global.isNotEmpty())
-            action.registerAction (
-                "popup_global:" + name, "Popup: " + name, "Open " + name + " popup", "Popups", false, launchPopup);
-    }
-}

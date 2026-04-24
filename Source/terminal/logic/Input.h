@@ -25,6 +25,7 @@
 #include <JuceHeader.h>
 #include "../rendering/ScreenSelection.h"
 #include "../../SelectionType.h"
+#include "../../scripting/Scripting.h"
 
 namespace Terminal
 {
@@ -106,14 +107,15 @@ public:
     void clearSelectionAndScroll() noexcept;
 
     /**
-     * @brief Parses all selection-mode key strings from Config into the cached key map.
+     * @brief Copies selection-mode key bindings from the scripting engine into the cached key map.
      *
-     * Called from `TerminalDisplay::initialise()` and `applyConfig()` so config
+     * Called from `TerminalDisplay::initialise()` and `applyConfig()` so Engine
      * reloads take effect without restarting.
      *
+     * @param keys  Parsed selection keys from Scripting::Engine.
      * @note MESSAGE THREAD.
      */
-    void buildKeyMap() noexcept;
+    void buildKeyMap (const Scripting::Engine::SelectionKeys& keys) noexcept;
 
     /**
      * @brief Clears the pending-g flag.

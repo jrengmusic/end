@@ -37,7 +37,6 @@ Row::Row (int index, const juce::String& uuid, const Registry::Entry& entry)
     shortcutLabel->setInterceptsMouseClicks (false, false);
     addAndMakeVisible (shortcutLabel.get());
 
-    actionConfigKey = Registry::configKeyForAction (entry.id);
     run = entry.execute;
 
     selected.addListener (this);

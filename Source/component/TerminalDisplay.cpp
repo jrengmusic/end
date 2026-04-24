@@ -14,6 +14,7 @@
 #include "TerminalDisplay.h"
 #include "../AppState.h"
 #include "../config/Config.h"
+#include "../scripting/Scripting.h"
 #include "../terminal/notifications/Notifications.h"
 
 /**
@@ -117,7 +118,9 @@ void Terminal::Display::initialise()
 
     // Switch to the renderer stored in AppState (SSOT).
     switchRenderer (AppState::getContext()->getRendererType());
-    inputHandler->buildKeyMap();
+
+    if (auto* engine { Scripting::Engine::getContext() }; engine != nullptr)
+        inputHandler->buildKeyMap (engine->getSelectionKeys());
 
     processor.onShellExited = [this]
     {
@@ -713,7 +716,10 @@ void Terminal::Display::applyConfig() noexcept
     applyScreenSettings();
 
     if (inputHandler.has_value())
-        inputHandler->buildKeyMap();
+    {
+        if (auto* engine { Scripting::Engine::getContext() }; engine != nullptr)
+            inputHandler->buildKeyMap (engine->getSelectionKeys());
+    }
 
     processor.getGrid().markAllDirty();
     processor.getState().setSnapshotDirty();

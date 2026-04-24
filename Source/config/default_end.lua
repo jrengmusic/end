@@ -362,6 +362,18 @@ END = {
 	},
 
 	-- ========================================================================
+	-- AUTO RELOAD
+	-- ========================================================================
+	--
+	-- Automatically reload configuration when files change.
+	-- When "true", END watches ~/.config/end/ for changes and reloads
+	-- end.lua and action.lua on save. No restart or Cmd+R needed.
+	-- When "false", manual reload only (Cmd+R).
+	--
+
+	auto_reload = "%%auto_reload%%",
+
+	-- ========================================================================
 	-- TERMINAL
 	-- ========================================================================
 
@@ -403,135 +415,12 @@ END = {
 	},
 
 	-- ========================================================================
-	-- KEY BINDINGS
+	-- STATUS BAR
 	-- ========================================================================
-	--
-	-- Direct key bindings use "modifier+key" format (e.g. "cmd+c").
-	-- Prefix-mode keys are single characters pressed AFTER the prefix key.
-	-- Prefix mode: press prefix key, then within timeout press the action key.
-	--
 
-	keys = {
-		-- Copy selection to clipboard.
-		copy = "%%keys_copy%%",
-
-		-- Paste from clipboard.
-		paste = "%%keys_paste%%",
-
-		-- Quit application.
-		quit = "%%keys_quit%%",
-
-		-- Close active pane, then tab, then window.
-		close_tab = "%%keys_close_tab%%",
-
-		-- Reload configuration file.
-		reload = "%%keys_reload%%",
-
-		-- Increase zoom level.
-		zoom_in = "%%keys_zoom_in%%",
-
-		-- Decrease zoom level.
-		zoom_out = "%%keys_zoom_out%%",
-
-		-- Reset zoom to 1.0.
-		zoom_reset = "%%keys_zoom_reset%%",
-
-		-- Open a new window.
-		new_window = "%%keys_new_window%%",
-
-		-- Open a new tab.
-		new_tab = "%%keys_new_tab%%",
-
-		-- Switch to previous tab.
-		prev_tab = "%%keys_prev_tab%%",
-
-		-- Switch to next tab.
-		next_tab = "%%keys_next_tab%%",
-
-		-- Split pane horizontally (left/right). Prefix-mode key.
-		split_horizontal = "%%keys_split_horizontal%%",
-
-		-- Split pane vertically (top/bottom). Prefix-mode key.
-		split_vertical = "%%keys_split_vertical%%",
-
-		-- Prefix key for modal pane commands.
-		-- Press this key first, then press a pane action key within the timeout.
-		prefix = "%%keys_prefix%%",
-
-		-- Prefix key timeout in milliseconds (100 - 5000).
-		-- How long to wait for a pane action key after pressing prefix.
-		prefix_timeout = %%keys_prefix_timeout%%,
-
-		-- Focus pane to the left. Prefix-mode key.
-		pane_left = "%%keys_pane_left%%",
-
-		-- Focus pane below. Prefix-mode key.
-		pane_down = "%%keys_pane_down%%",
-
-		-- Focus pane above. Prefix-mode key.
-		pane_up = "%%keys_pane_up%%",
-
-		-- Focus pane to the right. Prefix-mode key.
-		pane_right = "%%keys_pane_right%%",
-
-		-- Insert a literal newline (LF) instead of carriage return.
-		newline = "%%keys_newline%%",
-
-		-- Enter text selection mode. Prefix-mode key.
-		enter_selection = "%%keys_enter_selection%%",
-
-		-- Enter open-file mode (hyperlink hint labels). Prefix-mode key.
-		enter_open_file = "%%keys_enter_open_file%%",
-
-		-- ---- Selection mode ----
-
-		-- Move cursor up in selection mode.
-		selection_up = "%%keys_selection_up%%",
-
-		-- Move cursor down in selection mode.
-		selection_down = "%%keys_selection_down%%",
-
-		-- Move cursor left in selection mode.
-		selection_left = "%%keys_selection_left%%",
-
-		-- Move cursor right in selection mode.
-		selection_right = "%%keys_selection_right%%",
-
-		-- Toggle character-wise visual selection.
-		selection_visual = "%%keys_selection_visual%%",
-
-		-- Toggle line-wise visual selection.
-		selection_visual_line = "%%keys_selection_visual_line%%",
-
-		-- Toggle block visual selection.
-		selection_visual_block = "%%keys_selection_visual_block%%",
-
-		-- Yank (copy) the current selection and exit selection mode.
-		selection_copy = "%%keys_selection_copy%%",
-
-		-- Jump to top of buffer (press twice: gg).
-		selection_top = "%%keys_selection_top%%",
-
-		-- Jump to bottom of buffer.
-		selection_bottom = "%%keys_selection_bottom%%",
-
-		-- Jump to start of current line.
-		selection_line_start = "%%keys_selection_line_start%%",
-
-		-- Jump to end of current line.
-		selection_line_end = "%%keys_selection_line_end%%",
-
-		-- Exit selection mode.
-		selection_exit = "%%keys_selection_exit%%",
-
-		-- Open the action list (command palette).
-		action_list = "%%keys_action_list%%",
-
-		-- Action list position: "top" or "bottom".
-		action_list_position = "%%keys_action_list_position%%",
-
+	status_bar = {
 		-- Status bar position: "top" or "bottom".
-		status_bar_position = "%%keys_status_bar_position%%",
+		position = "%%status_bar_position%%",
 	},
 
 	-- ========================================================================
@@ -539,6 +428,9 @@ END = {
 	-- ========================================================================
 
 	action_list = {
+		-- Action list position: "top" or "bottom".
+		position = "%%action_list_position%%",
+
 		-- Close the action list after running an action.
 		-- When "false", the list stays open after execution.
 		close_on_run = "%%action_list_close_on_run%%",
@@ -629,54 +521,4 @@ END = {
 		-- extensions = { ".vue", ".svelte", ".astro" },
 	},
 
-	-- ========================================================================
-	-- POPUPS
-	-- ========================================================================
-	--
-	-- Modal popup terminals. Each entry spawns a terminal running a command
-	-- in a floating panel on top of the terminal. The popup blocks the main
-	-- window until the process exits (quit the TUI, Ctrl+C a script, etc.).
-	--
-	-- Each entry is a named table. The table key is the unique identifier.
-	--
-	-- Fields:
-	--   command  (string, required)  Shell command or executable to run.
-	--   args     (string, optional)  Arguments passed to the command.
-	--   cwd      (string, optional)  Working directory. Empty = inherit active terminal cwd.
-	--   cols     (number, optional)  Width in columns. Overrides popup.cols.
-	--   rows     (number, optional)  Height in rows. Overrides popup.rows.
-	--   modal    (string, optional)  Key pressed after the prefix key (e.g. "t").
-	--   global   (string, optional)  Global key: direct shortcut, no prefix needed.
-	--
-	-- At least one of modal or global is required.
-	-- Both can coexist on the same entry.
-	--
-	-- Examples:
-	--
-	popups = {
-		tit = {
-			command = "tit",
-			args = "",
-			cwd = "",
-			cols = 80,
-			rows = 30,
-			modal = "t",
-		},
-		cake = {
-			command = "cake",
-			args = "",
-			cwd = "",
-			cols = 80,
-			rows = 30,
-			modal = "c",
-		},
-		btop = {
-			command = "btop",
-			args = "",
-			cwd = "",
-			cols = 100,
-			rows = 40,
-			modal = "q",
-		},
-	},
 }

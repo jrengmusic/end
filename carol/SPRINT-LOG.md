@@ -1,5 +1,73 @@
 # SPRINT-LOG
 
+## Sprint 32: Lua-Scriptable Custom Actions + Action Binding Migration ✅
+
+**Date:** 2026-04-24
+
+### Agents Participated
+- **COUNSELOR:** Claude Sonnet — RFC analysis, PLAN authoring, migration orchestration, audit resolution, doc updates
+- **Pathfinder** (via COUNSELOR) — Codebase surveys: Config schema patterns, Action::Registry API, splitRect/PaneManager ratio flow, ActionList remap wiring, file watcher status
+- **Engineer** (via COUNSELOR) — All code implementation: Config key additions, splitActiveWithRatio extraction, Scripting::Engine subsystem, default_action.lua template, Config/Action migration, MainComponent wiring, Input/Whelmed selection key migration, file watcher, auto-reload callbacks, PaneManager ratio fix, audit fixes (early return, file split, rename)
+- **Auditor** (via COUNSELOR) — Full sprint audit: 14 findings (4 high, 9 medium, 1 low), all resolved
+
+### Files Modified (2 repos)
+
+**END (26 files — 4 created, 22 modified)**
+- `Source/scripting/Scripting.h` — NEW: Engine class, Context\<Engine\>, DisplayCallbacks/PopupCallbacks/SelectionKeys structs, KeyMapping static table
+- `Source/scripting/Scripting.cpp` — NEW: Engine core (load, registerActions, buildKeyMap, fileChanged watcher callback)
+- `Source/scripting/ScriptingParse.cpp` — NEW: parseKeys, parsePopups, parseActions, parseSelectionKeys, writeDefaults
+- `Source/scripting/ScriptingPatch.cpp` — NEW: patchKey (action.lua file patching), getActionLuaKey, getShortcutString
+- `Source/config/default_action.lua` — NEW: default action.lua template with platform placeholders, comprehensive docs, OOTB split-thirds examples
+- `Source/config/Config.h` — Added autoReload, actionListPosition, statusBarPosition keys; removed ~40 keys* constants, PopupEntry, getPopups
+- `Source/config/Config.cpp` — Added auto_reload/relocated schema entries; removed keys/popups schema, loadPopups, clearPopups
+- `Source/config/default_end.lua` — Added auto_reload + status_bar sections; removed keys + popups sections; relocated action_list_position
+- `Source/action/Action.h` — Added Binding struct; changed buildKeyMap to accept external bindings; removed configKeyForAction, reload
+- `Source/action/Action.cpp` — Removed actionKeyTable, anonymous namespace, Config dependency; rewrote buildKeyMap
+- `Source/action/ActionList.cpp` — Migrated from Config to Scripting::Engine (patchKey, getShortcutString, getPrefixString)
+- `Source/action/ActionRow.cpp` — Migrated configKeyForAction to Engine::getActionLuaKey
+- `Source/MainComponent.h` — Added Scripting::Engine member
+- `Source/MainComponent.cpp` — Engine construction, DisplayCallbacks/PopupCallbacks wiring, onActionReload/onConfigReload with RELOADED message
+- `Source/MainComponentActions.cpp` — Removed registerPopupActions; wired Engine::registerActions + buildKeyMap
+- `Source/component/Panes.h` — Added splitActiveWithRatio (public), ratio param on splitAt + splitActive
+- `Source/component/Panes.cpp` — splitActiveWithRatio impl, ratio threaded through splitActive → splitAt → PaneManager
+- `Source/component/Tabs.h` — Added splitActiveWithRatio forwarding
+- `Source/component/Tabs.cpp` — splitActiveWithRatio impl
+- `Source/terminal/logic/Input.h` — buildKeyMap accepts Scripting::Engine::SelectionKeys
+- `Source/terminal/logic/Input.cpp` — Migrated from Config reads to Engine selection keys
+- `Source/component/TerminalDisplay.cpp` — Passes Engine::getSelectionKeys() to Input::buildKeyMap
+- `Source/whelmed/InputHandler.h` — buildKeyMap accepts Scripting::Engine::SelectionKeys
+- `Source/whelmed/InputHandler.cpp` — Migrated from Config reads to Engine selection keys
+- `Source/whelmed/Component.cpp` — Passes Engine::getSelectionKeys() to InputHandler::buildKeyMap
+- `ARCHITECTURE.md` — Updated module map, inventory, action registry section for Scripting::Engine
+- `SPEC.md` — Updated keybinding + popup sections to reference action.lua
+
+**JAM (2 files)**
+- `jam_gui/layout/jam_pane_manager.h` — Added ratio parameter to split() (default 0.5)
+- `jam_gui/layout/jam_pane_manager.cpp` — Uses ratio parameter instead of hardcoded 0.5
+
+### Alignment Check
+- [x] BLESSED — B: Engine owns Lua state + watcher (RAII). L: Scripting split into 3 files under 300 lines. E: Callbacks structs explicit, no early returns. S: action.lua is SSOT for all bindings. S: Engine stateless beyond Lua VM + parsed list. E: Lua state private, clean API boundary. D: deterministic load order.
+- [x] NAMES.md — No improvised names. displayCallbacks, popupCallbacks, keyMappings, selectionKeys all semantic.
+- [x] MANIFESTO.md — No pattern invention. Follows existing Config/Action/Context patterns.
+
+### Problems Solved
+- **Lua-scriptable custom actions** — users define actions in `~/.config/end/action.lua` composed from display API (split_with_ratio, tabs, pane focus)
+- **Action binding SSOT** — all keybindings, popups, and custom actions in one file instead of split across end.lua Config + Action::Registry
+- **Custom split ratios** — splitActiveWithRatio enables arbitrary pane ratios (e.g. equal thirds via 0.333 + 0.5)
+- **PaneManager ratio bug** — ratio parameter was lost at PaneManager::split (hardcoded 0.5), now propagated from Lua through to ValueTree
+- **Auto-reload** — jam::File::Watcher hot-reloads action.lua and end.lua on save, gated by auto_reload config key
+- **Platform-conditional defaults** — default_action.lua uses %%placeholder%% substitution for macOS cmd vs Linux/Windows ctrl
+
+### Debts Paid
+None.
+
+### Debts Deferred
+None. Zero-debt rule observed.
+
+**Status:** ✅ Complete — Lua scripting system operational, all audit findings resolved
+
+---
+
 ## Sprint 31: JAM Namespace Conformance to Kuassa Convention ✅
 
 **Date:** 2026-04-23

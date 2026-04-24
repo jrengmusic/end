@@ -45,8 +45,15 @@ Source/
   Cursor.h/cpp                      Shared cursor descriptor used by Whelmed::Screen
 
   config/
-    Config.h/cpp                    Lua config loader, Context<Config> pattern
-    (KeyBinding, ModalKeyBinding — dissolved into Terminal::Action, Sprint 93)
+    Config.h/cpp                    Lua config loader, Context<Config> pattern (appearance only — keybindings migrated to action.lua)
+    default_end.lua                 Template for ~/.config/end/end.lua (appearance, window, shell, terminal config)
+    default_action.lua              Template for ~/.config/end/action.lua (keybindings, popups, custom actions)
+
+  scripting/
+    Scripting.h                     Scripting::Engine — Lua state, action.lua parser, file watcher, Context<Engine>
+    Scripting.cpp                   Engine core: load, register, buildKeyMap, watcher callback
+    ScriptingParse.cpp              Lua table parsing: keys, popups, actions, selection keys
+    ScriptingPatch.cpp              action.lua file patching (remap), key lookup utilities
 
   component/
     PaneComponent.h                 Pure virtual base for pane-hosted components (Terminal, Whelmed)
@@ -187,7 +194,8 @@ Source/
 |--------|----------|----------------|--------------|
 | AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active pane type + UUID | JUCE ValueTree, Terminal::ID |
 | AppIdentifier | `Source/` | ValueTree node and property identifiers; pane type string constants (paneTypeTerminal, paneTypeDocument) | JUCE |
-| Config | `config/` | Lua config load/save, Context-managed, platform config paths. `initKeys()` populates defaults before sol2 reads end.lua. Colour values parsed as RRGGBBAA hex strings. Colour cache invalidated on reload. | sol2, jam::Context |
+| Config | `config/` | Lua config load/save, Context-managed, platform config paths. Appearance and shell config only — keybindings and popups migrated to `action.lua` via `Scripting::Engine`. Colour values parsed as RRGGBBAA hex strings. Colour cache invalidated on reload. | sol2, jam::Context |
+| Scripting | `scripting/` | Lua scripting engine. Owns persistent `jam::lua::state` for `action.lua` — SSOT for all keybindings, popup definitions, and custom user actions. File watcher auto-reloads on save (gated by `auto_reload`). Provides parsed bindings to `Action::Registry` and selection keys to `Terminal::Input` / `Whelmed::InputHandler`. | sol2, jam::Context, jam::File::Watcher |
 | Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, Config, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Data | `terminal/data/` | Pure value types, state atomics, IDs | JUCE ValueTree |
@@ -585,8 +593,8 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 `Action::Registry` inherits `jam::Context<Registry>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
 
 **Architecture:**
-- Fixed action table: 19 entries with ID, name, description, category, callback
-- Hot-reloadable key map: reads `end.lua`, rebuilds KeyPress → action ID mapping on `reload()`
+- Dynamic action table: built-in actions registered by `MainComponent`, popup + custom Lua actions registered by `Scripting::Engine`
+- Hot-reloadable key map: `Scripting::Engine` parses `action.lua`, passes bindings to `Registry::buildKeyMap()`. File watcher auto-reloads on save.
 - Prefix state machine: tmux-style two-keystroke input (prefix key + action key with timeout)
 - Global singleton via `jam::Context<Action>`
 
@@ -598,32 +606,11 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 
 **Modal character matching:** Shifted characters (e.g. `?` = Shift+/) are matched by text character, not keycode+modifiers. Falls back to exact KeyPress match for non-character keys.
 
-| Action | Default Key | Modal | Config Key |
-|--------|-------------|-------|------------|
-| copy | ctrl+c (Mac: cmd+c) | No | `keys.copy` |
-| paste | ctrl+v (Mac: cmd+v) | No | `keys.paste` |
-| quit | cmd+q | No | `keys.quit` |
-| close_tab | cmd+w | No | `keys.close_tab` |
-| reload_config | cmd+r | No | `keys.reload` |
-| zoom_in | cmd+= | No | `keys.zoom_in` |
-| zoom_out | cmd+- | No | `keys.zoom_out` |
-| zoom_reset | cmd+0 | No | `keys.zoom_reset` |
-| new_window | cmd+n | No | `keys.new_window` |
-| new_tab | cmd+t | No | `keys.new_tab` |
-| prev_tab | cmd+shift+[ | No | `keys.prev_tab` |
-| next_tab | cmd+shift+] | No | `keys.next_tab` |
-| newline | shift+return | No | `keys.newline` |
-| action_list | ? | Yes | `keys.action_list` |
-| split_horizontal | \ | Yes | `keys.split_horizontal` |
-| split_vertical | - | Yes | `keys.split_vertical` |
-| pane_left | h | Yes | `keys.pane_left` |
-| pane_down | j | Yes | `keys.pane_down` |
-| pane_up | k | Yes | `keys.pane_up` |
-| pane_right | l | Yes | `keys.pane_right` |
+Built-in actions are registered in `MainComponentActions.cpp`. Popup and custom Lua actions are registered by `Scripting::Engine::registerActions()`. All keybindings (built-in + popup + custom) are defined in `~/.config/end/action.lua` and parsed by `Scripting::Engine`, which passes them to `Registry::buildKeyMap()`.
 
 **Copy action special behavior:** If box selection is active, copies to clipboard and returns true (consumed). If no selection, returns false — key falls through to PTY as `\x03` (SIGINT).
 
-Prefix key and timeout configurable via `keys.prefix` and `keys.prefix_timeout`.
+Prefix key and timeout configurable via `keys.prefix` and `keys.prefix_timeout` in `action.lua`.
 
 ### Close Cascade
 

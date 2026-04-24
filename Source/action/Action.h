@@ -10,7 +10,7 @@
  * ### Lifecycle
  * 1. Constructed once (typically by `MainComponent`).
  * 2. Caller registers every action via `registerAction()`.
- * 3. `buildKeyMap()` is called automatically at construction and on `reload()`.
+ * 3. `buildKeyMap()` is called after registration, with binding data from Scripting::Engine.
  * 4. `TerminalDisplay::keyPressed` delegates to `handleKeyPress()`.
  * 5. If `handleKeyPress()` returns `true` the key is consumed; otherwise the
  *    caller forwards it to the PTY.
@@ -23,14 +23,13 @@
  *
  * @note All methods must be called on the **MESSAGE THREAD**.
  *
- * @see Config::Key
+ * @see Scripting::Engine
  * @see jam::Context
  */
 
 #pragma once
 
 #include <JuceHeader.h>
-#include "../config/Config.h"
 
 // ---------------------------------------------------------------------------
 // std::hash specialisation for juce::KeyPress
@@ -117,9 +116,18 @@ public:
 
     //==========================================================================
     /**
+     * @brief A single key binding: maps an action ID to a shortcut string.
+     */
+    struct Binding
+    {
+        juce::String actionId;
+        juce::String shortcutString;
+        bool isModal { false };
+    };
+
+    //==========================================================================
+    /**
      * @brief Constructs the registry. Key map must be built after actions are registered via `buildKeyMap()`.
-     *
-     * Config must already be constructed before calling this constructor.
      */
     Registry();
 
@@ -169,21 +177,18 @@ public:
     void clear();
 
     /**
-     * @brief Reads Config and rebuilds `globalBindings`, `modalBindings`,
-     *        `prefixKey`, and `prefixTimeoutMs` from registered entries.
+     * @brief Populates key maps from externally provided bindings.
      *
-     * Called after all actions are registered (or re-registered on reload).
-     * The prefix state machine is reset to idle before this runs.
-     */
-    void buildKeyMap();
-
-    /**
-     * @brief Re-reads shortcuts from Config and rebuilds the key maps.
+     * Replaces the old Config-reading buildKeyMap. All binding data comes
+     * from Scripting::Engine which parses action.lua.
      *
-     * Registered callbacks are not touched.  The prefix state machine is
-     * reset to idle before rebuilding.
+     * @param prefixShortcut   The prefix key shortcut string (e.g. "`").
+     * @param prefixTimeout    Prefix timeout in milliseconds.
+     * @param bindings         All key bindings (built-in, popup, custom).
      */
-    void reload();
+    void buildKeyMap (const juce::String& prefixShortcut,
+                      int prefixTimeout,
+                      const std::vector<Binding>& bindings);
 
     /**
      * @brief Returns the full action table (read-only).
@@ -218,17 +223,6 @@ public:
      * @return Canonical shortcut string (e.g. `"cmd+c"`, `"shift+f1"`).
      */
     static juce::String shortcutToString (const juce::KeyPress& key);
-
-    /**
-     * @brief Returns the Config key string for a given action ID, or empty if none.
-     *
-     * Looks up the action ID in the internal config key table.  Actions that
-     * are not backed by a Config key (e.g. popup actions) return an empty string.
-     *
-     * @param actionId  The action ID (e.g. `"copy"`).
-     * @return The config key string (e.g. `"keys.copy"`), or empty.
-     */
-    static juce::String configKeyForAction (const juce::String& actionId);
 
 private:
     //==========================================================================

@@ -48,6 +48,7 @@
 #include "component/StatusBarOverlay.h"
 #include "whelmed/Component.h"
 #include "config/WhelmedConfig.h"
+#include "scripting/Scripting.h"
 
 /**
  * @class MainComponent
@@ -132,8 +133,6 @@ private:
     /** @brief Registers zoom, selection, open-file, and open-markdown actions. @note MESSAGE THREAD. */
     void registerNavigationActions (Action::Registry& action);
 
-    /** @brief Registers config-driven popup actions (modal and global variants). @note MESSAGE THREAD. */
-    void registerPopupActions (Action::Registry& action);
 
     /**
      * @brief Sets the renderer type — GL lifecycle, atlas, and terminal switching.
@@ -180,6 +179,9 @@ private:
 
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;
+
+    /** @brief Lua scripting engine — loads action.lua, registers popup/custom actions, builds key maps. */
+    std::unique_ptr<Scripting::Engine> scriptingEngine;
 
 #if JUCE_WINDOWS
     /** @brief Fires when the native scale factor changes.

@@ -127,40 +127,6 @@ struct Config : jam::Context<Config>
 
     //==============================================================================
     /**
-     * @struct PopupEntry
-     * @brief Configuration for a single popup terminal entry.
-     *
-     * Each entry in the `popups` Lua table maps to one PopupEntry.
-     * The table key (e.g. "tit", "lazygit") serves as the unique identifier.
-     *
-     * @see Config::getPopups
-     */
-    struct PopupEntry
-    {
-        /** @brief Shell command or executable to run inside the popup terminal. */
-        juce::String command;
-
-        /** @brief Arguments passed to the command (space-separated string). */
-        juce::String args;
-
-        /** @brief Working directory. Empty = inherit active terminal's cwd. */
-        juce::String cwd;
-
-        /** @brief Popup width in columns. Zero = use global default. */
-        int cols { 0 };
-
-        /** @brief Popup height in rows. Zero = use global default. */
-        int rows { 0 };
-
-        /** @brief Modal key binding (prefix + key). Empty = no modal binding. */
-        juce::String modal;
-
-        /** @brief Global key binding (direct shortcut). Empty = no global binding. */
-        juce::String global;
-    };
-
-    //==============================================================================
-    /**
      * @struct Key
      * @brief String constants for every config key understood by Config.
      *
@@ -319,6 +285,9 @@ struct Config : jam::Context<Config>
         /** @brief Whether the background daemon is enabled. When true, sessions survive window close. */
         inline static const juce::String daemon { "daemon" };
 
+        /** @brief Whether END watches ~/.config/end/ for changes and auto-reloads configuration. */
+        inline static const juce::String autoReload { "auto_reload" };
+
         /** @brief Font family for the tab bar labels. */
         inline static const juce::String tabFamily { "tab.family" };
 
@@ -393,37 +362,11 @@ struct Config : jam::Context<Config>
         /** @brief Whether dropped file paths are shell-quoted (true) or raw (false). */
         inline static const juce::String terminalDropQuoted { "terminal.drop_quoted" };
 
-        inline static const juce::String keysCopy { "keys.copy" };
-        inline static const juce::String keysPaste { "keys.paste" };
-        inline static const juce::String keysQuit { "keys.quit" };
-        inline static const juce::String keysCloseTab { "keys.close_tab" };
-        inline static const juce::String keysReload { "keys.reload" };
-        inline static const juce::String keysZoomIn { "keys.zoom_in" };
-        inline static const juce::String keysZoomOut { "keys.zoom_out" };
-        inline static const juce::String keysZoomReset { "keys.zoom_reset" };
-        inline static const juce::String keysNewWindow { "keys.new_window" };
-        inline static const juce::String keysNewTab { "keys.new_tab" };
-        inline static const juce::String keysPrevTab { "keys.prev_tab" };
-        inline static const juce::String keysNextTab { "keys.next_tab" };
-
-        /** @brief Key binding for horizontal split (left/right). */
-        inline static const juce::String keysSplitHorizontal { "keys.split_horizontal" };
-
-        /** @brief Key binding for vertical split (top/bottom). */
-        inline static const juce::String keysSplitVertical { "keys.split_vertical" };
-
-        inline static const juce::String keysPrefix { "keys.prefix" };
-        inline static const juce::String keysPrefixTimeout { "keys.prefix_timeout" };
-        inline static const juce::String keysPaneLeft { "keys.pane_left" };
-        inline static const juce::String keysPaneDown { "keys.pane_down" };
-        inline static const juce::String keysPaneUp { "keys.pane_up" };
-        inline static const juce::String keysPaneRight { "keys.pane_right" };
-        inline static const juce::String keysNewline { "keys.newline" };
-        inline static const juce::String keysActionList { "keys.action_list" };
-        inline static const juce::String keysActionListPosition { "keys.action_list_position" };
-
         /** @brief Close the action list after running an action. */
-        inline static const juce::String keysActionListCloseOnRun { "action_list.close_on_run" };
+        inline static const juce::String actionListCloseOnRun { "action_list.close_on_run" };
+
+        /** @brief Action list position: "top" or "bottom". */
+        inline static const juce::String actionListPosition { "action_list.position" };
 
         /** @brief Font family for action list name labels. */
         inline static const juce::String actionListNameFamily { "action_list.name_font_family" };
@@ -465,49 +408,6 @@ struct Config : jam::Context<Config>
         inline static const juce::String actionListHeight { "action_list.height" };
         inline static const juce::String actionListHighlightColour { "action_list.highlight_colour" };
 
-        inline static const juce::String keysEnterSelection { "keys.enter_selection" };
-        inline static const juce::String keysEnterOpenFile { "keys.enter_open_file" };
-        inline static const juce::String keysOpenFileNextPage { "keys.open_file_next_page" };
-
-        /** @brief Move cursor up in selection mode. */
-        inline static const juce::String keysSelectionUp { "keys.selection_up" };
-
-        /** @brief Move cursor down in selection mode. */
-        inline static const juce::String keysSelectionDown { "keys.selection_down" };
-
-        /** @brief Move cursor left in selection mode. */
-        inline static const juce::String keysSelectionLeft { "keys.selection_left" };
-
-        /** @brief Move cursor right in selection mode. */
-        inline static const juce::String keysSelectionRight { "keys.selection_right" };
-
-        /** @brief Toggle character-wise visual selection in selection mode. */
-        inline static const juce::String keysSelectionVisual { "keys.selection_visual" };
-
-        /** @brief Toggle line-wise visual selection in selection mode. */
-        inline static const juce::String keysSelectionVisualLine { "keys.selection_visual_line" };
-
-        /** @brief Toggle block visual selection in selection mode. */
-        inline static const juce::String keysSelectionVisualBlock { "keys.selection_visual_block" };
-
-        /** @brief Yank (copy) the current selection in selection mode. */
-        inline static const juce::String keysSelectionCopy { "keys.selection_copy" };
-
-        /** @brief Jump to top (gg double-press) in selection mode. */
-        inline static const juce::String keysSelectionTop { "keys.selection_top" };
-
-        /** @brief Jump to bottom in selection mode. */
-        inline static const juce::String keysSelectionBottom { "keys.selection_bottom" };
-
-        /** @brief Jump to line start in selection mode. */
-        inline static const juce::String keysSelectionLineStart { "keys.selection_line_start" };
-
-        /** @brief Jump to line end in selection mode. */
-        inline static const juce::String keysSelectionLineEnd { "keys.selection_line_end" };
-
-        /** @brief Exit selection mode. */
-        inline static const juce::String keysSelectionExit { "keys.selection_exit" };
-
         inline static const juce::String popupCols { "popup.cols" };
         inline static const juce::String popupRows { "popup.rows" };
 
@@ -542,7 +442,7 @@ struct Config : jam::Context<Config>
         inline static const juce::String coloursHintLabelFg { "colours.hint_label_fg" };
 
         /** @brief Status bar position: "top" or "bottom". */
-        inline static const juce::String keysStatusBarPosition { "keys.status_bar_position" };
+        inline static const juce::String statusBarPosition { "status_bar.position" };
 
         /** @brief Font family for the status bar overlay. */
         inline static const juce::String statusBarFontFamily { "colours.status_bar_font_family" };
@@ -658,18 +558,6 @@ struct Config : jam::Context<Config>
      *         applied per `Key::fontDesktopScale`. On macOS/Linux returns the raw size.
      */
     float dpiCorrectedFontSize() const noexcept;
-
-    /**
-     * @brief Returns the parsed popup entries from the `popups` Lua table.
-     *
-     * Each map entry is keyed by the popup name (e.g. "tit", "lazygit").
-     * Entries have per-popup width/height that fall back to global
-     * `popup.width` / `popup.height` defaults when zero.
-     *
-     * @return Const reference to the popup entries map.
-     * @see PopupEntry
-     */
-    const std::unordered_map<juce::String, PopupEntry>& getPopups() const noexcept;
 
     //==============================================================================
     /**
@@ -806,9 +694,6 @@ private:
     /** @brief Schema map: key → Value for type and range validation. */
     std::unordered_map<juce::String, Value> schema;
 
-    /** @brief Parsed popup entries from the `popups` Lua table. */
-    std::unordered_map<juce::String, PopupEntry> popups;
-
     /**
      * @brief Parsed colour cache; keyed by config key, not by colour string.
      *
@@ -865,9 +750,6 @@ private:
      * Called at construction and at the start of `reload()`.
      */
     void initKeys();
-
-    /** @brief Clears all popup entries; called at the start of reload(). */
-    void clearPopups();
 
     /**
      * @brief Writes a minimal `END = {}` skeleton to @p file.
