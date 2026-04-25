@@ -1,5 +1,34 @@
 # SPRINT-LOG
 
+## Sprint 35: Unified Build Script + LTO ✅
+
+**Date:** 2026-04-26
+
+### Agents Participated
+- COUNSELOR: Analysis, size investigation, delegation
+- Pathfinder: Binary size investigation, CMake config discovery
+- Engineer: builds.sh creation
+
+### Files Modified (3 total)
+- `builds.sh` (new) — unified cross-platform build script replacing both build.bat and install.sh; absorbs MSVC env sourcing (vswhere, vcvarsall, compiler pin, VS cmake/ninja PATH) into bash; default Release, `debug` flag for Debug
+- `build.bat` (deleted) — absorbed into builds.sh
+- `install.sh` (deleted) — absorbed into builds.sh
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Two separate build entry points (build.bat for Windows, install.sh for cross-platform) with duplicated logic — unified into single builds.sh
+- Default build type was Debug, changed to Release (END is a shipped tool, Release is the common case)
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 34: Typeface Architecture Refactor + Emoji/NF Rendering Fix ✅
 
 **Date:** 2026-04-25 — 2026-04-26
