@@ -1,5 +1,36 @@
 # SPRINT-LOG
 
+## Sprint 36: Move DWM Platform Code to jam ✅
+
+**Date:** 2026-04-26
+
+### Agents Participated
+- COUNSELOR: Analysis, delegation, verification
+- Pathfinder: DWM code discovery across END and jam
+- Librarian: timeBeginPeriod / JUCE timer research
+- Engineer: Code migration
+
+### Files Modified (3 total)
+- `Source/Main.cpp` — removed `applyForceDwmRegistry` function, `dwmForceEffectEnabled` constant, redundant `timeBeginPeriod(1)`/`timeEndPeriod(1)` calls, redundant `<windows.h>`/`winmm.lib`/extern declarations; two call sites updated to `jam::BackgroundBlur::applyForceEffectRegistry`
+- `jam: jam_style/background_blur/jam_background_blur.h:85-96` — added `applyForceEffectRegistry` declaration to `BackgroundBlur`
+- `jam: jam_style/background_blur/jam_background_blur.cpp:340-372` — added `applyForceEffectRegistry` implementation, reuses existing `dwmCornerRound` constant
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- DWM registry hack (`ForceEffectMode`) lived in application entry point instead of jam's DWM plumbing layer — moved to `BackgroundBlur` where all other DWM concerns live
+- Redundant `timeBeginPeriod(1)` — JUCE already calls it at static init via `HiResCounterHandler` in `juce_SystemStats_windows.cpp:424`
+- Redundant `<windows.h>`, `winmm.lib` pragma, extern declarations — all provided by JUCE
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 35: Unified Build Script + LTO ✅
 
 **Date:** 2026-04-26

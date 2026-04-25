@@ -55,52 +55,7 @@
 #include "component/TerminalWindow.h"
 
 #if JUCE_WINDOWS
-#include <windows.h>
 #include <jam_core/utilities/jam_platform.h>
-#pragma comment(lib, "winmm.lib")
-extern "C" __declspec (dllimport) unsigned int __stdcall timeBeginPeriod (unsigned int uPeriod);
-extern "C" __declspec (dllimport) unsigned int __stdcall timeEndPeriod (unsigned int uPeriod);
-#endif
-
-#if JUCE_WINDOWS
-
-/** @brief DWM corner preference value: DWMWCP_ROUND (rounded corners). */
-static constexpr DWORD dwmForceEffectEnabled { 2 };
-
-/**
- * @brief Applies or removes the DWM ForceEffectMode registry key.
- *
- * On Windows 11 VMs (detected via software GL renderer), DWM disables
- * rounded corners by default.  Setting ForceEffectMode=2 re-enables them.
- *
- * @param enable  true → set DWORD to 2; false → delete the value.
- *
- * @note Requires elevated privileges (HKEY_LOCAL_MACHINE).
- *       Changes take effect after END restarts.
- */
-static void applyForceDwmRegistry (bool enable) noexcept
-{
-    HKEY hKey { nullptr };
-    const auto opened { RegOpenKeyExW (
-        HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\Dwm", 0, KEY_SET_VALUE, &hKey) };
-
-    if (opened == ERROR_SUCCESS)
-    {
-        if (enable)
-        {
-            DWORD value { dwmForceEffectEnabled };
-            RegSetValueExW (
-                hKey, L"ForceEffectMode", 0, REG_DWORD, reinterpret_cast<const BYTE*> (&value), sizeof (value));
-        }
-        else
-        {
-            RegDeleteValueW (hKey, L"ForceEffectMode");
-        }
-
-        RegCloseKey (hKey);
-    }
-}
-
 #endif
 
 //==============================================================================
@@ -173,12 +128,6 @@ public:
         juce::ignoreUnused (commandLine);
 
 #if JUCE_WINDOWS
-        // Unlock 1 ms timer resolution so the 8 ms flush timer fires at its
-        // intended rate rather than the default 15 ms WM_TIMER granularity.
-        // Threat: coarse timer resolution causes cursor-position update latency
-        // and visible cursor twitching at nominal 120 Hz.
-        timeBeginPeriod (1);
-
         // Safety net: create a Job Object with KILL_ON_JOB_CLOSE so that all
         // child processes (shell, OpenConsole.exe from ConPTY) are killed when
         // this process exits — even on crash.  The daemon has its own Job Object
@@ -343,7 +292,7 @@ public:
 #if JUCE_WINDOWS
             if (isWindows11() and appState.getRendererType() == App::RendererType::cpu)
             {
-                applyForceDwmRegistry (cfg->getBool (Config::Key::windowForceDwm));
+                jam::BackgroundBlur::applyForceEffectRegistry (cfg->getBool (Config::Key::windowForceDwm));
             }
 #endif
 
@@ -403,7 +352,7 @@ public:
 #if JUCE_WINDOWS
                     if (isWindows11() and appState.getRendererType() == App::RendererType::cpu)
                     {
-                        applyForceDwmRegistry (config.getBool (Config::Key::windowForceDwm));
+                        jam::BackgroundBlur::applyForceEffectRegistry (config.getBool (Config::Key::windowForceDwm));
                     }
 #endif
 
@@ -439,10 +388,6 @@ public:
         daemon = nullptr;
         mainWindow = nullptr;
         nexus = nullptr;
-
-#if JUCE_WINDOWS
-        timeEndPeriod (1);
-#endif
     }
 
     //==============================================================================
