@@ -292,13 +292,15 @@ public:
      * back-reference to this Processor.  Caller is responsible for placing the
      * Display in the component hierarchy.
      *
-     * @param font          Font instance providing metrics, shaping, and rasterisation.
+     * @param font          Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
+     * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
      * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
      * @return Unique pointer to the newly created Display.
      * @note MESSAGE THREAD.
      */
-    std::unique_ptr<Display> createDisplay (jam::Typeface& font,
+    std::unique_ptr<Display> createDisplay (jam::Font& font,
+                                            jam::Glyph::Packer& packer,
                                             jam::gl::GlyphAtlas& glAtlas,
                                             jam::GraphicsAtlas& graphicsAtlas);
 

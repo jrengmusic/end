@@ -1,5 +1,82 @@
 # SPRINT-LOG
 
+## Sprint 34: Typeface Architecture Refactor + Emoji/NF Rendering Fix ✅
+
+**Date:** 2026-04-25 — 2026-04-26
+
+### Agents Participated
+- **COUNSELOR:** Claude Sonnet — Architecture analysis, ODE investigation, fix delegation, audit orchestration
+- **Pathfinder** (via COUNSELOR) — Codebase discovery: NF/emoji render path trace, dispatch table analysis, BinaryData location, font name verification, dependency graph mapping
+- **Engineer** (via COUNSELOR) — All code: typeface strip, jam::Font creation, addFallbackFont API, fallback wiring, jam::Font integration across 14 END files, audit fixes, ODE instrumentation/cleanup
+- **Auditor** (via COUNSELOR) — Full sprint audit: 15 findings (1C, 5H, 8M, 5L), all resolved
+- **Librarian** — Not invoked
+- **Oracle** — Not invoked
+
+### Files Modified (2 repos)
+
+**JAM (16 files modified, 2 deleted)**
+- `jam_graphics/fonts/jam_typeface.h` — Stripped Registry, Packer, atlas wrappers, NF members, isMonospace. Added `addFallbackFont(const void*, int)`, `userFallbackFonts` member, `emojiFontFamily` member, `getUserFamily()`. Fixed `&&`→`and` in Metrics::isValid
+- `jam_graphics/fonts/jam_typeface.mm` — Stripped registerEmbeddedFonts, discoverEmojiFont, rasterizeToImage, BinaryData include, NF loading, Registry. Constructor accepts emojiFontFamily. Added addFallbackFont with CGDataProvider→CGFont→CTFont path. Modified shapeFallback with user fallback loop. Destructor handles userFallbackFonts cleanup (skip aliased cache entries). setSize resizes userFallbackFonts
+- `jam_graphics/fonts/jam_typeface.cpp` — Same strip as .mm for FreeType path. Added addFallbackFont stub
+- `jam_graphics/fonts/jam_typeface_shaping.cpp` — Removed `isMonospace` check. Fixed stale `jreng_*` doxygen filenames, removed `@see Registry`, `[]`→`insert_or_assign`
+- `jam_graphics/fonts/jam_font.h` — Rewritten: new Font value type with fluent builders, `using Style = jam::Typeface::Style`, findSuitableFontForText
+- `jam_graphics/fonts/jam_font.cpp` — Rewritten: findSuitableFontForText delegates to juce::Font
+- `jam_graphics/fonts/jam_text_layout.h` — Fixed Font construction in draw template, CPU draw takes Packer&. Fixed stale `@file`
+- `jam_graphics/fonts/jam_glyph_packer.cpp` — Replaced `jam::Typeface::ftFixedScale` with file-scope static. Fixed stale `@file`
+- `jam_graphics/rendering/jam_glyph_graphics_context.h` — setPacker, uploadStagedBitmaps takes Packer&
+- `jam_graphics/rendering/jam_glyph_graphics_context.cpp` — Same
+- `jam_gui/opengl/renderers/jam_gl_context.h` — Packer& instead of Typeface&
+- `jam_gui/opengl/renderers/jam_gl_context.cpp` — Same
+- `jam_gui/opengl/context/jam_gl_atlas_renderer.h` — Takes Packer& instead of Typeface&
+- `jam_gui/opengl/context/jam_gl_atlas_renderer.cpp` — Same
+- `jam_gui/opengl/context/jam_gl_graphics.cpp` — getHeight() instead of getSize(), getResolvedTypeface()
+- `jam_core/binary_data/jam_binary_data.h` — Added BinaryData::createTypeface
+- ~~`jam_graphics/fonts/jam_typeface_registry.cpp`~~ — DELETED
+- ~~`jam_graphics/fonts/jam_typeface_registry.mm`~~ — DELETED
+
+**END (18 files modified)**
+- `Source/Main.cpp` — Removed DisplayMono/DisplayProp/NerdFont structs, removed BinaryData.h and JamFontsBinaryData.h includes, removed Log::Scope
+- `Source/MainComponent.h` — `std::shared_ptr<jam::Typeface> typeface` → `jam::Font font`
+- `Source/MainComponent.cpp` — Constructor: Typeface built in body block, Font assembled via withResolvedTypeface. Display Mono + NF registered as fallback fonts. All `typeface->` → `font.getResolvedTypeface()->`. Font sync on setFontFamily/setFontSize
+- `Source/terminal/logic/Processor.h` — `createDisplay(jam::Typeface&)` → `createDisplay(jam::Font&)`
+- `Source/terminal/logic/Processor.cpp` — Signature update
+- `Source/terminal/rendering/Screen.h` — Constructor and member: `jam::Typeface&` → `jam::Font&`
+- `Source/terminal/rendering/Screen.cpp` — Constructor, calcMetrics/setSize via getResolvedTypeface()
+- `Source/terminal/rendering/ScreenRender.cpp` — All shaping/font handle calls via getResolvedTypeface()
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — Same
+- `Source/component/TerminalDisplay.h` — Constructor and member: `jam::Typeface&` → `jam::Font&`
+- `Source/component/TerminalDisplay.cpp` — Constructor, calcMetrics via getResolvedTypeface()
+- `Source/component/Tabs.h` — Constructor and member: `jam::Typeface&` → `jam::Font&`
+- `Source/component/Tabs.cpp` — Constructor update
+- `Source/component/Panes.h` — Constructor, cellsFromRect, member: `jam::Typeface&` → `jam::Font&`
+- `Source/component/Panes.cpp` — Constructor, cellsFromRect via getResolvedTypeface()
+- `test/emoji_test.sh` — Shebang `#!/usr/bin/env bash` → `#!/bin/zsh`
+- `ARCHITECTURE.md` — Font Architecture section updated
+- `carol/SPRINT-LOG.md` — This entry
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **NF icons not rendering:** `CTFontCreateForString` returns LastResort for PUA codepoints. Fix: `addFallbackFont` API creates CTFontRef directly from binary data via CGDataProvider path, bypassing name-based CoreText lookup
+- **Emoji not rendering:** Test script shebang `#!/usr/bin/env bash` → macOS bash 3.2 lacks `\U` printf support → literal text output. Fix: shebang to `#!/bin/zsh`
+- **E+000/E+001 from wrong font:** Display Mono registered as first fallback (before NF) ensures reserved PUA glyphs always come from Display Mono
+- **Typeface god object:** Stripped Registry, Packer, atlas delegation, font discovery, BinaryData references from jam::Typeface. Now: font handle management only
+- **Module boundary violation:** Module (`jam_graphics`) no longer includes project-level BinaryData or knows about NF fonts
+- **jam::Font not consumed:** Wired jam::Font as the renderer interface throughout END, mirroring juce::Font/Typeface relationship
+- **User fallback font leak:** Destructor skips aliased fallbackFontCache entries, releases userFallbackFonts separately
+- **setSize zoom bug:** userFallbackFonts resized via CTFontCreateCopyWithAttributes on zoom
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 33: MSVC Build Regression Fixes + Audit ✅
 
 **Date:** 2026-04-25

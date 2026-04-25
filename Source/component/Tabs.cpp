@@ -26,12 +26,14 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Tabs::Tabs (jam::Typeface& font_,
+Tabs::Tabs (jam::Font& font_,
+            jam::Glyph::Packer& packer_,
             jam::gl::GlyphAtlas& glAtlas_,
             jam::GraphicsAtlas& graphicsAtlas_,
             juce::TabbedButtonBar::Orientation orientation)
     : juce::TabbedComponent (orientation)
     , font (font_)
+    , packerRef (packer_)
     , glAtlasRef (glAtlas_)
     , graphicsAtlasRef (graphicsAtlas_)
 {
@@ -91,7 +93,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
 {
     jassert (cols > 0 and rows > 0);
 
-    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, glAtlasRef, graphicsAtlasRef)) };
+    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, packerRef, glAtlasRef, graphicsAtlasRef)) };
     auto& newPanes { *newPanesPtr };
     newPanes.onRepaintNeeded = onRepaintNeeded;
     newPanes.onOpenMarkdown = [this] (const juce::File& file)

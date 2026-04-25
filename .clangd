@@ -1,9 +1,8 @@
 CompileFlags:
-  CompilationDatabase: C:/Users/jreng/Documents/Poems/dev/end/Builds/Ninja
+  CompilationDatabase: /Users/jreng/Documents/Poems/dev/end/Builds/Ninja
   Add:
-    - -D_WIN32=1
-    - -DJUCE_WINDOWS=1
-    - -DJUCE_MAC=0
+    - -DJUCE_MAC=1
+    - -DJUCE_WINDOWS=0
     - -DJUCE_IOS=0
     - -DJUCE_LINUX=0
 Diagnostics:

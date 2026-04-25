@@ -220,17 +220,22 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
 /**
  * @brief Emits shaped glyph instances into a per-row cache slot.
  *
- * For each `Fonts::Glyph` in @p shapedGlyphs, looks up or rasterises the
- * glyph in @p atlas, then writes a `Render::Glyph` instance into @p slot.
+ * For each `Typeface::Glyph` in @p shapedGlyphs, looks up or rasterises the
+ * glyph in @p packer, then writes a `Render::Glyph` instance into @p slot.
  * Advances `currentX` by `sg.xAdvance` after each glyph.
  *
  * @param shapedGlyphs   Array of shaped glyphs from HarfBuzz.
  * @param shapedCount    Number of elements in @p shapedGlyphs.
- * @param font           Configured jam::Font with size, style, face context applied.
+ * @param packer         Glyph packer owning the atlas and rasterization.
+ * @param fontHandle     Opaque platform font handle (CTFontRef / FT_Face).
+ * @param isEmoji        True to rasterize into the RGBA emoji atlas.
+ * @param fontSize       Logical font size in points; used as Key::fontSize.
  * @param constraint     Nerd Font scaling / alignment constraint (inactive = default).
  * @param span           Number of cells the glyph spans horizontally (0 = default).
  * @param cellPixelX     Physical X origin of the cell (col * physCellWidth).
  * @param cellPixelY     Physical Y origin of the cell (row * physCellHeight).
+ * @param physCellWidth  Physical cell width in pixels.
+ * @param physCellHeight Physical cell height in pixels.
  * @param physBaseline   Physical baseline offset from the cell top in pixels.
  * @param foreground     Resolved foreground colour.
  * @param slot           Pointer to the start of the row's glyph cache slot.
@@ -238,15 +243,16 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
  * @param count          In/out: current number of instances written; incremented per glyph.
  *
  * @note **MESSAGE THREAD**.
- * @see jam::Font::getGlyph()
+ * @see jam::Glyph::Packer::getOrRasterize()
  * @see Screen::buildCellInstance()
  */
 static void emitShapedGlyphsToCache (
     const jam::Typeface::Glyph* shapedGlyphs, int shapedCount,
-    jam::Font& font,
+    jam::Glyph::Packer& packer,
+    void* fontHandle, bool isEmoji, float fontSize,
     const jam::Glyph::Constraint& constraint, uint8_t span,
     float cellPixelX, float cellPixelY,
-    int physBaseline,
+    int physCellWidth, int physCellHeight, int physBaseline,
     const juce::Colour& foreground,
     Render::Glyph* slot, int maxSlots, int& count) noexcept
 {
@@ -256,9 +262,20 @@ static void emitShapedGlyphsToCache (
     {
         const jam::Typeface::Glyph& sg { shapedGlyphs[i] };
 
-        jam::Glyph::Region* atlasGlyph { (constraint.isActive() or span > 1)
-            ? font.getGlyph (static_cast<uint16_t> (sg.glyphIndex), constraint, std::max (span, static_cast<uint8_t> (1)))
-            : font.getGlyph (static_cast<uint16_t> (sg.glyphIndex)) };
+        const uint8_t effectiveSpan { (constraint.isActive() or span > 1)
+            ? std::max (span, static_cast<uint8_t> (1))
+            : static_cast<uint8_t> (0) };
+
+        jam::Glyph::Key key;
+        key.glyphIndex = static_cast<uint32_t> (sg.glyphIndex);
+        key.fontFace   = fontHandle;
+        key.fontSize   = fontSize;
+        key.span       = effectiveSpan;
+
+        jam::Glyph::Region* atlasGlyph { packer.getOrRasterize (key, fontHandle, isEmoji,
+                                                                 constraint,
+                                                                 physCellWidth, physCellHeight,
+                                                                 physBaseline) };
 
         if (atlasGlyph != nullptr)
         {
@@ -680,7 +697,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
         // them would require fabricating a GlyphRun for a codepoint that was never shaped.
         if (jam::Glyph::BoxDrawing::isProcedural (cell.codepoint))
         {
-            jam::Glyph::Region* atlasGlyph { font.getOrRasterizeBoxDrawing (
+            jam::Glyph::Region* atlasGlyph { packer.getOrRasterizeBoxDrawing (
                 cell.codepoint, physCellWidth, physCellHeight, physBaseline) };
 
             if (atlasGlyph != nullptr)
@@ -710,11 +727,11 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
         else
         {
             const jam::Typeface::Style style { selectFontStyle (cell) };
-            void* fontHandle { font.getFontHandle (style) };
+            void* fontHandle { font.getResolvedTypeface()->getFontHandle (style) };
 
             if (fontHandle == nullptr)
             {
-                fontHandle = font.getFontHandle (jam::Typeface::Style::regular);
+                fontHandle = font.getResolvedTypeface()->getFontHandle (jam::Typeface::Style::regular);
             }
 
             if (fontHandle != nullptr)
@@ -743,66 +760,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                     }
                 }
 
-                bool usedFontCollection { false };
-                jam::Typeface::Glyph fcGlyph;
-
-                jam::Typeface::Registry& fontRegistry { font.registry };
-
-                const bool isBoxDrawing { cell.codepoint >= boxDrawingFirst and cell.codepoint <= boxDrawingLast };
-
-                if (not isEmoji and not isBoxDrawing)
-                {
-                    const int8_t registrySlot { fontRegistry.resolve (cell.codepoint) };
-
-                    if (registrySlot > 0)
-                    {
-                        const jam::Typeface::Registry::Entry* entry { fontRegistry.getEntry (static_cast<int> (registrySlot)) };
-
-                        if (entry != nullptr and entry->hbFont != nullptr)
-                        {
-                            uint32_t glyphId { 0 };
-
-                            if (hb_font_get_nominal_glyph (entry->hbFont, cell.codepoint, &glyphId))
-                            {
-#if JUCE_MAC
-                                if (entry->ctFont != nullptr)
-                                {
-                                    fontHandle = entry->ctFont;
-                                }
-#else
-                                if (entry->ftFace != nullptr)
-                                {
-                                    fontHandle = static_cast<void*> (entry->ftFace);
-                                }
-#endif
-                                fcGlyph.glyphIndex = glyphId;
-                                fcGlyph.xOffset = 0.0f;
-                                fcGlyph.yOffset = 0.0f;
-                                fcGlyph.xAdvance = static_cast<float> (physCellWidth);
-                                usedFontCollection = true;
-                            }
-                        }
-                    }
-                }
-
-                if (usedFontCollection)
-                {
-                    int& count { monoCount[row] };
-                    Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
-
-                    jam::Font fontObj (font, baseFontSize, style);
-                    jam::Typeface::GlyphRun registryRun;
-                    registryRun.fontHandle = fontHandle;
-                    fontObj.applyGlyphRun (registryRun);
-
-                    emitShapedGlyphsToCache (&fcGlyph, 1, fontObj,
-                                             constraint, cellSpan,
-                                             static_cast<float> (col * physCellWidth),
-                                             static_cast<float> (row * physCellHeight),
-                                             physBaseline, foreground,
-                                             slot, maxGlyphsPerRow, count);
-                }
-                else if (ligatureEnabled and not isEmoji and cell.codepoint > 0 and cell.codepoint < asciiCeiling)
+                if (ligatureEnabled and not isEmoji and cell.codepoint > 0 and cell.codepoint < asciiCeiling)
                 {
                     const int skip { tryLigature (rowCells, col, row, style, foreground) };
 
@@ -812,7 +770,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                     }
                     else
                     {
-                        const jam::Typeface::GlyphRun shaped { font.shapeText (style, codepoints,
+                        const jam::Typeface::GlyphRun shaped { font.getResolvedTypeface()->shapeText (style, codepoints,
                                                                                   static_cast<size_t> (codepointCount)) };
 
                         if (shaped.count > 0)
@@ -820,17 +778,15 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                             int& count { monoCount[row] };
                             Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
 
-                            jam::Font fontObj (font, baseFontSize, style);
+                            void* effectiveFontHandle { shaped.fontHandle != nullptr
+                                ? shaped.fontHandle : fontHandle };
 
-                            if (shaped.fontHandle != nullptr)
-                            {
-                                fontObj.applyGlyphRun (shaped);
-                            }
-
-                            emitShapedGlyphsToCache (shaped.glyphs, shaped.count, fontObj,
+                            emitShapedGlyphsToCache (shaped.glyphs, shaped.count, packer,
+                                                     effectiveFontHandle, false, baseFontSize,
                                                      constraint, cellSpan,
                                                      static_cast<float> (col * physCellWidth),
                                                      static_cast<float> (row * physCellHeight),
+                                                     physCellWidth, physCellHeight,
                                                      physBaseline, foreground,
                                                      slot, maxGlyphsPerRow, count);
                         }
@@ -839,8 +795,8 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                 else
                 {
                     const jam::Typeface::GlyphRun shaped { isEmoji
-                        ? font.shapeEmoji (codepoints, static_cast<size_t> (codepointCount))
-                        : font.shapeText (style, codepoints, static_cast<size_t> (codepointCount)) };
+                        ? font.getResolvedTypeface()->shapeEmoji (codepoints, static_cast<size_t> (codepointCount))
+                        : font.getResolvedTypeface()->shapeText (style, codepoints, static_cast<size_t> (codepointCount)) };
 
                     if (shaped.count > 0)
                     {
@@ -849,18 +805,16 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
                             ? cachedEmoji.get() + row * maxGlyphsPerRow
                             : cachedMono.get() + row * maxGlyphsPerRow };
 
-                        jam::Font fontObj (font, baseFontSize, style);
-                        fontObj.setEmoji (isEmoji);
+                        void* shapeHandle { isEmoji
+                            ? font.getResolvedTypeface()->getEmojiFontHandle()
+                            : (shaped.fontHandle != nullptr ? shaped.fontHandle : fontHandle) };
 
-                        if (not isEmoji and shaped.fontHandle != nullptr)
-                        {
-                            fontObj.applyGlyphRun (shaped);
-                        }
-
-                        emitShapedGlyphsToCache (shaped.glyphs, shaped.count, fontObj,
+                        emitShapedGlyphsToCache (shaped.glyphs, shaped.count, packer,
+                                                 shapeHandle, isEmoji, baseFontSize,
                                                  constraint, cellSpan,
                                                  static_cast<float> (col * physCellWidth),
                                                  static_cast<float> (row * physCellHeight),
+                                                 physCellWidth, physCellHeight,
                                                  physBaseline, foreground,
                                                  slot, maxGlyphsPerRow, count);
                     }
@@ -933,7 +887,7 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jam::
 
                 if (eligible)
                 {
-                    const jam::Typeface::GlyphRun shaped { font.shapeText (style, codepoints,
+                    const jam::Typeface::GlyphRun shaped { font.getResolvedTypeface()->shapeText (style, codepoints,
                                                                             static_cast<size_t> (tryLen)) };
 
                     if (shaped.count == 1)
@@ -941,12 +895,9 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jam::
                         int& count { monoCount[row] };
                         Render::Glyph* slot { cachedMono.get() + row * maxGlyphsPerRow };
 
-                        jam::Font fontObj (font, baseFontSize, style);
-
-                        if (shaped.fontHandle != nullptr)
-                        {
-                            fontObj.applyGlyphRun (shaped);
-                        }
+                        void* ligFontHandle { shaped.fontHandle != nullptr
+                            ? shaped.fontHandle
+                            : font.getResolvedTypeface()->getFontHandle (style) };
 
                         jam::Typeface::Glyph fixedGlyphs[maxLigatureLength];
 
@@ -958,10 +909,12 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jam::
 
                         const jam::Glyph::Constraint noConstraint;
 
-                        emitShapedGlyphsToCache (fixedGlyphs, shaped.count, fontObj,
+                        emitShapedGlyphsToCache (fixedGlyphs, shaped.count, packer,
+                                                 ligFontHandle, false, baseFontSize,
                                                  noConstraint, static_cast<uint8_t> (tryLen),
                                                  static_cast<float> (col * physCellWidth),
                                                  static_cast<float> (row * physCellHeight),
+                                                 physCellWidth, physCellHeight,
                                                  physBaseline, foreground,
                                                  slot, maxGlyphsPerRow, count);
 

@@ -205,7 +205,7 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
         {
             // Try the emoji font first — if the codepoint shapes there it must be
             // drawn via the RGBA atlas so the native colour is preserved.
-            const jam::Typeface::GlyphRun emojiShaped { font.shapeEmoji (&cp, 1) };
+            const jam::Typeface::GlyphRun emojiShaped { font.getResolvedTypeface()->shapeEmoji (&cp, 1) };
 
             // HarfBuzz returns count > 0 even for .notdef (glyph index 0).
             // Only treat as emoji when the font actually has the codepoint.
@@ -213,67 +213,40 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
                                  and emojiShaped.glyphs[0].glyphIndex != 0 };
 
             uint32_t glyphIndex { 0 };
-            jam::Font fontObj (font, baseFontSize,
-                                 jam::Typeface::Style::regular);
+            void* cursorFontHandle { nullptr };
 
             if (isEmoji)
             {
-                fontObj.setEmoji (true);
-                fontObj.applyGlyphRun (emojiShaped);
                 glyphIndex = emojiShaped.glyphs[0].glyphIndex;
+                cursorFontHandle = font.getResolvedTypeface()->getEmojiFontHandle();
             }
             else
             {
-                // FontCollection first — resolves NF icons and fallback-font codepoints
-                // exactly as buildCellInstance does for normal cells.
-                jam::Typeface::Registry& fc { font.registry };
-                bool resolved { false };
+                const jam::Typeface::GlyphRun textShaped { font.getResolvedTypeface()->shapeText (
+                    jam::Typeface::Style::regular, &cp, 1) };
 
+                if (textShaped.count > 0)
                 {
-                    const int8_t fcSlot { fc.resolve (cp) };
-
-                    if (fcSlot > 0)
-                    {
-                        const jam::Typeface::Registry::Entry* entry { fc.getEntry (static_cast<int> (fcSlot)) };
-
-                        if (entry != nullptr and entry->hbFont != nullptr)
-                        {
-                            uint32_t glyphId { 0 };
-
-                            if (hb_font_get_nominal_glyph (entry->hbFont, cp, &glyphId) and glyphId != 0)
-                            {
-                                jam::Typeface::GlyphRun registryRun;
-#if JUCE_MAC
-                                registryRun.fontHandle = entry->ctFont;
-#else
-                                registryRun.fontHandle = static_cast<void*> (entry->ftFace);
-#endif
-                                fontObj.applyGlyphRun (registryRun);
-                                glyphIndex = glyphId;
-                                resolved = true;
-                            }
-                        }
-                    }
-                }
-
-                // ShapeText fallback — regular chars ("a", digits, punctuation, etc.)
-                if (not resolved)
-                {
-                    const jam::Typeface::GlyphRun textShaped { font.shapeText (
-                        jam::Typeface::Style::regular, &cp, 1) };
-
-                    if (textShaped.count > 0)
-                    {
-                        fontObj.applyGlyphRun (textShaped);
-                        glyphIndex = textShaped.glyphs[0].glyphIndex;
-                        resolved   = true;
-                    }
+                    glyphIndex = textShaped.glyphs[0].glyphIndex;
+                    cursorFontHandle = textShaped.fontHandle != nullptr
+                        ? textShaped.fontHandle
+                        : font.getResolvedTypeface()->getFontHandle (jam::Typeface::Style::regular);
                 }
             }
 
-            if (glyphIndex != 0)
+            if (glyphIndex != 0 and cursorFontHandle != nullptr)
             {
-                jam::Glyph::Region* ag { fontObj.getGlyph (static_cast<uint16_t> (glyphIndex)) };
+                jam::Glyph::Key cursorKey;
+                cursorKey.glyphIndex = glyphIndex;
+                cursorKey.fontFace   = cursorFontHandle;
+                cursorKey.fontSize   = baseFontSize;
+                cursorKey.span       = 0;
+
+                const jam::Glyph::Constraint noConstraint;
+                jam::Glyph::Region* ag { packer.getOrRasterize (cursorKey, cursorFontHandle, isEmoji,
+                                                                 noConstraint,
+                                                                 physCellWidth, physCellHeight,
+                                                                 physBaseline) };
 
                 if (ag != nullptr)
                 {

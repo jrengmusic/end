@@ -29,14 +29,16 @@
  * @note MESSAGE THREAD — called from Processor::createDisplay().
  */
 Terminal::Display::Display (Terminal::Processor& proc,
-                             jam::Typeface& font_,
+                             jam::Font& font_,
+                             jam::Glyph::Packer& packer_,
                              jam::gl::GlyphAtlas& glAtlas_,
                              jam::GraphicsAtlas& graphicsAtlas_)
     : processor (proc)
     , font (font_)
+    , packerRef (packer_)
     , glAtlasRef (glAtlas_)
     , graphicsAtlasRef (graphicsAtlas_)
-    , screen (std::in_place_type<Screen<jam::Glyph::GraphicsContext>>, font_, graphicsAtlas_)
+    , screen (std::in_place_type<Screen<jam::Glyph::GraphicsContext>>, font_, packer_, graphicsAtlas_)
     , vblank (this,
               [this]
               {
@@ -748,8 +750,8 @@ void Terminal::Display::applyZoom (float) noexcept
     const float newFontSize { Config::getContext()->dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom() };
 
     // Raw font metrics for both sizes — multiplier cancels in the ratio.
-    const jam::Typeface::Metrics oldMetrics { font.calcMetrics (oldFontSize) };
-    const jam::Typeface::Metrics newMetrics { font.calcMetrics (newFontSize) };
+    const jam::Typeface::Metrics oldMetrics { font.getResolvedTypeface()->calcMetrics (oldFontSize) };
+    const jam::Typeface::Metrics newMetrics { font.getResolvedTypeface()->calcMetrics (newFontSize) };
 
     visitScreen (
         [&] (auto& s)
@@ -793,14 +795,14 @@ void Terminal::Display::switchRenderer (App::RendererType type)
     {
         if (not std::holds_alternative<Screen<jam::Glyph::GraphicsContext>> (screen))
         {
-            screen.emplace<Screen<jam::Glyph::GraphicsContext>> (font, graphicsAtlasRef);
+            screen.emplace<Screen<jam::Glyph::GraphicsContext>> (font, packerRef, graphicsAtlasRef);
         }
     }
     else
     {
         if (not std::holds_alternative<Screen<jam::Glyph::GLContext>> (screen))
         {
-            screen.emplace<Screen<jam::Glyph::GLContext>> (font, glAtlasRef);
+            screen.emplace<Screen<jam::Glyph::GLContext>> (font, packerRef, glAtlasRef);
         }
     }
 

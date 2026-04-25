@@ -41,12 +41,13 @@ class Panes : public juce::Component
 public:
     /**
      * @brief Construct a new Panes container.
-     * @param font          Font instance providing metrics, shaping, and rasterisation.
+     * @param font          Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
+     * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
      * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
      * @note MESSAGE THREAD.
      */
-    Panes (jam::Typeface& font, jam::gl::GlyphAtlas& glAtlas, jam::GraphicsAtlas& graphicsAtlas);
+    Panes (jam::Font& font, jam::Glyph::Packer& packer, jam::gl::GlyphAtlas& glAtlas, jam::GraphicsAtlas& graphicsAtlas);
 
     /**
      * @brief Destructor.
@@ -62,12 +63,12 @@ public:
      * pre-compute per-pane dims and by splitActive for fresh splits.
      *
      * @param paneRect    Target pixel rect for the pane (AFTER chrome subtracted).
-     * @param font        Typeface providing cell metrics.
+     * @param font        Font spec carrying resolved typeface; provides cell metrics.
      * @return (cols, rows). jasserts cols > 0 and rows > 0.
      * @note Pure math — no instance state. noexcept.
      */
     static std::pair<int, int> cellsFromRect (juce::Rectangle<int> paneRect,
-                                              jam::Typeface& font) noexcept;
+                                              jam::Font& font) noexcept;
 
     /**
      * @brief Splits a pixel rect by direction and ratio.
@@ -288,7 +289,8 @@ private:
      */
     void splitActive (const juce::String& direction, bool isVertical, double ratio);
 
-    jam::Typeface& font;
+    jam::Font& font;
+    jam::Glyph::Packer& packerRef;
     jam::gl::GlyphAtlas& glAtlasRef;
     jam::GraphicsAtlas& graphicsAtlasRef;
     jam::Owner<PaneComponent> panes;

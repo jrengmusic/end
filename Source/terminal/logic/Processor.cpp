@@ -274,11 +274,12 @@ void Processor::setHostWriter (std::function<void (const char*, int)> writer) no
  * @return Unique pointer to the newly created Display.
  * @note MESSAGE THREAD.
  */
-std::unique_ptr<Display> Processor::createDisplay (jam::Typeface& font,
+std::unique_ptr<Display> Processor::createDisplay (jam::Font& font,
+                                                    jam::Glyph::Packer& packer,
                                                     jam::gl::GlyphAtlas& glAtlas,
                                                     jam::GraphicsAtlas& graphicsAtlas)
 {
-    auto display { std::make_unique<Display> (*this, font, glAtlas, graphicsAtlas) };
+    auto display { std::make_unique<Display> (*this, font, packer, glAtlas, graphicsAtlas) };
     display->setComponentID (uuid);
     return display;
 }

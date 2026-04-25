@@ -22,8 +22,9 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Panes::Panes (jam::Typeface& font_, jam::gl::GlyphAtlas& glAtlas_, jam::GraphicsAtlas& graphicsAtlas_)
+Panes::Panes (jam::Font& font_, jam::Glyph::Packer& packer_, jam::gl::GlyphAtlas& glAtlas_, jam::GraphicsAtlas& graphicsAtlas_)
     : font (font_)
+    , packerRef (packer_)
     , glAtlasRef (glAtlas_)
     , graphicsAtlasRef (graphicsAtlas_)
 {
@@ -46,15 +47,15 @@ Panes::~Panes() = default;
  * cell size derived from font metrics and config multipliers.
  *
  * @param paneRect  Target pixel rect for the pane (chrome already subtracted by caller).
- * @param font_     Typeface providing cell metrics.
+ * @param font_     Font spec carrying resolved typeface; provides cell metrics.
  * @return {cols, rows}. jasserts cols > 0 and rows > 0.
  * @note Pure math — no instance state.
  */
 std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
-                                           jam::Typeface& font_) noexcept
+                                           jam::Font& font_) noexcept
 {
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
-    const auto fm { font_.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
+    const auto fm { font_.getResolvedTypeface()->calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
     const auto* cfg { Config::getContext() };
     const float scale { jam::Typeface::getDisplayScale() };
     const float cellWidthMultiplier  { cfg->getFloat (Config::Key::fontCellWidth) };
@@ -152,7 +153,7 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 
     const juce::String termUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, glAtlasRef, graphicsAtlasRef) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef) };
 
     jassert (terminal != nullptr);
 
@@ -455,7 +456,7 @@ void Panes::splitAt (const juce::String& targetUuid,
 
     const juce::String splitUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, glAtlasRef, graphicsAtlasRef) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef) };
 
     jassert (terminal != nullptr);
 

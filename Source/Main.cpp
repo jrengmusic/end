@@ -44,7 +44,6 @@
 */
 
 #include <JuceHeader.h>
-#include <JamFontsBinaryData.h>
 #include "MainComponent.h"
 #include "AppState.h"
 #include "config/Config.h"
@@ -348,7 +347,7 @@ public:
             }
 #endif
 
-            auto* mainComponent { new MainComponent (fontRegistry) };
+            auto* mainComponent { new MainComponent() };
             mainWindow.reset (new Terminal::Window (mainComponent,
                                                  cfg->getString (Config::Key::windowTitle),
                                                  cfg->getBool (Config::Key::windowAlwaysOnTop),
@@ -508,9 +507,6 @@ private:
     /** @brief Application-level ValueTree. Must be constructed after config. */
     AppState appState;
 
-    /** @brief Pre-loaded font handles shared by the renderer. */
-    jam::Typeface::Registry fontRegistry;
-
     /** @brief Global action registry. Must be constructed after Config. */
     Action::Registry action;
 
@@ -545,28 +541,6 @@ private:
      * Replaces the crash-unsafe `connected` XML property in `.display`.
      */
     std::unique_ptr<juce::InterProcessLock> clientLock;
-
-    /** @brief Embedded Display Mono typefaces; held alive for DirectWrite on Windows. */
-    struct DisplayMono
-    {
-        static inline auto book { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayMonoBook_ttf,
-                                                                            jam::fonts::DisplayMonoBook_ttfSize) };
-        static inline auto medium { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayMonoMedium_ttf,
-                                                                              jam::fonts::DisplayMonoMedium_ttfSize) };
-        static inline auto bold { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayMonoBold_ttf,
-                                                                            jam::fonts::DisplayMonoBold_ttfSize) };
-    };
-
-    /** @brief Embedded Display proportional typefaces; held alive for DirectWrite on Windows. */
-    struct DisplayProp
-    {
-        static inline auto book { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayBook_ttf,
-                                                                            jam::fonts::DisplayBook_ttfSize) };
-        static inline auto medium { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayMedium_ttf,
-                                                                              jam::fonts::DisplayMedium_ttfSize) };
-        static inline auto bold { juce::Typeface::createSystemTypefaceFor (jam::fonts::DisplayBold_ttf,
-                                                                            jam::fonts::DisplayBold_ttfSize) };
-    };
 
     /** @brief The native OS window; null before initialise() and after shutdown(). */
     std::unique_ptr<Terminal::Window> mainWindow;

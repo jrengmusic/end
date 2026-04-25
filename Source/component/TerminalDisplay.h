@@ -100,13 +100,15 @@ public:
      * applies the current Config.
      *
      * @param proc          The Processor this Display renders.
-     * @param font          Font instance providing metrics, shaping, and rasterisation.
+     * @param font          Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
+     * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; passed to Screen<GLContext> for atlas rebuild.
      * @param graphicsAtlas CPU atlas image store; passed to Screen<GraphicsContext> for atlas rebuild.
      * @note MESSAGE THREAD.
      */
     Display (Terminal::Processor& proc,
-             jam::Typeface& font,
+             jam::Font& font,
+             jam::Glyph::Packer& packer,
              jam::gl::GlyphAtlas& glAtlas,
              jam::GraphicsAtlas& graphicsAtlas);
 
@@ -617,7 +619,10 @@ private:
 
     //==============================================================================
     /** @brief Font reference; lifetime owned by MainComponent. */
-    jam::Typeface& font;
+    jam::Font& font;
+
+    /** @brief Glyph packer reference; lifetime owned by MainComponent. Passed to Screen. */
+    jam::Glyph::Packer& packerRef;
 
     /** @brief GL atlas reference; lifetime owned by MainComponent. Passed to Screen<GLContext>. */
     jam::gl::GlyphAtlas& glAtlasRef;

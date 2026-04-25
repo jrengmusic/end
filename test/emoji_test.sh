@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/zsh
 # emoji_test.sh — Comprehensive Unicode/emoji width test cases
 # Each section prints chars with | separators and an expected-width marker row.
 # XX = width 2, X = width 1, 0 = width 0 (combining)

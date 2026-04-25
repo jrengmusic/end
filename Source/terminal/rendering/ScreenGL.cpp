@@ -34,7 +34,7 @@ void Screen<Renderer>::renderOpenGL (int originX, int originY, int fullHeight)
         const int y { originY + glViewportY };
 
         textRenderer.push (x, y, glViewportWidth, glViewportHeight, fullHeight);
-        textRenderer.uploadStagedBitmaps (font, atlasRef);
+        textRenderer.uploadStagedBitmaps (packer, atlasRef);
 
         Render::Snapshot* snapshot { resources.snapshotBuffer.read() };
 
@@ -199,7 +199,7 @@ void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY,
         if (AppState::getContext()->consumeAtlasDirty())
             atlasRef.rebuildAtlas();
 
-        textRenderer.uploadStagedBitmaps (font, atlasRef);
+        textRenderer.uploadStagedBitmaps (packer, atlasRef);
 
         Render::Snapshot* snapshot { resources.snapshotBuffer.read() };
 

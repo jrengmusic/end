@@ -27,8 +27,10 @@
 */
 
 #include "MainComponent.h"
+#include <JamFontsBinaryData.h>
 #include "nexus/Nexus.h"
 #include "terminal/data/Identifier.h"
+
 
 /**
  * @brief Constructs MainComponent.
@@ -52,14 +54,30 @@
  *
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
-MainComponent::MainComponent (jam::Typeface::Registry& fontRegistry)
-    : typeface (fontRegistry,
-                config.getString (Config::Key::fontFamily),
-                config.dpiCorrectedFontSize(),
-                jam::Glyph::AtlasSize::compact,
-                true)
+MainComponent::MainComponent()
+    : packer (jam::Glyph::AtlasSize::compact)
 {
     glyphAtlas.setAtlasSize (jam::Glyph::AtlasSize::compact);
+
+    {
+        auto typeface { std::make_shared<jam::Typeface> (config.getString (Config::Key::fontFamily),
+#if JUCE_MAC
+                                                          "Apple Color Emoji",
+#elif JUCE_WINDOWS
+                                                          "Segoe UI Emoji",
+#else
+                                                          "Noto Color Emoji",
+#endif
+                                                          config.dpiCorrectedFontSize()) };
+
+        typeface->addFallbackFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
+
+        const auto [nfData, nfSize] { BinaryData::fetcher ("SymbolsNerdFont-Regular.ttf") };
+        typeface->addFallbackFont (nfData, nfSize);
+
+        font = jam::Font (config.getString (Config::Key::fontFamily), config.dpiCorrectedFontSize())
+                   .withResolvedTypeface (typeface);
+    }
 
     setOpaque (appState.getRendererType() == App::RendererType::cpu);
 
@@ -124,7 +142,7 @@ MainComponent::MainComponent (jam::Typeface::Registry& fontRegistry)
             const int cols { popupCols > 0 ? popupCols : config.getInt (Config::Key::popupCols) };
             const int rows { popupRows > 0 ? popupRows : config.getInt (Config::Key::popupRows) };
 
-            const auto fm { typeface.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
+            const auto fm { font.getResolvedTypeface()->calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
 
             const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
             const int paddingTop { config.getInt (Config::Key::terminalPaddingTop) };
@@ -152,10 +170,10 @@ MainComponent::MainComponent (jam::Typeface::Registry& fontRegistry)
                 juce::MessageManager::callAsync ([this] { popup.dismiss(); });
             };
 
-            auto terminal { termSession->getProcessor().createDisplay (typeface, glyphAtlas, graphicsAtlas) };
+            auto terminal { termSession->getProcessor().createDisplay (font, packer, glyphAtlas, graphicsAtlas) };
 
             auto renderer { (appState.getRendererType() == App::RendererType::gpu)
-                ? std::unique_ptr<jam::gl::Renderer> { std::make_unique<jam::GLAtlasRenderer> (typeface, glyphAtlas) }
+                ? std::unique_ptr<jam::gl::Renderer> { std::make_unique<jam::GLAtlasRenderer> (packer, glyphAtlas) }
                 : nullptr };
 
             popup.show (*this, std::move (terminal), pixelWidth, pixelHeight, std::move (renderer));
@@ -229,14 +247,14 @@ void MainComponent::setRenderer (App::RendererType rendererType)
 {
     const bool isUsingGpu { rendererType == App::RendererType::gpu };
     const auto atlasSize { isUsingGpu ? jam::Glyph::AtlasSize::standard : jam::Glyph::AtlasSize::compact };
-    typeface.setAtlasSize (atlasSize);
+    packer.setAtlasSize (atlasSize);
     glyphAtlas.setAtlasSize (atlasSize);
 
     if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
     {
         if (isUsingGpu)
         {
-            window->setRenderer (std::make_unique<jam::GLAtlasRenderer> (typeface, glyphAtlas));
+            window->setRenderer (std::make_unique<jam::GLAtlasRenderer> (packer, glyphAtlas));
 
             window->setRenderables (
                 [this] (std::function<void (jam::gl::Component&)> renderComponent)
@@ -347,12 +365,14 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce:
     {
         if (property == App::ID::fontFamily)
         {
-            typeface.setFontFamily (appState.getFontFamily());
+            font.getResolvedTypeface()->setFontFamily (appState.getFontFamily());
+            font = font.withName (appState.getFontFamily());
             appState.markAtlasDirty();
         }
         else if (property == App::ID::fontSize)
         {
-            typeface.setFontSize (appState.getFontSize());
+            font.getResolvedTypeface()->setFontSize (appState.getFontSize());
+            font = font.withHeight (appState.getFontSize());
             appState.markAtlasDirty();
         }
         else if (property == App::ID::renderer)
@@ -484,7 +504,7 @@ void MainComponent::showMessageOverlay()
 {
     if (messageOverlay != nullptr)
     {
-        const auto fm { typeface.calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
+        const auto fm { font.getResolvedTypeface()->calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
 
         if (fm.isValid())
         {
@@ -538,7 +558,8 @@ void MainComponent::showMessageOverlay()
 void MainComponent::initialiseTabs()
 {
     tabs = std::make_unique<Terminal::Tabs> (
-        typeface,
+        font,
+        packer,
         glyphAtlas,
         graphicsAtlas,
         Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));

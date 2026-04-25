@@ -314,14 +314,15 @@ public:
      * Initialises `Resources`, calls `calc()` to derive cell dimensions,
      * then calls `reset()`.
      *
-     * @param typeface  Font instance providing metrics, shaping, and rasterisation.
+     * @param font      Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
+     * @param packer    Glyph packer; owns the atlas and rasterization.
      * @param atlas     Renderer-specific atlas store; `jam::gl::GlyphAtlas` for the GL
      *                  path, `jam::GraphicsAtlas` for the CPU path.  Passed through
      *                  to `uploadStagedBitmaps()` each frame.
      *
      * @note **MESSAGE THREAD**.
      */
-    Screen (jam::Typeface& typeface, typename Renderer::Atlas& atlas);
+    Screen (jam::Font& font, jam::Glyph::Packer& packer, typename Renderer::Atlas& atlas);
 
     /**
      * @brief Destroys the screen and releases all resources.
@@ -947,7 +948,8 @@ private:
     float lineHeightMultiplier { 1.0f }; ///< User line-height multiplier from config; 1.0 = no adjustment.
     float cellWidthMultiplier { 1.0f }; ///< User cell-width multiplier from config; 1.0 = no adjustment.
 
-    jam::Typeface& font;                          ///< Font instance providing metrics, shaping, and rasterisation.
+    jam::Font& font;                              ///< Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
+    jam::Glyph::Packer& packer;                   ///< Glyph packer; owns the atlas and rasterization.
     typename Renderer::Atlas& atlasRef;           ///< Renderer-specific atlas store; passed through to uploadStagedBitmaps().
     Resources resources;           ///< All shared rendering resources (atlas, mailbox, theme).
     bool ligatureEnabled { false }; ///< True if HarfBuzz ligature shaping is active.

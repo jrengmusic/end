@@ -1109,6 +1109,26 @@ Bold variants use platform-native stroke widening rather than a separate bold fo
 Display Monolithic -> OS system fonts (CJK/exotic) -> OS color emoji
 ```
 
+### jam::Font — Application-Level Font Specification
+
+`jam::Font` is a value type carrying the application-level font specification: family name, point size, and style. It is the unit of font identity at the call site — passed to `setFont()` on renderers and used to resolve the underlying `jam::Typeface` handle.
+
+`jam::Font` does not own any platform resource. It is trivially copyable and comparable. Font selection (which typeface to use) happens outside the `jam_graphics` module — callers construct a `jam::Font` with the desired family/size/style and hand it to the renderer.
+
+### jam::Typeface — Platform Font Handle Manager
+
+`jam::Typeface` owns the platform font handles (FreeType `FT_Face` / CoreText `CTFontRef`), HarfBuzz shaping fonts, and the shaping buffers. It is the single owner of all per-font-size resources.
+
+`jam::Typeface` has no font selection logic — it does not implement a registry or choose fonts. The caller loads a `Typeface` explicitly with the desired font data. Font selection was removed along with `Typeface::Registry`.
+
+**Fallback fonts:** `addFallbackFont` registers additional typefaces (e.g. Nerd Font for PUA icon glyphs, Display Mono for supplementary coverage) that are tried in order when the primary face returns `.notdef`. This mechanism covers NF icons and Display Mono PUA glyphs without involving any registry or system font manager for the primary code path.
+
+### jam::Glyph::Packer — Atlas Rasterization
+
+`jam::Glyph::Packer` owns atlas rasterization. It was moved out of `Typeface` to give the atlas a clear, single-responsibility boundary: `Typeface` shapes text; `Packer` rasterizes glyphs into the texture atlas.
+
+`Packer` holds the shelf-based atlas packer, the LRU glyph cache, and the staged bitmap queue. It exposes `getOrRasterize()` — callers pass a `Glyph::Key` and receive an `AtlasGlyph` (UV rect + bearing). Rasterization delegates to `Typeface` for the raw pixel data.
+
 ### Font Ownership
 
 `Fonts` inherits `jam::Context<Fonts>` — single global instance owned by `MainComponent`. All terminals share the same font handles, shaping buffers, and metrics. `Screen` and `CursorComponent` access fonts via `Fonts::getContext()`. This ensures font lifetime exceeds all terminal components, preventing use-after-free when closing tabs.

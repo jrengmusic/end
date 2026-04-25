@@ -33,6 +33,7 @@
 */
 
 #pragma once
+#include <memory>
 #include <JuceHeader.h>
 #include "AppState.h"
 #include "component/LookAndFeel.h"
@@ -44,7 +45,6 @@
 #include "config/Config.h"
 #include "action/Action.h"
 #include "action/ActionList.h"
-// jam::Typeface is available via JuceHeader → jam_graphics
 #include "component/StatusBarOverlay.h"
 #include "whelmed/Component.h"
 #include "config/WhelmedConfig.h"
@@ -78,12 +78,8 @@ class MainComponent : public juce::Component,
 public:
     /**
      * @brief Constructs the component, creates Terminal::Tabs, sets initial size.
-     *
-     * @param fontRegistry  Font slot registry owned by ENDApplication.  Passed
-     *                      through to the `Fonts` instance so font slots can be
-     *                      populated and resolved without a singleton.
      */
-    MainComponent (jam::Typeface::Registry& fontRegistry);
+    MainComponent();
 
     /** @brief Removes ValueTree listeners and tears down LookAndFeel. */
     ~MainComponent() override;
@@ -149,8 +145,11 @@ private:
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
     Terminal::LookAndFeel terminalLookAndFeel;
 
-    /** @brief Global typeface instance; provides font metrics and shaping for all terminals. */
-    jam::Typeface typeface;
+    /** @brief Global font instance; carries spec and resolved typeface for all terminals. */
+    jam::Font font { juce::String(), 0.0f };
+
+    /** @brief Glyph packer; owns the glyph atlas and rasterization for all terminals. */
+    jam::Glyph::Packer packer;
 
     /** @brief GL texture handle store; shared by all Screen<GLContext> instances. */
     jam::gl::GlyphAtlas glyphAtlas;

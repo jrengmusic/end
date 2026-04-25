@@ -34,12 +34,14 @@ namespace Terminal
  * then calls `reset()` to zero the cache dimension sentinels.
  */
 template <typename Renderer>
-Screen<Renderer>::Screen (jam::Typeface& font_, typename Renderer::Atlas& atlas_)
+Screen<Renderer>::Screen (jam::Font& font_, jam::Glyph::Packer& packer_, typename Renderer::Atlas& atlas_)
     : font (font_)
+    , packer (packer_)
     , atlasRef (atlas_)
     , resources()
     , baseFontSize (Config::getContext()->dpiCorrectedFontSize())
 {
+    textRenderer.setPacker (packer);
     calc();
     reset();
 }
@@ -60,7 +62,7 @@ Screen<Renderer>::~Screen()
 template <typename Renderer>
 void Screen<Renderer>::calc() noexcept
 {
-    const jam::Typeface::Metrics fm { font.calcMetrics (baseFontSize) };
+    const jam::Typeface::Metrics fm { font.getResolvedTypeface()->calcMetrics (baseFontSize) };
 
     if (fm.isValid())
     {
@@ -260,9 +262,9 @@ void Screen<Renderer>::setFontSize (float pointSize) noexcept
     if (pointSize != baseFontSize)
     {
         baseFontSize = pointSize;
-        font.setSize (pointSize);
-        font.setAtlasDisplayScale (jam::Typeface::getDisplayScale());
-        font.clearAtlas();
+        font.getResolvedTypeface()->setSize (pointSize);
+        packer.setDisplayScale (jam::Typeface::getDisplayScale());
+        packer.clear();
         calc();
     }
 }
@@ -319,10 +321,10 @@ void Screen<Renderer>::setLigatures (bool enabled) noexcept
 template <typename Renderer>
 void Screen<Renderer>::setEmbolden (bool enabled) noexcept
 {
-    if (enabled != font.getEmbolden())
+    if (enabled != packer.getEmbolden())
     {
-        font.setEmbolden (enabled);
-        font.clearAtlas();
+        packer.setEmbolden (enabled);
+        packer.clear();
     }
 }
 
