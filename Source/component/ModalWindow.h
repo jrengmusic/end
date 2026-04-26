@@ -21,7 +21,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "../config/Config.h"
+#include "../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -74,8 +74,7 @@ public:
     static constexpr float cornerSize { 8.0f };
 #endif
 
-protected:
-    Config& config { *Config::getContext() };
+    // No config member — access via lua::Engine::getContext() at call site.
 
 private:
     //==========================================================================

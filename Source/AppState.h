@@ -194,7 +194,7 @@ struct AppState : jam::Context<AppState>
      * @brief Writes the current WINDOW subtree XML to `getWindowState()`.
      *
      * Cross-instance shared file, independent of session restore state.
-     * Called on every quit when Config::Key::windowSaveSize is "true".
+     * Called on every quit when `lua::Engine::display.window.saveSize` is true.
      *
      * @note MESSAGE THREAD.
      */
@@ -205,7 +205,7 @@ struct AppState : jam::Context<AppState>
      *        in-memory WINDOW node.
      *
      * Called only for new instances (no prior session state) when
-     * Config::Key::windowSaveSize is "true". Silently no-ops on missing file
+     * `lua::Engine::display.window.saveSize` is true. Silently no-ops on missing file
      * or parse failure — defaults from initDefaults() remain.
      *
      * @note MESSAGE THREAD.

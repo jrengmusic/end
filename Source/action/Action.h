@@ -10,7 +10,7 @@
  * ### Lifecycle
  * 1. Constructed once (typically by `MainComponent`).
  * 2. Caller registers every action via `registerAction()`.
- * 3. `buildKeyMap()` is called after registration, with binding data from Scripting::Engine.
+ * 3. `buildKeyMap()` is called after registration, with binding data from lua::Engine.
  * 4. `TerminalDisplay::keyPressed` delegates to `handleKeyPress()`.
  * 5. If `handleKeyPress()` returns `true` the key is consumed; otherwise the
  *    caller forwards it to the PTY.
@@ -23,7 +23,7 @@
  *
  * @note All methods must be called on the **MESSAGE THREAD**.
  *
- * @see Scripting::Engine
+ * @see lua::Engine
  * @see jam::Context
  */
 
@@ -180,7 +180,7 @@ public:
      * @brief Populates key maps from externally provided bindings.
      *
      * Replaces the old Config-reading buildKeyMap. All binding data comes
-     * from Scripting::Engine which parses action.lua.
+     * from lua::Engine which parses keys.lua, popups.lua, and actions.lua.
      *
      * @param prefixShortcut   The prefix key shortcut string (e.g. "`").
      * @param prefixTimeout    Prefix timeout in milliseconds.

@@ -36,7 +36,7 @@
 
 #include "State.h"
 #include <JuceHeader.h>
-#include "../../config/Config.h"
+#include "../../lua/Engine.h"
 #include "../../AppState.h"
 
 namespace Terminal
@@ -237,9 +237,9 @@ State::State()
     stringMap[ID::foregroundProcess] = std::make_unique<StringSlot>();
 
     getRawParam (ID::cursorBlinkEnabled)
-        ->store (Config::getContext()->getBool (Config::Key::cursorBlink) ? 1.0f : 0.0f, std::memory_order_relaxed);
+        ->store (lua::Engine::getContext()->display.cursor.blink ? 1.0f : 0.0f, std::memory_order_relaxed);
     getRawParam (ID::cursorBlinkInterval)
-        ->store (static_cast<float> (Config::getContext()->getInt (Config::Key::cursorBlinkInterval)),
+        ->store (static_cast<float> (lua::Engine::getContext()->display.cursor.blinkInterval),
                  std::memory_order_relaxed);
 
     startTimerHz (60);

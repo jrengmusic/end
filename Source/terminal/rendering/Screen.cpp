@@ -19,7 +19,7 @@
  */
 
 #include "Screen.h"
-#include "../../config/Config.h"
+#include "../../lua/Engine.h"
 
 
 namespace Terminal
@@ -39,7 +39,7 @@ Screen<Renderer>::Screen (jam::Font& font_, jam::Glyph::Packer& packer_, typenam
     , packer (packer_)
     , atlasRef (atlas_)
     , resources()
-    , baseFontSize (Config::getContext()->dpiCorrectedFontSize())
+    , baseFontSize (lua::Engine::getContext()->dpiCorrectedFontSize())
 {
     textRenderer.setPacker (packer);
     calc();

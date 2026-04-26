@@ -11,7 +11,7 @@
 #include "../terminal/logic/Processor.h"
 #include "../interprocess/Daemon.h"
 #include "../interprocess/Link.h"
-#include "../config/Config.h"
+#include "../lua/Engine.h"
 
 // =============================================================================
 
@@ -126,7 +126,7 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
     else if (attachedLink != nullptr)
     {
         // Client mode — send createSession PDU and create a local remote (no-TTY) session.
-        const juce::String shell { Config::getContext()->getString (Config::Key::shellProgram) };
+        const juce::String shell { lua::Engine::getContext()->nexus.shell.program };
         attachedLink->sendCreateSession (cwd, uuid, cols, rows);
 
         auto termSession { Terminal::Session::create (cols, rows, cwd, shell, uuid) };

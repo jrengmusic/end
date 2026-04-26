@@ -30,7 +30,7 @@
 
 #include "Grid.h"
 #include "../data/State.h"
-#include "../../config/Config.h"
+#include "../../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -52,7 +52,7 @@ namespace Terminal
  */
 Grid::Grid (State& initState)
     : state (initState)
-    , scrollbackCapacity { Config::getContext()->getInt (Config::Key::terminalScrollbackLines) }
+    , scrollbackCapacity { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
     initBuffer (buffers.at (normal), state.getCols(), state.getVisibleRows() + scrollbackCapacity, state.getVisibleRows());
     initBuffer (buffers.at (alternate), state.getCols(), state.getVisibleRows(), state.getVisibleRows());

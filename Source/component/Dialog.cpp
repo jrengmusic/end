@@ -56,11 +56,11 @@ void Dialog::resized()
 {
     const juce::Font font { [this]
     {
-        const auto* cfg { Config::getContext() };
+        const auto* cfg { lua::Engine::getContext() };
         return juce::Font { juce::FontOptions()
-                                .withName (cfg->getString (Config::Key::actionListNameFamily))
-                                .withStyle (cfg->getString (Config::Key::actionListNameStyle))
-                                .withPointHeight (cfg->getFloat (Config::Key::actionListNameSize)) };
+                                .withName (cfg->display.actionList.nameFamily)
+                                .withStyle (cfg->display.actionList.nameStyle)
+                                .withPointHeight (cfg->display.actionList.nameSize) };
     }() };
 
     const int lineH    { static_cast<int> (std::ceil (font.getHeight())) };
@@ -109,10 +109,11 @@ bool Dialog::keyPressed (const juce::KeyPress& key)
 //==============================================================================
 int Dialog::getPreferredWidth() const noexcept
 {
+    const auto* cfg { lua::Engine::getContext() };
     const juce::Font font { juce::FontOptions()
-                                .withName (config.getString (Config::Key::actionListNameFamily))
-                                .withStyle (config.getString (Config::Key::actionListNameStyle))
-                                .withPointHeight (config.getFloat (Config::Key::actionListNameSize)) };
+                                .withName (cfg->display.actionList.nameFamily)
+                                .withStyle (cfg->display.actionList.nameStyle)
+                                .withPointHeight (cfg->display.actionList.nameSize) };
 
     const int messageW    { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, messageLabel.getText()))) };
     const int yesW        { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, "Yes")))
@@ -126,10 +127,11 @@ int Dialog::getPreferredWidth() const noexcept
 
 int Dialog::getPreferredHeight() const noexcept
 {
+    const auto* cfg2 { lua::Engine::getContext() };
     const juce::Font font { juce::FontOptions()
-                                .withName (config.getString (Config::Key::actionListNameFamily))
-                                .withStyle (config.getString (Config::Key::actionListNameStyle))
-                                .withPointHeight (config.getFloat (Config::Key::actionListNameSize)) };
+                                .withName (cfg2->display.actionList.nameFamily)
+                                .withStyle (cfg2->display.actionList.nameStyle)
+                                .withPointHeight (cfg2->display.actionList.nameSize) };
 
     const int lineH   { static_cast<int> (std::ceil (font.getHeight())) };
     const int buttonH { lineH + verticalPadding * 2 };

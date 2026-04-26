@@ -1,5 +1,5 @@
 #include "Parser.h"
-#include "../config/WhelmedConfig.h"
+#include "../lua/Engine.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
@@ -9,25 +9,25 @@ Parser::Parser (State& s, int start)
     , state (s)
     , startBlock (start)
 {
-    const auto* cfg { Whelmed::Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
 
-    bodySize = cfg->getFloat (Whelmed::Config::Key::fontSize);
-    h1Size   = cfg->getFloat (Whelmed::Config::Key::h1Size);
-    h2Size   = cfg->getFloat (Whelmed::Config::Key::h2Size);
-    h3Size   = cfg->getFloat (Whelmed::Config::Key::h3Size);
-    h4Size   = cfg->getFloat (Whelmed::Config::Key::h4Size);
-    h5Size   = cfg->getFloat (Whelmed::Config::Key::h5Size);
-    h6Size   = cfg->getFloat (Whelmed::Config::Key::h6Size);
+    bodySize = cfg->whelmed.fontSize;
+    h1Size   = cfg->whelmed.h1Size;
+    h2Size   = cfg->whelmed.h2Size;
+    h3Size   = cfg->whelmed.h3Size;
+    h4Size   = cfg->whelmed.h4Size;
+    h5Size   = cfg->whelmed.h5Size;
+    h6Size   = cfg->whelmed.h6Size;
 
-    bodyColour = cfg->getColour (Whelmed::Config::Key::bodyColour);
-    h1Colour   = cfg->getColour (Whelmed::Config::Key::h1Colour);
-    h2Colour   = cfg->getColour (Whelmed::Config::Key::h2Colour);
-    h3Colour   = cfg->getColour (Whelmed::Config::Key::h3Colour);
-    h4Colour   = cfg->getColour (Whelmed::Config::Key::h4Colour);
-    h5Colour   = cfg->getColour (Whelmed::Config::Key::h5Colour);
-    h6Colour   = cfg->getColour (Whelmed::Config::Key::h6Colour);
-    codeColour = cfg->getColour (Whelmed::Config::Key::codeColour);
-    linkColour = cfg->getColour (Whelmed::Config::Key::linkColour);
+    bodyColour = cfg->whelmed.bodyColour;
+    h1Colour   = cfg->whelmed.h1Colour;
+    h2Colour   = cfg->whelmed.h2Colour;
+    h3Colour   = cfg->whelmed.h3Colour;
+    h4Colour   = cfg->whelmed.h4Colour;
+    h5Colour   = cfg->whelmed.h5Colour;
+    h6Colour   = cfg->whelmed.h6Colour;
+    codeColour = cfg->whelmed.codeColour;
+    linkColour = cfg->whelmed.linkColour;
 }
 
 Parser::~Parser()

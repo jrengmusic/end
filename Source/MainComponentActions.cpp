@@ -80,7 +80,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                            {
                                if (not popup.isActive())
                                {
-                                   if (not config.getBool (Config::Key::windowConfirmationOnExit))
+                                   if (not lua::Engine::getContext()->display.window.confirmationOnExit)
                                    {
                                        juce::JUCEApplication::getInstance()->systemRequestedQuit();
                                    }
@@ -148,8 +148,8 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                            false,
                            [this]() -> bool
                            {
-                               const auto reloadError { config.reload() };
-                               Whelmed::Config::getContext()->reload();
+                               luaEngine.reload();
+                               const auto& reloadError { luaEngine.getLoadError() };
 
                                if (reloadError.isEmpty())
                                {
@@ -196,7 +196,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                            {
                                if (not popup.isActive())
                                {
-                                   auto list { std::make_unique<Action::List> (*this, *scriptingEngine) };
+                                   auto list { std::make_unique<Action::List> (*this, luaEngine) };
 
                                    list->onActionRun = [this]
                                    {

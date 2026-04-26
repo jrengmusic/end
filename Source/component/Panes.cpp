@@ -13,7 +13,7 @@
 #include "../whelmed/Component.h"
 #include "../nexus/Nexus.h"
 #include "../terminal/logic/Session.h"
-#include "../config/Config.h"
+#include "../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -55,20 +55,20 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
                                            jam::Font& font_) noexcept
 {
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
-    const auto fm { font_.getResolvedTypeface()->calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
-    const auto* cfg { Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
+    const auto fm { font_.getResolvedTypeface()->calcMetrics (cfg->dpiCorrectedFontSize()) };
     const float scale { jam::Typeface::getDisplayScale() };
-    const float cellWidthMultiplier  { cfg->getFloat (Config::Key::fontCellWidth) };
-    const float lineHeightMultiplier { cfg->getFloat (Config::Key::fontLineHeight) };
+    const float cellWidthMultiplier  { cfg->display.font.cellWidth };
+    const float lineHeightMultiplier { cfg->display.font.lineHeight };
     const int physCellW { static_cast<int> (static_cast<float> (fm.physCellW) * cellWidthMultiplier) };
     const int physCellH { static_cast<int> (static_cast<float> (fm.physCellH) * lineHeightMultiplier) };
 
     jassert (physCellW > 0 and physCellH > 0);
 
-    const int paddingTop    { cfg->getInt (Config::Key::terminalPaddingTop) };
-    const int paddingRight  { cfg->getInt (Config::Key::terminalPaddingRight) };
-    const int paddingBottom { cfg->getInt (Config::Key::terminalPaddingBottom) };
-    const int paddingLeft   { cfg->getInt (Config::Key::terminalPaddingLeft) };
+    const int paddingTop    { cfg->nexus.terminal.paddingTop };
+    const int paddingRight  { cfg->nexus.terminal.paddingRight };
+    const int paddingBottom { cfg->nexus.terminal.paddingBottom };
+    const int paddingLeft   { cfg->nexus.terminal.paddingLeft };
 
     const int contentW { paneRect.getWidth()  - paddingLeft - paddingRight };
     const int contentH { paneRect.getHeight() - paddingTop  - paddingBottom };

@@ -16,7 +16,7 @@
 #include "../../SelectionType.h"
 #include "../data/Identifier.h"
 #include "../data/State.h"
-#include "../../config/Config.h"
+#include "../../lua/Engine.h"
 
 namespace Terminal
 {
@@ -222,7 +222,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                          const juce::MouseWheelDetails& wheel,
                          std::function<void (int)> setScrollFn)
 {
-    const int scrollLines { Config::getContext()->getInt (Config::Key::terminalScrollStep) };
+    const int scrollLines { lua::Engine::getContext()->nexus.terminal.scrollStep };
     const auto activeScreen { processor.getState().getActiveScreen() };
 
     if (not wheel.isSmooth)

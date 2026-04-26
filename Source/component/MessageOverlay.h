@@ -29,14 +29,14 @@
  * @note All methods are called on the **MESSAGE THREAD**.
  *
  * @see MainComponent
- * @see Config::Key::overlayFamily
- * @see Config::Key::overlaySize
- * @see Config::Key::overlayColour
+ * @see lua::Engine::display.overlay.family
+ * @see lua::Engine::display.overlay.size
+ * @see lua::Engine::display.overlay.colour
  */
 
 #pragma once
 #include <JuceHeader.h>
-#include "../config/Config.h"
+#include "../lua/Engine.h"
 
 /**
  * @class MessageOverlay
@@ -133,12 +133,12 @@ public:
      */
     void paint (juce::Graphics& g) override
     {
-        const auto* cfg { Config::getContext() };
-        const auto bgColour { cfg->getColour (Config::Key::windowColour) };
-        const auto fgColour { cfg->getColour (Config::Key::overlayColour) };
+        const auto* cfg { lua::Engine::getContext() };
+        const auto bgColour { cfg->display.window.colour };
+        const auto fgColour { cfg->display.overlay.colour };
         const juce::FontOptions font { juce::FontOptions()
-                                           .withName (cfg->getString (Config::Key::overlayFamily))
-                                           .withPointHeight (cfg->getFloat (Config::Key::overlaySize)) };
+                                           .withName (cfg->display.overlay.family)
+                                           .withPointHeight (cfg->display.overlay.size) };
 
         g.fillAll (bgColour.withAlpha (backgroundAlpha));
         g.setFont (font);

@@ -16,7 +16,7 @@
  * All methods are called on the **MESSAGE THREAD**.
  *
  * @see Terminal::Tabs
- * @see Config
+ * @see lua::Engine
  * @see ENDApplication::systemRequestedQuit
  * @see Action::Registry
  */
@@ -42,13 +42,11 @@
 #include "component/MessageOverlay.h"
 #include "component/Popup.h"
 #include "component/Tabs.h"
-#include "config/Config.h"
+#include "lua/Engine.h"
 #include "action/Action.h"
 #include "action/ActionList.h"
 #include "component/StatusBarOverlay.h"
 #include "whelmed/Component.h"
-#include "config/WhelmedConfig.h"
-#include "scripting/Scripting.h"
 
 /**
  * @class MainComponent
@@ -68,8 +66,7 @@
  * the tint colour and transparency.
  *
  * @see Terminal::Tabs
- * @see Config::Key::windowColour
- * @see Config::Key::windowOpacity
+ * @see lua::Engine::Display::Window
  * @see Action::Registry
  */
 class MainComponent : public juce::Component,
@@ -78,8 +75,9 @@ class MainComponent : public juce::Component,
 public:
     /**
      * @brief Constructs the component, creates Terminal::Tabs, sets initial size.
+     * @param engine  The unified Lua engine — owns config and scripting state.
      */
-    MainComponent();
+    explicit MainComponent (lua::Engine& engine);
 
     /** @brief Removes ValueTree listeners and tears down LookAndFeel. */
     ~MainComponent() override;
@@ -94,11 +92,11 @@ public:
     /**
      * @brief Rebuilds actions, applies config to tabs, LookAndFeel, and orientation.
      *
-     * Called by `Config::onReload` (wired in Main.cpp) after Config reloads
+     * Called by `lua::Engine::onReload` (wired in Main.cpp) after the engine reloads
      * `end.lua`.  Also called once from the constructor for initial setup.
      *
      * @note MESSAGE THREAD.
-     * @see Config::onReload
+     * @see lua::Engine::onReload
      */
     void applyConfig();
 
@@ -138,8 +136,10 @@ private:
      */
     void setRenderer (App::RendererType rendererType);
 
-    /** @brief Cached context references; resolved once, used everywhere. */
-    Config& config { *Config::getContext() };
+    /** @brief Unified Lua engine — config and scripting SSOT. */
+    lua::Engine& luaEngine;
+
+    /** @brief Cached AppState reference. */
     AppState& appState { *AppState::getContext() };
 
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
@@ -179,8 +179,7 @@ private:
     /** @brief Modal popup dialog; shows content in a glass window. */
     Terminal::Popup popup;
 
-    /** @brief Lua scripting engine — loads action.lua, registers popup/custom actions, builds key maps. */
-    std::unique_ptr<Scripting::Engine> scriptingEngine;
+    // lua::Engine is owned by ENDApplication and injected via constructor reference.
 
 #if JUCE_WINDOWS
     /** @brief Fires when the native scale factor changes.
@@ -259,7 +258,7 @@ private:
      * @brief Creates MessageOverlay, shows startup errors if any.
      * @note MESSAGE THREAD.
      * @see MessageOverlay
-     * @see Config::getLoadError()
+     * @see lua::Engine::getLoadError()
      */
     void initialiseOverlays();
 

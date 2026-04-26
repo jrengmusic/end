@@ -50,7 +50,7 @@
 #include "../terminal/selection/LinkSpan.h"
 #include "../terminal/selection/LinkManager.h"
 #include "PaneComponent.h"
-#include "config/Config.h"
+#include "../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -195,7 +195,7 @@ public:
      *
      * When mouse tracking is active, encodes the scroll direction as button 64
      * (up) or 65 (down) and writes an SGR 1006 sequence to the pty.  Otherwise
-     * adjusts the scroll offset by `Config::Key::scrollbackStep` lines.
+     * adjusts the scroll offset by `lua::Engine::nexus.terminal.scrollStep` lines.
      *
      * @param event  The mouse event (position used for SGR cell coordinates).
      * @param wheel  Wheel details; `deltaY > 0` means scroll up.
@@ -442,7 +442,7 @@ public:
     /**
      * @brief Applies the current zoom level and re-lays out the component.
      *
-     * Reads the new font size from SSOT: `Config::dpiCorrectedFontSize() * AppState::getWindowZoom()`.
+     * Reads the new font size from SSOT: `lua::Engine::dpiCorrectedFontSize() * AppState::getWindowZoom()`.
      * The caller (Tabs) must set AppState zoom before invoking this method.
      * The @p zoom parameter is accepted for interface compatibility but ignored —
      * AppState is the single source of truth.
@@ -677,17 +677,17 @@ private:
     juce::VBlankAttachment vblank;
 
     //==============================================================================
-    /** @brief Grid padding — top edge inset in logical pixels (from `terminal.padding`). */
-    const int paddingTop    { Config::getContext()->getInt (Config::Key::terminalPaddingTop) };
+    /** @brief Grid padding — top edge inset in logical pixels (from `nexus.terminal.paddingTop`). */
+    const int paddingTop    { lua::Engine::getContext()->nexus.terminal.paddingTop };
 
-    /** @brief Grid padding — right edge inset in logical pixels (from `terminal.padding`). */
-    const int paddingRight  { Config::getContext()->getInt (Config::Key::terminalPaddingRight) };
+    /** @brief Grid padding — right edge inset in logical pixels (from `nexus.terminal.paddingRight`). */
+    const int paddingRight  { lua::Engine::getContext()->nexus.terminal.paddingRight };
 
-    /** @brief Grid padding — bottom edge inset in logical pixels (from `terminal.padding`). */
-    const int paddingBottom { Config::getContext()->getInt (Config::Key::terminalPaddingBottom) };
+    /** @brief Grid padding — bottom edge inset in logical pixels (from `nexus.terminal.paddingBottom`). */
+    const int paddingBottom { lua::Engine::getContext()->nexus.terminal.paddingBottom };
 
-    /** @brief Grid padding — left edge inset in logical pixels (from `terminal.padding`). */
-    const int paddingLeft   { Config::getContext()->getInt (Config::Key::terminalPaddingLeft) };
+    /** @brief Grid padding — left edge inset in logical pixels (from `nexus.terminal.paddingLeft`). */
+    const int paddingLeft   { lua::Engine::getContext()->nexus.terminal.paddingLeft };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Display)

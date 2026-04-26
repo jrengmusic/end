@@ -1,5 +1,84 @@
 # SPRINT-LOG
 
+## Sprint 37: Unified Lua Config Engine
+
+**Date:** 2026-04-26
+
+### Agents Participated
+- **COUNSELOR:** Claude Sonnet — RFC consumption, PLAN authoring, architecture decisions, delegation, audit orchestration
+- **Pathfinder** (x3) — Codebase discovery: Config/Whelmed::Config/Scripting::Engine audit (all call sites, key constants, member inventory), template file content, include dependency mapping
+- **Engineer** (x10) — All code: Engine scaffold, 7 Lua templates, writeDefaults, initDefaults, full parse pipeline (EngineParse/EnginePatch), consumer migration (44 files), old file deletion, audit fixes (Lean splits, early return, parsed flag, stale docs)
+- **Auditor** (x2) — Step 1 scaffold audit, full sprint audit (24 findings: 2C/5H/10M/7L, all resolved)
+- **Explore** (x4) — ActionList Scripting refs, Config include sites, stale reference grep, luaEngine member position
+
+### Files Modified (62 total)
+
+**New (10):**
+- `Source/lua/Engine.h` — unified lua::Engine class: 6 typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action), Theme, DisplayCallbacks, PopupCallbacks, SelectionKeys, full public API
+- `Source/lua/Engine.cpp` — core lifecycle: constructor, destructor, load, reload, registerApiTable, registerActions, buildKeyMap, fileChanged, END table validation
+- `Source/lua/EngineDefaults.cpp` — initDefaults (all colour/platform defaults), writeDefaults (7 template helpers), colourToHex/colourToWhelmedHex
+- `Source/lua/EngineConfig.cpp` — parseColour (unified), buildTheme, dpiCorrectedFontSize, getHandler, isClickableExtension
+- `Source/lua/EngineParse.cpp` — parseNexus, parseDisplay (6 sub-parsers), parseWhelmed, parseKeys, parseSelectionKeys, parsePopups, parseActions
+- `Source/lua/EnginePatch.cpp` — patchKey (targets keys.lua), getActionLuaKey, getShortcutString
+- `Source/config/default_nexus.lua` — nexus module template (gpu, daemon, shell, terminal, hyperlinks)
+- `Source/config/default_display.lua` — display module template (window, colours, cursor, font, tab, pane, overlay, menu, action_list, status_bar, popup border)
+- `Source/config/default_keys.lua` — keys module template (prefix, bindings, selection keys, END-GENERATED marker)
+- `Source/config/default_popups.lua` — popups module template (defaults + entries)
+
+**Modified templates (3):**
+- `Source/config/default_end.lua` — rewritten as thin require() entry point
+- `Source/config/default_actions.lua` — renamed from default_action.lua, api.* instead of display.*
+- `Source/config/default_whelmed.lua` — `WHELMED = {` → `return {`
+
+**Migrated consumers (44):**
+- `Source/Main.cpp` — lua::Engine luaEngine as first member, rewired onReload
+- `Source/MainComponent.h/cpp` — lua::Engine& ref replaces Scripting::Engine unique_ptr + Config cached ref
+- `Source/MainComponentActions.cpp` — luaEngine.reload() replaces config.reload() + Whelmed reload
+- `Source/AppState.cpp` — all Config calls → typed struct access
+- `Source/action/ActionList.h/cpp` — lua::Engine& replaces Scripting::Engine&
+- `Source/component/LookAndFeel.h/cpp` — Config + Whelmed calls → lua::Engine
+- `Source/component/TerminalDisplay.h/cpp` — Config + Scripting → lua::Engine
+- `Source/component/Tabs.cpp` — Config::zoomMin/Max/Step → lua::Engine
+- `Source/component/Panes.cpp`, `Popup.h`, `Dialog.h`, `ModalWindow.h`, `StatusBarOverlay.h`, `MessageOverlay.h`, `LoaderOverlay.h` — Config → lua::Engine
+- `Source/terminal/data/State.cpp`, `logic/Grid.cpp`, `logic/Session.cpp`, `logic/Mouse.cpp`, `logic/Input.h` — Config/Scripting → lua::Engine
+- `Source/terminal/rendering/Screen.h/cpp` — Config → lua::Engine
+- `Source/terminal/selection/LinkDetector.h`, `LinkManager.cpp` — Config → lua::Engine
+- `Source/nexus/Nexus.cpp` — Config → lua::Engine
+- `Source/whelmed/Component.cpp`, `InputHandler.h/cpp`, `Parser.cpp`, `Screen.cpp`, `Tokenizer.cpp` — Whelmed::Config/Scripting → lua::Engine
+
+**Stale docs fixed (18 files):**
+- `Source/Cursor.h`, `MainComponent.h/cpp`, `AppState.h`, `Session.h/cpp`, `LookAndFeel.h/cpp`, `TerminalDisplay.h`, `Popup.h`, `Tabs.h`, `MessageOverlay.h`, `Action.h`, `Main.cpp`, `Engine.h`
+
+**Project docs (3):**
+- `ARCHITECTURE.md` — lua/ section replaces scripting/ + config/Config, stale refs fixed
+- `SPEC.md:121` — Scripting::Engine → lua::Engine
+- `PLAN-lua-engine.md` — deleted (objective complete)
+
+**Deleted (13):**
+- `Source/config/Config.h`, `Config.cpp`, `WhelmedConfig.h`, `WhelmedConfig.cpp`
+- `Source/config/default_action.lua`
+- `Source/config/KeyBinding.h`, `KeyBinding.cpp`, `ModalKeyBinding.h`, `ModalKeyBinding.cpp`
+- `Source/scripting/Scripting.h`, `Scripting.cpp`, `ScriptingParse.cpp`, `ScriptingPatch.cpp`
+
+### Alignment Check
+- [x] BLESSED principles followed — B: lua::Engine sole owner of Lua state; L: functions split to <30 lines, files split to <300 lines; E: typed member access, no string indirection, unified parseColour; S(SSOT): one values store, one colour parser; S(Stateless): no facades; E(Encap): same semantic access pattern; D: one load path
+- [x] NAMES.md adhered — six module structs (Nexus, Display, Whelmed, Keys, Popup, Action) approved by ARCHITECT; all field names match Lua table keys
+- [x] MANIFESTO.md principles applied — no early returns, positive nesting, RAII lifecycle, `not`/`and`/`or` tokens
+
+### Problems Solved
+- Three Lua states unified into one — enables cross-file require(), eliminates duplicate infrastructure
+- Whelmed hot-reload gap fixed — any .lua change triggers total reload (whelmed.lua was previously unwatched)
+- Divergent colour parsers unified — Config's #RRGGBBAA and Whelmed's bare RRGGBBAA handled by one parseColour
+- Status bar font keys moved from colours namespace to status_bar namespace (fixes pre-existing misplacement)
+- String-keyed generic getters eliminated — compile-time typed struct access prevents runtime key mismatches
+- Old config format detection — unrecognized root keys in END table surface error via MessageOverlay
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 36: Move DWM Platform Code to jam ✅
 
 **Date:** 2026-04-26

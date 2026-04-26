@@ -30,7 +30,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "../config/Config.h"
+#include "../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -176,7 +176,7 @@ private:
     static constexpr int buttonGap { 12 };
 
     //==========================================================================
-    Config& config { *Config::getContext() };
+    // Access config via lua::Engine::getContext() at call sites.
 
     juce::Label     messageLabel;
     juce::TextButton yesButton { "Yes" };

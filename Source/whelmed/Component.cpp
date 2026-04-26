@@ -1,8 +1,7 @@
 #include <JuceHeader.h>
 #include "Component.h"
 #include "MermaidSVGParser.h"
-#include "../config/WhelmedConfig.h"
-#include "../scripting/Scripting.h"
+#include "../lua/Engine.h"
 #include "../AppState.h"
 #include "../ModalType.h"
 #include "../SelectionType.h"
@@ -45,7 +44,7 @@ Component::Component()
     viewport.addMouseListener (this, true);
     AppState::getContext()->getTabs().addListener (this);
 
-    if (auto* engine { Scripting::Engine::getContext() }; engine != nullptr)
+    if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
         inputHandler.buildKeyMap (engine->getSelectionKeys());
 
     screen.setStateTree (state);
@@ -74,7 +73,7 @@ void Component::applyConfig() noexcept
     screen.load (docState.getDocument(), std::numeric_limits<int>::max());
     resized();
 
-    if (auto* engine { Scripting::Engine::getContext() }; engine != nullptr)
+    if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
         inputHandler.buildKeyMap (engine->getSelectionKeys());
 }
 
@@ -84,18 +83,18 @@ void Component::applyConfig() noexcept
 
 void Component::paint (juce::Graphics& g)
 {
-    const juce::Colour bg { Whelmed::Config::getContext()->getColour (Whelmed::Config::Key::background) };
+    const juce::Colour bg { lua::Engine::getContext()->whelmed.background };
     g.fillAll (bg);
 }
 
 void Component::resized()
 {
-    const auto* config { Whelmed::Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
     auto contentArea { getLocalBounds() };
-    contentArea.removeFromTop (config->getInt (Whelmed::Config::Key::paddingTop));
-    contentArea.removeFromRight (config->getInt (Whelmed::Config::Key::paddingRight));
-    contentArea.removeFromBottom (config->getInt (Whelmed::Config::Key::paddingBottom));
-    contentArea.removeFromLeft (config->getInt (Whelmed::Config::Key::paddingLeft));
+    contentArea.removeFromTop    (cfg->whelmed.paddingTop);
+    contentArea.removeFromRight  (cfg->whelmed.paddingRight);
+    contentArea.removeFromBottom (cfg->whelmed.paddingBottom);
+    contentArea.removeFromLeft   (cfg->whelmed.paddingLeft);
 
     viewport.setBounds (contentArea);
     screen.setSize (viewport.getMaximumVisibleWidth(), juce::jmax (1, screen.getHeight()));

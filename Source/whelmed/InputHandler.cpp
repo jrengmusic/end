@@ -7,14 +7,14 @@
 
 #include "InputHandler.h"
 #include "Screen.h"
-#include "../config/WhelmedConfig.h"
+#include "../lua/Engine.h"
 #include "../action/Action.h"
 #include "../AppIdentifier.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
 
-void InputHandler::buildKeyMap (const Scripting::Engine::SelectionKeys& keys) noexcept
+void InputHandler::buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept
 {
     selectionKeys.up          = keys.up;
     selectionKeys.down        = keys.down;
@@ -91,12 +91,12 @@ void InputHandler::reset() noexcept
 
 bool InputHandler::handleNavigation (const juce::KeyPress& key) noexcept
 {
-    const auto* config { Whelmed::Config::getContext() };
-    const int scrollStep   { config->getInt (Whelmed::Config::Key::scrollStep) };
-    const juce::String scrollDown   { config->getString (Whelmed::Config::Key::scrollDown) };
-    const juce::String scrollUp     { config->getString (Whelmed::Config::Key::scrollUp) };
-    const juce::String scrollTop    { config->getString (Whelmed::Config::Key::scrollTop) };
-    const juce::String scrollBottom { config->getString (Whelmed::Config::Key::scrollBottom) };
+    const auto* cfg { lua::Engine::getContext() };
+    const int scrollStep             { cfg->whelmed.scrollStep };
+    const juce::String scrollDown   { cfg->whelmed.scrollDown };
+    const juce::String scrollUp     { cfg->whelmed.scrollUp };
+    const juce::String scrollTop    { cfg->whelmed.scrollTop };
+    const juce::String scrollBottom { cfg->whelmed.scrollBottom };
 
     const auto keyChar { key.getTextCharacter() };
     bool handled { false };

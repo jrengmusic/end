@@ -64,7 +64,7 @@ public:
      * cause the shell to source them on startup (ZDOTDIR for zsh, ENV for bash,
      * XDG_DATA_DIRS for fish, launch args for pwsh).
      *
-     * Gated on `Config::Key::shellIntegration` (default true).
+     * Gated on `lua::Engine::nexus.shell.integration` (default true).
      *
      * @param shell    Shell program path — used for type detection (contains "zsh", "bash", etc.).
      * @param args     Shell arguments — modified in place for bash (--posix) and pwsh (launch command).
@@ -79,8 +79,8 @@ public:
      * @brief Factory — resolves shell/args from config, applies shell integration, and constructs.
      *
      * This is the single creation entry point for all PTY-backed terminal sessions.
-     * When @p shell is empty, reads `Config::Key::shellProgram`.
-     * When @p args is empty, reads `Config::Key::shellArgs`.
+     * When @p shell is empty, reads `lua::Engine::nexus.shell.program`.
+     * When @p args is empty, reads `lua::Engine::nexus.shell.args`.
      * Calls `applyShellIntegration` before construction.
      * UUID defaults to empty — constructor generates one when empty.
      *
@@ -114,7 +114,7 @@ public:
      * Bytes are fed externally via `process()`.  CWD is written
      * to State so display logic (tab title, cwd badge) works identically to a local session.
      *
-     * History capacity is read from `Config::Key::terminalScrollbackLines`.
+     * History capacity is read from `lua::Engine::nexus.terminal.scrollbackLines`.
      *
      * @param cols   Terminal width in character columns.  Must be > 0.
      * @param rows   Terminal height in character rows.  Must be > 0.
@@ -132,7 +132,7 @@ public:
     /**
      * @brief Constructs the Session, creates the TTY, and opens the shell.
      *
-     * History capacity is read from `Config::Key::terminalScrollbackLines`.
+     * History capacity is read from `lua::Engine::nexus.terminal.scrollbackLines`.
      *
      * @param cols     Initial terminal width in character columns.
      * @param rows     Initial terminal height in character rows.

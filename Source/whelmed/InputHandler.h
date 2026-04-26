@@ -15,7 +15,7 @@
 #include "../ModalType.h"
 #include "../SelectionType.h"
 #include "../AppState.h"
-#include "../scripting/Scripting.h"
+#include "../lua/Engine.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
@@ -49,10 +49,10 @@ public:
 
     /**
      * @brief Copies selection key bindings from the scripting engine.
-     * @param keys  Parsed selection keys from Scripting::Engine.
+     * @param keys  Parsed selection keys from lua::Engine.
      * @note MESSAGE THREAD.
      */
-    void buildKeyMap (const Scripting::Engine::SelectionKeys& keys) noexcept;
+    void buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept;
 
     /**
      * @brief Top-level key handler.

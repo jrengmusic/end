@@ -7,7 +7,7 @@
 
 #include "Session.h"
 #include "../tty/TTY.h"
-#include "../../config/Config.h"
+#include "../../lua/Engine.h"
 #include <BinaryData.h>
 #if JUCE_MAC || JUCE_LINUX
 #include "../tty/UnixTTY.h"
@@ -59,7 +59,7 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
     // login shells when SHLVL<=1.  Harmless on macOS/Linux where it is unused.
     seedEnv.set ("CHERE_INVOKING", "1");
 
-    if (Config::getContext()->getBool (Config::Key::shellIntegration))
+    if (lua::Engine::getContext()->nexus.shell.integration)
     {
         const juce::File configDir {
             juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile (".config/end")
@@ -171,16 +171,17 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
     jassert (cols > 0);
     jassert (rows > 0);
 
+    const auto* cfg { lua::Engine::getContext() };
     const juce::String effectiveShell { shell.isNotEmpty()
                                             ? shell
-                                            : Config::getContext()->getString (Config::Key::shellProgram) };
+                                            : cfg->nexus.shell.program };
     juce::String effectiveArgs { args.isNotEmpty() ? args
-                                                   : Config::getContext()->getString (Config::Key::shellArgs) };
+                                                   : cfg->nexus.shell.args };
 
     juce::StringPairArray mergedEnv { seedEnv };
     applyShellIntegration (effectiveShell, effectiveArgs, mergedEnv);
 
-    const bool integrationEnabled { Config::getContext()->getBool (Config::Key::shellIntegration) };
+    const bool integrationEnabled { cfg->nexus.shell.integration };
 
     auto session { std::make_unique<Session> (cols, rows, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid) };
     session->shouldTrackCwdFromOs = not integrationEnabled;
@@ -190,7 +191,7 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
 /**
  * @brief Constructs the Session, creates the TTY, opens the shell, and wires the Processor.
  *
- * History capacity comes from `Config::Key::terminalScrollbackLines`.
+ * History capacity comes from `lua::Engine::nexus.terminal.scrollbackLines`.
  * The `onBytes` and `onExit` callbacks may be overridden by the owner (`Nexus` /
  * `Interprocess::Daemon`) after construction for daemon-mode byte broadcasting.  The Processor pipeline
  * callbacks (tty->onDrainComplete, state.onFlush, setHostWriter) are wired internally.
@@ -204,7 +205,7 @@ Session::Session (int cols,
                   const juce::String& cwd,
                   const juce::StringPairArray& seedEnv,
                   const juce::String& uuid)
-    : history { Config::getContext()->getInt (Config::Key::terminalScrollbackLines) }
+    : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
 #if JUCE_MAC || JUCE_LINUX
     tty = std::make_unique<UnixTTY>();
@@ -330,7 +331,7 @@ Session::Session (int cols, int rows,
                   const juce::String& cwd,
                   const juce::String& shell,
                   const juce::String& uuid)
-    : history { Config::getContext()->getInt (Config::Key::terminalScrollbackLines) }
+    : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
     jassert (cols > 0);
     jassert (rows > 0);

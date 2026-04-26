@@ -54,13 +54,16 @@
  *
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
-MainComponent::MainComponent()
-    : packer (jam::Glyph::AtlasSize::compact)
+MainComponent::MainComponent (lua::Engine& engine)
+    : luaEngine (engine)
+    , packer (jam::Glyph::AtlasSize::compact)
 {
     glyphAtlas.setAtlasSize (jam::Glyph::AtlasSize::compact);
 
     {
-        auto typeface { std::make_shared<jam::Typeface> (config.getString (Config::Key::fontFamily),
+        const auto* cfg { lua::Engine::getContext() };
+
+        auto typeface { std::make_shared<jam::Typeface> (cfg->display.font.family,
 #if JUCE_MAC
                                                           "Apple Color Emoji",
 #elif JUCE_WINDOWS
@@ -68,14 +71,14 @@ MainComponent::MainComponent()
 #else
                                                           "Noto Color Emoji",
 #endif
-                                                          config.dpiCorrectedFontSize()) };
+                                                          cfg->dpiCorrectedFontSize()) };
 
         typeface->addFallbackFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
 
         const auto [nfData, nfSize] { BinaryData::fetcher ("SymbolsNerdFont-Regular.ttf") };
         typeface->addFallbackFont (nfData, nfSize);
 
-        font = jam::Font (config.getString (Config::Key::fontFamily), config.dpiCorrectedFontSize())
+        font = jam::Font (cfg->display.font.family, cfg->dpiCorrectedFontSize())
                    .withResolvedTypeface (typeface);
     }
 
@@ -104,8 +107,8 @@ MainComponent::MainComponent()
     setSize (appState.getWindowWidth(), appState.getWindowHeight());
 
     //==============================================================================
-    // Construct Scripting::Engine — sole provider of key bindings and popup/custom actions.
-    Scripting::Engine::DisplayCallbacks displayCb;
+    // Wire lua::Engine display and popup callbacks.
+    lua::Engine::DisplayCallbacks displayCb;
     displayCb.splitHorizontal = [this] { tabs->splitHorizontal(); };
     displayCb.splitVertical   = [this] { tabs->splitVertical(); };
     displayCb.splitWithRatio  = [this] (const juce::String& dir, bool isVert, double ratio)
@@ -123,7 +126,7 @@ MainComponent::MainComponent()
     };
     displayCb.closePane = [this] { tabs->closeActiveTab(); };
 
-    Scripting::Engine::PopupCallbacks popupCb;
+    lua::Engine::PopupCallbacks popupCb;
     popupCb.launchPopup = [this] (const juce::String& /*name*/,
                                   const juce::String& command,
                                   const juce::String& args,
@@ -133,32 +136,33 @@ MainComponent::MainComponent()
     {
         if (not popup.isActive())
         {
-            const auto shell { config.getString (Config::Key::shellProgram) };
-            const auto configShellArgs { config.getString (Config::Key::shellArgs) };
+            const auto* cfg { lua::Engine::getContext() };
+            const auto shell { cfg->nexus.shell.program };
+            const auto configShellArgs { cfg->nexus.shell.args };
             auto shellArgs { (configShellArgs.isNotEmpty() ? configShellArgs + " " : juce::String())
                              + "-c " + command
                              + (args.isNotEmpty() ? " " + args : "") };
 
-            const int cols { popupCols > 0 ? popupCols : config.getInt (Config::Key::popupCols) };
-            const int rows { popupRows > 0 ? popupRows : config.getInt (Config::Key::popupRows) };
+            const int cols { popupCols > 0 ? popupCols : cfg->popup.defaultCols };
+            const int rows { popupRows > 0 ? popupRows : cfg->popup.defaultRows };
 
-            const auto fm { font.getResolvedTypeface()->calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
+            const auto fm { font.getResolvedTypeface()->calcMetrics (cfg->dpiCorrectedFontSize()) };
 
-            const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
-            const int paddingTop { config.getInt (Config::Key::terminalPaddingTop) };
-            const int paddingRight { config.getInt (Config::Key::terminalPaddingRight) };
-            const int paddingBottom { config.getInt (Config::Key::terminalPaddingBottom) };
-            const int paddingLeft { config.getInt (Config::Key::terminalPaddingLeft) };
+            const int titleBarHeight { cfg->display.window.buttons ? App::titleBarHeight : 0 };
+            const int paddingTop    { cfg->nexus.terminal.paddingTop };
+            const int paddingRight  { cfg->nexus.terminal.paddingRight };
+            const int paddingBottom { cfg->nexus.terminal.paddingBottom };
+            const int paddingLeft   { cfg->nexus.terminal.paddingLeft };
 
-            const float lineHeightMultiplier { config.getFloat (Config::Key::fontLineHeight) };
-            const float cellWidthMultiplier { config.getFloat (Config::Key::fontCellWidth) };
+            const float lineHeightMultiplier { cfg->display.font.lineHeight };
+            const float cellWidthMultiplier  { cfg->display.font.cellWidth };
 
             const int effectiveCellW { static_cast<int> (static_cast<float> (fm.logicalCellW)
                                                          * cellWidthMultiplier) };
             const int effectiveCellH { static_cast<int> (static_cast<float> (fm.logicalCellH)
                                                          * lineHeightMultiplier) };
 
-            const int pixelWidth { cols * effectiveCellW + paddingLeft + paddingRight };
+            const int pixelWidth  { cols * effectiveCellW + paddingLeft + paddingRight };
             const int pixelHeight { rows * effectiveCellH + paddingTop + paddingBottom + titleBarHeight };
 
             const auto effectiveCwd { cwd.isNotEmpty() ? cwd : appState.getPwd() };
@@ -181,56 +185,20 @@ MainComponent::MainComponent()
         }
     };
 
-    scriptingEngine = std::make_unique<Scripting::Engine> (std::move (displayCb), std::move (popupCb));
-    scriptingEngine->load();
-
-    scriptingEngine->onActionReload = [this]
-    {
-        scriptingEngine->load();
-        registerActions();
-
-        const auto& error { scriptingEngine->getLoadError() };
-
-        if (error.isEmpty())
-        {
-            const auto rendererType { AppState::getContext()->getRendererType() };
-            const juce::String rendererName { rendererType == App::RendererType::gpu
-                                                  ? App::ID::rendererGpu.toUpperCase()
-                                                  : App::ID::rendererCpu.toUpperCase() };
-            messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
-        }
-        else
-        {
-            messageOverlay->showMessage (error);
-        }
-    };
-
-    scriptingEngine->onConfigReload = [this]
-    {
-        const auto reloadError { config.reload() };
-
-        if (reloadError.isEmpty())
-        {
-            const auto rendererType { AppState::getContext()->getRendererType() };
-            const juce::String rendererName { rendererType == App::RendererType::gpu
-                                                  ? App::ID::rendererGpu.toUpperCase()
-                                                  : App::ID::rendererCpu.toUpperCase() };
-            messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
-        }
-        else
-        {
-            messageOverlay->showMessage (reloadError);
-        }
-    };
+    luaEngine.setDisplayCallbacks (std::move (displayCb));
+    luaEngine.setPopupCallbacks (std::move (popupCb));
+    luaEngine.registerApiTable();
+    luaEngine.load();
 }
 
 void MainComponent::applyConfig()
 {
     registerActions();
 
-    appState.setFontFamily (config.getString (Config::Key::fontFamily));
-    appState.setFontSize   (static_cast<float> (config.dpiCorrectedFontSize()));
-    appState.setRendererType (config.getString (Config::Key::gpuAcceleration));
+    const auto* cfg { lua::Engine::getContext() };
+    appState.setFontFamily (cfg->display.font.family);
+    appState.setFontSize   (static_cast<float> (cfg->dpiCorrectedFontSize()));
+    appState.setRendererType (cfg->nexus.gpu);
     setRenderer (appState.getRendererType());
 
     if (tabs != nullptr)
@@ -324,7 +292,7 @@ void MainComponent::resized()
     // Position status bar overlay: full-width at configured edge.
     // No space is reserved when hidden — the bar overlays the terminal area.
     {
-        const juce::String position { config.getString (Config::Key::statusBarPosition) };
+        const juce::String position { lua::Engine::getContext()->display.statusBar.position };
         const int barHeight { statusBarOverlay->getPreferredHeight() };
         const int y { (position == "top") ? 0 : getHeight() - barHeight };
         statusBarOverlay->setBounds (0, y, getWidth(), barHeight);
@@ -445,11 +413,11 @@ void MainComponent::registerActions()
     registerPaneActions (action);
     registerNavigationActions (action);
 
-    // Register popup + custom Lua actions from action.lua.
-    scriptingEngine->registerActions (action);
+    // Register popup + custom Lua actions from actions.lua and popups.lua.
+    luaEngine.registerActions (action);
 
-    // Build key maps from action.lua bindings (replaces old Config-based buildKeyMap).
-    scriptingEngine->buildKeyMap (action);
+    // Build key maps from keys.lua bindings.
+    luaEngine.buildKeyMap (action);
 }
 
 /**
@@ -475,7 +443,7 @@ juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowH
 
     if (tabBarDepth > 0)
     {
-        const auto orientation { Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)) };
+        const auto orientation { Terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position) };
 
         if (orientation == juce::TabbedButtonBar::TabsAtTop)
             content = content.withTrimmedTop (tabBarDepth);
@@ -504,7 +472,7 @@ void MainComponent::showMessageOverlay()
 {
     if (messageOverlay != nullptr)
     {
-        const auto fm { font.getResolvedTypeface()->calcMetrics (Config::getContext()->dpiCorrectedFontSize()) };
+        const auto fm { font.getResolvedTypeface()->calcMetrics (lua::Engine::getContext()->dpiCorrectedFontSize()) };
 
         if (fm.isValid())
         {
@@ -521,11 +489,12 @@ void MainComponent::showMessageOverlay()
             else if (orientation == juce::TabbedButtonBar::TabsAtRight)
                 content = content.withTrimmedRight (depth);
 
-            const int titleBarHeight { config.getBool (Config::Key::windowButtons) ? App::titleBarHeight : 0 };
-            const int padTop { config.getInt (Config::Key::terminalPaddingTop) };
-            const int padRight { config.getInt (Config::Key::terminalPaddingRight) };
-            const int padBottom { config.getInt (Config::Key::terminalPaddingBottom) };
-            const int padLeft { config.getInt (Config::Key::terminalPaddingLeft) };
+            const auto* cfg { lua::Engine::getContext() };
+            const int titleBarHeight { cfg->display.window.buttons ? App::titleBarHeight : 0 };
+            const int padTop    { cfg->nexus.terminal.paddingTop };
+            const int padRight  { cfg->nexus.terminal.paddingRight };
+            const int padBottom { cfg->nexus.terminal.paddingBottom };
+            const int padLeft   { cfg->nexus.terminal.paddingLeft };
 
             content.removeFromTop (titleBarHeight);
             content.removeFromTop (padTop);
@@ -562,7 +531,7 @@ void MainComponent::initialiseTabs()
         packer,
         glyphAtlas,
         graphicsAtlas,
-        Terminal::Tabs::orientationFromString (config.getString (Config::Key::tabPosition)));
+        Terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position));
     addAndMakeVisible (tabs.get());
 
     tabs->onRepaintNeeded = [this]
@@ -631,7 +600,7 @@ void MainComponent::exitActiveTerminalSelectionMode() noexcept
  * @brief Creates MessageOverlay, shows startup errors if any.
  * @note MESSAGE THREAD.
  * @see MessageOverlay
- * @see Config::getLoadError()
+ * @see lua::Engine::getLoadError()
  */
 void MainComponent::initialiseOverlays()
 {
@@ -641,7 +610,7 @@ void MainComponent::initialiseOverlays()
     addChildComponent (messageOverlay.get());
     addChildComponent (statusBarOverlay.get());
 
-    if (const auto& startupError { config.getLoadError() }; startupError.isNotEmpty())
+    if (const auto& startupError { luaEngine.getLoadError() }; startupError.isNotEmpty())
     {
         juce::MessageManager::callAsync (
             [this, error = startupError]

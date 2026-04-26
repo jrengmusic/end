@@ -1,16 +1,18 @@
 /**
- * @file ScriptingPatch.cpp
- * @brief Key patch and shortcut query methods for the scripting engine.
+ * @file EnginePatch.cpp
+ * @brief Key patch and shortcut query methods for lua::Engine.
  *
  * Contains: Engine::patchKey(), Engine::getActionLuaKey(),
  * Engine::getShortcutString().
  *
- * @see Scripting::Engine
+ * @see lua::Engine
  */
 
-#include "Scripting.h"
+#include <jam_lua/jam_lua.h>
 
-namespace Scripting
+#include "Engine.h"
+
+namespace lua
 {
 
 //==============================================================================
@@ -19,21 +21,23 @@ void Engine::patchKey (const juce::String& key, const juce::String& value)
     const int dotIndex { key.indexOfChar ('.') };
     jassert (dotIndex > 0);
 
-    const juce::String tableName { key.substring (0, dotIndex) };
-    const juce::String leafName  { key.substring (dotIndex + 1) };
+    const juce::String leafName { key.substring (dotIndex + 1) };
 
-    const juce::File actionFile { Engine::getActionFile() };
-    juce::String content { actionFile.loadFileAsString() };
+    const juce::File configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+                                     .getChildFile (".config/end") };
+    const juce::File keysFile { configDir.getChildFile ("keys.lua") };
+    juce::String content { keysFile.loadFileAsString() };
 
-    // All action.lua values are strings (shortcuts), so always quote.
+    // All keys.lua values are strings (shortcuts), so always quote.
     const juce::String formattedValue { "\"" + value + "\"" };
 
-    const juce::String tablePattern { tableName + " = {" };
+    // keys.lua uses `return {` as the table opener — no named table prefix.
+    const juce::String tablePattern { "return {" };
     const int tableStart { content.indexOf (tablePattern) };
 
     if (tableStart >= 0)
     {
-        // Find closing brace for this table block.
+        // Find closing brace for the return block.
         const int openBrace { content.indexOf (tableStart, "{") };
         int braceDepth { 1 };
         int pos { openBrace + 1 };
@@ -111,7 +115,7 @@ void Engine::patchKey (const juce::String& key, const juce::String& value)
             content = content.substring (0, tableEnd) + newLine + content.substring (tableEnd);
         }
 
-        actionFile.replaceWithText (content);
+        keysFile.replaceWithText (content);
     }
 }
 
@@ -145,7 +149,7 @@ juce::String Engine::getShortcutString (const juce::String& actionLuaKey) const
 
     if (leafName == "prefix")
     {
-        result = prefixString;
+        result = keys.prefix;
     }
     else
     {
@@ -161,7 +165,7 @@ juce::String Engine::getShortcutString (const juce::String& actionLuaKey) const
         }
 
         // Find the binding for this action.
-        for (const auto& kb : keyBindings)
+        for (const auto& kb : keys.bindings)
         {
             if (kb.actionId == targetActionId and result.isEmpty())
                 result = kb.shortcutString;
@@ -171,4 +175,4 @@ juce::String Engine::getShortcutString (const juce::String& actionLuaKey) const
     return result;
 }
 
-} // namespace Scripting
+} // namespace lua

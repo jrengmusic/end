@@ -21,7 +21,7 @@
 
 #include <JuceHeader.h>
 #include <unordered_set>
-#include "../../config/Config.h"
+#include "../../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -123,7 +123,7 @@ public:
         {
             const juce::String ext { token.fromLastOccurrenceOf (".", true, false).toLowerCase() };
             result = builtInExtensions().count (ext) > 0
-                     or Config::getContext()->isClickableExtension (ext);
+                     or lua::Engine::getContext()->isClickableExtension (ext);
         }
 
         return result;

@@ -495,7 +495,7 @@ void Tabs::switchRenderer (App::RendererType type)
 void Tabs::increaseZoom()
 {
     const float current { AppState::getContext()->getWindowZoom() };
-    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current + Config::zoomStep) };
+    const float newZoom { juce::jlimit (lua::Engine::zoomMin, lua::Engine::zoomMax, current + lua::Engine::zoomStep) };
     AppState::getContext()->setWindowZoom (newZoom);
 
     for (auto& p : panes)
@@ -510,7 +510,7 @@ void Tabs::increaseZoom()
 void Tabs::decreaseZoom()
 {
     const float current { AppState::getContext()->getWindowZoom() };
-    const float newZoom { juce::jlimit (Config::zoomMin, Config::zoomMax, current - Config::zoomStep) };
+    const float newZoom { juce::jlimit (lua::Engine::zoomMin, lua::Engine::zoomMax, current - lua::Engine::zoomStep) };
     AppState::getContext()->setWindowZoom (newZoom);
 
     for (auto& p : panes)
@@ -524,7 +524,7 @@ void Tabs::decreaseZoom()
 
 void Tabs::resetZoom()
 {
-    const float defaultZoom { Config::zoomMin };
+    const float defaultZoom { lua::Engine::zoomMin };
     AppState::getContext()->setWindowZoom (defaultZoom);
 
     for (auto& p : panes)
@@ -663,8 +663,7 @@ void Tabs::updateTabBarVisibility()
 
 void Tabs::applyOrientation()
 {
-    const auto* cfg { Config::getContext() };
-    const auto orientation { orientationFromString (cfg->getString (Config::Key::tabPosition)) };
+    const auto orientation { orientationFromString (lua::Engine::getContext()->display.tab.position) };
     setOrientation (orientation);
     updateTabBarVisibility();
 }

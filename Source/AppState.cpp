@@ -7,8 +7,7 @@
 
 #include "AppState.h"
 #include "component/LookAndFeel.h"
-#include "config/Config.h"
-#include "config/WhelmedConfig.h"
+#include "lua/Engine.h"
 #include "terminal/data/Identifier.h"
 
 AppState::AppState()
@@ -56,7 +55,7 @@ juce::ValueTree AppState::getTabs() noexcept
 int AppState::getWindowWidth() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
-    int result { static_cast<int> (Config::getContext()->getInt (Config::Key::windowWidth)) };
+    int result { lua::Engine::getContext()->display.window.width };
 
     if (window.isValid() and window.hasProperty (App::ID::width))
         result = static_cast<int> (window.getProperty (App::ID::width));
@@ -67,7 +66,7 @@ int AppState::getWindowWidth() const noexcept
 int AppState::getWindowHeight() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
-    int result { static_cast<int> (Config::getContext()->getInt (Config::Key::windowHeight)) };
+    int result { lua::Engine::getContext()->display.window.height };
 
     if (window.isValid() and window.hasProperty (App::ID::height))
         result = static_cast<int> (window.getProperty (App::ID::height));
@@ -78,7 +77,7 @@ int AppState::getWindowHeight() const noexcept
 float AppState::getWindowZoom() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
-    float result { Config::zoomMin };
+    float result { lua::Engine::zoomMin };
 
     if (window.isValid() and window.hasProperty (App::ID::zoom))
         result = static_cast<float> (window.getProperty (App::ID::zoom));
@@ -95,7 +94,7 @@ void AppState::setWindowSize (int width, int height)
 
 void AppState::setWindowZoom (float zoom)
 {
-    const float clamped { juce::jlimit (Config::zoomMin, Config::zoomMax, zoom) };
+    const float clamped { juce::jlimit (lua::Engine::zoomMin, lua::Engine::zoomMax, zoom) };
     auto window { getWindow() };
     window.setProperty (App::ID::zoom, clamped, nullptr);
 }
@@ -103,7 +102,7 @@ void AppState::setWindowZoom (float zoom)
 juce::String AppState::getFontFamily() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
-    juce::String result { Config::getContext()->getString (Config::Key::fontFamily) };
+    juce::String result { lua::Engine::getContext()->display.font.family };
 
     if (window.isValid() and window.hasProperty (App::ID::fontFamily))
         result = window.getProperty (App::ID::fontFamily).toString();
@@ -120,7 +119,7 @@ void AppState::setFontFamily (const juce::String& family)
 float AppState::getFontSize() const noexcept
 {
     auto window { state.getChildWithName (App::ID::WINDOW) };
-    float result { static_cast<float> (Config::getContext()->dpiCorrectedFontSize()) };
+    float result { static_cast<float> (lua::Engine::getContext()->dpiCorrectedFontSize()) };
 
     if (window.isValid() and window.hasProperty (App::ID::fontSize))
         result = static_cast<float> (window.getProperty (App::ID::fontSize));
@@ -237,7 +236,7 @@ void AppState::setActiveTabIndex (int index)
 juce::String AppState::getTabPosition() const noexcept
 {
     auto tabs { state.getChildWithName (App::ID::TABS) };
-    juce::String result { Config::getContext()->getString (Config::Key::tabPosition) };
+    juce::String result { lua::Engine::getContext()->display.tab.position };
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::position))
         result = tabs.getProperty (App::ID::position).toString();
@@ -565,16 +564,17 @@ void AppState::initDefaults()
 {
     state = juce::ValueTree (App::ID::END);
 
+    const auto* cfg { lua::Engine::getContext() };
+
     auto window { juce::ValueTree (App::ID::WINDOW) };
-    auto* cfg { Config::getContext() };
-    window.setProperty (App::ID::width, cfg->getInt (Config::Key::windowWidth), nullptr);
-    window.setProperty (App::ID::height, cfg->getInt (Config::Key::windowHeight), nullptr);
-    window.setProperty (App::ID::zoom, Config::zoomMin, nullptr);
+    window.setProperty (App::ID::width,  cfg->display.window.width,  nullptr);
+    window.setProperty (App::ID::height, cfg->display.window.height, nullptr);
+    window.setProperty (App::ID::zoom,   lua::Engine::zoomMin,       nullptr);
 
     state.appendChild (window, nullptr);
 
     auto tabs { juce::ValueTree (App::ID::TABS) };
-    tabs.setProperty (App::ID::active, 0, nullptr);
-    tabs.setProperty (App::ID::position, cfg->getString (Config::Key::tabPosition), nullptr);
+    tabs.setProperty (App::ID::active,   0,                          nullptr);
+    tabs.setProperty (App::ID::position, cfg->display.tab.position,  nullptr);
     state.appendChild (tabs, nullptr);
 }

@@ -118,7 +118,7 @@ BEL character (`\x07`) — **Done**. Passes BEL to stderr.
 
 - **Prefix key** — optional. If user sets `keys.prefix = ""` or omits it, modal mode is disabled entirely. All actions must then have global bindings.
 
-- **Config location:** `~/.config/end/action.lua` — SSOT for all keybindings, popup definitions, and custom actions. Parsed by `Scripting::Engine`, which owns a persistent Lua state for custom action function execution.
+- **Config location:** `~/.config/end/keys.lua`, `popups.lua`, `actions.lua` — SSOT for all keybindings, popup definitions, and custom actions. Parsed by `lua::Engine`, which owns a persistent Lua state for custom action function execution.
 
 - **Config schema:**
   ```lua

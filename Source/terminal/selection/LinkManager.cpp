@@ -10,7 +10,7 @@
 #include "../data/State.h"
 #include "../data/Identifier.h"
 #include "../logic/Grid.h"
-#include "../../config/Config.h"
+#include "../../lua/Engine.h"
 #include <unordered_set>
 
 namespace Terminal
@@ -199,7 +199,8 @@ void LinkManager::dispatch (const LinkSpan& span) const
         const juce::String path { span.uri.fromFirstOccurrenceOf ("file://", false, false) };
         const juce::String ext { juce::File (path).getFileExtension().toLowerCase() };
 
-        const juce::String handler { Config::getContext()->getHandler (ext) };
+        const auto* cfg { lua::Engine::getContext() };
+        const juce::String handler { cfg->getHandler (ext) };
 
         if (handler == "whelmed" and onOpenMarkdown != nullptr)
         {
@@ -209,7 +210,7 @@ void LinkManager::dispatch (const LinkSpan& span) const
         {
             const juce::String opener { handler.isNotEmpty() and handler != "whelmed"
                                             ? handler
-                                            : Config::getContext()->getString (Config::Key::hyperlinksEditor) };
+                                            : cfg->nexus.hyperlinks.editor };
             const bool bracketed { state.getMode (ID::bracketedPaste) };
             const juce::String payload { opener + " \"" + path + "\"" };
 

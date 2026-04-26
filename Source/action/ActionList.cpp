@@ -12,9 +12,9 @@ const juce::Identifier List::bindingRowIndexId { "bindingRowIndex" };
 const juce::Identifier List::bindingsDirtyId { "bindingsDirty" };
 
 //==============================================================================
-List::List (juce::Component& mainWindow, Scripting::Engine& engine)
+List::List (juce::Component& mainWindow, lua::Engine& engine)
     : main (mainWindow)
-    , scriptingEngine (engine)
+    , luaEngine (engine)
 {
     setOpaque (false);
     setWantsKeyboardFocus (true);
@@ -32,15 +32,12 @@ List::List (juce::Component& mainWindow, Scripting::Engine& engine)
 
     buildRows();
 
-    const int padH { config.getInt (Config::Key::actionListPaddingLeft)
-                     + config.getInt (Config::Key::actionListPaddingRight) };
-    const int padV { config.getInt (Config::Key::actionListPaddingTop)
-                     + config.getInt (Config::Key::actionListPaddingBottom) };
+    const auto* cfg { lua::Engine::getContext() };
+    const int padH { cfg->display.actionList.paddingLeft + cfg->display.actionList.paddingRight };
+    const int padV { cfg->display.actionList.paddingTop  + cfg->display.actionList.paddingBottom };
 
-    const int proportionalWidth { jam::toInt (config.getFloat (Config::Key::actionListWidth)
-                                  * main.getWidth() + padH) };
-    const int proportionalHeight { jam::toInt (config.getFloat (Config::Key::actionListHeight)
-                                   * main.getHeight() + padV) };
+    const int proportionalWidth  { jam::toInt (cfg->display.actionList.width  * main.getWidth()  + padH) };
+    const int proportionalHeight { jam::toInt (cfg->display.actionList.height * main.getHeight() + padV) };
 
     const int width { juce::jmax (minimumWidth, proportionalWidth) };
     const int height { juce::jmax (minimumHeight, proportionalHeight) };
@@ -82,17 +79,17 @@ List::~List()
 
     if (static_cast<bool> (state.get().getProperty (bindingsDirtyId)))
     {
-        scriptingEngine.load();
+        luaEngine.load();
 
         if (auto* registry { Action::Registry::getContext() }; registry != nullptr)
-            scriptingEngine.buildKeyMap (*registry);
+            luaEngine.buildKeyMap (*registry);
     }
 }
 
 //==============================================================================
 juce::Colour List::getHighlightColour() const
 {
-    return Config::getContext()->getColour (Config::Key::actionListHighlightColour);
+    return lua::Engine::getContext()->display.actionList.highlightColour;
 }
 
 //==============================================================================
@@ -106,17 +103,18 @@ void List::configureSearchBox (juce::TextEditor& editor)
     editor.setWantsKeyboardFocus (true);
     editor.setEscapeAndReturnKeysConsumed (false);
 
+    const auto* cfg { lua::Engine::getContext() };
     editor.setColour (
         juce::TextEditor::backgroundColourId,
-        config.getColour (Config::Key::windowColour).withAlpha (config.getFloat (Config::Key::windowOpacity)));
-    editor.setColour (juce::TextEditor::textColourId, config.getColour (Config::Key::coloursForeground));
-    editor.setColour (juce::CaretComponent::caretColourId, config.getColour (Config::Key::coloursCursor));
-    editor.setColour (juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
-    editor.setColour (juce::TextEditor::focusedOutlineColourId, juce::Colours::transparentBlack);
+        cfg->display.window.colour.withAlpha (cfg->display.window.opacity));
+    editor.setColour (juce::TextEditor::textColourId,            cfg->display.colours.foreground);
+    editor.setColour (juce::CaretComponent::caretColourId,       cfg->display.colours.cursor);
+    editor.setColour (juce::TextEditor::outlineColourId,         juce::Colours::transparentBlack);
+    editor.setColour (juce::TextEditor::focusedOutlineColourId,  juce::Colours::transparentBlack);
 
     editor.setFont (juce::Font (juce::FontOptions()
-                                    .withName (config.getString (Config::Key::fontFamily))
-                                    .withPointHeight (config.getFloat (Config::Key::fontSize))));
+                                    .withName (cfg->display.font.family)
+                                    .withPointHeight (cfg->display.font.size)));
 }
 
 //==============================================================================
@@ -124,11 +122,13 @@ void List::configureActionRow (Row& row)
 {
     row.highlightColour = getHighlightColour();
 
+    const auto* cfg { lua::Engine::getContext() };
+
     if (auto* name { row.getNameLabel() }; name != nullptr)
-        name->setColour (juce::Label::textColourId, config.getColour (Config::Key::actionListNameColour));
+        name->setColour (juce::Label::textColourId, cfg->display.actionList.nameColour);
 
     if (auto* shortcut { row.getShortcutLabel() }; shortcut != nullptr)
-        shortcut->setColour (juce::Label::textColourId, config.getColour (Config::Key::actionListShortcutColour));
+        shortcut->setColour (juce::Label::textColourId, cfg->display.actionList.shortcutColour);
 }
 
 //==============================================================================
@@ -143,15 +143,15 @@ void List::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
             if (auto* label { rows.at (static_cast<std::size_t> (i))->getShortcutLabel() }; label != nullptr)
             {
                 const auto currentShortcut { label->getText() };
-                const auto engineShortcut { scriptingEngine.getShortcutString (rows.at (static_cast<std::size_t> (i))->actionConfigKey) };
+                const auto engineShortcut { luaEngine.getShortcutString (rows.at (static_cast<std::size_t> (i))->actionConfigKey) };
 
                 if (currentShortcut != engineShortcut)
                 {
-                    scriptingEngine.patchKey (rows.at (static_cast<std::size_t> (i))->actionConfigKey, currentShortcut);
-                    scriptingEngine.load();
+                    luaEngine.patchKey (rows.at (static_cast<std::size_t> (i))->actionConfigKey, currentShortcut);
+                    luaEngine.load();
 
                     if (registry != nullptr)
-                        scriptingEngine.buildKeyMap (*registry);
+                        luaEngine.buildKeyMap (*registry);
 
                     state.get().setProperty (bindingsDirtyId, true, nullptr);
                 }
@@ -198,7 +198,7 @@ void List::buildRows()
         {
             const juce::String uuid { juce::Uuid().toString() };
             auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, entry) };
-            row->actionConfigKey = scriptingEngine.getActionLuaKey (entry.id);
+            row->actionConfigKey = luaEngine.getActionLuaKey (entry.id);
 
             configureActionRow (*row);
 
@@ -234,7 +234,7 @@ void List::buildRows()
         Registry::Entry prefixEntry;
         prefixEntry.id = "prefix";
         prefixEntry.name = "Prefix";
-        prefixEntry.shortcut = Registry::parseShortcut (scriptingEngine.getPrefixString());
+        prefixEntry.shortcut = Registry::parseShortcut (luaEngine.getPrefixString());
 
         auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, prefixEntry) };
         row->actionConfigKey = "keys.prefix";
@@ -257,7 +257,7 @@ void List::buildRows()
         {
             const juce::String uuid { juce::Uuid().toString() };
             auto row { std::make_unique<Row> (static_cast<int> (rows.size()), uuid, entry) };
-            row->actionConfigKey = scriptingEngine.getActionLuaKey (entry.id);
+            row->actionConfigKey = luaEngine.getActionLuaKey (entry.id);
 
             configureActionRow (*row);
 
@@ -299,10 +299,11 @@ void List::layoutRows()
 void List::resized()
 {
     auto bounds { getLocalBounds() };
-    bounds.removeFromTop (config.getInt (Config::Key::actionListPaddingTop));
-    bounds.removeFromRight (config.getInt (Config::Key::actionListPaddingRight));
-    bounds.removeFromBottom (config.getInt (Config::Key::actionListPaddingBottom));
-    bounds.removeFromLeft (config.getInt (Config::Key::actionListPaddingLeft));
+    const auto* cfg { lua::Engine::getContext() };
+    bounds.removeFromTop    (cfg->display.actionList.paddingTop);
+    bounds.removeFromRight  (cfg->display.actionList.paddingRight);
+    bounds.removeFromBottom (cfg->display.actionList.paddingBottom);
+    bounds.removeFromLeft   (cfg->display.actionList.paddingLeft);
 
     if (not rows.empty())
         rows.at (0)->setBounds (bounds.removeFromTop (rowHeight));
@@ -427,7 +428,7 @@ void List::executeSelected()
         if (rows.at (static_cast<std::size_t> (target))->run != nullptr)
             rows.at (static_cast<std::size_t> (target))->run();
 
-        if (config.getBool (Config::Key::actionListCloseOnRun))
+        if (lua::Engine::getContext()->display.actionList.closeOnRun)
         {
             if (onActionRun != nullptr)
                 onActionRun();
@@ -510,9 +511,9 @@ bool List::handleBindingKey (const juce::KeyPress& key)
 
                 if (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey.isNotEmpty())
                 {
-                    scriptingEngine.patchKey (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
-                    scriptingEngine.load();
-                    scriptingEngine.buildKeyMap (*registry);
+                    luaEngine.patchKey (rows.at (static_cast<std::size_t> (targetIndex))->actionConfigKey, shortcutString);
+                    luaEngine.load();
+                    luaEngine.buildKeyMap (*registry);
                     state.get().setProperty (bindingsDirtyId, true, nullptr);
 
                     if (auto* label { rows.at (static_cast<std::size_t> (targetIndex))->getShortcutLabel() };

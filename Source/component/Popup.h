@@ -30,13 +30,13 @@
  *   (does NOT dismiss).
  *
  * ### Config keys read
- * - Config::Key::windowColour     — glass tint colour (hex string)
- * - Config::Key::windowOpacity    — glass opacity (float, 0.0–1.0)
- * - Config::Key::windowBlurRadius — blur radius in points (float)
+ * - `lua::Engine::display.window.colour`     — glass tint colour
+ * - `lua::Engine::display.window.opacity`    — glass opacity (float, 0.0–1.0)
+ * - `lua::Engine::display.window.blurRadius` — blur radius in points (float)
  *
  * @note All methods are called on the MESSAGE THREAD.
  *
- * @see Config
+ * @see lua::Engine
  * @see jam::BackgroundBlur
  * @see jam::gl::Renderer
  * @see Terminal::ModalWindow
@@ -44,7 +44,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "../config/Config.h"
+#include "../lua/Engine.h"
 #include "../terminal/logic/Session.h"
 #include "ModalWindow.h"
 
@@ -135,7 +135,6 @@ private:
     void removePopupSession();
 
     //==========================================================================
-    Config& config { *Config::getContext() };
     std::unique_ptr<Terminal::ModalWindow> window;
     std::unique_ptr<Terminal::Session> terminalSession;
     juce::String popupSessionUuid;

@@ -103,7 +103,7 @@ void Input::clearSelectionAndScroll() noexcept
     }
 }
 
-void Input::buildKeyMap (const Scripting::Engine::SelectionKeys& keys) noexcept
+void Input::buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept
 {
     selectionKeys.up          = keys.up;
     selectionKeys.down        = keys.down;

@@ -5,14 +5,15 @@
  * Defines ENDApplication, the top-level JUCE application object.  It owns the
  * three long-lived singletons that must outlive every other object:
  *
- * - **Config** — Lua config loader; registered as a `jam::Context<Config>`
- *   singleton so any subsystem can call `Config::getContext()`.
+ * - **lua::Engine** — unified Lua config and scripting engine; registered as a
+ *   `jam::Context<lua::Engine>` singleton so any subsystem can call
+ *   `lua::Engine::getContext()`.
  * - **FontCollection** — pre-loaded font handles shared across the renderer.
  * - **Window** — the native OS window with optional background blur.
  *
  * ### Startup sequence
  * @code
- * Config ctor         → loads ~/.config/end/end.lua
+ * lua::Engine ctor    → loads ~/.config/end/end.lua (requires nexus, display, whelmed, keys, popups, actions modules)
  * AppState ctor       → initDefaults() only (no filesystem access)
  * FontCollection ctor → loads font handles at default size
  * initialise()        → resolves UUID, sets nexus mode, loads state (daemon: full via appState.load(); standalone: window size only),
@@ -28,7 +29,7 @@
  *       `main()` / `WinMain()` entry point.
  *
  * @see MainComponent
- * @see Config
+ * @see lua::Engine
  * @see FontCollection
  */
 
@@ -46,8 +47,7 @@
 #include <JuceHeader.h>
 #include "MainComponent.h"
 #include "AppState.h"
-#include "config/Config.h"
-#include "config/WhelmedConfig.h"
+#include "lua/Engine.h"
 #include "action/Action.h"
 #include "nexus/Nexus.h"
 #include "interprocess/Daemon.h"
@@ -65,12 +65,12 @@
  *
  * Inherits `juce::JUCEApplication` and implements the four lifecycle hooks
  * required by the JUCE application model.  Member construction order is
- * significant: `config` must be fully constructed before `fontCollection`
- * (which reads font family from config), and both must exist before
- * `initialise()` creates the window.
+ * significant: `luaEngine` must be fully constructed before `appState`
+ * (which reads font family and window dims from luaEngine), and both must
+ * exist before `initialise()` creates the window.
  *
  * @par Ownership
- * - `config` and `fontCollection` are value members — they are destroyed last.
+ * - `luaEngine` and `appState` are value members — they are destroyed last.
  * - `nexus`, `daemon`, `link`, and `mainWindow` are `unique_ptr` members reset
  *   in `shutdown()` in dependency order.
  *
@@ -78,7 +78,7 @@
  * All methods are called on the **MESSAGE THREAD** by the JUCE event loop.
  *
  * @see MainComponent
- * @see Config
+ * @see lua::Engine
  */
 class ENDApplication : public juce::JUCEApplication
 {
@@ -88,7 +88,7 @@ public:
     {
         const auto probeResult { jam::GpuProbe::probe() };
         appState.setGpuAvailable (probeResult.isAvailable);
-        appState.setRendererType (Config::getContext()->getString (Config::Key::gpuAcceleration));
+        appState.setRendererType (lua::Engine::getContext()->nexus.gpu);
     }
 
     /** @return The human-readable application name from ProjectInfo. */
@@ -116,12 +116,7 @@ public:
      *
      * @note MESSAGE THREAD — called once at startup.
      *
-     * @see Config::Key::windowTitle
-     * @see Config::Key::windowColour
-     * @see Config::Key::windowOpacity
-     * @see Config::Key::windowBlurRadius
-     * @see Config::Key::windowAlwaysOnTop
-     * @see Config::Key::windowButtons
+     * @see lua::Engine::Display::Window
      */
     void initialise (const juce::String& commandLine) override
     {
@@ -152,7 +147,7 @@ public:
         const int nexusFlagIndex { args.indexOf ("--nexus") };
         const bool isNexusFlag { nexusFlagIndex >= 0 };
 
-        auto* cfg { Config::getContext() };
+        const auto* cfg { lua::Engine::getContext() };
 
         if (isNexusFlag)
         {
@@ -264,14 +259,14 @@ public:
         }
         else
         {
-            const bool daemonEnabled { cfg->getBool (Config::Key::daemon) };
+            const bool daemonEnabled { cfg->nexus.daemon };
 
             if (not daemonEnabled)
             {
                 // ---- Single-process mode (nexus = false) --------------------
                 // No daemon, no IPC.  Standalone persists only window size
                 // via loadWindowState/saveWindowState (window.state).
-                if (cfg->getBool (Config::Key::windowSaveSize))
+                if (cfg->display.window.saveSize)
                     appState.loadWindowState();
             }
 
@@ -285,26 +280,26 @@ public:
                 const bool hadState { appState.getStateFile().existsAsFile() };
                 appState.load();
 
-                if (not hadState and cfg->getBool (Config::Key::windowSaveSize))
+                if (not hadState and cfg->display.window.saveSize)
                     appState.loadWindowState();
             }
 
 #if JUCE_WINDOWS
             if (isWindows11() and appState.getRendererType() == App::RendererType::cpu)
             {
-                jam::BackgroundBlur::applyForceEffectRegistry (cfg->getBool (Config::Key::windowForceDwm));
+                jam::BackgroundBlur::applyForceEffectRegistry (cfg->display.window.forceDwm);
             }
 #endif
 
-            auto* mainComponent { new MainComponent() };
+            auto* mainComponent { new MainComponent (luaEngine) };
             mainWindow.reset (new Terminal::Window (mainComponent,
-                                                 cfg->getString (Config::Key::windowTitle),
-                                                 cfg->getBool (Config::Key::windowAlwaysOnTop),
-                                                 cfg->getBool (Config::Key::windowButtons)));
+                                                 cfg->display.window.title,
+                                                 cfg->display.window.alwaysOnTop,
+                                                 cfg->display.window.buttons));
 
-            mainWindow->setGlass (cfg->getColour (Config::Key::windowColour)
-                                      .withAlpha (cfg->getFloat (Config::Key::windowOpacity)),
-                                  cfg->getFloat (Config::Key::windowBlurRadius));
+            mainWindow->setGlass (cfg->display.window.colour
+                                      .withAlpha (cfg->display.window.opacity),
+                                  cfg->display.window.blurRadius);
 
             // P: applyConfig fires here — after Window exists — so that
             // dynamic_cast<jam::Window*>(getTopLevelComponent()) inside
@@ -343,7 +338,7 @@ public:
                         content->grabKeyboardFocus();
                 });
 
-            config.onReload = [this]
+            luaEngine.onReload = [this]
             {
                 if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
                 {
@@ -352,20 +347,16 @@ public:
 #if JUCE_WINDOWS
                     if (isWindows11() and appState.getRendererType() == App::RendererType::cpu)
                     {
-                        jam::BackgroundBlur::applyForceEffectRegistry (config.getBool (Config::Key::windowForceDwm));
+                        jam::BackgroundBlur::applyForceEffectRegistry (
+                            lua::Engine::getContext()->display.window.forceDwm);
                     }
 #endif
 
-                    mainWindow->setGlass (config.getColour (Config::Key::windowColour)
-                                              .withAlpha (config.getFloat (Config::Key::windowOpacity)),
-                                          config.getFloat (Config::Key::windowBlurRadius));
+                    const auto* reloadedCfg { lua::Engine::getContext() };
+                    mainWindow->setGlass (reloadedCfg->display.window.colour
+                                              .withAlpha (reloadedCfg->display.window.opacity),
+                                          reloadedCfg->display.window.blurRadius);
                 }
-            };
-
-            whelmedConfig.onReload = [this]
-            {
-                if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
-                    content->applyConfig();
             };
 
         }
@@ -416,7 +407,7 @@ public:
         //   exits via onAllSessionsExited after sessions are destroyed.
         if (mainWindow != nullptr)
         {
-            if (Config::getContext()->getBool (Config::Key::windowSaveSize))
+            if (lua::Engine::getContext()->display.window.saveSize)
                 appState.saveWindowState();
         }
 
@@ -443,16 +434,13 @@ public:
     }
 
 private:
-    /** @brief Lua config singleton. Must be constructed before appState and fontCollection. */
-    Config config;
+    /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
+    lua::Engine luaEngine;
 
-    /** @brief Whelmed Lua config singleton. Must be constructed before appState and fontCollection. */
-    Whelmed::Config whelmedConfig;
-
-    /** @brief Application-level ValueTree. Must be constructed after config. */
+    /** @brief Application-level ValueTree. Must be constructed after luaEngine. */
     AppState appState;
 
-    /** @brief Global action registry. Must be constructed after Config. */
+    /** @brief Global action registry. Must be constructed after luaEngine. */
     Action::Registry action;
 
     /**

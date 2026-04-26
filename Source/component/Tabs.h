@@ -258,7 +258,7 @@ public:
     /**
      * @brief Increase the terminal zoom level.
      *
-     * Increases zoom by `Config::zoomStep` and applies to all panes across all tabs.
+     * Increases zoom by `lua::Engine::zoomStep` and applies to all panes across all tabs.
      *
      * @note MESSAGE THREAD.
      */
@@ -267,7 +267,7 @@ public:
     /**
      * @brief Decrease the terminal zoom level.
      *
-     * Decreases zoom by `Config::zoomStep` and applies to all panes across all tabs.
+     * Decreases zoom by `lua::Engine::zoomStep` and applies to all panes across all tabs.
      *
      * @note MESSAGE THREAD.
      */

@@ -49,7 +49,7 @@
 #include "../data/Palette.h"
 #include "ScreenSelection.h"
 #include "../selection/LinkSpan.h"
-#include "../../config/Config.h"
+#include "../../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -143,8 +143,8 @@ inline bool isBlockChar (uint32_t codepoint) noexcept
     return codepoint >= blockFirst and codepoint <= blockLast;
 }
 
-/// @brief Alias for the active colour theme type from Config.
-using Theme = Config::Theme;
+/// @brief Alias for the active colour theme type from lua::Engine.
+using Theme = lua::Engine::Theme;
 
 /**
  * @struct Render

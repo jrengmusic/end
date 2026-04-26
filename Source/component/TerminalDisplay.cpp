@@ -13,8 +13,7 @@
 
 #include "TerminalDisplay.h"
 #include "../AppState.h"
-#include "../config/Config.h"
-#include "../scripting/Scripting.h"
+#include "../lua/Engine.h"
 #include "../terminal/notifications/Notifications.h"
 
 /**
@@ -121,7 +120,7 @@ void Terminal::Display::initialise()
     // Switch to the renderer stored in AppState (SSOT).
     switchRenderer (AppState::getContext()->getRendererType());
 
-    if (auto* engine { Scripting::Engine::getContext() }; engine != nullptr)
+    if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
         inputHandler->buildKeyMap (engine->getSelectionKeys());
 
     processor.onShellExited = [this]
@@ -394,9 +393,9 @@ void Terminal::Display::filesDropped (const juce::StringArray& files, int, int)
 {
     if (not files.isEmpty())
     {
-        const auto* cfg { Config::getContext() };
-        const juce::String multifiles { cfg->getString (Config::Key::terminalDropMultifiles) };
-        const bool shouldQuote { cfg->getBool (Config::Key::terminalDropQuoted) };
+        const auto* cfg { lua::Engine::getContext() };
+        const juce::String multifiles { cfg->nexus.terminal.dropMultifiles };
+        const bool shouldQuote { cfg->nexus.terminal.dropQuoted };
         const juce::String separator { multifiles == "newline" ? "\n" : " " };
 
         juce::StringArray paths;
@@ -415,7 +414,7 @@ void Terminal::Display::filesDropped (const juce::StringArray& files, int, int)
                     and (filePath.containsChar (' ') or filePath.containsChar ('\'') or filePath.containsChar ('"')
                          or filePath.containsChar ('\\') or filePath.containsChar ('(') or filePath.containsChar (')')))
                 {
-                    const juce::String shellProg { cfg->getString (Config::Key::shellProgram) };
+                    const juce::String shellProg { cfg->nexus.shell.program };
 
                     if (shellProg.contains ("cmd"))
                         paths.add ("\"" + filePath + "\"");
@@ -700,16 +699,16 @@ void Terminal::Display::onVBlank()
  */
 void Terminal::Display::applyScreenSettings() noexcept
 {
-    auto* cfg { Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
     visitScreen (
         [&] (auto& s)
         {
-            s.setLigatures (cfg->getBool (Config::Key::fontLigatures));
-            s.setEmbolden (cfg->getBool (Config::Key::fontEmbolden));
-            s.setLineHeight (cfg->getFloat (Config::Key::fontLineHeight));
-            s.setCellWidth (cfg->getFloat (Config::Key::fontCellWidth));
+            s.setLigatures (cfg->display.font.ligatures);
+            s.setEmbolden (cfg->display.font.embolden);
+            s.setLineHeight (cfg->display.font.lineHeight);
+            s.setCellWidth (cfg->display.font.cellWidth);
             s.setTheme (cfg->buildTheme());
-            s.setFontSize (Config::getContext()->dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
+            s.setFontSize (cfg->dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
         });
 }
 
@@ -719,7 +718,7 @@ void Terminal::Display::applyConfig() noexcept
 
     if (inputHandler.has_value())
     {
-        if (auto* engine { Scripting::Engine::getContext() }; engine != nullptr)
+        if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
             inputHandler->buildKeyMap (engine->getSelectionKeys());
     }
 
@@ -746,8 +745,8 @@ void Terminal::Display::applyZoom (float) noexcept
             oldFontSize = s.getBaseFontSize();
         });
 
-    // New font size from SSOT — Config (base) * AppState (zoom), computed fresh.
-    const float newFontSize { Config::getContext()->dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom() };
+    // New font size from SSOT — lua::Engine (base) * AppState (zoom), computed fresh.
+    const float newFontSize { lua::Engine::getContext()->dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom() };
 
     // Raw font metrics for both sizes — multiplier cancels in the ratio.
     const jam::Typeface::Metrics oldMetrics { font.getResolvedTypeface()->calcMetrics (oldFontSize) };

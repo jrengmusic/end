@@ -6,8 +6,8 @@
  * Both Terminal and Whelmed build a Cursor from their own coordinate
  * systems and draw it through their respective renderers.
  *
- * @see Config::Key::cursorChar
- * @see Config::Key::coloursSelectionCursor
+ * @see lua::Engine::display.cursor
+ * @see lua::Engine::display.colours.selectionCursor
  */
 
 #pragma once

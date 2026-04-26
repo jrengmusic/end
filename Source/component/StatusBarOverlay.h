@@ -35,7 +35,7 @@
 #include <JuceHeader.h>
 #include "../SelectionType.h"
 #include "../ModalType.h"
-#include "../config/Config.h"
+#include "../lua/Engine.h"
 #include "../AppIdentifier.h"
 
 /**
@@ -197,7 +197,7 @@ public:
      */
     int getPreferredHeight() const noexcept
     {
-        const float fontSize { Config::getContext()->getFloat (Config::Key::statusBarFontSize) };
+        const float fontSize { lua::Engine::getContext()->display.statusBar.fontSize };
         return juce::roundToInt (fontSize) + 2 * verticalPadding;
     }
 
@@ -222,11 +222,11 @@ public:
     void paint (juce::Graphics& g) override
     {
         const auto bounds { getLocalBounds() };
-        const auto* cfg { Config::getContext() };
+        const auto* cfg { lua::Engine::getContext() };
         const juce::Font font { juce::FontOptions {}
-                                    .withName (cfg->getString (Config::Key::statusBarFontFamily))
-                                    .withPointHeight (cfg->getFloat (Config::Key::statusBarFontSize))
-                                    .withStyle (cfg->getString (Config::Key::statusBarFontStyle)) };
+                                    .withName (cfg->display.statusBar.fontFamily)
+                                    .withPointHeight (cfg->display.statusBar.fontSize)
+                                    .withStyle (cfg->display.statusBar.fontStyle) };
 
         g.setColour (findColour (barBackgroundColourId));
         g.fillRect (bounds);

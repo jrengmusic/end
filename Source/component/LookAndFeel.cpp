@@ -7,7 +7,6 @@
  */
 
 #include "LookAndFeel.h"
-#include "../config/WhelmedConfig.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -31,23 +30,23 @@ LookAndFeel::LookAndFeel() { setColours(); }
  */
 void LookAndFeel::setColours()
 {
-    const auto* cfg { Config::getContext() };
-    const auto fg { cfg->getColour (Config::Key::coloursForeground) };
-    const auto windowColour { cfg->getColour (Config::Key::windowColour) };
-    const auto menuOpacity  { cfg->getFloat (Config::Key::menuOpacity) };
+    const auto* cfg { lua::Engine::getContext() };
+    const auto fg          { cfg->display.colours.foreground };
+    const auto windowColour { cfg->display.window.colour };
+    const auto menuOpacity  { cfg->display.menu.opacity };
 
-    setColour (cursorColourId, cfg->getColour (Config::Key::coloursCursor));
+    setColour (cursorColourId, cfg->display.colours.cursor);
 
-    setColour (juce::TabbedButtonBar::tabTextColourId,    cfg->getColour (Config::Key::tabInactive));
-    setColour (juce::TabbedButtonBar::frontTextColourId,  cfg->getColour (Config::Key::tabForeground));
-    setColour (juce::TabbedButtonBar::tabOutlineColourId, juce::Colours::transparentBlack);
+    setColour (juce::TabbedButtonBar::tabTextColourId,      cfg->display.tab.inactive);
+    setColour (juce::TabbedButtonBar::frontTextColourId,    cfg->display.tab.foreground);
+    setColour (juce::TabbedButtonBar::tabOutlineColourId,   juce::Colours::transparentBlack);
     setColour (juce::TabbedButtonBar::frontOutlineColourId, juce::Colours::transparentBlack);
-    setColour (juce::TabbedComponent::backgroundColourId, juce::Colours::transparentBlack);
-    setColour (juce::TabbedComponent::outlineColourId,    juce::Colours::transparentBlack);
+    setColour (juce::TabbedComponent::backgroundColourId,   juce::Colours::transparentBlack);
+    setColour (juce::TabbedComponent::outlineColourId,      juce::Colours::transparentBlack);
     setColour (tabBarBackgroundColourId, juce::Colours::transparentBlack);
-    setColour (tabLineColourId,          cfg->getColour (Config::Key::tabLine));
-    setColour (tabActiveColourId,        cfg->getColour (Config::Key::tabActive));
-    setColour (tabIndicatorColourId,     cfg->getColour (Config::Key::tabIndicator));
+    setColour (tabLineColourId,          cfg->display.tab.line);
+    setColour (tabActiveColourId,        cfg->display.tab.active);
+    setColour (tabIndicatorColourId,     cfg->display.tab.indicator);
 
     setColour (juce::PopupMenu::backgroundColourId,            windowColour.withAlpha (menuOpacity));
     setColour (juce::PopupMenu::textColourId,                  fg);
@@ -56,27 +55,24 @@ void LookAndFeel::setColours()
 
     setColour (juce::Label::textColourId, fg);
 
-    setColour (juce::TextButton::textColourOffId, fg);
-    setColour (juce::TextButton::textColourOnId,  fg);
-    setColour (juce::TextButton::buttonColourId,  juce::Colours::transparentBlack);
+    setColour (juce::TextButton::textColourOffId,  fg);
+    setColour (juce::TextButton::textColourOnId,   fg);
+    setColour (juce::TextButton::buttonColourId,   juce::Colours::transparentBlack);
     setColour (juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
-    setColour (juce::ComboBox::outlineColourId,   windowColour.brighter (0.15f));
+    setColour (juce::ComboBox::outlineColourId,    windowColour.brighter (0.15f));
 
-    setColour (paneBarColourId,          cfg->getColour (Config::Key::paneBarColour));
-    setColour (paneBarHighlightColourId, cfg->getColour (Config::Key::paneBarHighlight));
+    setColour (paneBarColourId,          cfg->display.pane.barColour);
+    setColour (paneBarHighlightColourId, cfg->display.pane.barHighlight);
 
-    setColour (statusBarBackgroundColourId,      cfg->getColour (Config::Key::coloursStatusBar));
-    setColour (statusBarLabelBackgroundColourId, cfg->getColour (Config::Key::coloursStatusBarLabelBg));
-    setColour (statusBarLabelTextColourId,       cfg->getColour (Config::Key::coloursStatusBarLabelFg));
+    setColour (statusBarBackgroundColourId,      cfg->display.colours.statusBar);
+    setColour (statusBarLabelBackgroundColourId, cfg->display.colours.statusBarLabelBg);
+    setColour (statusBarLabelTextColourId,       cfg->display.colours.statusBarLabelFg);
 
     setColour (juce::DocumentWindow::backgroundColourId, windowColour);
 
-    if (const auto* whelmedCfg { Whelmed::Config::getContext() })
-    {
-        setColour (juce::ScrollBar::thumbColourId,       whelmedCfg->getColour (Whelmed::Config::Key::scrollbarThumb));
-        setColour (juce::ScrollBar::trackColourId,       whelmedCfg->getColour (Whelmed::Config::Key::scrollbarTrack));
-        setColour (juce::ScrollBar::backgroundColourId,  whelmedCfg->getColour (Whelmed::Config::Key::scrollbarBackground));
-    }
+    setColour (juce::ScrollBar::thumbColourId,      cfg->whelmed.scrollbarThumb);
+    setColour (juce::ScrollBar::trackColourId,      cfg->whelmed.scrollbarTrack);
+    setColour (juce::ScrollBar::backgroundColourId, cfg->whelmed.scrollbarBackground);
 }
 
 /**
@@ -88,15 +84,15 @@ void LookAndFeel::setColours()
  *
  * @param button  The tab bar button being queried.
  * @param height  The tab bar depth (height for horizontal bars).
- * @return The tab font at `Config::Key::tabSize` point height.
+ * @return The tab font at `lua::Engine::display.tab.size` point height.
  * @note MESSAGE THREAD.
  */
 juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float height)
 {
-    const auto* cfg { Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
     return juce::Font { juce::FontOptions()
-                            .withName (cfg->getString (Config::Key::tabFamily))
-                            .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
+                            .withName (cfg->display.tab.family)
+                            .withPointHeight (cfg->display.tab.size) };
 }
 
 /**
@@ -110,10 +106,10 @@ juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float heig
  */
 int LookAndFeel::getTabBarHeight() noexcept
 {
-    const auto* cfg { Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
     const juce::Font font { juce::FontOptions()
-                                .withName (cfg->getString (Config::Key::tabFamily))
-                                .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
+                                .withName (cfg->display.tab.family)
+                                .withPointHeight (cfg->display.tab.size) };
     return juce::roundToInt (font.getHeight() / tabFontRatio);
 }
 
@@ -294,10 +290,10 @@ int LookAndFeel::getTabButtonBestWidth (juce::TabBarButton& button, int tabDepth
  */
 juce::Font LookAndFeel::getPopupMenuFont()
 {
-    const auto* cfg { Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
     return juce::Font { juce::FontOptions()
-                            .withName (cfg->getString (Config::Key::tabFamily))
-                            .withPointHeight (cfg->getFloat (Config::Key::tabSize)) };
+                            .withName (cfg->display.tab.family)
+                            .withPointHeight (cfg->display.tab.size) };
 }
 
 /**
@@ -322,12 +318,10 @@ void LookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
         {
             if (safeComponent != nullptr)
             {
-                const auto* cfg { Config::getContext() };
-                const auto windowColour { cfg->getColour (Config::Key::windowColour) };
-                const auto menuOpacity { cfg->getFloat (Config::Key::menuOpacity) };
+                const auto* cfg { lua::Engine::getContext() };
                 jam::BackgroundBlur::enable (safeComponent.getComponent(),
-                                             cfg->getFloat (Config::Key::windowBlurRadius),
-                                             windowColour.withAlpha (menuOpacity));
+                                             cfg->display.window.blurRadius,
+                                             cfg->display.window.colour.withAlpha (cfg->display.menu.opacity));
             }
         });
 #endif
@@ -487,18 +481,18 @@ juce::Button* LookAndFeel::createTabBarExtrasButton()
  */
 juce::Font LookAndFeel::getTextButtonFont (juce::TextButton& button, int buttonHeight)
 {
-    const auto* cfg { Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
     const auto fontRole { button.getProperties()[jam::ID::font].toString() };
 
     juce::Font result { juce::FontOptions()
-                            .withName (cfg->getString (Config::Key::tabFamily))
+                            .withName (cfg->display.tab.family)
                             .withPointHeight (static_cast<float> (buttonHeight) * 0.6f) };
 
     if (fontRole == jam::ID::name.toString())
         result = juce::Font { juce::FontOptions()
-                                  .withName (cfg->getString (Config::Key::actionListNameFamily))
-                                  .withStyle (cfg->getString (Config::Key::actionListNameStyle))
-                                  .withPointHeight (cfg->getFloat (Config::Key::actionListNameSize)) };
+                                  .withName (cfg->display.actionList.nameFamily)
+                                  .withStyle (cfg->display.actionList.nameStyle)
+                                  .withPointHeight (cfg->display.actionList.nameSize) };
 
     return result;
 }
@@ -544,21 +538,21 @@ juce::Font LookAndFeel::getLabelFont (juce::Label& label)
 
     const auto& props { label.getProperties() };
     const auto fontRole { props[jam::ID::font].toString() };
-    const auto* cfg { Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
 
     if (fontRole == jam::ID::name.toString())
     {
         result = juce::Font { juce::FontOptions()
-                                  .withName (cfg->getString (Config::Key::actionListNameFamily))
-                                  .withStyle (cfg->getString (Config::Key::actionListNameStyle))
-                                  .withPointHeight (cfg->getFloat (Config::Key::actionListNameSize)) };
+                                  .withName (cfg->display.actionList.nameFamily)
+                                  .withStyle (cfg->display.actionList.nameStyle)
+                                  .withPointHeight (cfg->display.actionList.nameSize) };
     }
     else if (fontRole == jam::ID::keyPress.toString())
     {
         result = juce::Font { juce::FontOptions()
-                                  .withName (cfg->getString (Config::Key::actionListShortcutFamily))
-                                  .withStyle (cfg->getString (Config::Key::actionListShortcutStyle))
-                                  .withPointHeight (cfg->getFloat (Config::Key::actionListShortcutSize)) };
+                                  .withName (cfg->display.actionList.shortcutFamily)
+                                  .withStyle (cfg->display.actionList.shortcutStyle)
+                                  .withPointHeight (cfg->display.actionList.shortcutSize) };
     }
 
     return result;

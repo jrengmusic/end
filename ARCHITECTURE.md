@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-04-11 (updated: Nexus refactor — Nexus class replaces Nexus::Session three-mode dispatcher; Interprocess namespace; EncoderDecoder replaces Wire; Terminal::Session two-factory overloads; daemonMode ValueTree ID; daemon config key; Windows Job Object; WindowsTTY getCwd PEB query; shouldTrackCwdFromOs; CHERE_INVOKING env var; layer separation rules)
+**Last Updated:** 2026-04-26 (updated: Unified Lua Engine — lua::Engine replaces Config, Whelmed::Config, Scripting::Engine; six typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action); single Lua state; unified colour parsing; seven module Lua files; total reload on any .lua change)
 
 ---
 
@@ -36,24 +36,28 @@ APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTr
 
 ```
 Source/
-  Main.cpp                          Application entry, owns Config + MainWindow
-  MainComponent.h/cpp               Root component, owns Fonts context, Tabs, Action, MessageOverlay, GLRenderer
+  Main.cpp                          Application entry, owns lua::Engine + MainWindow
+  MainComponent.h/cpp               Root component, owns Fonts context, Tabs, Action, MessageOverlay, GLRenderer; receives lua::Engine& from ENDApplication
   AppState.h/cpp                    Application state: ValueTree root, pwdValue (live cwd binding), active pane tracking
   AppIdentifier.h                   App-level ValueTree identifiers (END, WINDOW, TABS, TAB, PANES, DOCUMENT) + pane type string constants
   SelectionType.h                   App-level SelectionType enum (none, visual, visualLine, visualBlock)
   ModalType.h                       App-level ModalType enum (none, selection, openFile)
   Cursor.h/cpp                      Shared cursor descriptor used by Whelmed::Screen
 
-  config/
-    Config.h/cpp                    Lua config loader, Context<Config> pattern (appearance only — keybindings migrated to action.lua)
-    default_end.lua                 Template for ~/.config/end/end.lua (appearance, window, shell, terminal config)
-    default_action.lua              Template for ~/.config/end/action.lua (keybindings, popups, custom actions)
+  lua/
+    Engine.h                        lua::Engine — unified Lua config + scripting engine, Context<Engine>
+    Engine.cpp                      Engine lifecycle: constructor, initDefaults, writeDefaults, load, reload, registerApiTable, registerActions, buildKeyMap, buildTheme, parseColour, dpiCorrectedFontSize, fileChanged
+    EngineParse.cpp                 Lua table parsing: parseNexus, parseDisplay, parseWhelmed, parseKeys, parsePopups, parseActions, parseSelectionKeys
+    EnginePatch.cpp                 keys.lua file patching (remap), key lookup utilities
 
-  scripting/
-    Scripting.h                     Scripting::Engine — Lua state, action.lua parser, file watcher, Context<Engine>
-    Scripting.cpp                   Engine core: load, register, buildKeyMap, watcher callback
-    ScriptingParse.cpp              Lua table parsing: keys, popups, actions, selection keys
-    ScriptingPatch.cpp              action.lua file patching (remap), key lookup utilities
+  config/
+    default_end.lua                 Template entry point — require() for six modules
+    default_nexus.lua               Template for nexus.lua (gpu, daemon, shell, terminal, hyperlinks)
+    default_display.lua             Template for display.lua (window, colours, cursor, font, tab, pane, overlay, menu, action_list, status_bar, popup border)
+    default_keys.lua                Template for keys.lua (prefix, bindings, selection keys)
+    default_popups.lua              Template for popups.lua (defaults, popup entries)
+    default_actions.lua             Template for actions.lua (custom Lua actions with api.* calls)
+    default_whelmed.lua             Template for whelmed.lua (typography, colours, navigation)
 
   component/
     PaneComponent.h                 Pure virtual base for pane-hosted components (Terminal, Whelmed)
@@ -194,9 +198,8 @@ Source/
 |--------|----------|----------------|--------------|
 | AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active pane type + UUID | JUCE ValueTree, Terminal::ID |
 | AppIdentifier | `Source/` | ValueTree node and property identifiers; pane type string constants (paneTypeTerminal, paneTypeDocument) | JUCE |
-| Config | `config/` | Lua config load/save, Context-managed, platform config paths. Appearance and shell config only — keybindings and popups migrated to `action.lua` via `Scripting::Engine`. Colour values parsed as RRGGBBAA hex strings. Colour cache invalidated on reload. | sol2, jam::Context |
-| Scripting | `scripting/` | Lua scripting engine. Owns persistent `jam::lua::state` for `action.lua` — SSOT for all keybindings, popup definitions, and custom user actions. File watcher auto-reloads on save (gated by `auto_reload`). Provides parsed bindings to `Action::Registry` and selection keys to `Terminal::Input` / `Whelmed::InputHandler`. | sol2, jam::Context, jam::File::Watcher |
-| Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, Config, PaneManager, AppState |
+| lua::Engine | `lua/` | Unified Lua config + scripting engine. Sole owner of `jam::lua::state` — SSOT for all settings, keybindings, popup definitions, and custom actions. Six typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action) replace string-keyed value maps. Unified colour parser handles `#RRGGBB`, `#RRGGBBAA`, and bare `RRGGBBAA` formats. File watcher triggers total reload on any `.lua` change (gated by `nexus.autoReload`). Provides parsed bindings to `Action::Registry`, selection keys to `Terminal::Input` / `Whelmed::InputHandler`, and Theme to Screen. | sol2, jam::Context, jam::File::Watcher |
+| Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, lua::Engine, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Data | `terminal/data/` | Pure value types, state atomics, IDs | JUCE ValueTree |
 | Logic | `terminal/logic/` | VT parsing, grid storage, session orchestration | Data |
@@ -206,7 +209,7 @@ Source/
 | jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jam_core, FreeType, HarfBuzz |
 | jam_gui/opengl | `~/Documents/Poems/dev/jam/jam_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jam_core |
-| Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | Config, jam::Context |
+| Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | lua::Engine, jam::Context |
 | Nexus | `nexus/` | Session container. Owns `unordered_map<String, unique_ptr<Terminal::Session>>`. Mode determined by `attach(Daemon&)` / `attach(Link&)` / no attachment. `jam::Context<Nexus>` singleton owned by ENDApplication. | Terminal::Session, jam::Context |
 | Interprocess | `interprocess/` | IPC transport layer. Daemon (TCP server), Link (client), Channel (per-client server-side connection), EncoderDecoder (wire format), Message (PDU kind enum). Daemon owns broadcast + subscriber registries, wires session callbacks. | JUCE IPC, Nexus, Terminal::Session, AppState |
 | Panes | `component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
@@ -497,9 +500,9 @@ WINDOW-subtree properties `App::ID::fontFamily` and `App::ID::fontSize` drive fo
 
 **Used for:** Global access without Meyer's singleton.
 
-**Implementation:** `Config.h` inherits `jam::Context<Config>`, `Fonts.h` inherits `jam::Context<Fonts>`
+**Implementation:** `lua::Engine` inherits `jam::Context<Engine>`, `Fonts.h` inherits `jam::Context<Fonts>`
 
-Config lifetime owned by `ENDApplication` (Main.cpp). Fonts lifetime owned by `MainComponent`. Access via `Config::getContext()->` / `Fonts::getContext()->`. Fail-fast jassert if accessed before construction.
+lua::Engine lifetime owned by `ENDApplication` (Main.cpp). Fonts lifetime owned by `MainComponent`. Access via `lua::Engine::getContext()->` / `Fonts::getContext()->`. Fail-fast jassert if accessed before construction.
 
 `GlyphAtlas` (`~/Documents/Poems/dev/jam/jam_gui/opengl/context/jam_glyph_atlas.h`) also inherits `jam::Context<GlyphAtlas>`. Pure GL texture handle holder: `monoAtlas`, `emojiAtlas`, `atlasSize`. Owned by `MainComponent` (value member). Shared by all `GLAtlasRenderer` instances (main + popup). `rebuildAtlas()` runs on the GL thread — calls `glDeleteTextures` and zeroes handles, triggering re-upload. CPU atlas images remain on `Typeface`; `GlyphAtlas` owns only the GPU handles.
 
@@ -593,8 +596,8 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 `Action::Registry` inherits `jam::Context<Registry>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
 
 **Architecture:**
-- Dynamic action table: built-in actions registered by `MainComponent`, popup + custom Lua actions registered by `Scripting::Engine`
-- Hot-reloadable key map: `Scripting::Engine` parses `action.lua`, passes bindings to `Registry::buildKeyMap()`. File watcher auto-reloads on save.
+- Dynamic action table: built-in actions registered by `MainComponent`, popup + custom Lua actions registered by `lua::Engine`
+- Hot-reloadable key map: `lua::Engine` parses `keys.lua`, `popups.lua`, and `actions.lua`, passes bindings to `Registry::buildKeyMap()`. File watcher auto-reloads on save.
 - Prefix state machine: tmux-style two-keystroke input (prefix key + action key with timeout)
 - Global singleton via `jam::Context<Action>`
 
@@ -606,11 +609,11 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 
 **Modal character matching:** Shifted characters (e.g. `?` = Shift+/) are matched by text character, not keycode+modifiers. Falls back to exact KeyPress match for non-character keys.
 
-Built-in actions are registered in `MainComponentActions.cpp`. Popup and custom Lua actions are registered by `Scripting::Engine::registerActions()`. All keybindings (built-in + popup + custom) are defined in `~/.config/end/action.lua` and parsed by `Scripting::Engine`, which passes them to `Registry::buildKeyMap()`.
+Built-in actions are registered in `MainComponentActions.cpp`. Popup and custom Lua actions are registered by `lua::Engine::registerActions()`. All keybindings (built-in + popup + custom) are defined in `~/.config/end/keys.lua`, `popups.lua`, and `actions.lua`, parsed by `lua::Engine`, which passes them to `Registry::buildKeyMap()`.
 
 **Copy action special behavior:** If box selection is active, copies to clipboard and returns true (consumed). If no selection, returns false — key falls through to PTY as `\x03` (SIGINT).
 
-Prefix key and timeout configurable via `keys.prefix` and `keys.prefix_timeout` in `action.lua`.
+Prefix key and timeout configurable via `keys.prefix` and `keys.prefix_timeout` in `keys.lua`.
 
 ### Close Cascade
 
@@ -747,13 +750,13 @@ CSI u format: `CSI keycode ; modifiers u` where modifiers = `1 + shift(1) + alt(
 | macOS/Linux | `~/.config/end/end.lua` | `~/.config/end/window.state` | `~/.config/end/nexus/<uuid>.display` | `~/.config/end/nexus/<uuid>.nexus` |
 | Windows | `%APPDATA%\end\end.lua` | `%APPDATA%\end\window.state` | `%APPDATA%\end\nexus\<uuid>.display` | `%APPDATA%\end\nexus\<uuid>.nexus` |
 
-`Config::getConfigFile()` uses `juce::File::userApplicationDataDirectory` on Windows, `userHomeDirectory/.config/end/` on macOS/Linux. Creates directory and writes defaults if absent.
+`lua::Engine::getContext()` locates config at `userApplicationDataDirectory` on Windows, `userHomeDirectory/.config/end/` on macOS/Linux. Creates directory and writes defaults if absent.
 
 `window.state` persists WINDOW width/height only (standalone mode, cross-instance geometry). In daemon client mode the client reads and writes `nexus/<uuid>.display` (full WINDOW + TABS state) for session restore.
 
 The daemon's TCP port is written to `nexus/<uuid>.nexus` (plain text) by `Daemon::start()` via `AppState::setPort()`. GUI clients read this file during startup to discover the port before beginning connect attempts. The NEXUS directory/file subtree is `nexus/`, regardless of the config key rename.
 
-The config key controlling daemon mode is `Config::Key::daemon` (`"daemon"` in end.lua).  The ValueTree property is `App::ID::daemonMode` on the WINDOW subtree.
+The config key controlling daemon mode is `lua::Engine::nexus.daemon` (`"daemon"` in end.lua).  The ValueTree property is `App::ID::daemonMode` on the WINDOW subtree.
 
 ---
 
@@ -939,11 +942,11 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Rationale:** CVDisplayLink runs at display-driver priority, immune to timer QoS coalescing. Worst-case latency is one frame (8-16ms), imperceptible for terminal text. State remains a pure data layer with no UI knowledge.
 
-### Decision: Context<T> over Meyer's Singleton for Config
+### Decision: Context<T> over Meyer's Singleton for lua::Engine
 
 **Context:** Config was a Meyer's singleton (`static Config& get()`). This caused static initialization order issues and hid lifetime management.
 
-**Decision:** Config inherits `jam::Context<Config>`. Owned by `ENDApplication`. Accessed via `Config::getContext()->`.
+**Decision:** lua::Engine inherits `jam::Context<Engine>`. Owned by `ENDApplication`. Accessed via `lua::Engine::getContext()->`.
 
 **Rationale:** Explicit lifetime, fail-fast on misuse, no static init ordering problems.
 
@@ -1209,7 +1212,7 @@ Click-mode link underlines only render on OSC 133 output rows.
 | LRUGlyphCache | Frame-stamped LRU map; evicts oldest 10% when over capacity |
 | GLMailbox | Generic lock-free atomic pointer exchange template (`jam::GLMailbox<T>`) |
 | GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jam::GLSnapshotBuffer<T>`) |
-| LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via Config |
+| LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via lua::Engine |
 | MessageOverlay | Transient overlay for status messages (reload confirmation, config errors) |
 | Action | Unified action registry: action table + key map + prefix state machine, Context-managed, owned by MainComponent |
 | ActionList | Command palette component: jam::Window with fuzzy-searchable list of all registered actions |

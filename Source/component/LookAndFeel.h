@@ -4,18 +4,18 @@
  *
  * Overrides JUCE's default tab drawing to produce a minimal, translucent
  * tab bar that matches the terminal's visual style. Colours are cached
- * via setColours() which reads Config and sets LookAndFeel colour IDs.
+ * via setColours() which reads lua::Engine and sets LookAndFeel colour IDs.
  * Paint methods use findColour() to retrieve colours.
  *
  * @see Terminal::Tabs
- * @see Config::Key::coloursForeground
- * @see Config::Key::coloursCursor
- * @see Config::Key::windowColour
+ * @see lua::Engine::display.colours.foreground
+ * @see lua::Engine::display.colours.cursor
+ * @see lua::Engine::display.window.colour
  */
 
 #pragma once
 #include <JuceHeader.h>
-#include "../config/Config.h"
+#include "../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -85,7 +85,7 @@ public:
      *
      * @param button  The tab bar button being queried.
      * @param height  The tab bar depth (height for horizontal bars).
-     * @return The tab font at `Config::Key::tabSize` point height.
+     * @return The tab font at `lua::Engine::display.tab.size` point height.
      * @note MESSAGE THREAD.
      */
     juce::Font getTabButtonFont (juce::TabBarButton& button, float height) override;

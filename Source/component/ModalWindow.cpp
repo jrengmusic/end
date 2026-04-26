@@ -27,8 +27,8 @@ ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
                         std::move (renderer),
                         nativeSharedContext,
                         std::move (dismissCallback),
-                        Config::getContext()->getFloat (Config::Key::windowOpacity),
-                        Config::getContext()->getFloat (Config::Key::windowBlurRadius))
+                        lua::Engine::getContext()->display.window.opacity,
+                        lua::Engine::getContext()->display.window.blurRadius)
 {
     if (auto* terminal { dynamic_cast<Terminal::Display*> (getContentComponent()) })
     {
@@ -42,10 +42,10 @@ ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
 
 void ModalWindow::paint (juce::Graphics& g)
 {
-    const auto borderWidth { config.getFloat (Config::Key::popupBorderWidth) };
+    const auto* cfg { lua::Engine::getContext() };
+    const auto borderWidth { cfg->display.popup.borderWidth };
 
-    g.setColour (config.getColour (Config::Key::popupBorderColour));
-
+    g.setColour (cfg->display.popup.borderColour);
     g.drawRoundedRectangle (getLocalBounds().reduced (2 * borderWidth).toFloat(), cornerSize, borderWidth);
 }
 

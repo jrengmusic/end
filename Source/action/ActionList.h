@@ -6,9 +6,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../config/Config.h"
+#include "../lua/Engine.h"
 #include "../component/MessageOverlay.h"
-#include "../scripting/Scripting.h"
 #include "Action.h"
 #include "ActionRow.h"
 #include "KeyHandler.h"
@@ -42,9 +41,9 @@ public:
      * via Popup::show().
      *
      * @param main    The main component used for size calculations; L&F inherited from this.
-     * @param engine  Scripting engine for key lookup and patching. Must outlive the List.
+     * @param engine  Lua engine for key lookup and patching. Must outlive the List.
      */
-    List (juce::Component& main, Scripting::Engine& engine);
+    List (juce::Component& main, lua::Engine& engine);
 
     /** @brief Destructor. Reloads Config if bindings were modified during the session. */
     ~List() override;
@@ -90,14 +89,11 @@ private:
     /** @brief ValueTree property key for the bindings-dirty flag (triggers Config reload on close). */
     static const juce::Identifier bindingsDirtyId;
 
-    /** @brief Config reference for colours, fonts, and layout proportions. */
-    Config& config { *Config::getContext() };
-
     /** @brief Reference to the main component; used for size calculations. */
     juce::Component& main;
 
-    /** @brief Scripting engine reference; used for key lookup and patching. */
-    Scripting::Engine& scriptingEngine;
+    /** @brief Lua engine reference; used for key lookup and patching. */
+    lua::Engine& luaEngine;
 
     /** @brief ValueTree root holding ACTION nodes and binding state. */
     jam::ValueTree state { "ACTION_LIST" };

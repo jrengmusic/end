@@ -25,7 +25,7 @@
 #include <JuceHeader.h>
 #include "../rendering/ScreenSelection.h"
 #include "../../SelectionType.h"
-#include "../../scripting/Scripting.h"
+#include "../../lua/Engine.h"
 
 namespace Terminal
 {
@@ -112,10 +112,10 @@ public:
      * Called from `TerminalDisplay::initialise()` and `applyConfig()` so Engine
      * reloads take effect without restarting.
      *
-     * @param keys  Parsed selection keys from Scripting::Engine.
+     * @param keys  Parsed selection keys from lua::Engine.
      * @note MESSAGE THREAD.
      */
-    void buildKeyMap (const Scripting::Engine::SelectionKeys& keys) noexcept;
+    void buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept;
 
     /**
      * @brief Clears the pending-g flag.

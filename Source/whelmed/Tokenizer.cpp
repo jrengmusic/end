@@ -1,6 +1,6 @@
 #include "Tokenizer.h"
 #include "GenericTokeniser.h"
-#include "../config/WhelmedConfig.h"
+#include "../lua/Engine.h"
 
 namespace Whelmed
 { /*____________________________________________________________________________*/
@@ -145,14 +145,14 @@ static LanguageDefinition getLanguageDefinition (const juce::String& language)
 juce::AttributedString tokenize (const juce::String& code,
                                   const juce::String& language)
 {
-    const auto* cfg { Whelmed::Config::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
 
     const juce::Font monoFont { juce::FontOptions()
-                                    .withName (cfg->getString (Whelmed::Config::Key::codeFamily))
-                                    .withPointHeight (cfg->getFloat (Whelmed::Config::Key::codeSize))
-                                    .withStyle (cfg->getString (Whelmed::Config::Key::codeStyle)) };
+                                    .withName (cfg->whelmed.codeFamily)
+                                    .withPointHeight (cfg->whelmed.codeSize)
+                                    .withStyle (cfg->whelmed.codeStyle) };
 
-    const juce::Colour fallbackColour { cfg->getColour (Whelmed::Config::Key::codeColour) };
+    const juce::Colour fallbackColour { cfg->whelmed.codeColour };
 
     std::unique_ptr<juce::CodeTokeniser> tokeniser;
 
@@ -188,17 +188,17 @@ juce::AttributedString tokenize (const juce::String& code,
     {
         const juce::Colour tokenColours[]
         {
-            cfg->getColour (Whelmed::Config::Key::tokenError),
-            cfg->getColour (Whelmed::Config::Key::tokenComment),
-            cfg->getColour (Whelmed::Config::Key::tokenKeyword),
-            cfg->getColour (Whelmed::Config::Key::tokenOperator),
-            cfg->getColour (Whelmed::Config::Key::tokenIdentifier),
-            cfg->getColour (Whelmed::Config::Key::tokenInteger),
-            cfg->getColour (Whelmed::Config::Key::tokenFloat),
-            cfg->getColour (Whelmed::Config::Key::tokenString),
-            cfg->getColour (Whelmed::Config::Key::tokenBracket),
-            cfg->getColour (Whelmed::Config::Key::tokenPunctuation),
-            cfg->getColour (Whelmed::Config::Key::tokenPreprocessor),
+            cfg->whelmed.tokenError,
+            cfg->whelmed.tokenComment,
+            cfg->whelmed.tokenKeyword,
+            cfg->whelmed.tokenOperator,
+            cfg->whelmed.tokenIdentifier,
+            cfg->whelmed.tokenInteger,
+            cfg->whelmed.tokenFloat,
+            cfg->whelmed.tokenString,
+            cfg->whelmed.tokenBracket,
+            cfg->whelmed.tokenPunctuation,
+            cfg->whelmed.tokenPreprocessor,
         };
 
         static constexpr int kTokenColourCount { 11 };
