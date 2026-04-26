@@ -149,21 +149,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                            [this]() -> bool
                            {
                                luaEngine.reload();
-                               const auto& reloadError { luaEngine.getLoadError() };
-
-                               if (reloadError.isEmpty())
-                               {
-                                   const auto rendererType { AppState::getContext()->getRendererType() };
-                                   const juce::String rendererName { rendererType == App::RendererType::gpu
-                                                                         ? App::ID::rendererGpu.toUpperCase()
-                                                                         : App::ID::rendererCpu.toUpperCase() };
-                                   messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
-                               }
-                               else
-                               {
-                                   messageOverlay->showMessage (reloadError);
-                               }
-
+                               showReloadMessage();
                                return true;
                            });
 
@@ -453,5 +439,24 @@ void MainComponent::registerNavigationActions (Action::Registry& action)
 
             return true;
         });
+}
+
+/** @note MESSAGE THREAD. */
+void MainComponent::showReloadMessage()
+{
+    const auto& reloadError { luaEngine.getLoadError() };
+
+    if (reloadError.isEmpty())
+    {
+        const auto rendererType { AppState::getContext()->getRendererType() };
+        const juce::String rendererName { rendererType == App::RendererType::gpu
+                                              ? App::ID::rendererGpu.toUpperCase()
+                                              : App::ID::rendererCpu.toUpperCase() };
+        messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
+    }
+    else
+    {
+        messageOverlay->showMessage (reloadError);
+    }
 }
 

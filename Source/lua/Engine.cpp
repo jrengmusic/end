@@ -15,17 +15,15 @@
  * @see lua::Engine
  */
 
-
 #include "Engine.h"
 
 namespace lua
 {
+/*____________________________________________________________________________*/
 
-//==============================================================================
 juce::File Engine::getConfigPath()
 {
-    return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-               .getChildFile (".config/end");
+    return juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile (".config/end");
 }
 
 //==============================================================================
@@ -46,10 +44,10 @@ Engine::~Engine()
 {
     watcher.removeListener (this);
 
-    // action.entries holds jam::lua::protected_function refs into the Lua state.
+    // action.entries holds jam::lua::Function refs into the Lua state.
     // Members destroy in reverse declaration order — action (public) is declared
     // before lua (private), so action would outlive lua.  Clear here to ensure
-    // protected_function refs are released while the Lua state is still alive.
+    // Function refs are released while the Lua state is still alive.
     action.entries.clear();
 }
 
@@ -67,80 +65,73 @@ void Engine::load()
     loadError.clear();
     keyFileRemappable = true;
 
-    lua = jam::lua::state {};
+    lua = jam::lua::State {};
 
-    try
+    lua.openLibraries (
+        jam::lua::Lib::base, jam::lua::Lib::string, jam::lua::Lib::table, jam::lua::Lib::math, jam::lua::Lib::package);
+
+    registerApiTable();
+
+    const juce::File configDir { getConfigPath() };
+    const auto packagePath { configDir.getFullPathName().replace ("\\", "/") + "/?.lua" };
+    lua["package"].setField ("path", packagePath);
+
+    const auto endFile { configDir.getChildFile ("end.lua") };
+
+    if (endFile.existsAsFile())
     {
-        lua.open_libraries (jam::lua::lib::base, jam::lua::lib::string, jam::lua::lib::table, jam::lua::lib::math, jam::lua::lib::package);
+        auto result { lua.script (endFile) };
 
-        registerApiTable();
-
-        const juce::File configDir { getConfigPath() };
-        const auto packagePath { configDir.getFullPathName().replace ("\\", "/") + "/?.lua" };
-        lua["package"]["path"] = packagePath.toStdString();
-
-        const auto endFile { configDir.getChildFile ("end.lua") };
-
-        if (endFile.existsAsFile())
+        if (result.wasOk())
         {
-            auto result { lua.safe_script_file (endFile.getFullPathName().toStdString(), jam::lua::script_pass_on_error) };
+            jam::lua::Value endObj { lua["END"] };
 
-            if (result.valid())
+            if (endObj.getType() == jam::lua::Type::table)
             {
-                jam::lua::object endObj { lua["END"] };
+                juce::StringArray unexpected;
 
-                if (endObj.get_type() == jam::lua::type::table)
-                {
-                    jam::lua::table endTable { endObj.as<jam::lua::table>() };
-                    juce::StringArray unexpected;
+                static const juce::StringArray expectedKeys {
+                    "nexus", "display", "whelmed", "keys", "popups", "actions"
+                };
 
-                    static const std::unordered_set<std::string> expectedKeys {
-                        "nexus", "display", "whelmed", "keys", "popups", "actions"
-                    };
-
-                    endTable.for_each ([&unexpected] (const jam::lua::object& key, const jam::lua::object&)
+                endObj.forEach (
+                    [&unexpected] (const jam::lua::Value& key, const jam::lua::Value&)
                     {
-                        if (key.get_type() == jam::lua::type::string)
+                        if (key.getType() == jam::lua::Type::string)
                         {
-                            const std::string name { key.as<std::string>() };
+                            const auto name { key.to<juce::String>() };
 
-                            if (expectedKeys.count (name) == 0)
-                                unexpected.add (juce::String (name));
+                            if (not expectedKeys.contains (name))
+                                unexpected.add (name);
                         }
                     });
 
-                    if (not unexpected.isEmpty())
-                        loadError = "end.lua: unrecognised keys: " + unexpected.joinIntoString (", ")
-                                  + "\nExpected: nexus, display, whelmed, keys, popups, actions"
-                                  + "\nDelete ~/.config/end/ and restart to generate fresh config.";
-                }
-
-                parseNexus();
-                parseDisplay();
-                parseWhelmed();
-                parseKeys();
-                parseSelectionKeys();
-                parsePopups();
-                parseActions();
-
-                const auto keysFile { configDir.getChildFile ("keys.lua") };
-
-                if (keysFile.existsAsFile())
-                {
-                    const auto keysContent { keysFile.loadFileAsString() };
-                    keyFileRemappable = keysContent.startsWith ("-- END-GENERATED v1");
-                }
+                if (not unexpected.isEmpty())
+                    loadError = "end.lua: unrecognised keys: " + unexpected.joinIntoString (", ")
+                                + "\nExpected: nexus, display, whelmed, keys, popups, actions"
+                                + "\nDelete ~/.config/end/ and restart to generate fresh config.";
             }
-            else
+
+            parseNexus();
+            parseDisplay();
+            parseWhelmed();
+            parseKeys();
+            parseSelectionKeys();
+            parsePopups();
+            parseActions();
+
+            const auto keysFile { configDir.getChildFile ("keys.lua") };
+
+            if (keysFile.existsAsFile())
             {
-                jam::lua::error err { result.get<jam::lua::error>() };
-                loadError = juce::String (err.what());
+                const auto keysContent { keysFile.loadFileAsString() };
+                keyFileRemappable = keysContent.startsWith ("-- END-GENERATED v1");
             }
         }
-    }
-    catch (const jam::lua::error& e)
-    {
-        loadError = juce::String (e.what());
+        else
+        {
+            loadError = result.getErrorMessage();
+        }
     }
 }
 
@@ -152,51 +143,97 @@ void Engine::reload()
         onReload();
 }
 
-void Engine::setDisplayCallbacks (DisplayCallbacks callbacks)
-{
-    displayCallbacks = std::move (callbacks);
-}
+void Engine::setDisplayCallbacks (DisplayCallbacks callbacks) { displayCallbacks = std::move (callbacks); }
 
-void Engine::setPopupCallbacks (PopupCallbacks callbacks)
-{
-    popupCallbacks = std::move (callbacks);
-}
+void Engine::setPopupCallbacks (PopupCallbacks callbacks) { popupCallbacks = std::move (callbacks); }
 
 void Engine::registerApiTable()
 {
-    auto apiTable { lua.create_named_table ("api") };
-
     if (displayCallbacks.splitHorizontal != nullptr)
     {
-        apiTable.set_function ("split_horizontal", [this] { displayCallbacks.splitHorizontal(); });
-        apiTable.set_function ("split_vertical",   [this] { displayCallbacks.splitVertical(); });
-        apiTable.set_function ("split_with_ratio", [this] (const std::string& direction, double ratio)
-        {
-            const bool isVertical { direction == "vertical" };
-            displayCallbacks.splitWithRatio (juce::String (direction), isVertical, ratio);
-        });
-        apiTable.set_function ("new_tab",    [this] { displayCallbacks.newTab(); });
-        apiTable.set_function ("close_tab",  [this] { displayCallbacks.closeTab(); });
-        apiTable.set_function ("next_tab",   [this] { displayCallbacks.nextTab(); });
-        apiTable.set_function ("prev_tab",   [this] { displayCallbacks.prevTab(); });
-        apiTable.set_function ("focus_pane", [this] (int dx, int dy) { displayCallbacks.focusPane (dx, dy); });
-        apiTable.set_function ("close_pane",   [this] { displayCallbacks.closePane(); });
-        apiTable.set_function ("rename_tab",   [this] (const std::string& name)
-        {
-            displayCallbacks.renameTab (juce::String (name));
-        });
+        lua.setFunction ("api",
+                         "split_horizontal",
+                         [this]
+                         {
+                             displayCallbacks.splitHorizontal();
+                         });
+        lua.setFunction ("api",
+                         "split_vertical",
+                         [this]
+                         {
+                             displayCallbacks.splitVertical();
+                         });
+        lua.setFunction ("api",
+                         "split_with_ratio",
+                         [this] (lua_State* L) -> int
+                         {
+                             auto direction { jam::lua::Stack::get<juce::String> (L, 1) };
+                             auto ratio { jam::lua::Stack::get<double> (L, 2) };
+                             const bool isVertical { direction == "vertical" };
+                             displayCallbacks.splitWithRatio (direction, isVertical, ratio);
+                             return 0;
+                         });
+        lua.setFunction ("api",
+                         "new_tab",
+                         [this]
+                         {
+                             displayCallbacks.newTab();
+                         });
+        lua.setFunction ("api",
+                         "close_tab",
+                         [this]
+                         {
+                             displayCallbacks.closeTab();
+                         });
+        lua.setFunction ("api",
+                         "next_tab",
+                         [this]
+                         {
+                             displayCallbacks.nextTab();
+                         });
+        lua.setFunction ("api",
+                         "prev_tab",
+                         [this]
+                         {
+                             displayCallbacks.prevTab();
+                         });
+        lua.setFunction ("api",
+                         "focus_pane",
+                         [this] (lua_State* L) -> int
+                         {
+                             displayCallbacks.focusPane (
+                                 jam::lua::Stack::get<int> (L, 1), jam::lua::Stack::get<int> (L, 2));
+                             return 0;
+                         });
+        lua.setFunction ("api",
+                         "close_pane",
+                         [this]
+                         {
+                             displayCallbacks.closePane();
+                         });
+        lua.setFunction ("api",
+                         "rename_tab",
+                         [this] (lua_State* L) -> int
+                         {
+                             displayCallbacks.renameTab (jam::lua::Stack::get<juce::String> (L, 1));
+                             return 0;
+                         });
     }
 
     if (popupCallbacks.launchPopup != nullptr)
     {
-        apiTable.set_function ("launch_popup",
-            [this] (const std::string& name, const std::string& command,
-                    const std::string& args, const std::string& cwd,
-                    int cols, int rows)
-            {
-                popupCallbacks.launchPopup (juce::String (name), juce::String (command),
-                                            juce::String (args), juce::String (cwd), cols, rows);
-            });
+        lua.setFunction ("api",
+                         "launch_popup",
+                         [this] (lua_State* L) -> int
+                         {
+                             popupCallbacks.launchPopup (jam::lua::Stack::get<juce::String> (L, 1),
+                                                         jam::lua::Stack::get<juce::String> (L, 2),
+                                                         jam::lua::Stack::get<juce::String> (L, 3),
+                                                         jam::lua::Stack::get<juce::String> (L, 4),
+                                                         jam::lua::Stack::get<int> (L, 5),
+                                                         jam::lua::Stack::get<int> (L, 6));
+                             return 0;
+                         });
     }
 }
 
@@ -206,10 +243,12 @@ void Engine::registerActions (::Action::Registry& registry)
     {
         auto launchFn { [this, popupEntry]() -> bool
                         {
-                            popupCallbacks.launchPopup (
-                                popupEntry.name, popupEntry.command,
-                                popupEntry.args, popupEntry.cwd,
-                                popupEntry.cols, popupEntry.rows);
+                            popupCallbacks.launchPopup (popupEntry.name,
+                                                        popupEntry.command,
+                                                        popupEntry.args,
+                                                        popupEntry.cwd,
+                                                        popupEntry.cols,
+                                                        popupEntry.rows);
                             return true;
                         } };
 
@@ -238,19 +277,18 @@ void Engine::registerActions (::Action::Registry& registry)
     {
         auto executeFn { [&actionEntry]() -> bool
                          {
-                             auto result { actionEntry.execute() };
+                             auto result { actionEntry.execute.call() };
 
-                             if (not result.valid())
+                             if (result.failed())
                              {
-                                 jam::lua::error err { result.get<jam::lua::error>() };
-                                 DBG ("Lua action error (" + actionEntry.id + "): " + juce::String (err.what()));
+                                 DBG ("Lua action error (" + actionEntry.id + "): " + result.getErrorMessage());
                              }
 
                              return true;
                          } };
 
-        registry.registerAction (actionEntry.id, actionEntry.name, actionEntry.description,
-                                  "Custom", actionEntry.isModal, executeFn);
+        registry.registerAction (
+            actionEntry.id, actionEntry.name, actionEntry.description, "Custom", actionEntry.isModal, executeFn);
     }
 }
 
@@ -284,26 +322,14 @@ void Engine::buildKeyMap (::Action::Registry& registry)
 }
 
 //==============================================================================
-const Engine::SelectionKeys& Engine::getSelectionKeys() const noexcept
-{
-    return keys.selection;
-}
+const Engine::SelectionKeys& Engine::getSelectionKeys() const noexcept { return keys.selection; }
 
-const juce::String& Engine::getLoadError() const noexcept
-{
-    return loadError;
-}
+const juce::String& Engine::getLoadError() const noexcept { return loadError; }
 
-bool Engine::isKeyFileRemappable() const noexcept
-{
-    return keyFileRemappable;
-}
+bool Engine::isKeyFileRemappable() const noexcept { return keyFileRemappable; }
 
 //==============================================================================
-const juce::String& Engine::getPrefixString() const noexcept
-{
-    return keys.prefix;
-}
+const juce::String& Engine::getPrefixString() const noexcept { return keys.prefix; }
 
 //==============================================================================
 void Engine::fileChanged (const juce::File& /*file*/, jam::File::Watcher::Event event)
@@ -312,4 +338,5 @@ void Engine::fileChanged (const juce::File& /*file*/, jam::File::Watcher::Event 
         reload();
 }
 
-} // namespace lua
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace lua

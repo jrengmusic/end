@@ -8,8 +8,6 @@
  * @see lua::Engine
  */
 
-#include <jam_lua/jam_lua.h>
-
 #include "Engine.h"
 
 namespace lua

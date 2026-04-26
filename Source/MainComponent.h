@@ -100,6 +100,18 @@ public:
      */
     void applyConfig();
 
+    /**
+     * @brief Shows the reload result overlay — success or error.
+     *
+     * Checks `lua::Engine::getLoadError()`.  On success shows
+     * "RELOADED (GPU|CPU)" for 1 s; on error shows the error string.
+     *
+     * @note MESSAGE THREAD.
+     * @see MessageOverlay
+     * @see lua::Engine::getLoadError()
+     */
+    void showReloadMessage();
+
 private:
     /**
      * @brief Registers all user-performable actions with `Action::Registry`.

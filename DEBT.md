@@ -8,6 +8,30 @@
 
 ---
 
+## DEBT-20260426T122105
+
+**Observation:** when screen resolution changes, end didnt resized
+**Divergence:** screen resolution (also include desktop scaling) changes, end stays at starting resolution, terminal rendered small, while window size is correct
+**Expectation:** end should reactively conform to screen resolution/desktop scaling changes and adjust terminal render dims accordingly
+
+---
+
+## DEBT-20260426T121503
+
+**Observation:** update nexus.lua hot reload
+**Divergence:** changes on nexus.lua saved, file watcher triggered, config reloaded, no message at all
+**Expectation:** changes on any lua files included in end.lua should trigger "RELOAD" message overlay
+
+---
+
+## DEBT-20260426T120444
+
+**Observation:** https://developer.apple.com/documentation/AppKit/NSGlassEffectView
+**Divergence:** jam style window and menu that using "modern" API fallback with NSVisualEffect should be gone
+**Expectation:** mac glassmorphism pre-Tahoe must be using CGSBackgroundBlur as default, Tahoe+ use the latest API with NSGlassEffectView for all Window, Menu, and Sheet (might need to fork from kuassa lib)
+
+---
+
 
 
 ## DEBT-20260411T100058

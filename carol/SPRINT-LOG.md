@@ -1,5 +1,40 @@
 # SPRINT-LOG
 
+## Sprint 40: Migrate lua::Engine to clean-room jam::lua API
+
+**Date:** 2026-04-26
+
+### Agents Participated
+- COUNSELOR (jam session): API design, PLAN authorship, migration coordination — END migration driven from jam as producer
+- Engineer (x3 parallel): Engine.h/cpp migration, EngineParse.cpp migration, EnginePatch/CMake cleanup
+- Engineer: EngineParse.cpp 3-way file split
+- Auditor (via jam session): validated all consumer changes
+
+### Files Modified (5 modified, 2 new)
+- `Source/lua/Engine.h:818,1246` — `jam::lua::protected_function` → `Function`, `jam::lua::state` → `State`
+- `Source/lua/Engine.cpp:68-201,237-250` — State/openLibraries/script(File)/setFunction (void + raw int(lua_State*) overloads), Result replaces try/catch + script_pass_on_error, juce::StringArray replaces std::unordered_set<std::string>, registerApiTable rewritten
+- `Source/lua/EngineParse.cpp` — rewritten: keys/popups/actions only (214 lines, was 787). All sol types → jam::lua::Value, .optional<juce::String>() replaces sol::optional<std::string>, forEach replaces structured binding iteration
+- `Source/lua/EngineParseDisplay.cpp` — NEW: 6 static display helpers + parseDisplay (357 lines)
+- `Source/lua/EngineParseConfig.cpp` — NEW: parseNexus + parseWhelmed (253 lines)
+- `Source/lua/EnginePatch.cpp:11` — removed vestigial `#include <jam_lua/jam_lua.h>`
+- `CMakeLists.txt:128-129` — removed sol include path (`target_include_directories` for jam_lua/)
+
+### Alignment Check
+- [x] BLESSED principles followed (E: explicit .to/.optional conversions, no implicit; L: 787-line file split into 3)
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Full consumer migration from sol3 to jam::lua clean-room API (~144 usage sites)
+- Eliminated std::string from Lua boundary — juce::String native throughout
+- EngineParse.cpp Lean violation (787 lines) resolved via 3-way split
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 39: Fix Action List Search Esc + Lean Decomposition
 
 **Date:** 2026-04-26

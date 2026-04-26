@@ -340,6 +340,7 @@ public:
                 if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
                 {
                     content->applyConfig();
+                    content->showReloadMessage();
 
 #if JUCE_WINDOWS
                     if (isWindows11() and appState.getRendererType() == App::RendererType::cpu)

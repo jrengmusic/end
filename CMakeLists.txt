@@ -125,9 +125,6 @@ configure_app(
 
 set(TARGET_NAME "END_App")
 
-# sol3 headers use <sol/...> includes; expose jam_lua/ so they resolve
-target_include_directories(${TARGET_NAME} PRIVATE "${JAM_ROOT}/jam_lua")
-
 # Suppress tmpnam deprecation from vendored Lua C source — scoped to jam_lua only
 if(NOT MSVC)
     set_source_files_properties(

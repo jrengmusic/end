@@ -21,6 +21,7 @@
 
 namespace lua
 {
+/*____________________________________________________________________________*/
 
 /**
  * @class lua::Engine
@@ -815,7 +816,7 @@ public:
             bool isModal { false };
 
             /** @brief The Lua function invoked when the action fires. */
-            jam::lua::protected_function execute;
+            jam::lua::Function execute;
         };
 
         /** @brief All parsed custom action entries. */
@@ -1243,7 +1244,7 @@ private:
 
     //==========================================================================
     /** @brief The persistent Lua state. */
-    jam::lua::state lua;
+    jam::lua::State lua;
 
     /** @brief File system watcher for hot-reload. */
     jam::File::Watcher watcher;
@@ -1264,4 +1265,5 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Engine)
 };
 
-} // namespace lua
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace lua
