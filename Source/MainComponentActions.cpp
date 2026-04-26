@@ -283,6 +283,17 @@ void MainComponent::registerTabActions (Action::Registry& action)
                                tabs->selectNextTab();
                                return true;
                            });
+
+    action.registerAction ("rename_tab",
+                           "Rename Tab",
+                           "Rename the active tab",
+                           "Tabs",
+                           true,
+                           [this]() -> bool
+                           {
+                               tabs->showRenameEditor (tabs->getCurrentTabIndex());
+                               return true;
+                           });
 }
 
 /** @note MESSAGE THREAD. */

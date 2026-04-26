@@ -281,7 +281,7 @@ void Engine::initDefaults()
 //==============================================================================
 void Engine::writeDefaults()
 {
-    auto configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile (".config/end") };
+    auto configDir { getConfigPath() };
 
     if (not configDir.exists())
         configDir.createDirectory();

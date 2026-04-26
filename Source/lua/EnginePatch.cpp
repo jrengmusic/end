@@ -23,8 +23,7 @@ void Engine::patchKey (const juce::String& key, const juce::String& value)
 
     const juce::String leafName { key.substring (dotIndex + 1) };
 
-    const juce::File configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-                                     .getChildFile (".config/end") };
+    const juce::File configDir { getConfigPath() };
     const juce::File keysFile { configDir.getChildFile ("keys.lua") };
     juce::String content { keysFile.loadFileAsString() };
 

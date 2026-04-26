@@ -317,6 +317,9 @@ static void parseDisplayTab (Engine::Display::Tab& tab, jam::lua::table& display
 
         jam::lua::optional<std::string> position { t["position"].get<jam::lua::optional<std::string>>() };
         if (position.has_value()) tab.position = juce::String (position.value());
+
+        jam::lua::optional<std::string> buttonSvg { t["button_svg"].get<jam::lua::optional<std::string>>() };
+        if (buttonSvg.has_value()) tab.buttonSvg = juce::String (buttonSvg.value());
     }
 }
 

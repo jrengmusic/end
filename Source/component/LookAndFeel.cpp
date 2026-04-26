@@ -1,6 +1,6 @@
 /**
  * @file LookAndFeel.cpp
- * @brief Terminal::LookAndFeel implementation — minimal tab bar drawing.
+ * @brief Terminal::LookAndFeel implementation — core: constructor, colours, fonts, shape helpers, misc overrides.
  *
  * @see LookAndFeel.h
  * @see Config
@@ -37,12 +37,12 @@ void LookAndFeel::setColours()
 
     setColour (cursorColourId, cfg->display.colours.cursor);
 
-    setColour (juce::TabbedButtonBar::tabTextColourId,      cfg->display.tab.inactive);
-    setColour (juce::TabbedButtonBar::frontTextColourId,    cfg->display.tab.foreground);
-    setColour (juce::TabbedButtonBar::tabOutlineColourId,   juce::Colours::transparentBlack);
-    setColour (juce::TabbedButtonBar::frontOutlineColourId, juce::Colours::transparentBlack);
-    setColour (juce::TabbedComponent::backgroundColourId,   juce::Colours::transparentBlack);
-    setColour (juce::TabbedComponent::outlineColourId,      juce::Colours::transparentBlack);
+    setColour (jam::TabbedButtonBar::tabTextColourId,      cfg->display.tab.inactive);
+    setColour (jam::TabbedButtonBar::frontTextColourId,    cfg->display.tab.foreground);
+    setColour (jam::TabbedButtonBar::tabOutlineColourId,   juce::Colours::transparentBlack);
+    setColour (jam::TabbedButtonBar::frontOutlineColourId, juce::Colours::transparentBlack);
+    setColour (jam::TabbedComponent::backgroundColourId,   juce::Colours::transparentBlack);
+    setColour (jam::TabbedComponent::outlineColourId,      juce::Colours::transparentBlack);
     setColour (tabBarBackgroundColourId, juce::Colours::transparentBlack);
     setColour (tabLineColourId,          cfg->display.tab.line);
     setColour (tabActiveColourId,        cfg->display.tab.active);
@@ -73,26 +73,90 @@ void LookAndFeel::setColours()
     setColour (juce::ScrollBar::thumbColourId,      cfg->whelmed.scrollbarThumb);
     setColour (juce::ScrollBar::trackColourId,      cfg->whelmed.scrollbarTrack);
     setColour (juce::ScrollBar::backgroundColourId, cfg->whelmed.scrollbarBackground);
+
+    loadTabButtonSvg();
 }
 
 /**
- * @brief Returns the tab font at the configured point size.
+ * @brief Loads custom SVG tab button paths from the configured path.
  *
- * Single source of truth for the tab font.  JUCE calls this
- * internally for layout; `drawTabButton` and `getTabButtonBestWidth`
- * also use it.
+ * Reads `display.tab.button_svg` from config. When non-empty, resolves the path
+ * (relative paths are anchored to the config directory), parses the SVG, locates
+ * the six required elements by ID ("active-left", "active-center", "active-right",
+ * "inactive-left", "inactive-center", "inactive-right"), and extracts each as a
+ * cached `juce::Path` via `jam::SVG::getPath`. Sets `hasSvgTabButton` true only
+ * when all six paths are non-empty. On any failure, emits a DBG warning and leaves
+ * `hasSvgTabButton` false so drawing falls back to the built-in parallelogram.
  *
- * @param button  The tab bar button being queried.
- * @param height  The tab bar depth (height for horizontal bars).
- * @return The tab font at `lua::Engine::display.tab.size` point height.
- * @note MESSAGE THREAD.
+ * @note MESSAGE THREAD — called at end of setColours().
  */
-juce::Font LookAndFeel::getTabButtonFont (juce::TabBarButton& button, float height)
+void LookAndFeel::loadTabButtonSvg()
 {
+    hasSvgTabButton = false;
+    svgActiveLeft     = {};
+    svgActiveCenter   = {};
+    svgActiveRight    = {};
+    svgInactiveLeft   = {};
+    svgInactiveCenter = {};
+    svgInactiveRight  = {};
+
     const auto* cfg { lua::Engine::getContext() };
-    return juce::Font { juce::FontOptions()
-                            .withName (cfg->display.tab.family)
-                            .withPointHeight (cfg->display.tab.size) };
+    const auto svgPath { cfg->display.tab.buttonSvg };
+
+    if (svgPath.isNotEmpty())
+    {
+        const juce::File svgFile { juce::File::isAbsolutePath (svgPath)
+                                       ? juce::File (svgPath)
+                                       : lua::Engine::getConfigPath().getChildFile (svgPath) };
+
+        if (svgFile.existsAsFile())
+        {
+            auto xml { juce::parseXML (svgFile) };
+
+            if (xml != nullptr)
+            {
+                auto* activeLeftEl     { jam::XML::getChildByID (xml, "active-left") };
+                auto* activeCenterEl   { jam::XML::getChildByID (xml, "active-center") };
+                auto* activeRightEl    { jam::XML::getChildByID (xml, "active-right") };
+                auto* inactiveLeftEl   { jam::XML::getChildByID (xml, "inactive-left") };
+                auto* inactiveCenterEl { jam::XML::getChildByID (xml, "inactive-center") };
+                auto* inactiveRightEl  { jam::XML::getChildByID (xml, "inactive-right") };
+
+                if (activeLeftEl != nullptr
+                    and activeCenterEl != nullptr
+                    and activeRightEl != nullptr
+                    and inactiveLeftEl != nullptr
+                    and inactiveCenterEl != nullptr
+                    and inactiveRightEl != nullptr)
+                {
+                    svgActiveLeft     = jam::SVG::getPath (activeLeftEl,    jam::SVG::ElementType::all);
+                    svgActiveCenter   = jam::SVG::getPath (activeCenterEl,  jam::SVG::ElementType::all);
+                    svgActiveRight    = jam::SVG::getPath (activeRightEl,   jam::SVG::ElementType::all);
+                    svgInactiveLeft   = jam::SVG::getPath (inactiveLeftEl,  jam::SVG::ElementType::all);
+                    svgInactiveCenter = jam::SVG::getPath (inactiveCenterEl, jam::SVG::ElementType::all);
+                    svgInactiveRight  = jam::SVG::getPath (inactiveRightEl,  jam::SVG::ElementType::all);
+
+                    hasSvgTabButton = not svgActiveLeft.isEmpty()
+                                      and not svgActiveCenter.isEmpty()
+                                      and not svgActiveRight.isEmpty()
+                                      and not svgInactiveLeft.isEmpty()
+                                      and not svgInactiveCenter.isEmpty()
+                                      and not svgInactiveRight.isEmpty();
+                }
+
+                if (not hasSvgTabButton)
+                    DBG ("LookAndFeel::loadTabButtonSvg: failed to extract paths from " + svgFile.getFullPathName());
+            }
+            else
+            {
+                DBG ("LookAndFeel::loadTabButtonSvg: failed to parse SVG: " + svgFile.getFullPathName());
+            }
+        }
+        else
+        {
+            DBG ("LookAndFeel::loadTabButtonSvg: file not found: " + svgFile.getFullPathName());
+        }
+    }
 }
 
 /**
@@ -114,173 +178,6 @@ int LookAndFeel::getTabBarHeight() noexcept
 }
 
 /**
- * @brief Applies a rotation transform to @p g for vertical tab orientations.
- *
- * Rotates 90 degrees around the centre of @p area so that vertical tab
- * drawing can reuse the same horizontal path logic.
- *
- * @param g            Graphics context (transform is added in place).
- * @param area         Original tab area rectangle (in component coordinates).
- * @param orientation  The tab bar orientation being drawn.
- * @return             The transformed draw area (width and height swapped).
- */
-static juce::Rectangle<float> applyVerticalTabTransform (juce::Graphics& g,
-                                                         const juce::Rectangle<float>& area,
-                                                         juce::TabbedButtonBar::Orientation orientation)
-{
-    const auto centreX { area.getCentreX() };
-    const auto centreY { area.getCentreY() };
-    const auto angle { orientation == juce::TabbedButtonBar::TabsAtLeft ? -juce::MathConstants<float>::halfPi
-                                                                        : juce::MathConstants<float>::halfPi };
-
-    g.addTransform (juce::AffineTransform::rotation (angle, centreX, centreY));
-
-    return { area.getCentreX() - area.getHeight() * 0.5f,
-             area.getCentreY() - area.getWidth() * 0.5f,
-             area.getHeight(),
-             area.getWidth() };
-}
-
-/**
- * @brief Truncates @p text so it fits within @p maxWidth using ellipsis prefix.
- *
- * Repeatedly removes the first character until the text fits.
- * Returns the original text unchanged if it already fits.
- *
- * @param font      Font used to measure the text.
- * @param text      Input text to truncate.
- * @param maxWidth  Maximum allowed width in pixels.
- * @return          The (possibly truncated) text, prefixed with "..." when truncated.
- */
-static juce::String truncateTabText (const juce::Font& font, const juce::String& text, float maxWidth)
-{
-    juce::String result { text };
-
-    if (juce::TextLayout::getStringWidth (font, result) > maxWidth)
-    {
-        while (result.length() > 1 and juce::TextLayout::getStringWidth (font, "..." + result) > maxWidth)
-        {
-            result = result.substring (1);
-        }
-
-        result = "..." + result;
-    }
-
-    return result;
-}
-
-/**
- * @brief Draws a single tab button with a p shape.
- *
- * Active tab: filled with tabActiveColourId.
- * Inactive tabs: stroked outline with tabTextColourId.
- * Hover on inactive: filled with tabTextColourId.
- * Text uses frontTextColourId for active, tabTextColourId for inactive.
- * Parallelogram slants right (follows reading direction for vertical tabs).
- *
- * @param button      The tab bar button being drawn.
- * @param g           Graphics context.
- * @param isMouseOver True if the mouse is hovering over this tab.
- * @param isMouseDown True if the mouse button is pressed on this tab.
- *
- * @note MESSAGE THREAD — called by JUCE tab bar painting.
- */
-void LookAndFeel::drawTabButton (juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver, bool isMouseDown)
-{
-    const auto area { button.getActiveArea().toFloat() };
-    const bool isActive { button.getToggleState() };
-    const auto orientation { button.getTabbedButtonBar().getOrientation() };
-
-    const auto activeColour { findColour (tabActiveColourId) };
-    const auto indicatorColour { findColour (tabIndicatorColourId) };
-    const auto fgColour { findColour (juce::TabbedButtonBar::frontTextColourId) };
-    const auto inactiveColour { findColour (juce::TabbedButtonBar::tabTextColourId) };
-
-    const bool isVertical { orientation == juce::TabbedButtonBar::TabsAtLeft
-                            or orientation == juce::TabbedButtonBar::TabsAtRight };
-
-    juce::Graphics::ScopedSaveState saveState (g);
-
-    auto drawArea { area };
-
-    if (isVertical)
-        drawArea = applyVerticalTabTransform (g, area, orientation);
-
-    auto buttonArea { drawArea.reduced (0, buttonInset) };
-    auto indicatorArea { buttonArea.removeFromLeft (isActive ? indicatorSize - skew : 0) };
-
-    juce::Path path { getTabButtonShape (buttonArea) };
-
-    if (isActive)
-    {
-        juce::Path indicator { getTabButtonIndicator (indicatorArea) };
-        g.setColour (indicatorColour);
-        g.fillPath (indicator);
-
-        g.setColour (activeColour);
-        g.fillPath (path);
-    }
-    else if (isMouseOver)
-    {
-        g.setColour (inactiveColour);
-        g.fillPath (path);
-    }
-    else
-    {
-        g.setColour (inactiveColour);
-        g.strokePath (path, juce::PathStrokeType (strokeWidth));
-    }
-
-    auto font { getTabButtonFont (button, buttonArea.getHeight()) };
-
-    if (isActive)
-        font = font.boldened();
-
-    g.setFont (font);
-    g.setColour (isActive ? fgColour : (isMouseOver ? fgColour : inactiveColour));
-
-    const float maxTextWidth { juce::TextLayout::getStringWidth (font, "M") * maxTabChars };
-    const auto text { truncateTabText (font, button.getButtonText(), maxTextWidth) };
-    g.drawFittedText (text, buttonArea.toNearestInt(), juce::Justification::centred, 1);
-}
-
-/**
- * @brief Draws the tab bar background — translucent fill matching window colour.
- *
- * @param bar  The tab button bar.
- * @param g    Graphics context.
- *
- * @note MESSAGE THREAD — called by JUCE tab bar painting.
- */
-void LookAndFeel::drawTabbedButtonBarBackground (juce::TabbedButtonBar&, juce::Graphics&) {}
-
-/**
- * @brief Calculates the best width for a tab button based on its text.
- *
- * Measures the button text using the tab font, then adds horizontal
- * padding on both sides.
- *
- * @param button    The tab bar button to measure.
- * @param tabDepth  The depth (height for horizontal bars) of the tab bar.
- * @return          The calculated width in pixels.
- *
- * @note MESSAGE THREAD — called by JUCE tab bar layout.
- */
-int LookAndFeel::getTabButtonBestWidth (juce::TabBarButton& button, int tabDepth)
-{
-    const auto font { getTabButtonFont (button, static_cast<float> (tabDepth)) };
-    const float charWidth { juce::TextLayout::getStringWidth (font, "M") };
-    const int minWidth { static_cast<int> (charWidth * minTabChars) + horizontalPadding * 2 + static_cast<int> (skew) };
-    const int maxWidth { static_cast<int> (charWidth * maxTabChars) + horizontalPadding * 2 + static_cast<int> (skew) };
-
-    const int textWidth { static_cast<int> (
-        std::ceil (juce::TextLayout::getStringWidth (font, button.getButtonText()))) };
-    const int totalWidth { textWidth + horizontalPadding * 2 + static_cast<int> (skew) };
-
-    return juce::jlimit (minWidth, maxWidth, totalWidth);
-}
-
-/**
  * @brief Returns the font used for popup menu items.
  *
  * Uses the same font family and point size as tab buttons, via Config.
@@ -294,176 +191,6 @@ juce::Font LookAndFeel::getPopupMenuFont()
     return juce::Font { juce::FontOptions()
                             .withName (cfg->display.tab.family)
                             .withPointHeight (cfg->display.tab.size) };
-}
-
-/**
- * @brief Prepares a popup menu window for display with background blur.
- *
- * Applies platform-specific background blur to the popup menu window
- * asynchronously after the window is created. Only available on Mac
- * and Windows platforms.
- *
- * @param newWindow  The popup menu window to prepare.
- * @note MESSAGE THREAD — called from UI show logic.
- */
-void LookAndFeel::preparePopupMenuWindow (juce::Component& newWindow)
-{
-    newWindow.setOpaque (false);
-
-#if JUCE_MAC || JUCE_WINDOWS
-    auto safeComponent { juce::Component::SafePointer<juce::Component> (&newWindow) };
-
-    juce::MessageManager::callAsync (
-        [safeComponent]
-        {
-            if (safeComponent != nullptr)
-            {
-                const auto* cfg { lua::Engine::getContext() };
-                jam::BackgroundBlur::enable (safeComponent.getComponent(),
-                                             cfg->display.window.blurRadius,
-                                             cfg->display.window.colour.withAlpha (cfg->display.menu.opacity));
-            }
-        });
-#endif
-}
-
-/**
- * @brief Draws a separator line centred vertically within @p area.
- *
- * @param g     Graphics context (colour must be set by caller).
- * @param area  Bounding rectangle for the separator item.
- */
-static void drawPopupMenuSeparator (juce::Graphics& g, const juce::Rectangle<int>& area)
-{
-    const auto y { area.getY() + area.getHeight() / 2 };
-
-    g.drawLine (static_cast<float> (area.getX()),
-                static_cast<float> (y),
-                static_cast<float> (area.getRight()),
-                static_cast<float> (y));
-}
-
-/**
- * @brief Draws the submenu arrow chevron at the right edge of @p area.
- *
- * @param g           Graphics context (colour must be set by caller).
- * @param area        Bounding rectangle for the full menu item.
- * @param fontHeight  Font height — used to derive arrow proportions.
- */
-static void drawSubmenuArrow (juce::Graphics& g, const juce::Rectangle<int>& area, float fontHeight)
-{
-    const auto arrowSize { fontHeight * 0.4f };
-    const auto arrowX { static_cast<float> (area.getRight()) - arrowSize * 2.0f };
-    const auto arrowY { static_cast<float> (area.getCentre().getY()) };
-
-    juce::Path arrow;
-    arrow.startNewSubPath (arrowX, arrowY - arrowSize);
-    arrow.lineTo (arrowX + arrowSize, arrowY);
-    arrow.lineTo (arrowX, arrowY + arrowSize);
-
-    g.strokePath (arrow, juce::PathStrokeType (fontHeight * 0.15f));
-}
-
-/**
- * @brief Draws a single popup menu item with theme styling.
- *
- * Handles normal, highlighted, active, separator, ticked, and disabled
- * states. Uses foreground colour for text, selection colour for highlights,
- * and cursor colour for ticked items.
- *
- * @param g                  Graphics context.
- * @param area               Bounding rectangle for the item.
- * @param isSeparator        True if this item is a separator.
- * @param isActive           True if the item is enabled.
- * @param isHighlighted      True if the item is hovered.
- * @param isTicked           True if the item is checked.
- * @param hasSubMenu         True if the item has a submenu.
- * @param text               Item text.
- * @param shortcutKeyText    Optional keyboard shortcut text.
- * @param icon               Optional icon drawable.
- * @param textColourToUse    Optional text colour override.
- * @note MESSAGE THREAD — called by JUCE popup menu item painting.
- */
-void LookAndFeel::drawPopupMenuItem (juce::Graphics& g,
-                                     const juce::Rectangle<int>& area,
-                                     const bool isSeparator,
-                                     const bool isActive,
-                                     const bool isHighlighted,
-                                     const bool isTicked,
-                                     const bool hasSubMenu,
-                                     const juce::String& text,
-                                     const juce::String& shortcutKeyText,
-                                     const juce::Drawable* icon,
-                                     const juce::Colour* const textColourToUse)
-{
-    const auto fgColour { findColour (juce::PopupMenu::textColourId) };
-    const auto cursorColour { findColour (cursorColourId) };
-    const auto highlightColour { findColour (juce::PopupMenu::highlightedBackgroundColourId) };
-
-    if (isSeparator)
-    {
-        g.setColour (fgColour.withAlpha (separatorAlpha));
-        drawPopupMenuSeparator (g, area);
-    }
-    else
-    {
-        if (isHighlighted and isActive)
-        {
-            g.setColour (highlightColour);
-            g.fillRect (area);
-        }
-
-        g.setFont (getPopupMenuFont());
-
-        juce::Colour textColour { fgColour };
-
-        if (textColourToUse != nullptr)
-        {
-            textColour = *textColourToUse;
-        }
-        else if (not isActive)
-        {
-            textColour = fgColour.withAlpha (0.5f);
-        }
-        else if (isTicked)
-        {
-            textColour = cursorColour;
-        }
-
-        g.setColour (textColour);
-
-        const auto font { getPopupMenuFont() };
-        const auto fontHeight { font.getHeight() };
-        auto r { area.reduced (static_cast<int> (fontHeight * 0.5f), 0) };
-        auto iconArea { r.removeFromLeft (juce::roundToInt (fontHeight)) };
-
-        if (isTicked)
-            g.drawText (">", iconArea, juce::Justification::centred, false);
-
-        g.drawText (text, r, juce::Justification::centredLeft, false);
-
-        if (not shortcutKeyText.isEmpty())
-        {
-            auto mutableArea { area };
-            const auto shortcutArea { mutableArea.removeFromRight (mutableArea.getWidth() / 3) };
-            g.drawText (shortcutKeyText, shortcutArea, juce::Justification::centredRight, false);
-        }
-
-        if (hasSubMenu)
-            drawSubmenuArrow (g, area, fontHeight);
-    }
-}
-
-/**
- * @brief Creates the "extras" button for the tab bar with a ">" chevron.
- *
- * @return Pointer to the created Button (ownership transferred to caller).
- * @note MESSAGE THREAD — called by JUCE tab bar layout.
- */
-juce::Button* LookAndFeel::createTabBarExtrasButton()
-{
-    // JUCE API convention: createTabBarExtrasButton returns raw pointer, caller takes ownership.
-    return new juce::TextButton (">");
 }
 
 /**
@@ -495,29 +222,6 @@ juce::Font LookAndFeel::getTextButtonFont (juce::TextButton& button, int buttonH
                                   .withPointHeight (cfg->display.actionList.nameSize) };
 
     return result;
-}
-
-void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
-                                                   int w,
-                                                   int h,
-                                                   bool isVerticalBar,
-                                                   bool isMouseOver,
-                                                   bool isMouseDragging)
-{
-    const auto colour { (isMouseOver or isMouseDragging) ? findColour (paneBarHighlightColourId)
-                                                         : findColour (paneBarColourId) };
-    g.setColour (colour);
-
-    if (isVerticalBar)
-    {
-        const float centreX { w * 0.5f };
-        g.drawLine (centreX, 0.0f, centreX, static_cast<float> (h), 1.0f);
-    }
-    else
-    {
-        const float centreY { h * 0.5f };
-        g.drawLine (0.0f, centreY, static_cast<float> (w), centreY, 1.0f);
-    }
 }
 
 /**
@@ -558,6 +262,29 @@ juce::Font LookAndFeel::getLabelFont (juce::Label& label)
     return result;
 }
 
+void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
+                                                   int w,
+                                                   int h,
+                                                   bool isVerticalBar,
+                                                   bool isMouseOver,
+                                                   bool isMouseDragging)
+{
+    const auto colour { (isMouseOver or isMouseDragging) ? findColour (paneBarHighlightColourId)
+                                                         : findColour (paneBarColourId) };
+    g.setColour (colour);
+
+    if (isVerticalBar)
+    {
+        const float centreX { w * 0.5f };
+        g.drawLine (centreX, 0.0f, centreX, static_cast<float> (h), 1.0f);
+    }
+    else
+    {
+        const float centreY { h * 0.5f };
+        g.drawLine (0.0f, centreY, static_cast<float> (w), centreY, 1.0f);
+    }
+}
+
 juce::Path LookAndFeel::getTabButtonIndicator (const juce::Rectangle<float>& area) noexcept
 {
     juce::Path p;
@@ -579,5 +306,6 @@ juce::Path LookAndFeel::getTabButtonShape (const juce::Rectangle<float>& area) n
     p.closeSubPath();
     return p;
 }
+
 /**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

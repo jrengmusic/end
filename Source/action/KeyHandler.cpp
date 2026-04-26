@@ -23,7 +23,7 @@ void KeyHandler::buildSearchTable()
         if (callbacks.visibleRowCount() > 0)
             callbacks.selectRow (1);
         else
-            callbacks.dismiss();
+            callbacks.clearSearch();
     };
 
     searchTable[juce::KeyPress::returnKey] = [this]

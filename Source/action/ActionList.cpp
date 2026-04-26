@@ -57,6 +57,11 @@ List::List (juce::Component& mainWindow, lua::Engine& engine)
                                                 },
                                                 [this]
                                                 {
+                                                    if (auto* searchBox { rows.at (0)->getSearchBox() }; searchBox != nullptr)
+                                                        searchBox->setText ("");
+                                                },
+                                                [this]
+                                                {
                                                     enterBindingMode();
                                                 },
                                                 [this] (int i)
@@ -369,12 +374,15 @@ void List::selectRow (int index)
 
     int target { juce::jlimit (0, count - 1, index) };
 
-    if (target > 0 and not rows.at (static_cast<std::size_t> (target))->isSelectable())
+    if (target > 0 and (not rows.at (static_cast<std::size_t> (target))->isSelectable()
+                        or not rows.at (static_cast<std::size_t> (target))->isVisible()))
     {
         const int current { getSelectedIndex() };
         const int direction { target >= current ? 1 : -1 };
 
-        while (target > 0 and target < count and not rows.at (static_cast<std::size_t> (target))->isSelectable())
+        while (target > 0 and target < count
+               and (not rows.at (static_cast<std::size_t> (target))->isSelectable()
+                    or not rows.at (static_cast<std::size_t> (target))->isVisible()))
         {
             target += direction;
         }
@@ -382,8 +390,11 @@ void List::selectRow (int index)
         target = juce::jlimit (0, count - 1, target);
     }
 
-    if (target > 0 and not rows.at (static_cast<std::size_t> (target))->isVisible())
+    if (target > 0 and (not rows.at (static_cast<std::size_t> (target))->isSelectable()
+                        or not rows.at (static_cast<std::size_t> (target))->isVisible()))
+    {
         target = 0;
+    }
 
     for (auto& row : rows)
         row->getValueObject().setValue (false);

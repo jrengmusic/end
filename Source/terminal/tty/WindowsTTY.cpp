@@ -54,6 +54,7 @@
  */
 
 #include "WindowsTTY.h"
+#include "../../lua/Engine.h"
 
 #ifdef JUCE_WINDOWS
 
@@ -231,11 +232,7 @@ static constexpr int instantKillChildWaitMs { 500 };
  */
 static juce::File extractConPtyBinaries() noexcept
 {
-    const juce::File conptyDir
-    {
-        juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-            .getChildFile (".config/end/conpty")
-    };
+    const juce::File conptyDir { lua::Engine::getConfigPath().getChildFile ("conpty") };
 
     if (not conptyDir.exists())
         conptyDir.createDirectory();

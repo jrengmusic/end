@@ -1,5 +1,73 @@
 # SPRINT-LOG
 
+## Sprint 38: Tab Rename, Drag-Reorder, SVG Button Graphics
+
+**Date:** 2026-04-26
+
+### Agents Participated
+- COUNSELOR: led planning, orchestrated all steps, PLAN-tabs.md authoring
+- BRAINSTORMER: RFC-tabs.md (pre-flight, prior session)
+- Pathfinder: codebase discovery (tab architecture, jam::SVG/XML APIs, config dir SSOT audit)
+- Engineer: jam fork (6 files), migration, rename feature, SVG loading, Label refactor, SSOT refactor, Lean splits, audit fixes
+- Auditor: full sprint audit (21 findings, all resolved)
+- Librarian: jam::SVG/XML research
+
+### Files Modified (32 total)
+
+**jam framework (8 files)**
+- `jam_gui/layout/jam_tab_bar_button.h` — NEW: `jam::TabBarButton` with drag-reorder, embedded `juce::Label`, `showRenameEditor()`, `onRenameCommit` callback
+- `jam_gui/layout/jam_tab_bar_button.cpp` — NEW: implementation (drag mouse handling, label layout with vertical transform, text truncation, rename editor)
+- `jam_gui/layout/jam_tabbed_button_bar.h` — NEW: `jam::TabbedButtonBar` with own `LookAndFeelMethods`, `onTabMoved`/`onTabRightClicked` callbacks
+- `jam_gui/layout/jam_tabbed_button_bar.cpp` — NEW: implementation (forked from JUCE, `moveTab` fires callback)
+- `jam_gui/layout/jam_tabbed_component.h` — NEW: `jam::TabbedComponent` with content-component management stripped
+- `jam_gui/layout/jam_tabbed_component.cpp` — NEW: implementation (simplified `addTab`, `clearTabs`, `changeCallback`)
+- `jam_gui/jam_gui.h:95-97` — added 3 tab layout includes
+- `jam_gui/jam_gui.cpp:17-19` — added 3 tab layout .cpp includes
+
+**END project (24 files)**
+- `Source/component/LookAndFeel.h:38-39,94-115,283-290` — added `jam::TabbedButtonBar::LookAndFeelMethods` inheritance, all jam:: method declarations, SVG path members, `loadTabButtonSvg()`, `drawTabButtonCore` signature
+- `Source/component/LookAndFeel.cpp` — SVG loading via `jam::SVG::getPath`, `drawTabButtonCore` with SVG 3-slice path rendering, colour IDs → `jam::`, `getConfigPath()` SSOT
+- `Source/component/LookAndFeelTab.cpp` — NEW: extracted tab button drawing methods (drawTabButtonCore, all draw/font/bestWidth overloads)
+- `Source/component/LookAndFeelMenu.cpp` — NEW: extracted popup menu drawing methods
+- `Source/component/Tabs.h:43,61,202-213,336,392-393` — base class → `jam::TabbedComponent`, orientation types → `jam::`, added `showRenameEditor`/`renameActiveTab`/`popupMenuClickOnTab`
+- `Source/component/Tabs.cpp` — `onTabMoved` wiring, `valueChanged` with `userTabName` override, `renameActiveTab`/`showRenameEditor`/`popupMenuClickOnTab` implementations
+- `Source/component/TabsActions.cpp` — NEW: extracted config/zoom/split/focus/restore methods
+- `Source/component/TabsClose.cpp` — NEW: extracted `closeActiveTab`/`closeSession`
+- `Source/AppIdentifier.h:84` — added `userTabName` identifier
+- `Source/MainComponent.cpp:128,449-456` — wired `renameTab` callback, orientation refs → `jam::`
+- `Source/MainComponentActions.cpp:286-297` — registered `rename_tab` action (modal, category Tabs)
+- `Source/lua/Engine.h:298-299,857-859,1152,1180` — `buttonSvg` config field, `renameTab` callback, `keyMappingCount` 23, `rename_tab` key mapping, `getConfigPath()` declaration
+- `Source/lua/Engine.cpp:30,72,178-182` — `getConfigPath()` implementation, `rename_tab` Lua API, SSOT config dir replacement
+- `Source/lua/EngineParse.cpp:321-322` — `button_svg` parsing
+- `Source/lua/EngineDefaults.cpp:284` — SSOT config dir replacement
+- `Source/lua/EnginePatch.cpp:26` — SSOT config dir replacement
+- `Source/terminal/logic/Session.cpp:64` — SSOT config dir replacement
+- `Source/terminal/tty/WindowsTTY.cpp:236` — SSOT config dir replacement
+- `Source/Main.cpp:176,512` — SSOT config dir replacement
+- `Source/AppState.cpp:509,515,521` — SSOT config dir replacement
+- `Source/config/default_keys.lua:76-77` — added `rename_tab = "shift+t"` binding
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (userTabName, showRenameEditor, renameActiveTab, getConfigPath, buttonSvg — all approved)
+- [x] MANIFESTO.md principles applied
+- [x] Lean splits: LookAndFeel.cpp → 3 files (196/187/100), Tabs.cpp → 3 files (~300/206/118)
+- [x] SSOT: getConfigPath() eliminates 11 hardcoded config dir constructions
+- [x] Audit: 21 findings, all resolved (C-style casts, dead code, raw new, Lean splits)
+
+### Problems Solved
+- Tab rename: userTabName property on TAB node overrides auto-computed displayName unconditionally. Inline label editor on button (not a separate overlay). Right-click, action, and Lua API triggers.
+- Tab drag-reorder: live reposition during drag via jam::TabBarButton mouse handling + onTabMoved callback mirroring panes vector and ValueTree.
+- SVG tab button: user-provided SVG with 6 named `<g>` groups, paths extracted via jam::SVG::getPath, rendered with theme colours (shape from SVG, colour from END). 3-slice stretching.
+- jam fork: juce::TabbedComponent content-component management stripped (END bypasses it). Own LookAndFeelMethods with jam:: types. Label child on TabBarButton with setTransform for vertical orientation.
+- SSOT: lua::Engine::getConfigPath() as single source for ~/.config/end/ path.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 37: Unified Lua Config Engine
 
 **Date:** 2026-04-26

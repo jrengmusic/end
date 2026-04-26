@@ -124,7 +124,8 @@ MainComponent::MainComponent (lua::Engine& engine)
         else if (dy < 0) tabs->focusPaneUp();
         else if (dy > 0) tabs->focusPaneDown();
     };
-    displayCb.closePane = [this] { tabs->closeActiveTab(); };
+    displayCb.closePane  = [this] { tabs->closeActiveTab(); };
+    displayCb.renameTab  = [this] (const juce::String& name) { tabs->renameActiveTab (name); };
 
     lua::Engine::PopupCallbacks popupCb;
     popupCb.launchPopup = [this] (const juce::String& /*name*/,
@@ -445,13 +446,13 @@ juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowH
     {
         const auto orientation { Terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position) };
 
-        if (orientation == juce::TabbedButtonBar::TabsAtTop)
+        if (orientation == jam::TabbedButtonBar::TabsAtTop)
             content = content.withTrimmedTop (tabBarDepth);
-        else if (orientation == juce::TabbedButtonBar::TabsAtBottom)
+        else if (orientation == jam::TabbedButtonBar::TabsAtBottom)
             content = content.withTrimmedBottom (tabBarDepth);
-        else if (orientation == juce::TabbedButtonBar::TabsAtLeft)
+        else if (orientation == jam::TabbedButtonBar::TabsAtLeft)
             content = content.withTrimmedLeft (tabBarDepth);
-        else if (orientation == juce::TabbedButtonBar::TabsAtRight)
+        else if (orientation == jam::TabbedButtonBar::TabsAtRight)
             content = content.withTrimmedRight (tabBarDepth);
     }
 

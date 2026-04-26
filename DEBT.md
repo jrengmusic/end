@@ -8,6 +8,14 @@
 
 ---
 
+## DEBT-20260426T101948
+
+**Observation:** action list search box failure
+**Divergence:** after typing keywords and result shown, i cant pressed esc to enter list selection and run action, so search box is useless
+**Expectation:** esc to enter select mode from list should always work regardless, list empty? clear text box. list exist select
+
+---
+
 
 
 ## DEBT-20260420T062717

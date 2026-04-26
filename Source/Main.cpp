@@ -172,10 +172,7 @@ public:
                     void messageReceived (const juce::MemoryBlock&) override {}
                 };
 
-                const juce::File nexusDir {
-                    juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-                        .getChildFile (".config/end/nexus")
-                };
+                const juce::File nexusDir { lua::Engine::getConfigPath().getChildFile ("nexus") };
 
                 if (nexusArg == "kill")
                 {
@@ -508,10 +505,7 @@ juce::String ENDApplication::resolveNexusInstance()
 {
     static constexpr int nexusProbeTimeoutMs { 200 };
 
-    const juce::File nexusDir {
-        juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-            .getChildFile (".config/end/nexus")
-    };
+    const juce::File nexusDir { lua::Engine::getConfigPath().getChildFile ("nexus") };
 
     nexusDir.createDirectory();
 

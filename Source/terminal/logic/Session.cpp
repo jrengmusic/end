@@ -61,9 +61,7 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
 
     if (lua::Engine::getContext()->nexus.shell.integration)
     {
-        const juce::File configDir {
-            juce::File::getSpecialLocation (juce::File::userHomeDirectory).getChildFile (".config/end")
-        };
+        const juce::File configDir { lua::Engine::getConfigPath() };
 
 #if JUCE_WINDOWS
         const juce::String configPath { toMsysPath (configDir.getFullPathName()) };

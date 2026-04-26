@@ -40,7 +40,7 @@ namespace Terminal
  *
  * @note MESSAGE THREAD — all methods.
  */
-class Tabs : public juce::TabbedComponent
+class Tabs : public jam::TabbedComponent
            , private juce::FocusChangeListener
            , private juce::Value::Listener
 {
@@ -58,7 +58,7 @@ public:
           jam::Glyph::Packer& packer,
           jam::gl::GlyphAtlas& glAtlas,
           jam::GraphicsAtlas& graphicsAtlas,
-          juce::TabbedButtonBar::Orientation orientation);
+          jam::TabbedButtonBar::Orientation orientation);
 
     /**
      * @brief Destructor.
@@ -199,6 +199,19 @@ public:
      */
     void openMarkdown (const juce::File& file);
 
+    /** @brief Shows an inline rename editor on the specified tab.
+        @param tabIndex Zero-based tab index.
+        @note MESSAGE THREAD.
+    */
+    void showRenameEditor (int tabIndex);
+
+    /** @brief Renames the active tab programmatically.
+        Empty name clears the user override (reverts to auto name).
+        @param name New tab name, or empty to clear override.
+        @note MESSAGE THREAD.
+    */
+    void renameActiveTab (const juce::String& name);
+
     /**
      * @brief Returns the active pane component regardless of type. @note MESSAGE THREAD.
      */
@@ -333,7 +346,7 @@ public:
      * @param position  One of "top", "bottom", "left", "right".
      * @return The corresponding JUCE orientation; defaults to TabsAtLeft.
      */
-    static juce::TabbedButtonBar::Orientation orientationFromString (const juce::String& position);
+    static jam::TabbedButtonBar::Orientation orientationFromString (const juce::String& position);
 
     /**
      * @brief Handle component resize events.
@@ -370,6 +383,9 @@ private:
 
     /** @brief Updates the tab name when the bound displayName value changes. */
     void valueChanged (juce::Value& value) override;
+
+    /** @brief Shows a rename editor when the user right-clicks a tab. */
+    void popupMenuClickOnTab (int tabIndex, const juce::String& tabName) override;
 
     /** @brief Sets the active terminal UUID and grabs focus for the last terminal in @p active. */
     void focusLastTerminal (Panes* active);

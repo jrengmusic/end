@@ -294,6 +294,9 @@ public:
 
             /** @brief Active tab indicator colour. */
             juce::Colour indicator;
+
+            /** @brief Path to SVG file for custom tab button graphics. Empty = built-in. */
+            juce::String buttonSvg;
         };
 
         /**
@@ -855,6 +858,9 @@ public:
 
         /** @brief Close the focused pane. */
         std::function<void()> closePane;
+
+        /** @brief Rename the active tab. Empty string clears user override. */
+        std::function<void (const juce::String&)> renameTab;
     };
 
     //==========================================================================
@@ -1103,6 +1109,11 @@ public:
      */
     static juce::Colour parseColour (const juce::String& input);
 
+    /** @brief Returns the config directory (~/.config/end/). SSOT for all config path resolution.
+        @note Thread-safe — returns a fixed path.
+    */
+    static juce::File getConfigPath();
+
     /** @brief Called after a successful reload. Wired by MainComponent. */
     std::function<void()> onReload;
 
@@ -1146,7 +1157,7 @@ private:
     };
 
     /** @brief Number of entries in the built-in key mapping table. */
-    static constexpr int keyMappingCount { 22 };
+    static constexpr int keyMappingCount { 23 };
 
     // clang-format off
     /** @brief Built-in key mapping table: maps Lua key names to action IDs. */
@@ -1174,6 +1185,7 @@ private:
         { "action_list",      "action_list",      true  },
         { "enter_selection",  "enter_selection",  true  },
         { "enter_open_file",  "enter_open_file",  true  },
+        { "rename_tab",       "rename_tab",       true  },
     }};
     // clang-format on
 

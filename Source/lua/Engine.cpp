@@ -22,13 +22,19 @@ namespace lua
 {
 
 //==============================================================================
+juce::File Engine::getConfigPath()
+{
+    return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+               .getChildFile (".config/end");
+}
+
+//==============================================================================
 Engine::Engine()
 {
     initDefaults();
     writeDefaults();
 
-    const juce::File configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-                                     .getChildFile (".config/end") };
+    const juce::File configDir { getConfigPath() };
     watcher.addFolder (configDir);
     watcher.coalesceEvents (300);
     watcher.addListener (this);
@@ -69,8 +75,7 @@ void Engine::load()
 
         registerApiTable();
 
-        const juce::File configDir { juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-                                         .getChildFile (".config/end") };
+        const juce::File configDir { getConfigPath() };
         const auto packagePath { configDir.getFullPathName().replace ("\\", "/") + "/?.lua" };
         lua["package"]["path"] = packagePath.toStdString();
 
@@ -175,7 +180,11 @@ void Engine::registerApiTable()
         apiTable.set_function ("next_tab",   [this] { displayCallbacks.nextTab(); });
         apiTable.set_function ("prev_tab",   [this] { displayCallbacks.prevTab(); });
         apiTable.set_function ("focus_pane", [this] (int dx, int dy) { displayCallbacks.focusPane (dx, dy); });
-        apiTable.set_function ("close_pane", [this] { displayCallbacks.closePane(); });
+        apiTable.set_function ("close_pane",   [this] { displayCallbacks.closePane(); });
+        apiTable.set_function ("rename_tab",   [this] (const std::string& name)
+        {
+            displayCallbacks.renameTab (juce::String (name));
+        });
     }
 
     if (popupCallbacks.launchPopup != nullptr)

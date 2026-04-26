@@ -506,20 +506,17 @@ void AppState::deleteNexusFile()
 
 juce::File AppState::getStateFile() const
 {
-    return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-               .getChildFile (".config/end/nexus/" + instanceUuid + ".display");
+    return lua::Engine::getConfigPath().getChildFile ("nexus/" + instanceUuid + ".display");
 }
 
 juce::File AppState::getNexusFile() const
 {
-    return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-               .getChildFile (".config/end/nexus/" + instanceUuid + ".nexus");
+    return lua::Engine::getConfigPath().getChildFile ("nexus/" + instanceUuid + ".nexus");
 }
 
 juce::File AppState::getWindowState() const
 {
-    return juce::File::getSpecialLocation (juce::File::userHomeDirectory)
-               .getChildFile (".config/end/window.state");
+    return lua::Engine::getConfigPath().getChildFile ("window.state");
 }
 
 void AppState::saveWindowState()

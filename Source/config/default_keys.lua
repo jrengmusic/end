@@ -73,6 +73,9 @@ return {
     -- Switch to next tab.
     next_tab = "%%next_tab%%",
 
+    -- Rename the active tab. Press prefix first.
+    rename_tab = "shift+t",
+
     -- ---- Panes (modal) ----
 
     -- Split pane horizontally (side-by-side columns). Press prefix first.

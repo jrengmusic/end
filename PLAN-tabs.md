@@ -54,7 +54,7 @@ Each step validated by @Auditor against:
 
 **`jam::TabbedButtonBar`** (forked from `juce::TabbedButtonBar`):
 - `Orientation` enum: `TabsAtTop`, `TabsAtBottom`, `TabsAtLeft`, `TabsAtRight` (same values as JUCE)
-- `LookAndFeelMethods` — NOT declared here. Fork uses `juce::TabbedButtonBar::LookAndFeelMethods` for all drawing dispatch. No new virtual drawing methods.
+- `LookAndFeelMethods` — declares own struct with `jam::` types (necessary because `juce::TabbedButtonBar::LookAndFeelMethods` methods take `juce::TabBarButton&` which is a type mismatch). Method signatures mirror JUCE exactly. `Terminal::LookAndFeel` must inherit from `jam::TabbedButtonBar::LookAndFeelMethods` and implement its methods (implementations identical to existing JUCE overrides, different parameter types).
 - `onTabMoved` callback: `std::function<void (int fromIndex, int toIndex)>` — fired after `moveTab()` completes
 - `onTabRightClicked` callback: `std::function<void (int tabIndex)>` — alternative to virtual for non-inheriting consumers
 - `createTabButton()` virtual returns `jam::TabBarButton*` by default

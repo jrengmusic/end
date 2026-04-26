@@ -30,8 +30,8 @@ Tabs::Tabs (jam::Font& font_,
             jam::Glyph::Packer& packer_,
             jam::gl::GlyphAtlas& glAtlas_,
             jam::GraphicsAtlas& graphicsAtlas_,
-            juce::TabbedButtonBar::Orientation orientation)
-    : juce::TabbedComponent (orientation)
+            jam::TabbedButtonBar::Orientation orientation)
+    : jam::TabbedComponent (orientation)
     , font (font_)
     , packerRef (packer_)
     , glAtlasRef (glAtlas_)
@@ -42,6 +42,19 @@ Tabs::Tabs (jam::Font& font_,
     setOutline (0);
     juce::Desktop::getInstance().addFocusChangeListener (this);
     tabName.addListener (this);
+
+    getTabbedButtonBar().onTabMoved = [this] (int fromIndex, int toIndex)
+    {
+        auto movedPane { std::move (panes.at (fromIndex)) };
+        panes.erase (panes.begin() + fromIndex);
+        panes.insert (panes.begin() + toIndex, std::move (movedPane));
+
+        auto tabsTree { AppState::getContext()->getTabs() };
+        tabsTree.moveChild (fromIndex, toIndex, nullptr);
+
+        if (AppState::getContext()->isDaemonMode())
+            AppState::getContext()->save();
+    };
 }
 
 /**
@@ -130,7 +143,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
 
     const auto initialName { juce::File (AppState::getContext()->getPwd()).getFileName() };
     const int tabIndex { getNumTabs() };
-    addTab (initialName, juce::Colours::transparentBlack, nullptr, false, tabIndex);
+    addTab (initialName, juce::Colours::transparentBlack, tabIndex);
     setCurrentTabIndex (tabIndex);
 
     updateTabBarVisibility();
@@ -192,169 +205,16 @@ void Tabs::valueChanged (juce::Value& value)
 {
     if (value.refersToSameSourceAs (tabName))
     {
-        const auto name { tabName.toString() };
+        const auto index { getCurrentTabIndex() };
 
-        if (name.isNotEmpty())
+        if (index >= 0)
         {
-            getTabbedButtonBar().setTabName (getCurrentTabIndex(), name);
-        }
-    }
-}
+            const auto tabNode { AppState::getContext()->getTab (index) };
+            const auto userOverride { tabNode.getProperty (App::ID::userTabName).toString() };
+            const auto name { userOverride.isNotEmpty() ? userOverride : tabName.toString() };
 
-/**
- * @brief Closes the active tab and destroys its Panes instance.
- *
- * If this is the last tab, does nothing — the caller (MainComponent)
- * handles application quit when no tabs remain after this call.
- *
- * @note MESSAGE THREAD.
- */
-void Tabs::closeActiveTab()
-{
-    const int index { getCurrentTabIndex() };
-
-    if (index >= 0 and index < static_cast<int> (panes.size()))
-    {
-        auto* activePanes { panes.at (index).get() };
-        const juce::String paneType { AppState::getContext()->getActivePaneType() };
-
-        if (paneType == App::ID::paneTypeDocument)
-        {
-            activePanes->closeWhelmed();
-
-            if (AppState::getContext()->isDaemonMode())
-                AppState::getContext()->save();
-        }
-        else if (activePanes->getPanes().size() > 1)
-        {
-            const juce::String activeID { AppState::getContext()->getActivePaneID() };
-
-            int closedIndex { 0 };
-
-            for (size_t i { 0 }; i < activePanes->getPanes().size(); ++i)
-            {
-                if (activePanes->getPanes().at (i)->getComponentID() == activeID)
-                {
-                    closedIndex = static_cast<int> (i);
-                    break;
-                }
-            }
-
-            activePanes->closePane (activeID);
-
-            if (not activePanes->getPanes().isEmpty())
-            {
-                const int nextIndex { juce::jmin (closedIndex, static_cast<int> (activePanes->getPanes().size()) - 1) };
-                auto* nearest { activePanes->getPanes().at (static_cast<size_t> (nextIndex)).get() };
-                AppState::getContext()->setActivePaneID (nearest->getComponentID());
-
-                if (nearest->isShowing())
-                    nearest->grabKeyboardFocus();
-            }
-
-            if (AppState::getContext()->isDaemonMode())
-                AppState::getContext()->save();
-        }
-        else
-        {
-            // C1 fix: collect terminal UUIDs BEFORE destroying Panes, then
-            // remove sessions from Host AFTER Panes (and its Displays) are destroyed.
-            // Destruction order: Display (~Display unwires callbacks) → Host::remove().
-            // This matches the Panes::closePane() contract.
-            juce::StringArray terminalUuids;
-
-            for (const auto& pane : activePanes->getPanes())
-            {
-                if (pane->getPaneType() == App::ID::paneTypeTerminal)
-                    terminalUuids.add (pane->getComponentID());
-            }
-
-            removeChildComponent (activePanes);
-            panes.erase (panes.begin() + index);
-
-            // Displays are now destroyed (Panes erased). Session::remove handles mode routing internally.
-            for (const auto& uuid : terminalUuids)
-                Nexus::getContext()->remove (uuid);
-
-            removeTab (index);
-            AppState::getContext()->removeTab (index);
-
-            if (not panes.isEmpty())
-            {
-                const int newIndex { (index > 0) ? index - 1 : 0 };
-                setCurrentTabIndex (newIndex);
-            }
-
-            updateTabBarVisibility();
-        }
-    }
-}
-
-/**
- * @brief Closes the pane identified by @p uuid, removing the tab if it becomes empty.
- *
- * Iterates all Panes instances. When the owning Panes is found (at least one pane
- * componentID matches the UUID), delegates to Panes::closePane. If the Panes
- * instance is then empty (last pane in the tab), the tab itself is removed via
- * the same single-pane branch as closeActiveTab.
- *
- * @note MESSAGE THREAD.
- */
-void Tabs::closeSession (const juce::String& uuid)
-{
-    int ownerIndex { -1 };
-
-    for (int i { 0 }; i < static_cast<int> (panes.size()) and ownerIndex < 0; ++i)
-    {
-        const auto& panePanes { panes.at (i)->getPanes() };
-
-        for (size_t j { 0 }; j < panePanes.size() and ownerIndex < 0; ++j)
-        {
-            if (panePanes.at (j)->getComponentID() == uuid)
-                ownerIndex = i;
-        }
-    }
-
-    if (ownerIndex >= 0)
-    {
-        auto* ownerPanes { panes.at (ownerIndex).get() };
-
-        if (ownerPanes->getPanes().size() > 1)
-        {
-            ownerPanes->closePane (uuid);
-
-            if (AppState::getContext()->isDaemonMode())
-                AppState::getContext()->save();
-        }
-        else
-        {
-            juce::StringArray terminalUuids;
-
-            for (const auto& pane : ownerPanes->getPanes())
-            {
-                if (pane->getPaneType() == App::ID::paneTypeTerminal)
-                    terminalUuids.add (pane->getComponentID());
-            }
-
-            removeChildComponent (ownerPanes);
-            panes.erase (panes.begin() + ownerIndex);
-
-            for (const auto& termUuid : terminalUuids)
-                Nexus::getContext()->remove (termUuid);
-
-            removeTab (ownerIndex);
-            AppState::getContext()->removeTab (ownerIndex);
-
-            if (not panes.isEmpty())
-            {
-                const int newIndex { (ownerIndex > 0) ? ownerIndex - 1 : 0 };
-                setCurrentTabIndex (newIndex);
-            }
-
-            updateTabBarVisibility();
-
-            if (not panes.isEmpty() and AppState::getContext()->isDaemonMode())
-                AppState::getContext()->save();
+            if (name.isNotEmpty())
+                getTabbedButtonBar().setTabName (index, name);
         }
     }
 }
@@ -470,122 +330,6 @@ void Tabs::writeToActivePty (const char* data, int len)
         t->writeToPty (data, len);
 }
 
-void Tabs::applyConfig()
-{
-    for (auto& p : panes)
-    {
-        for (auto& pane : p->getPanes())
-        {
-            pane->applyConfig();
-        }
-    }
-}
-
-void Tabs::switchRenderer (App::RendererType type)
-{
-    for (auto& p : panes)
-    {
-        for (auto& pane : p->getPanes())
-        {
-            pane->switchRenderer (type);
-        }
-    }
-}
-
-void Tabs::increaseZoom()
-{
-    const float current { AppState::getContext()->getWindowZoom() };
-    const float newZoom { juce::jlimit (lua::Engine::zoomMin, lua::Engine::zoomMax, current + lua::Engine::zoomStep) };
-    AppState::getContext()->setWindowZoom (newZoom);
-
-    for (auto& p : panes)
-    {
-        for (auto& pane : p->getPanes())
-        {
-            pane->applyZoom (newZoom);
-        }
-    }
-}
-
-void Tabs::decreaseZoom()
-{
-    const float current { AppState::getContext()->getWindowZoom() };
-    const float newZoom { juce::jlimit (lua::Engine::zoomMin, lua::Engine::zoomMax, current - lua::Engine::zoomStep) };
-    AppState::getContext()->setWindowZoom (newZoom);
-
-    for (auto& p : panes)
-    {
-        for (auto& pane : p->getPanes())
-        {
-            pane->applyZoom (newZoom);
-        }
-    }
-}
-
-void Tabs::resetZoom()
-{
-    const float defaultZoom { lua::Engine::zoomMin };
-    AppState::getContext()->setWindowZoom (defaultZoom);
-
-    for (auto& p : panes)
-    {
-        for (auto& pane : p->getPanes())
-        {
-            pane->applyZoom (defaultZoom);
-        }
-    }
-}
-
-void Tabs::focusLastTerminal (Panes* active)
-{
-    auto& activePanes { active->getPanes() };
-
-    if (not activePanes.isEmpty())
-    {
-        auto* lastPane { activePanes.back().get() };
-        AppState::getContext()->setActivePaneID (lastPane->getComponentID());
-
-        if (lastPane->isShowing())
-            lastPane->grabKeyboardFocus();
-    }
-}
-
-void Tabs::splitHorizontal()
-{
-    if (auto* active { getActivePanes() }; active != nullptr)
-    {
-        active->splitHorizontal();
-        focusLastTerminal (active);
-
-        if (AppState::getContext()->isDaemonMode())
-            AppState::getContext()->save();
-    }
-}
-
-void Tabs::splitVertical()
-{
-    if (auto* active { getActivePanes() }; active != nullptr)
-    {
-        active->splitVertical();
-        focusLastTerminal (active);
-
-        if (AppState::getContext()->isDaemonMode())
-            AppState::getContext()->save();
-    }
-}
-
-void Tabs::splitActiveWithRatio (const juce::String& direction, bool isVertical, double ratio)
-{
-    if (auto* active { getActivePanes() }; active != nullptr)
-    {
-        active->splitActiveWithRatio (direction, isVertical, ratio);
-        focusLastTerminal (active);
-
-        if (AppState::getContext()->isDaemonMode())
-            AppState::getContext()->save();
-    }
-}
-
 /**
  * @brief Lays out the active Panes to fill the content area.
  *
@@ -593,7 +337,7 @@ void Tabs::splitActiveWithRatio (const juce::String& direction, bool isVertical,
  */
 void Tabs::resized()
 {
-    juce::TabbedComponent::resized();
+    jam::TabbedComponent::resized();
 
     if (auto* active { getActivePanes() }; active != nullptr)
     {
@@ -668,16 +412,16 @@ void Tabs::applyOrientation()
     updateTabBarVisibility();
 }
 
-juce::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::String& position)
+jam::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::String& position)
 {
-    static const std::unordered_map<juce::String, juce::TabbedButtonBar::Orientation> table {
-        { "top",    juce::TabbedButtonBar::TabsAtTop    },
-        { "bottom", juce::TabbedButtonBar::TabsAtBottom },
-        { "right",  juce::TabbedButtonBar::TabsAtRight  },
-        { "left",   juce::TabbedButtonBar::TabsAtLeft   },
+    static const std::unordered_map<juce::String, jam::TabbedButtonBar::Orientation> table {
+        { "top",    jam::TabbedButtonBar::TabsAtTop    },
+        { "bottom", jam::TabbedButtonBar::TabsAtBottom },
+        { "right",  jam::TabbedButtonBar::TabsAtRight  },
+        { "left",   jam::TabbedButtonBar::TabsAtLeft   },
     };
 
-    juce::TabbedButtonBar::Orientation result { juce::TabbedButtonBar::TabsAtLeft };
+    jam::TabbedButtonBar::Orientation result { jam::TabbedButtonBar::TabsAtLeft };
     const auto it { table.find (position) };
 
     if (it != table.end())
@@ -687,164 +431,7 @@ juce::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::Stri
 }
 
 /**
- * @brief Walks saved TAB nodes, creates tabs, and replays splits.
- *
- * Caller must pass a deep copy of the saved TABS tree detached from the live
- * AppState tree — this method walks it directly without aliasing live state.
- *
- * For each TAB child: locates the first PANE leaf (DFS, left-first) to obtain
- * uuid and cwd for addNewTab, then recursively descends the PANES subtree
- * pre-order, deriving child rects via Panes::splitRect and emitting one
- * splitAt call per internal PANES node with 2 children. Overwrites the default
- * ratio on each new split node with the saved value.
- *
- * @param savedTabs   Deep copy of the TABS node — not aliased with live AppState.
- * @param contentRect Chrome-subtracted pixel rect for dim computation.
- * @note MESSAGE THREAD.
- */
-void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
-{
-    // Recursive leaf finder — returns {uuid, cwd} of the first PANE with a SESSION.
-    std::function<std::pair<juce::String, juce::String> (const juce::ValueTree&)> findFirstLeaf;
-    findFirstLeaf = [&] (const juce::ValueTree& node) -> std::pair<juce::String, juce::String>
-    {
-        std::pair<juce::String, juce::String> result;
-
-        if (node.getType() == App::ID::PANE)
-        {
-            const auto sessionNode { node.getChildWithName (Terminal::ID::SESSION) };
-
-            if (sessionNode.isValid())
-            {
-                result.first = sessionNode.getProperty (jam::ID::id).toString();
-                result.second = sessionNode.getProperty (Terminal::ID::cwd).toString();
-            }
-        }
-        else
-        {
-            for (int i { 0 }; i < node.getNumChildren() and result.first.isEmpty(); ++i)
-                result = findFirstLeaf (node.getChild (i));
-        }
-
-        return result;
-    };
-
-    // Recursive PANES descent — emits splitAt calls pre-order and descends rects.
-    // parentRect is the pixel rect assigned to this node (chrome already subtracted).
-    std::function<void (const juce::ValueTree&, juce::Rectangle<int>, Panes*)> walkPanes;
-    walkPanes = [&] (const juce::ValueTree& node, juce::Rectangle<int> parentRect, Panes* activePanes)
-    {
-        if (node.getType() == App::ID::PANES and node.getNumChildren() == 2)
-        {
-            const juce::String direction { node.getProperty (jam::PaneManager::idDirection).toString() };
-            const double savedRatio { static_cast<double> (node.getProperty (jam::PaneManager::idRatio, 0.5)) };
-
-            const auto [targetRect, newRect] { Panes::splitRect (parentRect, direction, savedRatio) };
-
-            const auto [targetUuid, targetCwd] { findFirstLeaf (node.getChild (0)) };
-            const auto [newUuid, newCwd] { findFirstLeaf (node.getChild (1)) };
-
-            if (targetUuid.isNotEmpty() and newUuid.isNotEmpty())
-            {
-                const auto [newCols, newRows] { Panes::cellsFromRect (newRect, font) };
-                const bool isVertical { direction == "vertical" };
-                activePanes->splitAt (targetUuid, newUuid, newCwd, direction, isVertical, newCols, newRows);
-
-                auto newLeafNode { jam::PaneManager::findLeaf (activePanes->getState(), newUuid) };
-                jassert (newLeafNode.isValid());
-
-                auto splitNode { newLeafNode.getParent() };
-                jassert (splitNode.isValid());
-
-                splitNode.setProperty (jam::PaneManager::idRatio, savedRatio, nullptr);
-            }
-
-            walkPanes (node.getChild (0), targetRect, activePanes);
-            walkPanes (node.getChild (1), newRect, activePanes);
-        }
-        else
-        {
-            // Single-child PANES root (before first split) or PANE leaf — pass rect through.
-            for (int i { 0 }; i < node.getNumChildren(); ++i)
-                walkPanes (node.getChild (i), parentRect, activePanes);
-        }
-    };
-
-    for (int t { 0 }; t < savedTabs.getNumChildren(); ++t)
-    {
-        const auto tabNode { savedTabs.getChild (t) };
-
-        if (tabNode.getType() == App::ID::TAB)
-        {
-            const auto panesNode { tabNode.getChildWithName (App::ID::PANES) };
-
-            if (panesNode.isValid())
-            {
-                const auto [firstUuid, firstCwd] { findFirstLeaf (panesNode) };
-
-                if (firstUuid.isNotEmpty())
-                {
-                    // Compute the first leaf's actual sub-rect by descending the
-                    // left branch of the saved split tree.  Each PANES node with
-                    // 2 children narrows the rect via splitRect.
-                    auto firstLeafRect { contentRect };
-                    auto walkNode { panesNode };
-
-                    while (walkNode.getType() == App::ID::PANES and walkNode.getNumChildren() == 2)
-                    {
-                        const juce::String dir { walkNode.getProperty (jam::PaneManager::idDirection).toString() };
-                        const double ratio { static_cast<double> (
-                            walkNode.getProperty (jam::PaneManager::idRatio, 0.5)) };
-                        const auto [targetRect, newRect] { Panes::splitRect (firstLeafRect, dir, ratio) };
-                        firstLeafRect = targetRect;
-                        walkNode = walkNode.getChild (0);
-                    }
-
-                    const auto [firstCols, firstRows] { Panes::cellsFromRect (firstLeafRect, font) };
-                    addNewTab (firstCwd, firstUuid, firstCols, firstRows);
-
-                    auto* activePanes { getActivePanes() };
-                    jassert (activePanes != nullptr);
-
-                    walkPanes (panesNode, contentRect, activePanes);
-                }
-            }
-        }
-    }
-}
-
-void Tabs::openMarkdown (const juce::File& file)
-{
-    if (auto* active { getActivePanes() }; active != nullptr)
-        active->createWhelmed (file);
-}
-
-void Tabs::focusPaneLeft()
-{
-    if (auto* active { getActivePanes() }; active != nullptr)
-        active->focusPane (-1, 0);
-}
-
-void Tabs::focusPaneDown()
-{
-    if (auto* active { getActivePanes() }; active != nullptr)
-        active->focusPane (0, 1);
-}
-
-void Tabs::focusPaneUp()
-{
-    if (auto* active { getActivePanes() }; active != nullptr)
-        active->focusPane (0, -1);
-}
-
-void Tabs::focusPaneRight()
-{
-    if (auto* active { getActivePanes() }; active != nullptr)
-        active->focusPane (1, 0);
-}
-
-/**
- * @brief Returns the content rect available for Panes given a tab-bar depthh
+ * @brief Returns the content rect available for Panes given a tab-bar depth.
  *
  * Reads window dimensions from AppState (SSOT) and applies the
  * orientation-appropriate trim for the given @p depth.
@@ -864,17 +451,82 @@ juce::Rectangle<int> Tabs::computeContentRect (int tabBarDepth) const noexcept
     {
         const auto orientation { getOrientation() };
 
-        if (orientation == juce::TabbedButtonBar::TabsAtTop)
+        if (orientation == jam::TabbedButtonBar::TabsAtTop)
             result = base.withTrimmedTop (tabBarDepth);
-        else if (orientation == juce::TabbedButtonBar::TabsAtBottom)
+        else if (orientation == jam::TabbedButtonBar::TabsAtBottom)
             result = base.withTrimmedBottom (tabBarDepth);
-        else if (orientation == juce::TabbedButtonBar::TabsAtLeft)
+        else if (orientation == jam::TabbedButtonBar::TabsAtLeft)
             result = base.withTrimmedLeft (tabBarDepth);
-        else if (orientation == juce::TabbedButtonBar::TabsAtRight)
+        else if (orientation == jam::TabbedButtonBar::TabsAtRight)
             result = base.withTrimmedRight (tabBarDepth);
     }
 
     return result;
+}
+
+void Tabs::openMarkdown (const juce::File& file)
+{
+    if (auto* active { getActivePanes() }; active != nullptr)
+        active->createWhelmed (file);
+}
+
+void Tabs::popupMenuClickOnTab (int tabIndex, const juce::String&)
+{
+    showRenameEditor (tabIndex);
+}
+
+void Tabs::renameActiveTab (const juce::String& name)
+{
+    const auto index { getCurrentTabIndex() };
+
+    if (index >= 0)
+    {
+        auto tabNode { AppState::getContext()->getTab (index) };
+
+        if (name.isEmpty())
+            tabNode.removeProperty (App::ID::userTabName, nullptr);
+        else
+            tabNode.setProperty (App::ID::userTabName, name, nullptr);
+
+        const auto displayName { name.isNotEmpty() ? name : tabName.toString() };
+
+        if (displayName.isNotEmpty())
+            getTabbedButtonBar().setTabName (index, displayName);
+
+        if (AppState::getContext()->isDaemonMode())
+            AppState::getContext()->save();
+    }
+}
+
+void Tabs::showRenameEditor (int tabIndex)
+{
+    if (auto* button = dynamic_cast<jam::TabBarButton*> (getTabbedButtonBar().getTabButton (tabIndex));
+        button != nullptr)
+    {
+        const auto originalText { button->getButtonText() };
+
+        button->onRenameCommit = [this, tabIndex, originalText] (const juce::String& newText)
+        {
+            if (newText != originalText)
+                renameActiveTab (newText);
+        };
+
+        button->showRenameEditor();
+    }
+}
+
+void Tabs::focusLastTerminal (Panes* active)
+{
+    auto& activePanes { active->getPanes() };
+
+    if (not activePanes.isEmpty())
+    {
+        auto* lastPane { activePanes.back().get() };
+        AppState::getContext()->setActivePaneID (lastPane->getComponentID());
+
+        if (lastPane->isShowing())
+            lastPane->grabKeyboardFocus();
+    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

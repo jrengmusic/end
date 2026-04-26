@@ -35,7 +35,8 @@ namespace Terminal
  *
  * @note MESSAGE THREAD — all methods called by JUCE painting system.
  */
-class LookAndFeel : public juce::LookAndFeel_V4
+class LookAndFeel : public juce::LookAndFeel_V4,
+                    public jam::TabbedButtonBar::LookAndFeelMethods
 {
 public:
     /**
@@ -89,6 +90,29 @@ public:
      * @note MESSAGE THREAD.
      */
     juce::Font getTabButtonFont (juce::TabBarButton& button, float height) override;
+
+    // jam::TabbedButtonBar::LookAndFeelMethods overrides
+    // getTabButtonSpaceAroundImage and getTabButtonOverlap have identical signatures
+    // in both juce:: and jam:: LookAndFeelMethods — one override satisfies both bases.
+    int getTabButtonSpaceAroundImage() override { return 0; }
+    int getTabButtonOverlap (int) override { return -1; }
+    int getTabButtonBestWidth (jam::TabBarButton& button, int tabDepth) override;
+    juce::Rectangle<int> getTabButtonExtraComponentBounds (const jam::TabBarButton& button,
+                                                            juce::Rectangle<int>& textArea,
+                                                            juce::Component& extraComp) override;
+    void drawTabButton (jam::TabBarButton& button, juce::Graphics& g,
+                        bool isMouseOver, bool isMouseDown) override;
+    juce::Font getTabButtonFont (jam::TabBarButton& button, float height) override;
+    void drawTabButtonText (jam::TabBarButton& button, juce::Graphics& g,
+                            bool isMouseOver, bool isMouseDown) override;
+    void drawTabbedButtonBarBackground (jam::TabbedButtonBar& bar, juce::Graphics& g) override;
+    void drawTabAreaBehindFrontButton (jam::TabbedButtonBar& bar, juce::Graphics& g,
+                                       int w, int h) override;
+    void createTabButtonShape (jam::TabBarButton& button, juce::Path& path,
+                               bool isMouseOver, bool isMouseDown) override;
+    void fillTabButtonShape (jam::TabBarButton& button, juce::Graphics& g,
+                             const juce::Path& path,
+                             bool isMouseOver, bool isMouseDown) override;
 
     /**
      * @brief Returns the tab font so popup menus match the tab bar text style.
@@ -256,8 +280,20 @@ private:
     static constexpr int buttonInset { 4 };
     static constexpr int indicatorSize { 22 };
     static constexpr int gap { 4 };
+    void loadTabButtonSvg();
+    juce::Path svgActiveLeft, svgActiveCenter, svgActiveRight;
+    juce::Path svgInactiveLeft, svgInactiveCenter, svgInactiveRight;
+    bool hasSvgTabButton { false };
     static juce::Path getTabButtonShape (const juce::Rectangle<float>& area) noexcept;
     static juce::Path getTabButtonIndicator (const juce::Rectangle<float>& area) noexcept;
+    static void drawTabButtonCore (LookAndFeel& lf,
+                                   juce::Graphics& g,
+                                   const juce::Rectangle<float>& area,
+                                   bool isActive,
+                                   bool isVertical,
+                                   bool isLeftOrientation,
+                                   bool isMouseOver,
+                                   bool isMouseDown);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LookAndFeel)
 };

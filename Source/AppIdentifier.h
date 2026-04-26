@@ -81,6 +81,7 @@ namespace ID
     static const juce::Identifier daemonMode          { "daemonMode" };
     static const juce::Identifier filePath           { "filePath" };
     static const juce::Identifier displayName        { "displayName" };
+    static const juce::Identifier userTabName        { "userTabName" };
     static const juce::Identifier scrollOffset       { "scrollOffset" };
     static const juce::Identifier port              { "port" };
 
