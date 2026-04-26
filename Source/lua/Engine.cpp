@@ -15,8 +15,6 @@
  * @see lua::Engine
  */
 
-#include <jam_lua/jam_lua.h>
-#include <unordered_set>
 
 #include "Engine.h"
 

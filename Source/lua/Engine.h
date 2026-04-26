@@ -17,9 +17,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include <array>
-#include <unordered_map>
-#include <unordered_set>
 #include "../action/Action.h"
 
 namespace lua
