@@ -1,5 +1,40 @@
 # SPRINT-LOG
 
+## Sprint 39: Fix Action List Search Esc + Lean Decomposition
+
+**Date:** 2026-04-26
+
+### Agents Participated
+- COUNSELOR: `/pay` planning, delegation, audit orchestration
+- Pathfinder (x2): action list codebase survey, search box mechanism discovery
+- Engineer (x2): Esc bug fix (selectRow visibility + clearSearch callback), Lean decomposition (ActionList.cpp file split + selectRow extraction)
+- Auditor: full sprint audit (4 findings: 2 stale doxygen, 2 pre-existing L violations, all resolved)
+
+### Files Modified (5 total)
+- `Source/action/KeyHandler.h:29` — added `clearSearch` callback to `Callbacks` struct
+- `Source/action/KeyHandler.cpp:26` — Esc search handler calls `clearSearch()` instead of `dismiss()` when no visible rows
+- `Source/action/ActionList.h:51-54,147-155,157-161` — updated `keyPressed` doxygen (Esc IS handled by KeyHandler), added `findSelectableRow` declaration, updated `selectRow` doxygen (mentions non-visible rows)
+- `Source/action/ActionList.cpp` — wired `clearSearch` lambda in Callbacks aggregate init; trimmed to lifecycle/config/build/dispatch only (289 lines, was 563)
+- `Source/action/ActionListSelection.cpp` — NEW: filterRows, layoutRows, findSelectableRow (extracted from selectRow), selectRow, executeSelected, visibleRowCount, getSelectedIndex (201 lines)
+- `Source/action/ActionListBinding.cpp` — NEW: valueTreePropertyChanged, binding mode methods (107 lines)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (clearSearch, findSelectableRow — both approved)
+- [x] MANIFESTO.md principles applied
+- [x] Lean: ActionList.cpp 563 → 3 files (289/201/107); selectRow 51 → findSelectableRow (29) + selectRow (28)
+
+### Problems Solved
+- Action list Esc from search mode: `selectRow(1)` hardcoded index 1 which could be hidden after filtering → merged visibility into skip loop so `selectRow` scans past hidden rows. Esc with no results now clears search text (restoring all rows) instead of dismissing the action list.
+- Lean violations: ActionList.cpp split into 3 files following Engine*.cpp pattern; selectRow decomposed into findSelectableRow + selectRow.
+
+### Debts Paid
+- `DEBT-20260426T101948` — action list search Esc fixed (selectRow visibility skip + clearSearch callback)
+- `DEBT-20260420T062717` — vim exit kills pane (paid in prior work, not this sprint)
+
+### Debts Deferred
+- `DEBT-20260411T100058` — mermaid rendering broken (deferred by ARCHITECT, markdown needs work first)
+
 ## Sprint 38: Tab Rename, Drag-Reorder, SVG Button Graphics
 
 **Date:** 2026-04-26

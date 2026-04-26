@@ -50,8 +50,8 @@ public:
 
     /** @brief Routes key presses to KeyHandler or binding mode handler.
      *
-     * Escape is not in the KeyHandler table, so it returns false and falls
-     * through to the hosting ModalWindow for dismissal.
+     * Escape in navigation mode calls onDismiss; in search mode either selects
+     * the first visible result or clears the search text.
      *
      * @param key  The key press event to handle.
      * @return     True if the key was consumed, false to propagate up.
@@ -144,9 +144,20 @@ private:
     /** @brief Recomputes row positions and resizes rowContainer to fit visible rows. */
     void layoutRows();
 
+    /** @brief Resolves the target row index, skipping non-selectable or non-visible rows.
+     *
+     * Scans in the direction of travel from @p index. Falls back to 0 (search box)
+     * if no valid row is found.
+     *
+     * @param index  The requested row index.
+     * @return       The resolved selectable, visible row index.
+     */
+    int findSelectableRow (int index) const;
+
     /** @brief Selects the row at @p index, scrolling into view as needed.
      *
-     * Skips non-selectable rows (e.g. separator) by stepping in the direction of travel.
+     * Skips non-selectable or non-visible rows (e.g. separator, filtered-out actions)
+     * by stepping in the direction of travel.
      * Clamps to valid range. Grabs keyboard focus when a navigation row is selected.
      *
      * @param index  The target row index to select.
