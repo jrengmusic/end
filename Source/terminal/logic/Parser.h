@@ -45,7 +45,8 @@
  * | csiDispatch   | `csiDispatch()` — cursor, erase, SGR, mode, report  |
  * | escDispatch   | `escDispatch()` — ESC sequences (charset, DEC, …)   |
  * | oscEnd        | `oscDispatch()` — title, clipboard (OSC 0/2/52)     |
- * | hook/unhook   | `dcsHook()` / `dcsUnhook()` — DCS passthrough       |
+ * | hook/unhook   | `dcsHook()` / `dcsUnhook()` — DCS passthrough (Sixel) |
+ * | apcEnd        | `apcEnd()` — APC termination (Kitty graphics)       |
  *
  * ## Thread model
  *
@@ -71,6 +72,8 @@
 #include "../data/State.h"
 #include "../data/CharProps.h"
 #include "Grid.h"
+#include "KittyDecoder.h"
+#include "SixelDecoder.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -117,13 +120,13 @@ public:
     static constexpr uint8_t MAX_INTERMEDIATES { 4 };
 
     /**
-     * @brief Capacity of the OSC string accumulation buffer in bytes.
+     * @brief Initial capacity of the OSC string hybrid buffer in bytes.
      *
      * OSC (Operating System Command) strings are terminated by BEL (0x07) or
      * ST (ESC \\).  512 bytes covers all practical title and clipboard payloads.
-     * Bytes beyond this limit are silently discarded.
+     * The buffer grows geometrically beyond this initial size as needed.
      */
-    static constexpr uint16_t OSC_BUFFER_CAPACITY { 512 };
+    static constexpr int OSC_BUFFER_CAPACITY { 512 };
 
     /**
      * @brief Maximum number of characters accepted from an OSC title string.
@@ -301,6 +304,24 @@ public:
      */
     void setScrollbackCallback (std::function<void (int)> callback) noexcept;
 
+    /**
+     * @brief Updates the physical cell dimensions used by the Sixel decoder.
+     *
+     * Called by `Screen::calc()` on the MESSAGE THREAD whenever the font metrics
+     * change.  The READER THREAD reads these via `physCellWidthAtomic` and
+     * `physCellHeightAtomic` inside `dcsUnhook()` when writing image cells to
+     * the grid.  Zero values (initial state) suppress image cell writing until
+     * real dimensions are known.
+     *
+     * @param widthPx   Physical cell width in pixels (HiDPI-scaled).
+     * @param heightPx  Physical cell height in pixels (HiDPI-scaled).
+     *
+     * @note MESSAGE THREAD — store is `memory_order_relaxed`; the READER THREAD
+     *       will see the value on its next pass (eventual consistency is acceptable
+     *       because image decode is not latency-critical).
+     */
+    void setPhysCellDimensions (int widthPx, int heightPx) noexcept;
+
 private:
     /**
      * @brief Reference to the shared terminal parameter store.
@@ -408,29 +429,139 @@ private:
     uint8_t utf8AccumulatorLength { 0 };
 
     /**
-     * @brief Raw byte buffer for the current OSC string payload.
+     * @brief Hybrid OSC payload buffer.  Lazy-allocated on first OSC sequence.
      *
      * OSC strings are accumulated here byte-by-byte as `oscPut` actions arrive.
      * When the OSC terminator (BEL or ST) is received, `oscDispatch()` is called
-     * with a pointer to this buffer and `oscLength`.  The buffer is not
-     * null-terminated; `oscLength` tracks the valid byte count.
+     * with a pointer to this buffer and `oscBufferSize`.  The buffer is not
+     * null-terminated; `oscBufferSize` tracks the valid byte count.  Starts
+     * unallocated and grows geometrically from `OSC_BUFFER_CAPACITY` on first use.
      *
-     * @see oscLength
+     * @see oscBufferSize
+     * @see oscBufferCapacity
      * @see OSC_BUFFER_CAPACITY
      * @see oscDispatch()
+     * @see appendToBuffer()
      */
-    uint8_t oscBuffer[OSC_BUFFER_CAPACITY] {};
+    juce::HeapBlock<uint8_t> oscBuffer;
 
     /**
      * @brief Number of valid bytes currently stored in `oscBuffer`.
      *
-     * Reset to zero on entry to `oscString` state.  Capped at
-     * `OSC_BUFFER_CAPACITY - 1`; bytes beyond the cap are silently dropped.
+     * Reset to zero on entry to `oscString` state.
      *
      * @see oscBuffer
      */
-    uint16_t oscLength { 0 };
+    int oscBufferSize { 0 };
 
+    /**
+     * @brief Allocated capacity of `oscBuffer` in bytes.
+     *
+     * Zero until the first OSC sequence is received.  Doubles on overflow.
+     *
+     * @see oscBuffer
+     */
+    int oscBufferCapacity { 0 };
+
+    /**
+     * @brief Hybrid DCS payload buffer (Sixel).  Lazy-allocated on first DCS q sequence.
+     *
+     * DCS passthrough bytes are accumulated here byte-by-byte as `put` actions
+     * arrive.  When the DCS terminator (ST) is received, `dcsUnhook()` is called.
+     * Grows geometrically from 64 KB on first use.
+     *
+     * @see dcsBufferSize
+     * @see dcsBufferCapacity
+     * @see appendToBuffer()
+     */
+    juce::HeapBlock<uint8_t> dcsBuffer;
+
+    /**
+     * @brief Number of valid bytes currently stored in `dcsBuffer`.
+     *
+     * Reset to zero on entry to `dcsEntry` state.
+     *
+     * @see dcsBuffer
+     */
+    int dcsBufferSize { 0 };
+
+    /**
+     * @brief Allocated capacity of `dcsBuffer` in bytes.
+     *
+     * Zero until the first DCS sequence is received.  Doubles on overflow.
+     *
+     * @see dcsBuffer
+     */
+    int dcsBufferCapacity { 0 };
+
+    /**
+     * @brief Final byte from DCS header, recorded by `performAction()` hook case
+     *        for dispatch in `dcsUnhook()`.
+     *
+     * @see dcsHook()
+     * @see dcsUnhook()
+     */
+    uint8_t dcsFinalByte { 0 };
+
+    /**
+     * @brief Physical cell width in pixels, set by Screen::calc() on MESSAGE THREAD.
+     *
+     * Read by `dcsUnhook()` on the READER THREAD to pass to
+     * `Grid::activeWriteImage()`.  Uses relaxed ordering — eventual consistency
+     * is acceptable for image cell placement.
+     *
+     * @see setPhysCellDimensions()
+     */
+    std::atomic<int> physCellWidthAtomic { 0 };
+
+    /**
+     * @brief Physical cell height in pixels, set by Screen::calc() on MESSAGE THREAD.
+     *
+     * @see setPhysCellDimensions()
+     */
+    std::atomic<int> physCellHeightAtomic { 0 };
+
+    /**
+     * @brief Hybrid APC payload buffer (Kitty).  Lazy-allocated on first APC G sequence.
+     *
+     * APC bytes are accumulated here byte-by-byte as `apcPut` actions arrive.
+     * When the APC terminator (BEL or ST) is received, `apcEnd()` is called.
+     * Grows geometrically from 8 KB on first use.
+     *
+     * @see apcBufferSize
+     * @see apcBufferCapacity
+     * @see appendToBuffer()
+     */
+    juce::HeapBlock<uint8_t> apcBuffer;
+
+    /**
+     * @brief Number of valid bytes currently stored in `apcBuffer`.
+     *
+     * Reset to zero on entry to `apcString` state.
+     *
+     * @see apcBuffer
+     */
+    int apcBufferSize { 0 };
+
+    /**
+     * @brief Allocated capacity of `apcBuffer` in bytes.
+     *
+     * Zero until the first APC sequence is received.  Doubles on overflow.
+     *
+     * @see apcBuffer
+     */
+    int apcBufferCapacity { 0 };
+
+    /**
+     * @brief Kitty Graphics Protocol decoder, invoked by `apcEnd()`.
+     *
+     * Holds chunk accumulators and stored images across APC packets for the
+     * same image ID.  Lives for the lifetime of the Parser (session lifetime).
+     *
+     * @see apcEnd()
+     * @see KittyDecoder
+     */
+    KittyDecoder kittyDecoder;
 
     /**
      * @brief Current drawing attributes applied to newly written cells.
@@ -971,11 +1102,13 @@ private:
      * - `param`       → `handleParam()`
      * - `escDispatch` → `escDispatch()`
      * - `csiDispatch` → `csiDispatch()`
-     * - `oscPut`      → appends to `oscBuffer`
+     * - `oscPut`      → `appendToBuffer (oscBuffer, …)`
      * - `oscEnd`      → `oscDispatch()`
-     * - `hook`        → `dcsHook()`
-     * - `put`         → `dcsPut()`
+     * - `hook`        → `dcsHook()` (records `dcsFinalByte`)
+     * - `put`         → `appendToBuffer (dcsBuffer, …)`
      * - `unhook`      → `dcsUnhook()`
+     * - `apcPut`      → `appendToBuffer (apcBuffer, …)`
+     * - `apcEnd`      → `apcEnd()`
      * - `ignore`/`none` → no-op
      *
      * @param action  The action to perform.
@@ -1062,8 +1195,9 @@ private:
      * reset state-specific accumulators:
      * - `csiEntry`  → `csi.reset()`, `intermediateCount = 0`
      * - `escape`    → `intermediateCount = 0`
-     * - `oscString` → `oscLength = 0`
-     * - `dcsEntry`  → `csi.reset()`, `intermediateCount = 0`
+     * - `oscString` → `oscBufferSize = 0`
+     * - `apcString` → `apcBufferSize = 0`
+     * - `dcsEntry`  → `csi.reset()`, `intermediateCount = 0`, `dcsBufferSize = 0`
      *
      * @param newState  The state being entered.
      *
@@ -1289,7 +1423,7 @@ private:
      * @see handleOscTitle()
      * @see handleOscClipboard()
      */
-    void oscDispatch (const uint8_t* payload, uint16_t length) noexcept;
+    void oscDispatch (const uint8_t* payload, int length) noexcept;
 
     /**
      * @brief Handles an OSC title-change command (OSC 0 or OSC 2).
@@ -1306,7 +1440,7 @@ private:
      *
      * @see State::setTitle()
      */
-    void handleOscTitle (const uint8_t* data, uint16_t dataLength) noexcept;
+    void handleOscTitle (const uint8_t* data, int dataLength) noexcept;
 
     /**
      * @brief Handles OSC 7 — current working directory notification.
@@ -1320,7 +1454,7 @@ private:
      * @param dataLength  Number of bytes in `data`.
      * @note READER THREAD only.
      */
-    void handleOscCwd (const uint8_t* data, uint16_t dataLength) noexcept;
+    void handleOscCwd (const uint8_t* data, int dataLength) noexcept;
 
     /**
      * @brief Handles an OSC clipboard-write command (OSC 52).
@@ -1335,7 +1469,7 @@ private:
      *
      * @see onClipboardChanged
      */
-    void handleOscClipboard (const uint8_t* data, uint16_t dataLength) noexcept;
+    void handleOscClipboard (const uint8_t* data, int dataLength) noexcept;
 
     /**
      * @brief Handles OSC 9 — desktop notification (body only).
@@ -1351,7 +1485,7 @@ private:
      *
      * @see onDesktopNotification
      */
-    void handleOscNotification (const uint8_t* data, uint16_t dataLength) noexcept;
+    void handleOscNotification (const uint8_t* data, int dataLength) noexcept;
 
     /**
      * @brief Handles OSC 777 — desktop notification with title and body.
@@ -1368,7 +1502,7 @@ private:
      *
      * @see onDesktopNotification
      */
-    void handleOsc777 (const uint8_t* data, uint16_t dataLength) noexcept;
+    void handleOsc777 (const uint8_t* data, int dataLength) noexcept;
 
     /**
      * @brief Called when a DCS (Device Control String) sequence is hooked.
@@ -1392,8 +1526,9 @@ private:
     /**
      * @brief Called for each byte in the DCS passthrough data stream.
      *
-     * Currently a no-op — DCS passthrough data is discarded.  Provided as an
-     * extension point for future DCS command support (e.g. DECRQSS).
+     * Currently unused — DCS passthrough accumulation is performed directly
+     * in `performAction()` via `appendToBuffer()`.  Retained as an extension
+     * point for future DCS command support (e.g. DECRQSS).
      *
      * @param byte  The DCS passthrough byte.
      *
@@ -1404,13 +1539,46 @@ private:
     /**
      * @brief Called when a DCS sequence is terminated (ST received).
      *
-     * Cleans up any state established by `dcsHook()`.  Currently a no-op.
+     * Resets `dcsBufferSize`.  Will be wired to dispatch the accumulated
+     * `dcsBuffer` to a Sixel decoder in a future step.
      *
      * @note READER THREAD only.
      *
      * @see dcsHook()
+     * @see appendToBuffer()
      */
     void dcsUnhook() noexcept;
+
+    /**
+     * @brief Called when an APC sequence is terminated (BEL or ST received).
+     *
+     * Resets `apcBufferSize`.  Will be wired to dispatch the accumulated
+     * `apcBuffer` to a Kitty graphics decoder in a future step.
+     *
+     * @note READER THREAD only.
+     *
+     * @see appendToBuffer()
+     */
+    void apcEnd() noexcept;
+
+    /**
+     * @brief Appends a byte to a hybrid buffer with lazy allocation and geometric growth.
+     *
+     * On first call (`capacity == 0`), allocates `initialCapacity` bytes.  On
+     * subsequent overflow (`size >= capacity`), doubles the capacity.  The existing
+     * contents are preserved across reallocations via `std::memcpy`.
+     *
+     * @param buffer           The `HeapBlock` to append to.
+     * @param size             Current number of valid bytes in `buffer` (in/out).
+     * @param capacity         Current allocated capacity of `buffer` (in/out).
+     * @param byte             The byte to append.
+     * @param initialCapacity  Capacity to allocate on the first call.
+     *
+     * @note READER THREAD only.
+     * @note `noexcept` — allocation failure on the reader thread is unrecoverable;
+     *       `juce::HeapBlock::allocate` asserts in debug builds.
+     */
+    void appendToBuffer (juce::HeapBlock<uint8_t>& buffer, int& size, int& capacity, uint8_t byte, int initialCapacity) noexcept;
 
     /** @} */
 
@@ -1489,14 +1657,14 @@ private:
      *  @param dataLength  Length of the payload in bytes.
      *  @note READER THREAD.
      */
-    void handleOsc8 (const uint8_t* data, uint16_t dataLength) noexcept;
+    void handleOsc8 (const uint8_t* data, int dataLength) noexcept;
 
     /** @brief Handles OSC 12 — set cursor color.
      *  @param data        Pointer to OSC payload after the command number separator.
      *  @param dataLength  Length of the payload in bytes.
      *  @note READER THREAD.
      */
-    void handleOscCursorColor (const uint8_t* data, uint16_t dataLength) noexcept;
+    void handleOscCursorColor (const uint8_t* data, int dataLength) noexcept;
 
     /** @brief Handles OSC 112 — reset cursor color to default.
      *  @note READER THREAD.
@@ -1519,7 +1687,23 @@ private:
      * @param dataLength  Length of the payload in bytes (at least 1 for a valid subcommand).
      * @note READER THREAD only.
      */
-    void handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataLength) noexcept;
+    void handleOsc133 (ActiveScreen scr, const uint8_t* data, int dataLength) noexcept;
+
+    /** @brief Handles OSC 1337 — iTerm2 inline image display.
+     *
+     *  Delegates to `ITerm2Decoder` to parse the `File=` header, base64-decode
+     *  the payload, and produce a `DecodedImage`.  On success, reserves an image
+     *  ID, writes image cells to the grid via `activeWriteImage()`, stages the
+     *  pending image, and publishes it for the MESSAGE THREAD.
+     *
+     *  @param data        Pointer to OSC payload bytes after `"1337;"`.
+     *                     Expected to begin with `"File="`.
+     *  @param dataLength  Length of the payload in bytes.
+     *  @note READER THREAD only.
+     *
+     *  @see ITerm2Decoder
+     */
+    void handleOsc1337 (const uint8_t* data, int dataLength) noexcept;
 
     /** @} */
 

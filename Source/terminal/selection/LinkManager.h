@@ -146,6 +146,16 @@ public:
     mutable std::function<void (const juce::File&)> onOpenMarkdown;
 
     /**
+     * @brief Callback invoked when an image file link is activated.
+     *
+     * When set, intercepts file dispatch for image extensions (`.png`, `.jpg`,
+     * `.jpeg`, `.gif`) before the default editor-launch logic runs.
+     *
+     * @note MESSAGE THREAD.
+     */
+    mutable std::function<void (const juce::File&)> onOpenImage;
+
+    /**
      * @brief Returns the current clickable-link spans (for hover underline).
      * @return Read-only reference to the internal vector.
      * @note MESSAGE THREAD.

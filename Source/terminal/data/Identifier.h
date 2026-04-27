@@ -299,6 +299,15 @@ namespace ID
     /** @brief Cursor row of the most-recently received OSC 133 A prompt marker. -1 = none. */
     static const juce::Identifier promptRow            { "promptRow" };
 
+    /** @brief Kitty overlay image ID set by apcEnd(); cleared at the start of each process() call. 0 = none. */
+    static const juce::Identifier overlayImageId       { "overlayImageId" };
+
+    /** @brief Grid row of the current Kitty overlay image. */
+    static const juce::Identifier overlayRow           { "overlayRow" };
+
+    /** @brief Grid column of the current Kitty overlay image. */
+    static const juce::Identifier overlayCol           { "overlayCol" };
+
     //==========================================================================
     // Flush / repaint signal atomics (moved from stray members)
     //==========================================================================
@@ -327,7 +336,6 @@ namespace ID
 
     /** @brief Last-flushed cursor column used to detect cursor movement for blink reset. */
     static const juce::Identifier prevFlushedCursorCol { "prevFlushedCursorCol" };
-
 
     /** @brief Blink half-period in milliseconds (from cursor.blink_interval config). */
     static const juce::Identifier cursorBlinkInterval  { "cursorBlinkInterval" };

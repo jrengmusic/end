@@ -26,6 +26,7 @@
 #include "TerminalDisplay.h"
 #include "Panes.h"
 #include "LookAndFeel.h"
+#include "../terminal/rendering/ImageAtlas.h"
 
 namespace Whelmed { class Component; }
 
@@ -51,6 +52,7 @@ public:
      * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
      * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
+     * @param imageAtlas    Inline image atlas; threaded through to Screen for staged GPU upload.
      * @param orientation   The tab bar orientation (top, bottom, left, or right).
      * @note MESSAGE THREAD.
      */
@@ -58,6 +60,7 @@ public:
           jam::Glyph::Packer& packer,
           jam::gl::GlyphAtlas& glAtlas,
           jam::GraphicsAtlas& graphicsAtlas,
+          Terminal::ImageAtlas& imageAtlas,
           jam::TabbedButtonBar::Orientation orientation);
 
     /**
@@ -78,6 +81,16 @@ public:
      * @note MESSAGE THREAD.
      */
     std::function<void()> onRepaintNeeded;
+
+    /**
+     * @brief Callback invoked with a loaded image when an image link is opened.
+     *
+     * Set by MainComponent to forward the loaded image to the window-level
+     * MessageOverlay.  Propagated from Display → Panes → Tabs → MainComponent.
+     *
+     * @note MESSAGE THREAD.
+     */
+    std::function<void (const juce::Image&)> onShowImagePreview;
 
     /**
      * @brief Create and add a new terminal tab.
@@ -406,6 +419,7 @@ private:
     jam::Glyph::Packer& packerRef;
     jam::gl::GlyphAtlas& glAtlasRef;
     jam::GraphicsAtlas& graphicsAtlasRef;
+    Terminal::ImageAtlas& imageAtlasRef;
     juce::Value tabName;
     jam::Owner<Panes> panes;
 

@@ -332,9 +332,11 @@ bool Engine::isKeyFileRemappable() const noexcept { return keyFileRemappable; }
 const juce::String& Engine::getPrefixString() const noexcept { return keys.prefix; }
 
 //==============================================================================
-void Engine::fileChanged (const juce::File& /*file*/, jam::File::Watcher::Event event)
+void Engine::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
 {
-    if (event == jam::File::Watcher::Event::fileUpdated and nexus.autoReload)
+    if (event == jam::File::Watcher::Event::fileUpdated
+        and nexus.autoReload
+        and file.hasFileExtension ("lua"))
         reload();
 }
 

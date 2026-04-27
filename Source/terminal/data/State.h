@@ -83,9 +83,9 @@ namespace Terminal
  * @return The value of `atom` before the add.
  * @note Lock-free, noexcept.
  */
-template <typename ValueType>
-ValueType fetchAdd (std::atomic<ValueType>& atom, ValueType delta,
-                    std::memory_order order = std::memory_order_seq_cst) noexcept
+template<typename ValueType>
+ValueType
+fetchAdd (std::atomic<ValueType>& atom, ValueType delta, std::memory_order order = std::memory_order_seq_cst) noexcept
 {
     ValueType expected { atom.load (std::memory_order_relaxed) };
 
@@ -110,9 +110,9 @@ ValueType fetchAdd (std::atomic<ValueType>& atom, ValueType delta,
  * @return The value of `atom` before the subtraction.
  * @note Lock-free, noexcept.
  */
-template <typename ValueType>
-ValueType fetchSub (std::atomic<ValueType>& atom, ValueType delta,
-                    std::memory_order order = std::memory_order_seq_cst) noexcept
+template<typename ValueType>
+ValueType
+fetchSub (std::atomic<ValueType>& atom, ValueType delta, std::memory_order order = std::memory_order_seq_cst) noexcept
 {
     ValueType expected { atom.load (std::memory_order_relaxed) };
 
@@ -133,7 +133,7 @@ ValueType fetchSub (std::atomic<ValueType>& atom, ValueType delta,
  *
  * @tparam ValueType  The type of the owned object (e.g. `std::atomic<float>` or `StringSlot`).
  */
-template <typename ValueType>
+template<typename ValueType>
 using StateMap = std::unordered_map<juce::Identifier, std::unique_ptr<ValueType>>;
 
 /**
@@ -389,10 +389,7 @@ struct State : public juce::Timer
      * @param value  Row count currently occupied in the scrollback buffer.
      * @note READER THREAD or MESSAGE THREAD — lock-free, noexcept.
      */
-    void setScrollbackUsed (int value) noexcept
-    {
-        storeAndFlush (ID::scrollbackUsed, static_cast<float> (value));
-    }
+    void setScrollbackUsed (int value) noexcept { storeAndFlush (ID::scrollbackUsed, static_cast<float> (value)); }
 
     /**
      * @brief Sets the window title from OSC 0/2 escape sequences.
@@ -449,8 +446,12 @@ struct State : public juce::Timer
      * @param endCol      Zero-based end column (exclusive).
      * @note READER THREAD — lock-free, noexcept.
      */
-    void storeHyperlink (const juce::Identifier& id, const char* uri, int uriLength,
-                         int row, int startCol, int endCol) noexcept;
+    void storeHyperlink (const juce::Identifier& id,
+                         const char* uri,
+                         int uriLength,
+                         int row,
+                         int startCol,
+                         int endCol) noexcept;
 
     /**
      * @brief Clears all recorded OSC 8 hyperlink spans.
@@ -622,7 +623,10 @@ struct State : public juce::Timer
      * @return `true` if the cursor should be drawn this frame.
      * @note MESSAGE THREAD only.
      */
-    bool isCursorBlinkOn() const noexcept { return getRawParam (ID::cursorBlinkOn)->load (std::memory_order_relaxed) != 0.0f; }
+    bool isCursorBlinkOn() const noexcept
+    {
+        return getRawParam (ID::cursorBlinkOn)->load (std::memory_order_relaxed) != 0.0f;
+    }
 
     /**
      * @brief Sets whether the terminal component currently has keyboard focus.
@@ -634,14 +638,20 @@ struct State : public juce::Timer
      * @param focused  `true` if the component has keyboard focus.
      * @note MESSAGE THREAD only.
      */
-    void setCursorFocused (bool focused) noexcept { getRawParam (ID::cursorFocused)->store (focused ? 1.0f : 0.0f, std::memory_order_relaxed); }
+    void setCursorFocused (bool focused) noexcept
+    {
+        getRawParam (ID::cursorFocused)->store (focused ? 1.0f : 0.0f, std::memory_order_relaxed);
+    }
 
     /**
      * @brief Returns whether the terminal component currently has keyboard focus.
      * @return `true` if focused.
      * @note MESSAGE THREAD only.
      */
-    bool isCursorFocused() const noexcept { return getRawParam (ID::cursorFocused)->load (std::memory_order_relaxed) != 0.0f; }
+    bool isCursorFocused() const noexcept
+    {
+        return getRawParam (ID::cursorFocused)->load (std::memory_order_relaxed) != 0.0f;
+    }
 
     /** @} */
 
@@ -979,6 +989,48 @@ struct State : public juce::Timer
     void setPromptRow (int row) noexcept;
 
     /**
+     * @brief Sets the Kitty overlay image ID.
+     * @param imageId  Atlas image ID.  Non-zero = overlay active.  0 = clear.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setOverlayImageId (uint32_t imageId) noexcept;
+
+    /**
+     * @brief Sets the Kitty overlay origin row.
+     * @param row  Grid row of the overlay top-left.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setOverlayRow (int row) noexcept;
+
+    /**
+     * @brief Sets the Kitty overlay origin column.
+     * @param col  Grid column of the overlay top-left.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void setOverlayCol (int col) noexcept;
+
+    /**
+     * @brief Returns the Kitty overlay image ID (post-atomic, any thread).
+     * @return Current overlay image ID, or 0 if no overlay is active.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    uint32_t getOverlayImageId() const noexcept;
+
+    /**
+     * @brief Returns the Kitty overlay origin row.
+     * @return Grid row of the overlay top-left.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    int getOverlayRow() const noexcept;
+
+    /**
+     * @brief Returns the Kitty overlay origin column.
+     * @return Grid column of the overlay top-left.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    int getOverlayCol() const noexcept;
+
+    /**
      * @brief Returns the cursor row of the most-recently received OSC 133 ; A marker.
      *
      * Returns -1 if no OSC 133 A has been received since session start.
@@ -1049,10 +1101,7 @@ struct State : public juce::Timer
      *
      * @note Thread-safe — may be called from any thread.
      */
-    void setFullRebuild() noexcept
-    {
-        getRawParam (ID::fullRebuild)->store (1.0f, std::memory_order_release);
-    }
+    void setFullRebuild() noexcept { getRawParam (ID::fullRebuild)->store (1.0f, std::memory_order_release); }
 
     /**
      * @brief Atomically tests and clears the full-rebuild flag.
@@ -1359,10 +1408,10 @@ private:
     juce::HeapBlock<int> keyboardModeStackSize;
 
     /** @brief Non-owning pointer to the active hint label spans; nullptr when no overlay. */
-    const LinkSpan* hintOverlayData  { nullptr };
+    const LinkSpan* hintOverlayData { nullptr };
 
     /** @brief Number of valid elements in @p hintOverlayData. */
-    int             hintOverlayCount { 0 };
+    int hintOverlayCount { 0 };
 
     // needsFlush, snapshotDirty, fullRebuild, cursorBlinkOn, cursorBlinkElapsed,
     // prevFlushedCursorRow, prevFlushedCursorCol, cursorBlinkInterval,
@@ -1391,9 +1440,9 @@ private:
     struct HyperlinkEntry
     {
         char uri[maxStringLength] {};
-        int  row      { 0 };
-        int  startCol { 0 };
-        int  endCol   { 0 };
+        int row { 0 };
+        int startCol { 0 };
+        int endCol { 0 };
     };
 
     /**
@@ -1498,7 +1547,7 @@ private:
     void tickCursorBlink (int elapsedMs) noexcept;
 };
 
-template <typename ValueType>
+template<typename ValueType>
 ValueType State::getRawValue (const juce::Identifier& id) const noexcept
 {
     jassert (jam::Map::contains (parameterMap, id));
@@ -1517,4 +1566,4 @@ ValueType State::getRawValue (const juce::Identifier& id) const noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

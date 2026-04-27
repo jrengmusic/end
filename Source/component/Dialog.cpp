@@ -23,7 +23,7 @@ Dialog::Dialog (const juce::String& message)
     addAndMakeVisible (messageLabel);
 
     yesButton.getProperties().set (jam::ID::font, jam::ID::name.toString());
-    noButton.getProperties().set  (jam::ID::font, jam::ID::name.toString());
+    noButton.getProperties().set (jam::ID::font, jam::ID::name.toString());
 
     yesButton.onClick = [this]
     {
@@ -54,33 +54,14 @@ void Dialog::paint (juce::Graphics& /*g*/)
 //==============================================================================
 void Dialog::resized()
 {
-    const juce::Font font { [this]
-    {
-        const auto* cfg { lua::Engine::getContext() };
-        return juce::Font { juce::FontOptions()
-                                .withName (cfg->display.actionList.nameFamily)
-                                .withStyle (cfg->display.actionList.nameStyle)
-                                .withPointHeight (cfg->display.actionList.nameSize) };
-    }() };
+    auto area { getLocalBounds().reduced (2 * padding) };
+    messageLabel.setBounds (area.removeFromTop (textHeight));
+    area.removeFromTop (2 * padding);
 
-    const int lineH    { static_cast<int> (std::ceil (font.getHeight())) };
-    const int buttonH  { lineH + verticalPadding * 2 };
-    const int yesW     { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, "Yes")))
-                         + buttonTextPadding * 2 };
-    const int noW      { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, "No")))
-                         + buttonTextPadding * 2 };
-
-    auto bounds { getLocalBounds() };
-
-    const int labelH { lineH + verticalPadding * 2 };
-    messageLabel.setBounds (bounds.removeFromTop (labelH));
-
-    const int totalButtonW { yesW + buttonGap + noW };
-    const int startX       { (bounds.getWidth() - totalButtonW) / 2 };
-    const int startY       { bounds.getY() + (bounds.getHeight() - buttonH) / 2 };
-
-    yesButton.setBounds (startX,                    startY, yesW, buttonH);
-    noButton.setBounds  (startX + yesW + buttonGap, startY, noW,  buttonH);
+    area = area.reduced (padding, 0);
+    int buttonWidth { (area.getWidth() / 2) - padding };
+    yesButton.setBounds (area.removeFromLeft (buttonWidth));
+    noButton.setBounds (area.removeFromRight (buttonWidth));
 }
 
 //==============================================================================
@@ -109,35 +90,21 @@ bool Dialog::keyPressed (const juce::KeyPress& key)
 //==============================================================================
 int Dialog::getPreferredWidth() const noexcept
 {
-    const auto* cfg { lua::Engine::getContext() };
-    const juce::Font font { juce::FontOptions()
-                                .withName (cfg->display.actionList.nameFamily)
-                                .withStyle (cfg->display.actionList.nameStyle)
-                                .withPointHeight (cfg->display.actionList.nameSize) };
+    int width { 4 * padding };
+    int messageWidth { jam::toInt (juce::TextLayout::getStringWidth (font, messageLabel.getText())) };
 
-    const int messageW    { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, messageLabel.getText()))) };
-    const int yesW        { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, "Yes")))
-                            + buttonTextPadding * 2 };
-    const int noW         { static_cast<int> (std::ceil (juce::TextLayout::getStringWidth (font, "No")))
-                            + buttonTextPadding * 2 };
-    const int buttonRowW  { yesW + buttonGap + noW };
+    width += messageWidth;
 
-    return juce::jmax (messageW, buttonRowW) + horizontalPadding * 2;
+    return width;
 }
 
 int Dialog::getPreferredHeight() const noexcept
 {
-    const auto* cfg2 { lua::Engine::getContext() };
-    const juce::Font font { juce::FontOptions()
-                                .withName (cfg2->display.actionList.nameFamily)
-                                .withStyle (cfg2->display.actionList.nameStyle)
-                                .withPointHeight (cfg2->display.actionList.nameSize) };
+    int height { 6 * padding };
+    height += textHeight;
+    height += buttonHeight;
 
-    const int lineH   { static_cast<int> (std::ceil (font.getHeight())) };
-    const int buttonH { lineH + verticalPadding * 2 };
-    const int labelH  { lineH + verticalPadding * 2 };
-
-    return labelH + buttonH + verticalPadding;
+    return height;
 }
 
 //==============================================================================
@@ -146,11 +113,12 @@ void Dialog::visibilityChanged()
     if (isVisible())
     {
         juce::Component::SafePointer<Dialog> safeThis { this };
-        juce::MessageManager::callAsync ([safeThis]
-        {
-            if (safeThis != nullptr)
-                safeThis->grabKeyboardFocus();
-        });
+        juce::MessageManager::callAsync (
+            [safeThis]
+            {
+                if (safeThis != nullptr)
+                    safeThis->grabKeyboardFocus();
+            });
     }
 }
 
@@ -160,11 +128,12 @@ void Dialog::parentHierarchyChanged()
     if (isShowing())
     {
         juce::Component::SafePointer<Dialog> safeThis { this };
-        juce::MessageManager::callAsync ([safeThis]
-        {
-            if (safeThis != nullptr)
-                safeThis->grabKeyboardFocus();
-        });
+        juce::MessageManager::callAsync (
+            [safeThis]
+            {
+                if (safeThis != nullptr)
+                    safeThis->grabKeyboardFocus();
+            });
     }
 }
 
@@ -179,4 +148,4 @@ void Dialog::lookAndFeelChanged()
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

@@ -110,6 +110,16 @@ public:
             std::unordered_set<juce::String> extensions;
         };
 
+        /**
+         * @struct Image
+         * @brief Inline terminal image rendering settings.
+         */
+        struct Image
+        {
+            /** @brief Maximum RGBA bytes retained in the inline image atlas before eviction. Default: 32 MiB. */
+            int atlasBudgetBytes { 32 * 1024 * 1024 };
+        };
+
         /** @brief GPU acceleration mode ("auto", "opengl", "software"). */
         juce::String gpu { "auto" };
 
@@ -127,6 +137,9 @@ public:
 
         /** @brief Hyperlink detection settings. */
         Hyperlinks hyperlinks;
+
+        /** @brief Inline image rendering settings. */
+        Image image;
     };
 
     //==========================================================================

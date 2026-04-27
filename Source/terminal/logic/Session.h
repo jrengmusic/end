@@ -260,13 +260,17 @@ public:
     /**
      * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
      *
-     * Called by the pipeline when a sync-resize is needed.
+     * Called by the pipeline when a sync-resize is needed.  Pixel dimensions
+     * default to zero for the sync-resize path where display geometry is not
+     * available on the reader thread.
      *
-     * @param cols  New column count.
-     * @param rows  New row count.
+     * @param cols        New column count.
+     * @param rows        New row count.
+     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
+     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
      * @note READER THREAD (called from tty->onDrainComplete during sync-resize).
      */
-    void platformResize (int cols, int rows);
+    void platformResize (int cols, int rows, int pixelWidth = 0, int pixelHeight = 0);
 
     /**
      * @brief Writes raw input bytes to the PTY (keyboard/mouse from client).
@@ -280,11 +284,13 @@ public:
     /**
      * @brief Notifies the shell of a terminal resize via SIGWINCH.
      *
-     * @param cols  New column count.
-     * @param rows  New row count.
+     * @param cols        New column count.
+     * @param rows        New row count.
+     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
+     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
      * @note MESSAGE THREAD.
      */
-    void resize (int cols, int rows);
+    void resize (int cols, int rows, int pixelWidth = 0, int pixelHeight = 0);
 
     /**
      * @brief Returns a snapshot of all buffered PTY output bytes.

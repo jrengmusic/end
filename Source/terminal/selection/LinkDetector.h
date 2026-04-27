@@ -91,6 +91,7 @@ public:
             ".ex", ".exs", ".clj", ".scala", ".r", ".m", ".mm",
             ".md", ".txt", ".json", ".yaml", ".yml", ".toml",
             ".xml", ".html", ".css", ".csv",
+            ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".svg",
             ".sql", ".graphql", ".proto",
             ".makefile", ".cmake", ".dockerfile",
             ".gitignore", ".editorconfig", ".env", ".ini", ".cfg", ".conf"

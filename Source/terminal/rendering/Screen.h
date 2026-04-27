@@ -50,6 +50,7 @@
 #include "ScreenSelection.h"
 #include "../selection/LinkSpan.h"
 #include "../../lua/Engine.h"
+#include "ImageAtlas.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -70,11 +71,11 @@ namespace Terminal
  */
 struct BlockGeometry
 {
-    float x;     ///< Normalised X offset from the left edge of the cell [0, 1].
-    float y;     ///< Normalised Y offset from the top edge of the cell [0, 1].
-    float w;     ///< Normalised width as a fraction of the cell width [0, 1].
-    float h;     ///< Normalised height as a fraction of the cell height [0, 1].
-    float alpha; ///< Alpha override: negative means use the foreground colour's alpha; otherwise [0, 1].
+    float x;///< Normalised X offset from the left edge of the cell [0, 1].
+    float y;///< Normalised Y offset from the top edge of the cell [0, 1].
+    float w;///< Normalised width as a fraction of the cell width [0, 1].
+    float h;///< Normalised height as a fraction of the cell height [0, 1].
+    float alpha;///< Alpha override: negative means use the foreground colour's alpha; otherwise [0, 1].
 };
 
 static_assert (std::is_trivially_copyable_v<BlockGeometry>, "BlockGeometry must be trivially copyable");
@@ -83,13 +84,13 @@ static_assert (std::is_trivially_copyable_v<BlockGeometry>, "BlockGeometry must 
 static constexpr uint32_t boxDrawingFirst { 0x2500 };
 
 /// @brief Last Unicode codepoint in the box-drawing range (U+259F QUADRANT UPPER RIGHT AND LOWER LEFT AND LOWER RIGHT).
-static constexpr uint32_t boxDrawingLast  { 0x259F };
+static constexpr uint32_t boxDrawingLast { 0x259F };
 
 /// @brief First Unicode codepoint in the block-element range (U+2580 UPPER HALF BLOCK).
 static constexpr uint32_t blockFirst { 0x2580 };
 
 /// @brief Last Unicode codepoint in the block-element range (U+2593 DARK SHADE).
-static constexpr uint32_t blockLast  { 0x2593 };
+static constexpr uint32_t blockLast { 0x2593 };
 
 /**
  * @brief Lookup table mapping block-element codepoints to normalised geometry.
@@ -101,29 +102,20 @@ static constexpr uint32_t blockLast  { 0x2593 };
  * @see BlockGeometry
  * @see Screen::buildBlockRect()
  */
-static constexpr std::array<BlockGeometry, 20> blockTable
-{{
-    { 0.0f, 0.0f,   1.0f,   0.5f,   -1.0f },
-    { 0.0f, 0.875f, 1.0f,   0.125f, -1.0f },
-    { 0.0f, 0.75f,  1.0f,   0.25f,  -1.0f },
-    { 0.0f, 0.625f, 1.0f,   0.375f, -1.0f },
-    { 0.0f, 0.5f,   1.0f,   0.5f,   -1.0f },
-    { 0.0f, 0.375f, 1.0f,   0.625f, -1.0f },
-    { 0.0f, 0.25f,  1.0f,   0.75f,  -1.0f },
-    { 0.0f, 0.125f, 1.0f,   0.875f, -1.0f },
-    { 0.0f, 0.0f,   1.0f,   1.0f,   -1.0f },
-    { 0.0f, 0.0f,   0.875f, 1.0f,   -1.0f },
-    { 0.0f, 0.0f,   0.75f,  1.0f,   -1.0f },
-    { 0.0f, 0.0f,   0.625f, 1.0f,   -1.0f },
-    { 0.0f, 0.0f,   0.5f,   1.0f,   -1.0f },
-    { 0.0f, 0.0f,   0.375f, 1.0f,   -1.0f },
-    { 0.0f, 0.0f,   0.25f,  1.0f,   -1.0f },
-    { 0.0f, 0.0f,   0.125f, 1.0f,   -1.0f },
-    { 0.5f, 0.0f,   0.5f,   1.0f,   -1.0f },
-    { 0.0f, 0.0f,   1.0f,   1.0f,   0.25f },
-    { 0.0f, 0.0f,   1.0f,   1.0f,   0.50f },
-    { 0.0f, 0.0f,   1.0f,   1.0f,   0.75f },
-}};
+static constexpr std::array<BlockGeometry, 20> blockTable {
+    {
+     { 0.0f, 0.0f, 1.0f, 0.5f, -1.0f },   { 0.0f, 0.875f, 1.0f, 0.125f, -1.0f },
+     { 0.0f, 0.75f, 1.0f, 0.25f, -1.0f }, { 0.0f, 0.625f, 1.0f, 0.375f, -1.0f },
+     { 0.0f, 0.5f, 1.0f, 0.5f, -1.0f },   { 0.0f, 0.375f, 1.0f, 0.625f, -1.0f },
+     { 0.0f, 0.25f, 1.0f, 0.75f, -1.0f }, { 0.0f, 0.125f, 1.0f, 0.875f, -1.0f },
+     { 0.0f, 0.0f, 1.0f, 1.0f, -1.0f },   { 0.0f, 0.0f, 0.875f, 1.0f, -1.0f },
+     { 0.0f, 0.0f, 0.75f, 1.0f, -1.0f },  { 0.0f, 0.0f, 0.625f, 1.0f, -1.0f },
+     { 0.0f, 0.0f, 0.5f, 1.0f, -1.0f },   { 0.0f, 0.0f, 0.375f, 1.0f, -1.0f },
+     { 0.0f, 0.0f, 0.25f, 1.0f, -1.0f },  { 0.0f, 0.0f, 0.125f, 1.0f, -1.0f },
+     { 0.5f, 0.0f, 0.5f, 1.0f, -1.0f },   { 0.0f, 0.0f, 1.0f, 1.0f, 0.25f },
+     { 0.0f, 0.0f, 1.0f, 1.0f, 0.50f },   { 0.0f, 0.0f, 1.0f, 1.0f, 0.75f },
+     }
+};
 
 /**
  * @brief Returns true if @p codepoint is a Unicode block-element character.
@@ -138,10 +130,7 @@ static constexpr std::array<BlockGeometry, 20> blockTable
  * @see blockTable
  * @see Screen::buildBlockRect()
  */
-inline bool isBlockChar (uint32_t codepoint) noexcept
-{
-    return codepoint >= blockFirst and codepoint <= blockLast;
-}
+inline bool isBlockChar (uint32_t codepoint) noexcept { return codepoint >= blockFirst and codepoint <= blockLast; }
 
 /// @brief Alias for the active colour theme type from lua::Engine.
 using Theme = lua::Engine::Theme;
@@ -167,16 +156,30 @@ using Theme = lua::Engine::Theme;
  */
 struct Render
 {
+    /// @brief Alias for the module-level coloured rectangle type.
+    using Background = jam::Glyph::Render::Background;
 
-/// @brief Alias for the module-level coloured rectangle type.
-using Background = jam::Glyph::Render::Background;
+    /// @brief Alias for the module-level positioned quad type.
+    /// @note The canonical module name is `jam::Glyph::Render::Quad`; this
+    ///       alias preserves existing consumer code at `Terminal::Render::Glyph`.
+    using Glyph = jam::Glyph::Render::Quad;
 
-/// @brief Alias for the module-level positioned quad type.
-/// @note The canonical module name is `jam::Glyph::Render::Quad`; this
-///       alias preserves existing consumer code at `Terminal::Render::Glyph`.
-using Glyph = jam::Glyph::Render::Quad;
+    /**
+ * @struct ImageQuad
+ * @brief Render instance for one image cell: screen bounds + atlas UV.
+ *
+ * Trivially copyable.  Packed into `Snapshot::images` by `updateSnapshot()`
+ * and drawn by `drawImages()` as textured quads over the image atlas.
+ */
+    struct ImageQuad
+    {
+        juce::Rectangle<float> screenBounds;///< Destination rectangle in viewport pixels.
+        juce::Rectangle<float> uvRect;///< Normalised source rectangle in the image atlas.
+    };
 
-/**
+    static_assert (std::is_trivially_copyable_v<ImageQuad>, "ImageQuad must be trivially copyable");
+
+    /**
  * @struct Snapshot
  * @brief A complete rendered frame: glyph instances + background quads + cursor state.
  *
@@ -191,38 +194,36 @@ using Glyph = jam::Glyph::Render::Quad;
  * @see jam::SnapshotBuffer
  * @see Screen::updateSnapshot()
  */
-struct Snapshot : jam::Glyph::Render::SnapshotBase
-{
-    juce::Point<int> cursorPosition;           ///< Cursor position in grid coordinates (col, row).
-    bool             cursorVisible  { false }; ///< True if DECTCEM cursor mode is on.
-    int              cursorShape    { 0 };     ///< DECSCUSR Ps value (0 = user glyph, 1–6 = geometric).
-    float            cursorColorR   { -1.0f }; ///< OSC 12 red override (0–255), or -1 if no override.
-    float            cursorColorG   { -1.0f }; ///< OSC 12 green override (0–255), or -1 if no override.
-    float            cursorColorB   { -1.0f }; ///< OSC 12 blue override (0–255), or -1 if no override.
-    int              scrollOffset   { 0 };     ///< Lines scrolled back (0 = live view; cursor hidden when > 0).
-    bool             cursorBlinkOn  { true };  ///< Current blink phase (true = visible half of cycle).
-    bool             cursorFocused  { false }; ///< True if the terminal component has keyboard focus.
-    Glyph            cursorGlyph;                    ///< Pre-built glyph instance for user cursor (shape 0).
-    bool             hasCursorGlyph    { false };    ///< True when cursorGlyph is valid (shape 0 or cursor.force).
-    bool             cursorGlyphIsEmoji { false };   ///< True when cursorGlyph lives in the emoji (RGBA) atlas.
-    float            cursorDrawColorR { 1.0f };      ///< Final resolved cursor colour red [0, 1] (theme or OSC 12).
-    float            cursorDrawColorG { 1.0f };      ///< Final resolved cursor colour green [0, 1] (theme or OSC 12).
-    float            cursorDrawColorB { 1.0f };      ///< Final resolved cursor colour blue [0, 1] (theme or OSC 12).
-    int              gridWidth  { 0 };               ///< Grid width in columns at the time of snapshot.
-    int              gridHeight { 0 };               ///< Grid height in rows at the time of snapshot.
-    uint64_t         dirtyRows[4] {};                ///< Bitmask of rows that changed this frame (bit per row, max 256 rows).
-    int              scrollDelta    { 0 };           ///< Lines scrolled up since last frame (positive = scrolled up).
-    int              physCellHeight { 0 };           ///< Physical (HiDPI-scaled) cell height in pixels.
-};
+    struct Snapshot : jam::Glyph::Render::SnapshotBase
+    {
+        juce::HeapBlock<ImageQuad> images;///< Packed image quad instances for this frame.
+        int imageCount { 0 };///< Number of valid entries in `images`.
+        int imageCapacity { 0 };///< Allocated capacity of `images`.
 
-/**______________________________END OF NAMESPACE______________________________*/
-};  // struct Render
+        juce::Point<int> cursorPosition;///< Cursor position in grid coordinates (col, row).
+        bool cursorVisible { false };///< True if DECTCEM cursor mode is on.
+        int cursorShape { 0 };///< DECSCUSR Ps value (0 = user glyph, 1–6 = geometric).
+        float cursorColorR { -1.0f };///< OSC 12 red override (0–255), or -1 if no override.
+        float cursorColorG { -1.0f };///< OSC 12 green override (0–255), or -1 if no override.
+        float cursorColorB { -1.0f };///< OSC 12 blue override (0–255), or -1 if no override.
+        int scrollOffset { 0 };///< Lines scrolled back (0 = live view; cursor hidden when > 0).
+        bool cursorBlinkOn { true };///< Current blink phase (true = visible half of cycle).
+        bool cursorFocused { false };///< True if the terminal component has keyboard focus.
+        Glyph cursorGlyph;///< Pre-built glyph instance for user cursor (shape 0).
+        bool hasCursorGlyph { false };///< True when cursorGlyph is valid (shape 0 or cursor.force).
+        bool cursorGlyphIsEmoji { false };///< True when cursorGlyph lives in the emoji (RGBA) atlas.
+        float cursorDrawColorR { 1.0f };///< Final resolved cursor colour red [0, 1] (theme or OSC 12).
+        float cursorDrawColorG { 1.0f };///< Final resolved cursor colour green [0, 1] (theme or OSC 12).
+        float cursorDrawColorB { 1.0f };///< Final resolved cursor colour blue [0, 1] (theme or OSC 12).
+        int gridWidth { 0 };///< Grid width in columns at the time of snapshot.
+        int gridHeight { 0 };///< Grid height in rows at the time of snapshot.
+        uint64_t dirtyRows[4] {};///< Bitmask of rows that changed this frame (bit per row, max 256 rows).
+        int scrollDelta { 0 };///< Lines scrolled up since last frame (positive = scrolled up).
+        int physCellHeight { 0 };///< Physical (HiDPI-scaled) cell height in pixels.
+    };
 
-/**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
-
-namespace Terminal
-{ /*____________________________________________________________________________*/
+    /**______________________________END OF NAMESPACE______________________________*/
+};// struct Render
 
 /**
  * @class ScreenBase
@@ -280,7 +281,7 @@ protected:
  * @see Fonts
  * @see gl::GlyphAtlas
  */
-template <typename Renderer>
+template<typename Renderer>
 class Screen : public ScreenBase
 {
 public:
@@ -300,8 +301,9 @@ public:
     {
         Resources() = default;
 
-        jam::SnapshotBuffer<Render::Snapshot> snapshotBuffer; ///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
-        Theme            terminalColors;   ///< Active colour theme (ANSI palette + default fg/bg/selection).
+        jam::SnapshotBuffer<Render::Snapshot>
+            snapshotBuffer;///< Double-buffered snapshot exchange between MESSAGE THREAD and GL THREAD.
+        Theme terminalColors;///< Active colour theme (ANSI palette + default fg/bg/selection).
     };
 
     // =========================================================================
@@ -314,15 +316,20 @@ public:
      * Initialises `Resources`, calls `calc()` to derive cell dimensions,
      * then calls `reset()`.
      *
-     * @param font      Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
-     * @param packer    Glyph packer; owns the atlas and rasterization.
-     * @param atlas     Renderer-specific atlas store; `jam::gl::GlyphAtlas` for the GL
-     *                  path, `jam::GraphicsAtlas` for the CPU path.  Passed through
-     *                  to `uploadStagedBitmaps()` each frame.
+     * @param font        Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
+     * @param packer      Glyph packer; owns the atlas and rasterization.
+     * @param atlas       Renderer-specific atlas store; `jam::gl::GlyphAtlas` for the GL
+     *                    path, `jam::GraphicsAtlas` for the CPU path.  Passed through
+     *                    to `uploadStagedBitmaps()` each frame.
+     * @param imageAtlas  Inline image atlas; `publishStagedUploads()` is called each frame
+     *                    on the MESSAGE THREAD; `consumeStagedUploads()` on the GL THREAD.
      *
      * @note **MESSAGE THREAD**.
      */
-    Screen (jam::Font& font, jam::Glyph::Packer& packer, typename Renderer::Atlas& atlas);
+    Screen (jam::Font& font,
+            jam::Glyph::Packer& packer,
+            typename Renderer::Atlas& atlas,
+            Terminal::ImageAtlas& imageAtlas);
 
     /**
      * @brief Destroys the screen and releases all resources.
@@ -398,6 +405,19 @@ public:
      * @note **MESSAGE THREAD**.
      */
     void setLigatures (bool enabled) noexcept;
+
+    /**
+     * @brief Callback invoked by `calc()` whenever the physical cell dimensions change.
+     *
+     * Set by `Terminal::Display::initialise()` to forward the new cell dimensions
+     * to `Parser::setPhysCellDimensions()`.  This allows the READER THREAD Sixel
+     * decoder to use the correct cell grid dimensions when writing image cells.
+     *
+     * Called on the **MESSAGE THREAD** as part of `calc()`.
+     *
+     * @note Set before the first `render()` call and not changed thereafter.
+     */
+    std::function<void (int widthPx, int heightPx)> onPhysCellDimensionsChanged;
 
     /**
      * @brief Enables or disables synthetic bold (embolden) rendering.
@@ -769,12 +789,13 @@ private:
      * `jam::SnapshotBuffer::write()`.
      *
      * @param state      Current terminal state (cursor position, screen type).
+     * @param grid       Terminal grid; read-only access for Kitty overlay rendering.
      * @param rows       Number of visible rows.
      * @param maxGlyphs  Maximum glyph slots per row (`cacheRows` cols × 2).
      *
      * @note **MESSAGE THREAD**.
      */
-    void updateSnapshot (const State& state, int rows, int maxGlyphs) noexcept;
+    void updateSnapshot (const State& state, Grid& grid, int rows, int maxGlyphs) noexcept;
 
     // =========================================================================
     // Private render pipeline
@@ -813,8 +834,13 @@ private:
      * @see buildCellInstance()
      * @see buildBlockRect()
      */
-    void processCellForSnapshot (const Cell& cell, const Cell* rowCells,
-                                 const Grapheme* rowGraphemes, int col, int row) noexcept;
+    void processCellForSnapshot (const Cell& cell,
+                                 const Cell* rowCells,
+                                 const Grapheme* rowGraphemes,
+                                 const ImageCell* rowImageCells,
+                                 int col,
+                                 int row,
+                                 Grid& grid) noexcept;
 
     /**
      * @brief Shapes and rasterises one cell's glyph(s) into the row cache.
@@ -837,7 +863,8 @@ private:
     void buildCellInstance (const Cell& cell,
                             const Grapheme* grapheme,
                             const Cell* rowCells,
-                            int col, int row,
+                            int col,
+                            int row,
                             const juce::Colour& foreground) noexcept;
 
     /**
@@ -857,7 +884,10 @@ private:
      *
      * @note **MESSAGE THREAD**.
      */
-    int tryLigature (const Cell* rowCells, int col, int row, jam::Typeface::Style style,
+    int tryLigature (const Cell* rowCells,
+                     int col,
+                     int row,
+                     jam::Typeface::Style style,
                      const juce::Colour& foreground) noexcept;
 
     /**
@@ -877,7 +907,8 @@ private:
      * @see blockTable
      * @see isBlockChar()
      */
-    Render::Background buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept;
+    Render::Background
+    buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept;
 
     /**
      * @brief Selects the `Fonts::Style` variant for a cell based on its SGR attributes.
@@ -921,70 +952,77 @@ private:
     // =========================================================================
 
     void drawCursor (const Render::Snapshot& snapshot);
+    void drawImages (const Render::Snapshot& snapshot);
 
     // =========================================================================
     // Data
     // =========================================================================
 
-    Renderer textRenderer; ///< Owns all GL resources for instanced glyph and background rendering.
-    int glViewportX      { 0 };
-    int glViewportY      { 0 };
-    int glViewportWidth  { 0 };
+    Renderer textRenderer;///< Owns all GL resources for instanced glyph and background rendering.
+    int glViewportX { 0 };
+    int glViewportY { 0 };
+    int glViewportWidth { 0 };
     int glViewportHeight { 0 };
 
-    int cellWidth    { 0 };  ///< Logical cell width in CSS/point pixels.
-    int cellHeight   { 0 };  ///< Logical cell height in CSS/point pixels.
-    int baseline     { 0 };  ///< Logical baseline offset from cell top in CSS/point pixels.
-    int physCellWidth  { 0 }; ///< Physical (HiDPI-scaled) cell width in pixels.
-    int physCellHeight { 0 }; ///< Physical (HiDPI-scaled) cell height in pixels.
-    int physBaseline   { 0 }; ///< Physical (HiDPI-scaled) baseline offset in pixels.
-    int numCols      { 0 };  ///< Number of visible columns (viewportWidth / cellWidth).
-    int numRows      { 0 };  ///< Number of visible rows (viewportHeight / cellHeight).
-    int viewportX    { 0 };  ///< Logical pixel X origin of the viewport.
-    int viewportY    { 0 };  ///< Logical pixel Y origin of the viewport.
-    int viewportWidth  { 0 }; ///< Logical pixel width of the viewport.
-    int viewportHeight { 0 }; ///< Logical pixel height of the viewport.
-    float baseFontSize       { 14.0f }; ///< Current font size in points (includes zoom); updated by setFontSize().
-    float lineHeightMultiplier { 1.0f }; ///< User line-height multiplier from config; 1.0 = no adjustment.
-    float cellWidthMultiplier { 1.0f }; ///< User cell-width multiplier from config; 1.0 = no adjustment.
+    int cellWidth { 0 };///< Logical cell width in CSS/point pixels.
+    int cellHeight { 0 };///< Logical cell height in CSS/point pixels.
+    int baseline { 0 };///< Logical baseline offset from cell top in CSS/point pixels.
+    int physCellWidth { 0 };///< Physical (HiDPI-scaled) cell width in pixels.
+    int physCellHeight { 0 };///< Physical (HiDPI-scaled) cell height in pixels.
+    int physBaseline { 0 };///< Physical (HiDPI-scaled) baseline offset in pixels.
+    int numCols { 0 };///< Number of visible columns (viewportWidth / cellWidth).
+    int numRows { 0 };///< Number of visible rows (viewportHeight / cellHeight).
+    int viewportX { 0 };///< Logical pixel X origin of the viewport.
+    int viewportY { 0 };///< Logical pixel Y origin of the viewport.
+    int viewportWidth { 0 };///< Logical pixel width of the viewport.
+    int viewportHeight { 0 };///< Logical pixel height of the viewport.
+    float baseFontSize { 14.0f };///< Current font size in points (includes zoom); updated by setFontSize().
+    float lineHeightMultiplier { 1.0f };///< User line-height multiplier from config; 1.0 = no adjustment.
+    float cellWidthMultiplier { 1.0f };///< User cell-width multiplier from config; 1.0 = no adjustment.
 
-    jam::Font& font;                              ///< Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
-    jam::Glyph::Packer& packer;                   ///< Glyph packer; owns the atlas and rasterization.
-    typename Renderer::Atlas& atlasRef;           ///< Renderer-specific atlas store; passed through to uploadStagedBitmaps().
-    Resources resources;           ///< All shared rendering resources (atlas, mailbox, theme).
-    bool ligatureEnabled { false }; ///< True if HarfBuzz ligature shaping is active.
-    bool debugMode       { false }; ///< True if debug rendering overlays are enabled.
-    int  ligatureSkip    { 0 };     ///< Number of cells to skip after a ligature was emitted.
+    jam::Font& font;///< Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
+    jam::Glyph::Packer& packer;///< Glyph packer; owns the atlas and rasterization.
+    typename Renderer::Atlas& atlasRef;///< Renderer-specific atlas store; passed through to uploadStagedBitmaps().
+    Terminal::ImageAtlas& imageAtlas;///< Inline image atlas; staged uploads published each frame on MESSAGE THREAD.
+    Resources resources;///< All shared rendering resources (atlas, mailbox, theme).
+    bool ligatureEnabled { false };///< True if HarfBuzz ligature shaping is active.
+    bool debugMode { false };///< True if debug rendering overlays are enabled.
+    int ligatureSkip { 0 };///< Number of cells to skip after a ligature was emitted.
 
     // Per-row render cache (rebuilt every frame for every row)
-    juce::HeapBlock<Render::Glyph>      cachedMono;   ///< Mono glyph instances; layout: [row][0 … maxGlyphs-1].
-    juce::HeapBlock<Render::Glyph>      cachedEmoji;  ///< Emoji glyph instances; layout: [row][0 … maxGlyphs-1].
-    juce::HeapBlock<Render::Background> cachedBg;     ///< Background quads; layout: [row][0 … bgCacheCols-1].
-    juce::HeapBlock<int>                monoCount;    ///< Number of valid mono glyphs per row.
-    juce::HeapBlock<int>                emojiCount;   ///< Number of valid emoji glyphs per row.
-    juce::HeapBlock<int>                bgCount;      ///< Number of valid background quads per row.
-    juce::HeapBlock<Terminal::Cell>     previousCells; ///< Previous-frame cells for memcmp skip; layout: [row * cacheCols + col].
+    juce::HeapBlock<Render::Glyph> cachedMono;///< Mono glyph instances; layout: [row][0 … maxGlyphs-1].
+    juce::HeapBlock<Render::Glyph> cachedEmoji;///< Emoji glyph instances; layout: [row][0 … maxGlyphs-1].
+    juce::HeapBlock<Render::Background> cachedBg;///< Background quads; layout: [row][0 … bgCacheCols-1].
+    juce::HeapBlock<int> monoCount;///< Number of valid mono glyphs per row.
+    juce::HeapBlock<int> emojiCount;///< Number of valid emoji glyphs per row.
+    juce::HeapBlock<int> bgCount;///< Number of valid background quads per row.
+    juce::HeapBlock<Render::ImageQuad> cachedImages;///< Image quads; layout: [row * cacheCols + imageIndex].
+    juce::HeapBlock<int> imageCacheCount;///< Number of valid image quads per row.
+    juce::HeapBlock<Terminal::Cell>
+        previousCells;///< Previous-frame cells for memcmp skip; layout: [row * cacheCols + col].
     int previousCursorRow { -1 };
-    int cacheRows       { 0 }; ///< Number of rows the per-row caches were allocated for.
-    int cacheCols       { 0 }; ///< Number of columns the per-row caches were allocated for.
-    int bgCacheCols     { 0 }; ///< Background slots per row (= cacheCols * 3, for bg + selection + underlay).
-    int maxGlyphsPerRow { 0 }; ///< Maximum glyph slots per row (= cacheCols * 2); set in allocateRenderCache().
+    int cacheRows { 0 };///< Number of rows the per-row caches were allocated for.
+    int cacheCols { 0 };///< Number of columns the per-row caches were allocated for.
+    int bgCacheCols { 0 };///< Background slots per row (= cacheCols * 3, for bg + selection + underlay).
+    int maxGlyphsPerRow { 0 };///< Maximum glyph slots per row (= cacheCols * 2); set in allocateRenderCache().
 
-    const ScreenSelection* selection   { nullptr }; ///< Non-owning pointer to the active selection; nullptr if none.
+    const ScreenSelection* selection { nullptr };///< Non-owning pointer to the active selection; nullptr if none.
 
-    const LinkSpan* hintOverlay      { nullptr }; ///< Pulled from State each frame by buildSnapshot(); nullptr if none.
-    int             hintOverlayCount { 0 };       ///< Number of valid elements in @p hintOverlay; pulled from State each frame.
+    const LinkSpan* hintOverlay { nullptr };///< Pulled from State each frame by buildSnapshot(); nullptr if none.
+    int hintOverlayCount { 0 };///< Number of valid elements in @p hintOverlay; pulled from State each frame.
 
-    const LinkSpan* linkUnderlay      { nullptr }; ///< Non-owning pointer to always-on click-mode link spans for underline rendering; nullptr if none.
-    int             linkUnderlayCount { 0 };       ///< Number of valid elements in @p linkUnderlay.
+    const LinkSpan* linkUnderlay {
+        nullptr
+    };///< Non-owning pointer to always-on click-mode link spans for underline rendering; nullptr if none.
+    int linkUnderlayCount { 0 };///< Number of valid elements in @p linkUnderlay.
 
-    bool selectionModeActive   { false }; ///< True when vim-style selection mode is active (hides terminal cursor).
-    int  selectionCursorRow    { 0 };     ///< Selection cursor row in visible-grid coordinates (0 = top visible row).
-    int  selectionCursorCol    { 0 };     ///< Selection cursor column (0-based).
+    bool selectionModeActive { false };///< True when vim-style selection mode is active (hides terminal cursor).
+    int selectionCursorRow { 0 };///< Selection cursor row in visible-grid coordinates (0 = top visible row).
+    int selectionCursorCol { 0 };///< Selection cursor column (0-based).
 
-    uint64_t frameDirtyBits[4] {};  ///< Dirty row bitmask for current frame, set in buildSnapshot.
-    int frameScrollDelta { 0 };     ///< Scroll delta for current frame, set in buildSnapshot.
+    uint64_t frameDirtyBits[4] {};///< Dirty row bitmask for current frame, set in buildSnapshot.
+    int frameScrollDelta { 0 };///< Scroll delta for current frame, set in buildSnapshot.
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

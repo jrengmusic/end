@@ -21,7 +21,6 @@
 #include "Screen.h"
 #include "../../lua/Engine.h"
 
-
 namespace Terminal
 { /*____________________________________________________________________________*/
 
@@ -33,11 +32,15 @@ namespace Terminal
  * Initialises `Resources`, calls `calc()` to derive cell dimensions,
  * then calls `reset()` to zero the cache dimension sentinels.
  */
-template <typename Renderer>
-Screen<Renderer>::Screen (jam::Font& font_, jam::Glyph::Packer& packer_, typename Renderer::Atlas& atlas_)
-    : font (font_)
-    , packer (packer_)
-    , atlasRef (atlas_)
+template<typename Renderer>
+Screen<Renderer>::Screen (jam::Font& fontToUse,
+                          jam::Glyph::Packer& packerToUse,
+                          typename Renderer::Atlas& atlasToUse,
+                          Terminal::ImageAtlas& imageAtlasToUse)
+    : font (fontToUse)
+    , packer (packerToUse)
+    , atlasRef (atlasToUse)
+    , imageAtlas (imageAtlasToUse)
     , resources()
     , baseFontSize (lua::Engine::getContext()->dpiCorrectedFontSize())
 {
@@ -46,7 +49,7 @@ Screen<Renderer>::Screen (jam::Font& font_, jam::Glyph::Packer& packer_, typenam
     reset();
 }
 
-template <typename Renderer>
+template<typename Renderer>
 Screen<Renderer>::~Screen()
 {
     textRenderer.closeContext();
@@ -59,20 +62,20 @@ Screen<Renderer>::~Screen()
  * updates all cell dimension fields and recomputes `numCols` / `numRows` from
  * the current viewport size.  Does nothing if the viewport has zero area.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::calc() noexcept
 {
     const jam::Typeface::Metrics fm { font.getResolvedTypeface()->calcMetrics (baseFontSize) };
 
     if (fm.isValid())
     {
-        const int adjustedPhysCellH  { static_cast<int> (static_cast<float> (fm.physCellH) * lineHeightMultiplier) };
-        const int extraPixels        { adjustedPhysCellH - fm.physCellH };
+        const int adjustedPhysCellH { static_cast<int> (static_cast<float> (fm.physCellH) * lineHeightMultiplier) };
+        const int extraPixels { adjustedPhysCellH - fm.physCellH };
         const int adjustedPhysBaseline { fm.physBaseline + extraPixels / 2 };
 
-        physCellWidth  = static_cast<int> (static_cast<float> (fm.physCellW) * cellWidthMultiplier);
+        physCellWidth = static_cast<int> (static_cast<float> (fm.physCellW) * cellWidthMultiplier);
         physCellHeight = adjustedPhysCellH;
-        physBaseline   = adjustedPhysBaseline;
+        physBaseline = adjustedPhysBaseline;
 
         if (physCellWidth > 0 and physCellHeight > 0 and glViewportWidth > 0 and glViewportHeight > 0)
         {
@@ -82,9 +85,14 @@ void Screen<Renderer>::calc() noexcept
 
         const float scale { jam::Typeface::getDisplayScale() };
 
-        cellWidth  = scale > 0.0f ? static_cast<int> (static_cast<float> (physCellWidth)  / scale) : fm.logicalCellW;
+        cellWidth = scale > 0.0f ? static_cast<int> (static_cast<float> (physCellWidth) / scale) : fm.logicalCellW;
         cellHeight = scale > 0.0f ? static_cast<int> (static_cast<float> (physCellHeight) / scale) : fm.logicalCellH;
-        baseline   = scale > 0.0f ? static_cast<int> (static_cast<float> (physBaseline)   / scale) : fm.logicalBaseline;
+        baseline = scale > 0.0f ? static_cast<int> (static_cast<float> (physBaseline) / scale) : fm.logicalBaseline;
+
+        if (physCellWidth > 0 and physCellHeight > 0 and onPhysCellDimensionsChanged)
+        {
+            onPhysCellDimensionsChanged (physCellWidth, physCellHeight);
+        }
     }
 }
 
@@ -95,7 +103,7 @@ void Screen<Renderer>::calc() noexcept
  *
  * @param bounds  New viewport bounds in logical pixel space.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setViewport (const juce::Rectangle<int>& bounds) noexcept
 {
     viewportX = bounds.getX();
@@ -104,33 +112,48 @@ void Screen<Renderer>::setViewport (const juce::Rectangle<int>& bounds) noexcept
     viewportHeight = bounds.getHeight();
 
     const float scale { jam::Typeface::getDisplayScale() };
-    glViewportX      = static_cast<int> (static_cast<float> (bounds.getX())      * scale);
-    glViewportY      = static_cast<int> (static_cast<float> (bounds.getY())      * scale);
-    glViewportWidth  = static_cast<int> (static_cast<float> (bounds.getWidth())  * scale);
+    glViewportX = static_cast<int> (static_cast<float> (bounds.getX()) * scale);
+    glViewportY = static_cast<int> (static_cast<float> (bounds.getY()) * scale);
+    glViewportWidth = static_cast<int> (static_cast<float> (bounds.getWidth()) * scale);
     glViewportHeight = static_cast<int> (static_cast<float> (bounds.getHeight()) * scale);
 
     calc();
 }
 
 /// @return `numCols` as computed by `calc()`.
-template <typename Renderer>
-int Screen<Renderer>::getNumCols() const noexcept { return numCols; }
+template<typename Renderer>
+int Screen<Renderer>::getNumCols() const noexcept
+{
+    return numCols;
+}
 
 /// @return `numRows` as computed by `calc()`.
-template <typename Renderer>
-int Screen<Renderer>::getNumRows() const noexcept { return numRows; }
+template<typename Renderer>
+int Screen<Renderer>::getNumRows() const noexcept
+{
+    return numRows;
+}
 
 /// @return `cellWidth` in logical pixels.
-template <typename Renderer>
-int Screen<Renderer>::getCellWidth() const noexcept { return cellWidth; }
+template<typename Renderer>
+int Screen<Renderer>::getCellWidth() const noexcept
+{
+    return cellWidth;
+}
 
 /// @return `cellHeight` in logical pixels.
-template <typename Renderer>
-int Screen<Renderer>::getCellHeight() const noexcept { return cellHeight; }
+template<typename Renderer>
+int Screen<Renderer>::getCellHeight() const noexcept
+{
+    return cellHeight;
+}
 
 /// @return `baseFontSize` in points (includes zoom).
-template <typename Renderer>
-float Screen<Renderer>::getBaseFontSize() const noexcept { return baseFontSize; }
+template<typename Renderer>
+float Screen<Renderer>::getBaseFontSize() const noexcept
+{
+    return baseFontSize;
+}
 
 /**
  * @brief Returns the logical pixel bounds of the cell at (@p col, @p row).
@@ -142,7 +165,7 @@ float Screen<Renderer>::getBaseFontSize() const noexcept { return baseFontSize; 
  * @param row  Row index (0-based).
  * @return     Bounds in logical pixel space relative to the viewport origin.
  */
-template <typename Renderer>
+template<typename Renderer>
 juce::Rectangle<int> Screen<Renderer>::getCellBounds (int col, int row) const noexcept
 {
     juce::Rectangle<int> result {};
@@ -182,7 +205,7 @@ juce::Rectangle<int> Screen<Renderer>::getCellBounds (int col, int row) const no
  * @param y  Logical pixel Y coordinate (component-local).
  * @return   Grid cell (col, row) clamped to [0, numCols-1] × [0, numRows-1].
  */
-template <typename Renderer>
+template<typename Renderer>
 juce::Point<int> Screen<Renderer>::cellAtPoint (int x, int y) const noexcept
 {
     juce::Point<int> result { 0, 0 };
@@ -207,7 +230,7 @@ juce::Point<int> Screen<Renderer>::cellAtPoint (int x, int y) const noexcept
  *
  * @param sel  Pointer to the active `ScreenSelection`, or `nullptr`.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setSelection (const ScreenSelection* sel) noexcept
 {
     selection = sel;
@@ -223,10 +246,10 @@ void Screen<Renderer>::setSelection (const ScreenSelection* sel) noexcept
  * @param spans  Pointer to the `LinkSpan` array, or `nullptr` to clear.
  * @param count  Number of elements in @p spans.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setLinkUnderlay (const LinkSpan* spans, int count) noexcept
 {
-    linkUnderlay      = spans;
+    linkUnderlay = spans;
     linkUnderlayCount = count;
 }
 
@@ -235,13 +258,13 @@ void Screen<Renderer>::setLinkUnderlay (const LinkSpan* spans, int count) noexce
  *
  * @return Const reference to `resources.terminalColors`.
  */
-template <typename Renderer>
+template<typename Renderer>
 const Theme& Screen<Renderer>::getTheme() const noexcept
 {
     return resources.terminalColors;
 }
 
-template <typename Renderer>
+template<typename Renderer>
 jam::SnapshotBuffer<Render::Snapshot>& Screen<Renderer>::getSnapshotBuffer() noexcept
 {
     return resources.snapshotBuffer;
@@ -256,7 +279,7 @@ jam::SnapshotBuffer<Render::Snapshot>& Screen<Renderer>::getSnapshotBuffer() noe
  *
  * @param pointSize  New font size in points.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setFontSize (float pointSize) noexcept
 {
     if (pointSize != baseFontSize)
@@ -274,7 +297,7 @@ void Screen<Renderer>::setFontSize (float pointSize) noexcept
  *
  * @param multiplier  Line-height multiplier (clamped to 0.5–3.0 by config).
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setLineHeight (float multiplier) noexcept
 {
     if (multiplier != lineHeightMultiplier)
@@ -289,7 +312,7 @@ void Screen<Renderer>::setLineHeight (float multiplier) noexcept
  *
  * @param multiplier  Cell-width multiplier (clamped to 0.5–3.0 by config).
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setCellWidth (float multiplier) noexcept
 {
     if (multiplier != cellWidthMultiplier)
@@ -304,7 +327,7 @@ void Screen<Renderer>::setCellWidth (float multiplier) noexcept
  *
  * @param enabled  `true` to enable ligatures.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setLigatures (bool enabled) noexcept
 {
     ligatureEnabled = enabled;
@@ -318,7 +341,7 @@ void Screen<Renderer>::setLigatures (bool enabled) noexcept
  *
  * @param enabled  `true` to enable embolden.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setEmbolden (bool enabled) noexcept
 {
     if (enabled != packer.getEmbolden())
@@ -333,7 +356,7 @@ void Screen<Renderer>::setEmbolden (bool enabled) noexcept
  *
  * @param theme  New theme to apply immediately.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setTheme (const Theme& theme) noexcept
 {
     resources.terminalColors = theme;
@@ -353,25 +376,34 @@ void Screen<Renderer>::setTheme (const Theme& theme) noexcept
  *
  * @note **MESSAGE THREAD** — call before `render()` each frame.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::setSelectionCursor (bool active, int row, int col) noexcept
 {
     selectionModeActive = active;
-    selectionCursorRow  = row;
-    selectionCursorCol  = col;
+    selectionCursorRow = row;
+    selectionCursorCol = col;
 }
 
 /// @brief Toggles debug rendering mode.
-template <typename Renderer>
-void Screen<Renderer>::toggleDebug() noexcept { debugMode = not debugMode; }
+template<typename Renderer>
+void Screen<Renderer>::toggleDebug() noexcept
+{
+    debugMode = not debugMode;
+}
 
 /// @return `true` if debug rendering mode is active.
-template <typename Renderer>
-bool Screen<Renderer>::isDebugMode() const noexcept { return debugMode; }
+template<typename Renderer>
+bool Screen<Renderer>::isDebugMode() const noexcept
+{
+    return debugMode;
+}
 
 /// @return `true` if a new snapshot is waiting in the mailbox.
-template <typename Renderer>
-bool Screen<Renderer>::hasNewSnapshot() const noexcept { return resources.snapshotBuffer.isReady(); }
+template<typename Renderer>
+bool Screen<Renderer>::hasNewSnapshot() const noexcept
+{
+    return resources.snapshotBuffer.isReady();
+}
 
 /**
  * @brief Resets cache dimension sentinels to force reallocation on the next frame.
@@ -379,11 +411,11 @@ bool Screen<Renderer>::hasNewSnapshot() const noexcept { return resources.snapsh
  * Zeroes `cacheRows`, `cacheCols`, and `bgCacheCols` so the next `render()` call
  * reallocates the per-row glyph and background caches.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::reset() noexcept
 {
-    cacheRows   = 0;
-    cacheCols   = 0;
+    cacheRows = 0;
+    cacheCols = 0;
     bgCacheCols = 0;
 }
 
@@ -397,7 +429,7 @@ void Screen<Renderer>::reset() noexcept
  * @param rows  Number of visible rows.
  * @param cols  Number of visible columns.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::allocateRenderCache (int rows, int cols) noexcept
 {
     const int maxGlyphs { cols * 2 };
@@ -412,9 +444,13 @@ void Screen<Renderer>::allocateRenderCache (int rows, int cols) noexcept
     bgCount.allocate (static_cast<size_t> (rows), true);
     previousCells.allocate (static_cast<size_t> (rows) * static_cast<size_t> (cols), true);
 
-    cacheRows       = rows;
-    cacheCols       = cols;
-    bgCacheCols     = cols * 3;
+    // Image cell sidecar: one ImageQuad per cell per row maximum.
+    cachedImages.allocate (static_cast<size_t> (rows) * static_cast<size_t> (cols), true);
+    imageCacheCount.allocate (static_cast<size_t> (rows), true);
+
+    cacheRows = rows;
+    cacheCols = cols;
+    bgCacheCols = cols * 3;
     maxGlyphsPerRow = cols * 2;
 }
 
@@ -430,7 +466,7 @@ void Screen<Renderer>::allocateRenderCache (int rows, int cols) noexcept
  * @param state  Current terminal state (cursor, dimensions, scroll offset).
  * @param grid   Terminal grid providing cell data.
  */
-template <typename Renderer>
+template<typename Renderer>
 void Screen<Renderer>::render (State& state, Grid& grid) noexcept
 {
     const int cols { state.getCols() };
@@ -451,4 +487,4 @@ template class Screen<jam::Glyph::GLContext>;
 template class Screen<jam::Glyph::GraphicsContext>;
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

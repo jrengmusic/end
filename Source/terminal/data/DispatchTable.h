@@ -24,7 +24,8 @@
  * - dcsPassthrough: DCS passthrough mode
  * - dcsIgnore: Invalid DCS sequence
  * - oscString: OSC (Operating System Command) string
- * - sosPmApcString: SOS/PM/APC string (ignored)
+ * - sosPmApcString: SOS/PM strings (ignored)
+ * - apcString: APC command string (Kitty graphics protocol)
  *
  * @see Parser.h for the state machine implementation that uses this table
  * @see ECMA-48 Terminal Control Functions specification
@@ -61,7 +62,8 @@ enum class ParserState : uint8_t
     dcsPassthrough,      ///< DCS passthrough mode (for SGR in 256 colors)
     dcsIgnore,           ///< Invalid DCS sequence
     oscString,           ///< OSC command string (title, color changes)
-    sosPmApcString,      ///< SOS/PM/APC strings (not supported, ignored)
+    sosPmApcString,      ///< SOS/PM strings (not supported, ignored)
+    apcString,           ///< APC command string (Kitty graphics protocol)
     stateCount           ///< Total number of states (for array sizing)
 };
 
@@ -88,7 +90,9 @@ enum class ParserAction : uint8_t
     oscPut,        ///< Put character to OSC string
     oscEnd,        ///< End OSC string (on ST or BEL)
     hook,          ///< Hook DCS sequence
-    unhook         ///< Unhook DCS sequence
+    unhook,        ///< Unhook DCS sequence
+    apcPut,        ///< Put character to APC string
+    apcEnd         ///< End APC string (on ST)
 };
 
 /**
@@ -118,7 +122,7 @@ static_assert (sizeof (Transition) == 2, "Transition must be exactly 2 bytes");
  * the ECMA-48 state machine specification.
  *
  * The table dimensions are:
- * - STATE_COUNT (14): Number of active parser states
+ * - STATE_COUNT (15): Number of active parser states
  * - BYTE_COUNT (256): All possible input byte values (0x00-0xFF)
  *
  * @note Thread safety: This class is immutable after construction.
@@ -135,12 +139,12 @@ static_assert (sizeof (Transition) == 2, "Transition must be exactly 2 bytes");
 class DispatchTable
 {
 public:
-    static constexpr int STATE_COUNT { 14 };    ///< Number of active parser states
+    static constexpr int STATE_COUNT { 15 };    ///< Number of active parser states
     static constexpr int BYTE_COUNT { 256 };    ///< All possible byte values (0x00-0xFF)
 
     /// Row type: 256 transitions for each possible input byte in a state
     using StateRow = std::array<Transition, BYTE_COUNT>;
-    /// Full table type: 14 state rows
+    /// Full table type: 15 state rows
     using FullTable = std::array<StateRow, STATE_COUNT>;
 
     /**
@@ -165,6 +169,7 @@ public:
         buildDCSIgnore();
         buildOSCString();
         buildSosPmApc();
+        buildApcString();
     }
 
     /**
@@ -236,7 +241,7 @@ private:
         row.at (0x9C) = make (ParserState::ground, ParserAction::none);     // ST
         row.at (0x9D) = make (ParserState::oscString, ParserAction::none);  // OSC
         row.at (0x9E) = make (ParserState::sosPmApcString, ParserAction::none);  // PM
-        row.at (0x9F) = make (ParserState::sosPmApcString, ParserAction::none);  // APC
+        row.at (0x9F) = make (ParserState::apcString, ParserAction::none);  // APC
     }
 
     /**
@@ -281,7 +286,7 @@ private:
         row.at (0x5C) = make (ParserState::ground, ParserAction::escDispatch);
         row.at (0x5D) = make (ParserState::oscString, ParserAction::none);
         row.at (0x5E) = make (ParserState::sosPmApcString, ParserAction::none);
-        row.at (0x5F) = make (ParserState::sosPmApcString, ParserAction::none);
+        row.at (0x5F) = make (ParserState::apcString, ParserAction::none);
         fillRange (row, 0x60, 0x7E, make (ParserState::ground, ParserAction::escDispatch));
         row.at (0x7F) = make (ParserState::escape, ParserAction::ignore);
         applyAnywhere (row);
@@ -409,7 +414,7 @@ private:
         fillRange (row, 0x1C, 0x1F, make (ParserState::dcsPassthrough, ParserAction::put));
         fillRange (row, 0x20, 0x7E, make (ParserState::dcsPassthrough, ParserAction::put));
         row.at (0x7F) = make (ParserState::dcsPassthrough, ParserAction::ignore);
-        row.at (0x1B) = make (ParserState::escape, ParserAction::none);
+        row.at (0x1B) = make (ParserState::escape, ParserAction::unhook);
     }
 
     void buildDCSIgnore()
@@ -432,6 +437,15 @@ private:
         row.at (0x1B) = make (ParserState::escape, ParserAction::oscEnd);
     }
 
+    /**
+     * @brief Builds the SOS/PM string state rows.
+     *
+     * Handles SOS (Start of String) and PM (Privacy Message) sequences, both
+     * of which are silently ignored.  APC now has its own dedicated state
+     * (`apcString`) and is no longer handled here.
+     *
+     * @see buildApcString()
+     */
     void buildSosPmApc()
     {
         auto& row { rowFor (ParserState::sosPmApcString) };
@@ -440,6 +454,30 @@ private:
         fillRange (row, 0x1C, 0x1F, make (ParserState::sosPmApcString, ParserAction::ignore));
         fillRange (row, 0x20, 0x7F, make (ParserState::sosPmApcString, ParserAction::ignore));
         row.at (0x1B) = make (ParserState::escape, ParserAction::none);
+    }
+
+    /**
+     * @brief Builds the APC (Application Program Command) string state row.
+     *
+     * Handles APC sequences used by the Kitty graphics protocol.  Printable
+     * bytes (0x20–0x7F and 0x80–0xFF) are accumulated via `apcPut`.  BEL
+     * (0x07) and ESC (0x1B) terminate the sequence via `apcEnd`.  All other
+     * control bytes are ignored.
+     *
+     * @see buildSosPmApc()
+     * @see Parser::apcEnd()
+     */
+    void buildApcString()
+    {
+        auto& row { rowFor (ParserState::apcString) };
+        fillRange (row, 0x00, 0x06, make (ParserState::apcString, ParserAction::ignore));
+        row.at (0x07) = make (ParserState::ground, ParserAction::apcEnd);
+        fillRange (row, 0x08, 0x17, make (ParserState::apcString, ParserAction::ignore));
+        row.at (0x19) = make (ParserState::apcString, ParserAction::ignore);
+        fillRange (row, 0x1C, 0x1F, make (ParserState::apcString, ParserAction::ignore));
+        fillRange (row, 0x20, 0x7F, make (ParserState::apcString, ParserAction::apcPut));
+        fillRange (row, 0x80, 0xFF, make (ParserState::apcString, ParserAction::apcPut));
+        row.at (0x1B) = make (ParserState::escape, ParserAction::apcEnd);
     }
 };
 

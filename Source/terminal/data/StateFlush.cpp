@@ -136,10 +136,7 @@ void State::flushGroupParams (juce::ValueTree& group) noexcept
  *
  * @note MESSAGE THREAD only.
  */
-void State::refresh() noexcept
-{
-    flush();
-}
+void State::refresh() noexcept { flush(); }
 
 /**
  * @brief Copies all dirty atomic values into the ValueTree in a single pass.
@@ -160,7 +157,10 @@ void State::refresh() noexcept
  * 3. **`flushRootParams()`** — writes session-level PARAMs (`activeScreen`)
  *    back to the ValueTree.
  *
- * 4. Returns `true` to signal to `timerCallback()` that the ValueTree was
+ * 4. **Scrollback clamping** — clamps `scrollOffset` to `scrollbackUsed` if
+ *    the scrollback shrank (e.g. on resize).
+ *
+ * 5. Returns `true` to signal to `timerCallback()` that the ValueTree was
  *    modified, prompting it to schedule the next tick at the higher 120 Hz
  *    rate.
  *
@@ -181,7 +181,8 @@ bool State::flush() noexcept
         for (int c { 0 }; c < state.getNumChildren(); ++c)
         {
             auto child { state.getChild (c) };
-            const bool isGroup { child.getType() == ID::MODES or child.getType() == ID::NORMAL or child.getType() == ID::ALTERNATE };
+            const bool isGroup { child.getType() == ID::MODES or child.getType() == ID::NORMAL
+                                 or child.getType() == ID::ALTERNATE };
 
             if (isGroup)
             {
@@ -189,7 +190,24 @@ bool State::flush() noexcept
             }
         }
 
+        const auto activeScreenNode { jam::ValueTree::getChildWithID (state, ID::activeScreen.toString()) };
+        const float prevActiveScreen { activeScreenNode.isValid()
+                                           ? static_cast<float> (activeScreenNode.getProperty (ID::value))
+                                           : 0.0f };
+
         flushRootParams();
+
+        const float newActiveScreen { getRawParam (ID::activeScreen)->load (std::memory_order_relaxed) };
+        if (newActiveScreen != prevActiveScreen and getScrollOffset() != 0)
+            setScrollOffset (0);
+
+        {
+            const int flushedScrollback { static_cast<int> (
+                getRawParam (ID::scrollbackUsed)->load (std::memory_order_relaxed)) };
+            const int currentOffset { getScrollOffset() };
+            if (currentOffset > flushedScrollback)
+                setScrollOffset (flushedScrollback);
+        }
 
         result = true;
     }
@@ -212,10 +230,10 @@ bool State::flush() noexcept
 // MESSAGE THREAD
 void State::flushHyperlinks() noexcept
 {
-    auto* genAtom     { getRawParam (ID::hyperlinksGeneration) };
+    auto* genAtom { getRawParam (ID::hyperlinksGeneration) };
     auto* lastGenAtom { getRawParam (ID::hyperlinksLastFlushedGeneration) };
 
-    const float gen     { genAtom->load (std::memory_order_acquire) };
+    const float gen { genAtom->load (std::memory_order_acquire) };
     const float lastGen { lastGenAtom->load (std::memory_order_relaxed) };
 
     if (gen != lastGen)
@@ -231,10 +249,10 @@ void State::flushHyperlinks() noexcept
             for (const auto& [id, entry] : hyperlinkMap)
             {
                 juce::ValueTree child { ID::HYPERLINK };
-                child.setProperty (ID::uri,      juce::String::fromUTF8 (entry->uri), nullptr);
-                child.setProperty (ID::row,      entry->row,      nullptr);
+                child.setProperty (ID::uri, juce::String::fromUTF8 (entry->uri), nullptr);
+                child.setProperty (ID::row, entry->row, nullptr);
                 child.setProperty (ID::startCol, entry->startCol, nullptr);
-                child.setProperty (ID::endCol,   entry->endCol,   nullptr);
+                child.setProperty (ID::endCol, entry->endCol, nullptr);
 
                 hyperlinksNode.appendChild (child, nullptr);
             }
@@ -248,4 +266,4 @@ void State::flushHyperlinks() noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

@@ -70,25 +70,34 @@ static constexpr float cursorColorNoOverride { -1.0f };
  * @see Screen::buildSnapshot()
  */
 template <typename Renderer>
-void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyphs) noexcept
+void Screen<Renderer>::updateSnapshot (const State& state, Grid& grid, int rows, int maxGlyphs) noexcept
 {
     auto& snapshot { resources.snapshotBuffer.getWriteBuffer() };
 
     int totalMono  { 0 };
     int totalEmoji { 0 };
     int totalBg    { 0 };
+    int totalImages { 0 };
 
     for (int r { 0 }; r < rows; ++r)
     {
         if (isRowIncludedInSnapshot (r))
         {
-            totalMono  += monoCount[r];
-            totalEmoji += emojiCount[r];
-            totalBg    += bgCount[r];
+            totalMono   += monoCount[r];
+            totalEmoji  += emojiCount[r];
+            totalBg     += bgCount[r];
+            totalImages += imageCacheCount[r];
         }
     }
 
     snapshot.ensureCapacity (totalMono, totalEmoji, totalBg);
+
+    // Grow image quad capacity if needed.
+    if (totalImages > snapshot.imageCapacity)
+    {
+        snapshot.images.allocate (static_cast<size_t> (totalImages), true);
+        snapshot.imageCapacity = totalImages;
+    }
     snapshot.gridWidth  = cacheCols;
     snapshot.gridHeight = rows;
     std::memcpy (snapshot.dirtyRows, frameDirtyBits, sizeof (snapshot.dirtyRows));
@@ -98,6 +107,7 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
     int monoOffset  { 0 };
     int emojiOffset { 0 };
     int bgOffset    { 0 };
+    int imageOffset { 0 };
 
     for (int r { 0 }; r < rows; ++r)
     {
@@ -126,12 +136,64 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
                              static_cast<size_t> (bgCount[r]) * sizeof (Render::Background));
                 bgOffset += bgCount[r];
             }
+
+            if (imageCacheCount[r] > 0)
+            {
+                std::memcpy (snapshot.images.get() + imageOffset,
+                             cachedImages.get() + r * cacheCols,
+                             static_cast<size_t> (imageCacheCount[r]) * sizeof (Render::ImageQuad));
+                imageOffset += imageCacheCount[r];
+            }
         }
     }
 
     snapshot.monoCount        = totalMono;
     snapshot.emojiCount       = totalEmoji;
     snapshot.backgroundCount  = totalBg;
+    snapshot.imageCount       = totalImages;
+
+    // Kitty overlay: render from State's overlay params if active.
+    // READER writes via state.setOverlayImageId/Row/Col (storeAndFlush).
+    // Flush copies to ValueTree; renderer reads from the atomic directly.
+    // Unidirectional: READER -> State -> Flush -> Renderer. No write-back.
+    const uint32_t overlayId { state.getOverlayImageId() };
+
+    if (overlayId != 0)
+    {
+        const ImageRegion* region { imageAtlas.lookup (overlayId) };
+
+        if (region == nullptr)
+        {
+            PendingImage* pending { grid.getDecodedImage (overlayId) };
+
+            if (pending != nullptr)
+            {
+                imageAtlas.stageWithId (pending->imageId, pending->rgba.get(),
+                                        pending->width, pending->height);
+                grid.releaseDecodedImage (overlayId);
+                region = imageAtlas.lookup (overlayId);
+            }
+        }
+
+        if (region != nullptr)
+        {
+            if (snapshot.imageCount >= snapshot.imageCapacity)
+            {
+                const int newCap { juce::jmax (16, snapshot.imageCapacity * 2) };
+                snapshot.images.realloc (static_cast<size_t> (newCap));
+                snapshot.imageCapacity = newCap;
+            }
+
+            Render::ImageQuad& iq { snapshot.images[snapshot.imageCount] };
+            iq.screenBounds = juce::Rectangle<float> {
+                static_cast<float> (state.getOverlayCol() * physCellWidth),
+                static_cast<float> (state.getOverlayRow() * physCellHeight),
+                static_cast<float> (region->widthPx),
+                static_cast<float> (region->heightPx) };
+            iq.uvRect = region->uv;
+            ++snapshot.imageCount;
+        }
+    }
 
     snapshot.cursorFocused = state.isCursorFocused();
 
@@ -280,6 +342,11 @@ void Screen<Renderer>::updateSnapshot (const State& state, int rows, int maxGlyp
             }
         }
     }
+
+    // Publish staged bitmaps every frame — rasterization occurs regardless of
+    // sync-output state, so the Mailbox must be flushed unconditionally.
+    packer.publishStagedBitmaps();
+    imageAtlas.publishStagedUploads();
 
     // Synchronized output (mode 2026): keep building the snapshot every frame
     // but do NOT publish to the GL thread.  The display stays frozen at the

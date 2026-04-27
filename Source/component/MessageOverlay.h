@@ -22,9 +22,17 @@
  * fade-in / fade-out.  A `juce::Timer` triggers the fade-out after the
  * configured display duration.
  *
+ * ### Image preview
+ * `showImage()` switches the overlay into image mode.  The image is drawn
+ * right-aligned (right half of the overlay) with `RectanglePlacement::centred |
+ * onlyReduceInSize` and 16 px padding.  The overlay intercepts mouse clicks
+ * while in image mode so that any click anywhere on the window dismisses it.
+ * `dismissImage()` fades out and restores mouse passthrough.
+ *
  * ### Mouse passthrough
  * `setInterceptsMouseClicks(false, false)` ensures the overlay never captures
- * mouse events, so selection and scrolling work normally while it is visible.
+ * mouse events in message/resize mode, so selection and scrolling work normally
+ * while it is visible.  Image mode temporarily overrides this.
  *
  * @note All methods are called on the **MESSAGE THREAD**.
  *
@@ -126,7 +134,78 @@ public:
     }
 
     /**
-     * @brief Dispatches to `paintRulers()` or plain centred text depending on mode.
+     * @brief Shows a right-aligned image preview; stays until dismissed by click or keypress.
+     *
+     * Fades in immediately.  No auto-hide timer is started — the user must dismiss
+     * explicitly via click (`mouseDown`) or any key (`keyPressed`).  Mouse click
+     * interception is enabled so that clicking anywhere on the window hits this overlay.
+     *
+     * @param img  The image to display.  Must be valid.
+     * @note MESSAGE THREAD.
+     */
+    void showImage (const juce::Image& img)
+    {
+        imageMode = true;
+        previewImage = img;
+        setWantsKeyboardFocus (true);
+        setInterceptsMouseClicks (true, false);
+        setVisible (true);
+        jam::Animator::toggleFade (this, true, fadeInMs);
+        toFront (false);
+        grabKeyboardFocus();
+        repaint();
+    }
+
+    /**
+     * @brief Dismisses the image preview overlay.
+     *
+     * Fades out, hides the component, resets image state, and restores mouse
+     * passthrough so normal terminal interaction resumes.
+     *
+     * @note MESSAGE THREAD.
+     */
+    void dismissImage()
+    {
+        setVisible (false);
+        jam::Animator::toggleFade (this, false);
+        imageMode = false;
+        previewImage = juce::Image();
+        setWantsKeyboardFocus (false);
+        setInterceptsMouseClicks (false, false);
+        repaint();
+    }
+
+    /**
+     * @brief Dismisses the image preview on any mouse click when in image mode.
+     * @note MESSAGE THREAD.
+     */
+    void mouseDown (const juce::MouseEvent&) override
+    {
+        if (imageMode)
+            dismissImage();
+    }
+
+    /**
+     * @brief Dismisses the image preview on any keypress when in image mode.
+     * @return `true` if the event was consumed (image mode was active), `false` otherwise.
+     * @note MESSAGE THREAD.
+     */
+    bool keyPressed (const juce::KeyPress&) override
+    {
+        if (imageMode)
+        {
+            dismissImage();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @brief Dispatches to image mode, `paintRulers()`, or plain centred text depending on mode.
+     *
+     * Image mode is checked first and renders the preview right-aligned in the right
+     * half of the overlay.  Resize mode renders the ruler overlay.  Default renders
+     * centred message text.
      *
      * @param g  JUCE graphics context for this paint pass.
      * @note MESSAGE THREAD.
@@ -140,11 +219,35 @@ public:
                                            .withName (cfg->display.overlay.family)
                                            .withPointHeight (cfg->display.overlay.size) };
 
-        g.fillAll (bgColour.withAlpha (backgroundAlpha));
-        g.setFont (font);
-        g.setColour (fgColour);
+        if (imageMode and previewImage.isValid())
+        {
+            auto bounds { getLocalBounds().toFloat() };
+            const auto rightHalf { bounds.removeFromRight (bounds.getWidth() * 0.5f) };
 
-        if (resizeMode)
+            // Translucent background on right side only
+            g.setColour (bgColour.withAlpha (backgroundAlpha));
+            g.fillRect (rightHalf);
+
+            const auto imageArea { rightHalf.reduced (imagePaddingPx) };
+
+            const auto destRect
+            {
+                juce::RectanglePlacement (juce::RectanglePlacement::centred
+                                          | juce::RectanglePlacement::onlyReduceInSize)
+                    .appliedTo (juce::Rectangle<float> (0.0f,
+                                                        0.0f,
+                                                        static_cast<float> (previewImage.getWidth()),
+                                                        static_cast<float> (previewImage.getHeight())),
+                                imageArea)
+            };
+
+            g.drawImage (previewImage, destRect);
+        }
+        else if (resizeMode)
+        {
+            g.fillAll (bgColour.withAlpha (backgroundAlpha));
+            g.setFont (font);
+            g.setColour (fgColour);
             paintRulers (g,
                          getLocalBounds(),
                          resizeCols,
@@ -155,8 +258,14 @@ public:
                          resizePadLeft,
                          font,
                          fgColour);
+        }
         else
+        {
+            g.fillAll (bgColour.withAlpha (backgroundAlpha));
+            g.setFont (font);
+            g.setColour (fgColour);
             g.drawFittedText (message, getLocalBounds().reduced (textPadding), juce::Justification::centred, maxLines);
+        }
     }
 
 private:
@@ -306,6 +415,12 @@ private:
     /** @brief True while the overlay is in resize-ruler mode. */
     bool resizeMode { false };
 
+    /** @brief True while the overlay is in image preview mode. */
+    bool imageMode { false };
+
+    /** @brief The image displayed in image preview mode; invalid when not in image mode. */
+    juce::Image previewImage;
+
     /** @brief Column count shown by the resize ruler. */
     int resizeCols { 0 };
 
@@ -327,6 +442,9 @@ private:
     //==============================================================================
     /** @brief Background fill alpha [0, 1]; applied on top of the window blur. */
     static constexpr float backgroundAlpha { 0.8f };
+
+    /** @brief Padding in pixels around the image in image preview mode. */
+    static constexpr float imagePaddingPx { 16.0f };
 
     /** @brief Padding in pixels applied to the text bounds in plain message mode. */
     static constexpr int textPadding { 20 };

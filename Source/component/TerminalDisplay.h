@@ -54,6 +54,7 @@
 
 namespace Terminal
 { /*____________________________________________________________________________*/
+
 /**
  * @class Terminal::Display
  * @brief Ephemeral JUCE component that renders a Terminal::Processor.
@@ -104,13 +105,15 @@ public:
      * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; passed to Screen<GLContext> for atlas rebuild.
      * @param graphicsAtlas CPU atlas image store; passed to Screen<GraphicsContext> for atlas rebuild.
+     * @param imageAtlas    Inline image atlas; staged uploads published each frame.
      * @note MESSAGE THREAD.
      */
     Display (Terminal::Processor& proc,
              jam::Font& font,
              jam::Glyph::Packer& packer,
              jam::gl::GlyphAtlas& glAtlas,
-             jam::GraphicsAtlas& graphicsAtlas);
+             jam::GraphicsAtlas& graphicsAtlas,
+             Terminal::ImageAtlas& imageAtlas);
 
     /**
      * @brief Unwires all Processor callbacks, unsubscribes as ChangeListener,
@@ -387,6 +390,26 @@ public:
     std::function<void (const juce::File&)> onOpenMarkdown;
 
     /**
+     * @brief Callback invoked when an image file link is activated.
+     *
+     * Propagated from LinkManager via the callback chain to Panes.
+     *
+     * @note MESSAGE THREAD.
+     */
+    std::function<void (const juce::File&)> onOpenImage;
+
+    /**
+     * @brief Callback invoked with a loaded image when an image link is opened.
+     *
+     * Fired by `handleOpenImage()` after the image is loaded successfully.
+     * Propagated up through Panes → Tabs → MainComponent to show the image
+     * in the window-level MessageOverlay.
+     *
+     * @note MESSAGE THREAD.
+     */
+    std::function<void (const juce::Image&)> onShowImagePreview;
+
+    /**
      * @brief Returns `true` if a non-degenerate selection is currently active.
      *
      * Used by the copy action to decide whether to consume the key or let it
@@ -602,7 +625,12 @@ private:
     /** @brief Returns the ScreenBase interface for the active Screen variant. */
     ScreenBase& screenBase() noexcept
     {
-        return std::visit ([] (auto& s) -> ScreenBase& { return s; }, screen);
+        return std::visit (
+            [] (auto& s) -> ScreenBase&
+            {
+                return s;
+            },
+            screen);
     }
 
     /**
@@ -610,12 +638,11 @@ private:
      *
      * @tparam Func  Callable accepting any Screen<T> specialisation by reference.
      */
-    template <typename Func>
-    decltype(auto) visitScreen (Func&& func)
+    template<typename Func>
+    decltype (auto) visitScreen (Func&& func)
     {
         return std::visit (std::forward<Func> (func), screen);
     }
-
 
     //==============================================================================
     /** @brief Font reference; lifetime owned by MainComponent. */
@@ -630,18 +657,18 @@ private:
     /** @brief CPU atlas reference; lifetime owned by MainComponent. Passed to Screen<GraphicsContext>. */
     jam::GraphicsAtlas& graphicsAtlasRef;
 
+    /** @brief Inline image atlas reference; lifetime owned by MainComponent. Published each frame. */
+    Terminal::ImageAtlas& imageAtlasRef;
+
     /**
      * @brief Terminal renderer — variant over CPU and GPU Screen specialisations.
      *
      * GraphicsContext is the first alternative and the default (CPU path).
      * switchRenderer() emplaces the appropriate alternative at runtime.
      */
-    using ScreenVariant = std::variant<
-        Screen<jam::Glyph::GraphicsContext>,
-        Screen<jam::Glyph::GLContext>>;
+    using ScreenVariant = std::variant<Screen<jam::Glyph::GraphicsContext>, Screen<jam::Glyph::GLContext>>;
 
     ScreenVariant screen;
-
 
     /** @brief Current text selection; null when nothing is selected. */
     std::unique_ptr<ScreenSelection> screenSelection;
@@ -676,22 +703,39 @@ private:
     /** @brief VBlank attachment that drives the render loop at display refresh rate. */
     juce::VBlankAttachment vblank;
 
+    /**
+     * @brief Loads an image file and fires `onShowImagePreview` with the result.
+     *
+     * Loads via `juce::ImageFileFormat::loadFrom`.  Fires `onShowImagePreview`
+     * only when the image is valid and the callback is set.
+     *
+     * @param file  The image file to load.
+     * @note MESSAGE THREAD.
+     */
+    void handleOpenImage (const juce::File& file) noexcept;
+
+    /** @brief Cached physical cell width in pixels; updated by switchRenderer() via onPhysCellDimensionsChanged. */
+    int physCellWidthCache { 0 };
+
+    /** @brief Cached physical cell height in pixels; updated by switchRenderer() via onPhysCellDimensionsChanged. */
+    int physCellHeightCache { 0 };
+
     //==============================================================================
     /** @brief Grid padding — top edge inset in logical pixels (from `nexus.terminal.paddingTop`). */
-    const int paddingTop    { lua::Engine::getContext()->nexus.terminal.paddingTop };
+    const int paddingTop { lua::Engine::getContext()->nexus.terminal.paddingTop };
 
     /** @brief Grid padding — right edge inset in logical pixels (from `nexus.terminal.paddingRight`). */
-    const int paddingRight  { lua::Engine::getContext()->nexus.terminal.paddingRight };
+    const int paddingRight { lua::Engine::getContext()->nexus.terminal.paddingRight };
 
     /** @brief Grid padding — bottom edge inset in logical pixels (from `nexus.terminal.paddingBottom`). */
     const int paddingBottom { lua::Engine::getContext()->nexus.terminal.paddingBottom };
 
     /** @brief Grid padding — left edge inset in logical pixels (from `nexus.terminal.paddingLeft`). */
-    const int paddingLeft   { lua::Engine::getContext()->nexus.terminal.paddingLeft };
+    const int paddingLeft { lua::Engine::getContext()->nexus.terminal.paddingLeft };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Display)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

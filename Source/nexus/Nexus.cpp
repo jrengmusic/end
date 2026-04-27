@@ -139,7 +139,7 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
         };
 
         // Wire resize to daemon via Link IPC.
-        rawPtr->getProcessor().onResize = [this, uuid] (int c, int r)
+        rawPtr->getProcessor().onResize = [this, uuid] (int c, int r, int /*pixelWidth*/, int /*pixelHeight*/)
         {
             attachedLink->sendResize (uuid, c, r);
         };

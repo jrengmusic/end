@@ -227,7 +227,45 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
             else if (interCount > 0 and inter[0] == '>' and params.param (0, 0) == 0)
                 sendResponse ("\x1bP>|xterm(1.0)\x1b\\");
             break;
-        case 't': break;
+        case 't':
+        {
+            const int ps { static_cast<int> (params.param (0, 0)) };
+
+            if (ps == 14)
+            {
+                // Report text area size in pixels: ESC [ 4 ; height ; width t
+                const int cellW { physCellWidthAtomic.load (std::memory_order_relaxed) };
+                const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+                const int totalW { cellW * state.getCols() };
+                const int totalH { cellH * state.getVisibleRows() };
+
+                if (totalW > 0 and totalH > 0)
+                {
+                    const juce::String response { "\x1b[4;" + juce::String (totalH) + ";" + juce::String (totalW) + "t" };
+                    sendResponse (response.toRawUTF8());
+                }
+            }
+            else if (ps == 16)
+            {
+                // Report cell size in pixels: ESC [ 6 ; height ; width t
+                const int cellW { physCellWidthAtomic.load (std::memory_order_relaxed) };
+                const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+
+                if (cellW > 0 and cellH > 0)
+                {
+                    const juce::String response { "\x1b[6;" + juce::String (cellH) + ";" + juce::String (cellW) + "t" };
+                    sendResponse (response.toRawUTF8());
+                }
+            }
+            else if (ps == 18)
+            {
+                // Report text area size in characters: ESC [ 8 ; rows ; cols t
+                const juce::String response { "\x1b[8;" + juce::String (state.getVisibleRows()) + ";" + juce::String (state.getCols()) + "t" };
+                sendResponse (response.toRawUTF8());
+            }
+
+            break;
+        }
         case 'u': handleKeyboardMode (params, inter, interCount); break;
         default:  break;
     }

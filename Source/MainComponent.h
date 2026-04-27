@@ -43,6 +43,7 @@
 #include "component/Popup.h"
 #include "component/Tabs.h"
 #include "lua/Engine.h"
+#include "terminal/rendering/ImageAtlas.h"
 #include "action/Action.h"
 #include "action/ActionList.h"
 #include "component/StatusBarOverlay.h"
@@ -168,6 +169,9 @@ private:
 
     /** @brief CPU atlas image store; shared by all Screen<GraphicsContext> instances. */
     jam::GraphicsAtlas graphicsAtlas;
+
+    /** @brief Inline image atlas; shared by all terminal instances for staged GPU upload. */
+    Terminal::ImageAtlas imageAtlas;
 
     /** @brief Tabbed terminal container; owns all Terminal::Display instances. */
     std::unique_ptr<Terminal::Tabs> tabs;

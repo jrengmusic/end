@@ -31,13 +31,15 @@ Terminal::Display::Display (Terminal::Processor& proc,
                              jam::Font& font_,
                              jam::Glyph::Packer& packer_,
                              jam::gl::GlyphAtlas& glAtlas_,
-                             jam::GraphicsAtlas& graphicsAtlas_)
+                             jam::GraphicsAtlas& graphicsAtlas_,
+                             Terminal::ImageAtlas& imageAtlas_)
     : processor (proc)
     , font (font_)
     , packerRef (packer_)
     , glAtlasRef (glAtlas_)
     , graphicsAtlasRef (graphicsAtlas_)
-    , screen (std::in_place_type<Screen<jam::Glyph::GraphicsContext>>, font_, packer_, graphicsAtlas_)
+    , imageAtlasRef (imageAtlas_)
+    , screen (std::in_place_type<Screen<jam::Glyph::GraphicsContext>>, font_, packer_, graphicsAtlas_, imageAtlas_)
     , vblank (this,
               [this]
               {
@@ -158,6 +160,11 @@ void Terminal::Display::initialise()
         if (onOpenMarkdown != nullptr)
             onOpenMarkdown (file);
     };
+
+    linkManager->onOpenImage = [this] (const juce::File& file)
+    {
+        handleOpenImage (file);
+    };
 }
 
 /**
@@ -183,13 +190,16 @@ void Terminal::Display::resized()
 
         const int cols { screenBase().getNumCols() };
         const int rows { screenBase().getNumRows() };
+        const int pixelW { physCellWidthCache * cols };
+        const int pixelH { physCellHeightCache * rows };
 
         processor.getState().setDimensions (cols, rows);
         processor.resized (cols, rows);
         if (processor.onResize != nullptr)
-            processor.onResize (cols, rows);
+            processor.onResize (cols, rows, pixelW, pixelH);
         processor.getState().setScrollOffset (0);
     }
+
 }
 
 bool Terminal::Display::hasSelection() const noexcept { return screenSelection != nullptr; }
@@ -782,6 +792,22 @@ void Terminal::Display::applyZoom (float) noexcept
     }
 }
 
+/**
+ * @brief Loads an image file and fires `onShowImagePreview` with the result.
+ *
+ * Loads via `juce::ImageFileFormat::loadFrom`.  Fires `onShowImagePreview`
+ * only when the image is valid and the callback is set.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Terminal::Display::handleOpenImage (const juce::File& file) noexcept
+{
+    const juce::Image img { juce::ImageFileFormat::loadFrom (file) };
+
+    if (img.isValid() and onShowImagePreview != nullptr)
+        onShowImagePreview (img);
+}
+
 void Terminal::Display::switchRenderer (App::RendererType type)
 {
     visitScreen (
@@ -794,14 +820,14 @@ void Terminal::Display::switchRenderer (App::RendererType type)
     {
         if (not std::holds_alternative<Screen<jam::Glyph::GraphicsContext>> (screen))
         {
-            screen.emplace<Screen<jam::Glyph::GraphicsContext>> (font, packerRef, graphicsAtlasRef);
+            screen.emplace<Screen<jam::Glyph::GraphicsContext>> (font, packerRef, graphicsAtlasRef, imageAtlasRef);
         }
     }
     else
     {
         if (not std::holds_alternative<Screen<jam::Glyph::GLContext>> (screen))
         {
-            screen.emplace<Screen<jam::Glyph::GLContext>> (font, packerRef, glAtlasRef);
+            screen.emplace<Screen<jam::Glyph::GLContext>> (font, packerRef, glAtlasRef, imageAtlasRef);
         }
     }
 
@@ -809,6 +835,20 @@ void Terminal::Display::switchRenderer (App::RendererType type)
         mouseHandler.emplace (processor, screenBase(), *linkManager);
 
     applyScreenSettings();
+
+    // Wire physCellDimensions callback: Screen::calc() notifies Parser
+    // so the READER THREAD Sixel decoder has the correct cell grid size.
+    // Also cache the physical cell dimensions for MESSAGE-THREAD image rendering.
+    visitScreen (
+        [this] (auto& s)
+        {
+            s.onPhysCellDimensionsChanged = [this] (int widthPx, int heightPx)
+            {
+                processor.getParser().setPhysCellDimensions (widthPx, heightPx);
+                physCellWidthCache  = widthPx;
+                physCellHeightCache = heightPx;
+            };
+        });
 
     processor.getGrid().markAllDirty();
     processor.getState().setSnapshotDirty();

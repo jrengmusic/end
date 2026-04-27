@@ -22,11 +22,13 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Panes::Panes (jam::Font& font_, jam::Glyph::Packer& packer_, jam::gl::GlyphAtlas& glAtlas_, jam::GraphicsAtlas& graphicsAtlas_)
+Panes::Panes (jam::Font& font_, jam::Glyph::Packer& packer_, jam::gl::GlyphAtlas& glAtlas_,
+              jam::GraphicsAtlas& graphicsAtlas_, Terminal::ImageAtlas& imageAtlas_)
     : font (font_)
     , packerRef (packer_)
     , glAtlasRef (glAtlas_)
     , graphicsAtlasRef (graphicsAtlas_)
+    , imageAtlasRef (imageAtlas_)
 {
     setOpaque (false);
 }
@@ -153,7 +155,7 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 
     const juce::String termUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef, imageAtlasRef) };
 
     jassert (terminal != nullptr);
 
@@ -296,6 +298,18 @@ void Panes::setTerminalCallbacks (Terminal::Display* terminal)
     {
         if (onOpenMarkdown != nullptr)
             onOpenMarkdown (file);
+    };
+
+    terminal->onOpenImage = [this] (const juce::File& file)
+    {
+        if (onOpenImage != nullptr)
+            onOpenImage (file);
+    };
+
+    terminal->onShowImagePreview = [this] (const juce::Image& img)
+    {
+        if (onShowImagePreview != nullptr)
+            onShowImagePreview (img);
     };
 
     terminal->onShellExited = [this, uuid = terminal->getComponentID()]
@@ -456,7 +470,7 @@ void Panes::splitAt (const juce::String& targetUuid,
 
     const juce::String splitUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef, imageAtlasRef) };
 
     jassert (terminal != nullptr);
 

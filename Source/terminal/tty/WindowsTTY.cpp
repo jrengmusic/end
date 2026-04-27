@@ -678,6 +678,8 @@ static void buildEnvironmentBlock (std::wstring& envBlock,
 
     envBlock += L"TERM=xterm-256color";
     envBlock += L'\0';
+    envBlock += L"TERM_PROGRAM=END";
+    envBlock += L'\0';
     envBlock += L'\0';
 }
 
@@ -1613,13 +1615,17 @@ bool WindowsTTY::write (const char* buf, int len)
  * Calls `ResizePseudoConsole()` with the new dimensions.  ConPTY propagates
  * the resize to the child process as a `WINDOW_BUFFER_SIZE_EVENT` console
  * event, which the shell or foreground TUI application can handle.
+ * Pixel dimensions are accepted for interface compatibility but are not used
+ * on Windows (ConPTY does not expose a pixel winsize).
  *
- * @param cols  New terminal width in character columns.
- * @param rows  New terminal height in character rows.
+ * @param cols        New terminal width in character columns.
+ * @param rows        New terminal height in character rows.
+ * @param pixelWidth  Unused on Windows.
+ * @param pixelHeight Unused on Windows.
  *
  * @note MESSAGE THREAD context.
  */
-void WindowsTTY::doPlatformResize (int cols, int rows)
+void WindowsTTY::doPlatformResize (int cols, int rows, int /*pixelWidth*/, int /*pixelHeight*/)
 {
     if (pseudoConsole != nullptr)
     {

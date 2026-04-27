@@ -48,7 +48,7 @@
  * | param        | `handleParam()` — digit/separator into CSI accumulator  |
  * | escDispatch  | `escDispatch()` — complete ESC sequence                 |
  * | csiDispatch  | `csiDispatch()` — complete CSI sequence                 |
- * | oscPut       | Append byte to `oscBuffer`                              |
+ * | oscPut       | `appendToBuffer (oscBuffer, …)` — hybrid OSC buffer     |
  * | oscEnd       | `oscDispatch()` — complete OSC string                   |
  * | hook         | `dcsHook()` — DCS sequence entry                        |
  * | put          | `dcsPut()` — DCS passthrough byte                       |
@@ -227,6 +227,51 @@ int Parser::activeScrollBottom() const noexcept
 // ============================================================================
 
 /**
+ * @brief Appends a byte to a hybrid buffer with lazy allocation and geometric growth.
+ *
+ * Handles three cases:
+ *
+ * - **First call** (`capacity == 0`): allocates `initialCapacity` bytes via
+ *   `juce::HeapBlock::allocate`.
+ * - **Overflow** (`size >= capacity`): doubles the capacity and copies the
+ *   existing content to the new block via `std::memcpy`.
+ * - **Normal** (`size < capacity`): writes `byte` directly.
+ *
+ * After ensuring sufficient capacity, `byte` is stored at `buffer[size]` and
+ * `size` is incremented.
+ *
+ * @param buffer           The `HeapBlock` to append to.
+ * @param size             Current number of valid bytes in `buffer` (in/out).
+ * @param capacity         Current allocated capacity of `buffer` (in/out).
+ * @param byte             The byte to append.
+ * @param initialCapacity  Capacity to allocate on the first call.
+ *
+ * @note READER THREAD only.
+ *
+ * @see oscBuffer
+ * @see dcsBuffer
+ * @see apcBuffer
+ */
+void Parser::appendToBuffer (juce::HeapBlock<uint8_t>& buffer, int& size, int& capacity, uint8_t byte, int initialCapacity) noexcept
+{
+    if (size >= capacity)
+    {
+        const int newCapacity { (capacity == 0) ? initialCapacity : capacity * 2 };
+        juce::HeapBlock<uint8_t> grown;
+        grown.allocate (static_cast<size_t> (newCapacity), false);
+
+        if (size > 0)
+            std::memcpy (grown.get(), buffer.get(), static_cast<size_t> (size));
+
+        buffer = std::move (grown);
+        capacity = newCapacity;
+    }
+
+    buffer[size] = byte;
+    ++size;
+}
+
+/**
  * @brief Applies a state transition: exit action → transition action → entry action.
  *
  * Implements the two-phase transition model for every byte that produces
@@ -278,11 +323,13 @@ void Parser::processTransition (uint8_t byte, const Transition& transition) noex
  *   Resets `graphemeState` before dispatch.
  * - **csiDispatch** — `csiDispatch()`: finalises the CSI accumulator and dispatches.
  *   Resets `graphemeState` before dispatch.
- * - **put** — `dcsPut()`: forwards a DCS passthrough byte.
- * - **oscPut** — appends `byte` to `oscBuffer` (up to `OSC_BUFFER_CAPACITY`).
+ * - **put** — `appendToBuffer (dcsBuffer, …)`: accumulates a DCS passthrough byte.
+ * - **oscPut** — `appendToBuffer (oscBuffer, …)`: appends byte to the hybrid OSC buffer.
  * - **oscEnd** — `oscDispatch()`: dispatches the complete OSC string.
- * - **hook** — `dcsHook()`: finalises CSI params and enters DCS passthrough.
- * - **unhook** — `dcsUnhook()`: exits DCS passthrough.
+ * - **hook** — `dcsHook()`: finalises CSI params, records final byte, enters DCS passthrough.
+ * - **unhook** — `dcsUnhook()`: dispatches accumulated DCS payload and exits passthrough.
+ * - **apcPut** — `appendToBuffer (apcBuffer, …)`: accumulates an APC payload byte.
+ * - **apcEnd** — `apcEnd()`: dispatches accumulated APC payload.
  *
  * @param action  The action to perform, as determined by the DispatchTable.
  * @param byte    The input byte associated with the action.
@@ -339,28 +386,33 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::put:
-            dcsPut (byte);
+            appendToBuffer (dcsBuffer, dcsBufferSize, dcsBufferCapacity, byte, 65536);
             break;
 
         case ParserAction::oscPut:
-            if (oscLength < OSC_BUFFER_CAPACITY)
-            {
-                oscBuffer[oscLength] = byte;
-                ++oscLength;
-            }
+            appendToBuffer (oscBuffer, oscBufferSize, oscBufferCapacity, byte, OSC_BUFFER_CAPACITY);
             break;
 
         case ParserAction::oscEnd:
-            oscDispatch (oscBuffer, oscLength);
+            oscDispatch (oscBuffer.get(), oscBufferSize);
             break;
 
         case ParserAction::hook:
             csi.finalize();
+            dcsFinalByte = byte;
             dcsHook (csi, intermediateBuffer, intermediateCount, byte);
             break;
 
         case ParserAction::unhook:
             dcsUnhook();
+            break;
+
+        case ParserAction::apcPut:
+            appendToBuffer (apcBuffer, apcBufferSize, apcBufferCapacity, byte, 8192);
+            break;
+
+        case ParserAction::apcEnd:
+            apcEnd();
             break;
     }
 }
@@ -535,8 +587,10 @@ uint8_t Parser::expectedUTF8Length (uint8_t leadByte) noexcept
  *                   the new ESC sequence.
  * - **csiEntry**  — `csi.reset()` + `intermediateCount = 0`: clears both the
  *                   CSI parameter accumulator and the intermediate buffer.
- * - **dcsEntry**  — same as `csiEntry` (DCS uses the same accumulators).
- * - **oscString** — `oscLength = 0`: clears the OSC payload buffer.
+ * - **dcsEntry**  — same as `csiEntry` plus `dcsBufferSize = 0`: resets the
+ *                   DCS payload accumulator.
+ * - **oscString** — `oscBufferSize = 0`: clears the hybrid OSC payload buffer.
+ * - **apcString** — `apcBufferSize = 0`: clears the hybrid APC payload buffer.
  * - All other states have no entry action (default branch is a no-op).
  *
  * @param newState  The state being entered.
@@ -558,10 +612,16 @@ void Parser::performEntryAction (ParserState newState) noexcept
         case ParserState::dcsEntry:
             csi.reset();
             intermediateCount = 0;
+            if (newState == ParserState::dcsEntry)
+                dcsBufferSize = 0;
             break;
 
         case ParserState::oscString:
-            oscLength = 0;
+            oscBufferSize = 0;
+            break;
+
+        case ParserState::apcString:
+            apcBufferSize = 0;
             break;
 
         default:

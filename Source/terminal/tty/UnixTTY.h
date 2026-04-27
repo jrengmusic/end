@@ -218,15 +218,19 @@ protected:
      * @brief Resize the terminal window via ioctl and SIGWINCH.
      *
      * Issues `ioctl (master, TIOCSWINSZ, &ws)` to update the kernel's idea of
-     * the window size, then sends `SIGWINCH` to the child process so the shell
-     * and any running TUI application can re-query the size.
+     * the window size, including physical pixel dimensions so tools such as
+     * chafa can query cell and viewport pixel size via `CSI 14 t` / `CSI 16 t`.
+     * Sends `SIGWINCH` to the child process so the shell and any running TUI
+     * application can re-query the size.
      *
-     * @param cols  New terminal width in character columns.
-     * @param rows  New terminal height in character rows.
+     * @param cols        New terminal width in character columns.
+     * @param rows        New terminal height in character rows.
+     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
+     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
      *
      * @note MESSAGE THREAD context (called by TTY::platformResize() when dims changed).
      */
-    void doPlatformResize (int cols, int rows) override;
+    void doPlatformResize (int cols, int rows, int pixelWidth, int pixelHeight) override;
 
 private:
     /** @brief Master side of the PTY pair.  -1 when not open. */

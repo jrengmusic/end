@@ -175,7 +175,7 @@ MainComponent::MainComponent (lua::Engine& engine)
                 juce::MessageManager::callAsync ([this] { popup.dismiss(); });
             };
 
-            auto terminal { termSession->getProcessor().createDisplay (font, packer, glyphAtlas, graphicsAtlas) };
+            auto terminal { termSession->getProcessor().createDisplay (font, packer, glyphAtlas, graphicsAtlas, imageAtlas) };
 
             auto renderer { (appState.getRendererType() == App::RendererType::gpu)
                 ? std::unique_ptr<jam::gl::Renderer> { std::make_unique<jam::GLAtlasRenderer> (packer, glyphAtlas) }
@@ -200,6 +200,7 @@ void MainComponent::applyConfig()
     appState.setFontFamily (cfg->display.font.family);
     appState.setFontSize   (static_cast<float> (cfg->dpiCorrectedFontSize()));
     appState.setRendererType (cfg->nexus.gpu);
+    imageAtlas.setBudgetBytes (cfg->nexus.image.atlasBudgetBytes);
     setRenderer (appState.getRendererType());
 
     if (tabs != nullptr)
@@ -532,6 +533,7 @@ void MainComponent::initialiseTabs()
         packer,
         glyphAtlas,
         graphicsAtlas,
+        imageAtlas,
         Terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position));
     addAndMakeVisible (tabs.get());
 
@@ -544,6 +546,12 @@ void MainComponent::initialiseTabs()
 
         if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
             window->triggerRepaint();
+    };
+
+    tabs->onShowImagePreview = [this] (const juce::Image& img)
+    {
+        if (messageOverlay != nullptr)
+            messageOverlay->showImage (img);
     };
 
     // Restore tabs and split layout from `<uuid>.display` when present (daemon client mode).

@@ -85,6 +85,7 @@ static void runChildProcess (int master, int slaveFd, const char* shell,
 
     setenv ("TERM", "xterm-256color", 1);
     setenv ("COLORTERM", "truecolor", 1);
+    setenv ("TERM_PROGRAM", "END", 1);
 
     if (getenv ("LC_CTYPE") == nullptr)
     {
@@ -339,19 +340,28 @@ bool UnixTTY::write (const char* buf, int len)
 /**
  * @brief Resize the terminal window via ioctl and SIGWINCH.
  *
- * Updates the kernel's `winsize` record for the PTY via `TIOCSWINSZ`, then
- * sends `SIGWINCH` to the child process.  The shell (and any foreground TUI
- * application) handles `SIGWINCH` by re-querying the terminal size and
- * redrawing.
+ * Updates the kernel's `winsize` record for the PTY via `TIOCSWINSZ`, including
+ * physical pixel extents in `ws_xpixel` / `ws_ypixel` so that pixel-aware
+ * programs (e.g. chafa) can determine cell size by querying `CSI 14 t` or
+ * `CSI 16 t` directly from the kernel.  Sends `SIGWINCH` to the child process
+ * so the shell and any foreground TUI application can re-query the size.
  *
- * @param cols  New terminal width in character columns.
- * @param rows  New terminal height in character rows.
+ * @param cols        New terminal width in character columns.
+ * @param rows        New terminal height in character rows.
+ * @param pixelWidth  Total viewport width in physical pixels (`ws_xpixel`).
+ *                    Pass 0 when the display has not yet been calibrated.
+ * @param pixelHeight Total viewport height in physical pixels (`ws_ypixel`).
+ *                    Pass 0 when the display has not yet been calibrated.
  *
  * @note MESSAGE THREAD context.
  */
-void UnixTTY::doPlatformResize (int cols, int rows)
+void UnixTTY::doPlatformResize (int cols, int rows, int pixelWidth, int pixelHeight)
 {
-    struct winsize ws { static_cast<unsigned short> (rows), static_cast<unsigned short> (cols), 0, 0 };
+    struct winsize ws {};
+    ws.ws_row    = static_cast<unsigned short> (rows);
+    ws.ws_col    = static_cast<unsigned short> (cols);
+    ws.ws_xpixel = static_cast<unsigned short> (pixelWidth);
+    ws.ws_ypixel = static_cast<unsigned short> (pixelHeight);
     ioctl (master, TIOCSWINSZ, &ws);
 
     if (childProcess > 0)

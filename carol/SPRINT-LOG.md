@@ -1,5 +1,37 @@
 # SPRINT-LOG
 
+## Sprint 41: scrollOffset reset on screen switch + ED 3 conformance ✅
+
+**Date:** 2026-04-27
+**Duration:** ~1:00
+
+### Agents Participated
+- SURGEON: diagnosis, fix design, oversight, overlay restore
+- Pathfinder: codebase survey (alt-screen switch path, scrollback/scrollOffset flow, ED handler)
+- Engineer: StateFlush.cpp + ParserEdit.cpp implementation
+
+### Files Modified (2 total)
+- `Source/terminal/data/StateFlush.cpp:209-225` — in `flush()`, after `flushRootParams()`: (1) capture prevActiveScreen from ValueTree before flush, reset `scrollOffset` to 0 if activeScreen changed; (2) enforce `scrollOffset <= scrollbackUsed` invariant — clamp when scrollback shrinks beneath current offset
+- `Source/terminal/logic/ParserEdit.cpp:134-136` — ED case 3: removed non-standard `writer.eraseRowRange(0, visibleRows-1)`. ED 3 (`CSI 3 J`) per XTerm spec = erase scrollback only; visible content is untouched
+
+### Alignment Check
+- [x] BLESSED principles followed — State is SSOT; invariant enforced in flush(), not in display layer; no shadow state; no cross-thread writes
+- [x] NAMES.md adhered — no new names introduced; `jam::ValueTree::getChildWithID` pattern reused from `setScrollOffset()`
+- [x] MANIFESTO.md principles applied — S (SSOT): scrollOffset reset belongs in State::flush(), not TerminalDisplay; E (Explicit): invariant clamp is explicit; B (Bound): message-thread-only path throughout
+
+### Problems Solved
+- **scrollback appears cleared on vim exit**: `scrollOffset` was never reset on `activeScreen` transitions. After vim (`?1049l`) switched END to normal screen, if user had scrolled back, the view stayed locked to the old offset — live CC content invisible. Fix: `flush()` detects `activeScreen` change post-flush and resets `scrollOffset` to 0.
+- **scrollOffset > scrollbackUsed corruption**: when scrollback is cleared (e.g., ED 3 from any app), `scrollOffset` could exceed `scrollbackUsed`, causing `scrollbackRow()` to read logically-deleted ring buffer cells. Fix: `flush()` clamps `scrollOffset` to `scrollbackUsed` after every flush pass.
+- **ED 3 non-standard visible erase**: case 3 in `eraseInDisplay()` was calling `eraseRowRange(0, visibleRows-1)` in addition to `clearScrollback()`. XTerm ED 3 = scrollback only. The visible erase wiped the active screen unnecessarily on any `CSI 3 J` sequence.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 40: Migrate lua::Engine to clean-room jam::lua API
 
 **Date:** 2026-04-26

@@ -162,29 +162,26 @@ public:
     void lookAndFeelChanged() override;
 
 private:
+    const lua::Engine& config { *lua::Engine::getContext() };
+    const juce::FontOptions font { juce::FontOptions()
+                                       .withName (config.display.actionList.nameFamily)
+                                       .withStyle (config.display.actionList.nameStyle)
+                                       .withPointHeight (config.display.actionList.nameSize) };
     //==========================================================================
-    /** @brief Horizontal padding added to each side of the widest content line (pixels). */
-    static constexpr int horizontalPadding { 24 };
-
-    /** @brief Vertical padding above and below each content row (pixels). */
-    static constexpr int verticalPadding { 12 };
-
-    /** @brief Horizontal padding added to each side of button text (pixels). */
-    static constexpr int buttonTextPadding { 20 };
-
-    /** @brief Horizontal gap between the two buttons (pixels). */
-    static constexpr int buttonGap { 12 };
+    static constexpr int padding { 12 };
+    const int textHeight { jam::toInt (font.getPointHeight()) };
+    const int buttonHeight { padding + textHeight };
 
     //==========================================================================
     // Access config via lua::Engine::getContext() at call sites.
 
-    juce::Label     messageLabel;
+    juce::Label messageLabel;
     juce::TextButton yesButton { "Yes" };
-    juce::TextButton noButton  { "No" };
+    juce::TextButton noButton { "No" };
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Dialog)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

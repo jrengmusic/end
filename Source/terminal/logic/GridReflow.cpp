@@ -192,6 +192,9 @@ void Grid::resize (int newCols, int newVisibleRows)
             std::memcpy (newAlternate.graphemes.get() + newPhys * newCols,
                          oldAlt.graphemes.get() + oldPhys * oldCols,
                          static_cast<size_t> (copyCols) * sizeof (Grapheme));
+            std::memcpy (newAlternate.imageCells.get() + newPhys * newCols,
+                         oldAlt.imageCells.get() + oldPhys * oldCols,
+                         static_cast<size_t> (copyCols) * sizeof (ImageCell));
             newAlternate.rowStates[newPhys] = oldAlt.rowStates[oldPhys];
         }
 
@@ -319,14 +322,17 @@ static int findLastContent (const Cell* cells, int oldCols, int totalRows,
  * @param tempCells      Output flat cell buffer; must hold at least
  *                       `lineCount * oldCols` entries.
  * @param tempGraphs     Output flat grapheme buffer; same size requirement.
+ * @param tempImages     Output flat imageCells buffer; same size requirement.
  * @return Number of non-blank cells at the start of the flat buffer (trailing
  *         blanks are excluded).  Returns 0 if the logical line is entirely blank.
  */
 static int flattenLogicalLine (const Cell* cells, const Grapheme* graphemes,
+                               const ImageCell* imageCells,
                                int oldCols, int totalRows, int head,
                                int oldVisibleRows, int scrollbackUsed,
                                int startLinear, int lineCount,
-                               Cell* tempCells, Grapheme* tempGraphs) noexcept
+                               Cell* tempCells, Grapheme* tempGraphs,
+                               ImageCell* tempImages) noexcept
 {
     for (int r { 0 }; r < lineCount; ++r)
     {
@@ -335,6 +341,7 @@ static int flattenLogicalLine (const Cell* cells, const Grapheme* graphemes,
         const int dstOff { r * oldCols };
         std::memcpy (tempCells + dstOff, cells + srcOff, static_cast<size_t> (oldCols) * sizeof (Cell));
         std::memcpy (tempGraphs + dstOff, graphemes + srcOff, static_cast<size_t> (oldCols) * sizeof (Grapheme));
+        std::memcpy (tempImages + dstOff, imageCells + srcOff, static_cast<size_t> (oldCols) * sizeof (ImageCell));
     }
 
     int total { lineCount * oldCols };
@@ -355,34 +362,39 @@ static int flattenLogicalLine (const Cell* cells, const Grapheme* graphemes,
  * row is filled with blank `Cell {}` and `Grapheme {}` entries.  Sets the
  * `RowState::wrapped` flag according to `wrapped`.
  *
- * @param dstCells     Flat cell array of the new buffer.
- * @param dstGraphemes Flat grapheme array of the new buffer.
- * @param dstStates    RowState array of the new buffer (indexed by physical row).
- * @param newCols      Column count of the new buffer.
- * @param writePhys    Physical row index in the new buffer to write into.
- * @param src          Source flat cell array (from `flattenLogicalLine()`).
- * @param srcG         Source flat grapheme array.
- * @param srcOffset    Byte offset (in cells) into `src` / `srcG` for this output row.
- * @param cellCount    Number of content cells to copy (may be less than `newCols`).
- * @param wrapped      `true` if this output row is followed by another row from
- *                     the same logical line (i.e. the logical line continues).
+ * @param dstCells      Flat cell array of the new buffer.
+ * @param dstGraphemes  Flat grapheme array of the new buffer.
+ * @param dstImageCells Flat imageCells array of the new buffer.
+ * @param dstStates     RowState array of the new buffer (indexed by physical row).
+ * @param newCols       Column count of the new buffer.
+ * @param writePhys     Physical row index in the new buffer to write into.
+ * @param src           Source flat cell array (from `flattenLogicalLine()`).
+ * @param srcG          Source flat grapheme array.
+ * @param srcImages     Source flat imageCells array.
+ * @param srcOffset     Byte offset (in cells) into `src` / `srcG` / `srcImages` for this output row.
+ * @param cellCount     Number of content cells to copy (may be less than `newCols`).
+ * @param wrapped       `true` if this output row is followed by another row from
+ *                      the same logical line (i.e. the logical line continues).
  */
-static void writeNewRow (Cell* dstCells, Grapheme* dstGraphemes, RowState* dstStates,
+static void writeNewRow (Cell* dstCells, Grapheme* dstGraphemes, ImageCell* dstImageCells,
+                         RowState* dstStates,
                          int newCols, int writePhys,
-                         const Cell* src, const Grapheme* srcG,
+                         const Cell* src, const Grapheme* srcG, const ImageCell* srcImages,
                          int srcOffset, int cellCount, bool wrapped) noexcept
 {
     const int dstOff { writePhys * newCols };
     const int toCopy { juce::jmin (cellCount, newCols) };
 
-    std::memcpy (dstCells + dstOff, src + srcOffset, static_cast<size_t> (toCopy) * sizeof (Cell));
-    std::memcpy (dstGraphemes + dstOff, srcG + srcOffset, static_cast<size_t> (toCopy) * sizeof (Grapheme));
+    std::memcpy (dstCells + dstOff,      src + srcOffset,       static_cast<size_t> (toCopy) * sizeof (Cell));
+    std::memcpy (dstGraphemes + dstOff,  srcG + srcOffset,      static_cast<size_t> (toCopy) * sizeof (Grapheme));
+    std::memcpy (dstImageCells + dstOff, srcImages + srcOffset, static_cast<size_t> (toCopy) * sizeof (ImageCell));
 
     if (toCopy < newCols)
     {
         const Cell empty {};
-        std::fill (dstCells + dstOff + toCopy, dstCells + dstOff + newCols, empty);
-        std::fill (dstGraphemes + dstOff + toCopy, dstGraphemes + dstOff + newCols, Grapheme {});
+        std::fill (dstCells + dstOff + toCopy,      dstCells + dstOff + newCols,      empty);
+        std::fill (dstGraphemes + dstOff + toCopy,  dstGraphemes + dstOff + newCols,  Grapheme {});
+        std::fill (dstImageCells + dstOff + toCopy, dstImageCells + dstOff + newCols, ImageCell {});
     }
 
     dstStates[writePhys] = RowState {};
@@ -407,6 +419,9 @@ struct WalkParams
 
     /** Flat grapheme array of the old buffer. */
     const Grapheme* graphemes;
+
+    /** Flat imageCells array of the old buffer. */
+    const ImageCell* imageCells;
 
     /** RowState array of the old buffer (indexed by physical row). */
     const RowState* rowStates;
@@ -488,6 +503,7 @@ static int nextLogicalLine (const WalkParams& wp, int r, int* outRunLen) noexcep
  * @param tempCells          Scratch buffer for `flattenLogicalLine()`; must hold at
  *                           least `wp.linearRows * wp.oldCols` Cell entries.
  * @param tempGraphs         Scratch buffer for `flattenLogicalLine()`; same size.
+ * @param tempImages         Scratch buffer for `flattenLogicalLine()`; same size (ImageCell).
  * @param newCols            Column count of the new buffer.
  * @param cursorLinear       Linear row index of the cursor in the old buffer.
  * @param cursorCol          Column of the cursor in the old buffer.
@@ -495,16 +511,19 @@ static int nextLogicalLine (const WalkParams& wp, int r, int* outRunLen) noexcep
  * @param outCursorNewCol    Output: column of the cursor after rewrapping.
  * @param dstCells           New buffer cell array, or `nullptr` for dry-run mode.
  * @param dstGraphemes       New buffer grapheme array, or `nullptr` for dry-run mode.
+ * @param dstImageCells      New buffer imageCells array, or `nullptr` for dry-run mode.
  * @param dstStates          New buffer RowState array, or `nullptr` for dry-run mode.
  * @param newTotalRows       Total allocated rows in the new buffer (write mode only).
  * @param rowsToSkip         Rows at the top of output to skip (write mode only).
  * @return Total number of output rows the reflowed content occupies.
  */
 static int reflowPass (const WalkParams& wp, Cell* tempCells, Grapheme* tempGraphs,
+                       ImageCell* tempImages,
                        int newCols,
                        int cursorLinear, int cursorCol,
                        int* outCursorOutputRow, int* outCursorNewCol,
-                       Cell* dstCells, Grapheme* dstGraphemes, RowState* dstStates,
+                       Cell* dstCells, Grapheme* dstGraphemes, ImageCell* dstImageCells,
+                       RowState* dstStates,
                        int newTotalRows, int rowsToSkip) noexcept
 {
     *outCursorOutputRow = -1;
@@ -518,9 +537,10 @@ static int reflowPass (const WalkParams& wp, Cell* tempCells, Grapheme* tempGrap
         int runLen { 0 };
         nextLogicalLine (wp, r, &runLen);
 
-        const int flatLen { flattenLogicalLine (wp.cells, wp.graphemes, wp.oldCols, wp.totalRows,
+        const int flatLen { flattenLogicalLine (wp.cells, wp.graphemes, wp.imageCells,
+                                                wp.oldCols, wp.totalRows,
                                                 wp.head, wp.oldVisibleRows, wp.scrollbackUsed,
-                                                r, runLen, tempCells, tempGraphs) };
+                                                r, runLen, tempCells, tempGraphs, tempImages) };
 
         if (*outCursorOutputRow < 0 and cursorLinear >= r and cursorLinear < r + runLen)
         {
@@ -545,8 +565,8 @@ static int reflowPass (const WalkParams& wp, Cell* tempCells, Grapheme* tempGrap
                     const int count { juce::jmax (0, juce::jmin (remaining, newCols)) };
                     const bool wrapped { row < rowsNeeded - 1 };
 
-                    writeNewRow (dstCells, dstGraphemes, dstStates, newCols,
-                                 writePhys, tempCells, tempGraphs, offset, count, wrapped);
+                    writeNewRow (dstCells, dstGraphemes, dstImageCells, dstStates, newCols,
+                                 writePhys, tempCells, tempGraphs, tempImages, offset, count, wrapped);
                     writePhys = (writePhys + 1) % newTotalRows;
                 }
             }
@@ -622,13 +642,15 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
 
     if (linearRows > 0)
     {
-        const WalkParams wp { oldBuffer.cells.get(), oldBuffer.graphemes.get(), oldBuffer.rowStates.get(),
+        const WalkParams wp { oldBuffer.cells.get(), oldBuffer.graphemes.get(), oldBuffer.imageCells.get(),
+                              oldBuffer.rowStates.get(),
                               oldBuffer.head, oldBuffer.totalRows, oldCols, oldVisibleRows,
                               scrollbackUsed, linearRows };
 
         const int maxFlatLen { linearRows * oldCols };
         juce::HeapBlock<Cell> tempCells (static_cast<size_t> (maxFlatLen));
         juce::HeapBlock<Grapheme> tempGraphs (static_cast<size_t> (maxFlatLen));
+        juce::HeapBlock<ImageCell> tempImages (static_cast<size_t> (maxFlatLen));
 
         const int cursorRow { state.getRawValue<int> (state.screenKey (normal, Terminal::ID::cursorRow)) };
         const int cursorCol { state.getRawValue<int> (state.screenKey (normal, Terminal::ID::cursorCol)) };
@@ -638,10 +660,11 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
         int cursorOutputRowDry { -1 };
         int cursorNewColDry { 0 };
 
-        const int totalOutputRows { reflowPass (wp, tempCells.get(), tempGraphs.get(), newCols,
+        const int totalOutputRows { reflowPass (wp, tempCells.get(), tempGraphs.get(), tempImages.get(),
+                                                newCols,
                                                 cursorLinear, cursorCol,
                                                 &cursorOutputRowDry, &cursorNewColDry,
-                                                nullptr, nullptr, nullptr, 0, 0) };
+                                                nullptr, nullptr, nullptr, nullptr, 0, 0) };
 
         const int newScrollback { juce::jmax (0, totalOutputRows - newVisibleRows) };
         const int maxSc { newBuffer.totalRows - newVisibleRows };
@@ -652,10 +675,12 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
         int cursorOutputRow { -1 };
         int cursorNewCol { 0 };
 
-        reflowPass (wp, tempCells.get(), tempGraphs.get(), newCols,
+        reflowPass (wp, tempCells.get(), tempGraphs.get(), tempImages.get(),
+                    newCols,
                     cursorLinear, cursorCol,
                     &cursorOutputRow, &cursorNewCol,
-                    newBuffer.cells.get(), newBuffer.graphemes.get(), newBuffer.rowStates.get(),
+                    newBuffer.cells.get(), newBuffer.graphemes.get(), newBuffer.imageCells.get(),
+                    newBuffer.rowStates.get(),
                     newBuffer.totalRows, rowsToSkip);
 
         if (cursorOutputRow < 0)

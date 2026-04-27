@@ -279,13 +279,17 @@ protected:
      *
      * Calls `ResizePseudoConsole()` with the new dimensions.  The child
      * process receives a `WINDOW_BUFFER_SIZE_EVENT` console event.
+     * Pixel dimensions are accepted for interface compatibility but not used
+     * on Windows (ConPTY does not expose a pixel winsize).
      *
-     * @param cols  New terminal width in character columns.
-     * @param rows  New terminal height in character rows.
+     * @param cols        New terminal width in character columns.
+     * @param rows        New terminal height in character rows.
+     * @param pixelWidth  Unused on Windows.
+     * @param pixelHeight Unused on Windows.
      *
      * @note MESSAGE THREAD context — called by TTY::platformResize() when dims changed.
      */
-    void doPlatformResize (int cols, int rows) override;
+    void doPlatformResize (int cols, int rows, int pixelWidth, int pixelHeight) override;
 
 private:
     /** @brief ConPTY handle created by `CreatePseudoConsole()`.  nullptr when not open. */

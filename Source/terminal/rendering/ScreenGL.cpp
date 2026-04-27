@@ -36,6 +36,32 @@ void Screen<Renderer>::renderOpenGL (int originX, int originY, int fullHeight)
         textRenderer.push (x, y, glViewportWidth, glViewportHeight, fullHeight);
         textRenderer.uploadStagedBitmaps (packer, atlasRef);
 
+        {
+            auto* batch { imageAtlas.consumeStagedUploads() };
+
+            if (batch != nullptr and batch->count > 0)
+            {
+                if (imageAtlas.getGLTexture() == 0)
+                    imageAtlas.createGLTexture();
+
+                juce::gl::glPixelStorei (juce::gl::GL_UNPACK_ALIGNMENT, 1);
+                juce::gl::glBindTexture (juce::gl::GL_TEXTURE_2D, imageAtlas.getGLTexture());
+
+                for (int i { 0 }; i < batch->count; ++i)
+                {
+                    const auto& staged { batch->items[i] };
+                    juce::gl::glTexSubImage2D (juce::gl::GL_TEXTURE_2D, 0,
+                                               staged.region.getX(), staged.region.getY(),
+                                               staged.region.getWidth(), staged.region.getHeight(),
+                                               juce::gl::GL_RGBA, juce::gl::GL_UNSIGNED_BYTE,
+                                               staged.pixelData.get());
+                }
+
+                juce::gl::glPixelStorei (juce::gl::GL_UNPACK_ALIGNMENT, 4);
+                batch->reset();
+            }
+        }
+
         Render::Snapshot* snapshot { resources.snapshotBuffer.read() };
 
         if (snapshot != nullptr)
@@ -60,6 +86,7 @@ void Screen<Renderer>::renderOpenGL (int originX, int originY, int fullHeight)
                                         true);
             }
 
+            drawImages (*snapshot);
             drawCursor (*snapshot);
         }
 
@@ -77,6 +104,63 @@ template <typename Renderer>
 bool Screen<Renderer>::isGLContextReady() const noexcept
 {
     return textRenderer.isReady();
+}
+
+/// @brief Atlas dimension of the inline image atlas, as a named constant for drawImages.
+static constexpr int imageAtlasDimension { 4096 };
+
+/**
+ * @brief Draws inline image quads from the snapshot using the image atlas.
+ *
+ * Converts each `ImageQuad` in the snapshot to a `Render::Glyph` (Quad) with
+ * white foreground colour (no tint; RGBA atlas samples carry native colour).
+ * On the GL path, binds the image atlas texture and calls `drawQuadsWithTexture`.
+ * On the CPU path, calls `drawQuadsFromAtlas` with the CPU-side image atlas.
+ *
+ * @param snapshot  The current frame's snapshot.
+ * @note **GL/MESSAGE THREAD** — same thread as the caller (renderOpenGL / renderPaint).
+ */
+template <typename Renderer>
+void Screen<Renderer>::drawImages (const Render::Snapshot& snapshot)
+{
+    if (snapshot.imageCount > 0 and snapshot.images.get() != nullptr)
+    {
+        juce::HeapBlock<Render::Glyph> quads;
+        quads.allocate (static_cast<size_t> (snapshot.imageCount), false);
+
+        for (int i { 0 }; i < snapshot.imageCount; ++i)
+        {
+            const Render::ImageQuad& iq { snapshot.images[i] };
+            Render::Glyph& q { quads[i] };
+            q.screenPosition    = iq.screenBounds.getTopLeft();
+            q.glyphSize         = juce::Point<float> { iq.screenBounds.getWidth(), iq.screenBounds.getHeight() };
+            q.textureCoordinates = iq.uvRect;
+            q.foregroundColorR  = 1.0f;
+            q.foregroundColorG  = 1.0f;
+            q.foregroundColorB  = 1.0f;
+            q.foregroundColorA  = 1.0f;
+        }
+
+        if constexpr (std::is_same_v<Renderer, jam::Glyph::GLContext>)
+        {
+            const GLuint imgTex { imageAtlas.getGLTexture() };
+
+            if (imgTex != 0)
+            {
+                textRenderer.drawQuadsWithTexture (quads.get(), snapshot.imageCount, imgTex);
+            }
+        }
+        else
+        {
+            const juce::Image& cpuAtlas { imageAtlas.getCPUAtlas() };
+
+            if (cpuAtlas.isValid())
+            {
+                textRenderer.drawQuadsFromAtlas (quads.get(), snapshot.imageCount,
+                                                  cpuAtlas, imageAtlasDimension);
+            }
+        }
+    }
 }
 
 /**
@@ -201,6 +285,37 @@ void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY,
 
         textRenderer.uploadStagedBitmaps (packer, atlasRef);
 
+        {
+            imageAtlas.ensureCPUAtlas();
+            auto* batch { imageAtlas.consumeStagedUploads() };
+
+            if (batch != nullptr and batch->count > 0)
+            {
+                for (int i { 0 }; i < batch->count; ++i)
+                {
+                    const auto& staged { batch->items[i] };
+                    const auto region { staged.region };
+
+                    juce::Image::BitmapData destData (imageAtlas.getMutableCPUAtlas(),
+                                                       region.getX(), region.getY(),
+                                                       region.getWidth(), region.getHeight(),
+                                                       juce::Image::BitmapData::writeOnly);
+
+                    const uint8_t* src { staged.pixelData.get() };
+                    const int srcStride { region.getWidth() * 4 };
+
+                    for (int row { 0 }; row < region.getHeight(); ++row)
+                    {
+                        std::memcpy (destData.getLinePointer (row),
+                                     src + row * srcStride,
+                                     static_cast<size_t> (srcStride));
+                    }
+                }
+
+                batch->reset();
+            }
+        }
+
         Render::Snapshot* snapshot { resources.snapshotBuffer.read() };
 
         if (snapshot != nullptr)
@@ -234,6 +349,7 @@ void Screen<Renderer>::renderPaint (juce::Graphics& g, int originX, int originY,
                                         true);
             }
 
+            drawImages (*snapshot);
             drawCursor (*snapshot);
         }
 

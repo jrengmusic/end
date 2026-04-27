@@ -30,12 +30,14 @@ Tabs::Tabs (jam::Font& font_,
             jam::Glyph::Packer& packer_,
             jam::gl::GlyphAtlas& glAtlas_,
             jam::GraphicsAtlas& graphicsAtlas_,
+            Terminal::ImageAtlas& imageAtlas_,
             jam::TabbedButtonBar::Orientation orientation)
     : jam::TabbedComponent (orientation)
     , font (font_)
     , packerRef (packer_)
     , glAtlasRef (glAtlas_)
     , graphicsAtlasRef (graphicsAtlas_)
+    , imageAtlasRef (imageAtlas_)
 {
     setOpaque (false);
     setTabBarDepth (0);
@@ -106,13 +108,18 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
 {
     jassert (cols > 0 and rows > 0);
 
-    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, packerRef, glAtlasRef, graphicsAtlasRef)) };
+    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, packerRef, glAtlasRef, graphicsAtlasRef, imageAtlasRef)) };
     auto& newPanes { *newPanesPtr };
     newPanes.onRepaintNeeded = onRepaintNeeded;
     newPanes.onOpenMarkdown = [this] (const juce::File& file)
     {
         if (auto* active { getActivePanes() }; active != nullptr)
             active->createWhelmed (file);
+    };
+    newPanes.onShowImagePreview = [this] (const juce::Image& img)
+    {
+        if (onShowImagePreview != nullptr)
+            onShowImagePreview (img);
     };
     newPanes.onLastPaneClosed = [this]
     {

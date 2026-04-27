@@ -27,14 +27,14 @@
  *   ESC ] <command> ; <data> BEL
  *   ESC ] <command> ; <data> ESC \   (ST — String Terminator)
  * @endcode
- * The numeric command code and data payload are accumulated in `oscBuffer`
- * and dispatched by `oscDispatch()` when the terminator is received.
+ * The numeric command code and data payload are accumulated in the hybrid
+ * `oscBuffer` and dispatched by `oscDispatch()` when the terminator is received.
  *
  * @par DCS passthrough
  * DCS (Device Control String) sequences are accepted by the state machine
- * but currently passed through without processing.  `dcsHook()`, `dcsPut()`,
- * and `dcsUnhook()` are provided as extension points for future support
- * (e.g. DECRQSS — Request Status String).
+ * accumulated in `dcsBuffer` via `appendToBuffer()`.  `dcsHook()` and
+ * `dcsUnhook()` are the entry and exit points for future decoder dispatch
+ * (e.g. Sixel graphics via DECRQSS).
  *
  * @par Thread model
  * All functions in this file run exclusively on the **READER THREAD**.
@@ -50,6 +50,8 @@
 
 #include "Parser.h"
 #include "Grid.h"
+#include "ITerm2Decoder.h"
+#include "KittyDecoder.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -357,8 +359,8 @@ void Parser::escDispatch (const uint8_t* inter, uint8_t interCount, uint8_t fina
  */
 struct OscHeader
 {
-    int commandNumber { 0 };   ///< Numeric OSC command code (e.g. 0, 2, 52).
-    uint16_t dataStart { 0 };  ///< Byte offset of the first data byte after ';'.
+    int commandNumber { 0 };  ///< Numeric OSC command code (e.g. 0, 2, 52).
+    int dataStart { 0 };      ///< Byte offset of the first data byte after ';'.
 };
 
 /**
@@ -379,14 +381,14 @@ struct OscHeader
  * @note Pure function — no side effects.
  * @note READER THREAD only.
  */
-static inline OscHeader parseOscHeader (const uint8_t* payload, uint16_t length) noexcept
+static inline OscHeader parseOscHeader (const uint8_t* payload, int length) noexcept
 {
     OscHeader h;
-    for (uint16_t i { 0 }; i < length; ++i)
+    for (int i { 0 }; i < length; ++i)
     {
         if (payload[i] == ';')
         {
-            h.dataStart = static_cast<uint16_t> (i + 1);
+            h.dataStart = i + 1;
             break;
         }
 
@@ -420,10 +422,10 @@ static inline OscHeader parseOscHeader (const uint8_t* payload, uint16_t length)
  * @see State::setTitle()
  * @see oscDispatch()
  */
-void Parser::handleOscTitle (const uint8_t* data, uint16_t dataLength) noexcept
+void Parser::handleOscTitle (const uint8_t* data, int dataLength) noexcept
 {
     // READER THREAD
-    int safeLen { juce::jmin (static_cast<int> (dataLength), State::maxStringLength - 1) };
+    int safeLen { juce::jmin (dataLength, State::maxStringLength - 1) };
 
     while (safeLen > 0 and (data[safeLen - 1] & 0xC0) == 0x80)
         --safeLen;
@@ -431,7 +433,7 @@ void Parser::handleOscTitle (const uint8_t* data, uint16_t dataLength) noexcept
     state.setTitle (reinterpret_cast<const char*> (data), safeLen);
 }
 
-void Parser::handleOscCwd (const uint8_t* data, uint16_t dataLength) noexcept
+void Parser::handleOscCwd (const uint8_t* data, int dataLength) noexcept
 {
     // READER THREAD
     // OSC 7 format: file://hostname/path
@@ -532,18 +534,18 @@ void Parser::handleOscCwd (const uint8_t* data, uint16_t dataLength) noexcept
  * @see onClipboardChanged
  * @see oscDispatch()
  */
-void Parser::handleOscClipboard (const uint8_t* data, uint16_t dataLength) noexcept
+void Parser::handleOscClipboard (const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength > 2)
     {
         // Find the semicolon after the selection parameter (e.g., "c;" or "s0;")
-        uint16_t payloadStart { 0 };
+        int payloadStart { 0 };
 
-        for (uint16_t i { 0 }; i < dataLength; ++i)
+        for (int i { 0 }; i < dataLength; ++i)
         {
             if (*(data + i) == ';')
             {
-                payloadStart = static_cast<uint16_t> (i + 1);
+                payloadStart = i + 1;
                 break;
             }
         }
@@ -586,12 +588,12 @@ void Parser::handleOscClipboard (const uint8_t* data, uint16_t dataLength) noexc
  * @see onDesktopNotification
  * @see oscDispatch()
  */
-void Parser::handleOscNotification (const uint8_t* data, uint16_t dataLength) noexcept
+void Parser::handleOscNotification (const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength > 0 and onDesktopNotification)
     {
         const juce::String body { juce::String::fromUTF8 (
-            reinterpret_cast<const char*> (data), static_cast<int> (dataLength)) };
+            reinterpret_cast<const char*> (data), dataLength) };
 
         juce::MessageManager::callAsync ([this, body] { onDesktopNotification ({}, body); });
     }
@@ -621,7 +623,7 @@ void Parser::handleOscNotification (const uint8_t* data, uint16_t dataLength) no
  * @see onDesktopNotification
  * @see oscDispatch()
  */
-void Parser::handleOsc777 (const uint8_t* data, uint16_t dataLength) noexcept
+void Parser::handleOsc777 (const uint8_t* data, int dataLength) noexcept
 {
     // Format: notify;title;body
     // data points after "777;", so it starts with "notify;..."
@@ -633,10 +635,10 @@ void Parser::handleOsc777 (const uint8_t* data, uint16_t dataLength) noexcept
         if (std::memcmp (data, prefix, 7) == 0)
         {
             const uint8_t* titleStart { data + 7 };
-            const uint16_t remaining { static_cast<uint16_t> (dataLength - 7) };
+            const int remaining { dataLength - 7 };
 
             // Find semicolon separating title from body
-            uint16_t titleLen { 0 };
+            int titleLen { 0 };
 
             while (titleLen < remaining and titleStart[titleLen] != ';')
             {
@@ -644,7 +646,7 @@ void Parser::handleOsc777 (const uint8_t* data, uint16_t dataLength) noexcept
             }
 
             const juce::String title { juce::String::fromUTF8 (
-                reinterpret_cast<const char*> (titleStart), static_cast<int> (titleLen)) };
+                reinterpret_cast<const char*> (titleStart), titleLen) };
 
             juce::String body;
 
@@ -652,7 +654,7 @@ void Parser::handleOsc777 (const uint8_t* data, uint16_t dataLength) noexcept
             {
                 body = juce::String::fromUTF8 (
                     reinterpret_cast<const char*> (titleStart + titleLen + 1),
-                    static_cast<int> (remaining - titleLen - 1));
+                    remaining - titleLen - 1);
             }
 
             juce::MessageManager::callAsync ([this, title, body] { onDesktopNotification (title, body); });
@@ -679,6 +681,7 @@ void Parser::handleOsc777 (const uint8_t* data, uint16_t dataLength) noexcept
  * | 112     | Reset cursor color       | `handleOscResetCursorColor()` |
  * | 133     | Shell integration marker | `handleOsc133()`              |
  * | 777     | Desktop notification     | `handleOsc777()`              |
+ * | 1337    | iTerm2 inline image      | `handleOsc1337()`             |
  * | Other   | —                        | silently ignored              |
  *
  * @par Sequence format
@@ -697,7 +700,7 @@ void Parser::handleOsc777 (const uint8_t* data, uint16_t dataLength) noexcept
  * @see handleOscClipboard()
  * @see parseOscHeader()
  */
-void Parser::oscDispatch (const uint8_t* payload, uint16_t length) noexcept
+void Parser::oscDispatch (const uint8_t* payload, int length) noexcept
 {
     if (length >= 2)
     {
@@ -705,7 +708,7 @@ void Parser::oscDispatch (const uint8_t* payload, uint16_t length) noexcept
 
         if (h.dataStart > 0)
         {
-            const uint16_t dataLength { static_cast<uint16_t> (length - h.dataStart) };
+            const int dataLength { length - h.dataStart };
             const uint8_t* data { payload + h.dataStart };
 
             switch (h.commandNumber)
@@ -719,6 +722,7 @@ void Parser::oscDispatch (const uint8_t* payload, uint16_t length) noexcept
                 case 52:    handleOscClipboard (data, dataLength);               break;
                 case 133:   handleOsc133 (state.getRawValue<ActiveScreen> (ID::activeScreen), data, dataLength);  break;
                 case 777:   handleOsc777 (data, dataLength);                     break;
+                case 1337:  handleOsc1337 (data, dataLength);                    break;
                 default:    break;
             }
         }
@@ -730,13 +734,13 @@ void Parser::oscDispatch (const uint8_t* payload, uint16_t length) noexcept
     }
 }
 
-void Parser::handleOscCursorColor (const uint8_t* data, uint16_t dataLength) noexcept
+void Parser::handleOscCursorColor (const uint8_t* data, int dataLength) noexcept
 {
     // READER THREAD
     if (dataLength >= 7)
     {
         const juce::String colorStr { juce::String::fromUTF8 (reinterpret_cast<const char*> (data),
-                                                               static_cast<int> (dataLength)) };
+                                                               dataLength) };
 
         if (colorStr.startsWith ("rgb:") and colorStr.length() >= 12)
         {
@@ -788,13 +792,13 @@ void Parser::handleOscResetCursorColor() noexcept
  *
  * @note READER THREAD only.
  */
-void Parser::handleOsc8 (const uint8_t* data, uint16_t dataLength) noexcept
+void Parser::handleOsc8 (const uint8_t* data, int dataLength) noexcept
 {
     // READER THREAD
     // Find the semicolon that separates params from uri
     int semiPos { -1 };
 
-    for (int i { 0 }; i < static_cast<int> (dataLength); ++i)
+    for (int i { 0 }; i < dataLength; ++i)
     {
         if (data[i] == ';')
         {
@@ -813,7 +817,7 @@ void Parser::handleOsc8 (const uint8_t* data, uint16_t dataLength) noexcept
     else
     {
         const int uriStart  { semiPos + 1 };
-        const int uriLength { static_cast<int> (dataLength) - uriStart };
+        const int uriLength { dataLength - uriStart };
 
         if (uriLength > 0)
         {
@@ -869,7 +873,7 @@ void Parser::handleOsc8 (const uint8_t* data, uint16_t dataLength) noexcept
  * @param dataLength  Number of bytes in `data` (must be >= 1 for a valid subcommand).
  * @note READER THREAD only.
  */
-void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataLength) noexcept
+void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength >= 1)
     {
@@ -896,6 +900,71 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataL
     }
 }
 
+/**
+ * @brief Handles OSC 1337 — iTerm2 inline image display.
+ *
+ * Delegates to `ITerm2Decoder` to parse the `File=` key=value header,
+ * base64-decode the payload, and produce an RGBA8 `DecodedImage`.  On success,
+ * reserves an image ID, writes image cells to the grid, and stores the decoded
+ * image in Grid for the MESSAGE THREAD to pull on first atlas encounter.
+ *
+ * Silently skips when:
+ * - `inline=0` or the key is absent (download-only mode).
+ * - Cell dimensions are not yet calibrated (zero values).
+ * - Decoder returns an invalid image.
+ *
+ * @par Sequence
+ * @code
+ *   ESC ] 1337 ; File=[key=value;...] : <base64> BEL
+ * @endcode
+ *
+ * @param data        Pointer to OSC payload bytes after "1337;".
+ *                    Expected to begin with "File=".
+ * @param dataLength  Number of bytes in @p data.
+ *
+ * @note READER THREAD only.
+ *
+ * @see ITerm2Decoder
+ * @see Grid::reserveImageId()
+ * @see Grid::storeDecodedImage()
+ */
+void Parser::handleOsc1337 (const uint8_t* data, int dataLength) noexcept
+{
+    // READER THREAD
+    const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
+    const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+
+    if (cellW > 0 and cellH > 0)
+    {
+        ITerm2Decoder decoder;
+        DecodedImage image { decoder.decode (data, dataLength) };
+
+        if (image.isValid())
+        {
+            const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+            const int cursorRow    { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+            const int cursorCol    { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+
+            const uint32_t imageId { writer.reserveImageId() };
+
+            writer.activeWriteImage (cursorRow, cursorCol, imageId,
+                                     image.width, image.height, cellW, cellH);
+
+            const int cellRows { (image.height + cellH - 1) / cellH };
+            cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
+            state.setCursorCol (scr, 0);
+
+            PendingImage pending;
+            pending.imageId = imageId;
+            pending.rgba    = std::move (image.rgba);
+            pending.width   = image.width;
+            pending.height  = image.height;
+
+            writer.storeDecodedImage (std::move (pending));
+        }
+    }
+}
+
 // ============================================================================
 // VT Handler: DCS
 // ============================================================================
@@ -904,38 +973,38 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, uint16_t dataL
  * @brief Called when a DCS (Device Control String) sequence is hooked.
  *
  * Invoked on entry to the `dcsPassthrough` state when the DCS final byte is
- * received.  The current implementation is a no-op — DCS commands are not
- * processed.  Provided as an extension point for future support (e.g.
- * DECRQSS — Request Status String, or Sixel graphics).
+ * received.  The `dcsFinalByte` member is recorded by `performAction()` prior
+ * to this call.  The current implementation is a stub — Sixel decoder dispatch
+ * will be wired here in a future step.
  *
  * @par Sequence format
  * @code
  *   ESC P <params> <intermediates> <final> <data> ESC \
  * @endcode
  *
- * @param params             Finalised DCS parameter accumulator (unused).
- * @param inter              Pointer to the intermediate byte buffer (unused).
- * @param interCount         Number of valid bytes in `inter` (unused).
- * @param finalByte          The DCS final byte (unused).
+ * @param params             Finalised DCS parameter accumulator (unused until decoder wired).
+ * @param inter              Pointer to the intermediate byte buffer (unused until decoder wired).
+ * @param interCount         Number of valid bytes in `inter` (unused until decoder wired).
+ * @param finalByte          The DCS final byte (recorded in `dcsFinalByte` by caller).
  *
  * @note READER THREAD only.
  *
- * @see dcsPut()
  * @see dcsUnhook()
+ * @see appendToBuffer()
  */
 void Parser::dcsHook (const CSI& /*params*/,
-                            const uint8_t* /*inter*/,
-                            uint8_t /*interCount*/,
-                            uint8_t /*finalByte*/) noexcept
+                      const uint8_t* /*inter*/,
+                      uint8_t /*interCount*/,
+                      uint8_t /*finalByte*/) noexcept
 {
 }
 
 /**
  * @brief Called for each byte in the DCS passthrough data stream.
  *
- * Invoked by the `put` action for every byte received while the parser is in
- * the `dcsPassthrough` state.  Currently a no-op — DCS data is discarded.
- * Provided as an extension point for future DCS command support.
+ * Retained as an extension point.  DCS passthrough accumulation is now
+ * performed directly in `performAction()` via `appendToBuffer (dcsBuffer, …)`.
+ * This method is no longer called by the `put` action.
  *
  * @param byte  The DCS passthrough byte (unused).
  *
@@ -947,18 +1016,170 @@ void Parser::dcsHook (const CSI& /*params*/,
 void Parser::dcsPut (uint8_t /*byte*/) noexcept {}
 
 /**
+ * @brief Updates the physical cell dimensions used by the Sixel decoder.
+ *
+ * @param widthPx   Physical cell width in pixels.
+ * @param heightPx  Physical cell height in pixels.
+ * @note MESSAGE THREAD.
+ */
+void Parser::setPhysCellDimensions (int widthPx, int heightPx) noexcept
+{
+    physCellWidthAtomic.store  (widthPx,  std::memory_order_relaxed);
+    physCellHeightAtomic.store (heightPx, std::memory_order_relaxed);
+}
+
+/**
  * @brief Called when a DCS sequence is terminated (ST received).
  *
- * Invoked by the `unhook` action when the String Terminator (`ESC \`) is
- * received while in the `dcsPassthrough` state.  Currently a no-op — no
- * cleanup is required since `dcsHook()` establishes no state.
+ * When `dcsFinalByte == 'q'` and the buffer contains data, runs `SixelDecoder`
+ * on the accumulated payload.  On success:
+ * 1. Reserves an image ID via `Grid::Writer::reserveImageId()`.
+ * 2. Writes image cells to the grid via `Grid::Writer::activeWriteImage()`.
+ * 3. Stores the decoded image via `Grid::Writer::storeDecodedImage()`.
+ *    The MESSAGE THREAD pulls it from Grid on first atlas encounter in
+ *    `processCellForSnapshot()` and stages the RGBA pixels into `ImageAtlas`.
+ *
+ * Silently skips the decode path when:
+ * - `dcsFinalByte != 'q'` (not a Sixel sequence)
+ * - `physCellWidthAtomic` or `physCellHeightAtomic` is zero (Screen not yet
+ *   calibrated — first frame startup edge case)
+ * - Decoder returns an invalid image
  *
  * @note READER THREAD only.
  *
  * @see dcsHook()
- * @see dcsPut()
+ * @see appendToBuffer()
+ * @see SixelDecoder
+ * @see Grid::reserveImageId()
+ * @see Grid::storeDecodedImage()
  */
-void Parser::dcsUnhook() noexcept {}
+void Parser::dcsUnhook() noexcept
+{
+    if (dcsFinalByte == 'q' and dcsBufferSize > 0)
+    {
+        const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
+        const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+
+        if (cellW > 0 and cellH > 0)
+        {
+            SixelDecoder decoder;
+            DecodedImage image { decoder.decode (dcsBuffer.get(), static_cast<size_t> (dcsBufferSize)) };
+
+            if (image.isValid())
+            {
+                const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+                const int cursorRow    { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+                const int cursorCol    { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+
+                const uint32_t imageId { writer.reserveImageId() };
+
+                writer.activeWriteImage (cursorRow, cursorCol, imageId,
+                                         image.width, image.height, cellW, cellH);
+
+                const int cellRows { (image.height + cellH - 1) / cellH };
+                cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
+                state.setCursorCol (scr, 0);
+
+                PendingImage pending;
+                pending.imageId = imageId;
+                pending.rgba    = std::move (image.rgba);
+                pending.width   = image.width;
+                pending.height  = image.height;
+
+                writer.storeDecodedImage (std::move (pending));
+            }
+        }
+    }
+
+    dcsBufferSize = 0;
+}
+
+/**
+ * @brief Called when an APC sequence is terminated (BEL or ST received).
+ *
+ * Dispatches the accumulated `apcBuffer` payload to `KittyDecoder::process()`.
+ * On a final-chunk transmit+display result, reserves an image ID, writes image
+ * cells to the grid, and stores the decoded image in Grid for the MESSAGE THREAD
+ * to pull on first atlas encounter.  Any non-empty response string is queued
+ * via `sendResponse()` for delivery through `writeToHost` after `process()`.
+ *
+ * Silently skips when:
+ * - `apcBufferSize == 0` (no APC data accumulated).
+ * - Cell dimensions are not yet calibrated (zero values).
+ * - Decoder returns `shouldDisplay=false` (query, delete, transmit-only, or
+ *   mid-sequence chunk).
+ * - Decoded image is invalid.
+ *
+ * @note READER THREAD only.
+ *
+ * @see KittyDecoder
+ * @see appendToBuffer()
+ * @see Grid::reserveImageId()
+ * @see Grid::storeDecodedImage()
+ */
+void Parser::apcEnd() noexcept
+{
+    if (apcBufferSize > 0 and apcBuffer.get() != nullptr)
+    {
+        // apcBuffer starts with 'G' (the APC command identifier); KittyDecoder
+        // expects data after 'G' (key=value pairs + payload).
+        KittyDecoder::Result kittyResult { kittyDecoder.process (apcBuffer.get() + 1, apcBufferSize - 1) };
+
+        if (kittyResult.shouldDisplay and kittyResult.image.isValid())
+        {
+            const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
+            const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+
+            if (cellW > 0 and cellH > 0)
+            {
+                const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+                const int cursorRow    { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+                const int cursorCol    { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+
+                const uint32_t imageId { writer.reserveImageId() };
+
+                state.setOverlayImageId (imageId);
+                state.setOverlayRow (cursorRow);
+                state.setOverlayCol (cursorCol);
+
+                const int cellRows { (kittyResult.image.height + cellH - 1) / cellH };
+                cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
+                state.setCursorCol (scr, 0);
+
+                PendingImage pending;
+                pending.imageId = imageId;
+                pending.rgba    = std::move (kittyResult.image.rgba);
+                pending.width   = kittyResult.image.width;
+                pending.height  = kittyResult.image.height;
+
+                writer.storeDecodedImage (std::move (pending));
+            }
+        }
+        else if (kittyResult.isVirtualPlacement and kittyResult.image.isValid())
+        {
+            // Virtual placement (U=1): store image for atlas consumption under the Kitty
+            // image ID so that U+10EEEE placeholder cells can look it up by that ID.
+            // No grid cells are written — the app writes U+10EEEE characters instead.
+            PendingImage pending;
+            pending.imageId              = kittyResult.kittyImageId;
+            pending.rgba                 = std::move (kittyResult.image.rgba);
+            pending.width                = kittyResult.image.width;
+            pending.height               = kittyResult.image.height;
+            pending.hasVirtualPlacement  = true;
+            pending.placementCols        = kittyResult.placementCols;
+            pending.placementRows        = kittyResult.placementRows;
+
+            writer.storeDecodedImage (std::move (pending));
+        }
+
+        if (kittyResult.response.isNotEmpty())
+        {
+            sendResponse (kittyResult.response.toRawUTF8());
+        }
+    }
+
+    apcBufferSize = 0;
+}
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

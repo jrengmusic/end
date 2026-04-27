@@ -13,9 +13,6 @@
  */
 
 #include "Processor.h"
-#include "../../component/TerminalDisplay.h"
-
-#include "../data/Keyboard.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -42,10 +39,11 @@ Processor::Processor (int cols, int rows, const juce::String& uuid)
 
     parser = std::make_unique<Parser> (state, Grid::Writer { grid });
 
-    parser->setScrollbackCallback ([this] (int count)
-    {
-        state.setScrollbackUsed (count);
-    });
+    parser->setScrollbackCallback (
+        [this] (int count)
+        {
+            state.setScrollbackUsed (count);
+        });
 
     parser->onClipboardChanged = [this] (const juce::String& c)
     {
@@ -132,7 +130,7 @@ juce::String Processor::encodePaste (const juce::String& text) const noexcept
 
         if (bracketed)
         {
-            static constexpr const char open[]  { "\x1b[200~" };
+            static constexpr const char open[] { "\x1b[200~" };
             static constexpr const char close[] { "\x1b[201~" };
             const juce::String normalized { text.replace ("\r\n", "\n").replace ("\r", "\n") };
             result = juce::String (open) + normalized + juce::String (close);
@@ -176,10 +174,7 @@ juce::String Processor::encodeFocusEvent (bool gained) const noexcept
 juce::String Processor::encodeMouseEvent (int button, int col, int row, bool press) const noexcept
 {
     const char finalChar { press ? 'M' : 'm' };
-    return juce::String ("\x1b[<")
-           + juce::String (button) + ";"
-           + juce::String (col + 1) + ";"
-           + juce::String (row + 1)
+    return juce::String ("\x1b[<") + juce::String (button) + ";" + juce::String (col + 1) + ";" + juce::String (row + 1)
            + finalChar;
 }
 
@@ -199,10 +194,10 @@ void Processor::process (const char* data, int length) noexcept
     sendChangeMessage();
 }
 
-State& Processor::getState() noexcept       { return state; }
+State& Processor::getState() noexcept { return state; }
 const State& Processor::getState() const noexcept { return state; }
 
-Grid& Processor::getGrid() noexcept        { return grid; }
+Grid& Processor::getGrid() noexcept { return grid; }
 const Grid& Processor::getGrid() const noexcept { return grid; }
 
 const juce::String& Processor::getUuid() const noexcept { return uuid; }
@@ -275,11 +270,12 @@ void Processor::setHostWriter (std::function<void (const char*, int)> writer) no
  * @note MESSAGE THREAD.
  */
 std::unique_ptr<Display> Processor::createDisplay (jam::Font& font,
-                                                    jam::Glyph::Packer& packer,
-                                                    jam::gl::GlyphAtlas& glAtlas,
-                                                    jam::GraphicsAtlas& graphicsAtlas)
+                                                   jam::Glyph::Packer& packer,
+                                                   jam::gl::GlyphAtlas& glAtlas,
+                                                   jam::GraphicsAtlas& graphicsAtlas,
+                                                   Terminal::ImageAtlas& imageAtlas)
 {
-    auto display { std::make_unique<Display> (*this, font, packer, glAtlas, graphicsAtlas) };
+    auto display { std::make_unique<Display> (*this, font, packer, glAtlas, graphicsAtlas, imageAtlas) };
     display->setComponentID (uuid);
     return display;
 }
@@ -316,14 +312,14 @@ std::unique_ptr<Display> Processor::createDisplay (jam::Font& font,
  */
 void Processor::getStateInformation (juce::MemoryBlock& destData) const
 {
-    const uint32_t version      { 1 };
-    const int32_t  cols         { static_cast<int32_t> (state.getCols()) };
-    const int32_t  visibleRows  { static_cast<int32_t> (state.getVisibleRows()) };
-    const int32_t  activeScreen { static_cast<int32_t> (state.getActiveScreen()) };
+    const uint32_t version { 1 };
+    const int32_t cols { static_cast<int32_t> (state.getCols()) };
+    const int32_t visibleRows { static_cast<int32_t> (state.getVisibleRows()) };
+    const int32_t activeScreen { static_cast<int32_t> (state.getActiveScreen()) };
 
-    destData.append (&version,      sizeof (uint32_t));
-    destData.append (&cols,         sizeof (int32_t));
-    destData.append (&visibleRows,  sizeof (int32_t));
+    destData.append (&version, sizeof (uint32_t));
+    destData.append (&cols, sizeof (int32_t));
+    destData.append (&visibleRows, sizeof (int32_t));
     destData.append (&activeScreen, sizeof (int32_t));
 
     grid.getStateInformation (destData);
@@ -332,30 +328,33 @@ void Processor::getStateInformation (juce::MemoryBlock& destData) const
 
     for (const ActiveScreen screen : screens)
     {
-        const int32_t cursorRow     { static_cast<int32_t> (state.getRawValue<int> (state.screenKey (screen, ID::cursorRow))) };
-        const int32_t cursorCol     { static_cast<int32_t> (state.getRawValue<int> (state.screenKey (screen, ID::cursorCol))) };
+        const int32_t cursorRow { static_cast<int32_t> (
+            state.getRawValue<int> (state.screenKey (screen, ID::cursorRow))) };
+        const int32_t cursorCol { static_cast<int32_t> (
+            state.getRawValue<int> (state.screenKey (screen, ID::cursorCol))) };
         const int32_t cursorVisible { state.getRawValue<bool> (state.screenKey (screen, ID::cursorVisible)) ? 1 : 0 };
-        const int32_t cursorShape   { static_cast<int32_t> (state.getRawValue<int> (state.screenKey (screen, ID::cursorShape))) };
-        const int32_t scrollTop     { static_cast<int32_t> (state.getRawValue<int> (state.screenKey (screen, ID::scrollTop))) };
-        const int32_t scrollBottom  { static_cast<int32_t> (state.getRawValue<int> (state.screenKey (screen, ID::scrollBottom))) };
-        const int32_t wrapPending   { state.getRawValue<bool> (state.screenKey (screen, ID::wrapPending)) ? 1 : 0 };
+        const int32_t cursorShape { static_cast<int32_t> (
+            state.getRawValue<int> (state.screenKey (screen, ID::cursorShape))) };
+        const int32_t scrollTop { static_cast<int32_t> (
+            state.getRawValue<int> (state.screenKey (screen, ID::scrollTop))) };
+        const int32_t scrollBottom { static_cast<int32_t> (
+            state.getRawValue<int> (state.screenKey (screen, ID::scrollBottom))) };
+        const int32_t wrapPending { state.getRawValue<bool> (state.screenKey (screen, ID::wrapPending)) ? 1 : 0 };
 
-        destData.append (&cursorRow,     sizeof (int32_t));
-        destData.append (&cursorCol,     sizeof (int32_t));
+        destData.append (&cursorRow, sizeof (int32_t));
+        destData.append (&cursorCol, sizeof (int32_t));
         destData.append (&cursorVisible, sizeof (int32_t));
-        destData.append (&cursorShape,   sizeof (int32_t));
-        destData.append (&scrollTop,     sizeof (int32_t));
-        destData.append (&scrollBottom,  sizeof (int32_t));
-        destData.append (&wrapPending,   sizeof (int32_t));
+        destData.append (&cursorShape, sizeof (int32_t));
+        destData.append (&scrollTop, sizeof (int32_t));
+        destData.append (&scrollBottom, sizeof (int32_t));
+        destData.append (&wrapPending, sizeof (int32_t));
     }
 
-    const juce::Identifier modeIds[13]
-    {
-        ID::originMode, ID::autoWrap, ID::applicationCursor, ID::bracketedPaste,
-        ID::insertMode, ID::mouseTracking, ID::mouseMotionTracking, ID::mouseAllTracking,
-        ID::mouseSgr, ID::focusEvents, ID::applicationKeypad, ID::reverseVideo,
-        ID::win32InputMode
-    };
+    const juce::Identifier modeIds[13] { ID::originMode,          ID::autoWrap,          ID::applicationCursor,
+                                         ID::bracketedPaste,      ID::insertMode,        ID::mouseTracking,
+                                         ID::mouseMotionTracking, ID::mouseAllTracking,  ID::mouseSgr,
+                                         ID::focusEvents,         ID::applicationKeypad, ID::reverseVideo,
+                                         ID::win32InputMode };
 
     for (const juce::Identifier& modeId : modeIds)
     {
@@ -382,15 +381,19 @@ void Processor::setStateInformation (const void* data, int size)
 
     if ((cursor + headerBytes) <= end)
     {
-        uint32_t version     { 0 };
-        int32_t  cols        { 0 };
-        int32_t  visibleRows { 0 };
-        int32_t  activeScr   { 0 };
+        uint32_t version { 0 };
+        int32_t cols { 0 };
+        int32_t visibleRows { 0 };
+        int32_t activeScr { 0 };
 
-        std::memcpy (&version,     cursor, sizeof (uint32_t)); cursor += sizeof (uint32_t);
-        std::memcpy (&cols,        cursor, sizeof (int32_t));  cursor += sizeof (int32_t);
-        std::memcpy (&visibleRows, cursor, sizeof (int32_t));  cursor += sizeof (int32_t);
-        std::memcpy (&activeScr,   cursor, sizeof (int32_t));  cursor += sizeof (int32_t);
+        std::memcpy (&version, cursor, sizeof (uint32_t));
+        cursor += sizeof (uint32_t);
+        std::memcpy (&cols, cursor, sizeof (int32_t));
+        cursor += sizeof (int32_t);
+        std::memcpy (&visibleRows, cursor, sizeof (int32_t));
+        cursor += sizeof (int32_t);
+        std::memcpy (&activeScr, cursor, sizeof (int32_t));
+        cursor += sizeof (int32_t);
 
         if (version == 1)
         {
@@ -410,18 +413,20 @@ void Processor::setStateInformation (const void* data, int size)
                 if ((cursor + scalarBytes) <= end)
                 {
                     int32_t sTotalRows { 0 };
-                    int32_t sCols      { 0 };
+                    int32_t sCols { 0 };
 
-                    cursor += sizeof (int32_t); // head
-                    cursor += sizeof (int32_t); // scrollbackUsed
-                    std::memcpy (&sTotalRows, cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-                    std::memcpy (&sCols,      cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-                    cursor += sizeof (int32_t); // allocatedVisibleRows
+                    cursor += sizeof (int32_t);// head
+                    cursor += sizeof (int32_t);// scrollbackUsed
+                    std::memcpy (&sTotalRows, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
+                    std::memcpy (&sCols, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
+                    cursor += sizeof (int32_t);// allocatedVisibleRows
 
                     const size_t cellCount { static_cast<size_t> (sTotalRows) * static_cast<size_t> (sCols) };
-                    const ptrdiff_t bulkBytes { static_cast<ptrdiff_t> (cellCount * sizeof (Cell)
-                                              + cellCount * sizeof (Grapheme)
-                                              + static_cast<size_t> (sTotalRows) * sizeof (RowState)) };
+                    const ptrdiff_t bulkBytes { static_cast<ptrdiff_t> (
+                        cellCount * sizeof (Cell) + cellCount * sizeof (Grapheme)
+                        + static_cast<size_t> (sTotalRows) * sizeof (RowState)) };
 
                     if ((cursor + bulkBytes) <= end)
                         cursor += bulkBytes;
@@ -436,8 +441,8 @@ void Processor::setStateInformation (const void* data, int size)
 
             // cursor now points to the State section
             static constexpr int perScreenBytes { 7 * static_cast<int> (sizeof (int32_t)) };
-            static constexpr int modeCount      { 13 };
-            static constexpr int stateBytes     { 2 * perScreenBytes + modeCount * static_cast<int> (sizeof (int32_t)) };
+            static constexpr int modeCount { 13 };
+            static constexpr int stateBytes { 2 * perScreenBytes + modeCount * static_cast<int> (sizeof (int32_t)) };
 
             if (gridWalkOk and (cursor + stateBytes) <= end)
             {
@@ -445,36 +450,42 @@ void Processor::setStateInformation (const void* data, int size)
 
                 for (const ActiveScreen screen : screens)
                 {
-                    int32_t cursorRow     { 0 };
-                    int32_t cursorCol     { 0 };
+                    int32_t cursorRow { 0 };
+                    int32_t cursorCol { 0 };
                     int32_t cursorVisible { 1 };
-                    int32_t cursorShape   { 0 };
-                    int32_t scrollTop     { 0 };
-                    int32_t scrollBottom  { 0 };
-                    int32_t wrapPending   { 0 };
+                    int32_t cursorShape { 0 };
+                    int32_t scrollTop { 0 };
+                    int32_t scrollBottom { 0 };
+                    int32_t wrapPending { 0 };
 
-                    std::memcpy (&cursorRow,     cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-                    std::memcpy (&cursorCol,     cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-                    std::memcpy (&cursorVisible, cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-                    std::memcpy (&cursorShape,   cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-                    std::memcpy (&scrollTop,     cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-                    std::memcpy (&scrollBottom,  cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
-                    std::memcpy (&wrapPending,   cursor, sizeof (int32_t)); cursor += sizeof (int32_t);
+                    std::memcpy (&cursorRow, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
+                    std::memcpy (&cursorCol, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
+                    std::memcpy (&cursorVisible, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
+                    std::memcpy (&cursorShape, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
+                    std::memcpy (&scrollTop, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
+                    std::memcpy (&scrollBottom, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
+                    std::memcpy (&wrapPending, cursor, sizeof (int32_t));
+                    cursor += sizeof (int32_t);
 
-                    state.setCursorRow     (screen, static_cast<int> (cursorRow));
-                    state.setCursorCol     (screen, static_cast<int> (cursorCol));
+                    state.setCursorRow (screen, static_cast<int> (cursorRow));
+                    state.setCursorCol (screen, static_cast<int> (cursorCol));
                     state.setCursorVisible (screen, cursorVisible != 0);
-                    state.setCursorShape   (screen, static_cast<int> (cursorShape));
-                    state.setScrollTop     (screen, static_cast<int> (scrollTop));
-                    state.setScrollBottom  (screen, static_cast<int> (scrollBottom));
-                    state.setWrapPending   (screen, wrapPending != 0);
+                    state.setCursorShape (screen, static_cast<int> (cursorShape));
+                    state.setScrollTop (screen, static_cast<int> (scrollTop));
+                    state.setScrollBottom (screen, static_cast<int> (scrollBottom));
+                    state.setWrapPending (screen, wrapPending != 0);
                 }
 
-                const juce::Identifier modeIds[modeCount]
-                {
-                    ID::originMode, ID::autoWrap, ID::applicationCursor, ID::bracketedPaste,
-                    ID::insertMode, ID::mouseTracking, ID::mouseMotionTracking, ID::mouseAllTracking,
-                    ID::mouseSgr, ID::focusEvents, ID::applicationKeypad, ID::reverseVideo,
+                const juce::Identifier modeIds[modeCount] {
+                    ID::originMode,    ID::autoWrap,      ID::applicationCursor,   ID::bracketedPaste,
+                    ID::insertMode,    ID::mouseTracking, ID::mouseMotionTracking, ID::mouseAllTracking,
+                    ID::mouseSgr,      ID::focusEvents,   ID::applicationKeypad,   ID::reverseVideo,
                     ID::win32InputMode
                 };
 
@@ -494,4 +505,4 @@ void Processor::setStateInformation (const void* data, int size)
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

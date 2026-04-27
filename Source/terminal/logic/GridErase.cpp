@@ -34,6 +34,9 @@ void Grid::clearRow (Buffer& buffer, int visibleRow, const Cell& fill) noexcept
 
     Grapheme* gRow { buffer.graphemes.get() + phys * getCols() };
     std::fill (gRow, gRow + getCols(), Grapheme {});
+
+    ImageCell* icRow { buffer.imageCells.get() + phys * getCols() };
+    std::fill (icRow, icRow + getCols(), ImageCell {});
 }
 
 void Grid::eraseRow (int row, const Cell& fill) noexcept

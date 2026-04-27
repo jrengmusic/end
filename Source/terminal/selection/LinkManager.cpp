@@ -206,6 +206,10 @@ void LinkManager::dispatch (const LinkSpan& span) const
         {
             onOpenMarkdown (juce::File (path));
         }
+        else if (handler == "image" and onOpenImage != nullptr)
+        {
+            onOpenImage (juce::File (path));
+        }
         else
         {
             const juce::String opener { handler.isNotEmpty() and handler != "whelmed"

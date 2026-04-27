@@ -37,17 +37,19 @@
 
 #include <JuceHeader.h>
 
+#include "../../component/TerminalDisplay.h"
+#include "../data/Keyboard.h"
 #include "../data/State.h"
+#include "../rendering/ImageAtlas.h"
 #include "Grid.h"
 #include "Parser.h"
 
-// Forward declaration: Display is in component/, Processor is in terminal/logic/.
-// Including TerminalDisplay.h here would create a circular include chain.
-namespace Terminal { class Display; }
 
 namespace Terminal
 { /*____________________________________________________________________________*/
-
+// Forward declaration: Display is in component/, Processor is in terminal/logic/.
+// Including TerminalDisplay.h here would create a circular include chain.
+class Display;
 /**
  * @class Processor
  * @brief Terminal pipeline orchestrator — owns State, Grid, and Parser.
@@ -296,13 +298,15 @@ public:
      * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
      * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
+     * @param imageAtlas    Inline image atlas; threaded through to Display for staged GPU upload.
      * @return Unique pointer to the newly created Display.
      * @note MESSAGE THREAD.
      */
     std::unique_ptr<Display> createDisplay (jam::Font& font,
                                             jam::Glyph::Packer& packer,
                                             jam::gl::GlyphAtlas& glAtlas,
-                                            jam::GraphicsAtlas& graphicsAtlas);
+                                            jam::GraphicsAtlas& graphicsAtlas,
+                                            Terminal::ImageAtlas& imageAtlas);
 
     /** @brief Writes user input bytes (keyboard, mouse) to the PTY.
      *  Set by Terminal::Session to route input to the TTY.
@@ -310,9 +314,17 @@ public:
     std::function<void (const char*, int)> writeInput;
 
     /** @brief Notifies the PTY of a terminal resize.
-     *  Set by Terminal::Session to route resize to the TTY.
+     *
+     *  Set by Terminal::Session to route resize to the TTY.  Receives the new
+     *  column/row count and the total viewport pixel dimensions so that
+     *  TIOCSWINSZ can populate `ws_xpixel` / `ws_ypixel` for pixel-aware tools.
+     *
+     *  @param cols        New terminal width in character columns.
+     *  @param rows        New terminal height in character rows.
+     *  @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
+     *  @param pixelHeight Total viewport height in physical pixels (0 if unknown).
      *  @note MESSAGE THREAD. */
-    std::function<void (int, int)> onResize;
+    std::function<void (int, int, int, int)> onResize;
 
     /** @name Lifecycle callbacks
      *  Set these to receive asynchronous notifications.
@@ -353,4 +365,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

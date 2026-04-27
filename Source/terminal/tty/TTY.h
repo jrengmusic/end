@@ -358,18 +358,28 @@ public:
      * redundant OS-level resize (and the SIGWINCH / ResizePseudoConsole
      * side-effect) when nothing actually changed.
      *
+     * @param cols        New terminal width in character columns.
+     * @param rows        New terminal height in character rows.
+     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
+     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
+     *
      * @note MESSAGE THREAD.
      */
-    void platformResize (int cols, int rows);
+    void platformResize (int cols, int rows, int pixelWidth = 0, int pixelHeight = 0);
 
 protected:
     /**
      * @brief Platform-specific PTY resize hook — subclasses implement the actual
      * `ioctl TIOCSWINSZ` (Unix) or `ResizePseudoConsole` (Windows) call.
      *
+     * @param cols        New terminal width in character columns.
+     * @param rows        New terminal height in character rows.
+     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
+     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
+     *
      * @note MESSAGE THREAD. Called by `platformResize` only when dims changed.
      */
-    virtual void doPlatformResize (int cols, int rows) = 0;
+    virtual void doPlatformResize (int cols, int rows, int pixelWidth, int pixelHeight) = 0;
 
     /**
      * @brief Record the dimensions the PTY was opened with so the first

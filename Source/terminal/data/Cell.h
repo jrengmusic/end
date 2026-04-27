@@ -256,6 +256,12 @@ struct Cell
      */
     static constexpr uint8_t LAYOUT_GRAPHEME { 0x08 };
 
+    /** @brief Layout flag: this cell is the head (top-left) of an inline image. */
+    static constexpr uint8_t LAYOUT_IMAGE { 0x10 };
+
+    /** @brief Layout flag: this cell is a continuation cell of an inline image. */
+    static constexpr uint8_t LAYOUT_IMAGE_CONT { 0x02 };
+
     /** @} */
 
     /** @name Layout accessors
@@ -291,6 +297,12 @@ struct Cell
     {
         return (layout & LAYOUT_GRAPHEME) != 0;
     }
+
+    /** @brief True if this cell is the head of an inline image. */
+    bool isImage() const noexcept { return (layout & LAYOUT_IMAGE) != 0; }
+
+    /** @brief True if this cell is a continuation cell of an inline image. */
+    bool isImageContinuation() const noexcept { return (layout & LAYOUT_IMAGE_CONT) != 0; }
 
     /** @} */
 };
@@ -334,6 +346,31 @@ struct Grapheme
 };
 
 static_assert (std::is_trivially_copyable_v<Grapheme>, "Grapheme must be trivially copyable");
+
+/**
+ * @struct ImageCell
+ * @brief Side-table entry for image cell pixel offsets.
+ *
+ * Co-indexed with `Cell` in `Grid::Buffer::imageCells`, mirroring the
+ * `Grapheme` side-table pattern.  Each `ImageCell` stores the pixel offset
+ * within the full decoded image that this cell represents.
+ *
+ * Used by Sixel and iTerm2 decoders (cell-flag path).  Kitty uses the
+ * overlay params in State instead.
+ *
+ * @see Grapheme
+ */
+struct ImageCell
+{
+    /** @brief Horizontal pixel offset into the source image for this cell. */
+    uint16_t offsetX { 0 };
+
+    /** @brief Vertical pixel offset into the source image for this cell. */
+    uint16_t offsetY { 0 };
+};
+
+static_assert (sizeof (ImageCell) == 4, "ImageCell must be 4 bytes");
+static_assert (std::is_trivially_copyable_v<ImageCell>, "ImageCell must be trivially copyable");
 
 /**
  * @struct Pen

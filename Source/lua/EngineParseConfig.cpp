@@ -99,10 +99,15 @@ void Engine::parseNexus()
             // Handlers map
             jam::lua::Value handlersTable { hyperlinksTable["handlers"] };
 
+            // Built-in handlers — always registered, user config can override.
+            nexus.hyperlinks.handlers[".md"]   = "whelmed";
+            nexus.hyperlinks.handlers[".png"]  = "image";
+            nexus.hyperlinks.handlers[".jpg"]  = "image";
+            nexus.hyperlinks.handlers[".jpeg"] = "image";
+            nexus.hyperlinks.handlers[".gif"]  = "image";
+
             if (handlersTable.isTable())
             {
-                nexus.hyperlinks.handlers[".md"] = "whelmed";
-
                 handlersTable.forEach ([this] (const jam::lua::Value& k, const jam::lua::Value& v)
                 {
                     if (k.getType() == jam::lua::Type::string and v.getType() == jam::lua::Type::string)
@@ -121,6 +126,19 @@ void Engine::parseNexus()
                         nexus.hyperlinks.extensions.insert (v.to<juce::String>());
                 });
             }
+        }
+
+        // Image sub-table
+        jam::lua::Value imageTable { nexusTable["image"] };
+
+        if (imageTable.isTable())
+        {
+            auto atlasBudget { imageTable["atlas_budget"].optional<double>() };
+
+            if (atlasBudget.has_value())
+                nexus.image.atlasBudgetBytes = juce::jlimit (1 * 1024 * 1024,
+                                                              256 * 1024 * 1024,
+                                                              static_cast<int> (atlasBudget.value()));
         }
     }
 }

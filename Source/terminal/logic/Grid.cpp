@@ -29,8 +29,6 @@
  */
 
 #include "Grid.h"
-#include "../data/State.h"
-#include "../../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -106,8 +104,8 @@ void Grid::clearScrollback() noexcept
  * @brief Allocates and initialises a Buffer to the given dimensions.
  *
  * Rounds `totalLines` up to the next power of two so that `physicalRow()`
- * can use a bitwise AND instead of a modulo.  Allocates all three HeapBlocks
- * (`cells`, `rowStates`, `graphemes`), fills cells with default-constructed
+ * can use a bitwise AND instead of a modulo.  Allocates all four HeapBlocks
+ * (`cells`, `rowStates`, `graphemes`, `imageCells`), fills cells with default-constructed
  * Cells, and sets `head = numVisibleRows - 1` so that visible row 0 maps to
  * physical row 0 before any scrolling occurs.
  *
@@ -141,6 +139,7 @@ void Grid::initBuffer (Buffer& buffer, int numCols, int totalLines, int numVisib
     std::fill (buffer.cells.get(), buffer.cells.get() + cellCount, defaultCell);
 
     buffer.graphemes.allocate (cellCount, true);
+    buffer.imageCells.allocate (cellCount, true);
 
     buffer.totalRows = po2;
     buffer.rowMask = po2 - 1;
@@ -450,6 +449,26 @@ const Grapheme* Grid::activeVisibleGraphemeRow (int row) const noexcept
 }
 
 /**
+ * @brief Returns a const pointer to the image cell row for visible row `row`.
+ *
+ * The returned pointer addresses `cols` ImageCell entries co-indexed with the
+ * cell row.  Returns `nullptr` if `row` is out of range.
+ *
+ * @param row  Zero-based visible row index.
+ * @return Pointer to the first ImageCell in the row, or `nullptr` if out of range.
+ * @note MESSAGE THREAD — lock-free, noexcept.
+ */
+const ImageCell* Grid::activeVisibleImageRow (int row) const noexcept
+{
+    if (row >= 0 and row < getVisibleRows())
+    {
+        const Buffer& buffer { bufferForScreen() };
+        return buffer.imageCells.get() + physicalRow (buffer, row) * getCols();
+    }
+    return nullptr;
+}
+
+/**
  * @brief Returns the number of scrollback rows currently stored.
  *
  * Reads `scrollbackUsed` from the active buffer.  Only meaningful for the
@@ -508,6 +527,28 @@ const Grapheme* Grid::scrollbackGraphemeRow (int visibleRow, int scrollOffset) c
         const Buffer& buffer { bufferForScreen() };
         const int phys { (buffer.head - getVisibleRows() + 1 + visibleRow - scrollOffset) & buffer.rowMask };
         return buffer.graphemes.get() + phys * getCols();
+    }
+    return nullptr;
+}
+
+/**
+ * @brief Returns a const pointer to a scrolled-back image cell row.
+ *
+ * Parallel to `scrollbackRow()` but for the imageCells sidecar array.
+ * Returns `nullptr` if `visibleRow` is out of range.
+ *
+ * @param visibleRow   Zero-based visible row index (0 … visibleRows-1).
+ * @param scrollOffset Lines scrolled back (0 = live view).
+ * @return Const pointer to the first ImageCell in the scrolled row, or `nullptr`.
+ * @note MESSAGE THREAD — lock-free, noexcept.
+ */
+const ImageCell* Grid::scrollbackImageRow (int visibleRow, int scrollOffset) const noexcept
+{
+    if (visibleRow >= 0 and visibleRow < getVisibleRows())
+    {
+        const Buffer& buffer { bufferForScreen() };
+        const int phys { (buffer.head - getVisibleRows() + 1 + visibleRow - scrollOffset) & buffer.rowMask };
+        return buffer.imageCells.get() + phys * getCols();
     }
     return nullptr;
 }
@@ -696,6 +737,171 @@ const Grapheme* Grid::graphemePtr (const Buffer& buffer, int visibleRow, int col
     return buffer.graphemes.get() + physicalRow (buffer, visibleRow) * getCols() + col;
 }
 
+/**
+ * @brief Returns a mutable pointer to the imageCells entry at (visibleRow, col).
+ *
+ * @param buffer      Target buffer.
+ * @param visibleRow  Zero-based visible row index.
+ * @param col         Zero-based column index.
+ * @return Pointer to `buffer.imageCells[physicalRow * cols + col]`.
+ * @note READER THREAD — lock-free, noexcept.
+ */
+ImageCell* Grid::imageCellPtr (Buffer& buffer, int visibleRow, int col) noexcept
+{
+    return buffer.imageCells.get() + physicalRow (buffer, visibleRow) * getCols() + col;
+}
+
+/**
+ * @brief Returns a const pointer to the imageCells entry at (visibleRow, col).
+ *
+ * @param buffer      Target buffer.
+ * @param visibleRow  Zero-based visible row index.
+ * @param col         Zero-based column index.
+ * @return Const pointer to `buffer.imageCells[physicalRow * cols + col]`.
+ * @note MESSAGE THREAD — lock-free, noexcept.
+ */
+const ImageCell* Grid::imageCellPtr (const Buffer& buffer, int visibleRow, int col) const noexcept
+{
+    return buffer.imageCells.get() + physicalRow (buffer, visibleRow) * getCols() + col;
+}
+
+/**
+ * @brief Writes an image cell sidecar for the cell at (row, col).
+ *
+ * Writes `ic` into the parallel imageCells block at the same physical offset.
+ * Calls `markRowDirty (row)`.
+ *
+ * @param row  Zero-based visible row index.
+ * @param col  Zero-based column index.
+ * @param ic   ImageCell data to store.
+ * @note READER THREAD — lock-free, noexcept.
+ */
+void Grid::activeWriteImageCell (int row, int col, const ImageCell& ic) noexcept
+{
+    if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
+    {
+        Buffer& buffer { bufferForScreen() };
+        *imageCellPtr (buffer, row, col) = ic;
+        markRowDirty (row);
+    }
+}
+
+/**
+ * @brief Writes a multi-cell image span to the active buffer.
+ *
+ * Computes the cell span from pixel dimensions, writes `LAYOUT_IMAGE` on the
+ * head cell (top-left), `LAYOUT_IMAGE_CONT` on all continuation cells, and
+ * corresponding ImageCell pixel offsets for each cell.  The caller is
+ * responsible for cursor positioning before calling this method.
+ *
+ * @param startRow     Zero-based visible row index of the top-left image cell.
+ * @param startCol     Zero-based column index of the top-left image cell.
+ * @param imageId      Unique image identifier stored in the head cell's codepoint.
+ * @param widthPx      Image width in pixels.
+ * @param heightPx     Image height in pixels.
+ * @param cellWidthPx  Terminal cell width in pixels.
+ * @param cellHeightPx Terminal cell height in pixels.
+ * @note READER THREAD — lock-free, noexcept.
+ */
+void Grid::activeWriteImage (int startRow, int startCol,
+                              uint32_t imageId, int widthPx, int heightPx,
+                              int cellWidthPx, int cellHeightPx) noexcept
+{
+    const int cellCols { (widthPx + cellWidthPx - 1) / cellWidthPx };
+    const int cellRows { (heightPx + cellHeightPx - 1) / cellHeightPx };
+
+    for (int r { 0 }; r < cellRows; ++r)
+    {
+        const int visRow { startRow + r };
+
+        if (visRow >= 0 and visRow < getVisibleRows())
+        {
+            for (int c { 0 }; c < cellCols; ++c)
+            {
+                const int visCol { startCol + c };
+
+                if (visCol >= 0 and visCol < getCols())
+                {
+                    Cell cell {};
+
+                    if (r == 0 and c == 0)
+                    {
+                        cell.layout = Cell::LAYOUT_IMAGE;
+                        cell.codepoint = imageId;
+                    }
+                    else
+                    {
+                        cell.layout = Cell::LAYOUT_IMAGE_CONT;
+                        cell.codepoint = 0;
+                    }
+
+                    activeWriteCell (visRow, visCol, cell);
+
+                    const ImageCell ic { static_cast<uint16_t> (c * cellWidthPx),
+                                         static_cast<uint16_t> (r * cellHeightPx) };
+                    *imageCellPtr (bufferForScreen(), visRow, visCol) = ic;
+                }
+            }
+        }
+    }
+}
+
+// ============================================================================
+// Decoded image storage
+// ============================================================================
+
+/**
+ * @brief Reserves the next image ID via atomic increment.
+ *
+ * @return A unique image ID in [1, UINT32_MAX].
+ * @note READER THREAD — lock-free, noexcept.
+ */
+uint32_t Grid::reserveImageId() noexcept
+{
+    return nextImageId.fetch_add (1u, std::memory_order_relaxed);
+}
+
+/**
+ * @brief Stores decoded image data for later atlas consumption.
+ *
+ * @param img  PendingImage to store; moved into the internal map.
+ * @note READER THREAD — called after image decode completes.
+ */
+void Grid::storeDecodedImage (PendingImage&& img) noexcept
+{
+    decodedImages[img.imageId] = std::move (img);
+}
+
+/**
+ * @brief Retrieves stored decoded image data without removing it.
+ *
+ * @param imageId  Image ID to look up.
+ * @return Pointer to PendingImage, or nullptr if not found.
+ * @note MESSAGE THREAD — called by renderer on first atlas encounter.
+ */
+PendingImage* Grid::getDecodedImage (uint32_t imageId) noexcept
+{
+    auto it { decodedImages.find (imageId) };
+
+    if (it != decodedImages.end())
+    {
+        return &it->second;
+    }
+
+    return nullptr;
+}
+
+/**
+ * @brief Removes decoded image data after atlas has consumed it.
+ *
+ * @param imageId  Image ID to remove.
+ * @note MESSAGE THREAD.
+ */
+void Grid::releaseDecodedImage (uint32_t imageId) noexcept
+{
+    decodedImages.erase (imageId);
+}
+
 // =============================================================================
 
 /**
@@ -880,6 +1086,7 @@ juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bo
  *     allocatedVisibleRows) as int32_t.
  *   - Flat cell array: totalRows * allocatedCols * sizeof(Cell) bytes.
  *   - Flat grapheme array: totalRows * allocatedCols * sizeof(Grapheme) bytes.
+ *   - Flat imageCells array: totalRows * allocatedCols * sizeof(ImageCell) bytes.
  *   - RowState array: totalRows * sizeof(RowState) bytes.
  *
  * @note MESSAGE THREAD.
@@ -905,9 +1112,10 @@ void Grid::getStateInformation (juce::MemoryBlock& destData) const
         destData.append (&allocatedVisible, sizeof (int32_t));
 
         const size_t cellCount { static_cast<size_t> (totalRows) * static_cast<size_t> (allocatedCols) };
-        destData.append (buffer.cells.getData(),     cellCount * sizeof (Cell));
-        destData.append (buffer.graphemes.getData(), cellCount * sizeof (Grapheme));
-        destData.append (buffer.rowStates.getData(), static_cast<size_t> (totalRows) * sizeof (RowState));
+        destData.append (buffer.cells.getData(),      cellCount * sizeof (Cell));
+        destData.append (buffer.graphemes.getData(),  cellCount * sizeof (Grapheme));
+        destData.append (buffer.imageCells.getData(), cellCount * sizeof (ImageCell));
+        destData.append (buffer.rowStates.getData(),  static_cast<size_t> (totalRows) * sizeof (RowState));
     }
 }
 
@@ -948,21 +1156,24 @@ void Grid::setStateInformation (const void* data, int size)
         std::memcpy (&allocatedVisible, cursor,                         sizeof (int32_t)); cursor += sizeof (int32_t);
 
         const size_t cellCount { static_cast<size_t> (totalRows) * static_cast<size_t> (allocatedCols) };
-        const size_t cellBytes      { cellCount * sizeof (Cell) };
-        const size_t graphemeBytes  { cellCount * sizeof (Grapheme) };
-        const size_t rowStateBytes  { static_cast<size_t> (totalRows) * sizeof (RowState) };
+        const size_t cellBytes       { cellCount * sizeof (Cell) };
+        const size_t graphemeBytes   { cellCount * sizeof (Grapheme) };
+        const size_t imageCellBytes  { cellCount * sizeof (ImageCell) };
+        const size_t rowStateBytes   { static_cast<size_t> (totalRows) * sizeof (RowState) };
 
-        if ((cursor + static_cast<ptrdiff_t> (cellBytes + graphemeBytes + rowStateBytes)) > end)
+        if ((cursor + static_cast<ptrdiff_t> (cellBytes + graphemeBytes + imageCellBytes + rowStateBytes)) > end)
             break;
 
-        buffer.cells.allocate     (cellCount,                              false);
-        buffer.graphemes.allocate (cellCount,                              true);
-        buffer.rowStates.allocate (static_cast<size_t> (totalRows),       true);
-        buffer.rowSeqnos.allocate (static_cast<size_t> (totalRows),       true);
+        buffer.cells.allocate      (cellCount,                              false);
+        buffer.graphemes.allocate  (cellCount,                              true);
+        buffer.imageCells.allocate (cellCount,                              true);
+        buffer.rowStates.allocate  (static_cast<size_t> (totalRows),       true);
+        buffer.rowSeqnos.allocate  (static_cast<size_t> (totalRows),       true);
 
-        std::memcpy (buffer.cells.getData(),     cursor, cellBytes);     cursor += static_cast<ptrdiff_t> (cellBytes);
-        std::memcpy (buffer.graphemes.getData(), cursor, graphemeBytes); cursor += static_cast<ptrdiff_t> (graphemeBytes);
-        std::memcpy (buffer.rowStates.getData(), cursor, rowStateBytes); cursor += static_cast<ptrdiff_t> (rowStateBytes);
+        std::memcpy (buffer.cells.getData(),      cursor, cellBytes);      cursor += static_cast<ptrdiff_t> (cellBytes);
+        std::memcpy (buffer.graphemes.getData(),  cursor, graphemeBytes);  cursor += static_cast<ptrdiff_t> (graphemeBytes);
+        std::memcpy (buffer.imageCells.getData(), cursor, imageCellBytes); cursor += static_cast<ptrdiff_t> (imageCellBytes);
+        std::memcpy (buffer.rowStates.getData(),  cursor, rowStateBytes);  cursor += static_cast<ptrdiff_t> (rowStateBytes);
 
         buffer.head               = static_cast<int> (head);
         buffer.scrollbackUsed     = static_cast<int> (scrollbackUsed);

@@ -42,6 +42,14 @@
  * A cell with `Cell::LAYOUT_GRAPHEME` set has a valid entry at the same
  * physical offset in the grapheme block.
  *
+ * ## Image cell sidecar
+ *
+ * Inline image cells store their pixel offsets in a parallel
+ * `HeapBlock<ImageCell>` that is co-indexed with the cell array, mirroring
+ * the grapheme side-table pattern.  A cell with `Cell::LAYOUT_IMAGE` or
+ * `Cell::LAYOUT_IMAGE_CONT` set has a valid entry at the same physical
+ * offset in the imageCells block.
+ *
  * ## Thread ownership
  *
  * | Operation              | Thread         |
@@ -56,6 +64,7 @@
  *
  * @see Cell       — the 16-byte terminal cell type.
  * @see Grapheme   — extra codepoints for grapheme clusters.
+ * @see ImageCell  — pixel offsets for inline image cells.
  * @see RowState   — per-row metadata (wrap flag, double-width flag).
  * @see State      — atomic terminal parameter store.
  */
@@ -64,8 +73,10 @@
 
 #include <JuceHeader.h>
 
+#include "../../lua/Engine.h"
 #include "../data/State.h"
 #include "../data/Cell.h"
+#include "SixelDecoder.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -81,6 +92,7 @@ class State;
  *
  * - **Cell read/write** — single-cell and run-length write paths.
  * - **Grapheme sidecar** — parallel storage for multi-codepoint clusters.
+ * - **Image cell sidecar** — parallel storage for inline image pixel offsets.
  * - **Dirty tracking** — 256-bit atomic bitmask for incremental repaint.
  * - **Scroll operations** — full-screen and region scroll via head pointer.
  * - **Erase operations** — row, row-range, cell, and cell-range erasure.
@@ -93,7 +105,7 @@ class State;
  *       `resize()` and `extractText()` acquire `resizeLock` to synchronise
  *       between the two threads.
  *
- * @see Cell, Grapheme, RowState, State
+ * @see Cell, Grapheme, ImageCell, RowState, State
  */
 class Grid
 {
@@ -249,6 +261,61 @@ public:
      */
     int consumeScrollDelta() noexcept;
 
+    // =========================================================================
+    /** @name Decoded image storage (READER writes, MESSAGE reads on demand)
+     *
+     *  Decoded images are produced on the READER THREAD and stored in Grid.
+     *  The MESSAGE THREAD pulls them on first atlas encounter — same pattern
+     *  as codepoints in cells: READER writes, renderer reads.
+     *
+     *  Protocol:
+     *  1. READER THREAD calls `reserveImageId()` — atomic increment.
+     *  2. READER THREAD calls `activeWriteImage()` with the reserved ID.
+     *  3. READER THREAD calls `storeDecodedImage()` — stores RGBA in map.
+     *  4. MESSAGE THREAD encounters image cell → calls `getDecodedImage()`.
+     *  5. MESSAGE THREAD calls `ImageAtlas::stageWithId()` for the entry.
+     *  6. MESSAGE THREAD calls `releaseDecodedImage()` to free the RGBA.
+     * @{ */
+
+    /**
+     * @brief Reserves the next image ID via atomic increment.
+     *
+     * The READER THREAD calls this immediately before `activeWriteImage()` to
+     * obtain an ID that both Grid cells and the atlas agree on.  IDs start at 1;
+     * 0 is reserved as "invalid".
+     *
+     * @return A unique image ID in [1, UINT32_MAX].
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    uint32_t reserveImageId() noexcept;
+
+    /**
+     * @brief Stores decoded image data for later atlas consumption.
+     *
+     * @param img  PendingImage to store; moved into the internal map.
+     * @note READER THREAD — called after image decode completes.
+     */
+    void storeDecodedImage (PendingImage&& img) noexcept;
+
+    /**
+     * @brief Retrieves stored decoded image data without removing it.
+     *
+     * @param imageId  Image ID to look up.
+     * @return Pointer to PendingImage, or nullptr if not found.
+     * @note MESSAGE THREAD — called by renderer on first atlas encounter.
+     */
+    PendingImage* getDecodedImage (uint32_t imageId) noexcept;
+
+    /**
+     * @brief Removes decoded image data after atlas has consumed it.
+     *
+     * @param imageId  Image ID to remove.
+     * @note MESSAGE THREAD.
+     */
+    void releaseDecodedImage (uint32_t imageId) noexcept;
+
+    /** @} */
+
     /** @name Cell access
      *  All write methods are READER THREAD only.  Const read methods are
      *  MESSAGE THREAD only (called from the render path).
@@ -296,6 +363,40 @@ public:
      * @see activeEraseGrapheme(), activeReadGrapheme()
      */
     void activeWriteGrapheme (int row, int col, const Grapheme& grapheme) noexcept;
+
+    /**
+     * @brief Writes an image cell sidecar for the cell at (row, col).
+     *
+     * Writes `ic` into the parallel imageCells block at the same physical offset.
+     * Calls `markRowDirty (row)`.
+     *
+     * @param row  Zero-based visible row index.
+     * @param col  Zero-based column index.
+     * @param ic   ImageCell data to store.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void activeWriteImageCell (int row, int col, const ImageCell& ic) noexcept;
+
+    /**
+     * @brief Writes a multi-cell image span to the active buffer.
+     *
+     * Computes the cell span from pixel dimensions, writes `LAYOUT_IMAGE` on the
+     * head cell (top-left), `LAYOUT_IMAGE_CONT` on all continuation cells, and
+     * corresponding ImageCell pixel offsets for each cell.  Shared cell-writing
+     * path for all three SKiT decoders (Sixel, Kitty, iTerm2).
+     *
+     * @param startRow     Zero-based visible row index of the top-left image cell.
+     * @param startCol     Zero-based column index of the top-left image cell.
+     * @param imageId      Unique image identifier (stored in head cell's codepoint).
+     * @param widthPx      Image width in pixels.
+     * @param heightPx     Image height in pixels.
+     * @param cellWidthPx  Terminal cell width in pixels.
+     * @param cellHeightPx Terminal cell height in pixels.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void activeWriteImage (int startRow, int startCol,
+                           uint32_t imageId, int widthPx, int heightPx,
+                           int cellWidthPx, int cellHeightPx) noexcept;
 
     /**
      * @brief Clears the grapheme cluster sidecar for the cell at (row, col).
@@ -362,6 +463,18 @@ public:
     const Grapheme* activeVisibleGraphemeRow (int row) const noexcept;
 
     /**
+     * @brief Returns a const pointer to the image cell row for visible row `row`.
+     *
+     * The returned pointer addresses `cols` ImageCell entries co-indexed with
+     * the cell row returned by `activeVisibleRow (row)`.
+     *
+     * @param row  Zero-based visible row index (0 … visibleRows-1).
+     * @return Pointer to the first ImageCell in the row, or `nullptr` if out of range.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    const ImageCell* activeVisibleImageRow (int row) const noexcept;
+
+    /**
      * @brief Returns the number of scrollback rows currently stored.
      *
      * Only meaningful for the normal screen buffer; always 0 for alternate.
@@ -400,6 +513,20 @@ public:
      * @see scrollbackRow()
      */
     const Grapheme* scrollbackGraphemeRow (int visibleRow, int scrollOffset) const noexcept;
+
+    /**
+     * @brief Returns a const pointer to a scrolled-back image cell row.
+     *
+     * Parallel to `scrollbackRow()` but for the imageCells sidecar array.
+     *
+     * @param visibleRow   Zero-based visible row index (0 … visibleRows-1).
+     * @param scrollOffset Number of lines scrolled back into the scrollback buffer.
+     * @return Pointer to the first ImageCell in the scrolled row, or `nullptr` if
+     *         `visibleRow` is out of range.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     * @see scrollbackRow()
+     */
+    const ImageCell* scrollbackImageRow (int visibleRow, int scrollOffset) const noexcept;
 
     /**
      * @brief Returns a mutable reference to the RowState for visible row `row`.
@@ -442,7 +569,7 @@ public:
      * @brief Serializes both screen buffers into destData.
      *
      * Acquires resizeLock and writes a flat binary snapshot of both the normal
-     * and alternate Buffer structs (scalars + cells + graphemes + rowStates).
+     * and alternate Buffer structs (scalars + cells + graphemes + imageCells + rowStates).
      * Called by Processor::getStateInformation to delegate grid serialization.
      *
      * @param destData  MemoryBlock to append the snapshot to.
@@ -454,7 +581,7 @@ public:
      * @brief Restores both screen buffers from a snapshot produced by getStateInformation.
      *
      * Acquires resizeLock, reads scalars, allocates HeapBlocks to match, and
-     * memcpys bulk data. Called by Processor::setStateInformation.
+     * memcpys bulk data (cells + graphemes + imageCells + rowStates). Called by Processor::setStateInformation.
      *
      * @param data  Pointer to the snapshot bytes positioned at the grid section.
      * @param size  Size in bytes of the grid section.
@@ -644,6 +771,10 @@ public:
         void               markRowDirty (int row) noexcept                                               { grid.markRowDirty (row); }
         void               activeWriteCell (int row, int col, const Cell& cellState) noexcept            { grid.activeWriteCell (row, col, cellState); }
         void               activeWriteGrapheme (int row, int col, const Grapheme& grapheme) noexcept     { grid.activeWriteGrapheme (row, col, grapheme); }
+        void               activeWriteImageCell (int row, int col, const ImageCell& ic) noexcept         { grid.activeWriteImageCell (row, col, ic); }
+        void               activeWriteImage (int startRow, int startCol, uint32_t imageId, int widthPx, int heightPx, int cellWidthPx, int cellHeightPx) noexcept { grid.activeWriteImage (startRow, startCol, imageId, widthPx, heightPx, cellWidthPx, cellHeightPx); }
+        uint32_t           reserveImageId() noexcept                                                                                                             { return grid.reserveImageId(); }
+        void               storeDecodedImage (PendingImage&& img) noexcept                                                                                       { grid.storeDecodedImage (std::move (img)); }
         void               activeEraseGrapheme (int row, int col) noexcept                               { grid.activeEraseGrapheme (row, col); }
         Cell*              activeVisibleRow (int row) noexcept                                           { return grid.activeVisibleRow (row); }
         const Cell*        activeVisibleRow (int row) const noexcept                                     { return grid.activeVisibleRow (row); }
@@ -681,7 +812,7 @@ public:
                 onScrollbackChanged (grid.getScrollbackUsed());
         }
 
-        void               markAllDirty() noexcept    { grid.markAllDirty(); }
+        void               markAllDirty() noexcept          { grid.markAllDirty(); }
 
         /** Fires after scroll or clear operations with the updated scrollback count. */
         std::function<void (int)> onScrollbackChanged;
@@ -695,8 +826,8 @@ private:
      * @struct Buffer
      * @brief Internal ring-buffer storage for one screen (normal or alternate).
      *
-     * All three HeapBlocks (`cells`, `rowStates`, `graphemes`) are allocated
-     * to `totalRows × cols` entries.  `totalRows` is always a power of two so
+     * All four HeapBlocks (`cells`, `rowStates`, `graphemes`, `imageCells`) are allocated
+     * to `totalRows × cols` entries (rowStates to `totalRows` only).  `totalRows` is always a power of two so
      * that `physicalRow()` can use `& rowMask` instead of `% totalRows`.
      *
      * ### Ring-buffer invariant
@@ -731,6 +862,15 @@ private:
          * `true` (zero-init).
          */
         juce::HeapBlock<Grapheme> graphemes;
+
+        /**
+         * @brief Image cell sidecar: `totalRows × cols` ImageCell entries.
+         *
+         * Co-indexed with `cells`.  An ImageCell entry is valid only when the
+         * corresponding Cell has `Cell::LAYOUT_IMAGE` or `Cell::LAYOUT_IMAGE_CONT`
+         * set.  Allocated with `true` (zero-init).
+         */
+        juce::HeapBlock<ImageCell> imageCells;
 
         /**
          * @brief Per-row write sequence numbers: `totalRows` entries, parallel to `rowStates`.
@@ -783,6 +923,7 @@ private:
 
         /** @brief Visible row count this buffer was allocated for. */
         int allocatedVisibleRows { 0 };
+
     };
 
     /**
@@ -794,6 +935,28 @@ private:
      * No other methods require the lock.
      */
     mutable juce::CriticalSection resizeLock;
+
+    // =========================================================================
+    // Decoded image storage (READER writes, MESSAGE reads on demand)
+    // =========================================================================
+
+    /**
+     * @brief Monotonically increasing image ID counter for pending images.
+     *
+     * The READER THREAD atomically increments this in `reserveImageId()`.
+     * Starts at 1 so that 0 remains the "invalid" sentinel.
+     *
+     * @note Atomic — safe for READER THREAD increment + MESSAGE THREAD read.
+     */
+    std::atomic<uint32_t> nextImageId { 1 };
+
+    /**
+     * @brief Decoded RGBA pixel data keyed by imageId.
+     *
+     * READER stores after decode.  MESSAGE reads on first atlas encounter.
+     * Same role as codepoints in cells — source data for atlas to consume.
+     */
+    std::unordered_map<uint32_t, PendingImage> decodedImages;
 
     /**
      * @brief Reference to the terminal parameter store.
@@ -909,7 +1072,7 @@ private:
     /**
      * @brief Allocates and initialises a Buffer to the given dimensions.
      *
-     * Rounds `totalLines` up to the next power of two, allocates all three
+     * Rounds `totalLines` up to the next power of two, allocates all four
      * HeapBlocks, fills cells with default-constructed Cells, and sets
      * `head = numVisibleRows - 1` so that visible row 0 maps to physical row 0.
      *
@@ -971,6 +1134,28 @@ private:
      * @note MESSAGE THREAD — lock-free, noexcept.
      */
     const Grapheme* graphemePtr (const Buffer& buffer, int visibleRow, int col) const noexcept;
+
+    /**
+     * @brief Returns a mutable pointer to the imageCells entry at (visibleRow, col).
+     *
+     * @param buffer      Target buffer.
+     * @param visibleRow  Zero-based visible row index.
+     * @param col         Zero-based column index.
+     * @return Pointer to `buffer.imageCells[physicalRow * cols + col]`.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    ImageCell* imageCellPtr (Buffer& buffer, int visibleRow, int col) noexcept;
+
+    /**
+     * @brief Returns a const pointer to the imageCells entry at (visibleRow, col).
+     *
+     * @param buffer      Target buffer.
+     * @param visibleRow  Zero-based visible row index.
+     * @param col         Zero-based column index.
+     * @return Const pointer to `buffer.imageCells[physicalRow * cols + col]`.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    const ImageCell* imageCellPtr (const Buffer& buffer, int visibleRow, int col) const noexcept;
 
     /**
      * @brief Reflows the content of `oldBuffer` into `newBuffer` at the new column width.

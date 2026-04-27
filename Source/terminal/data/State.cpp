@@ -149,9 +149,9 @@ static juce::ValueTree buildScreenNode (const juce::Identifier& nodeId)
 State::State()
     : state (ID::SESSION)
 {
-    addParam (state, ID::activeScreen,   0.0f);
-    addParam (state, ID::cols,           0.0f);
-    addParam (state, ID::visibleRows,    0.0f);
+    addParam (state, ID::activeScreen, 0.0f);
+    addParam (state, ID::cols, 0.0f);
+    addParam (state, ID::visibleRows, 0.0f);
     addParam (state, ID::scrollbackUsed, 0.0f);
     addParam (state, ID::scrollOffset, 0);
     addParam (state, ID::hintPage, 0.0f);
@@ -172,6 +172,9 @@ State::State()
     addParam (state, ID::outputBlockBottom, -1.0f);
     addParam (state, ID::outputScanActive, 0.0f);
     addParam (state, ID::promptRow, -1.0f);
+    addParam (state, ID::overlayImageId, 0.0f);
+    addParam (state, ID::overlayRow, 0.0f);
+    addParam (state, ID::overlayCol, 0.0f);
     // Flush and repaint signals.
     addParam (state, ID::needsFlush, 0.0f);
     addParam (state, ID::snapshotDirty, 0.0f);
@@ -239,8 +242,8 @@ State::State()
     getRawParam (ID::cursorBlinkEnabled)
         ->store (lua::Engine::getContext()->display.cursor.blink ? 1.0f : 0.0f, std::memory_order_relaxed);
     getRawParam (ID::cursorBlinkInterval)
-        ->store (static_cast<float> (lua::Engine::getContext()->display.cursor.blinkInterval),
-                 std::memory_order_relaxed);
+        ->store (
+            static_cast<float> (lua::Engine::getContext()->display.cursor.blinkInterval), std::memory_order_relaxed);
 
     startTimerHz (60);
 }
@@ -280,10 +283,7 @@ void State::storeAndFlush (const juce::Identifier& key, float v) noexcept
 }
 
 /** @note MESSAGE THREAD — writes the session UUID to the root node as a string property. */
-void State::setId (const juce::String& uuid)
-{
-    state.setProperty (jam::ID::id, uuid, nullptr);
-}
+void State::setId (const juce::String& uuid) { state.setProperty (jam::ID::id, uuid, nullptr); }
 
 /** @note READER THREAD — delegates to `storeAndFlush (ID::activeScreen, …)`. */
 void State::setScreen (ActiveScreen s) noexcept { storeAndFlush (ID::activeScreen, static_cast<float> (s)); }
@@ -476,6 +476,36 @@ int State::getPromptRow() const noexcept
     return jam::toInt (getRawParam (ID::promptRow)->load (std::memory_order_relaxed));
 }
 
+/** @note READER THREAD — stores the Kitty overlay image ID into State. */
+void State::setOverlayImageId (uint32_t imageId) noexcept
+{
+    storeAndFlush (ID::overlayImageId, static_cast<float> (imageId));
+}
+
+/** @note READER THREAD — stores the Kitty overlay row into State. */
+void State::setOverlayRow (int row) noexcept { storeAndFlush (ID::overlayRow, static_cast<float> (row)); }
+
+/** @note READER THREAD — stores the Kitty overlay column into State. */
+void State::setOverlayCol (int col) noexcept { storeAndFlush (ID::overlayCol, static_cast<float> (col)); }
+
+/** @note MESSAGE THREAD — relaxed load; called from ScreenSnapshot for rendering. */
+uint32_t State::getOverlayImageId() const noexcept
+{
+    return static_cast<uint32_t> (getRawParam (ID::overlayImageId)->load (std::memory_order_relaxed));
+}
+
+/** @note MESSAGE THREAD — relaxed load; called from ScreenSnapshot for rendering. */
+int State::getOverlayRow() const noexcept
+{
+    return jam::toInt (getRawParam (ID::overlayRow)->load (std::memory_order_relaxed));
+}
+
+/** @note MESSAGE THREAD — relaxed load; called from ScreenSnapshot for rendering. */
+int State::getOverlayCol() const noexcept
+{
+    return jam::toInt (getRawParam (ID::overlayCol)->load (std::memory_order_relaxed));
+}
+
 /**
  * @brief SSOT writer for all three string slots (title, cwd, foreground process).
  *
@@ -529,8 +559,12 @@ void State::setForegroundProcess (const char* src, int length) noexcept
  *
  * @note READER THREAD — lock-free, noexcept.
  */
-void State::storeHyperlink (const juce::Identifier& id, const char* uri, int uriLength,
-                             int row, int startCol, int endCol) noexcept
+void State::storeHyperlink (const juce::Identifier& id,
+                            const char* uri,
+                            int uriLength,
+                            int row,
+                            int startCol,
+                            int endCol) noexcept
 {
     // READER THREAD
     auto it { hyperlinkMap.find (id) };
@@ -545,9 +579,9 @@ void State::storeHyperlink (const juce::Identifier& id, const char* uri, int uri
     const int len { juce::jmin (uriLength, maxStringLength - 1) };
     std::memcpy (entry->uri, uri, static_cast<size_t> (len));
     entry->uri[len] = '\0';
-    entry->row      = row;
+    entry->row = row;
     entry->startCol = startCol;
-    entry->endCol   = endCol;
+    entry->endCol = endCol;
 
     fetchAdd (*getRawParam (ID::hyperlinksGeneration), 1.0f, std::memory_order_release);
     getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
@@ -665,28 +699,25 @@ void State::setModalType (ModalType type) noexcept
     setSnapshotDirty();
 }
 
-ModalType State::getModalType() const noexcept { return static_cast<ModalType> (AppState::getContext()->getModalType()); }
+ModalType State::getModalType() const noexcept
+{
+    return static_cast<ModalType> (AppState::getContext()->getModalType());
+}
 
 bool State::isModal() const noexcept { return getModalType() != ModalType::none; }
 
-void State::setHintPage (int page) noexcept
-{
-    storeAndFlush (ID::hintPage, static_cast<float> (page));
-}
+void State::setHintPage (int page) noexcept { storeAndFlush (ID::hintPage, static_cast<float> (page)); }
 
 int State::getHintPage() const noexcept { return getRawValue<int> (ID::hintPage); }
 
-void State::setHintTotalPages (int total) noexcept
-{
-    storeAndFlush (ID::hintTotalPages, static_cast<float> (total));
-}
+void State::setHintTotalPages (int total) noexcept { storeAndFlush (ID::hintTotalPages, static_cast<float> (total)); }
 
 int State::getHintTotalPages() const noexcept { return getRawValue<int> (ID::hintTotalPages); }
 
 // MESSAGE THREAD
 void State::setHintOverlay (const LinkSpan* data, int count) noexcept
 {
-    hintOverlayData  = data;
+    hintOverlayData = data;
     hintOverlayCount = count;
     setSnapshotDirty();
 }
@@ -889,8 +920,10 @@ uint32_t State::getKeyboardFlags() const noexcept
 // --- Per-screen ValueTree getters (MESSAGE THREAD, post-flush) ---
 
 /** @note Navigation pattern: get active screen → get screen node → find PARAM child → return value. */
-static int getScreenParamInt (const juce::ValueTree& root, const ActiveScreen scr,
-                               const juce::Identifier& paramId, int defaultValue = 0) noexcept
+static int getScreenParamInt (const juce::ValueTree& root,
+                              const ActiveScreen scr,
+                              const juce::Identifier& paramId,
+                              int defaultValue = 0) noexcept
 {
     auto screenNode { root.getChildWithName (scr == normal ? Terminal::ID::NORMAL : Terminal::ID::ALTERNATE) };
     auto param { jam::ValueTree::getChildWithID (screenNode, paramId.toString()) };
@@ -904,8 +937,10 @@ static int getScreenParamInt (const juce::ValueTree& root, const ActiveScreen sc
     return result;
 }
 
-static float getScreenParamFloat (const juce::ValueTree& root, const ActiveScreen scr,
-                                   const juce::Identifier& paramId, float defaultValue = 0.0f) noexcept
+static float getScreenParamFloat (const juce::ValueTree& root,
+                                  const ActiveScreen scr,
+                                  const juce::Identifier& paramId,
+                                  float defaultValue = 0.0f) noexcept
 {
     auto screenNode { root.getChildWithName (scr == normal ? Terminal::ID::NORMAL : Terminal::ID::ALTERNATE) };
     auto param { jam::ValueTree::getChildWithID (screenNode, paramId.toString()) };
@@ -920,16 +955,10 @@ static float getScreenParamFloat (const juce::ValueTree& root, const ActiveScree
 }
 
 /** @note MESSAGE THREAD — reads cursor row for the active screen from ValueTree. */
-int State::getCursorRow() const noexcept
-{
-    return getScreenParamInt (state, getActiveScreen(), ID::cursorRow);
-}
+int State::getCursorRow() const noexcept { return getScreenParamInt (state, getActiveScreen(), ID::cursorRow); }
 
 /** @note MESSAGE THREAD — reads cursor column for the active screen from ValueTree. */
-int State::getCursorCol() const noexcept
-{
-    return getScreenParamInt (state, getActiveScreen(), ID::cursorCol);
-}
+int State::getCursorCol() const noexcept { return getScreenParamInt (state, getActiveScreen(), ID::cursorCol); }
 
 /** @note MESSAGE THREAD — reads cursor visibility for the active screen from ValueTree. */
 bool State::isCursorVisible() const noexcept
@@ -938,10 +967,7 @@ bool State::isCursorVisible() const noexcept
 }
 
 /** @note MESSAGE THREAD — reads cursor shape for the active screen from ValueTree. */
-int State::getCursorShape() const noexcept
-{
-    return getScreenParamInt (state, getActiveScreen(), ID::cursorShape);
-}
+int State::getCursorShape() const noexcept { return getScreenParamInt (state, getActiveScreen(), ID::cursorShape); }
 
 /** @note MESSAGE THREAD — reads cursor colour red component for the active screen from ValueTree. */
 float State::getCursorColorR() const noexcept
@@ -1003,7 +1029,7 @@ void State::setDimensions (int cols, int rows) noexcept
 {
     cachedCols = cols;
     cachedVisibleRows = rows;
-    getRawParam (ID::cols)->store        (static_cast<float> (cols), std::memory_order_release);
+    getRawParam (ID::cols)->store (static_cast<float> (cols), std::memory_order_release);
     getRawParam (ID::visibleRows)->store (static_cast<float> (rows), std::memory_order_release);
 }
 
@@ -1046,16 +1072,10 @@ int State::getScrollbackUsed() const noexcept
 }
 
 /** @note MESSAGE THREAD — reads title property flushed by flushStrings(). */
-juce::String State::getTitle() const noexcept
-{
-    return state.getProperty (ID::title).toString();
-}
+juce::String State::getTitle() const noexcept { return state.getProperty (ID::title).toString(); }
 
 /** @note MESSAGE THREAD — reads cwd property flushed by flushStrings(). */
-juce::String State::getCwd() const noexcept
-{
-    return state.getProperty (ID::cwd).toString();
-}
+juce::String State::getCwd() const noexcept { return state.getProperty (ID::cwd).toString(); }
 
 /**
  * @brief JUCE timer callback — flushes dirty atomics into the ValueTree.
@@ -1384,7 +1404,7 @@ uint64_t State::getSubscriberSeqno (juce::StringRef subscriberId) const
         if (child.getProperty (ID::subscriberId).toString() == juce::String (subscriberId))
         {
             result = static_cast<uint64_t> (static_cast<juce::int64> (child.getProperty (ID::lastKnownSeqno)));
-            found  = true;
+            found = true;
         }
     }
 
@@ -1412,8 +1432,9 @@ void State::setLastKnownSeqno (uint64_t seqno)
  */
 uint64_t State::getLastKnownSeqno() const
 {
-    return static_cast<uint64_t> (static_cast<juce::int64> (state.getProperty (ID::lastKnownSeqnoRoot, juce::int64 { 0 })));
+    return static_cast<uint64_t> (
+        static_cast<juce::int64> (state.getProperty (ID::lastKnownSeqnoRoot, juce::int64 { 0 })));
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

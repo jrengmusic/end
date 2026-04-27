@@ -254,9 +254,9 @@ Session::Session (int cols,
     };
 
     // 2b. Terminal resize → PTY SIGWINCH.
-    processor->onResize = [this] (int cols, int rows)
+    processor->onResize = [this] (int cols, int rows, int pixelWidth, int pixelHeight)
     {
-        resize (cols, rows);
+        resize (cols, rows, pixelWidth, pixelHeight);
     };
 
     // 2. PTY output → history + external onBytes + Processor (with resize lock).
@@ -363,27 +363,39 @@ void Session::sendInput (const char* data, int len)
 /**
  * @brief Notifies the shell of a terminal resize via SIGWINCH.
  *
+ * @param cols        New column count.
+ * @param rows        New row count.
+ * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
+ * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
+ *
  * @note MESSAGE THREAD.
  */
-void Session::resize (int cols, int rows)
+void Session::resize (int cols, int rows, int pixelWidth, int pixelHeight)
 {
     jassert (tty != nullptr);
 
     if (tty->isThreadRunning())
-        tty->platformResize (cols, rows);
+        tty->platformResize (cols, rows, pixelWidth, pixelHeight);
 }
 
 /**
  * @brief Performs the OS-level PTY resize.
  *
  * Called by the pipeline during sync-resize (from onDrainComplete on READER THREAD).
+ * Pixel dimensions default to zero for the sync-resize path where display
+ * geometry is not available on the reader thread.
+ *
+ * @param cols        New column count.
+ * @param rows        New row count.
+ * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
+ * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
  *
  * @note READER THREAD.
  */
-void Session::platformResize (int cols, int rows)
+void Session::platformResize (int cols, int rows, int pixelWidth, int pixelHeight)
 {
     jassert (tty != nullptr);
-    tty->platformResize (cols, rows);
+    tty->platformResize (cols, rows, pixelWidth, pixelHeight);
 }
 
 /**
