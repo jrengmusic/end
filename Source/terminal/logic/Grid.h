@@ -374,6 +374,11 @@ public:
                            uint32_t imageId, int widthPx, int heightPx,
                            int cellWidthPx, int cellHeightPx) noexcept;
 
+    /** @brief Returns true when image cells should be protected from print overwrite.
+     *  @note READER THREAD only.
+     */
+    bool isImageProtected() const noexcept { return imageProtectionActive; }
+
     /**
      * @brief Clears the grapheme cluster sidecar for the cell at (row, col).
      *
@@ -722,6 +727,8 @@ public:
         void               activeWriteCell (int row, int col, const Cell& cellState) noexcept            { grid.activeWriteCell (row, col, cellState); }
         void               activeWriteGrapheme (int row, int col, const Grapheme& grapheme) noexcept     { grid.activeWriteGrapheme (row, col, grapheme); }
         void               activeWriteImage (int startRow, int startCol, uint32_t imageId, int widthPx, int heightPx, int cellWidthPx, int cellHeightPx) noexcept { grid.activeWriteImage (startRow, startCol, imageId, widthPx, heightPx, cellWidthPx, cellHeightPx); }
+        void               clearImageProtection() noexcept                                                  { grid.imageProtectionActive = false; }
+        bool               isImageProtected() const noexcept                                                { return grid.imageProtectionActive; }
         uint32_t           reserveImageId() noexcept                                                                                                             { return grid.reserveImageId(); }
         void               storeDecodedImage (PendingImage&& img) noexcept                                                                                       { grid.storeDecodedImage (std::move (img)); }
         void               activeEraseGrapheme (int row, int col) noexcept                               { grid.activeEraseGrapheme (row, col); }
@@ -948,6 +955,18 @@ private:
      * scroll animation.
      */
     std::atomic<int> scrollDelta { 0 };
+
+    /**
+     * @brief Per-batch image cell protection flag.
+     *
+     * Set by `activeWriteImage()` when image cells are written.  Cleared by
+     * `clearImageProtection()` at the start of each `Parser::process()` call.
+     * When true, the print path skips image cells to prevent same-batch
+     * text padding from overwriting freshly placed images.
+     *
+     * @note READER THREAD only — no atomics needed.
+     */
+    bool imageProtectionActive { false };
 
     /**
      * @brief The two screen buffers: index 0 = normal, index 1 = alternate.

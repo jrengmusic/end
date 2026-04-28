@@ -99,12 +99,8 @@ public:
     /**
      * @brief Stages an RGBA8 image for upload and returns its stable image ID.
      *
-     * Allocates a region in the shelf packer, deep-copies @p rgba into a
-     * `StagedBitmap`, appends it to the active write batch, computes normalised
-     * UV coordinates, and stores the `LRUEntry` in the regions map.
-     *
-     * If the packer is full, calls `evictIfNeeded()` and retries once.  Returns
-     * 0 on persistent failure (atlas full after eviction).
+     * Auto-assigns an ID via the internal counter, then delegates to `stageImpl()`.
+     * Returns 0 on persistent failure (atlas full after eviction).
      *
      * @param rgba      Pointer to tightly-packed RGBA8 pixel data (4 bytes/pixel).
      * @param widthPx   Source image width in pixels.
@@ -113,19 +109,17 @@ public:
      *         or 0 on failure.
      *
      * @note MESSAGE THREAD only.
+     * @see stageImpl()
      */
     uint32_t stage (const uint8_t* rgba, int widthPx, int heightPx) noexcept;
 
     /**
      * @brief Stages an RGBA8 image using a caller-provided image ID.
      *
-     * Identical to `stage()` except the image is registered under @p imageId
-     * rather than the internal auto-incrementing counter.  Used by the pending
-     * image pipeline: the READER THREAD reserves @p imageId via
-     * `Grid::reserveImageId()` and writes it into Grid cells; the MESSAGE THREAD
-     * then calls this method to bind the RGBA pixels to that same ID.
-     *
-     * Returns `false` on failure (atlas full after eviction or allocation error).
+     * Validates @p imageId is non-zero, then delegates to `stageImpl()`.
+     * Used by the pending image pipeline: the READER THREAD reserves @p imageId
+     * via `Grid::reserveImageId()` and writes it into Grid cells; the MESSAGE
+     * THREAD then calls this method to bind the RGBA pixels to that same ID.
      *
      * @param imageId   Pre-reserved image ID (from `Grid::reserveImageId()`).
      * @param rgba      Pointer to tightly-packed RGBA8 pixel data (4 bytes/pixel).
@@ -134,6 +128,7 @@ public:
      * @return `true` on success, `false` on failure.
      *
      * @note MESSAGE THREAD only.
+     * @see stageImpl()
      * @see Grid::reserveImageId()
      * @see Grid::getDecodedImage()
      */
@@ -300,6 +295,29 @@ public:
     GLuint getGLTexture() const noexcept;
 
 private:
+    // =========================================================================
+    // Private methods
+    // =========================================================================
+
+    /**
+     * @brief Shared implementation body for `stage()` and `stageWithId()`.
+     *
+     * Allocates a packer region, deep-copies @p rgba into a `StagedBitmap`,
+     * appends it to the active write batch, computes normalised UV coordinates,
+     * and stores an `LRUEntry` under @p imageId.  Calls `evictIfNeeded()` and
+     * retries once if the packer is initially full.
+     *
+     * @param imageId   ID under which to register the entry.
+     * @param rgba      Pointer to tightly-packed RGBA8 pixel data (4 bytes/pixel).
+     * @param widthPx   Source image width in pixels.
+     * @param heightPx  Source image height in pixels.
+     * @return `true` on success, `false` if the atlas is full after eviction.
+     *
+     * @note MESSAGE THREAD only.
+     */
+    bool stageImpl (uint32_t imageId, const uint8_t* rgba,
+                    int widthPx, int heightPx) noexcept;
+
     // =========================================================================
     // Private types
     // =========================================================================

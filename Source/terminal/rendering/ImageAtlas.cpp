@@ -2,9 +2,9 @@
  * @file ImageAtlas.cpp
  * @brief Implementation of Terminal::ImageAtlas.
  *
- * All MESSAGE THREAD methods: `stage()`, `publishStagedUploads()`, `lookup()`,
- * `release()`, `evictIfNeeded()`, `advanceFrame()`, `ensureCPUAtlas()`,
- * `getCPUAtlas()`, `getMutableCPUAtlas()`.
+ * All MESSAGE THREAD methods: `stage()`, `stageWithId()`, `stageImpl()`,
+ * `publishStagedUploads()`, `lookup()`, `release()`, `evictIfNeeded()`,
+ * `advanceFrame()`, `ensureCPUAtlas()`, `getCPUAtlas()`, `getMutableCPUAtlas()`.
  *
  * All GL THREAD methods: `consumeStagedUploads()`, `createGLTexture()`,
  * `destroyGLTexture()`, `getGLTexture()`.
@@ -38,12 +38,8 @@ ImageAtlas::ImageAtlas (int budgetBytes_) noexcept
 /**
  * @brief Stages an RGBA8 image for upload and returns its stable image ID.
  *
- * Allocates a region in the shelf packer, deep-copies the pixel data into a
- * `StagedBitmap`, appends it to the active write batch, computes normalised UV
- * coordinates, and stores the `LRUEntry` in the regions map.
- *
- * If the packer reports atlas-full (empty rect), `evictIfNeeded()` is called
- * and the allocation is retried once.  Returns 0 on persistent failure.
+ * Auto-assigns an ID via `nextImageId`, then delegates to `stageImpl()`.
+ * Returns 0 on persistent failure (atlas full after eviction).
  *
  * @param rgba      Pointer to tightly-packed RGBA8 pixel data (4 bytes/pixel).
  * @param widthPx   Source image width in pixels.
@@ -51,60 +47,20 @@ ImageAtlas::ImageAtlas (int budgetBytes_) noexcept
  * @return Stable image ID, or 0 on failure.
  *
  * @note MESSAGE THREAD only.
+ * @see stageImpl()
  */
 uint32_t ImageAtlas::stage (const uint8_t* rgba, int widthPx, int heightPx) noexcept
 {
     jassert (rgba != nullptr);
     jassert (widthPx > 0 and heightPx > 0);
 
-    juce::Rectangle<int> region { packer.allocate (widthPx, heightPx) };
-
-    if (region.isEmpty())
-    {
-        evictIfNeeded();
-        region = packer.allocate (widthPx, heightPx);
-    }
+    const uint32_t assignedId { nextImageId };
+    ++nextImageId;
 
     uint32_t resultId { 0 };
 
-    if (not region.isEmpty())
+    if (stageImpl (assignedId, rgba, widthPx, heightPx))
     {
-        const size_t byteCount { static_cast<size_t> (widthPx) * static_cast<size_t> (heightPx) * 4u };
-
-        jam::Glyph::StagedBitmap bitmap;
-        bitmap.type = jam::Glyph::Type::emoji;
-        bitmap.region = region;
-        bitmap.pixelData.allocate (byteCount, false);
-        std::memcpy (bitmap.pixelData.get(), rgba, byteCount);
-        bitmap.pixelDataSize = byteCount;
-
-        uploadBatches[static_cast<size_t> (writeSlot)].append (std::move (bitmap));
-
-        const float atlasF { static_cast<float> (atlasDimension) };
-
-        ImageRegion imageRegion;
-        imageRegion.uv = juce::Rectangle<float>
-        {
-            static_cast<float> (region.getX())      / atlasF,
-            static_cast<float> (region.getY())      / atlasF,
-            static_cast<float> (widthPx)             / atlasF,
-            static_cast<float> (heightPx)            / atlasF
-        };
-        imageRegion.widthPx  = widthPx;
-        imageRegion.heightPx = heightPx;
-
-        const int sizeBytes { widthPx * heightPx * 4 };
-
-        LRUEntry entry;
-        entry.region          = imageRegion;
-        entry.lastAccessFrame = currentFrame;
-        entry.sizeBytes       = sizeBytes;
-
-        const uint32_t assignedId { nextImageId };
-        regions[assignedId] = entry;
-        ++nextImageId;
-        totalBytes += sizeBytes;
-
         resultId = assignedId;
     }
 
@@ -114,9 +70,9 @@ uint32_t ImageAtlas::stage (const uint8_t* rgba, int widthPx, int heightPx) noex
 /**
  * @brief Stages an RGBA8 image using a caller-provided image ID.
  *
- * Identical to `stage()` except the entry is stored under @p imageId rather
- * than the internal auto-incrementing counter.  Called by the MESSAGE THREAD
- * when draining the pending image queue produced by READER THREAD decoders.
+ * Validates @p imageId is non-zero, then delegates to `stageImpl()`.
+ * Called by the MESSAGE THREAD when draining the pending image queue
+ * produced by READER THREAD decoders.
  *
  * @param imageId   Pre-reserved ID (from `Grid::reserveImageId()`).
  * @param rgba      Pointer to tightly-packed RGBA8 pixel data (4 bytes/pixel).
@@ -125,6 +81,7 @@ uint32_t ImageAtlas::stage (const uint8_t* rgba, int widthPx, int heightPx) noex
  * @return `true` on success, `false` if the atlas is full after eviction.
  *
  * @note MESSAGE THREAD only.
+ * @see stageImpl()
  */
 bool ImageAtlas::stageWithId (uint32_t imageId, const uint8_t* rgba,
                               int widthPx, int heightPx) noexcept
@@ -133,6 +90,28 @@ bool ImageAtlas::stageWithId (uint32_t imageId, const uint8_t* rgba,
     jassert (widthPx > 0 and heightPx > 0);
     jassert (imageId != 0);
 
+    return stageImpl (imageId, rgba, widthPx, heightPx);
+}
+
+/**
+ * @brief Shared implementation body for `stage()` and `stageWithId()`.
+ *
+ * Allocates a packer region, deep-copies @p rgba into a `StagedBitmap`,
+ * appends it to the active write batch, computes normalised UV coordinates,
+ * and stores an `LRUEntry` under @p imageId.  Calls `evictIfNeeded()` and
+ * retries once if the packer is initially full.
+ *
+ * @param imageId   ID under which to register the entry.
+ * @param rgba      Pointer to tightly-packed RGBA8 pixel data (4 bytes/pixel).
+ * @param widthPx   Source image width in pixels.
+ * @param heightPx  Source image height in pixels.
+ * @return `true` on success, `false` if the atlas is full after eviction.
+ *
+ * @note MESSAGE THREAD only.
+ */
+bool ImageAtlas::stageImpl (uint32_t imageId, const uint8_t* rgba,
+                            int widthPx, int heightPx) noexcept
+{
     juce::Rectangle<int> region { packer.allocate (widthPx, heightPx) };
 
     if (region.isEmpty())
@@ -161,10 +140,10 @@ bool ImageAtlas::stageWithId (uint32_t imageId, const uint8_t* rgba,
         ImageRegion imageRegion;
         imageRegion.uv = juce::Rectangle<float>
         {
-            static_cast<float> (region.getX())  / atlasF,
-            static_cast<float> (region.getY())  / atlasF,
-            static_cast<float> (widthPx)         / atlasF,
-            static_cast<float> (heightPx)        / atlasF
+            static_cast<float> (region.getX()) / atlasF,
+            static_cast<float> (region.getY()) / atlasF,
+            static_cast<float> (widthPx)        / atlasF,
+            static_cast<float> (heightPx)       / atlasF
         };
         imageRegion.widthPx  = widthPx;
         imageRegion.heightPx = heightPx;

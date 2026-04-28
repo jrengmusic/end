@@ -210,7 +210,8 @@ struct GroundOps
 
         c.wrapPending = false;
         cellTemplate.codepoint = translateCharset (static_cast<uint32_t> (byte), useLineDrawing);
-        c.cellRow[c.col] = cellTemplate;
+        if (not (writer.isImageProtected() and c.cellRow[c.col].isImage()))
+            c.cellRow[c.col] = cellTemplate;
 
         if (c.col + 1 >= cols)
         {

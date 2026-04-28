@@ -557,8 +557,13 @@ void Grid::activeWriteCell (int row, int col, const Cell& cellState) noexcept
 {
     if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
     {
-        rowPtr (bufferForScreen(), row)[col] = cellState;
-        markRowDirty (row);
+        Cell* dst { rowPtr (bufferForScreen(), row) + col };
+
+        if (not (imageProtectionActive and dst->isImage()) or cellState.isImage())
+        {
+            *dst = cellState;
+            markRowDirty (row);
+        }
     }
 }
 
@@ -712,6 +717,7 @@ void Grid::activeWriteImage (int startRow, int startCol,
                               uint32_t imageId, int widthPx, int heightPx,
                               int cellWidthPx, int cellHeightPx) noexcept
 {
+    imageProtectionActive = true;
     const int cellCols { (widthPx + cellWidthPx - 1) / cellWidthPx };
     const int cellRows { (heightPx + cellHeightPx - 1) / cellHeightPx };
 

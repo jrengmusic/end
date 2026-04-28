@@ -73,6 +73,7 @@
 #include "../data/CharProps.h"
 #include "Grid.h"
 #include "SixelDecoder.h"
+#include "KittyDecoder.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -304,7 +305,7 @@ public:
     void setScrollbackCallback (std::function<void (int)> callback) noexcept;
 
     /**
-     * @brief Updates the physical cell dimensions used by the Sixel decoder.
+     * @brief Updates the physical cell dimensions used by image decoders.
      *
      * Called by `Screen::calc()` on the MESSAGE THREAD whenever the font metrics
      * change.  The READER THREAD reads these via `physCellWidthAtomic` and
@@ -503,9 +504,52 @@ private:
     uint8_t dcsFinalByte { 0 };
 
     /**
+     * @brief Hybrid APC payload buffer (Kitty).  Lazy-allocated on first APC sequence.
+     *
+     * APC passthrough bytes are accumulated here byte-by-byte as `apcPut` actions
+     * arrive.  When the APC terminator (ST) is received, `apcEnd()` is called.
+     * Grows geometrically from 64 KB on first use.
+     *
+     * @see apcBufferSize
+     * @see apcBufferCapacity
+     * @see appendToBuffer()
+     */
+    juce::HeapBlock<uint8_t> apcBuffer;
+
+    /**
+     * @brief Number of valid bytes currently stored in `apcBuffer`.
+     *
+     * Reset to zero on entry to `apcString` state.
+     *
+     * @see apcBuffer
+     */
+    int apcBufferSize { 0 };
+
+    /**
+     * @brief Allocated capacity of `apcBuffer` in bytes.
+     *
+     * Zero until the first APC sequence is received.  Doubles on overflow.
+     *
+     * @see apcBuffer
+     */
+    int apcBufferCapacity { 0 };
+
+    /**
+     * @brief Kitty graphics protocol decoder.
+     *
+     * Accumulates chunked APC payloads across multiple `apcPut`/`apcEnd` cycles
+     * and decodes the final image when the last chunk arrives (`m=0`).
+     * Persistent member because Kitty uses multi-chunk transmissions — unlike
+     * Sixel and iTerm2 which are single parse events.
+     *
+     * @see apcEnd()
+     */
+    KittyDecoder kittyDecoder;
+
+    /**
      * @brief Physical cell width in pixels, set by Screen::calc() on MESSAGE THREAD.
      *
-     * Read by `dcsUnhook()` on the READER THREAD to pass to
+     * Read by `dcsUnhook()` and `apcEnd()` on the READER THREAD to pass to
      * `Grid::activeWriteImage()`.  Uses relaxed ordering — eventual consistency
      * is acceptable for image cell placement.
      *
@@ -1064,7 +1108,7 @@ private:
      * - `hook`        → `dcsHook()` (records `dcsFinalByte`)
      * - `put`         → `appendToBuffer (dcsBuffer, …)`
      * - `unhook`      → `dcsUnhook()`
-     * - `apcPut`      → no-op
+     * - `apcPut`      → `appendToBuffer (apcBuffer, …)`
      * - `apcEnd`      → `apcEnd()`
      * - `ignore`/`none` → no-op
      *
@@ -1153,7 +1197,7 @@ private:
      * - `csiEntry`  → `csi.reset()`, `intermediateCount = 0`
      * - `escape`    → `intermediateCount = 0`
      * - `oscString` → `oscBufferSize = 0`
-
+     * - `apcString` → `apcBufferSize = 0`
      * - `dcsEntry`  → `csi.reset()`, `intermediateCount = 0`, `dcsBufferSize = 0`
      *
      * @param newState  The state being entered.
