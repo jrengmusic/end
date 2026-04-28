@@ -134,9 +134,10 @@ void State::flushGroupParams (juce::ValueTree& group) noexcept
  * Ensures all pending atomic writes from the reader thread are
  * visible in the ValueTree before the caller proceeds.
  *
+ * @return `true` if the ValueTree was updated (new READER data arrived); `false` otherwise.
  * @note MESSAGE THREAD only.
  */
-void State::refresh() noexcept { flush(); }
+bool State::refresh() noexcept { return flush(); }
 
 /**
  * @brief Copies all dirty atomic values into the ValueTree in a single pass.
@@ -171,8 +172,7 @@ void State::refresh() noexcept { flush(); }
 // MESSAGE THREAD
 bool State::flush() noexcept
 {
-    bool result { false };
-    if (getRawParam (ID::needsFlush)->exchange (0.0f, std::memory_order_acquire) != 0.0f)
+    if (bool needsFlush { getRawParam (ID::needsFlush)->exchange (0.0f, std::memory_order_acquire) != 0.0f })
     {
         // Flush group params (MODES, NORMAL, ALTERNATE) BEFORE root params.
         // Root params include activeScreen, whose ValueTree change fires
@@ -197,22 +197,26 @@ bool State::flush() noexcept
 
         flushRootParams();
 
-        const float newActiveScreen { getRawParam (ID::activeScreen)->load (std::memory_order_relaxed) };
+        const float newActiveScreen { activeScreenNode.isValid()
+                                          ? static_cast<float> (activeScreenNode.getProperty (ID::value))
+                                          : 0.0f };
         if (newActiveScreen != prevActiveScreen and getScrollOffset() != 0)
             setScrollOffset (0);
 
         {
-            const int flushedScrollback { static_cast<int> (
-                getRawParam (ID::scrollbackUsed)->load (std::memory_order_relaxed)) };
+            const auto scrollbackNode { jam::ValueTree::getChildWithID (state, ID::scrollbackUsed.toString()) };
+            const int flushedScrollback { scrollbackNode.isValid()
+                                              ? static_cast<int> (scrollbackNode.getProperty (ID::value))
+                                              : 0 };
             const int currentOffset { getScrollOffset() };
             if (currentOffset > flushedScrollback)
                 setScrollOffset (flushedScrollback);
         }
 
-        result = true;
+        return needsFlush;
     }
 
-    return result;
+    return false;
 }
 
 /**

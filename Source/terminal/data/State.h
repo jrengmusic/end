@@ -989,48 +989,6 @@ struct State : public juce::Timer
     void setPromptRow (int row) noexcept;
 
     /**
-     * @brief Sets the Kitty overlay image ID.
-     * @param imageId  Atlas image ID.  Non-zero = overlay active.  0 = clear.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    void setOverlayImageId (uint32_t imageId) noexcept;
-
-    /**
-     * @brief Sets the Kitty overlay origin row.
-     * @param row  Grid row of the overlay top-left.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    void setOverlayRow (int row) noexcept;
-
-    /**
-     * @brief Sets the Kitty overlay origin column.
-     * @param col  Grid column of the overlay top-left.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    void setOverlayCol (int col) noexcept;
-
-    /**
-     * @brief Returns the Kitty overlay image ID (post-atomic, any thread).
-     * @return Current overlay image ID, or 0 if no overlay is active.
-     * @note MESSAGE THREAD — lock-free, noexcept.
-     */
-    uint32_t getOverlayImageId() const noexcept;
-
-    /**
-     * @brief Returns the Kitty overlay origin row.
-     * @return Grid row of the overlay top-left.
-     * @note MESSAGE THREAD — lock-free, noexcept.
-     */
-    int getOverlayRow() const noexcept;
-
-    /**
-     * @brief Returns the Kitty overlay origin column.
-     * @return Grid column of the overlay top-left.
-     * @note MESSAGE THREAD — lock-free, noexcept.
-     */
-    int getOverlayCol() const noexcept;
-
-    /**
      * @brief Returns the cursor row of the most-recently received OSC 133 ; A marker.
      *
      * Returns -1 if no OSC 133 A has been received since session start.
@@ -1128,6 +1086,10 @@ struct State : public juce::Timer
      */
     bool consumeSnapshotDirty() noexcept;
 
+    /** @brief Returns `true` if the snapshot-dirty flag is set without clearing it.
+     *  @note MESSAGE THREAD — relaxed load, non-consuming. */
+    bool isSnapshotDirty() const noexcept;
+
     /**
      * @brief Hot-path typed getter that reads directly from the atomic store.
      *
@@ -1208,9 +1170,10 @@ struct State : public juce::Timer
      * Call from `onVBlank` before reading cursor, selection, or
      * any other State properties for rendering.
      *
+     * @return `true` if the ValueTree was updated (new READER data arrived); `false` otherwise.
      * @note MESSAGE THREAD only.
      */
-    void refresh() noexcept;
+    bool refresh() noexcept;
 
     // =========================================================================
     /** @name Subscriber seqno tracking (sidecar / NEXUS PROCESS side)

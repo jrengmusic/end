@@ -70,9 +70,6 @@ struct PendingImage
     juce::HeapBlock<uint8_t> rgba;      ///< RGBA8 pixel data, row-major, top-to-bottom.
     int width  { 0 };                   ///< Image width in pixels.
     int height { 0 };                   ///< Image height in pixels.
-    bool hasVirtualPlacement { false }; ///< True if this image has a Kitty virtual placement (U=1).
-    int placementCols { 0 };            ///< Virtual placement column span (c= param).
-    int placementRows { 0 };            ///< Virtual placement row span (r= param).
 };
 
 /**

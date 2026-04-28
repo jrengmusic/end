@@ -1,5 +1,48 @@
 # SPRINT-LOG
 
+## Sprint 42: Remove ImageCell sidecar, strip Kitty wiring, unify image cell pipeline ✅
+
+**Date:** 2026-04-28
+**Duration:** ~4:00
+
+### Agents Participated
+- COUNSELOR: architecture analysis, pipeline unification direction, delegation
+- Pathfinder: ImageCell usage survey, Kitty handling survey
+- Engineer: ImageCell removal (7 files), Kitty wiring strip (8 files)
+
+### Files Modified (15 total)
+- `Source/terminal/data/Cell.h` — removed ImageCell struct + static_asserts
+- `Source/terminal/logic/Grid.h` — removed HeapBlock<ImageCell> from Buffer, imageCellPtr, activeWriteImageCell, activeVisibleImageRow, scrollbackImageRow declarations, Writer forwarding; updated doc comments
+- `Source/terminal/logic/Grid.cpp` — removed all ImageCell method implementations, imageCells allocation, ImageCell write in activeWriteImage, serialization/deserialization
+- `Source/terminal/logic/GridErase.cpp` — removed ImageCell fill on row erase; removed erase protection (isImage/isImageContinuation skip) from eraseRow, eraseCell, eraseCellRange
+- `Source/terminal/logic/GridReflow.cpp` — removed all ImageCell handling (~15 sites: flattenLogicalLine, writeNewRow, reflowPass, reflow, resize)
+- `Source/terminal/rendering/Screen.h` — removed rowImageCells param from processCellForSnapshot; updated doc comments
+- `Source/terminal/rendering/ScreenRender.cpp` — removed rowImageCells param/variable from processCellForSnapshot; removed kittyPlaceholderChar, kittyDiacriticToNum(), dead virtual placement block
+- `Source/terminal/logic/ParserESC.cpp` — gutted apcEnd() to empty body, removed KittyDecoder include, removed diagnostic logs
+- `Source/terminal/logic/Parser.h` — removed kittyDecoder field, apcBuffer, apcBufferSize, apcBufferCapacity, KittyDecoder include
+- `Source/terminal/logic/Parser.cpp` — gutted apcPut case, removed apcString entry action, updated doc
+- `Source/terminal/logic/SixelDecoder.h` — removed Kitty-only PendingImage fields (hasVirtualPlacement, placementCols, placementRows)
+- `Source/terminal/logic/ITerm2Decoder.cpp` — removed all diagnostic Log::write calls
+- `Source/Main.cpp` — removed diagnostic log scope
+- `Source/component/TerminalDisplay.h` — Display changed to ValueTree::Listener (committed earlier in session)
+- `Source/component/TerminalDisplay.cpp` — ValueTree listener wiring (committed earlier in session)
+
+### Alignment Check
+- [x] BLESSED principles followed — S (SSOT): ImageCell was shadow state (offsetX/offsetY never consumed by renderer, duplicating what Cell.codepoint already provides); removal eliminates divergence. S (Stateless): erase protection removed — image cells are just cells, no special boolean tracking. E (Encapsulation): unified pipeline — same path for text and image glyphs.
+- [x] NAMES.md adhered — no new names introduced
+- [x] MANIFESTO.md principles applied — L (Lean): ~680 lines removed, zero added. YAGNI: virtual placement dead code removed.
+
+### Problems Solved
+- **ImageCell sidecar dead code**: offsetX/offsetY written by all three decoders, carried through reflow/resize/serialize, passed as parameter to renderer — but never dereferenced. Renderer uses cell.codepoint for atlas lookup only. Entire sidecar removed.
+- **Image persistence after fzf dismiss**: erase protection (isImage/isImageContinuation skip in GridErase) prevented ED from clearing image cells. Removed — image cells now erase identically to text cells.
+- **Kitty wiring pollution**: Kitty-specific code paths scattered across Parser, ScreenRender, SixelDecoder.h stripped for clean slate. KittyDecoder.h/cpp retained for future re-wiring through unified pipeline.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 41: scrollOffset reset on screen switch + ED 3 conformance ✅
 
 **Date:** 2026-04-27

@@ -72,7 +72,6 @@
 #include "../data/State.h"
 #include "../data/CharProps.h"
 #include "Grid.h"
-#include "KittyDecoder.h"
 #include "SixelDecoder.h"
 
 namespace Terminal
@@ -520,48 +519,6 @@ private:
      * @see setPhysCellDimensions()
      */
     std::atomic<int> physCellHeightAtomic { 0 };
-
-    /**
-     * @brief Hybrid APC payload buffer (Kitty).  Lazy-allocated on first APC G sequence.
-     *
-     * APC bytes are accumulated here byte-by-byte as `apcPut` actions arrive.
-     * When the APC terminator (BEL or ST) is received, `apcEnd()` is called.
-     * Grows geometrically from 8 KB on first use.
-     *
-     * @see apcBufferSize
-     * @see apcBufferCapacity
-     * @see appendToBuffer()
-     */
-    juce::HeapBlock<uint8_t> apcBuffer;
-
-    /**
-     * @brief Number of valid bytes currently stored in `apcBuffer`.
-     *
-     * Reset to zero on entry to `apcString` state.
-     *
-     * @see apcBuffer
-     */
-    int apcBufferSize { 0 };
-
-    /**
-     * @brief Allocated capacity of `apcBuffer` in bytes.
-     *
-     * Zero until the first APC sequence is received.  Doubles on overflow.
-     *
-     * @see apcBuffer
-     */
-    int apcBufferCapacity { 0 };
-
-    /**
-     * @brief Kitty Graphics Protocol decoder, invoked by `apcEnd()`.
-     *
-     * Holds chunk accumulators and stored images across APC packets for the
-     * same image ID.  Lives for the lifetime of the Parser (session lifetime).
-     *
-     * @see apcEnd()
-     * @see KittyDecoder
-     */
-    KittyDecoder kittyDecoder;
 
     /**
      * @brief Current drawing attributes applied to newly written cells.
@@ -1107,7 +1064,7 @@ private:
      * - `hook`        → `dcsHook()` (records `dcsFinalByte`)
      * - `put`         → `appendToBuffer (dcsBuffer, …)`
      * - `unhook`      → `dcsUnhook()`
-     * - `apcPut`      → `appendToBuffer (apcBuffer, …)`
+     * - `apcPut`      → no-op
      * - `apcEnd`      → `apcEnd()`
      * - `ignore`/`none` → no-op
      *
@@ -1196,7 +1153,7 @@ private:
      * - `csiEntry`  → `csi.reset()`, `intermediateCount = 0`
      * - `escape`    → `intermediateCount = 0`
      * - `oscString` → `oscBufferSize = 0`
-     * - `apcString` → `apcBufferSize = 0`
+
      * - `dcsEntry`  → `csi.reset()`, `intermediateCount = 0`, `dcsBufferSize = 0`
      *
      * @param newState  The state being entered.
@@ -1552,12 +1509,7 @@ private:
     /**
      * @brief Called when an APC sequence is terminated (BEL or ST received).
      *
-     * Resets `apcBufferSize`.  Will be wired to dispatch the accumulated
-     * `apcBuffer` to a Kitty graphics decoder in a future step.
-     *
      * @note READER THREAD only.
-     *
-     * @see appendToBuffer()
      */
     void apcEnd() noexcept;
 

@@ -12,10 +12,6 @@
  */
 
 #include "TerminalDisplay.h"
-#include "../AppState.h"
-#include "../lua/Engine.h"
-#include "../terminal/notifications/Notifications.h"
-
 /**
  * @brief Constructs Terminal::Display for the given Processor.
  *
@@ -24,41 +20,46 @@
  * 2. **Screen** — initialised with font family and base size from Config.
  * 3. **VBlankAttachment** — starts the render loop immediately.
  * 4. `initialise()` — wires Processor callbacks, applies screen settings.
+ * 5. State ValueTree listener — registered so `valueTreePropertyChanged` fires on flush.
  *
  * @note MESSAGE THREAD — called from Processor::createDisplay().
  */
-Terminal::Display::Display (Terminal::Processor& proc,
-                             jam::Font& font_,
-                             jam::Glyph::Packer& packer_,
-                             jam::gl::GlyphAtlas& glAtlas_,
-                             jam::GraphicsAtlas& graphicsAtlas_,
-                             Terminal::ImageAtlas& imageAtlas_)
-    : processor (proc)
-    , font (font_)
-    , packerRef (packer_)
-    , glAtlasRef (glAtlas_)
-    , graphicsAtlasRef (graphicsAtlas_)
-    , imageAtlasRef (imageAtlas_)
-    , screen (std::in_place_type<Screen<jam::Glyph::GraphicsContext>>, font_, packer_, graphicsAtlas_, imageAtlas_)
+Terminal::Display::Display (Terminal::Processor& p,
+                            jam::Font& fontToUse,
+                            jam::Glyph::Packer& packerToUse,
+                            jam::gl::GlyphAtlas& glAtlasToUse,
+                            jam::GraphicsAtlas& graphicsAtlasToUse,
+                            Terminal::ImageAtlas& imageAtlasToUse)
+    : processor (p)
+    , font (fontToUse)
+    , packerRef (packerToUse)
+    , glAtlasRef (glAtlasToUse)
+    , graphicsAtlasRef (graphicsAtlasToUse)
+    , imageAtlasRef (imageAtlasToUse)
+    , screen (std::in_place_type<Screen<jam::Glyph::GraphicsContext>>,
+              fontToUse,
+              packerToUse,
+              graphicsAtlasToUse,
+              imageAtlasToUse)
     , vblank (this,
               [this]
               {
                   onVBlank();
               })
 {
-    processor.addChangeListener (this);
+    processor.getState().get().addListener (this);
     initialise();
 }
 
 /**
- * @brief Unwires all Processor callbacks, unsubscribes from ChangeBroadcaster,
+ * @brief Unwires all Processor callbacks, unsubscribes from State ValueTree,
  *        and tears down the Screen renderer.
  *
  * @note MESSAGE THREAD.
  */
 Terminal::Display::~Display()
 {
-    processor.removeChangeListener (this);
+    processor.getState().get().removeListener (this);
 
     processor.writeInput = nullptr;
     processor.onResize = nullptr;
@@ -77,13 +78,13 @@ Terminal::Display::~Display()
 }
 
 /**
- * @brief Called by Processor (ChangeBroadcaster) when state has been updated.
+ * @brief Called by the State ValueTree when any property changes.
  *
  * Marks the snapshot dirty and requests a repaint.
  *
  * @note MESSAGE THREAD.
  */
-void Terminal::Display::changeListenerCallback (juce::ChangeBroadcaster* /*source*/)
+void Terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
 {
     processor.getState().setSnapshotDirty();
 
@@ -199,7 +200,6 @@ void Terminal::Display::resized()
             processor.onResize (cols, rows, pixelW, pixelH);
         processor.getState().setScrollOffset (0);
     }
-
 }
 
 bool Terminal::Display::hasSelection() const noexcept { return screenSelection != nullptr; }
@@ -756,7 +756,8 @@ void Terminal::Display::applyZoom (float) noexcept
         });
 
     // New font size from SSOT — lua::Engine (base) * AppState (zoom), computed fresh.
-    const float newFontSize { lua::Engine::getContext()->dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom() };
+    const float newFontSize { lua::Engine::getContext()->dpiCorrectedFontSize()
+                              * AppState::getContext()->getWindowZoom() };
 
     // Raw font metrics for both sizes — multiplier cancels in the ratio.
     const jam::Typeface::Metrics oldMetrics { font.getResolvedTypeface()->calcMetrics (oldFontSize) };
@@ -845,7 +846,7 @@ void Terminal::Display::switchRenderer (App::RendererType type)
             s.onPhysCellDimensionsChanged = [this] (int widthPx, int heightPx)
             {
                 processor.getParser().setPhysCellDimensions (widthPx, heightPx);
-                physCellWidthCache  = widthPx;
+                physCellWidthCache = widthPx;
                 physCellHeightCache = heightPx;
             };
         });

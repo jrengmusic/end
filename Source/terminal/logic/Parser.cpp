@@ -250,7 +250,6 @@ int Parser::activeScrollBottom() const noexcept
  *
  * @see oscBuffer
  * @see dcsBuffer
- * @see apcBuffer
  */
 void Parser::appendToBuffer (juce::HeapBlock<uint8_t>& buffer, int& size, int& capacity, uint8_t byte, int initialCapacity) noexcept
 {
@@ -328,8 +327,8 @@ void Parser::processTransition (uint8_t byte, const Transition& transition) noex
  * - **oscEnd** — `oscDispatch()`: dispatches the complete OSC string.
  * - **hook** — `dcsHook()`: finalises CSI params, records final byte, enters DCS passthrough.
  * - **unhook** — `dcsUnhook()`: dispatches accumulated DCS payload and exits passthrough.
- * - **apcPut** — `appendToBuffer (apcBuffer, …)`: accumulates an APC payload byte.
- * - **apcEnd** — `apcEnd()`: dispatches accumulated APC payload.
+ * - **apcPut** — no-op.
+ * - **apcEnd** — `apcEnd()`: called on APC termination.
  *
  * @param action  The action to perform, as determined by the DispatchTable.
  * @param byte    The input byte associated with the action.
@@ -408,7 +407,6 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::apcPut:
-            appendToBuffer (apcBuffer, apcBufferSize, apcBufferCapacity, byte, 8192);
             break;
 
         case ParserAction::apcEnd:
@@ -590,7 +588,6 @@ uint8_t Parser::expectedUTF8Length (uint8_t leadByte) noexcept
  * - **dcsEntry**  — same as `csiEntry` plus `dcsBufferSize = 0`: resets the
  *                   DCS payload accumulator.
  * - **oscString** — `oscBufferSize = 0`: clears the hybrid OSC payload buffer.
- * - **apcString** — `apcBufferSize = 0`: clears the hybrid APC payload buffer.
  * - All other states have no entry action (default branch is a no-op).
  *
  * @param newState  The state being entered.
@@ -618,10 +615,6 @@ void Parser::performEntryAction (ParserState newState) noexcept
 
         case ParserState::oscString:
             oscBufferSize = 0;
-            break;
-
-        case ParserState::apcString:
-            apcBufferSize = 0;
             break;
 
         default:

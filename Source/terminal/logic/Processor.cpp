@@ -181,7 +181,8 @@ juce::String Processor::encodeMouseEvent (int button, int col, int row, bool pre
 /**
  * @brief Processes raw bytes through the parser pipeline.
  *
- * Feeds `Parser::process()` then fires `sendChangeMessage()` to notify Display.
+ * Feeds `Parser::process()`.  Display is notified via ValueTree::Listener
+ * when State::flush() propagates atomic values to the ValueTree on the timer tick.
  *
  * @note READER THREAD only — called from the byte source (Terminal::Session
  *       onBytes callback or IPC dispatch in client mode).
@@ -191,7 +192,6 @@ void Processor::process (const char* data, int length) noexcept
     jassert (parser != nullptr);
     parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
     state.consumePasteEcho (length);
-    sendChangeMessage();
 }
 
 State& Processor::getState() noexcept { return state; }

@@ -104,7 +104,6 @@ void Parser::eraseInDisplay (int mode) noexcept
 
     Cell fill {};
     fill.bg = stamp.bg;
-    state.setOverlayImageId (0);
 
     switch (mode)
     {
@@ -550,12 +549,10 @@ void Parser::repeatCharacter (int count) noexcept
  */
 void Parser::setScreen (bool shouldUseAlternate) noexcept
 {
-    const auto target { shouldUseAlternate ? alternate : normal };
-
-    if (target != state.getRawValue<ActiveScreen> (ID::activeScreen))
+    if (const auto target { shouldUseAlternate ? alternate : normal };
+        target != state.getRawValue<ActiveScreen> (ID::activeScreen))
     {
         state.setScreen (target);
-        state.setOverlayImageId (0);
         const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
         cursorResetScrollRegion (scr);
         calc();

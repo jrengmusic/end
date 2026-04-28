@@ -65,116 +65,6 @@ namespace Terminal
 /// @brief Maximum number of codepoints in a grapheme cluster (1 primary + 7 extras).
 static constexpr int maxGraphemeCodepoints { 8 };
 
-/// @brief Kitty unicode placeholder codepoint (U+10EEEE).
-static constexpr uint32_t kittyPlaceholderChar { 0x10EEEE };
-
-// =========================================================================
-// Kitty diacritic mapping
-// =========================================================================
-
-/**
- * @brief Maps a Unicode combining diacritic codepoint to its Kitty row/column number.
- *
- * Translates the full diacritic table from kitty/rowcolumn-diacritics.c.
- * Returns 0 when @p cp is not a known diacritic (0 is never a valid Kitty
- * row/column encoding — the table starts at 1 for U+0305).
- *
- * @param cp  Unicode codepoint of the combining diacritic.
- * @return    1-based Kitty row/column number, or 0 if not a known diacritic.
- */
-static int kittyDiacriticToNum (uint32_t cp) noexcept
-{
-    int result { 0 };
-
-    if      (cp >= 0x0305 and cp <= 0x0306) result = static_cast<int> (cp - 0x0305) + 1;
-    else if (cp >= 0x030D and cp <= 0x030F) result = static_cast<int> (cp - 0x030D) + 2;
-    else if (cp >= 0x0310 and cp <= 0x0311) result = static_cast<int> (cp - 0x0310) + 4;
-    else if (cp >= 0x0312 and cp <= 0x0313) result = static_cast<int> (cp - 0x0312) + 5;
-    else if (cp >= 0x033D and cp <= 0x0340) result = static_cast<int> (cp - 0x033D) + 6;
-    else if (cp >= 0x0346 and cp <= 0x0347) result = static_cast<int> (cp - 0x0346) + 9;
-    else if (cp >= 0x034A and cp <= 0x034D) result = static_cast<int> (cp - 0x034A) + 10;
-    else if (cp >= 0x0350 and cp <= 0x0353) result = static_cast<int> (cp - 0x0350) + 13;
-    else if (cp >= 0x0357 and cp <= 0x0358) result = static_cast<int> (cp - 0x0357) + 16;
-    else if (cp >= 0x035B and cp <= 0x035C) result = static_cast<int> (cp - 0x035B) + 17;
-    else if (cp >= 0x0363 and cp <= 0x0370) result = static_cast<int> (cp - 0x0363) + 18;
-    else if (cp >= 0x0483 and cp <= 0x0488) result = static_cast<int> (cp - 0x0483) + 31;
-    else if (cp >= 0x0592 and cp <= 0x0596) result = static_cast<int> (cp - 0x0592) + 36;
-    else if (cp >= 0x0597 and cp <= 0x059A) result = static_cast<int> (cp - 0x0597) + 40;
-    else if (cp >= 0x059C and cp <= 0x05A2) result = static_cast<int> (cp - 0x059C) + 43;
-    else if (cp >= 0x05A8 and cp <= 0x05AA) result = static_cast<int> (cp - 0x05A8) + 49;
-    else if (cp >= 0x05AB and cp <= 0x05AD) result = static_cast<int> (cp - 0x05AB) + 51;
-    else if (cp >= 0x05AF and cp <= 0x05B0) result = static_cast<int> (cp - 0x05AF) + 53;
-    else if (cp >= 0x05C4 and cp <= 0x05C5) result = static_cast<int> (cp - 0x05C4) + 54;
-    else if (cp >= 0x0610 and cp <= 0x0618) result = static_cast<int> (cp - 0x0610) + 55;
-    else if (cp >= 0x0657 and cp <= 0x065C) result = static_cast<int> (cp - 0x0657) + 63;
-    else if (cp >= 0x065D and cp <= 0x065F) result = static_cast<int> (cp - 0x065D) + 68;
-    else if (cp >= 0x06D6 and cp <= 0x06DD) result = static_cast<int> (cp - 0x06D6) + 70;
-    else if (cp >= 0x06DF and cp <= 0x06E3) result = static_cast<int> (cp - 0x06DF) + 77;
-    else if (cp >= 0x06E4 and cp <= 0x06E5) result = static_cast<int> (cp - 0x06E4) + 81;
-    else if (cp >= 0x06E7 and cp <= 0x06E9) result = static_cast<int> (cp - 0x06E7) + 82;
-    else if (cp >= 0x06EB and cp <= 0x06ED) result = static_cast<int> (cp - 0x06EB) + 84;
-    else if (cp >= 0x0730 and cp <= 0x0731) result = static_cast<int> (cp - 0x0730) + 86;
-    else if (cp >= 0x0732 and cp <= 0x0734) result = static_cast<int> (cp - 0x0732) + 87;
-    else if (cp >= 0x0735 and cp <= 0x0737) result = static_cast<int> (cp - 0x0735) + 89;
-    else if (cp >= 0x073A and cp <= 0x073B) result = static_cast<int> (cp - 0x073A) + 91;
-    else if (cp >= 0x073D and cp <= 0x073E) result = static_cast<int> (cp - 0x073D) + 92;
-    else if (cp >= 0x073F and cp <= 0x0742) result = static_cast<int> (cp - 0x073F) + 93;
-    else if (cp >= 0x0743 and cp <= 0x0744) result = static_cast<int> (cp - 0x0743) + 96;
-    else if (cp >= 0x0745 and cp <= 0x0746) result = static_cast<int> (cp - 0x0745) + 97;
-    else if (cp >= 0x0747 and cp <= 0x0748) result = static_cast<int> (cp - 0x0747) + 98;
-    else if (cp >= 0x0749 and cp <= 0x074B) result = static_cast<int> (cp - 0x0749) + 99;
-    else if (cp >= 0x07EB and cp <= 0x07F2) result = static_cast<int> (cp - 0x07EB) + 101;
-    else if (cp >= 0x07F3 and cp <= 0x07F4) result = static_cast<int> (cp - 0x07F3) + 108;
-    else if (cp >= 0x0816 and cp <= 0x081A) result = static_cast<int> (cp - 0x0816) + 109;
-    else if (cp >= 0x081B and cp <= 0x0824) result = static_cast<int> (cp - 0x081B) + 113;
-    else if (cp >= 0x0825 and cp <= 0x0828) result = static_cast<int> (cp - 0x0825) + 122;
-    else if (cp >= 0x0829 and cp <= 0x082E) result = static_cast<int> (cp - 0x0829) + 125;
-    else if (cp >= 0x0951 and cp <= 0x0952) result = static_cast<int> (cp - 0x0951) + 130;
-    else if (cp >= 0x0953 and cp <= 0x0955) result = static_cast<int> (cp - 0x0953) + 131;
-    else if (cp >= 0x0F82 and cp <= 0x0F84) result = static_cast<int> (cp - 0x0F82) + 133;
-    else if (cp >= 0x0F86 and cp <= 0x0F88) result = static_cast<int> (cp - 0x0F86) + 135;
-    else if (cp >= 0x135D and cp <= 0x1360) result = static_cast<int> (cp - 0x135D) + 137;
-    else if (cp >= 0x17DD and cp <= 0x17DE) result = static_cast<int> (cp - 0x17DD) + 140;
-    else if (cp >= 0x193A and cp <= 0x193B) result = static_cast<int> (cp - 0x193A) + 141;
-    else if (cp >= 0x1A17 and cp <= 0x1A18) result = static_cast<int> (cp - 0x1A17) + 142;
-    else if (cp >= 0x1A75 and cp <= 0x1A7D) result = static_cast<int> (cp - 0x1A75) + 143;
-    else if (cp >= 0x1B6B and cp <= 0x1B6C) result = static_cast<int> (cp - 0x1B6B) + 151;
-    else if (cp >= 0x1B6D and cp <= 0x1B74) result = static_cast<int> (cp - 0x1B6D) + 152;
-    else if (cp >= 0x1CD0 and cp <= 0x1CD3) result = static_cast<int> (cp - 0x1CD0) + 159;
-    else if (cp >= 0x1CDA and cp <= 0x1CDC) result = static_cast<int> (cp - 0x1CDA) + 162;
-    else if (cp >= 0x1CE0 and cp <= 0x1CE1) result = static_cast<int> (cp - 0x1CE0) + 164;
-    else if (cp >= 0x1DC0 and cp <= 0x1DC2) result = static_cast<int> (cp - 0x1DC0) + 165;
-    else if (cp >= 0x1DC3 and cp <= 0x1DCA) result = static_cast<int> (cp - 0x1DC3) + 167;
-    else if (cp >= 0x1DCB and cp <= 0x1DCD) result = static_cast<int> (cp - 0x1DCB) + 174;
-    else if (cp >= 0x1DD1 and cp <= 0x1DE7) result = static_cast<int> (cp - 0x1DD1) + 176;
-    else if (cp >= 0x1DFE and cp <= 0x1DFF) result = static_cast<int> (cp - 0x1DFE) + 198;
-    else if (cp >= 0x20D0 and cp <= 0x20D2) result = static_cast<int> (cp - 0x20D0) + 199;
-    else if (cp >= 0x20D4 and cp <= 0x20D8) result = static_cast<int> (cp - 0x20D4) + 201;
-    else if (cp >= 0x20DB and cp <= 0x20DD) result = static_cast<int> (cp - 0x20DB) + 205;
-    else if (cp >= 0x20E1 and cp <= 0x20E2) result = static_cast<int> (cp - 0x20E1) + 207;
-    else if (cp >= 0x20E7 and cp <= 0x20E8) result = static_cast<int> (cp - 0x20E7) + 208;
-    else if (cp >= 0x20E9 and cp <= 0x20EA) result = static_cast<int> (cp - 0x20E9) + 209;
-    else if (cp >= 0x20F0 and cp <= 0x20F1) result = static_cast<int> (cp - 0x20F0) + 210;
-    else if (cp >= 0x2CEF and cp <= 0x2CF2) result = static_cast<int> (cp - 0x2CEF) + 211;
-    else if (cp >= 0x2DE0 and cp <= 0x2E00) result = static_cast<int> (cp - 0x2DE0) + 214;
-    else if (cp >= 0xA66F and cp <= 0xA670) result = static_cast<int> (cp - 0xA66F) + 246;
-    else if (cp >= 0xA67C and cp <= 0xA67E) result = static_cast<int> (cp - 0xA67C) + 247;
-    else if (cp >= 0xA6F0 and cp <= 0xA6F2) result = static_cast<int> (cp - 0xA6F0) + 249;
-    else if (cp >= 0xA8E0 and cp <= 0xA8F2) result = static_cast<int> (cp - 0xA8E0) + 251;
-    else if (cp >= 0xAAB0 and cp <= 0xAAB1) result = static_cast<int> (cp - 0xAAB0) + 269;
-    else if (cp >= 0xAAB2 and cp <= 0xAAB4) result = static_cast<int> (cp - 0xAAB2) + 270;
-    else if (cp >= 0xAAB7 and cp <= 0xAAB9) result = static_cast<int> (cp - 0xAAB7) + 272;
-    else if (cp >= 0xAABE and cp <= 0xAAC0) result = static_cast<int> (cp - 0xAABE) + 274;
-    else if (cp >= 0xAAC1 and cp <= 0xAAC2) result = static_cast<int> (cp - 0xAAC1) + 276;
-    else if (cp >= 0xFE20 and cp <= 0xFE27) result = static_cast<int> (cp - 0xFE20) + 277;
-    else if (cp >= 0x10A0F and cp <= 0x10A10) result = static_cast<int> (cp - 0x10A0F) + 284;
-    else if (cp >= 0x10A38 and cp <= 0x10A39) result = static_cast<int> (cp - 0x10A38) + 285;
-    else if (cp >= 0x1D185 and cp <= 0x1D18A) result = static_cast<int> (cp - 0x1D185) + 286;
-    else if (cp >= 0x1D1AA and cp <= 0x1D1AE) result = static_cast<int> (cp - 0x1D1AA) + 291;
-    else if (cp >= 0x1D242 and cp <= 0x1D245) result = static_cast<int> (cp - 0x1D242) + 295;
-
-    return result;
-}
 
 /// @brief Exclusive upper bound for the ASCII range tested during shaping dispatch.
 static constexpr uint32_t asciiCeiling { 128 };
@@ -446,7 +336,7 @@ static void emitShapedGlyphsToCache (
 template <typename Renderer>
 void Screen<Renderer>::processCellForSnapshot (
     const Cell& cell, const Cell* rowCells, const Grapheme* rowGraphemes,
-    const ImageCell* rowImageCells, int col, int row, Grid& grid) noexcept
+    int col, int row, Grid& grid) noexcept
 {
     // ---------------------------------------------------------------------------
     // Dispatch on cell layout type.
@@ -605,70 +495,6 @@ void Screen<Renderer>::processCellForSnapshot (
     {
         --ligatureSkip;
     }
-    else if (effectiveCell.codepoint == kittyPlaceholderChar)
-    {
-        // -------------------------------------------------------------------------
-        // Kitty unicode placeholder (U+10EEEE)
-        //
-        // Extract image ID from fg color:
-        //   palette mode: fg.red holds the 8-bit ID directly
-        //   rgb mode:     (red << 16) | (green << 8) | blue is the 24-bit ID
-        //
-        // Extract row/col from grapheme diacritics (indices 0 = row, 1 = col, 2 = high byte).
-        // Diacritics are 1-based in kittyDiacriticToNum; subtract 1 to get 0-based row/col.
-        //
-        // Missing diacritics → inherit from left neighbour (handled by the app writing
-        // explicit diacritics; we pass through without inheritance for simplicity).
-        // -------------------------------------------------------------------------
-
-        uint32_t imageId { 0 };
-
-        if (effectiveCell.fg.isPalette())
-        {
-            imageId = static_cast<uint32_t> (effectiveCell.fg.paletteIndex());
-        }
-        else if (effectiveCell.fg.isRGB())
-        {
-            imageId = (static_cast<uint32_t> (effectiveCell.fg.red)   << 16)
-                    | (static_cast<uint32_t> (effectiveCell.fg.green) << 8)
-                    |  static_cast<uint32_t> (effectiveCell.fg.blue);
-        }
-
-        int placeholderRow { -1 };
-        int placeholderCol { -1 };
-
-        if (grapheme != nullptr and grapheme->count > 0)
-        {
-            const int rowNum { kittyDiacriticToNum (grapheme->extraCodepoints.at (0)) };
-            placeholderRow = rowNum > 0 ? rowNum - 1 : 0;
-
-            if (grapheme->count > 1)
-            {
-                const int colNum { kittyDiacriticToNum (grapheme->extraCodepoints.at (1)) };
-                placeholderCol = colNum > 0 ? colNum - 1 : 0;
-
-                if (grapheme->count > 2)
-                {
-                    // High byte of image ID (3rd diacritic)
-                    const int highNum { kittyDiacriticToNum (grapheme->extraCodepoints.at (2)) };
-                    const uint32_t highByte { highNum > 0 ? static_cast<uint32_t> (highNum - 1) : 0u };
-                    imageId = (imageId & 0x00FFFFFFu) | (highByte << 24);
-                }
-            }
-        }
-
-        if (placeholderRow < 0)
-            placeholderRow = 0;
-
-        if (placeholderCol < 0)
-            placeholderCol = 0;
-
-        // TODO: virtual placement lookup needs migration to State.
-        // getVirtualPlacement was removed from ImageAtlas (wrong owner).
-        // The Kitty unicode placeholder path (U+10EEEE) is disabled until
-        // VirtualPlacement storage is re-homed to an appropriate owner.
-        juce::ignoreUnused (imageId, placeholderRow, placeholderCol);
-    }
     else if (effectiveCell.hasContent())
     {
         if (isBlockChar (effectiveCell.codepoint))
@@ -821,10 +647,6 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
                         ? grid.scrollbackGraphemeRow (r, offset)
                         : grid.activeVisibleGraphemeRow (r) };
 
-                    const ImageCell* rowImageCells { offset > 0
-                        ? grid.scrollbackImageRow (r, offset)
-                        : grid.activeVisibleImageRow (r) };
-
                     monoCount[r]        = 0;
                     emojiCount[r]       = 0;
                     bgCount[r]          = 0;
@@ -854,7 +676,7 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
 
                     for (int c { firstCol }; c <= lastCol; ++c)
                     {
-                        processCellForSnapshot (rowCells[c], rowCells, rowGraphemes, rowImageCells, c, r, grid);
+                        processCellForSnapshot (rowCells[c], rowCells, rowGraphemes, c, r, grid);
                     }
 
                     // Store current row for next-frame comparison.

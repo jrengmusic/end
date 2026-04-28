@@ -152,49 +152,6 @@ void Screen<Renderer>::updateSnapshot (const State& state, Grid& grid, int rows,
     snapshot.backgroundCount  = totalBg;
     snapshot.imageCount       = totalImages;
 
-    // Kitty overlay: render from State's overlay params if active.
-    // READER writes via state.setOverlayImageId/Row/Col (storeAndFlush).
-    // Flush copies to ValueTree; renderer reads from the atomic directly.
-    // Unidirectional: READER -> State -> Flush -> Renderer. No write-back.
-    const uint32_t overlayId { state.getOverlayImageId() };
-
-    if (overlayId != 0)
-    {
-        const ImageRegion* region { imageAtlas.lookup (overlayId) };
-
-        if (region == nullptr)
-        {
-            PendingImage* pending { grid.getDecodedImage (overlayId) };
-
-            if (pending != nullptr)
-            {
-                imageAtlas.stageWithId (pending->imageId, pending->rgba.get(),
-                                        pending->width, pending->height);
-                grid.releaseDecodedImage (overlayId);
-                region = imageAtlas.lookup (overlayId);
-            }
-        }
-
-        if (region != nullptr)
-        {
-            if (snapshot.imageCount >= snapshot.imageCapacity)
-            {
-                const int newCap { juce::jmax (16, snapshot.imageCapacity * 2) };
-                snapshot.images.realloc (static_cast<size_t> (newCap));
-                snapshot.imageCapacity = newCap;
-            }
-
-            Render::ImageQuad& iq { snapshot.images[snapshot.imageCount] };
-            iq.screenBounds = juce::Rectangle<float> {
-                static_cast<float> (state.getOverlayCol() * physCellWidth),
-                static_cast<float> (state.getOverlayRow() * physCellHeight),
-                static_cast<float> (region->widthPx),
-                static_cast<float> (region->heightPx) };
-            iq.uvRect = region->uv;
-            ++snapshot.imageCount;
-        }
-    }
-
     snapshot.cursorFocused = state.isCursorFocused();
 
     if (selectionModeActive)

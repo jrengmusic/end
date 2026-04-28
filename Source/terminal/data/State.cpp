@@ -172,9 +172,6 @@ State::State()
     addParam (state, ID::outputBlockBottom, -1.0f);
     addParam (state, ID::outputScanActive, 0.0f);
     addParam (state, ID::promptRow, -1.0f);
-    addParam (state, ID::overlayImageId, 0.0f);
-    addParam (state, ID::overlayRow, 0.0f);
-    addParam (state, ID::overlayCol, 0.0f);
     // Flush and repaint signals.
     addParam (state, ID::needsFlush, 0.0f);
     addParam (state, ID::snapshotDirty, 0.0f);
@@ -476,36 +473,6 @@ int State::getPromptRow() const noexcept
     return jam::toInt (getRawParam (ID::promptRow)->load (std::memory_order_relaxed));
 }
 
-/** @note READER THREAD — stores the Kitty overlay image ID into State. */
-void State::setOverlayImageId (uint32_t imageId) noexcept
-{
-    storeAndFlush (ID::overlayImageId, static_cast<float> (imageId));
-}
-
-/** @note READER THREAD — stores the Kitty overlay row into State. */
-void State::setOverlayRow (int row) noexcept { storeAndFlush (ID::overlayRow, static_cast<float> (row)); }
-
-/** @note READER THREAD — stores the Kitty overlay column into State. */
-void State::setOverlayCol (int col) noexcept { storeAndFlush (ID::overlayCol, static_cast<float> (col)); }
-
-/** @note MESSAGE THREAD — relaxed load; called from ScreenSnapshot for rendering. */
-uint32_t State::getOverlayImageId() const noexcept
-{
-    return static_cast<uint32_t> (getRawParam (ID::overlayImageId)->load (std::memory_order_relaxed));
-}
-
-/** @note MESSAGE THREAD — relaxed load; called from ScreenSnapshot for rendering. */
-int State::getOverlayRow() const noexcept
-{
-    return jam::toInt (getRawParam (ID::overlayRow)->load (std::memory_order_relaxed));
-}
-
-/** @note MESSAGE THREAD — relaxed load; called from ScreenSnapshot for rendering. */
-int State::getOverlayCol() const noexcept
-{
-    return jam::toInt (getRawParam (ID::overlayCol)->load (std::memory_order_relaxed));
-}
-
 /**
  * @brief SSOT writer for all three string slots (title, cwd, foreground process).
  *
@@ -675,6 +642,12 @@ void State::clearPasteEchoGate() noexcept
 bool State::consumeSnapshotDirty() noexcept
 {
     return getRawParam (ID::snapshotDirty)->exchange (0.0f, std::memory_order_acquire) != 0.0f;
+}
+
+// MESSAGE THREAD
+bool State::isSnapshotDirty() const noexcept
+{
+    return getRawParam (ID::snapshotDirty)->load (std::memory_order_relaxed) != 0.0f;
 }
 
 // READER THREAD

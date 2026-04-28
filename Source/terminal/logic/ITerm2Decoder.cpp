@@ -221,10 +221,6 @@ DecodedImage ITerm2Decoder::decode (const uint8_t* data, int length) noexcept
     static constexpr uint8_t filePrefix[] { 'F', 'i', 'l', 'e', '=' };
     static constexpr int filePrefixLen { 5 };
 
-    jam::debug::Log::write ("ITerm2Decoder: prefix found=" + juce::String (
-        (length > filePrefixLen and std::memcmp (data, filePrefix, static_cast<size_t> (filePrefixLen)) == 0) ? "yes" : "no")
-        + " length=" + juce::String (length));
-
     if (length > filePrefixLen and std::memcmp (data, filePrefix, static_cast<size_t> (filePrefixLen)) == 0)
     {
         int pos { filePrefixLen };
@@ -276,10 +272,6 @@ DecodedImage ITerm2Decoder::decode (const uint8_t* data, int length) noexcept
             }
         }
 
-        jam::debug::Log::write ("ITerm2Decoder: inlineDisplay=" + juce::String (inlineDisplay ? "1" : "0")
-            + " colonFound=" + juce::String ((pos < length and data[pos] == ':') ? "yes" : "no")
-            + " pos=" + juce::String (pos));
-
         // -------------------------------------------------------------------------
         // 3. Return invalid when inline != 1
         // -------------------------------------------------------------------------
@@ -299,8 +291,6 @@ DecodedImage ITerm2Decoder::decode (const uint8_t* data, int length) noexcept
                 juce::MemoryOutputStream decoded;
 
                 const bool base64Ok { juce::Base64::convertFromBase64 (decoded, base64) and decoded.getDataSize() > 0 };
-                jam::debug::Log::write ("ITerm2Decoder: base64 ok=" + juce::String (base64Ok ? "yes" : "no")
-                    + " decodedSize=" + juce::String (static_cast<int> (decoded.getDataSize())));
 
                 if (base64Ok)
                 {
@@ -308,30 +298,12 @@ DecodedImage ITerm2Decoder::decode (const uint8_t* data, int length) noexcept
                     // 5. Load image via JUCE auto-detection (PNG / JPEG / GIF)
                     // -------------------------------------------------------------------------
 
-                    // Log first 8 bytes to identify format
-                    {
-                        const uint8_t* raw { static_cast<const uint8_t*> (decoded.getData()) };
-                        const int peekLen { juce::jmin (8, static_cast<int> (decoded.getDataSize())) };
-                        juce::String hexDump;
-                        for (int b { 0 }; b < peekLen; ++b)
-                            hexDump += juce::String::toHexString (raw[b]).paddedLeft ('0', 2) + " ";
-                        jam::debug::Log::write ("ITerm2Decoder: first8=" + hexDump + " size=" + juce::String (static_cast<int> (decoded.getDataSize())));
-                    }
-
                     juce::Image image { juce::ImageFileFormat::loadFrom (decoded.getData(),
                                                                          decoded.getDataSize()) };
 
                     // Platform-native fallback for formats JUCE doesn't handle (TIFF, BMP, WebP, etc.)
                     if (not image.isValid())
-                    {
-                        jam::debug::Log::write ("ITerm2Decoder: JUCE load failed, trying platform-native decode");
                         image = loadImageNative (decoded.getData(), decoded.getDataSize());
-                        jam::debug::Log::write ("ITerm2Decoder: native decode valid=" + juce::String (image.isValid() ? "yes" : "no"));
-                    }
-
-                    jam::debug::Log::write ("ITerm2Decoder: image valid=" + juce::String (image.isValid() ? "yes" : "no")
-                        + " w=" + juce::String (image.getWidth())
-                        + " h=" + juce::String (image.getHeight()));
 
                     if (image.isValid())
                     {
@@ -396,9 +368,6 @@ DecodedImage ITerm2Decoder::decode (const uint8_t* data, int length) noexcept
                             // -------------------------------------------------------------------------
                             // 8. Populate result
                             // -------------------------------------------------------------------------
-                            jam::debug::Log::write ("ITerm2Decoder: format conversion ok w=" + juce::String (w)
-                                + " h=" + juce::String (h));
-
                             result.width  = w;
                             result.height = h;
                         }

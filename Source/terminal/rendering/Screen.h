@@ -789,7 +789,7 @@ private:
      * `jam::SnapshotBuffer::write()`.
      *
      * @param state      Current terminal state (cursor position, screen type).
-     * @param grid       Terminal grid; read-only access for Kitty overlay rendering.
+     * @param grid       Terminal grid; read-only access for image rendering.
      * @param rows       Number of visible rows.
      * @param maxGlyphs  Maximum glyph slots per row (`cacheRows` cols × 2).
      *
@@ -837,7 +837,6 @@ private:
     void processCellForSnapshot (const Cell& cell,
                                  const Cell* rowCells,
                                  const Grapheme* rowGraphemes,
-                                 const ImageCell* rowImageCells,
                                  int col,
                                  int row,
                                  Grid& grid) noexcept;

@@ -432,9 +432,6 @@ public:
     }
 
 private:
-    // TEMPORARY: SKiT image protocol diagnostic log — remove after SKiT is stable.
-    jam::debug::Log::Scope logScope { juce::File { "/tmp/end_skit.log" } };
-
     /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
     lua::Engine luaEngine;
 

@@ -51,7 +51,6 @@
 #include "Parser.h"
 #include "Grid.h"
 #include "ITerm2Decoder.h"
-#include "KittyDecoder.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -1097,88 +1096,10 @@ void Parser::dcsUnhook() noexcept
 /**
  * @brief Called when an APC sequence is terminated (BEL or ST received).
  *
- * Dispatches the accumulated `apcBuffer` payload to `KittyDecoder::process()`.
- * On a final-chunk transmit+display result, reserves an image ID, writes image
- * cells to the grid, and stores the decoded image in Grid for the MESSAGE THREAD
- * to pull on first atlas encounter.  Any non-empty response string is queued
- * via `sendResponse()` for delivery through `writeToHost` after `process()`.
- *
- * Silently skips when:
- * - `apcBufferSize == 0` (no APC data accumulated).
- * - Cell dimensions are not yet calibrated (zero values).
- * - Decoder returns `shouldDisplay=false` (query, delete, transmit-only, or
- *   mid-sequence chunk).
- * - Decoded image is invalid.
- *
  * @note READER THREAD only.
- *
- * @see KittyDecoder
- * @see appendToBuffer()
- * @see Grid::reserveImageId()
- * @see Grid::storeDecodedImage()
  */
 void Parser::apcEnd() noexcept
 {
-    if (apcBufferSize > 0 and apcBuffer.get() != nullptr)
-    {
-        // apcBuffer starts with 'G' (the APC command identifier); KittyDecoder
-        // expects data after 'G' (key=value pairs + payload).
-        KittyDecoder::Result kittyResult { kittyDecoder.process (apcBuffer.get() + 1, apcBufferSize - 1) };
-
-        if (kittyResult.shouldDisplay and kittyResult.image.isValid())
-        {
-            const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
-            const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
-
-            if (cellW > 0 and cellH > 0)
-            {
-                const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-                const int cursorRow    { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
-                const int cursorCol    { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
-
-                const uint32_t imageId { writer.reserveImageId() };
-
-                state.setOverlayImageId (imageId);
-                state.setOverlayRow (cursorRow);
-                state.setOverlayCol (cursorCol);
-
-                const int cellRows { (kittyResult.image.height + cellH - 1) / cellH };
-                cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
-                state.setCursorCol (scr, 0);
-
-                PendingImage pending;
-                pending.imageId = imageId;
-                pending.rgba    = std::move (kittyResult.image.rgba);
-                pending.width   = kittyResult.image.width;
-                pending.height  = kittyResult.image.height;
-
-                writer.storeDecodedImage (std::move (pending));
-            }
-        }
-        else if (kittyResult.isVirtualPlacement and kittyResult.image.isValid())
-        {
-            // Virtual placement (U=1): store image for atlas consumption under the Kitty
-            // image ID so that U+10EEEE placeholder cells can look it up by that ID.
-            // No grid cells are written — the app writes U+10EEEE characters instead.
-            PendingImage pending;
-            pending.imageId              = kittyResult.kittyImageId;
-            pending.rgba                 = std::move (kittyResult.image.rgba);
-            pending.width                = kittyResult.image.width;
-            pending.height               = kittyResult.image.height;
-            pending.hasVirtualPlacement  = true;
-            pending.placementCols        = kittyResult.placementCols;
-            pending.placementRows        = kittyResult.placementRows;
-
-            writer.storeDecodedImage (std::move (pending));
-        }
-
-        if (kittyResult.response.isNotEmpty())
-        {
-            sendResponse (kittyResult.response.toRawUTF8());
-        }
-    }
-
-    apcBufferSize = 0;
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

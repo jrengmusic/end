@@ -20,7 +20,8 @@
  * 4. Responses (e.g. cursor-position reports) are buffered in the parser and
  *    flushed back via `parser.writeToHost` (wired by the owner to the appropriate
  *    sink — local TTY write or IPC output).
- * 5. `sendChangeMessage()` fires on the reader thread to notify Display.
+ * 5. State::flush() propagates atomic values to the ValueTree on the timer tick,
+ *    notifying Display via `juce::ValueTree::Listener`.
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
@@ -58,9 +59,9 @@ class Display;
  * Bytes arrive via `process()` from whichever source owns the byte stream
  * (local `Terminal::Session` callback, IPC byte-forward, or history replay).
  *
- * Processor inherits `juce::ChangeBroadcaster`.  `process()` calls
- * `sendChangeMessage()` so that `Terminal::Display` (subscribed as a
- * `juce::ChangeListener`) repaints after each update.
+ * Display subscribes as a `juce::ValueTree::Listener` on State's ValueTree.
+ * `State::flush()` propagates atomic values to the ValueTree on the timer tick,
+ * which notifies Display to repaint.
  *
  * ### Boundary contract
  * `State`, `Grid`, `uuid`, and `parser` are private.  External callers access
@@ -81,7 +82,7 @@ class Display;
  *
  * @see Grid, Parser, State, Terminal::Session
  */
-class Processor : public juce::ChangeBroadcaster
+class Processor
 {
 public:
     //==============================================================================

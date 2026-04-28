@@ -347,30 +347,6 @@ struct Grapheme
 
 static_assert (std::is_trivially_copyable_v<Grapheme>, "Grapheme must be trivially copyable");
 
-/**
- * @struct ImageCell
- * @brief Side-table entry for image cell pixel offsets.
- *
- * Co-indexed with `Cell` in `Grid::Buffer::imageCells`, mirroring the
- * `Grapheme` side-table pattern.  Each `ImageCell` stores the pixel offset
- * within the full decoded image that this cell represents.
- *
- * Used by Sixel and iTerm2 decoders (cell-flag path).  Kitty uses the
- * overlay params in State instead.
- *
- * @see Grapheme
- */
-struct ImageCell
-{
-    /** @brief Horizontal pixel offset into the source image for this cell. */
-    uint16_t offsetX { 0 };
-
-    /** @brief Vertical pixel offset into the source image for this cell. */
-    uint16_t offsetY { 0 };
-};
-
-static_assert (sizeof (ImageCell) == 4, "ImageCell must be 4 bytes");
-static_assert (std::is_trivially_copyable_v<ImageCell>, "ImageCell must be trivially copyable");
 
 /**
  * @struct Pen

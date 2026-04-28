@@ -49,8 +49,10 @@
 #include "../SelectionType.h"
 #include "../terminal/selection/LinkSpan.h"
 #include "../terminal/selection/LinkManager.h"
-#include "PaneComponent.h"
 #include "../lua/Engine.h"
+#include "../terminal/notifications/Notifications.h"
+#include "../AppState.h"
+#include "PaneComponent.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -60,8 +62,8 @@ namespace Terminal
  * @brief Ephemeral JUCE component that renders a Terminal::Processor.
  *
  * Inherits `jam::gl::Component` for GL-backed rendering and layout, `juce::KeyListener` for
- * keyboard input.  Cursor rendering is handled by `Screen::drawCursor()` in
- * the GL pipeline — no JUCE component overlay.
+ * keyboard input, and `juce::ValueTree::Listener` for State change notification.
+ * Cursor rendering is handled by `Screen::drawCursor()` in the GL pipeline — no JUCE component overlay.
  *
  * Created via `Processor::createDisplay()`.
  * Destroyed when the pane or popup is closed; destructor unwires all Session callbacks.
@@ -87,7 +89,7 @@ class Display
     : public PaneComponent
     , public juce::KeyListener
     , public juce::FileDragAndDropTarget
-    , public juce::ChangeListener
+    , public juce::ValueTree::Listener
 {
 public:
     /** @brief The Processor this Display renders. Lifetime owned by the caller. */
@@ -96,8 +98,8 @@ public:
     /**
      * @brief Constructs a Display for the given Processor.
      *
-     * Stores a reference to @p proc, subscribes as a ChangeListener, initialises
-     * the screen renderer and VBlank loop, wires all Processor callbacks, and
+     * Stores a reference to @p proc, subscribes as a ValueTree::Listener on State,
+     * initialises the screen renderer and VBlank loop, wires all Processor callbacks, and
      * applies the current Config.
      *
      * @param proc          The Processor this Display renders.
@@ -116,7 +118,7 @@ public:
              Terminal::ImageAtlas& imageAtlas);
 
     /**
-     * @brief Unwires all Processor callbacks, unsubscribes as ChangeListener,
+     * @brief Unwires all Processor callbacks, unsubscribes from State ValueTree,
      *        and tears down the Screen renderer.
      *
      * @note MESSAGE THREAD.
@@ -124,15 +126,17 @@ public:
     ~Display() override;
 
     /**
-     * @brief Called by Processor via ChangeBroadcaster when state has been updated.
+     * @brief Called by the State ValueTree when any property changes.
      *
      * Marks the snapshot dirty and requests a repaint so `onVBlank()` picks up
      * the new state on the next frame.
      *
-     * @param source  The ChangeBroadcaster that fired (ignored).
+     * @param treeWhosePropertyHasChanged  The ValueTree whose property changed (ignored).
+     * @param property                     The identifier of the changed property (ignored).
      * @note MESSAGE THREAD.
      */
-    void changeListenerCallback (juce::ChangeBroadcaster* source) override;
+    void
+    valueTreePropertyChanged (juce::ValueTree& treeWhosePropertyHasChanged, const juce::Identifier& property) override;
 
     /**
      * @brief Lays out the screen viewport, notifies Session of new grid size.

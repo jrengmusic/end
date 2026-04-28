@@ -34,9 +34,6 @@ void Grid::clearRow (Buffer& buffer, int visibleRow, const Cell& fill) noexcept
 
     Grapheme* gRow { buffer.graphemes.get() + phys * getCols() };
     std::fill (gRow, gRow + getCols(), Grapheme {});
-
-    ImageCell* icRow { buffer.imageCells.get() + phys * getCols() };
-    std::fill (icRow, icRow + getCols(), ImageCell {});
 }
 
 void Grid::eraseRow (int row, const Cell& fill) noexcept
@@ -44,7 +41,16 @@ void Grid::eraseRow (int row, const Cell& fill) noexcept
     if (row >= 0 and row < getVisibleRows())
     {
         Buffer& buffer { bufferForScreen() };
-        clearRow (buffer, row, fill);
+        Cell* rowCells { rowPtr (buffer, row) };
+        const int cols { getCols() };
+        const int phys { physicalRow (buffer, row) };
+        Grapheme* gRow { buffer.graphemes.get() + phys * cols };
+
+        std::fill (rowCells, rowCells + cols, fill);
+        std::fill (gRow, gRow + cols, Grapheme {});
+
+        buffer.rowStates[phys] = RowState {};
+
         markRowDirty (row);
     }
 }
@@ -62,7 +68,9 @@ void Grid::eraseCell (int row, int col, const Cell& fill) noexcept
     if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
     {
         Buffer& buffer { bufferForScreen() };
-        rowPtr (buffer, row)[col] = fill;
+        Cell& cell { rowPtr (buffer, row)[col] };
+
+        cell = fill;
         markRowDirty (row);
     }
 }
