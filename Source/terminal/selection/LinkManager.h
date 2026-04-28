@@ -5,7 +5,7 @@
  * LinkManager centralises all link-related logic:
  *
  * - **scan()** — O(rows×cols) viewport scan for file and URL tokens, plus OSC 8
- *   hyperlink merging from the State HYPERLINKS ValueTree node.
+ *   hyperlink scanning from cell LAYOUT_HYPERLINK flags.
  * - **scanForHints()** — full-viewport scan used on open-file mode entry; assigns
  *   single-character hint labels for the overlay.
  * - **hitTest()** — returns the first `LinkSpan` at the given (row, col) cell, or
@@ -74,7 +74,7 @@ public:
      *
      * Populates `hintLinks` with all detected spans (unlabeled), then computes
      * total pages, resets the page index to 0, and calls `assignCurrentPage()`
-     * to label the first page into `activeHints`.
+     * to label the first page slice (`hintLinks[activeStart..+activeCount]`).
      *
      * @param cwd  Shell current working directory for relative-path resolution.
      * @note MESSAGE THREAD.
@@ -94,7 +94,7 @@ public:
      * @brief Advances to the next hint page, wrapping around, and re-labels.
      *
      * Increments the page index modulo total pages, writes it to State,
-     * and calls `assignCurrentPage()` to repopulate `activeHints`.
+     * and calls `assignCurrentPage()` to update the active page slice.
      *
      * @note MESSAGE THREAD.
      */
@@ -114,10 +114,10 @@ public:
      * @brief Returns the first hint-mode link matching the given label character,
      *        or `nullptr`.
      *
-     * Searches `activeHints` (the current page's labeled subset).
+     * Searches the current page slice (`hintLinks[activeStart..+activeCount]`).
      *
      * @param label  Single lowercase letter `'a'`–`'z'` to match against hint labels.
-     * @return Pointer into `activeHints`, or `nullptr` if no span matches.
+     * @return Pointer into `hintLinks`, or `nullptr` if no span matches.
      * @note MESSAGE THREAD.  Pointer is valid until the next `scanForHints()` or `advanceHintPage()` call.
      */
     const LinkSpan* hitTestHint (char label) const noexcept;
@@ -172,8 +172,8 @@ public:
     /**
      * @brief Returns the current page's labeled hint spans.
      *
-     * These are the spans passed to `Screen::setHintOverlay()`.  Valid until
-     * the next `scanForHints()` or `advanceHintPage()` call.
+     * Read by `Screen::buildSnapshot()` directly via `LinkManager*`.  Valid
+     * until the next `scanForHints()` or `advanceHintPage()` call.
      *
      * @return Read-only reference to the active-page hint vector.
      * @note MESSAGE THREAD.
@@ -185,8 +185,8 @@ private:
     /**
      * @brief Shared scan implementation.
      *
-     * Scans `grid` for file/URL tokens and OSC 8 hyperlinks from the State
-     * HYPERLINKS ValueTree.  Optionally restricted to the OSC 133 output block.
+     * Scans `grid` for file/URL tokens and OSC 8 hyperlinks from cell
+     * LAYOUT_HYPERLINK flags.  Optionally restricted to the OSC 133 output block.
      * Returns the collected spans without hint label assignment.
      *
      * @param cwd             Shell current working directory.
@@ -195,6 +195,50 @@ private:
      */
     std::vector<LinkSpan> scanViewport (const juce::String& cwd,
                                         bool outputRowsOnly) const;
+
+    /**
+     * @brief Scans visible rows for file-path and URL tokens via heuristic pattern matching.
+     *
+     * Tokenizes cell text and classifies each token via `LinkDetector::classify()`.
+     * File tokens are filtered to the OSC 133 output block via the pre-computed
+     * `blockTop`/`blockBottom` parameters.
+     *
+     * @param spans          Output vector to append detected spans to.
+     * @param cwd            Shell current working directory for relative-path resolution.
+     * @param visibleRows    Number of visible rows.
+     * @param cols           Number of columns.
+     * @param scrollOffset   Current scroll offset.
+     * @param visibleBase    Absolute row index of the top visible row.
+     * @param hasBlock       Whether an OSC 133 output block is active.
+     * @param blockTop       Absolute row of the output block top.
+     * @param blockBottom    Absolute row of the output block bottom.
+     * @param normalScreen   Whether the normal screen is active.
+     */
+    void scanHeuristicTokens (std::vector<LinkSpan>& spans, const juce::String& cwd,
+                              int visibleRows, int cols, int scrollOffset,
+                              int visibleBase, bool hasBlock, int blockTop, int blockBottom,
+                              bool normalScreen) const;
+
+    /**
+     * @brief Scans visible rows for cell-native OSC 8 hyperlinks via LAYOUT_HYPERLINK flags.
+     *
+     * Reads the linkId sidecar for cells with `hasHyperlink()` set, resolves URIs
+     * via `state.getLinkUri()`, and builds contiguous spans.
+     *
+     * @param spans          Output vector to append detected spans to.
+     * @param visibleRows    Number of visible rows.
+     * @param cols           Number of columns.
+     * @param scrollOffset   Current scroll offset.
+     * @param visibleBase    Absolute row index of the top visible row.
+     * @param hasBlock       Whether an OSC 133 output block is active.
+     * @param blockTop       Absolute row of the output block top.
+     * @param blockBottom    Absolute row of the output block bottom.
+     * @param normalScreen   Whether the normal screen is active.
+     */
+    void scanCellNativeLinks (std::vector<LinkSpan>& spans,
+                              int visibleRows, int cols, int scrollOffset,
+                              int visibleBase, bool hasBlock, int blockTop, int blockBottom,
+                              bool normalScreen) const;
 
     /**
      * @brief Assigns unique single-character hint labels to `spans` in-place.
@@ -218,7 +262,7 @@ private:
     void buildPages() noexcept;
 
     /**
-     * @brief Labels the current page's spans and stores them in `activeHints`.
+     * @brief Labels the current page's spans and updates `activeStart`/`activeCount`.
      *
      * Reads page index from State, slices `hintLinks` using `pageBreaks`,
      * and assigns labels via `assignHintLabels`.
@@ -256,9 +300,6 @@ private:
 
     /** @brief Cached reference to the activeScreen PARAM node for direct listening. */
     juce::ValueTree activeScreenNode;
-
-    /** @brief Cached reference to the HYPERLINKS container node for direct listening. */
-    juce::ValueTree hyperlinksNode;
 
     /** @brief Cached reference to the scrollOffset PARAM node for direct listening. */
     juce::ValueTree scrollOffsetNode;

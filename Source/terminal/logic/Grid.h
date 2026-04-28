@@ -484,6 +484,48 @@ public:
     const Grapheme* scrollbackGraphemeRow (int visibleRow, int scrollOffset) const noexcept;
 
     /**
+     * @brief Writes the hyperlink ID sidecar for the cell at (row, col).
+     *
+     * Sets `Cell::LAYOUT_HYPERLINK` on the target cell and writes `linkId`
+     * into the parallel linkIds block at the same physical offset.
+     * Calls `markRowDirty (row)`.
+     *
+     * @param row    Zero-based visible row index.
+     * @param col    Zero-based column index.
+     * @param linkId Hyperlink ID to store (non-zero).
+     * @note READER THREAD — lock-free, noexcept.
+     * @see activeVisibleLinkIdRow(), scrollbackLinkIdRow()
+     */
+    void activeWriteLinkId (int row, int col, uint16_t linkId) noexcept;
+
+    /**
+     * @brief Returns a const pointer to the hyperlink ID row for visible row `row`.
+     *
+     * The returned pointer addresses `cols` uint16_t entries co-indexed with
+     * the cell row returned by `activeVisibleRow (row)`.
+     *
+     * @param row  Zero-based visible row index (0 … visibleRows-1).
+     * @return Pointer to the first uint16_t in the row, or `nullptr` if out of range.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     * @see scrollbackLinkIdRow()
+     */
+    const uint16_t* activeVisibleLinkIdRow (int row) const noexcept;
+
+    /**
+     * @brief Returns a const pointer to a scrolled-back hyperlink ID row.
+     *
+     * Parallel to `scrollbackRow()` but for the linkIds sidecar array.
+     *
+     * @param visibleRow   Zero-based visible row index (0 … visibleRows-1).
+     * @param scrollOffset Number of lines scrolled back into the scrollback buffer.
+     * @return Pointer to the first uint16_t in the scrolled row, or `nullptr` if
+     *         `visibleRow` is out of range.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     * @see scrollbackRow()
+     */
+    const uint16_t* scrollbackLinkIdRow (int visibleRow, int scrollOffset) const noexcept;
+
+    /**
      * @brief Returns a mutable reference to the RowState for visible row `row`.
      *
      * @param row  Zero-based visible row index.
@@ -704,6 +746,34 @@ public:
      */
     Cell* directRowPtr (int visibleRow) noexcept;
 
+    /**
+     * @brief Returns a raw pointer to the start of the hyperlink ID row for `visibleRow`.
+     *
+     * Bypasses bounds checking for performance on bulk write paths.  The
+     * caller is responsible for staying within [0, cols) and must call
+     * `markRowDirty (visibleRow)` after writing.
+     *
+     * @param visibleRow  Zero-based visible row index.
+     * @return Pointer to the first uint16_t in the linkIds row.
+     * @note READER THREAD — lock-free, noexcept.
+     *       Caller must markRowDirty after writing.
+     */
+    uint16_t* directLinkIdRowPtr (int visibleRow) noexcept;
+
+    /**
+     * @brief Returns a raw pointer to the start of the grapheme row for `visibleRow`.
+     *
+     * Bypasses bounds checking for performance on bulk write paths.  The
+     * caller is responsible for staying within [0, cols) and must call
+     * `markRowDirty (visibleRow)` after writing.
+     *
+     * @param visibleRow  Zero-based visible row index.
+     * @return Pointer to the first Grapheme in the row.
+     * @note READER THREAD — lock-free, noexcept.
+     *       Caller must markRowDirty after writing.
+     */
+    Grapheme* directGraphemeRowPtr (int visibleRow) noexcept;
+
     //==========================================================================
     /**
      * @brief Write-only facade for Parser access to the Grid buffer.
@@ -732,6 +802,9 @@ public:
         uint32_t           reserveImageId() noexcept                                                                                                             { return grid.reserveImageId(); }
         void               storeDecodedImage (PendingImage&& img) noexcept                                                                                       { grid.storeDecodedImage (std::move (img)); }
         void               activeEraseGrapheme (int row, int col) noexcept                               { grid.activeEraseGrapheme (row, col); }
+        void               activeWriteLinkId (int row, int col, uint16_t linkId) noexcept               { grid.activeWriteLinkId (row, col, linkId); }
+        uint16_t*          directLinkIdRowPtr (int visibleRow) noexcept                                 { return grid.directLinkIdRowPtr (visibleRow); }
+        Grapheme*          directGraphemeRowPtr (int visibleRow) noexcept                               { return grid.directGraphemeRowPtr (visibleRow); }
         Cell*              activeVisibleRow (int row) noexcept                                           { return grid.activeVisibleRow (row); }
         const Cell*        activeVisibleRow (int row) const noexcept                                     { return grid.activeVisibleRow (row); }
         const Grapheme*    activeReadGrapheme (int row, int col) const noexcept                          { return grid.activeReadGrapheme (row, col); }
@@ -818,6 +891,15 @@ private:
          * `true` (zero-init).
          */
         juce::HeapBlock<Grapheme> graphemes;
+
+        /**
+         * @brief Hyperlink ID sidecar: `totalRows x cols` uint16_t entries.
+         *
+         * Co-indexed with `cells`. Entry valid only when the corresponding Cell
+         * has `Cell::LAYOUT_HYPERLINK` set. Zero = no link. Allocated with
+         * `true` (zero-init).
+         */
+        juce::HeapBlock<uint16_t> linkIds;
 
         /**
          * @brief Per-row write sequence numbers: `totalRows` entries, parallel to `rowStates`.
@@ -1093,6 +1175,28 @@ private:
      * @note MESSAGE THREAD — lock-free, noexcept.
      */
     const Grapheme* graphemePtr (const Buffer& buffer, int visibleRow, int col) const noexcept;
+
+    /**
+     * @brief Returns a mutable pointer to the linkId entry at (visibleRow, col).
+     *
+     * @param buffer      Target buffer.
+     * @param visibleRow  Zero-based visible row index.
+     * @param col         Zero-based column index.
+     * @return Pointer to `buffer.linkIds[physicalRow * cols + col]`.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    uint16_t* linkIdPtr (Buffer& buffer, int visibleRow, int col) noexcept;
+
+    /**
+     * @brief Returns a const pointer to the linkId entry at (visibleRow, col).
+     *
+     * @param buffer      Target buffer.
+     * @param visibleRow  Zero-based visible row index.
+     * @param col         Zero-based column index.
+     * @return Const pointer to `buffer.linkIds[physicalRow * cols + col]`.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    const uint16_t* linkIdPtr (const Buffer& buffer, int visibleRow, int col) const noexcept;
 
     /**
      * @brief Reflows the content of `oldBuffer` into `newBuffer` at the new column width.

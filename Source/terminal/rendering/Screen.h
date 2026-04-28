@@ -55,6 +55,8 @@
 namespace Terminal
 { /*____________________________________________________________________________*/
 
+class LinkManager;
+
 /**
  * @struct BlockGeometry
  * @brief Normalised geometry descriptor for a Unicode block-element character.
@@ -681,6 +683,9 @@ public:
      */
     void setSelection (const ScreenSelection* sel) noexcept;
 
+    /** @brief Stores a non-owning reference to the LinkManager for direct hint overlay access. MESSAGE THREAD. */
+    void setLinkManager (const LinkManager* lm) noexcept { linkManager = lm; }
+
     /**
      * @brief Sets the always-on link underlay for click-mode underline rendering.
      *
@@ -1007,8 +1012,10 @@ private:
 
     const ScreenSelection* selection { nullptr };///< Non-owning pointer to the active selection; nullptr if none.
 
-    const LinkSpan* hintOverlay { nullptr };///< Pulled from State each frame by buildSnapshot(); nullptr if none.
-    int hintOverlayCount { 0 };///< Number of valid elements in @p hintOverlay; pulled from State each frame.
+    const LinkManager* linkManager { nullptr };///< Non-owning pointer to LinkManager for direct hint overlay access; nullptr if none.
+
+    const LinkSpan* hintOverlay { nullptr };///< Pulled from LinkManager each frame by buildSnapshot(); nullptr if none.
+    int hintOverlayCount { 0 };///< Number of valid elements in @p hintOverlay; pulled from LinkManager each frame.
 
     const LinkSpan* linkUnderlay {
         nullptr

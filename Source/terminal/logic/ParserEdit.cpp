@@ -368,9 +368,14 @@ void Parser::shiftCellsRight (int count) noexcept
 
     if (rowCells != nullptr)
     {
+        Grapheme* rowGraphemes { writer.directGraphemeRowPtr (cursorRow) };
+        uint16_t* rowLinkIds { writer.directLinkIdRowPtr (cursorRow) };
+
         for (int col { cols - 1 }; col >= cursorCol + count; --col)
         {
             rowCells[col] = rowCells[col - count];
+            rowGraphemes[col] = rowGraphemes[col - count];
+            rowLinkIds[col] = rowLinkIds[col - count];
         }
 
         Cell fill {};
@@ -380,6 +385,7 @@ void Parser::shiftCellsRight (int count) noexcept
         {
             rowCells[col] = fill;
             writer.activeEraseGrapheme (cursorRow, col);
+            rowLinkIds[col] = 0;
         }
 
         writer.markRowDirty (cursorRow);
@@ -425,9 +431,14 @@ void Parser::removeCells (int count) noexcept
 
     if (rowCells != nullptr)
     {
+        Grapheme* rowGraphemes { writer.directGraphemeRowPtr (cursorRow) };
+        uint16_t* rowLinkIds { writer.directLinkIdRowPtr (cursorRow) };
+
         for (int col { cursorCol }; col < cols - count; ++col)
         {
             rowCells[col] = rowCells[col + count];
+            rowGraphemes[col] = rowGraphemes[col + count];
+            rowLinkIds[col] = rowLinkIds[col + count];
         }
 
         Cell fill {};
@@ -437,6 +448,7 @@ void Parser::removeCells (int count) noexcept
         {
             rowCells[col] = fill;
             writer.activeEraseGrapheme (cursorRow, col);
+            rowLinkIds[col] = 0;
         }
 
         writer.markRowDirty (cursorRow);
@@ -561,9 +573,7 @@ void Parser::setScreen (bool shouldUseAlternate) noexcept
         {
             writer.clearBuffer();
             cursorClamp (scr, state.getRawValue<int> (ID::cols), state.getRawValue<int> (ID::visibleRows));
-            state.clearHyperlinks();
-
-            activeOsc8Uri = {};
+            activeLinkId = 0;
         }
         else
         {

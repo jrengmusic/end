@@ -1,5 +1,53 @@
 # SPRINT-LOG
 
+## Sprint 44: Unified StringSlot seqlock + URI table migration + hint overlay direct read ✅
+
+**Date:** 2026-04-29
+**Duration:** ~1:30
+
+### Agents Participated
+- COUNSELOR: plan update, delegation, audit triage, doc fixes
+- Engineer: Step 1 (unified StringSlot), Step 2 (LinkManager string type), Step 3 (hint overlay removal), PLAN deletion
+- Auditor: comprehensive audit of sprint changes
+- Pathfinder: hint overlay data flow exploration, TerminalDisplay wiring discovery
+- Explore: flushStrings verification, setLinkManager wiring check, stale reference grep
+
+### Files Modified (11 total)
+- `Source/terminal/data/State.h` — StringSlot gains `generation`/`lastFlushedGeneration`; `LinkUri` struct removed; `linkUriTable` type→StringSlot[]; `linkUriCount`→plain uint32_t; `getLinkUri`→juce::String; `writeSlot`/`flushSlot`/`readSlot` added; `writeStringSlot` removed; `hintOverlayData`/`hintOverlayCount`/`setHintOverlay`/`getHintOverlayData`/`getHintOverlayCount` removed; stale doxygen fixed
+- `Source/terminal/data/State.cpp` — 6 generation `addParam` calls removed; `writeSlot`/`readSlot` implemented; `writeStringSlot` deleted; `setTitle`/`setCwd`/`setForegroundProcess`→delegate to `writeSlot`; `registerLinkUri`→uses `writeSlot`; `getLinkUri`→returns `juce::String` via `readSlot`; `flushStrings`→uses `flushSlot` loop; `setHintOverlay`/`getHintOverlayData`/`getHintOverlayCount` removed
+- `Source/terminal/data/StateFlush.cpp` — `flushSlot` implementation added
+- `Source/terminal/data/Identifier.h` — 6 generation identifiers removed (titleGeneration, cwdGeneration, foregroundProcessGeneration + lastFlushed variants)
+- `Source/terminal/selection/LinkManagerScan.cpp:137-153` — `const char*`→`juce::String`; removed `fromUTF8`/`String()` wraps
+- `Source/terminal/selection/LinkManager.h` — stale `activeHints`/`setHintOverlay` doxygen updated (4 sites)
+- `Source/terminal/rendering/Screen.h` — `class LinkManager` forward decl; `const LinkManager*` member; `setLinkManager` setter
+- `Source/terminal/rendering/ScreenRender.cpp` — `#include LinkManager.h`; hint overlay reads from LinkManager directly
+- `Source/terminal/logic/Input.cpp:355-387` — 3 `setHintOverlay` calls removed; Space path→`setFullRebuild`+`setSnapshotDirty`
+- `Source/component/TerminalDisplay.cpp` — `setHintOverlay` call removed; `setLinkManager` wired in `switchRenderer`
+- `ARCHITECTURE.md:391` — Cross-Thread Data Contract updated for intrinsic seqlock + `readSlot` URI path
+
+**Deleted files (1):**
+- `PLAN-hyperlinks-valuetree.md` — objective complete
+
+### Alignment Check
+- [x] BLESSED principles followed (SSOT: one type, three functions; Explicit: generation intrinsic; Bound: StringSlot self-contained; Lean: 12 identifiers/addParams eliminated)
+- [x] NAMES.md adhered (no improvised names)
+- [x] MANIFESTO.md principles applied
+- [x] JRENG-CODING-STANDARD.md enforced
+
+### Problems Solved
+- **URI table thread safety:** bare C array + stray atomic replaced by StringSlot[] with intrinsic seqlock. READER writes lock-free, MESSAGE reads via snap-copy. No data race.
+- **Scattered generation tracking:** 6 external parameterMap entries collapsed into `StringSlot::generation` intrinsic member. One type, one write function, one flush function, one read function.
+- **Hint overlay dangling pointer risk:** raw pointer relay through State eliminated. Screen reads directly from `const LinkManager*`. No intermediary, no dangling risk.
+- **Type duplication:** `LinkUri` struct eliminated — identical to `StringSlot` minus the seqlock. Unified into single type.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 43: Kitty graphics protocol wiring + image cell protection + Lean audit sweep ✅
 
 **Date:** 2026-04-28

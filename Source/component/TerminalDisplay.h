@@ -697,7 +697,7 @@ private:
      *
      * Handles both hover-underline (`clickableLinks`) and open-file hint-label
      * (`hintLinks`) modes.  Rescanned reactively via ValueTree listener when the
-     * prompt row, active screen, or HYPERLINKS node changes.
+     * prompt row, active screen, or output block changes.
      *
      * Held as optional because it requires Session references which are resolved
      * — emplaced in initialise() after Processor reference is stored.

@@ -34,9 +34,11 @@ namespace Terminal
  * Payload (the data after the "8;" separator) has the form:
  *   params ; uri
  *
- * - Non-empty URI: records the current cursor position as the link start.
- * - Empty URI:     closes the open span and writes it to State via
- *                  `state.storeHyperlink()`.
+ * - Non-empty URI: registers the URI with `state.registerLinkUri()` and stores
+ *                  the returned ID in `activeLinkId` so that subsequent cell
+ *                  writes are stamped.
+ * - Empty URI:     clears `activeLinkId` to 0, ending the stamp run.
+ * - Malformed:     no separator found; clears `activeLinkId` to 0.
  *
  * @param data        Pointer to OSC payload bytes (after the "8;" separator).
  * @param dataLength  Number of bytes in `data`.
@@ -58,53 +60,27 @@ void Parser::handleOsc8 (const uint8_t* data, int dataLength) noexcept
         }
     }
 
-    if (semiPos < 0)
-    {
-        // Malformed — no separator found; ignore
-        activeOsc8Uri = {};
-        osc8StartRow  = -1;
-        osc8StartCol  = -1;
-    }
-    else
+    if (semiPos >= 0)
     {
         const int uriStart  { semiPos + 1 };
         const int uriLength { dataLength - uriStart };
 
         if (uriLength > 0)
         {
-            // Start of a new hyperlink — record in-flight tracking state
-            const int len { juce::jmin (uriLength, State::maxStringLength - 1) };
-            std::memcpy (activeOsc8Uri.buffer,
-                         reinterpret_cast<const char*> (data + uriStart),
-                         static_cast<size_t> (len));
-            activeOsc8Uri.buffer[len] = '\0';
-
-            const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-            osc8StartRow = state.getRawValue<int> (ID::scrollbackUsed) + state.getRawValue<int> (state.screenKey (scr, ID::cursorRow));
-            osc8StartCol = state.getRawValue<int> (state.screenKey (scr, ID::cursorCol));
+            // OSC 8 open — register URI, set active stamp
+            activeLinkId = state.registerLinkUri (
+                reinterpret_cast<const char*> (data + uriStart), uriLength);
         }
         else
         {
-            // End of hyperlink — close the span if one was open and write to State
-            if (activeOsc8Uri.buffer[0] != '\0' and osc8StartRow >= 0)
-            {
-                const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-                const int endCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
-
-                // Derive a unique span key from start position: "row_startCol"
-                const juce::String spanKey { juce::String (osc8StartRow) + "_"
-                                             + juce::String (osc8StartCol) };
-                const juce::Identifier spanId { spanKey };
-
-                const int uriLen { static_cast<int> (std::strlen (activeOsc8Uri.buffer)) };
-                state.storeHyperlink (spanId, activeOsc8Uri.buffer, uriLen,
-                                      osc8StartRow, osc8StartCol, endCol);
-            }
-
-            activeOsc8Uri = {};
-            osc8StartRow  = -1;
-            osc8StartCol  = -1;
+            // OSC 8 close — clear stamp
+            activeLinkId = 0;
         }
+    }
+    else
+    {
+        // Malformed — no separator found; clear stamp
+        activeLinkId = 0;
     }
 }
 

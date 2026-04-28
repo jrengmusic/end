@@ -71,10 +71,11 @@ struct GroundOps
      */
     struct Cursor
     {
-        int row;           ///< Current cursor row (zero-based).
-        int col;           ///< Current cursor column (zero-based).
-        bool wrapPending;  ///< Whether a wrap is pending at the right margin.
-        Cell* cellRow;     ///< Direct pointer to the current row's cell array.
+        int row;             ///< Current cursor row (zero-based).
+        int col;             ///< Current cursor column (zero-based).
+        bool wrapPending;    ///< Whether a wrap is pending at the right margin.
+        Cell* cellRow;       ///< Direct pointer to the current row's cell array.
+        uint16_t* linkIdRow; ///< Direct pointer to the current row's linkId sidecar.
     };
 
     /**
@@ -112,7 +113,8 @@ struct GroundOps
             ++c.row;
         }
 
-        c.cellRow = writer.directRowPtr (c.row);
+        c.cellRow   = writer.directRowPtr (c.row);
+        c.linkIdRow = writer.directLinkIdRowPtr (c.row);
     }
 
     /**
@@ -177,6 +179,10 @@ struct GroundOps
      * @param cellTemplate   Pre-populated Cell with the current pen attributes.
      * @param byte           The printable ASCII byte to write (0x20–0x7E).
      * @param useLineDrawing Whether the DEC Special Graphics charset is active.
+     * @param activeLinkId   Current hyperlink stamp ID, or 0 when no link is active.
+     *                       When non-zero, `Cell::LAYOUT_HYPERLINK` is set on the
+     *                       written cell and `activeLinkId` is stored in the
+     *                       parallel linkId sidecar.
      *
      * @note READER THREAD only.
      *
@@ -185,7 +191,8 @@ struct GroundOps
      */
     static inline void flushPrintRun (Cursor& c, Grid::Writer& writer, int scrollTop, int scrollBottom,
                                       int visibleRows, int cols, bool autoWrap, uint64_t* localDirty,
-                                      Cell& cellTemplate, uint8_t byte, bool useLineDrawing, const Cell& fill) noexcept
+                                      Cell& cellTemplate, uint8_t byte, bool useLineDrawing, const Cell& fill,
+                                      uint16_t activeLinkId) noexcept
     {
         if (c.wrapPending and autoWrap)
         {
@@ -204,14 +211,24 @@ struct GroundOps
                 ++c.row;
             }
 
-            c.col = 0;
-            c.cellRow = writer.directRowPtr (c.row);
+            c.col       = 0;
+            c.cellRow   = writer.directRowPtr (c.row);
+            c.linkIdRow = writer.directLinkIdRowPtr (c.row);
         }
 
         c.wrapPending = false;
         cellTemplate.codepoint = translateCharset (static_cast<uint32_t> (byte), useLineDrawing);
+
         if (not (writer.isImageProtected() and c.cellRow[c.col].isImage()))
+        {
             c.cellRow[c.col] = cellTemplate;
+        }
+
+        if (activeLinkId != 0)
+        {
+            c.cellRow[c.col].layout |= Cell::LAYOUT_HYPERLINK;
+            c.linkIdRow[c.col] = activeLinkId;
+        }
 
         if (c.col + 1 >= cols)
         {
@@ -288,7 +305,8 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
     GroundOps::Cursor c { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)),
                           state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)),
                           state.getRawValue<bool> (state.screenKey (scr, ID::wrapPending)),
-                          writer.directRowPtr (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))) };
+                          writer.directRowPtr (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))),
+                          writer.directLinkIdRowPtr (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))) };
 
     uint64_t localDirty[4] { 0, 0, 0, 0 };
     size_t consumed { 0 };
@@ -299,7 +317,7 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
 
         if (byte >= 0x20 and byte <= 0x7E)
         {
-            GroundOps::flushPrintRun (c, writer, scrollTop, scrollBottomVal, visibleRows, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill);
+            GroundOps::flushPrintRun (c, writer, scrollTop, scrollBottomVal, visibleRows, cols, autoWrap, localDirty, cellTemplate, byte, useLineDrawing, fill, activeLinkId);
             lastGraphicChar = cellTemplate.codepoint;
             consumed = i + 1;
             continue;
@@ -619,6 +637,10 @@ void Parser::print (uint32_t codepoint) noexcept
 
         writer.activeWriteCell (writeRow, writeCol, cell);
         writer.activeEraseGrapheme (writeRow, writeCol);
+
+        if (activeLinkId != 0)
+            writer.activeWriteLinkId (writeRow, writeCol, activeLinkId);
+
         lastGraphicChar = codepoint;
 
         if (cellWidth == 2 and writeCol + 1 < cols)
@@ -632,6 +654,9 @@ void Parser::print (uint32_t codepoint) noexcept
             cont.layout = Cell::LAYOUT_WIDE_CONT;
             writer.activeWriteCell (writeRow, writeCol + 1, cont);
             writer.activeEraseGrapheme (writeRow, writeCol + 1);
+
+            if (activeLinkId != 0)
+                writer.activeWriteLinkId (writeRow, writeCol + 1, activeLinkId);
         }
 
         if (writeCol + cellWidth >= cols)
@@ -901,8 +926,9 @@ void Parser::reset() noexcept
     resetModes();
     resetPen();
     useLineDrawing = false;
-    g0LineDrawing = false;
-    g1LineDrawing = false;
+    g0LineDrawing  = false;
+    g1LineDrawing  = false;
+    activeLinkId   = 0;
     writer.eraseRowRange (0, state.getRawValue<int> (ID::visibleRows) - 1);
     calc();
 }

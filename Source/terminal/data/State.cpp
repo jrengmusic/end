@@ -186,18 +186,6 @@ State::State()
     addParam (state, ID::cursorBlinkEnabled, 1.0f);
     addParam (state, ID::cursorFocused, 0.0f);
 
-    // String slot generation counters.
-    addParam (state, ID::titleGeneration, 0.0f);
-    addParam (state, ID::cwdGeneration, 0.0f);
-    addParam (state, ID::foregroundProcessGeneration, 0.0f);
-    addParam (state, ID::titleLastFlushedGeneration, 0.0f);
-    addParam (state, ID::cwdLastFlushedGeneration, 0.0f);
-    addParam (state, ID::foregroundProcessLastFlushedGeneration, 0.0f);
-
-    // Hyperlink generation counters.
-    addParam (state, ID::hyperlinksGeneration, 0.0f);
-    addParam (state, ID::hyperlinksLastFlushedGeneration, 0.0f);
-
     // MODES
     juce::ValueTree modesNode { ID::MODES };
     addParam (modesNode, ID::originMode, 0.0f);
@@ -217,9 +205,6 @@ State::State()
 
     state.appendChild (buildScreenNode (ID::NORMAL), nullptr);
     state.appendChild (buildScreenNode (ID::ALTERNATE), nullptr);
-
-    // HYPERLINKS container node — children are created/removed by flushHyperlinks().
-    state.appendChild (juce::ValueTree { ID::HYPERLINKS }, nullptr);
 
     // SUBSCRIBERS container node — children are created/removed by attachSubscriber/detachSubscriber.
     state.appendChild (juce::ValueTree { ID::SUBSCRIBERS }, nullptr);
@@ -474,100 +459,92 @@ int State::getPromptRow() const noexcept
 }
 
 /**
- * @brief SSOT writer for all three string slots (title, cwd, foreground process).
+ * @brief READER THREAD writer — copies `src` into `slot.buffer` and bumps the intrinsic generation.
  *
- * Copies up to `maxStringLength - 1` bytes from `src` into the slot's
- * `buffer` and null-terminates it.  The generation counter is then incremented
- * with a `memory_order_release` store so that `flushStrings()` (message thread)
- * observes the completed write via a matching `memory_order_acquire` load.
- * Finally, `needsFlush` is released so the timer wakes on the next tick.
+ * Copies up to `maxStringLength - 1` bytes, null-terminates, then increments
+ * `slot.generation` with `memory_order_release` so the message thread's
+ * acquire load in `flushSlot()` / `readSlot()` observes the completed write.
+ * Sets `needsFlush` so the timer wakes on the next tick.
  *
- * This is the single write path for all string state — `setTitle`, `setCwd`,
- * and `setForegroundProcess` all delegate here (SSOT / DRY).
- *
- * @param id      One of `ID::title`, `ID::cwd`, `ID::foregroundProcess`.
+ * @param slot    Target `StringSlot`.
  * @param src     Pointer to the source bytes.  Need not be null-terminated.
  * @param length  Number of source bytes to copy.
  * @note READER THREAD — lock-free, noexcept.
  */
-void State::writeStringSlot (const juce::Identifier& id, const char* src, int length) noexcept
+void State::writeSlot (StringSlot& slot, const char* src, int length) noexcept
 {
-    // READER THREAD
-    auto* slot { stringMap.at (id).get() };
     const int len { juce::jmin (length, maxStringLength - 1) };
-    std::memcpy (slot->buffer, src, static_cast<size_t> (len));
-    slot->buffer[len] = '\0';
-
-    const juce::Identifier genId { id == ID::title ? ID::titleGeneration
-                                   : id == ID::cwd ? ID::cwdGeneration
-                                                   : ID::foregroundProcessGeneration };
-    fetchAdd (*getRawParam (genId), 1.0f, std::memory_order_release);
+    std::memcpy (slot.buffer, src, static_cast<size_t> (len));
+    slot.buffer[len] = '\0';
+    slot.generation.fetch_add (1u, std::memory_order_release);
     getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
 }
 
-/** @note READER THREAD — delegates to `writeStringSlot (ID::title, …)`. */
-void State::setTitle (const char* src, int length) noexcept { writeStringSlot (ID::title, src, length); }
+/**
+ * @brief MESSAGE THREAD reader — snap-copies `slot.buffer` and returns it as a `juce::String`.
+ *
+ * Reads `generation` before and after the `memcpy`.  If the value changed
+ * (torn write in flight), repeats the copy once.  Returns the result as
+ * a UTF-8 `juce::String`.
+ *
+ * @param slot  Source `StringSlot`.
+ * @return Slot contents as a `juce::String`.
+ * @note MESSAGE THREAD — lock-free, noexcept.
+ */
+juce::String State::readSlot (const StringSlot& slot) const noexcept
+{
+    const auto gen { slot.generation.load (std::memory_order_acquire) };
+    char local[maxStringLength];
+    std::memcpy (local, slot.buffer, maxStringLength);
 
-/** @note READER THREAD — delegates to `writeStringSlot (ID::cwd, …)`. */
-void State::setCwd (const char* src, int length) noexcept { writeStringSlot (ID::cwd, src, length); }
+    const auto gen2 { slot.generation.load (std::memory_order_acquire) };
 
-/** @note READER THREAD — delegates to `writeStringSlot (ID::foregroundProcess, …)`. */
+    if (gen2 != gen)
+        std::memcpy (local, slot.buffer, maxStringLength);
+
+    return juce::String::fromUTF8 (local);
+}
+
+/** @note READER THREAD — delegates to `writeSlot (*stringMap.at (ID::title), …)`. */
+void State::setTitle (const char* src, int length) noexcept { writeSlot (*stringMap.at (ID::title), src, length); }
+
+/** @note READER THREAD — delegates to `writeSlot (*stringMap.at (ID::cwd), …)`. */
+void State::setCwd (const char* src, int length) noexcept { writeSlot (*stringMap.at (ID::cwd), src, length); }
+
+/** @note READER THREAD — delegates to `writeSlot (*stringMap.at (ID::foregroundProcess), …)`. */
 void State::setForegroundProcess (const char* src, int length) noexcept
 {
-    writeStringSlot (ID::foregroundProcess, src, length);
+    writeSlot (*stringMap.at (ID::foregroundProcess), src, length);
 }
 
 /**
- * @brief Records an OSC 8 hyperlink span into `hyperlinkMap`.
- *
- * Emplaces or overwrites the entry keyed by `id`.  Bumps `hyperlinksGeneration`
- * with a release store so `flushHyperlinks()` observes the completed write.
- * Sets `needsFlush` so the timer wakes on the next tick.
+ * @brief Registers a URI into the link table and returns a 1-based linkId.
  *
  * @note READER THREAD — lock-free, noexcept.
  */
-void State::storeHyperlink (const juce::Identifier& id,
-                            const char* uri,
-                            int uriLength,
-                            int row,
-                            int startCol,
-                            int endCol) noexcept
+uint16_t State::registerLinkUri (const char* uri, int length) noexcept
 {
-    // READER THREAD
-    auto it { hyperlinkMap.find (id) };
+    const uint16_t id { static_cast<uint16_t> ((linkUriCount % (static_cast<uint32_t> (maxLinkIds) - 1u)) + 1u) };
+    writeSlot (linkUriTable[id], uri, length);
+    ++linkUriCount;
+    return id;
+}
 
-    if (it == hyperlinkMap.end())
+/**
+ * @brief Returns the URI string for the given linkId via seqlock read.
+ *
+ * @note MESSAGE THREAD — lock-free, noexcept.
+ */
+juce::String State::getLinkUri (uint16_t linkId) const noexcept
+{
+    juce::String result;
+
+    if (linkId > 0 and linkId < static_cast<uint16_t> (maxLinkIds))
     {
-        hyperlinkMap.emplace (id, std::make_unique<HyperlinkEntry>());
-        it = hyperlinkMap.find (id);
+        result = readSlot (linkUriTable[linkId]);
     }
 
-    auto* entry { it->second.get() };
-    const int len { juce::jmin (uriLength, maxStringLength - 1) };
-    std::memcpy (entry->uri, uri, static_cast<size_t> (len));
-    entry->uri[len] = '\0';
-    entry->row = row;
-    entry->startCol = startCol;
-    entry->endCol = endCol;
-
-    fetchAdd (*getRawParam (ID::hyperlinksGeneration), 1.0f, std::memory_order_release);
-    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
-}
-
-/**
- * @brief Clears all entries in `hyperlinkMap` and bumps the generation.
- *
- * `flushHyperlinks()` detects the generation change and removes all
- * HYPERLINKS children from the ValueTree.
- *
- * @note READER THREAD — lock-free, noexcept.
- */
-void State::clearHyperlinks() noexcept
-{
-    // READER THREAD
-    hyperlinkMap.clear();
-    fetchAdd (*getRawParam (ID::hyperlinksGeneration), 1.0f, std::memory_order_release);
-    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
+    return result;
 }
 
 /**
@@ -686,18 +663,6 @@ int State::getHintPage() const noexcept { return getRawValue<int> (ID::hintPage)
 void State::setHintTotalPages (int total) noexcept { storeAndFlush (ID::hintTotalPages, static_cast<float> (total)); }
 
 int State::getHintTotalPages() const noexcept { return getRawValue<int> (ID::hintTotalPages); }
-
-// MESSAGE THREAD
-void State::setHintOverlay (const LinkSpan* data, int count) noexcept
-{
-    hintOverlayData = data;
-    hintOverlayCount = count;
-    setSnapshotDirty();
-}
-
-const LinkSpan* State::getHintOverlayData() const noexcept { return hintOverlayData; }
-
-int State::getHintOverlayCount() const noexcept { return hintOverlayCount; }
 
 // --- Selection state convenience wrappers ---
 
@@ -1081,7 +1046,6 @@ void State::timerCallback()
     const bool anythingUpdated { flush() };
 
     flushStrings();
-    flushHyperlinks();
 
     const int interval { anythingUpdated ? 1000 / flushHz : 1000 / idleHz };
     tickCursorBlink (interval);
@@ -1230,35 +1194,7 @@ void State::flushStrings() noexcept
     // MESSAGE THREAD
     for (auto& [id, slotPtr] : stringMap)
     {
-        auto* slot { slotPtr.get() };
-
-        const juce::Identifier genId { id == ID::title ? ID::titleGeneration
-                                       : id == ID::cwd ? ID::cwdGeneration
-                                                       : ID::foregroundProcessGeneration };
-
-        const juce::Identifier lastGenId { id == ID::title ? ID::titleLastFlushedGeneration
-                                           : id == ID::cwd ? ID::cwdLastFlushedGeneration
-                                                           : ID::foregroundProcessLastFlushedGeneration };
-
-        auto* genAtom { getRawParam (genId) };
-        auto* lastGenAtom { getRawParam (lastGenId) };
-
-        const float gen { genAtom->load (std::memory_order_acquire) };
-        const float lastGen { lastGenAtom->load (std::memory_order_relaxed) };
-
-        if (gen != lastGen)
-        {
-            char local[maxStringLength];
-            std::memcpy (local, slot->buffer, maxStringLength);
-
-            const float gen2 { genAtom->load (std::memory_order_acquire) };
-
-            if (gen2 != gen)
-                std::memcpy (local, slot->buffer, maxStringLength);
-
-            lastGenAtom->store (gen2, std::memory_order_relaxed);
-            state.setProperty (id, juce::String::fromUTF8 (local), nullptr);
-        }
+        flushSlot (*slotPtr, state, id);
     }
 
     const auto foreground { state.getProperty (ID::foregroundProcess).toString() };

@@ -34,6 +34,9 @@ void Grid::clearRow (Buffer& buffer, int visibleRow, const Cell& fill) noexcept
 
     Grapheme* gRow { buffer.graphemes.get() + phys * getCols() };
     std::fill (gRow, gRow + getCols(), Grapheme {});
+
+    uint16_t* lRow { buffer.linkIds.get() + phys * getCols() };
+    std::fill (lRow, lRow + getCols(), uint16_t { 0 });
 }
 
 void Grid::eraseRow (int row, const Cell& fill) noexcept
@@ -48,6 +51,9 @@ void Grid::eraseRow (int row, const Cell& fill) noexcept
 
         std::fill (rowCells, rowCells + cols, fill);
         std::fill (gRow, gRow + cols, Grapheme {});
+
+        uint16_t* lRow { buffer.linkIds.get() + phys * cols };
+        std::fill (lRow, lRow + cols, uint16_t { 0 });
 
         buffer.rowStates[phys] = RowState {};
 
@@ -71,6 +77,7 @@ void Grid::eraseCell (int row, int col, const Cell& fill) noexcept
         Cell& cell { rowPtr (buffer, row)[col] };
 
         cell = fill;
+        buffer.linkIds[physicalRow (buffer, row) * getCols() + col] = 0;
         markRowDirty (row);
     }
 }
@@ -87,6 +94,12 @@ void Grid::eraseCellRange (int row, int startCol, int endCol, const Cell& fill) 
         for (int c { clampedStart }; c <= clampedEnd; ++c)
         {
             rowCells[c] = fill;
+        }
+
+        uint16_t* linkRow { buffer.linkIds.get() + physicalRow (buffer, row) * getCols() };
+        for (int c { clampedStart }; c <= clampedEnd; ++c)
+        {
+            linkRow[c] = 0;
         }
 
         markRowDirty (row);

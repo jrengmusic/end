@@ -341,8 +341,6 @@ void Terminal::Display::enterOpenFileMode() noexcept
         {
             const juce::String cwd { processor.getState().get().getProperty (Terminal::ID::cwd).toString() };
             linkManager->scanForHints (cwd);
-
-            processor.getState().setHintOverlay (linkManager->getActiveHintsData(), linkManager->getActiveHintsCount());
             processor.getState().setModalType (ModalType::openFile);
         }
     }
@@ -833,7 +831,10 @@ void Terminal::Display::switchRenderer (App::RendererType type)
     }
 
     if (linkManager.has_value())
+    {
         mouseHandler.emplace (processor, screenBase(), *linkManager);
+        visitScreen ([this] (auto& s) { s.setLinkManager (&*linkManager); });
+    }
 
     applyScreenSettings();
 

@@ -23,13 +23,11 @@ LinkManager::LinkManager (State& s, const Grid& g,
     , writeToPty (std::move (writeToPtyCallback))
     , promptRowNode         (jam::ValueTree::getChildWithID (state.get(), ID::promptRow.toString()))
     , activeScreenNode      (jam::ValueTree::getChildWithID (state.get(), ID::activeScreen.toString()))
-    , hyperlinksNode        (state.get().getChildWithName (ID::HYPERLINKS))
     , scrollOffsetNode      (jam::ValueTree::getChildWithID (state.get(), ID::scrollOffset.toString()))
     , outputBlockBottomNode (jam::ValueTree::getChildWithID (state.get(), ID::outputBlockBottom.toString()))
 {
     promptRowNode.addListener (this);
     activeScreenNode.addListener (this);
-    hyperlinksNode.addListener (this);
     scrollOffsetNode.addListener (this);
     outputBlockBottomNode.addListener (this);
 }
@@ -38,7 +36,6 @@ LinkManager::~LinkManager()
 {
     promptRowNode.removeListener (this);
     activeScreenNode.removeListener (this);
-    hyperlinksNode.removeListener (this);
     scrollOffsetNode.removeListener (this);
     outputBlockBottomNode.removeListener (this);
 }
@@ -257,159 +254,12 @@ std::vector<LinkSpan> LinkManager::scanViewport (const juce::String& cwd, bool o
     const int blockBottom { outputRowsOnly ? state.getOutputBlockBottom() : visibleBase + visibleRows - 1 };
     const bool normalScreen { state.getActiveScreen() == ActiveScreen::normal };
 
-    for (int row { 0 }; row < visibleRows; ++row)
-    {
-        const Cell* rowCells { scrollOffset > 0
-                                   ? grid.scrollbackRow (row, scrollOffset)
-                                   : grid.activeVisibleRow (row) };
-
-        if (rowCells != nullptr)
-        {
-            int col { 0 };
-
-            while (col < cols)
-            {
-                // Skip whitespace / empty cells.
-                while (col < cols and (rowCells[col].codepoint == 0 or rowCells[col].codepoint <= 0x20))
-                {
-                    ++col;
-                }
-
-                // Accumulate non-whitespace token.
-                if (col < cols)
-                {
-                    const int tokenStartCol { col };
-                    juce::String token;
-
-                    while (col < cols and rowCells[col].codepoint > 0x20)
-                    {
-                        token += juce::String::charToString (static_cast<juce::juce_wchar> (rowCells[col].codepoint));
-                        ++col;
-                    }
-
-                    const int tokenLength { col - tokenStartCol };
-                    const LinkDetector::LinkType linkType { LinkDetector::classify (token) };
-
-                    const int absoluteRow { visibleBase + row };
-                    const bool inOutputBlock { hasBlock and absoluteRow >= blockTop and absoluteRow <= blockBottom };
-                    const bool fileAllowed { linkType == LinkDetector::LinkType::file and normalScreen
-                                             and inOutputBlock };
-                    const bool urlAllowed { linkType == LinkDetector::LinkType::url };
-
-                    if (fileAllowed or urlAllowed)
-                    {
-                        LinkSpan span;
-                        span.row = row;
-                        span.col = tokenStartCol;
-                        span.length = tokenLength;
-                        span.type = linkType;
-
-                        if (linkType == LinkDetector::LinkType::url)
-                        {
-                            span.uri = token;
-                        }
-                        else
-                        {
-                            juce::File resolved;
-
-                            if (juce::File::isAbsolutePath (token))
-                            {
-                                resolved = juce::File { token };
-                            }
-                            else
-                            {
-                                resolved = juce::File { cwd }.getChildFile (token);
-                            }
-
-                            span.uri = resolved.getFullPathName().isNotEmpty() ? "file://" + resolved.getFullPathName()
-                                                                               : "file://" + token;
-                        }
-
-                        spans.push_back (std::move (span));
-                    }
-                }
-            }
-        }
-    }
-
-    // Merge OSC 8 explicit hyperlink spans from the State HYPERLINKS ValueTree.
-    for (int i { 0 }; i < hyperlinksNode.getNumChildren(); ++i)
-    {
-        const auto child { hyperlinksNode.getChild (i) };
-        const juce::String uri { child.getProperty (ID::uri).toString() };
-
-        if (uri.isNotEmpty())
-        {
-            const int oscRow      { static_cast<int> (child.getProperty (ID::row)) };
-            const int oscStartCol { static_cast<int> (child.getProperty (ID::startCol)) };
-            const int oscEndCol   { static_cast<int> (child.getProperty (ID::endCol)) };
-
-            const bool oscInViewport { oscRow >= visibleBase and oscRow < visibleBase + visibleRows };
-            const bool isUrl { uri.startsWith ("http://") or uri.startsWith ("https://") };
-            const bool oscInOutputBlock { hasBlock and oscRow >= blockTop and oscRow <= blockBottom };
-            const bool oscFileAllowed { not isUrl and normalScreen and oscInOutputBlock };
-
-            if (oscInViewport and (isUrl or oscFileAllowed))
-            {
-                LinkSpan span;
-                span.row    = oscRow - visibleBase;
-                span.col    = oscStartCol;
-                span.length = oscEndCol - oscStartCol;
-                span.uri    = uri;
-
-                if (isUrl)
-                {
-                    span.type = LinkDetector::LinkType::url;
-                }
-                else
-                {
-                    span.type = LinkDetector::LinkType::file;
-
-                    if (not uri.startsWith ("file://"))
-                        span.uri = "file://" + uri;
-                }
-
-                spans.push_back (std::move (span));
-            }
-        }
-    }
+    scanHeuristicTokens (spans, cwd, visibleRows, cols, scrollOffset,
+                         visibleBase, hasBlock, blockTop, blockBottom, normalScreen);
+    scanCellNativeLinks (spans, visibleRows, cols, scrollOffset,
+                         visibleBase, hasBlock, blockTop, blockBottom, normalScreen);
 
     return spans;
-}
-
-void LinkManager::assignHintLabels (std::vector<LinkSpan>& spans) noexcept
-{
-    std::unordered_set<char> usedLabels;
-    const int scrollOffset { state.getScrollOffset() };
-
-    for (auto& span : spans)
-    {
-        const int tokenEnd { span.col + span.length };
-        const Cell* rowCells { scrollOffset > 0
-                                   ? grid.scrollbackRow (span.row, scrollOffset)
-                                   : grid.activeVisibleRow (span.row) };
-
-        for (int c { span.col }; c < tokenEnd; ++c)
-        {
-            if (rowCells != nullptr)
-            {
-                const uint32_t cp { rowCells[c].codepoint };
-                const char lower { static_cast<char> (cp >= 'A' and cp <= 'Z' ? cp + 32 : cp) };
-
-                if (lower >= 'a' and lower <= 'z' and usedLabels.find (lower) == usedLabels.end())
-                {
-                    span.hintLabel[0] = lower;
-                    span.hintLabel[1] = 0;
-                    span.labelCol = c;
-                    usedLabels.insert (lower);
-                    break;
-                }
-            }
-        }
-
-        // If the inner loop found no usable character, hintLabel[0] remains 0.
-        // The span is unreachable on this page — user cycles to another page.
-    }
 }
 
 // =============================================================================

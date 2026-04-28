@@ -83,11 +83,21 @@ void Grid::scrollRegionDown (int top, int bottom, int count, const Cell& fill) n
 
 void Grid::shiftRegionUp (Buffer& buffer, int top, int bottom, int ec, size_t rowBytes, const Cell& fill) noexcept
 {
+    const int cols { getCols() };
+    const size_t graphemeRowBytes { static_cast<size_t> (cols) * sizeof (Grapheme) };
+    const size_t linkIdRowBytes { static_cast<size_t> (cols) * sizeof (uint16_t) };
+
     for (int i { top }; i <= bottom - ec; ++i)
     {
         std::memcpy (rowPtr (buffer, i), rowPtr (buffer, i + ec), rowBytes);
         buffer.rowStates[physicalRow (buffer, i)] = buffer.rowStates[physicalRow (buffer, i + ec)];
+
+        const int dstPhys { physicalRow (buffer, i) };
+        const int srcPhys { physicalRow (buffer, i + ec) };
+        std::memcpy (buffer.graphemes.get() + dstPhys * cols, buffer.graphemes.get() + srcPhys * cols, graphemeRowBytes);
+        std::memcpy (buffer.linkIds.get() + dstPhys * cols, buffer.linkIds.get() + srcPhys * cols, linkIdRowBytes);
     }
+
     for (int i { bottom - ec + 1 }; i <= bottom; ++i)
     {
         clearRow (buffer, i, fill);
@@ -96,11 +106,21 @@ void Grid::shiftRegionUp (Buffer& buffer, int top, int bottom, int ec, size_t ro
 
 void Grid::shiftRegionDown (Buffer& buffer, int top, int bottom, int ec, size_t rowBytes, const Cell& fill) noexcept
 {
+    const int cols { getCols() };
+    const size_t graphemeRowBytes { static_cast<size_t> (cols) * sizeof (Grapheme) };
+    const size_t linkIdRowBytes { static_cast<size_t> (cols) * sizeof (uint16_t) };
+
     for (int i { bottom }; i >= top + ec; --i)
     {
         std::memcpy (rowPtr (buffer, i), rowPtr (buffer, i - ec), rowBytes);
         buffer.rowStates[physicalRow (buffer, i)] = buffer.rowStates[physicalRow (buffer, i - ec)];
+
+        const int dstPhys { physicalRow (buffer, i) };
+        const int srcPhys { physicalRow (buffer, i - ec) };
+        std::memcpy (buffer.graphemes.get() + dstPhys * cols, buffer.graphemes.get() + srcPhys * cols, graphemeRowBytes);
+        std::memcpy (buffer.linkIds.get() + dstPhys * cols, buffer.linkIds.get() + srcPhys * cols, linkIdRowBytes);
     }
+
     for (int i { top }; i < top + ec; ++i)
     {
         clearRow (buffer, i, fill);

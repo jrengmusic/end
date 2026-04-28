@@ -356,15 +356,14 @@ bool Input::handleOpenFileKey (const juce::KeyPress& key) noexcept
 {
     if (key == juce::KeyPress::escapeKey)
     {
-        processor.getState().setHintOverlay (nullptr, 0);
         linkManager.clearHints();
         processor.getState().setModalType (Terminal::ModalType::none);
     }
     else if (key.getKeyCode() == juce::KeyPress::spaceKey)
     {
         linkManager.advanceHintPage();
-
-        processor.getState().setHintOverlay (linkManager.getActiveHintsData(), linkManager.getActiveHintsCount());
+        processor.getState().setFullRebuild();
+        processor.getState().setSnapshotDirty();
     }
     else
     {
@@ -378,8 +377,6 @@ bool Input::handleOpenFileKey (const juce::KeyPress& key) noexcept
             if (matched != nullptr)
             {
                 linkManager.dispatch (*matched);
-
-                processor.getState().setHintOverlay (nullptr, 0);
                 linkManager.clearHints();
                 processor.getState().setModalType (Terminal::ModalType::none);
             }

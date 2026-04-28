@@ -28,6 +28,7 @@
 
 #include "Screen.h"
 #include "../logic/SixelDecoder.h"
+#include "../selection/LinkManager.h"
 
 
 namespace Terminal
@@ -94,9 +95,9 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
         frameDirtyBits[i] |= dirtyBits[i];
     }
 
-    // Pull hint overlay from State (written by InputHandler via State::setHintOverlay).
-    hintOverlay      = state.getHintOverlayData();
-    hintOverlayCount = state.getHintOverlayCount();
+    // Pull hint overlay directly from LinkManager (no State relay).
+    hintOverlay      = linkManager != nullptr ? linkManager->getActiveHintsData() : nullptr;
+    hintOverlayCount = linkManager != nullptr ? linkManager->getActiveHintsCount() : 0;
 
     for (int r { 0 }; r < rows; ++r)
     {

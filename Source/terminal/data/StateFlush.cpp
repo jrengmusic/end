@@ -46,6 +46,40 @@ namespace Terminal
 { /*____________________________________________________________________________*/
 
 /**
+ * @brief MESSAGE THREAD flush — snap-copies `slot.buffer` to `node[property]` when generation advanced.
+ *
+ * Loads `slot.generation` before and after the `memcpy`.  If the value changed
+ * (torn write in flight), repeats the copy once.  Writes to the ValueTree only
+ * when `generation` has advanced past `slot.lastFlushedGeneration`.
+ *
+ * @param slot      Source `StringSlot`.
+ * @param node      ValueTree node to write the property on.
+ * @param property  Property identifier to set on `node`.
+ * @return `true` if the ValueTree was updated; `false` if generation had not changed.
+ * @note MESSAGE THREAD — noexcept.
+ */
+// MESSAGE THREAD
+bool State::flushSlot (StringSlot& slot, juce::ValueTree& node, const juce::Identifier& property) noexcept
+{
+    const auto gen { slot.generation.load (std::memory_order_acquire) };
+
+    if (gen == slot.lastFlushedGeneration)
+        return false;
+
+    char local[maxStringLength];
+    std::memcpy (local, slot.buffer, maxStringLength);
+
+    const auto gen2 { slot.generation.load (std::memory_order_acquire) };
+
+    if (gen2 != gen)
+        std::memcpy (local, slot.buffer, maxStringLength);
+
+    slot.lastFlushedGeneration = gen2;
+    node.setProperty (property, juce::String::fromUTF8 (local), nullptr);
+    return true;
+}
+
+/**
  * @brief Flushes PARAM nodes that are direct children of the root SESSION node.
  *
  * Iterates the immediate children of `state` (the SESSION root).  For each
@@ -217,56 +251,6 @@ bool State::flush() noexcept
     }
 
     return false;
-}
-
-/**
- * @brief Synchronises OSC 8 hyperlink spans from `hyperlinkMap` into the
- *        HYPERLINKS ValueTree node.
- *
- * Compares `hyperlinksGeneration` (acquire load) against
- * `hyperlinksLastFlushedGeneration`.  When they differ, removes all existing
- * HYPERLINKS children and rebuilds them from `hyperlinkMap`.  Each child node
- * has type `ID::HYPERLINK` and carries `ID::uri`, `ID::row`, `ID::startCol`,
- * and `ID::endCol`.
- *
- * @note MESSAGE THREAD — called from `timerCallback()` only.
- */
-// MESSAGE THREAD
-void State::flushHyperlinks() noexcept
-{
-    auto* genAtom { getRawParam (ID::hyperlinksGeneration) };
-    auto* lastGenAtom { getRawParam (ID::hyperlinksLastFlushedGeneration) };
-
-    const float gen { genAtom->load (std::memory_order_acquire) };
-    const float lastGen { lastGenAtom->load (std::memory_order_relaxed) };
-
-    if (gen != lastGen)
-    {
-        lastGenAtom->store (gen, std::memory_order_relaxed);
-
-        juce::ValueTree hyperlinksNode { state.getChildWithName (ID::HYPERLINKS) };
-
-        if (hyperlinksNode.isValid())
-        {
-            hyperlinksNode.removeAllChildren (nullptr);
-
-            for (const auto& [id, entry] : hyperlinkMap)
-            {
-                juce::ValueTree child { ID::HYPERLINK };
-                child.setProperty (ID::uri, juce::String::fromUTF8 (entry->uri), nullptr);
-                child.setProperty (ID::row, entry->row, nullptr);
-                child.setProperty (ID::startCol, entry->startCol, nullptr);
-                child.setProperty (ID::endCol, entry->endCol, nullptr);
-
-                hyperlinksNode.appendChild (child, nullptr);
-            }
-
-            // Signal listeners once after the full rebuild by bumping the node's
-            // value property.  This fires valueTreePropertyChanged on any listener
-            // attached to hyperlinksNode, triggering a single re-scan.
-            hyperlinksNode.setProperty (ID::value, gen, nullptr);
-        }
-    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

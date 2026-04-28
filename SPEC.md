@@ -50,7 +50,7 @@
 |---------|--------|-------|
 | OSC 52 base64 decode | **Done** | Fixed Latin-1 constructor |
 | OSC 7 (cwd tracking) | **Done** | Shell scripts emit OSC 7; OS query as fallback |
-| OSC 8 (hyperlinks) | **Done** | Parsed in oscDispatch, spans merged with heuristic links |
+| OSC 8 (hyperlinks) | **Done** | Cell-native LAYOUT_HYPERLINK flag + linkId sidecar; viewport scan merges with heuristic links |
 | OSC 133 (shell integration) | **Done** | A/B/C/D markers, output block tracking, automatic injection (zsh/bash/fish/pwsh) |
 | OSC 9/777 (notifications) | **Done** | Native desktop notification (macOS UNUserNotificationCenter, Windows/Linux fallback) |
 

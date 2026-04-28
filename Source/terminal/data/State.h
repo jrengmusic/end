@@ -197,16 +197,23 @@ struct State : public juce::Timer
     static constexpr int maxStringLength { 256 };
 
     /**
-     * @brief Fixed-size char buffer for string parameters.
+     * @brief Fixed-size char buffer with an intrinsic seqlock generation counter.
      *
-     * Used by State internally for string storage (title, cwd, foreground
-     * process) and externally by Parser for in-flight string tracking
-     * without heap allocation on the reader thread.
+     * The READER THREAD writes via `writeSlot()`, which copies the payload into
+     * `buffer` and increments `generation` with `memory_order_release`.  The
+     * MESSAGE THREAD reads via `readSlot()` (snap-copy with torn-write retry) or
+     * flushes to the ValueTree via `flushSlot()`, which compares `generation`
+     * against `lastFlushedGeneration` before copying.
      */
     struct StringSlot
     {
         char buffer[maxStringLength] {};
+        std::atomic<uint32_t> generation { 0 };
+        uint32_t lastFlushedGeneration { 0 };
     };
+
+    /** @brief Maximum number of unique hyperlink URIs per session. */
+    static constexpr int maxLinkIds { 65536 };
 
     State();
 
@@ -394,10 +401,8 @@ struct State : public juce::Timer
     /**
      * @brief Sets the window title from OSC 0/2 escape sequences.
      *
-     * Copies `src` (up to `length` bytes, capped at `StringSlot::maxLength - 1`)
-     * into the State-owned title buffer, then increments the generation counter
-     * so that `flushStrings()` can detect the change without touching the
-     * caller's buffer.
+     * Copies `src` (up to `length` bytes, capped at `maxStringLength - 1`)
+     * into the State-owned title StringSlot via `writeSlot()`.
      *
      * @param src     Pointer to the raw UTF-8 title bytes.  Need not be
      *                null-terminated; `length` governs the byte count.
@@ -409,8 +414,7 @@ struct State : public juce::Timer
     /**
      * @brief Sets the current working directory from OSC 7 or OS query.
      *
-     * Copies `src` into the State-owned cwd buffer.  See `setTitle()` for the
-     * full semantics of the SeqLock-style snap-copy used in `flushStrings()`.
+     * Copies `src` into the State-owned cwd StringSlot via `writeSlot()`.
      *
      * @param src     Pointer to the raw UTF-8 path bytes.
      * @param length  Number of bytes to copy from `src`.
@@ -421,8 +425,7 @@ struct State : public juce::Timer
     /**
      * @brief Sets the foreground process name from OS query.
      *
-     * Copies `src` into the State-owned foreground-process buffer.
-     * See `setTitle()` for the full semantics.
+     * Copies `src` into the State-owned foreground-process StringSlot via `writeSlot()`.
      *
      * @param src     Pointer to the raw UTF-8 process name bytes.
      * @param length  Number of bytes to copy from `src`.
@@ -431,38 +434,18 @@ struct State : public juce::Timer
     void setForegroundProcess (const char* src, int length) noexcept;
 
     /**
-     * @brief Records an OSC 8 hyperlink span from the parser.
+     * @brief Registers a URI and returns a 1-based linkId for cell sidecar storage.
      *
-     * Emplaces or overwrites the entry in `hyperlinkMap` keyed by `id` and
-     * increments the generation counter with a release store so that
-     * `flushHyperlinks()` (message thread) observes the completed write.
-     * Sets `needsFlush` so the timer wakes on the next tick.
+     * Appends the URI to the internal table.  IDs wrap at `maxLinkIds - 1`
+     * (slot 0 is reserved as "no link").  The table is append-only; old entries
+     * are silently overwritten when the counter wraps.
      *
-     * @param id          Unique identifier for this span (e.g. `"row_startCol"`).
-     * @param uri         Pointer to the raw UTF-8 URI bytes.
-     * @param uriLength   Number of bytes in `uri`.
-     * @param row         Zero-based visible row where the span lives.
-     * @param startCol    Zero-based start column (inclusive).
-     * @param endCol      Zero-based end column (exclusive).
+     * @param uri     Pointer to the raw UTF-8 URI bytes.
+     * @param length  Number of bytes in `uri`.
+     * @return A 1-based linkId in [1, 65535].
      * @note READER THREAD — lock-free, noexcept.
      */
-    void storeHyperlink (const juce::Identifier& id,
-                         const char* uri,
-                         int uriLength,
-                         int row,
-                         int startCol,
-                         int endCol) noexcept;
-
-    /**
-     * @brief Clears all recorded OSC 8 hyperlink spans.
-     *
-     * Clears `hyperlinkMap` and bumps the generation counter so
-     * `flushHyperlinks()` rebuilds the HYPERLINKS ValueTree children on
-     * the next flush.
-     *
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    void clearHyperlinks() noexcept;
+    uint16_t registerLinkUri (const char* uri, int length) noexcept;
 
     /** @} */
 
@@ -604,6 +587,19 @@ struct State : public juce::Timer
 
     /** @brief Returns the number of scrollback lines currently stored (post-flush). MESSAGE THREAD. */
     int getScrollbackUsed() const noexcept;
+
+    /**
+     * @brief Returns the URI string for the given linkId via seqlock read.
+     *
+     * Performs a snap-copy of the slot's buffer with a torn-write retry, then
+     * returns a `juce::String` constructed from the local copy.  Returns an
+     * empty string for linkId 0 or an unwritten slot.
+     *
+     * @param linkId  1-based link identifier from the cell sidecar.
+     * @return URI as a `juce::String`.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    juce::String getLinkUri (uint16_t linkId) const noexcept;
 
     /** @brief Returns the terminal window title (post-flush). MESSAGE THREAD. */
     juce::String getTitle() const noexcept;
@@ -765,33 +761,6 @@ struct State : public juce::Timer
      * @note ANY THREAD — lock-free, noexcept.
      */
     int getHintTotalPages() const noexcept;
-
-    /**
-     * @brief Stores the active hint overlay pointer and count.
-     *
-     * Non-owning.  Caller (InputHandler) is responsible for keeping the
-     * pointed-to data valid until the overlay is cleared.  Marks the
-     * snapshot dirty so Screen picks it up on the next render.
-     *
-     * @param data   Pointer to the first `LinkSpan`, or `nullptr` to clear.
-     * @param count  Number of valid elements in @p data.
-     * @note MESSAGE THREAD — called from InputHandler only.
-     */
-    void setHintOverlay (const LinkSpan* data, int count) noexcept;
-
-    /**
-     * @brief Returns the active hint overlay pointer.
-     * @return Non-owning pointer, or `nullptr` when no overlay is active.
-     * @note MESSAGE THREAD.
-     */
-    const LinkSpan* getHintOverlayData() const noexcept;
-
-    /**
-     * @brief Returns the number of elements in the active hint overlay.
-     * @return Element count, or 0 when no overlay is active.
-     * @note MESSAGE THREAD.
-     */
-    int getHintOverlayCount() const noexcept;
 
     // =========================================================================
     /** @name Selection state convenience wrappers
@@ -1370,12 +1339,6 @@ private:
      */
     juce::HeapBlock<int> keyboardModeStackSize;
 
-    /** @brief Non-owning pointer to the active hint label spans; nullptr when no overlay. */
-    const LinkSpan* hintOverlayData { nullptr };
-
-    /** @brief Number of valid elements in @p hintOverlayData. */
-    int hintOverlayCount { 0 };
-
     // needsFlush, snapshotDirty, fullRebuild, cursorBlinkOn, cursorBlinkElapsed,
     // prevFlushedCursorRow, prevFlushedCursorCol, cursorBlinkInterval,
     // cursorBlinkEnabled, and cursorFocused are all stored in parameterMap
@@ -1391,30 +1354,11 @@ private:
      */
     StateMap<StringSlot> stringMap;
 
-    /**
-     * @brief Backing store for a single OSC 8 hyperlink span.
-     *
-     * Written exclusively by the reader thread via `storeHyperlink()`.
-     * Read by the message thread in `flushHyperlinks()` after acquiring
-     * the generation fence on `hyperlinksGeneration`.
-     *
-     * `uri` holds the null-terminated URI string.
-     */
-    struct HyperlinkEntry
-    {
-        char uri[maxStringLength] {};
-        int row { 0 };
-        int startCol { 0 };
-        int endCol { 0 };
-    };
+    /** @brief URI table for cell-native hyperlinks.  Index 0 unused (sentinel). */
+    StringSlot linkUriTable[maxLinkIds];
 
-    /**
-     * @brief Flat map from hyperlink identifier to owned HyperlinkEntry holding the URI
-     *        and position data.
-     *
-     * Mutable — emplaced by storeHyperlink, cleared by clearHyperlinks.
-     */
-    StateMap<HyperlinkEntry> hyperlinkMap;
+    /** @brief Next slot index for linkId assignment.  READER THREAD only, plain counter. */
+    uint32_t linkUriCount { 0 };
 
     /** @brief Cached terminal width in character columns (MESSAGE THREAD). */
     juce::CachedValue<int> cachedCols;
@@ -1447,19 +1391,34 @@ private:
     void flushGroupParams (juce::ValueTree& group) noexcept;
 
     /**
-     * @brief SSOT writer for all three string slots (title, cwd, foreground process).
+     * @brief READER THREAD writer — copies `src` into `slot.buffer` and increments `slot.generation`.
      *
-     * Copies up to `StringSlot::maxLength - 1` bytes from `src` into the
-     * slot's `buffer`, null-terminates, then increments the `generation`
-     * counter with a release store so that `flushStrings()` (message thread)
-     * observes the completed write.  Sets `needsFlush` so the timer wakes.
-     *
-     * @param id      One of `ID::title`, `ID::cwd`, `ID::foregroundProcess`.
+     * @param slot    Target `StringSlot` (title, cwd, foregroundProcess, or a link URI slot).
      * @param src     Pointer to the source bytes.  Need not be null-terminated.
      * @param length  Number of source bytes.
      * @note READER THREAD — lock-free, noexcept.
      */
-    void writeStringSlot (const juce::Identifier& id, const char* src, int length) noexcept;
+    void writeSlot (StringSlot& slot, const char* src, int length) noexcept;
+
+    /**
+     * @brief MESSAGE THREAD flush — snap-copies `slot.buffer` to `node[property]` when generation advanced.
+     *
+     * @param slot      Source `StringSlot`.
+     * @param node      ValueTree node to write the property on.
+     * @param property  Property identifier to set on `node`.
+     * @return `true` if the ValueTree was updated; `false` if generation had not changed.
+     * @note MESSAGE THREAD — noexcept.
+     */
+    bool flushSlot (StringSlot& slot, juce::ValueTree& node, const juce::Identifier& property) noexcept;
+
+    /**
+     * @brief MESSAGE THREAD reader — snap-copies `slot.buffer` and returns it as a `juce::String`.
+     *
+     * @param slot  Source `StringSlot`.
+     * @return Slot contents as a `juce::String`.
+     * @note MESSAGE THREAD — lock-free, noexcept.
+     */
+    juce::String readSlot (const StringSlot& slot) const noexcept;
 
     /**
      * @brief Flushes string slots to the SESSION ValueTree as direct properties
@@ -1476,25 +1435,6 @@ private:
      * @note MESSAGE THREAD — called from timerCallback() only.
      */
     void flushStrings() noexcept;
-
-    /**
-     * @brief Synchronises OSC 8 hyperlink spans from the reader-thread pool
-     *        into the HYPERLINKS ValueTree node.
-     *
-     * Reads `hyperlinksGeneration` with `memory_order_acquire`.  If the
-     * generation has advanced since `hyperlinksLastFlushedGeneration`, rebuilds
-     * the HYPERLINKS children: removes all existing children, then creates one
-     * child per entry in `hyperlinkMap`.
-     *
-     * Each child node has the type `ID::HYPERLINK` and carries properties:
-     * - `ID::uri`      — the hyperlink URI.
-     * - `ID::row`      — zero-based visible row.
-     * - `ID::startCol` — start column (inclusive).
-     * - `ID::endCol`   — end column (exclusive).
-     *
-     * @note MESSAGE THREAD — called from `timerCallback()` only.
-     */
-    void flushHyperlinks() noexcept;
 
     /**
      * @brief Advances the cursor blink counter and toggles the phase.

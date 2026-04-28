@@ -151,24 +151,6 @@ namespace ID
     /** @brief Name of the foreground process running in the terminal. */
     static const juce::Identifier foregroundProcess   { "foregroundProcess" };
 
-    /** @brief Write generation counter for the title string slot. */
-    static const juce::Identifier titleGeneration                       { "titleGeneration" };
-
-    /** @brief Write generation counter for the cwd string slot. */
-    static const juce::Identifier cwdGeneration                         { "cwdGeneration" };
-
-    /** @brief Write generation counter for the foregroundProcess string slot. */
-    static const juce::Identifier foregroundProcessGeneration           { "foregroundProcessGeneration" };
-
-    /** @brief Last-flushed generation for the title string slot (message thread only). */
-    static const juce::Identifier titleLastFlushedGeneration            { "titleLastFlushedGeneration" };
-
-    /** @brief Last-flushed generation for the cwd string slot (message thread only). */
-    static const juce::Identifier cwdLastFlushedGeneration              { "cwdLastFlushedGeneration" };
-
-    /** @brief Last-flushed generation for the foregroundProcess string slot (message thread only). */
-    static const juce::Identifier foregroundProcessLastFlushedGeneration { "foregroundProcessLastFlushedGeneration" };
-
     //==========================================================================
     // Mode parameter IDs (DEC terminal mode flags)
     //==========================================================================
@@ -338,7 +320,7 @@ namespace ID
     static const juce::Identifier cursorFocused        { "cursorFocused" };
 
     //==========================================================================
-    // OSC 8 hyperlink tree node and properties
+    // IPC subscriber seqno tracking
     //==========================================================================
 
     /** @brief Container node for per-subscriber seqno tracking (children of SESSION). */
@@ -356,29 +338,6 @@ namespace ID
     /** @brief Root-level SESSION property: the last seqno applied to this State (proxy/client side). */
     static const juce::Identifier lastKnownSeqnoRoot   { "lastKnownSeqnoRoot" };
 
-    /** @brief Container node for OSC 8 hyperlink spans (children of SESSION). */
-    static const juce::Identifier HYPERLINKS           { "HYPERLINKS" };
-
-    /** @brief Child node type for a single OSC 8 hyperlink span (children of HYPERLINKS). */
-    static const juce::Identifier HYPERLINK            { "HYPERLINK" };
-
-    /** @brief Write generation counter for the hyperlinks slot set. */
-    static const juce::Identifier hyperlinksGeneration             { "hyperlinksGeneration" };
-
-    /** @brief Last-flushed generation for the hyperlinks slot set (message thread only). */
-    static const juce::Identifier hyperlinksLastFlushedGeneration  { "hyperlinksLastFlushedGeneration" };
-
-    /** @brief Zero-based visible column where a hyperlink span starts (inclusive). */
-    static const juce::Identifier startCol             { "startCol" };
-
-    /** @brief Zero-based visible column where a hyperlink span ends (exclusive). */
-    static const juce::Identifier endCol               { "endCol" };
-
-    /** @brief Zero-based visible row where a hyperlink span lives. */
-    static const juce::Identifier row                  { "row" };
-
-    /** @brief URI string stored on a hyperlink child node. */
-    static const juce::Identifier uri                  { "uri" };
 }
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

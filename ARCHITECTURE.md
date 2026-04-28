@@ -121,7 +121,7 @@ Source/
       ScreenSnapshot.cpp            updateSnapshot, publish to GLSnapshotBuffer
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
       selection/
-        LinkManager.h/cpp           Viewport scan, OSC 8 span merging, hit-test, click dispatch
+        LinkManager.h/cpp           Viewport scan, cell-native hyperlink scanning, hit-test, click dispatch
       Fonts.h                       Shared header (platform-agnostic API)
       Fonts.mm                      macOS: CoreText font loading, HarfBuzz shaping, CTFontDrawGlyphs rasterization
       Fonts.cpp                     Linux/Windows: FreeType font loading
@@ -377,6 +377,28 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
 - `nexus/Nexus.h` forward-declares `Interprocess::Daemon` and `Interprocess::Link`; includes `terminal/logic/Session.h`.
 - `interprocess/` headers forward-declare `Nexus`; include `terminal/logic/Session.h` only from `.cpp` files as needed.
 - `Application` layer (`Main.cpp`, `MainComponent`, `Tabs`, `Panes`) includes all layers.
+
+### Cross-Thread Data Contract (MANDATORY)
+
+Lock-free architecture, unidirectional data flow. READER thread always writes to atomics; MESSAGE thread always reads from State. Two data profiles, two mechanisms, one direction:
+
+**Scalar data** — parameters, mode flags, strings, metadata (cursor position, URIs, title, cwd). Sparse, low-volume, consumed by UI listeners.
+
+```
+READER → atomic slots on State → timer flush → ValueTree → MESSAGE reads
+```
+
+ValueTree is the SSOT for all scalar state. `State::flush()` copies dirty atomics to ValueTree properties. MESSAGE thread reads exclusively from ValueTree (directly or via `CachedValue` / `Value::Listener`). `StringSlot` pattern for cross-thread strings: intrinsic seqlock (`generation` atomic + `lastFlushedGeneration`), READER writes via `writeSlot()`, MESSAGE reads via `flushSlot()` (title, cwd, foregroundProcess → ValueTree properties) or `readSlot()` (URI table — polled per-frame, too numerous for ValueTree children).
+
+**Bulk data** — cell content (25,000+ entries at 5K fullscreen, updated every frame). High-volume, consumed by render path.
+
+```
+READER → HeapBlock on Grid → dirty-row fence → MESSAGE reads directly
+```
+
+Grid's `HeapBlock<Cell>`, `HeapBlock<Grapheme>`, `HeapBlock<uint16_t> linkIds` are read directly by `Screen::buildSnapshot()` on the MESSAGE thread via VBlank polling. No ValueTree involvement — ValueTree cannot handle this volume (appendChild/setProperty allocate, lock, fire listeners per entry). Synchronization: `resizeLock` CriticalSection (resize only) + `dirtyRows[4]` atomic bitmask (render trigger).
+
+**Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → Grid HeapBlock. If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
 
 ### Communication Contracts
 
@@ -769,7 +791,7 @@ The config key controlling daemon mode is `lua::Engine::nexus.daemon` (`"daemon"
 ```
 
 Style bits: BOLD, ITALIC, UNDERLINE, STRIKE, BLINK, INVERSE
-Layout bits: wide continuation, emoji, has grapheme
+Layout bits: LAYOUT_IMAGE_CONT (0x02), LAYOUT_IMAGE (0x10), LAYOUT_HYPERLINK (0x20), wide continuation, emoji, has grapheme
 
 ### Color (4 bytes, trivially copyable)
 
@@ -782,7 +804,7 @@ Access: `setRGB()`, `setPalette()`, `setTheme()`, `paletteIndex()`
 
 ### Grid Ring Buffer
 
-Dual buffers (normal + alternate). Each buffer is a flat `HeapBlock<Cell>` with ring-buffer row indexing. `head` tracks the logical top row. Dirty tracking via `std::atomic<uint64_t> dirtyRows[4]` (256-bit bitmask).
+Dual buffers (normal + alternate). Each buffer is a flat `HeapBlock<Cell>` with ring-buffer row indexing. Parallel `HeapBlock<uint16_t> linkIds` sidecar carries per-cell link IDs (non-zero when `LAYOUT_HYPERLINK` is set). `head` tracks the logical top row. Dirty tracking via `std::atomic<uint64_t> dirtyRows[4]` (256-bit bitmask).
 
 `getCols()` and `getVisibleRows()` return the buffer allocation dimensions. `resize()` runs on the message thread and holds `resizeLock` for the duration.
 
@@ -1167,7 +1189,7 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 |-------|------|----------------|
 | Terminal::Input | component/Terminal/Input.h/cpp | Modal gate, selection keys, open-file keys, scroll nav |
 | Terminal::Mouse | component/Terminal/Mouse.h/cpp | PTY forwarding, drag selection, click dispatch, wheel scroll |
-| LinkManager | terminal/selection/LinkManager.h/cpp | Viewport scan, hit-test, dispatch, OSC 8 span merging |
+| LinkManager | terminal/selection/LinkManager.h/cpp | Viewport scan, cell-native hyperlink scanning, hit-test, dispatch |
 
 All selection/gesture state in State parameterMap. ScreenSelection rebuilt from State in onVBlank.
 

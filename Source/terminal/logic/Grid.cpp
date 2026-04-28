@@ -1,9 +1,11 @@
 /**
  * @file Grid.cpp
  * @brief Ring-buffer cell storage — constructor, buffer init, dirty tracking,
- *        cell access, row access, scrollback, and text extraction.
+ *        and cell write/read operations.
  *
- * This translation unit implements the core Grid methods.  Scroll, erase, and
+ * This translation unit implements the core Grid methods.  Row access,
+ * scrollback, text extraction, and decoded image storage are in
+ * GridAccess.cpp.  Serialization is in GridSerialize.cpp.  Scroll, erase, and
  * reflow operations are split across GridScroll.cpp, GridErase.cpp, and
  * GridReflow.cpp respectively to keep each file focused.
  *
@@ -139,6 +141,7 @@ void Grid::initBuffer (Buffer& buffer, int numCols, int totalLines, int numVisib
     std::fill (buffer.cells.get(), buffer.cells.get() + cellCount, defaultCell);
 
     buffer.graphemes.allocate (cellCount, true);
+    buffer.linkIds.allocate (cellCount, true);
 
     buffer.totalRows = po2;
     buffer.rowMask = po2 - 1;
@@ -369,176 +372,6 @@ const Cell* Grid::rowPtr (const Buffer& buffer, int visibleRow) const noexcept
 }
 
 // ============================================================================
-// Row Access
-// ============================================================================
-
-/**
- * @brief Returns a raw pointer to the start of visible row `row` for bulk writes.
- *
- * Inlines the ring-buffer index calculation without bounds checking.  The
- * caller must stay within [0, cols) and call `markRowDirty (row)` after
- * writing.
- *
- * @param visibleRow  Zero-based visible row index.
- * @return Pointer to the first Cell in the row.
- * @note READER THREAD — lock-free, noexcept.
- *       Caller must markRowDirty after writing.
- */
-Cell* Grid::directRowPtr (int visibleRow) noexcept
-{
-    Buffer& buffer { bufferForScreen() };
-    return buffer.cells.get() + ((buffer.head - getVisibleRows() + 1 + visibleRow) & buffer.rowMask) * getCols();
-}
-
-/**
- * @brief Returns a mutable pointer to the start of visible row `row`.
- *
- * Bounds-checks `row` against [0, visibleRows) before computing the physical
- * index.  Returns `nullptr` if out of range.
- *
- * @param row  Zero-based visible row index.
- * @return Pointer to the first Cell in the row, or `nullptr` if out of range.
- * @note READER THREAD — lock-free, noexcept.
- */
-Cell* Grid::activeVisibleRow (int row) noexcept
-{
-    if (row >= 0 and row < getVisibleRows())
-    {
-        Buffer& buffer { bufferForScreen() };
-        return rowPtr (buffer, row);
-    }
-    return nullptr;
-}
-
-/**
- * @brief Returns a const pointer to the start of visible row `row`.
- *
- * @param row  Zero-based visible row index.
- * @return Const pointer to the first Cell in the row, or `nullptr` if out of range.
- * @note MESSAGE THREAD — lock-free, noexcept.
- */
-const Cell* Grid::activeVisibleRow (int row) const noexcept
-{
-    if (row >= 0 and row < getVisibleRows())
-    {
-        const Buffer& buffer { bufferForScreen() };
-        return rowPtr (buffer, row);
-    }
-    return nullptr;
-}
-
-/**
- * @brief Returns a const pointer to the grapheme row for visible row `row`.
- *
- * The returned pointer addresses `cols` Grapheme entries co-indexed with the
- * cell row.  Returns `nullptr` if `row` is out of range.
- *
- * @param row  Zero-based visible row index.
- * @return Pointer to the first Grapheme in the row, or `nullptr` if out of range.
- * @note MESSAGE THREAD — lock-free, noexcept.
- */
-const Grapheme* Grid::activeVisibleGraphemeRow (int row) const noexcept
-{
-    if (row >= 0 and row < getVisibleRows())
-    {
-        const Buffer& buffer { bufferForScreen() };
-        return buffer.graphemes.get() + physicalRow (buffer, row) * getCols();
-    }
-    return nullptr;
-}
-
-/**
- * @brief Returns the number of scrollback rows currently stored.
- *
- * Reads `scrollbackUsed` from the active buffer.  Only meaningful for the
- * normal screen; always 0 for the alternate screen.
- *
- * @return Number of scrollback rows available (0 … scrollbackCapacity).
- * @note MESSAGE THREAD — lock-free, noexcept.
- */
-int Grid::getScrollbackUsed() const noexcept
-{
-    const Buffer& buffer { bufferForScreen() };
-    return buffer.scrollbackUsed;
-}
-
-/**
- * @brief Returns a const pointer to a scrolled-back cell row.
- *
- * Applies `scrollOffset` to the ring-buffer index:
- * @code
- * phys = (head - visibleRows + 1 + visibleRow - scrollOffset) & rowMask
- * @endcode
- * A `scrollOffset` of 1 returns the row one line above the live view.
- * Returns `nullptr` if `visibleRow` is out of range.
- *
- * @param visibleRow   Zero-based visible row index (0 … visibleRows-1).
- * @param scrollOffset Lines scrolled back (0 = live view).
- * @return Const pointer to the first Cell in the scrolled row, or `nullptr`.
- * @note MESSAGE THREAD — lock-free, noexcept.
- */
-const Cell* Grid::scrollbackRow (int visibleRow, int scrollOffset) const noexcept
-{
-    if (visibleRow >= 0 and visibleRow < getVisibleRows())
-    {
-        const Buffer& buffer { bufferForScreen() };
-        const int phys { (buffer.head - getVisibleRows() + 1 + visibleRow - scrollOffset) & buffer.rowMask };
-        return buffer.cells.get() + phys * getCols();
-    }
-    return nullptr;
-}
-
-/**
- * @brief Returns a const pointer to a scrolled-back grapheme row.
- *
- * Parallel to `scrollbackRow()` but for the grapheme sidecar array.
- * Returns `nullptr` if `visibleRow` is out of range.
- *
- * @param visibleRow   Zero-based visible row index (0 … visibleRows-1).
- * @param scrollOffset Lines scrolled back (0 = live view).
- * @return Const pointer to the first Grapheme in the scrolled row, or `nullptr`.
- * @note MESSAGE THREAD — lock-free, noexcept.
- */
-const Grapheme* Grid::scrollbackGraphemeRow (int visibleRow, int scrollOffset) const noexcept
-{
-    if (visibleRow >= 0 and visibleRow < getVisibleRows())
-    {
-        const Buffer& buffer { bufferForScreen() };
-        const int phys { (buffer.head - getVisibleRows() + 1 + visibleRow - scrollOffset) & buffer.rowMask };
-        return buffer.graphemes.get() + phys * getCols();
-    }
-    return nullptr;
-}
-
-/**
- * @brief Returns a mutable reference to the RowState for visible row `row`.
- *
- * @param row  Zero-based visible row index.
- * @return Reference to the RowState entry for the physical row.
- * @note READER THREAD — lock-free, noexcept.
- */
-RowState& Grid::activeVisibleRowState (int row) noexcept
-{
-    Buffer& buffer { bufferForScreen() };
-    const int phys { physicalRow (buffer, row) };
-    return buffer.rowStates[phys];
-}
-
-/**
- * @brief Returns a const reference to the RowState for visible row `row`.
- *
- * @param row  Zero-based visible row index.
- * @return Const reference to the RowState entry for the physical row.
- * @note MESSAGE THREAD — lock-free, noexcept.
- */
-const RowState& Grid::activeVisibleRowState (int row) const noexcept
-{
-    const Buffer& buffer { bufferForScreen() };
-    const int phys { physicalRow (buffer, row) };
-    return buffer.rowStates[phys];
-}
-
-// ============================================================================
 // Cell Write/Read
 // ============================================================================
 
@@ -698,6 +531,57 @@ const Grapheme* Grid::graphemePtr (const Buffer& buffer, int visibleRow, int col
 }
 
 /**
+ * @brief Returns a mutable pointer to the linkId entry at (visibleRow, col).
+ *
+ * @param buffer      Target buffer.
+ * @param visibleRow  Zero-based visible row index.
+ * @param col         Zero-based column index.
+ * @return Pointer to `buffer.linkIds[physicalRow * cols + col]`.
+ * @note READER THREAD — lock-free, noexcept.
+ */
+uint16_t* Grid::linkIdPtr (Buffer& buffer, int visibleRow, int col) noexcept
+{
+    return buffer.linkIds.get() + physicalRow (buffer, visibleRow) * getCols() + col;
+}
+
+/**
+ * @brief Returns a const pointer to the linkId entry at (visibleRow, col).
+ *
+ * @param buffer      Target buffer.
+ * @param visibleRow  Zero-based visible row index.
+ * @param col         Zero-based column index.
+ * @return Const pointer to `buffer.linkIds[physicalRow * cols + col]`.
+ * @note MESSAGE THREAD — lock-free, noexcept.
+ */
+const uint16_t* Grid::linkIdPtr (const Buffer& buffer, int visibleRow, int col) const noexcept
+{
+    return buffer.linkIds.get() + physicalRow (buffer, visibleRow) * getCols() + col;
+}
+
+/**
+ * @brief Writes the hyperlink ID sidecar for the cell at (row, col).
+ *
+ * Sets `Cell::LAYOUT_HYPERLINK` on the target cell and writes `linkId` into
+ * the parallel linkIds block at the same physical offset.  Calls
+ * `markRowDirty (row)`.
+ *
+ * @param row    Zero-based visible row index.
+ * @param col    Zero-based column index.
+ * @param linkId Hyperlink ID to store (non-zero).
+ * @note READER THREAD — lock-free, noexcept.
+ */
+void Grid::activeWriteLinkId (int row, int col, uint16_t linkId) noexcept
+{
+    if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
+    {
+        Buffer& buffer { bufferForScreen() };
+        rowPtr (buffer, row)[col].layout |= Cell::LAYOUT_HYPERLINK;
+        *linkIdPtr (buffer, row, col) = linkId;
+        markRowDirty (row);
+    }
+}
+
+/**
  * @brief Writes a multi-cell image span to the active buffer.
  *
  * Computes the cell span from pixel dimensions, writes `LAYOUT_IMAGE` on the
@@ -751,341 +635,6 @@ void Grid::activeWriteImage (int startRow, int startCol,
             }
         }
     }
-}
-
-// ============================================================================
-// Decoded image storage
-// ============================================================================
-
-/**
- * @brief Reserves the next image ID via atomic increment.
- *
- * @return A unique image ID in [1, UINT32_MAX].
- * @note READER THREAD — lock-free, noexcept.
- */
-uint32_t Grid::reserveImageId() noexcept
-{
-    return nextImageId.fetch_add (1u, std::memory_order_relaxed);
-}
-
-/**
- * @brief Stores decoded image data for later atlas consumption.
- *
- * @param img  PendingImage to store; moved into the internal map.
- * @note READER THREAD — called after image decode completes.
- */
-void Grid::storeDecodedImage (PendingImage&& img) noexcept
-{
-    decodedImages[img.imageId] = std::move (img);
-}
-
-/**
- * @brief Retrieves stored decoded image data without removing it.
- *
- * @param imageId  Image ID to look up.
- * @return Pointer to PendingImage, or nullptr if not found.
- * @note MESSAGE THREAD — called by renderer on first atlas encounter.
- */
-PendingImage* Grid::getDecodedImage (uint32_t imageId) noexcept
-{
-    auto it { decodedImages.find (imageId) };
-
-    if (it != decodedImages.end())
-    {
-        return &it->second;
-    }
-
-    return nullptr;
-}
-
-/**
- * @brief Removes decoded image data after atlas has consumed it.
- *
- * @param imageId  Image ID to remove.
- * @note MESSAGE THREAD.
- */
-void Grid::releaseDecodedImage (uint32_t imageId) noexcept
-{
-    decodedImages.erase (imageId);
-}
-
-// =============================================================================
-
-/**
- * @brief Append a single cell's text contribution to a row string.
- *
- * Skips wide-continuation cells entirely.  Appends a space for empty cells
- * (`codepoint == 0`).  For all other cells, appends the base codepoint
- * followed by any extra codepoints from the grapheme sidecar.
- *
- * @param cell      Cell to convert.
- * @param grapheme  Grapheme sidecar entry co-indexed with the cell (may be nullptr).
- * @param rowText   String to append to.
- */
-static void appendCellText (const Cell& cell, const Grapheme* grapheme, juce::String& rowText)
-{
-    if (not cell.isWideContinuation())
-    {
-        if (cell.codepoint == 0)
-        {
-            rowText += " ";
-        }
-        else
-        {
-            rowText += juce::String::charToString (static_cast<juce::juce_wchar> (cell.codepoint));
-
-            if (cell.hasGrapheme() and grapheme != nullptr)
-            {
-                const uint8_t safeCount { std::min (grapheme->count,
-                    static_cast<uint8_t> (grapheme->extraCodepoints.size())) };
-
-                for (uint8_t g { 0 }; g < safeCount; ++g)
-                {
-                    rowText += juce::String::charToString (
-                        static_cast<juce::juce_wchar> (grapheme->extraCodepoints.at (g)));
-                }
-            }
-        }
-    }
-}
-
-// =============================================================================
-
-/**
- * @brief Extracts a rectangular region of text as a UTF-32 string.
- *
- * Normalises the selection so that `start` is always before `end`, clamps
- * both endpoints to the visible area, then iterates rows collecting
- * codepoints:
- *
- * - Empty cells (`codepoint == 0`) are emitted as spaces.
- * - Wide-continuation cells (`LAYOUT_WIDE_CONT`) are skipped.
- * - Grapheme clusters append their extra codepoints after the base.
- * - Trailing whitespace is trimmed from each row.
- * - Rows are separated by `'\n'` except the last.
- *
- * @param start        Top-left corner of the selection (x = col, y = row).
- * @param end          Bottom-right corner of the selection (inclusive).
- * @param scrollOffset Number of rows the viewport is scrolled back (0 = live view).
- * @return A `juce::String` containing the selected text.
- * @note MESSAGE THREAD — caller must hold `resizeLock`.
- */
-juce::String Grid::extractText (juce::Point<int> start, juce::Point<int> end, int scrollOffset) const
-{
-    int startRow { start.y };
-    int startCol { start.x };
-    int endRow { end.y };
-    int endCol { end.x };
-
-    if (startRow > endRow or (startRow == endRow and startCol > endCol))
-    {
-        std::swap (startRow, endRow);
-        std::swap (startCol, endCol);
-    }
-
-    startRow = juce::jlimit (0, getVisibleRows() - 1, startRow);
-    endRow = juce::jlimit (0, getVisibleRows() - 1, endRow);
-    startCol = juce::jlimit (0, getCols() - 1, startCol);
-    endCol = juce::jlimit (0, getCols() - 1, endCol);
-
-    juce::String result;
-
-    for (int row { startRow }; row <= endRow; ++row)
-    {
-        const Cell* cells { scrollbackRow (row, scrollOffset) };
-
-        if (cells != nullptr)
-        {
-            int firstCol { (row == startRow) ? startCol : 0 };
-            const int lastCol { (row == endRow) ? endCol : getCols() - 1 };
-
-            if (firstCol > 0 and (*(cells + firstCol)).isWideContinuation())
-                --firstCol;
-
-            juce::String rowText;
-
-            for (int col { firstCol }; col <= lastCol; ++col)
-            {
-                const Cell& cell { *(cells + col) };
-                const Grapheme* gRow { cell.hasGrapheme() ? scrollbackGraphemeRow (row, scrollOffset) : nullptr };
-                const Grapheme* grapheme { gRow != nullptr ? gRow + col : nullptr };
-                appendCellText (cell, grapheme, rowText);
-            }
-
-            rowText = rowText.trimEnd();
-
-            if (row < endRow)
-                rowText += "\n";
-
-            result += rowText;
-        }
-    }
-
-    return result;
-}
-
-/**
- * @brief Extracts a box (rectangle) selection of text as a UTF-32 string.
- *
- * Applies the same column range `[topLeft.x, bottomRight.x]` to every row in
- * `[topLeft.y, bottomRight.y]`.  This produces a strict rectangular region —
- * the column range does not change between rows, unlike `extractText()` which
- * uses row-wrapped semantics.
- *
- * Empty cells are emitted as spaces; wide-continuation cells are skipped.
- * Trailing whitespace is trimmed from each row.  Rows are separated by `'\n'`
- * except the last.
- *
- * @param topLeft      Top-left corner of the rectangle (x = col, y = row).
- *                     Must already be normalised (min col/row of the selection).
- * @param bottomRight  Bottom-right corner of the rectangle (inclusive).
- *                     Must already be normalised (max col/row of the selection).
- * @param scrollOffset Number of rows the viewport is scrolled back (0 = live view).
- * @return A `juce::String` containing the selected text.
- * @note MESSAGE THREAD — caller must hold `resizeLock`.
- */
-juce::String Grid::extractBoxText (juce::Point<int> topLeft, juce::Point<int> bottomRight, int scrollOffset) const
-{
-    const int startRow { juce::jlimit (0, getVisibleRows() - 1, topLeft.y) };
-    const int endRow   { juce::jlimit (0, getVisibleRows() - 1, bottomRight.y) };
-    const int startCol { juce::jlimit (0, getCols() - 1, topLeft.x) };
-    const int endCol   { juce::jlimit (0, getCols() - 1, bottomRight.x) };
-
-    juce::String result;
-
-    for (int row { startRow }; row <= endRow; ++row)
-    {
-        const Cell* cells { scrollbackRow (row, scrollOffset) };
-
-        if (cells != nullptr)
-        {
-            juce::String rowText;
-
-            for (int col { startCol }; col <= endCol; ++col)
-            {
-                const Cell& cell { *(cells + col) };
-                const Grapheme* gRow { cell.hasGrapheme() ? scrollbackGraphemeRow (row, scrollOffset) : nullptr };
-                const Grapheme* grapheme { gRow != nullptr ? gRow + col : nullptr };
-                appendCellText (cell, grapheme, rowText);
-            }
-
-            rowText = rowText.trimEnd();
-
-            if (row < endRow)
-                rowText += "\n";
-
-            result += rowText;
-        }
-    }
-
-    return result;
-}
-
-// ============================================================================
-// Serialization
-// ============================================================================
-
-/**
- * @brief Serializes both screen buffers into destData.
- *
- * Acquires resizeLock and writes for each buffer (normal, alternate):
- *   - Scalar ring metadata (head, scrollbackUsed, totalRows, allocatedCols,
- *     allocatedVisibleRows) as int32_t.
- *   - Flat cell array: totalRows * allocatedCols * sizeof(Cell) bytes.
- *   - Flat grapheme array: totalRows * allocatedCols * sizeof(Grapheme) bytes.
- *   - RowState array: totalRows * sizeof(RowState) bytes.
- *
- * @note MESSAGE THREAD.
- */
-void Grid::getStateInformation (juce::MemoryBlock& destData) const
-{
-    const juce::ScopedLock lock (resizeLock);
-
-    for (int screenIndex { 0 }; screenIndex < 2; ++screenIndex)
-    {
-        const Buffer& buffer { buffers.at (static_cast<size_t> (screenIndex)) };
-
-        const int32_t head            { static_cast<int32_t> (buffer.head) };
-        const int32_t scrollbackUsed  { static_cast<int32_t> (buffer.scrollbackUsed) };
-        const int32_t totalRows       { static_cast<int32_t> (buffer.totalRows) };
-        const int32_t allocatedCols   { static_cast<int32_t> (buffer.allocatedCols) };
-        const int32_t allocatedVisible { static_cast<int32_t> (buffer.allocatedVisibleRows) };
-
-        destData.append (&head,             sizeof (int32_t));
-        destData.append (&scrollbackUsed,   sizeof (int32_t));
-        destData.append (&totalRows,        sizeof (int32_t));
-        destData.append (&allocatedCols,    sizeof (int32_t));
-        destData.append (&allocatedVisible, sizeof (int32_t));
-
-        const size_t cellCount { static_cast<size_t> (totalRows) * static_cast<size_t> (allocatedCols) };
-        destData.append (buffer.cells.getData(),      cellCount * sizeof (Cell));
-        destData.append (buffer.graphemes.getData(),  cellCount * sizeof (Grapheme));
-        destData.append (buffer.rowStates.getData(),  static_cast<size_t> (totalRows) * sizeof (RowState));
-    }
-}
-
-/**
- * @brief Restores both screen buffers from a snapshot produced by getStateInformation.
- *
- * Acquires resizeLock, reads scalars, allocates HeapBlocks to match, and
- * memcpys bulk data. The rowSeqnos block is zero-initialised (not serialized).
- *
- * @note MESSAGE THREAD.
- */
-void Grid::setStateInformation (const void* data, int size)
-{
-    const juce::ScopedLock lock (resizeLock);
-
-    const char* cursor { static_cast<const char*> (data) };
-    const char* const end { cursor + size };
-
-    for (int screenIndex { 0 }; screenIndex < 2; ++screenIndex)
-    {
-        Buffer& buffer { buffers.at (static_cast<size_t> (screenIndex)) };
-
-        const int32_t scalarsBytes { 5 * static_cast<int32_t> (sizeof (int32_t)) };
-
-        if ((cursor + scalarsBytes) > end)
-            break;
-
-        int32_t head            { 0 };
-        int32_t scrollbackUsed  { 0 };
-        int32_t totalRows       { 0 };
-        int32_t allocatedCols   { 0 };
-        int32_t allocatedVisible { 0 };
-
-        std::memcpy (&head,             cursor,                         sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&scrollbackUsed,   cursor,                         sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&totalRows,        cursor,                         sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&allocatedCols,    cursor,                         sizeof (int32_t)); cursor += sizeof (int32_t);
-        std::memcpy (&allocatedVisible, cursor,                         sizeof (int32_t)); cursor += sizeof (int32_t);
-
-        const size_t cellCount { static_cast<size_t> (totalRows) * static_cast<size_t> (allocatedCols) };
-        const size_t cellBytes     { cellCount * sizeof (Cell) };
-        const size_t graphemeBytes { cellCount * sizeof (Grapheme) };
-        const size_t rowStateBytes { static_cast<size_t> (totalRows) * sizeof (RowState) };
-
-        if ((cursor + static_cast<ptrdiff_t> (cellBytes + graphemeBytes + rowStateBytes)) > end)
-            break;
-
-        buffer.cells.allocate     (cellCount,                              false);
-        buffer.graphemes.allocate (cellCount,                              true);
-        buffer.rowStates.allocate (static_cast<size_t> (totalRows),       true);
-        buffer.rowSeqnos.allocate (static_cast<size_t> (totalRows),       true);
-
-        std::memcpy (buffer.cells.getData(),     cursor, cellBytes);     cursor += static_cast<ptrdiff_t> (cellBytes);
-        std::memcpy (buffer.graphemes.getData(), cursor, graphemeBytes); cursor += static_cast<ptrdiff_t> (graphemeBytes);
-        std::memcpy (buffer.rowStates.getData(), cursor, rowStateBytes); cursor += static_cast<ptrdiff_t> (rowStateBytes);
-
-        buffer.head               = static_cast<int> (head);
-        buffer.scrollbackUsed     = static_cast<int> (scrollbackUsed);
-        buffer.totalRows          = static_cast<int> (totalRows);
-        buffer.rowMask            = static_cast<int> (totalRows) - 1;
-        buffer.allocatedCols      = static_cast<int> (allocatedCols);
-        buffer.allocatedVisibleRows = static_cast<int> (allocatedVisible);
-    }
-
-    markAllDirty();
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -262,6 +262,9 @@ struct Cell
     /** @brief Layout flag: this cell is a continuation cell of an inline image. */
     static constexpr uint8_t LAYOUT_IMAGE_CONT { 0x02 };
 
+    /** @brief Layout flag: this cell carries an OSC 8 hyperlink (linkId in sidecar). */
+    static constexpr uint8_t LAYOUT_HYPERLINK { 0x20 };
+
     /** @} */
 
     /** @name Layout accessors
@@ -303,6 +306,9 @@ struct Cell
 
     /** @brief True if this cell is a continuation cell of an inline image. */
     bool isImageContinuation() const noexcept { return (layout & LAYOUT_IMAGE_CONT) != 0; }
+
+    /** @brief True if this cell carries an OSC 8 hyperlink. */
+    bool hasHyperlink() const noexcept { return (layout & LAYOUT_HYPERLINK) != 0; }
 
     /** @} */
 };

@@ -669,28 +669,16 @@ private:
     int responseLen { 0 };
 
     /**
-     * @brief URI of the currently active OSC 8 hyperlink, or empty when no link is open.
+     * @brief Link ID of the currently active OSC 8 hyperlink, or 0 when no link is open.
      *
-     * Set by `handleOsc8()` on start; cleared when the matching empty-URI end is received.
+     * Set by `handleOsc8()` via `state.registerLinkUri()` when an OSC 8 open
+     * is received.  Cleared to 0 on OSC 8 close.  Stamped onto every cell
+     * written by `print()` and `processGroundChunk()` while non-zero.
      *
-     * @see osc8StartRow
-     * @see osc8StartCol
+     * Lives in Parser (not Pen) because hyperlink state must not survive
+     * DECSC/DECRC cursor save/restore.
      */
-    State::StringSlot activeOsc8Uri;
-
-    /**
-     * @brief Zero-based visible row where the active OSC 8 link started.
-     *
-     * Valid only when `activeOsc8Uri` is non-empty.  Set to -1 when no link is open.
-     */
-    int osc8StartRow { -1 };
-
-    /**
-     * @brief Zero-based column where the active OSC 8 link started.
-     *
-     * Valid only when `activeOsc8Uri` is non-empty.  Set to -1 when no link is open.
-     */
-    int osc8StartCol { -1 };
+    uint16_t activeLinkId { 0 };
 
     // =========================================================================
     /** @name SGR and mode helpers
@@ -1644,10 +1632,10 @@ private:
     /** @brief Handles OSC 8 — explicit hyperlink start/end.
      *
      *  Payload format: `8;params;uri`
-     *  - Non-empty URI: records link start position in `activeOsc8Uri`,
-     *    `osc8StartRow`, `osc8StartCol`.
-     *  - Empty URI:     closes the span and writes it to State via
-     *    `state.storeHyperlink()`.
+     *  - Non-empty URI: registers URI via `state.registerLinkUri()` and stores
+     *    the returned ID in `activeLinkId` to stamp subsequent cell writes.
+     *  - Empty URI:     clears `activeLinkId` to 0, ending the stamp run.
+     *  - Malformed:     clears `activeLinkId` to 0.
      *
      *  @param data        Pointer to OSC payload after the `"8;"` prefix.
      *  @param dataLength  Length of the payload in bytes.
