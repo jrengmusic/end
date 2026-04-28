@@ -39,9 +39,33 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
                              and (code == juce::KeyPress::pageUpKey or code == juce::KeyPress::pageDownKey
                                   or code == juce::KeyPress::homeKey or code == juce::KeyPress::endKey) };
 
+    /**
+     * Preview dismiss takes priority over all other modal handling.
+     * Any key while isPreviewActive removes the preview IMAGE node and deactivates
+     * the split viewport.  The lambda evaluates to true so the result is consumed.
+     */
     const bool result
     {
-        (processor.getState().isModal() and handleModalKey (key))
+        (processor.getState().isPreviewActive() and [this]
+            {
+                auto imagesNode { processor.getState().get().getChildWithName (Terminal::ID::IMAGES) };
+                int previewIndex { -1 };
+
+                for (int i { 0 }; i < imagesNode.getNumChildren() and previewIndex < 0; ++i)
+                {
+                    const auto child { imagesNode.getChild (i) };
+
+                    if (static_cast<bool> (child.getProperty (Terminal::ID::isPreview, false)))
+                        previewIndex = i;
+                }
+
+                if (previewIndex >= 0)
+                    imagesNode.removeChild (previewIndex, nullptr);
+
+                processor.getState().setPreview (false, 0);
+                return true;
+            }())
+        or (processor.getState().isModal() and handleModalKey (key))
         or Action::Registry::getContext()->handleKeyPress (key)
         or (isScrollNav and [this, code]
             {

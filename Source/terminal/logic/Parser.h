@@ -275,6 +275,31 @@ public:
      */
     std::function<void (const juce::String&, const juce::String&)> onDesktopNotification;
 
+    /**
+     * @brief Callback invoked when an inline image is decoded on the READER THREAD.
+     *
+     * Decoders (Sixel, iTerm2, Kitty) invoke this after decoding an image.
+     * The callback transfers decoded pixel data and grid position metadata
+     * to the renderer's staging pipeline without any direct header coupling
+     * between Parser and ImageAtlas.
+     *
+     * @param pixels     All frames contiguous, RGBA8, row-major.  Ownership transferred via move.
+     * @param delays     Per-frame delay in milliseconds.  Null for static images.  Ownership transferred.
+     * @param frameCount Number of frames (1 = static).
+     * @param widthPx    Frame width in pixels.
+     * @param heightPx   Frame height in pixels.
+     * @param gridRow    Absolute grid row of image placement.
+     * @param gridCol    Grid column of image placement.
+     * @param cellCols   Image span in cell columns.
+     * @param cellRows   Image span in cell rows.
+     *
+     * @note READER THREAD only.
+     */
+    std::function<void (juce::HeapBlock<uint8_t>&&,
+                        juce::HeapBlock<int>&&,
+                        int, int, int,
+                        int, int, int, int)> onImageDecoded;
+
     // =========================================================================
 
     /**
@@ -549,11 +574,12 @@ private:
     /**
      * @brief Physical cell width in pixels, set by Screen::calc() on MESSAGE THREAD.
      *
-     * Read by `dcsUnhook()` and `apcEnd()` on the READER THREAD to pass to
-     * `Grid::activeWriteImage()`.  Uses relaxed ordering — eventual consistency
-     * is acceptable for image cell placement.
+     * Read by `dcsUnhook()` and `apcEnd()` on the READER THREAD to pass to the
+     * `onImageDecoded` callback for image cell placement.  Uses relaxed ordering —
+     * eventual consistency is acceptable.
      *
      * @see setPhysCellDimensions()
+     * @see onImageDecoded
      */
     std::atomic<int> physCellWidthAtomic { 0 };
 

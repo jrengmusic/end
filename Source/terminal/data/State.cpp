@@ -177,6 +177,15 @@ State::State()
     addParam (state, ID::snapshotDirty, 0.0f);
     addParam (state, ID::fullRebuild, 0.0f);
 
+    // Image erase accumulation bounding box (READER THREAD via queueImageErase).
+    addParam (state, ID::eraseTop,    999999.0f);
+    addParam (state, ID::eraseLeft,   999999.0f);
+    addParam (state, ID::eraseBottom, -1.0f);
+    addParam (state, ID::eraseRight,  -1.0f);
+
+    // Link URI monotonic counter (READER THREAD via registerLinkUri).
+    addParam (state, ID::linkUriCount, 0.0f);
+
     // Cursor blink state.
     addParam (state, ID::cursorBlinkOn, 1.0f);
     addParam (state, ID::cursorBlinkElapsed, 0.0f);
@@ -208,6 +217,13 @@ State::State()
 
     // SUBSCRIBERS container node — children are created/removed by attachSubscriber/detachSubscriber.
     state.appendChild (juce::ValueTree { ID::SUBSCRIBERS }, nullptr);
+
+    // IMAGES container node — children are IMAGE nodes created/removed by addImageNode/removeImageNode.
+    state.appendChild (juce::ValueTree { ID::IMAGES }, nullptr);
+
+    // Preview split-viewport state (MESSAGE THREAD only, direct properties on SESSION root).
+    state.setProperty (ID::preview,   false, nullptr);
+    state.setProperty (ID::splitCol,  0,     nullptr);
 
     buildParameterMap();
 
@@ -520,13 +536,22 @@ void State::setForegroundProcess (const char* src, int length) noexcept
 /**
  * @brief Registers a URI into the link table and returns a 1-based linkId.
  *
+ * Reads and increments the `linkUriCount` parameterMap atomic.  IDs wrap at
+ * `maxLinkIds - 1` (slot 0 is reserved as "no link").
+ *
  * @note READER THREAD — lock-free, noexcept.
  */
 uint16_t State::registerLinkUri (const char* uri, int length) noexcept
 {
-    const uint16_t id { static_cast<uint16_t> ((linkUriCount % (static_cast<uint32_t> (maxLinkIds) - 1u)) + 1u) };
+    auto* countParam { getRawParam (ID::linkUriCount) };
+    const uint32_t count { static_cast<uint32_t> (countParam->load (std::memory_order_relaxed)) };
+    const uint16_t id { static_cast<uint16_t> ((count % (static_cast<uint32_t> (maxLinkIds) - 1u)) + 1u) };
+
     writeSlot (linkUriTable[id], uri, length);
-    ++linkUriCount;
+
+    countParam->store (static_cast<float> (count + 1u), std::memory_order_relaxed);
+    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
+
     return id;
 }
 
@@ -1116,6 +1141,7 @@ void State::tickCursorBlink (int elapsedMs) noexcept
     }
 }
 
+
 /**
  * @brief Walks the ValueTree skeleton and registers every PARAM node in
  *        `parameterMap`, allocating one atomic slot per parameter.
@@ -1343,6 +1369,170 @@ uint64_t State::getLastKnownSeqno() const
 {
     return static_cast<uint64_t> (
         static_cast<juce::int64> (state.getProperty (ID::lastKnownSeqnoRoot, juce::int64 { 0 })));
+}
+
+// =============================================================================
+// Image preview split-viewport state — MESSAGE THREAD.
+// =============================================================================
+
+/**
+ * @brief Activates or deactivates the split-viewport image preview.
+ *
+ * Writes `preview` and `splitCol` as direct properties on the SESSION root
+ * ValueTree.  Calls `setFullRebuild()` and `setSnapshotDirty()` so the
+ * renderer picks up the change on the next frame.
+ *
+ * @note MESSAGE THREAD only.
+ */
+void State::setPreview (bool active, int col) noexcept
+{
+    state.setProperty (ID::preview,  active, nullptr);
+    state.setProperty (ID::splitCol, col,    nullptr);
+    setFullRebuild();
+    setSnapshotDirty();
+}
+
+/**
+ * @brief Returns true when a split-viewport image preview is active.
+ * @note MESSAGE THREAD only.
+ */
+bool State::isPreviewActive() const noexcept
+{
+    return static_cast<bool> (state.getProperty (ID::preview, false));
+}
+
+/**
+ * @brief Returns the column at which the terminal clips for the preview split.
+ * @note MESSAGE THREAD only.
+ */
+int State::getSplitCol() const noexcept
+{
+    return static_cast<int> (state.getProperty (ID::splitCol, 0));
+}
+
+// =============================================================================
+// Image node management — MESSAGE THREAD.
+// =============================================================================
+
+/**
+ * @brief Adds an IMAGE child node to the IMAGES ValueTree container.
+ *
+ * @note MESSAGE THREAD only.
+ */
+void State::addImageNode (uint32_t firstFrameImageId,
+                          const uint32_t* allImageIds,
+                          const int* delays,
+                          int frameCount,
+                          int widthPx, int heightPx,
+                          int gridRow, int gridCol,
+                          int cellCols, int cellRows) noexcept
+{
+    auto imagesNode { state.getChildWithName (ID::IMAGES) };
+
+    // Remove existing IMAGE nodes whose cell span overlaps the new image.
+    // This is the natural "overwrite" — programs that reposition the cursor
+    // and print a new image without erasing first expect the old image to vanish.
+    for (int i { imagesNode.getNumChildren() - 1 }; i >= 0; --i)
+    {
+        const auto existing { imagesNode.getChild (i) };
+        const int exRow  { static_cast<int> (existing.getProperty (ID::gridRow)) };
+        const int exCol  { static_cast<int> (existing.getProperty (ID::gridCol)) };
+        const int exRows { static_cast<int> (existing.getProperty (ID::cellRows)) };
+        const int exCols { static_cast<int> (existing.getProperty (ID::cellCols)) };
+
+        const bool overlaps { exRow < gridRow + cellRows
+                              and exRow + exRows > gridRow
+                              and exCol < gridCol + cellCols
+                              and exCol + exCols > gridCol };
+
+        if (overlaps)
+            imagesNode.removeChild (i, nullptr);
+    }
+
+    juce::ValueTree node { ID::IMAGE };
+    node.setProperty (ID::imageId,    static_cast<int> (firstFrameImageId), nullptr);
+    node.setProperty (ID::gridRow,    gridRow,  nullptr);
+    node.setProperty (ID::gridCol,    gridCol,  nullptr);
+    node.setProperty (ID::cellCols,   cellCols, nullptr);
+    node.setProperty (ID::cellRows,   cellRows, nullptr);
+    node.setProperty (ID::widthPx,    widthPx,  nullptr);
+    node.setProperty (ID::heightPx,   heightPx, nullptr);
+    node.setProperty (ID::frameCount, frameCount, nullptr);
+
+    if (frameCount > 1)
+    {
+        node.setProperty (ID::currentFrame, 0, nullptr);
+        node.setProperty (ID::frameStartMs, static_cast<juce::int64> (juce::Time::currentTimeMillis()), nullptr);
+
+        // Pack allImageIds (frameCount × uint32_t) followed by delays (frameCount × int).
+        const size_t idBytes    { static_cast<size_t> (frameCount) * sizeof (uint32_t) };
+        const size_t delayBytes { static_cast<size_t> (frameCount) * sizeof (int) };
+        juce::MemoryBlock blob { idBytes + delayBytes, true };
+        std::memcpy (blob.getData(), allImageIds, idBytes);
+
+        if (delays != nullptr)
+            std::memcpy (static_cast<char*> (blob.getData()) + idBytes, delays, delayBytes);
+
+        node.setProperty (ID::frameData, juce::var (blob), nullptr);
+    }
+
+    imagesNode.appendChild (node, nullptr);
+}
+
+/**
+ * @brief Removes the IMAGE child node matching the given imageId.
+ *
+ * @note MESSAGE THREAD only.
+ */
+void State::removeImageNode (uint32_t id) noexcept
+{
+    auto imagesNode { state.getChildWithName (ID::IMAGES) };
+    int indexToRemove { -1 };
+
+    for (int i { 0 }; i < imagesNode.getNumChildren() and indexToRemove < 0; ++i)
+    {
+        const auto img { imagesNode.getChild (i) };
+
+        if (static_cast<uint32_t> (static_cast<int> (img.getProperty (ID::imageId))) == id)
+            indexToRemove = i;
+    }
+
+    if (indexToRemove >= 0)
+        imagesNode.removeChild (indexToRemove, nullptr);
+}
+
+// =============================================================================
+// Image erase accumulation — READER THREAD write, MESSAGE THREAD drain.
+// =============================================================================
+
+/**
+ * @brief Accumulates an erase region into the bounding box for image removal.
+ *
+ * Expands the bounding box stored in eraseTop/Left/Bottom/Right parameterMap
+ * atomics to include the given region.  Single READER THREAD — no CAS needed;
+ * plain relaxed load-compare-store is safe.  Sets needsFlush so the timer
+ * wakes on the next tick.
+ *
+ * @note READER THREAD — lock-free, noexcept.
+ */
+void State::queueImageErase (int topRow, int leftCol, int bottomRow, int rightCol) noexcept
+{
+    auto* pTop    { getRawParam (ID::eraseTop) };
+    auto* pLeft   { getRawParam (ID::eraseLeft) };
+    auto* pBottom { getRawParam (ID::eraseBottom) };
+    auto* pRight  { getRawParam (ID::eraseRight) };
+
+    const float curTop    { pTop->load (std::memory_order_relaxed) };
+    const float curLeft   { pLeft->load (std::memory_order_relaxed) };
+    const float curBottom { pBottom->load (std::memory_order_relaxed) };
+    const float curRight  { pRight->load (std::memory_order_relaxed) };
+
+    pTop->store (juce::jmin (curTop, static_cast<float> (topRow)), std::memory_order_relaxed);
+    pLeft->store (juce::jmin (curLeft, static_cast<float> (leftCol)), std::memory_order_relaxed);
+    pBottom->store (juce::jmax (curBottom, static_cast<float> (bottomRow)), std::memory_order_relaxed);
+    pRight->store (juce::jmax (curRight, static_cast<float> (rightCol)), std::memory_order_relaxed);
+
+    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

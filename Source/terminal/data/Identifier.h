@@ -338,6 +338,85 @@ namespace ID
     /** @brief Root-level SESSION property: the last seqno applied to this State (proxy/client side). */
     static const juce::Identifier lastKnownSeqnoRoot   { "lastKnownSeqnoRoot" };
 
+    //==========================================================================
+    // Image subsystem identifiers
+    //==========================================================================
+
+    /** @brief Container node for inline image metadata (children of SESSION). */
+    static const juce::Identifier IMAGES              { "IMAGES" };
+
+    /** @brief Child node type for one image entry (children of IMAGES). */
+    static const juce::Identifier IMAGE               { "IMAGE" };
+
+    /** @brief Atlas-assigned image ID (uint32_t stored as int). 0 = invalid. */
+    static const juce::Identifier imageId             { "imageId" };
+
+    /** @brief Absolute grid row of image placement (scrollback-aware). */
+    static const juce::Identifier gridRow             { "gridRow" };
+
+    /** @brief Grid column of image placement. */
+    static const juce::Identifier gridCol             { "gridCol" };
+
+    /** @brief Image span in cell columns. */
+    static const juce::Identifier cellCols            { "cellCols" };
+
+    /** @brief Image span in cell rows. */
+    static const juce::Identifier cellRows            { "cellRows" };
+
+    /** @brief Number of frames (1 = static, >1 = animated). */
+    static const juce::Identifier frameCount          { "frameCount" };
+
+    /** @brief Current animation frame index (0-based). */
+    static const juce::Identifier currentFrame        { "currentFrame" };
+
+    /** @brief Timestamp (ms) when the current frame started displaying. */
+    static const juce::Identifier frameStartMs        { "frameStartMs" };
+
+    /** @brief Binary blob (MemoryBlock) containing packed imageId + delay arrays for all frames. */
+    static const juce::Identifier frameData           { "frameData" };
+
+    /** @brief Image width in pixels. */
+    static const juce::Identifier widthPx             { "widthPx" };
+
+    /** @brief Image height in pixels. */
+    static const juce::Identifier heightPx            { "heightPx" };
+
+    //==========================================================================
+    // Image preview split-viewport state (MESSAGE THREAD only, direct properties on SESSION root)
+    //==========================================================================
+
+    /** @brief True when an image preview is active (split viewport). */
+    static const juce::Identifier preview             { "preview" };
+
+    /** @brief Column at which the terminal clips for preview split. */
+    static const juce::Identifier splitCol            { "splitCol" };
+
+    /** @brief True on IMAGE nodes created for preview (ephemeral). */
+    static const juce::Identifier isPreview           { "isPreview" };
+
+    //==========================================================================
+    // Image erase accumulation (READER THREAD atomics, parameterMap)
+    //==========================================================================
+
+    /** @brief Accumulated erase region top row (absolute grid row). Sentinel: large positive value. */
+    static const juce::Identifier eraseTop            { "eraseTop" };
+
+    /** @brief Accumulated erase region left column. Sentinel: large positive value. */
+    static const juce::Identifier eraseLeft           { "eraseLeft" };
+
+    /** @brief Accumulated erase region bottom row (absolute grid row). Sentinel: -1 (no erase). */
+    static const juce::Identifier eraseBottom         { "eraseBottom" };
+
+    /** @brief Accumulated erase region right column. Sentinel: -1 (no erase). */
+    static const juce::Identifier eraseRight          { "eraseRight" };
+
+    //==========================================================================
+    // Link URI tracking (READER THREAD monotonic counter, parameterMap)
+    //==========================================================================
+
+    /** @brief Next slot index for hyperlink URI assignment. READER THREAD monotonic counter. */
+    static const juce::Identifier linkUriCount        { "linkUriCount" };
+
 }
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

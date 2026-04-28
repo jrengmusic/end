@@ -12,7 +12,7 @@
  * ------  ----  -----
  *  0       4    codepoint  – Unicode scalar value (U+0000 … U+10FFFF)
  *  4       1    style      – SGR attribute bits (BOLD | ITALIC | …)
- *  5       1    layout     – Geometry flags (WIDE_CONT | EMOJI | GRAPHEME)
+ *  5       1    layout     – Geometry flags (WIDE_CONT | EMOJI | GRAPHEME | HYPERLINK)
  *  6       1    width      – Display columns occupied (1 or 2)
  *  7       1    reserved   – Padding, always 0
  *  8       4    fg         – Foreground Color (see Color.h)
@@ -105,9 +105,9 @@ struct Cell
     /**
      * @brief Geometry / cluster bit-field.
      *
-     * A bitmask of the LAYOUT_WIDE_CONT, LAYOUT_EMOJI, and LAYOUT_GRAPHEME
-     * constants defined below.  Controls how the renderer measures and draws
-     * this cell.
+     * A bitmask of the LAYOUT_WIDE_CONT, LAYOUT_EMOJI, LAYOUT_GRAPHEME, and
+     * LAYOUT_HYPERLINK constants defined below.  Controls how the renderer
+     * measures and draws this cell.
      */
     uint8_t layout { 0 };
 
@@ -256,12 +256,6 @@ struct Cell
      */
     static constexpr uint8_t LAYOUT_GRAPHEME { 0x08 };
 
-    /** @brief Layout flag: this cell is the head (top-left) of an inline image. */
-    static constexpr uint8_t LAYOUT_IMAGE { 0x10 };
-
-    /** @brief Layout flag: this cell is a continuation cell of an inline image. */
-    static constexpr uint8_t LAYOUT_IMAGE_CONT { 0x02 };
-
     /** @brief Layout flag: this cell carries an OSC 8 hyperlink (linkId in sidecar). */
     static constexpr uint8_t LAYOUT_HYPERLINK { 0x20 };
 
@@ -300,12 +294,6 @@ struct Cell
     {
         return (layout & LAYOUT_GRAPHEME) != 0;
     }
-
-    /** @brief True if this cell is the head of an inline image. */
-    bool isImage() const noexcept { return (layout & LAYOUT_IMAGE) != 0; }
-
-    /** @brief True if this cell is a continuation cell of an inline image. */
-    bool isImageContinuation() const noexcept { return (layout & LAYOUT_IMAGE_CONT) != 0; }
 
     /** @brief True if this cell carries an OSC 8 hyperlink. */
     bool hasHyperlink() const noexcept { return (layout & LAYOUT_HYPERLINK) != 0; }

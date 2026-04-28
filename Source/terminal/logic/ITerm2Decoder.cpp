@@ -16,27 +16,27 @@ namespace Terminal
 // ============================================================================
 
 /**
- * @brief Decode an OSC 1337 File= payload into RGBA pixels.
+ * @brief Decode an OSC 1337 File= payload into an ImageSequence.
  *
  * Parse steps:
  *  1. Validate and skip the "File=" prefix.
  *  2. Scan key=value params up to the ':' delimiter, extracting `inline`.
  *  3. Return invalid when `inline != 1`.
  *  4. Base64-decode everything after ':'.
- *  5. Load image via JUCE auto-detection (PNG / JPEG / GIF).
- *  6. Convert to ARGB format.
- *  7. Swizzle JUCE BGRA memory layout → straight RGBA8.
- *  8. Return populated DecodedImage.
+ *  5. Attempt native multi-frame decode via `loadImageSequenceNative`.
+ *  6. If native decode fails, fall back to JUCE `ImageFileFormat::loadFrom`
+ *     followed by `swizzleARGBToRGBA` to produce a single-frame sequence.
+ *  7. Return the ImageSequence.
  *
  * @param data    Raw OSC payload bytes after "1337;".
  * @param length  Number of bytes.
- * @return DecodedImage with RGBA8 pixels, or invalid on any failure.
+ * @return ImageSequence with RGBA8 pixels, or invalid on any failure.
  *
  * @note READER THREAD only.
  */
-DecodedImage ITerm2Decoder::decode (const uint8_t* data, int length) noexcept
+ImageSequence ITerm2Decoder::decode (const uint8_t* data, int length) noexcept
 {
-    DecodedImage result;
+    ImageSequence result;
 
     // -------------------------------------------------------------------------
     // 1. Validate and skip "File=" prefix
@@ -118,24 +118,26 @@ DecodedImage ITerm2Decoder::decode (const uint8_t* data, int length) noexcept
                 if (base64Ok)
                 {
                     // -------------------------------------------------------------------------
-                    // 5. Load image via JUCE auto-detection (PNG / JPEG / GIF)
+                    // 5. Native multi-frame decode (PNG / JPEG / GIF with all frames)
                     // -------------------------------------------------------------------------
+                    ImageSequence seq { loadImageSequenceNative (decoded.getData(), decoded.getDataSize()) };
 
-                    juce::Image image { juce::ImageFileFormat::loadFrom (decoded.getData(),
-                                                                         decoded.getDataSize()) };
-
-                    // Platform-native fallback for formats JUCE doesn't handle (TIFF, BMP, WebP, etc.)
-                    if (not image.isValid())
-                        image = loadImageNative (decoded.getData(), decoded.getDataSize());
-
-                    if (image.isValid())
+                    if (not seq.isValid())
                     {
                         // -------------------------------------------------------------------------
-                        // 6+7. Convert to ARGB and swizzle JUCE BGRA -> straight RGBA8
+                        // 6. Fallback: JUCE decoder for formats not handled natively
                         // -------------------------------------------------------------------------
-                        juce::Image argbImage { image.convertedToFormat (juce::Image::ARGB) };
-                        swizzleARGBToRGBA (argbImage, result.rgba, result.width, result.height);
+                        juce::Image image { juce::ImageFileFormat::loadFrom (decoded.getData(),
+                                                                              decoded.getDataSize()) };
+                        if (image.isValid())
+                        {
+                            juce::Image argbImage { image.convertedToFormat (juce::Image::ARGB) };
+                            seq.frameCount = 1;
+                            swizzleARGBToRGBA (argbImage, seq.pixels, seq.width, seq.height);
+                        }
                     }
+
+                    result = std::move (seq);
                 }
             }
         }

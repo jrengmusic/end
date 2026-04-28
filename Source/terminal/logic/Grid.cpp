@@ -4,8 +4,8 @@
  *        and cell write/read operations.
  *
  * This translation unit implements the core Grid methods.  Row access,
- * scrollback, text extraction, and decoded image storage are in
- * GridAccess.cpp.  Serialization is in GridSerialize.cpp.  Scroll, erase, and
+ * scrollback, and text extraction are in GridAccess.cpp.  Serialization is in
+ * GridSerialize.cpp.  Scroll, erase, and
  * reflow operations are split across GridScroll.cpp, GridErase.cpp, and
  * GridReflow.cpp respectively to keep each file focused.
  *
@@ -390,13 +390,8 @@ void Grid::activeWriteCell (int row, int col, const Cell& cellState) noexcept
 {
     if (row >= 0 and row < getVisibleRows() and col >= 0 and col < getCols())
     {
-        Cell* dst { rowPtr (bufferForScreen(), row) + col };
-
-        if (not (imageProtectionActive and dst->isImage()) or cellState.isImage())
-        {
-            *dst = cellState;
-            markRowDirty (row);
-        }
+        rowPtr (bufferForScreen(), row)[col] = cellState;
+        markRowDirty (row);
     }
 }
 
@@ -578,62 +573,6 @@ void Grid::activeWriteLinkId (int row, int col, uint16_t linkId) noexcept
         rowPtr (buffer, row)[col].layout |= Cell::LAYOUT_HYPERLINK;
         *linkIdPtr (buffer, row, col) = linkId;
         markRowDirty (row);
-    }
-}
-
-/**
- * @brief Writes a multi-cell image span to the active buffer.
- *
- * Computes the cell span from pixel dimensions, writes `LAYOUT_IMAGE` on the
- * head cell (top-left), `LAYOUT_IMAGE_CONT` on all continuation cells.
- * The caller is responsible for cursor positioning before calling this method.
- *
- * @param startRow     Zero-based visible row index of the top-left image cell.
- * @param startCol     Zero-based column index of the top-left image cell.
- * @param imageId      Unique image identifier stored in the head cell's codepoint.
- * @param widthPx      Image width in pixels.
- * @param heightPx     Image height in pixels.
- * @param cellWidthPx  Terminal cell width in pixels.
- * @param cellHeightPx Terminal cell height in pixels.
- * @note READER THREAD — lock-free, noexcept.
- */
-void Grid::activeWriteImage (int startRow, int startCol,
-                              uint32_t imageId, int widthPx, int heightPx,
-                              int cellWidthPx, int cellHeightPx) noexcept
-{
-    imageProtectionActive = true;
-    const int cellCols { (widthPx + cellWidthPx - 1) / cellWidthPx };
-    const int cellRows { (heightPx + cellHeightPx - 1) / cellHeightPx };
-
-    for (int r { 0 }; r < cellRows; ++r)
-    {
-        const int visRow { startRow + r };
-
-        if (visRow >= 0 and visRow < getVisibleRows())
-        {
-            for (int c { 0 }; c < cellCols; ++c)
-            {
-                const int visCol { startCol + c };
-
-                if (visCol >= 0 and visCol < getCols())
-                {
-                    Cell cell {};
-
-                    if (r == 0 and c == 0)
-                    {
-                        cell.layout = Cell::LAYOUT_IMAGE;
-                        cell.codepoint = imageId;
-                    }
-                    else
-                    {
-                        cell.layout = Cell::LAYOUT_IMAGE_CONT;
-                        cell.codepoint = 0;
-                    }
-
-                    activeWriteCell (visRow, visCol, cell);
-                }
-            }
-        }
     }
 }
 

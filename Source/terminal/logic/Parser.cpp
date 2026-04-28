@@ -108,7 +108,6 @@ Parser::Parser (State& state, Grid::Writer writer) noexcept
  */
 void Parser::process (const uint8_t* data, size_t length) noexcept
 {
-    writer.clearImageProtection();
     size_t i { 0 };
 
     while (i < length)

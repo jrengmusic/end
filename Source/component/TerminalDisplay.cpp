@@ -12,6 +12,8 @@
  */
 
 #include "TerminalDisplay.h"
+#include "../terminal/logic/ImageDecode.h"
+
 /**
  * @brief Constructs Terminal::Display for the given Processor.
  *
@@ -154,6 +156,18 @@ void Terminal::Display::initialise()
     processor.onDesktopNotification = [] (const juce::String& title, const juce::String& body)
     {
         Terminal::Notifications::show (title, body);
+    };
+
+    processor.getParser().onImageDecoded = [this] (juce::HeapBlock<uint8_t>&& pixels,
+                                                    juce::HeapBlock<int>&& delays,
+                                                    int frameCount,
+                                                    int widthPx, int heightPx,
+                                                    int gridRow, int gridCol,
+                                                    int cellCols, int cellRows)
+    {
+        imageAtlasRef.submitDecoded (std::move (pixels), std::move (delays),
+                                     frameCount, widthPx, heightPx,
+                                     gridRow, gridCol, cellCols, cellRows);
     };
 
     linkManager->onOpenMarkdown = [this] (const juce::File& file)
@@ -608,6 +622,12 @@ void Terminal::Display::onVBlank()
         }
     }
 
+    visitScreen (
+        [&] (auto& s)
+        {
+            s.tickImageAnimation (processor.getState());
+        });
+
     if (processor.getState().consumeSnapshotDirty())
     {
         const juce::ScopedTryLock lock (processor.getGrid().getResizeLock());
@@ -792,19 +812,73 @@ void Terminal::Display::applyZoom (float) noexcept
 }
 
 /**
- * @brief Loads an image file and fires `onShowImagePreview` with the result.
+ * @brief Loads an image file, stages it into the atlas, and activates split-viewport preview.
  *
- * Loads via `juce::ImageFileFormat::loadFrom`.  Fires `onShowImagePreview`
- * only when the image is valid and the callback is set.
+ * Decodes all frames via `loadImageSequenceNative`, stages each frame into the
+ * image atlas on the MESSAGE THREAD via `imageAtlasRef.stage()`, adds a preview
+ * IMAGE node to State (marked with `isPreview = true`), computes an adaptive
+ * split column, and calls `state.setPreview()` to activate the split viewport.
+ * Any key press subsequently dismisses the preview via `Input::handleKey()`.
  *
+ * @param file  The image file to load.
  * @note MESSAGE THREAD.
  */
 void Terminal::Display::handleOpenImage (const juce::File& file) noexcept
 {
-    const juce::Image img { juce::ImageFileFormat::loadFrom (file) };
+    juce::MemoryBlock fileBytes;
 
-    if (img.isValid() and onShowImagePreview != nullptr)
-        onShowImagePreview (img);
+    if (file.loadFileAsData (fileBytes) and not fileBytes.isEmpty())
+    {
+        Terminal::ImageSequence seq { Terminal::loadImageSequenceNative (fileBytes.getData(),
+                                                                         fileBytes.getSize()) };
+
+        if (seq.isValid())
+        {
+            const int frameCount    { seq.frameCount };
+            const int widthPx       { seq.width };
+            const int heightPx      { seq.height };
+            const size_t frameBytes { static_cast<size_t> (widthPx) * static_cast<size_t> (heightPx) * 4u };
+
+            juce::HeapBlock<uint32_t> frameIds (static_cast<size_t> (frameCount));
+            bool allStaged { true };
+
+            for (int f { 0 }; f < frameCount and allStaged; ++f)
+            {
+                const uint8_t* framePixels { seq.pixels.get() + static_cast<size_t> (f) * frameBytes };
+                const uint32_t id          { imageAtlasRef.stage (framePixels, widthPx, heightPx) };
+                allStaged = (id != 0u);
+
+                if (allStaged)
+                    frameIds[static_cast<size_t> (f)] = id;
+            }
+
+            if (allStaged)
+            {
+                auto& st { processor.getState() };
+                st.addImageNode (frameIds[0],
+                                 frameIds.get(),
+                                 seq.delays.get(),
+                                 frameCount,
+                                 widthPx, heightPx,
+                                 0, 0, 0, 0);
+
+                // Mark the new IMAGE node as a preview node.
+                auto imagesNode { st.get().getChildWithName (Terminal::ID::IMAGES) };
+                auto lastChild  { imagesNode.getChild (imagesNode.getNumChildren() - 1) };
+                lastChild.setProperty (Terminal::ID::isPreview, true, nullptr);
+
+                // Compute adaptive split column: panel occupies 25–60% of total columns.
+                const int totalCols     { st.getCols() };
+                const float imageAspect { static_cast<float> (widthPx)
+                                          / juce::jmax (1.0f, static_cast<float> (heightPx)) };
+                const float panelFrac   { juce::jlimit (0.25f, 0.60f, imageAspect * 0.5f) };
+                const int panelCols     { juce::roundToInt (static_cast<float> (totalCols) * panelFrac) };
+                const int sc            { totalCols - panelCols };
+
+                st.setPreview (true, sc);
+            }
+        }
+    }
 }
 
 void Terminal::Display::switchRenderer (App::RendererType type)

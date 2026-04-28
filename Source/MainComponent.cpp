@@ -548,12 +548,6 @@ void MainComponent::initialiseTabs()
             window->triggerRepaint();
     };
 
-    tabs->onShowImagePreview = [this] (const juce::Image& img)
-    {
-        if (messageOverlay != nullptr)
-            messageOverlay->showImage (img);
-    };
-
     // Restore tabs and split layout from `<uuid>.display` when present (daemon client mode).
     // Session::create routes internally to client path; the walker is oblivious to mode.
 

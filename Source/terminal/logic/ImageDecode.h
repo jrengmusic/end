@@ -51,5 +51,42 @@ bool swizzleARGBToRGBA (const juce::Image& image,
                         juce::HeapBlock<uint8_t>& rgba,
                         int& width, int& height) noexcept;
 
+/**
+ * @struct ImageSequence
+ * @brief All frames of a decoded image, pre-composited and in straight RGBA8.
+ *
+ * For static images (PNG, JPEG, single-frame GIF): `frameCount == 1`, `delays`
+ * is null.  For animated GIFs: `frameCount > 1`, `delays` holds per-frame
+ * durations in milliseconds, all frames are pre-composited with GIF disposal
+ * methods applied.  Pixels are stored contiguously: frame N starts at offset
+ * `N * width * height * 4`.
+ */
+struct ImageSequence
+{
+    juce::HeapBlock<uint8_t> pixels;  ///< All frames contiguous, straight RGBA8, row-major.
+    juce::HeapBlock<int> delays;      ///< Per-frame delay in ms.  Null for static images.
+    int frameCount { 0 };             ///< 1 = static, >1 = animated.
+    int width  { 0 };                 ///< Frame width in pixels (canvas size for GIF).
+    int height { 0 };                 ///< Frame height in pixels (canvas size for GIF).
+
+    /** @brief True when this sequence holds valid pixel data. */
+    bool isValid() const noexcept { return width > 0 and height > 0 and pixels.get() != nullptr; }
+};
+
+/**
+ * @brief Decodes all frames of an image using the platform's native codec.
+ *
+ * For GIF: extracts all frames, applies disposal methods (do-not-dispose,
+ * restore-to-background, restore-to-previous), and returns pre-composited
+ * frames as straight RGBA8.  For PNG/JPEG: returns a single frame.
+ *
+ * @param data      Pointer to the compressed image bytes.
+ * @param dataSize  Number of bytes in `data`.
+ * @return An `ImageSequence` with all frames, or an invalid sequence on failure.
+ *
+ * @note READER THREAD or MESSAGE THREAD.
+ */
+ImageSequence loadImageSequenceNative (const void* data, size_t dataSize) noexcept;
+
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

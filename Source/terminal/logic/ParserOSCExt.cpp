@@ -131,14 +131,15 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, int dataLength
  * @brief Handles OSC 1337 — iTerm2 inline image display.
  *
  * Delegates to `ITerm2Decoder` to parse the `File=` key=value header,
- * base64-decode the payload, and produce an RGBA8 `DecodedImage`.  On success,
- * reserves an image ID, writes image cells to the grid, and stores the decoded
- * image in Grid for the MESSAGE THREAD to pull on first atlas encounter.
+ * base64-decode the payload, and produce an `ImageSequence` (all frames,
+ * straight RGBA8).  On success, computes the absolute grid position from the
+ * current cursor and scrollback depth, then invokes `onImageDecoded` with the
+ * pixel data, frame metadata, and placement coordinates.
  *
  * Silently skips when:
  * - `inline=0` or the key is absent (download-only mode).
  * - Cell dimensions are not yet calibrated (zero values).
- * - Decoder returns an invalid image.
+ * - Decoder returns an invalid ImageSequence.
  *
  * @par Sequence
  * @code
@@ -152,8 +153,8 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, int dataLength
  * @note READER THREAD only.
  *
  * @see ITerm2Decoder
- * @see Grid::reserveImageId()
- * @see Grid::storeDecodedImage()
+ * @see ImageSequence
+ * @see Parser::onImageDecoded
  */
 void Parser::handleOsc1337 (const uint8_t* data, int dataLength) noexcept
 {
@@ -164,30 +165,31 @@ void Parser::handleOsc1337 (const uint8_t* data, int dataLength) noexcept
     if (cellW > 0 and cellH > 0)
     {
         ITerm2Decoder decoder;
-        DecodedImage image { decoder.decode (data, dataLength) };
+        ImageSequence seq { decoder.decode (data, dataLength) };
 
-        if (image.isValid())
+        if (seq.isValid())
         {
-            const ActiveScreen scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-            const int cursorRow    { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
-            const int cursorCol    { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+            const ActiveScreen scr      { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+            const int cursorRow         { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+            const int cursorCol         { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+            const int scrollbackUsed    { state.getRawValue<int> (ID::scrollbackUsed) };
+            const int absRow            { scrollbackUsed + cursorRow };
 
-            const uint32_t imageId { writer.reserveImageId() };
+            const int cellCols { (seq.width  + cellW - 1) / cellW };
+            const int cellRows { (seq.height + cellH - 1) / cellH };
 
-            writer.activeWriteImage (cursorRow, cursorCol, imageId,
-                                     image.width, image.height, cellW, cellH);
+            if (onImageDecoded)
+            {
+                onImageDecoded (std::move (seq.pixels),
+                                std::move (seq.delays),
+                                seq.frameCount,
+                                seq.width, seq.height,
+                                absRow, cursorCol,
+                                cellCols, cellRows);
+            }
 
-            const int cellRows { (image.height + cellH - 1) / cellH };
             cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
             state.setCursorCol (scr, 0);
-
-            PendingImage pending;
-            pending.imageId = imageId;
-            pending.rgba    = std::move (image.rgba);
-            pending.width   = image.width;
-            pending.height  = image.height;
-
-            writer.storeDecodedImage (std::move (pending));
         }
     }
 }

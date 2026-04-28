@@ -163,6 +163,75 @@ void State::flushGroupParams (juce::ValueTree& group) noexcept
 }
 
 /**
+ * @brief Reads the accumulated erase bounding box, removes overlapping IMAGE
+ *        nodes, and removes IMAGE nodes past the scrollback boundary.
+ *
+ * Atomically exchanges the eraseTop/Left/Bottom/Right parameterMap slots back
+ * to their sentinel values.  If eraseBottom >= 0 (an erase was queued), removes
+ * every IMAGE child whose cell span overlaps the bounding box.  Then removes
+ * IMAGE children whose `gridRow` has fallen behind the scrollback floor.
+ *
+ * @note MESSAGE THREAD — called from `flush()` only.
+ */
+// MESSAGE THREAD
+void State::flushImages() noexcept
+{
+    auto imagesNode { state.getChildWithName (ID::IMAGES) };
+
+    // Read and reset accumulated erase bounding box from parameterMap.
+    const float eraseTop    { getRawParam (ID::eraseTop)->exchange (999999.0f, std::memory_order_relaxed) };
+    const float eraseLeft   { getRawParam (ID::eraseLeft)->exchange (999999.0f, std::memory_order_relaxed) };
+    const float eraseBottom { getRawParam (ID::eraseBottom)->exchange (-1.0f, std::memory_order_relaxed) };
+    const float eraseRight  { getRawParam (ID::eraseRight)->exchange (-1.0f, std::memory_order_relaxed) };
+
+    // Remove IMAGE nodes overlapping the erased region (if any erase occurred).
+    if (eraseBottom >= 0.0f)
+    {
+        const int top    { static_cast<int> (eraseTop) };
+        const int left   { static_cast<int> (eraseLeft) };
+        const int bottom { static_cast<int> (eraseBottom) };
+        const int right  { static_cast<int> (eraseRight) };
+
+        for (int i { imagesNode.getNumChildren() - 1 }; i >= 0; --i)
+        {
+            const auto img { imagesNode.getChild (i) };
+            const int imgRow  { static_cast<int> (img.getProperty (ID::gridRow)) };
+            const int imgCol  { static_cast<int> (img.getProperty (ID::gridCol)) };
+            const int imgRows { static_cast<int> (img.getProperty (ID::cellRows)) };
+            const int imgCols { static_cast<int> (img.getProperty (ID::cellCols)) };
+
+            // Overlap test: image spans [imgRow, imgRow+imgRows) × [imgCol, imgCol+imgCols)
+            //               erase spans [top, bottom] × [left, right]
+            const bool overlaps { imgRow < bottom + 1
+                                  and imgRow + imgRows > top
+                                  and imgCol < right + 1
+                                  and imgCol + imgCols > left };
+
+            if (overlaps)
+                imagesNode.removeChild (i, nullptr);
+        }
+    }
+
+    // Scrollback reclamation — remove IMAGE nodes past scrollback boundary.
+    if (scrollbackCapacity > 0)
+    {
+        const int scrollbackUsed { static_cast<int> (
+            parameterMap.at (ID::scrollbackUsed)->load (std::memory_order_relaxed)) };
+        const int scrollbackFloor { juce::jmax (0, scrollbackUsed - scrollbackCapacity) };
+
+        for (int i { imagesNode.getNumChildren() - 1 }; i >= 0; --i)
+        {
+            const auto img { imagesNode.getChild (i) };
+            const int imgRow  { static_cast<int> (img.getProperty (ID::gridRow)) };
+            const int imgRows { static_cast<int> (img.getProperty (ID::cellRows)) };
+
+            if (imgRow + imgRows <= scrollbackFloor)
+                imagesNode.removeChild (i, nullptr);
+        }
+    }
+}
+
+/**
  * @brief Signals that the caller is about to read State values.
  *
  * Ensures all pending atomic writes from the reader thread are
@@ -246,6 +315,8 @@ bool State::flush() noexcept
             if (currentOffset > flushedScrollback)
                 setScrollOffset (flushedScrollback);
         }
+
+        flushImages();
 
         return needsFlush;
     }

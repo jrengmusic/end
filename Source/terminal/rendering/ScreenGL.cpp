@@ -66,6 +66,14 @@ void Screen<Renderer>::renderOpenGL (int originX, int originY, int fullHeight)
 
         if (snapshot != nullptr)
         {
+            if (snapshot->previewActive)
+            {
+                // Clip terminal content to the left portion only.
+                const int clipPixelW { snapshot->previewSplitCol * physCellWidth };
+                juce::gl::glEnable (juce::gl::GL_SCISSOR_TEST);
+                juce::gl::glScissor (0, 0, clipPixelW, glViewportHeight);
+            }
+
             if (snapshot->backgroundCount > 0)
             {
                 textRenderer.drawBackgrounds (snapshot->backgrounds.get(),
@@ -84,6 +92,12 @@ void Screen<Renderer>::renderOpenGL (int originX, int originY, int fullHeight)
                 textRenderer.drawQuads (snapshot->emoji.get(),
                                         snapshot->emojiCount,
                                         true);
+            }
+
+            if (snapshot->previewActive)
+            {
+                // Restore full viewport for image and cursor rendering.
+                juce::gl::glDisable (juce::gl::GL_SCISSOR_TEST);
             }
 
             drawImages (*snapshot);

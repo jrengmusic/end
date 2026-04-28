@@ -278,6 +278,61 @@ void ImageAtlas::advanceFrame() noexcept
 }
 
 /**
+ * @brief Drains all pending READER submissions, stages pixels, and invokes
+ *        the callback with metadata for each staged image.
+ *
+ * For each drained submission: stages all frames into the atlas (assigns
+ * one imageId per frame via `stage()`), then invokes @p onStaged with the
+ * assigned imageIds, delays, frame count, pixel dimensions, and grid
+ * position metadata.  Pointer validity of the `imageIds` and `delays`
+ * arrays passed to `onStaged` is limited to the callback invocation.
+ *
+ * @param onStaged  Callback invoked per staged image — see header for parameter
+ *                  documentation.
+ *
+ * @note MESSAGE THREAD only.
+ */
+void ImageAtlas::drainPending (std::function<void (const uint32_t* imageIds,
+                                                    const int* delays,
+                                                    int frameCount,
+                                                    int widthPx, int heightPx,
+                                                    int gridRow, int gridCol,
+                                                    int cellCols, int cellRows)> onStaged) noexcept
+{
+    static constexpr int maxFramesPerSubmission { 256 };
+
+    const int head { submissionHead.load (std::memory_order_acquire) };
+    int tail       { submissionTail.load (std::memory_order_relaxed) };
+
+    while (tail != head)
+    {
+        const int slot { tail % submissionCapacity };
+        Submission& sub { submissions[static_cast<size_t> (slot)] };
+
+        jassert (sub.frameCount > 0 and sub.frameCount <= maxFramesPerSubmission);
+
+        uint32_t imageIds[maxFramesPerSubmission];
+
+        for (int i { 0 }; i < sub.frameCount; ++i)
+        {
+            const int offset { i * sub.widthPx * sub.heightPx * 4 };
+            imageIds[static_cast<size_t> (i)] = stage (sub.pixels.get() + offset,
+                                                        sub.widthPx, sub.heightPx);
+        }
+
+        onStaged (imageIds, sub.delays.get(), sub.frameCount,
+                  sub.widthPx, sub.heightPx,
+                  sub.gridRow, sub.gridCol, sub.cellCols, sub.cellRows);
+
+        sub = Submission{};
+
+        ++tail;
+    }
+
+    submissionTail.store (tail, std::memory_order_release);
+}
+
+/**
  * @brief Updates the byte budget used by `evictIfNeeded()`.
  *
  * @param bytes  New budget in bytes.
@@ -397,6 +452,60 @@ void ImageAtlas::destroyGLTexture() noexcept
 GLuint ImageAtlas::getGLTexture() const noexcept
 {
     return glTexture;
+}
+
+// READER THREAD
+
+/**
+ * @brief Submits a decoded image sequence for cross-thread handoff to MESSAGE.
+ *
+ * Pushes a complete decoded image into the SPSC FIFO by writing to the slot
+ * at `submissionHead % submissionCapacity`, then advancing `submissionHead`
+ * with `memory_order_release` so the MESSAGE THREAD sees the write.
+ * Drops the submission with a debug assertion if the FIFO is full.
+ *
+ * @param pixels     All frames contiguous, RGBA8, row-major.  Ownership transferred.
+ * @param delays     Per-frame delay in milliseconds.  Null for static images.  Ownership transferred.
+ * @param frameCount Number of frames (1 = static).
+ * @param widthPx    Frame width in pixels.
+ * @param heightPx   Frame height in pixels.
+ * @param gridRow    Absolute grid row of image placement.
+ * @param gridCol    Grid column of image placement.
+ * @param cellCols   Image span in cell columns.
+ * @param cellRows   Image span in cell rows.
+ *
+ * @note READER THREAD only.
+ */
+void ImageAtlas::submitDecoded (juce::HeapBlock<uint8_t>&& pixels,
+                                juce::HeapBlock<int>&& delays,
+                                int frameCount,
+                                int widthPx, int heightPx,
+                                int gridRow, int gridCol,
+                                int cellCols, int cellRows) noexcept
+{
+    const int tail { submissionTail.load (std::memory_order_acquire) };
+    const int head { submissionHead.load (std::memory_order_relaxed) };
+
+    const bool fifoNotFull { (head - tail) < submissionCapacity };
+    jassert (fifoNotFull);
+
+    if (fifoNotFull)
+    {
+        const int slot { head % submissionCapacity };
+        Submission& sub { submissions[static_cast<size_t> (slot)] };
+
+        sub.pixels     = std::move (pixels);
+        sub.delays     = std::move (delays);
+        sub.frameCount = frameCount;
+        sub.widthPx    = widthPx;
+        sub.heightPx   = heightPx;
+        sub.gridRow    = gridRow;
+        sub.gridCol    = gridCol;
+        sub.cellCols   = cellCols;
+        sub.cellRows   = cellRows;
+
+        submissionHead.store (head + 1, std::memory_order_release);
+    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -211,6 +211,8 @@ struct Render
         int scrollOffset { 0 };///< Lines scrolled back (0 = live view; cursor hidden when > 0).
         bool cursorBlinkOn { true };///< Current blink phase (true = visible half of cycle).
         bool cursorFocused { false };///< True if the terminal component has keyboard focus.
+        bool previewActive { false };///< True when a split-viewport image preview is active.
+        int previewSplitCol { 0 };///< Column at which the terminal clips for the preview split.
         Glyph cursorGlyph;///< Pre-built glyph instance for user cursor (shape 0).
         bool hasCursorGlyph { false };///< True when cursorGlyph is valid (shape 0 or cursor.force).
         bool cursorGlyphIsEmoji { false };///< True when cursorGlyph lives in the emoji (RGBA) atlas.
@@ -588,6 +590,24 @@ public:
      * @note **MESSAGE THREAD**.
      */
     void reset() noexcept;
+
+    /**
+     * @brief Advances animated image frames whose delay has elapsed.
+     *
+     * For each IMAGE child of the IMAGES node where `frameCount > 1`:
+     * reads `currentFrame` and `frameStartMs`, compares against the current
+     * timestamp, and advances to the next frame (wrapping) when the delay
+     * has elapsed.  Updates `imageId`, `currentFrame`, and `frameStartMs`
+     * properties on the ValueTree node.  Calls `state.setSnapshotDirty()` if
+     * any frame was advanced so `buildSnapshot()` picks up the new imageId.
+     *
+     * Called from the VBlank path BEFORE `consumeSnapshotDirty()` so that
+     * animation-driven dirty signals are included in the current frame's check.
+     *
+     * @param state  Terminal state (provides IMAGES ValueTree + setSnapshotDirty).
+     * @note MESSAGE THREAD — called from onVBlank.
+     */
+    void tickImageAnimation (State& state) noexcept;
 
     // =========================================================================
     // Grid geometry
@@ -1000,8 +1020,6 @@ private:
     juce::HeapBlock<int> monoCount;///< Number of valid mono glyphs per row.
     juce::HeapBlock<int> emojiCount;///< Number of valid emoji glyphs per row.
     juce::HeapBlock<int> bgCount;///< Number of valid background quads per row.
-    juce::HeapBlock<Render::ImageQuad> cachedImages;///< Image quads; layout: [row * cacheCols + imageIndex].
-    juce::HeapBlock<int> imageCacheCount;///< Number of valid image quads per row.
     juce::HeapBlock<Terminal::Cell>
         previousCells;///< Previous-frame cells for memcmp skip; layout: [row * cacheCols + col].
     int previousCursorRow { -1 };

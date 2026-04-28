@@ -13,11 +13,12 @@
  *
  * ```
  * Screen::render()
- *   └─ Screen::buildSnapshot()          ← THIS FILE
+ *   └─ Screen::buildSnapshot()             ← THIS FILE
  *        ├─ grid.consumeDirtyRows()
  *        ├─ state.consumeFullRebuild()
  *        ├─ for each dirty row:
  *        │    └─ processCellForSnapshot()  [ScreenRenderCell.cpp]
+ *        ├─ imageAtlas.drainPending()
  *        └─ updateSnapshot()              [ScreenSnapshot.cpp]
  * ```
  *
@@ -27,7 +28,7 @@
  */
 
 #include "Screen.h"
-#include "../logic/SixelDecoder.h"
+#include "../data/Identifier.h"
 #include "../selection/LinkManager.h"
 
 
@@ -125,11 +126,10 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
                         ? grid.scrollbackGraphemeRow (r, offset)
                         : grid.activeVisibleGraphemeRow (r) };
 
-                    monoCount[r]        = 0;
-                    emojiCount[r]       = 0;
-                    bgCount[r]          = 0;
-                    imageCacheCount[r]  = 0;
-                    ligatureSkip        = 0;
+                    monoCount[r]  = 0;
+                    emojiCount[r] = 0;
+                    bgCount[r]    = 0;
+                    ligatureSkip  = 0;
 
                     // Leading/trailing blank trim
                     int firstCol { 0 };
@@ -175,11 +175,92 @@ void Screen<Renderer>::buildSnapshot (State& state, Grid& grid) noexcept
 
     previousCursorRow = state.getCursorRow();
 
+    // Drain decoded images from the READER FIFO: stage pixels into atlas,
+    // write IMAGE ValueTree nodes for the renderer to pick up.
+    imageAtlas.drainPending ([&state] (const uint32_t* imageIds,
+                                       const int* delays,
+                                       int frameCount,
+                                       int widthPx, int heightPx,
+                                       int gridRow, int gridCol,
+                                       int cellCols, int cellRows)
+    {
+        state.addImageNode (imageIds[0], imageIds, delays, frameCount,
+                            widthPx, heightPx, gridRow, gridCol, cellCols, cellRows);
+    });
+
     updateSnapshot (state, grid, rows, maxGlyphsPerRow);
 }
 
 template void Screen<jam::Glyph::GLContext>::buildSnapshot (State&, Grid&) noexcept;
 template void Screen<jam::Glyph::GraphicsContext>::buildSnapshot (State&, Grid&) noexcept;
+
+// =========================================================================
+// Screen::tickImageAnimation
+// =========================================================================
+
+/**
+ * @brief Advances animated image frames whose delay has elapsed.
+ *
+ * For each IMAGE child of the IMAGES node where `frameCount > 1`:
+ * reads `currentFrame` and `frameStartMs`, compares against the current
+ * timestamp, and advances to the next frame (wrapping) when the delay
+ * has elapsed.  Updates `imageId`, `currentFrame`, and `frameStartMs`
+ * properties on the ValueTree node.  Calls `state.setSnapshotDirty()` if
+ * any frame was advanced so `buildSnapshot()` picks up the new imageId.
+ *
+ * @param state  Terminal state (provides IMAGES ValueTree + setSnapshotDirty).
+ *
+ * @note MESSAGE THREAD — called from onVBlank.
+ */
+template <typename Renderer>
+void Screen<Renderer>::tickImageAnimation (State& state) noexcept
+{
+    auto imagesNode { state.get().getChildWithName (ID::IMAGES) };
+    const juce::int64 now { juce::Time::currentTimeMillis() };
+    bool anyAdvanced { false };
+
+    for (int i { 0 }; i < imagesNode.getNumChildren(); ++i)
+    {
+        auto img { imagesNode.getChild (i) };
+        const int fc { static_cast<int> (img.getProperty (ID::frameCount)) };
+
+        if (fc > 1)
+        {
+            const int current       { static_cast<int> (img.getProperty (ID::currentFrame)) };
+            const juce::int64 start { static_cast<juce::int64> (img.getProperty (ID::frameStartMs)) };
+
+            const auto* blob { img.getProperty (ID::frameData).getBinaryData() };
+
+            if (blob != nullptr
+                and blob->getSize() >= static_cast<size_t> (fc) * (sizeof (uint32_t) + sizeof (int)))
+            {
+                const auto* rawData  { static_cast<const uint8_t*> (blob->getData()) };
+                const auto* imageIds { reinterpret_cast<const uint32_t*> (rawData) };
+                const auto* delays   { reinterpret_cast<const int*> (rawData
+                                       + static_cast<size_t> (fc) * sizeof (uint32_t)) };
+
+                const int delayMs { delays[current] };
+
+                if (now - start >= static_cast<juce::int64> (delayMs))
+                {
+                    const int next { (current + 1) % fc };
+                    img.setProperty (ID::currentFrame, next, nullptr);
+                    img.setProperty (ID::imageId, static_cast<int> (imageIds[next]), nullptr);
+                    img.setProperty (ID::frameStartMs, now, nullptr);
+                    anyAdvanced = true;
+                }
+            }
+        }
+    }
+
+    if (anyAdvanced)
+    {
+        state.setSnapshotDirty();
+    }
+}
+
+template void Screen<jam::Glyph::GLContext>::tickImageAnimation (State&) noexcept;
+template void Screen<jam::Glyph::GraphicsContext>::tickImageAnimation (State&) noexcept;
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

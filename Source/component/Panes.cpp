@@ -306,12 +306,6 @@ void Panes::setTerminalCallbacks (Terminal::Display* terminal)
             onOpenImage (file);
     };
 
-    terminal->onShowImagePreview = [this] (const juce::Image& img)
-    {
-        if (onShowImagePreview != nullptr)
-            onShowImagePreview (img);
-    };
-
     terminal->onShellExited = [this, uuid = terminal->getComponentID()]
     {
         int closedIndex { 0 };

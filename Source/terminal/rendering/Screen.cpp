@@ -444,10 +444,6 @@ void Screen<Renderer>::allocateRenderCache (int rows, int cols) noexcept
     bgCount.allocate (static_cast<size_t> (rows), true);
     previousCells.allocate (static_cast<size_t> (rows) * static_cast<size_t> (cols), true);
 
-    // Image cell sidecar: one ImageQuad per cell per row maximum.
-    cachedImages.allocate (static_cast<size_t> (rows) * static_cast<size_t> (cols), true);
-    imageCacheCount.allocate (static_cast<size_t> (rows), true);
-
     cacheRows = rows;
     cacheCols = cols;
     bgCacheCols = cols * 3;

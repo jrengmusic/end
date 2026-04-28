@@ -83,16 +83,6 @@ public:
     std::function<void()> onRepaintNeeded;
 
     /**
-     * @brief Callback invoked with a loaded image when an image link is opened.
-     *
-     * Set by MainComponent to forward the loaded image to the window-level
-     * MessageOverlay.  Propagated from Display → Panes → Tabs → MainComponent.
-     *
-     * @note MESSAGE THREAD.
-     */
-    std::function<void (const juce::Image&)> onShowImagePreview;
-
-    /**
      * @brief Create and add a new terminal tab.
      *
      * Creates a new Panes instance, creates its first terminal, grafts the

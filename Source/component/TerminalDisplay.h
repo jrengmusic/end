@@ -403,17 +403,6 @@ public:
     std::function<void (const juce::File&)> onOpenImage;
 
     /**
-     * @brief Callback invoked with a loaded image when an image link is opened.
-     *
-     * Fired by `handleOpenImage()` after the image is loaded successfully.
-     * Propagated up through Panes → Tabs → MainComponent to show the image
-     * in the window-level MessageOverlay.
-     *
-     * @note MESSAGE THREAD.
-     */
-    std::function<void (const juce::Image&)> onShowImagePreview;
-
-    /**
      * @brief Returns `true` if a non-degenerate selection is currently active.
      *
      * Used by the copy action to decide whether to consume the key or let it
@@ -708,10 +697,12 @@ private:
     juce::VBlankAttachment vblank;
 
     /**
-     * @brief Loads an image file and fires `onShowImagePreview` with the result.
+     * @brief Loads an image file and activates the split-viewport inline preview.
      *
-     * Loads via `juce::ImageFileFormat::loadFrom`.  Fires `onShowImagePreview`
-     * only when the image is valid and the callback is set.
+     * Decodes all frames via `loadImageSequenceNative`, stages them into the
+     * image atlas, adds a preview IMAGE node to State (marked `isPreview = true`),
+     * and calls `state.setPreview()` to activate the split viewport.  Any key
+     * press subsequently dismisses the preview.
      *
      * @param file  The image file to load.
      * @note MESSAGE THREAD.

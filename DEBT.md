@@ -8,6 +8,30 @@
 
 ---
 
+## DEBT-20260428T215350
+
+**Observation:** need lua api for pane resizing
+**Divergence:** resizing pane only available with mouse
+**Expectation:** can assign keyboard shorcut for resizing pane vertically/horizontally
+
+---
+
+## DEBT-20260428T213551
+
+**Observation:** Terminal::State atomics API access should be simplified
+**Divergence:** store, load, exchange mostly boilerplate with std::memory_relaxed
+**Expectation:** abstract helper that could make atomics API clean and readable
+
+---
+
+## DEBT-20260428T213146
+
+**Observation:** codebase is messy with violation:
+**Divergence:** constant naming with polish notation, variable names especially args with underscore, naked pointers
+**Expectation:** all must adhere to NAMES.md JRENG-CODING-STANDARD.md MANIFESTO.md windows pointers must be wrapped with RAII
+
+---
+
 ## DEBT-20260426T122105
 
 **Observation:** when screen resolution changes, end didnt resized

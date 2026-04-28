@@ -447,6 +447,22 @@ struct State : public juce::Timer
      */
     uint16_t registerLinkUri (const char* uri, int length) noexcept;
 
+    /**
+     * @brief Accumulates an erase region into the bounding box for image removal.
+     *
+     * Expands the accumulated erase bounding box (eraseTop/Left/Bottom/Right)
+     * to include the given region.  READER THREAD writes via parameterMap
+     * atomics.  `flushImages()` reads and resets the bounding box on the
+     * MESSAGE THREAD.
+     *
+     * @param topRow     Top row of the erase region (absolute grid row).
+     * @param leftCol    Left column of the erase region.
+     * @param bottomRow  Bottom row of the erase region (absolute grid row).
+     * @param rightCol   Right column of the erase region.
+     * @note READER THREAD — lock-free, noexcept.
+     */
+    void queueImageErase (int topRow, int leftCol, int bottomRow, int rightCol) noexcept;
+
     /** @} */
 
     // =========================================================================
@@ -924,6 +940,17 @@ struct State : public juce::Timer
     void setDimensions (int cols, int rows) noexcept;
 
     /**
+     * @brief Sets the scrollback capacity for image reclamation.
+     *
+     * Called once by Session/Grid during setup.  Used by `flush()` to
+     * determine when IMAGE nodes have scrolled past the scrollback boundary.
+     *
+     * @param capacity  Maximum scrollback rows.
+     * @note MESSAGE THREAD only.
+     */
+    void setScrollbackCapacity (int capacity) noexcept { scrollbackCapacity = capacity; }
+
+    /**
      * @brief Records the start of an OSC 133 command output block.
      *
      * Called when OSC 133 ; C is received.  Sets `outputBlockTop` to `row`,
@@ -1010,6 +1037,82 @@ struct State : public juce::Timer
      * @note MESSAGE THREAD only.
      */
     bool hasOutputBlock() const noexcept;
+
+    // =========================================================================
+    /** @name Image preview split-viewport state (MESSAGE THREAD only)
+     *  These methods read and write the preview flag and splitCol directly on
+     *  the SESSION root ValueTree — no atomic involved, no flush needed.
+     * @{ */
+
+    /**
+     * @brief Activates or deactivates the split-viewport image preview.
+     *
+     * Sets the `preview` and `splitCol` direct properties on the root SESSION
+     * node.  Also calls `setFullRebuild()` and `setSnapshotDirty()` so the
+     * renderer updates on the next frame.
+     *
+     * @param active    True to activate the preview, false to deactivate.
+     * @param col       Column index at which the terminal clips (ignored when `active` is false).
+     * @note MESSAGE THREAD only.
+     */
+    void setPreview (bool active, int col) noexcept;
+
+    /**
+     * @brief Returns true when an image preview split is currently active.
+     * @return Current value of the `preview` property on the SESSION root.
+     * @note MESSAGE THREAD only.
+     */
+    bool isPreviewActive() const noexcept;
+
+    /**
+     * @brief Returns the column at which the terminal clips for the preview split.
+     * @return Current value of the `splitCol` property on the SESSION root.
+     * @note MESSAGE THREAD only.
+     */
+    int getSplitCol() const noexcept;
+
+    /** @} */
+
+    /**
+     * @brief Adds an IMAGE child node to the IMAGES ValueTree container.
+     *
+     * For static images (frameCount == 1): `firstFrameImageId` is stored
+     * as the `imageId` property directly.
+     *
+     * For animated images (frameCount > 1): `firstFrameImageId` is stored
+     * as the initial `imageId`; the full set of per-frame imageIds and delays
+     * is packed into a `juce::MemoryBlock` and stored as the `frameData` property.
+     *
+     * @param firstFrameImageId  Atlas-assigned image ID for frame 0.
+     * @param allImageIds        Array of imageIds, one per frame (frameCount entries).
+     * @param delays             Array of delays in ms, one per frame.  nullptr for static.
+     * @param frameCount         Number of frames (1 = static).
+     * @param widthPx            Image width in pixels (stored for quad computation).
+     * @param heightPx           Image height in pixels (stored for quad computation).
+     * @param gridRow            Absolute grid row of image placement.
+     * @param gridCol            Grid column of image placement.
+     * @param cellCols           Image span in cell columns.
+     * @param cellRows           Image span in cell rows.
+     * @note MESSAGE THREAD only.
+     */
+    void addImageNode (uint32_t firstFrameImageId,
+                       const uint32_t* allImageIds,
+                       const int* delays,
+                       int frameCount,
+                       int widthPx, int heightPx,
+                       int gridRow, int gridCol,
+                       int cellCols, int cellRows) noexcept;
+
+    /**
+     * @brief Removes the IMAGE child node matching the given imageId.
+     *
+     * Searches the IMAGES container for a child with `imageId == id` and
+     * removes it.  No-op if not found.
+     *
+     * @param id  The imageId to match.
+     * @note MESSAGE THREAD only.
+     */
+    void removeImageNode (uint32_t id) noexcept;
 
     /** Called by `timerCallback()` after each flush cycle. MESSAGE THREAD only. */
     std::function<void()> onFlush;
@@ -1357,14 +1460,14 @@ private:
     /** @brief URI table for cell-native hyperlinks.  Index 0 unused (sentinel). */
     StringSlot linkUriTable[maxLinkIds];
 
-    /** @brief Next slot index for linkId assignment.  READER THREAD only, plain counter. */
-    uint32_t linkUriCount { 0 };
-
     /** @brief Cached terminal width in character columns (MESSAGE THREAD). */
     juce::CachedValue<int> cachedCols;
 
     /** @brief Cached terminal height in visible rows (MESSAGE THREAD). */
     juce::CachedValue<int> cachedVisibleRows;
+
+    /** @brief Scrollback capacity (maximum scrollback rows). Set once by Session. */
+    int scrollbackCapacity { 0 };
 
     /**
      * @brief Flushes PARAM children that are direct children of the root SESSION node.
@@ -1437,6 +1540,17 @@ private:
     void flushStrings() noexcept;
 
     /**
+     * @brief Drains the erase queue and removes IMAGE nodes past scrollback bounds.
+     *
+     * For each erase region in the FIFO: removes any IMAGE child whose cell span
+     * overlaps the region.  Then removes IMAGE children whose `gridRow` has fallen
+     * behind the scrollback floor.
+     *
+     * @note MESSAGE THREAD — called from `flush()` only.
+     */
+    void flushImages() noexcept;
+
+    /**
      * @brief Advances the cursor blink counter and toggles the phase.
      *
      * Called from `timerCallback()` after `flush()`.  Accumulates elapsed
@@ -1448,6 +1562,7 @@ private:
      * @note MESSAGE THREAD — called from `timerCallback()` only.
      */
     void tickCursorBlink (int elapsedMs) noexcept;
+
 };
 
 template<typename ValueType>

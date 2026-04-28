@@ -52,6 +52,9 @@ namespace Terminal
  *
  * Erases part or all of the visible screen.  The cursor position is not
  * changed.  Erased cells are filled with the default (blank) cell value.
+ * For full-screen modes (2 and 3), `State::queueImageErase()` is called so the
+ * renderer evicts all image placements.  Partial modes (0 and 1) are cell-layer
+ * operations only — the image layer is not affected.
  *
  * @par Mode table
  *
@@ -92,15 +95,21 @@ namespace Terminal
  * @note READER THREAD only.
  * @note Does not respect the scroll region — operates on the full visible screen.
  *
- * @see eraseInLine()       — erases within a single row
+ * @see eraseInLine()          — erases within a single row
  * @see Grid::eraseCellRange() — erases a range of cells within a row
  * @see Grid::eraseRowRange()  — erases a range of complete rows
+ * @see State::queueImageErase() — signals image eviction to the renderer
  */
 void Parser::eraseInDisplay (int mode) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { state.getRawValue<int> (ID::cols) };
-    const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
+    const auto scr          { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int cols          { state.getRawValue<int> (ID::cols) };
+    const int visibleRows   { state.getRawValue<int> (ID::visibleRows) };
+    const int scrollbackUsed { state.getRawValue<int> (ID::scrollbackUsed) };
+    const int cursorRow     { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+    const int cursorCol     { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+    const int absRowTop     { scrollbackUsed };
+    const int absRowLast    { scrollbackUsed + visibleRows - 1 };
 
     Cell fill {};
     fill.bg = stamp.bg;
@@ -108,36 +117,29 @@ void Parser::eraseInDisplay (int mode) noexcept
     switch (mode)
     {
         case 0:
-            writer.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)),
-                                   state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)),
-                                   cols - 1,
-                                   fill);
+            writer.eraseCellRange (cursorRow, cursorCol, cols - 1, fill);
 
-            if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) + 1 < visibleRows)
-            {
-                writer.eraseRowRange (
-                    state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) + 1, visibleRows - 1, fill);
-            }
+            if (cursorRow + 1 < visibleRows)
+                writer.eraseRowRange (cursorRow + 1, visibleRows - 1, fill);
+
             break;
 
         case 1:
-            if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) > 0)
-            {
-                writer.eraseRowRange (0, state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) - 1, fill);
-            }
+            if (cursorRow > 0)
+                writer.eraseRowRange (0, cursorRow - 1, fill);
 
-            writer.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)),
-                                   0,
-                                   state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)),
-                                   fill);
+            writer.eraseCellRange (cursorRow, 0, cursorCol, fill);
+
             break;
 
         case 2:
             writer.eraseRowRange (0, visibleRows - 1, fill);
+            state.queueImageErase (absRowTop, 0, absRowLast, cols - 1);
             break;
 
         case 3:
             writer.clearScrollback();
+            state.queueImageErase (0, 0, absRowLast, cols - 1);
             break;
 
         default:
@@ -154,6 +156,7 @@ void Parser::eraseInDisplay (int mode) noexcept
  *
  * Erases part or all of the cursor's current row.  The cursor position is not
  * changed.  Erased cells are filled with the default (blank) cell value.
+ * EL is a cell-layer operation — the image layer is not affected.
  *
  * @par Mode table
  *
@@ -184,15 +187,16 @@ void Parser::eraseInDisplay (int mode) noexcept
  * @note READER THREAD only.
  * @note Does not respect the scroll region.
  *
- * @see eraseInDisplay()       — erases across multiple rows
- * @see Grid::eraseCellRange() — erases a range of cells within a row
- * @see Grid::eraseRow()       — erases an entire row
+ * @see eraseInDisplay()         — erases across multiple rows
+ * @see Grid::eraseCellRange()   — erases a range of cells within a row
+ * @see Grid::eraseRow()         — erases an entire row
  */
 void Parser::eraseInLine (int mode) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { state.getRawValue<int> (ID::cols) };
+    const auto scr      { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int cols      { state.getRawValue<int> (ID::cols) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+    const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
     Cell fill {};
     fill.bg = stamp.bg;
@@ -200,12 +204,11 @@ void Parser::eraseInLine (int mode) noexcept
     switch (mode)
     {
         case 0:
-            writer.eraseCellRange (
-                cursorRow, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), cols - 1, fill);
+            writer.eraseCellRange (cursorRow, cursorCol, cols - 1, fill);
             break;
 
         case 1:
-            writer.eraseCellRange (cursorRow, 0, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)), fill);
+            writer.eraseCellRange (cursorRow, 0, cursorCol, fill);
             break;
 
         case 2:
@@ -459,7 +462,8 @@ void Parser::removeCells (int count) noexcept
  * @brief Handles `CSI Pn X` — Erase Characters (ECH).
  *
  * Erases `count` cells starting at the cursor column without shifting any
- * surrounding content.  The cursor position is not changed.
+ * surrounding content.  The cursor position is not changed.  ECH is a
+ * cell-layer operation — the image layer is not affected.
  *
  * @par Difference from DCH
  * `eraseCells()` (ECH) blanks cells in-place; `removeCells()` (DCH) shifts
@@ -474,24 +478,22 @@ void Parser::removeCells (int count) noexcept
  *
  * @note READER THREAD only.
  *
- * @see removeCells()          — DCH (Delete Characters), shifts content left
- * @see shiftCellsRight()      — ICH (Insert Characters), shifts content right
- * @see Grid::eraseCellRange() — underlying erase primitive
+ * @see removeCells()            — DCH (Delete Characters), shifts content left
+ * @see shiftCellsRight()        — ICH (Insert Characters), shifts content right
+ * @see Grid::eraseCellRange()   — underlying erase primitive
  */
 void Parser::eraseCells (int count) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { state.getRawValue<int> (ID::cols) };
-    const int endCol { juce::jmin (
-        state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) + count - 1, cols - 1) };
+    const auto scr      { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int cols      { state.getRawValue<int> (ID::cols) };
+    const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+    const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+    const int endCol    { juce::jmin (cursorCol + count - 1, cols - 1) };
 
     Cell fill {};
     fill.bg = stamp.bg;
 
-    writer.eraseCellRange (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)),
-                           state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)),
-                           endCol,
-                           fill);
+    writer.eraseCellRange (cursorRow, cursorCol, endCol, fill);
 }
 
 // ============================================================================

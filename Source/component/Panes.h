@@ -189,15 +189,6 @@ public:
     std::function<void (const juce::File&)> onOpenImage;
 
     /**
-     * @brief Callback invoked with a loaded image when an image link is opened.
-     *
-     * Propagated from Display::onShowImagePreview up through Tabs to MainComponent.
-     *
-     * @note MESSAGE THREAD.
-     */
-    std::function<void (const juce::Image&)> onShowImagePreview;
-
-    /**
      * @brief Close the pane with the given uuid.
      *
      * Removes the SESSION child from the PANE node, removes the terminal

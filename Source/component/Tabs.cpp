@@ -116,11 +116,6 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
         if (auto* active { getActivePanes() }; active != nullptr)
             active->createWhelmed (file);
     };
-    newPanes.onShowImagePreview = [this] (const juce::Image& img)
-    {
-        if (onShowImagePreview != nullptr)
-            onShowImagePreview (img);
-    };
     newPanes.onLastPaneClosed = [this]
     {
         closeActiveTab();

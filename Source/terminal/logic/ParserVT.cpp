@@ -219,10 +219,7 @@ struct GroundOps
         c.wrapPending = false;
         cellTemplate.codepoint = translateCharset (static_cast<uint32_t> (byte), useLineDrawing);
 
-        if (not (writer.isImageProtected() and c.cellRow[c.col].isImage()))
-        {
-            c.cellRow[c.col] = cellTemplate;
-        }
+        c.cellRow[c.col] = cellTemplate;
 
         if (activeLinkId != 0)
         {

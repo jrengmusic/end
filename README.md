@@ -1,231 +1,130 @@
-<div align="center">
-  <img src="Source/icons/end-icon.png" alt="END">
-</div>
-
 # END
-
 **Ephemeral Nexus Display**
 
-The long and winding road finding the truly best opinionated cross-platform, dual-backend renderer, rich-featured, modern terminal emulator with non-web stack true Markdown and Mermaid renderer that can run on your grandma's PC finally comes to END.
+The long and winding road finding a cross-platform, dual-backend renderer, rich-featured, modern terminal emulator with a non-web stack native Markdown and Mermaid renderer that can run on your grandma's PC finally comes to END.
 
 ---
 
-## Why END?
+## Why
 
-Modern terminal emulators are GPU-only. No GPU, no terminal. They require recent OS versions. They ship with web stacks, Electron shells, or language runtimes that bloat memory and startup. They outsource multiplexing to tmux — a separate server process with its own keybinding language and rendering limitations. None of them can render a Markdown file without shelling out to a browser.
+Most modern popular terminals available today (as this README is written) fall into two categories: boring and wrong.
 
-END solves all of these.
+**Boring:** no creativity drives the idea. Everything starts with a name — the way you do anything permeates the way you do everything. Most popular modern terminals are named with *term and *tty. Everyone is just trying to solve the same problem with a different language, slapping marketing hype on it as "fast and beautiful GPU-accelerated." The OOTB experience is mostly identical: black screen with grey monospace glyphs. Where is the beauty in that? Most users immediately set background blur and transparency.
 
-**C++17 and JUCE.** The same stack that powers professional real-time audio — sub-millisecond latency, zero-allocation hot paths, cross-platform abstraction that actually works. JUCE provides native windowing, OpenGL context management, threading primitives, and a component model battle-tested across thousands of commercial products. No web engine. No garbage collector. No runtime. The binary is the application.
+**Wrong:** terminal core processing is half-century technology. Nothing novel. Unbounded and decoupled from the modern operating system. All default terminals shipped with any OS factually suck — probably no one who uses a terminal as their daily driver for a dev environment ever uses the one shipped with their chosen OS. Why limit support of your fancy terminal to decade-old Intel Macs? Why can't I use your popular native Mac renderer terminal on my old iMac? Why is there no working terminal that runs identically with a singular config on Windows 10? On Windows 11? MSYS2 faithfully delivers an identical shell experience without missing any of your chosen favorite CLI/TUI tools as native Windows binaries. Assuming your terminal should and can only be used with WSL2 on Windows is wrong. Using WSL2 on Windows for native binary development is wrong.
 
-**Dual renderer.** OpenGL instanced rendering when a GPU is available. SIMD-optimised software renderer (SSE2/NEON) when it is not. Switch between them at runtime with a config reload — no restart. END runs on a 2015 iMac, a headless Linux box, or a Windows 10 machine with integrated graphics. If it has a screen, END runs on it.
+---
 
-**Built-in multiplexing.** Tabs, binary tree split panes, popup terminals — no tmux, no server process, no socket management. Application state is a ValueTree (XML). Nexus daemon mode attaches multiple client windows to persistent PTY sessions: the daemon owns the TTY and forwards byte streams to attached clients; on reattach, a Grid+State snapshot is sent via `Processor::getStateInformation/setStateInformation` to restore the terminal state instantly.
+## Architecture
 
-**Native Markdown and Mermaid.** Open a `.md` file from the terminal and it renders natively in a split pane — headings, tables, code blocks, Mermaid diagrams — same rendering stack, same window, same font system. No browser, no Electron, no external process. That is WHELMED.
+I really hate the term "AI slop." The generalization that every piece of open source software written, developed, and assisted by coding agents is slop is Idiocracy. Just because I could ask my clankers to translate a popular terminal emulator into my domain does not mean it would automagically manifest into the best terminal ever developed.
 
-**Native glass blur.** Real compositor-level blur on macOS (10.14+) and Windows (10+). Not a transparency hack — the desktop bleeds through.
+END's architecture is nowhere to be found in any published open source terminal project. This is beyond any training data any existing LLM could have been trained on. The peculiar choice of JUCE — a framework notoriously designed for building cross-platform audio plugins — may be counterintuitive to those unfamiliar with the stack.
 
-**Lua-configurable everything.** Two config files, hot-reloadable. Every colour, every keybinding, every font, every UI element. The config files are the documentation.
+This is my domain-specific expertise. A domain where lock-free threads and block-free message threads are non-negotiable. END is built upon that exact philosophy. No mutex anywhere. An architectural pattern that has tripped even the most advanced pattern-matching clankers from truly comprehending the machinery.
 
+The state machine on the message thread is the true Single Source of Truth. All objects are designed as stateless dumb objects — no poking internals. Virtually no object has a getter, only setters. Orchestrator classes always tell, never ask. Orchestrators listen to state machine changes and react accordingly.
 
-## Features
+What gives? Everything is event-driven. No manual lambda callbacks, no manual boolean tracking, no manual orchestration with stateful objects dictating the state machine. Concurrency is guaranteed by atomic operations. The user interface is never blocked. You will never see a spinning wheel — even when a process is eating 99% CPU.
 
-**Dual Renderer**
-- GPU: OpenGL instanced text rendering — glyph atlas, instanced quads, 3 draw calls per frame at 120fps
-- CPU: SIMD-optimised software renderer (SSE2/NEON) — same quality, no GPU required
-- Runtime GPU/CPU switching via config hot-reload (Cmd+R)
-- Dual texture atlas: mono glyphs (R8) + colour emoji (RGBA8)
-- Shelf-packed atlas with LRU eviction
+---
 
-**Text**
-- CoreText on macOS, FreeType on Linux/Windows — native quality on each platform
-- HarfBuzz text shaping with ligature support
-- Nerd Font icons with per-glyph constraint scaling (ported from NF patcher v3.4.0)
-- Procedural box drawing, block elements, and braille — pixel-perfect at any cell size, no font dependency
-- System font fallback via CoreText cascade for missing glyphs
-- Colour emoji (Apple Color Emoji, Noto, system fonts)
-- Configurable cell width, line height, and emboldening
+## What
 
-**Terminal**
-- Full xterm-256color + 24-bit true colour
-- Unicode grapheme segmentation (UAX #29 state machine, Unicode 17.0)
-- Wide character support (CJK, East Asian Width)
-- Progressive keyboard protocol (CSI u, per-screen flag stacks)
-- SGR mouse tracking (modes 1000/1002/1003/1006 — tmux and vim just work)
-- Bracketed paste, focus events, bell
-- Alternate screen buffer (vim, htop, less, TUI apps)
-- DECTCEM cursor visibility
-- Scrollback with configurable history
-- Ring buffer grid with reflow-on-resize
+END's development was hardened on an iMac 5K 2015 — tested intensively on both macOS Monterey and Windows 10 22H2 via Boot Camp with MSYS2, with a singular monorepo config. Everything works identically.
 
-**OSC and Shell Integration**
-- OSC 7: working directory tracking
-- OSC 8: hyperlinks (parsed and merged with heuristic link detection)
-- OSC 9/777: native desktop notifications (macOS UNUserNotificationCenter, Windows/Linux fallback)
-- OSC 52: clipboard access (base64)
-- OSC 133: shell integration markers (A/B/C/D output block tracking)
-- Automatic shell integration injection (zsh, bash, fish)
-- Clickable hyperlinks on command output rows
+On more modern hardware, END is used daily to develop a cross-platform audio plugin, a cross-platform C++ debugger (whatdbg), and END itself, across:
 
-**UI**
-- Tabbed interface with configurable position (top, bottom, left, right)
-- Split panes with binary tree layout — horizontal and vertical, draggable dividers
-- Prefix-key pane navigation (tmux-style) — fully configurable keys and timeout
-- Command palette: fuzzy-searchable action list with glass blur overlay
-- Popup terminals: user-defined modal floating terminals for TUI apps (lazygit, htop, tit, etc.)
-- File opener with flash-jump hint labels — keyboard-jumpable file paths from command output
-- Vim-like selection mode: visual, visual-line, visual-block with keyboard cursor navigation in scrollback
-- Word selection (double-click), line selection (triple-click)
-- Status bar with modal state display
-- Configurable cursor: any character, Nerd Font icon, or colour emoji — with optional blink
-- Text selection with transparent overlay
-- Drag-and-drop file paths with configurable quoting
+- Windows 11 (Asus ROG Ally Z1 Extreme)
+- MacBook Pro M4 (macOS Tahoe, Windows 11 via UTM without GPU)
 
-**Platform**
-- macOS: CoreText rendering, native glass blur, UNUserNotificationCenter
-- Linux: FreeType rendering, notify-send notifications
-- Windows: ConPTY backend (NT API duplex pipe, overlapped I/O), glass blur (Win10 DWM / Win11 system effect)
-- Borderless window with configurable title bar buttons
-- Multi-window support (Cmd+N)
-- Window state persistence (size, zoom saved across sessions)
-- Configurable zoom (Cmd+/-/0) with full font resize
+The result: a consistent development experience with a singular monorepo configuration. With END as your nexus, I have almost never cared which OS I was on.
 
-**Configuration**
-- Lua hot-reload (Cmd+R, no restart)
-- Lock-free render pipeline — reader thread writes atomics, VBlank polls dirty flags, GL thread acquires snapshot via atomic pointer exchange
-- Zero allocations on the render path
-- Unified action registry: every keybinding is configurable, global or modal, or both
+### Renderer
+
+Performance is a metric genuinely difficult to measure. Every other terminal can show you a different benchmark — quantitative numbers that are ultimately unrelated to actual real-life usage. How about a simple raw byte test instead: side-by-side comparison, same machine, same window size, same font size, identical settings per terminal. Let it be your judge.
+
+Modern terminals often glorify "GPU acceleration" as a jargon badge, claiming superiority by default. With correct architecture, software rendering relying on CPU alone can perform as fast as GPU. The overused term "modern computer" — with its generalization that all current machines can render with GPU — is inaccurate. xterm has proven to be a reliable terminal without GPU, and so does END. Software rendering is not just a fallback when GPU acceleration is unavailable. It is an option. A reliable rendering option with END.
+
+On an iMac 5K 2015, END consistently finishes 150–200ms ahead of the field — GPU and CPU rendering both.
 
 
-## Popup Terminals
+Under the hood, END runs a lock-free render pipeline. VT conformance is covered by a comprehensive unit test suite across all ANSI, DEC, OSC, and CSI sequences. Hardware-specific sequences — DECLL, printer passthrough, serial control — are correctly excluded. No software terminal implements them.
 
-Most terminals let you split panes. END lets you define named popup terminals — modal floating windows that spawn a full PTY running any command, overlaid on top of your terminal. Think tmux popup, but native and configured in Lua.
+### Fonts
 
-Each popup is a complete terminal instance with its own PTY, session, grid, and state. It shares END's font system and renderer — GPU or CPU, same quality. The popup blocks the main terminal until the process exits. Quit the TUI, the popup disappears.
+Beauty is in the END of the beholder. While users can choose whatever font suits their taste, END ships with its own proprietary typefaces: Display Mono, a monospace font, and Display, a proportional one.
 
-```lua
-popups = {
-    tit = {
-        command = "tit",
-        cwd = "",              -- inherit active terminal's working directory
-        cols = 70,
-        rows = 30,
-        modal = "t",           -- prefix key then t
-    },
-    lazygit = {
-        command = "lazygit",
-        cwd = "",
-        cols = 120,
-        rows = 40,
-        modal = "g",
-        global = "cmd+shift+g",  -- or skip the prefix entirely
-    },
-}
-```
+Display Mono is not just about aesthetics — it is about correctness. It was designed with code readability and legibility as the first and foremost priority. Ligatures and special characters are purposefully shaped with distinguishable proportional sizing inside the monospace cell.
 
-Every popup entry gets a modal key (prefix + key), a global shortcut, or both. They also appear in the command palette as searchable actions. You define your TUI toolkit once in `end.lua` — git client, process monitor, file manager, whatever — and launch any of them with a keystroke from any terminal pane.
+Most importantly, it is the only font that works out of the box without installation, never fails, and renders consistently across operating systems — providing thousands of Nerd Fonts symbols while gracefully delegating monospace and colored emoji, CJK, and ZWJ sequences to the native OS font rendering system via CoreText on macOS and DirectWrite on Windows.
 
+### Multiplexer
 
-## WHELMED
+I have always liked tmux — the consistent UX, portability, reliability, and of course session persistence. But its configurable flexibility also comes with a huge pain in the ass to set up.
 
-**WYSIWYG Hybrid Encoder Lightweight Markdown/Mermaid**
+END ships with a limitless number of tabs. Each tab can be split into multiple panes, each with an isolated terminal instance, with zero setup.
 
-WHELMED is END's built-in Markdown and Mermaid renderer. Click a `.md` hyperlink in the terminal and it opens as a native split pane — no browser, no electron, no external process. Same window, same rendering stack.
+Don't like the tab button image? Drop in an SVG you like by following the convention of active/inactive state — left/right groups are the edge anchors, center is the stretchable area.
 
-**Rendering:**
-- Headings (h1-h6), paragraphs, lists with full styled text
-- Inline code and fenced code blocks with syntax colouring
-- Tables with header rows, column alignment, alternating row colours
-- Mermaid diagrams rendered from SVG parse — viewbox-driven scaling
-- Vim-style keyboard navigation and text selection
+Fancy automation with split layouts? The example is in `action.lua` itself. The config is the documentation. A single keypress or a modal prefix shortcut à la tmux will bring you home. Modal keybinding is native — not scripted on top.
 
-WHELMED shares END's font system, glyph atlas, and GL/CPU renderer. It runs as a `PaneComponent` — the same interface as a terminal pane.
+END also ships an action list and keybinder. Every action is discoverable and rebindable in one place.
 
-**Status:** Headings, paragraphs, lists, code blocks, tables, and basic Mermaid rendering are working. Mermaid support is being expanded.
+Popup is one of the most underutilized tmux features — spawning a temporary terminal instance with any shell process you need: CLI, TUI, any shell script. END implements this as a modal window. After your process exits and returns to the normal screen, the popup dismisses itself automatically.
 
+Do you really need session persistence? Keep terminal processes alive even after you quit the application, and resume whatever state was running when you left — enable the Nexus daemon server. END has you covered.
 
-## Get Started
+### Visuals
+
+END's default config is inspired by nvim-kickstart. Everything you tweak is visible alongside comprehensive documentation about what it does and how.
+
+Window glassmorphism is handled natively per OS. Auto mode picks the right default for you:
+
+- **macOS** defaults to Core Graphics background blur — control blur amount, transparency, and tint
+- **Windows 11** defaults to Acrylic
+- **Windows 10 22H2** defaults to background blur
+
+If that is not enough:
+
+- macOS 10.14+ can choose NSVisualEffectView with WindowBackground and FullScreenUI materials
+- Latest macOS has access to NSGlassEffectView with Regular and Clear
+- Windows 11 can choose between Acrylic and Mica
+
+The ricing on the cake. Most terminals with custom shader support stop at a single pass. END has two layers — a multi-pass background with ABCD buffers and opacity control, and a single-pass post-processing overlay on top of everything. Both respond to mouse input. It is a minified Shadertoy running inside your terminal.
+
+Everything is hot-reloaded. Changes take effect the moment you save any Lua file.
+
+### Markdown & Mermaid
+
+Working side by side with your clankers, you will inevitably need to read documents — specs, plans, diagrams. Many CLI/TUI tools try to solve this with compromised monospace cells and forced beautification. END handles this natively with its own Markdown and Mermaid renderer. Exactly what you would expect reading from a web browser, without the bloated garbage of a web stack. Customize however you like — your choice of font, color, and sizes for each format element.
+
+Headers, tokenized code blocks, bullet lists, tables, and Mermaid diagrams — all rendered natively. No fake header blocks. No fake tables. No fake raster diagram images. What You See Is What You Get — a hybrid encoder Markdown and Mermaid renderer, inside your terminal.
+
+---
+
+## How
+
+**Requirements:** C++17 compiler, CMake, JUCE 8, Ninja, jam
 
 ```bash
-cmake -S . -B Builds/Xcode -G Xcode
-cmake --build Builds/Xcode --config Release
+./builds.sh          # Release
+./builds.sh debug    # Debug
+./builds.sh clean    # clean + rebuild Release
+./builds.sh install  # clean build + install to system
 ```
 
-Requirements: C++17 compiler, CMake, JUCE 8
+Works identically on macOS, Linux, and Windows via MSYS2. On Windows, MSVC is located and configured automatically.
 
+Config lives in `~/.config/end/`. Both files are auto-generated with documented defaults on first launch. Every value has inline comments. Changes are picked up automatically — no restart needed.
 
-## Configuration
-
-Everything lives in `~/.config/end/`. Both config files are auto-generated with documented defaults on first launch. Every value has inline comments. Edit, press Cmd+R to reload. Invalid or missing values fall back to defaults silently.
-
-### `end.lua` — Terminal
-
-| Section | What you can configure |
-|---------|----------------------|
-| `gpu` | Rendering backend: auto, force GPU, force CPU |
-| `font` | Family, size, ligatures, emboldening, line height, cell width |
-| `cursor` | Character (any glyph, NF icon, emoji), blink, blink interval, force shape lock |
-| `colours` | Foreground, background (with alpha for transparency), cursor, selection, full 16-colour ANSI palette, status bar colours, hint label colours |
-| `window` | Title, dimensions, tint colour, opacity, blur radius, always-on-top, title bar buttons, zoom |
-| `tab` | Font family/size, position (top/bottom/left/right), active/inactive/indicator colours |
-| `menu` | Popup menu background opacity |
-| `overlay` | Status message font family/size/colour |
-| `shell` | Program, args, automatic shell integration toggle |
-| `terminal` | Scrollback lines, scroll step, padding (top/right/bottom/left), drag-and-drop file separator and quoting |
-| `pane` | Divider bar colour and highlight colour |
-| `keys` | Every keybinding: copy, paste, quit, close, reload, zoom, tabs, splits, pane navigation, selection mode (visual/visual-line/visual-block with vim keys), open-file mode, command palette, prefix key and timeout, status bar position |
-| `popup` | Default popup dimensions, position, border colour and width |
-| `hyperlinks` | Editor command, per-extension handler overrides, extra clickable extensions |
-| `popups` | Named modal popup terminals: command, args, cwd, dimensions, modal key, global shortcut |
-
-### `whelmed.lua` — Markdown Viewer
-
-| Section | What you can configure |
-|---------|----------------------|
-| Typography | Body font family/style/size, code font family/style/size, line height |
-| Headings | Individual font size for each heading level (h1-h6) |
-| Layout | Content padding (top/right/bottom/left) |
-| Colours | Document background, body text, link, per-heading-level colours |
-| Code blocks | Fence background, inline code colour, 11 syntax token colours (keywords, strings, comments, operators, identifiers, integers, floats, brackets, punctuation, preprocessor, errors) |
-| Tables | Background, header background, alternating row colour, border colour, header/cell text colours |
-| Progress bar | Background, fill, text, spinner colours |
-| Scrollbar | Thumb, track, background colours |
-| Selection | Highlight colour |
-| Navigation | Vim-style scroll keys (j/k/gg/G), scroll step in pixels |
-
-### `end.state`
-
-Auto-saved window state (size, zoom, tab layout). XML format. Not user-edited.
-
-
-## Roadmap
+---
 
 | Feature | Status |
 |---------|--------|
 | WHELMED Mermaid | In progress — basic rendering works, expanding coverage |
-| Sixel inline images | Planned |
-| iTerm2 inline images (OSC 1337) | Planned |
-| Terminal state serialization | **Done** — Grid+State snapshot |
 
-
-## Documentation
-
-| Doc | Contents |
-|-----|----------|
-| [SPEC.md](SPEC.md) | Roadmap and feature specifications |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, threading model, data flow, module map |
-| Source code | Doxygen annotations across all source files |
-
-
-## Platform Support
-
-| Platform | Status |
-|----------|--------|
-| macOS | Primary — CoreText, native glass blur, desktop notifications |
-| Linux | Supported — FreeType rendering |
-| Windows | Supported — ConPTY backend, glass blur |
-
+---
 
 ## License
 
@@ -233,9 +132,8 @@ MIT
 
 ---
 
+*conceived with [CAROL](https://github.com/jrengmusic/carol)*
+
 Rock 'n Roll!
 
 **JRENG!**
-
----
-conceived with [CAROL](https://github.com/jrengmusic/carol)

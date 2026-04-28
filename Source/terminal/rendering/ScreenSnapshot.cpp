@@ -77,20 +77,38 @@ void Screen<Renderer>::updateSnapshot (const State& state, Grid& grid, int rows,
     int totalMono  { 0 };
     int totalEmoji { 0 };
     int totalBg    { 0 };
-    int totalImages { 0 };
 
     for (int r { 0 }; r < rows; ++r)
     {
         if (isRowIncludedInSnapshot (r))
         {
-            totalMono   += monoCount[r];
-            totalEmoji  += emojiCount[r];
-            totalBg     += bgCount[r];
-            totalImages += imageCacheCount[r];
+            totalMono  += monoCount[r];
+            totalEmoji += emojiCount[r];
+            totalBg    += bgCount[r];
         }
     }
 
     snapshot.ensureCapacity (totalMono, totalEmoji, totalBg);
+
+    // Count image quads from IMAGES ValueTree instead of per-row cache.
+    const auto imagesNode    { state.get().getChildWithName (ID::IMAGES) };
+    const int scrollbackUsed { state.getScrollbackUsed() };
+    const int visibleBase    { scrollbackUsed - state.getScrollOffset() };
+    int totalImages          { 0 };
+
+    for (int i { 0 }; i < imagesNode.getNumChildren(); ++i)
+    {
+        const auto img          { imagesNode.getChild (i) };
+        const int imgGridRow    { static_cast<int> (img.getProperty (ID::gridRow)) };
+        const int imgCellRows   { static_cast<int> (img.getProperty (ID::cellRows)) };
+        const int viewRow       { imgGridRow - visibleBase };
+        const bool isPreviewNode { static_cast<bool> (img.getProperty (ID::isPreview, false)) };
+
+        // Preview nodes are always visible regardless of scroll position.
+        // Normal inline images are visible only when any part falls in the viewport.
+        if (isPreviewNode or (viewRow < rows and viewRow + imgCellRows > 0))
+            ++totalImages;
+    }
 
     // Grow image quad capacity if needed.
     if (totalImages > snapshot.imageCapacity)
@@ -107,7 +125,6 @@ void Screen<Renderer>::updateSnapshot (const State& state, Grid& grid, int rows,
     int monoOffset  { 0 };
     int emojiOffset { 0 };
     int bgOffset    { 0 };
-    int imageOffset { 0 };
 
     for (int r { 0 }; r < rows; ++r)
     {
@@ -136,13 +153,74 @@ void Screen<Renderer>::updateSnapshot (const State& state, Grid& grid, int rows,
                              static_cast<size_t> (bgCount[r]) * sizeof (Render::Background));
                 bgOffset += bgCount[r];
             }
+        }
+    }
 
-            if (imageCacheCount[r] > 0)
+    // Build image quads from IMAGES ValueTree nodes.
+    int imageOffset { 0 };
+
+    const bool previewOn   { state.isPreviewActive() };
+    const int  splitColumn { state.getSplitCol() };
+
+    snapshot.previewActive  = previewOn;
+    snapshot.previewSplitCol = splitColumn;
+
+    for (int i { 0 }; i < imagesNode.getNumChildren(); ++i)
+    {
+        const auto img        { imagesNode.getChild (i) };
+        const uint32_t imgId  { static_cast<uint32_t> (static_cast<int> (img.getProperty (ID::imageId))) };
+        const int imgGridRow  { static_cast<int> (img.getProperty (ID::gridRow)) };
+        const int imgGridCol  { static_cast<int> (img.getProperty (ID::gridCol)) };
+        const int imgCellRows { static_cast<int> (img.getProperty (ID::cellRows)) };
+        const int viewRow     { imgGridRow - visibleBase };
+        const bool isPreviewNode { static_cast<bool> (img.getProperty (ID::isPreview, false)) };
+
+        // Preview nodes are always visible; normal images only when in viewport.
+        const bool shouldRender { isPreviewNode or (viewRow < rows and viewRow + imgCellRows > 0) };
+
+        if (shouldRender)
+        {
+            const auto* region { imageAtlas.lookup (imgId) };
+
+            if (region != nullptr)
             {
-                std::memcpy (snapshot.images.get() + imageOffset,
-                             cachedImages.get() + r * cacheCols,
-                             static_cast<size_t> (imageCacheCount[r]) * sizeof (Render::ImageQuad));
-                imageOffset += imageCacheCount[r];
+                Render::ImageQuad iq;
+                iq.uvRect = region->uv;
+
+                if (isPreviewNode)
+                {
+                    // Position in the right panel, centred, aspect-ratio preserved.
+                    const float panelLeft   { static_cast<float> (splitColumn)            * static_cast<float> (physCellWidth) };
+                    const float panelWidth  { static_cast<float> (cacheCols - splitColumn) * static_cast<float> (physCellWidth) };
+                    const float panelHeight { static_cast<float> (rows)                   * static_cast<float> (physCellHeight) };
+
+                    static constexpr float previewPadding { 16.0f };
+                    const float availW { panelWidth  - previewPadding * 2.0f };
+                    const float availH { panelHeight - previewPadding * 2.0f };
+                    const float imgW   { static_cast<float> (region->widthPx) };
+                    const float imgH   { static_cast<float> (region->heightPx) };
+
+                    const float scale { juce::jmin (availW / imgW, availH / imgH, 1.0f) };
+                    const float drawW { imgW * scale };
+                    const float drawH { imgH * scale };
+                    const float drawX { panelLeft + previewPadding + (availW - drawW) * 0.5f };
+                    const float drawY { previewPadding + (availH - drawH) * 0.5f };
+
+                    iq.screenBounds = { drawX, drawY, drawW, drawH };
+                }
+                else
+                {
+                    iq.screenBounds =
+                    {
+                        static_cast<float> (imgGridCol) * static_cast<float> (physCellWidth),
+                        static_cast<float> (viewRow)    * static_cast<float> (physCellHeight),
+                        static_cast<float> (region->widthPx),
+                        static_cast<float> (region->heightPx)
+                    };
+                }
+
+                snapshot.images[imageOffset] = iq;
+                ++imageOffset;
             }
         }
     }
@@ -150,7 +228,7 @@ void Screen<Renderer>::updateSnapshot (const State& state, Grid& grid, int rows,
     snapshot.monoCount        = totalMono;
     snapshot.emojiCount       = totalEmoji;
     snapshot.backgroundCount  = totalBg;
-    snapshot.imageCount       = totalImages;
+    snapshot.imageCount       = imageOffset;
 
     snapshot.cursorFocused = state.isCursorFocused();
 

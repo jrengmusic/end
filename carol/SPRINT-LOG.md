@@ -1,5 +1,98 @@
 # SPRINT-LOG
 
+## Handoff to COUNSELOR: Image Subsystem — Terminal::Image
+
+**From:** COUNSELOR
+**Date:** 2026-04-29
+**Status:** In Progress — BROKEN, multiple issues
+
+### Context
+Executing RFC-IMAGE.md — extract images from Grid entirely into a separate layer: image metadata on State's IMAGES ValueTree, pixel data on ImageAtlas with READER FIFO submission. Grid becomes pure text. Multi-frame GIF decode with disposal composition. Animation tick on VBlank. Native image preview with split viewport.
+
+### Completed
+- Step 1: ImageAtlas READER-facing 16-slot SPSC FIFO (`submitDecoded` / `drainPending`)
+- Step 2: State IMAGES ValueTree node (IMAGE children, `addImageNode` / `removeImageNode`, erase bounding box via parameterMap, scrollback reclamation in `flushImages`)
+- Step 3: Parser `onImageDecoded` callback, wired in TerminalDisplay to ImageAtlas
+- Step 4: Multi-frame decoder extraction (`ImageSequence` struct, `loadImageSequenceNative` with GIF disposal composition on both macOS/Windows, `ImageDecodeGif.h` parser)
+- Step 5: Decoder write target switch (all three protocols use `onImageDecoded` callback, erase signals in ED 2/3 only)
+- Step 6+7: ValueTree-driven image quad building in `updateSnapshot`, cell-based rendering removed (`isImage`/`isImageContinuation` branches, `cachedImages`/`imageCacheCount` deleted)
+- Step 8: Grid cleanup (LAYOUT_IMAGE/LAYOUT_IMAGE_CONT flags, `activeWriteImage`, `imageProtectionActive`, `reserveImageId`, `decodedImages` — all deleted. Grid is pure text.)
+- Step 9: Animation tick on Screen VBlank path (`tickImageAnimation`)
+- Step 10: Native image preview (split viewport, GL scissor, adaptive ratio, key dismiss, MessageOverlay callback chain removed)
+- Step 11: ARCHITECTURE.md updated
+- Fix: EraseRegion FIFO replaced with parameterMap bounding box (BLESSED compliance)
+- Fix: `linkUriCount` stray member replaced with parameterMap entry
+- Fix: `addImageNode` overlap removal (new image replaces old)
+- Fix: Image layer decoupled from cell grid (removed stale-image cell check, removed cell clearing in decoders, removed queueImageErase from EL/ECH/ED 0/1)
+
+### Known Issues (BROKEN)
+1. **Image persistence:** last shown image persists when fzf switches to text preview — erase signal (ED 2/3 only) doesn't fire for per-line content changes. Image layer lifecycle needs rethinking.
+2. **Image persistence on exit:** last shown image persists when fzf is dismissed/exits. Alt screen switch doesn't clear IMAGE nodes.
+3. **Images only cleared by `clear`:** only ED 2/3 triggers `queueImageErase`. No other mechanism removes stale inline images.
+4. **GIF animation broken:** loading forever, not animating, JUCE assertion failure in `ImageAtlas.cpp:490` — likely `jassert(sub.frameCount > 0)` in `drainPending` or atlas staging overflow for multi-frame images.
+5. **Native image preview broken:** needs redesign — the split viewport / GL scissor approach has fundamental issues.
+
+### Key Decisions (Locked)
+- ImageAtlas owns pixel lifecycle end-to-end (READER FIFO submission, MESSAGE drain + stage, GL upload)
+- No `reserveImageId` — atlas assigns ID at staging time
+- Scrollback reclamation during `flush()` — explicit, deterministic
+- Erase: any overlap removes entire image
+- FIFO: 16 slots, each holds full image sequence (N frames + delays)
+- Parser access: `std::function` callback (no layer violation Logic→Rendering)
+- Frame data on ValueTree: binary blob (`juce::MemoryBlock`) — packed imageId + delay arrays
+- Preview split ratio: adaptive based on image aspect ratio
+- Animation tick: Screen VBlank path (NOT State timer — State timer is flush only)
+- Image layer decoupled from cell grid — no cell content checks for image lifecycle
+- All State values go through parameterMap → ValueTree. No stray atomics, no invented primitives.
+
+### Files Modified (30+)
+- `Source/terminal/rendering/ImageAtlas.h/cpp` — READER FIFO (submitDecoded/drainPending), Submission struct, thread contract table updated
+- `Source/terminal/data/Identifier.h` — IMAGES, IMAGE, imageId, gridRow, gridCol, cellCols, cellRows, frameCount, currentFrame, frameStartMs, frameData, widthPx, heightPx, eraseTop/Left/Bottom/Right, linkUriCount, preview, splitCol, isPreview
+- `Source/terminal/data/State.h/cpp` — IMAGES ValueTree node, addImageNode/removeImageNode, queueImageErase (parameterMap bbox), setScrollbackCapacity, setPreview/isPreviewActive/getSplitCol, linkUriCount→parameterMap
+- `Source/terminal/data/StateFlush.cpp` — flushImages (erase bbox drain + scrollback reclamation)
+- `Source/terminal/data/Cell.h` — LAYOUT_IMAGE/LAYOUT_IMAGE_CONT deleted
+- `Source/terminal/logic/Grid.h/cpp` — activeWriteImage, imageProtectionActive, reserveImageId, decodedImages all deleted
+- `Source/terminal/logic/GridAccess.cpp` — decoded image storage implementations deleted
+- `Source/terminal/logic/Parser.h` — onImageDecoded callback added
+- `Source/terminal/logic/ParserDCS.cpp` — dcsUnhook/apcEnd switched to onImageDecoded
+- `Source/terminal/logic/ParserOSCExt.cpp` — handleOsc1337 switched to onImageDecoded + ImageSequence
+- `Source/terminal/logic/ParserEdit.cpp` — queueImageErase in ED 2/3 only
+- `Source/terminal/logic/ParserVT.cpp` — image protection guard removed
+- `Source/terminal/logic/Parser.cpp` — clearImageProtection call removed
+- `Source/terminal/logic/ITerm2Decoder.h/cpp` — returns ImageSequence, uses loadImageSequenceNative
+- `Source/terminal/logic/ImageDecode.h/cpp` — ImageSequence struct, loadImageSequenceNative declaration
+- `Source/terminal/logic/ImageDecodeMac.mm` — multi-frame GIF extraction with disposal composition
+- `Source/terminal/logic/ImageDecodeWin.cpp` — multi-frame GIF extraction with disposal composition
+- `Source/terminal/logic/ImageDecodeGif.h` — GIF metadata parser (static, platform-independent)
+- `Source/terminal/logic/SixelDecoder.h` — stale doxygen updated
+- `Source/terminal/logic/KittyDecoder.h` — stale doxygen updated
+- `Source/terminal/rendering/Screen.h/cpp` — cachedImages/imageCacheCount removed, tickImageAnimation added, Snapshot gains previewActive/previewSplitCol
+- `Source/terminal/rendering/ScreenRender.cpp` — drainPending in buildSnapshot, tickImageAnimation impl
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — ValueTree-driven image quad building
+- `Source/terminal/rendering/ScreenRenderCell.cpp` — isImage/isImageContinuation branches removed
+- `Source/terminal/rendering/ScreenGL.cpp` — GL scissor for preview split
+- `Source/component/TerminalDisplay.h/cpp` — onImageDecoded wired, handleOpenImage atlas-based, onShowImagePreview chain removed
+- `Source/component/Panes.h/cpp` — onShowImagePreview removed
+- `Source/component/Tabs.h/cpp` — onShowImagePreview removed
+- `Source/MainComponent.cpp` — onShowImagePreview wiring removed
+- `Source/terminal/logic/Input.cpp` — preview dismiss on any key
+- `ARCHITECTURE.md` — image subsystem documented
+
+### Open Questions
+1. **Image lifecycle for non-ED erases:** how should images be cleared when the program overwrites them with text without explicit ED 2/3? The image layer is decoupled from cells — cell content checks were removed as a layer violation. Need a different signaling mechanism.
+2. **Alt screen exit:** when a program exits alt screen (mode 1049l), IMAGE nodes from the alt screen should be cleared. Not currently implemented.
+3. **GIF assertion:** `ImageAtlas.cpp:490` assertion in drainPending — likely frameCount or staging issue with multi-frame images. Needs debugging.
+4. **Preview redesign:** the split viewport approach (GL scissor + adaptive ratio) needs rethinking. The current implementation is broken.
+
+### Next Steps
+1. Debug GIF assertion (`ImageAtlas.cpp:490`) — likely the most straightforward fix
+2. Add alt screen exit cleanup — clear IMAGE nodes when mode 1049l switches back to normal screen
+3. Design correct image lifecycle mechanism for non-ED text overwrites that respects layer separation
+4. Redesign native image preview
+5. Run full audit before logging sprint
+
+---
+
 ## Sprint 44: Unified StringSlot seqlock + URI table migration + hint overlay direct read ✅
 
 **Date:** 2026-04-29

@@ -6,6 +6,7 @@
  */
 
 #include "ImageDecode.h"
+#include "ImageDecodeGif.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/

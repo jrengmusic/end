@@ -1,7 +1,7 @@
 /**
  * @file GridAccess.cpp
  * @brief Grid member functions for row access, scrollback, text extraction,
- *        decoded image storage, and serialization.
+ *        and serialization.
  *
  * This translation unit implements the read-side and accessor surface of the
  * Grid class.  Functions here are consumed primarily by the MESSAGE THREAD
@@ -258,62 +258,6 @@ const RowState& Grid::activeVisibleRowState (int row) const noexcept
     const Buffer& buffer { bufferForScreen() };
     const int phys { physicalRow (buffer, row) };
     return buffer.rowStates[phys];
-}
-
-// ============================================================================
-// Decoded Image Storage
-// ============================================================================
-
-/**
- * @brief Reserves the next image ID via atomic increment.
- *
- * @return A unique image ID in [1, UINT32_MAX].
- * @note READER THREAD — lock-free, noexcept.
- */
-uint32_t Grid::reserveImageId() noexcept
-{
-    return nextImageId.fetch_add (1u, std::memory_order_relaxed);
-}
-
-/**
- * @brief Stores decoded image data for later atlas consumption.
- *
- * @param img  PendingImage to store; moved into the internal map.
- * @note READER THREAD — called after image decode completes.
- */
-void Grid::storeDecodedImage (PendingImage&& img) noexcept
-{
-    decodedImages[img.imageId] = std::move (img);
-}
-
-/**
- * @brief Retrieves stored decoded image data without removing it.
- *
- * @param imageId  Image ID to look up.
- * @return Pointer to PendingImage, or nullptr if not found.
- * @note MESSAGE THREAD — called by renderer on first atlas encounter.
- */
-PendingImage* Grid::getDecodedImage (uint32_t imageId) noexcept
-{
-    auto it { decodedImages.find (imageId) };
-
-    if (it != decodedImages.end())
-    {
-        return &it->second;
-    }
-
-    return nullptr;
-}
-
-/**
- * @brief Removes decoded image data after atlas has consumed it.
- *
- * @param imageId  Image ID to remove.
- * @note MESSAGE THREAD.
- */
-void Grid::releaseDecodedImage (uint32_t imageId) noexcept
-{
-    decodedImages.erase (imageId);
 }
 
 // =============================================================================

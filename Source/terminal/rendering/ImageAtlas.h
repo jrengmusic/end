@@ -15,6 +15,8 @@
 #pragma once
 #include <unordered_map>
 #include <array>
+#include <atomic>
+#include <functional>
 #include <JuceHeader.h>
 
 namespace Terminal
@@ -66,6 +68,7 @@ struct ImageRegion
  * | `createGLTexture()`        | GL THREAD      |
  * | `destroyGLTexture()`       | GL THREAD      |
  * | `getGLTexture()`           | GL THREAD      |
+ * | `submitDecoded()`          | READER THREAD  |
  *
  * @see ImageRegion
  * @see jam::Glyph::AtlasPacker
@@ -117,11 +120,11 @@ public:
      * @brief Stages an RGBA8 image using a caller-provided image ID.
      *
      * Validates @p imageId is non-zero, then delegates to `stageImpl()`.
-     * Used by the pending image pipeline: the READER THREAD reserves @p imageId
-     * via `Grid::reserveImageId()` and writes it into Grid cells; the MESSAGE
-     * THREAD then calls this method to bind the RGBA pixels to that same ID.
+     * Used internally by `drainPending()`: after a READER submission is drained
+     * from the SPSC FIFO the IMAGE THREAD assigns a stable ID per frame and
+     * calls this method to bind the RGBA pixels to that ID.
      *
-     * @param imageId   Pre-reserved image ID (from `Grid::reserveImageId()`).
+     * @param imageId   Pre-assigned image ID (internal counter).
      * @param rgba      Pointer to tightly-packed RGBA8 pixel data (4 bytes/pixel).
      * @param widthPx   Source image width in pixels.
      * @param heightPx  Source image height in pixels.
@@ -129,8 +132,7 @@ public:
      *
      * @note MESSAGE THREAD only.
      * @see stageImpl()
-     * @see Grid::reserveImageId()
-     * @see Grid::getDecodedImage()
+     * @see drainPending()
      */
     bool stageWithId (uint32_t imageId, const uint8_t* rgba,
                       int widthPx, int heightPx) noexcept;
@@ -201,6 +203,32 @@ public:
     void advanceFrame() noexcept;
 
     /**
+     * @brief Drains all pending READER submissions, stages pixels, and invokes
+     *        the callback with metadata for each staged image.
+     *
+     * For each drained submission: stages all frames into the atlas (assigns
+     * one imageId per frame via `stage()`), then invokes @p onStaged with the
+     * assigned imageIds, delays, frame count, pixel dimensions, and grid
+     * position metadata.
+     *
+     * @param onStaged  Callback invoked per staged image.  Parameters:
+     *                  `(const uint32_t* imageIds, const int* delays, int frameCount,
+     *                   int widthPx, int heightPx,
+     *                   int gridRow, int gridCol, int cellCols, int cellRows)`.
+     *                  `imageIds` array has `frameCount` entries (one per staged frame).
+     *                  `delays` may be `nullptr` for static images (frameCount == 1).
+     *                  Pointer validity: only during the callback invocation.
+     *
+     * @note MESSAGE THREAD only.
+     */
+    void drainPending (std::function<void (const uint32_t* imageIds,
+                                           const int* delays,
+                                           int frameCount,
+                                           int widthPx, int heightPx,
+                                           int gridRow, int gridCol,
+                                           int cellCols, int cellRows)> onStaged) noexcept;
+
+    /**
      * @brief Updates the byte budget used by `evictIfNeeded()`.
      *
      * Called from `MainComponent::applyConfig()` after the Lua engine has loaded
@@ -245,6 +273,38 @@ public:
      * @note MESSAGE THREAD only.
      */
     juce::Image& getMutableCPUAtlas() noexcept;
+
+    // =========================================================================
+    // READER THREAD
+    // =========================================================================
+
+    /**
+     * @brief Submits a decoded image sequence for cross-thread handoff to MESSAGE.
+     *
+     * Pushes a complete decoded image (single or multi-frame) into the
+     * SPSC FIFO.  All frames must share the same pixel dimensions
+     * (pre-composited for animated GIFs).  Pixels are contiguous: frame N
+     * starts at offset `N * widthPx * heightPx * 4`.
+     *
+     * @param pixels     All frames contiguous, RGBA8, row-major.  Ownership transferred.
+     * @param delays     Per-frame delay in milliseconds.  Null for static images.  Ownership transferred.
+     * @param frameCount Number of frames (1 = static).
+     * @param widthPx    Frame width in pixels.
+     * @param heightPx   Frame height in pixels.
+     * @param gridRow    Absolute grid row of image placement.
+     * @param gridCol    Grid column of image placement.
+     * @param cellCols   Image span in cell columns.
+     * @param cellRows   Image span in cell rows.
+     *
+     * @note READER THREAD only.  Drops the submission silently if the FIFO is full
+     *       (debug: fires jassert).
+     */
+    void submitDecoded (juce::HeapBlock<uint8_t>&& pixels,
+                        juce::HeapBlock<int>&& delays,
+                        int frameCount,
+                        int widthPx, int heightPx,
+                        int gridRow, int gridCol,
+                        int cellCols, int cellRows) noexcept;
 
     // =========================================================================
     // GL THREAD
@@ -333,6 +393,28 @@ private:
         int         sizeBytes       { 0 }; ///< RGBA byte footprint (widthPx * heightPx * 4).
     };
 
+    /**
+     * @struct Submission
+     * @brief Cross-thread transfer of decoded image frames from READER to MESSAGE.
+     *
+     * Holds one complete decoded image (single or multi-frame) with grid
+     * position metadata.  All frames share the same pixel dimensions
+     * (pre-composited for animated GIFs).  Pixels are stored contiguously:
+     * frame N starts at offset `N * widthPx * heightPx * 4`.
+     */
+    struct Submission
+    {
+        juce::HeapBlock<uint8_t> pixels;   ///< All frames contiguous, RGBA8, row-major.
+        juce::HeapBlock<int> delays;       ///< Per-frame delay in milliseconds.  Null for static.
+        int frameCount { 0 };              ///< Number of frames (1 = static, >1 = animated).
+        int widthPx    { 0 };              ///< Frame width in pixels (shared across all frames).
+        int heightPx   { 0 };             ///< Frame height in pixels (shared across all frames).
+        int gridRow    { 0 };              ///< Absolute grid row of image placement.
+        int gridCol    { 0 };              ///< Grid column of image placement.
+        int cellCols   { 0 };              ///< Image span in cell columns.
+        int cellRows   { 0 };              ///< Image span in cell rows.
+    };
+
     // =========================================================================
     // Constants
     // =========================================================================
@@ -387,6 +469,18 @@ private:
 
     /** @brief CPU mirror of the atlas; invalid until `ensureCPUAtlas()` is called. */
     juce::Image cpuAtlas;
+
+    /** @brief FIFO capacity for cross-thread image submissions. */
+    static constexpr int submissionCapacity { 16 };
+
+    /** @brief SPSC ring buffer of decoded image submissions from READER thread. */
+    std::array<Submission, submissionCapacity> submissions;
+
+    /** @brief FIFO write index, incremented by READER via submitDecoded(). */
+    std::atomic<int> submissionHead { 0 };
+
+    /** @brief FIFO read index, incremented by MESSAGE via drainPending(). */
+    std::atomic<int> submissionTail { 0 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ImageAtlas)
 };

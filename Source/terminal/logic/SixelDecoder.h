@@ -23,8 +23,7 @@
  * @endcode
  *
  * @see Terminal::PendingImage
- * @see Terminal::Grid::storeDecodedImage()
- * @see Terminal::ImageAtlas::stageWithId()
+ * @see Terminal::ImageAtlas::submitDecoded()
  */
 
 #pragma once
@@ -56,13 +55,12 @@ struct DecodedImage
 
 /**
  * @struct PendingImage
- * @brief A decoded image with a pre-reserved image ID awaiting atlas staging.
+ * @brief A decoded image awaiting atlas staging.
  *
- * Produced by the READER THREAD after decoding: the decoder reserves an ID via
- * `Grid::reserveImageId()`, writes cells with that ID via `Grid::activeWriteImage()`,
- * and stores this struct via `Grid::storeDecodedImage()`.  The MESSAGE THREAD
- * pulls it from Grid on first atlas encounter in `processCellForSnapshot()` and
- * calls `ImageAtlas::stageWithId()` to register the RGBA pixels.
+ * Produced by the READER THREAD after decoding and submitted to `ImageAtlas`
+ * via `onImageDecoded` → `ImageAtlas::submitDecoded()`.  The MESSAGE THREAD
+ * drains the FIFO via `ImageAtlas::drainPending()`, stages pixels, and
+ * propagates metadata to the State via `State::addImageNode()`.
  */
 struct PendingImage
 {

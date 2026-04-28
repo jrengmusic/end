@@ -31,7 +31,6 @@
  */
 
 #include "Screen.h"
-#include "../logic/SixelDecoder.h"
 
 
 namespace Terminal
@@ -224,88 +223,6 @@ void Screen<Renderer>::processCellForSnapshot (
     int col, int row, Grid& grid) noexcept
 {
     // ---------------------------------------------------------------------------
-    // Dispatch on cell layout type.
-    //
-    // Image cells (LAYOUT_IMAGE / LAYOUT_IMAGE_CONT) bypass all text shaping.
-    // All other cells go through the full hint-override + shaping pipeline.
-    // ---------------------------------------------------------------------------
-
-    if (cell.isImageContinuation())
-    {
-        // Continuation cell: emit background quad only (if non-default bg).
-        const juce::Colour bg { resolveBackground (cell.bg, resources.terminalColors) };
-
-        if (bg != resources.terminalColors.defaultBackground)
-        {
-            const int bgIdx { row * bgCacheCols + bgCount[row] };
-            Render::Background& bgQuad { cachedBg[bgIdx] };
-            bgQuad.screenBounds = juce::Rectangle<float> {
-                static_cast<float> (col * physCellWidth),
-                static_cast<float> (row * physCellHeight),
-                static_cast<float> (physCellWidth),
-                static_cast<float> (physCellHeight) };
-            bgQuad.backgroundColorR = bg.getFloatRed();
-            bgQuad.backgroundColorG = bg.getFloatGreen();
-            bgQuad.backgroundColorB = bg.getFloatBlue();
-            bgQuad.backgroundColorA = bg.getFloatAlpha();
-            ++bgCount[row];
-        }
-    }
-    else if (cell.isImage())
-    {
-        // Head cell: emit background quad (if non-default bg) + full-image ImageQuad.
-        const juce::Colour bg { resolveBackground (cell.bg, resources.terminalColors) };
-
-        if (bg != resources.terminalColors.defaultBackground)
-        {
-            const int bgIdx { row * bgCacheCols + bgCount[row] };
-            Render::Background& bgQuad { cachedBg[bgIdx] };
-            bgQuad.screenBounds = juce::Rectangle<float> {
-                static_cast<float> (col * physCellWidth),
-                static_cast<float> (row * physCellHeight),
-                static_cast<float> (physCellWidth),
-                static_cast<float> (physCellHeight) };
-            bgQuad.backgroundColorR = bg.getFloatRed();
-            bgQuad.backgroundColorG = bg.getFloatGreen();
-            bgQuad.backgroundColorB = bg.getFloatBlue();
-            bgQuad.backgroundColorA = bg.getFloatAlpha();
-            ++bgCount[row];
-        }
-
-        const uint32_t imageId { cell.codepoint };
-        const ImageRegion* region { imageAtlas.lookup (imageId) };
-
-        if (region == nullptr)
-        {
-            PendingImage* pending { grid.getDecodedImage (imageId) };
-
-            if (pending != nullptr)
-            {
-                imageAtlas.stageWithId (pending->imageId, pending->rgba.get(),
-                                        pending->width, pending->height);
-                grid.releaseDecodedImage (imageId);
-                region = imageAtlas.lookup (imageId);
-            }
-        }
-
-        if (region != nullptr and imageCacheCount[row] < cacheCols)
-        {
-            const int imgIdx { row * cacheCols + imageCacheCount[row] };
-            Render::ImageQuad& iq { cachedImages[imgIdx] };
-            iq.screenBounds = juce::Rectangle<float> {
-                static_cast<float> (col * physCellWidth),
-                static_cast<float> (row * physCellHeight),
-                static_cast<float> (region->widthPx),
-                static_cast<float> (region->heightPx) };
-            iq.uvRect = region->uv;
-
-            ++imageCacheCount[row];
-        }
-    }
-    else
-    {
-
-    // ---------------------------------------------------------------------------
     // Hint label override: substitute cell content at hint positions.
     //
     // When Open File mode is active, `hintOverlay` points to the `LinkSpan`
@@ -440,7 +357,6 @@ void Screen<Renderer>::processCellForSnapshot (
         }
     }
 
-    } // else: normal text / glyph cell (not LAYOUT_IMAGE / LAYOUT_IMAGE_CONT)
 }
 
 template void Screen<jam::Glyph::GLContext>::processCellForSnapshot (const Cell&, const Cell*, const Grapheme*, int, int, Grid&) noexcept;

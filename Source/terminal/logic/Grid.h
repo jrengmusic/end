@@ -67,7 +67,6 @@
 #include "../../lua/Engine.h"
 #include "../data/State.h"
 #include "../data/Cell.h"
-#include "SixelDecoder.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -251,61 +250,6 @@ public:
      */
     int consumeScrollDelta() noexcept;
 
-    // =========================================================================
-    /** @name Decoded image storage (READER writes, MESSAGE reads on demand)
-     *
-     *  Decoded images are produced on the READER THREAD and stored in Grid.
-     *  The MESSAGE THREAD pulls them on first atlas encounter — same pattern
-     *  as codepoints in cells: READER writes, renderer reads.
-     *
-     *  Protocol:
-     *  1. READER THREAD calls `reserveImageId()` — atomic increment.
-     *  2. READER THREAD calls `activeWriteImage()` with the reserved ID.
-     *  3. READER THREAD calls `storeDecodedImage()` — stores RGBA in map.
-     *  4. MESSAGE THREAD encounters image cell → calls `getDecodedImage()`.
-     *  5. MESSAGE THREAD calls `ImageAtlas::stageWithId()` for the entry.
-     *  6. MESSAGE THREAD calls `releaseDecodedImage()` to free the RGBA.
-     * @{ */
-
-    /**
-     * @brief Reserves the next image ID via atomic increment.
-     *
-     * The READER THREAD calls this immediately before `activeWriteImage()` to
-     * obtain an ID that both Grid cells and the atlas agree on.  IDs start at 1;
-     * 0 is reserved as "invalid".
-     *
-     * @return A unique image ID in [1, UINT32_MAX].
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    uint32_t reserveImageId() noexcept;
-
-    /**
-     * @brief Stores decoded image data for later atlas consumption.
-     *
-     * @param img  PendingImage to store; moved into the internal map.
-     * @note READER THREAD — called after image decode completes.
-     */
-    void storeDecodedImage (PendingImage&& img) noexcept;
-
-    /**
-     * @brief Retrieves stored decoded image data without removing it.
-     *
-     * @param imageId  Image ID to look up.
-     * @return Pointer to PendingImage, or nullptr if not found.
-     * @note MESSAGE THREAD — called by renderer on first atlas encounter.
-     */
-    PendingImage* getDecodedImage (uint32_t imageId) noexcept;
-
-    /**
-     * @brief Removes decoded image data after atlas has consumed it.
-     *
-     * @param imageId  Image ID to remove.
-     * @note MESSAGE THREAD.
-     */
-    void releaseDecodedImage (uint32_t imageId) noexcept;
-
-    /** @} */
-
     /** @name Cell access
      *  All write methods are READER THREAD only.  Const read methods are
      *  MESSAGE THREAD only (called from the render path).
@@ -353,31 +297,6 @@ public:
      * @see activeEraseGrapheme(), activeReadGrapheme()
      */
     void activeWriteGrapheme (int row, int col, const Grapheme& grapheme) noexcept;
-
-    /**
-     * @brief Writes a multi-cell image span to the active buffer.
-     *
-     * Computes the cell span from pixel dimensions, writes `LAYOUT_IMAGE` on the
-     * head cell (top-left), `LAYOUT_IMAGE_CONT` on all continuation cells.
-     * Shared cell-writing path for all three SKiT decoders (Sixel, Kitty, iTerm2).
-     *
-     * @param startRow     Zero-based visible row index of the top-left image cell.
-     * @param startCol     Zero-based column index of the top-left image cell.
-     * @param imageId      Unique image identifier (stored in head cell's codepoint).
-     * @param widthPx      Image width in pixels.
-     * @param heightPx     Image height in pixels.
-     * @param cellWidthPx  Terminal cell width in pixels.
-     * @param cellHeightPx Terminal cell height in pixels.
-     * @note READER THREAD — lock-free, noexcept.
-     */
-    void activeWriteImage (int startRow, int startCol,
-                           uint32_t imageId, int widthPx, int heightPx,
-                           int cellWidthPx, int cellHeightPx) noexcept;
-
-    /** @brief Returns true when image cells should be protected from print overwrite.
-     *  @note READER THREAD only.
-     */
-    bool isImageProtected() const noexcept { return imageProtectionActive; }
 
     /**
      * @brief Clears the grapheme cluster sidecar for the cell at (row, col).
@@ -796,11 +715,6 @@ public:
         void               markRowDirty (int row) noexcept                                               { grid.markRowDirty (row); }
         void               activeWriteCell (int row, int col, const Cell& cellState) noexcept            { grid.activeWriteCell (row, col, cellState); }
         void               activeWriteGrapheme (int row, int col, const Grapheme& grapheme) noexcept     { grid.activeWriteGrapheme (row, col, grapheme); }
-        void               activeWriteImage (int startRow, int startCol, uint32_t imageId, int widthPx, int heightPx, int cellWidthPx, int cellHeightPx) noexcept { grid.activeWriteImage (startRow, startCol, imageId, widthPx, heightPx, cellWidthPx, cellHeightPx); }
-        void               clearImageProtection() noexcept                                                  { grid.imageProtectionActive = false; }
-        bool               isImageProtected() const noexcept                                                { return grid.imageProtectionActive; }
-        uint32_t           reserveImageId() noexcept                                                                                                             { return grid.reserveImageId(); }
-        void               storeDecodedImage (PendingImage&& img) noexcept                                                                                       { grid.storeDecodedImage (std::move (img)); }
         void               activeEraseGrapheme (int row, int col) noexcept                               { grid.activeEraseGrapheme (row, col); }
         void               activeWriteLinkId (int row, int col, uint16_t linkId) noexcept               { grid.activeWriteLinkId (row, col, linkId); }
         uint16_t*          directLinkIdRowPtr (int visibleRow) noexcept                                 { return grid.directLinkIdRowPtr (visibleRow); }
@@ -965,28 +879,6 @@ private:
      */
     mutable juce::CriticalSection resizeLock;
 
-    // =========================================================================
-    // Decoded image storage (READER writes, MESSAGE reads on demand)
-    // =========================================================================
-
-    /**
-     * @brief Monotonically increasing image ID counter for pending images.
-     *
-     * The READER THREAD atomically increments this in `reserveImageId()`.
-     * Starts at 1 so that 0 remains the "invalid" sentinel.
-     *
-     * @note Atomic — safe for READER THREAD increment + MESSAGE THREAD read.
-     */
-    std::atomic<uint32_t> nextImageId { 1 };
-
-    /**
-     * @brief Decoded RGBA pixel data keyed by imageId.
-     *
-     * READER stores after decode.  MESSAGE reads on first atlas encounter.
-     * Same role as codepoints in cells — source data for atlas to consume.
-     */
-    std::unordered_map<uint32_t, PendingImage> decodedImages;
-
     /**
      * @brief Reference to the terminal parameter store.
      *
@@ -1037,18 +929,6 @@ private:
      * scroll animation.
      */
     std::atomic<int> scrollDelta { 0 };
-
-    /**
-     * @brief Per-batch image cell protection flag.
-     *
-     * Set by `activeWriteImage()` when image cells are written.  Cleared by
-     * `clearImageProtection()` at the start of each `Parser::process()` call.
-     * When true, the print path skips image cells to prevent same-batch
-     * text padding from overwriting freshly placed images.
-     *
-     * @note READER THREAD only — no atomics needed.
-     */
-    bool imageProtectionActive { false };
 
     /**
      * @brief The two screen buffers: index 0 = normal, index 1 = alternate.

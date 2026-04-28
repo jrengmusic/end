@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-04-26 (updated: Unified Lua Engine — lua::Engine replaces Config, Whelmed::Config, Scripting::Engine; six typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action); single Lua state; unified colour parsing; seven module Lua files; total reload on any .lua change)
+**Last Updated:** 2026-04-29 (updated: Image subsystem extraction — Grid pure text, ImageAtlas READER FIFO + MESSAGE drain, IMAGES ValueTree node, multi-frame GIF decode with disposal, animation tick on VBlank, native image preview with split viewport)
 
 ---
 
@@ -114,12 +114,18 @@ Source/
       GridScroll.cpp                Scroll region operations
       GridErase.cpp                 Erase operations
       GridReflow.cpp                Reflow on resize
+      ImageDecode.h                 Platform-native image decoding API + ImageSequence struct
+      ImageDecode.cpp               Platform-independent BGRA→RGBA swizzle
+      ImageDecodeMac.mm             macOS: CGImageSource single + multi-frame decode with GIF disposal
+      ImageDecodeWin.cpp            Windows: WIC single + multi-frame decode with GIF disposal; Linux stub
+      ImageDecodeGif.h              GIF binary metadata parser (static, shared by platform TUs)
 
     rendering/                      GPU/CPU pipeline (fonts, atlas, GL/SIMD)
       Screen.h/cpp                  Render coordinator, snapshot builder (reads Grid directly every frame)
       ScreenRender.cpp              buildSnapshot (reads Grid directly, no cell cache)
       ScreenSnapshot.cpp            updateSnapshot, publish to GLSnapshotBuffer
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
+      ImageAtlas.h/cpp              Shelf-packed RGBA8 atlas + READER FIFO submission + MESSAGE drain
       selection/
         LinkManager.h/cpp           Viewport scan, cell-native hyperlink scanning, hit-test, click dispatch
       Fonts.h                       Shared header (platform-agnostic API)
@@ -201,9 +207,9 @@ Source/
 | lua::Engine | `lua/` | Unified Lua config + scripting engine. Sole owner of `jam::lua::state` — SSOT for all settings, keybindings, popup definitions, and custom actions. Six typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action) replace string-keyed value maps. Unified colour parser handles `#RRGGBB`, `#RRGGBBAA`, and bare `RRGGBBAA` formats. File watcher triggers total reload on any `.lua` change (gated by `nexus.autoReload`). Provides parsed bindings to `Action::Registry`, selection keys to `Terminal::Input` / `Whelmed::InputHandler`, and Theme to Screen. | sol2, jam::Context, jam::File::Watcher |
 | Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, lua::Engine, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
-| Data | `terminal/data/` | Pure value types, state atomics, IDs | JUCE ValueTree |
+| Data | `terminal/data/` | Pure value types, state atomics, IDs, image metadata (IMAGES ValueTree) | JUCE ValueTree |
 | Logic | `terminal/logic/` | VT parsing, grid storage, session orchestration | Data |
-| Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL/CPU draw, Fonts (Context-managed) | Data, FreeType, HarfBuzz, OpenGL, jam_graphics |
+| Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL/CPU draw, Fonts (Context-managed), ImageAtlas (pixel lifecycle, READER FIFO, GL upload) | Data, FreeType, HarfBuzz, OpenGL, jam_graphics |
 | Notifications | `terminal/notifications/` | Native desktop notification dispatch (OSC 9/777) | JUCE, UserNotifications (macOS) |
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
@@ -399,6 +405,16 @@ READER → HeapBlock on Grid → dirty-row fence → MESSAGE reads directly
 Grid's `HeapBlock<Cell>`, `HeapBlock<Grapheme>`, `HeapBlock<uint16_t> linkIds` are read directly by `Screen::buildSnapshot()` on the MESSAGE thread via VBlank polling. No ValueTree involvement — ValueTree cannot handle this volume (appendChild/setProperty allocate, lock, fire listeners per entry). Synchronization: `resizeLock` CriticalSection (resize only) + `dirtyRows[4]` atomic bitmask (render trigger).
 
 **Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → Grid HeapBlock. If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
+
+**Image metadata** — inline image positions, dimensions, atlas IDs, animation state. Sparse, event-driven.
+
+```
+READER → onImageDecoded callback → ImageAtlas FIFO → MESSAGE drains in buildSnapshot → State IMAGES ValueTree
+```
+
+Image metadata follows the scalar pattern (sparse, ValueTree children) but pixel data takes a dedicated path: READER submits decoded frames to a 16-slot SPSC FIFO on `ImageAtlas`. MESSAGE thread drains the FIFO in `buildSnapshot()`, stages pixels via `ImageAtlas::stage()`, and writes IMAGE children to the IMAGES ValueTree node on State. Animation frame advance runs on the VBlank path via `Screen::tickImageAnimation()`. Erase signals flow through `parameterMap` atomics (bounding box accumulation) consumed by `State::flushImages()`.
+
+**Image pixel data** flows: READER decode → `ImageAtlas::submitDecoded()` (FIFO) → MESSAGE `drainPending()` → `stage()` → `publishStagedUploads()` → GL `consumeStagedUploads()` → `glTexSubImage2D`. Same Mailbox handoff as glyph atlas.
 
 ### Communication Contracts
 
@@ -791,7 +807,7 @@ The config key controlling daemon mode is `lua::Engine::nexus.daemon` (`"daemon"
 ```
 
 Style bits: BOLD, ITALIC, UNDERLINE, STRIKE, BLINK, INVERSE
-Layout bits: LAYOUT_IMAGE_CONT (0x02), LAYOUT_IMAGE (0x10), LAYOUT_HYPERLINK (0x20), wide continuation, emoji, has grapheme
+Layout bits: LAYOUT_HYPERLINK (0x20), wide continuation, emoji, has grapheme
 
 ### Color (4 bytes, trivially copyable)
 
@@ -1060,6 +1076,14 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Rationale:** Co-locating SESSION under PANE enables future state persistence of the full split layout + terminal state in a single ValueTree. Ungrafting before `PaneManager::remove()` prevents re-parenting asserts when the tree restructures.
 
+### Decision: Image Metadata on ValueTree, Pixels on ImageAtlas
+
+**Context:** Images were embedded as cell flags in Grid (`LAYOUT_IMAGE`, `LAYOUT_IMAGE_CONT`) with an `imageProtectionActive` hack to prevent same-batch text overwrites. Codepoint field repurposed as imageId. N×M continuation cells consumed 16 bytes each for zero information.
+
+**Decision:** Extract images from Grid entirely. Image metadata (position, dimensions, atlas ID, animation state) lives as IMAGE children under an IMAGES ValueTree node on State. Pixel data flows through ImageAtlas's 16-slot SPSC FIFO (READER submits, MESSAGE drains and stages). Grid is pure text — no image flags, no protection hack.
+
+**Rationale:** Grid's job is text. Images are a renderer concern. The APVTS ValueTree pattern handles image metadata at 60-120Hz with zero pressure (proven by audio DAWs at 384k ops/sec). Cell flags, codepoint repurposing, and per-cell renderer branching were architectural violations — symptoms of images living where they don't belong.
+
 ---
 
 ## Font Architecture
@@ -1230,7 +1254,10 @@ Click-mode link underlines only render on OSC 133 output rows.
 | FontCollection | Flat int8_t[0x110000] codepoint-to-font-slot dispatch table, O(1) lookup |
 | GlyphConstraint | Per-codepoint NF icon scaling/alignment descriptor applied at rasterization time |
 | Grapheme | Multi-codepoint character cluster (e.g., flag emoji, combining marks) |
-| Grid | Ring-buffer storage for terminal cells, dual-screen (normal/alternate) |
+| Grid | Ring-buffer storage for terminal cells, dual-screen (normal/alternate). Pure text — no image flags |
+| ImageAtlas | Shelf-packed 4096×4096 RGBA8 texture atlas for inline images. READER FIFO submission, MESSAGE drain + stage, GL upload via Mailbox |
+| ImageSequence | Multi-frame decoded image: contiguous RGBA8 pixels + per-frame delays. Produced by platform decoders with GIF disposal pre-composition |
+| IMAGES | ValueTree container node (child of SESSION) holding IMAGE children for inline image metadata |
 | LRUGlyphCache | Frame-stamped LRU map; evicts oldest 10% when over capacity |
 | GLMailbox | Generic lock-free atomic pointer exchange template (`jam::GLMailbox<T>`) |
 | GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jam::GLSnapshotBuffer<T>`) |
