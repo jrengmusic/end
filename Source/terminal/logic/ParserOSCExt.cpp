@@ -23,6 +23,7 @@
  */
 
 #include "Parser.h"
+#include <jam_tui/jam_tui.h>
 #include "ITerm2Decoder.h"
 
 namespace Terminal
@@ -128,15 +129,19 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, int dataLength
 }
 
 /**
- * @brief Handles OSC 1337 — iTerm2 inline image display.
+ * @brief Handles OSC 1337 — iTerm2 inline image display or SKiT filepath signal.
  *
- * Delegates to `ITerm2Decoder` to parse the `File=` key=value header,
- * base64-decode the payload, and produce an `ImageSequence` (all frames,
- * straight RGBA8).  On success, computes the absolute grid position from the
- * current cursor and scrollback depth, then invokes `onImageDecoded` with the
- * pixel data, frame metadata, and placement coordinates.
+ * Checks for the SKiT `END;` prefix first.  If present, delegates to
+ * `handleSkitFilepath` which invokes `onPreviewFile` with the filepath and
+ * cursor row — file loading happens on the MESSAGE THREAD.  An empty filepath
+ * signals preview dismissal.  Otherwise delegates to `ITerm2Decoder` to parse
+ * the `File=` key=value header, base64-decode the payload, and produce an
+ * `ImageSequence` (all frames, straight RGBA8).  On success, computes the
+ * absolute grid position from the current cursor and scrollback depth, then
+ * invokes `onImageDecoded` with the pixel data, frame metadata, and placement
+ * coordinates.
  *
- * Silently skips when:
+ * Silently skips the decode path when:
  * - `inline=0` or the key is absent (download-only mode).
  * - Cell dimensions are not yet calibrated (zero values).
  * - Decoder returns an invalid ImageSequence.
@@ -147,7 +152,7 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, int dataLength
  * @endcode
  *
  * @param data        Pointer to OSC payload bytes after "1337;".
- *                    Expected to begin with "File=".
+ *                    Expected to begin with "File=" or "END;".
  * @param dataLength  Number of bytes in @p data.
  *
  * @note READER THREAD only.
@@ -155,41 +160,58 @@ void Parser::handleOsc133 (ActiveScreen scr, const uint8_t* data, int dataLength
  * @see ITerm2Decoder
  * @see ImageSequence
  * @see Parser::onImageDecoded
+ * @see Parser::onPreviewFile
  */
 void Parser::handleOsc1337 (const uint8_t* data, int dataLength) noexcept
 {
-    // READER THREAD
-    const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
-    const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+    constexpr int endPrefixLen { 4 };
 
-    if (cellW > 0 and cellH > 0)
+    if (dataLength >= endPrefixLen
+        and data[0] == 'E' and data[1] == 'N'
+        and data[2] == 'D' and data[3] == ';')
     {
-        ITerm2Decoder decoder;
-        ImageSequence seq { decoder.decode (data, dataLength) };
+        const juce::String filepath { juce::String::fromUTF8 (
+            reinterpret_cast<const char*> (data + endPrefixLen),
+            dataLength - endPrefixLen) };
 
-        if (seq.isValid())
+        handleSkitFilepath (filepath);
+    }
+    else
+    {
+        const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
+        const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+
+        if (cellW > 0 and cellH > 0)
         {
-            const ActiveScreen scr      { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-            const int cursorRow         { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
-            const int cursorCol         { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
-            const int scrollbackUsed    { state.getRawValue<int> (ID::scrollbackUsed) };
-            const int absRow            { scrollbackUsed + cursorRow };
+            ITerm2Decoder decoder;
+            ImageSequence seq { decoder.decode (data, dataLength) };
 
-            const int cellCols { (seq.width  + cellW - 1) / cellW };
-            const int cellRows { (seq.height + cellH - 1) / cellH };
-
-            if (onImageDecoded)
+            if (seq.isValid())
             {
-                onImageDecoded (std::move (seq.pixels),
-                                std::move (seq.delays),
-                                seq.frameCount,
-                                seq.width, seq.height,
-                                absRow, cursorCol,
-                                cellCols, cellRows);
-            }
+                const ActiveScreen scr      { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+                const int cursorRow         { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+                const int cursorCol         { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+                const int scrollbackUsed    { state.getRawValue<int> (ID::scrollbackUsed) };
+                const int absRow            { scrollbackUsed + cursorRow };
 
-            cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
-            state.setCursorCol (scr, 0);
+                const auto span { metrics.cellSpan (seq.width, seq.height) };
+                const int cellCols { span.getWidth().value };
+                const int cellRows { span.getHeight().value };
+
+                if (onImageDecoded)
+                {
+                    onImageDecoded (std::move (seq.pixels),
+                                    std::move (seq.delays),
+                                    seq.frameCount,
+                                    seq.width, seq.height,
+                                    absRow, cursorCol,
+                                    cellCols, cellRows,
+                                    false);
+                }
+
+                cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
+                state.setCursorCol (scr, 0);
+            }
         }
     }
 }

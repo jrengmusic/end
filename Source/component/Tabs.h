@@ -26,7 +26,6 @@
 #include "TerminalDisplay.h"
 #include "Panes.h"
 #include "LookAndFeel.h"
-#include "../terminal/rendering/ImageAtlas.h"
 
 namespace Whelmed { class Component; }
 
@@ -52,7 +51,6 @@ public:
      * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
      * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
-     * @param imageAtlas    Inline image atlas; threaded through to Screen for staged GPU upload.
      * @param orientation   The tab bar orientation (top, bottom, left, or right).
      * @note MESSAGE THREAD.
      */
@@ -60,7 +58,6 @@ public:
           jam::Glyph::Packer& packer,
           jam::gl::GlyphAtlas& glAtlas,
           jam::GraphicsAtlas& graphicsAtlas,
-          Terminal::ImageAtlas& imageAtlas,
           jam::TabbedButtonBar::Orientation orientation);
 
     /**
@@ -409,7 +406,6 @@ private:
     jam::Glyph::Packer& packerRef;
     jam::gl::GlyphAtlas& glAtlasRef;
     jam::GraphicsAtlas& graphicsAtlasRef;
-    Terminal::ImageAtlas& imageAtlasRef;
     juce::Value tabName;
     jam::Owner<Panes> panes;
 

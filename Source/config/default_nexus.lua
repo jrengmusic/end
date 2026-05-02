@@ -121,4 +121,38 @@ return {
         -- extensions = { ".vue", ".svelte", ".astro" },
     },
 
+    -- ========================================================================
+    -- IMAGE
+    -- ========================================================================
+
+    image = {
+        -- SKiT emission protocol for `end preview`.
+        -- "iterm2" — default, fastest, lossless. Raw file bytes as base64.
+        -- "kitty"  — equivalent to iterm2 for END.
+        -- "sixel"  — lossy (256 colors), larger payload, slower.
+        protocol = "%%image_protocol%%",
+
+        -- Maximum RGBA bytes retained in the inline image atlas before
+        -- eviction, in bytes. Range: 1 MiB - 256 MiB.
+        -- atlas_budget = 33554432,
+
+        -- Maximum image atlas dimension in pixels. Images exceeding this
+        -- in either dimension are downscaled to fit. Range: 1024 - 8192.
+        atlas_dimension = %%image_atlas_dimension%%,
+
+        -- Native preview panel width as proportion of viewport. Range: 0.1 - 0.5.
+        -- These settings apply to END's own preview surface (hyperlink click,
+        -- file open). CLI/TUI tools (fzf, yazi) manage their own layout.
+        width = %%image_width%%,
+
+        -- Native preview panel height as proportion of viewport. Range: 0.1 - 0.5.
+        height = %%image_height%%,
+
+        -- Padding inside the preview panel, in pixels. Range: 0 - 64.
+        padding = %%image_padding%%,
+
+        -- Draw a native border around the preview region.
+        border = "%%image_border%%",
+    },
+
 }

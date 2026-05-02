@@ -1,5 +1,84 @@
 # SPRINT-LOG
 
+## Sprint 1: SKiT Image Preview — Overlay Architecture + Display Decomposition ✅
+
+**Date:** 2026-05-02
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR — audit triage, ARCHITECTURE.md updates, delegation, fact-checking
+- Engineer (×4) — Overlay implementation, Display decomposition, stale doxygen fixes, config ref + getContentBounds
+- Auditor (×1) — comprehensive audit of all SKiT changes + refactoring opportunities
+- Pathfinder (×8) — codebase surveys (Display methods, ARCHITECTURE.md state, config stability, stale refs, git state)
+
+### Files Modified (50+)
+
+**New files:**
+- `Source/terminal/rendering/Overlay.h` — jam::gl::Component, owns juce::Image, border, animation timer
+- `Source/terminal/rendering/Overlay.cpp` — paintGL/paint unconditional render, Timer animation
+- `Source/component/TerminalDisplayPreview.cpp` — extracted preview lifecycle (handleOpenImage, activatePreview, dismissPreview, consumePendingPreview)
+- `Source/terminal/rendering/Glyph.cpp/h` — glyph rendering extracted from Screen
+- `Source/terminal/rendering/GlyphCell.cpp` — per-cell snapshot processing
+- `Source/terminal/rendering/GlyphShape.cpp` — box-drawing/block-element shape rendering
+- `Source/terminal/rendering/Render.h` — shared GPU-facing render types extracted from Screen.h
+
+**Major rewrites:**
+- `Source/component/TerminalDisplay.h` — config ref member, getContentBounds decl, 3 new private method decls (processDirtySnapshot, rebuildSelectionFromState, consumePendingPreview), padding inits from config ref, Overlay/preview members
+- `Source/component/TerminalDisplay.cpp` — onVBlank decomposed to 18 lines, getContentBounds impl, resized() uses getContentBounds, all getContext() replaced with config ref, ImageDecode include moved to preview file
+- `Source/terminal/rendering/Screen.h` — Image ref removed, numCols/numRows to Cell, Metrics member, 3-arg constructor
+- `Source/terminal/rendering/Screen.cpp` — calc() uses Metrics, getCellBounds/cellAtPoint use Metrics
+- `Source/terminal/rendering/ScreenRender.cpp` — image.drainPending removed, stale doxygen fixed
+- `Source/terminal/rendering/ScreenGL.cpp` — image render/preview scissor blocks removed
+- `Source/terminal/rendering/ScreenSnapshot.cpp` — image.packInlineQuads removed
+- `Source/MainComponent.cpp` — recursive GL walker for child jam::gl::Components
+- `Source/terminal/logic/ParserDCS.cpp` — handleSkitFilepath shared helper extracted, Metrics member
+- `Source/terminal/logic/ParserOSCExt.cpp` — same handleSkitFilepath pattern
+- `Source/terminal/logic/Processor.h` — stale TerminalDisplay.h include removed (layer violation fix)
+- `Source/terminal/data/State.h/cpp` — preview state flags
+- `Source/component/Panes.cpp` — cellsFromRect migrated to Metrics
+- `ARCHITECTURE.md` — 7 targeted edits: header, module map, module inventory (jam_tui), data flow (preview pipeline), decision (Overlay), glossary
+
+**Stale doxygen fixed:**
+- `Source/terminal/rendering/ScreenRender.cpp:8,20,25` — ScreenRenderCell → GlyphCell
+- `Source/terminal/rendering/GlyphShape.cpp:13,34` — ScreenRenderCell → GlyphCell
+- `Source/terminal/logic/SixelDecoder.h:9,26,41,60` — ImageAtlas → State::addImageNode
+- `Source/terminal/logic/KittyDecoder.h:29` — ImageAtlas → State::addImageNode
+- `Source/terminal/logic/ParserDCS.cpp:24` — ImageAtlas FIFO → onImageDecoded
+
+**Deleted:**
+- `Source/terminal/rendering/ImageAtlas.h/cpp` — entire atlas/FIFO subsystem
+- `Source/terminal/rendering/Image.h/cpp/ImageRender.cpp` — entire Image renderer
+- `Source/terminal/rendering/Preview.h/cpp` — 960-line god object replaced by 140-line Overlay
+- `Source/terminal/rendering/ScreenRenderCell.cpp` — moved to GlyphCell.cpp
+- `Source/terminal/rendering/ScreenRenderGlyph.cpp` — moved to GlyphShape.cpp
+- `PLAN-skit.md`, `RFC-SKiT.md`, `RFC-cell-metrics.md` — objectives complete
+
+### Alignment Check
+- [x] BLESSED principles followed (Overlay is Lean, Bound, Explicit, SSOT)
+- [x] NAMES.md adhered (Overlay, Metrics, getContentBounds, handleSkitFilepath — all ARCHITECT-approved)
+- [x] MANIFESTO.md principles applied (no FIFO/atlas for one image, jam modules as SSOT, established patterns followed)
+
+### Problems Solved
+- Preview god object (~960 lines, handrolled GL) replaced with Overlay (~140 lines, jam::gl::Component)
+- Display→Screen pattern replicated for Display→Overlay — side-by-side layout with automatic Screen reflow via PTY resize
+- TerminalDisplay.cpp onVBlank decomposed from 139 lines to 18 lines (3 named helpers)
+- TerminalDisplay preview lifecycle extracted to TerminalDisplayPreview.cpp (Screen file decomposition pattern)
+- Config context stored as reference member — eliminates 10 getContext() calls, 2 defensive null guards collapsed
+- getContentBounds() SSOT — eliminates duplicated padding arithmetic in resized() and applyZoom()
+- Processor.h layer violation fixed — terminal/logic no longer includes component/TerminalDisplay.h
+- Stale doxygen references to deleted files fixed across 6 files
+- ARCHITECTURE.md updated to reflect Overlay architecture (was stale: 8+ ImageAtlas references, zero Overlay)
+- Cell metrics consolidated in jam::tui::Metrics — replaces ~15 duplicated conversion sites
+- handleSkitFilepath extracted as shared parser helper (was triplicated ~50 lines each)
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
 ## Handoff to COUNSELOR: Image Subsystem — Terminal::Image
 
 **From:** COUNSELOR

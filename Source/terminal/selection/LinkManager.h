@@ -151,9 +151,11 @@ public:
      * When set, intercepts file dispatch for image extensions (`.png`, `.jpg`,
      * `.jpeg`, `.gif`) before the default editor-launch logic runs.
      *
+     * @param triggerRow  Visible row of the link span that triggered the open.
+     *
      * @note MESSAGE THREAD.
      */
-    mutable std::function<void (const juce::File&)> onOpenImage;
+    mutable std::function<void (const juce::File&, int triggerRow)> onOpenImage;
 
     /**
      * @brief Returns the current clickable-link spans (for hover underline).
@@ -303,9 +305,6 @@ private:
 
     /** @brief Cached reference to the scrollOffset PARAM node for direct listening. */
     juce::ValueTree scrollOffsetNode;
-
-    /** @brief Cached reference to the outputBlockBottom PARAM node for rescan during output. */
-    juce::ValueTree outputBlockBottomNode;
 
     // =========================================================================
     // ValueTree::Listener

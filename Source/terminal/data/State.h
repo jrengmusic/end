@@ -55,16 +55,14 @@
  */
 
 #pragma once
-
 #include <JuceHeader.h>
-#include <unordered_map>
-#include <memory>
-
 #include "Cell.h"
 #include "Identifier.h"
 #include "../selection/LinkSpan.h"
 #include "../../ModalType.h"
 #include "../../SelectionType.h"
+#include "../../lua/Engine.h"
+#include "../../AppState.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -1045,19 +1043,6 @@ struct State : public juce::Timer
      * @{ */
 
     /**
-     * @brief Activates or deactivates the split-viewport image preview.
-     *
-     * Sets the `preview` and `splitCol` direct properties on the root SESSION
-     * node.  Also calls `setFullRebuild()` and `setSnapshotDirty()` so the
-     * renderer updates on the next frame.
-     *
-     * @param active    True to activate the preview, false to deactivate.
-     * @param col       Column index at which the terminal clips (ignored when `active` is false).
-     * @note MESSAGE THREAD only.
-     */
-    void setPreview (bool active, int col) noexcept;
-
-    /**
      * @brief Returns true when an image preview split is currently active.
      * @return Current value of the `preview` property on the SESSION root.
      * @note MESSAGE THREAD only.
@@ -1070,6 +1055,44 @@ struct State : public juce::Timer
      * @note MESSAGE THREAD only.
      */
     int getSplitCol() const noexcept;
+
+    /**
+     * @brief Activates the split-viewport image preview and registers its IMAGE node.
+     *
+     * Removes any existing preview IMAGE child from the IMAGES container, then
+     * creates and appends a new IMAGE node tagged with `isPreview = true` and
+     * `frameCount = 1`.  Sets `preview = true` and `splitCol` on the SESSION root,
+     * then calls `setFullRebuild()` and `setSnapshotDirty()`.
+     *
+     * @param imageId   Atlas-assigned image ID for the preview frame.
+     * @param widthPx   Image width in pixels.
+     * @param heightPx  Image height in pixels.
+     * @param gridRow   Absolute grid row of image placement.
+     * @param gridCol   Grid column of image placement.
+     * @param cellCols  Image span in cell columns.
+     * @param cellRows  Image span in cell rows.
+     * @param splitCol  Column index at which the terminal clips.
+     * @note MESSAGE THREAD only.
+     */
+    void activatePreview (uint32_t imageId,
+                          int widthPx,
+                          int heightPx,
+                          int gridRow,
+                          int gridCol,
+                          int cellCols,
+                          int cellRows,
+                          int splitCol) noexcept;
+
+    /**
+     * @brief Dismisses the split-viewport image preview and removes its IMAGE node.
+     *
+     * Finds and removes the IMAGE child tagged with `isPreview = true` from the
+     * IMAGES container.  Sets `preview = false` and `splitCol = 0` on the SESSION
+     * root, then calls `setFullRebuild()` and `setSnapshotDirty()`.
+     *
+     * @note MESSAGE THREAD only.
+     */
+    void dismissPreview() noexcept;
 
     /** @} */
 
@@ -1099,9 +1122,12 @@ struct State : public juce::Timer
                        const uint32_t* allImageIds,
                        const int* delays,
                        int frameCount,
-                       int widthPx, int heightPx,
-                       int gridRow, int gridCol,
-                       int cellCols, int cellRows) noexcept;
+                       int widthPx,
+                       int heightPx,
+                       int gridRow,
+                       int gridCol,
+                       int cellCols,
+                       int cellRows) noexcept;
 
     /**
      * @brief Removes the IMAGE child node matching the given imageId.
@@ -1562,7 +1588,6 @@ private:
      * @note MESSAGE THREAD — called from `timerCallback()` only.
      */
     void tickCursorBlink (int elapsedMs) noexcept;
-
 };
 
 template<typename ValueType>

@@ -24,12 +24,10 @@ LinkManager::LinkManager (State& s, const Grid& g,
     , promptRowNode         (jam::ValueTree::getChildWithID (state.get(), ID::promptRow.toString()))
     , activeScreenNode      (jam::ValueTree::getChildWithID (state.get(), ID::activeScreen.toString()))
     , scrollOffsetNode      (jam::ValueTree::getChildWithID (state.get(), ID::scrollOffset.toString()))
-    , outputBlockBottomNode (jam::ValueTree::getChildWithID (state.get(), ID::outputBlockBottom.toString()))
 {
     promptRowNode.addListener (this);
     activeScreenNode.addListener (this);
     scrollOffsetNode.addListener (this);
-    outputBlockBottomNode.addListener (this);
 }
 
 LinkManager::~LinkManager()
@@ -37,7 +35,6 @@ LinkManager::~LinkManager()
     promptRowNode.removeListener (this);
     activeScreenNode.removeListener (this);
     scrollOffsetNode.removeListener (this);
-    outputBlockBottomNode.removeListener (this);
 }
 
 void LinkManager::scan (const juce::String& cwd, bool outputRowsOnly)
@@ -205,7 +202,7 @@ void LinkManager::dispatch (const LinkSpan& span) const
         }
         else if (handler == "image" and onOpenImage != nullptr)
         {
-            onOpenImage (juce::File (path));
+            onOpenImage (juce::File (path), span.row);
         }
         else
         {

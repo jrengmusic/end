@@ -69,6 +69,16 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
         const juce::String configPath { configDir.getFullPathName() };
 #endif
 
+        const juce::File executable { juce::File::getSpecialLocation (juce::File::currentExecutableFile) };
+
+#if JUCE_WINDOWS
+        seedEnv.set ("END_BINARY", toMsysPath (executable.getFullPathName()));
+#else
+        seedEnv.set ("END_BINARY", executable.getFullPathName());
+#endif
+
+        seedEnv.set ("END_SKIT", lua::Engine::getContext()->nexus.image.protocol);
+
         if (shell.contains ("zsh"))
         {
             const juce::File zshDir { configDir.getChildFile ("zsh") };

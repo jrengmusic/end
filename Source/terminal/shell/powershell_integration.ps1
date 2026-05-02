@@ -30,3 +30,16 @@ if (Get-Module PSReadLine -ErrorAction SilentlyContinue) {
         [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
     }
 }
+
+function end {
+    if ($args[0] -eq "preview") {
+        $resolved = (Resolve-Path $args[1]).Path
+        switch ($env:END_SKIT) {
+            "kitty"  { [Console]::Write("`e_GEND;$resolved`e\") }
+            "iterm2" { [Console]::Write("`e]1337;END;$resolved`a") }
+            "sixel"  { [Console]::Write("`eP0qEND;$resolved`e\") }
+        }
+    } else {
+        & $env:END_BINARY @args
+    }
+}

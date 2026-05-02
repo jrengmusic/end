@@ -7,7 +7,6 @@
  * - Viewport, font, theme, and selection configuration.
  * - Grid geometry helpers (`getCellBounds`, `cellAtPoint`).
  * - `render()` — the top-level per-frame entry point.
- * - `allocateRenderCache()` — per-row glyph and background cache allocation.
  *
  * The rendering pipeline (glyph shaping, snapshot building) is split across:
  * - `ScreenRender.cpp`   — `buildSnapshot()`, `processCellForSnapshot()`, `buildCellInstance()`.
@@ -32,16 +31,15 @@ namespace Terminal
  * Initialises `Resources`, calls `calc()` to derive cell dimensions,
  * then calls `reset()` to zero the cache dimension sentinels.
  */
-template<typename Renderer>
-Screen<Renderer>::Screen (jam::Font& fontToUse,
+template<typename Context>
+Screen<Context>::Screen (jam::Font& fontToUse,
                           jam::Glyph::Packer& packerToUse,
-                          typename Renderer::Atlas& atlasToUse,
-                          Terminal::ImageAtlas& imageAtlasToUse)
+                          typename Context::Atlas& atlasToUse)
     : font (fontToUse)
     , packer (packerToUse)
     , atlasRef (atlasToUse)
-    , imageAtlas (imageAtlasToUse)
     , resources()
+    , glyph (fontToUse, packerToUse)
     , baseFontSize (lua::Engine::getContext()->dpiCorrectedFontSize())
 {
     textRenderer.setPacker (packer);
@@ -49,8 +47,8 @@ Screen<Renderer>::Screen (jam::Font& fontToUse,
     reset();
 }
 
-template<typename Renderer>
-Screen<Renderer>::~Screen()
+template<typename Context>
+Screen<Context>::~Screen()
 {
     textRenderer.closeContext();
 }
@@ -62,8 +60,8 @@ Screen<Renderer>::~Screen()
  * updates all cell dimension fields and recomputes `numCols` / `numRows` from
  * the current viewport size.  Does nothing if the viewport has zero area.
  */
-template<typename Renderer>
-void Screen<Renderer>::calc() noexcept
+template<typename Context>
+void Screen<Context>::calc() noexcept
 {
     const jam::Typeface::Metrics fm { font.getResolvedTypeface()->calcMetrics (baseFontSize) };
 
@@ -77,13 +75,15 @@ void Screen<Renderer>::calc() noexcept
         physCellHeight = adjustedPhysCellH;
         physBaseline = adjustedPhysBaseline;
 
+        const float scale { jam::Typeface::getDisplayScale() };
+        metrics = jam::tui::Metrics { physCellWidth, physCellHeight, scale };
+
         if (physCellWidth > 0 and physCellHeight > 0 and glViewportWidth > 0 and glViewportHeight > 0)
         {
-            numCols = glViewportWidth / physCellWidth;
-            numRows = glViewportHeight / physCellHeight;
+            const auto gridRect { metrics.gridSize (glViewportWidth, glViewportHeight) };
+            numCols = gridRect.getWidth();
+            numRows = gridRect.getHeight();
         }
-
-        const float scale { jam::Typeface::getDisplayScale() };
 
         cellWidth = scale > 0.0f ? static_cast<int> (static_cast<float> (physCellWidth) / scale) : fm.logicalCellW;
         cellHeight = scale > 0.0f ? static_cast<int> (static_cast<float> (physCellHeight) / scale) : fm.logicalCellH;
@@ -93,6 +93,8 @@ void Screen<Renderer>::calc() noexcept
         {
             onPhysCellDimensionsChanged (physCellWidth, physCellHeight);
         }
+
+        glyph.setGeometry (physCellWidth, physCellHeight, physBaseline, baseFontSize);
     }
 }
 
@@ -103,8 +105,8 @@ void Screen<Renderer>::calc() noexcept
  *
  * @param bounds  New viewport bounds in logical pixel space.
  */
-template<typename Renderer>
-void Screen<Renderer>::setViewport (const juce::Rectangle<int>& bounds) noexcept
+template<typename Context>
+void Screen<Context>::setViewport (const juce::Rectangle<int>& bounds) noexcept
 {
     viewportX = bounds.getX();
     viewportY = bounds.getY();
@@ -121,36 +123,36 @@ void Screen<Renderer>::setViewport (const juce::Rectangle<int>& bounds) noexcept
 }
 
 /// @return `numCols` as computed by `calc()`.
-template<typename Renderer>
-int Screen<Renderer>::getNumCols() const noexcept
+template<typename Context>
+int Screen<Context>::getNumCols() const noexcept
 {
-    return numCols;
+    return numCols.value;
 }
 
 /// @return `numRows` as computed by `calc()`.
-template<typename Renderer>
-int Screen<Renderer>::getNumRows() const noexcept
+template<typename Context>
+int Screen<Context>::getNumRows() const noexcept
 {
-    return numRows;
+    return numRows.value;
 }
 
 /// @return `cellWidth` in logical pixels.
-template<typename Renderer>
-int Screen<Renderer>::getCellWidth() const noexcept
+template<typename Context>
+int Screen<Context>::getCellWidth() const noexcept
 {
     return cellWidth;
 }
 
 /// @return `cellHeight` in logical pixels.
-template<typename Renderer>
-int Screen<Renderer>::getCellHeight() const noexcept
+template<typename Context>
+int Screen<Context>::getCellHeight() const noexcept
 {
     return cellHeight;
 }
 
 /// @return `baseFontSize` in points (includes zoom).
-template<typename Renderer>
-float Screen<Renderer>::getBaseFontSize() const noexcept
+template<typename Context>
+float Screen<Context>::getBaseFontSize() const noexcept
 {
     return baseFontSize;
 }
@@ -165,25 +167,24 @@ float Screen<Renderer>::getBaseFontSize() const noexcept
  * @param row  Row index (0-based).
  * @return     Bounds in logical pixel space relative to the viewport origin.
  */
-template<typename Renderer>
-juce::Rectangle<int> Screen<Renderer>::getCellBounds (int col, int row) const noexcept
+template<typename Context>
+juce::Rectangle<int> Screen<Context>::getCellBounds (int col, int row) const noexcept
 {
     juce::Rectangle<int> result {};
 
-    if (numCols > 0 and numRows > 0)
+    if (numCols.value > 0 and numRows.value > 0)
     {
-        const int clampedCol { juce::jlimit (0, numCols - 1, col) };
-        const int clampedRow { juce::jlimit (0, numRows - 1, row) };
+        const int clampedCol { juce::jlimit (0, numCols.value - 1, col) };
+        const int clampedRow { juce::jlimit (0, numRows.value - 1, row) };
 
         // Derive logical position from the physical-pixel grid used by the
         // GL renderer (row * physCellHeight) divided back by display scale.
         // This eliminates per-row rounding drift at fractional scales (e.g.
         // 150%) between the JUCE component overlay and GL-rendered glyphs.
-        const float scale { jam::Typeface::getDisplayScale() };
-        const int x { viewportX + static_cast<int> (static_cast<float> (clampedCol * physCellWidth) / scale) };
-        const int y { viewportY + static_cast<int> (static_cast<float> (clampedRow * physCellHeight) / scale) };
-        const int w { static_cast<int> (static_cast<float> (physCellWidth) / scale) };
-        const int h { static_cast<int> (static_cast<float> (physCellHeight) / scale) };
+        const int x { viewportX + metrics.cellToPixelX (jam::literals::Cell { clampedCol }) };
+        const int y { viewportY + metrics.cellToPixelY (jam::literals::Cell { clampedRow }) };
+        const int w { metrics.cellPixelWidth() };
+        const int h { metrics.cellPixelHeight() };
 
         result = { x, y, juce::jmax (1, w), juce::jmax (1, h) };
     }
@@ -205,18 +206,16 @@ juce::Rectangle<int> Screen<Renderer>::getCellBounds (int col, int row) const no
  * @param y  Logical pixel Y coordinate (component-local).
  * @return   Grid cell (col, row) clamped to [0, numCols-1] × [0, numRows-1].
  */
-template<typename Renderer>
-juce::Point<int> Screen<Renderer>::cellAtPoint (int x, int y) const noexcept
+template<typename Context>
+juce::Point<int> Screen<Context>::cellAtPoint (int x, int y) const noexcept
 {
     juce::Point<int> result { 0, 0 };
 
     if (physCellWidth > 0 and physCellHeight > 0)
     {
-        const float scale { jam::Typeface::getDisplayScale() };
-        const int physX { static_cast<int> (static_cast<float> (x - viewportX) * scale) };
-        const int physY { static_cast<int> (static_cast<float> (y - viewportY) * scale) };
-        const int col { juce::jlimit (0, numCols - 1, physX / physCellWidth) };
-        const int row { juce::jlimit (0, numRows - 1, physY / physCellHeight) };
+        const auto cell { metrics.pixelToCell (x - viewportX, y - viewportY) };
+        const int col { juce::jlimit (0, numCols.value - 1, cell.x) };
+        const int row { juce::jlimit (0, numRows.value - 1, cell.y) };
         result = { col, row };
     }
 
@@ -230,10 +229,10 @@ juce::Point<int> Screen<Renderer>::cellAtPoint (int x, int y) const noexcept
  *
  * @param sel  Pointer to the active `ScreenSelection`, or `nullptr`.
  */
-template<typename Renderer>
-void Screen<Renderer>::setSelection (const ScreenSelection* sel) noexcept
+template<typename Context>
+void Screen<Context>::setSelection (const ScreenSelection* sel) noexcept
 {
-    selection = sel;
+    glyph.setSelection (sel);
 }
 
 /**
@@ -246,11 +245,10 @@ void Screen<Renderer>::setSelection (const ScreenSelection* sel) noexcept
  * @param spans  Pointer to the `LinkSpan` array, or `nullptr` to clear.
  * @param count  Number of elements in @p spans.
  */
-template<typename Renderer>
-void Screen<Renderer>::setLinkUnderlay (const LinkSpan* spans, int count) noexcept
+template<typename Context>
+void Screen<Context>::setLinkUnderlay (const LinkSpan* spans, int count) noexcept
 {
-    linkUnderlay = spans;
-    linkUnderlayCount = count;
+    glyph.setLinkUnderlay (spans, count);
 }
 
 /**
@@ -258,14 +256,14 @@ void Screen<Renderer>::setLinkUnderlay (const LinkSpan* spans, int count) noexce
  *
  * @return Const reference to `resources.terminalColors`.
  */
-template<typename Renderer>
-const Theme& Screen<Renderer>::getTheme() const noexcept
+template<typename Context>
+const Theme& Screen<Context>::getTheme() const noexcept
 {
     return resources.terminalColors;
 }
 
-template<typename Renderer>
-jam::SnapshotBuffer<Render::Snapshot>& Screen<Renderer>::getSnapshotBuffer() noexcept
+template<typename Context>
+jam::SnapshotBuffer<Render::Snapshot>& Screen<Context>::getSnapshotBuffer() noexcept
 {
     return resources.snapshotBuffer;
 }
@@ -279,8 +277,8 @@ jam::SnapshotBuffer<Render::Snapshot>& Screen<Renderer>::getSnapshotBuffer() noe
  *
  * @param pointSize  New font size in points.
  */
-template<typename Renderer>
-void Screen<Renderer>::setFontSize (float pointSize) noexcept
+template<typename Context>
+void Screen<Context>::setFontSize (float pointSize) noexcept
 {
     if (pointSize != baseFontSize)
     {
@@ -297,8 +295,8 @@ void Screen<Renderer>::setFontSize (float pointSize) noexcept
  *
  * @param multiplier  Line-height multiplier (clamped to 0.5–3.0 by config).
  */
-template<typename Renderer>
-void Screen<Renderer>::setLineHeight (float multiplier) noexcept
+template<typename Context>
+void Screen<Context>::setLineHeight (float multiplier) noexcept
 {
     if (multiplier != lineHeightMultiplier)
     {
@@ -312,8 +310,8 @@ void Screen<Renderer>::setLineHeight (float multiplier) noexcept
  *
  * @param multiplier  Cell-width multiplier (clamped to 0.5–3.0 by config).
  */
-template<typename Renderer>
-void Screen<Renderer>::setCellWidth (float multiplier) noexcept
+template<typename Context>
+void Screen<Context>::setCellWidth (float multiplier) noexcept
 {
     if (multiplier != cellWidthMultiplier)
     {
@@ -327,10 +325,10 @@ void Screen<Renderer>::setCellWidth (float multiplier) noexcept
  *
  * @param enabled  `true` to enable ligatures.
  */
-template<typename Renderer>
-void Screen<Renderer>::setLigatures (bool enabled) noexcept
+template<typename Context>
+void Screen<Context>::setLigatures (bool enabled) noexcept
 {
-    ligatureEnabled = enabled;
+    glyph.setLigatures (enabled);
 }
 
 /**
@@ -341,8 +339,8 @@ void Screen<Renderer>::setLigatures (bool enabled) noexcept
  *
  * @param enabled  `true` to enable embolden.
  */
-template<typename Renderer>
-void Screen<Renderer>::setEmbolden (bool enabled) noexcept
+template<typename Context>
+void Screen<Context>::setEmbolden (bool enabled) noexcept
 {
     if (enabled != packer.getEmbolden())
     {
@@ -356,51 +354,37 @@ void Screen<Renderer>::setEmbolden (bool enabled) noexcept
  *
  * @param theme  New theme to apply immediately.
  */
-template<typename Renderer>
-void Screen<Renderer>::setTheme (const Theme& theme) noexcept
+template<typename Context>
+void Screen<Context>::setTheme (const Theme& theme) noexcept
 {
     resources.terminalColors = theme;
+    glyph.setTheme (&resources.terminalColors);
 }
 
-/**
- * @brief Updates the selection-mode cursor state used for rendering.
- *
- * When @p active is true, `updateSnapshot()` will suppress the normal terminal
- * cursor and emit a block cursor at (@p col, @p row) using the theme's
- * `selectionCursorColour`.  Calling with @p active `false` restores the
- * normal terminal cursor.
- *
- * @param active  True to enable selection-mode cursor override.
- * @param row     Visible row index in the current viewport (0 = top row).
- * @param col     Column index (0-based).
- *
- * @note **MESSAGE THREAD** — call before `render()` each frame.
- */
-template<typename Renderer>
-void Screen<Renderer>::setSelectionCursor (bool active, int row, int col) noexcept
+/// @brief Sets whether this pane is in selection mode for the current frame.
+template<typename Context>
+void Screen<Context>::setSelectionActive (bool active) noexcept
 {
     selectionModeActive = active;
-    selectionCursorRow = row;
-    selectionCursorCol = col;
 }
 
 /// @brief Toggles debug rendering mode.
-template<typename Renderer>
-void Screen<Renderer>::toggleDebug() noexcept
+template<typename Context>
+void Screen<Context>::toggleDebug() noexcept
 {
     debugMode = not debugMode;
 }
 
 /// @return `true` if debug rendering mode is active.
-template<typename Renderer>
-bool Screen<Renderer>::isDebugMode() const noexcept
+template<typename Context>
+bool Screen<Context>::isDebugMode() const noexcept
 {
     return debugMode;
 }
 
 /// @return `true` if a new snapshot is waiting in the mailbox.
-template<typename Renderer>
-bool Screen<Renderer>::hasNewSnapshot() const noexcept
+template<typename Context>
+bool Screen<Context>::hasNewSnapshot() const noexcept
 {
     return resources.snapshotBuffer.isReady();
 }
@@ -408,46 +392,13 @@ bool Screen<Renderer>::hasNewSnapshot() const noexcept
 /**
  * @brief Resets cache dimension sentinels to force reallocation on the next frame.
  *
- * Zeroes `cacheRows`, `cacheCols`, and `bgCacheCols` so the next `render()` call
- * reallocates the per-row glyph and background caches.
+ * Delegates to `glyph.resetCache()` so the next `render()` call
+ * reallocates per-row glyph and background caches.
  */
-template<typename Renderer>
-void Screen<Renderer>::reset() noexcept
+template<typename Context>
+void Screen<Context>::reset() noexcept
 {
-    cacheRows = 0;
-    cacheCols = 0;
-    bgCacheCols = 0;
-}
-
-/**
- * @brief Allocates per-row render caches for @p rows rows and @p cols columns.
- *
- * Each row gets `cols * 2` glyph slots (to accommodate wide characters and
- * ligatures) and `cols * 3` background slots (for bg + selection + underlay).
- * All arrays are zero-initialised.
- *
- * @param rows  Number of visible rows.
- * @param cols  Number of visible columns.
- */
-template<typename Renderer>
-void Screen<Renderer>::allocateRenderCache (int rows, int cols) noexcept
-{
-    const int maxGlyphs { cols * 2 };
-    const size_t glyphSlots { static_cast<size_t> (rows) * static_cast<size_t> (maxGlyphs) };
-    const size_t bgSlots { static_cast<size_t> (rows) * static_cast<size_t> (cols) * 3 };
-
-    cachedMono.allocate (glyphSlots, true);
-    cachedEmoji.allocate (glyphSlots, true);
-    cachedBg.allocate (bgSlots, true);
-    monoCount.allocate (static_cast<size_t> (rows), true);
-    emojiCount.allocate (static_cast<size_t> (rows), true);
-    bgCount.allocate (static_cast<size_t> (rows), true);
-    previousCells.allocate (static_cast<size_t> (rows) * static_cast<size_t> (cols), true);
-
-    cacheRows = rows;
-    cacheCols = cols;
-    bgCacheCols = cols * 3;
-    maxGlyphsPerRow = cols * 2;
+    glyph.resetCache();
 }
 
 /**
@@ -462,18 +413,15 @@ void Screen<Renderer>::allocateRenderCache (int rows, int cols) noexcept
  * @param state  Current terminal state (cursor, dimensions, scroll offset).
  * @param grid   Terminal grid providing cell data.
  */
-template<typename Renderer>
-void Screen<Renderer>::render (State& state, Grid& grid) noexcept
+template<typename Context>
+void Screen<Context>::render (State& state, Grid& grid) noexcept
 {
     const int cols { state.getCols() };
     const int rows { state.getVisibleRows() };
 
     if (cols > 0 and rows > 0)
     {
-        if (cacheRows != rows or cacheCols != cols)
-        {
-            allocateRenderCache (rows, cols);
-        }
+        glyph.ensureCache (rows, cols);
 
         buildSnapshot (state, grid);
     }

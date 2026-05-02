@@ -98,6 +98,7 @@ configure_app(
         juce_opengl
     JAM_MODULES
         jam_core
+        jam_fuzzy
         jam_style
         jam_data_structures
         jam_fonts
@@ -110,6 +111,7 @@ configure_app(
         jam_markdown
         jam_animation
         jam_debug
+        jam_tui
     BINARY_FILES     ${END_BINARY_FILES}
     EXTRA_DEFINES
         JUCE_WEB_BROWSER=1

@@ -46,23 +46,9 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
      */
     const bool result
     {
-        (processor.getState().isPreviewActive() and [this]
+        (processor.getState().isPreviewActive() and processor.getState().getSplitCol() > 0 and [this]
             {
-                auto imagesNode { processor.getState().get().getChildWithName (Terminal::ID::IMAGES) };
-                int previewIndex { -1 };
-
-                for (int i { 0 }; i < imagesNode.getNumChildren() and previewIndex < 0; ++i)
-                {
-                    const auto child { imagesNode.getChild (i) };
-
-                    if (static_cast<bool> (child.getProperty (Terminal::ID::isPreview, false)))
-                        previewIndex = i;
-                }
-
-                if (previewIndex >= 0)
-                    imagesNode.removeChild (previewIndex, nullptr);
-
-                processor.getState().setPreview (false, 0);
+                processor.getState().dismissPreview();
                 return true;
             }())
         or (processor.getState().isModal() and handleModalKey (key))

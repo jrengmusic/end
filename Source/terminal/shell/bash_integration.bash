@@ -37,3 +37,17 @@ if [[ -n "$END_CWD" ]]; then
     cd "$END_CWD"
     unset END_CWD
 fi
+
+end() {
+    if [[ "$1" == "preview" ]]; then
+        local file
+        file="$(realpath "$2")"
+        case "$END_SKIT" in
+            kitty)  printf '\033_GEND;%s\033\\' "$file" ;;
+            iterm2) printf '\033]1337;END;%s\a' "$file" ;;
+            sixel)  printf '\033P0qEND;%s\033\\' "$file" ;;
+        esac
+    else
+        command "$END_BINARY" "$@"
+    fi
+}

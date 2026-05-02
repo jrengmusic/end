@@ -1,8 +1,8 @@
 /**
- * @file ScreenRenderGlyph.cpp
+ * @file GlyphShape.cpp
  * @brief Glyph shaping and rasterisation: box-drawing, ligatures, and HarfBuzz dispatch.
  *
- * This translation unit implements the glyph-level rendering methods of `Screen`:
+ * This translation unit implements the glyph-level rendering methods of `Glyph`:
  * `buildCellInstance()`, `tryLigature()`, `buildBlockRect()`, and
  * `selectFontStyle()`, together with the file-scope helpers they share
  * (`emitShapedGlyphsToCache()`, `buildCodepointSequence()`).
@@ -10,11 +10,11 @@
  * ## Pipeline position
  *
  * ```
- * Screen::processCellForSnapshot()     [ScreenRenderCell.cpp]
- *   ├─ Screen::buildBlockRect()          ← THIS FILE
- *   └─ Screen::buildCellInstance()       ← THIS FILE
+ * Glyph::processCellForSnapshot()     [GlyphCell.cpp]
+ *   ├─ Glyph::buildBlockRect()          ← THIS FILE
+ *   └─ Glyph::buildCellInstance()       ← THIS FILE
  *        ├─ buildCodepointSequence()
- *        ├─ Screen::tryLigature()        ← THIS FILE
+ *        ├─ Glyph::tryLigature()        ← THIS FILE
  *        │    └─ emitShapedGlyphsToCache()
  *        └─ emitShapedGlyphsToCache()
  * ```
@@ -30,18 +30,18 @@
  * 4. **Standard shaping**: single-codepoint or grapheme-cluster shaping via
  *    `Fonts::shapeText()` / `Fonts::shapeEmoji()`.
  *
- * @see Screen.h
- * @see ScreenRenderCell.cpp
+ * @see Glyph.h
+ * @see GlyphCell.cpp
  * @see FontCollection
  * @see gl::GlyphAtlas
  * @see BoxDrawing
  */
 
-#include "Screen.h"
+#include "Glyph.h"
 #include "../logic/SixelDecoder.h"
 
 
-namespace Terminal
+namespace Terminal::Renderer
 { /*____________________________________________________________________________*/
 
 // File-scope named constants
@@ -84,7 +84,7 @@ static constexpr int maxLigatureLength { 3 };
  *
  * @note **MESSAGE THREAD**.
  * @see jam::Glyph::Packer::getOrRasterize()
- * @see Screen::buildCellInstance()
+ * @see Glyph::buildCellInstance()
  */
 static void emitShapedGlyphsToCache (
     const jam::Typeface::Glyph* shapedGlyphs, int shapedCount,
@@ -154,7 +154,7 @@ static void emitShapedGlyphsToCache (
  * @param codepoints      Output array of at least 8 elements.
  * @param codepointCount  Output: number of codepoints written.
  *
- * @see Screen::buildCellInstance()
+ * @see Glyph::buildCellInstance()
  */
 static void buildCodepointSequence (const Cell& cell, const Grapheme* grapheme,
                                      uint32_t* codepoints, uint8_t& codepointCount) noexcept
@@ -170,7 +170,7 @@ static void buildCodepointSequence (const Cell& cell, const Grapheme* grapheme,
     }
 }
 
-// Screen::buildCellInstance
+// Glyph::buildCellInstance
 
 /**
  * @brief Shapes and rasterises one cell's glyph(s) into the row cache.
@@ -207,8 +207,8 @@ static void buildCodepointSequence (const Cell& cell, const Grapheme* grapheme,
  * @see FontCollection::resolve()
  * @see BoxDrawing::isProcedural()
  */
-template <typename Renderer>
-void Screen<Renderer>::buildCellInstance (const Cell& cell,
+template <typename Context>
+void Glyph<Context>::buildCellInstance (const Cell& cell,
                                 const Grapheme* grapheme,
                                 const Cell* rowCells,
                                 int col, int row,
@@ -345,7 +345,7 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
     }
 }
 
-// Screen::tryLigature
+// Glyph::tryLigature
 
 /**
  * @brief Attempts to shape a 2- or 3-character ligature starting at @p col.
@@ -372,8 +372,8 @@ void Screen<Renderer>::buildCellInstance (const Cell& cell,
  * @see buildCellInstance()
  * @see emitShapedGlyphsToCache()
  */
-template <typename Renderer>
-int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jam::Typeface::Style style,
+template <typename Context>
+int Glyph<Context>::tryLigature (const Cell* rowCells, int col, int row, jam::Typeface::Style style,
                          const juce::Colour& foreground) noexcept
 {
     int result { 0 };
@@ -447,7 +447,7 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jam::
     return result;
 }
 
-// Screen::buildBlockRect
+// Glyph::buildBlockRect
 
 /**
  * @brief Builds a `Render::Background` quad for a block-element character.
@@ -468,8 +468,8 @@ int Screen<Renderer>::tryLigature (const Cell* rowCells, int col, int row, jam::
  * @see isBlockChar()
  * @see processCellForSnapshot()
  */
-template <typename Renderer>
-Render::Background Screen<Renderer>::buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept
+template <typename Context>
+Render::Background Glyph<Context>::buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept
 {
     const BlockGeometry& g { blockTable.at (codepoint - blockFirst) };
     const float cx { static_cast<float> (col * physCellWidth) };
@@ -486,7 +486,7 @@ Render::Background Screen<Renderer>::buildBlockRect (uint32_t codepoint, int col
     return bg;
 }
 
-// Screen::selectFontStyle
+// Glyph::selectFontStyle
 
 /**
  * @brief Selects the `Fonts::Style` variant for a cell based on its SGR attributes.
@@ -500,8 +500,8 @@ Render::Background Screen<Renderer>::buildBlockRect (uint32_t codepoint, int col
  *
  * @see buildCellInstance()
  */
-template <typename Renderer>
-jam::Typeface::Style Screen<Renderer>::selectFontStyle (const Cell& cell) noexcept
+template <typename Context>
+jam::Typeface::Style Glyph<Context>::selectFontStyle (const Cell& cell) noexcept
 {
     jam::Typeface::Style result { jam::Typeface::Style::regular };
 
@@ -521,17 +521,17 @@ jam::Typeface::Style Screen<Renderer>::selectFontStyle (const Cell& cell) noexce
     return result;
 }
 
-template void Screen<jam::Glyph::GLContext>::buildCellInstance (const Cell&, const Grapheme*, const Cell*, int, int, const juce::Colour&) noexcept;
-template void Screen<jam::Glyph::GraphicsContext>::buildCellInstance (const Cell&, const Grapheme*, const Cell*, int, int, const juce::Colour&) noexcept;
+template void Glyph<jam::Glyph::GLContext>::buildCellInstance (const Cell&, const Grapheme*, const Cell*, int, int, const juce::Colour&) noexcept;
+template void Glyph<jam::Glyph::GraphicsContext>::buildCellInstance (const Cell&, const Grapheme*, const Cell*, int, int, const juce::Colour&) noexcept;
 
-template int Screen<jam::Glyph::GLContext>::tryLigature (const Cell*, int, int, jam::Typeface::Style, const juce::Colour&) noexcept;
-template int Screen<jam::Glyph::GraphicsContext>::tryLigature (const Cell*, int, int, jam::Typeface::Style, const juce::Colour&) noexcept;
+template int Glyph<jam::Glyph::GLContext>::tryLigature (const Cell*, int, int, jam::Typeface::Style, const juce::Colour&) noexcept;
+template int Glyph<jam::Glyph::GraphicsContext>::tryLigature (const Cell*, int, int, jam::Typeface::Style, const juce::Colour&) noexcept;
 
-template Render::Background Screen<jam::Glyph::GLContext>::buildBlockRect (uint32_t, int, int, const juce::Colour&) const noexcept;
-template Render::Background Screen<jam::Glyph::GraphicsContext>::buildBlockRect (uint32_t, int, int, const juce::Colour&) const noexcept;
+template Render::Background Glyph<jam::Glyph::GLContext>::buildBlockRect (uint32_t, int, int, const juce::Colour&) const noexcept;
+template Render::Background Glyph<jam::Glyph::GraphicsContext>::buildBlockRect (uint32_t, int, int, const juce::Colour&) const noexcept;
 
-template jam::Typeface::Style Screen<jam::Glyph::GLContext>::selectFontStyle (const Cell&) noexcept;
-template jam::Typeface::Style Screen<jam::Glyph::GraphicsContext>::selectFontStyle (const Cell&) noexcept;
+template jam::Typeface::Style Glyph<jam::Glyph::GLContext>::selectFontStyle (const Cell&) noexcept;
+template jam::Typeface::Style Glyph<jam::Glyph::GraphicsContext>::selectFontStyle (const Cell&) noexcept;
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+} // namespace Terminal::Renderer

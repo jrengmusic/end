@@ -12,7 +12,6 @@
  */
 
 #include "TerminalDisplay.h"
-#include "../terminal/logic/ImageDecode.h"
 
 /**
  * @brief Constructs Terminal::Display for the given Processor.
@@ -30,19 +29,14 @@ Terminal::Display::Display (Terminal::Processor& p,
                             jam::Font& fontToUse,
                             jam::Glyph::Packer& packerToUse,
                             jam::gl::GlyphAtlas& glAtlasToUse,
-                            jam::GraphicsAtlas& graphicsAtlasToUse,
-                            Terminal::ImageAtlas& imageAtlasToUse)
+                            jam::GraphicsAtlas& graphicsAtlasToUse)
     : processor (p)
     , font (fontToUse)
     , packerRef (packerToUse)
     , glAtlasRef (glAtlasToUse)
     , graphicsAtlasRef (graphicsAtlasToUse)
-    , imageAtlasRef (imageAtlasToUse)
-    , screen (std::in_place_type<Screen<jam::Glyph::GraphicsContext>>,
-              fontToUse,
-              packerToUse,
-              graphicsAtlasToUse,
-              imageAtlasToUse)
+    , config (*lua::Engine::getContext())
+    , screen (std::in_place_type<Screen<jam::Glyph::GraphicsContext>>, fontToUse, packerToUse, graphicsAtlasToUse)
     , vblank (this,
               [this]
               {
@@ -69,6 +63,7 @@ Terminal::Display::~Display()
     processor.onClipboardChanged = nullptr;
     processor.onBell = nullptr;
     processor.onDesktopNotification = nullptr;
+    processor.getParser().onPreviewFile = nullptr;
 
     visitScreen (
         [&] (auto& scr)
@@ -125,8 +120,7 @@ void Terminal::Display::initialise()
     // Switch to the renderer stored in AppState (SSOT).
     switchRenderer (AppState::getContext()->getRendererType());
 
-    if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
-        inputHandler->buildKeyMap (engine->getSelectionKeys());
+    inputHandler->buildKeyMap (config.getSelectionKeys());
 
     processor.onShellExited = [this]
     {
@@ -158,16 +152,12 @@ void Terminal::Display::initialise()
         Terminal::Notifications::show (title, body);
     };
 
-    processor.getParser().onImageDecoded = [this] (juce::HeapBlock<uint8_t>&& pixels,
-                                                    juce::HeapBlock<int>&& delays,
-                                                    int frameCount,
-                                                    int widthPx, int heightPx,
-                                                    int gridRow, int gridCol,
-                                                    int cellCols, int cellRows)
+    processor.getParser().onPreviewFile = [this] (const juce::String& filepath, int gridRow)
     {
-        imageAtlasRef.submitDecoded (std::move (pixels), std::move (delays),
-                                     frameCount, widthPx, heightPx,
-                                     gridRow, gridCol, cellCols, cellRows);
+        const juce::SpinLock::ScopedLockType lock { pendingPreviewLock };
+        pendingPreviewPath = filepath;
+        pendingPreviewRow = gridRow;
+        hasPendingPreview = true;
     };
 
     linkManager->onOpenMarkdown = [this] (const juce::File& file)
@@ -176,9 +166,9 @@ void Terminal::Display::initialise()
             onOpenMarkdown (file);
     };
 
-    linkManager->onOpenImage = [this] (const juce::File& file)
+    linkManager->onOpenImage = [this] (const juce::File& file, int triggerRow)
     {
-        handleOpenImage (file);
+        handleOpenImage (file, triggerRow);
     };
 }
 
@@ -189,14 +179,29 @@ void Terminal::Display::initialise()
  */
 void Terminal::Display::resized()
 {
-    auto contentArea { getLocalBounds() };
-    contentArea.removeFromTop (paddingTop);
-    contentArea.removeFromRight (paddingRight);
-    contentArea.removeFromBottom (paddingBottom);
-    contentArea.removeFromLeft (paddingLeft);
+    auto contentArea { getContentBounds() };
 
     if (contentArea.getWidth() > 0 and contentArea.getHeight() > 0)
     {
+        if (overlay != nullptr)
+        {
+            const int overlayWidth { juce::roundToInt (static_cast<float> (contentArea.getWidth()) * config.nexus.image.width) };
+            const int overlayHeight { juce::roundToInt (static_cast<float> (contentArea.getHeight()) * config.nexus.image.height) };
+
+            int overlayY { contentArea.getY() };
+
+            visitScreen ([&] (auto& s)
+            {
+                overlayY = contentArea.getY() + overlayTriggerRow * s.getCellHeight();
+            });
+
+            const int maxY { contentArea.getBottom() - overlayHeight };
+            overlayY = juce::jlimit (contentArea.getY(), juce::jmax (contentArea.getY(), maxY), overlayY);
+
+            contentArea.removeFromRight (overlayWidth);
+            overlay->setBounds (contentArea.getRight(), overlayY, overlayWidth, overlayHeight);
+        }
+
         visitScreen (
             [&] (auto& s)
             {
@@ -415,9 +420,8 @@ void Terminal::Display::filesDropped (const juce::StringArray& files, int, int)
 {
     if (not files.isEmpty())
     {
-        const auto* cfg { lua::Engine::getContext() };
-        const juce::String multifiles { cfg->nexus.terminal.dropMultifiles };
-        const bool shouldQuote { cfg->nexus.terminal.dropQuoted };
+        const juce::String multifiles { config.nexus.terminal.dropMultifiles };
+        const bool shouldQuote { config.nexus.terminal.dropQuoted };
         const juce::String separator { multifiles == "newline" ? "\n" : " " };
 
         juce::StringArray paths;
@@ -436,7 +440,7 @@ void Terminal::Display::filesDropped (const juce::StringArray& files, int, int)
                     and (filePath.containsChar (' ') or filePath.containsChar ('\'') or filePath.containsChar ('"')
                          or filePath.containsChar ('\\') or filePath.containsChar ('(') or filePath.containsChar (')')))
                 {
-                    const juce::String shellProg { cfg->nexus.shell.program };
+                    const juce::String shellProg { config.nexus.shell.program };
 
                     if (shellProg.contains ("cmd"))
                         paths.add ("\"" + filePath + "\"");
@@ -493,17 +497,27 @@ juce::Point<int> Terminal::Display::getOriginInTopLevel() const noexcept
              static_cast<int> (static_cast<float> (relative.y) * scale) };
 }
 
+juce::Rectangle<int> Terminal::Display::getContentBounds() const noexcept
+{
+    auto bounds { getLocalBounds() };
+    bounds.removeFromTop (paddingTop);
+    bounds.removeFromRight (paddingRight);
+    bounds.removeFromBottom (paddingBottom);
+    bounds.removeFromLeft (paddingLeft);
+    return bounds;
+}
+
 // GL THREAD
 void Terminal::Display::paintGL() noexcept
 {
     if (isVisible() and std::holds_alternative<Screen<jam::Glyph::GLContext>> (screen))
     {
+        const auto origin { getOriginInTopLevel() };
         auto& glScreen { std::get<Screen<jam::Glyph::GLContext>> (screen) };
 
         if (not glScreen.isGLContextReady())
             glScreen.glContextCreated();
 
-        const auto origin { getOriginInTopLevel() };
         glScreen.renderOpenGL (origin.x, origin.y, getFullViewportHeight());
     }
 }
@@ -622,101 +636,121 @@ void Terminal::Display::onVBlank()
         }
     }
 
-    visitScreen (
-        [&] (auto& s)
-        {
-            s.tickImageAnimation (processor.getState());
-        });
+    if (overlay != nullptr and not processor.getState().isPreviewActive())
+        dismissPreview();
 
     if (processor.getState().consumeSnapshotDirty())
+        processDirtySnapshot();
+
+    consumePendingPreview();
+}
+
+/**
+ * @brief Processes a dirty snapshot under the grid resize lock.
+ *
+ * Refreshes State, rebuilds selection, updates link underlay, calls
+ * Screen::render(), and requests repaint.  Falls back to re-dirtying
+ * the snapshot if the resize lock is unavailable.
+ *
+ * @note MESSAGE THREAD — called from onVBlank().
+ */
+void Terminal::Display::processDirtySnapshot()
+{
+    const juce::ScopedTryLock lock (processor.getGrid().getResizeLock());
+
+    if (lock.isLocked())
     {
-        const juce::ScopedTryLock lock (processor.getGrid().getResizeLock());
+        processor.getState().refresh();
 
-        if (lock.isLocked())
+        const int scrollback { processor.getGrid().getScrollbackUsed() };
+        const int scrollOffset { processor.getState().getScrollOffset() };
+        const int visibleStart { scrollback - scrollOffset };
+        const bool isActivePane { getComponentID() == AppState::getContext()->getActivePaneID() };
+
+        rebuildSelectionFromState (isActivePane, visibleStart);
+
+        if (linkManager.has_value())
         {
-            processor.getState().refresh();
-
-            const int scrollback { processor.getGrid().getScrollbackUsed() };
-            const int scrollOffset { processor.getState().getScrollOffset() };
-            const int visibleStart { scrollback - scrollOffset };
-
-            const bool isActivePane { getComponentID() == AppState::getContext()->getActivePaneID() };
-
-            {
-                const bool active { isActivePane and processor.getState().getModalType() == ModalType::selection };
-                const int visibleRow { processor.getState().getSelectionCursorRow() - visibleStart };
-                visitScreen (
-                    [&] (auto& s)
-                    {
-                        s.setSelectionCursor (active, visibleRow, processor.getState().getSelectionCursorCol());
-                    });
-            }
-
-            {
-                const auto smType { static_cast<SelectionType> (processor.getState().getSelectionType()) };
-
-                if (isActivePane and smType != SelectionType::none)
-                {
-                    if (screenSelection == nullptr)
-                        screenSelection = std::make_unique<ScreenSelection>();
-
-                    const int anchorVisRow { processor.getState().getSelectionAnchorRow() - visibleStart };
-                    const int cursorVisRow { processor.getState().getSelectionCursorRow() - visibleStart };
-
-                    screenSelection->anchor = { processor.getState().getSelectionAnchorCol(), anchorVisRow };
-                    screenSelection->end = { processor.getState().getSelectionCursorCol(), cursorVisRow };
-
-                    if (smType == SelectionType::visual)
-                        screenSelection->type = ScreenSelection::SelectionType::linear;
-                    else if (smType == SelectionType::visualLine)
-                        screenSelection->type = ScreenSelection::SelectionType::line;
-                    else
-                        screenSelection->type = ScreenSelection::SelectionType::box;
-
-                    visitScreen (
-                        [&] (auto& s)
-                        {
-                            s.setSelection (screenSelection.get());
-                        });
-                }
-                else if (not processor.getState().isDragActive())
-                {
-                    screenSelection.reset();
-                    visitScreen (
-                        [&] (auto& s)
-                        {
-                            s.setSelection (nullptr);
-                        });
-                }
-            }
-
-            {
-                if (linkManager.has_value())
-                {
-                    const auto& links { linkManager->getClickableLinks() };
-                    visitScreen (
-                        [&] (auto& s)
-                        {
-                            s.setLinkUnderlay (links.data(), static_cast<int> (links.size()));
-                        });
-                }
-            }
-
+            const auto& links { linkManager->getClickableLinks() };
             visitScreen (
                 [&] (auto& s)
                 {
-                    s.render (processor.getState(), processor.getGrid());
+                    s.setLinkUnderlay (links.data(), static_cast<int> (links.size()));
                 });
-
-            repaint();
-
-            if (onRepaintNeeded != nullptr)
-                onRepaintNeeded();
         }
+
+        visitScreen (
+            [&] (auto& s)
+            {
+                s.render (processor.getState(), processor.getGrid());
+            });
+
+        repaint();
+
+        if (onRepaintNeeded != nullptr)
+            onRepaintNeeded();
+    }
+    else
+    {
+        processor.getState().setSnapshotDirty();
+    }
+}
+
+/**
+ * @brief Rebuilds screenSelection from State params for the current frame.
+ *
+ * Reads selection anchor/cursor from State, converts to visible-row coordinates,
+ * and updates the Screen selection pointer.  Clears selection when inactive.
+ *
+ * @param isActivePane   True when this Display is the focused pane.
+ * @param visibleStart   First absolute row visible in the viewport.
+ * @note MESSAGE THREAD — called from processDirtySnapshot().
+ */
+void Terminal::Display::rebuildSelectionFromState (bool isActivePane, int visibleStart)
+{
+    {
+        const bool active { isActivePane and processor.getState().getModalType() == ModalType::selection };
+        visitScreen (
+            [&] (auto& s)
+            {
+                s.setSelectionActive (active);
+            });
+    }
+
+    const auto smType { static_cast<SelectionType> (processor.getState().getSelectionType()) };
+
+    if (isActivePane and smType != SelectionType::none)
+    {
+        if (screenSelection == nullptr)
+            screenSelection = std::make_unique<ScreenSelection>();
+
+        const int anchorVisRow { processor.getState().getSelectionAnchorRow() - visibleStart };
+        const int cursorVisRow { processor.getState().getSelectionCursorRow() - visibleStart };
+
+        screenSelection->anchor = { processor.getState().getSelectionAnchorCol(), anchorVisRow };
+        screenSelection->end = { processor.getState().getSelectionCursorCol(), cursorVisRow };
+
+        if (smType == SelectionType::visual)
+            screenSelection->type = ScreenSelection::SelectionType::linear;
+        else if (smType == SelectionType::visualLine)
+            screenSelection->type = ScreenSelection::SelectionType::line;
         else
-        {
-            processor.getState().setSnapshotDirty();
-        }
+            screenSelection->type = ScreenSelection::SelectionType::box;
+
+        visitScreen (
+            [&] (auto& s)
+            {
+                s.setSelection (screenSelection.get());
+            });
+    }
+    else if (not processor.getState().isDragActive())
+    {
+        screenSelection.reset();
+        visitScreen (
+            [&] (auto& s)
+            {
+                s.setSelection (nullptr);
+            });
     }
 }
 
@@ -727,16 +761,15 @@ void Terminal::Display::onVBlank()
  */
 void Terminal::Display::applyScreenSettings() noexcept
 {
-    const auto* cfg { lua::Engine::getContext() };
     visitScreen (
         [&] (auto& s)
         {
-            s.setLigatures (cfg->display.font.ligatures);
-            s.setEmbolden (cfg->display.font.embolden);
-            s.setLineHeight (cfg->display.font.lineHeight);
-            s.setCellWidth (cfg->display.font.cellWidth);
-            s.setTheme (cfg->buildTheme());
-            s.setFontSize (cfg->dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
+            s.setLigatures (config.display.font.ligatures);
+            s.setEmbolden (config.display.font.embolden);
+            s.setLineHeight (config.display.font.lineHeight);
+            s.setCellWidth (config.display.font.cellWidth);
+            s.setTheme (config.buildTheme());
+            s.setFontSize (config.dpiCorrectedFontSize() * AppState::getContext()->getWindowZoom());
         });
 }
 
@@ -745,10 +778,7 @@ void Terminal::Display::applyConfig() noexcept
     applyScreenSettings();
 
     if (inputHandler.has_value())
-    {
-        if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
-            inputHandler->buildKeyMap (engine->getSelectionKeys());
-    }
+        inputHandler->buildKeyMap (config.getSelectionKeys());
 
     processor.getGrid().markAllDirty();
     processor.getState().setSnapshotDirty();
@@ -774,7 +804,7 @@ void Terminal::Display::applyZoom (float) noexcept
         });
 
     // New font size from SSOT — lua::Engine (base) * AppState (zoom), computed fresh.
-    const float newFontSize { lua::Engine::getContext()->dpiCorrectedFontSize()
+    const float newFontSize { config.dpiCorrectedFontSize()
                               * AppState::getContext()->getWindowZoom() };
 
     // Raw font metrics for both sizes — multiplier cancels in the ratio.
@@ -794,8 +824,9 @@ void Terminal::Display::applyZoom (float) noexcept
             const int decorW { topLevel->getWidth() - getWidth() };
             const int decorH { topLevel->getHeight() - getHeight() };
 
-            const int oldContentW { getWidth() - paddingLeft - paddingRight };
-            const int oldContentH { getHeight() - paddingTop - paddingBottom };
+            const auto contentBounds { getContentBounds() };
+            const int oldContentW { contentBounds.getWidth() };
+            const int oldContentH { contentBounds.getHeight() };
 
             const float ratioW { static_cast<float> (newMetrics.physCellW)
                                  / static_cast<float> (oldMetrics.physCellW) };
@@ -807,76 +838,6 @@ void Terminal::Display::applyZoom (float) noexcept
 
             topLevel->setSize (
                 newContentW + paddingLeft + paddingRight + decorW, newContentH + paddingTop + paddingBottom + decorH);
-        }
-    }
-}
-
-/**
- * @brief Loads an image file, stages it into the atlas, and activates split-viewport preview.
- *
- * Decodes all frames via `loadImageSequenceNative`, stages each frame into the
- * image atlas on the MESSAGE THREAD via `imageAtlasRef.stage()`, adds a preview
- * IMAGE node to State (marked with `isPreview = true`), computes an adaptive
- * split column, and calls `state.setPreview()` to activate the split viewport.
- * Any key press subsequently dismisses the preview via `Input::handleKey()`.
- *
- * @param file  The image file to load.
- * @note MESSAGE THREAD.
- */
-void Terminal::Display::handleOpenImage (const juce::File& file) noexcept
-{
-    juce::MemoryBlock fileBytes;
-
-    if (file.loadFileAsData (fileBytes) and not fileBytes.isEmpty())
-    {
-        Terminal::ImageSequence seq { Terminal::loadImageSequenceNative (fileBytes.getData(),
-                                                                         fileBytes.getSize()) };
-
-        if (seq.isValid())
-        {
-            const int frameCount    { seq.frameCount };
-            const int widthPx       { seq.width };
-            const int heightPx      { seq.height };
-            const size_t frameBytes { static_cast<size_t> (widthPx) * static_cast<size_t> (heightPx) * 4u };
-
-            juce::HeapBlock<uint32_t> frameIds (static_cast<size_t> (frameCount));
-            bool allStaged { true };
-
-            for (int f { 0 }; f < frameCount and allStaged; ++f)
-            {
-                const uint8_t* framePixels { seq.pixels.get() + static_cast<size_t> (f) * frameBytes };
-                const uint32_t id          { imageAtlasRef.stage (framePixels, widthPx, heightPx) };
-                allStaged = (id != 0u);
-
-                if (allStaged)
-                    frameIds[static_cast<size_t> (f)] = id;
-            }
-
-            if (allStaged)
-            {
-                auto& st { processor.getState() };
-                st.addImageNode (frameIds[0],
-                                 frameIds.get(),
-                                 seq.delays.get(),
-                                 frameCount,
-                                 widthPx, heightPx,
-                                 0, 0, 0, 0);
-
-                // Mark the new IMAGE node as a preview node.
-                auto imagesNode { st.get().getChildWithName (Terminal::ID::IMAGES) };
-                auto lastChild  { imagesNode.getChild (imagesNode.getNumChildren() - 1) };
-                lastChild.setProperty (Terminal::ID::isPreview, true, nullptr);
-
-                // Compute adaptive split column: panel occupies 25–60% of total columns.
-                const int totalCols     { st.getCols() };
-                const float imageAspect { static_cast<float> (widthPx)
-                                          / juce::jmax (1.0f, static_cast<float> (heightPx)) };
-                const float panelFrac   { juce::jlimit (0.25f, 0.60f, imageAspect * 0.5f) };
-                const int panelCols     { juce::roundToInt (static_cast<float> (totalCols) * panelFrac) };
-                const int sc            { totalCols - panelCols };
-
-                st.setPreview (true, sc);
-            }
         }
     }
 }
@@ -893,21 +854,25 @@ void Terminal::Display::switchRenderer (App::RendererType type)
     {
         if (not std::holds_alternative<Screen<jam::Glyph::GraphicsContext>> (screen))
         {
-            screen.emplace<Screen<jam::Glyph::GraphicsContext>> (font, packerRef, graphicsAtlasRef, imageAtlasRef);
+            screen.emplace<Screen<jam::Glyph::GraphicsContext>> (font, packerRef, graphicsAtlasRef);
         }
     }
     else
     {
         if (not std::holds_alternative<Screen<jam::Glyph::GLContext>> (screen))
         {
-            screen.emplace<Screen<jam::Glyph::GLContext>> (font, packerRef, glAtlasRef, imageAtlasRef);
+            screen.emplace<Screen<jam::Glyph::GLContext>> (font, packerRef, glAtlasRef);
         }
     }
 
     if (linkManager.has_value())
     {
         mouseHandler.emplace (processor, screenBase(), *linkManager);
-        visitScreen ([this] (auto& s) { s.setLinkManager (&*linkManager); });
+        visitScreen (
+            [this] (auto& s)
+            {
+                s.setLinkManager (&*linkManager);
+            });
     }
 
     applyScreenSettings();

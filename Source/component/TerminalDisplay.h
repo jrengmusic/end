@@ -39,12 +39,12 @@
  */
 
 #pragma once
-#include <variant>
 #include <JuceHeader.h>
 #include "../terminal/logic/Processor.h"
 #include "../terminal/logic/Input.h"
 #include "../terminal/logic/Mouse.h"
 #include "../terminal/rendering/Screen.h"
+#include "../terminal/rendering/Overlay.h"
 #include "../terminal/rendering/ScreenSelection.h"
 #include "../SelectionType.h"
 #include "../terminal/selection/LinkSpan.h"
@@ -107,15 +107,13 @@ public:
      * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; passed to Screen<GLContext> for atlas rebuild.
      * @param graphicsAtlas CPU atlas image store; passed to Screen<GraphicsContext> for atlas rebuild.
-     * @param imageAtlas    Inline image atlas; staged uploads published each frame.
      * @note MESSAGE THREAD.
      */
     Display (Terminal::Processor& proc,
              jam::Font& font,
              jam::Glyph::Packer& packer,
              jam::gl::GlyphAtlas& glAtlas,
-             jam::GraphicsAtlas& graphicsAtlas,
-             Terminal::ImageAtlas& imageAtlas);
+             jam::GraphicsAtlas& graphicsAtlas);
 
     /**
      * @brief Unwires all Processor callbacks, unsubscribes from State ValueTree,
@@ -498,6 +496,37 @@ public:
     void enterOpenFileMode() noexcept;
 
     /**
+     * @brief Creates the ephemeral Overlay component and adds it as a child.
+     *
+     * Constructs a `Terminal::Overlay`, computes its pixel bounds from config
+     * (nexus.image.width/height fractions, trigger row), sets the image, border
+     * colour, padding, and border visibility, then calls `addAndMakeVisible`.
+     *
+     * @param image       The decoded image to display.
+     * @param triggerRow  Visible row of the link span that triggered the open.
+     * @note MESSAGE THREAD.
+     */
+    void activatePreview (juce::Image image, int triggerRow) noexcept;
+
+    /**
+     * @brief Removes the Overlay child component and clears preview State.
+     *
+     * Removes `overlay` from the component hierarchy and resets the unique_ptr.
+     * Also calls `processor.getState().dismissPreview()` to clear State
+     * (safe to call even if State is already clear).
+     *
+     * @note MESSAGE THREAD.
+     */
+    void dismissPreview() noexcept;
+
+    /**
+     * @brief Returns true when an ephemeral Overlay is currently active.
+     * @return `true` if `overlay != nullptr`.
+     * @note MESSAGE THREAD.
+     */
+    bool isPreviewActive() const noexcept;
+
+    /**
      * @brief Returns `true` when the terminal is currently in vim-style selection mode.
      *
      * Used by MainComponent to guard tab/pane switch exit logic.
@@ -594,6 +623,15 @@ private:
      */
     void onVBlank();
 
+    /** @brief Processes a dirty snapshot: lock grid, rebuild selection, render. @note MESSAGE THREAD. */
+    void processDirtySnapshot();
+
+    /** @brief Rebuilds screenSelection from State params for the current frame. @note MESSAGE THREAD. */
+    void rebuildSelectionFromState (bool isActivePane, int visibleStart);
+
+    /** @brief Consumes any pending preview filepath deposited by the READER thread. @note MESSAGE THREAD. */
+    void consumePendingPreview();
+
     /**
      * @brief Applies current config settings (ligatures, embolden, theme, font size) to the active screen.
      *
@@ -614,6 +652,9 @@ private:
      * @see paintGL
      */
     juce::Point<int> getOriginInTopLevel() const noexcept;
+
+    /** @brief Returns the content area after padding removal. @note MESSAGE THREAD. */
+    juce::Rectangle<int> getContentBounds() const noexcept;
 
     /** @brief Returns the ScreenBase interface for the active Screen variant. */
     ScreenBase& screenBase() noexcept
@@ -650,8 +691,8 @@ private:
     /** @brief CPU atlas reference; lifetime owned by MainComponent. Passed to Screen<GraphicsContext>. */
     jam::GraphicsAtlas& graphicsAtlasRef;
 
-    /** @brief Inline image atlas reference; lifetime owned by MainComponent. Published each frame. */
-    Terminal::ImageAtlas& imageAtlasRef;
+    /** @brief Lua config context; process-lifetime stable. */
+    const lua::Engine& config;
 
     /**
      * @brief Terminal renderer — variant over CPU and GPU Screen specialisations.
@@ -662,6 +703,9 @@ private:
     using ScreenVariant = std::variant<Screen<jam::Glyph::GraphicsContext>, Screen<jam::Glyph::GLContext>>;
 
     ScreenVariant screen;
+
+    /** @brief Ephemeral overlay component; non-null when a preview is active. */
+    std::unique_ptr<Terminal::Overlay> overlay;
 
     /** @brief Current text selection; null when nothing is selected. */
     std::unique_ptr<ScreenSelection> screenSelection;
@@ -697,17 +741,17 @@ private:
     juce::VBlankAttachment vblank;
 
     /**
-     * @brief Loads an image file and activates the split-viewport inline preview.
+     * @brief Loads an image file, downscales if needed, and activates the overlay preview.
      *
-     * Decodes all frames via `loadImageSequenceNative`, stages them into the
-     * image atlas, adds a preview IMAGE node to State (marked `isPreview = true`),
-     * and calls `state.setPreview()` to activate the split viewport.  Any key
-     * press subsequently dismisses the preview.
+     * Decodes via `loadImageNative`, downscales to `nexus.image.atlasDimension` if
+     * either dimension exceeds the limit, calls `state.activatePreview()` for State
+     * SSOT tracking, then creates and positions the ephemeral Overlay child component.
      *
-     * @param file  The image file to load.
+     * @param file        The image file to load.
+     * @param triggerRow  Visible row of the link span that triggered the open.
      * @note MESSAGE THREAD.
      */
-    void handleOpenImage (const juce::File& file) noexcept;
+    void handleOpenImage (const juce::File& file, int triggerRow) noexcept;
 
     /** @brief Cached physical cell width in pixels; updated by switchRenderer() via onPhysCellDimensionsChanged. */
     int physCellWidthCache { 0 };
@@ -715,18 +759,33 @@ private:
     /** @brief Cached physical cell height in pixels; updated by switchRenderer() via onPhysCellDimensionsChanged. */
     int physCellHeightCache { 0 };
 
+    /** @brief Guards pendingPreviewPath and pendingPreviewRow. Written on READER, read on MESSAGE. */
+    juce::SpinLock pendingPreviewLock;
+
+    /** @brief Filepath deposited by onPreviewFile; empty string signals dismiss. */
+    juce::String pendingPreviewPath;
+
+    /** @brief Absolute grid row at the trigger cursor when onPreviewFile fired. */
+    int pendingPreviewRow { 0 };
+
+    /** @brief True when a preview filepath has been deposited and not yet consumed. */
+    bool hasPendingPreview { false };
+
     //==============================================================================
     /** @brief Grid padding — top edge inset in logical pixels (from `nexus.terminal.paddingTop`). */
-    const int paddingTop { lua::Engine::getContext()->nexus.terminal.paddingTop };
+    const int paddingTop { config.nexus.terminal.paddingTop };
 
     /** @brief Grid padding — right edge inset in logical pixels (from `nexus.terminal.paddingRight`). */
-    const int paddingRight { lua::Engine::getContext()->nexus.terminal.paddingRight };
+    const int paddingRight { config.nexus.terminal.paddingRight };
 
     /** @brief Grid padding — bottom edge inset in logical pixels (from `nexus.terminal.paddingBottom`). */
-    const int paddingBottom { lua::Engine::getContext()->nexus.terminal.paddingBottom };
+    const int paddingBottom { config.nexus.terminal.paddingBottom };
 
     /** @brief Grid padding — left edge inset in logical pixels (from `nexus.terminal.paddingLeft`). */
-    const int paddingLeft { lua::Engine::getContext()->nexus.terminal.paddingLeft };
+    const int paddingLeft { config.nexus.terminal.paddingLeft };
+
+    /** @brief Visible grid row that triggered the current overlay preview. */
+    int overlayTriggerRow { 0 };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Display)

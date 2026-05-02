@@ -20,3 +20,19 @@ end
 function _end_preexec --on-event fish_preexec
     printf '\033]133;C\a'
 end
+
+function end
+    if test "$argv[1]" = "preview"
+        set -l file (realpath "$argv[2]")
+        switch "$END_SKIT"
+            case kitty
+                printf '\033_GEND;%s\033\\' "$file"
+            case iterm2
+                printf '\033]1337;END;%s\a' "$file"
+            case sixel
+                printf '\033P0qEND;%s\033\\' "$file"
+        end
+    else
+        command "$END_BINARY" $argv
+    end
+end

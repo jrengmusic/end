@@ -6,7 +6,7 @@
  * after the `q` final byte) into an RGBA8 pixel buffer.  `DecodedImage` and
  * `PendingImage` are the shared transfer types used by all three SKiT decoders
  * (Sixel, Kitty, iTerm2) as they pass decoded pixels from the READER THREAD to
- * the MESSAGE THREAD for staging into the `ImageAtlas`.
+ * the MESSAGE THREAD via `onImageDecoded`.
  *
  * @par Sixel format summary
  * @code
@@ -23,7 +23,7 @@
  * @endcode
  *
  * @see Terminal::PendingImage
- * @see Terminal::ImageAtlas::submitDecoded()
+ * @see Terminal::State::addImageNode()
  */
 
 #pragma once
@@ -38,7 +38,7 @@ namespace Terminal
  * @brief Result of decoding an inline image: RGBA pixels + dimensions.
  *
  * Produced by decoders on the READER THREAD.  The MESSAGE THREAD consumes
- * the pixel data and stages it into ImageAtlas.
+ * the pixel data via `State::addImageNode()`.
  */
 struct DecodedImage
 {
@@ -57,10 +57,9 @@ struct DecodedImage
  * @struct PendingImage
  * @brief A decoded image awaiting atlas staging.
  *
- * Produced by the READER THREAD after decoding and submitted to `ImageAtlas`
- * via `onImageDecoded` → `ImageAtlas::submitDecoded()`.  The MESSAGE THREAD
- * drains the FIFO via `ImageAtlas::drainPending()`, stages pixels, and
- * propagates metadata to the State via `State::addImageNode()`.
+ * Produced by the READER THREAD after decoding.  Delivered to the MESSAGE
+ * THREAD via `onImageDecoded`, which calls `State::addImageNode()` to stage
+ * pixels and propagate metadata to the ValueTree.
  */
 struct PendingImage
 {

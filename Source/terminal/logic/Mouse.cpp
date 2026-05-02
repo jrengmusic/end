@@ -32,7 +32,11 @@ Mouse::Mouse (Processor& p,
 
 void Mouse::handleDown (const juce::MouseEvent& event)
 {
-    if (shouldForwardToPty())
+    if (processor.getState().isPreviewActive())
+    {
+        processor.getState().dismissPreview();
+    }
+    else if (shouldForwardToPty())
     {
         const auto cell { screen.cellAtPoint (event.x, event.y) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
@@ -64,6 +68,9 @@ void Mouse::handleDown (const juce::MouseEvent& event)
             if (matched != nullptr)
             {
                 linkManager.dispatch (*matched);
+                processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
+                processor.getState().setDragAnchor (absRow, cell.x);
+                processor.getState().setDragActive (false);
             }
             else
             {
@@ -83,7 +90,6 @@ void Mouse::handleDown (const juce::MouseEvent& event)
             processor.getState().setDragActive (false);
         }
     }
-
 }
 
 void Mouse::handleDoubleClick (const juce::MouseEvent& event)

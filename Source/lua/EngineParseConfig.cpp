@@ -139,6 +139,37 @@ void Engine::parseNexus()
                 nexus.image.atlasBudgetBytes = juce::jlimit (1 * 1024 * 1024,
                                                               256 * 1024 * 1024,
                                                               static_cast<int> (atlasBudget.value()));
+
+            auto atlasDim { imageTable["atlas_dimension"].optional<double>() };
+
+            if (atlasDim.has_value())
+                nexus.image.atlasDimension = juce::jlimit (1024, 8192, static_cast<int> (atlasDim.value()));
+
+            auto protocolOpt { imageTable["protocol"].optional<juce::String>() };
+
+            if (protocolOpt.has_value())
+            {
+                const auto& val { protocolOpt.value() };
+
+                if (val == "iterm2" or val == "kitty" or val == "sixel")
+                    nexus.image.protocol = val;
+            }
+
+            auto w { imageTable["width"].optional<double>() };
+            if (w.has_value())
+                nexus.image.width = juce::jlimit (0.1f, 0.5f, static_cast<float> (w.value()));
+
+            auto h { imageTable["height"].optional<double>() };
+            if (h.has_value())
+                nexus.image.height = juce::jlimit (0.1f, 0.5f, static_cast<float> (h.value()));
+
+            auto pad { imageTable["padding"].optional<double>() };
+            if (pad.has_value())
+                nexus.image.padding = juce::jlimit (0, 64, static_cast<int> (pad.value()));
+
+            auto brd { imageTable["border"].optional<bool>() };
+            if (brd.has_value())
+                nexus.image.border = brd.value();
         }
     }
 }

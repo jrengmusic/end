@@ -1,1 +1,0 @@
-/Users/jreng/.carol/agents/brainstormer.md

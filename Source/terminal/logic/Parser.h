@@ -65,6 +65,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <jam_tui/jam_tui.h>
 
 #include "../data/Charset.h"
 #include "../data/DispatchTable.h"
@@ -281,7 +282,7 @@ public:
      * Decoders (Sixel, iTerm2, Kitty) invoke this after decoding an image.
      * The callback transfers decoded pixel data and grid position metadata
      * to the renderer's staging pipeline without any direct header coupling
-     * between Parser and ImageAtlas.
+     * between Parser and Image.
      *
      * @param pixels     All frames contiguous, RGBA8, row-major.  Ownership transferred via move.
      * @param delays     Per-frame delay in milliseconds.  Null for static images.  Ownership transferred.
@@ -298,7 +299,22 @@ public:
     std::function<void (juce::HeapBlock<uint8_t>&&,
                         juce::HeapBlock<int>&&,
                         int, int, int,
-                        int, int, int, int)> onImageDecoded;
+                        int, int, int, int,
+                        bool)> onImageDecoded;
+
+    /**
+     * @brief Callback invoked when a SKiT END; filepath is received on the READER THREAD.
+     *
+     * Fires when `handleSkitFilepath` processes a non-empty filepath.  The file
+     * is NOT loaded here — the receiver must load it on the MESSAGE THREAD.
+     * An empty filepath signals preview dismissal.
+     *
+     * @param filepath  Absolute path to the image file, or empty string to dismiss.
+     * @param gridRow   Absolute grid row at the trigger cursor position.
+     *
+     * @note READER THREAD only.
+     */
+    std::function<void (const juce::String& filepath, int gridRow)> onPreviewFile;
 
     // =========================================================================
 
@@ -589,6 +605,18 @@ private:
      * @see setPhysCellDimensions()
      */
     std::atomic<int> physCellHeightAtomic { 0 };
+
+    /**
+     * @brief Pixel-to-cell conversion helper; rebuilt by setPhysCellDimensions() whenever
+     *        physCellWidthAtomic / physCellHeightAtomic are updated.
+     *
+     * Consumed by dcsUnhook(), apcEnd(), and handleSkitFilepath() on the READER
+     * THREAD to compute image cell spans.  Scale is always 1.0 — the parser
+     * operates exclusively in physical pixels.
+     *
+     * @see setPhysCellDimensions()
+     */
+    jam::tui::Metrics metrics {};
 
     /**
      * @brief Current drawing attributes applied to newly written cells.
@@ -1570,6 +1598,17 @@ private:
      * @note READER THREAD only.
      */
     void apcEnd() noexcept;
+
+    /** @brief Handles an END; filepath signal from any SKiT protocol envelope.
+     *
+     * Extracts cursor position and invokes `onPreviewFile` with the filepath and
+     * absolute grid row.  Does NOT load or decode the file — the receiver must
+     * perform file I/O on the MESSAGE THREAD.  An empty filepath signals dismiss.
+     *
+     * @param filepath  Absolute path extracted after the END; marker.  Empty = dismiss.
+     * @note READER THREAD only.
+     */
+    void handleSkitFilepath (const juce::String& filepath) noexcept;
 
     /**
      * @brief Appends a byte to a hybrid buffer with lazy allocation and geometric growth.

@@ -35,9 +35,6 @@
  */
 
 #include "State.h"
-#include <JuceHeader.h>
-#include "../../lua/Engine.h"
-#include "../../AppState.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -178,10 +175,10 @@ State::State()
     addParam (state, ID::fullRebuild, 0.0f);
 
     // Image erase accumulation bounding box (READER THREAD via queueImageErase).
-    addParam (state, ID::eraseTop,    999999.0f);
-    addParam (state, ID::eraseLeft,   999999.0f);
+    addParam (state, ID::eraseTop, 999999.0f);
+    addParam (state, ID::eraseLeft, 999999.0f);
     addParam (state, ID::eraseBottom, -1.0f);
-    addParam (state, ID::eraseRight,  -1.0f);
+    addParam (state, ID::eraseRight, -1.0f);
 
     // Link URI monotonic counter (READER THREAD via registerLinkUri).
     addParam (state, ID::linkUriCount, 0.0f);
@@ -222,8 +219,8 @@ State::State()
     state.appendChild (juce::ValueTree { ID::IMAGES }, nullptr);
 
     // Preview split-viewport state (MESSAGE THREAD only, direct properties on SESSION root).
-    state.setProperty (ID::preview,   false, nullptr);
-    state.setProperty (ID::splitCol,  0,     nullptr);
+    state.setProperty (ID::preview, false, nullptr);
+    state.setProperty (ID::splitCol, 0, nullptr);
 
     buildParameterMap();
 
@@ -1141,7 +1138,6 @@ void State::tickCursorBlink (int elapsedMs) noexcept
     }
 }
 
-
 /**
  * @brief Walks the ValueTree skeleton and registers every PARAM node in
  *        `parameterMap`, allocating one atomic slot per parameter.
@@ -1375,39 +1371,81 @@ uint64_t State::getLastKnownSeqno() const
 // Image preview split-viewport state — MESSAGE THREAD.
 // =============================================================================
 
-/**
- * @brief Activates or deactivates the split-viewport image preview.
- *
- * Writes `preview` and `splitCol` as direct properties on the SESSION root
- * ValueTree.  Calls `setFullRebuild()` and `setSnapshotDirty()` so the
- * renderer picks up the change on the next frame.
- *
- * @note MESSAGE THREAD only.
- */
-void State::setPreview (bool active, int col) noexcept
+/** @brief Removes all IMAGE children with isPreview=true from the given IMAGES node. */
+static void removePreviewNodes (juce::ValueTree& imagesNode) noexcept
 {
-    state.setProperty (ID::preview,  active, nullptr);
-    state.setProperty (ID::splitCol, col,    nullptr);
-    setFullRebuild();
-    setSnapshotDirty();
+    for (int i { imagesNode.getNumChildren() - 1 }; i >= 0; --i)
+    {
+        const auto child { imagesNode.getChild (i) };
+
+        if (static_cast<bool> (child.getProperty (Terminal::ID::isPreview, false)))
+            imagesNode.removeChild (i, nullptr);
+    }
 }
 
 /**
  * @brief Returns true when a split-viewport image preview is active.
  * @note MESSAGE THREAD only.
  */
-bool State::isPreviewActive() const noexcept
-{
-    return static_cast<bool> (state.getProperty (ID::preview, false));
-}
+bool State::isPreviewActive() const noexcept { return static_cast<bool> (state.getProperty (ID::preview, false)); }
 
 /**
  * @brief Returns the column at which the terminal clips for the preview split.
  * @note MESSAGE THREAD only.
  */
-int State::getSplitCol() const noexcept
+int State::getSplitCol() const noexcept { return static_cast<int> (state.getProperty (ID::splitCol, 0)); }
+
+/**
+ * @brief Activates the split-viewport image preview and registers its IMAGE node.
+ *
+ * @note MESSAGE THREAD only.
+ */
+void State::activatePreview (uint32_t imageId,
+                             int widthPx,
+                             int heightPx,
+                             int gridRow,
+                             int gridCol,
+                             int cellCols,
+                             int cellRows,
+                             int splitCol) noexcept
 {
-    return static_cast<int> (state.getProperty (ID::splitCol, 0));
+    auto imagesNode { state.getChildWithName (ID::IMAGES) };
+
+    removePreviewNodes (imagesNode);
+
+    juce::ValueTree node { ID::IMAGE };
+    node.setProperty (ID::imageId, static_cast<int> (imageId), nullptr);
+    node.setProperty (ID::gridRow, gridRow, nullptr);
+    node.setProperty (ID::gridCol, gridCol, nullptr);
+    node.setProperty (ID::cellCols, cellCols, nullptr);
+    node.setProperty (ID::cellRows, cellRows, nullptr);
+    node.setProperty (ID::widthPx, widthPx, nullptr);
+    node.setProperty (ID::heightPx, heightPx, nullptr);
+    node.setProperty (ID::isPreview, true, nullptr);
+    node.setProperty (ID::frameCount, 1, nullptr);
+    imagesNode.appendChild (node, nullptr);
+
+    state.setProperty (ID::preview, true, nullptr);
+    state.setProperty (ID::splitCol, splitCol, nullptr);
+    setFullRebuild();
+    setSnapshotDirty();
+}
+
+/**
+ * @brief Dismisses the split-viewport image preview and removes its IMAGE node.
+ *
+ * @note MESSAGE THREAD only.
+ */
+void State::dismissPreview() noexcept
+{
+    auto imagesNode { state.getChildWithName (ID::IMAGES) };
+
+    removePreviewNodes (imagesNode);
+
+    state.setProperty (ID::preview, false, nullptr);
+    state.setProperty (ID::splitCol, 0, nullptr);
+    setFullRebuild();
+    setSnapshotDirty();
 }
 
 // =============================================================================
@@ -1423,9 +1461,12 @@ void State::addImageNode (uint32_t firstFrameImageId,
                           const uint32_t* allImageIds,
                           const int* delays,
                           int frameCount,
-                          int widthPx, int heightPx,
-                          int gridRow, int gridCol,
-                          int cellCols, int cellRows) noexcept
+                          int widthPx,
+                          int heightPx,
+                          int gridRow,
+                          int gridCol,
+                          int cellCols,
+                          int cellRows) noexcept
 {
     auto imagesNode { state.getChildWithName (ID::IMAGES) };
 
@@ -1435,14 +1476,12 @@ void State::addImageNode (uint32_t firstFrameImageId,
     for (int i { imagesNode.getNumChildren() - 1 }; i >= 0; --i)
     {
         const auto existing { imagesNode.getChild (i) };
-        const int exRow  { static_cast<int> (existing.getProperty (ID::gridRow)) };
-        const int exCol  { static_cast<int> (existing.getProperty (ID::gridCol)) };
+        const int exRow { static_cast<int> (existing.getProperty (ID::gridRow)) };
+        const int exCol { static_cast<int> (existing.getProperty (ID::gridCol)) };
         const int exRows { static_cast<int> (existing.getProperty (ID::cellRows)) };
         const int exCols { static_cast<int> (existing.getProperty (ID::cellCols)) };
 
-        const bool overlaps { exRow < gridRow + cellRows
-                              and exRow + exRows > gridRow
-                              and exCol < gridCol + cellCols
+        const bool overlaps { exRow < gridRow + cellRows and exRow + exRows > gridRow and exCol < gridCol + cellCols
                               and exCol + exCols > gridCol };
 
         if (overlaps)
@@ -1450,13 +1489,13 @@ void State::addImageNode (uint32_t firstFrameImageId,
     }
 
     juce::ValueTree node { ID::IMAGE };
-    node.setProperty (ID::imageId,    static_cast<int> (firstFrameImageId), nullptr);
-    node.setProperty (ID::gridRow,    gridRow,  nullptr);
-    node.setProperty (ID::gridCol,    gridCol,  nullptr);
-    node.setProperty (ID::cellCols,   cellCols, nullptr);
-    node.setProperty (ID::cellRows,   cellRows, nullptr);
-    node.setProperty (ID::widthPx,    widthPx,  nullptr);
-    node.setProperty (ID::heightPx,   heightPx, nullptr);
+    node.setProperty (ID::imageId, static_cast<int> (firstFrameImageId), nullptr);
+    node.setProperty (ID::gridRow, gridRow, nullptr);
+    node.setProperty (ID::gridCol, gridCol, nullptr);
+    node.setProperty (ID::cellCols, cellCols, nullptr);
+    node.setProperty (ID::cellRows, cellRows, nullptr);
+    node.setProperty (ID::widthPx, widthPx, nullptr);
+    node.setProperty (ID::heightPx, heightPx, nullptr);
     node.setProperty (ID::frameCount, frameCount, nullptr);
 
     if (frameCount > 1)
@@ -1465,7 +1504,7 @@ void State::addImageNode (uint32_t firstFrameImageId,
         node.setProperty (ID::frameStartMs, static_cast<juce::int64> (juce::Time::currentTimeMillis()), nullptr);
 
         // Pack allImageIds (frameCount × uint32_t) followed by delays (frameCount × int).
-        const size_t idBytes    { static_cast<size_t> (frameCount) * sizeof (uint32_t) };
+        const size_t idBytes { static_cast<size_t> (frameCount) * sizeof (uint32_t) };
         const size_t delayBytes { static_cast<size_t> (frameCount) * sizeof (int) };
         juce::MemoryBlock blob { idBytes + delayBytes, true };
         std::memcpy (blob.getData(), allImageIds, idBytes);
@@ -1517,15 +1556,15 @@ void State::removeImageNode (uint32_t id) noexcept
  */
 void State::queueImageErase (int topRow, int leftCol, int bottomRow, int rightCol) noexcept
 {
-    auto* pTop    { getRawParam (ID::eraseTop) };
-    auto* pLeft   { getRawParam (ID::eraseLeft) };
+    auto* pTop { getRawParam (ID::eraseTop) };
+    auto* pLeft { getRawParam (ID::eraseLeft) };
     auto* pBottom { getRawParam (ID::eraseBottom) };
-    auto* pRight  { getRawParam (ID::eraseRight) };
+    auto* pRight { getRawParam (ID::eraseRight) };
 
-    const float curTop    { pTop->load (std::memory_order_relaxed) };
-    const float curLeft   { pLeft->load (std::memory_order_relaxed) };
+    const float curTop { pTop->load (std::memory_order_relaxed) };
+    const float curLeft { pLeft->load (std::memory_order_relaxed) };
     const float curBottom { pBottom->load (std::memory_order_relaxed) };
-    const float curRight  { pRight->load (std::memory_order_relaxed) };
+    const float curRight { pRight->load (std::memory_order_relaxed) };
 
     pTop->store (juce::jmin (curTop, static_cast<float> (topRow)), std::memory_order_relaxed);
     pLeft->store (juce::jmin (curLeft, static_cast<float> (leftCol)), std::memory_order_relaxed);

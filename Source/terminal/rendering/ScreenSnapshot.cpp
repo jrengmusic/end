@@ -5,18 +5,14 @@
  * This translation unit implements `Screen::updateSnapshot()`, the final step
  * of the per-frame rendering pipeline.  It is responsible for:
  *
- * 1. **Capacity management** — calling `Render::Snapshot::ensureCapacity()` to
- *    grow the snapshot's `HeapBlock` arrays if the current frame has more
- *    glyphs or backgrounds than the previous one.
+ * 1. **Glyph packing** — delegated to `glyph.packSnapshot()`, which handles
+ *    capacity management, per-row memcpy, count assignment, and staged bitmap
+ *    publication via `packer.publishStagedBitmaps()`.
  *
- * 2. **Data packing** — copying per-row glyph and background data from the
- *    `cachedMono`, `cachedEmoji`, and `cachedBg` arrays into the contiguous
- *    `Render::Snapshot` arrays via `memcpy`.
- *
- * 3. **Cursor state** — writing the cursor position and visibility from
+ * 2. **Cursor state** — writing the cursor position and visibility from
  *    `State` into the snapshot.
  *
- * 4. **Publication** — calling `jam::GLSnapshotBuffer::write()` to hand
+ * 3. **Publication** — calling `jam::GLSnapshotBuffer::write()` to hand
  *    the snapshot to the GL THREAD.  Double-buffer rotation is handled
  *    internally by `GLSnapshotBuffer`.
  *
@@ -46,22 +42,15 @@ static constexpr float cursorColorNoOverride { -1.0f };
  * been processed.  Performs the following steps:
  *
  * 1. Obtains the write buffer from `GLSnapshotBuffer::getWriteBuffer()`.
- * 2. Totals `monoCount[r]`, `emojiCount[r]`, and `bgCount[r]` across all rows.
- * 3. Calls `Render::Snapshot::ensureCapacity()` to grow the snapshot arrays
- *    if needed.
- * 4. Sets `gridWidth` and `gridHeight` on the snapshot.
- * 5. Copies per-row glyph and background data into the contiguous snapshot
- *    arrays via `memcpy`, advancing offsets as each row is packed.
- * 6. Writes the total counts (`monoCount`, `emojiCount`, `backgroundCount`)
- *    and cursor state (`cursorPosition`, `cursorVisible`, `cursorShape`,
- *    `cursorColorR/G/B`, `scrollOffset`, `cursorBlinkOn`, `cursorFocused`)
- *    into the snapshot.
- * 7. Calls `jam::GLSnapshotBuffer::write()` to hand the snapshot to the GL THREAD.
+ * 2. Delegates glyph packing (capacity, memcpy, count assignment, bitmap publication)
+ *    to `glyph.packSnapshot()`.
+ * 3. Sets `gridWidth`, `gridHeight`, dirty rows, scroll delta, and `physCellHeight`.
+ * 4. Writes cursor state into the snapshot.
+ * 5. Calls `jam::GLSnapshotBuffer::write()` to hand the snapshot to the GL THREAD.
  *
- * @param state      Current terminal state; provides cursor position,
- *                   visibility, and active screen type.
- * @param rows       Number of visible rows (= `state.getVisibleRows()`).
- * @param maxGlyphs  Maximum glyph slots per row (= `cacheCols * 2`).
+ * @param state  Current terminal state; provides cursor position, visibility,
+ *               column count, and active screen type.
+ * @param rows   Number of visible rows (= `state.getVisibleRows()`).
  *
  * @note **MESSAGE THREAD** only.  Must not be called from the GL THREAD.
  *
@@ -69,178 +58,30 @@ static constexpr float cursorColorNoOverride { -1.0f };
  * @see jam::GLSnapshotBuffer::write()
  * @see Screen::buildSnapshot()
  */
-template <typename Renderer>
-void Screen<Renderer>::updateSnapshot (const State& state, Grid& grid, int rows, int maxGlyphs) noexcept
+template <typename Context>
+void Screen<Context>::updateSnapshot (const State& state, Grid& grid, int rows) noexcept
 {
     auto& snapshot { resources.snapshotBuffer.getWriteBuffer() };
 
-    int totalMono  { 0 };
-    int totalEmoji { 0 };
-    int totalBg    { 0 };
+    glyph.packSnapshot (snapshot, rows, frameDirtyBits);
 
-    for (int r { 0 }; r < rows; ++r)
-    {
-        if (isRowIncludedInSnapshot (r))
-        {
-            totalMono  += monoCount[r];
-            totalEmoji += emojiCount[r];
-            totalBg    += bgCount[r];
-        }
-    }
-
-    snapshot.ensureCapacity (totalMono, totalEmoji, totalBg);
-
-    // Count image quads from IMAGES ValueTree instead of per-row cache.
-    const auto imagesNode    { state.get().getChildWithName (ID::IMAGES) };
-    const int scrollbackUsed { state.getScrollbackUsed() };
-    const int visibleBase    { scrollbackUsed - state.getScrollOffset() };
-    int totalImages          { 0 };
-
-    for (int i { 0 }; i < imagesNode.getNumChildren(); ++i)
-    {
-        const auto img          { imagesNode.getChild (i) };
-        const int imgGridRow    { static_cast<int> (img.getProperty (ID::gridRow)) };
-        const int imgCellRows   { static_cast<int> (img.getProperty (ID::cellRows)) };
-        const int viewRow       { imgGridRow - visibleBase };
-        const bool isPreviewNode { static_cast<bool> (img.getProperty (ID::isPreview, false)) };
-
-        // Preview nodes are always visible regardless of scroll position.
-        // Normal inline images are visible only when any part falls in the viewport.
-        if (isPreviewNode or (viewRow < rows and viewRow + imgCellRows > 0))
-            ++totalImages;
-    }
-
-    // Grow image quad capacity if needed.
-    if (totalImages > snapshot.imageCapacity)
-    {
-        snapshot.images.allocate (static_cast<size_t> (totalImages), true);
-        snapshot.imageCapacity = totalImages;
-    }
-    snapshot.gridWidth  = cacheCols;
+    snapshot.gridWidth  = state.getCols();
     snapshot.gridHeight = rows;
     std::memcpy (snapshot.dirtyRows, frameDirtyBits, sizeof (snapshot.dirtyRows));
     snapshot.scrollDelta    = frameScrollDelta;
     snapshot.physCellHeight = physCellHeight;
-
-    int monoOffset  { 0 };
-    int emojiOffset { 0 };
-    int bgOffset    { 0 };
-
-    for (int r { 0 }; r < rows; ++r)
-    {
-        if (isRowIncludedInSnapshot (r))
-        {
-            if (monoCount[r] > 0)
-            {
-                std::memcpy (snapshot.mono.get() + monoOffset,
-                             cachedMono.get() + r * maxGlyphs,
-                             static_cast<size_t> (monoCount[r]) * sizeof (Render::Glyph));
-                monoOffset += monoCount[r];
-            }
-
-            if (emojiCount[r] > 0)
-            {
-                std::memcpy (snapshot.emoji.get() + emojiOffset,
-                             cachedEmoji.get() + r * maxGlyphs,
-                             static_cast<size_t> (emojiCount[r]) * sizeof (Render::Glyph));
-                emojiOffset += emojiCount[r];
-            }
-
-            if (bgCount[r] > 0)
-            {
-                std::memcpy (snapshot.backgrounds.get() + bgOffset,
-                             cachedBg.get() + r * bgCacheCols,
-                             static_cast<size_t> (bgCount[r]) * sizeof (Render::Background));
-                bgOffset += bgCount[r];
-            }
-        }
-    }
-
-    // Build image quads from IMAGES ValueTree nodes.
-    int imageOffset { 0 };
-
-    const bool previewOn   { state.isPreviewActive() };
-    const int  splitColumn { state.getSplitCol() };
-
-    snapshot.previewActive  = previewOn;
-    snapshot.previewSplitCol = splitColumn;
-
-    for (int i { 0 }; i < imagesNode.getNumChildren(); ++i)
-    {
-        const auto img        { imagesNode.getChild (i) };
-        const uint32_t imgId  { static_cast<uint32_t> (static_cast<int> (img.getProperty (ID::imageId))) };
-        const int imgGridRow  { static_cast<int> (img.getProperty (ID::gridRow)) };
-        const int imgGridCol  { static_cast<int> (img.getProperty (ID::gridCol)) };
-        const int imgCellRows { static_cast<int> (img.getProperty (ID::cellRows)) };
-        const int viewRow     { imgGridRow - visibleBase };
-        const bool isPreviewNode { static_cast<bool> (img.getProperty (ID::isPreview, false)) };
-
-        // Preview nodes are always visible; normal images only when in viewport.
-        const bool shouldRender { isPreviewNode or (viewRow < rows and viewRow + imgCellRows > 0) };
-
-        if (shouldRender)
-        {
-            const auto* region { imageAtlas.lookup (imgId) };
-
-            if (region != nullptr)
-            {
-                Render::ImageQuad iq;
-                iq.uvRect = region->uv;
-
-                if (isPreviewNode)
-                {
-                    // Position in the right panel, centred, aspect-ratio preserved.
-                    const float panelLeft   { static_cast<float> (splitColumn)            * static_cast<float> (physCellWidth) };
-                    const float panelWidth  { static_cast<float> (cacheCols - splitColumn) * static_cast<float> (physCellWidth) };
-                    const float panelHeight { static_cast<float> (rows)                   * static_cast<float> (physCellHeight) };
-
-                    static constexpr float previewPadding { 16.0f };
-                    const float availW { panelWidth  - previewPadding * 2.0f };
-                    const float availH { panelHeight - previewPadding * 2.0f };
-                    const float imgW   { static_cast<float> (region->widthPx) };
-                    const float imgH   { static_cast<float> (region->heightPx) };
-
-                    const float scale { juce::jmin (availW / imgW, availH / imgH, 1.0f) };
-                    const float drawW { imgW * scale };
-                    const float drawH { imgH * scale };
-                    const float drawX { panelLeft + previewPadding + (availW - drawW) * 0.5f };
-                    const float drawY { previewPadding + (availH - drawH) * 0.5f };
-
-                    iq.screenBounds = { drawX, drawY, drawW, drawH };
-                }
-                else
-                {
-                    iq.screenBounds =
-                    {
-                        static_cast<float> (imgGridCol) * static_cast<float> (physCellWidth),
-                        static_cast<float> (viewRow)    * static_cast<float> (physCellHeight),
-                        static_cast<float> (region->widthPx),
-                        static_cast<float> (region->heightPx)
-                    };
-                }
-
-                snapshot.images[imageOffset] = iq;
-                ++imageOffset;
-            }
-        }
-    }
-
-    snapshot.monoCount        = totalMono;
-    snapshot.emojiCount       = totalEmoji;
-    snapshot.backgroundCount  = totalBg;
-    snapshot.imageCount       = imageOffset;
 
     snapshot.cursorFocused = state.isCursorFocused();
 
     if (selectionModeActive)
     {
         // Selection mode: suppress the terminal cursor and show the selection
-        // cursor at the visible-grid position supplied by setSelectionCursor().
-        // scrollOffset is forced to 0 so drawCursor() does not suppress it
-        // when the viewport is scrolled — the caller already converts the
-        // absolute row to a visible-row coordinate before calling us.
-        snapshot.cursorPosition.x = selectionCursorCol;
-        snapshot.cursorPosition.y = selectionCursorRow;
+        // cursor.  Position is read from State (absolute coords) and converted
+        // to visible-grid coords here — no shadow state on Screen.
+        const int selAbsRow { state.getSelectionCursorRow() };
+        const int visibleBase { state.getScrollbackUsed() - state.getScrollOffset() };
+        snapshot.cursorPosition.x = state.getSelectionCursorCol();
+        snapshot.cursorPosition.y = selAbsRow - visibleBase;
         snapshot.cursorVisible    = true;
         snapshot.cursorShape      = cursorShapeBlock;
         snapshot.cursorColorR     = cursorColorNoOverride;
@@ -377,11 +218,6 @@ void Screen<Renderer>::updateSnapshot (const State& state, Grid& grid, int rows,
             }
         }
     }
-
-    // Publish staged bitmaps every frame — rasterization occurs regardless of
-    // sync-output state, so the Mailbox must be flushed unconditionally.
-    packer.publishStagedBitmaps();
-    imageAtlas.publishStagedUploads();
 
     // Synchronized output (mode 2026): keep building the snapshot every frame
     // but do NOT publish to the GL thread.  The display stays frozen at the

@@ -118,6 +118,24 @@ public:
         {
             /** @brief Maximum RGBA bytes retained in the inline image atlas before eviction. Default: 32 MiB. */
             int atlasBudgetBytes { 32 * 1024 * 1024 };
+
+            /** @brief Emission protocol: "iterm2" | "kitty" | "sixel". */
+            juce::String protocol { "iterm2" };
+
+            /** @brief Native preview panel width as proportion of viewport [0.1, 0.5]. */
+            float width { 0.50f };
+
+            /** @brief Native preview panel height as proportion of viewport [0.1, 0.5]. */
+            float height { 0.25f };
+
+            /** @brief Native preview padding in physical pixels [0, 64]. */
+            int padding { 10 };
+
+            /** @brief Maximum image atlas dimension in pixels. Images exceeding this are downscaled. Range: 1024 - 8192. */
+            int atlasDimension { 4096 };
+
+            /** @brief Draw a native border around the preview region. */
+            bool border { true };
         };
 
         /** @brief GPU acceleration mode ("auto", "opengl", "software"). */
@@ -138,7 +156,7 @@ public:
         /** @brief Hyperlink detection settings. */
         Hyperlinks hyperlinks;
 
-        /** @brief Inline image rendering settings. */
+        /** @brief Inline image rendering and native preview settings. */
         Image image;
     };
 

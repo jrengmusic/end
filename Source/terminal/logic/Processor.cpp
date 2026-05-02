@@ -13,6 +13,7 @@
  */
 
 #include "Processor.h"
+#include "../../component/TerminalDisplay.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -272,10 +273,9 @@ void Processor::setHostWriter (std::function<void (const char*, int)> writer) no
 std::unique_ptr<Display> Processor::createDisplay (jam::Font& font,
                                                    jam::Glyph::Packer& packer,
                                                    jam::gl::GlyphAtlas& glAtlas,
-                                                   jam::GraphicsAtlas& graphicsAtlas,
-                                                   Terminal::ImageAtlas& imageAtlas)
+                                                   jam::GraphicsAtlas& graphicsAtlas)
 {
-    auto display { std::make_unique<Display> (*this, font, packer, glAtlas, graphicsAtlas, imageAtlas) };
+    auto display { std::make_unique<Display> (*this, font, packer, glAtlas, graphicsAtlas) };
     display->setComponentID (uuid);
     return display;
 }

@@ -8,6 +8,14 @@
 
 ---
 
+## DEBT-20260501T193217
+
+**Observation:** split third V/H from action list did not split viewport symetrically
+**Divergence:** split third with shortcut is correct, why different than action triggered by Action List
+**Expectation:** any split  action from any trigger should be identical
+
+---
+
 ## DEBT-20260428T215350
 
 **Observation:** need lua api for pane resizing

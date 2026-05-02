@@ -175,7 +175,7 @@ MainComponent::MainComponent (lua::Engine& engine)
                 juce::MessageManager::callAsync ([this] { popup.dismiss(); });
             };
 
-            auto terminal { termSession->getProcessor().createDisplay (font, packer, glyphAtlas, graphicsAtlas, imageAtlas) };
+            auto terminal { termSession->getProcessor().createDisplay (font, packer, glyphAtlas, graphicsAtlas) };
 
             auto renderer { (appState.getRendererType() == App::RendererType::gpu)
                 ? std::unique_ptr<jam::gl::Renderer> { std::make_unique<jam::GLAtlasRenderer> (packer, glyphAtlas) }
@@ -200,7 +200,6 @@ void MainComponent::applyConfig()
     appState.setFontFamily (cfg->display.font.family);
     appState.setFontSize   (static_cast<float> (cfg->dpiCorrectedFontSize()));
     appState.setRendererType (cfg->nexus.gpu);
-    imageAtlas.setBudgetBytes (cfg->nexus.image.atlasBudgetBytes);
     setRenderer (appState.getRendererType());
 
     if (tabs != nullptr)
@@ -234,11 +233,21 @@ void MainComponent::setRenderer (App::RendererType rendererType)
 
                     if (tabs != nullptr)
                     {
-                        for (auto& pane : tabs->getPanes())
+                        std::function<void (juce::Component&)> walker;
+                        walker = [&walker, &renderComponent] (juce::Component& node)
                         {
-                            if (pane->isVisible())
-                                renderComponent (*pane);
-                        }
+                            if (auto* gl { dynamic_cast<jam::gl::Component*> (&node) })
+                                if (gl->isVisible())
+                                    renderComponent (*gl);
+
+                            const int count { node.getNumChildComponents() };
+                            for (int i { 0 }; i < count; ++i)
+                                if (auto* child { node.getChildComponent (i) })
+                                    walker (*child);
+                        };
+
+                        for (auto& pane : tabs->getPanes())
+                            walker (*pane);
                     }
                 });
 
@@ -533,7 +542,6 @@ void MainComponent::initialiseTabs()
         packer,
         glyphAtlas,
         graphicsAtlas,
-        imageAtlas,
         Terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position));
     addAndMakeVisible (tabs.get());
 

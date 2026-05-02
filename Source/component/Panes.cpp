@@ -8,6 +8,7 @@
  */
 
 #include "Panes.h"
+#include <jam_tui/jam_tui.h>
 #include "../AppState.h"
 #include "../terminal/data/Identifier.h"
 #include "../whelmed/Component.h"
@@ -23,12 +24,11 @@ namespace Terminal
  * @note MESSAGE THREAD.
  */
 Panes::Panes (jam::Font& font_, jam::Glyph::Packer& packer_, jam::gl::GlyphAtlas& glAtlas_,
-              jam::GraphicsAtlas& graphicsAtlas_, Terminal::ImageAtlas& imageAtlas_)
+              jam::GraphicsAtlas& graphicsAtlas_)
     : font (font_)
     , packerRef (packer_)
     , glAtlasRef (glAtlas_)
     , graphicsAtlasRef (graphicsAtlas_)
-    , imageAtlasRef (imageAtlas_)
 {
     setOpaque (false);
 }
@@ -78,8 +78,10 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
     const int physContentW { static_cast<int> (static_cast<float> (contentW) * scale) };
     const int physContentH { static_cast<int> (static_cast<float> (contentH) * scale) };
 
-    const int cols { (physContentW > 0 and physCellW > 0) ? physContentW / physCellW : 1 };
-    const int rows { (physContentH > 0 and physCellH > 0) ? physContentH / physCellH : 1 };
+    const jam::tui::Metrics cellMetrics { physCellW, physCellH, scale };
+    const auto gridRect { cellMetrics.gridSize (physContentW, physContentH) };
+    const int cols { (physContentW > 0 and physCellW > 0) ? gridRect.getWidth().value  : 1 };
+    const int rows { (physContentH > 0 and physCellH > 0) ? gridRect.getHeight().value : 1 };
 
     jassert (cols > 0 and rows > 0);
     return { cols, rows };
@@ -155,7 +157,7 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 
     const juce::String termUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef, imageAtlasRef) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef) };
 
     jassert (terminal != nullptr);
 
@@ -464,7 +466,7 @@ void Panes::splitAt (const juce::String& targetUuid,
 
     const juce::String splitUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef, imageAtlasRef) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef) };
 
     jassert (terminal != nullptr);
 

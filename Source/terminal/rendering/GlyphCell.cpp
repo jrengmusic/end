@@ -1,22 +1,22 @@
 /**
- * @file ScreenRenderCell.cpp
+ * @file GlyphCell.cpp
  * @brief Per-cell rendering pipeline: colour resolution and cell dispatch.
  *
- * This translation unit implements `Screen::processCellForSnapshot()` and the
+ * This translation unit implements `Glyph::processCell()` and the
  * file-scope colour-resolution helpers it depends on.  It handles image cells,
  * hint-label overlay substitution, background quad emission, block-element
  * rendering, selection overlay, and link underlines.  Glyph shaping is
- * delegated to `buildCellInstance()` (implemented in `ScreenRenderGlyph.cpp`).
+ * delegated to `buildCellInstance()` (implemented in `GlyphShape.cpp`).
  *
  * ## Pipeline position
  *
  * ```
- * Screen::buildSnapshot()              [ScreenRender.cpp]
- *   └─ Screen::processCellForSnapshot()  ← THIS FILE
+ * Glyph::processRow()              [Glyph.cpp]
+ *   └─ Glyph::processCell()          ← THIS FILE
  *        ├─ resolveCellColors()
  *        ├─ emit background quad
- *        ├─ Screen::buildBlockRect()   [ScreenRenderGlyph.cpp]
- *        └─ Screen::buildCellInstance()  [ScreenRenderGlyph.cpp]
+ *        ├─ Glyph::buildBlockRect()  [GlyphShape.cpp]
+ *        └─ Glyph::buildCellInstance()  [GlyphShape.cpp]
  * ```
  *
  * ## Colour resolution
@@ -25,15 +25,16 @@
  * `juce::Colour` using the active `Theme`.  SGR bold on ANSI colours 0–7
  * maps to the bright variants (indices 8–15).  SGR reverse swaps fg and bg.
  *
- * @see Screen.h
- * @see ScreenRender.cpp
- * @see ScreenRenderGlyph.cpp
+ * @see Glyph.h
+ * @see Glyph.cpp
+ * @see GlyphShape.cpp
  */
 
-#include "Screen.h"
+#include "Glyph.h"
+#include "../data/Palette.h"
 
 
-namespace Terminal
+namespace Terminal::Renderer
 { /*____________________________________________________________________________*/
 
 // MESSAGE THREAD
@@ -185,13 +186,13 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
 }
 
 // =========================================================================
-// Screen::processCellForSnapshot
+// Glyph::processCell
 // =========================================================================
 
 /**
  * @brief Processes one cell and appends its contributions to the row caches.
  *
- * This is the per-cell entry point called by `buildSnapshot()` for every cell
+ * This is the per-cell entry point called by `processRow()` for every cell
  * in a dirty row.  It performs the following steps:
  *
  * 1. Resolves foreground and background colours via `resolveCellColors()`.
@@ -217,8 +218,8 @@ static ResolvedColors resolveCellColors (const Cell& cell, const Theme& theme) n
  * @see buildBlockRect()
  * @see ScreenSelection::contains()
  */
-template <typename Renderer>
-void Screen<Renderer>::processCellForSnapshot (
+template <typename Context>
+void Glyph<Context>::processCell (
     const Cell& cell, const Cell* rowCells, const Grapheme* rowGraphemes,
     int col, int row, Grid& grid) noexcept
 {
@@ -229,7 +230,7 @@ void Screen<Renderer>::processCellForSnapshot (
     // array.  For each cell that falls within a hint label's one- or two-
     // character badge, we build a local `Cell` copy with the hint character
     // as the codepoint and the theme hint colours as direct-RGB fg/bg.  The
-    // remainder of `processCellForSnapshot` uses this copy transparently —
+    // remainder of `processCell` uses this copy transparently —
     // no additional draw calls or GL arrays are required.
     // ---------------------------------------------------------------------------
 
@@ -250,8 +251,8 @@ void Screen<Renderer>::processCellForSnapshot (
                 effectiveCell.style     = Cell::BOLD;
                 effectiveCell.layout    = 0;
 
-                const juce::Colour& hintFg { resources.terminalColors.hintLabelFg };
-                const juce::Colour& hintBg { resources.terminalColors.hintLabelBg };
+                const juce::Colour& hintFg { theme->hintLabelFg };
+                const juce::Colour& hintBg { theme->hintLabelBg };
 
                 effectiveCell.fg.setRGB (
                     static_cast<uint8_t> (hintFg.getRed()),
@@ -275,9 +276,9 @@ void Screen<Renderer>::processCellForSnapshot (
         grapheme = &rowGraphemes[col];
     }
 
-    const ResolvedColors resolved { resolveCellColors (effectiveCell, resources.terminalColors) };
+    const ResolvedColors resolved { resolveCellColors (effectiveCell, *theme) };
 
-    if (resolved.bg != resources.terminalColors.defaultBackground)
+    if (resolved.bg != theme->defaultBackground)
     {
         const int bgIdx { row * bgCacheCols + bgCount[row] };
         Render::Background& bg { cachedBg[bgIdx] };
@@ -314,7 +315,7 @@ void Screen<Renderer>::processCellForSnapshot (
     if (selection != nullptr and selection->containsCell (col, row))
     {
         const int bgIdx { row * bgCacheCols + bgCount[row] };
-        const juce::Colour& sel { resources.terminalColors.selectionColour };
+        const juce::Colour& sel { theme->selectionColour };
         Render::Background& bg { cachedBg[bgIdx] };
         bg.screenBounds = juce::Rectangle<float> {
             static_cast<float> (col * physCellWidth),
@@ -359,8 +360,8 @@ void Screen<Renderer>::processCellForSnapshot (
 
 }
 
-template void Screen<jam::Glyph::GLContext>::processCellForSnapshot (const Cell&, const Cell*, const Grapheme*, int, int, Grid&) noexcept;
-template void Screen<jam::Glyph::GraphicsContext>::processCellForSnapshot (const Cell&, const Cell*, const Grapheme*, int, int, Grid&) noexcept;
+template void Glyph<jam::Glyph::GLContext>::processCell (const Cell&, const Cell*, const Grapheme*, int, int, Grid&) noexcept;
+template void Glyph<jam::Glyph::GraphicsContext>::processCell (const Cell&, const Cell*, const Grapheme*, int, int, Grid&) noexcept;
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+} // namespace Terminal::Renderer

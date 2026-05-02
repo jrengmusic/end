@@ -21,7 +21,7 @@
  *
  * @par Image pipeline (all three protocols share the same commit path)
  * 1. Compute grid position from cursor and scrollback.
- * 2. Invoke `onImageDecoded` callback — ImageAtlas FIFO → MESSAGE THREAD → ValueTree.
+ * 2. Invoke `onImageDecoded` callback — MESSAGE THREAD → `State::addImageNode()` → ValueTree.
  *
  * @par Thread model
  * All functions in this file run exclusively on the **READER THREAD**, except
@@ -36,6 +36,8 @@
  */
 
 #include "Parser.h"
+#include <jam_tui/jam_tui.h>
+#include "ImageDecode.h"
 #include "KittyDecoder.h"
 #include "SixelDecoder.h"
 
@@ -103,16 +105,52 @@ void Parser::setPhysCellDimensions (int widthPx, int heightPx) noexcept
 {
     physCellWidthAtomic.store  (widthPx,  std::memory_order_relaxed);
     physCellHeightAtomic.store (heightPx, std::memory_order_relaxed);
+    metrics = jam::tui::Metrics { widthPx, heightPx, 1.0f };
+}
+
+/**
+ * @brief Handles an END; filepath signal from any SKiT protocol envelope.
+ *
+ * Shared implementation for `dcsUnhook()`, `apcEnd()`, and `handleOsc1337()`
+ * when the accumulated buffer begins with an `END;` prefix.  Reads the current
+ * cursor row and scrollback depth, then invokes `onPreviewFile` with the filepath
+ * and absolute grid row.  Does NOT load or decode the file — the receiver must
+ * perform file I/O on the MESSAGE THREAD.  An empty `filepath` signals preview
+ * dismissal.
+ *
+ * @param filepath  Absolute path extracted after the END; marker.  Empty = dismiss.
+ *
+ * @note READER THREAD only.
+ *
+ * @see dcsUnhook()
+ * @see apcEnd()
+ * @see Parser::handleOsc1337
+ * @see Parser::onPreviewFile
+ */
+void Parser::handleSkitFilepath (const juce::String& filepath) noexcept
+{
+    if (onPreviewFile)
+    {
+        const ActiveScreen scr   { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+        const int cursorRow      { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+        const int scrollbackUsed { state.getRawValue<int> (ID::scrollbackUsed) };
+        const int absRow         { scrollbackUsed + cursorRow };
+
+        onPreviewFile (filepath, absRow);
+    }
 }
 
 /**
  * @brief Called when a DCS sequence is terminated (ST received).
  *
- * When `dcsFinalByte == 'q'` and the buffer contains data, runs `SixelDecoder`
- * on the accumulated payload.  On success, computes the absolute grid position
- * from the current cursor and scrollback depth, then invokes `onImageDecoded`
- * with the pixel data and placement metadata.  Cursor is advanced by `cellRows`
- * downward and reset to column 0 after the callback.
+ * When `dcsFinalByte == 'q'` and the buffer contains data, checks for the
+ * SKiT `END;` prefix first.  If present, delegates to `handleSkitFilepath()`
+ * with the extracted path.  An empty filepath sends a zero-dims sentinel that
+ * dismisses the preview.  Otherwise runs `SixelDecoder` on the accumulated
+ * payload.  On success, computes the absolute grid position from the current
+ * cursor and scrollback depth, then invokes `onImageDecoded` with the pixel
+ * data and placement metadata.  Cursor is advanced by `cellRows` downward
+ * and reset to column 0 after the callback.
  *
  * Silently skips the decode path when:
  * - `dcsFinalByte != 'q'` (not a Sixel sequence)
@@ -131,37 +169,54 @@ void Parser::dcsUnhook() noexcept
 {
     if (dcsFinalByte == 'q' and dcsBufferSize > 0)
     {
-        const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
-        const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+        constexpr int endPrefixLen { 4 };
 
-        if (cellW > 0 and cellH > 0)
+        if (dcsBufferSize >= endPrefixLen
+            and dcsBuffer[0] == 'E' and dcsBuffer[1] == 'N'
+            and dcsBuffer[2] == 'D' and dcsBuffer[3] == ';')
         {
-            SixelDecoder decoder;
-            DecodedImage image { decoder.decode (dcsBuffer.get(), static_cast<size_t> (dcsBufferSize)) };
+            const juce::String filepath { juce::String::fromUTF8 (
+                reinterpret_cast<const char*> (dcsBuffer.get() + endPrefixLen),
+                dcsBufferSize - endPrefixLen) };
 
-            if (image.isValid())
+            handleSkitFilepath (filepath);
+        }
+        else
+        {
+            const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
+            const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+
+            if (cellW > 0 and cellH > 0)
             {
-                const ActiveScreen scr          { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-                const int cursorRow             { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
-                const int cursorCol             { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
-                const int scrollbackUsed        { state.getRawValue<int> (ID::scrollbackUsed) };
-                const int absRow                { scrollbackUsed + cursorRow };
+                SixelDecoder decoder;
+                DecodedImage image { decoder.decode (dcsBuffer.get(), static_cast<size_t> (dcsBufferSize)) };
 
-                const int cellCols { (image.width  + cellW - 1) / cellW };
-                const int cellRows { (image.height + cellH - 1) / cellH };
-
-                if (onImageDecoded)
+                if (image.isValid())
                 {
-                    onImageDecoded (std::move (image.rgba),
-                                    juce::HeapBlock<int>(),
-                                    1,
-                                    image.width, image.height,
-                                    absRow, cursorCol,
-                                    cellCols, cellRows);
-                }
+                    const ActiveScreen scr          { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+                    const int cursorRow             { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+                    const int cursorCol             { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+                    const int scrollbackUsed        { state.getRawValue<int> (ID::scrollbackUsed) };
+                    const int absRow                { scrollbackUsed + cursorRow };
 
-                cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
-                state.setCursorCol (scr, 0);
+                    const auto span { metrics.cellSpan (image.width, image.height) };
+                    const int cellCols { span.getWidth().value };
+                    const int cellRows { span.getHeight().value };
+
+                    if (onImageDecoded)
+                    {
+                        onImageDecoded (std::move (image.rgba),
+                                        juce::HeapBlock<int>(),
+                                        1,
+                                        image.width, image.height,
+                                        absRow, cursorCol,
+                                        cellCols, cellRows,
+                                        false);
+                    }
+
+                    cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
+                    state.setCursorCol (scr, 0);
+                }
             }
         }
     }
@@ -198,42 +253,60 @@ void Parser::apcEnd() noexcept
 {
     if (apcBufferSize > 0)
     {
-        const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
-        const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+        constexpr int endPrefixLen { 5 };
 
-        if (cellW > 0 and cellH > 0)
+        if (apcBufferSize >= endPrefixLen
+            and apcBuffer[0] == 'G' and apcBuffer[1] == 'E'
+            and apcBuffer[2] == 'N' and apcBuffer[3] == 'D'
+            and apcBuffer[4] == ';')
         {
-            KittyDecoder::Result result { kittyDecoder.process (apcBuffer.get(),
-                                                                apcBufferSize) };
+            const juce::String filepath { juce::String::fromUTF8 (
+                reinterpret_cast<const char*> (apcBuffer.get() + endPrefixLen),
+                apcBufferSize - endPrefixLen) };
 
-            if (result.response.isNotEmpty())
-                sendResponse (result.response.toRawUTF8());
+            handleSkitFilepath (filepath);
+        }
+        else
+        {
+            const int cellW { physCellWidthAtomic.load  (std::memory_order_relaxed) };
+            const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
 
-            if (result.shouldDisplay and result.image.isValid())
+            if (cellW > 0 and cellH > 0)
             {
-                const ActiveScreen scr          { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-                const int cursorRow             { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
-                const int cursorCol             { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
-                const int scrollbackUsed        { state.getRawValue<int> (ID::scrollbackUsed) };
-                const int absRow                { scrollbackUsed + cursorRow };
+                KittyDecoder::Result result { kittyDecoder.process (apcBuffer.get(),
+                                                                    apcBufferSize) };
 
-                const int cellCols { (result.image.width + cellW - 1) / cellW };
-                const int cellRows { result.placementRows > 0
-                                         ? result.placementRows
-                                         : (result.image.height + cellH - 1) / cellH };
+                if (result.response.isNotEmpty())
+                    sendResponse (result.response.toRawUTF8());
 
-                if (onImageDecoded)
+                if (result.shouldDisplay and result.image.isValid())
                 {
-                    onImageDecoded (std::move (result.image.rgba),
-                                    juce::HeapBlock<int>(),
-                                    1,
-                                    result.image.width, result.image.height,
-                                    absRow, cursorCol,
-                                    cellCols, cellRows);
-                }
+                    const ActiveScreen scr          { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+                    const int cursorRow             { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+                    const int cursorCol             { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+                    const int scrollbackUsed        { state.getRawValue<int> (ID::scrollbackUsed) };
+                    const int absRow                { scrollbackUsed + cursorRow };
 
-                cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
-                state.setCursorCol (scr, 0);
+                    const auto span { metrics.cellSpan (result.image.width, result.image.height) };
+                    const int cellCols { span.getWidth().value };
+                    const int cellRows { result.placementRows > 0
+                                             ? result.placementRows
+                                             : span.getHeight().value };
+
+                    if (onImageDecoded)
+                    {
+                        onImageDecoded (std::move (result.image.rgba),
+                                        juce::HeapBlock<int>(),
+                                        1,
+                                        result.image.width, result.image.height,
+                                        absRow, cursorCol,
+                                        cellCols, cellRows,
+                                        false);
+                    }
+
+                    cursorMoveDown (scr, cellRows, effectiveClampBottom (scr));
+                    state.setCursorCol (scr, 0);
+                }
             }
         }
     }

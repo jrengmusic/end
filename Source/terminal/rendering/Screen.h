@@ -6,10 +6,8 @@
  * sits between the data layer (`Grid`, `State`) and the GPU layer
  * and is responsible for:
  *
- * 1. **Per-row render cache** — `cachedMono`, `cachedEmoji`, `cachedBg`
- *    arrays that store pre-built `Render::Glyph` and `Render::Background`
- *    instances for each row.  All rows are rebuilt on every frame by reading
- *    directly from `Grid`.
+ * 1. **Cell processing** — delegates to `Terminal::Renderer::Glyph`, which owns
+ *    per-row caches and produces `Render::Glyph` / `Render::Background` quads.
  * 2. **Snapshot builder** — `buildSnapshot()` / `updateSnapshot()` pack the
  *    per-row caches into a contiguous `Render::Snapshot` and publish it via
  *    `jam::SnapshotBuffer`.
@@ -43,6 +41,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <jam_tui/jam_tui.h>
 #include <array>
 #include "../data/Cell.h"
 #include "../logic/Grid.h"
@@ -50,184 +49,13 @@
 #include "ScreenSelection.h"
 #include "../selection/LinkSpan.h"
 #include "../../lua/Engine.h"
-#include "ImageAtlas.h"
+#include "Render.h"
+#include "Glyph.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 
 class LinkManager;
-
-/**
- * @struct BlockGeometry
- * @brief Normalised geometry descriptor for a Unicode block-element character.
- *
- * Each entry in `blockTable` describes one block-element codepoint
- * (U+2580–U+2593) as a rectangle in normalised cell space [0, 1] × [0, 1],
- * plus an optional alpha override.  The renderer scales these values by the
- * physical cell dimensions to produce pixel-space quads.
- *
- * @note `static_assert` below verifies trivial copyability for safe GPU upload.
- *
- * @see blockTable
- * @see Screen::buildBlockRect()
- */
-struct BlockGeometry
-{
-    float x;///< Normalised X offset from the left edge of the cell [0, 1].
-    float y;///< Normalised Y offset from the top edge of the cell [0, 1].
-    float w;///< Normalised width as a fraction of the cell width [0, 1].
-    float h;///< Normalised height as a fraction of the cell height [0, 1].
-    float alpha;///< Alpha override: negative means use the foreground colour's alpha; otherwise [0, 1].
-};
-
-static_assert (std::is_trivially_copyable_v<BlockGeometry>, "BlockGeometry must be trivially copyable");
-
-/// @brief First Unicode codepoint in the box-drawing range (U+2500 BOX DRAWINGS LIGHT HORIZONTAL).
-static constexpr uint32_t boxDrawingFirst { 0x2500 };
-
-/// @brief Last Unicode codepoint in the box-drawing range (U+259F QUADRANT UPPER RIGHT AND LOWER LEFT AND LOWER RIGHT).
-static constexpr uint32_t boxDrawingLast { 0x259F };
-
-/// @brief First Unicode codepoint in the block-element range (U+2580 UPPER HALF BLOCK).
-static constexpr uint32_t blockFirst { 0x2580 };
-
-/// @brief Last Unicode codepoint in the block-element range (U+2593 DARK SHADE).
-static constexpr uint32_t blockLast { 0x2593 };
-
-/**
- * @brief Lookup table mapping block-element codepoints to normalised geometry.
- *
- * Indexed by `codepoint - blockFirst`.  Contains 20 entries covering
- * U+2580–U+2593.  Each entry is a `BlockGeometry` describing the filled
- * rectangle within the cell in normalised [0, 1] space.
- *
- * @see BlockGeometry
- * @see Screen::buildBlockRect()
- */
-static constexpr std::array<BlockGeometry, 20> blockTable {
-    {
-     { 0.0f, 0.0f, 1.0f, 0.5f, -1.0f },   { 0.0f, 0.875f, 1.0f, 0.125f, -1.0f },
-     { 0.0f, 0.75f, 1.0f, 0.25f, -1.0f }, { 0.0f, 0.625f, 1.0f, 0.375f, -1.0f },
-     { 0.0f, 0.5f, 1.0f, 0.5f, -1.0f },   { 0.0f, 0.375f, 1.0f, 0.625f, -1.0f },
-     { 0.0f, 0.25f, 1.0f, 0.75f, -1.0f }, { 0.0f, 0.125f, 1.0f, 0.875f, -1.0f },
-     { 0.0f, 0.0f, 1.0f, 1.0f, -1.0f },   { 0.0f, 0.0f, 0.875f, 1.0f, -1.0f },
-     { 0.0f, 0.0f, 0.75f, 1.0f, -1.0f },  { 0.0f, 0.0f, 0.625f, 1.0f, -1.0f },
-     { 0.0f, 0.0f, 0.5f, 1.0f, -1.0f },   { 0.0f, 0.0f, 0.375f, 1.0f, -1.0f },
-     { 0.0f, 0.0f, 0.25f, 1.0f, -1.0f },  { 0.0f, 0.0f, 0.125f, 1.0f, -1.0f },
-     { 0.5f, 0.0f, 0.5f, 1.0f, -1.0f },   { 0.0f, 0.0f, 1.0f, 1.0f, 0.25f },
-     { 0.0f, 0.0f, 1.0f, 1.0f, 0.50f },   { 0.0f, 0.0f, 1.0f, 1.0f, 0.75f },
-     }
-};
-
-/**
- * @brief Returns true if @p codepoint is a Unicode block-element character.
- *
- * Tests whether @p codepoint falls in the range [blockFirst, blockLast]
- * (U+2580–U+2593).  Block characters are rendered as GPU quads rather than
- * rasterised glyphs.
- *
- * @param codepoint  Unicode scalar value to test.
- * @return           `true` if the codepoint is a block element.
- *
- * @see blockTable
- * @see Screen::buildBlockRect()
- */
-inline bool isBlockChar (uint32_t codepoint) noexcept { return codepoint >= blockFirst and codepoint <= blockLast; }
-
-/// @brief Alias for the active colour theme type from lua::Engine.
-using Theme = lua::Engine::Theme;
-
-/**
- * @struct Render
- * @brief Namespace-struct grouping all GPU-facing render types.
- *
- * `Render` is a plain struct used as a namespace to group the types that
- * cross the MESSAGE THREAD / GL THREAD boundary:
- *
- * - `Render::Background` — alias for `jam::Glyph::Render::Background`.
- * - `Render::Glyph`      — alias for `jam::Glyph::Render::Quad` (kept for
- *                          minimal consumer churn; the canonical module name
- *                          is `Quad` to avoid collision with `jam::Typeface::Glyph`).
- * - `Render::Snapshot`   — terminal-specific snapshot: inherits the generic
- *                          `jam::Glyph::Render::SnapshotBase` arrays and
- *                          adds cursor state fields.
- * - `jam::SnapshotBuffer` — double-buffered lock-free snapshot exchange.
- *
- * @see Screen
- * @see jam::Glyph::Render
- */
-struct Render
-{
-    /// @brief Alias for the module-level coloured rectangle type.
-    using Background = jam::Glyph::Render::Background;
-
-    /// @brief Alias for the module-level positioned quad type.
-    /// @note The canonical module name is `jam::Glyph::Render::Quad`; this
-    ///       alias preserves existing consumer code at `Terminal::Render::Glyph`.
-    using Glyph = jam::Glyph::Render::Quad;
-
-    /**
- * @struct ImageQuad
- * @brief Render instance for one image cell: screen bounds + atlas UV.
- *
- * Trivially copyable.  Packed into `Snapshot::images` by `updateSnapshot()`
- * and drawn by `drawImages()` as textured quads over the image atlas.
- */
-    struct ImageQuad
-    {
-        juce::Rectangle<float> screenBounds;///< Destination rectangle in viewport pixels.
-        juce::Rectangle<float> uvRect;///< Normalised source rectangle in the image atlas.
-    };
-
-    static_assert (std::is_trivially_copyable_v<ImageQuad>, "ImageQuad must be trivially copyable");
-
-    /**
- * @struct Snapshot
- * @brief A complete rendered frame: glyph instances + background quads + cursor state.
- *
- * Inherits the generic `jam::Glyph::Render::SnapshotBase` which owns the
- * three `HeapBlock` arrays (`mono`, `emoji`, `backgrounds`) and
- * `ensureCapacity()`.  Terminal-specific cursor state fields are added here.
- *
- * Two `Snapshot` instances are owned internally by `jam::SnapshotBuffer`
- * and recycled via atomic pointer exchange to avoid per-frame allocation.
- *
- * @see jam::Glyph::Render::SnapshotBase
- * @see jam::SnapshotBuffer
- * @see Screen::updateSnapshot()
- */
-    struct Snapshot : jam::Glyph::Render::SnapshotBase
-    {
-        juce::HeapBlock<ImageQuad> images;///< Packed image quad instances for this frame.
-        int imageCount { 0 };///< Number of valid entries in `images`.
-        int imageCapacity { 0 };///< Allocated capacity of `images`.
-
-        juce::Point<int> cursorPosition;///< Cursor position in grid coordinates (col, row).
-        bool cursorVisible { false };///< True if DECTCEM cursor mode is on.
-        int cursorShape { 0 };///< DECSCUSR Ps value (0 = user glyph, 1–6 = geometric).
-        float cursorColorR { -1.0f };///< OSC 12 red override (0–255), or -1 if no override.
-        float cursorColorG { -1.0f };///< OSC 12 green override (0–255), or -1 if no override.
-        float cursorColorB { -1.0f };///< OSC 12 blue override (0–255), or -1 if no override.
-        int scrollOffset { 0 };///< Lines scrolled back (0 = live view; cursor hidden when > 0).
-        bool cursorBlinkOn { true };///< Current blink phase (true = visible half of cycle).
-        bool cursorFocused { false };///< True if the terminal component has keyboard focus.
-        bool previewActive { false };///< True when a split-viewport image preview is active.
-        int previewSplitCol { 0 };///< Column at which the terminal clips for the preview split.
-        Glyph cursorGlyph;///< Pre-built glyph instance for user cursor (shape 0).
-        bool hasCursorGlyph { false };///< True when cursorGlyph is valid (shape 0 or cursor.force).
-        bool cursorGlyphIsEmoji { false };///< True when cursorGlyph lives in the emoji (RGBA) atlas.
-        float cursorDrawColorR { 1.0f };///< Final resolved cursor colour red [0, 1] (theme or OSC 12).
-        float cursorDrawColorG { 1.0f };///< Final resolved cursor colour green [0, 1] (theme or OSC 12).
-        float cursorDrawColorB { 1.0f };///< Final resolved cursor colour blue [0, 1] (theme or OSC 12).
-        int gridWidth { 0 };///< Grid width in columns at the time of snapshot.
-        int gridHeight { 0 };///< Grid height in rows at the time of snapshot.
-        uint64_t dirtyRows[4] {};///< Bitmask of rows that changed this frame (bit per row, max 256 rows).
-        int scrollDelta { 0 };///< Lines scrolled up since last frame (positive = scrolled up).
-        int physCellHeight { 0 };///< Physical (HiDPI-scaled) cell height in pixels.
-    };
-
-    /**______________________________END OF NAMESPACE______________________________*/
-};// struct Render
 
 /**
  * @class ScreenBase
@@ -263,13 +91,12 @@ protected:
  *
  * - **Viewport management**: `setViewport()` recomputes `numCols` / `numRows`
  *   from the physical cell dimensions returned by `Fonts::calcMetrics()`.
- * - **Per-row render cache**: `cachedMono`, `cachedEmoji`, `cachedBg` store
- *   pre-built glyph/background instances per row.  `buildSnapshot()` rebuilds
- *   all rows every frame by reading directly from `Grid`.
+ * - **Cell processing**: delegated to the composed `Terminal::Renderer::Glyph`
+ *   member, which owns per-row caches and processes cells each frame.
  * - **Snapshot publication**: `updateSnapshot()` packs the per-row caches into
  *   a `Render::Snapshot` and publishes it via `jam::SnapshotBuffer`.
- * - **Selection overlay**: a `ScreenSelection*` pointer is checked per cell in
- *   `processCellForSnapshot()` to emit selection highlight quads.
+ * - **Selection overlay**: forwarded to `glyph.setSelection()` for per-cell
+ *   highlight quad emission.
  *
  * @par Thread context
  * All public methods except `getSnapshotBuffer()` must be called on the
@@ -285,7 +112,7 @@ protected:
  * @see Fonts
  * @see gl::GlyphAtlas
  */
-template<typename Renderer>
+template<typename Context>
 class Screen : public ScreenBase
 {
 public:
@@ -320,20 +147,17 @@ public:
      * Initialises `Resources`, calls `calc()` to derive cell dimensions,
      * then calls `reset()`.
      *
-     * @param font        Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
-     * @param packer      Glyph packer; owns the atlas and rasterization.
-     * @param atlas       Renderer-specific atlas store; `jam::gl::GlyphAtlas` for the GL
-     *                    path, `jam::GraphicsAtlas` for the CPU path.  Passed through
-     *                    to `uploadStagedBitmaps()` each frame.
-     * @param imageAtlas  Inline image atlas; `publishStagedUploads()` is called each frame
-     *                    on the MESSAGE THREAD; `consumeStagedUploads()` on the GL THREAD.
+     * @param font    Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
+     * @param packer  Glyph packer; owns the atlas and rasterization.
+     * @param atlas   Context-specific atlas store; `jam::gl::GlyphAtlas` for the GL
+     *                path, `jam::GraphicsAtlas` for the CPU path.  Passed through
+     *                to `uploadStagedBitmaps()` each frame.
      *
      * @note **MESSAGE THREAD**.
      */
     Screen (jam::Font& font,
             jam::Glyph::Packer& packer,
-            typename Renderer::Atlas& atlas,
-            Terminal::ImageAtlas& imageAtlas);
+            typename Context::Atlas& atlas);
 
     /**
      * @brief Destroys the screen and releases all resources.
@@ -447,21 +271,16 @@ public:
     /**
      * @brief Updates the selection-mode cursor state used for rendering.
      *
-     * When @p active is true, the normal terminal cursor is suppressed and
-     * replaced with a block cursor drawn at (@p col, @p row) in visible-grid
-     * coordinates using the theme's `selectionCursorColour`.  Call with
-     * @p active `false` to restore normal cursor rendering.
-     *
-     * Must be called before `render()` on the **MESSAGE THREAD** so that the
-     * values are visible to `updateSnapshot()` in the same frame.
+     * When @p active is true, `updateSnapshot()` reads selection cursor
+     * position from `State::getSelectionCursorRow/Col()` and renders a block
+     * cursor at the converted visible-grid position.  Call with `false` to
+     * restore normal cursor rendering.
      *
      * @param active  True to enable selection-mode cursor override.
-     * @param row     Visible row index (0 = topmost visible row).
-     * @param col     Column index (0-based).
      *
      * @note **MESSAGE THREAD**.
      */
-    void setSelectionCursor (bool active, int row, int col) noexcept;
+    void setSelectionActive (bool active) noexcept;
 
     // =========================================================================
     // GL lifecycle (called by Terminal::Display from gl::Component overrides)
@@ -571,7 +390,7 @@ public:
      *
      * Called once per frame from the terminal view on the **MESSAGE THREAD**.
      * Steps:
-     * 1. Reallocates per-row render caches if the grid dimensions changed.
+     * 1. Ensures `glyph` caches are allocated for the current grid dimensions.
      * 2. Calls `buildSnapshot()` to process all rows and pack the snapshot.
      *
      * @param state  Current terminal state (cursor, dimensions, scroll offset).
@@ -582,32 +401,15 @@ public:
     void render (State& state, Grid& grid) noexcept;
 
     /**
-     * @brief Resets the render cache dimensions to force reallocation on the next frame.
+     * @brief Resets the render cache to force full reallocation on the next frame.
      *
-     * Resets `cacheRows` and `bgCacheCols` to zero so the next `render()` call
-     * reallocates the per-row glyph and background caches.
+     * Delegates to `glyph.resetCache()` so the next `render()` call
+     * reallocates per-row glyph and background caches.
      *
      * @note **MESSAGE THREAD**.
      */
     void reset() noexcept;
 
-    /**
-     * @brief Advances animated image frames whose delay has elapsed.
-     *
-     * For each IMAGE child of the IMAGES node where `frameCount > 1`:
-     * reads `currentFrame` and `frameStartMs`, compares against the current
-     * timestamp, and advances to the next frame (wrapping) when the delay
-     * has elapsed.  Updates `imageId`, `currentFrame`, and `frameStartMs`
-     * properties on the ValueTree node.  Calls `state.setSnapshotDirty()` if
-     * any frame was advanced so `buildSnapshot()` picks up the new imageId.
-     *
-     * Called from the VBlank path BEFORE `consumeSnapshotDirty()` so that
-     * animation-driven dirty signals are included in the current frame's check.
-     *
-     * @param state  Terminal state (provides IMAGES ValueTree + setSnapshotDirty).
-     * @note MESSAGE THREAD — called from onVBlank.
-     */
-    void tickImageAnimation (State& state) noexcept;
 
     // =========================================================================
     // Grid geometry
@@ -704,7 +506,7 @@ public:
     void setSelection (const ScreenSelection* sel) noexcept;
 
     /** @brief Stores a non-owning reference to the LinkManager for direct hint overlay access. MESSAGE THREAD. */
-    void setLinkManager (const LinkManager* lm) noexcept { linkManager = lm; }
+    void setLinkManager (const LinkManager* lm) noexcept { glyph.setLinkManager (lm); }
 
     /**
      * @brief Sets the always-on link underlay for click-mode underline rendering.
@@ -741,9 +543,9 @@ public:
     template<typename Callback>
     void forEachCell (Callback&& callback) const
     {
-        for (int r { 0 }; r < numRows; ++r)
+        for (int r { 0 }; r < numRows.value; ++r)
         {
-            for (int c { 0 }; c < numCols; ++c)
+            for (int c { 0 }; c < numCols.value; ++c)
             {
                 callback (c, r, getCellBounds (c, r));
             }
@@ -793,34 +595,18 @@ private:
     void calc() noexcept;
 
     /**
-     * @brief Allocates per-row render caches for @p rows rows and @p cols columns.
-     *
-     * Allocates `cachedMono`, `cachedEmoji`, `cachedBg`, `monoCount`,
-     * `emojiCount`, and `bgCount`.  Each row gets `cols * 2` glyph slots and
-     * `cols * 3` background slots.
-     *
-     * @param rows  Number of visible rows.
-     * @param cols  Number of visible columns.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    void allocateRenderCache (int rows, int cols) noexcept;
-
-    /**
      * @brief Packs per-row caches into a `Render::Snapshot` and publishes it.
      *
-     * Totals the per-row counts, ensures snapshot capacity, copies glyph and
-     * background data via `memcpy`, sets cursor state, and calls
-     * `jam::SnapshotBuffer::write()`.
+     * Delegates glyph packing to `glyph.packSnapshot()`, sets cursor state,
+     * and calls `jam::SnapshotBuffer::write()`.
      *
-     * @param state      Current terminal state (cursor position, screen type).
-     * @param grid       Terminal grid; read-only access for image rendering.
-     * @param rows       Number of visible rows.
-     * @param maxGlyphs  Maximum glyph slots per row (`cacheRows` cols × 2).
+     * @param state  Current terminal state (cursor position, column count, screen type).
+     * @param grid   Terminal grid; passed for context (dimensions, scroll state).
+     * @param rows   Number of visible rows.
      *
      * @note **MESSAGE THREAD**.
      */
-    void updateSnapshot (const State& state, Grid& grid, int rows, int maxGlyphs) noexcept;
+    void updateSnapshot (const State& state, Grid& grid, int rows) noexcept;
 
     // =========================================================================
     // Private render pipeline
@@ -841,148 +627,17 @@ private:
      */
     void buildSnapshot (State& state, Grid& grid) noexcept;
 
-    /**
-     * @brief Processes one cell and appends its contributions to the row caches.
-     *
-     * Resolves foreground and background colours, emits a background quad if
-     * the background is non-default, dispatches to block-char / box-drawing /
-     * glyph rendering, and emits a selection overlay quad if the cell is
-     * selected.
-     *
-     * @param cell         The cell to render.
-     * @param rowCells     Pointer to the start of the current row in `Grid` (for lookahead).
-     * @param rowGraphemes Grapheme sidecar row pointer for the current row (may be `nullptr`).
-     * @param col          Column index of the cell.
-     * @param row          Row index of the cell.
-     *
-     * @note **MESSAGE THREAD**.
-     * @see buildCellInstance()
-     * @see buildBlockRect()
-     */
-    void processCellForSnapshot (const Cell& cell,
-                                 const Cell* rowCells,
-                                 const Grapheme* rowGraphemes,
-                                 int col,
-                                 int row,
-                                 Grid& grid) noexcept;
-
-    /**
-     * @brief Shapes and rasterises one cell's glyph(s) into the row cache.
-     *
-     * Handles box-drawing (procedural rasterisation), FontCollection fallback
-     * lookup, ligature shaping, and standard HarfBuzz shaping.  Appends
-     * `Render::Glyph` instances to `cachedMono` or `cachedEmoji`.
-     *
-     * @param cell       The cell to render.
-     * @param grapheme   Optional grapheme cluster for multi-codepoint cells; may be `nullptr`.
-     * @param rowCells   Pointer to the start of the current row in `Grid` (for lookahead).
-     * @param col        Column index.
-     * @param row        Row index.
-     * @param foreground Resolved foreground colour.
-     *
-     * @note **MESSAGE THREAD**.
-     * @see tryLigature()
-     * @see FontCollection::resolve()
-     */
-    void buildCellInstance (const Cell& cell,
-                            const Grapheme* grapheme,
-                            const Cell* rowCells,
-                            int col,
-                            int row,
-                            const juce::Colour& foreground) noexcept;
-
-    /**
-     * @brief Attempts to shape a 2- or 3-character ligature starting at @p col.
-     *
-     * Tries lengths 3 then 2.  If HarfBuzz produces fewer glyphs than input
-     * codepoints, the sequence is a ligature: emits the shaped glyphs and
-     * returns the number of subsequent cells to skip.
-     *
-     * @param rowCells    Pointer to the start of the current row in `Grid`.
-     * @param col         Starting column.
-     * @param row         Row index.
-     * @param style       Font style for shaping.
-     * @param fontHandle  Platform font handle.
-     * @param foreground  Resolved foreground colour.
-     * @return            Number of cells to skip after this one (0 if no ligature found).
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    int tryLigature (const Cell* rowCells,
-                     int col,
-                     int row,
-                     jam::Typeface::Style style,
-                     const juce::Colour& foreground) noexcept;
-
-    /**
-     * @brief Builds a `Render::Background` quad for a block-element character.
-     *
-     * Looks up the `BlockGeometry` for @p codepoint in `blockTable` and
-     * scales it by the physical cell dimensions.  Uses @p foreground as the
-     * fill colour (with the geometry's alpha override if non-negative).
-     *
-     * @param codepoint   Block-element codepoint (U+2580–U+2593).
-     * @param col         Column index.
-     * @param row         Row index.
-     * @param foreground  Resolved foreground colour used as the block fill.
-     * @return            A fully populated `Render::Background` quad.
-     *
-     * @note **MESSAGE THREAD**.
-     * @see blockTable
-     * @see isBlockChar()
-     */
-    Render::Background
-    buildBlockRect (uint32_t codepoint, int col, int row, const juce::Colour& foreground) const noexcept;
-
-    /**
-     * @brief Selects the `Fonts::Style` variant for a cell based on its SGR attributes.
-     *
-     * @param cell  Cell whose `isBold()` and `isItalic()` flags are tested.
-     * @return      `boldItalic`, `bold`, `italic`, or `regular`.
-     */
-    static jam::Typeface::Style selectFontStyle (const Cell& cell) noexcept;
-
-    /**
-     * @brief Returns true if row @p r should be included in the current snapshot.
-     *
-     * GPU path (`GLContext`): always returns `true` — all rows are packed
-     * because the framebuffer is cleared each frame.
-     *
-     * CPU path (`GraphicsContext`): returns `true` only if the row's bit
-     * is set in `frameDirtyBits`.  Non-dirty rows retain correct content on the
-     * persistent render target; re-drawing them causes alpha accumulation.
-     *
-     * @param r  Row index (0-based).
-     * @return   `true` if the row must be packed into the snapshot.
-     *
-     * @note **MESSAGE THREAD**.
-     */
-    inline bool isRowIncludedInSnapshot (int r) const noexcept
-    {
-        bool result { true };
-
-        if constexpr (std::is_same_v<Renderer, jam::Glyph::GraphicsContext>)
-        {
-            const int word { r >> 6 };
-            const uint64_t bit { static_cast<uint64_t> (1) << (r & 63) };
-            result = (frameDirtyBits[word] & bit) != 0;
-        }
-
-        return result;
-    }
-
     // =========================================================================
     // GL thread methods
     // =========================================================================
 
     void drawCursor (const Render::Snapshot& snapshot);
-    void drawImages (const Render::Snapshot& snapshot);
 
     // =========================================================================
     // Data
     // =========================================================================
 
-    Renderer textRenderer;///< Owns all GL resources for instanced glyph and background rendering.
+    Context textRenderer;///< Owns all GL resources for instanced glyph and background rendering.
     int glViewportX { 0 };
     int glViewportY { 0 };
     int glViewportWidth { 0 };
@@ -994,8 +649,9 @@ private:
     int physCellWidth { 0 };///< Physical (HiDPI-scaled) cell width in pixels.
     int physCellHeight { 0 };///< Physical (HiDPI-scaled) cell height in pixels.
     int physBaseline { 0 };///< Physical (HiDPI-scaled) baseline offset in pixels.
-    int numCols { 0 };///< Number of visible columns (viewportWidth / cellWidth).
-    int numRows { 0 };///< Number of visible rows (viewportHeight / cellHeight).
+    jam::literals::Cell numCols { 0 };///< Number of visible columns (viewportWidth / cellWidth).
+    jam::literals::Cell numRows { 0 };///< Number of visible rows (viewportHeight / cellHeight).
+    jam::tui::Metrics metrics {};///< Pixel↔cell conversion helper; rebuilt by calc() whenever physCellWidth/Height change.
     int viewportX { 0 };///< Logical pixel X origin of the viewport.
     int viewportY { 0 };///< Logical pixel Y origin of the viewport.
     int viewportWidth { 0 };///< Logical pixel width of the viewport.
@@ -1006,43 +662,14 @@ private:
 
     jam::Font& font;///< Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
     jam::Glyph::Packer& packer;///< Glyph packer; owns the atlas and rasterization.
-    typename Renderer::Atlas& atlasRef;///< Renderer-specific atlas store; passed through to uploadStagedBitmaps().
-    Terminal::ImageAtlas& imageAtlas;///< Inline image atlas; staged uploads published each frame on MESSAGE THREAD.
+    typename Context::Atlas& atlasRef;///< Context-specific atlas store; passed through to uploadStagedBitmaps().
     Resources resources;///< All shared rendering resources (atlas, mailbox, theme).
-    bool ligatureEnabled { false };///< True if HarfBuzz ligature shaping is active.
+    Terminal::Renderer::Glyph<Context> glyph;///< Text rendering subsystem; owns glyph caches and cell processing.
     bool debugMode { false };///< True if debug rendering overlays are enabled.
-    int ligatureSkip { 0 };///< Number of cells to skip after a ligature was emitted.
 
-    // Per-row render cache (rebuilt every frame for every row)
-    juce::HeapBlock<Render::Glyph> cachedMono;///< Mono glyph instances; layout: [row][0 … maxGlyphs-1].
-    juce::HeapBlock<Render::Glyph> cachedEmoji;///< Emoji glyph instances; layout: [row][0 … maxGlyphs-1].
-    juce::HeapBlock<Render::Background> cachedBg;///< Background quads; layout: [row][0 … bgCacheCols-1].
-    juce::HeapBlock<int> monoCount;///< Number of valid mono glyphs per row.
-    juce::HeapBlock<int> emojiCount;///< Number of valid emoji glyphs per row.
-    juce::HeapBlock<int> bgCount;///< Number of valid background quads per row.
-    juce::HeapBlock<Terminal::Cell>
-        previousCells;///< Previous-frame cells for memcmp skip; layout: [row * cacheCols + col].
     int previousCursorRow { -1 };
-    int cacheRows { 0 };///< Number of rows the per-row caches were allocated for.
-    int cacheCols { 0 };///< Number of columns the per-row caches were allocated for.
-    int bgCacheCols { 0 };///< Background slots per row (= cacheCols * 3, for bg + selection + underlay).
-    int maxGlyphsPerRow { 0 };///< Maximum glyph slots per row (= cacheCols * 2); set in allocateRenderCache().
 
-    const ScreenSelection* selection { nullptr };///< Non-owning pointer to the active selection; nullptr if none.
-
-    const LinkManager* linkManager { nullptr };///< Non-owning pointer to LinkManager for direct hint overlay access; nullptr if none.
-
-    const LinkSpan* hintOverlay { nullptr };///< Pulled from LinkManager each frame by buildSnapshot(); nullptr if none.
-    int hintOverlayCount { 0 };///< Number of valid elements in @p hintOverlay; pulled from LinkManager each frame.
-
-    const LinkSpan* linkUnderlay {
-        nullptr
-    };///< Non-owning pointer to always-on click-mode link spans for underline rendering; nullptr if none.
-    int linkUnderlayCount { 0 };///< Number of valid elements in @p linkUnderlay.
-
-    bool selectionModeActive { false };///< True when vim-style selection mode is active (hides terminal cursor).
-    int selectionCursorRow { 0 };///< Selection cursor row in visible-grid coordinates (0 = top visible row).
-    int selectionCursorCol { 0 };///< Selection cursor column (0-based).
+    bool selectionModeActive { false };///< Per-frame flag: true when this pane is in selection mode.
 
     uint64_t frameDirtyBits[4] {};///< Dirty row bitmask for current frame, set in buildSnapshot.
     int frameScrollDelta { 0 };///< Scroll delta for current frame, set in buildSnapshot.

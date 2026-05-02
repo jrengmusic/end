@@ -23,7 +23,6 @@
 #include "PaneComponent.h"
 #include "TerminalDisplay.h"
 #include "../terminal/logic/Processor.h"
-#include "../terminal/rendering/ImageAtlas.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -46,11 +45,10 @@ public:
      * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
      * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
-     * @param imageAtlas    Inline image atlas; threaded through to Display for staged GPU upload.
      * @note MESSAGE THREAD.
      */
     Panes (jam::Font& font, jam::Glyph::Packer& packer, jam::gl::GlyphAtlas& glAtlas,
-           jam::GraphicsAtlas& graphicsAtlas, Terminal::ImageAtlas& imageAtlas);
+           jam::GraphicsAtlas& graphicsAtlas);
 
     /**
      * @brief Destructor.
@@ -305,7 +303,6 @@ private:
     jam::Glyph::Packer& packerRef;
     jam::gl::GlyphAtlas& glAtlasRef;
     jam::GraphicsAtlas& graphicsAtlasRef;
-    Terminal::ImageAtlas& imageAtlasRef;
     jam::Owner<PaneComponent> panes;
     jam::PaneManager paneManager;
     jam::Owner<jam::PaneResizerBar> resizerBars;

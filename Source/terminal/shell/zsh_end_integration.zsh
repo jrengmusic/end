@@ -17,3 +17,16 @@ _end_preexec() {
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd _end_precmd
 add-zsh-hook preexec _end_preexec
+
+end() {
+    if [[ "$1" == "preview" ]]; then
+        local file="${2:a}"
+        case "$END_SKIT" in
+            kitty)  printf '\033_GEND;%s\033\\' "$file" ;;
+            iterm2) printf '\033]1337;END;%s\a' "$file" ;;
+            sixel)  printf '\033P0qEND;%s\033\\' "$file" ;;
+        esac
+    else
+        command "$END_BINARY" "$@"
+    fi
+}

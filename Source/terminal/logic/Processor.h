@@ -38,18 +38,15 @@
 
 #include <JuceHeader.h>
 
-#include "../../component/TerminalDisplay.h"
 #include "../data/Keyboard.h"
 #include "../data/State.h"
-#include "../rendering/ImageAtlas.h"
 #include "Grid.h"
 #include "Parser.h"
 
 
 namespace Terminal
 { /*____________________________________________________________________________*/
-// Forward declaration: Display is in component/, Processor is in terminal/logic/.
-// Including TerminalDisplay.h here would create a circular include chain.
+// Forward declaration: Display is in component/.
 class Display;
 /**
  * @class Processor
@@ -299,15 +296,13 @@ public:
      * @param packer        Glyph packer; owns the atlas and rasterization.
      * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
      * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
-     * @param imageAtlas    Inline image atlas; threaded through to Display for staged GPU upload.
      * @return Unique pointer to the newly created Display.
      * @note MESSAGE THREAD.
      */
     std::unique_ptr<Display> createDisplay (jam::Font& font,
                                             jam::Glyph::Packer& packer,
                                             jam::gl::GlyphAtlas& glAtlas,
-                                            jam::GraphicsAtlas& graphicsAtlas,
-                                            Terminal::ImageAtlas& imageAtlas);
+                                            jam::GraphicsAtlas& graphicsAtlas);
 
     /** @brief Writes user input bytes (keyboard, mouse) to the PTY.
      *  Set by Terminal::Session to route input to the TTY.

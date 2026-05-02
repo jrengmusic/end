@@ -27,18 +27,18 @@ void List::filterRows (const juce::String& query)
 
     if (query.isNotEmpty())
     {
-        jam::FuzzySearch::Data::vector dataset;
-        dataset.reserve (rows.size() - 1);
+        juce::StringArray dataset;
+        dataset.ensureStorageAllocated (static_cast<int> (rows.size()) - 1);
 
         for (int i { 1 }; i < static_cast<int> (rows.size()); ++i)
         {
             if (auto* label { rows.at (static_cast<std::size_t> (i))->getNameLabel() }; label != nullptr)
-                dataset.push_back (label->getText().toStdString());
+                dataset.add (label->getText());
         }
 
-        const auto results { jam::FuzzySearch::getResult (query, dataset) };
+        const auto results { jam::Fuzzy::Search::getResult (query, dataset) };
 
-        std::unordered_set<std::string> matchedNames;
+        std::unordered_set<juce::String> matchedNames;
 
         for (const auto& result : results)
             matchedNames.insert (result.second);
@@ -47,7 +47,7 @@ void List::filterRows (const juce::String& query)
         {
             if (auto* label { rows.at (static_cast<std::size_t> (i))->getNameLabel() }; label != nullptr)
             {
-                const bool isMatch { matchedNames.count (label->getText().toStdString()) > 0 };
+                const bool isMatch { matchedNames.count (label->getText()) > 0 };
                 rows.at (static_cast<std::size_t> (i))->setVisible (isMatch);
             }
         }
