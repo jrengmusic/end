@@ -77,8 +77,6 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
         seedEnv.set ("END_BINARY", executable.getFullPathName());
 #endif
 
-        seedEnv.set ("END_SKIT", lua::Engine::getContext()->nexus.image.protocol);
-
         if (shell.contains ("zsh"))
         {
             const juce::File zshDir { configDir.getChildFile ("zsh") };

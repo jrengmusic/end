@@ -55,6 +55,8 @@ Terminal::Display::Display (Terminal::Processor& p,
  */
 Terminal::Display::~Display()
 {
+    cancelPendingUpdate();
+
     processor.getState().get().removeListener (this);
 
     processor.writeInput = nullptr;
@@ -64,6 +66,7 @@ Terminal::Display::~Display()
     processor.onBell = nullptr;
     processor.onDesktopNotification = nullptr;
     processor.getParser().onPreviewFile = nullptr;
+    processor.getParser().onImageDecoded = nullptr;
 
     visitScreen (
         [&] (auto& scr)
@@ -152,12 +155,34 @@ void Terminal::Display::initialise()
         Terminal::Notifications::show (title, body);
     };
 
-    processor.getParser().onPreviewFile = [this] (const juce::String& filepath, int gridRow)
+    processor.getParser().onPreviewFile = [this] (const juce::String& filepath,
+                                                   int gridRow, int gridCol,
+                                                   int cols, int lines)
     {
         const juce::SpinLock::ScopedLockType lock { pendingPreviewLock };
-        pendingPreviewPath = filepath;
-        pendingPreviewRow = gridRow;
-        hasPendingPreview = true;
+        pendingPreviewPath  = filepath;
+        pendingPreviewRow   = gridRow;
+        pendingPreviewCol   = gridCol;
+        pendingPreviewCols  = cols;
+        pendingPreviewLines = lines;
+        hasPendingPreview   = true;
+    };
+
+    processor.getParser().onImageDecoded = [this] (juce::HeapBlock<uint8_t>&& pixels,
+                                                    juce::HeapBlock<int>&& delays,
+                                                    int frameCount, int widthPx, int heightPx,
+                                                    int gridRow, int gridCol, int cellCols, int cellRows,
+                                                    bool /*isPreview*/)
+    {
+        auto pixelPtr { std::make_shared<juce::HeapBlock<uint8_t>> (std::move (pixels)) };
+        auto delayPtr { std::make_shared<juce::HeapBlock<int>> (std::move (delays)) };
+
+        juce::MessageManager::callAsync (
+            [this, pixelPtr, delayPtr, frameCount, widthPx, heightPx, gridRow, gridCol, cellCols, cellRows]
+            {
+                handleDecodedImage (*pixelPtr, *delayPtr, frameCount, widthPx, heightPx,
+                                    gridRow, gridCol, cellCols, cellRows);
+            });
     };
 
     linkManager->onOpenMarkdown = [this] (const juce::File& file)
@@ -168,12 +193,61 @@ void Terminal::Display::initialise()
 
     linkManager->onOpenImage = [this] (const juce::File& file, int triggerRow)
     {
-        handleOpenImage (file, triggerRow);
+        handleOpenImage (file, triggerRow, 0, 0, 0);
     };
 }
 
 /**
- * @brief Lays out the screen viewport, notifies Processor of new grid size.
+ * @brief Positions the overlay on top of Screen at cell-aligned coordinates.
+ *
+ * Handles both native (config cell count, right-aligned) and conform (protocol
+ * cell bounds) modes.  Overlay paints on top of Screen — no viewport split.
+ *
+ * @param contentArea  The full content rectangle.
+ * @note MESSAGE THREAD — called from resized().
+ */
+void Terminal::Display::setOverlayBounds (juce::Rectangle<int> contentArea) noexcept
+{
+    int cellW { 0 };
+    int cellH { 0 };
+
+    visitScreen ([&] (auto& s)
+    {
+        cellW = s.getCellWidth();
+        cellH = s.getCellHeight();
+    });
+
+    if (overlayConform)
+    {
+        const int overlayX { contentArea.getX() + overlayTriggerCol * cellW };
+        const int overlayY { contentArea.getY() + overlayTriggerRow * cellH };
+        const int overlayW { overlayCellCols * cellW };
+        const int overlayH { overlayCellRows * cellH };
+
+        overlay->setBounds (overlayX, overlayY, overlayW, overlayH);
+    }
+    else
+    {
+        const int overlayW { config.nexus.image.cols * cellW };
+        const int overlayH { config.nexus.image.rows * cellH };
+
+        int overlayY { contentArea.getY() + overlayTriggerRow * cellH };
+        const int maxY { contentArea.getBottom() - overlayH };
+        overlayY = juce::jlimit (contentArea.getY(), juce::jmax (contentArea.getY(), maxY), overlayY);
+
+        const int overlayX { contentArea.getRight() - overlayW };
+        overlay->setBounds (overlayX, overlayY, overlayW, overlayH);
+    }
+}
+
+/**
+ * @brief Continuous resize: viewport, Grid reflow, overlay, then async PTY signal.
+ *
+ * Runs on every JUCE resize event.  Updates Screen viewport, reflows Grid
+ * content, resets scroll offset, and repositions overlay — all renderer-side
+ * work.  Calls triggerAsyncUpdate() to coalesce PTY signalling: the shell
+ * receives exactly one SIGWINCH per message-loop drain, regardless of how
+ * many resized() calls occurred in the burst.
  *
  * @note MESSAGE THREAD — called by JUCE on every resize event.
  */
@@ -183,25 +257,6 @@ void Terminal::Display::resized()
 
     if (contentArea.getWidth() > 0 and contentArea.getHeight() > 0)
     {
-        if (overlay != nullptr)
-        {
-            const int overlayWidth { juce::roundToInt (static_cast<float> (contentArea.getWidth()) * config.nexus.image.width) };
-            const int overlayHeight { juce::roundToInt (static_cast<float> (contentArea.getHeight()) * config.nexus.image.height) };
-
-            int overlayY { contentArea.getY() };
-
-            visitScreen ([&] (auto& s)
-            {
-                overlayY = contentArea.getY() + overlayTriggerRow * s.getCellHeight();
-            });
-
-            const int maxY { contentArea.getBottom() - overlayHeight };
-            overlayY = juce::jlimit (contentArea.getY(), juce::jmax (contentArea.getY(), maxY), overlayY);
-
-            contentArea.removeFromRight (overlayWidth);
-            overlay->setBounds (contentArea.getRight(), overlayY, overlayWidth, overlayHeight);
-        }
-
         visitScreen (
             [&] (auto& s)
             {
@@ -210,14 +265,45 @@ void Terminal::Display::resized()
 
         const int cols { screenBase().getNumCols() };
         const int rows { screenBase().getNumRows() };
+
+        if (cols > 0 and rows > 0)
+        {
+            processor.resized (cols, rows);
+            processor.getState().setScrollOffset (0);
+        }
+
+        if (overlay != nullptr)
+            setOverlayBounds (contentArea);
+    }
+
+    triggerAsyncUpdate();
+}
+
+/**
+ * @brief Signals PTY with current terminal dimensions.
+ *
+ * AsyncUpdater coalesces multiple triggerAsyncUpdate() calls into one
+ * callback on the next message-loop pass.  The shell receives exactly one
+ * SIGWINCH after the resize burst settles.
+ *
+ * @note MESSAGE THREAD — AsyncUpdater callback.
+ */
+void Terminal::Display::handleAsyncUpdate()
+{
+    const int cols { screenBase().getNumCols() };
+    const int rows { screenBase().getNumRows() };
+
+    if (cols > 0 and rows > 0
+        and (cols != lastSignaledCols or rows != lastSignaledRows))
+    {
+        lastSignaledCols = cols;
+        lastSignaledRows = rows;
+
         const int pixelW { physCellWidthCache * cols };
         const int pixelH { physCellHeightCache * rows };
 
-        processor.getState().setDimensions (cols, rows);
-        processor.resized (cols, rows);
         if (processor.onResize != nullptr)
             processor.onResize (cols, rows, pixelW, pixelH);
-        processor.getState().setScrollOffset (0);
     }
 }
 

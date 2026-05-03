@@ -113,12 +113,14 @@ void Parser::setPhysCellDimensions (int widthPx, int heightPx) noexcept
  *
  * Shared implementation for `dcsUnhook()`, `apcEnd()`, and `handleOsc1337()`
  * when the accumulated buffer begins with an `END;` prefix.  Reads the current
- * cursor row and scrollback depth, then invokes `onPreviewFile` with the filepath
- * and absolute grid row.  Does NOT load or decode the file — the receiver must
- * perform file I/O on the MESSAGE THREAD.  An empty `filepath` signals preview
- * dismissal.
+ * cursor row, cursor column, and scrollback depth, then invokes `onPreviewFile`
+ * with the filepath, absolute grid row, grid column, and optional protocol bounds.
+ * Does NOT load or decode the file — the receiver must perform file I/O on the
+ * MESSAGE THREAD.  An empty `filepath` signals preview dismissal.
  *
  * @param filepath  Absolute path extracted after the END; marker.  Empty = dismiss.
+ * @param cols      Protocol-specified overlay width in cells; 0 = use config.
+ * @param lines     Protocol-specified overlay height in cells; 0 = use config.
  *
  * @note READER THREAD only.
  *
@@ -127,16 +129,17 @@ void Parser::setPhysCellDimensions (int widthPx, int heightPx) noexcept
  * @see Parser::handleOsc1337
  * @see Parser::onPreviewFile
  */
-void Parser::handleSkitFilepath (const juce::String& filepath) noexcept
+void Parser::handleSkitFilepath (const juce::String& filepath, int cols, int lines) noexcept
 {
     if (onPreviewFile)
     {
         const ActiveScreen scr   { state.getRawValue<ActiveScreen> (ID::activeScreen) };
         const int cursorRow      { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+        const int cursorCol      { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
         const int scrollbackUsed { state.getRawValue<int> (ID::scrollbackUsed) };
         const int absRow         { scrollbackUsed + cursorRow };
 
-        onPreviewFile (filepath, absRow);
+        onPreviewFile (filepath, absRow, cursorCol, cols, lines);
     }
 }
 
@@ -175,11 +178,30 @@ void Parser::dcsUnhook() noexcept
             and dcsBuffer[0] == 'E' and dcsBuffer[1] == 'N'
             and dcsBuffer[2] == 'D' and dcsBuffer[3] == ';')
         {
-            const juce::String filepath { juce::String::fromUTF8 (
+            const juce::String payload { juce::String::fromUTF8 (
                 reinterpret_cast<const char*> (dcsBuffer.get() + endPrefixLen),
                 dcsBufferSize - endPrefixLen) };
 
-            handleSkitFilepath (filepath);
+            const int firstSep  { payload.indexOfChar (';') };
+            const int secondSep { firstSep >= 0 ? payload.indexOfChar (firstSep + 1, ';') : -1 };
+
+            int previewCols  { 0 };
+            int previewLines { 0 };
+
+            juce::String filepath;
+
+            if (firstSep >= 0 and secondSep > firstSep)
+            {
+                filepath     = payload.substring (0, firstSep);
+                previewCols  = payload.substring (firstSep + 1, secondSep).getIntValue();
+                previewLines = payload.substring (secondSep + 1).getIntValue();
+            }
+            else
+            {
+                filepath = payload;
+            }
+
+            handleSkitFilepath (filepath, previewCols, previewLines);
         }
         else
         {
@@ -260,11 +282,30 @@ void Parser::apcEnd() noexcept
             and apcBuffer[2] == 'N' and apcBuffer[3] == 'D'
             and apcBuffer[4] == ';')
         {
-            const juce::String filepath { juce::String::fromUTF8 (
+            const juce::String payload { juce::String::fromUTF8 (
                 reinterpret_cast<const char*> (apcBuffer.get() + endPrefixLen),
                 apcBufferSize - endPrefixLen) };
 
-            handleSkitFilepath (filepath);
+            const int firstSep  { payload.indexOfChar (';') };
+            const int secondSep { firstSep >= 0 ? payload.indexOfChar (firstSep + 1, ';') : -1 };
+
+            int previewCols  { 0 };
+            int previewLines { 0 };
+
+            juce::String filepath;
+
+            if (firstSep >= 0 and secondSep > firstSep)
+            {
+                filepath     = payload.substring (0, firstSep);
+                previewCols  = payload.substring (firstSep + 1, secondSep).getIntValue();
+                previewLines = payload.substring (secondSep + 1).getIntValue();
+            }
+            else
+            {
+                filepath = payload;
+            }
+
+            handleSkitFilepath (filepath, previewCols, previewLines);
         }
         else
         {

@@ -69,8 +69,8 @@ set(END_BINARY_FILES
 # Windows ConPTY sideload binaries
 if(WIN32)
     list(APPEND END_BINARY_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/Resources/windows/conpty.dll"
-        "${CMAKE_CURRENT_SOURCE_DIR}/Resources/windows/OpenConsole.exe"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Source/resources/windows/conpty.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Source/resources/windows/OpenConsole.exe"
     )
 endif()
 

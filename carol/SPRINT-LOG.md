@@ -1,5 +1,76 @@
 # SPRINT-LOG
 
+## Sprint 3: Crossplatform Font-from-Binary Helper — FreeType Symmetric with CoreText ✅
+
+**Date:** 2026-05-03
+**Duration:** ~00:20
+
+### Agents Participated
+- SURGEON — diagnosis, direct edits
+
+### Files Modified (1 total)
+
+- `jam/jam_graphics/fonts/jam_typeface.cpp:227` — new `static FT_Face makeFaceFromBinary (FT_Library, const void*, int)` helper; mirrors `makeCTFontFromBinary` from the macOS side; wraps `FT_New_Memory_Face` + `FT_Byte*` cast
+- `jam/jam_graphics/fonts/jam_typeface.cpp:279` — `loadFaces()`: `FT_New_Memory_Face` call replaced with `makeFaceFromBinary`
+- `jam/jam_graphics/fonts/jam_typeface.cpp:542` — `setFontFamily()`: same
+- `jam/jam_graphics/fonts/jam_typeface.cpp:319` — `addFallbackFont()`: stub implemented; `makeFaceFromBinary` + `FT_Set_Char_Size` + `userFallbackFonts.push_back`
+
+### Alignment Check
+- [x] BLESSED — S (SSOT): `FT_New_Memory_Face` now exists once (helper); L (Lean): no new abstraction layers, helper is a direct mechanical extraction; Encapsulation: font binary loading stays inside Typeface
+- [x] NAMES.md — `makeFaceFromBinary` is verb-noun, consistent with `makeCTFontFromBinary` (cross-platform naming symmetry)
+- [x] MANIFESTO.md — SSOT enforced; YAGNI respected (helper does exactly one thing, no speculative parameters)
+
+### Problems Solved
+- `FT_New_Memory_Face` + `reinterpret_cast<const FT_Byte*>` block was duplicated verbatim in `loadFaces` and `setFontFamily` — SSOT violation; now eliminated
+- `addFallbackFont` was a TODO stub (`juce::ignoreUnused`) — now implemented, symmetric with macOS `addFallbackFont`
+- Non-macOS now fully consistent with macOS: both platforms have a `makeFaceFromBinary` / `makeCTFontFromBinary` helper and a working `addFallbackFont`
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
+## Sprint 2: Embedded Font Priority — Display Mono from Binary on macOS ✅
+
+**Date:** 2026-05-03
+**Duration:** ~01:30
+
+### Agents Participated
+- SURGEON — diagnosis, surgical plan, direct edits, audit response
+- Pathfinder (×2) — surveyed `jam_typeface.mm` methods; confirmed `JamFontsBinaryData.h` include and symbol names via `jam_typeface.cpp` reference
+- Engineer (×1) — initial implementation of 3-method scaffold (embeddedFontForFamily, loadFaces, setFontFamily)
+- Auditor (×1) — identified C1 (mainFont fallback still system lookup) and C2 (3-site CGDataProvider duplication)
+
+### Files Modified (1 total)
+
+- `jam/jam_graphics/fonts/jam_typeface.mm:226` — new `static CTFontRef makeCTFontFromBinary (const void*, int, CGFloat)` helper; eliminates all CGDataProvider→CGFont→CTFont duplication
+- `jam/jam_graphics/fonts/jam_typeface.mm:804` — `embeddedFontForFamily()`: replaced no-op stub with Display Mono family dispatch (mirrors `jam_typeface.cpp:184–210`); doxygen updated
+- `jam/jam_graphics/fonts/jam_typeface.mm:262` — `loadFaces()`: embedded-first path (via helper) for Display Mono families; system descriptor lookup in `else` for other families; `mainFont == nullptr` fallback routes through `embeddedFontForFamily("Display Mono")` + helper (no system lookup); doxygen updated
+- `jam/jam_graphics/fonts/jam_typeface.mm:548` — `setFontFamily()`: same embedded-first treatment as `loadFaces()`
+- `jam/jam_graphics/fonts/jam_typeface.mm:391` — `addFallbackFont()`: refactored to use `makeCTFontFromBinary` helper; body reduced from 22 lines to 9
+
+### Alignment Check
+- [x] BLESSED — B: no new resources float free; E: `jassert` on fallback data pointer, no silent fail; S (SSOT): `makeCTFontFromBinary` eliminates 3-site duplication; D: embedded binary produces identical results across machines
+- [x] NAMES.md — `makeCTFontFromBinary` is verb-noun, describes operation and return; `fallbackData`/`fallbackSize` consistent with `embeddedData`/`embeddedSize`
+- [x] MANIFESTO.md — Lean: helper extracted because same logic appeared 3+ times; Encapsulation: font resolution stays inside Typeface; SSOT: embedded binary is now the authoritative source for Display Mono on macOS
+
+### Problems Solved
+- macOS `embeddedFontForFamily()` was a no-op stub — system-installed Display Mono (stale, different build) was winning over the embedded canonical binary
+- `mainFont == nullptr` fallback still called `CTFontCreateWithName(CFSTR("Display Mono"))` — system lookup, violating RFC locked principle "no system-installed copy ever overrides the embedded canonical font"
+- `CGDataProvider → CGFont → CTFont` chain was inlined identically in `loadFaces`, `setFontFamily`, and `addFallbackFont` — SSOT violation; extracted to `makeCTFontFromBinary`
+- macOS now symmetric with non-macOS: `embeddedFontForFamily()` dispatches Display Mono variants, system lookup only for unknown families
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
 ## Sprint 1: SKiT Image Preview — Overlay Architecture + Display Decomposition ✅
 
 **Date:** 2026-05-02

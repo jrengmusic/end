@@ -90,6 +90,7 @@ class Display
     , public juce::KeyListener
     , public juce::FileDragAndDropTarget
     , public juce::ValueTree::Listener
+    , public juce::AsyncUpdater
 {
 public:
     /** @brief The Processor this Display renders. Lifetime owned by the caller. */
@@ -499,14 +500,34 @@ public:
      * @brief Creates the ephemeral Overlay component and adds it as a child.
      *
      * Constructs a `Terminal::Overlay`, computes its pixel bounds from config
-     * (nexus.image.width/height fractions, trigger row), sets the image, border
-     * colour, padding, and border visibility, then calls `addAndMakeVisible`.
+     * (nexus.image.width/height fractions, trigger row), then routes to
+     * `overlay->setImage` (single frame, no delays) or `overlay->setFrames`
+     * (animated), sets border colour, padding, and border visibility, then
+     * calls `addAndMakeVisible`.
      *
-     * @param image       The decoded image to display.
+     * @param frames      Decoded frames as premultiplied BGRA `juce::Image` objects.
+     * @param delays      Per-frame delays in milliseconds; empty for static images.
      * @param triggerRow  Visible row of the link span that triggered the open.
      * @note MESSAGE THREAD.
      */
-    void activatePreview (juce::Image image, int triggerRow) noexcept;
+    void activatePreview (std::vector<juce::Image> frames, std::vector<int> delays, int triggerRow) noexcept;
+
+    /**
+     * @brief Creates the ephemeral Overlay in SKiT conform mode.
+     *
+     * Positions the overlay at protocol-specified cell coordinates with no border
+     * and no padding. Input-transparent — keyboard/mouse pass through to terminal.
+     *
+     * @param frames      Decoded frames.
+     * @param delays      Per-frame delays in milliseconds; empty for static images.
+     * @param triggerRow  Visible row of the protocol cursor.
+     * @param triggerCol  Visible column of the protocol cursor.
+     * @param cellCols    Overlay width in cells.
+     * @param cellRows    Overlay height in cells.
+     * @note MESSAGE THREAD.
+     */
+    void activatePreview (std::vector<juce::Image> frames, std::vector<int> delays,
+                          int triggerRow, int triggerCol, int cellCols, int cellRows) noexcept;
 
     /**
      * @brief Removes the Overlay child component and clears preview State.
@@ -641,6 +662,12 @@ private:
      */
     void applyScreenSettings() noexcept;
 
+    /** @brief Positions the overlay on top of Screen at cell-aligned coordinates. @note MESSAGE THREAD. */
+    void setOverlayBounds (juce::Rectangle<int> contentArea) noexcept;
+
+    /** @brief AsyncUpdater callback: signals PTY with current dimensions.  @note MESSAGE THREAD. */
+    void handleAsyncUpdate() override;
+
     /**
      * @brief Computes this component's pixel offset relative to the top-level window.
      *
@@ -743,21 +770,54 @@ private:
     /**
      * @brief Loads an image file, downscales if needed, and activates the overlay preview.
      *
-     * Decodes via `loadImageNative`, downscales to `nexus.image.atlasDimension` if
-     * either dimension exceeds the limit, calls `state.activatePreview()` for State
+     * Decodes via `loadImageSequenceNative`, downscales to `nexus.image.atlasDimension`
+     * if either dimension exceeds the limit, calls `state.activatePreview()` for State
      * SSOT tracking, then creates and positions the ephemeral Overlay child component.
+     * When `previewCols > 0` and `previewLines > 0`, the conform-mode overload is called;
+     * otherwise the native-mode overload is called.
      *
-     * @param file        The image file to load.
-     * @param triggerRow  Visible row of the link span that triggered the open.
+     * @param file         The image file to load.
+     * @param triggerRow   Visible row of the link span that triggered the open.
+     * @param previewCol   Grid column at the trigger cursor (conform mode).
+     * @param previewCols  Protocol-specified overlay width in cells; 0 = use config.
+     * @param previewLines Protocol-specified overlay height in cells; 0 = use config.
      * @note MESSAGE THREAD.
      */
-    void handleOpenImage (const juce::File& file, int triggerRow) noexcept;
+    void handleOpenImage (const juce::File& file, int triggerRow,
+                          int previewCol, int previewCols, int previewLines) noexcept;
+
+    /**
+     * @brief Handles decoded SKiT image pixels and activates overlay in conform mode.
+     *
+     * Converts RGBA8 pixel frames to juce::Images, computes visible row from
+     * absolute grid row, and calls the conform-mode activatePreview overload.
+     *
+     * @param pixels     All frames contiguous, RGBA8, row-major.
+     * @param delays     Per-frame delays in ms. Null HeapBlock for static.
+     * @param frameCount Number of frames.
+     * @param widthPx    Frame width in pixels.
+     * @param heightPx   Frame height in pixels.
+     * @param gridRow    Absolute grid row of image placement.
+     * @param gridCol    Grid column of image placement.
+     * @param cellCols   Image span in cell columns.
+     * @param cellRows   Image span in cell rows.
+     * @note MESSAGE THREAD.
+     */
+    void handleDecodedImage (juce::HeapBlock<uint8_t>& pixels, juce::HeapBlock<int>& delays,
+                             int frameCount, int widthPx, int heightPx,
+                             int gridRow, int gridCol, int cellCols, int cellRows) noexcept;
 
     /** @brief Cached physical cell width in pixels; updated by switchRenderer() via onPhysCellDimensionsChanged. */
     int physCellWidthCache { 0 };
 
     /** @brief Cached physical cell height in pixels; updated by switchRenderer() via onPhysCellDimensionsChanged. */
     int physCellHeightCache { 0 };
+
+    /** @brief Last column count signaled to PTY via handleAsyncUpdate. */
+    int lastSignaledCols { 0 };
+
+    /** @brief Last row count signaled to PTY via handleAsyncUpdate. */
+    int lastSignaledRows { 0 };
 
     /** @brief Guards pendingPreviewPath and pendingPreviewRow. Written on READER, read on MESSAGE. */
     juce::SpinLock pendingPreviewLock;
@@ -767,6 +827,15 @@ private:
 
     /** @brief Absolute grid row at the trigger cursor when onPreviewFile fired. */
     int pendingPreviewRow { 0 };
+
+    /** @brief Grid column at the trigger cursor when onPreviewFile fired. */
+    int pendingPreviewCol { 0 };
+
+    /** @brief Preview width in cells from enriched protocol; 0 = use config. */
+    int pendingPreviewCols { 0 };
+
+    /** @brief Preview height in cells from enriched protocol; 0 = use config. */
+    int pendingPreviewLines { 0 };
 
     /** @brief True when a preview filepath has been deposited and not yet consumed. */
     bool hasPendingPreview { false };
@@ -786,6 +855,19 @@ private:
 
     /** @brief Visible grid row that triggered the current overlay preview. */
     int overlayTriggerRow { 0 };
+
+    /** @brief Grid column that triggered the current overlay (conform mode). */
+    int overlayTriggerCol { 0 };
+
+    /** @brief Overlay width in cells (conform mode); 0 = use config fractions. */
+    int overlayCellCols { 0 };
+
+    /** @brief Overlay height in cells (conform mode); 0 = use config fractions. */
+    int overlayCellRows { 0 };
+
+    /** @brief True when overlay conforms to protocol-specified cell bounds (no border, no padding). */
+    bool overlayConform { false };
+
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Display)

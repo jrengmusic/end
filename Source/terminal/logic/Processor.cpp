@@ -80,8 +80,8 @@ Processor::Processor (int cols, int rows, const juce::String& uuid)
 void Processor::resized (int cols, int rows) noexcept
 {
     jassert (parser != nullptr);
-    state.setDimensions (cols, rows);
     grid.resize (cols, rows);
+    state.setDimensions (cols, rows);
     parser->resize (cols, rows);
 }
 

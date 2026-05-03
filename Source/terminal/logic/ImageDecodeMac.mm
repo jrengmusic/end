@@ -83,185 +83,276 @@ ImageSequence loadImageSequenceNative (const void* data, size_t dataSize) noexce
                        and static_cast<const char*> (data)[1] == 'I'
                        and static_cast<const char*> (data)[2] == 'F' };
 
-    if (not isGif)
+    CFDataRef cfData { CFDataCreateWithBytesNoCopy (kCFAllocatorDefault,
+                                                     static_cast<const UInt8*> (data),
+                                                     static_cast<CFIndex> (dataSize),
+                                                     kCFAllocatorNull) };
+
+    if (cfData != nullptr)
     {
-        // Non-GIF: single frame via existing path
-        juce::Image img { loadImageNative (data, dataSize) };
+        CGImageSourceRef source { CGImageSourceCreateWithData (cfData, nullptr) };
 
-        if (img.isValid())
+        if (source != nullptr)
         {
-            seq.width      = img.getWidth();
-            seq.height     = img.getHeight();
-            seq.frameCount = 1;
-            int w { 0 };
-            int h { 0 };
-            swizzleARGBToRGBA (img, seq.pixels, w, h);
-        }
+            const size_t nativeFrameCount { CGImageSourceGetCount (source) };
 
-        return seq;
-    }
-
-    // GIF path: parse metadata then compose frames
-    const GifMetadata meta { parseGifMetadata (static_cast<const uint8_t*> (data), dataSize) };
-
-    if (meta.isValid and not meta.frames.empty())
-    {
-        CFDataRef cfData { CFDataCreateWithBytesNoCopy (kCFAllocatorDefault,
-                                                         static_cast<const UInt8*> (data),
-                                                         static_cast<CFIndex> (dataSize),
-                                                         kCFAllocatorNull) };
-
-        if (cfData != nullptr)
-        {
-            CGImageSourceRef source { CGImageSourceCreateWithData (cfData, nullptr) };
-
-            if (source != nullptr)
+            if (nativeFrameCount > 1 and isGif)
             {
-                const size_t nativeFrameCount { CGImageSourceGetCount (source) };
-                const int frameCount { static_cast<int> (
-                    juce::jmin (nativeFrameCount, meta.frames.size())) };
+                // GIF: parse binary metadata for canvas dims, per-frame offsets,
+                // disposal methods, and centisecond delays.
+                const GifMetadata meta { parseGifMetadata (
+                    static_cast<const uint8_t*> (data), dataSize) };
 
-                const int canvasW { meta.canvasWidth };
-                const int canvasH { meta.canvasHeight };
-                const size_t frameBytes { static_cast<size_t> (canvasW)
-                                          * static_cast<size_t> (canvasH) * 4u };
-                const size_t totalBytes { frameBytes * static_cast<size_t> (frameCount) };
-
-                seq.pixels.allocate (totalBytes, true);   // zero-init = transparent canvas
-                seq.delays.allocate (static_cast<size_t> (frameCount), false);
-
-                // Working canvas — represents the composed image between frames
-                juce::HeapBlock<uint8_t> canvas (frameBytes, true);
-                // Saved canvas for disposal-3 (restore-to-previous)
-                juce::HeapBlock<uint8_t> previousCanvas (frameBytes, true);
-
-                for (int i { 0 }; i < frameCount; ++i)
+                if (meta.isValid and not meta.frames.empty())
                 {
-                    const GifFrameInfo& prev { meta.frames[static_cast<size_t> (i > 0 ? i - 1 : 0)] };
+                    const int frameCount { static_cast<int> (
+                        juce::jmin (nativeFrameCount, meta.frames.size())) };
 
-                    // Apply disposal of the previous frame before drawing this one
-                    if (i > 0)
+                    const int canvasW { meta.canvasWidth };
+                    const int canvasH { meta.canvasHeight };
+                    const size_t frameBytes { static_cast<size_t> (canvasW)
+                                              * static_cast<size_t> (canvasH) * 4u };
+                    const size_t totalBytes { frameBytes * static_cast<size_t> (frameCount) };
+
+                    seq.pixels.allocate (totalBytes, true);   // zero-init = transparent canvas
+                    seq.delays.allocate (static_cast<size_t> (frameCount), false);
+
+                    // Working canvas — represents the composed image between frames
+                    juce::HeapBlock<uint8_t> canvas (frameBytes, true);
+                    // Saved canvas for disposal-3 (restore-to-previous)
+                    juce::HeapBlock<uint8_t> previousCanvas (frameBytes, true);
+
+                    for (int i { 0 }; i < frameCount; ++i)
                     {
-                        if (prev.disposal == 2)
+                        const GifFrameInfo& prev { meta.frames[static_cast<size_t> (i > 0 ? i - 1 : 0)] };
+
+                        // Apply disposal of the previous frame before drawing this one
+                        if (i > 0)
                         {
-                            // Restore-to-background: clear the previous frame rect on canvas
-                            const int clearLeft   { juce::jlimit (0, canvasW, prev.left) };
-                            const int clearTop    { juce::jlimit (0, canvasH, prev.top) };
-                            const int clearRight  { juce::jlimit (0, canvasW, prev.left + prev.width) };
-                            const int clearBottom { juce::jlimit (0, canvasH, prev.top + prev.height) };
-
-                            for (int row { clearTop }; row < clearBottom; ++row)
+                            if (prev.disposal == 2)
                             {
-                                uint8_t* dst { canvas.get()
-                                               + static_cast<size_t> (row * canvasW + clearLeft) * 4u };
-                                std::memset (dst, 0, static_cast<size_t> (clearRight - clearLeft) * 4u);
-                            }
-                        }
-                        else if (prev.disposal == 3)
-                        {
-                            // Restore-to-previous: swap back the saved canvas
-                            std::memcpy (canvas.get(), previousCanvas.get(), frameBytes);
-                        }
-                        // disposal 0 or 1: leave canvas as-is
-                    }
+                                // Restore-to-background: clear the previous frame rect on canvas
+                                const int clearLeft   { juce::jlimit (0, canvasW, prev.left) };
+                                const int clearTop    { juce::jlimit (0, canvasH, prev.top) };
+                                const int clearRight  { juce::jlimit (0, canvasW, prev.left + prev.width) };
+                                const int clearBottom { juce::jlimit (0, canvasH, prev.top + prev.height) };
 
-                    const GifFrameInfo& fi { meta.frames[static_cast<size_t> (i)] };
-
-                    // Save canvas before this frame if disposal is restore-to-previous
-                    if (fi.disposal == 3)
-                        std::memcpy (previousCanvas.get(), canvas.get(), frameBytes);
-
-                    // Extract sub-frame from CGImageSource
-                    CGImageRef cgImage { CGImageSourceCreateImageAtIndex (
-                        source, static_cast<size_t> (i), nullptr) };
-
-                    if (cgImage != nullptr)
-                    {
-                        const int subW { static_cast<int> (CGImageGetWidth (cgImage)) };
-                        const int subH { static_cast<int> (CGImageGetHeight (cgImage)) };
-
-                        if (subW > 0 and subH > 0)
-                        {
-                            // Render sub-frame to a temp JUCE image via CGBitmapContext
-                            juce::Image subImg (juce::Image::ARGB, subW, subH, true);
-                            juce::Image::BitmapData bm (subImg, juce::Image::BitmapData::writeOnly);
-
-                            CGColorSpaceRef colorSpace { CGColorSpaceCreateDeviceRGB() };
-                            CGContextRef ctx { CGBitmapContextCreate (
-                                bm.getLinePointer (0),
-                                static_cast<size_t> (subW),
-                                static_cast<size_t> (subH),
-                                8,
-                                static_cast<size_t> (bm.lineStride),
-                                colorSpace,
-                                kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little) };
-
-                            if (ctx != nullptr)
-                            {
-                                CGContextDrawImage (ctx, CGRectMake (0, 0, subW, subH), cgImage);
-                                CGContextRelease (ctx);
-                            }
-
-                            CGColorSpaceRelease (colorSpace);
-
-                            // Swizzle sub-frame to straight RGBA
-                            juce::HeapBlock<uint8_t> subRgba;
-                            int swW { 0 };
-                            int swH { 0 };
-                            swizzleARGBToRGBA (subImg, subRgba, swW, swH);
-
-                            // Blit sub-frame onto canvas at (fi.left, fi.top)
-                            // Transparent pixels (alpha == 0) do not overwrite canvas
-                            const int blitLeft   { juce::jlimit (0, canvasW, fi.left) };
-                            const int blitTop    { juce::jlimit (0, canvasH, fi.top) };
-                            const int blitRight  { juce::jlimit (0, canvasW, fi.left + subW) };
-                            const int blitBottom { juce::jlimit (0, canvasH, fi.top + subH) };
-
-                            for (int row { blitTop }; row < blitBottom; ++row)
-                            {
-                                const int srcRow { row - fi.top };
-                                const uint8_t* src { subRgba.get()
-                                                     + static_cast<size_t> (srcRow * subW
-                                                                             + (blitLeft - fi.left)) * 4u };
-                                uint8_t* dst { canvas.get()
-                                               + static_cast<size_t> (row * canvasW + blitLeft) * 4u };
-
-                                for (int col { blitLeft }; col < blitRight; ++col)
+                                for (int row { clearTop }; row < clearBottom; ++row)
                                 {
-                                    if (src[3] > 0)
-                                    {
-                                        dst[0] = src[0];
-                                        dst[1] = src[1];
-                                        dst[2] = src[2];
-                                        dst[3] = src[3];
-                                    }
-
-                                    src += 4;
-                                    dst += 4;
+                                    uint8_t* dst { canvas.get()
+                                                   + static_cast<size_t> (row * canvasW + clearLeft) * 4u };
+                                    std::memset (dst, 0,
+                                                 static_cast<size_t> (clearRight - clearLeft) * 4u);
                                 }
                             }
+                            else if (prev.disposal == 3)
+                            {
+                                // Restore-to-previous: swap back the saved canvas
+                                std::memcpy (canvas.get(), previousCanvas.get(), frameBytes);
+                            }
+                            // disposal 0 or 1: leave canvas as-is
                         }
 
-                        CGImageRelease (cgImage);
+                        const GifFrameInfo& fi { meta.frames[static_cast<size_t> (i)] };
+
+                        // Save canvas before this frame if disposal is restore-to-previous
+                        if (fi.disposal == 3)
+                            std::memcpy (previousCanvas.get(), canvas.get(), frameBytes);
+
+                        // Extract sub-frame from CGImageSource
+                        CGImageRef cgImage { CGImageSourceCreateImageAtIndex (
+                            source, static_cast<size_t> (i), nullptr) };
+
+                        if (cgImage != nullptr)
+                        {
+                            const int subW { static_cast<int> (CGImageGetWidth (cgImage)) };
+                            const int subH { static_cast<int> (CGImageGetHeight (cgImage)) };
+
+                            if (subW > 0 and subH > 0)
+                            {
+                                // Render sub-frame to a temp JUCE image via CGBitmapContext
+                                juce::Image subImg (juce::Image::ARGB, subW, subH, true);
+                                juce::Image::BitmapData bm (subImg,
+                                                            juce::Image::BitmapData::writeOnly);
+
+                                CGColorSpaceRef colorSpace { CGColorSpaceCreateDeviceRGB() };
+                                CGContextRef ctx { CGBitmapContextCreate (
+                                    bm.getLinePointer (0),
+                                    static_cast<size_t> (subW),
+                                    static_cast<size_t> (subH),
+                                    8,
+                                    static_cast<size_t> (bm.lineStride),
+                                    colorSpace,
+                                    kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little) };
+
+                                if (ctx != nullptr)
+                                {
+                                    CGContextDrawImage (ctx, CGRectMake (0, 0, subW, subH), cgImage);
+                                    CGContextRelease (ctx);
+                                }
+
+                                CGColorSpaceRelease (colorSpace);
+
+                                // Swizzle sub-frame to straight RGBA
+                                juce::HeapBlock<uint8_t> subRgba;
+                                int swW { 0 };
+                                int swH { 0 };
+                                swizzleARGBToRGBA (subImg, subRgba, swW, swH);
+
+                                // Blit sub-frame onto canvas at (fi.left, fi.top)
+                                // Transparent pixels (alpha == 0) do not overwrite canvas
+                                const int blitLeft   { juce::jlimit (0, canvasW, fi.left) };
+                                const int blitTop    { juce::jlimit (0, canvasH, fi.top) };
+                                const int blitRight  { juce::jlimit (0, canvasW, fi.left + subW) };
+                                const int blitBottom { juce::jlimit (0, canvasH, fi.top + subH) };
+
+                                for (int row { blitTop }; row < blitBottom; ++row)
+                                {
+                                    const int srcRow { row - fi.top };
+                                    const uint8_t* src { subRgba.get()
+                                                         + static_cast<size_t> (
+                                                             srcRow * subW
+                                                             + (blitLeft - fi.left)) * 4u };
+                                    uint8_t* dst { canvas.get()
+                                                   + static_cast<size_t> (
+                                                       row * canvasW + blitLeft) * 4u };
+
+                                    for (int col { blitLeft }; col < blitRight; ++col)
+                                    {
+                                        if (src[3] > 0)
+                                        {
+                                            dst[0] = src[0];
+                                            dst[1] = src[1];
+                                            dst[2] = src[2];
+                                            dst[3] = src[3];
+                                        }
+
+                                        src += 4;
+                                        dst += 4;
+                                    }
+                                }
+                            }
+
+                            CGImageRelease (cgImage);
+                        }
+
+                        // Copy composed canvas to output frame slot
+                        std::memcpy (seq.pixels.get() + static_cast<size_t> (i) * frameBytes,
+                                     canvas.get(),
+                                     frameBytes);
+
+                        seq.delays[i] = fi.delayMs;
                     }
 
-                    // Copy composed canvas to output frame slot
-                    std::memcpy (seq.pixels.get() + static_cast<size_t> (i) * frameBytes,
-                                 canvas.get(),
-                                 frameBytes);
-
-                    seq.delays[i] = fi.delayMs;
+                    seq.width      = canvasW;
+                    seq.height     = canvasH;
+                    seq.frameCount = frameCount;
                 }
+            }
+            else if (nativeFrameCount > 1)
+            {
+                // Non-GIF animated format (APNG, WebP, etc.): each frame from the
+                // codec is the full canvas — no sub-frame compositing required.
+                // TODO: extract per-format delays via kCGImagePropertyAPNGDictionary /
+                //       kCGImagePropertyWebPDictionary; using 100 ms default for now.
+                const int frameCount { static_cast<int> (nativeFrameCount) };
 
-                seq.width      = canvasW;
-                seq.height     = canvasH;
-                seq.frameCount = frameCount;
+                CGImageRef firstFrame { CGImageSourceCreateImageAtIndex (source, 0, nullptr) };
 
-                CFRelease (source);
+                if (firstFrame != nullptr)
+                {
+                    const int canvasW { static_cast<int> (CGImageGetWidth (firstFrame)) };
+                    const int canvasH { static_cast<int> (CGImageGetHeight (firstFrame)) };
+                    CGImageRelease (firstFrame);
+
+                    if (canvasW > 0 and canvasH > 0)
+                    {
+                        const size_t frameBytes { static_cast<size_t> (canvasW)
+                                                  * static_cast<size_t> (canvasH) * 4u };
+                        const size_t totalBytes { frameBytes * static_cast<size_t> (frameCount) };
+
+                        seq.pixels.allocate (totalBytes, true);
+                        seq.delays.allocate (static_cast<size_t> (frameCount), false);
+
+                        for (int i { 0 }; i < frameCount; ++i)
+                        {
+                            CGImageRef cgImage { CGImageSourceCreateImageAtIndex (
+                                source, static_cast<size_t> (i), nullptr) };
+
+                            if (cgImage != nullptr)
+                            {
+                                const int fW { static_cast<int> (CGImageGetWidth (cgImage)) };
+                                const int fH { static_cast<int> (CGImageGetHeight (cgImage)) };
+
+                                if (fW > 0 and fH > 0)
+                                {
+                                    juce::Image frameImg (juce::Image::ARGB, fW, fH, true);
+                                    juce::Image::BitmapData bm (frameImg,
+                                                                juce::Image::BitmapData::writeOnly);
+
+                                    CGColorSpaceRef colorSpace { CGColorSpaceCreateDeviceRGB() };
+                                    CGContextRef ctx { CGBitmapContextCreate (
+                                        bm.getLinePointer (0),
+                                        static_cast<size_t> (fW),
+                                        static_cast<size_t> (fH),
+                                        8,
+                                        static_cast<size_t> (bm.lineStride),
+                                        colorSpace,
+                                        kCGImageAlphaPremultipliedFirst
+                                            | kCGBitmapByteOrder32Little) };
+
+                                    if (ctx != nullptr)
+                                    {
+                                        CGContextDrawImage (ctx, CGRectMake (0, 0, fW, fH),
+                                                            cgImage);
+                                        CGContextRelease (ctx);
+                                    }
+
+                                    CGColorSpaceRelease (colorSpace);
+
+                                    juce::HeapBlock<uint8_t> frameRgba;
+                                    int swW { 0 };
+                                    int swH { 0 };
+                                    swizzleARGBToRGBA (frameImg, frameRgba, swW, swH);
+
+                                    std::memcpy (
+                                        seq.pixels.get() + static_cast<size_t> (i) * frameBytes,
+                                        frameRgba.get(),
+                                        frameBytes);
+                                }
+
+                                CGImageRelease (cgImage);
+                            }
+
+                            seq.delays[i] = 100;   // TODO: read from format-specific properties
+                        }
+
+                        seq.width      = canvasW;
+                        seq.height     = canvasH;
+                        seq.frameCount = frameCount;
+                    }
+                }
+            }
+            else
+            {
+                // Single frame: fall through to loadImageNative path
+                juce::Image img { loadImageNative (data, dataSize) };
+
+                if (img.isValid())
+                {
+                    seq.width      = img.getWidth();
+                    seq.height     = img.getHeight();
+                    seq.frameCount = 1;
+                    int w { 0 };
+                    int h { 0 };
+                    swizzleARGBToRGBA (img, seq.pixels, w, h);
+                }
             }
 
-            CFRelease (cfData);
+            CFRelease (source);
         }
+
+        CFRelease (cfData);
     }
 
     return seq;

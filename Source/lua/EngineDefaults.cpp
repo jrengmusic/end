@@ -363,13 +363,12 @@ void Engine::writeNexusDefaults (const juce::File& configDir)
         content =
             jam::String::replaceholder (content, "terminal_drop_quoted", nexus.terminal.dropQuoted ? "true" : "false");
         content = jam::String::replaceholder (content, "hyperlinks_editor", nexus.hyperlinks.editor);
-        content = jam::String::replaceholder (content, "image_protocol", nexus.image.protocol);
         content = jam::String::replaceholder (
             content, "image_atlas_dimension", juce::String (nexus.image.atlasDimension));
         content = jam::String::replaceholder (
-            content, "image_width", juce::String (nexus.image.width, 2));
+            content, "image_cols", juce::String (nexus.image.cols));
         content = jam::String::replaceholder (
-            content, "image_height", juce::String (nexus.image.height, 2));
+            content, "image_rows", juce::String (nexus.image.rows));
         content = jam::String::replaceholder (
             content, "image_padding", juce::String (nexus.image.padding));
         content = jam::String::replaceholder (

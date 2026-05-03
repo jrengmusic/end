@@ -311,10 +311,13 @@ public:
      *
      * @param filepath  Absolute path to the image file, or empty string to dismiss.
      * @param gridRow   Absolute grid row at the trigger cursor position.
+     * @param gridCol   Grid column at the trigger cursor position.
+     * @param cols      Protocol-specified overlay width in cells; 0 = use config.
+     * @param lines     Protocol-specified overlay height in cells; 0 = use config.
      *
      * @note READER THREAD only.
      */
-    std::function<void (const juce::String& filepath, int gridRow)> onPreviewFile;
+    std::function<void (const juce::String& filepath, int gridRow, int gridCol, int cols, int lines)> onPreviewFile;
 
     // =========================================================================
 
@@ -1601,14 +1604,17 @@ private:
 
     /** @brief Handles an END; filepath signal from any SKiT protocol envelope.
      *
-     * Extracts cursor position and invokes `onPreviewFile` with the filepath and
-     * absolute grid row.  Does NOT load or decode the file — the receiver must
-     * perform file I/O on the MESSAGE THREAD.  An empty filepath signals dismiss.
+     * Extracts cursor position and invokes `onPreviewFile` with the filepath,
+     * absolute grid row, grid column, and optional bounds from the enriched
+     * protocol.  Does NOT load or decode the file — the receiver must perform
+     * file I/O on the MESSAGE THREAD.  An empty filepath signals dismiss.
      *
      * @param filepath  Absolute path extracted after the END; marker.  Empty = dismiss.
+     * @param cols      Protocol-specified overlay width in cells; 0 = use config.
+     * @param lines     Protocol-specified overlay height in cells; 0 = use config.
      * @note READER THREAD only.
      */
-    void handleSkitFilepath (const juce::String& filepath) noexcept;
+    void handleSkitFilepath (const juce::String& filepath, int cols, int lines) noexcept;
 
     /**
      * @brief Appends a byte to a hybrid buffer with lazy allocation and geometric growth.

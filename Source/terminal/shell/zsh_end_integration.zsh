@@ -21,11 +21,7 @@ add-zsh-hook preexec _end_preexec
 end() {
     if [[ "$1" == "preview" ]]; then
         local file="${2:a}"
-        case "$END_SKIT" in
-            kitty)  printf '\033_GEND;%s\033\\' "$file" ;;
-            iterm2) printf '\033]1337;END;%s\a' "$file" ;;
-            sixel)  printf '\033P0qEND;%s\033\\' "$file" ;;
-        esac
+        printf '\033]1337;END;%s;%s;%s\a' "$file" "${FZF_PREVIEW_COLUMNS:-0}" "${FZF_PREVIEW_LINES:-0}"
     else
         command "$END_BINARY" "$@"
     fi

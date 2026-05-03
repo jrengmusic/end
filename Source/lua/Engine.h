@@ -119,14 +119,11 @@ public:
             /** @brief Maximum RGBA bytes retained in the inline image atlas before eviction. Default: 32 MiB. */
             int atlasBudgetBytes { 32 * 1024 * 1024 };
 
-            /** @brief Emission protocol: "iterm2" | "kitty" | "sixel". */
-            juce::String protocol { "iterm2" };
+            /** @brief Native preview panel width in terminal columns [10, 200]. */
+            int cols { 40 };
 
-            /** @brief Native preview panel width as proportion of viewport [0.1, 0.5]. */
-            float width { 0.50f };
-
-            /** @brief Native preview panel height as proportion of viewport [0.1, 0.5]. */
-            float height { 0.25f };
+            /** @brief Native preview panel height in terminal rows [5, 100]. */
+            int rows { 20 };
 
             /** @brief Native preview padding in physical pixels [0, 64]. */
             int padding { 10 };

@@ -170,11 +170,30 @@ void Parser::handleOsc1337 (const uint8_t* data, int dataLength) noexcept
         and data[0] == 'E' and data[1] == 'N'
         and data[2] == 'D' and data[3] == ';')
     {
-        const juce::String filepath { juce::String::fromUTF8 (
+        const juce::String payload { juce::String::fromUTF8 (
             reinterpret_cast<const char*> (data + endPrefixLen),
             dataLength - endPrefixLen) };
 
-        handleSkitFilepath (filepath);
+        const int firstSep  { payload.indexOfChar (';') };
+        const int secondSep { firstSep >= 0 ? payload.indexOfChar (firstSep + 1, ';') : -1 };
+
+        int previewCols  { 0 };
+        int previewLines { 0 };
+
+        juce::String filepath;
+
+        if (firstSep >= 0 and secondSep > firstSep)
+        {
+            filepath     = payload.substring (0, firstSep);
+            previewCols  = payload.substring (firstSep + 1, secondSep).getIntValue();
+            previewLines = payload.substring (secondSep + 1).getIntValue();
+        }
+        else
+        {
+            filepath = payload;
+        }
+
+        handleSkitFilepath (filepath, previewCols, previewLines);
     }
     else
     {

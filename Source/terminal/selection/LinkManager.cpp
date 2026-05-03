@@ -243,6 +243,10 @@ std::vector<LinkSpan> LinkManager::scanViewport (const juce::String& cwd, bool o
 
     const int visibleRows { grid.getVisibleRows() };
     const int cols { grid.getCols() };
+    juce::File ("/tmp/end-render.log").appendText (
+        "linkscan: grid.cols=" + juce::String (cols)
+        + " grid.rows=" + juce::String (visibleRows)
+        + "\n");
     const int scrollbackUsed { grid.getScrollbackUsed() };
     const int scrollOffset { state.getScrollOffset() };
     const int visibleBase { scrollbackUsed - scrollOffset };

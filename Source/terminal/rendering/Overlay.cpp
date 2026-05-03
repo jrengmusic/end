@@ -1,5 +1,6 @@
 /**
  * @file Overlay.cpp
+ * @brief Terminal::Overlay — image overlay component (jam::animation::Base).
  */
 #include "Overlay.h"
 
@@ -20,7 +21,7 @@ void Overlay::setImage (juce::Image newImage) noexcept
     frameDelays.clear();
     currentFrameIndex = 0;
     image = std::move (newImage);
-    triggerRepaint();
+    repaint();
 }
 
 void Overlay::setFrames (std::vector<juce::Image> newFrames, std::vector<int> delaysMs) noexcept
@@ -33,7 +34,7 @@ void Overlay::setFrames (std::vector<juce::Image> newFrames, std::vector<int> de
     {
         currentFrameIndex = 0;
         image = frames.at (0);
-        triggerRepaint();
+        repaint();
 
         if (not frameDelays.empty())
             startTimer (frameDelays.at (0));
@@ -43,51 +44,23 @@ void Overlay::setFrames (std::vector<juce::Image> newFrames, std::vector<int> de
 void Overlay::setBorderColour (juce::Colour colour) noexcept
 {
     borderColour = colour;
-    triggerRepaint();
+    repaint();
 }
 
 void Overlay::setPadding (int pixels) noexcept
 {
     padding = pixels;
-    triggerRepaint();
+    repaint();
 }
 
 void Overlay::setShowBorder (bool show) noexcept
 {
     showBorder = show;
-    triggerRepaint();
+    repaint();
 }
 
 //==============================================================================
-// jam::gl::Component — GPU path
-//==============================================================================
-
-void Overlay::paintGL (jam::gl::Graphics& g) noexcept
-{
-    const auto bounds     { getLocalBounds().toFloat() };
-    const auto imageArea  { bounds.reduced (static_cast<float> (padding)) };
-
-    if (image.isValid())
-    {
-        const auto sourceRect { image.getBounds().toFloat() };
-        const auto targetArea { juce::RectanglePlacement { juce::RectanglePlacement::centred }
-                                    .appliedTo (sourceRect, imageArea) };
-
-        g.drawImage (image, targetArea);
-    }
-
-    if (showBorder)
-    {
-        juce::Path border;
-        border.addRoundedRectangle (bounds, borderCornerRadius);
-
-        g.setColour (borderColour);
-        g.strokePath (border, juce::PathStrokeType { borderStrokeWidth });
-    }
-}
-
-//==============================================================================
-// jam::gl::Component — CPU path
+// juce::Component
 //==============================================================================
 
 void Overlay::paint (juce::Graphics& g)
@@ -106,7 +79,7 @@ void Overlay::paint (juce::Graphics& g)
     if (showBorder)
     {
         g.setColour (borderColour);
-        g.drawRoundedRectangle (bounds.toFloat(), borderCornerRadius, borderStrokeWidth);
+        g.drawRoundedRectangle (bounds.toFloat().reduced (borderStrokeWidth * 0.5f), borderCornerRadius, borderStrokeWidth);
     }
 }
 
@@ -120,7 +93,7 @@ void Overlay::timerCallback()
     {
         currentFrameIndex = (currentFrameIndex + 1) % static_cast<int> (frames.size());
         image = frames.at (currentFrameIndex);
-        triggerRepaint();
+        repaint();
 
         const int nextDelay { frameDelays.empty()
                                   ? fallbackFrameDelayMs

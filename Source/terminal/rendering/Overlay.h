@@ -3,9 +3,8 @@
  * @brief Lean image overlay component: paints a single image (or animated frames)
  *        with an optional border.
  *
- * `Terminal::Overlay` is a `jam::gl::Component` child of `Terminal::Display`.
- * It owns no GL resources — jam handles all GPU state.  Display tells Overlay
- * what to paint via the set* API; Overlay paints on demand.
+ * `Terminal::Overlay` is a `jam::animation::Base` child of `Terminal::Display`.
+ * Display tells Overlay what to paint via the set* API; Overlay paints on demand.
  *
  * @see Terminal::Display
  */
@@ -16,8 +15,7 @@
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-class Overlay : public jam::gl::Component,
-                private juce::Timer
+class Overlay : public jam::animation::Base
 {
 public:
     Overlay();
@@ -39,10 +37,9 @@ public:
 
 private:
     // =========================================================================
-    // jam::gl::Component
+    // juce::Component
     // =========================================================================
 
-    void paintGL (jam::gl::Graphics& g) noexcept override;
     void paint (juce::Graphics& g) override;
 
     // =========================================================================

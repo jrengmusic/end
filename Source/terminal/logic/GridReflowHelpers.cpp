@@ -10,7 +10,7 @@
  *
  * @see GridReflow.cpp — Grid::resize(), the public entry point.
  * @see Grid.h         — class declaration, ring-buffer layout, thread ownership table.
- * @see Cell           — 16-byte terminal cell type; `hasContent()` used to find last content.
+ * @see Cell           — 16-byte terminal cell type.
  * @see RowState       — per-row metadata; `isWrapped()` / `setWrapped()` drive the reflow walk.
  * @see State          — atomic terminal parameter store (new dimensions read here).
  */
@@ -55,50 +55,6 @@ static int linearToPhysical (int head, int totalRows, int oldVisibleRows,
     const int mask { totalRows - 1 };
     const int visibleRow { linearRow - scrollbackUsed };
     return (head - oldVisibleRows + 1 + visibleRow + totalRows) & mask;
-}
-
-/**
- * @brief Finds the last visible row that contains at least one non-blank cell.
- *
- * Scans visible rows from the bottom upward.  For each row, scans columns from
- * right to left and returns the row index as soon as a cell with
- * `Cell::hasContent()` is found.
- *
- * @par Purpose
- * Bounds the reflow to only the rows that hold actual content.  Empty trailing
- * rows are excluded from the logical-line walk, avoiding unnecessary output
- * rows in the new buffer.
- *
- * @param cells          Flat cell array of the old buffer.
- * @param oldCols        Column count of the old buffer.
- * @param totalRows      Total allocated rows in the old buffer.
- * @param head           Physical index of the bottom visible row.
- * @param oldVisibleRows Number of visible rows in the old buffer.
- * @param scrollbackUsed Number of scrollback rows stored in the old buffer.
- * @return Zero-based visible row index of the last row with content, or -1 if
- *         all visible rows are empty.
- */
-static int findLastContent (const Cell* cells, int oldCols, int totalRows,
-                            int head, int oldVisibleRows, int scrollbackUsed) noexcept
-{
-    int result { -1 };
-
-    for (int row { oldVisibleRows - 1 }; row >= 0 and result < 0; --row)
-    {
-        const int linear { scrollbackUsed + row };
-        const int phys { linearToPhysical (head, totalRows, oldVisibleRows, scrollbackUsed, linear) };
-        const Cell* rowCells { cells + phys * oldCols };
-
-        for (int col { oldCols - 1 }; col >= 0 and result < 0; --col)
-        {
-            if (rowCells[col].hasContent())
-            {
-                result = row;
-            }
-        }
-    }
-
-    return result;
 }
 
 /**
@@ -247,7 +203,7 @@ struct WalkParams
     /** Number of scrollback rows stored in the old buffer. */
     int scrollbackUsed;
 
-    /** Total number of linear rows to walk (scrollbackUsed + lastContent + 1). */
+    /** Total number of linear rows to walk (scrollbackUsed + oldVisibleRows). */
     int linearRows;
 };
 
@@ -398,10 +354,9 @@ static int reflowPass (const WalkParams& wp, Cell* tempCells, Grapheme* tempGrap
  * described in the file header of GridReflow.cpp.
  *
  * @par Step 1 — Bound the content
- * `findLastContent()` returns the last visible row with non-blank content.
- * The total number of linear rows to process is `scrollbackUsed + lastContent + 1`.
- * If there is no content (`lastContent == -1`), `linearRows` is 0 and the
- * function returns immediately, leaving `newBuffer` in its default state.
+ * All visible rows and scrollback are included: `linearRows = scrollbackUsed + oldVisibleRows`.
+ * Blank trailing rows are preserved — reflow never drops content.
+ * If `linearRows` is 0 (no rows at all), the function returns immediately.
  *
  * @par Step 2 — Allocate scratch buffers
  * A `HeapBlock<Cell>` and `HeapBlock<Grapheme>` of size
@@ -441,9 +396,7 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
                    Buffer& newBuffer, int newCols, int newVisibleRows)
 {
     const int scrollbackUsed { oldBuffer.scrollbackUsed };
-    const int lastContent { findLastContent (oldBuffer.cells.get(), oldCols, oldBuffer.totalRows,
-                                             oldBuffer.head, oldVisibleRows, scrollbackUsed) };
-    const int linearRows { scrollbackUsed + lastContent + 1 };
+    const int linearRows { scrollbackUsed + oldVisibleRows };
 
     if (linearRows > 0)
     {
@@ -489,11 +442,7 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
                     newBuffer.rowStates.get(),
                     newBuffer.totalRows, rowsToSkip);
 
-        if (cursorOutputRow < 0)
-        {
-            cursorOutputRow = totalOutputRows - 1;
-            cursorNewCol = cursorCol;
-        }
+        jassert (cursorOutputRow >= 0);
 
         const int written { scClamped + newVisibleRows };
         newBuffer.head = ((written - 1) % newBuffer.totalRows + newBuffer.totalRows) % newBuffer.totalRows;
@@ -501,7 +450,6 @@ void Grid::reflow (const Buffer& oldBuffer, int oldCols, int oldVisibleRows,
 
         const int newCursorVisibleRow { cursorOutputRow - rowsToSkip - scClamped };
         state.setCursorRow (normal, juce::jlimit (0, newVisibleRows - 1, newCursorVisibleRow));
-
         state.setCursorCol (normal, juce::jlimit (0, newCols - 1, cursorNewCol));
     }
 }

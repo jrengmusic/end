@@ -126,12 +126,6 @@ return {
     -- ========================================================================
 
     image = {
-        -- SKiT emission protocol for `end preview`.
-        -- "iterm2" — default, fastest, lossless. Raw file bytes as base64.
-        -- "kitty"  — equivalent to iterm2 for END.
-        -- "sixel"  — lossy (256 colors), larger payload, slower.
-        protocol = "%%image_protocol%%",
-
         -- Maximum RGBA bytes retained in the inline image atlas before
         -- eviction, in bytes. Range: 1 MiB - 256 MiB.
         -- atlas_budget = 33554432,
@@ -140,13 +134,13 @@ return {
         -- in either dimension are downscaled to fit. Range: 1024 - 8192.
         atlas_dimension = %%image_atlas_dimension%%,
 
-        -- Native preview panel width as proportion of viewport. Range: 0.1 - 0.5.
+        -- Native preview panel width in cell columns. Range: 10 - 200.
         -- These settings apply to END's own preview surface (hyperlink click,
         -- file open). CLI/TUI tools (fzf, yazi) manage their own layout.
-        width = %%image_width%%,
+        cols = %%image_cols%%,
 
-        -- Native preview panel height as proportion of viewport. Range: 0.1 - 0.5.
-        height = %%image_height%%,
+        -- Native preview panel height in cell rows. Range: 5 - 100.
+        rows = %%image_rows%%,
 
         -- Padding inside the preview panel, in pixels. Range: 0 - 64.
         padding = %%image_padding%%,
