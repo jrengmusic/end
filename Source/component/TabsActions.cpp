@@ -198,7 +198,7 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
 
             if (targetUuid.isNotEmpty() and newUuid.isNotEmpty())
             {
-                const auto [newCols, newRows] { Panes::cellsFromRect (newRect, font) };
+                const auto [newCols, newRows] { Panes::cellsFromRect (newRect) };
                 const bool isVertical { direction == "vertical" };
                 activePanes->splitAt (targetUuid, newUuid, newCwd, direction, isVertical, newCols, newRows);
 
@@ -252,7 +252,7 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
                         walkNode = walkNode.getChild (0);
                     }
 
-                    const auto [firstCols, firstRows] { Panes::cellsFromRect (firstLeafRect, font) };
+                    const auto [firstCols, firstRows] { Panes::cellsFromRect (firstLeafRect) };
                     addNewTab (firstCwd, firstUuid, firstCols, firstRows);
 
                     auto* activePanes { getActivePanes() };

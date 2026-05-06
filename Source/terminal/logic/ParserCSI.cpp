@@ -689,13 +689,40 @@ void Parser::moveCursorTo (int row, int col) noexcept
 void Parser::scrollUp (const CSI& params) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
     const int bottom { activeScrollBottom() };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int count { static_cast<int> (params.param (0, 1)) };
+    const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
 
     Cell fill {};
     fill.bg = stamp.bg;
 
-    writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), bottom, count, fill);
+    // Copy rows up: [scrollTop+count .. bottom] → [scrollTop .. bottom-count]
+    for (int dst { scrollTop }; dst <= bottom - clampedCount; ++dst)
+    {
+        const int src { dst + clampedCount };
+        Cell* dstCells { rowCells (dst) };
+        const Cell* srcCells { rowCells (src) };
+        Grapheme* dstG { rowGraphemes (dst) };
+        const Grapheme* srcG { rowGraphemes (src) };
+        uint16_t* dstL { rowLinkIds (dst) };
+        const uint16_t* srcL { rowLinkIds (src) };
+
+        std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
+        std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+        std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
+
+        writer.markRowDirty (dst);
+    }
+
+    // Erase vacated rows at bottom
+    for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
+    {
+        const auto& m { rowMapping[r] };
+        writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
+        writer.markRowDirty (r);
+    }
 }
 
 /**
@@ -719,13 +746,40 @@ void Parser::scrollUp (const CSI& params) noexcept
 void Parser::scrollDown (const CSI& params) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
     const int bottom { activeScrollBottom() };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int count { static_cast<int> (params.param (0, 1)) };
+    const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
 
     Cell fill {};
     fill.bg = stamp.bg;
 
-    writer.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), bottom, count, fill);
+    // Copy rows down: [bottom-count .. scrollTop] → [bottom .. scrollTop+count]
+    for (int dst { bottom }; dst >= scrollTop + clampedCount; --dst)
+    {
+        const int src { dst - clampedCount };
+        Cell* dstCells { rowCells (dst) };
+        const Cell* srcCells { rowCells (src) };
+        Grapheme* dstG { rowGraphemes (dst) };
+        const Grapheme* srcG { rowGraphemes (src) };
+        uint16_t* dstL { rowLinkIds (dst) };
+        const uint16_t* srcL { rowLinkIds (src) };
+
+        std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
+        std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+        std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
+
+        writer.markRowDirty (dst);
+    }
+
+    // Erase vacated rows at top
+    for (int r { scrollTop }; r < scrollTop + clampedCount and r <= bottom; ++r)
+    {
+        const auto& m { rowMapping[r] };
+        writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
+        writer.markRowDirty (r);
+    }
 }
 
 /**

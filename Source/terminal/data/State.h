@@ -17,9 +17,7 @@
  *   equivalent of `flushParameterValuesToValueTree()` in APVTS.
  *
  * - **Message thread** (UI / component code) reads exclusively from the
- *   ValueTree via `get()`, `getValue()`, and `getMode()`.  It may also
- *   write `scrollOffset` directly because that parameter is owned by the UI
- *   and never touched by the reader thread.
+ *   ValueTree via `get()`, `getValue()`, and `getMode()`.
  *
  * ### Thread ownership summary
  * | Parameter group     | Writer            | Reader (hot path)  | Reader (UI)       |
@@ -29,13 +27,11 @@
  * | cursor (row/col/…)  | READER THREAD     | atomic getter      | ValueTree (timer) |
  * | scroll region       | READER THREAD     | atomic getter      | ValueTree (timer) |
  * | mode flags          | READER THREAD     | atomic getter      | ValueTree (timer) |
- * | scrollOffset        | MESSAGE THREAD    | ValueTree          | ValueTree         |
  *
  * ### ValueTree structure
  * ```
  * SESSION  uuid=<string>  cols=<int>  visibleRows=<int>
  * ├── PARAM id="activeScreen"  value=<float>
- * ├── PARAM id="scrollOffset"  value=<float>
  * ├── MODES
  * │   ├── PARAM id="originMode"        value=<float>
  * │   ├── PARAM id="autoWrap"          value=<float>
@@ -528,8 +524,7 @@ struct State : public juce::Timer
      * @return A `juce::Value` that reflects and can modify the parameter's
      *         `value` property in the ValueTree.
      * @note MESSAGE THREAD only.  Writing through the returned Value does NOT
-     *       update the backing atomic; it is intended for UI-owned parameters
-     *       such as `scrollOffset`.
+     *       update the backing atomic.
      */
     juce::Value getValue (const juce::Identifier& paramId);
 
@@ -579,25 +574,6 @@ struct State : public juce::Timer
 
     /** @brief Returns the cursor colour blue component for the active screen (post-flush). MESSAGE THREAD. */
     float getCursorColorB() const noexcept;
-
-    /**
-     * @brief Sets the vertical scroll offset (UI-owned parameter).
-     *
-     * `scrollOffset` is the only parameter written exclusively by the message
-     * thread.  It represents how many lines the viewport has been scrolled
-     * back into the scrollback buffer.  The reader thread never touches it.
-     *
-     * @param offset  Number of lines scrolled back (0 = bottom / live view).
-     * @note MESSAGE THREAD only.  Writes directly to the ValueTree.
-     */
-    void setScrollOffset (int offset) noexcept;
-
-    /**
-     * @brief Returns the current vertical scroll offset from the ValueTree.
-     * @return Number of lines scrolled back (0 = live view).
-     * @note MESSAGE THREAD only.
-     */
-    int getScrollOffset() const noexcept;
 
     /** @brief Returns the number of scrollback lines currently stored (post-flush). MESSAGE THREAD. */
     int getScrollbackUsed() const noexcept;
@@ -775,6 +751,20 @@ struct State : public juce::Timer
      * @note ANY THREAD — lock-free, noexcept.
      */
     int getHintTotalPages() const noexcept;
+
+    /**
+     * @brief Sets the viewport Y scroll position in pixels.
+     * @param positionPx  Pixel offset from the top of the scrollback content.
+     * @note MESSAGE THREAD — calls storeAndFlush.
+     */
+    void setScrollPosition (int positionPx) noexcept;
+
+    /**
+     * @brief Returns the viewport Y scroll position in pixels.
+     * @return Pixel offset from the top of the scrollback content.
+     * @note ANY THREAD — lock-free, noexcept.
+     */
+    int getScrollPosition() const noexcept;
 
     // =========================================================================
     /** @name Selection state convenience wrappers
@@ -1499,7 +1489,6 @@ private:
      * @brief Flushes PARAM children that are direct children of the root SESSION node.
      *
      * Handles session-level parameters: `activeScreen`.
-     * (`scrollOffset` is skipped — it is UI-owned and never in `parameterMap`.)
      * `cols` and `visibleRows` are CachedValue properties and are not processed
      * by the flush system.
      *

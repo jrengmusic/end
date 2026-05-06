@@ -11,13 +11,6 @@
  * - The ModalWindow owns the content component via setContentOwned().
  * - Content size is computed from Config fractions in show().
  *
- * ### GL rendering
- * Pass a non-null `std::unique_ptr<jam::gl::Renderer>` to `show()` for GPU
- * mode. The renderer ownership is transferred to `jam::Window` (via
- * `Terminal::ModalWindow`). Pass `nullptr` for CPU mode. In either case the
- * caller extracts the shared context handle from the root `jam::Window` and
- * forwards it so the popup renderer inherits the same GL context.
- *
  * ### Glass blur
  * Terminal::ModalWindow inherits jam::ModalWindow which inherits
  * jam::Window.  Blur is applied on first visibility via the
@@ -38,7 +31,6 @@
  *
  * @see lua::Engine
  * @see jam::BackgroundBlur
- * @see jam::gl::Renderer
  * @see Terminal::ModalWindow
  */
 
@@ -56,8 +48,7 @@ namespace Terminal
  *
  * @par Usage
  * @code
- * auto renderer { std::make_unique<jam::GLAtlasRenderer>(...) }; // or nullptr
- * popup.show (*this, std::move (content), width, height, std::move (renderer));
+ * popup.show (*this, std::move (content), width, height);
  * @endcode
  *
  * @par Thread context
@@ -78,25 +69,19 @@ public:
      * creates the dialog window, centres it on @p caller, and enters modal
      * state.
      *
-     * The shared context handle is extracted from @p caller's top-level
-     * `jam::Window` and forwarded to the `Terminal::ModalWindow`. Pass a
-     * non-null @p renderer for GPU mode; pass `nullptr` for CPU mode.
+     * Ownership of @p content transfers to the dialog.
      *
-     * Ownership of @p content and @p renderer transfers to the dialog.
-     *
-     * @param caller    The component to centre the dialog around.
-     * @param content   The component to host; ownership is transferred.
-     * @param width     Popup width in logical pixels.
-     * @param height    Popup height in logical pixels.
-     * @param renderer  GL renderer; ownership transferred. nullptr = CPU mode.
+     * @param caller   The component to centre the dialog around.
+     * @param content  The component to host; ownership is transferred.
+     * @param width    Popup width in logical pixels.
+     * @param height   Popup height in logical pixels.
      * @note MESSAGE THREAD.
      * @see dismiss
      */
     void show (juce::Component& caller,
                std::unique_ptr<juce::Component> content,
                int width,
-               int height,
-               std::unique_ptr<jam::gl::Renderer> renderer);
+               int height);
 
     /**
      * @brief Dismisses the dialog if active.

@@ -2,7 +2,7 @@
  * @file ModalWindow.cpp
  * @brief Terminal::ModalWindow — thin wrapper over jam::ModalWindow that adds
  *        border paint, keyPressed override, cornerSize constants, and
- *        Terminal::Display::onRepaintNeeded wiring.
+ *        Terminal::Display::onRepaintNeeded wiring.  No renderer or shared context.
  *
  * @see jam::ModalWindow
  */
@@ -19,13 +19,9 @@ namespace Terminal
 
 ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
                           juce::Component& centreAround,
-                          std::unique_ptr<jam::gl::Renderer> renderer,
-                          void* nativeSharedContext,
                           std::function<void()> dismissCallback)
     : jam::ModalWindow (std::move (content),
                         centreAround,
-                        std::move (renderer),
-                        nativeSharedContext,
                         std::move (dismissCallback),
                         lua::Engine::getContext()->display.window.opacity,
                         lua::Engine::getContext()->display.window.blurRadius)
@@ -35,7 +31,7 @@ ModalWindow::ModalWindow (std::unique_ptr<juce::Component> content,
         terminal->onRepaintNeeded = [this, terminal]
         {
             terminal->repaint();
-            triggerRepaint();
+            repaint();
         };
     }
 }

@@ -23,18 +23,20 @@ LinkManager::LinkManager (State& s, const Grid& g,
     , writeToPty (std::move (writeToPtyCallback))
     , promptRowNode         (jam::ValueTree::getChildWithID (state.get(), ID::promptRow.toString()))
     , activeScreenNode      (jam::ValueTree::getChildWithID (state.get(), ID::activeScreen.toString()))
-    , scrollOffsetNode      (jam::ValueTree::getChildWithID (state.get(), ID::scrollOffset.toString()))
 {
     promptRowNode.addListener (this);
     activeScreenNode.addListener (this);
-    scrollOffsetNode.addListener (this);
 }
 
 LinkManager::~LinkManager()
 {
     promptRowNode.removeListener (this);
     activeScreenNode.removeListener (this);
-    scrollOffsetNode.removeListener (this);
+}
+
+void LinkManager::setVisibleMapping (const Grid::Row* mapping) noexcept
+{
+    visibleMapping = mapping;
 }
 
 void LinkManager::scan (const juce::String& cwd, bool outputRowsOnly)
@@ -80,7 +82,7 @@ void LinkManager::buildPages() noexcept
     pageBreaks.push_back (0);
 
     // Label all spans upfront and record page boundaries.
-    assignHintLabels (hintLinks);
+    assignHintLabels (hintLinks, visibleMapping);
 
     std::unordered_set<char> usedLabels;
 
@@ -96,7 +98,6 @@ void LinkManager::buildPages() noexcept
 
             // Re-assign labels for the new page starting at i
             std::unordered_set<char> newPageUsed;
-            const int scrollOffset { state.getScrollOffset() };
 
             for (size_t j { i }; j < hintLinks.size(); ++j)
             {
@@ -104,25 +105,22 @@ void LinkManager::buildPages() noexcept
                 span.hintLabel[0] = 0;
 
                 const int tokenEnd { span.col + span.length };
-                const Cell* rowCells { scrollOffset > 0
-                                           ? grid.scrollbackRow (span.row, scrollOffset)
-                                           : grid.activeVisibleRow (span.row) };
+                const auto& spanMapping { visibleMapping[span.row] };
+                const auto& spanLine { grid.getLine (spanMapping.lineIndex) };
+                const Cell* rowCells { spanLine.cells.get() + spanMapping.cellOffset };
 
-                if (rowCells != nullptr)
+                for (int c { span.col }; c < tokenEnd; ++c)
                 {
-                    for (int c { span.col }; c < tokenEnd; ++c)
-                    {
-                        const uint32_t cp { rowCells[c].codepoint };
-                        const char lower { static_cast<char> (cp >= 'A' and cp <= 'Z' ? cp + 32 : cp) };
+                    const uint32_t cp { rowCells[c].codepoint };
+                    const char lower { static_cast<char> (cp >= 'A' and cp <= 'Z' ? cp + 32 : cp) };
 
-                        if (lower >= 'a' and lower <= 'z' and newPageUsed.find (lower) == newPageUsed.end())
-                        {
-                            span.hintLabel[0] = lower;
-                            span.hintLabel[1] = 0;
-                            span.labelCol = c;
-                            newPageUsed.insert (lower);
-                            break;
-                        }
+                    if (lower >= 'a' and lower <= 'z' and newPageUsed.find (lower) == newPageUsed.end())
+                    {
+                        span.hintLabel[0] = lower;
+                        span.hintLabel[1] = 0;
+                        span.labelCol = c;
+                        newPageUsed.insert (lower);
+                        break;
                     }
                 }
             }
@@ -243,21 +241,16 @@ std::vector<LinkSpan> LinkManager::scanViewport (const juce::String& cwd, bool o
 
     const int visibleRows { grid.getVisibleRows() };
     const int cols { grid.getCols() };
-    juce::File ("/tmp/end-render.log").appendText (
-        "linkscan: grid.cols=" + juce::String (cols)
-        + " grid.rows=" + juce::String (visibleRows)
-        + "\n");
     const int scrollbackUsed { grid.getScrollbackUsed() };
-    const int scrollOffset { state.getScrollOffset() };
-    const int visibleBase { scrollbackUsed - scrollOffset };
+    const int visibleBase { scrollbackUsed };
     const bool hasBlock { state.hasOutputBlock() };
     const int blockTop { outputRowsOnly ? state.getOutputBlockTop() : visibleBase };
     const int blockBottom { outputRowsOnly ? state.getOutputBlockBottom() : visibleBase + visibleRows - 1 };
     const bool normalScreen { state.getActiveScreen() == ActiveScreen::normal };
 
-    scanHeuristicTokens (spans, cwd, visibleRows, cols, scrollOffset,
+    scanHeuristicTokens (spans, cwd, visibleMapping, visibleRows, cols,
                          visibleBase, hasBlock, blockTop, blockBottom, normalScreen);
-    scanCellNativeLinks (spans, visibleRows, cols, scrollOffset,
+    scanCellNativeLinks (spans, visibleMapping, visibleRows, cols,
                          visibleBase, hasBlock, blockTop, blockBottom, normalScreen);
 
     return spans;

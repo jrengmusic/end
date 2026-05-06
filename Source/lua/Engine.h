@@ -228,6 +228,12 @@ public:
             /** @brief The 16 standard ANSI palette entries. */
             std::array<juce::Colour, 16> ansi {};
 
+            /** @brief TextEditor widget background fill (behind the cell grid). */
+            juce::Colour editorBackground;
+
+            /** @brief TextEditor widget outline colour. */
+            juce::Colour editorOutline;
+
             /** @brief Status bar background colour. */
             juce::Colour statusBar;
 
@@ -245,6 +251,12 @@ public:
 
             /** @brief Hint label foreground colour (Open File mode). */
             juce::Colour hintLabelFg;
+
+            /** @brief Terminal scrollbar thumb colour. */
+            juce::Colour scrollbarThumb;
+
+            /** @brief Terminal scrollbar track colour. */
+            juce::Colour scrollbarTrack;
         };
 
         /**
@@ -489,6 +501,9 @@ public:
 
         /** @brief Popup window border settings. */
         PopupBorder popup;
+
+        /** @brief Terminal scrollbar width in pixels. 0 = hidden. */
+        int scrollbarWidth { 4 };
     };
 
     //==========================================================================

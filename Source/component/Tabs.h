@@ -47,18 +47,10 @@ class Tabs : public jam::TabbedComponent
 public:
     /**
      * @brief Construct a new Tabs container.
-     * @param font          Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
-     * @param packer        Glyph packer; owns the atlas and rasterization.
-     * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
-     * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
      * @param orientation   The tab bar orientation (top, bottom, left, or right).
      * @note MESSAGE THREAD.
      */
-    Tabs (jam::Font& font,
-          jam::Glyph::Packer& packer,
-          jam::gl::GlyphAtlas& glAtlas,
-          jam::GraphicsAtlas& graphicsAtlas,
-          jam::TabbedButtonBar::Orientation orientation);
+    Tabs (jam::TabbedButtonBar::Orientation orientation);
 
     /**
      * @brief Destructor.
@@ -402,10 +394,6 @@ private:
      */
     juce::Rectangle<int> computeContentRect (int tabBarDepth) const noexcept;
 
-    jam::Font& font;
-    jam::Glyph::Packer& packerRef;
-    jam::gl::GlyphAtlas& glAtlasRef;
-    jam::GraphicsAtlas& graphicsAtlasRef;
     juce::Value tabName;
     jam::Owner<Panes> panes;
 

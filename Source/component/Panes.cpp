@@ -11,6 +11,7 @@
 #include <jam_tui/jam_tui.h>
 #include "../AppState.h"
 #include "../terminal/data/Identifier.h"
+#include "../terminal/rendering/CellMetrics.h"
 #include "../whelmed/Component.h"
 #include "../nexus/Nexus.h"
 #include "../terminal/logic/Session.h"
@@ -23,12 +24,7 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Panes::Panes (jam::Font& font_, jam::Glyph::Packer& packer_, jam::gl::GlyphAtlas& glAtlas_,
-              jam::GraphicsAtlas& graphicsAtlas_)
-    : font (font_)
-    , packerRef (packer_)
-    , glAtlasRef (glAtlas_)
-    , graphicsAtlasRef (graphicsAtlas_)
+Panes::Panes()
 {
     setOpaque (false);
 }
@@ -47,23 +43,26 @@ Panes::~Panes() = default;
  *
  * Subtracts terminal padding from the rect, then divides by the effective
  * cell size derived from font metrics and config multipliers.
+ * Resolves the typeface internally via jam::Typeface::findTypeface.
  *
  * @param paneRect  Target pixel rect for the pane (chrome already subtracted by caller).
- * @param font_     Font spec carrying resolved typeface; provides cell metrics.
  * @return {cols, rows}. jasserts cols > 0 and rows > 0.
  * @note Pure math — no instance state.
  */
-std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
-                                           jam::Font& font_) noexcept
+std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcept
 {
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
     const auto* cfg { lua::Engine::getContext() };
-    const auto fm { font_.getResolvedTypeface()->calcMetrics (cfg->dpiCorrectedFontSize()) };
     const float scale { jam::Typeface::getDisplayScale() };
+    auto* typeface { jam::Typeface::findTypeface (AppState::getContext()->getFontFamily()) };
+    jassert (typeface != nullptr);
+    const auto fm { Terminal::CellMetrics::compute (*typeface,
+                                                     cfg->dpiCorrectedFontSize(),
+                                                     scale) };
     const float cellWidthMultiplier  { cfg->display.font.cellWidth };
     const float lineHeightMultiplier { cfg->display.font.lineHeight };
-    const int physCellW { static_cast<int> (static_cast<float> (fm.physCellW) * cellWidthMultiplier) };
-    const int physCellH { static_cast<int> (static_cast<float> (fm.physCellH) * lineHeightMultiplier) };
+    const int physCellW { static_cast<int> (static_cast<float> (fm.physCellWidth)  * cellWidthMultiplier) };
+    const int physCellH { static_cast<int> (static_cast<float> (fm.physCellHeight) * lineHeightMultiplier) };
 
     jassert (physCellW > 0 and physCellH > 0);
 
@@ -78,8 +77,7 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect,
     const int physContentW { static_cast<int> (static_cast<float> (contentW) * scale) };
     const int physContentH { static_cast<int> (static_cast<float> (contentH) * scale) };
 
-    const jam::tui::Metrics cellMetrics { physCellW, physCellH, scale };
-    const auto gridRect { cellMetrics.gridSize (physContentW, physContentH) };
+    const auto gridRect { jam::tui::Metrics::gridSize (physCellW, physCellH, physContentW, physContentH) };
     const int cols { (physContentW > 0 and physCellW > 0) ? gridRect.getWidth().value  : 1 };
     const int rows { (physContentH > 0 and physCellH > 0) ? gridRect.getHeight().value : 1 };
 
@@ -157,7 +155,7 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
 
     const juce::String termUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay() };
 
     jassert (terminal != nullptr);
 
@@ -466,7 +464,7 @@ void Panes::splitAt (const juce::String& targetUuid,
 
     const juce::String splitUuid { processor.getUuid() };
 
-    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay (font, packerRef, glAtlasRef, graphicsAtlasRef) };
+    std::unique_ptr<Terminal::Display> terminal { processor.createDisplay() };
 
     jassert (terminal != nullptr);
 
@@ -526,7 +524,7 @@ void Panes::splitActive (const juce::String& direction, bool isVertical, double 
     }
 
     const auto [targetRect, newRect] { splitRect (activeBounds, direction, ratio) };
-    const auto [cols, rows] { cellsFromRect (newRect, font) };
+    const auto [cols, rows] { cellsFromRect (newRect) };
 
     splitAt (activeID, {}, AppState::getContext()->getPwd(), direction, isVertical, cols, rows, ratio);
 }

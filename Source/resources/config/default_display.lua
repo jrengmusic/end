@@ -94,6 +94,14 @@ return {
         -- CPU rendering always uses a fully opaque background.
         background = "%%colours_background%%",
 
+        -- Editor widget background fill (behind the cell grid).
+        -- Transparent lets the window glass effect show through.
+        editor_background = "%%colours_editor_background%%",
+
+        -- Editor widget outline colour.
+        -- Transparent for no visible outline.
+        editor_outline = "%%colours_editor_outline%%",
+
         -- Cursor colour.
         -- Programs may change this colour while running.
         cursor = "%%colours_cursor%%",
@@ -174,6 +182,12 @@ return {
 
         -- Open File mode hint label foreground (text) colour.
         hint_label_fg = "%%colours_hint_label_fg%%",
+
+        -- Terminal scrollbar thumb colour. Semi-transparent recommended.
+        scrollbar_thumb = "%%colours_scrollbar_thumb%%",
+
+        -- Terminal scrollbar track colour. Transparent for no visible track.
+        scrollbar_track = "%%colours_scrollbar_track%%",
     },
 
     -- ========================================================================
@@ -382,5 +396,12 @@ return {
         -- Popup border stroke width in pixels (0 = no border).
         border_width = %%popup_border_width%%,
     },
+
+    -- ========================================================================
+    -- SCROLLBAR
+    -- ========================================================================
+
+    -- Scrollbar width in pixels. Set to 0 to hide scrollbar.
+    scrollbar_width = %%scrollbar_width%%,
 
 }

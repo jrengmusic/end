@@ -7,6 +7,7 @@
  */
 
 #include "LookAndFeel.h"
+#include "../terminal/rendering/Screen.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -70,9 +71,24 @@ void LookAndFeel::setColours()
 
     setColour (juce::DocumentWindow::backgroundColourId, windowColour);
 
-    setColour (juce::ScrollBar::thumbColourId,      cfg->whelmed.scrollbarThumb);
-    setColour (juce::ScrollBar::trackColourId,      cfg->whelmed.scrollbarTrack);
-    setColour (juce::ScrollBar::backgroundColourId, cfg->whelmed.scrollbarBackground);
+    setColour (juce::ScrollBar::thumbColourId,      cfg->display.colours.scrollbarThumb);
+    setColour (juce::ScrollBar::trackColourId,      cfg->display.colours.scrollbarTrack);
+    setColour (juce::ScrollBar::backgroundColourId, juce::Colours::transparentBlack);
+
+    setColour (Screen::defaultForegroundColourId,   cfg->display.colours.foreground);
+    setColour (Screen::defaultBackgroundColourId,   cfg->display.colours.background);
+    setColour (jam::TextEditor::backgroundColourId,     cfg->display.colours.editorBackground);
+    setColour (jam::TextEditor::outlineColourId,        cfg->display.colours.editorOutline);
+    setColour (jam::TextEditor::focusedOutlineColourId, cfg->display.colours.editorOutline);
+    setColour (jam::TextEditor::textColourId,       cfg->display.colours.foreground);
+    setColour (Screen::cursorColourId,              cfg->display.colours.cursor);
+    setColour (Screen::selectionColourId,           cfg->display.colours.selection);
+    setColour (Screen::selectionCursorColourId,     cfg->display.colours.selectionCursor);
+    setColour (Screen::hintLabelFgColourId,         cfg->display.colours.hintLabelFg);
+    setColour (Screen::hintLabelBgColourId,         cfg->display.colours.hintLabelBg);
+
+    for (int i { 0 }; i < 16; ++i)
+        setColour (Screen::ansi0ColourId + i, cfg->display.colours.ansi[static_cast<size_t> (i)]);
 
     loadTabButtonSvg();
 }

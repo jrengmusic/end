@@ -70,7 +70,8 @@
  * @see Action::Registry
  */
 class MainComponent : public juce::Component,
-                      public juce::ValueTree::Listener
+                      public juce::ValueTree::Listener,
+                      public juce::OpenGLRenderer
 {
 public:
     /**
@@ -88,6 +89,10 @@ public:
      */
     void resized() override;
     void paint (juce::Graphics& g) override;
+
+    void newOpenGLContextCreated() override;
+    void renderOpenGL() override;
+    void openGLContextClosing() override;
 
     /**
      * @brief Rebuilds actions, applies config to tabs, LookAndFeel, and orientation.
@@ -157,17 +162,8 @@ private:
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
     Terminal::LookAndFeel terminalLookAndFeel;
 
-    /** @brief Global font instance; carries spec and resolved typeface for all terminals. */
-    jam::Font font { juce::String(), 0.0f };
-
-    /** @brief Glyph packer; owns the glyph atlas and rasterization for all terminals. */
-    jam::Glyph::Packer packer;
-
-    /** @brief GL texture handle store; shared by all Screen<GLContext> instances. */
-    jam::gl::GlyphAtlas glyphAtlas;
-
-    /** @brief CPU atlas image store; shared by all Screen<GraphicsContext> instances. */
-    jam::GraphicsAtlas graphicsAtlas;
+    /** @brief OpenGL context; attached to this component when GPU renderer is active. */
+    juce::OpenGLContext openGLContext;
 
     /** @brief Tabbed terminal container; owns all Terminal::Display instances. */
     std::unique_ptr<Terminal::Tabs> tabs;
@@ -281,12 +277,6 @@ private:
      * @see fonts
      */
     void showMessageOverlay();
-
-    //==============================================================================
-    // #if JUCE_DEBUG
-    //     jam::debug::Widget debug { this, false };
-    // #endif
-    //==============================================================================
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

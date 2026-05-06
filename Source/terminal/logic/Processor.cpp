@@ -40,12 +40,6 @@ Processor::Processor (int cols, int rows, const juce::String& uuid)
 
     parser = std::make_unique<Parser> (state, Grid::Writer { grid });
 
-    parser->setScrollbackCallback (
-        [this] (int count)
-        {
-            state.setScrollbackUsed (count);
-        });
-
     parser->onClipboardChanged = [this] (const juce::String& c)
     {
         if (onClipboardChanged != nullptr)
@@ -204,25 +198,6 @@ const Grid& Processor::getGrid() const noexcept { return grid; }
 const juce::String& Processor::getUuid() const noexcept { return uuid; }
 
 /**
- * @brief Sets the scroll offset, clamped to [0, scrollbackUsed].
- *
- * Acquires the Grid resize lock, clamps @p newOffset, and writes to State
- * only when the value changes.
- *
- * @note MESSAGE THREAD.
- */
-void Processor::setScrollOffsetClamped (int newOffset) noexcept
-{
-    const juce::ScopedLock lock (grid.getResizeLock());
-    const int maxOffset { grid.getScrollbackUsed() };
-    const int current { state.getScrollOffset() };
-    const int clamped { juce::jlimit (0, maxOffset, newOffset) };
-
-    if (clamped != current)
-        state.setScrollOffset (clamped);
-}
-
-/**
  * @brief Returns a const reference to the VT parser.
  * @note Asserts if parser is null (should never be in this new design).
  */
@@ -266,16 +241,12 @@ void Processor::setHostWriter (std::function<void (const char*, int)> writer) no
 /**
  * @brief Creates and returns a Display for this Processor.
  *
- * @param font  Font instance providing metrics, shaping, and rasterisation.
  * @return Unique pointer to the newly created Display.
  * @note MESSAGE THREAD.
  */
-std::unique_ptr<Display> Processor::createDisplay (jam::Font& font,
-                                                   jam::Glyph::Packer& packer,
-                                                   jam::gl::GlyphAtlas& glAtlas,
-                                                   jam::GraphicsAtlas& graphicsAtlas)
+std::unique_ptr<Display> Processor::createDisplay()
 {
-    auto display { std::make_unique<Display> (*this, font, packer, glAtlas, graphicsAtlas) };
+    auto display { std::make_unique<Display> (*this) };
     display->setComponentID (uuid);
     return display;
 }

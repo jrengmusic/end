@@ -85,6 +85,10 @@ static void parseDisplayColours (Engine::Display::Colours& colours, jam::lua::Va
         readColour ("status_bar_spinner",   colours.statusBarSpinner);
         readColour ("hint_label_bg",        colours.hintLabelBg);
         readColour ("hint_label_fg",        colours.hintLabelFg);
+        readColour ("editor_background",    colours.editorBackground);
+        readColour ("editor_outline",       colours.editorOutline);
+        readColour ("scrollbar_thumb",      colours.scrollbarThumb);
+        readColour ("scrollbar_track",      colours.scrollbarTrack);
 
         static const std::array<const char*, 16> ansiNames {{
             "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white",
@@ -336,6 +340,11 @@ static void parseDisplayMisc (Engine::Display& display, jam::lua::Value& display
         if (borderWidth.has_value())
             display.popup.borderWidth = static_cast<float> (juce::jlimit (0.0, 10.0, borderWidth.value()));
     }
+
+    // Scrollbar width
+    auto scrollbarWidth { displayTable["scrollbar_width"].optional<double>() };
+    if (scrollbarWidth.has_value())
+        display.scrollbarWidth = juce::jlimit (0, 64, static_cast<int> (scrollbarWidth.value()));
 }
 
 //==============================================================================

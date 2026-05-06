@@ -30,7 +30,7 @@ namespace Action
  * @see Action::KeyHandler
  */
 class List
-    : public jam::NativeContextResource
+    : public juce::Component
     , private juce::ValueTree::Listener
 {
 public:

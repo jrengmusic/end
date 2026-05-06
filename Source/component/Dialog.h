@@ -48,7 +48,7 @@ namespace Terminal
  *
  * @see Terminal::Popup
  */
-class Dialog : public jam::NativeContextResource
+class Dialog : public juce::Component
 {
 public:
     /**

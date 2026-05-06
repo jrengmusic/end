@@ -12,6 +12,7 @@
 #include "Mouse.h"
 #include "Processor.h"
 #include "../rendering/Screen.h"
+#include <jam_tui/jam_tui.h>
 #include "../selection/LinkManager.h"
 #include "../../SelectionType.h"
 #include "../data/Identifier.h"
@@ -22,7 +23,7 @@ namespace Terminal
 {
 
 Mouse::Mouse (Processor& p,
-              ScreenBase& sc,
+              Screen& sc,
               LinkManager& lm) noexcept
     : processor (p)
     , screen (sc)
@@ -38,14 +39,14 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     }
     else if (shouldForwardToPty())
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
         processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else if (event.getNumberOfClicks() == 3)
     {
         // Triple-click: select the entire clicked row (visualLine).
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
         const int absRow { toAbsoluteRow (cell.y) };
 
         processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::visualLine));
@@ -56,7 +57,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     }
     else
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
         const int absRow { toAbsoluteRow (cell.y) };
 
         // Click-mode dispatch: hit-test against clickable link spans.
@@ -98,40 +99,20 @@ void Mouse::handleDoubleClick (const juce::MouseEvent& event)
 
     if (shouldForwardToPty())
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
         processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
-        const int scrollOffset { processor.getState().getScrollOffset() };
-        const int cols { processor.getGrid().getCols() };
+        const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
 
-        // Scan the visible row (with scroll offset applied) to find word boundaries.
-        const Terminal::Cell* rowCells { processor.getGrid().scrollbackRow (cell.y, scrollOffset) };
-
-        int wordStart { cell.x };
-        int wordEnd { cell.x };
-
-        if (rowCells != nullptr)
-        {
-            // Scan left: stop at space (codepoint <= 0x20) or column 0.
-            int c { cell.x - 1 };
-            while (c >= 0 and rowCells[c].codepoint > 0x20)
-            {
-                wordStart = c;
-                --c;
-            }
-
-            // Scan right: stop at space or end of line.
-            c = cell.x + 1;
-            while (c < cols and rowCells[c].codepoint > 0x20)
-            {
-                wordEnd = c;
-                ++c;
-            }
-        }
+        // Word boundary scan reads cell content via the visible row mapping.
+        // TODO: wire through Display's visibleMapping for word selection.
+        // Grid::activeVisibleRow() was removed — word-scan stubbed until
+        // Display exposes a per-frame visibleMapping accessor.
+        const int wordStart { cell.x };
+        const int wordEnd { cell.x };
 
         // Write to State selection params — screenSelection rebuilt in onVBlank.
         const int absRow { toAbsoluteRow (cell.y) };
@@ -148,13 +129,13 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
 {
     if (shouldForwardToPty())
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
         const auto bytes { processor.encodeMouseEvent (32, cell.x, cell.y, true) };
         processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
         const int maxCol { processor.getGrid().getCols() - 1 };
         const int maxVisRow { processor.getGrid().getVisibleRows() - 1 };
 
@@ -189,7 +170,7 @@ void Mouse::handleUp (const juce::MouseEvent& event)
 {
     if (shouldForwardToPty())
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, false) };
         processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
@@ -206,7 +187,7 @@ void Mouse::handleMove (const juce::MouseEvent& event, juce::Component& componen
 {
     if (not shouldForwardToPty() and not processor.getState().isModal())
     {
-        const auto cell { screen.cellAtPoint (event.x, event.y) };
+        const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
         const bool overLink { linkManager.hitTest (cell.y, cell.x) != nullptr };
 
         if (overLink)
@@ -240,7 +221,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
             if (shouldForwardToPty())
             {
                 const int button { scrollUp ? 64 : 65 };
-                const auto cell { screen.cellAtPoint (event.x, event.y) };
+                const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
 
                 for (int i { 0 }; i < scrollLines; ++i)
                 {
@@ -252,7 +233,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
         else
         {
             const int delta { scrollUp ? scrollLines : -scrollLines };
-            setScrollFn (processor.getState().getScrollOffset() + delta);
+            setScrollFn (delta);
         }
     }
     else
@@ -271,7 +252,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                 if (shouldForwardToPty())
                 {
                     const int button { lines > 0 ? 64 : 65 };
-                    const auto cell { screen.cellAtPoint (event.x, event.y) };
+                    const auto cell { jam::tui::Metrics::pixelToCell (screen.getPhysCellWidth(), screen.getPhysCellHeight(), event.x, event.y) };
                     const int count { std::abs (lines) };
 
                     for (int i { 0 }; i < count; ++i)
@@ -283,7 +264,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
             }
             else
             {
-                setScrollFn (processor.getState().getScrollOffset() + lines);
+                setScrollFn (lines);
             }
         }
     }
@@ -301,8 +282,7 @@ int Mouse::toAbsoluteRow (int visibleRow) const noexcept
 {
     const juce::ScopedLock lock (processor.getGrid().getResizeLock());
     const int scrollback { processor.getGrid().getScrollbackUsed() };
-    const int scrollOffset { processor.getState().getScrollOffset() };
-    return scrollback - scrollOffset + visibleRow;
+    return scrollback + visibleRow;
 }
 
 } // namespace Terminal

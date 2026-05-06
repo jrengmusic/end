@@ -336,19 +336,6 @@ public:
     void flushResponses() noexcept;
 
     /**
-     * @brief Sets the callback fired when the scrollback row count changes.
-     *
-     * Forwards the callback to the internal `Grid::Writer`.  Must be called on
-     * the MESSAGE THREAD before the reader thread starts.
-     *
-     * @param callback  Called with the updated scrollback count after any scroll
-     *                  or clear operation.
-     *
-     * @note MESSAGE THREAD — set before `process()` is first called.
-     */
-    void setScrollbackCallback (std::function<void (int)> callback) noexcept;
-
-    /**
      * @brief Updates the physical cell dimensions used by image decoders.
      *
      * Called by `Screen::calc()` on the MESSAGE THREAD whenever the font metrics
@@ -385,6 +372,35 @@ private:
      * No geometry reads — those route through State.
      */
     Grid::Writer writer;
+
+    /**
+     * @brief Visual-row-to-Line mapping for the active screen.
+     *
+     * Maps each visible row index to a `{ lineIndex, cellOffset }` pair
+     * identifying which segment of which TerminalLine is displayed there.
+     * Updated by lineFeed (shift up, new Line at bottom), wrap (same Line,
+     * higher offset), and scroll region operations.  Rebuilt on resize.
+     *
+     * Size = numVisibleRows (from State).
+     *
+     * @note READER THREAD only — single writer, no locking.
+     */
+    juce::HeapBlock<Grid::Row> rowMapping;
+
+    /** @brief Resolves rowMapping and returns Cell* for the given visible row. */
+    Cell* rowCells (int visibleRow) noexcept;
+
+    /** @brief Resolves rowMapping and returns Grapheme* for the given visible row. */
+    Grapheme* rowGraphemes (int visibleRow) noexcept;
+
+    /** @brief Resolves rowMapping and returns uint16_t* (linkIds) for the given visible row. */
+    uint16_t* rowLinkIds (int visibleRow) noexcept;
+
+    /** @brief Updates Line length high-water mark after writing at `col` on `visibleRow`. */
+    void updateRowLength (int visibleRow, int col) noexcept;
+
+    /** @brief Rebuilds rowMapping from Grid Lines + current cols after resize. */
+    void rebuildRowMapping() noexcept;
 
     /**
      * @brief O(1) state transition lookup table.
@@ -609,17 +625,6 @@ private:
      */
     std::atomic<int> physCellHeightAtomic { 0 };
 
-    /**
-     * @brief Pixel-to-cell conversion helper; rebuilt by setPhysCellDimensions() whenever
-     *        physCellWidthAtomic / physCellHeightAtomic are updated.
-     *
-     * Consumed by dcsUnhook(), apcEnd(), and handleSkitFilepath() on the READER
-     * THREAD to compute image cell spans.  Scale is always 1.0 — the parser
-     * operates exclusively in physical pixels.
-     *
-     * @see setPhysCellDimensions()
-     */
-    jam::tui::Metrics metrics {};
 
     /**
      * @brief Current drawing attributes applied to newly written cells.

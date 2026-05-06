@@ -95,11 +95,6 @@ bool State::flushSlot (StringSlot& slot, juce::ValueTree& node, const juce::Iden
  * - `scrollbackUsed` — scrollback depth; written by the reader thread via `setScrollbackUsed()`.
  * - All other root-level session PARAMs.
  *
- * `scrollOffset` is intentionally skipped: it is stored as an integer
- * `juce::var` (not a `double`), so `buildParameterMap()` never registered it
- * in `parameterMap`.  It is owned exclusively by the message thread and
- * written directly to the ValueTree via `setScrollOffset()`.
- *
  * @note MESSAGE THREAD — called from `flush()` only.  The acquire fence on
  *       `needsFlush` in `flush()` ensures all reader-thread stores are visible
  *       before this function reads the atomics.
@@ -261,10 +256,7 @@ bool State::refresh() noexcept { return flush(); }
  * 3. **`flushRootParams()`** — writes session-level PARAMs (`activeScreen`)
  *    back to the ValueTree.
  *
- * 4. **Scrollback clamping** — clamps `scrollOffset` to `scrollbackUsed` if
- *    the scrollback shrank (e.g. on resize).
- *
- * 5. Returns `true` to signal to `timerCallback()` that the ValueTree was
+ * 4. Returns `true` to signal to `timerCallback()` that the ValueTree was
  *    modified, prompting it to schedule the next tick at the higher 120 Hz
  *    rate.
  *
@@ -293,28 +285,7 @@ bool State::flush() noexcept
             }
         }
 
-        const auto activeScreenNode { jam::ValueTree::getChildWithID (state, ID::activeScreen.toString()) };
-        const float prevActiveScreen { activeScreenNode.isValid()
-                                           ? static_cast<float> (activeScreenNode.getProperty (ID::value))
-                                           : 0.0f };
-
         flushRootParams();
-
-        const float newActiveScreen { activeScreenNode.isValid()
-                                          ? static_cast<float> (activeScreenNode.getProperty (ID::value))
-                                          : 0.0f };
-        if (newActiveScreen != prevActiveScreen and getScrollOffset() != 0)
-            setScrollOffset (0);
-
-        {
-            const auto scrollbackNode { jam::ValueTree::getChildWithID (state, ID::scrollbackUsed.toString()) };
-            const int flushedScrollback { scrollbackNode.isValid()
-                                              ? static_cast<int> (scrollbackNode.getProperty (ID::value))
-                                              : 0 };
-            const int currentOffset { getScrollOffset() };
-            if (currentOffset > flushedScrollback)
-                setScrollOffset (flushedScrollback);
-        }
 
         flushImages();
 

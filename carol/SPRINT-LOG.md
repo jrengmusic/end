@@ -1,5 +1,76 @@
 # SPRINT-LOG
 
+## Sprint 4: Glyph Atlas Pipeline Redesign — TextEditor Foundation ✅
+
+**Date:** 2026-05-06
+**Duration:** ~08:00
+
+### Agents Participated
+- COUNSELOR — planning, delegation, pipeline analysis, debugging
+- ORACLE — RFC production (glyph atlas pipeline ownership redesign)
+- Engineer — all code implementation (new classes, wiring, deletions, audit fixes)
+- Pathfinder — codebase discovery (f385f70 comparison, JUCE internals, GL lifecycle)
+- Auditor — comprehensive post-sprint audit
+
+### Files Modified (30+ total)
+
+**jam library — new files:**
+- `jam/jam_graphics/glyph/jam_glyph_atlas.h` — `Glyph::Atlas`: unified CPU atlas image store, replaces GraphicsAtlas + gl::GlyphAtlas
+- `jam/jam_graphics/rendering/jam_glyph_graphics.h` — `Glyph::Graphics`: per-component SIMD compositor
+- `jam/jam_graphics/rendering/jam_glyph_graphics.cpp` — beginFrame/drawGlyphs/endFrame/compositeMonoGlyph
+
+**jam library — modified:**
+- `jam/jam_graphics/fonts/jam_typeface.h` — removed drawGlyphs/uploadStagedBitmaps, added getAtlas()
+- `jam/jam_graphics/fonts/jam_typeface.cpp` — TypefaceRegistry slimmed to 4 members, dead methods removed
+- `jam/jam_graphics/fonts/jam_typeface.mm` — lockstep with .cpp
+- `jam/jam_graphics/fonts/jam_text_layout.h` — deleted CPU draw overload, renamed template param to GlyphRenderer, stale doxygen fixed
+- `jam/jam_graphics/fonts/jam_text_layout.cpp` — deleted CPU draw overload implementation
+- `jam/jam_graphics/fonts/jam_glyph_packer.h` — stale AtlasSize doxygen fixed
+- `jam/jam_graphics/jam_graphics.h` — includes updated (removed 5 deleted, added 2 new)
+- `jam/jam_graphics/jam_graphics.cpp` — unity build includes updated
+- `jam/jam_gui/text_editor/jam_text_editor.h` — added Glyph::Graphics member, brace init migration (M3)
+- `jam/jam_gui/text_editor/jam_text_editor.cpp` — TextHolderComponent::paint rewired (drain/publish/beginFrame/endFrame), drawGlyphRuns uses atlas, `!`/`&&`/`||` → `not`/`and`/`or` (M2), early returns → positive checks (M4)
+
+**jam library — deleted (8 files):**
+- `jam_gl_context.h/.cpp`, `jam_glyph_shaders.h`, `jam_glyph_atlas.h` (GL), `jam_glyph_graphics_context.h/.cpp`, `jam_graphics_atlas.h/.cpp`
+
+**END source — modified:**
+- `Source/MainComponent.h` — added OpenGLRenderer inheritance, openGLContext member
+- `Source/MainComponent.cpp` — setRenderer (componentPaintingEnabled + renderer), renderOpenGL (clear), newOpenGLContextCreated (enableWindowTransparency)
+- `Source/terminal/rendering/Screen.h` — added setScrollBarWidth
+- `Source/terminal/rendering/Screen.cpp` — removed hardcoded colours, removed Engine.h include (layer fix), scrollbar width setter
+- `Source/component/LookAndFeel.cpp` — wired TextEditor backgroundColourId/outlineColourId/textColourId + scrollbar colours from display config
+- `Source/component/TerminalDisplay.cpp` — calls screen.setScrollBarWidth from config
+- `Source/lua/Engine.h` — added editorBackground, editorOutline, scrollbarThumb, scrollbarTrack, scrollbarWidth
+- `Source/lua/EngineDefaults.cpp` — defaults (transparent editor bg/outline, scrollbar), colourToHex padded + always #RRGGBBAA
+- `Source/lua/EngineParseDisplay.cpp` — parse new colour/scrollbar fields
+- `Source/resources/config/default_display.lua` — added editor_background, editor_outline, scrollbar_thumb, scrollbar_track, scrollbar_width
+
+**END source — deleted (5 files):**
+- `Glyph.h/.cpp`, `GlyphCell.cpp`, `GlyphShape.cpp`, `Render.h`
+
+### Alignment Check
+- [x] BLESSED principles followed — Encapsulation (Typeface font-only, no rendering), SSOT (one atlas, one compositor), Lean (7→4 registry members), Bound (Atlas registry-lifetime, Graphics component-lifetime)
+- [x] NAMES.md adhered — Glyph::Atlas, Glyph::Graphics consistent with Glyph::Packer; GlyphRenderer template param
+- [x] MANIFESTO.md principles applied — no early returns in TextEditor fork, positive checks, brace init, alternative tokens
+
+### Problems Solved
+- BLESSED violation: Typeface coupled to GPU/CPU rendering dispatch — extracted to Glyph::Atlas + Glyph::Graphics
+- GL_INVALID_VALUE assertion: renderTarget sized to full content height (24032px) exceeding GL_MAX_TEXTURE_SIZE — fixed with viewport-clipped sizing
+- FBO overlap: empty renderOpenGL left backbuffer uncleaned — added glClear(transparentBlack)
+- Black glassmorphism: missing NSOpenGLContextParameterSurfaceOpacity — wired BackgroundBlur::enableWindowTransparency
+- Atlas always empty: publishStagedBitmaps never called — reordered frame: drawContent → publish → drain
+- Coordinate mismatch: logical glyph positions mixed with physical offsets — unified to physical space
+- LookAndFeel not wired: TextEditor ColourIds defaulted to JUCE V4 grey — wired from lua config
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
 ## Sprint 3: Crossplatform Font-from-Binary Helper — FreeType Symmetric with CoreText ✅
 
 **Date:** 2026-05-03

@@ -105,7 +105,6 @@ void Parser::setPhysCellDimensions (int widthPx, int heightPx) noexcept
 {
     physCellWidthAtomic.store  (widthPx,  std::memory_order_relaxed);
     physCellHeightAtomic.store (heightPx, std::memory_order_relaxed);
-    metrics = jam::tui::Metrics { widthPx, heightPx, 1.0f };
 }
 
 /**
@@ -221,7 +220,7 @@ void Parser::dcsUnhook() noexcept
                     const int scrollbackUsed        { state.getRawValue<int> (ID::scrollbackUsed) };
                     const int absRow                { scrollbackUsed + cursorRow };
 
-                    const auto span { metrics.cellSpan (image.width, image.height) };
+                    const auto span { jam::tui::Metrics::cellSpan (cellW, cellH, image.width, image.height) };
                     const int cellCols { span.getWidth().value };
                     const int cellRows { span.getHeight().value };
 
@@ -328,7 +327,7 @@ void Parser::apcEnd() noexcept
                     const int scrollbackUsed        { state.getRawValue<int> (ID::scrollbackUsed) };
                     const int absRow                { scrollbackUsed + cursorRow };
 
-                    const auto span { metrics.cellSpan (result.image.width, result.image.height) };
+                    const auto span { jam::tui::Metrics::cellSpan (cellW, cellH, result.image.width, result.image.height) };
                     const int cellCols { span.getWidth().value };
                     const int cellRows { result.placementRows > 0
                                              ? result.placementRows

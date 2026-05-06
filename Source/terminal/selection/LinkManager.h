@@ -23,11 +23,11 @@
 #include <functional>
 #include <vector>
 #include "LinkSpan.h"
+#include "../logic/Grid.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-class Grid;
 class State;
 
 /**
@@ -136,6 +136,18 @@ public:
     void dispatch (const LinkSpan& span) const;
 
     /**
+     * @brief Stores the visible-row mapping for use during scan passes.
+     *
+     * Must be called by Display each frame before any scan is triggered.
+     * The pointer must remain valid for the duration of the scan.
+     *
+     * @param mapping  Pointer to the per-frame visible-row mapping array.
+     *                 Each entry maps a visual row to its (lineIndex, cellOffset).
+     * @note MESSAGE THREAD.
+     */
+    void setVisibleMapping (const Grid::Row* mapping) noexcept;
+
+    /**
      * @brief Callback invoked when a .md file link is activated.
      *
      * When set, intercepts file dispatch for `.md` extensions before the
@@ -207,9 +219,9 @@ private:
      *
      * @param spans          Output vector to append detected spans to.
      * @param cwd            Shell current working directory for relative-path resolution.
+     * @param visibleMapping Array mapping each visual row index to its (lineIndex, cellOffset).
      * @param visibleRows    Number of visible rows.
      * @param cols           Number of columns.
-     * @param scrollOffset   Current scroll offset.
      * @param visibleBase    Absolute row index of the top visible row.
      * @param hasBlock       Whether an OSC 133 output block is active.
      * @param blockTop       Absolute row of the output block top.
@@ -217,7 +229,8 @@ private:
      * @param normalScreen   Whether the normal screen is active.
      */
     void scanHeuristicTokens (std::vector<LinkSpan>& spans, const juce::String& cwd,
-                              int visibleRows, int cols, int scrollOffset,
+                              const Grid::Row* visibleMapping,
+                              int visibleRows, int cols,
                               int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                               bool normalScreen) const;
 
@@ -228,9 +241,9 @@ private:
      * via `state.getLinkUri()`, and builds contiguous spans.
      *
      * @param spans          Output vector to append detected spans to.
+     * @param visibleMapping Array mapping each visual row index to its (lineIndex, cellOffset).
      * @param visibleRows    Number of visible rows.
      * @param cols           Number of columns.
-     * @param scrollOffset   Current scroll offset.
      * @param visibleBase    Absolute row index of the top visible row.
      * @param hasBlock       Whether an OSC 133 output block is active.
      * @param blockTop       Absolute row of the output block top.
@@ -238,7 +251,8 @@ private:
      * @param normalScreen   Whether the normal screen is active.
      */
     void scanCellNativeLinks (std::vector<LinkSpan>& spans,
-                              int visibleRows, int cols, int scrollOffset,
+                              const Grid::Row* visibleMapping,
+                              int visibleRows, int cols,
                               int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                               bool normalScreen) const;
 
@@ -249,9 +263,11 @@ private:
      * unique lowercase letter).  Spans for which no unique letter can be found
      * receive a null label (to be filled by `assignCurrentPage`'s fallback pass).
      *
-     * @param spans  Spans to label.  Modified in-place.
+     * @param spans          Spans to label.  Modified in-place.
+     * @param visibleMapping Array mapping each visual row index to its (lineIndex, cellOffset).
      */
-    void assignHintLabels (std::vector<LinkSpan>& spans) noexcept;
+    void assignHintLabels (std::vector<LinkSpan>& spans,
+                           const Grid::Row* visibleMapping) noexcept;
 
     /**
      * @brief Builds page boundaries from `hintLinks` based on character availability.
@@ -297,14 +313,14 @@ private:
     /** @brief Page boundary indices into `hintLinks`.  Built by `buildPages()`. */
     std::vector<int> pageBreaks;
 
+    /** @brief Per-frame visible-row mapping supplied by Display before each scan. */
+    const Grid::Row* visibleMapping { nullptr };
+
     /** @brief Cached reference to the promptRow PARAM node for direct listening. */
     juce::ValueTree promptRowNode;
 
     /** @brief Cached reference to the activeScreen PARAM node for direct listening. */
     juce::ValueTree activeScreenNode;
-
-    /** @brief Cached reference to the scrollOffset PARAM node for direct listening. */
-    juce::ValueTree scrollOffsetNode;
 
     // =========================================================================
     // ValueTree::Listener

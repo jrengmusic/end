@@ -35,10 +35,6 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
     const int code { key.getKeyCode() };
     const auto mods { key.getModifiers() };
 
-    const bool isScrollNav { mods.isShiftDown() and not mods.isCommandDown()
-                             and (code == juce::KeyPress::pageUpKey or code == juce::KeyPress::pageDownKey
-                                  or code == juce::KeyPress::homeKey or code == juce::KeyPress::endKey) };
-
     /**
      * Preview dismiss takes priority over all other modal handling.
      * Any key while isPreviewActive removes the preview IMAGE node and deactivates
@@ -53,11 +49,6 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
             }())
         or (processor.getState().isModal() and handleModalKey (key))
         or Action::Registry::getContext()->handleKeyPress (key)
-        or (isScrollNav and [this, code]
-            {
-                handleScrollNav (code, [this] (int offset) { processor.setScrollOffsetClamped (offset); });
-                return true;
-            }())
         or [this, &key]
             {
                 clearSelectionAndScroll();
@@ -73,31 +64,6 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
     return result;
 }
 
-void Input::handleScrollNav (int code,
-                              std::function<void (int)> newOffsetFn) noexcept
-{
-    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
-    const int page { processor.getGrid().getVisibleRows() };
-    const int current { processor.getState().getScrollOffset() };
-
-    if (code == juce::KeyPress::pageUpKey)
-    {
-        newOffsetFn (current + page);
-    }
-    else if (code == juce::KeyPress::pageDownKey)
-    {
-        newOffsetFn (current - page);
-    }
-    else if (code == juce::KeyPress::homeKey)
-    {
-        newOffsetFn (processor.getGrid().getScrollbackUsed());
-    }
-    else if (code == juce::KeyPress::endKey)
-    {
-        newOffsetFn (0);
-    }
-}
-
 void Input::clearSelectionAndScroll() noexcept
 {
     if (processor.getState().isDragActive()
@@ -105,11 +71,6 @@ void Input::clearSelectionAndScroll() noexcept
     {
         processor.getState().setDragActive (false);
         processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
-    }
-
-    if (processor.getState().getScrollOffset() > 0)
-    {
-        processor.getState().setScrollOffset (0);
     }
 }
 
@@ -264,8 +225,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
             if (tryLock.isLocked())
             {
                 const int scrollback { processor.getGrid().getScrollbackUsed() };
-                const int scrollOffset { st.getScrollOffset() };
-                const int visibleStart { scrollback - scrollOffset };
+                const int visibleStart { scrollback };
                 const int cols { processor.getGrid().getCols() };
 
                 const int anchorVisRow { st.getSelectionAnchorRow() - visibleStart };
@@ -279,13 +239,13 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
                 {
                     const juce::Point<int> start { anchorCol, anchorVisRow };
                     const juce::Point<int> end { cursorCol, cursorVisRow };
-                    text = processor.getGrid().extractText (start, end, scrollOffset);
+                    text = processor.getGrid().extractText (start, end);
                 }
                 else if (smType == Terminal::SelectionType::visualLine)
                 {
                     const juce::Point<int> start { 0, std::min (anchorVisRow, cursorVisRow) };
                     const juce::Point<int> end { cols - 1, std::max (anchorVisRow, cursorVisRow) };
-                    text = processor.getGrid().extractText (start, end, scrollOffset);
+                    text = processor.getGrid().extractText (start, end);
                 }
                 else
                 {
@@ -297,7 +257,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
                         std::max (anchorCol, cursorCol),
                         std::max (anchorVisRow, cursorVisRow)
                     };
-                    text = processor.getGrid().extractBoxText (topLeft, bottomRight, scrollOffset);
+                    text = processor.getGrid().extractBoxText (topLeft, bottomRight);
                 }
 
                 juce::SystemClipboard::copyTextToClipboard (text);
@@ -338,25 +298,6 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
     {
         st.setSelectionCursor (st.getSelectionCursorRow(), maxCol);
         consumed = true;
-    }
-
-    if (consumed)
-    {
-        const int cursorRow { st.getSelectionCursorRow() };
-        const int visibleRows { processor.getGrid().getVisibleRows() };
-        const int scrollback { processor.getGrid().getScrollbackUsed() };
-        const int visibleStart { scrollback - st.getScrollOffset() };
-        const int visibleEnd { visibleStart + visibleRows - 1 };
-
-        if (cursorRow < visibleStart)
-        {
-            processor.setScrollOffsetClamped (scrollback - cursorRow);
-        }
-        else if (cursorRow > visibleEnd)
-        {
-            processor.setScrollOffsetClamped (scrollback - (cursorRow - visibleRows + 1));
-        }
-
     }
 
     return true;

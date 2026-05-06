@@ -72,8 +72,13 @@ namespace Terminal
  */
 Parser::Parser (State& state, Grid::Writer writer) noexcept
     : state (state)
-    , writer (writer)
+    , writer (std::move (writer))
 {
+    const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
+    rowMapping.allocate (visibleRows, true);
+
+    for (int i { 0 }; i < visibleRows; ++i)
+        rowMapping[i] = Grid::Row { 0, 0 };
 }
 
 /**
@@ -157,6 +162,13 @@ void Parser::resize (int newCols, int newVisibleRows) noexcept
     cursorResetScrollRegion (normal);
     cursorResetScrollRegion (alternate);
     initializeTabStops (newCols);
+
+    rowMapping.allocate (newVisibleRows, true);
+
+    for (int i { 0 }; i < newVisibleRows; ++i)
+        rowMapping[i] = Grid::Row { 0, 0 };
+
+    rebuildRowMapping();
     calc();
 }
 
@@ -229,6 +241,58 @@ void Parser::processTransition (uint8_t byte, const Transition& transition) noex
     {
         performAction (transition.action, byte);
     }
+}
+
+// ============================================================================
+// Row mapping helpers
+// ============================================================================
+
+Cell* Parser::rowCells (int visibleRow) noexcept
+{
+    const auto& m { rowMapping[visibleRow] };
+    return writer.directLinePtr (m.lineIndex, m.cellOffset);
+}
+
+Grapheme* Parser::rowGraphemes (int visibleRow) noexcept
+{
+    const auto& m { rowMapping[visibleRow] };
+    return writer.directGraphemePtr (m.lineIndex, m.cellOffset);
+}
+
+uint16_t* Parser::rowLinkIds (int visibleRow) noexcept
+{
+    const auto& m { rowMapping[visibleRow] };
+    return writer.directLinkIdPtr (m.lineIndex, m.cellOffset);
+}
+
+void Parser::updateRowLength (int visibleRow, int col) noexcept
+{
+    const auto& m { rowMapping[visibleRow] };
+    writer.updateLineLength (m.lineIndex, m.cellOffset + col + 1);
+}
+
+void Parser::rebuildRowMapping() noexcept
+{
+    const int cols { state.getRawValue<int> (ID::cols) };
+    const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
+    const int totalLines { writer.getTotalLines() };
+
+    int rowIdx { visibleRows - 1 };
+
+    for (int li { totalLines - 1 }; li >= 0 and rowIdx >= 0; --li)
+    {
+        const int lineLen { writer.getLineLength (li) };
+        const int span { juce::jmax (1, (lineLen + cols - 1) / cols) };
+
+        for (int sr { span - 1 }; sr >= 0 and rowIdx >= 0; --sr)
+        {
+            rowMapping[rowIdx] = Grid::Row { li, sr * cols };
+            --rowIdx;
+        }
+    }
+
+    for (; rowIdx >= 0; --rowIdx)
+        rowMapping[rowIdx] = Grid::Row { 0, 0 };
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

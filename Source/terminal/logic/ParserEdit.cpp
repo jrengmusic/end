@@ -117,25 +117,51 @@ void Parser::eraseInDisplay (int mode) noexcept
     switch (mode)
     {
         case 0:
-            writer.eraseCellRange (cursorRow, cursorCol, cols - 1, fill);
+        {
+            const auto& mCursor { rowMapping[cursorRow] };
+            writer.eraseInLine (mCursor.lineIndex, mCursor.cellOffset + cursorCol,
+                                mCursor.cellOffset + cols - 1, fill);
+            writer.markRowDirty (cursorRow);
 
-            if (cursorRow + 1 < visibleRows)
-                writer.eraseRowRange (cursorRow + 1, visibleRows - 1, fill);
+            for (int r { cursorRow + 1 }; r < visibleRows; ++r)
+            {
+                const auto& m { rowMapping[r] };
+                writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
+                writer.markRowDirty (r);
+            }
 
             break;
+        }
 
         case 1:
-            if (cursorRow > 0)
-                writer.eraseRowRange (0, cursorRow - 1, fill);
+        {
+            for (int r { 0 }; r < cursorRow; ++r)
+            {
+                const auto& m { rowMapping[r] };
+                writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
+                writer.markRowDirty (r);
+            }
 
-            writer.eraseCellRange (cursorRow, 0, cursorCol, fill);
+            const auto& mCursor { rowMapping[cursorRow] };
+            writer.eraseInLine (mCursor.lineIndex, mCursor.cellOffset,
+                                mCursor.cellOffset + cursorCol, fill);
+            writer.markRowDirty (cursorRow);
 
             break;
+        }
 
         case 2:
-            writer.eraseRowRange (0, visibleRows - 1, fill);
+        {
+            for (int r { 0 }; r < visibleRows; ++r)
+            {
+                const auto& m { rowMapping[r] };
+                writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
+                writer.markRowDirty (r);
+            }
+
             state.queueImageErase (absRowTop, 0, absRowLast, cols - 1);
             break;
+        }
 
         case 3:
             writer.clearScrollback();
@@ -204,16 +230,29 @@ void Parser::eraseInLine (int mode) noexcept
     switch (mode)
     {
         case 0:
-            writer.eraseCellRange (cursorRow, cursorCol, cols - 1, fill);
+        {
+            const auto& m { rowMapping[cursorRow] };
+            writer.eraseInLine (m.lineIndex, m.cellOffset + cursorCol,
+                                m.cellOffset + cols - 1, fill);
+            writer.markRowDirty (cursorRow);
             break;
+        }
 
         case 1:
-            writer.eraseCellRange (cursorRow, 0, cursorCol, fill);
+        {
+            const auto& m { rowMapping[cursorRow] };
+            writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cursorCol, fill);
+            writer.markRowDirty (cursorRow);
             break;
+        }
 
         case 2:
-            writer.eraseRow (cursorRow, fill);
+        {
+            const auto& m { rowMapping[cursorRow] };
+            writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
+            writer.markRowDirty (cursorRow);
             break;
+        }
 
         default:
             break;
@@ -305,22 +344,74 @@ void Parser::shiftLines (int count, bool up) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int bottom { activeScrollBottom() };
+    const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+    const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
+    const int cols { state.getRawValue<int> (ID::cols) };
 
-    if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))
-            >= state.getRawValue<int> (state.screenKey (scr, ID::scrollTop))
-        and state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) <= bottom)
+    if (cursorRow >= scrollTop and cursorRow <= bottom)
     {
         Cell fill {};
         fill.bg = stamp.bg;
 
+        const int clampedCount { juce::jmin (count, bottom - cursorRow + 1) };
+
         if (up)
         {
-            writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), bottom, count, fill);
+            // DL: copy rows from [cursorRow+count .. bottom] up to [cursorRow .. bottom-count]
+            for (int dst { cursorRow }; dst <= bottom - clampedCount; ++dst)
+            {
+                const int src { dst + clampedCount };
+                Cell* dstCells { rowCells (dst) };
+                const Cell* srcCells { rowCells (src) };
+                Grapheme* dstG { rowGraphemes (dst) };
+                const Grapheme* srcG { rowGraphemes (src) };
+                uint16_t* dstL { rowLinkIds (dst) };
+                const uint16_t* srcL { rowLinkIds (src) };
+
+                std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
+                std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+                std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
+
+                writer.updateLineLength (rowMapping[dst].lineIndex,
+                                         rowMapping[dst].cellOffset + writer.getLineLength (rowMapping[src].lineIndex));
+                writer.markRowDirty (dst);
+            }
+
+            // Fill vacated rows at the bottom
+            for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
+            {
+                const auto& m { rowMapping[r] };
+                writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
+                writer.markRowDirty (r);
+            }
         }
         else
         {
-            writer.scrollRegionDown (
-                state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)), bottom, count, fill);
+            // IL: copy rows from [bottom-count .. cursorRow] down to [bottom .. cursorRow+count]
+            for (int dst { bottom }; dst >= cursorRow + clampedCount; --dst)
+            {
+                const int src { dst - clampedCount };
+                Cell* dstCells { rowCells (dst) };
+                const Cell* srcCells { rowCells (src) };
+                Grapheme* dstG { rowGraphemes (dst) };
+                const Grapheme* srcG { rowGraphemes (src) };
+                uint16_t* dstL { rowLinkIds (dst) };
+                const uint16_t* srcL { rowLinkIds (src) };
+
+                std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
+                std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+                std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
+
+                writer.markRowDirty (dst);
+            }
+
+            // Fill vacated rows at the top
+            for (int r { cursorRow }; r < cursorRow + clampedCount and r <= bottom; ++r)
+            {
+                const auto& m { rowMapping[r] };
+                writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
+                writer.markRowDirty (r);
+            }
         }
 
         state.setCursorCol (scr, 0);
@@ -367,32 +458,30 @@ void Parser::shiftCellsRight (int count) noexcept
     const int cols { state.getRawValue<int> (ID::cols) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
-    Cell* rowCells { writer.activeVisibleRow (cursorRow) };
 
-    if (rowCells != nullptr)
+    Cell* cells { rowCells (cursorRow) };
+    Grapheme* graphemes { rowGraphemes (cursorRow) };
+    uint16_t* linkIds { rowLinkIds (cursorRow) };
+
+    for (int col { cols - 1 }; col >= cursorCol + count; --col)
     {
-        Grapheme* rowGraphemes { writer.directGraphemeRowPtr (cursorRow) };
-        uint16_t* rowLinkIds { writer.directLinkIdRowPtr (cursorRow) };
-
-        for (int col { cols - 1 }; col >= cursorCol + count; --col)
-        {
-            rowCells[col] = rowCells[col - count];
-            rowGraphemes[col] = rowGraphemes[col - count];
-            rowLinkIds[col] = rowLinkIds[col - count];
-        }
-
-        Cell fill {};
-        fill.bg = stamp.bg;
-
-        for (int col { cursorCol }; col < juce::jmin (cursorCol + count, cols); ++col)
-        {
-            rowCells[col] = fill;
-            writer.activeEraseGrapheme (cursorRow, col);
-            rowLinkIds[col] = 0;
-        }
-
-        writer.markRowDirty (cursorRow);
+        cells[col] = cells[col - count];
+        graphemes[col] = graphemes[col - count];
+        linkIds[col] = linkIds[col - count];
     }
+
+    Cell fill {};
+    fill.bg = stamp.bg;
+
+    for (int col { cursorCol }; col < juce::jmin (cursorCol + count, cols); ++col)
+    {
+        cells[col] = fill;
+        graphemes[col] = Grapheme {};
+        cells[col].layout &= static_cast<uint8_t> (~Cell::LAYOUT_GRAPHEME);
+        linkIds[col] = 0;
+    }
+
+    writer.markRowDirty (cursorRow);
 }
 
 /**
@@ -430,32 +519,30 @@ void Parser::removeCells (int count) noexcept
     const int cols { state.getRawValue<int> (ID::cols) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
-    Cell* rowCells { writer.activeVisibleRow (cursorRow) };
 
-    if (rowCells != nullptr)
+    Cell* cells { rowCells (cursorRow) };
+    Grapheme* graphemes { rowGraphemes (cursorRow) };
+    uint16_t* linkIds { rowLinkIds (cursorRow) };
+
+    for (int col { cursorCol }; col < cols - count; ++col)
     {
-        Grapheme* rowGraphemes { writer.directGraphemeRowPtr (cursorRow) };
-        uint16_t* rowLinkIds { writer.directLinkIdRowPtr (cursorRow) };
-
-        for (int col { cursorCol }; col < cols - count; ++col)
-        {
-            rowCells[col] = rowCells[col + count];
-            rowGraphemes[col] = rowGraphemes[col + count];
-            rowLinkIds[col] = rowLinkIds[col + count];
-        }
-
-        Cell fill {};
-        fill.bg = stamp.bg;
-
-        for (int col { cols - count }; col < cols; ++col)
-        {
-            rowCells[col] = fill;
-            writer.activeEraseGrapheme (cursorRow, col);
-            rowLinkIds[col] = 0;
-        }
-
-        writer.markRowDirty (cursorRow);
+        cells[col] = cells[col + count];
+        graphemes[col] = graphemes[col + count];
+        linkIds[col] = linkIds[col + count];
     }
+
+    Cell fill {};
+    fill.bg = stamp.bg;
+
+    for (int col { cols - count }; col < cols; ++col)
+    {
+        cells[col] = fill;
+        graphemes[col] = Grapheme {};
+        cells[col].layout &= static_cast<uint8_t> (~Cell::LAYOUT_GRAPHEME);
+        linkIds[col] = 0;
+    }
+
+    writer.markRowDirty (cursorRow);
 }
 
 /**
@@ -493,7 +580,9 @@ void Parser::eraseCells (int count) noexcept
     Cell fill {};
     fill.bg = stamp.bg;
 
-    writer.eraseCellRange (cursorRow, cursorCol, endCol, fill);
+    const auto& m { rowMapping[cursorRow] };
+    writer.eraseInLine (m.lineIndex, m.cellOffset + cursorCol, m.cellOffset + endCol, fill);
+    writer.markRowDirty (cursorRow);
 }
 
 // ============================================================================
@@ -581,6 +670,8 @@ void Parser::setScreen (bool shouldUseAlternate) noexcept
         {
             writer.markAllDirty();
         }
+
+        rebuildRowMapping();
     }
 }
 

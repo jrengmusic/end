@@ -221,17 +221,6 @@ public:
     const juce::String& getUuid() const noexcept;
 
     /**
-     * @brief Sets the scroll offset, clamped to [0, scrollbackUsed].
-     *
-     * Acquires the Grid resize lock, clamps @p newOffset to the live scrollback
-     * extent, and writes the result to State only when it differs from the
-     * current value.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void setScrollOffsetClamped (int newOffset) noexcept;
-
-    /**
      * @brief Returns a const reference to the VT parser.
      *
      * Used by `Terminal::Display::scanViewportForLinks()` to read OSC 8
@@ -292,17 +281,10 @@ public:
      * back-reference to this Processor.  Caller is responsible for placing the
      * Display in the component hierarchy.
      *
-     * @param font          Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
-     * @param packer        Glyph packer; owns the atlas and rasterization.
-     * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
-     * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
      * @return Unique pointer to the newly created Display.
      * @note MESSAGE THREAD.
      */
-    std::unique_ptr<Display> createDisplay (jam::Font& font,
-                                            jam::Glyph::Packer& packer,
-                                            jam::gl::GlyphAtlas& glAtlas,
-                                            jam::GraphicsAtlas& graphicsAtlas);
+    std::unique_ptr<Display> createDisplay();
 
     /** @brief Writes user input bytes (keyboard, mouse) to the PTY.
      *  Set by Terminal::Session to route input to the TTY.

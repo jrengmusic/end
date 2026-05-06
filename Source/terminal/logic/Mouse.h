@@ -29,7 +29,7 @@ namespace Terminal
 {
 
 class Processor;
-class ScreenBase;
+class Screen;
 class LinkManager;
 
 /**
@@ -66,7 +66,7 @@ public:
      * @note MESSAGE THREAD.
      */
     Mouse (Processor& processor,
-           ScreenBase& screen,
+           Screen& screen,
            LinkManager& linkManager) noexcept;
 
     /**
@@ -169,7 +169,7 @@ private:
     Processor& processor;
 
     /** @brief Terminal renderer — provides cell coordinate mapping. */
-    ScreenBase& screen;
+    Screen& screen;
 
     /** @brief Link manager — click hit-testing and dispatch. */
     LinkManager& linkManager;

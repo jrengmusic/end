@@ -395,21 +395,10 @@ struct RowState
     /**
      * @brief Packed bit-field of row-level flags.
      *
-     * Bit 0 (0x01) — wrapped: the logical line continues on the next row.\n
      * Bit 1 (0x02) — double-width: each cell occupies two display columns
      *                (VT100 DECDWL mode).
      */
     uint8_t bits { 0 };
-
-    /**
-     * @brief Returns true when this row is a soft-wrapped continuation.
-     * @return `true` if bit 0 of `bits` is set.
-     * @note A wrapped row must not be broken by a newline when reflowing text.
-     */
-    bool isWrapped() const noexcept
-    {
-        return (bits & 0x01) != 0;
-    }
 
     /**
      * @brief Returns true when the row is rendered in VT100 double-width mode.
@@ -420,15 +409,6 @@ struct RowState
     bool isDoubleWidth() const noexcept
     {
         return (bits & 0x02) != 0;
-    }
-
-    /**
-     * @brief Sets or clears the soft-wrap flag for this row.
-     * @param value `true` to mark the row as wrapped, `false` to clear.
-     */
-    void setWrapped (bool value) noexcept
-    {
-        bits = static_cast<uint8_t> ((bits & ~0x01) | (static_cast<uint8_t> (value) << 0));
     }
 
     /**

@@ -130,11 +130,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                                        const int width  { dialog->getPreferredWidth() };
                                        const int height { dialog->getPreferredHeight() };
 
-                                       auto renderer { (appState.getRendererType() == App::RendererType::gpu)
-                                           ? std::unique_ptr<jam::gl::Renderer> { std::make_unique<jam::gl::Renderer>() }
-                                           : nullptr };
-
-                                       popup.show (*this, std::move (dialog), width, height, std::move (renderer));
+                                       popup.show (*this, std::move (dialog), width, height);
                                    }
                                }
 
@@ -197,11 +193,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                                    const int width { list->getWidth() };
                                    const int height { list->getHeight() };
 
-                                   auto renderer { (appState.getRendererType() == App::RendererType::gpu)
-                                       ? std::unique_ptr<jam::gl::Renderer> { std::make_unique<jam::gl::Renderer>() }
-                                       : nullptr };
-
-                                   popup.show (*this, std::move (list), width, height, std::move (renderer));
+                                   popup.show (*this, std::move (list), width, height);
                                }
 
                                return true;

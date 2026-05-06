@@ -119,25 +119,65 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
     {
         case 'D':
         {
-            if (not cursorGoToNextLine (scr, activeScrollBottom(), state.getRawValue<int> (ID::visibleRows)))
+            const int scrollBot { activeScrollBottom() };
+            const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
+
+            if (not cursorGoToNextLine (scr, scrollBot, visibleRows))
             {
+                const int scrollTopVal { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
+                const int cols { state.getRawValue<int> (ID::cols) };
+                const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+
                 Cell fill {};
                 fill.bg = stamp.bg;
-                writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
+
+                writer.lineFeed (cursorCol);
+
+                const int newLineIndex { writer.getTotalLines() - 1 };
+
+                std::memmove (&rowMapping[scrollTopVal],
+                              &rowMapping[scrollTopVal + 1],
+                              static_cast<size_t> (scrollBot - scrollTopVal) * sizeof (Grid::Row));
+
+                rowMapping[scrollBot] = Grid::Row { newLineIndex, 0 };
+                writer.eraseInLine (newLineIndex, 0, cols - 1, fill);
+                writer.markAllDirty();
             }
+
             break;
         }
 
         case 'E':
+        {
             state.setCursorCol (scr, 0);
             state.setWrapPending (scr, false);
-            if (not cursorGoToNextLine (scr, activeScrollBottom(), state.getRawValue<int> (ID::visibleRows)))
+
+            const int scrollBot { activeScrollBottom() };
+            const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
+
+            if (not cursorGoToNextLine (scr, scrollBot, visibleRows))
             {
+                const int scrollTopVal { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
+                const int cols { state.getRawValue<int> (ID::cols) };
+
                 Cell fill {};
                 fill.bg = stamp.bg;
-                writer.scrollRegionUp (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
+
+                writer.lineFeed (0);
+
+                const int newLineIndex { writer.getTotalLines() - 1 };
+
+                std::memmove (&rowMapping[scrollTopVal],
+                              &rowMapping[scrollTopVal + 1],
+                              static_cast<size_t> (scrollBot - scrollTopVal) * sizeof (Grid::Row));
+
+                rowMapping[scrollBot] = Grid::Row { newLineIndex, 0 };
+                writer.eraseInLine (newLineIndex, 0, cols - 1, fill);
+                writer.markAllDirty();
             }
+
             break;
+        }
 
         case 'H':
             setTabStop (scr);
@@ -145,17 +185,47 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
 
         case 'M':
         {
-            if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) == state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)))
+            const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+            const int scrollTopVal { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
+            const int scrollBot { activeScrollBottom() };
+
+            if (cursorRow == scrollTopVal)
             {
+                // Reverse Index at scroll top: scroll region down by 1
+                const int cols { state.getRawValue<int> (ID::cols) };
+
                 Cell fill {};
                 fill.bg = stamp.bg;
-                writer.scrollRegionDown (state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)), activeScrollBottom(), 1, fill);
+
+                // Copy rows down: [bottom-1 .. scrollTop] → [bottom .. scrollTop+1]
+                for (int dst { scrollBot }; dst > scrollTopVal; --dst)
+                {
+                    const int src { dst - 1 };
+                    Cell* dstCells { rowCells (dst) };
+                    const Cell* srcCells { rowCells (src) };
+                    Grapheme* dstG { rowGraphemes (dst) };
+                    const Grapheme* srcG { rowGraphemes (src) };
+                    uint16_t* dstL { rowLinkIds (dst) };
+                    const uint16_t* srcL { rowLinkIds (src) };
+
+                    std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
+                    std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+                    std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
+
+                    writer.markRowDirty (dst);
+                }
+
+                // Erase top row
+                const auto& mTop { rowMapping[scrollTopVal] };
+                writer.eraseInLine (mTop.lineIndex, mTop.cellOffset, mTop.cellOffset + cols - 1, fill);
+                writer.markRowDirty (scrollTopVal);
             }
-            else if (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) > 0)
+            else if (cursorRow > 0)
             {
-                state.setCursorRow (scr, state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) - 1);
+                state.setCursorRow (scr, cursorRow - 1);
                 state.setWrapPending (scr, false);
             }
+
             break;
         }
 
@@ -260,18 +330,25 @@ void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
         const int cols { state.getRawValue<int> (ID::cols) };
         const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
 
+        Cell st {};
+        st.codepoint = 'E';
+        st.style = 0;
+        st.width = 1;
+        st.layout = 0;
+
         for (int row { 0 }; row < visibleRows; ++row)
         {
+            Cell* cells { rowCells (row) };
+            Grapheme* graphemes { rowGraphemes (row) };
+
             for (int col { 0 }; col < cols; ++col)
             {
-                Cell st {};
-                st.codepoint = 'E';
-                st.style = 0;
-                st.width = 1;
-                st.layout = 0;
-                writer.activeWriteCell (row, col, st);
-                writer.activeEraseGrapheme (row, col);
+                cells[col] = st;
+                graphemes[col] = Grapheme {};
             }
+
+            updateRowLength (row, cols - 1);
+            writer.markRowDirty (row);
         }
 
         cursorSetPosition (scr, 0, 0, cols, visibleRows);

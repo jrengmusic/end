@@ -10,8 +10,7 @@
  * ### Responsibilities
  * - `handleKey()` — top-level dispatch for normal terminals: modal intercept → action system → scroll nav → PTY.
  * - `handleKeyDirect()` — direct PTY forward for popup terminals, bypasses action system.
- * - `handleScrollNav()` — Shift+PgUp/PgDn/Home/End scrollback scrolling.
- * - `clearSelectionAndScroll()` — clears drag/selection state and resets scroll offset.
+ * - `clearSelectionAndScroll()` — clears drag/selection state.
  * - `buildKeyMap()` — parses Config key strings into cached `KeyPress` objects.
  * - `reset()` — clears `pendingG`; called when exiting selection mode.
  *
@@ -64,8 +63,7 @@ public:
      * Dispatches:
      * 1. Modal intercept (`handleModalKey`) when a modal is active.
      * 2. Action system (`Action::handleKeyPress`).
-     * 3. Scroll navigation (Shift+PgUp/PgDn/Home/End).
-     * 4. Clear-and-forward — clears selection/scroll, then sends to PTY.
+     * 3. Clear-and-forward — clears selection state, then sends to PTY.
      *
      * @param key  The key press to handle.
      * @return `true` — all key events are consumed.
@@ -87,20 +85,9 @@ public:
     bool handleKeyDirect (const juce::KeyPress& key) noexcept;
 
     /**
-     * @brief Handles Shift+PgUp/PgDn/Home/End scrollback navigation.
+     * @brief Clears any active drag/selection state.
      *
-     * @param keyCode      Key code of the pressed key.
-     * @param newOffsetFn  Callable that writes the new scroll offset (clamped).
-     *                     Signature: `void(int)`.
-     * @note MESSAGE THREAD.
-     */
-    void handleScrollNav (int keyCode,
-                          std::function<void (int)> newOffsetFn) noexcept;
-
-    /**
-     * @brief Clears any active drag/selection state and resets the scroll offset.
-     *
-     * Called before forwarding non-navigation keys to the PTY.
+     * Called before forwarding keys to the PTY.
      *
      * @note MESSAGE THREAD.
      */

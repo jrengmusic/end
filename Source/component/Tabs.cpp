@@ -26,16 +26,8 @@ namespace Terminal
  *
  * @note MESSAGE THREAD.
  */
-Tabs::Tabs (jam::Font& font_,
-            jam::Glyph::Packer& packer_,
-            jam::gl::GlyphAtlas& glAtlas_,
-            jam::GraphicsAtlas& graphicsAtlas_,
-            jam::TabbedButtonBar::Orientation orientation)
+Tabs::Tabs (jam::TabbedButtonBar::Orientation orientation)
     : jam::TabbedComponent (orientation)
-    , font (font_)
-    , packerRef (packer_)
-    , glAtlasRef (glAtlas_)
-    , graphicsAtlasRef (graphicsAtlas_)
 {
     setOpaque (false);
     setTabBarDepth (0);
@@ -84,7 +76,7 @@ void Tabs::addNewTab()
     const int newTabCount { getNumTabs() + 1 };
     const int newDepth { (newTabCount > 1) ? LookAndFeel::getTabBarHeight() : 0 };
     const auto contentRect { computeContentRect (newDepth) };
-    const auto [cols, rows] { Panes::cellsFromRect (contentRect, font) };
+    const auto [cols, rows] { Panes::cellsFromRect (contentRect) };
 
     addNewTab (AppState::getContext()->getPwd(), {}, cols, rows);
 }
@@ -106,7 +98,7 @@ void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& 
 {
     jassert (cols > 0 and rows > 0);
 
-    auto& newPanesPtr { panes.add (std::make_unique<Panes> (font, packerRef, glAtlasRef, graphicsAtlasRef)) };
+    auto& newPanesPtr { panes.add (std::make_unique<Panes>()) };
     auto& newPanes { *newPanesPtr };
     newPanes.onRepaintNeeded = onRepaintNeeded;
     newPanes.onOpenMarkdown = [this] (const juce::File& file)

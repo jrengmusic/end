@@ -30,6 +30,7 @@
 #include <JamFontsBinaryData.h>
 #include "nexus/Nexus.h"
 #include "terminal/data/Identifier.h"
+#include "terminal/rendering/CellMetrics.h"
 
 
 /**
@@ -48,22 +49,20 @@
  * 4. `setDefaultLookAndFeel()` — applies terminalLookAndFeel to all children.
  *
  * Note: `applyConfig()` is NOT called from the ctor. It is called from
- * Main.cpp after `jam::Window` is constructed, so that
- * `dynamic_cast<jam::Window*>(getTopLevelComponent())` inside
- * `setRenderer` resolves to the fully constructed window.
+ * Main.cpp after `jam::Window` is constructed. `setRenderer` is deferred
+ * further — it runs at the end of `initialiseTabs()`, after all Displays
+ * and their Screens are in the component tree, so that `glContextCreated`
+ * fires on all Screens when the GL context is attached.
  *
  * @note MESSAGE THREAD — called from ENDApplication::initialise().
  */
 MainComponent::MainComponent (lua::Engine& engine)
     : luaEngine (engine)
-    , packer (jam::Glyph::AtlasSize::compact)
 {
-    glyphAtlas.setAtlasSize (jam::Glyph::AtlasSize::compact);
-
     {
         const auto* cfg { lua::Engine::getContext() };
 
-        auto typeface { std::make_shared<jam::Typeface> (cfg->display.font.family,
+        auto typeface { std::make_unique<jam::Typeface> (cfg->display.font.family,
 #if JUCE_MAC
                                                           "Apple Color Emoji",
 #elif JUCE_WINDOWS
@@ -78,8 +77,7 @@ MainComponent::MainComponent (lua::Engine& engine)
         const auto [nfData, nfSize] { BinaryData::fetcher ("SymbolsNerdFont-Regular.ttf") };
         typeface->addFallbackFont (nfData, nfSize);
 
-        font = jam::Font (cfg->display.font.family, cfg->dpiCorrectedFontSize())
-                   .withResolvedTypeface (typeface);
+        jam::Typeface::registerTypeface (cfg->display.font.family, std::move (typeface));
     }
 
     setOpaque (appState.getRendererType() == App::RendererType::cpu);
@@ -147,7 +145,11 @@ MainComponent::MainComponent (lua::Engine& engine)
             const int cols { popupCols > 0 ? popupCols : cfg->popup.defaultCols };
             const int rows { popupRows > 0 ? popupRows : cfg->popup.defaultRows };
 
-            const auto fm { font.getResolvedTypeface()->calcMetrics (cfg->dpiCorrectedFontSize()) };
+            auto* typeface { jam::Typeface::findTypeface (cfg->display.font.family) };
+            jassert (typeface != nullptr);
+            const auto fm { Terminal::CellMetrics::compute (*typeface,
+                                                             cfg->dpiCorrectedFontSize(),
+                                                             jam::Typeface::getDisplayScale()) };
 
             const int titleBarHeight { cfg->display.window.buttons ? App::titleBarHeight : 0 };
             const int paddingTop    { cfg->nexus.terminal.paddingTop };
@@ -158,9 +160,9 @@ MainComponent::MainComponent (lua::Engine& engine)
             const float lineHeightMultiplier { cfg->display.font.lineHeight };
             const float cellWidthMultiplier  { cfg->display.font.cellWidth };
 
-            const int effectiveCellW { static_cast<int> (static_cast<float> (fm.logicalCellW)
+            const int effectiveCellW { static_cast<int> (static_cast<float> (fm.cellWidth)
                                                          * cellWidthMultiplier) };
-            const int effectiveCellH { static_cast<int> (static_cast<float> (fm.logicalCellH)
+            const int effectiveCellH { static_cast<int> (static_cast<float> (fm.cellHeight)
                                                          * lineHeightMultiplier) };
 
             const int pixelWidth  { cols * effectiveCellW + paddingLeft + paddingRight };
@@ -175,13 +177,9 @@ MainComponent::MainComponent (lua::Engine& engine)
                 juce::MessageManager::callAsync ([this] { popup.dismiss(); });
             };
 
-            auto terminal { termSession->getProcessor().createDisplay (font, packer, glyphAtlas, graphicsAtlas) };
+            auto terminal { termSession->getProcessor().createDisplay() };
 
-            auto renderer { (appState.getRendererType() == App::RendererType::gpu)
-                ? std::unique_ptr<jam::gl::Renderer> { std::make_unique<jam::GLAtlasRenderer> (packer, glyphAtlas) }
-                : nullptr };
-
-            popup.show (*this, std::move (terminal), pixelWidth, pixelHeight, std::move (renderer));
+            popup.show (*this, std::move (terminal), pixelWidth, pixelHeight);
             popup.setTerminalSession (std::move (termSession));
         }
     };
@@ -200,10 +198,10 @@ void MainComponent::applyConfig()
     appState.setFontFamily (cfg->display.font.family);
     appState.setFontSize   (static_cast<float> (cfg->dpiCorrectedFontSize()));
     appState.setRendererType (cfg->nexus.gpu);
-    setRenderer (appState.getRendererType());
 
     if (tabs != nullptr)
     {
+        setRenderer (appState.getRendererType());
         tabs->applyConfig();
         tabs->applyOrientation();
     }
@@ -216,47 +214,18 @@ void MainComponent::setRenderer (App::RendererType rendererType)
 {
     const bool isUsingGpu { rendererType == App::RendererType::gpu };
     const auto atlasSize { isUsingGpu ? jam::Glyph::AtlasSize::standard : jam::Glyph::AtlasSize::compact };
-    packer.setAtlasSize (atlasSize);
-    glyphAtlas.setAtlasSize (atlasSize);
+    jam::Typeface::setAtlasSize (atlasSize);
 
-    if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
+    // Always detach first — setOpenGLVersionRequired/setComponentPaintingEnabled
+    // require the context to not be attached
+    openGLContext.detach();
+
+    if (isUsingGpu)
     {
-        if (isUsingGpu)
-        {
-            window->setRenderer (std::make_unique<jam::GLAtlasRenderer> (packer, glyphAtlas));
-
-            window->setRenderables (
-                [this] (std::function<void (jam::gl::Component&)> renderComponent)
-                {
-                    if (appState.consumeAtlasDirty())
-                        glyphAtlas.rebuildAtlas();
-
-                    if (tabs != nullptr)
-                    {
-                        std::function<void (juce::Component&)> walker;
-                        walker = [&walker, &renderComponent] (juce::Component& node)
-                        {
-                            if (auto* gl { dynamic_cast<jam::gl::Component*> (&node) })
-                                if (gl->isVisible())
-                                    renderComponent (*gl);
-
-                            const int count { node.getNumChildComponents() };
-                            for (int i { 0 }; i < count; ++i)
-                                if (auto* child { node.getChildComponent (i) })
-                                    walker (*child);
-                        };
-
-                        for (auto& pane : tabs->getPanes())
-                            walker (*pane);
-                    }
-                });
-
-            appState.markAtlasDirty();
-        }
-        else
-        {
-            window->setRenderer (nullptr);
-        }
+        openGLContext.setComponentPaintingEnabled (true);
+        openGLContext.setContinuousRepainting (false);
+        openGLContext.setRenderer (this);
+        openGLContext.attachTo (*this);
     }
 
     setOpaque (not isUsingGpu);
@@ -264,6 +233,16 @@ void MainComponent::setRenderer (App::RendererType rendererType)
     if (tabs != nullptr)
         tabs->switchRenderer (rendererType);
 }
+
+void MainComponent::newOpenGLContextCreated()
+{
+    jam::BackgroundBlur::enableWindowTransparency();
+}
+void MainComponent::renderOpenGL()
+{
+    juce::OpenGLHelpers::clear (juce::Colours::transparentBlack);
+}
+void MainComponent::openGLContextClosing() {}
 
 void MainComponent::paint (juce::Graphics& g)
 {
@@ -344,14 +323,16 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce:
     {
         if (property == App::ID::fontFamily)
         {
-            font.getResolvedTypeface()->setFontFamily (appState.getFontFamily());
-            font = font.withName (appState.getFontFamily());
+            auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
+            if (typeface != nullptr)
+                typeface->setFontFamily (appState.getFontFamily());
             appState.markAtlasDirty();
         }
         else if (property == App::ID::fontSize)
         {
-            font.getResolvedTypeface()->setFontSize (appState.getFontSize());
-            font = font.withHeight (appState.getFontSize());
+            auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
+            if (typeface != nullptr)
+                typeface->setFontSize (appState.getFontSize());
             appState.markAtlasDirty();
         }
         else if (property == App::ID::renderer)
@@ -483,7 +464,12 @@ void MainComponent::showMessageOverlay()
 {
     if (messageOverlay != nullptr)
     {
-        const auto fm { font.getResolvedTypeface()->calcMetrics (lua::Engine::getContext()->dpiCorrectedFontSize()) };
+        const auto* cfg { lua::Engine::getContext() };
+        auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
+        jassert (typeface != nullptr);
+        const auto fm { Terminal::CellMetrics::compute (*typeface,
+                                                         cfg->dpiCorrectedFontSize(),
+                                                         jam::Typeface::getDisplayScale()) };
 
         if (fm.isValid())
         {
@@ -500,7 +486,6 @@ void MainComponent::showMessageOverlay()
             else if (orientation == juce::TabbedButtonBar::TabsAtRight)
                 content = content.withTrimmedRight (depth);
 
-            const auto* cfg { lua::Engine::getContext() };
             const int titleBarHeight { cfg->display.window.buttons ? App::titleBarHeight : 0 };
             const int padTop    { cfg->nexus.terminal.paddingTop };
             const int padRight  { cfg->nexus.terminal.paddingRight };
@@ -513,8 +498,8 @@ void MainComponent::showMessageOverlay()
             content.removeFromBottom (padBottom);
             content.removeFromLeft (padLeft);
 
-            const int cols { content.getWidth() / fm.logicalCellW };
-            const int rows { content.getHeight() / fm.logicalCellH };
+            const int cols { content.getWidth() / fm.cellWidth };
+            const int rows { content.getHeight() / fm.cellHeight };
 
             if (cols > 0 and rows > 0 and isShowing())
             {
@@ -538,10 +523,6 @@ void MainComponent::showMessageOverlay()
 void MainComponent::initialiseTabs()
 {
     tabs = std::make_unique<Terminal::Tabs> (
-        font,
-        packer,
-        glyphAtlas,
-        graphicsAtlas,
         Terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position));
     addAndMakeVisible (tabs.get());
 
@@ -552,8 +533,7 @@ void MainComponent::initialiseTabs()
             statusBarOverlay->updateHintInfo (terminal->getHintPage(), terminal->getHintTotalPages());
         }
 
-        if (auto* window { dynamic_cast<jam::Window*> (getTopLevelComponent()) })
-            window->triggerRepaint();
+        repaint();
     };
 
     // Restore tabs and split layout from `<uuid>.display` when present (daemon client mode).
@@ -589,6 +569,8 @@ void MainComponent::initialiseTabs()
     }
 
     AppState::getContext()->setActiveTabIndex (0);
+
+    setRenderer (appState.getRendererType());
 
     sendLookAndFeelChange();
 }

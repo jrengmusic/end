@@ -126,9 +126,6 @@ namespace ID
     /** @brief Number of visible rows (terminal height in lines). */
     static const juce::Identifier visibleRows    { "visibleRows" };
 
-    /** @brief Scroll offset for alternate screen buffer (scrollback position). */
-    static const juce::Identifier scrollOffset  { "scrollOffset" };
-
     /** @brief Number of rows currently used in the scrollback buffer. */
     static const juce::Identifier scrollbackUsed { "scrollbackUsed" };
 
@@ -137,6 +134,9 @@ namespace ID
 
     /** @brief Total number of hint pages. Updated on open-file mode entry. */
     static const juce::Identifier hintTotalPages { "hintTotalPages" };
+
+    /** @brief Viewport Y scroll position in pixels. Written and read on the message thread by Display. */
+    static const juce::Identifier scrollPosition { "scrollPosition" };
 
     //==========================================================================
     // Display name parameter IDs (tab name sources)

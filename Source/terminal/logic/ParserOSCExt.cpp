@@ -213,7 +213,7 @@ void Parser::handleOsc1337 (const uint8_t* data, int dataLength) noexcept
                 const int scrollbackUsed    { state.getRawValue<int> (ID::scrollbackUsed) };
                 const int absRow            { scrollbackUsed + cursorRow };
 
-                const auto span { metrics.cellSpan (seq.width, seq.height) };
+                const auto span { jam::tui::Metrics::cellSpan (cellW, cellH, seq.width, seq.height) };
                 const int cellCols { span.getWidth().value };
                 const int cellRows { span.getHeight().value };
 

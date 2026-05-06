@@ -127,7 +127,7 @@ static juce::ValueTree buildScreenNode (const juce::Identifier& nodeId)
  * ## Construction sequence
  *
  * 1. Root SESSION node is created and session-level PARAMs are appended:
- *    `activeScreen`, `cols`, `visibleRows`, `scrollbackUsed`, `scrollOffset`,
+ *    `activeScreen`, `cols`, `visibleRows`, `scrollbackUsed`,
  *    and transient state parameters.  `cols` and `visibleRows` are also bound
  *    as CachedValues in step 4 for synchronous message-thread listeners.
  * 2. A MODES group node is built and all terminal mode flags are appended
@@ -135,8 +135,7 @@ static juce::ValueTree buildScreenNode (const juce::Identifier& nodeId)
  * 3. Two screen nodes (`NORMAL`, `ALTERNATE`) are built via `buildScreenNode()`
  *    and appended to SESSION.
  * 4. `buildParameterMap()` walks the completed tree and allocates one
- *    `std::atomic<float>` per PARAM node (except `scrollOffset` (UI-owned
- *    integer stored as a JUCE int var)).
+ *    `std::atomic<float>` per PARAM node.
  * 5. The JUCE timer is started at 60 Hz.  `timerCallback()` will adapt the
  *    rate to 120 Hz when parameters are actively changing.
  *
@@ -150,9 +149,9 @@ State::State()
     addParam (state, ID::cols, 0.0f);
     addParam (state, ID::visibleRows, 0.0f);
     addParam (state, ID::scrollbackUsed, 0.0f);
-    addParam (state, ID::scrollOffset, 0);
     addParam (state, ID::hintPage, 0.0f);
     addParam (state, ID::hintTotalPages, 0.0f);
+    addParam (state, ID::scrollPosition, 0.0f);
     addParam (state, ID::selectionCursorRow, 0.0f);
     addParam (state, ID::selectionCursorCol, 0.0f);
     addParam (state, ID::selectionAnchorRow, 0.0f);
@@ -686,6 +685,13 @@ void State::setHintTotalPages (int total) noexcept { storeAndFlush (ID::hintTota
 
 int State::getHintTotalPages() const noexcept { return getRawValue<int> (ID::hintTotalPages); }
 
+void State::setScrollPosition (int positionPx) noexcept
+{
+    storeAndFlush (ID::scrollPosition, static_cast<float> (positionPx));
+}
+
+int State::getScrollPosition() const noexcept { return getRawValue<int> (ID::scrollPosition); }
+
 // --- Selection state convenience wrappers ---
 
 void State::setSelectionType (int type) noexcept
@@ -789,8 +795,7 @@ juce::ValueTree State::get() const noexcept { return state; }
  * @param paramId  The parameter identifier to look up (e.g. `ID::cols`).
  * @return A live `juce::Value` for the parameter's `value` property.
  * @note MESSAGE THREAD only.  Writing through the returned Value does NOT
- *       update the backing atomic; use only for UI-owned parameters such as
- *       `scrollOffset`.
+ *       update the backing atomic.
  */
 juce::Value State::getValue (const juce::Identifier& paramId)
 {
@@ -948,33 +953,6 @@ float State::getCursorColorB() const noexcept
 }
 
 /**
- * @brief Sets the vertical scroll offset (UI-owned parameter).
- *
- * `scrollOffset` is the only parameter written exclusively by the message
- * thread.  It represents how many lines the viewport has been scrolled back
- * into the scrollback buffer (0 = live view at the bottom).  The reader
- * thread never touches this parameter, so it is written directly to the
- * ValueTree without going through the atomic / flush path.
- *
- * @param offset  Number of lines scrolled back (0 = live view).
- * @note MESSAGE THREAD only.  Writes directly to the ValueTree; no atomic
- *       involved.  Triggers any attached `juce::ValueTree::Listener` callbacks
- *       synchronously on the message thread.
- */
-void State::setScrollOffset (int offset) noexcept
-{
-    // MESSAGE THREAD
-    auto param { jam::ValueTree::getChildWithID (state, ID::scrollOffset.toString()) };
-
-    if (param.isValid())
-    {
-        param.setProperty (ID::value, offset, nullptr);
-        setFullRebuild();
-        setSnapshotDirty();
-    }
-}
-
-/**
  * @brief Sets terminal dimensions from the message thread.
  *
  * Writes cols and visibleRows to the CachedValue store — ValueTree updated
@@ -991,29 +969,6 @@ void State::setDimensions (int cols, int rows) noexcept
     cachedVisibleRows = rows;
     getRawParam (ID::cols)->store (static_cast<float> (cols), std::memory_order_release);
     getRawParam (ID::visibleRows)->store (static_cast<float> (rows), std::memory_order_release);
-}
-
-/**
- * @brief Returns the current vertical scroll offset from the ValueTree.
- *
- * Reads the `value` property of the `scrollOffset` PARAM child directly from
- * the ValueTree.  Returns 0 if the parameter node is not found.
- *
- * @return Number of lines scrolled back (0 = live view at the bottom).
- * @note MESSAGE THREAD only.
- */
-int State::getScrollOffset() const noexcept
-{
-    // MESSAGE THREAD
-    auto param { jam::ValueTree::getChildWithID (state, ID::scrollOffset.toString()) };
-    int result { 0 };
-
-    if (param.isValid())
-    {
-        result = static_cast<int> (param.getProperty (ID::value));
-    }
-
-    return result;
 }
 
 /** @note MESSAGE THREAD — reads scrollbackUsed from root param ValueTree node. */
@@ -1148,10 +1103,6 @@ void State::tickCursorBlink (int elapsedMs) noexcept
  *   (e.g. `"activeScreen"`, `"cols"`).
  * - **Group-level PARAMs** (children of MODES, NORMAL, ALTERNATE): key =
  *   `buildParamKey (parentType, id)` (e.g. `"NORMAL_cursorRow"`).
- *
- * `scrollOffset` is stored as an integer `juce::var` (not a `double`), so the
- * `isDouble()` guard skips it automatically — it has no atomic backing and is
- * managed exclusively by the message thread via the ValueTree.
  *
  * @note MESSAGE THREAD — called once from the constructor.  After this call
  *       `parameterMap` is immutable and safe to read from any thread without

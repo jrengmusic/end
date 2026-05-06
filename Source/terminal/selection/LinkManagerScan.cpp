@@ -22,80 +22,78 @@ namespace Terminal
 { /*____________________________________________________________________________*/
 
 void LinkManager::scanHeuristicTokens (std::vector<LinkSpan>& spans, const juce::String& cwd,
-                                       int visibleRows, int cols, int scrollOffset,
+                                       const Grid::Row* visibleMapping,
+                                       int visibleRows, int cols,
                                        int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                                        bool normalScreen) const
 {
     for (int row { 0 }; row < visibleRows; ++row)
     {
-        const Cell* rowCells { scrollOffset > 0
-                                   ? grid.scrollbackRow (row, scrollOffset)
-                                   : grid.activeVisibleRow (row) };
+        const auto& mapping { visibleMapping[row] };
+        const auto& line { grid.getLine (mapping.lineIndex) };
+        const Cell* rowCells { line.cells.get() + mapping.cellOffset };
 
-        if (rowCells != nullptr)
+        int col { 0 };
+
+        while (col < cols)
         {
-            int col { 0 };
-
-            while (col < cols)
+            // Skip whitespace / empty cells.
+            while (col < cols and (rowCells[col].codepoint == 0 or rowCells[col].codepoint <= 0x20))
             {
-                // Skip whitespace / empty cells.
-                while (col < cols and (rowCells[col].codepoint == 0 or rowCells[col].codepoint <= 0x20))
+                ++col;
+            }
+
+            // Accumulate non-whitespace token.
+            if (col < cols)
+            {
+                const int tokenStartCol { col };
+                juce::String token;
+
+                while (col < cols and rowCells[col].codepoint > 0x20)
                 {
+                    token += juce::String::charToString (static_cast<juce::juce_wchar> (rowCells[col].codepoint));
                     ++col;
                 }
 
-                // Accumulate non-whitespace token.
-                if (col < cols)
+                const int tokenLength { col - tokenStartCol };
+                const LinkDetector::LinkType linkType { LinkDetector::classify (token) };
+
+                const int absoluteRow { visibleBase + row };
+                const bool inOutputBlock { hasBlock and absoluteRow >= blockTop and absoluteRow <= blockBottom };
+                const bool fileAllowed { linkType == LinkDetector::LinkType::file and normalScreen
+                                         and inOutputBlock };
+                const bool urlAllowed { linkType == LinkDetector::LinkType::url };
+
+                if (fileAllowed or urlAllowed)
                 {
-                    const int tokenStartCol { col };
-                    juce::String token;
+                    LinkSpan span;
+                    span.row = row;
+                    span.col = tokenStartCol;
+                    span.length = tokenLength;
+                    span.type = linkType;
 
-                    while (col < cols and rowCells[col].codepoint > 0x20)
+                    if (linkType == LinkDetector::LinkType::url)
                     {
-                        token += juce::String::charToString (static_cast<juce::juce_wchar> (rowCells[col].codepoint));
-                        ++col;
+                        span.uri = token;
                     }
-
-                    const int tokenLength { col - tokenStartCol };
-                    const LinkDetector::LinkType linkType { LinkDetector::classify (token) };
-
-                    const int absoluteRow { visibleBase + row };
-                    const bool inOutputBlock { hasBlock and absoluteRow >= blockTop and absoluteRow <= blockBottom };
-                    const bool fileAllowed { linkType == LinkDetector::LinkType::file and normalScreen
-                                             and inOutputBlock };
-                    const bool urlAllowed { linkType == LinkDetector::LinkType::url };
-
-                    if (fileAllowed or urlAllowed)
+                    else
                     {
-                        LinkSpan span;
-                        span.row = row;
-                        span.col = tokenStartCol;
-                        span.length = tokenLength;
-                        span.type = linkType;
+                        juce::File resolved;
 
-                        if (linkType == LinkDetector::LinkType::url)
+                        if (juce::File::isAbsolutePath (token))
                         {
-                            span.uri = token;
+                            resolved = juce::File { token };
                         }
                         else
                         {
-                            juce::File resolved;
-
-                            if (juce::File::isAbsolutePath (token))
-                            {
-                                resolved = juce::File { token };
-                            }
-                            else
-                            {
-                                resolved = juce::File { cwd }.getChildFile (token);
-                            }
-
-                            span.uri = resolved.getFullPathName().isNotEmpty() ? "file://" + resolved.getFullPathName()
-                                                                               : "file://" + token;
+                            resolved = juce::File { cwd }.getChildFile (token);
                         }
 
-                        spans.push_back (std::move (span));
+                        span.uri = resolved.getFullPathName().isNotEmpty() ? "file://" + resolved.getFullPathName()
+                                                                           : "file://" + token;
                     }
+
+                    spans.push_back (std::move (span));
                 }
             }
         }
@@ -103,107 +101,99 @@ void LinkManager::scanHeuristicTokens (std::vector<LinkSpan>& spans, const juce:
 }
 
 void LinkManager::scanCellNativeLinks (std::vector<LinkSpan>& spans,
-                                       int visibleRows, int cols, int scrollOffset,
+                                       const Grid::Row* visibleMapping,
+                                       int visibleRows, int cols,
                                        int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                                        bool normalScreen) const
 {
     for (int row { 0 }; row < visibleRows; ++row)
     {
-        const Cell* rowCells { scrollOffset > 0
-                                   ? grid.scrollbackRow (row, scrollOffset)
-                                   : grid.activeVisibleRow (row) };
-        const uint16_t* linkRow { scrollOffset > 0
-                                      ? grid.scrollbackLinkIdRow (row, scrollOffset)
-                                      : grid.activeVisibleLinkIdRow (row) };
+        const auto& mapping { visibleMapping[row] };
+        const auto& line { grid.getLine (mapping.lineIndex) };
+        const Cell* rowCells { line.cells.get() + mapping.cellOffset };
+        const uint16_t* linkRow { line.linkIds.get() + mapping.cellOffset };
+        int col { 0 };
 
-        if (rowCells != nullptr and linkRow != nullptr)
+        while (col < cols)
         {
-            int col { 0 };
-
-            while (col < cols)
+            if (rowCells[col].hasHyperlink())
             {
-                if (rowCells[col].hasHyperlink())
-                {
-                    const uint16_t id { linkRow[col] };
-                    const int spanStart { col };
+                const uint16_t id { linkRow[col] };
+                const int spanStart { col };
 
-                    while (col < cols
-                           and rowCells[col].hasHyperlink()
-                           and linkRow[col] == id)
-                    {
-                        ++col;
-                    }
-
-                    const juce::String uri { state.getLinkUri (id) };
-
-                    if (uri.isNotEmpty())
-                    {
-                        const int absoluteRow { visibleBase + row };
-                        const bool isUrl { uri.startsWith ("http://")
-                                           or uri.startsWith ("https://") };
-                        const bool oscInOutputBlock { hasBlock and absoluteRow >= blockTop and absoluteRow <= blockBottom };
-                        const bool oscFileAllowed { not isUrl and normalScreen and oscInOutputBlock };
-
-                        if (isUrl or oscFileAllowed)
-                        {
-                            LinkSpan span;
-                            span.row    = row;
-                            span.col    = spanStart;
-                            span.length = col - spanStart;
-                            span.uri    = uri;
-
-                            if (isUrl)
-                            {
-                                span.type = LinkDetector::LinkType::url;
-                            }
-                            else
-                            {
-                                span.type = LinkDetector::LinkType::file;
-
-                                if (not span.uri.startsWith ("file://"))
-                                    span.uri = "file://" + span.uri;
-                            }
-
-                            spans.push_back (std::move (span));
-                        }
-                    }
-                }
-                else
+                while (col < cols
+                       and rowCells[col].hasHyperlink()
+                       and linkRow[col] == id)
                 {
                     ++col;
                 }
+
+                const juce::String uri { state.getLinkUri (id) };
+
+                if (uri.isNotEmpty())
+                {
+                    const int absoluteRow { visibleBase + row };
+                    const bool isUrl { uri.startsWith ("http://")
+                                       or uri.startsWith ("https://") };
+                    const bool oscInOutputBlock { hasBlock and absoluteRow >= blockTop and absoluteRow <= blockBottom };
+                    const bool oscFileAllowed { not isUrl and normalScreen and oscInOutputBlock };
+
+                    if (isUrl or oscFileAllowed)
+                    {
+                        LinkSpan span;
+                        span.row    = row;
+                        span.col    = spanStart;
+                        span.length = col - spanStart;
+                        span.uri    = uri;
+
+                        if (isUrl)
+                        {
+                            span.type = LinkDetector::LinkType::url;
+                        }
+                        else
+                        {
+                            span.type = LinkDetector::LinkType::file;
+
+                            if (not span.uri.startsWith ("file://"))
+                                span.uri = "file://" + span.uri;
+                        }
+
+                        spans.push_back (std::move (span));
+                    }
+                }
+            }
+            else
+            {
+                ++col;
             }
         }
     }
 }
 
-void LinkManager::assignHintLabels (std::vector<LinkSpan>& spans) noexcept
+void LinkManager::assignHintLabels (std::vector<LinkSpan>& spans,
+                                    const Grid::Row* visibleMapping) noexcept
 {
     std::unordered_set<char> usedLabels;
-    const int scrollOffset { state.getScrollOffset() };
 
     for (auto& span : spans)
     {
         const int tokenEnd { span.col + span.length };
-        const Cell* rowCells { scrollOffset > 0
-                                   ? grid.scrollbackRow (span.row, scrollOffset)
-                                   : grid.activeVisibleRow (span.row) };
+        const auto& mapping { visibleMapping[span.row] };
+        const auto& line { grid.getLine (mapping.lineIndex) };
+        const Cell* rowCells { line.cells.get() + mapping.cellOffset };
 
         for (int c { span.col }; c < tokenEnd; ++c)
         {
-            if (rowCells != nullptr)
-            {
-                const uint32_t cp { rowCells[c].codepoint };
-                const char lower { static_cast<char> (cp >= 'A' and cp <= 'Z' ? cp + 32 : cp) };
+            const uint32_t cp { rowCells[c].codepoint };
+            const char lower { static_cast<char> (cp >= 'A' and cp <= 'Z' ? cp + 32 : cp) };
 
-                if (lower >= 'a' and lower <= 'z' and usedLabels.find (lower) == usedLabels.end())
-                {
-                    span.hintLabel[0] = lower;
-                    span.hintLabel[1] = 0;
-                    span.labelCol = c;
-                    usedLabels.insert (lower);
-                    break;
-                }
+            if (lower >= 'a' and lower <= 'z' and usedLabels.find (lower) == usedLabels.end())
+            {
+                span.hintLabel[0] = lower;
+                span.hintLabel[1] = 0;
+                span.labelCol = c;
+                usedLabels.insert (lower);
+                break;
             }
         }
 

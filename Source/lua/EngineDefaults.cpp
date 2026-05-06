@@ -15,16 +15,11 @@ namespace lua
 {
 
 //==============================================================================
-/** @brief Converts a juce::Colour to "#RRGGBB" or "#RRGGBBAA" for end.lua templates. */
+/** @brief Converts a juce::Colour to "#RRGGBBAA" for end.lua templates. Always 8 hex digits. */
 static juce::String colourToHex (juce::Colour c)
 {
-    const auto aarrggbb { c.toString() };// JUCE format: AARRGGBB
-    juce::String result { "#" + aarrggbb.substring (2) };
-
-    if (c.getAlpha() != 0xff)
-        result += aarrggbb.substring (0, 2);// Rearrange AARRGGBB -> RRGGBBAA for #RRGGBBAA format
-
-    return result;
+    const auto aarrggbb { c.toString().paddedLeft ('0', 8) };// JUCE format: AARRGGBB, padded
+    return "#" + aarrggbb.substring (2) + aarrggbb.substring (0, 2);// Rearrange to #RRGGBBAA
 }
 
 /** @brief Converts a juce::Colour to "RRGGBBAA" (no #) for whelmed.lua templates. */
@@ -89,6 +84,10 @@ static void writeDisplayColoursDefaults (juce::String& content, const Engine::Di
         content, "colours_status_bar_spinner", colourToHex (display.colours.statusBarSpinner));
     content = jam::String::replaceholder (content, "colours_hint_label_bg", colourToHex (display.colours.hintLabelBg));
     content = jam::String::replaceholder (content, "colours_hint_label_fg", colourToHex (display.colours.hintLabelFg));
+    content = jam::String::replaceholder (content, "colours_editor_background", colourToHex (display.colours.editorBackground));
+    content = jam::String::replaceholder (content, "colours_editor_outline",    colourToHex (display.colours.editorOutline));
+    content = jam::String::replaceholder (content, "colours_scrollbar_thumb",   colourToHex (display.colours.scrollbarThumb));
+    content = jam::String::replaceholder (content, "colours_scrollbar_track",   colourToHex (display.colours.scrollbarTrack));
 }
 
 /** @brief Substitutes window placeholder values into display.lua content. */
@@ -178,6 +177,9 @@ static void writeDisplayMiscDefaults (juce::String& content, const Engine::Displ
     // Popup border
     content = jam::String::replaceholder (content, "popup_border_colour", colourToHex (display.popup.borderColour));
     content = jam::String::replaceholder (content, "popup_border_width", juce::String (display.popup.borderWidth));
+
+    // Scrollbar
+    content = jam::String::replaceholder (content, "scrollbar_width", juce::String (display.scrollbarWidth));
 }
 
 //==============================================================================
@@ -189,7 +191,9 @@ void Engine::initDefaults()
 
     // Colours — foreground, background, cursor, selection
     display.colours.foreground = juce::Colour (0xffa1d6e5);// skyFall
-    display.colours.background = juce::Colour (0xff090d12);// bunker (opaque default)
+    display.colours.background = juce::Colour (0x00000000);// transparent (glass shows through)
+    display.colours.editorBackground = juce::Colour (0x00000000);// transparent (glass shows through)
+    display.colours.editorOutline = juce::Colour (0x00000000);// transparent (no outline)
     display.colours.cursor = juce::Colour (0xff4e8c93);// paradiso
     display.colours.selection = juce::Colour (0x2000ddee);// fishBoy semi-transparent
     display.colours.selectionCursor = juce::Colour (0xff00ddee);// fishBoy
@@ -223,6 +227,10 @@ void Engine::initDefaults()
     // Hint label colours
     display.colours.hintLabelBg = juce::Colour (0xff00ffff);// cyan
     display.colours.hintLabelFg = juce::Colour (0xff111111);// near-black
+
+    // Scrollbar colours
+    display.colours.scrollbarThumb = juce::Colour (0x802c4144);// littleMermaid semi-transparent
+    display.colours.scrollbarTrack = juce::Colour (0x00000000);// transparent
 
     // Tab colours
     display.tab.foreground = juce::Colour (0xff00c8d8);// blueBikini

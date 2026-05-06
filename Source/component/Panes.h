@@ -41,14 +41,9 @@ class Panes : public juce::Component
 public:
     /**
      * @brief Construct a new Panes container.
-     * @param font          Font spec carrying resolved typeface; provides metrics, shaping, and rasterisation.
-     * @param packer        Glyph packer; owns the atlas and rasterization.
-     * @param glAtlas       GL texture handle store; threaded through to Screen<GLContext>.
-     * @param graphicsAtlas CPU atlas image store; threaded through to Screen<GraphicsContext>.
      * @note MESSAGE THREAD.
      */
-    Panes (jam::Font& font, jam::Glyph::Packer& packer, jam::gl::GlyphAtlas& glAtlas,
-           jam::GraphicsAtlas& graphicsAtlas);
+    Panes();
 
     /**
      * @brief Destructor.
@@ -60,16 +55,15 @@ public:
      * @brief Converts a pixel rect into terminal cell dimensions.
      *
      * Pure math: subtracts terminal padding from the rect, divides by
-     * effective cell width/height. Used by the restore walker to
+     * effective cell width/height. Resolves the typeface internally via
+     * jam::Typeface::findTypeface. Used by the restore walker to
      * pre-compute per-pane dims and by splitActive for fresh splits.
      *
      * @param paneRect    Target pixel rect for the pane (AFTER chrome subtracted).
-     * @param font        Font spec carrying resolved typeface; provides cell metrics.
      * @return (cols, rows). jasserts cols > 0 and rows > 0.
      * @note Pure math — no instance state. noexcept.
      */
-    static std::pair<int, int> cellsFromRect (juce::Rectangle<int> paneRect,
-                                              jam::Font& font) noexcept;
+    static std::pair<int, int> cellsFromRect (juce::Rectangle<int> paneRect) noexcept;
 
     /**
      * @brief Splits a pixel rect by direction and ratio.
@@ -299,10 +293,6 @@ private:
      */
     void splitActive (const juce::String& direction, bool isVertical, double ratio);
 
-    jam::Font& font;
-    jam::Glyph::Packer& packerRef;
-    jam::gl::GlyphAtlas& glAtlasRef;
-    jam::GraphicsAtlas& graphicsAtlasRef;
     jam::Owner<PaneComponent> panes;
     jam::PaneManager paneManager;
     jam::Owner<jam::PaneResizerBar> resizerBars;
