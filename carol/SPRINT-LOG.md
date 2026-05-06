@@ -1,5 +1,67 @@
 # SPRINT-LOG
 
+## Sprint 5: Direct Atlas Write + Font System Collapse + GL Pipeline Deletion ✅
+
+**Date:** 2026-05-06
+**Duration:** ~02:00
+
+### Agents Participated
+- COUNSELOR — planning, scope analysis, delegation, verification
+- Engineer — all code implementation (direct write, shaping strip, GL deletion)
+- Pathfinder — codebase discovery (GL pipeline survey, font system consumers, staging internals)
+
+### Files Modified (20+ total)
+
+**jam library — modified:**
+- `jam/jam_graphics/glyph/jam_atlas_glyph.h` (both copies) — added `Type` enum, `type` field to `Region`
+- `jam/jam_graphics/glyph/jam_glyph_atlas.h` — removed `drain()`, promoted `ensureImages()` to public, added `writePixels()`
+- `jam/jam_graphics/fonts/jam_glyph_packer.h` — removed staging machinery (`publishStagedBitmaps`, `consumeStagedBitmaps`, `stageForUpload`, `uploadMailbox`, `uploadBatches`, `writeSlot`), added `setAtlas()` + `Atlas*` member
+- `jam/jam_graphics/fonts/jam_glyph_packer.cpp` — replaced 4 `stageForUpload` calls with `atlas->writePixels`, removed staging implementation, emoji `glyph.type` set
+- `jam/jam_graphics/fonts/jam_glyph_packer.mm` — replaced 3 `stageForUpload` calls with `atlas->writePixels`, emoji `glyph.type` set
+- `jam/jam_graphics/fonts/jam_typeface.h` — stripped HarfBuzz: removed `Glyph`, `GlyphRun`, `shapeText`, `shapeEmoji`, `getHbFont`, `getPixelsPerEm`, `resolveFromJuceFont`, shaping internals, `scratchBuffer`, `shapingBuffer`, `fallbackFontCache`, `hbFont` from `Face`
+- `jam/jam_graphics/fonts/jam_typeface.cpp` — stripped HarfBuzz creation/destruction from constructor/destructor/loadFaces/setSize/setFontFamily, removed `getHbFont`/`getPixelsPerEm`, synced TypefaceRegistry atlas dimension
+- `jam/jam_graphics/fonts/jam_typeface.mm` — stripped HarfBuzz/shaping: removed shapeASCII/shapeHarfBuzz/shapeFallback/shapeText/shapeEmoji/resolveFromJuceFont, cleaned constructor/destructor/loadFaces/setSize/setFontFamily
+- `jam/jam_graphics/fonts/jam_typeface_metrics.cpp` — removed `resolveFromJuceFont()` implementation
+- `jam/jam_graphics/rendering/jam_glyph_graphics.h` — added `bool isEmoji` to `drawGlyphs()`, added `compositeEmojiGlyph()` declaration
+- `jam/jam_graphics/rendering/jam_glyph_graphics.cpp` — added `isEmoji` parameter, emoji dispatch on `Region::type`, `compositeEmojiGlyph()` implementation with premultiplied src-over
+- `jam/jam_graphics/jam_graphics.h` — removed `#include <hb.h>`, `<hb-ft.h>`, shaper/text_layout/staged_bitmap/GL context includes
+- `jam/jam_graphics/jam_graphics.cpp` — removed `jam_text_layout.cpp` and `jam_shaper.cpp` unity-build lines
+- `jam/jam_gui/text_editor/jam_text_editor.cpp` — simplified paint() to `advanceFrame → ensureImages → beginFrame → drawContent → endFrame`, added `false` isEmoji arg
+- `jam/jam_style/background_blur/jam_background_blur.cpp` — updated stale `gl::Renderer` doxygen reference
+
+**jam library — deleted (14 files):**
+- `jam_staged_bitmap.h` — staging types (StagedBitmap, StagedBatch)
+- `jam_shaper.h/.cpp` — HarfBuzz text shaper
+- `jam_text_layout.h/.cpp` — jam::TextLayout (superseded by juce::TextLayout)
+- `jam_typeface_shaping.cpp` — FreeType shaping implementations
+- `jam_native_shared_context_owner.h` — GL context sharing interface
+- `jam_native_context_resource.h` — GL surface transparency marker
+- `flat_colour.vert/.frag` — GL flat colour shaders
+- `image.vert/.frag` — GL image shaders
+
+**Project root — deleted:**
+- `RFC-texteditor-foundation.md`, `PLAN-texteditor-foundation.md` — completed/superseded
+- `RFC-component-promotion.md` (jam) — obsolete
+
+### Alignment Check
+- [x] BLESSED principles followed — Lean (staging eliminated: 2 copies → 0, 14 dead files deleted, HarfBuzz stripped), SSOT (atlas dimension synced at TypefaceRegistry construction), Encapsulation (Atlas owns writePixels, Packer tells)
+- [x] NAMES.md adhered — `writePixels`, `ensureImages`, `compositeEmojiGlyph` consistent with existing naming
+- [x] MANIFESTO.md principles applied — no early returns, positive checks, brace init, alternative tokens
+
+### Problems Solved
+- First-frame glyph miss: staging intermediate caused newly rasterized glyphs to be invisible on first paint — eliminated by direct atlas write
+- Packer/Atlas dimension mismatch: Packer defaulted to 4096, Atlas to 2048 — synced via TypefaceRegistry constructor
+- Missing emoji compositing: added `compositeEmojiGlyph()` with premultiplied ARGB src-over blending, dispatch on `Region::type`
+- Dead code: GL pipeline (context headers, shaders), HarfBuzz shaping system, staging types — all removed
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
 ## Sprint 4: Glyph Atlas Pipeline Redesign — TextEditor Foundation ✅
 
 **Date:** 2026-05-06
