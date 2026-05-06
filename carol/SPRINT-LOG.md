@@ -1,5 +1,59 @@
 # SPRINT-LOG
 
+## Sprint 6: Atlas Owns Packer ✅
+
+**Date:** 2026-05-07
+**Duration:** ~01:00
+
+### Agents Participated
+- COUNSELOR — planning, delegation, audit processing
+- Engineer — all code edits (5 PLAN steps + audit fixes)
+- Pathfinder — atlas/packer survey, call site discovery
+- Auditor — comprehensive post-sprint audit (14 findings)
+
+### Files Modified (14 total)
+
+**jam library — refactored:**
+- `jam/jam_graphics/glyph/jam_glyph_atlas.h` — Atlas absorbs Packer as private member, delegating API (`advanceFrame`, `getOrRasterize`, `setAtlasSize`, `setEmbolden`, `getEmbolden`, `setDisplayScale`), constructor wires `packer.setAtlas(*this)` internally, `setDimension` removed (SSOT: `getDimension()` delegates to `packer.getAtlasDimension()`), `dimension` shadow member eliminated
+- `jam/jam_graphics/fonts/jam_typeface.h` — removed `getPacker()` declaration
+- `jam/jam_graphics/fonts/jam_typeface.cpp` — TypefaceRegistry slimmed (no packer member, no constructor), removed `getPacker()` impl, `setAtlasSize()` collapsed to single `atlas.setAtlasSize(size)` call
+- `jam/jam_graphics/fonts/jam_typeface.mm` — identical changes to `.cpp`
+- `jam/jam_graphics/rendering/jam_glyph_graphics.h` — `drawGlyphs` drops `Packer&` param (Atlas-only), `beginFrame`/`endFrame` renamed to `push`/`pop`, doxygen updated
+- `jam/jam_graphics/rendering/jam_glyph_graphics.cpp` — `drawGlyphs` uses `atlas.getOrRasterize()`, `push`/`pop` renamed
+- `jam/jam_gui/text_editor/jam_text_editor.cpp` — paint uses `atlas.advanceFrame()` (no getPacker), drawGlyphs drops packer arg, `push`/`pop` call sites
+
+**jam library — stale doxygen fixed (audit):**
+- `jam/jam_graphics/fonts/jam_typeface.cpp:65,452` — removed HarfBuzz references
+- `jam/jam_graphics/fonts/jam_typeface.mm:104` — removed HarfBuzz reference
+- `jam/jam_graphics/rendering/jam_glyph_render.h:50` — removed stale `jam::Typeface::Glyph` reference
+- `jam/jam_graphics/glyph/jam_atlas_glyph.h:2` — `@file jreng_` → `jam_`
+- `jam/jam_graphics/fonts/jam_glyph_packer.h:2` — `@file jreng_` → `jam_`
+- `jam/jam_graphics/fonts/jam_glyph_packer.cpp:23-24` — `@see jreng_` → `jam_`
+- `jam/jam_graphics/fonts/jam_glyph_packer.mm:2,33-34` — `@file`/`@see jreng_` → `jam_`
+- `jam/jam_graphics/fonts/jam_typeface_metrics.cpp:35` — removed `@see jam_typeface_shaping.cpp` (deleted file)
+
+**Project root — deleted:**
+- `jam/PLAN-atlas-owns-packer.md` — objective complete
+
+### Alignment Check
+- [x] BLESSED principles followed — SSOT (Packer is single source for atlas dimension, no shadow), Encapsulation (Packer private inside Atlas, consumers talk to Atlas only), Lean (removed getPacker accessor, dual params, constructor wiring), Bound (Atlas owns Packer lifecycle)
+- [x] NAMES.md adhered — `push`/`pop` approved by ARCHITECT (RFC), delegating API names match Packer originals
+- [x] MANIFESTO.md principles applied — no early returns, positive checks, brace init, `not`/`and`/`or` tokens
+
+### Problems Solved
+- Dual-object wiring eliminated: `packer.setAtlas(atlas)` + `atlas.setDimension(packer.getAtlasDimension())` now internal to Atlas constructor
+- Dimension SSOT: `Atlas::dimension` shadow member removed, `getDimension()` delegates to `packer.getAtlasDimension()`
+- Stale `jreng_` doxygen prefixes from pre-rename era corrected across 4 files
+- Stale HarfBuzz doxygen references from Sprint 5 stripped from 4 files
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
 ## Sprint 5: Direct Atlas Write + Font System Collapse + GL Pipeline Deletion ✅
 
 **Date:** 2026-05-06
