@@ -1,5 +1,77 @@
 # SPRINT-LOG
 
+## Sprint 7: Pens Rendering Pipeline — Constraint System + SSOT Audit ✅
+
+**Date:** 2026-05-07
+**Duration:** 03:30
+
+### Agents Participated
+- COUNSELOR: primary — plan, orchestration, audit synthesis
+- Engineer (×8): constraint wiring, dummy data, Display Mono registration, audit fixes, SSOT refactoring, totalPixels helper
+- Pathfinder (×6): old GL path analysis, E000/E001 history, NF icon width research, manual arithmetic scan
+- Auditor: comprehensive BLESSED/CONTRACT audit across END + jam
+
+### Files Modified (22 total)
+
+**jam_core/metrics/**
+- `jam_cell_point.h:89-105` — added `Cell::Point::totalPixels<T>` static helper (cell→pixel for grid totals)
+- `jam_bounds.h` — added `#pragma once`, default `{ 0 }` init, `enum class Orientation`, pass-by-value params
+
+**jam_tui/pen/**
+- `jam_pen.h:10-11` — updated stale doxygen referencing deleted types
+
+**jam_graphics/rendering/**
+- `jam_glyph_shaped_text.h` — `codepoint`/`span` on PositionedGlyph; `codepoints`/`spans` sidecars on GlyphDrawRun; `freeDrawRuns()` private helper; shape() signature restored (brandingFontHandle removed)
+- `jam_glyph_shaped_text.cpp` — `freeDrawRuns()` impl; constraint-based N-cell lookahead in `buildPositionedGlyphs`; codepoint/span propagation through shaping and draw runs
+- `jam_glyph_graphics.h` — new `drawGlyphs` overload with codepoints, spans, physCell dims
+- `jam_glyph_graphics.cpp:156-230` — implementation: `BoxDrawing::isProcedural` routing + `getConstraint` per glyph + real cell dims to `getOrRasterize`
+
+**jam_graphics/fonts/**
+- `jam_typeface.h:43-56` — `enum class DisplayMonoFont` in `jam::` namespace; `getFallbackFontHandle(int)` accessor with `.at()`
+- `jam_glyph_constraint_table.cpp:11-22` — E000/E001 own arm with `maxCellSpan = 3`
+
+**jam_graphics/glyph/**
+- `jam_glyph_atlas.h:94-114` — `getOrRasterizeBoxDrawing` forwarder to Packer
+
+**jam_gui/text_editor/**
+- `jam_text_editor.cpp:333` — shape() call simplified (brandingFontHandle removed); drawContent passes physCellWidth/Height/Baseline + codepoints/spans to new drawGlyphs overload
+
+**end/Source/**
+- `MainComponent.cpp:74-77` — Display Mono Book/Medium/Bold registered at indices 0/1/2
+- `MainComponent.cpp:186-187` — `jam::toInt` replaces `static_cast<int>` truncation
+- `MainComponent.cpp:189-191` — `Cell::Point::totalPixels` replaces manual multiplication
+- `MainComponent.cpp:542-543` — `Cell::Rectangle` replaces raw pixel→cell division
+- `component/TerminalDisplay.h:65-73` — removed dead `displayScale` member; added `computeGridSize()` private method
+- `component/TerminalDisplay.cpp:51-56,101,118-119,159-162` — `computeGridSize()` impl; `screen.setText(Bounds, int)` call; `totalPixels` replaces manual arithmetic
+- `component/Panes.cpp:98-99` — `jam::toInt` replaces `static_cast<int>` truncation
+- `terminal/rendering/Screen.h:41-45` — added `setText(jam::Bounds, int)` declaration
+- `terminal/rendering/Screen.cpp` — constructor trimmed to setFont only; dummy pen data moved to `setText(Bounds, int)`; removed duplicate cell metrics computation (SSOT)
+- `terminal/logic/ParserCSI.cpp:239-241` — `Cell::Point::totalPixels` replaces manual multiplication
+
+### Alignment Check
+- [x] BLESSED principles followed (SSOT audit resolved all duplicate state)
+- [x] NAMES.md adhered (totalPixels, computeGridSize, freeDrawRuns, DisplayMonoFont — all approved)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- NF icons not constrained to cell grid — wired constraint + cell dims through Pens rendering path
+- Box drawing not routed to procedural rasterizer — `BoxDrawing::isProcedural` routing in new drawGlyphs overload
+- NF icon span=1 when should be 2 — constraint-based lookahead replicating old GL path
+- E000/E001 branding glyphs too small — maxCellSpan=3 + Display Mono fallback registration
+- Duplicate cell metrics computation — Display owns, Screen receives via setText
+- Manual cell arithmetic scattered across END — totalPixels helper + Cell::Rectangle + jam::toInt
+- Dead displayScale member — removed
+- Duplicate gridSize computation — extracted computeGridSize()
+- ShapedText cleanup duplication — extracted freeDrawRuns()
+- jam_bounds.h missing pragma once, no default init, plain enum — all fixed
+- Vector accessed via [] instead of .at() — fixed in getFallbackFontHandle
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 6: Atlas Owns Packer ✅
 
 **Date:** 2026-05-07

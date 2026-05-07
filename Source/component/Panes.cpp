@@ -11,7 +11,6 @@
 #include <jam_tui/jam_tui.h>
 #include "../AppState.h"
 #include "../terminal/data/Identifier.h"
-#include "../terminal/rendering/CellMetrics.h"
 #include "../whelmed/Component.h"
 #include "../nexus/Nexus.h"
 #include "../terminal/logic/Session.h"
@@ -54,15 +53,37 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcep
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
     const auto* cfg { lua::Engine::getContext() };
     const float scale { jam::Typeface::getDisplayScale() };
-    auto* typeface { jam::Typeface::findTypeface (AppState::getContext()->getFontFamily()) };
+    auto* typeface { jam::Typeface::findTypeface (cfg->display.font.family) };
     jassert (typeface != nullptr);
-    const auto fm { Terminal::CellMetrics::compute (*typeface,
-                                                     cfg->dpiCorrectedFontSize(),
-                                                     scale) };
+
+    const float fontSize { cfg->dpiCorrectedFontSize() };
+    const auto fm { typeface->getMetrics() };
+    jassert (fm.isValid() and fontSize > 0.0f);
+
+    const float ascent  { fm.ascent  * fontSize };
+    const float descent { fm.descent * fontSize };
+    const float leading { fm.leading * fontSize };
+
+    float maxAdvance { 0.0f };
+
+    for (uint32_t code { 32 }; code <= 127; ++code)
+    {
+        const float adv { typeface->getAdvanceWidth (code) * fontSize };
+
+        if (adv > maxAdvance)
+            maxAdvance = adv;
+    }
+
+    if (maxAdvance <= 0.0f)
+        maxAdvance = fontSize;
+
+    const int logCellW { jam::toInt (maxAdvance, true) };
+    const int logCellH { jam::toInt (ascent + descent + leading, true) };
+
     const float cellWidthMultiplier  { cfg->display.font.cellWidth };
     const float lineHeightMultiplier { cfg->display.font.lineHeight };
-    const int physCellW { static_cast<int> (static_cast<float> (fm.physCellWidth)  * cellWidthMultiplier) };
-    const int physCellH { static_cast<int> (static_cast<float> (fm.physCellHeight) * lineHeightMultiplier) };
+    const int physCellW { jam::toInt (static_cast<float> (logCellW) * scale * cellWidthMultiplier, true) };
+    const int physCellH { jam::toInt (static_cast<float> (logCellH) * scale * lineHeightMultiplier, true) };
 
     jassert (physCellW > 0 and physCellH > 0);
 
@@ -74,10 +95,10 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcep
     const int contentW { paneRect.getWidth()  - paddingLeft - paddingRight };
     const int contentH { paneRect.getHeight() - paddingTop  - paddingBottom };
 
-    const int physContentW { static_cast<int> (static_cast<float> (contentW) * scale) };
-    const int physContentH { static_cast<int> (static_cast<float> (contentH) * scale) };
+    const int physContentW { jam::toInt (static_cast<float> (contentW) * scale, true) };
+    const int physContentH { jam::toInt (static_cast<float> (contentH) * scale, true) };
 
-    const auto gridRect { jam::tui::Metrics::gridSize (physCellW, physCellH, physContentW, physContentH) };
+    const auto gridRect { jam::Cell::Rectangle (jam::Bounds { physCellW, physCellH }, juce::Rectangle<int> { 0, 0, physContentW, physContentH }) };
     const int cols { (physContentW > 0 and physCellW > 0) ? gridRect.getWidth().value  : 1 };
     const int rows { (physContentH > 0 and physCellH > 0) ? gridRect.getHeight().value : 1 };
 

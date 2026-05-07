@@ -11,13 +11,12 @@
  * params — Mouse never writes to `ScreenSelection` directly.
  *
  * ### Coordinate convention
- * Grid positions received from `Screen::cellAtPoint()` are **visible-row**
- * coordinates (0 = topmost visible row).  Mouse converts them to
- * **absolute (scrollback-aware)** coordinates before writing to State, matching
- * the keyboard selection path.
+ * Grid positions are **visible-row** coordinates (0 = topmost visible row).
+ * Mouse converts them to **absolute (scrollback-aware)** coordinates before
+ * writing to State, matching the keyboard selection path.
  *
  * @see Terminal::Processor
- * @see Terminal::Screen
+ * @see jam::Cell::Point
  * @see Terminal::LinkManager
  */
 
@@ -29,14 +28,13 @@ namespace Terminal
 {
 
 class Processor;
-class Screen;
 class LinkManager;
 
 /**
  * @class Terminal::Mouse
  * @brief Mouse event dispatcher for a single terminal processor.
  *
- * Constructed with references to the processor, screen, and link manager.  All
+ * Constructed with references to the processor, cell metrics, and link manager.  All
  * references must remain valid for the lifetime of the `Mouse` instance.
  *
  * @par Thread context
@@ -60,13 +58,15 @@ public:
 
     /**
      * @brief Constructs a Mouse handler.
-     * @param processor   Terminal processor (state, grid, PTY write).
-     * @param screen      Terminal renderer (cell coordinate mapping).
-     * @param linkManager Link manager (hit-testing, dispatch).
+     * @param processor      Terminal processor (state, grid, PTY write).
+     * @param physCellWidth  Physical cell width in device pixels for pixel-to-cell mapping.
+     * @param physCellHeight Physical cell height in device pixels for pixel-to-cell mapping.
+     * @param linkManager    Link manager (hit-testing, dispatch).
      * @note MESSAGE THREAD.
      */
     Mouse (Processor& processor,
-           Screen& screen,
+           int physCellWidth,
+           int physCellHeight,
            LinkManager& linkManager) noexcept;
 
     /**
@@ -168,8 +168,11 @@ private:
     /** @brief Terminal processor — provides state, grid, and PTY write access. */
     Processor& processor;
 
-    /** @brief Terminal renderer — provides cell coordinate mapping. */
-    Screen& screen;
+    /** @brief Physical cell width in device pixels for pixel-to-cell mapping. */
+    int physCellWidth;
+
+    /** @brief Physical cell height in device pixels for pixel-to-cell mapping. */
+    int physCellHeight;
 
     /** @brief Link manager — click hit-testing and dispatch. */
     LinkManager& linkManager;

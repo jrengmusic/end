@@ -30,7 +30,6 @@
 #include <JamFontsBinaryData.h>
 #include "nexus/Nexus.h"
 #include "terminal/data/Identifier.h"
-#include "terminal/rendering/CellMetrics.h"
 
 
 /**
@@ -72,7 +71,10 @@ MainComponent::MainComponent (lua::Engine& engine)
 #endif
                                                           cfg->dpiCorrectedFontSize()) };
 
-        typeface->addFallbackFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
+        // Display Mono fallback fonts — indices match jam::DisplayMonoFont enum.
+        typeface->addFallbackFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);     // DisplayMonoFont::Book   = 0
+        typeface->addFallbackFont (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize); // DisplayMonoFont::Medium = 1
+        typeface->addFallbackFont (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);     // DisplayMonoFont::Bold   = 2
 
         const auto [nfData, nfSize] { BinaryData::fetcher ("SymbolsNerdFont-Regular.ttf") };
         typeface->addFallbackFont (nfData, nfSize);
@@ -147,9 +149,30 @@ MainComponent::MainComponent (lua::Engine& engine)
 
             auto* typeface { jam::Typeface::findTypeface (cfg->display.font.family) };
             jassert (typeface != nullptr);
-            const auto fm { Terminal::CellMetrics::compute (*typeface,
-                                                             cfg->dpiCorrectedFontSize(),
-                                                             jam::Typeface::getDisplayScale()) };
+
+            const float fontSize { cfg->dpiCorrectedFontSize() };
+            const auto fm { typeface->getMetrics() };
+            jassert (fm.isValid() and fontSize > 0.0f);
+
+            const float ascent  { fm.ascent  * fontSize };
+            const float descent { fm.descent * fontSize };
+            const float leading { fm.leading * fontSize };
+
+            float maxAdvance { 0.0f };
+
+            for (uint32_t code { 32 }; code <= 127; ++code)
+            {
+                const float adv { typeface->getAdvanceWidth (code) * fontSize };
+
+                if (adv > maxAdvance)
+                    maxAdvance = adv;
+            }
+
+            if (maxAdvance <= 0.0f)
+                maxAdvance = fontSize;
+
+            const int logCellW { jam::toInt (maxAdvance, true) };
+            const int logCellH { jam::toInt (ascent + descent + leading, true) };
 
             const int titleBarHeight { cfg->display.window.buttons ? App::titleBarHeight : 0 };
             const int paddingTop    { cfg->nexus.terminal.paddingTop };
@@ -160,13 +183,12 @@ MainComponent::MainComponent (lua::Engine& engine)
             const float lineHeightMultiplier { cfg->display.font.lineHeight };
             const float cellWidthMultiplier  { cfg->display.font.cellWidth };
 
-            const int effectiveCellW { static_cast<int> (static_cast<float> (fm.cellWidth)
-                                                         * cellWidthMultiplier) };
-            const int effectiveCellH { static_cast<int> (static_cast<float> (fm.cellHeight)
-                                                         * lineHeightMultiplier) };
+            const int effectiveCellW { jam::toInt (static_cast<float> (logCellW) * cellWidthMultiplier, true) };
+            const int effectiveCellH { jam::toInt (static_cast<float> (logCellH) * lineHeightMultiplier, true) };
 
-            const int pixelWidth  { cols * effectiveCellW + paddingLeft + paddingRight };
-            const int pixelHeight { rows * effectiveCellH + paddingTop + paddingBottom + titleBarHeight };
+            const auto cellPx { jam::Cell::Point::totalPixels<int> (jam::Cell { cols }, jam::Cell { rows }, jam::Bounds { effectiveCellW, effectiveCellH }) };
+            const int pixelWidth  { cellPx.x + paddingLeft + paddingRight };
+            const int pixelHeight { cellPx.y + paddingTop + paddingBottom + titleBarHeight };
 
             const auto effectiveCwd { cwd.isNotEmpty() ? cwd : appState.getPwd() };
 
@@ -467,12 +489,32 @@ void MainComponent::showMessageOverlay()
         const auto* cfg { lua::Engine::getContext() };
         auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
         jassert (typeface != nullptr);
-        const auto fm { Terminal::CellMetrics::compute (*typeface,
-                                                         cfg->dpiCorrectedFontSize(),
-                                                         jam::Typeface::getDisplayScale()) };
 
-        if (fm.isValid())
+        const float fontSize { cfg->dpiCorrectedFontSize() };
+        const auto fm { typeface->getMetrics() };
+
+        if (fm.isValid() and fontSize > 0.0f)
         {
+            const float ascent  { fm.ascent  * fontSize };
+            const float descent { fm.descent * fontSize };
+            const float leading { fm.leading * fontSize };
+
+            float maxAdvance { 0.0f };
+
+            for (uint32_t code { 32 }; code <= 127; ++code)
+            {
+                const float adv { typeface->getAdvanceWidth (code) * fontSize };
+
+                if (adv > maxAdvance)
+                    maxAdvance = adv;
+            }
+
+            if (maxAdvance <= 0.0f)
+                maxAdvance = fontSize;
+
+            const int logCellW { jam::toInt (maxAdvance, true) };
+            const int logCellH { jam::toInt (ascent + descent + leading, true) };
+
             auto content { getLocalBounds() };
             const int depth { tabs != nullptr ? tabs->getTabBarDepth() : 0 };
             const auto orientation { tabs != nullptr ? tabs->getOrientation() : juce::TabbedButtonBar::TabsAtLeft };
@@ -498,8 +540,9 @@ void MainComponent::showMessageOverlay()
             content.removeFromBottom (padBottom);
             content.removeFromLeft (padLeft);
 
-            const int cols { content.getWidth() / fm.cellWidth };
-            const int rows { content.getHeight() / fm.cellHeight };
+            const auto gridRect { jam::Cell::Rectangle (jam::Bounds { logCellW, logCellH }, content) };
+            const int cols { gridRect.getWidth().value };
+            const int rows { gridRect.getHeight().value };
 
             if (cols > 0 and rows > 0 and isShowing())
             {

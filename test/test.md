@@ -812,7 +812,7 @@ return M
         h3 { font-size: 1.1rem; color: #aaaaaa; margin-top: 1.5rem; }
 
         code {
-            font-family: "JetBrains Mono", "Fira Code", monospace;
+            font-family: "Display Mono", "Fira Code", monospace;
             font-size: 0.875em;
             background: #2a2a2a;
             padding: 0.1em 0.4em;
@@ -1624,7 +1624,7 @@ LIMIT 20;
     "version": 2,
     "theme": "dark",
     "font": {
-        "family": "JetBrains Mono",
+        "family": "Display Mono",
         "size": 13.0,
         "line_height": 1.2,
         "bold_weight": 700,

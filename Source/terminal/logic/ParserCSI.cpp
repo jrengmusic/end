@@ -236,8 +236,9 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
                 // Report text area size in pixels: ESC [ 4 ; height ; width t
                 const int cellW { physCellWidthAtomic.load (std::memory_order_relaxed) };
                 const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
-                const int totalW { cellW * state.getCols() };
-                const int totalH { cellH * state.getVisibleRows() };
+                const auto total { jam::Cell::Point::totalPixels<int> (jam::Cell { state.getCols() }, jam::Cell { state.getVisibleRows() }, jam::Bounds { cellW, cellH }) };
+                const int totalW { total.x };
+                const int totalH { total.y };
 
                 if (totalW > 0 and totalH > 0)
                 {

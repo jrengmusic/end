@@ -13,7 +13,48 @@ Three disconnected pieces need to become one pipeline:
 
 3. **Screen::render() is a stub** — Grid → Screen → TextEditor content pipeline is not wired. Screen::rebuildContent() exists but rebuilds ALL content as a flat string. No incremental updates.
 
-These are one problem: a rendering pipeline from Grid content to cached pixels, driven by existing dirty signals.
+4. **TextEditor's rendering pipeline is broken for non-ASCII** — two independent font systems that don't talk to each other:
+   - JUCE's ShapedText shapes text using JUCE's system font lookup + JUCE's fallback chain, producing glyph IDs from whatever font JUCE chose.
+   - `drawContent → drawGlyphs` receives those glyph IDs but renders via `jam::Typeface` which has a DIFFERENT fallback chain. Glyph IDs from JUCE's font are meaningless to jam's typeface.
+   - Result: any codepoint not in the primary JUCE system font renders as "?" — even when jam::Typeface's fallback chain has the glyph.
+   - Additionally, `juce::String`'s `const char*` construction path silently corrupts bytes > 127 in release builds. Text entering TextEditor through this path is destroyed before it ever reaches rendering.
+
+These are one problem: a rendering pipeline from Grid content to cached pixels, driven by existing dirty signals, using jam's proven codepoint → Typeface → Atlas rendering path.
+
+## Root Cause Analysis
+
+### The proven pipeline (f385f70)
+
+The old `Terminal::Renderer::Glyph` at commit f385f70 had a working rendering pipeline:
+
+```
+Grid::Cell (uint32_t codepoint)
+  → buildCodepointSequence (uint32_t[] from Cell + Grapheme)
+  → Typeface::shapeText (style, codepoints[], count)
+  → GlyphRun { glyphs[], count, fontHandle }    ← correct fontHandle from fallback chain
+  → emitShapedGlyphsToCache (uses shaped.fontHandle)
+  → Packer::getOrRasterize (Key{glyphIndex, fontHandle, ...})
+```
+
+This pipeline worked for ALL Unicode: box drawing, emoji, CJK, NF icons, fullwidth chars. It was abandoned not because rendering was broken but because the architecture around it was wrong: manual layout, fighting JUCE Component hierarchy, text wrapping/reflow micro-management — BLESSED violations.
+
+### What TextEditor broke
+
+TextEditor was adopted for its architecture (wrapping, reflow, Component integration). But it severed the rendering pipeline by inserting `juce::String` + JUCE's ShapedText:
+
+```
+juce::String (UTF-8, asserts for > 127 via const char*)
+  → JUCE ShapedText (shapes with JUCE's fonts, produces JUCE glyph IDs)
+  → drawContent receives JUCE glyph IDs
+  → drawGlyphs builds Key{glyphId, mainFont, ...}   ← ALWAYS mainFont, ignores fallback
+  → Atlas rasterizes glyph ID from wrong font → .notdef → "?"
+```
+
+Two failures: storage corruption (`const char*` > 127) and glyph ID mismatch (JUCE's font vs jam's font).
+
+### The fix
+
+Replace JUCE's ShapedText with jam's own shaping/layout engine, reconnecting the proven codepoint → `Typeface::shapeText` → Atlas pipeline. TextEditor keeps its architectural role (wrapping, reflow, Component integration). jam owns the entire text pipeline: storage, shaping, layout, rendering.
 
 ## Architecture
 
@@ -29,8 +70,14 @@ Parser → Grid::Writer
                                         ScopedTryLock(resizeLock)
                                         screen.feedContent(grid, dirtyRows)
                                           ↓
-                                        Grid Lines → text → TextEditor::setText()
-                                        (incremental: only dirty paragraphs)
+                                        Grid Cell → resolve Color → Glyph::Pen
+                                        build Glyph::Pens per dirty paragraph
+                                        TextEditor::setText(pens) / setParagraph(i, pens)
+                                          ↓
+                                        Glyph::ShapedText consumes Pens
+                                          shapeText(codepoints) per run
+                                          positions: mono=fixed advance, proportional=natural
+                                          line breaking: mono=column count, proportional=word-aware
                                           ↓
                                         JUCE schedules repaint(dirty clip)
                                           ↓
@@ -42,12 +89,96 @@ Parser → Grid::Writer
                                           clear only dirty strip
                                           ↓
                                         drawContent → composite only clip paragraphs
+                                          from ShapedText glyph runs
+                                          correct fontHandle per glyph (from Typeface fallback)
                                           ↓
                                         Glyph::Graphics::pop(g)
                                           blit renderTarget (mostly cached pixels)
 ```
 
 Unidirectional. No backflow. UI never mutates Grid. Dirty tracking is Grid's existing 256-bit atomic bitmask. State signals via existing acquire/release. JUCE provides dirty clips. Glyph::Graphics trusts the clip as sole invalidation signal.
+
+## New jam Types
+
+### Glyph::Pen
+
+The rich text unit. Carries codepoint + resolved visual attributes. Terminal-specific — WHELMED introduces its own type for proportional text later.
+
+```cpp
+struct Pen
+{
+    uint32_t     codepoint;    // Unicode scalar, 0 = empty
+    juce::Colour fg;           // resolved foreground (4 bytes)
+    juce::Colour bg;           // resolved background (4 bytes)
+    uint8_t      style;        // SGR: BOLD, ITALIC, UNDERLINE, STRIKE, BLINK, INVERSE, DIM
+    uint8_t      width;        // display columns (1 or 2)
+    uint8_t      layout;       // WIDE_CONT, EMOJI, HAS_GRAPHEME, HYPERLINK
+    uint8_t      reserved;     // pad to 16 bytes
+};
+
+static_assert (sizeof (Pen) == 16);
+static_assert (std::is_trivially_copyable_v<Pen>);
+```
+
+Colors are resolved `juce::Colour` — final form for rendering. Resolution from `Terminal::Color` + Theme happens at the Grid → Screen boundary via a static helper in Glyph.
+
+### Glyph::Grapheme
+
+Combining marks sidecar. Indexed by position when Pen's layout flag `HAS_GRAPHEME` is set. Same pattern as current `Terminal::Grapheme`.
+
+```cpp
+struct Grapheme
+{
+    std::array<uint32_t, 7> extraCodepoints;
+    uint8_t count;
+};
+```
+
+### Glyph::Pens
+
+Rich string type. Sequence of Pen objects + internal Grapheme sidecar. Replaces `juce::String` as TextEditor's text type.
+
+```cpp
+class Pens
+{
+public:
+    // Construction
+    // ... builders from Pen data, from CharPointer_UTF8 (convenience)
+
+    int size() const noexcept;
+    const Pen& operator[] (int index) const noexcept;
+
+    const Grapheme* getGrapheme (int index) const noexcept;  // nullptr if no grapheme at index
+
+private:
+    juce::HeapBlock<Pen> pens;
+    juce::HeapBlock<Grapheme> graphemes;   // sidecar, indexed by position
+    int count { 0 };
+};
+```
+
+Storage: `juce::HeapBlock` — established codebase pattern for trivially-copyable data. Same as Grid's cell storage and Glyph cache storage.
+
+### Glyph::ShapedText
+
+Layout + shaping engine. Replaces JUCE's ShapedText entirely. Consumes Pens, produces positioned glyph runs via `Typeface::shapeText`.
+
+- **Input:** Pens + layout mode + wrap constraint
+- **Shaping:** `Typeface::shapeText(style, codepoints, count)` → `GlyphRun{glyphs, fontHandle}` — correct fontHandle per glyph from jam's fallback chain
+- **Positioning:**
+  - Monospace: fixed advance = cell width. Character-level wrap at column count.
+  - Proportional: natural advance from Typeface metrics. Word-aware wrap at pixel boundary.
+- **Output:** Positioned glyph runs per line (glyphIndex, fontHandle, position, color, isEmoji). Consumed by `Glyph::Graphics` for compositing into renderTarget.
+
+### TextEditor API
+
+```cpp
+void setText (const Glyph::Pens& pens);
+void setParagraph (int index, const Glyph::Pens& pens);
+void setText (juce::CharPointer_UTF8 text);   // convenience — creates Pens with default fg/bg
+```
+
+`setText(const Glyph::Pens&)` is the primary API. `CharPointer_UTF8` overload is convenience for test fixtures and non-terminal use — explicit encoding, no ambiguous `const char*`.
 
 ## Part 1: Glyph::Graphics Optimization
 
@@ -224,9 +355,9 @@ Zero API change for Parser. One indirection per row change, zero per character.
 
 ### 2.7 What's deleted from old RFC
 
-- **Layer 2 (jam::Wrap)** — TextEditor with `withAllowBreakingInsideWord()` handles character-level wrapping. No custom wrap function for monospace.
-- **Layer 3 (Terminal::Layout::computeRowAdvances)** — TextEditor handles glyph positioning via JUCE ShapedText. No custom layout function.
-- **proportional rendering** — deferred. TextEditor + ShapedText handles it when needed.
+- **Layer 2 (jam::Wrap)** — TextEditor with ShapedText handles character-level wrapping for monospace. No custom wrap function.
+- **Layer 3 (Terminal::Layout::computeRowAdvances)** — ShapedText handles glyph positioning via Typeface::shapeText. No custom layout function.
+- **proportional rendering** — supported by ShapedText (word-aware wrapping, natural advance widths). WHELMED input type deferred.
 - **RowState::isWrapped** — eliminated. Soft-wrap implicit from `row.cellOffset + numCols < line.length`.
 
 ## Part 3: Screen Content Feed
@@ -235,34 +366,37 @@ Screen is a TextEditor subclass. It feeds content. It does not render.
 
 ### 3.1 Rename render() → feedContent()
 
-Screen translates Grid cell storage to TextEditor text. That's its only job.
+Screen translates Grid cell storage to Glyph::Pens. That's its only job.
 
-### 3.2 Incremental content feed
+### 3.2 Color resolution at the boundary
 
-Current `rebuildContent()` rebuilds ALL content as a flat string. New approach:
+Grid cells store `Terminal::Color` (4 bytes, palette/rgb/default mode). Screen resolves to `juce::Colour` using the active Theme via a static helper in Glyph. This happens at the Grid → Screen boundary, once per cell, producing Pen with resolved colors.
+
+```cpp
+// Static helper in Glyph
+static juce::Colour resolveColor (const Terminal::Color& color, const Theme& theme) noexcept;
+```
+
+### 3.3 Incremental content feed
+
+Only dirty rows are translated and fed. TextEditor receives targeted updates. JUCE schedules repaint for only the affected paragraphs.
 
 ```cpp
 void Screen::feedContent (const Grid& grid, const DirtyRows& dirty)
 {
     const int lineCount { grid.getLineCount() };
-    const int cols { grid.getCols() };
 
     for (int row { 0 }; row < lineCount; ++row)
     {
         if (dirty.isSet (row))
         {
-            // Translate Grid Line cells → text for this paragraph
-            // Update only this paragraph in TextEditor
+            // Resolve Grid Cell → Glyph::Pen (color resolution)
+            // Build Glyph::Pens for this paragraph
+            // setParagraph (row, pens)
         }
     }
 }
 ```
-
-Only dirty rows are translated and fed. TextEditor receives targeted updates. JUCE schedules repaint for only the affected paragraphs.
-
-### 3.3 Cell → text translation
-
-Per-line: walk cells, skip wide continuations, emit codepoints as UTF-8. Resolve colors via `resolveColour()` → apply as TextEditor attributed text (colour per run). This is what `rebuildContent()` already does, scoped to dirty lines only.
 
 ### 3.4 What Screen does NOT do
 
@@ -271,15 +405,36 @@ Per-line: walk cells, skip wide continuations, emit codepoints as UTF-8. Resolve
 - Does not track dirty state (Grid's atomic bitmask, consumed by Display)
 - Does not resize Grid (unidirectional — Grid resize comes through Parser/State channel)
 
+## Rendering Integration
+
+### What changes
+
+| Layer | Before | After |
+|---|---|---|
+| Storage | `juce::String` (UTF-8, asserts > 127) | `Glyph::Pens` (Pen array, HeapBlock) |
+| Layout | JUCE ShapedText | `Glyph::ShapedText` — jam Typeface metrics |
+| Shaping | JUCE ShapedText (JUCE's fonts) | `Typeface::shapeText` (jam's fallback chain) |
+| TextEditor API | `setText(const juce::String&)` | `setText(const Glyph::Pens&)` |
+
+### What stays
+
+| Layer | Status |
+|---|---|
+| Compositing | `Glyph::Graphics` → renderTarget → SIMD pixel ops — unchanged |
+| Output | `g.drawImageAt()` blit via `juce::Graphics` — unchanged |
+| Atlas | `Glyph::Atlas` (CPU `juce::Image`, mono R8 + emoji ARGB) — unchanged |
+| Packer | `Glyph::Packer` — unchanged |
+| Context integration | Works with any `juce::LowLevelGraphicsContext` — unchanged |
+
 ## BLESSED Compliance
 
-- **B (Bound)** — Line owns cells. Lines owns Lines. renderTarget owned by Graphics. Clear lifecycle at each layer.
-- **L (Lean)** — Grid reflow: ~450 lines → ~30. Glyph::Graphics: three additions to push/pop, no new classes. Screen: feedContent replaces rebuildContent, same logic scoped to dirty rows.
-- **E (Explicit)** — Row explicitly maps visual → logical. push() explicitly receives clip. No magic dirty detection — atomic bitmask consumed explicitly.
-- **S (SSOT)** — Grid Lines = content truth. renderTarget = pixel cache (downstream, never authoritative). No shadow state.
-- **S (Stateless)** — Row mapping is pure function of Lines + numCols. push/pop is pure function of clip rect. No state between frames except the persistent renderTarget (cache, not truth).
-- **E (Encap)** — Grid doesn't know about pixels. Screen doesn't know about compositing. TextEditor doesn't know about Grid. Glyph::Graphics doesn't know about terminal content. Each layer communicates through its API only.
-- **D (Deterministic)** — Same Lines + same numCols = same Row mapping. Same clip + same content = same renderTarget pixels.
+- **B (Bound)** — Line owns cells. Lines owns Lines. renderTarget owned by Graphics. Pens owns Pen array + Grapheme sidecar. Clear lifecycle at each layer.
+- **L (Lean)** — Grid reflow: ~450 lines → ~30. Glyph::Graphics: three additions to push/pop, no new classes. ShapedText replaces JUCE's ShapedText, no parallel system. One font pipeline, not two.
+- **E (Explicit)** — Row explicitly maps visual → logical. push() explicitly receives clip. No ambiguous `const char*` — Pen carries uint32_t codepoints, resolved juce::Colour. Encoding is never guessed.
+- **S (SSOT)** — `Typeface::shapeText` is the SINGLE authority for codepoint → glyph resolution. No parallel font system. Grid Lines = content truth. renderTarget = pixel cache (downstream, never authoritative).
+- **S (Stateless)** — Row mapping is pure function of Lines + numCols. push/pop is pure function of clip rect. ShapedText is pure function of Pens + layout mode + wrap constraint.
+- **E (Encap)** — Grid doesn't know about pixels. Screen doesn't know about compositing. TextEditor doesn't know about Grid. Glyph::Graphics doesn't know about terminal content. Typeface owns fallback chain — callers don't pick fonts.
+- **D (Deterministic)** — Same Lines + same numCols = same Row mapping. Same Pens + same layout mode = same ShapedText output. Same clip + same content = same renderTarget pixels.
 
 ## Open Questions
 
@@ -291,13 +446,21 @@ None. All decisions made by ARCHITECT:
 - Dirty tracking stays in Grid's existing 256-bit atomic bitmask (ARCHITECT decision)
 - UI never mutates Grid, resize is rendering domain, SIGWINCH is unidirectional CLI command (ARCHITECT decision)
 - Scrollback = rendered image on Screen, not Grid data structure (ARCHITECT decision)
+- JUCE's ShapedText replaced by jam's Glyph::ShapedText (ARCHITECT decision)
+- Glyph::Pen is terminal-specific, WHELMED gets own type later (ARCHITECT decision)
+- Pen stores resolved juce::Colour, resolution at Grid→Screen boundary (ARCHITECT decision)
+- Glyph::Pens stores HeapBlock<Pen> + HeapBlock<Grapheme> sidecar (ARCHITECT decision)
+- ShapedText: monospace = fixed advance + character-level wrap; proportional = natural advance + word-aware wrap (ARCHITECT decision)
+- Both layout modes in scope (ARCHITECT decision)
 
 ## Handoff Notes
 
-- **Execution order:** Part 1 (Glyph::Graphics optimization) first — it's self-contained inside jam::TextEditor, no END changes. Part 2 (Grid logical lines) second — structural Grid migration. Part 3 (Screen content feed) third — wires the pipeline.
-- **Part 1 is a jam change.** Part 2 and 3 are END changes.
-- **RFC-logical-line-grid.md and PLAN-logical-line-grid.md are superseded.** Layer 1 content absorbed here. Layers 2-3 replaced by TextEditor.
+- **Execution order:** Part 1 (Glyph::Graphics optimization) first — self-contained inside jam::TextEditor, no END changes. New types (Pen, Pens, ShapedText) second — jam library additions. Part 2 (Grid logical lines) third — structural Grid migration. Part 3 (Screen content feed) fourth — wires the pipeline.
+- **Part 1 and new types are jam changes.** Part 2 and 3 are END changes.
+- **RFC-logical-line-grid.md and PLAN-logical-line-grid.md are superseded.** Layer 1 content absorbed here. Layers 2-3 replaced by ShapedText.
 - **Grid::Writer API preserved.** Parser hot path unchanged — directRowPtr returns pointer into Line's cell array. Zero regression risk for Parser.
 - **Thread model unchanged.** resizeLock serializes resize against writes. snapshotDirty acquire/release pairs. dirtyRows atomic bitmask. All existing patterns.
-- **Incremental feed (Part 3) requires TextEditor paragraph-level update API.** Current setText() replaces all content. May need TextEditor enhancement to update individual paragraphs without full relayout. If not feasible, full setText() with dirty-scoped content rebuild is the fallback — still better than current because Glyph::Graphics only recomposites the dirty clip.
-- **setBufferedToImage(true) on TextHolderComponent** is complementary but optional. The persistent renderTarget achieves the same cache effect at our layer. If JUCE's buffered image provides additional benefit (skip paint() entirely), it can be added later.
+- **drawGlyphs has exactly one caller** (TextEditor drawContent). Safe to modify — no other callers in either repo.
+- **Typeface::shapeText already exists and works.** The proven pipeline from f385f70. No new shaping logic — just reconnecting it through ShapedText.
+- **Typeface fallback infrastructure exists but was never wired to rendering.** userFallbackFonts populated by addFallbackFont, codepoint→glyph helpers exist (macOS: glyphForCodepoint, FreeType: FT_Get_Char_Index) — all in metrics path only. ShapedText wires them into the rendering path via shapeText.
+- **setBufferedToImage(true) on TextHolderComponent** is complementary but optional. The persistent renderTarget achieves the same cache effect at our layer.

@@ -369,7 +369,7 @@ Loading priority:
 -- end.lua
 display = {
     tab = {
-        family = "JetBrains Mono",
+        family = "Display Mono",
         size = 11,
         -- Single SVG file with both button and indicator elements
         -- Omit or set empty to use built-in default

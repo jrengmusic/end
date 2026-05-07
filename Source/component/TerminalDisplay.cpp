@@ -9,7 +9,8 @@ Terminal::Display::Display (Terminal::Processor& processorToUse)
     , vblank (this, [this] { onVBlank(); })
 {
     addAndMakeVisible (screen);
-    screen.setScrollBarWidth (config.display.scrollbarWidth);
+    screen.setScrollBarThickness (config.display.scrollbarWidth);
+    screen.setFont (juce::Font (juce::FontOptions (config.display.font.family, config.dpiCorrectedFontSize(), juce::Font::plain)));
 
     setWantsKeyboardFocus (true);
     addKeyListener (this);
@@ -47,6 +48,13 @@ void Terminal::Display::writeToPty (const char* data, int len) noexcept
 int Terminal::Display::getHintPage() const noexcept { return 0; }
 int Terminal::Display::getHintTotalPages() const noexcept { return 0; }
 
+// Helpers
+jam::Cell::Rectangle Terminal::Display::computeGridSize() const noexcept
+{
+    return jam::Cell::Rectangle (jam::Bounds { cellWidth, cellHeight },
+                                 juce::Rectangle<int> { 0, 0, screen.getWidth(), screen.getHeight() });
+}
+
 // juce::Component
 void Terminal::Display::resized()
 {
@@ -56,23 +64,60 @@ void Terminal::Display::resized()
                           .withTrimmedBottom (config.nexus.terminal.paddingBottom)
                           .withTrimmedLeft (config.nexus.terminal.paddingLeft));
 
-    const int cw { screen.getCellWidth() };
-    const int ch { screen.getCellHeight() };
+    // Compute cell metrics inline — max advance across ASCII 32-127.
+    auto* typeface { jam::Typeface::findTypeface (config.display.font.family) };
 
-    if (cw > 0 and ch > 0)
+    if (typeface != nullptr)
     {
-        const auto gridRect { jam::tui::Metrics::gridSize (cw, ch,
-                                                           screen.getWidth(),
-                                                           screen.getHeight()) };
-        const int newCols { gridRect.getWidth().value };
-        const int newRows { gridRect.getHeight().value };
+        const float fontSize { config.dpiCorrectedFontSize() };
+
+        if (fontSize > 0.0f)
+        {
+            const auto fm { typeface->getMetrics() };
+
+            if (fm.isValid())
+            {
+                const float ascent  { fm.ascent  * fontSize };
+                const float descent { fm.descent * fontSize };
+                const float leading { fm.leading * fontSize };
+
+                float maxAdvance { 0.0f };
+
+                for (uint32_t code { 32 }; code <= 127; ++code)
+                {
+                    const float adv { typeface->getAdvanceWidth (code) * fontSize };
+
+                    if (adv > maxAdvance)
+                        maxAdvance = adv;
+                }
+
+                if (maxAdvance <= 0.0f)
+                    maxAdvance = fontSize;
+
+                cellWidth  = jam::toInt (maxAdvance, true);
+                cellHeight = jam::toInt (ascent + descent + leading, true);
+                baseline   = jam::toInt (ascent, true);
+
+                screen.setText (jam::Bounds { cellWidth, cellHeight }, baseline);
+            }
+        }
+    }
+
+    if (cellWidth > 0 and cellHeight > 0)
+    {
+        const auto gridSize { computeGridSize() };
+        const int newCols { gridSize.getWidth().value };
+        const int newRows { gridSize.getHeight().value };
 
         if (newCols > 0 and newRows > 0)
         {
             processor.resized (newCols, newRows);
 
             if (processor.onResize != nullptr)
-                processor.onResize (newCols, newRows, newCols * cw, newRows * ch);
+            {
+                const auto px { jam::Cell::Point::totalPixels<int> (jam::Cell { newCols }, jam::Cell { newRows }, jam::Bounds { cellWidth, cellHeight }) };
+                processor.onResize (newCols, newRows, px.x, px.y);
+            }
         }
     }
 
@@ -102,21 +147,19 @@ void Terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::
 // juce::AsyncUpdater
 void Terminal::Display::handleAsyncUpdate()
 {
-    const int cw { screen.getCellWidth() };
-    const int ch { screen.getCellHeight() };
-
-    if (cw > 0 and ch > 0)
+    if (cellWidth > 0 and cellHeight > 0)
     {
-        const auto gridRect { jam::tui::Metrics::gridSize (cw, ch,
-                                                           screen.getWidth(),
-                                                           screen.getHeight()) };
-        const int newCols { gridRect.getWidth().value };
-        const int newRows { gridRect.getHeight().value };
+        const auto gridSize { computeGridSize() };
+        const int newCols { gridSize.getWidth().value };
+        const int newRows { gridSize.getHeight().value };
 
         if (newCols > 0 and newRows > 0)
         {
             if (processor.onResize != nullptr)
-                processor.onResize (newCols, newRows, newCols * cw, newRows * ch);
+            {
+                const auto px { jam::Cell::Point::totalPixels<int> (jam::Cell { newCols }, jam::Cell { newRows }, jam::Bounds { cellWidth, cellHeight }) };
+                processor.onResize (newCols, newRows, px.x, px.y);
+            }
         }
     }
 }
@@ -133,14 +176,6 @@ void Terminal::Display::onVBlank()
 
         if (stl.isLocked())
         {
-            Screen::CursorInfo cursor;
-            cursor.position = { state.getCursorCol(), state.getCursorRow() };
-            cursor.shape    = state.getCursorShape();
-            cursor.visible  = state.isCursorVisible();
-            cursor.focused  = state.isCursorFocused();
-            cursor.blinkOn  = state.isCursorBlinkOn();
-
-            screen.render (grid, cursor);
         }
         else
         {
