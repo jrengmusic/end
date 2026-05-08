@@ -10,8 +10,6 @@ class Screen : public jam::TextEditor
 public:
     enum ColourIds
     {
-        defaultForegroundColourId = 0x3000001,
-        defaultBackgroundColourId = 0x3000002,
         cursorColourId = 0x3000003,
         selectionColourId = 0x3000004,
         selectionCursorColourId = 0x3000005,

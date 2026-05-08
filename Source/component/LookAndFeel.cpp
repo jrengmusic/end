@@ -76,12 +76,10 @@ void LookAndFeel::setColours()
     setColour (juce::ScrollBar::trackColourId,      cfg->display.colours.scrollbarTrack);
     setColour (juce::ScrollBar::backgroundColourId, juce::Colours::transparentBlack);
 
-    setColour (Screen::defaultForegroundColourId,   cfg->display.colours.foreground);
-    setColour (Screen::defaultBackgroundColourId,   cfg->display.colours.background);
-    setColour (jam::TextEditor::backgroundColourId,     cfg->display.colours.editorBackground);
+    setColour (jam::TextEditor::backgroundColourId,     cfg->display.colours.background);
     setColour (jam::TextEditor::outlineColourId,        cfg->display.colours.editorOutline);
     setColour (jam::TextEditor::focusedOutlineColourId, cfg->display.colours.editorOutline);
-    setColour (jam::TextEditor::textColourId,       cfg->display.colours.foreground);
+    setColour (jam::TextEditor::textColourId,           cfg->display.colours.foreground);
     setColour (Screen::cursorColourId,              cfg->display.colours.cursor);
     setColour (Screen::selectionColourId,           cfg->display.colours.selection);
     setColour (Screen::selectionCursorColourId,     cfg->display.colours.selectionCursor);

@@ -18,20 +18,19 @@ void Screen::setText() noexcept
 {
     // Cell: { codepoint, style, layout, width, reserved, fg, bg }
     // Every field explicit. Comprehensive rendering test.
-
     // Colours — fg (from config via ColourIds)
-    const juce::Colour fg {};                                          // theme-default sentinel (alpha=0)
+    const juce::Colour fg {};// theme-default sentinel (alpha=0)
     const auto red { findColour (ansi1ColourId) };
     const auto grn { findColour (ansi2ColourId) };
     const auto ylw { findColour (ansi3ColourId) };
     const auto blu { findColour (ansi4ColourId) };
     const auto mag { findColour (ansi5ColourId) };
     const auto cyn { findColour (ansi6ColourId) };
-    const auto ora { juce::Colour (0xFFFF6432u) };                     // truecolor sample (intentionally not from config)
-    const auto dim { findColour (ansi8ColourId) };                     // bright black = dim
+    const auto ora { juce::Colour (0xFFFF6432u) };// truecolor sample (intentionally not from config)
+    const auto dim { findColour (ansi8ColourId) };// bright black = dim
 
     // Colours — bg
-    const juce::Colour nb {};                                          // theme-default sentinel (alpha=0)
+    const juce::Colour nb {};// theme-default sentinel (alpha=0)
     const auto dbg { juce::Colour (0xFF333333u) };// dark bg
     const auto mbg { juce::Colour (0xFF555555u) };// mid bg
     const auto rbg { juce::Colour (0xFF440000u) };// red bg
@@ -50,533 +49,533 @@ void Screen::setText() noexcept
         // === SGR styles (white on transparent) ===
         // Cell: { codepoint, style, layout, width, reserved, fg, bg }
         // "Bold"
-        { 'B',     B,  0,                      1, 0, fg,                          nb  },
-        { 'o',     B,  0,                      1, 0, fg,                          nb  },
-        { 'l',     B,  0,                      1, 0, fg,                          nb  },
-        { 'd',     B,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
+        { 'B',     B,  0,                       1, 0, fg,                         nb  },
+        { 'o',     B,  0,                       1, 0, fg,                         nb  },
+        { 'l',     B,  0,                       1, 0, fg,                         nb  },
+        { 'd',     B,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
         // "Italic"
-        { 'I',     I,  0,                      1, 0, fg,                          nb  },
-        { 't',     I,  0,                      1, 0, fg,                          nb  },
-        { 'a',     I,  0,                      1, 0, fg,                          nb  },
-        { 'l',     I,  0,                      1, 0, fg,                          nb  },
-        { 'i',     I,  0,                      1, 0, fg,                          nb  },
-        { 'c',     I,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
+        { 'I',     I,  0,                       1, 0, fg,                         nb  },
+        { 't',     I,  0,                       1, 0, fg,                         nb  },
+        { 'a',     I,  0,                       1, 0, fg,                         nb  },
+        { 'l',     I,  0,                       1, 0, fg,                         nb  },
+        { 'i',     I,  0,                       1, 0, fg,                         nb  },
+        { 'c',     I,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
         // "Under"
-        { 'U',     U,  0,                      1, 0, fg,                          nb  },
-        { 'n',     U,  0,                      1, 0, fg,                          nb  },
-        { 'd',     U,  0,                      1, 0, fg,                          nb  },
-        { 'e',     U,  0,                      1, 0, fg,                          nb  },
-        { 'r',     U,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
+        { 'U',     U,  0,                       1, 0, fg,                         nb  },
+        { 'n',     U,  0,                       1, 0, fg,                         nb  },
+        { 'd',     U,  0,                       1, 0, fg,                         nb  },
+        { 'e',     U,  0,                       1, 0, fg,                         nb  },
+        { 'r',     U,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
         // "Strike"
-        { 'S',     S,  0,                      1, 0, fg,                          nb  },
-        { 't',     S,  0,                      1, 0, fg,                          nb  },
-        { 'r',     S,  0,                      1, 0, fg,                          nb  },
-        { 'i',     S,  0,                      1, 0, fg,                          nb  },
-        { 'k',     S,  0,                      1, 0, fg,                          nb  },
-        { 'e',     S,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
+        { 'S',     S,  0,                       1, 0, fg,                         nb  },
+        { 't',     S,  0,                       1, 0, fg,                         nb  },
+        { 'r',     S,  0,                       1, 0, fg,                         nb  },
+        { 'i',     S,  0,                       1, 0, fg,                         nb  },
+        { 'k',     S,  0,                       1, 0, fg,                         nb  },
+        { 'e',     S,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
         // "Reverse"
-        { 'R',     R,  0,                      1, 0, fg,                          nb  },
-        { 'e',     R,  0,                      1, 0, fg,                          nb  },
-        { 'v',     R,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
+        { 'R',     R,  0,                       1, 0, fg,                         nb  },
+        { 'e',     R,  0,                       1, 0, fg,                         nb  },
+        { 'v',     R,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
         // "Dim"
-        { 'D',     D,  0,                      1, 0, dim,                        nb  },
-        { 'i',     D,  0,                      1, 0, dim,                        nb  },
-        { 'm',     D,  0,                      1, 0, dim,                        nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
+        { 'D',     D,  0,                       1, 0, dim,                        nb  },
+        { 'i',     D,  0,                       1, 0, dim,                        nb  },
+        { 'm',     D,  0,                       1, 0, dim,                        nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
         // "BoldItalic"
-        { 'B',     BI, 0,                      1, 0, fg,                          nb  },
-        { 'I',     BI, 0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 'B',     BI, 0,                       1, 0, fg,                         nb  },
+        { 'I',     BI, 0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === ANSI foreground colours ===
         // "Red Green Yellow Blue Magenta Cyan"
-        { 'R',     0,  0,                      1, 0, red,                        nb  },
-        { 'e',     0,  0,                      1, 0, red,                        nb  },
-        { 'd',     0,  0,                      1, 0, red,                        nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 'G',     0,  0,                      1, 0, grn,                        nb  },
-        { 'r',     0,  0,                      1, 0, grn,                        nb  },
-        { 'n',     0,  0,                      1, 0, grn,                        nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 'Y',     0,  0,                      1, 0, ylw,                        nb  },
-        { 'l',     0,  0,                      1, 0, ylw,                        nb  },
-        { 'w',     0,  0,                      1, 0, ylw,                        nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 'B',     0,  0,                      1, 0, blu,                        nb  },
-        { 'l',     0,  0,                      1, 0, blu,                        nb  },
-        { 'u',     0,  0,                      1, 0, blu,                        nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 'M',     0,  0,                      1, 0, mag,                        nb  },
-        { 'a',     0,  0,                      1, 0, mag,                        nb  },
-        { 'g',     0,  0,                      1, 0, mag,                        nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 'C',     0,  0,                      1, 0, cyn,                        nb  },
-        { 'y',     0,  0,                      1, 0, cyn,                        nb  },
-        { 'n',     0,  0,                      1, 0, cyn,                        nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 'R',     0,  0,                       1, 0, red,                        nb  },
+        { 'e',     0,  0,                       1, 0, red,                        nb  },
+        { 'd',     0,  0,                       1, 0, red,                        nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 'G',     0,  0,                       1, 0, grn,                        nb  },
+        { 'r',     0,  0,                       1, 0, grn,                        nb  },
+        { 'n',     0,  0,                       1, 0, grn,                        nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 'Y',     0,  0,                       1, 0, ylw,                        nb  },
+        { 'l',     0,  0,                       1, 0, ylw,                        nb  },
+        { 'w',     0,  0,                       1, 0, ylw,                        nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 'B',     0,  0,                       1, 0, blu,                        nb  },
+        { 'l',     0,  0,                       1, 0, blu,                        nb  },
+        { 'u',     0,  0,                       1, 0, blu,                        nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 'M',     0,  0,                       1, 0, mag,                        nb  },
+        { 'a',     0,  0,                       1, 0, mag,                        nb  },
+        { 'g',     0,  0,                       1, 0, mag,                        nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 'C',     0,  0,                       1, 0, cyn,                        nb  },
+        { 'y',     0,  0,                       1, 0, cyn,                        nb  },
+        { 'n',     0,  0,                       1, 0, cyn,                        nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Truecolor gradient (8 steps) ===
-        { 0x2588,  0,  0,                      1, 0, juce::Colour (0xFF0000FFu), nb  }, // █ blue→
-        { 0x2588,  0,  0,                      1, 0, juce::Colour (0xFF2200DDu), nb  },
-        { 0x2588,  0,  0,                      1, 0, juce::Colour (0xFF4400BBu), nb  },
-        { 0x2588,  0,  0,                      1, 0, juce::Colour (0xFF660099u), nb  },
-        { 0x2588,  0,  0,                      1, 0, juce::Colour (0xFF880077u), nb  },
-        { 0x2588,  0,  0,                      1, 0, juce::Colour (0xFFAA0055u), nb  },
-        { 0x2588,  0,  0,                      1, 0, juce::Colour (0xFFCC0033u), nb  },
-        { 0x2588,  0,  0,                      1, 0, juce::Colour (0xFFFF0000u), nb  }, // →red
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF0000FFu), nb  }, // █ blue→
+        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF2200DDu), nb  },
+        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF4400BBu), nb  },
+        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF660099u), nb  },
+        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF880077u), nb  },
+        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFFAA0055u), nb  },
+        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFFCC0033u), nb  },
+        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFFFF0000u), nb  }, // →red
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Background colours ===
-        { ' ',     0,  0,                      1, 0, fg,                          dbg },
-        { 'D',     0,  0,                      1, 0, fg,                          dbg },
-        { 'a',     0,  0,                      1, 0, fg,                          dbg },
-        { 'r',     0,  0,                      1, 0, fg,                          dbg },
-        { 'k',     0,  0,                      1, 0, fg,                          dbg },
-        { ' ',     0,  0,                      1, 0, fg,                          dbg },
-        { ' ',     0,  0,                      1, 0, fg,                          mbg },
-        { 'M',     0,  0,                      1, 0, fg,                          mbg },
-        { 'i',     0,  0,                      1, 0, fg,                          mbg },
-        { 'd',     0,  0,                      1, 0, fg,                          mbg },
-        { ' ',     0,  0,                      1, 0, fg,                          mbg },
-        { ' ',     0,  0,                      1, 0, fg,                          rbg },
-        { 'R',     0,  0,                      1, 0, fg,                          rbg },
-        { 'e',     0,  0,                      1, 0, fg,                          rbg },
-        { 'd',     0,  0,                      1, 0, fg,                          rbg },
-        { ' ',     0,  0,                      1, 0, fg,                          rbg },
-        { ' ',     0,  0,                      1, 0, fg,                          bbg },
-        { 'B',     0,  0,                      1, 0, fg,                          bbg },
-        { 'l',     0,  0,                      1, 0, fg,                          bbg },
-        { 'u',     0,  0,                      1, 0, fg,                          bbg },
-        { ' ',     0,  0,                      1, 0, fg,                          bbg },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         dbg },
+        { 'D',     0,  0,                       1, 0, fg,                         dbg },
+        { 'a',     0,  0,                       1, 0, fg,                         dbg },
+        { 'r',     0,  0,                       1, 0, fg,                         dbg },
+        { 'k',     0,  0,                       1, 0, fg,                         dbg },
+        { ' ',     0,  0,                       1, 0, fg,                         dbg },
+        { ' ',     0,  0,                       1, 0, fg,                         mbg },
+        { 'M',     0,  0,                       1, 0, fg,                         mbg },
+        { 'i',     0,  0,                       1, 0, fg,                         mbg },
+        { 'd',     0,  0,                       1, 0, fg,                         mbg },
+        { ' ',     0,  0,                       1, 0, fg,                         mbg },
+        { ' ',     0,  0,                       1, 0, fg,                         rbg },
+        { 'R',     0,  0,                       1, 0, fg,                         rbg },
+        { 'e',     0,  0,                       1, 0, fg,                         rbg },
+        { 'd',     0,  0,                       1, 0, fg,                         rbg },
+        { ' ',     0,  0,                       1, 0, fg,                         rbg },
+        { ' ',     0,  0,                       1, 0, fg,                         bbg },
+        { 'B',     0,  0,                       1, 0, fg,                         bbg },
+        { 'l',     0,  0,                       1, 0, fg,                         bbg },
+        { 'u',     0,  0,                       1, 0, fg,                         bbg },
+        { ' ',     0,  0,                       1, 0, fg,                         bbg },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === ASCII printable (full range) ===
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { '!',     0,  0,                      1, 0, fg,                          nb  },
-        { '"',     0,  0,                      1, 0, fg,                          nb  },
-        { '#',     0,  0,                      1, 0, fg,                          nb  },
-        { '$',     0,  0,                      1, 0, fg,                          nb  },
-        { '%',     0,  0,                      1, 0, fg,                          nb  },
-        { '&',     0,  0,                      1, 0, fg,                          nb  },
-        { '\'',    0,  0,                      1, 0, fg,                          nb  },
-        { '(',     0,  0,                      1, 0, fg,                          nb  },
-        { ')',     0,  0,                      1, 0, fg,                          nb  },
-        { '*',     0,  0,                      1, 0, fg,                          nb  },
-        { '+',     0,  0,                      1, 0, fg,                          nb  },
-        { ',',     0,  0,                      1, 0, fg,                          nb  },
-        { '-',     0,  0,                      1, 0, fg,                          nb  },
-        { '.',     0,  0,                      1, 0, fg,                          nb  },
-        { '/',     0,  0,                      1, 0, fg,                          nb  },
-        { '0',     0,  0,                      1, 0, fg,                          nb  },
-        { '1',     0,  0,                      1, 0, fg,                          nb  },
-        { '2',     0,  0,                      1, 0, fg,                          nb  },
-        { '3',     0,  0,                      1, 0, fg,                          nb  },
-        { '4',     0,  0,                      1, 0, fg,                          nb  },
-        { '5',     0,  0,                      1, 0, fg,                          nb  },
-        { '6',     0,  0,                      1, 0, fg,                          nb  },
-        { '7',     0,  0,                      1, 0, fg,                          nb  },
-        { '8',     0,  0,                      1, 0, fg,                          nb  },
-        { '9',     0,  0,                      1, 0, fg,                          nb  },
-        { ':',     0,  0,                      1, 0, fg,                          nb  },
-        { ';',     0,  0,                      1, 0, fg,                          nb  },
-        { '<',     0,  0,                      1, 0, fg,                          nb  },
-        { '=',     0,  0,                      1, 0, fg,                          nb  },
-        { '>',     0,  0,                      1, 0, fg,                          nb  },
-        { '?',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { '@',     0,  0,                      1, 0, fg,                          nb  },
-        { 'A',     0,  0,                      1, 0, fg,                          nb  },
-        { 'B',     0,  0,                      1, 0, fg,                          nb  },
-        { 'C',     0,  0,                      1, 0, fg,                          nb  },
-        { 'D',     0,  0,                      1, 0, fg,                          nb  },
-        { 'E',     0,  0,                      1, 0, fg,                          nb  },
-        { 'F',     0,  0,                      1, 0, fg,                          nb  },
-        { 'G',     0,  0,                      1, 0, fg,                          nb  },
-        { 'H',     0,  0,                      1, 0, fg,                          nb  },
-        { 'I',     0,  0,                      1, 0, fg,                          nb  },
-        { 'J',     0,  0,                      1, 0, fg,                          nb  },
-        { 'K',     0,  0,                      1, 0, fg,                          nb  },
-        { 'L',     0,  0,                      1, 0, fg,                          nb  },
-        { 'M',     0,  0,                      1, 0, fg,                          nb  },
-        { 'N',     0,  0,                      1, 0, fg,                          nb  },
-        { 'O',     0,  0,                      1, 0, fg,                          nb  },
-        { 'P',     0,  0,                      1, 0, fg,                          nb  },
-        { 'Q',     0,  0,                      1, 0, fg,                          nb  },
-        { 'R',     0,  0,                      1, 0, fg,                          nb  },
-        { 'S',     0,  0,                      1, 0, fg,                          nb  },
-        { 'T',     0,  0,                      1, 0, fg,                          nb  },
-        { 'U',     0,  0,                      1, 0, fg,                          nb  },
-        { 'V',     0,  0,                      1, 0, fg,                          nb  },
-        { 'W',     0,  0,                      1, 0, fg,                          nb  },
-        { 'X',     0,  0,                      1, 0, fg,                          nb  },
-        { 'Y',     0,  0,                      1, 0, fg,                          nb  },
-        { 'Z',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { '[',     0,  0,                      1, 0, fg,                          nb  },
-        { '\\',    0,  0,                      1, 0, fg,                          nb  },
-        { ']',     0,  0,                      1, 0, fg,                          nb  },
-        { '^',     0,  0,                      1, 0, fg,                          nb  },
-        { '_',     0,  0,                      1, 0, fg,                          nb  },
-        { '`',     0,  0,                      1, 0, fg,                          nb  },
-        { 'a',     0,  0,                      1, 0, fg,                          nb  },
-        { 'b',     0,  0,                      1, 0, fg,                          nb  },
-        { 'c',     0,  0,                      1, 0, fg,                          nb  },
-        { 'd',     0,  0,                      1, 0, fg,                          nb  },
-        { 'e',     0,  0,                      1, 0, fg,                          nb  },
-        { 'f',     0,  0,                      1, 0, fg,                          nb  },
-        { 'g',     0,  0,                      1, 0, fg,                          nb  },
-        { 'h',     0,  0,                      1, 0, fg,                          nb  },
-        { 'i',     0,  0,                      1, 0, fg,                          nb  },
-        { 'j',     0,  0,                      1, 0, fg,                          nb  },
-        { 'k',     0,  0,                      1, 0, fg,                          nb  },
-        { 'l',     0,  0,                      1, 0, fg,                          nb  },
-        { 'm',     0,  0,                      1, 0, fg,                          nb  },
-        { 'n',     0,  0,                      1, 0, fg,                          nb  },
-        { 'o',     0,  0,                      1, 0, fg,                          nb  },
-        { 'p',     0,  0,                      1, 0, fg,                          nb  },
-        { 'q',     0,  0,                      1, 0, fg,                          nb  },
-        { 'r',     0,  0,                      1, 0, fg,                          nb  },
-        { 's',     0,  0,                      1, 0, fg,                          nb  },
-        { 't',     0,  0,                      1, 0, fg,                          nb  },
-        { 'u',     0,  0,                      1, 0, fg,                          nb  },
-        { 'v',     0,  0,                      1, 0, fg,                          nb  },
-        { 'w',     0,  0,                      1, 0, fg,                          nb  },
-        { 'x',     0,  0,                      1, 0, fg,                          nb  },
-        { 'y',     0,  0,                      1, 0, fg,                          nb  },
-        { 'z',     0,  0,                      1, 0, fg,                          nb  },
-        { '{',     0,  0,                      1, 0, fg,                          nb  },
-        { '|',     0,  0,                      1, 0, fg,                          nb  },
-        { '}',     0,  0,                      1, 0, fg,                          nb  },
-        { '~',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { '!',     0,  0,                       1, 0, fg,                         nb  },
+        { '"',     0,  0,                       1, 0, fg,                         nb  },
+        { '#',     0,  0,                       1, 0, fg,                         nb  },
+        { '$',     0,  0,                       1, 0, fg,                         nb  },
+        { '%',     0,  0,                       1, 0, fg,                         nb  },
+        { '&',     0,  0,                       1, 0, fg,                         nb  },
+        { '\'',    0,  0,                       1, 0, fg,                         nb  },
+        { '(',     0,  0,                       1, 0, fg,                         nb  },
+        { ')',     0,  0,                       1, 0, fg,                         nb  },
+        { '*',     0,  0,                       1, 0, fg,                         nb  },
+        { '+',     0,  0,                       1, 0, fg,                         nb  },
+        { ',',     0,  0,                       1, 0, fg,                         nb  },
+        { '-',     0,  0,                       1, 0, fg,                         nb  },
+        { '.',     0,  0,                       1, 0, fg,                         nb  },
+        { '/',     0,  0,                       1, 0, fg,                         nb  },
+        { '0',     0,  0,                       1, 0, fg,                         nb  },
+        { '1',     0,  0,                       1, 0, fg,                         nb  },
+        { '2',     0,  0,                       1, 0, fg,                         nb  },
+        { '3',     0,  0,                       1, 0, fg,                         nb  },
+        { '4',     0,  0,                       1, 0, fg,                         nb  },
+        { '5',     0,  0,                       1, 0, fg,                         nb  },
+        { '6',     0,  0,                       1, 0, fg,                         nb  },
+        { '7',     0,  0,                       1, 0, fg,                         nb  },
+        { '8',     0,  0,                       1, 0, fg,                         nb  },
+        { '9',     0,  0,                       1, 0, fg,                         nb  },
+        { ':',     0,  0,                       1, 0, fg,                         nb  },
+        { ';',     0,  0,                       1, 0, fg,                         nb  },
+        { '<',     0,  0,                       1, 0, fg,                         nb  },
+        { '=',     0,  0,                       1, 0, fg,                         nb  },
+        { '>',     0,  0,                       1, 0, fg,                         nb  },
+        { '?',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { '@',     0,  0,                       1, 0, fg,                         nb  },
+        { 'A',     0,  0,                       1, 0, fg,                         nb  },
+        { 'B',     0,  0,                       1, 0, fg,                         nb  },
+        { 'C',     0,  0,                       1, 0, fg,                         nb  },
+        { 'D',     0,  0,                       1, 0, fg,                         nb  },
+        { 'E',     0,  0,                       1, 0, fg,                         nb  },
+        { 'F',     0,  0,                       1, 0, fg,                         nb  },
+        { 'G',     0,  0,                       1, 0, fg,                         nb  },
+        { 'H',     0,  0,                       1, 0, fg,                         nb  },
+        { 'I',     0,  0,                       1, 0, fg,                         nb  },
+        { 'J',     0,  0,                       1, 0, fg,                         nb  },
+        { 'K',     0,  0,                       1, 0, fg,                         nb  },
+        { 'L',     0,  0,                       1, 0, fg,                         nb  },
+        { 'M',     0,  0,                       1, 0, fg,                         nb  },
+        { 'N',     0,  0,                       1, 0, fg,                         nb  },
+        { 'O',     0,  0,                       1, 0, fg,                         nb  },
+        { 'P',     0,  0,                       1, 0, fg,                         nb  },
+        { 'Q',     0,  0,                       1, 0, fg,                         nb  },
+        { 'R',     0,  0,                       1, 0, fg,                         nb  },
+        { 'S',     0,  0,                       1, 0, fg,                         nb  },
+        { 'T',     0,  0,                       1, 0, fg,                         nb  },
+        { 'U',     0,  0,                       1, 0, fg,                         nb  },
+        { 'V',     0,  0,                       1, 0, fg,                         nb  },
+        { 'W',     0,  0,                       1, 0, fg,                         nb  },
+        { 'X',     0,  0,                       1, 0, fg,                         nb  },
+        { 'Y',     0,  0,                       1, 0, fg,                         nb  },
+        { 'Z',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { '[',     0,  0,                       1, 0, fg,                         nb  },
+        { '\\',    0,  0,                       1, 0, fg,                         nb  },
+        { ']',     0,  0,                       1, 0, fg,                         nb  },
+        { '^',     0,  0,                       1, 0, fg,                         nb  },
+        { '_',     0,  0,                       1, 0, fg,                         nb  },
+        { '`',     0,  0,                       1, 0, fg,                         nb  },
+        { 'a',     0,  0,                       1, 0, fg,                         nb  },
+        { 'b',     0,  0,                       1, 0, fg,                         nb  },
+        { 'c',     0,  0,                       1, 0, fg,                         nb  },
+        { 'd',     0,  0,                       1, 0, fg,                         nb  },
+        { 'e',     0,  0,                       1, 0, fg,                         nb  },
+        { 'f',     0,  0,                       1, 0, fg,                         nb  },
+        { 'g',     0,  0,                       1, 0, fg,                         nb  },
+        { 'h',     0,  0,                       1, 0, fg,                         nb  },
+        { 'i',     0,  0,                       1, 0, fg,                         nb  },
+        { 'j',     0,  0,                       1, 0, fg,                         nb  },
+        { 'k',     0,  0,                       1, 0, fg,                         nb  },
+        { 'l',     0,  0,                       1, 0, fg,                         nb  },
+        { 'm',     0,  0,                       1, 0, fg,                         nb  },
+        { 'n',     0,  0,                       1, 0, fg,                         nb  },
+        { 'o',     0,  0,                       1, 0, fg,                         nb  },
+        { 'p',     0,  0,                       1, 0, fg,                         nb  },
+        { 'q',     0,  0,                       1, 0, fg,                         nb  },
+        { 'r',     0,  0,                       1, 0, fg,                         nb  },
+        { 's',     0,  0,                       1, 0, fg,                         nb  },
+        { 't',     0,  0,                       1, 0, fg,                         nb  },
+        { 'u',     0,  0,                       1, 0, fg,                         nb  },
+        { 'v',     0,  0,                       1, 0, fg,                         nb  },
+        { 'w',     0,  0,                       1, 0, fg,                         nb  },
+        { 'x',     0,  0,                       1, 0, fg,                         nb  },
+        { 'y',     0,  0,                       1, 0, fg,                         nb  },
+        { 'z',     0,  0,                       1, 0, fg,                         nb  },
+        { '{',     0,  0,                       1, 0, fg,                         nb  },
+        { '|',     0,  0,                       1, 0, fg,                         nb  },
+        { '}',     0,  0,                       1, 0, fg,                         nb  },
+        { '~',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Box drawing light ===
-        { 0x250C,  0,  0,                      1, 0, fg,                          nb  }, // ┌
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x252C,  0,  0,                      1, 0, fg,                          nb  }, // ┬
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2510,  0,  0,                      1, 0, fg,                          nb  }, // ┐
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { 0x2502,  0,  0,                      1, 0, fg,                          nb  }, // │
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x2502,  0,  0,                      1, 0, fg,                          nb  }, // │
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x2502,  0,  0,                      1, 0, fg,                          nb  }, // │
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { 0x251C,  0,  0,                      1, 0, fg,                          nb  }, // ├
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x253C,  0,  0,                      1, 0, fg,                          nb  }, // ┼
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2524,  0,  0,                      1, 0, fg,                          nb  }, // ┤
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { 0x2514,  0,  0,                      1, 0, fg,                          nb  }, // └
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2534,  0,  0,                      1, 0, fg,                          nb  }, // ┴
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x2518,  0,  0,                      1, 0, fg,                          nb  }, // ┘
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x250C,  0,  0,                       1, 0, fg,                         nb  }, // ┌
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x252C,  0,  0,                       1, 0, fg,                         nb  }, // ┬
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2510,  0,  0,                       1, 0, fg,                         nb  }, // ┐
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { 0x251C,  0,  0,                       1, 0, fg,                         nb  }, // ├
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x253C,  0,  0,                       1, 0, fg,                         nb  }, // ┼
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2524,  0,  0,                       1, 0, fg,                         nb  }, // ┤
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { 0x2514,  0,  0,                       1, 0, fg,                         nb  }, // └
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2534,  0,  0,                       1, 0, fg,                         nb  }, // ┴
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x2518,  0,  0,                       1, 0, fg,                         nb  }, // ┘
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Box drawing heavy ===
-        { 0x250F,  0,  0,                      1, 0, fg,                          nb  }, // ┏
-        { 0x2501,  0,  0,                      1, 0, fg,                          nb  }, // ━
-        { 0x2501,  0,  0,                      1, 0, fg,                          nb  }, // ━
-        { 0x2533,  0,  0,                      1, 0, fg,                          nb  }, // ┳
-        { 0x2501,  0,  0,                      1, 0, fg,                          nb  }, // ━
-        { 0x2501,  0,  0,                      1, 0, fg,                          nb  }, // ━
-        { 0x2513,  0,  0,                      1, 0, fg,                          nb  }, // ┓
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { 0x2503,  0,  0,                      1, 0, fg,                          nb  }, // ┃
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x2503,  0,  0,                      1, 0, fg,                          nb  }, // ┃
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x2503,  0,  0,                      1, 0, fg,                          nb  }, // ┃
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { 0x2517,  0,  0,                      1, 0, fg,                          nb  }, // ┗
-        { 0x2501,  0,  0,                      1, 0, fg,                          nb  }, // ━
-        { 0x2501,  0,  0,                      1, 0, fg,                          nb  }, // ━
-        { 0x253B,  0,  0,                      1, 0, fg,                          nb  }, // ┻
-        { 0x2501,  0,  0,                      1, 0, fg,                          nb  }, // ━
-        { 0x2501,  0,  0,                      1, 0, fg,                          nb  }, // ━
-        { 0x251B,  0,  0,                      1, 0, fg,                          nb  }, // ┛
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x250F,  0,  0,                       1, 0, fg,                         nb  }, // ┏
+        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
+        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
+        { 0x2533,  0,  0,                       1, 0, fg,                         nb  }, // ┳
+        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
+        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
+        { 0x2513,  0,  0,                       1, 0, fg,                         nb  }, // ┓
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { 0x2503,  0,  0,                       1, 0, fg,                         nb  }, // ┃
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x2503,  0,  0,                       1, 0, fg,                         nb  }, // ┃
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x2503,  0,  0,                       1, 0, fg,                         nb  }, // ┃
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { 0x2517,  0,  0,                       1, 0, fg,                         nb  }, // ┗
+        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
+        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
+        { 0x253B,  0,  0,                       1, 0, fg,                         nb  }, // ┻
+        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
+        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
+        { 0x251B,  0,  0,                       1, 0, fg,                         nb  }, // ┛
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Box drawing double ===
-        { 0x2554,  0,  0,                      1, 0, fg,                          nb  }, // ╔
-        { 0x2550,  0,  0,                      1, 0, fg,                          nb  }, // ═
-        { 0x2550,  0,  0,                      1, 0, fg,                          nb  }, // ═
-        { 0x2557,  0,  0,                      1, 0, fg,                          nb  }, // ╗
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { 0x2551,  0,  0,                      1, 0, fg,                          nb  }, // ║
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x2551,  0,  0,                      1, 0, fg,                          nb  }, // ║
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { 0x255A,  0,  0,                      1, 0, fg,                          nb  }, // ╚
-        { 0x2550,  0,  0,                      1, 0, fg,                          nb  }, // ═
-        { 0x2550,  0,  0,                      1, 0, fg,                          nb  }, // ═
-        { 0x255D,  0,  0,                      1, 0, fg,                          nb  }, // ╝
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2554,  0,  0,                       1, 0, fg,                         nb  }, // ╔
+        { 0x2550,  0,  0,                       1, 0, fg,                         nb  }, // ═
+        { 0x2550,  0,  0,                       1, 0, fg,                         nb  }, // ═
+        { 0x2557,  0,  0,                       1, 0, fg,                         nb  }, // ╗
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { 0x2551,  0,  0,                       1, 0, fg,                         nb  }, // ║
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x2551,  0,  0,                       1, 0, fg,                         nb  }, // ║
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { 0x255A,  0,  0,                       1, 0, fg,                         nb  }, // ╚
+        { 0x2550,  0,  0,                       1, 0, fg,                         nb  }, // ═
+        { 0x2550,  0,  0,                       1, 0, fg,                         nb  }, // ═
+        { 0x255D,  0,  0,                       1, 0, fg,                         nb  }, // ╝
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Box drawing rounded ===
-        { 0x256D,  0,  0,                      1, 0, fg,                          nb  }, // ╭
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x256E,  0,  0,                      1, 0, fg,                          nb  }, // ╮
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { 0x2502,  0,  0,                      1, 0, fg,                          nb  }, // │
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x2502,  0,  0,                      1, 0, fg,                          nb  }, // │
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
-        { 0x2570,  0,  0,                      1, 0, fg,                          nb  }, // ╰
-        { 0x2500,  0,  0,                      1, 0, fg,                          nb  }, // ─
-        { 0x256F,  0,  0,                      1, 0, fg,                          nb  }, // ╯
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x256D,  0,  0,                       1, 0, fg,                         nb  }, // ╭
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x256E,  0,  0,                       1, 0, fg,                         nb  }, // ╮
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        { 0x2570,  0,  0,                       1, 0, fg,                         nb  }, // ╰
+        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
+        { 0x256F,  0,  0,                       1, 0, fg,                         nb  }, // ╯
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Block elements ===
-        { 0x2580,  0,  0,                      1, 0, fg,                          nb  }, // ▀
-        { 0x2581,  0,  0,                      1, 0, fg,                          nb  }, // ▁
-        { 0x2582,  0,  0,                      1, 0, fg,                          nb  }, // ▂
-        { 0x2583,  0,  0,                      1, 0, fg,                          nb  }, // ▃
-        { 0x2584,  0,  0,                      1, 0, fg,                          nb  }, // ▄
-        { 0x2585,  0,  0,                      1, 0, fg,                          nb  }, // ▅
-        { 0x2586,  0,  0,                      1, 0, fg,                          nb  }, // ▆
-        { 0x2587,  0,  0,                      1, 0, fg,                          nb  }, // ▇
-        { 0x2588,  0,  0,                      1, 0, fg,                          nb  }, // █
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x258C,  0,  0,                      1, 0, fg,                          nb  }, // ▌
-        { 0x2590,  0,  0,                      1, 0, fg,                          nb  }, // ▐
-        { 0x2591,  0,  0,                      1, 0, fg,                          nb  }, // ░
-        { 0x2592,  0,  0,                      1, 0, fg,                          nb  }, // ▒
-        { 0x2593,  0,  0,                      1, 0, fg,                          nb  }, // ▓
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2580,  0,  0,                       1, 0, fg,                         nb  }, // ▀
+        { 0x2581,  0,  0,                       1, 0, fg,                         nb  }, // ▁
+        { 0x2582,  0,  0,                       1, 0, fg,                         nb  }, // ▂
+        { 0x2583,  0,  0,                       1, 0, fg,                         nb  }, // ▃
+        { 0x2584,  0,  0,                       1, 0, fg,                         nb  }, // ▄
+        { 0x2585,  0,  0,                       1, 0, fg,                         nb  }, // ▅
+        { 0x2586,  0,  0,                       1, 0, fg,                         nb  }, // ▆
+        { 0x2587,  0,  0,                       1, 0, fg,                         nb  }, // ▇
+        { 0x2588,  0,  0,                       1, 0, fg,                         nb  }, // █
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x258C,  0,  0,                       1, 0, fg,                         nb  }, // ▌
+        { 0x2590,  0,  0,                       1, 0, fg,                         nb  }, // ▐
+        { 0x2591,  0,  0,                       1, 0, fg,                         nb  }, // ░
+        { 0x2592,  0,  0,                       1, 0, fg,                         nb  }, // ▒
+        { 0x2593,  0,  0,                       1, 0, fg,                         nb  }, // ▓
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Braille ===
-        { 0x2800,  0,  0,                      1, 0, fg,                          nb  }, // ⠀
-        { 0x2801,  0,  0,                      1, 0, fg,                          nb  }, // ⠁
-        { 0x2803,  0,  0,                      1, 0, fg,                          nb  }, // ⠃
-        { 0x2807,  0,  0,                      1, 0, fg,                          nb  }, // ⠇
-        { 0x280F,  0,  0,                      1, 0, fg,                          nb  }, // ⠏
-        { 0x283F,  0,  0,                      1, 0, fg,                          nb  }, // ⠿
-        { 0x28FF,  0,  0,                      1, 0, fg,                          nb  }, // ⣿
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2800,  0,  0,                       1, 0, fg,                         nb  }, // ⠀
+        { 0x2801,  0,  0,                       1, 0, fg,                         nb  }, // ⠁
+        { 0x2803,  0,  0,                       1, 0, fg,                         nb  }, // ⠃
+        { 0x2807,  0,  0,                       1, 0, fg,                         nb  }, // ⠇
+        { 0x280F,  0,  0,                       1, 0, fg,                         nb  }, // ⠏
+        { 0x283F,  0,  0,                       1, 0, fg,                         nb  }, // ⠿
+        { 0x28FF,  0,  0,                       1, 0, fg,                         nb  }, // ⣿
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Arrows ===
-        { 0x2190,  0,  0,                      1, 0, fg,                          nb  }, // ←
-        { 0x2191,  0,  0,                      1, 0, fg,                          nb  }, // ↑
-        { 0x2192,  0,  0,                      1, 0, fg,                          nb  }, // →
-        { 0x2193,  0,  0,                      1, 0, fg,                          nb  }, // ↓
-        { 0x2194,  0,  0,                      1, 0, fg,                          nb  }, // ↔
-        { 0x2195,  0,  0,                      1, 0, fg,                          nb  }, // ↕
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2190,  0,  0,                       1, 0, fg,                         nb  }, // ←
+        { 0x2191,  0,  0,                       1, 0, fg,                         nb  }, // ↑
+        { 0x2192,  0,  0,                       1, 0, fg,                         nb  }, // →
+        { 0x2193,  0,  0,                       1, 0, fg,                         nb  }, // ↓
+        { 0x2194,  0,  0,                       1, 0, fg,                         nb  }, // ↔
+        { 0x2195,  0,  0,                       1, 0, fg,                         nb  }, // ↕
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Math symbols ===
-        { 0x2200,  0,  0,                      1, 0, fg,                          nb  }, // ∀
-        { 0x2203,  0,  0,                      1, 0, fg,                          nb  }, // ∃
-        { 0x2205,  0,  0,                      1, 0, fg,                          nb  }, // ∅
-        { 0x221A,  0,  0,                      1, 0, fg,                          nb  }, // √
-        { 0x221E,  0,  0,                      1, 0, fg,                          nb  }, // ∞
-        { 0x2248,  0,  0,                      1, 0, fg,                          nb  }, // ≈
-        { 0x2260,  0,  0,                      1, 0, fg,                          nb  }, // ≠
-        { 0x2264,  0,  0,                      1, 0, fg,                          nb  }, // ≤
-        { 0x2265,  0,  0,                      1, 0, fg,                          nb  }, // ≥
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2200,  0,  0,                       1, 0, fg,                         nb  }, // ∀
+        { 0x2203,  0,  0,                       1, 0, fg,                         nb  }, // ∃
+        { 0x2205,  0,  0,                       1, 0, fg,                         nb  }, // ∅
+        { 0x221A,  0,  0,                       1, 0, fg,                         nb  }, // √
+        { 0x221E,  0,  0,                       1, 0, fg,                         nb  }, // ∞
+        { 0x2248,  0,  0,                       1, 0, fg,                         nb  }, // ≈
+        { 0x2260,  0,  0,                       1, 0, fg,                         nb  }, // ≠
+        { 0x2264,  0,  0,                       1, 0, fg,                         nb  }, // ≤
+        { 0x2265,  0,  0,                       1, 0, fg,                         nb  }, // ≥
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Currency ===
-        { 0x00A2,  0,  0,                      1, 0, fg,                          nb  }, // ¢
-        { 0x00A3,  0,  0,                      1, 0, fg,                          nb  }, // £
-        { 0x00A5,  0,  0,                      1, 0, fg,                          nb  }, // ¥
-        { 0x20AC,  0,  0,                      1, 0, fg,                          nb  }, // €
-        { 0x20BF,  0,  0,                      1, 0, fg,                          nb  }, // ₿
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x00A2,  0,  0,                       1, 0, fg,                         nb  }, // ¢
+        { 0x00A3,  0,  0,                       1, 0, fg,                         nb  }, // £
+        { 0x00A5,  0,  0,                       1, 0, fg,                         nb  }, // ¥
+        { 0x20AC,  0,  0,                       1, 0, fg,                         nb  }, // €
+        { 0x20BF,  0,  0,                       1, 0, fg,                         nb  }, // ₿
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Latin extended ===
-        { 0x00E0,  0,  0,                      1, 0, fg,                          nb  }, // à
-        { 0x00E1,  0,  0,                      1, 0, fg,                          nb  }, // á
-        { 0x00E9,  0,  0,                      1, 0, fg,                          nb  }, // é
-        { 0x00F1,  0,  0,                      1, 0, fg,                          nb  }, // ñ
-        { 0x00FC,  0,  0,                      1, 0, fg,                          nb  }, // ü
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x00E0,  0,  0,                       1, 0, fg,                         nb  }, // à
+        { 0x00E1,  0,  0,                       1, 0, fg,                         nb  }, // á
+        { 0x00E9,  0,  0,                       1, 0, fg,                         nb  }, // é
+        { 0x00F1,  0,  0,                       1, 0, fg,                         nb  }, // ñ
+        { 0x00FC,  0,  0,                       1, 0, fg,                         nb  }, // ü
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Greek ===
-        { 0x03B1,  0,  0,                      1, 0, fg,                          nb  }, // α
-        { 0x03B2,  0,  0,                      1, 0, fg,                          nb  }, // β
-        { 0x03B3,  0,  0,                      1, 0, fg,                          nb  }, // γ
-        { 0x03B4,  0,  0,                      1, 0, fg,                          nb  }, // δ
-        { 0x03BB,  0,  0,                      1, 0, fg,                          nb  }, // λ
-        { 0x03C0,  0,  0,                      1, 0, fg,                          nb  }, // π
-        { 0x03C9,  0,  0,                      1, 0, fg,                          nb  }, // ω
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x03B1,  0,  0,                       1, 0, fg,                         nb  }, // α
+        { 0x03B2,  0,  0,                       1, 0, fg,                         nb  }, // β
+        { 0x03B3,  0,  0,                       1, 0, fg,                         nb  }, // γ
+        { 0x03B4,  0,  0,                       1, 0, fg,                         nb  }, // δ
+        { 0x03BB,  0,  0,                       1, 0, fg,                         nb  }, // λ
+        { 0x03C0,  0,  0,                       1, 0, fg,                         nb  }, // π
+        { 0x03C9,  0,  0,                       1, 0, fg,                         nb  }, // ω
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Cyrillic ===
-        { 0x0430,  0,  0,                      1, 0, fg,                          nb  }, // а
-        { 0x0431,  0,  0,                      1, 0, fg,                          nb  }, // б
-        { 0x0432,  0,  0,                      1, 0, fg,                          nb  }, // в
-        { 0x0433,  0,  0,                      1, 0, fg,                          nb  }, // г
-        { 0x0434,  0,  0,                      1, 0, fg,                          nb  }, // д
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x0430,  0,  0,                       1, 0, fg,                         nb  }, // а
+        { 0x0431,  0,  0,                       1, 0, fg,                         nb  }, // б
+        { 0x0432,  0,  0,                       1, 0, fg,                         nb  }, // в
+        { 0x0433,  0,  0,                       1, 0, fg,                         nb  }, // г
+        { 0x0434,  0,  0,                       1, 0, fg,                         nb  }, // д
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === CJK — width 2 ===
-        { 0x4F60,  0,  0,                      2, 0, fg,                          nb  }, // 你
-        { 0x597D,  0,  0,                      2, 0, fg,                          nb  }, // 好
-        { 0x4E16,  0,  0,                      2, 0, fg,                          nb  }, // 世
-        { 0x754C,  0,  0,                      2, 0, fg,                          nb  }, // 界
-        { 0x7AEF,  0,  0,                      2, 0, fg,                          nb  }, // 端
-        { 0x672B,  0,  0,                      2, 0, fg,                          nb  }, // 末
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x4F60,  0,  0,                       2, 0, fg,                         nb  }, // 你
+        { 0x597D,  0,  0,                       2, 0, fg,                         nb  }, // 好
+        { 0x4E16,  0,  0,                       2, 0, fg,                         nb  }, // 世
+        { 0x754C,  0,  0,                       2, 0, fg,                         nb  }, // 界
+        { 0x7AEF,  0,  0,                       2, 0, fg,                         nb  }, // 端
+        { 0x672B,  0,  0,                       2, 0, fg,                         nb  }, // 末
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Hiragana ===
-        { 0x3042,  0,  0,                      2, 0, fg,                          nb  }, // あ
-        { 0x3044,  0,  0,                      2, 0, fg,                          nb  }, // い
-        { 0x3046,  0,  0,                      2, 0, fg,                          nb  }, // う
-        { 0x3048,  0,  0,                      2, 0, fg,                          nb  }, // え
-        { 0x304A,  0,  0,                      2, 0, fg,                          nb  }, // お
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x3042,  0,  0,                       2, 0, fg,                         nb  }, // あ
+        { 0x3044,  0,  0,                       2, 0, fg,                         nb  }, // い
+        { 0x3046,  0,  0,                       2, 0, fg,                         nb  }, // う
+        { 0x3048,  0,  0,                       2, 0, fg,                         nb  }, // え
+        { 0x304A,  0,  0,                       2, 0, fg,                         nb  }, // お
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Katakana ===
-        { 0x30A2,  0,  0,                      2, 0, fg,                          nb  }, // ア
-        { 0x30A4,  0,  0,                      2, 0, fg,                          nb  }, // イ
-        { 0x30A6,  0,  0,                      2, 0, fg,                          nb  }, // ウ
-        { 0x30A8,  0,  0,                      2, 0, fg,                          nb  }, // エ
-        { 0x30AA,  0,  0,                      2, 0, fg,                          nb  }, // オ
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x30A2,  0,  0,                       2, 0, fg,                         nb  }, // ア
+        { 0x30A4,  0,  0,                       2, 0, fg,                         nb  }, // イ
+        { 0x30A6,  0,  0,                       2, 0, fg,                         nb  }, // ウ
+        { 0x30A8,  0,  0,                       2, 0, fg,                         nb  }, // エ
+        { 0x30AA,  0,  0,                       2, 0, fg,                         nb  }, // オ
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Korean Hangul — width 2 ===
-        { 0xAC00,  0,  0,                      2, 0, fg,                          nb  }, // 가
-        { 0xB098,  0,  0,                      2, 0, fg,                          nb  }, // 나
-        { 0xB2E4,  0,  0,                      2, 0, fg,                          nb  }, // 다
-        { 0xB77C,  0,  0,                      2, 0, fg,                          nb  }, // 라
-        { 0xB9C8,  0,  0,                      2, 0, fg,                          nb  }, // 마
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0xAC00,  0,  0,                       2, 0, fg,                         nb  }, // 가
+        { 0xB098,  0,  0,                       2, 0, fg,                         nb  }, // 나
+        { 0xB2E4,  0,  0,                       2, 0, fg,                         nb  }, // 다
+        { 0xB77C,  0,  0,                       2, 0, fg,                         nb  }, // 라
+        { 0xB9C8,  0,  0,                       2, 0, fg,                         nb  }, // 마
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Fullwidth — width 2 ===
-        { 0xFF21,  0,  0,                      2, 0, fg,                          nb  }, // Ａ
-        { 0xFF22,  0,  0,                      2, 0, fg,                          nb  }, // Ｂ
-        { 0xFF23,  0,  0,                      2, 0, fg,                          nb  }, // Ｃ
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0xFF21,  0,  0,                       2, 0, fg,                         nb  }, // Ａ
+        { 0xFF22,  0,  0,                       2, 0, fg,                         nb  }, // Ｂ
+        { 0xFF23,  0,  0,                       2, 0, fg,                         nb  }, // Ｃ
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Emoji — width 2, LAYOUT_EMOJI ===
-        { 0x1F525, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                          nb  }, // 🔥
-        { 0x1F680, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                          nb  }, // 🚀
-        { 0x1F4BB, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                          nb  }, // 💻
-        { 0x1F427, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                          nb  }, // 🐧
-        { 0x1F3B5, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                          nb  }, // 🎵
-        { 0x1F30D, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                          nb  }, // 🌍
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x1F525, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🔥
+        { 0x1F680, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🚀
+        { 0x1F4BB, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 💻
+        { 0x1F427, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🐧
+        { 0x1F3B5, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🎵
+        { 0x1F30D, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🌍
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Powerline — width 1 ===
-        { 0xE0A0,  0,  0,                      1, 0, fg,                          nb  }, //  (branch)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xE0A1,  0,  0,                      1, 0, fg,                          nb  }, //  (LN)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xE0A2,  0,  0,                      1, 0, fg,                          nb  }, //  (lock)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xE0B0,  0,  0,                      1, 0, fg,                          nb  }, //  (right triangle)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xE0B2,  0,  0,                      1, 0, fg,                          nb  }, //  (left triangle)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0xE0A0,  0,  0,                       1, 0, fg,                         nb  }, //  (branch)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xE0A1,  0,  0,                       1, 0, fg,                         nb  }, //  (LN)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xE0A2,  0,  0,                       1, 0, fg,                         nb  }, //  (lock)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xE0B0,  0,  0,                       1, 0, fg,                         nb  }, //  (right triangle)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xE0B2,  0,  0,                       1, 0, fg,                         nb  }, //  (left triangle)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Nerd Font icons — width 1 ===
-        { 0xF121,  0,  0,                      1, 0, fg,                          nb  }, //  (code)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xF07B,  0,  0,                      1, 0, fg,                          nb  }, //  (folder)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xF15C,  0,  0,                      1, 0, fg,                          nb  }, //  (file)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xF1D3,  0,  0,                      1, 0, fg,                          nb  }, //  (git)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xF013,  0,  0,                      1, 0, fg,                          nb  }, //  (gear)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xF015,  0,  0,                      1, 0, fg,                          nb  }, //  (home)
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0xF121,  0,  0,                       1, 0, fg,                         nb  }, //  (code)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xF07B,  0,  0,                       1, 0, fg,                         nb  }, //  (folder)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xF15C,  0,  0,                       1, 0, fg,                         nb  }, //  (file)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xF1D3,  0,  0,                       1, 0, fg,                         nb  }, //  (git)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xF013,  0,  0,                       1, 0, fg,                         nb  }, //  (gear)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xF015,  0,  0,                       1, 0, fg,                         nb  }, //  (home)
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Geometric shapes ===
-        { 0x25A0,  0,  0,                      1, 0, fg,                          nb  }, // ■
-        { 0x25A1,  0,  0,                      1, 0, fg,                          nb  }, // □
-        { 0x25B2,  0,  0,                      1, 0, fg,                          nb  }, // ▲
-        { 0x25BC,  0,  0,                      1, 0, fg,                          nb  }, // ▼
-        { 0x25C0,  0,  0,                      1, 0, fg,                          nb  }, // ◀
-        { 0x25B6,  0,  0,                      1, 0, fg,                          nb  }, // ▶
-        { 0x25CB,  0,  0,                      1, 0, fg,                          nb  }, // ○
-        { 0x25CF,  0,  0,                      1, 0, fg,                          nb  }, // ●
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x25A0,  0,  0,                       1, 0, fg,                         nb  }, // ■
+        { 0x25A1,  0,  0,                       1, 0, fg,                         nb  }, // □
+        { 0x25B2,  0,  0,                       1, 0, fg,                         nb  }, // ▲
+        { 0x25BC,  0,  0,                       1, 0, fg,                         nb  }, // ▼
+        { 0x25C0,  0,  0,                       1, 0, fg,                         nb  }, // ◀
+        { 0x25B6,  0,  0,                       1, 0, fg,                         nb  }, // ▶
+        { 0x25CB,  0,  0,                       1, 0, fg,                         nb  }, // ○
+        { 0x25CF,  0,  0,                       1, 0, fg,                         nb  }, // ●
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Misc symbols ===
-        { 0x2605,  0,  0,                      1, 0, fg,                          nb  }, // ★
-        { 0x2606,  0,  0,                      1, 0, fg,                          nb  }, // ☆
-        { 0x2660,  0,  0,                      1, 0, fg,                          nb  }, // ♠
-        { 0x2663,  0,  0,                      1, 0, fg,                          nb  }, // ♣
-        { 0x2665,  0,  0,                      1, 0, fg,                          nb  }, // ♥
-        { 0x2666,  0,  0,                      1, 0, fg,                          nb  }, // ♦
-        { 0x266A,  0,  0,                      1, 0, fg,                          nb  }, // ♪
-        { 0x266B,  0,  0,                      1, 0, fg,                          nb  }, // ♫
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2605,  0,  0,                       1, 0, fg,                         nb  }, // ★
+        { 0x2606,  0,  0,                       1, 0, fg,                         nb  }, // ☆
+        { 0x2660,  0,  0,                       1, 0, fg,                         nb  }, // ♠
+        { 0x2663,  0,  0,                       1, 0, fg,                         nb  }, // ♣
+        { 0x2665,  0,  0,                       1, 0, fg,                         nb  }, // ♥
+        { 0x2666,  0,  0,                       1, 0, fg,                         nb  }, // ♦
+        { 0x266A,  0,  0,                       1, 0, fg,                         nb  }, // ♪
+        { 0x266B,  0,  0,                       1, 0, fg,                         nb  }, // ♫
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Dingbats ===
-        { 0x2713,  0,  0,                      1, 0, grn,                        nb  }, // ✓ green
-        { 0x2717,  0,  0,                      1, 0, red,                        nb  }, // ✗ red
-        { 0x2718,  0,  0,                      1, 0, red,                        nb  }, // ✘ red
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2713,  0,  0,                       1, 0, grn,                        nb  }, // ✓ green
+        { 0x2717,  0,  0,                       1, 0, red,                        nb  }, // ✗ red
+        { 0x2718,  0,  0,                       1, 0, red,                        nb  }, // ✘ red
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === General punctuation ===
-        { 0x2013,  0,  0,                      1, 0, fg,                          nb  }, // –
-        { 0x2014,  0,  0,                      1, 0, fg,                          nb  }, // —
-        { 0x2018,  0,  0,                      1, 0, fg,                          nb  }, // '
-        { 0x2019,  0,  0,                      1, 0, fg,                          nb  }, // '
-        { 0x201C,  0,  0,                      1, 0, fg,                          nb  }, // "
-        { 0x201D,  0,  0,                      1, 0, fg,                          nb  }, // "
-        { 0x2022,  0,  0,                      1, 0, fg,                          nb  }, // •
-        { 0x2026,  0,  0,                      1, 0, fg,                          nb  }, // …
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2013,  0,  0,                       1, 0, fg,                         nb  }, // –
+        { 0x2014,  0,  0,                       1, 0, fg,                         nb  }, // —
+        { 0x2018,  0,  0,                       1, 0, fg,                         nb  }, // '
+        { 0x2019,  0,  0,                       1, 0, fg,                         nb  }, // '
+        { 0x201C,  0,  0,                       1, 0, fg,                         nb  }, // "
+        { 0x201D,  0,  0,                       1, 0, fg,                         nb  }, // "
+        { 0x2022,  0,  0,                       1, 0, fg,                         nb  }, // •
+        { 0x2026,  0,  0,                       1, 0, fg,                         nb  }, // …
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Keyboard symbols ===
-        { 0x2318,  0,  0,                      1, 0, fg,                          nb  }, // ⌘
-        { 0x2325,  0,  0,                      1, 0, fg,                          nb  }, // ⌥
-        { 0x21E7,  0,  0,                      1, 0, fg,                          nb  }, // ⇧
-        { 0x2303,  0,  0,                      1, 0, fg,                          nb  }, // ⌃
-        { 0x238B,  0,  0,                      1, 0, fg,                          nb  }, // ⎋
-        { 0x23CE,  0,  0,                      1, 0, fg,                          nb  }, // ⏎
-        { 0x232B,  0,  0,                      1, 0, fg,                          nb  }, // ⌫
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0x2318,  0,  0,                       1, 0, fg,                         nb  }, // ⌘
+        { 0x2325,  0,  0,                       1, 0, fg,                         nb  }, // ⌥
+        { 0x21E7,  0,  0,                       1, 0, fg,                         nb  }, // ⇧
+        { 0x2303,  0,  0,                       1, 0, fg,                         nb  }, // ⌃
+        { 0x238B,  0,  0,                       1, 0, fg,                         nb  }, // ⎋
+        { 0x23CE,  0,  0,                       1, 0, fg,                         nb  }, // ⏎
+        { 0x232B,  0,  0,                       1, 0, fg,                         nb  }, // ⌫
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === END branding (Display Mono PUA) — 3-cell span ===
-        { 0xE000,  0,  0,                      1, 0, fg,                          nb  }, // END logo glyph 1
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { 0xE001,  0,  0,                      1, 0, fg,                          nb  }, // END logo glyph 2
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { ' ',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 0xE000,  0,  0,                       1, 0, fg,                         nb  }, // END logo glyph 1
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { 0xE001,  0,  0,                       1, 0, fg,                         nb  }, // END logo glyph 2
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { ' ',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
 
         // === Cell alignment: A(1) 🔥(2) B(1) 你(2) C(1) 好(2) D(1) ===
-        { 'A',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x1F525, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                          nb  },
-        { 'B',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x4F60,  0,  0,                      2, 0, fg,                          nb  },
-        { 'C',     0,  0,                      1, 0, fg,                          nb  },
-        { 0x597D,  0,  0,                      2, 0, fg,                          nb  },
-        { 'D',     0,  0,                      1, 0, fg,                          nb  },
-        { '\n',    0,  0,                      1, 0, fg,                          nb  },
+        { 'A',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x1F525, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  },
+        { 'B',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x4F60,  0,  0,                       2, 0, fg,                         nb  },
+        { 'C',     0,  0,                       1, 0, fg,                         nb  },
+        { 0x597D,  0,  0,                       2, 0, fg,                         nb  },
+        { 'D',     0,  0,                       1, 0, fg,                         nb  },
+        { '\n',    0,  0,                       1, 0, fg,                         nb  },
     };
 
     const int penCount { static_cast<int> (sizeof (pens) / sizeof (pens[0])) };
