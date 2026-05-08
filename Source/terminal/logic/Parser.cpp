@@ -247,13 +247,13 @@ void Parser::processTransition (uint8_t byte, const Transition& transition) noex
 // Row mapping helpers
 // ============================================================================
 
-Cell* Parser::rowCells (int visibleRow) noexcept
+jam::Cell* Parser::rowCells (int visibleRow) noexcept
 {
     const auto& m { rowMapping[visibleRow] };
     return writer.directLinePtr (m.lineIndex, m.cellOffset);
 }
 
-Grapheme* Parser::rowGraphemes (int visibleRow) noexcept
+jam::Grapheme* Parser::rowGraphemes (int visibleRow) noexcept
 {
     const auto& m { rowMapping[visibleRow] };
     return writer.directGraphemePtr (m.lineIndex, m.cellOffset);

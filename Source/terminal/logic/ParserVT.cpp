@@ -74,7 +74,7 @@ struct GroundOps
         int row;             ///< Current cursor row (zero-based).
         int col;             ///< Current cursor column (zero-based).
         bool wrapPending;    ///< Whether a wrap is pending at the right margin.
-        Cell* cellRow;       ///< Direct pointer to the current row's cell array.
+        jam::Cell* cellRow;  ///< Direct pointer to the current row's cell array.
         uint16_t* linkIdRow; ///< Direct pointer to the current row's linkId sidecar.
     };
 
@@ -103,7 +103,7 @@ struct GroundOps
      */
     static inline void handleLineFeed (Cursor& c, Grid::Writer& writer, Grid::Row* rowMapping,
                                        int cols, int scrollTop, int scrollBottom,
-                                       int visibleRows, const Cell& fill) noexcept
+                                       int visibleRows, const jam::Cell& fill) noexcept
     {
         c.wrapPending = false;
 
@@ -195,13 +195,13 @@ struct GroundOps
      * @param cols           Terminal column count (right margin = cols - 1).
      * @param autoWrap       Whether auto-wrap mode (DECAWM) is active.
      * @param localDirty     Bit-array of dirty rows (4 × 64-bit words = 256 rows).
-     * @param cellTemplate   Pre-populated Cell with the current pen attributes.
+     * @param cellTemplate   Pre-populated jam::Cell with the current pen attributes.
      * @param byte           The printable ASCII byte to write (0x20–0x7E).
      * @param useLineDrawing Whether the DEC Special Graphics charset is active.
      * @param activeLinkId   Current hyperlink stamp ID, or 0 when no link is active.
-     *                       When non-zero, `Cell::LAYOUT_HYPERLINK` is set on the
-     *                       written cell and `activeLinkId` is stored in the
-     *                       parallel linkId sidecar.
+     *                       When non-zero, `jam::Cell::UNDERLINE` is set on the written
+     *                       cell and `activeLinkId` is stored in the parallel
+     *                       linkId sidecar.
      *
      * @note READER THREAD only.
      *
@@ -211,7 +211,7 @@ struct GroundOps
     static inline void flushPrintRun (Cursor& c, Grid::Writer& writer, Grid::Row* rowMapping,
                                       int scrollTop, int scrollBottom,
                                       int visibleRows, int cols, bool autoWrap, uint64_t* localDirty,
-                                      Cell& cellTemplate, uint8_t byte, bool useLineDrawing, const Cell& fill,
+                                      jam::Cell& cellTemplate, uint8_t byte, bool useLineDrawing, const jam::Cell& fill,
                                       uint16_t activeLinkId) noexcept
     {
         if (c.wrapPending and autoWrap)
@@ -255,7 +255,7 @@ struct GroundOps
 
         if (activeLinkId != 0)
         {
-            c.cellRow[c.col].layout |= Cell::LAYOUT_HYPERLINK;
+            c.cellRow[c.col].style |= jam::Cell::UNDERLINE;
             c.linkIdRow[c.col] = activeLinkId;
         }
 
@@ -322,13 +322,13 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
     const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
     const int scrollBottomVal { activeScrollBottom() };
 
-    Cell cellTemplate {};
+    jam::Cell cellTemplate {};
     cellTemplate.style = stamp.style;
     cellTemplate.width = 1;
     cellTemplate.fg = stamp.fg;
     cellTemplate.bg = stamp.bg;
 
-    Cell fill {};
+    jam::Cell fill {};
     fill.bg = stamp.bg;
 
     const int initCursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
@@ -464,7 +464,7 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
             const int newOffset { prevBottomOffset + cols };
             rowMapping[scrollBot] = Grid::Row { prevBottomLine, newOffset };
 
-            Cell fill {};
+            jam::Cell fill {};
             fill.bg = stamp.bg;
             writer.eraseInLine (prevBottomLine, newOffset, newOffset + cols - 1, fill);
         }
@@ -505,7 +505,7 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
  * 1. Any pending wrap is resolved via `resolveWrapPending()`.
  * 2. If the character is wide (width 2) and would overflow the right margin,
  *    the cursor wraps to the next line (if auto-wrap is enabled).
- * 3. A `Cell` is built from the codepoint, current pen attributes, and
+ * 3. A `jam::Cell` is built from the codepoint, current pen attributes, and
  *    character width.  The codepoint is passed through `translateCharset()`
  *    to apply any active line-drawing substitution.
  * 4. For wide characters, a `LAYOUT_WIDE_CONT` continuation cell is written
@@ -544,15 +544,15 @@ void Parser::print (uint32_t codepoint) noexcept
         int prevCol { wrapping ? curCol : (curCol > 0 ? curCol - 1 : 0) };
         const int row { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
 
-        Cell* cells { rowCells (row) };
+        jam::Cell* cells { rowCells (row) };
 
-        if (cells != nullptr and prevCol > 0 and cells[prevCol].isWideContinuation())
+        if (cells != nullptr and prevCol > 0 and cells[prevCol].isWideCont())
         {
             --prevCol;
         }
 
-        Grapheme* graphemes { rowGraphemes (row) };
-        Grapheme g {};
+        jam::Grapheme* graphemes { rowGraphemes (row) };
+        jam::Grapheme g {};
 
         if (graphemes != nullptr)
         {
@@ -571,42 +571,42 @@ void Parser::print (uint32_t codepoint) noexcept
 
             const bool hasGrapheme { g.count > 0 };
             cells[prevCol].layout = hasGrapheme
-                ? (cells[prevCol].layout | Cell::LAYOUT_GRAPHEME)
-                : (cells[prevCol].layout & static_cast<uint8_t> (~Cell::LAYOUT_GRAPHEME));
+                ? (cells[prevCol].layout | jam::Cell::LAYOUT_GRAPHEME)
+                : (cells[prevCol].layout & static_cast<uint8_t> (~jam::Cell::LAYOUT_GRAPHEME));
         }
 
         if (props.isEmojiPresentation() and cells != nullptr)
         {
-            cells[prevCol].layout |= Cell::LAYOUT_EMOJI;
+            cells[prevCol].layout |= jam::Cell::LAYOUT_EMOJI;
         }
 
         if (codepoint == 0xFE0F and cells != nullptr)
         {
-            Cell& base { cells[prevCol] };
+            jam::Cell& base { cells[prevCol] };
             const auto baseProps { charPropsFor (base.codepoint) };
 
             if (baseProps.isEmojiVariationBase() and base.width == 1)
             {
                 const int cols { state.getRawValue<int> (ID::cols) };
                 base.width = 2;
-                base.layout |= Cell::LAYOUT_EMOJI;
+                base.layout |= jam::Cell::LAYOUT_EMOJI;
 
                 if (prevCol + 1 < cols)
                 {
-                    Cell cont {};
+                    jam::Cell cont {};
                     cont.codepoint = 0;
                     cont.style = base.style;
                     cont.width = 1;
                     cont.fg = base.fg;
                     cont.bg = base.bg;
-                    cont.layout = Cell::LAYOUT_WIDE_CONT;
+                    cont.layout = jam::Cell::LAYOUT_WIDE_CONT;
                     cells[prevCol + 1] = cont;
 
-                    Grapheme* g2 { rowGraphemes (row) };
+                    jam::Grapheme* g2 { rowGraphemes (row) };
                     if (g2 != nullptr)
                     {
-                        g2[prevCol + 1] = Grapheme {};
-                        cells[prevCol + 1].layout &= static_cast<uint8_t> (~Cell::LAYOUT_GRAPHEME);
+                        g2[prevCol + 1] = jam::Grapheme {};
+                        cells[prevCol + 1].layout &= static_cast<uint8_t> (~jam::Cell::LAYOUT_GRAPHEME);
                     }
                 }
 
@@ -625,25 +625,25 @@ void Parser::print (uint32_t codepoint) noexcept
 
         if (codepoint == 0xFE0E and cells != nullptr)
         {
-            Cell& base { cells[prevCol] };
+            jam::Cell& base { cells[prevCol] };
             const auto baseProps { charPropsFor (base.codepoint) };
 
             if (baseProps.isEmojiVariationBase() and base.width == 2)
             {
                 base.width = 1;
-                base.layout &= static_cast<uint8_t> (~Cell::LAYOUT_EMOJI);
+                base.layout &= static_cast<uint8_t> (~jam::Cell::LAYOUT_EMOJI);
 
                 const int cols { state.getRawValue<int> (ID::cols) };
 
                 if (prevCol + 1 < cols)
                 {
-                    cells[prevCol + 1] = Cell {};
+                    cells[prevCol + 1] = jam::Cell {};
 
-                    Grapheme* g2 { rowGraphemes (row) };
+                    jam::Grapheme* g2 { rowGraphemes (row) };
                     if (g2 != nullptr)
                     {
-                        g2[prevCol + 1] = Grapheme {};
-                        cells[prevCol + 1].layout &= static_cast<uint8_t> (~Cell::LAYOUT_GRAPHEME);
+                        g2[prevCol + 1] = jam::Grapheme {};
+                        cells[prevCol + 1].layout &= static_cast<uint8_t> (~jam::Cell::LAYOUT_GRAPHEME);
                     }
                 }
 
@@ -690,7 +690,7 @@ void Parser::print (uint32_t codepoint) noexcept
                     const int newOffset { prevBottomOffset + cols };
                     rowMapping[scrollBot] = Grid::Row { prevBottomLine, newOffset };
 
-                    Cell wrapFill {};
+                    jam::Cell wrapFill {};
                     wrapFill.bg = stamp.bg;
                     writer.eraseInLine (prevBottomLine, newOffset, newOffset + cols - 1, wrapFill);
                 }
@@ -711,7 +711,7 @@ void Parser::print (uint32_t codepoint) noexcept
         const int writeRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
         const int writeCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
-        Cell cell {};
+        jam::Cell cell {};
         cell.codepoint = translateCharset (codepoint, useLineDrawing);
         cell.style = stamp.style;
         cell.width = static_cast<uint8_t> (cellWidth);
@@ -720,21 +720,21 @@ void Parser::print (uint32_t codepoint) noexcept
 
         if (props.isEmojiPresentation())
         {
-            cell.layout |= Cell::LAYOUT_EMOJI;
+            cell.layout |= jam::Cell::LAYOUT_EMOJI;
         }
 
-        Cell* cells { rowCells (writeRow) };
+        jam::Cell* cells { rowCells (writeRow) };
         cells[writeCol] = cell;
 
-        Grapheme* graphemes { rowGraphemes (writeRow) };
-        graphemes[writeCol] = Grapheme {};
-        cells[writeCol].layout &= static_cast<uint8_t> (~Cell::LAYOUT_GRAPHEME);
+        jam::Grapheme* graphemes { rowGraphemes (writeRow) };
+        graphemes[writeCol] = jam::Grapheme {};
+        cells[writeCol].layout &= static_cast<uint8_t> (~jam::Cell::LAYOUT_GRAPHEME);
 
         uint16_t* linkIds { rowLinkIds (writeRow) };
 
         if (activeLinkId != 0)
         {
-            cells[writeCol].layout |= Cell::LAYOUT_HYPERLINK;
+            cells[writeCol].style |= jam::Cell::UNDERLINE;
             linkIds[writeCol] = activeLinkId;
         }
         else
@@ -746,20 +746,20 @@ void Parser::print (uint32_t codepoint) noexcept
 
         if (cellWidth == 2 and writeCol + 1 < cols)
         {
-            Cell cont {};
+            jam::Cell cont {};
             cont.codepoint = 0;
             cont.style = stamp.style;
             cont.width = 1;
             cont.fg = stamp.fg;
             cont.bg = stamp.bg;
-            cont.layout = Cell::LAYOUT_WIDE_CONT;
+            cont.layout = jam::Cell::LAYOUT_WIDE_CONT;
             cells[writeCol + 1] = cont;
-            graphemes[writeCol + 1] = Grapheme {};
-            cells[writeCol + 1].layout &= static_cast<uint8_t> (~Cell::LAYOUT_GRAPHEME);
+            graphemes[writeCol + 1] = jam::Grapheme {};
+            cells[writeCol + 1].layout &= static_cast<uint8_t> (~jam::Cell::LAYOUT_GRAPHEME);
 
             if (activeLinkId != 0)
             {
-                cells[writeCol + 1].layout |= Cell::LAYOUT_HYPERLINK;
+                cells[writeCol + 1].style |= jam::Cell::UNDERLINE;
                 linkIds[writeCol + 1] = activeLinkId;
             }
             else
@@ -819,7 +819,7 @@ void Parser::executeLineFeed (ActiveScreen scr) noexcept
         const int cols { state.getRawValue<int> (ID::cols) };
         const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
-        Cell fill {};
+        jam::Cell fill {};
         fill.bg = stamp.bg;
 
         writer.lineFeed (cursorCol);
@@ -1060,7 +1060,7 @@ void Parser::reset() noexcept
     {
         const int cols { state.getRawValue<int> (ID::cols) };
         const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
-        Cell fill {};
+        jam::Cell fill {};
 
         for (int r { 0 }; r < visibleRows; ++r)
         {

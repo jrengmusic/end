@@ -236,7 +236,7 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
                 // Report text area size in pixels: ESC [ 4 ; height ; width t
                 const int cellW { physCellWidthAtomic.load (std::memory_order_relaxed) };
                 const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
-                const auto total { jam::Cell::Point::totalPixels<int> (jam::Cell { state.getCols() }, jam::Cell { state.getVisibleRows() }, jam::Bounds { cellW, cellH }) };
+                const auto total { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { state.getCols() }, jam::metrics::Cell { state.getVisibleRows() }, jam::Bounds { cellW, cellH }) };
                 const int totalW { total.x };
                 const int totalH { total.y };
 
@@ -696,22 +696,22 @@ void Parser::scrollUp (const CSI& params) noexcept
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
 
-    Cell fill {};
+    jam::Cell fill {};
     fill.bg = stamp.bg;
 
     // Copy rows up: [scrollTop+count .. bottom] → [scrollTop .. bottom-count]
     for (int dst { scrollTop }; dst <= bottom - clampedCount; ++dst)
     {
         const int src { dst + clampedCount };
-        Cell* dstCells { rowCells (dst) };
-        const Cell* srcCells { rowCells (src) };
-        Grapheme* dstG { rowGraphemes (dst) };
-        const Grapheme* srcG { rowGraphemes (src) };
+        jam::Cell* dstCells { rowCells (dst) };
+        const jam::Cell* srcCells { rowCells (src) };
+        jam::Grapheme* dstG { rowGraphemes (dst) };
+        const jam::Grapheme* srcG { rowGraphemes (src) };
         uint16_t* dstL { rowLinkIds (dst) };
         const uint16_t* srcL { rowLinkIds (src) };
 
-        std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
-        std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+        std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (jam::Cell));
+        std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (jam::Grapheme));
         std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
 
         writer.markRowDirty (dst);
@@ -753,22 +753,22 @@ void Parser::scrollDown (const CSI& params) noexcept
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
 
-    Cell fill {};
+    jam::Cell fill {};
     fill.bg = stamp.bg;
 
     // Copy rows down: [bottom-count .. scrollTop] → [bottom .. scrollTop+count]
     for (int dst { bottom }; dst >= scrollTop + clampedCount; --dst)
     {
         const int src { dst - clampedCount };
-        Cell* dstCells { rowCells (dst) };
-        const Cell* srcCells { rowCells (src) };
-        Grapheme* dstG { rowGraphemes (dst) };
-        const Grapheme* srcG { rowGraphemes (src) };
+        jam::Cell* dstCells { rowCells (dst) };
+        const jam::Cell* srcCells { rowCells (src) };
+        jam::Grapheme* dstG { rowGraphemes (dst) };
+        const jam::Grapheme* srcG { rowGraphemes (src) };
         uint16_t* dstL { rowLinkIds (dst) };
         const uint16_t* srcL { rowLinkIds (src) };
 
-        std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
-        std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+        std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (jam::Cell));
+        std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (jam::Grapheme));
         std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
 
         writer.markRowDirty (dst);

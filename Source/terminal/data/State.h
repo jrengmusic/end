@@ -47,7 +47,7 @@
  * ```
  *
  * @see Terminal::ID   — all juce::Identifier constants used as parameter keys.
- * @see Terminal::Cell — the grid cell type whose layout this state governs.
+ * @see jam::Cell      — the grid cell type whose layout this state governs.
  */
 
 #pragma once

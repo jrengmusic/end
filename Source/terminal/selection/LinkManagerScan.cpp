@@ -31,7 +31,7 @@ void LinkManager::scanHeuristicTokens (std::vector<LinkSpan>& spans, const juce:
     {
         const auto& mapping { visibleMapping[row] };
         const auto& line { grid.getLine (mapping.lineIndex) };
-        const Cell* rowCells { line.cells.get() + mapping.cellOffset };
+        const jam::Cell* rowCells { line.cells.get() + mapping.cellOffset };
 
         int col { 0 };
 
@@ -110,19 +110,18 @@ void LinkManager::scanCellNativeLinks (std::vector<LinkSpan>& spans,
     {
         const auto& mapping { visibleMapping[row] };
         const auto& line { grid.getLine (mapping.lineIndex) };
-        const Cell* rowCells { line.cells.get() + mapping.cellOffset };
+        const jam::Cell* rowCells { line.cells.get() + mapping.cellOffset };
         const uint16_t* linkRow { line.linkIds.get() + mapping.cellOffset };
         int col { 0 };
 
         while (col < cols)
         {
-            if (rowCells[col].hasHyperlink())
+            if (linkRow[col] != 0)
             {
                 const uint16_t id { linkRow[col] };
                 const int spanStart { col };
 
                 while (col < cols
-                       and rowCells[col].hasHyperlink()
                        and linkRow[col] == id)
                 {
                     ++col;
@@ -180,7 +179,7 @@ void LinkManager::assignHintLabels (std::vector<LinkSpan>& spans,
         const int tokenEnd { span.col + span.length };
         const auto& mapping { visibleMapping[span.row] };
         const auto& line { grid.getLine (mapping.lineIndex) };
-        const Cell* rowCells { line.cells.get() + mapping.cellOffset };
+        const jam::Cell* rowCells { line.cells.get() + mapping.cellOffset };
 
         for (int c { span.col }; c < tokenEnd; ++c)
         {

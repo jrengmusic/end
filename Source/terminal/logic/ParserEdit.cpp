@@ -111,7 +111,7 @@ void Parser::eraseInDisplay (int mode) noexcept
     const int absRowTop     { scrollbackUsed };
     const int absRowLast    { scrollbackUsed + visibleRows - 1 };
 
-    Cell fill {};
+    jam::Cell fill {};
     fill.bg = stamp.bg;
 
     switch (mode)
@@ -224,7 +224,7 @@ void Parser::eraseInLine (int mode) noexcept
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
-    Cell fill {};
+    jam::Cell fill {};
     fill.bg = stamp.bg;
 
     switch (mode)
@@ -350,7 +350,7 @@ void Parser::shiftLines (int count, bool up) noexcept
 
     if (cursorRow >= scrollTop and cursorRow <= bottom)
     {
-        Cell fill {};
+        jam::Cell fill {};
         fill.bg = stamp.bg;
 
         const int clampedCount { juce::jmin (count, bottom - cursorRow + 1) };
@@ -361,15 +361,15 @@ void Parser::shiftLines (int count, bool up) noexcept
             for (int dst { cursorRow }; dst <= bottom - clampedCount; ++dst)
             {
                 const int src { dst + clampedCount };
-                Cell* dstCells { rowCells (dst) };
-                const Cell* srcCells { rowCells (src) };
-                Grapheme* dstG { rowGraphemes (dst) };
-                const Grapheme* srcG { rowGraphemes (src) };
+                jam::Cell* dstCells { rowCells (dst) };
+                const jam::Cell* srcCells { rowCells (src) };
+                jam::Grapheme* dstG { rowGraphemes (dst) };
+                const jam::Grapheme* srcG { rowGraphemes (src) };
                 uint16_t* dstL { rowLinkIds (dst) };
                 const uint16_t* srcL { rowLinkIds (src) };
 
-                std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
-                std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+                std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (jam::Cell));
+                std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (jam::Grapheme));
                 std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
 
                 writer.updateLineLength (rowMapping[dst].lineIndex,
@@ -391,15 +391,15 @@ void Parser::shiftLines (int count, bool up) noexcept
             for (int dst { bottom }; dst >= cursorRow + clampedCount; --dst)
             {
                 const int src { dst - clampedCount };
-                Cell* dstCells { rowCells (dst) };
-                const Cell* srcCells { rowCells (src) };
-                Grapheme* dstG { rowGraphemes (dst) };
-                const Grapheme* srcG { rowGraphemes (src) };
+                jam::Cell* dstCells { rowCells (dst) };
+                const jam::Cell* srcCells { rowCells (src) };
+                jam::Grapheme* dstG { rowGraphemes (dst) };
+                const jam::Grapheme* srcG { rowGraphemes (src) };
                 uint16_t* dstL { rowLinkIds (dst) };
                 const uint16_t* srcL { rowLinkIds (src) };
 
-                std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
-                std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+                std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (jam::Cell));
+                std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (jam::Grapheme));
                 std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
 
                 writer.markRowDirty (dst);
@@ -438,7 +438,7 @@ void Parser::shiftLines (int count, bool up) noexcept
  *
  * // Clear the vacated cells
  * for col in cursorCol to min(cursorCol + count - 1, cols - 1):
- *     rowCells[col] = Cell {};
+ *     rowCells[col] = jam::Cell {};
  *     grid.activeEraseGrapheme (row, col);
  * @endcode
  *
@@ -459,8 +459,8 @@ void Parser::shiftCellsRight (int count) noexcept
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
-    Cell* cells { rowCells (cursorRow) };
-    Grapheme* graphemes { rowGraphemes (cursorRow) };
+    jam::Cell* cells { rowCells (cursorRow) };
+    jam::Grapheme* graphemes { rowGraphemes (cursorRow) };
     uint16_t* linkIds { rowLinkIds (cursorRow) };
 
     for (int col { cols - 1 }; col >= cursorCol + count; --col)
@@ -470,14 +470,14 @@ void Parser::shiftCellsRight (int count) noexcept
         linkIds[col] = linkIds[col - count];
     }
 
-    Cell fill {};
+    jam::Cell fill {};
     fill.bg = stamp.bg;
 
     for (int col { cursorCol }; col < juce::jmin (cursorCol + count, cols); ++col)
     {
         cells[col] = fill;
-        graphemes[col] = Grapheme {};
-        cells[col].layout &= static_cast<uint8_t> (~Cell::LAYOUT_GRAPHEME);
+        graphemes[col] = jam::Grapheme {};
+        cells[col].layout &= static_cast<uint8_t> (~jam::Cell::LAYOUT_GRAPHEME);
         linkIds[col] = 0;
     }
 
@@ -499,7 +499,7 @@ void Parser::shiftCellsRight (int count) noexcept
  *
  * // Clear the vacated cells at the right end
  * for col in (cols - count) to (cols - 1):
- *     rowCells[col] = Cell {};
+ *     rowCells[col] = jam::Cell {};
  *     grid.activeEraseGrapheme (row, col);
  * @endcode
  *
@@ -520,8 +520,8 @@ void Parser::removeCells (int count) noexcept
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
-    Cell* cells { rowCells (cursorRow) };
-    Grapheme* graphemes { rowGraphemes (cursorRow) };
+    jam::Cell* cells { rowCells (cursorRow) };
+    jam::Grapheme* graphemes { rowGraphemes (cursorRow) };
     uint16_t* linkIds { rowLinkIds (cursorRow) };
 
     for (int col { cursorCol }; col < cols - count; ++col)
@@ -531,14 +531,14 @@ void Parser::removeCells (int count) noexcept
         linkIds[col] = linkIds[col + count];
     }
 
-    Cell fill {};
+    jam::Cell fill {};
     fill.bg = stamp.bg;
 
     for (int col { cols - count }; col < cols; ++col)
     {
         cells[col] = fill;
-        graphemes[col] = Grapheme {};
-        cells[col].layout &= static_cast<uint8_t> (~Cell::LAYOUT_GRAPHEME);
+        graphemes[col] = jam::Grapheme {};
+        cells[col].layout &= static_cast<uint8_t> (~jam::Cell::LAYOUT_GRAPHEME);
         linkIds[col] = 0;
     }
 
@@ -577,7 +577,7 @@ void Parser::eraseCells (int count) noexcept
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
     const int endCol    { juce::jmin (cursorCol + count - 1, cols - 1) };
 
-    Cell fill {};
+    jam::Cell fill {};
     fill.bg = stamp.bg;
 
     const auto& m { rowMapping[cursorRow] };

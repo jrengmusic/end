@@ -220,7 +220,7 @@ void Parser::dcsUnhook() noexcept
                     const int scrollbackUsed        { state.getRawValue<int> (ID::scrollbackUsed) };
                     const int absRow                { scrollbackUsed + cursorRow };
 
-                    const auto span { jam::Cell::Rectangle (jam::Bounds { cellW, cellH }, juce::Rectangle<int> { 0, 0, image.width, image.height }, true) };
+                    const auto span { jam::metrics::Cell::Rectangle (jam::Bounds { cellW, cellH }, juce::Rectangle<int> { 0, 0, image.width, image.height }, true) };
                     const int cellCols { span.getWidth().value };
                     const int cellRows { span.getHeight().value };
 
@@ -327,7 +327,7 @@ void Parser::apcEnd() noexcept
                     const int scrollbackUsed        { state.getRawValue<int> (ID::scrollbackUsed) };
                     const int absRow                { scrollbackUsed + cursorRow };
 
-                    const auto span { jam::Cell::Rectangle (jam::Bounds { cellW, cellH }, juce::Rectangle<int> { 0, 0, result.image.width, result.image.height }, true) };
+                    const auto span { jam::metrics::Cell::Rectangle (jam::Bounds { cellW, cellH }, juce::Rectangle<int> { 0, 0, result.image.width, result.image.height }, true) };
                     const int cellCols { span.getWidth().value };
                     const int cellRows { result.placementRows > 0
                                              ? result.placementRows

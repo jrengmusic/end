@@ -396,7 +396,7 @@ void Processor::setStateInformation (const void* data, int size)
 
                     const size_t cellCount { static_cast<size_t> (sTotalRows) * static_cast<size_t> (sCols) };
                     const ptrdiff_t bulkBytes { static_cast<ptrdiff_t> (
-                        cellCount * sizeof (Cell) + cellCount * sizeof (Grapheme)
+                        cellCount * sizeof (jam::Cell) + cellCount * sizeof (jam::Grapheme)
                         + static_cast<size_t> (sTotalRows) * sizeof (RowState)) };
 
                     if ((cursor + bulkBytes) <= end)

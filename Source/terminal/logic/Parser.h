@@ -387,11 +387,11 @@ private:
      */
     juce::HeapBlock<Grid::Row> rowMapping;
 
-    /** @brief Resolves rowMapping and returns Cell* for the given visible row. */
-    Cell* rowCells (int visibleRow) noexcept;
+    /** @brief Resolves rowMapping and returns jam::Cell* for the given visible row. */
+    jam::Cell* rowCells (int visibleRow) noexcept;
 
-    /** @brief Resolves rowMapping and returns Grapheme* for the given visible row. */
-    Grapheme* rowGraphemes (int visibleRow) noexcept;
+    /** @brief Resolves rowMapping and returns jam::Grapheme* for the given visible row. */
+    jam::Grapheme* rowGraphemes (int visibleRow) noexcept;
 
     /** @brief Resolves rowMapping and returns uint16_t* (linkIds) for the given visible row. */
     uint16_t* rowLinkIds (int visibleRow) noexcept;
@@ -630,7 +630,7 @@ private:
      * @brief Current drawing attributes applied to newly written cells.
      *
      * Mutated by SGR sequences (`applySGR()` / `handleSGR()`).  Copied into
-     * each Cell written by `print()`.  Saved and restored by DECSC/DECRC
+     * each jam::Cell written by `print()`.  Saved and restored by DECSC/DECRC
      * (ESC 7 / ESC 8) via `stamp`.
      *
      * @see Pen

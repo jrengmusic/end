@@ -98,7 +98,7 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcep
     const int physContentW { jam::toInt (static_cast<float> (contentW) * scale, true) };
     const int physContentH { jam::toInt (static_cast<float> (contentH) * scale, true) };
 
-    const auto gridRect { jam::Cell::Rectangle (jam::Bounds { physCellW, physCellH }, juce::Rectangle<int> { 0, 0, physContentW, physContentH }) };
+    const auto gridRect { jam::metrics::Cell::Rectangle (jam::Bounds { physCellW, physCellH }, juce::Rectangle<int> { 0, 0, physContentW, physContentH }) };
     const int cols { (physContentW > 0 and physCellW > 0) ? gridRect.getWidth().value  : 1 };
     const int rows { (physContentH > 0 and physCellH > 0) ? gridRect.getHeight().value : 1 };
 

@@ -71,10 +71,11 @@ MainComponent::MainComponent (lua::Engine& engine)
 #endif
                                                           cfg->dpiCorrectedFontSize()) };
 
-        // Display Mono fallback fonts — indices match jam::DisplayMonoFont enum.
-        typeface->addFallbackFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);     // DisplayMonoFont::Book   = 0
-        typeface->addFallbackFont (jam::fonts::DisplayMonoMedium_ttf, jam::fonts::DisplayMonoMedium_ttfSize); // DisplayMonoFont::Medium = 1
-        typeface->addFallbackFont (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);     // DisplayMonoFont::Bold   = 2
+        // Style variant — font metadata declares bold.
+        typeface->registerStyleFont (jam::fonts::DisplayMonoBold_ttf, jam::fonts::DisplayMonoBold_ttfSize);
+
+        // Display Mono Book as first fallback — wins PUA codepoint resolution (E000/E001 branding).
+        typeface->addFallbackFont (jam::fonts::DisplayMonoBook_ttf, jam::fonts::DisplayMonoBook_ttfSize);
 
         const auto [nfData, nfSize] { BinaryData::fetcher ("SymbolsNerdFont-Regular.ttf") };
         typeface->addFallbackFont (nfData, nfSize);
@@ -186,7 +187,7 @@ MainComponent::MainComponent (lua::Engine& engine)
             const int effectiveCellW { jam::toInt (static_cast<float> (logCellW) * cellWidthMultiplier, true) };
             const int effectiveCellH { jam::toInt (static_cast<float> (logCellH) * lineHeightMultiplier, true) };
 
-            const auto cellPx { jam::Cell::Point::totalPixels<int> (jam::Cell { cols }, jam::Cell { rows }, jam::Bounds { effectiveCellW, effectiveCellH }) };
+            const auto cellPx { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { cols }, jam::metrics::Cell { rows }, jam::Bounds { effectiveCellW, effectiveCellH }) };
             const int pixelWidth  { cellPx.x + paddingLeft + paddingRight };
             const int pixelHeight { cellPx.y + paddingTop + paddingBottom + titleBarHeight };
 
@@ -540,7 +541,7 @@ void MainComponent::showMessageOverlay()
             content.removeFromBottom (padBottom);
             content.removeFromLeft (padLeft);
 
-            const auto gridRect { jam::Cell::Rectangle (jam::Bounds { logCellW, logCellH }, content) };
+            const auto gridRect { jam::metrics::Cell::Rectangle (jam::Bounds { logCellW, logCellH }, content) };
             const int cols { gridRect.getWidth().value };
             const int rows { gridRect.getHeight().value };
 

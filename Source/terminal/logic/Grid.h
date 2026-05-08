@@ -137,8 +137,8 @@ public:
      */
     struct TerminalLine : Line
     {
-        juce::HeapBlock<Cell> cells;
-        juce::HeapBlock<Grapheme> graphemes;
+        juce::HeapBlock<jam::Cell> cells;
+        juce::HeapBlock<jam::Grapheme> graphemes;
         juce::HeapBlock<uint16_t> linkIds;
 
         void ensureCapacity (int needed) noexcept;
@@ -242,8 +242,8 @@ public:
         void wrapToNextRow();
 
         // -- Direct pointer access (hot path) --
-        Cell* directLinePtr (int lineIndex, int cellOffset) noexcept;
-        Grapheme* directGraphemePtr (int lineIndex, int cellOffset) noexcept;
+        jam::Cell* directLinePtr (int lineIndex, int cellOffset) noexcept;
+        jam::Grapheme* directGraphemePtr (int lineIndex, int cellOffset) noexcept;
         uint16_t* directLinkIdPtr (int lineIndex, int cellOffset) noexcept;
 
         // -- Content metadata --
@@ -257,7 +257,7 @@ public:
         void markAllDirty() noexcept                                            { grid.markAllDirty(); }
 
         // -- Erase (line-level coordinates) --
-        void eraseInLine (int lineIndex, int startOffset, int endOffset, const Cell& fill = Cell {}) noexcept;
+        void eraseInLine (int lineIndex, int startOffset, int endOffset, const jam::Cell& fill = jam::Cell {}) noexcept;
 
         // -- Buffer management --
         void clearScrollback() noexcept;

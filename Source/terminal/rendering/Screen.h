@@ -1,5 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
+#include "../../lua/Engine.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -38,12 +39,12 @@ public:
 
     ~Screen() = default;
 
-    /** Renders the preview content at the given cell metrics.
-     *  Called by Display after computing its authoritative cell dimensions.
-     *  Screen owns the preview pen data; Display owns the metrics.
-     */
-    void setText (jam::Bounds cellSize, int bl) noexcept;
+    /** Sets the preview content. Screen owns the dummy pen data. */
+    void setText() noexcept;
 
+private:
+    const lua::Engine& config { *lua::Engine::getContext() };
+    juce::FontOptions font { config.display.font.family, config.dpiCorrectedFontSize(), juce::Font::plain };
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)
 };

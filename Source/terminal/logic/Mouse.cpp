@@ -40,14 +40,14 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     }
     else if (shouldForwardToPty())
     {
-        const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
         processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else if (event.getNumberOfClicks() == 3)
     {
         // Triple-click: select the entire clicked row (visualLine).
-        const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const int absRow { toAbsoluteRow (cell.y) };
 
         processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::visualLine));
@@ -58,7 +58,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     }
     else
     {
-        const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const int absRow { toAbsoluteRow (cell.y) };
 
         // Click-mode dispatch: hit-test against clickable link spans.
@@ -100,13 +100,13 @@ void Mouse::handleDoubleClick (const juce::MouseEvent& event)
 
     if (shouldForwardToPty())
     {
-        const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
         processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else
     {
-        const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
 
         // Word boundary scan reads cell content via the visible row mapping.
         // TODO: wire through Display's visibleMapping for word selection.
@@ -130,13 +130,13 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
 {
     if (shouldForwardToPty())
     {
-        const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (32, cell.x, cell.y, true) };
         processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
     else
     {
-        const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const int maxCol { processor.getGrid().getCols() - 1 };
         const int maxVisRow { processor.getGrid().getVisibleRows() - 1 };
 
@@ -171,7 +171,7 @@ void Mouse::handleUp (const juce::MouseEvent& event)
 {
     if (shouldForwardToPty())
     {
-        const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, false) };
         processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
     }
@@ -188,7 +188,7 @@ void Mouse::handleMove (const juce::MouseEvent& event, juce::Component& componen
 {
     if (not shouldForwardToPty() and not processor.getState().isModal())
     {
-        const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const bool overLink { linkManager.hitTest (cell.y, cell.x) != nullptr };
 
         if (overLink)
@@ -222,7 +222,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
             if (shouldForwardToPty())
             {
                 const int button { scrollUp ? 64 : 65 };
-                const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+                const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
 
                 for (int i { 0 }; i < scrollLines; ++i)
                 {
@@ -253,7 +253,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                 if (shouldForwardToPty())
                 {
                     const int button { lines > 0 ? 64 : 65 };
-                    const auto cell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+                    const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
                     const int count { std::abs (lines) };
 
                     for (int i { 0 }; i < count; ++i)

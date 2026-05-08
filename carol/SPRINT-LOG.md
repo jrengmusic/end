@@ -1,5 +1,99 @@
 # SPRINT-LOG
 
+## Sprint 8: Type Unification + Bold/Underline/Strike + Architecture ✅
+
+**Date:** 2026-05-07 — 2026-05-08
+**Duration:** 06:00
+
+### Agents Participated
+- COUNSELOR: primary — architecture discussion, plan, orchestration, build fixes
+- Engineer (×6): registerStyleFont, underline/strike rendering, style sidecar, Pen→Cell rename, Terminal::Cell elimination, metrics::Cell namespace, directory rename
+- Pathfinder (×6): bold font fallback investigation, ShapedText wrapping analysis, hyperlink/underline survey, Display Mono TTF metrics check, LAYOUT_HYPERLINK usage survey, Terminal::Cell usage survey
+
+### Files Modified (50+ total)
+
+**jam_core/metrics/**
+- `jam_cell.h` — namespace `jam` → `jam::metrics`, UDL stays in `jam`
+- `jam_cell_point.h` — namespace `jam` → `jam::metrics`
+- `jam_cell_rectangle.h` — namespace `jam` → `jam::metrics`
+
+**jam_tui/cell/ (renamed from pen/)**
+- `jam_cell.h` (was jam_pen.h) — `struct Pen` → `struct Cell`, layout bits fixed (EMOJI 0x02→0x04, GRAPHEME 0x04→0x08), LAYOUT_HYPERLINK + hasHyperlink removed
+- `jam_cells.h` (was jam_pens.h) — `class Pens` → `class Cells`, all internal types updated
+- `jam_cells.cpp` (was jam_pens.cpp) — all Pens→Cells, Pen→Cell
+- `jam_grapheme.h` — doxygen updated Pen→Cell
+
+**jam_graphics/fonts/**
+- `jam_typeface.h` — `registerStyleFont(data, size)` added, `shapeASCII(Style, codepoint)`, per-style storage (macOS: styleFonts/styleShapingFonts arrays), dead DisplayMonoFont enum + getFallbackFontHandle removed, underline/strikeout metrics in Metrics struct
+- `jam_typeface.mm` — `registerStyleFont` impl (CTFontGetSymbolicTraits), `getHbFont`/`getFontHandle` per-style, `shapeASCII` style-aware, `setSize` resizes style fonts, destructor cleanup
+- `jam_typeface.cpp` — `registerStyleFont` impl (FT_STYLE_FLAG_BOLD/ITALIC), `shapeASCII` style-aware
+- `jam_typeface_shaping.cpp` — `shapeASCII(Style, codepoint)`, `shapeText` passes style
+- `jam_typeface_metrics.cpp` — underline/strikeout metrics from font tables + fallback
+- `jam_box_drawing.h` — light stroke thinned: cellWidth/8 → cellWidth/10
+
+**jam_graphics/rendering/**
+- `jam_glyph_shaped_text.h` — `style` field on PositionedGlyph, `styles` sidecar on GlyphDrawRun, Pen→Cell in all types/doxygen
+- `jam_glyph_shaped_text.cpp` — style capture in buildPositionedGlyphs, styles alloc/fill/free in buildDrawRuns, Pen→Cell
+- `jam_glyph_graphics.h` — `styles` param on third drawGlyphs overload
+- `jam_glyph_graphics.cpp` — post-glyph underline/strike decoration pass, renderTarget.clear(clipRect) in push()
+
+**jam_gui/text_editor/**
+- `jam_text_editor.h` — `setText(jam::Cells&&)` content-only, `reshapeCellsContent()`, all pens→cells member renames, metrics::Cell references
+- `jam_text_editor.cpp` — self-managed wrapping (reshapeCellsContent derives metrics from font, wrapColumns from viewport width), all pens→cells renames, metrics::Cell references
+
+**jam_tui/ (various)**
+- 10+ component/ansi/braille/markdown/graphics files — jam::Cell→jam::metrics::Cell for coordinate type
+
+**end/Source/**
+- `MainComponent.cpp` — `registerStyleFont(Bold)` replaces addFallbackFont triplet, metrics::Cell references
+- `component/TerminalDisplay.h` — cellWidth/cellHeight/baseline/computeGridSize removed
+- `component/TerminalDisplay.cpp` — Display is pure orchestrator (setBounds only), screen.setFont removed, processor.resized/onResize removed, handleAsyncUpdate emptied
+- `terminal/rendering/Screen.h` — `setText()` no-arg, font member owned by Screen
+- `terminal/rendering/Screen.cpp` — setText() content-only, jam::Cell constants
+- `terminal/data/Cell.h` — Terminal::Cell struct deleted, Terminal::Grapheme deleted, Terminal::Pen uses juce::Colour, no Color.h include
+- `terminal/data/Color.h` — deleted
+- `terminal/data/Palette.h` — Color→juce::Colour, constexpr→inline const (juce::Colour non-constexpr)
+- `terminal/logic/Grid.h` — HeapBlock<jam::Cell>, jam::Grapheme
+- `terminal/logic/Grid.cpp` — sizeof(jam::Cell), sizeof(jam::Grapheme)
+- `terminal/logic/Parser.h` — jam::Cell*, jam::Grapheme*
+- `terminal/logic/Parser.cpp` — jam::Cell*, jam::Grapheme*
+- `terminal/logic/ParserVT.cpp` — jam::Cell throughout, LAYOUT_HYPERLINK→Cell::UNDERLINE
+- `terminal/logic/ParserCSI.cpp` — jam::Cell, jam::Grapheme, metrics::Cell
+- `terminal/logic/ParserESC.cpp` — jam::Cell, jam::Grapheme
+- `terminal/logic/ParserEdit.cpp` — jam::Cell, jam::Grapheme
+- `terminal/logic/ParserSGR.cpp` — jam::Cell constants, juce::Colour color construction
+- `terminal/logic/ParserDCS.cpp` — metrics::Cell
+- `terminal/logic/ParserOSCExt.cpp` — metrics::Cell
+- `terminal/logic/Processor.cpp` — sizeof(jam::Cell), sizeof(jam::Grapheme)
+- `terminal/logic/Mouse.h/.cpp` — metrics::Cell
+- `terminal/selection/LinkManager.h` — doxygen updated (LAYOUT_HYPERLINK references removed)
+- `terminal/selection/LinkManager.cpp` — jam::Cell*
+- `terminal/selection/LinkManagerScan.cpp` — jam::Cell*, linkRow[col]!=0 replaces hasHyperlink()
+- `terminal/data/State.h` — doxygen updated
+- `component/Panes.cpp` — metrics::Cell
+
+### Alignment Check
+- [x] BLESSED principles followed (SSOT: one Cell type, one name; Bound: RAII ownership; Encapsulation: Display orchestrates, TextEditor self-managed)
+- [x] NAMES.md adhered (Cell is correct terminal semantics per VT100 spec research; no "Pen" for grid storage)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Bold text identical to regular — registerStyleFont wires per-style fonts through shapeASCII/shapeHarfBuzz/getHbFont/getFontHandle
+- Underline/strike not rendered — style sidecar wired through ShapedText, procedural post-glyph decoration pass
+- LAYOUT_HYPERLINK unnecessary complexity — hyperlinks just set UNDERLINE, LinkManager uses linkId
+- TextEditor wrapping broken — self-managed reshapeCellsContent derives wrapColumns from own viewport width
+- Display coupled to Grid sizing — processor.resized/onResize removed, Display is pure orchestrator
+- Two Cell types (Terminal::Cell + jam::Pen) — unified to jam::Cell, Terminal::Color eliminated
+- jam::Cell name collision with metrics type — metrics Cell moved to jam::metrics::Cell
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 7: Pens Rendering Pipeline — Constraint System + SSOT Audit ✅
 
 **Date:** 2026-05-07

@@ -107,7 +107,7 @@ void LinkManager::buildPages() noexcept
                 const int tokenEnd { span.col + span.length };
                 const auto& spanMapping { visibleMapping[span.row] };
                 const auto& spanLine { grid.getLine (spanMapping.lineIndex) };
-                const Cell* rowCells { spanLine.cells.get() + spanMapping.cellOffset };
+                const jam::Cell* rowCells { spanLine.cells.get() + spanMapping.cellOffset };
 
                 for (int c { span.col }; c < tokenEnd; ++c)
                 {

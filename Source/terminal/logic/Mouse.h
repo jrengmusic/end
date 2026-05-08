@@ -16,7 +16,7 @@
  * writing to State, matching the keyboard selection path.
  *
  * @see Terminal::Processor
- * @see jam::Cell::Point
+ * @see jam::metrics::Cell::Point
  * @see Terminal::LinkManager
  */
 

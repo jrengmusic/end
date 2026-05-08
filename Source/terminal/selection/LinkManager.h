@@ -5,7 +5,7 @@
  * LinkManager centralises all link-related logic:
  *
  * - **scan()** — O(rows×cols) viewport scan for file and URL tokens, plus OSC 8
- *   hyperlink scanning from cell LAYOUT_HYPERLINK flags.
+ *   hyperlink scanning from cell linkId sidecar.
  * - **scanForHints()** — full-viewport scan used on open-file mode entry; assigns
  *   single-character hint labels for the overlay.
  * - **hitTest()** — returns the first `LinkSpan` at the given (row, col) cell, or
@@ -200,7 +200,7 @@ private:
      * @brief Shared scan implementation.
      *
      * Scans `grid` for file/URL tokens and OSC 8 hyperlinks from cell
-     * LAYOUT_HYPERLINK flags.  Optionally restricted to the OSC 133 output block.
+     * linkId sidecar.  Optionally restricted to the OSC 133 output block.
      * Returns the collected spans without hint label assignment.
      *
      * @param cwd             Shell current working directory.
@@ -235,9 +235,9 @@ private:
                               bool normalScreen) const;
 
     /**
-     * @brief Scans visible rows for cell-native OSC 8 hyperlinks via LAYOUT_HYPERLINK flags.
+     * @brief Scans visible rows for cell-native OSC 8 hyperlinks via linkId sidecar.
      *
-     * Reads the linkId sidecar for cells with `hasHyperlink()` set, resolves URIs
+     * Reads the linkId sidecar for cells with non-zero linkId, resolves URIs
      * via `state.getLinkUri()`, and builds contiguous spans.
      *
      * @param spans          Output vector to append detected spans to.

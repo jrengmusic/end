@@ -38,8 +38,8 @@ void Grid::TerminalLine::ensureCapacity (int needed) noexcept
         linkIds.realloc (newCap);
 
         const int added { newCap - capacity };
-        std::memset (cells.get() + capacity,    0, static_cast<size_t> (added) * sizeof (Cell));
-        std::memset (graphemes.get() + capacity, 0, static_cast<size_t> (added) * sizeof (Grapheme));
+        std::memset (cells.get() + capacity,    0, static_cast<size_t> (added) * sizeof (jam::Cell));
+        std::memset (graphemes.get() + capacity, 0, static_cast<size_t> (added) * sizeof (jam::Grapheme));
         std::memset (linkIds.get() + capacity,   0, static_cast<size_t> (added) * sizeof (uint16_t));
 
         capacity = newCap;
@@ -50,8 +50,8 @@ void Grid::TerminalLine::reset() noexcept
 {
     if (length > 0)
     {
-        std::memset (cells.get(),    0, static_cast<size_t> (length) * sizeof (Cell));
-        std::memset (graphemes.get(), 0, static_cast<size_t> (length) * sizeof (Grapheme));
+        std::memset (cells.get(),    0, static_cast<size_t> (length) * sizeof (jam::Cell));
+        std::memset (graphemes.get(), 0, static_cast<size_t> (length) * sizeof (jam::Grapheme));
         std::memset (linkIds.get(),   0, static_cast<size_t> (length) * sizeof (uint16_t));
         length = 0;
     }
@@ -323,14 +323,14 @@ void Grid::Writer::wrapToNextRow()
 // Grid::Writer — direct pointer access
 // =============================================================================
 
-Cell* Grid::Writer::directLinePtr (int lineIndex, int cellOffset) noexcept
+jam::Cell* Grid::Writer::directLinePtr (int lineIndex, int cellOffset) noexcept
 {
     auto& line { grid.bufferForScreen().at (lineIndex) };
     line.ensureCapacity (cellOffset + grid.cols);
     return line.cells.get() + cellOffset;
 }
 
-Grapheme* Grid::Writer::directGraphemePtr (int lineIndex, int cellOffset) noexcept
+jam::Grapheme* Grid::Writer::directGraphemePtr (int lineIndex, int cellOffset) noexcept
 {
     auto& line { grid.bufferForScreen().at (lineIndex) };
     line.ensureCapacity (cellOffset + grid.cols);
@@ -368,7 +368,7 @@ void Grid::Writer::updateLineLength (int lineIndex, int minLength) noexcept
 // Grid::Writer — erase (line-level coordinates)
 // =============================================================================
 
-void Grid::Writer::eraseInLine (int lineIndex, int startOffset, int endOffset, const Cell& fill) noexcept
+void Grid::Writer::eraseInLine (int lineIndex, int startOffset, int endOffset, const jam::Cell& fill) noexcept
 {
     auto& line { grid.bufferForScreen().at (lineIndex) };
     line.ensureCapacity (endOffset + 1);
@@ -377,7 +377,7 @@ void Grid::Writer::eraseInLine (int lineIndex, int startOffset, int endOffset, c
         line.cells[i] = fill;
 
     std::memset (line.graphemes.get() + startOffset, 0,
-                 static_cast<size_t> (endOffset - startOffset + 1) * sizeof (Grapheme));
+                 static_cast<size_t> (endOffset - startOffset + 1) * sizeof (jam::Grapheme));
     std::memset (line.linkIds.get() + startOffset, 0,
                  static_cast<size_t> (endOffset - startOffset + 1) * sizeof (uint16_t));
 

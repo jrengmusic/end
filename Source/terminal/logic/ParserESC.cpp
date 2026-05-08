@@ -128,7 +128,7 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
                 const int cols { state.getRawValue<int> (ID::cols) };
                 const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
 
-                Cell fill {};
+                jam::Cell fill {};
                 fill.bg = stamp.bg;
 
                 writer.lineFeed (cursorCol);
@@ -160,7 +160,7 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
                 const int scrollTopVal { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
                 const int cols { state.getRawValue<int> (ID::cols) };
 
-                Cell fill {};
+                jam::Cell fill {};
                 fill.bg = stamp.bg;
 
                 writer.lineFeed (0);
@@ -194,22 +194,22 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
                 // Reverse Index at scroll top: scroll region down by 1
                 const int cols { state.getRawValue<int> (ID::cols) };
 
-                Cell fill {};
+                jam::Cell fill {};
                 fill.bg = stamp.bg;
 
                 // Copy rows down: [bottom-1 .. scrollTop] → [bottom .. scrollTop+1]
                 for (int dst { scrollBot }; dst > scrollTopVal; --dst)
                 {
                     const int src { dst - 1 };
-                    Cell* dstCells { rowCells (dst) };
-                    const Cell* srcCells { rowCells (src) };
-                    Grapheme* dstG { rowGraphemes (dst) };
-                    const Grapheme* srcG { rowGraphemes (src) };
+                    jam::Cell* dstCells { rowCells (dst) };
+                    const jam::Cell* srcCells { rowCells (src) };
+                    jam::Grapheme* dstG { rowGraphemes (dst) };
+                    const jam::Grapheme* srcG { rowGraphemes (src) };
                     uint16_t* dstL { rowLinkIds (dst) };
                     const uint16_t* srcL { rowLinkIds (src) };
 
-                    std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (Cell));
-                    std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (Grapheme));
+                    std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (jam::Cell));
+                    std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (jam::Grapheme));
                     std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
 
                     writer.markRowDirty (dst);
@@ -312,7 +312,7 @@ void Parser::escDispatchCharset (uint8_t interByte, uint8_t finalByte) noexcept
  * @endcode
  *
  * @par DECALN behaviour
- * Every cell in the visible grid is overwritten with `Cell { codepoint='E',
+ * Every cell in the visible grid is overwritten with `jam::Cell { codepoint='E',
  * style=0, width=1, layout=0 }`.  The cursor is moved to row 0, column 0.
  *
  * @param scr        Target screen buffer (normal or alternate).
@@ -330,7 +330,7 @@ void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
         const int cols { state.getRawValue<int> (ID::cols) };
         const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
 
-        Cell st {};
+        jam::Cell st {};
         st.codepoint = 'E';
         st.style = 0;
         st.width = 1;
@@ -338,13 +338,13 @@ void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
 
         for (int row { 0 }; row < visibleRows; ++row)
         {
-            Cell* cells { rowCells (row) };
-            Grapheme* graphemes { rowGraphemes (row) };
+            jam::Cell* cells { rowCells (row) };
+            jam::Grapheme* graphemes { rowGraphemes (row) };
 
             for (int col { 0 }; col < cols; ++col)
             {
                 cells[col] = st;
-                graphemes[col] = Grapheme {};
+                graphemes[col] = jam::Grapheme {};
             }
 
             updateRowLength (row, cols - 1);

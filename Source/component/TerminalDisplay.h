@@ -62,15 +62,9 @@ private:
     Terminal::Grid& grid;
 
     Terminal::Screen screen;
-    int cellWidth  { 0 };
-    int cellHeight { 0 };
-    int baseline   { 0 };
     juce::VBlankAttachment vblank;
 
     void onVBlank();
-
-    /** @brief Compute grid dimensions from component size and cell metrics. */
-    jam::Cell::Rectangle computeGridSize() const noexcept;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Display)

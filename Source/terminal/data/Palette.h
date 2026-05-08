@@ -9,19 +9,18 @@
  *  - **Indices 16–231** : 6×6×6 RGB color cube (216 entries)
  *  - **Indices 232–255**: 24-step grayscale ramp (black → near-white)
  *
- * All tables and helper functions are `inline constexpr`, evaluated entirely
- * at compile time. No heap allocation or runtime initialization occurs.
+ * All tables are `inline const` (juce::Colour lacks constexpr constructors).
+ * Helper functions are `inline`. No heap allocation occurs.
  *
  * @note Include this header wherever SGR color attribute 38;5;n or 48;5;n
  *       sequences must be resolved to an RGB triple. Use `PALETTE.at(n)` for
- *       direct index lookup, or `resolvePalette()` to obtain a `juce::Colour`.
+ *       direct index lookup.
  */
 
 #pragma once
 
 #include <JuceHeader.h>
 #include <array>
-#include "Color.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -36,24 +35,24 @@ namespace Terminal
  *        terminal-defined rather than algorithmically derived. Themes
  *        that override the ANSI 16 should replace this table.
  */
-inline constexpr std::array<Color, 16> ANSI_16
+inline const std::array<juce::Colour, 16> ANSI_16
 {{
-    { 0x00, 0x00, 0x00, Color::rgb },
-    { 0xCD, 0x00, 0x00, Color::rgb },
-    { 0x00, 0xCD, 0x00, Color::rgb },
-    { 0xCD, 0xCD, 0x00, Color::rgb },
-    { 0x00, 0x00, 0xEE, Color::rgb },
-    { 0xCD, 0x00, 0xCD, Color::rgb },
-    { 0x00, 0xCD, 0xCD, Color::rgb },
-    { 0xE5, 0xE5, 0xE5, Color::rgb },
-    { 0x7F, 0x7F, 0x7F, Color::rgb },
-    { 0xFF, 0x00, 0x00, Color::rgb },
-    { 0x00, 0xFF, 0x00, Color::rgb },
-    { 0xFF, 0xFF, 0x00, Color::rgb },
-    { 0x5C, 0x5C, 0xFF, Color::rgb },
-    { 0xFF, 0x00, 0xFF, Color::rgb },
-    { 0x00, 0xFF, 0xFF, Color::rgb },
-    { 0xFF, 0xFF, 0xFF, Color::rgb },
+    juce::Colour (0x00, 0x00, 0x00),
+    juce::Colour (0xCD, 0x00, 0x00),
+    juce::Colour (0x00, 0xCD, 0x00),
+    juce::Colour (0xCD, 0xCD, 0x00),
+    juce::Colour (0x00, 0x00, 0xEE),
+    juce::Colour (0xCD, 0x00, 0xCD),
+    juce::Colour (0x00, 0xCD, 0xCD),
+    juce::Colour (0xE5, 0xE5, 0xE5),
+    juce::Colour (0x7F, 0x7F, 0x7F),
+    juce::Colour (0xFF, 0x00, 0x00),
+    juce::Colour (0x00, 0xFF, 0x00),
+    juce::Colour (0xFF, 0xFF, 0x00),
+    juce::Colour (0x5C, 0x5C, 0xFF),
+    juce::Colour (0xFF, 0x00, 0xFF),
+    juce::Colour (0x00, 0xFF, 0xFF),
+    juce::Colour (0xFF, 0xFF, 0xFF),
 }};
 
 /** @brief First xterm index of the 6×6×6 RGB color cube (inclusive). */
@@ -80,18 +79,18 @@ inline constexpr uint8_t cubeComponent (int v) noexcept
                     : static_cast<uint8_t> (55 + 40 * v);
 }
 
-/** @brief Constructs a single RGB Color from 6×6×6 cube coordinates.
+/** @brief Constructs a single juce::Colour from 6×6×6 cube coordinates.
  *
  *  Each axis value is independently mapped through `cubeComponent()`.
  *
  *  @param r  Red axis index [0, 5].
  *  @param g  Green axis index [0, 5].
  *  @param b  Blue axis index [0, 5].
- *  @return   Color with the corresponding RGB triple.
+ *  @return   juce::Colour with the corresponding RGB triple.
  */
-inline constexpr Color cubeEntry (int r, int g, int b) noexcept
+inline juce::Colour cubeEntry (int r, int g, int b) noexcept
 {
-    return Color { cubeComponent (r), cubeComponent (g), cubeComponent (b), Color::rgb };
+    return juce::Colour (cubeComponent (r), cubeComponent (g), cubeComponent (b));
 }
 
 /** @brief The 216-entry 6×6×6 RGB color cube (xterm indices 16–231).
@@ -100,9 +99,8 @@ inline constexpr Color cubeEntry (int r, int g, int b) noexcept
  *  then red — i.e. index 0 = (r=0,g=0,b=0), index 1 = (r=0,g=0,b=1), …,
  *  index 215 = (r=5,g=5,b=5). Access via `COLOR_CUBE.at(index - CUBE_START)`.
  *
- *  @note Fully evaluated at compile time; zero runtime cost.
  */
-inline constexpr std::array<Color, CUBE_SIZE> COLOR_CUBE
+inline const std::array<juce::Colour, CUBE_SIZE> COLOR_CUBE
 {{
     cubeEntry (0, 0, 0), cubeEntry (0, 0, 1), cubeEntry (0, 0, 2), cubeEntry (0, 0, 3), cubeEntry (0, 0, 4), cubeEntry (0, 0, 5),
     cubeEntry (0, 1, 0), cubeEntry (0, 1, 1), cubeEntry (0, 1, 2), cubeEntry (0, 1, 3), cubeEntry (0, 1, 4), cubeEntry (0, 1, 5),
@@ -175,37 +173,36 @@ inline constexpr uint8_t grayComponent (int index) noexcept
  *  Each entry is a neutral gray with equal R, G, B values stepping from
  *  8 to 238 in increments of 10. Access via `GRAY_RAMP.at(index - GRAY_START)`.
  *
- *  @note Fully evaluated at compile time; zero runtime cost.
  */
-inline constexpr std::array<Color, GRAY_SIZE> GRAY_RAMP
+inline const std::array<juce::Colour, GRAY_SIZE> GRAY_RAMP
 {{
-    { grayComponent (232), grayComponent (232), grayComponent (232), Color::rgb },
-    { grayComponent (233), grayComponent (233), grayComponent (233), Color::rgb },
-    { grayComponent (234), grayComponent (234), grayComponent (234), Color::rgb },
-    { grayComponent (235), grayComponent (235), grayComponent (235), Color::rgb },
-    { grayComponent (236), grayComponent (236), grayComponent (236), Color::rgb },
-    { grayComponent (237), grayComponent (237), grayComponent (237), Color::rgb },
-    { grayComponent (238), grayComponent (238), grayComponent (238), Color::rgb },
-    { grayComponent (239), grayComponent (239), grayComponent (239), Color::rgb },
-    { grayComponent (240), grayComponent (240), grayComponent (240), Color::rgb },
-    { grayComponent (241), grayComponent (241), grayComponent (241), Color::rgb },
-    { grayComponent (242), grayComponent (242), grayComponent (242), Color::rgb },
-    { grayComponent (243), grayComponent (243), grayComponent (243), Color::rgb },
-    { grayComponent (244), grayComponent (244), grayComponent (244), Color::rgb },
-    { grayComponent (245), grayComponent (245), grayComponent (245), Color::rgb },
-    { grayComponent (246), grayComponent (246), grayComponent (246), Color::rgb },
-    { grayComponent (247), grayComponent (247), grayComponent (247), Color::rgb },
-    { grayComponent (248), grayComponent (248), grayComponent (248), Color::rgb },
-    { grayComponent (249), grayComponent (249), grayComponent (249), Color::rgb },
-    { grayComponent (250), grayComponent (250), grayComponent (250), Color::rgb },
-    { grayComponent (251), grayComponent (251), grayComponent (251), Color::rgb },
-    { grayComponent (252), grayComponent (252), grayComponent (252), Color::rgb },
-    { grayComponent (253), grayComponent (253), grayComponent (253), Color::rgb },
-    { grayComponent (254), grayComponent (254), grayComponent (254), Color::rgb },
-    { grayComponent (255), grayComponent (255), grayComponent (255), Color::rgb },
+    juce::Colour (grayComponent (232), grayComponent (232), grayComponent (232)),
+    juce::Colour (grayComponent (233), grayComponent (233), grayComponent (233)),
+    juce::Colour (grayComponent (234), grayComponent (234), grayComponent (234)),
+    juce::Colour (grayComponent (235), grayComponent (235), grayComponent (235)),
+    juce::Colour (grayComponent (236), grayComponent (236), grayComponent (236)),
+    juce::Colour (grayComponent (237), grayComponent (237), grayComponent (237)),
+    juce::Colour (grayComponent (238), grayComponent (238), grayComponent (238)),
+    juce::Colour (grayComponent (239), grayComponent (239), grayComponent (239)),
+    juce::Colour (grayComponent (240), grayComponent (240), grayComponent (240)),
+    juce::Colour (grayComponent (241), grayComponent (241), grayComponent (241)),
+    juce::Colour (grayComponent (242), grayComponent (242), grayComponent (242)),
+    juce::Colour (grayComponent (243), grayComponent (243), grayComponent (243)),
+    juce::Colour (grayComponent (244), grayComponent (244), grayComponent (244)),
+    juce::Colour (grayComponent (245), grayComponent (245), grayComponent (245)),
+    juce::Colour (grayComponent (246), grayComponent (246), grayComponent (246)),
+    juce::Colour (grayComponent (247), grayComponent (247), grayComponent (247)),
+    juce::Colour (grayComponent (248), grayComponent (248), grayComponent (248)),
+    juce::Colour (grayComponent (249), grayComponent (249), grayComponent (249)),
+    juce::Colour (grayComponent (250), grayComponent (250), grayComponent (250)),
+    juce::Colour (grayComponent (251), grayComponent (251), grayComponent (251)),
+    juce::Colour (grayComponent (252), grayComponent (252), grayComponent (252)),
+    juce::Colour (grayComponent (253), grayComponent (253), grayComponent (253)),
+    juce::Colour (grayComponent (254), grayComponent (254), grayComponent (254)),
+    juce::Colour (grayComponent (255), grayComponent (255), grayComponent (255)),
 }};
 
-/** @brief Resolves a single xterm-256 palette index to its Color value.
+/** @brief Resolves a single xterm-256 palette index to its juce::Colour.
  *
  *  Dispatches to the appropriate sub-table based on the index range:
  *  - [0, 15]    → ANSI_16
@@ -213,14 +210,14 @@ inline constexpr std::array<Color, GRAY_SIZE> GRAY_RAMP
  *  - [232, 255] → GRAY_RAMP
  *
  *  @param index  xterm palette index in the range [0, 255].
- *  @return       Corresponding Color with Color::rgb mode set.
+ *  @return       Corresponding juce::Colour.
  *
  *  @note Prefer direct `PALETTE.at(n)` access over calling this function
  *        at runtime; this function exists to populate PALETTE at compile time.
  */
-inline constexpr Color palette256At (int index) noexcept
+inline juce::Colour palette256At (int index) noexcept
 {
-    Color result { 0, 0, 0, Color::rgb };
+    juce::Colour result (0, 0, 0);
 
     if (index >= GRAY_START)
     {
@@ -241,7 +238,7 @@ inline constexpr Color palette256At (int index) noexcept
 /** @brief The complete 256-entry xterm color palette, fully resolved at compile time.
  *
  *  A flat lookup table mapping every xterm-256 color index [0–255] to its
- *  canonical RGB Color value. The three segments are laid out contiguously:
+ *  canonical juce::Colour value. The three segments are laid out contiguously:
  *
  *  | Range     | Count | Source      | Description              |
  *  |-----------|-------|-------------|--------------------------|
@@ -249,11 +246,9 @@ inline constexpr Color palette256At (int index) noexcept
  *  | 16–231    | 216   | COLOR_CUBE  | 6×6×6 RGB cube           |
  *  | 232–255   | 24    | GRAY_RAMP   | Grayscale ramp           |
  *
- *  @note All 256 entries are `constexpr` and reside in read-only data.
- *        Use `PALETTE.at(n)` for bounds-checked access.
- *        Pass the result to `resolvePalette()` to obtain a `juce::Colour`.
+ *  @note Use `PALETTE.at(n)` for bounds-checked access.
  */
-inline constexpr std::array<Color, 256> PALETTE
+inline const std::array<juce::Colour, 256> PALETTE
 {
     palette256At (0),  palette256At (1),  palette256At (2),  palette256At (3),
     palette256At (4),  palette256At (5),  palette256At (6),  palette256At (7),
@@ -320,23 +315,6 @@ inline constexpr std::array<Color, 256> PALETTE
     palette256At (248), palette256At (249), palette256At (250), palette256At (251),
     palette256At (252), palette256At (253), palette256At (254), palette256At (255),
 };
-
-/** @brief Converts a terminal Color value to a JUCE Colour for rendering.
- *
- *  Extracts the red, green, and blue channels from @p color and constructs
- *  a fully opaque `juce::Colour`. The alpha channel is implicitly 0xFF.
- *
- *  @param color  A Color with Color::rgb mode, typically sourced from PALETTE.
- *  @return       Equivalent `juce::Colour` suitable for use in JUCE paint calls.
- *
- *  @note This is the terminal-side bridge between the palette data model and
- *        the JUCE rendering layer. Call this once per attribute change, not
- *        per pixel.
- */
-inline juce::Colour resolvePalette (const Color& color) noexcept
-{
-    return juce::Colour (color.red, color.green, color.blue);
-}
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal
