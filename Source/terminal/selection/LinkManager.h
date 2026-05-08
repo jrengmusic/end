@@ -1,3 +1,5 @@
+// TODO Step 7: migrate LinkManager from Grid to Screen
+
 /**
  * @file LinkManager.h
  * @brief Owns viewport link scanning, hit-testing, hint assignment, and dispatch.
@@ -23,7 +25,6 @@
 #include <functional>
 #include <vector>
 #include "LinkSpan.h"
-#include "../logic/Grid.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -44,15 +45,13 @@ class LinkManager : public juce::ValueTree::Listener
 {
 public:
     /**
-     * @brief Constructs a LinkManager with direct references to state and grid.
+     * @brief Constructs a LinkManager with a reference to state and a write callback.
      *
      * @param state      Terminal parameter store — used for block bounds and screen queries.
-     * @param grid       Terminal grid — read-only source for cell content.
      * @param writeToPty Callback that delivers raw bytes to the PTY writer.
      * @note MESSAGE THREAD.
      */
     LinkManager (State& state,
-                 const Grid& grid,
                  std::function<void (const char*, int)> writeToPty) noexcept;
     ~LinkManager() override;
 
@@ -136,18 +135,6 @@ public:
     void dispatch (const LinkSpan& span) const;
 
     /**
-     * @brief Stores the visible-row mapping for use during scan passes.
-     *
-     * Must be called by Display each frame before any scan is triggered.
-     * The pointer must remain valid for the duration of the scan.
-     *
-     * @param mapping  Pointer to the per-frame visible-row mapping array.
-     *                 Each entry maps a visual row to its (lineIndex, cellOffset).
-     * @note MESSAGE THREAD.
-     */
-    void setVisibleMapping (const Grid::Row* mapping) noexcept;
-
-    /**
      * @brief Callback invoked when a .md file link is activated.
      *
      * When set, intercepts file dispatch for `.md` extensions before the
@@ -199,10 +186,6 @@ private:
     /**
      * @brief Shared scan implementation.
      *
-     * Scans `grid` for file/URL tokens and OSC 8 hyperlinks from cell
-     * linkId sidecar.  Optionally restricted to the OSC 133 output block.
-     * Returns the collected spans without hint label assignment.
-     *
      * @param cwd             Shell current working directory.
      * @param outputRowsOnly  When `true`, restrict to the OSC 133 block.
      * @return Vector of detected spans without hint labels.
@@ -213,13 +196,8 @@ private:
     /**
      * @brief Scans visible rows for file-path and URL tokens via heuristic pattern matching.
      *
-     * Tokenizes cell text and classifies each token via `LinkDetector::classify()`.
-     * File tokens are filtered to the OSC 133 output block via the pre-computed
-     * `blockTop`/`blockBottom` parameters.
-     *
      * @param spans          Output vector to append detected spans to.
      * @param cwd            Shell current working directory for relative-path resolution.
-     * @param visibleMapping Array mapping each visual row index to its (lineIndex, cellOffset).
      * @param visibleRows    Number of visible rows.
      * @param cols           Number of columns.
      * @param visibleBase    Absolute row index of the top visible row.
@@ -229,7 +207,6 @@ private:
      * @param normalScreen   Whether the normal screen is active.
      */
     void scanHeuristicTokens (std::vector<LinkSpan>& spans, const juce::String& cwd,
-                              const Grid::Row* visibleMapping,
                               int visibleRows, int cols,
                               int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                               bool normalScreen) const;
@@ -237,11 +214,7 @@ private:
     /**
      * @brief Scans visible rows for cell-native OSC 8 hyperlinks via linkId sidecar.
      *
-     * Reads the linkId sidecar for cells with non-zero linkId, resolves URIs
-     * via `state.getLinkUri()`, and builds contiguous spans.
-     *
      * @param spans          Output vector to append detected spans to.
-     * @param visibleMapping Array mapping each visual row index to its (lineIndex, cellOffset).
      * @param visibleRows    Number of visible rows.
      * @param cols           Number of columns.
      * @param visibleBase    Absolute row index of the top visible row.
@@ -251,7 +224,6 @@ private:
      * @param normalScreen   Whether the normal screen is active.
      */
     void scanCellNativeLinks (std::vector<LinkSpan>& spans,
-                              const Grid::Row* visibleMapping,
                               int visibleRows, int cols,
                               int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                               bool normalScreen) const;
@@ -259,15 +231,9 @@ private:
     /**
      * @brief Assigns unique single-character hint labels to `spans` in-place.
      *
-     * Each span is given a character from its own token text (first available
-     * unique lowercase letter).  Spans for which no unique letter can be found
-     * receive a null label (to be filled by `assignCurrentPage`'s fallback pass).
-     *
-     * @param spans          Spans to label.  Modified in-place.
-     * @param visibleMapping Array mapping each visual row index to its (lineIndex, cellOffset).
+     * @param spans  Spans to label.  Modified in-place.
      */
-    void assignHintLabels (std::vector<LinkSpan>& spans,
-                           const Grid::Row* visibleMapping) noexcept;
+    void assignHintLabels (std::vector<LinkSpan>& spans) noexcept;
 
     /**
      * @brief Builds page boundaries from `hintLinks` based on character availability.
@@ -292,9 +258,6 @@ private:
     /** @brief Terminal parameter store — provides block bounds and screen queries. */
     State& state;
 
-    /** @brief Terminal grid — read-only source for cell content during scans. */
-    const Grid& grid;
-
     /** @brief Delivers raw bytes to the PTY (used by `dispatch()` for file links). */
     std::function<void (const char*, int)> writeToPty;
 
@@ -312,9 +275,6 @@ private:
 
     /** @brief Page boundary indices into `hintLinks`.  Built by `buildPages()`. */
     std::vector<int> pageBreaks;
-
-    /** @brief Per-frame visible-row mapping supplied by Display before each scan. */
-    const Grid::Row* visibleMapping { nullptr };
 
     /** @brief Cached reference to the promptRow PARAM node for direct listening. */
     juce::ValueTree promptRowNode;

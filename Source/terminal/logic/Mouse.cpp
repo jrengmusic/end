@@ -96,8 +96,6 @@ void Mouse::handleDown (const juce::MouseEvent& event)
 
 void Mouse::handleDoubleClick (const juce::MouseEvent& event)
 {
-    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
-
     if (shouldForwardToPty())
     {
         const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
@@ -137,8 +135,8 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
     else
     {
         const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const int maxCol { processor.getGrid().getCols() - 1 };
-        const int maxVisRow { processor.getGrid().getVisibleRows() - 1 };
+        const int maxCol { processor.getState().getCols() - 1 };
+        const int maxVisRow { processor.getState().getVisibleRows() - 1 };
 
         const int clampedCol { juce::jlimit (0, maxCol, cell.x) };
         const int clampedVisRow { juce::jlimit (0, maxVisRow, cell.y) };
@@ -281,8 +279,7 @@ bool Mouse::shouldForwardToPty() const noexcept
 
 int Mouse::toAbsoluteRow (int visibleRow) const noexcept
 {
-    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
-    const int scrollback { processor.getGrid().getScrollbackUsed() };
+    const int scrollback { processor.getState().getScrollbackUsed() };
     return scrollback + visibleRow;
 }
 

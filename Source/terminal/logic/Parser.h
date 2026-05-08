@@ -6,7 +6,7 @@
  * consumes raw bytes from the PTY reader thread, drives a Paul Flo Williams–
  * style state machine, decodes multi-byte UTF-8 sequences, and dispatches
  * semantic actions (print, execute, CSI dispatch, ESC dispatch, OSC handling,
- * DCS hook/unhook) to Grid and State.
+ * DCS hook/unhook) to State and pushes cell Commands to Grid (SPSC FIFO).
  *
  * ## State machine model
  *
@@ -85,8 +85,8 @@ namespace Terminal
  *
  * Parser owns the complete VT parsing pipeline: state machine transitions,
  * UTF-8 accumulation, intermediate/parameter collection, and dispatch to Grid
- * and State.  It is the only component that writes cell data to the Grid on
- * the reader thread.
+ * and State.  It is the only component that pushes cell Commands to the Grid
+ * FIFO on the reader thread.
  *
  * @par Lifecycle
  * 1. Construct with references to a `State` and a `Grid`.
@@ -147,14 +147,13 @@ public:
      * @param state  Reference to the shared terminal parameter store.
      *               The parser reads cursor position, mode flags, and screen
      *               dimensions from State and writes updates back via setters.
-     * @param writer Write-only facade to the screen buffer.  The parser writes
-     *               cells, erases regions, and scrolls lines through Writer.
+     * @param grid   SPSC FIFO for cell commands pushed by the parser.
      *
      * @note MESSAGE THREAD — construction happens before the reader thread starts.
      *
      * @see calc()
      */
-    explicit Parser (State& state, Grid::Writer writer) noexcept;
+    explicit Parser (State& state, Grid& grid) noexcept;
 
     /**
      * @brief Processes a block of raw bytes from the PTY.
@@ -366,41 +365,9 @@ private:
     State& state;
 
     /**
-     * @brief Write-only facade to the terminal screen buffer.
-     *
-     * The parser writes cells, erases regions, and scrolls lines through Writer.
-     * No geometry reads — those route through State.
+     * @brief SPSC FIFO for cell commands. Parser pushes Commands; Display drains.
      */
-    Grid::Writer writer;
-
-    /**
-     * @brief Visual-row-to-Line mapping for the active screen.
-     *
-     * Maps each visible row index to a `{ lineIndex, cellOffset }` pair
-     * identifying which segment of which TerminalLine is displayed there.
-     * Updated by lineFeed (shift up, new Line at bottom), wrap (same Line,
-     * higher offset), and scroll region operations.  Rebuilt on resize.
-     *
-     * Size = numVisibleRows (from State).
-     *
-     * @note READER THREAD only — single writer, no locking.
-     */
-    juce::HeapBlock<Grid::Row> rowMapping;
-
-    /** @brief Resolves rowMapping and returns jam::Cell* for the given visible row. */
-    jam::Cell* rowCells (int visibleRow) noexcept;
-
-    /** @brief Resolves rowMapping and returns jam::Grapheme* for the given visible row. */
-    jam::Grapheme* rowGraphemes (int visibleRow) noexcept;
-
-    /** @brief Resolves rowMapping and returns uint16_t* (linkIds) for the given visible row. */
-    uint16_t* rowLinkIds (int visibleRow) noexcept;
-
-    /** @brief Updates Line length high-water mark after writing at `col` on `visibleRow`. */
-    void updateRowLength (int visibleRow, int col) noexcept;
-
-    /** @brief Rebuilds rowMapping from Grid Lines + current cols after resize. */
-    void rebuildRowMapping() noexcept;
+    Grid& grid;
 
     /**
      * @brief O(1) state transition lookup table.

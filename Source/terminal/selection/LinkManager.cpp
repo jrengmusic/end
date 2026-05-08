@@ -9,17 +9,15 @@
 #include <JuceHeader.h>
 #include "../data/State.h"
 #include "../data/Identifier.h"
-#include "../logic/Grid.h"
 #include "../../lua/Engine.h"
 #include <unordered_set>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-LinkManager::LinkManager (State& s, const Grid& g,
+LinkManager::LinkManager (State& s,
                           std::function<void (const char*, int)> writeToPtyCallback) noexcept
     : state (s)
-    , grid (g)
     , writeToPty (std::move (writeToPtyCallback))
     , promptRowNode         (jam::ValueTree::getChildWithID (state.get(), ID::promptRow.toString()))
     , activeScreenNode      (jam::ValueTree::getChildWithID (state.get(), ID::activeScreen.toString()))
@@ -34,24 +32,16 @@ LinkManager::~LinkManager()
     activeScreenNode.removeListener (this);
 }
 
-void LinkManager::setVisibleMapping (const Grid::Row* mapping) noexcept
-{
-    visibleMapping = mapping;
-}
-
 void LinkManager::scan (const juce::String& cwd, bool outputRowsOnly)
 {
-    const juce::ScopedLock lock (grid.getResizeLock());
-    clickableLinks = scanViewport (cwd, outputRowsOnly);
+    // TODO Step 7: migrate to Screen
+    juce::ignoreUnused (cwd, outputRowsOnly);
 }
 
 void LinkManager::scanForHints (const juce::String& cwd)
 {
-    const juce::ScopedLock lock (grid.getResizeLock());
-    hintLinks = scanViewport (cwd, state.hasOutputBlock());
-    buildPages();
-    state.setHintPage (0);
-    assignCurrentPage();
+    // TODO Step 7: migrate to Screen
+    juce::ignoreUnused (cwd);
 }
 
 void LinkManager::clearHints() noexcept
@@ -82,50 +72,19 @@ void LinkManager::buildPages() noexcept
     pageBreaks.push_back (0);
 
     // Label all spans upfront and record page boundaries.
-    assignHintLabels (hintLinks, visibleMapping);
+    assignHintLabels (hintLinks);
 
     std::unordered_set<char> usedLabels;
 
+    // TODO Step 7: migrate to Screen — page building reads grid data
     for (size_t i { 0 }; i < hintLinks.size(); ++i)
     {
         const char label { hintLinks.at (i).hintLabel[0] };
 
         if (label == 0 or usedLabels.find (label) != usedLabels.end())
         {
-            // Collision or unlabeled — start new page, re-label from here
             usedLabels.clear();
             pageBreaks.push_back (static_cast<int> (i));
-
-            // Re-assign labels for the new page starting at i
-            std::unordered_set<char> newPageUsed;
-
-            for (size_t j { i }; j < hintLinks.size(); ++j)
-            {
-                auto& span { hintLinks.at (j) };
-                span.hintLabel[0] = 0;
-
-                const int tokenEnd { span.col + span.length };
-                const auto& spanMapping { visibleMapping[span.row] };
-                const auto& spanLine { grid.getLine (spanMapping.lineIndex) };
-                const jam::Cell* rowCells { spanLine.cells.get() + spanMapping.cellOffset };
-
-                for (int c { span.col }; c < tokenEnd; ++c)
-                {
-                    const uint32_t cp { rowCells[c].codepoint };
-                    const char lower { static_cast<char> (cp >= 'A' and cp <= 'Z' ? cp + 32 : cp) };
-
-                    if (lower >= 'a' and lower <= 'z' and newPageUsed.find (lower) == newPageUsed.end())
-                    {
-                        span.hintLabel[0] = lower;
-                        span.hintLabel[1] = 0;
-                        span.labelCol = c;
-                        newPageUsed.insert (lower);
-                        break;
-                    }
-                }
-            }
-
-            // Continue scanning from i with fresh usedLabels
             usedLabels.insert (hintLinks.at (i).hintLabel[0]);
         }
         else
@@ -237,23 +196,9 @@ int LinkManager::getActiveHintsCount() const noexcept { return activeCount; }
 
 std::vector<LinkSpan> LinkManager::scanViewport (const juce::String& cwd, bool outputRowsOnly) const
 {
-    std::vector<LinkSpan> spans;
-
-    const int visibleRows { grid.getVisibleRows() };
-    const int cols { grid.getCols() };
-    const int scrollbackUsed { grid.getScrollbackUsed() };
-    const int visibleBase { scrollbackUsed };
-    const bool hasBlock { state.hasOutputBlock() };
-    const int blockTop { outputRowsOnly ? state.getOutputBlockTop() : visibleBase };
-    const int blockBottom { outputRowsOnly ? state.getOutputBlockBottom() : visibleBase + visibleRows - 1 };
-    const bool normalScreen { state.getActiveScreen() == ActiveScreen::normal };
-
-    scanHeuristicTokens (spans, cwd, visibleMapping, visibleRows, cols,
-                         visibleBase, hasBlock, blockTop, blockBottom, normalScreen);
-    scanCellNativeLinks (spans, visibleMapping, visibleRows, cols,
-                         visibleBase, hasBlock, blockTop, blockBottom, normalScreen);
-
-    return spans;
+    // TODO Step 7: migrate to Screen
+    juce::ignoreUnused (cwd, outputRowsOnly);
+    return {};
 }
 
 // =============================================================================

@@ -10,7 +10,7 @@
  * ### Data flow
  * ```
  * PTY → History::append → onBytes (IPC broadcast in daemon mode)
- *                       → Processor::processWithLock (local + daemon)
+ *                       → Processor::process (local + daemon)
  * ```
  *
  * ### Thread ownership
@@ -329,10 +329,10 @@ public:
     /**
      * @brief Serializes Processor state into @p block for daemon → GUI sync.
      *
-     * Delegates to `Processor::getStateInformation`.  Wraps the call at Session
-     * level so callers do not need to reach into `getProcessor()` directly.
+     * Currently stubbed — state serialization has been migrated from Grid to Screen
+     * and the new path is not yet implemented.  The block is left unmodified.
      *
-     * @param block  Destination block.  Appended to, not replaced.
+     * @param block  Destination block (unused while stubbed).
      * @note MESSAGE THREAD.
      */
     void getStateInformation (juce::MemoryBlock& block) const;
@@ -340,11 +340,11 @@ public:
     /**
      * @brief Restores Processor state from a snapshot received from the daemon.
      *
-     * Delegates to `Processor::setStateInformation`.  Wraps the call at Session
-     * level so callers do not need to reach into `getProcessor()` directly.
+     * Currently stubbed — state serialization has been migrated from Grid to Screen
+     * and the new path is not yet implemented.  The snapshot is ignored.
      *
-     * @param data  Snapshot bytes produced by `getStateInformation`.  Must not be null.
-     * @param size  Byte count of the snapshot.  Must be > 0.
+     * @param data  Snapshot bytes (unused while stubbed).
+     * @param size  Byte count (unused while stubbed).
      * @note MESSAGE THREAD.
      */
     void setStateInformation (const void* data, int size);

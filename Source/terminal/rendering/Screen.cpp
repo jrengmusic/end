@@ -3,583 +3,472 @@
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-Screen::Screen() noexcept
-    : jam::TextEditor ("Screen")
+struct Screen::ContentView : public juce::Component
 {
-    setMultiLine (true);
-    setReadOnly (true);
-    setScrollbarsShown (true);
-    setCaretVisible (false);
+    explicit ContentView (Screen& o) : owner (o)
+    {
+        setWantsKeyboardFocus (false);
+        setInterceptsMouseClicks (false, true);
+    }
+
+    void paint (juce::Graphics& g) override
+    {
+        auto& atlas { jam::Typeface::getAtlas() };
+        atlas.advanceFrame();
+
+        const float scale { jam::Typeface::getDisplayScale() };
+        const auto clip { g.getClipBounds() };
+
+        owner.glyphGraphics.push (juce::jmax (1, static_cast<int> (owner.getWidth() * scale)),
+                                  juce::jmax (1, static_cast<int> (owner.getHeight() * scale)),
+                                  static_cast<int> (clip.getX() * scale),
+                                  static_cast<int> (clip.getY() * scale),
+                                  static_cast<int> (clip.getWidth() * scale),
+                                  static_cast<int> (clip.getHeight() * scale));
+
+        owner.drawContent();
+
+        owner.glyphGraphics.pop (g, clip.getX(), clip.getY());
+    }
+
+private:
+    Screen& owner;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ContentView)
+};
+
+Screen::Screen (State& stateRef) noexcept
+    : state (stateRef)
+{
+    cells.add (std::make_unique<jam::Cells>());  // Normal screen (index 0)
+    cells.add (std::make_unique<jam::Cells>());  // Alternate screen (index 1)
+
+    viewport = std::make_unique<juce::Viewport>();
+    addAndMakeVisible (viewport.get());
+    viewport->setViewedComponent (contentView = new ContentView (*this), false);
+    viewport->setScrollBarsShown (true, false);
+
+    caret = std::make_unique<jam::CaretComponent> (this);
+    contentView->addChildComponent (caret.get());
+
+    setColour (juce::CaretComponent::caretColourId, config.display.colours.cursor);
     setOpaque (false);
-    setFont (font);
+    setWantsKeyboardFocus (true);
+
+    computeCellMetrics();
 }
 
-void Screen::setText() noexcept
+Screen::~Screen()
 {
-    // Cell: { codepoint, style, layout, width, reserved, fg, bg }
-    // Every field explicit. Comprehensive rendering test.
-    // Colours — fg (from config via ColourIds)
-    const juce::Colour fg {};// theme-default sentinel (alpha=0)
-    const auto red { findColour (ansi1ColourId) };
-    const auto grn { findColour (ansi2ColourId) };
-    const auto ylw { findColour (ansi3ColourId) };
-    const auto blu { findColour (ansi4ColourId) };
-    const auto mag { findColour (ansi5ColourId) };
-    const auto cyn { findColour (ansi6ColourId) };
-    const auto ora { juce::Colour (0xFFFF6432u) };// truecolor sample (intentionally not from config)
-    const auto dim { findColour (ansi8ColourId) };// bright black = dim
+    viewport.reset();
+    contentView = nullptr;
+}
 
-    // Colours — bg
-    const juce::Colour nb {};// theme-default sentinel (alpha=0)
-    const auto dbg { juce::Colour (0xFF333333u) };// dark bg
-    const auto mbg { juce::Colour (0xFF555555u) };// mid bg
-    const auto rbg { juce::Colour (0xFF440000u) };// red bg
-    const auto bbg { juce::Colour (0xFF000044u) };// blue bg
+void Screen::computeCellMetrics() noexcept
+{
+    auto* tf { jam::Typeface::findTypeface (config.display.font.family) };
 
-    // Style shortcuts
-    constexpr uint8_t B { jam::Cell::BOLD };
-    constexpr uint8_t I { jam::Cell::ITALIC };
-    constexpr uint8_t U { jam::Cell::UNDERLINE };
-    constexpr uint8_t S { jam::Cell::STRIKE };
-    constexpr uint8_t R { jam::Cell::INVERSE };
-    constexpr uint8_t D { jam::Cell::DIM };
-    constexpr uint8_t BI { static_cast<uint8_t> (jam::Cell::BOLD | jam::Cell::ITALIC) };
+    if (tf != nullptr)
+    {
+        const float fs { config.dpiCorrectedFontSize() };
+        const auto fm { tf->getMetrics() };
 
-    const jam::Cell pens[] = {
-        // === SGR styles (white on transparent) ===
-        // Cell: { codepoint, style, layout, width, reserved, fg, bg }
-        // "Bold"
-        { 'B',     B,  0,                       1, 0, fg,                         nb  },
-        { 'o',     B,  0,                       1, 0, fg,                         nb  },
-        { 'l',     B,  0,                       1, 0, fg,                         nb  },
-        { 'd',     B,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        // "Italic"
-        { 'I',     I,  0,                       1, 0, fg,                         nb  },
-        { 't',     I,  0,                       1, 0, fg,                         nb  },
-        { 'a',     I,  0,                       1, 0, fg,                         nb  },
-        { 'l',     I,  0,                       1, 0, fg,                         nb  },
-        { 'i',     I,  0,                       1, 0, fg,                         nb  },
-        { 'c',     I,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        // "Under"
-        { 'U',     U,  0,                       1, 0, fg,                         nb  },
-        { 'n',     U,  0,                       1, 0, fg,                         nb  },
-        { 'd',     U,  0,                       1, 0, fg,                         nb  },
-        { 'e',     U,  0,                       1, 0, fg,                         nb  },
-        { 'r',     U,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        // "Strike"
-        { 'S',     S,  0,                       1, 0, fg,                         nb  },
-        { 't',     S,  0,                       1, 0, fg,                         nb  },
-        { 'r',     S,  0,                       1, 0, fg,                         nb  },
-        { 'i',     S,  0,                       1, 0, fg,                         nb  },
-        { 'k',     S,  0,                       1, 0, fg,                         nb  },
-        { 'e',     S,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        // "Reverse"
-        { 'R',     R,  0,                       1, 0, fg,                         nb  },
-        { 'e',     R,  0,                       1, 0, fg,                         nb  },
-        { 'v',     R,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        // "Dim"
-        { 'D',     D,  0,                       1, 0, dim,                        nb  },
-        { 'i',     D,  0,                       1, 0, dim,                        nb  },
-        { 'm',     D,  0,                       1, 0, dim,                        nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        // "BoldItalic"
-        { 'B',     BI, 0,                       1, 0, fg,                         nb  },
-        { 'I',     BI, 0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        if (fm.isValid() and fs > 0.0f)
+        {
+            const float ascent  { fm.ascent  * fs };
+            const float descent { fm.descent * fs };
+            const float leading { fm.leading * fs };
 
-        // === ANSI foreground colours ===
-        // "Red Green Yellow Blue Magenta Cyan"
-        { 'R',     0,  0,                       1, 0, red,                        nb  },
-        { 'e',     0,  0,                       1, 0, red,                        nb  },
-        { 'd',     0,  0,                       1, 0, red,                        nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 'G',     0,  0,                       1, 0, grn,                        nb  },
-        { 'r',     0,  0,                       1, 0, grn,                        nb  },
-        { 'n',     0,  0,                       1, 0, grn,                        nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 'Y',     0,  0,                       1, 0, ylw,                        nb  },
-        { 'l',     0,  0,                       1, 0, ylw,                        nb  },
-        { 'w',     0,  0,                       1, 0, ylw,                        nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 'B',     0,  0,                       1, 0, blu,                        nb  },
-        { 'l',     0,  0,                       1, 0, blu,                        nb  },
-        { 'u',     0,  0,                       1, 0, blu,                        nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 'M',     0,  0,                       1, 0, mag,                        nb  },
-        { 'a',     0,  0,                       1, 0, mag,                        nb  },
-        { 'g',     0,  0,                       1, 0, mag,                        nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 'C',     0,  0,                       1, 0, cyn,                        nb  },
-        { 'y',     0,  0,                       1, 0, cyn,                        nb  },
-        { 'n',     0,  0,                       1, 0, cyn,                        nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+            float maxAdvance { 0.0f };
 
-        // === Truecolor gradient (8 steps) ===
-        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF0000FFu), nb  }, // █ blue→
-        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF2200DDu), nb  },
-        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF4400BBu), nb  },
-        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF660099u), nb  },
-        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFF880077u), nb  },
-        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFFAA0055u), nb  },
-        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFFCC0033u), nb  },
-        { 0x2588,  0,  0,                       1, 0, juce::Colour (0xFFFF0000u), nb  }, // →red
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+            for (uint32_t code { 32 }; code <= 127; ++code)
+            {
+                const float adv { tf->getAdvanceWidth (code) * fs };
 
-        // === Background colours ===
-        { ' ',     0,  0,                       1, 0, fg,                         dbg },
-        { 'D',     0,  0,                       1, 0, fg,                         dbg },
-        { 'a',     0,  0,                       1, 0, fg,                         dbg },
-        { 'r',     0,  0,                       1, 0, fg,                         dbg },
-        { 'k',     0,  0,                       1, 0, fg,                         dbg },
-        { ' ',     0,  0,                       1, 0, fg,                         dbg },
-        { ' ',     0,  0,                       1, 0, fg,                         mbg },
-        { 'M',     0,  0,                       1, 0, fg,                         mbg },
-        { 'i',     0,  0,                       1, 0, fg,                         mbg },
-        { 'd',     0,  0,                       1, 0, fg,                         mbg },
-        { ' ',     0,  0,                       1, 0, fg,                         mbg },
-        { ' ',     0,  0,                       1, 0, fg,                         rbg },
-        { 'R',     0,  0,                       1, 0, fg,                         rbg },
-        { 'e',     0,  0,                       1, 0, fg,                         rbg },
-        { 'd',     0,  0,                       1, 0, fg,                         rbg },
-        { ' ',     0,  0,                       1, 0, fg,                         rbg },
-        { ' ',     0,  0,                       1, 0, fg,                         bbg },
-        { 'B',     0,  0,                       1, 0, fg,                         bbg },
-        { 'l',     0,  0,                       1, 0, fg,                         bbg },
-        { 'u',     0,  0,                       1, 0, fg,                         bbg },
-        { ' ',     0,  0,                       1, 0, fg,                         bbg },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+                if (adv > maxAdvance)
+                    maxAdvance = adv;
+            }
 
-        // === ASCII printable (full range) ===
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { '!',     0,  0,                       1, 0, fg,                         nb  },
-        { '"',     0,  0,                       1, 0, fg,                         nb  },
-        { '#',     0,  0,                       1, 0, fg,                         nb  },
-        { '$',     0,  0,                       1, 0, fg,                         nb  },
-        { '%',     0,  0,                       1, 0, fg,                         nb  },
-        { '&',     0,  0,                       1, 0, fg,                         nb  },
-        { '\'',    0,  0,                       1, 0, fg,                         nb  },
-        { '(',     0,  0,                       1, 0, fg,                         nb  },
-        { ')',     0,  0,                       1, 0, fg,                         nb  },
-        { '*',     0,  0,                       1, 0, fg,                         nb  },
-        { '+',     0,  0,                       1, 0, fg,                         nb  },
-        { ',',     0,  0,                       1, 0, fg,                         nb  },
-        { '-',     0,  0,                       1, 0, fg,                         nb  },
-        { '.',     0,  0,                       1, 0, fg,                         nb  },
-        { '/',     0,  0,                       1, 0, fg,                         nb  },
-        { '0',     0,  0,                       1, 0, fg,                         nb  },
-        { '1',     0,  0,                       1, 0, fg,                         nb  },
-        { '2',     0,  0,                       1, 0, fg,                         nb  },
-        { '3',     0,  0,                       1, 0, fg,                         nb  },
-        { '4',     0,  0,                       1, 0, fg,                         nb  },
-        { '5',     0,  0,                       1, 0, fg,                         nb  },
-        { '6',     0,  0,                       1, 0, fg,                         nb  },
-        { '7',     0,  0,                       1, 0, fg,                         nb  },
-        { '8',     0,  0,                       1, 0, fg,                         nb  },
-        { '9',     0,  0,                       1, 0, fg,                         nb  },
-        { ':',     0,  0,                       1, 0, fg,                         nb  },
-        { ';',     0,  0,                       1, 0, fg,                         nb  },
-        { '<',     0,  0,                       1, 0, fg,                         nb  },
-        { '=',     0,  0,                       1, 0, fg,                         nb  },
-        { '>',     0,  0,                       1, 0, fg,                         nb  },
-        { '?',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { '@',     0,  0,                       1, 0, fg,                         nb  },
-        { 'A',     0,  0,                       1, 0, fg,                         nb  },
-        { 'B',     0,  0,                       1, 0, fg,                         nb  },
-        { 'C',     0,  0,                       1, 0, fg,                         nb  },
-        { 'D',     0,  0,                       1, 0, fg,                         nb  },
-        { 'E',     0,  0,                       1, 0, fg,                         nb  },
-        { 'F',     0,  0,                       1, 0, fg,                         nb  },
-        { 'G',     0,  0,                       1, 0, fg,                         nb  },
-        { 'H',     0,  0,                       1, 0, fg,                         nb  },
-        { 'I',     0,  0,                       1, 0, fg,                         nb  },
-        { 'J',     0,  0,                       1, 0, fg,                         nb  },
-        { 'K',     0,  0,                       1, 0, fg,                         nb  },
-        { 'L',     0,  0,                       1, 0, fg,                         nb  },
-        { 'M',     0,  0,                       1, 0, fg,                         nb  },
-        { 'N',     0,  0,                       1, 0, fg,                         nb  },
-        { 'O',     0,  0,                       1, 0, fg,                         nb  },
-        { 'P',     0,  0,                       1, 0, fg,                         nb  },
-        { 'Q',     0,  0,                       1, 0, fg,                         nb  },
-        { 'R',     0,  0,                       1, 0, fg,                         nb  },
-        { 'S',     0,  0,                       1, 0, fg,                         nb  },
-        { 'T',     0,  0,                       1, 0, fg,                         nb  },
-        { 'U',     0,  0,                       1, 0, fg,                         nb  },
-        { 'V',     0,  0,                       1, 0, fg,                         nb  },
-        { 'W',     0,  0,                       1, 0, fg,                         nb  },
-        { 'X',     0,  0,                       1, 0, fg,                         nb  },
-        { 'Y',     0,  0,                       1, 0, fg,                         nb  },
-        { 'Z',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { '[',     0,  0,                       1, 0, fg,                         nb  },
-        { '\\',    0,  0,                       1, 0, fg,                         nb  },
-        { ']',     0,  0,                       1, 0, fg,                         nb  },
-        { '^',     0,  0,                       1, 0, fg,                         nb  },
-        { '_',     0,  0,                       1, 0, fg,                         nb  },
-        { '`',     0,  0,                       1, 0, fg,                         nb  },
-        { 'a',     0,  0,                       1, 0, fg,                         nb  },
-        { 'b',     0,  0,                       1, 0, fg,                         nb  },
-        { 'c',     0,  0,                       1, 0, fg,                         nb  },
-        { 'd',     0,  0,                       1, 0, fg,                         nb  },
-        { 'e',     0,  0,                       1, 0, fg,                         nb  },
-        { 'f',     0,  0,                       1, 0, fg,                         nb  },
-        { 'g',     0,  0,                       1, 0, fg,                         nb  },
-        { 'h',     0,  0,                       1, 0, fg,                         nb  },
-        { 'i',     0,  0,                       1, 0, fg,                         nb  },
-        { 'j',     0,  0,                       1, 0, fg,                         nb  },
-        { 'k',     0,  0,                       1, 0, fg,                         nb  },
-        { 'l',     0,  0,                       1, 0, fg,                         nb  },
-        { 'm',     0,  0,                       1, 0, fg,                         nb  },
-        { 'n',     0,  0,                       1, 0, fg,                         nb  },
-        { 'o',     0,  0,                       1, 0, fg,                         nb  },
-        { 'p',     0,  0,                       1, 0, fg,                         nb  },
-        { 'q',     0,  0,                       1, 0, fg,                         nb  },
-        { 'r',     0,  0,                       1, 0, fg,                         nb  },
-        { 's',     0,  0,                       1, 0, fg,                         nb  },
-        { 't',     0,  0,                       1, 0, fg,                         nb  },
-        { 'u',     0,  0,                       1, 0, fg,                         nb  },
-        { 'v',     0,  0,                       1, 0, fg,                         nb  },
-        { 'w',     0,  0,                       1, 0, fg,                         nb  },
-        { 'x',     0,  0,                       1, 0, fg,                         nb  },
-        { 'y',     0,  0,                       1, 0, fg,                         nb  },
-        { 'z',     0,  0,                       1, 0, fg,                         nb  },
-        { '{',     0,  0,                       1, 0, fg,                         nb  },
-        { '|',     0,  0,                       1, 0, fg,                         nb  },
-        { '}',     0,  0,                       1, 0, fg,                         nb  },
-        { '~',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+            if (maxAdvance <= 0.0f)
+                maxAdvance = fs;
 
-        // === Box drawing light ===
-        { 0x250C,  0,  0,                       1, 0, fg,                         nb  }, // ┌
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x252C,  0,  0,                       1, 0, fg,                         nb  }, // ┬
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2510,  0,  0,                       1, 0, fg,                         nb  }, // ┐
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { 0x251C,  0,  0,                       1, 0, fg,                         nb  }, // ├
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x253C,  0,  0,                       1, 0, fg,                         nb  }, // ┼
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2524,  0,  0,                       1, 0, fg,                         nb  }, // ┤
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { 0x2514,  0,  0,                       1, 0, fg,                         nb  }, // └
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2534,  0,  0,                       1, 0, fg,                         nb  }, // ┴
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x2518,  0,  0,                       1, 0, fg,                         nb  }, // ┘
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+            cellW    = jam::toInt (maxAdvance, true);
+            cellH    = jam::toInt (ascent + descent + leading, true);
+            baseline = jam::toInt (ascent, true);
+            fontSize = fs;
+        }
+    }
+}
 
-        // === Box drawing heavy ===
-        { 0x250F,  0,  0,                       1, 0, fg,                         nb  }, // ┏
-        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
-        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
-        { 0x2533,  0,  0,                       1, 0, fg,                         nb  }, // ┳
-        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
-        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
-        { 0x2513,  0,  0,                       1, 0, fg,                         nb  }, // ┓
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { 0x2503,  0,  0,                       1, 0, fg,                         nb  }, // ┃
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x2503,  0,  0,                       1, 0, fg,                         nb  }, // ┃
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x2503,  0,  0,                       1, 0, fg,                         nb  }, // ┃
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { 0x2517,  0,  0,                       1, 0, fg,                         nb  }, // ┗
-        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
-        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
-        { 0x253B,  0,  0,                       1, 0, fg,                         nb  }, // ┻
-        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
-        { 0x2501,  0,  0,                       1, 0, fg,                         nb  }, // ━
-        { 0x251B,  0,  0,                       1, 0, fg,                         nb  }, // ┛
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+void Screen::resized()
+{
+    viewport->setBounds (getLocalBounds());
+}
 
-        // === Box drawing double ===
-        { 0x2554,  0,  0,                       1, 0, fg,                         nb  }, // ╔
-        { 0x2550,  0,  0,                       1, 0, fg,                         nb  }, // ═
-        { 0x2550,  0,  0,                       1, 0, fg,                         nb  }, // ═
-        { 0x2557,  0,  0,                       1, 0, fg,                         nb  }, // ╗
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { 0x2551,  0,  0,                       1, 0, fg,                         nb  }, // ║
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x2551,  0,  0,                       1, 0, fg,                         nb  }, // ║
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { 0x255A,  0,  0,                       1, 0, fg,                         nb  }, // ╚
-        { 0x2550,  0,  0,                       1, 0, fg,                         nb  }, // ═
-        { 0x2550,  0,  0,                       1, 0, fg,                         nb  }, // ═
-        { 0x255D,  0,  0,                       1, 0, fg,                         nb  }, // ╝
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+void Screen::setScrollBarThickness (int thickness) noexcept
+{
+    viewport->setScrollBarThickness (thickness);
+}
 
-        // === Box drawing rounded ===
-        { 0x256D,  0,  0,                       1, 0, fg,                         nb  }, // ╭
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x256E,  0,  0,                       1, 0, fg,                         nb  }, // ╮
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x2502,  0,  0,                       1, 0, fg,                         nb  }, // │
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-        { 0x2570,  0,  0,                       1, 0, fg,                         nb  }, // ╰
-        { 0x2500,  0,  0,                       1, 0, fg,                         nb  }, // ─
-        { 0x256F,  0,  0,                       1, 0, fg,                         nb  }, // ╯
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+void Screen::setDimensions (int newCols, int newRows) noexcept
+{
+    cols        = newCols;
+    visibleRows = newRows;
 
-        // === Block elements ===
-        { 0x2580,  0,  0,                       1, 0, fg,                         nb  }, // ▀
-        { 0x2581,  0,  0,                       1, 0, fg,                         nb  }, // ▁
-        { 0x2582,  0,  0,                       1, 0, fg,                         nb  }, // ▂
-        { 0x2583,  0,  0,                       1, 0, fg,                         nb  }, // ▃
-        { 0x2584,  0,  0,                       1, 0, fg,                         nb  }, // ▄
-        { 0x2585,  0,  0,                       1, 0, fg,                         nb  }, // ▅
-        { 0x2586,  0,  0,                       1, 0, fg,                         nb  }, // ▆
-        { 0x2587,  0,  0,                       1, 0, fg,                         nb  }, // ▇
-        { 0x2588,  0,  0,                       1, 0, fg,                         nb  }, // █
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x258C,  0,  0,                       1, 0, fg,                         nb  }, // ▌
-        { 0x2590,  0,  0,                       1, 0, fg,                         nb  }, // ▐
-        { 0x2591,  0,  0,                       1, 0, fg,                         nb  }, // ░
-        { 0x2592,  0,  0,                       1, 0, fg,                         nb  }, // ▒
-        { 0x2593,  0,  0,                       1, 0, fg,                         nb  }, // ▓
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+    // Normal screen: ensure at least visibleRows, never shrink content
+    if (cells.at (0) != nullptr)
+    {
+        const int minSize { newRows * newCols };
 
-        // === Braille ===
-        { 0x2800,  0,  0,                       1, 0, fg,                         nb  }, // ⠀
-        { 0x2801,  0,  0,                       1, 0, fg,                         nb  }, // ⠁
-        { 0x2803,  0,  0,                       1, 0, fg,                         nb  }, // ⠃
-        { 0x2807,  0,  0,                       1, 0, fg,                         nb  }, // ⠇
-        { 0x280F,  0,  0,                       1, 0, fg,                         nb  }, // ⠏
-        { 0x283F,  0,  0,                       1, 0, fg,                         nb  }, // ⠿
-        { 0x28FF,  0,  0,                       1, 0, fg,                         nb  }, // ⣿
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        if (cells.at (0)->size() < minSize)
+            cells.at (0)->resize (minSize);
+    }
 
-        // === Arrows ===
-        { 0x2190,  0,  0,                       1, 0, fg,                         nb  }, // ←
-        { 0x2191,  0,  0,                       1, 0, fg,                         nb  }, // ↑
-        { 0x2192,  0,  0,                       1, 0, fg,                         nb  }, // →
-        { 0x2193,  0,  0,                       1, 0, fg,                         nb  }, // ↓
-        { 0x2194,  0,  0,                       1, 0, fg,                         nb  }, // ↔
-        { 0x2195,  0,  0,                       1, 0, fg,                         nb  }, // ↕
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+    // Alternate screen: fixed framebuffer, exact size
+    if (cells.at (1) != nullptr)
+        cells.at (1)->resize (newRows * newCols);
 
-        // === Math symbols ===
-        { 0x2200,  0,  0,                       1, 0, fg,                         nb  }, // ∀
-        { 0x2203,  0,  0,                       1, 0, fg,                         nb  }, // ∃
-        { 0x2205,  0,  0,                       1, 0, fg,                         nb  }, // ∅
-        { 0x221A,  0,  0,                       1, 0, fg,                         nb  }, // √
-        { 0x221E,  0,  0,                       1, 0, fg,                         nb  }, // ∞
-        { 0x2248,  0,  0,                       1, 0, fg,                         nb  }, // ≈
-        { 0x2260,  0,  0,                       1, 0, fg,                         nb  }, // ≠
-        { 0x2264,  0,  0,                       1, 0, fg,                         nb  }, // ≤
-        { 0x2265,  0,  0,                       1, 0, fg,                         nb  }, // ≥
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+    shapeAndRepaint();
+}
 
-        // === Currency ===
-        { 0x00A2,  0,  0,                       1, 0, fg,                         nb  }, // ¢
-        { 0x00A3,  0,  0,                       1, 0, fg,                         nb  }, // £
-        { 0x00A5,  0,  0,                       1, 0, fg,                         nb  }, // ¥
-        { 0x20AC,  0,  0,                       1, 0, fg,                         nb  }, // €
-        { 0x20BF,  0,  0,                       1, 0, fg,                         nb  }, // ₿
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+void Screen::setActive (int index) noexcept
+{
+    activeScreen = index;
+    shapeAndRepaint();
+}
 
-        // === Latin extended ===
-        { 0x00E0,  0,  0,                       1, 0, fg,                         nb  }, // à
-        { 0x00E1,  0,  0,                       1, 0, fg,                         nb  }, // á
-        { 0x00E9,  0,  0,                       1, 0, fg,                         nb  }, // é
-        { 0x00F1,  0,  0,                       1, 0, fg,                         nb  }, // ñ
-        { 0x00FC,  0,  0,                       1, 0, fg,                         nb  }, // ü
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+void Screen::setCaretPosition (int index) noexcept
+{
+    if (caret != nullptr and cellW > 0 and cellH > 0)
+    {
+        const int col { (cols > 0) ? (index % cols) : 0 };
+        const int row { (cols > 0) ? (index / cols) : 0 };
 
-        // === Greek ===
-        { 0x03B1,  0,  0,                       1, 0, fg,                         nb  }, // α
-        { 0x03B2,  0,  0,                       1, 0, fg,                         nb  }, // β
-        { 0x03B3,  0,  0,                       1, 0, fg,                         nb  }, // γ
-        { 0x03B4,  0,  0,                       1, 0, fg,                         nb  }, // δ
-        { 0x03BB,  0,  0,                       1, 0, fg,                         nb  }, // λ
-        { 0x03C0,  0,  0,                       1, 0, fg,                         nb  }, // π
-        { 0x03C9,  0,  0,                       1, 0, fg,                         nb  }, // ω
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        caret->setCaretPosition ({ col * cellW, row * cellH, cellW, cellH });
+        caret->setVisible (true);
+    }
+}
 
-        // === Cyrillic ===
-        { 0x0430,  0,  0,                       1, 0, fg,                         nb  }, // а
-        { 0x0431,  0,  0,                       1, 0, fg,                         nb  }, // б
-        { 0x0432,  0,  0,                       1, 0, fg,                         nb  }, // в
-        { 0x0433,  0,  0,                       1, 0, fg,                         nb  }, // г
-        { 0x0434,  0,  0,                       1, 0, fg,                         nb  }, // д
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+void Screen::shapeAndRepaint() noexcept
+{
+    if (activeScreen >= 0 and activeScreen < static_cast<int> (cells.size())
+        and cells.at (static_cast<size_t> (activeScreen)) != nullptr
+        and cols > 0 and cellW > 0 and cellH > 0)
+    {
+        const auto& activeCells { *cells.at (static_cast<size_t> (activeScreen)) };
+        const int totalDocRows { static_cast<int> (activeCells.size()) / cols };
 
-        // === CJK — width 2 ===
-        { 0x4F60,  0,  0,                       2, 0, fg,                         nb  }, // 你
-        { 0x597D,  0,  0,                       2, 0, fg,                         nb  }, // 好
-        { 0x4E16,  0,  0,                       2, 0, fg,                         nb  }, // 世
-        { 0x754C,  0,  0,                       2, 0, fg,                         nb  }, // 界
-        { 0x7AEF,  0,  0,                       2, 0, fg,                         nb  }, // 端
-        { 0x672B,  0,  0,                       2, 0, fg,                         nb  }, // 末
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        // Shape cells into draw runs
+        if (auto* tf = jam::Typeface::findTypeface (config.display.font.family))
+            shapedText.shape (activeCells, *tf, cols);
 
-        // === Hiragana ===
-        { 0x3042,  0,  0,                       2, 0, fg,                         nb  }, // あ
-        { 0x3044,  0,  0,                       2, 0, fg,                         nb  }, // い
-        { 0x3046,  0,  0,                       2, 0, fg,                         nb  }, // う
-        { 0x3048,  0,  0,                       2, 0, fg,                         nb  }, // え
-        { 0x304A,  0,  0,                       2, 0, fg,                         nb  }, // お
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        // Resize content to match document
+        const int contentW { cols * cellW };
+        const int contentH { juce::jmax (visibleRows, totalDocRows) * cellH };
+        contentView->setSize (contentW, contentH);
 
-        // === Katakana ===
-        { 0x30A2,  0,  0,                       2, 0, fg,                         nb  }, // ア
-        { 0x30A4,  0,  0,                       2, 0, fg,                         nb  }, // イ
-        { 0x30A6,  0,  0,                       2, 0, fg,                         nb  }, // ウ
-        { 0x30A8,  0,  0,                       2, 0, fg,                         nb  }, // エ
-        { 0x30AA,  0,  0,                       2, 0, fg,                         nb  }, // オ
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        // Auto-scroll to bottom
+        const int maxY { juce::jmax (0, contentH - viewport->getMaximumVisibleHeight()) };
+        viewport->setViewPosition (0, maxY);
 
-        // === Korean Hangul — width 2 ===
-        { 0xAC00,  0,  0,                       2, 0, fg,                         nb  }, // 가
-        { 0xB098,  0,  0,                       2, 0, fg,                         nb  }, // 나
-        { 0xB2E4,  0,  0,                       2, 0, fg,                         nb  }, // 다
-        { 0xB77C,  0,  0,                       2, 0, fg,                         nb  }, // 라
-        { 0xB9C8,  0,  0,                       2, 0, fg,                         nb  }, // 마
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        contentView->repaint();
+    }
+}
 
-        // === Fullwidth — width 2 ===
-        { 0xFF21,  0,  0,                       2, 0, fg,                         nb  }, // Ａ
-        { 0xFF22,  0,  0,                       2, 0, fg,                         nb  }, // Ｂ
-        { 0xFF23,  0,  0,                       2, 0, fg,                         nb  }, // Ｃ
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+void Screen::drawContent() noexcept
+{
+    if (shapedText.isValid())
+    {
+        auto& atlas { jam::Typeface::getAtlas() };
+        const float scale { jam::Typeface::getDisplayScale() };
+        const int physCellW { jam::toInt (static_cast<float> (cellW) * scale, true) };
+        const int physCellH { jam::toInt (static_cast<float> (cellH) * scale, true) };
+        const int physBase  { jam::toInt (static_cast<float> (baseline) * scale, true) };
 
-        // === Emoji — width 2, LAYOUT_EMOJI ===
-        { 0x1F525, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🔥
-        { 0x1F680, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🚀
-        { 0x1F4BB, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 💻
-        { 0x1F427, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🐧
-        { 0x1F3B5, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🎵
-        { 0x1F30D, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  }, // 🌍
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        for (int r { 0 }; r < shapedText.getNumDrawRuns(); ++r)
+        {
+            const auto& run { shapedText.getDrawRun (r) };
 
-        // === Powerline — width 1 ===
-        { 0xE0A0,  0,  0,                       1, 0, fg,                         nb  }, //  (branch)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xE0A1,  0,  0,                       1, 0, fg,                         nb  }, //  (LN)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xE0A2,  0,  0,                       1, 0, fg,                         nb  }, //  (lock)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xE0B0,  0,  0,                       1, 0, fg,                         nb  }, //  (right triangle)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xE0B2,  0,  0,                       1, 0, fg,                         nb  }, //  (left triangle)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+            if (run.count > 0 and run.fontHandle != nullptr)
+            {
+                juce::HeapBlock<juce::Point<float>> positions;
+                positions.malloc (run.count);
 
-        // === Nerd Font icons — width 1 ===
-        { 0xF121,  0,  0,                       1, 0, fg,                         nb  }, //  (code)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xF07B,  0,  0,                       1, 0, fg,                         nb  }, //  (folder)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xF15C,  0,  0,                       1, 0, fg,                         nb  }, //  (file)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xF1D3,  0,  0,                       1, 0, fg,                         nb  }, //  (git)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xF013,  0,  0,                       1, 0, fg,                         nb  }, //  (gear)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xF015,  0,  0,                       1, 0, fg,                         nb  }, //  (home)
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+                for (int i { 0 }; i < run.count; ++i)
+                {
+                    positions[i] = { static_cast<float> (run.cols[i] * cellW),
+                                     static_cast<float> (run.rows[i] * cellH + baseline) };
+                }
 
-        // === Geometric shapes ===
-        { 0x25A0,  0,  0,                       1, 0, fg,                         nb  }, // ■
-        { 0x25A1,  0,  0,                       1, 0, fg,                         nb  }, // □
-        { 0x25B2,  0,  0,                       1, 0, fg,                         nb  }, // ▲
-        { 0x25BC,  0,  0,                       1, 0, fg,                         nb  }, // ▼
-        { 0x25C0,  0,  0,                       1, 0, fg,                         nb  }, // ◀
-        { 0x25B6,  0,  0,                       1, 0, fg,                         nb  }, // ▶
-        { 0x25CB,  0,  0,                       1, 0, fg,                         nb  }, // ○
-        { 0x25CF,  0,  0,                       1, 0, fg,                         nb  }, // ●
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+                const juce::Colour resolvedColour { run.colour.getAlpha() == 0
+                                                    ? config.display.colours.foreground
+                                                    : run.colour };
 
-        // === Misc symbols ===
-        { 0x2605,  0,  0,                       1, 0, fg,                         nb  }, // ★
-        { 0x2606,  0,  0,                       1, 0, fg,                         nb  }, // ☆
-        { 0x2660,  0,  0,                       1, 0, fg,                         nb  }, // ♠
-        { 0x2663,  0,  0,                       1, 0, fg,                         nb  }, // ♣
-        { 0x2665,  0,  0,                       1, 0, fg,                         nb  }, // ♥
-        { 0x2666,  0,  0,                       1, 0, fg,                         nb  }, // ♦
-        { 0x266A,  0,  0,                       1, 0, fg,                         nb  }, // ♪
-        { 0x266B,  0,  0,                       1, 0, fg,                         nb  }, // ♫
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+                glyphGraphics.drawGlyphs (atlas,
+                                          run.fontHandle,
+                                          run.glyphCodes.getData(),
+                                          run.codepoints.getData(),
+                                          run.spans.getData(),
+                                          run.styles.getData(),
+                                          run.bgColours.getData(),
+                                          positions.getData(),
+                                          run.count,
+                                          fontSize,
+                                          resolvedColour,
+                                          run.isEmoji,
+                                          physCellW,
+                                          physCellH,
+                                          physBase);
+            }
+        }
+    }
+}
 
-        // === Dingbats ===
-        { 0x2713,  0,  0,                       1, 0, grn,                        nb  }, // ✓ green
-        { 0x2717,  0,  0,                       1, 0, red,                        nb  }, // ✗ red
-        { 0x2718,  0,  0,                       1, 0, red,                        nb  }, // ✘ red
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+void Screen::makeLayout (const Command* commands, int count) noexcept
+{
+    const int scr { activeScreen };
 
-        // === General punctuation ===
-        { 0x2013,  0,  0,                       1, 0, fg,                         nb  }, // –
-        { 0x2014,  0,  0,                       1, 0, fg,                         nb  }, // —
-        { 0x2018,  0,  0,                       1, 0, fg,                         nb  }, // '
-        { 0x2019,  0,  0,                       1, 0, fg,                         nb  }, // '
-        { 0x201C,  0,  0,                       1, 0, fg,                         nb  }, // "
-        { 0x201D,  0,  0,                       1, 0, fg,                         nb  }, // "
-        { 0x2022,  0,  0,                       1, 0, fg,                         nb  }, // •
-        { 0x2026,  0,  0,                       1, 0, fg,                         nb  }, // …
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+    if (scr >= 0 and scr < static_cast<int> (cells.size())
+        and cells.at (static_cast<size_t> (scr)) != nullptr
+        and cols > 0 and visibleRows > 0)
+    {
+        auto& activeCells { *cells.at (static_cast<size_t> (scr)) };
 
-        // === Keyboard symbols ===
-        { 0x2318,  0,  0,                       1, 0, fg,                         nb  }, // ⌘
-        { 0x2325,  0,  0,                       1, 0, fg,                         nb  }, // ⌥
-        { 0x21E7,  0,  0,                       1, 0, fg,                         nb  }, // ⇧
-        { 0x2303,  0,  0,                       1, 0, fg,                         nb  }, // ⌃
-        { 0x238B,  0,  0,                       1, 0, fg,                         nb  }, // ⎋
-        { 0x23CE,  0,  0,                       1, 0, fg,                         nb  }, // ⏎
-        { 0x232B,  0,  0,                       1, 0, fg,                         nb  }, // ⌫
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+        for (int i { 0 }; i < count; ++i)
+        {
+            const auto& cmd { commands[i] };
+            const int totalDocRows { static_cast<int> (activeCells.size()) / cols };
+            const int firstVisible { juce::jmax (0, totalDocRows - visibleRows) };
 
-        // === END branding (Display Mono PUA) — 3-cell span ===
-        { 0xE000,  0,  0,                       1, 0, fg,                         nb  }, // END logo glyph 1
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { 0xE001,  0,  0,                       1, 0, fg,                         nb  }, // END logo glyph 2
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { ' ',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
+            switch (cmd.type)
+            {
+                case Command::Type::Print:
+                {
+                    const int logicalRow { firstVisible + cmd.row };
+                    const int idx { logicalRow * cols + cmd.col };
 
-        // === Cell alignment: A(1) 🔥(2) B(1) 你(2) C(1) 好(2) D(1) ===
-        { 'A',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x1F525, 0,  jam::Cell::LAYOUT_EMOJI, 2, 0, fg,                         nb  },
-        { 'B',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x4F60,  0,  0,                       2, 0, fg,                         nb  },
-        { 'C',     0,  0,                       1, 0, fg,                         nb  },
-        { 0x597D,  0,  0,                       2, 0, fg,                         nb  },
-        { 'D',     0,  0,                       1, 0, fg,                         nb  },
-        { '\n',    0,  0,                       1, 0, fg,                         nb  },
-    };
+                    if (idx >= static_cast<int> (activeCells.size()))
+                        activeCells.resize (static_cast<size_t> ((logicalRow + 1) * cols));
 
-    const int penCount { static_cast<int> (sizeof (pens) / sizeof (pens[0])) };
-    jam::TextEditor::setText (jam::Cells::fromArray (pens, penCount));
+                    activeCells[static_cast<size_t> (idx)] = cmd.cell;
+                    break;
+                }
+
+                case Command::Type::LineFeed:
+                {
+                    const int newTotalRows { totalDocRows + 1 };
+                    activeCells.resize (static_cast<size_t> (newTotalRows * cols));
+
+                    if (cmd.fillBg.getAlpha() > 0)
+                    {
+                        const int rowStart { (newTotalRows - 1) * cols };
+
+                        for (int c { 0 }; c < cols; ++c)
+                            activeCells[static_cast<size_t> (rowStart + c)].bg = cmd.fillBg;
+                    }
+
+                    break;
+                }
+
+                case Command::Type::CarriageReturn:
+                case Command::Type::Tab:
+                case Command::Type::Backspace:
+                    break;
+
+                case Command::Type::EraseInLine:
+                {
+                    const int logicalRow { firstVisible + cmd.row };
+                    const int rowStart { logicalRow * cols };
+
+                    if (rowStart + cols <= static_cast<int> (activeCells.size()))
+                    {
+                        const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
+
+                        if (cmd.param == 0)
+                        {
+                            for (int c { cmd.col }; c < cols; ++c)
+                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
+                        }
+                        else if (cmd.param == 1)
+                        {
+                            for (int c { 0 }; c <= cmd.col; ++c)
+                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
+                        }
+                        else
+                        {
+                            for (int c { 0 }; c < cols; ++c)
+                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
+                        }
+                    }
+
+                    break;
+                }
+
+                case Command::Type::EraseInDisplay:
+                {
+                    const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
+
+                    if (cmd.param == 0)
+                    {
+                        const int logicalRow { firstVisible + cmd.row };
+                        const int startIdx { logicalRow * cols + cmd.col };
+                        const int endIdx { (firstVisible + visibleRows) * cols };
+
+                        for (int c { startIdx }; c < juce::jmin (endIdx, static_cast<int> (activeCells.size())); ++c)
+                            activeCells[static_cast<size_t> (c)] = fill;
+                    }
+                    else if (cmd.param == 1)
+                    {
+                        const int startIdx { firstVisible * cols };
+                        const int endIdx { (firstVisible + cmd.row) * cols + cmd.col };
+
+                        for (int c { startIdx }; c <= juce::jmin (endIdx, static_cast<int> (activeCells.size()) - 1); ++c)
+                            activeCells[static_cast<size_t> (c)] = fill;
+                    }
+                    else
+                    {
+                        const int startIdx { firstVisible * cols };
+                        const int endIdx { (firstVisible + visibleRows) * cols };
+
+                        for (int c { startIdx }; c < juce::jmin (endIdx, static_cast<int> (activeCells.size())); ++c)
+                            activeCells[static_cast<size_t> (c)] = fill;
+                    }
+
+                    break;
+                }
+
+                case Command::Type::InsertLines:
+                {
+                    const int logicalRow { firstVisible + cmd.row };
+                    const int visibleBottom { firstVisible + visibleRows - 1 };
+                    const int linesToInsert { juce::jmin (cmd.param, visibleBottom - logicalRow + 1) };
+
+                    if (logicalRow >= firstVisible and logicalRow <= visibleBottom and linesToInsert > 0
+                        and (visibleBottom + 1) * cols <= static_cast<int> (activeCells.size()))
+                    {
+                        if (visibleBottom - linesToInsert >= logicalRow)
+                        {
+                            std::memmove (activeCells.data() + (logicalRow + linesToInsert) * cols,
+                                          activeCells.data() + logicalRow * cols,
+                                          static_cast<size_t> ((visibleBottom - logicalRow - linesToInsert + 1) * cols) * sizeof (jam::Cell));
+                        }
+
+                        const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
+
+                        for (int r { logicalRow }; r < logicalRow + linesToInsert; ++r)
+                        {
+                            for (int c { 0 }; c < cols; ++c)
+                                activeCells[static_cast<size_t> (r * cols + c)] = fill;
+                        }
+                    }
+
+                    break;
+                }
+
+                case Command::Type::DeleteLines:
+                {
+                    const int logicalRow { firstVisible + cmd.row };
+                    const int visibleBottom { firstVisible + visibleRows - 1 };
+                    const int linesToDelete { juce::jmin (cmd.param, visibleBottom - logicalRow + 1) };
+
+                    if (logicalRow >= firstVisible and logicalRow <= visibleBottom and linesToDelete > 0
+                        and (visibleBottom + 1) * cols <= static_cast<int> (activeCells.size()))
+                    {
+                        if (logicalRow + linesToDelete <= visibleBottom)
+                        {
+                            std::memmove (activeCells.data() + logicalRow * cols,
+                                          activeCells.data() + (logicalRow + linesToDelete) * cols,
+                                          static_cast<size_t> ((visibleBottom - logicalRow - linesToDelete + 1) * cols) * sizeof (jam::Cell));
+                        }
+
+                        const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
+
+                        for (int r { visibleBottom - linesToDelete + 1 }; r <= visibleBottom; ++r)
+                        {
+                            for (int c { 0 }; c < cols; ++c)
+                                activeCells[static_cast<size_t> (r * cols + c)] = fill;
+                        }
+                    }
+
+                    break;
+                }
+
+                case Command::Type::InsertChars:
+                {
+                    const int logicalRow { firstVisible + cmd.row };
+                    const int rowStart { logicalRow * cols };
+
+                    if (rowStart + cols <= static_cast<int> (activeCells.size()))
+                    {
+                        const int charsToInsert { juce::jmin (cmd.param, cols - cmd.col) };
+
+                        if (charsToInsert > 0 and cmd.col < cols)
+                        {
+                            std::memmove (activeCells.data() + rowStart + cmd.col + charsToInsert,
+                                          activeCells.data() + rowStart + cmd.col,
+                                          static_cast<size_t> (cols - cmd.col - charsToInsert) * sizeof (jam::Cell));
+
+                            const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
+
+                            for (int c { cmd.col }; c < cmd.col + charsToInsert; ++c)
+                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
+                        }
+                    }
+
+                    break;
+                }
+
+                case Command::Type::DeleteChars:
+                {
+                    const int logicalRow { firstVisible + cmd.row };
+                    const int rowStart { logicalRow * cols };
+
+                    if (rowStart + cols <= static_cast<int> (activeCells.size()))
+                    {
+                        const int charsToDelete { juce::jmin (cmd.param, cols - cmd.col) };
+
+                        if (charsToDelete > 0 and cmd.col < cols)
+                        {
+                            std::memmove (activeCells.data() + rowStart + cmd.col,
+                                          activeCells.data() + rowStart + cmd.col + charsToDelete,
+                                          static_cast<size_t> (cols - cmd.col - charsToDelete) * sizeof (jam::Cell));
+
+                            const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
+
+                            for (int c { cols - charsToDelete }; c < cols; ++c)
+                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
+                        }
+                    }
+
+                    break;
+                }
+
+                case Command::Type::EraseChars:
+                {
+                    const int logicalRow { firstVisible + cmd.row };
+                    const int rowStart { logicalRow * cols };
+
+                    if (rowStart + cols <= static_cast<int> (activeCells.size()))
+                    {
+                        const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
+
+                        for (int c { cmd.col }; c < juce::jmin (cmd.col + cmd.param, cols); ++c)
+                            activeCells[static_cast<size_t> (rowStart + c)] = fill;
+                    }
+
+                    break;
+                }
+
+                case Command::Type::SetScreen:
+                case Command::Type::ClearScrollback:
+                case Command::Type::SetTabStop:
+                case Command::Type::ClearTabStop:
+                case Command::Type::ClearAllTabStops:
+                    break;
+            }
+        }
+
+        shapeAndRepaint();
+    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

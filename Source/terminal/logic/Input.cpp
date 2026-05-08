@@ -123,9 +123,8 @@ bool Input::handleModalKey (const juce::KeyPress& key) noexcept
 
 bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 {
-    const juce::ScopedLock lock (processor.getGrid().getResizeLock());
-    const int maxRow { processor.getGrid().getVisibleRows() + processor.getGrid().getScrollbackUsed() - 1 };
-    const int maxCol { processor.getGrid().getCols() - 1 };
+    const int maxRow { processor.getState().getVisibleRows() + processor.getState().getScrollbackUsed() - 1 };
+    const int maxCol { processor.getState().getCols() - 1 };
 
     auto& st { processor.getState() };
 
@@ -220,48 +219,21 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
         if (smType != Terminal::SelectionType::none)
         {
-            const juce::ScopedTryLock tryLock (processor.getGrid().getResizeLock());
+            const int scrollback { processor.getState().getScrollbackUsed() };
+            const int visibleStart { scrollback };
+            const int cols { processor.getState().getCols() };
 
-            if (tryLock.isLocked())
-            {
-                const int scrollback { processor.getGrid().getScrollbackUsed() };
-                const int visibleStart { scrollback };
-                const int cols { processor.getGrid().getCols() };
+            const int anchorVisRow { st.getSelectionAnchorRow() - visibleStart };
+            const int cursorVisRow { st.getSelectionCursorRow() - visibleStart };
+            const int anchorCol { st.getSelectionAnchorCol() };
+            const int cursorCol { st.getSelectionCursorCol() };
 
-                const int anchorVisRow { st.getSelectionAnchorRow() - visibleStart };
-                const int cursorVisRow { st.getSelectionCursorRow() - visibleStart };
-                const int anchorCol { st.getSelectionAnchorCol() };
-                const int cursorCol { st.getSelectionCursorCol() };
+            juce::String text;
 
-                juce::String text;
+            // TODO Step 7: migrate text extraction from Grid to Screen
+            juce::ignoreUnused (anchorVisRow, cursorVisRow, anchorCol, cursorCol, cols);
 
-                if (smType == Terminal::SelectionType::visual)
-                {
-                    const juce::Point<int> start { anchorCol, anchorVisRow };
-                    const juce::Point<int> end { cursorCol, cursorVisRow };
-                    text = processor.getGrid().extractText (start, end);
-                }
-                else if (smType == Terminal::SelectionType::visualLine)
-                {
-                    const juce::Point<int> start { 0, std::min (anchorVisRow, cursorVisRow) };
-                    const juce::Point<int> end { cols - 1, std::max (anchorVisRow, cursorVisRow) };
-                    text = processor.getGrid().extractText (start, end);
-                }
-                else
-                {
-                    const juce::Point<int> topLeft {
-                        std::min (anchorCol, cursorCol),
-                        std::min (anchorVisRow, cursorVisRow)
-                    };
-                    const juce::Point<int> bottomRight {
-                        std::max (anchorCol, cursorCol),
-                        std::max (anchorVisRow, cursorVisRow)
-                    };
-                    text = processor.getGrid().extractBoxText (topLeft, bottomRight);
-                }
-
-                juce::SystemClipboard::copyTextToClipboard (text);
-            }
+            juce::SystemClipboard::copyTextToClipboard (text);
         }
 
         st.setSelectionType (static_cast<int> (Terminal::SelectionType::none));

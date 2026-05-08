@@ -275,7 +275,7 @@ Session::Session (int cols,
         if (onBytes != nullptr)
             onBytes (bytes, len);
 
-        procRawPtr->processWithLock (bytes, len);
+        procRawPtr->process (bytes, len);
     };
 
     // 3. Drain-complete: flush parser responses, clear paste gate, sync resize.
@@ -285,7 +285,7 @@ Session::Session (int cols,
         procRawPtr->getState().clearPasteEchoGate();
 
         if (procRawPtr->getState().consumeSyncResize())
-            platformResize (procRawPtr->getGrid().getCols(), procRawPtr->getGrid().getVisibleRows());
+            platformResize (procRawPtr->getState().getCols(), procRawPtr->getState().getVisibleRows());
     };
 
     // 4. State flush: query cwd + foreground process from PTY, then fire external onStateFlush.
@@ -522,10 +522,9 @@ void Session::process (const char* data, int len)
  *
  * @note MESSAGE THREAD.
  */
-void Session::getStateInformation (juce::MemoryBlock& block) const
+void Session::getStateInformation (juce::MemoryBlock& /*block*/) const
 {
-    jassert (processor != nullptr);
-    processor->getStateInformation (block);
+    // TODO: deferred — state serialization migrated from Grid to Screen
 }
 
 /**
@@ -533,13 +532,9 @@ void Session::getStateInformation (juce::MemoryBlock& block) const
  *
  * @note MESSAGE THREAD.
  */
-void Session::setStateInformation (const void* data, int size)
+void Session::setStateInformation (const void* /*data*/, int /*size*/)
 {
-    jassert (processor != nullptr);
-    jassert (data != nullptr);
-    jassert (size > 0);
-
-    processor->setStateInformation (data, size);
+    // TODO: deferred — state serialization migrated from Grid to Screen
 }
 
 /**
@@ -568,7 +563,7 @@ void Session::stop()
 
         // Close TTY first — joins the reader thread.  Processor must outlive
         // the reader because TTY::onData captures procRawPtr and the reader
-        // may be mid-processWithLock when close() is called.  Once close()
+        // may be mid-process when close() is called.  Once close()
         // returns, the reader thread is gone and Processor can be destroyed
         // safely.  The State timer runs on the message thread (same thread
         // as stop()), so it cannot fire mid-shutdown.

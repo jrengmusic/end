@@ -30,7 +30,7 @@
  * @see ParserVT.cpp  — ground-state print and execute handlers
  * @see ParserCSI.cpp — CSI sequence dispatch
  * @see State         — atomic terminal parameter store
- * @see Grid          — screen buffer written by DECALN
+ * @see Grid          — SPSC FIFO receiving Commands pushed by DECALN
  */
 
 #include "Parser.h"
@@ -84,26 +84,6 @@ void Parser::restoreCursor (ActiveScreen scr) noexcept
  * | 'M'   | RI    | Reverse Index — move cursor up, scroll down if at top        |
  * | 'c'   | RIS   | Reset to Initial State — full terminal reset                 |
  *
- * @par Sequences
- * @code
- *   ESC D    — IND (Index)
- *   ESC E    — NEL (Next Line)
- *   ESC H    — HTS (Horizontal Tab Set)
- *   ESC M    — RI  (Reverse Index)
- *   ESC c    — RIS (Reset to Initial State)
- * @endcode
- *
- * @par IND (ESC D)
- * Moves the cursor down one line.  If the cursor is at the bottom of the
- * scrolling region, the region is scrolled up by one line instead.
- *
- * @par NEL (ESC E)
- * Moves the cursor to column 0 and then performs an IND.
- *
- * @par RI (ESC M)
- * Reverse Index — moves the cursor up one line.  If the cursor is at the top
- * of the scrolling region, the region is scrolled down by one line instead.
- *
  * @param scr        Target screen buffer (normal or alternate).
  * @param finalByte  The ESC final byte (0x30–0x7E).
  *
@@ -119,62 +99,31 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
     {
         case 'D':
         {
+            // IND — Index: line feed without CR
             const int scrollBot { activeScrollBottom() };
             const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
+            const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
 
-            if (not cursorGoToNextLine (scr, scrollBot, visibleRows))
-            {
-                const int scrollTopVal { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
-                const int cols { state.getRawValue<int> (ID::cols) };
-                const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+            grid.push (Command { Command::Type::LineFeed, {}, stamp.bg, 0, cursorRow, 0 });
 
-                jam::Cell fill {};
-                fill.bg = stamp.bg;
-
-                writer.lineFeed (cursorCol);
-
-                const int newLineIndex { writer.getTotalLines() - 1 };
-
-                std::memmove (&rowMapping[scrollTopVal],
-                              &rowMapping[scrollTopVal + 1],
-                              static_cast<size_t> (scrollBot - scrollTopVal) * sizeof (Grid::Row));
-
-                rowMapping[scrollBot] = Grid::Row { newLineIndex, 0 };
-                writer.eraseInLine (newLineIndex, 0, cols - 1, fill);
-                writer.markAllDirty();
-            }
+            cursorGoToNextLine (scr, scrollBot, visibleRows);
 
             break;
         }
 
         case 'E':
         {
+            // NEL — Next Line: CR + IND
             state.setCursorCol (scr, 0);
             state.setWrapPending (scr, false);
 
             const int scrollBot { activeScrollBottom() };
             const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
+            const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
 
-            if (not cursorGoToNextLine (scr, scrollBot, visibleRows))
-            {
-                const int scrollTopVal { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
-                const int cols { state.getRawValue<int> (ID::cols) };
+            grid.push (Command { Command::Type::LineFeed, {}, stamp.bg, 0, cursorRow, 0 });
 
-                jam::Cell fill {};
-                fill.bg = stamp.bg;
-
-                writer.lineFeed (0);
-
-                const int newLineIndex { writer.getTotalLines() - 1 };
-
-                std::memmove (&rowMapping[scrollTopVal],
-                              &rowMapping[scrollTopVal + 1],
-                              static_cast<size_t> (scrollBot - scrollTopVal) * sizeof (Grid::Row));
-
-                rowMapping[scrollBot] = Grid::Row { newLineIndex, 0 };
-                writer.eraseInLine (newLineIndex, 0, cols - 1, fill);
-                writer.markAllDirty();
-            }
+            cursorGoToNextLine (scr, scrollBot, visibleRows);
 
             break;
         }
@@ -185,46 +134,23 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
 
         case 'M':
         {
+            // RI — Reverse Index: scroll down if at top of scroll region
             const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
             const int scrollTopVal { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
             const int scrollBot { activeScrollBottom() };
 
             if (cursorRow == scrollTopVal)
             {
-                // Reverse Index at scroll top: scroll region down by 1
-                const int cols { state.getRawValue<int> (ID::cols) };
-
-                jam::Cell fill {};
-                fill.bg = stamp.bg;
-
-                // Copy rows down: [bottom-1 .. scrollTop] → [bottom .. scrollTop+1]
-                for (int dst { scrollBot }; dst > scrollTopVal; --dst)
-                {
-                    const int src { dst - 1 };
-                    jam::Cell* dstCells { rowCells (dst) };
-                    const jam::Cell* srcCells { rowCells (src) };
-                    jam::Grapheme* dstG { rowGraphemes (dst) };
-                    const jam::Grapheme* srcG { rowGraphemes (src) };
-                    uint16_t* dstL { rowLinkIds (dst) };
-                    const uint16_t* srcL { rowLinkIds (src) };
-
-                    std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (jam::Cell));
-                    std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (jam::Grapheme));
-                    std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
-
-                    writer.markRowDirty (dst);
-                }
-
-                // Erase top row
-                const auto& mTop { rowMapping[scrollTopVal] };
-                writer.eraseInLine (mTop.lineIndex, mTop.cellOffset, mTop.cellOffset + cols - 1, fill);
-                writer.markRowDirty (scrollTopVal);
+                // Reverse Index at scroll top: push InsertLines(1) at scrollTop
+                grid.push (Command { Command::Type::InsertLines, {}, stamp.bg, 1, scrollTopVal, 0 });
             }
             else if (cursorRow > 0)
             {
                 state.setCursorRow (scr, cursorRow - 1);
                 state.setWrapPending (scr, false);
             }
+
+            juce::ignoreUnused (scrollBot);
 
             break;
         }
@@ -267,16 +193,6 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
  * - `B` → ASCII (ISO 646 US)
  * - `0` → DEC Special Graphics (VT100 line-drawing characters)
  *
- * The G0 slot (`(`) sets `useLineDrawing` and `g0LineDrawing`.  The G1 slot
- * (`)`) sets `g1LineDrawing` but does not immediately affect `useLineDrawing`.
- *
- * @par Sequences
- * @code
- *   ESC ( 0    — Designate G0 = DEC Special Graphics (line drawing)
- *   ESC ( B    — Designate G0 = ASCII (default)
- *   ESC ) 0    — Designate G1 = DEC Special Graphics (ignored)
- * @endcode
- *
  * @param interByte  The intermediate byte (`(`, `)`, `*`, or `+`).
  * @param finalByte  The charset designator byte (`B`, `0`, etc.).
  *
@@ -306,22 +222,12 @@ void Parser::escDispatchCharset (uint8_t interByte, uint8_t finalByte) noexcept
  * cursor.  DECALN is used by terminal conformance tests to verify that all
  * cells are addressable and that the screen geometry is correct.
  *
- * @par Sequence
- * @code
- *   ESC # 8    — DECALN (DEC Screen Alignment Test)
- * @endcode
- *
- * @par DECALN behaviour
- * Every cell in the visible grid is overwritten with `jam::Cell { codepoint='E',
- * style=0, width=1, layout=0 }`.  The cursor is moved to row 0, column 0.
+ * Each cell is pushed as an individual Command::Print.
  *
  * @param scr        Target screen buffer (normal or alternate).
  * @param finalByte  The ESC final byte following `#`.
  *
  * @note READER THREAD only.
- *
- * @see Grid::activeWriteCell()
- * @see cursorSetPosition()
  */
 void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
 {
@@ -338,17 +244,10 @@ void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
 
         for (int row { 0 }; row < visibleRows; ++row)
         {
-            jam::Cell* cells { rowCells (row) };
-            jam::Grapheme* graphemes { rowGraphemes (row) };
-
             for (int col { 0 }; col < cols; ++col)
             {
-                cells[col] = st;
-                graphemes[col] = jam::Grapheme {};
+                grid.push (Command { Command::Type::Print, st, {}, 0, row, col });
             }
-
-            updateRowLength (row, cols - 1);
-            writer.markRowDirty (row);
         }
 
         cursorSetPosition (scr, 0, 0, cols, visibleRows);
@@ -367,13 +266,6 @@ void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
  * | `interCount == 1 && inter[0]=='('` | `escDispatchCharset()`       |
  * | `interCount == 1 && inter[0]=='#'` | `escDispatchDEC()`           |
  * | Other                              | silently ignored             |
- *
- * @par Sequence format
- * @code
- *   ESC <final>              — no intermediate
- *   ESC ( <final>            — G0 charset designation
- *   ESC # <final>            — DEC private sequence
- * @endcode
  *
  * @param inter              Pointer to the intermediate byte buffer.
  * @param interCount         Number of valid bytes in `inter`.

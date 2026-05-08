@@ -121,45 +121,6 @@ static int indexToParam (int index) noexcept
  * intermediate byte) are detected via `isPrivate` and routed to
  * `handlePrivateMode()` for DECSET/DECRST processing.
  *
- * @par Sequence format
- * @code
- *   ESC [ <Pm> <final>          — standard sequence
- *   ESC [ ? <Pm> h / l         — private mode set / reset (DECSET / DECRST)
- * @endcode
- *
- * @par Dispatch table
- * | `finalByte` | Sequence | Handler                                         |
- * |-------------|----------|-------------------------------------------------|
- * | 'A'         | CUU      | `moveCursorUp(params)`                          |
- * | 'B'         | CUD      | `moveCursorDown(params)`                        |
- * | 'C'         | CUF      | `moveCursorForward(params)`                     |
- * | 'D'         | CUB      | `moveCursorBackward(params)`                    |
- * | 'E'         | CNL      | `moveCursorNextLine(params)`                    |
- * | 'F'         | CPL      | `moveCursorPrevLine(params)`                    |
- * | 'G'         | CHA      | `setCursorColumn(params)`                       |
- * | 'H' / 'f'   | CUP/HVP  | `setCursorPosition(params)`                     |
- * | 'I'         | CHT      | `cursorForwardTab(params)`                      |
- * | 'J'         | ED       | `eraseInDisplay(param0)`                        |
- * | 'K'         | EL       | `eraseInLine(param0)`                           |
- * | 'L'         | IL       | `shiftLinesDown(param0)`                        |
- * | 'M'         | DL       | `shiftLinesUp(param0)`                          |
- * | 'P'         | DCH      | `removeCells(param0)`                           |
- * | 'S'         | SU       | `scrollUp(params)`                              |
- * | 'T'         | SD       | `scrollDown(params)`                            |
- * | 'X'         | ECH      | `eraseCells(param0)`                            |
- * | 'Z'         | CBT      | `cursorBackTab(params)`                         |
- * | '@'         | ICH      | `shiftCellsRight(param0)`                       |
- * | '`'         | HPA      | `setCursorColumn(params)`                       |
- * | 'a'         | HPR      | `moveCursorForward(params)`                     |
- * | 'd'         | VPA      | `setCursorLine(params)`                         |
- * | 'e'         | VPR      | `moveCursorDown(params)`                        |
- * | 'h' / 'l'   | SM/RM    | `handleMode()` or `handlePrivateMode()`         |
- * | 'm'         | SGR      | `applySGR(params)`                              |
- * | 'n'         | DSR      | `reportCursorPosition(params)`                  |
- * | 'r'         | DECSTBM  | `setScrollRegion(params)`                       |
- * | 'c'         | DA       | `reportDeviceAttributes(isPrivate)`             |
- * | 't'         | XTWINOPS | (ignored — window manipulation not supported)   |
- *
  * @param params             Finalised CSI parameter accumulator.
  * @param inter              Pointer to the intermediate byte buffer.
  * @param interCount         Number of valid bytes in `inter`.
@@ -346,11 +307,6 @@ void Parser::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_
  * Moves the cursor up by `Pn` rows (default 1), clamped to the top of the
  * scrolling region.  Does not change the cursor column.
  *
- * @par Sequence
- * @code
- *   ESC [ Pn A
- * @endcode
- *
  * @param params  CSI parameters.  `params.param(0, 1)` is the row count.
  *
  * @note READER THREAD only.
@@ -366,15 +322,7 @@ void Parser::moveCursorUp (const CSI& params) noexcept
 /**
  * @brief Handles `CSI Pn B` — Cursor Down (CUD).
  *
- * Moves the cursor down by `Pn` rows (default 1).  The clamp boundary
- * depends on whether the cursor is within the scroll region:
- * - Within margins (row >= scrollTop and row <= scrollBottom): clamp to scrollBottom.
- * - Outside margins: clamp to visibleRows - 1.
- *
- * @par Sequence
- * @code
- *   ESC [ Pn B
- * @endcode
+ * Moves the cursor down by `Pn` rows (default 1).
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the row count.
  *
@@ -394,11 +342,6 @@ void Parser::moveCursorDown (const CSI& params) noexcept
  * Moves the cursor right by `Pn` columns (default 1), clamped to the right
  * margin (`cols - 1`).  Does not change the cursor row.
  *
- * @par Sequence
- * @code
- *   ESC [ Pn C
- * @endcode
- *
  * @param params  CSI parameters.  `params.param(0, 1)` is the column count.
  *
  * @note READER THREAD only.
@@ -417,11 +360,6 @@ void Parser::moveCursorForward (const CSI& params) noexcept
  * Moves the cursor left by `Pn` columns (default 1), clamped to column 0.
  * Does not change the cursor row.
  *
- * @par Sequence
- * @code
- *   ESC [ Pn D
- * @endcode
- *
  * @param params  CSI parameters.  `params.param(0, 1)` is the column count.
  *
  * @note READER THREAD only.
@@ -438,15 +376,6 @@ void Parser::moveCursorBackward (const CSI& params) noexcept
  * @brief Handles `CSI Pn E` — Cursor Next Line (CNL).
  *
  * Moves the cursor down by `Pn` rows (default 1) and sets the column to 0.
- * Equivalent to `Pn` line feeds followed by a carriage return.  The clamp
- * boundary depends on whether the cursor is within the scroll region:
- * - Within margins (row >= scrollTop and row <= scrollBottom): clamp to scrollBottom.
- * - Outside margins: clamp to visibleRows - 1.
- *
- * @par Sequence
- * @code
- *   ESC [ Pn E
- * @endcode
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the row count.
  *
@@ -466,12 +395,6 @@ void Parser::moveCursorNextLine (const CSI& params) noexcept
  * @brief Handles `CSI Pn F` — Cursor Previous Line (CPL).
  *
  * Moves the cursor up by `Pn` rows (default 1) and sets the column to 0.
- * Equivalent to `Pn` reverse line feeds followed by a carriage return.
- *
- * @par Sequence
- * @code
- *   ESC [ Pn F
- * @endcode
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the row count.
  *
@@ -490,15 +413,7 @@ void Parser::moveCursorPrevLine (const CSI& params) noexcept
 /**
  * @brief Handles `CSI Pn I` — Cursor Forward Tabulation (CHT).
  *
- * Advances the cursor to the next tab stop `Pn` times (default 1).  Each
- * iteration calls `nextTabStop()` to advance to the nearest stop to the
- * right, stopping at the right margin if no further stops exist.  The
- * wrap-pending flag is cleared after the final move.
- *
- * @par Sequence
- * @code
- *   ESC [ Pn I
- * @endcode
+ * Advances the cursor to the next tab stop `Pn` times (default 1).
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the tab count.
  *
@@ -523,15 +438,7 @@ void Parser::cursorForwardTab (const CSI& params) noexcept
 /**
  * @brief Handles `CSI Pn Z` — Cursor Backward Tabulation (CBT).
  *
- * Moves the cursor to the previous tab stop `Pn` times (default 1).  Each
- * iteration calls `prevTabStop()` to retreat to the nearest stop to the
- * left, stopping at column 0 if no further stops exist.  The wrap-pending
- * flag is cleared after the final move.
- *
- * @par Sequence
- * @code
- *   ESC [ Pn Z
- * @endcode
+ * Moves the cursor to the previous tab stop `Pn` times (default 1).
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the tab count.
  *
@@ -558,11 +465,6 @@ void Parser::cursorBackTab (const CSI& params) noexcept
  * Sets the cursor column to `Pn - 1` (one-based input, zero-based internal),
  * clamped to `[0, cols - 1]`.  Clears the wrap-pending flag.
  *
- * @par Sequence
- * @code
- *   ESC [ Pn G
- * @endcode
- *
  * @param params  CSI parameters.  `params.param(0, 1)` is the target column
  *                (one-based, default 1 → column 0).
  *
@@ -582,14 +484,7 @@ void Parser::setCursorColumn (const CSI& params) noexcept
  * @brief Handles `CSI Pr ; Pc H` / `CSI Pr ; Pc f` — Cursor Position (CUP / HVP).
  *
  * Sets the cursor to the absolute position (row, col), both one-based.
- * Respects origin mode (DECOM): when origin mode is active, row 1 refers to
- * the top of the scrolling region rather than the top of the screen.
- *
- * @par Sequences
- * @code
- *   ESC [ Pr ; Pc H    — CUP (Cursor Position)
- *   ESC [ Pr ; Pc f    — HVP (Horizontal and Vertical Position)
- * @endcode
+ * Respects origin mode (DECOM).
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the target row and
  *                `params.param(1, 1)` is the target column (both one-based,
@@ -610,11 +505,6 @@ void Parser::setCursorPosition (const CSI& params) noexcept
  *
  * Sets the cursor row to `Pn - 1` (one-based input, zero-based internal),
  * preserving the current cursor column.
- *
- * @par Sequence
- * @code
- *   ESC [ Pn d
- * @endcode
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the target row
  *                (one-based, default 1 → row 0).
@@ -672,134 +562,52 @@ void Parser::moveCursorTo (int row, int col) noexcept
 /**
  * @brief Handles `CSI Pn S` — Scroll Up (SU).
  *
- * Scrolls the active scrolling region up by `Pn` lines (default 1).  Lines
- * scrolled off the top are discarded; blank lines are inserted at the bottom.
- * The cursor position is not changed.
- *
- * @par Sequence
- * @code
- *   ESC [ Pn S
- * @endcode
+ * Pushes Command::DeleteLines at scrollTop to achieve scroll-up in the active
+ * scrolling region.  Lines scrolled off the top are discarded; blank lines are
+ * inserted at the bottom.  The cursor position is not changed.
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the line count.
  *
  * @note READER THREAD only.
- *
- * @see Grid::scrollRegionUp()
  */
 void Parser::scrollUp (const CSI& params) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
     const int bottom { activeScrollBottom() };
-    const int cols { state.getRawValue<int> (ID::cols) };
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
 
-    jam::Cell fill {};
-    fill.bg = stamp.bg;
-
-    // Copy rows up: [scrollTop+count .. bottom] → [scrollTop .. bottom-count]
-    for (int dst { scrollTop }; dst <= bottom - clampedCount; ++dst)
-    {
-        const int src { dst + clampedCount };
-        jam::Cell* dstCells { rowCells (dst) };
-        const jam::Cell* srcCells { rowCells (src) };
-        jam::Grapheme* dstG { rowGraphemes (dst) };
-        const jam::Grapheme* srcG { rowGraphemes (src) };
-        uint16_t* dstL { rowLinkIds (dst) };
-        const uint16_t* srcL { rowLinkIds (src) };
-
-        std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (jam::Cell));
-        std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (jam::Grapheme));
-        std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
-
-        writer.markRowDirty (dst);
-    }
-
-    // Erase vacated rows at bottom
-    for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
-    {
-        const auto& m { rowMapping[r] };
-        writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
-        writer.markRowDirty (r);
-    }
+    grid.push (Command { Command::Type::DeleteLines, {}, stamp.bg, clampedCount, scrollTop, 0 });
 }
 
 /**
  * @brief Handles `CSI Pn T` — Scroll Down (SD).
  *
- * Scrolls the active scrolling region down by `Pn` lines (default 1).  Lines
- * scrolled off the bottom are discarded; blank lines are inserted at the top.
- * The cursor position is not changed.
- *
- * @par Sequence
- * @code
- *   ESC [ Pn T
- * @endcode
+ * Pushes Command::InsertLines at scrollTop to achieve scroll-down in the active
+ * scrolling region.  Lines scrolled off the bottom are discarded; blank lines
+ * are inserted at the top.  The cursor position is not changed.
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the line count.
  *
  * @note READER THREAD only.
- *
- * @see Grid::scrollRegionDown()
  */
 void Parser::scrollDown (const CSI& params) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
     const int bottom { activeScrollBottom() };
-    const int cols { state.getRawValue<int> (ID::cols) };
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
 
-    jam::Cell fill {};
-    fill.bg = stamp.bg;
-
-    // Copy rows down: [bottom-count .. scrollTop] → [bottom .. scrollTop+count]
-    for (int dst { bottom }; dst >= scrollTop + clampedCount; --dst)
-    {
-        const int src { dst - clampedCount };
-        jam::Cell* dstCells { rowCells (dst) };
-        const jam::Cell* srcCells { rowCells (src) };
-        jam::Grapheme* dstG { rowGraphemes (dst) };
-        const jam::Grapheme* srcG { rowGraphemes (src) };
-        uint16_t* dstL { rowLinkIds (dst) };
-        const uint16_t* srcL { rowLinkIds (src) };
-
-        std::memcpy (dstCells, srcCells, static_cast<size_t> (cols) * sizeof (jam::Cell));
-        std::memcpy (dstG, srcG, static_cast<size_t> (cols) * sizeof (jam::Grapheme));
-        std::memcpy (dstL, srcL, static_cast<size_t> (cols) * sizeof (uint16_t));
-
-        writer.markRowDirty (dst);
-    }
-
-    // Erase vacated rows at top
-    for (int r { scrollTop }; r < scrollTop + clampedCount and r <= bottom; ++r)
-    {
-        const auto& m { rowMapping[r] };
-        writer.eraseInLine (m.lineIndex, m.cellOffset, m.cellOffset + cols - 1, fill);
-        writer.markRowDirty (r);
-    }
+    grid.push (Command { Command::Type::InsertLines, {}, stamp.bg, clampedCount, scrollTop, 0 });
 }
 
 /**
  * @brief Handles `CSI Pt ; Pb r` — Set Scrolling Region (DECSTBM).
  *
  * Sets the top and bottom margins of the scrolling region.  After setting the
- * region, the cursor is moved to the home position (row 0, column 0 in normal
- * mode; top of scroll region in origin mode).
- *
- * @par Sequence
- * @code
- *   ESC [ Pt ; Pb r
- * @endcode
- *
- * @par Validation
- * The region is accepted only if `top >= 0`, `bottom > top`, and
- * `bottom < visibleRows`.  If the parameters are invalid or omitted, the
- * scroll region is reset to the full screen height via
- * `cursorResetScrollRegion()`.
+ * region, the cursor is moved to the home position.
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the top margin
  *                (one-based) and `params.param(1, visibleRows)` is the bottom
@@ -842,24 +650,6 @@ void Parser::setScrollRegion (const CSI& params) noexcept
  *
  * Responds to terminal status queries from the host application.
  *
- * @par Supported sub-commands
- * | `Pn` | Query              | Response                                    |
- * |------|--------------------|---------------------------------------------|
- * | 5    | Terminal status    | `ESC [ 0 n` (terminal OK)                   |
- * | 6    | Cursor position    | `ESC [ row ; col R` (CPR — one-based)       |
- *
- * @par Sequence
- * @code
- *   ESC [ 5 n    — request terminal status
- *   ESC [ 6 n    — request cursor position (CPR)
- * @endcode
- *
- * @par Response format (CPR)
- * @code
- *   ESC [ <row> ; <col> R
- * @endcode
- * where `<row>` and `<col>` are one-based.
- *
  * @param params  CSI parameters.  `params.param(0, 0)` selects the sub-command.
  *
  * @note READER THREAD only.  Responses are queued via `sendResponse()` and
@@ -887,33 +677,6 @@ void Parser::reportCursorPosition (const CSI& params) noexcept
 
 /**
  * @brief Handles `CSI c` / `CSI ? c` — Device Attributes (DA1 / DA2).
- *
- * Responds to DA1 (`CSI c` or `CSI 0 c`) with a VT220-compatible response
- * identifying the terminal's capabilities:
- *
- * @code
- *   CSI ? 62 ; 4 c
- * @endcode
- *
- * - `62` — VT220 conformance level.
- * - `4`  — Sixel graphics (declared for compatibility; not yet implemented).
- *
- * DA2 (`CSI > c`) responds with a VT500-family identification:
- *
- * @code
- *   CSI > 65 ; 100 ; 0 c
- * @endcode
- *
- * - `65`  — VT500 family (Pp).
- * - `100` — Firmware version (Pv).
- * - `0`   — ROM cartridge registration (Pc).
- *
- * @par Sequences
- * @code
- *   ESC [ c      — Primary DA (DA1)
- *   ESC [ 0 c    — Primary DA (DA1, explicit parameter)
- *   ESC [ > c    — Secondary DA (DA2)
- * @endcode
  *
  * @param isPrivate  `true` if the sequence had a `>` intermediate (DA2).
  *
@@ -950,23 +713,8 @@ struct PrivateModeEntry { uint16_t modeValue; juce::Identifier id; };
  * @brief Table of DECSET/DECRST mode numbers and their corresponding State IDs.
  *
  * Covers the private modes that map directly to a single `State::setMode()`
- * call.  Modes that require additional side effects (e.g. ?6 origin mode,
- * ?25 cursor visibility, ?1049 alternate screen) are handled separately in
+ * call.  Modes that require additional side effects are handled separately in
  * `handlePrivateMode()`.
- *
- * | Mode | Name                  | State ID                  |
- * |------|-----------------------|---------------------------|
- * |    1 | DECCKM                | applicationCursor         |
- * |    5 | DECSCNM               | reverseVideo              |
- * |    7 | DECAWM                | autoWrap                  |
- * |   66 | DECNKM                | applicationKeypad         |
- * | 1000 | X10 mouse tracking    | mouseTracking             |
- * | 1002 | Button-event tracking | mouseMotionTracking       |
- * | 1003 | Any-event tracking    | mouseAllTracking          |
- * | 1004 | Focus events          | focusEvents               |
- * | 1006 | SGR mouse encoding    | mouseSgr                  |
- * | 2004 | Bracketed paste       | bracketedPaste            |
- * | 9001 | Win32 input mode      | win32InputMode            |
  */
 static const PrivateModeEntry privateModeTable[]
 {
@@ -1019,19 +767,6 @@ static bool applyPrivateModeTable (State& state, uint16_t modeValue, bool enable
  *
  * Iterates over all parameters in `params` and enables or disables the
  * corresponding private mode.  Most modes are resolved via `applyPrivateModeTable()`.
- * Modes with side effects are handled inline:
- *
- * | Mode | Name    | Side effect                                              |
- * |------|---------|----------------------------------------------------------|
- * | ?6   | DECOM   | Homes the cursor when enabled                            |
- * | ?25  | DECTCEM | Updates cursor visibility in State                       |
- * | ?47 / ?1047 / ?1049 | Alternate screen | Calls `setScreen()` |
- *
- * @par Sequences
- * @code
- *   ESC [ ? Pm h    — DECSET (set private mode)
- *   ESC [ ? Pm l    — DECRST (reset private mode)
- * @endcode
  *
  * @param params  CSI parameters containing the mode numbers.
  * @param enable  `true` to set the mode (h), `false` to reset it (l).
@@ -1107,12 +842,6 @@ void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
  * | Mode | Name | Effect                                                    |
  * |------|------|-----------------------------------------------------------|
  * | 4    | IRM  | Insert mode — characters shift right on input             |
- *
- * @par Sequences
- * @code
- *   ESC [ Pm h    — SM (Set Mode)
- *   ESC [ Pm l    — RM (Reset Mode)
- * @endcode
  *
  * @param params  CSI parameters containing the mode numbers.
  * @param enable  `true` to set the mode (h), `false` to reset it (l).

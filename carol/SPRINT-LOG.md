@@ -1,5 +1,80 @@
 # SPRINT-LOG
 
+## Handoff to COUNSELOR: Viewport Redesign — Nude Screen
+
+**From:** COUNSELOR
+**Date:** 2026-05-09
+**Status:** In Progress — build verification pending
+
+### Context
+Major viewport redesign for END terminal emulator. Session evolved through several architectural corrections:
+1. Grid → FIFO (completed in prior session)
+2. TextEditor Owner<Cells> model (completed, then superseded)
+3. Framebuffer model with memmove scrolling (built, broken — destroyed content on resize, double-spaced rows, garbled output)
+4. ARCHITECT-led architecture discussion: decouple UI (spatial) from Parser (VT protocol). Parser is absolute spatial (VT spec), Screen is logical (growing document). LineFeed appends, not shifts.
+5. Final: Strip jam::TextEditor entirely. Screen becomes juce::Component + Viewport + ShapedText + Glyph::Graphics. ~200 lines replaces ~2000.
+
+### Completed
+- `jam::Cells` — mutable API: `operator[]`, `resize(int)`, `data()` for direct writes
+- `jam::TextEditor` — `Owner<Cells> cells` (protected), `setActiveCells(int)`, `reshapeCellsContent()` protected, `cellsContent` eliminated, `activeCellsIndex` private
+- `jam::CaretComponent` — DECSCUSR shapes, full cell-width bounds, LookAndFeel wired
+- `Command.h` — row/col restored (Parser absolute, Screen logical)
+- All Parser emission sites — grid.push with viewport-relative row/col
+- `Screen.h/cpp` — complete rewrite: inherits `juce::Component` (not `jam::TextEditor`), owns Viewport + ContentView + ShapedText + Glyph::Graphics + CaretComponent + `Owner<Cells>`
+- `Screen::makeLayout` — logical document mapping: `firstVisible + cmd.row`, LineFeed appends
+- `Screen::drawContent` — iterates ShapedText draw runs, cell (col, row) → pixel, glyphGraphics.drawGlyphs (Overload C)
+- `Display::valueTreePropertyChanged` — active screen change detection → `screen.setActive()`
+- `Display::onVBlank` — caret position clamped to `cols * rows`
+- `PLAN-nude-screen.md` — 6-step plan for the strip (Steps 1-5 implemented)
+- `PLAN-viewport-redesign.md` — updated with corrected topology and architecture
+
+### Remaining
+- **Build verification** — nude Screen has NOT been compiled yet. Build test is the immediate next step.
+- **Step 6 (Cleanup)** — remove Cells-path branches from `jam::TextEditor` (drawContent, getCursorEdge, getTotalNumChars, etc.). TextEditor returns to pure text editor.
+- **Alternate screen** — fixed framebuffer behavior within the append architecture (PLAN Step A4)
+- **Scrollback trimming** — Cells grows indefinitely; needs capacity limit + oldest-row trimming
+- **Selection, mouse events** — not in scope yet
+- **WHELMED compatibility** — `setText(Cells&&)` on TextEditor may need to stay or be moved
+
+### Key Decisions
+- Parser stays VT spec — absolute spatial (row/col). Commands carry viewport-relative coordinates.
+- Screen translates: `logicalRow = firstVisible + cmd.row`. Parser absolute → Screen logical.
+- LineFeed = append new row to Cells (document grows). No memmove on normal screen.
+- Screen owns caret (child of ContentView, scrolls with content). Display tells index.
+- Parser writes raw cursor to State from VT sequences. Screen reads for caret. Mutation unidirectional.
+- Normal screen: growing document. Alternate screen: fixed framebuffer.
+- Cursor authority: Parser writes raw to State, Display reads resolved → tells Screen.
+
+### Files Modified
+- `jam/jam_tui/cell/jam_cells.h` — mutable operator[], resize, data() added
+- `jam/jam_tui/cell/jam_cells.cpp` — mutable operator[], resize implementations
+- `jam/jam_gui/text_editor/jam_text_editor.h` — Owner<Cells>, setActiveCells, reshapeCellsContent protected, activeCellsIndex private, setText param rename
+- `jam/jam_gui/text_editor/jam_text_editor.cpp` — setText wraps into Owner, reshapeCellsContent reads from Owner, getTotalNumChars/getCursorEdge/resized updated, moveCaret always calls updateCaretPosition
+- `jam/jam_gui/text_editor/jam_caret_component.h` — created (DECSCUSR shapes)
+- `Source/terminal/data/Command.h` — row/col fields (restored after strip experiment)
+- `Source/terminal/logic/ParserVT.cpp` — grid.push sites with row/col
+- `Source/terminal/logic/ParserEdit.cpp` — grid.push sites with row/col, cursor reads restored
+- `Source/terminal/logic/ParserESC.cpp` — grid.push sites with row/col
+- `Source/terminal/logic/ParserCSI.cpp` — grid.push sites with row/col
+- `Source/terminal/rendering/Screen.h` — complete rewrite (juce::Component, ContentView, own cells/shapedText/glyphGraphics/caret)
+- `Source/terminal/rendering/Screen.cpp` — complete rewrite (makeLayout logical mapping, drawContent via ShapedText, shapeAndRepaint, computeCellMetrics)
+- `Source/component/TerminalDisplay.h` — lastActiveScreen member
+- `Source/component/TerminalDisplay.cpp` — valueTreePropertyChanged screen detection, onVBlank caret clamp, makeLayout call
+- `Source/component/LookAndFeel.h` — createCaretComponent override
+- `Source/component/LookAndFeel.cpp` — createCaretComponent returns jam::CaretComponent
+
+### Open Questions
+- ContentView::paint uses `owner.getWidth()/getHeight()` for push viewport — should it use its own size instead? (ContentView can be taller than Screen when scrollback exists)
+- ShapedText shapes ALL cells every frame — for large scrollback, visible-range-only shaping needed (optimization, not blocking)
+- `Cursor.h/Cursor.cpp` still exists (Whelmed-specific) — ARCHITECT flagged, deletion decision pending
+
+### Next Steps
+1. Build test the nude Screen
+2. Fix any compilation errors
+3. Verify terminal renders correctly (prompt, ls, typing, clear)
+4. If rendering works: Step 6 cleanup (strip Cells path from TextEditor)
+5. If rendering broken: debug with ARCHITECT
+
 ## Sprint 9: Colour Hot Reload
 
 **Date:** 2026-05-08

@@ -9,6 +9,7 @@
 #include "LookAndFeel.h"
 #include "../terminal/data/Palette.h"
 #include "../terminal/rendering/Screen.h"
+#include <jam_gui/text_editor/jam_caret_component.h>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -21,6 +22,11 @@ namespace Terminal
  * @note MESSAGE THREAD.
  */
 LookAndFeel::LookAndFeel() { setColours(); }
+
+juce::CaretComponent* LookAndFeel::createCaretComponent (juce::Component* keyFocusOwner)
+{
+    return new jam::CaretComponent (keyFocusOwner);
+}
 
 /**
  * @brief Refreshes all colour IDs from Config.

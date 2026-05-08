@@ -66,7 +66,6 @@ class Display;
  * - `getState()` / `getGrid()` — mutable and const references.
  * - `getUuid()` — const reference to the stable session UUID.
  * - `getParser()` — const and mutable reference to the VT state machine.
- * - `processWithLock()` — acquires the grid resize lock and calls `process()`.
  * - `setHostWriter()` — wires `parser.writeToHost` to the caller's sink.
  *
  * ### Public surface
@@ -188,7 +187,7 @@ public:
     /**
      * @brief Returns a mutable reference to the terminal parameter store.
      * @return Mutable reference to the owned `State` object.
-     * @note MESSAGE THREAD only (or locked reader thread via processWithLock).
+     * @note MESSAGE THREAD only.
      */
     State& getState() noexcept;
 
@@ -202,7 +201,7 @@ public:
     /**
      * @brief Returns a mutable reference to the ring-buffer cell grid.
      * @return Mutable reference to the owned `Grid` object.
-     * @note MESSAGE THREAD only (or locked reader thread via processWithLock).
+     * @note MESSAGE THREAD only.
      */
     Grid& getGrid() noexcept;
 
@@ -232,34 +231,6 @@ public:
      */
     const Parser& getParser() const noexcept;
     Parser& getParser() noexcept;
-
-    /**
-     * @brief Acquires the grid resize lock, then processes raw bytes through the parser pipeline.
-     *
-     * Wraps `process()` under `ScopedLock (grid.getResizeLock())`.  Use this
-     * overload from the reader thread when the caller must hold the resize lock
-     * for the duration of the parse (e.g. the daemon's `onBytes` callback).
-     *
-     * @param data    Pointer to the raw byte buffer.
-     * @param len     Number of bytes in the buffer.
-     * @note READER THREAD only.
-     */
-    void processWithLock (const char* data, int len) noexcept;
-
-    /**
-     * @brief Serializes Grid and State into a portable snapshot for session restore.
-     * @param destData  MemoryBlock to append the snapshot to.
-     * @note MESSAGE THREAD.
-     */
-    void getStateInformation (juce::MemoryBlock& destData) const;
-
-    /**
-     * @brief Restores Grid and State from a snapshot produced by getStateInformation.
-     * @param data  Pointer to the snapshot bytes.
-     * @param size  Size in bytes.
-     * @note MESSAGE THREAD.
-     */
-    void setStateInformation (const void* data, int size);
 
     /**
      * @brief Wires `parser.writeToHost` to the given callback.
