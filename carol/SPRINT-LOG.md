@@ -1,5 +1,39 @@
 # SPRINT-LOG
 
+## Sprint 9: Colour Hot Reload
+
+**Date:** 2026-05-08
+**Duration:** 00:45
+
+### Agents Participated
+- COUNSELOR: primary — architecture discussion, orchestration
+- Pathfinder: colour pipeline survey (sentinel, PALETTE, ColourIds, drawContent flow)
+- Engineer (x3): fg sentinel substitution, ANSI-16 hot reload, Screen preview config colours
+
+### Files Modified (4 total)
+- `jam_gui/text_editor/jam_text_editor.cpp:1147-1149` — fg sentinel substitution: `run.colour.getAlpha() == 0` resolves to `findColour(textColourId)` before drawGlyphs
+- `Source/terminal/data/Palette.h:38,58-70,230-248` — ANSI_16 `inline const` → `inline` (mutable), added `setAnsi16Colour(int, juce::Colour)`, deleted redundant PALETTE flat array, palette256At() is now SSOT
+- `Source/terminal/logic/ParserSGR.cpp:128,304,316,328,332` — `PALETTE.at()` → `palette256At()` (5 sites)
+- `Source/component/LookAndFeel.cpp:91-96` — ANSI-16 loop calls `Terminal::setAnsi16Colour(i, ansi)` alongside `setColour()`
+- `Source/terminal/rendering/Screen.cpp:22-34` — preview fg colours from `findColour(ansiNColourId)` + sentinel, bg sentinel explicit
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **Fg sentinel not resolved:** cells with default fg (alpha=0) rendered transparent. Fixed: drawContent resolves sentinel via findColour(textColourId)
+- **ANSI-16 not hot-reloadable:** PALETTE was inline const, stamped at init. Fixed: ANSI_16 mutable, palette256At() reads live table, LookAndFeel updates both ColourIds and ANSI_16
+- **PALETTE SSOT violation:** flat 256-entry array duplicated ANSI_16 + COLOR_CUBE + GRAY_RAMP. Fixed: deleted PALETTE, palette256At() is the single resolver
+- **Preview bypassed config:** Screen::setText() had hardcoded juce::Colour literals. Fixed: uses findColour() for ANSI colours, sentinel for default fg/bg
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Sprint 8: Type Unification + Bold/Underline/Strike + Architecture ✅
 
 **Date:** 2026-05-07 — 2026-05-08

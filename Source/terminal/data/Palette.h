@@ -13,8 +13,8 @@
  * Helper functions are `inline`. No heap allocation occurs.
  *
  * @note Include this header wherever SGR color attribute 38;5;n or 48;5;n
- *       sequences must be resolved to an RGB triple. Use `PALETTE.at(n)` for
- *       direct index lookup.
+ *       sequences must be resolved to an RGB triple. Use `palette256At(n)` for
+ *       index lookup.
  */
 
 #pragma once
@@ -35,7 +35,7 @@ namespace Terminal
  *        terminal-defined rather than algorithmically derived. Themes
  *        that override the ANSI 16 should replace this table.
  */
-inline const std::array<juce::Colour, 16> ANSI_16
+inline std::array<juce::Colour, 16> ANSI_16
 {{
     juce::Colour (0x00, 0x00, 0x00),
     juce::Colour (0xCD, 0x00, 0x00),
@@ -54,6 +54,20 @@ inline const std::array<juce::Colour, 16> ANSI_16
     juce::Colour (0x00, 0xFF, 0xFF),
     juce::Colour (0xFF, 0xFF, 0xFF),
 }};
+
+/** @brief Updates a single ANSI-16 colour for hot-reload from user config.
+ *
+ *  Called by LookAndFeel when the terminal colour scheme changes.
+ *  The parser reads ANSI_16 via palette256At() on every SGR colour
+ *  attribute, so changes take effect on the next terminal output.
+ *
+ *  @param index  ANSI colour index in the range [0, 15].
+ *  @param colour New colour value from user configuration.
+ */
+inline void setAnsi16Colour (int index, juce::Colour colour) noexcept
+{
+    ANSI_16[static_cast<size_t> (index)] = colour;
+}
 
 /** @brief First xterm index of the 6×6×6 RGB color cube (inclusive). */
 inline constexpr int CUBE_START { 16 };
@@ -212,8 +226,6 @@ inline const std::array<juce::Colour, GRAY_SIZE> GRAY_RAMP
  *  @param index  xterm palette index in the range [0, 255].
  *  @return       Corresponding juce::Colour.
  *
- *  @note Prefer direct `PALETTE.at(n)` access over calling this function
- *        at runtime; this function exists to populate PALETTE at compile time.
  */
 inline juce::Colour palette256At (int index) noexcept
 {
@@ -234,87 +246,6 @@ inline juce::Colour palette256At (int index) noexcept
 
     return result;
 }
-
-/** @brief The complete 256-entry xterm color palette, fully resolved at compile time.
- *
- *  A flat lookup table mapping every xterm-256 color index [0–255] to its
- *  canonical juce::Colour value. The three segments are laid out contiguously:
- *
- *  | Range     | Count | Source      | Description              |
- *  |-----------|-------|-------------|--------------------------|
- *  | 0–15      | 16    | ANSI_16     | Standard ANSI colors     |
- *  | 16–231    | 216   | COLOR_CUBE  | 6×6×6 RGB cube           |
- *  | 232–255   | 24    | GRAY_RAMP   | Grayscale ramp           |
- *
- *  @note Use `PALETTE.at(n)` for bounds-checked access.
- */
-inline const std::array<juce::Colour, 256> PALETTE
-{
-    palette256At (0),  palette256At (1),  palette256At (2),  palette256At (3),
-    palette256At (4),  palette256At (5),  palette256At (6),  palette256At (7),
-    palette256At (8),  palette256At (9),  palette256At (10), palette256At (11),
-    palette256At (12), palette256At (13), palette256At (14), palette256At (15),
-    palette256At (16),  palette256At (17),  palette256At (18),  palette256At (19),
-    palette256At (20),  palette256At (21),  palette256At (22),  palette256At (23),
-    palette256At (24),  palette256At (25),  palette256At (26),  palette256At (27),
-    palette256At (28),  palette256At (29),  palette256At (30),  palette256At (31),
-    palette256At (32),  palette256At (33),  palette256At (34),  palette256At (35),
-    palette256At (36),  palette256At (37),  palette256At (38),  palette256At (39),
-    palette256At (40),  palette256At (41),  palette256At (42),  palette256At (43),
-    palette256At (44),  palette256At (45),  palette256At (46),  palette256At (47),
-    palette256At (48),  palette256At (49),  palette256At (50),  palette256At (51),
-    palette256At (52),  palette256At (53),  palette256At (54),  palette256At (55),
-    palette256At (56),  palette256At (57),  palette256At (58),  palette256At (59),
-    palette256At (60),  palette256At (61),  palette256At (62),  palette256At (63),
-    palette256At (64),  palette256At (65),  palette256At (66),  palette256At (67),
-    palette256At (68),  palette256At (69),  palette256At (70),  palette256At (71),
-    palette256At (72),  palette256At (73),  palette256At (74),  palette256At (75),
-    palette256At (76),  palette256At (77),  palette256At (78),  palette256At (79),
-    palette256At (80),  palette256At (81),  palette256At (82),  palette256At (83),
-    palette256At (84),  palette256At (85),  palette256At (86),  palette256At (87),
-    palette256At (88),  palette256At (89),  palette256At (90),  palette256At (91),
-    palette256At (92),  palette256At (93),  palette256At (94),  palette256At (95),
-    palette256At (96),  palette256At (97),  palette256At (98),  palette256At (99),
-    palette256At (100), palette256At (101), palette256At (102), palette256At (103),
-    palette256At (104), palette256At (105), palette256At (106), palette256At (107),
-    palette256At (108), palette256At (109), palette256At (110), palette256At (111),
-    palette256At (112), palette256At (113), palette256At (114), palette256At (115),
-    palette256At (116), palette256At (117), palette256At (118), palette256At (119),
-    palette256At (120), palette256At (121), palette256At (122), palette256At (123),
-    palette256At (124), palette256At (125), palette256At (126), palette256At (127),
-    palette256At (128), palette256At (129), palette256At (130), palette256At (131),
-    palette256At (132), palette256At (133), palette256At (134), palette256At (135),
-    palette256At (136), palette256At (137), palette256At (138), palette256At (139),
-    palette256At (140), palette256At (141), palette256At (142), palette256At (143),
-    palette256At (144), palette256At (145), palette256At (146), palette256At (147),
-    palette256At (148), palette256At (149), palette256At (150), palette256At (151),
-    palette256At (152), palette256At (153), palette256At (154), palette256At (155),
-    palette256At (156), palette256At (157), palette256At (158), palette256At (159),
-    palette256At (160), palette256At (161), palette256At (162), palette256At (163),
-    palette256At (164), palette256At (165), palette256At (166), palette256At (167),
-    palette256At (168), palette256At (169), palette256At (170), palette256At (171),
-    palette256At (172), palette256At (173), palette256At (174), palette256At (175),
-    palette256At (176), palette256At (177), palette256At (178), palette256At (179),
-    palette256At (180), palette256At (181), palette256At (182), palette256At (183),
-    palette256At (184), palette256At (185), palette256At (186), palette256At (187),
-    palette256At (188), palette256At (189), palette256At (190), palette256At (191),
-    palette256At (192), palette256At (193), palette256At (194), palette256At (195),
-    palette256At (196), palette256At (197), palette256At (198), palette256At (199),
-    palette256At (200), palette256At (201), palette256At (202), palette256At (203),
-    palette256At (204), palette256At (205), palette256At (206), palette256At (207),
-    palette256At (208), palette256At (209), palette256At (210), palette256At (211),
-    palette256At (212), palette256At (213), palette256At (214), palette256At (215),
-    palette256At (216), palette256At (217), palette256At (218), palette256At (219),
-    palette256At (220), palette256At (221), palette256At (222), palette256At (223),
-    palette256At (224), palette256At (225), palette256At (226), palette256At (227),
-    palette256At (228), palette256At (229), palette256At (230), palette256At (231),
-    palette256At (232), palette256At (233), palette256At (234), palette256At (235),
-    palette256At (236), palette256At (237), palette256At (238), palette256At (239),
-    palette256At (240), palette256At (241), palette256At (242), palette256At (243),
-    palette256At (244), palette256At (245), palette256At (246), palette256At (247),
-    palette256At (248), palette256At (249), palette256At (250), palette256At (251),
-    palette256At (252), palette256At (253), palette256At (254), palette256At (255),
-};
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

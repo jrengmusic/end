@@ -66,7 +66,7 @@
  * @note All functions in this file run on the READER THREAD only.
  *
  * @see Pen    — the drawing attribute struct mutated by SGR
- * @see PALETTE — xterm-256 colour table (resolved juce::Colour values)
+ * @see palette256At() — xterm-256 colour table accessor
  * @see CSI    — parameter accumulator supplying the SGR parameter list
  * @see jam::Cell — style bit flags (BOLD, ITALIC, UNDERLINE, BLINK, INVERSE, STRIKE)
  */
@@ -125,7 +125,7 @@ static juce::Colour parseExtendedColor (const CSI& params, uint8_t& i) noexcept
 
         if (subType == 5 and i + 2 < params.count)
         {
-            result = PALETTE.at (static_cast<size_t> (params.values.at (i + 2)));
+            result = palette256At (params.values.at (i + 2));
             i += 2;
         }
         else if (subType == 2 and i + 4 < params.count)
@@ -255,10 +255,10 @@ namespace
  * @par ANSI 16-color palette mapping
  * @code
  * // Normal colors (30–37 fg, 40–47 bg) → palette indices 0–7
- * p.fg = PALETTE.at (code - 30);
+ * p.fg = palette256At (code - 30);
  *
  * // Bright colors (90–97 fg, 100–107 bg) → palette indices 8–15
- * p.fg = PALETTE.at (code - 90 + 8);
+ * p.fg = palette256At (code - 90 + 8);
  * @endcode
  *
  * @param params  The finalised CSI parameter set for the SGR sequence
@@ -301,7 +301,7 @@ void Parser::handleSGR (const CSI& params) noexcept
             }
             else if (code >= 30 and code <= 37)
             {
-                p.fg = PALETTE.at (static_cast<size_t> (code - 30));
+                p.fg = palette256At (code - 30);
             }
             else if (code == 38)
             {
@@ -313,7 +313,7 @@ void Parser::handleSGR (const CSI& params) noexcept
             }
             else if (code >= 40 and code <= 47)
             {
-                p.bg = PALETTE.at (static_cast<size_t> (code - 40));
+                p.bg = palette256At (code - 40);
             }
             else if (code == 48)
             {
@@ -325,11 +325,11 @@ void Parser::handleSGR (const CSI& params) noexcept
             }
             else if (code >= 90 and code <= 97)
             {
-                p.fg = PALETTE.at (static_cast<size_t> (code - 90 + 8));
+                p.fg = palette256At (code - 90 + 8);
             }
             else if (code >= 100 and code <= 107)
             {
-                p.bg = PALETTE.at (static_cast<size_t> (code - 100 + 8));
+                p.bg = palette256At (code - 100 + 8);
             }
         }
     }

@@ -7,6 +7,7 @@
  */
 
 #include "LookAndFeel.h"
+#include "../terminal/data/Palette.h"
 #include "../terminal/rendering/Screen.h"
 
 namespace Terminal
@@ -88,7 +89,11 @@ void LookAndFeel::setColours()
     setColour (Screen::hintLabelBgColourId,         cfg->display.colours.hintLabelBg);
 
     for (int i { 0 }; i < 16; ++i)
-        setColour (Screen::ansi0ColourId + i, cfg->display.colours.ansi[static_cast<size_t> (i)]);
+    {
+        const juce::Colour ansi { cfg->display.colours.ansi[static_cast<size_t> (i)] };
+        setColour (Screen::ansi0ColourId + i, ansi);
+        Terminal::setAnsi16Colour (i, ansi);
+    }
 
     loadTabButtonSvg();
 }
