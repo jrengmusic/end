@@ -20,8 +20,6 @@ Terminal::Display::Display (Terminal::Processor& processorToUse)
 
 Terminal::Display::~Display()
 {
-    state.get().removeListener (this);
-    vblank = juce::VBlankAttachment {};
     cancelPendingUpdate();
     removeKeyListener (this);
 }
@@ -43,8 +41,8 @@ void Terminal::Display::enterOpenFileMode() noexcept {}
 void Terminal::Display::pasteClipboard() {}
 void Terminal::Display::writeToPty (const char* data, int len) noexcept
 {
-    if (processor.writeInput)
-        processor.writeInput (data, len);
+    if (processor.events.contains (Terminal::ID::writeInput))
+        processor.events.get (Terminal::ID::writeInput, data, len);
 }
 int Terminal::Display::getHintPage() const noexcept { return 0; }
 int Terminal::Display::getHintTotalPages() const noexcept { return 0; }
@@ -107,10 +105,11 @@ void Terminal::Display::resized()
                         lastCols = newCols;
                         lastRows = newRows;
                         screen.setDimensions (newCols, newRows);
-                        processor.resized (newCols, newRows);
+                        // Top-down: Display writes State → Processor::valueTreePropertyChanged → Video.
+                        processor.getState().setDimensions (newCols, newRows);
 
-                        if (processor.onResize != nullptr)
-                            processor.onResize (newCols, newRows, contentBounds.getWidth(), contentBounds.getHeight());
+                        if (processor.events.contains (Terminal::ID::terminalResize))
+                            processor.events.get (Terminal::ID::terminalResize, int (newCols), int (newRows), int (contentBounds.getWidth()), int (contentBounds.getHeight()));
                     }
                 }
             }
@@ -121,12 +120,12 @@ void Terminal::Display::resized()
 // juce::KeyListener
 bool Terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
-    if (processor.writeInput != nullptr)
+    if (processor.events.contains (Terminal::ID::writeInput))
     {
         const auto encoded { processor.encodeKeyPress (key) };
 
         if (encoded.isNotEmpty())
-            processor.writeInput (encoded.toRawUTF8(), static_cast<int> (encoded.getNumBytesAsUTF8()));
+            processor.events.get (Terminal::ID::writeInput, encoded.toRawUTF8(), int (encoded.getNumBytesAsUTF8()));
     }
 
     return true;
@@ -158,7 +157,7 @@ void Terminal::Display::onVBlank()
     if (stateDirty)
         state.refresh();
 
-    // Always check Grid — Parser may write cells without changing State
+    // Grid dirty-row drain — transfers cells from Grid access buffer to Screen
     const int scrolledRows { grid.getNumScrolledRows() };
     const uint64_t dirtyMask { grid.consumeDirtyRows() };
     const bool gridDirty { scrolledRows > 0 or dirtyMask != 0 };

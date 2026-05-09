@@ -1,1 +1,0 @@
-/Users/jreng/.carol/NAMES.md

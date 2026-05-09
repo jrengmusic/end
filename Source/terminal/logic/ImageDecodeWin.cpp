@@ -287,8 +287,7 @@ ImageSequence loadImageSequenceNative (const void* data, size_t dataSize) noexce
                 {
                     // Non-GIF animated format (APNG, WebP, etc.): each frame from WIC
                     // is the full canvas — no sub-frame compositing required.
-                    // TODO: extract per-format delays via WIC metadata reader;
-                    //       using 100 ms default for now.
+                    // Per-format delays via WIC metadata reader not yet extracted; using 100 ms default.
                     const int frameCount { static_cast<int> (nativeFrameCount) };
 
                     IWICBitmapFrameDecode* firstFrame { nullptr };
@@ -376,7 +375,7 @@ ImageSequence loadImageSequenceNative (const void* data, size_t dataSize) noexce
                                     wicFrame->Release();
                                 }
 
-                                seq.delays[i] = 100;   // TODO: read from WIC metadata reader
+                                seq.delays[i] = 100;   // WIC metadata reader delay not yet read; using 100 ms default.
                             }
 
                             seq.width      = canvasW;

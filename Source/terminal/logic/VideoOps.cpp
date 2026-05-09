@@ -1,10 +1,10 @@
 /**
- * @file ParserOps.cpp
+ * @file VideoOps.cpp
  * @brief Cursor movement primitives, tab stop management, and terminal reset for the VT parser.
  *
  * This file implements the low-level cursor and tab-stop operations of the
- * Parser class.  These are the building blocks used by the CSI dispatch
- * handlers in ParserCSI.cpp and by the ESC dispatch handlers in ParserESC.cpp.
+ * Video class.  These are the building blocks used by the CSI dispatch
+ * handlers in VideoCSI.cpp and by the ESC dispatch handlers in VideoESC.cpp.
  *
  * ## Cursor movement primitives
  *
@@ -44,24 +44,23 @@
  * ## Cursor save / restore (DECSC / DECRC)
  *
  * ESC 7 (DECSC) saves the cursor position and the active pen into `stamp`.
- * ESC 8 (DECRC) restores them.  These are handled in ParserESC.cpp using the
- * `pen` and `stamp` members declared in Parser.h; no dedicated methods live
+ * ESC 8 (DECRC) restores them.  These are handled in VideoESC.cpp using the
+ * `pen` and `stamp` members declared in Video.h; no dedicated methods live
  * here for that operation.
  *
  * ## Terminal reset (RIS)
  *
  * ESC c (RIS — Reset to Initial State) triggers a full terminal reset:
  * `resetCursor()` (this file) resets cursor state and tab stops for both
- * screens; `resetModes()` and `resetPen()` (ParserCSI.cpp) reset mode flags
+ * screens; `resetModes()` and `resetPen()` (VideoCSI.cpp) reset mode flags
  * and drawing attributes.
  *
  * @note All functions in this file run on the READER THREAD only.
  *
  * @see Grid   — screen buffer whose geometry constrains cursor movement
- * @see State  — atomic terminal parameter store for cursor position and scroll region
  */
 
-#include "Parser.h"
+#include "Video.h"
 #include "Grid.h"
 
 namespace Terminal
@@ -72,52 +71,33 @@ namespace Terminal
 // ============================================================================
 
 /**
- * @brief Resets cursor state for a single screen to power-on defaults.
- *
- * Sets the cursor to the home position (row 0, col 0), makes it visible,
- * clears the wrap-pending flag, and resets the scroll region to the full
- * screen (top = 0, bottom = 0, which `effectiveScrollBottom()` interprets
- * as `visibleRows - 1`).
- *
- * @param state  The terminal parameter store to update.
- * @param scr    The screen whose cursor state is reset.
- *
- * @note READER THREAD only.
- * @note This is a file-local helper; the public entry point is `resetCursor()`.
- *
- * @see resetCursor()  — calls this for both `normal` and `alternate` screens
- */
-static void resetCursorForScreen (State& state, ActiveScreen scr) noexcept
-{
-    state.setCursorRow (scr, 0);
-    state.setCursorCol (scr, 0);
-    state.setCursorVisible (scr, true);
-    state.setWrapPending (scr, false);
-    state.setScrollTop (scr, 0);
-    state.setScrollBottom (scr, 0);
-}
-
-/**
  * @brief Resets cursor state for both screens and reinitialises tab stops.
  *
  * Called by `reset()` (which is triggered by RIS, ESC c) and by `resize()`.
- * Applies `resetCursorForScreen()` to both the normal and alternate screens,
- * then rebuilds the tab stop table for the new column count.
+ * Resets cursor position, visibility, wrap-pending flag, and scroll region for
+ * both the normal and alternate screens, then rebuilds the tab stop table for
+ * the new column count.
  *
- * @param cols  Current terminal column count.  Passed to `initializeTabStops()`
- *              to size the tab stop vector and place stops every 8 columns.
+ * @param numCols  Current terminal column count.  Passed to `initializeTabStops()`
+ *                 to size the tab stop vector and place stops every 8 columns.
  *
  * @note READER THREAD only.
  *
- * @see resetCursorForScreen()  — per-screen cursor reset helper
  * @see initializeTabStops()    — rebuilds the tab stop vector
  * @see reset()                 — full terminal reset (RIS) entry point
  */
-void Parser::resetCursor (int cols) noexcept
+void Video::resetCursor (int numCols) noexcept
 {
-    resetCursorForScreen (state, normal);
-    resetCursorForScreen (state, alternate);
-    initializeTabStops (cols);
+    for (int i { 0 }; i < 2; ++i)
+    {
+        cursorRow[i] = 0;
+        cursorCol[i] = 0;
+        cursorVisible[i] = true;
+        wrapPending[i] = false;
+        scrollTop[i] = 0;
+        scrollBottom[i] = 0;
+    }
+    initializeTabStops (numCols);
 }
 
 /**
@@ -141,17 +121,16 @@ void Parser::resetCursor (int cols) noexcept
  * @note Always clears the wrap-pending flag.
  *
  * @see cursorMoveDown()  — complementary downward movement
- * @see State::getScrollTop() — the upper bound for upward movement within margins
  */
-void Parser::cursorMoveUp (ActiveScreen s, int count) noexcept
+void Video::cursorMoveUp (ActiveScreen s, int count) noexcept
 {
-    const int top { state.getRawValue<int> (state.screenKey (s, ID::scrollTop)) };
-    const int bottom { effectiveScrollBottom (s, state.getRawValue<int> (ID::visibleRows)) };
-    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
+    const int top { scrollTop[static_cast<int> (s)] };
+    const int bottom { effectiveScrollBottom (s, visibleRows.load (std::memory_order_relaxed)) };
+    const int row { cursorRow[static_cast<int> (s)] };
     const bool withinMargins { row >= top and row <= bottom };
     const int clampTop { withinMargins ? top : 0 };
-    state.setCursorRow (s, juce::jmax (clampTop, row - count));
-    state.setWrapPending (s, false);
+    cursorRow[static_cast<int> (s)] = juce::jmax (clampTop, row - count);
+    wrapPending[static_cast<int> (s)] = false;
 }
 
 /**
@@ -177,11 +156,11 @@ void Parser::cursorMoveUp (ActiveScreen s, int count) noexcept
  * @see cursorMoveUp()           — complementary upward movement
  * @see effectiveScrollBottom()  — computes the effective scroll region bottom
  */
-void Parser::cursorMoveDown (ActiveScreen s, int count, int bottom) noexcept
+void Video::cursorMoveDown (ActiveScreen s, int count, int bottom) noexcept
 {
-    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
-    state.setCursorRow (s, juce::jmin (bottom, row + count));
-    state.setWrapPending (s, false);
+    const int row { cursorRow[static_cast<int> (s)] };
+    cursorRow[static_cast<int> (s)] = juce::jmin (bottom, row + count);
+    wrapPending[static_cast<int> (s)] = false;
 }
 
 /**
@@ -204,11 +183,11 @@ void Parser::cursorMoveDown (ActiveScreen s, int count, int bottom) noexcept
  *
  * @see cursorMoveBackward()  — complementary leftward movement
  */
-void Parser::cursorMoveForward (ActiveScreen s, int count, int cols) noexcept
+void Video::cursorMoveForward (ActiveScreen s, int count, int cols) noexcept
 {
-    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
-    state.setCursorCol (s, juce::jmin (cols - 1, col + count));
-    state.setWrapPending (s, false);
+    const int col { cursorCol[static_cast<int> (s)] };
+    cursorCol[static_cast<int> (s)] = juce::jmin (cols - 1, col + count);
+    wrapPending[static_cast<int> (s)] = false;
 }
 
 /**
@@ -230,11 +209,11 @@ void Parser::cursorMoveForward (ActiveScreen s, int count, int cols) noexcept
  *
  * @see cursorMoveForward()  — complementary rightward movement
  */
-void Parser::cursorMoveBackward (ActiveScreen s, int count) noexcept
+void Video::cursorMoveBackward (ActiveScreen s, int count) noexcept
 {
-    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
-    state.setCursorCol (s, juce::jmax (0, col - count));
-    state.setWrapPending (s, false);
+    const int col { cursorCol[static_cast<int> (s)] };
+    cursorCol[static_cast<int> (s)] = juce::jmax (0, col - count);
+    wrapPending[static_cast<int> (s)] = false;
 }
 
 /**
@@ -261,11 +240,11 @@ void Parser::cursorMoveBackward (ActiveScreen s, int count) noexcept
  *
  * @see cursorSetPositionInOrigin()  — use this variant when DECOM is active
  */
-void Parser::cursorSetPosition (ActiveScreen s, int row, int col, int cols, int visibleRows) noexcept
+void Video::cursorSetPosition (ActiveScreen s, int row, int col, int cols, int visibleRows) noexcept
 {
-    state.setCursorRow (s, juce::jlimit (0, visibleRows - 1, row));
-    state.setCursorCol (s, juce::jlimit (0, cols - 1, col));
-    state.setWrapPending (s, false);
+    cursorRow[static_cast<int> (s)] = juce::jlimit (0, visibleRows - 1, row);
+    cursorCol[static_cast<int> (s)] = juce::jlimit (0, cols - 1, col);
+    wrapPending[static_cast<int> (s)] = false;
 }
 
 /**
@@ -294,13 +273,13 @@ void Parser::cursorSetPosition (ActiveScreen s, int row, int col, int cols, int 
  * @see cursorSetPosition()      — use this variant when DECOM is inactive
  * @see effectiveScrollBottom()  — computes the effective scroll region bottom
  */
-void Parser::cursorSetPositionInOrigin (ActiveScreen s, int row, int col, int cols, int visibleRows) noexcept
+void Video::cursorSetPositionInOrigin (ActiveScreen s, int row, int col, int cols, int visibleRows) noexcept
 {
-    const int top { state.getRawValue<int> (state.screenKey (s, ID::scrollTop)) };
+    const int top { scrollTop[static_cast<int> (s)] };
     const int bottom { effectiveScrollBottom (s, visibleRows) };
-    state.setCursorRow (s, juce::jlimit (top, bottom, row + top));
-    state.setCursorCol (s, juce::jlimit (0, cols - 1, col));
-    state.setWrapPending (s, false);
+    cursorRow[static_cast<int> (s)] = juce::jlimit (top, bottom, row + top);
+    cursorCol[static_cast<int> (s)] = juce::jlimit (0, cols - 1, col);
+    wrapPending[static_cast<int> (s)] = false;
 }
 
 /**
@@ -329,24 +308,24 @@ void Parser::cursorSetPositionInOrigin (ActiveScreen s, int row, int col, int co
  * @see executeLineFeed()    — calls this; scrolls the region if it returns false
  * @see resolveWrapPending() — calls this when auto-wrap fires at the right margin
  */
-bool Parser::cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) noexcept
+bool Video::cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) noexcept
 {
-    state.setWrapPending (s, false);
-    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
+    wrapPending[static_cast<int> (s)] = false;
+    const int row { cursorRow[static_cast<int> (s)] };
+    bool moved { false };
 
     if (row < bottom)
     {
-        state.setCursorRow (s, row + 1);
-        return true;
+        cursorRow[static_cast<int> (s)] = row + 1;
+        moved = true;
     }
-
-    if (row > bottom)
+    else if (row > bottom)
     {
-        state.setCursorRow (s, juce::jmin (row + 1, visibleRows - 1));
-        return true;
+        cursorRow[static_cast<int> (s)] = juce::jmin (row + 1, visibleRows - 1);
+        moved = true;
     }
 
-    return false;
+    return moved;
 }
 
 /**
@@ -370,21 +349,21 @@ bool Parser::cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) no
  *
  * @see resize()  — calls this after updating State with new dimensions
  */
-void Parser::cursorClamp (ActiveScreen s, int cols, int visibleRows) noexcept
+void Video::cursorClamp (ActiveScreen s, int cols, int visibleRows) noexcept
 {
-    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
-    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
-    state.setCursorCol (s, juce::jlimit (0, cols - 1, col));
-    state.setCursorRow (s, juce::jlimit (0, visibleRows - 1, row));
+    const int col { cursorCol[static_cast<int> (s)] };
+    const int row { cursorRow[static_cast<int> (s)] };
+    cursorCol[static_cast<int> (s)] = juce::jlimit (0, cols - 1, col);
+    cursorRow[static_cast<int> (s)] = juce::jlimit (0, visibleRows - 1, row);
 }
 
 /**
  * @brief Sets the scrolling region (DECSTBM) for the specified screen.
  *
  * Corresponds to `CSI Pt ; Pb r` (DECSTBM — DEC Set Top and Bottom Margins).
- * Stores `top` and `bottom` in State.  The caller is responsible for moving
- * the cursor to the home position after calling this, as required by the VT
- * specification.
+ * Stores `top` and `bottom` in the per-screen arrays.  The caller is responsible
+ * for moving the cursor to the home position after calling this, as required by
+ * the VT specification.
  *
  * @param s      Target screen buffer.
  * @param top    Zero-based index of the first row of the scrolling region.
@@ -396,10 +375,10 @@ void Parser::cursorClamp (ActiveScreen s, int cols, int visibleRows) noexcept
  * @see cursorResetScrollRegion()  — resets the region to the full screen
  * @see effectiveScrollBottom()    — interprets a stored bottom of 0 as full-screen
  */
-void Parser::cursorSetScrollRegion (ActiveScreen s, int top, int bottom) noexcept
+void Video::cursorSetScrollRegion (ActiveScreen s, int top, int bottom) noexcept
 {
-    state.setScrollTop (s, top);
-    state.setScrollBottom (s, bottom);
+    scrollTop[static_cast<int> (s)] = top;
+    scrollBottom[static_cast<int> (s)] = bottom;
 }
 
 /**
@@ -419,10 +398,10 @@ void Parser::cursorSetScrollRegion (ActiveScreen s, int top, int bottom) noexcep
  * @see cursorSetScrollRegion()  — sets an explicit scroll region
  * @see effectiveScrollBottom()  — interprets the stored bottom value
  */
-void Parser::cursorResetScrollRegion (ActiveScreen s) noexcept
+void Video::cursorResetScrollRegion (ActiveScreen s) noexcept
 {
-    state.setScrollTop (s, 0);
-    state.setScrollBottom (s, 0);
+    scrollTop[static_cast<int> (s)] = 0;
+    scrollBottom[static_cast<int> (s)] = 0;
 }
 
 /**
@@ -448,9 +427,9 @@ void Parser::cursorResetScrollRegion (ActiveScreen s) noexcept
  * @see cursorSetScrollRegion()   — sets an explicit scroll region
  * @see cursorResetScrollRegion() — resets to the sentinel value (0)
  */
-int Parser::effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexcept
+int Video::effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexcept
 {
-    const int sb { state.getRawValue<int> (state.screenKey (s, ID::scrollBottom)) };
+    const int sb { scrollBottom[static_cast<int> (s)] };
     return (sb > 0) ? sb : visibleRows - 1;
 }
 
@@ -471,12 +450,12 @@ int Parser::effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexce
  * @see moveCursorDown()      — CUD handler
  * @see moveCursorNextLine()  — CNL handler
  */
-int Parser::effectiveClampBottom (ActiveScreen s) const noexcept
+int Video::effectiveClampBottom (ActiveScreen s) const noexcept
 {
-    const int row { state.getRawValue<int> (state.screenKey (s, ID::cursorRow)) };
-    const int top { state.getRawValue<int> (state.screenKey (s, ID::scrollTop)) };
+    const int row { cursorRow[static_cast<int> (s)] };
+    const int top { scrollTop[static_cast<int> (s)] };
     const bool withinMargins { row >= top and row <= activeScrollBottom() };
-    return withinMargins ? activeScrollBottom() : state.getRawValue<int> (ID::visibleRows) - 1;
+    return withinMargins ? activeScrollBottom() : visibleRows.load (std::memory_order_relaxed) - 1;
 }
 
 // ============================================================================
@@ -516,7 +495,7 @@ static constexpr int DEFAULT_TAB_WIDTH { 8 };
  * @see setTabStop()    — sets an individual stop (HTS)
  * @see clearAllTabStops() — clears all stops (TBC CSI 3 g)
  */
-void Parser::initializeTabStops (int numCols) noexcept
+void Video::initializeTabStops (int numCols) noexcept
 {
     tabStops.assign (static_cast<size_t> (numCols), 0);
 
@@ -555,9 +534,9 @@ void Parser::initializeTabStops (int numCols) noexcept
  * @see initializeTabStops()  — sets the default stop layout
  * @see setTabStop()          — adds a stop at the cursor column
  */
-int Parser::nextTabStop (ActiveScreen s, int cols) noexcept
+int Video::nextTabStop (ActiveScreen s, int cols) noexcept
 {
-    int nextTab { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) + 1 };
+    int nextTab { cursorCol[static_cast<int> (s)] + 1 };
 
     while (nextTab < cols)
     {
@@ -597,9 +576,9 @@ int Parser::nextTabStop (ActiveScreen s, int cols) noexcept
  * @see nextTabStop()         — forward direction counterpart
  * @see initializeTabStops()  — sets the default stop layout
  */
-int Parser::prevTabStop (ActiveScreen s) noexcept
+int Video::prevTabStop (ActiveScreen s) noexcept
 {
-    int prevTab { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) - 1 };
+    int prevTab { cursorCol[static_cast<int> (s)] - 1 };
 
     while (prevTab > 0)
     {
@@ -629,9 +608,9 @@ int Parser::prevTabStop (ActiveScreen s) noexcept
  * @see clearAllTabStops()    — clears all stops (TBC CSI 3 g)
  * @see initializeTabStops()  — resets to the default 8-column layout
  */
-void Parser::setTabStop (ActiveScreen s) noexcept
+void Video::setTabStop (ActiveScreen s) noexcept
 {
-    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
+    const int col { cursorCol[static_cast<int> (s)] };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 1;
@@ -653,9 +632,9 @@ void Parser::setTabStop (ActiveScreen s) noexcept
  * @see setTabStop()       — sets a stop at the cursor column (HTS)
  * @see clearAllTabStops() — clears all stops (TBC CSI 3 g)
  */
-void Parser::clearTabStop (ActiveScreen s) noexcept
+void Video::clearTabStop (ActiveScreen s) noexcept
 {
-    const int col { state.getRawValue<int> (state.screenKey (s, ID::cursorCol)) };
+    const int col { cursorCol[static_cast<int> (s)] };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 0;
@@ -674,7 +653,7 @@ void Parser::clearTabStop (ActiveScreen s) noexcept
  * @see clearTabStop()        — clears only the stop at the cursor column
  * @see initializeTabStops()  — restores the default 8-column layout
  */
-void Parser::clearAllTabStops() noexcept
+void Video::clearAllTabStops() noexcept
 {
     tabStops.assign (tabStops.size(), 0);
 }

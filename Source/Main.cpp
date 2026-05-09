@@ -122,6 +122,8 @@ public:
     {
         juce::ignoreUnused (commandLine);
 
+        jam::Typeface::setContext (&typefaceContext);
+
 #if JUCE_WINDOWS
         // Safety net: create a Job Object with KILL_ON_JOB_CLOSE so that all
         // child processes (shell, OpenConsole.exe from ConPTY) are killed when
@@ -373,10 +375,6 @@ public:
      */
     void shutdown() override
     {
-        link = nullptr;
-        daemon = nullptr;
-        mainWindow = nullptr;
-        nexus = nullptr;
     }
 
     //==============================================================================
@@ -432,6 +430,16 @@ public:
     }
 
 private:
+    /**
+     * @brief Application-owned typeface registry and shared glyph atlas.
+     *
+     * Declared first so it is destroyed last (reverse construction order).
+     * Passed to `jam::Typeface::setContext()` in `initialise()` and nulled
+     * in `shutdown()` — after all consumers are destroyed — to guarantee the
+     * atlas `juce::Image` objects are released before JUCE's leak detector runs.
+     */
+    jam::Typeface::Context typefaceContext;
+
     /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
     lua::Engine luaEngine;
 
@@ -441,40 +449,21 @@ private:
     /** @brief Global action registry. Must be constructed after luaEngine. */
     Action::Registry action;
 
-    /**
-     * @brief Session pool — owns all Terminal::Session objects.
-     *
-     * Non-null in all three modes.  Destroyed after mainWindow (declared before
-     * mainWindow so member destruction — reverse declaration order — runs it last).
-     */
+    /** @brief Session pool — owns all Terminal::Session objects.
+     *  Destroyed after mainWindow — Display must die before Sessions. */
     std::unique_ptr<Nexus> nexus;
 
-    /**
-     * @brief IPC server.  Non-null in daemon mode (--nexus flag) only.
-     *
-     * Destroyed in shutdown() before mainWindow.
-     */
+    /** @brief The native OS window. Destroyed before nexus (Display → Session dependency). */
+    std::unique_ptr<Terminal::Window> mainWindow;
+
+    /** @brief IPC server. Non-null in daemon mode only. Destroyed before mainWindow. */
     std::unique_ptr<Interprocess::Daemon> daemon;
 
-    /**
-     * @brief IPC client connector.  Non-null in client mode (nexus=true, no --nexus flag) only.
-     *
-     * Destroyed in shutdown() before mainWindow so the link is torn down before
-     * component destruction races with incoming IPC callbacks.
-     */
-    std::unique_ptr<Interprocess::Link> link;
-
-    /**
-     * @brief OS-level lock held while this client is connected to a daemon.
-     *
-     * Lock name = daemon's UUID.  Acquired in resolveNexusInstance() when claiming
-     * a daemon, held for the process lifetime.  Auto-releases on crash or quit.
-     * Replaces the crash-unsafe `connected` XML property in `.display`.
-     */
+    /** @brief OS-level lock held while connected to a daemon. Auto-releases on quit. */
     std::unique_ptr<juce::InterProcessLock> clientLock;
 
-    /** @brief The native OS window; null before initialise() and after shutdown(). */
-    std::unique_ptr<Terminal::Window> mainWindow;
+    /** @brief IPC client connector. Non-null in client mode only. Destroyed first. */
+    std::unique_ptr<Interprocess::Link> link;
 
     /**
      * @brief Scans nexus/\*.nexus files to find a live unclaimed daemon.

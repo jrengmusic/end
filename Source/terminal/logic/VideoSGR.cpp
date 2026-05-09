@@ -1,8 +1,8 @@
 /**
- * @file ParserSGR.cpp
- * @brief SGR (Select Graphic Rendition) dispatch for the VT terminal parser.
+ * @file VideoSGR.cpp
+ * @brief SGR (Select Graphic Rendition) dispatch for the VT terminal video processor.
  *
- * This file implements the SGR subsystem of the Parser class.  SGR sequences
+ * This file implements the SGR subsystem of the Video class.  SGR sequences
  * (`ESC [ <params> m`) control all visual text attributes: style flags (bold,
  * italic, underline, blink, inverse, strike) and foreground/background colors
  * (ANSI 16-color palette, 256-color palette, and 24-bit RGB).
@@ -65,13 +65,13 @@
  *
  * @note All functions in this file run on the READER THREAD only.
  *
- * @see Pen    — the drawing attribute struct mutated by SGR
+ * @see jam::Cell — the drawing attribute cell mutated by SGR
  * @see palette256At() — xterm-256 colour table accessor
  * @see CSI    — parameter accumulator supplying the SGR parameter list
  * @see jam::Cell — style bit flags (BOLD, ITALIC, UNDERLINE, BLINK, INVERSE, STRIKE)
  */
 
-#include "Parser.h"
+#include "Video.h"
 #include "../data/Palette.h"
 
 namespace Terminal
@@ -140,90 +140,87 @@ static juce::Colour parseExtendedColor (const CSI& params, uint8_t& i) noexcept
     return result;
 }
 
-namespace
+/**
+ * @brief Sets a style bit on the pen for SGR attribute-on codes (1–9).
+ *
+ * Maps the raw SGR code to the corresponding `jam::Cell` style flag and ORs it
+ * into `p.style`.  Codes not listed in the switch are silently ignored.
+ *
+ * | Code | Attribute set              |
+ * |------|----------------------------|
+ * | 1    | `jam::Cell::BOLD`          |
+ * | 3    | `jam::Cell::ITALIC`        |
+ * | 4    | `jam::Cell::UNDERLINE`     |
+ * | 5    | `jam::Cell::BLINK`         |
+ * | 6    | `jam::Cell::BLINK` (rapid) |
+ * | 7    | `jam::Cell::INVERSE`       |
+ * | 9    | `jam::Cell::STRIKE`        |
+ *
+ * @param p     The pen whose style field is modified.
+ * @param code  The SGR attribute code (1–9).
+ *
+ * @note READER THREAD only.
+ *
+ * @see resetSGRStyle() for the corresponding attribute-off path
+ * @see jam::Cell::BOLD, jam::Cell::ITALIC, jam::Cell::UNDERLINE, jam::Cell::BLINK,
+ *      jam::Cell::INVERSE, jam::Cell::STRIKE
+ */
+static void applySGRStyle (jam::Cell& p, uint16_t code) noexcept
 {
-    /**
-     * @brief Sets a style bit on the pen for SGR attribute-on codes (1–9).
-     *
-     * Maps the raw SGR code to the corresponding `jam::Cell` style flag and ORs it
-     * into `p.style`.  Codes not listed in the switch are silently ignored.
-     *
-     * | Code | Attribute set              |
-     * |------|----------------------------|
-     * | 1    | `jam::Cell::BOLD`          |
-     * | 3    | `jam::Cell::ITALIC`        |
-     * | 4    | `jam::Cell::UNDERLINE`     |
-     * | 5    | `jam::Cell::BLINK`         |
-     * | 6    | `jam::Cell::BLINK` (rapid) |
-     * | 7    | `jam::Cell::INVERSE`       |
-     * | 9    | `jam::Cell::STRIKE`        |
-     *
-     * @param p     The pen whose style field is modified.
-     * @param code  The SGR attribute code (1–9).
-     *
-     * @note READER THREAD only.
-     *
-     * @see resetSGRStyle() for the corresponding attribute-off path
-     * @see jam::Cell::BOLD, jam::Cell::ITALIC, jam::Cell::UNDERLINE, jam::Cell::BLINK,
-     *      jam::Cell::INVERSE, jam::Cell::STRIKE
-     */
-    inline void applySGRStyle (Pen& p, uint16_t code) noexcept
+    switch (code)
     {
-        switch (code)
-        {
-            case 1:  p.style |= jam::Cell::BOLD;      break;
-            case 2:  p.style |= jam::Cell::DIM;       break;
-            case 3:  p.style |= jam::Cell::ITALIC;    break;
-            case 4:  p.style |= jam::Cell::UNDERLINE; break;
-            case 5:
-            case 6:  p.style |= jam::Cell::BLINK;     break;
-            case 7:  p.style |= jam::Cell::INVERSE;   break;
-            case 9:  p.style |= jam::Cell::STRIKE;    break;
-            default: break;
-        }
+        case 1:  p.style |= jam::Cell::BOLD;      break;
+        case 2:  p.style |= jam::Cell::DIM;       break;
+        case 3:  p.style |= jam::Cell::ITALIC;    break;
+        case 4:  p.style |= jam::Cell::UNDERLINE; break;
+        case 5:
+        case 6:  p.style |= jam::Cell::BLINK;     break;
+        case 7:  p.style |= jam::Cell::INVERSE;   break;
+        case 9:  p.style |= jam::Cell::STRIKE;    break;
+        default: break;
     }
+}
 
-    /**
-     * @brief Clears a style bit on the pen for SGR attribute-off codes (21–29).
-     *
-     * Maps the raw SGR code to the corresponding `jam::Cell` style flag and ANDs its
-     * complement into `p.style`.  Codes not listed in the switch are silently
-     * ignored.
-     *
-     * | Code | Attribute cleared          |
-     * |------|----------------------------|
-     * | 21   | `jam::Cell::BOLD`          |
-     * | 22   | `jam::Cell::BOLD`          |
-     * | 23   | `jam::Cell::ITALIC`        |
-     * | 24   | `jam::Cell::UNDERLINE`     |
-     * | 25   | `jam::Cell::BLINK`         |
-     * | 27   | `jam::Cell::INVERSE`       |
-     * | 29   | `jam::Cell::STRIKE`        |
-     *
-     * @note Codes 21 and 22 both clear `jam::Cell::BOLD`.  Code 21 is specified as
-     *       "doubly underlined" in ECMA-48 but xterm uses it as bold-off, which
-     *       is the de-facto standard in modern terminals.
-     *
-     * @param p     The pen whose style field is modified.
-     * @param code  The SGR attribute-off code (21–29).
-     *
-     * @note READER THREAD only.
-     *
-     * @see applySGRStyle() for the corresponding attribute-on path
-     */
-    inline void resetSGRStyle (Pen& p, uint16_t code) noexcept
+/**
+ * @brief Clears a style bit on the pen for SGR attribute-off codes (21–29).
+ *
+ * Maps the raw SGR code to the corresponding `jam::Cell` style flag and ANDs its
+ * complement into `p.style`.  Codes not listed in the switch are silently
+ * ignored.
+ *
+ * | Code | Attribute cleared          |
+ * |------|----------------------------|
+ * | 21   | `jam::Cell::BOLD`          |
+ * | 22   | `jam::Cell::BOLD`          |
+ * | 23   | `jam::Cell::ITALIC`        |
+ * | 24   | `jam::Cell::UNDERLINE`     |
+ * | 25   | `jam::Cell::BLINK`         |
+ * | 27   | `jam::Cell::INVERSE`       |
+ * | 29   | `jam::Cell::STRIKE`        |
+ *
+ * @note Codes 21 and 22 both clear `jam::Cell::BOLD`.  Code 21 is specified as
+ *       "doubly underlined" in ECMA-48 but xterm uses it as bold-off, which
+ *       is the de-facto standard in modern terminals.
+ *
+ * @param p     The pen whose style field is modified.
+ * @param code  The SGR attribute-off code (21–29).
+ *
+ * @note READER THREAD only.
+ *
+ * @see applySGRStyle() for the corresponding attribute-on path
+ */
+static void resetSGRStyle (jam::Cell& p, uint16_t code) noexcept
+{
+    switch (code)
     {
-        switch (code)
-        {
-            case 21:
-            case 22: p.style &= static_cast<uint8_t> (~(jam::Cell::BOLD | jam::Cell::DIM)); break;
-            case 23: p.style &= static_cast<uint8_t> (~jam::Cell::ITALIC);    break;
-            case 24: p.style &= static_cast<uint8_t> (~jam::Cell::UNDERLINE); break;
-            case 25: p.style &= static_cast<uint8_t> (~jam::Cell::BLINK);     break;
-            case 27: p.style &= static_cast<uint8_t> (~jam::Cell::INVERSE);   break;
-            case 29: p.style &= static_cast<uint8_t> (~jam::Cell::STRIKE);    break;
-            default: break;
-        }
+        case 21:
+        case 22: p.style &= static_cast<uint8_t> (~(jam::Cell::BOLD | jam::Cell::DIM)); break;
+        case 23: p.style &= static_cast<uint8_t> (~jam::Cell::ITALIC);    break;
+        case 24: p.style &= static_cast<uint8_t> (~jam::Cell::UNDERLINE); break;
+        case 25: p.style &= static_cast<uint8_t> (~jam::Cell::BLINK);     break;
+        case 27: p.style &= static_cast<uint8_t> (~jam::Cell::INVERSE);   break;
+        case 29: p.style &= static_cast<uint8_t> (~jam::Cell::STRIKE);    break;
+        default: break;
     }
 }
 
@@ -239,8 +236,8 @@ namespace
  *
  * | Code range  | Action                                                  |
  * |-------------|---------------------------------------------------------|
- * | (empty)     | Reset pen to default (`Pen {}`)                         |
- * | 0           | Reset pen to default (`Pen {}`)                         |
+ * | (empty)     | Reset pen to default (`jam::Cell {}`)                   |
+ * | 0           | Reset pen to default (`jam::Cell {}`)                   |
  * | 1–9         | Set style attribute via `applySGRStyle()`               |
  * | 21–29       | Clear style attribute via `resetSGRStyle()`             |
  * | 30–37       | Set fg to ANSI palette color 0–7                        |
@@ -271,13 +268,13 @@ namespace
  * @see parseExtendedColor() — handles 38;5;N and 38;2;R;G;B sub-sequences
  * @see applySGRStyle()   — sets individual style bits
  * @see resetSGRStyle()   — clears individual style bits
- * @see Pen               — the drawing attribute struct being mutated
+ * @see jam::Cell         — the drawing attribute cell being mutated
  */
-void Parser::handleSGR (const CSI& params) noexcept
+void Video::handleSGR (const CSI& params) noexcept
 {
     if (params.count == 0)
     {
-        pen = Pen {};
+        pen = jam::Cell {};
     }
     else
     {
@@ -289,7 +286,7 @@ void Parser::handleSGR (const CSI& params) noexcept
 
             if (code == 0)
             {
-                p = Pen {};
+                p = jam::Cell {};
             }
             else if (code >= 1 and code <= 9)
             {
@@ -358,7 +355,7 @@ void Parser::handleSGR (const CSI& params) noexcept
  * @see handleSGR() — the inner implementation that mutates `pen`
  * @see calc()      — synchronises internal cached geometry after any state change
  */
-void Parser::applySGR (const CSI& params) noexcept
+void Video::applySGR (const CSI& params) noexcept
 {
     handleSGR (params);
     calc();

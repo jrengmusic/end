@@ -96,7 +96,7 @@ Terminal::Session& Nexus::create (int cols, int rows,
  *
  * Routes based on attachment:
  * - Client mode (attachedLink != nullptr): creates remote session, sends
- *   createSession PDU, wires writeInput/onResize to Link.
+ *   createSession PDU, registers ID::writeInput / ID::terminalResize events to Link.
  * - Standalone/daemon mode: creates PTY-backed session via the TTY overload
  *   (which also calls wireSessionCallbacks when a Daemon is attached).
  *
@@ -133,16 +133,18 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
         Terminal::Session* rawPtr { termSession.get() };
 
         // Wire user input (keyboard, mouse) to daemon via Link IPC.
-        rawPtr->getProcessor().writeInput = [this, uuid] (const char* data, int len)
-        {
-            attachedLink->sendInput (uuid, data, len);
-        };
+        rawPtr->getProcessor().events.add<const char*, int> (Terminal::ID::writeInput,
+            [this, uuid] (const char* data, int len)
+            {
+                attachedLink->sendInput (uuid, data, len);
+            });
 
         // Wire resize to daemon via Link IPC.
-        rawPtr->getProcessor().onResize = [this, uuid] (int c, int r, int /*pixelWidth*/, int /*pixelHeight*/)
-        {
-            attachedLink->sendResize (uuid, c, r);
-        };
+        rawPtr->getProcessor().events.add<int, int, int, int> (Terminal::ID::terminalResize,
+            [this, uuid] (int c, int r, int /*pixelWidth*/, int /*pixelHeight*/)
+            {
+                attachedLink->sendResize (uuid, c, r);
+            });
 
         sessions.emplace (uuid, std::move (termSession));
         result = rawPtr;

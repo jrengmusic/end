@@ -58,12 +58,7 @@ Screen::Screen (State& stateRef) noexcept
     computeCellMetrics();
 }
 
-Screen::~Screen()
-{
-    caret.reset();
-    contentView = nullptr;
-    viewport.reset();
-}
+
 
 void Screen::computeCellMetrics() noexcept
 {

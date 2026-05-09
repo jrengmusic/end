@@ -223,8 +223,8 @@ Session::Session (int cols,
 
     tty->onExit = [this]
     {
-        if (processor != nullptr and processor->onShellExited != nullptr)
-            processor->onShellExited();
+        if (processor != nullptr and processor->events.contains (Terminal::ID::shellExited))
+            processor->events.get (Terminal::ID::shellExited);
 
         if (onExit != nullptr)
             onExit();
@@ -258,16 +258,18 @@ Session::Session (int cols,
         });
 
     // 2a. User input (keyboard, mouse) → PTY stdin.
-    processor->writeInput = [this] (const char* data, int len)
-    {
-        sendInput (data, len);
-    };
+    processor->events.add<const char*, int> (Terminal::ID::writeInput,
+        [this] (const char* data, int len)
+        {
+            sendInput (data, len);
+        });
 
     // 2b. Terminal resize → PTY SIGWINCH.
-    processor->onResize = [this] (int cols, int rows, int pixelWidth, int pixelHeight)
-    {
-        resize (cols, rows, pixelWidth, pixelHeight);
-    };
+    processor->events.add<int, int, int, int> (Terminal::ID::terminalResize,
+        [this] (int cols, int rows, int pixelWidth, int pixelHeight)
+        {
+            resize (cols, rows, pixelWidth, pixelHeight);
+        });
 
     // 2. PTY output → history + external onBytes + Processor (with resize lock).
     tty->onData = [this, procRawPtr] (const char* bytes, int len)
@@ -283,7 +285,7 @@ Session::Session (int cols,
     // 3. Drain-complete: flush parser responses, clear paste gate, sync resize.
     tty->onDrainComplete = [this, procRawPtr]
     {
-        procRawPtr->getParser().flushResponses();
+        procRawPtr->flushResponses();
         procRawPtr->getState().clearPasteEchoGate();
 
         if (procRawPtr->getState().consumeSyncResize())
@@ -365,11 +367,13 @@ Session::~Session() { stop(); }
  */
 void Session::sendInput (const char* data, int len)
 {
-    jassert (tty != nullptr);
     jassert (data != nullptr);
     jassert (len > 0);
 
-    tty->write (data, len);
+    if (tty != nullptr)
+    {
+        tty->write (data, len);
+    }
 }
 
 /**
@@ -518,7 +522,7 @@ void Session::process (const char* data, int len)
     jassert (len > 0);
 
     processor->process (data, len);
-    processor->getParser().flushResponses();
+    processor->flushResponses();
 }
 
 /**
@@ -528,7 +532,7 @@ void Session::process (const char* data, int len)
  */
 void Session::getStateInformation (juce::MemoryBlock& /*block*/) const
 {
-    // TODO: deferred — state serialization migrated from Grid to Screen
+    // State serialization deferred — migrated from Grid to Screen, implementation pending.
 }
 
 /**
@@ -538,7 +542,7 @@ void Session::getStateInformation (juce::MemoryBlock& /*block*/) const
  */
 void Session::setStateInformation (const void* /*data*/, int /*size*/)
 {
-    // TODO: deferred — state serialization migrated from Grid to Screen
+    // State serialization deferred — migrated from Grid to Screen, implementation pending.
 }
 
 /**

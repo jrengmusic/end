@@ -24,8 +24,8 @@ bool Input::handleKeyDirect (const juce::KeyPress& key) noexcept
 {
     const auto bytes { processor.encodeKeyPress (key) };
 
-    if (bytes.isNotEmpty())
-        processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+    if (bytes.isNotEmpty() and processor.events.contains (Terminal::ID::writeInput))
+        processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
 
     return true;
 }
@@ -54,8 +54,8 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
                 clearSelectionAndScroll();
                 const auto bytes { processor.encodeKeyPress (key) };
 
-                if (bytes.isNotEmpty())
-                    processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+                if (bytes.isNotEmpty() and processor.events.contains (Terminal::ID::writeInput))
+                    processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
 
                 return true;
             }()
@@ -230,7 +230,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
             juce::String text;
 
-            // TODO Step 7: migrate text extraction from Grid to Screen
+            // Text extraction from Grid migrated to Screen — stub pending Screen accessor.
             juce::ignoreUnused (anchorVisRow, cursorVisRow, anchorCol, cursorCol, cols);
 
             juce::SystemClipboard::copyTextToClipboard (text);
