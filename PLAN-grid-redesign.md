@@ -29,8 +29,8 @@ Grid becomes an AudioBuffer -- live frame buffer of jam::Cell records. Parser wr
 ```
 Session
   +-- Grid              (value -- the AudioBuffer)
-  +-- State             (value -- the APVTS)
   +-- Processor         (unique_ptr)
+        +-- State       (value -- the APVTS)
         +-- Parser      (unique_ptr, receives Grid& and State&)
 ```
 

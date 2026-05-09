@@ -86,17 +86,18 @@ public:
     /**
      * @brief Constructs the Processor and wires the parser callbacks.
      *
-     * Receives Grid and State by reference from the owning Session, then constructs
+     * Receives Grid by reference from the owning Session, constructs State and
      * Parser.  UUID is provided by the caller — no internal generation.
      * Call `setHostWriter()` immediately after construction to route parser
      * responses (e.g. cursor-position reports) to the appropriate sink.
      *
      * @param grid   Live cell buffer owned by Terminal::Session.
-     * @param state  Atomic terminal parameter store owned by Terminal::Session.
+     * @param cols   Initial terminal column count.
+     * @param rows   Initial terminal row count.
      * @param uuid   Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
-    Processor (Grid& grid, State& state, const juce::String& uuid);
+    Processor (Grid& grid, int cols, int rows, const juce::String& uuid);
 
     /**
      * @brief Destroys the Processor.
@@ -187,14 +188,14 @@ public:
 
     /**
      * @brief Returns a mutable reference to the terminal parameter store.
-     * @return Mutable reference to the Session-owned `State` object.
+     * @return Mutable reference to the owned `State` object.
      * @note MESSAGE THREAD only.
      */
     State& getState() noexcept;
 
     /**
      * @brief Returns a const reference to the terminal parameter store.
-     * @return Const reference to the Session-owned `State` object.
+     * @return Const reference to the owned `State` object.
      * @note MESSAGE THREAD only.
      */
     const State& getState() const noexcept;
@@ -298,10 +299,10 @@ public:
 
 private:
     //==============================================================================
-    /** @brief Terminal parameter store — owned by Terminal::Session. */
-    State& state;
+    /** @brief Terminal parameter store — the APVTS. */
+    State state;
 
-    /** @brief Ring-buffer cell grid with dual-screen and dirty tracking — owned by Terminal::Session. */
+    /** @brief Live cell buffer — owned by Terminal::Session. */
     Grid& grid;
 
     /** @brief Stable UUID identifying this Processor across process boundaries. */
