@@ -327,38 +327,39 @@ void Panes::setTerminalCallbacks (Terminal::Display* terminal)
             onOpenImage (file);
     };
 
-    terminal->onShellExited = [this, uuid = terminal->getComponentID()]
-    {
-        int closedIndex { 0 };
-
-        for (size_t i { 0 }; i < panes.size(); ++i)
+    terminal->getProcessor().events.add (Terminal::ID::shellExited,
+        [this, uuid = terminal->getComponentID()]
         {
-            if (panes.at (i)->getComponentID() == uuid)
+            int closedIndex { 0 };
+
+            for (size_t i { 0 }; i < panes.size(); ++i)
             {
-                closedIndex = static_cast<int> (i);
-                break;
+                if (panes.at (i)->getComponentID() == uuid)
+                {
+                    closedIndex = static_cast<int> (i);
+                    break;
+                }
             }
-        }
 
-        closePane (uuid);
+            closePane (uuid);
 
-        if (not panes.isEmpty())
-        {
-            const int nextIndex { juce::jmin (closedIndex, static_cast<int> (panes.size()) - 1) };
-            auto* nearest { panes.at (static_cast<size_t> (nextIndex)).get() };
-            AppState::getContext()->setModalType (0);
-            AppState::getContext()->setSelectionType (0);
-            AppState::getContext()->setActivePaneID (nearest->getComponentID());
+            if (not panes.isEmpty())
+            {
+                const int nextIndex { juce::jmin (closedIndex, static_cast<int> (panes.size()) - 1) };
+                auto* nearest { panes.at (static_cast<size_t> (nextIndex)).get() };
+                AppState::getContext()->setModalType (0);
+                AppState::getContext()->setSelectionType (0);
+                AppState::getContext()->setActivePaneID (nearest->getComponentID());
 
-            if (nearest->isShowing())
-                nearest->grabKeyboardFocus();
-        }
-        else
-        {
-            if (onLastPaneClosed != nullptr)
-                onLastPaneClosed();
-        }
-    };
+                if (nearest->isShowing())
+                    nearest->grabKeyboardFocus();
+            }
+            else
+            {
+                if (onLastPaneClosed != nullptr)
+                    onLastPaneClosed();
+            }
+        });
 }
 
 /**

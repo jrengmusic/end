@@ -306,32 +306,58 @@ public:
     // Terminal-specific API — called by Display
     //==========================================================================
 
-    /** Sets terminal dimensions. Triggers reflow of scrollback. */
+    /** Sets terminal dimensions. Triggers visual re-wrap of scrollback. */
     void setDimensions (int newCols, int newRows) noexcept;
 
-    /** Updates a visible row from Grid data. */
-    void updateVisibleRow (int row, const jam::Cell* src, int numCols) noexcept;
+    /** Updates a visible row from Grid data.
+     *  @param newlineTerminated  true if Video processed LF/NEL at end of this row. */
+    void updateVisibleRow (int row, const jam::Cell* src, int numCols,
+                           bool newlineTerminated) noexcept;
 
-    /** Appends scroll-off rows to scrollback. */
-    void appendScrollbackRows (const jam::Cell* const* rows, int rowCount, int numCols) noexcept;
+    /** Receives scroll-off rows from Grid. Builds logical lines in scrollback.
+     *  @param newlineTerminated  per-row flag — true if row ends a logical line. */
+    void appendScrollbackRows (const jam::Cell* const* rows,
+                               const bool* newlineTerminated,
+                               int rowCount, int numCols) noexcept;
 
     /** Switches active screen buffer (normal/alternate). */
     void setActiveScreen (int index) noexcept;
 
-    /** Positions the caret from VT cursor coordinates. */
+    /** Positions the caret from VT absolute cursor coordinates. */
     void setCaretPosition (int col, int row) noexcept;
 
-    /** Triggers reshape + repaint of dirty visible rows. */
+    /** Triggers reshape + repaint. */
     void repaintContent() noexcept;
 
 private:
-    int cols          { 0 };
-    int visibleRows   { 0 };
-    int scrollbackRows { 0 };  ///< Number of scrollback rows in cells[0] before visible rows.
+    int cols        { 0 };
+    int visibleRows { 0 };
 
-    /** Reflows scrollback when columns change.
-     *  Drain → read wrap flags → join logical lines → re-split at new width. */
-    void reflowScrollback (int oldCols, int newCols) noexcept;
+    //==========================================================================
+    // Scrollback — logical lines (normal screen only)
+    //==========================================================================
+
+    /** Logical lines in scrollback. Each Cells entry is one logical line
+     *  (variable length). Alternate screen has no scrollback. */
+    std::vector<std::unique_ptr<jam::Cells>> scrollback;
+
+    /** Pending logical line being built from scroll-off rows.
+     *  Extended when rows arrive without newline termination.
+     *  Committed to scrollback when a newline-terminated row arrives. */
+    std::unique_ptr<jam::Cells> pendingLine;
+
+    //==========================================================================
+    // Coordinate projection (absolute ↔ logical) — internal
+    //==========================================================================
+
+    /** Wraps logical lines + active grid content at current cols for display.
+     *  Computes total visual row count for content height.
+     *  Pure arithmetic — no stored wrap flags. */
+    void wrapContent() noexcept;
+
+    /** Maps absolute grid (col, row) to visual row index for caret positioning.
+     *  Accounts for scrollback visual rows above the active grid. */
+    int absoluteToVisualRow (int col, int row) const noexcept;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)
 };
@@ -371,21 +397,37 @@ void TextEditor::onContentGrew() noexcept
 }
 ```
 
-### Reflow in Terminal::Screen
+### Logical lines and visual wrapping in Terminal::Screen
 
 ```cpp
-void Screen::reflowScrollback (int oldCols, int newCols) noexcept
+void Screen::appendScrollbackRows (const jam::Cell* const* rows,
+                                   const bool* newlineTerminated,
+                                   int rowCount, int numCols) noexcept
 {
-    // Consensus algorithm from Alacritty/WezTerm/Ghostty/Kitty/tmux:
+    // For each scroll-off row:
+    //   1. Append row cells to pendingLine (extend logical line)
+    //   2. If newlineTerminated[i]: commit pendingLine to scrollback,
+    //      start new pendingLine
     //
-    // 1. Walk scrollback rows in cells[0], indices [0..scrollbackRows)
-    // 2. Read wrap flag on last cell of each row (Cell::layout & LAYOUT_WRAPPED)
-    //    to identify logical lines (consecutive wrapped rows = one logical line)
-    // 3. Join wrapped physical rows into logical line buffers
-    // 4. Re-split each logical line at newCols, setting LAYOUT_WRAPPED on splits
-    // 5. Write back into cells[0], update scrollbackRows
+    // Logical lines in scrollback are variable-length.
+    // No wrap flags stored. No reconstruction needed on resize.
+}
+
+void Screen::wrapContent() noexcept
+{
+    // Visual wrapping — Screen's sole responsibility.
     //
-    // O(N) where N = total scrollback cells. Runs once per column resize.
+    // For each logical line in scrollback:
+    //   visualRows += ceil (line.size() / cols)
+    //
+    // For active grid visible rows:
+    //   visualRows += visibleRows  (fixed grid, always cols-wide)
+    //
+    // Total content height = visualRows * lineHeight
+    // Set contentView size → scrollbar range updates naturally.
+    //
+    // On resize (cols changed): just re-run this. Logical lines unchanged.
+    // Scrollback is immune to resize — never broken.
 }
 ```
 
@@ -394,18 +436,24 @@ void Screen::reflowScrollback (int oldCols, int newCols) noexcept
 ```
 TERMINAL:
   PTY → Parser → Video → Grid (reader thread)
-    → dirty rows + scroll-off
+    → dirty rows + newline-termination bits + scroll-off rows
       → Display::onVBlank() (message thread)
-        → Screen.updateVisibleRow()     — memcpy dirty row into cells[0]
-        → Screen.appendScrollbackRows() — append to cells[0] scrollback region
-        → Screen.repaintContent()       — reshapeContent() + repaint
+        → Screen.updateVisibleRow()     — copy dirty row + newline bit
+        → Screen.appendScrollbackRows() — build logical lines from scroll-off
+        → Screen.repaintContent()       — wrapContent() + reshapeContent() + repaint
           → TextEditor.drawContent()    — visible-area culling
-            → ShapedText.shape()        — only visible dirty rows
+            → ShapedText.shape()        — only visible rows
               → Graphics.drawGlyphs()   — atlas compositing
                 → paint
 
+  Coordinate spaces:
+    Video    → absolute (col, row) in fixed cols×rows grid
+    Screen   → logical lines (variable length) + visual wrapping at current cols
+    Projection: Screen-internal. absoluteToVisualRow() for caret.
+                Scrollback = logical lines. Active grid = tail of visual content.
+
 WHELMED:
-  Markdown parser → blocks → cells populated
+  Markdown parser → blocks → cells populated as logical lines
     → reshapeContent() → drawContent() → shape → drawGlyphs → paint
 ```
 
@@ -425,16 +473,20 @@ WHELMED:
 
 2. **Incremental shaping cache** — ShapedText owns it internally. Same pattern as JUCE's ParagraphStorage owning `std::optional<detail::ShapedText>` — lazily computed, invalidated when content changes. TextEditor just calls `shape()`.
 
-3. **`LAYOUT_WRAPPED`** — approved. Bit in `Cell::layout` on last cell of a wrapped row. Video sets it. Grid carries it. Screen reads it for reflow.
+3. **Wrapping is Screen's responsibility.** No `LAYOUT_WRAPPED` bit. No wrap flags on cells. Video outputs content in absolute coordinates. Grid carries a one-bit-per-row newline-termination flag (via RowState). Screen consumes it at scroll-off to build logical lines. Scrollback stores logical lines — variable length, self-describing, immune to resize. Visual wrapping is `ceil(line.length / cols)`, computed by Screen on demand.
 
 4. **Line height** — mixed. Each line's height comes from its font metrics (ascent + descent + leading). Different font sizes produce different heights naturally. Accumulate line heights for positioning — no constant multiplication.
 
 5. **juce::TextInputTarget** — keep. Required for CJK IME input composition. OS needs a TextInputTarget to position candidate windows and route composition events.
+
+6. **No `wrapPending` on Video.** Deferred wrap (VT100 LCF) is a hardware workaround for when the buffer IS the display. With separated content and presentation, Video writes at `(col, row)` and advances `col`. Column overflow is a coordinate fact, not a deferred visual decision.
+
+7. **Coordinate projection is Screen-internal.** Two coordinate spaces: absolute `(col, row)` for Video, logical lines for Screen. Projection is arithmetic on data Screen already owns. No dedicated projection object — YAGNI (L violation).
 
 ## Handoff Notes
 
 - **Glyph pipeline stays unchanged.** `jam::Glyph::ShapedText`, `jam::Glyph::Graphics`, `jam::Typeface`, atlas infrastructure — proven, tested with full UTF-8 terminal spec. This RFC does not touch the pipeline internals, only how the widget orchestrates calls to it.
 - **Current `jam::TextEditor` (fork) and `Terminal::Screen` (WIP) will be replaced.** The new `jam::TextEditor` is built from scratch using juce::TextEditor patterns but rendered through the Glyph pipeline. No JUCE fork, no dual rendering path.
 - **Terminal::Screen inherits jam::TextEditor.** Domain-specific behavior (scrollback, dirty rows, dual buffer, VT cursor, reflow) layered on top. Same for Whelmed::Screen (proportional mode, document blocks).
-- **Video Terminal work (RFC-video-terminal.md / PLAN-video-terminal.md) is independent.** Parser→Video split and command dispatch do not affect this RFC. Screen consumes Grid data the same way regardless of whether Parser or Video writes to Grid.
+- **Video Terminal work (RFC-video-terminal.md / PLAN-video-terminal.md) is independent but aligned.** Parser→Video split and command dispatch do not affect this RFC. Key alignment point: Video no longer owns wrapping. Video writes absolute coordinates. Grid carries a newline-termination bit per row (RowState). Screen builds logical lines from scroll-off and wraps visually. This eliminates `wrapPending` from Video and `LAYOUT_WRAPPED` from Cell.
 - **File location:** `jam::TextEditor` lives in `~/Documents/Poems/dev/jam/jam_gui/text_editor/`. `Terminal::Screen` lives in `Source/terminal/rendering/Screen.h`. Both will be rewritten in place.

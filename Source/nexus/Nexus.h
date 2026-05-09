@@ -115,8 +115,8 @@ public:
      *
      * Routes internally based on which attachment is live:
      * - If `attachedLink != nullptr` (client mode): creates a remote (no-TTY) session
-     *   and sends a `createSession` PDU to the daemon via Link.  Wires writeInput /
-     *   onResize callbacks on the Processor to route through Link.
+     *   and sends a `createSession` PDU to the daemon via Link.  Registers
+     *   `ID::writeInput` / `ID::terminalResize` events on the Processor to route through Link.
      * - Otherwise (standalone / daemon mode): creates a full PTY-backed session.
      *   In daemon mode Nexus additionally calls
      *   `attachedDaemon->wireSessionCallbacks(uuid, session)` to wire IPC broadcast.

@@ -1,13 +1,13 @@
 /**
- * @file ParserOSC.cpp
+ * @file VideoOSC.cpp
  * @brief OSC dispatch and basic OSC metadata handlers.
  *
- * This translation unit implements `Parser::oscDispatch()` and the basic
+ * This translation unit implements `Video::applyOSC()` and the basic
  * metadata handlers: title, cwd, clipboard, desktop notification, and cursor
  * color.  Protocol-extension handlers (hyperlink OSC 8, shell integration
- * OSC 133, iTerm2 image OSC 1337) live in `ParserOSCExt.cpp`.
- * ESC-level dispatch lives in `ParserESC.cpp`; DCS and APC passthrough live
- * in `ParserDCS.cpp`.
+ * OSC 133, iTerm2 image OSC 1337) live in `VideoOSCExt.cpp`.
+ * ESC-level dispatch lives in `VideoESC.cpp`; DCS and APC passthrough live
+ * in `VideoDCS.cpp`.
  *
  * @par OSC sequence structure
  * An OSC sequence has the form:
@@ -16,21 +16,20 @@
  *   ESC ] <command> ; <data> ESC \   (ST — String Terminator)
  * @endcode
  * The numeric command code and data payload are accumulated in the hybrid
- * `oscBuffer` and dispatched by `oscDispatch()` when the terminator is received.
+ * `oscBuffer` and dispatched by `applyOSC()` when the terminator is received.
  *
  * @par Thread model
  * All functions in this file run exclusively on the **READER THREAD**.
  * Callbacks that update UI state are dispatched to the message thread via
  * `juce::MessageManager::callAsync`.
  *
- * @see Parser.h        — class declaration and full API documentation
- * @see ParserOSCExt.cpp — hyperlink, shell integration, iTerm2 image handlers
- * @see ParserESC.cpp   — ESC sequence dispatch
- * @see ParserDCS.cpp   — DCS and APC passthrough
- * @see State           — atomic terminal parameter store
+ * @see Video.h         — class declaration and full API documentation
+ * @see VideoOSCExt.cpp — hyperlink, shell integration, iTerm2 image handlers
+ * @see VideoESC.cpp    — ESC sequence dispatch
+ * @see VideoDCS.cpp    — DCS and APC passthrough
  */
 
-#include "Parser.h"
+#include "Video.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -47,7 +46,7 @@ namespace Terminal
  * portion begins.
  *
  * @see parseOscHeader()
- * @see oscDispatch()
+ * @see applyOSC()
  */
 struct OscHeader
 {
@@ -100,8 +99,7 @@ static OscHeader parseOscHeader (const uint8_t* payload, int length) noexcept
  * @brief Handles OSC 0 / OSC 2 — window title change.
  *
  * Trims `dataLength` to avoid splitting a multi-byte UTF-8 sequence at the
- * boundary, then passes the raw bytes directly to `state.setTitle()`.  State
- * owns the backing buffer — no intermediate `titleBuffer` is needed.
+ * boundary, then fires the `"title"` event with the raw bytes.
  *
  * @par Sequences
  * @code
@@ -115,21 +113,21 @@ static OscHeader parseOscHeader (const uint8_t* payload, int length) noexcept
  *
  * @note READER THREAD only.
  *
- * @see State::setTitle()
- * @see oscDispatch()
+ * @see events
+ * @see applyOSC()
  */
-void Parser::handleOscTitle (const uint8_t* data, int dataLength) noexcept
+void Video::handleOscTitle (const uint8_t* data, int dataLength) noexcept
 {
     // READER THREAD
-    int safeLen { juce::jmin (dataLength, State::maxStringLength - 1) };
+    int safeLen { juce::jmin (dataLength, MAX_OSC_TITLE_LENGTH - 1) };
 
     while (safeLen > 0 and (data[safeLen - 1] & 0xC0) == 0x80)
         --safeLen;
 
-    state.setTitle (reinterpret_cast<const char*> (data), safeLen);
+    if (events.contains (ID::title)) events.get (ID::title, reinterpret_cast<const char*> (data), int (safeLen));
 }
 
-void Parser::handleOscCwd (const uint8_t* data, int dataLength) noexcept
+void Video::handleOscCwd (const uint8_t* data, int dataLength) noexcept
 {
     // READER THREAD
     // OSC 7 format: file://hostname/path
@@ -156,7 +154,7 @@ void Parser::handleOscCwd (const uint8_t* data, int dataLength) noexcept
 
     if (pathStart != nullptr)
     {
-        const int length { juce::jmin (static_cast<int> (end - pathStart), State::maxStringLength - 1) };
+        const int length { juce::jmin (static_cast<int> (end - pathStart), MAX_OSC_TITLE_LENGTH - 1) };
 
 #if JUCE_WINDOWS
         // Convert MSYS2 POSIX paths (/c/Users/...) and native Windows paths (/C:/Users/...)
@@ -179,19 +177,19 @@ void Parser::handleOscCwd (const uint8_t* data, int dataLength) noexcept
                     converted += ':';
 
                 converted += juce::String (pathStart + 2, length - 2);
-                state.setCwd (converted.toRawUTF8(), static_cast<int> (converted.getNumBytesAsUTF8()));
+                if (events.contains (ID::cwd)) events.get (ID::cwd, converted.toRawUTF8(), static_cast<int> (converted.getNumBytesAsUTF8()));
             }
             else
             {
-                state.setCwd (pathStart, length);
+                if (events.contains (ID::cwd)) events.get (ID::cwd, static_cast<const char*> (pathStart), int (length));
             }
         }
         else
         {
-            state.setCwd (pathStart, length);
+            if (events.contains (ID::cwd)) events.get (ID::cwd, static_cast<const char*> (pathStart), int (length));
         }
 #else
-        state.setCwd (pathStart, length);
+        if (events.contains (ID::cwd)) events.get (ID::cwd, static_cast<const char*> (pathStart), int (length));
 #endif
     }
 }
@@ -199,8 +197,8 @@ void Parser::handleOscCwd (const uint8_t* data, int dataLength) noexcept
 /**
  * @brief Handles OSC 52 — clipboard write.
  *
- * Decodes a base64-encoded clipboard payload and invokes `onClipboardChanged`
- * on the message thread.  The OSC 52 payload format is:
+ * Decodes a base64-encoded clipboard payload and fires the `"clipboardChanged"`
+ * event on the message thread.  The OSC 52 payload format is:
  * @code
  *   <selection> ; <base64-data>
  * @endcode
@@ -224,13 +222,13 @@ void Parser::handleOscCwd (const uint8_t* data, int dataLength) noexcept
  *                    Not null-terminated.
  * @param dataLength  Number of bytes in `data`.
  *
- * @note READER THREAD only.  The `onClipboardChanged` callback is dispatched
+ * @note READER THREAD only.  The `"clipboardChanged"` event is dispatched
  *       to the message thread.
  *
- * @see onClipboardChanged
- * @see oscDispatch()
+ * @see events
+ * @see applyOSC()
  */
-void Parser::handleOscClipboard (const uint8_t* data, int dataLength) noexcept
+void Video::handleOscClipboard (const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength > 2)
     {
@@ -257,8 +255,8 @@ void Parser::handleOscClipboard (const uint8_t* data, int dataLength) noexcept
                 const juce::String text (juce::String::fromUTF8 (static_cast<const char*> (decoded.getData()),
                                                                   static_cast<int> (decoded.getSize())));
 
-                if (onClipboardChanged)
-                    juce::MessageManager::callAsync ([this, text] { /* MESSAGE THREAD */ onClipboardChanged (text); });
+                if (events.contains (ID::clipboardChanged))
+                    juce::MessageManager::callAsync ([this, text] { /* MESSAGE THREAD */ events.get (ID::clipboardChanged, text); });
             }
         }
     }
@@ -268,7 +266,7 @@ void Parser::handleOscClipboard (const uint8_t* data, int dataLength) noexcept
  * @brief Handles OSC 9 — desktop notification (body only).
  *
  * The entire payload is treated as the notification body; title is empty.
- * Invokes `onDesktopNotification ({}, body)` on the message thread.
+ * Fires the `"desktopNotification"` event on the message thread.
  *
  * @par Sequence
  * @code
@@ -279,19 +277,19 @@ void Parser::handleOscClipboard (const uint8_t* data, int dataLength) noexcept
  *                    Not null-terminated.
  * @param dataLength  Number of bytes in `data`.
  *
- * @note READER THREAD only.  `onDesktopNotification` dispatched via `callAsync`.
+ * @note READER THREAD only.  `"desktopNotification"` event dispatched via `callAsync`.
  *
- * @see onDesktopNotification
- * @see oscDispatch()
+ * @see events
+ * @see applyOSC()
  */
-void Parser::handleOscNotification (const uint8_t* data, int dataLength) noexcept
+void Video::handleOscNotification (const uint8_t* data, int dataLength) noexcept
 {
-    if (dataLength > 0 and onDesktopNotification)
+    if (dataLength > 0 and events.contains (ID::desktopNotification))
     {
         const juce::String body { juce::String::fromUTF8 (
             reinterpret_cast<const char*> (data), dataLength) };
 
-        juce::MessageManager::callAsync ([this, body] { onDesktopNotification ({}, body); });
+        juce::MessageManager::callAsync ([this, body] { events.get (ID::desktopNotification, juce::String {}, body); });
     }
 }
 
@@ -299,7 +297,7 @@ void Parser::handleOscNotification (const uint8_t* data, int dataLength) noexcep
  * @brief Handles OSC 777 — desktop notification with title and body.
  *
  * Verifies the `notify;` prefix, then extracts title and body separated by `;`.
- * Invokes `onDesktopNotification (title, body)` on the message thread.
+ * Fires the `"desktopNotification"` event on the message thread.
  *
  * @par Sequence
  * @code
@@ -314,16 +312,16 @@ void Parser::handleOscNotification (const uint8_t* data, int dataLength) noexcep
  *                    Not null-terminated.
  * @param dataLength  Number of bytes in `data`.
  *
- * @note READER THREAD only.  `onDesktopNotification` dispatched via `callAsync`.
+ * @note READER THREAD only.  `"desktopNotification"` event dispatched via `callAsync`.
  *
- * @see onDesktopNotification
- * @see oscDispatch()
+ * @see events
+ * @see applyOSC()
  */
-void Parser::handleOsc777 (const uint8_t* data, int dataLength) noexcept
+void Video::handleOsc777 (const uint8_t* data, int dataLength) noexcept
 {
     // Format: notify;title;body
     // data points after "777;", so it starts with "notify;..."
-    if (dataLength > 7 and onDesktopNotification)
+    if (dataLength > 7 and events.contains (ID::desktopNotification))
     {
         // Verify "notify;" prefix
         static constexpr uint8_t prefix[] { 'n', 'o', 't', 'i', 'f', 'y', ';' };
@@ -353,12 +351,12 @@ void Parser::handleOsc777 (const uint8_t* data, int dataLength) noexcept
                     remaining - titleLen - 1);
             }
 
-            juce::MessageManager::callAsync ([this, title, body] { onDesktopNotification (title, body); });
+            juce::MessageManager::callAsync ([this, title, body] { events.get (ID::desktopNotification, title, body); });
         }
     }
 }
 
-void Parser::handleOscCursorColor (const uint8_t* data, int dataLength) noexcept
+void Video::handleOscCursorColor (const uint8_t* data, int dataLength) noexcept
 {
     // READER THREAD
     if (dataLength >= 7)
@@ -380,25 +378,27 @@ void Parser::handleOscCursorColor (const uint8_t* data, int dataLength) noexcept
                 const int gg { parts.getReference (1).length() > 2 ? (g >> 8) : g };
                 const int bb { parts.getReference (2).length() > 2 ? (b >> 8) : b };
 
-                state.setCursorColor (state.getRawValue<ActiveScreen> (ID::activeScreen),
-                                      juce::jlimit (0, 255, rr),
-                                      juce::jlimit (0, 255, gg),
-                                      juce::jlimit (0, 255, bb));
+                const juce::Colour color { static_cast<uint8_t> (juce::jlimit (0, 255, rr)),
+                                           static_cast<uint8_t> (juce::jlimit (0, 255, gg)),
+                                           static_cast<uint8_t> (juce::jlimit (0, 255, bb)) };
+                if (events.contains (ID::cursorColor))
+                    events.get (ID::cursorColor, static_cast<int> (activeScreen), juce::Colour (color));
             }
         }
         else if (colorStr.startsWith ("#") and colorStr.length() >= 7)
         {
-            const juce::Colour c { juce::Colour::fromString ("FF" + colorStr.substring (1, 7)) };
-            state.setCursorColor (state.getRawValue<ActiveScreen> (ID::activeScreen),
-                                  c.getRed(), c.getGreen(), c.getBlue());
+            const juce::Colour color { juce::Colour::fromString ("FF" + colorStr.substring (1, 7)) };
+            if (events.contains (ID::cursorColor))
+                events.get (ID::cursorColor, static_cast<int> (activeScreen), juce::Colour (color));
         }
     }
 }
 
-void Parser::handleOscResetCursorColor() noexcept
+void Video::handleOscResetCursorColor() noexcept
 {
     // READER THREAD
-    state.resetCursorColor (state.getRawValue<ActiveScreen> (ID::activeScreen));
+    if (events.contains (ID::resetCursorColor))
+        events.get (ID::resetCursorColor, static_cast<int> (activeScreen));
 }
 
 // ============================================================================
@@ -422,7 +422,7 @@ void Parser::handleOscResetCursorColor() noexcept
  * @see handleOscClipboard()
  * @see parseOscHeader()
  */
-void Parser::oscDispatch (const uint8_t* payload, int length) noexcept
+void Video::applyOSC (const uint8_t* payload, int length) noexcept
 {
     if (length >= 2)
     {
@@ -442,7 +442,7 @@ void Parser::oscDispatch (const uint8_t* payload, int length) noexcept
                 case 9:     handleOscNotification (data, dataLength);            break;
                 case 12:    handleOscCursorColor (data, dataLength);             break;
                 case 52:    handleOscClipboard (data, dataLength);               break;
-                case 133:   handleOsc133 (state.getRawValue<ActiveScreen> (ID::activeScreen), data, dataLength);  break;
+                case 133:   handleOsc133 (activeScreen, data, dataLength);       break;
                 case 777:   handleOsc777 (data, dataLength);                     break;
                 case 1337:  handleOsc1337 (data, dataLength);                    break;
                 default:    break;

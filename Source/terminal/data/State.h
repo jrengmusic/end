@@ -130,21 +130,7 @@ fetchSub (std::atomic<ValueType>& atom, ValueType delta, std::memory_order order
 template<typename ValueType>
 using StateMap = std::unordered_map<juce::Identifier, std::unique_ptr<ValueType>>;
 
-/**
- * @enum ActiveScreen
- * @brief Selects between the normal and alternate terminal screen buffers.
- *
- * VT terminals support two independent screen buffers.  The alternate screen
- * is typically activated by full-screen applications (vim, less, …) via the
- * `?1049h` / `?1049l` private mode sequences.  The value doubles as an array
- * index into per-screen parameter arrays.
- */
-enum ActiveScreen : size_t
-{
-    normal = 0,///< Primary screen buffer (default).
-    alternate = 1///< Alternate screen buffer (full-screen apps).
-};
-
+// ActiveScreen is defined in Identifier.h (included above).
 // ModalType and SelectionType are now app-level — see Source/ModalType.h, Source/SelectionType.h
 using ::ModalType;
 using ::SelectionType;

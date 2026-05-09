@@ -1,12 +1,12 @@
 /**
  * @file Processor.h
- * @brief Terminal pipeline orchestrator: owns Parser, references Grid and State.
+ * @brief Terminal pipeline orchestrator: owns Parser and Video, references Grid and State.
  *
  * `Processor` is the pipeline half of the terminal emulator.  It owns the
- * Parser and routes bytes through the Grid and State received from Session:
+ * Parser and Video, and routes bytes through the Grid and State received from Session:
  *
  * ```
- *  bytes → Processor::process → Parser → State / Grid → Display
+ *  bytes → Processor::process → Parser → commands map → Video → State / Grid → Display
  * ```
  *
  * The PTY-side (TTY + History) lives in `Terminal::Session`.  Processor is
@@ -16,12 +16,15 @@
  * ### Data flow
  * 1. Caller delivers raw bytes on the READER THREAD via `process()`.
  * 2. `process()` forwards to `Parser::process()`.
- * 3. The parser decodes VT sequences and writes cells to `Grid` / state to `State`.
- * 4. Responses (e.g. cursor-position reports) are buffered in the parser and
- *    flushed back via `parser.writeToHost` (wired by the owner to the appropriate
- *    sink — local TTY write or IPC output).
- * 5. State::flush() propagates atomic values to the ValueTree on the timer tick,
+ * 3. The parser decodes VT sequences and dispatches semantic actions via `commands`.
+ * 4. `commands` handlers call Video action methods; Video writes cells to `Grid`.
+ * 5. Processor reads Video's public getters and writes State atomics (value delivery).
+ * 6. Responses (e.g. cursor-position reports) are buffered in Video and
+ *    flushed back via the `writeToHost` event handler registered in `events`.
+ * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
+ * 8. Display resize: Display calls `processor.resized()` directly →
+ *    Video and Grid resized.
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
@@ -31,6 +34,7 @@
  * @see Terminal::Session — owns TTY and History (PTY side).
  * @see Grid    — ring-buffer cell storage with dirty tracking.
  * @see Parser  — VT100/VT520 state machine.
+ * @see Video   — terminal state machine: pen, cursor, modes, Grid writes.
  * @see State   — atomic terminal parameter store.
  */
 
@@ -38,10 +42,13 @@
 
 #include <JuceHeader.h>
 
+#include "../data/Command.h"
 #include "../data/Keyboard.h"
 #include "../data/State.h"
 #include "Grid.h"
 #include "Parser.h"
+#include "Skit.h"
+#include "Video.h"
 
 
 namespace Terminal
@@ -50,9 +57,9 @@ namespace Terminal
 class Display;
 /**
  * @class Processor
- * @brief Terminal pipeline orchestrator — owns the Parser, receives Grid& and State& from Session.
+ * @brief Terminal pipeline orchestrator — owns Parser and Video, receives Grid& and State& from Session.
  *
- * Processor owns the Parser only.  Grid and State are owned by Terminal::Session
+ * Processor owns the Parser and Video.  Grid and State are owned by Terminal::Session
  * and passed by reference at construction.  Processor has no knowledge of TTY, PTY, or IPC.
  * Bytes arrive via `process()` from whichever source owns the byte stream
  * (local `Terminal::Session` callback, IPC byte-forward, or history replay).
@@ -62,33 +69,34 @@ class Display;
  * which notifies Display to repaint.
  *
  * ### Boundary contract
- * `State`, `Grid`, `uuid`, and `parser` are private.  External callers access
- * them only through the public getter API:
+ * `State`, `Grid`, `uuid`, `video`, `parser`, and `commands` are private.
+ * The `events` map is public — Session registers handlers directly on it.
+ * External callers access state through the public getter API:
  * - `getState()` / `getGrid()` — mutable and const references.
  * - `getUuid()` — const reference to the stable session UUID.
- * - `getParser()` — const and mutable reference to the VT state machine.
- * - `setHostWriter()` — wires `parser.writeToHost` to the caller's sink.
+ * - `setHostWriter()` — registers the `writeToHost` event handler.
+ * - `flushResponses()` — flushes queued device responses to the host.
  *
  * ### Public surface
  * - **Input encoding** — `encodeKeyPress()`, `encodePaste()`, `encodeMouseEvent()`, `encodeFocusEvent()` (const, no side effects)
- * - **Resize** — `resized()` resizes grid and parser only; PTY SIGWINCH is handled by Terminal::Session.
  * - **Output** — `process()` (called on the reader thread by the byte source)
- * - **Lifecycle callbacks** — `onShellExited`, `onClipboardChanged`, `onBell`
+ * - **Response flushing** — `flushResponses()` (reader thread; called by Session on drain-complete)
+ * - **Lifecycle callbacks** — `ID::shellExited` on the events map
  *
  * @note Construct and destroy on the **message thread**.
  *
- * @see Grid, Parser, State, Terminal::Session
+ * @see Grid, Parser, Video, State, Terminal::Session
  */
-class Processor
+class Processor : public juce::ValueTree::Listener
 {
 public:
     //==============================================================================
     /**
-     * @brief Constructs the Processor and wires the parser callbacks.
+     * @brief Constructs the Processor and wires the parser and video via maps.
      *
-     * Receives Grid by reference from the owning Session, constructs State and
-     * Parser.  UUID is provided by the caller — no internal generation.
-     * Call `setHostWriter()` immediately after construction to route parser
+     * Receives Grid by reference from the owning Session, constructs State, Video,
+     * and Parser.  UUID is provided by the caller — no internal generation.
+     * Call `setHostWriter()` immediately after construction to route video
      * responses (e.g. cursor-position reports) to the appropriate sink.
      *
      * @param grid   Live cell buffer owned by Terminal::Session.
@@ -103,21 +111,7 @@ public:
      * @brief Destroys the Processor.
      * @note MESSAGE THREAD — must be destroyed on the message thread.
      */
-    ~Processor() = default;
-
-    /**
-     * @brief Resizes the grid and notifies the parser.
-     *
-     * Resizes Grid and Parser only.  Does NOT touch any TTY — SIGWINCH is
-     * handled by Terminal::Session.  Called from Display when its component
-     * resizes; the caller also routes the resize to the appropriate TTY side
-     * via `Terminal::Session::resize()` or `Interprocess::Link::sendResize()`.
-     *
-     * @param cols  New terminal width in character columns.
-     * @param rows  New terminal height in character rows.
-     * @note MESSAGE THREAD only.
-     */
-    void resized (int cols, int rows) noexcept;
+    ~Processor() override;
 
     /**
      * @brief Encodes a JUCE key press into a VT escape sequence.
@@ -176,8 +170,9 @@ public:
     /**
      * @brief Processes raw bytes through the parser pipeline.
      *
-     * Forwards the byte buffer to `Parser::process()`.  Called on the READER
-     * THREAD by whichever byte source owns this Processor — the `Terminal::Session`
+     * Forwards the byte buffer to `Parser::process()`, then flushes any queued
+     * Video responses via `video.flushResponses()`.  Called on the READER THREAD
+     * by whichever byte source owns this Processor — the `Terminal::Session`
      * onBytes callback (local/daemon) or the IPC byte-forward dispatch (client).
      *
      * @param data    Pointer to the raw byte buffer.
@@ -221,28 +216,19 @@ public:
      */
     const juce::String& getUuid() const noexcept;
 
-    /**
-     * @brief Returns a const reference to the VT parser.
-     *
-     * Used by `Terminal::Display::scanViewportForLinks()` to read OSC 8
-     * hyperlink spans accumulated on the reader thread.
-     *
-     * @return Const reference to the owned `Parser` object.
-     * @note The caller must only read parser state when no active parse is in
-     *       progress (i.e. after a repaint snapshot has been taken).
-     */
-    const Parser& getParser() const noexcept;
-    Parser& getParser() noexcept;
+    /** @brief Flushes any queued device responses (DA, CPR) to the host.
+     *  @note READER THREAD only. */
+    void flushResponses() noexcept;
 
     /**
-     * @brief Wires `parser.writeToHost` to the given callback.
+     * @brief Registers the `writeToHost` event handler in the events map.
      *
-     * Replaces the parser's host-write callback so parser responses (DSR, DA,
+     * Adds a handler under the `"writeToHost"` key so Video responses (DSR, DA,
      * CPR, etc.) are forwarded to the caller's sink — local TTY write or IPC
      * output.  Must be called by the owner before bytes start flowing.
      *
      * @param writer  Callback invoked with `(const char* data, int len)` on the
-     *                reader thread whenever the parser produces a response.
+     *                reader thread whenever Video produces a response.
      * @note MESSAGE THREAD — call before the first `process()` invocation.
      */
     void setHostWriter (std::function<void (const char*, int)> writer) noexcept;
@@ -259,43 +245,37 @@ public:
      */
     std::unique_ptr<Display> createDisplay();
 
-    /** @brief Writes user input bytes (keyboard, mouse) to the PTY.
-     *  Set by Terminal::Session to route input to the TTY.
-     *  @note MESSAGE THREAD. */
-    std::function<void (const char*, int)> writeInput;
-
-    /** @brief Notifies the PTY of a terminal resize.
+    /**
+     * @brief Delivers cell pixel dimensions to Skit and Video.
      *
-     *  Set by Terminal::Session to route resize to the TTY.  Receives the new
-     *  column/row count and the total viewport pixel dimensions so that
-     *  TIOCSWINSZ can populate `ws_xpixel` / `ws_ypixel` for pixel-aware tools.
+     * Called by Screen (or Display) when font metrics change.  Forwards
+     * `widthPx` and `heightPx` to `Skit::setCellSize()` (image decode) and
+     * `Video::setCellSize()` (CSI `t` pixel dimension reports).
      *
-     *  @param cols        New terminal width in character columns.
-     *  @param rows        New terminal height in character rows.
-     *  @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
-     *  @param pixelHeight Total viewport height in physical pixels (0 if unknown).
-     *  @note MESSAGE THREAD. */
-    std::function<void (int, int, int, int)> onResize;
+     * @param widthPx   Cell width in pixels.
+     * @param heightPx  Cell height in pixels.
+     * @note MESSAGE THREAD.
+     */
+    void setCellSize (int widthPx, int heightPx) noexcept;
 
-    /** @name Lifecycle callbacks
-     *  Set these to receive asynchronous notifications.
-     *  All callbacks are invoked on the **message thread** via `callAsync`.
-     * @{ */
-
-    /** Called when the child shell process exits. */
-    std::function<void()> onShellExited;
-
-    /** Called when the terminal writes to the clipboard (OSC 52). */
-    std::function<void (const juce::String&)> onClipboardChanged;
-
-    /** Called when the terminal rings the bell (BEL, 0x07). */
-    std::function<void()> onBell;
-
-    /** Called when the terminal requests a desktop notification (OSC 9 / OSC 777).
-     *  `title` is empty for OSC 9. */
-    std::function<void (const juce::String&, const juce::String&)> onDesktopNotification;
-
-    /** @} */
+    /** @brief Events map — Video → Processor → Session.
+     *  Session registers handlers directly on this map.
+     *
+     *  Registered event keys:
+     *  - `ID::writeToHost`         — `(const char*, int)` — flushed from Video on reader thread
+     *  - `ID::bell`                — `()` — BEL character, dispatched via callAsync
+     *  - `ID::clipboardChanged`    — `(const juce::String&)` — OSC 52, dispatched via callAsync
+     *  - `ID::desktopNotification` — `(const juce::String&, const juce::String&)` — OSC 9/777, dispatched via callAsync
+     *  - `ID::imageDecoded`        — see Video::onImageDecoded signature — reader thread
+     *  - `ID::previewFile`         — `(const juce::String&, int, int, int, int)` — reader thread
+     *  - `ID::registerLink`        — `(const juce::String& uri, const juce::String& params)` — OSC 8 open;
+     *                               Processor handler registers the URI in State and calls `Video::setActiveLinkId()`.
+     *  - `ID::writeInput`          — `(const char*, int)` — user input (keyboard, mouse) → PTY stdin; message thread
+     *  - `ID::terminalResize`      — `(int, int, int, int)` — PTY SIGWINCH; message thread
+     *  - `ID::shellExited`         — `()` — child shell process exited; message thread
+     *
+     *  @note READER THREAD for most event handlers; callAsync handlers land on message thread. */
+    jam::Function::Map<juce::Identifier, void> events;
 
 private:
     //==============================================================================
@@ -305,11 +285,74 @@ private:
     /** @brief Live cell buffer — owned by Terminal::Session. */
     Grid& grid;
 
+    /** @brief Terminal state machine — pen, cursor, modes, Grid writes. */
+    Video video;
+
+    /**
+     * @brief Image decode and SKiT filepath handler.
+     *
+     * Encapsulates Sixel, Kitty, and iTerm2 image decoding plus the SKiT
+     * filepath preview protocol.  Receives raw payloads from Video command
+     * handlers, fires `"imageDecoded"` and `"previewFile"` events.
+     *
+     * @see Skit
+     * @see Skit::processDCS()
+     * @see Skit::processAPC()
+     * @see Skit::processOSC1337()
+     */
+    Skit skit;
+
+    /** @brief Command dispatch map — Parser → Processor → Video. */
+    jam::Function::Map<Command::Type, void> commands;
+
     /** @brief Stable UUID identifying this Processor across process boundaries. */
     const juce::String uuid;
 
     /** @brief VT100/VT520 state machine that decodes PTY output. */
     std::unique_ptr<Parser> parser;
+
+    /** @brief Registers all command handlers that forward Parser actions to Video. */
+    void registerCommands() noexcept;
+
+    /** @brief Registers Processor-owned event handlers on the events map.
+     *
+     *  Handlers registered here intercept Video-fired events that require
+     *  State access (which Video does not hold): link ID assignment, shell
+     *  integration row conversion (screen-relative → absolute), and others.
+     *
+     *  Called once from the constructor, after `registerCommands()`.
+     */
+    void registerEvents() noexcept;
+
+    /** @brief Reads all Video public getters and writes State atomics (value delivery).
+     *
+     *  Called after every command handler dispatch on the reader thread.
+     *  Unconditional — negligible cost at terminal frame rates.
+     *
+     *  @note READER THREAD — State setters are atomic, safe from any thread.
+     */
+    void syncVideoToState() noexcept;
+
+    /** @brief Resizes the grid, State, and Video.
+     *
+     *  Called from `valueTreePropertyChanged` when State dimensions change.
+     *  Separated into a private method to keep the listener callback lean.
+     *
+     *  @param cols  New terminal width in character columns.
+     *  @param rows  New terminal height in character rows.
+     *  @note MESSAGE THREAD — called from ValueTree::Listener callback.
+     */
+    void resized (int cols, int rows) noexcept;
+
+    /** @brief ValueTree::Listener — reacts to top-down dimension changes from Display.
+     *
+     *  Fires on the message thread when State's ValueTree properties change.
+     *  Handles `ID::cols` and `ID::visibleRows` to push new dimensions into Video.
+     *  Mirrors the `ProcessorChain::parameterChanged` pattern from JFS.
+     *
+     *  @note MESSAGE THREAD.
+     */
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Processor)

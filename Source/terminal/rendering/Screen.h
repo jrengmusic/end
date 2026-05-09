@@ -43,7 +43,7 @@ public:
     };
 
     explicit Screen (State& state) noexcept;
-    ~Screen() override;
+    ~Screen() override = default;
 
     /** @brief Sets terminal dimensions. Called by Display on resize. */
     void setDimensions (int newCols, int newRows) noexcept;

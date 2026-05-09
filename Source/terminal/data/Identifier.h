@@ -417,6 +417,94 @@ namespace ID
     /** @brief Next slot index for hyperlink URI assignment. READER THREAD monotonic counter. */
     static const juce::Identifier linkUriCount        { "linkUriCount" };
 
+    //==========================================================================
+    // Event map keys (jam::Function::Map events fired by Video, handled by Processor)
+    //==========================================================================
+
+    /** @brief Fired on BEL (0x07) — no arguments. */
+    static const juce::Identifier bell                { "bell" };
+
+    /** @brief Fired to deliver PTY response bytes to the host — args: const char*, int. */
+    static const juce::Identifier writeToHost         { "writeToHost" };
+
+    /** @brief Fired on OSC 52 clipboard write — args: const juce::String&. */
+    static const juce::Identifier clipboardChanged    { "clipboardChanged" };
+
+    /** @brief Fired on OSC 9 / OSC 777 desktop notification — args: const juce::String&, const juce::String&. */
+    static const juce::Identifier desktopNotification { "desktopNotification" };
+
+    /** @brief Fired on OSC 12 cursor color set — args: int (screen), juce::Colour. */
+    static const juce::Identifier cursorColor         { "cursorColor" };
+
+    /** @brief Fired on OSC 112 cursor color reset — args: int (screen). */
+    static const juce::Identifier resetCursorColor    { "resetCursorColor" };
+
+    /** @brief Fired on OSC 8 hyperlink open — args: const juce::String& uri, const juce::String& params. */
+    static const juce::Identifier registerLink        { "registerLink" };
+
+    /** @brief Fired on OSC 133 A prompt marker — args: int (relative row). */
+    static const juce::Identifier outputBlockStart    { "outputBlockStart" };
+
+    /** @brief Fired on OSC 133 D output end marker — args: int (relative row). */
+    static const juce::Identifier outputBlockEnd      { "outputBlockEnd" };
+
+    /** @brief Fired on LF while output scan is active — args: int (relative row). */
+    static const juce::Identifier extendOutputBlock   { "extendOutputBlock" };
+
+    /** @brief Fired on DEC mode 2026 synchronized output toggle — args: bool. */
+    static const juce::Identifier syncOutput          { "syncOutput" };
+
+    /** @brief Fired to accumulate image erase region — args: int top, int left, int bottom, int right. */
+    static const juce::Identifier queueImageErase     { "queueImageErase" };
+
+    /** @brief Fired when an inline image is fully decoded — args: pixel data, frame data, and placement metadata. */
+    static const juce::Identifier imageDecoded        { "imageDecoded" };
+
+    /** @brief Fired on SKiT END; filepath signal — args: const juce::String& filepath, int row, int col, int cols, int lines. */
+    static const juce::Identifier previewFile         { "previewFile" };
+
+    /** @brief Fired on CSI > flags u — push keyboard mode — args: int (screen), uint32_t (flags). */
+    static const juce::Identifier pushKeyboardMode    { "pushKeyboardMode" };
+
+    /** @brief Fired on CSI < count u — pop keyboard mode — args: int (screen), int (count). */
+    static const juce::Identifier popKeyboardMode     { "popKeyboardMode" };
+
+    /** @brief Fired on DEC mode 2026 set to trigger sync resize — no arguments. */
+    static const juce::Identifier requestSyncResize   { "requestSyncResize" };
+
+    /** @brief Fired when the child shell process exits — no arguments. */
+    static const juce::Identifier shellExited         { "shellExited" };
+
+    /** @brief Fired to route user input bytes (keyboard, mouse) to the PTY — args: const char*, int. */
+    static const juce::Identifier writeInput          { "writeInput" };
+
+    /** @brief Fired to notify the PTY of a terminal resize — args: int cols, int rows, int pixelWidth, int pixelHeight. */
+    static const juce::Identifier terminalResize      { "terminalResize" };
+
+    /** @brief Fired from `Video::handleOsc1337` with raw OSC 1337 payload for Skit to decode.
+     *
+     *  Args: `const uint8_t* data, int length, int cursorRow, int cursorCol`.
+     *  Processor handler calls `Skit::processOSC1337()` then
+     *  `Video::advanceCursorForImage()`.
+     */
+    static const juce::Identifier osc1337Raw          { "osc1337Raw" };
+
 }
+
+/**
+ * @enum ActiveScreen
+ * @brief Selects between the normal and alternate terminal screen buffers.
+ *
+ * VT terminals support two independent screen buffers.  The alternate screen
+ * is typically activated by full-screen applications (vim, less, ...) via the
+ * `?1049h` / `?1049l` private mode sequences.  The value doubles as an array
+ * index into per-screen parameter arrays.
+ */
+enum ActiveScreen : size_t
+{
+    normal    = 0, ///< Primary screen buffer (default).
+    alternate = 1  ///< Alternate screen buffer (full-screen apps).
+};
+
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

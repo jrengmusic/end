@@ -9,22 +9,22 @@
  *
  * ## performAction() dispatch table
  *
- * | Action       | Effect                                                  |
- * |--------------|---------------------------------------------------------|
- * | print        | `handlePrintByte()` → UTF-8 accumulation → `print()`   |
- * | execute      | `execute()` — C0 control characters (CR, LF, BS, …)    |
- * | collect      | Append byte to `intermediateBuffer`                     |
- * | param        | `handleParam()` — digit/separator into CSI accumulator  |
- * | escDispatch  | `escDispatch()` — complete ESC sequence                 |
- * | csiDispatch  | `csiDispatch()` — complete CSI sequence                 |
- * | oscPut       | `appendToBuffer (oscBuffer, …)` — hybrid OSC buffer     |
- * | oscEnd       | `oscDispatch()` — complete OSC string                   |
- * | hook         | `dcsHook()` — DCS sequence entry                        |
- * | put          | `appendToBuffer (dcsBuffer, …)` — DCS passthrough byte  |
- * | unhook       | `dcsUnhook()` — DCS sequence exit                       |
- * | apcPut       | `appendToBuffer (apcBuffer, …)` — APC passthrough byte  |
- * | apcEnd       | `apcEnd()` — Kitty graphics APC exit                    |
- * | ignore/none  | No-op                                                   |
+ * | Action       | Effect                                                                            |
+ * |--------------|-----------------------------------------------------------------------------------|
+ * | print        | `handlePrintByte()` → UTF-8 accumulation → `Command::print`                      |
+ * | execute      | `Command::applyControlCode` — C0 control characters (CR, LF, BS, …)              |
+ * | collect      | Append byte to `intermediateBuffer`                                               |
+ * | param        | `handleParam()` — digit/separator into CSI accumulator                            |
+ * | escDispatch  | `Command::applyESC` — complete ESC sequence                                       |
+ * | csiDispatch  | `Command::applyCSI` — complete CSI sequence                                       |
+ * | oscPut       | `appendToBuffer (oscBuffer, …)` — hybrid OSC buffer                               |
+ * | oscEnd       | `Command::applyOSC` — complete OSC string                                         |
+ * | hook         | `Command::storeDCSHeader` — DCS sequence entry, records final byte                |
+ * | put          | `appendToBuffer (dcsBuffer, …)` — DCS passthrough byte                            |
+ * | unhook       | `Command::applyDCSPayload` — DCS sequence exit, dispatches accumulated payload    |
+ * | apcPut       | `appendToBuffer (apcBuffer, …)` — APC passthrough byte                            |
+ * | apcEnd       | `Command::applyAPCPayload` — Kitty graphics APC exit                              |
+ * | ignore/none  | No-op                                                                             |
  *
  * ## Thread model
  *
@@ -32,13 +32,11 @@
  *
  * @see Parser.h        — class declaration, member documentation, and lifecycle notes
  * @see Parser.cpp      — hot-path loop and state transition machinery
- * @see ParserESC.cpp   — ESC sequence dispatch
- * @see ParserOSC.cpp   — OSC sequence dispatch
- * @see ParserDCS.cpp   — DCS and APC passthrough
- * @see ParserCSI.cpp   — CSI sequence dispatch
+ * @see Command.h       — external action enum dispatched via Function::Map
  */
 
 #include "Parser.h"
+#include "../data/Command.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -96,10 +94,14 @@ void Parser::appendToBuffer (juce::HeapBlock<uint8_t>& buffer, int& size, int& c
 // ============================================================================
 
 /**
- * @brief Executes the action associated with a state transition.
+ * @brief Executes the action associated with a state transition, dispatching
+ *        external actions via the commands map.
  *
- * Central dispatcher for all VT actions.  Each `Action` enum value maps to
- * a specific handler or inline operation.
+ * Central dispatcher for all VT actions.  Parser-owned accumulation actions
+ * (collect, param, put, oscPut, apcPut) are handled inline.  All semantic
+ * terminal actions (applyControlCode, applyESC, applyCSI, applyOSC,
+ * storeDCSHeader, applyDCSPayload, applyAPCPayload) are dispatched via `commands.get<>()`.  `handlePrintByte()` remains
+ * on Parser and internally dispatches `Command::print`.
  *
  * @param action  The action to perform, as determined by the DispatchTable.
  * @param byte    The input byte associated with the action.
@@ -107,13 +109,7 @@ void Parser::appendToBuffer (juce::HeapBlock<uint8_t>& buffer, int& size, int& c
  * @note READER THREAD only.
  *
  * @see handlePrintByte()
- * @see execute()
- * @see handleParam()
- * @see escDispatch()
- * @see csiDispatch()
- * @see oscDispatch()
- * @see dcsHook()
- * @see dcsUnhook()
+ * @see Command
  */
 void Parser::performAction (ParserAction action, uint8_t byte) noexcept
 {
@@ -128,8 +124,7 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::execute:
-            graphemeState = graphemeSegmentationInit();
-            execute (byte);
+            commands.get (Command::Type::applyControlCode, uint8_t (byte));
             break;
 
         case ParserAction::collect:
@@ -145,14 +140,12 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::escDispatch:
-            graphemeState = graphemeSegmentationInit();
-            escDispatch (intermediateBuffer, intermediateCount, byte);
+            commands.get (Command::Type::applyESC, static_cast<const uint8_t*> (intermediateBuffer), uint8_t (intermediateCount), uint8_t (byte));
             break;
 
         case ParserAction::csiDispatch:
-            graphemeState = graphemeSegmentationInit();
             csi.finalize();
-            csiDispatch (csi, intermediateBuffer, intermediateCount, byte);
+            commands.get (Command::Type::applyCSI, csi, static_cast<const uint8_t*> (intermediateBuffer), uint8_t (intermediateCount), uint8_t (byte));
             break;
 
         case ParserAction::put:
@@ -164,17 +157,17 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::oscEnd:
-            oscDispatch (oscBuffer.get(), oscBufferSize);
+            commands.get (Command::Type::applyOSC, static_cast<const uint8_t*> (oscBuffer.get()), int (oscBufferSize));
             break;
 
         case ParserAction::hook:
             csi.finalize();
-            dcsFinalByte = byte;
-            dcsHook (csi, intermediateBuffer, intermediateCount, byte);
+            commands.get (Command::Type::storeDCSHeader, csi, static_cast<const uint8_t*> (intermediateBuffer), uint8_t (intermediateCount), uint8_t (byte));
             break;
 
         case ParserAction::unhook:
-            dcsUnhook();
+            commands.get (Command::Type::applyDCSPayload, static_cast<const uint8_t*> (dcsBuffer.get()), int (dcsBufferSize));
+            dcsBufferSize = 0;
             break;
 
         case ParserAction::apcPut:
@@ -182,7 +175,8 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::apcEnd:
-            apcEnd();
+            commands.get (Command::Type::applyAPCPayload, static_cast<const uint8_t*> (apcBuffer.get()), int (apcBufferSize));
+            apcBufferSize = 0;
             break;
     }
 }
@@ -271,10 +265,23 @@ void Parser::performEntryAction (ParserState newState) noexcept
  */
 uint8_t Parser::expectedUTF8Length (uint8_t leadByte) noexcept
 {
-    return (leadByte >= 0xF0) ? uint8_t { 4 }
-         : (leadByte >= 0xE0) ? uint8_t { 3 }
-         : (leadByte >= 0xC0) ? uint8_t { 2 }
-         :                      uint8_t { 1 };
+    static constexpr uint8_t lengths[256] = {
+        // 0x00–0xBF: 1 (ASCII or continuation byte)
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        // 0xC0–0xDF: 2-byte sequence
+        2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+        // 0xE0–0xEF: 3-byte sequence
+        3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+        // 0xF0–0xF7: 4-byte sequence; 0xF8–0xFF: invalid — treat as 1
+        4,4,4,4,4,4,4,4, 1,1,1,1,1,1,1,1
+    };
+
+    return lengths[leadByte];
 }
 
 /**
@@ -290,7 +297,7 @@ uint8_t Parser::expectedUTF8Length (uint8_t leadByte) noexcept
  * 3. **Completion check**: after each append, if `utf8AccumulatorLength` equals
  *    `expectedUTF8Length (utf8Accumulator[0])`, the sequence is complete.
  *    `juce::CharPointer_UTF8` decodes the null-terminated buffer to a Unicode
- *    codepoint, which is forwarded to `print()`.  The accumulator is then reset.
+ *    codepoint, which is dispatched via `Command::print`.  The accumulator is then reset.
  *
  * Invalid sequences (e.g. a continuation byte with no preceding lead byte, or
  * a lead byte that interrupts an in-progress sequence) are silently discarded
@@ -302,7 +309,6 @@ uint8_t Parser::expectedUTF8Length (uint8_t leadByte) noexcept
  *
  * @see expectedUTF8Length()
  * @see handlePrintByte()
- * @see print()
  */
 void Parser::accumulateUTF8Byte (uint8_t byte) noexcept
 {
@@ -328,20 +334,20 @@ void Parser::accumulateUTF8Byte (uint8_t byte) noexcept
         {
             utf8Accumulator[utf8AccumulatorLength] = '\0';
             juce::CharPointer_UTF8 decoder (utf8Accumulator);
-            print (static_cast<uint32_t> (*decoder));
+            commands.get (Command::Type::print, static_cast<uint32_t> (*decoder));
             utf8AccumulatorLength = 0;
         }
     }
 }
 
 /**
- * @brief Routes a printable byte to `print()` directly or through UTF-8 accumulation.
+ * @brief Routes a printable byte to `Command::print` directly or through UTF-8 accumulation.
  *
  * Called by `performAction()` for every `Action::print` byte.  Two paths:
  *
  * - **ASCII** (byte ≤ 0x7F): resets `utf8AccumulatorLength` to discard any
- *   in-progress multi-byte sequence, then calls `print()` directly with the
- *   codepoint value.
+ *   in-progress multi-byte sequence, then dispatches `Command::print` directly
+ *   with the codepoint value.
  * - **Non-ASCII** (byte > 0x7F): delegates to `accumulateUTF8Byte()` to
  *   begin or continue a multi-byte UTF-8 sequence.
  *
@@ -350,7 +356,6 @@ void Parser::accumulateUTF8Byte (uint8_t byte) noexcept
  * @note READER THREAD only.
  *
  * @see accumulateUTF8Byte()
- * @see print()
  */
 void Parser::handlePrintByte (uint8_t byte) noexcept
 {
@@ -359,7 +364,7 @@ void Parser::handlePrintByte (uint8_t byte) noexcept
     if (isASCII)
     {
         utf8AccumulatorLength = 0;
-        print (static_cast<uint32_t> (byte));
+        commands.get (Command::Type::print, static_cast<uint32_t> (byte));
     }
     else
     {
@@ -389,7 +394,6 @@ void Parser::handlePrintByte (uint8_t byte) noexcept
  *
  * @see CSI::addDigit()
  * @see CSI::addSeparator()
- * @see csiDispatch()
  */
 void Parser::handleParam (uint8_t byte) noexcept
 {

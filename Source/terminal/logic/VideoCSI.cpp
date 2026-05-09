@@ -1,9 +1,10 @@
 /**
- * @file ParserCSI.cpp
- * @brief CSI (Control Sequence Introducer) sequence dispatch and handlers.
+ * @file VideoCSI.cpp
+ * @brief CSI (Control Sequence Introducer) sequence dispatch, cursor, scroll, and report handlers.
  *
- * This translation unit implements `Parser::csiDispatch()` and every CSI
- * handler function.  A CSI sequence has the form:
+ * This translation unit implements `Video::applyCSI()` and the cursor, scroll,
+ * and report CSI handler functions.  Mode handlers live in VideoMode.cpp.
+ * A CSI sequence has the form:
  *
  * @code
  *   ESC [ <params> <intermediates> <final>
@@ -14,7 +15,7 @@
  * single byte in 0x40–0x7E that identifies the command.
  *
  * @par Dispatch table
- * `csiDispatch()` switches on the final byte and delegates to a dedicated
+ * `applyCSI()` switches on the final byte and delegates to a dedicated
  * handler for each recognised sequence.  Private sequences (those with `?`
  * as the first intermediate byte) are routed to `handlePrivateMode()` for
  * DECSET/DECRST processing.
@@ -45,7 +46,7 @@
  * | a     | HPR           | `moveCursorForward()`    |
  * | d     | VPA           | `setCursorLine()`        |
  * | e     | VPR           | `moveCursorDown()`       |
- * | h / l | SM / RM      | `handleMode()` / `handlePrivateMode()` |
+ * | h / l | SM / RM      | `handleMode()` / `handlePrivateMode()` (VideoMode.cpp) |
  * | m     | SGR           | `applySGR()`             |
  * | n     | DSR           | `reportCursorPosition()` |
  * | r     | DECSTBM       | `setScrollRegion()`      |
@@ -54,14 +55,14 @@
  * @par Thread model
  * All functions in this file run exclusively on the **READER THREAD**.
  *
- * @see Parser.h      — class declaration and full API documentation
- * @see ParserVT.cpp  — ground-state print and execute handlers
- * @see ParserESC.cpp — ESC sequence dispatch
- * @see CSI           — parameter accumulator passed to every handler
- * @see State         — atomic terminal parameter store
+ * @see Video.h      — class declaration and full API documentation
+ * @see Video.cpp    — ground-state print and applyControlCode handlers
+ * @see VideoMode.cpp — DEC private mode and ANSI mode handlers
+ * @see VideoESC.cpp — ESC sequence dispatch
+ * @see CSI          — parameter accumulator passed to every handler
  */
 
-#include "Parser.h"
+#include "Video.h"
 #include "Grid.h"
 
 namespace Terminal
@@ -132,7 +133,7 @@ static int indexToParam (int index) noexcept
  * @see handleMode()
  * @see CSI
  */
-void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t interCount, uint8_t finalByte) noexcept
+void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCount, uint8_t finalByte) noexcept
 {
     const bool isPrivate { interCount > 0 and inter[0] == '?' };
 
@@ -174,7 +175,7 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
             const int ps { static_cast<int> (params.param (0, 0)) };
             if (ps == 0)
             {
-                clearTabStop (state.getRawValue<ActiveScreen> (ID::activeScreen));
+                clearTabStop (activeScreen);
             }
             else if (ps == 3)
             {
@@ -195,9 +196,9 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
             if (ps == 14)
             {
                 // Report text area size in pixels: ESC [ 4 ; height ; width t
-                const int cellW { physCellWidthAtomic.load (std::memory_order_relaxed) };
-                const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
-                const auto total { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { state.getCols() }, jam::metrics::Cell { state.getVisibleRows() }, jam::Bounds { cellW, cellH }) };
+                const int cellW { cellWidth.load (std::memory_order_relaxed) };
+                const int cellH { cellHeight.load (std::memory_order_relaxed) };
+                const auto total { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { cols.load (std::memory_order_relaxed) }, jam::metrics::Cell { visibleRows.load (std::memory_order_relaxed) }, jam::Bounds { cellW, cellH }) };
                 const int totalW { total.x };
                 const int totalH { total.y };
 
@@ -210,8 +211,8 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
             else if (ps == 16)
             {
                 // Report cell size in pixels: ESC [ 6 ; height ; width t
-                const int cellW { physCellWidthAtomic.load (std::memory_order_relaxed) };
-                const int cellH { physCellHeightAtomic.load (std::memory_order_relaxed) };
+                const int cellW { cellWidth.load (std::memory_order_relaxed) };
+                const int cellH { cellHeight.load (std::memory_order_relaxed) };
 
                 if (cellW > 0 and cellH > 0)
                 {
@@ -222,7 +223,7 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
             else if (ps == 18)
             {
                 // Report text area size in characters: ESC [ 8 ; rows ; cols t
-                const juce::String response { "\x1b[8;" + juce::String (state.getVisibleRows()) + ";" + juce::String (state.getCols()) + "t" };
+                const juce::String response { "\x1b[8;" + juce::String (visibleRows.load (std::memory_order_relaxed)) + ";" + juce::String (cols.load (std::memory_order_relaxed)) + "t" };
                 sendResponse (response.toRawUTF8());
             }
 
@@ -230,70 +231,6 @@ void Parser::csiDispatch (const CSI& params, const uint8_t* inter, uint8_t inter
         }
         case 'u': handleKeyboardMode (params, inter, interCount); break;
         default:  break;
-    }
-}
-
-void Parser::handleCursorStyle (const CSI& params) noexcept
-{
-    const int ps { static_cast<int> (params.param (0, 0)) };
-
-    if (ps >= 0 and ps <= 6)
-    {
-        state.setCursorShape (state.getRawValue<ActiveScreen> (ID::activeScreen), ps);
-    }
-}
-
-// ============================================================================
-// CSI Handler — Progressive Keyboard Protocol (CSI u)
-// ============================================================================
-
-/**
- * @brief Handles progressive keyboard protocol sequences (`CSI … u`).
- *
- * Dispatches based on the intermediate byte collected before the params:
- *
- * | Intermediate | Sequence              | Action                          |
- * |--------------|-----------------------|---------------------------------|
- * | `>`          | `CSI > flags u`       | Push flags onto stack           |
- * | `<`          | `CSI < count u`       | Pop count entries from stack    |
- * | `?`          | `CSI ? u`             | Query — respond `CSI ? flags u` |
- * | `=`          | `CSI = flags ; mode u`| Set / OR / AND-NOT flags        |
- * | (none)       | `CSI … u`             | No-op (future: key event input) |
- *
- * @param params      CSI parameter accumulator.
- * @param inter       Intermediate byte buffer.
- * @param interCount  Number of intermediate bytes collected.
- * @note READER THREAD only.
- */
-void Parser::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_t interCount) noexcept
-{
-    if (interCount > 0)
-    {
-        const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-
-        if (inter[0] == '>')
-        {
-            const auto flags { static_cast<uint32_t> (params.param (0, 0)) };
-            state.pushKeyboardMode (scr, flags);
-        }
-        else if (inter[0] == '<')
-        {
-            const auto count { static_cast<int> (params.param (0, 1)) };
-            state.popKeyboardMode (scr, count);
-        }
-        else if (inter[0] == '?')
-        {
-            const auto flags { state.getRawValue<int> (state.screenKey (scr, ID::keyboardFlags)) };
-            char buf[32];
-            std::snprintf (buf, sizeof (buf), "\x1b[?%uu", flags);
-            sendResponse (buf);
-        }
-        else if (inter[0] == '=')
-        {
-            const auto flags { static_cast<uint32_t> (params.param (0, 0)) };
-            const auto mode { static_cast<int> (params.param (1, 1)) };
-            state.setKeyboardMode (scr, flags, mode);
-        }
     }
 }
 
@@ -313,9 +250,9 @@ void Parser::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_
  *
  * @see cursorMoveUp()
  */
-void Parser::moveCursorUp (const CSI& params) noexcept
+void Video::moveCursorUp (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const auto scr { activeScreen };
     cursorMoveUp (scr, static_cast<int> (params.param (0, 1)));
 }
 
@@ -330,9 +267,9 @@ void Parser::moveCursorUp (const CSI& params) noexcept
  *
  * @see cursorMoveDown()
  */
-void Parser::moveCursorDown (const CSI& params) noexcept
+void Video::moveCursorDown (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const auto scr { activeScreen };
     cursorMoveDown (scr, static_cast<int> (params.param (0, 1)), effectiveClampBottom (scr));
 }
 
@@ -348,10 +285,10 @@ void Parser::moveCursorDown (const CSI& params) noexcept
  *
  * @see cursorMoveForward()
  */
-void Parser::moveCursorForward (const CSI& params) noexcept
+void Video::moveCursorForward (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    cursorMoveForward (scr, static_cast<int> (params.param (0, 1)), state.getRawValue<int> (ID::cols));
+    const auto scr { activeScreen };
+    cursorMoveForward (scr, static_cast<int> (params.param (0, 1)), cols.load (std::memory_order_relaxed));
 }
 
 /**
@@ -366,9 +303,9 @@ void Parser::moveCursorForward (const CSI& params) noexcept
  *
  * @see cursorMoveBackward()
  */
-void Parser::moveCursorBackward (const CSI& params) noexcept
+void Video::moveCursorBackward (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const auto scr { activeScreen };
     cursorMoveBackward (scr, static_cast<int> (params.param (0, 1)));
 }
 
@@ -383,12 +320,12 @@ void Parser::moveCursorBackward (const CSI& params) noexcept
  *
  * @see cursorMoveDown()
  */
-void Parser::moveCursorNextLine (const CSI& params) noexcept
+void Video::moveCursorNextLine (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const auto scr { activeScreen };
     const int count { static_cast<int> (params.param (0, 1)) };
     cursorMoveDown (scr, count, effectiveClampBottom (scr));
-    state.setCursorCol (scr, 0);
+    cursorCol[static_cast<int> (scr)] = 0;
 }
 
 /**
@@ -402,12 +339,12 @@ void Parser::moveCursorNextLine (const CSI& params) noexcept
  *
  * @see cursorMoveUp()
  */
-void Parser::moveCursorPrevLine (const CSI& params) noexcept
+void Video::moveCursorPrevLine (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const auto scr { activeScreen };
     const int count { static_cast<int> (params.param (0, 1)) };
     cursorMoveUp (scr, count);
-    state.setCursorCol (scr, 0);
+    cursorCol[static_cast<int> (scr)] = 0;
 }
 
 /**
@@ -421,18 +358,18 @@ void Parser::moveCursorPrevLine (const CSI& params) noexcept
  *
  * @see nextTabStop()
  */
-void Parser::cursorForwardTab (const CSI& params) noexcept
+void Video::cursorForwardTab (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { state.getRawValue<int> (ID::cols) };
+    const auto scr { activeScreen };
+    const int colCount { cols.load (std::memory_order_relaxed) };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     for (int i { 0 }; i < count; ++i)
     {
-        state.setCursorCol (scr, nextTabStop (scr, cols));
+        cursorCol[static_cast<int> (scr)] = nextTabStop (scr, colCount);
     }
 
-    state.setWrapPending (scr, false);
+    wrapPending[static_cast<int> (scr)] = false;
 }
 
 /**
@@ -446,17 +383,17 @@ void Parser::cursorForwardTab (const CSI& params) noexcept
  *
  * @see prevTabStop()
  */
-void Parser::cursorBackTab (const CSI& params) noexcept
+void Video::cursorBackTab (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const auto scr { activeScreen };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     for (int i { 0 }; i < count; ++i)
     {
-        state.setCursorCol (scr, prevTabStop (scr));
+        cursorCol[static_cast<int> (scr)] = prevTabStop (scr);
     }
 
-    state.setWrapPending (scr, false);
+    wrapPending[static_cast<int> (scr)] = false;
 }
 
 /**
@@ -472,12 +409,12 @@ void Parser::cursorBackTab (const CSI& params) noexcept
  *
  * @see paramToIndex()
  */
-void Parser::setCursorColumn (const CSI& params) noexcept
+void Video::setCursorColumn (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    state.setCursorCol (scr, paramToIndex (params, 0, 1));
-    state.setWrapPending (scr, false);
-    state.setCursorCol (scr, juce::jlimit (0, state.getRawValue<int> (ID::cols) - 1, state.getRawValue<int> (state.screenKey (scr, ID::cursorCol))));
+    const auto scr { activeScreen };
+    cursorCol[static_cast<int> (scr)] = paramToIndex (params, 0, 1);
+    wrapPending[static_cast<int> (scr)] = false;
+    cursorCol[static_cast<int> (scr)] = juce::jlimit (0, cols.load (std::memory_order_relaxed) - 1, cursorCol[static_cast<int> (scr)]);
 }
 
 /**
@@ -495,7 +432,7 @@ void Parser::setCursorColumn (const CSI& params) noexcept
  * @see moveCursorTo()
  * @see cursorSetPositionInOrigin()
  */
-void Parser::setCursorPosition (const CSI& params) noexcept
+void Video::setCursorPosition (const CSI& params) noexcept
 {
     moveCursorTo (paramToIndex (params, 0, 1), paramToIndex (params, 1, 1));
 }
@@ -513,10 +450,10 @@ void Parser::setCursorPosition (const CSI& params) noexcept
  *
  * @see moveCursorTo()
  */
-void Parser::setCursorLine (const CSI& params) noexcept
+void Video::setCursorLine (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    moveCursorTo (paramToIndex (params, 0, 1), state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)));
+    const auto scr { activeScreen };
+    moveCursorTo (paramToIndex (params, 0, 1), cursorCol[static_cast<int> (scr)]);
 }
 
 /**
@@ -537,19 +474,19 @@ void Parser::setCursorLine (const CSI& params) noexcept
  * @see cursorSetPositionInOrigin()
  * @see calc()
  */
-void Parser::moveCursorTo (int row, int col) noexcept
+void Video::moveCursorTo (int row, int col) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int cols { state.getRawValue<int> (ID::cols) };
-    const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
+    const auto scr { activeScreen };
+    const int colCount { cols.load (std::memory_order_relaxed) };
+    const int rowCount { visibleRows.load (std::memory_order_relaxed) };
 
-    if (state.getRawValue<bool> (state.modeKey (ID::originMode)))
+    if (originMode)
     {
-        cursorSetPositionInOrigin (scr, row, col, cols, visibleRows);
+        cursorSetPositionInOrigin (scr, row, col, colCount, rowCount);
     }
     else
     {
-        cursorSetPosition (scr, row, col, cols, visibleRows);
+        cursorSetPosition (scr, row, col, colCount, rowCount);
     }
 
     calc();
@@ -570,26 +507,26 @@ void Parser::moveCursorTo (int row, int col) noexcept
  *
  * @note READER THREAD only.
  */
-void Parser::scrollUp (const CSI& params) noexcept
+void Video::scrollUp (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
+    const auto scr { activeScreen };
+    const int scrTop { scrollTop[static_cast<int> (scr)] };
     const int bottom { activeScrollBottom() };
     const int count { static_cast<int> (params.param (0, 1)) };
-    const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
+    const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
-    grid.scrollUp (scrollTop, bottom, clampedCount);
+    grid.scrollUp (scrTop, bottom, clampedCount);
 
     if (stamp.bg.getAlpha() > 0)
     {
-        const int cols { state.getRawValue<int> (ID::cols) };
+        const int colCount { cols.load (std::memory_order_relaxed) };
         const jam::Cell fill { jam::Cell::erase (stamp.bg) };
 
         for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
         {
             jam::Cell* row { grid.getWritePointer (r) };
 
-            for (int c { 0 }; c < cols; ++c)
+            for (int c { 0 }; c < colCount; ++c)
                 row[c] = fill;
         }
     }
@@ -606,26 +543,26 @@ void Parser::scrollUp (const CSI& params) noexcept
  *
  * @note READER THREAD only.
  */
-void Parser::scrollDown (const CSI& params) noexcept
+void Video::scrollDown (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
+    const auto scr { activeScreen };
+    const int scrTop { scrollTop[static_cast<int> (scr)] };
     const int bottom { activeScrollBottom() };
     const int count { static_cast<int> (params.param (0, 1)) };
-    const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
+    const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
-    grid.scrollDown (scrollTop, bottom, clampedCount);
+    grid.scrollDown (scrTop, bottom, clampedCount);
 
     if (stamp.bg.getAlpha() > 0)
     {
-        const int cols { state.getRawValue<int> (ID::cols) };
+        const int colCount { cols.load (std::memory_order_relaxed) };
         const jam::Cell fill { jam::Cell::erase (stamp.bg) };
 
-        for (int r { scrollTop }; r < scrollTop + clampedCount; ++r)
+        for (int r { scrTop }; r < scrTop + clampedCount; ++r)
         {
             jam::Cell* row { grid.getWritePointer (r) };
 
-            for (int c { 0 }; c < cols; ++c)
+            for (int c { 0 }; c < colCount; ++c)
                 row[c] = fill;
         }
     }
@@ -647,14 +584,14 @@ void Parser::scrollDown (const CSI& params) noexcept
  * @see cursorResetScrollRegion()
  * @see calc()
  */
-void Parser::setScrollRegion (const CSI& params) noexcept
+void Video::setScrollRegion (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
+    const auto scr { activeScreen };
+    const int rowCount { visibleRows.load (std::memory_order_relaxed) };
     const int top { paramToIndex (params, 0, 1) };
-    const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (visibleRows)) };
+    const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (rowCount)) };
 
-    if (top >= 0 and bottom > top and bottom < visibleRows)
+    if (top >= 0 and bottom > top and bottom < rowCount)
     {
         cursorSetScrollRegion (scr, top, bottom);
     }
@@ -665,8 +602,8 @@ void Parser::setScrollRegion (const CSI& params) noexcept
 
     calc();
 
-    const int cols { state.getRawValue<int> (ID::cols) };
-    cursorSetPosition (scr, 0, 0, cols, visibleRows);
+    const int colCount { cols.load (std::memory_order_relaxed) };
+    cursorSetPosition (scr, 0, 0, colCount, rowCount);
 }
 
 // ============================================================================
@@ -686,15 +623,15 @@ void Parser::setScrollRegion (const CSI& params) noexcept
  * @see sendResponse()
  * @see flushResponses()
  */
-void Parser::reportCursorPosition (const CSI& params) noexcept
+void Video::reportCursorPosition (const CSI& params) noexcept
 {
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const auto scr { activeScreen };
     const auto modeValue { params.param (0, 0) };
 
     if (modeValue == 6)
     {
         char buf[32];
-        std::snprintf (buf, sizeof (buf), "\x1b[%d;%dR", indexToParam (state.getRawValue<int> (state.screenKey (scr, ID::cursorRow))), indexToParam (state.getRawValue<int> (state.screenKey (scr, ID::cursorCol))));
+        std::snprintf (buf, sizeof (buf), "\x1b[%d;%dR", indexToParam (cursorRow[static_cast<int> (scr)]), indexToParam (cursorCol[static_cast<int> (scr)]));
         sendResponse (buf);
     }
     else if (modeValue == 5)
@@ -710,7 +647,7 @@ void Parser::reportCursorPosition (const CSI& params) noexcept
  *
  * @note READER THREAD only.
  */
-void Parser::reportDeviceAttributes (bool isPrivate) noexcept
+void Video::reportDeviceAttributes (bool isPrivate) noexcept
 {
     if (isPrivate)
     {
@@ -719,180 +656,6 @@ void Parser::reportDeviceAttributes (bool isPrivate) noexcept
     else
     {
         sendResponse ("\x1b[?62;4c");
-    }
-}
-
-// ============================================================================
-// VT Handler: Private Mode (DECSET / DECRST)
-// ============================================================================
-
-/**
- * @brief Lookup-table entry mapping a DECSET/DECRST mode number to a State ID.
- *
- * Used by `applyPrivateModeTable()` to resolve the most common private
- * mode numbers without a large switch statement.
- *
- * @see privateModeTable
- * @see applyPrivateModeTable()
- */
-struct PrivateModeEntry { uint16_t modeValue; juce::Identifier id; };
-
-/**
- * @brief Table of DECSET/DECRST mode numbers and their corresponding State IDs.
- *
- * Covers the private modes that map directly to a single `State::setMode()`
- * call.  Modes that require additional side effects are handled separately in
- * `handlePrivateMode()`.
- */
-static const PrivateModeEntry privateModeTable[]
-{
-    {    1, ID::applicationCursor    },
-    {    5, ID::reverseVideo         },
-    {    7, ID::autoWrap             },
-    {   66, ID::applicationKeypad   },
-    { 1000, ID::mouseTracking        },
-    { 1002, ID::mouseMotionTracking  },
-    { 1003, ID::mouseAllTracking     },
-    { 1004, ID::focusEvents          },
-    { 1006, ID::mouseSgr             },
-    { 2004, ID::bracketedPaste       },
-    { 9001, ID::win32InputMode       },
-};
-
-/**
- * @brief Applies a private mode number via the lookup table.
- *
- * Searches `privateModeTable` for an entry matching `modeValue`.  If found,
- * calls `State::setMode()` with the corresponding ID and `enable`.
- *
- * @param state      Terminal parameter store to update.
- * @param modeValue  The DECSET/DECRST mode number.
- * @param enable     `true` to set the mode, `false` to reset it.
- *
- * @return `true` if the mode was found in the table and applied;
- *         `false` if the caller must handle it separately.
- *
- * @note READER THREAD only.
- */
-static bool applyPrivateModeTable (State& state, uint16_t modeValue, bool enable) noexcept
-{
-    bool found { false };
-
-    for (const auto& entry : privateModeTable)
-    {
-        if (entry.modeValue == modeValue and not found)
-        {
-            state.setMode (entry.id, enable);
-            found = true;
-        }
-    }
-
-    return found;
-}
-
-/**
- * @brief Handles `CSI ? Pm h` / `CSI ? Pm l` — DEC Private Mode Set/Reset (DECSET/DECRST).
- *
- * Iterates over all parameters in `params` and enables or disables the
- * corresponding private mode.  Most modes are resolved via `applyPrivateModeTable()`.
- *
- * @param params  CSI parameters containing the mode numbers.
- * @param enable  `true` to set the mode (h), `false` to reset it (l).
- *
- * @note READER THREAD only.
- *
- * @see applyPrivateModeTable()
- * @see handleMode()
- * @see setScreen()
- */
-void Parser::handlePrivateMode (const CSI& params, bool enable) noexcept
-{
-    // ?1049h/?1049l re-read activeScreen inline to capture pre-switch / post-switch values.
-    const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
-
-    for (uint8_t i { 0 }; i < params.count; ++i)
-    {
-        const auto modeValue { params.values.at (i) };
-
-        if (applyPrivateModeTable (state, modeValue, enable))
-        {
-            continue;
-        }
-
-        if (modeValue == 6)
-        {
-            state.setMode (ID::originMode, enable);
-            if (enable)
-                cursorSetPosition (scr, 0, 0, state.getRawValue<int> (ID::cols), state.getRawValue<int> (ID::visibleRows));
-        }
-        else if (modeValue == 25)
-        {
-            state.setCursorVisible (scr, enable);
-        }
-        else if (modeValue == 47 or modeValue == 1047)
-        {
-            setScreen (enable);
-        }
-        else if (modeValue == 1049)
-        {
-            if (enable)
-            {
-                saveCursor (state.getRawValue<ActiveScreen> (ID::activeScreen));
-                setScreen (true);
-            }
-            else
-            {
-                setScreen (false);
-                restoreCursor (state.getRawValue<ActiveScreen> (ID::activeScreen));
-            }
-        }
-        else if (modeValue == 2026)
-        {
-            state.setSyncOutput (enable);
-
-            if (enable)
-                state.requestSyncResize();
-        }
-    }
-}
-
-// ============================================================================
-// VT Handler: Mode (SM / RM)
-// ============================================================================
-
-/**
- * @brief Handles `CSI Pm h` / `CSI Pm l` — ANSI Mode Set/Reset (SM / RM).
- *
- * Iterates over all parameters in `params` and enables or disables the
- * corresponding ANSI standard mode.
- *
- * @par Supported modes
- * | Mode | Name | Effect                                                    |
- * |------|------|-----------------------------------------------------------|
- * | 4    | IRM  | Insert mode — characters shift right on input             |
- *
- * @param params  CSI parameters containing the mode numbers.
- * @param enable  `true` to set the mode (h), `false` to reset it (l).
- *
- * @note READER THREAD only.
- *
- * @see handlePrivateMode()
- */
-void Parser::handleMode (const CSI& params, bool enable) noexcept
-{
-    for (uint8_t i { 0 }; i < params.count; ++i)
-    {
-        const auto modeValue { params.values.at (i) };
-
-        switch (modeValue)
-        {
-            case 4:
-                state.setMode (ID::insertMode, enable);
-                break;
-
-            default:
-                break;
-        }
     }
 }
 

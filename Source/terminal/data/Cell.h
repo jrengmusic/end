@@ -1,6 +1,6 @@
 /**
  * @file Cell.h
- * @brief Terminal cell supporting structures: Pen, RowState, getCellKey.
+ * @brief Terminal cell supporting structures: RowState, getCellKey.
  *
  * The grid stores jam::Cell directly so that all colours are resolved ARGB
  * values at write time — no deferred palette lookup at render time.
@@ -44,54 +44,6 @@
 
 namespace Terminal
 { /*____________________________________________________________________________*/
-
-/**
- * @struct Pen
- * @brief Current drawing state applied to newly written cells.
- *
- * The Pen is the terminal's "current attribute" register.  When the parser
- * writes a character to the grid it stamps the active Pen's style, fg, and bg
- * onto the destination Cell.  SGR escape sequences mutate the Pen; they do not
- * retroactively alter already-written cells.
- *
- * ### Theme sentinel
- * `fg` and `bg` default to `juce::Colour{}` (fully transparent, alpha == 0),
- * which the renderer interprets as "use theme default fg/bg".  SGR reset (code 0)
- * restores this state by constructing `Pen {}`.
- *
- * @note Trivially copyable so it can be saved/restored in a MemoryBlock
- *       (e.g. for DECSC / DECRC cursor-save sequences).
- */
-struct Pen
-{
-    /**
-     * @brief Active SGR attribute bitmask.
-     *
-     * Uses the same bit constants as jam::Cell (BOLD, ITALIC, UNDERLINE, STRIKE,
-     * BLINK, INVERSE, DIM).  Copied verbatim into jam::Cell::style when a character
-     * is written.
-     */
-    uint8_t style { 0 };
-
-    /**
-     * @brief Active foreground colour.
-     *
-     * Copied into jam::Cell::fg when a character is written.  A fully transparent
-     * value (alpha == 0) is the theme-default sentinel.
-     */
-    juce::Colour fg {};
-
-    /**
-     * @brief Active background colour.
-     *
-     * Copied into jam::Cell::bg when a character is written.  A fully transparent
-     * value (alpha == 0) is the theme-default sentinel.
-     */
-    juce::Colour bg {};
-};
-
-static_assert (std::is_trivially_copyable_v<Pen>,
-               "Pen must be trivially copyable for MemoryBlock storage");
 
 /**
  * @struct RowState

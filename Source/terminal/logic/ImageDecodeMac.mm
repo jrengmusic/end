@@ -253,8 +253,8 @@ ImageSequence loadImageSequenceNative (const void* data, size_t dataSize) noexce
             {
                 // Non-GIF animated format (APNG, WebP, etc.): each frame from the
                 // codec is the full canvas — no sub-frame compositing required.
-                // TODO: extract per-format delays via kCGImagePropertyAPNGDictionary /
-                //       kCGImagePropertyWebPDictionary; using 100 ms default for now.
+                // Per-format delays via kCGImagePropertyAPNGDictionary /
+                // kCGImagePropertyWebPDictionary not yet extracted; using 100 ms default.
                 const int frameCount { static_cast<int> (nativeFrameCount) };
 
                 CGImageRef firstFrame { CGImageSourceCreateImageAtIndex (source, 0, nullptr) };
@@ -324,7 +324,7 @@ ImageSequence loadImageSequenceNative (const void* data, size_t dataSize) noexce
                                 CGImageRelease (cgImage);
                             }
 
-                            seq.delays[i] = 100;   // TODO: read from format-specific properties
+                            seq.delays[i] = 100;   // Per-format delay properties not yet read; using 100 ms default.
                         }
 
                         seq.width      = canvasW;

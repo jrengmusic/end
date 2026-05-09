@@ -195,7 +195,7 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
                     if (nexus.has (uuid))
                     {
                         // Grid pipeline side resize (stub processor on daemon).
-                        nexus.get (uuid).getProcessor().resized (static_cast<int> (cols), static_cast<int> (rows));
+                        nexus.get (uuid).getProcessor().getState().setDimensions (static_cast<int> (cols), static_cast<int> (rows));
                         // PTY side resize.
                         nexus.get (uuid).resize (static_cast<int> (cols), static_cast<int> (rows));
                     }

@@ -42,7 +42,9 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     {
         const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
-        processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+
+        if (processor.events.contains (Terminal::ID::writeInput))
+            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else if (event.getNumberOfClicks() == 3)
     {
@@ -100,15 +102,16 @@ void Mouse::handleDoubleClick (const juce::MouseEvent& event)
     {
         const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
-        processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+
+        if (processor.events.contains (Terminal::ID::writeInput))
+            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else
     {
         const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
 
         // Word boundary scan reads cell content via the visible row mapping.
-        // TODO: wire through Display's visibleMapping for word selection.
-        // Grid::activeVisibleRow() was removed — word-scan stubbed until
+        // Wire through Display's visibleMapping for word selection when
         // Display exposes a per-frame visibleMapping accessor.
         const int wordStart { cell.x };
         const int wordEnd { cell.x };
@@ -130,7 +133,9 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
     {
         const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (32, cell.x, cell.y, true) };
-        processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+
+        if (processor.events.contains (Terminal::ID::writeInput))
+            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else
     {
@@ -171,7 +176,9 @@ void Mouse::handleUp (const juce::MouseEvent& event)
     {
         const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, false) };
-        processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+
+        if (processor.events.contains (Terminal::ID::writeInput))
+            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else
     {
@@ -225,7 +232,9 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                 for (int i { 0 }; i < scrollLines; ++i)
                 {
                     const auto bytes { processor.encodeMouseEvent (button, cell.x, cell.y, true) };
-                    processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+
+                    if (processor.events.contains (Terminal::ID::writeInput))
+                        processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
                 }
             }
         }
@@ -257,7 +266,9 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                     for (int i { 0 }; i < count; ++i)
                     {
                         const auto bytes { processor.encodeMouseEvent (button, cell.x, cell.y, true) };
-                        processor.writeInput (bytes.toRawUTF8(), static_cast<int> (bytes.getNumBytesAsUTF8()));
+
+                        if (processor.events.contains (Terminal::ID::writeInput))
+                            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
                     }
                 }
             }
