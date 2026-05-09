@@ -2,8 +2,8 @@
  * @file Processor.cpp
  * @brief Implementation of the terminal pipeline orchestrator.
  *
- * Implements Processor — the pipeline half that owns the Parser and references
- * Grid and State owned by Terminal::Session.
+ * Implements Processor — the pipeline half that owns State (the APVTS) and
+ * Parser, and references Grid owned by Terminal::Session.
  * The PTY side (TTY + History) lives in Terminal::Session.
  *
  * ### Thread contexts used in this file
@@ -20,24 +20,26 @@ namespace Terminal
 { /*____________________________________________________________________________*/
 
 /**
- * @brief Constructs the Processor: binds Grid&, State&, then constructs Parser.
+ * @brief Constructs the Processor: binds Grid&, constructs State and Parser.
  *
- * Grid and State are owned by Terminal::Session and must outlive this Processor.
+ * Grid is owned by Terminal::Session and must outlive this Processor.
+ * State is owned by this Processor (the APVTS).
  * UUID is provided by the caller — no internal generation.  The
  * `parser->writeToHost` callback is initially null; the owner (`Nexus`)
  * wires it to the appropriate sink before bytes start flowing.
  *
- * @param gridRef   Live cell buffer owned by Terminal::Session.
- * @param stateRef  Atomic terminal parameter store owned by Terminal::Session.
- * @param uuid      Stable UUID for this Processor — generated once by the caller.
+ * @param gridRef  Live cell buffer owned by Terminal::Session.
+ * @param cols     Initial terminal column count.
+ * @param rows     Initial terminal row count.
+ * @param uuid     Stable UUID for this Processor — generated once by the caller.
  *
  * @note MESSAGE THREAD — must be constructed on the message thread.
  */
-Processor::Processor (Grid& gridRef, State& stateRef, const juce::String& uuid)
-    : state (stateRef)
-    , grid (gridRef)
+Processor::Processor (Grid& gridRef, int cols, int rows, const juce::String& uuid)
+    : grid (gridRef)
     , uuid (uuid)
 {
+    state.setDimensions (cols, rows);
     parser = std::make_unique<Parser> (state, grid);
 
     parser->onClipboardChanged = [this] (const juce::String& c)

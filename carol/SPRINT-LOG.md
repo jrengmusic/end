@@ -21,10 +21,10 @@
 - `Source/terminal/logic/ParserCSI.cpp` — scrollUp/scrollDown: grid.push→grid.scrollUp/scrollDown + Cell::erase fill, doxygen updated
 - `Source/terminal/logic/ParserESC.cpp` — IND/NEL/RI: grid.push→grid.scrollUp/scrollDown, DECALN: grid.push→getWritePointer, doxygen updated
 - `Source/terminal/logic/ParserEdit.cpp` — eraseInDisplay/eraseInLine: grid.push→grid.clear + Cell::erase fill, shiftLines: grid.push→grid.scrollUp/scrollDown, shiftCellsRight/removeCells/eraseCells: grid.push→getWritePointer + memmove, setScreen: grid.push→grid.setScreen, doxygen updated
-- `Source/terminal/logic/Session.h` — Grid + State as value members (before Processor), includes Grid.h + State.h
-- `Source/terminal/logic/Session.cpp` — grid.setSize + state.setDimensions before Processor construction, direct state access in lambdas
-- `Source/terminal/logic/Processor.h` — State& + Grid& (was value members), constructor takes Grid& + State&, doxygen updated (Session-owned)
-- `Source/terminal/logic/Processor.cpp` — constructor receives refs, resized() calls grid.setSize
+- `Source/terminal/logic/Session.h` — Grid as value member (before Processor), includes Grid.h
+- `Source/terminal/logic/Session.cpp` — grid.setSize before Processor construction, State access via processor->getState()
+- `Source/terminal/logic/Processor.h` — State (value, the APVTS) + Grid& (ref from Session), constructor takes Grid& + cols + rows
+- `Source/terminal/logic/Processor.cpp` — constructor receives Grid ref, owns State, resized() calls grid.setSize
 - `Source/terminal/rendering/Screen.h` — makeLayout removed, appendScrollbackRow/appendScrollbackRows/updateVisibleRow/repaintContent added, scrollbackRows member, Command.h include removed
 - `Source/terminal/rendering/Screen.cpp` — makeLayout (entire Command switch) removed, batch scrollback append (single memmove per frame), row-receive implementation, ContentView ownership fixed (true), destructor order corrected
 - `Source/component/TerminalDisplay.h` — lastDimensions→lastCols/lastRows
@@ -43,7 +43,7 @@
 ### Problems Solved
 - **Grid conflated transport with storage** — FIFO replaced with AudioBuffer-pattern live cell buffer. Parser writes in-place, Display reads dirty rows. Clean unidirectional data flow.
 - **Command indirection** — 17-variant Command type eliminated. Parser writes Grid directly. No serialization/deserialization overhead.
-- **Ownership was wrong** — Grid+State moved from Processor to Session. Matches AudioProcessor/AudioBuffer pattern (host owns buffer, processor receives reference).
+- **Ownership was wrong** — Grid moved from Processor to Session (host owns AudioBuffer). State stays on Processor (AudioProcessor owns APVTS). Parser receives both by reference.
 - **Scroll-off data loss** — Ring buffer with scrollMargin captures scroll-off rows for Display to drain into Screen scrollback.
 - **Thread safety** — memory_order_release on Grid writes, memory_order_acquire on Display reads. Correct on ARM (Apple Silicon).
 - **O(n) per-row scrollback append** — Batched to single memmove per VBlank frame via appendScrollbackRows.

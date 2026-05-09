@@ -36,7 +36,6 @@
 #include <memory>
 
 #include "../data/History.h"
-#include "../data/State.h"
 #include "Grid.h"
 #include "Processor.h"
 
@@ -360,7 +359,6 @@ public:
 
 private:
     Grid grid;                                    ///< Live cell buffer — the AudioBuffer.
-    State state;                                  ///< Atomic terminal parameter store.
     std::unique_ptr<TTY> tty;
     History history;
     std::unique_ptr<Terminal::Processor> processor;
