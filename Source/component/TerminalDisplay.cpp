@@ -1,5 +1,6 @@
 #include "TerminalDisplay.h"
 #include <jam_tui/jam_tui.h>
+#include <array>
 
 Terminal::Display::Display (Terminal::Processor& processorToUse)
     : processor (processorToUse)
@@ -10,7 +11,7 @@ Terminal::Display::Display (Terminal::Processor& processorToUse)
 {
     addAndMakeVisible (screen);
     screen.setScrollBarThickness (config.display.scrollbarWidth);
-    // Screen receives content via makeLayout() from Grid FIFO drain
+    // Screen receives content via appendScrollbackRow / updateVisibleRow from Grid
 
     setWantsKeyboardFocus (true);
     addKeyListener (this);
@@ -101,9 +102,10 @@ void Terminal::Display::resized()
                 if (newCols > 0 and newRows > 0)
                 {
                     // Resize debounce — only act when grid dimensions actually change
-                    if (newCols != lastDimensions.first or newRows != lastDimensions.second)
+                    if (newCols != lastCols or newRows != lastRows)
                     {
-                        lastDimensions = { newCols, newRows };
+                        lastCols = newCols;
+                        lastRows = newRows;
                         screen.setDimensions (newCols, newRows);
                         processor.resized (newCols, newRows);
 
@@ -151,30 +153,58 @@ void Terminal::Display::handleAsyncUpdate()
 
 void Terminal::Display::onVBlank()
 {
-    const bool dirty { state.consumeSnapshotDirty() };
+    const bool stateDirty { state.consumeSnapshotDirty() };
 
-    if (dirty)
-    {
+    if (stateDirty)
         state.refresh();
 
-        // Drain Grid FIFO → screen.makeLayout() in batches
-        static constexpr int batchSize { 256 };
-        static constexpr int maxOpsPerFrame { 8192 };
-        Terminal::Command batch[batchSize];
-        int totalDrained { 0 };
+    // Always check Grid — Parser may write cells without changing State
+    const int scrolledRows { grid.getNumScrolledRows() };
+    const uint64_t dirtyMask { grid.consumeDirtyRows() };
+    const bool gridDirty { scrolledRows > 0 or dirtyMask != 0 };
 
-        int drained { grid.drain (batch, batchSize) };
-
-        while (drained > 0 and totalDrained < maxOpsPerFrame)
+    if (gridDirty)
+    {
+        // 1. Drain scroll-off rows
+        if (scrolledRows > 0)
         {
-            screen.makeLayout (batch, drained);
-            totalDrained += drained;
-            drained = grid.drain (batch, batchSize);
+            const int numCols { grid.getNumCols() };
+            static constexpr int maxBatchRows { 512 };
+            const int batchCount { juce::jmin (scrolledRows, maxBatchRows) };
+            std::array<const jam::Cell*, maxBatchRows> scrolledPtrs {};
+
+            for (int i { 0 }; i < batchCount; ++i)
+                scrolledPtrs.at (static_cast<size_t> (i)) = grid.getScrolledReadPointer (i);
+
+            screen.appendScrollbackRows (scrolledPtrs.data(), batchCount, numCols);
+            grid.consumeScrolledRows (batchCount);
         }
 
-        // Caret position — Display reads State, tells Screen
-        const int cols { lastDimensions.first };
-        const int rows { lastDimensions.second };
+        // 2. Read dirty rows
+        if (dirtyMask != 0)
+        {
+            const int numRows { grid.getNumRows() };
+            const int numCols { grid.getNumCols() };
+
+            for (int r { 0 }; r < numRows and r < 64; ++r)
+            {
+                if (dirtyMask & (uint64_t (1) << r))
+                {
+                    const jam::Cell* rowData { grid.getReadPointer (r) };
+                    screen.updateVisibleRow (r, rowData, numCols);
+                }
+            }
+        }
+
+        // 3. Trigger repaint
+        screen.repaintContent();
+    }
+
+    // 4. Caret position — always update when State or Grid changed
+    if (stateDirty or gridDirty)
+    {
+        const int cols { grid.getNumCols() };
+        const int rows { grid.getNumRows() };
 
         if (cols > 0 and rows > 0)
         {

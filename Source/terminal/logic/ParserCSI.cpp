@@ -562,9 +562,9 @@ void Parser::moveCursorTo (int row, int col) noexcept
 /**
  * @brief Handles `CSI Pn S` — Scroll Up (SU).
  *
- * Pushes Command::DeleteLines at scrollTop to achieve scroll-up in the active
- * scrolling region.  Lines scrolled off the top are discarded; blank lines are
- * inserted at the bottom.  The cursor position is not changed.
+ * Scrolls the active scroll region upward via Grid.  Lines scrolled off the
+ * top are discarded; blank lines are inserted at the bottom.  The cursor
+ * position is not changed.
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the line count.
  *
@@ -578,15 +578,29 @@ void Parser::scrollUp (const CSI& params) noexcept
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
 
-    grid.push (Command { Command::Type::DeleteLines, {}, stamp.bg, clampedCount, scrollTop, 0 });
+    grid.scrollUp (scrollTop, bottom, clampedCount);
+
+    if (stamp.bg.getAlpha() > 0)
+    {
+        const int cols { state.getRawValue<int> (ID::cols) };
+        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+
+        for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
+        {
+            jam::Cell* row { grid.getWritePointer (r) };
+
+            for (int c { 0 }; c < cols; ++c)
+                row[c] = fill;
+        }
+    }
 }
 
 /**
  * @brief Handles `CSI Pn T` — Scroll Down (SD).
  *
- * Pushes Command::InsertLines at scrollTop to achieve scroll-down in the active
- * scrolling region.  Lines scrolled off the bottom are discarded; blank lines
- * are inserted at the top.  The cursor position is not changed.
+ * Scrolls the active scroll region downward via Grid.  Lines scrolled off the
+ * bottom are discarded; blank lines are inserted at the top.  The cursor
+ * position is not changed.
  *
  * @param params  CSI parameters.  `params.param(0, 1)` is the line count.
  *
@@ -600,7 +614,21 @@ void Parser::scrollDown (const CSI& params) noexcept
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrollTop + 1) };
 
-    grid.push (Command { Command::Type::InsertLines, {}, stamp.bg, clampedCount, scrollTop, 0 });
+    grid.scrollDown (scrollTop, bottom, clampedCount);
+
+    if (stamp.bg.getAlpha() > 0)
+    {
+        const int cols { state.getRawValue<int> (ID::cols) };
+        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+
+        for (int r { scrollTop }; r < scrollTop + clampedCount; ++r)
+        {
+            jam::Cell* row { grid.getWritePointer (r) };
+
+            for (int c { 0 }; c < cols; ++c)
+                row[c] = fill;
+        }
+    }
 }
 
 /**

@@ -1,5 +1,64 @@
 # SPRINT-LOG
 
+## Sprint 10: Grid Redesign — AudioBuffer Analog
+
+**Date:** 2026-05-09
+**Duration:** 04:00
+
+### Agents Participated
+- COUNSELOR: primary — RFC intake, PLAN production, orchestration, audit resolution
+- Pathfinder (x4): codebase survey (Grid/Parser/Session/Display/Screen), Parser spatial logic, grid.push sites, stale reference sweep
+- Engineer (x8): Step 1 UTF-8 fast path, Step 2 Grid class, Step 3 ownership, Step 4 Parser rewire, Step 5 Display+Screen, Step 6 cleanup, audit fixes (9 findings), clean sweep (9 remaining findings)
+- Auditor: comprehensive CONTRACT audit (19 findings, all resolved)
+
+### Files Modified (16 total)
+- `jam/jam_tui/cell/jam_cell.h` — added `Cell::erase(Colour bg)` static factory (SSOT for fill cells, replaced 16 magic aggregate literals)
+- `Source/terminal/logic/Grid.h` — complete rewrite: AudioBuffer-pattern cell buffer, HeapBlock<char,true>, std::array<Buffer,2>, ring scroll, dirty tracking (atomic<uint64_t>), scroll-off capture, simdCellAlignment constant
+- `Source/terminal/logic/Grid.cpp` — complete rewrite: setSize, getReadPointer/getWritePointer, clear, scrollUp/scrollDown (ring + memmove), consumeDirtyRows (acquire), markDirty (release), scroll-off read/consume
+- `Source/terminal/logic/Parser.h` — doxygen updated (Grid references: FIFO→AudioBuffer, push→write, SSOT param docs)
+- `Source/terminal/logic/Parser.cpp:64` — stale @param grid doxygen updated
+- `Source/terminal/logic/ParserVT.cpp` — processGroundBlock UTF-8 fast path (width-1 non-combining), flushPrintRun→flushPrintCodepoint, all grid.push→Grid writes (print/scroll/wrap), utf8LeadLength lookup table, stale TODO/doxygen updated, dead ignoreUnused removed
+- `Source/terminal/logic/ParserCSI.cpp` — scrollUp/scrollDown: grid.push→grid.scrollUp/scrollDown + Cell::erase fill, doxygen updated
+- `Source/terminal/logic/ParserESC.cpp` — IND/NEL/RI: grid.push→grid.scrollUp/scrollDown, DECALN: grid.push→getWritePointer, doxygen updated
+- `Source/terminal/logic/ParserEdit.cpp` — eraseInDisplay/eraseInLine: grid.push→grid.clear + Cell::erase fill, shiftLines: grid.push→grid.scrollUp/scrollDown, shiftCellsRight/removeCells/eraseCells: grid.push→getWritePointer + memmove, setScreen: grid.push→grid.setScreen, doxygen updated
+- `Source/terminal/logic/Session.h` — Grid + State as value members (before Processor), includes Grid.h + State.h
+- `Source/terminal/logic/Session.cpp` — grid.setSize + state.setDimensions before Processor construction, direct state access in lambdas
+- `Source/terminal/logic/Processor.h` — State& + Grid& (was value members), constructor takes Grid& + State&, doxygen updated (Session-owned)
+- `Source/terminal/logic/Processor.cpp` — constructor receives refs, resized() calls grid.setSize
+- `Source/terminal/rendering/Screen.h` — makeLayout removed, appendScrollbackRow/appendScrollbackRows/updateVisibleRow/repaintContent added, scrollbackRows member, Command.h include removed
+- `Source/terminal/rendering/Screen.cpp` — makeLayout (entire Command switch) removed, batch scrollback append (single memmove per frame), row-receive implementation, ContentView ownership fixed (true), destructor order corrected
+- `Source/component/TerminalDisplay.h` — lastDimensions→lastCols/lastRows
+- `Source/component/TerminalDisplay.cpp` — onVBlank rewritten: Grid dirty checked independently of State, batch scroll-off drain, dirty row copy, caret uses grid.getNumCols/Rows directly
+
+### Deleted (3 total)
+- `Source/terminal/data/Command.h` — Command FIFO type eliminated
+- `PLAN-viewport-redesign.md` — superseded by PLAN-grid-redesign.md
+- `PLAN-nude-screen.md` — superseded by PLAN-grid-redesign.md
+
+### Alignment Check
+- [x] BLESSED principles followed (B: Session owns Grid+State RAII, Parser borrows ref; L: Grid one class one allocation; E: getWritePointer/getReadPointer no magic, acquire/release ordering; S-SSOT: Cell::erase factory, Grid=live cells, State=cursor/modes, Cells=scrollback; S-Stateless: Grid dumb buffer; E-Encap: ring/dirty/dual-screen internal to Grid; D: same bytes→same Grid→same Screen→same pixels)
+- [x] NAMES.md adhered (Cell::erase — VT spec terminology, semantic; lastCols/lastRows — semantic over .first/.second; simdCellAlignment — named constant; utf8LeadLength — descriptive)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **Grid conflated transport with storage** — FIFO replaced with AudioBuffer-pattern live cell buffer. Parser writes in-place, Display reads dirty rows. Clean unidirectional data flow.
+- **Command indirection** — 17-variant Command type eliminated. Parser writes Grid directly. No serialization/deserialization overhead.
+- **Ownership was wrong** — Grid+State moved from Processor to Session. Matches AudioProcessor/AudioBuffer pattern (host owns buffer, processor receives reference).
+- **Scroll-off data loss** — Ring buffer with scrollMargin captures scroll-off rows for Display to drain into Screen scrollback.
+- **Thread safety** — memory_order_release on Grid writes, memory_order_acquire on Display reads. Correct on ARM (Apple Silicon).
+- **O(n) per-row scrollback append** — Batched to single memmove per VBlank frame via appendScrollbackRows.
+- **UTF-8 slow path** — processGroundBlock extended for width-1 non-combining UTF-8 codepoints (no DFA dispatch overhead).
+- **Fill cell SSOT violation** — 16 magic aggregate literals replaced with Cell::erase() static factory.
+- **ContentView memory leak** — Viewport ownership flag corrected, destructor order fixed.
+- **Dirty gate coupling** — Grid dirty rows checked independently of State dirty flag.
+- **Caret shadow state** — lastDimensions eliminated from caret calculation, uses grid.getNumCols/Rows directly.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
 ## Handoff to COUNSELOR: Viewport Redesign — Nude Screen
 
 **From:** COUNSELOR
@@ -2264,7 +2323,7 @@ None.
 
 ### Problems Solved
 - **Mac-only line-wrap bug (DEBT-20260415T123816)**: typing on row=1 with multi-line OMP prompt caused overflow UP to row=0 (OMP decoration row) instead of wrap DOWN to row=2. Root cause: macOS launchd inherits `LANG=UTF-8` (invalid locale name) into END's process environment. Without LC_CTYPE override, child shell's `setlocale` falls through to LANG, fails validation, falls back to "C" (= US-ASCII). zsh's prompt-width counter then byte-counts UTF-8 chars: `╰─ ` (`\xe2\x95\xb0 \xe2\x94\x80 \x20`) = 7 bytes = 7 "cells" in zsh's broken model. zsh's reposition math (`CSI A + CSI 20 D` from physical (1, 27) → physical (0, 7)) targeted byte-offset 7 of zsh's frame, which mapped to the decoration row. Setting LC_CTYPE=en_US.UTF-8 in child env restores zsh's UTF-8 multi-byte mode → `╰─ ` correctly counted as 3 cells → reposition math correct
-- **Parser-shadow-state hypothesis (prior counselor's framing)**: ruled out via comprehensive Pathfinder survey. No persistent cursor/wrapPending/scroll shadow exists on Parser; only `GroundOps::Cursor c` stack-local in `processGroundChunk` (written back to State unconditionally on `consumed > 0`) and `savedCursor[2]` for DECSC/DECRC (not on this path). Bug was locale-side, not parser-side
+- **Parser-shadow-state hypothesis (prior counselor's framing)**: ruled out via comprehensive Pathfinder survey. No persistent cursor/wrapPending/scroll shadow exists on Parser; only `GroundOps::Cursor c` stack-local in `processGroundBlock` (written back to State unconditionally on `consumed > 0`) and `savedCursor[2]` for DECSC/DECRC (not on this path). Bug was locale-side, not parser-side
 - **`LANG=en_US.UTF-8` force-setting in child** (added by prior counselor): removed. Forcing LANG overrides user's intentional message/numeric/time locale — incorrect surface
 
 ### Debts Paid
@@ -2325,7 +2384,7 @@ When user types enough chars on row=1 to approach the right margin, the next cha
 - Is there actually a parser-side shadow state COUNSELOR missed? Re-read with fresh eyes recommended.
 
 ### Next Steps
-1. Fresh COUNSELOR session re-reads Parser.cpp / ParserVT.cpp / ParserCSI.cpp / ParserOps.cpp / ParserESC.cpp looking specifically for: any write to cursor/wrapPending/scroll margins NOT via `state.setCursor*` / `state.setWrapPending` / `state.setScroll*`. Any local cursor cache that persists beyond one `processGroundChunk` call. Any parser member field that duplicates `Terminal::State` cursor data.
+1. Fresh COUNSELOR session re-reads Parser.cpp / ParserVT.cpp / ParserCSI.cpp / ParserOps.cpp / ParserESC.cpp looking specifically for: any write to cursor/wrapPending/scroll margins NOT via `state.setCursor*` / `state.setWrapPending` / `state.setScroll*`. Any local cursor cache that persists beyond one `processGroundBlock` call. Any parser member field that duplicates `Terminal::State` cursor data.
 2. If no shadow state found, test OSC 133;B emission (modify `Source/terminal/shell/zsh_end_integration.zsh` to emit `\033]133;B\007` at end of PS1 via `zle-line-init`) AND extend `handleOsc133` in `ParserESC.cpp:849` to record input-start-row. Then clamp CUU to not cross this row.
 3. Reference log files (preserved from bug repro): `bytes.log`, `output.log`, `screen.log`, `state.log` at project root. Delete only after next session extracts what it needs.
 

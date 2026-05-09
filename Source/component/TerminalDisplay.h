@@ -64,7 +64,8 @@ private:
     Terminal::Screen screen;  // initialized in constructor init list with processorToUse.getState()
     juce::VBlankAttachment vblank;
 
-    std::pair<int, int> lastDimensions { 0, 0 };  ///< Previous (cols, rows) for resize debounce.
+    int lastCols { 0 };    ///< Previous column count for resize debounce.
+    int lastRows { 0 };    ///< Previous row count for resize debounce.
     int lastActiveScreen { 0 };               ///< Previous active screen index for change detection.
 
     void onVBlank();

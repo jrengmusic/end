@@ -1,10 +1,11 @@
 /**
  * @file Session.h
- * @brief PTY-side terminal session: owns TTY, byte history, and Processor.
+ * @brief PTY-side terminal session: owns TTY, byte history, Grid, State, and Processor.
  *
  * `Terminal::Session` is the data-source half of a terminal connection.  It owns:
  * - The PTY (`TTY`) that communicates with the shell process.
  * - A `Terminal::History` ring buffer that records every byte the shell emits.
+ * - The `Grid` live cell buffer and `State` atomic parameter store.
  * - The `Terminal::Processor` pipeline (Parser → Grid → Display).
  *
  * ### Data flow
@@ -35,6 +36,8 @@
 #include <memory>
 
 #include "../data/History.h"
+#include "../data/State.h"
+#include "Grid.h"
 #include "Processor.h"
 
 class TTY;
@@ -356,6 +359,8 @@ public:
     Terminal::Processor& getProcessor() noexcept;
 
 private:
+    Grid grid;                                    ///< Live cell buffer — the AudioBuffer.
+    State state;                                  ///< Atomic terminal parameter store.
     std::unique_ptr<TTY> tty;
     History history;
     std::unique_ptr<Terminal::Processor> processor;

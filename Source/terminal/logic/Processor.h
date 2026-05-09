@@ -1,9 +1,9 @@
 /**
  * @file Processor.h
- * @brief Terminal pipeline orchestrator: owns State, Grid, and Parser.
+ * @brief Terminal pipeline orchestrator: owns Parser, references Grid and State.
  *
  * `Processor` is the pipeline half of the terminal emulator.  It owns the
- * three core pipeline components and routes bytes through them:
+ * Parser and routes bytes through the Grid and State received from Session:
  *
  * ```
  *  bytes → Processor::process → Parser → State / Grid → Display
@@ -50,9 +50,10 @@ namespace Terminal
 class Display;
 /**
  * @class Processor
- * @brief Terminal pipeline orchestrator — owns State, Grid, and Parser.
+ * @brief Terminal pipeline orchestrator — owns the Parser, receives Grid& and State& from Session.
  *
- * Processor owns the pipeline only.  It has no knowledge of TTY, PTY, or IPC.
+ * Processor owns the Parser only.  Grid and State are owned by Terminal::Session
+ * and passed by reference at construction.  Processor has no knowledge of TTY, PTY, or IPC.
  * Bytes arrive via `process()` from whichever source owns the byte stream
  * (local `Terminal::Session` callback, IPC byte-forward, or history replay).
  *
@@ -85,17 +86,17 @@ public:
     /**
      * @brief Constructs the Processor and wires the parser callbacks.
      *
-     * Constructs State, Grid, and Parser.  UUID is provided by the caller — no
-     * internal generation.  Call `setHostWriter()` immediately after construction
-     * to route parser responses (e.g. cursor-position reports) to the appropriate
-     * sink.
+     * Receives Grid and State by reference from the owning Session, then constructs
+     * Parser.  UUID is provided by the caller — no internal generation.
+     * Call `setHostWriter()` immediately after construction to route parser
+     * responses (e.g. cursor-position reports) to the appropriate sink.
      *
-     * @param cols  Initial terminal column count.
-     * @param rows  Initial terminal row count.
-     * @param uuid  Stable UUID for this Processor — generated once by the caller.
+     * @param grid   Live cell buffer owned by Terminal::Session.
+     * @param state  Atomic terminal parameter store owned by Terminal::Session.
+     * @param uuid   Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
-    Processor (int cols, int rows, const juce::String& uuid);
+    Processor (Grid& grid, State& state, const juce::String& uuid);
 
     /**
      * @brief Destroys the Processor.
@@ -186,28 +187,28 @@ public:
 
     /**
      * @brief Returns a mutable reference to the terminal parameter store.
-     * @return Mutable reference to the owned `State` object.
+     * @return Mutable reference to the Session-owned `State` object.
      * @note MESSAGE THREAD only.
      */
     State& getState() noexcept;
 
     /**
      * @brief Returns a const reference to the terminal parameter store.
-     * @return Const reference to the owned `State` object.
+     * @return Const reference to the Session-owned `State` object.
      * @note MESSAGE THREAD only.
      */
     const State& getState() const noexcept;
 
     /**
      * @brief Returns a mutable reference to the ring-buffer cell grid.
-     * @return Mutable reference to the owned `Grid` object.
+     * @return Mutable reference to the Session-owned `Grid` object.
      * @note MESSAGE THREAD only.
      */
     Grid& getGrid() noexcept;
 
     /**
      * @brief Returns a const reference to the ring-buffer cell grid.
-     * @return Const reference to the owned `Grid` object.
+     * @return Const reference to the Session-owned `Grid` object.
      * @note MESSAGE THREAD only.
      */
     const Grid& getGrid() const noexcept;
@@ -297,11 +298,11 @@ public:
 
 private:
     //==============================================================================
-    /** @brief Terminal parameter store. */
-    State state;
+    /** @brief Terminal parameter store — owned by Terminal::Session. */
+    State& state;
 
-    /** @brief Ring-buffer cell grid with dual-screen and dirty tracking. */
-    Grid grid;
+    /** @brief Ring-buffer cell grid with dual-screen and dirty tracking — owned by Terminal::Session. */
+    Grid& grid;
 
     /** @brief Stable UUID identifying this Processor across process boundaries. */
     const juce::String uuid;

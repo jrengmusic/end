@@ -1,7 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../../lua/Engine.h"
-#include "../data/Command.h"
 #include "../data/State.h"
 #include <jam_gui/text_editor/jam_caret_component.h>
 
@@ -9,7 +8,7 @@ namespace Terminal
 { /*____________________________________________________________________________*/
 
 /**
- * @brief Cell grid renderer — applies Commands to a growing Cells document
+ * @brief Cell grid renderer — receives row data from Grid via Display
  *        and renders via the Glyph atlas pipeline.
  *
  * Owns a Viewport for scrollback. ContentView (inner component) does the
@@ -49,8 +48,18 @@ public:
     /** @brief Sets terminal dimensions. Called by Display on resize. */
     void setDimensions (int newCols, int newRows) noexcept;
 
-    /** @brief Applies Commands to the active Cells buffer, shapes, and repaints. */
-    void makeLayout (const Command* commands, int count) noexcept;
+    /** @brief Appends multiple scroll-off rows to the scrollback region. Called by Display.
+     *  Performs a single memmove for all rows (O(n) per frame, not per row). */
+    void appendScrollbackRows (const jam::Cell* const* rows, int rowCount, int numCols) noexcept;
+
+    /** @brief Appends a single scroll-off row. Convenience wrapper. */
+    void appendScrollbackRow (const jam::Cell* src, int numCols) noexcept;
+
+    /** @brief Updates a visible row from Grid data. Called by Display for dirty rows. */
+    void updateVisibleRow (int row, const jam::Cell* src, int numCols) noexcept;
+
+    /** @brief Triggers reshaping and repainting. Called by Display after updating rows. */
+    void repaintContent() noexcept;
 
     /** @brief Sets the active screen buffer. Called by Display on screen change. */
     void setActive (int index) noexcept;
@@ -75,7 +84,8 @@ private:
     std::unique_ptr<jam::CaretComponent> caret;
 
     jam::Owner<jam::Cells> cells;
-    int activeScreen { 0 };
+    int activeScreen   { 0 };
+    int scrollbackRows { 0 };  ///< Number of scrollback rows stored before visible rows.
 
     jam::Glyph::ShapedText shapedText;
     jam::Glyph::Graphics glyphGraphics;

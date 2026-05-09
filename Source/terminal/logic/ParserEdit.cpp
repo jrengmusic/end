@@ -8,8 +8,7 @@
  * inserting and deleting characters within a line, and switching between the
  * normal and alternate screen buffers.
  *
- * All operations push Command objects to the Grid FIFO.  Screen applies them
- * on the message thread.
+ * All operations write directly to the Grid cell buffer on the reader thread.
  *
  * ## Operations implemented
  *
@@ -25,13 +24,14 @@
  *
  * @note All functions in this file run on the READER THREAD only.
  *
- * @see Grid      — SPSC FIFO receiving Command objects
+ * @see Grid      — ring-buffer cell storage with dirty tracking
  * @see State     — terminal parameter store supplying cursor position and scroll region
  * @see Parser.h  — class declaration and full method documentation
  */
 
 #include "Parser.h"
 #include "Grid.h"
+#include <cstring>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -43,10 +43,9 @@ namespace Terminal
 /**
  * @brief Handles `CSI Ps J` — Erase in Display (ED).
  *
- * Pushes a single Command::EraseInDisplay with the erase mode.  Screen applies
- * multi-row logic.  For modes 2 and 3, `State::queueImageErase()` is called so
- * the renderer evicts all image placements.  Mode 3 additionally pushes
- * Command::ClearScrollback.
+ * Clears cells directly in Grid.  For modes 2 and 3, `State::queueImageErase()`
+ * is called so the renderer evicts all image placements.  Mode 3 additionally
+ * calls `state.setSnapshotDirty()`.
  *
  * @par Mode table
  *
@@ -76,27 +75,112 @@ void Parser::eraseInDisplay (int mode) noexcept
     const int absRowLast     { scrollbackUsed + visibleRows - 1 };
     const int cursorRow      { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol      { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+    const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+    const bool hasFill { stamp.bg.getAlpha() > 0 };
 
     switch (mode)
     {
         case 0:
-        case 1:
-        case 2:
-            grid.push (Command { Command::Type::EraseInDisplay, {}, stamp.bg, mode, cursorRow, cursorCol });
+        {
+            // Cursor to end of screen
+            // Clear rest of cursor row
+            if (hasFill)
+            {
+                jam::Cell* row { grid.getWritePointer (cursorRow) };
+
+                for (int c { cursorCol }; c < cols; ++c)
+                    row[c] = fill;
+            }
+            else
+            {
+                grid.clear (cursorRow, cursorCol, cols - cursorCol);
+            }
+
+            // Clear rows below cursor
+            for (int r { cursorRow + 1 }; r < visibleRows; ++r)
+            {
+                if (hasFill)
+                {
+                    jam::Cell* row { grid.getWritePointer (r) };
+
+                    for (int c { 0 }; c < cols; ++c)
+                        row[c] = fill;
+                }
+                else
+                {
+                    grid.clear (r);
+                }
+            }
+
             break;
+        }
+
+        case 1:
+        {
+            // Start of screen to cursor
+            for (int r { 0 }; r < cursorRow; ++r)
+            {
+                if (hasFill)
+                {
+                    jam::Cell* row { grid.getWritePointer (r) };
+
+                    for (int c { 0 }; c < cols; ++c)
+                        row[c] = fill;
+                }
+                else
+                {
+                    grid.clear (r);
+                }
+            }
+
+            // Clear cursor row up to and including cursor
+            if (hasFill)
+            {
+                jam::Cell* row { grid.getWritePointer (cursorRow) };
+
+                for (int c { 0 }; c <= cursorCol; ++c)
+                    row[c] = fill;
+            }
+            else
+            {
+                grid.clear (cursorRow, 0, cursorCol + 1);
+            }
+
+            break;
+        }
+
+        case 2:
+        {
+            // Entire screen
+            if (hasFill)
+            {
+                for (int r { 0 }; r < visibleRows; ++r)
+                {
+                    jam::Cell* row { grid.getWritePointer (r) };
+
+                    for (int c { 0 }; c < cols; ++c)
+                        row[c] = fill;
+                }
+            }
+            else
+            {
+                grid.clear();
+            }
+
+            state.queueImageErase (absRowTop, 0, absRowLast, cols - 1);
+            break;
+        }
 
         case 3:
-            grid.push (Command { Command::Type::ClearScrollback, {}, {}, 0, 0, 0 });
+        {
+            // Clear scrollback — set State flag for Display to handle
+            state.setSnapshotDirty();
             state.queueImageErase (0, 0, absRowLast, cols - 1);
             break;
+        }
 
         default:
             break;
-    }
-
-    if (mode == 2)
-    {
-        state.queueImageErase (absRowTop, 0, absRowLast, cols - 1);
     }
 }
 
@@ -107,9 +191,8 @@ void Parser::eraseInDisplay (int mode) noexcept
 /**
  * @brief Handles `CSI Ps K` — Erase in Line (EL).
  *
- * Pushes a single Command::EraseInLine with the erase mode.  Screen applies
- * the operation to the cursor row.  EL is a cell-layer operation — the image
- * layer is not affected.
+ * Clears cells directly in Grid on the cursor row.  EL is a cell-layer
+ * operation — the image layer is not affected.
  *
  * @par Mode table
  *
@@ -130,16 +213,64 @@ void Parser::eraseInDisplay (int mode) noexcept
 void Parser::eraseInLine (int mode) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+    const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+    const bool hasFill { stamp.bg.getAlpha() > 0 };
 
     switch (mode)
     {
         case 0:
-        case 1:
-        case 2:
-            grid.push (Command { Command::Type::EraseInLine, {}, stamp.bg, mode, cursorRow, cursorCol });
+        {
+            if (hasFill)
+            {
+                jam::Cell* row { grid.getWritePointer (cursorRow) };
+
+                for (int c { cursorCol }; c < cols; ++c)
+                    row[c] = fill;
+            }
+            else
+            {
+                grid.clear (cursorRow, cursorCol, cols - cursorCol);
+            }
+
             break;
+        }
+
+        case 1:
+        {
+            if (hasFill)
+            {
+                jam::Cell* row { grid.getWritePointer (cursorRow) };
+
+                for (int c { 0 }; c <= cursorCol; ++c)
+                    row[c] = fill;
+            }
+            else
+            {
+                grid.clear (cursorRow, 0, cursorCol + 1);
+            }
+
+            break;
+        }
+
+        case 2:
+        {
+            if (hasFill)
+            {
+                jam::Cell* row { grid.getWritePointer (cursorRow) };
+
+                for (int c { 0 }; c < cols; ++c)
+                    row[c] = fill;
+            }
+            else
+            {
+                grid.clear (cursorRow);
+            }
+
+            break;
+        }
 
         default:
             break;
@@ -186,10 +317,9 @@ void Parser::shiftLinesUp (int count) noexcept { shiftLines (count, true); }
 /**
  * @brief Shared implementation for Insert Lines (IL) and Delete Lines (DL).
  *
- * Validates that the cursor is within the active scroll region, then pushes a
- * single Command::InsertLines or Command::DeleteLines to the Grid FIFO.
- * Screen applies the multi-row shift.  After pushing, the cursor column is
- * reset to 0 and the wrap-pending flag is cleared.
+ * Validates that the cursor is within the active scroll region, then scrolls
+ * rows directly in Grid.  After scrolling, the cursor column is reset to 0
+ * and the wrap-pending flag is cleared.
  *
  * @par Scroll region guard
  * The operation is a no-op if:
@@ -215,9 +345,42 @@ void Parser::shiftLines (int count, bool up) noexcept
     if (cursorRow >= scrollTop and cursorRow <= bottom)
     {
         const int clampedCount { juce::jmin (count, bottom - cursorRow + 1) };
-        const Command::Type cmdType { up ? Command::Type::DeleteLines : Command::Type::InsertLines };
 
-        grid.push (Command { cmdType, {}, stamp.bg, clampedCount, cursorRow, 0 });
+        if (up)
+        {
+            grid.scrollUp (cursorRow, bottom, clampedCount);
+        }
+        else
+        {
+            grid.scrollDown (cursorRow, bottom, clampedCount);
+        }
+
+        if (stamp.bg.getAlpha() > 0)
+        {
+            const int cols { state.getRawValue<int> (ID::cols) };
+            const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+
+            if (up)
+            {
+                for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
+                {
+                    jam::Cell* row { grid.getWritePointer (r) };
+
+                    for (int c { 0 }; c < cols; ++c)
+                        row[c] = fill;
+                }
+            }
+            else
+            {
+                for (int r { cursorRow }; r < cursorRow + clampedCount; ++r)
+                {
+                    jam::Cell* row { grid.getWritePointer (r) };
+
+                    for (int c { 0 }; c < cols; ++c)
+                        row[c] = fill;
+                }
+            }
+        }
 
         state.setCursorCol (scr, 0);
         state.setWrapPending (scr, false);
@@ -231,10 +394,9 @@ void Parser::shiftLines (int count, bool up) noexcept
 /**
  * @brief Handles `CSI Pn @` — Insert Characters (ICH).
  *
- * Pushes a Command::InsertChars to the Grid FIFO.  Screen inserts `count`
- * blank cells at the cursor column, shifting existing cells to the right.
- * Cells that shift past the right margin are discarded.  The cursor position
- * is not changed.
+ * Inserts blank cells directly in Grid at the cursor column, shifting existing
+ * cells to the right.  Cells that shift past the right margin are discarded.
+ * The cursor position is not changed.
  *
  * @param count  Number of blank cells to insert (>= 1).
  *
@@ -246,18 +408,32 @@ void Parser::shiftLines (int count, bool up) noexcept
 void Parser::shiftCellsRight (int count) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+    const int charsToInsert { juce::jmin (count, cols - cursorCol) };
 
-    grid.push (Command { Command::Type::InsertChars, {}, stamp.bg, count, cursorRow, cursorCol });
+    if (charsToInsert > 0 and cursorCol < cols)
+    {
+        jam::Cell* row { grid.getWritePointer (cursorRow) };
+
+        std::memmove (row + cursorCol + charsToInsert,
+                      row + cursorCol,
+                      static_cast<size_t> (cols - cursorCol - charsToInsert) * sizeof (jam::Cell));
+
+        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+
+        for (int c { cursorCol }; c < cursorCol + charsToInsert; ++c)
+            row[c] = fill;
+    }
 }
 
 /**
  * @brief Handles `CSI Pn P` — Delete Characters (DCH).
  *
- * Pushes a Command::DeleteChars to the Grid FIFO.  Screen shifts remaining
- * cells to the left and inserts blank cells at the right margin.  The cursor
- * position is not changed.
+ * Removes cells directly in Grid, shifting remaining cells to the left and
+ * inserting blank cells at the right margin.  The cursor position is not
+ * changed.
  *
  * @param count  Number of cells to delete (>= 1).
  *
@@ -269,18 +445,32 @@ void Parser::shiftCellsRight (int count) noexcept
 void Parser::removeCells (int count) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+    const int charsToDelete { juce::jmin (count, cols - cursorCol) };
 
-    grid.push (Command { Command::Type::DeleteChars, {}, stamp.bg, count, cursorRow, cursorCol });
+    if (charsToDelete > 0 and cursorCol < cols)
+    {
+        jam::Cell* row { grid.getWritePointer (cursorRow) };
+
+        std::memmove (row + cursorCol,
+                      row + cursorCol + charsToDelete,
+                      static_cast<size_t> (cols - cursorCol - charsToDelete) * sizeof (jam::Cell));
+
+        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+
+        for (int c { cols - charsToDelete }; c < cols; ++c)
+            row[c] = fill;
+    }
 }
 
 /**
  * @brief Handles `CSI Pn X` — Erase Characters (ECH).
  *
- * Pushes a Command::EraseChars to the Grid FIFO.  Screen blanks `count` cells
- * in-place without shifting surrounding content.  The cursor position is not
- * changed.  ECH is a cell-layer operation — the image layer is not affected.
+ * Blanks cells directly in Grid without shifting surrounding content.  The
+ * cursor position is not changed.  ECH is a cell-layer operation — the image
+ * layer is not affected.
  *
  * @param count  Number of cells to erase (>= 1).
  *
@@ -292,10 +482,19 @@ void Parser::removeCells (int count) noexcept
 void Parser::eraseCells (int count) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
+    const int cols { state.getRawValue<int> (ID::cols) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
     const int cursorCol { state.getRawValue<int> (state.screenKey (scr, ID::cursorCol)) };
+    const int clampedCount { juce::jmin (count, cols - cursorCol) };
 
-    grid.push (Command { Command::Type::EraseChars, {}, stamp.bg, count, cursorRow, cursorCol });
+    if (clampedCount > 0)
+    {
+        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+        jam::Cell* row { grid.getWritePointer (cursorRow) };
+
+        for (int c { cursorCol }; c < cursorCol + clampedCount; ++c)
+            row[c] = fill;
+    }
 }
 
 // ============================================================================
@@ -307,7 +506,7 @@ void Parser::eraseCells (int count) noexcept
  *
  * Repeats the last graphic character printed Ps times at the current cursor
  * position, advancing the cursor.  Uses the existing `print()` path so that
- * all Command pushes, dirty marking, and wrap handling are consistent.
+ * all Grid writes, dirty marking, and wrap handling are consistent.
  *
  * @param count  Number of repetitions (default 1).
  *
@@ -331,9 +530,9 @@ void Parser::repeatCharacter (int count) noexcept
 /**
  * @brief Switches between the normal and alternate screen buffers.
  *
- * Pushes a Command::SetScreen to the Grid FIFO.  Screen handles the buffer
- * swap.  No-op guard is applied: if the target screen is already active, the
- * function returns immediately without pushing any command.
+ * Calls `grid.setScreen()` to swap the active buffer.  No-op guard is applied:
+ * if the target screen is already active, the function returns immediately
+ * without any state mutation.
  *
  * @param shouldUseAlternate  `true` to activate the alternate screen buffer,
  *                            `false` to return to the normal screen buffer.
@@ -350,7 +549,7 @@ void Parser::setScreen (bool shouldUseAlternate) noexcept
         cursorResetScrollRegion (scr);
         calc();
 
-        grid.push (Command { Command::Type::SetScreen, {}, {}, shouldUseAlternate ? 1 : 0, 0, 0 });
+        grid.setScreen (shouldUseAlternate);
 
         if (target == alternate)
         {

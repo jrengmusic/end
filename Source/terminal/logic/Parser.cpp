@@ -14,7 +14,7 @@
  *      ▼
  *  process()
  *      │
- *      ├─ ground state? ──► processGroundChunk()   ← bulk ASCII fast path
+ *      ├─ ground state? ──► processGroundBlock()   ← bulk ASCII fast path
  *      │                        │
  *      │                        └─ print() per ASCII byte
  *      │
@@ -61,7 +61,7 @@ namespace Terminal
  *
  * @param state  Shared terminal parameter store.  Read for cursor position,
  *               mode flags, and screen dimensions; written via atomic setters.
- * @param grid   SPSC FIFO for cell commands pushed by the parser.
+ * @param grid   Live cell buffer. Parser writes in-place; Display reads dirty rows.
  *
  * @note MESSAGE THREAD — called before the reader thread starts.
  *
@@ -81,14 +81,14 @@ Parser::Parser (State& state, Grid& grid) noexcept
  * routes each byte through the DispatchTable.  Two code paths exist:
  *
  * @par Ground-state fast path
- * When `currentState == ParserState::ground`, `processGroundChunk()` is called
+ * When `currentState == ParserState::ground`, `processGroundBlock()` is called
  * first.  It scans forward for a contiguous run of printable ASCII bytes
  * (0x20–0x7E) and common C0 controls (LF, CR, BS, TAB), handling them without
  * per-byte dispatch overhead.  If it consumes at least one byte, the loop
  * advances `i` by the consumed count and continues.
  *
  * @par General path
- * For any byte that `processGroundChunk()` cannot handle (or when not in
+ * For any byte that `processGroundBlock()` cannot handle (or when not in
  * ground state), the byte is looked up in `dispatchTable` to obtain a
  * `Transition{nextState, action}`, then forwarded to `processTransition()`.
  *
@@ -100,7 +100,7 @@ Parser::Parser (State& state, Grid& grid) noexcept
  * @note Responses queued during processing are not flushed here — call
  *       `flushResponses()` after this method returns.
  *
- * @see processGroundChunk()
+ * @see processGroundBlock()
  * @see processTransition()
  * @see flushResponses()
  */
@@ -114,7 +114,7 @@ void Parser::process (const uint8_t* data, size_t length) noexcept
         // Handles printable ASCII + common C0 controls (LF, CR, BS, TAB)
         if (currentState == ParserState::ground)
         {
-            const size_t consumed { processGroundChunk (data + i, length - i) };
+            const size_t consumed { processGroundBlock (data + i, length - i) };
 
             if (consumed > 0)
             {

@@ -1,138 +1,240 @@
 /**
  * @file Grid.h
- * @brief SPSC FIFO transport between the reader thread and the message thread.
+ * @brief Live frame buffer of jam::Cell records — the AudioBuffer of the terminal.
  *
- * Grid is a pure transport — it has no knowledge of terminal state, geometry,
- * or rendering.  The reader thread (PTY/parser) pushes Command objects into the
- * FIFO.  The message thread drains them in batch for processing.
+ * Grid is a dumb buffer. Parser writes cells in-place on the reader thread.
+ * Display reads dirty rows on the message thread via VBlank.
  *
- * Ownership model:
- *   - One writer: reader thread (push)
- *   - One reader: message thread (drain, resize)
+ * ### AudioBuffer analogy
+ * | AudioBuffer          | Grid                  | Role                       |
+ * |----------------------|-----------------------|----------------------------|
+ * | getReadPointer(ch)   | getReadPointer(row)   | Read-only row access       |
+ * | getWritePointer(ch)  | getWritePointer(row)  | Writable row access        |
+ * | clear()              | clear()               | Zero the buffer            |
+ * | hasBeenCleared()     | hasBeenCleared()      | Optimisation gate          |
+ * | setSize()            | setSize()             | Allocate / resize          |
  *
- * No synchronisation primitives beyond juce::AbstractFifo are needed.
- * Command must be trivially copyable (enforced by std::memcpy in drain).
+ * ### Memory layout per buffer
+ * Single `HeapBlock<char, true>` (SIMD-aligned). Flat array of jam::Cell records,
+ * `capacity * alignedCols` cells total. Ring-buffer indexing on the normal screen
+ * (head advances on scroll, no memmove). Fixed buffer on the alternate screen.
+ *
+ * ### Thread model
+ * - Parser writes via getWritePointer / scrollUp / scrollDown / clear — READER THREAD.
+ * - Display reads via getReadPointer / consumeDirtyRows / scroll-off — MESSAGE THREAD.
+ * - setSize — called from READER THREAD (Parser detects dimension change in State).
+ *
+ * @see Parser   — sole writer (reader thread)
+ * @see Display  — sole reader (message thread)
+ * @see State    — atomic parameter store (cursor, modes, dimensions)
  */
 
 #pragma once
 
 #include <JuceHeader.h>
-
-#include "../data/Command.h"
+#include <jam_tui/jam_tui.h>
+#include <array>
+#include <atomic>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 
-/**
- * @class Grid
- * @brief SPSC FIFO transport wrapping juce::AbstractFifo and a HeapBlock of
- *        Command slots.
- *
- * push() is safe to call from the reader thread only.
- * drain() and resize() are safe to call from the message thread only.
- * isEmpty() may be called from either thread (AbstractFifo::getNumReady is
- * atomic).
- */
 class Grid
 {
 public:
+    Grid() = default;
 
-    /**
-     * @brief Constructs the Grid with a fixed-size command buffer.
-     * @param capacity  Maximum number of Command slots to allocate.
+    //==========================================================================
+    /** @name Size — mirrors AudioBuffer::setSize / getNumChannels / getNumSamples */
+    ///@{
+
+    /** Allocates or resizes the grid.
      *
-     * Called from the message thread before the reader thread starts.
+     *  @param numRows             Visible row count.
+     *  @param numCols             Column count per row.
+     *  @param keepExistingContent Preserve existing cell data up to the smaller of old/new dims.
+     *  @param clearExtraSpace     Zero-init any newly exposed cells.
+     *  @param avoidReallocating   Reuse existing allocation if large enough.
      */
-    explicit Grid (int capacity) noexcept
-        : fifo (capacity)
-    {
-        ops.allocate (capacity, true);
-    }
+    void setSize (int numRows, int numCols,
+                  bool keepExistingContent = false,
+                  bool clearExtraSpace = false,
+                  bool avoidReallocating = false) noexcept;
 
-    /**
-     * @brief Pushes one command into the FIFO.
+    int getNumRows() const noexcept;
+    int getNumCols() const noexcept;
+
+    ///@}
+
+    //==========================================================================
+    /** @name Pointer access — mirrors AudioBuffer::getReadPointer / getWritePointer */
+    ///@{
+
+    /** Returns a read-only pointer to the first Cell in the given row. */
+    const jam::Cell* getReadPointer (int row) const noexcept;
+
+    /** Returns a read-only pointer to a specific Cell position. */
+    const jam::Cell* getReadPointer (int row, int col) const noexcept;
+
+    /** Returns a writable pointer to the first Cell in the given row.
+     *  Marks the row dirty. */
+    jam::Cell* getWritePointer (int row) noexcept;
+
+    /** Returns a writable pointer to a specific Cell position.
+     *  Marks the row dirty. */
+    jam::Cell* getWritePointer (int row, int col) noexcept;
+
+    ///@}
+
+    //==========================================================================
+    /** @name Element access — mirrors AudioBuffer::getSample / setSample */
+    ///@{
+
+    /** Returns the Cell at the given position (read-only). */
+    const jam::Cell& getCell (int row, int col) const noexcept;
+
+    /** Writes a Cell at the given position. Marks the row dirty. */
+    void setCell (int row, int col, const jam::Cell& cell) noexcept;
+
+    ///@}
+
+    //==========================================================================
+    /** @name Clear — mirrors AudioBuffer::clear / hasBeenCleared */
+    ///@{
+
+    /** Clears all rows of the active buffer. Sets isClear flag. */
+    void clear() noexcept;
+
+    /** Clears an entire row. */
+    void clear (int row) noexcept;
+
+    /** Clears a range of cells within a row. */
+    void clear (int row, int startCol, int numCols) noexcept;
+
+    /** Returns true if the active buffer has been cleared and no writes occurred since. */
+    bool hasBeenCleared() const noexcept;
+
+    ///@}
+
+    //==========================================================================
+    /** @name Dual screen — terminal-specific */
+    ///@{
+
+    /** Swaps the active buffer. */
+    void setScreen (bool alternate) noexcept;
+
+    /** Returns true if the alternate screen buffer is active. */
+    bool isAlternateScreen() const noexcept;
+
+    ///@}
+
+    //==========================================================================
+    /** @name Dirty tracking — reader to message thread sync */
+    ///@{
+
+    /** Atomically exchanges the dirty-row bitmask, returning the previous value.
+     *  Called by Display on the message thread to discover which rows changed. */
+    uint64_t consumeDirtyRows() noexcept;
+
+    ///@}
+
+    //==========================================================================
+    /** @name Scroll — terminal-specific */
+    ///@{
+
+    /** Scrolls rows up within the given scroll region.
      *
-     * Called from the reader thread only.  No-op when the FIFO is full
-     * (backpressure — command is silently dropped).
+     *  On the normal screen with a full-screen region (scrollTop == 0 and
+     *  scrollBottom == numRows - 1), uses ring-buffer head advance — no memmove.
+     *  Scroll-off rows are captured for Display to drain.
      *
-     * @param command  The command to enqueue.
+     *  On the alternate screen or a partial region, uses memmove.
+     *  No scroll-off capture.
+     *
+     *  Clears the new bottom row(s). Marks all rows in the region dirty.
+     *
+     *  @param scrollTop     First row of the scroll region (zero-based).
+     *  @param scrollBottom  Last row of the scroll region (zero-based).
+     *  @param count         Number of rows to scroll (default 1).
      */
-    void push (const Command& command) noexcept
-    {
-        int start1 { 0 };
-        int size1 { 0 };
-        int start2 { 0 };
-        int size2 { 0 };
-        fifo.prepareToWrite (1, start1, size1, start2, size2);
+    void scrollUp (int scrollTop, int scrollBottom, int count = 1) noexcept;
 
-        if (size1 > 0)
-        {
-            ops[start1] = command;
-            fifo.finishedWrite (1);
-        }
-    }
-
-    /**
-     * @brief Drains up to maxCommands pending commands into outBuffer.
+    /** Scrolls rows down within the given scroll region (reverse scroll).
      *
-     * Called from the message thread only.  Uses std::memcpy — Command must
-     * be trivially copyable.
+     *  Always uses memmove. No scroll-off capture. Clears the new top row(s).
+     *  Marks all rows in the region dirty.
      *
-     * @param outBuffer    Destination buffer; caller owns and sizes it.
-     * @param maxCommands  Maximum number of commands to drain in one call.
-     * @return             Number of commands actually drained.
+     *  @param scrollTop     First row of the scroll region (zero-based).
+     *  @param scrollBottom  Last row of the scroll region (zero-based).
+     *  @param count         Number of rows to scroll (default 1).
      */
-    int drain (Command* outBuffer, int maxCommands) noexcept
-    {
-        int start1 { 0 };
-        int size1 { 0 };
-        int start2 { 0 };
-        int size2 { 0 };
-        fifo.prepareToRead (maxCommands, start1, size1, start2, size2);
+    void scrollDown (int scrollTop, int scrollBottom, int count = 1) noexcept;
 
-        const int total { size1 + size2 };
+    ///@}
 
-        if (size1 > 0)
-            std::memcpy (outBuffer, ops.getData() + start1, static_cast<size_t> (size1) * sizeof (Command));
+    //==========================================================================
+    /** @name Scroll-off capture — terminal-specific */
+    ///@{
 
-        if (size2 > 0)
-            std::memcpy (outBuffer + size1, ops.getData() + start2, static_cast<size_t> (size2) * sizeof (Command));
+    /** Returns the number of unconsumed scroll-off rows available for reading. */
+    int getNumScrolledRows() const noexcept;
 
-        fifo.finishedRead (total);
-        return total;
-    }
+    /** Returns a read-only pointer to a scroll-off row (0 = oldest unconsumed).
+     *  Display calls this to drain scroll-off rows into Screen as jam::Cells. */
+    const jam::Cell* getScrolledReadPointer (int index) const noexcept;
 
-    /**
-     * @brief Returns true when no commands are pending.
-     *
-     * May be called from either thread.  AbstractFifo::getNumReady uses an
-     * atomic load internally.
-     */
-    bool isEmpty() const noexcept
-    {
-        return fifo.getNumReady() == 0;
-    }
+    /** Marks scroll-off rows as consumed. Called by Display after draining. */
+    void consumeScrolledRows (int count) noexcept;
 
-    /**
-     * @brief Reallocates the FIFO to a new capacity, discarding all pending
-     *        commands.
-     *
-     * Called from the message thread only.  The reader thread must not be
-     * pushing during this call.
-     *
-     * @param newCapacity  New maximum number of Command slots.
-     */
-    void resize (int newCapacity) noexcept
-    {
-        fifo.setTotalSize (newCapacity);
-        ops.allocate (newCapacity, true);
-    }
+    ///@}
 
 private:
+    //==========================================================================
+    /** @brief Internal per-screen buffer storage. */
+    struct Buffer
+    {
+        juce::HeapBlock<char, true> allocation;   ///< SIMD-aligned raw storage.
+        jam::Cell* cells { nullptr };              ///< Points into allocation.
+        int numRows { 0 };                         ///< Logical visible row count.
+        int numCols { 0 };                         ///< Logical column count.
+        int alignedCols { 0 };                     ///< numCols rounded up to multiple of 4.
+        int capacity { 0 };                        ///< Total row slots (numRows + scrollMargin).
+        int scrollMargin { 0 };                    ///< Extra rows for scroll-off ring headroom.
+        int head { 0 };                            ///< Ring head index (normal screen only).
+        std::atomic<int> scrolledCount { 0 };      ///< Unconsumed scroll-off rows.
+        std::atomic<uint64_t> dirtyRows { 0 };     ///< Per-row dirty bitmask.
+        bool isClear { true };                     ///< Optimisation gate (AudioBuffer pattern).
+        int allocatedCapacity { 0 };               ///< Physical allocation size in rows.
+        int allocatedCols { 0 };                   ///< Physical allocation width in aligned cols.
 
-    juce::AbstractFifo fifo;
-    juce::HeapBlock<Command> ops;
+        /** Returns a pointer to the first Cell of the given logical row. */
+        jam::Cell* rowPtr (int logicalRow) noexcept;
 
+        /** Returns a const pointer to the first Cell of the given logical row. */
+        const jam::Cell* rowPtr (int logicalRow) const noexcept;
+
+        /** Marks a logical row as dirty in the bitmask. */
+        void markDirty (int logicalRow) noexcept;
+
+        /** Marks all visible rows dirty. */
+        void markAllDirty() noexcept;
+    };
+
+    static constexpr int defaultScrollMargin { 256 };
+    static constexpr int simdCellAlignment { 4 };  ///< Cells per row rounded to this multiple (4 cells = 64 bytes = cache line).
+
+    std::array<Buffer, 2> buffers;                 ///< 0 = normal, 1 = alternate.
+    std::atomic<int> activeIndex { 0 };            ///< 0 = normal, 1 = alternate.
+
+    Buffer& activeBuffer() noexcept;
+    const Buffer& activeBuffer() const noexcept;
+
+    static int alignCols (int cols) noexcept;
+
+    void allocateBuffer (Buffer& buf, int numRows, int numCols, int scrollMargin,
+                         bool keepContent, bool clearExtra, bool avoidRealloc) noexcept;
+
+    //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Grid)
 };
 

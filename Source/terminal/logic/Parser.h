@@ -6,7 +6,7 @@
  * consumes raw bytes from the PTY reader thread, drives a Paul Flo Williams–
  * style state machine, decodes multi-byte UTF-8 sequences, and dispatches
  * semantic actions (print, execute, CSI dispatch, ESC dispatch, OSC handling,
- * DCS hook/unhook) to State and pushes cell Commands to Grid (SPSC FIFO).
+ * DCS hook/unhook) to State and writes cells directly to Grid (AudioBuffer).
  *
  * ## State machine model
  *
@@ -85,8 +85,8 @@ namespace Terminal
  *
  * Parser owns the complete VT parsing pipeline: state machine transitions,
  * UTF-8 accumulation, intermediate/parameter collection, and dispatch to Grid
- * and State.  It is the only component that pushes cell Commands to the Grid
- * FIFO on the reader thread.
+ * and State.  It is the only component that writes cells to the Grid
+ * buffer on the reader thread.
  *
  * @par Lifecycle
  * 1. Construct with references to a `State` and a `Grid`.
@@ -147,7 +147,7 @@ public:
      * @param state  Reference to the shared terminal parameter store.
      *               The parser reads cursor position, mode flags, and screen
      *               dimensions from State and writes updates back via setters.
-     * @param grid   SPSC FIFO for cell commands pushed by the parser.
+     * @param grid   Live cell buffer. Parser writes in-place; Display reads dirty rows.
      *
      * @note MESSAGE THREAD — construction happens before the reader thread starts.
      *
@@ -164,7 +164,7 @@ public:
      *
      * @par Fast path
      * When the parser is in the `ground` state and the input contains a run of
-     * printable ASCII bytes, `processGroundChunk()` is called to handle the
+     * printable ASCII bytes, `processGroundBlock()` is called to handle the
      * entire run without per-byte dispatch overhead.
      *
      * @param data    Pointer to the first byte of the input buffer.
@@ -175,7 +175,7 @@ public:
      * @note Does not flush responses — call `flushResponses()` after this method.
      *
      * @see flushResponses()
-     * @see processGroundChunk()
+     * @see processGroundBlock()
      */
     void process (const uint8_t* data, size_t length) noexcept;
 
@@ -365,7 +365,7 @@ private:
     State& state;
 
     /**
-     * @brief SPSC FIFO for cell commands. Parser pushes Commands; Display drains.
+     * @brief Live cell buffer. Parser writes in-place; Display reads dirty rows.
      */
     Grid& grid;
 
@@ -702,7 +702,7 @@ private:
      *
      * Set by `handleOsc8()` via `state.registerLinkUri()` when an OSC 8 open
      * is received.  Cleared to 0 on OSC 8 close.  Stamped onto every cell
-     * written by `print()` and `processGroundChunk()` while non-zero.
+     * written by `print()` and `processGroundBlock()` while non-zero.
      *
      * Lives in Parser (not Pen) because hyperlink state must not survive
      * DECSC/DECRC cursor save/restore.
@@ -1279,7 +1279,7 @@ private:
      *
      * @see process()
      */
-    size_t processGroundChunk (const uint8_t* data, size_t length) noexcept;
+    size_t processGroundBlock (const uint8_t* data, size_t length) noexcept;
 
     /**
      * @brief Executes a C0 or C1 control character.

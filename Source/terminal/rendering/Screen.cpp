@@ -1,4 +1,5 @@
 #include "Screen.h"
+#include <cstring>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -44,7 +45,7 @@ Screen::Screen (State& stateRef) noexcept
 
     viewport = std::make_unique<juce::Viewport>();
     addAndMakeVisible (viewport.get());
-    viewport->setViewedComponent (contentView = new ContentView (*this), false);
+    viewport->setViewedComponent (contentView = new ContentView (*this), true);
     viewport->setScrollBarsShown (true, false);
 
     caret = std::make_unique<jam::CaretComponent> (this);
@@ -59,8 +60,9 @@ Screen::Screen (State& stateRef) noexcept
 
 Screen::~Screen()
 {
-    viewport.reset();
+    caret.reset();
     contentView = nullptr;
+    viewport.reset();
 }
 
 void Screen::computeCellMetrics() noexcept
@@ -111,28 +113,25 @@ void Screen::setScrollBarThickness (int thickness) noexcept
 
 void Screen::setDimensions (int newCols, int newRows) noexcept
 {
-    cols        = newCols;
-    visibleRows = newRows;
+    cols           = newCols;
+    visibleRows    = newRows;
+    scrollbackRows = 0;
 
-    // Normal screen: ensure at least visibleRows, never shrink content
+    // Normal screen: ensure at least visibleRows
     if (cells.at (0) != nullptr)
-    {
-        const int minSize { newRows * newCols };
-
-        if (cells.at (0)->size() < minSize)
-            cells.at (0)->resize (minSize);
-    }
+        cells.at (0)->resize (static_cast<size_t> (newRows * newCols));
 
     // Alternate screen: fixed framebuffer, exact size
     if (cells.at (1) != nullptr)
-        cells.at (1)->resize (newRows * newCols);
+        cells.at (1)->resize (static_cast<size_t> (newRows * newCols));
 
     shapeAndRepaint();
 }
 
 void Screen::setActive (int index) noexcept
 {
-    activeScreen = index;
+    activeScreen   = index;
+    scrollbackRows = 0;
     shapeAndRepaint();
 }
 
@@ -223,252 +222,93 @@ void Screen::drawContent() noexcept
     }
 }
 
-void Screen::makeLayout (const Command* commands, int count) noexcept
+void Screen::appendScrollbackRows (const jam::Cell* const* rows, int rowCount, int numCols) noexcept
 {
     const int scr { activeScreen };
 
-    if (scr >= 0 and scr < static_cast<int> (cells.size())
-        and cells.at (static_cast<size_t> (scr)) != nullptr
-        and cols > 0 and visibleRows > 0)
+    if (cols > 0 and rows != nullptr and rowCount > 0
+        and scr >= 0 and scr < static_cast<int> (cells.size())
+        and cells.at (static_cast<size_t> (scr)) != nullptr)
     {
         auto& activeCells { *cells.at (static_cast<size_t> (scr)) };
 
-        for (int i { 0 }; i < count; ++i)
+        const int oldSize { static_cast<int> (activeCells.size()) };
+        const int newSize { oldSize + rowCount * cols };
+        activeCells.resize (static_cast<size_t> (newSize));
+
+        // Shift visible region forward by rowCount rows (single memmove)
+        const int visibleStart { scrollbackRows * cols };
+        const int visibleCount { visibleRows * cols };
+
+        if (visibleCount > 0 and visibleStart + visibleCount <= oldSize)
         {
-            const auto& cmd { commands[i] };
-            const int totalDocRows { static_cast<int> (activeCells.size()) / cols };
-            const int firstVisible { juce::jmax (0, totalDocRows - visibleRows) };
+            std::memmove (activeCells.data() + (scrollbackRows + rowCount) * cols,
+                          activeCells.data() + scrollbackRows * cols,
+                          static_cast<size_t> (visibleCount) * sizeof (jam::Cell));
+        }
 
-            switch (cmd.type)
+        // Copy each scrollback row into its slot
+        for (int i { 0 }; i < rowCount; ++i)
+        {
+            const int dstIdx { (scrollbackRows + i) * cols };
+            const int copyCount { juce::jmin (numCols, cols) };
+
+            if (rows[i] != nullptr)
             {
-                case Command::Type::Print:
-                {
-                    const int logicalRow { firstVisible + cmd.row };
-                    const int idx { logicalRow * cols + cmd.col };
+                std::memcpy (activeCells.data() + dstIdx,
+                             rows[i],
+                             static_cast<size_t> (copyCount) * sizeof (jam::Cell));
+            }
 
-                    if (idx >= static_cast<int> (activeCells.size()))
-                        activeCells.resize (static_cast<size_t> ((logicalRow + 1) * cols));
-
-                    activeCells[static_cast<size_t> (idx)] = cmd.cell;
-                    break;
-                }
-
-                case Command::Type::LineFeed:
-                {
-                    const int newTotalRows { totalDocRows + 1 };
-                    activeCells.resize (static_cast<size_t> (newTotalRows * cols));
-
-                    if (cmd.fillBg.getAlpha() > 0)
-                    {
-                        const int rowStart { (newTotalRows - 1) * cols };
-
-                        for (int c { 0 }; c < cols; ++c)
-                            activeCells[static_cast<size_t> (rowStart + c)].bg = cmd.fillBg;
-                    }
-
-                    break;
-                }
-
-                case Command::Type::CarriageReturn:
-                case Command::Type::Tab:
-                case Command::Type::Backspace:
-                    break;
-
-                case Command::Type::EraseInLine:
-                {
-                    const int logicalRow { firstVisible + cmd.row };
-                    const int rowStart { logicalRow * cols };
-
-                    if (rowStart + cols <= static_cast<int> (activeCells.size()))
-                    {
-                        const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
-
-                        if (cmd.param == 0)
-                        {
-                            for (int c { cmd.col }; c < cols; ++c)
-                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
-                        }
-                        else if (cmd.param == 1)
-                        {
-                            for (int c { 0 }; c <= cmd.col; ++c)
-                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
-                        }
-                        else
-                        {
-                            for (int c { 0 }; c < cols; ++c)
-                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
-                        }
-                    }
-
-                    break;
-                }
-
-                case Command::Type::EraseInDisplay:
-                {
-                    const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
-
-                    if (cmd.param == 0)
-                    {
-                        const int logicalRow { firstVisible + cmd.row };
-                        const int startIdx { logicalRow * cols + cmd.col };
-                        const int endIdx { (firstVisible + visibleRows) * cols };
-
-                        for (int c { startIdx }; c < juce::jmin (endIdx, static_cast<int> (activeCells.size())); ++c)
-                            activeCells[static_cast<size_t> (c)] = fill;
-                    }
-                    else if (cmd.param == 1)
-                    {
-                        const int startIdx { firstVisible * cols };
-                        const int endIdx { (firstVisible + cmd.row) * cols + cmd.col };
-
-                        for (int c { startIdx }; c <= juce::jmin (endIdx, static_cast<int> (activeCells.size()) - 1); ++c)
-                            activeCells[static_cast<size_t> (c)] = fill;
-                    }
-                    else
-                    {
-                        const int startIdx { firstVisible * cols };
-                        const int endIdx { (firstVisible + visibleRows) * cols };
-
-                        for (int c { startIdx }; c < juce::jmin (endIdx, static_cast<int> (activeCells.size())); ++c)
-                            activeCells[static_cast<size_t> (c)] = fill;
-                    }
-
-                    break;
-                }
-
-                case Command::Type::InsertLines:
-                {
-                    const int logicalRow { firstVisible + cmd.row };
-                    const int visibleBottom { firstVisible + visibleRows - 1 };
-                    const int linesToInsert { juce::jmin (cmd.param, visibleBottom - logicalRow + 1) };
-
-                    if (logicalRow >= firstVisible and logicalRow <= visibleBottom and linesToInsert > 0
-                        and (visibleBottom + 1) * cols <= static_cast<int> (activeCells.size()))
-                    {
-                        if (visibleBottom - linesToInsert >= logicalRow)
-                        {
-                            std::memmove (activeCells.data() + (logicalRow + linesToInsert) * cols,
-                                          activeCells.data() + logicalRow * cols,
-                                          static_cast<size_t> ((visibleBottom - logicalRow - linesToInsert + 1) * cols) * sizeof (jam::Cell));
-                        }
-
-                        const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
-
-                        for (int r { logicalRow }; r < logicalRow + linesToInsert; ++r)
-                        {
-                            for (int c { 0 }; c < cols; ++c)
-                                activeCells[static_cast<size_t> (r * cols + c)] = fill;
-                        }
-                    }
-
-                    break;
-                }
-
-                case Command::Type::DeleteLines:
-                {
-                    const int logicalRow { firstVisible + cmd.row };
-                    const int visibleBottom { firstVisible + visibleRows - 1 };
-                    const int linesToDelete { juce::jmin (cmd.param, visibleBottom - logicalRow + 1) };
-
-                    if (logicalRow >= firstVisible and logicalRow <= visibleBottom and linesToDelete > 0
-                        and (visibleBottom + 1) * cols <= static_cast<int> (activeCells.size()))
-                    {
-                        if (logicalRow + linesToDelete <= visibleBottom)
-                        {
-                            std::memmove (activeCells.data() + logicalRow * cols,
-                                          activeCells.data() + (logicalRow + linesToDelete) * cols,
-                                          static_cast<size_t> ((visibleBottom - logicalRow - linesToDelete + 1) * cols) * sizeof (jam::Cell));
-                        }
-
-                        const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
-
-                        for (int r { visibleBottom - linesToDelete + 1 }; r <= visibleBottom; ++r)
-                        {
-                            for (int c { 0 }; c < cols; ++c)
-                                activeCells[static_cast<size_t> (r * cols + c)] = fill;
-                        }
-                    }
-
-                    break;
-                }
-
-                case Command::Type::InsertChars:
-                {
-                    const int logicalRow { firstVisible + cmd.row };
-                    const int rowStart { logicalRow * cols };
-
-                    if (rowStart + cols <= static_cast<int> (activeCells.size()))
-                    {
-                        const int charsToInsert { juce::jmin (cmd.param, cols - cmd.col) };
-
-                        if (charsToInsert > 0 and cmd.col < cols)
-                        {
-                            std::memmove (activeCells.data() + rowStart + cmd.col + charsToInsert,
-                                          activeCells.data() + rowStart + cmd.col,
-                                          static_cast<size_t> (cols - cmd.col - charsToInsert) * sizeof (jam::Cell));
-
-                            const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
-
-                            for (int c { cmd.col }; c < cmd.col + charsToInsert; ++c)
-                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
-                        }
-                    }
-
-                    break;
-                }
-
-                case Command::Type::DeleteChars:
-                {
-                    const int logicalRow { firstVisible + cmd.row };
-                    const int rowStart { logicalRow * cols };
-
-                    if (rowStart + cols <= static_cast<int> (activeCells.size()))
-                    {
-                        const int charsToDelete { juce::jmin (cmd.param, cols - cmd.col) };
-
-                        if (charsToDelete > 0 and cmd.col < cols)
-                        {
-                            std::memmove (activeCells.data() + rowStart + cmd.col,
-                                          activeCells.data() + rowStart + cmd.col + charsToDelete,
-                                          static_cast<size_t> (cols - cmd.col - charsToDelete) * sizeof (jam::Cell));
-
-                            const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
-
-                            for (int c { cols - charsToDelete }; c < cols; ++c)
-                                activeCells[static_cast<size_t> (rowStart + c)] = fill;
-                        }
-                    }
-
-                    break;
-                }
-
-                case Command::Type::EraseChars:
-                {
-                    const int logicalRow { firstVisible + cmd.row };
-                    const int rowStart { logicalRow * cols };
-
-                    if (rowStart + cols <= static_cast<int> (activeCells.size()))
-                    {
-                        const jam::Cell fill { 0, 0, 0, 1, 0, {}, cmd.fillBg };
-
-                        for (int c { cmd.col }; c < juce::jmin (cmd.col + cmd.param, cols); ++c)
-                            activeCells[static_cast<size_t> (rowStart + c)] = fill;
-                    }
-
-                    break;
-                }
-
-                case Command::Type::SetScreen:
-                case Command::Type::ClearScrollback:
-                case Command::Type::SetTabStop:
-                case Command::Type::ClearTabStop:
-                case Command::Type::ClearAllTabStops:
-                    break;
+            if (copyCount < cols)
+            {
+                std::memset (activeCells.data() + dstIdx + copyCount, 0,
+                             static_cast<size_t> (cols - copyCount) * sizeof (jam::Cell));
             }
         }
 
-        shapeAndRepaint();
+        scrollbackRows += rowCount;
     }
+}
+
+void Screen::appendScrollbackRow (const jam::Cell* src, int numCols) noexcept
+{
+    appendScrollbackRows (&src, 1, numCols);
+}
+
+void Screen::updateVisibleRow (int row, const jam::Cell* src, int numCols) noexcept
+{
+    const int scr { activeScreen };
+
+    if (cols > 0 and src != nullptr and row >= 0 and row < visibleRows
+        and scr >= 0 and scr < static_cast<int> (cells.size())
+        and cells.at (static_cast<size_t> (scr)) != nullptr)
+    {
+        auto& activeCells { *cells.at (static_cast<size_t> (scr)) };
+
+        // Visible rows begin after scrollback
+        const int targetIdx { (scrollbackRows + row) * cols };
+        const int totalNeeded { (scrollbackRows + visibleRows) * cols };
+
+        if (static_cast<int> (activeCells.size()) < totalNeeded)
+            activeCells.resize (static_cast<size_t> (totalNeeded));
+
+        const int copyCount { juce::jmin (numCols, cols) };
+        std::memcpy (activeCells.data() + targetIdx,
+                     src,
+                     static_cast<size_t> (copyCount) * sizeof (jam::Cell));
+
+        if (copyCount < cols)
+        {
+            std::memset (activeCells.data() + targetIdx + copyCount, 0,
+                         static_cast<size_t> (cols - copyCount) * sizeof (jam::Cell));
+        }
+    }
+}
+
+void Screen::repaintContent() noexcept
+{
+    shapeAndRepaint();
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

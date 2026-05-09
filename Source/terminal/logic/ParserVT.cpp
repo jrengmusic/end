@@ -6,9 +6,9 @@
  * operate in the VT ground state:
  *
  * - **print** — writes a Unicode codepoint to the active screen buffer via
- *   Grid::push (Command::Print), handling grapheme cluster extension, wide
- *   characters, emoji variation selectors, line-drawing charset substitution,
- *   and cursor advancement.
+ *   Grid::getWritePointer() — writes Cell in-place, handling grapheme cluster
+ *   extension, wide characters, emoji variation selectors, line-drawing charset
+ *   substitution, and cursor advancement.
  *
  * - **execute** — dispatches C0 control characters (BEL, BS, HT, LF/VT/FF,
  *   CR, SO, SI) to their respective terminal actions.
@@ -16,13 +16,14 @@
  * - **reset** — performs a full terminal reset (RIS), clearing the grid,
  *   restoring all mode flags to defaults, and homing the cursor.
  *
- * @par Fast path: processGroundChunk()
+ * @par Fast path: processGroundBlock()
  * When the parser is in the `ground` state and the input stream contains a
- * contiguous run of printable ASCII bytes (0x20–0x7E) mixed with the most
- * common C0 codes (LF, CR, BS), `processGroundChunk()` processes the entire
- * run without per-byte dispatch table overhead.  File-local helpers
+ * contiguous run of printable ASCII bytes (0x20–0x7E), width-1 UTF-8
+ * multi-byte codepoints (lead byte 0xC2–0xF4), or the most common C0 codes
+ * (LF, CR, BS), `processGroundBlock()` processes the entire run without
+ * per-byte dispatch table overhead.  File-local helpers
  * (`GroundOps::handleLineFeed`, `GroundOps::handleCarriageReturn`,
- * `GroundOps::handleBackspace`, `GroundOps::flushPrintRun`) operate on a
+ * `GroundOps::handleBackspace`, `GroundOps::flushPrintCodepoint`) operate on a
  * `GroundOps::Cursor` snapshot to avoid repeated atomic reads from State.
  *
  * @par Thread model
@@ -34,7 +35,7 @@
  * @see Parser.h   — class declaration and full API documentation
  * @see ParserCSI.cpp — CSI sequence dispatch
  * @see ParserESC.cpp — ESC sequence dispatch
- * @see Grid        — SPSC FIFO receiving Command::Print and Command::LineFeed
+ * @see Grid        — ring-buffer cell storage
  * @see State       — atomic terminal parameter store
  * @see CharProps   — Unicode character property queries used by print()
  */
@@ -61,14 +62,14 @@ struct GroundOps
     /**
      * @brief Lightweight cursor snapshot used by the ground-state fast path.
      *
-     * `processGroundChunk()` copies the cursor position out of State once at
+     * `processGroundBlock()` copies the cursor position out of State once at
      * the start of the run and operates on this plain struct throughout the
      * loop, avoiding repeated atomic loads.  The final values are written back
      * to State via `setCursorRow()` / `setCursorCol()` / `setWrapPending()`
      * only if at least one byte was consumed.
      *
-     * @see processGroundChunk()
-     * @see GroundOps::flushPrintRun()
+     * @see processGroundBlock()
+     * @see GroundOps::flushPrintCodepoint()
      */
     struct Cursor
     {
@@ -78,18 +79,17 @@ struct GroundOps
     };
 
     /**
-     * @brief Advances the cursor to the next line, pushing a LineFeed command.
+     * @brief Advances the cursor to the next line, calling `grid.scrollUp()` if at scroll bottom.
      *
-     * Clears `wrapPending`, pushes `Command::LineFeed` to grid, then:
-     * - If the cursor is exactly at `scrollBottom`, keeps row at scrollBottom
-     *   (Screen will handle the actual scroll via the Command).
+     * Clears `wrapPending`, then:
+     * - If the cursor is exactly at `scrollBottom`, calls `grid.scrollUp()` —
+     *   Grid handles the scroll via ring-buffer head advance.
      * - If the cursor is below `scrollBottom` (outside the scroll region),
      *   advances the row clamped to `visibleRows - 1`.
      * - Otherwise increments the row.
      *
      * @param c             Cursor snapshot to update in-place.
-     * @param grid          Grid FIFO to push the LineFeed command to.
-     * @param cols          Terminal column count (unused, kept for symmetry).
+     * @param grid          Grid cell buffer to scroll.
      * @param scrollTop     Zero-based index of the first row of the scroll region.
      * @param scrollBottom  Zero-based index of the last row of the scroll region.
      * @param visibleRows   Total number of visible rows in the terminal.
@@ -103,11 +103,18 @@ struct GroundOps
     {
         c.wrapPending = false;
 
-        grid.push (Command { Command::Type::LineFeed, {}, fillBg, 0, c.row, 0 });
-
         if (c.row == scrollBottom)
         {
-            // Row stays at scrollBottom — Screen handles the actual buffer scroll
+            grid.scrollUp (scrollTop, scrollBottom);
+
+            if (fillBg.getAlpha() > 0)
+            {
+                jam::Cell* bottom { grid.getWritePointer (scrollBottom) };
+                const jam::Cell fill { jam::Cell::erase (fillBg) };
+
+                for (int col { 0 }; col < grid.getNumCols(); ++col)
+                    bottom[col] = fill;
+            }
         }
         else if (c.row > scrollBottom)
         {
@@ -117,8 +124,6 @@ struct GroundOps
         {
             ++c.row;
         }
-
-        juce::ignoreUnused (scrollTop);
     }
 
     /**
@@ -157,49 +162,54 @@ struct GroundOps
     }
 
     /**
-     * @brief Pushes a Print command and a LineFeed if wrapping, then advances cursor.
+     * @brief Writes the cell directly to Grid via getWritePointer, with wrap handling.
      *
      * This is the innermost loop body of the ground-state fast path.  It:
-     * 1. Resolves any pending wrap by pushing a LineFeed command (if at
+     * 1. Resolves any pending wrap by calling `grid.scrollUp()` (if at
      *    `scrollBottom`) or incrementing the row, then resets column to 0.
-     * 2. Optionally translates the byte through the line-drawing charset.
-     * 3. Builds a jam::Cell and pushes a Command::Print to the grid.
+     * 2. Stores the supplied codepoint directly into the cell template.
+     * 3. Writes the jam::Cell to the Grid via getWritePointer.
      * 4. Either sets `wrapPending` (if the cursor is now at the right margin)
      *    or advances `c.col`.
      *
      * @param c              Cursor snapshot (modified in-place).
-     * @param grid           Grid FIFO to push commands to.
+     * @param grid           Grid cell buffer.
      * @param scrollTop      Zero-based index of the first row of the scroll region.
      * @param scrollBottom   Zero-based index of the last row of the scroll region.
      * @param visibleRows    Terminal visible row count.
      * @param cols           Terminal column count (right margin = cols - 1).
      * @param autoWrap       Whether auto-wrap mode (DECAWM) is active.
      * @param cellTemplate   Pre-populated jam::Cell with the current pen attributes.
-     * @param byte           The printable ASCII byte to write (0x20–0x7E).
-     * @param useLineDrawing Whether the DEC Special Graphics charset is active.
+     * @param codepoint      The Unicode codepoint to write (post-charset-translation
+     *                       for ASCII, raw for UTF-8).
      * @param fillBg         Background colour for blank lines created on wrap.
      * @param activeLinkId   Current hyperlink stamp ID, or 0 when no link is active.
      *
      * @note READER THREAD only.
      *
-     * @see processGroundChunk()
-     * @see translateCharset()
+     * @see processGroundBlock()
      */
-    static inline void flushPrintRun (Cursor& c, Grid& grid,
-                                      int scrollTop, int scrollBottom,
-                                      int visibleRows, int cols, bool autoWrap,
-                                      jam::Cell& cellTemplate, uint8_t byte, bool useLineDrawing,
-                                      const juce::Colour& fillBg,
-                                      uint16_t activeLinkId) noexcept
+    static inline void flushPrintCodepoint (Cursor& c, Grid& grid,
+                                            int scrollTop, int scrollBottom,
+                                            int visibleRows, int cols, bool autoWrap,
+                                            jam::Cell& cellTemplate, uint32_t codepoint,
+                                            const juce::Colour& fillBg,
+                                            uint16_t activeLinkId) noexcept
     {
         if (c.wrapPending and autoWrap)
         {
-            // Push LineFeed to handle the wrap-scroll in Screen
-            grid.push (Command { Command::Type::LineFeed, {}, fillBg, 0, c.row, 0 });
-
             if (c.row == scrollBottom)
             {
-                // Row stays at scrollBottom; Screen scrolled the buffer
+                grid.scrollUp (scrollTop, scrollBottom);
+
+                if (fillBg.getAlpha() > 0)
+                {
+                    jam::Cell* bottom { grid.getWritePointer (scrollBottom) };
+                    const jam::Cell fill { jam::Cell::erase (fillBg) };
+
+                    for (int col { 0 }; col < grid.getNumCols(); ++col)
+                        bottom[col] = fill;
+                }
             }
             else if (c.row > scrollBottom)
             {
@@ -214,18 +224,17 @@ struct GroundOps
         }
 
         c.wrapPending = false;
-        cellTemplate.codepoint = translateCharset (static_cast<uint32_t> (byte), useLineDrawing);
+        cellTemplate.codepoint = codepoint;
 
         if (activeLinkId != 0)
         {
             cellTemplate.style |= jam::Cell::UNDERLINE;
         }
 
-        grid.push (Command { Command::Type::Print, cellTemplate, {}, 0, c.row, c.col });
+        *grid.getWritePointer (c.row, c.col) = cellTemplate;
 
-        // TODO: link ID via Command
-        // activeLinkId stamping on the cell was previously written to linkIdRow;
-        // no linkId field exists on Command yet.
+        // TODO: link ID stamping
+        // activeLinkId should be written to a per-row sidecar on Grid.
 
         if (c.col + 1 >= cols)
         {
@@ -235,34 +244,41 @@ struct GroundOps
         {
             ++c.col;
         }
-
-        juce::ignoreUnused (scrollTop);
     }
 };
 
 /**
- * @brief Fast-path processor for ground-state printable ASCII and common C0 codes.
+ * @brief Fast-path processor for ground-state printable bytes and common C0 codes.
  *
  * Called by `process()` when the parser is in the `ground` state and the
  * input buffer begins with a byte that can be handled without the full
  * dispatch table.  Processes bytes in a tight loop until it encounters a byte
- * that requires the state machine (e.g. ESC, CSI introducer, or any byte
- * outside the handled set).
+ * that requires the state machine (e.g. ESC, CSI introducer, a UTF-8 sequence
+ * whose continuation bytes are not yet in the buffer, or a wide/combining
+ * codepoint that must go through the DFA slow path).
  *
  * @par Handled byte ranges
- * | Byte(s)            | Action                                           |
- * |--------------------|--------------------------------------------------|
- * | 0x20–0x7E          | `GroundOps::flushPrintRun()` — push Print command|
- * | 0x0A / 0x0B / 0x0C | `GroundOps::handleLineFeed()` — LF / VT / FF    |
- * | 0x0D               | `GroundOps::handleCarriageReturn()` — CR         |
- * | 0x08               | `GroundOps::handleBackspace()` — BS              |
- * | Any other byte     | Loop exits; byte is left for the state machine   |
+ * | Byte(s)            | Action                                                              |
+ * |--------------------|---------------------------------------------------------------------|
+ * | 0x20–0x7E          | `GroundOps::flushPrintCodepoint()` — ASCII print (charset-translated)|
+ * | 0x0A / 0x0B / 0x0C | `GroundOps::handleLineFeed()` — LF / VT / FF                       |
+ * | 0x0D               | `GroundOps::handleCarriageReturn()` — CR                            |
+ * | 0x08               | `GroundOps::handleBackspace()` — BS                                 |
+ * | 0xC2–0xF4 (lead)   | UTF-8 multi-byte decode → `flushPrintCodepoint()` (width-1 only)   |
+ * | Any other byte     | Loop exits; byte is left for the state machine                      |
+ *
+ * @par UTF-8 fast path
+ * When a lead byte in the range 0xC2–0xF4 is encountered and all continuation
+ * bytes are present in the buffer, the sequence is decoded inline.  Only
+ * width-1, non-combining codepoints are handled here; wide characters and
+ * combining marks break to the DFA slow path so that their full grapheme
+ * cluster and wide-cell logic is applied.
  *
  * @par State writeback
  * The cursor position is read from State once at the start and written back
  * only if `consumed > 0`.  The grapheme segmentation state is reset to its
- * initial value after the run (the fast path only handles single-codepoint
- * ASCII characters, so no cluster state carries over).
+ * initial value after the run (the fast path only handles single-codepoint,
+ * non-combining characters, so no cluster state carries over).
  *
  * @param data    Pointer to the first byte of the input buffer.
  * @param length  Maximum number of bytes to examine.
@@ -273,11 +289,19 @@ struct GroundOps
  * @note READER THREAD only.
  *
  * @see process()
- * @see GroundOps::flushPrintRun()
+ * @see GroundOps::flushPrintCodepoint()
  * @see GroundOps::handleLineFeed()
  */
-// READER THREAD — bulk ground-state: printable ASCII + LF/CR/BS
-size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
+/** @brief UTF-8 sequence length by lead byte (indexed by byte - 0xC2).
+ *  0xC2-0xDF = 2, 0xE0-0xEF = 3, 0xF0-0xF4 = 4. */
+static constexpr int utf8LeadLength[51] {
+    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, // 0xC2-0xDF (30 entries)
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,                               // 0xE0-0xEF (16 entries)
+    4,4,4,4,4                                                        // 0xF0-0xF4 (5 entries)
+};
+
+// READER THREAD — bulk ground-state: printable ASCII + UTF-8 width-1 + LF/CR/BS
+size_t Parser::processGroundBlock (const uint8_t* data, size_t length) noexcept
 {
     const auto scr { state.getRawValue<ActiveScreen> (ID::activeScreen) };
     const int cols { state.getRawValue<int> (ID::cols) };
@@ -306,10 +330,11 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
 
         if (byte >= 0x20 and byte <= 0x7E)
         {
-            GroundOps::flushPrintRun (c, grid, scrollTop, scrollBottomVal,
-                                      visibleRows, cols, autoWrap, cellTemplate,
-                                      byte, useLineDrawing, stamp.bg, activeLinkId);
-            lastGraphicChar = cellTemplate.codepoint;
+            const uint32_t cp { translateCharset (static_cast<uint32_t> (byte), useLineDrawing) };
+            GroundOps::flushPrintCodepoint (c, grid, scrollTop, scrollBottomVal,
+                                            visibleRows, cols, autoWrap, cellTemplate,
+                                            cp, stamp.bg, activeLinkId);
+            lastGraphicChar = cp;
             consumed = i + 1;
             continue;
         }
@@ -334,6 +359,53 @@ size_t Parser::processGroundChunk (const uint8_t* data, size_t length) noexcept
             GroundOps::handleBackspace (c);
             consumed = i + 1;
             continue;
+        }
+
+        // UTF-8 lead byte — decode multi-byte sequence in fast path
+        if (byte >= 0xC2 and byte <= 0xF4)
+        {
+            const int expectedLen { utf8LeadLength[byte - 0xC2] };
+            const size_t remaining { length - i };
+
+            if (static_cast<size_t> (expectedLen) <= remaining)
+            {
+                bool validSequence { true };
+
+                for (int j { 1 }; j < expectedLen and validSequence; ++j)
+                    validSequence = (data[i + static_cast<size_t> (j)] >= 0x80
+                                 and data[i + static_cast<size_t> (j)] < 0xC0);
+
+                if (validSequence)
+                {
+                    char utf8Buf[5];
+
+                    for (int j { 0 }; j < expectedLen; ++j)
+                        utf8Buf[j] = static_cast<char> (data[i + static_cast<size_t> (j)]);
+
+                    utf8Buf[expectedLen] = '\0';
+
+                    juce::CharPointer_UTF8 decoder (utf8Buf);
+                    const uint32_t codepoint { static_cast<uint32_t> (*decoder) };
+                    const auto props { charPropsFor (codepoint) };
+
+                    if (props.width() < 2 and not props.isCombiningChar())
+                    {
+                        cellTemplate.layout = props.isEmojiPresentation()
+                                                ? jam::Cell::LAYOUT_EMOJI : 0;
+
+                        GroundOps::flushPrintCodepoint (c, grid, scrollTop, scrollBottomVal,
+                                                        visibleRows, cols, autoWrap,
+                                                        cellTemplate, codepoint,
+                                                        stamp.bg, activeLinkId);
+                        lastGraphicChar = codepoint;
+                        cellTemplate.layout = 0;
+
+                        i += static_cast<size_t> (expectedLen) - 1;
+                        consumed = i + 1;
+                        continue;
+                    }
+                }
+            }
         }
 
         break;
@@ -378,12 +450,21 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
         const int row { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
         const int scrollBot { activeScrollBottom() };
         const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
-
-        grid.push (Command { Command::Type::LineFeed, {}, stamp.bg, 0, row, 0 });
+        const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
 
         if (row == scrollBot)
         {
-            // Row stays at scrollBot; Screen scrolled the buffer
+            grid.scrollUp (scrollTop, scrollBot);
+
+            if (stamp.bg.getAlpha() > 0)
+            {
+                jam::Cell* bottom { grid.getWritePointer (scrollBot) };
+                const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+                const int cols { state.getRawValue<int> (ID::cols) };
+
+                for (int col { 0 }; col < cols; ++col)
+                    bottom[col] = fill;
+            }
         }
         else if (row > scrollBot)
         {
@@ -409,7 +490,7 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
  * @par Case 1 — Grapheme cluster extension (`segResult.addToCurrentCell()`)
  * The codepoint is a combining character, variation selector, or other
  * non-spacing mark that extends the previous grapheme cluster.  Grapheme
- * cluster extension is deferred — a `// TODO: grapheme sidecar via Command`
+ * cluster extension is deferred — a `// TODO: grapheme sidecar on Grid`
  * marker is left; the base Print command was already pushed on the previous
  * call.
  *
@@ -418,9 +499,9 @@ void Parser::resolveWrapPending (ActiveScreen scr) noexcept
  * 2. If the character is wide (width 2) and would overflow the right margin,
  *    the cursor wraps to the next line (if auto-wrap is enabled).
  * 3. A `jam::Cell` is built from the codepoint, current pen attributes, and
- *    character width.  A Command::Print is pushed to the Grid.
- * 4. For wide characters, a second Command::Print with a LAYOUT_WIDE_CONT
- *    continuation cell is pushed.
+ *    character width.  The cell is written to Grid via getWritePointer().
+ * 4. For wide characters, a second cell with LAYOUT_WIDE_CONT is written
+ *    to the adjacent column.
  * 5. The cursor is advanced by `cellWidth` columns, or `wrapPending` is set
  *    if the cursor has reached the right margin.
  *
@@ -444,10 +525,10 @@ void Parser::print (uint32_t codepoint) noexcept
 
     if (segResult.addToCurrentCell())
     {
-        // TODO: grapheme sidecar via Command
+        // TODO: grapheme sidecar on Grid
         // Previously: read rowCells(row), rowGraphemes(row), update grapheme cluster,
-        // handle VS-15/VS-16 width promotion/demotion.  No Command type exists for
-        // grapheme extension yet — deferred.
+        // handle VS-15/VS-16 width promotion/demotion.  Deferred — Grid needs a
+        // grapheme sidecar similar to jam::Cells.
     }
     else
     {
@@ -469,12 +550,20 @@ void Parser::print (uint32_t codepoint) noexcept
             {
                 const int scrollBot { activeScrollBottom() };
                 const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
-
-                grid.push (Command { Command::Type::LineFeed, {}, stamp.bg, 0, row, 0 });
+                const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
 
                 if (row == scrollBot)
                 {
-                    // Row stays at scrollBot; Screen scrolled the buffer
+                    grid.scrollUp (scrollTop, scrollBot);
+
+                    if (stamp.bg.getAlpha() > 0)
+                    {
+                        jam::Cell* bottom { grid.getWritePointer (scrollBot) };
+                        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+
+                        for (int c { 0 }; c < cols; ++c)
+                            bottom[c] = fill;
+                    }
                 }
                 else if (row > scrollBot)
                 {
@@ -510,11 +599,11 @@ void Parser::print (uint32_t codepoint) noexcept
             cell.style |= jam::Cell::UNDERLINE;
         }
 
-        // TODO: link ID via Command
+        // TODO: link ID stamping on Grid
         // Previously: linkIds[writeCol] = activeLinkId stamped to sidecar.
-        // No linkId field on Command yet — commented out, not deleted.
+        // Grid needs a per-row link ID sidecar.
 
-        grid.push (Command { Command::Type::Print, cell, {}, 0, writeRow, writeCol });
+        *grid.getWritePointer (writeRow, writeCol) = cell;
 
         lastGraphicChar = codepoint;
 
@@ -528,7 +617,7 @@ void Parser::print (uint32_t codepoint) noexcept
             cont.bg = stamp.bg;
             cont.layout = jam::Cell::LAYOUT_WIDE_CONT;
 
-            grid.push (Command { Command::Type::Print, cont, {}, 0, writeRow, writeCol + 1 });
+            *grid.getWritePointer (writeRow, writeCol + 1) = cont;
         }
 
         if (writeCol + cellWidth >= cols)
@@ -549,9 +638,9 @@ void Parser::print (uint32_t codepoint) noexcept
 /**
  * @brief Performs a line feed, advancing the cursor or scrolling the region.
  *
- * Pushes a Command::LineFeed to the grid, delegates cursor movement to
+ * Calls `grid.scrollUp()` if at scroll bottom, delegates cursor movement to
  * `cursorGoToNextLine()`.  If the cursor is already at `scrollBottom`,
- * the row stays in place — Screen handles the buffer scroll.
+ * the row stays in place — Grid handles the scroll via ring-buffer head advance.
  *
  * @par Sequence
  * Invoked for LF (0x0A), VT (0x0B), and FF (0x0C) via `execute()`, and
@@ -570,8 +659,22 @@ void Parser::executeLineFeed (ActiveScreen scr) noexcept
     const int scrollBot { activeScrollBottom() };
     const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
     const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+    const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
 
-    grid.push (Command { Command::Type::LineFeed, {}, stamp.bg, 0, cursorRow, 0 });
+    if (cursorRow == scrollBot)
+    {
+        grid.scrollUp (scrollTop, scrollBot);
+
+        if (stamp.bg.getAlpha() > 0)
+        {
+            jam::Cell* bottom { grid.getWritePointer (scrollBot) };
+            const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+            const int cols { state.getRawValue<int> (ID::cols) };
+
+            for (int col { 0 }; col < cols; ++col)
+                bottom[col] = fill;
+        }
+    }
 
     cursorGoToNextLine (scr, scrollBot, visibleRows);
 
@@ -752,12 +855,12 @@ void Parser::resetModes() noexcept
  *
  * Equivalent to the ESC c sequence.  Restores the terminal to a clean
  * power-on state:
- * 1. Switches to the normal screen buffer via Command::SetScreen.
+ * 1. Switches to the normal screen buffer via `grid.setScreen()`.
  * 2. Homes the cursor via `resetCursor()`.
  * 3. Resets all mode flags via `resetModes()`.
  * 4. Resets the active pen via `resetPen()`.
  * 5. Disables the line-drawing charset.
- * 6. Pushes Command::EraseInDisplay mode 2 to clear the visible grid.
+ * 6. Calls `grid.clear()` to clear the visible grid.
  * 7. Calls `calc()` to synchronise internal cached geometry.
  *
  * @note READER THREAD only.
@@ -770,6 +873,7 @@ void Parser::resetModes() noexcept
 void Parser::reset() noexcept
 {
     state.setScreen (normal);
+    grid.setScreen (false);
     resetCursor (state.getRawValue<int> (ID::cols));
     resetModes();
     resetPen();
@@ -778,7 +882,7 @@ void Parser::reset() noexcept
     g1LineDrawing  = false;
     activeLinkId   = 0;
 
-    grid.push (Command { Command::Type::EraseInDisplay, {}, juce::Colour {}, 2, 0, 0 });
+    grid.clear();
 
     calc();
 }

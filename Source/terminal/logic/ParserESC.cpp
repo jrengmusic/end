@@ -30,7 +30,7 @@
  * @see ParserVT.cpp  — ground-state print and execute handlers
  * @see ParserCSI.cpp — CSI sequence dispatch
  * @see State         — atomic terminal parameter store
- * @see Grid          — SPSC FIFO receiving Commands pushed by DECALN
+ * @see Grid          — ring-buffer cell storage
  */
 
 #include "Parser.h"
@@ -103,8 +103,22 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
             const int scrollBot { activeScrollBottom() };
             const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
             const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+            const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
 
-            grid.push (Command { Command::Type::LineFeed, {}, stamp.bg, 0, cursorRow, 0 });
+            if (cursorRow == scrollBot)
+            {
+                grid.scrollUp (scrollTop, scrollBot);
+
+                if (stamp.bg.getAlpha() > 0)
+                {
+                    jam::Cell* bottom { grid.getWritePointer (scrollBot) };
+                    const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+                    const int cols { state.getRawValue<int> (ID::cols) };
+
+                    for (int col { 0 }; col < cols; ++col)
+                        bottom[col] = fill;
+                }
+            }
 
             cursorGoToNextLine (scr, scrollBot, visibleRows);
 
@@ -120,8 +134,22 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
             const int scrollBot { activeScrollBottom() };
             const int visibleRows { state.getRawValue<int> (ID::visibleRows) };
             const int cursorRow { state.getRawValue<int> (state.screenKey (scr, ID::cursorRow)) };
+            const int scrollTop { state.getRawValue<int> (state.screenKey (scr, ID::scrollTop)) };
 
-            grid.push (Command { Command::Type::LineFeed, {}, stamp.bg, 0, cursorRow, 0 });
+            if (cursorRow == scrollBot)
+            {
+                grid.scrollUp (scrollTop, scrollBot);
+
+                if (stamp.bg.getAlpha() > 0)
+                {
+                    jam::Cell* bottom { grid.getWritePointer (scrollBot) };
+                    const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+                    const int cols { state.getRawValue<int> (ID::cols) };
+
+                    for (int col { 0 }; col < cols; ++col)
+                        bottom[col] = fill;
+                }
+            }
 
             cursorGoToNextLine (scr, scrollBot, visibleRows);
 
@@ -141,8 +169,17 @@ void Parser::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noe
 
             if (cursorRow == scrollTopVal)
             {
-                // Reverse Index at scroll top: push InsertLines(1) at scrollTop
-                grid.push (Command { Command::Type::InsertLines, {}, stamp.bg, 1, scrollTopVal, 0 });
+                grid.scrollDown (scrollTopVal, scrollBot);
+
+                if (stamp.bg.getAlpha() > 0)
+                {
+                    jam::Cell* top { grid.getWritePointer (scrollTopVal) };
+                    const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+                    const int cols { state.getRawValue<int> (ID::cols) };
+
+                    for (int col { 0 }; col < cols; ++col)
+                        top[col] = fill;
+                }
             }
             else if (cursorRow > 0)
             {
@@ -222,7 +259,7 @@ void Parser::escDispatchCharset (uint8_t interByte, uint8_t finalByte) noexcept
  * cursor.  DECALN is used by terminal conformance tests to verify that all
  * cells are addressable and that the screen geometry is correct.
  *
- * Each cell is pushed as an individual Command::Print.
+ * Each cell is written directly to Grid via getWritePointer.
  *
  * @param scr        Target screen buffer (normal or alternate).
  * @param finalByte  The ESC final byte following `#`.
@@ -244,10 +281,10 @@ void Parser::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
 
         for (int row { 0 }; row < visibleRows; ++row)
         {
+            jam::Cell* rowPtr { grid.getWritePointer (row) };
+
             for (int col { 0 }; col < cols; ++col)
-            {
-                grid.push (Command { Command::Type::Print, st, {}, 0, row, col });
-            }
+                rowPtr[col] = st;
         }
 
         cursorSetPosition (scr, 0, 0, cols, visibleRows);

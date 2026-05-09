@@ -213,6 +213,9 @@ Session::Session (int cols,
                   const juce::String& uuid)
     : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
+    grid.setSize (rows, cols, false, true, false);
+    state.setDimensions (cols, rows);
+
 #if JUCE_MAC || JUCE_LINUX
     tty = std::make_unique<UnixTTY>();
 #elif JUCE_WINDOWS
@@ -243,8 +246,8 @@ Session::Session (int cols,
 
     // Create Processor and wire the terminal pipeline.
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<Terminal::Processor> (cols, rows, effectiveUuid);
-    processor->getState().setId (effectiveUuid);
+    processor = std::make_unique<Terminal::Processor> (grid, state, effectiveUuid);
+    state.setId (effectiveUuid);
 
     Terminal::Processor* procRawPtr { processor.get() };
 
@@ -282,14 +285,14 @@ Session::Session (int cols,
     tty->onDrainComplete = [this, procRawPtr]
     {
         procRawPtr->getParser().flushResponses();
-        procRawPtr->getState().clearPasteEchoGate();
+        state.clearPasteEchoGate();
 
-        if (procRawPtr->getState().consumeSyncResize())
-            platformResize (procRawPtr->getState().getCols(), procRawPtr->getState().getVisibleRows());
+        if (state.consumeSyncResize())
+            platformResize (state.getCols(), state.getVisibleRows());
     };
 
     // 4. State flush: query cwd + foreground process from PTY, then fire external onStateFlush.
-    procRawPtr->getState().onFlush = [this, procRawPtr]
+    state.onFlush = [this]
     {
         const int fgPid { getForegroundPid() };
         const int shellPid { getShellPid() };
@@ -298,7 +301,7 @@ Session::Session (int cols,
         {
             if (fgPid == shellPid)
             {
-                procRawPtr->getState().setForegroundProcess ("", 0);
+                state.setForegroundProcess ("", 0);
             }
             else
             {
@@ -306,7 +309,7 @@ Session::Session (int cols,
                 const int fgNameLen { getProcessName (fgPid, fgNameBuf, Terminal::State::maxStringLength) };
 
                 if (fgNameLen > 0)
-                    procRawPtr->getState().setForegroundProcess (fgNameBuf, fgNameLen);
+                    state.setForegroundProcess (fgNameBuf, fgNameLen);
             }
 
             if (shouldTrackCwdFromOs)
@@ -315,7 +318,7 @@ Session::Session (int cols,
                 const int cwdLen { getCwd (fgPid, cwdBuf, Terminal::State::maxStringLength) };
 
                 if (cwdLen > 0)
-                    procRawPtr->getState().setCwd (cwdBuf, cwdLen);
+                    state.setCwd (cwdBuf, cwdLen);
             }
         }
 
@@ -342,10 +345,13 @@ Session::Session (int cols, int rows,
     jassert (cols > 0);
     jassert (rows > 0);
 
+    grid.setSize (rows, cols, false, true, false);
+    state.setDimensions (cols, rows);
+
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<Terminal::Processor> (cols, rows, effectiveUuid);
-    processor->getState().setId (effectiveUuid);
-    processor->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
+    processor = std::make_unique<Terminal::Processor> (grid, state, effectiveUuid);
+    state.setId (effectiveUuid);
+    state.get().setProperty (Terminal::ID::cwd, cwd, nullptr);
 }
 
 /**
