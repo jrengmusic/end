@@ -20,45 +20,6 @@
 
 #include <JuceHeader.h>
 
-/**
- * @brief Hash specialization for juce::Identifier to enable use in unordered containers.
- *
- * This specialization enables using juce::Identifier as a key type in
- * std::unordered_map and std::unordered_set. The hash is computed from the
- * Identifier's internal character pointer address, which is stable for the
- * lifetime of the Identifier.
- *
- * @par Why Specialize std::hash?
- * By default, std::hash is not defined for juce::Identifier. Without this
- * specialization, Identifiers cannot be used as keys in unordered associative
- * containers. This is useful for:
- * - Fast lookup of terminal modes by identifier name
- * - Building maps of screen parameters by name
- * - Sets of active mode flags
- *
- * @par Hash Quality
- * The hash uses the character pointer address, which provides good distribution
- * for Identifier objects since they intern their strings. Two Identifiers with
- * the same name will have the same pointer, guaranteeing identical hashes.
- *
- * @note Thread Safety: This hash function is read-only and thread-safe.
- *
- * @par Example
- * @code
- * std::unordered_map<juce::Identifier, bool> modeFlags;
- * modeFlags[Terminal::ID::autoWrap] = true;
- * @endcode
- */
-namespace std
-{
-    template <> struct hash<juce::Identifier>
-    {
-        size_t operator() (const juce::Identifier& id) const noexcept
-        {
-            return std::hash<const void*>{} (id.getCharPointer().getAddress());
-        }
-    };
-}
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -103,6 +64,12 @@ namespace ID
     /** @brief Generic parameter node identifier for DEC private parameters. */
     static const juce::Identifier PARAM          { "PARAM" };
 
+    /** @brief Container node for cross-thread string (TEXT) parameter declarations. */
+    static const juce::Identifier TEXT           { "TEXT" };
+
+    /** @brief Screen parameter group node in Parameters.xml. */
+    static const juce::Identifier SCREEN         { "SCREEN" };
+
     //==========================================================================
     // PARAM properties (generic parameter node properties)
     //==========================================================================
@@ -112,6 +79,18 @@ namespace ID
 
     /** @brief Parameter value (the setting for this parameter). */
     static const juce::Identifier value          { "value" };
+
+    /** @brief Parameter type attribute in XML schema. */
+    static const juce::Identifier type           { "type" };
+
+    /** @brief Parameter default value attribute in XML schema. */
+    static const juce::Identifier defaultValue   { "default" };
+
+    /** @brief Text parameter max length attribute in XML schema. */
+    static const juce::Identifier maxlen         { "maxlen" };
+
+    /** @brief Boolean type string in XML schema. */
+    static const juce::Identifier boolType       { "bool" };
 
     //==========================================================================
     // Session parameter IDs (global terminal session state)
@@ -126,17 +105,11 @@ namespace ID
     /** @brief Number of visible rows (terminal height in lines). */
     static const juce::Identifier visibleRows    { "visibleRows" };
 
-    /** @brief Number of rows currently used in the scrollback buffer. */
-    static const juce::Identifier scrollbackUsed { "scrollbackUsed" };
-
     /** @brief Current hint page index (0-based). Updated on open-file mode entry and spacebar. */
     static const juce::Identifier hintPage       { "hintPage" };
 
     /** @brief Total number of hint pages. Updated on open-file mode entry. */
     static const juce::Identifier hintTotalPages { "hintTotalPages" };
-
-    /** @brief Viewport Y scroll position in pixels. Written and read on the message thread by Display. */
-    static const juce::Identifier scrollPosition { "scrollPosition" };
 
     //==========================================================================
     // Display name parameter IDs (tab name sources)
@@ -219,15 +192,6 @@ namespace ID
     /** @brief DECSCUSR cursor shape (0=default, 1=blinking block, 2=steady block, 3=blinking underline, 4=steady underline, 5=blinking bar, 6=steady bar). */
     static const juce::Identifier cursorShape         { "cursorShape" };
 
-    /** @brief OSC 12 cursor color red component (0-255). -1 = not set (use config default). */
-    static const juce::Identifier cursorColorR         { "cursorColorR" };
-
-    /** @brief OSC 12 cursor color green component (0-255). -1 = not set (use config default). */
-    static const juce::Identifier cursorColorG         { "cursorColorG" };
-
-    /** @brief OSC 12 cursor color blue component (0-255). -1 = not set (use config default). */
-    static const juce::Identifier cursorColorB         { "cursorColorB" };
-
     /** @brief Progressive keyboard protocol flags (CSI u bitmask). 0 = legacy mode. */
     static const juce::Identifier keyboardFlags        { "keyboardFlags" };
 
@@ -291,96 +255,6 @@ namespace ID
     /** @brief True when new cell data has been written to the grid since the last repaint. */
     static const juce::Identifier snapshotDirty        { "snapshotDirty" };
 
-    /** @brief Non-zero when all visible rows must be rebuilt on the next frame. */
-    static const juce::Identifier fullRebuild          { "fullRebuild" };
-
-    //==========================================================================
-    // Cursor blink state (message-thread only, moved from stray members)
-    //==========================================================================
-
-    /** @brief Current blink phase: 1.0 = visible half, 0.0 = hidden half. */
-    static const juce::Identifier cursorBlinkOn        { "cursorBlinkOn" };
-
-    /** @brief Milliseconds accumulated since the last blink phase toggle. */
-    static const juce::Identifier cursorBlinkElapsed   { "cursorBlinkElapsed" };
-
-    /** @brief Last-flushed cursor row used to detect cursor movement for blink reset. */
-    static const juce::Identifier prevFlushedCursorRow { "prevFlushedCursorRow" };
-
-    /** @brief Last-flushed cursor column used to detect cursor movement for blink reset. */
-    static const juce::Identifier prevFlushedCursorCol { "prevFlushedCursorCol" };
-
-    /** @brief Blink half-period in milliseconds (from cursor.blink_interval config). */
-    static const juce::Identifier cursorBlinkInterval  { "cursorBlinkInterval" };
-
-    /** @brief Whether cursor blinking is enabled (from cursor.blink config). */
-    static const juce::Identifier cursorBlinkEnabled   { "cursorBlinkEnabled" };
-
-    /** @brief Whether the terminal component currently has keyboard focus. */
-    static const juce::Identifier cursorFocused        { "cursorFocused" };
-
-    //==========================================================================
-    // IPC subscriber seqno tracking
-    //==========================================================================
-
-    /** @brief Container node for per-subscriber seqno tracking (children of SESSION). */
-    static const juce::Identifier SUBSCRIBERS          { "SUBSCRIBERS" };
-
-    /** @brief Child node type for one subscriber entry (children of SUBSCRIBERS). */
-    static const juce::Identifier SUBSCRIBER           { "SUBSCRIBER" };
-
-    /** @brief Property on a SUBSCRIBER node: the subscriber's stable UUID string. */
-    static const juce::Identifier subscriberId         { "subscriberId" };
-
-    /** @brief Property on a SUBSCRIBER node: the last seqno delivered to this subscriber. Stored as int64. */
-    static const juce::Identifier lastKnownSeqno       { "lastKnownSeqno" };
-
-    /** @brief Root-level SESSION property: the last seqno applied to this State (proxy/client side). */
-    static const juce::Identifier lastKnownSeqnoRoot   { "lastKnownSeqnoRoot" };
-
-    //==========================================================================
-    // Image subsystem identifiers
-    //==========================================================================
-
-    /** @brief Container node for inline image metadata (children of SESSION). */
-    static const juce::Identifier IMAGES              { "IMAGES" };
-
-    /** @brief Child node type for one image entry (children of IMAGES). */
-    static const juce::Identifier IMAGE               { "IMAGE" };
-
-    /** @brief Atlas-assigned image ID (uint32_t stored as int). 0 = invalid. */
-    static const juce::Identifier imageId             { "imageId" };
-
-    /** @brief Absolute grid row of image placement (scrollback-aware). */
-    static const juce::Identifier gridRow             { "gridRow" };
-
-    /** @brief Grid column of image placement. */
-    static const juce::Identifier gridCol             { "gridCol" };
-
-    /** @brief Image span in cell columns. */
-    static const juce::Identifier cellCols            { "cellCols" };
-
-    /** @brief Image span in cell rows. */
-    static const juce::Identifier cellRows            { "cellRows" };
-
-    /** @brief Number of frames (1 = static, >1 = animated). */
-    static const juce::Identifier frameCount          { "frameCount" };
-
-    /** @brief Current animation frame index (0-based). */
-    static const juce::Identifier currentFrame        { "currentFrame" };
-
-    /** @brief Timestamp (ms) when the current frame started displaying. */
-    static const juce::Identifier frameStartMs        { "frameStartMs" };
-
-    /** @brief Binary blob (MemoryBlock) containing packed imageId + delay arrays for all frames. */
-    static const juce::Identifier frameData           { "frameData" };
-
-    /** @brief Image width in pixels. */
-    static const juce::Identifier widthPx             { "widthPx" };
-
-    /** @brief Image height in pixels. */
-    static const juce::Identifier heightPx            { "heightPx" };
-
     //==========================================================================
     // Image preview split-viewport state (MESSAGE THREAD only, direct properties on SESSION root)
     //==========================================================================
@@ -390,32 +264,6 @@ namespace ID
 
     /** @brief Column at which the terminal clips for preview split. */
     static const juce::Identifier splitCol            { "splitCol" };
-
-    /** @brief True on IMAGE nodes created for preview (ephemeral). */
-    static const juce::Identifier isPreview           { "isPreview" };
-
-    //==========================================================================
-    // Image erase accumulation (READER THREAD atomics, parameterMap)
-    //==========================================================================
-
-    /** @brief Accumulated erase region top row (absolute grid row). Sentinel: large positive value. */
-    static const juce::Identifier eraseTop            { "eraseTop" };
-
-    /** @brief Accumulated erase region left column. Sentinel: large positive value. */
-    static const juce::Identifier eraseLeft           { "eraseLeft" };
-
-    /** @brief Accumulated erase region bottom row (absolute grid row). Sentinel: -1 (no erase). */
-    static const juce::Identifier eraseBottom         { "eraseBottom" };
-
-    /** @brief Accumulated erase region right column. Sentinel: -1 (no erase). */
-    static const juce::Identifier eraseRight          { "eraseRight" };
-
-    //==========================================================================
-    // Link URI tracking (READER THREAD monotonic counter, parameterMap)
-    //==========================================================================
-
-    /** @brief Next slot index for hyperlink URI assignment. READER THREAD monotonic counter. */
-    static const juce::Identifier linkUriCount        { "linkUriCount" };
 
     //==========================================================================
     // Event map keys (jam::Function::Map events fired by Video, handled by Processor)
@@ -454,9 +302,6 @@ namespace ID
     /** @brief Fired on DEC mode 2026 synchronized output toggle — args: bool. */
     static const juce::Identifier syncOutput          { "syncOutput" };
 
-    /** @brief Fired to accumulate image erase region — args: int top, int left, int bottom, int right. */
-    static const juce::Identifier queueImageErase     { "queueImageErase" };
-
     /** @brief Fired when an inline image is fully decoded — args: pixel data, frame data, and placement metadata. */
     static const juce::Identifier imageDecoded        { "imageDecoded" };
 
@@ -490,21 +335,6 @@ namespace ID
     static const juce::Identifier osc1337Raw          { "osc1337Raw" };
 
 }
-
-/**
- * @enum ActiveScreen
- * @brief Selects between the normal and alternate terminal screen buffers.
- *
- * VT terminals support two independent screen buffers.  The alternate screen
- * is typically activated by full-screen applications (vim, less, ...) via the
- * `?1049h` / `?1049l` private mode sequences.  The value doubles as an array
- * index into per-screen parameter arrays.
- */
-enum ActiveScreen : size_t
-{
-    normal    = 0, ///< Primary screen buffer (default).
-    alternate = 1  ///< Alternate screen buffer (full-screen apps).
-};
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace Terminal

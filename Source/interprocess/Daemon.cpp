@@ -357,7 +357,7 @@ void Daemon::wireSessionCallbacks (const juce::String& uuid, Terminal::Session& 
  */
 void Daemon::wireOnBytes (const juce::String& uuid, Terminal::Session& session)
 {
-    jassert (session.getProcessor().getState().get().isValid());
+    jassert (session.getProcessor().getState().getValueTree().isValid());
 
     session.onBytes = [this, uuid] (const char* bytes, int len)
     {
@@ -392,7 +392,7 @@ void Daemon::wireOnBytes (const juce::String& uuid, Terminal::Session& session)
  */
 void Daemon::wireOnStateFlush (const juce::String& uuid, Terminal::Session& session)
 {
-    jassert (session.getProcessor().getState().get().isValid());
+    jassert (session.getProcessor().getState().getValueTree().isValid());
 
     Terminal::Processor* procRawPtr { &session.getProcessor() };
 
@@ -403,8 +403,8 @@ void Daemon::wireOnStateFlush (const juce::String& uuid, Terminal::Session& sess
 
     session.onStateFlush = [this, uuid, procRawPtr, lastSentCwd, lastSentFg]
     {
-        const juce::String cwdStr { procRawPtr->getState().get().getProperty (Terminal::ID::cwd).toString() };
-        const juce::String fgStr  { procRawPtr->getState().get().getProperty (Terminal::ID::foregroundProcess).toString() };
+        const juce::String cwdStr { procRawPtr->getState().getValueTree().getProperty (Terminal::ID::cwd).toString() };
+        const juce::String fgStr  { procRawPtr->getState().getValueTree().getProperty (Terminal::ID::foregroundProcess).toString() };
 
         if (cwdStr != *lastSentCwd or fgStr != *lastSentFg)
         {
@@ -443,7 +443,7 @@ void Daemon::wireOnStateFlush (const juce::String& uuid, Terminal::Session& sess
  */
 void Daemon::wireOnExit (const juce::String& uuid, Terminal::Session& session)
 {
-    jassert (session.getProcessor().getState().get().isValid());
+    jassert (session.getProcessor().getState().getValueTree().isValid());
 
     session.onExit = [this, uuid]
     {

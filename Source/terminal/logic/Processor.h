@@ -45,6 +45,7 @@
 #include "../data/Command.h"
 #include "../data/Keyboard.h"
 #include "../data/State.h"
+#include "../data/TextBuffer.h"
 #include "Grid.h"
 #include "Parser.h"
 #include "Skit.h"
@@ -94,18 +95,19 @@ public:
     /**
      * @brief Constructs the Processor and wires the parser and video via maps.
      *
-     * Receives Grid by reference from the owning Session, constructs State, Video,
-     * and Parser.  UUID is provided by the caller — no internal generation.
+     * Receives Grid and TextBuffer by reference from the owning Session,
+     * constructs State, Video, and Parser.  UUID is provided by the caller.
      * Call `setHostWriter()` immediately after construction to route video
      * responses (e.g. cursor-position reports) to the appropriate sink.
      *
-     * @param grid   Live cell buffer owned by Terminal::Session.
-     * @param cols   Initial terminal column count.
-     * @param rows   Initial terminal row count.
-     * @param uuid   Stable UUID for this Processor — generated once by the caller.
+     * @param grid        Live cell buffer owned by Terminal::Session.
+     * @param textBuffer  Cross-thread string buffer owned by Terminal::Session.
+     * @param cols        Initial terminal column count.
+     * @param rows        Initial terminal row count.
+     * @param uuid        Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
-    Processor (Grid& grid, int cols, int rows, const juce::String& uuid);
+    Processor (Grid& grid, TextBuffer& textBuffer, int cols, int rows, const juce::String& uuid);
 
     /**
      * @brief Destroys the Processor.
@@ -279,11 +281,14 @@ public:
 
 private:
     //==============================================================================
-    /** @brief Terminal parameter store — the APVTS. */
-    State state;
-
     /** @brief Live cell buffer — owned by Terminal::Session. */
     Grid& grid;
+
+    /** @brief Cross-thread string buffer — owned by Terminal::Session. */
+    TextBuffer& textBuffer;
+
+    /** @brief Terminal parameter store — constructed after references are bound. */
+    State state;
 
     /** @brief Terminal state machine — pen, cursor, modes, Grid writes. */
     Video video;

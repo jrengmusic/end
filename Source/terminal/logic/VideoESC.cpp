@@ -42,27 +42,27 @@ namespace Terminal
 // Cursor save / restore (DECSC / DECRC)
 // ============================================================================
 
-void Video::saveCursor (ActiveScreen scr) noexcept
+void Video::saveCursor (int scr) noexcept
 {
     auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-    sc.row         = cursorRow[static_cast<int> (scr)];
-    sc.col         = cursorCol[static_cast<int> (scr)];
+    sc.row         = cursorRow[scr];
+    sc.col         = cursorCol[scr];
     sc.pen         = pen;
-    sc.wrapPending = wrapPending[static_cast<int> (scr)];
+    sc.wrapPending = wrapPending[scr];
     sc.originMode  = originMode;
     sc.lineDrawing = useLineDrawing;
 }
 
-void Video::restoreCursor (ActiveScreen scr) noexcept
+void Video::restoreCursor (int scr) noexcept
 {
     const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-    cursorRow[static_cast<int> (scr)]     = sc.row;
-    cursorCol[static_cast<int> (scr)]     = sc.col;
-    pen            = sc.pen;
-    stamp          = sc.pen;
-    wrapPending[static_cast<int> (scr)]   = sc.wrapPending;
-    originMode                            = sc.originMode;
-    useLineDrawing = sc.lineDrawing;
+    cursorRow[scr]     = sc.row;
+    cursorCol[scr]     = sc.col;
+    pen                = sc.pen;
+    stamp              = sc.pen;
+    wrapPending[scr]   = sc.wrapPending;
+    originMode         = sc.originMode;
+    useLineDrawing     = sc.lineDrawing;
 }
 
 // ============================================================================
@@ -92,7 +92,7 @@ void Video::restoreCursor (ActiveScreen scr) noexcept
  * @see setTabStop()
  * @see reset()
  */
-void Video::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noexcept
+void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
 {
     switch (finalByte)
     {
@@ -101,8 +101,8 @@ void Video::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noex
             // IND — Index: line feed without CR
             const int scrollBot { activeScrollBottom() };
             const int vRows { visibleRows.load (std::memory_order_relaxed) };
-            const int cRow  { cursorRow[static_cast<int> (scr)] };
-            const int sTop  { scrollTop[static_cast<int> (scr)] };
+            const int cRow  { cursorRow[scr] };
+            const int sTop  { scrollTop[scr] };
 
             if (cRow == scrollBot)
             {
@@ -117,13 +117,13 @@ void Video::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noex
         case 'E':
         {
             // NEL — Next Line: CR + IND
-            cursorCol[static_cast<int> (scr)]     = 0;
-            wrapPending[static_cast<int> (scr)]   = false;
+            cursorCol[scr]   = 0;
+            wrapPending[scr] = false;
 
             const int scrollBot { activeScrollBottom() };
             const int vRows { visibleRows.load (std::memory_order_relaxed) };
-            const int cRow  { cursorRow[static_cast<int> (scr)] };
-            const int sTop  { scrollTop[static_cast<int> (scr)] };
+            const int cRow  { cursorRow[scr] };
+            const int sTop  { scrollTop[scr] };
 
             if (cRow == scrollBot)
             {
@@ -142,8 +142,8 @@ void Video::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noex
         case 'M':
         {
             // RI — Reverse Index: scroll down if at top of scroll region
-            const int cRow      { cursorRow[static_cast<int> (scr)] };
-            const int sTopVal   { scrollTop[static_cast<int> (scr)] };
+            const int cRow      { cursorRow[scr] };
+            const int sTopVal   { scrollTop[scr] };
             const int scrollBot { activeScrollBottom() };
 
             if (cRow == sTopVal)
@@ -152,8 +152,8 @@ void Video::escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noex
             }
             else if (cRow > 0)
             {
-                cursorRow[static_cast<int> (scr)]   = cRow - 1;
-                wrapPending[static_cast<int> (scr)] = false;
+                cursorRow[scr]   = cRow - 1;
+                wrapPending[scr] = false;
             }
 
             break;
@@ -233,7 +233,7 @@ void Video::escDispatchCharset (uint8_t interByte, uint8_t finalByte) noexcept
  *
  * @note READER THREAD only.
  */
-void Video::escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept
+void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 {
     if (finalByte == '8')
     {

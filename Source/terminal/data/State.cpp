@@ -1,352 +1,294 @@
-/**
- * @file State.cpp
- * @brief Implementation of the APVTS-style terminal parameter store.
- *
- * ## Thread model recap
- *
- * Three execution contexts touch this file:
- *
- * | Context        | Who                          | What it does here                        |
- * |----------------|------------------------------|------------------------------------------|
- * | READER THREAD  | PTY / VT parser thread       | Calls `set*()` → `storeAndFlush()`      |
- * | MESSAGE THREAD | JUCE message loop            | `timerCallback()` → `flush()`, UI reads  |
- * | TIMER          | juce::Timer (message thread) | Fires `timerCallback()` at 60 / 120 Hz  |
- *
- * The reader thread never touches the ValueTree.  The message thread never
- * touches the atomics except to read them during `flush()`.
- *
- * ## Dimension parameters (cols / visibleRows)
- *
- * `cols` and `visibleRows` are managed exclusively on the MESSAGE THREAD via
- * `CachedValue` — written by `setDimensions()`, read by `getCols()` and
- * `getVisibleRows()`.  They are **not** in the atomic `parameterMap`.
- * Reader-thread code reads dimensions directly from the Grid buffer under
- * `resizeLock` rather than from State.
- *
- * ## Adaptive timer rate
- *
- * `timerCallback()` uses a two-speed strategy:
- * - **Active** (120 Hz, ~8 ms): used when `flush()` returned `true`, meaning
- *   parameters changed and the UI may need another update soon.
- * - **Idle** (60 Hz, ~16 ms): used when nothing changed, reducing CPU overhead
- *   while still keeping latency within one display frame.
- *
- * @see State.h for the full architecture overview and API contract.
- */
-
 #include "State.h"
+#include "Layout.h"
 
 namespace Terminal
-{ /*____________________________________________________________________________*/
-
-/**
- * @brief Builds a flat compound key from a parent node type and a parameter name.
- *
- * The key format is `"<parentType>_<paramId>"`, e.g. `"NORMAL_cursorRow"`.
- * This flattening lets `parameterMap` use a single `unordered_map` for all
- * parameters regardless of their depth in the ValueTree hierarchy.
- *
- * @param parentType  Identifier of the owning group node (e.g. `ID::NORMAL`).
- * @param paramId     Raw parameter name string (e.g. `"cursorRow"`).
- * @return A `juce::Identifier` suitable as a `parameterMap` key.
- * @note Pure function — no side effects, noexcept.
- */
-juce::Identifier State::buildParamKey (const juce::Identifier& parentType, const juce::String& paramId) noexcept
 {
-    return juce::Identifier { parentType.toString() + "_" + paramId };
-}
 
-/**
- * @brief Appends a `PARAM` child node to a ValueTree parent.
- *
- * The created node has the structure:
- * @code
- *   <PARAM id="<paramId>" value="<defaultValue>" />
- * @endcode
- *
- * This is the only way parameters are added to the tree.  All calls happen
- * during construction before `buildParameterMap()` is invoked, so the tree
- * is fully populated before any atomic slots are allocated.
- *
- * @param parent        ValueTree node that will own the new PARAM child.
- * @param paramId       Identifier used as the `id` property of the PARAM node.
- * @param defaultValue  Initial value written to the `value` property.
- * @note MESSAGE THREAD — called during construction only.  `nullptr` is passed
- *       as the UndoManager because construction-time mutations are not undoable.
- */
-/*static*/ void
-State::addParam (juce::ValueTree& parent, const juce::Identifier& paramId, const juce::var& defaultValue) noexcept
-{
-    juce::ValueTree param { ID::PARAM };
-    param.setProperty (ID::id, paramId.toString(), nullptr);
-    param.setProperty (ID::value, defaultValue, nullptr);
-    parent.appendChild (param, nullptr);
-}
-
-/**
- * @brief Builds a fully-populated screen node for either the NORMAL or ALTERNATE buffer.
- *
- * Both screen buffers share the same set of per-screen parameters.  This
- * factory function avoids duplicating the `addParam` call list.  The returned
- * node is appended to the root SESSION tree by the constructor.
- *
- * Parameters added:
- * - `cursorRow`    — zero-based cursor row within the visible area (default 0).
- * - `cursorCol`    — zero-based cursor column (default 0).
- * - `cursorVisible`— cursor visibility flag; 1.0 = visible (default on).
- * - `wrapPending`  — pending-wrap flag; set when cursor is at the right margin.
- * - `scrollTop`    — top row of the DECSTBM scrolling region (default 0).
- * - `scrollBottom` — bottom row of the DECSTBM scrolling region (default 0).
- *
- * @param nodeId  The `juce::Identifier` for the node type (`ID::NORMAL` or
- *                `ID::ALTERNATE`).
- * @return A fully-populated `juce::ValueTree` node ready to be appended.
- * @note MESSAGE THREAD — called during construction only.
- */
-static juce::ValueTree buildScreenNode (const juce::Identifier& nodeId)
-{
-    juce::ValueTree node { nodeId };
-    State::addParam (node, ID::cursorRow, 0.0f);
-    State::addParam (node, ID::cursorCol, 0.0f);
-    State::addParam (node, ID::cursorVisible, 1.0f);
-    State::addParam (node, ID::wrapPending, 0.0f);
-    State::addParam (node, ID::scrollTop, 0.0f);
-    State::addParam (node, ID::scrollBottom, 0.0f);
-    State::addParam (node, ID::cursorShape, 0.0f);
-    State::addParam (node, ID::cursorColorR, -1.0f);
-    State::addParam (node, ID::cursorColorG, -1.0f);
-    State::addParam (node, ID::cursorColorB, -1.0f);
-    State::addParam (node, ID::keyboardFlags, 0.0f);
-    return node;
-}
-
-/**
- * @brief Constructs the State, builds the ValueTree skeleton, populates the
- *        atomic parameter map, and starts the flush timer at 60 Hz.
- *
- * ## Construction sequence
- *
- * 1. Root SESSION node is created and session-level PARAMs are appended:
- *    `activeScreen`, `cols`, `visibleRows`, `scrollbackUsed`,
- *    and transient state parameters.  `cols` and `visibleRows` are also bound
- *    as CachedValues in step 4 for synchronous message-thread listeners.
- * 2. A MODES group node is built and all terminal mode flags are appended
- *    with their VT-spec defaults (most off, `autoWrap` and `cursorVisible` on).
- * 3. Two screen nodes (`NORMAL`, `ALTERNATE`) are built via `buildScreenNode()`
- *    and appended to SESSION.
- * 4. `buildParameterMap()` walks the completed tree and allocates one
- *    `std::atomic<float>` per PARAM node.
- * 5. The JUCE timer is started at 60 Hz.  `timerCallback()` will adapt the
- *    rate to 120 Hz when parameters are actively changing.
- *
- * @note MESSAGE THREAD — must be constructed on the message thread so that
- *       `juce::Timer::startTimerHz()` registers with the correct event loop.
- */
-State::State()
+State::State (TextBuffer& tb)
     : state (ID::SESSION)
+    , textBuffer (tb)
 {
-    addParam (state, ID::activeScreen, 0.0f);
-    addParam (state, ID::cols, 0.0f);
-    addParam (state, ID::visibleRows, 0.0f);
-    addParam (state, ID::scrollbackUsed, 0.0f);
-    addParam (state, ID::hintPage, 0.0f);
-    addParam (state, ID::hintTotalPages, 0.0f);
-    addParam (state, ID::scrollPosition, 0.0f);
-    addParam (state, ID::selectionCursorRow, 0.0f);
-    addParam (state, ID::selectionCursorCol, 0.0f);
-    addParam (state, ID::selectionAnchorRow, 0.0f);
-    addParam (state, ID::selectionAnchorCol, 0.0f);
-    addParam (state, ID::dragAnchorRow, 0.0f);
-    addParam (state, ID::dragAnchorCol, 0.0f);
-    addParam (state, ID::dragActive, 0.0f);
+    auto xml { jam::XML::getFromBinary (jam::IDref::pluginMetadata) };
+    jassert (xml != nullptr);
 
-    // Transient session parameters (formerly stray atomics).
-    addParam (state, ID::pasteEchoRemaining, 0.0f);
-    addParam (state, ID::syncOutputActive, 0.0f);
-    addParam (state, ID::syncResizePending, 0.0f);
-    addParam (state, ID::outputBlockTop, -1.0f);
-    addParam (state, ID::outputBlockBottom, -1.0f);
-    addParam (state, ID::outputScanActive, 0.0f);
-    addParam (state, ID::promptRow, -1.0f);
-    // Flush and repaint signals.
-    addParam (state, ID::needsFlush, 0.0f);
-    addParam (state, ID::snapshotDirty, 0.0f);
-    addParam (state, ID::fullRebuild, 0.0f);
-
-    // Image erase accumulation bounding box (READER THREAD via queueImageErase).
-    addParam (state, ID::eraseTop, 999999.0f);
-    addParam (state, ID::eraseLeft, 999999.0f);
-    addParam (state, ID::eraseBottom, -1.0f);
-    addParam (state, ID::eraseRight, -1.0f);
-
-    // Link URI monotonic counter (READER THREAD via registerLinkUri).
-    addParam (state, ID::linkUriCount, 0.0f);
-
-    // Cursor blink state.
-    addParam (state, ID::cursorBlinkOn, 1.0f);
-    addParam (state, ID::cursorBlinkElapsed, 0.0f);
-    addParam (state, ID::prevFlushedCursorRow, 0.0f);
-    addParam (state, ID::prevFlushedCursorCol, 0.0f);
-    addParam (state, ID::cursorBlinkInterval, 500.0f);
-    addParam (state, ID::cursorBlinkEnabled, 1.0f);
-    addParam (state, ID::cursorFocused, 0.0f);
-
-    // MODES
-    juce::ValueTree modesNode { ID::MODES };
-    addParam (modesNode, ID::originMode, 0.0f);
-    addParam (modesNode, ID::autoWrap, 1.0f);
-    addParam (modesNode, ID::applicationCursor, 0.0f);
-    addParam (modesNode, ID::bracketedPaste, 0.0f);
-    addParam (modesNode, ID::insertMode, 0.0f);
-    addParam (modesNode, ID::mouseTracking, 0.0f);
-    addParam (modesNode, ID::mouseMotionTracking, 0.0f);
-    addParam (modesNode, ID::mouseAllTracking, 0.0f);
-    addParam (modesNode, ID::mouseSgr, 0.0f);
-    addParam (modesNode, ID::focusEvents, 0.0f);
-    addParam (modesNode, ID::applicationKeypad, 0.0f);
-    addParam (modesNode, ID::reverseVideo, 0.0f);
-    addParam (modesNode, ID::win32InputMode, 0.0f);
-    state.appendChild (modesNode, nullptr);
-
-    state.appendChild (buildScreenNode (ID::NORMAL), nullptr);
-    state.appendChild (buildScreenNode (ID::ALTERNATE), nullptr);
-
-    // SUBSCRIBERS container node — children are created/removed by attachSubscriber/detachSubscriber.
-    state.appendChild (juce::ValueTree { ID::SUBSCRIBERS }, nullptr);
-
-    // IMAGES container node — children are IMAGE nodes created/removed by addImageNode/removeImageNode.
-    state.appendChild (juce::ValueTree { ID::IMAGES }, nullptr);
-
-    // Preview split-viewport state (MESSAGE THREAD only, direct properties on SESSION root).
-    state.setProperty (ID::preview, false, nullptr);
-    state.setProperty (ID::splitCol, 0, nullptr);
-
-    buildParameterMap();
-
-    cachedCols.referTo (state, ID::cols, nullptr, 0);
-    cachedVisibleRows.referTo (state, ID::visibleRows, nullptr, 0);
+    Layout::build (*xml, *this, textBuffer);
 
     keyboardModeStack.allocate (2 * maxKeyboardStackDepth, true);
     keyboardModeStackSize.allocate (2, true);
 
-    stringMap[ID::title] = std::make_unique<StringSlot>();
-    stringMap[ID::cwd] = std::make_unique<StringSlot>();
-    stringMap[ID::foregroundProcess] = std::make_unique<StringSlot>();
-
-    getRawParam (ID::cursorBlinkEnabled)
-        ->store (lua::Engine::getContext()->display.cursor.blink ? 1.0f : 0.0f, std::memory_order_relaxed);
-    getRawParam (ID::cursorBlinkInterval)
-        ->store (
-            static_cast<float> (lua::Engine::getContext()->display.cursor.blinkInterval), std::memory_order_relaxed);
-
     startTimerHz (60);
 }
 
-/**
- * @brief Stops the flush timer and destroys the State.
- *
- * `stopTimer()` must be called before destruction to prevent `timerCallback()`
- * from firing after the `parameterMap` and `storage` members have been
- * destroyed.  JUCE's `Timer` destructor does NOT stop the timer automatically.
- *
- * @note MESSAGE THREAD — must be destroyed on the message thread.
- */
 State::~State() { stopTimer(); }
 
-// --- Reader thread ---
+//==========================================================================
+// SSOT registration
+//==========================================================================
 
-/**
- * @brief Stores a float value into the atomic slot for `key` and marks the
- *        state as needing a flush.
- *
- * This is the single write path shared by all `set*()` methods.  The store
- * uses `memory_order_relaxed` because ordering between individual parameter
- * writes is not required — the `needsFlush` release store provides the
- * necessary happens-before edge so that `flush()` (which acquires
- * `needsFlush`) sees all preceding relaxed stores.
- *
- * @param key  Compound parameter key (from `buildParamKey`, `screenKey`, or
- *             `modeKey`).  Must exist in `parameterMap`.
- * @param v    New float value to store.
- * @note READER THREAD — lock-free, noexcept.
- */
-void State::storeAndFlush (const juce::Identifier& key, float v) noexcept
+std::atomic<int>* State::addParameter (const juce::Identifier& id,
+                                       int defaultValue,
+                                       jam::AnyMap& targetMap,
+                                       juce::ValueTree& parentNode) noexcept
 {
-    parameterMap.at (key).get()->store (v, std::memory_order_relaxed);
-    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
+    juce::ValueTree param { ID::PARAM };
+    param.setProperty (ID::id, id.toString(), nullptr);
+    param.setProperty (ID::value, defaultValue, nullptr);
+    parentNode.appendChild (param, nullptr);
+
+    auto* atom { targetMap.add<Atom<int>> (id, defaultValue, param) };
+    return &atom->raw();
 }
 
-/** @note MESSAGE THREAD — writes the session UUID to the root node as a string property. */
-void State::setId (const juce::String& uuid) { state.setProperty (jam::ID::id, uuid, nullptr); }
+void State::addTextParameter (const juce::Identifier& id,
+                              juce::ValueTree& rootNode) noexcept
+{
+    auto* sessionGroup { params.get<jam::AnyMap> (ID::SESSION) };
+    sessionGroup->add<Atom<const char*>> (id, rootNode, id);
+}
 
-/** @note READER THREAD — delegates to `storeAndFlush (ID::activeScreen, …)`. */
-void State::setScreen (ActiveScreen s) noexcept { storeAndFlush (ID::activeScreen, static_cast<float> (s)); }
-/** @note READER THREAD — key is built via `modeKey (id)`. */
+//==========================================================================
+// APVTS API
+//==========================================================================
+
+std::atomic<int>* State::getRawParameterValue (const juce::Identifier& id) const noexcept
+{
+    auto* sessionGroup { params.get<jam::AnyMap> (ID::SESSION) };
+    jassert (sessionGroup->contains (id));
+    return &sessionGroup->get<Atom<int>> (id)->raw();
+}
+
+std::atomic<int>* State::getRawParameterValue (int screen,
+                                               const juce::Identifier& id) const noexcept
+{
+    const juce::Identifier screenId { map::Screen::getContext()->get (screen) };
+    auto* screenGroup { params.get<jam::AnyMap> (screenId) };
+    jassert (screenGroup->contains (id));
+    return &screenGroup->get<Atom<int>> (id)->raw();
+}
+
+std::atomic<int>* State::getModeParameterValue (const juce::Identifier& id) const noexcept
+{
+    auto* modesGroup { params.get<jam::AnyMap> (ID::MODES) };
+    jassert (modesGroup->contains (id));
+    return &modesGroup->get<Atom<int>> (id)->raw();
+}
+
+//==========================================================================
+// Private helpers
+//==========================================================================
+
+void State::storeAndFlush (std::atomic<int>& atom, int value) noexcept
+{
+    atom.store (value, std::memory_order_relaxed);
+    getRawParameterValue (ID::needsFlush)->store (1, std::memory_order_release);
+}
+
+//==========================================================================
+// ValueTree access — MESSAGE THREAD
+//==========================================================================
+
+juce::ValueTree State::getValueTree() noexcept { return state; }
+juce::ValueTree State::getValueTree() const noexcept { return state; }
+
+juce::Value State::getValue (const juce::Identifier& paramId)
+{
+    return jam::ValueTree::getValueFromChildWithID (state, paramId);
+}
+
+bool State::getMode (const juce::Identifier& id) const noexcept
+{
+    auto modesNode { state.getChildWithName (ID::MODES) };
+    auto param { jam::ValueTree::getChildWithID (modesNode, id.toString()) };
+    bool result { false };
+
+    if (param.isValid())
+    {
+        result = static_cast<bool> (param.getProperty (ID::value));
+    }
+
+    return result;
+}
+
+int State::getActiveScreen() const noexcept
+{
+    auto param { jam::ValueTree::getChildWithID (state, ID::activeScreen.toString()) };
+    int result { map::Screen::normal };
+
+    if (param.isValid())
+    {
+        result = static_cast<int> (param.getProperty (ID::value));
+    }
+
+    return result;
+}
+
+uint32_t State::getKeyboardFlags() const noexcept
+{
+    const int scr { getActiveScreen() };
+    auto screenNode { state.getChildWithName (juce::Identifier { map::Screen::getContext()->get (scr) }) };
+    auto param { jam::ValueTree::getChildWithID (screenNode, ID::keyboardFlags.toString()) };
+    uint32_t result { 0 };
+
+    if (param.isValid())
+    {
+        result = static_cast<uint32_t> (static_cast<int> (param.getProperty (ID::value)));
+    }
+
+    return result;
+}
+
+static int getScreenParamInt (const juce::ValueTree& root,
+                              int scr,
+                              const juce::Identifier& paramId,
+                              int defaultValue = 0) noexcept
+{
+    auto screenNode { root.getChildWithName (juce::Identifier { Terminal::map::Screen::getContext()->get (scr) }) };
+    auto param { jam::ValueTree::getChildWithID (screenNode, paramId.toString()) };
+    int result { defaultValue };
+
+    if (param.isValid())
+    {
+        result = static_cast<int> (param.getProperty (Terminal::ID::value));
+    }
+
+    return result;
+}
+
+
+int State::getCursorRow() const noexcept
+{
+    return getScreenParamInt (state, getActiveScreen(), ID::cursorRow);
+}
+
+int State::getCursorCol() const noexcept
+{
+    return getScreenParamInt (state, getActiveScreen(), ID::cursorCol);
+}
+
+bool State::isCursorVisible() const noexcept
+{
+    return getScreenParamInt (state, getActiveScreen(), ID::cursorVisible, 1) != 0;
+}
+
+int State::getCursorShape() const noexcept
+{
+    return getScreenParamInt (state, getActiveScreen(), ID::cursorShape);
+}
+
+int State::getCursorColor() const noexcept
+{
+    return getScreenParamInt (state, getActiveScreen(), ID::cursorColor, -1);
+}
+
+int State::getCols() const noexcept
+{
+    return getRawParameterValue (ID::cols)->load (std::memory_order_relaxed);
+}
+
+int State::getVisibleRows() const noexcept
+{
+    return getRawParameterValue (ID::visibleRows)->load (std::memory_order_relaxed);
+}
+
+juce::String State::getTitle() const noexcept { return state.getProperty (ID::title).toString(); }
+juce::String State::getCwd() const noexcept   { return state.getProperty (ID::cwd).toString(); }
+
+int State::getScrollbackUsed() const noexcept { return 0; }
+
+//==========================================================================
+// Reader-thread setters
+//==========================================================================
+
+void State::setId (const juce::String& uuid)
+{
+    state.setProperty (jam::ID::id, uuid, nullptr);
+}
+
+void State::setScreen (int s) noexcept
+{
+    storeAndFlush (*getRawParameterValue (ID::activeScreen), s);
+}
+
 void State::setMode (const juce::Identifier& id, bool v) noexcept
 {
-    storeAndFlush (modeKey (id), static_cast<float> (v));
+    storeAndFlush (*getModeParameterValue (id), v ? 1 : 0);
 }
 
-/** @note READER THREAD — key is built via `screenKey (s, ID::cursorRow)`. */
-void State::setCursorRow (ActiveScreen s, int row) noexcept
+void State::setCursorRow (int s, int row) noexcept
 {
-    storeAndFlush (screenKey (s, ID::cursorRow), static_cast<float> (row));
+    storeAndFlush (*getRawParameterValue (s, ID::cursorRow), row);
     setSnapshotDirty();
 }
-/** @note READER THREAD — key is built via `screenKey (s, ID::cursorCol)`. */
-void State::setCursorCol (ActiveScreen s, int col) noexcept
+
+void State::setCursorCol (int s, int col) noexcept
 {
-    storeAndFlush (screenKey (s, ID::cursorCol), static_cast<float> (col));
+    storeAndFlush (*getRawParameterValue (s, ID::cursorCol), col);
     setSnapshotDirty();
 }
-/** @note READER THREAD — key is built via `screenKey (s, ID::cursorVisible)`. */
-void State::setCursorVisible (ActiveScreen s, bool v) noexcept
+
+void State::setCursorVisible (int s, bool v) noexcept
 {
-    storeAndFlush (screenKey (s, ID::cursorVisible), static_cast<float> (v));
-}
-/** @note READER THREAD — key is built via `screenKey (s, ID::wrapPending)`. */
-void State::setWrapPending (ActiveScreen s, bool v) noexcept
-{
-    storeAndFlush (screenKey (s, ID::wrapPending), static_cast<float> (v));
-}
-/** @note READER THREAD — key is built via `screenKey (s, ID::scrollTop)`. */
-void State::setScrollTop (ActiveScreen s, int top) noexcept
-{
-    storeAndFlush (screenKey (s, ID::scrollTop), static_cast<float> (top));
-}
-/** @note READER THREAD — key is built via `screenKey (s, ID::scrollBottom)`. */
-void State::setScrollBottom (ActiveScreen s, int bottom) noexcept
-{
-    storeAndFlush (screenKey (s, ID::scrollBottom), static_cast<float> (bottom));
+    storeAndFlush (*getRawParameterValue (s, ID::cursorVisible), v ? 1 : 0);
 }
 
-void State::setCursorShape (ActiveScreen s, int shape) noexcept
+void State::setCursorShape (int s, int shape) noexcept
 {
-    storeAndFlush (screenKey (s, ID::cursorShape), static_cast<float> (shape));
+    storeAndFlush (*getRawParameterValue (s, ID::cursorShape), shape);
 }
 
-void State::setCursorColor (ActiveScreen s, int r, int g, int b) noexcept
+void State::setCursorColor (int s, juce::Colour colour) noexcept
 {
-    storeAndFlush (screenKey (s, ID::cursorColorR), static_cast<float> (r));
-    storeAndFlush (screenKey (s, ID::cursorColorG), static_cast<float> (g));
-    storeAndFlush (screenKey (s, ID::cursorColorB), static_cast<float> (b));
+    storeAndFlush (*getRawParameterValue (s, ID::cursorColor),
+                   static_cast<int> (colour.getARGB()));
 }
 
-void State::resetCursorColor (ActiveScreen s) noexcept
+void State::resetCursorColor (int s) noexcept
 {
-    storeAndFlush (screenKey (s, ID::cursorColorR), -1.0f);
-    storeAndFlush (screenKey (s, ID::cursorColorG), -1.0f);
-    storeAndFlush (screenKey (s, ID::cursorColorB), -1.0f);
+    storeAndFlush (*getRawParameterValue (s, ID::cursorColor), -1);
 }
 
-void State::pushKeyboardMode (ActiveScreen s, uint32_t flags) noexcept
+void State::setTitle (const char* src, int length) noexcept
 {
-    const int base { static_cast<int> (s) * maxKeyboardStackDepth };
-    auto& size { keyboardModeStackSize[static_cast<int> (s)] };
+    auto* sessionGroup { params.get<jam::AnyMap> (ID::SESSION) };
+    auto* p { textBuffer.write (ID::title, src, length) };
+    sessionGroup->get<Atom<const char*>> (ID::title)->store (p);
+    getRawParameterValue (ID::needsFlush)->store (1, std::memory_order_release);
+}
+
+void State::setCwd (const char* src, int length) noexcept
+{
+    auto* sessionGroup { params.get<jam::AnyMap> (ID::SESSION) };
+    auto* p { textBuffer.write (ID::cwd, src, length) };
+    sessionGroup->get<Atom<const char*>> (ID::cwd)->store (p);
+    getRawParameterValue (ID::needsFlush)->store (1, std::memory_order_release);
+}
+
+void State::setForegroundProcess (const char* src, int length) noexcept
+{
+    auto* sessionGroup { params.get<jam::AnyMap> (ID::SESSION) };
+    auto* p { textBuffer.write (ID::foregroundProcess, src, length) };
+    sessionGroup->get<Atom<const char*>> (ID::foregroundProcess)->store (p);
+    getRawParameterValue (ID::needsFlush)->store (1, std::memory_order_release);
+}
+
+void State::setDimensions (int cols, int rows) noexcept
+{
+    getRawParameterValue (ID::cols)->store (cols, std::memory_order_relaxed);
+    getRawParameterValue (ID::visibleRows)->store (rows, std::memory_order_relaxed);
+    getRawParameterValue (ID::needsFlush)->store (1, std::memory_order_release);
+}
+
+//==========================================================================
+// Keyboard mode stack
+//==========================================================================
+
+void State::pushKeyboardMode (int s, uint32_t flags) noexcept
+{
+    const int base { s * maxKeyboardStackDepth };
+    auto& size { keyboardModeStackSize[s] };
 
     if (size >= maxKeyboardStackDepth)
     {
-        // Evict oldest entry by shifting the stack down
         for (int i { 0 }; i < maxKeyboardStackDepth - 1; ++i)
         {
             keyboardModeStack[base + i] = keyboardModeStack[base + i + 1];
@@ -357,24 +299,26 @@ void State::pushKeyboardMode (ActiveScreen s, uint32_t flags) noexcept
 
     keyboardModeStack[base + size] = flags;
     ++size;
-    storeAndFlush (screenKey (s, ID::keyboardFlags), static_cast<float> (flags));
+    storeAndFlush (*getRawParameterValue (s, ID::keyboardFlags),
+                   static_cast<int> (flags));
 }
 
-void State::popKeyboardMode (ActiveScreen s, int count) noexcept
+void State::popKeyboardMode (int s, int count) noexcept
 {
-    auto& size { keyboardModeStackSize[static_cast<int> (s)] };
+    auto& size { keyboardModeStackSize[s] };
     const int toPop { std::min (count, size) };
     size -= toPop;
 
-    const int base { static_cast<int> (s) * maxKeyboardStackDepth };
+    const int base { s * maxKeyboardStackDepth };
     const uint32_t current { size > 0 ? keyboardModeStack[base + size - 1] : 0u };
-    storeAndFlush (screenKey (s, ID::keyboardFlags), static_cast<float> (current));
+    storeAndFlush (*getRawParameterValue (s, ID::keyboardFlags),
+                   static_cast<int> (current));
 }
 
-void State::setKeyboardMode (ActiveScreen s, uint32_t flags, int mode) noexcept
+void State::setKeyboardMode (int s, uint32_t flags, int mode) noexcept
 {
-    const int base { static_cast<int> (s) * maxKeyboardStackDepth };
-    auto& size { keyboardModeStackSize[static_cast<int> (s)] };
+    const int base { s * maxKeyboardStackDepth };
+    auto& size { keyboardModeStackSize[s] };
 
     if (size == 0)
     {
@@ -397,261 +341,136 @@ void State::setKeyboardMode (ActiveScreen s, uint32_t flags, int mode) noexcept
         top &= ~flags;
     }
 
-    storeAndFlush (screenKey (s, ID::keyboardFlags), static_cast<float> (top));
+    storeAndFlush (*getRawParameterValue (s, ID::keyboardFlags),
+                   static_cast<int> (top));
 }
 
-void State::resetKeyboardMode (ActiveScreen s) noexcept
+void State::resetKeyboardMode (int s) noexcept
 {
-    keyboardModeStackSize[static_cast<int> (s)] = 0;
-    storeAndFlush (screenKey (s, ID::keyboardFlags), 0.0f);
+    keyboardModeStackSize[s] = 0;
+    storeAndFlush (*getRawParameterValue (s, ID::keyboardFlags), 0);
 }
 
-/** @note READER THREAD — sets outputBlockTop / outputBlockBottom and activates scan. */
+//==========================================================================
+// OSC 133 shell integration
+//==========================================================================
+
 void State::setOutputBlockStart (int row) noexcept
 {
-    storeAndFlush (ID::outputBlockTop, static_cast<float> (row));
-    storeAndFlush (ID::outputBlockBottom, static_cast<float> (row));
-    storeAndFlush (ID::outputScanActive, 1.0f);
+    storeAndFlush (*getRawParameterValue (ID::outputBlockTop), row);
+    storeAndFlush (*getRawParameterValue (ID::outputBlockBottom), row);
+    storeAndFlush (*getRawParameterValue (ID::outputScanActive), 1);
 }
 
-/** @note READER THREAD — records final row and deactivates scan. */
 void State::setOutputBlockEnd (int row) noexcept
 {
-    storeAndFlush (ID::outputBlockBottom, static_cast<float> (row));
-    storeAndFlush (ID::outputScanActive, 0.0f);
+    storeAndFlush (*getRawParameterValue (ID::outputBlockBottom), row);
+    storeAndFlush (*getRawParameterValue (ID::outputScanActive), 0);
 }
 
-/** @note READER THREAD — extends the output block bottom while scan is active. */
 void State::extendOutputBlock (int row) noexcept
 {
-    if (getRawParam (ID::outputScanActive)->load (std::memory_order_relaxed) != 0.0f)
+    if (getRawParameterValue (ID::outputScanActive)->load (std::memory_order_relaxed) != 0)
     {
-        storeAndFlush (ID::outputBlockBottom, static_cast<float> (row));
+        storeAndFlush (*getRawParameterValue (ID::outputBlockBottom), row);
     }
 }
 
-/** @note MESSAGE THREAD — relaxed load (snapshot-dirty handshake provides ordering). */
+void State::setPromptRow (int row) noexcept
+{
+    storeAndFlush (*getRawParameterValue (ID::promptRow), row);
+}
+
 int State::getOutputBlockTop() const noexcept
 {
-    return jam::toInt (getRawParam (ID::outputBlockTop)->load (std::memory_order_relaxed));
+    return getRawParameterValue (ID::outputBlockTop)->load (std::memory_order_relaxed);
 }
 
-/** @note MESSAGE THREAD — relaxed load (snapshot-dirty handshake provides ordering). */
 int State::getOutputBlockBottom() const noexcept
 {
-    return jam::toInt (getRawParam (ID::outputBlockBottom)->load (std::memory_order_relaxed));
+    return getRawParameterValue (ID::outputBlockBottom)->load (std::memory_order_relaxed);
 }
 
-/**
- * @brief Returns `true` when a valid completed output block exists.
- *
- * Valid when: outputScanActive is false (D fired), outputBlockTop >= 0,
- * promptRow > outputBlockTop, and on normal screen.
- *
- * @return `true` if a valid output block is present.
- * @note MESSAGE THREAD only.
- */
+int State::getPromptRow() const noexcept
+{
+    return getRawParameterValue (ID::promptRow)->load (std::memory_order_relaxed);
+}
+
 bool State::hasOutputBlock() const noexcept
 {
     const int blockTop { getOutputBlockTop() };
     const int prompt { getPromptRow() };
-    const int screenVal { getRawValue<int> (ID::activeScreen) };
-    const bool normalScreen { screenVal == static_cast<int> (ActiveScreen::normal) };
+    const int screenVal { getRawParameterValue (ID::activeScreen)->load (std::memory_order_relaxed) };
+    const bool normalScreen { screenVal == map::Screen::normal };
 
     return blockTop >= 0 and prompt > blockTop and normalScreen;
 }
 
-/** @note READER THREAD — stores the prompt row from OSC 133 A. */
-void State::setPromptRow (int row) noexcept { storeAndFlush (ID::promptRow, static_cast<float> (row)); }
+//==========================================================================
+// Snapshot signal
+//==========================================================================
 
-/** @note READER THREAD — relaxed load; called from resize on the reader thread. */
-int State::getPromptRow() const noexcept
-{
-    return jam::toInt (getRawParam (ID::promptRow)->load (std::memory_order_relaxed));
-}
-
-/**
- * @brief READER THREAD writer — copies `src` into `slot.buffer` and bumps the intrinsic generation.
- *
- * Copies up to `maxStringLength - 1` bytes, null-terminates, then increments
- * `slot.generation` with `memory_order_release` so the message thread's
- * acquire load in `flushSlot()` / `readSlot()` observes the completed write.
- * Sets `needsFlush` so the timer wakes on the next tick.
- *
- * @param slot    Target `StringSlot`.
- * @param src     Pointer to the source bytes.  Need not be null-terminated.
- * @param length  Number of source bytes to copy.
- * @note READER THREAD — lock-free, noexcept.
- */
-void State::writeSlot (StringSlot& slot, const char* src, int length) noexcept
-{
-    const int len { juce::jmin (length, maxStringLength - 1) };
-    std::memcpy (slot.buffer, src, static_cast<size_t> (len));
-    slot.buffer[len] = '\0';
-    slot.generation.fetch_add (1u, std::memory_order_release);
-    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
-}
-
-/**
- * @brief MESSAGE THREAD reader — snap-copies `slot.buffer` and returns it as a `juce::String`.
- *
- * Reads `generation` before and after the `memcpy`.  If the value changed
- * (torn write in flight), repeats the copy once.  Returns the result as
- * a UTF-8 `juce::String`.
- *
- * @param slot  Source `StringSlot`.
- * @return Slot contents as a `juce::String`.
- * @note MESSAGE THREAD — lock-free, noexcept.
- */
-juce::String State::readSlot (const StringSlot& slot) const noexcept
-{
-    const auto gen { slot.generation.load (std::memory_order_acquire) };
-    char local[maxStringLength];
-    std::memcpy (local, slot.buffer, maxStringLength);
-
-    const auto gen2 { slot.generation.load (std::memory_order_acquire) };
-
-    if (gen2 != gen)
-        std::memcpy (local, slot.buffer, maxStringLength);
-
-    return juce::String::fromUTF8 (local);
-}
-
-/** @note READER THREAD — delegates to `writeSlot (*stringMap.at (ID::title), …)`. */
-void State::setTitle (const char* src, int length) noexcept { writeSlot (*stringMap.at (ID::title), src, length); }
-
-/** @note READER THREAD — delegates to `writeSlot (*stringMap.at (ID::cwd), …)`. */
-void State::setCwd (const char* src, int length) noexcept { writeSlot (*stringMap.at (ID::cwd), src, length); }
-
-/** @note READER THREAD — delegates to `writeSlot (*stringMap.at (ID::foregroundProcess), …)`. */
-void State::setForegroundProcess (const char* src, int length) noexcept
-{
-    writeSlot (*stringMap.at (ID::foregroundProcess), src, length);
-}
-
-/**
- * @brief Registers a URI into the link table and returns a 1-based linkId.
- *
- * Reads and increments the `linkUriCount` parameterMap atomic.  IDs wrap at
- * `maxLinkIds - 1` (slot 0 is reserved as "no link").
- *
- * @note READER THREAD — lock-free, noexcept.
- */
-uint16_t State::registerLinkUri (const char* uri, int length) noexcept
-{
-    auto* countParam { getRawParam (ID::linkUriCount) };
-    const uint32_t count { static_cast<uint32_t> (countParam->load (std::memory_order_relaxed)) };
-    const uint16_t id { static_cast<uint16_t> ((count % (static_cast<uint32_t> (maxLinkIds) - 1u)) + 1u) };
-
-    writeSlot (linkUriTable[id], uri, length);
-
-    countParam->store (static_cast<float> (count + 1u), std::memory_order_relaxed);
-    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
-
-    return id;
-}
-
-/**
- * @brief Returns the URI string for the given linkId via seqlock read.
- *
- * @note MESSAGE THREAD — lock-free, noexcept.
- */
-juce::String State::getLinkUri (uint16_t linkId) const noexcept
-{
-    juce::String result;
-
-    if (linkId > 0 and linkId < static_cast<uint16_t> (maxLinkIds))
-    {
-        result = readSlot (linkUriTable[linkId]);
-    }
-
-    return result;
-}
-
-/**
- * @brief Signals that the cell-grid snapshot has new data and a repaint is needed.
- *
- * The reader thread calls this after writing one or more cells to the grid
- * buffer.  The flag is separate from `needsFlush` so that a cell-only update
- * does not force a full parameter flush, and a parameter-only update does not
- * force a grid repaint.
- *
- * @note READER THREAD — `memory_order_release` store so that the message
- *       thread's `memory_order_acquire` exchange in `consumeSnapshotDirty()`
- *       sees all preceding cell writes.
- */
-// READER THREAD
 void State::setSnapshotDirty() noexcept
 {
-    if (getRawParam (ID::pasteEchoRemaining)->load (std::memory_order_relaxed) <= 0.0f)
+    if (getRawParameterValue (ID::pasteEchoRemaining)->load (std::memory_order_relaxed) <= 0)
     {
-        getRawParam (ID::snapshotDirty)->store (1.0f, std::memory_order_release);
+        getRawParameterValue (ID::snapshotDirty)->store (1, std::memory_order_release);
     }
 }
 
-// MESSAGE THREAD
-void State::setPasteEchoGate (int bytes) noexcept
+bool State::consumeSnapshotDirty() noexcept
 {
-    getRawParam (ID::pasteEchoRemaining)->store (static_cast<float> (bytes), std::memory_order_release);
+    return getRawParameterValue (ID::snapshotDirty)->exchange (0, std::memory_order_acquire) != 0;
 }
 
-// READER THREAD
+bool State::isSnapshotDirty() const noexcept
+{
+    return getRawParameterValue (ID::snapshotDirty)->load (std::memory_order_relaxed) != 0;
+}
+
+//==========================================================================
+// Paste echo gate
+//==========================================================================
+
+void State::setPasteEchoGate (int bytes) noexcept
+{
+    getRawParameterValue (ID::pasteEchoRemaining)->store (bytes, std::memory_order_release);
+}
+
 void State::consumePasteEcho (int bytes) noexcept
 {
-    auto* gate { getRawParam (ID::pasteEchoRemaining) };
+    auto& gate { *getRawParameterValue (ID::pasteEchoRemaining) };
 
-    if (gate->load (std::memory_order_relaxed) > 0.0f)
+    if (gate.load (std::memory_order_relaxed) > 0)
     {
-        const float remaining { fetchSub (*gate, static_cast<float> (bytes), std::memory_order_acq_rel)
-                                - static_cast<float> (bytes) };
+        const int remaining { gate.fetch_sub (bytes, std::memory_order_acq_rel) - bytes };
 
-        if (remaining <= 0.0f)
+        if (remaining <= 0)
         {
-            gate->store (0.0f, std::memory_order_relaxed);
+            gate.store (0, std::memory_order_relaxed);
             setSnapshotDirty();
         }
     }
 }
 
-// READER THREAD
 void State::clearPasteEchoGate() noexcept
 {
-    auto* gate { getRawParam (ID::pasteEchoRemaining) };
+    auto& gate { *getRawParameterValue (ID::pasteEchoRemaining) };
 
-    if (gate->exchange (0.0f, std::memory_order_acq_rel) > 0.0f)
+    if (gate.exchange (0, std::memory_order_acq_rel) > 0)
     {
         setSnapshotDirty();
     }
 }
 
-/**
- * @brief Atomically tests and clears the snapshot-dirty flag.
- *
- * Uses `exchange` rather than `load + store` to avoid a race where two
- * callers both see `true` and both trigger a repaint.  The `memory_order_acquire`
- * ensures that all cell writes made by the reader thread before its
- * `memory_order_release` store in `setSnapshotDirty()` are visible to the
- * caller after this returns `true`.
- *
- * @return `true` if new cell data is available since the last call.
- * @note MESSAGE THREAD — called from the UI timer or paint cycle.
- */
-// MESSAGE THREAD
-bool State::consumeSnapshotDirty() noexcept
-{
-    return getRawParam (ID::snapshotDirty)->exchange (0.0f, std::memory_order_acquire) != 0.0f;
-}
+//==========================================================================
+// Sync output
+//==========================================================================
 
-// MESSAGE THREAD
-bool State::isSnapshotDirty() const noexcept
-{
-    return getRawParam (ID::snapshotDirty)->load (std::memory_order_relaxed) != 0.0f;
-}
-
-// READER THREAD
 void State::setSyncOutput (bool active) noexcept
 {
-    getRawParam (ID::syncOutputActive)->store (active ? 1.0f : 0.0f, std::memory_order_release);
+    getRawParameterValue (ID::syncOutputActive)->store (active ? 1 : 0,
+                                                        std::memory_order_release);
 
     if (not active)
         setSnapshotDirty();
@@ -659,15 +478,148 @@ void State::setSyncOutput (bool active) noexcept
 
 bool State::isSyncOutputActive() const noexcept
 {
-    return getRawParam (ID::syncOutputActive)->load (std::memory_order_relaxed) != 0.0f;
+    return getRawParameterValue (ID::syncOutputActive)->load (std::memory_order_relaxed) != 0;
 }
 
-// MESSAGE THREAD
+void State::requestSyncResize() noexcept
+{
+    getRawParameterValue (ID::syncResizePending)->store (1, std::memory_order_relaxed);
+}
+
+bool State::consumeSyncResize() noexcept
+{
+    return getRawParameterValue (ID::syncResizePending)->exchange (0, std::memory_order_relaxed) != 0;
+}
+
+//==========================================================================
+// Selection
+//==========================================================================
+
+void State::setSelectionType (int type) noexcept
+{
+    AppState::getContext()->setSelectionType (type);
+    getRawParameterValue (ID::snapshotDirty)->store (1, std::memory_order_release);
+}
+
+int State::getSelectionType() const noexcept
+{
+    return AppState::getContext()->getSelectionType();
+}
+
+void State::setSelectionCursor (int row, int col) noexcept
+{
+    storeAndFlush (*getRawParameterValue (ID::selectionCursorRow), row);
+    storeAndFlush (*getRawParameterValue (ID::selectionCursorCol), col);
+    getRawParameterValue (ID::snapshotDirty)->store (1, std::memory_order_release);
+}
+
+int State::getSelectionCursorRow() const noexcept
+{
+    return getRawParameterValue (ID::selectionCursorRow)->load (std::memory_order_relaxed);
+}
+
+int State::getSelectionCursorCol() const noexcept
+{
+    return getRawParameterValue (ID::selectionCursorCol)->load (std::memory_order_relaxed);
+}
+
+void State::setSelectionAnchor (int row, int col) noexcept
+{
+    storeAndFlush (*getRawParameterValue (ID::selectionAnchorRow), row);
+    storeAndFlush (*getRawParameterValue (ID::selectionAnchorCol), col);
+    getRawParameterValue (ID::snapshotDirty)->store (1, std::memory_order_release);
+}
+
+int State::getSelectionAnchorRow() const noexcept
+{
+    return getRawParameterValue (ID::selectionAnchorRow)->load (std::memory_order_relaxed);
+}
+
+int State::getSelectionAnchorCol() const noexcept
+{
+    return getRawParameterValue (ID::selectionAnchorCol)->load (std::memory_order_relaxed);
+}
+
+void State::setDragAnchor (int row, int col) noexcept
+{
+    storeAndFlush (*getRawParameterValue (ID::dragAnchorRow), row);
+    storeAndFlush (*getRawParameterValue (ID::dragAnchorCol), col);
+}
+
+int State::getDragAnchorRow() const noexcept
+{
+    return getRawParameterValue (ID::dragAnchorRow)->load (std::memory_order_relaxed);
+}
+
+int State::getDragAnchorCol() const noexcept
+{
+    return getRawParameterValue (ID::dragAnchorCol)->load (std::memory_order_relaxed);
+}
+
+void State::setDragActive (bool active) noexcept
+{
+    storeAndFlush (*getRawParameterValue (ID::dragActive), active ? 1 : 0);
+    getRawParameterValue (ID::snapshotDirty)->store (1, std::memory_order_release);
+}
+
+bool State::isDragActive() const noexcept
+{
+    return getRawParameterValue (ID::dragActive)->load (std::memory_order_relaxed) != 0;
+}
+
+//==========================================================================
+// Preview
+//==========================================================================
+
+bool State::isPreviewActive() const noexcept
+{
+    return getRawParameterValue (ID::preview)->load (std::memory_order_relaxed) != 0;
+}
+
+int State::getSplitCol() const noexcept
+{
+    return getRawParameterValue (ID::splitCol)->load (std::memory_order_relaxed);
+}
+
+void State::dismissPreview() noexcept
+{
+    storeAndFlush (*getRawParameterValue (ID::preview), 0);
+    storeAndFlush (*getRawParameterValue (ID::splitCol), 0);
+    getRawParameterValue (ID::snapshotDirty)->store (1, std::memory_order_release);
+}
+
+//==========================================================================
+// Hints
+//==========================================================================
+
+void State::setHintPage (int page) noexcept
+{
+    storeAndFlush (*getRawParameterValue (ID::hintPage), page);
+}
+
+int State::getHintPage() const noexcept
+{
+    return getRawParameterValue (ID::hintPage)->load (std::memory_order_relaxed);
+}
+
+void State::setHintTotalPages (int total) noexcept
+{
+    storeAndFlush (*getRawParameterValue (ID::hintTotalPages), total);
+}
+
+int State::getHintTotalPages() const noexcept
+{
+    return getRawParameterValue (ID::hintTotalPages)->load (std::memory_order_relaxed);
+}
+
+//==========================================================================
+// Modal
+//==========================================================================
+
 void State::setModalType (ModalType type) noexcept
 {
     AppState::getContext()->setModalType (static_cast<int> (type));
-    setFullRebuild();
-    setSnapshotDirty();
+    getRawParameterValue (ID::snapshotDirty)->store (1, std::memory_order_release);
 }
 
 ModalType State::getModalType() const noexcept
@@ -677,356 +629,17 @@ ModalType State::getModalType() const noexcept
 
 bool State::isModal() const noexcept { return getModalType() != ModalType::none; }
 
-void State::setHintPage (int page) noexcept { storeAndFlush (ID::hintPage, static_cast<float> (page)); }
+//==========================================================================
+// Timer callback
+//==========================================================================
 
-int State::getHintPage() const noexcept { return getRawValue<int> (ID::hintPage); }
-
-void State::setHintTotalPages (int total) noexcept { storeAndFlush (ID::hintTotalPages, static_cast<float> (total)); }
-
-int State::getHintTotalPages() const noexcept { return getRawValue<int> (ID::hintTotalPages); }
-
-void State::setScrollPosition (int positionPx) noexcept
-{
-    storeAndFlush (ID::scrollPosition, static_cast<float> (positionPx));
-}
-
-int State::getScrollPosition() const noexcept { return getRawValue<int> (ID::scrollPosition); }
-
-// --- Selection state convenience wrappers ---
-
-void State::setSelectionType (int type) noexcept
-{
-    AppState::getContext()->setSelectionType (type);
-    setFullRebuild();
-    setSnapshotDirty();
-}
-
-int State::getSelectionType() const noexcept { return AppState::getContext()->getSelectionType(); }
-
-void State::setSelectionCursor (int row, int col) noexcept
-{
-    storeAndFlush (ID::selectionCursorRow, static_cast<float> (row));
-    storeAndFlush (ID::selectionCursorCol, static_cast<float> (col));
-    setFullRebuild();
-    setSnapshotDirty();
-}
-
-int State::getSelectionCursorRow() const noexcept { return getRawValue<int> (ID::selectionCursorRow); }
-
-int State::getSelectionCursorCol() const noexcept { return getRawValue<int> (ID::selectionCursorCol); }
-
-void State::setSelectionAnchor (int row, int col) noexcept
-{
-    storeAndFlush (ID::selectionAnchorRow, static_cast<float> (row));
-    storeAndFlush (ID::selectionAnchorCol, static_cast<float> (col));
-    setFullRebuild();
-    setSnapshotDirty();
-}
-
-int State::getSelectionAnchorRow() const noexcept { return getRawValue<int> (ID::selectionAnchorRow); }
-
-int State::getSelectionAnchorCol() const noexcept { return getRawValue<int> (ID::selectionAnchorCol); }
-
-void State::setDragAnchor (int row, int col) noexcept
-{
-    storeAndFlush (ID::dragAnchorRow, static_cast<float> (row));
-    storeAndFlush (ID::dragAnchorCol, static_cast<float> (col));
-}
-
-int State::getDragAnchorRow() const noexcept { return getRawValue<int> (ID::dragAnchorRow); }
-
-int State::getDragAnchorCol() const noexcept { return getRawValue<int> (ID::dragAnchorCol); }
-
-void State::setDragActive (bool active) noexcept
-{
-    storeAndFlush (ID::dragActive, active ? 1.0f : 0.0f);
-    setFullRebuild();
-    setSnapshotDirty();
-}
-
-bool State::isDragActive() const noexcept { return getRawValue<bool> (ID::dragActive); }
-
-void State::requestSyncResize() noexcept
-{
-    getRawParam (ID::syncResizePending)->store (1.0f, std::memory_order_relaxed);
-}
-
-bool State::consumeSyncResize() noexcept
-{
-    return getRawParam (ID::syncResizePending)->exchange (0.0f, std::memory_order_relaxed) != 0.0f;
-}
-
-// --- Message thread (read from ValueTree, the SSOT) ---
-
-/**
- * @brief Returns the current terminal column count.
- * @return Number of columns (e.g. 80 or 132).
- * @note MESSAGE THREAD — reads from CachedValue, noexcept.
- */
-int State::getCols() const noexcept { return cachedCols; }
-
-/**
- * @brief Returns the number of rows visible in the terminal viewport.
- * @return Number of visible rows (e.g. 24).
- * @note MESSAGE THREAD — reads from CachedValue, noexcept.
- */
-int State::getVisibleRows() const noexcept { return cachedVisibleRows; }
-
-/**
- * @brief Returns the root SESSION ValueTree.
- *
- * UI components attach `juce::ValueTree::Listener` to this tree to receive
- * change notifications after each timer flush.  The returned tree is a
- * reference-counted handle — it stays valid as long as `State` is alive.
- *
- * @return The root `SESSION` ValueTree node.
- * @note MESSAGE THREAD only.
- */
-juce::ValueTree State::get() noexcept { return state; }
-juce::ValueTree State::get() const noexcept { return state; }
-
-/**
- * @brief Returns a live `juce::Value` bound to a specific parameter in the tree.
- *
- * The returned `juce::Value` reflects the `value` property of the PARAM child
- * whose `id` property matches `paramId`.  UI controls can attach to it
- * directly via `juce::Value::addListener()` or `juce::Value::referTo()`.
- *
- * @param paramId  The parameter identifier to look up (e.g. `ID::cols`).
- * @return A live `juce::Value` for the parameter's `value` property.
- * @note MESSAGE THREAD only.  Writing through the returned Value does NOT
- *       update the backing atomic.
- */
-juce::Value State::getValue (const juce::Identifier& paramId)
-{
-    return jam::ValueTree::getValueFromChildWithID (state, paramId);
-}
-
-/**
- * @brief Reads a mode flag directly from the ValueTree (post-flush value).
- *
- * Navigates to the MODES child of SESSION, finds the PARAM whose `id`
- * matches `id`, and returns its `value` property cast to `bool`.
- *
- * Unlike `getMode()`, which reads the atomic (always current), this method
- * reads the ValueTree and therefore reflects the state as of the last timer
- * flush.  Use this inside `juce::ValueTree::Listener` callbacks where
- * consistency with other ValueTree properties matters more than recency.
- *
- * @param id  A `Terminal::ID` mode identifier (e.g. `ID::autoWrap`).
- * @return `true` if the mode is enabled in the ValueTree, `false` otherwise.
- *         Returns `false` if the MODES node or the parameter is not found.
- * @note MESSAGE THREAD only.
- */
-bool State::getMode (const juce::Identifier& id) const noexcept
-{
-    auto modesNode { state.getChildWithName (ID::MODES) };
-    auto param { jam::ValueTree::getChildWithID (modesNode, id.toString()) };
-    bool result { false };
-
-    if (param.isValid())
-    {
-        result = static_cast<bool> (param.getProperty (ID::value));
-    }
-
-    return result;
-}
-
-/**
- * @brief Returns the currently active screen buffer from the ValueTree
- *        (post-flush value).
- *
- * Navigates to the `activeScreen` PARAM child of the root SESSION node and
- * returns its `value` property cast to `ActiveScreen`.  Returns
- * `ActiveScreen::normal` if the parameter node is not found.
- *
- * @return `ActiveScreen::normal` or `ActiveScreen::alternate`.
- * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
- */
-ActiveScreen State::getActiveScreen() const noexcept
-{
-    auto param { jam::ValueTree::getChildWithID (state, ID::activeScreen.toString()) };
-    ActiveScreen result { normal };
-
-    if (param.isValid())
-    {
-        result = static_cast<ActiveScreen> (static_cast<int> (param.getProperty (ID::value)));
-    }
-
-    return result;
-}
-
-/**
- * @brief Reads the progressive keyboard protocol flags from the ValueTree (post-flush value).
- *
- * Determines the active screen via `getActiveScreen()`, navigates to the
- * corresponding screen child node (`NORMAL` or `ALTERNATE`), and reads
- * the `keyboardFlags` parameter.  Returns 0 (legacy mode) if the parameter
- * is not found.
- *
- * @return The active keyboard enhancement flags (0 = legacy mode).
- * @note MESSAGE THREAD only — reads from the ValueTree (post-flush values).
- */
-uint32_t State::getKeyboardFlags() const noexcept
-{
-    const auto scr { getActiveScreen() };
-    auto screenNode { state.getChildWithName (scr == normal ? ID::NORMAL : ID::ALTERNATE) };
-    auto param { jam::ValueTree::getChildWithID (screenNode, ID::keyboardFlags.toString()) };
-    uint32_t result { 0 };
-
-    if (param.isValid())
-    {
-        result = static_cast<uint32_t> (static_cast<int> (param.getProperty (ID::value)));
-    }
-
-    return result;
-}
-
-// --- Per-screen ValueTree getters (MESSAGE THREAD, post-flush) ---
-
-/** @note Navigation pattern: get active screen → get screen node → find PARAM child → return value. */
-static int getScreenParamInt (const juce::ValueTree& root,
-                              const ActiveScreen scr,
-                              const juce::Identifier& paramId,
-                              int defaultValue = 0) noexcept
-{
-    auto screenNode { root.getChildWithName (scr == normal ? Terminal::ID::NORMAL : Terminal::ID::ALTERNATE) };
-    auto param { jam::ValueTree::getChildWithID (screenNode, paramId.toString()) };
-    int result { defaultValue };
-
-    if (param.isValid())
-    {
-        result = static_cast<int> (param.getProperty (Terminal::ID::value));
-    }
-
-    return result;
-}
-
-static float getScreenParamFloat (const juce::ValueTree& root,
-                                  const ActiveScreen scr,
-                                  const juce::Identifier& paramId,
-                                  float defaultValue = 0.0f) noexcept
-{
-    auto screenNode { root.getChildWithName (scr == normal ? Terminal::ID::NORMAL : Terminal::ID::ALTERNATE) };
-    auto param { jam::ValueTree::getChildWithID (screenNode, paramId.toString()) };
-    float result { defaultValue };
-
-    if (param.isValid())
-    {
-        result = static_cast<float> (static_cast<double> (param.getProperty (Terminal::ID::value)));
-    }
-
-    return result;
-}
-
-/** @note MESSAGE THREAD — reads cursor row for the active screen from ValueTree. */
-int State::getCursorRow() const noexcept { return getScreenParamInt (state, getActiveScreen(), ID::cursorRow); }
-
-/** @note MESSAGE THREAD — reads cursor column for the active screen from ValueTree. */
-int State::getCursorCol() const noexcept { return getScreenParamInt (state, getActiveScreen(), ID::cursorCol); }
-
-/** @note MESSAGE THREAD — reads cursor visibility for the active screen from ValueTree. */
-bool State::isCursorVisible() const noexcept
-{
-    return getScreenParamInt (state, getActiveScreen(), ID::cursorVisible, 1) != 0;
-}
-
-/** @note MESSAGE THREAD — reads cursor shape for the active screen from ValueTree. */
-int State::getCursorShape() const noexcept { return getScreenParamInt (state, getActiveScreen(), ID::cursorShape); }
-
-/** @note MESSAGE THREAD — reads cursor colour red component for the active screen from ValueTree. */
-float State::getCursorColorR() const noexcept
-{
-    return getScreenParamFloat (state, getActiveScreen(), ID::cursorColorR, -1.0f);
-}
-
-/** @note MESSAGE THREAD — reads cursor colour green component for the active screen from ValueTree. */
-float State::getCursorColorG() const noexcept
-{
-    return getScreenParamFloat (state, getActiveScreen(), ID::cursorColorG, -1.0f);
-}
-
-/** @note MESSAGE THREAD — reads cursor colour blue component for the active screen from ValueTree. */
-float State::getCursorColorB() const noexcept
-{
-    return getScreenParamFloat (state, getActiveScreen(), ID::cursorColorB, -1.0f);
-}
-
-/**
- * @brief Sets terminal dimensions from the message thread.
- *
- * Writes cols and visibleRows to the CachedValue store — ValueTree updated
- * synchronously, listeners fire on the message thread.
- *
- * @param cols  New terminal width in character columns.
- * @param rows  New terminal height in character rows.
- * @note MESSAGE THREAD only.
- * @see getCols(), getVisibleRows()
- */
-void State::setDimensions (int cols, int rows) noexcept
-{
-    cachedCols = cols;
-    cachedVisibleRows = rows;
-    getRawParam (ID::cols)->store (static_cast<float> (cols), std::memory_order_release);
-    getRawParam (ID::visibleRows)->store (static_cast<float> (rows), std::memory_order_release);
-}
-
-/** @note MESSAGE THREAD — reads scrollbackUsed from root param ValueTree node. */
-int State::getScrollbackUsed() const noexcept
-{
-    // MESSAGE THREAD
-    auto param { jam::ValueTree::getChildWithID (state, ID::scrollbackUsed.toString()) };
-    int result { 0 };
-
-    if (param.isValid())
-    {
-        result = static_cast<int> (param.getProperty (ID::value));
-    }
-
-    return result;
-}
-
-/** @note MESSAGE THREAD — reads title property flushed by flushStrings(). */
-juce::String State::getTitle() const noexcept { return state.getProperty (ID::title).toString(); }
-
-/** @note MESSAGE THREAD — reads cwd property flushed by flushStrings(). */
-juce::String State::getCwd() const noexcept { return state.getProperty (ID::cwd).toString(); }
-
-/**
- * @brief JUCE timer callback — flushes dirty atomics into the ValueTree.
- *
- * ## Adaptive rate mechanism
- *
- * The timer uses two speeds to balance UI responsiveness against CPU overhead:
- *
- * - **120 Hz (~8 ms)** when `flush()` returns `true`: parameters changed this
- *   tick, so the next change is likely imminent (e.g. during rapid VT output).
- *   Running faster reduces the latency between a VT escape and the UI update.
- *
- * - **60 Hz (~16 ms)** when `flush()` returns `false`: nothing changed, so
- *   the terminal is idle.  60 Hz is sufficient to catch the next change within
- *   one display frame without burning CPU on empty flushes.
- *
- * `startTimer()` is called with an explicit millisecond value (rather than
- * `startTimerHz`) to avoid floating-point rounding on every tick.
- *
- * @note TIMER / MESSAGE THREAD — called by `juce::Timer` infrastructure.
- *       Never call directly.
- */
-// Timer
 void State::timerCallback()
 {
-    // MESSAGE THREAD
     static constexpr int flushHz { 120 };
-    static constexpr int idleHz { 60 };
+    static constexpr int idleHz  { 60 };
 
     const bool anythingUpdated { flush() };
-
-    flushStrings();
-
     const int interval { anythingUpdated ? 1000 / flushHz : 1000 / idleHz };
-    tickCursorBlink (interval);
-
     startTimer (interval);
 
     if (onFlush != nullptr)
@@ -1035,495 +648,4 @@ void State::timerCallback()
     }
 }
 
-/**
- * @brief Advances the cursor blink counter and toggles the phase.
- *
- * Reads the current cursor position from the active screen's atomics and
- * compares against the previous flushed position.  If the cursor moved,
- * the blink phase resets to "on" (visible) — standard terminal behaviour
- * where typing makes the cursor solid until the next blink interval.
- *
- * DECSCUSR shape parity determines whether blinking is active:
- * - Shape 0: uses the `cursor.blink` config setting.
- * - Odd shapes (1, 3, 5): blink enabled.
- * - Even shapes (2, 4, 6): steady (always visible).
- *
- * @param elapsedMs  Milliseconds since the previous timer tick.
- * @note MESSAGE THREAD — called from `timerCallback()` only.
- */
-void State::tickCursorBlink (int elapsedMs) noexcept
-{
-    const ActiveScreen scr { getRawValue<ActiveScreen> (ID::activeScreen) };
-    const int row { getRawValue<int> (screenKey (scr, ID::cursorRow)) };
-    const int col { getRawValue<int> (screenKey (scr, ID::cursorCol)) };
-    const int shape { getRawValue<int> (screenKey (scr, ID::cursorShape)) };
-
-    const int prevRow { jam::toInt (getRawParam (ID::prevFlushedCursorRow)->load (std::memory_order_relaxed)) };
-    const int prevCol { jam::toInt (getRawParam (ID::prevFlushedCursorCol)->load (std::memory_order_relaxed)) };
-    const bool cursorMoved { row != prevRow or col != prevCol };
-    getRawParam (ID::prevFlushedCursorRow)->store (static_cast<float> (row), std::memory_order_relaxed);
-    getRawParam (ID::prevFlushedCursorCol)->store (static_cast<float> (col), std::memory_order_relaxed);
-
-    // Shape 0 defers to config; odd = blink; even = steady.
-    const bool blinkEnabled { getRawParam (ID::cursorBlinkEnabled)->load (std::memory_order_relaxed) != 0.0f };
-    const bool blinkActive { shape == 0 ? blinkEnabled : (shape % 2 != 0) };
-
-    // Movement or steady mode resets to visible.
-    if (cursorMoved or not blinkActive)
-    {
-        getRawParam (ID::cursorBlinkOn)->store (1.0f, std::memory_order_relaxed);
-        getRawParam (ID::cursorBlinkElapsed)->store (0.0f, std::memory_order_relaxed);
-    }
-    else
-    {
-        const float elapsed { getRawParam (ID::cursorBlinkElapsed)->load (std::memory_order_relaxed)
-                              + static_cast<float> (elapsedMs) };
-        getRawParam (ID::cursorBlinkElapsed)->store (elapsed, std::memory_order_relaxed);
-
-        const float interval { getRawParam (ID::cursorBlinkInterval)->load (std::memory_order_relaxed) };
-
-        if (elapsed >= interval)
-        {
-            const bool wasOn { getRawParam (ID::cursorBlinkOn)->load (std::memory_order_relaxed) != 0.0f };
-            getRawParam (ID::cursorBlinkOn)->store (wasOn ? 0.0f : 1.0f, std::memory_order_relaxed);
-            getRawParam (ID::cursorBlinkElapsed)->store (0.0f, std::memory_order_relaxed);
-            setFullRebuild();
-            setSnapshotDirty();
-        }
-    }
-}
-
-/**
- * @brief Walks the ValueTree skeleton and registers every PARAM node in
- *        `parameterMap`, allocating one atomic slot per parameter.
- *
- * ## Key-building rules
- *
- * - **Root-level PARAMs** (direct children of SESSION): key = raw `id` string
- *   (e.g. `"activeScreen"`, `"cols"`).
- * - **Group-level PARAMs** (children of MODES, NORMAL, ALTERNATE): key =
- *   `buildParamKey (parentType, id)` (e.g. `"NORMAL_cursorRow"`).
- *
- * @note MESSAGE THREAD — called once from the constructor.  After this call
- *       `parameterMap` is immutable and safe to read from any thread without
- *       a lock.
- */
-void State::buildParameterMap() noexcept
-{
-    jam::ValueTree::applyFunctionRecursively (
-        state,
-        [this] (const juce::ValueTree& node) -> bool
-        {
-            if (node.getType() == ID::PARAM and node.getProperty (ID::value).isDouble())
-            {
-                const auto paramId { node.getProperty (ID::id).toString() };
-                const auto parent { node.getParent() };
-                const bool isRoot { parent.getType() == ID::SESSION };
-                const juce::Identifier key { isRoot ? juce::Identifier { paramId }
-                                                    : buildParamKey (parent.getType(), paramId) };
-                parameterMap[key] =
-                    std::make_unique<std::atomic<float>> (static_cast<float> (node.getProperty (ID::value)));
-            }
-
-            return false;
-        });
-}
-
-/**
- * @brief Builds the compound key for a per-screen parameter.
- *
- * Selects `ID::NORMAL` or `ID::ALTERNATE` based on `s`, then delegates to
- * `buildParamKey (screenId, property)`.  The resulting key matches the format
- * used when the parameter was registered in `buildParameterMap()`.
- *
- * @param s         Target screen buffer.
- * @param property  Per-screen parameter identifier (e.g. `ID::cursorRow`).
- * @return Compound key (e.g. `"NORMAL_cursorRow"`) for `parameterMap` lookup.
- * @note Pure function — noexcept.
- */
-juce::Identifier State::screenKey (ActiveScreen s, const juce::Identifier& property) const noexcept
-{
-    const auto& parent { s == normal ? ID::NORMAL : ID::ALTERNATE };
-    return buildParamKey (parent, property.toString());
-}
-
-/**
- * @brief Builds the compound key for a mode parameter.
- *
- * Delegates to `buildParamKey (ID::MODES, property)`, producing keys of the
- * form `"MODES_autoWrap"`, `"MODES_originMode"`, etc.
- *
- * @param property  Mode parameter identifier (e.g. `ID::autoWrap`).
- * @return Compound key (e.g. `"MODES_autoWrap"`) for `parameterMap` lookup.
- * @note Pure function — noexcept.
- */
-juce::Identifier State::modeKey (const juce::Identifier& property) const noexcept
-{
-    return buildParamKey (ID::MODES, property.toString());
-}
-
-void State::flushStrings() noexcept
-{
-    // MESSAGE THREAD
-    for (auto& [id, slotPtr] : stringMap)
-    {
-        flushSlot (*slotPtr, state, id);
-    }
-
-    const auto foreground { state.getProperty (ID::foregroundProcess).toString() };
-    const auto cwdPath { state.getProperty (ID::cwd).toString() };
-    juce::String name;
-
-    if (foreground.isNotEmpty())
-    {
-        name = foreground;
-    }
-    else if (cwdPath.isNotEmpty())
-    {
-        name = juce::File (cwdPath).getFileName();
-    }
-
-    if (name.isNotEmpty())
-    {
-        state.setProperty (App::ID::displayName, name, nullptr);
-    }
-}
-
-// =============================================================================
-// Subscriber seqno tracking — MESSAGE THREAD.
-// =============================================================================
-
-/**
- * @brief Adds a SUBSCRIBER child for @p subscriberId with lastKnownSeqno = 0.
- *
- * No-op if a child with matching subscriberId already exists.
- *
- * @note MESSAGE THREAD.
- */
-void State::attachSubscriber (juce::StringRef subscriberId)
-{
-    juce::ValueTree subscribersNode { state.getChildWithName (ID::SUBSCRIBERS) };
-    bool found { false };
-
-    for (int i { 0 }; i < subscribersNode.getNumChildren() and not found; ++i)
-    {
-        juce::ValueTree child { subscribersNode.getChild (i) };
-
-        if (child.getProperty (ID::subscriberId).toString() == juce::String (subscriberId))
-            found = true;
-    }
-
-    if (not found)
-    {
-        juce::ValueTree child { ID::SUBSCRIBER };
-        child.setProperty (ID::subscriberId, juce::String (subscriberId), nullptr);
-        child.setProperty (ID::lastKnownSeqno, juce::int64 { 0 }, nullptr);
-        subscribersNode.appendChild (child, nullptr);
-    }
-}
-
-/**
- * @brief Removes the SUBSCRIBER child for @p subscriberId.
- *
- * No-op if the subscriber is not found.
- *
- * @note MESSAGE THREAD.
- */
-void State::detachSubscriber (juce::StringRef subscriberId)
-{
-    juce::ValueTree subscribersNode { state.getChildWithName (ID::SUBSCRIBERS) };
-    int indexToRemove { -1 };
-
-    for (int i { 0 }; i < subscribersNode.getNumChildren() and indexToRemove < 0; ++i)
-    {
-        juce::ValueTree child { subscribersNode.getChild (i) };
-
-        if (child.getProperty (ID::subscriberId).toString() == juce::String (subscriberId))
-            indexToRemove = i;
-    }
-
-    if (indexToRemove >= 0)
-        subscribersNode.removeChild (indexToRemove, nullptr);
-}
-
-/**
- * @brief Writes @p seqno as the last-delivered value for @p subscriberId.
- *
- * @note MESSAGE THREAD.
- */
-void State::setSubscriberSeqno (juce::StringRef subscriberId, uint64_t seqno)
-{
-    juce::ValueTree subscribersNode { state.getChildWithName (ID::SUBSCRIBERS) };
-    bool found { false };
-
-    for (int i { 0 }; i < subscribersNode.getNumChildren() and not found; ++i)
-    {
-        juce::ValueTree child { subscribersNode.getChild (i) };
-
-        if (child.getProperty (ID::subscriberId).toString() == juce::String (subscriberId))
-        {
-            child.setProperty (ID::lastKnownSeqno, static_cast<juce::int64> (seqno), nullptr);
-            found = true;
-        }
-    }
-}
-
-/**
- * @brief Returns the last-delivered seqno for @p subscriberId, or 0 if not found.
- *
- * @note MESSAGE THREAD.
- */
-uint64_t State::getSubscriberSeqno (juce::StringRef subscriberId) const
-{
-    const juce::ValueTree subscribersNode { state.getChildWithName (ID::SUBSCRIBERS) };
-    uint64_t result { 0 };
-    bool found { false };
-
-    for (int i { 0 }; i < subscribersNode.getNumChildren() and not found; ++i)
-    {
-        const juce::ValueTree child { subscribersNode.getChild (i) };
-
-        if (child.getProperty (ID::subscriberId).toString() == juce::String (subscriberId))
-        {
-            result = static_cast<uint64_t> (static_cast<juce::int64> (child.getProperty (ID::lastKnownSeqno)));
-            found = true;
-        }
-    }
-
-    return result;
-}
-
-// =============================================================================
-// Last-known seqno — proxy / client side.  MESSAGE THREAD.
-// =============================================================================
-
-/**
- * @brief Stores the seqno of the most recently applied StateInfo snapshot.
- *
- * @note MESSAGE THREAD.
- */
-void State::setLastKnownSeqno (uint64_t seqno)
-{
-    state.setProperty (ID::lastKnownSeqnoRoot, static_cast<juce::int64> (seqno), nullptr);
-}
-
-/**
- * @brief Returns the seqno of the most recently applied StateInfo snapshot, or 0.
- *
- * @note MESSAGE THREAD.
- */
-uint64_t State::getLastKnownSeqno() const
-{
-    return static_cast<uint64_t> (
-        static_cast<juce::int64> (state.getProperty (ID::lastKnownSeqnoRoot, juce::int64 { 0 })));
-}
-
-// =============================================================================
-// Image preview split-viewport state — MESSAGE THREAD.
-// =============================================================================
-
-/** @brief Removes all IMAGE children with isPreview=true from the given IMAGES node. */
-static void removePreviewNodes (juce::ValueTree& imagesNode) noexcept
-{
-    for (int i { imagesNode.getNumChildren() - 1 }; i >= 0; --i)
-    {
-        const auto child { imagesNode.getChild (i) };
-
-        if (static_cast<bool> (child.getProperty (Terminal::ID::isPreview, false)))
-            imagesNode.removeChild (i, nullptr);
-    }
-}
-
-/**
- * @brief Returns true when a split-viewport image preview is active.
- * @note MESSAGE THREAD only.
- */
-bool State::isPreviewActive() const noexcept { return static_cast<bool> (state.getProperty (ID::preview, false)); }
-
-/**
- * @brief Returns the column at which the terminal clips for the preview split.
- * @note MESSAGE THREAD only.
- */
-int State::getSplitCol() const noexcept { return static_cast<int> (state.getProperty (ID::splitCol, 0)); }
-
-/**
- * @brief Activates the split-viewport image preview and registers its IMAGE node.
- *
- * @note MESSAGE THREAD only.
- */
-void State::activatePreview (uint32_t imageId,
-                             int widthPx,
-                             int heightPx,
-                             int gridRow,
-                             int gridCol,
-                             int cellCols,
-                             int cellRows,
-                             int splitCol) noexcept
-{
-    auto imagesNode { state.getChildWithName (ID::IMAGES) };
-
-    removePreviewNodes (imagesNode);
-
-    juce::ValueTree node { ID::IMAGE };
-    node.setProperty (ID::imageId, static_cast<int> (imageId), nullptr);
-    node.setProperty (ID::gridRow, gridRow, nullptr);
-    node.setProperty (ID::gridCol, gridCol, nullptr);
-    node.setProperty (ID::cellCols, cellCols, nullptr);
-    node.setProperty (ID::cellRows, cellRows, nullptr);
-    node.setProperty (ID::widthPx, widthPx, nullptr);
-    node.setProperty (ID::heightPx, heightPx, nullptr);
-    node.setProperty (ID::isPreview, true, nullptr);
-    node.setProperty (ID::frameCount, 1, nullptr);
-    imagesNode.appendChild (node, nullptr);
-
-    state.setProperty (ID::preview, true, nullptr);
-    state.setProperty (ID::splitCol, splitCol, nullptr);
-    setFullRebuild();
-    setSnapshotDirty();
-}
-
-/**
- * @brief Dismisses the split-viewport image preview and removes its IMAGE node.
- *
- * @note MESSAGE THREAD only.
- */
-void State::dismissPreview() noexcept
-{
-    auto imagesNode { state.getChildWithName (ID::IMAGES) };
-
-    removePreviewNodes (imagesNode);
-
-    state.setProperty (ID::preview, false, nullptr);
-    state.setProperty (ID::splitCol, 0, nullptr);
-    setFullRebuild();
-    setSnapshotDirty();
-}
-
-// =============================================================================
-// Image node management — MESSAGE THREAD.
-// =============================================================================
-
-/**
- * @brief Adds an IMAGE child node to the IMAGES ValueTree container.
- *
- * @note MESSAGE THREAD only.
- */
-void State::addImageNode (uint32_t firstFrameImageId,
-                          const uint32_t* allImageIds,
-                          const int* delays,
-                          int frameCount,
-                          int widthPx,
-                          int heightPx,
-                          int gridRow,
-                          int gridCol,
-                          int cellCols,
-                          int cellRows) noexcept
-{
-    auto imagesNode { state.getChildWithName (ID::IMAGES) };
-
-    // Remove existing IMAGE nodes whose cell span overlaps the new image.
-    // This is the natural "overwrite" — programs that reposition the cursor
-    // and print a new image without erasing first expect the old image to vanish.
-    for (int i { imagesNode.getNumChildren() - 1 }; i >= 0; --i)
-    {
-        const auto existing { imagesNode.getChild (i) };
-        const int exRow { static_cast<int> (existing.getProperty (ID::gridRow)) };
-        const int exCol { static_cast<int> (existing.getProperty (ID::gridCol)) };
-        const int exRows { static_cast<int> (existing.getProperty (ID::cellRows)) };
-        const int exCols { static_cast<int> (existing.getProperty (ID::cellCols)) };
-
-        const bool overlaps { exRow < gridRow + cellRows and exRow + exRows > gridRow and exCol < gridCol + cellCols
-                              and exCol + exCols > gridCol };
-
-        if (overlaps)
-            imagesNode.removeChild (i, nullptr);
-    }
-
-    juce::ValueTree node { ID::IMAGE };
-    node.setProperty (ID::imageId, static_cast<int> (firstFrameImageId), nullptr);
-    node.setProperty (ID::gridRow, gridRow, nullptr);
-    node.setProperty (ID::gridCol, gridCol, nullptr);
-    node.setProperty (ID::cellCols, cellCols, nullptr);
-    node.setProperty (ID::cellRows, cellRows, nullptr);
-    node.setProperty (ID::widthPx, widthPx, nullptr);
-    node.setProperty (ID::heightPx, heightPx, nullptr);
-    node.setProperty (ID::frameCount, frameCount, nullptr);
-
-    if (frameCount > 1)
-    {
-        node.setProperty (ID::currentFrame, 0, nullptr);
-        node.setProperty (ID::frameStartMs, static_cast<juce::int64> (juce::Time::currentTimeMillis()), nullptr);
-
-        // Pack allImageIds (frameCount × uint32_t) followed by delays (frameCount × int).
-        const size_t idBytes { static_cast<size_t> (frameCount) * sizeof (uint32_t) };
-        const size_t delayBytes { static_cast<size_t> (frameCount) * sizeof (int) };
-        juce::MemoryBlock blob { idBytes + delayBytes, true };
-        std::memcpy (blob.getData(), allImageIds, idBytes);
-
-        if (delays != nullptr)
-            std::memcpy (static_cast<char*> (blob.getData()) + idBytes, delays, delayBytes);
-
-        node.setProperty (ID::frameData, juce::var (blob), nullptr);
-    }
-
-    imagesNode.appendChild (node, nullptr);
-}
-
-/**
- * @brief Removes the IMAGE child node matching the given imageId.
- *
- * @note MESSAGE THREAD only.
- */
-void State::removeImageNode (uint32_t id) noexcept
-{
-    auto imagesNode { state.getChildWithName (ID::IMAGES) };
-    int indexToRemove { -1 };
-
-    for (int i { 0 }; i < imagesNode.getNumChildren() and indexToRemove < 0; ++i)
-    {
-        const auto img { imagesNode.getChild (i) };
-
-        if (static_cast<uint32_t> (static_cast<int> (img.getProperty (ID::imageId))) == id)
-            indexToRemove = i;
-    }
-
-    if (indexToRemove >= 0)
-        imagesNode.removeChild (indexToRemove, nullptr);
-}
-
-// =============================================================================
-// Image erase accumulation — READER THREAD write, MESSAGE THREAD drain.
-// =============================================================================
-
-/**
- * @brief Accumulates an erase region into the bounding box for image removal.
- *
- * Expands the bounding box stored in eraseTop/Left/Bottom/Right parameterMap
- * atomics to include the given region.  Single READER THREAD — no CAS needed;
- * plain relaxed load-compare-store is safe.  Sets needsFlush so the timer
- * wakes on the next tick.
- *
- * @note READER THREAD — lock-free, noexcept.
- */
-void State::queueImageErase (int topRow, int leftCol, int bottomRow, int rightCol) noexcept
-{
-    auto* pTop { getRawParam (ID::eraseTop) };
-    auto* pLeft { getRawParam (ID::eraseLeft) };
-    auto* pBottom { getRawParam (ID::eraseBottom) };
-    auto* pRight { getRawParam (ID::eraseRight) };
-
-    const float curTop { pTop->load (std::memory_order_relaxed) };
-    const float curLeft { pLeft->load (std::memory_order_relaxed) };
-    const float curBottom { pBottom->load (std::memory_order_relaxed) };
-    const float curRight { pRight->load (std::memory_order_relaxed) };
-
-    pTop->store (juce::jmin (curTop, static_cast<float> (topRow)), std::memory_order_relaxed);
-    pLeft->store (juce::jmin (curLeft, static_cast<float> (leftCol)), std::memory_order_relaxed);
-    pBottom->store (juce::jmax (curBottom, static_cast<float> (bottomRow)), std::memory_order_relaxed);
-    pRight->store (juce::jmax (curRight, static_cast<float> (rightCol)), std::memory_order_relaxed);
-
-    getRawParam (ID::needsFlush)->store (1.0f, std::memory_order_release);
-}
-
-/**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

@@ -1,0 +1,70 @@
+<STATE>
+    <!-- Dimensions -->
+    <PARAM id="cols"               type="int"  default="0"/>
+    <PARAM id="visibleRows"        type="int"  default="0"/>
+
+    <!-- Active screen index -->
+    <PARAM id="activeScreen"       type="int"  default="0"/>
+
+    <!-- Selection -->
+    <PARAM id="selectionCursorRow" type="int"  default="0"/>
+    <PARAM id="selectionCursorCol" type="int"  default="0"/>
+    <PARAM id="selectionAnchorRow" type="int"  default="0"/>
+    <PARAM id="selectionAnchorCol" type="int"  default="0"/>
+    <PARAM id="dragAnchorRow"      type="int"  default="0"/>
+    <PARAM id="dragAnchorCol"      type="int"  default="0"/>
+    <PARAM id="dragActive"         type="bool" default="false"/>
+
+    <!-- Preview split -->
+    <PARAM id="preview"            type="bool" default="false"/>
+    <PARAM id="splitCol"           type="int"  default="0"/>
+
+    <!-- File opener hints -->
+    <PARAM id="hintPage"           type="int"  default="0"/>
+    <PARAM id="hintTotalPages"     type="int"  default="0"/>
+
+    <!-- OSC 133 output block -->
+    <PARAM id="outputBlockTop"     type="int"  default="-1"/>
+    <PARAM id="outputBlockBottom"  type="int"  default="-1"/>
+    <PARAM id="outputScanActive"   type="bool" default="false"/>
+    <PARAM id="promptRow"          type="int"  default="-1"/>
+
+    <!-- Flush and render signals -->
+    <PARAM id="needsFlush"         type="bool" default="false"/>
+    <PARAM id="snapshotDirty"      type="bool" default="false"/>
+
+    <!-- Paste echo gate -->
+    <PARAM id="pasteEchoRemaining" type="int"  default="0"/>
+
+    <!-- Sync output (mode 2026) -->
+    <PARAM id="syncOutputActive"   type="bool" default="false"/>
+
+    <!-- Sync resize request -->
+    <PARAM id="syncResizePending"  type="bool" default="false"/>
+
+    <!-- Terminal mode flags -->
+    <MODES>
+        <PARAM id="applicationCursor"  type="bool" default="false"/>
+        <PARAM id="bracketedPaste"     type="bool" default="false"/>
+        <PARAM id="mouseTracking"      type="bool" default="false"/>
+        <PARAM id="mouseMotionTracking" type="bool" default="false"/>
+        <PARAM id="mouseAllTracking"   type="bool" default="false"/>
+        <PARAM id="focusEvents"        type="bool" default="false"/>
+        <PARAM id="win32InputMode"     type="bool" default="false"/>
+    </MODES>
+
+    <!-- Per-screen params (schema declared once, duplicated per screen instance) -->
+    <SCREEN>
+        <PARAM id="cursorRow"      type="int"  default="0"/>
+        <PARAM id="cursorCol"      type="int"  default="0"/>
+        <PARAM id="cursorVisible"  type="bool" default="true"/>
+        <PARAM id="cursorShape"    type="int"  default="0"/>
+        <PARAM id="cursorColor"    type="int"  default="-1"/>
+        <PARAM id="keyboardFlags"  type="int"  default="0"/>
+    </SCREEN>
+
+    <!-- Cross-thread strings -->
+    <TEXT id="title"              maxlen="256"/>
+    <TEXT id="cwd"                maxlen="4096"/>
+    <TEXT id="foregroundProcess"  maxlen="256"/>
+</STATE>

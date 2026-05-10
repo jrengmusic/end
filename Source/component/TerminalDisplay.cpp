@@ -15,7 +15,7 @@ Terminal::Display::Display (Terminal::Processor& processorToUse)
 
     setWantsKeyboardFocus (true);
     addKeyListener (this);
-    state.get().addListener (this);
+    state.getValueTree().addListener (this);
 }
 
 Terminal::Display::~Display()
@@ -27,7 +27,7 @@ Terminal::Display::~Display()
 // PaneComponent
 juce::String Terminal::Display::getPaneType() const noexcept { return App::ID::paneTypeTerminal; }
 void Terminal::Display::switchRenderer (App::RendererType) noexcept {}
-juce::ValueTree Terminal::Display::getValueTree() noexcept { return state.get(); }
+juce::ValueTree Terminal::Display::getValueTree() noexcept { return state.getValueTree(); }
 void Terminal::Display::applyConfig() noexcept {}
 void Terminal::Display::applyZoom (float) noexcept {}
 void Terminal::Display::enterSelectionMode() noexcept {}
@@ -136,7 +136,7 @@ void Terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::
 {
     state.setSnapshotDirty();
 
-    const int activeScreen { static_cast<int> (state.getActiveScreen()) };
+    const int activeScreen { state.getActiveScreen() };
 
     if (activeScreen != lastActiveScreen)
     {

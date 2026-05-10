@@ -85,10 +85,10 @@ void Video::resize (int newCols, int newVisibleRows) noexcept
 {
     wrapPending[0] = false;
     wrapPending[1] = false;
-    cursorClamp (normal, newCols, newVisibleRows);
-    cursorClamp (alternate, newCols, newVisibleRows);
-    cursorResetScrollRegion (normal);
-    cursorResetScrollRegion (alternate);
+    cursorClamp (map::Screen::normal, newCols, newVisibleRows);
+    cursorClamp (map::Screen::alternate, newCols, newVisibleRows);
+    cursorResetScrollRegion (map::Screen::normal);
+    cursorResetScrollRegion (map::Screen::alternate);
     initializeTabStops (newCols);
     calc();
 }
@@ -337,14 +337,14 @@ void Video::scrollDownAndFill (int top, int bottom) noexcept
  * @see print()
  * @see cursorGoToNextLine()
  */
-void Video::resolveWrapPending (ActiveScreen scr) noexcept
+void Video::resolveWrapPending (int scr) noexcept
 {
     if (autoWrap)
     {
-        const int row { cursorRow[static_cast<int> (scr)] };
+        const int row { cursorRow[scr] };
         const int scrollBot { activeScrollBottom() };
         const int vRows { this->visibleRows.load (std::memory_order_relaxed) };
-        const int sTop { this->scrollTop[static_cast<int> (scr)] };
+        const int sTop { this->scrollTop[scr] };
 
         if (row == scrollBot)
         {
@@ -352,17 +352,17 @@ void Video::resolveWrapPending (ActiveScreen scr) noexcept
         }
         else if (row > scrollBot)
         {
-            cursorRow[static_cast<int> (scr)] = juce::jmin (row + 1, vRows - 1);
+            cursorRow[scr] = juce::jmin (row + 1, vRows - 1);
         }
         else
         {
-            cursorRow[static_cast<int> (scr)] = row + 1;
+            cursorRow[scr] = row + 1;
         }
 
-        cursorCol[static_cast<int> (scr)] = 0;
+        cursorCol[scr] = 0;
     }
 
-    wrapPending[static_cast<int> (scr)] = false;
+    wrapPending[scr] = false;
 }
 
 /**
@@ -415,13 +415,13 @@ void Video::print (uint32_t codepoint) noexcept
         const int cellWidth { rawWidth < 1 ? 1 : rawWidth };
         const int numCols { this->cols.load (std::memory_order_relaxed) };
 
-        if (wrapPending[static_cast<int> (scr)])
+        if (wrapPending[scr])
         {
             resolveWrapPending (scr);
         }
 
-        const int row { cursorRow[static_cast<int> (scr)] };
-        const int col { cursorCol[static_cast<int> (scr)] };
+        const int row { cursorRow[scr] };
+        const int col { cursorCol[scr] };
 
         if (cellWidth == 2 and col + 2 > numCols)
         {
@@ -429,7 +429,7 @@ void Video::print (uint32_t codepoint) noexcept
             {
                 const int scrollBot { activeScrollBottom() };
                 const int vRows { this->visibleRows.load (std::memory_order_relaxed) };
-                const int sTop { this->scrollTop[static_cast<int> (scr)] };
+                const int sTop { this->scrollTop[scr] };
 
                 if (row == scrollBot)
                 {
@@ -437,20 +437,20 @@ void Video::print (uint32_t codepoint) noexcept
                 }
                 else if (row > scrollBot)
                 {
-                    cursorRow[static_cast<int> (scr)] = juce::jmin (row + 1, vRows - 1);
+                    cursorRow[scr] = juce::jmin (row + 1, vRows - 1);
                 }
                 else
                 {
-                    cursorRow[static_cast<int> (scr)] = row + 1;
+                    cursorRow[scr] = row + 1;
                 }
 
-                cursorCol[static_cast<int> (scr)] = 0;
-                wrapPending[static_cast<int> (scr)] = false;
+                cursorCol[scr] = 0;
+                wrapPending[scr] = false;
             }
         }
 
-        const int writeRow { cursorRow[static_cast<int> (scr)] };
-        const int writeCol { cursorCol[static_cast<int> (scr)] };
+        const int writeRow { cursorRow[scr] };
+        const int writeCol { cursorCol[scr] };
 
         jam::Cell cell {};
         cell.codepoint = translateCharset (codepoint, useLineDrawing);
@@ -490,11 +490,11 @@ void Video::print (uint32_t codepoint) noexcept
 
         if (writeCol + cellWidth >= numCols)
         {
-            wrapPending[static_cast<int> (scr)] = true;
+            wrapPending[scr] = true;
         }
         else
         {
-            cursorCol[static_cast<int> (scr)] = writeCol + cellWidth;
+            cursorCol[scr] = writeCol + cellWidth;
         }
     }
 }
@@ -522,12 +522,12 @@ void Video::print (uint32_t codepoint) noexcept
  * @see applyControlCode()
  * @see cursorGoToNextLine()
  */
-void Video::executeLineFeed (ActiveScreen scr) noexcept
+void Video::executeLineFeed (int scr) noexcept
 {
     const int scrollBot { activeScrollBottom() };
     const int vRows { this->visibleRows.load (std::memory_order_relaxed) };
-    const int cRow { this->cursorRow[static_cast<int> (scr)] };
-    const int sTop { this->scrollTop[static_cast<int> (scr)] };
+    const int cRow { this->cursorRow[scr] };
+    const int sTop { this->scrollTop[scr] };
 
     if (cRow == scrollBot)
     {
@@ -536,7 +536,7 @@ void Video::executeLineFeed (ActiveScreen scr) noexcept
 
     cursorGoToNextLine (scr, scrollBot, vRows);
 
-    if (events.contains (ID::extendOutputBlock)) events.get (ID::extendOutputBlock, int (cursorRow[static_cast<int> (scr)]));
+    if (events.contains (ID::extendOutputBlock)) events.get (ID::extendOutputBlock, int (cursorRow[scr]));
 }
 
 /**
@@ -580,18 +580,18 @@ void Video::applyControlCode (uint8_t controlByte) noexcept
             break;
 
         case 0x08:
-            if (cursorCol[static_cast<int> (scr)] > 0)
+            if (cursorCol[scr] > 0)
             {
-                cursorCol[static_cast<int> (scr)] = cursorCol[static_cast<int> (scr)] - 1;
-                wrapPending[static_cast<int> (scr)] = false;
+                cursorCol[scr] = cursorCol[scr] - 1;
+                wrapPending[scr] = false;
             }
             break;
 
         case 0x09:
         {
             const int nextTab { nextTabStop (scr, numCols) };
-            cursorCol[static_cast<int> (scr)] = nextTab;
-            wrapPending[static_cast<int> (scr)] = false;
+            cursorCol[scr] = nextTab;
+            wrapPending[scr] = false;
             break;
         }
 
@@ -602,8 +602,8 @@ void Video::applyControlCode (uint8_t controlByte) noexcept
             break;
 
         case 0x0D:
-            cursorCol[static_cast<int> (scr)] = 0;
-            wrapPending[static_cast<int> (scr)] = false;
+            cursorCol[scr] = 0;
+            wrapPending[scr] = false;
             break;
 
         case 0x0E:
@@ -701,11 +701,11 @@ void Video::resetModes() noexcept
     mouseSgr = false;
     focusEvents = false;
     applicationKeypad = false;
-    cursorVisible[static_cast<int> (normal)] = true;
+    cursorVisible[map::Screen::normal] = true;
     reverseVideo = false;
 
-    keyboardFlags[static_cast<int> (normal)] = 0;
-    keyboardFlags[static_cast<int> (alternate)] = 0;
+    keyboardFlags[map::Screen::normal] = 0;
+    keyboardFlags[map::Screen::alternate] = 0;
 }
 
 /**
@@ -730,7 +730,7 @@ void Video::resetModes() noexcept
  */
 void Video::reset() noexcept
 {
-    activeScreen = normal;
+    activeScreen = map::Screen::normal;
     grid.setScreen (false);
     resetCursor (cols.load (std::memory_order_relaxed));
     resetModes();
