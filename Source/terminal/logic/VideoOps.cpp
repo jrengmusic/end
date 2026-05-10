@@ -8,7 +8,7 @@
  *
  * ## Cursor movement primitives
  *
- * All movement helpers operate on a named `ActiveScreen` (normal or alternate)
+ * All movement helpers operate on a screen index (`int`, 0 = normal, 1 = alternate)
  * and clamp their results to valid bounds.  They always clear the wrap-pending
  * flag after moving, because a cursor that has been explicitly repositioned
  * should not trigger a deferred wrap on the next printed character.
@@ -122,15 +122,15 @@ void Video::resetCursor (int numCols) noexcept
  *
  * @see cursorMoveDown()  — complementary downward movement
  */
-void Video::cursorMoveUp (ActiveScreen s, int count) noexcept
+void Video::cursorMoveUp (int s, int count) noexcept
 {
-    const int top { scrollTop[static_cast<int> (s)] };
+    const int top { scrollTop[s] };
     const int bottom { effectiveScrollBottom (s, visibleRows.load (std::memory_order_relaxed)) };
-    const int row { cursorRow[static_cast<int> (s)] };
+    const int row { cursorRow[s] };
     const bool withinMargins { row >= top and row <= bottom };
     const int clampTop { withinMargins ? top : 0 };
-    cursorRow[static_cast<int> (s)] = juce::jmax (clampTop, row - count);
-    wrapPending[static_cast<int> (s)] = false;
+    cursorRow[s] = juce::jmax (clampTop, row - count);
+    wrapPending[s] = false;
 }
 
 /**
@@ -156,11 +156,11 @@ void Video::cursorMoveUp (ActiveScreen s, int count) noexcept
  * @see cursorMoveUp()           — complementary upward movement
  * @see effectiveScrollBottom()  — computes the effective scroll region bottom
  */
-void Video::cursorMoveDown (ActiveScreen s, int count, int bottom) noexcept
+void Video::cursorMoveDown (int s, int count, int bottom) noexcept
 {
-    const int row { cursorRow[static_cast<int> (s)] };
-    cursorRow[static_cast<int> (s)] = juce::jmin (bottom, row + count);
-    wrapPending[static_cast<int> (s)] = false;
+    const int row { cursorRow[s] };
+    cursorRow[s] = juce::jmin (bottom, row + count);
+    wrapPending[s] = false;
 }
 
 /**
@@ -183,11 +183,11 @@ void Video::cursorMoveDown (ActiveScreen s, int count, int bottom) noexcept
  *
  * @see cursorMoveBackward()  — complementary leftward movement
  */
-void Video::cursorMoveForward (ActiveScreen s, int count, int cols) noexcept
+void Video::cursorMoveForward (int s, int count, int cols) noexcept
 {
-    const int col { cursorCol[static_cast<int> (s)] };
-    cursorCol[static_cast<int> (s)] = juce::jmin (cols - 1, col + count);
-    wrapPending[static_cast<int> (s)] = false;
+    const int col { cursorCol[s] };
+    cursorCol[s] = juce::jmin (cols - 1, col + count);
+    wrapPending[s] = false;
 }
 
 /**
@@ -209,11 +209,11 @@ void Video::cursorMoveForward (ActiveScreen s, int count, int cols) noexcept
  *
  * @see cursorMoveForward()  — complementary rightward movement
  */
-void Video::cursorMoveBackward (ActiveScreen s, int count) noexcept
+void Video::cursorMoveBackward (int s, int count) noexcept
 {
-    const int col { cursorCol[static_cast<int> (s)] };
-    cursorCol[static_cast<int> (s)] = juce::jmax (0, col - count);
-    wrapPending[static_cast<int> (s)] = false;
+    const int col { cursorCol[s] };
+    cursorCol[s] = juce::jmax (0, col - count);
+    wrapPending[s] = false;
 }
 
 /**
@@ -240,11 +240,11 @@ void Video::cursorMoveBackward (ActiveScreen s, int count) noexcept
  *
  * @see cursorSetPositionInOrigin()  — use this variant when DECOM is active
  */
-void Video::cursorSetPosition (ActiveScreen s, int row, int col, int cols, int visibleRows) noexcept
+void Video::cursorSetPosition (int s, int row, int col, int cols, int visibleRows) noexcept
 {
-    cursorRow[static_cast<int> (s)] = juce::jlimit (0, visibleRows - 1, row);
-    cursorCol[static_cast<int> (s)] = juce::jlimit (0, cols - 1, col);
-    wrapPending[static_cast<int> (s)] = false;
+    cursorRow[s] = juce::jlimit (0, visibleRows - 1, row);
+    cursorCol[s] = juce::jlimit (0, cols - 1, col);
+    wrapPending[s] = false;
 }
 
 /**
@@ -273,13 +273,13 @@ void Video::cursorSetPosition (ActiveScreen s, int row, int col, int cols, int v
  * @see cursorSetPosition()      — use this variant when DECOM is inactive
  * @see effectiveScrollBottom()  — computes the effective scroll region bottom
  */
-void Video::cursorSetPositionInOrigin (ActiveScreen s, int row, int col, int cols, int visibleRows) noexcept
+void Video::cursorSetPositionInOrigin (int s, int row, int col, int cols, int visibleRows) noexcept
 {
-    const int top { scrollTop[static_cast<int> (s)] };
+    const int top { scrollTop[s] };
     const int bottom { effectiveScrollBottom (s, visibleRows) };
-    cursorRow[static_cast<int> (s)] = juce::jlimit (top, bottom, row + top);
-    cursorCol[static_cast<int> (s)] = juce::jlimit (0, cols - 1, col);
-    wrapPending[static_cast<int> (s)] = false;
+    cursorRow[s] = juce::jlimit (top, bottom, row + top);
+    cursorCol[s] = juce::jlimit (0, cols - 1, col);
+    wrapPending[s] = false;
 }
 
 /**
@@ -308,20 +308,20 @@ void Video::cursorSetPositionInOrigin (ActiveScreen s, int row, int col, int col
  * @see executeLineFeed()    — calls this; scrolls the region if it returns false
  * @see resolveWrapPending() — calls this when auto-wrap fires at the right margin
  */
-bool Video::cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) noexcept
+bool Video::cursorGoToNextLine (int s, int bottom, int visibleRows) noexcept
 {
-    wrapPending[static_cast<int> (s)] = false;
-    const int row { cursorRow[static_cast<int> (s)] };
+    wrapPending[s] = false;
+    const int row { cursorRow[s] };
     bool moved { false };
 
     if (row < bottom)
     {
-        cursorRow[static_cast<int> (s)] = row + 1;
+        cursorRow[s] = row + 1;
         moved = true;
     }
     else if (row > bottom)
     {
-        cursorRow[static_cast<int> (s)] = juce::jmin (row + 1, visibleRows - 1);
+        cursorRow[s] = juce::jmin (row + 1, visibleRows - 1);
         moved = true;
     }
 
@@ -349,12 +349,12 @@ bool Video::cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) noe
  *
  * @see resize()  — calls this after updating State with new dimensions
  */
-void Video::cursorClamp (ActiveScreen s, int cols, int visibleRows) noexcept
+void Video::cursorClamp (int s, int cols, int visibleRows) noexcept
 {
-    const int col { cursorCol[static_cast<int> (s)] };
-    const int row { cursorRow[static_cast<int> (s)] };
-    cursorCol[static_cast<int> (s)] = juce::jlimit (0, cols - 1, col);
-    cursorRow[static_cast<int> (s)] = juce::jlimit (0, visibleRows - 1, row);
+    const int col { cursorCol[s] };
+    const int row { cursorRow[s] };
+    cursorCol[s] = juce::jlimit (0, cols - 1, col);
+    cursorRow[s] = juce::jlimit (0, visibleRows - 1, row);
 }
 
 /**
@@ -375,10 +375,10 @@ void Video::cursorClamp (ActiveScreen s, int cols, int visibleRows) noexcept
  * @see cursorResetScrollRegion()  — resets the region to the full screen
  * @see effectiveScrollBottom()    — interprets a stored bottom of 0 as full-screen
  */
-void Video::cursorSetScrollRegion (ActiveScreen s, int top, int bottom) noexcept
+void Video::cursorSetScrollRegion (int s, int top, int bottom) noexcept
 {
-    scrollTop[static_cast<int> (s)] = top;
-    scrollBottom[static_cast<int> (s)] = bottom;
+    scrollTop[s] = top;
+    scrollBottom[s] = bottom;
 }
 
 /**
@@ -398,10 +398,10 @@ void Video::cursorSetScrollRegion (ActiveScreen s, int top, int bottom) noexcept
  * @see cursorSetScrollRegion()  — sets an explicit scroll region
  * @see effectiveScrollBottom()  — interprets the stored bottom value
  */
-void Video::cursorResetScrollRegion (ActiveScreen s) noexcept
+void Video::cursorResetScrollRegion (int s) noexcept
 {
-    scrollTop[static_cast<int> (s)] = 0;
-    scrollBottom[static_cast<int> (s)] = 0;
+    scrollTop[s] = 0;
+    scrollBottom[s] = 0;
 }
 
 /**
@@ -427,9 +427,9 @@ void Video::cursorResetScrollRegion (ActiveScreen s) noexcept
  * @see cursorSetScrollRegion()   — sets an explicit scroll region
  * @see cursorResetScrollRegion() — resets to the sentinel value (0)
  */
-int Video::effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexcept
+int Video::effectiveScrollBottom (int s, int visibleRows) const noexcept
 {
-    const int sb { scrollBottom[static_cast<int> (s)] };
+    const int sb { scrollBottom[s] };
     return (sb > 0) ? sb : visibleRows - 1;
 }
 
@@ -450,10 +450,10 @@ int Video::effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexcep
  * @see moveCursorDown()      — CUD handler
  * @see moveCursorNextLine()  — CNL handler
  */
-int Video::effectiveClampBottom (ActiveScreen s) const noexcept
+int Video::effectiveClampBottom (int s) const noexcept
 {
-    const int row { cursorRow[static_cast<int> (s)] };
-    const int top { scrollTop[static_cast<int> (s)] };
+    const int row { cursorRow[s] };
+    const int top { scrollTop[s] };
     const bool withinMargins { row >= top and row <= activeScrollBottom() };
     return withinMargins ? activeScrollBottom() : visibleRows.load (std::memory_order_relaxed) - 1;
 }
@@ -534,9 +534,9 @@ void Video::initializeTabStops (int numCols) noexcept
  * @see initializeTabStops()  — sets the default stop layout
  * @see setTabStop()          — adds a stop at the cursor column
  */
-int Video::nextTabStop (ActiveScreen s, int cols) noexcept
+int Video::nextTabStop (int s, int cols) noexcept
 {
-    int nextTab { cursorCol[static_cast<int> (s)] + 1 };
+    int nextTab { cursorCol[s] + 1 };
 
     while (nextTab < cols)
     {
@@ -576,9 +576,9 @@ int Video::nextTabStop (ActiveScreen s, int cols) noexcept
  * @see nextTabStop()         — forward direction counterpart
  * @see initializeTabStops()  — sets the default stop layout
  */
-int Video::prevTabStop (ActiveScreen s) noexcept
+int Video::prevTabStop (int s) noexcept
 {
-    int prevTab { cursorCol[static_cast<int> (s)] - 1 };
+    int prevTab { cursorCol[s] - 1 };
 
     while (prevTab > 0)
     {
@@ -608,9 +608,9 @@ int Video::prevTabStop (ActiveScreen s) noexcept
  * @see clearAllTabStops()    — clears all stops (TBC CSI 3 g)
  * @see initializeTabStops()  — resets to the default 8-column layout
  */
-void Video::setTabStop (ActiveScreen s) noexcept
+void Video::setTabStop (int s) noexcept
 {
-    const int col { cursorCol[static_cast<int> (s)] };
+    const int col { cursorCol[s] };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 1;
@@ -632,9 +632,9 @@ void Video::setTabStop (ActiveScreen s) noexcept
  * @see setTabStop()       — sets a stop at the cursor column (HTS)
  * @see clearAllTabStops() — clears all stops (TBC CSI 3 g)
  */
-void Video::clearTabStop (ActiveScreen s) noexcept
+void Video::clearTabStop (int s) noexcept
 {
-    const int col { cursorCol[static_cast<int> (s)] };
+    const int col { cursorCol[s] };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 0;

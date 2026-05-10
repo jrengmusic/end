@@ -53,6 +53,7 @@
 #include "interprocess/Daemon.h"
 #include "interprocess/Link.h"
 #include "component/TerminalWindow.h"
+#include "terminal/data/Screen.h"
 
 #if JUCE_WINDOWS
 #include <jam_core/utilities/jam_platform.h>
@@ -442,6 +443,9 @@ private:
 
     /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
     lua::Engine luaEngine;
+
+    /** @brief Screen index map — registers Terminal::map::Screen context. Must be constructed before any consumer of map::Screen::getContext(). */
+    Terminal::map::Screen screen;
 
     /** @brief Application-level ValueTree. Must be constructed after luaEngine. */
     AppState appState;

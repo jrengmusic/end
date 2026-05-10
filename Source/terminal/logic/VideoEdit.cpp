@@ -42,9 +42,8 @@ namespace Terminal
 /**
  * @brief Handles `CSI Ps J` — Erase in Display (ED).
  *
- * Clears cells directly in Grid.  For modes 2 and 3, the `"queueImageErase"`
- * event is fired so the renderer evicts all image placements.  Mode 3
- * additionally fires the `"snapshotDirty"` event.
+ * Clears cells directly in Grid.  For mode 3, the `"snapshotDirty"` event
+ * is fired.
  *
  * @par Mode table
  *
@@ -165,7 +164,6 @@ void Video::eraseInDisplay (int mode) noexcept
                 grid.clear();
             }
 
-            if (events.contains (ID::queueImageErase)) events.get (ID::queueImageErase, int (absRowTop), 0, int (absRowLast), nCols - 1);
             break;
         }
 
@@ -173,7 +171,6 @@ void Video::eraseInDisplay (int mode) noexcept
         {
             // Clear scrollback — set State flag for Display to handle
             if (events.contains (ID::snapshotDirty)) events.get (ID::snapshotDirty);
-            if (events.contains (ID::queueImageErase)) events.get (ID::queueImageErase, 0, 0, int (absRowLast), nCols - 1);
             break;
         }
 
@@ -539,17 +536,17 @@ void Video::repeatCharacter (int count) noexcept
  */
 void Video::setScreen (bool shouldUseAlternate) noexcept
 {
-    if (const auto target { shouldUseAlternate ? alternate : normal };
+    if (const int target { shouldUseAlternate ? map::Screen::alternate : map::Screen::normal };
         target != activeScreen)
     {
         activeScreen = target;
-        const auto scr { activeScreen };
+        const int scr { activeScreen };
         cursorResetScrollRegion (scr);
         calc();
 
         grid.setScreen (shouldUseAlternate);
 
-        if (target == alternate)
+        if (target == map::Screen::alternate)
         {
             cursorClamp (scr, cols.load (std::memory_order_relaxed), visibleRows.load (std::memory_order_relaxed));
             activeLinkId = 0;

@@ -134,9 +134,9 @@ void Video::advanceCursorForImage (int numRows) noexcept
 {
     if (numRows > 0)
     {
-        const ActiveScreen scr { activeScreen };
+        const int scr { activeScreen };
         cursorMoveDown (scr, numRows, effectiveClampBottom (scr));
-        cursorCol[static_cast<int> (scr)] = 0;
+        cursorCol[scr] = 0;
     }
 }
 

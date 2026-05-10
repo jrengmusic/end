@@ -103,11 +103,11 @@ void Video::handleOsc8 (const uint8_t* data, int dataLength) noexcept
  * @param dataLength  Number of bytes in `data` (must be >= 1 for a valid subcommand).
  * @note READER THREAD only.
  */
-void Video::handleOsc133 (ActiveScreen scr, const uint8_t* data, int dataLength) noexcept
+void Video::handleOsc133 (int scr, const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength >= 1)
     {
-        const int cRow { cursorRow[static_cast<int> (scr)] };
+        const int cRow { cursorRow[scr] };
 
         switch (data[0])
         {
@@ -155,9 +155,9 @@ void Video::handleOsc1337 (const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength > 0 and events.contains (ID::osc1337Raw))
     {
-        const ActiveScreen scr { activeScreen };
-        const int cRow         { cursorRow[static_cast<int> (scr)] };
-        const int cCol         { cursorCol[static_cast<int> (scr)] };
+        const int scr { activeScreen };
+        const int cRow { cursorRow[scr] };
+        const int cCol { cursorCol[scr] };
         events.get (ID::osc1337Raw, data, int (dataLength), int (cRow), int (cCol));
     }
 }

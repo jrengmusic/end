@@ -222,7 +222,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
     {
         const bool scrollUp { wheel.deltaY > 0.0f };
 
-        if (activeScreen == Terminal::ActiveScreen::alternate)
+        if (activeScreen == Terminal::map::Screen::alternate)
         {
             if (shouldForwardToPty())
             {
@@ -255,7 +255,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
         {
             scrollAccumulator -= static_cast<float> (lines);
 
-            if (activeScreen == Terminal::ActiveScreen::alternate)
+            if (activeScreen == Terminal::map::Screen::alternate)
             {
                 if (shouldForwardToPty())
                 {

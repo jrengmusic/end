@@ -245,7 +245,7 @@ Session::Session (int cols,
 
     // Create Processor and wire the terminal pipeline.
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<Terminal::Processor> (grid, cols, rows, effectiveUuid);
+    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);
     processor->getState().setId (effectiveUuid);
 
     Terminal::Processor* procRawPtr { processor.get() };
@@ -306,8 +306,9 @@ Session::Session (int cols,
             }
             else
             {
-                char fgNameBuf[Terminal::State::maxStringLength] {};
-                const int fgNameLen { getProcessName (fgPid, fgNameBuf, Terminal::State::maxStringLength) };
+                static constexpr int fgNameBufSize { 256 };
+                char fgNameBuf[fgNameBufSize] {};
+                const int fgNameLen { getProcessName (fgPid, fgNameBuf, fgNameBufSize) };
 
                 if (fgNameLen > 0)
                     procRawPtr->getState().setForegroundProcess (fgNameBuf, fgNameLen);
@@ -315,8 +316,9 @@ Session::Session (int cols,
 
             if (shouldTrackCwdFromOs)
             {
-                char cwdBuf[Terminal::State::maxStringLength] {};
-                const int cwdLen { getCwd (fgPid, cwdBuf, Terminal::State::maxStringLength) };
+                static constexpr int cwdBufSize { 4096 };
+                char cwdBuf[cwdBufSize] {};
+                const int cwdLen { getCwd (fgPid, cwdBuf, cwdBufSize) };
 
                 if (cwdLen > 0)
                     procRawPtr->getState().setCwd (cwdBuf, cwdLen);
@@ -349,9 +351,9 @@ Session::Session (int cols, int rows,
     grid.setSize (rows, cols, false, true, false);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<Terminal::Processor> (grid, cols, rows, effectiveUuid);
+    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);
     processor->getState().setId (effectiveUuid);
-    processor->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
+    processor->getState().getValueTree().setProperty (Terminal::ID::cwd, cwd, nullptr);
 }
 
 /**

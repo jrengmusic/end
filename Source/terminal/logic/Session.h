@@ -36,6 +36,7 @@
 #include <memory>
 
 #include "../data/History.h"
+#include "../data/TextBuffer.h"
 #include "Grid.h"
 #include "Processor.h"
 
@@ -359,6 +360,7 @@ public:
 
 private:
     Grid grid;                                    ///< Live cell buffer — the AudioBuffer.
+    TextBuffer textBuffer;                        ///< Cross-thread string buffer — constructed before processor.
     std::unique_ptr<TTY> tty;
     History history;
     std::unique_ptr<Terminal::Processor> processor;

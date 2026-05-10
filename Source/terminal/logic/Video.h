@@ -48,6 +48,7 @@
 #include "../data/CSI.h"
 #include "../data/Identifier.h"
 #include "../data/CharProps.h"
+#include "../data/Screen.h"
 #include "Grid.h"
 
 namespace Terminal
@@ -155,13 +156,13 @@ public:
      *  Processor reads these after each command and writes State atomics.
      * @{ */
 
-    ActiveScreen getActiveScreen() const noexcept { return activeScreen; }
-    int getCursorRow (ActiveScreen s) const noexcept { return cursorRow[static_cast<int> (s)]; }
-    int getCursorCol (ActiveScreen s) const noexcept { return cursorCol[static_cast<int> (s)]; }
-    bool isWrapPending (ActiveScreen s) const noexcept { return wrapPending[static_cast<int> (s)]; }
-    int getScrollTop (ActiveScreen s) const noexcept { return scrollTop[static_cast<int> (s)]; }
-    int getScrollBottom (ActiveScreen s) const noexcept { return scrollBottom[static_cast<int> (s)]; }
-    bool isCursorVisible (ActiveScreen s) const noexcept { return cursorVisible[static_cast<int> (s)]; }
+    int getActiveScreen() const noexcept { return activeScreen; }
+    int getCursorRow (int s) const noexcept { return cursorRow[s]; }
+    int getCursorCol (int s) const noexcept { return cursorCol[s]; }
+    bool isWrapPending (int s) const noexcept { return wrapPending[s]; }
+    int getScrollTop (int s) const noexcept { return scrollTop[s]; }
+    int getScrollBottom (int s) const noexcept { return scrollBottom[s]; }
+    bool isCursorVisible (int s) const noexcept { return cursorVisible[s]; }
     int getCols() const noexcept { return cols.load (std::memory_order_relaxed); }
     int getVisibleRows() const noexcept { return visibleRows.load (std::memory_order_relaxed); }
 
@@ -179,7 +180,7 @@ public:
     /** @brief Sets the named mode flag. */
     void setMode (juce::Identifier id, bool value) noexcept;
 
-    uint32_t getKeyboardFlags (ActiveScreen s) const noexcept { return keyboardFlags[static_cast<int> (s)]; }
+    uint32_t getKeyboardFlags (int s) const noexcept { return keyboardFlags[s]; }
     const jam::Cell& getPen() const noexcept { return pen; }
     const jam::Cell& getStamp() const noexcept { return stamp; }
 
@@ -213,7 +214,7 @@ public:
      *  The handler receives the URI from Video, registers it in State, and
      *  pushes the assigned ID back via this setter.
      *
-     *  @param id  1-based link ID from `State::registerLinkUri`, or 0 to clear.
+     *  @param id  1-based link ID (OSC 8), or 0 to clear.
      *  @note READER THREAD — called synchronously from the event handler.
      */
     void setActiveLinkId (uint16_t id) noexcept { activeLinkId = id; }
@@ -330,7 +331,7 @@ private:
      * @{ */
 
     /** @brief Active screen buffer (normal or alternate). */
-    ActiveScreen activeScreen { normal };
+    int activeScreen { map::Screen::normal };
 
     /** @brief Terminal width in character columns. Cross-thread (message → reader). */
     std::atomic<int> cols { 80 };
@@ -409,7 +410,7 @@ private:
      * @brief Saved cursor state for DECSC/DECRC (ESC 7 / ESC 8).
      *
      * Per-screen saved state: cursor position, pen, wrap-pending, origin
-     * mode, and line-drawing charset.  Indexed by `ActiveScreen`.
+     * mode, and line-drawing charset.  Indexed by screen index.
      */
     struct SavedCursor
     {
@@ -499,7 +500,7 @@ private:
     /**
      * @brief Link ID of the currently active OSC 8 hyperlink, or 0 when no link is open.
      *
-     * Set by `handleOsc8()` via `Grid::registerLinkUri()` when an OSC 8 open
+     * Set by `handleOsc8()` via Processor event handler when an OSC 8 open
      * is received.  Cleared to 0 on OSC 8 close.  Stamped onto every cell
      * written by `print()` while non-zero.
      *
@@ -607,7 +608,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void cursorMoveUp (ActiveScreen s, int count) noexcept;
+    void cursorMoveUp (int s, int count) noexcept;
 
     /**
      * @brief Moves the cursor down by `count` rows, clamped to `bottom`.
@@ -618,7 +619,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void cursorMoveDown (ActiveScreen s, int count, int bottom) noexcept;
+    void cursorMoveDown (int s, int count, int bottom) noexcept;
 
     /**
      * @brief Moves the cursor right by `count` columns, clamped to `cols - 1`.
@@ -629,7 +630,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void cursorMoveForward (ActiveScreen s, int count, int cols) noexcept;
+    void cursorMoveForward (int s, int count, int cols) noexcept;
 
     /**
      * @brief Moves the cursor left by `count` columns, clamped to column 0.
@@ -639,7 +640,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void cursorMoveBackward (ActiveScreen s, int count) noexcept;
+    void cursorMoveBackward (int s, int count) noexcept;
 
     /**
      * @brief Sets the cursor to an absolute (row, col) position.
@@ -657,7 +658,7 @@ private:
      *
      * @see cursorSetPositionInOrigin()
      */
-    void cursorSetPosition (ActiveScreen s, int row, int col, int cols, int visibleRows) noexcept;
+    void cursorSetPosition (int s, int row, int col, int cols, int visibleRows) noexcept;
 
     /**
      * @brief Sets the cursor position relative to the scroll region origin.
@@ -676,7 +677,7 @@ private:
      *
      * @see cursorSetPosition()
      */
-    void cursorSetPositionInOrigin (ActiveScreen s, int row, int col, int cols, int visibleRows) noexcept;
+    void cursorSetPositionInOrigin (int s, int row, int col, int cols, int visibleRows) noexcept;
 
     /**
      * @brief Advances the cursor to the next line, scrolling if at the bottom.
@@ -694,7 +695,7 @@ private:
      *
      * @see executeLineFeed()
      */
-    bool cursorGoToNextLine (ActiveScreen s, int bottom, int visibleRows) noexcept;
+    bool cursorGoToNextLine (int s, int bottom, int visibleRows) noexcept;
 
     /**
      * @brief Clamps the cursor to the valid screen area after a resize.
@@ -708,7 +709,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void cursorClamp (ActiveScreen s, int cols, int visibleRows) noexcept;
+    void cursorClamp (int s, int cols, int visibleRows) noexcept;
 
     /**
      * @brief Saves cursor position and associated state for DECSC (ESC 7).
@@ -724,7 +725,7 @@ private:
      * @see restoreCursor()
      * @see savedCursor
      */
-    void saveCursor (ActiveScreen scr) noexcept;
+    void saveCursor (int scr) noexcept;
 
     /**
      * @brief Restores cursor position and associated state for DECRC (ESC 8).
@@ -741,7 +742,7 @@ private:
      * @see saveCursor()
      * @see savedCursor
      */
-    void restoreCursor (ActiveScreen scr) noexcept;
+    void restoreCursor (int scr) noexcept;
 
     /**
      * @brief Sets the scrolling region (DECSTBM) for the specified screen.
@@ -757,7 +758,7 @@ private:
      *
      * @see cursorResetScrollRegion()
      */
-    void cursorSetScrollRegion (ActiveScreen s, int top, int bottom) noexcept;
+    void cursorSetScrollRegion (int s, int top, int bottom) noexcept;
 
     /**
      * @brief Resets the scrolling region to the full screen height.
@@ -771,7 +772,7 @@ private:
      *
      * @see cursorSetScrollRegion()
      */
-    void cursorResetScrollRegion (ActiveScreen s) noexcept;
+    void cursorResetScrollRegion (int s) noexcept;
 
     /**
      * @brief Returns the effective scroll-region bottom row for the given screen.
@@ -786,7 +787,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    int effectiveScrollBottom (ActiveScreen s, int visibleRows) const noexcept;
+    int effectiveScrollBottom (int s, int visibleRows) const noexcept;
 
     /**
      * @brief Returns the effective downward clamp for cursor movement on screen `s`.
@@ -802,7 +803,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    int effectiveClampBottom (ActiveScreen s) const noexcept;
+    int effectiveClampBottom (int s) const noexcept;
 
     /** @} */
 
@@ -847,7 +848,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    int nextTabStop (ActiveScreen s, int cols) noexcept;
+    int nextTabStop (int s, int cols) noexcept;
 
     /**
      * @brief Returns the column index of the previous tab stop to the left of the cursor.
@@ -863,7 +864,7 @@ private:
      *
      * @see nextTabStop()  — forward direction counterpart
      */
-    int prevTabStop (ActiveScreen s) noexcept;
+    int prevTabStop (int s) noexcept;
 
     /**
      * @brief Sets a tab stop at the current cursor column.
@@ -874,7 +875,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void setTabStop (ActiveScreen s) noexcept;
+    void setTabStop (int s) noexcept;
 
     /**
      * @brief Clears the tab stop at the current cursor column.
@@ -885,7 +886,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void clearTabStop (ActiveScreen s) noexcept;
+    void clearTabStop (int s) noexcept;
 
     /**
      * @brief Clears all tab stops.
@@ -928,7 +929,7 @@ private:
      * @see print()
      * @see cursorGoToNextLine()
      */
-    void resolveWrapPending (ActiveScreen scr) noexcept;
+    void resolveWrapPending (int scr) noexcept;
 
     /**
      * @brief Performs a line feed, advancing the cursor or scrolling the region.
@@ -944,7 +945,7 @@ private:
      * @see cursorGoToNextLine()
      * @see applyControlCode()
      */
-    void executeLineFeed (ActiveScreen scr) noexcept;
+    void executeLineFeed (int scr) noexcept;
 
     /**
      * @brief Handles ESC sequences with no intermediate bytes.
@@ -964,7 +965,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void escDispatchNoIntermediate (ActiveScreen scr, uint8_t finalByte) noexcept;
+    void escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept;
 
     /**
      * @brief Handles ESC sequences that select a character set (G0–G3 designators).
@@ -991,7 +992,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void escDispatchDEC (ActiveScreen scr, uint8_t finalByte) noexcept;
+    void escDispatchDEC (int scr, uint8_t finalByte) noexcept;
 
     /**
      * @brief Handles an OSC title-change command (OSC 0 or OSC 2).
@@ -1138,7 +1139,7 @@ private:
     /** @brief Handles OSC 8 — explicit hyperlink start/end.
      *
      *  Payload format: `8;params;uri`
-     *  - Non-empty URI: registers URI via `Grid::registerLinkUri()` and stores
+     *  - Non-empty URI: registers URI via Processor event handler and stores
      *    the returned ID in `activeLinkId` to stamp subsequent cell writes.
      *  - Empty URI:     clears `activeLinkId` to 0, ending the stamp run.
      *  - Malformed:     clears `activeLinkId` to 0.
@@ -1177,7 +1178,7 @@ private:
      * @param dataLength  Length of the payload in bytes (at least 1 for a valid subcommand).
      * @note READER THREAD only.
      */
-    void handleOsc133 (ActiveScreen scr, const uint8_t* data, int dataLength) noexcept;
+    void handleOsc133 (int scr, const uint8_t* data, int dataLength) noexcept;
 
     /** @brief Handles OSC 1337 — iTerm2 inline image display.
      *

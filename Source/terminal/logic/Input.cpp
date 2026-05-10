@@ -285,7 +285,6 @@ bool Input::handleOpenFileKey (const juce::KeyPress& key) noexcept
     else if (key.getKeyCode() == juce::KeyPress::spaceKey)
     {
         linkManager.advanceHintPage();
-        processor.getState().setFullRebuild();
         processor.getState().setSnapshotDirty();
     }
     else
