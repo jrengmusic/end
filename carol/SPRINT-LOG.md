@@ -1,5 +1,68 @@
 # SPRINT-LOG
 
+## Sprint 13: jam::ValueTree APVTS-Pattern — Shared Atom Infrastructure + XML-Driven AppState
+
+**Date:** 2026-05-11
+**Duration:** 08:00+
+
+### Agents Participated
+- COUNSELOR: primary — PLAN writing, APVTS source study, RFC compliance review, design corrections
+- Pathfinder (x4): codebase discovery, jam module structure survey, callsite mapping, git log
+- Librarian (x1): deep APVTS source study (juce_AudioProcessorValueTreeState.h/cpp)
+- Engineer (x14): jam module creation, Terminal/AppState refactoring, Atom API, callsite migrations, serialization update, build fixes
+- Auditor (x2): comprehensive audit, doxygen, BLESSED/NAMES compliance
+
+### Files Modified (16+)
+
+**jam-level (framework — new):**
+- `jam_data_structures/value_tree/jam_atom.h` (new) — AtomBase, Atom<int> (store/load/storeRelease/loadAcquire/exchangeAcquire/exchangeAcqRel/fetchSubAcqRel/exchangeRelaxed/raw/flush), Atom<const char*>
+- `jam_data_structures/value_tree/jam_value_tree.h` — added juce::Timer base, APVTS section: PARAM identifier, addParameter SSOT, storeValue, storeTextValue, flushGroup, virtual flush, onFlush, params AnyMap, needsFlushAtom (protected)
+- `jam_data_structures/value_tree/jam_value_tree.cpp` — implementations for all APVTS methods, timerCallback (adaptive 60/120 Hz)
+- `jam_data_structures/jam_data_structures.h` — added jam_atom.h include
+- `jam_data_structures/jam_data_structures.cpp` — removed deleted state/ include
+
+**END-level (Terminal refactor):**
+- `Source/terminal/data/Atom.h` — replaced with using declarations (jam::AtomBase, jam::Atom)
+- `Source/terminal/data/State.h` — inherits jam::ValueTree, removed getRawParameterValue/loadValue/storeValue/storeAndFlush, added getValueTree forwarders, getSessionParamInt VT reader
+- `Source/terminal/data/State.cpp` — constructor chains jam::ValueTree(ID::SESSION), all setters use base storeValue, message-thread getters read VT, exception callsites use Atom API (storeRelease/exchangeAcquire/fetchSubAcqRel/exchangeAcqRel)
+- `Source/terminal/data/StateFlush.cpp` — flush uses needsFlushAtom->exchangeAcquire
+- `Source/terminal/data/Layout.h` — Boolean inline, PARAM uses jam::ValueTree::PARAM
+- `Source/terminal/data/Layout.cpp` — PARAM identifier from jam::ValueTree::PARAM
+- `Source/terminal/logic/Processor.cpp` — PARAM identifier from jam::ValueTree::PARAM
+
+**END-level (AppState refactor — new APVTS pattern):**
+- `Source/AppState.h` — inherits jam::ValueTree + jam::Context, removed shadow members (instanceUuid, atlasDirty, state), added flush override
+- `Source/AppState.cpp` — XML-driven construction via AppLayout::build, all int/bool params via Atom (storeValue), message-thread getters via VT (getParamInt), exception callsites via Atom API, flush() before startTimerHz, serialization updated for PARAM-child VT
+- `Source/AppLayout.h` — build takes AppState&, resolveIntDefault for Atom params, resolveDefault for float/string
+- `Source/AppLayout.cpp` — routes int/bool to addParameter, float/string to setProperty
+- `Source/AppParameters.xml` — added needsFlush, atlasDirty params
+- `Source/AppIdentifier.h` — added needsFlush, atlasDirty, XML schema constants
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [x] RFC-state-refactor.md access patterns followed: Atom store/load for writers, VT for message-thread readers, raw() only for exception callsites
+
+### Problems Solved
+- Extracted APVTS-pattern infrastructure from Terminal::State into jam::ValueTree — shared base for both Terminal::State and AppState
+- AppState refactored from hand-wired VT properties to XML-driven Atom<int> parameters with flush timer
+- Shadow state eliminated from AppState: instanceUuid → VT property, atlasDirty → Atom<int> parameter
+- Atom API simplified: storeRelease/loadAcquire/exchangeAcquire/exchangeAcqRel/fetchSubAcqRel/exchangeRelaxed encode memory ordering — no raw() at callsites except for truly exotic ops
+- jam::ValueTree::storeValue/storeTextValue hide needsFlush signal — callers never touch it
+- PARAM identifier converged to single source: jam::ValueTree::PARAM
+- Initial flush() before startTimerHz prevents stale VT reads at startup
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- State.cpp exceeds 300-line Lean boundary (pre-existing from Sprint 12)
+- AppState.cpp exceeds 300-line Lean boundary (pre-existing)
+- consumeAtlasDirty has zero callers (dead code, pre-existing)
+- PLAN-appstate-xml.md and PLAN-parameter-store.md on disk (stale, ARCHITECT's call on git)
+- State.h class docstring references removed getRawParameterValue API (stale)
+
 ## Sprint 12: State Refactor — Declarative XML-Driven Typed Atomics (APVTS Pattern)
 
 **Date:** 2026-05-10 — 2026-05-11

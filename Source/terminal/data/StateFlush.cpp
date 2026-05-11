@@ -24,7 +24,7 @@ namespace Terminal
  */
 bool State::flush() noexcept
 {
-    if (getRawParameterValue (ID::needsFlush)->exchange (0, std::memory_order_acquire) != 0)
+    if (needsFlushAtom->exchangeAcquire (0) != 0)
     {
         // Flush MODES first — mode values must be current before screen atoms.
         params.get<jam::AnyMap> (ID::MODES)->forEach<AtomBase> (
@@ -47,8 +47,8 @@ bool State::flush() noexcept
             [] (const juce::Identifier&, AtomBase& atom) { atom.flush(); });
 
         // displayName from flushed title / cwd / foreground.
-        const auto foreground { state.getProperty (ID::foregroundProcess).toString() };
-        const auto cwdPath    { state.getProperty (ID::cwd).toString() };
+        const auto foreground { get().getProperty (ID::foregroundProcess).toString() };
+        const auto cwdPath    { get().getProperty (ID::cwd).toString() };
         juce::String name;
 
         if (foreground.isNotEmpty())
@@ -61,7 +61,7 @@ bool State::flush() noexcept
         }
 
         if (name.isNotEmpty())
-            state.setProperty (App::ID::displayName, name, nullptr);
+            get().setProperty (App::ID::displayName, name, nullptr);
 
         return true;
     }

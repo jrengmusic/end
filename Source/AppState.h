@@ -48,14 +48,14 @@
 #include <JuceHeader.h>
 #include "AppIdentifier.h"
 
-struct AppState : jam::Context<AppState>
+struct AppState : public jam::ValueTree, public jam::Context<AppState>
 {
     AppState();
     ~AppState();
 
     //==============================================================================
 
-    juce::ValueTree& get() noexcept;
+    bool flush() noexcept override;
 
     juce::ValueTree getWindow() noexcept;
     juce::ValueTree getNexusNode() noexcept;
@@ -244,12 +244,13 @@ struct AppState : jam::Context<AppState>
     //==============================================================================
 
 private:
-    juce::ValueTree state;
     juce::Value pwdValue;
-    juce::String instanceUuid;
-    std::atomic<bool> atlasDirty { false };
 
     void initDefaults();
+
+    void loadParamValue (const juce::ValueTree& parsedNode,
+                         const juce::Identifier& groupId,
+                         const juce::Identifier& paramId) noexcept;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AppState)

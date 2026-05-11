@@ -1,0 +1,28 @@
+<END>
+    <!-- Root-level properties -->
+    <PARAM id="port"               type="int"    default="0"/>
+    <PARAM id="needsFlush"         type="bool"   default="false"/>
+
+    <!-- Window geometry and display settings -->
+    <WINDOW>
+        <PARAM id="width"          type="int"    default="0"/>
+        <PARAM id="height"         type="int"    default="0"/>
+        <PARAM id="zoom"           type="float"  default="1.0"/>
+        <PARAM id="fontFamily"     type="string" default=""/>
+        <PARAM id="fontSize"       type="float"  default="0"/>
+        <PARAM id="renderer"       type="string" default="gpu"/>
+        <PARAM id="gpuAvailable"   type="bool"   default="false"/>
+        <PARAM id="daemonMode"     type="bool"   default="false"/>
+        <PARAM id="atlasDirty"     type="bool"   default="false"/>
+    </WINDOW>
+
+    <!-- Tab bar and active pane state -->
+    <TABS>
+        <PARAM id="active"         type="int"    default="0"/>
+        <PARAM id="position"       type="string" default=""/>
+        <PARAM id="activePaneID"   type="string" default=""/>
+        <PARAM id="activePaneType" type="string" default="terminal"/>
+        <PARAM id="modalType"      type="int"    default="0"/>
+        <PARAM id="selectionType"  type="int"    default="0"/>
+    </TABS>
+</END>

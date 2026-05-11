@@ -79,6 +79,8 @@ namespace ID
     static const juce::Identifier renderer            { "renderer" };
     static const juce::Identifier gpuAvailable       { "gpuAvailable" };
     static const juce::Identifier daemonMode          { "daemonMode" };
+    static const juce::Identifier needsFlush         { "needsFlush" };
+    static const juce::Identifier atlasDirty         { "atlasDirty" };
     static const juce::Identifier filePath           { "filePath" };
     static const juce::Identifier displayName        { "displayName" };
     static const juce::Identifier userTabName        { "userTabName" };
@@ -106,5 +108,22 @@ namespace ID
 
     static const juce::String paneTypeTerminal { "terminal" };
     static const juce::String paneTypeDocument { "document" };
+
+    //==========================================================================
+    // App metadata string constants
+    //==========================================================================
+
+    static const juce::String appMetadata { "AppParameters.xml" };
+
+    //==========================================================================
+    // XML schema constants (used by AppLayout::build())
+    //==========================================================================
+
+    static const juce::Identifier xmlId           { "id" };
+    static const juce::Identifier xmlType         { "type" };
+    static const juce::Identifier xmlDefault      { "default" };
+    static const juce::Identifier boolType        { "bool" };
+    static const juce::Identifier floatType       { "float" };
+    static const juce::Identifier intType         { "int" };
 }
 }

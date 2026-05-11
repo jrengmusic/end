@@ -1,26 +1,41 @@
-# PLAN: State Refactor — Declarative XML-Driven Typed Atomics
+# PLAN: State Refactor — jam::ValueTree as Universal SSOT State Machine
 
-**RFC:** RFC-state-refactor.md
-**Date:** 2026-05-10
+**RFC:** RFC-state-refactor.md (scope superseded — now jam::ValueTree-level)
+**Date:** 2026-05-11
 **BLESSED Compliance:** verified
-**Language Constraints:** C++ / JUCE (reference implementation, no overrides)
+**Language Constraints:** C++17 / JUCE (reference implementation, no overrides)
 
 ## Overview
 
-Replace the manual APVTS-style atomic store with a declarative XML-driven system that mirrors APVTS 1:1. `Parameters.xml` declares the schema. State constructor walks it uniformly, creates one Atom (adapter) per parameter — each Atom holds `std::atomic<int>` + its own ValueTree child node ref. One AnyMap (nested for hierarchy), one ValueTree, one flush loop. `getRawParameterValue(id)` returns `std::atomic<int>*`. `map::Screen` (jam::Map::Instance) replaces scattered `ActiveScreen` enum for indexed screen access.
+Lift the proven APVTS-like atomic state pattern from `Terminal::` into `jam::ValueTree`, making it the universal lock-free SSOT state machine for all BLESSED GUI apps. XML-driven declarative layout via `jam::ValueTree::Parameter::Layout(xml)`. Generic `Atom<T>` for any trivially copyable type. Adaptive timer-driven flush. `Terminal::State` and `AppState` both inherit `jam::ValueTree` and implement only their specifics. `AppLayout` eliminated entirely. `Terminal::Layout` shrinks to SCREEN expansion.
+
+## Current State (Already Landed)
+
+| Component | Location | Status |
+|---|---|---|
+| `std::hash<juce::Identifier>` | `jam_core/utilities/jam_identifier_hash.h` | DONE |
+| `jam::AnyMap` (Identifier keys + forEach) | `jam_core/utilities/jam_any_map.h` | DONE |
+| `Terminal::TextSlot` + `TextBuffer` | `Source/terminal/data/TextBuffer.h` | DONE |
+| `Terminal::AtomBase` + `Atom<int>` + `Atom<const char*>` | `Source/terminal/data/Atom.h` | DONE (explicit specializations) |
+| `Terminal::Layout::build(xml, state, textBuffer)` | `Source/terminal/data/Layout.cpp` | DONE |
+| `Terminal::State` (AnyMap + atoms + flush + timer) | `Source/terminal/data/State.h/cpp + StateFlush.cpp` | DONE |
+| `AppLayout::build(xml, state)` | `Source/AppLayout.cpp` | DONE |
+| `AppState` (VT + direct properties) | `Source/AppState.h/cpp` | DONE |
+| `jam::ValueTree` (thin wrapper) | `jam_data_structures/value_tree/jam_value_tree.h` | DONE (to be reshaped) |
+| `map::Screen` (Context-managed screen index) | `Source/terminal/data/Screen.h` | DONE |
 
 ## APVTS 1:1 Mapping
 
-| APVTS | Terminal State |
+| APVTS | jam::ValueTree |
 |---|---|
-| `ParameterLayout` | `Parameters.xml` via `jam::XML::getFromBinary(jam::ID::pluginMetadata)` |
-| `ParameterAdapter` (atomic + VT node ref + self-flush) | `Atom` |
-| `adapterTable` (one flat map) | `jam::AnyMap params` (one, nested for hierarchy) |
-| `ValueTree state` (one root) | `juce::ValueTree state` (one root) |
-| `getRawParameterValue(id)` → `std::atomic<float>*` | `getRawParameterValue(id)` → `std::atomic<int>*` |
-| `flushParameterValuesToValueTree()` | `flush()` — one `forEach`, each Atom writes itself |
-| `map::Page` (Context-managed page index) | `map::Screen` (Context-managed screen index) |
-| `ParameterPage::attach()` | `<SCREEN>` duplication per `map::Screen` entry |
+| `ParameterLayout` (builder input) | XML schema via `jam::XML::getFromBinary(...)` |
+| `ParameterAdapter` (atomic + VT node + self-flush) | `jam::Atom<T>` (generic, trivially copyable) |
+| `adapterTable` (map of adapters) | `jam::AnyMap params` (nested for hierarchy) |
+| `ValueTree state` (SSOT) | `juce::ValueTree state` (direct member) |
+| `getRawParameterValue(id)` → `std::atomic<float>*` | `getRawParameterValue<T>(id)` → `std::atomic<T>*` |
+| `flushParameterValuesToValueTree()` | `flush()` — `forEach<AtomBase>`, each Atom writes itself |
+| `private juce::Timer` + adaptive cadence | `private juce::Timer` + configurable adaptive cadence |
+| `ParameterAdapter::flushToTree()` (no-arg) | `Atom<T>::flush()` (no-arg, self-contained) |
 
 ## Validation Gate
 
@@ -33,136 +48,344 @@ Validation = @Auditor confirms step output complies with ALL documented contract
 
 ## Steps
 
-### Step 1: std::hash<juce::Identifier> — move to jam_core
+### Step 1: jam::Atom<T> — generic atomic adapter
 
-**Scope:** `jam/jam_core/utilities/jam_identifier_hash.h`, `Source/terminal/data/Identifier.h`
-**Action:** Already landed. Hash specialization at jam_core level, removed from END's Identifier.h.
-**Status:** DONE
+**Scope:** `jam/jam_data_structures/value_tree/jam_atom.h` (new)
+**Source:** Extract and generalize from `Source/terminal/data/Atom.h`
+**Action:**
 
-### Step 2: jam::AnyMap — Identifier keys + forEach
+`AtomBase` — virtual base with no-arg `flush()`. Zero VT dependency.
 
-**Scope:** `jam/jam_core/utilities/jam_any_map.h`
-**Action:** Already landed. Internal key `juce::Identifier`, String overloads, `forEach<Base>()`.
-**Status:** DONE
+```cpp
+struct AtomBase
+{
+    virtual ~AtomBase() = default;
+    virtual void flush() noexcept = 0;
+};
+```
 
-### Step 3: map::Screen — jam::Map::Instance for screen indexing
+`Atom<T>` — single generic template. Constraints enforced at compile time.
 
-**Scope:** `Source/terminal/data/Screen.h` (new), `Source/Main.cpp`
-**Action:** Create `Terminal::map::Screen : jam::Map::Instance<Screen>` with `{normal: "NORMAL", alternate: "ALTERNATE"}` and `getDefault()` returning NORMAL. Owned by `ENDApplication` (value member in Main.cpp), accessible via `map::Screen::getContext()`. Remove `ActiveScreen` enum from Identifier.h — replaced by `map::Screen` enum values.
-**Validation:** `map::Screen::getContext()->get(0)` returns `"NORMAL"`. `map::Screen::getContext()->get("ALTERNATE")` returns `1`. Compiles. No `ActiveScreen` enum remains.
+```cpp
+template<typename T>
+struct Atom final : AtomBase
+{
+    static_assert (std::is_trivially_copyable_v<T>);
+    static_assert (std::atomic<T>::is_always_lock_free);
 
-### Step 4: Atom — the adapter (atomic + VT node ref + self-flush)
+    Atom (T defaultValue, juce::ValueTree node,
+          const juce::Identifier& property) noexcept
+        : value { defaultValue }, tree { node }, key { property } {}
 
-**Scope:** `Source/terminal/data/Atom.h` (rewrite)
-**Action:** Rewrite Atom to mirror APVTS ParameterAdapter:
-- `Atom<int>`: holds `std::atomic<int> value` + `juce::ValueTree tree` (ref to own PARAM child node). `load()`, `store()` with relaxed default. `raw()` for exception callsites. `flush()` no-arg — writes `value` to `tree.setProperty(ID::value, ...)`.
-- `Atom<const char*>`: holds `std::atomic<const char*> ptr` + `juce::ValueTree tree` (ref to SESSION root) + `juce::Identifier property` (the key to write to). `load()` acquire, `store()` release. `flush()` no-arg — writes string to `tree.setProperty(property, ...)`.
-- `AtomBase`: virtual base with `flush()` no-arg.
-**Validation:** Each Atom is self-contained. `flush()` takes no arguments. No external routing needed. JRENG-CODING-STANDARD compliant.
+    T load() const noexcept { return value.load (loadOrder()); }
+    void store (T v) noexcept { value.store (v, storeOrder()); }
+    std::atomic<T>& raw() noexcept { return value; }
 
-### Step 5a: Layout — static tree builder from XML
+    void flush() noexcept override
+    {
+        if constexpr (std::is_pointer_v<T>)
+        {
+            auto p { value.load (std::memory_order_acquire) };
+            if (p != nullptr)
+                tree.setProperty (key, juce::String::fromUTF8 (p), nullptr);
+        }
+        else
+        {
+            tree.setProperty (key, juce::var (value.load (std::memory_order_relaxed)), nullptr);
+        }
+    }
 
-**Scope:** `Source/terminal/data/Layout.h` (new)
-**Action:** Two layers, like APVTS:
+private:
+    static constexpr std::memory_order loadOrder() noexcept
+    {
+        if constexpr (std::is_pointer_v<T>)
+            return std::memory_order_acquire;
+        else
+            return std::memory_order_relaxed;
+    }
 
-**Layer 1 — `State::addParameter()`** — the SSOT method on State. Analogous to APVTS's `addParameterAdapter()`. Creates Atom, creates VT PARAM child, assigns VT node ref to Atom, adds to AnyMap. ONE method. Everything flows through it — XML builder at construction AND future runtime additions (image, scrollback state machines).
+    static constexpr std::memory_order storeOrder() noexcept
+    {
+        if constexpr (std::is_pointer_v<T>)
+            return std::memory_order_release;
+        else
+            return std::memory_order_relaxed;
+    }
 
-**Layer 2 — `Layout::build()`** — static free function analogous to `kuassa::parameter::Layout::get(xml)`. Walks the XML, calls `State::addParameter()` for each element. Does NOT create atoms or VT nodes directly — flows through the SSOT method.
-- `static void build (const juce::XmlElement& xml, State& state)`
-- Walks XML uniformly. Tag dispatch via `Terminal::ID` constants.
-- For each `<PARAM>`: calls `state.addParameter(id, defaultValue, targetMap, targetVTNode)`
-- `<MODES>` → creates nested AnyMap + VT group node, walks children calling addParameter into the group.
-- `<SCREEN>` → reads schema once, duplicates per `map::Screen::getContext()->get()` entry. Calls addParameter per screen param.
-- `<TEXT>` → calls addParameter for text atoms + `textBuffer.addSlot()`.
-- Private nested `struct Boolean : jam::Map::Instance<Boolean>` with `{0: "false", 1: "true"}` for bool default resolution. No string comparison.
+    std::atomic<T> value;
+    juce::ValueTree tree;
+    juce::Identifier key;
+};
+```
 
-**Future usage (image, scrollback):** Runtime code calls `state.addParameter()` directly for dynamic parameters. Same SSOT method. Same flow. No new pattern.
+Valid types: `int`, `float`, `double`, `bool`, `const char*`, any enum, any POD ≤ 8 bytes. Compile-time rejection for everything else.
 
-**Validation:** `addParameter()` is the sole creation path. Layout flows through it. Future code flows through it. Nothing bypasses it. BLESSED-S (SSOT). State ctor just calls `Layout::build(xml, *this)`. Clean.
+**Validation:** `Atom<int>`, `Atom<float>`, `Atom<const char*>` compile. `Atom<std::string>` fails static_assert. Memory ordering correct: scalars relaxed, pointers acquire/release. `flush()` writes to VT.
 
-### Step 5: TextBuffer — Session-owned double-buffered string storage
+### Step 2: jam::TextBuffer — move to jam_core
 
-**Scope:** `Source/terminal/data/TextBuffer.h`
-**Action:** Already landed. TextSlot + TextBuffer.
-**Status:** DONE
+**Scope:** `jam/jam_core/concurrency/jam_text_buffer.h` (new)
+**Source:** Move from `Source/terminal/data/TextBuffer.h`
+**Action:**
+- `jam::TextSlot` — double-buffered char storage. Same implementation, `jam::` namespace.
+- `jam::TextBuffer` — `unordered_map<Identifier, unique_ptr<TextSlot>>` with `addSlot()` and `write()`.
+- Lives alongside `jam::Mailbox` and `jam::SnapshotBuffer` in `jam_core/concurrency/`.
+- Only depends on `juce_core` (HeapBlock, Identifier, jmin) + `<atomic>`.
+- Delete `Source/terminal/data/TextBuffer.h`. Update includes in State.h, Layout.cpp.
 
-### Step 6: State — XML-driven constructor, one map, one tree, APVTS API
+**Validation:** Compiles in jam_core. Terminal::State includes from jam. No Terminal::TextBuffer remains.
 
-**Scope:** `Source/terminal/data/State.h`, `Source/terminal/data/State.cpp`, `Source/terminal/data/StateFlush.cpp`
-**Action:** Complete rewrite of State following APVTS pattern:
+### Step 3: jam::ValueTree — reshape as SSOT state machine
 
-**Header:**
-- `explicit State (TextBuffer& textBuffer)` constructor
-- `getRawParameterValue (const juce::Identifier& id)` → `std::atomic<int>*` (APVTS API)
-- `getRawParameterValue (int screen, const juce::Identifier& id)` → `std::atomic<int>*` (screen-indexed)
-- One `jam::AnyMap params` — nested: root atoms at top, `ID::MODES` nested AnyMap, `ID::NORMAL`/`ID::ALTERNATE` nested AnyMaps (driven by `map::Screen`)
-- One `juce::ValueTree state`
-- Standalone `std::atomic<int> needsFlush`, `std::atomic<int> snapshotDirty` — machinery, not parameters
-- Keyboard mode stack stays (internal bookkeeping, `keyboardFlags` is the parameter)
-- NO stray members: no `scrollbackCapacity`, no sentinels, no cached VT refs
-- All public setters use `getRawParameterValue()` internally + set needsFlush
-- All public getters read from ValueTree (message thread) or via `getRawParameterValue()` (any thread)
+**Scope:** `jam/jam_data_structures/value_tree/jam_value_tree.h` + `.cpp`
 
-**Constructor:**
-- Load XML via `jam::XML::getFromBinary (jam::ID::pluginMetadata)`
-- Private nested `struct Boolean : jam::Map::Instance<Boolean>` with `{0: "false", 1: "true"}`. Used for `getBoolAttribute` conversion — `boolMap.get(attr)` returns 0/1. No string comparison anywhere.
-- One uniform walk: for each `<PARAM>`, create Atom with VT child node ref, add to AnyMap. Tag dispatch via `Terminal::ID` constants (no magic strings). Bool defaults resolved via `map::Boolean` lookup, int defaults via `getIntAttribute`.
-- `<MODES>` → nested AnyMap keyed `ID::MODES`, VT child node `ID::MODES`
-- `<SCREEN>` — read schema once, duplicate per `map::Screen::getContext()->get()` entry. Each screen gets nested AnyMap + VT child node. Same logic as `ParameterPage::attach()`.
-- `<TEXT>` → `Atom<const char*>` in root AnyMap + `TextBuffer::addSlot()`
+**Remove:**
+- `juce::Value::Listener` inheritance and all Listener-related methods
+- `onValueChanged` callback
+- `getValue()` / `setValue()` (old property access — replaced by atom-based access)
+- `std::unique_ptr<juce::ValueTree>` indirection → direct `juce::ValueTree state` member
 
-**Flush (StateFlush.cpp):**
-- One `forEach<AtomBase>` on root params. Each Atom writes itself (no-arg flush).
-- Recursive: nested AnyMaps (MODES, screens) — `forEach` on each nested map.
-- displayName computation after flush.
-- No `flushImages`, no `flushStrings`, no `flushRootParams`, no `flushGroupParams`.
+**Add:**
+- `private juce::Timer` inheritance (APVTS pattern). Module dependency: `juce_events`.
+- `mutable jam::AnyMap params` — nested group structure, public for Layout access.
+- `std::atomic<int> needsFlush { 0 }` — dirty flag (standalone machinery, not a parameter).
 
-**Validation:** One tree, one map, self-flushing adapters, `getRawParameterValue()` API, no shadow state, no magic strings, no sentinels.
+Registration API:
+- `addParameter(id, defaultValue, targetGroup, parentNode)` → creates PARAM VT child + `Atom<int>` in targetGroup. Returns `std::atomic<int>*`. Same as current `Terminal::State::addParameter()`.
+- `addTextParameter(id, rootNode)` → creates `Atom<const char*>` in root group. Flushes to direct property on rootNode.
+- `addGroup(groupId)` → creates nested `jam::AnyMap` in params + child VT node under state root. Returns `jam::AnyMap&`.
 
-### Step 7: Remove scrollback + image state
+Access API:
+- `getRawParameterValue(id)` → `std::atomic<int>*` from root group
+- `getRawParameterValue(groupId, paramId)` → `std::atomic<int>*` from named group
+- `getValueTree()` → `juce::ValueTree&` (raw access, const + non-const)
 
-**Scope:** `Source/terminal/data/State.h`, `Source/terminal/data/State.cpp`, `Source/terminal/logic/Processor.cpp`, `Source/terminal/logic/VideoEdit.cpp`
-**Action:** Remove all scrollback and image related state:
-- Delete: `scrollbackCapacity`, `setScrollbackCapacity`, `setScrollbackUsed`, `getScrollbackUsed`, `setScrollPosition`, `getScrollPosition`
-- Delete: `queueImageErase`, `flushImages`, `addImageNode`, `removeImageNode`, IMAGES container, erase bounding box params
-- Delete: `linkUriCount`, `fullRebuild`/`consumeFullRebuild` (dead), SUBSCRIBERS (dead), seqno (dead)
-- Stub `getScrollbackUsed()` → return 0 (has external callers in Input.cpp, Mouse.cpp, Processor.cpp)
-- Remove `queueImageErase` event registration in Processor.cpp and fire sites in VideoEdit.cpp
-- Keep `dismissPreview`/`isPreviewActive`/`getSplitCol` (live callers) — read/write via `getRawParameterValue()`
-- Delete `activatePreview` (zero external callers)
-**Validation:** Compiles. No scrollback/image state on State. No IMAGES container. No sentinels.
+Flush API:
+- `virtual bool flush() noexcept` — default: iterate all groups via `forEach<AtomBase>`, returns true if dirty. Override for custom ordering.
+- `void flushGroup(const Identifier& groupId) noexcept` — flush one specific group.
+- `void markDirty() noexcept` — set needsFlush with release ordering.
+- `void storeAndFlush(std::atomic<int>&, int) noexcept` — store + markDirty. Convenience for the dominant int case.
 
-### Step 8: Session + Processor wiring
+Timer:
+- `timerCallback()` — calls `flush()`, adaptive cadence, fires `onFlush` callback.
+- `int idleHz { 60 }` / `int activeHz { 120 }` — configurable, caller sets before `startTimerHz()`.
+- `std::function<void()> onFlush` — callback after flush cycle.
 
-**Scope:** `Source/terminal/logic/Session.h/cpp`, `Source/terminal/logic/Processor.h/cpp`
-**Action:** Session owns TextBuffer. Processor receives TextBuffer&, passes to State. State constructor signature: `State(TextBuffer&)`. Processor's `syncVideoToState()` uses `getRawParameterValue()`. All event handlers migrated. Dead mode syncs removed (originMode, autoWrap, insertMode, mouseSgr, applicationKeypad, reverseVideo — Video tracks internally).
-**Validation:** Compiles. No `static_cast<float>`. No compound key helpers. Only live modes synced.
+**Keep:**
+- `get()` → `juce::ValueTree&` (renamed semantics, was dereference of unique_ptr)
+- All static utilities: `getChildWithName`, `getOrCreateChildWithName`, `loadState`, `buildUniqueNodeMap`, `writeToXml`, `getXml`, `findAndRemoveChild`, `getChildWithID`, `getValueFromChildWithID`, `getValueFromChildWithName`, `applyFunctionRecursively`
+- `UniqueNodeMap` type + accessor
+- `replaceState()`
+- `#if JUCE_MODULE_AVAILABLE_juce_gui_basics` attach overloads
 
-### Step 9: map::Screen ownership + ActiveScreen cleanup
+**Validation:** Compiles. No Value::Listener. Timer works. flush() iterates all groups. Static utilities intact. Existing jam::ValueTree consumers (if any outside END) still compile with kept API.
 
-**Scope:** `Source/Main.cpp`, `Source/terminal/data/Identifier.h`, all `ActiveScreen` callers
-**Action:** Add `Terminal::map::Screen` member to `ENDApplication`. Remove `ActiveScreen` enum from Identifier.h. Migrate all `ActiveScreen` callers to `map::Screen` enum values. Screen index access via `map::Screen::getContext()->get(index)`.
-**Validation:** No `ActiveScreen` enum anywhere. All screen indexing via `map::Screen`.
+### Step 4: jam::ValueTree::Parameter::Layout
+
+**Scope:** Nested struct inside `jam::ValueTree` (in `jam_value_tree.h`)
+
+```cpp
+class ValueTree : private juce::Timer
+{
+public:
+    struct Parameter
+    {
+        static void Layout (const juce::XmlElement* xml, ValueTree& target);
+        static void Layout (const juce::XmlElement* xml, ValueTree& target,
+                            jam::TextBuffer& textBuffer);
+    };
+    // ...
+};
+```
+
+**Action:**
+- Single entry point: `Parameter::Layout(xml, target)` or `Parameter::Layout(xml, target, textBuffer)` when TEXT parameters are present.
+- Generic XML walk, three tag types:
+
+| XML Tag | Action |
+|---|---|
+| `PARAM` at root | `target.addParameter(id, resolvedDefault, rootGroup, rootNode)` |
+| Named group tag | `target.addGroup(tag)` → iterate PARAM children into that group |
+| `TEXT` | `target.addTextParameter(id, rootNode)` + `textBuffer.addSlot(id, maxlen)` |
+
+- `Boolean` resolver deduplicated here — `struct Boolean : jam::Map::Instance<Boolean>` with `{0: "false", 1: "true"}`. Private nested struct.
+- Type resolution: `bool` via Boolean map → `Atom<int>(0 or 1)`. `int` via `getIntAttribute`. `float` via `getDoubleAttribute` → `Atom<float>`. `string` → direct VT property (no atom, no TextSlot — message-thread only).
+- Caller shapes XML before calling Layout. Layout is a dumb executor.
+
+Calling convention (follows `ku::parameter::Layout::get(xml)` pattern):
+```cpp
+// AppState — direct, no pre-processing
+jam::ValueTree::Parameter::Layout (xml.get(), *this);
+
+// Terminal::State — expand SCREEN first, then delegate
+auto expanded { Terminal::Layout::expandScreens (*xml) };
+jam::ValueTree::Parameter::Layout (expanded.get(), *this, textBuffer);
+```
+
+**Validation:** `AppParameters.xml` fed directly → correct VT + AnyMap. `Parameters.xml` after SCREEN expansion → correct VT + AnyMap. Boolean resolution matches current behavior. No AppLayout needed. No Terminal::Layout::Boolean needed.
+
+### Step 5: Terminal::State — inherit jam::ValueTree
+
+**Scope:** `Source/terminal/data/State.h/cpp`, `Source/terminal/data/StateFlush.cpp`, `Source/terminal/data/Layout.h/cpp`, `Source/terminal/data/Atom.h`
+
+**Action:**
+
+State inherits jam::ValueTree:
+```cpp
+struct State : public jam::ValueTree { ... };
+```
+
+**Delete from State** (now in base):
+- `juce::Timer` inheritance → base
+- `jam::AnyMap params` → base
+- `juce::ValueTree state` → base
+- `addParameter()` / `addTextParameter()` → base
+- `getRawParameterValue()` overloads → base (root + group)
+- `storeAndFlush()` → base
+- `markDirty()` / `needsFlush` → base
+- `timerCallback()` → base (State no longer overrides — configures cadence + onFlush in constructor)
+
+**Delete files:**
+- `Source/terminal/data/Atom.h` → replaced by `jam_atom.h` (include redirect or delete)
+
+**Shrink Terminal::Layout** to one job — SCREEN expansion:
+```cpp
+struct Layout
+{
+    // Reads <SCREEN> schema once, duplicates per map::Screen entry.
+    // Returns expanded XML with NORMAL + ALTERNATE as separate group tags.
+    static std::unique_ptr<juce::XmlElement> expandScreens (const juce::XmlElement& xml);
+};
+```
+All PARAM/group/TEXT handling deleted from Terminal::Layout — now in `Parameter::Layout`.
+
+**Override flush()** — Terminal::State needs specific ordering (MODES → screens → SESSION → displayName):
+```cpp
+bool State::flush() noexcept override
+{
+    if (getRawParameterValue (ID::needsFlush)->exchange (0, std::memory_order_acquire) != 0)
+    {
+        flushGroup (ID::MODES);
+
+        for (const auto& [index, screenName] : map::Screen::getContext()->get())
+            flushGroup (juce::Identifier { screenName });
+
+        flushGroup (ID::SESSION);
+
+        // displayName computation (Terminal-specific)
+        // ...
+
+        return true;
+    }
+    return false;
+}
+```
+
+**Keep on State** (domain-specific, not base concern):
+- `TextBuffer&` reference
+- Keyboard mode stack (`keyboardModeStack`, `keyboardModeStackSize`)
+- All domain setters/getters (setCursorRow, setMode, setTitle, etc.)
+- `onFlush` callback wiring (set in constructor, base fires it)
+- Screen-indexed `getRawParameterValue(int screen, id)` convenience (calls base `getRawParameterValue(screenId, id)` with map::Screen lookup)
+- `getModeParameterValue(id)` convenience (calls base with MODES group)
+
+**Constructor becomes:**
+```cpp
+State::State (TextBuffer& tb) : jam::ValueTree (ID::SESSION), textBuffer (tb)
+{
+    auto xml { jam::XML::getFromBinary (jam::IDref::pluginMetadata) };
+    auto expanded { Layout::expandScreens (*xml) };
+    Parameter::Layout (expanded.get(), *this, textBuffer);
+
+    keyboardModeStack.allocate (2 * maxKeyboardStackDepth, true);
+    keyboardModeStackSize.allocate (2, true);
+
+    idleHz = 60;
+    activeHz = 120;
+    startTimerHz (idleHz);
+}
+```
+
+**Validation:** Compiles. Same behavior as current. All parameter access via base API. Atom.h gone or redirects to jam. Terminal::Layout is SCREEN expansion only.
+
+### Step 6: AppState — inherit jam::ValueTree
+
+**Scope:** `Source/AppState.h/cpp`, `Source/AppLayout.h`, `Source/AppLayout.cpp`
+
+**Action:**
+
+AppState inherits jam::ValueTree:
+```cpp
+struct AppState : public jam::ValueTree, public jam::Context<AppState> { ... };
+```
+
+**Delete files:**
+- `Source/AppLayout.h` — eliminated entirely
+- `Source/AppLayout.cpp` — eliminated entirely
+
+**Constructor becomes:**
+```cpp
+void AppState::initDefaults()
+{
+    auto xml { jam::XML::getFromBinary (App::ID::appMetadata) };
+    Parameter::Layout (xml.get(), *this);
+
+    // Lua config overlay on top of XML defaults (existing logic)
+    // ...
+
+    // Timer idles — no cross-thread writes, nothing dirty, backs off
+    idleHz = 60;
+    activeHz = 120;
+    startTimerHz (idleHz);
+}
+```
+
+**`std::atomic<bool> atlasDirty`** stays as standalone member — GPU signaling, not a VT parameter.
+
+**Keep:**
+- `jam::Context<AppState>` (singleton accessor)
+- Serialization (save/load) — uses `getValueTree()` for XML export, `replaceState()` for import
+- `instanceUuid`, `pwdValue`
+- Domain getters/setters — refactored to use `getRawParameterValue()` for atomic params, direct VT access for message-thread-only properties
+
+**String parameters** (`type="string"` in AppParameters.xml): stay as direct VT properties. No atom, no TextSlot. Message-thread-only — atomic transport unnecessary. `Parameter::Layout` handles this: string type → `setProperty()` on VT node directly, no AnyMap entry.
+
+**Float parameters** (`type="float"` in AppParameters.xml): become `Atom<float>` via generic template. `std::atomic<float>` is 4 bytes, lock-free. Same flush path as `Atom<int>`.
+
+**Validation:** Compiles. No AppLayout. AppParameters.xml produces same VT structure. All property access works. Timer idles (no cross-thread writes → nothing dirty → backs off to idle Hz).
+
+### Step 7: Cleanup
+
+**Scope:** Across Terminal::State callers
+**Action:**
+- Verify all Terminal::State callers use base API (`getRawParameterValue`, `markDirty`, etc.)
+- Remove any leftover Terminal::Atom references
+- Remove Terminal::TextBuffer references (now jam::TextBuffer)
+- Verify flush ordering in Terminal::State override matches current StateFlush.cpp behavior
+
+**Validation:** Full compile. No Terminal::Atom, no Terminal::TextBuffer, no AppLayout. Both State classes inherit jam::ValueTree.
 
 ## BLESSED Alignment
 
-- **B (Bound):** Session owns TextBuffer. State owns ValueTree + AnyMap. Each Atom owns its VT node ref. RAII throughout. 16.5 MB linkUriTable eliminated.
-- **L (Lean):** Parameters.xml replaces ~50 addParam calls. One flush loop. No compound key helpers. Dead code removed.
-- **E (Explicit):** Parameters.xml is the readable schema. `getRawParameterValue()` — same APVTS API. `Atom::load()`/`store()` encode memory order. No magic strings — `Terminal::ID` constants. No sentinels.
-- **S (SSOT):** Parameters.xml for schema. ValueTree for runtime. One AnyMap. No shadow state — no stray members, no cached VT refs, no sentinel constants.
-- **S (Stateless):** Parser writes to Grid and TextBuffer. Both transient buffers. State is the model, not machinery on machinery.
-- **E (Encapsulation):** Each Atom flushes itself (no-arg). State builds itself from XML. Callers use `getRawParameterValue()` — never see Atom internals. `map::Screen` encapsulates screen indexing.
-- **D (Deterministic):** One flush loop. Same path for all types. Each Atom writes to its own VT node. No routing, no dispatch.
+- **B (Bound):** jam::ValueTree owns VT + AnyMap + Timer. Each Atom owns its VT node ref. Session owns TextBuffer. RAII throughout.
+- **L (Lean):** One generic `Atom<T>` replaces explicit specializations. One `Parameter::Layout` replaces two Layout classes. XML schema replaces manual registration. AppLayout eliminated.
+- **E (Explicit):** `loadOrder()`/`storeOrder()` — memory ordering visible at call site. `static_assert` enforces `trivially_copyable + is_always_lock_free`. XML is the readable schema. No magic strings.
+- **S (SSOT):** jam::ValueTree IS the state machine. XML for schema. ValueTree for runtime. One AnyMap. Atom is the sole transport — no shadow state.
+- **S (Stateless):** Parser writes to Grid and TextBuffer. Both transient buffers. jam::ValueTree is the model, not machinery.
+- **E (Encapsulation):** jam::ValueTree is self-managed — builds from XML, flushes on timer, adapts cadence. Derived classes add domain concern only. Atom flushes itself (no-arg).
+- **D (Deterministic):** Same XML → same state tree. One flush loop. Each Atom writes to its own VT node. Configurable cadence, deterministic behavior. `flush()` virtual for domain-specific ordering.
 
 ## Locked Decisions
 
-1. **APVTS 1:1** — no new patterns, no handrolling. Same logic, same API surface.
-2. **One tree, one map** — State IS the ValueTree. One `jam::AnyMap params` (nested for hierarchy).
-3. **Atom is the adapter** — holds atomic + own VT node ref. Self-flushing. Internal to State — callers use `getRawParameterValue()`.
-4. **`map::Screen`** — `jam::Map::Instance<Screen>`, Context-managed, owned by ENDApplication. Replaces `ActiveScreen` enum.
-5. **`<SCREEN>` declared once** — constructor duplicates per `map::Screen` entry (ParameterPage::attach pattern).
-6. **Signals are machinery** — `needsFlush`, `snapshotDirty` are standalone `std::atomic<int>`, not parameters.
-7. **Everything that is state is a parameter** — blink machinery, paste echo, sync output, cursor color, cursor visible. No stray members.
-8. **Dead modes removed** — originMode, autoWrap, insertMode, mouseSgr, applicationKeypad, reverseVideo. Video tracks internally. No shadow state.
-9. **YAGNI removed** — scrollback state, image state, erase bounding box, linkUriTable, SUBSCRIBERS, seqno, fullRebuild.
-10. **Use the framework** — `jam::XML::getFromBinary(jam::ID::pluginMetadata)`, `jam::Map::Instance`, `jam::AnyMap`, `jam::Context`. No handrolled equivalents.
+1. **jam::ValueTree is the base** — reshape the existing class. Remove Value::Listener, add atomic infrastructure.
+2. **Generic `Atom<T>`** — one template, constrained by `trivially_copyable + is_always_lock_free`. No explicit specializations. `loadOrder()`/`storeOrder()` split for pointer vs scalar.
+3. **`Parameter::Layout(xml)`** — nested static struct on jam::ValueTree. Kuassa pattern. Caller shapes XML, base executes. Boolean resolver deduplicated.
+4. **Direct `juce::ValueTree` member** — no `unique_ptr` indirection.
+5. **Private Timer inheritance** — APVTS pattern. Configurable cadence (default 60/120 Hz). Adaptive.
+6. **TextBuffer to jam** — `jam_core/concurrency/`, alongside Mailbox and SnapshotBuffer.
+7. **AppLayout eliminated** — AppState calls `Parameter::Layout` directly.
+8. **Terminal::Layout shrinks** — SCREEN expansion only, then delegates to `Parameter::Layout`.
+9. **`flush()` virtual** — base provides default (all groups). Terminal::State overrides for MODES → screens → SESSION ordering + displayName.
+10. **Unused atomics cost zero** — AppState uses full Atom infrastructure for int/float/bool params. Timer idles when nothing dirty. No runtime cost.
+11. **String PARAM = direct VT property** — message-thread-only strings need no atomic transport. TEXT = cross-thread string needing `Atom<const char*>` + TextSlot.
+12. **`addGroup()` API** — base provides group creation (nested AnyMap + child VT node). Layout calls it. Terminal SCREEN expansion calls it for NORMAL/ALTERNATE.
