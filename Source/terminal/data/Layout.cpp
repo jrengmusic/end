@@ -61,7 +61,7 @@ void Layout::build (const juce::XmlElement& xml,
     {
         const auto& tag { child->getTagName() };
 
-        if (tag == ID::PARAM.toString())
+        if (tag == jam::ValueTree::PARAM.toString())
         {
             // Root-level parameter → SESSION group.
             auto* sessionGroup { state.params.get<jam::AnyMap> (ID::SESSION) };

@@ -28,7 +28,6 @@ using ::SelectionType;
  * - `Atom<int>` / `Atom<const char*>` are the adapters (ParameterAdapter equivalent).
  * - One `jam::AnyMap params` (nested for hierarchy) is the adapter table.
  * - One `juce::ValueTree state` is the SSOT for the UI.
- * - `getRawParameterValue(id)` returns `std::atomic<int>*` — same APVTS API.
  * - `flush()` is the one loop — each Atom writes itself (no-arg flush).
  *
  * ### Map structure
@@ -62,7 +61,7 @@ using ::SelectionType;
  * - `get*()` ValueTree getters: MESSAGE THREAD only.
  * - `timerCallback()` / `flush()`: MESSAGE THREAD only.
  */
-struct State : public juce::Timer
+struct State : public jam::ValueTree
 {
     /**
      * @brief Constructs the State, walks Parameters.xml via Layout::build,
@@ -76,26 +75,8 @@ struct State : public juce::Timer
     ~State() override;
 
     //==========================================================================
-    // SSOT registration — all parameter creation flows through these methods.
+    // SSOT registration — domain-specific additions
     //==========================================================================
-
-    /**
-     * @brief Creates one Atom<int> + one VT PARAM child and registers both.
-     *
-     * Analogous to APVTS::addParameterAdapter. Single creation path — XML
-     * builder (Layout) and future runtime additions both flow through here.
-     *
-     * @param id           Parameter identifier.
-     * @param defaultValue Initial integer value.
-     * @param targetMap    AnyMap group to add the Atom to.
-     * @param parentNode   ValueTree node to append the PARAM child to.
-     * @return Pointer to the underlying std::atomic<int>.
-     * @note MESSAGE THREAD — called from constructor only.
-     */
-    std::atomic<int>* addParameter (const juce::Identifier& id,
-                                    int defaultValue,
-                                    jam::AnyMap& targetMap,
-                                    juce::ValueTree& parentNode) noexcept;
 
     /**
      * @brief Creates one Atom<const char*> for a TEXT parameter.
@@ -110,24 +91,13 @@ struct State : public juce::Timer
                            juce::ValueTree& rootNode) noexcept;
 
     //==========================================================================
-    // APVTS API — getRawParameterValue
-    //==========================================================================
-
-    /** Root-level parameter (SESSION group). */
-    std::atomic<int>* getRawParameterValue (const juce::Identifier& id) const noexcept;
-
-    /** Screen-indexed parameter (NORMAL or ALTERNATE group). */
-    std::atomic<int>* getRawParameterValue (int screen,
-                                            const juce::Identifier& id) const noexcept;
-
-    /** Mode parameter (MODES group). */
-    std::atomic<int>* getModeParameterValue (const juce::Identifier& id) const noexcept;
-
-    //==========================================================================
     // ValueTree access — MESSAGE THREAD only
     //==========================================================================
 
+    /** @brief Returns the root ValueTree. Delegates to jam::ValueTree::get(). */
     juce::ValueTree getValueTree() noexcept;
+
+    /** @brief Returns the root ValueTree (const). Delegates to jam::ValueTree::get(). */
     juce::ValueTree getValueTree() const noexcept;
 
     juce::Value getValue (const juce::Identifier& paramId);
@@ -236,34 +206,10 @@ struct State : public juce::Timer
     int getScrollbackUsed() const noexcept;
 
     // Flush
-    bool flush() noexcept;
+    bool flush() noexcept override;
     bool refresh() noexcept;
 
-    /** Called by timerCallback() after each flush cycle. MESSAGE THREAD only. */
-    std::function<void()> onFlush;
-
-    /**
-     * @brief One AnyMap — nested for hierarchy.
-     *
-     * params {
-     *   ID::SESSION   → AnyMap (root-level atoms)
-     *   ID::MODES     → AnyMap (mode atoms)
-     *   ID::NORMAL    → AnyMap (normal-screen atoms)
-     *   ID::ALTERNATE → AnyMap (alternate-screen atoms)
-     * }
-     *
-     * Public so Layout::build (and future runtime callers) can reach group
-     * submaps when building nested parameters.
-     */
-    mutable jam::AnyMap params;
-
 private:
-    void timerCallback() override;
-
-    /** Stores value and sets needsFlush. All setters flow through this. */
-    void storeAndFlush (std::atomic<int>& atom, int value) noexcept;
-
-    juce::ValueTree state;
     TextBuffer& textBuffer;
 
     // Keyboard mode stack

@@ -61,9 +61,6 @@ namespace ID
     /** @brief Alternate screen buffer identifier (DECSC). */
     static const juce::Identifier ALTERNATE      { "ALTERNATE" };
 
-    /** @brief Generic parameter node identifier for DEC private parameters. */
-    static const juce::Identifier PARAM          { "PARAM" };
-
     /** @brief Container node for cross-thread string (TEXT) parameter declarations. */
     static const juce::Identifier TEXT           { "TEXT" };
 

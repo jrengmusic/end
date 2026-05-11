@@ -356,7 +356,7 @@ void Processor::syncVideoToState() noexcept
 void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
     // PARAM children flush via ID::value — check the id property to identify cols/visibleRows.
-    if (property == ID::value and tree.getType() == ID::PARAM)
+    if (property == ID::value and tree.getType() == jam::ValueTree::PARAM)
     {
         const juce::Identifier paramId { tree.getProperty (ID::id).toString() };
 

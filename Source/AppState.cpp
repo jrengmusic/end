@@ -6,12 +6,13 @@
  */
 
 #include "AppState.h"
+#include "AppLayout.h"
 #include "component/LookAndFeel.h"
 #include "lua/Engine.h"
 #include "terminal/data/Identifier.h"
 
 AppState::AppState()
-    : state (App::ID::END)
+    : jam::ValueTree (App::ID::END)
 {
     initDefaults();
 }
@@ -20,19 +21,40 @@ AppState::~AppState() = default;
 
 //==============================================================================
 
-juce::ValueTree& AppState::get() noexcept
+bool AppState::flush() noexcept
 {
-    return state;
+    if (needsFlushAtom->exchangeAcquire (0) != 0)
+    {
+        flushGroup (App::ID::WINDOW);
+        flushGroup (App::ID::TABS);
+        flushGroup (App::ID::END);
+        return true;
+    }
+
+    return false;
+}
+
+void AppState::loadParamValue (const juce::ValueTree& parsedNode,
+                                const juce::Identifier& groupId,
+                                const juce::Identifier& paramId) noexcept
+{
+    auto param { jam::ValueTree::getChildWithID (parsedNode, paramId.toString()) };
+
+    if (param.isValid())
+    {
+        storeValue (groupId, paramId,
+                    static_cast<int> (param.getProperty (jam::ID::value)));
+    }
 }
 
 juce::ValueTree AppState::getWindow() noexcept
 {
-    return state.getOrCreateChildWithName (App::ID::WINDOW, nullptr);
+    return get().getOrCreateChildWithName (App::ID::WINDOW, nullptr);
 }
 
 juce::ValueTree AppState::getNexusNode() noexcept
 {
-    return state.getOrCreateChildWithName (App::ID::NEXUS, nullptr);
+    return get().getOrCreateChildWithName (App::ID::NEXUS, nullptr);
 }
 
 juce::ValueTree AppState::getSessionsNode() noexcept
@@ -47,36 +69,45 @@ juce::ValueTree AppState::getLoadingNode() noexcept
 
 juce::ValueTree AppState::getTabs() noexcept
 {
-    return state.getOrCreateChildWithName (App::ID::TABS, nullptr);
+    return get().getOrCreateChildWithName (App::ID::TABS, nullptr);
 }
 
 //==============================================================================
 
-int AppState::getWindowWidth() const noexcept
+static int getParamInt (const juce::ValueTree& root,
+                        const juce::Identifier& groupId,
+                        const juce::Identifier& paramId,
+                        int defaultValue = 0) noexcept
 {
-    auto window { state.getChildWithName (App::ID::WINDOW) };
-    int result { lua::Engine::getContext()->display.window.width };
+    auto groupNode { root.getChildWithName (groupId) };
+    int result { defaultValue };
 
-    if (window.isValid() and window.hasProperty (App::ID::width))
-        result = static_cast<int> (window.getProperty (App::ID::width));
+    if (groupNode.isValid())
+    {
+        auto param { jam::ValueTree::getChildWithID (groupNode, paramId.toString()) };
+
+        if (param.isValid())
+        {
+            result = static_cast<int> (param.getProperty (jam::ID::value));
+        }
+    }
 
     return result;
+}
+
+int AppState::getWindowWidth() const noexcept
+{
+    return getParamInt (get(), App::ID::WINDOW, App::ID::width);
 }
 
 int AppState::getWindowHeight() const noexcept
 {
-    auto window { state.getChildWithName (App::ID::WINDOW) };
-    int result { lua::Engine::getContext()->display.window.height };
-
-    if (window.isValid() and window.hasProperty (App::ID::height))
-        result = static_cast<int> (window.getProperty (App::ID::height));
-
-    return result;
+    return getParamInt (get(), App::ID::WINDOW, App::ID::height);
 }
 
 float AppState::getWindowZoom() const noexcept
 {
-    auto window { state.getChildWithName (App::ID::WINDOW) };
+    auto window { get().getChildWithName (App::ID::WINDOW) };
     float result { lua::Engine::zoomMin };
 
     if (window.isValid() and window.hasProperty (App::ID::zoom))
@@ -87,9 +118,8 @@ float AppState::getWindowZoom() const noexcept
 
 void AppState::setWindowSize (int width, int height)
 {
-    auto window { getWindow() };
-    window.setProperty (App::ID::width, width, nullptr);
-    window.setProperty (App::ID::height, height, nullptr);
+    storeValue (App::ID::WINDOW, App::ID::width, width);
+    storeValue (App::ID::WINDOW, App::ID::height, height);
 }
 
 void AppState::setWindowZoom (float zoom)
@@ -101,7 +131,7 @@ void AppState::setWindowZoom (float zoom)
 
 juce::String AppState::getFontFamily() const noexcept
 {
-    auto window { state.getChildWithName (App::ID::WINDOW) };
+    auto window { get().getChildWithName (App::ID::WINDOW) };
     juce::String result { lua::Engine::getContext()->display.font.family };
 
     if (window.isValid() and window.hasProperty (App::ID::fontFamily))
@@ -118,7 +148,7 @@ void AppState::setFontFamily (const juce::String& family)
 
 float AppState::getFontSize() const noexcept
 {
-    auto window { state.getChildWithName (App::ID::WINDOW) };
+    auto window { get().getChildWithName (App::ID::WINDOW) };
     float result { static_cast<float> (lua::Engine::getContext()->dpiCorrectedFontSize()) };
 
     if (window.isValid() and window.hasProperty (App::ID::fontSize))
@@ -135,17 +165,17 @@ void AppState::setFontSize (float size)
 
 void AppState::markAtlasDirty() noexcept
 {
-    atlasDirty.store (true, std::memory_order_release);
+    params.get<jam::AnyMap> (App::ID::WINDOW)->get<jam::Atom<int>> (App::ID::atlasDirty)->storeRelease (1);
 }
 
 bool AppState::consumeAtlasDirty() noexcept
 {
-    return atlasDirty.exchange (false, std::memory_order_acquire);
+    return params.get<jam::AnyMap> (App::ID::WINDOW)->get<jam::Atom<int>> (App::ID::atlasDirty)->exchangeAcquire (0) != 0;
 }
 
 App::RendererType AppState::getRendererType() const noexcept
 {
-    auto window { state.getChildWithName (App::ID::WINDOW) };
+    auto window { get().getChildWithName (App::ID::WINDOW) };
 
     if (window.isValid() and window.hasProperty (App::ID::renderer)
         and window.getProperty (App::ID::renderer).toString() == App::ID::rendererCpu)
@@ -159,7 +189,7 @@ App::RendererType AppState::getRendererType() const noexcept
 void AppState::setRendererType (const juce::String& setting)
 {
     auto window { getWindow() };
-    const bool gpuAvailable { static_cast<bool> (window.getProperty (App::ID::gpuAvailable, false)) };
+    const bool gpuAvailable { getParamInt (get(), App::ID::WINDOW, App::ID::gpuAvailable) != 0 };
     const bool wantsGpu { setting != "false" };
     const juce::String resolved { wantsGpu and gpuAvailable ? App::ID::rendererGpu : App::ID::rendererCpu };
     window.setProperty (App::ID::renderer, resolved, nullptr);
@@ -168,38 +198,32 @@ void AppState::setRendererType (const juce::String& setting)
 
 void AppState::setGpuAvailable (bool available)
 {
-    getWindow().setProperty (App::ID::gpuAvailable, available, nullptr);
+    storeValue (App::ID::WINDOW, App::ID::gpuAvailable, available ? 1 : 0);
 }
 
 void AppState::setInstanceUuid (const juce::String& uuid)
 {
-    instanceUuid = uuid;
+    get().setProperty (jam::ID::id, uuid, nullptr);
 }
 
 juce::String AppState::getInstanceUuid() const noexcept
 {
-    return instanceUuid;
+    return get().getProperty (jam::ID::id).toString();
 }
 
 void AppState::setDaemonMode (bool isDaemon)
 {
-    getWindow().setProperty (App::ID::daemonMode, isDaemon, nullptr);
+    storeValue (App::ID::WINDOW, App::ID::daemonMode, isDaemon ? 1 : 0);
 }
 
 bool AppState::isDaemonMode() const noexcept
 {
-    auto window { state.getChildWithName (App::ID::WINDOW) };
-    bool result { false };
-
-    if (window.isValid() and window.hasProperty (App::ID::daemonMode))
-        result = static_cast<bool> (window.getProperty (App::ID::daemonMode));
-
-    return result;
+    return getParamInt (get(), App::ID::WINDOW, App::ID::daemonMode) != 0;
 }
 
 void AppState::setPort (int activePort)
 {
-    state.setProperty (App::ID::port, activePort, nullptr);
+    storeValue (App::ID::END, App::ID::port, activePort);
 
     const juce::File nexusFile { getNexusFile() };
     nexusFile.getParentDirectory().createDirectory();
@@ -208,34 +232,28 @@ void AppState::setPort (int activePort)
 
 int AppState::getPort() const noexcept
 {
+    auto param { jam::ValueTree::getChildWithID (get(), App::ID::port.toString()) };
     int result { 0 };
 
-    if (state.hasProperty (App::ID::port))
-        result = static_cast<int> (state.getProperty (App::ID::port));
+    if (param.isValid())
+        result = static_cast<int> (param.getProperty (jam::ID::value));
 
     return result;
 }
 
 int AppState::getActiveTabIndex() const noexcept
 {
-    auto tabs { state.getChildWithName (App::ID::TABS) };
-    int result { 0 };
-
-    if (tabs.isValid() and tabs.hasProperty (App::ID::active))
-        result = static_cast<int> (tabs.getProperty (App::ID::active));
-
-    return result;
+    return getParamInt (get(), App::ID::TABS, App::ID::active);
 }
 
 void AppState::setActiveTabIndex (int index)
 {
-    auto tabs { getTabs() };
-    tabs.setProperty (App::ID::active, index, nullptr);
+    storeValue (App::ID::TABS, App::ID::active, index);
 }
 
 juce::String AppState::getTabPosition() const noexcept
 {
-    auto tabs { state.getChildWithName (App::ID::TABS) };
+    auto tabs { get().getChildWithName (App::ID::TABS) };
     juce::String result { lua::Engine::getContext()->display.tab.position };
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::position))
@@ -309,7 +327,7 @@ juce::ValueTree AppState::getTab (int index) noexcept
 
 juce::String AppState::getActivePaneID() const noexcept
 {
-    auto tabs { state.getChildWithName (App::ID::TABS) };
+    auto tabs { get().getChildWithName (App::ID::TABS) };
     juce::String result {};
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::activePaneID))
@@ -330,7 +348,7 @@ void AppState::setActivePaneID (const juce::String& uuid)
 
 juce::String AppState::getActivePaneType() const noexcept
 {
-    auto tabs { state.getChildWithName (App::ID::TABS) };
+    auto tabs { get().getChildWithName (App::ID::TABS) };
     juce::String result { App::ID::paneTypeTerminal };
 
     if (tabs.isValid() and tabs.hasProperty (App::ID::activePaneType))
@@ -351,44 +369,22 @@ void AppState::setActivePaneType (const juce::String& type)
 
 void AppState::setModalType (int type)
 {
-    auto tabs { getTabs() };
-
-    if (tabs.isValid())
-    {
-        tabs.setProperty (App::ID::modalType, type, nullptr);
-    }
+    storeValue (App::ID::TABS, App::ID::modalType, type);
 }
 
 int AppState::getModalType() const noexcept
 {
-    auto tabs { state.getChildWithName (App::ID::TABS) };
-    int result { 0 };
-
-    if (tabs.isValid() and tabs.hasProperty (App::ID::modalType))
-        result = static_cast<int> (tabs.getProperty (App::ID::modalType));
-
-    return result;
+    return getParamInt (get(), App::ID::TABS, App::ID::modalType);
 }
 
 void AppState::setSelectionType (int type)
 {
-    auto tabs { getTabs() };
-
-    if (tabs.isValid())
-    {
-        tabs.setProperty (App::ID::selectionType, type, nullptr);
-    }
+    storeValue (App::ID::TABS, App::ID::selectionType, type);
 }
 
 int AppState::getSelectionType() const noexcept
 {
-    auto tabs { state.getChildWithName (App::ID::TABS) };
-    int result { 0 };
-
-    if (tabs.isValid() and tabs.hasProperty (App::ID::selectionType))
-        result = static_cast<int> (tabs.getProperty (App::ID::selectionType));
-
-    return result;
+    return getParamInt (get(), App::ID::TABS, App::ID::selectionType);
 }
 
 juce::String AppState::getPwd() const noexcept
@@ -423,13 +419,11 @@ void AppState::save()
     const juce::File file { getStateFile() };
     file.getParentDirectory().createDirectory();
 
-    juce::ValueTree persist { state.createCopy() };
+    juce::ValueTree persist { get().createCopy() };
     auto nexusNode { persist.getChildWithName (App::ID::NEXUS) };
 
     if (nexusNode.isValid())
         persist.removeChild (nexusNode, nullptr);
-
-    persist.removeProperty (App::ID::port, nullptr);
 
     if (auto xml { persist.createXml() })
         xml->writeTo (file);
@@ -463,29 +457,49 @@ void AppState::load()
                 {
                     auto currentWindow { getWindow() };
 
-                    if (parsedWindow.hasProperty (App::ID::width))
-                        currentWindow.setProperty (App::ID::width, parsedWindow.getProperty (App::ID::width), nullptr);
-
-                    if (parsedWindow.hasProperty (App::ID::height))
-                        currentWindow.setProperty (App::ID::height, parsedWindow.getProperty (App::ID::height), nullptr);
-
+                    // Direct properties (float/string) — copy from parsed
                     if (parsedWindow.hasProperty (App::ID::zoom))
                         currentWindow.setProperty (App::ID::zoom, parsedWindow.getProperty (App::ID::zoom), nullptr);
 
                     if (parsedWindow.hasProperty (App::ID::renderer))
                         currentWindow.setProperty (App::ID::renderer, parsedWindow.getProperty (App::ID::renderer), nullptr);
+
+                    // PARAM children (int/bool) — find by id, update Atom
+                    loadParamValue (parsedWindow, App::ID::WINDOW, App::ID::width);
+                    loadParamValue (parsedWindow, App::ID::WINDOW, App::ID::height);
                 }
 
                 auto parsedTabs { parsed.getChildWithName (App::ID::TABS) };
 
                 if (parsedTabs.isValid())
                 {
-                    auto existingTabs { state.getChildWithName (App::ID::TABS) };
+                    auto currentTabs { getTabs() };
 
-                    if (existingTabs.isValid())
-                        state.removeChild (existingTabs, nullptr);
+                    // Direct properties (string) — copy from parsed
+                    if (parsedTabs.hasProperty (App::ID::position))
+                        currentTabs.setProperty (App::ID::position, parsedTabs.getProperty (App::ID::position), nullptr);
 
-                    state.appendChild (parsedTabs.createCopy(), nullptr);
+                    if (parsedTabs.hasProperty (App::ID::activePaneID))
+                        currentTabs.setProperty (App::ID::activePaneID, parsedTabs.getProperty (App::ID::activePaneID), nullptr);
+
+                    if (parsedTabs.hasProperty (App::ID::activePaneType))
+                        currentTabs.setProperty (App::ID::activePaneType, parsedTabs.getProperty (App::ID::activePaneType), nullptr);
+
+                    // PARAM children (int) — find by id, update Atom
+                    loadParamValue (parsedTabs, App::ID::TABS, App::ID::active);
+
+                    // Dynamic TAB children — remove existing, copy from parsed
+                    for (int i { currentTabs.getNumChildren() - 1 }; i >= 0; --i)
+                    {
+                        if (currentTabs.getChild (i).getType() == App::ID::TAB)
+                            currentTabs.removeChild (i, nullptr);
+                    }
+
+                    for (int i { 0 }; i < parsedTabs.getNumChildren(); ++i)
+                    {
+                        if (parsedTabs.getChild (i).getType() == App::ID::TAB)
+                            currentTabs.appendChild (parsedTabs.getChild (i).createCopy(), nullptr);
+                    }
                 }
             }
         }
@@ -506,12 +520,12 @@ void AppState::deleteNexusFile()
 
 juce::File AppState::getStateFile() const
 {
-    return lua::Engine::getConfigPath().getChildFile ("nexus/" + instanceUuid + ".display");
+    return lua::Engine::getConfigPath().getChildFile ("nexus/" + getInstanceUuid() + ".display");
 }
 
 juce::File AppState::getNexusFile() const
 {
-    return lua::Engine::getConfigPath().getChildFile ("nexus/" + instanceUuid + ".nexus");
+    return lua::Engine::getConfigPath().getChildFile ("nexus/" + getInstanceUuid() + ".nexus");
 }
 
 juce::File AppState::getWindowState() const
@@ -524,7 +538,7 @@ void AppState::saveWindowState()
     const juce::File file { getWindowState() };
     file.getParentDirectory().createDirectory();
 
-    auto window { state.getChildWithName (App::ID::WINDOW) };
+    auto window { get().getChildWithName (App::ID::WINDOW) };
 
     if (window.isValid())
     {
@@ -545,13 +559,29 @@ void AppState::loadWindowState()
 
             if (parsed.isValid() and parsed.getType() == App::ID::WINDOW)
             {
-                auto currentWindow { getWindow() };
-
+                // Width and height are PARAM children in the new format,
+                // direct properties in the old format. Handle both.
                 if (parsed.hasProperty (App::ID::width))
-                    currentWindow.setProperty (App::ID::width, parsed.getProperty (App::ID::width), nullptr);
+                {
+                    // Old format — direct property
+                    storeValue (App::ID::WINDOW, App::ID::width,
+                                static_cast<int> (parsed.getProperty (App::ID::width)));
+                }
+                else
+                {
+                    // New format — PARAM child
+                    loadParamValue (parsed, App::ID::WINDOW, App::ID::width);
+                }
 
                 if (parsed.hasProperty (App::ID::height))
-                    currentWindow.setProperty (App::ID::height, parsed.getProperty (App::ID::height), nullptr);
+                {
+                    storeValue (App::ID::WINDOW, App::ID::height,
+                                static_cast<int> (parsed.getProperty (App::ID::height)));
+                }
+                else
+                {
+                    loadParamValue (parsed, App::ID::WINDOW, App::ID::height);
+                }
             }
         }
     }
@@ -559,19 +589,28 @@ void AppState::loadWindowState()
 
 void AppState::initDefaults()
 {
-    state = juce::ValueTree (App::ID::END);
+    auto xml { jam::XML::getFromBinary (App::ID::appMetadata) };
+    jassert (xml != nullptr);
 
+    AppLayout::build (*xml, *this);
+    needsFlushAtom = params.get<jam::AnyMap> (App::ID::END)->get<jam::Atom<int>> (App::ID::needsFlush);
+
+    // Overlay Lua config runtime defaults onto XML-declared static defaults.
     const auto* cfg { lua::Engine::getContext() };
 
-    auto window { juce::ValueTree (App::ID::WINDOW) };
-    window.setProperty (App::ID::width,  cfg->display.window.width,  nullptr);
-    window.setProperty (App::ID::height, cfg->display.window.height, nullptr);
-    window.setProperty (App::ID::zoom,   lua::Engine::zoomMin,       nullptr);
+    // Int params — store in Atoms (width, height are Atom<int>)
+    storeValue (App::ID::WINDOW, App::ID::width,  cfg->display.window.width);
+    storeValue (App::ID::WINDOW, App::ID::height, cfg->display.window.height);
 
-    state.appendChild (window, nullptr);
+    // Float/string params — set VT properties directly
+    auto window { getWindow() };
+    window.setProperty (App::ID::zoom,       lua::Engine::zoomMin,       nullptr);
+    window.setProperty (App::ID::fontFamily, cfg->display.font.family,   nullptr);
+    window.setProperty (App::ID::fontSize,   static_cast<float> (cfg->dpiCorrectedFontSize()), nullptr);
 
-    auto tabs { juce::ValueTree (App::ID::TABS) };
-    tabs.setProperty (App::ID::active,   0,                          nullptr);
+    auto tabs { getTabs() };
     tabs.setProperty (App::ID::position, cfg->display.tab.position,  nullptr);
-    state.appendChild (tabs, nullptr);
+
+    flush();
+    startTimerHz (60);
 }
