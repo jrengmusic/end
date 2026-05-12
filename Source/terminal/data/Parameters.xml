@@ -29,8 +29,7 @@
     <PARAM id="outputScanActive"   type="bool" default="false"/>
     <PARAM id="promptRow"          type="int"  default="-1"/>
 
-    <!-- Flush and render signals -->
-    <PARAM id="needsFlush"         type="bool" default="false"/>
+    <!-- Render signal -->
     <PARAM id="snapshotDirty"      type="bool" default="false"/>
 
     <!-- Paste echo gate -->

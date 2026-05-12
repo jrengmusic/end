@@ -1,124 +1,105 @@
 /**
  * @file AppLayout.cpp
- * @brief Implementation of AppLayout — application ValueTree and Atom population from XML.
+ * @brief Implementation of XML-driven parameter schema walker for AppState.
  *
  * @see AppLayout.h
  */
 
 #include "AppLayout.h"
-#include "AppIdentifier.h"
 #include "AppState.h"
 
 juce::var AppLayout::resolveDefault (const juce::XmlElement& elem,
                                      const Boolean& boolMap) noexcept
 {
-    using ResolverFn = juce::var (*)(const juce::XmlElement&, const Boolean&);
+    const auto typeStr    { elem.getStringAttribute (App::ID::type.toString()) };
+    const auto defaultStr { elem.getStringAttribute (App::ID::defaultValue.toString()) };
+    juce::var result {};
 
-    struct TypeResolver
+    if (typeStr == App::ID::boolType.toString())
     {
-        juce::Identifier type;
-        ResolverFn resolve;
-    };
-
-    static const std::array<TypeResolver, 3> resolvers {{
-        { App::ID::boolType,  [] (const juce::XmlElement& e, const Boolean& b) -> juce::var
-                              { return juce::var (b.get (e.getStringAttribute (App::ID::xmlDefault.toString()))); } },
-        { App::ID::floatType, [] (const juce::XmlElement& e, const Boolean&) -> juce::var
-                              { return juce::var (static_cast<float> (e.getDoubleAttribute (App::ID::xmlDefault.toString()))); } },
-        { App::ID::intType,   [] (const juce::XmlElement& e, const Boolean&) -> juce::var
-                              { return juce::var (e.getIntAttribute (App::ID::xmlDefault.toString())); } }
-    }};
-
-    const auto typeStr { elem.getStringAttribute (App::ID::xmlType.toString()) };
-    juce::var result { elem.getStringAttribute (App::ID::xmlDefault.toString()) };
-
-    for (const auto& resolver : resolvers)
+        result = boolMap.get (defaultStr);
+    }
+    else if (typeStr == App::ID::floatType.toString())
     {
-        if (typeStr == resolver.type.toString())
-        {
-            result = resolver.resolve (elem, boolMap);
-            break;
-        }
+        result = elem.getDoubleAttribute (App::ID::defaultValue.toString());
+    }
+    else if (typeStr == App::ID::stringType.toString())
+    {
+        result = defaultStr;
+    }
+    else
+    {
+        result = elem.getIntAttribute (App::ID::defaultValue.toString());
     }
 
     return result;
 }
 
-int AppLayout::resolveIntDefault (const juce::XmlElement& elem,
-                                  const Boolean& boolMap) noexcept
-{
-    const auto typeStr { elem.getStringAttribute (App::ID::xmlType.toString()) };
-    int result { 0 };
-
-    if (typeStr == App::ID::boolType.toString())
-        result = boolMap.get (elem.getStringAttribute (App::ID::xmlDefault.toString()));
-    else
-        result = elem.getIntAttribute (App::ID::xmlDefault.toString());
-
-    return result;
-}
-
-void AppLayout::build (const juce::XmlElement& xml, AppState& appState)
+void AppLayout::build (const juce::XmlElement& xml,
+                       AppState& state)
 {
     Boolean boolMap;
 
-    // Create one AnyMap group per VT node that holds Atom parameters.
-    appState.params.add<jam::AnyMap> (App::ID::END);
-    appState.params.add<jam::AnyMap> (App::ID::WINDOW);
-    appState.params.add<jam::AnyMap> (App::ID::TABS);
+    // Root VT node — already constructed in AppState (App::ID::END).
+    juce::ValueTree rootNode { state.get() };
 
+    // Walk XML children — dispatch on tag name.
     for (auto* child : xml.getChildIterator())
     {
         const auto& tag { child->getTagName() };
 
         if (tag == jam::ValueTree::PARAM.toString())
         {
-            // Root-level PARAM — belongs to the END group.
-            const juce::Identifier id { child->getStringAttribute (App::ID::xmlId.toString()) };
-            const auto typeStr { child->getStringAttribute (App::ID::xmlType.toString()) };
+            // Root-level parameter → flat params, root VT node.
+            const juce::Identifier id { child->getStringAttribute (jam::ID::id.toString()) };
+            const auto typeStr { child->getStringAttribute (App::ID::type.toString()) };
 
-            auto* rootGroup { appState.params.get<jam::AnyMap> (App::ID::END) };
-            auto rootVt { appState.get() };
-
-            if (typeStr == App::ID::intType.toString() or typeStr == App::ID::boolType.toString())
+            if (typeStr == App::ID::floatType.toString() or typeStr == App::ID::stringType.toString())
             {
-                appState.addParameter (id,
-                                       resolveIntDefault (*child, boolMap),
-                                       *rootGroup,
-                                       rootVt);
+                // Float/string: PARAM child only, no Parameter.
+                juce::ValueTree param { jam::ValueTree::PARAM };
+                param.setProperty (jam::ID::id, id.toString(), nullptr);
+                param.setProperty (jam::ID::value, resolveDefault (*child, boolMap), nullptr);
+                rootNode.appendChild (param, nullptr);
             }
             else
             {
-                rootVt.setProperty (id, resolveDefault (*child, boolMap), nullptr);
+                // int/bool: Parameter<int> + PARAM child via addParameter.
+                state.addParameter (id,
+                                    static_cast<int> (resolveDefault (*child, boolMap)),
+                                    state.params,
+                                    rootNode);
             }
         }
         else
         {
-            // Group element (e.g. WINDOW, TABS) — create child VT node + AnyMap.
+            // Group tag (WINDOW, TABS) — create structural VT child, recurse into PARAMs.
             const juce::Identifier groupId { tag };
             juce::ValueTree groupNode { groupId };
+            rootNode.appendChild (groupNode, nullptr);
 
-            auto* group { appState.params.get<jam::AnyMap> (groupId) };
-
-            for (auto* param : child->getChildIterator())
+            for (auto* groupChild : child->getChildIterator())
             {
-                const juce::Identifier id { param->getStringAttribute (App::ID::xmlId.toString()) };
-                const auto typeStr { param->getStringAttribute (App::ID::xmlType.toString()) };
+                const juce::Identifier paramId { groupChild->getStringAttribute (jam::ID::id.toString()) };
+                const auto paramTypeStr { groupChild->getStringAttribute (App::ID::type.toString()) };
 
-                if (typeStr == App::ID::intType.toString() or typeStr == App::ID::boolType.toString())
+                if (paramTypeStr == App::ID::floatType.toString() or paramTypeStr == App::ID::stringType.toString())
                 {
-                    appState.addParameter (id,
-                                           resolveIntDefault (*param, boolMap),
-                                           *group,
-                                           groupNode);
+                    // Float/string: PARAM child only, no Parameter.
+                    juce::ValueTree param { jam::ValueTree::PARAM };
+                    param.setProperty (jam::ID::id, paramId.toString(), nullptr);
+                    param.setProperty (jam::ID::value, resolveDefault (*groupChild, boolMap), nullptr);
+                    groupNode.appendChild (param, nullptr);
                 }
                 else
                 {
-                    groupNode.setProperty (id, resolveDefault (*param, boolMap), nullptr);
+                    // int/bool: Parameter<int> + PARAM child, flat AnyMap.
+                    state.addParameter (paramId,
+                                        static_cast<int> (resolveDefault (*groupChild, boolMap)),
+                                        state.params,
+                                        groupNode);
                 }
             }
-
-            appState.get().appendChild (groupNode, nullptr);
         }
     }
 }

@@ -5,8 +5,15 @@
  * AppState owns the root `END` ValueTree that holds window dimensions, tab layout,
  * split pane configuration, and (via grafted subtrees) each terminal's session state.
  *
- * Inherits `jam::Context<AppState>` so any subsystem can call
- * `AppState::getContext()` without passing references.
+ * Inherits `jam::ValueTree` for the VT owner machinery and `jam::Context<AppState>`
+ * so any subsystem can call `AppState::getContext()` without passing references.
+ *
+ * ### Mechanism
+ * AppParameters.xml declares the schema. AppLayout::build walks it and creates
+ * PARAM children + Parameter<int> adapters in the flat params AnyMap. All scalar
+ * reads use getValueFromChildWithID; all scalar writes use setValue. flush()
+ * syncs Parameters to VT on the 60 Hz timer; restoreValues() syncs VT back to Parameters
+ * after replaceState.
  *
  * ### Serialization — three files, three concerns
  *
@@ -26,9 +33,10 @@
  * - `getStateFile()` returns `nexus/<uuid>.display` (daemon client mode only).
  *
  * ### Instance UUID
- * The ctor calls only `initDefaults()`.  `initialise()` must call
- * `setInstanceUuid()` first, then `load()` explicitly.  File paths derive
- * from the stored UUID and whether nexus mode is active.
+ * The ctor calls AppLayout::build and overlays Lua runtime defaults.
+ * `initialise()` must call `setInstanceUuid()` first, then `load()` explicitly.
+ * File paths derive from the stored UUID and whether nexus mode is active.
+ * UUID is stored as a property on the root VT node using `jam::ID::id`.
  *
  * ### Port
  * `setPort(n)` writes the port as plain text to `<uuid>.nexus` immediately.
@@ -36,10 +44,13 @@
  * ### Destructor
  * The dtor is trivial — no file I/O.  Main owns all file decisions via `systemRequestedQuit()`.
  *
- * @par Thread context
+ * ### Thread model
  * All methods are called on the **MESSAGE THREAD**.
+ * atlasDirty is stored as a Parameter<int> in the flat params AnyMap — GL thread uses
+ * storeRelease/exchangeAcquire; message thread reads via consumeAtlasDirty().
  *
  * @see AppIdentifier.h
+ * @see AppLayout.h
  * @see Config
  */
 
@@ -47,6 +58,7 @@
 
 #include <JuceHeader.h>
 #include "AppIdentifier.h"
+#include "AppLayout.h"
 
 struct AppState : public jam::ValueTree, public jam::Context<AppState>
 {
@@ -55,12 +67,9 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
 
     //==============================================================================
 
-    bool flush() noexcept override;
-
     juce::ValueTree getWindow() noexcept;
     juce::ValueTree getNexusNode() noexcept;
     juce::ValueTree getSessionsNode() noexcept;
-
     juce::ValueTree getLoadingNode() noexcept;
     juce::ValueTree getTabs() noexcept;
 
@@ -77,7 +86,11 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     void setFontFamily (const juce::String& family);
     float getFontSize() const noexcept;
     void setFontSize (float size);
+
+    /** @brief Marks the glyph atlas as stale. GL thread safe — uses atomic store/release. */
     void markAtlasDirty() noexcept;
+
+    /** @brief Consumes and clears the atlas-dirty flag. GL thread safe — uses atomic exchange/acquire. */
     bool consumeAtlasDirty() noexcept;
 
     /** @brief Returns the resolved renderer type enum. */
@@ -106,6 +119,7 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     /**
      * @brief Stores the UUID for this instance — used by file path methods.
      *
+     * Writes `jam::ID::id` property on the root VT node.
      * Must be called in initialise() before load(), save(), or setPort().
      *
      * @param uuid  The UUID string for this instance.
@@ -114,7 +128,7 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
 
     /**
      * @brief Returns the stored instance UUID.
-     * @note Any thread.
+     * @note MESSAGE THREAD.
      */
     juce::String getInstanceUuid() const noexcept;
 
@@ -146,13 +160,36 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     juce::String getActivePaneType() const noexcept;
     void setActivePaneType (const juce::String& type);
 
+    /** @brief Sets the modal overlay type on the TABS node. */
     void setModalType (int type);
-    int  getModalType() const noexcept;
 
+    /** @brief Returns the modal overlay type from the TABS node. */
+    int getModalType() const noexcept;
+
+    /** @brief Sets the selection mode type on the TABS node. */
     void setSelectionType (int type);
-    int  getSelectionType() const noexcept;
 
+    /** @brief Returns the selection mode type from the TABS node. */
+    int getSelectionType() const noexcept;
+
+    /**
+     * @brief Returns the cwd of the active session, or the user home directory if none.
+     *
+     * Reads `Terminal::ID::cwd` directly from `activeSession` — the ref-counted
+     * juce::ValueTree handle stored by `setPwd()`.  Reading a live VT reference
+     * produces the current value without any binding or listener.
+     */
     juce::String getPwd() const noexcept;
+
+    /**
+     * @brief Stores a reference to the active session ValueTree.
+     *
+     * `getPwd()` reads `Terminal::ID::cwd` from this tree directly.  Because
+     * juce::ValueTree is ref-counted, the stored handle always reflects current
+     * session state — no binding, no listener, no stale reads.
+     *
+     * @param sessionTree  The SESSION subtree of the newly focused pane.
+     */
     void setPwd (juce::ValueTree sessionTree);
 
     //==============================================================================
@@ -172,7 +209,7 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
 
     /**
      * @brief Returns the stored daemon port, or 0 if none.
-     * @note Any thread.
+     * @note MESSAGE THREAD.
      */
     int getPort() const noexcept;
 
@@ -182,8 +219,8 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
      * @brief Writes the full state (WINDOW + TABS) to `nexus/<uuid>.display`.
      *
      * Daemon client mode only.  The NEXUS subtree (sessions, loading ops) is
-     * excluded — rebuilt live on reconnect.  Port is NOT written here — port
-     * lives in `<uuid>.nexus` (daemon's file).
+     * excluded — rebuilt live on reconnect.  Port and atlasDirty PARAM children
+     * are also excluded — transient, not serialized.
      * Daemon never calls this — daemon only writes its port via setPort().
      *
      * @note MESSAGE THREAD.
@@ -201,12 +238,11 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     void saveWindowState();
 
     /**
-     * @brief Reads `getWindowState()` and copies width / height into the
-     *        in-memory WINDOW node.
+     * @brief Reads `getWindowState()` and applies PARAM values into the in-memory tree.
      *
      * Called only for new instances (no prior session state) when
-     * `lua::Engine::display.window.saveSize` is true. Silently no-ops on missing file
-     * or parse failure — defaults from initDefaults() remain.
+     * `lua::Engine::display.window.saveSize` is true.  Silently no-ops on missing
+     * file or parse failure — constructor defaults remain.
      *
      * @note MESSAGE THREAD.
      */
@@ -215,8 +251,9 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     /**
      * @brief Reads the full state from `nexus/<uuid>.display` into the in-memory tree.
      *
-     * Daemon client mode only.  Falls back silently to initDefaults() values
-     * if the file is absent or cannot be parsed.
+     * Daemon client mode only.  Uses replaceState which syncs Parameters via restoreValues().
+     * Falls back silently to constructor defaults if the file is absent or
+     * cannot be parsed.
      *
      * @note MESSAGE THREAD.
      */
@@ -244,13 +281,8 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     //==============================================================================
 
 private:
-    juce::Value pwdValue;
-
-    void initDefaults();
-
-    void loadParamValue (const juce::ValueTree& parsedNode,
-                         const juce::Identifier& groupId,
-                         const juce::Identifier& paramId) noexcept;
+    /** @brief Ref-counted handle to the active session's VT. Set by setPwd(). */
+    juce::ValueTree activeSession;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AppState)

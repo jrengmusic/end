@@ -260,6 +260,12 @@ public:
      */
     void setCellSize (int widthPx, int heightPx) noexcept;
 
+    /** @brief Fires when OSC 133;C marks command start (outputBlockStart changes). MESSAGE THREAD. */
+    std::function<void()> onCommandStarted;
+
+    /** @brief Fires when OSC 133;A marks return to prompt (promptRow changes). MESSAGE THREAD. */
+    std::function<void()> onCommandEnded;
+
     /** @brief Events map — Video → Processor → Session.
      *  Session registers handlers directly on this map.
      *

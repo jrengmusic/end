@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Atom.h"
+#include "Parameter.h"
 #include "TextBuffer.h"
 #include "Cell.h"
 #include "Identifier.h"
@@ -19,24 +19,24 @@ using ::SelectionType;
 
 /**
  * @struct State
- * @brief XML-driven terminal parameter store: reader thread writes atoms,
+ * @brief XML-driven terminal parameter store: reader thread writes parameters,
  *        timer flushes to ValueTree, UI reads ValueTree.
  *
  * ### Architecture
  * Mirrors JUCE AudioProcessorValueTreeState (APVTS) 1:1:
  * - `Parameters.xml` declares the schema (ParameterLayout equivalent).
- * - `Atom<int>` / `Atom<const char*>` are the adapters (ParameterAdapter equivalent).
+ * - `Parameter<int>` / `Parameter<const char*>` are the adapters (ParameterAdapter equivalent).
  * - One `jam::AnyMap params` (nested for hierarchy) is the adapter table.
  * - One `juce::ValueTree state` is the SSOT for the UI.
- * - `flush()` is the one loop — each Atom writes itself (no-arg flush).
+ * - `flush()` is the one loop — each Parameter writes itself (no-arg flush).
  *
  * ### Map structure
  * ```
  * params {
- *   ID::SESSION   → AnyMap { root-level Atom<int>s + Atom<const char*>s }
- *   ID::MODES     → AnyMap { mode Atom<int>s }
- *   ID::NORMAL    → AnyMap { per-screen Atom<int>s for normal buffer }
- *   ID::ALTERNATE → AnyMap { per-screen Atom<int>s for alternate buffer }
+ *   ID::SESSION   → AnyMap { root-level Parameter<int>s + Parameter<const char*>s }
+ *   ID::MODES     → AnyMap { mode Parameter<int>s }
+ *   ID::NORMAL    → AnyMap { per-screen Parameter<int>s for normal buffer }
+ *   ID::ALTERNATE → AnyMap { per-screen Parameter<int>s for alternate buffer }
  * }
  * ```
  *
@@ -65,7 +65,7 @@ struct State : public jam::ValueTree
 {
     /**
      * @brief Constructs the State, walks Parameters.xml via Layout::build,
-     *        populates the atom map, and starts the flush timer at 60 Hz.
+     *        populates the parameter map, and starts the flush timer at 60 Hz.
      * @param textBuffer  Session-owned double-buffered string storage.
      * @note MESSAGE THREAD.
      */
@@ -79,9 +79,9 @@ struct State : public jam::ValueTree
     //==========================================================================
 
     /**
-     * @brief Creates one Atom<const char*> for a TEXT parameter.
+     * @brief Creates one Parameter<const char*> for a TEXT parameter.
      *
-     * The atom flushes to a direct property on rootNode (not a PARAM child).
+     * The parameter flushes to a direct property on rootNode (not a PARAM child).
      *
      * @param id       Property identifier (e.g. ID::title).
      * @param rootNode The SESSION ValueTree node (direct property target).
@@ -93,14 +93,6 @@ struct State : public jam::ValueTree
     //==========================================================================
     // ValueTree access — MESSAGE THREAD only
     //==========================================================================
-
-    /** @brief Returns the root ValueTree. Delegates to jam::ValueTree::get(). */
-    juce::ValueTree getValueTree() noexcept;
-
-    /** @brief Returns the root ValueTree (const). Delegates to jam::ValueTree::get(). */
-    juce::ValueTree getValueTree() const noexcept;
-
-    juce::Value getValue (const juce::Identifier& paramId);
 
     bool getMode (const juce::Identifier& id) const noexcept;
     int getActiveScreen() const noexcept;
@@ -116,6 +108,7 @@ struct State : public jam::ValueTree
 
     juce::String getTitle() const noexcept;
     juce::String getCwd() const noexcept;
+    juce::String getForegroundProcess() const noexcept;
 
     //==========================================================================
     // Reader-thread setters — lock-free, noexcept
@@ -206,10 +199,17 @@ struct State : public jam::ValueTree
     int getScrollbackUsed() const noexcept;
 
     // Flush
-    bool flush() noexcept override;
     bool refresh() noexcept;
 
 private:
+    void storeValue (const juce::Identifier& groupId,
+                     const juce::Identifier& paramId,
+                     int value) noexcept;
+
+    void storeTextValue (const juce::Identifier& groupId,
+                         const juce::Identifier& paramId,
+                         const char* ptr) noexcept;
+
     TextBuffer& textBuffer;
 
     // Keyboard mode stack

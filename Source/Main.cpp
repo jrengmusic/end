@@ -541,7 +541,7 @@ juce::String ENDApplication::resolveNexusInstance()
                 // Claim succeeded — keep the lock for the process lifetime.
                 clientLock = std::move (candidateLock);
                 appState.setInstanceUuid (candidateUuid);
-                appState.get().setProperty (App::ID::port, port, nullptr);
+                appState.setValue (App::ID::port, port);
                 resolvedUuid = candidateUuid;
             }
             else

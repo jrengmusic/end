@@ -197,11 +197,11 @@ public:
     /**
      * @brief Called on the READER THREAD after each state flush (cwd and foreground process updated in State).
      *
-     * Fires at the end of the internal `state.onFlush` lambda, after cwd and
+     * Fires at the end of `onCommandStarted` and `onCommandEnded`, after cwd and
      * foreground process have been written into State.  `Interprocess::Daemon` sets
      * this in daemon mode to broadcast a `Message::stateUpdate` PDU.
      *
-     * @note READER THREAD.
+     * @note MESSAGE THREAD.
      */
     std::function<void()> onStateFlush;
 
@@ -211,18 +211,18 @@ public:
      * Delegates to TTY::getForegroundPid().
      *
      * @return The foreground PID, or -1 if unavailable.
-     * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
+     * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
      */
     int getForegroundPid() const noexcept;
 
     /**
      * @brief Returns the PID of the spawned shell process.
      *
-     * Delegates to TTY::getShellPid(). Used in onFlush to detect the
+     * Delegates to TTY::getShellPid(). Used in onCommandStarted to detect the
      * "at prompt" condition (foreground PID equals shell PID).
      *
      * @return The shell PID, or 0 if the shell is not running.
-     * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
+     * @note MESSAGE THREAD — called from onCommandStarted.
      */
     int getShellPid() const noexcept;
 
@@ -365,7 +365,7 @@ private:
     History history;
     std::unique_ptr<Terminal::Processor> processor;
 
-    /** @brief True when the OS-level getCwd query should be used in onFlush.
+    /** @brief True when the OS-level getCwd query should be used in onCommandStarted.
      *  Set to !shellIntegrationEnabled at construction time.  When false,
      *  CWD tracking relies entirely on OSC 7 from shell integration hooks. */
     bool shouldTrackCwdFromOs { false };

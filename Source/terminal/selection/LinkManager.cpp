@@ -19,8 +19,8 @@ LinkManager::LinkManager (State& s,
                           std::function<void (const char*, int)> writeToPtyCallback) noexcept
     : state (s)
     , writeToPty (std::move (writeToPtyCallback))
-    , promptRowNode         (jam::ValueTree::getChildWithID (state.getValueTree(), ID::promptRow.toString()))
-    , activeScreenNode      (jam::ValueTree::getChildWithID (state.getValueTree(), ID::activeScreen.toString()))
+    , promptRowNode         (jam::ValueTree::getChildWithID (state.get(), ID::promptRow.toString()))
+    , activeScreenNode      (jam::ValueTree::getChildWithID (state.get(), ID::activeScreen.toString()))
 {
     promptRowNode.addListener (this);
     activeScreenNode.addListener (this);
@@ -213,7 +213,7 @@ void LinkManager::valueTreePropertyChanged (juce::ValueTree& tree, const juce::I
     {
         if (state.hasOutputBlock())
         {
-            const juce::String cwd { state.getValueTree().getProperty (ID::cwd).toString() };
+            const juce::String cwd { state.getCwd() };
             scan (cwd, true);
         }
         else
