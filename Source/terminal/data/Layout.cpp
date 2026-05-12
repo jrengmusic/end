@@ -42,7 +42,7 @@ void Layout::build (const juce::XmlElement& xml,
     }
 
     // Root SESSION VT node — already constructed in State (ID::SESSION).
-    juce::ValueTree rootNode { state.getValueTree() };
+    juce::ValueTree rootNode { state.get() };
 
     // MODES VT node — appended to SESSION.
     juce::ValueTree modesNode { ID::MODES };
@@ -103,7 +103,7 @@ void Layout::build (const juce::XmlElement& xml,
         }
         else if (tag == ID::TEXT.toString())
         {
-            // TEXT atom — Atom<const char*> in SESSION group, slot in TextBuffer.
+            // TEXT parameter — Parameter<const char*> in SESSION group, slot in TextBuffer.
             const juce::Identifier id { child->getStringAttribute (ID::id.toString()) };
             const int maxlen          { child->getIntAttribute (ID::maxlen.toString()) };
 

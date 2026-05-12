@@ -24,13 +24,6 @@
 
 ---
 
-## DEBT-20260428T213551
-
-**Observation:** Terminal::State atomics API access should be simplified
-**Divergence:** store, load, exchange mostly boilerplate with std::memory_relaxed
-**Expectation:** abstract helper that could make atomics API clean and readable
-
----
 
 ## DEBT-20260428T213146
 

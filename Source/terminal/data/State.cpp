@@ -12,7 +12,6 @@ State::State (TextBuffer& tb)
     jassert (xml != nullptr);
 
     Layout::build (*xml, *this, textBuffer);
-    needsFlushAtom = params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::needsFlush);
 
     keyboardModeStack.allocate (2 * maxKeyboardStackDepth, true);
     keyboardModeStackSize.allocate (2, true);
@@ -30,61 +29,47 @@ void State::addTextParameter (const juce::Identifier& id,
                               juce::ValueTree& rootNode) noexcept
 {
     auto* sessionGroup { params.get<jam::AnyMap> (ID::SESSION) };
-    sessionGroup->add<Atom<const char*>> (id, rootNode, id);
+    sessionGroup->add<Parameter<const char*>> (id, id, rootNode, id);
+}
+
+//==========================================================================
+// Reader-thread store helpers
+//==========================================================================
+
+void State::storeValue (const juce::Identifier& groupId,
+                        const juce::Identifier& paramId,
+                        int value) noexcept
+{
+    params.get<jam::AnyMap> (groupId)->get<Parameter<int>> (paramId)->store (value);
+}
+
+void State::storeTextValue (const juce::Identifier& groupId,
+                             const juce::Identifier& paramId,
+                             const char* ptr) noexcept
+{
+    params.get<jam::AnyMap> (groupId)->get<Parameter<const char*>> (paramId)->store (ptr);
 }
 
 //==========================================================================
 // ValueTree access — MESSAGE THREAD
 //==========================================================================
 
-juce::ValueTree State::getValueTree() noexcept       { return get(); }
-juce::ValueTree State::getValueTree() const noexcept { return get(); }
-
-juce::Value State::getValue (const juce::Identifier& paramId)
-{
-    return jam::ValueTree::getValueFromChildWithID (get(), paramId);
-}
-
 bool State::getMode (const juce::Identifier& id) const noexcept
 {
     auto modesNode { get().getChildWithName (ID::MODES) };
-    auto param { jam::ValueTree::getChildWithID (modesNode, id.toString()) };
-    bool result { false };
-
-    if (param.isValid())
-    {
-        result = static_cast<bool> (param.getProperty (ID::value));
-    }
-
-    return result;
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (modesNode, id).getValue()) != 0;
 }
 
 int State::getActiveScreen() const noexcept
 {
-    auto param { jam::ValueTree::getChildWithID (get(), ID::activeScreen.toString()) };
-    int result { map::Screen::normal };
-
-    if (param.isValid())
-    {
-        result = static_cast<int> (param.getProperty (ID::value));
-    }
-
-    return result;
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), ID::activeScreen).getValue());
 }
 
 uint32_t State::getKeyboardFlags() const noexcept
 {
     const int scr { getActiveScreen() };
     auto screenNode { get().getChildWithName (juce::Identifier { map::Screen::getContext()->get (scr) }) };
-    auto param { jam::ValueTree::getChildWithID (screenNode, ID::keyboardFlags.toString()) };
-    uint32_t result { 0 };
-
-    if (param.isValid())
-    {
-        result = static_cast<uint32_t> (static_cast<int> (param.getProperty (ID::value)));
-    }
-
-    return result;
+    return static_cast<uint32_t> (static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, ID::keyboardFlags).getValue()));
 }
 
 static int getSessionParamInt (const juce::ValueTree& root,
@@ -155,8 +140,9 @@ int State::getVisibleRows() const noexcept
     return getSessionParamInt (get(), ID::visibleRows);
 }
 
-juce::String State::getTitle() const noexcept { return get().getProperty (ID::title).toString(); }
-juce::String State::getCwd() const noexcept   { return get().getProperty (ID::cwd).toString(); }
+juce::String State::getTitle() const noexcept             { return get().getProperty (ID::title).toString(); }
+juce::String State::getCwd() const noexcept               { return get().getProperty (ID::cwd).toString(); }
+juce::String State::getForegroundProcess() const noexcept { return get().getProperty (ID::foregroundProcess).toString(); }
 
 int State::getScrollbackUsed() const noexcept { return 0; }
 
@@ -334,7 +320,7 @@ void State::setOutputBlockEnd (int row) noexcept
 
 void State::extendOutputBlock (int row) noexcept
 {
-    if (params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::outputScanActive)->load() != 0)
+    if (params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::outputScanActive)->load() != 0)
     {
         storeValue (ID::SESSION, ID::outputBlockBottom, row);
     }
@@ -376,15 +362,15 @@ bool State::hasOutputBlock() const noexcept
 
 void State::setSnapshotDirty() noexcept
 {
-    if (params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::pasteEchoRemaining)->load() <= 0)
+    if (params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::pasteEchoRemaining)->load() <= 0)
     {
-        params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::snapshotDirty)->storeRelease (1);
+        params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
     }
 }
 
 bool State::consumeSnapshotDirty() noexcept
 {
-    return params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::snapshotDirty)->exchangeAcquire (0) != 0;
+    return params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->exchangeAcquire (0) != 0;
 }
 
 bool State::isSnapshotDirty() const noexcept
@@ -398,12 +384,12 @@ bool State::isSnapshotDirty() const noexcept
 
 void State::setPasteEchoGate (int bytes) noexcept
 {
-    params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::pasteEchoRemaining)->storeRelease (bytes);
+    params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::pasteEchoRemaining)->storeRelease (bytes);
 }
 
 void State::consumePasteEcho (int bytes) noexcept
 {
-    auto* gate { params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::pasteEchoRemaining) };
+    auto* gate { params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::pasteEchoRemaining) };
 
     if (gate->load() > 0)
     {
@@ -419,7 +405,7 @@ void State::consumePasteEcho (int bytes) noexcept
 
 void State::clearPasteEchoGate() noexcept
 {
-    auto* gate { params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::pasteEchoRemaining) };
+    auto* gate { params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::pasteEchoRemaining) };
 
     if (gate->exchangeAcqRel (0) > 0)
     {
@@ -433,7 +419,7 @@ void State::clearPasteEchoGate() noexcept
 
 void State::setSyncOutput (bool active) noexcept
 {
-    params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::syncOutputActive)->storeRelease (active ? 1 : 0);
+    params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::syncOutputActive)->storeRelease (active ? 1 : 0);
 
     if (not active)
     {
@@ -443,17 +429,17 @@ void State::setSyncOutput (bool active) noexcept
 
 bool State::isSyncOutputActive() const noexcept
 {
-    return params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::syncOutputActive)->load() != 0;
+    return params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::syncOutputActive)->load() != 0;
 }
 
 void State::requestSyncResize() noexcept
 {
-    params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::syncResizePending)->store (1);
+    params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::syncResizePending)->store (1);
 }
 
 bool State::consumeSyncResize() noexcept
 {
-    return params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::syncResizePending)->exchangeRelaxed (0) != 0;
+    return params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::syncResizePending)->exchangeRelaxed (0) != 0;
 }
 
 //==========================================================================
@@ -463,7 +449,7 @@ bool State::consumeSyncResize() noexcept
 void State::setSelectionType (int type) noexcept
 {
     AppState::getContext()->setSelectionType (type);
-    params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::snapshotDirty)->storeRelease (1);
+    params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
 int State::getSelectionType() const noexcept
@@ -475,7 +461,7 @@ void State::setSelectionCursor (int row, int col) noexcept
 {
     storeValue (ID::SESSION, ID::selectionCursorRow, row);
     storeValue (ID::SESSION, ID::selectionCursorCol, col);
-    params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::snapshotDirty)->storeRelease (1);
+    params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
 int State::getSelectionCursorRow() const noexcept
@@ -492,7 +478,7 @@ void State::setSelectionAnchor (int row, int col) noexcept
 {
     storeValue (ID::SESSION, ID::selectionAnchorRow, row);
     storeValue (ID::SESSION, ID::selectionAnchorCol, col);
-    params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::snapshotDirty)->storeRelease (1);
+    params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
 int State::getSelectionAnchorRow() const noexcept
@@ -524,7 +510,7 @@ int State::getDragAnchorCol() const noexcept
 void State::setDragActive (bool active) noexcept
 {
     storeValue (ID::SESSION, ID::dragActive, active ? 1 : 0);
-    params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::snapshotDirty)->storeRelease (1);
+    params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
 bool State::isDragActive() const noexcept
@@ -550,7 +536,7 @@ void State::dismissPreview() noexcept
 {
     storeValue (ID::SESSION, ID::preview, 0);
     storeValue (ID::SESSION, ID::splitCol, 0);
-    params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::snapshotDirty)->storeRelease (1);
+    params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
 //==========================================================================
@@ -584,7 +570,7 @@ int State::getHintTotalPages() const noexcept
 void State::setModalType (ModalType type) noexcept
 {
     AppState::getContext()->setModalType (static_cast<int> (type));
-    params.get<jam::AnyMap> (ID::SESSION)->get<Atom<int>> (ID::snapshotDirty)->storeRelease (1);
+    params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
 ModalType State::getModalType() const noexcept

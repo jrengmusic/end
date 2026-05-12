@@ -15,7 +15,7 @@ Terminal::Display::Display (Terminal::Processor& processorToUse)
 
     setWantsKeyboardFocus (true);
     addKeyListener (this);
-    state.getValueTree().addListener (this);
+    state.get().addListener (this);
 }
 
 Terminal::Display::~Display()
@@ -27,7 +27,7 @@ Terminal::Display::~Display()
 // PaneComponent
 juce::String Terminal::Display::getPaneType() const noexcept { return App::ID::paneTypeTerminal; }
 void Terminal::Display::switchRenderer (App::RendererType) noexcept {}
-juce::ValueTree Terminal::Display::getValueTree() noexcept { return state.getValueTree(); }
+juce::ValueTree Terminal::Display::getValueTree() noexcept { return state.get(); }
 void Terminal::Display::applyConfig() noexcept {}
 void Terminal::Display::applyZoom (float) noexcept {}
 void Terminal::Display::enterSelectionMode() noexcept {}
@@ -106,7 +106,8 @@ void Terminal::Display::resized()
                         lastRows = newRows;
                         screen.setDimensions (newCols, newRows);
                         // Top-down: Display writes State → Processor::valueTreePropertyChanged → Video.
-                        processor.getState().setDimensions (newCols, newRows);
+                        processor.getState().setValue (Terminal::ID::cols, newCols);
+                        processor.getState().setValue (Terminal::ID::visibleRows, newRows);
 
                         if (processor.events.contains (Terminal::ID::terminalResize))
                             processor.events.get (Terminal::ID::terminalResize, int (newCols), int (newRows), int (contentBounds.getWidth()), int (contentBounds.getHeight()));

@@ -452,10 +452,10 @@ void Link::handleStateUpdate (const uint8_t* payload, int payloadSize)
                 auto& proc { ctx->get (uuid).getProcessor() };
 
                 if (cwd.isNotEmpty())
-                    proc.getState().getValueTree().setProperty (Terminal::ID::cwd, cwd, nullptr);
+                    proc.getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
 
                 if (fgProcess.isNotEmpty())
-                    proc.getState().getValueTree().setProperty (Terminal::ID::foregroundProcess, fgProcess, nullptr);
+                    proc.getState().get().setProperty (Terminal::ID::foregroundProcess, fgProcess, nullptr);
             }
         }
     }

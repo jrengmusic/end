@@ -243,11 +243,8 @@ namespace ID
     static const juce::Identifier promptRow            { "promptRow" };
 
     //==========================================================================
-    // Flush / repaint signal atomics (moved from stray members)
+    // Repaint signal atomic
     //==========================================================================
-
-    /** @brief True when any atomic parameter has been written since the last flush. */
-    static const juce::Identifier needsFlush           { "needsFlush" };
 
     /** @brief True when new cell data has been written to the grid since the last repaint. */
     static const juce::Identifier snapshotDirty        { "snapshotDirty" };

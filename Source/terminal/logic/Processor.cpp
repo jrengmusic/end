@@ -48,7 +48,7 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, int cols, int ro
     registerCommands();
     registerEvents();
     parser = std::make_unique<Parser> (commands);
-    state.getValueTree().addListener (this);
+    state.get().addListener (this);
 }
 
 /**
@@ -364,8 +364,43 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
         {
             const int numCols { state.getCols() };
             const int numRows { state.getVisibleRows() };
-            resized (numCols, numRows);
+
+            if (numCols > 0 and numRows > 0)
+                resized (numCols, numRows);
         }
+
+        if (paramId == ID::outputBlockTop)
+        {
+            if (onCommandStarted != nullptr)
+                onCommandStarted();
+        }
+
+        if (paramId == ID::promptRow)
+        {
+            if (onCommandEnded != nullptr)
+                onCommandEnded();
+        }
+    }
+
+    // TEXT parameters flush as direct properties on the SESSION root node.
+    // When foregroundProcess or cwd change, recompute displayName.
+    if (property == ID::foregroundProcess or property == ID::cwd)
+    {
+        const auto foreground { tree.getProperty (ID::foregroundProcess).toString() };
+        const auto cwdPath    { tree.getProperty (ID::cwd).toString() };
+        juce::String name;
+
+        if (foreground.isNotEmpty())
+        {
+            name = foreground;
+        }
+        else if (cwdPath.isNotEmpty())
+        {
+            name = juce::File (cwdPath).getFileName();
+        }
+
+        if (name.isNotEmpty())
+            state.get().setProperty (App::ID::displayName, name, nullptr);
     }
 }
 

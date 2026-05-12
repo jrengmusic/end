@@ -600,7 +600,14 @@ void MainComponent::initialiseTabs()
     const auto contentRect { getContentRect (appState.getWindowWidth(), appState.getWindowHeight(), savedTabCount) };
     const auto savedSnapshot { savedTabs.createCopy() };
 
-    appState.getTabs().removeAllChildren (nullptr);
+    // Remove TAB children only — preserve PARAM children.
+    auto tabsNode { appState.getTabs() };
+
+    for (int i { tabsNode.getNumChildren() - 1 }; i >= 0; --i)
+    {
+        if (tabsNode.getChild (i).getType() == App::ID::TAB)
+            tabsNode.removeChild (i, nullptr);
+    }
     AppState::getContext()->setActivePaneType (App::ID::paneTypeTerminal);
 
     if (savedTabCount > 0)

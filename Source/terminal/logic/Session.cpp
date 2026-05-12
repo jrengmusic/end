@@ -200,7 +200,7 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
  * History capacity comes from `lua::Engine::nexus.terminal.scrollbackLines`.
  * The `onBytes` and `onExit` callbacks may be overridden by the owner (`Nexus` /
  * `Interprocess::Daemon`) after construction for daemon-mode byte broadcasting.  The Processor pipeline
- * callbacks (tty->onDrainComplete, state.onFlush, setHostWriter) are wired internally.
+ * callbacks (tty->onDrainComplete, onCommandStarted, onCommandEnded, setHostWriter) are wired internally.
  *
  * @note MESSAGE THREAD.
  */
@@ -292,8 +292,8 @@ Session::Session (int cols,
             platformResize (procRawPtr->getState().getCols(), procRawPtr->getState().getVisibleRows());
     };
 
-    // 4. State flush: query cwd + foreground process from PTY, then fire external onStateFlush.
-    procRawPtr->getState().onFlush = [this, procRawPtr]
+    // 4. Command start: query foreground process from OS, write to state.
+    procRawPtr->onCommandStarted = [this, procRawPtr]
     {
         const int fgPid { getForegroundPid() };
         const int shellPid { getShellPid() };
@@ -328,6 +328,15 @@ Session::Session (int cols,
         if (onStateFlush != nullptr)
             onStateFlush();
     };
+
+    // 5. Command end: clear foreground process.
+    procRawPtr->onCommandEnded = [this, procRawPtr]
+    {
+        procRawPtr->getState().setForegroundProcess ("", 0);
+
+        if (onStateFlush != nullptr)
+            onStateFlush();
+    };
 }
 
 /**
@@ -353,7 +362,7 @@ Session::Session (int cols, int rows,
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
     processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);
     processor->getState().setId (effectiveUuid);
-    processor->getState().getValueTree().setProperty (Terminal::ID::cwd, cwd, nullptr);
+    processor->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
 }
 
 /**
@@ -419,7 +428,7 @@ void Session::platformResize (int cols, int rows, int pixelWidth, int pixelHeigh
 /**
  * @brief Returns the PID of the foreground process running in the PTY.
  *
- * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
+ * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
  */
 int Session::getForegroundPid() const noexcept
 {
@@ -430,7 +439,7 @@ int Session::getForegroundPid() const noexcept
 /**
  * @brief Returns the PID of the spawned shell process.
  *
- * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
+ * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
  */
 int Session::getShellPid() const noexcept
 {
@@ -441,7 +450,7 @@ int Session::getShellPid() const noexcept
 /**
  * @brief Writes the process name for the given PID into the buffer.
  *
- * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
+ * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
  */
 int Session::getProcessName (int pid, char* buffer, int maxLength) const noexcept
 {
@@ -452,7 +461,7 @@ int Session::getProcessName (int pid, char* buffer, int maxLength) const noexcep
 /**
  * @brief Writes the current working directory for the given PID into the buffer.
  *
- * @note MESSAGE THREAD — called from state.onFlush via State::timerCallback.
+ * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
  */
 int Session::getCwd (int pid, char* buffer, int maxLength) const noexcept
 {

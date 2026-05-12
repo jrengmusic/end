@@ -1,5 +1,60 @@
 # SPRINT-LOG
 
+## Sprint 14: jam::Parameter<> — Self-Identifying APVTS Adapter + Single-Pass Flush
+
+**Date:** 2026-05-12
+**Duration:** 01:30
+
+### Agents Participated
+- COUNSELOR: primary — APVTS source study via Librarian, design discussion, audit processing
+- Pathfinder (x2): Atom/AtomBase reference mapping, Video Terminal implementation check
+- Librarian (x1): JUCE APVTS ParameterAdapter/needsUpdate internals
+- Engineer (x3): Parameter rename across jam + END, audit fixes, stale doc deletion
+- Auditor (x1): comprehensive audit — 7 findings, all resolved
+
+### Files Modified (14)
+
+**jam-level (framework):**
+- `jam_data_structures/value_tree/jam_parameter.h` (new, replaces jam_atom.h) — `ParameterBase` with `const juce::Identifier id`, `Parameter<int>`, `Parameter<const char*>`, `isDirty()` removed
+- `jam_data_structures/value_tree/jam_atom.h` (deleted) — superseded by jam_parameter.h
+- `jam_data_structures/jam_data_structures.h:26` — include path `jam_atom.h` → `jam_parameter.h`
+- `jam_data_structures/value_tree/jam_value_tree.h` — doc comments: Atom → Parameter, AtomBase → ParameterBase
+- `jam_data_structures/value_tree/jam_value_tree.cpp:137-151` — `Parameter<int>` type, `addParameter` passes id twice (map key + parameterId), flush() two-pass → single-pass OR-aggregation
+
+**END-level:**
+- `Source/terminal/data/Parameter.h` (new, replaces Atom.h) — `using jam::ParameterBase; using jam::Parameter;`
+- `Source/terminal/data/Atom.h` (deleted) — superseded by Parameter.h
+- `Source/terminal/data/State.h:4,22,68,84` — include path, stale "atom" → "parameter" in doxygen
+- `Source/terminal/data/State.cpp` — all `Atom<int>` → `Parameter<int>`, `Atom<const char*>` → `Parameter<const char*>` (24 sites)
+- `Source/AppState.h` — doc comments: Atom → Parameter
+- `Source/AppState.cpp:113,118` — `jam::Atom<int>` → `jam::Parameter<int>`
+- `Source/AppLayout.h`, `Source/AppLayout.cpp` — doc comments: Atom → Parameter
+- `Source/terminal/data/Layout.cpp:106` — comment: "TEXT atom" → "TEXT parameter"
+- `Source/terminal/logic/Processor.cpp:385` — comment: "TEXT atoms" → "TEXT parameters"
+
+**Deleted stale docs:**
+- `PLAN-apvts-flush.md` — objective complete
+- `PLAN-video-terminal.md` — objective complete (Video/Parser split fully implemented)
+- `RFC-state-refactor.md` — objective complete (XML-driven typed atomics fully implemented)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [x] JUCE APVTS pattern studied and applied: ParameterAdapter carries paramID, single-pass flushParameterValuesToValueTree with OR-aggregation
+
+### Problems Solved
+- Atom was anonymous — identity lived only in AnyMap key. Parameter now self-identifies with `const juce::Identifier id`, mirroring JUCE `AudioProcessorParameter::paramID`
+- Two-pass flush (isDirty search + void flush) was overengineered — JUCE uses single-pass where each adapter CAS-gates and returns bool, aggregated with `|=`
+- `isDirty()` virtual was an unnecessary getter (BLESSED E violation) — removed, flush() self-gates via CAS
+- Stale Atom vocabulary purged from all code comments and doxygen
+
+### Debts Paid
+- `DEBT-20260428T213551` — Terminal::State atomics API simplified: Atom → Parameter with self-identifying ID, proper APVTS naming, clean store/load/flush interface
+
+### Debts Deferred
+- None
+
 ## Sprint 13: jam::ValueTree APVTS-Pattern — Shared Atom Infrastructure + XML-Driven AppState
 
 **Date:** 2026-05-11
