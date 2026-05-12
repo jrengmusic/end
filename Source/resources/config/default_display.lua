@@ -64,6 +64,11 @@ return {
         -- unless cursor.force is true.
         char = "%%cursor_char%%",
 
+        -- Geometric cursor shape used when the cursor glyph cannot render.
+        -- "block" (default), "underline", or "bar".
+        -- Programs (like vim) can change this via DECSCUSR unless cursor.force is true.
+        style = "%%cursor_style%%",
+
         -- Enable cursor blinking.
         blink = "%%cursor_blink%%",
 

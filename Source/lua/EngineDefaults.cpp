@@ -1,10 +1,10 @@
 /**
  * @file EngineDefaults.cpp
- * @brief Default-value initialisation and config-file write helpers for lua::Engine.
+ * @brief Config-file write helpers for lua::Engine.
  *
- * Contains: Engine::initDefaults(), Engine::writeDefaults(), all
- * Engine::writeXxxDefaults() methods, and the file-local colour
- * formatting helpers colourToHex() and colourToWhelmedHex().
+ * Contains: Engine::writeDefaults(), all Engine::writeXxxDefaults() methods,
+ * and the file-local colour formatting helpers colourToHex() and
+ * colourToWhelmedHex(). Struct default values live in Engine.h brace-inits.
  *
  * @see lua::Engine
  */
@@ -48,6 +48,7 @@ static void writeDisplayFontDefaults (juce::String& content, const Engine::Displ
     content =
         jam::String::replaceholder (content, "cursor_blink_interval", juce::String (display.cursor.blinkInterval));
     content = jam::String::replaceholder (content, "cursor_force", display.cursor.force ? "true" : "false");
+    content = jam::String::replaceholder (content, "cursor_style", display.cursor.style == 3 ? "underline" : (display.cursor.style == 5 ? "bar" : "block"));
 }
 
 /** @brief Substitutes colour palette placeholder values into display.lua content. */
@@ -180,133 +181,6 @@ static void writeDisplayMiscDefaults (juce::String& content, const Engine::Displ
 
     // Scrollbar
     content = jam::String::replaceholder (content, "scrollbar_width", juce::String (display.scrollbarWidth));
-}
-
-//==============================================================================
-void Engine::initDefaults()
-{
-    // Window
-    display.window.title = ProjectInfo::projectName;
-    display.window.colour = juce::Colour (0xff090d12);// bunker
-
-    // Colours — foreground, background, cursor, selection
-    display.colours.foreground = juce::Colour (0xffa1d6e5);// skyFall
-    display.colours.background = juce::Colour (0x00000000);// transparent (glass shows through)
-    display.colours.editorBackground = juce::Colour (0x00000000);// transparent (glass shows through)
-    display.colours.editorOutline = juce::Colour (0x00000000);// transparent (no outline)
-    display.colours.cursor = juce::Colour (0xff4e8c93);// paradiso
-    display.colours.selection = juce::Colour (0x2000ddee);// fishBoy semi-transparent
-    display.colours.selectionCursor = juce::Colour (0xff00ddee);// fishBoy
-
-    // ANSI palette — normal 0-7
-    display.colours.ansi.at (0) = juce::Colour (0xff090d12);// black    — bunker
-    display.colours.ansi.at (1) = juce::Colour (0xfffc704c);// red      — preciousPersimmon
-    display.colours.ansi.at (2) = juce::Colour (0xffc5f0e9);// green    — gentleCold
-    display.colours.ansi.at (3) = juce::Colour (0xfff3f5c5);// yellow   — silkStar
-    display.colours.ansi.at (4) = juce::Colour (0xff8cc9d9);// blue     — dolphin
-    display.colours.ansi.at (5) = juce::Colour (0xff519299);// magenta  — lagoon
-    display.colours.ansi.at (6) = juce::Colour (0xff699daa);// cyan     — tranquiliTeal
-    display.colours.ansi.at (7) = juce::Colour (0xffdddddd);// white    — frostbite
-
-    // ANSI palette — bright 8-15
-    display.colours.ansi.at (8) = juce::Colour (0xff33535b);// bright black   — mediterranea
-    display.colours.ansi.at (9) = juce::Colour (0xfffc704c);// bright red     — preciousPersimmon
-    display.colours.ansi.at (10) = juce::Colour (0xffbafffd);// bright green   — paleSky
-    display.colours.ansi.at (11) = juce::Colour (0xfffeffd2);// bright yellow  — mattWhite
-    display.colours.ansi.at (12) = juce::Colour (0xff67dfef);// bright blue    — poseidonJr
-    display.colours.ansi.at (13) = juce::Colour (0xff01c2d2);// bright magenta — caribbeanBlue
-    display.colours.ansi.at (14) = juce::Colour (0xff00c8d8);// bright cyan    — blueBikini
-    display.colours.ansi.at (15) = juce::Colour (0xffbafffd);// bright white   — paleSky
-
-    // Status bar colours
-    display.colours.statusBar = juce::Colour (0xff090d12);// bunker
-    display.colours.statusBarLabelBg = juce::Colour (0xff112130);// trappedDarkness
-    display.colours.statusBarLabelFg = juce::Colour (0xff4e8c93);// paradiso
-    display.colours.statusBarSpinner = juce::Colour (0xff00c8d8);// blueBikini
-
-    // Hint label colours
-    display.colours.hintLabelBg = juce::Colour (0xff00ffff);// cyan
-    display.colours.hintLabelFg = juce::Colour (0xff111111);// near-black
-
-    // Scrollbar colours
-    display.colours.scrollbarThumb = juce::Colour (0x802c4144);// littleMermaid semi-transparent
-    display.colours.scrollbarTrack = juce::Colour (0x00000000);// transparent
-
-    // Tab colours
-    display.tab.foreground = juce::Colour (0xff00c8d8);// blueBikini
-    display.tab.inactive = juce::Colour (0xff33535b);// mediterranea
-    display.tab.line = juce::Colour (0xff2c4144);// littleMermaid
-    display.tab.active = juce::Colour (0xff002b35);// midnightDreams
-    display.tab.indicator = juce::Colour (0xff01c2d2);// caribbeanBlue
-
-    // Overlay colour
-    display.overlay.colour = juce::Colour (0xff4e8c93);// paradiso
-
-    // Pane colours
-    display.pane.barColour = juce::Colour (0xff33535b);// mediterranea
-    display.pane.barHighlight = juce::Colour (0xff4e8c93);// paradiso
-
-    // Action list colours
-    display.actionList.nameColour = juce::Colour (0xffa1d6e5);// skyFall
-    display.actionList.shortcutColour = juce::Colour (0xff00c8d8);// blueBikini
-    display.actionList.highlightColour = juce::Colour (0x2000ddee);// fishBoy semi-transparent
-
-    // Popup border colour
-    display.popup.borderColour = juce::Colour (0xff4e8c93);// paradiso
-
-    // Whelmed colours
-    whelmed.background = juce::Colour (0xff0d141c);// corbeau (AARRGGBB: ff0d141c)
-    whelmed.bodyColour = juce::Colour (0xffb3f9f5);
-    whelmed.codeColour = juce::Colour (0xff00d0ff);
-    whelmed.linkColour = juce::Colour (0xff01c2d2);
-    whelmed.h1Colour = juce::Colour (0xffd4c8a0);
-    whelmed.h2Colour = juce::Colour (0xffd4c8a0);
-    whelmed.h3Colour = juce::Colour (0xffd4c8a0);
-    whelmed.h4Colour = juce::Colour (0xffd4c8a0);
-    whelmed.h5Colour = juce::Colour (0xffd4c8a0);
-    whelmed.h6Colour = juce::Colour (0xffd4c8a0);
-    whelmed.codeFenceBackground = juce::Colour (0xff090d12);
-    whelmed.progressBackground = juce::Colour (0xff1a1a1a);
-    whelmed.progressForeground = juce::Colour (0xff4488cc);
-    whelmed.progressTextColour = juce::Colour (0xffcccccc);
-    whelmed.progressSpinnerColour = juce::Colour (0xff4488cc);
-
-    whelmed.tokenError = juce::Colour (0xfff74a4a);
-    whelmed.tokenComment = juce::Colour (0xff6080c0);
-    whelmed.tokenKeyword = juce::Colour (0xff1919ff);
-    whelmed.tokenOperator = juce::Colour (0xffb0b0b0);
-    whelmed.tokenIdentifier = juce::Colour (0xff00c6ff);
-    whelmed.tokenInteger = juce::Colour (0xff00ff00);
-    whelmed.tokenFloat = juce::Colour (0xff00ff00);
-    whelmed.tokenString = juce::Colour (0xffffc0c0);
-    whelmed.tokenBracket = juce::Colour (0xff80ffff);
-    whelmed.tokenPunctuation = juce::Colour (0xffff9080);
-    whelmed.tokenPreprocessor = juce::Colour (0xff9aff00);
-
-    whelmed.tableBackground = juce::Colour (0xff090d12);
-    whelmed.tableHeaderBackground = juce::Colour (0xff112130);
-    whelmed.tableRowAlt = juce::Colour (0xff0d141c);
-    whelmed.tableBorderColour = juce::Colour (0xff2c4144);
-    whelmed.tableHeaderText = juce::Colour (0xffbafffd);
-    whelmed.tableCellText = juce::Colour (0xffb3f9f5);
-
-    whelmed.scrollbarThumb = juce::Colour (0xff2c4144);
-    whelmed.scrollbarTrack = juce::Colour (0xff0d141c);
-    whelmed.scrollbarBackground = juce::Colour (0xff0d141c);
-
-    whelmed.selectionColour = juce::Colour (0x8000c8d8);
-
-    // Shell — platform-conditional
-#if JUCE_MAC
-    nexus.shell.program = "zsh";
-    nexus.shell.args = "-l";
-#elif JUCE_LINUX
-    nexus.shell.program = "bash";
-    nexus.shell.args = "-l";
-#elif JUCE_WINDOWS
-    nexus.shell.program = "powershell.exe";
-    nexus.shell.args = "";
-#endif
 }
 
 //==============================================================================

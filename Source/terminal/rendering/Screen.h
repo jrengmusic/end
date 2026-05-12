@@ -87,8 +87,8 @@ private:
     int activeScreen   { 0 };
     int scrollbackRows { 0 };  ///< Number of scrollback rows stored before visible rows.
 
-    jam::Glyph::ShapedText shapedText;
-    jam::Glyph::Graphics glyphGraphics;
+    jam::glyph::ShapedText shapedText;
+    jam::glyph::Graphics glyphGraphics;
 
     int cols        { 0 };
     int visibleRows { 0 };
@@ -100,6 +100,9 @@ private:
 
     /** @brief Computes cell metrics from the configured font. */
     void computeCellMetrics() noexcept;
+
+    /** @brief Rasterizes the configured cursor codepoint into a glyph image for the caret. */
+    void rasterizeCursorGlyph() noexcept;
 
     /** @brief Shapes active cells, resizes content, auto-scrolls, repaints. */
     void shapeAndRepaint() noexcept;

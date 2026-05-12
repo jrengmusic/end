@@ -48,6 +48,7 @@ public:
 
     // juce::Component
     void resized() override;
+    void focusGained (FocusChangeType cause) override;
 
     // juce::KeyListener
     bool keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent) override;
