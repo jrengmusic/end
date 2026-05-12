@@ -236,7 +236,7 @@ void MainComponent::applyConfig()
 void MainComponent::setRenderer (App::RendererType rendererType)
 {
     const bool isUsingGpu { rendererType == App::RendererType::gpu };
-    const auto atlasSize { isUsingGpu ? jam::Glyph::AtlasSize::standard : jam::Glyph::AtlasSize::compact };
+    const auto atlasSize { isUsingGpu ? jam::glyph::AtlasSize::standard : jam::glyph::AtlasSize::compact };
     jam::Typeface::setAtlasSize (atlasSize);
 
     // Always detach first — setOpenGLVersionRequired/setComponentPaintingEnabled

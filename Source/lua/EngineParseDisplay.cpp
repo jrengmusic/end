@@ -129,6 +129,18 @@ static void parseDisplayCursor (Engine::Display::Cursor& cursor, jam::lua::Value
 
         auto force { t["force"].optional<juce::String>() };
         if (force.has_value()) cursor.force = (force.value() == "true");
+
+        auto style { t["style"].optional<juce::String>() };
+
+        if (style.has_value())
+        {
+            if (style.value() == "underline")
+                cursor.style = 3;
+            else if (style.value() == "bar")
+                cursor.style = 5;
+            else
+                cursor.style = 1;
+        }
     }
 }
 

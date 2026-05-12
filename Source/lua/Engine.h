@@ -53,11 +53,21 @@ public:
          */
         struct Shell
         {
-            /** @brief Shell executable name. Platform-conditional default set in initDefaults(). */
+            /** @brief Shell executable name. Platform-conditional. */
+#if JUCE_MAC
             juce::String program { "zsh" };
+#elif JUCE_LINUX
+            juce::String program { "bash" };
+#elif JUCE_WINDOWS
+            juce::String program { "powershell.exe" };
+#endif
 
             /** @brief Arguments passed to the shell at startup. */
+#if JUCE_WINDOWS
+            juce::String args { "" };
+#else
             juce::String args { "-l" };
+#endif
 
             /** @brief Whether shell integration is enabled. */
             bool integration { true };
@@ -170,8 +180,8 @@ public:
          */
         struct Window
         {
-            /** @brief Window title bar text. Default set from ProjectInfo::projectName in initDefaults(). */
-            juce::String title;
+            /** @brief Window title bar text. */
+            juce::String title { ProjectInfo::projectName };
 
             /** @brief Initial window width in pixels. */
             int width { 640 };
@@ -179,8 +189,8 @@ public:
             /** @brief Initial window height in pixels. */
             int height { 480 };
 
-            /** @brief Window background colour. Default "#090D12" parsed in initDefaults(). */
-            juce::Colour colour;
+            /** @brief Window background colour. */
+            juce::Colour colour { 0xff090d12 };
 
             /** @brief Background opacity (0.0 = fully transparent, 1.0 = fully opaque). */
             float opacity { 0.75f };
@@ -206,57 +216,75 @@ public:
 
         /**
          * @struct Colours
-         * @brief Full colour palette for the terminal. All defaults set in initDefaults().
+         * @brief Full colour palette for the terminal.
          */
         struct Colours
         {
             /** @brief Default text foreground colour. */
-            juce::Colour foreground;
+            juce::Colour foreground { 0xffa1d6e5 };// skyFall
 
             /** @brief Default cell background colour. */
-            juce::Colour background;
+            juce::Colour background { 0x00000000 };// transparent (glass shows through)
 
             /** @brief Cursor glyph colour. */
-            juce::Colour cursor;
+            juce::Colour cursor { 0xff4e8c93 };// paradiso
 
             /** @brief Selection highlight colour. */
-            juce::Colour selection;
+            juce::Colour selection { 0x2000ddee };// fishBoy semi-transparent
 
             /** @brief Selection-mode cursor colour. */
-            juce::Colour selectionCursor;
+            juce::Colour selectionCursor { 0xff00ddee };// fishBoy
 
             /** @brief The 16 standard ANSI palette entries. */
-            std::array<juce::Colour, 16> ansi {};
+            std::array<juce::Colour, 16> ansi
+            {{
+                juce::Colour (0xff090d12),// 0  black          — bunker
+                juce::Colour (0xfffc704c),// 1  red            — preciousPersimmon
+                juce::Colour (0xffc5f0e9),// 2  green          — gentleCold
+                juce::Colour (0xfff3f5c5),// 3  yellow         — silkStar
+                juce::Colour (0xff8cc9d9),// 4  blue           — dolphin
+                juce::Colour (0xff519299),// 5  magenta        — lagoon
+                juce::Colour (0xff699daa),// 6  cyan           — tranquiliTeal
+                juce::Colour (0xffdddddd),// 7  white          — frostbite
+                juce::Colour (0xff33535b),// 8  bright black   — mediterranea
+                juce::Colour (0xfffc704c),// 9  bright red     — preciousPersimmon
+                juce::Colour (0xffbafffd),// 10 bright green   — paleSky
+                juce::Colour (0xfffeffd2),// 11 bright yellow  — mattWhite
+                juce::Colour (0xff67dfef),// 12 bright blue    — poseidonJr
+                juce::Colour (0xff01c2d2),// 13 bright magenta — caribbeanBlue
+                juce::Colour (0xff00c8d8),// 14 bright cyan    — blueBikini
+                juce::Colour (0xffbafffd),// 15 bright white   — paleSky
+            }};
 
             /** @brief TextEditor widget background fill (behind the cell grid). */
-            juce::Colour editorBackground;
+            juce::Colour editorBackground { 0x00000000 };// transparent (glass shows through)
 
             /** @brief TextEditor widget outline colour. */
-            juce::Colour editorOutline;
+            juce::Colour editorOutline { 0x00000000 };// transparent (no outline)
 
             /** @brief Status bar background colour. */
-            juce::Colour statusBar;
+            juce::Colour statusBar { 0xff090d12 };// bunker
 
             /** @brief Status bar label background colour. */
-            juce::Colour statusBarLabelBg;
+            juce::Colour statusBarLabelBg { 0xff112130 };// trappedDarkness
 
             /** @brief Status bar label foreground colour. */
-            juce::Colour statusBarLabelFg;
+            juce::Colour statusBarLabelFg { 0xff4e8c93 };// paradiso
 
             /** @brief Status bar spinner colour. */
-            juce::Colour statusBarSpinner;
+            juce::Colour statusBarSpinner { 0xff00c8d8 };// blueBikini
 
             /** @brief Hint label background colour (Open File mode). */
-            juce::Colour hintLabelBg;
+            juce::Colour hintLabelBg { 0xff00ffff };// cyan
 
             /** @brief Hint label foreground colour (Open File mode). */
-            juce::Colour hintLabelFg;
+            juce::Colour hintLabelFg { 0xff111111 };// near-black
 
             /** @brief Terminal scrollbar thumb colour. */
-            juce::Colour scrollbarThumb;
+            juce::Colour scrollbarThumb { 0x802c4144 };// littleMermaid semi-transparent
 
             /** @brief Terminal scrollbar track colour. */
-            juce::Colour scrollbarTrack;
+            juce::Colour scrollbarTrack { 0x00000000 };// transparent
         };
 
         /**
@@ -276,6 +304,10 @@ public:
 
             /** @brief When true, always use the user cursor, ignoring DECSCUSR and OSC 12. */
             bool force { false };
+
+            /** @brief Geometric cursor shape used as fallback when glyph rendering fails.
+             *  Values match DECSCUSR: 1 = block, 3 = underline, 5 = bar. */
+            int style { 1 };
         };
 
         /**
@@ -319,22 +351,22 @@ public:
             float size { 12.0f };
 
             /** @brief Active tab foreground colour. */
-            juce::Colour foreground;
+            juce::Colour foreground { 0xff00c8d8 };// blueBikini
 
             /** @brief Inactive tab foreground colour. */
-            juce::Colour inactive;
+            juce::Colour inactive { 0xff33535b };// mediterranea
 
             /** @brief Tab bar position ("left", "right", "top", "bottom"). */
             juce::String position { "left" };
 
             /** @brief Tab separator line colour. */
-            juce::Colour line;
+            juce::Colour line { 0xff2c4144 };// littleMermaid
 
             /** @brief Active tab background colour. */
-            juce::Colour active;
+            juce::Colour active { 0xff002b35 };// midnightDreams
 
             /** @brief Active tab indicator colour. */
-            juce::Colour indicator;
+            juce::Colour indicator { 0xff01c2d2 };// caribbeanBlue
 
             /** @brief Path to SVG file for custom tab button graphics. Empty = built-in. */
             juce::String buttonSvg;
@@ -347,10 +379,10 @@ public:
         struct Pane
         {
             /** @brief Pane divider bar background colour. */
-            juce::Colour barColour;
+            juce::Colour barColour { 0xff33535b };// mediterranea
 
             /** @brief Pane divider bar highlight colour (focused pane). */
-            juce::Colour barHighlight;
+            juce::Colour barHighlight { 0xff4e8c93 };// paradiso
         };
 
         /**
@@ -366,7 +398,7 @@ public:
             float size { 14.0f };
 
             /** @brief Overlay text colour. */
-            juce::Colour colour;
+            juce::Colour colour { 0xff4e8c93 };// paradiso
         };
 
         /**
@@ -422,10 +454,10 @@ public:
             int paddingLeft { 10 };
 
             /** @brief Action name text colour. */
-            juce::Colour nameColour;
+            juce::Colour nameColour { 0xffa1d6e5 };// skyFall
 
             /** @brief Shortcut label text colour. */
-            juce::Colour shortcutColour;
+            juce::Colour shortcutColour { 0xff00c8d8 };// blueBikini
 
             /** @brief List width as a fraction of the window width. */
             float width { 0.3f };
@@ -434,7 +466,7 @@ public:
             float height { 0.3f };
 
             /** @brief Highlighted row background colour. */
-            juce::Colour highlightColour;
+            juce::Colour highlightColour { 0x2000ddee };// fishBoy semi-transparent
         };
 
         /**
@@ -463,7 +495,7 @@ public:
         struct PopupBorder
         {
             /** @brief Popup border colour. */
-            juce::Colour borderColour;
+            juce::Colour borderColour { 0xff4e8c93 };// paradiso
 
             /** @brief Popup border width in pixels. */
             float borderWidth { 1.0f };
@@ -553,49 +585,49 @@ public:
         float lineHeight { 1.5f };
 
         /** @brief Document background colour. */
-        juce::Colour background;
+        juce::Colour background { 0xff0d141c };// corbeau
 
         /** @brief Body text colour. */
-        juce::Colour bodyColour;
+        juce::Colour bodyColour { 0xffb3f9f5 };
 
         /** @brief Inline code text colour. */
-        juce::Colour codeColour;
+        juce::Colour codeColour { 0xff00d0ff };
 
         /** @brief Hyperlink text colour. */
-        juce::Colour linkColour;
+        juce::Colour linkColour { 0xff01c2d2 };// caribbeanBlue
 
         /** @brief H1 heading colour. */
-        juce::Colour h1Colour;
+        juce::Colour h1Colour { 0xffd4c8a0 };
 
         /** @brief H2 heading colour. */
-        juce::Colour h2Colour;
+        juce::Colour h2Colour { 0xffd4c8a0 };
 
         /** @brief H3 heading colour. */
-        juce::Colour h3Colour;
+        juce::Colour h3Colour { 0xffd4c8a0 };
 
         /** @brief H4 heading colour. */
-        juce::Colour h4Colour;
+        juce::Colour h4Colour { 0xffd4c8a0 };
 
         /** @brief H5 heading colour. */
-        juce::Colour h5Colour;
+        juce::Colour h5Colour { 0xffd4c8a0 };
 
         /** @brief H6 heading colour. */
-        juce::Colour h6Colour;
+        juce::Colour h6Colour { 0xffd4c8a0 };
 
         /** @brief Code fence block background colour. */
-        juce::Colour codeFenceBackground;
+        juce::Colour codeFenceBackground { 0xff090d12 };// bunker
 
         /** @brief Progress bar track colour. */
-        juce::Colour progressBackground;
+        juce::Colour progressBackground { 0xff1a1a1a };
 
         /** @brief Progress bar fill colour. */
-        juce::Colour progressForeground;
+        juce::Colour progressForeground { 0xff4488cc };
 
         /** @brief Progress percentage text colour. */
-        juce::Colour progressTextColour;
+        juce::Colour progressTextColour { 0xffcccccc };
 
         /** @brief Progress bar spinner colour. */
-        juce::Colour progressSpinnerColour;
+        juce::Colour progressSpinnerColour { 0xff4488cc };
 
         /** @brief Top content padding in pixels. */
         int paddingTop { 10 };
@@ -610,64 +642,64 @@ public:
         int paddingLeft { 10 };
 
         /** @brief Syntax highlight: error token colour. */
-        juce::Colour tokenError;
+        juce::Colour tokenError { 0xfff74a4a };
 
         /** @brief Syntax highlight: comment colour. */
-        juce::Colour tokenComment;
+        juce::Colour tokenComment { 0xff6080c0 };
 
         /** @brief Syntax highlight: keyword colour. */
-        juce::Colour tokenKeyword;
+        juce::Colour tokenKeyword { 0xff1919ff };
 
         /** @brief Syntax highlight: operator colour. */
-        juce::Colour tokenOperator;
+        juce::Colour tokenOperator { 0xffb0b0b0 };
 
         /** @brief Syntax highlight: identifier colour. */
-        juce::Colour tokenIdentifier;
+        juce::Colour tokenIdentifier { 0xff00c6ff };
 
         /** @brief Syntax highlight: integer literal colour. */
-        juce::Colour tokenInteger;
+        juce::Colour tokenInteger { 0xff00ff00 };
 
         /** @brief Syntax highlight: float literal colour. */
-        juce::Colour tokenFloat;
+        juce::Colour tokenFloat { 0xff00ff00 };
 
         /** @brief Syntax highlight: string literal colour. */
-        juce::Colour tokenString;
+        juce::Colour tokenString { 0xffffc0c0 };
 
         /** @brief Syntax highlight: bracket/paren colour. */
-        juce::Colour tokenBracket;
+        juce::Colour tokenBracket { 0xff80ffff };
 
         /** @brief Syntax highlight: punctuation colour. */
-        juce::Colour tokenPunctuation;
+        juce::Colour tokenPunctuation { 0xffff9080 };
 
         /** @brief Syntax highlight: preprocessor directive colour. */
-        juce::Colour tokenPreprocessor;
+        juce::Colour tokenPreprocessor { 0xff9aff00 };
 
         /** @brief Table background colour. */
-        juce::Colour tableBackground;
+        juce::Colour tableBackground { 0xff090d12 };// bunker
 
         /** @brief Table header row background colour. */
-        juce::Colour tableHeaderBackground;
+        juce::Colour tableHeaderBackground { 0xff112130 };// trappedDarkness
 
         /** @brief Alternating table row background colour. */
-        juce::Colour tableRowAlt;
+        juce::Colour tableRowAlt { 0xff0d141c };// corbeau
 
         /** @brief Table border colour. */
-        juce::Colour tableBorderColour;
+        juce::Colour tableBorderColour { 0xff2c4144 };// littleMermaid
 
         /** @brief Table header text colour. */
-        juce::Colour tableHeaderText;
+        juce::Colour tableHeaderText { 0xffbafffd };// paleSky
 
         /** @brief Table cell text colour. */
-        juce::Colour tableCellText;
+        juce::Colour tableCellText { 0xffb3f9f5 };
 
         /** @brief Scrollbar thumb colour. */
-        juce::Colour scrollbarThumb;
+        juce::Colour scrollbarThumb { 0xff2c4144 };// littleMermaid
 
         /** @brief Scrollbar track colour. */
-        juce::Colour scrollbarTrack;
+        juce::Colour scrollbarTrack { 0xff0d141c };// corbeau
 
         /** @brief Scrollbar background colour. */
-        juce::Colour scrollbarBackground;
+        juce::Colour scrollbarBackground { 0xff0d141c };// corbeau
 
         /** @brief Key binding to scroll down. */
         juce::String scrollDown { "j" };
@@ -685,7 +717,7 @@ public:
         int scrollStep { 50 };
 
         /** @brief Text selection highlight colour. */
-        juce::Colour selectionColour;
+        juce::Colour selectionColour { 0x8000c8d8 };
     };
 
     //==========================================================================
@@ -940,25 +972,25 @@ public:
     struct Theme
     {
         /** @brief Default text foreground colour (ANSI colour index -1). */
-        juce::Colour defaultForeground { juce::Colours::white };
+        juce::Colour defaultForeground { 0xffa1d6e5 };// skyFall
 
         /** @brief Default cell background colour (ANSI colour index -1). */
-        juce::Colour defaultBackground { juce::Colours::black };
+        juce::Colour defaultBackground { 0x00000000 };// transparent
 
         /** @brief Selection highlight colour (typically semi-transparent). */
-        juce::Colour selectionColour { 0x8000C8D8 };
+        juce::Colour selectionColour { 0x2000ddee };// fishBoy semi-transparent
 
         /** @brief Cursor colour (from display.colours.cursor). */
-        juce::Colour cursorColour { juce::Colours::white };
+        juce::Colour cursorColour { 0xff4e8c93 };// paradiso
 
         /** @brief Selection-mode cursor colour (from display.colours.selection_cursor). */
-        juce::Colour selectionCursorColour { 0xFF00D8FF };
+        juce::Colour selectionCursorColour { 0xff00ddee };// fishBoy
 
         /** @brief Hint label background colour used in Open File mode. */
-        juce::Colour hintLabelBg { 0xFFFFD700 };
+        juce::Colour hintLabelBg { 0xff00ffff };// cyan
 
         /** @brief Hint label foreground colour used in Open File mode. */
-        juce::Colour hintLabelFg { 0xFF111111 };
+        juce::Colour hintLabelFg { 0xff111111 };// near-black
 
         /** @brief Unicode codepoint for the user cursor glyph. */
         uint32_t cursorCodepoint { 0x2588 };
@@ -1236,9 +1268,6 @@ private:
     //==========================================================================
     /** @brief Called by jam::File::Watcher when a watched file changes. */
     void fileChanged (const juce::File& file, jam::File::Watcher::Event event) override;
-
-    /** @brief Initialises all struct fields to their default values. */
-    void initDefaults();
 
     /** @brief Writes default config files to ~/.config/end/ if they do not exist. */
     void writeDefaults();

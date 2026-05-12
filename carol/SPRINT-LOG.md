@@ -1,5 +1,35 @@
 # SPRINT-LOG
 
+## Sprint 15: Config Init — Aggregate Brace-Init for All Defaults
+
+**Date:** 2026-05-13
+
+### Agents Participated
+- COUNSELOR: requirements analysis, plan, verification
+- Pathfinder: codebase discovery — init sites, parse chain, inconsistencies
+- Engineer: implementation — moved all defaults to aggregate init, eliminated initDefaults()
+
+### Files Modified (3 total)
+- `Source/lua/Engine.h` — all `juce::Colour` members, `Window::title`, `Shell::program`/`args` now brace-initialized inline; `initDefaults()` declaration removed; `Theme` brace-inits aligned to `Display::Colours`; `Shell` uses `#if JUCE_MAC`/`JUCE_LINUX`/`JUCE_WINDOWS` for platform-conditional defaults; doc comments updated to remove initDefaults() references
+- `Source/lua/EngineDefaults.cpp` — `initDefaults()` definition removed entirely; `writeDefaults()` and all `writeXxxDefaults()` methods unchanged
+- `Source/lua/Engine.cpp` — constructor: `initDefaults()` call removed (structs already brace-initialized); `load()`: replaced `initDefaults()` + manual `.clear()` calls with struct value-initialization (`nexus = Nexus {};` etc.)
+
+### Alignment Check
+- [x] BLESSED principles followed — Single Source of Truth: every default defined once in struct definition; no shadow state between two init sites
+- [x] NAMES.md adhered — no new names introduced
+- [x] MANIFESTO.md principles applied — Explicit (defaults visible at declaration), Lean (eliminated redundant initDefaults function)
+
+### Problems Solved
+- Two-site default inconsistency: non-colour fields brace-initialized in Engine.h while colours/runtime values set in initDefaults() — now unified into single aggregate init site
+- Theme brace-inits diverged from Display::Colours defaults (dead values always overwritten by buildTheme) — now aligned
+- Shell brace-init `"zsh"` was dead code on Linux/Windows, overwritten by initDefaults() — now platform-conditional at declaration
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
 ## Sprint 14: jam::Parameter<> — Self-Identifying APVTS Adapter + Single-Pass Flush
 
 **Date:** 2026-05-12

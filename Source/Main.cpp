@@ -54,6 +54,7 @@
 #include "interprocess/Link.h"
 #include "component/TerminalWindow.h"
 #include "terminal/data/Screen.h"
+#include <jam_debug/jam_debug.h>
 
 #if JUCE_WINDOWS
 #include <jam_core/utilities/jam_platform.h>
@@ -87,6 +88,7 @@ public:
     //==============================================================================
     ENDApplication()
     {
+        jam::debug::Log::write ("========== NEW SESSION ==========");
         const auto probeResult { jam::GpuProbe::probe() };
         appState.setGpuAvailable (probeResult.isAvailable);
         appState.setRendererType (lua::Engine::getContext()->nexus.gpu);
@@ -431,6 +433,9 @@ public:
     }
 
 private:
+    /** @brief Diagnostic log scope -- active for full application lifetime. Declared before typefaceContext so it is constructed first and destroyed last. */
+    jam::debug::Log::Scope logScope { juce::File ("/tmp/end-diag.log") };
+
     /**
      * @brief Application-owned typeface registry and shared glyph atlas.
      *

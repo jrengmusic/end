@@ -13,15 +13,14 @@ Terminal::Display::Display (Terminal::Processor& processorToUse)
     screen.setScrollBarThickness (config.display.scrollbarWidth);
     // Screen receives content via appendScrollbackRow / updateVisibleRow from Grid
 
-    setWantsKeyboardFocus (true);
-    addKeyListener (this);
+    screen.addKeyListener (this);
     state.get().addListener (this);
 }
 
 Terminal::Display::~Display()
 {
     cancelPendingUpdate();
-    removeKeyListener (this);
+    screen.removeKeyListener (this);
 }
 
 // PaneComponent
@@ -49,6 +48,11 @@ int Terminal::Display::getHintTotalPages() const noexcept { return 0; }
 
 
 // juce::Component
+void Terminal::Display::focusGained (FocusChangeType)
+{
+    screen.grabKeyboardFocus();
+}
+
 void Terminal::Display::resized()
 {
     const auto contentBounds { getLocalBounds()

@@ -29,7 +29,6 @@ juce::File Engine::getConfigPath()
 //==============================================================================
 Engine::Engine()
 {
-    initDefaults();
     writeDefaults();
 
     const juce::File configDir { getConfigPath() };
@@ -54,14 +53,13 @@ Engine::~Engine()
 //==============================================================================
 void Engine::load()
 {
-    // Reset all parsed state
-    initDefaults();
-    nexus.hyperlinks.handlers.clear();
-    nexus.hyperlinks.extensions.clear();
-    keys.bindings.clear();
-    popup.entries.clear();
-    action.entries.clear();
-    keys.selection = {};
+    // Reset all parsed state to aggregate defaults
+    nexus = Nexus {};
+    display = Display {};
+    whelmed = Whelmed {};
+    keys = Keys {};
+    popup = Popup {};
+    action = Action {};
     loadError.clear();
     keyFileRemappable = true;
 
