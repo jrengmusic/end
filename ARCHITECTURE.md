@@ -182,7 +182,8 @@ Source/
 
 ~/Documents/Poems/dev/jam/
   jam_core/                         Shared utilities (Owner, identifiers, Context, BinaryData)
-  jam_graphics/                     Graphics utilities
+  jam_graphics/                     Graphics utilities, blur, shadows, colours
+  jam_fonts/                        Font management, glyph atlas, typeface shaping, text layout
   jam_gui/                          Window, layout utilities, and OpenGL rendering (PaneManager, PaneResizerBar, GLRenderer)
     opengl/
       context/
@@ -217,7 +218,8 @@ Source/
 | Notifications | `terminal/notifications/` | Native desktop notification dispatch (OSC 9/777) | JUCE, UserNotifications (macOS) |
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
-| jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | CPU text renderer, SIMD compositing (SSE2/NEON), glyph atlas, typeface | jam_core, FreeType, HarfBuzz |
+| jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | Graphics utilities, blur, shadows, colours | jam_core |
+| jam_fonts | `~/Documents/Poems/dev/jam/jam_fonts/` | Font management, glyph atlas, typeface shaping, text layout | jam_core, FreeType, HarfBuzz |
 | jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: Cell type, Metrics (cell↔pixel SSOT), Point, Rectangle | jam_core |
 | jam_gui/opengl | `~/Documents/Poems/dev/jam/jam_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jam_core |
 | Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | lua::Engine, jam::Context |
@@ -810,7 +812,7 @@ The config key controlling daemon mode is `lua::Engine::nexus.daemon` (`"daemon"
 ```
 
 Style bits: BOLD, ITALIC, UNDERLINE, STRIKE, BLINK, INVERSE
-Layout bits: LAYOUT_HYPERLINK (0x20), wide continuation, emoji, has grapheme
+Layout bits: LAYOUT_HYPERLINK (0x20), wide continuation, has grapheme
 
 ### Color (4 bytes, trivially copyable)
 
@@ -831,7 +833,7 @@ Parser reads geometry via `state.getRawValue<int>(ID::cols)` etc. (lock-free ato
 
 ### GlyphConstraint
 
-Per-codepoint scaling and alignment descriptor for Nerd Font icons. Applied at rasterization time in `jam::Glyph::Packer`.
+Per-codepoint scaling and alignment descriptor for Nerd Font icons. Applied at rasterization time in `jam::glyph::Atlas::Packer`.
 
 Fields:
 - `ScaleMode` — none / fit / cover / adaptiveScale / stretch
@@ -1043,7 +1045,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Nerd Font icons have wildly varying aspect ratios and need per-glyph positioning to look correct in a monospace grid.
 
-**Decision:** Generated constraint table (10,470 codepoints, 88 switch arms) from NF patcher v3.4.0 data. Applied at rasterization time in `jam::Glyph::Packer`.
+**Decision:** Generated constraint table (10,470 codepoints, 88 switch arms) from NF patcher v3.4.0 data. Applied at rasterization time in `jam::glyph::Atlas::Packer`.
 
 **Rationale:** Matches NF patcher's own scaling logic. Icons render identically to how they appear in patched fonts, but with runtime flexibility for any cell size.
 
@@ -1138,7 +1140,7 @@ The NF icon font (`SymbolsNerdFont-Regular.ttf`) is loaded from BinaryData, not 
 
 ### GlyphConstraint Subsystem
 
-`GlyphConstraintTable.cpp` is a generated file. It maps NF icon codepoints to `GlyphConstraint` descriptors that replicate the scaling decisions made by the NF patcher. `jam::Glyph::Packer` applies the constraint before writing pixels to the atlas, so icons are positioned and scaled identically to how they appear in a patched font — but at any runtime cell size.
+`GlyphConstraintTable.cpp` is a generated file. It maps NF icon codepoints to `GlyphConstraint` descriptors that replicate the scaling decisions made by the NF patcher. `jam::glyph::Atlas::Packer` applies the constraint before writing pixels to the atlas, so icons are positioned and scaled identically to how they appear in a patched font — but at any runtime cell size.
 
 ### BoxDrawing Subsystem
 
@@ -1165,7 +1167,7 @@ Display Monolithic -> OS system fonts (CJK/exotic) -> OS color emoji
 
 `jam::Font` is a value type carrying the application-level font specification: family name, point size, and style. It is the unit of font identity at the call site — passed to `setFont()` on renderers and used to resolve the underlying `jam::Typeface` handle.
 
-`jam::Font` does not own any platform resource. It is trivially copyable and comparable. Font selection (which typeface to use) happens outside the `jam_graphics` module — callers construct a `jam::Font` with the desired family/size/style and hand it to the renderer.
+`jam::Font` does not own any platform resource. It is trivially copyable and comparable. Font selection (which typeface to use) happens outside the `jam_fonts` module — callers construct a `jam::Font` with the desired family/size/style and hand it to the renderer.
 
 ### jam::Typeface — Platform Font Handle Manager
 
@@ -1175,11 +1177,11 @@ Display Monolithic -> OS system fonts (CJK/exotic) -> OS color emoji
 
 **Fallback fonts:** `addFallbackFont` registers additional typefaces (e.g. Nerd Font for PUA icon glyphs, Display Mono for supplementary coverage) that are tried in order when the primary face returns `.notdef`. This mechanism covers NF icons and Display Mono PUA glyphs without involving any registry or system font manager for the primary code path.
 
-### jam::Glyph::Packer — Atlas Rasterization
+### jam::glyph::Atlas::Packer — Atlas Rasterization
 
-`jam::Glyph::Packer` owns atlas rasterization. It was moved out of `Typeface` to give the atlas a clear, single-responsibility boundary: `Typeface` shapes text; `Packer` rasterizes glyphs into the texture atlas.
+`jam::glyph::Atlas::Packer` owns atlas rasterization. It was moved out of `Typeface` to give the atlas a clear, single-responsibility boundary: `Typeface` shapes text; `Packer` rasterizes glyphs into the texture atlas.
 
-`Packer` holds the shelf-based atlas packer, the LRU glyph cache, and the staged bitmap queue. It exposes `getOrRasterize()` — callers pass a `Glyph::Key` and receive an `AtlasGlyph` (UV rect + bearing). Rasterization delegates to `Typeface` for the raw pixel data.
+`Packer` holds the shelf-based atlas packer, the LRU glyph cache, and the staged bitmap queue. It exposes `getOrRasterize()` — callers pass a `glyph::Atlas::Key` and receive an `AtlasGlyph` (UV rect + bearing). Rasterization delegates to `Typeface` for the raw pixel data.
 
 ### Font Ownership
 

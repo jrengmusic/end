@@ -42,7 +42,7 @@ static void writeDisplayFontDefaults (juce::String& content, const Engine::Displ
     content = jam::String::replaceholder (content, "font_desktop_scale", display.font.desktopScale ? "true" : "false");
 
     // Cursor char is stored as a unicode codepoint; emit as UTF-8 string
-    const auto cursorChar { juce::String::charToString (static_cast<juce::juce_wchar> (display.cursor.codepoint)) };
+    const auto cursorChar { juce::String::charToString (jam::toChar (display.cursor.codepoint)) };
     content = jam::String::replaceholder (content, "cursor_char", cursorChar);
     content = jam::String::replaceholder (content, "cursor_blink", display.cursor.blink ? "true" : "false");
     content =

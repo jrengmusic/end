@@ -3,6 +3,12 @@
     <PARAM id="cols"               type="int"  default="0"/>
     <PARAM id="visibleRows"        type="int"  default="0"/>
 
+    <!-- Cell metrics (SSOT — written by Display, read by Screen and others) -->
+    <PARAM id="cellWidth"          type="int"   default="0"/>
+    <PARAM id="cellHeight"         type="int"   default="0"/>
+    <PARAM id="baseline"           type="int"   default="0"/>
+    <PARAM id="fontSize"           type="float" default="0.0"/>
+
     <!-- Active screen index -->
     <PARAM id="activeScreen"       type="int"  default="0"/>
 

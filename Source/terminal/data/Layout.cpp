@@ -1,5 +1,6 @@
 #include "Layout.h"
 #include "State.h"
+#include "../rendering/Screen.h"
 
 namespace Terminal
 {
@@ -34,7 +35,7 @@ void Layout::build (const juce::XmlElement& xml,
     state.params.add<jam::AnyMap> (ID::SESSION);
     state.params.add<jam::AnyMap> (ID::MODES);
 
-    auto* screenCtx { map::Screen::getContext() };
+    auto* screenCtx { Screen::Map::getContext() };
 
     for (const auto& [index, screenName] : screenCtx->get())
     {
@@ -65,10 +66,22 @@ void Layout::build (const juce::XmlElement& xml,
         {
             // Root-level parameter → SESSION group.
             auto* sessionGroup { state.params.get<jam::AnyMap> (ID::SESSION) };
-            state.addParameter (juce::Identifier { child->getStringAttribute (ID::id.toString()) },
-                                resolveDefault (*child, boolMap),
-                                *sessionGroup,
-                                rootNode);
+            const auto typeStr { child->getStringAttribute (ID::type.toString()) };
+
+            if (typeStr == "float")
+            {
+                state.addFloatParameter (juce::Identifier { child->getStringAttribute (ID::id.toString()) },
+                                         static_cast<float> (child->getDoubleAttribute (ID::defaultValue.toString())),
+                                         *sessionGroup,
+                                         rootNode);
+            }
+            else
+            {
+                state.addParameter (juce::Identifier { child->getStringAttribute (ID::id.toString()) },
+                                    resolveDefault (*child, boolMap),
+                                    *sessionGroup,
+                                    rootNode);
+            }
         }
         else if (tag == ID::MODES.toString())
         {

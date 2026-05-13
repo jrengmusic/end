@@ -2,7 +2,6 @@
 
 #include <JuceHeader.h>
 #include "Identifier.h"
-#include "Screen.h"
 #include "TextBuffer.h"
 
 namespace Terminal

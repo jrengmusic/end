@@ -1,5 +1,6 @@
 #include "State.h"
 #include "Layout.h"
+#include "../rendering/Screen.h"
 
 namespace Terminal
 {
@@ -8,7 +9,7 @@ State::State (TextBuffer& tb)
     : jam::ValueTree (ID::SESSION)
     , textBuffer (tb)
 {
-    auto xml { jam::XML::getFromBinary (jam::IDref::pluginMetadata) };
+    auto xml { jam::XML::getFromBinary (jam::IDref::parametersXml) };
     jassert (xml != nullptr);
 
     Layout::build (*xml, *this, textBuffer);
@@ -25,8 +26,7 @@ State::~State() = default;
 // SSOT registration
 //==========================================================================
 
-void State::addTextParameter (const juce::Identifier& id,
-                              juce::ValueTree& rootNode) noexcept
+void State::addTextParameter (const juce::Identifier& id, juce::ValueTree& rootNode) noexcept
 {
     auto* sessionGroup { params.get<jam::AnyMap> (ID::SESSION) };
     sessionGroup->add<Parameter<const char*>> (id, id, rootNode, id);
@@ -36,18 +36,19 @@ void State::addTextParameter (const juce::Identifier& id,
 // Reader-thread store helpers
 //==========================================================================
 
-void State::storeValue (const juce::Identifier& groupId,
-                        const juce::Identifier& paramId,
-                        int value) noexcept
+void State::storeValue (const juce::Identifier& groupId, const juce::Identifier& paramId, int value) noexcept
 {
     params.get<jam::AnyMap> (groupId)->get<Parameter<int>> (paramId)->store (value);
 }
 
-void State::storeTextValue (const juce::Identifier& groupId,
-                             const juce::Identifier& paramId,
-                             const char* ptr) noexcept
+void State::storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept
 {
     params.get<jam::AnyMap> (groupId)->get<Parameter<const char*>> (paramId)->store (ptr);
+}
+
+void State::storeFloatValue (const juce::Identifier& groupId, const juce::Identifier& paramId, float value) noexcept
+{
+    params.get<jam::AnyMap> (groupId)->get<Parameter<float>> (paramId)->store (value);
 }
 
 //==========================================================================
@@ -68,13 +69,13 @@ int State::getActiveScreen() const noexcept
 uint32_t State::getKeyboardFlags() const noexcept
 {
     const int scr { getActiveScreen() };
-    auto screenNode { get().getChildWithName (juce::Identifier { map::Screen::getContext()->get (scr) }) };
-    return static_cast<uint32_t> (static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, ID::keyboardFlags).getValue()));
+    auto screenNode { get().getChildWithName (juce::Identifier { Screen::Map::getContext()->get (scr) }) };
+    return static_cast<uint32_t> (
+        static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, ID::keyboardFlags).getValue()));
 }
 
-static int getSessionParamInt (const juce::ValueTree& root,
-                               const juce::Identifier& paramId,
-                               int defaultValue = 0) noexcept
+static int
+getSessionParamInt (const juce::ValueTree& root, const juce::Identifier& paramId, int defaultValue = 0) noexcept
 {
     auto param { jam::ValueTree::getChildWithID (root, paramId.toString()) };
     int result { defaultValue };
@@ -87,12 +88,10 @@ static int getSessionParamInt (const juce::ValueTree& root,
     return result;
 }
 
-static int getScreenParamInt (const juce::ValueTree& root,
-                              int scr,
-                              const juce::Identifier& paramId,
-                              int defaultValue = 0) noexcept
+static int
+getScreenParamInt (const juce::ValueTree& root, int scr, const juce::Identifier& paramId, int defaultValue = 0) noexcept
 {
-    auto screenNode { root.getChildWithName (juce::Identifier { Terminal::map::Screen::getContext()->get (scr) }) };
+    auto screenNode { root.getChildWithName (juce::Identifier { Terminal::Screen::Map::getContext()->get (scr) }) };
     auto param { jam::ValueTree::getChildWithID (screenNode, paramId.toString()) };
     int result { defaultValue };
 
@@ -104,45 +103,48 @@ static int getScreenParamInt (const juce::ValueTree& root,
     return result;
 }
 
+int State::getCursorRow() const noexcept { return getScreenParamInt (get(), getActiveScreen(), ID::cursorRow); }
 
-int State::getCursorRow() const noexcept
-{
-    return getScreenParamInt (get(), getActiveScreen(), ID::cursorRow);
-}
-
-int State::getCursorCol() const noexcept
-{
-    return getScreenParamInt (get(), getActiveScreen(), ID::cursorCol);
-}
+int State::getCursorCol() const noexcept { return getScreenParamInt (get(), getActiveScreen(), ID::cursorCol); }
 
 bool State::isCursorVisible() const noexcept
 {
     return getScreenParamInt (get(), getActiveScreen(), ID::cursorVisible, 1) != 0;
 }
 
-int State::getCursorShape() const noexcept
+int State::getCursorShape() const noexcept { return getScreenParamInt (get(), getActiveScreen(), ID::cursorShape); }
+
+int State::getCursorColor() const noexcept { return getScreenParamInt (get(), getActiveScreen(), ID::cursorColor, -1); }
+
+int State::getCols() const noexcept { return getSessionParamInt (get(), ID::cols); }
+
+int State::getVisibleRows() const noexcept { return getSessionParamInt (get(), ID::visibleRows); }
+
+int State::getCellWidth() const noexcept { return getSessionParamInt (get(), ID::cellWidth); }
+
+int State::getCellHeight() const noexcept { return getSessionParamInt (get(), ID::cellHeight); }
+
+int State::getBaseline() const noexcept { return getSessionParamInt (get(), ID::baseline); }
+
+float State::getFontSize() const noexcept
 {
-    return getScreenParamInt (get(), getActiveScreen(), ID::cursorShape);
+    auto param { jam::ValueTree::getChildWithID (get(), ID::fontSize.toString()) };
+    float result { 0.0f };
+
+    if (param.isValid())
+    {
+        result = static_cast<float> (param.getProperty (Terminal::ID::value));
+    }
+
+    return result;
 }
 
-int State::getCursorColor() const noexcept
+juce::String State::getTitle() const noexcept { return get().getProperty (ID::title).toString(); }
+juce::String State::getCwd() const noexcept { return get().getProperty (ID::cwd).toString(); }
+juce::String State::getForegroundProcess() const noexcept
 {
-    return getScreenParamInt (get(), getActiveScreen(), ID::cursorColor, -1);
+    return get().getProperty (ID::foregroundProcess).toString();
 }
-
-int State::getCols() const noexcept
-{
-    return getSessionParamInt (get(), ID::cols);
-}
-
-int State::getVisibleRows() const noexcept
-{
-    return getSessionParamInt (get(), ID::visibleRows);
-}
-
-juce::String State::getTitle() const noexcept             { return get().getProperty (ID::title).toString(); }
-juce::String State::getCwd() const noexcept               { return get().getProperty (ID::cwd).toString(); }
-juce::String State::getForegroundProcess() const noexcept { return get().getProperty (ID::foregroundProcess).toString(); }
 
 int State::getScrollbackUsed() const noexcept { return 0; }
 
@@ -150,56 +152,47 @@ int State::getScrollbackUsed() const noexcept { return 0; }
 // Reader-thread setters
 //==========================================================================
 
-void State::setId (const juce::String& uuid)
-{
-    get().setProperty (jam::ID::id, uuid, nullptr);
-}
+void State::setId (const juce::String& uuid) { get().setProperty (jam::ID::id, uuid, nullptr); }
 
-void State::setScreen (int s) noexcept
-{
-    storeValue (ID::SESSION, ID::activeScreen, s);
-}
+void State::setScreen (int s) noexcept { storeValue (ID::SESSION, ID::activeScreen, s); }
 
-void State::setMode (const juce::Identifier& id, bool v) noexcept
-{
-    storeValue (ID::MODES, id, v ? 1 : 0);
-}
+void State::setMode (const juce::Identifier& id, bool v) noexcept { storeValue (ID::MODES, id, v ? 1 : 0); }
 
 void State::setCursorRow (int s, int row) noexcept
 {
-    const juce::Identifier screenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
     storeValue (screenId, ID::cursorRow, row);
     setSnapshotDirty();
 }
 
 void State::setCursorCol (int s, int col) noexcept
 {
-    const juce::Identifier screenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
     storeValue (screenId, ID::cursorCol, col);
     setSnapshotDirty();
 }
 
 void State::setCursorVisible (int s, bool v) noexcept
 {
-    const juce::Identifier screenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
     storeValue (screenId, ID::cursorVisible, v ? 1 : 0);
 }
 
 void State::setCursorShape (int s, int shape) noexcept
 {
-    const juce::Identifier screenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
     storeValue (screenId, ID::cursorShape, shape);
 }
 
 void State::setCursorColor (int s, juce::Colour colour) noexcept
 {
-    const juce::Identifier screenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
     storeValue (screenId, ID::cursorColor, static_cast<int> (colour.getARGB()));
 }
 
 void State::resetCursorColor (int s) noexcept
 {
-    const juce::Identifier screenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
     storeValue (screenId, ID::cursorColor, -1);
 }
 
@@ -227,6 +220,14 @@ void State::setDimensions (int cols, int rows) noexcept
     storeValue (ID::SESSION, ID::visibleRows, rows);
 }
 
+void State::setCellMetrics (int cellWidth, int cellHeight, int baseline, float fontSize) noexcept
+{
+    storeValue (ID::SESSION, ID::cellWidth, cellWidth);
+    storeValue (ID::SESSION, ID::cellHeight, cellHeight);
+    storeValue (ID::SESSION, ID::baseline, baseline);
+    storeFloatValue (ID::SESSION, ID::fontSize, fontSize);
+}
+
 //==========================================================================
 // Keyboard mode stack
 //==========================================================================
@@ -248,7 +249,7 @@ void State::pushKeyboardMode (int s, uint32_t flags) noexcept
 
     keyboardModeStack[base + size] = flags;
     ++size;
-    const juce::Identifier pushScreenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier pushScreenId { Screen::Map::getContext()->get (s) };
     storeValue (pushScreenId, ID::keyboardFlags, static_cast<int> (flags));
 }
 
@@ -260,7 +261,7 @@ void State::popKeyboardMode (int s, int count) noexcept
 
     const int base { s * maxKeyboardStackDepth };
     const uint32_t current { size > 0 ? keyboardModeStack[base + size - 1] : 0u };
-    const juce::Identifier popScreenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier popScreenId { Screen::Map::getContext()->get (s) };
     storeValue (popScreenId, ID::keyboardFlags, static_cast<int> (current));
 }
 
@@ -290,14 +291,14 @@ void State::setKeyboardMode (int s, uint32_t flags, int mode) noexcept
         top &= ~flags;
     }
 
-    const juce::Identifier setScreenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier setScreenId { Screen::Map::getContext()->get (s) };
     storeValue (setScreenId, ID::keyboardFlags, static_cast<int> (top));
 }
 
 void State::resetKeyboardMode (int s) noexcept
 {
     keyboardModeStackSize[s] = 0;
-    const juce::Identifier resetScreenId { map::Screen::getContext()->get (s) };
+    const juce::Identifier resetScreenId { Screen::Map::getContext()->get (s) };
     storeValue (resetScreenId, ID::keyboardFlags, 0);
 }
 
@@ -326,32 +327,20 @@ void State::extendOutputBlock (int row) noexcept
     }
 }
 
-void State::setPromptRow (int row) noexcept
-{
-    storeValue (ID::SESSION, ID::promptRow, row);
-}
+void State::setPromptRow (int row) noexcept { storeValue (ID::SESSION, ID::promptRow, row); }
 
-int State::getOutputBlockTop() const noexcept
-{
-    return getSessionParamInt (get(), ID::outputBlockTop, -1);
-}
+int State::getOutputBlockTop() const noexcept { return getSessionParamInt (get(), ID::outputBlockTop, -1); }
 
-int State::getOutputBlockBottom() const noexcept
-{
-    return getSessionParamInt (get(), ID::outputBlockBottom, -1);
-}
+int State::getOutputBlockBottom() const noexcept { return getSessionParamInt (get(), ID::outputBlockBottom, -1); }
 
-int State::getPromptRow() const noexcept
-{
-    return getSessionParamInt (get(), ID::promptRow, -1);
-}
+int State::getPromptRow() const noexcept { return getSessionParamInt (get(), ID::promptRow, -1); }
 
 bool State::hasOutputBlock() const noexcept
 {
     const int blockTop { getOutputBlockTop() };
     const int prompt { getPromptRow() };
     const int screenVal { getActiveScreen() };
-    const bool normalScreen { screenVal == map::Screen::normal };
+    const bool normalScreen { screenVal == Screen::Map::normal };
 
     return blockTop >= 0 and prompt > blockTop and normalScreen;
 }
@@ -373,10 +362,7 @@ bool State::consumeSnapshotDirty() noexcept
     return params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->exchangeAcquire (0) != 0;
 }
 
-bool State::isSnapshotDirty() const noexcept
-{
-    return getSessionParamInt (get(), ID::snapshotDirty) != 0;
-}
+bool State::isSnapshotDirty() const noexcept { return getSessionParamInt (get(), ID::snapshotDirty) != 0; }
 
 //==========================================================================
 // Paste echo gate
@@ -452,10 +438,7 @@ void State::setSelectionType (int type) noexcept
     params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
-int State::getSelectionType() const noexcept
-{
-    return AppState::getContext()->getSelectionType();
-}
+int State::getSelectionType() const noexcept { return AppState::getContext()->getSelectionType(); }
 
 void State::setSelectionCursor (int row, int col) noexcept
 {
@@ -464,15 +447,9 @@ void State::setSelectionCursor (int row, int col) noexcept
     params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
-int State::getSelectionCursorRow() const noexcept
-{
-    return getSessionParamInt (get(), ID::selectionCursorRow);
-}
+int State::getSelectionCursorRow() const noexcept { return getSessionParamInt (get(), ID::selectionCursorRow); }
 
-int State::getSelectionCursorCol() const noexcept
-{
-    return getSessionParamInt (get(), ID::selectionCursorCol);
-}
+int State::getSelectionCursorCol() const noexcept { return getSessionParamInt (get(), ID::selectionCursorCol); }
 
 void State::setSelectionAnchor (int row, int col) noexcept
 {
@@ -481,15 +458,9 @@ void State::setSelectionAnchor (int row, int col) noexcept
     params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
-int State::getSelectionAnchorRow() const noexcept
-{
-    return getSessionParamInt (get(), ID::selectionAnchorRow);
-}
+int State::getSelectionAnchorRow() const noexcept { return getSessionParamInt (get(), ID::selectionAnchorRow); }
 
-int State::getSelectionAnchorCol() const noexcept
-{
-    return getSessionParamInt (get(), ID::selectionAnchorCol);
-}
+int State::getSelectionAnchorCol() const noexcept { return getSessionParamInt (get(), ID::selectionAnchorCol); }
 
 void State::setDragAnchor (int row, int col) noexcept
 {
@@ -497,15 +468,9 @@ void State::setDragAnchor (int row, int col) noexcept
     storeValue (ID::SESSION, ID::dragAnchorCol, col);
 }
 
-int State::getDragAnchorRow() const noexcept
-{
-    return getSessionParamInt (get(), ID::dragAnchorRow);
-}
+int State::getDragAnchorRow() const noexcept { return getSessionParamInt (get(), ID::dragAnchorRow); }
 
-int State::getDragAnchorCol() const noexcept
-{
-    return getSessionParamInt (get(), ID::dragAnchorCol);
-}
+int State::getDragAnchorCol() const noexcept { return getSessionParamInt (get(), ID::dragAnchorCol); }
 
 void State::setDragActive (bool active) noexcept
 {
@@ -513,24 +478,15 @@ void State::setDragActive (bool active) noexcept
     params.get<jam::AnyMap> (ID::SESSION)->get<Parameter<int>> (ID::snapshotDirty)->storeRelease (1);
 }
 
-bool State::isDragActive() const noexcept
-{
-    return getSessionParamInt (get(), ID::dragActive) != 0;
-}
+bool State::isDragActive() const noexcept { return getSessionParamInt (get(), ID::dragActive) != 0; }
 
 //==========================================================================
 // Preview
 //==========================================================================
 
-bool State::isPreviewActive() const noexcept
-{
-    return getSessionParamInt (get(), ID::preview) != 0;
-}
+bool State::isPreviewActive() const noexcept { return getSessionParamInt (get(), ID::preview) != 0; }
 
-int State::getSplitCol() const noexcept
-{
-    return getSessionParamInt (get(), ID::splitCol);
-}
+int State::getSplitCol() const noexcept { return getSessionParamInt (get(), ID::splitCol); }
 
 void State::dismissPreview() noexcept
 {
@@ -543,25 +499,13 @@ void State::dismissPreview() noexcept
 // Hints
 //==========================================================================
 
-void State::setHintPage (int page) noexcept
-{
-    storeValue (ID::SESSION, ID::hintPage, page);
-}
+void State::setHintPage (int page) noexcept { storeValue (ID::SESSION, ID::hintPage, page); }
 
-int State::getHintPage() const noexcept
-{
-    return getSessionParamInt (get(), ID::hintPage);
-}
+int State::getHintPage() const noexcept { return getSessionParamInt (get(), ID::hintPage); }
 
-void State::setHintTotalPages (int total) noexcept
-{
-    storeValue (ID::SESSION, ID::hintTotalPages, total);
-}
+void State::setHintTotalPages (int total) noexcept { storeValue (ID::SESSION, ID::hintTotalPages, total); }
 
-int State::getHintTotalPages() const noexcept
-{
-    return getSessionParamInt (get(), ID::hintTotalPages);
-}
+int State::getHintTotalPages() const noexcept { return getSessionParamInt (get(), ID::hintTotalPages); }
 
 //==========================================================================
 // Modal
@@ -580,4 +524,4 @@ ModalType State::getModalType() const noexcept
 
 bool State::isModal() const noexcept { return getModalType() != ModalType::none; }
 
-} // namespace Terminal
+}// namespace Terminal

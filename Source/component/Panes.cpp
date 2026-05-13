@@ -53,37 +53,13 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcep
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
     const auto* cfg { lua::Engine::getContext() };
     const float scale { jam::Typeface::getDisplayScale() };
-    auto* typeface { jam::Typeface::findTypeface (cfg->display.font.family) };
-    jassert (typeface != nullptr);
-
     const float fontSize { cfg->dpiCorrectedFontSize() };
-    const auto fm { typeface->getMetrics() };
-    jassert (fm.isValid() and fontSize > 0.0f);
+    const jam::Font font { cfg->display.font.family, fontSize,
+                           cfg->display.font.cellWidth, cfg->display.font.lineHeight };
+    jassert (font.cellWidth > 0 and font.cellHeight > 0);
 
-    const float ascent  { fm.ascent  * fontSize };
-    const float descent { fm.descent * fontSize };
-    const float leading { fm.leading * fontSize };
-
-    float maxAdvance { 0.0f };
-
-    for (uint32_t code { 32 }; code <= 127; ++code)
-    {
-        const float adv { typeface->getAdvanceWidth (code) * fontSize };
-
-        if (adv > maxAdvance)
-            maxAdvance = adv;
-    }
-
-    if (maxAdvance <= 0.0f)
-        maxAdvance = fontSize;
-
-    const int logCellW { jam::toInt (maxAdvance, true) };
-    const int logCellH { jam::toInt (ascent + descent + leading, true) };
-
-    const float cellWidthMultiplier  { cfg->display.font.cellWidth };
-    const float lineHeightMultiplier { cfg->display.font.lineHeight };
-    const int physCellW { jam::toInt (static_cast<float> (logCellW) * scale * cellWidthMultiplier, true) };
-    const int physCellH { jam::toInt (static_cast<float> (logCellH) * scale * lineHeightMultiplier, true) };
+    const int physCellW { jam::toInt (static_cast<float> (font.cellWidth) * scale, true) };
+    const int physCellH { jam::toInt (static_cast<float> (font.cellHeight) * scale, true) };
 
     jassert (physCellW > 0 and physCellH > 0);
 

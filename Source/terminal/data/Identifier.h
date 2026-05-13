@@ -102,6 +102,18 @@ namespace ID
     /** @brief Number of visible rows (terminal height in lines). */
     static const juce::Identifier visibleRows    { "visibleRows" };
 
+    /** @brief Logical cell width in pixels. SSOT for all cell metric consumers. */
+    static const juce::Identifier cellWidth      { "cellWidth" };
+
+    /** @brief Logical cell height in pixels. SSOT for all cell metric consumers. */
+    static const juce::Identifier cellHeight     { "cellHeight" };
+
+    /** @brief Baseline offset in pixels from cell top. */
+    static const juce::Identifier baseline       { "baseline" };
+
+    /** @brief DPI-corrected font size in points. */
+    static const juce::Identifier fontSize       { "fontSize" };
+
     /** @brief Current hint page index (0-based). Updated on open-file mode entry and spacebar. */
     static const juce::Identifier hintPage       { "hintPage" };
 

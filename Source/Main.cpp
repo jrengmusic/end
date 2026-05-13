@@ -53,9 +53,7 @@
 #include "interprocess/Daemon.h"
 #include "interprocess/Link.h"
 #include "component/TerminalWindow.h"
-#include "terminal/data/Screen.h"
-#include <jam_debug/jam_debug.h>
-
+#include "terminal/rendering/Screen.h"
 #if JUCE_WINDOWS
 #include <jam_core/utilities/jam_platform.h>
 #endif
@@ -88,7 +86,6 @@ public:
     //==============================================================================
     ENDApplication()
     {
-        jam::debug::Log::write ("========== NEW SESSION ==========");
         const auto probeResult { jam::GpuProbe::probe() };
         appState.setGpuAvailable (probeResult.isAvailable);
         appState.setRendererType (lua::Engine::getContext()->nexus.gpu);
@@ -433,9 +430,6 @@ public:
     }
 
 private:
-    /** @brief Diagnostic log scope -- active for full application lifetime. Declared before typefaceContext so it is constructed first and destroyed last. */
-    jam::debug::Log::Scope logScope { juce::File ("/tmp/end-diag.log") };
-
     /**
      * @brief Application-owned typeface registry and shared glyph atlas.
      *
@@ -449,8 +443,8 @@ private:
     /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
     lua::Engine luaEngine;
 
-    /** @brief Screen index map — registers Terminal::map::Screen context. Must be constructed before any consumer of map::Screen::getContext(). */
-    Terminal::map::Screen screen;
+    /** @brief Screen index map — registers Terminal::Screen::Map context. Must be constructed before any consumer of Screen::Map::getContext(). */
+    Terminal::Screen::Map screenMap;
 
     /** @brief Application-level ValueTree. Must be constructed after luaEngine. */
     AppState appState;

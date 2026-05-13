@@ -19,7 +19,7 @@
 
 **Design Philosophy:** Performance and beauty. Opinionated defaults, everything overridable.
 
-**End Game:** WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer — is integrated as `Whelmed::Component` in split panes. Both END and WHELMED share a common GL text rendering module (shared via `jam_graphics` module (`jam::TextLayout`)).
+**End Game:** WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer — is integrated as `Whelmed::Component` in split panes. Both END and WHELMED share a common GL text rendering module (shared via `jam_fonts` module (`jam::TextLayout`)).
 
 ---
 
@@ -358,7 +358,7 @@ namespace jam
 
 Input is `juce::AttributedString` — no custom string type. Two `draw()` overloads: GL (instanced quads) and CPU (`juce::Image` blit). Same layout, different surface.
 
-**Current location:** `~/Documents/Poems/dev/jam/jam_graphics/fonts/jam_text_layout.h`. Standalone `jam_text` module extraction is a future organizational step.
+**Current location:** `~/Documents/Poems/dev/jam/jam_fonts/` (planned). Standalone `jam_text` module extraction is a future organizational step.
 
 **Dependencies:** `jam_gui` (opengl), `jam_core`, `jam_freetype`, `jam_harfbuzz`, `juce_graphics`
 
@@ -433,7 +433,7 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 
 ### Phase 5: Module Extraction + WHELMED
 
-- [x] GL text rendering infrastructure (jam::TextLayout in jam_graphics)
+- [x] GL text rendering infrastructure (jam::TextLayout in jam_fonts)
 - [ ] Extract to standalone jam_text module
 - [x] Attributed text layout mode (jam::TextLayout)
 - [x] WHELMED component (markdown rendering, mermaid diagrams) — integrated as Whelmed::Component
