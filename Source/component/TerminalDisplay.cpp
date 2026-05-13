@@ -65,32 +65,17 @@ void Terminal::Display::resized()
 
     // Compute grid dimensions from pixel bounds
     const float scale { jam::Typeface::getDisplayScale() };
-    auto* typeface { jam::Typeface::findTypeface (config.display.font.family) };
 
-    if (typeface != nullptr and contentBounds.getWidth() > 0 and contentBounds.getHeight() > 0)
+    if (contentBounds.getWidth() > 0 and contentBounds.getHeight() > 0)
     {
         const float fontSize { config.dpiCorrectedFontSize() };
-        const auto fm { typeface->getMetrics() };
+        const jam::Font font { config.display.font.family, fontSize,
+                               config.display.font.cellWidth, config.display.font.lineHeight };
 
-        if (fm.isValid() and fontSize > 0.0f)
+        if (font.cellWidth > 0)
         {
-            float maxAdvance { 0.0f };
-
-            for (uint32_t code { 32 }; code <= 127; ++code)
-            {
-                const float adv { typeface->getAdvanceWidth (code) * fontSize };
-
-                if (adv > maxAdvance)
-                    maxAdvance = adv;
-            }
-
-            if (maxAdvance <= 0.0f)
-                maxAdvance = fontSize;
-
-            const int logCellW { jam::toInt (maxAdvance, true) };
-            const int logCellH { jam::toInt ((fm.ascent + fm.descent + fm.leading) * fontSize, true) };
-            const int physCellW { jam::toInt (static_cast<float> (logCellW) * scale * config.display.font.cellWidth, true) };
-            const int physCellH { jam::toInt (static_cast<float> (logCellH) * scale * config.display.font.lineHeight, true) };
+            const int physCellW { jam::toInt (static_cast<float> (font.cellWidth) * scale, true) };
+            const int physCellH { jam::toInt (static_cast<float> (font.cellHeight) * scale, true) };
 
             if (physCellW > 0 and physCellH > 0)
             {
@@ -108,7 +93,10 @@ void Terminal::Display::resized()
                     {
                         lastCols = newCols;
                         lastRows = newRows;
-                        screen.setDimensions (newCols, newRows);
+                        // Cell metrics flushed to State before setDimensions so Screen getters are current.
+                        processor.getState().setCellMetrics (font.cellWidth, font.cellHeight, font.baseline, fontSize);
+                        processor.getState().refresh();
+                        screen.setDimensions (newCols, newRows, font);
                         // Top-down: Display writes State → Processor::valueTreePropertyChanged → Video.
                         processor.getState().setValue (Terminal::ID::cols, newCols);
                         processor.getState().setValue (Terminal::ID::visibleRows, newRows);

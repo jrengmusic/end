@@ -29,7 +29,7 @@ struct Cursor
 {
     juce::Rectangle<float> bounds;   ///< Pixel rect — position and size of the cursor cell/glyph.
     juce::Colour colour;             ///< Draw colour.
-    uint32_t codepoint { 0x2588 };   ///< Unicode codepoint to draw (default: full block U+2588).
+    char32_t codepoint { 0x2588u };   ///< Unicode codepoint to draw (default: full block U+2588).
     int shape { 0 };                 ///< DECSCUSR shape: 0 = user glyph, 1/2 = block, 3/4 = underline, 5/6 = bar.
     bool visible { false };          ///< Whether the cursor should be drawn at all.
     bool blinkOn { true };           ///< Current blink phase (true = visible).

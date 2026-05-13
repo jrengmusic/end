@@ -148,32 +148,10 @@ MainComponent::MainComponent (lua::Engine& engine)
             const int cols { popupCols > 0 ? popupCols : cfg->popup.defaultCols };
             const int rows { popupRows > 0 ? popupRows : cfg->popup.defaultRows };
 
-            auto* typeface { jam::Typeface::findTypeface (cfg->display.font.family) };
-            jassert (typeface != nullptr);
-
             const float fontSize { cfg->dpiCorrectedFontSize() };
-            const auto fm { typeface->getMetrics() };
-            jassert (fm.isValid() and fontSize > 0.0f);
-
-            const float ascent  { fm.ascent  * fontSize };
-            const float descent { fm.descent * fontSize };
-            const float leading { fm.leading * fontSize };
-
-            float maxAdvance { 0.0f };
-
-            for (uint32_t code { 32 }; code <= 127; ++code)
-            {
-                const float adv { typeface->getAdvanceWidth (code) * fontSize };
-
-                if (adv > maxAdvance)
-                    maxAdvance = adv;
-            }
-
-            if (maxAdvance <= 0.0f)
-                maxAdvance = fontSize;
-
-            const int logCellW { jam::toInt (maxAdvance, true) };
-            const int logCellH { jam::toInt (ascent + descent + leading, true) };
+            const jam::Font font { cfg->display.font.family, fontSize,
+                                   cfg->display.font.cellWidth, cfg->display.font.lineHeight };
+            jassert (font.cellWidth > 0 and font.cellHeight > 0);
 
             const int titleBarHeight { cfg->display.window.buttons ? App::titleBarHeight : 0 };
             const int paddingTop    { cfg->nexus.terminal.paddingTop };
@@ -181,13 +159,7 @@ MainComponent::MainComponent (lua::Engine& engine)
             const int paddingBottom { cfg->nexus.terminal.paddingBottom };
             const int paddingLeft   { cfg->nexus.terminal.paddingLeft };
 
-            const float lineHeightMultiplier { cfg->display.font.lineHeight };
-            const float cellWidthMultiplier  { cfg->display.font.cellWidth };
-
-            const int effectiveCellW { jam::toInt (static_cast<float> (logCellW) * cellWidthMultiplier, true) };
-            const int effectiveCellH { jam::toInt (static_cast<float> (logCellH) * lineHeightMultiplier, true) };
-
-            const auto cellPx { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { cols }, jam::metrics::Cell { rows }, jam::Bounds { effectiveCellW, effectiveCellH }) };
+            const auto cellPx { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { cols }, jam::metrics::Cell { rows }, jam::Bounds { font.cellWidth, font.cellHeight }) };
             const int pixelWidth  { cellPx.x + paddingLeft + paddingRight };
             const int pixelHeight { cellPx.y + paddingTop + paddingBottom + titleBarHeight };
 
@@ -236,7 +208,7 @@ void MainComponent::applyConfig()
 void MainComponent::setRenderer (App::RendererType rendererType)
 {
     const bool isUsingGpu { rendererType == App::RendererType::gpu };
-    const auto atlasSize { isUsingGpu ? jam::glyph::AtlasSize::standard : jam::glyph::AtlasSize::compact };
+    const auto atlasSize { isUsingGpu ? jam::glyph::AtlasSize::standard : jam::glyph::AtlasSize::compact }; // AtlasSize stays in jam::glyph
     jam::Typeface::setAtlasSize (atlasSize);
 
     // Always detach first — setOpenGLVersionRequired/setComponentPaintingEnabled
@@ -488,34 +460,12 @@ void MainComponent::showMessageOverlay()
     if (messageOverlay != nullptr)
     {
         const auto* cfg { lua::Engine::getContext() };
-        auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
-        jassert (typeface != nullptr);
-
         const float fontSize { cfg->dpiCorrectedFontSize() };
-        const auto fm { typeface->getMetrics() };
+        const jam::Font font { appState.getFontFamily(), fontSize,
+                               cfg->display.font.cellWidth, cfg->display.font.lineHeight };
 
-        if (fm.isValid() and fontSize > 0.0f)
+        if (font.cellWidth > 0)
         {
-            const float ascent  { fm.ascent  * fontSize };
-            const float descent { fm.descent * fontSize };
-            const float leading { fm.leading * fontSize };
-
-            float maxAdvance { 0.0f };
-
-            for (uint32_t code { 32 }; code <= 127; ++code)
-            {
-                const float adv { typeface->getAdvanceWidth (code) * fontSize };
-
-                if (adv > maxAdvance)
-                    maxAdvance = adv;
-            }
-
-            if (maxAdvance <= 0.0f)
-                maxAdvance = fontSize;
-
-            const int logCellW { jam::toInt (maxAdvance, true) };
-            const int logCellH { jam::toInt (ascent + descent + leading, true) };
-
             auto content { getLocalBounds() };
             const int depth { tabs != nullptr ? tabs->getTabBarDepth() : 0 };
             const auto orientation { tabs != nullptr ? tabs->getOrientation() : juce::TabbedButtonBar::TabsAtLeft };
@@ -541,7 +491,7 @@ void MainComponent::showMessageOverlay()
             content.removeFromBottom (padBottom);
             content.removeFromLeft (padLeft);
 
-            const auto gridRect { jam::metrics::Cell::Rectangle (jam::Bounds { logCellW, logCellH }, content) };
+            const auto gridRect { jam::metrics::Cell::Rectangle (jam::Bounds { font.cellWidth, font.cellHeight }, content) };
             const int cols { gridRect.getWidth().value };
             const int rows { gridRect.getHeight().value };
 

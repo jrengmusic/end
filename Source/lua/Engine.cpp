@@ -332,9 +332,7 @@ const juce::String& Engine::getPrefixString() const noexcept { return keys.prefi
 //==============================================================================
 void Engine::fileChanged (const juce::File& file, jam::File::Watcher::Event event)
 {
-    if (event == jam::File::Watcher::Event::fileUpdated
-        and nexus.autoReload
-        and file.hasFileExtension ("lua"))
+    if (event == jam::File::Watcher::Event::fileUpdated and nexus.autoReload and file.hasFileExtension ("lua"))
         reload();
 }
 

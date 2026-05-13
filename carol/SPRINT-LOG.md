@@ -1,5 +1,124 @@
 # SPRINT-LOG
 
+## Sprint 16: Font & Glyph Module Architecture ✅
+
+**Date:** 2026-05-13
+**Duration:** 04:30
+
+### Agents Participated
+- COUNSELOR: planning, orchestration, audit processing, ARCHITECT decisions
+- Engineer: all implementation (8 plan steps + audit fixes + ARCHITECT-directed additions)
+- Auditor: comprehensive sprint audit (contract compliance, stale docs, dead code)
+- Pathfinder: codebase discovery (jam_fonts/jam_graphics structure, metric duplication sites, shaping paths)
+- ORACLE: RFC production (RFC-font-glyph.md, pre-sprint)
+
+### Files Modified (70+ total across jam + END)
+
+**jam_core (new helpers):**
+- `jam_core/utilities/jam_char.h` — new: jam::toChar, jam::toCodepoint, jam::toU32
+- `jam_core/jam_core.h` — added jam_char.h include
+
+**jam_fonts (module restructure + new types):**
+- `jam_fonts/jam_fonts.h` — expanded module header (was binary assets only, now owns all font/glyph/typeface)
+- `jam_fonts/jam_fonts.cpp` — expanded unity build
+- `jam_fonts/jam_fonts.mm` — new macOS unity file
+- `jam_fonts/jam_font/jam_font.h` — new: jam::Font (family-name-based, resolved metrics with multipliers)
+- `jam_fonts/jam_font/jam_font.cpp` — Font implementation
+- `jam_fonts/jam_font/glyph/jam_glyph.h` — struct Glyph → namespace glyph (forward declarations + getImage)
+- `jam_fonts/jam_font/glyph/jam_glyph.cpp` — glyph::getImage (was Glyph::getImage)
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement.h` — renamed from ShapedText, Run::positions replaces cols/rows
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement.cpp` — shape() takes Font, positions computed internally
+- `jam_fonts/jam_font/glyph/jam_glyph_graphics.cpp` — split: frame lifecycle + simple overloads (188 lines)
+- `jam_fonts/jam_font/glyph/jam_glyph_graphics_cells.cpp` — new: cells-path drawGlyphs (205 lines)
+- `jam_fonts/jam_font/glyph/jam_glyph_composite.cpp` — new: SIMD compositing (127 lines)
+- `jam_fonts/jam_font/glyph/jam_glyph_graphics.h` — Glyph:: → glyph::, char32_t codepoints
+- `jam_fonts/jam_font/glyph/jam_glyph_constraint.h` — glyph::Constraint, char32_t, redundant doxygen removed
+- `jam_fonts/jam_font/glyph/jam_glyph_constraint_table.cpp` — char32_t
+- `jam_fonts/jam_font/glyph/jam_glyph_render.h` — glyph::Render
+- `jam_fonts/jam_font/glyph/jam_glyph_atlas.h` — glyph::Atlas
+- `jam_fonts/jam_font/glyph/jam_glyph_atlas_impl.h` — glyph::Atlas inline methods
+- `jam_fonts/jam_font/glyph/jam_glyph_key.h` — glyph::Atlas::Key + std::hash
+- `jam_fonts/jam_font/glyph/jam_atlas_glyph.h` — glyph::Atlas::Type/Region
+- `jam_fonts/jam_font/glyph/jam_box_drawing.h` — glyph::Atlas::Box
+- `jam_fonts/jam_font/glyph/jam_glyph_packer.h` — glyph::Atlas::Packer
+- `jam_fonts/jam_font/glyph/jam_glyph_packer.cpp` — glyph:: rename
+- `jam_fonts/jam_font/glyph/jam_glyph_packer.mm` — glyph:: rename
+- `jam_fonts/typeface/jam_typeface.h` — glyph::Atlas, char32_t APIs, hasEmojiGlyph
+- `jam_fonts/typeface/jam_typeface.cpp` — char32_t, hasEmojiGlyph (FreeType)
+- `jam_fonts/typeface/jam_typeface.mm` — char32_t, hasEmojiGlyph (CoreText)
+- `jam_fonts/typeface/jam_typeface_shaping.cpp` — per-glyph horiAdvance, char32_t
+- `jam_fonts/typeface/jam_typeface_metrics.cpp` — char32_t
+
+**jam_graphics (stripped):**
+- `jam_graphics/jam_graphics.h` — stripped to utilities+blur, depends on jam_fonts
+- `jam_graphics/jam_graphics.cpp` — stripped
+- `jam_graphics/jam_graphics.mm` — deleted
+- All fonts/, glyph/, rendering/ files — moved to jam_fonts
+
+**jam_tui (Cell changes):**
+- `jam_tui/cell/jam_cell.h` — codepoint → char32_t, LAYOUT_EMOJI removed
+- `jam_tui/cell/jam_cells.h` — @file fixed, doxygen updated
+- `jam_tui/cell/jam_cells.cpp` — char32_t
+- `jam_tui/ansi/jam_tui_graphics.cpp` — char32_t
+- `jam_tui/ansi/jam_tui_graphics_serialize.cpp` — char32_t
+- `jam_tui/braille/jam_braille_grid.h` — char32_t
+
+**jam_gui (consumer updates):**
+- `jam_gui/jam_gui.h` — added jam_fonts dependency
+- `jam_gui/text_editor/jam_caret_component.h` — rewritten: setFont(Font), setChar(juce_wchar), internal rasterize()
+- `jam_gui/text_editor/jam_text_editor.h` — cellFont member replaces cellsCellSize/cellsBaseline/cellsFontSize
+- `jam_gui/text_editor/jam_text_editor.cpp` — Font integration, metric dedup
+
+**END Source/ (consumer updates):**
+- `Source/terminal/rendering/Screen.h` — Screen::Map nested, Font transient via setDimensions
+- `Source/terminal/rendering/Screen.cpp` — reads State (SSOT), rasterizeCursorGlyph deleted
+- `Source/component/TerminalDisplay.cpp` — Font constructor replaces manual maxAdvance scan
+- `Source/component/Panes.cpp` — Font constructor, simplified physical sizing
+- `Source/MainComponent.cpp` — Font constructor ×2, simplified popup/overlay sizing
+- `Source/terminal/logic/Video.cpp` — LAYOUT_EMOJI removed
+- `Source/terminal/logic/Video.h` — includes rendering/Screen.h
+- `Source/terminal/logic/VideoEdit.cpp` — Screen::Map references
+- `Source/terminal/logic/Mouse.cpp` — Screen::Map references
+- `Source/terminal/data/Cell.h` — deleted (dead file)
+- `Source/terminal/data/Screen.h` — deleted (moved to Screen::Map)
+- `Source/terminal/data/State.h` — Cell.h include removed
+- `Source/terminal/data/Layout.h` — data/Screen.h include removed
+- `Source/terminal/data/Layout.cpp` — rendering/Screen.h include
+- `Source/Main.cpp` — Screen::Map, rendering/Screen.h include
+- `Source/Cursor.h` — char32_t
+- `Source/lua/Engine.h` — char32_t
+- `Source/lua/EngineDefaults.cpp` — jam::toChar
+- `Source/lua/EngineParseDisplay.cpp` — char32_t
+- `ARCHITECTURE.md` — updated module descriptions, glyph:: references, removed LAYOUT_EMOJI
+- `SPEC.md` — jam_graphics → jam_fonts references
+- `DEBT.md` — cursor ghost debt added
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- 5 duplicated maxAdvance scan sites → single Font constructor (SSOT)
+- Shadow state on Screen (7 members mirroring State) → Screen reads State directly
+- Dead struct Glyph (zero instantiations) → namespace glyph with proper type organization
+- Raw Typeface* on Font → family-name-based Context lookup (no raw pointers)
+- LAYOUT_EMOJI on Cell (codepoint-derivable) → Typeface::hasEmojiGlyph at shaping time
+- Cell::codepoint uint32_t → char32_t (type correctness at language boundary)
+- CaretComponent cursor rasterization scattered across Screen → encapsulated in CaretComponent
+- jam_glyph_graphics.cpp 506 lines → split into 3 focused files (188/205/127)
+- Terminal::map::Screen separate header → Screen::Map nested type
+- Multiplier leak to consumers → baked into Font resolved metrics
+- ShapedText col/row cell coords → Arrangement accumulated pixel positions
+- FreeType shapeASCII/shapeFallback max_advance enforcement → per-glyph horiAdvance
+- Module boundary: jam_graphics was god-module → jam_fonts owns font pipeline, jam_graphics is utilities
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260513T130756` — cursor ghost image on blink (added during sprint, not in scope)
+
 ## Sprint 15: Config Init — Aggregate Brace-Init for All Defaults
 
 **Date:** 2026-05-13

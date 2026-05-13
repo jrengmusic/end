@@ -117,7 +117,7 @@ static void parseDisplayCursor (Engine::Display::Cursor& cursor, jam::lua::Value
             const juce::String charStr { charVal.value() };
 
             if (charStr.isNotEmpty())
-                cursor.codepoint = static_cast<uint32_t> (charStr[0]);
+                cursor.codepoint = static_cast<char32_t> (charStr[0]);
         }
 
         auto blink { t["blink"].optional<juce::String>() };

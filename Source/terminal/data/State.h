@@ -3,9 +3,7 @@
 #include <JuceHeader.h>
 #include "Parameter.h"
 #include "TextBuffer.h"
-#include "Cell.h"
 #include "Identifier.h"
-#include "Screen.h"
 #include "../../ModalType.h"
 #include "../../SelectionType.h"
 #include "../../lua/Engine.h"
@@ -105,6 +103,10 @@ struct State : public jam::ValueTree
     int getCursorColor() const noexcept;
     int getCols() const noexcept;
     int getVisibleRows() const noexcept;
+    int getCellWidth() const noexcept;
+    int getCellHeight() const noexcept;
+    int getBaseline() const noexcept;
+    float getFontSize() const noexcept;
 
     juce::String getTitle() const noexcept;
     juce::String getCwd() const noexcept;
@@ -131,6 +133,7 @@ struct State : public jam::ValueTree
     void setForegroundProcess (const char* src, int length) noexcept;
 
     void setDimensions (int cols, int rows) noexcept;
+    void setCellMetrics (int cellWidth, int cellHeight, int baseline, float fontSize) noexcept;
 
     // Keyboard mode stack
     void pushKeyboardMode (int s, uint32_t flags) noexcept;
@@ -205,6 +208,10 @@ private:
     void storeValue (const juce::Identifier& groupId,
                      const juce::Identifier& paramId,
                      int value) noexcept;
+
+    void storeFloatValue (const juce::Identifier& groupId,
+                          const juce::Identifier& paramId,
+                          float value) noexcept;
 
     void storeTextValue (const juce::Identifier& groupId,
                          const juce::Identifier& paramId,

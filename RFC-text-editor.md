@@ -1,7 +1,7 @@
 # RFC — jam::TextEditor + Terminal::Screen + Whelmed::Screen
 
-Date: 2026-05-09
-Status: Ready for COUNSELOR handoff
+Date: 2026-05-13
+Status: Ready for COUNSELOR handoff (updated — builds on RFC-font-glyph.md)
 
 ## Problem Statement
 
@@ -9,9 +9,11 @@ END has two parallel text rendering implementations:
 - `jam::TextEditor` (2060-line fork of juce::TextEditor) with dual rendering paths (JUCE ShapedText + Glyph Cells)
 - `Terminal::Screen` (316-line WIP) duplicating the Glyph Cells path
 
-Both render through the proven Glyph atlas pipeline (`jam::Glyph::ShapedText`, `jam::Glyph::Graphics`, `jam::Typeface`). Everything else — data model, viewport, scrollback, layout — has gaps: no visible-area culling (O(N) per frame), full reshape every frame, memmove growing with scrollback, resize drops scrollback, no reflow, 64-row dirty bitmask limit.
+Both render through the glyph pipeline (`jam::Glyph::ShapedText`, `jam::Glyph::Graphics`, `jam::Typeface`). Everything else — data model, viewport, scrollback, layout — has gaps: no visible-area culling (O(N) per frame), full reshape every frame, memmove growing with scrollback, resize drops scrollback, no reflow, 64-row dirty bitmask limit.
 
 The design question: what is the relationship between a terminal viewport and a text editor? Answer: they are the same widget. Monospace vs proportional is arithmetic, not architecture — `col * fixedAdvance` vs `sum(advances[0..col])`. The font determines the mode. END's renderer IS a TextEditor. That's how a true terminal can have WHELMED built in.
+
+**Foundation dependency:** This RFC builds on RFC-font-glyph.md. The glyph pipeline is restructured into `jam::Font` (rendering descriptor) + `jam::glyph` namespace (Arrangement, Graphics, Atlas). TextEditor uses `jam::Font` and `jam::glyph::Arrangement` — not the old `juce::Font` and `jam::Glyph::ShapedText`.
 
 ## Research Summary
 
@@ -59,7 +61,7 @@ END is not "text editor with terminal inside" (Zed) nor "terminal with text edit
 
 | Audio (JFS) | Terminal (END) |
 |---|---|
-| DSP core (Atan, RBJ, Butterworth) | Glyph pipeline (ShapedText, Graphics, Typeface, Atlas) |
+| DSP core (Atan, RBJ, Butterworth) | Glyph pipeline (glyph::Arrangement, glyph::Graphics, Typeface, glyph::Atlas) |
 | ProcessorChain (orchestrator) | jam::TextEditor (widget orchestrator) |
 | AudioBuffer | jam::Cells |
 | APVTS | Terminal::State |
@@ -69,9 +71,9 @@ The Glyph pipeline is the proven DSP. jam::TextEditor is the ProcessorChain — 
 
 ### BLESSED mapping
 
-- **B (Bound):** TextEditor owns Viewport, ContentView, cells, ShapedText, Graphics. Derived classes populate cells — clear ownership chain.
+- **B (Bound):** TextEditor owns Viewport, ContentView, cells, Arrangement, Graphics. Derived classes populate cells — clear ownership chain.
 - **L (Lean):** One widget replaces two parallel implementations. No code duplication. 300/30/3 enforced per file.
-- **E (Explicit):** Font determines layout mode — no boolean flag, no enum. Advance width IS the arithmetic. No magic.
+- **E (Explicit):** Font determines layout arithmetic — no boolean flag, no enum. Advance width IS the arithmetic. No magic.
 - **S (SSOT):** One layout engine. One rendering path. One selection model. One viewport implementation.
 - **S (Stateless):** TextEditor renders whatever cells contain — it does not track history, interpret VT sequences, or parse markdown. Dumb worker.
 - **E (Encapsulation):** TextEditor knows nothing about Grid, Parser, Video, State, markdown, or blocks. Derived classes feed cells. TextEditor renders.
@@ -85,12 +87,13 @@ The Glyph pipeline is the proven DSP. jam::TextEditor is the ProcessorChain — 
 jam::TextEditor : juce::Component
   ├── viewport          (std::unique_ptr<juce::Viewport>)
   ├── contentView       (ContentView* — viewed component, owned by viewport)
-  ├── caret             (juce::CaretComponent via LookAndFeel)
+  ├── caret             (jam::CaretComponent)
   ├── cells             (jam::Owner<jam::Cells> — protected)
-  ├── shapedText        (jam::Glyph::ShapedText)
-  ├── glyphGraphics     (jam::Glyph::Graphics)
+  ├── arrangement       (jam::glyph::Arrangement)
+  ├── glyphGraphics     (jam::glyph::Graphics)
+  ├── font              (jam::Font)
   ├── selection         (juce::Range<int>)
-  └── layout metrics    (cellWidth, lineHeight, baseline, fontSize)
+  └── layout metrics    (derived from font — no separate storage)
 ```
 
 ```
@@ -127,9 +130,11 @@ public:
 
     /** Font determines layout arithmetic.
      *  Monospace font → equal advance → cell grid.
-     *  Proportional font → natural advance → flowing text. */
-    void setFont (const juce::Font& font) noexcept;
-    const juce::Font& getFont() const noexcept;
+     *  Proportional font → natural advance → flowing text.
+     *  Replaces all metric computation — cellWidth, lineHeight, baseline
+     *  derived from Font internally. */
+    void setFont (const jam::Font& font) noexcept;
+    const jam::Font& getFont() const noexcept;
 
     void setReadOnly (bool shouldBeReadOnly) noexcept;
     bool isReadOnly() const noexcept;
@@ -176,11 +181,10 @@ public:
     // Layout queries
     //==========================================================================
 
-    /** Cell width in logical pixels. Derived from font metrics.
-     *  Monospace: max advance. Proportional: average advance (layout reference). */
+    /** Cell width in logical pixels. From Font metrics. */
     int getCellWidth() const noexcept;
 
-    /** Line height in logical pixels. Derived from font metrics. */
+    /** Line height in logical pixels. From Font metrics. */
     int getLineHeight() const noexcept;
 
     /** Total content height in logical pixels. */
@@ -242,21 +246,16 @@ private:
     // Rendering
     //==========================================================================
 
-    jam::Glyph::ShapedText shapedText;
-    jam::Glyph::Graphics   glyphGraphics;
+    jam::glyph::Arrangement arrangement;
+    jam::glyph::Graphics    glyphGraphics;
 
     //==========================================================================
-    // Layout
+    // Font — single source for all layout metrics
     //==========================================================================
 
-    juce::Font currentFont;
-    int   cellWidth  { 0 };
-    int   lineHeight { 0 };
-    int   baseline   { 0 };
-    float fontSize   { 0.0f };
-    int   activeCellsIndex { -1 };
+    jam::Font font;
+    int activeCellsIndex { -1 };
 
-    void computeMetrics() noexcept;      ///< Derive cellWidth/lineHeight/baseline from font.
     void checkLayout() noexcept;         ///< Size contentView, update scrollbars.
     void drawContent() noexcept;         ///< Visible-area culling + draw runs → glyphGraphics.
 
@@ -264,7 +263,7 @@ private:
     // Selection + caret
     //==========================================================================
 
-    std::unique_ptr<juce::CaretComponent> caret;
+    std::unique_ptr<jam::CaretComponent> caret;
     juce::Range<int> selection;
     bool readOnly    { false };
     bool multiline   { true };
@@ -370,17 +369,19 @@ private:
 ```cpp
 void TextEditor::drawContent() noexcept
 {
-    // Uniform line height (monospace or proportional with fixed line spacing)
-    // → O(1) row range computation.
+    // Line height from Font — uniform for monospace, accumulated for proportional.
+    // For monospace (uniform height), O(1) row range computation:
     const int viewY { viewport->getViewPositionY() };
     const int viewH { viewport->getMaximumVisibleHeight() };
+    const int lh    { font.cellHeight };
 
-    const int firstRow { (lineHeight > 0) ? (viewY / lineHeight) : 0 };
-    const int lastRow  { (lineHeight > 0) ? ((viewY + viewH) / lineHeight + 1) : 0 };
+    const int firstRow { (lh > 0) ? (viewY / lh) : 0 };
+    const int lastRow  { (lh > 0) ? ((viewY + viewH) / lh + 1) : 0 };
 
     // Shape only rows in [firstRow, lastRow] that are dirty.
+    // Arrangement produces runs with accumulated float positions.
     // Draw only draw runs whose row falls in visible range.
-    // Glyph pipeline does the rest.
+    // glyph::Graphics does the rest.
 }
 ```
 
@@ -423,7 +424,7 @@ void Screen::wrapContent() noexcept
     // For active grid visible rows:
     //   visualRows += visibleRows  (fixed grid, always cols-wide)
     //
-    // Total content height = visualRows * lineHeight
+    // Total content height = visualRows * font.cellHeight
     // Set contentView size → scrollbar range updates naturally.
     //
     // On resize (cols changed): just re-run this. Logical lines unchanged.
@@ -438,12 +439,16 @@ TERMINAL:
   PTY → Parser → Video → Grid (reader thread)
     → dirty rows + newline-termination bits + scroll-off rows
       → Display::onVBlank() (message thread)
-        → Screen.updateVisibleRow()     — copy dirty row + newline bit
-        → Screen.appendScrollbackRows() — build logical lines from scroll-off
-        → Screen.repaintContent()       — wrapContent() + reshapeContent() + repaint
-          → TextEditor.drawContent()    — visible-area culling
-            → ShapedText.shape()        — only visible rows
-              → Graphics.drawGlyphs()   — atlas compositing
+        → Display constructs jam::Font (typeface, fontSize, multipliers)
+        → screen.setFont (font)              — metrics from Font, not loose scalars
+        → Screen.updateVisibleRow()          — copy dirty row + newline bit
+        → Screen.appendScrollbackRows()      — build logical lines from scroll-off
+        → Screen.repaintContent()            — wrapContent() + reshapeContent() + repaint
+          → TextEditor.drawContent()         — visible-area culling
+            → glyph::Arrangement.shape()     — only visible rows, uses Font
+              → Typeface::shapeText()        — actual per-glyph xAdvance (not max_advance)
+                → accumulated float positions
+              → glyph::Graphics.drawGlyphs() — atlas compositing
                 → paint
 
   Coordinate spaces:
@@ -454,7 +459,8 @@ TERMINAL:
 
 WHELMED:
   Markdown parser → blocks → cells populated as logical lines
-    → reshapeContent() → drawContent() → shape → drawGlyphs → paint
+    → setFont (proportional font)
+    → reshapeContent() → drawContent() → arrangement.shape() → drawGlyphs → paint
 ```
 
 ## BLESSED Compliance Checklist
@@ -469,13 +475,13 @@ WHELMED:
 
 ## Resolved Decisions
 
-1. **ShapedText output coordinates** — cell coordinates. Renderer does pixel conversion: `col * cellWidth` (monospace) or accumulated advance lookup (proportional). GlyphDrawRun API unchanged.
+1. **Arrangement output positions** — accumulated float positions from glyph advances, stored in `Run::positions` as `juce::Point<float>`. Monospace: positions form a regular grid (`0, cellW, 2*cellW, ...`). Proportional: positions vary per glyph. Renderer reads positions directly — no `col * cellW` multiplication. This replaces the previous decision for cell coordinates.
 
-2. **Incremental shaping cache** — ShapedText owns it internally. Same pattern as JUCE's ParagraphStorage owning `std::optional<detail::ShapedText>` — lazily computed, invalidated when content changes. TextEditor just calls `shape()`.
+2. **Incremental shaping cache** — Arrangement owns it internally. Same pattern as JUCE's ParagraphStorage owning `std::optional<detail::ShapedText>` — lazily computed, invalidated when content changes. TextEditor just calls `shape()`.
 
 3. **Wrapping is Screen's responsibility.** No `LAYOUT_WRAPPED` bit. No wrap flags on cells. Video outputs content in absolute coordinates. Grid carries a one-bit-per-row newline-termination flag (via RowState). Screen consumes it at scroll-off to build logical lines. Scrollback stores logical lines — variable length, self-describing, immune to resize. Visual wrapping is `ceil(line.length / cols)`, computed by Screen on demand.
 
-4. **Line height** — mixed. Each line's height comes from its font metrics (ascent + descent + leading). Different font sizes produce different heights naturally. Accumulate line heights for positioning — no constant multiplication.
+4. **Line height** — from Font. Monospace: uniform `font.cellHeight`. Proportional: may vary per line (accumulated from font metrics). TextEditor handles both.
 
 5. **juce::TextInputTarget** — keep. Required for CJK IME input composition. OS needs a TextInputTarget to position candidate windows and route composition events.
 
@@ -483,10 +489,13 @@ WHELMED:
 
 7. **Coordinate projection is Screen-internal.** Two coordinate spaces: absolute `(col, row)` for Video, logical lines for Screen. Projection is arithmetic on data Screen already owns. No dedicated projection object — YAGNI (L violation).
 
+8. **Dual rendering path eliminated.** Current TextEditor has separate Cells and String branches sharing zero layout logic. New TextEditor has one path: Cells → `glyph::Arrangement.shape(cells, font)` → `glyph::Graphics.drawGlyphs()`. The String path is removed. All text rendering goes through Cells + Font.
+
 ## Handoff Notes
 
-- **Glyph pipeline stays unchanged.** `jam::Glyph::ShapedText`, `jam::Glyph::Graphics`, `jam::Typeface`, atlas infrastructure — proven, tested with full UTF-8 terminal spec. This RFC does not touch the pipeline internals, only how the widget orchestrates calls to it.
-- **Current `jam::TextEditor` (fork) and `Terminal::Screen` (WIP) will be replaced.** The new `jam::TextEditor` is built from scratch using juce::TextEditor patterns but rendered through the Glyph pipeline. No JUCE fork, no dual rendering path.
+- **Depends on RFC-font-glyph.md.** The glyph pipeline is restructured: `jam::Font` replaces `juce::Font`, `jam::glyph::Arrangement` replaces `jam::Glyph::ShapedText`, `jam::glyph::Graphics` replaces `jam::Glyph::Graphics`. Font-glyph RFC must be implemented first — it provides the type system this TextEditor builds on.
+- **Current `jam::TextEditor` (fork) and `Terminal::Screen` (WIP) will be replaced.** The new `jam::TextEditor` is built from scratch using juce::TextEditor patterns but rendered through the glyph pipeline via `jam::Font`. No JUCE fork, no dual rendering path.
 - **Terminal::Screen inherits jam::TextEditor.** Domain-specific behavior (scrollback, dirty rows, dual buffer, VT cursor, reflow) layered on top. Same for Whelmed::Screen (proportional mode, document blocks).
 - **Video Terminal work (RFC-video-terminal.md / PLAN-video-terminal.md) is independent but aligned.** Parser→Video split and command dispatch do not affect this RFC. Key alignment point: Video no longer owns wrapping. Video writes absolute coordinates. Grid carries a newline-termination bit per row (RowState). Screen builds logical lines from scroll-off and wraps visually. This eliminates `wrapPending` from Video and `LAYOUT_WRAPPED` from Cell.
 - **File location:** `jam::TextEditor` lives in `~/Documents/Poems/dev/jam/jam_gui/text_editor/`. `Terminal::Screen` lives in `Source/terminal/rendering/Screen.h`. Both will be rewritten in place.
+- **CaretComponent uses jam::Font.** `setFont(jam::Font)` replaces the current `setGlyphImage(juce::Image)` pattern. Screen calls `caret->setFont(font)` on resize. Cursor glyph rendering uses `font.getImage(atlas, cell)` — Font handles shaping internally.

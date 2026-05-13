@@ -536,7 +536,7 @@ void Video::repeatCharacter (int count) noexcept
  */
 void Video::setScreen (bool shouldUseAlternate) noexcept
 {
-    if (const int target { shouldUseAlternate ? map::Screen::alternate : map::Screen::normal };
+    if (const int target { shouldUseAlternate ? Screen::Map::alternate : Screen::Map::normal };
         target != activeScreen)
     {
         activeScreen = target;
@@ -546,7 +546,7 @@ void Video::setScreen (bool shouldUseAlternate) noexcept
 
         grid.setScreen (shouldUseAlternate);
 
-        if (target == map::Screen::alternate)
+        if (target == Screen::Map::alternate)
         {
             cursorClamp (scr, cols.load (std::memory_order_relaxed), visibleRows.load (std::memory_order_relaxed));
             activeLinkId = 0;

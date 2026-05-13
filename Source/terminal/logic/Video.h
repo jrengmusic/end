@@ -48,7 +48,7 @@
 #include "../data/CSI.h"
 #include "../data/Identifier.h"
 #include "../data/CharProps.h"
-#include "../data/Screen.h"
+#include "../rendering/Screen.h"
 #include "Grid.h"
 
 namespace Terminal
@@ -331,7 +331,7 @@ private:
      * @{ */
 
     /** @brief Active screen buffer (normal or alternate). */
-    int activeScreen { map::Screen::normal };
+    int activeScreen { Screen::Map::normal };
 
     /** @brief Terminal width in character columns. Cross-thread (message → reader). */
     std::atomic<int> cols { 80 };

@@ -85,10 +85,10 @@ void Video::resize (int newCols, int newVisibleRows) noexcept
 {
     wrapPending[0] = false;
     wrapPending[1] = false;
-    cursorClamp (map::Screen::normal, newCols, newVisibleRows);
-    cursorClamp (map::Screen::alternate, newCols, newVisibleRows);
-    cursorResetScrollRegion (map::Screen::normal);
-    cursorResetScrollRegion (map::Screen::alternate);
+    cursorClamp (Screen::Map::normal, newCols, newVisibleRows);
+    cursorClamp (Screen::Map::alternate, newCols, newVisibleRows);
+    cursorResetScrollRegion (Screen::Map::normal);
+    cursorResetScrollRegion (Screen::Map::alternate);
     initializeTabStops (newCols);
     calc();
 }
@@ -459,11 +459,6 @@ void Video::print (uint32_t codepoint) noexcept
         cell.fg = stamp.fg;
         cell.bg = stamp.bg;
 
-        if (props.isEmojiPresentation())
-        {
-            cell.layout |= jam::Cell::LAYOUT_EMOJI;
-        }
-
         if (activeLinkId != 0)
         {
             cell.style |= jam::Cell::UNDERLINE;
@@ -701,11 +696,11 @@ void Video::resetModes() noexcept
     mouseSgr = false;
     focusEvents = false;
     applicationKeypad = false;
-    cursorVisible[map::Screen::normal] = true;
+    cursorVisible[Screen::Map::normal] = true;
     reverseVideo = false;
 
-    keyboardFlags[map::Screen::normal] = 0;
-    keyboardFlags[map::Screen::alternate] = 0;
+    keyboardFlags[Screen::Map::normal] = 0;
+    keyboardFlags[Screen::Map::alternate] = 0;
 }
 
 /**
@@ -730,7 +725,7 @@ void Video::resetModes() noexcept
  */
 void Video::reset() noexcept
 {
-    activeScreen = map::Screen::normal;
+    activeScreen = Screen::Map::normal;
     grid.setScreen (false);
     resetCursor (cols.load (std::memory_order_relaxed));
     resetModes();

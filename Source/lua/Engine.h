@@ -294,7 +294,7 @@ public:
         struct Cursor
         {
             /** @brief Unicode codepoint for the cursor glyph. */
-            uint32_t codepoint { 0x2588 };
+            char32_t codepoint { 0x2588u };
 
             /** @brief Whether the cursor blinks. */
             bool blink { true };
@@ -993,7 +993,7 @@ public:
         juce::Colour hintLabelFg { 0xff111111 };// near-black
 
         /** @brief Unicode codepoint for the user cursor glyph. */
-        uint32_t cursorCodepoint { 0x2588 };
+        char32_t cursorCodepoint { 0x2588u };
 
         /** @brief When true, always use the user cursor glyph regardless of DECSCUSR. */
         bool cursorForce { false };
