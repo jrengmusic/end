@@ -65,12 +65,14 @@ private:
     Terminal::State& state;
     Terminal::Grid& grid;
 
-    Terminal::Screen screen;  // initialized in constructor init list with processorToUse.getState()
+    Terminal::Screen screen;
     juce::VBlankAttachment vblank;
 
-    int lastCols { 0 };    ///< Previous column count for resize debounce.
-    int lastRows { 0 };    ///< Previous row count for resize debounce.
-    int lastActiveScreen { 0 };               ///< Previous active screen index for change detection.
+    int lastCols { 0 };         ///< Previous column count for resize debounce.
+    int lastRows { 0 };         ///< Previous row count for resize debounce.
+    float lastFontSize { 0.0f };///< Previous DPI-corrected font size for font-change debounce.
+    jam::Font lastFont;         ///< Last font set on screen — used for cell metric reads.
+    int lastActiveScreen { -1 };             ///< Sentinel — forces initial setActiveScreen on first State read.
 
     void onVBlank();
 
