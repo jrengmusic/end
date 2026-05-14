@@ -345,23 +345,23 @@ private:
     /** @brief Cell height in pixels. Cross-thread (message → reader). Used by CSI `t` pixel dimension reports. */
     std::atomic<int> cellHeight { 0 };
 
-    /** @brief Per-screen cursor row (zero-based). */
-    int cursorRow[2] {};
+    /** @brief Per-screen cursor row (zero-based). Index 0 unused; indices align with Screen::Map values. */
+    int cursorRow[3] {};
 
-    /** @brief Per-screen cursor column (zero-based). */
-    int cursorCol[2] {};
+    /** @brief Per-screen cursor column (zero-based). Index 0 unused; indices align with Screen::Map values. */
+    int cursorCol[3] {};
 
-    /** @brief Per-screen wrap-pending flag. */
-    bool wrapPending[2] {};
+    /** @brief Per-screen wrap-pending flag. Index 0 unused; indices align with Screen::Map values. */
+    bool wrapPending[3] {};
 
-    /** @brief Per-screen scroll region top row (zero-based). */
-    int scrollTop[2] {};
+    /** @brief Per-screen scroll region top row (zero-based). Index 0 unused; indices align with Screen::Map values. */
+    int scrollTop[3] {};
 
-    /** @brief Per-screen scroll region bottom row (0 = full screen sentinel). */
-    int scrollBottom[2] {};
+    /** @brief Per-screen scroll region bottom row (0 = full screen sentinel). Index 0 unused; indices align with Screen::Map values. */
+    int scrollBottom[3] {};
 
-    /** @brief Per-screen cursor visibility. */
-    bool cursorVisible[2] { true, true };
+    /** @brief Per-screen cursor visibility. Index 0 unused; indices align with Screen::Map values. */
+    bool cursorVisible[3] { false, true, true };
 
     // Mode flags
     bool originMode { false };
@@ -378,8 +378,8 @@ private:
     bool reverseVideo { false };
     bool win32InputMode { false };
 
-    /** @brief Per-screen keyboard enhancement flags. */
-    uint32_t keyboardFlags[2] {};
+    /** @brief Per-screen keyboard enhancement flags. Index 0 unused; indices align with Screen::Map values. */
+    uint32_t keyboardFlags[3] {};
 
     /** @} */
 

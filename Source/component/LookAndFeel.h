@@ -234,9 +234,6 @@ public:
      * @param isMouseDragging True if the bar is being dragged.
      * @note MESSAGE THREAD.
      */
-    /** @brief Creates a terminal-aware CaretComponent with DECSCUSR shape support. */
-    juce::CaretComponent* createCaretComponent (juce::Component* keyFocusOwner) override;
-
     void drawStretchableLayoutResizerBar (juce::Graphics& g,
                                           int w,
                                           int h,

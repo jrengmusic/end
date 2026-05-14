@@ -23,11 +23,6 @@ namespace Terminal
  */
 LookAndFeel::LookAndFeel() { setColours(); }
 
-juce::CaretComponent* LookAndFeel::createCaretComponent (juce::Component* keyFocusOwner)
-{
-    return new jam::CaretComponent (keyFocusOwner);
-}
-
 /**
  * @brief Refreshes all colour IDs from Config.
  *
@@ -86,6 +81,7 @@ void LookAndFeel::setColours()
     setColour (jam::TextEditor::outlineColourId,        cfg->display.colours.editorOutline);
     setColour (jam::TextEditor::focusedOutlineColourId, cfg->display.colours.editorOutline);
     setColour (jam::TextEditor::textColourId,           cfg->display.colours.foreground);
+    setColour (jam::CaretComponent::caretColourId,    cfg->display.colours.cursor);
     setColour (Screen::cursorColourId,              cfg->display.colours.cursor);
     setColour (Screen::selectionColourId,           cfg->display.colours.selection);
     setColour (Screen::selectionCursorColourId,     cfg->display.colours.selectionCursor);
