@@ -18,7 +18,7 @@
  *
  * @par Thread model
  * All methods run exclusively on the **READER THREAD**.
- * `setCellSize()` is the only cross-thread writer (message → reader, relaxed atomics).
+ * All methods run on the READER THREAD, including `setCellSize()`.
  *
  * @see Skit.h
  * @see SixelDecoder
@@ -45,8 +45,8 @@ Skit::Skit (jam::Function::Map<juce::Identifier, void>& eventsRef) noexcept
 
 void Skit::setCellSize (int widthPx, int heightPx) noexcept
 {
-    cellWidth.store (widthPx, std::memory_order_relaxed);
-    cellHeight.store (heightPx, std::memory_order_relaxed);
+    cellWidth = widthPx;
+    cellHeight = heightPx;
 }
 
 // =============================================================================
@@ -128,8 +128,8 @@ void Skit::processDCS (uint8_t finalByte, const uint8_t* data, int length,
         }
         else
         {
-            const int cellW { cellWidth.load (std::memory_order_relaxed) };
-            const int cellH { cellHeight.load (std::memory_order_relaxed) };
+            const int cellW { cellWidth };
+            const int cellH { cellHeight };
 
             if (cellW > 0 and cellH > 0)
             {
@@ -225,8 +225,8 @@ void Skit::processAPC (const uint8_t* data, int length,
         }
         else
         {
-            const int cellW { cellWidth.load (std::memory_order_relaxed) };
-            const int cellH { cellHeight.load (std::memory_order_relaxed) };
+            const int cellW { cellWidth };
+            const int cellH { cellHeight };
 
             if (cellW > 0 and cellH > 0)
             {
@@ -322,8 +322,8 @@ void Skit::processOSC1337 (const uint8_t* data, int length,
         }
         else
         {
-            const int cellW { cellWidth.load (std::memory_order_relaxed) };
-            const int cellH { cellHeight.load (std::memory_order_relaxed) };
+            const int cellW { cellWidth };
+            const int cellH { cellHeight };
 
             if (cellW > 0 and cellH > 0)
             {

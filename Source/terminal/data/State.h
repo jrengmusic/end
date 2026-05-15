@@ -198,8 +198,20 @@ struct State : public jam::ValueTree
     ModalType getModalType() const noexcept;
     bool isModal() const noexcept;
 
+    // Scroll-off counter — reader thread increments, message thread consumes.
+    void addScrolledRows (int count) noexcept;
+    int consumeScrolledRows() noexcept;
+    int getScrolledRows() const noexcept;
+
     // Scrollback stub (live callers, scrollback state removed)
     int getScrollbackUsed() const noexcept;
+
+    // Per-screen atomic loaders — any thread, lock-free.
+    // Used by Processor's ID::screenSwitch handler to read the new screen's saved cursor.
+    int      loadCursorRow     (int s) const noexcept;
+    int      loadCursorCol     (int s) const noexcept;
+    bool     loadCursorVisible (int s) const noexcept;
+    uint32_t loadKeyboardFlags (int s) const noexcept;
 
     // Flush
     bool refresh() noexcept;
@@ -208,6 +220,9 @@ private:
     void storeValue (const juce::Identifier& groupId,
                      const juce::Identifier& paramId,
                      int value) noexcept;
+
+    int loadValue (const juce::Identifier& groupId,
+                   const juce::Identifier& paramId) const noexcept;
 
     void storeFloatValue (const juce::Identifier& groupId,
                           const juce::Identifier& paramId,
@@ -218,6 +233,8 @@ private:
                          const char* ptr) noexcept;
 
     TextBuffer& textBuffer;
+
+    std::atomic<int> scrolledRows { 0 };  ///< Scroll-off rows pending drain. Reader writes, message thread consumes.
 
     // Keyboard mode stack
     static constexpr int maxKeyboardStackDepth { 16 };

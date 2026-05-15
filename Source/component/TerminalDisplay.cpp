@@ -96,6 +96,8 @@ void Terminal::Display::resized()
             processor.getState().setValue (Terminal::ID::cols, newCols);
             processor.getState().setValue (Terminal::ID::visibleRows, newRows);
 
+            screen.setLiveDimensions (newRows, newCols);
+
             if (processor.events.contains (Terminal::ID::terminalResize))
                 processor.events.get (Terminal::ID::terminalResize, int (newCols), int (newRows),
                                       int (contentBounds.getWidth()), int (contentBounds.getHeight()));
@@ -143,51 +145,57 @@ void Terminal::Display::onVBlank()
     if (stateDirty)
         state.refresh();
 
-    // Grid dirty-row drain — transfers cells from Grid access buffer to Screen
-    const int scrolledRows { grid.getNumScrolledRows() };
-    const uint64_t dirtyMask { grid.consumeDirtyRows() };
-    const bool gridDirty { scrolledRows > 0 or dirtyMask != 0 };
+    // Grid drain — transfers cells from Grid to Screen
+    const int scrolledRows { state.consumeScrolledRows() };
+    const bool gridDirty   { stateDirty or scrolledRows > 0 };
 
     if (gridDirty)
     {
-        // 1. Drain all scroll-off rows
+        const int activeScreen { state.getActiveScreen() };
+
+        // 1. Drain scroll-off rows (always normal screen, index 0).
         if (scrolledRows > 0)
         {
-            const int numCols { grid.getNumCols() };
+            const int numCols { grid.getNumCols (0) };
+            int readStart, readCount, wrapStart, wrapCount;
+            grid.prepareScrollOffRead (scrolledRows, readStart, readCount, wrapStart, wrapCount);
 
-            for (int i { 0 }; i < scrolledRows; ++i)
+            for (int i { 0 }; i < readCount; ++i)
             {
-                const jam::Cell* row { grid.getScrolledReadPointer (i) };
+                const jam::Cell* row { grid.getScrollOffReadPointer (readStart + i) };
                 screen.append (&row, 1, numCols);
             }
 
-            grid.consumeScrolledRows (scrolledRows);
-        }
-
-        // 2. Read dirty rows
-        if (dirtyMask != 0)
-        {
-            const int numRows { grid.getNumRows() };
-            const int numCols { grid.getNumCols() };
-
-            for (int r { 0 }; r < numRows and r < 64; ++r)
+            for (int i { 0 }; i < wrapCount; ++i)
             {
-                if (dirtyMask & (uint64_t (1) << r))
-                {
-                    const jam::Cell* rowData { grid.getReadPointer (r) };
-                    screen.updateVisibleRow (r, rowData, numCols);
-                }
+                const jam::Cell* row { grid.getScrollOffReadPointer (wrapStart + i) };
+                screen.append (&row, 1, numCols);
             }
+
+            grid.advanceScrollOff (readCount + wrapCount);
         }
 
-        // No reshapeContent() call — setters handle calc() internally (TETRIS contract).
+        // 2. Copy all visible rows — no activeIndex read.
+        {
+            const int numRows { grid.getNumRows (activeScreen) };
+            const int numCols { grid.getNumCols (activeScreen) };
+
+            for (int r { 0 }; r < numRows; ++r)
+            {
+                const jam::Cell* rowData { grid.getReadPointer (activeScreen, r) };
+                screen.updateVisibleRow (r, rowData, numCols);
+            }
+
+            screen.repaint();
+        }
     }
 
-    // 3. Caret position — always update when State or Grid changed
+    // 3. Caret position
     if (stateDirty or gridDirty)
     {
-        const int cols { grid.getNumCols() };
-        const int rows { grid.getNumRows() };
+        const int activeScreen { state.getActiveScreen() };
+        const int cols { grid.getNumCols (activeScreen) };
+        const int rows { grid.getNumRows (activeScreen) };
 
         if (cols > 0 and rows > 0)
         {

@@ -24,7 +24,7 @@
  * @see VideoCSI.cpp — CSI sequence dispatch
  * @see VideoESC.cpp — ESC sequence dispatch
  * @see VideoMode.cpp — DEC private mode and ANSI mode handlers
- * @see Grid         — ring-buffer cell storage
+ * @see Grid         — flat cell storage (Buffer<Cell>)
  * @see CharProps    — Unicode character property queries used by print()
  */
 
@@ -83,12 +83,9 @@ Video::Video (Grid& grid, jam::Function::Map<juce::Identifier, void>& events) no
  */
 void Video::resize (int newCols, int newVisibleRows) noexcept
 {
-    wrapPending[0] = false;
-    wrapPending[1] = false;
-    cursorClamp (Screen::Map::normal, newCols, newVisibleRows);
-    cursorClamp (Screen::Map::alternate, newCols, newVisibleRows);
-    cursorResetScrollRegion (Screen::Map::normal);
-    cursorResetScrollRegion (Screen::Map::alternate);
+    wrapPending = false;
+    cursorClamp (newCols, newVisibleRows);
+    cursorResetScrollRegion();
     initializeTabStops (newCols);
     calc();
 }
@@ -116,39 +113,73 @@ void Video::calc() noexcept
 }
 
 /**
- * @brief Sets terminal dimensions from Processor (message thread → reader thread).
+ * @brief Sets terminal dimensions on the reader thread.
  *
- * Stores new column and row counts atomically.  Called by Processor before
- * delegating to `resize()`, so that internal geometry is consistent on
- * the reader thread without requiring a State read.
+ * Writes new column and row counts to plain int members.  Called by
+ * Processor::process() at batch start after consuming a pending resize —
+ * all writes occur on the reader thread, so no synchronisation is needed.
  *
  * @param newCols  New terminal width in character columns.
  * @param newRows  New terminal height in visible rows.
  *
- * @note MESSAGE THREAD — relaxed atomic stores; eventual consistency is
- *       acceptable because `resize()` is always called immediately after.
+ * @note READER THREAD only.
  */
 void Video::setDimensions (int newCols, int newRows) noexcept
 {
-    cols.store (newCols, std::memory_order_relaxed);
-    visibleRows.store (newRows, std::memory_order_relaxed);
+    cols = newCols;
+    visibleRows = newRows;
 }
 
 /**
- * @brief Sets physical cell dimensions for image decode.
+ * @brief Sets physical cell dimensions on the reader thread.
  *
- * Stores `widthPx` and `heightPx` as relaxed atomics so that Sixel, Kitty,
- * and iTerm2 decode paths on the reader thread can load them without a lock.
+ * Writes `widthPx` and `heightPx` to plain int members.  Called by
+ * Processor::process() at batch start after consuming a pending cell-size
+ * change — all writes occur on the reader thread, so no synchronisation is needed.
  *
  * @param widthPx   Cell width in pixels.
  * @param heightPx  Cell height in pixels.
  *
- * @note MESSAGE THREAD — relaxed atomic stores; reader thread reads with relaxed loads.
+ * @note READER THREAD only.
  */
 void Video::setCellSize (int widthPx, int heightPx) noexcept
 {
-    cellWidth.store (widthPx, std::memory_order_relaxed);
-    cellHeight.store (heightPx, std::memory_order_relaxed);
+    cellWidth = widthPx;
+    cellHeight = heightPx;
+}
+
+void Video::flushState() noexcept
+{
+    events.get (ID::activeScreen, int (activeScreen));
+    events.get (ID::cursorRow, int (activeScreen), int (cursorRow));
+    events.get (ID::cursorCol, int (activeScreen), int (cursorCol));
+    events.get (ID::cursorVisible, int (activeScreen), bool (cursorVisible));
+
+    const int scrolled { pendingScrolledRows };
+    pendingScrolledRows = 0;
+    if (scrolled > 0)
+        events.get (ID::scrolledRows, int (scrolled));
+
+    events.get (ID::applicationCursor,   bool (applicationCursor));
+    events.get (ID::bracketedPaste,      bool (bracketedPaste));
+    events.get (ID::mouseTracking,       bool (mouseTracking));
+    events.get (ID::mouseMotionTracking, bool (mouseMotionTracking));
+    events.get (ID::mouseAllTracking,    bool (mouseAllTracking));
+    events.get (ID::focusEvents,         bool (focusEvents));
+    events.get (ID::win32InputMode,      bool (win32InputMode));
+}
+
+void Video::loadScreenState (int row, int col, bool visible,
+                              int top, int bottom, bool wrap,
+                              uint32_t kbFlags) noexcept
+{
+    cursorRow    = row;
+    cursorCol    = col;
+    cursorVisible = visible;
+    scrollTop    = top;
+    scrollBottom = bottom;
+    wrapPending  = wrap;
+    keyboardFlags = kbFlags;
 }
 
 /**
@@ -247,7 +278,7 @@ void Video::setMode (juce::Identifier id, bool value) noexcept
  */
 int Video::activeScrollBottom() const noexcept
 {
-    return effectiveScrollBottom (activeScreen, visibleRows.load (std::memory_order_relaxed));
+    return effectiveScrollBottom (visibleRows);
 }
 
 
@@ -272,15 +303,15 @@ int Video::activeScrollBottom() const noexcept
  */
 void Video::scrollUpAndFill (int top, int bottom) noexcept
 {
-    grid.scrollUp (top, bottom);
+    const int captured { grid.scrollUp (activeScreen, top, bottom) };
+    pendingScrolledRows += captured;
 
     if (stamp.bg.getAlpha() > 0)
     {
-        jam::Cell* row { grid.getWritePointer (bottom) };
+        jam::Cell* row { grid.getWritePointer (activeScreen, bottom) };
         const jam::Cell fill { jam::Cell::erase (stamp.bg) };
-        const int numCols { cols.load (std::memory_order_relaxed) };
 
-        for (int col { 0 }; col < numCols; ++col)
+        for (int col { 0 }; col < cols; ++col)
             row[col] = fill;
     }
 }
@@ -300,15 +331,14 @@ void Video::scrollUpAndFill (int top, int bottom) noexcept
  */
 void Video::scrollDownAndFill (int top, int bottom) noexcept
 {
-    grid.scrollDown (top, bottom);
+    grid.scrollDown (activeScreen, top, bottom);
 
     if (stamp.bg.getAlpha() > 0)
     {
-        jam::Cell* row { grid.getWritePointer (top) };
+        jam::Cell* row { grid.getWritePointer (activeScreen, top) };
         const jam::Cell fill { jam::Cell::erase (stamp.bg) };
-        const int numCols { cols.load (std::memory_order_relaxed) };
 
-        for (int col { 0 }; col < numCols; ++col)
+        for (int col { 0 }; col < cols; ++col)
             row[col] = fill;
     }
 }
@@ -337,14 +367,14 @@ void Video::scrollDownAndFill (int top, int bottom) noexcept
  * @see print()
  * @see cursorGoToNextLine()
  */
-void Video::resolveWrapPending (int scr) noexcept
+void Video::resolveWrapPending (int /*scr*/) noexcept
 {
     if (autoWrap)
     {
-        const int row { cursorRow[scr] };
+        const int row { cursorRow };
         const int scrollBot { activeScrollBottom() };
-        const int vRows { this->visibleRows.load (std::memory_order_relaxed) };
-        const int sTop { this->scrollTop[scr] };
+        const int vRows { visibleRows };
+        const int sTop { scrollTop };
 
         if (row == scrollBot)
         {
@@ -352,17 +382,17 @@ void Video::resolveWrapPending (int scr) noexcept
         }
         else if (row > scrollBot)
         {
-            cursorRow[scr] = juce::jmin (row + 1, vRows - 1);
+            cursorRow = juce::jmin (row + 1, vRows - 1);
         }
         else
         {
-            cursorRow[scr] = row + 1;
+            cursorRow = row + 1;
         }
 
-        cursorCol[scr] = 0;
+        cursorCol = 0;
     }
 
-    wrapPending[scr] = false;
+    wrapPending = false;
 }
 
 /**
@@ -413,23 +443,23 @@ void Video::print (uint32_t codepoint) noexcept
     {
         const int rawWidth { props.width() };
         const int cellWidth { rawWidth < 1 ? 1 : rawWidth };
-        const int numCols { this->cols.load (std::memory_order_relaxed) };
+        const int numCols { cols };
 
-        if (wrapPending[scr])
+        if (wrapPending)
         {
             resolveWrapPending (scr);
         }
 
-        const int row { cursorRow[scr] };
-        const int col { cursorCol[scr] };
+        const int row { cursorRow };
+        const int col { cursorCol };
 
         if (cellWidth == 2 and col + 2 > numCols)
         {
             if (autoWrap)
             {
                 const int scrollBot { activeScrollBottom() };
-                const int vRows { this->visibleRows.load (std::memory_order_relaxed) };
-                const int sTop { this->scrollTop[scr] };
+                const int vRows { visibleRows };
+                const int sTop { scrollTop };
 
                 if (row == scrollBot)
                 {
@@ -437,20 +467,20 @@ void Video::print (uint32_t codepoint) noexcept
                 }
                 else if (row > scrollBot)
                 {
-                    cursorRow[scr] = juce::jmin (row + 1, vRows - 1);
+                    cursorRow = juce::jmin (row + 1, vRows - 1);
                 }
                 else
                 {
-                    cursorRow[scr] = row + 1;
+                    cursorRow = row + 1;
                 }
 
-                cursorCol[scr] = 0;
-                wrapPending[scr] = false;
+                cursorCol = 0;
+                wrapPending = false;
             }
         }
 
-        const int writeRow { cursorRow[scr] };
-        const int writeCol { cursorCol[scr] };
+        const int writeRow { cursorRow };
+        const int writeCol { cursorCol };
 
         jam::Cell cell {};
         cell.codepoint = translateCharset (codepoint, useLineDrawing);
@@ -466,7 +496,7 @@ void Video::print (uint32_t codepoint) noexcept
 
         // Grid needs a per-row link ID sidecar for OSC 8 hyperlink stamping.
 
-        *grid.getWritePointer (writeRow, writeCol) = cell;
+        *grid.getWritePointer (scr, writeRow, writeCol) = cell;
 
         lastGraphicChar = codepoint;
 
@@ -480,16 +510,16 @@ void Video::print (uint32_t codepoint) noexcept
             cont.bg = stamp.bg;
             cont.layout = jam::Cell::LAYOUT_WIDE_CONT;
 
-            *grid.getWritePointer (writeRow, writeCol + 1) = cont;
+            *grid.getWritePointer (scr, writeRow, writeCol + 1) = cont;
         }
 
         if (writeCol + cellWidth >= numCols)
         {
-            wrapPending[scr] = true;
+            wrapPending = true;
         }
         else
         {
-            cursorCol[scr] = writeCol + cellWidth;
+            cursorCol = writeCol + cellWidth;
         }
     }
 }
@@ -520,18 +550,18 @@ void Video::print (uint32_t codepoint) noexcept
 void Video::executeLineFeed (int scr) noexcept
 {
     const int scrollBot { activeScrollBottom() };
-    const int vRows { this->visibleRows.load (std::memory_order_relaxed) };
-    const int cRow { this->cursorRow[scr] };
-    const int sTop { this->scrollTop[scr] };
+    const int vRows { visibleRows };
+    const int cRow { cursorRow };
+    const int sTop { scrollTop };
 
     if (cRow == scrollBot)
     {
         scrollUpAndFill (sTop, scrollBot);
     }
 
-    cursorGoToNextLine (scr, scrollBot, vRows);
+    cursorGoToNextLine (scrollBot, vRows);
 
-    if (events.contains (ID::extendOutputBlock)) events.get (ID::extendOutputBlock, int (cursorRow[scr]));
+    if (events.contains (ID::extendOutputBlock)) events.get (ID::extendOutputBlock, int (cursorRow));
 }
 
 /**
@@ -565,7 +595,7 @@ void Video::executeLineFeed (int scr) noexcept
 void Video::applyControlCode (uint8_t controlByte) noexcept
 {
     const auto scr { activeScreen };
-    const int numCols { this->cols.load (std::memory_order_relaxed) };
+    const int numCols { cols };
 
     switch (controlByte)
     {
@@ -575,18 +605,18 @@ void Video::applyControlCode (uint8_t controlByte) noexcept
             break;
 
         case 0x08:
-            if (cursorCol[scr] > 0)
+            if (cursorCol > 0)
             {
-                cursorCol[scr] = cursorCol[scr] - 1;
-                wrapPending[scr] = false;
+                cursorCol = cursorCol - 1;
+                wrapPending = false;
             }
             break;
 
         case 0x09:
         {
-            const int nextTab { nextTabStop (scr, numCols) };
-            cursorCol[scr] = nextTab;
-            wrapPending[scr] = false;
+            const int nextTab { nextTabStop (numCols) };
+            cursorCol = nextTab;
+            wrapPending = false;
             break;
         }
 
@@ -597,8 +627,8 @@ void Video::applyControlCode (uint8_t controlByte) noexcept
             break;
 
         case 0x0D:
-            cursorCol[scr] = 0;
-            wrapPending[scr] = false;
+            cursorCol = 0;
+            wrapPending = false;
             break;
 
         case 0x0E:
@@ -696,11 +726,10 @@ void Video::resetModes() noexcept
     mouseSgr = false;
     focusEvents = false;
     applicationKeypad = false;
-    cursorVisible[Screen::Map::normal] = true;
+    cursorVisible = true;
     reverseVideo = false;
 
-    keyboardFlags[Screen::Map::normal] = 0;
-    keyboardFlags[Screen::Map::alternate] = 0;
+    keyboardFlags = 0;
 }
 
 /**
@@ -708,12 +737,12 @@ void Video::resetModes() noexcept
  *
  * Equivalent to the ESC c sequence.  Restores the terminal to a clean
  * power-on state:
- * 1. Switches to the normal screen buffer via `grid.setScreen()`.
+ * 1. Resets `activeScreen` to normal.
  * 2. Homes the cursor via `resetCursor()`.
  * 3. Resets all mode flags via `resetModes()`.
  * 4. Resets the active pen via `resetPen()`.
  * 5. Disables the line-drawing charset.
- * 6. Calls `grid.clear()` to clear the visible grid.
+ * 6. Calls `grid.clear(Screen::Map::normal)` to clear the normal screen.
  * 7. Calls `calc()` to synchronise internal cached geometry.
  *
  * @note READER THREAD only.
@@ -725,9 +754,9 @@ void Video::resetModes() noexcept
  */
 void Video::reset() noexcept
 {
-    activeScreen = Screen::Map::normal;
-    grid.setScreen (false);
-    resetCursor (cols.load (std::memory_order_relaxed));
+    activeScreen        = Screen::Map::normal;
+    pendingScrolledRows = 0;
+    resetCursor (cols);
     resetModes();
     resetPen();
     useLineDrawing = false;
@@ -735,7 +764,7 @@ void Video::reset() noexcept
     g1LineDrawing  = false;
     activeLinkId   = 0;
 
-    grid.clear();
+    grid.clear (Screen::Map::normal);
 
     calc();
 }

@@ -7,11 +7,11 @@ version: "1.0"
 project:
   name: "end"
   path: "/Users/jreng/Documents/Poems/dev/end"
-  initialized: "2026-05-13"
+  initialized: "2026-05-15"
 
 carol:
   mode: "symlink"  # or "portable"
-  version: "0.0.14"
+  version: "0.0.16"
 
 agents:
   # Track which agents are assigned to roles

@@ -24,7 +24,7 @@
  *
  * @note All functions in this file run on the READER THREAD only.
  *
- * @see Grid    — ring-buffer cell storage with dirty tracking
+ * @see Grid    — flat cell storage (Buffer<Cell>)
  * @see Video.h — class declaration and full method documentation
  */
 
@@ -66,12 +66,10 @@ namespace Terminal
 void Video::eraseInDisplay (int mode) noexcept
 {
     const auto scr { activeScreen };
-    const int nCols        { cols.load (std::memory_order_relaxed) };
-    const int vRows        { visibleRows.load (std::memory_order_relaxed) };
-    const int absRowTop    { 0 };          // Screen-relative row — Processor transforms when handler is registered.
-    const int absRowLast   { vRows - 1 }; // Screen-relative row — Processor transforms when handler is registered.
-    const int cRow         { cursorRow[static_cast<int> (scr)] };
-    const int cCol         { cursorCol[static_cast<int> (scr)] };
+    const int nCols        { cols };
+    const int vRows        { visibleRows };
+    const int cRow         { cursorRow };
+    const int cCol         { cursorCol };
     const jam::Cell fill { jam::Cell::erase (stamp.bg) };
     const bool hasFill { stamp.bg.getAlpha() > 0 };
 
@@ -83,14 +81,14 @@ void Video::eraseInDisplay (int mode) noexcept
             // Clear rest of cursor row
             if (hasFill)
             {
-                jam::Cell* row { grid.getWritePointer (cRow) };
+                jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { cCol }; c < nCols; ++c)
                     row[c] = fill;
             }
             else
             {
-                grid.clear (cRow, cCol, nCols - cCol);
+                grid.clear (scr, cRow, cCol, nCols - cCol);
             }
 
             // Clear rows below cursor
@@ -98,14 +96,14 @@ void Video::eraseInDisplay (int mode) noexcept
             {
                 if (hasFill)
                 {
-                    jam::Cell* row { grid.getWritePointer (r) };
+                    jam::Cell* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
                         row[c] = fill;
                 }
                 else
                 {
-                    grid.clear (r);
+                    grid.clear (scr, r);
                 }
             }
 
@@ -119,28 +117,28 @@ void Video::eraseInDisplay (int mode) noexcept
             {
                 if (hasFill)
                 {
-                    jam::Cell* row { grid.getWritePointer (r) };
+                    jam::Cell* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
                         row[c] = fill;
                 }
                 else
                 {
-                    grid.clear (r);
+                    grid.clear (scr, r);
                 }
             }
 
             // Clear cursor row up to and including cursor
             if (hasFill)
             {
-                jam::Cell* row { grid.getWritePointer (cRow) };
+                jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { 0 }; c <= cCol; ++c)
                     row[c] = fill;
             }
             else
             {
-                grid.clear (cRow, 0, cCol + 1);
+                grid.clear (scr, cRow, 0, cCol + 1);
             }
 
             break;
@@ -153,7 +151,7 @@ void Video::eraseInDisplay (int mode) noexcept
             {
                 for (int r { 0 }; r < vRows; ++r)
                 {
-                    jam::Cell* row { grid.getWritePointer (r) };
+                    jam::Cell* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
                         row[c] = fill;
@@ -161,7 +159,7 @@ void Video::eraseInDisplay (int mode) noexcept
             }
             else
             {
-                grid.clear();
+                grid.clear (scr);
             }
 
             break;
@@ -208,9 +206,9 @@ void Video::eraseInDisplay (int mode) noexcept
 void Video::eraseInLine (int mode) noexcept
 {
     const auto scr { activeScreen };
-    const int nCols { cols.load (std::memory_order_relaxed) };
-    const int cRow  { cursorRow[static_cast<int> (scr)] };
-    const int cCol  { cursorCol[static_cast<int> (scr)] };
+    const int nCols { cols };
+    const int cRow  { cursorRow };
+    const int cCol  { cursorCol };
     const jam::Cell fill { jam::Cell::erase (stamp.bg) };
     const bool hasFill { stamp.bg.getAlpha() > 0 };
 
@@ -220,14 +218,14 @@ void Video::eraseInLine (int mode) noexcept
         {
             if (hasFill)
             {
-                jam::Cell* row { grid.getWritePointer (cRow) };
+                jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { cCol }; c < nCols; ++c)
                     row[c] = fill;
             }
             else
             {
-                grid.clear (cRow, cCol, nCols - cCol);
+                grid.clear (scr, cRow, cCol, nCols - cCol);
             }
 
             break;
@@ -237,14 +235,14 @@ void Video::eraseInLine (int mode) noexcept
         {
             if (hasFill)
             {
-                jam::Cell* row { grid.getWritePointer (cRow) };
+                jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { 0 }; c <= cCol; ++c)
                     row[c] = fill;
             }
             else
             {
-                grid.clear (cRow, 0, cCol + 1);
+                grid.clear (scr, cRow, 0, cCol + 1);
             }
 
             break;
@@ -254,14 +252,14 @@ void Video::eraseInLine (int mode) noexcept
         {
             if (hasFill)
             {
-                jam::Cell* row { grid.getWritePointer (cRow) };
+                jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { 0 }; c < nCols; ++c)
                     row[c] = fill;
             }
             else
             {
-                grid.clear (cRow);
+                grid.clear (scr, cRow);
             }
 
             break;
@@ -334,8 +332,8 @@ void Video::shiftLines (int count, bool up) noexcept
 {
     const auto scr { activeScreen };
     const int bottom { activeScrollBottom() };
-    const int cRow   { cursorRow[static_cast<int> (scr)] };
-    const int sTop   { scrollTop[static_cast<int> (scr)] };
+    const int cRow   { cursorRow };
+    const int sTop   { scrollTop };
 
     if (cRow >= sTop and cRow <= bottom)
     {
@@ -343,23 +341,24 @@ void Video::shiftLines (int count, bool up) noexcept
 
         if (up)
         {
-            grid.scrollUp (cRow, bottom, clampedCount);
+            const int captured { grid.scrollUp (scr, cRow, bottom, clampedCount) };
+            pendingScrolledRows += captured;
         }
         else
         {
-            grid.scrollDown (cRow, bottom, clampedCount);
+            grid.scrollDown (scr, cRow, bottom, clampedCount);
         }
 
         if (stamp.bg.getAlpha() > 0)
         {
-            const int nCols { cols.load (std::memory_order_relaxed) };
+            const int nCols { cols };
             const jam::Cell fill { jam::Cell::erase (stamp.bg) };
 
             if (up)
             {
                 for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
                 {
-                    jam::Cell* row { grid.getWritePointer (r) };
+                    jam::Cell* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
                         row[c] = fill;
@@ -369,7 +368,7 @@ void Video::shiftLines (int count, bool up) noexcept
             {
                 for (int r { cRow }; r < cRow + clampedCount; ++r)
                 {
-                    jam::Cell* row { grid.getWritePointer (r) };
+                    jam::Cell* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
                         row[c] = fill;
@@ -377,8 +376,8 @@ void Video::shiftLines (int count, bool up) noexcept
             }
         }
 
-        cursorCol[static_cast<int> (scr)]   = 0;
-        wrapPending[static_cast<int> (scr)] = false;
+        cursorCol   = 0;
+        wrapPending = false;
     }
 }
 
@@ -402,15 +401,14 @@ void Video::shiftLines (int count, bool up) noexcept
  */
 void Video::shiftCellsRight (int count) noexcept
 {
-    const auto scr { activeScreen };
-    const int nCols { cols.load (std::memory_order_relaxed) };
-    const int cRow  { cursorRow[static_cast<int> (scr)] };
-    const int cCol  { cursorCol[static_cast<int> (scr)] };
+    const int nCols { cols };
+    const int cRow  { cursorRow };
+    const int cCol  { cursorCol };
     const int charsToInsert { juce::jmin (count, nCols - cCol) };
 
     if (charsToInsert > 0 and cCol < nCols)
     {
-        jam::Cell* row { grid.getWritePointer (cRow) };
+        jam::Cell* row { grid.getWritePointer (activeScreen, cRow) };
 
         std::memmove (row + cCol + charsToInsert,
                       row + cCol,
@@ -439,15 +437,14 @@ void Video::shiftCellsRight (int count) noexcept
  */
 void Video::removeCells (int count) noexcept
 {
-    const auto scr { activeScreen };
-    const int nCols { cols.load (std::memory_order_relaxed) };
-    const int cRow  { cursorRow[static_cast<int> (scr)] };
-    const int cCol  { cursorCol[static_cast<int> (scr)] };
+    const int nCols { cols };
+    const int cRow  { cursorRow };
+    const int cCol  { cursorCol };
     const int charsToDelete { juce::jmin (count, nCols - cCol) };
 
     if (charsToDelete > 0 and cCol < nCols)
     {
-        jam::Cell* row { grid.getWritePointer (cRow) };
+        jam::Cell* row { grid.getWritePointer (activeScreen, cRow) };
 
         std::memmove (row + cCol,
                       row + cCol + charsToDelete,
@@ -476,16 +473,15 @@ void Video::removeCells (int count) noexcept
  */
 void Video::eraseCells (int count) noexcept
 {
-    const auto scr { activeScreen };
-    const int nCols { cols.load (std::memory_order_relaxed) };
-    const int cRow  { cursorRow[static_cast<int> (scr)] };
-    const int cCol  { cursorCol[static_cast<int> (scr)] };
+    const int nCols { cols };
+    const int cRow  { cursorRow };
+    const int cCol  { cursorCol };
     const int clampedCount { juce::jmin (count, nCols - cCol) };
 
     if (clampedCount > 0)
     {
         const jam::Cell fill { jam::Cell::erase (stamp.bg) };
-        jam::Cell* row { grid.getWritePointer (cRow) };
+        jam::Cell* row { grid.getWritePointer (activeScreen, cRow) };
 
         for (int c { cCol }; c < cCol + clampedCount; ++c)
             row[c] = fill;
@@ -525,7 +521,7 @@ void Video::repeatCharacter (int count) noexcept
 /**
  * @brief Switches between the normal and alternate screen buffers.
  *
- * Calls `grid.setScreen()` to swap the active buffer.  No-op guard is applied:
+ * Updates `activeScreen` to the target.  No-op guard is applied:
  * if the target screen is already active, the function returns immediately
  * without any state mutation.
  *
@@ -536,19 +532,26 @@ void Video::repeatCharacter (int count) noexcept
  */
 void Video::setScreen (bool shouldUseAlternate) noexcept
 {
-    if (const int target { shouldUseAlternate ? Screen::Map::alternate : Screen::Map::normal };
-        target != activeScreen)
-    {
-        activeScreen = target;
-        const int scr { activeScreen };
-        cursorResetScrollRegion (scr);
-        calc();
+    const int target { shouldUseAlternate ? Screen::Map::alternate : Screen::Map::normal };
 
-        grid.setScreen (shouldUseAlternate);
+    if (target != activeScreen)
+    {
+        // Fire screenSwitch — carries OLD screen's cursor values.
+        // Processor handler saves them to State[old] and loads State[new],
+        // then calls video.loadScreenState() synchronously on the reader thread.
+        events.get (ID::screenSwitch,
+                    int (target),
+                    int (cursorRow), int (cursorCol), bool (cursorVisible),
+                    int (scrollTop), int (scrollBottom), bool (wrapPending),
+                    uint32_t (keyboardFlags));
+
+        // After loadScreenState() has run, activeScreen and live registers hold new values.
+        activeScreen = target;
+        calc();
 
         if (target == Screen::Map::alternate)
         {
-            cursorClamp (scr, cols.load (std::memory_order_relaxed), visibleRows.load (std::memory_order_relaxed));
+            cursorClamp (cols, visibleRows);
             activeLinkId = 0;
         }
     }

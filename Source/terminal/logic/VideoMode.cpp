@@ -67,7 +67,7 @@ void Video::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_t
         if (inter[0] == '>')
         {
             const auto flags { static_cast<uint32_t> (params.param (0, 0)) };
-            keyboardFlags[static_cast<int> (scr)] = flags;
+            keyboardFlags = flags;
             if (events.contains (ID::pushKeyboardMode))
                 events.get (ID::pushKeyboardMode, static_cast<int> (scr), uint32_t (flags));
         }
@@ -79,7 +79,7 @@ void Video::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_t
         }
         else if (inter[0] == '?')
         {
-            const auto flags { keyboardFlags[static_cast<int> (scr)] };
+            const auto flags { keyboardFlags };
             char buf[32];
             std::snprintf (buf, sizeof (buf), "\x1b[?%uu", flags);
             sendResponse (buf);
@@ -87,7 +87,7 @@ void Video::handleKeyboardMode (const CSI& params, const uint8_t* inter, uint8_t
         else if (inter[0] == '=')
         {
             const auto flags { static_cast<uint32_t> (params.param (0, 0)) };
-            keyboardFlags[static_cast<int> (scr)] = flags;
+            keyboardFlags = flags;
         }
     }
 }
@@ -190,11 +190,11 @@ void Video::handlePrivateMode (const CSI& params, bool enable) noexcept
             {
                 originMode = enable;
                 if (enable)
-                    cursorSetPosition (scr, 0, 0, cols.load (std::memory_order_relaxed), visibleRows.load (std::memory_order_relaxed));
+                    cursorSetPosition (0, 0, cols, visibleRows);
             }
             else if (modeValue == 25)
             {
-                cursorVisible[static_cast<int> (scr)] = enable;
+                cursorVisible = enable;
             }
             else if (modeValue == 47 or modeValue == 1047)
             {

@@ -41,6 +41,11 @@ void State::storeValue (const juce::Identifier& groupId, const juce::Identifier&
     params.get<jam::AnyMap> (groupId)->get<Parameter<int>> (paramId)->store (value);
 }
 
+int State::loadValue (const juce::Identifier& groupId, const juce::Identifier& paramId) const noexcept
+{
+    return params.get<jam::AnyMap> (groupId)->get<Parameter<int>> (paramId)->load();
+}
+
 void State::storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept
 {
     params.get<jam::AnyMap> (groupId)->get<Parameter<const char*>> (paramId)->store (ptr);
@@ -144,6 +149,21 @@ juce::String State::getCwd() const noexcept { return get().getProperty (ID::cwd)
 juce::String State::getForegroundProcess() const noexcept
 {
     return get().getProperty (ID::foregroundProcess).toString();
+}
+
+void State::addScrolledRows (int count) noexcept
+{
+    scrolledRows.fetch_add (count, std::memory_order_release);
+}
+
+int State::consumeScrolledRows() noexcept
+{
+    return scrolledRows.exchange (0, std::memory_order_acquire);
+}
+
+int State::getScrolledRows() const noexcept
+{
+    return scrolledRows.load (std::memory_order_acquire);
 }
 
 int State::getScrollbackUsed() const noexcept { return 0; }
@@ -523,5 +543,34 @@ ModalType State::getModalType() const noexcept
 }
 
 bool State::isModal() const noexcept { return getModalType() != ModalType::none; }
+
+//==========================================================================
+// Per-screen atomic loaders — any thread, lock-free
+// Called by Processor::ID::screenSwitch handler on the reader thread.
+//==========================================================================
+
+int State::loadCursorRow (int s) const noexcept
+{
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
+    return loadValue (screenId, ID::cursorRow);
+}
+
+int State::loadCursorCol (int s) const noexcept
+{
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
+    return loadValue (screenId, ID::cursorCol);
+}
+
+bool State::loadCursorVisible (int s) const noexcept
+{
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
+    return loadValue (screenId, ID::cursorVisible) != 0;
+}
+
+uint32_t State::loadKeyboardFlags (int s) const noexcept
+{
+    const juce::Identifier screenId { Screen::Map::getContext()->get (s) };
+    return static_cast<uint32_t> (loadValue (screenId, ID::keyboardFlags));
+}
 
 }// namespace Terminal

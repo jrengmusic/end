@@ -6,35 +6,45 @@
  * Display reads dirty rows on the message thread via VBlank.
  *
  * ### AudioBuffer analogy
- * | AudioBuffer          | Grid                  | Role                       |
- * |----------------------|-----------------------|----------------------------|
- * | getReadPointer(ch)   | getReadPointer(row)   | Read-only row access       |
- * | getWritePointer(ch)  | getWritePointer(row)  | Writable row access        |
- * | clear()              | clear()               | Zero the buffer            |
- * | hasBeenCleared()     | hasBeenCleared()      | Optimisation gate          |
- * | setSize()            | setSize()             | Allocate / resize          |
+ * | AudioBuffer          | Grid                        | Role                       |
+ * |----------------------|-----------------------------|----------------------------|
+ * | getReadPointer(ch)   | getReadPointer(screen, row) | Read-only row access       |
+ * | getWritePointer(ch)  | getWritePointer(screen, row)| Writable row access        |
+ * | clear()              | clear(screen)               | Zero the buffer            |
+ * | hasBeenCleared()     | hasBeenCleared(screen)      | Optimisation gate          |
+ * | setSize()            | setSize()                   | Allocate / resize          |
  *
- * ### Memory layout per buffer
- * Single `HeapBlock<char, true>` (SIMD-aligned). Flat array of jam::Cell records,
- * `capacity * alignedCols` cells total. Ring-buffer indexing on the normal screen
- * (head advances on scroll, no memmove). Fixed buffer on the alternate screen.
+ * ### Memory layout
+ * Three flat jam::Buffer<jam::Cell> instances:
+ * - normal     — normal screen visible frame
+ * - alternate  — alternate screen visible frame
+ * - scrollOff  — scroll-off transit ring (normal screen, scrollBufferSize rows)
  *
  * ### Thread model
  * - Parser writes via getWritePointer / scrollUp / scrollDown / clear — READER THREAD.
- * - Display reads via getReadPointer / consumeDirtyRows / scroll-off — MESSAGE THREAD.
- * - setSize — called from READER THREAD (Parser detects dimension change in State).
+ * - Display reads via getReadPointer / scroll-off drain — MESSAGE THREAD.
+ * - setSize — called from MESSAGE THREAD (Processor::resized).
+ *
+ * ### Scroll-off FIFO
+ * scrollOff is a flat Buffer<Cell>.  Parser writes via AbstractFifo (lock-free SPSC);
+ * Display reads via AbstractFifo then advances the read head.
+ * State::scrolledRows carries the cross-thread count signal.
+ *
+ * ### Screen parameter
+ * Callers pass the active screen index (0 = normal, 1 = alternate) to every call,
+ * mirroring AudioBuffer where the caller passes the channel index.  Grid holds no
+ * active-screen state — the caller (Video) is the authority on which screen is live.
  *
  * @see Parser   — sole writer (reader thread)
  * @see Display  — sole reader (message thread)
- * @see State    — atomic parameter store (cursor, modes, dimensions)
+ * @see State    — carries scrolledRows atomic counter
  */
 
 #pragma once
 
 #include <JuceHeader.h>
 #include <jam_tui/jam_tui.h>
-#include <array>
-#include <atomic>
+#include <cstring>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -52,17 +62,22 @@ public:
      *
      *  @param numRows             Visible row count.
      *  @param numCols             Column count per row.
+     *  @param scrollBufferSize    Row count for the scroll-off ring (normal screen only).
+     *                             Caller-supplied — typically config.nexus.terminal.scrollbackLines.
      *  @param keepExistingContent Preserve existing cell data up to the smaller of old/new dims.
      *  @param clearExtraSpace     Zero-init any newly exposed cells.
      *  @param avoidReallocating   Reuse existing allocation if large enough.
      */
-    void setSize (int numRows, int numCols,
+    void setSize (int numRows, int numCols, int scrollBufferSize = 0,
                   bool keepExistingContent = false,
                   bool clearExtraSpace = false,
                   bool avoidReallocating = false) noexcept;
 
-    int getNumRows() const noexcept;
-    int getNumCols() const noexcept;
+    /** Returns the row count for the given screen index (0 = normal, 1 = alternate). */
+    int getNumRows (int screen) const noexcept;
+
+    /** Returns the column count for the given screen index (0 = normal, 1 = alternate). */
+    int getNumCols (int screen) const noexcept;
 
     ///@}
 
@@ -70,31 +85,19 @@ public:
     /** @name Pointer access — mirrors AudioBuffer::getReadPointer / getWritePointer */
     ///@{
 
-    /** Returns a read-only pointer to the first Cell in the given row. */
-    const jam::Cell* getReadPointer (int row) const noexcept;
+    /** Returns a read-only pointer to the first Cell in the given row on the given screen
+     *  (0 = normal, 1 = alternate). */
+    const jam::Cell* getReadPointer (int screen, int row) const noexcept;
 
-    /** Returns a read-only pointer to a specific Cell position. */
-    const jam::Cell* getReadPointer (int row, int col) const noexcept;
+    /** Returns a read-only pointer to a specific Cell position on the given screen
+     *  (0 = normal, 1 = alternate). */
+    const jam::Cell* getReadPointer (int screen, int row, int col) const noexcept;
 
-    /** Returns a writable pointer to the first Cell in the given row.
-     *  Marks the row dirty. */
-    jam::Cell* getWritePointer (int row) noexcept;
+    /** Returns a writable pointer to the first Cell in the given row on the given screen. */
+    jam::Cell* getWritePointer (int screen, int row) noexcept;
 
-    /** Returns a writable pointer to a specific Cell position.
-     *  Marks the row dirty. */
-    jam::Cell* getWritePointer (int row, int col) noexcept;
-
-    ///@}
-
-    //==========================================================================
-    /** @name Element access — mirrors AudioBuffer::getSample / setSample */
-    ///@{
-
-    /** Returns the Cell at the given position (read-only). */
-    const jam::Cell& getCell (int row, int col) const noexcept;
-
-    /** Writes a Cell at the given position. Marks the row dirty. */
-    void setCell (int row, int col, const jam::Cell& cell) noexcept;
+    /** Returns a writable pointer to a specific Cell position on the given screen. */
+    jam::Cell* getWritePointer (int screen, int row, int col) noexcept;
 
     ///@}
 
@@ -102,39 +105,18 @@ public:
     /** @name Clear — mirrors AudioBuffer::clear / hasBeenCleared */
     ///@{
 
-    /** Clears all rows of the active buffer. Sets isClear flag. */
-    void clear() noexcept;
+    /** Clears all rows of the given screen buffer. */
+    void clear (int screen) noexcept;
 
-    /** Clears an entire row. */
-    void clear (int row) noexcept;
+    /** Clears an entire row of the given screen buffer. */
+    void clear (int screen, int row) noexcept;
 
-    /** Clears a range of cells within a row. */
-    void clear (int row, int startCol, int numCols) noexcept;
+    /** Clears a range of cells within a row of the given screen buffer. */
+    void clear (int screen, int row, int startCol, int numCols) noexcept;
 
-    /** Returns true if the active buffer has been cleared and no writes occurred since. */
-    bool hasBeenCleared() const noexcept;
-
-    ///@}
-
-    //==========================================================================
-    /** @name Dual screen — terminal-specific */
-    ///@{
-
-    /** Swaps the active buffer. */
-    void setScreen (bool alternate) noexcept;
-
-    /** Returns true if the alternate screen buffer is active. */
-    bool isAlternateScreen() const noexcept;
-
-    ///@}
-
-    //==========================================================================
-    /** @name Dirty tracking — reader to message thread sync */
-    ///@{
-
-    /** Atomically exchanges the dirty-row bitmask, returning the previous value.
-     *  Called by Display on the message thread to discover which rows changed. */
-    uint64_t consumeDirtyRows() noexcept;
+    /** Returns true if the given screen's buffer has been cleared and no writes occurred since.
+     *  (0 = normal, 1 = alternate). */
+    bool hasBeenCleared (int screen) const noexcept;
 
     ///@}
 
@@ -142,97 +124,69 @@ public:
     /** @name Scroll — terminal-specific */
     ///@{
 
-    /** Scrolls rows up within the given scroll region.
+    /** Scrolls rows up within the given scroll region on the given screen.
      *
-     *  On the normal screen with a full-screen region (scrollTop == 0 and
-     *  scrollBottom == numRows - 1), uses ring-buffer head advance — no memmove.
-     *  Scroll-off rows are captured for Display to drain.
+     *  On the normal screen (screen == 0) with a full-screen region (scrollTop == 0 and
+     *  scrollBottom == numRows - 1), captures scroll-off rows into the scrollOff ring.
+     *  Uses memmove for all cases — flat, no ring head advance on the visible buffer.
      *
-     *  On the alternate screen or a partial region, uses memmove.
-     *  No scroll-off capture.
+     *  On the alternate screen or a partial region, no scroll-off capture.
      *
-     *  Clears the new bottom row(s). Marks all rows in the region dirty.
+     *  Clears the new bottom row(s).
      *
+     *  @param screen        Screen index (0 = normal, 1 = alternate).
      *  @param scrollTop     First row of the scroll region (zero-based).
      *  @param scrollBottom  Last row of the scroll region (zero-based).
      *  @param count         Number of rows to scroll (default 1).
+     *  @return              Number of scroll-off rows captured (0 on alternate or partial region).
      */
-    void scrollUp (int scrollTop, int scrollBottom, int count = 1) noexcept;
+    int scrollUp (int screen, int scrollTop, int scrollBottom, int count = 1) noexcept;
 
-    /** Scrolls rows down within the given scroll region (reverse scroll).
+    /** Scrolls rows down within the given scroll region on the given screen (reverse scroll).
      *
      *  Always uses memmove. No scroll-off capture. Clears the new top row(s).
-     *  Marks all rows in the region dirty.
      *
+     *  @param screen        Screen index (0 = normal, 1 = alternate).
      *  @param scrollTop     First row of the scroll region (zero-based).
      *  @param scrollBottom  Last row of the scroll region (zero-based).
      *  @param count         Number of rows to scroll (default 1).
      */
-    void scrollDown (int scrollTop, int scrollBottom, int count = 1) noexcept;
+    void scrollDown (int screen, int scrollTop, int scrollBottom, int count = 1) noexcept;
 
     ///@}
 
     //==========================================================================
-    /** @name Scroll-off capture — terminal-specific */
+    /** @name Scroll-off FIFO — Display-side drain */
     ///@{
 
-    /** Returns the number of unconsumed scroll-off rows available for reading. */
-    int getNumScrolledRows() const noexcept;
+    /** @brief Prepares a batch read of scroll-off rows. Returns two contiguous spans.
+     *  Caller must call advanceScrollOff() after consuming the rows.
+     *  @param count      Number of rows to read.
+     *  @param readStart  Start index of first span.
+     *  @param readCount  Size of first span.
+     *  @param wrapStart  Start index of second span (wrap-around).
+     *  @param wrapCount  Size of second span. */
+    void prepareScrollOffRead (int count, int& readStart, int& readCount,
+                                int& wrapStart, int& wrapCount) const noexcept;
 
-    /** Returns a read-only pointer to a scroll-off row (0 = oldest unconsumed).
-     *  Display calls this to drain scroll-off rows into Screen as jam::Cells. */
-    const jam::Cell* getScrolledReadPointer (int index) const noexcept;
+    /** @brief Returns a read-only pointer to a scroll-off row by physical buffer index.
+     *  Use indices from prepareScrollOffRead spans. */
+    const jam::Cell* getScrollOffReadPointer (int physicalRow) const noexcept;
 
-    /** Marks scroll-off rows as consumed. Called by Display after draining. */
-    void consumeScrolledRows (int count) noexcept;
+    /** Advances the read position in the scrollOff ring by count.
+     *  Called by Display after draining. */
+    void advanceScrollOff (int count) noexcept;
 
     ///@}
 
 private:
     //==========================================================================
-    /** @brief Internal per-screen buffer storage. */
-    struct Buffer
-    {
-        juce::HeapBlock<char, true> allocation;   ///< SIMD-aligned raw storage.
-        jam::Cell* cells { nullptr };              ///< Points into allocation.
-        int numRows { 0 };                         ///< Logical visible row count.
-        int numCols { 0 };                         ///< Logical column count.
-        int alignedCols { 0 };                     ///< numCols rounded up to multiple of 4.
-        int capacity { 0 };                        ///< Total row slots (numRows + scrollMargin).
-        int scrollMargin { 0 };                    ///< Extra rows for scroll-off ring headroom.
-        int head { 0 };                            ///< Ring head index (normal screen only).
-        std::atomic<int> scrolledCount { 0 };      ///< Unconsumed scroll-off rows.
-        std::atomic<uint64_t> dirtyRows { 0 };     ///< Per-row dirty bitmask.
-        bool isClear { true };                     ///< Optimisation gate (AudioBuffer pattern).
-        int allocatedCapacity { 0 };               ///< Physical allocation size in rows.
-        int allocatedCols { 0 };                   ///< Physical allocation width in aligned cols.
 
-        /** Returns a pointer to the first Cell of the given logical row. */
-        jam::Cell* rowPtr (int logicalRow) noexcept;
+    jam::Buffer<jam::Cell> normal;     ///< Normal screen visible frame.
+    jam::Buffer<jam::Cell> alternate;  ///< Alternate screen visible frame.
+    jam::Buffer<jam::Cell> scrollOff;  ///< Scroll-off transit buffer.
 
-        /** Returns a const pointer to the first Cell of the given logical row. */
-        const jam::Cell* rowPtr (int logicalRow) const noexcept;
-
-        /** Marks a logical row as dirty in the bitmask. */
-        void markDirty (int logicalRow) noexcept;
-
-        /** Marks all visible rows dirty. */
-        void markAllDirty() noexcept;
-    };
-
-    static constexpr int defaultScrollMargin { 256 };
-    static constexpr int simdCellAlignment { 4 };  ///< Cells per row rounded to this multiple (4 cells = 64 bytes = cache line).
-
-    std::array<Buffer, 2> buffers;                 ///< 0 = normal, 1 = alternate.
-    std::atomic<int> activeIndex { 0 };            ///< 0 = normal, 1 = alternate.
-
-    Buffer& activeBuffer() noexcept;
-    const Buffer& activeBuffer() const noexcept;
-
-    static int alignCols (int cols) noexcept;
-
-    void allocateBuffer (Buffer& buf, int numRows, int numCols, int scrollMargin,
-                         bool keepContent, bool clearExtra, bool avoidRealloc) noexcept;
+    juce::AbstractFifo scrollOffFifo { 1 }; ///< Lock-free SPSC index manager for scrollOff.
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Grid)

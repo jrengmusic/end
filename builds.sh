@@ -36,12 +36,14 @@ OS="$(detect_os)"
 CLEAN=0
 CONFIG=""
 DO_INSTALL=0
+NO_NOTARIZE=0
 
 for arg in "$@"; do
     case "$arg" in
-        clean)   CLEAN=1 ;;
-        install) DO_INSTALL=1 ;;
-        debug)   CONFIG="Debug" ;;
+        clean)       CLEAN=1 ;;
+        install)     DO_INSTALL=1 ;;
+        debug)       CONFIG="Debug" ;;
+        nonotarize)  NO_NOTARIZE=1 ;;
     esac
 done
 
@@ -145,30 +147,35 @@ configure() {
     local marker="Builds/Ninja/.build_config"
     local needs_configure=0
 
+    local marker_value="$config"
+    [[ "$NO_NOTARIZE" -eq 1 ]] && marker_value="$config-nonotarize"
+
     if [[ ! -d "Builds/Ninja" ]]; then
         needs_configure=1
     else
         local existing_config=""
         [[ -f "$marker" ]] && existing_config="$(cat "$marker" | tr -d '\r\n')"
-        if [[ "$existing_config" != "$config" ]]; then
-            echo "Config changed [$existing_config] -> [$config], reconfiguring..."
+        if [[ "$existing_config" != "$marker_value" ]]; then
+            echo "Config changed [$existing_config] -> [$marker_value], reconfiguring..."
             rm -rf "Builds/Ninja"
             needs_configure=1
         fi
     fi
 
     if [[ "$needs_configure" -eq 1 ]]; then
-        echo "Configuring [$config]..."
+        echo "Configuring [$marker_value]..."
         if [[ "$OS" == "windows" ]]; then
             cmake -S . -B Builds/Ninja -G Ninja \
                 -DCMAKE_BUILD_TYPE="$config" \
                 -DCMAKE_C_COMPILER="$CC" \
-                -DCMAKE_CXX_COMPILER="$CXX"
+                -DCMAKE_CXX_COMPILER="$CXX" \
+                -DJAM_NOTARIZE="$( [[ "$NO_NOTARIZE" -eq 1 ]] && echo OFF || echo ON )"
         else
             cmake -S . -B Builds/Ninja -G Ninja \
-                -DCMAKE_BUILD_TYPE="$config"
+                -DCMAKE_BUILD_TYPE="$config" \
+                -DJAM_NOTARIZE="$( [[ "$NO_NOTARIZE" -eq 1 ]] && echo OFF || echo ON )"
         fi
-        echo "$config" > "$marker"
+        echo "$marker_value" > "$marker"
     fi
 }
 
