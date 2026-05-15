@@ -340,6 +340,22 @@ namespace ID
      */
     static const juce::Identifier osc1337Raw          { "osc1337Raw" };
 
+    /** @brief Fired by `Video::setScreen()` when switching buffers.
+     *
+     *  Carries the current (old) screen's cursor state so Processor can save it
+     *  to State and load the new screen's cursor, then call `Video::loadScreenState()`.
+     *  Args: `int newScreen, int cursorRow, int cursorCol, bool cursorVisible,
+     *          int scrollTop, int scrollBottom, bool wrapPending, uint32_t keyboardFlags`.
+     *  Fired synchronously on the READER THREAD — handler runs before Video continues.
+     */
+    static const juce::Identifier screenSwitch        { "screenSwitch" };
+
+    /** @brief Fired by `Video::flushState()` when rows have scrolled off.
+     *  Args: `int count` — number of rows scrolled since last flush.
+     *  Fired synchronously on the READER THREAD.
+     */
+    static const juce::Identifier scrolledRows        { "scrolledRows" };
+
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

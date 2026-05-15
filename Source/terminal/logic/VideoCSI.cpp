@@ -175,7 +175,7 @@ void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCoun
             const int ps { static_cast<int> (params.param (0, 0)) };
             if (ps == 0)
             {
-                clearTabStop (activeScreen);
+                clearTabStop();
             }
             else if (ps == 3)
             {
@@ -196,9 +196,7 @@ void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCoun
             if (ps == 14)
             {
                 // Report text area size in pixels: ESC [ 4 ; height ; width t
-                const int cellW { cellWidth.load (std::memory_order_relaxed) };
-                const int cellH { cellHeight.load (std::memory_order_relaxed) };
-                const auto total { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { cols.load (std::memory_order_relaxed) }, jam::metrics::Cell { visibleRows.load (std::memory_order_relaxed) }, jam::Bounds { cellW, cellH }) };
+                const auto total { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { cols }, jam::metrics::Cell { visibleRows }, jam::Bounds { cellWidth, cellHeight }) };
                 const int totalW { total.x };
                 const int totalH { total.y };
 
@@ -211,19 +209,16 @@ void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCoun
             else if (ps == 16)
             {
                 // Report cell size in pixels: ESC [ 6 ; height ; width t
-                const int cellW { cellWidth.load (std::memory_order_relaxed) };
-                const int cellH { cellHeight.load (std::memory_order_relaxed) };
-
-                if (cellW > 0 and cellH > 0)
+                if (cellWidth > 0 and cellHeight > 0)
                 {
-                    const juce::String response { "\x1b[6;" + juce::String (cellH) + ";" + juce::String (cellW) + "t" };
+                    const juce::String response { "\x1b[6;" + juce::String (cellHeight) + ";" + juce::String (cellWidth) + "t" };
                     sendResponse (response.toRawUTF8());
                 }
             }
             else if (ps == 18)
             {
                 // Report text area size in characters: ESC [ 8 ; rows ; cols t
-                const juce::String response { "\x1b[8;" + juce::String (visibleRows.load (std::memory_order_relaxed)) + ";" + juce::String (cols.load (std::memory_order_relaxed)) + "t" };
+                const juce::String response { "\x1b[8;" + juce::String (visibleRows) + ";" + juce::String (cols) + "t" };
                 sendResponse (response.toRawUTF8());
             }
 
@@ -252,8 +247,7 @@ void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCoun
  */
 void Video::moveCursorUp (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    cursorMoveUp (scr, static_cast<int> (params.param (0, 1)));
+    cursorMoveUp (static_cast<int> (params.param (0, 1)));
 }
 
 /**
@@ -269,8 +263,7 @@ void Video::moveCursorUp (const CSI& params) noexcept
  */
 void Video::moveCursorDown (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    cursorMoveDown (scr, static_cast<int> (params.param (0, 1)), effectiveClampBottom (scr));
+    cursorMoveDown (static_cast<int> (params.param (0, 1)), effectiveClampBottom());
 }
 
 /**
@@ -287,8 +280,7 @@ void Video::moveCursorDown (const CSI& params) noexcept
  */
 void Video::moveCursorForward (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    cursorMoveForward (scr, static_cast<int> (params.param (0, 1)), cols.load (std::memory_order_relaxed));
+    cursorMoveForward (static_cast<int> (params.param (0, 1)), cols);
 }
 
 /**
@@ -305,8 +297,7 @@ void Video::moveCursorForward (const CSI& params) noexcept
  */
 void Video::moveCursorBackward (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    cursorMoveBackward (scr, static_cast<int> (params.param (0, 1)));
+    cursorMoveBackward (static_cast<int> (params.param (0, 1)));
 }
 
 /**
@@ -322,10 +313,9 @@ void Video::moveCursorBackward (const CSI& params) noexcept
  */
 void Video::moveCursorNextLine (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
     const int count { static_cast<int> (params.param (0, 1)) };
-    cursorMoveDown (scr, count, effectiveClampBottom (scr));
-    cursorCol[static_cast<int> (scr)] = 0;
+    cursorMoveDown (count, effectiveClampBottom());
+    cursorCol = 0;
 }
 
 /**
@@ -341,10 +331,9 @@ void Video::moveCursorNextLine (const CSI& params) noexcept
  */
 void Video::moveCursorPrevLine (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
     const int count { static_cast<int> (params.param (0, 1)) };
-    cursorMoveUp (scr, count);
-    cursorCol[static_cast<int> (scr)] = 0;
+    cursorMoveUp (count);
+    cursorCol = 0;
 }
 
 /**
@@ -360,16 +349,14 @@ void Video::moveCursorPrevLine (const CSI& params) noexcept
  */
 void Video::cursorForwardTab (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    const int colCount { cols.load (std::memory_order_relaxed) };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     for (int i { 0 }; i < count; ++i)
     {
-        cursorCol[static_cast<int> (scr)] = nextTabStop (scr, colCount);
+        cursorCol = nextTabStop (cols);
     }
 
-    wrapPending[static_cast<int> (scr)] = false;
+    wrapPending = false;
 }
 
 /**
@@ -385,15 +372,14 @@ void Video::cursorForwardTab (const CSI& params) noexcept
  */
 void Video::cursorBackTab (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
     const int count { static_cast<int> (params.param (0, 1)) };
 
     for (int i { 0 }; i < count; ++i)
     {
-        cursorCol[static_cast<int> (scr)] = prevTabStop (scr);
+        cursorCol = prevTabStop();
     }
 
-    wrapPending[static_cast<int> (scr)] = false;
+    wrapPending = false;
 }
 
 /**
@@ -411,10 +397,9 @@ void Video::cursorBackTab (const CSI& params) noexcept
  */
 void Video::setCursorColumn (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    cursorCol[static_cast<int> (scr)] = paramToIndex (params, 0, 1);
-    wrapPending[static_cast<int> (scr)] = false;
-    cursorCol[static_cast<int> (scr)] = juce::jlimit (0, cols.load (std::memory_order_relaxed) - 1, cursorCol[static_cast<int> (scr)]);
+    cursorCol = paramToIndex (params, 0, 1);
+    wrapPending = false;
+    cursorCol = juce::jlimit (0, cols - 1, cursorCol);
 }
 
 /**
@@ -452,8 +437,7 @@ void Video::setCursorPosition (const CSI& params) noexcept
  */
 void Video::setCursorLine (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    moveCursorTo (paramToIndex (params, 0, 1), cursorCol[static_cast<int> (scr)]);
+    moveCursorTo (paramToIndex (params, 0, 1), cursorCol);
 }
 
 /**
@@ -476,17 +460,16 @@ void Video::setCursorLine (const CSI& params) noexcept
  */
 void Video::moveCursorTo (int row, int col) noexcept
 {
-    const auto scr { activeScreen };
-    const int colCount { cols.load (std::memory_order_relaxed) };
-    const int rowCount { visibleRows.load (std::memory_order_relaxed) };
+    const int colCount { cols };
+    const int rowCount { visibleRows };
 
     if (originMode)
     {
-        cursorSetPositionInOrigin (scr, row, col, colCount, rowCount);
+        cursorSetPositionInOrigin (row, col, colCount, rowCount);
     }
     else
     {
-        cursorSetPosition (scr, row, col, colCount, rowCount);
+        cursorSetPosition (row, col, colCount, rowCount);
     }
 
     calc();
@@ -510,23 +493,23 @@ void Video::moveCursorTo (int row, int col) noexcept
 void Video::scrollUp (const CSI& params) noexcept
 {
     const auto scr { activeScreen };
-    const int scrTop { scrollTop[static_cast<int> (scr)] };
+    const int scrTop { scrollTop };
     const int bottom { activeScrollBottom() };
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
-    grid.scrollUp (scrTop, bottom, clampedCount);
+    const int captured { grid.scrollUp (scr, scrTop, bottom, clampedCount) };
+    pendingScrolledRows += captured;
 
     if (stamp.bg.getAlpha() > 0)
     {
-        const int colCount { cols.load (std::memory_order_relaxed) };
         const jam::Cell fill { jam::Cell::erase (stamp.bg) };
 
         for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
         {
-            jam::Cell* row { grid.getWritePointer (r) };
+            jam::Cell* row { grid.getWritePointer (scr, r) };
 
-            for (int c { 0 }; c < colCount; ++c)
+            for (int c { 0 }; c < cols; ++c)
                 row[c] = fill;
         }
     }
@@ -546,23 +529,22 @@ void Video::scrollUp (const CSI& params) noexcept
 void Video::scrollDown (const CSI& params) noexcept
 {
     const auto scr { activeScreen };
-    const int scrTop { scrollTop[static_cast<int> (scr)] };
+    const int scrTop { scrollTop };
     const int bottom { activeScrollBottom() };
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
-    grid.scrollDown (scrTop, bottom, clampedCount);
+    grid.scrollDown (scr, scrTop, bottom, clampedCount);
 
     if (stamp.bg.getAlpha() > 0)
     {
-        const int colCount { cols.load (std::memory_order_relaxed) };
         const jam::Cell fill { jam::Cell::erase (stamp.bg) };
 
         for (int r { scrTop }; r < scrTop + clampedCount; ++r)
         {
-            jam::Cell* row { grid.getWritePointer (r) };
+            jam::Cell* row { grid.getWritePointer (scr, r) };
 
-            for (int c { 0 }; c < colCount; ++c)
+            for (int c { 0 }; c < cols; ++c)
                 row[c] = fill;
         }
     }
@@ -586,24 +568,21 @@ void Video::scrollDown (const CSI& params) noexcept
  */
 void Video::setScrollRegion (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    const int rowCount { visibleRows.load (std::memory_order_relaxed) };
     const int top { paramToIndex (params, 0, 1) };
-    const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (rowCount)) };
+    const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (visibleRows)) };
 
-    if (top >= 0 and bottom > top and bottom < rowCount)
+    if (top >= 0 and bottom > top and bottom < visibleRows)
     {
-        cursorSetScrollRegion (scr, top, bottom);
+        cursorSetScrollRegion (top, bottom);
     }
     else
     {
-        cursorResetScrollRegion (scr);
+        cursorResetScrollRegion();
     }
 
     calc();
 
-    const int colCount { cols.load (std::memory_order_relaxed) };
-    cursorSetPosition (scr, 0, 0, colCount, rowCount);
+    cursorSetPosition (0, 0, cols, visibleRows);
 }
 
 // ============================================================================
@@ -631,7 +610,7 @@ void Video::reportCursorPosition (const CSI& params) noexcept
     if (modeValue == 6)
     {
         char buf[32];
-        std::snprintf (buf, sizeof (buf), "\x1b[%d;%dR", indexToParam (cursorRow[static_cast<int> (scr)]), indexToParam (cursorCol[static_cast<int> (scr)]));
+        std::snprintf (buf, sizeof (buf), "\x1b[%d;%dR", indexToParam (cursorRow), indexToParam (cursorCol));
         sendResponse (buf);
     }
     else if (modeValue == 5)

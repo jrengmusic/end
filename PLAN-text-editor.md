@@ -53,15 +53,15 @@ API:
 
 Block<Cell> + Block<Grapheme> travel together for rendering. Arrangement takes both.
 
-### Grid — Composite
+### Grid — Stateless Data Buffer
 
-Grid owns AbstractFIFO (index manager) + Buffer<Cell> + lazy Buffer<Grapheme>.
+Grid is a dumb buffer — AudioBuffer. Owns 3 flat Buffer<Cell> instances: normal, alternate, scroll-off capture. No atomics. No state. All cross-thread signaling lives on Terminal::State (SSOT).
 
-AbstractFIFO manages scroll-off transfer indices (lock-free SPSC: parser thread writes, message thread reads). Buffer stores the cell data. Dual-screen (normal + alternate) stays.
+Current Grid atomics (scrolledCount, dirtyRows, activeIndex) move to State. Grid stores data. State stores state. Unidirectional: Reader thread → State atomics → Message thread reads State.
 
-Public API unchanged: getReadPointer, getWritePointer, setSize, clear, scrollUp/Down, consumeDirtyRows, getScrolledReadPointer, consumeScrolledRows.
+scrollUp uses memmove (flat buffer, no ring head). Visible rows × cols memmove — trivial. Scroll-off rows memcpy'd to the scroll-off Buffer before memmove overwrites them.
 
-Dirty tracking stays on Grid (consumer-specific, not Buffer's concern).
+Public API: getReadPointer, getWritePointer, setSize, clear, scrollUp/Down, getScrolledReadPointer. State API: scrolledCount, dirtyRows, activeScreen (atomics on State, not Grid).
 
 ### 3-Screen Model
 
@@ -151,7 +151,7 @@ Buffer<Cell> is contiguous SIMD-aligned memory. Block<Cell> is a zero-cost view.
 ## Contract
 
 - **Buffer is flat** — AudioBuffer pattern. No ring, no FIFO. Consumers add behavior.
-- **Grid: composite** — owns AbstractFIFO + Buffer<Cell> + lazy Buffer<Grapheme>. Does not inherit Buffer.
+- **Grid: stateless** — owns 3 flat Buffer<Cell> (normal, alternate, scroll-off). No atomics. All cross-thread state on Terminal::State.
 - **Block is non-owning** — valid for paint call duration only. Dangling if source Buffer destroyed/resized.
 - **screen is PRIVATE** — derived uses API (appendRow/setVisibleRow/setActiveScreen), never touches buffers directly.
 - **No Cells type** — Buffer<Cell> replaces it everywhere. Cells deleted.
@@ -178,10 +178,10 @@ Buffer<Cell> is contiguous SIMD-aligned memory. Block<Cell> is a zero-cost view.
 **Action:** Write Block<T> — AudioBlock pattern. Non-owning view. Construct from Buffer<T>. getRowPointer, getSubBlock, getNumRows, getNumCols. Trivially copyable. Add to jam_core.h includes.
 **Validation:** Compiles. Zero allocation. No ownership. BLESSED L. NAMES.md compliant.
 
-### Step 3: Grid → Buffer<Cell> + AbstractFIFO
-**Scope:** `Source/terminal/logic/Grid.h`, `Grid.cpp`
-**Action:** Rewrite Grid internals. Replace manual HeapBlock + Buffer struct with jam::Buffer<Cell> + lazy jam::Buffer<Grapheme>. Replace manual scroll-off ring with juce::AbstractFIFO. Dual-screen (2 Buffer<Cell> instances). All allocation sizes wired from `config.nexus.terminal.scrollbackLines` (default 10K) — no hardcoded margins. Public API unchanged. Dirty tracking stays on Grid. Video per-screen arrays size 2 (Map 0-based).
-**Validation:** Compiles. Public API unchanged. AbstractFIFO for scroll-off. Buffer<Cell> for storage. Allocation sizes from config — no magic numbers. No manual ring arithmetic for scroll-off. BLESSED S (SSOT — one buffer type).
+### Step 3: Grid → Stateless Buffer<Cell>
+**Scope:** `Source/terminal/logic/Grid.h`, `Grid.cpp`, `Source/terminal/data/State.h`, `State.cpp`
+**Action:** Rewrite Grid as stateless data buffer. Replace internal Buffer struct with 3 jam::Buffer<Cell>: normal, alternate, scroll-off. Remove ALL atomics from Grid — move scrolledCount, dirtyRows, activeScreen to Terminal::State. scrollUp uses memmove (flat, no ring head). Scroll-off rows memcpy'd to scroll-off Buffer before memmove. All allocation sizes wired from config. Public API: getReadPointer, getWritePointer, setSize, clear, scrollUp/Down, getScrolledReadPointer. Video per-screen arrays size 2 (Map 0-based).
+**Validation:** Compiles. Grid has ZERO atomics. All cross-thread state on State (SSOT). Unidirectional data flow. Buffer<Cell> for storage. No ring head. BLESSED S (Stateless — Grid is dumb worker).
 
 ### Step 4: Arrangement Block<Cell> Overload
 **Scope:** `jam_fonts/jam_font/glyph/jam_glyph_arrangement.h`, `.cpp`
@@ -208,10 +208,8 @@ Buffer<Cell> is contiguous SIMD-aligned memory. Block<Cell> is a zero-cost view.
 **Action:** Delete Cells class. Remove from jam_tui module includes. Verify zero remaining references.
 **Validation:** Compiles. No Cells references anywhere. Buffer<Cell> is the sole cell storage type.
 
-### Step 9: Dirty Tracking — Eliminate 64-Row Ceiling
-**Scope:** Grid, TerminalDisplay
-**Action:** Replace `atomic<uint64_t>` bitmask with multi-word dirty tracking. Remove `r < 64` ceiling.
-**Validation:** Compiles. No row limit on dirty tracking.
+### Step 9: REMOVED — Dirty Tracking Elimination
+Per-row dirty tracking eliminated entirely. snapshotDirty (existing Parameter on State) gates Display refresh. Display reads all visible rows when dirty — viewport rows, always trivial. No bitmask, no ceiling, no Step 9.
 
 ### Step 10: Newline Signal — Video → Screen
 **Scope:** Video, Grid, TerminalDisplay, Screen

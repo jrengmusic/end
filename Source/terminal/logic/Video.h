@@ -24,14 +24,15 @@
  * ## Zero Model knowledge
  *
  * Video holds calculation inputs internally — working copies of terminal state.
- * State is the SSOT.  Processor reads public getters after each command and
- * syncs to State (value delivery pattern).  No UI or Model types are referenced.
+ * State is the SSOT.  Video fires events through the events map; Processor
+ * handlers write State atomics (event dispatch pattern).
+ * No UI or Model types are referenced.
  *
  * ## Thread model
  *
- * **All methods are READER THREAD only** unless explicitly marked MESSAGE THREAD
- * in their documentation.  `setDimensions()` is the only cross-thread setter;
- * it uses relaxed atomic stores.
+ * **All methods are READER THREAD only.**  `setDimensions()` and `setCellSize()`
+ * are called by Processor::process() on the reader thread after consuming pending
+ * values stored by message-thread callers via Processor's atomic members.
  *
  * @see Parser       — DFA byte decoder that drives Video's action methods
  * @see Processor    — owner that wires Parser → Video and calls `resize()` / `calc()`
@@ -152,19 +153,14 @@ public:
     void calc() noexcept;
 
     // =========================================================================
-    /** @name State getters for Processor sync (value delivery)
-     *  Processor reads these after each command and writes State atomics.
+    /** @name State getters — minimal surface for Processor command handlers
      * @{ */
 
     int getActiveScreen() const noexcept { return activeScreen; }
-    int getCursorRow (int s) const noexcept { return cursorRow[s]; }
-    int getCursorCol (int s) const noexcept { return cursorCol[s]; }
-    bool isWrapPending (int s) const noexcept { return wrapPending[s]; }
-    int getScrollTop (int s) const noexcept { return scrollTop[s]; }
-    int getScrollBottom (int s) const noexcept { return scrollBottom[s]; }
-    bool isCursorVisible (int s) const noexcept { return cursorVisible[s]; }
-    int getCols() const noexcept { return cols.load (std::memory_order_relaxed); }
-    int getVisibleRows() const noexcept { return visibleRows.load (std::memory_order_relaxed); }
+    int getCursorRow() const noexcept { return cursorRow; }
+    int getCursorCol() const noexcept { return cursorCol; }
+    int getCols() const noexcept { return cols; }
+    int getVisibleRows() const noexcept { return visibleRows; }
 
     /** @brief Returns the value of the named mode flag.
      *
@@ -180,31 +176,40 @@ public:
     /** @brief Sets the named mode flag. */
     void setMode (juce::Identifier id, bool value) noexcept;
 
-    uint32_t getKeyboardFlags (int s) const noexcept { return keyboardFlags[s]; }
     const jam::Cell& getPen() const noexcept { return pen; }
     const jam::Cell& getStamp() const noexcept { return stamp; }
 
-    /** @brief Sets terminal dimensions from Processor (message thread → reader thread).
+    /** @brief Pushes final Video state through the events map.
+     *         Called once per byte batch by Processor::process(). */
+    void flushState() noexcept;
+
+    /** @brief Loads cursor position for the newly active screen.
+     *         Called by Processor during screen switch mediation. */
+    void loadScreenState (int row, int col, bool visible,
+                          int top, int bottom, bool wrap,
+                          uint32_t kbFlags) noexcept;
+
+    /** @brief Sets terminal dimensions on the reader thread.
      *
-     *  Stores new column and row counts atomically.  Called by Processor before
-     *  delegating to `resize()`, so that internal geometry is consistent on
-     *  the reader thread without requiring a State read.
+     *  Writes new column and row counts to plain int members.  Called by
+     *  Processor::process() at batch start — all writes occur on the reader
+     *  thread, so no synchronisation is needed.
      *
      *  @param newCols  New terminal width in character columns.
      *  @param newRows  New terminal height in visible rows.
-     *  @note MESSAGE THREAD — atomic stores with relaxed ordering.
+     *  @note READER THREAD only.
      */
     void setDimensions (int newCols, int newRows) noexcept;
 
     /** @brief Sets physical cell dimensions for CSI pixel dimension reports.
      *
-     *  Stores cell width and height used by CSI `t` ps=14 and ps=16 handlers
-     *  in `VideoCSI.cpp`.  Image decode cell dimensions are now owned by `Skit`.
-     *  Processor forwards to both Video and Skit via `Processor::setCellSize()`.
+     *  Writes cell width and height to plain int members.  Used by CSI `t`
+     *  ps=14 and ps=16 handlers in `VideoCSI.cpp`.  Called by
+     *  Processor::process() at batch start — reader thread only.
      *
      *  @param widthPx   Cell width in pixels.
      *  @param heightPx  Cell height in pixels.
-     *  @note MESSAGE THREAD — relaxed atomic stores.
+     *  @note READER THREAD only.
      */
     void setCellSize (int widthPx, int heightPx) noexcept;
 
@@ -318,6 +323,10 @@ private:
      * - `"desktopNotification"` — `(const juce::String&, const juce::String&)` — OSC 9/777, dispatched via callAsync
      * - `"imageDecoded"` — image pixel data + placement metadata, reader thread
      * - `"previewFile"`  — `(const juce::String&, int, int, int, int)` — reader thread
+     * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — `flushState()`, reader thread
+     * - `"scrolledRows"` — `(int)` — `flushState()`, reader thread
+     * - `"applicationCursor"` / `"bracketedPaste"` / mode flags — `(bool)` — `flushState()`, reader thread
+     * - `"screenSwitch"` — `(int, int, int, bool, int, int, bool, uint32_t)` — `setScreen()`, reader thread
      *
      * @note READER THREAD — events are fired on the reader thread; callAsync handlers
      *       land on the message thread.
@@ -326,42 +335,42 @@ private:
 
     // =========================================================================
     /** @name Internal terminal state
-     *  Working copy of terminal state.  Processor reads these via public getters
-     *  after each command and syncs to State (value delivery pattern).
+     *  Working copy of terminal state.  flushState() fires events for all values;
+     *  Processor handlers write State atomics (event dispatch pattern).
      * @{ */
 
     /** @brief Active screen buffer (normal or alternate). */
     int activeScreen { Screen::Map::normal };
 
-    /** @brief Terminal width in character columns. Cross-thread (message → reader). */
-    std::atomic<int> cols { 80 };
+    /** @brief Terminal width in character columns. Reader thread only. */
+    int cols { 80 };
 
-    /** @brief Terminal height in visible rows. Cross-thread (message → reader). */
-    std::atomic<int> visibleRows { 24 };
+    /** @brief Terminal height in visible rows. Reader thread only. */
+    int visibleRows { 24 };
 
-    /** @brief Cell width in pixels. Cross-thread (message → reader). Used by CSI `t` pixel dimension reports. */
-    std::atomic<int> cellWidth { 0 };
+    /** @brief Cell width in pixels. Reader thread only. Used by CSI `t` pixel dimension reports. */
+    int cellWidth { 0 };
 
-    /** @brief Cell height in pixels. Cross-thread (message → reader). Used by CSI `t` pixel dimension reports. */
-    std::atomic<int> cellHeight { 0 };
+    /** @brief Cell height in pixels. Reader thread only. Used by CSI `t` pixel dimension reports. */
+    int cellHeight { 0 };
 
-    /** @brief Per-screen cursor row (zero-based). Index 0 unused; indices align with Screen::Map values. */
-    int cursorRow[3] {};
+    /** @brief Active screen cursor row (zero-based). Single register — screen switch loads/saves via State. */
+    int cursorRow { 0 };
 
-    /** @brief Per-screen cursor column (zero-based). Index 0 unused; indices align with Screen::Map values. */
-    int cursorCol[3] {};
+    /** @brief Active screen cursor column (zero-based). Single register — screen switch loads/saves via State. */
+    int cursorCol { 0 };
 
-    /** @brief Per-screen wrap-pending flag. Index 0 unused; indices align with Screen::Map values. */
-    bool wrapPending[3] {};
+    /** @brief Active screen wrap-pending flag. Single register — screen switch loads/saves via State. */
+    bool wrapPending { false };
 
-    /** @brief Per-screen scroll region top row (zero-based). Index 0 unused; indices align with Screen::Map values. */
-    int scrollTop[3] {};
+    /** @brief Active screen scroll region top row (zero-based). Single register — screen switch loads/saves via State. */
+    int scrollTop { 0 };
 
-    /** @brief Per-screen scroll region bottom row (0 = full screen sentinel). Index 0 unused; indices align with Screen::Map values. */
-    int scrollBottom[3] {};
+    /** @brief Active screen scroll region bottom row (0 = full screen sentinel). Single register — screen switch loads/saves via State. */
+    int scrollBottom { 0 };
 
-    /** @brief Per-screen cursor visibility. Index 0 unused; indices align with Screen::Map values. */
-    bool cursorVisible[3] { false, true, true };
+    /** @brief Active screen cursor visibility. Single register — screen switch loads/saves via State. */
+    bool cursorVisible { true };
 
     // Mode flags
     bool originMode { false };
@@ -378,8 +387,10 @@ private:
     bool reverseVideo { false };
     bool win32InputMode { false };
 
-    /** @brief Per-screen keyboard enhancement flags. Index 0 unused; indices align with Screen::Map values. */
-    uint32_t keyboardFlags[3] {};
+    /** @brief Active screen keyboard enhancement flags. Single register — screen switch loads/saves via State. */
+    uint32_t keyboardFlags { 0 };
+
+    int pendingScrolledRows { 0 }; ///< Scroll-off rows captured since last flushState().
 
     /** @} */
 
@@ -441,8 +452,7 @@ private:
     /**
      * @brief Returns the effective bottom row of the current scrolling region.
      *
-     * Reads from Grid buffer dims (safe on reader thread) on every call.
-     * Wraps `effectiveScrollBottom()` with the current screen and visible rows.
+     * Uses the single active `scrollBottom` register and current visible rows.
      *
      * @see effectiveScrollBottom()
      */
@@ -603,44 +613,40 @@ private:
     /**
      * @brief Moves the cursor up by `count` rows, clamped to the scroll region top.
      *
-     * @param s      Target screen buffer.
      * @param count  Number of rows to move up (>= 1).
      *
      * @note READER THREAD only.
      */
-    void cursorMoveUp (int s, int count) noexcept;
+    void cursorMoveUp (int count) noexcept;
 
     /**
      * @brief Moves the cursor down by `count` rows, clamped to `bottom`.
      *
-     * @param s      Target screen buffer.
      * @param count  Number of rows to move down (>= 1).
      * @param bottom Zero-based index of the last row the cursor may reach.
      *
      * @note READER THREAD only.
      */
-    void cursorMoveDown (int s, int count, int bottom) noexcept;
+    void cursorMoveDown (int count, int bottom) noexcept;
 
     /**
      * @brief Moves the cursor right by `count` columns, clamped to `cols - 1`.
      *
-     * @param s     Target screen buffer.
      * @param count Number of columns to move right (>= 1).
      * @param cols  Current terminal column count (right margin = cols - 1).
      *
      * @note READER THREAD only.
      */
-    void cursorMoveForward (int s, int count, int cols) noexcept;
+    void cursorMoveForward (int count, int cols) noexcept;
 
     /**
      * @brief Moves the cursor left by `count` columns, clamped to column 0.
      *
-     * @param s     Target screen buffer.
      * @param count Number of columns to move left (>= 1).
      *
      * @note READER THREAD only.
      */
-    void cursorMoveBackward (int s, int count) noexcept;
+    void cursorMoveBackward (int count) noexcept;
 
     /**
      * @brief Sets the cursor to an absolute (row, col) position.
@@ -648,7 +654,6 @@ private:
      * Coordinates are zero-based.  Values are clamped to the valid screen area.
      * Does not respect origin mode — use `cursorSetPositionInOrigin()` for that.
      *
-     * @param s           Target screen buffer.
      * @param row         Zero-based target row.
      * @param col         Zero-based target column.
      * @param cols        Current terminal column count.
@@ -658,7 +663,7 @@ private:
      *
      * @see cursorSetPositionInOrigin()
      */
-    void cursorSetPosition (int s, int row, int col, int cols, int visibleRows) noexcept;
+    void cursorSetPosition (int row, int col, int cols, int visibleRows) noexcept;
 
     /**
      * @brief Sets the cursor position relative to the scroll region origin.
@@ -667,7 +672,6 @@ private:
      * scrolling region rather than the top of the screen.  This method applies
      * the appropriate offset before calling `cursorSetPosition()`.
      *
-     * @param s           Target screen buffer.
      * @param row         One-based target row (relative to scroll region top in origin mode).
      * @param col         One-based target column.
      * @param cols        Current terminal column count.
@@ -677,7 +681,7 @@ private:
      *
      * @see cursorSetPosition()
      */
-    void cursorSetPositionInOrigin (int s, int row, int col, int cols, int visibleRows) noexcept;
+    void cursorSetPositionInOrigin (int row, int col, int cols, int visibleRows) noexcept;
 
     /**
      * @brief Advances the cursor to the next line, scrolling if at the bottom.
@@ -686,7 +690,6 @@ private:
      * scrolled up by one line (the top line is discarded, a blank line is
      * inserted at the bottom).  Otherwise the cursor simply moves down one row.
      *
-     * @param s      Target screen buffer.
      * @param bottom Zero-based index of the last row of the scrolling region.
      *
      * @return `true` if a scroll occurred, `false` if the cursor just moved down.
@@ -695,7 +698,7 @@ private:
      *
      * @see executeLineFeed()
      */
-    bool cursorGoToNextLine (int s, int bottom, int visibleRows) noexcept;
+    bool cursorGoToNextLine (int bottom, int visibleRows) noexcept;
 
     /**
      * @brief Clamps the cursor to the valid screen area after a resize.
@@ -703,13 +706,12 @@ private:
      * Ensures the cursor row and column do not exceed the new terminal
      * dimensions.  Called by `resize()` after updating State.
      *
-     * @param s           Target screen buffer.
      * @param cols        New terminal column count.
      * @param visibleRows New terminal visible row count.
      *
      * @note READER THREAD only.
      */
-    void cursorClamp (int s, int cols, int visibleRows) noexcept;
+    void cursorClamp (int cols, int visibleRows) noexcept;
 
     /**
      * @brief Saves cursor position and associated state for DECSC (ESC 7).
@@ -745,12 +747,11 @@ private:
     void restoreCursor (int scr) noexcept;
 
     /**
-     * @brief Sets the scrolling region (DECSTBM) for the specified screen.
+     * @brief Sets the scrolling region (DECSTBM).
      *
      * The scrolling region is defined by `top` and `bottom` (zero-based).
      * After setting the region, the cursor is moved to the home position.
      *
-     * @param s      Target screen buffer.
      * @param top    Zero-based index of the first scrolling row.
      * @param bottom Zero-based index of the last scrolling row.
      *
@@ -758,7 +759,7 @@ private:
      *
      * @see cursorResetScrollRegion()
      */
-    void cursorSetScrollRegion (int s, int top, int bottom) noexcept;
+    void cursorSetScrollRegion (int top, int bottom) noexcept;
 
     /**
      * @brief Resets the scrolling region to the full screen height.
@@ -766,44 +767,39 @@ private:
      * Equivalent to `DECSTBM 1;<visibleRows>`.  Called by `reset()` and when
      * the alternate screen is activated.
      *
-     * @param s  Target screen buffer.
-     *
      * @note READER THREAD only.
      *
      * @see cursorSetScrollRegion()
      */
-    void cursorResetScrollRegion (int s) noexcept;
+    void cursorResetScrollRegion() noexcept;
 
     /**
-     * @brief Returns the effective scroll-region bottom row for the given screen.
+     * @brief Returns the effective scroll-region bottom row.
      *
      * If the stored scroll bottom is 0 (unset), returns `visibleRows - 1`.
      * Otherwise returns the stored value clamped to `visibleRows - 1`.
      *
-     * @param s           Target screen buffer.
      * @param visibleRows Current terminal visible row count.
      *
      * @return Zero-based index of the last row of the scrolling region.
      *
      * @note READER THREAD only.
      */
-    int effectiveScrollBottom (int s, int visibleRows) const noexcept;
+    int effectiveScrollBottom (int visibleRows) const noexcept;
 
     /**
-     * @brief Returns the effective downward clamp for cursor movement on screen `s`.
+     * @brief Returns the effective downward clamp for cursor movement.
      *
      * If the cursor is within the scroll margins (row >= scrollTop and
      * row <= scrollBottom), returns `scrollBottom`.  Otherwise returns
      * `visibleRows - 1`.  Used by `moveCursorDown()` and `moveCursorNextLine()`
      * to avoid duplicating the margin-awareness check.
      *
-     * @param s  Target screen buffer.
-     *
      * @return Zero-based index of the last row the cursor may reach moving down.
      *
      * @note READER THREAD only.
      */
-    int effectiveClampBottom (int s) const noexcept;
+    int effectiveClampBottom() const noexcept;
 
     /** @} */
 
@@ -841,14 +837,13 @@ private:
      *
      * If no tab stop exists to the right, returns `cols - 1` (the right margin).
      *
-     * @param s     Target screen buffer (used to read the current cursor column).
      * @param cols  Current terminal column count.
      *
      * @return Zero-based column index of the next tab stop.
      *
      * @note READER THREAD only.
      */
-    int nextTabStop (int s, int cols) noexcept;
+    int nextTabStop (int cols) noexcept;
 
     /**
      * @brief Returns the column index of the previous tab stop to the left of the cursor.
@@ -856,37 +851,31 @@ private:
      * Scans `tabStops` from `cursorCol - 1` leftward, returning the first column
      * with a non-zero entry.  If no tab stop exists to the left, returns 0.
      *
-     * @param s  Target screen buffer (used to read the current cursor column).
-     *
      * @return Zero-based column index of the previous tab stop, or 0 if none.
      *
      * @note READER THREAD only.
      *
      * @see nextTabStop()  — forward direction counterpart
      */
-    int prevTabStop (int s) noexcept;
+    int prevTabStop() noexcept;
 
     /**
      * @brief Sets a tab stop at the current cursor column.
      *
      * Corresponds to the HTS (Horizontal Tab Set, ESC H) sequence.
      *
-     * @param s  Target screen buffer (used to read the current cursor column).
-     *
      * @note READER THREAD only.
      */
-    void setTabStop (int s) noexcept;
+    void setTabStop() noexcept;
 
     /**
      * @brief Clears the tab stop at the current cursor column.
      *
      * Corresponds to `CSI 0 g` (TBC — Tab Clear, current column).
      *
-     * @param s  Target screen buffer (used to read the current cursor column).
-     *
      * @note READER THREAD only.
      */
-    void clearTabStop (int s) noexcept;
+    void clearTabStop() noexcept;
 
     /**
      * @brief Clears all tab stops.

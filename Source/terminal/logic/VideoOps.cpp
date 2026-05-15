@@ -88,15 +88,12 @@ namespace Terminal
  */
 void Video::resetCursor (int numCols) noexcept
 {
-    for (int i { 0 }; i < 2; ++i)
-    {
-        cursorRow[i] = 0;
-        cursorCol[i] = 0;
-        cursorVisible[i] = true;
-        wrapPending[i] = false;
-        scrollTop[i] = 0;
-        scrollBottom[i] = 0;
-    }
+    cursorRow     = 0;
+    cursorCol     = 0;
+    cursorVisible = true;
+    wrapPending   = false;
+    scrollTop     = 0;
+    scrollBottom  = 0;
     initializeTabStops (numCols);
 }
 
@@ -114,7 +111,6 @@ void Video::resetCursor (int numCols) noexcept
  * newRow   = max (clampTop, cursorRow - count)
  * @endcode
  *
- * @param s      Target screen buffer.
  * @param count  Number of rows to move up (>= 1).
  *
  * @note READER THREAD only.
@@ -122,15 +118,15 @@ void Video::resetCursor (int numCols) noexcept
  *
  * @see cursorMoveDown()  — complementary downward movement
  */
-void Video::cursorMoveUp (int s, int count) noexcept
+void Video::cursorMoveUp (int count) noexcept
 {
-    const int top { scrollTop[s] };
-    const int bottom { effectiveScrollBottom (s, visibleRows.load (std::memory_order_relaxed)) };
-    const int row { cursorRow[s] };
+    const int top { scrollTop };
+    const int bottom { effectiveScrollBottom (visibleRows) };
+    const int row { cursorRow };
     const bool withinMargins { row >= top and row <= bottom };
     const int clampTop { withinMargins ? top : 0 };
-    cursorRow[s] = juce::jmax (clampTop, row - count);
-    wrapPending[s] = false;
+    cursorRow = juce::jmax (clampTop, row - count);
+    wrapPending = false;
 }
 
 /**
@@ -146,7 +142,6 @@ void Video::cursorMoveUp (int s, int count) noexcept
  * newRow = min (bottom, cursorRow + count)
  * @endcode
  *
- * @param s      Target screen buffer.
  * @param count  Number of rows to move down (>= 1).
  * @param bottom Zero-based index of the last row the cursor may reach.
  *
@@ -156,11 +151,11 @@ void Video::cursorMoveUp (int s, int count) noexcept
  * @see cursorMoveUp()           — complementary upward movement
  * @see effectiveScrollBottom()  — computes the effective scroll region bottom
  */
-void Video::cursorMoveDown (int s, int count, int bottom) noexcept
+void Video::cursorMoveDown (int count, int bottom) noexcept
 {
-    const int row { cursorRow[s] };
-    cursorRow[s] = juce::jmin (bottom, row + count);
-    wrapPending[s] = false;
+    const int row { cursorRow };
+    cursorRow = juce::jmin (bottom, row + count);
+    wrapPending = false;
 }
 
 /**
@@ -174,7 +169,6 @@ void Video::cursorMoveDown (int s, int count, int bottom) noexcept
  * newCol = min (cols - 1, cursorCol + count)
  * @endcode
  *
- * @param s     Target screen buffer.
  * @param count Number of columns to move right (>= 1).
  * @param cols  Current terminal column count (right margin = cols - 1).
  *
@@ -183,11 +177,11 @@ void Video::cursorMoveDown (int s, int count, int bottom) noexcept
  *
  * @see cursorMoveBackward()  — complementary leftward movement
  */
-void Video::cursorMoveForward (int s, int count, int cols) noexcept
+void Video::cursorMoveForward (int count, int cols) noexcept
 {
-    const int col { cursorCol[s] };
-    cursorCol[s] = juce::jmin (cols - 1, col + count);
-    wrapPending[s] = false;
+    const int col { cursorCol };
+    cursorCol = juce::jmin (cols - 1, col + count);
+    wrapPending = false;
 }
 
 /**
@@ -201,7 +195,6 @@ void Video::cursorMoveForward (int s, int count, int cols) noexcept
  * newCol = max (0, cursorCol - count)
  * @endcode
  *
- * @param s     Target screen buffer.
  * @param count Number of columns to move left (>= 1).
  *
  * @note READER THREAD only.
@@ -209,11 +202,11 @@ void Video::cursorMoveForward (int s, int count, int cols) noexcept
  *
  * @see cursorMoveForward()  — complementary rightward movement
  */
-void Video::cursorMoveBackward (int s, int count) noexcept
+void Video::cursorMoveBackward (int count) noexcept
 {
-    const int col { cursorCol[s] };
-    cursorCol[s] = juce::jmax (0, col - count);
-    wrapPending[s] = false;
+    const int col { cursorCol };
+    cursorCol = juce::jmax (0, col - count);
+    wrapPending = false;
 }
 
 /**
@@ -229,7 +222,6 @@ void Video::cursorMoveBackward (int s, int count) noexcept
  * newCol = clamp (col, 0, cols - 1)
  * @endcode
  *
- * @param s           Target screen buffer.
  * @param row         Zero-based target row (already converted from 1-based CSI param).
  * @param col         Zero-based target column (already converted from 1-based CSI param).
  * @param cols        Current terminal column count.
@@ -240,11 +232,11 @@ void Video::cursorMoveBackward (int s, int count) noexcept
  *
  * @see cursorSetPositionInOrigin()  — use this variant when DECOM is active
  */
-void Video::cursorSetPosition (int s, int row, int col, int cols, int visibleRows) noexcept
+void Video::cursorSetPosition (int row, int col, int cols, int visibleRows) noexcept
 {
-    cursorRow[s] = juce::jlimit (0, visibleRows - 1, row);
-    cursorCol[s] = juce::jlimit (0, cols - 1, col);
-    wrapPending[s] = false;
+    cursorRow = juce::jlimit (0, visibleRows - 1, row);
+    cursorCol = juce::jlimit (0, cols - 1, col);
+    wrapPending = false;
 }
 
 /**
@@ -261,7 +253,6 @@ void Video::cursorSetPosition (int s, int row, int col, int cols, int visibleRow
  * effectiveCol = clamp (col, 0, cols - 1)
  * @endcode
  *
- * @param s           Target screen buffer.
  * @param row         Zero-based target row relative to `scrollTop`.
  * @param col         Zero-based target column.
  * @param cols        Current terminal column count.
@@ -273,13 +264,13 @@ void Video::cursorSetPosition (int s, int row, int col, int cols, int visibleRow
  * @see cursorSetPosition()      — use this variant when DECOM is inactive
  * @see effectiveScrollBottom()  — computes the effective scroll region bottom
  */
-void Video::cursorSetPositionInOrigin (int s, int row, int col, int cols, int visibleRows) noexcept
+void Video::cursorSetPositionInOrigin (int row, int col, int cols, int visibleRows) noexcept
 {
-    const int top { scrollTop[s] };
-    const int bottom { effectiveScrollBottom (s, visibleRows) };
-    cursorRow[s] = juce::jlimit (top, bottom, row + top);
-    cursorCol[s] = juce::jlimit (0, cols - 1, col);
-    wrapPending[s] = false;
+    const int top { scrollTop };
+    const int bottom { effectiveScrollBottom (visibleRows) };
+    cursorRow = juce::jlimit (top, bottom, row + top);
+    cursorCol = juce::jlimit (0, cols - 1, col);
+    wrapPending = false;
 }
 
 /**
@@ -296,7 +287,6 @@ void Video::cursorSetPositionInOrigin (int s, int row, int col, int cols, int vi
  * The wrap-pending flag is always cleared before the row check, so that a
  * deferred wrap is resolved before the line-feed logic runs.
  *
- * @param s           Target screen buffer.
  * @param bottom      Zero-based index of the last row of the scrolling region.
  * @param visibleRows Total number of visible rows in the terminal.
  *
@@ -308,20 +298,20 @@ void Video::cursorSetPositionInOrigin (int s, int row, int col, int cols, int vi
  * @see executeLineFeed()    — calls this; scrolls the region if it returns false
  * @see resolveWrapPending() — calls this when auto-wrap fires at the right margin
  */
-bool Video::cursorGoToNextLine (int s, int bottom, int visibleRows) noexcept
+bool Video::cursorGoToNextLine (int bottom, int visibleRows) noexcept
 {
-    wrapPending[s] = false;
-    const int row { cursorRow[s] };
+    wrapPending = false;
+    const int row { cursorRow };
     bool moved { false };
 
     if (row < bottom)
     {
-        cursorRow[s] = row + 1;
+        cursorRow = row + 1;
         moved = true;
     }
     else if (row > bottom)
     {
-        cursorRow[s] = juce::jmin (row + 1, visibleRows - 1);
+        cursorRow = juce::jmin (row + 1, visibleRows - 1);
         moved = true;
     }
 
@@ -341,7 +331,6 @@ bool Video::cursorGoToNextLine (int s, int bottom, int visibleRows) noexcept
  * newRow = clamp (cursorRow, 0, visibleRows - 1)
  * @endcode
  *
- * @param s           Target screen buffer.
  * @param cols        New terminal column count.
  * @param visibleRows New terminal visible row count.
  *
@@ -349,12 +338,12 @@ bool Video::cursorGoToNextLine (int s, int bottom, int visibleRows) noexcept
  *
  * @see resize()  — calls this after updating State with new dimensions
  */
-void Video::cursorClamp (int s, int cols, int visibleRows) noexcept
+void Video::cursorClamp (int cols, int visibleRows) noexcept
 {
-    const int col { cursorCol[s] };
-    const int row { cursorRow[s] };
-    cursorCol[s] = juce::jlimit (0, cols - 1, col);
-    cursorRow[s] = juce::jlimit (0, visibleRows - 1, row);
+    const int col { cursorCol };
+    const int row { cursorRow };
+    cursorCol = juce::jlimit (0, cols - 1, col);
+    cursorRow = juce::jlimit (0, visibleRows - 1, row);
 }
 
 /**
@@ -365,7 +354,6 @@ void Video::cursorClamp (int s, int cols, int visibleRows) noexcept
  * for moving the cursor to the home position after calling this, as required by
  * the VT specification.
  *
- * @param s      Target screen buffer.
  * @param top    Zero-based index of the first row of the scrolling region.
  * @param bottom Zero-based index of the last row of the scrolling region.
  *
@@ -375,10 +363,10 @@ void Video::cursorClamp (int s, int cols, int visibleRows) noexcept
  * @see cursorResetScrollRegion()  — resets the region to the full screen
  * @see effectiveScrollBottom()    — interprets a stored bottom of 0 as full-screen
  */
-void Video::cursorSetScrollRegion (int s, int top, int bottom) noexcept
+void Video::cursorSetScrollRegion (int top, int bottom) noexcept
 {
-    scrollTop[s] = top;
-    scrollBottom[s] = bottom;
+    scrollTop    = top;
+    scrollBottom = bottom;
 }
 
 /**
@@ -391,17 +379,15 @@ void Video::cursorSetScrollRegion (int s, int top, int bottom) noexcept
  * Called by `reset()` (RIS), `resize()`, and when switching between the normal
  * and alternate screen buffers.
  *
- * @param s  Target screen buffer.
- *
  * @note READER THREAD only.
  *
  * @see cursorSetScrollRegion()  — sets an explicit scroll region
  * @see effectiveScrollBottom()  — interprets the stored bottom value
  */
-void Video::cursorResetScrollRegion (int s) noexcept
+void Video::cursorResetScrollRegion() noexcept
 {
-    scrollTop[s] = 0;
-    scrollBottom[s] = 0;
+    scrollTop    = 0;
+    scrollBottom = 0;
 }
 
 /**
@@ -417,7 +403,6 @@ void Video::cursorResetScrollRegion (int s) noexcept
  * effectiveBottom = (scrollBottom > 0) ? scrollBottom : visibleRows - 1;
  * @endcode
  *
- * @param s           Target screen buffer.
  * @param visibleRows Current terminal visible row count.
  *
  * @return Zero-based index of the last row of the active scrolling region.
@@ -427,9 +412,9 @@ void Video::cursorResetScrollRegion (int s) noexcept
  * @see cursorSetScrollRegion()   — sets an explicit scroll region
  * @see cursorResetScrollRegion() — resets to the sentinel value (0)
  */
-int Video::effectiveScrollBottom (int s, int visibleRows) const noexcept
+int Video::effectiveScrollBottom (int visibleRows) const noexcept
 {
-    const int sb { scrollBottom[s] };
+    const int sb { scrollBottom };
     return (sb > 0) ? sb : visibleRows - 1;
 }
 
@@ -441,8 +426,6 @@ int Video::effectiveScrollBottom (int s, int visibleRows) const noexcept
  * `visibleRows - 1`.  Used by `moveCursorDown()` and `moveCursorNextLine()`
  * to eliminate the duplicated margin-awareness check.
  *
- * @param s  Target screen buffer.
- *
  * @return Zero-based index of the last row the cursor may reach moving down.
  *
  * @note READER THREAD only.
@@ -450,12 +433,12 @@ int Video::effectiveScrollBottom (int s, int visibleRows) const noexcept
  * @see moveCursorDown()      — CUD handler
  * @see moveCursorNextLine()  — CNL handler
  */
-int Video::effectiveClampBottom (int s) const noexcept
+int Video::effectiveClampBottom() const noexcept
 {
-    const int row { cursorRow[s] };
-    const int top { scrollTop[s] };
+    const int row { cursorRow };
+    const int top { scrollTop };
     const bool withinMargins { row >= top and row <= activeScrollBottom() };
-    return withinMargins ? activeScrollBottom() : visibleRows.load (std::memory_order_relaxed) - 1;
+    return withinMargins ? activeScrollBottom() : visibleRows - 1;
 }
 
 // ============================================================================
@@ -524,7 +507,6 @@ void Video::initializeTabStops (int numCols) noexcept
  * return min (nextTab, cols - 1);
  * @endcode
  *
- * @param s     Target screen buffer (used to read the current cursor column).
  * @param cols  Current terminal column count (right margin = cols - 1).
  *
  * @return Zero-based column index of the next tab stop, or `cols - 1` if none.
@@ -534,9 +516,9 @@ void Video::initializeTabStops (int numCols) noexcept
  * @see initializeTabStops()  — sets the default stop layout
  * @see setTabStop()          — adds a stop at the cursor column
  */
-int Video::nextTabStop (int s, int cols) noexcept
+int Video::nextTabStop (int cols) noexcept
 {
-    int nextTab { cursorCol[s] + 1 };
+    int nextTab { cursorCol + 1 };
 
     while (nextTab < cols)
     {
@@ -567,8 +549,6 @@ int Video::nextTabStop (int s, int cols) noexcept
  * return max (prevTab, 0);
  * @endcode
  *
- * @param s  Target screen buffer (used to read the current cursor column).
- *
  * @return Zero-based column index of the previous tab stop, or 0 if none.
  *
  * @note READER THREAD only.
@@ -576,9 +556,9 @@ int Video::nextTabStop (int s, int cols) noexcept
  * @see nextTabStop()         — forward direction counterpart
  * @see initializeTabStops()  — sets the default stop layout
  */
-int Video::prevTabStop (int s) noexcept
+int Video::prevTabStop() noexcept
 {
-    int prevTab { cursorCol[s] - 1 };
+    int prevTab { cursorCol - 1 };
 
     while (prevTab > 0)
     {
@@ -600,17 +580,15 @@ int Video::prevTabStop (int s) noexcept
  * by writing 1 into `tabStops[cursorCol]`.  If the cursor column is at or
  * beyond the end of the `tabStops` vector, the operation is a no-op.
  *
- * @param s  Target screen buffer (used to read the current cursor column).
- *
  * @note READER THREAD only.
  *
  * @see clearTabStop()        — clears the stop at the cursor column (TBC CSI 0 g)
  * @see clearAllTabStops()    — clears all stops (TBC CSI 3 g)
  * @see initializeTabStops()  — resets to the default 8-column layout
  */
-void Video::setTabStop (int s) noexcept
+void Video::setTabStop() noexcept
 {
-    const int col { cursorCol[s] };
+    const int col { cursorCol };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 1;
@@ -624,17 +602,15 @@ void Video::setTabStop (int s) noexcept
  * `tabStops[cursorCol]`.  If the cursor column is at or beyond the end of the
  * `tabStops` vector, the operation is a no-op.
  *
- * @param s  Target screen buffer (used to read the current cursor column).
- *
  * @note READER THREAD only.
  * @note Currently unused — verify against TBC dispatch before removal.
  *
  * @see setTabStop()       — sets a stop at the cursor column (HTS)
  * @see clearAllTabStops() — clears all stops (TBC CSI 3 g)
  */
-void Video::clearTabStop (int s) noexcept
+void Video::clearTabStop() noexcept
 {
-    const int col { cursorCol[s] };
+    const int col { cursorCol };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 0;

@@ -79,41 +79,35 @@ void Processor::registerCommands() noexcept
     commands.add<uint32_t> (CT::print, [this] (uint32_t codepoint)
     {
         video.print (codepoint);
-        syncVideoToState();
     });
 
     commands.add<uint8_t> (CT::applyControlCode, [this] (uint8_t controlByte)
     {
         video.applyControlCode (controlByte);
-        syncVideoToState();
     });
 
     commands.add<const CSI&, const uint8_t*, uint8_t, uint8_t> (CT::applyCSI,
         [this] (const CSI& csi, const uint8_t* inter, uint8_t interCount, uint8_t finalByte)
     {
         video.applyCSI (csi, inter, interCount, finalByte);
-        syncVideoToState();
     });
 
     commands.add<const uint8_t*, uint8_t, uint8_t> (CT::applyESC,
         [this] (const uint8_t* inter, uint8_t interCount, uint8_t finalByte)
     {
         video.applyESC (inter, interCount, finalByte);
-        syncVideoToState();
     });
 
     commands.add<const uint8_t*, int> (CT::applyOSC,
         [this] (const uint8_t* payload, int length)
     {
         video.applyOSC (payload, length);
-        syncVideoToState();
     });
 
     commands.add<const CSI&, const uint8_t*, uint8_t, uint8_t> (CT::storeDCSHeader,
         [this] (const CSI& csi, const uint8_t* inter, uint8_t interCount, uint8_t finalByte)
     {
         video.storeDCSHeader (csi, inter, interCount, finalByte);
-        syncVideoToState();
     });
 
     commands.add<const uint8_t*, int> (CT::applyDCSPayload,
@@ -121,12 +115,9 @@ void Processor::registerCommands() noexcept
     {
         video.applyDCSPayload (data, length);
 
-        const int scr { video.getActiveScreen() };
         skit.processDCS (video.getDcsFinalByte(), data, length,
-                         video.getCursorRow (scr), video.getCursorCol (scr));
+                         video.getCursorRow(), video.getCursorCol());
         video.advanceCursorForImage (skit.getLastImageRows());
-
-        syncVideoToState();
     });
 
     commands.add<const uint8_t*, int> (CT::applyAPCPayload,
@@ -134,17 +125,14 @@ void Processor::registerCommands() noexcept
     {
         video.applyAPCPayload (data, length);
 
-        const int scr { video.getActiveScreen() };
         skit.processAPC (data, length,
-                         video.getCursorRow (scr), video.getCursorCol (scr));
+                         video.getCursorRow(), video.getCursorCol());
 
         const juce::String& response { skit.getLastResponse() };
         if (response.isNotEmpty() and events.contains (ID::writeToHost))
             events.get (ID::writeToHost, response.toRawUTF8(), int (response.getNumBytesAsUTF8()));
 
         video.advanceCursorForImage (skit.getLastImageRows());
-
-        syncVideoToState();
     });
 }
 
@@ -195,6 +183,16 @@ void Processor::registerCommands() noexcept
  * - `"bell"`, `"clipboardChanged"`, `"desktopNotification"` — placeholder registrations
  *   so `events.contains()` passes; Session registers the actual handlers after construction.
  *
+ * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — Video::flushState()
+ *   flush events; write the corresponding State atomics.
+ *
+ * - `"scrolledRows"` — Video::flushState() flush; calls `State::addScrolledRows()`.
+ *
+ * - `"applicationCursor"` / `"bracketedPaste"` / ... — Video::flushState() mode flag flushes.
+ *
+ * - `"screenSwitch"` — Video::setScreen(); saves old cursor to State, loads new cursor from
+ *   State atomics, calls `Video::loadScreenState()`.  Synchronous on reader thread.
+ *
  * @note READER THREAD — all handlers execute on the reader thread unless dispatched
  *       via `callAsync` (bell, clipboardChanged, desktopNotification land on the message thread).
  */
@@ -238,7 +236,6 @@ void Processor::registerEvents() noexcept
     {
         skit.processOSC1337 (data, length, cursorRow, cursorCol);
         video.advanceCursorForImage (skit.getLastImageRows());
-        syncVideoToState();
     });
 
     // Cell erase — mark snapshot dirty so the renderer sees erased content.
@@ -303,6 +300,88 @@ void Processor::registerEvents() noexcept
     // DEC mode 2026 set — request same-size PTY resize on next drain completion.
     events.add (ID::requestSyncResize, [this] { state.requestSyncResize(); });
 
+    // State delivery: activeScreen.
+    events.add<int> (ID::activeScreen,
+        [this] (int scr)
+    {
+        state.setScreen (scr);
+    });
+
+    // State delivery: cursor row for active screen.
+    events.add<int, int> (ID::cursorRow,
+        [this] (int scr, int row)
+    {
+        state.setCursorRow (scr, row);
+    });
+
+    // State delivery: cursor column for active screen.
+    events.add<int, int> (ID::cursorCol,
+        [this] (int scr, int col)
+    {
+        state.setCursorCol (scr, col);
+    });
+
+    // State delivery: cursor visibility for active screen.
+    events.add<int, bool> (ID::cursorVisible,
+        [this] (int scr, bool visible)
+    {
+        state.setCursorVisible (scr, visible);
+    });
+
+    // State delivery: rows scrolled off since last flush.
+    events.add<int> (ID::scrolledRows,
+        [this] (int count)
+    {
+        state.addScrolledRows (count);
+    });
+
+    // State delivery: mode flags.
+    events.add<bool> (ID::applicationCursor,
+        [this] (bool value) { state.setMode (ID::applicationCursor, value); });
+
+    events.add<bool> (ID::bracketedPaste,
+        [this] (bool value) { state.setMode (ID::bracketedPaste, value); });
+
+    events.add<bool> (ID::mouseTracking,
+        [this] (bool value) { state.setMode (ID::mouseTracking, value); });
+
+    events.add<bool> (ID::mouseMotionTracking,
+        [this] (bool value) { state.setMode (ID::mouseMotionTracking, value); });
+
+    events.add<bool> (ID::mouseAllTracking,
+        [this] (bool value) { state.setMode (ID::mouseAllTracking, value); });
+
+    events.add<bool> (ID::focusEvents,
+        [this] (bool value) { state.setMode (ID::focusEvents, value); });
+
+    events.add<bool> (ID::win32InputMode,
+        [this] (bool value) { state.setMode (ID::win32InputMode, value); });
+
+    // Screen switch — fired by Video::setScreen() with the OLD screen's cursor values.
+    // Saves old cursor to State, loads new cursor from State atomics, calls video.loadScreenState().
+    // scrollTop/scrollBottom are always reset to 0 on screen switch (matches original setScreen behaviour).
+    // wrapPending is always cleared on screen switch.
+    events.add<int, int, int, bool, int, int, bool, uint32_t> (ID::screenSwitch,
+        [this] (int newScreen,
+                int oldRow, int oldCol, bool oldVisible,
+                int /*oldScrollTop*/, int /*oldScrollBottom*/, bool /*oldWrapPending*/,
+                uint32_t /*oldKeyboardFlags*/)
+    {
+        const int oldScreen { newScreen == Screen::Map::alternate ? Screen::Map::normal : Screen::Map::alternate };
+
+        state.setCursorRow (oldScreen, oldRow);
+        state.setCursorCol (oldScreen, oldCol);
+        state.setCursorVisible (oldScreen, oldVisible);
+
+        const int newRow          { state.loadCursorRow (newScreen) };
+        const int newCol          { state.loadCursorCol (newScreen) };
+        const bool newVisible     { state.loadCursorVisible (newScreen) };
+        const uint32_t newKbFlags { state.loadKeyboardFlags (newScreen) };
+
+        // scrollTop/scrollBottom reset to 0 (sentinel = full screen); wrapPending cleared.
+        video.loadScreenState (newRow, newCol, newVisible, 0, 0, false, newKbFlags);
+    });
+
     // BEL — placeholder so events.contains() passes; Session registers the actual handler.
     events.add (ID::bell, [] {});
 
@@ -316,31 +395,6 @@ void Processor::registerEvents() noexcept
 }
 
 // =============================================================================
-
-/**
- * @brief Reads all Video public getters and writes State atomics (value delivery).
- *
- * Called after every command handler dispatch.  Unconditional sync — negligible
- * cost at terminal frame rates.  Mirrors the ProcessorChain pattern: reads DSP
- * core state, writes APVTS atomics for the timer-driven ValueTree flush.
- *
- * @note READER THREAD — State setters are atomic, safe from any thread.
- */
-void Processor::syncVideoToState() noexcept
-{
-    const int scr { video.getActiveScreen() };
-    state.setScreen (scr);
-    state.setCursorRow (scr, video.getCursorRow (scr));
-    state.setCursorCol (scr, video.getCursorCol (scr));
-    state.setCursorVisible (scr, video.isCursorVisible (scr));
-    state.setMode (ID::applicationCursor,   video.getMode (ID::applicationCursor));
-    state.setMode (ID::bracketedPaste,      video.getMode (ID::bracketedPaste));
-    state.setMode (ID::mouseTracking,       video.getMode (ID::mouseTracking));
-    state.setMode (ID::mouseMotionTracking, video.getMode (ID::mouseMotionTracking));
-    state.setMode (ID::mouseAllTracking,    video.getMode (ID::mouseAllTracking));
-    state.setMode (ID::focusEvents,         video.getMode (ID::focusEvents));
-    state.setMode (ID::win32InputMode,      video.getMode (ID::win32InputMode));
-}
 
 // =============================================================================
 
@@ -407,10 +461,10 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
 // =============================================================================
 
 /**
- * @brief Resizes the grid and notifies Video.
+ * @brief Stores pending dimensions for deferred application on the reader thread.
  *
- * Called from `valueTreePropertyChanged` when State dimensions change.
- * Does NOT touch any TTY — SIGWINCH is handled by Terminal::Session via `onResize`.
+ * Does NOT write to Video or Grid — those are reader-thread-only objects.
+ * process() reads the pending values at batch start and applies them there.
  *
  * @param cols  New terminal width in character columns.
  * @param rows  New terminal height in character rows.
@@ -419,9 +473,9 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
 void Processor::resized (int cols, int rows) noexcept
 {
     jassert (parser != nullptr);
-    grid.setSize (rows, cols, true, true, true);
-    video.setDimensions (cols, rows);
-    video.resize (cols, rows);
+    pendingCols.store (cols, std::memory_order_relaxed);
+    pendingRows.store (rows, std::memory_order_relaxed);
+    resizePending.store (true, std::memory_order_release);
 }
 
 // =============================================================================
@@ -521,9 +575,11 @@ juce::String Processor::encodeMouseEvent (int button, int col, int row, bool pre
 /**
  * @brief Processes raw bytes through the parser pipeline.
  *
- * Feeds `Parser::process()` then flushes any queued Video responses via
- * `video.flushResponses()`.  Display is notified via ValueTree::Listener
- * when State::flush() propagates atomic values to the ValueTree on the timer tick.
+ * Applies any pending resize or cell-size change at batch start (reader thread),
+ * then feeds `Parser::process()`, flushes Video state, and flushes responses.
+ * Pending changes originate from message-thread calls to resized() / setCellSize()
+ * and are transferred via atomics — all Video/Grid writes happen here on the
+ * reader thread.
  *
  * @note READER THREAD only — called from the byte source (Terminal::Session
  *       onBytes callback or IPC dispatch in client mode).
@@ -531,7 +587,26 @@ juce::String Processor::encodeMouseEvent (int button, int col, int row, bool pre
 void Processor::process (const char* data, int length) noexcept
 {
     jassert (parser != nullptr);
+
+    if (resizePending.exchange (false, std::memory_order_acquire))
+    {
+        const int cols { pendingCols.load (std::memory_order_relaxed) };
+        const int rows { pendingRows.load (std::memory_order_relaxed) };
+        grid.setSize (rows, cols, rows, true, true, true);
+        video.setDimensions (cols, rows);
+        video.resize (cols, rows);
+    }
+
+    if (cellSizePending.exchange (false, std::memory_order_acquire))
+    {
+        const int w { pendingCellWidth.load (std::memory_order_relaxed) };
+        const int h { pendingCellHeight.load (std::memory_order_relaxed) };
+        video.setCellSize (w, h);
+        skit.setCellSize (w, h);
+    }
+
     parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
+    video.flushState();
     video.flushResponses();
     state.consumePasteEcho (length);
 }
@@ -560,10 +635,10 @@ void Processor::setHostWriter (std::function<void (const char*, int)> writer) no
 }
 
 /**
- * @brief Delivers cell pixel dimensions to Skit and Video.
+ * @brief Stores pending cell pixel dimensions for deferred application on the reader thread.
  *
- * Forwards `widthPx` and `heightPx` to `Skit::setCellSize()` (image decode)
- * and `Video::setCellSize()` (CSI `t` pixel dimension reports).
+ * Does NOT write to Video or Skit directly — those are reader-thread-only objects.
+ * process() reads the pending values at batch start and applies them there.
  *
  * @param widthPx   Cell width in pixels.
  * @param heightPx  Cell height in pixels.
@@ -571,8 +646,9 @@ void Processor::setHostWriter (std::function<void (const char*, int)> writer) no
  */
 void Processor::setCellSize (int widthPx, int heightPx) noexcept
 {
-    skit.setCellSize (widthPx, heightPx);
-    video.setCellSize (widthPx, heightPx);
+    pendingCellWidth.store (widthPx, std::memory_order_relaxed);
+    pendingCellHeight.store (heightPx, std::memory_order_relaxed);
+    cellSizePending.store (true, std::memory_order_release);
 }
 
 /**

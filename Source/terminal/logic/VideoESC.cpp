@@ -29,7 +29,7 @@
  * @see VideoDCS.cpp — DCS and APC passthrough
  * @see VideoVT.cpp  — ground-state print and applyControlCode handlers
  * @see VideoCSI.cpp — CSI sequence dispatch
- * @see Grid         — ring-buffer cell storage
+ * @see Grid         — flat cell storage (Buffer<Cell>)
  */
 
 #include "Video.h"
@@ -45,10 +45,10 @@ namespace Terminal
 void Video::saveCursor (int scr) noexcept
 {
     auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-    sc.row         = cursorRow[scr];
-    sc.col         = cursorCol[scr];
+    sc.row         = cursorRow;
+    sc.col         = cursorCol;
     sc.pen         = pen;
-    sc.wrapPending = wrapPending[scr];
+    sc.wrapPending = wrapPending;
     sc.originMode  = originMode;
     sc.lineDrawing = useLineDrawing;
 }
@@ -56,13 +56,13 @@ void Video::saveCursor (int scr) noexcept
 void Video::restoreCursor (int scr) noexcept
 {
     const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-    cursorRow[scr]     = sc.row;
-    cursorCol[scr]     = sc.col;
-    pen                = sc.pen;
-    stamp              = sc.pen;
-    wrapPending[scr]   = sc.wrapPending;
-    originMode         = sc.originMode;
-    useLineDrawing     = sc.lineDrawing;
+    cursorRow     = sc.row;
+    cursorCol     = sc.col;
+    pen           = sc.pen;
+    stamp         = sc.pen;
+    wrapPending   = sc.wrapPending;
+    originMode    = sc.originMode;
+    useLineDrawing = sc.lineDrawing;
 }
 
 // ============================================================================
@@ -100,16 +100,16 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
         {
             // IND — Index: line feed without CR
             const int scrollBot { activeScrollBottom() };
-            const int vRows { visibleRows.load (std::memory_order_relaxed) };
-            const int cRow  { cursorRow[scr] };
-            const int sTop  { scrollTop[scr] };
+            const int vRows { visibleRows };
+            const int cRow  { cursorRow };
+            const int sTop  { scrollTop };
 
             if (cRow == scrollBot)
             {
                 scrollUpAndFill (sTop, scrollBot);
             }
 
-            cursorGoToNextLine (scr, scrollBot, vRows);
+            cursorGoToNextLine (scrollBot, vRows);
 
             break;
         }
@@ -117,33 +117,33 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
         case 'E':
         {
             // NEL — Next Line: CR + IND
-            cursorCol[scr]   = 0;
-            wrapPending[scr] = false;
+            cursorCol   = 0;
+            wrapPending = false;
 
             const int scrollBot { activeScrollBottom() };
-            const int vRows { visibleRows.load (std::memory_order_relaxed) };
-            const int cRow  { cursorRow[scr] };
-            const int sTop  { scrollTop[scr] };
+            const int vRows { visibleRows };
+            const int cRow  { cursorRow };
+            const int sTop  { scrollTop };
 
             if (cRow == scrollBot)
             {
                 scrollUpAndFill (sTop, scrollBot);
             }
 
-            cursorGoToNextLine (scr, scrollBot, vRows);
+            cursorGoToNextLine (scrollBot, vRows);
 
             break;
         }
 
         case 'H':
-            setTabStop (scr);
+            setTabStop();
             break;
 
         case 'M':
         {
             // RI — Reverse Index: scroll down if at top of scroll region
-            const int cRow      { cursorRow[scr] };
-            const int sTopVal   { scrollTop[scr] };
+            const int cRow      { cursorRow };
+            const int sTopVal   { scrollTop };
             const int scrollBot { activeScrollBottom() };
 
             if (cRow == sTopVal)
@@ -152,8 +152,8 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
             }
             else if (cRow > 0)
             {
-                cursorRow[scr]   = cRow - 1;
-                wrapPending[scr] = false;
+                cursorRow   = cRow - 1;
+                wrapPending = false;
             }
 
             break;
@@ -237,8 +237,8 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 {
     if (finalByte == '8')
     {
-        const int nCols { cols.load (std::memory_order_relaxed) };
-        const int vRows { visibleRows.load (std::memory_order_relaxed) };
+        const int nCols { cols };
+        const int vRows { visibleRows };
 
         jam::Cell st {};
         st.codepoint = 'E';
@@ -248,13 +248,13 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 
         for (int row { 0 }; row < vRows; ++row)
         {
-            jam::Cell* rowPtr { grid.getWritePointer (row) };
+            jam::Cell* rowPtr { grid.getWritePointer (scr, row) };
 
             for (int col { 0 }; col < nCols; ++col)
                 rowPtr[col] = st;
         }
 
-        cursorSetPosition (scr, 0, 0, nCols, vRows);
+        cursorSetPosition (0, 0, nCols, vRows);
     }
 }
 

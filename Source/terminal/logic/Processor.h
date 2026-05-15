@@ -18,7 +18,7 @@
  * 2. `process()` forwards to `Parser::process()`.
  * 3. The parser decodes VT sequences and dispatches semantic actions via `commands`.
  * 4. `commands` handlers call Video action methods; Video writes cells to `Grid`.
- * 5. Processor reads Video's public getters and writes State atomics (value delivery).
+ * 5. Video fires events; Processor handlers write State atomics (event dispatch).
  * 6. Responses (e.g. cursor-position reports) are buffered in Video and
  *    flushed back via the `writeToHost` event handler registered in `events`.
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
@@ -32,7 +32,7 @@
  * - `State` and `Grid` handle their own internal thread safety.
  *
  * @see Terminal::Session — owns TTY and History (PTY side).
- * @see Grid    — ring-buffer cell storage with dirty tracking.
+ * @see Grid    — flat Buffer<Cell> storage, stateless data buffer.
  * @see Parser  — VT100/VT520 state machine.
  * @see Video   — terminal state machine: pen, cursor, modes, Grid writes.
  * @see State   — atomic terminal parameter store.
@@ -198,14 +198,14 @@ public:
     const State& getState() const noexcept;
 
     /**
-     * @brief Returns a mutable reference to the ring-buffer cell grid.
+     * @brief Returns a mutable reference to the cell grid.
      * @return Mutable reference to the Session-owned `Grid` object.
      * @note MESSAGE THREAD only.
      */
     Grid& getGrid() noexcept;
 
     /**
-     * @brief Returns a const reference to the ring-buffer cell grid.
+     * @brief Returns a const reference to the cell grid.
      * @return Const reference to the Session-owned `Grid` object.
      * @note MESSAGE THREAD only.
      */
@@ -281,6 +281,13 @@ public:
      *  - `ID::writeInput`          — `(const char*, int)` — user input (keyboard, mouse) → PTY stdin; message thread
      *  - `ID::terminalResize`      — `(int, int, int, int)` — PTY SIGWINCH; message thread
      *  - `ID::shellExited`         — `()` — child shell process exited; message thread
+     *  - `ID::activeScreen`        — `(int)` — active screen index flush; reader thread
+     *  - `ID::cursorRow`           — `(int screen, int row)` — cursor row flush; reader thread
+     *  - `ID::cursorCol`           — `(int screen, int col)` — cursor col flush; reader thread
+     *  - `ID::cursorVisible`       — `(int screen, bool visible)` — cursor visibility flush; reader thread
+     *  - `ID::scrolledRows`        — `(int count)` — rows scrolled off since last flush; reader thread
+     *  - `ID::applicationCursor` / `ID::bracketedPaste` / ... — `(bool)` — mode flag flushes; reader thread
+     *  - `ID::screenSwitch`        — `(int newScreen, int oldRow, int oldCol, bool oldVisible, int, int, bool, uint32_t)` — screen switch mediation; reader thread
      *
      *  @note READER THREAD for most event handlers; callAsync handlers land on message thread. */
     jam::Function::Map<juce::Identifier, void> events;
@@ -335,25 +342,34 @@ private:
      */
     void registerEvents() noexcept;
 
-    /** @brief Reads all Video public getters and writes State atomics (value delivery).
-     *
-     *  Called after every command handler dispatch on the reader thread.
-     *  Unconditional — negligible cost at terminal frame rates.
-     *
-     *  @note READER THREAD — State setters are atomic, safe from any thread.
-     */
-    void syncVideoToState() noexcept;
-
-    /** @brief Resizes the grid, State, and Video.
+    /** @brief Stores pending dimensions for deferred application on the reader thread.
      *
      *  Called from `valueTreePropertyChanged` when State dimensions change.
-     *  Separated into a private method to keep the listener callback lean.
+     *  Stores cols/rows atomically. process() applies them at batch start.
      *
      *  @param cols  New terminal width in character columns.
      *  @param rows  New terminal height in character rows.
-     *  @note MESSAGE THREAD — called from ValueTree::Listener callback.
+     *  @note MESSAGE THREAD — atomic stores only. No Video/Grid writes here.
      */
     void resized (int cols, int rows) noexcept;
+
+    /** @brief Pending column count for deferred resize. Written on message thread, read on reader thread. */
+    std::atomic<int> pendingCols { 0 };
+
+    /** @brief Pending row count for deferred resize. Written on message thread, read on reader thread. */
+    std::atomic<int> pendingRows { 0 };
+
+    /** @brief Set to true when a resize is pending. Consumed by process(). */
+    std::atomic<bool> resizePending { false };
+
+    /** @brief Pending cell width in pixels for deferred setCellSize. */
+    std::atomic<int> pendingCellWidth { 0 };
+
+    /** @brief Pending cell height in pixels for deferred setCellSize. */
+    std::atomic<int> pendingCellHeight { 0 };
+
+    /** @brief Set to true when a cell size change is pending. Consumed by process(). */
+    std::atomic<bool> cellSizePending { false };
 
     /** @brief ValueTree::Listener — reacts to top-down dimension changes from Display.
      *

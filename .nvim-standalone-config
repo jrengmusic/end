@@ -1,4 +1,0 @@
--- Standalone Build Configuration
-return {
-  buildScheme = "Debug",
-}

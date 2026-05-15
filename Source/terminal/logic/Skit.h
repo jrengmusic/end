@@ -47,7 +47,7 @@ public:
      *
      *  @param widthPx   Cell width in pixels.
      *  @param heightPx  Cell height in pixels.
-     *  @note MESSAGE THREAD — relaxed atomic stores.
+     *  @note READER THREAD only.
      */
     void setCellSize (int widthPx, int heightPx) noexcept;
 
@@ -117,11 +117,11 @@ private:
     /** @brief Kitty graphics protocol decoder — persistent across APC chunks. */
     KittyDecoder kittyDecoder;
 
-    /** @brief Cell width in pixels.  Cross-thread (message → reader).  Calculation input for image decode. */
-    std::atomic<int> cellWidth { 0 };
+    /** @brief Cell width in pixels.  Reader thread only.  Calculation input for image decode. */
+    int cellWidth { 0 };
 
-    /** @brief Cell height in pixels.  Cross-thread (message → reader).  Calculation input for image decode. */
-    std::atomic<int> cellHeight { 0 };
+    /** @brief Cell height in pixels.  Reader thread only.  Calculation input for image decode. */
+    int cellHeight { 0 };
 
     /** @brief Number of cell rows occupied by the last decoded image placement.  0 = none. */
     int lastImageRows { 0 };

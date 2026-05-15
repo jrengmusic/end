@@ -1,5 +1,108 @@
 # SPRINT-LOG
 
+## Sprint 17: jam::TextEditor — Buffer<Cell>/Block<Cell> Rendering Substrate
+
+**Date:** 2026-05-15
+**Duration:** 12:00+
+
+### Agents Participated
+- COUNSELOR: architecture discussion, PLAN production, orchestration, audit processing, all fixes
+- Engineer (x12): Buffer<T>, Block<T>, Grid rewrite, TextEditor rewrite, Screen rewrite, Display integration, Arrangement overloads, Video flushState/channel-pattern/atomics removal, Processor deferred resize, Lean splits, Grapheme lazy buffers, clean sweep
+- Auditor (x4): Step 1-2 validation, Step 4 validation, full PLAN compliance audit, final correctness audit
+- Pathfinder (x5): codebase survey, CaretComponent blink mechanism, jam module structure, Whelmed/Cells usage, existing Buffer/Block types
+- Librarian (x4): JUCE AbstractFIFO API, AudioBuffer/AudioBlock API, jreng-filter-strip APVTS pattern, AudioBlock usage in JFS
+- Researcher (x1): container performance for terminal scrollback
+
+### Files Modified
+
+**jam_core (new types):**
+- `jam_core/buffer/jam_buffer.h` — new: Buffer<ElementType> (AudioBuffer pattern, flat SIMD-aligned, setSize/getReadPointer/getWritePointer/clear/copyFrom/moveFrom/getArrayOfReadPointers)
+- `jam_core/buffer/jam_block.h` — new: Block<ElementType> (AudioBlock pattern, non-owning row-pointer-array view, getSubBlock, trivially copyable)
+- `jam_core/jam_core.h` — added buffer includes
+
+**jam_data_structures:**
+- `jam_data_structures/value_tree/jam_value_tree.h` — added CriticalSection valueTreeChanging (APVTS analog)
+- `jam_data_structures/value_tree/jam_value_tree.cpp` — ScopedLock in flush/replaceState/getXml
+
+**jam_fonts (Arrangement + Graphics):**
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement.h` — Block<Cell> shape overloads, Block<Grapheme> optional param, Cells overloads removed, stale doxygen fixed
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement.cpp` — Block<Cell> shape impl, buildArrangements raw Cell* core, Cells overloads removed, Lean split
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement_shape.cpp` — new: extracted resolveStyle, shapeCodepoint, countUniqueKeys, fillRunArrays, buildArrangements
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement_queries.cpp` — getWordAtIndex removed (dead)
+- `jam_fonts/jam_font/glyph/jam_glyph_graphics.h` — push() doxygen updated (full clear), stale Cells refs fixed
+- `jam_fonts/jam_font/glyph/jam_glyph_graphics.cpp` — push() full render target clear (no scroll-delta memmove)
+- `jam_fonts/jam_fonts.cpp` — arrangement_shape include added
+
+**jam_gui (TextEditor + CaretComponent):**
+- `jam_gui/text_editor/jam_text_editor.h` — rewritten: Buffer<Cell> normal/alternate, lazy Buffer<Grapheme>, liveBuffer/liveGraphemeBuffer pointers, ring management, setLiveBuffer/setLiveGraphemeBuffer
+- `jam_gui/text_editor/jam_text_editor.cpp` — rewritten: Buffer<Cell> storage, Block<Cell> rendering in paint, appendRow/setVisibleRow raw Cell*, Lean helpers extracted
+- `jam_gui/text_editor/jam_text_editor_content_view.cpp` — new: ContentView struct + shapeActiveContent + drawGlyphRuns
+- `jam_gui/text_editor/jam_caret_component.h` — forked from juce::CaretComponent, own caretColourId, blink via shouldDraw
+- `jam_gui/jam_gui.h` — include order: TextEditor before CaretComponent
+- `jam_gui/jam_gui.cpp` — content_view include added
+
+**jam_tui (Cells deleted):**
+- `jam_tui/cell/jam_cells.h` — emptied (deleted)
+- `jam_tui/cell/jam_cells.cpp` — emptied (deleted)
+- `jam_tui/jam_tui.h` — jam_cells.h include removed
+- `jam_tui/jam_tui.cpp` — jam_cells.cpp include removed
+
+**END Source/terminal/logic:**
+- `Grid.h` — rewritten: 3 flat Buffer<Cell> (normal/alternate/scrollOff), AbstractFIFO, channel-param API (no activeIndex/setScreen/isAlternateScreen), prepareScrollOffRead/getScrollOffReadPointer/advanceScrollOff
+- `Grid.cpp` — rewritten: Buffer<Cell> storage, AbstractFIFO scroll-off, copyFrom/moveFrom, semantic FIFO variable names
+- `Video.h` — per-screen arrays collapsed to single values, flushState/loadScreenState, vestigial int s removed, atomics → plain int, stale docs fixed
+- `Video.cpp` — flushState via events, setDimensions/setCellSize reader-thread-only, grid channel-param calls, stale atomic docs fixed
+- `VideoCSI.cpp` — grid channel-param, vestigial int s removed
+- `VideoEdit.cpp` — grid channel-param, setScreen fires screenSwitch event, vestigial int s removed
+- `VideoESC.cpp` — grid channel-param, stale Grid doxygen fixed
+- `VideoMode.cpp` — vestigial int s removed
+- `VideoOps.cpp` — vestigial int s removed, atomics → plain int
+- `VideoDCS.cpp` — vestigial int s removed
+- `VideoOSCExt.cpp` — updated for single-register cursor
+- `Processor.h` — syncVideoToState removed, deferred resize atomics added
+- `Processor.cpp` — syncVideoToState deleted, flushState in process(), deferred resize/cellSize at batch start, event handlers for Video state
+- `Session.cpp` — grid.setSize with scrollbackLines from config
+- `Skit.h` — atomics → plain int
+
+**END Source/terminal/data:**
+- `State.h` — addScrolledRows/consumeScrolledRows/getScrolledRows, loadCursorRow/Col/Visible/KeyboardFlags, scrolledRows atomic
+- `State.cpp` — scroll-off counter + per-screen atomic loaders
+- `Identifier.h` — ID::screenSwitch, ID::scrolledRows added
+
+**END Source/terminal/rendering:**
+- `Screen.h` — Map 0-based, Live buffer, liveGrapheme buffer, setLiveDimensions, stale doxygen fixed
+- `Screen.cpp` — updateVisibleRow memcpy to live (no setLiveBlock), append calls appendRow directly
+
+**END Source/component:**
+- `TerminalDisplay.h` — lastActiveScreen sentinel
+- `TerminalDisplay.cpp` — reads screen from State, span-based FIFO drain, one repaint per vblank, setLiveDimensions wired
+- `LookAndFeel.h` — createCaretComponent removed
+- `LookAndFeel.cpp` — createCaretComponent removed, CaretComponent::caretColourId set
+
+**END project root:**
+- `PLAN-text-editor.md` — comprehensive rewrite reflecting Buffer/Block architecture
+
+### Alignment Check
+- [x] BLESSED principles followed — Buffer/Block AudioBuffer/AudioBlock pattern, Grid stateless, State SSOT, no shadow state, no defensive programming, no dead API
+- [x] NAMES.md adhered — semantic variable names (readStart/readCount/wrapStart/wrapCount), ElementType template param, no improvised names
+- [x] MANIFESTO.md principles applied — Lean splits enforced, SSOT (one Buffer type), Stateless (Grid dumb worker), Encapsulation (screen private, channel-param API)
+
+### Problems Solved
+- Ghost cursor artifact: CaretComponent forked, glyph::Graphics full clear each push (no scroll-delta memmove corruption)
+- NF icons rendering as emoji: text font priority over emoji, PUA excluded from emoji path
+- 64-row dirty tracking ceiling: per-row bitmask eliminated entirely, Display copies all visible rows
+- seq 1000 stuck: scroll-off buffer sized correctly (FIFO +1 for AbstractFIFO sentinel), captured count tracks actual writes
+- syncVideoToState per-command overhead: replaced with per-batch flushState via events
+- Cross-thread data races: Video/Skit atomics → plain int (reader-thread-only), Processor deferred resize to reader thread, ValueTree CriticalSection added
+- Shadow state: Grid activeIndex removed (channel-param API), Video per-screen arrays collapsed
+- Magic numbers: defaultScrollMargin 256 removed, maxBatchRows 512 removed, 64-row ceiling removed, all sizes from config
+
+### Debts Paid
+- `DEBT-20260513T130756` — cursor ghost image on blink: CaretComponent forked, glyph::Graphics full clear each push eliminates ghost artifacts
+
+### Debts Deferred
+- None
+
 ## Handoff to COUNSELOR: jam::TextEditor — Cell Rendering Substrate
 
 **From:** COUNSELOR
