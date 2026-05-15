@@ -151,21 +151,6 @@ juce::String State::getForegroundProcess() const noexcept
     return get().getProperty (ID::foregroundProcess).toString();
 }
 
-void State::addScrolledRows (int count) noexcept
-{
-    scrolledRows.fetch_add (count, std::memory_order_release);
-}
-
-int State::consumeScrolledRows() noexcept
-{
-    return scrolledRows.exchange (0, std::memory_order_acquire);
-}
-
-int State::getScrolledRows() const noexcept
-{
-    return scrolledRows.load (std::memory_order_acquire);
-}
-
 int State::getScrollbackUsed() const noexcept { return 0; }
 
 //==========================================================================

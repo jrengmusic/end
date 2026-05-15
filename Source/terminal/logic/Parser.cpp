@@ -34,6 +34,7 @@
  */
 
 #include "Parser.h"
+#include "Video.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -44,22 +45,22 @@ namespace Terminal
 // ============================================================================
 
 /**
- * @brief Constructs the Parser, binding it to a commands map for semantic action dispatch.
+ * @brief Constructs the Parser, binding it to a Video reference for direct action dispatch.
  *
- * Stores a reference to `commands` for use throughout the parsing lifetime.
+ * Stores a reference to `video` for use throughout the parsing lifetime.
  * The `DispatchTable` member is default-constructed here, which populates the
  * full `(ParserState, byte) → Transition` lookup table.
  *
- * @param commands  Command dispatch map.  All decoded semantic actions
- *                  (print, execute, csiDispatch, …) are dispatched through
- *                  this map on the reader thread.
+ * @param video  VT command processor.  All decoded semantic actions
+ *               (print, applyControlCode, applyCSI, …) are called directly on
+ *               this reference on the reader thread.
  *
  * @note MESSAGE THREAD — called before the reader thread starts.
  *
  * @see Parser.h
  */
-Parser::Parser (jam::Function::Map<Command::Type, void>& commands) noexcept
-    : commands (commands)
+Parser::Parser (Video& video) noexcept
+    : video (video)
 {
 }
 

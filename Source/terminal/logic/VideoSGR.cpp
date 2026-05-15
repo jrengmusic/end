@@ -141,85 +141,68 @@ static juce::Colour parseExtendedColor (const CSI& params, uint8_t& i) noexcept
 }
 
 /**
- * @brief Sets a style bit on the pen for SGR attribute-on codes (1–9).
+ * @brief Sets a style flag on `flags` for SGR attribute-on codes (1–9).
  *
- * Maps the raw SGR code to the corresponding `jam::Cell` style flag and ORs it
- * into `p.style`.  Codes not listed in the switch are silently ignored.
+ * Maps the raw SGR code to the corresponding jam::Stamp flag bit and ORs
+ * it into `flags`.  Codes not listed in the switch are silently ignored.
  *
- * | Code | Attribute set              |
- * |------|----------------------------|
- * | 1    | `jam::Cell::BOLD`          |
- * | 3    | `jam::Cell::ITALIC`        |
- * | 4    | `jam::Cell::UNDERLINE`     |
- * | 5    | `jam::Cell::BLINK`         |
- * | 6    | `jam::Cell::BLINK` (rapid) |
- * | 7    | `jam::Cell::INVERSE`       |
- * | 9    | `jam::Cell::STRIKE`        |
+ * | Code | Attribute set          |
+ * |------|------------------------|
+ * | 1    | jam::Stamp::BOLD       |
+ * | 2    | jam::Stamp::DIM        |
+ * | 3    | jam::Stamp::ITALIC     |
+ * | 4    | jam::Stamp::UNDERLINE  |
+ * | 5, 6 | jam::Stamp::BLINK      |
+ * | 7    | jam::Stamp::INVERSE    |
+ * | 9    | jam::Stamp::STRIKE     |
  *
- * @param p     The pen whose style field is modified.
- * @param code  The SGR attribute code (1–9).
+ * @param flags  Bitmask to mutate.
+ * @param code   SGR attribute code (1–9).
  *
  * @note READER THREAD only.
- *
- * @see resetSGRStyle() for the corresponding attribute-off path
- * @see jam::Cell::BOLD, jam::Cell::ITALIC, jam::Cell::UNDERLINE, jam::Cell::BLINK,
- *      jam::Cell::INVERSE, jam::Cell::STRIKE
  */
-static void applySGRStyle (jam::Cell& p, uint16_t code) noexcept
+static void applySGRStyle (uint8_t& flags, uint16_t code) noexcept
 {
     switch (code)
     {
-        case 1:  p.style |= jam::Cell::BOLD;      break;
-        case 2:  p.style |= jam::Cell::DIM;       break;
-        case 3:  p.style |= jam::Cell::ITALIC;    break;
-        case 4:  p.style |= jam::Cell::UNDERLINE; break;
+        case 1:  flags |= jam::Stamp::BOLD;      break;
+        case 2:  flags |= jam::Stamp::DIM;       break;
+        case 3:  flags |= jam::Stamp::ITALIC;    break;
+        case 4:  flags |= jam::Stamp::UNDERLINE; break;
         case 5:
-        case 6:  p.style |= jam::Cell::BLINK;     break;
-        case 7:  p.style |= jam::Cell::INVERSE;   break;
-        case 9:  p.style |= jam::Cell::STRIKE;    break;
+        case 6:  flags |= jam::Stamp::BLINK;     break;
+        case 7:  flags |= jam::Stamp::INVERSE;   break;
+        case 9:  flags |= jam::Stamp::STRIKE;    break;
         default: break;
     }
 }
 
 /**
- * @brief Clears a style bit on the pen for SGR attribute-off codes (21–29).
+ * @brief Clears a style flag on `flags` for SGR attribute-off codes (21–29).
  *
- * Maps the raw SGR code to the corresponding `jam::Cell` style flag and ANDs its
- * complement into `p.style`.  Codes not listed in the switch are silently
- * ignored.
+ * Maps the raw SGR code to the corresponding jam::Stamp flag bit and
+ * ANDs its complement into `flags`.  Codes not listed in the switch are
+ * silently ignored.
  *
- * | Code | Attribute cleared          |
- * |------|----------------------------|
- * | 21   | `jam::Cell::BOLD`          |
- * | 22   | `jam::Cell::BOLD`          |
- * | 23   | `jam::Cell::ITALIC`        |
- * | 24   | `jam::Cell::UNDERLINE`     |
- * | 25   | `jam::Cell::BLINK`         |
- * | 27   | `jam::Cell::INVERSE`       |
- * | 29   | `jam::Cell::STRIKE`        |
+ * @note Codes 21 and 22 both clear BOLD | DIM.  Code 21 is specified
+ *       as "doubly underlined" in ECMA-48 but xterm uses it as bold-off.
  *
- * @note Codes 21 and 22 both clear `jam::Cell::BOLD`.  Code 21 is specified as
- *       "doubly underlined" in ECMA-48 but xterm uses it as bold-off, which
- *       is the de-facto standard in modern terminals.
- *
- * @param p     The pen whose style field is modified.
- * @param code  The SGR attribute-off code (21–29).
+ * @param flags  Bitmask to mutate.
+ * @param code   SGR attribute-off code (21–29).
  *
  * @note READER THREAD only.
- *
- * @see applySGRStyle() for the corresponding attribute-on path
  */
-static void resetSGRStyle (jam::Cell& p, uint16_t code) noexcept
+static void resetSGRStyle (uint8_t& flags, uint16_t code) noexcept
 {
     switch (code)
     {
         case 21:
-        case 22: p.style &= static_cast<uint8_t> (~(jam::Cell::BOLD | jam::Cell::DIM)); break;
-        case 23: p.style &= static_cast<uint8_t> (~jam::Cell::ITALIC);    break;
-        case 24: p.style &= static_cast<uint8_t> (~jam::Cell::UNDERLINE); break;
-        case 25: p.style &= static_cast<uint8_t> (~jam::Cell::BLINK);     break;
-        case 27: p.style &= static_cast<uint8_t> (~jam::Cell::INVERSE);   break;
-        case 29: p.style &= static_cast<uint8_t> (~jam::Cell::STRIKE);    break;
+        case 22: flags &= static_cast<uint8_t> (~(jam::Stamp::BOLD | jam::Stamp::DIM)); break;
+        case 23: flags &= static_cast<uint8_t> (~jam::Stamp::ITALIC);    break;
+        case 24: flags &= static_cast<uint8_t> (~jam::Stamp::UNDERLINE); break;
+        case 25: flags &= static_cast<uint8_t> (~jam::Stamp::BLINK);     break;
+        case 27: flags &= static_cast<uint8_t> (~jam::Stamp::INVERSE);   break;
+        case 29: flags &= static_cast<uint8_t> (~jam::Stamp::STRIKE);    break;
         default: break;
     }
 }
@@ -236,8 +219,8 @@ static void resetSGRStyle (jam::Cell& p, uint16_t code) noexcept
  *
  * | Code range  | Action                                                  |
  * |-------------|---------------------------------------------------------|
- * | (empty)     | Reset pen to default (`jam::Cell {}`)                   |
- * | 0           | Reset pen to default (`jam::Cell {}`)                   |
+ * | (empty)     | Reset pen to default (penFg={}, penBg={}, penFlags=0)   |
+ * | 0           | Reset pen to default (penFg={}, penBg={}, penFlags=0)   |
  * | 1–9         | Set style attribute via `applySGRStyle()`               |
  * | 21–29       | Clear style attribute via `resetSGRStyle()`             |
  * | 30–37       | Set fg to ANSI palette color 0–7                        |
@@ -274,91 +257,94 @@ void Video::handleSGR (const CSI& params) noexcept
 {
     if (params.count == 0)
     {
-        pen = jam::Cell {};
+        penFg = {};
+        penBg = {};
+        penFlags = 0;
+        penStyleDirty = true;
     }
     else
     {
-        auto& p { pen };
-
         for (uint8_t i { 0 }; i < params.count; ++i)
         {
             const auto code { params.values.at (i) };
 
             if (code == 0)
             {
-                p = jam::Cell {};
+                penFg = {};
+                penBg = {};
+                penFlags = 0;
+                penStyleDirty = true;
             }
             else if (code >= 1 and code <= 9)
             {
-                applySGRStyle (p, code);
+                applySGRStyle (penFlags, code);
+                penStyleDirty = true;
             }
             else if (code >= 21 and code <= 29)
             {
-                resetSGRStyle (p, code);
+                resetSGRStyle (penFlags, code);
+                penStyleDirty = true;
             }
             else if (code >= 30 and code <= 37)
             {
-                p.fg = palette256At (code - 30);
+                penFg = palette256At (code - 30);
+                penStyleDirty = true;
             }
             else if (code == 38)
             {
-                p.fg = parseExtendedColor (params, i);
+                penFg = parseExtendedColor (params, i);
+                penStyleDirty = true;
             }
             else if (code == 39)
             {
-                p.fg = juce::Colour {};
+                penFg = {};
+                penStyleDirty = true;
             }
             else if (code >= 40 and code <= 47)
             {
-                p.bg = palette256At (code - 40);
+                penBg = palette256At (code - 40);
+                penStyleDirty = true;
             }
             else if (code == 48)
             {
-                p.bg = parseExtendedColor (params, i);
+                penBg = parseExtendedColor (params, i);
+                penStyleDirty = true;
             }
             else if (code == 49)
             {
-                p.bg = juce::Colour {};
+                penBg = {};
+                penStyleDirty = true;
             }
             else if (code >= 90 and code <= 97)
             {
-                p.fg = palette256At (code - 90 + 8);
+                penFg = palette256At (code - 90 + 8);
+                penStyleDirty = true;
             }
             else if (code >= 100 and code <= 107)
             {
-                p.bg = palette256At (code - 100 + 8);
+                penBg = palette256At (code - 100 + 8);
+                penStyleDirty = true;
             }
         }
     }
 }
 
 /**
- * @brief Public SGR entry point: applies attributes and synchronises cached state.
+ * @brief Public SGR entry point: applies attributes to the pen.
  *
- * Delegates attribute application to `handleSGR()`, then calls `calc()` to
- * propagate any geometry-dependent changes.  This is the method invoked by
- * `csiDispatch()` when the final byte 'm' is received.
- *
- * @par Call sequence
- * @code
- * // Inside csiDispatch(), final byte 'm':
- * applySGR (csi);
- * // Equivalent to:
- * handleSGR (csi);   // mutate pen
- * calc();            // sync scrollBottom and other cached state
- * @endcode
+ * Delegates attribute application to `handleSGR()`.  penStyleDirty is set
+ * inside handleSGR() on each mutation, so currentStyleId() will re-query
+ * the Stamp table on the next cell write.
  *
  * @param params  The finalised CSI parameter set for the SGR sequence.
  *
  * @note READER THREAD only.
  *
- * @see handleSGR() — the inner implementation that mutates `pen`
- * @see calc()      — synchronises internal cached geometry after any state change
+ * @see handleSGR() — inner implementation that mutates penFg / penBg / penFlags
  */
 void Video::applySGR (const CSI& params) noexcept
 {
     handleSGR (params);
-    calc();
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

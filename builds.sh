@@ -40,10 +40,10 @@ NO_NOTARIZE=0
 
 for arg in "$@"; do
     case "$arg" in
-        clean)       CLEAN=1 ;;
-        install)     DO_INSTALL=1 ;;
-        debug)       CONFIG="Debug" ;;
-        nonotarize)  NO_NOTARIZE=1 ;;
+        clean)      CLEAN=1 ;;
+        install)    DO_INSTALL=1 ;;
+        debug)      CONFIG="Debug" ;;
+        nonotarize) NO_NOTARIZE=1 ;;
     esac
 done
 
@@ -144,38 +144,24 @@ job_count() {
 # ---------------------------------------------------------------------------
 configure() {
     local config="$1"
-    local marker="Builds/Ninja/.build_config"
+    local build_dir="Builds/Ninja/$config"
     local needs_configure=0
 
-    local marker_value="$config"
-    [[ "$NO_NOTARIZE" -eq 1 ]] && marker_value="$config-nonotarize"
-
-    if [[ ! -d "Builds/Ninja" ]]; then
+    if [[ ! -f "$build_dir/CMakeCache.txt" ]]; then
         needs_configure=1
-    else
-        local existing_config=""
-        [[ -f "$marker" ]] && existing_config="$(cat "$marker" | tr -d '\r\n')"
-        if [[ "$existing_config" != "$marker_value" ]]; then
-            echo "Config changed [$existing_config] -> [$marker_value], reconfiguring..."
-            rm -rf "Builds/Ninja"
-            needs_configure=1
-        fi
     fi
 
     if [[ "$needs_configure" -eq 1 ]]; then
-        echo "Configuring [$marker_value]..."
+        echo "Configuring [$config]..."
         if [[ "$OS" == "windows" ]]; then
-            cmake -S . -B Builds/Ninja -G Ninja \
+            cmake -S . -B "$build_dir" -G Ninja \
                 -DCMAKE_BUILD_TYPE="$config" \
                 -DCMAKE_C_COMPILER="$CC" \
-                -DCMAKE_CXX_COMPILER="$CXX" \
-                -DJAM_NOTARIZE="$( [[ "$NO_NOTARIZE" -eq 1 ]] && echo OFF || echo ON )"
+                -DCMAKE_CXX_COMPILER="$CXX"
         else
-            cmake -S . -B Builds/Ninja -G Ninja \
-                -DCMAKE_BUILD_TYPE="$config" \
-                -DJAM_NOTARIZE="$( [[ "$NO_NOTARIZE" -eq 1 ]] && echo OFF || echo ON )"
+            cmake -S . -B "$build_dir" -G Ninja \
+                -DCMAKE_BUILD_TYPE="$config"
         fi
-        echo "$marker_value" > "$marker"
     fi
 }
 
@@ -187,7 +173,9 @@ build() {
     local jobs
     jobs="$(job_count)"
     echo "Building [$config] with $jobs jobs..."
-    cmake --build Builds/Ninja -- -j"$jobs"
+    local notarize_env=""
+    [[ "$NO_NOTARIZE" -eq 1 ]] && notarize_env="JAM_NOTARIZE=OFF"
+    env $notarize_env cmake --build "Builds/Ninja/$config" -- -j"$jobs"
 }
 
 # ---------------------------------------------------------------------------
@@ -197,20 +185,20 @@ install_artifact() {
     echo "Installing..."
     case "$OS" in
         windows)
-            local artifact="Builds/Ninja/END_App_artefacts/Release/END.exe"
+            local artifact="Builds/Ninja/Release/END_App_artefacts/Release/END.exe"
             local install_dir="$HOME/.local/bin"
             mkdir -p "$install_dir"
             cp "$artifact" "$install_dir/end.exe"
             ;;
         macos)
-            local artifact="Builds/Ninja/END_App_artefacts/Release/END.app"
+            local artifact="Builds/Ninja/Release/END_App_artefacts/Release/END.app"
             local install_dir="$HOME/Applications"
             mkdir -p "$install_dir"
             rm -rf "$install_dir/END.app"
             cp -R "$artifact" "$install_dir/END.app"
             ;;
         linux)
-            local artifact="Builds/Ninja/END_App_artefacts/Release/END"
+            local artifact="Builds/Ninja/Release/END_App_artefacts/Release/END"
             local install_dir="$HOME/.local/bin"
             mkdir -p "$install_dir"
             cp "$artifact" "$install_dir/end"
@@ -235,8 +223,8 @@ if [[ "$OS" == "windows" ]]; then
 fi
 
 if [[ "$CLEAN" -eq 1 ]]; then
-    echo "Cleaning Builds/Ninja..."
-    rm -rf "Builds/Ninja"
+    echo "Cleaning Builds/Ninja/$CONFIG..."
+    rm -rf "Builds/Ninja/$CONFIG"
 fi
 
 configure "$CONFIG"

@@ -70,8 +70,8 @@ void Video::eraseInDisplay (int mode) noexcept
     const int vRows        { visibleRows };
     const int cRow         { cursorRow };
     const int cCol         { cursorCol };
-    const jam::Cell fill { jam::Cell::erase (stamp.bg) };
-    const bool hasFill { stamp.bg.getAlpha() > 0 };
+    const bool hasBgFill { penBg.getAlpha() > 0 };
+    const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
     switch (mode)
     {
@@ -79,7 +79,7 @@ void Video::eraseInDisplay (int mode) noexcept
         {
             // Cursor to end of screen
             // Clear rest of cursor row
-            if (hasFill)
+            if (hasBgFill)
             {
                 jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
@@ -94,7 +94,7 @@ void Video::eraseInDisplay (int mode) noexcept
             // Clear rows below cursor
             for (int r { cRow + 1 }; r < vRows; ++r)
             {
-                if (hasFill)
+                if (hasBgFill)
                 {
                     jam::Cell* row { grid.getWritePointer (scr, r) };
 
@@ -115,7 +115,7 @@ void Video::eraseInDisplay (int mode) noexcept
             // Start of screen to cursor
             for (int r { 0 }; r < cRow; ++r)
             {
-                if (hasFill)
+                if (hasBgFill)
                 {
                     jam::Cell* row { grid.getWritePointer (scr, r) };
 
@@ -129,7 +129,7 @@ void Video::eraseInDisplay (int mode) noexcept
             }
 
             // Clear cursor row up to and including cursor
-            if (hasFill)
+            if (hasBgFill)
             {
                 jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
@@ -147,7 +147,7 @@ void Video::eraseInDisplay (int mode) noexcept
         case 2:
         {
             // Entire screen
-            if (hasFill)
+            if (hasBgFill)
             {
                 for (int r { 0 }; r < vRows; ++r)
                 {
@@ -209,14 +209,14 @@ void Video::eraseInLine (int mode) noexcept
     const int nCols { cols };
     const int cRow  { cursorRow };
     const int cCol  { cursorCol };
-    const jam::Cell fill { jam::Cell::erase (stamp.bg) };
-    const bool hasFill { stamp.bg.getAlpha() > 0 };
+    const bool hasBgFill { penBg.getAlpha() > 0 };
+    const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
     switch (mode)
     {
         case 0:
         {
-            if (hasFill)
+            if (hasBgFill)
             {
                 jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
@@ -233,7 +233,7 @@ void Video::eraseInLine (int mode) noexcept
 
         case 1:
         {
-            if (hasFill)
+            if (hasBgFill)
             {
                 jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
@@ -250,7 +250,7 @@ void Video::eraseInLine (int mode) noexcept
 
         case 2:
         {
-            if (hasFill)
+            if (hasBgFill)
             {
                 jam::Cell* row { grid.getWritePointer (scr, cRow) };
 
@@ -341,18 +341,17 @@ void Video::shiftLines (int count, bool up) noexcept
 
         if (up)
         {
-            const int captured { grid.scrollUp (scr, cRow, bottom, clampedCount) };
-            pendingScrolledRows += captured;
+            grid.scrollUp (scr, cRow, bottom, clampedCount);
         }
         else
         {
             grid.scrollDown (scr, cRow, bottom, clampedCount);
         }
 
-        if (stamp.bg.getAlpha() > 0)
+        if (penBg.getAlpha() > 0)
         {
             const int nCols { cols };
-            const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+            const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
             if (up)
             {
@@ -414,7 +413,7 @@ void Video::shiftCellsRight (int count) noexcept
                       row + cCol,
                       static_cast<size_t> (nCols - cCol - charsToInsert) * sizeof (jam::Cell));
 
-        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
         for (int c { cCol }; c < cCol + charsToInsert; ++c)
             row[c] = fill;
@@ -450,7 +449,7 @@ void Video::removeCells (int count) noexcept
                       row + cCol + charsToDelete,
                       static_cast<size_t> (nCols - cCol - charsToDelete) * sizeof (jam::Cell));
 
-        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
         for (int c { nCols - charsToDelete }; c < nCols; ++c)
             row[c] = fill;
@@ -480,7 +479,7 @@ void Video::eraseCells (int count) noexcept
 
     if (clampedCount > 0)
     {
-        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
         jam::Cell* row { grid.getWritePointer (activeScreen, cRow) };
 
         for (int c { cCol }; c < cCol + clampedCount; ++c)

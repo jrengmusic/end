@@ -498,12 +498,11 @@ void Video::scrollUp (const CSI& params) noexcept
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
-    const int captured { grid.scrollUp (scr, scrTop, bottom, clampedCount) };
-    pendingScrolledRows += captured;
+    grid.scrollUp (scr, scrTop, bottom, clampedCount);
 
-    if (stamp.bg.getAlpha() > 0)
+    if (penBg.getAlpha() > 0)
     {
-        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
         for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
         {
@@ -536,9 +535,9 @@ void Video::scrollDown (const CSI& params) noexcept
 
     grid.scrollDown (scr, scrTop, bottom, clampedCount);
 
-    if (stamp.bg.getAlpha() > 0)
+    if (penBg.getAlpha() > 0)
     {
-        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
         for (int r { scrTop }; r < scrTop + clampedCount; ++r)
         {

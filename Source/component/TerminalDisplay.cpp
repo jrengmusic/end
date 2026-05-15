@@ -8,11 +8,10 @@ Terminal::Display::Display (Terminal::Processor& processorToUse)
     , vblank (this, [this] { onVBlank(); })
 {
     addAndMakeVisible (screen);
-    screen.setScrollBarThickness (config.display.scrollbarWidth);
-    screen.setScrollbackLines (config.nexus.terminal.scrollbackLines);
-
     screen.addKeyListener (this);
     state.get().addListener (this);
+
+    applyConfig();
 }
 
 Terminal::Display::~Display()
@@ -25,7 +24,24 @@ Terminal::Display::~Display()
 juce::String Terminal::Display::getPaneType() const noexcept { return App::ID::paneTypeTerminal; }
 void Terminal::Display::switchRenderer (App::RendererType) noexcept {}
 juce::ValueTree Terminal::Display::getValueTree() noexcept { return state.get(); }
-void Terminal::Display::applyConfig() noexcept {}
+void Terminal::Display::applyConfig() noexcept
+{
+    const jam::Font font { config.display.font.family,
+                           config.dpiCorrectedFontSize(),
+                           config.display.font.cellWidth,
+                           config.display.font.lineHeight };
+
+    screen.setFont (font);
+    screen.setCaretChar (jam::toChar (config.display.cursor.codepoint));
+    screen.setCaretShape (config.display.cursor.style);
+    screen.setScrollBarThickness (config.display.scrollbarWidth);
+    screen.setScrollbackLines (config.nexus.terminal.scrollbackLines);
+
+    state.setCellMetrics (font.cellWidth, font.cellHeight, font.baseline, font.fontSize);
+    state.refresh();
+
+    resized();
+}
 void Terminal::Display::applyZoom (float) noexcept {}
 void Terminal::Display::enterSelectionMode() noexcept {}
 void Terminal::Display::copySelection() noexcept {}
@@ -59,44 +75,29 @@ void Terminal::Display::resized()
                                    .withTrimmedBottom (config.nexus.terminal.paddingBottom)
                                    .withTrimmedLeft (config.nexus.terminal.paddingLeft) };
 
-    const float fontSize { config.dpiCorrectedFontSize() };
-
-    // Font set once per config change — not on every resize.
-    if (fontSize != lastFontSize)
-    {
-        lastFontSize = fontSize;
-
-        lastFont = jam::Font { config.display.font.family, fontSize,
-                               config.display.font.cellWidth, config.display.font.lineHeight };
-
-        screen.setFont (lastFont);
-        screen.setCaretChar (jam::toChar (config.display.cursor.codepoint));
-        screen.setCaretShape (config.display.cursor.style);
-    }
-
     screen.setBounds (contentBounds);
+    updateDimensions (contentBounds);
+}
 
-    // PROJECTION — read logical dims from Screen (computed in TextEditor::resized()).
+void Terminal::Display::updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept
+{
     const auto cellArea { screen.getCellArea() };
     const int newCols   { cellArea.width };
     const int newRows   { cellArea.height };
 
     if (newCols > 0 and newRows > 0)
     {
-        // Resize debounce — only act when grid dimensions actually change.
         if (newCols != lastCols or newRows != lastRows)
         {
             lastCols = newCols;
             lastRows = newRows;
 
-            processor.getState().setCellMetrics (lastFont.cellWidth, lastFont.cellHeight, lastFont.baseline, fontSize);
-            processor.getState().refresh();
-
-            // Top-down: Display writes State → Processor::valueTreePropertyChanged → Video.
-            processor.getState().setValue (Terminal::ID::cols, newCols);
-            processor.getState().setValue (Terminal::ID::visibleRows, newRows);
+            state.setValue (Terminal::ID::cols, newCols);
+            state.setValue (Terminal::ID::visibleRows, newRows);
 
             screen.setLiveDimensions (newRows, newCols);
+            gridRowPointers.realloc (static_cast<size_t> (newRows));
+            gridRowPointersSize = newRows;
 
             if (processor.events.contains (Terminal::ID::terminalResize))
                 processor.events.get (Terminal::ID::terminalResize, int (newCols), int (newRows),
@@ -123,14 +124,7 @@ bool Terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
 void Terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
 {
     state.setSnapshotDirty();
-
-    const int activeScreen { state.getActiveScreen() };
-
-    if (activeScreen != lastActiveScreen)
-    {
-        lastActiveScreen = activeScreen;
-        screen.setActiveScreen (activeScreen);
-    }
+    screen.setActiveScreen (state.getActiveScreen());
 }
 
 // juce::AsyncUpdater
@@ -145,63 +139,38 @@ void Terminal::Display::onVBlank()
     if (stateDirty)
         state.refresh();
 
-    // Grid drain — transfers cells from Grid to Screen
-    const int scrolledRows { state.consumeScrolledRows() };
-    const bool gridDirty   { stateDirty or scrolledRows > 0 };
-
-    if (gridDirty)
+    // Read Grid directly — no lock needed for normal cell reads (8-byte atomic u64).
+    // Resize is protected by a brief ScopedLock inside Processor::process().
     {
         const int activeScreen { state.getActiveScreen() };
 
-        // 1. Drain scroll-off rows (always normal screen, index 0).
-        if (scrolledRows > 0)
-        {
-            const int numCols { grid.getNumCols (0) };
-            int readStart, readCount, wrapStart, wrapCount;
-            grid.prepareScrollOffRead (scrolledRows, readStart, readCount, wrapStart, wrapCount);
-
-            for (int i { 0 }; i < readCount; ++i)
-            {
-                const jam::Cell* row { grid.getScrollOffReadPointer (readStart + i) };
-                screen.append (&row, 1, numCols);
-            }
-
-            for (int i { 0 }; i < wrapCount; ++i)
-            {
-                const jam::Cell* row { grid.getScrollOffReadPointer (wrapStart + i) };
-                screen.append (&row, 1, numCols);
-            }
-
-            grid.advanceScrollOff (readCount + wrapCount);
-        }
-
-        // 2. Copy all visible rows — no activeIndex read.
+        // Copy Grid visible rows into Screen's live buffer.
         {
             const int numRows { grid.getNumRows (activeScreen) };
             const int numCols { grid.getNumCols (activeScreen) };
 
-            for (int r { 0 }; r < numRows; ++r)
+            if (numRows > 0 and numCols > 0 and numRows <= gridRowPointersSize)
             {
-                const jam::Cell* rowData { grid.getReadPointer (activeScreen, r) };
-                screen.updateVisibleRow (r, rowData, numCols);
+                for (int r { 0 }; r < numRows; ++r)
+                    gridRowPointers[r] = grid.getReadPointer (activeScreen, r);
+
+                screen.updateLiveRows (gridRowPointers.getData(), numRows, numCols);
             }
 
-            screen.repaint();
+            grid.resetScrolledCount (activeScreen);
         }
-    }
 
-    // 3. Caret position
-    if (stateDirty or gridDirty)
-    {
-        const int activeScreen { state.getActiveScreen() };
-        const int cols { grid.getNumCols (activeScreen) };
-        const int rows { grid.getNumRows (activeScreen) };
-
-        if (cols > 0 and rows > 0)
+        // 3. Caret position.
         {
-            const int cursorCol { juce::jlimit (0, cols - 1, state.getCursorCol()) };
-            const int cursorRow { juce::jlimit (0, rows - 1, state.getCursorRow()) };
-            screen.setCaretPosition (cursorCol, cursorRow);
+            const int cols { grid.getNumCols (activeScreen) };
+            const int rows { grid.getNumRows (activeScreen) };
+
+            if (cols > 0 and rows > 0)
+            {
+                const int cursorCol { juce::jlimit (0, cols - 1, state.getCursorCol()) };
+                const int cursorRow { juce::jlimit (0, rows - 1, state.getCursorRow()) };
+                screen.setCaretPosition (cursorCol, cursorRow);
+            }
         }
     }
 }

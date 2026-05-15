@@ -6,7 +6,7 @@
  * Parser and Video, and routes bytes through the Grid and State received from Session:
  *
  * ```
- *  bytes → Processor::process → Parser → commands map → Video → State / Grid → Display
+ *  bytes → Processor::process → Parser → Video → State / Grid → Display
  * ```
  *
  * The PTY-side (TTY + History) lives in `Terminal::Session`.  Processor is
@@ -16,8 +16,8 @@
  * ### Data flow
  * 1. Caller delivers raw bytes on the READER THREAD via `process()`.
  * 2. `process()` forwards to `Parser::process()`.
- * 3. The parser decodes VT sequences and dispatches semantic actions via `commands`.
- * 4. `commands` handlers call Video action methods; Video writes cells to `Grid`.
+ * 3. The parser decodes VT sequences and calls Video action methods directly.
+ * 4. Video writes cells to `Grid`.
  * 5. Video fires events; Processor handlers write State atomics (event dispatch).
  * 6. Responses (e.g. cursor-position reports) are buffered in Video and
  *    flushed back via the `writeToHost` event handler registered in `events`.
@@ -42,7 +42,6 @@
 
 #include <JuceHeader.h>
 
-#include "../data/Command.h"
 #include "../data/Keyboard.h"
 #include "../data/State.h"
 #include "../data/TextBuffer.h"
@@ -70,7 +69,7 @@ class Display;
  * which notifies Display to repaint.
  *
  * ### Boundary contract
- * `State`, `Grid`, `uuid`, `video`, `parser`, and `commands` are private.
+ * `State`, `Grid`, `uuid`, `video`, and `parser` are private.
  * The `events` map is public — Session registers handlers directly on it.
  * External callers access state through the public getter API:
  * - `getState()` / `getGrid()` — mutable and const references.
@@ -285,7 +284,6 @@ public:
      *  - `ID::cursorRow`           — `(int screen, int row)` — cursor row flush; reader thread
      *  - `ID::cursorCol`           — `(int screen, int col)` — cursor col flush; reader thread
      *  - `ID::cursorVisible`       — `(int screen, bool visible)` — cursor visibility flush; reader thread
-     *  - `ID::scrolledRows`        — `(int count)` — rows scrolled off since last flush; reader thread
      *  - `ID::applicationCursor` / `ID::bracketedPaste` / ... — `(bool)` — mode flag flushes; reader thread
      *  - `ID::screenSwitch`        — `(int newScreen, int oldRow, int oldCol, bool oldVisible, int, int, bool, uint32_t)` — screen switch mediation; reader thread
      *
@@ -320,17 +318,11 @@ private:
      */
     Skit skit;
 
-    /** @brief Command dispatch map — Parser → Processor → Video. */
-    jam::Function::Map<Command::Type, void> commands;
-
     /** @brief Stable UUID identifying this Processor across process boundaries. */
     const juce::String uuid;
 
     /** @brief VT100/VT520 state machine that decodes PTY output. */
     std::unique_ptr<Parser> parser;
-
-    /** @brief Registers all command handlers that forward Parser actions to Video. */
-    void registerCommands() noexcept;
 
     /** @brief Registers Processor-owned event handlers on the events map.
      *
@@ -338,7 +330,7 @@ private:
      *  State access (which Video does not hold): link ID assignment, shell
      *  integration row conversion (screen-relative → absolute), and others.
      *
-     *  Called once from the constructor, after `registerCommands()`.
+     *  Called once from the constructor.
      */
     void registerEvents() noexcept;
 

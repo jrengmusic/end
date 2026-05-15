@@ -1,6 +1,6 @@
 /**
  * @file Grid.cpp
- * @brief Implementation of the AudioBuffer-pattern terminal cell grid.
+ * @brief Implementation of the ring-index terminal cell grid.
  *
  * @see Grid.h for design notes and API documentation.
  */
@@ -8,45 +8,41 @@
 #include "Grid.h"
 
 namespace Terminal
-{ /*____________________________________________________________________________*/
+{
+/*____________________________________________________________________________*/
+
+// =============================================================================
+// Private helper
+// =============================================================================
+
+int Grid::physicalRow (int screen, int logicalRow) const noexcept { return (head[screen] + logicalRow) & ringMask; }
 
 // =============================================================================
 // Size
 // =============================================================================
 
-void Grid::setSize (int numRows, int numCols, int scrollBufferSize,
-                    bool keepExistingContent,
-                    bool clearExtraSpace,
-                    bool avoidReallocating) noexcept
+void Grid::setSize (int numRows, int numCols) noexcept
 {
     jassert (numRows > 0 and numCols > 0);
-    jassert (scrollBufferSize >= 0);
 
-    normal.setSize    (numRows, numCols, keepExistingContent, clearExtraSpace, avoidReallocating);
-    alternate.setSize (numRows, numCols, keepExistingContent, clearExtraSpace, avoidReallocating);
+    int ringSize { 1 };
+    while (ringSize < numRows)
+        ringSize <<= 1;
 
-    const bool scrollSizeChanged { scrollBufferSize != scrollOff.getNumRows()
-                                   or numCols != scrollOff.getNumCols() };
-
-    if (scrollSizeChanged)
-    {
-        // AbstractFIFO sacrifices one slot (full vs empty disambiguation).
-        // Buffer must be sized to FIFO's total size so all returned indices are valid.
-        const int fifoSize { scrollBufferSize > 0 ? scrollBufferSize + 1 : 1 };
-        scrollOff.setSize (fifoSize, numCols, false, false, false);
-        scrollOffFifo.setTotalSize (fifoSize);
-    }
+    cells.setSize (2, ringSize, numCols, false, true, false);
+    ringMask = ringSize - 1;
+    viewportRows = numRows;
+    head[0] = 0;
+    head[1] = 0;
+    scrolledCount[0] = 0;
+    scrolledCount[1] = 0;
 }
 
-int Grid::getNumRows (int screen) const noexcept
-{
-    return (screen == 0 ? normal : alternate).getNumRows();
-}
+int Grid::getNumRows (int /*screen*/) const noexcept { return viewportRows; }
 
-int Grid::getNumCols (int screen) const noexcept
-{
-    return (screen == 0 ? normal : alternate).getNumCols();
-}
+int Grid::getNumCols (int /*screen*/) const noexcept { return cells.getNumCols(); }
+
+int Grid::getRingSize() const noexcept { return ringMask + 1; }
 
 // =============================================================================
 // Pointer access
@@ -54,32 +50,32 @@ int Grid::getNumCols (int screen) const noexcept
 
 const jam::Cell* Grid::getReadPointer (int screen, int row) const noexcept
 {
-    const auto& buf { screen == 0 ? normal : alternate };
-    jassert (row >= 0 and row < buf.getNumRows());
-    return buf.getReadPointer (row);
+    jassert (screen >= 0 and screen < 2);
+    jassert (row >= 0 and row < viewportRows);
+    return cells.getReadPointer (screen, physicalRow (screen, row));
 }
 
 const jam::Cell* Grid::getReadPointer (int screen, int row, int col) const noexcept
 {
-    const auto& buf { screen == 0 ? normal : alternate };
-    jassert (row >= 0 and row < buf.getNumRows());
-    jassert (col >= 0 and col < buf.getNumCols());
-    return buf.getReadPointer (row, col);
+    jassert (screen >= 0 and screen < 2);
+    jassert (row >= 0 and row < viewportRows);
+    jassert (col >= 0 and col < cells.getNumCols());
+    return cells.getReadPointer (screen, physicalRow (screen, row), col);
 }
 
 jam::Cell* Grid::getWritePointer (int screen, int row) noexcept
 {
-    auto& buf { screen == 0 ? normal : alternate };
-    jassert (row >= 0 and row < buf.getNumRows());
-    return buf.getWritePointer (row);
+    jassert (screen >= 0 and screen < 2);
+    jassert (row >= 0 and row < viewportRows);
+    return cells.getWritePointer (screen, physicalRow (screen, row));
 }
 
 jam::Cell* Grid::getWritePointer (int screen, int row, int col) noexcept
 {
-    auto& buf { screen == 0 ? normal : alternate };
-    jassert (row >= 0 and row < buf.getNumRows());
-    jassert (col >= 0 and col < buf.getNumCols());
-    return buf.getWritePointer (row, col);
+    jassert (screen >= 0 and screen < 2);
+    jassert (row >= 0 and row < viewportRows);
+    jassert (col >= 0 and col < cells.getNumCols());
+    return cells.getWritePointer (screen, physicalRow (screen, row), col);
 }
 
 // =============================================================================
@@ -88,26 +84,31 @@ jam::Cell* Grid::getWritePointer (int screen, int row, int col) noexcept
 
 void Grid::clear (int screen) noexcept
 {
-    (screen == 0 ? normal : alternate).clear();
+    jassert (screen >= 0 and screen < 2);
+    cells.clear (screen);
+    head[screen] = 0;
+    scrolledCount[screen] = 0;
 }
 
 void Grid::clear (int screen, int row) noexcept
 {
-    (screen == 0 ? normal : alternate).clear (row);
+    jassert (screen >= 0 and screen < 2);
+    cells.clear (screen, physicalRow (screen, row));
 }
 
 void Grid::clear (int screen, int row, int startCol, int numCols) noexcept
 {
-    auto& buf { screen == 0 ? normal : alternate };
-    const int clampedCount { juce::jmin (numCols, buf.getNumCols() - startCol) };
+    jassert (screen >= 0 and screen < 2);
+    const int clampedCount { juce::jmin (numCols, cells.getNumCols() - startCol) };
 
     if (clampedCount > 0)
-        buf.clear (row, startCol, clampedCount);
+        cells.clear (screen, physicalRow (screen, row), startCol, clampedCount);
 }
 
 bool Grid::hasBeenCleared (int screen) const noexcept
 {
-    return (screen == 0 ? normal : alternate).hasBeenCleared();
+    jassert (screen >= 0 and screen < 2);
+    return cells.hasBeenCleared (screen);
 }
 
 // =============================================================================
@@ -116,85 +117,95 @@ bool Grid::hasBeenCleared (int screen) const noexcept
 
 int Grid::scrollUp (int screen, int scrollTop, int scrollBottom, int count) noexcept
 {
-    auto& buf { screen == 0 ? normal : alternate };
+    jassert (screen >= 0 and screen < 2);
+
     const int clampedCount { juce::jmin (count, scrollBottom - scrollTop + 1) };
-    int captured { 0 };
 
     if (clampedCount > 0)
     {
-        const bool isFullScreen { scrollTop == 0 and scrollBottom == buf.getNumRows() - 1 };
-        const bool isNormal     { screen == 0 };
+        const bool isFullScreen { scrollTop == 0 and scrollBottom == viewportRows - 1 };
 
-        if (isFullScreen and isNormal)
+        if (isFullScreen)
         {
-            if (scrollOff.getNumRows() > 0)
+            for (int n { 0 }; n < clampedCount; ++n)
             {
-                for (int n { 0 }; n < clampedCount; ++n)
-                {
-                    int writeStart, writeCount, wrapStart, wrapCount;
-                    scrollOffFifo.prepareToWrite (1, writeStart, writeCount, wrapStart, wrapCount);
+                // The row at head is the oldest viewport row — clear it to become the new blank bottom.
+                cells.clear (screen, head[screen]);
+                head[screen] = (head[screen] + 1) & ringMask;
+            }
 
-                    if (writeCount > 0)
-                    {
-                        scrollOff.copyFrom (writeStart, buf, n);
-                        scrollOffFifo.finishedWrite (1);
-                        ++captured;
-                    }
-                }
+            scrolledCount[screen] += clampedCount;
+        }
+        else
+        {
+            for (int n { 0 }; n < clampedCount; ++n)
+            {
+                for (int r { scrollTop }; r < scrollBottom; ++r)
+                    cells.copyFrom (screen, physicalRow (screen, r), cells, screen, physicalRow (screen, r + 1));
+
+                cells.clear (screen, physicalRow (screen, scrollBottom));
             }
         }
-
-        // Move rows up within the scroll region.
-        const int rowsToMove { scrollBottom - scrollTop + 1 - clampedCount };
-
-        if (rowsToMove > 0)
-            buf.moveFrom (scrollTop, scrollTop + clampedCount, rowsToMove);
-
-        for (int r { scrollBottom - clampedCount + 1 }; r <= scrollBottom; ++r)
-            buf.clear (r);
     }
 
-    return captured;
+    return clampedCount;
 }
 
 void Grid::scrollDown (int screen, int scrollTop, int scrollBottom, int count) noexcept
 {
-    auto& buf { screen == 0 ? normal : alternate };
+    jassert (screen >= 0 and screen < 2);
+
     const int clampedCount { juce::jmin (count, scrollBottom - scrollTop + 1) };
 
     if (clampedCount > 0)
     {
-        const int rowsToMove { scrollBottom - scrollTop + 1 - clampedCount };
+        const bool isFullScreen { scrollTop == 0 and scrollBottom == viewportRows - 1 };
 
-        if (rowsToMove > 0)
-            buf.moveFrom (scrollTop + clampedCount, scrollTop, rowsToMove);
+        if (isFullScreen)
+        {
+            for (int n { 0 }; n < clampedCount; ++n)
+            {
+                head[screen] = (head[screen] - 1) & ringMask;
+                cells.clear (screen, physicalRow (screen, 0));
+            }
+        }
+        else
+        {
+            for (int n { 0 }; n < clampedCount; ++n)
+            {
+                for (int r { scrollBottom }; r > scrollTop; --r)
+                    cells.copyFrom (screen, physicalRow (screen, r), cells, screen, physicalRow (screen, r - 1));
 
-        for (int r { scrollTop }; r < scrollTop + clampedCount; ++r)
-            buf.clear (r);
+                cells.clear (screen, physicalRow (screen, scrollTop));
+            }
+        }
     }
 }
 
 // =============================================================================
-// Scroll-off FIFO
+// Staging
 // =============================================================================
 
-void Grid::prepareScrollOffRead (int count, int& readStart, int& readCount,
-                                  int& wrapStart, int& wrapCount) const noexcept
+int Grid::getScrolledCount (int screen) const noexcept
 {
-    scrollOffFifo.prepareToRead (count, readStart, readCount, wrapStart, wrapCount);
+    jassert (screen >= 0 and screen < 2);
+    return scrolledCount[screen];
 }
 
-const jam::Cell* Grid::getScrollOffReadPointer (int physicalRow) const noexcept
+void Grid::resetScrolledCount (int screen) noexcept
 {
-    jassert (physicalRow >= 0 and physicalRow < scrollOff.getNumRows());
-    return scrollOff.getReadPointer (physicalRow);
+    jassert (screen >= 0 and screen < 2);
+    scrolledCount[screen] = 0;
 }
 
-void Grid::advanceScrollOff (int count) noexcept
+const jam::Cell* Grid::getStagingReadPointer (int screen, int stagingIndex) const noexcept
 {
-    if (count > 0)
-        scrollOffFifo.finishedRead (count);
+    jassert (screen >= 0 and screen < 2);
+    const int effectiveScrolled { juce::jmin (scrolledCount[screen], (ringMask + 1) - viewportRows) };
+    jassert (stagingIndex >= 0 and stagingIndex < effectiveScrolled);
+    const int physRow { (head[screen] - effectiveScrolled + stagingIndex) & ringMask };
+    return cells.getReadPointer (screen, physRow);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal

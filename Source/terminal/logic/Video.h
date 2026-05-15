@@ -140,11 +140,11 @@ public:
     void reset() noexcept;
 
     /**
-     * @brief Synchronises internal cached geometry.
+     * @brief Marks the pen style cache dirty and recomputes cached geometry.
      *
-     * Copies the current pen style and colour attributes from `pen` into
-     * `stamp` so that DECSC saves the up-to-date pen.  Must be called after
-     * construction and after every `resize()`.
+     * Marks penStyleDirty so that currentStyleId() will re-query the Stamp
+     * table on the next cell write.  Must be called after construction and
+     * after every `resize()`.
      *
      * @note READER THREAD only.
      *
@@ -175,9 +175,6 @@ public:
 
     /** @brief Sets the named mode flag. */
     void setMode (juce::Identifier id, bool value) noexcept;
-
-    const jam::Cell& getPen() const noexcept { return pen; }
-    const jam::Cell& getStamp() const noexcept { return stamp; }
 
     /** @brief Pushes final Video state through the events map.
      *         Called once per byte batch by Processor::process(). */
@@ -267,18 +264,19 @@ public:
 
     /** @brief Applies the accumulated DCS payload (Sixel, SKiT, etc.) when ST is received.
      *
-     *  Image decode and SKiT filepath logic has been moved to `Skit`.  After
-     *  calling this method, Processor calls `Skit::processDCS()` with the
-     *  DCS final byte (readable via `getDcsFinalByte()`), then calls
-     *  `advanceCursorForImage()` with the row count Skit reports.
+     *  Fires `ID::dcsPayloadComplete` through the events map.  The Processor
+     *  handler calls `Skit::processDCS()` with the DCS final byte (readable via
+     *  `getDcsFinalByte()`), then calls `advanceCursorForImage()` with the row
+     *  count Skit reports.
      */
     void applyDCSPayload (const uint8_t* data, int length) noexcept;
 
     /** @brief Applies the accumulated APC payload (Kitty graphics, etc.) when ST/BEL is received.
      *
-     *  Image decode and SKiT filepath logic has been moved to `Skit`.  After
-     *  calling this method, Processor calls `Skit::processAPC()`, then calls
-     *  `advanceCursorForImage()` with the row count Skit reports.
+     *  Fires `ID::apcPayloadComplete` through the events map.  The Processor
+     *  handler calls `Skit::processAPC()`, forwards any Kitty response via
+     *  `writeToHost`, then calls `advanceCursorForImage()` with the row count
+     *  Skit reports.
      *
      *  @param data    Pointer to the raw APC payload bytes.
      *  @param length  Number of bytes in @p data.
@@ -287,9 +285,9 @@ public:
 
     /** @brief Advances cursor after image placement — moves down by `numRows`, resets to column 0.
      *
-     *  Called by Processor after `Skit::processDCS()`, `Skit::processAPC()`, or
-     *  `Skit::processOSC1337()` to apply the post-decode cursor position update.
-     *  No-op when `numRows <= 0`.
+     *  Called by Processor event handlers after `Skit::processDCS()`,
+     *  `Skit::processAPC()`, or `Skit::processOSC1337()` to apply the
+     *  post-decode cursor position update.  No-op when `numRows <= 0`.
      *
      *  @param numRows  Number of cell rows to advance downward.
      *  @note READER THREAD only.
@@ -298,8 +296,8 @@ public:
 
     /** @brief Returns the DCS final byte stored by `storeDCSHeader()`.
      *
-     *  Processor reads this after `applyDCSPayload()` to pass the correct byte
-     *  to `Skit::processDCS()`.
+     *  Processor event handler reads this inside the `dcsPayloadComplete`
+     *  handler to pass the correct byte to `Skit::processDCS()`.
      *
      *  @note READER THREAD only.
      */
@@ -323,8 +321,9 @@ private:
      * - `"desktopNotification"` — `(const juce::String&, const juce::String&)` — OSC 9/777, dispatched via callAsync
      * - `"imageDecoded"` — image pixel data + placement metadata, reader thread
      * - `"previewFile"`  — `(const juce::String&, int, int, int, int)` — reader thread
+     * - `"dcsPayloadComplete"` — `(const uint8_t*, int)` — DCS ST received, reader thread
+     * - `"apcPayloadComplete"` — `(const uint8_t*, int)` — APC ST/BEL received, reader thread
      * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — `flushState()`, reader thread
-     * - `"scrolledRows"` — `(int)` — `flushState()`, reader thread
      * - `"applicationCursor"` / `"bracketedPaste"` / mode flags — `(bool)` — `flushState()`, reader thread
      * - `"screenSwitch"` — `(int, int, int, bool, int, int, bool, uint32_t)` — `setScreen()`, reader thread
      *
@@ -390,8 +389,6 @@ private:
     /** @brief Active screen keyboard enhancement flags. Single register — screen switch loads/saves via State. */
     uint32_t keyboardFlags { 0 };
 
-    int pendingScrolledRows { 0 }; ///< Scroll-off rows captured since last flushState().
-
     /** @} */
 
     // =========================================================================
@@ -405,29 +402,69 @@ private:
      */
     uint8_t dcsFinalByte { 0 };
 
+    /** @brief Current foreground colour. Alpha == 0 = theme default. */
+    juce::Colour penFg {};
+
+    /** @brief Current background colour. Alpha == 0 = theme default. */
+    juce::Colour penBg {};
+
+    /** @brief Current SGR bitmask (jam::Stamp::BOLD etc.). */
+    uint8_t penFlags { 0 };
+
+    /** @brief Cached styleId — updated lazily on cell write. */
+    uint16_t penStyleId { 0 };
+
+    /** @brief True when penFg / penBg / penFlags changed since last styleId lookup. */
+    bool penStyleDirty { true };
+
     /**
-     * @brief Current drawing attributes applied to newly written cells.
+     * @brief Returns the styleId for the current pen state, updating the cache if dirty.
      *
-     * Mutated by SGR sequences (`applySGR()` / `handleSGR()`).  Copied into
-     * each jam::Cell written by `print()`.  Saved and restored by DECSC/DECRC
-     * (ESC 7 / ESC 8) via `stamp`.
+     * Looks up or inserts the current {penFg, penBg, penFlags} triple in the
+     * Stamp table and caches the result in penStyleId until one of the pen
+     * components changes.  Called by print() and currentStyleId().
      *
-     * @see stamp
-     * @see applySGR()
+     * @note READER THREAD only.
      */
-    jam::Cell pen {};
+    uint16_t currentStyleId() noexcept
+    {
+        if (penStyleDirty)
+        {
+            penStyleId = jam::Stamp::getContext()->getOrInsert ({ penFg, penBg, penFlags });
+            penStyleDirty = false;
+        }
+
+        return penStyleId;
+    }
+
+    /**
+     * @brief Returns a styleId with the current background but default fg and zero flags.
+     *
+     * Per VT spec, erase operations clear cells using the current SGR background
+     * but ignore all text attributes (fg colour, bold, italic, etc.).
+     * Alpha == 0 for fg signals the renderer to substitute the theme default.
+     *
+     * @note READER THREAD only.
+     */
+    uint16_t eraseStyleId() noexcept
+    {
+        return jam::Stamp::getContext()->getOrInsert ({ {}, penBg, 0 });
+    }
 
     /**
      * @brief Saved cursor state for DECSC/DECRC (ESC 7 / ESC 8).
      *
-     * Per-screen saved state: cursor position, pen, wrap-pending, origin
-     * mode, and line-drawing charset.  Indexed by screen index.
+     * Per-screen saved state: cursor position, pen colours and flags,
+     * wrap-pending, origin mode, and line-drawing charset.
+     * Indexed by screen index.
      */
     struct SavedCursor
     {
         int row { 0 };
         int col { 0 };
-        jam::Cell pen {};
+        juce::Colour fg {};
+        juce::Colour bg {};
+        uint8_t flags { 0 };
         bool wrapPending { false };
         bool originMode { false };
         bool lineDrawing { false };
@@ -436,18 +473,14 @@ private:
     /// Per-screen DECSC saved cursor state (normal / alternate).
     std::array<SavedCursor, 2> savedCursor {};
 
-    /**
-     * @brief Saved pen state — legacy alias kept for `bg` fill in erase ops.
-     *
-     * `stamp.bg` is used as the fill colour for scroll and erase operations.
-     * Kept in sync with `pen` by SGR handlers.
-     *
-     * @see pen
-     */
-    jam::Cell stamp {};
-
     /** @brief Last graphic character printed, for REP (CSI Ps b). */
     uint32_t lastGraphicChar { 0 };
+
+    /** @brief Grid row of the most recently written base cell — used by grapheme cluster extension. */
+    int lastWriteRow { 0 };
+
+    /** @brief Grid column of the most recently written base cell — used by grapheme cluster extension. */
+    int lastWriteCol { 0 };
 
     /**
      * @brief Returns the effective bottom row of the current scrolling region.
@@ -571,7 +604,6 @@ private:
      *
      * @note READER THREAD only.
      *
-     * @see pen
      */
     void resetPen() noexcept;
 
@@ -733,8 +765,8 @@ private:
      * @brief Restores cursor position and associated state for DECRC (ESC 8).
      *
      * Applies the state previously saved by `saveCursor()` back to live State
-     * and Video members: cursor row/col, pen, stamp, wrap-pending, origin
-     * mode, and line-drawing charset.  Called by ESC 8 and by the ?1049l
+     * and Video members: cursor row/col, pen colours and flags, wrap-pending,
+     * origin mode, and line-drawing charset.  Called by ESC 8 and by the ?1049l
      * alternate-screen exit path.
      *
      * @param scr  Target screen whose cursor state is restored.
