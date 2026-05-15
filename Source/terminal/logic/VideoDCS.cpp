@@ -10,20 +10,20 @@
  * @par DCS passthrough
  * DCS (Device Control String) sequences are accepted by the VT command processor and
  * accumulated in `dcsBuffer` via `appendToBuffer()`.  `dcsHook()` is the entry
- * point and `dcsUnhook()` is the exit point.  `Video::applyDCSPayload()` records
- * the DCS final byte for `Processor` to read via `getDcsFinalByte()`, then
- * delegates all image decode and SKiT filepath handling to `Skit::processDCS()`.
+ * point and `dcsUnhook()` is the exit point.  `Video::applyDCSPayload()` stores
+ * the DCS final byte (via `storeDCSHeader()`) and fires `ID::dcsPayloadComplete`
+ * through the events map.  The Processor handler delegates to `Skit::processDCS()`.
  *
  * @par APC passthrough
  * APC (Application Program Command) sequences are accumulated in `apcBuffer`.
- * `Video::applyAPCPayload()` is a thin stub; all Kitty graphics decode and SKiT
- * filepath handling is delegated to `Skit::processAPC()` by Processor.
+ * `Video::applyAPCPayload()` fires `ID::apcPayloadComplete` through the events map.
+ * The Processor handler delegates to `Skit::processAPC()`.
  *
  * @par Image pipeline
  * 1. Video stores DCS final byte in `storeDCSHeader()`.
- * 2. Processor calls `video.applyDCSPayload()` (no-op for image logic).
- * 3. Processor calls `skit.processDCS(video.getDcsFinalByte(), ...)`.
- * 4. Processor calls `video.advanceCursorForImage(skit.getLastImageRows())`.
+ * 2. Parser calls `video.applyDCSPayload()` — fires `ID::dcsPayloadComplete`.
+ * 3. Processor event handler calls `skit.processDCS(video.getDcsFinalByte(), ...)`.
+ * 4. Processor event handler calls `video.advanceCursorForImage(skit.getLastImageRows())`.
  *
  * @par Thread model
  * All functions in this file run exclusively on the **READER THREAD**.
@@ -77,10 +77,9 @@ void Video::storeDCSHeader (const CSI& /*params*/,
 /**
  * @brief Called when a DCS sequence is terminated (ST received).
  *
- * Stub — image decode and SKiT filepath handling have been moved to
- * `Skit::processDCS()`.  Processor reads `getDcsFinalByte()` after this
- * method returns and forwards the payload to Skit, then calls
- * `advanceCursorForImage()` with the result.
+ * Fires `ID::dcsPayloadComplete` through the events map, delivering the raw
+ * payload to the Processor handler.  The handler reads `getDcsFinalByte()`
+ * and delegates to `Skit::processDCS()`, then calls `advanceCursorForImage()`.
  *
  * @note READER THREAD only.
  *
@@ -89,9 +88,10 @@ void Video::storeDCSHeader (const CSI& /*params*/,
  * @see Skit::processDCS()
  * @see advanceCursorForImage()
  */
-void Video::applyDCSPayload (const uint8_t* /*data*/, int /*length*/) noexcept
+void Video::applyDCSPayload (const uint8_t* data, int length) noexcept
 {
-    // Image decode delegated to Skit::processDCS() by Processor.
+    if (events.contains (ID::dcsPayloadComplete))
+        events.get (ID::dcsPayloadComplete, data, length);
 }
 
 // ============================================================================
@@ -101,19 +101,20 @@ void Video::applyDCSPayload (const uint8_t* /*data*/, int /*length*/) noexcept
 /**
  * @brief Called when an APC sequence is terminated (BEL or ST received).
  *
- * Stub — image decode and SKiT filepath handling have been moved to
- * `Skit::processAPC()`.  Processor forwards the payload to Skit after this
- * method returns, then calls `advanceCursorForImage()` with the result and
- * forwards any Kitty response via the `"writeToHost"` event.
+ * Fires `ID::apcPayloadComplete` through the events map, delivering the raw
+ * payload to the Processor handler.  The handler delegates to
+ * `Skit::processAPC()`, forwards any Kitty response via `writeToHost`, then
+ * calls `advanceCursorForImage()`.
  *
  * @note READER THREAD only.
  *
  * @see Skit::processAPC()
  * @see advanceCursorForImage()
  */
-void Video::applyAPCPayload (const uint8_t* /*data*/, int /*length*/) noexcept
+void Video::applyAPCPayload (const uint8_t* data, int length) noexcept
 {
-    // Image decode delegated to Skit::processAPC() by Processor.
+    if (events.contains (ID::apcPayloadComplete))
+        events.get (ID::apcPayloadComplete, data, length);
 }
 
 // ============================================================================

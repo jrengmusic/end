@@ -350,11 +350,24 @@ namespace ID
      */
     static const juce::Identifier screenSwitch        { "screenSwitch" };
 
-    /** @brief Fired by `Video::flushState()` when rows have scrolled off.
-     *  Args: `int count` — number of rows scrolled since last flush.
+    /** @brief Fired by `Video::applyDCSPayload()` when a DCS sequence terminates.
+     *
+     *  Processor handler calls `Skit::processDCS()` then
+     *  `Video::advanceCursorForImage()`.
+     *  Args: `const uint8_t* data, int length`.
      *  Fired synchronously on the READER THREAD.
      */
-    static const juce::Identifier scrolledRows        { "scrolledRows" };
+    static const juce::Identifier dcsPayloadComplete  { "dcsPayloadComplete" };
+
+    /** @brief Fired by `Video::applyAPCPayload()` when an APC sequence terminates.
+     *
+     *  Processor handler calls `Skit::processAPC()`, forwards any Kitty response
+     *  via `writeToHost`, then calls `Video::advanceCursorForImage()`.
+     *  Args: `const uint8_t* data, int length`.
+     *  Fired synchronously on the READER THREAD.
+     */
+    static const juce::Identifier apcPayloadComplete  { "apcPayloadComplete" };
+
 
 }
 

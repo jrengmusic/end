@@ -15,6 +15,7 @@
 
 #include "Processor.h"
 #include "../../component/TerminalDisplay.h"
+#include <chrono>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -24,8 +25,8 @@ namespace Terminal
  *
  * Grid is owned by Terminal::Session and must outlive this Processor.
  * State is owned by this Processor (the APVTS).
- * Video is owned by this Processor and receives State&, Grid&, and events& references.
- * Parser is owned by this Processor and receives commands& reference.
+ * Video is owned by this Processor and receives Grid& and events& references.
+ * Parser is owned by this Processor and receives Video& reference directly.
  * UUID is provided by the caller — no internal generation.
  *
  * @param gridRef  Live cell buffer owned by Terminal::Session.
@@ -45,9 +46,8 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, int cols, int ro
 {
     state.setDimensions (cols, rows);
     video.setDimensions (cols, rows);
-    registerCommands();
     registerEvents();
-    parser = std::make_unique<Parser> (commands);
+    parser = std::make_unique<Parser> (video);
     state.get().addListener (this);
 }
 
@@ -60,81 +60,6 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, int cols, int ro
  * @note MESSAGE THREAD.
  */
 Processor::~Processor() = default;
-
-// =============================================================================
-
-/**
- * @brief Registers all command handlers that forward Parser actions to Video.
- *
- * Each handler is keyed by `Command::Type` and calls the corresponding
- * `Video` action method.  All commands are registered unconditionally —
- * no `contains()` check is needed at dispatch time.
- *
- * @note MESSAGE THREAD — called once from the constructor.
- */
-void Processor::registerCommands() noexcept
-{
-    using CT = Command::Type;
-
-    commands.add<uint32_t> (CT::print, [this] (uint32_t codepoint)
-    {
-        video.print (codepoint);
-    });
-
-    commands.add<uint8_t> (CT::applyControlCode, [this] (uint8_t controlByte)
-    {
-        video.applyControlCode (controlByte);
-    });
-
-    commands.add<const CSI&, const uint8_t*, uint8_t, uint8_t> (CT::applyCSI,
-        [this] (const CSI& csi, const uint8_t* inter, uint8_t interCount, uint8_t finalByte)
-    {
-        video.applyCSI (csi, inter, interCount, finalByte);
-    });
-
-    commands.add<const uint8_t*, uint8_t, uint8_t> (CT::applyESC,
-        [this] (const uint8_t* inter, uint8_t interCount, uint8_t finalByte)
-    {
-        video.applyESC (inter, interCount, finalByte);
-    });
-
-    commands.add<const uint8_t*, int> (CT::applyOSC,
-        [this] (const uint8_t* payload, int length)
-    {
-        video.applyOSC (payload, length);
-    });
-
-    commands.add<const CSI&, const uint8_t*, uint8_t, uint8_t> (CT::storeDCSHeader,
-        [this] (const CSI& csi, const uint8_t* inter, uint8_t interCount, uint8_t finalByte)
-    {
-        video.storeDCSHeader (csi, inter, interCount, finalByte);
-    });
-
-    commands.add<const uint8_t*, int> (CT::applyDCSPayload,
-        [this] (const uint8_t* data, int length)
-    {
-        video.applyDCSPayload (data, length);
-
-        skit.processDCS (video.getDcsFinalByte(), data, length,
-                         video.getCursorRow(), video.getCursorCol());
-        video.advanceCursorForImage (skit.getLastImageRows());
-    });
-
-    commands.add<const uint8_t*, int> (CT::applyAPCPayload,
-        [this] (const uint8_t* data, int length)
-    {
-        video.applyAPCPayload (data, length);
-
-        skit.processAPC (data, length,
-                         video.getCursorRow(), video.getCursorCol());
-
-        const juce::String& response { skit.getLastResponse() };
-        if (response.isNotEmpty() and events.contains (ID::writeToHost))
-            events.get (ID::writeToHost, response.toRawUTF8(), int (response.getNumBytesAsUTF8()));
-
-        video.advanceCursorForImage (skit.getLastImageRows());
-    });
-}
 
 // =============================================================================
 
@@ -186,12 +111,17 @@ void Processor::registerCommands() noexcept
  * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — Video::flushState()
  *   flush events; write the corresponding State atomics.
  *
- * - `"scrolledRows"` — Video::flushState() flush; calls `State::addScrolledRows()`.
- *
  * - `"applicationCursor"` / `"bracketedPaste"` / ... — Video::flushState() mode flag flushes.
  *
  * - `"screenSwitch"` — Video::setScreen(); saves old cursor to State, loads new cursor from
  *   State atomics, calls `Video::loadScreenState()`.  Synchronous on reader thread.
+ *
+ * - `"dcsPayloadComplete"` — Video::applyDCSPayload(); delegates to Skit::processDCS()
+ *   then Video::advanceCursorForImage().  Synchronous on reader thread.
+ *
+ * - `"apcPayloadComplete"` — Video::applyAPCPayload(); delegates to Skit::processAPC(),
+ *   forwards any Kitty response via writeToHost, then Video::advanceCursorForImage().
+ *   Synchronous on reader thread.
  *
  * @note READER THREAD — all handlers execute on the reader thread unless dispatched
  *       via `callAsync` (bell, clipboardChanged, desktopNotification land on the message thread).
@@ -235,6 +165,29 @@ void Processor::registerEvents() noexcept
         [this] (const uint8_t* data, int length, int cursorRow, int cursorCol)
     {
         skit.processOSC1337 (data, length, cursorRow, cursorCol);
+        video.advanceCursorForImage (skit.getLastImageRows());
+    });
+
+    // DCS payload complete — delegate to Skit, then advance cursor.
+    events.add<const uint8_t*, int> (ID::dcsPayloadComplete,
+        [this] (const uint8_t* data, int length)
+    {
+        skit.processDCS (video.getDcsFinalByte(), data, length,
+                         video.getCursorRow(), video.getCursorCol());
+        video.advanceCursorForImage (skit.getLastImageRows());
+    });
+
+    // APC payload complete — delegate to Skit, forward any Kitty response, then advance cursor.
+    events.add<const uint8_t*, int> (ID::apcPayloadComplete,
+        [this] (const uint8_t* data, int length)
+    {
+        skit.processAPC (data, length,
+                         video.getCursorRow(), video.getCursorCol());
+
+        const juce::String& response { skit.getLastResponse() };
+        if (response.isNotEmpty() and events.contains (ID::writeToHost))
+            events.get (ID::writeToHost, response.toRawUTF8(), int (response.getNumBytesAsUTF8()));
+
         video.advanceCursorForImage (skit.getLastImageRows());
     });
 
@@ -326,13 +279,6 @@ void Processor::registerEvents() noexcept
         [this] (int scr, bool visible)
     {
         state.setCursorVisible (scr, visible);
-    });
-
-    // State delivery: rows scrolled off since last flush.
-    events.add<int> (ID::scrolledRows,
-        [this] (int count)
-    {
-        state.addScrolledRows (count);
     });
 
     // State delivery: mode flags.
@@ -575,11 +521,12 @@ juce::String Processor::encodeMouseEvent (int button, int col, int row, bool pre
 /**
  * @brief Processes raw bytes through the parser pipeline.
  *
- * Applies any pending resize or cell-size change at batch start (reader thread),
- * then feeds `Parser::process()`, flushes Video state, and flushes responses.
- * Pending changes originate from message-thread calls to resized() / setCellSize()
- * and are transferred via atomics — all Video/Grid writes happen here on the
- * reader thread.
+ * Lock is held only during resize (buffer reallocation) — not for the entire
+ * call.  Applies any pending resize or cell-size change at batch start (reader
+ * thread), then feeds `Parser::process()`, flushes Video state, and flushes
+ * responses.  Pending changes originate from message-thread calls to
+ * resized() / setCellSize() and are transferred via atomics — all Video/Grid
+ * writes happen here on the reader thread.
  *
  * @note READER THREAD only — called from the byte source (Terminal::Session
  *       onBytes callback or IPC dispatch in client mode).
@@ -588,11 +535,21 @@ void Processor::process (const char* data, int length) noexcept
 {
     jassert (parser != nullptr);
 
+    static int64_t callCount { 0 };
+    static double lockMs { 0.0 };
+    static double parseMs { 0.0 };
+    static double flushStateMs { 0.0 };
+    static double restMs { 0.0 };
+    static int64_t totalBytes { 0 };
+
+    const auto t0 { std::chrono::steady_clock::now() };
+    const auto t1 { t0 };  // No lock acquisition — lockMs will be 0.
+
     if (resizePending.exchange (false, std::memory_order_acquire))
     {
         const int cols { pendingCols.load (std::memory_order_relaxed) };
         const int rows { pendingRows.load (std::memory_order_relaxed) };
-        grid.setSize (rows, cols, rows, true, true, true);
+        grid.setSize (rows, cols);
         video.setDimensions (cols, rows);
         video.resize (cols, rows);
     }
@@ -606,9 +563,41 @@ void Processor::process (const char* data, int length) noexcept
     }
 
     parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
+
+    const auto t2 { std::chrono::steady_clock::now() };
+
     video.flushState();
+
+    const auto t3 { std::chrono::steady_clock::now() };
+
     video.flushResponses();
     state.consumePasteEcho (length);
+
+    const auto t4 { std::chrono::steady_clock::now() };
+
+    lockMs       += std::chrono::duration<double, std::milli> (t1 - t0).count();
+    parseMs      += std::chrono::duration<double, std::milli> (t2 - t1).count();
+    flushStateMs += std::chrono::duration<double, std::milli> (t3 - t2).count();
+    restMs       += std::chrono::duration<double, std::milli> (t4 - t3).count();
+    totalBytes   += length;
+    ++callCount;
+
+    if (callCount % 2000 == 0)
+    {
+        jam::debug::Log::write (
+            juce::String ("PROC: calls=") + juce::String (callCount)
+            + " bytes=" + juce::String (totalBytes)
+            + " lockMs=" + juce::String (lockMs, 1)
+            + " parseMs=" + juce::String (parseMs, 1)
+            + " flushStateMs=" + juce::String (flushStateMs, 1)
+            + " restMs=" + juce::String (restMs, 1));
+
+        lockMs       = 0.0;
+        parseMs      = 0.0;
+        flushStateMs = 0.0;
+        restMs       = 0.0;
+        totalBytes   = 0;
+    }
 }
 
 State& Processor::getState() noexcept { return state; }

@@ -91,25 +91,20 @@ void Video::resize (int newCols, int newVisibleRows) noexcept
 }
 
 /**
- * @brief Synchronises internal cached geometry from State.
+ * @brief Marks the pen style cache dirty and recomputes cached geometry.
  *
- * Copies the current pen style and colour attributes from `pen` into `stamp`
- * (so DECSC saves the up-to-date pen), then recomputes `scrollBottom` from
- * the current visible row count and the active screen's scroll region.
- *
- * Must be called after construction and after every `resize()`.  Also called
- * internally by `cursorSetScrollRegion()` and `cursorResetScrollRegion()`.
+ * Sets penStyleDirty so that currentStyleId() will re-query the Stamp table
+ * on the next cell write.  Must be called after construction and after every
+ * `resize()`.  Also called internally by `cursorSetScrollRegion()` and
+ * `cursorResetScrollRegion()`.
  *
  * @note READER THREAD only.
  *
  * @see resize()
- * @see effectiveScrollBottom()
  */
 void Video::calc() noexcept
 {
-    stamp.style = pen.style;
-    stamp.fg = pen.fg;
-    stamp.bg = pen.bg;
+    penStyleDirty = true;
 }
 
 /**
@@ -154,11 +149,6 @@ void Video::flushState() noexcept
     events.get (ID::cursorRow, int (activeScreen), int (cursorRow));
     events.get (ID::cursorCol, int (activeScreen), int (cursorCol));
     events.get (ID::cursorVisible, int (activeScreen), bool (cursorVisible));
-
-    const int scrolled { pendingScrolledRows };
-    pendingScrolledRows = 0;
-    if (scrolled > 0)
-        events.get (ID::scrolledRows, int (scrolled));
 
     events.get (ID::applicationCursor,   bool (applicationCursor));
     events.get (ID::bracketedPaste,      bool (bracketedPaste));
@@ -291,7 +281,7 @@ int Video::activeScrollBottom() const noexcept
  *
  * Single-row scroll+fill helper that eliminates the repeated pattern across
  * `resolveWrapPending()`, `print()`, `executeLineFeed()`, and the ESC IND/NEL handlers.
- * The fill is only performed when `stamp.bg` is non-transparent.
+ * The fill is only performed when `penBg` is non-transparent.
  *
  * @param top     Zero-based index of the top row of the scrolling region.
  * @param bottom  Zero-based index of the bottom row of the scrolling region.
@@ -303,13 +293,12 @@ int Video::activeScrollBottom() const noexcept
  */
 void Video::scrollUpAndFill (int top, int bottom) noexcept
 {
-    const int captured { grid.scrollUp (activeScreen, top, bottom) };
-    pendingScrolledRows += captured;
+    grid.scrollUp (activeScreen, top, bottom);
 
-    if (stamp.bg.getAlpha() > 0)
+    if (penBg.getAlpha() > 0)
     {
         jam::Cell* row { grid.getWritePointer (activeScreen, bottom) };
-        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
         for (int col { 0 }; col < cols; ++col)
             row[col] = fill;
@@ -320,7 +309,7 @@ void Video::scrollUpAndFill (int top, int bottom) noexcept
  * @brief Scrolls the region down one line and fills the top row with the current background.
  *
  * Single-row scroll+fill helper for the reverse-index (RI) path.
- * The fill is only performed when `stamp.bg` is non-transparent.
+ * The fill is only performed when `penBg` is non-transparent.
  *
  * @param top     Zero-based index of the top row of the scrolling region.
  * @param bottom  Zero-based index of the bottom row of the scrolling region.
@@ -333,10 +322,10 @@ void Video::scrollDownAndFill (int top, int bottom) noexcept
 {
     grid.scrollDown (activeScreen, top, bottom);
 
-    if (stamp.bg.getAlpha() > 0)
+    if (penBg.getAlpha() > 0)
     {
         jam::Cell* row { grid.getWritePointer (activeScreen, top) };
-        const jam::Cell fill { jam::Cell::erase (stamp.bg) };
+        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
         for (int col { 0 }; col < cols; ++col)
             row[col] = fill;
@@ -410,9 +399,9 @@ void Video::resolveWrapPending (int /*scr*/) noexcept
  * 1. Any pending wrap is resolved via `resolveWrapPending()`.
  * 2. If the character is wide (width 2) and would overflow the right margin,
  *    the cursor wraps to the next line (if auto-wrap is enabled).
- * 3. A `jam::Cell` is built from the codepoint, current pen attributes, and
- *    character width.  The cell is written to Grid via getWritePointer().
- * 4. For wide characters, a second cell with LAYOUT_WIDE_CONT is written
+ * 3. A packed `jam::Cell` is built from the codepoint, styleId (via Stamp),
+ *    and wide hint.  The cell is written to Grid via getWritePointer().
+ * 4. For wide characters, a second cell with SPACER_TAIL is written
  *    to the adjacent column.
  * 5. The cursor is advanced by `cellWidth` columns, or `wrapPending` is set
  *    if the cursor has reached the right margin.
@@ -437,12 +426,35 @@ void Video::print (uint32_t codepoint) noexcept
 
     if (segResult.addToCurrentCell())
     {
-        // Grapheme cluster extension deferred — Grid needs a grapheme sidecar.
+        jam::Cell* const baseCell { grid.getWritePointer (scr, lastWriteRow, lastWriteCol) };
+
+        jam::Grapheme::Entry cluster {};
+
+        if (baseCell->contentTag() == jam::Cell::CONTENT_GRAPHEME)
+        {
+            cluster = jam::Grapheme::getContext()->get (baseCell->codepoint());
+
+            if (cluster.count < 8)
+            {
+                cluster.codepoints[cluster.count] = static_cast<char32_t> (codepoint);
+                ++cluster.count;
+            }
+        }
+        else
+        {
+            cluster.codepoints[0] = static_cast<char32_t> (baseCell->codepoint());
+            cluster.codepoints[1] = static_cast<char32_t> (codepoint);
+            cluster.count = 2;
+        }
+
+        const uint32_t graphemeIndex { jam::Grapheme::getContext()->getOrInsert (cluster) };
+        *baseCell = jam::Cell::make (graphemeIndex, jam::Cell::CONTENT_GRAPHEME,
+                                     baseCell->wide(), baseCell->styleId());
     }
     else
     {
         const int rawWidth { props.width() };
-        const int cellWidth { rawWidth < 1 ? 1 : rawWidth };
+        const int charWidth { rawWidth < 1 ? 1 : rawWidth };
         const int numCols { cols };
 
         if (wrapPending)
@@ -453,7 +465,7 @@ void Video::print (uint32_t codepoint) noexcept
         const int row { cursorRow };
         const int col { cursorCol };
 
-        if (cellWidth == 2 and col + 2 > numCols)
+        if (charWidth == 2 and col + 2 > numCols)
         {
             if (autoWrap)
             {
@@ -482,44 +494,43 @@ void Video::print (uint32_t codepoint) noexcept
         const int writeRow { cursorRow };
         const int writeCol { cursorCol };
 
-        jam::Cell cell {};
-        cell.codepoint = translateCharset (codepoint, useLineDrawing);
-        cell.style = stamp.style;
-        cell.width = static_cast<uint8_t> (cellWidth);
-        cell.fg = stamp.fg;
-        cell.bg = stamp.bg;
+        const uint32_t cp { translateCharset (codepoint, useLineDrawing) };
+        const uint8_t wideHint { charWidth == 2 ? jam::Cell::WIDE : jam::Cell::NARROW };
+
+        uint16_t sid;
 
         if (activeLinkId != 0)
         {
-            cell.style |= jam::Cell::UNDERLINE;
+            const uint8_t linkFlags { static_cast<uint8_t> (penFlags | jam::Stamp::UNDERLINE) };
+            sid = jam::Stamp::getContext()->getOrInsert ({ penFg, penBg, linkFlags });
+        }
+        else
+        {
+            sid = currentStyleId();
         }
 
-        // Grid needs a per-row link ID sidecar for OSC 8 hyperlink stamping.
+        const jam::Cell cell { jam::Cell::make (cp, jam::Cell::CONTENT_CODEPOINT, wideHint, sid) };
 
         *grid.getWritePointer (scr, writeRow, writeCol) = cell;
 
         lastGraphicChar = codepoint;
+        lastWriteRow    = writeRow;
+        lastWriteCol    = writeCol;
 
-        if (cellWidth == 2 and writeCol + 1 < numCols)
+        if (charWidth == 2 and writeCol + 1 < numCols)
         {
-            jam::Cell cont {};
-            cont.codepoint = 0;
-            cont.style = stamp.style;
-            cont.width = 1;
-            cont.fg = stamp.fg;
-            cont.bg = stamp.bg;
-            cont.layout = jam::Cell::LAYOUT_WIDE_CONT;
-
+            const jam::Cell cont { jam::Cell::make (0, jam::Cell::CONTENT_CODEPOINT,
+                                                    jam::Cell::SPACER_TAIL, sid) };
             *grid.getWritePointer (scr, writeRow, writeCol + 1) = cont;
         }
 
-        if (writeCol + cellWidth >= numCols)
+        if (writeCol + charWidth >= numCols)
         {
             wrapPending = true;
         }
         else
         {
-            cursorCol = writeCol + cellWidth;
+            cursorCol = writeCol + charWidth;
         }
     }
 }
@@ -754,8 +765,7 @@ void Video::resetModes() noexcept
  */
 void Video::reset() noexcept
 {
-    activeScreen        = Screen::Map::normal;
-    pendingScrolledRows = 0;
+    activeScreen = Screen::Map::normal;
     resetCursor (cols);
     resetModes();
     resetPen();
@@ -776,18 +786,20 @@ void Video::reset() noexcept
 /**
  * @brief Resets the active pen to default attributes.
  *
- * Replaces `pen` with a default-constructed `jam::Cell`, which has no style
- * flags set and uses the terminal's default foreground and background colours.
- * Called by `reset()` and by SGR 0 (reset all attributes) in `applySGR()`.
+ * Clears penFg and penBg to alpha-zero (theme default sentinel) and sets
+ * penFlags to 0.  Marks penStyleDirty so currentStyleId() re-queries the
+ * Stamp table on the next cell write.  Called by `reset()` and by SGR 0.
  *
  * @note READER THREAD only.
  *
- * @see pen
  * @see applySGR()
  */
 void Video::resetPen() noexcept
 {
-    pen = jam::Cell {};
+    penFg = {};
+    penBg = {};
+    penFlags = 0;
+    penStyleDirty = true;
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

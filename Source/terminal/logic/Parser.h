@@ -5,8 +5,8 @@
  * Parser is the byte-processing DFA of the terminal emulator.  It consumes
  * raw bytes from the PTY reader thread, drives a Paul Flo Williams–style state
  * machine, decodes multi-byte UTF-8 sequences, and dispatches semantic actions
- * via `jam::Function::Map<Command::Type, void>`.  Parser holds no terminal
- * state, no Grid reference, no pen, and no cursor — those live entirely in Video.
+ * by calling `Video` methods directly.  Parser holds no terminal state, no Grid
+ * reference, no pen, and no cursor — those live entirely in Video.
  *
  * ## State machine model
  *
@@ -25,7 +25,7 @@
  *    │                │                                                      ▲
  *    │               ]──► oscString ──BEL/ST──────────────────────────────────┘
  *    │               P──► dcsEntry ──► dcsPassthrough ──ST──────────────────────┘
- *    └──printable──► commands.get(Command::Type::print, codepoint)
+ *    └──printable──► video.print(codepoint)
  * @endcode
  *
  * ## UTF-8 decoding
@@ -33,63 +33,63 @@
  * Multi-byte UTF-8 sequences are accumulated byte-by-byte in `utf8Accumulator`.
  * `expectedUTF8Length()` determines the total byte count from the lead byte.
  * Once the expected number of continuation bytes have been received, the
- * codepoint is decoded and dispatched via `commands.get(Command::Type::print, …)`.
+ * codepoint is decoded and dispatched via `video.print(…)`.
  * Invalid sequences are silently discarded (the accumulator is reset).
  *
  * ## Dispatch model
  *
- * | Action        | Command dispatched                                                  |
+ * | Action        | Video method called                                                 |
  * |---------------|---------------------------------------------------------------------|
- * | print         | `handlePrintByte()` → `accumulateUTF8Byte()` → `Command::print`   |
- * | execute       | `Command::execute` — C0/C1 control characters (CR, LF, BS, …)     |
- * | csiDispatch   | `Command::csiDispatch` — cursor, erase, SGR, mode, report          |
- * | escDispatch   | `Command::escDispatch` — ESC sequences (charset, DEC, …)           |
- * | oscEnd        | `Command::oscEnd` — title, clipboard (OSC 0/2/52)                  |
- * | hook/unhook   | `Command::dcsHook` / `Command::dcsUnhook` — DCS passthrough (Sixel)|
- * | apcEnd        | `Command::apcEnd` — APC termination (Kitty graphics)               |
+ * | print         | `handlePrintByte()` → `accumulateUTF8Byte()` → `video.print()`    |
+ * | execute       | `video.applyControlCode()` — C0/C1 control characters              |
+ * | csiDispatch   | `video.applyCSI()` — cursor, erase, SGR, mode, report              |
+ * | escDispatch   | `video.applyESC()` — ESC sequences (charset, DEC, …)               |
+ * | oscEnd        | `video.applyOSC()` — title, clipboard (OSC 0/2/52)                 |
+ * | hook/unhook   | `video.storeDCSHeader()` / `video.applyDCSPayload()` — Sixel        |
+ * | apcEnd        | `video.applyAPCPayload()` — APC termination (Kitty graphics)       |
  *
  * ## Thread model
  *
  * **All methods are READER THREAD only.**  Parser is constructed on the message
  * thread but `process()` and every method it calls run exclusively on the PTY
- * reader thread.  No locks are held during processing; cross-thread
- * communication goes through the commands map handlers.
+ * reader thread.  No locks are held during processing; Video methods are called
+ * directly on the reader thread.
  *
  * @see DispatchTable — O(1) state transition lookup table
  * @see CSI           — parameter accumulator for CSI sequences
- * @see Command       — external action enum dispatched via Function::Map
+ * @see Video         — VT command processor called directly for all semantic actions
  */
 
 #pragma once
 
 #include <JuceHeader.h>
 
-#include "../data/Command.h"
 #include "../data/DispatchTable.h"
 #include "../data/CSI.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
 
+class Video;
+
 /**
  * @class Parser
- * @brief VT100/VT520 DFA byte decoder — decodes VT sequences and dispatches
- *        semantic actions via `jam::Function::Map<Command::Type, void>`.
+ * @brief VT100/VT520 DFA byte decoder — decodes VT sequences and calls Video methods directly.
  *
  * Parser owns the DFA state, intermediate and parameter accumulators, UTF-8
- * accumulation, and OSC/DCS/APC payload buffers.  It holds a reference to the
- * commands map and dispatches every decoded semantic action through it — it
- * does not write cells, move cursors, or touch any terminal state itself.
+ * accumulation, and OSC/DCS/APC payload buffers.  It holds a reference to Video
+ * and calls every decoded semantic action directly on it — it does not write
+ * cells, move cursors, or touch any terminal state itself.
  *
  * @par Lifecycle
- * 1. Construct with a reference to a `jam::Function::Map<Command::Type, void>`.
+ * 1. Construct with a reference to a `Video` instance.
  * 2. Feed raw PTY bytes via `process()` on the reader thread.
  *
  * @note All methods are READER THREAD only unless otherwise stated.
  *
  * @see DispatchTable — state transition table used internally
  * @see CSI           — CSI parameter accumulator
- * @see Command       — external action enum
+ * @see Video         — VT command processor receiving all decoded actions
  */
 class Parser
 {
@@ -115,13 +115,13 @@ public:
     /**
      * @brief Constructs the Parser and initialises the dispatch table.
      *
-     * @param commands  Command dispatch map.  All decoded semantic actions
-     *                  (print, execute, csiDispatch, …) are dispatched through
-     *                  this map on the reader thread.
+     * @param video  VT command processor.  All decoded semantic actions
+     *               (print, applyControlCode, applyCSI, …) are called directly
+     *               on this reference on the reader thread.
      *
      * @note MESSAGE THREAD — construction happens before the reader thread starts.
      */
-    explicit Parser (jam::Function::Map<Command::Type, void>& commands) noexcept;
+    explicit Parser (Video& video) noexcept;
 
     /**
      * @brief Processes a block of raw bytes from the PTY.
@@ -140,14 +140,14 @@ public:
 
 private:
     /**
-     * @brief Command dispatch map for all external terminal actions.
+     * @brief VT command processor receiving all decoded semantic actions.
      *
-     * All decoded semantic actions are dispatched through this map.  Never
-     * accessed from the message thread during parsing.
+     * All decoded actions are dispatched via direct method calls on this reference.
+     * Never accessed from the message thread during parsing.
      *
      * @note READER THREAD — all calls are on the reader thread.
      */
-    jam::Function::Map<Command::Type, void>& commands;
+    Video& video;
 
     /**
      * @brief O(1) state transition lookup table.
@@ -177,9 +177,8 @@ private:
      * @brief CSI parameter accumulator for the current CSI sequence.
      *
      * Digits and separators are fed into this accumulator via `handleParam()`.
-     * `csi.finalize()` is called before dispatching `Command::csiDispatch` to
-     * commit the last parameter.  `csi.reset()` is called on entry to `csiEntry`
-     * state.
+     * `csi.finalize()` is called before `video.applyCSI()` to commit the last
+     * parameter.  `csi.reset()` is called on entry to `csiEntry` state.
      *
      * @see CSI
      * @see handleParam()
@@ -215,7 +214,7 @@ private:
      * As multi-byte UTF-8 sequences arrive byte-by-byte, continuation bytes
      * are appended here.  When `utf8AccumulatorLength` reaches the expected
      * length (from `expectedUTF8Length()`), the codepoint is decoded and
-     * dispatched via `Command::print`.  The buffer is 5 bytes: up to 4 UTF-8
+     * dispatched via `video.print()`.  The buffer is 5 bytes: up to 4 UTF-8
      * bytes plus a null terminator.
      *
      * @see utf8AccumulatorLength
@@ -239,8 +238,8 @@ private:
      * @brief Hybrid OSC payload buffer.  Lazy-allocated on first OSC sequence.
      *
      * OSC strings are accumulated here byte-by-byte as `oscPut` actions arrive.
-     * When the OSC terminator (BEL or ST) is received, `Command::oscEnd` is
-     * dispatched with a pointer to this buffer and `oscBufferSize`.  The buffer
+     * When the OSC terminator (BEL or ST) is received, `video.applyOSC()` is
+     * called with a pointer to this buffer and `oscBufferSize`.  The buffer
      * is not null-terminated; `oscBufferSize` tracks the valid byte count.  Starts
      * unallocated and grows geometrically from `OSC_BUFFER_CAPACITY` on first use.
      *
@@ -273,8 +272,8 @@ private:
      * @brief Hybrid DCS payload buffer (Sixel).  Lazy-allocated on first DCS q sequence.
      *
      * DCS passthrough bytes are accumulated here byte-by-byte as `put` actions
-     * arrive.  When the DCS terminator (ST) is received, `Command::dcsUnhook` is
-     * dispatched with a pointer to this buffer and `dcsBufferSize`.  Grows
+     * arrive.  When the DCS terminator (ST) is received, `video.applyDCSPayload()`
+     * is called with a pointer to this buffer and `dcsBufferSize`.  Grows
      * geometrically from 64 KB on first use.
      *
      * @see dcsBufferSize
@@ -305,8 +304,8 @@ private:
      * @brief Hybrid APC payload buffer (Kitty).  Lazy-allocated on first APC sequence.
      *
      * APC passthrough bytes are accumulated here byte-by-byte as `apcPut` actions
-     * arrive.  When the APC terminator (ST) is received, `Command::apcEnd` is
-     * dispatched with a pointer to this buffer and `apcBufferSize`.  Grows
+     * arrive.  When the APC terminator (ST) is received, `video.applyAPCPayload()`
+     * is called with a pointer to this buffer and `apcBufferSize`.  Grows
      * geometrically from 64 KB on first use.
      *
      * @see apcBufferSize
@@ -357,18 +356,18 @@ private:
      *
      * Dispatches to the appropriate handler based on `action`:
      * - `print`       → `handlePrintByte()`
-     * - `execute`     → `commands.get (Command::Type::applyControlCode, byte)`
+     * - `execute`     → `video.applyControlCode (byte)`
      * - `collect`     → appends to `intermediateBuffer`
      * - `param`       → `handleParam()`
-     * - `escDispatch` → `commands.get (Command::Type::applyESC, …)`
-     * - `csiDispatch` → `commands.get (Command::Type::applyCSI, …)`
+     * - `escDispatch` → `video.applyESC (…)`
+     * - `csiDispatch` → `video.applyCSI (…)`
      * - `oscPut`      → `appendToBuffer (oscBuffer, …)`
-     * - `oscEnd`      → `commands.get (Command::Type::applyOSC, …)`
-     * - `hook`        → `commands.get (Command::Type::storeDCSHeader, …)`
+     * - `oscEnd`      → `video.applyOSC (…)`
+     * - `hook`        → `video.storeDCSHeader (…)`
      * - `put`         → `appendToBuffer (dcsBuffer, …)`
-     * - `unhook`      → `commands.get (Command::Type::applyDCSPayload, …)`
+     * - `unhook`      → `video.applyDCSPayload (…)`
      * - `apcPut`      → `appendToBuffer (apcBuffer, …)`
-     * - `apcEnd`      → `commands.get (Command::Type::applyAPCPayload, …)`
+     * - `apcEnd`      → `video.applyAPCPayload (…)`
      * - `ignore`/`none` → no-op
      *
      * @param action  The action to perform.
@@ -382,7 +381,7 @@ private:
      * @brief Handles a printable byte, routing it through UTF-8 accumulation.
      *
      * If the byte is a single-byte ASCII character (0x20–0x7E), dispatches
-     * `Command::print` directly.  Otherwise forwards to `accumulateUTF8Byte()`
+     * `video.print()` directly.  Otherwise forwards to `accumulateUTF8Byte()`
      * to begin or continue a multi-byte sequence.
      *
      * @param byte  The printable input byte.
@@ -398,7 +397,7 @@ private:
      *
      * Appends `byte` to `utf8Accumulator`.  When the accumulated length equals
      * `expectedUTF8Length (utf8Accumulator[0])`, the sequence is decoded to a
-     * Unicode codepoint and dispatched via `Command::print`.  Invalid sequences
+     * Unicode codepoint and dispatched via `video.print()`.  Invalid sequences
      * (bad continuation bytes, overlong encodings) are silently discarded and
      * the accumulator is reset.
      *

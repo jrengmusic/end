@@ -438,7 +438,16 @@ private:
      * in `shutdown()` — after all consumers are destroyed — to guarantee the
      * atlas `juce::Image` objects are released before JUCE's leak detector runs.
      */
+    /** @brief Diagnostic file logger -- fresh each launch. */
+    jam::debug::Log::Scope logScope { juce::File { "/tmp/end-perf.log" } };
+
     jam::Typeface::Context typefaceContext;
+
+    /** @brief Application-owned style table — self-registers as jam::Stamp::getContext() on construction. */
+    jam::Stamp stampContext;
+
+    /** @brief Application-owned grapheme cluster table — self-registers as jam::Grapheme::getContext() on construction. */
+    jam::Grapheme graphemeContext;
 
     /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
     lua::Engine luaEngine;

@@ -47,7 +47,9 @@ void Video::saveCursor (int scr) noexcept
     auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
     sc.row         = cursorRow;
     sc.col         = cursorCol;
-    sc.pen         = pen;
+    sc.fg          = penFg;
+    sc.bg          = penBg;
+    sc.flags       = penFlags;
     sc.wrapPending = wrapPending;
     sc.originMode  = originMode;
     sc.lineDrawing = useLineDrawing;
@@ -56,12 +58,14 @@ void Video::saveCursor (int scr) noexcept
 void Video::restoreCursor (int scr) noexcept
 {
     const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-    cursorRow     = sc.row;
-    cursorCol     = sc.col;
-    pen           = sc.pen;
-    stamp         = sc.pen;
-    wrapPending   = sc.wrapPending;
-    originMode    = sc.originMode;
+    cursorRow      = sc.row;
+    cursorCol      = sc.col;
+    penFg          = sc.fg;
+    penBg          = sc.bg;
+    penFlags       = sc.flags;
+    penStyleDirty  = true;
+    wrapPending    = sc.wrapPending;
+    originMode     = sc.originMode;
     useLineDrawing = sc.lineDrawing;
 }
 
@@ -239,19 +243,15 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
     {
         const int nCols { cols };
         const int vRows { visibleRows };
-
-        jam::Cell st {};
-        st.codepoint = 'E';
-        st.style = 0;
-        st.width = 1;
-        st.layout = 0;
+        const jam::Cell alignCell { jam::Cell::make ('E', jam::Cell::CONTENT_CODEPOINT,
+                                                     jam::Cell::NARROW, currentStyleId()) };
 
         for (int row { 0 }; row < vRows; ++row)
         {
             jam::Cell* rowPtr { grid.getWritePointer (scr, row) };
 
             for (int col { 0 }; col < nCols; ++col)
-                rowPtr[col] = st;
+                rowPtr[col] = alignCell;
         }
 
         cursorSetPosition (0, 0, nCols, vRows);

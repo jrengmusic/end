@@ -68,13 +68,14 @@ private:
     Terminal::Screen screen;
     juce::VBlankAttachment vblank;
 
-    int lastCols { 0 };         ///< Previous column count for resize debounce.
-    int lastRows { 0 };         ///< Previous row count for resize debounce.
-    float lastFontSize { 0.0f };///< Previous DPI-corrected font size for font-change debounce.
-    jam::Font lastFont;         ///< Last font set on screen — used for cell metric reads.
-    int lastActiveScreen { -1 };             ///< Sentinel — forces initial setActiveScreen on first State read.
+    int lastCols { 0 }; ///< Previous column count for resize debounce.
+    int lastRows { 0 }; ///< Previous row count for resize debounce.
+
+    juce::HeapBlock<const jam::Cell*> gridRowPointers;  ///< Temp array for batch Grid row copy.
+    int gridRowPointersSize { 0 };                      ///< Allocated capacity of gridRowPointers.
 
     void onVBlank();
+    void updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Display)

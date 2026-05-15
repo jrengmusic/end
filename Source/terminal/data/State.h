@@ -198,11 +198,6 @@ struct State : public jam::ValueTree
     ModalType getModalType() const noexcept;
     bool isModal() const noexcept;
 
-    // Scroll-off counter — reader thread increments, message thread consumes.
-    void addScrolledRows (int count) noexcept;
-    int consumeScrolledRows() noexcept;
-    int getScrolledRows() const noexcept;
-
     // Scrollback stub (live callers, scrollback state removed)
     int getScrollbackUsed() const noexcept;
 
@@ -233,8 +228,6 @@ private:
                          const char* ptr) noexcept;
 
     TextBuffer& textBuffer;
-
-    std::atomic<int> scrolledRows { 0 };  ///< Scroll-off rows pending drain. Reader writes, message thread consumes.
 
     // Keyboard mode stack
     static constexpr int maxKeyboardStackDepth { 16 };

@@ -11,19 +11,19 @@
  *
  * | Action       | Effect                                                                            |
  * |--------------|-----------------------------------------------------------------------------------|
- * | print        | `handlePrintByte()` → UTF-8 accumulation → `Command::print`                      |
- * | execute      | `Command::applyControlCode` — C0 control characters (CR, LF, BS, …)              |
+ * | print        | `handlePrintByte()` → UTF-8 accumulation → `video.print()`                       |
+ * | execute      | `video.applyControlCode()` — C0 control characters (CR, LF, BS, …)               |
  * | collect      | Append byte to `intermediateBuffer`                                               |
  * | param        | `handleParam()` — digit/separator into CSI accumulator                            |
- * | escDispatch  | `Command::applyESC` — complete ESC sequence                                       |
- * | csiDispatch  | `Command::applyCSI` — complete CSI sequence                                       |
+ * | escDispatch  | `video.applyESC()` — complete ESC sequence                                        |
+ * | csiDispatch  | `video.applyCSI()` — complete CSI sequence                                        |
  * | oscPut       | `appendToBuffer (oscBuffer, …)` — hybrid OSC buffer                               |
- * | oscEnd       | `Command::applyOSC` — complete OSC string                                         |
- * | hook         | `Command::storeDCSHeader` — DCS sequence entry, records final byte                |
+ * | oscEnd       | `video.applyOSC()` — complete OSC string                                          |
+ * | hook         | `video.storeDCSHeader()` — DCS sequence entry, records final byte                 |
  * | put          | `appendToBuffer (dcsBuffer, …)` — DCS passthrough byte                            |
- * | unhook       | `Command::applyDCSPayload` — DCS sequence exit, dispatches accumulated payload    |
+ * | unhook       | `video.applyDCSPayload()` — DCS sequence exit, dispatches accumulated payload     |
  * | apcPut       | `appendToBuffer (apcBuffer, …)` — APC passthrough byte                            |
- * | apcEnd       | `Command::applyAPCPayload` — Kitty graphics APC exit                              |
+ * | apcEnd       | `video.applyAPCPayload()` — Kitty graphics APC exit                               |
  * | ignore/none  | No-op                                                                             |
  *
  * ## Thread model
@@ -32,11 +32,11 @@
  *
  * @see Parser.h        — class declaration, member documentation, and lifecycle notes
  * @see Parser.cpp      — hot-path loop and state transition machinery
- * @see Command.h       — external action enum dispatched via Function::Map
+ * @see Video.h         — VT command processor called directly for all semantic actions
  */
 
 #include "Parser.h"
-#include "../data/Command.h"
+#include "Video.h"
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -94,14 +94,15 @@ void Parser::appendToBuffer (juce::HeapBlock<uint8_t>& buffer, int& size, int& c
 // ============================================================================
 
 /**
- * @brief Executes the action associated with a state transition, dispatching
- *        external actions via the commands map.
+ * @brief Executes the action associated with a state transition, calling
+ *        Video methods directly for all semantic actions.
  *
  * Central dispatcher for all VT actions.  Parser-owned accumulation actions
  * (collect, param, put, oscPut, apcPut) are handled inline.  All semantic
  * terminal actions (applyControlCode, applyESC, applyCSI, applyOSC,
- * storeDCSHeader, applyDCSPayload, applyAPCPayload) are dispatched via `commands.get<>()`.  `handlePrintByte()` remains
- * on Parser and internally dispatches `Command::print`.
+ * storeDCSHeader, applyDCSPayload, applyAPCPayload) are called directly on
+ * `video`.  `handlePrintByte()` remains on Parser and internally calls
+ * `video.print()`.
  *
  * @param action  The action to perform, as determined by the DispatchTable.
  * @param byte    The input byte associated with the action.
@@ -109,7 +110,7 @@ void Parser::appendToBuffer (juce::HeapBlock<uint8_t>& buffer, int& size, int& c
  * @note READER THREAD only.
  *
  * @see handlePrintByte()
- * @see Command
+ * @see Video.h
  */
 void Parser::performAction (ParserAction action, uint8_t byte) noexcept
 {
@@ -124,7 +125,7 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::execute:
-            commands.get (Command::Type::applyControlCode, uint8_t (byte));
+            video.applyControlCode (byte);
             break;
 
         case ParserAction::collect:
@@ -140,12 +141,12 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::escDispatch:
-            commands.get (Command::Type::applyESC, static_cast<const uint8_t*> (intermediateBuffer), uint8_t (intermediateCount), uint8_t (byte));
+            video.applyESC (intermediateBuffer, intermediateCount, byte);
             break;
 
         case ParserAction::csiDispatch:
             csi.finalize();
-            commands.get (Command::Type::applyCSI, csi, static_cast<const uint8_t*> (intermediateBuffer), uint8_t (intermediateCount), uint8_t (byte));
+            video.applyCSI (csi, intermediateBuffer, intermediateCount, byte);
             break;
 
         case ParserAction::put:
@@ -157,16 +158,16 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::oscEnd:
-            commands.get (Command::Type::applyOSC, static_cast<const uint8_t*> (oscBuffer.get()), int (oscBufferSize));
+            video.applyOSC (oscBuffer.get(), oscBufferSize);
             break;
 
         case ParserAction::hook:
             csi.finalize();
-            commands.get (Command::Type::storeDCSHeader, csi, static_cast<const uint8_t*> (intermediateBuffer), uint8_t (intermediateCount), uint8_t (byte));
+            video.storeDCSHeader (csi, intermediateBuffer, intermediateCount, byte);
             break;
 
         case ParserAction::unhook:
-            commands.get (Command::Type::applyDCSPayload, static_cast<const uint8_t*> (dcsBuffer.get()), int (dcsBufferSize));
+            video.applyDCSPayload (dcsBuffer.get(), dcsBufferSize);
             dcsBufferSize = 0;
             break;
 
@@ -175,7 +176,7 @@ void Parser::performAction (ParserAction action, uint8_t byte) noexcept
             break;
 
         case ParserAction::apcEnd:
-            commands.get (Command::Type::applyAPCPayload, static_cast<const uint8_t*> (apcBuffer.get()), int (apcBufferSize));
+            video.applyAPCPayload (apcBuffer.get(), apcBufferSize);
             apcBufferSize = 0;
             break;
     }
@@ -297,7 +298,7 @@ uint8_t Parser::expectedUTF8Length (uint8_t leadByte) noexcept
  * 3. **Completion check**: after each append, if `utf8AccumulatorLength` equals
  *    `expectedUTF8Length (utf8Accumulator[0])`, the sequence is complete.
  *    `juce::CharPointer_UTF8` decodes the null-terminated buffer to a Unicode
- *    codepoint, which is dispatched via `Command::print`.  The accumulator is then reset.
+ *    codepoint, which is dispatched via `video.print()`.  The accumulator is then reset.
  *
  * Invalid sequences (e.g. a continuation byte with no preceding lead byte, or
  * a lead byte that interrupts an in-progress sequence) are silently discarded
@@ -334,20 +335,20 @@ void Parser::accumulateUTF8Byte (uint8_t byte) noexcept
         {
             utf8Accumulator[utf8AccumulatorLength] = '\0';
             juce::CharPointer_UTF8 decoder (utf8Accumulator);
-            commands.get (Command::Type::print, static_cast<uint32_t> (*decoder));
+            video.print (static_cast<uint32_t> (*decoder));
             utf8AccumulatorLength = 0;
         }
     }
 }
 
 /**
- * @brief Routes a printable byte to `Command::print` directly or through UTF-8 accumulation.
+ * @brief Routes a printable byte to `video.print()` directly or through UTF-8 accumulation.
  *
  * Called by `performAction()` for every `Action::print` byte.  Two paths:
  *
  * - **ASCII** (byte ≤ 0x7F): resets `utf8AccumulatorLength` to discard any
- *   in-progress multi-byte sequence, then dispatches `Command::print` directly
- *   with the codepoint value.
+ *   in-progress multi-byte sequence, then calls `video.print()` directly with
+ *   the codepoint value.
  * - **Non-ASCII** (byte > 0x7F): delegates to `accumulateUTF8Byte()` to
  *   begin or continue a multi-byte UTF-8 sequence.
  *
@@ -364,7 +365,7 @@ void Parser::handlePrintByte (uint8_t byte) noexcept
     if (isASCII)
     {
         utf8AccumulatorLength = 0;
-        commands.get (Command::Type::print, static_cast<uint32_t> (byte));
+        video.print (static_cast<uint32_t> (byte));
     }
     else
     {

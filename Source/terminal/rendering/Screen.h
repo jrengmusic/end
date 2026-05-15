@@ -7,19 +7,13 @@ namespace Terminal
 /*____________________________________________________________________________*/
 
 /**
- * @brief Cell grid renderer — thin adapter from Grid's raw Cell* API to
- *        TextEditor's Buffer<Cell> API.
+ * @brief Cell grid renderer — scrollback ring + alternate buffer for the terminal.
  *
- * All content mutations go through the TextEditor content API:
- *   appendRow / setVisibleRow / setActiveScreen / setLiveBuffer.
+ * Owns buffers[0] (normal scrollback ring, inherited from TextEditor) and
+ * buffers[1] (alternate screen, added in constructor).
  *
  * Display mediates all communication — Screen has no State or config reference.
- *
- * Live buffer:
- *   `live` holds the current visible frame from Grid.
- *   updateVisibleRow writes into `live`, then passes a Block<Cell> view to
- *   TextEditor::setLiveBuffer on each update.
- *   setLiveDimensions sizes `live` when terminal dimensions change.
+ * Visible rows are shaped directly from Grid by Display under lock via shapeContent().
  */
 class Screen : public jam::TextEditor
 {
@@ -71,20 +65,20 @@ public:
     Screen() noexcept;
     ~Screen() override;
 
-    /** @brief Sizes the Live buffer to match terminal dimensions.
-     *         Call from Display after terminal resize. */
-    void setLiveDimensions (int numRows, int numCols) noexcept;
-
-    /** @brief Writes one visible row into the Live buffer and pushes a Block<Cell>
-     *         view to TextEditor via setLiveBuffer. */
-    void updateVisibleRow (int row, const jam::Cell* src, int numCols) noexcept;
-
     /** @brief Appends scrolled-off rows to the normal ring via appendRow. */
     void append (const jam::Cell* const* rows, int rowCount, int numCols) noexcept;
 
+    /** @brief Copies visible rows from Grid into the live buffer (buffers[2]).
+     *         Single calc() after all rows are written. No per-row overhead.
+     *  @param rows      Array of row pointers (one per visible row).
+     *  @param numRows   Number of rows to copy.
+     *  @param numCols   Column count per row. */
+    void updateLiveRows (const jam::Cell* const* rows, int numRows, int numCols) noexcept;
+
+    /** @brief Sizes the live buffer (buffers[2]) for terminal dimensions. */
+    void setLiveDimensions (int numRows, int numCols) noexcept;
+
 private:
-    jam::Buffer<jam::Cell>     live;          ///< Current visible frame — one row per terminal row.
-    jam::Buffer<jam::Grapheme> liveGrapheme;  ///< Lazy grapheme sidecar for live frame. Sized with live.
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)

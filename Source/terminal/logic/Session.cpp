@@ -213,8 +213,7 @@ Session::Session (int cols,
                   const juce::String& uuid)
     : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
-    grid.setSize (rows, cols, lua::Engine::getContext()->nexus.terminal.scrollbackLines,
-                  false, true, false);
+    grid.setSize (rows, cols);
 
 #if JUCE_MAC || JUCE_LINUX
     tty = std::make_unique<UnixTTY>();
@@ -358,8 +357,7 @@ Session::Session (int cols, int rows,
     jassert (cols > 0);
     jassert (rows > 0);
 
-    grid.setSize (rows, cols, lua::Engine::getContext()->nexus.terminal.scrollbackLines,
-                  false, true, false);
+    grid.setSize (rows, cols);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
     processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);

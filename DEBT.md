@@ -8,12 +8,6 @@
 
 ---
 
-## DEBT-20260513T130756
-
-**Observation:** Cell behind cursor not clearing properly — ghost image from previous prompt glyph remains when cursor starts to blink
-**Divergence:** When cursor blinks off, the cell underneath shows a stale glyph from the last prompt instead of the current cell content
-**Expectation:** Cursor blink-off should reveal the correct current cell content, no ghost artifacts
-
 ---
 
 ## DEBT-20260501T193217

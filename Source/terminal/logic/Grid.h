@@ -2,7 +2,7 @@
  * @file Grid.h
  * @brief Live frame buffer of jam::Cell records — the AudioBuffer of the terminal.
  *
- * Grid is a dumb buffer. Parser writes cells in-place on the reader thread.
+ * Grid is a dumb ring buffer. Parser writes cells in-place on the reader thread.
  * Display reads dirty rows on the message thread via VBlank.
  *
  * ### AudioBuffer analogy
@@ -15,39 +15,44 @@
  * | setSize()            | setSize()                   | Allocate / resize          |
  *
  * ### Memory layout
- * Three flat jam::Buffer<jam::Cell> instances:
- * - normal     — normal screen visible frame
- * - alternate  — alternate screen visible frame
- * - scrollOff  — scroll-off transit ring (normal screen, scrollBufferSize rows)
+ * One jam::Buffer<jam::Cell> with 2 channels (normal=0, alternate=1), sized to the next
+ * power of two >= viewportRows. The extra rows above viewportRows form the staging area:
+ * rows evicted by scrollUp accumulate there until Display drains them under lock.
+ *
+ * ### Ring index
+ * Each screen (channel) has an independent head[screen] ring index.
+ * physicalRow(screen, logicalRow) = (head[screen] + logicalRow) & ringMask.
+ * Full-screen scrollUp/scrollDown advances/retreats head — O(1), no data movement.
+ * Partial scroll regions use row-by-row copyFrom within the affected logical range.
  *
  * ### Thread model
  * - Parser writes via getWritePointer / scrollUp / scrollDown / clear — READER THREAD.
- * - Display reads via getReadPointer / scroll-off drain — MESSAGE THREAD.
- * - setSize — called from MESSAGE THREAD (Processor::resized).
+ * - Display reads via getReadPointer / getStagingReadPointer — MESSAGE THREAD.
+ * - setSize — called from READER THREAD (Processor::process, deferred via atomic flag).
+ * - State's atomic pattern handles all coordination — no lock in Grid.
  *
- * ### Scroll-off FIFO
- * scrollOff is a flat Buffer<Cell>.  Parser writes via AbstractFifo (lock-free SPSC);
- * Display reads via AbstractFifo then advances the read head.
- * State::scrolledRows carries the cross-thread count signal.
+ * ### Staging area
+ * scrolledCount[screen] tracks how many rows have been evicted since the last Display drain.
+ * Display reads getStagingReadPointer() for each evicted row, then calls resetScrolledCount().
+ * The effective staging depth is clamped to min(scrolledCount, ringSize - viewportRows)
+ * to guard against overwrite if the ring wraps before Display drains.
  *
  * ### Screen parameter
  * Callers pass the active screen index (0 = normal, 1 = alternate) to every call,
- * mirroring AudioBuffer where the caller passes the channel index.  Grid holds no
+ * mirroring AudioBuffer where the caller passes the channel index. Grid holds no
  * active-screen state — the caller (Video) is the authority on which screen is live.
  *
  * @see Parser   — sole writer (reader thread)
  * @see Display  — sole reader (message thread)
- * @see State    — carries scrolledRows atomic counter
  */
 
 #pragma once
 
 #include <JuceHeader.h>
-#include <jam_tui/jam_tui.h>
-#include <cstring>
 
 namespace Terminal
-{ /*____________________________________________________________________________*/
+{
+/*____________________________________________________________________________*/
 
 class Grid
 {
@@ -60,24 +65,22 @@ public:
 
     /** Allocates or resizes the grid.
      *
-     *  @param numRows             Visible row count.
-     *  @param numCols             Column count per row.
-     *  @param scrollBufferSize    Row count for the scroll-off ring (normal screen only).
-     *                             Caller-supplied — typically config.nexus.terminal.scrollbackLines.
-     *  @param keepExistingContent Preserve existing cell data up to the smaller of old/new dims.
-     *  @param clearExtraSpace     Zero-init any newly exposed cells.
-     *  @param avoidReallocating   Reuse existing allocation if large enough.
+     *  Ring size is rounded up to the next power of two >= numRows.
+     *  Content is always cleared on resize — Grid is a live frame buffer, not a document.
+     *
+     *  @param numRows  Visible row count (logical viewport height).
+     *  @param numCols  Column count per row.
      */
-    void setSize (int numRows, int numCols, int scrollBufferSize = 0,
-                  bool keepExistingContent = false,
-                  bool clearExtraSpace = false,
-                  bool avoidReallocating = false) noexcept;
+    void setSize (int numRows, int numCols) noexcept;
 
-    /** Returns the row count for the given screen index (0 = normal, 1 = alternate). */
+    /** Returns the logical viewport row count (pre-power-of-two rounding). */
     int getNumRows (int screen) const noexcept;
 
-    /** Returns the column count for the given screen index (0 = normal, 1 = alternate). */
+    /** Returns the column count. */
     int getNumCols (int screen) const noexcept;
+
+    /** Returns the ring size (power of two). */
+    int getRingSize() const noexcept;
 
     ///@}
 
@@ -85,18 +88,20 @@ public:
     /** @name Pointer access — mirrors AudioBuffer::getReadPointer / getWritePointer */
     ///@{
 
-    /** Returns a read-only pointer to the first Cell in the given row on the given screen
-     *  (0 = normal, 1 = alternate). */
+    /** Returns a read-only pointer to the first Cell in the given logical row on the given screen
+     *  (0 = normal, 1 = alternate). Translates logical row through the ring head. */
     const jam::Cell* getReadPointer (int screen, int row) const noexcept;
 
     /** Returns a read-only pointer to a specific Cell position on the given screen
-     *  (0 = normal, 1 = alternate). */
+     *  (0 = normal, 1 = alternate). Translates logical row through the ring head. */
     const jam::Cell* getReadPointer (int screen, int row, int col) const noexcept;
 
-    /** Returns a writable pointer to the first Cell in the given row on the given screen. */
+    /** Returns a writable pointer to the first Cell in the given logical row on the given screen.
+     *  Translates logical row through the ring head. */
     jam::Cell* getWritePointer (int screen, int row) noexcept;
 
-    /** Returns a writable pointer to a specific Cell position on the given screen. */
+    /** Returns a writable pointer to a specific Cell position on the given screen.
+     *  Translates logical row through the ring head. */
     jam::Cell* getWritePointer (int screen, int row, int col) noexcept;
 
     ///@}
@@ -105,13 +110,13 @@ public:
     /** @name Clear — mirrors AudioBuffer::clear / hasBeenCleared */
     ///@{
 
-    /** Clears all rows of the given screen buffer. */
+    /** Clears all rows of the given screen buffer and resets the ring head. */
     void clear (int screen) noexcept;
 
-    /** Clears an entire row of the given screen buffer. */
+    /** Clears an entire logical row of the given screen buffer. */
     void clear (int screen, int row) noexcept;
 
-    /** Clears a range of cells within a row of the given screen buffer. */
+    /** Clears a range of cells within a logical row of the given screen buffer. */
     void clear (int screen, int row, int startCol, int numCols) noexcept;
 
     /** Returns true if the given screen's buffer has been cleared and no writes occurred since.
@@ -126,29 +131,30 @@ public:
 
     /** Scrolls rows up within the given scroll region on the given screen.
      *
-     *  On the normal screen (screen == 0) with a full-screen region (scrollTop == 0 and
-     *  scrollBottom == numRows - 1), captures scroll-off rows into the scrollOff ring.
-     *  Uses memmove for all cases — flat, no ring head advance on the visible buffer.
+     *  Full-screen (scrollTop == 0 and scrollBottom == viewportRows - 1):
+     *  clears the physical row at head[screen] (the recycled bottom), advances head — O(1).
+     *  Increments scrolledCount[screen] so Display knows how many rows to drain.
      *
-     *  On the alternate screen or a partial region, no scroll-off capture.
-     *
-     *  Clears the new bottom row(s).
+     *  Partial region: per-row copyFrom within the region.
      *
      *  @param screen        Screen index (0 = normal, 1 = alternate).
-     *  @param scrollTop     First row of the scroll region (zero-based).
-     *  @param scrollBottom  Last row of the scroll region (zero-based).
+     *  @param scrollTop     First row of the scroll region (zero-based, logical).
+     *  @param scrollBottom  Last row of the scroll region (zero-based, logical).
      *  @param count         Number of rows to scroll (default 1).
-     *  @return              Number of scroll-off rows captured (0 on alternate or partial region).
+     *  @return              Number of rows scrolled (clampedCount). Display uses this
+     *                       as a hint; authoritative count is getScrolledCount().
      */
     int scrollUp (int screen, int scrollTop, int scrollBottom, int count = 1) noexcept;
 
     /** Scrolls rows down within the given scroll region on the given screen (reverse scroll).
      *
-     *  Always uses memmove. No scroll-off capture. Clears the new top row(s).
+     *  Full-screen: retreats the ring head — O(1). No scrolledCount change.
+     *  Partial region: per-row copyFrom within the region.
+     *  Clears the new top row(s). No staging capture.
      *
      *  @param screen        Screen index (0 = normal, 1 = alternate).
-     *  @param scrollTop     First row of the scroll region (zero-based).
-     *  @param scrollBottom  Last row of the scroll region (zero-based).
+     *  @param scrollTop     First row of the scroll region (zero-based, logical).
+     *  @param scrollBottom  Last row of the scroll region (zero-based, logical).
      *  @param count         Number of rows to scroll (default 1).
      */
     void scrollDown (int screen, int scrollTop, int scrollBottom, int count = 1) noexcept;
@@ -156,41 +162,43 @@ public:
     ///@}
 
     //==========================================================================
-    /** @name Scroll-off FIFO — Display-side drain */
+    /** @name Staging — Display-side drain of evicted rows */
     ///@{
 
-    /** @brief Prepares a batch read of scroll-off rows. Returns two contiguous spans.
-     *  Caller must call advanceScrollOff() after consuming the rows.
-     *  @param count      Number of rows to read.
-     *  @param readStart  Start index of first span.
-     *  @param readCount  Size of first span.
-     *  @param wrapStart  Start index of second span (wrap-around).
-     *  @param wrapCount  Size of second span. */
-    void prepareScrollOffRead (int count, int& readStart, int& readCount,
-                                int& wrapStart, int& wrapCount) const noexcept;
+    /** Returns the number of rows scrolled off the viewport since the last Display drain. */
+    int getScrolledCount (int screen) const noexcept;
 
-    /** @brief Returns a read-only pointer to a scroll-off row by physical buffer index.
-     *  Use indices from prepareScrollOffRead spans. */
-    const jam::Cell* getScrollOffReadPointer (int physicalRow) const noexcept;
+    /** Resets the scrolled count after Display drains all staging rows. */
+    void resetScrolledCount (int screen) noexcept;
 
-    /** Advances the read position in the scrollOff ring by count.
-     *  Called by Display after draining. */
-    void advanceScrollOff (int count) noexcept;
+    /** Returns a read-only pointer to a staging row (evicted row behind the viewport).
+     *
+     *  stagingIndex 0 = oldest evicted row, (effectiveScrolled - 1) = newest evicted row.
+     *  Caller must clamp the index range to min(getScrolledCount(screen), ringSize - viewportRows).
+     *
+     *  Physical address: (head[screen] - effectiveScrolled + stagingIndex) & ringMask.
+     */
+    const jam::Cell* getStagingReadPointer (int screen, int stagingIndex) const noexcept;
 
     ///@}
 
 private:
     //==========================================================================
 
-    jam::Buffer<jam::Cell> normal;     ///< Normal screen visible frame.
-    jam::Buffer<jam::Cell> alternate;  ///< Alternate screen visible frame.
-    jam::Buffer<jam::Cell> scrollOff;  ///< Scroll-off transit buffer.
+    /** Maps a logical row to a physical row in the ring for the given screen. */
+    int physicalRow (int screen, int logicalRow) const noexcept;
 
-    juce::AbstractFifo scrollOffFifo { 1 }; ///< Lock-free SPSC index manager for scrollOff.
+    //==========================================================================
+
+    jam::Buffer<jam::Cell> cells;///< 2 channels: normal (0), alternate (1). Ring-sized (power of two).
+    int head[2] { 0, 0 };///< Ring head per screen (normal=0, alternate=1).
+    int ringMask { 0 };///< Power-of-two bitmask for ring indexing.
+    int viewportRows { 0 };///< Logical viewport row count (pre-rounding).
+    int scrolledCount[2] { 0, 0 };///< Rows scrolled since last Display drain, per channel.
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Grid)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Terminal
+}// namespace Terminal
