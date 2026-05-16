@@ -6,13 +6,13 @@
 #include "../lua/Engine.h"
 
 namespace Terminal
-{ /*____________________________________________________________________________*/
+{
+/*____________________________________________________________________________*/
 
 class Display
     : public PaneComponent
     , public juce::KeyListener
     , public juce::ValueTree::Listener
-    , public juce::AsyncUpdater
 {
 public:
     Display (Terminal::Processor& processor);
@@ -56,9 +56,6 @@ public:
     // juce::ValueTree::Listener
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
-    // juce::AsyncUpdater
-    void handleAsyncUpdate() override;
-
 private:
     const lua::Engine& config { *lua::Engine::getContext() };
     Terminal::Processor& processor;
@@ -68,11 +65,8 @@ private:
     Terminal::Screen screen;
     juce::VBlankAttachment vblank;
 
-    int lastCols { 0 }; ///< Previous column count for resize debounce.
-    int lastRows { 0 }; ///< Previous row count for resize debounce.
-
-    juce::HeapBlock<const jam::Cell*> gridRowPointers;  ///< Temp array for batch Grid row copy.
-    int gridRowPointersSize { 0 };                      ///< Allocated capacity of gridRowPointers.
+    int lastCols { 0 };///< Previous column count for resize debounce.
+    int lastRows { 0 };///< Previous row count for resize debounce.
 
     void onVBlank();
     void updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept;

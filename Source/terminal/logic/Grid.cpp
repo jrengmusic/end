@@ -25,8 +25,9 @@ void Grid::setSize (int numRows, int numCols) noexcept
 {
     jassert (numRows > 0 and numCols > 0);
 
+    const int minRing { numRows * 2 };
     int ringSize { 1 };
-    while (ringSize < numRows)
+    while (ringSize < minRing)
         ringSize <<= 1;
 
     cells.setSize (2, ringSize, numCols, false, true, false);

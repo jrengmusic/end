@@ -65,19 +65,6 @@ public:
     Screen() noexcept;
     ~Screen() override;
 
-    /** @brief Appends scrolled-off rows to the normal ring via appendRow. */
-    void append (const jam::Cell* const* rows, int rowCount, int numCols) noexcept;
-
-    /** @brief Copies visible rows from Grid into the live buffer (buffers[2]).
-     *         Single calc() after all rows are written. No per-row overhead.
-     *  @param rows      Array of row pointers (one per visible row).
-     *  @param numRows   Number of rows to copy.
-     *  @param numCols   Column count per row. */
-    void updateLiveRows (const jam::Cell* const* rows, int numRows, int numCols) noexcept;
-
-    /** @brief Sizes the live buffer (buffers[2]) for terminal dimensions. */
-    void setLiveDimensions (int numRows, int numCols) noexcept;
-
 private:
 
     //==============================================================================
