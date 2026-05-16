@@ -121,9 +121,7 @@ public:
     void initialise (const juce::String& commandLine) override
     {
         juce::ignoreUnused (commandLine);
-
-        jam::Typeface::setContext (&typefaceContext);
-
+    
 #if JUCE_WINDOWS
         // Safety net: create a Job Object with KILL_ON_JOB_CLOSE so that all
         // child processes (shell, OpenConsole.exe from ConPTY) are killed when
@@ -430,18 +428,11 @@ public:
     }
 
 private:
-    /**
-     * @brief Application-owned typeface registry and shared glyph atlas.
-     *
-     * Declared first so it is destroyed last (reverse construction order).
-     * Passed to `jam::Typeface::setContext()` in `initialise()` and nulled
-     * in `shutdown()` — after all consumers are destroyed — to guarantee the
-     * atlas `juce::Image` objects are released before JUCE's leak detector runs.
-     */
     /** @brief Diagnostic file logger -- fresh each launch. */
     jam::debug::Log::Scope logScope { juce::File { "/tmp/end-perf.log" } };
 
-    jam::Typeface::Context typefaceContext;
+    /** @brief Application-owned typeface registry and shared glyph atlas. */
+    jam::TypefaceResources typefaceResources;
 
     /** @brief Application-owned style table — self-registers as jam::Stamp::getContext() on construction. */
     jam::Stamp stampContext;

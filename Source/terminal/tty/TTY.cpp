@@ -24,7 +24,6 @@
  */
 
 #include "TTY.h"
-#include <chrono>
 
 /**
  * @brief Reader thread main loop.
@@ -58,33 +57,17 @@ void TTY::run()
     setPriority (Thread::Priority::high);
     char chunk[READ_CHUNK_SIZE];
 
-    // Diagnostic counters (reader thread only -- no sync needed).
-    int64_t totalDrains { 0 };
-    int64_t totalChunks { 0 };
-    int64_t totalBytes  { 0 };
-    double  totalDrainMs   { 0.0 };
-    double  totalPollMs    { 0.0 };
-    double  totalProcessMs { 0.0 };
-    auto lastReport { std::chrono::steady_clock::now() };
-
     auto drainPty = [&]() -> bool
     {
-        const auto drainStart { std::chrono::steady_clock::now() };
-
         int n { read (chunk, static_cast<int> (READ_CHUNK_SIZE)) };
 
         while (n > 0)
         {
             if (onData)
             {
-                const auto procStart { std::chrono::steady_clock::now() };
                 onData (chunk, n);
-                const auto procEnd { std::chrono::steady_clock::now() };
-                totalProcessMs += std::chrono::duration<double, std::milli> (procEnd - procStart).count();
             }
 
-            totalBytes += n;
-            ++totalChunks;
             n = read (chunk, static_cast<int> (READ_CHUNK_SIZE));
         }
 
@@ -95,45 +78,8 @@ void TTY::run()
             onDrainComplete();
         }
 
-        const auto drainEnd { std::chrono::steady_clock::now() };
-        totalDrainMs += std::chrono::duration<double, std::milli> (drainEnd - drainStart).count();
-        ++totalDrains;
-
-        // Report every 500ms.
-        const auto now { std::chrono::steady_clock::now() };
-        const double sinceLast { std::chrono::duration<double, std::milli> (now - lastReport).count() };
-
-        if (sinceLast >= 500.0)
-        {
-            jam::debug::Log::write (
-                juce::String ("READER: drains=") + juce::String (totalDrains)
-                + " chunks=" + juce::String (totalChunks)
-                + " bytes=" + juce::String (totalBytes)
-                + " drainMs=" + juce::String (totalDrainMs, 1)
-                + " pollMs=" + juce::String (totalPollMs, 1)
-                + " processMs=" + juce::String (totalProcessMs, 1)
-                + " avgChunkBytes=" + juce::String (totalChunks > 0 ? totalBytes / totalChunks : 0));
-
-            totalDrains    = 0;
-            totalChunks    = 0;
-            totalBytes     = 0;
-            totalDrainMs   = 0.0;
-            totalPollMs    = 0.0;
-            totalProcessMs = 0.0;
-            lastReport     = now;
-        }
-
         if (isEof)
         {
-            // Final report.
-            jam::debug::Log::write (
-                juce::String ("READER EOF: drains=") + juce::String (totalDrains)
-                + " chunks=" + juce::String (totalChunks)
-                + " bytes=" + juce::String (totalBytes)
-                + " drainMs=" + juce::String (totalDrainMs, 1)
-                + " pollMs=" + juce::String (totalPollMs, 1)
-                + " processMs=" + juce::String (totalProcessMs, 1));
-
             shellExited.store (true, std::memory_order_release);
 
             if (onExit)
@@ -149,12 +95,7 @@ void TTY::run()
 
     while (not threadShouldExit() and not shellDone)
     {
-        const auto pollStart { std::chrono::steady_clock::now() };
-        const bool dataReady { waitForData (100) };
-        const auto pollEnd { std::chrono::steady_clock::now() };
-        totalPollMs += std::chrono::duration<double, std::milli> (pollEnd - pollStart).count();
-
-        if (dataReady)
+        if (waitForData (100))
         {
             shellDone = drainPty();
         }

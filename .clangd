@@ -1,6 +1,7 @@
 CompileFlags:
-  CompilationDatabase: /Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Release
+  CompilationDatabase: /Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug
   Add:
+    - -DDEBUG=1
     - -DDONT_SET_USING_JUCE_NAMESPACE=1
     - -DGL_SILENCE_DEPRECATION
     - -DHAVE_FCNTL_H
@@ -38,13 +39,12 @@ CompileFlags:
     - -DJUCE_TARGET_HAS_BINARY_DATA=1
     - -DJUCE_USE_CURL=0
     - -DJUCE_WEB_BROWSER=1
-    - -DNDEBUG=1
-    - -D_NDEBUG=1
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Release/END_App_artefacts/JuceLibraryCode
+    - -D_DEBUG=1
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/END_App_artefacts/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/dev/end/Source
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_freetype/freetype/include
     - -I/Users/jreng/Documents/Poems/dev/end/../../JUCE/modules/juce_graphics/fonts/harfbuzz
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Release/juce_binarydata_END_App_BinaryData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_END_App_BinaryData/JuceLibraryCode
     - -I/Users/jreng/Documents/Poems/JUCE/modules
     - -I/Users/jreng/Documents/Poems/dev/end/../jam
     - -I/Users/jreng/Documents/Poems/dev/end/../jam/jam_style/.
@@ -57,11 +57,9 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Release/juce_binarydata_jam_fonts_FontData/JuceLibraryCode
-    - -O3
-    - -DNDEBUG
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_fonts_FontData/JuceLibraryCode
+    - -g
     - -std=c++17
-    - -flto=thin
     - -arch
     - arm64
     - -mmacosx-version-min=12.0
@@ -72,7 +70,6 @@ CompileFlags:
     - -Wno-shadow
     - -Wno-unused-parameter
     - -Wno-deprecated-declarations
-    - -flto
 Diagnostics:
   MissingIncludes: None
   UnusedIncludes: None

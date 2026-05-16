@@ -15,7 +15,6 @@
 
 #include "Processor.h"
 #include "../../component/TerminalDisplay.h"
-#include <chrono>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -535,16 +534,6 @@ void Processor::process (const char* data, int length) noexcept
 {
     jassert (parser != nullptr);
 
-    static int64_t callCount { 0 };
-    static double lockMs { 0.0 };
-    static double parseMs { 0.0 };
-    static double flushStateMs { 0.0 };
-    static double restMs { 0.0 };
-    static int64_t totalBytes { 0 };
-
-    const auto t0 { std::chrono::steady_clock::now() };
-    const auto t1 { t0 };  // No lock acquisition — lockMs will be 0.
-
     if (resizePending.exchange (false, std::memory_order_acquire))
     {
         const int cols { pendingCols.load (std::memory_order_relaxed) };
@@ -563,41 +552,9 @@ void Processor::process (const char* data, int length) noexcept
     }
 
     parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
-
-    const auto t2 { std::chrono::steady_clock::now() };
-
     video.flushState();
-
-    const auto t3 { std::chrono::steady_clock::now() };
-
     video.flushResponses();
     state.consumePasteEcho (length);
-
-    const auto t4 { std::chrono::steady_clock::now() };
-
-    lockMs       += std::chrono::duration<double, std::milli> (t1 - t0).count();
-    parseMs      += std::chrono::duration<double, std::milli> (t2 - t1).count();
-    flushStateMs += std::chrono::duration<double, std::milli> (t3 - t2).count();
-    restMs       += std::chrono::duration<double, std::milli> (t4 - t3).count();
-    totalBytes   += length;
-    ++callCount;
-
-    if (callCount % 2000 == 0)
-    {
-        jam::debug::Log::write (
-            juce::String ("PROC: calls=") + juce::String (callCount)
-            + " bytes=" + juce::String (totalBytes)
-            + " lockMs=" + juce::String (lockMs, 1)
-            + " parseMs=" + juce::String (parseMs, 1)
-            + " flushStateMs=" + juce::String (flushStateMs, 1)
-            + " restMs=" + juce::String (restMs, 1));
-
-        lockMs       = 0.0;
-        parseMs      = 0.0;
-        flushStateMs = 0.0;
-        restMs       = 0.0;
-        totalBytes   = 0;
-    }
 }
 
 State& Processor::getState() noexcept { return state; }

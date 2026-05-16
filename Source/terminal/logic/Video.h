@@ -430,7 +430,7 @@ private:
     {
         if (penStyleDirty)
         {
-            penStyleId = jam::Stamp::getContext()->getOrInsert ({ penFg, penBg, penFlags });
+            penStyleId = static_cast<uint16_t> (jam::Stamp::getContext()->addIfNotAlreadyThere ({ penFg, penBg, penFlags }));
             penStyleDirty = false;
         }
 
@@ -448,7 +448,7 @@ private:
      */
     uint16_t eraseStyleId() noexcept
     {
-        return jam::Stamp::getContext()->getOrInsert ({ {}, penBg, 0 });
+        return static_cast<uint16_t> (jam::Stamp::getContext()->addIfNotAlreadyThere ({ {}, penBg, 0 }));
     }
 
     /**

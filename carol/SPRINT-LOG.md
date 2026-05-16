@@ -1,5 +1,39 @@
 # SPRINT-LOG
 
+## Sprint 18: SharedResource — Unified Shared Resource Pattern
+
+**Date:** 2026-05-17
+**Duration:** ~04:00
+
+### Agents Participated
+- COUNSELOR: design iteration, plan, delegation, audit coordination
+- Engineer: implementation across jam_core + jam_fonts + END Source
+- Auditor: contract validation, coding standard enforcement
+
+### Files Modified (7 total)
+- `Source/Main.cpp:435` — `jam::Typeface::Context typefaceContext` → `jam::TypefaceResources typefaceResources`; removed `setContext` call
+- `Source/terminal/logic/Video.cpp:450,505` — `getOrInsert` → `addIfNotAlreadyThere` with static_cast
+- `Source/terminal/logic/Video.h:433,451` — same migration
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Unified three divergent shared resource implementations (Typeface, Grapheme, Stamp) into single SharedResource<Derived, EntryType> CRTP pattern
+- Owner upgraded with O(1) hash-based dedup via IsHashable SFINAE + unordered_map lookup
+- ONE hash algorithm (hashBytes — polynomial rolling, BinaryData-inspired) used by all types
+- Eliminated Typeface::Context manual setContext/getContext — now self-registers via Context<Derived> CRTP
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 17: jam::TextEditor — Buffer<Cell>/Block<Cell> Rendering Substrate
 
 **Date:** 2026-05-15

@@ -16,7 +16,6 @@ Terminal::Display::Display (Terminal::Processor& processorToUse)
 
 Terminal::Display::~Display()
 {
-    cancelPendingUpdate();
     screen.removeKeyListener (this);
 }
 
@@ -95,10 +94,6 @@ void Terminal::Display::updateDimensions (const juce::Rectangle<int>& contentBou
             state.setValue (Terminal::ID::cols, newCols);
             state.setValue (Terminal::ID::visibleRows, newRows);
 
-            screen.setLiveDimensions (newRows, newCols);
-            gridRowPointers.realloc (static_cast<size_t> (newRows));
-            gridRowPointersSize = newRows;
-
             if (processor.events.contains (Terminal::ID::terminalResize))
                 processor.events.get (Terminal::ID::terminalResize, int (newCols), int (newRows),
                                       int (contentBounds.getWidth()), int (contentBounds.getHeight()));
@@ -127,11 +122,6 @@ void Terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::
     screen.setActiveScreen (state.getActiveScreen());
 }
 
-// juce::AsyncUpdater
-void Terminal::Display::handleAsyncUpdate()
-{
-}
-
 void Terminal::Display::onVBlank()
 {
     const bool stateDirty { state.consumeSnapshotDirty() };
@@ -139,28 +129,23 @@ void Terminal::Display::onVBlank()
     if (stateDirty)
         state.refresh();
 
-    // Read Grid directly — no lock needed for normal cell reads (8-byte atomic u64).
-    // Resize is protected by a brief ScopedLock inside Processor::process().
     {
         const int activeScreen { state.getActiveScreen() };
+        const int numRows { grid.getNumRows (activeScreen) };
+        const int numCols { grid.getNumCols (activeScreen) };
 
-        // Copy Grid visible rows into Screen's live buffer.
+        if (numRows > 0 and numCols > 0)
         {
-            const int numRows { grid.getNumRows (activeScreen) };
-            const int numCols { grid.getNumCols (activeScreen) };
-
-            if (numRows > 0 and numCols > 0 and numRows <= gridRowPointersSize)
+            for (int r { 0 }; r < numRows; ++r)
             {
-                for (int r { 0 }; r < numRows; ++r)
-                    gridRowPointers[r] = grid.getReadPointer (activeScreen, r);
+                const auto* row { grid.getReadPointer (activeScreen, r) };
 
-                screen.updateLiveRows (gridRowPointers.getData(), numRows, numCols);
+                if (row != nullptr)
+                    screen.setVisibleRow (r, row, numCols);
             }
-
-            grid.resetScrolledCount (activeScreen);
         }
 
-        // 3. Caret position.
+        // Caret position.
         {
             const int cols { grid.getNumCols (activeScreen) };
             const int rows { grid.getNumRows (activeScreen) };

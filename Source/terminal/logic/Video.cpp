@@ -447,7 +447,7 @@ void Video::print (uint32_t codepoint) noexcept
             cluster.count = 2;
         }
 
-        const uint32_t graphemeIndex { jam::Grapheme::getContext()->getOrInsert (cluster) };
+        const uint32_t graphemeIndex { static_cast<uint32_t> (jam::Grapheme::getContext()->addIfNotAlreadyThere (cluster)) };
         *baseCell = jam::Cell::make (graphemeIndex, jam::Cell::CONTENT_GRAPHEME,
                                      baseCell->wide(), baseCell->styleId());
     }
@@ -502,7 +502,7 @@ void Video::print (uint32_t codepoint) noexcept
         if (activeLinkId != 0)
         {
             const uint8_t linkFlags { static_cast<uint8_t> (penFlags | jam::Stamp::UNDERLINE) };
-            sid = jam::Stamp::getContext()->getOrInsert ({ penFg, penBg, linkFlags });
+            sid = static_cast<uint16_t> (jam::Stamp::getContext()->addIfNotAlreadyThere ({ penFg, penBg, linkFlags }));
         }
         else
         {
