@@ -23,8 +23,9 @@
  *    flushed back via the `writeToHost` event handler registered in `events`.
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
- * 8. Display resize: Display calls `processor.resized()` directly →
- *    Video and Grid resized.
+ * 8. Display resize: Display writes cols/visibleRows/cellWidth/cellHeight to
+ *    State atomics. process() reads them directly at batch start and applies
+ *    to Grid and Video on the reader thread.
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
@@ -49,7 +50,6 @@
 #include "Parser.h"
 #include "Skit.h"
 #include "Video.h"
-
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -246,19 +246,6 @@ public:
      */
     std::unique_ptr<Display> createDisplay();
 
-    /**
-     * @brief Delivers cell pixel dimensions to Skit and Video.
-     *
-     * Called by Screen (or Display) when font metrics change.  Forwards
-     * `widthPx` and `heightPx` to `Skit::setCellSize()` (image decode) and
-     * `Video::setCellSize()` (CSI `t` pixel dimension reports).
-     *
-     * @param widthPx   Cell width in pixels.
-     * @param heightPx  Cell height in pixels.
-     * @note MESSAGE THREAD.
-     */
-    void setCellSize (int widthPx, int heightPx) noexcept;
-
     /** @brief Fires when OSC 133;C marks command start (outputBlockStart changes). MESSAGE THREAD. */
     std::function<void()> onCommandStarted;
 
@@ -334,40 +321,12 @@ private:
      */
     void registerEvents() noexcept;
 
-    /** @brief Stores pending dimensions for deferred application on the reader thread.
-     *
-     *  Called from `valueTreePropertyChanged` when State dimensions change.
-     *  Stores cols/rows atomically. process() applies them at batch start.
-     *
-     *  @param cols  New terminal width in character columns.
-     *  @param rows  New terminal height in character rows.
-     *  @note MESSAGE THREAD — atomic stores only. No Video/Grid writes here.
-     */
-    void resized (int cols, int rows) noexcept;
-
-    /** @brief Pending column count for deferred resize. Written on message thread, read on reader thread. */
-    std::atomic<int> pendingCols { 0 };
-
-    /** @brief Pending row count for deferred resize. Written on message thread, read on reader thread. */
-    std::atomic<int> pendingRows { 0 };
-
-    /** @brief Set to true when a resize is pending. Consumed by process(). */
-    std::atomic<bool> resizePending { false };
-
-    /** @brief Pending cell width in pixels for deferred setCellSize. */
-    std::atomic<int> pendingCellWidth { 0 };
-
-    /** @brief Pending cell height in pixels for deferred setCellSize. */
-    std::atomic<int> pendingCellHeight { 0 };
-
-    /** @brief Set to true when a cell size change is pending. Consumed by process(). */
-    std::atomic<bool> cellSizePending { false };
-
-    /** @brief ValueTree::Listener — reacts to top-down dimension changes from Display.
+    /** @brief ValueTree::Listener — reacts to top-down property changes from Display.
      *
      *  Fires on the message thread when State's ValueTree properties change.
-     *  Handles `ID::cols` and `ID::visibleRows` to push new dimensions into Video.
-     *  Mirrors the `ProcessorChain::parameterChanged` pattern from JFS.
+     *  Handles shell integration callbacks (outputBlockTop, promptRow).
+     *  Dimension changes (cols, visibleRows, cellWidth, cellHeight) are consumed
+     *  directly from State atomics on the reader thread inside process().
      *
      *  @note MESSAGE THREAD.
      */

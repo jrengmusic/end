@@ -136,7 +136,7 @@ void Video::advanceCursorForImage (int numRows) noexcept
     if (numRows > 0)
     {
         cursorMoveDown (numRows, effectiveClampBottom());
-        cursorCol = 0;
+        cursorCol = 0_cell;
     }
 }
 

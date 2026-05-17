@@ -108,8 +108,8 @@ public:
      * grid padding so they align with the actual grid edges rather than the
      * raw window edge.
      *
-     * @param cols    Current terminal column count.
-     * @param rows    Current terminal row count.
+     * @param cols    Current terminal column count (cell units).
+     * @param rows    Current terminal row count (cell units).
      * @param padTop    Grid padding — top edge in logical pixels.
      * @param padRight  Grid padding — right edge in logical pixels.
      * @param padBottom Grid padding — bottom edge in logical pixels.
@@ -118,7 +118,7 @@ public:
      * @note Calls `toFront(false)` after fade-in to guarantee sibling z-order lift
      *       (CPU mode respects sibling order literally; GPU composites via GL).
      */
-    void showResize (int cols, int rows, int padTop, int padRight, int padBottom, int padLeft)
+    void showResize (cell cols, cell rows, int padTop, int padRight, int padBottom, int padLeft)
     {
         resizeMode = true;
         resizeCols = cols;
@@ -299,8 +299,8 @@ private:
      */
     static void paintRulers (juce::Graphics& g,
                              juce::Rectangle<int> bounds,
-                             int cols,
-                             int rows,
+                             cell cols,
+                             cell rows,
                              int padTop,
                              int padRight,
                              int padBottom,
@@ -332,7 +332,7 @@ private:
 
         // ── Horizontal ruler ─────────────────────────────────────────────────
         {
-            const juce::String label { juce::String (cols) + " col" };
+            const juce::String label { juce::String (cols.value) + " col" };
             const juce::Font juceFont { fontOptions };
             const float labelW { juce::TextLayout::getStringWidth (juceFont, label) };
             const float totalGap { labelW + labelGap * 2.0f };
@@ -367,7 +367,7 @@ private:
         // ── Vertical ruler ───────────────────────────────────────────────────
         {
             const juce::Font juceFont { fontOptions };
-            const juce::String label { juce::String (rows) + " row" };
+            const juce::String label { juce::String (rows.value) + " row" };
             const float labelH { juceFont.getHeight() };
             const float totalGap { labelH + labelGap * 2.0f };
             const float midY { y0 + h / 2.0f };
@@ -422,10 +422,10 @@ private:
     juce::Image previewImage;
 
     /** @brief Column count shown by the resize ruler. */
-    int resizeCols { 0 };
+    cell resizeCols { 0 };
 
     /** @brief Row count shown by the resize ruler. */
-    int resizeRows { 0 };
+    cell resizeRows { 0 };
 
     /** @brief Grid padding top — passed to paintRulers() to inset the ruler bounds. */
     int resizePadTop { 0 };

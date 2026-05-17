@@ -7,7 +7,7 @@ version: "1.0"
 project:
   name: "end"
   path: "/Users/jreng/Documents/Poems/dev/end"
-  initialized: "2026-05-16"
+  initialized: "2026-05-17"
 
 carol:
   mode: "symlink"  # or "portable"

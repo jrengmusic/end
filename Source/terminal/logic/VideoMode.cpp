@@ -190,7 +190,7 @@ void Video::handlePrivateMode (const CSI& params, bool enable) noexcept
             {
                 originMode = enable;
                 if (enable)
-                    cursorSetPosition (0, 0, cols, visibleRows);
+                    cursorSetPosition (0, 0, cols.value, visibleRows.value);
             }
             else if (modeValue == 25)
             {

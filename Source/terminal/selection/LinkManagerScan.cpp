@@ -21,7 +21,7 @@ namespace Terminal
 { /*____________________________________________________________________________*/
 
 void LinkManager::scanHeuristicTokens (std::vector<LinkSpan>& spans, const juce::String& cwd,
-                                       int visibleRows, int cols,
+                                       cell visibleRows, cell cols,
                                        int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                                        bool normalScreen) const
 {
@@ -30,7 +30,7 @@ void LinkManager::scanHeuristicTokens (std::vector<LinkSpan>& spans, const juce:
 }
 
 void LinkManager::scanCellNativeLinks (std::vector<LinkSpan>& spans,
-                                       int visibleRows, int cols,
+                                       cell visibleRows, cell cols,
                                        int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                                        bool normalScreen) const
 {

@@ -48,7 +48,7 @@ Panes::~Panes() = default;
  * @return {cols, rows}. jasserts cols > 0 and rows > 0.
  * @note Pure math — no instance state.
  */
-std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcept
+std::pair<cell, cell> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcept
 {
     // Physical-pixel math — matches Screen::calc() exactly (SSOT).
     const auto* cfg { lua::Engine::getContext() };
@@ -74,11 +74,11 @@ std::pair<int, int> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexcep
     const int physContentW { jam::toInt (static_cast<float> (contentW) * scale, true) };
     const int physContentH { jam::toInt (static_cast<float> (contentH) * scale, true) };
 
-    const auto gridRect { jam::metrics::Cell::Rectangle (jam::Bounds { physCellW, physCellH }, juce::Rectangle<int> { 0, 0, physContentW, physContentH }) };
-    const int cols { (physContentW > 0 and physCellW > 0) ? gridRect.getWidth().value  : 1 };
-    const int rows { (physContentH > 0 and physCellH > 0) ? gridRect.getHeight().value : 1 };
+    const auto gridRect { cell::Rectangle (jam::Bounds { physCellW, physCellH }, juce::Rectangle<int> { 0, 0, physContentW, physContentH }) };
+    const cell cols { (physContentW > 0 and physCellW > 0) ? gridRect.getWidth().value  : 1 };
+    const cell rows { (physContentH > 0 and physCellH > 0) ? gridRect.getHeight().value : 1 };
 
-    jassert (cols > 0 and rows > 0);
+    jassert (cols.value > 0 and rows.value > 0);
     return { cols, rows };
 }
 
@@ -142,10 +142,10 @@ std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
  */
 juce::String Panes::createTerminal (const juce::String& workingDirectory,
                                      const juce::String& uuid,
-                                     int cols,
-                                     int rows)
+                                     cell cols,
+                                     cell rows)
 {
-    jassert (cols > 0 and rows > 0);
+    jassert (cols.value > 0 and rows.value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
     Terminal::Processor& processor { Nexus::getContext()->create (workingDirectory, effectiveUuid, cols, rows).getProcessor() };
@@ -450,12 +450,12 @@ void Panes::splitAt (const juce::String& targetUuid,
                      const juce::String& cwd,
                      const juce::String& direction,
                      bool isVertical,
-                     int cols,
-                     int rows,
+                     cell cols,
+                     cell rows,
                      double ratio)
 {
     jassert (targetUuid.isNotEmpty());
-    jassert (cols > 0 and rows > 0);
+    jassert (cols.value > 0 and rows.value > 0);
 
     const juce::String effectiveSplitUuid { newUuid.isNotEmpty() ? newUuid : juce::Uuid().toString() };
     Terminal::Processor& processor { Nexus::getContext()->create (cwd, effectiveSplitUuid, cols, rows).getProcessor() };
@@ -522,9 +522,9 @@ void Panes::splitActive (const juce::String& direction, bool isVertical, double 
     }
 
     const auto [targetRect, newRect] { splitRect (activeBounds, direction, ratio) };
-    const auto [cols, rows] { cellsFromRect (newRect) };
+    const auto [newCols, newRows] { cellsFromRect (newRect) };
 
-    splitAt (activeID, {}, AppState::getContext()->getPwd(), direction, isVertical, cols, rows, ratio);
+    splitAt (activeID, {}, AppState::getContext()->getPwd(), direction, isVertical, newCols, newRows, ratio);
 }
 
 /**

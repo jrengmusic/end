@@ -70,10 +70,10 @@ void Layout::build (const juce::XmlElement& xml,
 
             if (typeStr == "float")
             {
-                state.addFloatParameter (juce::Identifier { child->getStringAttribute (ID::id.toString()) },
-                                         static_cast<float> (child->getDoubleAttribute (ID::defaultValue.toString())),
-                                         *sessionGroup,
-                                         rootNode);
+                state.addParameter<float> (juce::Identifier { child->getStringAttribute (ID::id.toString()) },
+                                           static_cast<float> (child->getDoubleAttribute (ID::defaultValue.toString())),
+                                           *sessionGroup,
+                                           rootNode);
             }
             else
             {

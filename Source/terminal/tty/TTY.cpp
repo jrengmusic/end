@@ -102,13 +102,13 @@ void TTY::run()
     }
 }
 
-void TTY::platformResize (int cols, int rows, int pixelWidth, int pixelHeight)
+void TTY::platformResize (cell cols, cell rows, int pixelWidth, int pixelHeight)
 {
-    if (cols != lastResizeCols or rows != lastResizeRows)
+    if (cols.value != lastResizeCols or rows.value != lastResizeRows)
     {
-        doPlatformResize (cols, rows, pixelWidth, pixelHeight);
-        lastResizeCols = cols;
-        lastResizeRows = rows;
+        doPlatformResize (cols.value, rows.value, pixelWidth, pixelHeight);
+        lastResizeCols = cols.value;
+        lastResizeRows = rows.value;
     }
 }
 

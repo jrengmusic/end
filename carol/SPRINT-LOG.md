@@ -1,5 +1,88 @@
 # SPRINT-LOG
 
+## Sprint 19: Cell Type Adoption + State SSOT + TextEditor Strip-down
+
+**Date:** 2026-05-17
+**Duration:** ~10:00
+
+### Agents Participated
+- COUNSELOR: architecture discussion, design iteration, delegation, audit coordination
+- Engineer (x14): TextEditor strip-down, setText API, Cell adoption across Video/Grid/State/Session/TTY/Panes/Tabs/MainComponent/Mouse/Selection/Nexus/LinkSpan/Engine, DISPLAY node + registerNodeAtomics, Processor pending atomics removal, addParameter template, audit fixes
+- Auditor (x1): comprehensive contract audit — 10 findings, all resolved
+- Pathfinder (x4): TextEditor/Screen survey, State/scrolledCount/promptRow survey, Processor pending resize flow, Video promptRow/scrollUp access
+- Librarian (x2): juce::TextEditor API research, jam::ValueTree/Value/attach API research
+
+### Files Modified (50+ total)
+
+**jam framework:**
+- `jam_core/metrics/jam_cell.h` — ++/--/% operators, _cell UDL → jam::literals, global `using cell` alias
+- `jam_data_structures/value_tree/jam_value_tree.h` — addParameter<ValueType> template
+- `jam_data_structures/value_tree/jam_value_tree.cpp` — removed addParameter/addFloatParameter impls, raw new → make_unique
+- `jam_gui/text_editor/jam_text_editor.h` — removed TextInputTarget, stripped to setText+setActiveScreen+config API, cols/visibleRows as Cell
+- `jam_gui/text_editor/jam_text_editor.cpp` — setText with Buffer+Range, removed 12 methods, screen[] → .at(), dead screen[2] branch removed
+- `jam_gui/text_editor/jam_text_editor_content_view.cpp` — early returns → nested checks, blocks[] → std::array, screen[] → .at()
+- `jam_gui/text_editor/jam_caret_component.h` — blink not restarted on position change, setBlinkRate, noexcept
+
+**END Source:**
+- `terminal/data/Identifier.h` — added ID::DISPLAY, ID::historyRows, removed ID::scrolledCount/scrolled
+- `terminal/data/Parameters.xml` — removed cellWidth/cellHeight/baseline/fontSize PARAMs, added historyRows
+- `terminal/data/State.h` — added registerNodeAtomics, valueTreeChildAdded, cell type on all cell-unit API, removed setCellMetrics/getCellWidth/Height/Baseline/FontSize/storeFloatValue
+- `terminal/data/State.cpp` — registerNodeAtomics impl, cell type on getters/setters, keyboard stack jasserts
+- `terminal/logic/Video.h` — cols/visibleRows/cursorRow/cursorCol/scrollTop/scrollBottom as Cell, historyRows member, promptRow removed
+- `terminal/logic/Video.cpp` — scrollUpAndFill with count+historyRows+top==0 guard, cell→hitCell rename
+- `terminal/logic/VideoCSI.cpp` — Cell throughout, unused scr removed
+- `terminal/logic/VideoESC.cpp` — Cell throughout
+- `terminal/logic/VideoEdit.cpp` — Cell throughout
+- `terminal/logic/VideoOps.cpp` — Cell throughout
+- `terminal/logic/VideoOSCExt.cpp` — Cell throughout, promptRow storage removed
+- `terminal/logic/Grid.h` — removed staging API, viewportRows as Cell, head[] → std::array
+- `terminal/logic/Grid.cpp` — removed scrolledCount/resetScrolledCount/getStagingReadPointer, head.at()
+- `terminal/logic/Processor.h` — removed 6 pending atomics, resized(), setCellSize()
+- `terminal/logic/Processor.cpp` — process() reads State directly, registerEvents updated for Cell
+- `terminal/logic/Session.h/.cpp` — cell dimensions as Cell
+- `terminal/logic/Skit.h/.cpp` — lastImageRows as Cell
+- `terminal/logic/Mouse.h/.cpp` — Cell coordinates, hitCell rename
+- `terminal/logic/Input.cpp` — Cell coordinates
+- `terminal/rendering/Screen.h/.cpp` — stripped to dumb renderer
+- `component/TerminalDisplay.h/.cpp` — DISPLAY node, onVBlank→std::function, setText with Range, previousHistoryRows, removed AsyncUpdater
+- `component/Panes.h/.cpp` — Cell dimensions
+- `component/Tabs.h/.cpp` — Cell dimensions
+- `component/MessageOverlay.h` — Cell dimensions
+- `MainComponent.cpp` — Cell dimensions
+- `terminal/tty/TTY.h/.cpp` — Cell on platformResize
+- `terminal/tty/UnixTTY.h/.cpp` — Cell on open
+- `terminal/tty/WindowsTTY.h/.cpp` — Cell on open
+- `terminal/selection/LinkSpan.h` — row/col as Cell
+- `terminal/selection/LinkManager.h/.cpp` — Cell on hitTest, onOpenImage
+- `lua/Engine.h` — Cell on defaultCols/defaultRows, Image cols/rows, Popup cols/rows, launchPopup
+- `lua/EngineParse.cpp` — Cell wrapping
+- `lua/EngineParseConfig.cpp` — Cell wrapping
+- `lua/EngineDefaults.cpp` — .value extraction
+- `nexus/Nexus.h/.cpp` — Cell on create()
+- `interprocess/Channel.cpp` — Cell wrapping
+- `interprocess/Daemon.cpp` — Cell wrapping
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Cell type adoption: eliminated pixel/cell confusion across entire codebase via strongly-typed `cell` alias + `_cell` UDL
+- State SSOT: DISPLAY node grafted with auto-registered atomics, eliminated setCellMetrics shadow path
+- Processor shadow state: removed 6 redundant pending atomics, process() reads State directly
+- TextEditor strip-down: removed 15+ dead methods, clean setText+Range API
+- Grid staging elimination: scrolledCount/staging API removed, historyRows accumulator in Video via State
+- Audit clean sweep: 10 findings (early returns, []→.at(), raw new, dead code, stale docs) all resolved
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 18: SharedResource — Unified Shared Resource Pattern
 
 **Date:** 2026-05-17

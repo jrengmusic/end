@@ -5,19 +5,24 @@ Terminal::Display::Display (Terminal::Processor& processorToUse)
     : processor (processorToUse)
     , state (processorToUse.getState())
     , grid (processorToUse.getGrid())
-    , vblank (this, [this] { onVBlank(); })
 {
     addAndMakeVisible (screen);
     screen.addKeyListener (this);
     state.get().addListener (this);
 
+    // Seed DISPLAY node with zero-valued properties before graft.
+    // registerNodeAtomics (called on appendChild) consumes these and
+    // creates Parameter<int> entries in the DISPLAY group.
+    displayNode.setProperty (Terminal::ID::cellWidth,  0, nullptr);
+    displayNode.setProperty (Terminal::ID::cellHeight, 0, nullptr);
+    displayNode.setProperty (Terminal::ID::baseline,   0, nullptr);
+    displayNode.setProperty (Terminal::ID::fontSize,   0, nullptr);
+    state.get().appendChild (displayNode, nullptr);
+
     applyConfig();
 }
 
-Terminal::Display::~Display()
-{
-    screen.removeKeyListener (this);
-}
+Terminal::Display::~Display() { screen.removeKeyListener (this); }
 
 // PaneComponent
 juce::String Terminal::Display::getPaneType() const noexcept { return App::ID::paneTypeTerminal; }
@@ -33,10 +38,14 @@ void Terminal::Display::applyConfig() noexcept
     screen.setFont (font);
     screen.setCaretChar (jam::toChar (config.display.cursor.codepoint));
     screen.setCaretShape (config.display.cursor.style);
+    screen.setCaretBlinkRate (config.display.cursor.blinkInterval);
     screen.setScrollBarThickness (config.display.scrollbarWidth);
     screen.setScrollbackLines (config.nexus.terminal.scrollbackLines);
 
-    state.setCellMetrics (font.cellWidth, font.cellHeight, font.baseline, font.fontSize);
+    state.storeValue (Terminal::ID::DISPLAY, Terminal::ID::cellWidth,  font.cellWidth);
+    state.storeValue (Terminal::ID::DISPLAY, Terminal::ID::cellHeight, font.cellHeight);
+    state.storeValue (Terminal::ID::DISPLAY, Terminal::ID::baseline,   font.baseline);
+    state.storeValue (Terminal::ID::DISPLAY, Terminal::ID::fontSize,   static_cast<int> (font.fontSize));
     state.refresh();
 
     resized();
@@ -59,12 +68,8 @@ void Terminal::Display::writeToPty (const char* data, int len) noexcept
 int Terminal::Display::getHintPage() const noexcept { return 0; }
 int Terminal::Display::getHintTotalPages() const noexcept { return 0; }
 
-
 // juce::Component
-void Terminal::Display::focusGained (FocusChangeType)
-{
-    screen.grabKeyboardFocus();
-}
+void Terminal::Display::focusGained (FocusChangeType) { screen.grabKeyboardFocus(); }
 
 void Terminal::Display::resized()
 {
@@ -81,22 +86,25 @@ void Terminal::Display::resized()
 void Terminal::Display::updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept
 {
     const auto cellArea { screen.getCellArea() };
-    const int newCols   { cellArea.width };
-    const int newRows   { cellArea.height };
+    const cell newCols { cellArea.width };
+    const cell newRows { cellArea.height };
 
-    if (newCols > 0 and newRows > 0)
+    if (newCols.value > 0 and newRows.value > 0)
     {
         if (newCols != lastCols or newRows != lastRows)
         {
             lastCols = newCols;
             lastRows = newRows;
 
-            state.setValue (Terminal::ID::cols, newCols);
-            state.setValue (Terminal::ID::visibleRows, newRows);
+            state.setValue (Terminal::ID::cols, newCols.value);
+            state.setValue (Terminal::ID::visibleRows, newRows.value);
 
             if (processor.events.contains (Terminal::ID::terminalResize))
-                processor.events.get (Terminal::ID::terminalResize, int (newCols), int (newRows),
-                                      int (contentBounds.getWidth()), int (contentBounds.getHeight()));
+                processor.events.get (Terminal::ID::terminalResize,
+                                      newCols.value,
+                                      newRows.value,
+                                      int (contentBounds.getWidth()),
+                                      int (contentBounds.getHeight()));
         }
     }
 }
@@ -120,42 +128,32 @@ void Terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::
 {
     state.setSnapshotDirty();
     screen.setActiveScreen (state.getActiveScreen());
+    screen.setCaretPosition (state.getCursorCol(), state.getCursorRow());
+
+    const int historyRows { state.getHistoryRows() };
+    const int delta { historyRows - previousHistoryRows };
+
+    if (delta > 0)
+    {
+        screen.setText (grid.getBuffer(), Screen::Map::normal,
+                        grid.getHead (Screen::Map::normal),
+                        { previousHistoryRows, historyRows });
+        previousHistoryRows = historyRows;
+    }
 }
 
-void Terminal::Display::onVBlank()
+std::function<void()> Terminal::Display::onVBlank() noexcept
 {
-    const bool stateDirty { state.consumeSnapshotDirty() };
-
-    if (stateDirty)
-        state.refresh();
-
+    return [this]
     {
+        if (state.consumeSnapshotDirty())
+            state.refresh();
+
         const int activeScreen { state.getActiveScreen() };
         const int numRows { grid.getNumRows (activeScreen) };
-        const int numCols { grid.getNumCols (activeScreen) };
 
-        if (numRows > 0 and numCols > 0)
-        {
-            for (int r { 0 }; r < numRows; ++r)
-            {
-                const auto* row { grid.getReadPointer (activeScreen, r) };
-
-                if (row != nullptr)
-                    screen.setVisibleRow (r, row, numCols);
-            }
-        }
-
-        // Caret position.
-        {
-            const int cols { grid.getNumCols (activeScreen) };
-            const int rows { grid.getNumRows (activeScreen) };
-
-            if (cols > 0 and rows > 0)
-            {
-                const int cursorCol { juce::jlimit (0, cols - 1, state.getCursorCol()) };
-                const int cursorRow { juce::jlimit (0, rows - 1, state.getCursorRow()) };
-                screen.setCaretPosition (cursorCol, cursorRow);
-            }
-        }
-    }
+        screen.setText (grid.getBuffer(), activeScreen,
+                        grid.getHead (activeScreen),
+                        { 0, numRows });
+    };
 }

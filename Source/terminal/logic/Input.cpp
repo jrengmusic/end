@@ -123,7 +123,7 @@ bool Input::handleModalKey (const juce::KeyPress& key) noexcept
 
 bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 {
-    const int maxRow { processor.getState().getVisibleRows() + processor.getState().getScrollbackUsed() - 1 };
+    const int maxRow { processor.getState().getVisibleRows().value + processor.getState().getScrollbackUsed() - 1 };
     const int maxCol { processor.getState().getCols() - 1 };
 
     auto& st { processor.getState() };
@@ -158,25 +158,25 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
     else if (key == selectionKeys.left)
     {
         st.setSelectionCursor (st.getSelectionCursorRow(),
-                               std::max (0, st.getSelectionCursorCol() - 1));
+                               cell (std::max (0, st.getSelectionCursorCol().value - 1)));
         consumed = true;
     }
     else if (key == selectionKeys.down)
     {
-        st.setSelectionCursor (std::min (maxRow, st.getSelectionCursorRow() + 1),
+        st.setSelectionCursor (cell (std::min (maxRow, st.getSelectionCursorRow().value + 1)),
                                st.getSelectionCursorCol());
         consumed = true;
     }
     else if (key == selectionKeys.up)
     {
-        st.setSelectionCursor (std::max (0, st.getSelectionCursorRow() - 1),
+        st.setSelectionCursor (cell (std::max (0, st.getSelectionCursorRow().value - 1)),
                                st.getSelectionCursorCol());
         consumed = true;
     }
     else if (key == selectionKeys.right)
     {
         st.setSelectionCursor (st.getSelectionCursorRow(),
-                               std::min (maxCol, st.getSelectionCursorCol() + 1));
+                               cell (std::min (maxCol, st.getSelectionCursorCol().value + 1)));
         consumed = true;
     }
     else if (key == selectionKeys.visualLine)
@@ -223,10 +223,10 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
             const int visibleStart { scrollback };
             const int cols { processor.getState().getCols() };
 
-            const int anchorVisRow { st.getSelectionAnchorRow() - visibleStart };
-            const int cursorVisRow { st.getSelectionCursorRow() - visibleStart };
-            const int anchorCol { st.getSelectionAnchorCol() };
-            const int cursorCol { st.getSelectionCursorCol() };
+            const int anchorVisRow { st.getSelectionAnchorRow().value - visibleStart };
+            const int cursorVisRow { st.getSelectionCursorRow().value - visibleStart };
+            const int anchorCol { st.getSelectionAnchorCol().value };
+            const int cursorCol { st.getSelectionCursorCol().value };
 
             juce::String text;
 
@@ -244,14 +244,14 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
     }
     else if (key == selectionKeys.bottom)
     {
-        st.setSelectionCursor (maxRow, st.getSelectionCursorCol());
+        st.setSelectionCursor (cell (maxRow), st.getSelectionCursorCol());
         consumed = true;
     }
     else if (key == selectionKeys.top)
     {
         if (pendingG)
         {
-            st.setSelectionCursor (0, 0);
+            st.setSelectionCursor (0_cell, 0_cell);
             pendingG = false;
         }
         else
@@ -263,12 +263,12 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
     }
     else if (key == selectionKeys.lineStart)
     {
-        st.setSelectionCursor (st.getSelectionCursorRow(), 0);
+        st.setSelectionCursor (st.getSelectionCursorRow(), 0_cell);
         consumed = true;
     }
     else if (key == selectionKeys.lineEnd)
     {
-        st.setSelectionCursor (st.getSelectionCursorRow(), maxCol);
+        st.setSelectionCursor (st.getSelectionCursorRow(), cell (maxCol));
         consumed = true;
     }
 

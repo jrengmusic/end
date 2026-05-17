@@ -40,13 +40,13 @@ namespace Terminal
 struct LinkSpan
 {
     /** @brief Zero-based visible row index of the token's first character. */
-    int row { 0 };
+    cell row { 0 };
 
     /** @brief Zero-based column index of the token's first character. */
-    int col { 0 };
+    cell col { 0 };
 
     /** @brief Zero-based column index where the hint label is rendered. */
-    int labelCol { 0 };
+    cell labelCol { 0 };
 
     /**
      * @brief Number of terminal columns the token occupies.

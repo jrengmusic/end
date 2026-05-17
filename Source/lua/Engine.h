@@ -130,10 +130,10 @@ public:
             int atlasBudgetBytes { 32 * 1024 * 1024 };
 
             /** @brief Native preview panel width in terminal columns [10, 200]. */
-            int cols { 40 };
+            cell cols { 40 };
 
             /** @brief Native preview panel height in terminal rows [5, 100]. */
-            int rows { 20 };
+            cell rows { 20 };
 
             /** @brief Native preview padding in physical pixels [0, 64]. */
             int padding { 10 };
@@ -837,10 +837,10 @@ public:
             juce::String cwd;
 
             /** @brief Popup terminal column count (0 = use default). */
-            int cols { 0 };
+            cell cols { 0 };
 
             /** @brief Popup terminal row count (0 = use default). */
-            int rows { 0 };
+            cell rows { 0 };
 
             /** @brief Modal binding key string for this popup. */
             juce::String modal;
@@ -850,10 +850,10 @@ public:
         };
 
         /** @brief Default popup terminal column count. */
-        int defaultCols { 70 };
+        cell defaultCols { 70 };
 
         /** @brief Default popup terminal row count. */
-        int defaultRows { 20 };
+        cell defaultRows { 20 };
 
         /** @brief Default popup screen position ("center", "top", "bottom"). */
         juce::String defaultPosition { "center" };
@@ -953,8 +953,8 @@ public:
                             const juce::String& command,
                             const juce::String& args,
                             const juce::String& cwd,
-                            int cols,
-                            int rows)>
+                            cell cols,
+                            cell rows)>
             launchPopup;
     };
 

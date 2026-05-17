@@ -135,11 +135,11 @@ UnixTTY::~UnixTTY()
  *
  * @note MESSAGE THREAD context.
  */
-bool UnixTTY::open (int cols, int rows, const juce::String& shell,
+bool UnixTTY::open (cell cols, cell rows, const juce::String& shell,
                     const juce::String& args, const juce::String& workingDirectory)
 {
     int slaveFd { -1 };
-    struct winsize ws { static_cast<unsigned short> (rows), static_cast<unsigned short> (cols), 0, 0 };
+    struct winsize ws { static_cast<unsigned short> (rows.value), static_cast<unsigned short> (cols.value), 0, 0 };
     const auto shellUtf8 { shell.toStdString() };
     const char* shellCStr { shellUtf8.c_str() };
     const auto cwdUtf8 { workingDirectory.toStdString() };
@@ -188,7 +188,7 @@ bool UnixTTY::open (int cols, int rows, const juce::String& shell,
                 fcntl (master, F_SETFL, flags | O_NONBLOCK);
             }
 
-            rememberDimensions (cols, rows);
+            rememberDimensions (cols.value, rows.value);
             startThread();
 
             result = true;

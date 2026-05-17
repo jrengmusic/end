@@ -228,8 +228,8 @@ void Engine::registerApiTable()
                                                          jam::lua::Stack::get<juce::String> (L, 2),
                                                          jam::lua::Stack::get<juce::String> (L, 3),
                                                          jam::lua::Stack::get<juce::String> (L, 4),
-                                                         jam::lua::Stack::get<int> (L, 5),
-                                                         jam::lua::Stack::get<int> (L, 6));
+                                                         cell (jam::lua::Stack::get<int> (L, 5)),
+                                                         cell (jam::lua::Stack::get<int> (L, 6)));
                              return 0;
                          });
     }

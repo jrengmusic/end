@@ -167,15 +167,15 @@ void Session::applyShellIntegration (const juce::String& shell, juce::String& ar
  * @note MESSAGE THREAD.
  */
 std::unique_ptr<Session> Session::create (const juce::String& cwd,
-                                           int cols,
-                                           int rows,
+                                           cell cols,
+                                           cell rows,
                                            const juce::String& shell,
                                            const juce::String& args,
                                            const juce::StringPairArray& seedEnv,
                                            const juce::String& uuid)
 {
-    jassert (cols > 0);
-    jassert (rows > 0);
+    jassert (cols.value > 0);
+    jassert (rows.value > 0);
 
     const auto* cfg { lua::Engine::getContext() };
     const juce::String effectiveShell { shell.isNotEmpty()
@@ -204,8 +204,8 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
  *
  * @note MESSAGE THREAD.
  */
-Session::Session (int cols,
-                  int rows,
+Session::Session (cell cols,
+                  cell rows,
                   const juce::String& shell,
                   const juce::String& args,
                   const juce::String& cwd,
@@ -213,7 +213,7 @@ Session::Session (int cols,
                   const juce::String& uuid)
     : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
-    grid.setSize (rows, cols);
+    grid.setSize (rows.value, cols.value);
 
 #if JUCE_MAC || JUCE_LINUX
     tty = std::make_unique<UnixTTY>();
@@ -245,7 +245,7 @@ Session::Session (int cols,
 
     // Create Processor and wire the terminal pipeline.
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);
+    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols.value, rows.value, effectiveUuid);
     processor->getState().setId (effectiveUuid);
 
     Terminal::Processor* procRawPtr { processor.get() };
@@ -268,7 +268,7 @@ Session::Session (int cols,
     processor->events.add<int, int, int, int> (Terminal::ID::terminalResize,
         [this] (int cols, int rows, int pixelWidth, int pixelHeight)
         {
-            resize (cols, rows, pixelWidth, pixelHeight);
+            resize (cell (cols), cell (rows), pixelWidth, pixelHeight);
         });
 
     // 2. PTY output → history + external onBytes + Processor (with resize lock).
@@ -289,7 +289,8 @@ Session::Session (int cols,
         procRawPtr->getState().clearPasteEchoGate();
 
         if (procRawPtr->getState().consumeSyncResize())
-            platformResize (procRawPtr->getState().getCols(), procRawPtr->getState().getVisibleRows());
+            platformResize (cell (procRawPtr->getState().getCols()),
+                            cell (procRawPtr->getState().getVisibleRows().value));
     };
 
     // 4. Command start: query foreground process from OS, write to state.
@@ -348,19 +349,20 @@ Session::Session (int cols,
  *
  * @note MESSAGE THREAD.
  */
-Session::Session (int cols, int rows,
+Session::Session (cell cols,
+                  cell rows,
                   const juce::String& cwd,
                   const juce::String& shell,
                   const juce::String& uuid)
     : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
-    jassert (cols > 0);
-    jassert (rows > 0);
+    jassert (cols.value > 0);
+    jassert (rows.value > 0);
 
-    grid.setSize (rows, cols);
+    grid.setSize (rows.value, cols.value);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);
+    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols.value, rows.value, effectiveUuid);
     processor->getState().setId (effectiveUuid);
     processor->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
 }
@@ -397,7 +399,7 @@ void Session::sendInput (const char* data, int len)
  *
  * @note MESSAGE THREAD.
  */
-void Session::resize (int cols, int rows, int pixelWidth, int pixelHeight)
+void Session::resize (cell cols, cell rows, int pixelWidth, int pixelHeight)
 {
     jassert (tty != nullptr);
 
@@ -419,7 +421,7 @@ void Session::resize (int cols, int rows, int pixelWidth, int pixelHeight)
  *
  * @note READER THREAD.
  */
-void Session::platformResize (int cols, int rows, int pixelWidth, int pixelHeight)
+void Session::platformResize (cell cols, cell rows, int pixelWidth, int pixelHeight)
 {
     jassert (tty != nullptr);
     tty->platformResize (cols, rows, pixelWidth, pixelHeight);
@@ -508,13 +510,14 @@ juce::MemoryBlock Session::snapshotHistory() const { return history.snapshot(); 
  *      in Session.h for full documentation.
  * @note MESSAGE THREAD.
  */
-std::unique_ptr<Session> Session::create (int cols, int rows,
+std::unique_ptr<Session> Session::create (cell cols,
+                                           cell rows,
                                            const juce::String& cwd,
                                            const juce::String& shell,
                                            const juce::String& uuid)
 {
-    jassert (cols > 0);
-    jassert (rows > 0);
+    jassert (cols.value > 0);
+    jassert (rows.value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
 

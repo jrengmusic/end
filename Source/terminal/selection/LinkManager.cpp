@@ -107,13 +107,13 @@ void LinkManager::assignCurrentPage() noexcept
                       : static_cast<int> (hintLinks.size()) - activeStart;
 }
 
-const LinkSpan* LinkManager::hitTest (int row, int col) const noexcept
+const LinkSpan* LinkManager::hitTest (cell row, cell col) const noexcept
 {
     const LinkSpan* result { nullptr };
 
     for (const auto& span : clickableLinks)
     {
-        if (row == span.row and col >= span.col and col < span.col + span.length)
+        if (row.value == span.row.value and col.value >= span.col.value and col.value < span.col.value + span.length)
         {
             result = &span;
             break;

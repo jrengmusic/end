@@ -143,7 +143,7 @@ public:
      *
      * @note MESSAGE THREAD context.
      */
-    bool open (int cols, int rows, const juce::String& shell,
+    bool open (cell cols, cell rows, const juce::String& shell,
                const juce::String& args = {}, const juce::String& workingDirectory = {}) override;
 
     /**

@@ -45,8 +45,8 @@ namespace Terminal
 void Video::saveCursor (int scr) noexcept
 {
     auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-    sc.row         = cursorRow;
-    sc.col         = cursorCol;
+    sc.row         = cursorRow.value;
+    sc.col         = cursorCol.value;
     sc.fg          = penFg;
     sc.bg          = penBg;
     sc.flags       = penFlags;
@@ -58,8 +58,8 @@ void Video::saveCursor (int scr) noexcept
 void Video::restoreCursor (int scr) noexcept
 {
     const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-    cursorRow      = sc.row;
-    cursorCol      = sc.col;
+    cursorRow      = cell (sc.row);
+    cursorCol      = cell (sc.col);
     penFg          = sc.fg;
     penBg          = sc.bg;
     penFlags       = sc.flags;
@@ -104,9 +104,9 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
         {
             // IND — Index: line feed without CR
             const int scrollBot { activeScrollBottom() };
-            const int vRows { visibleRows };
-            const int cRow  { cursorRow };
-            const int sTop  { scrollTop };
+            const int vRows     { visibleRows.value };
+            const int cRow      { cursorRow.value };
+            const int sTop      { scrollTop.value };
 
             if (cRow == scrollBot)
             {
@@ -121,13 +121,13 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
         case 'E':
         {
             // NEL — Next Line: CR + IND
-            cursorCol   = 0;
+            cursorCol   = 0_cell;
             wrapPending = false;
 
             const int scrollBot { activeScrollBottom() };
-            const int vRows { visibleRows };
-            const int cRow  { cursorRow };
-            const int sTop  { scrollTop };
+            const int vRows     { visibleRows.value };
+            const int cRow      { cursorRow.value };
+            const int sTop      { scrollTop.value };
 
             if (cRow == scrollBot)
             {
@@ -146,8 +146,8 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
         case 'M':
         {
             // RI — Reverse Index: scroll down if at top of scroll region
-            const int cRow      { cursorRow };
-            const int sTopVal   { scrollTop };
+            const int cRow      { cursorRow.value };
+            const int sTopVal   { scrollTop.value };
             const int scrollBot { activeScrollBottom() };
 
             if (cRow == sTopVal)
@@ -156,7 +156,7 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
             }
             else if (cRow > 0)
             {
-                cursorRow   = cRow - 1;
+                cursorRow   = cell (cRow - 1);
                 wrapPending = false;
             }
 
@@ -241,8 +241,8 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 {
     if (finalByte == '8')
     {
-        const int nCols { cols };
-        const int vRows { visibleRows };
+        const int nCols { cols.value };
+        const int vRows { visibleRows.value };
         const jam::Cell alignCell { jam::Cell::make ('E', jam::Cell::CONTENT_CODEPOINT,
                                                      jam::Cell::NARROW, currentStyleId()) };
 

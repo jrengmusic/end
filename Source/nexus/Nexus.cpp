@@ -37,16 +37,16 @@ Nexus::~Nexus() = default;
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 Terminal::Session& Nexus::create (const juce::String& cwd,
-                                   int cols,
-                                   int rows,
+                                   cell cols,
+                                   cell rows,
                                    const juce::String& shell,
                                    const juce::String& args,
                                    const juce::StringPairArray& seedEnv,
                                    const juce::String& uuid)
 {
     jassert (uuid.isNotEmpty());
-    jassert (cols > 0);
-    jassert (rows > 0);
+    jassert (cols.value > 0);
+    jassert (rows.value > 0);
 
     auto termSession { Terminal::Session::create (cwd, cols, rows, shell, args, seedEnv, uuid) };
     Terminal::Session* rawPtr { termSession.get() };
@@ -75,14 +75,14 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-Terminal::Session& Nexus::create (int cols, int rows,
+Terminal::Session& Nexus::create (cell cols, cell rows,
                                    const juce::String& cwd,
                                    const juce::String& shell,
                                    const juce::String& uuid)
 {
     jassert (uuid.isNotEmpty());
-    jassert (cols > 0);
-    jassert (rows > 0);
+    jassert (cols.value > 0);
+    jassert (rows.value > 0);
 
     auto termSession { Terminal::Session::create (cols, rows, cwd, shell, uuid) };
     Terminal::Session* rawPtr { termSession.get() };
@@ -107,12 +107,12 @@ Terminal::Session& Nexus::create (int cols, int rows,
  */
 Terminal::Session& Nexus::create (const juce::String& cwd,
                                    const juce::String& uuid,
-                                   int cols,
-                                   int rows)
+                                   cell cols,
+                                   cell rows)
 {
     jassert (uuid.isNotEmpty());
-    jassert (cols > 0);
-    jassert (rows > 0);
+    jassert (cols.value > 0);
+    jassert (rows.value > 0);
 
     const auto existing { sessions.find (uuid) };
     const bool alreadyExists { existing != sessions.end() };
@@ -127,7 +127,7 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
     {
         // Client mode — send createSession PDU and create a local remote (no-TTY) session.
         const juce::String shell { lua::Engine::getContext()->nexus.shell.program };
-        attachedLink->sendCreateSession (cwd, uuid, cols, rows);
+        attachedLink->sendCreateSession (cwd, uuid, cols.value, rows.value);
 
         auto termSession { Terminal::Session::create (cols, rows, cwd, shell, uuid) };
         Terminal::Session* rawPtr { termSession.get() };

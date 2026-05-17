@@ -88,12 +88,12 @@ namespace Terminal
  */
 void Video::resetCursor (int numCols) noexcept
 {
-    cursorRow     = 0;
-    cursorCol     = 0;
+    cursorRow     = 0_cell;
+    cursorCol     = 0_cell;
     cursorVisible = true;
     wrapPending   = false;
-    scrollTop     = 0;
-    scrollBottom  = 0;
+    scrollTop     = 0_cell;
+    scrollBottom  = 0_cell;
     initializeTabStops (numCols);
 }
 
@@ -120,12 +120,12 @@ void Video::resetCursor (int numCols) noexcept
  */
 void Video::cursorMoveUp (int count) noexcept
 {
-    const int top { scrollTop };
-    const int bottom { effectiveScrollBottom (visibleRows) };
-    const int row { cursorRow };
+    const int top    { scrollTop.value };
+    const int bottom { effectiveScrollBottom (visibleRows.value) };
+    const int row    { cursorRow.value };
     const bool withinMargins { row >= top and row <= bottom };
     const int clampTop { withinMargins ? top : 0 };
-    cursorRow = juce::jmax (clampTop, row - count);
+    cursorRow   = cell (juce::jmax (clampTop, row - count));
     wrapPending = false;
 }
 
@@ -153,8 +153,8 @@ void Video::cursorMoveUp (int count) noexcept
  */
 void Video::cursorMoveDown (int count, int bottom) noexcept
 {
-    const int row { cursorRow };
-    cursorRow = juce::jmin (bottom, row + count);
+    const int row { cursorRow.value };
+    cursorRow   = cell (juce::jmin (bottom, row + count));
     wrapPending = false;
 }
 
@@ -179,8 +179,8 @@ void Video::cursorMoveDown (int count, int bottom) noexcept
  */
 void Video::cursorMoveForward (int count, int cols) noexcept
 {
-    const int col { cursorCol };
-    cursorCol = juce::jmin (cols - 1, col + count);
+    const int col { cursorCol.value };
+    cursorCol   = cell (juce::jmin (cols - 1, col + count));
     wrapPending = false;
 }
 
@@ -204,8 +204,8 @@ void Video::cursorMoveForward (int count, int cols) noexcept
  */
 void Video::cursorMoveBackward (int count) noexcept
 {
-    const int col { cursorCol };
-    cursorCol = juce::jmax (0, col - count);
+    const int col { cursorCol.value };
+    cursorCol   = cell (juce::jmax (0, col - count));
     wrapPending = false;
 }
 
@@ -234,8 +234,8 @@ void Video::cursorMoveBackward (int count) noexcept
  */
 void Video::cursorSetPosition (int row, int col, int cols, int visibleRows) noexcept
 {
-    cursorRow = juce::jlimit (0, visibleRows - 1, row);
-    cursorCol = juce::jlimit (0, cols - 1, col);
+    cursorRow   = cell (juce::jlimit (0, visibleRows - 1, row));
+    cursorCol   = cell (juce::jlimit (0, cols - 1, col));
     wrapPending = false;
 }
 
@@ -266,10 +266,10 @@ void Video::cursorSetPosition (int row, int col, int cols, int visibleRows) noex
  */
 void Video::cursorSetPositionInOrigin (int row, int col, int cols, int visibleRows) noexcept
 {
-    const int top { scrollTop };
+    const int top    { scrollTop.value };
     const int bottom { effectiveScrollBottom (visibleRows) };
-    cursorRow = juce::jlimit (top, bottom, row + top);
-    cursorCol = juce::jlimit (0, cols - 1, col);
+    cursorRow   = cell (juce::jlimit (top, bottom, row + top));
+    cursorCol   = cell (juce::jlimit (0, cols - 1, col));
     wrapPending = false;
 }
 
@@ -301,17 +301,17 @@ void Video::cursorSetPositionInOrigin (int row, int col, int cols, int visibleRo
 bool Video::cursorGoToNextLine (int bottom, int visibleRows) noexcept
 {
     wrapPending = false;
-    const int row { cursorRow };
+    const int row { cursorRow.value };
     bool moved { false };
 
     if (row < bottom)
     {
-        cursorRow = row + 1;
+        cursorRow = cell (row + 1);
         moved = true;
     }
     else if (row > bottom)
     {
-        cursorRow = juce::jmin (row + 1, visibleRows - 1);
+        cursorRow = cell (juce::jmin (row + 1, visibleRows - 1));
         moved = true;
     }
 
@@ -340,10 +340,10 @@ bool Video::cursorGoToNextLine (int bottom, int visibleRows) noexcept
  */
 void Video::cursorClamp (int cols, int visibleRows) noexcept
 {
-    const int col { cursorCol };
-    const int row { cursorRow };
-    cursorCol = juce::jlimit (0, cols - 1, col);
-    cursorRow = juce::jlimit (0, visibleRows - 1, row);
+    const int col { cursorCol.value };
+    const int row { cursorRow.value };
+    cursorCol = cell (juce::jlimit (0, cols - 1, col));
+    cursorRow = cell (juce::jlimit (0, visibleRows - 1, row));
 }
 
 /**
@@ -365,8 +365,8 @@ void Video::cursorClamp (int cols, int visibleRows) noexcept
  */
 void Video::cursorSetScrollRegion (int top, int bottom) noexcept
 {
-    scrollTop    = top;
-    scrollBottom = bottom;
+    scrollTop    = cell (top);
+    scrollBottom = cell (bottom);
 }
 
 /**
@@ -386,8 +386,8 @@ void Video::cursorSetScrollRegion (int top, int bottom) noexcept
  */
 void Video::cursorResetScrollRegion() noexcept
 {
-    scrollTop    = 0;
-    scrollBottom = 0;
+    scrollTop    = 0_cell;
+    scrollBottom = 0_cell;
 }
 
 /**
@@ -414,7 +414,7 @@ void Video::cursorResetScrollRegion() noexcept
  */
 int Video::effectiveScrollBottom (int visibleRows) const noexcept
 {
-    const int sb { scrollBottom };
+    const int sb { scrollBottom.value };
     return (sb > 0) ? sb : visibleRows - 1;
 }
 
@@ -435,10 +435,10 @@ int Video::effectiveScrollBottom (int visibleRows) const noexcept
  */
 int Video::effectiveClampBottom() const noexcept
 {
-    const int row { cursorRow };
-    const int top { scrollTop };
+    const int row { cursorRow.value };
+    const int top { scrollTop.value };
     const bool withinMargins { row >= top and row <= activeScrollBottom() };
-    return withinMargins ? activeScrollBottom() : visibleRows - 1;
+    return withinMargins ? activeScrollBottom() : visibleRows.value - 1;
 }
 
 // ============================================================================
@@ -518,7 +518,7 @@ void Video::initializeTabStops (int numCols) noexcept
  */
 int Video::nextTabStop (int cols) noexcept
 {
-    int nextTab { cursorCol + 1 };
+    int nextTab { cursorCol.value + 1 };
 
     while (nextTab < cols)
     {
@@ -558,7 +558,7 @@ int Video::nextTabStop (int cols) noexcept
  */
 int Video::prevTabStop() noexcept
 {
-    int prevTab { cursorCol - 1 };
+    int prevTab { cursorCol.value - 1 };
 
     while (prevTab > 0)
     {
@@ -588,7 +588,7 @@ int Video::prevTabStop() noexcept
  */
 void Video::setTabStop() noexcept
 {
-    const int col { cursorCol };
+    const int col { cursorCol.value };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 1;
@@ -610,7 +610,7 @@ void Video::setTabStop() noexcept
  */
 void Video::clearTabStop() noexcept
 {
-    const int col { cursorCol };
+    const int col { cursorCol.value };
     if (col < static_cast<int> (tabStops.size()))
     {
         tabStops.at (static_cast<size_t> (col)) = 0;

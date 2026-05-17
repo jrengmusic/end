@@ -63,7 +63,7 @@ public:
      * @return (cols, rows). jasserts cols > 0 and rows > 0.
      * @note Pure math — no instance state. noexcept.
      */
-    static std::pair<int, int> cellsFromRect (juce::Rectangle<int> paneRect) noexcept;
+    static std::pair<cell, cell> cellsFromRect (juce::Rectangle<int> paneRect) noexcept;
 
     /**
      * @brief Splits a pixel rect by direction and ratio.
@@ -106,8 +106,8 @@ public:
      */
     juce::String createTerminal (const juce::String& workingDirectory,
                                  const juce::String& uuid,
-                                 int cols,
-                                 int rows);
+                                 cell cols,
+                                 cell rows);
 
     /**
      * @brief Create a new Whelmed markdown viewer pane and open the given file.
@@ -212,8 +212,8 @@ public:
                   const juce::String& cwd,
                   const juce::String& direction,
                   bool isVertical,
-                  int cols,
-                  int rows,
+                  cell cols,
+                  cell rows,
                   double ratio = 0.5);
 
     /**

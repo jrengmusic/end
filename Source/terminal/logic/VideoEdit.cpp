@@ -65,13 +65,13 @@ namespace Terminal
  */
 void Video::eraseInDisplay (int mode) noexcept
 {
-    const auto scr { activeScreen };
-    const int nCols        { cols };
-    const int vRows        { visibleRows };
-    const int cRow         { cursorRow };
-    const int cCol         { cursorCol };
-    const bool hasBgFill { penBg.getAlpha() > 0 };
-    const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+    const auto scr         { activeScreen };
+    const int nCols        { cols.value };
+    const int vRows        { visibleRows.value };
+    const int cRow         { cursorRow.value };
+    const int cCol         { cursorCol.value };
+    const bool hasBgFill   { penBg.getAlpha() > 0 };
+    const jam::Cell fill   { jam::Cell::erase (eraseStyleId()) };
 
     switch (mode)
     {
@@ -205,10 +205,10 @@ void Video::eraseInDisplay (int mode) noexcept
  */
 void Video::eraseInLine (int mode) noexcept
 {
-    const auto scr { activeScreen };
-    const int nCols { cols };
-    const int cRow  { cursorRow };
-    const int cCol  { cursorCol };
+    const auto scr       { activeScreen };
+    const int nCols      { cols.value };
+    const int cRow       { cursorRow.value };
+    const int cCol       { cursorCol.value };
     const bool hasBgFill { penBg.getAlpha() > 0 };
     const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
@@ -332,8 +332,8 @@ void Video::shiftLines (int count, bool up) noexcept
 {
     const auto scr { activeScreen };
     const int bottom { activeScrollBottom() };
-    const int cRow   { cursorRow };
-    const int sTop   { scrollTop };
+    const int cRow   { cursorRow.value };
+    const int sTop   { scrollTop.value };
 
     if (cRow >= sTop and cRow <= bottom)
     {
@@ -350,7 +350,7 @@ void Video::shiftLines (int count, bool up) noexcept
 
         if (penBg.getAlpha() > 0)
         {
-            const int nCols { cols };
+            const int nCols { cols.value };
             const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
             if (up)
@@ -375,7 +375,7 @@ void Video::shiftLines (int count, bool up) noexcept
             }
         }
 
-        cursorCol   = 0;
+        cursorCol   = 0_cell;
         wrapPending = false;
     }
 }
@@ -400,9 +400,9 @@ void Video::shiftLines (int count, bool up) noexcept
  */
 void Video::shiftCellsRight (int count) noexcept
 {
-    const int nCols { cols };
-    const int cRow  { cursorRow };
-    const int cCol  { cursorCol };
+    const int nCols { cols.value };
+    const int cRow  { cursorRow.value };
+    const int cCol  { cursorCol.value };
     const int charsToInsert { juce::jmin (count, nCols - cCol) };
 
     if (charsToInsert > 0 and cCol < nCols)
@@ -436,9 +436,9 @@ void Video::shiftCellsRight (int count) noexcept
  */
 void Video::removeCells (int count) noexcept
 {
-    const int nCols { cols };
-    const int cRow  { cursorRow };
-    const int cCol  { cursorCol };
+    const int nCols { cols.value };
+    const int cRow  { cursorRow.value };
+    const int cCol  { cursorCol.value };
     const int charsToDelete { juce::jmin (count, nCols - cCol) };
 
     if (charsToDelete > 0 and cCol < nCols)
@@ -472,9 +472,9 @@ void Video::removeCells (int count) noexcept
  */
 void Video::eraseCells (int count) noexcept
 {
-    const int nCols { cols };
-    const int cRow  { cursorRow };
-    const int cCol  { cursorCol };
+    const int nCols { cols.value };
+    const int cRow  { cursorRow.value };
+    const int cCol  { cursorCol.value };
     const int clampedCount { juce::jmin (count, nCols - cCol) };
 
     if (clampedCount > 0)
@@ -540,8 +540,8 @@ void Video::setScreen (bool shouldUseAlternate) noexcept
         // then calls video.loadScreenState() synchronously on the reader thread.
         events.get (ID::screenSwitch,
                     int (target),
-                    int (cursorRow), int (cursorCol), bool (cursorVisible),
-                    int (scrollTop), int (scrollBottom), bool (wrapPending),
+                    int (cursorRow.value), int (cursorCol.value), bool (cursorVisible),
+                    int (scrollTop.value), int (scrollBottom.value), bool (wrapPending),
                     uint32_t (keyboardFlags));
 
         // After loadScreenState() has run, activeScreen and live registers hold new values.
@@ -550,7 +550,7 @@ void Video::setScreen (bool shouldUseAlternate) noexcept
 
         if (target == Screen::Map::alternate)
         {
-            cursorClamp (cols, visibleRows);
+            cursorClamp (cols.value, visibleRows.value);
             activeLinkId = 0;
         }
     }
