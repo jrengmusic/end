@@ -1,5 +1,61 @@
 # SPRINT-LOG
 
+## Sprint 20: Shell Exit Signal — State VT Chain + Stale Doc Cleanup
+
+**Date:** 2026-05-17
+
+### Agents Participated
+- COUNSELOR: Sprint planning, architecture discussion, delegation
+- Engineer: TTY atomic removal, shell exit rewire, Panes/Daemon/Popup VT listener migration, stale doc deletion
+- Pathfinder: Codebase survey (atomics audit, viewport state, RFC/PLAN staleness)
+
+### Files Modified (18 total)
+- `Source/terminal/tty/TTY.h` — removed stray `std::atomic<bool> shellExited`, `hasShellExited()`; renamed `onExit` → `onShellExited` (synchronous, no callAsync)
+- `Source/terminal/tty/TTY.cpp` — removed atomic store; replaced `callAsync(onExit)` with direct `onShellExited()` call
+- `Source/terminal/data/Parameters.xml:46` — added `shellExited` PARAM under SESSION
+- `Source/terminal/data/State.h` — added `setShellExited(bool)`, `getShellExited()` declarations
+- `Source/terminal/data/State.cpp:372-374` — implemented `setShellExited`/`getShellExited` via storeValue/getSessionParamInt
+- `Source/terminal/logic/Session.h` — removed `std::function<void()> onExit` member
+- `Source/terminal/logic/Session.cpp:224-228` — wired `tty->onShellExited` to `state.setShellExited(true)`; line 579 null-clear renamed
+- `Source/terminal/logic/Processor.h` — removed `onShellExited` callback member; updated docs
+- `Source/terminal/logic/Processor.cpp:428-432` — removed shellExited handler from `valueTreePropertyChanged`
+- `Source/component/TerminalDisplay.h` — removed `onProcessExited` member
+- `Source/component/TerminalDisplay.cpp:144` — removed shellExited check from `valueTreePropertyChanged`
+- `Source/component/Panes.h` — added `juce::ValueTree::Listener` inheritance, `valueTreePropertyChanged` declaration, `sessionStateTrees` map
+- `Source/component/Panes.cpp:305-307` — stored VT reference in map, added listener to stored copy; line 334-338 cleanup in closePane; line 552-601 VT callback with callAsync-deferred closure
+- `Source/component/Popup.h` — added `juce::ValueTree::Listener` inheritance, `watchedStateRoot` member
+- `Source/component/Popup.cpp` — replaced `onProcessExited` with VT listener on stored watchedStateRoot
+- `Source/interprocess/Daemon.h` — added `juce::ValueTree::Listener` inheritance, `sessionStateRoots` map; updated docs
+- `Source/interprocess/Daemon.cpp:444-451` — `wireOnExit` registers VT listener; line 465-505 VT callback implementation
+- `Source/nexus/Nexus.h`, `Source/nexus/Nexus.cpp` — removed stale `onExit` wiring and doc references
+
+### Stale Documents Deleted
+- `RFC-text-editor.md` — objective fully implemented
+- `PLAN-text-editor.md` — objective fully implemented
+- `RFC-cell-transport.md` — objective superseded by current architecture
+- `PLAN-cell-transport.md` — objective superseded by current architecture
+- `PLAN-WHELMED.md` — restored (only Phase 1 complete, not full objective)
+
+### Alignment Check
+- [x] BLESSED principles followed — §S SSOT (all cross-thread state through State Parameter), §E Encapsulation (consumers listen to VT directly, no relay callbacks), §B Bound (no stray atomics)
+- [x] NAMES.md adhered — onShellExited, shellExited, sessionStateTrees, watchedStateRoot
+- [x] MANIFESTO.md principles applied — zero shadow state for shell exit signal
+
+### Problems Solved
+- TTY::shellExited was a stray `std::atomic<bool>` outside State's Parameter system — removed, wired through State→VT chain
+- Shell exit used `callAsync(onExit)` manual callback chain — replaced with State Parameter flush → VT valueTreePropertyChanged
+- `onProcessExited` relay callback on Display eliminated — consumers listen to State VT directly
+- `Processor::onShellExited` callback eliminated — Daemon/Panes listen to State VT directly
+- Crash on exit: Display destroyed mid-callback when `onProcessExited` triggered `closePane` from within `flush()` — fixed by deferring destruction via `callAsync` in Panes VT callback
+- Panes VT listener lost: `getValueTree()` returns by value, listener on temporary was immediately lost — fixed by storing VT reference in `sessionStateTrees` map
+- VT root mismatch: SESSION tree grafted into PANES tree, `tree.getRoot()` returned PANES not SESSION — fixed by using `tree.getParent()` to find SESSION node
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
 ## Sprint 19: Cell Type Adoption + State SSOT + TextEditor Strip-down
 
 **Date:** 2026-05-17
