@@ -38,6 +38,7 @@
 #include <JuceHeader.h>
 #include "../lua/Engine.h"
 #include "../terminal/logic/Session.h"
+#include "../terminal/data/Identifier.h"
 #include "ModalWindow.h"
 
 namespace Terminal
@@ -56,7 +57,7 @@ namespace Terminal
  *
  * @see Terminal::ModalWindow
  */
-class Popup
+class Popup : public juce::ValueTree::Listener
 {
 public:
     Popup() = default;
@@ -115,6 +116,9 @@ public:
      */
     void setTerminalSession (std::unique_ptr<Terminal::Session> session);
 
+    // juce::ValueTree::Listener
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
 private:
     //==========================================================================
     void removePopupSession();
@@ -123,6 +127,7 @@ private:
     std::unique_ptr<Terminal::ModalWindow> window;
     std::unique_ptr<Terminal::Session> terminalSession;
     juce::String popupSessionUuid;
+    juce::ValueTree watchedStateRoot;
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Popup)

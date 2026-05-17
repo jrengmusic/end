@@ -15,14 +15,14 @@
  *  write()                 read()        — drains all available bytes
  *  resize()                onData()  — fires callback per chunk
  *  close()                 onDrainComplete() — fires after full drain
- *                          onExit()      — fires via MessageManager on EOF
+ *                          onShellExited() — fires synchronously on reader thread on EOF
  * ```
  *
  * ### Callback model
  * All four callbacks are plain `std::function` fields set by the owner before
- * calling `open()`.  The reader thread invokes `onData` and `onDrainComplete`
- * directly on the reader thread.  `onExit` is dispatched to the message thread
- * via `juce::MessageManager::callAsync`.
+ * calling `open()`.  The reader thread invokes `onData`, `onDrainComplete`, and
+ * `onShellExited` directly on the reader thread.  `onShellExited` stores to State atomics;
+ * the flush timer delivers the change to the message thread via ValueTree.
  *
  * ### Resize protocol
  * The message thread calls `grid.resize()` and `parser.resize()` directly,
@@ -34,7 +34,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include <atomic>
+
 #include <functional>
 #include <string>
 #include <utility>
@@ -56,7 +56,6 @@
  *
  * @par Thread safety
  * - `open()`, `write()`, `resize()`, `close()` — message thread only
- * - `hasShellExited()` — any thread (atomic load)
  * - `run()` — reader thread only (called by juce::Thread)
  */
 class TTY : public juce::Thread
@@ -156,28 +155,6 @@ public:
      * @note Called from the reader thread only.
      */
     virtual bool waitForData (int timeoutMs) = 0;
-
-    /** @} */
-
-    // =========================================================================
-    /** @name Shell exit query
-     * @{ */
-
-    /**
-     * @brief Query whether the shell has exited.
-     *
-     * Set to `true` by the reader thread when `read()` returns -1 (EOF).
-     * The `onExit` callback is also dispatched to the message thread at that
-     * point.
-     *
-     * @return `true` if the shell process has exited.
-     *
-     * @note Safe to call from any thread.
-     */
-    bool hasShellExited() const noexcept
-    {
-        return shellExited.load (std::memory_order_acquire);
-    }
 
     /** @} */
 
@@ -289,8 +266,7 @@ public:
      * 2. If data is available, drains all bytes in a tight inner loop,
      *    calling `onData` for each chunk.
      * 3. After the drain, calls `onDrainComplete` once.
-     * 4. On EOF (`read()` returns -1), sets `shellExited`, dispatches `onExit`
-     *    to the message thread, and returns.
+     * 4. On EOF (`read()` returns -1), calls `onShellExited` synchronously on the reader thread, and returns.
      *
      * @note Called by juce::Thread infrastructure — do not call directly.
      *       READER THREAD context.
@@ -321,11 +297,12 @@ public:
      */
     std::function<void()> onDrainComplete;
 
-    /** @brief Called on the message thread when the shell process exits.
+    /** @brief Called synchronously on the reader thread when the shell process exits (EOF on PTY master).
      *
-     *  Dispatched via `juce::MessageManager::callAsync` from the reader thread.
+     *  No callAsync — fires directly on the reader thread.  The callback stores to State atomics;
+     *  the 60 Hz flush timer delivers the change to the message thread via ValueTree.
      */
-    std::function<void()> onExit;
+    std::function<void()> onShellExited;
 
     /** @} */
 
@@ -393,8 +370,7 @@ protected:
     /** @brief Shell integration environment variable pairs injected before shell start. */
     std::vector<std::pair<std::string, std::string>> shellIntegrationEnv;
 
-    /** @brief Set to `true` by the reader thread on EOF; read by any thread via hasShellExited(). */
-    std::atomic<bool> shellExited { false };
+
 
 private:
     int lastResizeCols { -1 };

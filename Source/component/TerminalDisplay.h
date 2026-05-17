@@ -38,7 +38,6 @@ public:
     int getHintPage() const noexcept;
     int getHintTotalPages() const noexcept;
 
-    std::function<void()> onProcessExited;
     std::function<void (const juce::File&)> onOpenMarkdown;
     std::function<void (const juce::File&)> onOpenImage;
 

@@ -140,6 +140,7 @@ void Terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::
                         { previousHistoryRows, historyRows });
         previousHistoryRows = historyRows;
     }
+
 }
 
 std::function<void()> Terminal::Display::onVBlank() noexcept

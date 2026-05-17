@@ -191,13 +191,6 @@ public:
     std::function<void (const char*, int)> onBytes;
 
     /**
-     * @brief Called on the MESSAGE THREAD when the shell process exits.
-     *
-     * Set by `Nexus` to handle lifecycle cleanup.
-     */
-    std::function<void()> onExit;
-
-    /**
      * @brief Called on the READER THREAD after each state flush (cwd and foreground process updated in State).
      *
      * Fires at the end of `onCommandStarted` and `onCommandEnded`, after cwd and

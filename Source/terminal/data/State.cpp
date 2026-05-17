@@ -366,6 +366,14 @@ bool State::hasOutputBlock() const noexcept
 }
 
 //==========================================================================
+// Shell exit signal
+//==========================================================================
+
+void State::setShellExited (bool exited) noexcept { storeValue (ID::SESSION, ID::shellExited, exited ? 1 : 0); }
+
+bool State::getShellExited() const noexcept { return getSessionParamInt (get(), ID::shellExited) != 0; }
+
+//==========================================================================
 // Snapshot signal
 //==========================================================================
 

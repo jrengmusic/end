@@ -14,8 +14,8 @@
  * 4. When data arrives the inner drain loop calls `read()` until no bytes
  *    remain, delivering each chunk to `onData`.
  * 5. After a full drain `onDrainComplete` is called once.
- * 6. On EOF (`read()` returns -1) the thread sets `shellExited`, dispatches
- *    `onExit` to the message thread, and returns.
+ * 6. On EOF (`read()` returns -1) the thread calls `onShellExited` synchronously
+ *    on the reader thread and returns.
  * 7. Thread stops when `threadShouldExit()` becomes true (set by `close()`).
  *
  * @see TTY::run()
@@ -46,8 +46,8 @@
  *
  * @par Shell exit
  * When `read()` returns -1 the shell has closed the master fd (EOF).
- * `shellExited` is set and `onExit` is dispatched to the message thread via
- * `juce::MessageManager::callAsync` before the thread returns.
+ * `onShellExited` is called synchronously on the reader thread before the thread returns.
+ * The callback stores to State atomics; the flush timer delivers the change to the message thread.
  *
  * @note READER THREAD context.  Do not call directly.
  */
@@ -80,11 +80,9 @@ void TTY::run()
 
         if (isEof)
         {
-            shellExited.store (true, std::memory_order_release);
-
-            if (onExit)
+            if (onShellExited)
             {
-                juce::MessageManager::callAsync (onExit);
+                onShellExited();
             }
         }
 

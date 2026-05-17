@@ -326,10 +326,9 @@ void Daemon::detachSession (const juce::String& uuid, Channel& connection)
  * Delegates to three helpers, each wiring exactly one callback:
  * - wireOnBytes      → `session.onBytes`
  * - wireOnStateFlush → `session.onStateFlush`
- * - wireOnExit       → `session.onExit`
+ * - wireOnExit       → registers Daemon as VT listener on session State
  *
- * Called by Nexus::create (TTY overload) when an Interprocess::Daemon is attached,
- * immediately after the standalone onExit is wired.  Replaces the standalone onExit.
+ * Called by Nexus::create (TTY overload) when an Interprocess::Daemon is attached.
  *
  * @param uuid     UUID of the session (used in closures for routing).
  * @param session  The Terminal::Session to wire.
@@ -431,42 +430,82 @@ void Daemon::wireOnStateFlush (const juce::String& uuid, Terminal::Session& sess
 // =============================================================================
 
 /**
- * @brief Wires `session.onExit` to broadcast sessionKilled and clean up Nexus state.
+ * @brief Registers Daemon as a ValueTree::Listener on the session's State and maps
+ *        the session root VT to @p uuid for routing in valueTreePropertyChanged.
  *
- * Broadcasts `Message::sessionKilled` to all attached connections, then schedules
- * an async message-thread call to remove the session from Nexus, re-broadcast the
- * sessions list, and fire `onAllSessionsExited` when no sessions remain.
+ * Inserts the session's State root into sessionStateRoots keyed by @p uuid,
+ * then registers Daemon as a listener on that VT.  The actual exit handling
+ * runs in valueTreePropertyChanged when shellExited is detected.
  *
  * @param uuid     Session UUID used as the PDU routing key.
- * @param session  Terminal::Session whose `onExit` callback is being set.
- * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on READER THREAD → async MESSAGE THREAD).
+ * @param session  Terminal::Session whose State ValueTree is being listened to.
+ * @note NEXUS PROCESS MESSAGE THREAD.
  */
 void Daemon::wireOnExit (const juce::String& uuid, Terminal::Session& session)
 {
     jassert (session.getProcessor().getState().get().isValid());
 
-    session.onExit = [this, uuid]
+    juce::ValueTree stateRoot { session.getProcessor().getState().get() };
+    sessionStateRoots[uuid] = stateRoot;
+    stateRoot.addListener (this);
+}
+
+// =============================================================================
+
+/**
+ * @brief Detects shellExited on any registered session State VT and defers cleanup.
+ *
+ * Checks for a PARAM node whose id property equals Terminal::ID::shellExited
+ * with value 1.  Matches the tree's root against sessionStateRoots to find the
+ * exiting UUID.  Cleanup is deferred via callAsync to avoid mutating session
+ * state from within the ValueTree listener callback chain.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Daemon::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    if (property == Terminal::ID::value
+        and tree.getType() == jam::ValueTree::PARAM
+        and tree.getProperty (Terminal::ID::id).toString() == Terminal::ID::shellExited.toString()
+        and static_cast<int> (tree.getProperty (Terminal::ID::value)) == 1)
     {
-        juce::MemoryBlock exitPayload;
-        Codec::writeString (exitPayload, uuid);
+        const juce::ValueTree sessionRoot { tree.getParent() };
 
+        juce::String exitedUuid;
+
+        for (const auto& entry : sessionStateRoots)
         {
-            const juce::ScopedLock lock (connectionsLock);
-
-            for (auto* conn : attached)
-                conn->sendPdu (Message::sessionKilled, exitPayload);
+            if (entry.second == sessionRoot)
+            {
+                exitedUuid = entry.first;
+                break;
+            }
         }
 
-        juce::MessageManager::callAsync (
-            [this, uuid]
+        if (exitedUuid.isNotEmpty())
+        {
+            juce::MessageManager::callAsync ([this, exitedUuid]
             {
-                nexus.remove (uuid);
+                sessionStateRoots.erase (exitedUuid);
+
+                juce::MemoryBlock exitPayload;
+                Codec::writeString (exitPayload, exitedUuid);
+
+                {
+                    const juce::ScopedLock lock (connectionsLock);
+
+                    for (auto* conn : attached)
+                        conn->sendPdu (Message::sessionKilled, exitPayload);
+                }
+
+                nexus.remove (exitedUuid);
                 broadcastSessions();
 
                 if (nexus.list().isEmpty() and onAllSessionsExited != nullptr)
                     onAllSessionsExited();
             });
-    };
+        }
+    }
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
