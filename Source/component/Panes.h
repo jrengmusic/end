@@ -19,6 +19,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <unordered_map>
 #include <utility>
 #include "PaneComponent.h"
 #include "TerminalDisplay.h"
@@ -36,7 +37,9 @@ namespace Terminal
  *
  * @note MESSAGE THREAD — all methods.
  */
-class Panes : public juce::Component
+class Panes
+    : public juce::Component
+    , public juce::ValueTree::Listener
 {
 public:
     /**
@@ -264,6 +267,9 @@ public:
      */
     void resized() override;
 
+    // juce::ValueTree::Listener
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
     /**
      * @brief Propagates visibility to child terminals.
      *
@@ -296,6 +302,7 @@ private:
     jam::Owner<PaneComponent> panes;
     jam::PaneManager paneManager;
     jam::Owner<jam::PaneResizerBar> resizerBars;
+    std::unordered_map<juce::String, juce::ValueTree> sessionStateTrees;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Panes)

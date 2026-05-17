@@ -167,11 +167,6 @@ MainComponent::MainComponent (lua::Engine& engine)
 
             auto termSession { Terminal::Session::create (effectiveCwd, cols, rows, shell, shellArgs) };
 
-            termSession->onExit = [this]
-            {
-                juce::MessageManager::callAsync ([this] { popup.dismiss(); });
-            };
-
             auto terminal { termSession->getProcessor().createDisplay() };
 
             popup.show (*this, std::move (terminal), pixelWidth, pixelHeight);

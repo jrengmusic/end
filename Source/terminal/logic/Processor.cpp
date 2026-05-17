@@ -424,6 +424,7 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
             if (onCommandEnded != nullptr)
                 onCommandEnded();
         }
+
     }
 
     // TEXT parameters flush as direct properties on the SESSION root node.

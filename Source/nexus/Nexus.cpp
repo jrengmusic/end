@@ -30,9 +30,8 @@ Nexus::~Nexus() = default;
 /**
  * @brief Creates a full PTY-backed session and stores it by UUID.
  *
- * After creating the session and wiring the standalone onExit, if an
- * Interprocess::Daemon is attached, calls `attachedDaemon->wireSessionCallbacks`
- * which REPLACES the standalone onExit with the daemon-mode one.
+ * After creating the session, if an Interprocess::Daemon is attached, calls
+ * `attachedDaemon->wireSessionCallbacks` which wires daemon-mode IPC callbacks.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -50,17 +49,6 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
 
     auto termSession { Terminal::Session::create (cwd, cols, rows, shell, args, seedEnv, uuid) };
     Terminal::Session* rawPtr { termSession.get() };
-
-    // Wire standalone onExit first — daemon path will replace it below.
-    termSession->onExit = [this, uuid]
-    {
-        juce::MessageManager::callAsync (
-            [this, uuid]
-            {
-                remove (uuid);
-                fireIfAllExited();
-            });
-    };
 
     sessions.emplace (uuid, std::move (termSession));
 

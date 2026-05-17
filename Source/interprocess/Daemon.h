@@ -9,8 +9,13 @@
  *
  * Daemon also owns the broadcast and per-session subscriber registries that were
  * previously held inline in `Nexus`.  Session callback wiring (onBytes,
- * onStateFlush, onExit) is applied via `wireSessionCallbacks()` after each
- * `Terminal::Session` is created by Nexus in daemon mode.
+ * onStateFlush, and State ValueTree exit detection) is applied via
+ * `wireSessionCallbacks()` after each `Terminal::Session` is created by Nexus
+ * in daemon mode.
+ *
+ * Daemon registers itself as a `juce::ValueTree::Listener` on each session's
+ * State ValueTree to detect shellExited without crossing component callback
+ * boundaries.  Exit cleanup is deferred via `juce::MessageManager::callAsync`.
  *
  * Static platform helpers (`hideDockIcon`, `spawnDaemon`) are declared here so
  * callers need only one include.  Implementations live in `Daemon.mm` (macOS /
@@ -52,7 +57,9 @@ class Channel;
  *
  * @see juce::InterprocessConnectionServer
  */
-class Daemon : public juce::InterprocessConnectionServer
+class Daemon
+    : public juce::InterprocessConnectionServer
+    , public juce::ValueTree::Listener
 {
 public:
     /** @brief Default port: 0 instructs the OS to assign a free ephemeral port. */
@@ -218,9 +225,9 @@ public:
     /**
      * @brief Wires daemon-mode IPC callbacks on a newly created Terminal::Session.
      *
-     * Replaces the standalone onExit with a daemon-mode one that:
+     * Wires daemon-mode exit handling via a ValueTree::Listener on the session State:
      * - broadcasts `sessionKilled` to all attached connections,
-     * - removes the session from Nexus asynchronously,
+     * - removes the session from Nexus,
      * - re-broadcasts the sessions list,
      * - fires onAllSessionsExited if empty.
      *
@@ -308,22 +315,39 @@ private:
     void wireOnStateFlush (const juce::String& uuid, Terminal::Session& session);
 
     /**
-     * @brief Wires `session.onExit` to broadcast sessionKilled and clean up Nexus state.
+     * @brief Registers Daemon as a ValueTree::Listener on the session's State and maps
+     *        the session root VT to @p uuid for routing in valueTreePropertyChanged.
      *
-     * On exit: broadcasts `Message::sessionKilled` to all attached connections, then
-     * schedules an async call to remove the session from Nexus, re-broadcast the
-     * sessions list, and fire `onAllSessionsExited` if no sessions remain.
+     * On shellExited detection in valueTreePropertyChanged: broadcasts
+     * `Message::sessionKilled` to all attached connections via callAsync,
+     * removes the session from Nexus, re-broadcasts the sessions list, and
+     * fires `onAllSessionsExited` when no sessions remain.
      *
      * @param uuid     Session UUID used as the PDU routing key.
-     * @param session  Terminal::Session whose `onExit` callback is being set.
-     * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on READER THREAD → async MESSAGE THREAD).
+     * @param session  Terminal::Session whose State ValueTree is being listened to.
+     * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; VT callback fires on MESSAGE THREAD).
      */
     void wireOnExit       (const juce::String& uuid, Terminal::Session& session);
 
     /** @} */
 
+    // juce::ValueTree::Listener — dispatched from session State VT flush on the message thread.
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
     Nexus& nexus;
     int activePort { 0 };
+
+    /**
+     * @brief Maps session UUID → session State root ValueTree for exit routing.
+     *
+     * Populated in wireOnExit(), used in valueTreePropertyChanged() to match
+     * an incoming PARAM tree against a known session root.
+     * Entries are inserted in wireOnExit() and erased inside the callAsync
+     * cleanup lambda before nexus.remove() destroys the session.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD — accessed only on the message thread.
+     */
+    std::unordered_map<juce::String, juce::ValueTree> sessionStateRoots;
 
 #if JUCE_WINDOWS
     void* jobObject { nullptr };

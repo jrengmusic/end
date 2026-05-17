@@ -9,8 +9,8 @@
  * by which `attach` overload the caller invokes.
  *
  * ### Attachment model
- * - **No attachment** — standalone.  Sessions fire `onExit` locally; when the
- *   last session exits `onAllSessionsExited` is called.
+ * - **No attachment** — standalone.  Session exit signals flow via State shellExited
+ *   parameter → Panes::valueTreePropertyChanged → callAsync → Panes::closePane → Nexus::remove.
  * - **attach(Daemon&)** — daemon mode.  IPC wiring is layered on top of the
  *   session container by a higher-level coordinator (Step 4/5 work).
  * - **attach(Link&)** — client mode.  Same: IPC wiring applied externally.
@@ -69,8 +69,8 @@ public:
      * @brief Creates a full PTY-backed session and stores it by UUID.
      *
      * Delegates to `Terminal::Session::create(cwd, cols, rows, shell, args,
-     * seedEnv, uuid)`.  Wires a standalone `onExit` callback that removes the
-     * session and calls `fireIfAllExited`.
+     * seedEnv, uuid)`.  Session exit is signalled via the State shellExited parameter,
+     * which flows to registered VT listeners via the VT flush chain.
      *
      * @param cwd      Initial working directory.  Empty = inherit.
      * @param cols     Initial column count.  Must be > 0.

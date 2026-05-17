@@ -81,7 +81,7 @@ class Display;
  * - **Input encoding** — `encodeKeyPress()`, `encodePaste()`, `encodeMouseEvent()`, `encodeFocusEvent()` (const, no side effects)
  * - **Output** — `process()` (called on the reader thread by the byte source)
  * - **Response flushing** — `flushResponses()` (reader thread; called by Session on drain-complete)
- * - **Lifecycle callbacks** — `ID::shellExited` on the events map
+ * - **Lifecycle callbacks** — `onCommandStarted` / `onCommandEnded` callbacks
  *
  * @note Construct and destroy on the **message thread**.
  *
@@ -266,7 +266,6 @@ public:
      *                               Processor handler registers the URI in State and calls `Video::setActiveLinkId()`.
      *  - `ID::writeInput`          — `(const char*, int)` — user input (keyboard, mouse) → PTY stdin; message thread
      *  - `ID::terminalResize`      — `(int, int, int, int)` — PTY SIGWINCH; message thread
-     *  - `ID::shellExited`         — `()` — child shell process exited; message thread
      *  - `ID::activeScreen`        — `(int)` — active screen index flush; reader thread
      *  - `ID::cursorRow`           — `(int screen, int row)` — cursor row flush; reader thread
      *  - `ID::cursorCol`           — `(int screen, int col)` — cursor col flush; reader thread

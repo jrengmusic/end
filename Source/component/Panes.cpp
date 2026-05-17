@@ -10,7 +10,6 @@
 #include "Panes.h"
 #include <jam_tui/jam_tui.h>
 #include "../AppState.h"
-#include "../terminal/data/Identifier.h"
 #include "../whelmed/Component.h"
 #include "../nexus/Nexus.h"
 #include "../terminal/logic/Session.h"
@@ -303,39 +302,9 @@ void Panes::setTerminalCallbacks (Terminal::Display* terminal)
             onOpenImage (file);
     };
 
-    terminal->getProcessor().events.add (Terminal::ID::shellExited,
-        [this, uuid = terminal->getComponentID()]
-        {
-            int closedIndex { 0 };
-
-            for (size_t i { 0 }; i < panes.size(); ++i)
-            {
-                if (panes.at (i)->getComponentID() == uuid)
-                {
-                    closedIndex = static_cast<int> (i);
-                    break;
-                }
-            }
-
-            closePane (uuid);
-
-            if (not panes.isEmpty())
-            {
-                const int nextIndex { juce::jmin (closedIndex, static_cast<int> (panes.size()) - 1) };
-                auto* nearest { panes.at (static_cast<size_t> (nextIndex)).get() };
-                AppState::getContext()->setModalType (0);
-                AppState::getContext()->setSelectionType (0);
-                AppState::getContext()->setActivePaneID (nearest->getComponentID());
-
-                if (nearest->isShowing())
-                    nearest->grabKeyboardFocus();
-            }
-            else
-            {
-                if (onLastPaneClosed != nullptr)
-                    onLastPaneClosed();
-            }
-        });
+    const juce::String terminalUuid { terminal->getComponentID() };
+    sessionStateTrees[terminalUuid] = terminal->getValueTree();
+    sessionStateTrees[terminalUuid].addListener (this);
 }
 
 /**
@@ -362,6 +331,12 @@ juce::ValueTree& Panes::getState() noexcept { return paneManager.getState(); }
  */
 void Panes::closePane (const juce::String& uuid)
 {
+    if (sessionStateTrees.count (uuid) > 0)
+    {
+        sessionStateTrees[uuid].removeListener (this);
+        sessionStateTrees.erase (uuid);
+    }
+
     auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), uuid) };
     jassert (paneNode.isValid());
 
@@ -559,6 +534,76 @@ void Panes::visibilityChanged()
         else
         {
             pane->setVisible (visible);
+        }
+    }
+}
+
+/**
+ * @brief Reacts to State ValueTree property changes on any registered terminal.
+ *
+ * Registered on each terminal's State ValueTree in setTerminalCallbacks().
+ * Detects shellExited by checking for a PARAM node whose id property equals
+ * Terminal::ID::shellExited with value 1.  Defers pane closure via callAsync
+ * to avoid destroying a component from within its own listener callback chain
+ * (the VT callback fires from flush() which fires from the Display's onVBlank).
+ *
+ * @note MESSAGE THREAD.
+ */
+void Panes::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    if (property == Terminal::ID::value
+        and tree.getType() == jam::ValueTree::PARAM
+        and tree.getProperty (Terminal::ID::id).toString() == Terminal::ID::shellExited.toString()
+        and static_cast<int> (tree.getProperty (Terminal::ID::value)) == 1)
+    {
+        const juce::ValueTree sessionRoot { tree.getParent() };
+
+        juce::String exitedUuid;
+
+        for (size_t i { 0 }; i < panes.size(); ++i)
+        {
+            if (panes.at (i)->getPaneType() == App::ID::paneTypeTerminal
+                and panes.at (i)->getValueTree() == sessionRoot)
+            {
+                exitedUuid = panes.at (i)->getComponentID();
+                break;
+            }
+        }
+
+        if (exitedUuid.isNotEmpty())
+        {
+            juce::MessageManager::callAsync ([this, exitedUuid]
+            {
+                int closedIndex { 0 };
+
+                for (size_t i { 0 }; i < panes.size(); ++i)
+                {
+                    if (panes.at (i)->getComponentID() == exitedUuid)
+                    {
+                        closedIndex = static_cast<int> (i);
+                        break;
+                    }
+                }
+
+                closePane (exitedUuid);
+
+                if (not panes.isEmpty())
+                {
+                    const int nextIndex { juce::jmin (closedIndex, static_cast<int> (panes.size()) - 1) };
+                    auto* nearest { panes.at (static_cast<size_t> (nextIndex)).get() };
+                    AppState::getContext()->setModalType (0);
+                    AppState::getContext()->setSelectionType (0);
+                    AppState::getContext()->setActivePaneID (nearest->getComponentID());
+
+                    if (nearest->isShowing())
+                        nearest->grabKeyboardFocus();
+                }
+                else
+                {
+                    if (onLastPaneClosed != nullptr)
+                        onLastPaneClosed();
+                }
+            });
         }
     }
 }

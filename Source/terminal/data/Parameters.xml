@@ -42,6 +42,9 @@
     <!-- Sync resize request -->
     <PARAM id="syncResizePending"  type="bool" default="false"/>
 
+    <!-- Shell exit signal -->
+    <PARAM id="shellExited"        type="bool" default="false"/>
+
     <!-- Terminal mode flags -->
     <MODES>
         <PARAM id="applicationCursor"  type="bool" default="false"/>

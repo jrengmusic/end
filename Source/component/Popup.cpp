@@ -9,6 +9,7 @@
 
 #include "Popup.h"
 #include "TerminalDisplay.h"
+#include <jam_tui/jam_tui.h>
 
 namespace Terminal
 { /*____________________________________________________________________________*/
@@ -31,10 +32,8 @@ void Popup::show (juce::Component& caller,
     if (auto* terminal { dynamic_cast<Terminal::Display*> (content.get()) })
     {
         popupSessionUuid = terminal->getComponentID();
-        terminal->onProcessExited = [this]
-        {
-            dismiss();
-        };
+        watchedStateRoot = terminal->getValueTree();
+        watchedStateRoot.addListener (this);
     }
 
     window = std::make_unique<Terminal::ModalWindow> (std::move (content),
@@ -56,8 +55,28 @@ void Popup::setTerminalSession (std::unique_ptr<Terminal::Session> session)
 
 void Popup::removePopupSession()
 {
+    if (watchedStateRoot.isValid())
+    {
+        watchedStateRoot.removeListener (this);
+        watchedStateRoot = {};
+    }
+
     terminalSession.reset();
     popupSessionUuid = {};
+}
+
+void Popup::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    if (property == Terminal::ID::value
+        and tree.getType() == jam::ValueTree::PARAM
+        and tree.getProperty (Terminal::ID::id).toString() == Terminal::ID::shellExited.toString()
+        and static_cast<int> (tree.getProperty (Terminal::ID::value)) == 1)
+    {
+        juce::MessageManager::callAsync ([this]
+        {
+            dismiss();
+        });
+    }
 }
 
 void Popup::dismiss()

@@ -153,6 +153,10 @@ struct State : public jam::ValueTree,
     void setHistoryRows (int count) noexcept;
     int getHistoryRows() const noexcept;
 
+    // Shell exit signal
+    void setShellExited (bool exited) noexcept;
+    bool getShellExited() const noexcept;
+
     // Snapshot signal
     void setSnapshotDirty() noexcept;
     bool consumeSnapshotDirty() noexcept;

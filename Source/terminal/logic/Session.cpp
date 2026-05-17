@@ -198,7 +198,7 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
  * @brief Constructs the Session, creates the TTY, opens the shell, and wires the Processor.
  *
  * History capacity comes from `lua::Engine::nexus.terminal.scrollbackLines`.
- * The `onBytes` and `onExit` callbacks may be overridden by the owner (`Nexus` /
+ * The `onBytes` callback may be overridden by the owner (`Nexus` /
  * `Interprocess::Daemon`) after construction for daemon-mode byte broadcasting.  The Processor pipeline
  * callbacks (tty->onDrainComplete, onCommandStarted, onCommandEnded, setHostWriter) are wired internally.
  *
@@ -221,13 +221,10 @@ Session::Session (cell cols,
     tty = std::make_unique<WindowsTTY>();
 #endif
 
-    tty->onExit = [this]
+    tty->onShellExited = [this]
     {
-        if (processor != nullptr and processor->events.contains (Terminal::ID::shellExited))
-            processor->events.get (Terminal::ID::shellExited);
-
-        if (onExit != nullptr)
-            onExit();
+        if (processor != nullptr)
+            processor->getState().setShellExited (true);
     };
 
     const auto& keys { seedEnv.getAllKeys() };
@@ -579,7 +576,7 @@ void Session::stop()
 {
     if (tty != nullptr)
     {
-        tty->onExit = nullptr;
+        tty->onShellExited = nullptr;
         tty->onData = nullptr;
         tty->onDrainComplete = nullptr;
 
