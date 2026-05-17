@@ -76,9 +76,9 @@ void Tabs::addNewTab()
     const int newTabCount { getNumTabs() + 1 };
     const int newDepth { (newTabCount > 1) ? LookAndFeel::getTabBarHeight() : 0 };
     const auto contentRect { computeContentRect (newDepth) };
-    const auto [cols, rows] { Panes::cellsFromRect (contentRect) };
+    const auto [newCols, newRows] { Panes::cellsFromRect (contentRect) };
 
-    addNewTab (AppState::getContext()->getPwd(), {}, cols, rows);
+    addNewTab (AppState::getContext()->getPwd(), {}, newCols, newRows);
 }
 
 /**
@@ -94,9 +94,9 @@ void Tabs::addNewTab()
  * @param rows              Terminal row count. Must be > 0.
  * @note MESSAGE THREAD.
  */
-void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid, int cols, int rows)
+void Tabs::addNewTab (const juce::String& workingDirectory, const juce::String& uuid, cell cols, cell rows)
 {
-    jassert (cols > 0 and rows > 0);
+    jassert (cols.value > 0 and rows.value > 0);
 
     auto& newPanesPtr { panes.add (std::make_unique<Panes>()) };
     auto& newPanes { *newPanesPtr };

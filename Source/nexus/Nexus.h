@@ -83,8 +83,8 @@ public:
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     Terminal::Session& create (const juce::String& cwd,
-                               int cols,
-                               int rows,
+                               cell cols,
+                               cell rows,
                                const juce::String& shell,
                                const juce::String& args,
                                const juce::StringPairArray& seedEnv,
@@ -105,7 +105,7 @@ public:
      * @return Mutable reference to the newly constructed Terminal::Session.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    Terminal::Session& create (int cols, int rows,
+    Terminal::Session& create (cell cols, cell rows,
                                const juce::String& cwd,
                                const juce::String& shell,
                                const juce::String& uuid);
@@ -133,8 +133,8 @@ public:
      */
     Terminal::Session& create (const juce::String& cwd,
                                const juce::String& uuid,
-                               int cols,
-                               int rows);
+                               cell cols,
+                               cell rows);
 
     /**
      * @brief Removes and destroys the session with the given UUID.

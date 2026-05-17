@@ -198,9 +198,9 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
 
             if (targetUuid.isNotEmpty() and newUuid.isNotEmpty())
             {
-                const auto [newCols, newRows] { Panes::cellsFromRect (newRect) };
+                const auto [splitCols, splitRows] { Panes::cellsFromRect (newRect) };
                 const bool isVertical { direction == "vertical" };
-                activePanes->splitAt (targetUuid, newUuid, newCwd, direction, isVertical, newCols, newRows);
+                activePanes->splitAt (targetUuid, newUuid, newCwd, direction, isVertical, splitCols, splitRows);
 
                 auto newLeafNode { jam::PaneManager::findLeaf (activePanes->getState(), newUuid) };
                 jassert (newLeafNode.isValid());
@@ -252,8 +252,8 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
                         walkNode = walkNode.getChild (0);
                     }
 
-                    const auto [firstCols, firstRows] { Panes::cellsFromRect (firstLeafRect) };
-                    addNewTab (firstCwd, firstUuid, firstCols, firstRows);
+                    const auto [tabCols, tabRows] { Panes::cellsFromRect (firstLeafRect) };
+                    addNewTab (firstCwd, firstUuid, tabCols, tabRows);
 
                     auto* activePanes { getActivePanes() };
                     jassert (activePanes != nullptr);

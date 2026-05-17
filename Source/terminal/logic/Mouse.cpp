@@ -40,8 +40,8 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     }
     else if (shouldForwardToPty())
     {
-        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
+        const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto bytes { processor.encodeMouseEvent (0, hitCell.x, hitCell.y, true) };
 
         if (processor.events.contains (Terminal::ID::writeInput))
             processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
@@ -49,31 +49,31 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     else if (event.getNumberOfClicks() == 3)
     {
         // Triple-click: select the entire clicked row (visualLine).
-        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const int absRow { toAbsoluteRow (cell.y) };
+        const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const int absRow { toAbsoluteRow (hitCell.y) };
 
         processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::visualLine));
-        processor.getState().setSelectionAnchor (absRow, 0);
-        processor.getState().setSelectionCursor (absRow, 0);
-        processor.getState().setDragAnchor (absRow, 0);
+        processor.getState().setSelectionAnchor (cell (absRow), 0_cell);
+        processor.getState().setSelectionCursor (cell (absRow), 0_cell);
+        processor.getState().setDragAnchor (cell (absRow), 0_cell);
         processor.getState().setDragActive (false);
     }
     else
     {
-        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const int absRow { toAbsoluteRow (cell.y) };
+        const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const int absRow { toAbsoluteRow (hitCell.y) };
 
         // Click-mode dispatch: hit-test against clickable link spans.
         // Only active when no modal is open.
         if (not processor.getState().isModal())
         {
-            const Terminal::LinkSpan* matched { linkManager.hitTest (cell.y, cell.x) };
+            const Terminal::LinkSpan* matched { linkManager.hitTest (hitCell.getY(), hitCell.getX()) };
 
             if (matched != nullptr)
             {
                 linkManager.dispatch (*matched);
                 processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
-                processor.getState().setDragAnchor (absRow, cell.x);
+                processor.getState().setDragAnchor (cell (absRow), cell (hitCell.x));
                 processor.getState().setDragActive (false);
             }
             else
@@ -81,7 +81,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
                 // Single click on non-link: record anchor for potential drag.
                 // Clear any existing drag selection.
                 processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
-                processor.getState().setDragAnchor (absRow, cell.x);
+                processor.getState().setDragAnchor (cell (absRow), cell (hitCell.x));
                 processor.getState().setDragActive (false);
             }
         }
@@ -90,7 +90,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
             // Single click: record anchor for potential drag.
             // Clear any existing drag selection.
             processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::none));
-            processor.getState().setDragAnchor (absRow, cell.x);
+            processor.getState().setDragAnchor (cell (absRow), cell (hitCell.x));
             processor.getState().setDragActive (false);
         }
     }
@@ -100,29 +100,29 @@ void Mouse::handleDoubleClick (const juce::MouseEvent& event)
 {
     if (shouldForwardToPty())
     {
-        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, true) };
+        const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto bytes { processor.encodeMouseEvent (0, hitCell.x, hitCell.y, true) };
 
         if (processor.events.contains (Terminal::ID::writeInput))
             processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else
     {
-        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
 
         // Word boundary scan reads cell content via the visible row mapping.
         // Wire through Display's visibleMapping for word selection when
         // Display exposes a per-frame visibleMapping accessor.
-        const int wordStart { cell.x };
-        const int wordEnd { cell.x };
+        const int wordStart { hitCell.x };
+        const int wordEnd { hitCell.x };
 
         // Write to State selection params — screenSelection rebuilt in onVBlank.
-        const int absRow { toAbsoluteRow (cell.y) };
+        const int absRow { toAbsoluteRow (hitCell.y) };
 
         processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::visual));
-        processor.getState().setSelectionAnchor (absRow, wordStart);
-        processor.getState().setSelectionCursor (absRow, wordEnd);
-        processor.getState().setDragAnchor (absRow, wordStart);
+        processor.getState().setSelectionAnchor (cell (absRow), cell (wordStart));
+        processor.getState().setSelectionCursor (cell (absRow), cell (wordEnd));
+        processor.getState().setDragAnchor (cell (absRow), cell (wordStart));
         processor.getState().setDragActive (false);
     }
 }
@@ -131,25 +131,25 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
 {
     if (shouldForwardToPty())
     {
-        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const auto bytes { processor.encodeMouseEvent (32, cell.x, cell.y, true) };
+        const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto bytes { processor.encodeMouseEvent (32, hitCell.x, hitCell.y, true) };
 
         if (processor.events.contains (Terminal::ID::writeInput))
             processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else
     {
-        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const int maxCol { processor.getState().getCols() - 1 };
-        const int maxVisRow { processor.getState().getVisibleRows() - 1 };
+        const int maxVisRow { processor.getState().getVisibleRows().value - 1 };
 
-        const int clampedCol { juce::jlimit (0, maxCol, cell.x) };
-        const int clampedVisRow { juce::jlimit (0, maxVisRow, cell.y) };
+        const int clampedCol { juce::jlimit (0, maxCol, hitCell.x) };
+        const int clampedVisRow { juce::jlimit (0, maxVisRow, hitCell.y) };
         const int clampedAbsRow { toAbsoluteRow (clampedVisRow) };
 
         // 2-cell Manhattan distance threshold before starting a drag selection.
-        const int anchorAbsRow { processor.getState().getDragAnchorRow() };
-        const int anchorCol { processor.getState().getDragAnchorCol() };
+        const int anchorAbsRow { processor.getState().getDragAnchorRow().value };
+        const int anchorCol { processor.getState().getDragAnchorCol().value };
         const int manhattanDist { std::abs (clampedCol - anchorCol)
                                 + std::abs (clampedAbsRow - anchorAbsRow) };
 
@@ -160,12 +160,12 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
                 // Threshold crossed — write anchor and cursor to State.
                 // onVBlank builds screenSelection from State params.
                 processor.getState().setSelectionType (static_cast<int> (Terminal::SelectionType::visual));
-                processor.getState().setSelectionAnchor (anchorAbsRow, anchorCol);
+                processor.getState().setSelectionAnchor (cell (anchorAbsRow), cell (anchorCol));
                 processor.getState().setDragActive (true);
             }
 
             // Extend or update the drag cursor to current cell.
-            processor.getState().setSelectionCursor (clampedAbsRow, clampedCol);
+            processor.getState().setSelectionCursor (cell (clampedAbsRow), cell (clampedCol));
         }
     }
 }
@@ -174,8 +174,8 @@ void Mouse::handleUp (const juce::MouseEvent& event)
 {
     if (shouldForwardToPty())
     {
-        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const auto bytes { processor.encodeMouseEvent (0, cell.x, cell.y, false) };
+        const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const auto bytes { processor.encodeMouseEvent (0, hitCell.x, hitCell.y, false) };
 
         if (processor.events.contains (Terminal::ID::writeInput))
             processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
@@ -193,8 +193,8 @@ void Mouse::handleMove (const juce::MouseEvent& event, juce::Component& componen
 {
     if (not shouldForwardToPty() and not processor.getState().isModal())
     {
-        const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const bool overLink { linkManager.hitTest (cell.y, cell.x) != nullptr };
+        const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+        const bool overLink { linkManager.hitTest (hitCell.getY(), hitCell.getX()) != nullptr };
 
         if (overLink)
         {
@@ -227,11 +227,11 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
             if (shouldForwardToPty())
             {
                 const int button { scrollUp ? 64 : 65 };
-                const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+                const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
 
                 for (int i { 0 }; i < scrollLines; ++i)
                 {
-                    const auto bytes { processor.encodeMouseEvent (button, cell.x, cell.y, true) };
+                    const auto bytes { processor.encodeMouseEvent (button, hitCell.x, hitCell.y, true) };
 
                     if (processor.events.contains (Terminal::ID::writeInput))
                         processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
@@ -260,12 +260,12 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                 if (shouldForwardToPty())
                 {
                     const int button { lines > 0 ? 64 : 65 };
-                    const auto cell { jam::metrics::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
+                    const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
                     const int count { std::abs (lines) };
 
                     for (int i { 0 }; i < count; ++i)
                     {
-                        const auto bytes { processor.encodeMouseEvent (button, cell.x, cell.y, true) };
+                        const auto bytes { processor.encodeMouseEvent (button, hitCell.x, hitCell.y, true) };
 
                         if (processor.events.contains (Terminal::ID::writeInput))
                             processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));

@@ -813,7 +813,7 @@ WindowsTTY::~WindowsTTY()
  *
  * @note MESSAGE THREAD context.
  */
-bool WindowsTTY::open (int cols, int rows, const juce::String& shell,
+bool WindowsTTY::open (cell cols, cell rows, const juce::String& shell,
                        const juce::String& args, const juce::String& workingDirectory)
 {
     readBuffer.malloc (READ_CHUNK_SIZE);
@@ -833,7 +833,7 @@ bool WindowsTTY::open (int cols, int rows, const juce::String& shell,
 
         if (createDuplexOverlappedPipe (pipe, client))
         {
-            const COORD size { static_cast<short> (cols), static_cast<short> (rows) };
+            const COORD size { static_cast<short> (cols.value), static_cast<short> (rows.value) };
 
             if (createPseudoConsole (pseudoConsole, client, size))
             {
@@ -848,7 +848,7 @@ bool WindowsTTY::open (int cols, int rows, const juce::String& shell,
                     readOverlapped.hEvent  = readEvent;
                     writeOverlapped.hEvent = writeEvent;
 
-                    rememberDimensions (cols, rows);
+                    rememberDimensions (cols.value, rows.value);
                     startThread();
                     result = true;
                 }

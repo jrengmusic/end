@@ -59,7 +59,8 @@ using ::SelectionType;
  * - `get*()` ValueTree getters: MESSAGE THREAD only.
  * - `timerCallback()` / `flush()`: MESSAGE THREAD only.
  */
-struct State : public jam::ValueTree
+struct State : public jam::ValueTree,
+               private juce::ValueTree::Listener
 {
     /**
      * @brief Constructs the State, walks Parameters.xml via Layout::build,
@@ -88,6 +89,10 @@ struct State : public jam::ValueTree
     void addTextParameter (const juce::Identifier& id,
                            juce::ValueTree& rootNode) noexcept;
 
+    /** @brief Registers atomic mirrors for all int properties on a grafted node.
+     *         Group key = node type. Called automatically on child addition. */
+    void registerNodeAtomics (juce::ValueTree& node) noexcept;
+
     //==========================================================================
     // ValueTree access — MESSAGE THREAD only
     //==========================================================================
@@ -96,17 +101,13 @@ struct State : public jam::ValueTree
     int getActiveScreen() const noexcept;
     uint32_t getKeyboardFlags() const noexcept;
 
-    int getCursorRow() const noexcept;
-    int getCursorCol() const noexcept;
+    cell getCursorRow() const noexcept;
+    cell getCursorCol() const noexcept;
     bool isCursorVisible() const noexcept;
     int getCursorShape() const noexcept;
     int getCursorColor() const noexcept;
     int getCols() const noexcept;
-    int getVisibleRows() const noexcept;
-    int getCellWidth() const noexcept;
-    int getCellHeight() const noexcept;
-    int getBaseline() const noexcept;
-    float getFontSize() const noexcept;
+    cell getVisibleRows() const noexcept;
 
     juce::String getTitle() const noexcept;
     juce::String getCwd() const noexcept;
@@ -121,8 +122,8 @@ struct State : public jam::ValueTree
     void setScreen (int s) noexcept;
     void setMode (const juce::Identifier& id, bool value) noexcept;
 
-    void setCursorRow (int s, int row) noexcept;
-    void setCursorCol (int s, int col) noexcept;
+    void setCursorRow (int s, cell row) noexcept;
+    void setCursorCol (int s, cell col) noexcept;
     void setCursorVisible (int s, bool v) noexcept;
     void setCursorShape (int s, int shape) noexcept;
     void setCursorColor (int s, juce::Colour colour) noexcept;
@@ -132,8 +133,7 @@ struct State : public jam::ValueTree
     void setCwd (const char* src, int length) noexcept;
     void setForegroundProcess (const char* src, int length) noexcept;
 
-    void setDimensions (int cols, int rows) noexcept;
-    void setCellMetrics (int cellWidth, int cellHeight, int baseline, float fontSize) noexcept;
+    void setDimensions (cell cols, cell rows) noexcept;
 
     // Keyboard mode stack
     void pushKeyboardMode (int s, uint32_t flags) noexcept;
@@ -142,14 +142,16 @@ struct State : public jam::ValueTree
     void resetKeyboardMode (int s) noexcept;
 
     // OSC 133 shell integration
-    void setOutputBlockStart (int row) noexcept;
-    void setOutputBlockEnd (int row) noexcept;
-    void extendOutputBlock (int row) noexcept;
-    void setPromptRow (int row) noexcept;
-    int getOutputBlockTop() const noexcept;
-    int getOutputBlockBottom() const noexcept;
-    int getPromptRow() const noexcept;
+    void setOutputBlockStart (cell row) noexcept;
+    void setOutputBlockEnd (cell row) noexcept;
+    void extendOutputBlock (cell row) noexcept;
+    void setPromptRow (cell row) noexcept;
+    cell getOutputBlockTop() const noexcept;
+    cell getOutputBlockBottom() const noexcept;
+    cell getPromptRow() const noexcept;
     bool hasOutputBlock() const noexcept;
+    void setHistoryRows (int count) noexcept;
+    int getHistoryRows() const noexcept;
 
     // Snapshot signal
     void setSnapshotDirty() noexcept;
@@ -170,15 +172,15 @@ struct State : public jam::ValueTree
     // Selection
     void setSelectionType (int type) noexcept;
     int getSelectionType() const noexcept;
-    void setSelectionCursor (int row, int col) noexcept;
-    int getSelectionCursorRow() const noexcept;
-    int getSelectionCursorCol() const noexcept;
-    void setSelectionAnchor (int row, int col) noexcept;
-    int getSelectionAnchorRow() const noexcept;
-    int getSelectionAnchorCol() const noexcept;
-    void setDragAnchor (int row, int col) noexcept;
-    int getDragAnchorRow() const noexcept;
-    int getDragAnchorCol() const noexcept;
+    void setSelectionCursor (cell row, cell col) noexcept;
+    cell getSelectionCursorRow() const noexcept;
+    cell getSelectionCursorCol() const noexcept;
+    void setSelectionAnchor (cell row, cell col) noexcept;
+    cell getSelectionAnchorRow() const noexcept;
+    cell getSelectionAnchorCol() const noexcept;
+    void setDragAnchor (cell row, cell col) noexcept;
+    cell getDragAnchorRow() const noexcept;
+    cell getDragAnchorCol() const noexcept;
     void setDragActive (bool active) noexcept;
     bool isDragActive() const noexcept;
 
@@ -208,20 +210,26 @@ struct State : public jam::ValueTree
     bool     loadCursorVisible (int s) const noexcept;
     uint32_t loadKeyboardFlags (int s) const noexcept;
 
-    // Flush
-    bool refresh() noexcept;
+    // Dimension atomic loaders — any thread, lock-free.
+    // Used by Processor::process() on the reader thread to detect layout changes.
+    int loadCols()        const noexcept;
+    int loadVisibleRows() const noexcept;
+    int loadCellWidth()   const noexcept;
+    int loadCellHeight()  const noexcept;
 
-private:
+    // Cross-thread write — any thread, lock-free.
     void storeValue (const juce::Identifier& groupId,
                      const juce::Identifier& paramId,
                      int value) noexcept;
 
+    // Flush
+    bool refresh() noexcept;
+
+private:
+    void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
+
     int loadValue (const juce::Identifier& groupId,
                    const juce::Identifier& paramId) const noexcept;
-
-    void storeFloatValue (const juce::Identifier& groupId,
-                          const juce::Identifier& paramId,
-                          float value) noexcept;
 
     void storeTextValue (const juce::Identifier& groupId,
                          const juce::Identifier& paramId,

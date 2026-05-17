@@ -28,10 +28,11 @@ namespace Terminal
  * Parser is owned by this Processor and receives Video& reference directly.
  * UUID is provided by the caller — no internal generation.
  *
- * @param gridRef  Live cell buffer owned by Terminal::Session.
- * @param cols     Initial terminal column count.
- * @param rows     Initial terminal row count.
- * @param uuid     Stable UUID for this Processor — generated once by the caller.
+ * @param gridRef        Live cell buffer owned by Terminal::Session.
+ * @param textBufferRef  Cross-thread string buffer owned by Terminal::Session.
+ * @param cols           Initial terminal column count.
+ * @param rows           Initial terminal row count.
+ * @param uuid           Stable UUID for this Processor — generated once by the caller.
  *
  * @note MESSAGE THREAD — must be constructed on the message thread.
  */
@@ -43,7 +44,7 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, int cols, int ro
     , skit (events)
     , uuid (uuid)
 {
-    state.setDimensions (cols, rows);
+    state.setDimensions (cell (cols), cell (rows));
     video.setDimensions (cols, rows);
     registerEvents();
     parser = std::make_unique<Parser> (video);
@@ -128,215 +129,266 @@ Processor::~Processor() = default;
 void Processor::registerEvents() noexcept
 {
     // C5: OSC 8 hyperlink — link URI registration removed; hyperlink IDs are disabled pending replacement.
-    events.add<const juce::String&, const juce::String&> (ID::registerLink,
+    events.add<const juce::String&, const juce::String&> (
+        ID::registerLink,
         [this] (const juce::String& /*uri*/, const juce::String& /*params*/)
-    {
-        video.setActiveLinkId (0);
-    });
+        {
+            video.setActiveLinkId (0);
+        });
 
     // C6: Shell integration — scrollback stub returns 0, so screen-relative == absolute.
     events.add<int> (ID::promptRow,
-        [this] (int relativeRow)
-    {
-        state.setPromptRow (state.getScrollbackUsed() + relativeRow);
-    });
+                     [this] (int relativeRow)
+                     {
+                         state.setPromptRow (cell (state.getScrollbackUsed() + relativeRow));
+                     });
 
     events.add<int> (ID::outputBlockStart,
-        [this] (int relativeRow)
-    {
-        state.setOutputBlockStart (state.getScrollbackUsed() + relativeRow);
-    });
+                     [this] (int relativeRow)
+                     {
+                         state.setOutputBlockStart (cell (state.getScrollbackUsed() + relativeRow));
+                     });
 
     events.add<int> (ID::outputBlockEnd,
-        [this] (int relativeRow)
-    {
-        state.setOutputBlockEnd (state.getScrollbackUsed() + relativeRow);
-    });
+                     [this] (int relativeRow)
+                     {
+                         state.setOutputBlockEnd (cell (state.getScrollbackUsed() + relativeRow));
+                     });
 
     events.add<int> (ID::extendOutputBlock,
-        [this] (int relativeRow)
-    {
-        state.extendOutputBlock (state.getScrollbackUsed() + relativeRow);
-    });
+                     [this] (int relativeRow)
+                     {
+                         state.extendOutputBlock (cell (state.getScrollbackUsed() + relativeRow));
+                     });
 
     // OSC 1337 raw payload from Video — delegate to Skit, then advance cursor.
     events.add<const uint8_t*, int, int, int> (ID::osc1337Raw,
-        [this] (const uint8_t* data, int length, int cursorRow, int cursorCol)
-    {
-        skit.processOSC1337 (data, length, cursorRow, cursorCol);
-        video.advanceCursorForImage (skit.getLastImageRows());
-    });
+                                               [this] (const uint8_t* data, int length, int cursorRow, int cursorCol)
+                                               {
+                                                   skit.processOSC1337 (data, length, cursorRow, cursorCol);
+                                                   video.advanceCursorForImage (skit.getLastImageRows().value);
+                                               });
 
     // DCS payload complete — delegate to Skit, then advance cursor.
-    events.add<const uint8_t*, int> (ID::dcsPayloadComplete,
+    events.add<const uint8_t*, int> (
+        ID::dcsPayloadComplete,
         [this] (const uint8_t* data, int length)
-    {
-        skit.processDCS (video.getDcsFinalByte(), data, length,
-                         video.getCursorRow(), video.getCursorCol());
-        video.advanceCursorForImage (skit.getLastImageRows());
-    });
+        {
+            skit.processDCS (video.getDcsFinalByte(), data, length, video.getCursorRow(), video.getCursorCol());
+            video.advanceCursorForImage (skit.getLastImageRows().value);
+        });
 
     // APC payload complete — delegate to Skit, forward any Kitty response, then advance cursor.
-    events.add<const uint8_t*, int> (ID::apcPayloadComplete,
+    events.add<const uint8_t*, int> (
+        ID::apcPayloadComplete,
         [this] (const uint8_t* data, int length)
-    {
-        skit.processAPC (data, length,
-                         video.getCursorRow(), video.getCursorCol());
+        {
+            skit.processAPC (data, length, video.getCursorRow(), video.getCursorCol());
 
-        const juce::String& response { skit.getLastResponse() };
-        if (response.isNotEmpty() and events.contains (ID::writeToHost))
-            events.get (ID::writeToHost, response.toRawUTF8(), int (response.getNumBytesAsUTF8()));
+            const juce::String& response { skit.getLastResponse() };
+            if (response.isNotEmpty() and events.contains (ID::writeToHost))
+                events.get (ID::writeToHost, response.toRawUTF8(), int (response.getNumBytesAsUTF8()));
 
-        video.advanceCursorForImage (skit.getLastImageRows());
-    });
+            video.advanceCursorForImage (skit.getLastImageRows().value);
+        });
 
     // Cell erase — mark snapshot dirty so the renderer sees erased content.
-    events.add (ID::snapshotDirty, [this] { state.setSnapshotDirty(); });
+    events.add (ID::snapshotDirty,
+                [this]
+                {
+                    state.setSnapshotDirty();
+                });
 
     // OSC 0/2 window title.
     events.add<const char*, int> (ID::title,
-        [this] (const char* data, int length)
-    {
-        state.setTitle (data, length);
-    });
+                                  [this] (const char* data, int length)
+                                  {
+                                      state.setTitle (data, length);
+                                  });
 
     // OSC 7 current working directory.
     events.add<const char*, int> (ID::cwd,
-        [this] (const char* data, int length)
-    {
-        state.setCwd (data, length);
-    });
+                                  [this] (const char* data, int length)
+                                  {
+                                      state.setCwd (data, length);
+                                  });
 
     // OSC 12 cursor colour set — packed ARGB from juce::Colour.
     events.add<int, juce::Colour> (ID::cursorColor,
-        [this] (int screen, juce::Colour colour)
-    {
-        state.setCursorColor (screen, colour);
-    });
+                                   [this] (int screen, juce::Colour colour)
+                                   {
+                                       state.setCursorColor (screen, colour);
+                                   });
 
     // OSC 112 cursor colour reset — revert to user config default.
     events.add<int> (ID::resetCursorColor,
-        [this] (int screen)
-    {
-        state.resetCursorColor (screen);
-    });
+                     [this] (int screen)
+                     {
+                         state.resetCursorColor (screen);
+                     });
 
     // DECSCUSR cursor shape.
     events.add<int, int> (ID::cursorShape,
-        [this] (int screen, int shape)
-    {
-        state.setCursorShape (screen, shape);
-    });
+                          [this] (int screen, int shape)
+                          {
+                              state.setCursorShape (screen, shape);
+                          });
 
     // CSI > u — push keyboard enhancement flags onto the per-screen stack.
     events.add<int, uint32_t> (ID::pushKeyboardMode,
-        [this] (int screen, uint32_t flags)
-    {
-        state.pushKeyboardMode (screen, flags);
-    });
+                               [this] (int screen, uint32_t flags)
+                               {
+                                   state.pushKeyboardMode (screen, flags);
+                               });
 
     // CSI < u — pop keyboard enhancement flags from the per-screen stack.
     events.add<int, int> (ID::popKeyboardMode,
-        [this] (int screen, int count)
-    {
-        state.popKeyboardMode (screen, count);
-    });
+                          [this] (int screen, int count)
+                          {
+                              state.popKeyboardMode (screen, count);
+                          });
 
     // DEC mode 2026 synchronized output toggle.
     events.add<bool> (ID::syncOutput,
-        [this] (bool active)
-    {
-        state.setSyncOutput (active);
-    });
+                      [this] (bool active)
+                      {
+                          state.setSyncOutput (active);
+                      });
 
     // DEC mode 2026 set — request same-size PTY resize on next drain completion.
-    events.add (ID::requestSyncResize, [this] { state.requestSyncResize(); });
+    events.add (ID::requestSyncResize,
+                [this]
+                {
+                    state.requestSyncResize();
+                });
 
     // State delivery: activeScreen.
     events.add<int> (ID::activeScreen,
-        [this] (int scr)
-    {
-        state.setScreen (scr);
-    });
+                     [this] (int scr)
+                     {
+                         state.setScreen (scr);
+                     });
+
+    // State delivery: history row accumulator updated on every viewport scroll.
+    events.add<int, int> (ID::historyRows,
+                          [this] (int scr, int count)
+                          {
+                              juce::ignoreUnused (scr);
+                              state.setHistoryRows (count);
+                          });
 
     // State delivery: cursor row for active screen.
     events.add<int, int> (ID::cursorRow,
-        [this] (int scr, int row)
-    {
-        state.setCursorRow (scr, row);
-    });
+                          [this] (int scr, int row)
+                          {
+                              state.setCursorRow (scr, cell (row));
+                          });
 
     // State delivery: cursor column for active screen.
     events.add<int, int> (ID::cursorCol,
-        [this] (int scr, int col)
-    {
-        state.setCursorCol (scr, col);
-    });
+                          [this] (int scr, int col)
+                          {
+                              state.setCursorCol (scr, cell (col));
+                          });
 
     // State delivery: cursor visibility for active screen.
     events.add<int, bool> (ID::cursorVisible,
-        [this] (int scr, bool visible)
-    {
-        state.setCursorVisible (scr, visible);
-    });
+                           [this] (int scr, bool visible)
+                           {
+                               state.setCursorVisible (scr, visible);
+                           });
 
     // State delivery: mode flags.
     events.add<bool> (ID::applicationCursor,
-        [this] (bool value) { state.setMode (ID::applicationCursor, value); });
+                      [this] (bool value)
+                      {
+                          state.setMode (ID::applicationCursor, value);
+                      });
 
     events.add<bool> (ID::bracketedPaste,
-        [this] (bool value) { state.setMode (ID::bracketedPaste, value); });
+                      [this] (bool value)
+                      {
+                          state.setMode (ID::bracketedPaste, value);
+                      });
 
     events.add<bool> (ID::mouseTracking,
-        [this] (bool value) { state.setMode (ID::mouseTracking, value); });
+                      [this] (bool value)
+                      {
+                          state.setMode (ID::mouseTracking, value);
+                      });
 
     events.add<bool> (ID::mouseMotionTracking,
-        [this] (bool value) { state.setMode (ID::mouseMotionTracking, value); });
+                      [this] (bool value)
+                      {
+                          state.setMode (ID::mouseMotionTracking, value);
+                      });
 
     events.add<bool> (ID::mouseAllTracking,
-        [this] (bool value) { state.setMode (ID::mouseAllTracking, value); });
+                      [this] (bool value)
+                      {
+                          state.setMode (ID::mouseAllTracking, value);
+                      });
 
     events.add<bool> (ID::focusEvents,
-        [this] (bool value) { state.setMode (ID::focusEvents, value); });
+                      [this] (bool value)
+                      {
+                          state.setMode (ID::focusEvents, value);
+                      });
 
     events.add<bool> (ID::win32InputMode,
-        [this] (bool value) { state.setMode (ID::win32InputMode, value); });
+                      [this] (bool value)
+                      {
+                          state.setMode (ID::win32InputMode, value);
+                      });
 
     // Screen switch — fired by Video::setScreen() with the OLD screen's cursor values.
     // Saves old cursor to State, loads new cursor from State atomics, calls video.loadScreenState().
     // scrollTop/scrollBottom are always reset to 0 on screen switch (matches original setScreen behaviour).
     // wrapPending is always cleared on screen switch.
-    events.add<int, int, int, bool, int, int, bool, uint32_t> (ID::screenSwitch,
+    events.add<int, int, int, bool, int, int, bool, uint32_t> (
+        ID::screenSwitch,
         [this] (int newScreen,
-                int oldRow, int oldCol, bool oldVisible,
-                int /*oldScrollTop*/, int /*oldScrollBottom*/, bool /*oldWrapPending*/,
+                int oldRow,
+                int oldCol,
+                bool oldVisible,
+                int /*oldScrollTop*/,
+                int /*oldScrollBottom*/,
+                bool /*oldWrapPending*/,
                 uint32_t /*oldKeyboardFlags*/)
-    {
-        const int oldScreen { newScreen == Screen::Map::alternate ? Screen::Map::normal : Screen::Map::alternate };
+        {
+            const int oldScreen { newScreen == Screen::Map::alternate ? Screen::Map::normal : Screen::Map::alternate };
 
-        state.setCursorRow (oldScreen, oldRow);
-        state.setCursorCol (oldScreen, oldCol);
-        state.setCursorVisible (oldScreen, oldVisible);
+            state.setCursorRow (oldScreen, cell (oldRow));
+            state.setCursorCol (oldScreen, cell (oldCol));
+            state.setCursorVisible (oldScreen, oldVisible);
 
-        const int newRow          { state.loadCursorRow (newScreen) };
-        const int newCol          { state.loadCursorCol (newScreen) };
-        const bool newVisible     { state.loadCursorVisible (newScreen) };
-        const uint32_t newKbFlags { state.loadKeyboardFlags (newScreen) };
+            const int newRow { state.loadCursorRow (newScreen) };
+            const int newCol { state.loadCursorCol (newScreen) };
+            const bool newVisible { state.loadCursorVisible (newScreen) };
+            const uint32_t newKbFlags { state.loadKeyboardFlags (newScreen) };
 
-        // scrollTop/scrollBottom reset to 0 (sentinel = full screen); wrapPending cleared.
-        video.loadScreenState (newRow, newCol, newVisible, 0, 0, false, newKbFlags);
-    });
+            // scrollTop/scrollBottom reset to 0 (sentinel = full screen); wrapPending cleared.
+            video.loadScreenState (newRow, newCol, newVisible, 0, 0, false, newKbFlags);
+        });
 
     // BEL — placeholder so events.contains() passes; Session registers the actual handler.
-    events.add (ID::bell, [] {});
+    events.add (ID::bell,
+                []
+                {
+                });
 
     // OSC 52 clipboard write — placeholder; Session registers the actual handler.
-    events.add<const juce::String&> (ID::clipboardChanged,
-        [] (const juce::String& /*text*/) {});
+              events.add<const juce::String&> (ID::clipboardChanged,
+                                               [] (const juce::String& /*text*/)
+                                               {
+                                               });
 
     // OSC 9 / OSC 777 desktop notification — placeholder; Session registers the actual handler.
-    events.add<const juce::String&, const juce::String&> (ID::desktopNotification,
-        [] (const juce::String& /*title*/, const juce::String& /*body*/) {});
+    events.add<const juce::String&, const juce::String&> (
+        ID::desktopNotification,
+        [] (const juce::String& /*title*/, const juce::String& /*body*/)
+        {
+        });
 }
 
 // =============================================================================
@@ -344,29 +396,22 @@ void Processor::registerEvents() noexcept
 // =============================================================================
 
 /**
- * @brief ValueTree::Listener — reacts to top-down dimension changes from Display.
+ * @brief ValueTree::Listener — reacts to top-down property changes from Display.
  *
- * Fires on the message thread when Display writes new dimensions to State.
- * Mirrors `ProcessorChain::parameterChanged`: State changed → push to Video.
- * Also resizes Grid and fires `onResize` for PTY SIGWINCH.
+ * Fires on the message thread when State's ValueTree properties change.
+ * Handles shell integration callbacks (outputBlockTop, promptRow) and
+ * displayName recomputation from foregroundProcess / cwd.
+ * Dimension changes (cols, visibleRows, cellWidth, cellHeight) are consumed
+ * directly from State atomics on the reader thread inside process().
  *
  * @note MESSAGE THREAD.
  */
 void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    // PARAM children flush via ID::value — check the id property to identify cols/visibleRows.
+    // PARAM children flush via ID::value — check the id property to identify shell integration params.
     if (property == ID::value and tree.getType() == jam::ValueTree::PARAM)
     {
         const juce::Identifier paramId { tree.getProperty (ID::id).toString() };
-
-        if (paramId == ID::cols or paramId == ID::visibleRows)
-        {
-            const int numCols { state.getCols() };
-            const int numRows { state.getVisibleRows() };
-
-            if (numCols > 0 and numRows > 0)
-                resized (numCols, numRows);
-        }
 
         if (paramId == ID::outputBlockTop)
         {
@@ -386,7 +431,7 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
     if (property == ID::foregroundProcess or property == ID::cwd)
     {
         const auto foreground { tree.getProperty (ID::foregroundProcess).toString() };
-        const auto cwdPath    { tree.getProperty (ID::cwd).toString() };
+        const auto cwdPath { tree.getProperty (ID::cwd).toString() };
         juce::String name;
 
         if (foreground.isNotEmpty())
@@ -401,26 +446,6 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
         if (name.isNotEmpty())
             state.get().setProperty (App::ID::displayName, name, nullptr);
     }
-}
-
-// =============================================================================
-
-/**
- * @brief Stores pending dimensions for deferred application on the reader thread.
- *
- * Does NOT write to Video or Grid — those are reader-thread-only objects.
- * process() reads the pending values at batch start and applies them there.
- *
- * @param cols  New terminal width in character columns.
- * @param rows  New terminal height in character rows.
- * @note MESSAGE THREAD only.
- */
-void Processor::resized (int cols, int rows) noexcept
-{
-    jassert (parser != nullptr);
-    pendingCols.store (cols, std::memory_order_relaxed);
-    pendingRows.store (rows, std::memory_order_relaxed);
-    resizePending.store (true, std::memory_order_release);
 }
 
 // =============================================================================
@@ -520,12 +545,10 @@ juce::String Processor::encodeMouseEvent (int button, int col, int row, bool pre
 /**
  * @brief Processes raw bytes through the parser pipeline.
  *
- * Lock is held only during resize (buffer reallocation) — not for the entire
- * call.  Applies any pending resize or cell-size change at batch start (reader
- * thread), then feeds `Parser::process()`, flushes Video state, and flushes
- * responses.  Pending changes originate from message-thread calls to
- * resized() / setCellSize() and are transferred via atomics — all Video/Grid
- * writes happen here on the reader thread.
+ * Reads cols, visibleRows, cellWidth, and cellHeight directly from State atomics
+ * at batch start and applies any changes to Grid and Video on the reader thread.
+ * State atomics are written by Display (message thread) via setValue / storeValue;
+ * no intermediate pending-flag protocol is needed.
  *
  * @note READER THREAD only — called from the byte source (Terminal::Session
  *       onBytes callback or IPC dispatch in client mode).
@@ -534,21 +557,23 @@ void Processor::process (const char* data, int length) noexcept
 {
     jassert (parser != nullptr);
 
-    if (resizePending.exchange (false, std::memory_order_acquire))
+    const int stateCols { state.loadCols() };
+    const int stateRows { state.loadVisibleRows() };
+
+    if (stateCols != video.getCols() or stateRows != video.getVisibleRows())
     {
-        const int cols { pendingCols.load (std::memory_order_relaxed) };
-        const int rows { pendingRows.load (std::memory_order_relaxed) };
-        grid.setSize (rows, cols);
-        video.setDimensions (cols, rows);
-        video.resize (cols, rows);
+        grid.setSize (stateRows, stateCols);
+        video.setDimensions (stateCols, stateRows);
+        video.resize (stateCols, stateRows);
     }
 
-    if (cellSizePending.exchange (false, std::memory_order_acquire))
+    const int stateCellW { state.loadCellWidth() };
+    const int stateCellH { state.loadCellHeight() };
+
+    if (stateCellW != video.getCellWidth() or stateCellH != video.getCellHeight())
     {
-        const int w { pendingCellWidth.load (std::memory_order_relaxed) };
-        const int h { pendingCellHeight.load (std::memory_order_relaxed) };
-        video.setCellSize (w, h);
-        skit.setCellSize (w, h);
+        video.setCellSize (stateCellW, stateCellH);
+        skit.setCellSize (stateCellW, stateCellH);
     }
 
     parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
@@ -565,10 +590,7 @@ const Grid& Processor::getGrid() const noexcept { return grid; }
 
 const juce::String& Processor::getUuid() const noexcept { return uuid; }
 
-void Processor::flushResponses() noexcept
-{
-    video.flushResponses();
-}
+void Processor::flushResponses() noexcept { video.flushResponses(); }
 
 /**
  * @brief Registers the `writeToHost` event handler in the events map.
@@ -578,23 +600,6 @@ void Processor::flushResponses() noexcept
 void Processor::setHostWriter (std::function<void (const char*, int)> writer) noexcept
 {
     events.add<const char*, int> (ID::writeToHost, std::move (writer));
-}
-
-/**
- * @brief Stores pending cell pixel dimensions for deferred application on the reader thread.
- *
- * Does NOT write to Video or Skit directly — those are reader-thread-only objects.
- * process() reads the pending values at batch start and applies them there.
- *
- * @param widthPx   Cell width in pixels.
- * @param heightPx  Cell height in pixels.
- * @note MESSAGE THREAD.
- */
-void Processor::setCellSize (int widthPx, int heightPx) noexcept
-{
-    pendingCellWidth.store (widthPx, std::memory_order_relaxed);
-    pendingCellHeight.store (heightPx, std::memory_order_relaxed);
-    cellSizePending.store (true, std::memory_order_release);
 }
 
 /**

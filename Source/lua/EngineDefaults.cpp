@@ -248,9 +248,9 @@ void Engine::writeNexusDefaults (const juce::File& configDir)
         content = jam::String::replaceholder (
             content, "image_atlas_dimension", juce::String (nexus.image.atlasDimension));
         content = jam::String::replaceholder (
-            content, "image_cols", juce::String (nexus.image.cols));
+            content, "image_cols", juce::String (nexus.image.cols.value));
         content = jam::String::replaceholder (
-            content, "image_rows", juce::String (nexus.image.rows));
+            content, "image_rows", juce::String (nexus.image.rows.value));
         content = jam::String::replaceholder (
             content, "image_padding", juce::String (nexus.image.padding));
         content = jam::String::replaceholder (
@@ -324,8 +324,8 @@ void Engine::writePopupsDefaults (const juce::File& configDir)
     if (not file.existsAsFile())
     {
         auto content { juce::String { BinaryData::getString ("default_popups.lua") } };
-        content = jam::String::replaceholder (content, "popup_cols", juce::String (popup.defaultCols));
-        content = jam::String::replaceholder (content, "popup_rows", juce::String (popup.defaultRows));
+        content = jam::String::replaceholder (content, "popup_cols", juce::String (popup.defaultCols.value));
+        content = jam::String::replaceholder (content, "popup_rows", juce::String (popup.defaultRows.value));
         content = jam::String::replaceholder (content, "popup_position", popup.defaultPosition);
         file.replaceWithText (content);
     }

@@ -107,7 +107,7 @@ public:
      * @return Pointer into `clickableLinks`, or `nullptr` if no span covers the cell.
      * @note MESSAGE THREAD.  Pointer is valid until the next `scan()` call.
      */
-    const LinkSpan* hitTest (int row, int col) const noexcept;
+    const LinkSpan* hitTest (cell row, cell col) const noexcept;
 
     /**
      * @brief Returns the first hint-mode link matching the given label character,
@@ -154,7 +154,7 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    mutable std::function<void (const juce::File&, int triggerRow)> onOpenImage;
+    mutable std::function<void (const juce::File&, cell triggerRow)> onOpenImage;
 
     /**
      * @brief Returns the current clickable-link spans (for hover underline).
@@ -207,7 +207,7 @@ private:
      * @param normalScreen   Whether the normal screen is active.
      */
     void scanHeuristicTokens (std::vector<LinkSpan>& spans, const juce::String& cwd,
-                              int visibleRows, int cols,
+                              cell visibleRows, cell cols,
                               int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                               bool normalScreen) const;
 
@@ -224,7 +224,7 @@ private:
      * @param normalScreen   Whether the normal screen is active.
      */
     void scanCellNativeLinks (std::vector<LinkSpan>& spans,
-                              int visibleRows, int cols,
+                              cell visibleRows, cell cols,
                               int visibleBase, bool hasBlock, int blockTop, int blockBottom,
                               bool normalScreen) const;
 

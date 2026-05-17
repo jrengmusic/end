@@ -147,11 +147,11 @@ void Engine::parseNexus()
 
             auto cols { imageTable["cols"].optional<double>() };
             if (cols.has_value())
-                nexus.image.cols = juce::jlimit (10, 200, static_cast<int> (cols.value()));
+                nexus.image.cols = cell (juce::jlimit (10, 200, static_cast<int> (cols.value())));
 
             auto rows { imageTable["rows"].optional<double>() };
             if (rows.has_value())
-                nexus.image.rows = juce::jlimit (5, 100, static_cast<int> (rows.value()));
+                nexus.image.rows = cell (juce::jlimit (5, 100, static_cast<int> (rows.value())));
 
             auto pad { imageTable["padding"].optional<double>() };
             if (pad.has_value())

@@ -27,15 +27,9 @@
  *
  * ### Thread model
  * - Parser writes via getWritePointer / scrollUp / scrollDown / clear — READER THREAD.
- * - Display reads via getReadPointer / getStagingReadPointer — MESSAGE THREAD.
+ * - Display reads via getReadPointer / getBuffer — MESSAGE THREAD.
  * - setSize — called from READER THREAD (Processor::process, deferred via atomic flag).
  * - State's atomic pattern handles all coordination — no lock in Grid.
- *
- * ### Staging area
- * scrolledCount[screen] tracks how many rows have been evicted since the last Display drain.
- * Display reads getStagingReadPointer() for each evicted row, then calls resetScrolledCount().
- * The effective staging depth is clamped to min(scrolledCount, ringSize - viewportRows)
- * to guard against overwrite if the ring wraps before Display drains.
  *
  * ### Screen parameter
  * Callers pass the active screen index (0 = normal, 1 = alternate) to every call,
@@ -104,6 +98,12 @@ public:
      *  Translates logical row through the ring head. */
     jam::Cell* getWritePointer (int screen, int row, int col) noexcept;
 
+    /** Returns the underlying cell buffer (2-channel: normal=0, alternate=1). */
+    const jam::Buffer<jam::Cell>& getBuffer() const noexcept;
+
+    /** Returns the ring head index for the given screen. */
+    int getHead (int screen) const noexcept;
+
     ///@}
 
     //==========================================================================
@@ -133,7 +133,6 @@ public:
      *
      *  Full-screen (scrollTop == 0 and scrollBottom == viewportRows - 1):
      *  clears the physical row at head[screen] (the recycled bottom), advances head — O(1).
-     *  Increments scrolledCount[screen] so Display knows how many rows to drain.
      *
      *  Partial region: per-row copyFrom within the region.
      *
@@ -141,8 +140,7 @@ public:
      *  @param scrollTop     First row of the scroll region (zero-based, logical).
      *  @param scrollBottom  Last row of the scroll region (zero-based, logical).
      *  @param count         Number of rows to scroll (default 1).
-     *  @return              Number of rows scrolled (clampedCount). Display uses this
-     *                       as a hint; authoritative count is getScrolledCount().
+     *  @return              Number of rows scrolled (clampedCount).
      */
     int scrollUp (int screen, int scrollTop, int scrollBottom, int count = 1) noexcept;
 
@@ -161,27 +159,6 @@ public:
 
     ///@}
 
-    //==========================================================================
-    /** @name Staging — Display-side drain of evicted rows */
-    ///@{
-
-    /** Returns the number of rows scrolled off the viewport since the last Display drain. */
-    int getScrolledCount (int screen) const noexcept;
-
-    /** Resets the scrolled count after Display drains all staging rows. */
-    void resetScrolledCount (int screen) noexcept;
-
-    /** Returns a read-only pointer to a staging row (evicted row behind the viewport).
-     *
-     *  stagingIndex 0 = oldest evicted row, (effectiveScrolled - 1) = newest evicted row.
-     *  Caller must clamp the index range to min(getScrolledCount(screen), ringSize - viewportRows).
-     *
-     *  Physical address: (head[screen] - effectiveScrolled + stagingIndex) & ringMask.
-     */
-    const jam::Cell* getStagingReadPointer (int screen, int stagingIndex) const noexcept;
-
-    ///@}
-
 private:
     //==========================================================================
 
@@ -191,10 +168,9 @@ private:
     //==========================================================================
 
     jam::Buffer<jam::Cell> cells;///< 2 channels: normal (0), alternate (1). Ring-sized (power of two).
-    int head[2] { 0, 0 };///< Ring head per screen (normal=0, alternate=1).
+    std::array<int, 2> head { 0, 0 };///< Ring head per screen (normal=0, alternate=1).
     int ringMask { 0 };///< Power-of-two bitmask for ring indexing.
-    int viewportRows { 0 };///< Logical viewport row count (pre-rounding).
-    int scrolledCount[2] { 0, 0 };///< Rows scrolled since last Display drain, per channel.
+    cell viewportRows { 0 };///< Logical viewport row count (pre-rounding).
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Grid)

@@ -196,7 +196,7 @@ void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCoun
             if (ps == 14)
             {
                 // Report text area size in pixels: ESC [ 4 ; height ; width t
-                const auto total { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { cols }, jam::metrics::Cell { visibleRows }, jam::Bounds { cellWidth, cellHeight }) };
+                const auto total { cell::Point::totalPixels<int> (cols, visibleRows, jam::Bounds { cellWidth, cellHeight }) };
                 const int totalW { total.x };
                 const int totalH { total.y };
 
@@ -218,7 +218,7 @@ void Video::applyCSI (const CSI& params, const uint8_t* inter, uint8_t interCoun
             else if (ps == 18)
             {
                 // Report text area size in characters: ESC [ 8 ; rows ; cols t
-                const juce::String response { "\x1b[8;" + juce::String (visibleRows) + ";" + juce::String (cols) + "t" };
+                const juce::String response { "\x1b[8;" + juce::String (visibleRows.value) + ";" + juce::String (cols.value) + "t" };
                 sendResponse (response.toRawUTF8());
             }
 
@@ -280,7 +280,7 @@ void Video::moveCursorDown (const CSI& params) noexcept
  */
 void Video::moveCursorForward (const CSI& params) noexcept
 {
-    cursorMoveForward (static_cast<int> (params.param (0, 1)), cols);
+    cursorMoveForward (static_cast<int> (params.param (0, 1)), cols.value);
 }
 
 /**
@@ -315,7 +315,7 @@ void Video::moveCursorNextLine (const CSI& params) noexcept
 {
     const int count { static_cast<int> (params.param (0, 1)) };
     cursorMoveDown (count, effectiveClampBottom());
-    cursorCol = 0;
+    cursorCol = 0_cell;
 }
 
 /**
@@ -333,7 +333,7 @@ void Video::moveCursorPrevLine (const CSI& params) noexcept
 {
     const int count { static_cast<int> (params.param (0, 1)) };
     cursorMoveUp (count);
-    cursorCol = 0;
+    cursorCol = 0_cell;
 }
 
 /**
@@ -353,7 +353,7 @@ void Video::cursorForwardTab (const CSI& params) noexcept
 
     for (int i { 0 }; i < count; ++i)
     {
-        cursorCol = nextTabStop (cols);
+        cursorCol = cell (nextTabStop (cols.value));
     }
 
     wrapPending = false;
@@ -376,7 +376,7 @@ void Video::cursorBackTab (const CSI& params) noexcept
 
     for (int i { 0 }; i < count; ++i)
     {
-        cursorCol = prevTabStop();
+        cursorCol = cell (prevTabStop());
     }
 
     wrapPending = false;
@@ -397,9 +397,9 @@ void Video::cursorBackTab (const CSI& params) noexcept
  */
 void Video::setCursorColumn (const CSI& params) noexcept
 {
-    cursorCol = paramToIndex (params, 0, 1);
+    const int col { juce::jlimit (0, cols.value - 1, paramToIndex (params, 0, 1)) };
+    cursorCol   = cell (col);
     wrapPending = false;
-    cursorCol = juce::jlimit (0, cols - 1, cursorCol);
 }
 
 /**
@@ -437,7 +437,7 @@ void Video::setCursorPosition (const CSI& params) noexcept
  */
 void Video::setCursorLine (const CSI& params) noexcept
 {
-    moveCursorTo (paramToIndex (params, 0, 1), cursorCol);
+    moveCursorTo (paramToIndex (params, 0, 1), cursorCol.value);
 }
 
 /**
@@ -460,8 +460,8 @@ void Video::setCursorLine (const CSI& params) noexcept
  */
 void Video::moveCursorTo (int row, int col) noexcept
 {
-    const int colCount { cols };
-    const int rowCount { visibleRows };
+    const int colCount { cols.value };
+    const int rowCount { visibleRows.value };
 
     if (originMode)
     {
@@ -492,26 +492,12 @@ void Video::moveCursorTo (int row, int col) noexcept
  */
 void Video::scrollUp (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    const int scrTop { scrollTop };
+    const int scrTop { scrollTop.value };
     const int bottom { activeScrollBottom() };
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
-    grid.scrollUp (scr, scrTop, bottom, clampedCount);
-
-    if (penBg.getAlpha() > 0)
-    {
-        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
-
-        for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
-        {
-            jam::Cell* row { grid.getWritePointer (scr, r) };
-
-            for (int c { 0 }; c < cols; ++c)
-                row[c] = fill;
-        }
-    }
+    scrollUpAndFill (scrTop, bottom, clampedCount);
 }
 
 /**
@@ -527,10 +513,10 @@ void Video::scrollUp (const CSI& params) noexcept
  */
 void Video::scrollDown (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
-    const int scrTop { scrollTop };
-    const int bottom { activeScrollBottom() };
-    const int count { static_cast<int> (params.param (0, 1)) };
+    const auto scr    { activeScreen };
+    const int scrTop  { scrollTop.value };
+    const int bottom  { activeScrollBottom() };
+    const int count   { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
     grid.scrollDown (scr, scrTop, bottom, clampedCount);
@@ -538,12 +524,13 @@ void Video::scrollDown (const CSI& params) noexcept
     if (penBg.getAlpha() > 0)
     {
         const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+        const int numCols   { cols.value };
 
         for (int r { scrTop }; r < scrTop + clampedCount; ++r)
         {
             jam::Cell* row { grid.getWritePointer (scr, r) };
 
-            for (int c { 0 }; c < cols; ++c)
+            for (int c { 0 }; c < numCols; ++c)
                 row[c] = fill;
         }
     }
@@ -567,10 +554,11 @@ void Video::scrollDown (const CSI& params) noexcept
  */
 void Video::setScrollRegion (const CSI& params) noexcept
 {
-    const int top { paramToIndex (params, 0, 1) };
-    const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (visibleRows)) };
+    const int vRows  { visibleRows.value };
+    const int top    { paramToIndex (params, 0, 1) };
+    const int bottom { paramToIndex (params, 1, static_cast<uint16_t> (vRows)) };
 
-    if (top >= 0 and bottom > top and bottom < visibleRows)
+    if (top >= 0 and bottom > top and bottom < vRows)
     {
         cursorSetScrollRegion (top, bottom);
     }
@@ -581,7 +569,7 @@ void Video::setScrollRegion (const CSI& params) noexcept
 
     calc();
 
-    cursorSetPosition (0, 0, cols, visibleRows);
+    cursorSetPosition (0, 0, cols.value, vRows);
 }
 
 // ============================================================================
@@ -603,13 +591,12 @@ void Video::setScrollRegion (const CSI& params) noexcept
  */
 void Video::reportCursorPosition (const CSI& params) noexcept
 {
-    const auto scr { activeScreen };
     const auto modeValue { params.param (0, 0) };
 
     if (modeValue == 6)
     {
         char buf[32];
-        std::snprintf (buf, sizeof (buf), "\x1b[%d;%dR", indexToParam (cursorRow), indexToParam (cursorCol));
+        std::snprintf (buf, sizeof (buf), "\x1b[%d;%dR", indexToParam (cursorRow.value), indexToParam (cursorCol.value));
         sendResponse (buf);
     }
     else if (modeValue == 5)

@@ -148,7 +148,7 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
                     const bool exists { nexus.has (parsed.uuid) };
 
                     if (not exists)
-                        nexus.create (parsed.cwd, parsed.cols, parsed.rows, {}, {}, {}, parsed.uuid);
+                        nexus.create (parsed.cwd, cell (parsed.cols), cell (parsed.rows), {}, {}, {}, parsed.uuid);
 
                     // Subscribe, send history (rebuilds terminal state: alt screen, cursor, etc.),
                     // then resize PTY. SIGWINCH redraw overwrites any dim-garbled history output.
@@ -195,9 +195,9 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
                     if (nexus.has (uuid))
                     {
                         // Grid pipeline side resize (stub processor on daemon).
-                        nexus.get (uuid).getProcessor().getState().setDimensions (static_cast<int> (cols), static_cast<int> (rows));
+                        nexus.get (uuid).getProcessor().getState().setDimensions (cell (static_cast<int> (cols)), cell (static_cast<int> (rows)));
                         // PTY side resize.
-                        nexus.get (uuid).resize (static_cast<int> (cols), static_cast<int> (rows));
+                        nexus.get (uuid).resize (cell (static_cast<int> (cols)), cell (static_cast<int> (rows)));
                     }
                 }
 

@@ -103,8 +103,8 @@ public:
      * @note MESSAGE THREAD.
      */
     static std::unique_ptr<Session> create (const juce::String& cwd,
-                                             int cols,
-                                             int rows,
+                                             cell cols,
+                                             cell rows,
                                              const juce::String& shell = {},
                                              const juce::String& args = {},
                                              const juce::StringPairArray& seedEnv = {},
@@ -127,7 +127,8 @@ public:
      * @return Owning unique_ptr to the constructed Terminal::Session.
      * @note MESSAGE THREAD.
      */
-    static std::unique_ptr<Session> create (int cols, int rows,
+    static std::unique_ptr<Session> create (cell cols,
+                                             cell rows,
                                              const juce::String& cwd,
                                              const juce::String& shell,
                                              const juce::String& uuid);
@@ -146,7 +147,8 @@ public:
      *                 Iterated and pushed via TTY::addShellEnv before tty->open().
      * @param uuid     Session UUID.  Empty = auto-generated.
      */
-    Session (int cols, int rows,
+    Session (cell cols,
+             cell rows,
              const juce::String& shell,
              const juce::String& args,
              const juce::String& cwd,
@@ -167,7 +169,8 @@ public:
      * @param uuid   Session UUID.  Empty = auto-generated.
      * @note MESSAGE THREAD.
      */
-    Session (int cols, int rows,
+    Session (cell cols,
+             cell rows,
              const juce::String& cwd,
              const juce::String& shell,
              const juce::String& uuid);
@@ -273,7 +276,8 @@ public:
      * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
      * @note READER THREAD (called from tty->onDrainComplete during sync-resize).
      */
-    void platformResize (int cols, int rows, int pixelWidth = 0, int pixelHeight = 0);
+    void platformResize (cell cols, cell rows,
+                         int pixelWidth = 0, int pixelHeight = 0);
 
     /**
      * @brief Writes raw input bytes to the PTY (keyboard/mouse from client).
@@ -293,7 +297,8 @@ public:
      * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
      * @note MESSAGE THREAD.
      */
-    void resize (int cols, int rows, int pixelWidth = 0, int pixelHeight = 0);
+    void resize (cell cols, cell rows,
+                 int pixelWidth = 0, int pixelHeight = 0);
 
     /**
      * @brief Returns a snapshot of all buffered PTY output bytes.

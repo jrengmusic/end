@@ -107,7 +107,7 @@ void Video::handleOsc133 (int scr, const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength >= 1)
     {
-        const int cRow { cursorRow };
+        const int cRow { cursorRow.value };
 
         switch (data[0])
         {
@@ -155,9 +155,9 @@ void Video::handleOsc1337 (const uint8_t* data, int dataLength) noexcept
 {
     if (dataLength > 0 and events.contains (ID::osc1337Raw))
     {
-        const int scr { activeScreen };
-        const int cRow { cursorRow };
-        const int cCol { cursorCol };
+        const int scr  { activeScreen };
+        const int cRow { cursorRow.value };
+        const int cCol { cursorCol.value };
         events.get (ID::osc1337Raw, data, int (dataLength), int (cRow), int (cCol));
     }
 }

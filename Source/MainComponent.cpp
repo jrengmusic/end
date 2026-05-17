@@ -133,8 +133,8 @@ MainComponent::MainComponent (lua::Engine& engine)
                                   const juce::String& command,
                                   const juce::String& args,
                                   const juce::String& cwd,
-                                  int popupCols,
-                                  int popupRows)
+                                  cell popupCols,
+                                  cell popupRows)
     {
         if (not popup.isActive())
         {
@@ -145,8 +145,8 @@ MainComponent::MainComponent (lua::Engine& engine)
                              + "-c " + command
                              + (args.isNotEmpty() ? " " + args : "") };
 
-            const int cols { popupCols > 0 ? popupCols : cfg->popup.defaultCols };
-            const int rows { popupRows > 0 ? popupRows : cfg->popup.defaultRows };
+            const cell cols { popupCols.value > 0 ? popupCols : cfg->popup.defaultCols };
+            const cell rows { popupRows.value > 0 ? popupRows : cfg->popup.defaultRows };
 
             const float fontSize { cfg->dpiCorrectedFontSize() };
             const jam::Font font { cfg->display.font.family, fontSize,
@@ -159,7 +159,7 @@ MainComponent::MainComponent (lua::Engine& engine)
             const int paddingBottom { cfg->nexus.terminal.paddingBottom };
             const int paddingLeft   { cfg->nexus.terminal.paddingLeft };
 
-            const auto cellPx { jam::metrics::Cell::Point::totalPixels<int> (jam::metrics::Cell { cols }, jam::metrics::Cell { rows }, jam::Bounds { font.cellWidth, font.cellHeight }) };
+            const auto cellPx { cell::Point::totalPixels<int> (cols, rows, jam::Bounds { font.cellWidth, font.cellHeight }) };
             const int pixelWidth  { cellPx.x + paddingLeft + paddingRight };
             const int pixelHeight { cellPx.y + paddingTop + paddingBottom + titleBarHeight };
 
@@ -491,11 +491,11 @@ void MainComponent::showMessageOverlay()
             content.removeFromBottom (padBottom);
             content.removeFromLeft (padLeft);
 
-            const auto gridRect { jam::metrics::Cell::Rectangle (jam::Bounds { font.cellWidth, font.cellHeight }, content) };
-            const int cols { gridRect.getWidth().value };
-            const int rows { gridRect.getHeight().value };
+            const auto gridRect { cell::Rectangle (jam::Bounds { font.cellWidth, font.cellHeight }, content) };
+            const cell cols { gridRect.getWidth() };
+            const cell rows { gridRect.getHeight() };
 
-            if (cols > 0 and rows > 0 and isShowing())
+            if (cols.value > 0 and rows.value > 0 and isShowing())
             {
                 messageOverlay->showResize (cols, rows, padTop, padRight, padBottom, padLeft);
             }

@@ -67,6 +67,9 @@ namespace ID
     /** @brief Screen parameter group node in Parameters.xml. */
     static const juce::Identifier SCREEN         { "SCREEN" };
 
+    /** @brief Display metrics node — cell width/height/baseline/fontSize SSOT. */
+    static const juce::Identifier DISPLAY        { "DISPLAY" };
+
     //==========================================================================
     // PARAM properties (generic parameter node properties)
     //==========================================================================
@@ -254,6 +257,9 @@ namespace ID
     /** @brief Cursor row of the most-recently received OSC 133 A prompt marker. -1 = none. */
     static const juce::Identifier promptRow            { "promptRow" };
 
+    /** @brief Total history rows above active prompt accumulated since last Display drain. */
+    static const juce::Identifier historyRows          { "historyRows" };
+
     //==========================================================================
     // Repaint signal atomic
     //==========================================================================
@@ -295,6 +301,8 @@ namespace ID
 
     /** @brief Fired on OSC 8 hyperlink open — args: const juce::String& uri, const juce::String& params. */
     static const juce::Identifier registerLink        { "registerLink" };
+
+    /** @brief Fired when Grid scrolls up — args: int (screen), int (historyRows). */
 
     /** @brief Fired on OSC 133 A prompt marker — args: int (relative row). */
     static const juce::Identifier outputBlockStart    { "outputBlockStart" };

@@ -32,7 +32,7 @@
  *
  * **All methods are READER THREAD only.**  `setDimensions()` and `setCellSize()`
  * are called by Processor::process() on the reader thread after consuming pending
- * values stored by message-thread callers via Processor's atomic members.
+ * values from State atomics written by message-thread callers.
  *
  * @see Parser       — DFA byte decoder that drives Video's action methods
  * @see Processor    — owner that wires Parser → Video and calls `resize()` / `calc()`
@@ -157,10 +157,12 @@ public:
      * @{ */
 
     int getActiveScreen() const noexcept { return activeScreen; }
-    int getCursorRow() const noexcept { return cursorRow; }
-    int getCursorCol() const noexcept { return cursorCol; }
-    int getCols() const noexcept { return cols; }
-    int getVisibleRows() const noexcept { return visibleRows; }
+    int getCursorRow()    const noexcept { return cursorRow.value; }
+    int getCursorCol()    const noexcept { return cursorCol.value; }
+    int getCols()         const noexcept { return cols.value; }
+    int getVisibleRows()  const noexcept { return visibleRows.value; }
+    int getCellWidth()    const noexcept { return cellWidth; }
+    int getCellHeight()   const noexcept { return cellHeight; }
 
     /** @brief Returns the value of the named mode flag.
      *
@@ -342,10 +344,10 @@ private:
     int activeScreen { Screen::Map::normal };
 
     /** @brief Terminal width in character columns. Reader thread only. */
-    int cols { 80 };
+    cell cols { 80 };
 
     /** @brief Terminal height in visible rows. Reader thread only. */
-    int visibleRows { 24 };
+    cell visibleRows { 24 };
 
     /** @brief Cell width in pixels. Reader thread only. Used by CSI `t` pixel dimension reports. */
     int cellWidth { 0 };
@@ -354,19 +356,22 @@ private:
     int cellHeight { 0 };
 
     /** @brief Active screen cursor row (zero-based). Single register — screen switch loads/saves via State. */
-    int cursorRow { 0 };
+    cell cursorRow { 0 };
+
+    /** @brief Total history rows above active prompt, wraps at numRows. Incremented on every scrollUpAndFill call. */
+    int historyRows { 0 };
 
     /** @brief Active screen cursor column (zero-based). Single register — screen switch loads/saves via State. */
-    int cursorCol { 0 };
+    cell cursorCol { 0 };
 
     /** @brief Active screen wrap-pending flag. Single register — screen switch loads/saves via State. */
     bool wrapPending { false };
 
     /** @brief Active screen scroll region top row (zero-based). Single register — screen switch loads/saves via State. */
-    int scrollTop { 0 };
+    cell scrollTop { 0 };
 
     /** @brief Active screen scroll region bottom row (0 = full screen sentinel). Single register — screen switch loads/saves via State. */
-    int scrollBottom { 0 };
+    cell scrollBottom { 0 };
 
     /** @brief Active screen cursor visibility. Single register — screen switch loads/saves via State. */
     bool cursorVisible { true };
@@ -924,8 +929,8 @@ private:
     /** @name Scroll helpers
      * @{ */
 
-    /** @brief Scrolls the region up one line and fills the bottom row with the current background. */
-    void scrollUpAndFill (int top, int bottom) noexcept;
+    /** @brief Scrolls the region up by count lines, fills cleared rows, and increments historyRows. */
+    void scrollUpAndFill (int top, int bottom, int count = 1) noexcept;
 
     /** @brief Scrolls the region down one line and fills the top row with the current background. */
     void scrollDownAndFill (int top, int bottom) noexcept;

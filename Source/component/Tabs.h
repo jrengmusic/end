@@ -108,7 +108,7 @@ public:
      * @note MESSAGE THREAD.
      */
     void addNewTab (const juce::String& workingDirectory, const juce::String& uuid,
-                    int cols, int rows);
+                    cell cols, cell rows);
 
     /**
      * @brief Close the currently active tab and its terminal.

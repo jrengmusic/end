@@ -95,7 +95,7 @@ public:
      * @note Called from the message thread.  Must not be called while the
      *       reader thread is already running.
      */
-    virtual bool open (int cols, int rows, const juce::String& shell,
+    virtual bool open (cell cols, cell rows, const juce::String& shell,
                        const juce::String& args = {}, const juce::String& workingDirectory = {}) = 0;
 
     /**
@@ -365,7 +365,8 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    void platformResize (int cols, int rows, int pixelWidth = 0, int pixelHeight = 0);
+    void platformResize (cell cols, cell rows,
+                         int pixelWidth = 0, int pixelHeight = 0);
 
 protected:
     /**

@@ -62,13 +62,15 @@ private:
     Terminal::State& state;
     Terminal::Grid& grid;
 
+    juce::ValueTree displayNode { Terminal::ID::DISPLAY };
     Terminal::Screen screen;
-    juce::VBlankAttachment vblank;
 
-    int lastCols { 0 };///< Previous column count for resize debounce.
-    int lastRows { 0 };///< Previous row count for resize debounce.
+    cell lastCols { 0 };///< Previous column count for resize debounce.
+    cell lastRows { 0 };///< Previous row count for resize debounce.
+    int previousHistoryRows { 0 };///< Last consumed historyRows for delta tracking.
 
-    void onVBlank();
+    std::function<void()> onVBlank() noexcept;
+    juce::VBlankAttachment VBlank { this, onVBlank() };
     void updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept;
 
     //==============================================================================

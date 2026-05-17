@@ -295,7 +295,7 @@ void Daemon::attachSession (const juce::String& uuid, Channel& target,
 
     // Resize after lock release — SIGWINCH output broadcast acquires connectionsLock.
     if (nexus.has (uuid))
-        nexus.get (uuid).resize (cols, rows);
+        nexus.get (uuid).resize (cell (cols), cell (rows));
 }
 
 /**

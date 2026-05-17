@@ -7,9 +7,9 @@
  * from Video's DCS/APC/OSC handlers and fires events with decoded results.
  *
  * @par Thread model
- * All methods are **READER THREAD** only.  `cellWidth` and `cellHeight`
- * are written cross-thread by `Processor::setCellSize()` (message thread)
- * using relaxed atomic stores — same pattern as the former Video members.
+ * All methods are **READER THREAD** only.  `setCellSize()` is called by
+ * `Processor::process()` on the reader thread when State's cell dimension
+ * atomics differ from Video's cached values.
  *
  * @see SixelDecoder
  * @see KittyDecoder
@@ -102,7 +102,7 @@ public:
      *
      *  Video uses this to advance the cursor after decode.  0 = no image placed.
      */
-    int getLastImageRows() const noexcept { return lastImageRows; }
+    cell getLastImageRows() const noexcept { return lastImageRows; }
 
     /** @brief Returns the response string from the last Kitty decode (capability query, ack).
      *
@@ -124,7 +124,7 @@ private:
     int cellHeight { 0 };
 
     /** @brief Number of cell rows occupied by the last decoded image placement.  0 = none. */
-    int lastImageRows { 0 };
+    cell lastImageRows { 0 };
 
     /** @brief Response string from the last Kitty decode.  Empty if none. */
     juce::String lastResponse;

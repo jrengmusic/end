@@ -115,10 +115,10 @@ void Engine::parsePopups()
         if (defaultsTable.isTable())
         {
             auto defaultCols { defaultsTable["cols"].optional<int>() };
-            if (defaultCols.has_value()) popup.defaultCols = defaultCols.value();
+            if (defaultCols.has_value()) popup.defaultCols = cell (defaultCols.value());
 
             auto defaultRows { defaultsTable["rows"].optional<int>() };
-            if (defaultRows.has_value()) popup.defaultRows = defaultRows.value();
+            if (defaultRows.has_value()) popup.defaultRows = cell (defaultRows.value());
 
             auto defaultPosition { defaultsTable["position"].optional<juce::String>() };
             if (defaultPosition.has_value()) popup.defaultPosition = defaultPosition.value();
@@ -147,10 +147,10 @@ void Engine::parsePopups()
                     if (cwd.has_value()) popupEntry.cwd = cwd.value();
 
                     auto cols { value["cols"].optional<int>() };
-                    if (cols.has_value()) popupEntry.cols = cols.value();
+                    if (cols.has_value()) popupEntry.cols = cell (cols.value());
 
                     auto rows { value["rows"].optional<int>() };
-                    if (rows.has_value()) popupEntry.rows = rows.value();
+                    if (rows.has_value()) popupEntry.rows = cell (rows.value());
 
                     auto modal { value["modal"].optional<juce::String>() };
                     if (modal.has_value()) popupEntry.modal = modal.value();
