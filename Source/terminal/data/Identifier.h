@@ -105,6 +105,7 @@ namespace ID
     /** @brief Number of visible rows (terminal height in lines). */
     static const juce::Identifier visibleRows    { "visibleRows" };
 
+
     /** @brief Logical cell width in pixels. SSOT for all cell metric consumers. */
     static const juce::Identifier cellWidth      { "cellWidth" };
 
@@ -351,9 +352,6 @@ namespace ID
 
     /** @brief Fired to route user input bytes (keyboard, mouse) to the PTY — args: const char*, int. */
     static const juce::Identifier writeInput          { "writeInput" };
-
-    /** @brief Fired to notify the PTY of a terminal resize — args: int cols, int rows, int pixelWidth, int pixelHeight. */
-    static const juce::Identifier terminalResize      { "terminalResize" };
 
     /** @brief Fired from `Video::handleOsc1337` with raw OSC 1337 payload for Skit to decode.
      *

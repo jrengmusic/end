@@ -54,6 +54,7 @@ namespace Interprocess { class Daemon; class Link; }
  * `attach` overloads: any thread (pointer store only — no contention).
  */
 class Nexus : public jam::Context<Nexus>
+           , public juce::ValueTree::Listener
 {
 public:
     /** @brief Constructs Nexus with no attachment — standalone mode. */
@@ -116,7 +117,7 @@ public:
      * Routes internally based on which attachment is live:
      * - If `attachedLink != nullptr` (client mode): creates a remote (no-TTY) session
      *   and sends a `createSession` PDU to the daemon via Link.  Registers
-     *   `ID::writeInput` / `ID::terminalResize` events on the Processor to route through Link.
+     *   `setInputWriter()` on the Processor to route through Link.
      * - Otherwise (standalone / daemon mode): creates a full PTY-backed session.
      *   In daemon mode Nexus additionally calls
      *   `attachedDaemon->wireSessionCallbacks(uuid, session)` to wire IPC broadcast.
@@ -240,6 +241,21 @@ private:
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     void fireIfAllExited() noexcept;
+
+    // juce::ValueTree::Listener — dispatched from session State VT flush on the message thread.
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    /**
+     * @brief Maps session UUID → session State root ValueTree for client-mode resize routing.
+     *
+     * Populated in the client-mode `create` path. Used in `valueTreePropertyChanged`
+     * to match an incoming PARAM tree against a known session root when forwarding
+     * cols/visibleRows changes to the daemon via `attachedLink->sendResize`.
+     * Entries are inserted in client-mode `create` and erased in `remove`.
+     *
+     * @note NEXUS PROCESS MESSAGE THREAD — accessed only on the message thread.
+     */
+    std::unordered_map<juce::String, juce::ValueTree> clientSessionStateRoots;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Nexus)

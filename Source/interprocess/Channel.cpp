@@ -194,10 +194,9 @@ void Channel::messageReceived (const juce::MemoryBlock& message)
 
                     if (nexus.has (uuid))
                     {
-                        // Grid pipeline side resize (stub processor on daemon).
-                        nexus.get (uuid).getProcessor().getState().setDimensions (cell (static_cast<int> (cols)), cell (static_cast<int> (rows)));
-                        // PTY side resize.
-                        nexus.get (uuid).resize (cell (static_cast<int> (cols)), cell (static_cast<int> (rows)));
+                        auto& state { nexus.get (uuid).getProcessor().getState() };
+                        state.setValue (Terminal::ID::cols, static_cast<int> (cols));
+                        state.setValue (Terminal::ID::visibleRows, static_cast<int> (rows));
                     }
                 }
 

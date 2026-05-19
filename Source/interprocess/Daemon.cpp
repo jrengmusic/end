@@ -18,7 +18,6 @@
 #include "../terminal/logic/Session.h"
 #include "../terminal/logic/Processor.h"
 #include "../terminal/data/Identifier.h"
-#include <algorithm>
 
 namespace Interprocess
 {
@@ -32,8 +31,8 @@ namespace Interprocess
  * @param host_  Owning Nexus — passed through to each Channel and used for
  *               session list queries in buildSessionsPayload.
  */
-Daemon::Daemon (Nexus& host_)
-    : nexus (host_)
+Daemon::Daemon (Nexus& host)
+    : nexus (host)
 {
 }
 
@@ -293,9 +292,13 @@ void Daemon::attachSession (const juce::String& uuid, Channel& target,
         subscribers[uuid].push_back (&target); // operator[] intentional — inserts empty list for new uuid
     }
 
-    // Resize after lock release — SIGWINCH output broadcast acquires connectionsLock.
+    // Resize after lock release — write State, Processor reacts via valueTreePropertyChanged.
     if (nexus.has (uuid))
-        nexus.get (uuid).resize (cell (cols), cell (rows));
+    {
+        auto& state { nexus.get (uuid).getProcessor().getState() };
+        state.setValue (Terminal::ID::cols, cols);
+        state.setValue (Terminal::ID::visibleRows, rows);
+    }
 }
 
 /**
@@ -325,7 +328,7 @@ void Daemon::detachSession (const juce::String& uuid, Channel& connection)
  *
  * Delegates to three helpers, each wiring exactly one callback:
  * - wireOnBytes      → `session.onBytes`
- * - wireOnStateFlush → `session.onStateFlush`
+ * - wireOnStateFlush → `session.getProcessor().onStateFlush`
  * - wireOnExit       → registers Daemon as VT listener on session State
  *
  * Called by Nexus::create (TTY overload) when an Interprocess::Daemon is attached.
@@ -378,7 +381,7 @@ void Daemon::wireOnBytes (const juce::String& uuid, Terminal::Session& session)
 // =============================================================================
 
 /**
- * @brief Wires `session.onStateFlush` to broadcast stateUpdate PDUs to per-session subscribers.
+ * @brief Wires `session.getProcessor().onStateFlush` to broadcast stateUpdate PDUs to per-session subscribers.
  *
  * Reads cwd and foreground-process strings from the Processor state on each flush.
  * Broadcasts only when at least one field changed relative to the last broadcast
@@ -386,7 +389,7 @@ void Daemon::wireOnBytes (const juce::String& uuid, Terminal::Session& session)
  * to avoid 60 Hz noise).
  *
  * @param uuid     Session UUID used as the PDU routing key.
- * @param session  Terminal::Session whose `onStateFlush` callback is being set.
+ * @param session  Terminal::Session whose Processor::onStateFlush callback is being set.
  * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on MESSAGE THREAD).
  */
 void Daemon::wireOnStateFlush (const juce::String& uuid, Terminal::Session& session)
@@ -400,7 +403,7 @@ void Daemon::wireOnStateFlush (const juce::String& uuid, Terminal::Session& sess
     auto lastSentCwd { std::make_shared<juce::String>() };
     auto lastSentFg  { std::make_shared<juce::String>() };
 
-    session.onStateFlush = [this, uuid, procRawPtr, lastSentCwd, lastSentFg]
+    session.getProcessor().onStateFlush = [this, uuid, procRawPtr, lastSentCwd, lastSentFg]
     {
         const juce::String cwdStr { procRawPtr->getState().getCwd() };
         const juce::String fgStr  { procRawPtr->getState().getForegroundProcess() };

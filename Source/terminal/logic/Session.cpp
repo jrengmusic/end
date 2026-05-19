@@ -190,17 +190,18 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
     const bool integrationEnabled { cfg->nexus.shell.integration };
 
     auto session { std::make_unique<Session> (cols, rows, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid) };
-    session->shouldTrackCwdFromOs = not integrationEnabled;
+    session->getProcessor().shouldTrackCwdFromOs = not integrationEnabled;
     return session;
 }
 
 /**
- * @brief Constructs the Session, creates the TTY, opens the shell, and wires the Processor.
+ * @brief Constructs the Session, creates the TTY, opens the shell, wires the Processor,
+ *        and transfers TTY ownership to Processor.
  *
  * History capacity comes from `lua::Engine::nexus.terminal.scrollbackLines`.
  * The `onBytes` callback may be overridden by the owner (`Nexus` /
- * `Interprocess::Daemon`) after construction for daemon-mode byte broadcasting.  The Processor pipeline
- * callbacks (tty->onDrainComplete, onCommandStarted, onCommandEnded, setHostWriter) are wired internally.
+ * `Interprocess::Daemon`) after construction for daemon-mode byte broadcasting.
+ * All TTY callbacks are wired before ownership is transferred to Processor via setTTY().
  *
  * @note MESSAGE THREAD.
  */
@@ -214,15 +215,24 @@ Session::Session (cell cols,
     : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
 #if JUCE_MAC || JUCE_LINUX
-    tty = std::make_unique<UnixTTY>();
+    auto tty { std::make_unique<UnixTTY>() };
 #elif JUCE_WINDOWS
-    tty = std::make_unique<WindowsTTY>();
+    auto tty { std::make_unique<WindowsTTY>() };
 #endif
 
-    tty->onShellExited = [this]
+    // Create Processor before wiring TTY callbacks so procRawPtr is valid in lambdas.
+    const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
+    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);
+    processor->getState().setId (effectiveUuid);
+
+    Terminal::Processor* procRawPtr { processor.get() };
+    TTY* ttyRawPtr { tty.get() };
+
+    ttyObserver = ttyRawPtr;
+
+    tty->onShellExited = [procRawPtr]
     {
-        if (processor != nullptr)
-            processor->getState().setShellExited (true);
+        procRawPtr->getState().setShellExited (true);
     };
 
     const auto& keys { seedEnv.getAllKeys() };
@@ -238,36 +248,19 @@ Session::Session (cell cols,
     const char clearScreen { '\x0c' };
     tty->write (&clearScreen, 1);
 
-    // Create Processor and wire the terminal pipeline.
-    const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols.value, rows.value, effectiveUuid);
-    processor->getState().setId (effectiveUuid);
-
-    Terminal::Processor* procRawPtr { processor.get() };
-
     // 1. Parser responses (DSR, DA, CPR) → PTY stdin.
-    processor->setHostWriter (
-        [this] (const char* data, int len)
-        {
-            sendInput (data, len);
-        });
+    processor->setHostWriter ([ttyRawPtr] (const char* data, int len)
+    {
+        ttyRawPtr->write (data, len);
+    });
 
-    // 2a. User input (keyboard, mouse) → PTY stdin.
-    processor->events.add<const char*, int> (Terminal::ID::writeInput,
-        [this] (const char* data, int len)
-        {
-            sendInput (data, len);
-        });
+    // 2. User input (keyboard, mouse) → PTY stdin.
+    processor->setInputWriter ([ttyRawPtr] (const char* data, int len)
+    {
+        ttyRawPtr->write (data, len);
+    });
 
-    // 2b. Terminal resize → PTY SIGWINCH + Processor prepare.
-    processor->events.add<int, int, int, int> (Terminal::ID::terminalResize,
-        [this] (int cols, int rows, int pixelWidth, int pixelHeight)
-        {
-            resize (cell (cols), cell (rows), pixelWidth, pixelHeight);
-            processor->prepare (rows, cols, lua::Engine::getContext()->nexus.terminal.scrollbackLines);
-        });
-
-    // 2. PTY output → history + external onBytes + Processor (with resize lock).
+    // 3. PTY output → history + external onBytes + Processor (with resize lock).
     tty->onData = [this, procRawPtr] (const char* bytes, int len)
     {
         history.append (bytes, static_cast<size_t> (len));
@@ -278,62 +271,19 @@ Session::Session (cell cols,
         procRawPtr->process (bytes, len);
     };
 
-    // 3. Drain-complete: flush parser responses, clear paste gate, sync resize.
-    tty->onDrainComplete = [this, procRawPtr]
+    // 4. Drain-complete: flush parser responses, clear paste gate, sync resize.
+    tty->onDrainComplete = [procRawPtr]
     {
         procRawPtr->flushResponses();
         procRawPtr->getState().clearPasteEchoGate();
 
         if (procRawPtr->getState().consumeSyncResize())
-            platformResize (cell (procRawPtr->getState().getCols()),
-                            cell (procRawPtr->getState().getVisibleRows().value));
+            procRawPtr->platformResize (procRawPtr->getState().getCols(),
+                                        procRawPtr->getState().getVisibleRows());
     };
 
-    // 4. Command start: query foreground process from OS, write to state.
-    procRawPtr->onCommandStarted = [this, procRawPtr]
-    {
-        const int fgPid { getForegroundPid() };
-        const int shellPid { getShellPid() };
-
-        if (fgPid > 0)
-        {
-            if (fgPid == shellPid)
-            {
-                procRawPtr->getState().setForegroundProcess ("", 0);
-            }
-            else
-            {
-                static constexpr int fgNameBufSize { 256 };
-                char fgNameBuf[fgNameBufSize] {};
-                const int fgNameLen { getProcessName (fgPid, fgNameBuf, fgNameBufSize) };
-
-                if (fgNameLen > 0)
-                    procRawPtr->getState().setForegroundProcess (fgNameBuf, fgNameLen);
-            }
-
-            if (shouldTrackCwdFromOs)
-            {
-                static constexpr int cwdBufSize { 4096 };
-                char cwdBuf[cwdBufSize] {};
-                const int cwdLen { getCwd (fgPid, cwdBuf, cwdBufSize) };
-
-                if (cwdLen > 0)
-                    procRawPtr->getState().setCwd (cwdBuf, cwdLen);
-            }
-        }
-
-        if (onStateFlush != nullptr)
-            onStateFlush();
-    };
-
-    // 5. Command end: clear foreground process.
-    procRawPtr->onCommandEnded = [this, procRawPtr]
-    {
-        procRawPtr->getState().setForegroundProcess ("", 0);
-
-        if (onStateFlush != nullptr)
-            onStateFlush();
-    };
+    // Transfer TTY ownership to Processor. Processor calls platformResize directly from prepare().
+    processor->setTTY (std::move (tty));
 }
 
 /**
@@ -356,7 +306,7 @@ Session::Session (cell cols,
     jassert (rows.value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols.value, rows.value, effectiveUuid);
+    processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);
     processor->getState().setId (effectiveUuid);
     processor->getState().get().setProperty (Terminal::ID::cwd, cwd, nullptr);
 }
@@ -370,6 +320,8 @@ Session::~Session() { stop(); }
 /**
  * @brief Writes raw input bytes to the PTY.
  *
+ * Delegates to the TTY via ttyObserver (non-owning pointer; Processor owns the TTY).
+ *
  * @note MESSAGE THREAD.
  */
 void Session::sendInput (const char* data, int len)
@@ -377,118 +329,10 @@ void Session::sendInput (const char* data, int len)
     jassert (data != nullptr);
     jassert (len > 0);
 
-    if (tty != nullptr)
-    {
-        tty->write (data, len);
-    }
+    if (ttyObserver != nullptr)
+        ttyObserver->write (data, len);
 }
 
-/**
- * @brief Notifies the shell of a terminal resize via SIGWINCH.
- *
- * @param cols        New column count.
- * @param rows        New row count.
- * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
- * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
- *
- * @note MESSAGE THREAD.
- */
-void Session::resize (cell cols, cell rows, int pixelWidth, int pixelHeight)
-{
-    jassert (tty != nullptr);
-
-    if (tty->isThreadRunning())
-        tty->platformResize (cols, rows, pixelWidth, pixelHeight);
-}
-
-/**
- * @brief Performs the OS-level PTY resize.
- *
- * Called by the pipeline during sync-resize (from onDrainComplete on READER THREAD).
- * Pixel dimensions default to zero for the sync-resize path where display
- * geometry is not available on the reader thread.
- *
- * @param cols        New column count.
- * @param rows        New row count.
- * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
- * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
- *
- * @note READER THREAD.
- */
-void Session::platformResize (cell cols, cell rows, int pixelWidth, int pixelHeight)
-{
-    jassert (tty != nullptr);
-    tty->platformResize (cols, rows, pixelWidth, pixelHeight);
-}
-
-/**
- * @brief Returns the PID of the foreground process running in the PTY.
- *
- * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
- */
-int Session::getForegroundPid() const noexcept
-{
-    jassert (tty != nullptr);
-    return tty->getForegroundPid();
-}
-
-/**
- * @brief Returns the PID of the spawned shell process.
- *
- * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
- */
-int Session::getShellPid() const noexcept
-{
-    jassert (tty != nullptr);
-    return tty->getShellPid();
-}
-
-/**
- * @brief Writes the process name for the given PID into the buffer.
- *
- * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
- */
-int Session::getProcessName (int pid, char* buffer, int maxLength) const noexcept
-{
-    jassert (tty != nullptr);
-    return tty->getProcessName (pid, buffer, maxLength);
-}
-
-/**
- * @brief Writes the current working directory for the given PID into the buffer.
- *
- * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
- */
-int Session::getCwd (int pid, char* buffer, int maxLength) const noexcept
-{
-    jassert (tty != nullptr);
-    return tty->getCwd (pid, buffer, maxLength);
-}
-
-#if ! JUCE_WINDOWS
-/**
- * @brief Reads an environment variable from the given PID's live environment.
- *
- * Uses a stack buffer and delegates to TTY::getEnvVar.
- *
- * @note MESSAGE THREAD.
- */
-juce::String Session::getEnvVar (int pid, const juce::String& name) const
-{
-    jassert (tty != nullptr);
-
-    static constexpr int envVarBufferBytes { 8192 };
-    char buf[envVarBufferBytes] {};
-    const int written { tty->getEnvVar (pid, name.toRawUTF8(), buf, static_cast<int> (sizeof (buf))) };
-
-    juce::String result;
-
-    if (written > 0)
-        result = juce::String::fromUTF8 (buf, written);
-
-    return result;
-}
-#endif
 
 /**
  * @brief Returns a snapshot of all buffered history bytes.
@@ -567,32 +411,17 @@ Terminal::Processor& Session::getProcessor() noexcept
 /**
  * @brief Closes the PTY and stops the reader thread.  Idempotent.
  *
+ * Processor::~Processor() nulls TTY callbacks and calls tty->close() before
+ * the reader thread can fire any further callbacks.  This matches the previous
+ * explicit teardown sequence, now encapsulated in the Processor destructor.
+ * Remote sessions (no TTY) follow the same path — Processor destructs cleanly.
+ *
  * @note MESSAGE THREAD.
  */
 void Session::stop()
 {
-    if (tty != nullptr)
-    {
-        tty->onShellExited = nullptr;
-        tty->onData = nullptr;
-        tty->onDrainComplete = nullptr;
-
-        // Close TTY first — joins the reader thread.  Processor must outlive
-        // the reader because TTY::onData captures procRawPtr and the reader
-        // may be mid-process when close() is called.  Once close()
-        // returns, the reader thread is gone and Processor can be destroyed
-        // safely.  The State timer runs on the message thread (same thread
-        // as stop()), so it cannot fire mid-shutdown.
-        tty->close();
-        processor.reset();
-        tty = nullptr;
-    }
-    else
-    {
-        // Remote session — no TTY.  Processor may still be running its State timer.
-        // Resetting here stops the timer (via State::~State → stopTimer) safely.
-        processor.reset();
-    }
+    ttyObserver = nullptr;
+    processor.reset();
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

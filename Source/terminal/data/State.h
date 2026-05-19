@@ -11,6 +11,7 @@
 
 namespace Terminal
 {
+/*____________________________________________________________________________*/
 
 using ::ModalType;
 using ::SelectionType;
@@ -59,8 +60,9 @@ using ::SelectionType;
  * - `get*()` ValueTree getters: MESSAGE THREAD only.
  * - `timerCallback()` / `flush()`: MESSAGE THREAD only.
  */
-struct State : public jam::ValueTree,
-               private juce::ValueTree::Listener
+struct State
+    : public jam::ValueTree
+    , private juce::ValueTree::Listener
 {
     /**
      * @brief Constructs the State, walks Parameters.xml via Layout::build,
@@ -86,8 +88,7 @@ struct State : public jam::ValueTree,
      * @param rootNode The SESSION ValueTree node (direct property target).
      * @note MESSAGE THREAD — called from constructor only.
      */
-    void addTextParameter (const juce::Identifier& id,
-                           juce::ValueTree& rootNode) noexcept;
+    void addTextParameter (const juce::Identifier& id, juce::ValueTree& rootNode) noexcept;
 
     /** @brief Registers atomic mirrors for all int properties on a grafted node.
      *         Group key = node type. Called automatically on child addition. */
@@ -106,7 +107,7 @@ struct State : public jam::ValueTree,
     bool isCursorVisible() const noexcept;
     int getCursorShape() const noexcept;
     int getCursorColor() const noexcept;
-    int getCols() const noexcept;
+    cell getCols() const noexcept;
     cell getVisibleRows() const noexcept;
 
     juce::String getTitle() const noexcept;
@@ -207,31 +208,31 @@ struct State : public jam::ValueTree,
     bool isModal() const noexcept;
 
     // Viewport scrollback parameters — reader-thread setters, message-thread getters
-    void setNumRows     (int screen, int value) noexcept;
+    void setNumRows (int screen, int value) noexcept;
     void setScrollOffset (int screen, int value) noexcept;
     void setScreenDirty (int screen) noexcept;
 
-    int getNumRows      (int screen) const noexcept;
+    int getNumRows (int screen) const noexcept;
     int getScrollOffset (int screen) const noexcept;
 
     // Per-screen atomic loaders — any thread, lock-free.
     // Used by Processor's ID::screenSwitch handler to read the new screen's saved cursor.
-    int      loadCursorRow     (int s) const noexcept;
-    int      loadCursorCol     (int s) const noexcept;
-    bool     loadCursorVisible (int s) const noexcept;
+    int loadCursorRow (int s) const noexcept;
+    int loadCursorCol (int s) const noexcept;
+    bool loadCursorVisible (int s) const noexcept;
     uint32_t loadKeyboardFlags (int s) const noexcept;
 
     // Dimension atomic loaders — any thread, lock-free.
     // Used by Processor::process() on the reader thread to detect layout changes.
-    int loadCols()        const noexcept;
-    int loadVisibleRows() const noexcept;
-    int loadCellWidth()   const noexcept;
-    int loadCellHeight()  const noexcept;
+    cell loadCols() const noexcept;
+    cell loadVisibleRows() const noexcept;
+    int loadCellWidth() const noexcept;
+    int loadCellHeight() const noexcept;
+    int loadWidth() const noexcept;
+    int loadHeight() const noexcept;
 
     // Cross-thread write — any thread, lock-free.
-    void storeValue (const juce::Identifier& groupId,
-                     const juce::Identifier& paramId,
-                     int value) noexcept;
+    void storeValue (const juce::Identifier& groupId, const juce::Identifier& paramId, int value) noexcept;
 
     // Flush
     bool refresh() noexcept;
@@ -239,12 +240,9 @@ struct State : public jam::ValueTree,
 private:
     void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
 
-    int loadValue (const juce::Identifier& groupId,
-                   const juce::Identifier& paramId) const noexcept;
+    int loadValue (const juce::Identifier& groupId, const juce::Identifier& paramId) const noexcept;
 
-    void storeTextValue (const juce::Identifier& groupId,
-                         const juce::Identifier& paramId,
-                         const char* ptr) noexcept;
+    void storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept;
 
     TextBuffer& textBuffer;
 
@@ -254,4 +252,5 @@ private:
     juce::HeapBlock<int> keyboardModeStackSize;
 };
 
-} // namespace Terminal
+/**______________________________END OF NAMESPACE______________________________*/
+}// namespace Terminal

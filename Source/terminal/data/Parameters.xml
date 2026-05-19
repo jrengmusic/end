@@ -2,6 +2,8 @@
     <!-- Dimensions -->
     <PARAM id="cols"               type="int"  default="0"/>
     <PARAM id="visibleRows"        type="int"  default="0"/>
+    <PARAM id="width"              type="int"  default="0"/>
+    <PARAM id="height"             type="int"  default="0"/>
 
     <!-- Active screen index -->
     <PARAM id="activeScreen"       type="int"  default="0"/>

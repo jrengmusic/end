@@ -36,7 +36,7 @@ namespace Terminal
  *
  * @note MESSAGE THREAD — must be constructed on the message thread.
  */
-Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, int cols, int rows, const juce::String& uuid)
+Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, cell cols, cell rows, const juce::String& uuid)
     : grid (gridRef)
     , textBuffer (textBufferRef)
     , state (textBufferRef)
@@ -44,7 +44,7 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, int cols, int ro
     , skit (events)
     , uuid (uuid)
 {
-    state.setDimensions (cell (cols), cell (rows));
+    state.setDimensions (cols, rows);
     registerEvents();
     parser = std::make_unique<Parser> (video);
     state.get().addListener (this);
@@ -54,12 +54,23 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, int cols, int ro
 /**
  * @brief Destroys the Processor.
  *
+ * Nulls TTY callbacks before closing — prevents onData / onDrainComplete /
+ * onShellExited from firing on the reader thread during the join.
  * No explicit `removeListener()` needed — the ValueTree inside State is
  * destroyed alongside this Processor (member destruction order).
  *
  * @note MESSAGE THREAD.
  */
-Processor::~Processor() = default;
+Processor::~Processor()
+{
+    if (tty != nullptr)
+    {
+        tty->onShellExited = nullptr;
+        tty->onData = nullptr;
+        tty->onDrainComplete = nullptr;
+        tty->close();
+    }
+}
 
 // =============================================================================
 
@@ -74,14 +85,45 @@ Processor::~Processor() = default;
  * @param numCols          Column count.
  * @param scrollbackLines  Maximum history row count (from config).
  */
-void Processor::prepare (int viewportRows, int numCols, int scrollbackLines) noexcept
+void Processor::prepare (cell viewportRows, cell numCols, int scrollbackLines) noexcept
 {
     this->scrollbackLines = scrollbackLines;
-    numRows.at (0) = 0;
-    numRows.at (1) = 0;
-    grid.setSize (viewportRows, numCols, scrollbackLines);
-    video.setDimensions (numCols, viewportRows);
-    video.resize (numCols, viewportRows);
+
+    if (grid.isAllocated())
+    {
+        int cursorRow { video.getCursorRow().value };
+        int cursorCol { video.getCursorCol().value };
+        const auto reflowedNumRows { grid.reflow (viewportRows.value, numCols.value, scrollbackLines, cursorRow, cursorCol) };
+
+        numRows.at (0) = reflowedNumRows.at (0);
+        numRows.at (1) = reflowedNumRows.at (1);
+        grid.setNumRows (0, numRows.at (0));
+        grid.setNumRows (1, numRows.at (1));
+        state.setNumRows (0, numRows.at (0));
+        state.setNumRows (1, numRows.at (1));
+
+        const int activeScreen { state.getActiveScreen() };
+        const bool visible { state.loadCursorVisible (activeScreen) };
+
+        video.setDimensions (numCols, viewportRows);
+        video.loadScreenState (cursorRow, cursorCol, visible, 0, 0, false, state.getKeyboardFlags());
+        video.resize (numCols, viewportRows);
+    }
+    else
+    {
+        numRows.at (0) = 0;
+        numRows.at (1) = 0;
+        grid.setSize (viewportRows.value, numCols.value, scrollbackLines);
+        video.setDimensions (numCols, viewportRows);
+        video.resize (numCols, viewportRows);
+    }
+
+    if (tty != nullptr and tty->isThreadRunning())
+    {
+        const int width { state.loadWidth() };
+        const int height { state.loadHeight() };
+        tty->platformResize (numCols, viewportRows, width, height);
+    }
 }
 
 // =============================================================================
@@ -197,7 +239,7 @@ void Processor::registerEvents() noexcept
         ID::dcsPayloadComplete,
         [this] (const uint8_t* data, int length)
         {
-            skit.processDCS (video.getDcsFinalByte(), data, length, video.getCursorRow(), video.getCursorCol());
+            skit.processDCS (video.getDcsFinalByte(), data, length, video.getCursorRow().value, video.getCursorCol().value);
             video.advanceCursorForImage (skit.getLastImageRows().value);
         });
 
@@ -206,7 +248,7 @@ void Processor::registerEvents() noexcept
         ID::apcPayloadComplete,
         [this] (const uint8_t* data, int length)
         {
-            skit.processAPC (data, length, video.getCursorRow(), video.getCursorCol());
+            skit.processAPC (data, length, video.getCursorRow().value, video.getCursorCol().value);
 
             const juce::String& response { skit.getLastResponse() };
             if (response.isNotEmpty() and events.contains (ID::writeToHost))
@@ -430,10 +472,10 @@ void Processor::registerEvents() noexcept
  * @brief ValueTree::Listener — reacts to top-down property changes from Display.
  *
  * Fires on the message thread when State's ValueTree properties change.
- * Handles shell integration callbacks (outputBlockTop, promptRow) and
- * displayName recomputation from foregroundProcess / cwd.
- * Dimension changes (cols, visibleRows, cellWidth, cellHeight) are consumed
- * directly from State atomics on the reader thread inside process().
+ * Handles shell integration callbacks (outputBlockTop → command process query,
+ * promptRow → clear foreground), dimension changes (cols, visibleRows) via
+ * prepare() (which calls tty->platformResize() directly), and displayName
+ * recomputation from foregroundProcess / cwd.
  *
  * @note MESSAGE THREAD.
  */
@@ -446,14 +488,65 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
 
         if (paramId == ID::outputBlockTop)
         {
-            if (onCommandStarted != nullptr)
-                onCommandStarted();
+            if (tty != nullptr)
+            {
+                const int fgPid { tty->getForegroundPid() };
+                const int shellPid { tty->getShellPid() };
+
+                if (fgPid > 0)
+                {
+                    if (fgPid == shellPid)
+                    {
+                        state.setForegroundProcess ("", 0);
+                    }
+                    else
+                    {
+                        static constexpr int fgNameBufSize { 256 };
+                        char fgNameBuf[fgNameBufSize] {};
+                        const int fgNameLen { tty->getProcessName (fgPid, fgNameBuf, fgNameBufSize) };
+
+                        if (fgNameLen > 0)
+                            state.setForegroundProcess (fgNameBuf, fgNameLen);
+                    }
+
+                    if (shouldTrackCwdFromOs)
+                    {
+                        static constexpr int cwdBufSize { 4096 };
+                        char cwdBuf[cwdBufSize] {};
+                        const int cwdLen { tty->getCwd (fgPid, cwdBuf, cwdBufSize) };
+
+                        if (cwdLen > 0)
+                            state.setCwd (cwdBuf, cwdLen);
+                    }
+                }
+            }
+
+            if (onStateFlush != nullptr)
+                onStateFlush();
         }
 
         if (paramId == ID::promptRow)
         {
-            if (onCommandEnded != nullptr)
-                onCommandEnded();
+            state.setForegroundProcess ("", 0);
+
+            if (onStateFlush != nullptr)
+                onStateFlush();
+        }
+
+        if (paramId == ID::cols or paramId == ID::visibleRows)
+        {
+            const cell newCols { state.loadCols() };
+            const cell newRows { state.loadVisibleRows() };
+
+            if (newCols.value > 0 and newRows.value > 0)
+            {
+                if (newCols != video.getCols() or newRows != video.getVisibleRows())
+                {
+                    suspendProcessing (true);
+                    prepare (newRows, newCols, lua::Engine::getContext()->nexus.terminal.scrollbackLines);
+                    suspendProcessing (false);
+                }
+            }
         }
 
     }
@@ -587,26 +680,42 @@ juce::String Processor::encodeMouseEvent (int button, int col, int row, bool pre
  */
 void Processor::process (const char* data, int length) noexcept
 {
+    const juce::ScopedLock sl (callbackLock);
+
     jassert (parser != nullptr);
 
-    const int stateCellW { state.loadCellWidth() };
-    const int stateCellH { state.loadCellHeight() };
-
-    if (stateCellW != video.getCellWidth() or stateCellH != video.getCellHeight())
+    if (not suspended)
     {
-        video.setCellSize (stateCellW, stateCellH);
-        skit.setCellSize (stateCellW, stateCellH);
-    }
+        if (displayReady)
+        {
+            const int stateCellW { state.loadCellWidth() };
+            const int stateCellH { state.loadCellHeight() };
 
-    if (video.getCols() > 0 and video.getVisibleRows() > 0)
-    {
-        parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
-        video.flush();
-        video.flushResponses();
-    }
+            if (stateCellW != video.getCellWidth() or stateCellH != video.getCellHeight())
+            {
+                video.setCellSize (stateCellW, stateCellH);
+                skit.setCellSize (stateCellW, stateCellH);
+            }
+        }
 
-    state.consumePasteEcho (length);
+        if (video.getCols().value > 0 and video.getVisibleRows().value > 0)
+        {
+            parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
+            video.flush();
+            video.flushResponses();
+        }
+
+        state.consumePasteEcho (length);
+    }
 }
+
+void Processor::suspendProcessing (bool shouldBeSuspended) noexcept
+{
+    const juce::ScopedLock sl (callbackLock);
+    suspended = shouldBeSuspended;
+}
+
+bool Processor::isSuspended() const noexcept { return suspended; }
 
 State& Processor::getState() noexcept { return state; }
 const State& Processor::getState() const noexcept { return state; }
@@ -619,6 +728,30 @@ const juce::String& Processor::getUuid() const noexcept { return uuid; }
 void Processor::flushResponses() noexcept { video.flushResponses(); }
 
 /**
+ * @brief Transfers TTY ownership to this Processor.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Processor::setTTY (std::unique_ptr<TTY> ttyToOwn) noexcept
+{
+    tty = std::move (ttyToOwn);
+}
+
+/**
+ * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
+ *
+ * Called from Session::onDrainComplete for the sync-resize path.  No-op if
+ * no TTY is owned or its reader thread is not running.
+ *
+ * @note READER THREAD.
+ */
+void Processor::platformResize (cell cols, cell rows, int pixelWidth, int pixelHeight) noexcept
+{
+    if (tty != nullptr and tty->isThreadRunning())
+        tty->platformResize (cols, rows, pixelWidth, pixelHeight);
+}
+
+/**
  * @brief Registers the `writeToHost` event handler in the events map.
  *
  * @note MESSAGE THREAD — call before the first process() invocation.
@@ -626,6 +759,27 @@ void Processor::flushResponses() noexcept { video.flushResponses(); }
 void Processor::setHostWriter (std::function<void (const char*, int)> writer) noexcept
 {
     events.add<const char*, int> (ID::writeToHost, std::move (writer));
+}
+
+/**
+ * @brief Writes raw input bytes to the PTY via the registered writeInput handler.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Processor::writeInput (const char* data, int len) noexcept
+{
+    if (events.contains (ID::writeInput))
+        events.get (ID::writeInput, data, len);
+}
+
+/**
+ * @brief Registers the handler invoked by writeInput().
+ *
+ * @note MESSAGE THREAD — call before the first writeInput() invocation.
+ */
+void Processor::setInputWriter (std::function<void (const char*, int)> handler) noexcept
+{
+    events.add<const char*, int> (ID::writeInput, std::move (handler));
 }
 
 /**
@@ -638,6 +792,7 @@ std::unique_ptr<Display> Processor::createDisplay()
 {
     auto display { std::make_unique<Display> (*this) };
     display->setComponentID (uuid);
+    displayReady = true;
     return display;
 }
 

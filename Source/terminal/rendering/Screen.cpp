@@ -64,26 +64,26 @@ void Screen::mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDeta
 
 void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
 {
-    const int activeScreenIndex { state.getActiveScreen() };
-    const auto cellArea         { getCellArea() };
-    const int viewportRows      { cellArea.height };
-    const int numCols           { cellArea.width };
-    const int scrollOffset      { state.getScrollOffset (activeScreenIndex) };
-    const int numRows           { state.getNumRows (activeScreenIndex) };
+    const int  activeScreenIndex { state.getActiveScreen() };
+    const auto cellArea          { getCellArea() };
+    const cell viewportRows      { cellArea.height };
+    const cell numCols           { cellArea.width };
+    const int  scrollOffset      { state.getScrollOffset (activeScreenIndex) };
+    const int  numRows           { state.getNumRows (activeScreenIndex) };
 
     setActiveScreen (activeScreenIndex);
     setCaretPosition (state.getCursorCol(), state.getCursorRow());
 
-    if (numCols > 0 and viewportRows > 0)
+    if (numCols.value > 0 and viewportRows.value > 0)
     {
         if (scrollOffset == 0)
         {
             // Live mode — repaint all viewport rows from Grid viewport section.
-            for (int row { 0 }; row < viewportRows; ++row)
+            for (int row { 0 }; row < viewportRows.value; ++row)
             {
                 const jam::Row* r { grid.getWritePointer (activeScreenIndex, row) };
                 const jam::Cell* ptr { r->cells };
-                jam::Block<jam::Cell> block { &ptr, 1, numCols };
+                jam::Block<jam::Cell> block { &ptr, 1, numCols.value };
                 setText (block, { row, row + 1 });
             }
         }
@@ -92,11 +92,11 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
             // Scroll mode — read from history at absolute offset.
             const int startIndex { numRows - scrollOffset };
 
-            for (int row { 0 }; row < viewportRows; ++row)
+            for (int row { 0 }; row < viewportRows.value; ++row)
             {
                 const jam::Row* r { grid.getRow (activeScreenIndex, startIndex + row) };
                 const jam::Cell* ptr { r->cells };
-                jam::Block<jam::Cell> block { &ptr, 1, numCols };
+                jam::Block<jam::Cell> block { &ptr, 1, numCols.value };
                 setText (block, { row, row + 1 });
             }
         }

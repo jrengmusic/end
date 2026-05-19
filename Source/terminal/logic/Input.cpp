@@ -24,8 +24,8 @@ bool Input::handleKeyDirect (const juce::KeyPress& key) noexcept
 {
     const auto bytes { processor.encodeKeyPress (key) };
 
-    if (bytes.isNotEmpty() and processor.events.contains (Terminal::ID::writeInput))
-        processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+    if (bytes.isNotEmpty())
+        processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
 
     return true;
 }
@@ -54,8 +54,8 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
                 clearSelectionAndScroll();
                 const auto bytes { processor.encodeKeyPress (key) };
 
-                if (bytes.isNotEmpty() and processor.events.contains (Terminal::ID::writeInput))
-                    processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+                if (bytes.isNotEmpty())
+                    processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
 
                 return true;
             }()
@@ -124,7 +124,7 @@ bool Input::handleModalKey (const juce::KeyPress& key) noexcept
 bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 {
     const int maxRow { processor.getState().getVisibleRows().value - 1 };
-    const int maxCol { processor.getState().getCols() - 1 };
+    const int maxCol { processor.getState().getCols().value - 1 };
 
     auto& st { processor.getState() };
 
@@ -219,7 +219,7 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
         if (smType != Terminal::SelectionType::none)
         {
-            const int cols { processor.getState().getCols() };
+            const int cols { processor.getState().getCols().value };
 
             const int anchorVisRow { st.getSelectionAnchorRow().value };
             const int cursorVisRow { st.getSelectionCursorRow().value };

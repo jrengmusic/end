@@ -4,6 +4,7 @@
 
 namespace Terminal
 {
+/*____________________________________________________________________________*/
 
 State::State (TextBuffer& tb)
     : jam::ValueTree (ID::SESSION)
@@ -52,7 +53,7 @@ void State::registerNodeAtomics (juce::ValueTree& node) noexcept
     for (int i { node.getNumProperties() - 1 }; i >= 0; --i)
     {
         const auto propId { node.getPropertyName (i) };
-        const auto prop   { node.getProperty (propId) };
+        const auto prop { node.getProperty (propId) };
 
         if (not group.contains (propId))
         {
@@ -150,7 +151,7 @@ int State::getCursorShape() const noexcept { return getScreenParamInt (get(), ge
 
 int State::getCursorColor() const noexcept { return getScreenParamInt (get(), getActiveScreen(), ID::cursorColor, -1); }
 
-int State::getCols() const noexcept { return getSessionParamInt (get(), ID::cols); }
+cell State::getCols() const noexcept { return cell (getSessionParamInt (get(), ID::cols)); }
 
 cell State::getVisibleRows() const noexcept { return cell (getSessionParamInt (get(), ID::visibleRows)); }
 
@@ -184,15 +185,9 @@ void State::setScreenDirty (int screen) noexcept
     storeValue (screenId, ID::screenDirty, current + 1);
 }
 
-int State::getNumRows (int screen) const noexcept
-{
-    return getScreenParamInt (get(), screen, ID::numRows);
-}
+int State::getNumRows (int screen) const noexcept { return getScreenParamInt (get(), screen, ID::numRows); }
 
-int State::getScrollOffset (int screen) const noexcept
-{
-    return getScreenParamInt (get(), screen, ID::scrollOffset);
-}
+int State::getScrollOffset (int screen) const noexcept { return getScreenParamInt (get(), screen, ID::scrollOffset); }
 
 //==========================================================================
 // Reader-thread setters
@@ -378,7 +373,10 @@ void State::setPromptRow (cell row) noexcept { storeValue (ID::SESSION, ID::prom
 
 cell State::getOutputBlockTop() const noexcept { return cell (getSessionParamInt (get(), ID::outputBlockTop, -1)); }
 
-cell State::getOutputBlockBottom() const noexcept { return cell (getSessionParamInt (get(), ID::outputBlockBottom, -1)); }
+cell State::getOutputBlockBottom() const noexcept
+{
+    return cell (getSessionParamInt (get(), ID::outputBlockBottom, -1));
+}
 
 cell State::getPromptRow() const noexcept { return cell (getSessionParamInt (get(), ID::promptRow, -1)); }
 
@@ -621,9 +619,12 @@ uint32_t State::loadKeyboardFlags (int s) const noexcept
 // Called by Processor::process() on the reader thread to detect layout changes.
 //==========================================================================
 
-int State::loadCols() const noexcept        { return loadValue (ID::SESSION, ID::cols); }
-int State::loadVisibleRows() const noexcept { return loadValue (ID::SESSION, ID::visibleRows); }
-int State::loadCellWidth() const noexcept   { return loadValue (ID::DISPLAY, ID::cellWidth); }
-int State::loadCellHeight() const noexcept  { return loadValue (ID::DISPLAY, ID::cellHeight); }
+cell State::loadCols() const noexcept { return cell (loadValue (ID::SESSION, ID::cols)); }
+cell State::loadVisibleRows() const noexcept { return cell (loadValue (ID::SESSION, ID::visibleRows)); }
+int State::loadCellWidth() const noexcept { return loadValue (ID::DISPLAY, ID::cellWidth); }
+int State::loadCellHeight() const noexcept { return loadValue (ID::DISPLAY, ID::cellHeight); }
+int State::loadWidth() const noexcept { return loadValue (ID::SESSION, jam::ID::width); }
+int State::loadHeight() const noexcept { return loadValue (ID::SESSION, jam::ID::height); }
 
+/**______________________________END OF NAMESPACE______________________________*/
 }// namespace Terminal

@@ -72,6 +72,37 @@ public:
      */
     void setSize (int numRows, int numCols, int scrollbackLines) noexcept;
 
+    /** Content-preserving resize — tmux-conformant row-by-row reflow.
+     *
+     *  Walks all rows (history + viewport) and dispatches each to one of
+     *  three operations based on usedCols vs newCols and the wrapped flag:
+     *
+     *  - **move**: usedCols <= newCols, not wrapped — copy row as-is.
+     *  - **join**: usedCols <= newCols, wrapped — append next row(s) cells.
+     *  - **split**: usedCols > newCols — break into multiple rows.
+     *
+     *  Writes into a scratch buffer, then copies back to the live buffer.
+     *  Head is updated for the new ring layout. numRows is NOT updated —
+     *  Grid returns the computed values and Processor sets them via
+     *  setNumRows() (TETRIS contract: Processor tells, Grid uses).
+     *
+     *  Cursor position is converted to paragraph-relative coordinates before
+     *  reflow and unwrapped back after. cursorRow and cursorCol are modified
+     *  in place to reflect the post-reflow position.
+     *
+     *  @return New numRows per screen {normal, alternate}. Processor must
+     *          call setNumRows() with these values after reflow returns.
+     *
+     *  @param newViewportRows  New visible row count.
+     *  @param newCols          New column count.
+     *  @param scrollbackLines  Maximum history row count from config.
+     *  @param cursorRow        Viewport-relative cursor row (modified in place).
+     *  @param cursorCol        Cursor column (modified in place).
+     *  @return New numRows per screen {normal, alternate}.
+     */
+    std::array<int, 2> reflow (int newViewportRows, int newCols, int scrollbackLines,
+                               int& cursorRow, int& cursorCol) noexcept;
+
     /** Sets the history row count for the given screen.
      *
      *  Processor calls this after `scrollUp` events to update the calculation input.
@@ -147,6 +178,16 @@ public:
      *                        numRows = viewport top).
      */
     const jam::Row* getRow (int screen, int absoluteIndex) const noexcept;
+
+    /** Returns true if the grid buffer has been allocated (setSize called). */
+    bool isAllocated() const noexcept;
+
+    /** Returns the history row count for the given screen.
+     *  Processor reads this after reflow to sync State.
+     *
+     *  @param screen  Screen index (0 = normal, 1 = alternate).
+     */
+    int getNumRows (int screen) const noexcept;
 
     ///@}
 

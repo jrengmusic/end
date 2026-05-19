@@ -1,12 +1,14 @@
 /**
  * @file Session.h
- * @brief PTY-side terminal session: owns TTY, byte history, Grid, State, and Processor.
+ * @brief PTY-side terminal session: byte history, Grid, State, and Processor.
  *
  * `Terminal::Session` is the data-source half of a terminal connection.  It owns:
- * - The PTY (`TTY`) that communicates with the shell process.
  * - A `Terminal::History` ring buffer that records every byte the shell emits.
  * - The `Grid` live cell buffer and `State` atomic parameter store.
  * - The `Terminal::Processor` pipeline (Parser → Grid → Display).
+ *
+ * TTY ownership is transferred to Processor immediately after wiring callbacks.
+ * Processor calls platformResize directly when dimensions change.
  *
  * ### Data flow
  * ```
@@ -47,7 +49,7 @@ namespace Terminal
 
 /**
  * @class Terminal::Session
- * @brief PTY-side terminal session — owns TTY, byte history, and Processor.
+ * @brief PTY-side terminal session — byte history, Grid, State, and Processor.
  *
  * Constructed by `Nexus` (or its mode-specific delegates).  Caller
  * sets `onBytes` before calling any method that starts the reader thread.
@@ -191,107 +193,17 @@ public:
     std::function<void (const char*, int)> onBytes;
 
     /**
-     * @brief Called on the READER THREAD after each state flush (cwd and foreground process updated in State).
-     *
-     * Fires at the end of `onCommandStarted` and `onCommandEnded`, after cwd and
-     * foreground process have been written into State.  `Interprocess::Daemon` sets
-     * this in daemon mode to broadcast a `Message::stateUpdate` PDU.
-     *
-     * @note MESSAGE THREAD.
-     */
-    std::function<void()> onStateFlush;
-
-    /**
-     * @brief Returns the PID of the foreground process running in the PTY.
-     *
-     * Delegates to TTY::getForegroundPid().
-     *
-     * @return The foreground PID, or -1 if unavailable.
-     * @note MESSAGE THREAD — called from onCommandStarted / onCommandEnded.
-     */
-    int getForegroundPid() const noexcept;
-
-    /**
-     * @brief Returns the PID of the spawned shell process.
-     *
-     * Delegates to TTY::getShellPid(). Used in onCommandStarted to detect the
-     * "at prompt" condition (foreground PID equals shell PID).
-     *
-     * @return The shell PID, or 0 if the shell is not running.
-     * @note MESSAGE THREAD — called from onCommandStarted.
-     */
-    int getShellPid() const noexcept;
-
-    /**
-     * @brief Writes the process name for the given PID into the buffer.
-     *
-     * @param pid        The process ID to query.
-     * @param buffer     Destination buffer for the null-terminated name.
-     * @param maxLength  Size of the destination buffer in bytes.
-     * @return Number of bytes written (excluding null terminator), or 0 on failure.
-     */
-    int getProcessName (int pid, char* buffer, int maxLength) const noexcept;
-
-    /**
-     * @brief Writes the current working directory for the given PID into the buffer.
-     *
-     * @param pid        The process ID to query.
-     * @param buffer     Destination buffer for the null-terminated path.
-     * @param maxLength  Size of the destination buffer in bytes.
-     * @return Number of bytes written (excluding null terminator), or 0 on failure.
-     */
-    int getCwd (int pid, char* buffer, int maxLength) const noexcept;
-
-  #if ! JUCE_WINDOWS
-    /**
-     * @brief Reads an environment variable from the given PID's live environment.
-     *
-     * Pass-through to TTY::getEnvVar.  Uses a stack buffer internally.
-     *
-     * @param pid   The process ID to query.
-     * @param name  The variable name (e.g. "PATH").
-     * @return The variable's value as a juce::String, or empty on failure.
-     * @note MESSAGE THREAD.
-     */
-    juce::String getEnvVar (int pid, const juce::String& name) const;
-  #endif
-
-    /**
-     * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
-     *
-     * Called by the pipeline when a sync-resize is needed.  Pixel dimensions
-     * default to zero for the sync-resize path where display geometry is not
-     * available on the reader thread.
-     *
-     * @param cols        New column count.
-     * @param rows        New row count.
-     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
-     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
-     * @note READER THREAD (called from tty->onDrainComplete during sync-resize).
-     */
-    void platformResize (cell cols, cell rows,
-                         int pixelWidth = 0, int pixelHeight = 0);
-
-    /**
      * @brief Writes raw input bytes to the PTY (keyboard/mouse from client).
+     *
+     * Delegates to the TTY now owned by Processor.  Session retains this
+     * method because Display calls it via getProcessor().writeInput(), which
+     * routes through the writeInput event handler wired here in the constructor.
      *
      * @param data  Raw byte buffer.  Must not be null.
      * @param len   Number of bytes to write.
      * @note MESSAGE THREAD.
      */
     void sendInput (const char* data, int len);
-
-    /**
-     * @brief Notifies the shell of a terminal resize via SIGWINCH.
-     *
-     * @param cols        New column count.
-     * @param rows        New row count.
-     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
-     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
-     * @note MESSAGE THREAD.
-     */
-    void resize (cell cols, cell rows,
-                 int pixelWidth = 0, int pixelHeight = 0);
 
     /**
      * @brief Returns a snapshot of all buffered PTY output bytes.
@@ -359,14 +271,13 @@ public:
 private:
     Grid grid;                                    ///< Live cell buffer — the AudioBuffer.
     TextBuffer textBuffer;                        ///< Cross-thread string buffer — constructed before processor.
-    std::unique_ptr<TTY> tty;
     History history;
     std::unique_ptr<Terminal::Processor> processor;
 
-    /** @brief True when the OS-level getCwd query should be used in onCommandStarted.
-     *  Set to !shellIntegrationEnabled at construction time.  When false,
-     *  CWD tracking relies entirely on OSC 7 from shell integration hooks. */
-    bool shouldTrackCwdFromOs { false };
+    /** @brief Non-owning observer pointer to the TTY transferred to Processor.
+     *  Kept here so sendInput() can write to the shell without routing through
+     *  Processor internals.  Null for remote (no-TTY) sessions. */
+    TTY* ttyObserver { nullptr };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

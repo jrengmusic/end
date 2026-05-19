@@ -43,8 +43,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
         const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (0, hitCell.x, hitCell.y, true) };
 
-        if (processor.events.contains (Terminal::ID::writeInput))
-            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+        processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else if (event.getNumberOfClicks() == 3)
     {
@@ -103,8 +102,7 @@ void Mouse::handleDoubleClick (const juce::MouseEvent& event)
         const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (0, hitCell.x, hitCell.y, true) };
 
-        if (processor.events.contains (Terminal::ID::writeInput))
-            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+        processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else
     {
@@ -134,13 +132,12 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
         const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (32, hitCell.x, hitCell.y, true) };
 
-        if (processor.events.contains (Terminal::ID::writeInput))
-            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+        processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else
     {
         const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const int maxCol { processor.getState().getCols() - 1 };
+        const int maxCol { processor.getState().getCols().value - 1 };
         const int maxVisRow { processor.getState().getVisibleRows().value - 1 };
 
         const int clampedCol { juce::jlimit (0, maxCol, hitCell.x) };
@@ -177,8 +174,7 @@ void Mouse::handleUp (const juce::MouseEvent& event)
         const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const auto bytes { processor.encodeMouseEvent (0, hitCell.x, hitCell.y, false) };
 
-        if (processor.events.contains (Terminal::ID::writeInput))
-            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+        processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
     else
     {
@@ -233,8 +229,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                 {
                     const auto bytes { processor.encodeMouseEvent (button, hitCell.x, hitCell.y, true) };
 
-                    if (processor.events.contains (Terminal::ID::writeInput))
-                        processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+                    processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
                 }
             }
         }
@@ -267,8 +262,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
                     {
                         const auto bytes { processor.encodeMouseEvent (button, hitCell.x, hitCell.y, true) };
 
-                        if (processor.events.contains (Terminal::ID::writeInput))
-                            processor.events.get (Terminal::ID::writeInput, bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+                        processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
                     }
                 }
             }

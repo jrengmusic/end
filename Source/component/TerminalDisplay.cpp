@@ -60,8 +60,7 @@ void Terminal::Display::enterOpenFileMode() noexcept {}
 void Terminal::Display::pasteClipboard() {}
 void Terminal::Display::writeToPty (const char* data, int len) noexcept
 {
-    if (processor.events.contains (Terminal::ID::writeInput))
-        processor.events.get (Terminal::ID::writeInput, data, len);
+    processor.writeInput (data, len);
 }
 int Terminal::Display::getHintPage() const noexcept { return 0; }
 int Terminal::Display::getHintTotalPages() const noexcept { return 0; }
@@ -96,13 +95,8 @@ void Terminal::Display::updateDimensions (const juce::Rectangle<int>& contentBou
 
             state.setValue (Terminal::ID::cols, newCols.value);
             state.setValue (Terminal::ID::visibleRows, newRows.value);
-
-            if (processor.events.contains (Terminal::ID::terminalResize))
-                processor.events.get (Terminal::ID::terminalResize,
-                                      newCols.value,
-                                      newRows.value,
-                                      int (contentBounds.getWidth()),
-                                      int (contentBounds.getHeight()));
+            state.setValue (jam::ID::width, int (contentBounds.getWidth()));
+            state.setValue (jam::ID::height, int (contentBounds.getHeight()));
         }
     }
 }
@@ -113,13 +107,10 @@ bool Terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
     static constexpr int live { 0 };
     state.setScrollOffset (state.getActiveScreen(), live);
 
-    if (processor.events.contains (Terminal::ID::writeInput))
-    {
-        const auto encoded { processor.encodeKeyPress (key) };
+    const auto encoded { processor.encodeKeyPress (key) };
 
-        if (encoded.isNotEmpty())
-            processor.events.get (Terminal::ID::writeInput, encoded.toRawUTF8(), int (encoded.getNumBytesAsUTF8()));
-    }
+    if (encoded.isNotEmpty())
+        processor.writeInput (encoded.toRawUTF8(), int (encoded.getNumBytesAsUTF8()));
 
     return true;
 }

@@ -9,6 +9,7 @@
 #include "Nexus.h"
 #include "../terminal/logic/Session.h"
 #include "../terminal/logic/Processor.h"
+#include "../terminal/data/Identifier.h"
 #include "../interprocess/Daemon.h"
 #include "../interprocess/Link.h"
 #include "../lua/Engine.h"
@@ -84,7 +85,7 @@ Terminal::Session& Nexus::create (cell cols, cell rows,
  *
  * Routes based on attachment:
  * - Client mode (attachedLink != nullptr): creates remote session, sends
- *   createSession PDU, registers ID::writeInput / ID::terminalResize events to Link.
+ *   createSession PDU, wires setInputWriter() on the Processor to route through Link.
  * - Standalone/daemon mode: creates PTY-backed session via the TTY overload
  *   (which also calls wireSessionCallbacks when a Daemon is attached).
  *
@@ -121,18 +122,15 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
         Terminal::Session* rawPtr { termSession.get() };
 
         // Wire user input (keyboard, mouse) to daemon via Link IPC.
-        rawPtr->getProcessor().events.add<const char*, int> (Terminal::ID::writeInput,
-            [this, uuid] (const char* data, int len)
-            {
-                attachedLink->sendInput (uuid, data, len);
-            });
+        rawPtr->getProcessor().setInputWriter ([this, uuid] (const char* data, int len)
+        {
+            attachedLink->sendInput (uuid, data, len);
+        });
 
-        // Wire resize to daemon via Link IPC.
-        rawPtr->getProcessor().events.add<int, int, int, int> (Terminal::ID::terminalResize,
-            [this, uuid] (int c, int r, int /*pixelWidth*/, int /*pixelHeight*/)
-            {
-                attachedLink->sendResize (uuid, c, r);
-            });
+        // Wire resize forwarding: State VT cols/visibleRows changes → Link::sendResize.
+        juce::ValueTree stateRoot { rawPtr->getProcessor().getState().get() };
+        clientSessionStateRoots[uuid] = stateRoot;
+        stateRoot.addListener (this);
 
         sessions.emplace (uuid, std::move (termSession));
         result = rawPtr;
@@ -157,6 +155,14 @@ void Nexus::remove (const juce::String& uuid)
 {
     if (attachedLink != nullptr)
         attachedLink->sendRemove (uuid);
+
+    const auto stateRootIt { clientSessionStateRoots.find (uuid) };
+
+    if (stateRootIt != clientSessionStateRoots.end())
+    {
+        stateRootIt->second.removeListener (this);
+        clientSessionStateRoots.erase (stateRootIt);
+    }
 
     sessions.erase (uuid);
     fireIfAllExited();
@@ -241,6 +247,60 @@ void Nexus::fireIfAllExited() noexcept
 {
     if (sessions.empty() and onAllSessionsExited != nullptr)
         onAllSessionsExited();
+}
+
+// =============================================================================
+
+/**
+ * @brief Detects cols/visibleRows changes on client-mode session State VTs and
+ *        forwards a resize PDU to the daemon via Link.
+ *
+ * Checks for a PARAM node whose `id` property matches `Terminal::ID::cols` or
+ * `Terminal::ID::visibleRows` with a `value` property change.  Matches the
+ * tree's root against `clientSessionStateRoots` to find the affected UUID.
+ * Reads both dimensions from the parent session root so the PDU always carries
+ * the fully-current pair regardless of which property changed first.
+ *
+ * @note NEXUS PROCESS MESSAGE THREAD.
+ */
+void Nexus::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
+{
+    if (property == Terminal::ID::value
+        and tree.getType() == jam::ValueTree::PARAM)
+    {
+        const juce::String paramId { tree.getProperty (Terminal::ID::id).toString() };
+        const bool isColsChange       { paramId == Terminal::ID::cols.toString() };
+        const bool isVisibleRowsChange { paramId == Terminal::ID::visibleRows.toString() };
+
+        if (isColsChange or isVisibleRowsChange)
+        {
+            const juce::ValueTree sessionRoot { tree.getParent() };
+
+            juce::String resizeUuid;
+
+            for (const auto& entry : clientSessionStateRoots)
+            {
+                if (entry.second == sessionRoot)
+                {
+                    resizeUuid = entry.first;
+                    break;
+                }
+            }
+
+            if (resizeUuid.isNotEmpty() and attachedLink != nullptr)
+            {
+                auto colsParam { jam::ValueTree::getChildWithID (sessionRoot, Terminal::ID::cols.toString()) };
+                auto rowsParam { jam::ValueTree::getChildWithID (sessionRoot, Terminal::ID::visibleRows.toString()) };
+
+                if (colsParam.isValid() and rowsParam.isValid())
+                {
+                    const int cols { static_cast<int> (colsParam.getProperty (Terminal::ID::value)) };
+                    const int rows { static_cast<int> (rowsParam.getProperty (Terminal::ID::value)) };
+                    attachedLink->sendResize (resizeUuid, cols, rows);
+                }
+            }
+        }
+    }
 }
 
 /**______________________________END OF FILE___________________________________*/

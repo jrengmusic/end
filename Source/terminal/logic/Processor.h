@@ -23,9 +23,11 @@
  *    flushed back via the `writeToHost` event handler registered in `events`.
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
- * 8. Resize: Session calls `prepare(rows, cols, scrollbackLines)` on construction
- *    and on terminalResize events.  process() reads cellWidth/cellHeight atomics
- *    at batch start for Video/Skit; Grid resize never happens in process().
+ * 8. Resize: Session calls `prepare(rows, cols, scrollbackLines)` on construction.
+ *    Display writes cols/visibleRows to State; valueTreePropertyChanged detects the
+ *    change, calls prepare(), then calls tty->platformResize() directly (Processor owns TTY).
+ *    process() reads cellWidth/cellHeight atomics at batch start for Video/Skit;
+ *    Grid resize never happens in process().
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
@@ -46,6 +48,7 @@
 #include "../data/Keyboard.h"
 #include "../data/State.h"
 #include "../data/TextBuffer.h"
+#include "../tty/TTY.h"
 #include "Grid.h"
 #include "Parser.h"
 #include "Skit.h"
@@ -69,19 +72,20 @@ class Display;
  * which notifies Display to repaint.
  *
  * ### Boundary contract
- * `State`, `Grid`, `uuid`, `video`, and `parser` are private.
- * The `events` map is public — Session registers handlers directly on it.
+ * `State`, `Grid`, `uuid`, `video`, `parser`, and `events` are private.
+ * The events map is private. Session registers handlers via setHostWriter(), setInputWriter(), and setTTY().
  * External callers access state through the public getter API:
  * - `getState()` / `getGrid()` — mutable and const references.
  * - `getUuid()` — const reference to the stable session UUID.
  * - `setHostWriter()` — registers the `writeToHost` event handler.
+ * - `setTTY()` — transfers TTY ownership; Processor calls platformResize directly.
  * - `flushResponses()` — flushes queued device responses to the host.
  *
  * ### Public surface
  * - **Input encoding** — `encodeKeyPress()`, `encodePaste()`, `encodeMouseEvent()`, `encodeFocusEvent()` (const, no side effects)
  * - **Output** — `process()` (called on the reader thread by the byte source)
  * - **Response flushing** — `flushResponses()` (reader thread; called by Session on drain-complete)
- * - **Lifecycle callbacks** — `onCommandStarted` / `onCommandEnded` callbacks
+ * - **TTY ownership** — `setTTY()` transfers unique_ptr from Session; `platformResize()` delegates to owned TTY
  *
  * @note Construct and destroy on the **message thread**.
  *
@@ -106,7 +110,7 @@ public:
      * @param uuid        Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
-    Processor (Grid& grid, TextBuffer& textBuffer, int cols, int rows, const juce::String& uuid);
+    Processor (Grid& grid, TextBuffer& textBuffer, cell cols, cell rows, const juce::String& uuid);
 
     /**
      * @brief Destroys the Processor.
@@ -173,7 +177,7 @@ public:
      *
      * Sets Grid size, Video dimensions, and stores the scrollback limit for use
      * by scroll event handlers.  Analogous to `AudioProcessor::prepareToPlay()`.
-     * Called by Session on construction and on every resize (terminalResize event).
+     * Called by Session on construction and by valueTreePropertyChanged on resize.
      * Never called from process() — resize detection in process() was removed.
      *
      * @param viewportRows     Visible row count.
@@ -181,7 +185,7 @@ public:
      * @param scrollbackLines  Maximum history row count (from config).
      * @note READER THREAD safe — called before bytes start flowing.
      */
-    void prepare (int viewportRows, int numCols, int scrollbackLines) noexcept;
+    void prepare (cell viewportRows, cell numCols, int scrollbackLines) noexcept;
 
     /**
      * @brief Processes raw bytes through the parser pipeline.
@@ -190,12 +194,29 @@ public:
      * Video responses via `video.flushResponses()`.  Called on the READER THREAD
      * by whichever byte source owns this Processor — the `Terminal::Session`
      * onBytes callback (local/daemon) or the IPC byte-forward dispatch (client).
+     * While suspended, acquires callbackLock but skips parsing.
      *
      * @param data    Pointer to the raw byte buffer.
      * @param length  Number of bytes in the buffer.
      * @note READER THREAD only — never call from the message thread.
      */
     void process (const char* data, int length) noexcept;
+
+    /** @brief Suspends or resumes byte processing.
+     *
+     *  While suspended, process() acquires callbackLock but skips parsing.
+     *  Used by valueTreePropertyChanged to bracket prepare() during resize.
+     *  1:1 analog of juce::AudioProcessor::suspendProcessing.
+     *
+     *  @param shouldBeSuspended  true to suspend, false to resume.
+     *  @note MESSAGE THREAD.
+     */
+    void suspendProcessing (bool shouldBeSuspended) noexcept;
+
+    /** @brief Returns true if processing is currently suspended.
+     *  @note ANY THREAD — reads plain bool, safe when caller holds callbackLock.
+     */
+    bool isSuspended() const noexcept;
 
     /**
      * @brief Returns a mutable reference to the terminal parameter store.
@@ -261,14 +282,85 @@ public:
      */
     std::unique_ptr<Display> createDisplay();
 
-    /** @brief Fires when OSC 133;C marks command start (outputBlockStart changes). MESSAGE THREAD. */
-    std::function<void()> onCommandStarted;
+    /**
+     * @brief Transfers TTY ownership to this Processor.
+     *
+     * Called by Session after wiring all TTY callbacks but before the reader
+     * thread starts producing bytes.  After this call, Processor calls
+     * tty->platformResize() directly from prepare() and platformResize().
+     *
+     * @param ttyToOwn  TTY unique_ptr to take ownership of.
+     * @note MESSAGE THREAD.
+     */
+    void setTTY (std::unique_ptr<TTY> ttyToOwn) noexcept;
 
-    /** @brief Fires when OSC 133;A marks return to prompt (promptRow changes). MESSAGE THREAD. */
-    std::function<void()> onCommandEnded;
+    /**
+     * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
+     *
+     * Delegates to tty->platformResize() when a TTY is owned and its thread
+     * is running.  Called from Session::onDrainComplete for the sync-resize path.
+     * No-op if no TTY is owned.
+     *
+     * @param cols        New column count.
+     * @param rows        New row count.
+     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
+     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
+     * @note READER THREAD (called from tty->onDrainComplete during sync-resize).
+     */
+    void platformResize (cell cols, cell rows,
+                         int pixelWidth = 0, int pixelHeight = 0) noexcept;
 
-    /** @brief Events map — Video → Processor → Session.
-     *  Session registers handlers directly on this map.
+    /**
+     * @brief True when the OS-level getCwd query should be used in the
+     *        outputBlockTop handler.  Set by Session at construction time.
+     *        When false, CWD tracking relies entirely on OSC 7 from shell hooks.
+     */
+    bool shouldTrackCwdFromOs { false };
+
+    /** @brief Fires after cwd and foreground process are written to State.
+     *
+     *  Set by Interprocess::Daemon in daemon mode to broadcast a stateUpdate PDU.
+     *  Fires from valueTreePropertyChanged on outputBlockTop and promptRow changes.
+     *  @note MESSAGE THREAD.
+     */
+    std::function<void()> onStateFlush;
+
+    /** @brief Writes raw input bytes to the PTY via the registered handler.
+     *
+     *  Display and Input call this instead of touching events directly.
+     *  Forwards to the writeInput handler registered by Session.
+     *
+     *  @param data  Raw byte buffer.
+     *  @param len   Number of bytes.
+     *  @note MESSAGE THREAD.
+     */
+    void writeInput (const char* data, int len) noexcept;
+
+    /** @brief Registers the handler invoked by writeInput().
+     *
+     *  Session calls this to wire PTY stdin. The handler receives raw bytes
+     *  to be written to the PTY.
+     *
+     *  @param handler  Callback invoked with (const char* data, int len).
+     *  @note MESSAGE THREAD — call before the first writeInput() invocation.
+     */
+    void setInputWriter (std::function<void (const char*, int)> handler) noexcept;
+
+private:
+    //==============================================================================
+    /** @brief Owned PTY — transferred from Session via setTTY().  Null in IPC client mode. */
+    std::unique_ptr<TTY> tty;
+
+    /** @brief Live cell buffer — owned by Terminal::Session. */
+    Grid& grid;
+
+    /** @brief Cross-thread string buffer — owned by Terminal::Session. */
+    TextBuffer& textBuffer;
+
+    /** @brief Terminal parameter store — constructed after references are bound. */
+    State state;
+
+    /** @brief Events map — Video fired events routed through Processor to Session.
      *
      *  Registered event keys:
      *  - `ID::writeToHost`         — `(const char*, int)` — flushed from Video on reader thread
@@ -277,10 +369,8 @@ public:
      *  - `ID::desktopNotification` — `(const juce::String&, const juce::String&)` — OSC 9/777, dispatched via callAsync
      *  - `ID::imageDecoded`        — see Video::onImageDecoded signature — reader thread
      *  - `ID::previewFile`         — `(const juce::String&, int, int, int, int)` — reader thread
-     *  - `ID::registerLink`        — `(const juce::String& uri, const juce::String& params)` — OSC 8 open;
-     *                               Processor handler registers the URI in State and calls `Video::setActiveLinkId()`.
-     *  - `ID::writeInput`          — `(const char*, int)` — user input (keyboard, mouse) → PTY stdin; message thread
-     *  - `ID::terminalResize`      — `(int, int, int, int)` — PTY SIGWINCH; message thread
+     *  - `ID::registerLink`        — `(const juce::String& uri, const juce::String& params)` — OSC 8 open
+     *  - `ID::writeInput`          — `(const char*, int)` — PTY stdin; wired via setInputWriter()
      *  - `ID::activeScreen`        — `(int)` — active screen index flush; reader thread
      *  - `ID::cursorRow`           — `(int screen, int row)` — cursor row flush; reader thread
      *  - `ID::cursorCol`           — `(int screen, int col)` — cursor col flush; reader thread
@@ -290,17 +380,6 @@ public:
      *
      *  @note READER THREAD for most event handlers; callAsync handlers land on message thread. */
     jam::Function::Map<juce::Identifier, void> events;
-
-private:
-    //==============================================================================
-    /** @brief Live cell buffer — owned by Terminal::Session. */
-    Grid& grid;
-
-    /** @brief Cross-thread string buffer — owned by Terminal::Session. */
-    TextBuffer& textBuffer;
-
-    /** @brief Terminal parameter store — constructed after references are bound. */
-    State state;
 
     /** @brief Terminal state machine — pen, cursor, modes, Grid writes. */
     Video video;
@@ -332,6 +411,16 @@ private:
      *         Capped at scrollbackLines. Mirrors Grid's numRows. */
     std::array<int, 2> numRows { 0, 0 };
 
+    /** @brief Serializes process() vs suspendProcessing() — 1:1 AudioProcessor::callbackLock analog. */
+    juce::CriticalSection callbackLock;
+
+    /** @brief When true, process() skips parsing. Set by suspendProcessing(). */
+    bool suspended { false };
+
+    /** @brief Set to true by createDisplay() once the DISPLAY AnyMap group has been grafted.
+     *         Guards the cellWidth/cellHeight load in process() against a pre-Display assertion. */
+    bool displayReady { false };
+
     /** @brief Registers Processor-owned event handlers on the events map.
      *
      *  Handlers registered here intercept Video-fired events that require
@@ -345,9 +434,9 @@ private:
     /** @brief ValueTree::Listener — reacts to top-down property changes from Display.
      *
      *  Fires on the message thread when State's ValueTree properties change.
-     *  Handles shell integration callbacks (outputBlockTop, promptRow).
-     *  Dimension changes (cols, visibleRows, cellWidth, cellHeight) are consumed
-     *  directly from State atomics on the reader thread inside process().
+     *  Handles shell integration callbacks (outputBlockTop → command process query,
+     *  promptRow → clear foreground) and dimension changes (cols, visibleRows) —
+     *  calls prepare() then tty->platformResize() directly.
      *
      *  @note MESSAGE THREAD.
      */

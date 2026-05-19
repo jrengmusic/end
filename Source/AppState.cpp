@@ -20,8 +20,8 @@ AppState::AppState()
 
     // Overlay Lua runtime defaults.
     const auto* cfg { lua::Engine::getContext() };
-    setValue (App::ID::width,      cfg->display.window.width);
-    setValue (App::ID::height,     cfg->display.window.height);
+    setValue (jam::ID::width,      cfg->display.window.width);
+    setValue (jam::ID::height,     cfg->display.window.height);
     setValue (App::ID::zoom,       static_cast<double> (lua::Engine::zoomMin));
     setValue (App::ID::fontFamily, cfg->display.font.family);
     setValue (App::ID::fontSize,   static_cast<double> (cfg->dpiCorrectedFontSize()));
@@ -63,12 +63,12 @@ juce::ValueTree AppState::getTabs() noexcept
 
 int AppState::getWindowWidth() const noexcept
 {
-    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), App::ID::width).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), jam::ID::width).getValue());
 }
 
 int AppState::getWindowHeight() const noexcept
 {
-    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), App::ID::height).getValue());
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), jam::ID::height).getValue());
 }
 
 float AppState::getWindowZoom() const noexcept
@@ -78,8 +78,8 @@ float AppState::getWindowZoom() const noexcept
 
 void AppState::setWindowSize (int width, int height)
 {
-    setValue (App::ID::width, width);
-    setValue (App::ID::height, height);
+    setValue (jam::ID::width, width);
+    setValue (jam::ID::height, height);
 }
 
 void AppState::setWindowZoom (float zoom)

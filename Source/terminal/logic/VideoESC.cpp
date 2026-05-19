@@ -252,6 +252,8 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 
             for (int col { 0 }; col < nCols; ++col)
                 rowPtr->cells[col] = alignCell;
+
+            rowPtr->usedCols = static_cast<uint16_t> (nCols);
         }
 
         cursorSetPosition (0, 0, nCols, vRows);

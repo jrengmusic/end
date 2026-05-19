@@ -81,12 +81,12 @@ Video::Video (Grid& grid, jam::Function::Map<juce::Identifier, void>& events) no
  * @see initializeTabStops()
  * @see cursorResetScrollRegion()
  */
-void Video::resize (int newCols, int newVisibleRows) noexcept
+void Video::resize (cell newCols, cell newVisibleRows) noexcept
 {
     wrapPending = false;
-    cursorClamp (newCols, newVisibleRows);
+    cursorClamp (newCols.value, newVisibleRows.value);
     cursorResetScrollRegion();
-    initializeTabStops (newCols);
+    initializeTabStops (newCols.value);
     calc();
 }
 
@@ -119,10 +119,10 @@ void Video::calc() noexcept
  *
  * @note READER THREAD only.
  */
-void Video::setDimensions (int newCols, int newRows) noexcept
+void Video::setDimensions (cell newCols, cell newRows) noexcept
 {
-    cols        = cell (newCols);
-    visibleRows = cell (newRows);
+    cols        = newCols;
+    visibleRows = newRows;
 }
 
 /**
@@ -526,7 +526,9 @@ void Video::print (uint32_t codepoint) noexcept
 
         const jam::Cell glyph { jam::Cell::make (cp, jam::Cell::CONTENT_CODEPOINT, wideHint, sid) };
 
-        grid.getWritePointer (scr, writeRow)->cells[writeCol] = glyph;
+        jam::Row* const writtenRow { grid.getWritePointer (scr, writeRow) };
+        writtenRow->cells[writeCol] = glyph;
+        writtenRow->usedCols = juce::jmax (writtenRow->usedCols, static_cast<uint16_t> (writeCol + charWidth));
 
         lastGraphicChar = codepoint;
         lastWriteRow    = writeRow;
@@ -536,7 +538,7 @@ void Video::print (uint32_t codepoint) noexcept
         {
             const jam::Cell cont { jam::Cell::make (0, jam::Cell::CONTENT_CODEPOINT,
                                                     jam::Cell::SPACER_TAIL, sid) };
-            grid.getWritePointer (scr, writeRow)->cells[writeCol + 1] = cont;
+            writtenRow->cells[writeCol + 1] = cont;
         }
 
         if (writeCol + charWidth >= numCols)

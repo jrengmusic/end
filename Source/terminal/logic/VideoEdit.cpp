@@ -407,7 +407,8 @@ void Video::shiftCellsRight (int count) noexcept
 
     if (charsToInsert > 0 and cCol < nCols)
     {
-        jam::Cell* const cells { grid.getWritePointer (activeScreen, cRow)->cells };
+        jam::Row* const row { grid.getWritePointer (activeScreen, cRow) };
+        jam::Cell* const cells { row->cells };
 
         std::memmove (cells + cCol + charsToInsert,
                       cells + cCol,
@@ -417,6 +418,8 @@ void Video::shiftCellsRight (int count) noexcept
 
         for (int c { cCol }; c < cCol + charsToInsert; ++c)
             cells[c] = fill;
+
+        row->usedCols = static_cast<uint16_t> (juce::jmin (static_cast<int> (row->usedCols) + charsToInsert, nCols));
     }
 }
 

@@ -127,7 +127,7 @@ public:
      * @see setDimensions()
      * @see calc()
      */
-    void resize (int newCols, int newVisibleRows) noexcept;
+    void resize (cell newCols, cell newVisibleRows) noexcept;
 
     /**
      * @brief Resets Video and the terminal to a clean initial state.
@@ -156,13 +156,13 @@ public:
     /** @name State getters — minimal surface for Processor command handlers
      * @{ */
 
-    int getActiveScreen() const noexcept { return activeScreen; }
-    int getCursorRow()    const noexcept { return cursorRow.value; }
-    int getCursorCol()    const noexcept { return cursorCol.value; }
-    int getCols()         const noexcept { return cols.value; }
-    int getVisibleRows()  const noexcept { return visibleRows.value; }
-    int getCellWidth()    const noexcept { return cellWidth; }
-    int getCellHeight()   const noexcept { return cellHeight; }
+    int  getActiveScreen() const noexcept { return activeScreen; }
+    cell getCursorRow()    const noexcept { return cursorRow; }
+    cell getCursorCol()    const noexcept { return cursorCol; }
+    cell getCols()         const noexcept { return cols; }
+    cell getVisibleRows()  const noexcept { return visibleRows; }
+    int  getCellWidth()    const noexcept { return cellWidth; }
+    int  getCellHeight()   const noexcept { return cellHeight; }
 
     /** @brief Returns the value of the named mode flag.
      *
@@ -198,7 +198,7 @@ public:
      *  @param newRows  New terminal height in visible rows.
      *  @note READER THREAD only.
      */
-    void setDimensions (int newCols, int newRows) noexcept;
+    void setDimensions (cell newCols, cell newRows) noexcept;
 
     /** @brief Sets physical cell dimensions for CSI pixel dimension reports.
      *
