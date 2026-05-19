@@ -1,5 +1,56 @@
 # SPRINT-LOG
 
+## Handoff: Sprint 23
+
+**From:** COUNSELOR
+**Date:** 2026-05-19
+
+### Problem
+Grid reflow produces wrong output on terminal resize. Two symptoms:
+1. **Upsize (width increase):** Content duplicates — same text appears multiple times across the wider row. Digits ("2", "0", "4") appear between duplications, likely Row header bytes (`usedCols` uint16_t) bleeding through wrong memcpy offsets.
+2. **Downsize (width decrease):** Content does not wrap — lines stay at original width, truncated instead of split into multiple rows.
+
+Root cause is in `Source/terminal/logic/GridReflow.cpp` — the reflow algorithm's move/join/split dispatch and/or the scratch→buffer copy loop. The resize DATA FLOW is now correct (Sprint 22 fixed that). The reflow ALGORITHM has bugs.
+
+### Architecture Context (Sprint 22 Established)
+- **Display** writes State only (`setValue` for cols, visibleRows, width, height)
+- **Processor::valueTreePropertyChanged** delegates to `GridResize::set()` (one-liner setter)
+- **GridResize** coalesces rapid resize events (50ms timer), calls `apply()` which runs the reflow
+- **GridResize::apply()** calls `Grid::reflow()`, updates Video dimensions, fires SIGWINCH via TTY
+- **process()** is pure — bytes→parse→Grid, no sizing, no locks
+- Lock-free architecture. No callbackLock/suspendProcessing.
+
+### Recommended Investigation
+1. Verify `Row::usedCols` is being set correctly by `Video::print()` — add diagnostic logging in `GridReflow.cpp` to dump usedCols values per row before reflow dispatch
+2. Check the move/join/split dispatch conditions against actual usedCols values — the dispatch may never hit the split path (usedCols always 0 or wrong)
+3. Check the scratch→buffer copy loop — physical row mapping between scratch (sequential writeIdx) and buffer (head-based arithmetic) may produce wrong positions
+4. Compare against tmux `grid_reflow()` in `~/Documents/Poems/dev/end/design/tmux-grid.c` — the reference implementation
+
+### Files to Modify
+- `Source/terminal/logic/GridReflow.cpp` — reflow algorithm: reflowScreen, reflowJoin, reflowSplit, scratch→buffer copy
+- `Source/terminal/logic/Grid.h` — Row struct (usedCols, wrapped flag)
+- `Source/terminal/logic/Video.cpp` — usedCols tracking in print()
+
+### Acceptance Criteria
+- [ ] Downsize wraps content at new width (lines longer than newCols split into multiple rows)
+- [ ] Upsize joins previously-wrapped lines back into single rows
+- [ ] Content preserved — no duplication, no loss, no header byte bleed
+- [ ] Cursor position correct after reflow
+- [ ] Aggressive rapid resize back-and-forth does not corrupt content
+- [ ] Active prompt line survives resize
+
+### Notes
+- `DEBT-20260519T124500` tracks this issue
+- The reference tmux implementation is at `~/Documents/Poems/dev/end/design/tmux-grid.c`
+- `Row::usedCols` tracking was added in Sprint 22 — verify it works for all write paths (print, shiftCellsRight, DECALN, erase, scroll)
+- GridResize coalesce is 50ms — aggressive resize produces one reflow per stable dimension, not per pixel change
+
+### Scope 2: Screen rendering — jam::Block, no copy
+
+Screen (terminal rendering) currently copies cell content from Grid into a snapshot for rendering. This should use `jam::Block` to build content directly — same pattern as Whelmed's block-based renderer. No cell copy. Screen reads Grid cells in place via block descriptors.
+
+---
+
 ## Sprint 22: Grid Reflow + Resize Data Flow — APVTS-Conformant Architecture ✅
 
 **Date:** 2026-05-19
