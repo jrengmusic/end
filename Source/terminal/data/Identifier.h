@@ -257,8 +257,15 @@ namespace ID
     /** @brief Cursor row of the most-recently received OSC 133 A prompt marker. -1 = none. */
     static const juce::Identifier promptRow            { "promptRow" };
 
-    /** @brief Total history rows above active prompt accumulated since last Display drain. */
-    static const juce::Identifier historyRows          { "historyRows" };
+    //==========================================================================
+    // Per-screen scrollback parameter IDs
+    //==========================================================================
+
+    /** @brief History row count for this screen. Mirrors Grid's numRows. Processor writes after scroll events. */
+    static const juce::Identifier numRows              { "numRows" };
+
+    /** @brief User scroll offset. 0 = live viewport, >0 = scrolled into history. */
+    static const juce::Identifier scrollOffset         { "scrollOffset" };
 
     //==========================================================================
     // Repaint signal atomic
@@ -266,6 +273,10 @@ namespace ID
 
     /** @brief True when new cell data has been written to the grid since the last repaint. */
     static const juce::Identifier snapshotDirty        { "snapshotDirty" };
+
+    /** @brief Clear signal -- set to 1 by Video on erase mode 3 (clear scrollback).
+     *         Screen reads this and calls TextEditor::clear() to wipe the content buffer. */
+    static const juce::Identifier clearBuffer          { "clearBuffer" };
 
     //==========================================================================
     // Image preview split-viewport state (MESSAGE THREAD only, direct properties on SESSION root)
@@ -302,7 +313,11 @@ namespace ID
     /** @brief Fired on OSC 8 hyperlink open — args: const juce::String& uri, const juce::String& params. */
     static const juce::Identifier registerLink        { "registerLink" };
 
-    /** @brief Fired when Grid scrolls up — args: int (screen), int (historyRows). */
+    /** @brief Fired when Grid scrolls up — args: int (screen), int (count). */
+    static const juce::Identifier scrollUp              { "scrollUp" };
+
+    /** @brief Fired when cell data is written to Grid — args: int (screen). Triggers Screen repaint. */
+    static const juce::Identifier screenDirty           { "screenDirty" };
 
     /** @brief Fired on OSC 133 A prompt marker — args: int (relative row). */
     static const juce::Identifier outputBlockStart    { "outputBlockStart" };

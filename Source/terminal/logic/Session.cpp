@@ -213,8 +213,6 @@ Session::Session (cell cols,
                   const juce::String& uuid)
     : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
-    grid.setSize (rows.value, cols.value);
-
 #if JUCE_MAC || JUCE_LINUX
     tty = std::make_unique<UnixTTY>();
 #elif JUCE_WINDOWS
@@ -261,11 +259,12 @@ Session::Session (cell cols,
             sendInput (data, len);
         });
 
-    // 2b. Terminal resize → PTY SIGWINCH.
+    // 2b. Terminal resize → PTY SIGWINCH + Processor prepare.
     processor->events.add<int, int, int, int> (Terminal::ID::terminalResize,
         [this] (int cols, int rows, int pixelWidth, int pixelHeight)
         {
             resize (cell (cols), cell (rows), pixelWidth, pixelHeight);
+            processor->prepare (rows, cols, lua::Engine::getContext()->nexus.terminal.scrollbackLines);
         });
 
     // 2. PTY output → history + external onBytes + Processor (with resize lock).
@@ -355,8 +354,6 @@ Session::Session (cell cols,
 {
     jassert (cols.value > 0);
     jassert (rows.value > 0);
-
-    grid.setSize (rows.value, cols.value);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
     processor = std::make_unique<Terminal::Processor> (grid, textBuffer, cols.value, rows.value, effectiveUuid);

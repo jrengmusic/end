@@ -23,9 +23,9 @@
  *    flushed back via the `writeToHost` event handler registered in `events`.
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
- * 8. Display resize: Display writes cols/visibleRows/cellWidth/cellHeight to
- *    State atomics. process() reads them directly at batch start and applies
- *    to Grid and Video on the reader thread.
+ * 8. Resize: Session calls `prepare(rows, cols, scrollbackLines)` on construction
+ *    and on terminalResize events.  process() reads cellWidth/cellHeight atomics
+ *    at batch start for Video/Skit; Grid resize never happens in process().
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
@@ -169,6 +169,21 @@ public:
     juce::String encodeFocusEvent (bool gained) const noexcept;
 
     /**
+     * @brief Prepares the terminal pipeline for the given dimensions.
+     *
+     * Sets Grid size, Video dimensions, and stores the scrollback limit for use
+     * by scroll event handlers.  Analogous to `AudioProcessor::prepareToPlay()`.
+     * Called by Session on construction and on every resize (terminalResize event).
+     * Never called from process() — resize detection in process() was removed.
+     *
+     * @param viewportRows     Visible row count.
+     * @param numCols          Column count.
+     * @param scrollbackLines  Maximum history row count (from config).
+     * @note READER THREAD safe — called before bytes start flowing.
+     */
+    void prepare (int viewportRows, int numCols, int scrollbackLines) noexcept;
+
+    /**
      * @brief Processes raw bytes through the parser pipeline.
      *
      * Forwards the byte buffer to `Parser::process()`, then flushes any queued
@@ -309,6 +324,13 @@ private:
 
     /** @brief VT100/VT520 state machine that decodes PTY output. */
     std::unique_ptr<Parser> parser;
+
+    /** @brief Maximum history row count — set by prepare(), used by scrollUp handler. */
+    int scrollbackLines { 0 };
+
+    /** @brief Per-screen history row accumulator — Processor is the sole writer.
+     *         Capped at scrollbackLines. Mirrors Grid's numRows. */
+    std::array<int, 2> numRows { 0, 0 };
 
     /** @brief Registers Processor-owned event handlers on the events map.
      *

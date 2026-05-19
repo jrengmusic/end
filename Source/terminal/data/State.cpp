@@ -161,7 +161,38 @@ juce::String State::getForegroundProcess() const noexcept
     return get().getProperty (ID::foregroundProcess).toString();
 }
 
-int State::getScrollbackUsed() const noexcept { return 0; }
+//==========================================================================
+// Viewport scrollback parameters — reader-thread setters, message-thread getters
+//==========================================================================
+
+void State::setNumRows (int screen, int value) noexcept
+{
+    const juce::Identifier screenId { Screen::Map::getContext()->get (screen) };
+    storeValue (screenId, ID::numRows, value);
+}
+
+void State::setScrollOffset (int screen, int value) noexcept
+{
+    const juce::Identifier screenId { Screen::Map::getContext()->get (screen) };
+    storeValue (screenId, ID::scrollOffset, value);
+}
+
+void State::setScreenDirty (int screen) noexcept
+{
+    const juce::Identifier screenId { Screen::Map::getContext()->get (screen) };
+    const int current { loadValue (screenId, ID::screenDirty) };
+    storeValue (screenId, ID::screenDirty, current + 1);
+}
+
+int State::getNumRows (int screen) const noexcept
+{
+    return getScreenParamInt (get(), screen, ID::numRows);
+}
+
+int State::getScrollOffset (int screen) const noexcept
+{
+    return getScreenParamInt (get(), screen, ID::scrollOffset);
+}
 
 //==========================================================================
 // Reader-thread setters
@@ -351,10 +382,6 @@ cell State::getOutputBlockBottom() const noexcept { return cell (getSessionParam
 
 cell State::getPromptRow() const noexcept { return cell (getSessionParamInt (get(), ID::promptRow, -1)); }
 
-void State::setHistoryRows (int count) noexcept { storeValue (ID::SESSION, ID::historyRows, count); }
-
-int State::getHistoryRows() const noexcept { return getSessionParamInt (get(), ID::historyRows, 0); }
-
 bool State::hasOutputBlock() const noexcept
 {
     const cell blockTop { getOutputBlockTop() };
@@ -391,6 +418,14 @@ bool State::consumeSnapshotDirty() noexcept
 }
 
 bool State::isSnapshotDirty() const noexcept { return getSessionParamInt (get(), ID::snapshotDirty) != 0; }
+
+//==========================================================================
+// Clear buffer signal
+//==========================================================================
+
+void State::setClearBuffer() noexcept { storeValue (ID::SESSION, ID::clearBuffer, 1); }
+
+bool State::getClearBuffer() const noexcept { return getSessionParamInt (get(), ID::clearBuffer) != 0; }
 
 //==========================================================================
 // Paste echo gate

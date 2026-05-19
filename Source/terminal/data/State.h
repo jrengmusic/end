@@ -150,8 +150,6 @@ struct State : public jam::ValueTree,
     cell getOutputBlockBottom() const noexcept;
     cell getPromptRow() const noexcept;
     bool hasOutputBlock() const noexcept;
-    void setHistoryRows (int count) noexcept;
-    int getHistoryRows() const noexcept;
 
     // Shell exit signal
     void setShellExited (bool exited) noexcept;
@@ -161,6 +159,10 @@ struct State : public jam::ValueTree,
     void setSnapshotDirty() noexcept;
     bool consumeSnapshotDirty() noexcept;
     bool isSnapshotDirty() const noexcept;
+
+    // Clear buffer signal
+    void setClearBuffer() noexcept;
+    bool getClearBuffer() const noexcept;
 
     // Paste echo gate
     void setPasteEchoGate (int bytes) noexcept;
@@ -204,8 +206,13 @@ struct State : public jam::ValueTree,
     ModalType getModalType() const noexcept;
     bool isModal() const noexcept;
 
-    // Scrollback stub (live callers, scrollback state removed)
-    int getScrollbackUsed() const noexcept;
+    // Viewport scrollback parameters — reader-thread setters, message-thread getters
+    void setNumRows     (int screen, int value) noexcept;
+    void setScrollOffset (int screen, int value) noexcept;
+    void setScreenDirty (int screen) noexcept;
+
+    int getNumRows      (int screen) const noexcept;
+    int getScrollOffset (int screen) const noexcept;
 
     // Per-screen atomic loaders — any thread, lock-free.
     // Used by Processor's ID::screenSwitch handler to read the new screen's saved cursor.

@@ -4,11 +4,10 @@
 Terminal::Display::Display (Terminal::Processor& processorToUse)
     : processor (processorToUse)
     , state (processorToUse.getState())
-    , grid (processorToUse.getGrid())
+    , screen (processorToUse.getState(), processorToUse.getGrid())
 {
     addAndMakeVisible (screen);
     screen.addKeyListener (this);
-    state.get().addListener (this);
 
     // Seed DISPLAY node with zero-valued properties before graft.
     // registerNodeAtomics (called on appendChild) consumes these and
@@ -40,7 +39,6 @@ void Terminal::Display::applyConfig() noexcept
     screen.setCaretShape (config.display.cursor.style);
     screen.setCaretBlinkRate (config.display.cursor.blinkInterval);
     screen.setScrollBarThickness (config.display.scrollbarWidth);
-    screen.setScrollbackLines (config.nexus.terminal.scrollbackLines);
 
     state.storeValue (Terminal::ID::DISPLAY, Terminal::ID::cellWidth,  font.cellWidth);
     state.storeValue (Terminal::ID::DISPLAY, Terminal::ID::cellHeight, font.cellHeight);
@@ -112,6 +110,9 @@ void Terminal::Display::updateDimensions (const juce::Rectangle<int>& contentBou
 // juce::KeyListener
 bool Terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
 {
+    static constexpr int live { 0 };
+    state.setScrollOffset (state.getActiveScreen(), live);
+
     if (processor.events.contains (Terminal::ID::writeInput))
     {
         const auto encoded { processor.encodeKeyPress (key) };
@@ -121,40 +122,4 @@ bool Terminal::Display::keyPressed (const juce::KeyPress& key, juce::Component*)
     }
 
     return true;
-}
-
-// juce::ValueTree::Listener
-void Terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
-{
-    state.setSnapshotDirty();
-    screen.setActiveScreen (state.getActiveScreen());
-    screen.setCaretPosition (state.getCursorCol(), state.getCursorRow());
-
-    const int historyRows { state.getHistoryRows() };
-    const int delta { historyRows - previousHistoryRows };
-
-    if (delta > 0)
-    {
-        screen.setText (grid.getBuffer(), Screen::Map::normal,
-                        grid.getHead (Screen::Map::normal),
-                        { previousHistoryRows, historyRows });
-        previousHistoryRows = historyRows;
-    }
-
-}
-
-std::function<void()> Terminal::Display::onVBlank() noexcept
-{
-    return [this]
-    {
-        if (state.consumeSnapshotDirty())
-            state.refresh();
-
-        const int activeScreen { state.getActiveScreen() };
-        const int numRows { grid.getNumRows (activeScreen) };
-
-        screen.setText (grid.getBuffer(), activeScreen,
-                        grid.getHead (activeScreen),
-                        { 0, numRows });
-    };
 }
