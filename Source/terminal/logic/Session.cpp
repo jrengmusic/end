@@ -282,7 +282,7 @@ Session::Session (cell cols,
                                         procRawPtr->getState().getVisibleRows());
     };
 
-    // Transfer TTY ownership to Processor. Processor calls platformResize directly from prepare().
+    // Transfer TTY ownership to Processor. setTTY() wires the TTY into GridResize for SIGWINCH delivery.
     processor->setTTY (std::move (tty));
 }
 

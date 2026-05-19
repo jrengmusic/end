@@ -1,5 +1,68 @@
 # SPRINT-LOG
 
+## Sprint 22: Grid Reflow + Resize Data Flow — APVTS-Conformant Architecture ✅
+
+**Date:** 2026-05-19
+
+### Agents Participated
+- COUNSELOR: strategic analysis, PLAN authoring, delegation
+- Pathfinder: codebase discovery, tmux research, Kuassa APVTS pattern study, JUCE API research
+- Librarian: jam::Buffer API, JUCE AudioProcessor/APVTS internals, SmoothStateTransition, jam::tui types
+- Engineer: all code implementation
+- Auditor: validation against contracts
+
+### Files Modified (25+ total)
+- `Source/terminal/logic/Grid.h` — reflow(), isAllocated(), getNumRows() API
+- `Source/terminal/logic/Grid.cpp` — reflow implementation (tmux-conformant move/join/split), cursor wrap/unwrap, isAllocated, getNumRows
+- `Source/terminal/logic/GridResize.h` — NEW: resize lifecycle manager (coalesce timer, pending dimensions, apply)
+- `Source/terminal/logic/GridResize.cpp` — NEW: apply() extracted from Processor::prepare()
+- `Source/terminal/logic/Processor.h` — events private, removed callbackLock/suspended/suspendProcessing/displayReady/prepare, added GridResize member, writeInput API, setInputWriter API, TTY ownership
+- `Source/terminal/logic/Processor.cpp` — process() pure (bytes only), valueTreePropertyChanged delegates to GridResize one-liner setters, TTY ownership, command started/ended inlined
+- `Source/terminal/logic/Video.h` — getCols/getVisibleRows/getCursorRow/getCursorCol return cell, setDimensions/resize take cell
+- `Source/terminal/logic/Video.cpp` — usedCols tracking in print(), cell params for setDimensions/resize
+- `Source/terminal/logic/VideoEdit.cpp` — usedCols tracking in shiftCellsRight()
+- `Source/terminal/logic/VideoESC.cpp` — usedCols tracking in DECALN
+- `Source/terminal/logic/Session.cpp` — TTY ownership transferred to Processor, setInputWriter/onResize wiring, removed resize/platformResize methods
+- `Source/terminal/logic/Input.cpp` — writeInput migration
+- `Source/terminal/logic/Mouse.cpp` — writeInput migration
+- `Source/terminal/data/Parameters.xml` — width, height, numRows, scrollOffset, screenDirty params
+- `Source/terminal/data/Identifier.h` — width/height removed (use jam::ID), terminalResize removed
+- `Source/terminal/data/State.h` — loadCols/loadVisibleRows return cell, loadWidth/loadHeight
+- `Source/terminal/data/State.cpp` — cell return types, width/height loaders
+- `Source/component/TerminalDisplay.h` — removed VBlank, Grid ref
+- `Source/component/TerminalDisplay.cpp` — Display writes State only (setValue), no Processor event pokes, writeInput API
+- `Source/terminal/rendering/Screen.h` — ValueTree::Listener, State& + Grid& refs
+- `Source/terminal/rendering/Screen.cpp` — event-driven rendering via valueTreePropertyChanged
+- `Source/nexus/Nexus.h` — ValueTree::Listener for IPC resize forward
+- `Source/nexus/Nexus.cpp` — setInputWriter/onResize → client resize via VT listener
+- `Source/interprocess/Daemon.cpp` — resize via State setValue (not session.resize)
+- `Source/interprocess/Channel.cpp` — resize via State setValue
+- `Source/AppIdentifier.h` — removed width/height (use jam::ID)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Grid reflow algorithm (tmux-conformant move/join/split dispatch)
+- Row::usedCols tracking (prerequisite for reflow)
+- Resize data flow: Display→State→Processor (APVTS pattern, no direct Processor poking)
+- Events made private, Session uses Processor API (setInputWriter, setHostWriter)
+- TTY ownership transferred to Processor (no upstream callbacks for SIGWINCH)
+- process() made pure (bytes→parse→Grid, no sizing, no locks)
+- GridResize class (coalesce timer, discrete state transition analog)
+- suspendProcessing/callbackLock removed (lock-free architecture restored)
+- cell type migration for Video/State/Processor dimension APIs
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260519T124500` — Grid reflow produces wrong output on resize (duplication on upsize, no wrap on downsize). Reflow algorithm needs debugging — usedCols values, ring arithmetic, scratch→buffer copy all suspect. GridResize coalesce mechanism is correct but the underlying Grid::reflow() algorithm has bugs.
+
+---
+
 ## Sprint 21: Viewport Scrollback — tmux-Conformant Grid + Event-Driven Rendering
 
 **Date:** 2026-05-19

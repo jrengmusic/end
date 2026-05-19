@@ -10,6 +10,14 @@
 
 ---
 
+## DEBT-20260519T124500
+
+**Observation:** Grid reflow on resize produces wrong output — downsize doesn't wrap content, upsize duplicates/copies content instead of reflowing
+**Divergence:** resizing terminal window should reflow wrapped lines at new width (join on width increase, split on width decrease) preserving content — same as tmux grid_reflow
+**Expectation:** content-preserving resize with correct wrap/unwrap following tmux structural pattern: move/join/split dispatch based on usedCols vs newCols and wrapped flag
+
+---
+
 ## DEBT-20260501T193217
 
 **Observation:** split third V/H from action list did not split viewport symetrically

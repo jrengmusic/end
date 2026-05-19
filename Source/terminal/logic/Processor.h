@@ -1,9 +1,9 @@
 /**
  * @file Processor.h
- * @brief Terminal pipeline orchestrator: owns Parser and Video, references Grid and State.
+ * @brief Terminal pipeline orchestrator: owns Parser, Video, and GridResize, references Grid and State.
  *
  * `Processor` is the pipeline half of the terminal emulator.  It owns the
- * Parser and Video, and routes bytes through the Grid and State received from Session:
+ * Parser, Video, and GridResize, and routes bytes through the Grid and State received from Session:
  *
  * ```
  *  bytes → Processor::process → Parser → Video → State / Grid → Display
@@ -23,11 +23,11 @@
  *    flushed back via the `writeToHost` event handler registered in `events`.
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
- * 8. Resize: Session calls `prepare(rows, cols, scrollbackLines)` on construction.
- *    Display writes cols/visibleRows to State; valueTreePropertyChanged detects the
- *    change, calls prepare(), then calls tty->platformResize() directly (Processor owns TTY).
- *    process() reads cellWidth/cellHeight atomics at batch start for Video/Skit;
- *    Grid resize never happens in process().
+ * 8. Resize: GridResize owns the resize lifecycle. Processor constructor calls
+ *    gridResize.set() and gridResize.apply() for initial allocation.
+ *    valueTreePropertyChanged calls gridResize.set() on cols/visibleRows changes
+ *    and gridResize.setCellSize() on cellWidth/cellHeight changes; GridResize
+ *    coalesces and applies on a 50 ms quiet timer.
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
@@ -35,10 +35,11 @@
  * - `State` and `Grid` handle their own internal thread safety.
  *
  * @see Terminal::Session — owns TTY and History (PTY side).
- * @see Grid    — flat Buffer<Cell> storage, stateless data buffer.
- * @see Parser  — VT100/VT520 state machine.
- * @see Video   — terminal state machine: pen, cursor, modes, Grid writes.
- * @see State   — atomic terminal parameter store.
+ * @see Grid       — flat Buffer<Cell> storage, stateless data buffer.
+ * @see GridResize — coalescing resize lifecycle manager.
+ * @see Parser     — VT100/VT520 state machine.
+ * @see Video      — terminal state machine: pen, cursor, modes, Grid writes.
+ * @see State      — atomic terminal parameter store.
  */
 
 #pragma once
@@ -50,6 +51,7 @@
 #include "../data/TextBuffer.h"
 #include "../tty/TTY.h"
 #include "Grid.h"
+#include "GridResize.h"
 #include "Parser.h"
 #include "Skit.h"
 #include "Video.h"
@@ -96,10 +98,10 @@ class Processor : public juce::ValueTree::Listener
 public:
     //==============================================================================
     /**
-     * @brief Constructs the Processor and wires the parser and video via maps.
+     * @brief Constructs the Processor and wires the parser, video, and resize pipeline.
      *
      * Receives Grid and TextBuffer by reference from the owning Session,
-     * constructs State, Video, and Parser.  UUID is provided by the caller.
+     * constructs State, Video, GridResize, and Parser.  UUID is provided by the caller.
      * Call `setHostWriter()` immediately after construction to route video
      * responses (e.g. cursor-position reports) to the appropriate sink.
      *
@@ -173,28 +175,11 @@ public:
     juce::String encodeFocusEvent (bool gained) const noexcept;
 
     /**
-     * @brief Prepares the terminal pipeline for the given dimensions.
-     *
-     * Sets Grid size, Video dimensions, and stores the scrollback limit for use
-     * by scroll event handlers.  Analogous to `AudioProcessor::prepareToPlay()`.
-     * Called by Session on construction and by valueTreePropertyChanged on resize.
-     * Never called from process() — resize detection in process() was removed.
-     *
-     * @param viewportRows     Visible row count.
-     * @param numCols          Column count.
-     * @param scrollbackLines  Maximum history row count (from config).
-     * @note READER THREAD safe — called before bytes start flowing.
-     */
-    void prepare (cell viewportRows, cell numCols, int scrollbackLines) noexcept;
-
-    /**
      * @brief Processes raw bytes through the parser pipeline.
      *
-     * Forwards the byte buffer to `Parser::process()`, then flushes any queued
-     * Video responses via `video.flushResponses()`.  Called on the READER THREAD
-     * by whichever byte source owns this Processor — the `Terminal::Session`
-     * onBytes callback (local/daemon) or the IPC byte-forward dispatch (client).
-     * While suspended, acquires callbackLock but skips parsing.
+     * Pure bytes-to-Grid pipeline: forwards to Parser::process(), flushes Video,
+     * and consumes the paste echo gate.  No lock, no suspended check, no cell-size
+     * detection — all resize work is handled exclusively by GridResize.
      *
      * @param data    Pointer to the raw byte buffer.
      * @param length  Number of bytes in the buffer.
@@ -202,21 +187,15 @@ public:
      */
     void process (const char* data, int length) noexcept;
 
-    /** @brief Suspends or resumes byte processing.
+    /**
+     * @brief Returns a mutable reference to the GridResize manager.
      *
-     *  While suspended, process() acquires callbackLock but skips parsing.
-     *  Used by valueTreePropertyChanged to bracket prepare() during resize.
-     *  1:1 analog of juce::AudioProcessor::suspendProcessing.
+     * Used by Session to wire the TTY pointer into GridResize after TTY construction.
      *
-     *  @param shouldBeSuspended  true to suspend, false to resume.
-     *  @note MESSAGE THREAD.
+     * @return Mutable reference to the owned GridResize.
+     * @note MESSAGE THREAD.
      */
-    void suspendProcessing (bool shouldBeSuspended) noexcept;
-
-    /** @brief Returns true if processing is currently suspended.
-     *  @note ANY THREAD — reads plain bool, safe when caller holds callbackLock.
-     */
-    bool isSuspended() const noexcept;
+    GridResize& getGridResize() noexcept;
 
     /**
      * @brief Returns a mutable reference to the terminal parameter store.
@@ -398,28 +377,21 @@ private:
      */
     Skit skit;
 
+    /** @brief Resize lifecycle manager — coalesces dimension and cell-size changes into atomic Grid/Video/TTY updates. */
+    GridResize gridResize;
+
     /** @brief Stable UUID identifying this Processor across process boundaries. */
     const juce::String uuid;
 
     /** @brief VT100/VT520 state machine that decodes PTY output. */
     std::unique_ptr<Parser> parser;
 
-    /** @brief Maximum history row count — set by prepare(), used by scrollUp handler. */
+    /** @brief Maximum history row count — set once in constructor from config, used by scrollUp handler. */
     int scrollbackLines { 0 };
 
     /** @brief Per-screen history row accumulator — Processor is the sole writer.
      *         Capped at scrollbackLines. Mirrors Grid's numRows. */
     std::array<int, 2> numRows { 0, 0 };
-
-    /** @brief Serializes process() vs suspendProcessing() — 1:1 AudioProcessor::callbackLock analog. */
-    juce::CriticalSection callbackLock;
-
-    /** @brief When true, process() skips parsing. Set by suspendProcessing(). */
-    bool suspended { false };
-
-    /** @brief Set to true by createDisplay() once the DISPLAY AnyMap group has been grafted.
-     *         Guards the cellWidth/cellHeight load in process() against a pre-Display assertion. */
-    bool displayReady { false };
 
     /** @brief Registers Processor-owned event handlers on the events map.
      *
@@ -435,8 +407,9 @@ private:
      *
      *  Fires on the message thread when State's ValueTree properties change.
      *  Handles shell integration callbacks (outputBlockTop → command process query,
-     *  promptRow → clear foreground) and dimension changes (cols, visibleRows) —
-     *  calls prepare() then tty->platformResize() directly.
+     *  promptRow → clear foreground), dimension changes (cols, visibleRows) via
+     *  gridResize.set(), and cell pixel changes (cellWidth, cellHeight) via
+     *  gridResize.setCellSize().
      *
      *  @note MESSAGE THREAD.
      */
