@@ -45,10 +45,10 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, int cols, int ro
     , uuid (uuid)
 {
     state.setDimensions (cell (cols), cell (rows));
-    video.setDimensions (cols, rows);
     registerEvents();
     parser = std::make_unique<Parser> (video);
     state.get().addListener (this);
+    prepare (rows, cols, lua::Engine::getContext()->nexus.terminal.scrollbackLines);
 }
 
 /**
@@ -60,6 +60,29 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, int cols, int ro
  * @note MESSAGE THREAD.
  */
 Processor::~Processor() = default;
+
+// =============================================================================
+
+/**
+ * @brief Prepares the terminal pipeline for the given dimensions.
+ *
+ * Sets Grid size, Video dimensions, and stores the scrollback limit for use
+ * by scroll event handlers.  Analogous to `AudioProcessor::prepareToPlay()`.
+ * Called by Session on construction and on resize.  Never called from process().
+ *
+ * @param viewportRows     Visible row count.
+ * @param numCols          Column count.
+ * @param scrollbackLines  Maximum history row count (from config).
+ */
+void Processor::prepare (int viewportRows, int numCols, int scrollbackLines) noexcept
+{
+    this->scrollbackLines = scrollbackLines;
+    numRows.at (0) = 0;
+    numRows.at (1) = 0;
+    grid.setSize (viewportRows, numCols, scrollbackLines);
+    video.setDimensions (numCols, viewportRows);
+    video.resize (numCols, viewportRows);
+}
 
 // =============================================================================
 
@@ -108,10 +131,10 @@ Processor::~Processor() = default;
  * - `"bell"`, `"clipboardChanged"`, `"desktopNotification"` — placeholder registrations
  *   so `events.contains()` passes; Session registers the actual handlers after construction.
  *
- * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — Video::flushState()
+ * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — Video::flush()
  *   flush events; write the corresponding State atomics.
  *
- * - `"applicationCursor"` / `"bracketedPaste"` / ... — Video::flushState() mode flag flushes.
+ * - `"applicationCursor"` / `"bracketedPaste"` / ... — Video::flush() mode flag flushes.
  *
  * - `"screenSwitch"` — Video::setScreen(); saves old cursor to State, loads new cursor from
  *   State atomics, calls `Video::loadScreenState()`.  Synchronous on reader thread.
@@ -136,29 +159,29 @@ void Processor::registerEvents() noexcept
             video.setActiveLinkId (0);
         });
 
-    // C6: Shell integration — scrollback stub returns 0, so screen-relative == absolute.
+    // C6: Shell integration — no scrollback, screen-relative == absolute.
     events.add<int> (ID::promptRow,
                      [this] (int relativeRow)
                      {
-                         state.setPromptRow (cell (state.getScrollbackUsed() + relativeRow));
+                         state.setPromptRow (cell (relativeRow));
                      });
 
     events.add<int> (ID::outputBlockStart,
                      [this] (int relativeRow)
                      {
-                         state.setOutputBlockStart (cell (state.getScrollbackUsed() + relativeRow));
+                         state.setOutputBlockStart (cell (relativeRow));
                      });
 
     events.add<int> (ID::outputBlockEnd,
                      [this] (int relativeRow)
                      {
-                         state.setOutputBlockEnd (cell (state.getScrollbackUsed() + relativeRow));
+                         state.setOutputBlockEnd (cell (relativeRow));
                      });
 
     events.add<int> (ID::extendOutputBlock,
                      [this] (int relativeRow)
                      {
-                         state.extendOutputBlock (cell (state.getScrollbackUsed() + relativeRow));
+                         state.extendOutputBlock (cell (relativeRow));
                      });
 
     // OSC 1337 raw payload from Video — delegate to Skit, then advance cursor.
@@ -269,13 +292,21 @@ void Processor::registerEvents() noexcept
                          state.setScreen (scr);
                      });
 
-    // State delivery: history row accumulator updated on every viewport scroll.
-    events.add<int, int> (ID::historyRows,
-                          [this] (int scr, int count)
+    // State delivery: scrollUp — increment history row count (capped at scrollbackLines), sync Grid and State.
+    events.add<int, int> (ID::scrollUp,
+                          [this] (int screen, int count)
                           {
-                              juce::ignoreUnused (scr);
-                              state.setHistoryRows (count);
+                              numRows.at (screen) = juce::jmin (numRows.at (screen) + count, scrollbackLines);
+                              grid.setNumRows (screen, numRows.at (screen));
+                              state.setNumRows (screen, numRows.at (screen));
                           });
+
+    // State delivery: screenDirty — increment monotonic counter so Screen detects new cell data.
+    events.add<int> (ID::screenDirty,
+                     [this] (int screen)
+                     {
+                         state.setScreenDirty (screen);
+                     });
 
     // State delivery: cursor row for active screen.
     events.add<int, int> (ID::cursorRow,
@@ -546,10 +577,10 @@ juce::String Processor::encodeMouseEvent (int button, int col, int row, bool pre
 /**
  * @brief Processes raw bytes through the parser pipeline.
  *
- * Reads cols, visibleRows, cellWidth, and cellHeight directly from State atomics
- * at batch start and applies any changes to Grid and Video on the reader thread.
- * State atomics are written by Display (message thread) via setValue / storeValue;
- * no intermediate pending-flag protocol is needed.
+ * Reads cellWidth and cellHeight from State atomics at batch start and applies
+ * any changes to Video and Skit on the reader thread.  Grid resize is handled
+ * by Processor::prepare() — never in process().  Guards on video dimensions
+ * prevent processing before prepare() is called.
  *
  * @note READER THREAD only — called from the byte source (Terminal::Session
  *       onBytes callback or IPC dispatch in client mode).
@@ -557,16 +588,6 @@ juce::String Processor::encodeMouseEvent (int button, int col, int row, bool pre
 void Processor::process (const char* data, int length) noexcept
 {
     jassert (parser != nullptr);
-
-    const int stateCols { state.loadCols() };
-    const int stateRows { state.loadVisibleRows() };
-
-    if (stateCols != video.getCols() or stateRows != video.getVisibleRows())
-    {
-        grid.setSize (stateRows, stateCols);
-        video.setDimensions (stateCols, stateRows);
-        video.resize (stateCols, stateRows);
-    }
 
     const int stateCellW { state.loadCellWidth() };
     const int stateCellH { state.loadCellHeight() };
@@ -577,9 +598,13 @@ void Processor::process (const char* data, int length) noexcept
         skit.setCellSize (stateCellW, stateCellH);
     }
 
-    parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
-    video.flushState();
-    video.flushResponses();
+    if (video.getCols() > 0 and video.getVisibleRows() > 0)
+    {
+        parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
+        video.flush();
+        video.flushResponses();
+    }
+
     state.consumePasteEcho (length);
 }
 

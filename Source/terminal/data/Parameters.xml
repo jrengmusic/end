@@ -28,7 +28,6 @@
     <PARAM id="outputBlockBottom"  type="int"  default="-1"/>
     <PARAM id="outputScanActive"   type="bool" default="false"/>
     <PARAM id="promptRow"          type="int"  default="-1"/>
-    <PARAM id="historyRows"        type="int"  default="0"/>
 
     <!-- Render signal -->
     <PARAM id="snapshotDirty"      type="bool" default="false"/>
@@ -64,6 +63,9 @@
         <PARAM id="cursorShape"    type="int"  default="0"/>
         <PARAM id="cursorColor"    type="int"  default="-1"/>
         <PARAM id="keyboardFlags"  type="int"  default="0"/>
+        <PARAM id="numRows"        type="int"  default="0"/>
+        <PARAM id="scrollOffset"   type="int"  default="0"/>
+        <PARAM id="screenDirty"    type="int"  default="0"/>
     </SCREEN>
 
     <!-- Cross-thread strings -->

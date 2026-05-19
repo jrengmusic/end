@@ -143,7 +143,7 @@ void Video::setCellSize (int widthPx, int heightPx) noexcept
     cellHeight = heightPx;
 }
 
-void Video::flushState() noexcept
+void Video::flush() noexcept
 {
     events.get (ID::activeScreen, int (activeScreen));
     events.get (ID::cursorRow, int (activeScreen), int (cursorRow.value));
@@ -157,6 +157,9 @@ void Video::flushState() noexcept
     events.get (ID::mouseAllTracking,    bool (mouseAllTracking));
     events.get (ID::focusEvents,         bool (focusEvents));
     events.get (ID::win32InputMode,      bool (win32InputMode));
+
+    if (events.contains (ID::screenDirty))
+        events.get (ID::screenDirty, int (activeScreen));
 }
 
 void Video::loadScreenState (int row, int col, bool visible,
@@ -295,12 +298,8 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
 {
     grid.scrollUp (activeScreen, top, bottom, count);
 
-    if (top == 0 and events.contains (ID::historyRows))
-    {
-        const int numRows { grid.getNumRows (activeScreen) };
-        historyRows = (historyRows + count) % juce::jmax (1, numRows);
-        events.get (ID::historyRows, int (activeScreen), int (historyRows));
-    }
+    if (top == 0 and events.contains (ID::scrollUp))
+        events.get (ID::scrollUp, int (activeScreen), int (count));
 
     if (penBg.getAlpha() > 0)
     {
@@ -309,10 +308,10 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
 
         for (int r { bottom - count + 1 }; r <= bottom; ++r)
         {
-            jam::Cell* row { grid.getWritePointer (activeScreen, r) };
+            jam::Row* row { grid.getWritePointer (activeScreen, r) };
 
             for (int col { 0 }; col < numCols; ++col)
-                row[col] = fill;
+                row->cells[col] = fill;
         }
     }
 }
@@ -336,12 +335,12 @@ void Video::scrollDownAndFill (int top, int bottom) noexcept
 
     if (penBg.getAlpha() > 0)
     {
-        jam::Cell* row { grid.getWritePointer (activeScreen, top) };
+        jam::Row* row { grid.getWritePointer (activeScreen, top) };
         const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
         const int numCols { cols.value };
 
         for (int col { 0 }; col < numCols; ++col)
-            row[col] = fill;
+            row->cells[col] = fill;
     }
 }
 
@@ -377,6 +376,9 @@ void Video::resolveWrapPending (int /*scr*/) noexcept
         const int scrollBot { activeScrollBottom() };
         const int vRows     { visibleRows.value };
         const int sTop      { scrollTop.value };
+
+        jam::Row* currentRow { grid.getWritePointer (activeScreen, row) };
+        currentRow->flags |= jam::Row::wrapped;
 
         if (row == scrollBot)
         {
@@ -439,7 +441,7 @@ void Video::print (uint32_t codepoint) noexcept
 
     if (segResult.addToCurrentCell())
     {
-        jam::Cell* const baseCell { grid.getWritePointer (scr, lastWriteRow, lastWriteCol) };
+        jam::Cell* const baseCell { &grid.getWritePointer (scr, lastWriteRow)->cells[lastWriteCol] };
 
         jam::Grapheme::Entry cluster {};
 
@@ -524,7 +526,7 @@ void Video::print (uint32_t codepoint) noexcept
 
         const jam::Cell glyph { jam::Cell::make (cp, jam::Cell::CONTENT_CODEPOINT, wideHint, sid) };
 
-        *grid.getWritePointer (scr, writeRow, writeCol) = glyph;
+        grid.getWritePointer (scr, writeRow)->cells[writeCol] = glyph;
 
         lastGraphicChar = codepoint;
         lastWriteRow    = writeRow;
@@ -534,7 +536,7 @@ void Video::print (uint32_t codepoint) noexcept
         {
             const jam::Cell cont { jam::Cell::make (0, jam::Cell::CONTENT_CODEPOINT,
                                                     jam::Cell::SPACER_TAIL, sid) };
-            *grid.getWritePointer (scr, writeRow, writeCol + 1) = cont;
+            grid.getWritePointer (scr, writeRow)->cells[writeCol + 1] = cont;
         }
 
         if (writeCol + charWidth >= numCols)

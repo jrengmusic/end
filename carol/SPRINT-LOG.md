@@ -1,5 +1,64 @@
 # SPRINT-LOG
 
+## Sprint 21: Viewport Scrollback — tmux-Conformant Grid + Event-Driven Rendering
+
+**Date:** 2026-05-19
+
+### Agents Participated
+- COUNSELOR — architecture, PLAN authoring, orchestration, bug detection (head model fix, Processor numRows reset, snapshotDirty restoration)
+- Engineer — Grid rewrite, Video migration, Processor/State params, Session/Screen/Display rewiring, cleanup
+- Auditor — per-step validation (Steps 1-4 PASS, Steps 5-7 NEEDS_WORK → fixed)
+- Pathfinder — codebase survey, git state, reflog check
+- Librarian — jam::Buffer API, jam::TextEditor API research
+- Researcher — tmux grid architecture deep dive
+
+### Files Modified (21 total)
+- `PLAN-viewport.md` — comprehensive rewrite: tmux-conformant architecture, TETRIS pattern, ring model
+- `Source/terminal/logic/Grid.h:1-177` — rewritten: jam::Buffer\<jam::Row\>, ring head, numRows calc input, setSize/setNumRows/scrollUp/scrollDown/clear/getWritePointer/getRow
+- `Source/terminal/logic/Grid.cpp:1-178` — rewritten: ring index model (head=viewport top), O(1) full-screen scroll, copyFrom partial scroll
+- `Source/terminal/logic/Video.h:323` — removed dirtyBits member
+- `Source/terminal/logic/Video.cpp:146-172,296-326,380-390,453,527-549` — Row* access, scrollUp/screenDirty events, wrap flag, flush() rename
+- `Source/terminal/logic/VideoEdit.cpp:84-483` — all Cell* → Row* with cells[] access
+- `Source/terminal/logic/VideoCSI.cpp:531` — Row* access
+- `Source/terminal/logic/VideoESC.cpp:251` — Row* access
+- `Source/terminal/logic/Processor.h:333` — added prepare(), scrollbackLines, numRows members
+- `Source/terminal/logic/Processor.cpp:51,77-83,294-306,586-607` — prepare(), scrollUp/screenDirty handlers, process() guard, resize removal
+- `Source/terminal/logic/Session.cpp:262-268` — terminalResize handler calls prepare(), removed grid.setSize() calls
+- `Source/terminal/data/State.h:153-195` — added setNumRows/setScrollOffset/setScreenDirty/getNumRows/getScrollOffset, removed setHistoryRows/getHistoryRows/getScrollbackUsed
+- `Source/terminal/data/State.cpp:168-195` — implemented new setters/getters, removed stale methods
+- `Source/terminal/data/Identifier.h:310-313` — added scrollUp, screenDirty, numRows, scrollOffset IDs, removed historyRows
+- `Source/terminal/data/Parameters.xml:66-68` — added numRows/scrollOffset/screenDirty to SCREEN group, removed historyRows
+- `Source/terminal/rendering/Screen.h:19-78` — VT listener, State&+Grid& refs, mouseWheelMove
+- `Source/terminal/rendering/Screen.cpp:1-97` — valueTreePropertyChanged (live+scroll mode), mouseWheelMove (scrollOffset)
+- `Source/component/TerminalDisplay.h:12-69` — removed VBlank, VT listener, Grid& member, previousHistoryRows
+- `Source/component/TerminalDisplay.cpp:4-122` — screen init with State&+Grid&, keyboard snap-to-live, removed VBlank/onVBlank/valueTreePropertyChanged
+- `Source/terminal/logic/Input.cpp:126,222` — simplified after getScrollbackUsed removal
+- `Source/terminal/logic/Mouse.cpp:293` — simplified after getScrollbackUsed removal
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Grid rewritten from Cell ring to Row ring with scrollback history preservation
+- O(1) full-screen scroll via ring head advance (no data movement)
+- TETRIS pattern: Grid is dumb storage, Processor orchestrates, State is SSOT
+- VBlank polling replaced with event-driven rendering (valueTreePropertyChanged)
+- Display decoupled from Grid — Screen orchestrates rendering
+- Scroll mode wired: mouse wheel → scrollOffset → State → Screen → history render
+- Keyboard input snaps to live mode (scrollOffset = 0)
+- Bug: Processor numRows not reset in prepare() — fixed before it could cause assertion on resize
+- Bug: snapshotDirty removed from Parameters.xml by stale transcript recovery — restored
+
+### Debts Paid
+None
+
+### Debts Deferred
+None
+
+---
+
 ## Sprint 20: Shell Exit Signal — State VT Chain + Stale Doc Cleanup
 
 **Date:** 2026-05-17

@@ -123,7 +123,7 @@ bool Input::handleModalKey (const juce::KeyPress& key) noexcept
 
 bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 {
-    const int maxRow { processor.getState().getVisibleRows().value + processor.getState().getScrollbackUsed() - 1 };
+    const int maxRow { processor.getState().getVisibleRows().value - 1 };
     const int maxCol { processor.getState().getCols() - 1 };
 
     auto& st { processor.getState() };
@@ -219,12 +219,10 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
         if (smType != Terminal::SelectionType::none)
         {
-            const int scrollback { processor.getState().getScrollbackUsed() };
-            const int visibleStart { scrollback };
             const int cols { processor.getState().getCols() };
 
-            const int anchorVisRow { st.getSelectionAnchorRow().value - visibleStart };
-            const int cursorVisRow { st.getSelectionCursorRow().value - visibleStart };
+            const int anchorVisRow { st.getSelectionAnchorRow().value };
+            const int cursorVisRow { st.getSelectionCursorRow().value };
             const int anchorCol { st.getSelectionAnchorCol().value };
             const int cursorCol { st.getSelectionCursorCol().value };
 

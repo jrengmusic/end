@@ -12,7 +12,6 @@ namespace Terminal
 class Display
     : public PaneComponent
     , public juce::KeyListener
-    , public juce::ValueTree::Listener
 {
 public:
     Display (Terminal::Processor& processor);
@@ -52,24 +51,17 @@ public:
     // juce::KeyListener
     bool keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent) override;
 
-    // juce::ValueTree::Listener
-    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
-
 private:
     const lua::Engine& config { *lua::Engine::getContext() };
     Terminal::Processor& processor;
     Terminal::State& state;
-    Terminal::Grid& grid;
 
     juce::ValueTree displayNode { Terminal::ID::DISPLAY };
     Terminal::Screen screen;
 
-    cell lastCols { 0 };///< Previous column count for resize debounce.
-    cell lastRows { 0 };///< Previous row count for resize debounce.
-    int previousHistoryRows { 0 };///< Last consumed historyRows for delta tracking.
+    cell lastCols { 0 }; ///< Previous column count for resize debounce.
+    cell lastRows { 0 }; ///< Previous row count for resize debounce.
 
-    std::function<void()> onVBlank() noexcept;
-    juce::VBlankAttachment VBlank { this, onVBlank() };
     void updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept;
 
     //==============================================================================
@@ -77,4 +69,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

@@ -81,10 +81,10 @@ void Video::eraseInDisplay (int mode) noexcept
             // Clear rest of cursor row
             if (hasBgFill)
             {
-                jam::Cell* row { grid.getWritePointer (scr, cRow) };
+                jam::Row* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { cCol }; c < nCols; ++c)
-                    row[c] = fill;
+                    row->cells[c] = fill;
             }
             else
             {
@@ -96,10 +96,10 @@ void Video::eraseInDisplay (int mode) noexcept
             {
                 if (hasBgFill)
                 {
-                    jam::Cell* row { grid.getWritePointer (scr, r) };
+                    jam::Row* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
-                        row[c] = fill;
+                        row->cells[c] = fill;
                 }
                 else
                 {
@@ -117,10 +117,10 @@ void Video::eraseInDisplay (int mode) noexcept
             {
                 if (hasBgFill)
                 {
-                    jam::Cell* row { grid.getWritePointer (scr, r) };
+                    jam::Row* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
-                        row[c] = fill;
+                        row->cells[c] = fill;
                 }
                 else
                 {
@@ -131,10 +131,10 @@ void Video::eraseInDisplay (int mode) noexcept
             // Clear cursor row up to and including cursor
             if (hasBgFill)
             {
-                jam::Cell* row { grid.getWritePointer (scr, cRow) };
+                jam::Row* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { 0 }; c <= cCol; ++c)
-                    row[c] = fill;
+                    row->cells[c] = fill;
             }
             else
             {
@@ -151,10 +151,10 @@ void Video::eraseInDisplay (int mode) noexcept
             {
                 for (int r { 0 }; r < vRows; ++r)
                 {
-                    jam::Cell* row { grid.getWritePointer (scr, r) };
+                    jam::Row* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
-                        row[c] = fill;
+                        row->cells[c] = fill;
                 }
             }
             else
@@ -218,10 +218,10 @@ void Video::eraseInLine (int mode) noexcept
         {
             if (hasBgFill)
             {
-                jam::Cell* row { grid.getWritePointer (scr, cRow) };
+                jam::Row* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { cCol }; c < nCols; ++c)
-                    row[c] = fill;
+                    row->cells[c] = fill;
             }
             else
             {
@@ -235,10 +235,10 @@ void Video::eraseInLine (int mode) noexcept
         {
             if (hasBgFill)
             {
-                jam::Cell* row { grid.getWritePointer (scr, cRow) };
+                jam::Row* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { 0 }; c <= cCol; ++c)
-                    row[c] = fill;
+                    row->cells[c] = fill;
             }
             else
             {
@@ -252,10 +252,10 @@ void Video::eraseInLine (int mode) noexcept
         {
             if (hasBgFill)
             {
-                jam::Cell* row { grid.getWritePointer (scr, cRow) };
+                jam::Row* row { grid.getWritePointer (scr, cRow) };
 
                 for (int c { 0 }; c < nCols; ++c)
-                    row[c] = fill;
+                    row->cells[c] = fill;
             }
             else
             {
@@ -357,20 +357,20 @@ void Video::shiftLines (int count, bool up) noexcept
             {
                 for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
                 {
-                    jam::Cell* row { grid.getWritePointer (scr, r) };
+                    jam::Row* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
-                        row[c] = fill;
+                        row->cells[c] = fill;
                 }
             }
             else
             {
                 for (int r { cRow }; r < cRow + clampedCount; ++r)
                 {
-                    jam::Cell* row { grid.getWritePointer (scr, r) };
+                    jam::Row* row { grid.getWritePointer (scr, r) };
 
                     for (int c { 0 }; c < nCols; ++c)
-                        row[c] = fill;
+                        row->cells[c] = fill;
                 }
             }
         }
@@ -407,16 +407,16 @@ void Video::shiftCellsRight (int count) noexcept
 
     if (charsToInsert > 0 and cCol < nCols)
     {
-        jam::Cell* row { grid.getWritePointer (activeScreen, cRow) };
+        jam::Cell* const cells { grid.getWritePointer (activeScreen, cRow)->cells };
 
-        std::memmove (row + cCol + charsToInsert,
-                      row + cCol,
+        std::memmove (cells + cCol + charsToInsert,
+                      cells + cCol,
                       static_cast<size_t> (nCols - cCol - charsToInsert) * sizeof (jam::Cell));
 
         const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
         for (int c { cCol }; c < cCol + charsToInsert; ++c)
-            row[c] = fill;
+            cells[c] = fill;
     }
 }
 
@@ -443,16 +443,16 @@ void Video::removeCells (int count) noexcept
 
     if (charsToDelete > 0 and cCol < nCols)
     {
-        jam::Cell* row { grid.getWritePointer (activeScreen, cRow) };
+        jam::Cell* const cells { grid.getWritePointer (activeScreen, cRow)->cells };
 
-        std::memmove (row + cCol,
-                      row + cCol + charsToDelete,
+        std::memmove (cells + cCol,
+                      cells + cCol + charsToDelete,
                       static_cast<size_t> (nCols - cCol - charsToDelete) * sizeof (jam::Cell));
 
         const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
 
         for (int c { nCols - charsToDelete }; c < nCols; ++c)
-            row[c] = fill;
+            cells[c] = fill;
     }
 }
 
@@ -480,10 +480,10 @@ void Video::eraseCells (int count) noexcept
     if (clampedCount > 0)
     {
         const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
-        jam::Cell* row { grid.getWritePointer (activeScreen, cRow) };
+        jam::Row* row { grid.getWritePointer (activeScreen, cRow) };
 
         for (int c { cCol }; c < cCol + clampedCount; ++c)
-            row[c] = fill;
+            row->cells[c] = fill;
     }
 }
 

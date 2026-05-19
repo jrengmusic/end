@@ -180,7 +180,7 @@ public:
 
     /** @brief Pushes final Video state through the events map.
      *         Called once per byte batch by Processor::process(). */
-    void flushState() noexcept;
+    void flush() noexcept;
 
     /** @brief Loads cursor position for the newly active screen.
      *         Called by Processor during screen switch mediation. */
@@ -309,9 +309,10 @@ public:
 
 private:
     /**
-     * @brief Live cell buffer. Video writes in-place; Display reads dirty rows.
+     * @brief Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
      */
     Grid& grid;
+
 
     /**
      * @brief Events map owned by Processor.  Video fires events through this map.
@@ -325,8 +326,8 @@ private:
      * - `"previewFile"`  — `(const juce::String&, int, int, int, int)` — reader thread
      * - `"dcsPayloadComplete"` — `(const uint8_t*, int)` — DCS ST received, reader thread
      * - `"apcPayloadComplete"` — `(const uint8_t*, int)` — APC ST/BEL received, reader thread
-     * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — `flushState()`, reader thread
-     * - `"applicationCursor"` / `"bracketedPaste"` / mode flags — `(bool)` — `flushState()`, reader thread
+     * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — `flush()`, reader thread
+     * - `"applicationCursor"` / `"bracketedPaste"` / mode flags — `(bool)` — `flush()`, reader thread
      * - `"screenSwitch"` — `(int, int, int, bool, int, int, bool, uint32_t)` — `setScreen()`, reader thread
      *
      * @note READER THREAD — events are fired on the reader thread; callAsync handlers
@@ -336,7 +337,7 @@ private:
 
     // =========================================================================
     /** @name Internal terminal state
-     *  Working copy of terminal state.  flushState() fires events for all values;
+     *  Working copy of terminal state.  flush() fires events for all values;
      *  Processor handlers write State atomics (event dispatch pattern).
      * @{ */
 
@@ -357,9 +358,6 @@ private:
 
     /** @brief Active screen cursor row (zero-based). Single register — screen switch loads/saves via State. */
     cell cursorRow { 0 };
-
-    /** @brief Total history rows above active prompt, wraps at numRows. Incremented on every scrollUpAndFill call. */
-    int historyRows { 0 };
 
     /** @brief Active screen cursor column (zero-based). Single register — screen switch loads/saves via State. */
     cell cursorCol { 0 };
@@ -929,7 +927,7 @@ private:
     /** @name Scroll helpers
      * @{ */
 
-    /** @brief Scrolls the region up by count lines, fills cleared rows, and increments historyRows. */
+    /** @brief Scrolls the region up by count lines, fills cleared rows. Fires `ID::scrollUp` event when scrollTop == 0. */
     void scrollUpAndFill (int top, int bottom, int count = 1) noexcept;
 
     /** @brief Scrolls the region down one line and fills the top row with the current background. */

@@ -528,10 +528,10 @@ void Video::scrollDown (const CSI& params) noexcept
 
         for (int r { scrTop }; r < scrTop + clampedCount; ++r)
         {
-            jam::Cell* row { grid.getWritePointer (scr, r) };
+            jam::Row* row { grid.getWritePointer (scr, r) };
 
             for (int c { 0 }; c < numCols; ++c)
-                row[c] = fill;
+                row->cells[c] = fill;
         }
     }
 }

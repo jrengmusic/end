@@ -6,16 +6,18 @@ namespace Terminal
 {
 /*____________________________________________________________________________*/
 
+class State;
+class Grid;
+
 /**
  * @brief Cell grid renderer — scrollback ring + alternate buffer for the terminal.
  *
- * Owns buffers[0] (normal scrollback ring, inherited from TextEditor) and
- * buffers[1] (alternate screen, added in constructor).
- *
- * Display mediates all communication — Screen has no State or config reference.
- * Visible rows are shaped directly from Grid by Display under lock via shapeContent().
+ * Listens to State's ValueTree and re-renders from Grid on every flush.
+ * Display mediates all communication — Screen owns its State and Grid references
+ * and drives itself on valueTreePropertyChanged.
  */
-class Screen : public jam::TextEditor
+class Screen : public jam::TextEditor,
+               public juce::ValueTree::Listener
 {
 public:
     struct Map : public jam::Map::Instance<Map>
@@ -62,13 +64,22 @@ public:
         ansi15ColourId          = 0x300001F,
     };
 
-    Screen() noexcept;
+    Screen (Terminal::State& state, Terminal::Grid& grid) noexcept;
     ~Screen() override;
 
+    // juce::Component
+    void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
+
 private:
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+
+    Terminal::State& state;
+    Terminal::Grid& grid;
+    juce::ValueTree stateTree;
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace Terminal
+} // namespace Terminal

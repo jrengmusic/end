@@ -290,8 +290,7 @@ bool Mouse::shouldForwardToPty() const noexcept
 
 int Mouse::toAbsoluteRow (int visibleRow) const noexcept
 {
-    const int scrollback { processor.getState().getScrollbackUsed() };
-    return scrollback + visibleRow;
+    return visibleRow;
 }
 
 } // namespace Terminal
