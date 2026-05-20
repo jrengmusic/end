@@ -45,6 +45,11 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, cell cols, cell 
     , gridResize (grid, video, state)
     , uuid (uuid)
 {
+    keyboardModeStack.allocate (2 * maxKeyboardStackDepth, true);
+    keyboardModeStackSize.allocate (2, true);
+
+    // Set initial dimensions via setDimensions — writes the Parameter<int> atomics
+    // so the flush timer cannot overwrite them with 0 on first paint.
     state.setDimensions (cols, rows);
     registerEvents();
     parser = std::make_unique<Parser> (video);
@@ -219,8 +224,9 @@ void Processor::registerEvents() noexcept
                      [this] (int screen)
                      {
                          grid.clear (screen);
-                         state.setNumRows (screen, 0);
-                         state.setScrollOffset (screen, 0);
+                         const juce::Identifier clearScreenId { Map::Screen::getContext()->get (screen) };
+                         state.storeValue (clearScreenId, id::numRows, 0);
+                         state.storeValue (clearScreenId, id::scrollOffset, 0);
                      });
 
     // OSC 0/2 window title.
@@ -241,35 +247,39 @@ void Processor::registerEvents() noexcept
     events.add<int, juce::Colour> (id::cursorColor,
                                    [this] (int screen, juce::Colour colour)
                                    {
-                                       state.setCursorColor (screen, colour);
+                                       const juce::Identifier colorScreenId { Map::Screen::getContext()->get (screen) };
+                                       state.storeValue (colorScreenId, id::cursorColor,
+                                                         static_cast<int> (colour.getARGB()));
                                    });
 
     // OSC 112 cursor colour reset — revert to user config default.
     events.add<int> (id::resetCursorColor,
                      [this] (int screen)
                      {
-                         state.resetCursorColor (screen);
+                         const juce::Identifier resetColorScreenId { Map::Screen::getContext()->get (screen) };
+                         state.storeValue (resetColorScreenId, id::cursorColor, -1);
                      });
 
     // DECSCUSR cursor shape.
     events.add<int, int> (id::cursorShape,
                           [this] (int screen, int shape)
                           {
-                              state.setCursorShape (screen, shape);
+                              const juce::Identifier shapeScreenId { Map::Screen::getContext()->get (screen) };
+                              state.storeValue (shapeScreenId, id::cursorShape, shape);
                           });
 
     // CSI > u — push keyboard enhancement flags onto the per-screen stack.
     events.add<int, uint32_t> (id::pushKeyboardMode,
                                [this] (int screen, uint32_t flags)
                                {
-                                   state.pushKeyboardMode (screen, flags);
+                                   pushKeyboardMode (screen, flags);
                                });
 
     // CSI < u — pop keyboard enhancement flags from the per-screen stack.
     events.add<int, int> (id::popKeyboardMode,
                           [this] (int screen, int count)
                           {
-                              state.popKeyboardMode (screen, count);
+                              popKeyboardMode (screen, count);
                           });
 
     // DEC mode 2026 synchronized output toggle.
@@ -297,36 +307,62 @@ void Processor::registerEvents() noexcept
     events.add<int, int> (id::scrollUp,
                           [this] (int screen, int count)
                           {
-                              state.setNumRows (screen, grid.getNumRows (screen));
-                              state.adjustSelectionAnchors (screen, -count);
+                              const juce::Identifier scrollUpScreenId { Map::Screen::getContext()->get (screen) };
+                              state.storeValue (scrollUpScreenId, id::numRows, grid.getNumRows (screen));
+
+                              const int selType { state.loadValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId)) };
+
+                              if (selType != static_cast<int> (terminal::SelectionType::none))
+                              {
+                                  const int anchorRow { state.loadValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId)) + (-count) };
+                                  const int cursorRow { state.loadValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId)) + (-count) };
+
+                                  if (anchorRow < 0 or cursorRow < 0)
+                                  {
+                                      state.storeValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId),
+                                                        static_cast<int> (terminal::SelectionType::none));
+                                  }
+                                  else
+                                  {
+                                      state.storeValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId), anchorRow);
+                                      state.storeValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), cursorRow);
+                                  }
+                              }
                           });
 
     // State delivery: screenDirty — increment monotonic counter so Screen detects new cell data.
     events.add<int> (id::screenDirty,
                      [this] (int screen)
                      {
-                         state.setScreenDirty (screen);
+                         const juce::Identifier dirtyScreenId { Map::Screen::getContext()->get (screen) };
+                         const int current { state.loadValue (dirtyScreenId, id::screenDirty) };
+                         state.storeValue (dirtyScreenId, id::screenDirty, current + 1);
                      });
 
     // State delivery: cursor row for active screen.
     events.add<int, int> (id::cursorRow,
                           [this] (int scr, int row)
                           {
-                              state.setCursorRow (scr, cell (row));
+                              const juce::Identifier rowScreenId { Map::Screen::getContext()->get (scr) };
+                              state.storeValue (rowScreenId, id::cursorRow, row);
+                              state.setSnapshotDirty();
                           });
 
     // State delivery: cursor column for active screen.
     events.add<int, int> (id::cursorCol,
                           [this] (int scr, int col)
                           {
-                              state.setCursorCol (scr, cell (col));
+                              const juce::Identifier colScreenId { Map::Screen::getContext()->get (scr) };
+                              state.storeValue (colScreenId, id::cursorCol, col);
+                              state.setSnapshotDirty();
                           });
 
     // State delivery: cursor visibility for active screen.
     events.add<int, bool> (id::cursorVisible,
                            [this] (int scr, bool visible)
                            {
-                               state.setCursorVisible (scr, visible);
+                               const juce::Identifier visScreenId { Map::Screen::getContext()->get (scr) };
+                               state.storeValue (visScreenId, id::cursorVisible, visible ? 1 : 0);
                            });
 
     // State delivery: mode flags.
@@ -387,16 +423,17 @@ void Processor::registerEvents() noexcept
                 bool /*oldWrapPending*/,
                 uint32_t /*oldKeyboardFlags*/)
         {
-            const int oldScreen { newScreen == ScreenMap::alternate ? ScreenMap::normal : ScreenMap::alternate };
+            const int oldScreen { newScreen == Map::Screen::alternate ? Map::Screen::normal : Map::Screen::alternate };
+            const juce::Identifier oldScreenId { Map::Screen::getContext()->get (oldScreen) };
+            state.storeValue (oldScreenId, id::cursorRow, oldRow);
+            state.storeValue (oldScreenId, id::cursorCol, oldCol);
+            state.storeValue (oldScreenId, id::cursorVisible, oldVisible ? 1 : 0);
 
-            state.setCursorRow (oldScreen, cell (oldRow));
-            state.setCursorCol (oldScreen, cell (oldCol));
-            state.setCursorVisible (oldScreen, oldVisible);
-
-            const int newRow { state.loadCursorRow (newScreen) };
-            const int newCol { state.loadCursorCol (newScreen) };
-            const bool newVisible { state.loadCursorVisible (newScreen) };
-            const uint32_t newKbFlags { state.loadKeyboardFlags (newScreen) };
+            const juce::Identifier newScreenId { Map::Screen::getContext()->get (newScreen) };
+            const int newRow { state.loadValue (newScreenId, id::cursorRow) };
+            const int newCol { state.loadValue (newScreenId, id::cursorCol) };
+            const bool newVisible { state.loadValue (newScreenId, id::cursorVisible) != 0 };
+            const uint32_t newKbFlags { static_cast<uint32_t> (state.loadValue (newScreenId, id::keyboardFlags)) };
 
             // scrollTop/scrollBottom reset to 0 (sentinel = full screen); wrapPending cleared.
             video.loadScreenState (newRow, newCol, newVisible, 0, 0, false, newKbFlags);
@@ -423,6 +460,91 @@ void Processor::registerEvents() noexcept
 }
 
 // =============================================================================
+
+// =============================================================================
+// Keyboard mode stack — per-screen progressive enhancement flags (CSI u protocol).
+// Moved from State to Processor so keyboard protocol state lives alongside the
+// event handlers that manage it (reader thread).
+// =============================================================================
+
+void Processor::pushKeyboardMode (int s, uint32_t flags) noexcept
+{
+    jassert (s >= 0 and s < 2);
+    const int base { s * maxKeyboardStackDepth };
+    auto& size { keyboardModeStackSize[s] };
+
+    if (size >= maxKeyboardStackDepth)
+    {
+        for (int i { 0 }; i < maxKeyboardStackDepth - 1; ++i)
+        {
+            jassert (base + i + 1 < 2 * maxKeyboardStackDepth);
+            keyboardModeStack[base + i] = keyboardModeStack[base + i + 1];
+        }
+
+        --size;
+    }
+
+    jassert (base + size < 2 * maxKeyboardStackDepth);
+    keyboardModeStack[base + size] = flags;
+    ++size;
+    const juce::Identifier pushScreenId { Map::Screen::getContext()->get (s) };
+    state.storeValue (pushScreenId, id::keyboardFlags, static_cast<int> (flags));
+}
+
+void Processor::popKeyboardMode (int s, int count) noexcept
+{
+    jassert (s >= 0 and s < 2);
+    auto& size { keyboardModeStackSize[s] };
+    const int toPop { std::min (count, size) };
+    size -= toPop;
+
+    const int base { s * maxKeyboardStackDepth };
+    jassert (size <= 0 or base + size - 1 < 2 * maxKeyboardStackDepth);
+    const uint32_t current { size > 0 ? keyboardModeStack[base + size - 1] : 0u };
+    const juce::Identifier popScreenId { Map::Screen::getContext()->get (s) };
+    state.storeValue (popScreenId, id::keyboardFlags, static_cast<int> (current));
+}
+
+void Processor::setKeyboardMode (int s, uint32_t flags, int mode) noexcept
+{
+    jassert (s >= 0 and s < 2);
+    const int base { s * maxKeyboardStackDepth };
+    auto& size { keyboardModeStackSize[s] };
+
+    if (size == 0)
+    {
+        jassert (base < 2 * maxKeyboardStackDepth);
+        keyboardModeStack[base] = 0u;
+        size = 1;
+    }
+
+    jassert (base + size - 1 < 2 * maxKeyboardStackDepth);
+    auto& top { keyboardModeStack[base + size - 1] };
+
+    if (mode == 1)
+    {
+        top = flags;
+    }
+    else if (mode == 2)
+    {
+        top |= flags;
+    }
+    else if (mode == 3)
+    {
+        top &= ~flags;
+    }
+
+    const juce::Identifier setScreenId { Map::Screen::getContext()->get (s) };
+    state.storeValue (setScreenId, id::keyboardFlags, static_cast<int> (top));
+}
+
+void Processor::resetKeyboardMode (int s) noexcept
+{
+    jassert (s >= 0 and s < 2);
+    keyboardModeStackSize[s] = 0;
+    const juce::Identifier resetScreenId { Map::Screen::getContext()->get (s) };
+    state.storeValue (resetScreenId, id::keyboardFlags, 0);
+}
 
 // =============================================================================
 
@@ -455,7 +577,7 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
                 {
                     if (fgPid == shellPid)
                     {
-                        state.setForegroundProcess ("", 0);
+                        state.get().setProperty (id::foregroundProcess, juce::String(), nullptr);
                     }
                     else
                     {
@@ -464,17 +586,8 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
                         const int fgNameLen { tty->getProcessName (fgPid, fgNameBuf, fgNameBufSize) };
 
                         if (fgNameLen > 0)
-                            state.setForegroundProcess (fgNameBuf, fgNameLen);
-                    }
-
-                    if (shouldTrackCwdFromOs)
-                    {
-                        static constexpr int cwdBufSize { 4096 };
-                        char cwdBuf[cwdBufSize] {};
-                        const int cwdLen { tty->getCwd (fgPid, cwdBuf, cwdBufSize) };
-
-                        if (cwdLen > 0)
-                            state.setCwd (cwdBuf, cwdLen);
+                            state.get().setProperty (id::foregroundProcess,
+                                                     juce::String::fromUTF8 (fgNameBuf, fgNameLen), nullptr);
                     }
                 }
             }
@@ -485,7 +598,7 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
 
         if (paramId == id::promptRow)
         {
-            state.setForegroundProcess ("", 0);
+            state.get().setProperty (id::foregroundProcess, juce::String(), nullptr);
 
             if (onStateFlush != nullptr)
                 onStateFlush();
@@ -493,12 +606,16 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
 
         if (paramId == id::cols or paramId == id::visibleRows)
         {
-            gridResize.set (state.loadCols(), state.loadVisibleRows());
+            gridResize.set (state.getCols(), state.getVisibleRows());
         }
 
         if (paramId == id::cellWidth or paramId == id::cellHeight)
         {
-            gridResize.setCellSize (state.loadCellWidth(), state.loadCellHeight());
+            const juce::Identifier displayId { id::DISPLAY };
+            auto displayNode { state.get().getChildWithName (displayId) };
+            const int cellW { static_cast<int> (jam::ValueTree::getValueFromChildWithID (displayNode, id::cellWidth).getValue()) };
+            const int cellH { static_cast<int> (jam::ValueTree::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
+            gridResize.setCellSize (cellW, cellH);
         }
 
     }
@@ -547,7 +664,11 @@ juce::String Processor::encodeKeyPress (const juce::KeyPress& key) const noexcep
 #endif
     {
         const bool applicationCursor { state.getMode (id::applicationCursor) };
-        const uint32_t keyboardFlags { state.getKeyboardFlags() };
+        const int activeScr { state.getActiveScreen() };
+        const juce::Identifier kbScreenId { Map::Screen::getContext()->get (activeScr) };
+        auto kbScreenNode { state.get().getChildWithName (kbScreenId) };
+        const uint32_t keyboardFlags { static_cast<uint32_t> (
+            static_cast<int> (jam::ValueTree::getValueFromChildWithID (kbScreenNode, id::keyboardFlags).getValue())) };
         seq = Keyboard::map (key, applicationCursor, keyboardFlags);
     }
 

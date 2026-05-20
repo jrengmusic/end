@@ -432,8 +432,8 @@ private:
     /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
     lua::Engine luaEngine;
 
-    /** @brief Screen index map — registers terminal::ScreenMap context. Must be constructed before any consumer of ScreenMap::getContext(). */
-    terminal::ScreenMap screenMap;
+    /** @brief Screen index map — registers Map::Screen context. Must be constructed before any consumer of Map::Screen::getContext(). */
+    Map::Screen screenMap;
 
     /** @brief Application-level ValueTree. Must be constructed after luaEngine. */
     AppState appState;

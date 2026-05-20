@@ -48,7 +48,7 @@
 #include "CSI.h"
 #include "Identifier.h"
 #include "CharProps.h"
-#include "ScreenMap.h"
+#include "../Map.h"
 #include "Grid.h"
 #include "Palette.h"
 
@@ -343,7 +343,7 @@ private:
      * @{ */
 
     /** @brief Active screen buffer (normal or alternate). */
-    int activeScreen { ScreenMap::normal };
+    int activeScreen { Map::Screen::normal };
 
     /** @brief Terminal width in character columns. Reader thread only. */
     cell cols { 80 };

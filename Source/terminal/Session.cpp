@@ -181,21 +181,20 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
     juce::StringPairArray mergedEnv { seedEnv };
     applyShellIntegration (effectiveShell, effectiveArgs, mergedEnv);
 
-    const bool integrationEnabled { cfg->nexus.shell.integration };
-
     auto session { std::make_unique<Session> (cols, rows, effectiveShell, effectiveArgs, cwd, mergedEnv, uuid) };
-    session->getProcessor().shouldTrackCwdFromOs = not integrationEnabled;
     return session;
 }
 
 /**
- * @brief Constructs the Session, creates the TTY, opens the shell, wires the Processor,
- *        and transfers TTY ownership to Processor.
+ * @brief Constructs the Session, wires the TTY, and transfers TTY ownership to Processor.
+ *        Does NOT open the shell — call start() after Display/Screen construction.
  *
  * History capacity comes from `lua::Engine::nexus.terminal.scrollbackLines`.
  * The `onBytes` callback may be overridden by the owner (`Nexus` /
  * `nexus::Daemon`) after construction for daemon-mode byte broadcasting.
  * All TTY callbacks are wired before ownership is transferred to Processor via setTTY().
+ * Open parameters are stored in startCols/startRows/startShell/startArgs/startCwd
+ * for consumption by start().
  *
  * @note MESSAGE THREAD.
  */
@@ -234,13 +233,14 @@ Session::Session (cell cols,
     for (const auto& key : keys)
         tty->addShellEnv (key, seedEnv[key]);
 
-    tty->open (cols, rows, shell, args, cwd);
-
-    // Force clear-screen on first prompt. Readline picks up this buffered byte when it
-    // initializes and fires its clear-screen widget, wiping any stale bytes from the
-    // resize chain and redrawing the prompt at the current PTY winsize.
-    const char clearScreen { '\x0c' };
-    tty->write (&clearScreen, 1);
+    // Store open parameters for start() — TTY open is deferred until after
+    // Display/Screen are created so screen node atomics exist before the
+    // reader thread writes to them.
+    startCols  = cols;
+    startRows  = rows;
+    startShell = shell;
+    startArgs  = args;
+    startCwd   = cwd;
 
     // 1. Parser responses (DSR, DA, CPR) → PTY stdin.
     processor->setHostWriter ([ttyRawPtr] (const char* data, int len)
@@ -272,8 +272,9 @@ Session::Session (cell cols,
         procRawPtr->getState().clearPasteEchoGate();
 
         if (procRawPtr->getState().consumeSyncResize())
-            procRawPtr->platformResize (procRawPtr->getState().getCols(),
-                                        procRawPtr->getState().getVisibleRows());
+            procRawPtr->platformResize (
+                cell (procRawPtr->getState().loadValue (terminal::id::SESSION, terminal::id::cols)),
+                cell (procRawPtr->getState().loadValue (terminal::id::SESSION, terminal::id::visibleRows)));
     };
 
     // Transfer TTY ownership to Processor. setTTY() wires the TTY into GridResize for SIGWINCH delivery.
@@ -400,6 +401,30 @@ terminal::Processor& Session::getProcessor() noexcept
 {
     jassert (processor != nullptr);
     return *processor;
+}
+
+/**
+ * @brief Opens the TTY and starts the reader thread.
+ *
+ * No-op for remote (no-TTY) sessions — ttyObserver is null.
+ * Must be called after Display/Screen are created and their screen nodes
+ * grafted into the ValueTree, so all screen node atomics exist before the
+ * reader thread fires cursorRow or screenDirty events.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Session::start() noexcept
+{
+    if (ttyObserver != nullptr)
+    {
+        ttyObserver->open (startCols, startRows, startShell, startArgs, startCwd);
+
+        // Force clear-screen on first prompt. Readline picks up this buffered byte when it
+        // initializes and fires its clear-screen widget, wiping any stale bytes from the
+        // resize chain and redrawing the prompt at the current PTY winsize.
+        const char clearScreen { '\x0c' };
+        ttyObserver->write (&clearScreen, 1);
+    }
 }
 
 /**

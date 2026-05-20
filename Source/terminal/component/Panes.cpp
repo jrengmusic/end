@@ -50,10 +50,10 @@ std::pair<cell, cell> Panes::cellsFromRect (juce::Rectangle<int> paneRect) noexc
     const float fontSize { cfg->dpiCorrectedFontSize() };
     const jam::Font font { cfg->display.font.family, fontSize,
                            cfg->display.font.cellWidth, cfg->display.font.lineHeight };
-    jassert (font.cellWidth > 0 and font.cellHeight > 0);
+    jassert (font.bounds.width > 0 and font.bounds.height > 0);
 
-    const int physCellW { jam::toInt (static_cast<float> (font.cellWidth) * scale, true) };
-    const int physCellH { jam::toInt (static_cast<float> (font.cellHeight) * scale, true) };
+    const int physCellW { jam::toInt (static_cast<float> (font.bounds.width) * scale, true) };
+    const int physCellH { jam::toInt (static_cast<float> (font.bounds.height) * scale, true) };
 
     jassert (physCellW > 0 and physCellH > 0);
 
@@ -142,7 +142,8 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
     jassert (cols.value > 0 and rows.value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    terminal::Processor& processor { Nexus::getContext()->create (workingDirectory, effectiveUuid, cols, rows).getProcessor() };
+    terminal::Session& termSession { Nexus::getContext()->create (workingDirectory, effectiveUuid, cols, rows) };
+    terminal::Processor& processor { termSession.getProcessor() };
 
     const juce::String termUuid { processor.getUuid() };
 
@@ -161,6 +162,10 @@ juce::String Panes::createTerminal (const juce::String& workingDirectory,
     auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), termUuid) };
     jassert (paneNode.isValid());
     paneNode.appendChild (term->getValueTree(), nullptr);
+
+    // Open the TTY after Display/Screen are constructed and the session ValueTree
+    // is grafted, so all screen node atomics exist before the reader thread fires.
+    termSession.start();
 
     if (isShowing())
         term->setVisible (true);
@@ -429,7 +434,8 @@ void Panes::splitAt (const juce::String& targetUuid,
     jassert (cols.value > 0 and rows.value > 0);
 
     const juce::String effectiveSplitUuid { newUuid.isNotEmpty() ? newUuid : juce::Uuid().toString() };
-    terminal::Processor& processor { Nexus::getContext()->create (cwd, effectiveSplitUuid, cols, rows).getProcessor() };
+    terminal::Session& splitSession { Nexus::getContext()->create (cwd, effectiveSplitUuid, cols, rows) };
+    terminal::Processor& processor { splitSession.getProcessor() };
 
     const juce::String splitUuid { processor.getUuid() };
 
@@ -448,6 +454,10 @@ void Panes::splitAt (const juce::String& targetUuid,
     auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), splitUuid) };
     jassert (paneNode.isValid());
     paneNode.appendChild (term->getValueTree(), nullptr);
+
+    // Open the TTY after Display/Screen are constructed and the session ValueTree
+    // is grafted, so all screen node atomics exist before the reader thread fires.
+    splitSession.start();
 
     auto splitNode { paneNode.getParent() };
     jassert (splitNode.isValid());

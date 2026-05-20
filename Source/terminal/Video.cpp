@@ -769,7 +769,7 @@ void Video::resetModes() noexcept
  * 3. Resets all mode flags via `resetModes()`.
  * 4. Resets the active pen via `resetPen()`.
  * 5. Disables the line-drawing charset.
- * 6. Calls `grid.clear(ScreenMap::normal)` to clear the normal screen.
+ * 6. Calls `grid.clear(Map::Screen::normal)` to clear the normal screen.
  * 7. Calls `calc()` to synchronise internal cached geometry.
  *
  * @note READER THREAD only.
@@ -781,7 +781,7 @@ void Video::resetModes() noexcept
  */
 void Video::reset() noexcept
 {
-    activeScreen = ScreenMap::normal;
+    activeScreen = Map::Screen::normal;
     resetCursor (cols.value);
     resetModes();
     resetPen();
@@ -790,7 +790,7 @@ void Video::reset() noexcept
     g1LineDrawing  = false;
     activeLinkId   = 0;
 
-    grid.clear (ScreenMap::normal);
+    grid.clear (Map::Screen::normal);
 
     calc();
 }

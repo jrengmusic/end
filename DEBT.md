@@ -10,6 +10,16 @@
 
 ---
 
+## DEBT-20260521T060000
+
+**O — Observation:** screenSwitch event carries 8 args (newScreen, oldRow, oldCol, oldVisible, oldScrollTop, oldScrollBottom, oldWrapPending, oldKeyboardFlags). Processor's handler comments out 3 (scrollTop, scrollBottom, wrapPending) and ignores keyboardFlags from the event (reads from State atomics instead).
+
+**D — Divergence:** 4 of 8 args are unused — dead data transported across the event boundary.
+
+**E — Expectation:** Event should carry only what the handler needs (newScreen, oldRow, oldCol, oldVisible). Video should stop sending unused values. Processor handler signature should match.
+
+---
+
 ## DEBT-20260519T124500
 
 **Observation:** Grid reflow on resize produces wrong output — downsize doesn't wrap content, upsize duplicates/copies content instead of reflowing

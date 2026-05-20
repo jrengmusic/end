@@ -29,7 +29,6 @@
 #include "MainComponent.h"
 #include <JamFontsBinaryData.h>
 
-
 /**
  * @brief Constructs MainComponent.
  *
@@ -149,7 +148,7 @@ MainComponent::MainComponent (lua::Engine& engine)
             const float fontSize { cfg->dpiCorrectedFontSize() };
             const jam::Font font { cfg->display.font.family, fontSize,
                                    cfg->display.font.cellWidth, cfg->display.font.lineHeight };
-            jassert (font.cellWidth > 0 and font.cellHeight > 0);
+            jassert (font.bounds.width > 0 and font.bounds.height > 0);
 
             const int titleBarHeight { cfg->display.window.buttons ? app::titleBarHeight : 0 };
             const int paddingTop    { cfg->nexus.terminal.paddingTop };
@@ -157,19 +156,25 @@ MainComponent::MainComponent (lua::Engine& engine)
             const int paddingBottom { cfg->nexus.terminal.paddingBottom };
             const int paddingLeft   { cfg->nexus.terminal.paddingLeft };
 
-            const auto cellPx { cell::Point::totalPixels<int> (cols, rows, jam::Bounds { font.cellWidth, font.cellHeight }) };
+            const auto cellPx { cell::Point::totalPixels<int> (cols, rows, font.bounds) };
             const int pixelWidth  { cellPx.x + paddingLeft + paddingRight };
             const int pixelHeight { cellPx.y + paddingTop + paddingBottom + titleBarHeight };
 
             const auto effectiveCwd { cwd.isNotEmpty() ? cwd : appState.getPwd() };
 
             auto termSession { terminal::Session::create (effectiveCwd, cols, rows, shell, shellArgs) };
+            auto* sessionPtr { termSession.get() };
 
             auto terminal { std::make_unique<terminal::Display> (termSession->getProcessor()) };
             terminal->setComponentID (termSession->getProcessor().getUuid());
 
             popup.show (*this, std::move (terminal), pixelWidth, pixelHeight);
             popup.setTerminalSession (std::move (termSession));
+
+            // Open the TTY after Display is in the component hierarchy —
+            // resized() fires with real bounds, screen nodes are grafted,
+            // all atomics exist before the reader thread starts.
+            sessionPtr->start();
         }
     };
 
@@ -458,7 +463,7 @@ void MainComponent::showMessageOverlay()
         const jam::Font font { appState.getFontFamily(), fontSize,
                                cfg->display.font.cellWidth, cfg->display.font.lineHeight };
 
-        if (font.cellWidth > 0)
+        if (font.bounds.width > 0)
         {
             auto content { getLocalBounds() };
             const int depth { tabs != nullptr ? tabs->getTabBarDepth() : 0 };
@@ -485,7 +490,7 @@ void MainComponent::showMessageOverlay()
             content.removeFromBottom (padBottom);
             content.removeFromLeft (padLeft);
 
-            const auto gridRect { cell::Rectangle (jam::Bounds { font.cellWidth, font.cellHeight }, content) };
+            const auto gridRect { cell::Rectangle (font.bounds, content) };
             const cell cols { gridRect.getWidth() };
             const cell rows { gridRect.getHeight() };
 

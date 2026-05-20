@@ -554,7 +554,7 @@ void Video::repeatCharacter (int count) noexcept
  */
 void Video::setScreen (bool shouldUseAlternate) noexcept
 {
-    const int target { shouldUseAlternate ? ScreenMap::alternate : ScreenMap::normal };
+    const int target { shouldUseAlternate ? Map::Screen::alternate : Map::Screen::normal };
 
     if (target != activeScreen)
     {
@@ -571,7 +571,7 @@ void Video::setScreen (bool shouldUseAlternate) noexcept
         activeScreen = target;
         calc();
 
-        if (target == ScreenMap::alternate)
+        if (target == Map::Screen::alternate)
         {
             cursorClamp (cols.value, visibleRows.value);
             activeLinkId = 0;

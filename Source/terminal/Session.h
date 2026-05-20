@@ -139,7 +139,12 @@ public:
                                              const juce::String& uuid);
 
     /**
-     * @brief Constructs the Session, creates the TTY, and opens the shell.
+     * @brief Constructs the Session and wires the TTY — does NOT open the shell.
+     *
+     * Creates the TTY, wires all callbacks, and pushes env vars via
+     * TTY::addShellEnv.  The TTY is then transferred to Processor via setTTY().
+     * Call start() after Display/Screen construction to open the TTY and begin
+     * the reader thread.
      *
      * History capacity is read from `lua::Engine::nexus.terminal.scrollbackLines`.
      *
@@ -185,6 +190,18 @@ public:
      * @note MESSAGE THREAD.
      */
     ~Session();
+
+    /**
+     * @brief Opens the TTY and starts the reader thread.
+     *
+     *  Must be called after Display/Screen are created and grafted,
+     *  so screen node atomics exist before the reader writes to them.
+     *
+     *  No-op for remote (no-TTY) sessions.
+     *
+     *  @note MESSAGE THREAD.
+     */
+    void start() noexcept;
 
     /**
      * @brief Called on the READER THREAD for every chunk of PTY output.
@@ -281,6 +298,14 @@ private:
      *  Kept here so sendInput() can write to the shell without routing through
      *  Processor internals.  Null for remote (no-TTY) sessions. */
     TTY* ttyObserver { nullptr };
+
+    // Deferred TTY open parameters — consumed by start().
+    // Populated in the PTY constructor; empty for remote sessions.
+    cell         startCols  { 0 };
+    cell         startRows  { 0 };
+    juce::String startShell {};
+    juce::String startArgs  {};
+    juce::String startCwd   {};
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Session)

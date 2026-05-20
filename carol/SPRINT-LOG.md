@@ -1,5 +1,102 @@
 # SPRINT-LOG
 
+## Sprint 25: Screen State Ownership + ComponentAttachment + jam Module Cleanup ✅
+
+**Date:** 2026-05-20 — 2026-05-21
+**Duration:** ~12h
+
+### Agents Participated
+- COUNSELOR: orchestration, planning, delegation, discussion, audit resolution
+- Pathfinder: codebase surveys (Display/Screen state, cell usage, Map::Instance, cwd/foregroundProcess paths, TTY lifecycle, Session::start order)
+- Librarian: JUCE thread assertions, APVTS ParameterAttachment internals, jam ValueTree flush/registerNodeAtomics mechanism, removeFromRight behavior, Cell naming research
+- Researcher: cell-unit scalar naming conventions (W3C, Qt, mp-units, Ratatui)
+- Engineer: all code implementation (State cleanup, Screen stateless, ComponentAttachment, Map consolidation, Font refactor, TextEditor enum, Session::start, diagnostic instrumentation, bug fixes)
+- Auditor: full sprint audit (C1 cross-thread, H1 redundant include, M1-M3 Lean, M4 typo — C1/H1/M4 fixed)
+
+### Files Modified (40+ total)
+
+**jam library (~/Documents/Poems/dev/jam/):**
+- `jam_data_structures/value_tree/jam_component_attachment.h` — NEW: RAII graft/ungraft, setValue writes VT + atomic, sendInitialUpdate
+- `jam_data_structures/jam_data_structures.h` — added jam_component_attachment.h include
+- `jam_data_structures/value_tree/jam_value_tree.cpp` — JUCE_ASSERT_MESSAGE_THREAD on getValue, setValue (both overloads), flush
+- `jam_gui/text_editor/jam_text_editor.h` — node→state (protected), getState deleted, bindScroll→attach, PropertyIndex+ColourIds merged into single enum with Id suffix, properties static array
+- `jam_gui/text_editor/jam_text_editor.cpp` — properties array defined, constructor loops array, resized simplified (no calc, no content clear, no viewportMode branch), calc/setCaretPosition font guards → jassert
+- `jam_fonts/jam_font/jam_font.h` — cellWidth/cellHeight → bounds (jam::Bounds)
+- `jam_fonts/jam_font/jam_font.cpp` — resolveMetrics uses bounds.width/height
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement.h` — shapeImpl template declaration
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement.cpp` — DRY shapeImpl extraction, Block<Cell>/Block<Row> delegate
+- `jam_gui/text_editor/jam_text_editor_content_view.cpp` — font.bounds references
+- `jam_gui/text_editor/jam_caret_component.h` — font.bounds references
+- `jam_gui/text_editor/jam_scrollbar.h/.cpp` — unchanged (prior sprint)
+- `jam_core/identifier/jam_identifier_text_editor.h` — emptied (tombstone, properties moved to TextEditor)
+- `jam_core/identifier/jam_identifier.h` — removed IDENTIFIER_TEXT_EDITOR from MAKE_VIEW
+- `jam_tui/graphics/jam_tui_rectangle.h` — emptied (dead redirect)
+
+**END (Source/):**
+- `Map.h` — NEW: global Map struct with Bool, Screen, Gpu nested
+- `terminal/Parameters.xml` — SCREEN section removed, foregroundProcess TEXT removed, cols/visibleRows/width/height remain (SESSION level)
+- `terminal/State.h` — per-screen methods removed (~30), keyboard stack removed, LayoutBoolean removed, loadValue public, dimension loaders removed, JUCE_ASSERT_MESSAGE_THREAD on MESSAGE getters, setDimensions restored
+- `terminal/State.cpp` — corresponding deletions, setDimensions restored, dead code removed (setClearBuffer, getClearBuffer, setForegroundProcess)
+- `terminal/Processor.h` — keyboard stack moved here (HeapBlock + 4 methods), shouldTrackCwdFromOs removed
+- `terminal/Processor.cpp` — keyboard stack implementation, event handlers use storeValue/loadValue directly, MESSAGE callers use VT API, foregroundProcess/cwd MESSAGE writes use setProperty, dimension changes use getCols/getVisibleRows, initial dimensions via setDimensions
+- `terminal/GridResize.h` — stale doc comment fixed
+- `terminal/GridResize.cpp` — MESSAGE thread VT reads (numRows, cursorVisible, keyboardFlags, width, height), ScreenMap→Map::Screen
+- `terminal/Input.cpp` — MESSAGE thread VT reads, TextEditor::properties.at() pattern, Map::Screen
+- `terminal/Mouse.h` — doc comments updated (toAbsoluteRow, coordinate convention)
+- `terminal/Mouse.cpp` — TextEditor::properties.at() pattern, Map::Screen
+- `terminal/Session.h` — start() method, deferred TTY open params
+- `terminal/Session.cpp` — start() implementation, constructor defers tty->open
+- `terminal/ScreenMap.h` — DELETED
+- `terminal/component/Display.h` — ComponentAttachment replaces displayNode, normalScreen/alternateScreen members, seedScreenNodes static helper
+- `terminal/component/Display.cpp` — ComponentAttachment integration, seedScreenNodes grafts before Screen ctor, attachment->setValue for font metrics, screen node ownership, TextEditor::properties.at()
+- `terminal/component/Screen.h` — normalScreen/alternateScreen removed (stateless)
+- `terminal/component/Screen.cpp` — node creation removed, reads from VT directly, Map::Screen
+- `terminal/component/Panes.cpp` — start() call, Map::Screen, font.bounds
+- `terminal/component/LookAndFeel.h` — getDefaultScrollbarWidth override
+- `terminal/component/LookAndFeel.cpp` — getDefaultScrollbarWidth reads config
+- `MainComponent.cpp` — start() after popup.show, font.bounds, Map::Screen
+- `AppState.h` — AppLayoutBoolean removed, resolveAppLayoutDefault uses Map::Bool
+- `AppState.cpp` — Map::Bool
+- `nexus/Daemon.cpp` — shouldTrackCwdFromOs removed, Map::Screen
+- `nexus/Channel.cpp` — Map::Screen
+- `nexus/Link.cpp` — stale comment updated, foregroundProcess/cwd direct setProperty
+- `DEBT.md` — screenSwitch event entry added
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Screen stateless — no node creation/ownership, reads VT each frame
+- Display owns ComponentAttachment (DISPLAY node) + dual screen nodes (NORMAL/ALTERNATE)
+- Per-screen State methods eliminated (~30 methods) — callers use storeValue/loadValue (READER) or VT API (MESSAGE)
+- Keyboard mode stack moved from State to Processor (terminal protocol state lives with event handlers)
+- Session::start() defers TTY open — fixes first-instance render bug (flush timer zeroing dimensions before Screen existed)
+- MESSAGE-thread architectural violations fixed (Display/Input calling storeValue, Processor::valueTreePropertyChanged calling setForegroundProcess/setCwd atomics)
+- Session::onDrainComplete cross-thread violation fixed (getCols/getVisibleRows → loadValue)
+- Dual cwd write path eliminated (OSC 7 authoritative, OS query fallback removed)
+- foregroundProcess TEXT parameter removed (MESSAGE direct write only)
+- Map consolidation (LayoutBoolean/AppLayoutBoolean/ScreenMap → Map::Bool/Screen/Gpu)
+- Font::cellWidth/cellHeight → Font::bounds (jam::Bounds) — callers pass font.bounds directly
+- TextEditor property identifiers: macro → static array + enum (SSOT, loop-constructable)
+- TextEditor::resized simplified — layout only, no calc, no content clear
+- Font guard → jassert precondition (calc, setCaretPosition)
+- Scrollbar width wired to terminal LookAndFeel from config
+- DRY: glyph::Arrangement shapeImpl template extraction
+- Dead files cleaned: jam_tui_rectangle.h, jam_identifier_text_editor.h
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- `DEBT-20260521T060000` — screenSwitch event carries 4 unused args (scrollTop, scrollBottom, wrapPending, keyboardFlags read from State instead of event arg)
+- Cell unification: merge jam::metrics::Cell (coordinate scalar) into jam::Cell (packed visual cell) as Cell::Unit, with nested Point/Rectangle/RowState/getKey. Blocked by name collision discovered during jam::metrics namespace flatten.
+- END-wide int → cell migration (~15 files, ~80 lines) — enforce type-safe cell coordinates throughout terminal layer
+- Lean violations: Input.cpp handleSelectionKey (148 lines, 12+ branches), Processor.cpp registerEvents (312 lines), Processor.cpp total (837 lines)
+
+---
+
 ## Sprint 24: TextEditor Refactor — Content Ownership to Borrowed Block<Row> ✅
 
 **Date:** 2026-05-20
@@ -68,10 +165,10 @@
 - ARCHITECTURE.md aligned to codebase reality (VBlank stale, Grid/Screen/Selection stale)
 
 ### Debts Paid
-- `DEBT-20260519T124500` — Grid reflow debt partially addressed: TextEditor foundation complete (Block<Row> rendering, correct data flow). Reflow algorithm bugs (reflowJoin/Split/Screen) remain — next sprint scope.
+- None
 
 ### Debts Deferred
-- None
+- `DEBT-20260519T124500` — reflow algorithm bugs remain (reflowJoin/Split/Screen produce wrong output). This sprint established the rendering foundation (Block<Row>, TextEditor). Reflow fix is next sprint scope.
 
 ---
 

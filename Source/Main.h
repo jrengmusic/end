@@ -10,6 +10,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Map.h"
 #include "MainComponent.h"
 #include "AppState.h"
 #include "lua/Engine.h"

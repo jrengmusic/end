@@ -1,7 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../Identifier.h"
-#include "../ScreenMap.h"
+#include "../../Map.h"
 #include "../State.h"
 #include "../Grid.h"
 
@@ -21,45 +21,41 @@ class Screen : public jam::TextEditor
 public:
     enum ColourIds
     {
-        cursorColourId          = 0x3000003,
-        selectionColourId       = 0x3000004,
+        cursorColourId = 0x3000003,
+        selectionColourId = 0x3000004,
         selectionCursorColourId = 0x3000005,
-        hintLabelFgColourId     = 0x3000006,
-        hintLabelBgColourId     = 0x3000007,
-        ansi0ColourId           = 0x3000010,
-        ansi1ColourId           = 0x3000011,
-        ansi2ColourId           = 0x3000012,
-        ansi3ColourId           = 0x3000013,
-        ansi4ColourId           = 0x3000014,
-        ansi5ColourId           = 0x3000015,
-        ansi6ColourId           = 0x3000016,
-        ansi7ColourId           = 0x3000017,
-        ansi8ColourId           = 0x3000018,
-        ansi9ColourId           = 0x3000019,
-        ansi10ColourId          = 0x300001A,
-        ansi11ColourId          = 0x300001B,
-        ansi12ColourId          = 0x300001C,
-        ansi13ColourId          = 0x300001D,
-        ansi14ColourId          = 0x300001E,
-        ansi15ColourId          = 0x300001F,
+        hintLabelFgColourId = 0x3000006,
+        hintLabelBgColourId = 0x3000007,
+        ansi0ColourId = 0x3000010,
+        ansi1ColourId = 0x3000011,
+        ansi2ColourId = 0x3000012,
+        ansi3ColourId = 0x3000013,
+        ansi4ColourId = 0x3000014,
+        ansi5ColourId = 0x3000015,
+        ansi6ColourId = 0x3000016,
+        ansi7ColourId = 0x3000017,
+        ansi8ColourId = 0x3000018,
+        ansi9ColourId = 0x3000019,
+        ansi10ColourId = 0x300001A,
+        ansi11ColourId = 0x300001B,
+        ansi12ColourId = 0x300001C,
+        ansi13ColourId = 0x300001D,
+        ansi14ColourId = 0x300001E,
+        ansi15ColourId = 0x300001F,
     };
 
-    Screen (terminal::State& state, terminal::Grid& grid) noexcept;
+    Screen (State& state, Grid& grid) noexcept;
     ~Screen() override;
 
 private:
     void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
 
-    void rebindScroll (int screenIndex) noexcept;
-
-    terminal::State& state;
-    terminal::Grid& grid;
-    juce::ValueTree stateTree;
-    int boundScreenIndex { -1 };
+    State& terminal;
+    Grid& grid;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace terminal
+}// namespace terminal

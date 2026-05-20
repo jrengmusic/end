@@ -51,7 +51,7 @@ public:
      *
      * @param grid   Terminal cell buffer — resized by apply().
      * @param video  VT command processor — receives setDimensions / resize / setCellSize.
-     * @param state  Terminal parameter store — receives setNumRows after reflow.
+     * @param state  Terminal parameter store — receives storeValue for numRows after reflow.
      *
      * @note MESSAGE THREAD.
      */

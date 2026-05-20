@@ -151,6 +151,10 @@ public:
      */
     void preparePopupMenuWindow (juce::Component& newWindow) override;
 
+    /** @brief Returns the terminal scrollbar width from config.
+     *  @note MESSAGE THREAD. */
+    int getDefaultScrollbarWidth() override;
+
     /** @brief Disables popup scaling — font size is already in logical points. */
     bool shouldPopupMenuScaleWithTargetComponent (const juce::PopupMenu::Options&) override { return false; }
 

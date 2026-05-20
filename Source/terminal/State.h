@@ -8,7 +8,7 @@
 #include "../SelectionType.h"
 #include "../lua/Engine.h"
 #include "../AppState.h"
-#include "ScreenMap.h"
+#include "../Map.h"
 namespace terminal
 {
 /*____________________________________________________________________________*/
@@ -100,13 +100,7 @@ struct State
 
     bool getMode (const juce::Identifier& id) const noexcept;
     int getActiveScreen() const noexcept;
-    uint32_t getKeyboardFlags() const noexcept;
 
-    cell getCursorRow() const noexcept;
-    cell getCursorCol() const noexcept;
-    bool isCursorVisible() const noexcept;
-    int getCursorShape() const noexcept;
-    int getCursorColor() const noexcept;
     cell getCols() const noexcept;
     cell getVisibleRows() const noexcept;
 
@@ -123,30 +117,14 @@ struct State
     void setScreen (int s) noexcept;
     void setMode (const juce::Identifier& id, bool value) noexcept;
 
-    void setCursorRow (int s, cell row) noexcept;
-    void setCursorCol (int s, cell col) noexcept;
-    void setCursorVisible (int s, bool v) noexcept;
-    void setCursorShape (int s, int shape) noexcept;
-    void setCursorColor (int s, juce::Colour colour) noexcept;
-    void resetCursorColor (int s) noexcept;
-
     void setTitle (const char* src, int length) noexcept;
     void setCwd (const char* src, int length) noexcept;
-    void setForegroundProcess (const char* src, int length) noexcept;
-
-    void setDimensions (cell cols, cell rows) noexcept;
 
     /** @brief Builds the parameter schema from XML into this State's ValueTree and AnyMap.
      *  @param xml         Parsed AppParameters XML element.
      *  @param textBuffer  TextBuffer for TEXT parameter slot registration.
      */
     void buildLayout (const juce::XmlElement& xml, TextBuffer& textBuffer);
-
-    // Keyboard mode stack
-    void pushKeyboardMode (int s, uint32_t flags) noexcept;
-    void popKeyboardMode (int s, int count) noexcept;
-    void setKeyboardMode (int s, uint32_t flags, int mode) noexcept;
-    void resetKeyboardMode (int s) noexcept;
 
     // OSC 133 shell integration
     void setOutputBlockStart (cell row) noexcept;
@@ -166,10 +144,6 @@ struct State
     void setSnapshotDirty() noexcept;
     bool consumeSnapshotDirty() noexcept;
     bool isSnapshotDirty() const noexcept;
-
-    // Clear buffer signal
-    void setClearBuffer() noexcept;
-    bool getClearBuffer() const noexcept;
 
     // Paste echo gate
     void setPasteEchoGate (int bytes) noexcept;
@@ -198,77 +172,23 @@ struct State
     ModalType getModalType() const noexcept;
     bool isModal() const noexcept;
 
-    // Viewport scrollback parameters — reader-thread setters, message-thread getters
-    void setNumRows (int screen, int value) noexcept;
-    void setScrollOffset (int screen, int value) noexcept;
-    void setScreenDirty (int screen) noexcept;
-
-    /** @brief Adjusts selection anchors after scroll — shifts rows by delta.
-     *  If anchors go negative, clears selection (selectionType = none).
-     *  Called from READER thread via scrollUp event handler.
-     *  @param screen  Screen index (unused — selection is on TextEditor's node).
-     *  @param delta   Row delta (negative = content scrolled up). */
-    void adjustSelectionAnchors (int screen, int delta) noexcept;
-
-    int getNumRows (int screen) const noexcept;
-    int getScrollOffset (int screen) const noexcept;
-
-    // Per-screen atomic loaders — any thread, lock-free.
-    // Used by Processor's id::screenSwitch handler to read the new screen's saved cursor.
-    int loadCursorRow (int s) const noexcept;
-    int loadCursorCol (int s) const noexcept;
-    bool loadCursorVisible (int s) const noexcept;
-    uint32_t loadKeyboardFlags (int s) const noexcept;
-
-    // Dimension atomic loaders — any thread, lock-free.
-    // Used by Processor::process() on the reader thread to detect layout changes.
-    cell loadCols() const noexcept;
-    cell loadVisibleRows() const noexcept;
-    int loadCellWidth() const noexcept;
-    int loadCellHeight() const noexcept;
-    int loadWidth() const noexcept;
-    int loadHeight() const noexcept;
-
-    // Cross-thread write — any thread, lock-free.
+    // Cross-thread read/write — any thread, lock-free.
+    void setDimensions (cell cols, cell rows) noexcept;
     void storeValue (const juce::Identifier& groupId, const juce::Identifier& paramId, int value) noexcept;
+    int loadValue (const juce::Identifier& groupId, const juce::Identifier& paramId) const noexcept;
 
     // Flush
     bool refresh() noexcept;
 
 private:
-    struct LayoutBoolean : public jam::Map::Instance<LayoutBoolean>
-    {
-        LayoutBoolean()
-        {
-            map = {
-                { no,  "false" },
-                { yes, "true"  }
-            };
-        }
-
-        enum { no = 0, yes = 1 };
-
-        const juce::String& getDefault() const noexcept override
-        {
-            return map.at (no);
-        }
-    };
-
     static int resolveLayoutDefault (const juce::XmlElement& elem,
-                                     const LayoutBoolean& boolMap) noexcept;
+                                     const Map::Bool& boolMap) noexcept;
 
     void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
-
-    int loadValue (const juce::Identifier& groupId, const juce::Identifier& paramId) const noexcept;
 
     void storeTextValue (const juce::Identifier& groupId, const juce::Identifier& paramId, const char* ptr) noexcept;
 
     TextBuffer& textBuffer;
-
-    // Keyboard mode stack
-    static constexpr int maxKeyboardStackDepth { 16 };
-    juce::HeapBlock<uint32_t> keyboardModeStack;
-    juce::HeapBlock<int> keyboardModeStackSize;
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

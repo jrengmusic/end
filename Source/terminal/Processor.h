@@ -276,13 +276,6 @@ public:
     void platformResize (cell cols, cell rows,
                          int pixelWidth = 0, int pixelHeight = 0) noexcept;
 
-    /**
-     * @brief True when the OS-level getCwd query should be used in the
-     *        outputBlockTop handler.  Set by Session at construction time.
-     *        When false, CWD tracking relies entirely on OSC 7 from shell hooks.
-     */
-    bool shouldTrackCwdFromOs { false };
-
     /** @brief Fires after cwd and foreground process are written to State.
      *
      *  Set by nexus::Daemon in daemon mode to broadcast a stateUpdate PDU.
@@ -375,6 +368,16 @@ private:
 
     /** @brief Maximum history row count — set once in constructor from config, used by scrollUp handler. */
     int scrollbackLines { 0 };
+
+    // Keyboard mode stack — per-screen progressive enhancement flags (CSI u protocol).
+    static constexpr int maxKeyboardStackDepth { 16 };
+    juce::HeapBlock<uint32_t> keyboardModeStack;
+    juce::HeapBlock<int> keyboardModeStackSize;
+
+    void pushKeyboardMode (int screen, uint32_t flags) noexcept;
+    void popKeyboardMode (int screen, int count) noexcept;
+    void setKeyboardMode (int screen, uint32_t flags, int mode) noexcept;
+    void resetKeyboardMode (int screen) noexcept;
 
     /** @brief Registers Processor-owned event handlers on the events map.
      *

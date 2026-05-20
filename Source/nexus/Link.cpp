@@ -424,7 +424,9 @@ void Link::handleLoading (const uint8_t* payload, int payloadSize)
  * @brief Handles `Message::stateUpdate` — writes cwd and foreground process into the target Processor's ValueTree.
  *
  * Payload: uuid (length-prefixed) + cwd (length-prefixed) + fgProcess (length-prefixed).
- * Mirrors the standalone flush→setCwd / setForegroundProcess path, but driven by daemon push.
+ * Both cwd and foregroundProcess are written via direct setProperty on the SESSION ValueTree node
+ * (MESSAGE thread). cwd is the authoritative path from OSC 7 as received by the daemon and pushed
+ * here. foregroundProcess is the OS process name queried by the daemon on outputBlockTop.
  * Routes via Nexus::get() — terminal::Session (remote) is owned by the Nexus sessions map.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.

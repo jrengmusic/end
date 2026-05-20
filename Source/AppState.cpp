@@ -408,7 +408,7 @@ void AppState::loadWindowState()
 //==============================================================================
 
 juce::var AppState::resolveAppLayoutDefault (const juce::XmlElement& elem,
-                                              const AppLayoutBoolean& boolMap) noexcept
+                                              const Map::Bool& boolMap) noexcept
 {
     const auto typeStr    { elem.getStringAttribute (app::id::type.toString()) };
     const auto defaultStr { elem.getStringAttribute (app::id::defaultValue.toString()) };
@@ -436,7 +436,7 @@ juce::var AppState::resolveAppLayoutDefault (const juce::XmlElement& elem,
 
 void AppState::build (const juce::XmlElement& xml)
 {
-    AppLayoutBoolean boolMap;
+    Map::Bool boolMap;
 
     // Root VT node — already constructed in AppState (app::id::END).
     juce::ValueTree rootNode { get() };

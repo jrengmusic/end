@@ -521,7 +521,14 @@ void Daemon::valueTreeChildAdded (juce::ValueTree&, juce::ValueTree& child)
         const auto uuid { child.getProperty (jam::ID::id).toString() };
 
         if (uuid.isNotEmpty() and nexus.has (uuid))
-            wireSessionCallbacks (uuid, nexus.get (uuid));
+        {
+            terminal::Session& session { nexus.get (uuid) };
+            wireSessionCallbacks (uuid, session);
+
+            // Daemon sessions are headless — no Display/Screen exists in this process,
+            // so start() is safe to call immediately after callback wiring.
+            session.start();
+        }
     }
 }
 

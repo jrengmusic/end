@@ -3,7 +3,8 @@
 terminal::Display::Display (terminal::Processor& processorToUse)
     : processor (processorToUse)
     , state (processorToUse.getState())
-    , screen (processorToUse.getState(), processorToUse.getGrid())
+    , screen (Display::seedScreenNodes (processorToUse.getState(), normalScreen, alternateScreen),
+              processorToUse.getGrid())
     , linkManager (processorToUse.getState(),
                    [&processorToUse] (const char* data, int len)
                    {
@@ -12,22 +13,62 @@ terminal::Display::Display (terminal::Processor& processorToUse)
     , input (processorToUse, linkManager)
     , mouse (processorToUse, 0, 0, linkManager)
 {
+    // Graft DISPLAY node via ComponentAttachment — registerNodeAtomics fires on appendChild
+    // and creates Parameter<int> entries in the DISPLAY group for font metrics.
+    attachment = std::make_unique<jam::ComponentAttachment> (
+        state,
+        terminal::id::DISPLAY,
+        std::initializer_list<jam::ComponentAttachment::Property> {
+            { terminal::id::cellWidth,  0 },
+            { terminal::id::cellHeight, 0 },
+            { terminal::id::baseline,   0 },
+            { terminal::id::fontSize,   0 }
+        });
+
     addAndMakeVisible (screen);
     screen.addKeyListener (this);
-
-    // Seed DISPLAY node with zero-valued properties before graft.
-    // registerNodeAtomics (called on appendChild) consumes these and
-    // creates Parameter<int> entries in the DISPLAY group.
-    displayNode.setProperty (terminal::id::cellWidth,  0, nullptr);
-    displayNode.setProperty (terminal::id::cellHeight, 0, nullptr);
-    displayNode.setProperty (terminal::id::baseline,   0, nullptr);
-    displayNode.setProperty (terminal::id::fontSize,   0, nullptr);
-    state.get().appendChild (displayNode, nullptr);
 
     applyConfig();
 }
 
-terminal::Display::~Display() { screen.removeKeyListener (this); }
+terminal::State& terminal::Display::seedScreenNodes (terminal::State& stateToSeed,
+                                                      juce::ValueTree& normalScreenNode,
+                                                      juce::ValueTree& alternateScreenNode) noexcept
+{
+    normalScreenNode = juce::ValueTree (terminal::id::NORMAL);
+    normalScreenNode.setProperty (terminal::id::cursorRow,     0, nullptr);
+    normalScreenNode.setProperty (terminal::id::cursorCol,     0, nullptr);
+    normalScreenNode.setProperty (terminal::id::cursorVisible, 1, nullptr);
+    normalScreenNode.setProperty (terminal::id::cursorShape,   0, nullptr);
+    normalScreenNode.setProperty (terminal::id::cursorColor,  -1, nullptr);
+    normalScreenNode.setProperty (terminal::id::keyboardFlags, 0, nullptr);
+    normalScreenNode.setProperty (terminal::id::numRows,       0, nullptr);
+    normalScreenNode.setProperty (terminal::id::scrollOffset,  0, nullptr);
+    normalScreenNode.setProperty (terminal::id::screenDirty,   0, nullptr);
+
+    alternateScreenNode = juce::ValueTree (terminal::id::ALTERNATE);
+    alternateScreenNode.setProperty (terminal::id::cursorRow,     0, nullptr);
+    alternateScreenNode.setProperty (terminal::id::cursorCol,     0, nullptr);
+    alternateScreenNode.setProperty (terminal::id::cursorVisible, 1, nullptr);
+    alternateScreenNode.setProperty (terminal::id::cursorShape,   0, nullptr);
+    alternateScreenNode.setProperty (terminal::id::cursorColor,  -1, nullptr);
+    alternateScreenNode.setProperty (terminal::id::keyboardFlags, 0, nullptr);
+    alternateScreenNode.setProperty (terminal::id::numRows,       0, nullptr);
+    alternateScreenNode.setProperty (terminal::id::scrollOffset,  0, nullptr);
+    alternateScreenNode.setProperty (terminal::id::screenDirty,   0, nullptr);
+
+    stateToSeed.get().appendChild (normalScreenNode, nullptr);
+    stateToSeed.get().appendChild (alternateScreenNode, nullptr);
+
+    return stateToSeed;
+}
+
+terminal::Display::~Display()
+{
+    screen.removeKeyListener (this);
+    state.get().removeChild (normalScreen, nullptr);
+    state.get().removeChild (alternateScreen, nullptr);
+}
 
 // PaneComponent
 juce::String terminal::Display::getPaneType() const noexcept { return app::id::paneTypeTerminal; }
@@ -46,12 +87,12 @@ void terminal::Display::applyConfig() noexcept
     screen.setCaretBlinkRate (config.display.cursor.blinkInterval);
 
 
-    displayNode.setProperty (terminal::id::cellWidth,  font.cellWidth, nullptr);
-    displayNode.setProperty (terminal::id::cellHeight, font.cellHeight, nullptr);
-    displayNode.setProperty (terminal::id::baseline,   font.baseline, nullptr);
-    displayNode.setProperty (terminal::id::fontSize,   static_cast<int> (font.fontSize), nullptr);
+    attachment->setValue (terminal::id::cellWidth,  font.bounds.width);
+    attachment->setValue (terminal::id::cellHeight, font.bounds.height);
+    attachment->setValue (terminal::id::baseline,   font.baseline);
+    attachment->setValue (terminal::id::fontSize,   static_cast<int> (font.fontSize));
 
-    mouse.setCellSize (font.cellWidth, font.cellHeight);
+    mouse.setCellSize (font.bounds.width, font.bounds.height);
     input.buildKeyMap (config.keys.selection);
 
     resized();
@@ -71,11 +112,11 @@ void terminal::Display::copySelection() noexcept
 
 bool terminal::Display::hasSelection() const noexcept
 {
-    const auto node { state.get().getChildWithName (jam::ID::textEditor) };
+    const auto node { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
     bool result { false };
 
     if (node.isValid())
-        result = static_cast<int> (node.getProperty (jam::ID::selectionType)) != static_cast<int> (terminal::SelectionType::none);
+        result = static_cast<int> (node.getProperty (jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId))) != static_cast<int> (terminal::SelectionType::none);
 
     return result;
 }
@@ -109,8 +150,8 @@ void terminal::Display::resized()
 
 void terminal::Display::updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept
 {
-    const int cellWidth  { displayNode.getProperty (terminal::id::cellWidth) };
-    const int cellHeight { displayNode.getProperty (terminal::id::cellHeight) };
+    const int cellWidth  { static_cast<int> (jam::ValueTree::getValueFromChildWithID (attachment->getNode(), terminal::id::cellWidth).getValue()) };
+    const int cellHeight { static_cast<int> (jam::ValueTree::getValueFromChildWithID (attachment->getNode(), terminal::id::cellHeight).getValue()) };
 
     if (cellWidth > 0 and cellHeight > 0)
     {
@@ -149,12 +190,17 @@ void terminal::Display::mouseMove (const juce::MouseEvent& event) { mouse.handle
 void terminal::Display::mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel)
 {
     const int activeScreenIndex { state.getActiveScreen() };
-    const int currentOffset { state.getScrollOffset (activeScreenIndex) };
-    const int numRows { state.getNumRows (activeScreenIndex) };
+    const juce::Identifier wheelScreenId { Map::Screen::getContext()->get (activeScreenIndex) };
+    auto wheelScreenNode { state.get().getChildWithName (wheelScreenId) };
+    const int currentOffset { static_cast<int> (jam::ValueTree::getValueFromChildWithID (wheelScreenNode, terminal::id::scrollOffset).getValue()) };
+    const int numRows { static_cast<int> (jam::ValueTree::getValueFromChildWithID (wheelScreenNode, terminal::id::numRows).getValue()) };
 
     mouse.handleWheel (event, wheel, [this, activeScreenIndex, currentOffset, numRows] (int delta)
     {
         const int newOffset { juce::jlimit (0, numRows, currentOffset + delta) };
-        state.setScrollOffset (activeScreenIndex, newOffset);
+        const juce::Identifier writeScreenId { Map::Screen::getContext()->get (activeScreenIndex) };
+        auto writeScreenNode { state.get().getChildWithName (writeScreenId) };
+        auto paramNode { jam::ValueTree::getChildWithID (writeScreenNode, terminal::id::scrollOffset.toString()) };
+        paramNode.setProperty (terminal::id::value, newOffset, nullptr);
     });
 }

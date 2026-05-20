@@ -67,7 +67,9 @@ private:
     terminal::Processor& processor;
     terminal::State& state;
 
-    juce::ValueTree displayNode { terminal::id::DISPLAY };
+    std::unique_ptr<jam::ComponentAttachment> attachment;
+    juce::ValueTree normalScreen;
+    juce::ValueTree alternateScreen;
     terminal::Screen screen;
 
     cell lastCols { 0 }; ///< Previous column count for resize debounce.
@@ -78,6 +80,13 @@ private:
     terminal::Mouse mouse;
 
     void updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept;
+
+    /** @brief Seeds, grafts, and returns the State reference so Screen's member
+     *         initializer can run after screen nodes are in the tree.
+     *  @note Called from member initializer list — executes before Screen's constructor. */
+    static terminal::State& seedScreenNodes (terminal::State& stateToSeed,
+                                             juce::ValueTree& normalScreenNode,
+                                             juce::ValueTree& alternateScreenNode) noexcept;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Display)

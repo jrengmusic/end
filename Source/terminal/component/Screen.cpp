@@ -10,7 +10,7 @@
  *   3. Calls setText (block) — single call replaces the old per-row loop.
  *   4. Calls setScrollRange to size the scrollbar thumb.
  *
- * Screen holds no scroll state. scrollOffset is read from State each flush.
+ * Screen holds no scroll terminal. scrollOffset is read from State each flush.
  *
  * @see Screen.h
  * @see terminal::State  — SSOT for scrollOffset, activeScreen, visibleRows, numRows
@@ -23,27 +23,36 @@ namespace terminal
 {
 /*____________________________________________________________________________*/
 
-Screen::Screen (terminal::State& stateToUse, terminal::Grid& gridToUse) noexcept
+Screen::Screen (State& stateMachine, Grid& gridToUse) noexcept
     : jam::TextEditor ({})
-    , state (stateToUse)
+    , terminal (stateMachine)
     , grid (gridToUse)
-    , stateTree (stateToUse.get())
 {
     setWantsKeyboardFocus (false);
-    stateTree.addListener (this);
-    stateToUse.get().appendChild (getNode(), nullptr);
+
+    // Screen nodes (NORMAL, ALTERNATE) are owned and grafted by Display before
+    // this constructor runs — they are already present in the tree here.
+    terminal.get().addListener (this);
+    terminal.get().appendChild (state, nullptr);
     setViewportMode (ViewportMode::proportional);
-    rebindScroll (stateToUse.getActiveScreen());
+
+    const int activeScreen { terminal.getActiveScreen() };
+    const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
+    auto screenNode { terminal.get().getChildWithName (screenId) };
+    auto scrollValue { jam::ValueTree::getValueFromChildWithID (screenNode, id::scrollOffset) };
+    attach (scrollValue);
 }
 
 Screen::~Screen()
 {
-    stateTree.removeListener (this);
+    terminal.get().removeListener (this);
 
-    auto parentTree { getNode().getParent() };
+    // Screen nodes (NORMAL, ALTERNATE) are owned by Display — Display's destructor
+    // removes them after Screen is destroyed.
+    auto parentTree { state.getParent() };
 
     if (parentTree.isValid())
-        parentTree.removeChild (getNode(), nullptr);
+        parentTree.removeChild (state, nullptr);
 }
 
 // ============================================================================
@@ -52,32 +61,28 @@ Screen::~Screen()
 
 void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
 {
-    const int activeScreenIndex { state.getActiveScreen() };
-    const int viewportRows      { state.getVisibleRows().value };
-    const int numCols           { state.getCols().value };
-    const int scrollOffset      { state.getScrollOffset (activeScreenIndex) };
-    const int numRows           { state.getNumRows (activeScreenIndex) };
+    const int activeScreen { terminal.getActiveScreen() };
+    const int viewportRows { terminal.getVisibleRows().value };
+    const int numCols { terminal.getCols().value };
+
+    const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
+    auto screenNode { terminal.get().getChildWithName (screenId) };
+    const int scrollOffset { static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::scrollOffset).getValue()) };
+    const int numRows { static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::numRows).getValue()) };
+    const cell cursorCol { static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::cursorCol).getValue()) };
+    const cell cursorRow { static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::cursorRow).getValue()) };
 
     if (numCols > 0 and viewportRows > 0)
     {
-        const auto block { grid.getBlock (activeScreenIndex, scrollOffset, viewportRows) };
+        const auto block { grid.getBlock (activeScreen, scrollOffset, viewportRows) };
         setText (block);
         setScrollRange (numRows);
-        setCaretPosition (state.getCursorCol(), state.getCursorRow());
+        setCaretPosition (cursorCol, cursorRow);
     }
 
-    if (activeScreenIndex != boundScreenIndex)
-        rebindScroll (activeScreenIndex);
-}
-
-void Screen::rebindScroll (int screenIndex) noexcept
-{
-    const juce::Identifier screenId { ScreenMap::getContext()->get (screenIndex) };
-    auto screenNode { state.get().getChildWithName (screenId) };
     auto scrollValue { jam::ValueTree::getValueFromChildWithID (screenNode, id::scrollOffset) };
-    bindScroll (scrollValue);
-    boundScreenIndex = screenIndex;
+    attach (scrollValue);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace terminal
+}// namespace terminal

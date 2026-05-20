@@ -281,6 +281,17 @@ juce::Font LookAndFeel::getLabelFont (juce::Label& label)
     return result;
 }
 
+/**
+ * @brief Returns the terminal scrollbar width from config.
+ *
+ * @return Scrollbar width in pixels as set by `lua::Engine::display.scrollbarWidth`.
+ * @note MESSAGE THREAD.
+ */
+int LookAndFeel::getDefaultScrollbarWidth()
+{
+    return lua::Engine::getContext()->display.scrollbarWidth;
+}
+
 void LookAndFeel::drawStretchableLayoutResizerBar (juce::Graphics& g,
                                                    int w,
                                                    int h,

@@ -59,6 +59,7 @@
 #include "AppIdentifier.h"
 #include "lua/Engine.h"
 #include "terminal/Identifier.h"
+#include "Map.h"
 
 struct AppState : public jam::ValueTree, public jam::Context<AppState>
 {
@@ -289,26 +290,8 @@ private:
      */
     void build (const juce::XmlElement& xml);
 
-    struct AppLayoutBoolean : public jam::Map::Instance<AppLayoutBoolean>
-    {
-        AppLayoutBoolean()
-        {
-            map = {
-                { no,  "false" },
-                { yes, "true"  }
-            };
-        }
-
-        enum { no = 0, yes = 1 };
-
-        const juce::String& getDefault() const noexcept override
-        {
-            return map.at (no);
-        }
-    };
-
     static juce::var resolveAppLayoutDefault (const juce::XmlElement& elem,
-                                              const AppLayoutBoolean& boolMap) noexcept;
+                                              const Map::Bool& boolMap) noexcept;
 
     /** @brief Ref-counted handle to the active session's VT. Set by setPwd(). */
     juce::ValueTree activeSession;

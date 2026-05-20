@@ -12,8 +12,8 @@
  *
  * ### Coordinate convention
  * Grid positions are **visible-row** coordinates (0 = topmost visible row).
- * Mouse converts them to **absolute (scrollback-aware)** coordinates before
- * writing to State, matching the keyboard selection path.
+ * Selection state operates in visible-row coordinates, matching the keyboard
+ * selection path in Input.
  *
  * @see terminal::Processor
  * @see cell::Point
@@ -162,10 +162,13 @@ private:
     bool shouldForwardToPty() const noexcept;
 
     /**
-     * @brief Converts a visible row to an absolute (scrollback-aware) row.
+     * @brief Returns the row coordinate for selection state.
+     *
+     * Currently returns visibleRow directly — selection operates in
+     * visible-row coordinates (0 = topmost visible row).
      *
      * @param visibleRow  0-based visible row (0 = topmost visible row).
-     * @return Absolute row index in the scrollback+screen coordinate space.
+     * @return Row index for selection anchor/cursor writes.
      */
     int toAbsoluteRow (int visibleRow) const noexcept;
 
