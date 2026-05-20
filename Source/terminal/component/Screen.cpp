@@ -2,20 +2,19 @@
  * @file Screen.cpp
  * @brief Cell grid renderer — full viewport repaint from State and Grid.
  *
- * Screen registers as a ValueTree::Listener on State's SESSION root.
+ * Screen registers as a ValueTree::Listener on State's SESSION root and grafts
+ * its TextEditor node into that tree on construction.
  * On every parameter flush, valueTreePropertyChanged:
- *   1. Syncs activeScreen and caret position from State.
- *   2. Live mode (scrollOffset == 0): reads all viewport rows from Grid via
- *      getWritePointer, calls setText.
- *   3. Scroll mode (scrollOffset > 0): reads history rows from Grid via getRow,
- *      renders the frozen historical window.
- *   4. Repaints.
+ *   1. Reads activeScreen, scrollOffset, and numRows from State.
+ *   2. Calls grid.getBlock() to obtain a Block<Row> for the visible window.
+ *   3. Calls setText (block) — single call replaces the old per-row loop.
+ *   4. Calls setScrollRange to size the scrollbar thumb.
  *
  * Screen holds no scroll state. scrollOffset is read from State each flush.
  *
  * @see Screen.h
  * @see terminal::State  — SSOT for scrollOffset, activeScreen, visibleRows, numRows
- * @see terminal::Grid   — cell storage; Screen reads via getWritePointer / getRow
+ * @see terminal::Grid   — cell storage; Screen reads via getBlock
  */
 
 #include "Screen.h"
@@ -25,35 +24,26 @@ namespace terminal
 /*____________________________________________________________________________*/
 
 Screen::Screen (terminal::State& stateToUse, terminal::Grid& gridToUse) noexcept
-    : jam::TextEditor ({}, 2)
+    : jam::TextEditor ({})
     , state (stateToUse)
     , grid (gridToUse)
     , stateTree (stateToUse.get())
 {
     setWantsKeyboardFocus (false);
     stateTree.addListener (this);
+    stateToUse.get().appendChild (getNode(), nullptr);
+    setViewportMode (ViewportMode::proportional);
+    rebindScroll (stateToUse.getActiveScreen());
 }
 
 Screen::~Screen()
 {
     stateTree.removeListener (this);
-}
 
-// ============================================================================
-// juce::Component
-// ============================================================================
+    auto parentTree { getNode().getParent() };
 
-void Screen::mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDetails& wheel)
-{
-    const int activeScreenIndex { state.getActiveScreen() };
-    const int numRows           { state.getNumRows (activeScreenIndex) };
-    const int currentOffset     { state.getScrollOffset (activeScreenIndex) };
-    static constexpr int scrollStep { 3 };
-    const int scrollLines       { wheel.deltaY > 0.0f ? scrollStep : -scrollStep };
-    const int newOffset         { juce::jlimit (0, numRows, currentOffset + scrollLines) };
-
-    if (newOffset != currentOffset)
-        state.setScrollOffset (activeScreenIndex, newOffset);
+    if (parentTree.isValid())
+        parentTree.removeChild (getNode(), nullptr);
 }
 
 // ============================================================================
@@ -62,45 +52,31 @@ void Screen::mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDeta
 
 void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
 {
-    const int  activeScreenIndex { state.getActiveScreen() };
-    const auto cellArea          { getCellArea() };
-    const cell viewportRows      { cellArea.height };
-    const cell numCols           { cellArea.width };
-    const int  scrollOffset      { state.getScrollOffset (activeScreenIndex) };
-    const int  numRows           { state.getNumRows (activeScreenIndex) };
+    const int activeScreenIndex { state.getActiveScreen() };
+    const int viewportRows      { state.getVisibleRows().value };
+    const int numCols           { state.getCols().value };
+    const int scrollOffset      { state.getScrollOffset (activeScreenIndex) };
+    const int numRows           { state.getNumRows (activeScreenIndex) };
 
-    setActiveScreen (activeScreenIndex);
-    setCaretPosition (state.getCursorCol(), state.getCursorRow());
-
-    if (numCols.value > 0 and viewportRows.value > 0)
+    if (numCols > 0 and viewportRows > 0)
     {
-        if (scrollOffset == 0)
-        {
-            // Live mode — repaint all viewport rows from Grid viewport section.
-            for (int row { 0 }; row < viewportRows.value; ++row)
-            {
-                const jam::Row* r { grid.getWritePointer (activeScreenIndex, row) };
-                const jam::Cell* ptr { r->cells };
-                jam::Block<jam::Cell> block { &ptr, 1, numCols.value };
-                setText (block, { row, row + 1 });
-            }
-        }
-        else
-        {
-            // Scroll mode — read from history at absolute offset.
-            const int startIndex { numRows - scrollOffset };
-
-            for (int row { 0 }; row < viewportRows.value; ++row)
-            {
-                const jam::Row* r { grid.getRow (activeScreenIndex, startIndex + row) };
-                const jam::Cell* ptr { r->cells };
-                jam::Block<jam::Cell> block { &ptr, 1, numCols.value };
-                setText (block, { row, row + 1 });
-            }
-        }
+        const auto block { grid.getBlock (activeScreenIndex, scrollOffset, viewportRows) };
+        setText (block);
+        setScrollRange (numRows);
+        setCaretPosition (state.getCursorCol(), state.getCursorRow());
     }
 
-    repaint();
+    if (activeScreenIndex != boundScreenIndex)
+        rebindScroll (activeScreenIndex);
+}
+
+void Screen::rebindScroll (int screenIndex) noexcept
+{
+    const juce::Identifier screenId { ScreenMap::getContext()->get (screenIndex) };
+    auto screenNode { state.get().getChildWithName (screenId) };
+    auto scrollValue { jam::ValueTree::getValueFromChildWithID (screenNode, id::scrollOffset) };
+    bindScroll (scrollValue);
+    boundScreenIndex = screenIndex;
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

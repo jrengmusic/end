@@ -28,20 +28,19 @@
  * The old viewport-top row stays in place — it becomes history behind the new head.
  * Partial scroll region: `buffer.copyFrom()` row-by-row within region. No head change.
  *
- * ### TETRIS contract
- * Processor sets, Grid uses. `numRows[screen]` is a calculation input set by Processor
- * after scroll events — same pattern as DSP core storing `sampleRate` from `prepareToPlay`.
- * Grid only uses numRows for absolute history access (getRow). Viewport-relative operations
- * (getWritePointer, clear, scrollUp) use head only.
+ * ### numRows ownership
+ * Grid owns `numRows[screen]`. It is incremented by `scrollUp` (full-screen path) and
+ * reset by `clear(screen)` and `setSize`. `reflow` updates it and also returns the values
+ * so Processor can sync State. Processor never writes numRows — it reads via `getNumRows`.
  *
  * ### Thread model
  * - Video writes via `getWritePointer` / `scrollUp` / `scrollDown` / `clear` — READER THREAD.
  * - Screen reads via `getRow` — MESSAGE THREAD (after State flush).
- * - `setSize` / `setNumRows` — called from Processor on READER THREAD.
+ * - `setSize` / `reflow` — called from Processor on READER THREAD.
  *
  * @see Video    — sole viewport writer (reader thread)
  * @see Screen   — sole history reader (message thread)
- * @see Processor — sole arbiter of numRows and Grid lifecycle
+ * @see Processor — Grid lifecycle manager; reads numRows via getNumRows to sync State
  */
 
 #pragma once
@@ -82,43 +81,30 @@ public:
      *  - **split**: usedCols > newCols — break into multiple rows.
      *
      *  Writes into a scratch buffer, then copies back to the live buffer.
-     *  Head is updated for the new ring layout. numRows is NOT updated —
-     *  Grid returns the computed values and Processor sets them via
-     *  setNumRows() (TETRIS contract: Processor tells, Grid uses).
+     *  Head and numRows are updated for the new ring layout.
      *
      *  Cursor position is converted to paragraph-relative coordinates before
      *  reflow and unwrapped back after. cursorRow and cursorCol are modified
      *  in place to reflect the post-reflow position.
-     *
-     *  @return New numRows per screen {normal, alternate}. Processor must
-     *          call setNumRows() with these values after reflow returns.
      *
      *  @param newViewportRows  New visible row count.
      *  @param newCols          New column count.
      *  @param scrollbackLines  Maximum history row count from config.
      *  @param cursorRow        Viewport-relative cursor row (modified in place).
      *  @param cursorCol        Cursor column (modified in place).
-     *  @return New numRows per screen {normal, alternate}.
+     *  @return New numRows per screen {normal, alternate} — Grid sets these internally;
+     *          Processor reads the return to sync State.
      */
     std::array<int, 2> reflow (int newViewportRows, int newCols, int scrollbackLines,
                                int& cursorRow, int& cursorCol) noexcept;
-
-    /** Sets the history row count for the given screen.
-     *
-     *  Processor calls this after `scrollUp` events to update the calculation input.
-     *  Only used by `getRow()` for absolute history access.
-     *
-     *  @param screen  Screen index (0 = normal, 1 = alternate).
-     *  @param value   New history row count (capped at `scrollbackLines` by Processor).
-     */
-    void setNumRows (int screen, int value) noexcept;
 
     /** Scrolls rows up within the given scroll region on the given screen.
      *
      *  Full-screen (scrollTop == 0 and scrollBottom == viewportRows - 1):
      *  Advances `head[screen]` by `clampedCount`. Clears the new bottom viewport row(s).
+     *  Increments `numRows[screen]` per iteration, capped at `scrollbackLines`.
      *  O(1) — no data movement. The old viewport-top row stays in place behind head
-     *  and becomes history (Processor manages numRows).
+     *  and becomes history.
      *
      *  Partial region: per-row `buffer.copyFrom()` within the region. Clears vacated rows.
      *
@@ -142,7 +128,7 @@ public:
      */
     void scrollDown (int screen, int scrollTop, int scrollBottom, int count = 1) noexcept;
 
-    /** Clears all viewport rows of the given screen. Does not reset head or numRows. */
+    /** Clears all viewport rows of the given screen and resets numRows to 0. Does not reset head. */
     void clear (int screen) noexcept;
 
     /** Clears an entire viewport-relative row of the given screen. */
@@ -189,6 +175,18 @@ public:
      */
     int getNumRows (int screen) const noexcept;
 
+    /** Returns a non-owning Block<Row> view of the viewport or history region.
+     *
+     *  Grid owns the pointer array (blockPointers). Block borrows from it.
+     *  Lifetime: Grid outlives Screen — all MESSAGE thread.
+     *
+     *  @param screen         Screen index (0 = normal, 1 = alternate).
+     *  @param scrollOffset   0 = live viewport, >0 = history offset.
+     *  @param viewportRows   Number of rows in the view.
+     *  @return Non-owning Block<Row> over the requested region.
+     */
+    jam::Block<jam::Row> getBlock (int screen, int scrollOffset, int viewportRows) const noexcept;
+
     ///@}
 
 private:
@@ -199,12 +197,13 @@ private:
 
     //==========================================================================
 
-    jam::Buffer<jam::Row> buffer;           ///< 2 channels: normal (0), alternate (1). Ring-sized.
-    std::array<int, 2> head { 0, 0 };       ///< Physical position of viewport row 0 per screen.
-    std::array<int, 2> numRows { 0, 0 };    ///< History row count per screen. Calculation input for getRow.
-    int ringMask { 0 };                     ///< Power-of-two bitmask for ring indexing.
-    int viewportRows { 0 };                 ///< Visible row count.
-    int scrollbackLines { 0 };              ///< Maximum history row count from config.
+    jam::Buffer<jam::Row> buffer;                           ///< 2 channels: normal (0), alternate (1). Ring-sized.
+    std::array<int, 2> head { 0, 0 };                      ///< Physical position of viewport row 0 per screen.
+    std::array<int, 2> numRows { 0, 0 };                   ///< History row count per screen. Calculation input for getRow.
+    int ringMask { 0 };                                    ///< Power-of-two bitmask for ring indexing.
+    int viewportRows { 0 };                                ///< Visible row count.
+    int scrollbackLines { 0 };                             ///< Maximum history row count from config.
+    mutable juce::HeapBlock<const jam::Row*> blockPointers; ///< Logical-order row pointer array for getBlock. Grid-owned.
 
     //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Grid)

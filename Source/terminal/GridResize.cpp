@@ -61,8 +61,6 @@ void GridResize::apply() noexcept
                 int cursorCol { video.getCursorCol().value };
                 const auto reflowedNumRows { grid.reflow (pendingRows.value, pendingCols.value, scrollbackLines, cursorRow, cursorCol) };
 
-                grid.setNumRows (0, reflowedNumRows.at (0));
-                grid.setNumRows (1, reflowedNumRows.at (1));
                 state.setNumRows (0, reflowedNumRows.at (0));
                 state.setNumRows (1, reflowedNumRows.at (1));
 

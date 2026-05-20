@@ -16,7 +16,7 @@ END (Ephemeral Nexus Display) is a GPU/CPU-rendered, fully-featured terminal emu
 
 ### Architecture Philosophy
 
-APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTree, UI pulls from ValueTree listeners. Render path bypasses the timer via VBlankAttachment polling a dirty atomic. No thread pushes to another — all communication is pull-based.
+APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTree, UI pulls from ValueTree listeners. Render trigger is timer-driven flush (60/120 Hz) — timer flushes dirty atomics to ValueTree, listeners repaint. No thread pushes to another — all communication is pull-based.
 
 ### Technology Stack
 
@@ -146,7 +146,7 @@ Source/
 
     component/                      UI hosting layer (Display, Screen, Overlay, Panes, Tabs, LookAndFeel)
       Dialog.h/cpp                  Modal dialog component
-      Display.h/cpp                 terminal::Display — UI host, VBlankAttachment render loop; delegates to Input + Mouse
+      Display.h/cpp                 terminal::Display — UI host, timer-driven render; delegates to Input + Mouse
       LoaderOverlay.h               Loading spinner overlay (used by whelmed::Component)
       LookAndFeel.h/cpp             Custom LookAndFeel: tab styling, popup menu, colour system
       LookAndFeelMenu.cpp           Menu LookAndFeel overrides
@@ -158,7 +158,7 @@ Source/
       Panes.h/cpp                   Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
       Panes.cpp                     Panes implementation
       Popup.h/cpp                   Popup terminal component
-      Screen.h/cpp                  terminal::Screen — render coordinator, reads Grid directly every frame via jam::TextEditor
+      Screen.h/cpp                  terminal::Screen — render coordinator, reads Grid via getBlock(), calls TextEditor::setText(Block<Row>); inherits jam::TextEditor, grafts its ValueTree node into State
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
       StatusBarOverlay.h            Overlay that listens to TABS subtree for modal/selection state display
       Tabs.h/cpp                    terminal::Tabs — tab container, manages one Panes instance per tab
@@ -211,7 +211,7 @@ Source/
 | AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active pane type + UUID | JUCE ValueTree, terminal::id |
 | AppIdentifier | `Source/` | ValueTree node and property identifiers (app::id:: namespace); pane type string constants; app::RendererType enum | JUCE |
 | lua::Engine | `lua/` | Unified Lua config + scripting engine. Sole owner of `jam::lua::state` — SSOT for all settings, keybindings, popup definitions, and custom actions. Six typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action) replace string-keyed value maps. Unified colour parser handles `#RRGGBB`, `#RRGGBBAA`, and bare `RRGGBBAA` formats. File watcher triggers total reload on any `.lua` change (gated by `nexus.autoReload`). Provides parsed bindings to `action::Registry`, selection keys to `terminal::Input` / `whelmed::InputHandler`, and Theme to Screen. | sol2, jam::Context, jam::File::Watcher |
-| Component | `terminal/component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, lua::Engine, PaneManager, AppState |
+| Component | `terminal/component/` | JUCE UI hosting, tabs, panes, LookAndFeel, timer-driven render trigger | Session, Screen, lua::Engine, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Terminal | `terminal/` | Pure value types, state atomics, IDs, VT parsing, Video command processor, grid storage, session orchestration, preview decoders | JUCE ValueTree |
 | Rendering | `terminal/component/` | Screen render coordinator, GL/CPU draw, Fonts (Context-managed), Overlay (image preview component) | terminal/, FreeType, HarfBuzz, OpenGL, jam_graphics, jam_tui |
@@ -395,6 +395,12 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
 
 Lock-free architecture, unidirectional data flow. READER thread always writes to atomics; MESSAGE thread always reads from State. Two data profiles, two mechanisms, one direction:
 
+- READER thread always reads/writes to atomics (raw value).
+- MESSAGE thread always reads/writes to juce::ValueTree property/value.
+- UNIDIRECTIONAL data flow. No hacks. No workaround. No manual state tracking. No shadow state.
+- Objects are stateless — hold only transient values for calculation, never mutate state machine.
+- Top to bottom, always tell never ask. Virtually no getters. EXCEPT SSOT reads from State machine.
+
 **Scalar data** — parameters, mode flags, strings, metadata (cursor position, URIs, title, cwd). Sparse, low-volume, consumed by UI listeners.
 
 ```
@@ -406,20 +412,20 @@ ValueTree is the SSOT for all scalar state. `State::flush()` copies dirty atomic
 **Bulk data** — cell content (25,000+ entries at 5K fullscreen, updated every frame). High-volume, consumed by render path.
 
 ```
-READER → HeapBlock on Grid → dirty-row fence → MESSAGE reads directly
+READER → jam::Buffer<jam::Row> on Grid → timer flush → MESSAGE reads via getBlock()
 ```
 
-Grid's `HeapBlock<Cell>`, `HeapBlock<Grapheme>`, `HeapBlock<uint16_t> linkIds` are read directly by `terminal::Screen` on the MESSAGE thread via VBlank polling. No ValueTree involvement — ValueTree cannot handle this volume (appendChild/setProperty allocate, lock, fire listeners per entry). Synchronization: `resizeLock` CriticalSection (resize only) + `dirtyRows[4]` atomic bitmask (render trigger).
+Grid stores `jam::Buffer<jam::Row>` (2 channels, ring-indexed via `head` + `ringMask`). `terminal::Screen` reads via `Grid::getBlock()` which returns a `Block<Row>` — a non-owning view with no copy. No dirty tracking on Grid — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask. No `resizeLock` on Grid. Synchronization: `juce::CriticalSection resizeLock` on `GridResize` (resize only, not on Grid directly).
 
-**Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → Grid HeapBlock. If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
+**Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → Grid `jam::Buffer<jam::Row>`. If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
 
 **Image preview** — file-based image display triggered by hyperlink click or SKiT protocol (Sixel/Kitty/iTerm2).
 
 ```
-READER → Parser → Skit → onPreviewFile(filepath, row) → SpinLock slot on Display → MESSAGE onVBlank() → consumePendingPreview() → handleOpenImage() → terminal::Overlay component
+READER → Parser → Skit → onPreviewFile(filepath, row) → SpinLock slot on Display → MESSAGE thread → consumePendingPreview() → handleOpenImage() → terminal::Overlay component
 ```
 
-Preview is a Display-side concern. The READER thread writes a filepath + trigger row into a SpinLock-guarded slot on Display via `onPreviewFile`. The MESSAGE thread consumes it in `onVBlank()` → `consumePendingPreview()`, loads the file via `loadImageNative()`, downscales if needed, and creates an ephemeral `terminal::Overlay` child component. Overlay is a `jam::animation::Base` that renders `juce::Image` directly — no atlas, no FIFO, no staging pipeline. Display::resized() splits the content area: Overlay gets the right portion, Screen reflows into the remaining space via PTY resize. Dismiss destroys the Overlay and restores Screen to full width.
+Preview is a Display-side concern. The READER thread writes a filepath + trigger row into a SpinLock-guarded slot on Display via `onPreviewFile`. The MESSAGE thread consumes it via `consumePendingPreview()`, loads the file via `loadImageNative()`, downscales if needed, and creates an ephemeral `terminal::Overlay` child component. Overlay is a `jam::animation::Base` that renders `juce::Image` directly — no atlas, no FIFO, no staging pipeline. Display::resized() splits the content area: Overlay gets the right portion, Screen reflows into the remaining space via PTY resize. Dismiss destroys the Overlay and restores Screen to full width.
 
 ### Communication Contracts
 
@@ -436,14 +442,12 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 **Data -> Component (timer path):**
 - `State::timerCallback()` runs on message thread (60-120Hz)
 - Flushes atomics to ValueTree via `flush()`
-- ValueTree fires `valueTreePropertyChanged` → CursorComponent updates
-- `State::refresh()` (public) also flushes atomics — called by `onVBlank` before rendering
+- ValueTree fires `valueTreePropertyChanged` → Screen reads Grid via `Grid::getBlock()` → `TextEditor::setText(Block<Row>)` → `repaint()`; CursorComponent updates separately
 
 **Data -> Component (render path):**
-- `VBlankAttachment` fires on every display vsync (CVDisplayLink)
-- Calls `State::consumeSnapshotDirty()` — one atomic exchange
-- Calls `State::refresh()` to flush pending atomics before render
-- If dirty: `terminal::Screen` reads Grid + State, builds snapshot, publishes to GLSnapshotBuffer
+- Timer-driven flush (60/120 Hz) on the message thread flushes dirty atomics to ValueTree
+- `Screen::valueTreePropertyChanged()` fires → reads Grid via `Grid::getBlock()` → calls `TextEditor::setText(Block<Row>)` (non-owning, no copy) → `calc()` → `repaint()`
+- Screen is a stateless renderer; TextEditor holds no persistent cell buffer
 
 **Component -> Rendering (GL path):**
 - `GLSnapshotBuffer::write()` — message thread publishes snapshot
@@ -488,7 +492,7 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 |--------|-----|------|-------|--------|
 | **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Grid cells, dirty bits, scrollbackUsed |
 | **Timer** (JUCE) | default | — | `needsFlush` atomic | ValueTree properties |
-| **Message** (main) | user-interactive | Component, Screen | ValueTree, `snapshotDirty` atomic, Grid cells | Snapshot (reads Grid cells directly) |
+| **Message** (main) | user-interactive | Component, Screen | ValueTree, Grid cells via Block<Row> | Snapshot (reads Grid cells directly) |
 | **GL** (OpenGL) | user-interactive | OpenGL context | Snapshot (via GLSnapshotBuffer), staged bitmaps | GPU textures, framebuffer |
 
 ### Data Flow: Keystroke to Pixel
@@ -496,9 +500,9 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 ```
 Keystroke -> Message Thread -> TTY::write()
          -> Reader Thread reads response -> Processor::process() -> Parser -> Video
-         -> Grid cells written, State atomics set, snapshotDirty = true
-         -> VBlank fires on Message Thread -> consumeSnapshotDirty()
-         -> State::refresh() -> terminal::Screen reads Grid + State -> builds Snapshot -> GLSnapshotBuffer::write()
+         -> Grid cells written, State atomics set
+         -> Timer flush (60/120 Hz) on Message Thread -> State flushes dirty atomics to ValueTree
+         -> Screen::valueTreePropertyChanged() -> Grid::getBlock() -> TextEditor::setText(Block<Row>) -> calc() -> repaint
           -> GL Thread -> GLSnapshotBuffer::read() -> uploadStagedBitmaps() -> draw
 ```
 
@@ -507,7 +511,6 @@ Keystroke -> Message Thread -> TTY::write()
 | Mechanism | Between | Purpose |
 |-----------|---------|---------|
 | `std::atomic<float>` | Reader -> Timer/Message | State parameter transport |
-| `std::atomic<bool> snapshotDirty` | Reader -> Message (VBlank) | Render trigger |
 | `std::atomic<bool> needsFlush` | Reader -> Timer | ValueTree flush trigger |
 | `jam::GLSnapshotBuffer` (atomic exchange) | Message -> GL | Double-buffered snapshot handoff |
 | `std::mutex` (uploadMutex) | Message -> GL | Staged bitmap queue |
@@ -523,7 +526,7 @@ Keystroke -> Message Thread -> TTY::write()
 
 **Implementation:** `terminal/State.h/cpp`, `terminal/StateFlush.cpp`
 
-Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Render path calls `State::refresh()` to force-flush atomics before each frame, ensuring the snapshot reads current values without waiting for the timer.
+Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Screen reads Grid via `Grid::getBlock()` and sets content on TextEditor via `setText(Block<Row>)` — no copy, stateless renderer.
 
 WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `std::atomic<bool>`. Two consumers:
 - **GL thread** — GPU lambda calls `consumeAtlasDirty()` and invokes `GlyphAtlas::getContext()->rebuildAtlas()` to tear down and re-upload GPU textures.
@@ -829,11 +832,11 @@ Access: `setRGB()`, `setPalette()`, `setTheme()`, `paletteIndex()`
 
 ### Grid Ring Buffer
 
-Dual buffers (normal + alternate). Each buffer is a flat `HeapBlock<Cell>` with ring-buffer row indexing. Parallel `HeapBlock<uint16_t> linkIds` sidecar carries per-cell link IDs (non-zero when `LAYOUT_HYPERLINK` is set). `head` tracks the logical top row. Dirty tracking via `std::atomic<uint64_t> dirtyRows[4]` (256-bit bitmask).
+Dual buffers (normal + alternate). Each buffer is a `jam::Buffer<jam::Row>` with ring-buffer row indexing via `head` + `ringMask`. `head` tracks the logical top row. No dirty tracking on Grid — no `dirtyRows` bitmask. No `linkIds` sidecar on Grid.
 
-`getCols()` and `getVisibleRows()` return the buffer allocation dimensions. `resize()` is managed by `GridResize` on the message thread, holding `resizeLock` for the duration.
+Grid API: `getBlock()` returns `Block<Row>` (non-owning view, no copy). `getWritePointer()` returns a mutable `jam::Row*` for the reader thread. `getRow()` returns a const row pointer. `resize()` is managed by `GridResize` on the message thread.
 
-Video reads geometry via `state.getRawValue<int>(terminal::id::cols)` etc. (lock-free atomics). `getCols()`/`getVisibleRows()` on Grid remain for message-thread consumers.
+Video reads geometry via `state.getRawValue<int>(terminal::id::cols)` etc. (lock-free atomics).
 
 ### terminal::ScreenMap
 
@@ -875,7 +878,17 @@ Uses SDF for rounded corners and anti-aliased diagonals. Produces pixel-perfect 
 
 ### ScreenSelection
 
-Anchor + end `Point<int>` pair. `SelectionType` enum (linear/line/box). `containsCell()` dispatches to `contains()`, `containsLine()`, or `containsBox()`. Renders via transparent background overlay using `colours.selection` config color. Lives in `terminal/component/ScreenSelection.h`.
+Anchor + end `Point<int>` pair. Uses `::SelectionType` (none/visual/visualLine/visualBlock). `containsCell()` dispatches to `contains()`, `containsLine()`, or `containsBox()`. Renders via transparent background overlay using `colours.selection` config color. Lives in `terminal/component/ScreenSelection.h`.
+
+### TextEditor (jam::TextEditor)
+
+Stateless monospace cell-grid renderer. Owns a ValueTree node grafted into State by Screen.
+Content set per frame via `setText(Block<Row>)` — non-owning, no copy. Two viewport modes:
+proportional (terminal — jam::Scrollbar, interactive) and absolute (whelmed — juce::Viewport).
+Both scrollbars render identically via LookAndFeel.
+
+Selection is TextEditor's responsibility. Input/Mouse write selection properties directly to
+TextEditor's grafted node. Processor adjusts selection anchors on scroll via storeValue atomics.
 
 ### ModalType
 
@@ -984,14 +997,6 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 ---
 
 ## Key Design Decisions
-
-### Decision: VBlankAttachment for Render Trigger
-
-**Context:** Timer-based render trigger (60-120Hz) suffered latency under CPU contention because macOS deprioritizes the JUCE timer thread.
-
-**Decision:** Replace timer-driven render with CVDisplayLink-driven polling via `juce::VBlankAttachment`. State stays pure (timer + atomics only). `terminal::Display` polls `consumeSnapshotDirty()` on every vsync.
-
-**Rationale:** CVDisplayLink runs at display-driver priority, immune to timer QoS coalescing. Worst-case latency is one frame (8-16ms), imperceptible for terminal text. State remains a pure data layer with no UI knowledge.
 
 ### Decision: Context<T> over Meyer's Singleton for lua::Engine
 
@@ -1241,10 +1246,10 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 | Class | File | Responsibility |
 |-------|------|----------------|
 | terminal::Input | terminal/Input.h/cpp | Modal gate, selection keys, open-file keys, scroll nav |
-| terminal::Mouse | terminal/Mouse.h/cpp | PTY forwarding, drag selection, click dispatch, wheel scroll |
+| terminal::Mouse | terminal/Mouse.h/cpp | PTY forwarding, drag selection, click dispatch, wheel scroll. Converts visible row to absolute via `toAbsoluteRow()` — **stub**: currently returns visibleRow unchanged, scrollback-aware conversion pending |
 | terminal::LinkManager | terminal/LinkManager.h/cpp | Viewport scan, cell-native hyperlink scanning, hit-test, dispatch |
 
-All selection/gesture state in State parameterMap. ScreenSelection rebuilt from State in onVBlank.
+Selection state lives on TextEditor's grafted ValueTree node. Input and Mouse write directly to TextEditor's node via `jam::ID::` identifiers. ScreenSelection reads from TextEditor's node.
 
 ---
 
@@ -1310,7 +1315,7 @@ Click-mode link underlines only render on OSC 133 output rows.
 | StagedBitmap | Cross-thread upload packet: pixel data + atlas region + mono/emoji kind |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state |
 | Tabs | `terminal::Tabs` — TabbedComponent subclass; Value::Listener for tabName, manages Panes instances |
-| VBlank | Display vertical blank — CVDisplayLink callback synced to monitor refresh |
+| VBlank | Not currently implemented. Render trigger is timer-driven flush (60/120 Hz). |
 | Video | VT command processor: receives decoded semantic actions from Parser, writes Grid cells, fires events for State writes |
 | Atlas | 4096x4096 texture containing rasterized glyphs, shelf-packed |
 

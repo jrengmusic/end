@@ -212,31 +212,6 @@ namespace id
     static const juce::Identifier keyboardFlags        { "keyboardFlags" };
 
     //==========================================================================
-    // Selection state parameter IDs
-    //==========================================================================
-
-    /** @brief Selection cursor row in scrollback-aware grid coordinates. */
-    static const juce::Identifier selectionCursorRow   { "selectionCursorRow" };
-
-    /** @brief Selection cursor column in grid coordinates. */
-    static const juce::Identifier selectionCursorCol   { "selectionCursorCol" };
-
-    /** @brief Selection anchor row in scrollback-aware grid coordinates. */
-    static const juce::Identifier selectionAnchorRow   { "selectionAnchorRow" };
-
-    /** @brief Selection anchor column in grid coordinates. */
-    static const juce::Identifier selectionAnchorCol   { "selectionAnchorCol" };
-
-    /** @brief Mouse drag anchor row in absolute (scrollback-aware) grid coordinates. */
-    static const juce::Identifier dragAnchorRow        { "dragAnchorRow" };
-
-    /** @brief Mouse drag anchor column in grid coordinates. */
-    static const juce::Identifier dragAnchorCol        { "dragAnchorCol" };
-
-    /** @brief True when the drag threshold has been crossed and a drag selection is active. */
-    static const juce::Identifier dragActive           { "dragActive" };
-
-    //==========================================================================
     // Transient session atomics (moved from stray members)
     //==========================================================================
 

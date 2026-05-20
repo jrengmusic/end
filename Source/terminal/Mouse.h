@@ -6,8 +6,8 @@
  * Display: PTY forwarding, selection anchor/drag, link hit-testing,
  * scroll accumulation for smooth trackpad input, and word/line selection.
  *
- * All selection state is written to `State` parameters.  `ScreenSelection`
- * construction happens in `Display::onVBlank()` from those State
+ * Selection state is written to TextEditor's grafted node.  `ScreenSelection`
+ * is rebuilt on the message thread during render from those node
  * params — Mouse never writes to `ScreenSelection` directly.
  *
  * ### Coordinate convention
@@ -73,7 +73,7 @@ public:
      * @brief Handles a mouse-down event.
      *
      * - **Mouse tracking active**: forwards SGR button-0 press.
-     * - **Triple-click**: selects the entire row (visualLine to State).
+     * - **Triple-click**: selects the entire row (visualLine to TextEditor's node).
      * - **Single click on link**: dispatches via LinkManager.
      * - **Single click on non-link**: records drag anchor; clears selection.
      *
@@ -86,7 +86,7 @@ public:
      * @brief Handles a mouse double-click event.
      *
      * - **Mouse tracking active**: forwards SGR button-0 press.
-     * - **No tracking**: selects the word under the cursor (visual to State).
+     * - **No tracking**: selects the word under the cursor (visual to TextEditor's grafted node).
      *
      * @param event  The mouse event.
      * @note MESSAGE THREAD.
@@ -109,7 +109,7 @@ public:
      * @brief Handles a mouse-up event.
      *
      * - **Mouse tracking active**: forwards SGR button-0 release.
-     * - **No tracking**: resets `State::dragActive`; keeps `screenSelection`
+     * - **No tracking**: resets Mouse-private `dragActive`; keeps `screenSelection`
      *   visible so the user can Cmd+C to copy.
      *
      * @param event  The mouse event.
@@ -145,6 +145,10 @@ public:
     void handleWheel (const juce::MouseEvent& event,
                       const juce::MouseWheelDetails& wheel,
                       std::function<void (int)> setScrollFn);
+
+    /** @brief Updates physical cell dimensions after font or resize change.
+     *  @note MESSAGE THREAD. */
+    void setCellSize (int cellWidth, int cellHeight) noexcept;
 
 private:
     /**
@@ -184,6 +188,12 @@ private:
      * crossed, preventing overscroll on fast finger swipes.
      */
     float scrollAccumulator { 0.0f };
+
+    /** @brief Drag anchor in absolute (scrollback-aware) coordinates. */
+    juce::Point<int> dragAnchor { 0, 0 };
+
+    /** @brief True while a drag selection is in progress. */
+    bool dragActive { false };
 };
 
 /**______________________________END OF NAMESPACE______________________________*/

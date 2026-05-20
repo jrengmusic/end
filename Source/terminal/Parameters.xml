@@ -8,15 +8,6 @@
     <!-- Active screen index -->
     <PARAM id="activeScreen"       type="int"  default="0"/>
 
-    <!-- Selection -->
-    <PARAM id="selectionCursorRow" type="int"  default="0"/>
-    <PARAM id="selectionCursorCol" type="int"  default="0"/>
-    <PARAM id="selectionAnchorRow" type="int"  default="0"/>
-    <PARAM id="selectionAnchorCol" type="int"  default="0"/>
-    <PARAM id="dragAnchorRow"      type="int"  default="0"/>
-    <PARAM id="dragAnchorCol"      type="int"  default="0"/>
-    <PARAM id="dragActive"         type="bool" default="false"/>
-
     <!-- Preview split -->
     <PARAM id="preview"            type="bool" default="false"/>
     <PARAM id="splitCol"           type="int"  default="0"/>

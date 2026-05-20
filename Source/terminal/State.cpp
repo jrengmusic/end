@@ -606,58 +606,6 @@ bool State::consumeSyncResize() noexcept
 }
 
 //==========================================================================
-// Selection
-//==========================================================================
-
-void State::setSelectionType (int type) noexcept
-{
-    AppState::getContext()->setSelectionType (type);
-    params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::snapshotDirty)->storeRelease (1);
-}
-
-int State::getSelectionType() const noexcept { return AppState::getContext()->getSelectionType(); }
-
-void State::setSelectionCursor (cell row, cell col) noexcept
-{
-    storeValue (id::SESSION, id::selectionCursorRow, row.value);
-    storeValue (id::SESSION, id::selectionCursorCol, col.value);
-    params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::snapshotDirty)->storeRelease (1);
-}
-
-cell State::getSelectionCursorRow() const noexcept { return cell (getSessionParamInt (get(), id::selectionCursorRow)); }
-
-cell State::getSelectionCursorCol() const noexcept { return cell (getSessionParamInt (get(), id::selectionCursorCol)); }
-
-void State::setSelectionAnchor (cell row, cell col) noexcept
-{
-    storeValue (id::SESSION, id::selectionAnchorRow, row.value);
-    storeValue (id::SESSION, id::selectionAnchorCol, col.value);
-    params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::snapshotDirty)->storeRelease (1);
-}
-
-cell State::getSelectionAnchorRow() const noexcept { return cell (getSessionParamInt (get(), id::selectionAnchorRow)); }
-
-cell State::getSelectionAnchorCol() const noexcept { return cell (getSessionParamInt (get(), id::selectionAnchorCol)); }
-
-void State::setDragAnchor (cell row, cell col) noexcept
-{
-    storeValue (id::SESSION, id::dragAnchorRow, row.value);
-    storeValue (id::SESSION, id::dragAnchorCol, col.value);
-}
-
-cell State::getDragAnchorRow() const noexcept { return cell (getSessionParamInt (get(), id::dragAnchorRow)); }
-
-cell State::getDragAnchorCol() const noexcept { return cell (getSessionParamInt (get(), id::dragAnchorCol)); }
-
-void State::setDragActive (bool active) noexcept
-{
-    storeValue (id::SESSION, id::dragActive, active ? 1 : 0);
-    params.get<jam::AnyMap> (id::SESSION)->get<Parameter<int>> (id::snapshotDirty)->storeRelease (1);
-}
-
-bool State::isDragActive() const noexcept { return getSessionParamInt (get(), id::dragActive) != 0; }
-
-//==========================================================================
 // Preview
 //==========================================================================
 
@@ -741,6 +689,32 @@ int State::loadCellWidth() const noexcept { return loadValue (id::DISPLAY, id::c
 int State::loadCellHeight() const noexcept { return loadValue (id::DISPLAY, id::cellHeight); }
 int State::loadWidth() const noexcept { return loadValue (id::SESSION, jam::ID::width); }
 int State::loadHeight() const noexcept { return loadValue (id::SESSION, jam::ID::height); }
+
+//==========================================================================
+// Selection anchor adjustment — READER thread, lock-free
+//==========================================================================
+
+void State::adjustSelectionAnchors (int, int delta) noexcept
+{
+    const int selType { loadValue (jam::ID::textEditor, jam::ID::selectionType) };
+
+    if (selType != static_cast<int> (terminal::SelectionType::none))
+    {
+        const int anchorRow { loadValue (jam::ID::textEditor, jam::ID::selectionAnchorRow) + delta };
+        const int cursorRow { loadValue (jam::ID::textEditor, jam::ID::selectionCursorRow) + delta };
+
+        if (anchorRow < 0 or cursorRow < 0)
+        {
+            storeValue (jam::ID::textEditor, jam::ID::selectionType,
+                        static_cast<int> (terminal::SelectionType::none));
+        }
+        else
+        {
+            storeValue (jam::ID::textEditor, jam::ID::selectionAnchorRow, anchorRow);
+            storeValue (jam::ID::textEditor, jam::ID::selectionCursorRow, cursorRow);
+        }
+    }
+}
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace terminal

@@ -376,10 +376,6 @@ private:
     /** @brief Maximum history row count — set once in constructor from config, used by scrollUp handler. */
     int scrollbackLines { 0 };
 
-    /** @brief Per-screen history row accumulator — Processor is the sole writer.
-     *         Capped at scrollbackLines. Mirrors Grid's numRows. */
-    std::array<int, 2> numRows { 0, 0 };
-
     /** @brief Registers Processor-owned event handlers on the events map.
      *
      *  Handlers registered here intercept Video-fired events that require

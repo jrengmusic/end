@@ -4,6 +4,9 @@
 #include "Screen.h"
 #include "../../lua/Engine.h"
 #include "../Processor.h"
+#include "../Input.h"
+#include "../Mouse.h"
+#include "../LinkManager.h"
 
 namespace terminal
 {
@@ -51,6 +54,14 @@ public:
     // juce::KeyListener
     bool keyPressed (const juce::KeyPress& key, juce::Component* originatingComponent) override;
 
+    // juce::Component mouse events
+    void mouseDown (const juce::MouseEvent& event) override;
+    void mouseDoubleClick (const juce::MouseEvent& event) override;
+    void mouseDrag (const juce::MouseEvent& event) override;
+    void mouseUp (const juce::MouseEvent& event) override;
+    void mouseMove (const juce::MouseEvent& event) override;
+    void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
+
 private:
     const lua::Engine& config { *lua::Engine::getContext() };
     terminal::Processor& processor;
@@ -61,6 +72,10 @@ private:
 
     cell lastCols { 0 }; ///< Previous column count for resize debounce.
     cell lastRows { 0 }; ///< Previous row count for resize debounce.
+
+    terminal::LinkManager linkManager;
+    terminal::Input input;
+    terminal::Mouse mouse;
 
     void updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept;
 

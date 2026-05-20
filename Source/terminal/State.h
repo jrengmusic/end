@@ -182,21 +182,6 @@ struct State
     void requestSyncResize() noexcept;
     bool consumeSyncResize() noexcept;
 
-    // Selection
-    void setSelectionType (int type) noexcept;
-    int getSelectionType() const noexcept;
-    void setSelectionCursor (cell row, cell col) noexcept;
-    cell getSelectionCursorRow() const noexcept;
-    cell getSelectionCursorCol() const noexcept;
-    void setSelectionAnchor (cell row, cell col) noexcept;
-    cell getSelectionAnchorRow() const noexcept;
-    cell getSelectionAnchorCol() const noexcept;
-    void setDragAnchor (cell row, cell col) noexcept;
-    cell getDragAnchorRow() const noexcept;
-    cell getDragAnchorCol() const noexcept;
-    void setDragActive (bool active) noexcept;
-    bool isDragActive() const noexcept;
-
     // Preview split-viewport
     void dismissPreview() noexcept;
     bool isPreviewActive() const noexcept;
@@ -217,6 +202,13 @@ struct State
     void setNumRows (int screen, int value) noexcept;
     void setScrollOffset (int screen, int value) noexcept;
     void setScreenDirty (int screen) noexcept;
+
+    /** @brief Adjusts selection anchors after scroll — shifts rows by delta.
+     *  If anchors go negative, clears selection (selectionType = none).
+     *  Called from READER thread via scrollUp event handler.
+     *  @param screen  Screen index (unused — selection is on TextEditor's node).
+     *  @param delta   Row delta (negative = content scrolled up). */
+    void adjustSelectionAnchors (int screen, int delta) noexcept;
 
     int getNumRows (int screen) const noexcept;
     int getScrollOffset (int screen) const noexcept;

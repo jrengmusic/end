@@ -214,6 +214,15 @@ void Processor::registerEvents() noexcept
                     state.setSnapshotDirty();
                 });
 
+    // Clear scrollback — clear Grid cells, reset numRows, and clear scroll offset for the given screen.
+    events.add<int> (id::clearBuffer,
+                     [this] (int screen)
+                     {
+                         grid.clear (screen);
+                         state.setNumRows (screen, 0);
+                         state.setScrollOffset (screen, 0);
+                     });
+
     // OSC 0/2 window title.
     events.add<const char*, int> (id::title,
                                   [this] (const char* data, int length)
@@ -284,13 +293,12 @@ void Processor::registerEvents() noexcept
                          state.setScreen (scr);
                      });
 
-    // State delivery: scrollUp — increment history row count (capped at scrollbackLines), sync Grid and State.
+    // State delivery: scrollUp — Grid already incremented numRows internally; sync State.
     events.add<int, int> (id::scrollUp,
                           [this] (int screen, int count)
                           {
-                              numRows.at (screen) = juce::jmin (numRows.at (screen) + count, scrollbackLines);
-                              grid.setNumRows (screen, numRows.at (screen));
-                              state.setNumRows (screen, numRows.at (screen));
+                              state.setNumRows (screen, grid.getNumRows (screen));
+                              state.adjustSelectionAnchors (screen, -count);
                           });
 
     // State delivery: screenDirty — increment monotonic counter so Screen detects new cell data.

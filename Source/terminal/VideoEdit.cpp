@@ -24,7 +24,7 @@
  *
  * @note All functions in this file run on the READER THREAD only.
  *
- * @see Grid    — flat cell storage (Buffer<Cell>)
+ * @see Grid    — ring-buffer row storage (jam::Buffer<jam::Row>)
  * @see Video.h — class declaration and full method documentation
  */
 
@@ -41,8 +41,8 @@ namespace terminal
 /**
  * @brief Handles `CSI Ps J` — Erase in Display (ED).
  *
- * Clears cells directly in Grid.  For mode 3, the `"snapshotDirty"` event
- * is fired.
+ * Clears cells directly in Grid.  Modes 2 and 3 also fire the `"clearBuffer"`
+ * event, which Processor handles by resetting numRows and scrollOffset to 0.
  *
  * @par Mode table
  *
@@ -161,13 +161,34 @@ void Video::eraseInDisplay (int mode) noexcept
                 grid.clear (scr);
             }
 
+            // Clear scrollback history
+            if (events.contains (id::clearBuffer))
+                events.get (id::clearBuffer, int (scr));
+
             break;
         }
 
         case 3:
         {
-            // Clear scrollback — set State flag for Display to handle
-            if (events.contains (id::snapshotDirty)) events.get (id::snapshotDirty);
+            // Clear viewport + scrollback history
+            if (hasBgFill)
+            {
+                for (int r { 0 }; r < vRows; ++r)
+                {
+                    jam::Row* row { grid.getWritePointer (scr, r) };
+
+                    for (int c { 0 }; c < nCols; ++c)
+                        row->cells[c] = fill;
+                }
+            }
+            else
+            {
+                grid.clear (scr);
+            }
+
+            if (events.contains (id::clearBuffer))
+                events.get (id::clearBuffer, int (scr));
+
             break;
         }
 

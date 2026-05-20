@@ -2,9 +2,9 @@
  * @file Mouse.cpp
  * @brief Implementation of mouse input routing for a terminal processor.
  *
- * All selection state is written to State parameters.  Display::onVBlank()
- * builds ScreenSelection from those State params — this handler never touches
- * ScreenSelection directly.
+ * Selection state is written to TextEditor's grafted node.  Drag state is
+ * Mouse-private.  The message thread rebuilds ScreenSelection from the TextEditor
+ * node props during render — this handler never touches ScreenSelection directly.
  *
  * @see terminal::Mouse
  */
@@ -26,6 +26,12 @@ Mouse::Mouse (Processor& p,
 {
 }
 
+void Mouse::setCellSize (int cellWidth, int cellHeight) noexcept
+{
+    physCellWidth  = cellWidth;
+    physCellHeight = cellHeight;
+}
+
 void Mouse::handleDown (const juce::MouseEvent& event)
 {
     if (processor.getState().isPreviewActive())
@@ -41,23 +47,28 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     }
     else if (event.getNumberOfClicks() == 3)
     {
-        // Triple-click: select the entire clicked row (visualLine).
         const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const int absRow { toAbsoluteRow (hitCell.y) };
+        auto node { processor.getState().get().getChildWithName (jam::ID::textEditor) };
 
-        processor.getState().setSelectionType (static_cast<int> (terminal::SelectionType::visualLine));
-        processor.getState().setSelectionAnchor (cell (absRow), 0_cell);
-        processor.getState().setSelectionCursor (cell (absRow), 0_cell);
-        processor.getState().setDragAnchor (cell (absRow), 0_cell);
-        processor.getState().setDragActive (false);
+        if (node.isValid())
+        {
+            node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::visualLine), nullptr);
+            node.setProperty (jam::ID::selectionAnchorRow, absRow, nullptr);
+            node.setProperty (jam::ID::selectionAnchorCol, 0, nullptr);
+            node.setProperty (jam::ID::selectionCursorRow, absRow, nullptr);
+            node.setProperty (jam::ID::selectionCursorCol, 0, nullptr);
+        }
+
+        dragAnchor = { hitCell.x, absRow };
+        dragActive = false;
     }
     else
     {
         const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
         const int absRow { toAbsoluteRow (hitCell.y) };
+        auto node { processor.getState().get().getChildWithName (jam::ID::textEditor) };
 
-        // Click-mode dispatch: hit-test against clickable link spans.
-        // Only active when no modal is open.
         if (not processor.getState().isModal())
         {
             const terminal::LinkSpan* matched { linkManager.hitTest (hitCell.getY(), hitCell.getX()) };
@@ -65,26 +76,29 @@ void Mouse::handleDown (const juce::MouseEvent& event)
             if (matched != nullptr)
             {
                 linkManager.dispatch (*matched);
-                processor.getState().setSelectionType (static_cast<int> (terminal::SelectionType::none));
-                processor.getState().setDragAnchor (cell (absRow), cell (hitCell.x));
-                processor.getState().setDragActive (false);
+
+                if (node.isValid())
+                    node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::none), nullptr);
+
+                dragAnchor = { hitCell.x, absRow };
+                dragActive = false;
             }
             else
             {
-                // Single click on non-link: record anchor for potential drag.
-                // Clear any existing drag selection.
-                processor.getState().setSelectionType (static_cast<int> (terminal::SelectionType::none));
-                processor.getState().setDragAnchor (cell (absRow), cell (hitCell.x));
-                processor.getState().setDragActive (false);
+                if (node.isValid())
+                    node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::none), nullptr);
+
+                dragAnchor = { hitCell.x, absRow };
+                dragActive = false;
             }
         }
         else
         {
-            // Single click: record anchor for potential drag.
-            // Clear any existing drag selection.
-            processor.getState().setSelectionType (static_cast<int> (terminal::SelectionType::none));
-            processor.getState().setDragAnchor (cell (absRow), cell (hitCell.x));
-            processor.getState().setDragActive (false);
+            if (node.isValid())
+                node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::none), nullptr);
+
+            dragAnchor = { hitCell.x, absRow };
+            dragActive = false;
         }
     }
 }
@@ -101,21 +115,22 @@ void Mouse::handleDoubleClick (const juce::MouseEvent& event)
     else
     {
         const auto hitCell { cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-
-        // Word boundary scan reads cell content via the visible row mapping.
-        // Wire through Display's visibleMapping for word selection when
-        // Display exposes a per-frame visibleMapping accessor.
         const int wordStart { hitCell.x };
         const int wordEnd { hitCell.x };
-
-        // Write to State selection params — screenSelection rebuilt in onVBlank.
         const int absRow { toAbsoluteRow (hitCell.y) };
+        auto node { processor.getState().get().getChildWithName (jam::ID::textEditor) };
 
-        processor.getState().setSelectionType (static_cast<int> (terminal::SelectionType::visual));
-        processor.getState().setSelectionAnchor (cell (absRow), cell (wordStart));
-        processor.getState().setSelectionCursor (cell (absRow), cell (wordEnd));
-        processor.getState().setDragAnchor (cell (absRow), cell (wordStart));
-        processor.getState().setDragActive (false);
+        if (node.isValid())
+        {
+            node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::visual), nullptr);
+            node.setProperty (jam::ID::selectionAnchorRow, absRow, nullptr);
+            node.setProperty (jam::ID::selectionAnchorCol, wordStart, nullptr);
+            node.setProperty (jam::ID::selectionCursorRow, absRow, nullptr);
+            node.setProperty (jam::ID::selectionCursorCol, wordEnd, nullptr);
+        }
+
+        dragAnchor = { wordStart, absRow };
+        dragActive = false;
     }
 }
 
@@ -138,25 +153,30 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
         const int clampedVisRow { juce::jlimit (0, maxVisRow, hitCell.y) };
         const int clampedAbsRow { toAbsoluteRow (clampedVisRow) };
 
-        // 2-cell Manhattan distance threshold before starting a drag selection.
-        const int anchorAbsRow { processor.getState().getDragAnchorRow().value };
-        const int anchorCol { processor.getState().getDragAnchorCol().value };
-        const int manhattanDist { std::abs (clampedCol - anchorCol)
-                                + std::abs (clampedAbsRow - anchorAbsRow) };
+        const int manhattanDist { std::abs (clampedCol - dragAnchor.x)
+                                + std::abs (clampedAbsRow - dragAnchor.y) };
 
         if (manhattanDist >= 2)
         {
-            if (not processor.getState().isDragActive())
+            auto node { processor.getState().get().getChildWithName (jam::ID::textEditor) };
+
+            if (not dragActive)
             {
-                // Threshold crossed — write anchor and cursor to State.
-                // onVBlank builds screenSelection from State params.
-                processor.getState().setSelectionType (static_cast<int> (terminal::SelectionType::visual));
-                processor.getState().setSelectionAnchor (cell (anchorAbsRow), cell (anchorCol));
-                processor.getState().setDragActive (true);
+                if (node.isValid())
+                {
+                    node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::visual), nullptr);
+                    node.setProperty (jam::ID::selectionAnchorRow, dragAnchor.y, nullptr);
+                    node.setProperty (jam::ID::selectionAnchorCol, dragAnchor.x, nullptr);
+                }
+
+                dragActive = true;
             }
 
-            // Extend or update the drag cursor to current cell.
-            processor.getState().setSelectionCursor (cell (clampedAbsRow), cell (clampedCol));
+            if (node.isValid())
+            {
+                node.setProperty (jam::ID::selectionCursorRow, clampedAbsRow, nullptr);
+                node.setProperty (jam::ID::selectionCursorCol, clampedCol, nullptr);
+            }
         }
     }
 }
@@ -172,10 +192,7 @@ void Mouse::handleUp (const juce::MouseEvent& event)
     }
     else
     {
-        // If a drag selection was active, keep the selection highlighted.
-        // The user can Cmd+C to copy or click elsewhere to clear it.
-        // Reset active flag so subsequent clicks don't extend the selection.
-        processor.getState().setDragActive (false);
+        dragActive = false;
     }
 }
 

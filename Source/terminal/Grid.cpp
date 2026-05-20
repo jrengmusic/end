@@ -381,16 +381,11 @@ void Grid::setSize (int viewportRowCount, int numCols, int scrollbackLineCount) 
     ringMask = ringSize - 1;
     viewportRows = viewportRowCount;
     scrollbackLines = scrollbackLineCount;
+    blockPointers.realloc (static_cast<size_t> (viewportRowCount));
     head.at (0) = 0;
     head.at (1) = 0;
     numRows.at (0) = 0;
     numRows.at (1) = 0;
-}
-
-void Grid::setNumRows (int screen, int value) noexcept
-{
-    jassert (screen >= 0 and screen < 2);
-    numRows.at (screen) = value;
 }
 
 std::array<int, 2>
@@ -460,6 +455,8 @@ Grid::reflow (int newViewportRows, int newCols, int scrollbackLines, int& cursor
     ringMask = newRingMask;
     viewportRows = newViewportRows;
     this->scrollbackLines = scrollbackLines;
+    numRows.at (0) = result.at (0);
+    numRows.at (1) = result.at (1);
     unwrapCursorPosition (scratch,
                           cursorScreen,
                           newHead.at (cursorScreen),
@@ -498,6 +495,9 @@ int Grid::scrollUp (int screen, int scrollTop, int scrollBottom, int count) noex
 
                 // Clear new bottom viewport row.
                 buffer.clear (screen, physicalRow (screen, viewportRows - 1));
+
+                // Grow history count — each head advance adds one row to history.
+                numRows.at (screen) = juce::jmin (numRows.at (screen) + 1, scrollbackLines);
             }
         }
         else
@@ -558,6 +558,8 @@ void Grid::clear (int screen) noexcept
 
     for (int r { 0 }; r < viewportRows; ++r)
         buffer.clear (screen, physicalRow (screen, r));
+
+    numRows.at (screen) = 0;
 }
 
 void Grid::clear (int screen, int row) noexcept
@@ -601,6 +603,33 @@ int Grid::getNumRows (int screen) const noexcept
 {
     jassert (screen >= 0 and screen < 2);
     return numRows.at (screen);
+}
+
+jam::Block<jam::Row> Grid::getBlock (int screen, int scrollOffset, int vpRows) const noexcept
+{
+    jassert (screen >= 0 and screen < 2);
+    jassert (vpRows >= 0 and vpRows <= viewportRows);
+    jassert (scrollOffset >= 0 and scrollOffset <= numRows.at (screen));
+
+    if (scrollOffset == 0)
+    {
+        // Live mode — viewport rows in logical order.
+        for (int r { 0 }; r < vpRows; ++r)
+            blockPointers[r] = buffer.getReadPointer (screen, physicalRow (screen, r));
+    }
+    else
+    {
+        // History mode — absolute rows starting from scrollOffset.
+        const int startIndex { numRows.at (screen) - scrollOffset };
+
+        for (int r { 0 }; r < vpRows; ++r)
+        {
+            const int absIndex { startIndex + r };
+            blockPointers[r] = buffer.getReadPointer (screen, (head.at (screen) - numRows.at (screen) + absIndex) & ringMask);
+        }
+    }
+
+    return jam::Block<jam::Row> (blockPointers.getData(), vpRows, buffer.getNumCols());
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

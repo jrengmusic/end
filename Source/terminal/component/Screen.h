@@ -16,8 +16,7 @@ namespace terminal
  * Display mediates all communication — Screen owns its State and Grid references
  * and drives itself on valueTreePropertyChanged.
  */
-class Screen : public jam::TextEditor,
-               public juce::ValueTree::Listener
+class Screen : public jam::TextEditor
 {
 public:
     enum ColourIds
@@ -48,15 +47,15 @@ public:
     Screen (terminal::State& state, terminal::Grid& grid) noexcept;
     ~Screen() override;
 
-    // juce::Component
-    void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
-
 private:
-    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
+    void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
+
+    void rebindScroll (int screenIndex) noexcept;
 
     terminal::State& state;
     terminal::Grid& grid;
     juce::ValueTree stateTree;
+    int boundScreenIndex { -1 };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)

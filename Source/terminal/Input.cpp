@@ -64,12 +64,18 @@ bool Input::handleKey (const juce::KeyPress& key) noexcept
 
 void Input::clearSelectionAndScroll() noexcept
 {
-    if (processor.getState().isDragActive()
-        or processor.getState().getSelectionType() != static_cast<int> (terminal::SelectionType::none))
+    auto node { processor.getState().get().getChildWithName (jam::ID::textEditor) };
+
+    if (node.isValid())
     {
-        processor.getState().setDragActive (false);
-        processor.getState().setSelectionType (static_cast<int> (terminal::SelectionType::none));
+        const int selType { node.getProperty (jam::ID::selectionType) };
+
+        if (selType != static_cast<int> (terminal::SelectionType::none))
+            node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::none), nullptr);
     }
+
+    const int activeScreen { processor.getState().getActiveScreen() };
+    processor.getState().setScrollOffset (activeScreen, 0);
 }
 
 void Input::buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept
@@ -125,147 +131,140 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
     const int maxCol { processor.getState().getCols().value - 1 };
 
     auto& st { processor.getState() };
+    auto node { st.get().getChildWithName (jam::ID::textEditor) };
 
-    bool consumed { false };
-
-    if (key == selectionKeys.exit)
+    if (node.isValid())
     {
-        st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
-        st.setModalType (terminal::ModalType::none);
-        pendingG = false;
-        st.setDragActive (false);
-        consumed = true;
-    }
-    else if (key == selectionKeys.visualBlock)
-    {
-        const auto current { static_cast<terminal::SelectionType> (st.getSelectionType()) };
-
-        if (current == terminal::SelectionType::visualBlock)
+        if (key == selectionKeys.exit)
         {
-            st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
+            node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::none), nullptr);
             st.setModalType (terminal::ModalType::none);
-        }
-        else
-        {
-            st.setSelectionAnchor (st.getSelectionCursorRow(), st.getSelectionCursorCol());
-            st.setSelectionType (static_cast<int> (terminal::SelectionType::visualBlock));
-        }
-
-        consumed = true;
-    }
-    else if (key == selectionKeys.left)
-    {
-        st.setSelectionCursor (st.getSelectionCursorRow(),
-                               cell (std::max (0, st.getSelectionCursorCol().value - 1)));
-        consumed = true;
-    }
-    else if (key == selectionKeys.down)
-    {
-        st.setSelectionCursor (cell (std::min (maxRow, st.getSelectionCursorRow().value + 1)),
-                               st.getSelectionCursorCol());
-        consumed = true;
-    }
-    else if (key == selectionKeys.up)
-    {
-        st.setSelectionCursor (cell (std::max (0, st.getSelectionCursorRow().value - 1)),
-                               st.getSelectionCursorCol());
-        consumed = true;
-    }
-    else if (key == selectionKeys.right)
-    {
-        st.setSelectionCursor (st.getSelectionCursorRow(),
-                               cell (std::min (maxCol, st.getSelectionCursorCol().value + 1)));
-        consumed = true;
-    }
-    else if (key == selectionKeys.visualLine)
-    {
-        const auto current { static_cast<terminal::SelectionType> (st.getSelectionType()) };
-
-        if (current == terminal::SelectionType::visualLine)
-        {
-            st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
-            st.setModalType (terminal::ModalType::none);
-        }
-        else
-        {
-            st.setSelectionAnchor (st.getSelectionCursorRow(), st.getSelectionCursorCol());
-            st.setSelectionType (static_cast<int> (terminal::SelectionType::visualLine));
-        }
-
-        consumed = true;
-    }
-    else if (key == selectionKeys.visual)
-    {
-        const auto current { static_cast<terminal::SelectionType> (st.getSelectionType()) };
-
-        if (current == terminal::SelectionType::visual)
-        {
-            st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
-            st.setModalType (terminal::ModalType::none);
-        }
-        else
-        {
-            st.setSelectionAnchor (st.getSelectionCursorRow(), st.getSelectionCursorCol());
-            st.setSelectionType (static_cast<int> (terminal::SelectionType::visual));
-        }
-
-        consumed = true;
-    }
-    else if (key == selectionKeys.copy or key == selectionKeys.globalCopy)
-    {
-        const auto smType { static_cast<terminal::SelectionType> (st.getSelectionType()) };
-
-        if (smType != terminal::SelectionType::none)
-        {
-            const int cols { processor.getState().getCols().value };
-
-            const int anchorVisRow { st.getSelectionAnchorRow().value };
-            const int cursorVisRow { st.getSelectionCursorRow().value };
-            const int anchorCol { st.getSelectionAnchorCol().value };
-            const int cursorCol { st.getSelectionCursorCol().value };
-
-            juce::String text;
-
-            // Text extraction from Grid migrated to Screen — stub pending Screen accessor.
-            juce::ignoreUnused (anchorVisRow, cursorVisRow, anchorCol, cursorCol, cols);
-
-            juce::SystemClipboard::copyTextToClipboard (text);
-        }
-
-        st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
-        st.setModalType (terminal::ModalType::none);
-        st.setDragActive (false);
-        pendingG = false;
-        consumed = true;
-    }
-    else if (key == selectionKeys.bottom)
-    {
-        st.setSelectionCursor (cell (maxRow), st.getSelectionCursorCol());
-        consumed = true;
-    }
-    else if (key == selectionKeys.top)
-    {
-        if (pendingG)
-        {
-            st.setSelectionCursor (0_cell, 0_cell);
             pendingG = false;
         }
-        else
+        else if (key == selectionKeys.visualBlock)
         {
-            pendingG = true;
-        }
+            const auto current { static_cast<terminal::SelectionType> (static_cast<int> (node.getProperty (jam::ID::selectionType))) };
 
-        consumed = true;
-    }
-    else if (key == selectionKeys.lineStart)
-    {
-        st.setSelectionCursor (st.getSelectionCursorRow(), 0_cell);
-        consumed = true;
-    }
-    else if (key == selectionKeys.lineEnd)
-    {
-        st.setSelectionCursor (st.getSelectionCursorRow(), cell (maxCol));
-        consumed = true;
+            if (current == terminal::SelectionType::visualBlock)
+            {
+                node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::none), nullptr);
+                st.setModalType (terminal::ModalType::none);
+            }
+            else
+            {
+                node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::visualBlock), nullptr);
+
+                if (current == terminal::SelectionType::none)
+                {
+                    const int cursorRow { st.getCursorRow().value };
+                    const int cursorCol { st.getCursorCol().value };
+                    node.setProperty (jam::ID::selectionAnchorRow, cursorRow, nullptr);
+                    node.setProperty (jam::ID::selectionAnchorCol, cursorCol, nullptr);
+                    node.setProperty (jam::ID::selectionCursorRow, cursorRow, nullptr);
+                    node.setProperty (jam::ID::selectionCursorCol, cursorCol, nullptr);
+                }
+            }
+        }
+        else if (key == selectionKeys.left)
+        {
+            const int col { juce::jmax (0, static_cast<int> (node.getProperty (jam::ID::selectionCursorCol)) - 1) };
+            node.setProperty (jam::ID::selectionCursorCol, col, nullptr);
+        }
+        else if (key == selectionKeys.down)
+        {
+            const int row { juce::jmin (maxRow, static_cast<int> (node.getProperty (jam::ID::selectionCursorRow)) + 1) };
+            node.setProperty (jam::ID::selectionCursorRow, row, nullptr);
+        }
+        else if (key == selectionKeys.up)
+        {
+            const int row { juce::jmax (0, static_cast<int> (node.getProperty (jam::ID::selectionCursorRow)) - 1) };
+            node.setProperty (jam::ID::selectionCursorRow, row, nullptr);
+        }
+        else if (key == selectionKeys.right)
+        {
+            const int col { juce::jmin (maxCol, static_cast<int> (node.getProperty (jam::ID::selectionCursorCol)) + 1) };
+            node.setProperty (jam::ID::selectionCursorCol, col, nullptr);
+        }
+        else if (key == selectionKeys.visualLine)
+        {
+            const auto current { static_cast<terminal::SelectionType> (static_cast<int> (node.getProperty (jam::ID::selectionType))) };
+
+            if (current == terminal::SelectionType::visualLine)
+            {
+                node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::none), nullptr);
+                st.setModalType (terminal::ModalType::none);
+            }
+            else
+            {
+                node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::visualLine), nullptr);
+
+                if (current == terminal::SelectionType::none)
+                {
+                    const int cursorRow { st.getCursorRow().value };
+                    node.setProperty (jam::ID::selectionAnchorRow, cursorRow, nullptr);
+                    node.setProperty (jam::ID::selectionAnchorCol, 0, nullptr);
+                    node.setProperty (jam::ID::selectionCursorRow, cursorRow, nullptr);
+                    node.setProperty (jam::ID::selectionCursorCol, 0, nullptr);
+                }
+            }
+        }
+        else if (key == selectionKeys.visual)
+        {
+            const auto current { static_cast<terminal::SelectionType> (static_cast<int> (node.getProperty (jam::ID::selectionType))) };
+
+            if (current == terminal::SelectionType::visual)
+            {
+                node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::none), nullptr);
+                st.setModalType (terminal::ModalType::none);
+            }
+            else
+            {
+                node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::visual), nullptr);
+
+                if (current == terminal::SelectionType::none)
+                {
+                    const int cursorRow { st.getCursorRow().value };
+                    const int cursorCol { st.getCursorCol().value };
+                    node.setProperty (jam::ID::selectionAnchorRow, cursorRow, nullptr);
+                    node.setProperty (jam::ID::selectionAnchorCol, cursorCol, nullptr);
+                    node.setProperty (jam::ID::selectionCursorRow, cursorRow, nullptr);
+                    node.setProperty (jam::ID::selectionCursorCol, cursorCol, nullptr);
+                }
+            }
+        }
+        else if (key == selectionKeys.copy or key == selectionKeys.globalCopy)
+        {
+            // Text extraction stub — pending Screen accessor for grid content.
+            juce::SystemClipboard::copyTextToClipboard ({});
+
+            node.setProperty (jam::ID::selectionType, static_cast<int> (terminal::SelectionType::none), nullptr);
+            st.setModalType (terminal::ModalType::none);
+            pendingG = false;
+        }
+        else if (key == selectionKeys.bottom)
+        {
+            node.setProperty (jam::ID::selectionCursorRow, maxRow, nullptr);
+        }
+        else if (key == selectionKeys.top)
+        {
+            if (pendingG)
+            {
+                node.setProperty (jam::ID::selectionCursorRow, 0, nullptr);
+                pendingG = false;
+            }
+            else
+            {
+                pendingG = true;
+            }
+        }
+        else if (key == selectionKeys.lineStart)
+        {
+            node.setProperty (jam::ID::selectionCursorCol, 0, nullptr);
+        }
+        else if (key == selectionKeys.lineEnd)
+        {
+            node.setProperty (jam::ID::selectionCursorCol, maxCol, nullptr);
+        }
     }
 
     return true;

@@ -1,5 +1,80 @@
 # SPRINT-LOG
 
+## Sprint 24: TextEditor Refactor — Content Ownership to Borrowed Block<Row> ✅
+
+**Date:** 2026-05-20
+**Duration:** ~6h
+
+### Agents Participated
+- COUNSELOR: RFC intake, PLAN authoring, delegation, orchestration, audit resolution, ARCHITECTURE.md alignment
+- Oracle: RFC production (pre-session, RFC-text-editor-refactor.md)
+- Pathfinder: codebase survey (TextEditor, Grid, Arrangement, Scrollbar, Display, Mouse, Input, State, ScreenSelection)
+- Librarian: jam::Buffer/Block API, juce::ScrollBar LookAndFeel, glyph::Arrangement internals, jam::Value::ObjectID
+- Engineer: all code implementation (Phase 1 deletion, Phase 2 implementation, bug fixes, audit fixes, numRows restructure)
+- Auditor: full sprint audit (27 findings, all resolved)
+
+### Files Modified (35+ total)
+
+**jam library (~/Documents/Poems/dev/jam/):**
+- `jam_gui/text_editor/jam_text_editor.h` — removed Buffer<Cell> ownership, activeScreen, filledRows, cols, visibleRows, getCellArea, setText(Cell), setActiveScreen, clear, mouseWheelMove, setScrollbackLines, setScrollBarThickness. Added setText(Block<Row>), ViewportMode, setScrollRange, bindScroll, getNode, ValueTree node, ValueTree::Listener
+- `jam_gui/text_editor/jam_text_editor.cpp` — constructor seeds ValueTree node properties, calc() reads content Block dimensions, resized() no buffer allocation, ContentView shapes from Block<Row>
+- `jam_gui/text_editor/jam_text_editor_content_view.cpp` — shapeVisibleContent reads owner.content (Block<Row>), proportional/absolute clip paths
+- `jam_gui/text_editor/jam_scrollbar.h` — NEW: jam::Scrollbar wrapping juce::ScrollBar via jam::Value::ObjectID, LookAndFeel-driven
+- `jam_gui/text_editor/jam_scrollbar.cpp` — NEW: setRange/getValueObject/scrollBarMoved/valueChanged with jam::Value::map
+- `jam_gui/jam_gui.h` — added jam_scrollbar.h include
+- `jam_gui/jam_gui.cpp` — added jam_scrollbar.cpp include
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement.h` — added Block<Row> shape overloads
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement.cpp` — Block<Row> shape implementation (usedCols early stop)
+- `jam_core/identifier/jam_identifier_text_editor.h` — NEW: TextEditor identifiers (textEditor, viewportMode, scrollOffset, scrollCapacity, selection*, caret*, contentDirty)
+- `jam_core/identifier/jam_identifier.h` — added IDENTIFIER_TEXT_EDITOR to umbrella
+
+**END (Source/terminal/):**
+- `Grid.h` — added getBlock(), mutable blockPointers member, deleted setNumRows()
+- `Grid.cpp` — getBlock() implementation, scrollUp increments numRows internally, clear(screen) resets numRows, reflow sets numRows, blockPointers resized in setSize
+- `GridResize.cpp` — removed grid.setNumRows calls
+- `Identifier.h` — deleted drag identifiers (dragAnchorRow/Col, dragActive), deleted selection identifiers (selectionAnchorRow/Col, selectionCursorRow/Col)
+- `Parameters.xml` — deleted 7 params (4 selection + 3 drag)
+- `State.h` — deleted drag/selection methods, added adjustSelectionAnchors
+- `State.cpp` — deleted drag/selection implementations, added adjustSelectionAnchors
+- `Processor.h` — deleted numRows shadow counter
+- `Processor.cpp` — scrollUp handler reads grid.getNumRows, clearBuffer handler clears Grid + State, adjustSelectionAnchors wired
+- `VideoEdit.cpp` — ED 2/3 fire clearBuffer event to clear scrollback history
+- `Mouse.h` — added dragAnchor/dragActive private members, setCellSize, updated doc comments
+- `Mouse.cpp` — selection writes to TextEditor's grafted node via jam::ID::, drag via private members
+- `Input.cpp` — handleSelectionKey/clearSelectionAndScroll write to TextEditor's grafted node
+- `component/Display.h` — added Mouse, Input, LinkManager members, mouse event overrides
+- `component/Display.cpp` — wired Mouse/Input/LinkManager, mouse event forwarders, keyPressed delegates to Input, font metrics via setProperty (not storeValue), updateDimensions from displayNode
+- `component/Screen.h` — removed ValueTree::Listener (inherited from TextEditor), added rebindScroll, boundScreenIndex
+- `component/Screen.cpp` — grafts TextEditor node, getBlock + setText(Block<Row>), setScrollRange, rebindScroll, setCaretPosition from State
+- `component/ScreenSelection.h` — uses ::SelectionType (SSOT), removed duplicate enum, updated containsCell dispatch
+- `component/Panes.cpp` — stale onVBlank comment fixed
+- `ARCHITECTURE.md` — comprehensive update: VBlank removed, cross-thread contract explicit, Grid/Screen/TextEditor/Selection/Display sections match codebase
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- TextEditor no longer owns cell data — stateless renderer over borrowed Block<Row>
+- Cross-thread sync via ValueTree node grafted into State (APVTS pattern)
+- Selection migrated from State shadow params to TextEditor's node (SSOT)
+- Drag transient state removed from State machine (BLESSED Stateless)
+- Display storeValue atomics → setProperty ValueTree (cross-thread contract)
+- Grid owns numRows (no Processor shadow counter)
+- ED 2/3 clear scrollback history + scroll offset
+- Scrollbar via jam::Value::ObjectID + juce::ScrollBar LookAndFeel (SSOT rendering)
+- Mouse/Input/LinkManager wired into Display
+- ARCHITECTURE.md aligned to codebase reality (VBlank stale, Grid/Screen/Selection stale)
+
+### Debts Paid
+- `DEBT-20260519T124500` — Grid reflow debt partially addressed: TextEditor foundation complete (Block<Row> rendering, correct data flow). Reflow algorithm bugs (reflowJoin/Split/Screen) remain — next sprint scope.
+
+### Debts Deferred
+- None
+
+---
+
 ## Handoff: Sprint 24
 
 **From:** COUNSELOR

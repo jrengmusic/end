@@ -542,7 +542,7 @@ void Panes::visibilityChanged()
  * Detects shellExited by checking for a PARAM node whose id property equals
  * terminal::id::shellExited with value 1.  Defers pane closure via callAsync
  * to avoid destroying a component from within its own listener callback chain
- * (the VT callback fires from flush() which fires from the Display's onVBlank).
+ * (the VT callback fires from flush() which fires from the timer-driven flush on the message thread).
  *
  * @note MESSAGE THREAD.
  */

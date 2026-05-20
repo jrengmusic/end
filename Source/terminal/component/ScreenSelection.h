@@ -22,9 +22,8 @@
  * ## Rendering
  *
  * The selection is rendered as a transparent colour overlay on top of the
- * normal cell background.  `Screen::processCellForSnapshot()` calls
- * `contains()` for every cell and emits an additional `Render::Background`
- * quad using `Theme::selectionColour` when the cell is selected.
+ * normal cell background.  The renderer calls `containsCell()` for every cell
+ * and highlights selected cells using the configured selection colour.
  *
  * @code
  * ScreenSelection sel;
@@ -35,11 +34,11 @@
  * @endcode
  *
  * @see Screen::setSelection()
- * @see Screen::processCellForSnapshot()
  */
 
 #pragma once
 #include <JuceHeader.h>
+#include "../../SelectionType.h"
 
 namespace terminal
 {
@@ -55,28 +54,16 @@ namespace terminal
  *
  * @par Thread context
  * **MESSAGE THREAD** — created and mutated on the message thread in response
- * to mouse events.  A const pointer is passed to `Screen::setSelection()` and
+ * to mouse events.  A const pointer is passed to `Screen::setText()` and
  * read during `render()` on the same thread.
  *
- * @see Screen::setSelection()
- * @see Screen::processCellForSnapshot()
+ * @see Screen::setText()
  */
 struct ScreenSelection
 {
-    /**
-     * @enum SelectionType
-     * @brief Determines which hit-test algorithm `containsCell()` dispatches to.
-     */
-    enum class SelectionType
-    {
-        linear, ///< Character-wise (Vim `v`): wraps across rows like normal text flow.
-        line,   ///< Line-wise (Vim `V`): entire rows between anchor and end.
-        box     ///< Block / rectangle (Vim `Ctrl+V` or mouse drag): strict column range per row.
-    };
-
     juce::Point<int> anchor; ///< Selection start point (mouse-down position) in grid coordinates (col, row).
     juce::Point<int> end;    ///< Selection end point (current drag position) in grid coordinates (col, row).
-    SelectionType    type { SelectionType::box }; ///< Algorithm used by `containsCell()` to test membership.
+    ::SelectionType  type { ::SelectionType::none }; ///< Algorithm used by `containsCell()` to test membership.
 
     /**
      * @brief Tests whether a grid cell falls within the selection.
@@ -188,11 +175,12 @@ struct ScreenSelection
     /**
      * @brief Unified cell membership test — dispatches based on `type`.
      *
-     * Calls `contains()` for `SelectionType::linear`, `containsLine()` for
-     * `SelectionType::line`, and `containsBox()` for `SelectionType::box`.
+     * Calls `contains()` for `::SelectionType::visual`, `containsLine()` for
+     * `::SelectionType::visualLine`, `containsBox()` for `::SelectionType::visualBlock`,
+     * and returns `false` for `::SelectionType::none`.
      *
-     * This is the **only** entry point used by the renderer.  All three
-     * selection variants are handled through this single call.
+     * This is the **only** entry point used by the renderer.  All selection
+     * variants are handled through this single call.
      *
      * @param col  Column index of the cell to test (0-based).
      * @param row  Row index of the cell to test (0-based).
@@ -202,15 +190,15 @@ struct ScreenSelection
     {
         bool result { false };
 
-        if (type == SelectionType::linear)
+        if (type == ::SelectionType::visual)
         {
             result = contains (col, row);
         }
-        else if (type == SelectionType::line)
+        else if (type == ::SelectionType::visualLine)
         {
             result = containsLine (col, row);
         }
-        else
+        else if (type == ::SelectionType::visualBlock)
         {
             result = containsBox (col, row);
         }
