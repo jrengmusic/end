@@ -1,17 +1,18 @@
 #include "State.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 State::State()
-    : state (App::ID::DOCUMENT)
+    : state (app::id::DOCUMENT)
 {
-    state.setProperty (App::ID::filePath,      "",    nullptr);
-    state.setProperty (App::ID::displayName,   "",    nullptr);
-    state.setProperty (App::ID::scrollOffset,  0.0f,  nullptr);
-    state.setProperty (App::ID::blockCount,    0,     nullptr);
-    state.setProperty (App::ID::parseComplete, false, nullptr);
-    state.setProperty (App::ID::totalBlocks,   0,     nullptr);
+    state.setProperty (app::id::filePath,      "",    nullptr);
+    state.setProperty (app::id::displayName,   "",    nullptr);
+    state.setProperty (app::id::scrollOffset,  0.0f,  nullptr);
+    state.setProperty (app::id::blockCount,    0,     nullptr);
+    state.setProperty (app::id::parseComplete, false, nullptr);
+    state.setProperty (app::id::totalBlocks,   0,     nullptr);
 
     startTimerHz (60);
 }
@@ -64,13 +65,13 @@ bool State::flush()
     if (currentCount > lastFlushedBlockCount)
     {
         ++lastFlushedBlockCount;
-        state.setProperty (App::ID::blockCount, lastFlushedBlockCount, nullptr);
+        state.setProperty (app::id::blockCount, lastFlushedBlockCount, nullptr);
         updated = true;
     }
 
     if (parseComplete.exchange (false, std::memory_order_acquire))
     {
-        state.setProperty (App::ID::parseComplete, true, nullptr);
+        state.setProperty (app::id::parseComplete, true, nullptr);
         updated = true;
     }
 
@@ -93,4 +94,4 @@ juce::ValueTree State::getValueTree() const noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

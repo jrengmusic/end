@@ -1,8 +1,8 @@
 #include "Parser.h"
-#include "../lua/Engine.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 Parser::Parser (State& s, int start)
     : juce::Thread ("Whelmed Parser")
@@ -91,4 +91,4 @@ void Parser::run()
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

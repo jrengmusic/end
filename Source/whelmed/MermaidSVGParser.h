@@ -2,8 +2,9 @@
 
 #include <JuceHeader.h>
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 //==============================================================================
 /**
@@ -503,11 +504,11 @@ private:
         return ps;
     }
 
-    static void mergePaintState (PaintState& base, const PaintState& override_)
+    static void mergePaintState (PaintState& base, const PaintState& overrideValue)
     {
-        if (override_.hasFill)   { base.fill    = override_.fill;   base.hasFill   = true; }
-        if (override_.hasStroke) { base.stroke  = override_.stroke; base.hasStroke = true; }
-        if (override_.strokeWidth > 0.0f) base.strokeWidth = override_.strokeWidth;
+        if (overrideValue.hasFill)   { base.fill    = overrideValue.fill;   base.hasFill   = true; }
+        if (overrideValue.hasStroke) { base.stroke  = overrideValue.stroke; base.hasStroke = true; }
+        if (overrideValue.strokeWidth > 0.0f) base.strokeWidth = overrideValue.strokeWidth;
     }
 
     //==========================================================================
@@ -1227,4 +1228,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

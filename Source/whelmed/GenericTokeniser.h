@@ -1,8 +1,9 @@
 #pragma once
 #include <JuceHeader.h>
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 struct LanguageDefinition
 {
@@ -29,4 +30,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

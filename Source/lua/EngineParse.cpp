@@ -8,13 +8,11 @@
  * @see lua::Engine
  */
 
-#include <jam_lua/jam_lua.h>
-
 #include "Engine.h"
-#include "../action/Action.h"
 
 namespace lua
 {
+/*____________________________________________________________________________*/
 
 //==============================================================================
 void Engine::parseKeys()
@@ -61,7 +59,7 @@ void Engine::parseSelectionKeys()
             juce::KeyPress result {};
 
             if (val.has_value())
-                result = ::Action::Registry::parseShortcut (val.value());
+                result = ::action::Registry::parseShortcut (val.value());
 
             return result;
         };
@@ -96,7 +94,7 @@ void Engine::parseSelectionKeys()
                 if (hasCtrl)
                     keys.selection.visualBlock = juce::KeyPress ('v', juce::ModifierKeys::ctrlModifier, 0);
                 else
-                    keys.selection.visualBlock = ::Action::Registry::parseShortcut (rawStr);
+                    keys.selection.visualBlock = ::action::Registry::parseShortcut (rawStr);
             }
         }
     }
@@ -211,4 +209,5 @@ void Engine::parseActions()
     }
 }
 
+/**______________________________END OF NAMESPACE______________________________*/
 } // namespace lua

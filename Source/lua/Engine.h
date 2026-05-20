@@ -11,13 +11,13 @@
  *
  * @note All public methods are called on the MESSAGE THREAD.
  *
- * @see Action::Registry
+ * @see action::Registry
  */
 
 #pragma once
 
 #include <JuceHeader.h>
-#include "../action/Action.h"
+#include "../terminal/action/Action.h"
 
 namespace lua
 {
@@ -725,7 +725,7 @@ public:
      * @struct SelectionKeys
      * @brief Parsed selection-mode key bindings.
      *
-     * Consumed by Terminal::Input and Whelmed::InputHandler via getSelectionKeys().
+     * Consumed by terminal::Input and whelmed::InputHandler via getSelectionKeys().
      */
     struct SelectionKeys
     {
@@ -1081,7 +1081,7 @@ public:
      * @param registry  The action registry to populate.
      * @note MESSAGE THREAD.
      */
-    void registerActions (::Action::Registry& registry);
+    void registerActions (::action::Registry& registry);
 
     /**
      * @brief Populates the registry's key maps from all parsed bindings.
@@ -1092,7 +1092,7 @@ public:
      * @param registry  The action registry whose key maps to populate.
      * @note MESSAGE THREAD.
      */
-    void buildKeyMap (::Action::Registry& registry);
+    void buildKeyMap (::action::Registry& registry);
 
     /**
      * @brief Returns parsed selection-mode key bindings.
@@ -1225,7 +1225,7 @@ private:
         /** @brief Key name as it appears in the keys.lua `keys` table. */
         const char* luaKey;
 
-        /** @brief Corresponding action ID in the Action::Registry. */
+        /** @brief Corresponding action ID in the action::Registry. */
         const char* actionId;
 
         /** @brief Whether this action requires the prefix key. */
@@ -1338,4 +1338,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace lua
+} // namespace lua

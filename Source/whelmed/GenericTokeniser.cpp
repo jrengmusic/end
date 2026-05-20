@@ -1,7 +1,8 @@
 #include "GenericTokeniser.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 static constexpr int tokenError        { 0 };
 static constexpr int tokenComment      { 1 };
@@ -326,4 +327,4 @@ juce::CodeEditorComponent::ColourScheme GenericTokeniser::getDefaultColourScheme
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

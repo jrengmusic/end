@@ -13,6 +13,7 @@
 
 namespace lua
 {
+/*____________________________________________________________________________*/
 
 //==============================================================================
 /** @brief Converts a juce::Colour to "#RRGGBBAA" for end.lua templates. Always 8 hex digits. */
@@ -446,4 +447,5 @@ void Engine::writeWhelmedDefaults (const juce::File& configDir)
     }
 }
 
-}// namespace lua
+/**______________________________END OF NAMESPACE______________________________*/
+} // namespace lua

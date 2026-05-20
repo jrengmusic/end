@@ -3,16 +3,10 @@
  * @brief Implementation of Nexus — session manager.
  *
  * @see Nexus
- * @see Terminal::Session
+ * @see terminal::Session
  */
 
 #include "Nexus.h"
-#include "../terminal/logic/Session.h"
-#include "../terminal/logic/Processor.h"
-#include "../terminal/data/Identifier.h"
-#include "../interprocess/Daemon.h"
-#include "../interprocess/Link.h"
-#include "../lua/Engine.h"
 
 // =============================================================================
 
@@ -22,21 +16,37 @@
 Nexus::Nexus() = default;
 
 /**
- * @brief Destructs Nexus — releases all owned Terminal::Session objects.
+ * @brief Destructs Nexus — releases all owned terminal::Session objects.
  */
 Nexus::~Nexus() = default;
 
 // =============================================================================
 
 /**
+ * @brief Sets the IPC mode.
+ *
+ * @note Any thread.
+ */
+void Nexus::setMode (Mode m) noexcept { mode = m; }
+
+/**
+ * @brief Returns the current IPC mode.
+ *
+ * @note Any thread.
+ */
+Nexus::Mode Nexus::getMode() const noexcept { return mode; }
+
+// =============================================================================
+
+/**
  * @brief Creates a full PTY-backed session and stores it by UUID.
  *
- * After creating the session, if an Interprocess::Daemon is attached, calls
- * `attachedDaemon->wireSessionCallbacks` which wires daemon-mode IPC callbacks.
+ * Fires a child-added event on `events` after the session is stored so that
+ * registered listeners (Daemon, Link) can react to the new session.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-Terminal::Session& Nexus::create (const juce::String& cwd,
+terminal::Session& Nexus::create (const juce::String& cwd,
                                    cell cols,
                                    cell rows,
                                    const juce::String& shell,
@@ -48,13 +58,14 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
     jassert (cols.value > 0);
     jassert (rows.value > 0);
 
-    auto termSession { Terminal::Session::create (cwd, cols, rows, shell, args, seedEnv, uuid) };
-    Terminal::Session* rawPtr { termSession.get() };
+    auto termSession { terminal::Session::create (cwd, cols, rows, shell, args, seedEnv, uuid) };
+    terminal::Session* rawPtr { termSession.get() };
 
     sessions.emplace (uuid, std::move (termSession));
 
-    if (attachedDaemon != nullptr)
-        attachedDaemon->wireSessionCallbacks (uuid, *rawPtr);
+    juce::ValueTree node { "SESSION" };
+    node.setProperty (jam::ID::id, uuid, nullptr);
+    events.appendChild (node, nullptr);
 
     return *rawPtr;
 }
@@ -62,9 +73,11 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
 /**
  * @brief Creates a remote (no-TTY) session and stores it by UUID.
  *
+ * Fires a child-added event on `events` after the session is stored.
+ *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-Terminal::Session& Nexus::create (cell cols, cell rows,
+terminal::Session& Nexus::create (cell cols, cell rows,
                                    const juce::String& cwd,
                                    const juce::String& shell,
                                    const juce::String& uuid)
@@ -73,28 +86,31 @@ Terminal::Session& Nexus::create (cell cols, cell rows,
     jassert (cols.value > 0);
     jassert (rows.value > 0);
 
-    auto termSession { Terminal::Session::create (cols, rows, cwd, shell, uuid) };
-    Terminal::Session* rawPtr { termSession.get() };
+    auto termSession { terminal::Session::create (cols, rows, cwd, shell, uuid) };
+    terminal::Session* rawPtr { termSession.get() };
 
     sessions.emplace (uuid, std::move (termSession));
+
+    juce::ValueTree node { "SESSION" };
+    node.setProperty (jam::ID::id, uuid, nullptr);
+    events.appendChild (node, nullptr);
+
     return *rawPtr;
 }
 
 /**
  * @brief Mode-routing session creation.
  *
- * Routes based on attachment:
- * - Client mode (attachedLink != nullptr): creates remote session, sends
- *   createSession PDU, wires setInputWriter() on the Processor to route through Link.
- * - Standalone/daemon mode: creates PTY-backed session via the TTY overload
- *   (which also calls wireSessionCallbacks when a Daemon is attached).
+ * Routes based on mode:
+ * - Client mode: creates remote session and lets the `events` VT event notify Link.
+ * - Standalone/daemon mode: creates PTY-backed session; `events` VT event notifies Daemon.
  *
  * Returns the existing session immediately if @p uuid already exists
  * (idempotency guard for GUI reconnect).
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-Terminal::Session& Nexus::create (const juce::String& cwd,
+terminal::Session& Nexus::create (const juce::String& cwd,
                                    const juce::String& uuid,
                                    cell cols,
                                    cell rows)
@@ -106,39 +122,25 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
     const auto existing { sessions.find (uuid) };
     const bool alreadyExists { existing != sessions.end() };
 
-    Terminal::Session* result { nullptr };
+    terminal::Session* result { nullptr };
 
     if (alreadyExists)
     {
         result = existing->second.get();
     }
-    else if (attachedLink != nullptr)
+    else if (mode == Mode::client)
     {
-        // Client mode — send createSession PDU and create a local remote (no-TTY) session.
+        // Client mode — create a local remote (no-TTY) session.
+        // The events VT child-added fires inside the delegated create overload,
+        // which Link observes to send the createSession PDU and wire IPC.
         const juce::String shell { lua::Engine::getContext()->nexus.shell.program };
-        attachedLink->sendCreateSession (cwd, uuid, cols.value, rows.value);
-
-        auto termSession { Terminal::Session::create (cols, rows, cwd, shell, uuid) };
-        Terminal::Session* rawPtr { termSession.get() };
-
-        // Wire user input (keyboard, mouse) to daemon via Link IPC.
-        rawPtr->getProcessor().setInputWriter ([this, uuid] (const char* data, int len)
-        {
-            attachedLink->sendInput (uuid, data, len);
-        });
-
-        // Wire resize forwarding: State VT cols/visibleRows changes → Link::sendResize.
-        juce::ValueTree stateRoot { rawPtr->getProcessor().getState().get() };
-        clientSessionStateRoots[uuid] = stateRoot;
-        stateRoot.addListener (this);
-
-        sessions.emplace (uuid, std::move (termSession));
-        result = rawPtr;
+        result = &create (cols, rows, cwd, shell, uuid);
     }
     else
     {
         // Standalone or daemon mode — full PTY-backed session.
-        // The TTY overload also calls wireSessionCallbacks when Daemon is attached.
+        // The events VT child-added fires inside the delegated create overload,
+        // which Daemon observes to wire session callbacks.
         result = &create (cwd, cols, rows, {}, {}, {}, uuid);
     }
 
@@ -149,20 +151,17 @@ Terminal::Session& Nexus::create (const juce::String& cwd,
 /**
  * @brief Removes and destroys the session with the given UUID.
  *
+ * Fires a child-removed event on `events` before erasing the session so that
+ * registered listeners (Daemon, Link) can react before the session is gone.
+ *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
 void Nexus::remove (const juce::String& uuid)
 {
-    if (attachedLink != nullptr)
-        attachedLink->sendRemove (uuid);
+    auto node { events.getChildWithProperty (jam::ID::id, uuid) };
 
-    const auto stateRootIt { clientSessionStateRoots.find (uuid) };
-
-    if (stateRootIt != clientSessionStateRoots.end())
-    {
-        stateRootIt->second.removeListener (this);
-        clientSessionStateRoots.erase (stateRootIt);
-    }
+    if (node.isValid())
+        events.removeChild (node, nullptr);
 
     sessions.erase (uuid);
     fireIfAllExited();
@@ -175,12 +174,12 @@ void Nexus::remove (const juce::String& uuid)
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
-Terminal::Session& Nexus::get (const juce::String& uuid)
+terminal::Session& Nexus::get (const juce::String& uuid)
 {
     const auto it { sessions.find (uuid) };
     jassert (it != sessions.end());
 
-    Terminal::Session* result { nullptr };
+    terminal::Session* result { nullptr };
 
     if (it != sessions.end())
         result = it->second.get();
@@ -217,28 +216,6 @@ juce::StringArray Nexus::list() const
 // =============================================================================
 
 /**
- * @brief Attaches a Daemon — stores non-owning pointer for IPC wiring.
- *
- * @note Any thread.
- */
-void Nexus::attach (Interprocess::Daemon& daemon)
-{
-    attachedDaemon = &daemon;
-}
-
-/**
- * @brief Attaches a Link — stores non-owning pointer for IPC wiring.
- *
- * @note Any thread.
- */
-void Nexus::attach (Interprocess::Link& link)
-{
-    attachedLink = &link;
-}
-
-// =============================================================================
-
-/**
  * @brief Fires onAllSessionsExited if the sessions map is now empty.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
@@ -247,60 +224,6 @@ void Nexus::fireIfAllExited() noexcept
 {
     if (sessions.empty() and onAllSessionsExited != nullptr)
         onAllSessionsExited();
-}
-
-// =============================================================================
-
-/**
- * @brief Detects cols/visibleRows changes on client-mode session State VTs and
- *        forwards a resize PDU to the daemon via Link.
- *
- * Checks for a PARAM node whose `id` property matches `Terminal::ID::cols` or
- * `Terminal::ID::visibleRows` with a `value` property change.  Matches the
- * tree's root against `clientSessionStateRoots` to find the affected UUID.
- * Reads both dimensions from the parent session root so the PDU always carries
- * the fully-current pair regardless of which property changed first.
- *
- * @note NEXUS PROCESS MESSAGE THREAD.
- */
-void Nexus::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
-{
-    if (property == Terminal::ID::value
-        and tree.getType() == jam::ValueTree::PARAM)
-    {
-        const juce::String paramId { tree.getProperty (Terminal::ID::id).toString() };
-        const bool isColsChange       { paramId == Terminal::ID::cols.toString() };
-        const bool isVisibleRowsChange { paramId == Terminal::ID::visibleRows.toString() };
-
-        if (isColsChange or isVisibleRowsChange)
-        {
-            const juce::ValueTree sessionRoot { tree.getParent() };
-
-            juce::String resizeUuid;
-
-            for (const auto& entry : clientSessionStateRoots)
-            {
-                if (entry.second == sessionRoot)
-                {
-                    resizeUuid = entry.first;
-                    break;
-                }
-            }
-
-            if (resizeUuid.isNotEmpty() and attachedLink != nullptr)
-            {
-                auto colsParam { jam::ValueTree::getChildWithID (sessionRoot, Terminal::ID::cols.toString()) };
-                auto rowsParam { jam::ValueTree::getChildWithID (sessionRoot, Terminal::ID::visibleRows.toString()) };
-
-                if (colsParam.isValid() and rowsParam.isValid())
-                {
-                    const int cols { static_cast<int> (colsParam.getProperty (Terminal::ID::value)) };
-                    const int rows { static_cast<int> (rowsParam.getProperty (Terminal::ID::value)) };
-                    attachedLink->sendResize (resizeUuid, cols, rows);
-                }
-            }
-        }
-    }
 }
 
 /**______________________________END OF FILE___________________________________*/

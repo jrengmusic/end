@@ -2,8 +2,9 @@
 #include <JuceHeader.h>
 #include "../AppIdentifier.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 class State : private juce::Timer
 {
@@ -35,4 +36,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

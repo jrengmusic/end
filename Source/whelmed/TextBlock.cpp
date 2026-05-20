@@ -1,7 +1,8 @@
 #include "TextBlock.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 TextBlock::TextBlock (juce::AttributedString attributedText,
                       juce::Colour background)
@@ -292,4 +293,4 @@ juce::RectangleList<float> TextBlock::getSelectionRects (int startChar, int endC
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

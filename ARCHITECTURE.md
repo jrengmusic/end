@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-05-02 (updated: SKiT image preview — Overlay replaces Preview/ImageAtlas/Image subsystem, Display file decomposition, config reference member, getContentBounds SSOT, jam::tui::Metrics migration, handleSkitFilepath extraction)
+**Last Updated:** 2026-05-20 (restructure: flattened terminal/ subdirs, terminal/component/ absorbs rendering+selection, terminal/action/ consolidated, interprocess/ → nexus/, Parser renamed to Video, new Processor/History/GridResize/Skit/decoder files, all namespaces lowercased)
 
 ---
 
@@ -37,17 +37,23 @@ APVTS-inspired data flow. Reader thread writes atomics, timer flushes to ValueTr
 ```
 Source/
   Main.cpp                          Application entry, owns lua::Engine + MainWindow
+  Main.h                            ENDApplication declaration
   MainComponent.h/cpp               Root component, owns Fonts context, Tabs, Action, MessageOverlay, GLRenderer; receives lua::Engine& from ENDApplication
+  MainComponentActions.cpp          Built-in action registration
   AppState.h/cpp                    Application state: ValueTree root, pwdValue (live cwd binding), active pane tracking
-  AppIdentifier.h                   App-level ValueTree identifiers (END, WINDOW, TABS, TAB, PANES, DOCUMENT) + pane type string constants
+  AppIdentifier.h                   App-level ValueTree identifiers (app::id:: namespace: END, WINDOW, TABS, TAB, PANES, DOCUMENT) + pane type string constants + app::RendererType enum
   SelectionType.h                   App-level SelectionType enum (none, visual, visualLine, visualBlock)
   ModalType.h                       App-level ModalType enum (none, selection, openFile)
-  Cursor.h/cpp                      Shared cursor descriptor used by Whelmed::Screen
+  Cursor.h/cpp                      Shared cursor descriptor used by whelmed::Screen
 
   lua/
     Engine.h                        lua::Engine — unified Lua config + scripting engine, Context<Engine>
     Engine.cpp                      Engine lifecycle: constructor, initDefaults, writeDefaults, load, reload, registerApiTable, registerActions, buildKeyMap, buildTheme, parseColour, dpiCorrectedFontSize, fileChanged
+    EngineConfig.cpp                Engine config apply/patch helpers
+    EngineDefaults.cpp              Default config generation
     EngineParse.cpp                 Lua table parsing: parseNexus, parseDisplay, parseWhelmed, parseKeys, parsePopups, parseActions, parseSelectionKeys
+    EngineParseConfig.cpp           Config-specific parse helpers
+    EngineParseDisplay.cpp          Display config parse helpers
     EnginePatch.cpp                 keys.lua file patching (remap), key lookup utilities
 
   config/
@@ -59,26 +65,20 @@ Source/
     default_actions.lua             Template for actions.lua (custom Lua actions with api.* calls)
     default_whelmed.lua             Template for whelmed.lua (typography, colours, navigation)
 
-  component/
-    PaneComponent.h                 Pure virtual base for pane-hosted components (Terminal, Whelmed)
-    TerminalDisplay.h/cpp           UI host, VBlankAttachment render loop; delegates to Terminal::Input + Terminal::Mouse
-    TerminalDisplayPreview.cpp      Preview/overlay lifecycle: image loading, Overlay creation/destruction, READER→MESSAGE consumption
-    Terminal::Input.h/cpp           Modal gate, selection keys, open-file keys, scroll nav
-    Terminal::Mouse.h/cpp           PTY forwarding, drag selection, click dispatch, wheel scroll
-    Tabs.h/cpp                      Tab container, manages one Panes instance per tab
-    Panes.h/cpp                     Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
-    LookAndFeel.h/cpp               Custom LookAndFeel: tab styling, popup menu, colour system
-    CursorComponent.h               Cursor overlay, ValueTree-driven, uses Fonts::getContext()
-    MessageOverlay.h                Transient overlay for status messages (reload, errors)
-    StatusBarOverlay.h              Overlay that listens to TABS subtree for modal/selection state display
-
   whelmed/
-    Component.h/cpp                 Whelmed::Component — PaneComponent subclass, markdown viewer pane
-    Screen.h/cpp                    Block-based document renderer, owns Block instances, handles mouse selection
-    Whelmed::Input.h/cpp            Modal gate, selection keys, scroll nav for Whelmed pane
     Block.h                         Pure virtual base for all renderable block types
-    TextBlock.h/cpp                 Flowing styled text block (paragraphs, headings, lists)
+    GenericTokeniser.h/cpp          Generic lexer tokenizer used by Tokenizer
+    InputHandler.h/cpp              Modal gate, selection keys, scroll nav for Whelmed pane
+    MermaidBlock.h/cpp              SVG-rendered mermaid diagram block
+    MermaidSVGParser.h              SVG path parser for mermaid output
+    Parser.h/cpp                    Async markdown parser thread
+    Screen.h/cpp                    Block-based document renderer, owns Block instances, handles mouse selection
     State.h/cpp                     Whelmed document state: ValueTree, atomic block count, parse complete
+    TableBlock.h/cpp                Tabular layout block
+    TextBlock.h/cpp                 Flowing styled text block (paragraphs, headings, lists)
+    Tokenizer.h/cpp                 Markdown token stream
+    component/
+      Component.h/cpp               whelmed::Component — PaneComponent subclass, markdown viewer pane
 
   fonts/
     DisplayMono-Book.ttf            Embedded base font (BinaryData)
@@ -87,98 +87,99 @@ Source/
     SymbolsNerdFont-Regular.ttf     Embedded NF icon font (BinaryData)
 
   terminal/
-    data/                           Pure data types + state (no logic, no rendering)
-      Cell.h                        16-byte trivially-copyable cell
-      Color.h                       4-byte color (theme/palette/rgb)
-      Pen.h (in Cell.h)             Current text attributes
-      Grapheme.h (in Cell.h)        Multi-codepoint cluster
-      CSI.h                         CSI parameter accumulator
-      Charset.h                     Character set tables (G0/G1)
-      Palette.h                     256-color palette (std::array)
-      DispatchTable.h               VT state machine transition table
-      Identifier.h                  ValueTree IDs + Identifier hash
-      State.h/cpp                   APVTS-style atomic + timer + ValueTree
-      StateFlush.cpp                Timer flush implementation
-      ValueTreeUtilities.h          ValueTree traversal helpers
-      Keyboard.h                    Keypress -> escape sequence mapping (progressive keyboard protocol, CSI u)
+    CSI.h                           CSI parameter accumulator
+    CharProps.h                     Character property flags
+    CharPropsData.h                 Character property lookup table
+    Charset.h                       Character set tables (G0/G1)
+    DispatchTable.h                 VT state machine transition table
+    Grid.h/cpp                      Ring buffer, dual screen, dirty tracking
+    GridResize.h/cpp                Resize lifecycle: coalescing 50ms quiet timer, PTY resize, reflow
+    History.h/cpp                   Ring buffer of raw PTY bytes (for daemon snapshot/restore)
+    Identifier.h                    ValueTree IDs + Identifier hash (terminal::id namespace)
+    ImageDecode.h/cpp               Platform-independent BGRA→RGBA swizzle + ImageSequence struct
+    ImageDecodeGif.h                GIF binary metadata parser (static, shared by platform TUs)
+    ImageDecodeMac.mm               macOS: CGImageSource single + multi-frame decode with GIF disposal
+    ImageDecodeWin.cpp              Windows: WIC single + multi-frame decode with GIF disposal; Linux stub
+    Input.h/cpp                     Modal gate, selection keys, open-file keys, scroll nav
+    ITerm2Decoder.h/cpp             iTerm2 inline image protocol decoder (OSC 1337)
+    Keyboard.h/cpp                  Keypress → escape sequence mapping (progressive keyboard protocol, CSI u)
+    KittyDecoder.h/cpp              Kitty graphics protocol decoder
+    KittyDecoderDecode.cpp          Kitty decode internals
+    LinkDetector.h                  Link detection heuristics
+    LinkManager.h/cpp               Viewport scan, cell-native hyperlink scanning, hit-test, click dispatch
+    LinkManagerScan.cpp             Link scan implementation
+    LinkSpan.h                      Hyperlink span descriptor
+    Mouse.h/cpp                     PTY forwarding, drag selection, click dispatch, wheel scroll
+    Notifications.h/cpp             Cross-platform desktop notification API (terminal::showNotification())
+    Notifications.mm                macOS: UNUserNotificationCenter with foreground delegate
+    Palette.h                       256-color palette (std::array)
+    Parameter.h                     APVTS-style parameter slot type
+    Parser.h/cpp                    VT state machine + byte stream decoder
+    ParserAction.cpp                Parser action dispatch
+    Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video, GridResize; references Grid and State
+    ScreenMap.h                     terminal::ScreenMap — normal/alternate screen index map
+    Session.h/cpp                   PTY orchestrator: owns TTY + History; Processor owns State, Grid, Video
+    SixelDecoder.h/cpp              Sixel graphics protocol decoder
+    SixelDecoderParse.cpp           Sixel decode internals
+    Skit.h/cpp                      SKiT (Sixel/Kitty/iTerm2) unified preview protocol entry point
+    State.h/cpp                     APVTS-style atomic + timer + ValueTree
+    StateFlush.cpp                  Timer flush implementation
+    TextBuffer.h                    Text buffer utility
+    Video.h/cpp                     VT command processor: cursor, pen, modes, Grid writes
+    VideoCSI.cpp                    CSI dispatch (cursor, erase, mode)
+    VideoDCS.cpp                    DCS dispatch (Sixel entry)
+    VideoESC.cpp                    ESC dispatch (charset, OSC 0/2/7/8/9/12/52/112/133/777, DCS)
+    VideoEdit.cpp                   Erase, scroll, screen switch
+    VideoMode.cpp                   Mode (DECSET/DECRST) dispatch
+    VideoOSC.cpp                    OSC handlers
+    VideoOSCExt.cpp                 Extended OSC handlers
+    VideoOps.cpp                    Cursor movement, tab, reset
+    VideoSGR.cpp                    SGR (text attributes, color)
 
-    logic/                          Terminal emulation (parser, grid, session)
-      Session.h/cpp                 PTY orchestrator: owns TTY + History. Processor owns State, Grid, Parser.
-      Parser.h/cpp                  VT state machine + dispatch (holds Grid::Writer, not Grid&)
-      ParserVT.cpp                  Ground state: print, execute, LF (GroundOps fast-path struct)
-      ParserCSI.cpp                 CSI dispatch (cursor, erase, mode)
-      ParserESC.cpp                 ESC dispatch (charset, OSC 0/2/7/8/9/12/52/112/133/777, DCS)
-      ParserSGR.cpp                 SGR (text attributes, color)
-      ParserEdit.cpp                Erase, scroll, screen switch
-      ParserOps.cpp                 Cursor movement, tab, reset
-      Grid.h/cpp                    Ring buffer, dual screen, dirty tracking (nested Grid::Writer facade)
-      GridScroll.cpp                Scroll region operations
-      GridErase.cpp                 Erase operations
-      GridReflow.cpp                Reflow on resize
-      ImageDecode.h                 Platform-native image decoding API + ImageSequence struct
-      ImageDecode.cpp               Platform-independent BGRA→RGBA swizzle
-      ImageDecodeMac.mm             macOS: CGImageSource single + multi-frame decode with GIF disposal
-      ImageDecodeWin.cpp            Windows: WIC single + multi-frame decode with GIF disposal; Linux stub
-      ImageDecodeGif.h              GIF binary metadata parser (static, shared by platform TUs)
+    action/                         Unified action registry + key dispatch
+      Action.h/cpp                  action::Registry — action table, key map, prefix state machine, Context<Registry>
+      ActionList.h/cpp              action::List — command palette component (jam::Window, fuzzy-searchable action list)
+      ActionListBinding.cpp         ActionList binding mode logic
+      ActionListSelection.cpp       ActionList selection/navigation logic
+      ActionRow.h/cpp               Row component for ActionList (displays action name + keybinding)
+      KeyHandler.h/cpp              Key event routing for ActionList modal input
 
-    rendering/                      GPU/CPU pipeline (fonts, atlas, GL/SIMD)
-      Screen.h/cpp                  Render coordinator, snapshot builder (reads Grid directly every frame)
-      ScreenRender.cpp              buildSnapshot (reads Grid directly, no cell cache)
-      ScreenSnapshot.cpp            updateSnapshot, publish to GLSnapshotBuffer
+    component/                      UI hosting layer (Display, Screen, Overlay, Panes, Tabs, LookAndFeel)
+      Dialog.h/cpp                  Modal dialog component
+      Display.h/cpp                 terminal::Display — UI host, VBlankAttachment render loop; delegates to Input + Mouse
+      LoaderOverlay.h               Loading spinner overlay (used by whelmed::Component)
+      LookAndFeel.h/cpp             Custom LookAndFeel: tab styling, popup menu, colour system
+      LookAndFeelMenu.cpp           Menu LookAndFeel overrides
+      LookAndFeelTab.cpp            Tab LookAndFeel overrides
+      MessageOverlay.h              Transient overlay for status messages (reload, errors)
+      ModalWindow.h/cpp             Modal window host
+      Overlay.h/cpp                 terminal::Overlay — jam::animation::Base child of Display; owns juce::Image, border, animation timer
+      PaneComponent.h               Pure virtual base for pane-hosted components (terminal::Display, whelmed::Component)
+      Panes.h/cpp                   Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
+      Panes.cpp                     Panes implementation
+      Popup.h/cpp                   Popup terminal component
+      Screen.h/cpp                  terminal::Screen — render coordinator, reads Grid directly every frame via jam::TextEditor
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
-      Overlay.h/cpp                 jam::gl::Component child of Display; owns juce::Image, border, animation timer
-      Glyph.cpp                     Glyph rendering extracted from Screen (cell processing, shape drawing)
-      GlyphCell.cpp                 Per-cell snapshot processing
-      GlyphShape.cpp                Box-drawing / block-element shape rendering
-      selection/
-        LinkManager.h/cpp           Viewport scan, cell-native hyperlink scanning, hit-test, click dispatch
-      Fonts.h                       Shared header (platform-agnostic API)
-      Fonts.mm                      macOS: CoreText font loading, HarfBuzz shaping, CTFontDrawGlyphs rasterization
-      Fonts.cpp                     Linux/Windows: FreeType font loading
-      FontsMetrics.cpp              Cell metrics calculation
-      FontsShaping.cpp              Text shaping (ASCII fast path, HarfBuzz, fallback) -- shared + FreeType path
-      FontCollection.h              Codepoint-to-font-slot lookup API
-      FontCollection.cpp            Flat int8_t[0x110000] dispatch table, up to 32 slots
-      FontCollection.mm             macOS: platform font handle + hb_font_t construction
-      GlyphConstraint.h             Per-codepoint NF icon scaling/alignment descriptor
-      GlyphConstraintTable.cpp      Generated table: 10,470 codepoints, 88 switch arms
-      BoxDrawing.h                  Procedural rasterizer: box drawing, block elements, braille
-      AtlasPacker.h                 Shelf-based rectangle packer
-      TerminalGLRenderer.cpp        OpenGL renderer (shaders, draw calls)
-      TerminalGLDraw.cpp            Instance upload + draw
-      GLShaderCompiler.h/cpp        Shader compilation
-      GLVertexLayout.h/cpp          VAO/VBO layout
-      shaders/                      GLSL vertex/fragment shaders
+      StatusBarOverlay.h            Overlay that listens to TABS subtree for modal/selection state display
+      Tabs.h/cpp                    terminal::Tabs — tab container, manages one Panes instance per tab
+      TabsActions.cpp               Tabs action registration and dispatch
+      TabsClose.cpp                 Tab close cascade implementation
+      TerminalWindow.h/cpp          Standalone terminal window host
 
     tty/                            Platform TTY abstraction
       TTY.h/cpp                     Abstract base + reader thread
       UnixTTY.h/cpp                 macOS/Linux: forkpty
       WindowsTTY.h/cpp              Windows: ConPTY via NtCreateNamedPipeFile, overlapped I/O, sideloaded conpty.dll
 
-    notifications/
-      Notifications.h               Cross-platform desktop notification API
-      Notifications.mm              macOS: UNUserNotificationCenter with foreground delegate
-      Notifications.cpp             Windows: MessageBeep + stderr; Linux: notify-send
-
-    action/                         Unified action registry + key dispatch
-      Action.h/cpp                  Action table, key map, prefix state machine, Context<Registry>
-      ActionList.h/cpp              Command palette component (jam::Window, fuzzy-searchable action list)
-      ActionRow.h/cpp               Row component for ActionList (displays action name + keybinding)
-      KeyHandler.h/cpp              Key event routing for ActionList modal input
-      LookAndFeel.h/cpp             LookAndFeel overrides for ActionList styling
-      KeyRemapDialog.h              Deprecated stub (inline remap now handled in ActionList)
-
-    nexus/                          Session manager — owns all Terminal::Session instances
-      Nexus.h/cpp                   jam::Context<Nexus> session container; create/remove/get/has/list; attach(Daemon&)/attach(Link&) for mode wiring
-
-  interprocess/                     IPC transport layer (daemon/client process split)
-      Daemon.h/cpp                  JUCE InterprocessConnectionServer; owns Channel objects; broadcast + per-session subscriber registries; wireSessionCallbacks
-      DaemonWindows.cpp             Windows-specific platform helpers: Job Object (cascade-kill), spawnDaemon()
-      Daemon.mm                     macOS/Linux platform helpers: hideDockIcon(), spawnDaemon()
-      Link.h/cpp                    Client-side JUCE IPC connector; connect-retry timer; sends PDUs to daemon; dispatches incoming PDUs to Nexus
-      Channel.h/cpp                 Server-side JUCE IPC connection (one per connected client); dispatches incoming PDUs to Nexus + Daemon
-      EncoderDecoder.h/cpp          Binary wire-format encode/decode helpers (writeUint16/32/64, writeString, readUint16/32/64, readString, encodePdu)
-      Message.h                     Protocol message-kind enumeration (uint16_t wire values: hello, createSession, output, loading, stateUpdate, sessionKilled, sessions, etc.)
+  nexus/                            Session manager + IPC transport layer
+    Channel.cpp                     nexus::Daemon::Channel — server-side per-client connection (nested class, impl only)
+    Daemon.h/cpp                    nexus::Daemon — JUCE InterprocessConnectionServer; owns Channel objects; broadcast + per-session subscriber registries; wireSessionCallbacks
+    Daemon.mm                       macOS/Linux platform helpers: hideDockIcon(), spawnDaemon()
+    DaemonWindows.cpp               Windows-specific platform helpers: Job Object (cascade-kill), spawnDaemon()
+    EncoderDecoder.h/cpp            Binary wire-format encode/decode helpers (writeUint16/32/64, writeString, readUint16/32/64, readString, encodePdu)
+    Link.h/cpp                      nexus::Link — client-side JUCE IPC connector; connect-retry timer; sends PDUs to daemon; dispatches incoming PDUs to Nexus
+    Message.h                       nexus::Message — enum class Message : uint16_t — PDU kind identifiers with stable wire values
+    Nexus.h/cpp                     Nexus (global scope) — jam::Context<Nexus> session container; create/remove/get/has/list; Mode enum (standalone/daemon/client); events ValueTree for lifecycle listeners
 
 ~/Documents/Poems/dev/jam/
   jam_core/                         Shared utilities (Owner, identifiers, Context, BinaryData)
@@ -207,67 +208,66 @@ Source/
 
 | Module | Location | Responsibility | Dependencies |
 |--------|----------|----------------|--------------|
-| AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active pane type + UUID | JUCE ValueTree, Terminal::ID |
-| AppIdentifier | `Source/` | ValueTree node and property identifiers; pane type string constants (paneTypeTerminal, paneTypeDocument) | JUCE |
-| lua::Engine | `lua/` | Unified Lua config + scripting engine. Sole owner of `jam::lua::state` — SSOT for all settings, keybindings, popup definitions, and custom actions. Six typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action) replace string-keyed value maps. Unified colour parser handles `#RRGGBB`, `#RRGGBBAA`, and bare `RRGGBBAA` formats. File watcher triggers total reload on any `.lua` change (gated by `nexus.autoReload`). Provides parsed bindings to `Action::Registry`, selection keys to `Terminal::Input` / `Whelmed::InputHandler`, and Theme to Screen. | sol2, jam::Context, jam::File::Watcher |
-| Component | `component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, lua::Engine, PaneManager, AppState |
+| AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active pane type + UUID | JUCE ValueTree, terminal::id |
+| AppIdentifier | `Source/` | ValueTree node and property identifiers (app::id:: namespace); pane type string constants; app::RendererType enum | JUCE |
+| lua::Engine | `lua/` | Unified Lua config + scripting engine. Sole owner of `jam::lua::state` — SSOT for all settings, keybindings, popup definitions, and custom actions. Six typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action) replace string-keyed value maps. Unified colour parser handles `#RRGGBB`, `#RRGGBBAA`, and bare `RRGGBBAA` formats. File watcher triggers total reload on any `.lua` change (gated by `nexus.autoReload`). Provides parsed bindings to `action::Registry`, selection keys to `terminal::Input` / `whelmed::InputHandler`, and Theme to Screen. | sol2, jam::Context, jam::File::Watcher |
+| Component | `terminal/component/` | JUCE UI hosting, tabs, panes, LookAndFeel, VBlank render trigger | Session, Screen, lua::Engine, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
-| Data | `terminal/data/` | Pure value types, state atomics, IDs, preview state flags | JUCE ValueTree |
-| Logic | `terminal/logic/` | VT parsing, grid storage, session orchestration | Data |
-| Rendering | `terminal/rendering/` | Font shaping, glyph atlas, GL/CPU draw, Fonts (Context-managed), Overlay (image preview component) | Data, FreeType, HarfBuzz, OpenGL, jam_graphics, jam_tui |
-| Notifications | `terminal/notifications/` | Native desktop notification dispatch (OSC 9/777) | JUCE, UserNotifications (macOS) |
+| Terminal | `terminal/` | Pure value types, state atomics, IDs, VT parsing, Video command processor, grid storage, session orchestration, preview decoders | JUCE ValueTree |
+| Rendering | `terminal/component/` | Screen render coordinator, GL/CPU draw, Fonts (Context-managed), Overlay (image preview component) | terminal/, FreeType, HarfBuzz, OpenGL, jam_graphics, jam_tui |
+| Notifications | `terminal/` | Native desktop notification dispatch (`terminal::showNotification()`, OSC 9/777) | JUCE, UserNotifications (macOS) |
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | Graphics utilities, blur, shadows, colours | jam_core |
 | jam_fonts | `~/Documents/Poems/dev/jam/jam_fonts/` | Font management, glyph atlas, typeface shaping, text layout | jam_core, FreeType, HarfBuzz |
 | jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: Cell type, Metrics (cell↔pixel SSOT), Point, Rectangle | jam_core |
 | jam_gui/opengl | `~/Documents/Poems/dev/jam/jam_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jam_core |
-| Action | `action/` | Unified action registry (`Action::Registry`), key dispatch, prefix state machine, command palette (`Action::List`) | lua::Engine, jam::Context |
-| Nexus | `nexus/` | Session container. Owns `unordered_map<String, unique_ptr<Terminal::Session>>`. Mode determined by `attach(Daemon&)` / `attach(Link&)` / no attachment. `jam::Context<Nexus>` singleton owned by ENDApplication. | Terminal::Session, jam::Context |
-| Interprocess | `interprocess/` | IPC transport layer. Daemon (TCP server), Link (client), Channel (per-client server-side connection), EncoderDecoder (wire format), Message (PDU kind enum). Daemon owns broadcast + subscriber registries, wires session callbacks. | JUCE IPC, Nexus, Terminal::Session, AppState |
-| Panes | `component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
-| Whelmed | `whelmed/` | Markdown viewer: Component, Screen, block hierarchy, Whelmed::Input | PaneComponent, jam_markdown |
+| Action | `terminal/action/` | Unified action registry (`action::Registry`), key dispatch, prefix state machine, command palette (`action::List`) | lua::Engine, jam::Context |
+| Nexus | `nexus/` | Session container (global scope). Owns `unordered_map<String, unique_ptr<terminal::Session>>`. Mode determined by `setMode(Mode)` — standalone/daemon/client. Fires session lifecycle events on public `events` ValueTree. `jam::Context<Nexus>` singleton owned by ENDApplication. | terminal::Session, jam::Context |
+| IPC | `nexus/` | IPC transport layer. `nexus::Daemon` (TCP server), `nexus::Link` (client), `nexus::Daemon::Channel` (per-client server-side connection, nested class), `nexus::EncoderDecoder` (wire format), `nexus::Message` (PDU kind enum). Daemon owns broadcast + subscriber registries, wires session callbacks. Daemon/Link listen on Nexus::events ValueTree. | JUCE IPC, Nexus, terminal::Session, AppState |
+| Panes | `terminal/component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
+| Whelmed | `whelmed/` | Markdown viewer: whelmed::Component, Screen, block hierarchy, InputHandler | PaneComponent, jam_markdown |
 | jam_gui | `~/Documents/Poems/dev/jam/jam_gui/` | Window, layout utilities, and OpenGL rendering: PaneManager binary tree, PaneResizerBar, GLRenderer, GLComponent | juce_opengl, jam_core, jam_graphics |
 
 ---
 
-## Nexus and Interprocess
+## Nexus and IPC
 
 ### Nexus — Session Manager
 
-`Nexus` is a pure session container.  It inherits `jam::Context<Nexus>` and is owned as a value member of `ENDApplication`.  It holds an `unordered_map<String, unique_ptr<Terminal::Session>>` and exposes a lifecycle API: `create`, `remove`, `get`, `has`, `list`.
+`Nexus` is a pure session container in global scope. It inherits `jam::Context<Nexus>` and is owned as a value member of `ENDApplication`. It holds an `unordered_map<String, unique_ptr<terminal::Session>>` and exposes a lifecycle API: `create`, `remove`, `get`, `has`, `list`.
 
-Data flow mode (standalone, daemon, client) is determined at runtime by which `attach` overload is called — not by a constructor tag:
+Data flow mode (standalone, daemon, client) is determined at runtime by `setMode(Mode)`:
 
-- **No attachment** — standalone.  Sessions fire `onExit` locally; when the last session exits `onAllSessionsExited` is called.
-- **`attach(Interprocess::Daemon&)`** — daemon mode.  After `Nexus::create(cwd, uuid, cols, rows)` succeeds, Nexus calls `Daemon::wireSessionCallbacks(uuid, session)` to wire IPC broadcast.
-- **`attach(Interprocess::Link&)`** — client mode.  `Nexus::create(cwd, uuid, cols, rows)` creates a no-TTY session and sends a `createSession` PDU to the daemon via Link.
+- **`Mode::standalone`** — no IPC. Sessions fire exit signal via State shellExited parameter → `Panes::valueTreePropertyChanged` → `callAsync` → `Panes::closePane` → `Nexus::remove`. When the last session exits, `onAllSessionsExited` is called.
+- **`Mode::daemon`** — `nexus::Daemon` registers as a `juce::ValueTree::Listener` on `Nexus::events`. When `Nexus::create` fires a child-added event, Daemon wires IPC broadcast callbacks on the new session.
+- **`Mode::client`** — `nexus::Link` registers on `Nexus::events`. When `Nexus::create` fires a child-added event for a remote session, Link sends a `createSession` PDU to the daemon.
 
-`Nexus::create(cwd, uuid, cols, rows)` is the mode-routing entry point used by `Panes` and `Tabs`.  It returns an existing session immediately if the UUID already exists (idempotency guard for GUI reconnect).
+`Nexus::create(cwd, uuid, cols, rows)` is the mode-routing entry point used by `terminal::Panes` and `terminal::Tabs`. It returns an existing session immediately if the UUID already exists (idempotency guard for GUI reconnect). Nexus fires `juce::ValueTree::Listener` callbacks on the public `events` tree — child nodes are type "SESSION" with `jam::ID::id` property set to the session UUID.
 
 ### Process Configurations
 
 ```
 Standalone:              ENDApplication + Nexus (no IPC)
-Daemon process:          ENDApplication + Nexus + Interprocess::Daemon (headless, owns shells)
-GUI connected to daemon: ENDApplication + Nexus + Interprocess::Link  (renders daemon's sessions)
+Daemon process:          ENDApplication + Nexus + nexus::Daemon (headless, owns shells)
+GUI connected to daemon: ENDApplication + Nexus + nexus::Link  (renders daemon's sessions)
 ```
 
-The daemon process suppresses its Dock icon via `Daemon::hideDockIcon()` and writes its bound TCP port to `~/.config/end/nexus/<uuid>.nexus`.  The GUI reads that file and begins connect attempts via `Link::beginConnectAttempts()`.
+The daemon process suppresses its Dock icon via `nexus::Daemon::hideDockIcon()` and writes its bound TCP port to `~/.config/end/nexus/<uuid>.nexus`. The GUI reads that file and begins connect attempts via `nexus::Link::beginConnectAttempts()`.
 
-### Interprocess — IPC Transport Layer
+### IPC Transport Layer
 
-The `Interprocess` namespace contains the TCP-based IPC transport between a daemon process and one or more GUI clients.  It does not include any terminal emulation logic.
+The `nexus` namespace contains the TCP-based IPC transport between a daemon process and one or more GUI clients. It does not include any terminal emulation logic.
 
 **Classes:**
 
 | Class | Role |
 |-------|------|
-| `Interprocess::Daemon` | TCP server (`juce::InterprocessConnectionServer`).  Owns `Channel` objects via `jam::Owner`.  Holds the broadcast list (`attached`) and per-session subscriber registry (`subscribers`).  Installs a Windows Job Object for cascade-kill of OpenConsole.exe grandchildren. |
-| `Interprocess::Channel` | Server-side connection representing one connected GUI client.  Created by `Daemon::createConnectionObject()`.  Dispatches incoming PDUs to `Nexus` and `Daemon`. |
-| `Interprocess::Link` | Client-side connector (`juce::InterprocessConnection`).  Polls the nexus file for the daemon port and retries every 100 ms via an inner `ConnectTimer`.  Dispatches incoming PDUs directly on the message thread. |
-| `Interprocess::EncoderDecoder` | Binary wire-format helpers: `writeUint16/32/64`, `writeString`, `readUint16/32/64`, `readString`, `encodePdu`.  Single source of truth for wire encoding — used by both `Channel::sendPdu` and `Link::sendPdu`. |
-| `Interprocess::Message` | `enum class Message : uint16_t` — PDU kind identifiers with stable wire values. |
+| `nexus::Daemon` | TCP server (`juce::InterprocessConnectionServer`). Owns `Channel` objects via `jam::Owner`. Holds the broadcast list (`attached`) and per-session subscriber registry (`subscribers`). Installs a Windows Job Object for cascade-kill of OpenConsole.exe grandchildren. Registers on `Nexus::events` to wire callbacks when sessions are created. |
+| `nexus::Daemon::Channel` | Server-side connection representing one connected GUI client. Created by `Daemon::createConnectionObject()`. Dispatches incoming PDUs to `Nexus` and `Daemon`. Nested class — implementation in `Channel.cpp`. |
+| `nexus::Link` | Client-side connector (`juce::InterprocessConnection`). Polls the nexus file for the daemon port and retries every 100 ms via an inner `ConnectTimer`. Dispatches incoming PDUs directly on the message thread. Registers on `Nexus::events` to send createSession PDUs when sessions are created in client mode. |
+| `nexus::EncoderDecoder` | Binary wire-format helpers: `writeUint16/32/64`, `writeString`, `readUint16/32/64`, `readString`, `encodePdu`. Single source of truth for wire encoding — used by both `Daemon::Channel::sendPdu` and `Link::sendPdu`. |
+| `nexus::Message` | `enum class Message : uint16_t` — PDU kind identifiers with stable wire values. |
 
 **Wire format:** Every JUCE IPC frame payload begins with a `uint16_t` kind (LE), followed by kind-specific payload bytes.
 
@@ -289,38 +289,38 @@ The `Interprocess` namespace contains the TCP-based IPC transport between a daem
 
 ### Daemon Session Callback Wiring
 
-`Daemon::wireSessionCallbacks(uuid, session)` is called by `Nexus::create` in daemon mode after each `Terminal::Session` is constructed.  It installs three callbacks via three helper methods:
+`nexus::Daemon` observes `Nexus::events` via `juce::ValueTree::Listener`. On `valueTreeChildAdded`, it calls `wireSessionCallbacks(uuid, session)` to install three callbacks:
 
-- `wireOnBytes` — wires `session.onBytes` to broadcast `Message::output` to per-session subscribers.  Runs on the reader thread; acquires `connectionsLock`.
-- `wireOnStateFlush` — wires `session.onStateFlush` to broadcast `Message::stateUpdate` (cwd + foreground process).  Fires on the message thread; suppresses redundant broadcasts via shared-ptr captured previous values.
-- `wireOnExit` — wires `session.onExit` to broadcast `Message::sessionKilled`, schedule async `Nexus::remove`, re-broadcast sessions list, and fire `onAllSessionsExited` if empty.
+- `wireOnBytes` — wires `session.onBytes` to broadcast `nexus::Message::output` to per-session subscribers. Runs on the reader thread; acquires `connectionsLock`.
+- `wireOnStateFlush` — wires `session.onStateFlush` to broadcast `nexus::Message::stateUpdate` (cwd + foreground process). Fires on the message thread; suppresses redundant broadcasts via shared-ptr captured previous values.
+- `wireOnExit` — wires shell exit detection via State ValueTree listener to broadcast `nexus::Message::sessionKilled`, schedule async `Nexus::remove`, re-broadcast sessions list, and fire `onAllSessionsExited` if empty.
 
 ### Snapshot Restore on Client Attach
 
-When a GUI client sends `createSession` for an existing UUID, `Daemon::attachSession` sends the current byte history as `Message::loading`, then registers the client as a subscriber.  The lock is held across both operations to prevent the reader thread's `onBytes` broadcast from interleaving between history send and subscriber registration.
+When a GUI client sends `createSession` for an existing UUID, `nexus::Daemon::attachSession` sends the current byte history as `nexus::Message::loading`, then registers the client as a subscriber. The lock is held across both operations to prevent the reader thread's `onBytes` broadcast from interleaving between history send and subscriber registration.
 
 ```
-Daemon:  Terminal::Session::snapshotHistory() → Message::loading → Link
-Link:    handleLoading → Terminal::Session::process → Processor → Grid → Display
+Daemon:  terminal::Session::snapshotHistory() → nexus::Message::loading → nexus::Link
+Link:    handleLoading → terminal::Session::process → Processor → Grid → terminal::Display
 ```
 
 ### Byte-Forward Flow (Live)
 
 ```
-Daemon:  PTY → Session::onBytes → Message::output → Channel → Link
-Link:    handleOutput → Terminal::Session::process → Processor → Grid → Display
+Daemon:  PTY → Session::onBytes → nexus::Message::output → nexus::Daemon::Channel → nexus::Link
+Link:    handleOutput → terminal::Session::process → Processor → Grid → terminal::Display
 
 Standalone:
-         PTY → Session::onBytes → Processor::processWithLock → Grid → Display
+         PTY → Session::onBytes → Processor::processWithLock → Grid → terminal::Display
 ```
 
-### Terminal::Session
+### terminal::Session
 
-`Terminal::Session` is the singular owner of one terminal instance.  It holds:
-- `unique_ptr<TTY>` — the platform PTY (null in client mode).
+`terminal::Session` is the singular owner of one terminal instance. It holds:
+- `unique_ptr<tty::TTY>` — the platform PTY (null in client mode). Ownership transferred to Processor after callback wiring.
 - `History` — ring buffer of raw PTY bytes.
-- `unique_ptr<Terminal::Processor>` — Parser + Grid + State pipeline.
-- `bool shouldTrackCwdFromOs` — when true, `onFlush` queries the OS for cwd via the PTY's PEB (Windows) or `/proc` (Linux).  Set to `false` when shell integration is active (OSC 7 provides cwd directly).
+- `unique_ptr<terminal::Processor>` — Parser + Video + GridResize + Grid + State pipeline.
+- `bool shouldTrackCwdFromOs` — when true, `onFlush` queries the OS for cwd via the PTY's PEB (Windows) or `/proc` (Linux). Set to `false` when shell integration is active (OSC 7 provides cwd directly).
 
 **Factory — two overloads:**
 
@@ -341,10 +341,10 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
 | `resize(cols, rows)` | Signal PTY resize (SIGWINCH) |
 | `getStateInformation(block)` | Serialize Processor state for daemon → GUI sync |
 | `setStateInformation(data, size)` | Restore Processor state from daemon snapshot |
-| `getProcessor()` | Returns the owned `Terminal::Processor` |
-| `snapshotHistory()` | Returns a `MemoryBlock` of buffered PTY output (for `Message::loading`) |
+| `getProcessor()` | Returns the owned `terminal::Processor` |
+| `snapshotHistory()` | Returns a `MemoryBlock` of buffered PTY output (for `nexus::Message::loading`) |
 
-**Callbacks (set by Nexus or Interprocess layer):**
+**Callbacks (set by Nexus or IPC layer):**
 
 | Callback | Thread | Purpose |
 |----------|--------|---------|
@@ -354,42 +354,42 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
 
 ### Windows Job Object (Cascade-Kill)
 
-`Daemon::installPlatformProcessCleanup()` creates a Windows Job Object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE` and assigns the daemon process to it.  When the daemon process exits (normally or abnormally), the OS closes the Job Object handle and kills all child processes — including `OpenConsole.exe` grandchildren spawned by ConPTY.  The handle is stored in `Daemon::jobObject` and released in `releasePlatformProcessCleanup()`.
+`nexus::Daemon::installPlatformProcessCleanup()` creates a Windows Job Object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE` and assigns the daemon process to it. When the daemon process exits (normally or abnormally), the OS closes the Job Object handle and kills all child processes — including `OpenConsole.exe` grandchildren spawned by ConPTY. The handle is stored in `Daemon::jobObject` and released in `releasePlatformProcessCleanup()`.
 
 ---
 
 ## Layer Separation Rules
 
 ```
- Application (ENDApplication, MainComponent, Tabs, Panes)
-    — wires Nexus + Interprocess; owns all top-level lifetimes
+ Application (ENDApplication, MainComponent, terminal::Tabs, terminal::Panes)
+    — wires Nexus + IPC; owns all top-level lifetimes
     |
     v
- Interprocess (Daemon, Link, Channel, EncoderDecoder, Message)
-    — IPC transport; includes Nexus forward declaration; does NOT include Terminal headers directly
+ IPC (nexus::Daemon, nexus::Link, nexus::Daemon::Channel, nexus::EncoderDecoder, nexus::Message)
+    — IPC transport; includes Nexus.h; does NOT include terminal headers directly
     |
     v
- Nexus (session container)
-    — includes Terminal::Session; forward-declares Interprocess::Daemon and Interprocess::Link
+ Nexus (session container, global scope)
+    — includes terminal::Session; forward-declares nexus::Daemon and nexus::Link
     |
     v
- Terminal / Logic (Parser→Writer→Grid)   writes atomics on reader thread
+ Terminal / Logic (Processor → Video → Grid)   writes atomics on reader thread
     |
     v
- Terminal / Data (State/Cell)            pure types, atomic storage, timer flush
+ Terminal / Data (State/Grid)                  pure types, atomic storage, timer flush
     |
     v
- Terminal / Rendering (Screen/GL)        reads from Grid + State, builds GPU snapshots
+ Terminal / Component (terminal::Screen/GL)    reads from Grid + State, builds GPU snapshots
     |
     v
- Terminal / TTY (platform)               reader thread feeds raw bytes to Parser
+ Terminal / TTY (platform)                     reader thread feeds raw bytes to Processor
 ```
 
 **Header inclusion rules:**
-- `terminal/` headers MUST NOT include `Nexus.h` or any `interprocess/` header.
-- `nexus/Nexus.h` forward-declares `Interprocess::Daemon` and `Interprocess::Link`; includes `terminal/logic/Session.h`.
-- `interprocess/` headers forward-declare `Nexus`; include `terminal/logic/Session.h` only from `.cpp` files as needed.
-- `Application` layer (`Main.cpp`, `MainComponent`, `Tabs`, `Panes`) includes all layers.
+- `terminal/` headers MUST NOT include `Nexus.h` or any `nexus/` header.
+- `Nexus.h` forward-declares `nexus::Daemon` and `nexus::Link`; includes `terminal/Session.h`.
+- `nexus/` headers forward-declare `Nexus`; include `terminal/Session.h` only from `.cpp` files as needed.
+- `Application` layer (`Main.cpp`, `MainComponent`, `terminal::Tabs`, `terminal::Panes`) includes all layers.
 
 ### Cross-Thread Data Contract (MANDATORY)
 
@@ -409,41 +409,41 @@ ValueTree is the SSOT for all scalar state. `State::flush()` copies dirty atomic
 READER → HeapBlock on Grid → dirty-row fence → MESSAGE reads directly
 ```
 
-Grid's `HeapBlock<Cell>`, `HeapBlock<Grapheme>`, `HeapBlock<uint16_t> linkIds` are read directly by `Screen::buildSnapshot()` on the MESSAGE thread via VBlank polling. No ValueTree involvement — ValueTree cannot handle this volume (appendChild/setProperty allocate, lock, fire listeners per entry). Synchronization: `resizeLock` CriticalSection (resize only) + `dirtyRows[4]` atomic bitmask (render trigger).
+Grid's `HeapBlock<Cell>`, `HeapBlock<Grapheme>`, `HeapBlock<uint16_t> linkIds` are read directly by `terminal::Screen` on the MESSAGE thread via VBlank polling. No ValueTree involvement — ValueTree cannot handle this volume (appendChild/setProperty allocate, lock, fire listeners per entry). Synchronization: `resizeLock` CriticalSection (resize only) + `dirtyRows[4]` atomic bitmask (render trigger).
 
 **Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → Grid HeapBlock. If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
 
 **Image preview** — file-based image display triggered by hyperlink click or SKiT protocol (Sixel/Kitty/iTerm2).
 
 ```
-READER → Parser::onPreviewFile(filepath, row) → SpinLock slot on Display → MESSAGE onVBlank() → consumePendingPreview() → handleOpenImage() → Overlay component
+READER → Parser → Skit → onPreviewFile(filepath, row) → SpinLock slot on Display → MESSAGE onVBlank() → consumePendingPreview() → handleOpenImage() → terminal::Overlay component
 ```
 
-Preview is a Display-side concern. The READER thread writes a filepath + trigger row into a SpinLock-guarded slot on Display via `onPreviewFile`. The MESSAGE thread consumes it in `onVBlank()` → `consumePendingPreview()`, loads the file via `loadImageNative()`, downscales if needed, and creates an ephemeral `Terminal::Overlay` child component. Overlay is a `jam::gl::Component` that renders `juce::Image` directly — no atlas, no FIFO, no staging pipeline. Display::resized() splits the content area: Overlay gets the right portion, Screen reflows into the remaining space via PTY resize. Dismiss destroys the Overlay and restores Screen to full width.
+Preview is a Display-side concern. The READER thread writes a filepath + trigger row into a SpinLock-guarded slot on Display via `onPreviewFile`. The MESSAGE thread consumes it in `onVBlank()` → `consumePendingPreview()`, loads the file via `loadImageNative()`, downscales if needed, and creates an ephemeral `terminal::Overlay` child component. Overlay is a `jam::animation::Base` that renders `juce::Image` directly — no atlas, no FIFO, no staging pipeline. Display::resized() splits the content area: Overlay gets the right portion, Screen reflows into the remaining space via PTY resize. Dismiss destroys the Overlay and restores Screen to full width.
 
 ### Communication Contracts
 
 **TTY -> Logic:**
-- TTY reader thread calls `Parser::process(data, length)` directly
-- Parser writes to Grid and State atomics on reader thread
+- TTY reader thread calls `Processor::process(data, length)` → `Parser::process()` directly
+- Video writes to Grid and State atomics on reader thread
 - No allocation, no locks on this path
 
 **Logic -> Data:**
-- Parser calls `Grid::Writer` methods — cell writes, scroll, erase, dirty tracking
-- Parser reads geometry (cols, visibleRows, scrollbackUsed) from `State` parameterMap atomics
+- Video calls Grid write methods — cell writes, scroll, erase, dirty tracking
+- Video reads geometry (cols, visibleRows, scrollbackUsed) from `State` parameterMap atomics
 - All calls are `noexcept`, reader thread safe
 
 **Data -> Component (timer path):**
 - `State::timerCallback()` runs on message thread (60-120Hz)
 - Flushes atomics to ValueTree via `flush()`
-- ValueTree fires `valueTreePropertyChanged` -> CursorComponent updates
+- ValueTree fires `valueTreePropertyChanged` → CursorComponent updates
 - `State::refresh()` (public) also flushes atomics — called by `onVBlank` before rendering
 
 **Data -> Component (render path):**
 - `VBlankAttachment` fires on every display vsync (CVDisplayLink)
 - Calls `State::consumeSnapshotDirty()` — one atomic exchange
 - Calls `State::refresh()` to flush pending atomics before render
-- If dirty: `Screen::render()` reads Grid + State, builds snapshot, publishes to GLSnapshotBuffer
+- If dirty: `terminal::Screen` reads Grid + State, builds snapshot, publishes to GLSnapshotBuffer
 
 **Component -> Rendering (GL path):**
 - `GLSnapshotBuffer::write()` — message thread publishes snapshot
@@ -451,19 +451,19 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 - Lock-free: double-buffered with atomic pointer exchange via `GLMailbox`
 
 **Panes/Tabs -> Nexus (session lifecycle):**
-- `Panes::createTerminal(cwd)` calls `Nexus::getContext()->create(cwd, uuid, cols, rows)` — mode-routing entry point
-- `Tabs::closeSession(uuid)` calls `Nexus::getContext()->remove(uuid)`
-- In client mode, `Nexus::create` additionally calls `Link::sendCreateSession(cwd, uuid, cols, rows)`
-- In daemon mode, `Nexus::create` additionally calls `Daemon::wireSessionCallbacks(uuid, session)` after the PTY session is constructed
+- `terminal::Panes::createTerminal(cwd)` calls `Nexus::getContext()->create(cwd, uuid, cols, rows)` — mode-routing entry point
+- `terminal::Tabs::closeSession(uuid)` calls `Nexus::getContext()->remove(uuid)`
+- In client mode, `Nexus::create` fires child-added on `events`; `nexus::Link` observes and sends `createSession` PDU to daemon
+- In daemon mode, `Nexus::create` fires child-added on `events`; `nexus::Daemon` observes and calls `wireSessionCallbacks(uuid, session)`
 
-**Interprocess::Link -> Nexus (incoming PDU dispatch):**
+**nexus::Link -> Nexus (incoming PDU dispatch):**
 - `Link::handleOutput(uuid, bytes)` → `Nexus::get(uuid).process(bytes, len)`
 - `Link::handleLoading(uuid, bytes)` → `Nexus::get(uuid).process(bytes, len)` (initial snapshot)
 - `Link::handleStateUpdate(uuid, cwd, fgProcess)` → `Nexus::get(uuid).getProcessor().getState()` ValueTree write
 - `Link::handleSessionKilled(uuid)` → destroys local no-TTY session via `Nexus::remove(uuid)`
 - `Link::handleSessions(uuids)` → creates no-TTY sessions for any UUIDs not yet present
 
-**Interprocess::Channel -> Daemon/Nexus (incoming PDU dispatch, daemon side):**
+**nexus::Daemon::Channel -> Daemon/Nexus (incoming PDU dispatch, daemon side):**
 - `createSession` PDU → `Nexus::getContext()->create(cwd, uuid, cols, rows)` + `Daemon::attachSession(uuid, channel, sendHistory, cols, rows)`
 - `input` PDU → `Nexus::get(uuid).sendInput(data, len)`
 - `resizeSession` PDU → `Nexus::get(uuid).resize(cols, rows)`
@@ -472,11 +472,11 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 
 ### Layer Violations (FORBIDDEN)
 
-- Rendering must NEVER call Parser or Grid mutators
+- Rendering must NEVER call Video or Grid mutators
 - TTY must NEVER call UI/Component code
-- Parser must NEVER allocate on reader thread
+- Video must NEVER allocate on reader thread
 - GL thread must NEVER write to Grid or State
-- `terminal/` headers must NEVER include `Nexus.h` or any `interprocess/` header
+- `terminal/` headers must NEVER include `Nexus.h` or any `nexus/` header
 
 ---
 
@@ -495,10 +495,10 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 
 ```
 Keystroke -> Message Thread -> TTY::write()
-         -> Reader Thread reads response -> Parser::process()
+         -> Reader Thread reads response -> Processor::process() -> Parser -> Video
          -> Grid cells written, State atomics set, snapshotDirty = true
          -> VBlank fires on Message Thread -> consumeSnapshotDirty()
-         -> State::refresh() -> Screen::render() reads Grid + State -> builds Snapshot -> GLSnapshotBuffer::write()
+         -> State::refresh() -> terminal::Screen reads Grid + State -> builds Snapshot -> GLSnapshotBuffer::write()
           -> GL Thread -> GLSnapshotBuffer::read() -> uploadStagedBitmaps() -> draw
 ```
 
@@ -521,11 +521,11 @@ Keystroke -> Message Thread -> TTY::write()
 
 **Used for:** Cross-thread state synchronization without locks on the hot path.
 
-**Implementation:** `State.h/cpp`, `StateFlush.cpp`
+**Implementation:** `terminal/State.h/cpp`, `terminal/StateFlush.cpp`
 
 Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Render path calls `State::refresh()` to force-flush atomics before each frame, ensuring the snapshot reads current values without waiting for the timer.
 
-WINDOW-subtree properties `App::ID::fontFamily` and `App::ID::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `std::atomic<bool>`. Two consumers:
+WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `std::atomic<bool>`. Two consumers:
 - **GL thread** — GPU lambda calls `consumeAtlasDirty()` and invokes `GlyphAtlas::getContext()->rebuildAtlas()` to tear down and re-upload GPU textures.
 - **Message thread** — `renderPaint` CPU path calls `consumeAtlasDirty()` before rasterizing to avoid stale CPU atlas.
 
@@ -561,12 +561,16 @@ Horizontal shelves, best-fit allocation. Separate packers for mono and emoji. LR
 
 **Used for:** Keeping files under 300 lines while maintaining logical cohesion.
 
-Parser.cpp -> ParserCSI, ParserESC, ParserSGR, ParserVT, ParserEdit, ParserOps
-Grid.cpp -> GridScroll, GridErase, GridReflow
+Video.cpp -> VideoCSI, VideoDCS, VideoESC, VideoSGR, VideoEdit, VideoMode, VideoOps, VideoOSC, VideoOSCExt
+Grid.cpp -> GridResize (separate class)
 State.cpp -> StateFlush
-Screen.cpp -> ScreenRender, ScreenSnapshot
-Fonts.cpp -> FontsMetrics, FontsShaping
-TerminalGLRenderer.cpp -> TerminalGLDraw
+Screen.cpp (in terminal/component/)
+SixelDecoder.cpp -> SixelDecoderParse
+KittyDecoder.cpp -> KittyDecoderDecode
+LinkManager.cpp -> LinkManagerScan
+Tabs.cpp -> TabsActions, TabsClose
+ActionList.cpp -> ActionListBinding, ActionListSelection
+lua/Engine.cpp -> EngineConfig, EngineDefaults, EngineParse, EngineParseConfig, EngineParseDisplay, EnginePatch
 
 All split files define member functions of the parent class. No separate classes needed.
 
@@ -576,7 +580,7 @@ All split files define member functions of the parent class. No separate classes
 
 ### Architecture
 
-Each tab owns a `Panes` component that manages split pane layout via a `PaneManager`. The layout is a binary tree stored as a JUCE `ValueTree`:
+Each tab owns a `terminal::Panes` component that manages split pane layout via a `PaneManager`. The layout is a binary tree stored as a JUCE `ValueTree`:
 
 ```
 TAB
@@ -588,7 +592,7 @@ TAB
       DOCUMENT (filePath, displayName, scrollOffset)  -- grafted when Whelmed opens; removed on close
 ```
 
-- **Leaves** (`PANE` type) — each maps to one `PaneComponent` (Terminal::Component or Whelmed::Component)
+- **Leaves** (`PANE` type) — each maps to one `PaneComponent` (`terminal::Display` or `whelmed::Component`)
 - **Internal nodes** (`PANES` type) — each represents a split with `direction` and `ratio`
 - **SESSION** — terminal state, grafted as child of PANE at creation time
 - **DOCUMENT** — Whelmed document state, grafted alongside SESSION when a .md file is opened; removed when Whelmed is closed
@@ -609,7 +613,7 @@ TAB
 
 `layOut` is a static template method. It recursively walks the tree, subdivides the available bounds by direction and ratio, calls `setBounds` on components matched by `getComponentID()`, and positions `PaneResizerBar` instances matched by `getSplitNode()` identity.
 
-Ratio is clamped to `[0.1, 0.9]`. Bounds are stored as `ID::x/y/width/height` properties on split nodes. Resizer bar width is 4px.
+Ratio is clamped to `[0.1, 0.9]`. Bounds are stored as `app::id::x/y/width/height` properties on split nodes. Resizer bar width is 4px.
 
 ### PaneResizerBar (Draggable Divider)
 
@@ -621,12 +625,12 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 
 ### Panes (Per-Tab Container)
 
-`Terminal::Panes` is the per-tab component that bridges `PaneManager` with `Terminal::Component` instances:
+`terminal::Panes` is the per-tab component that bridges `PaneManager` with `terminal::Display` instances:
 
 - Owns `Owner<PaneComponent> panes` and `Owner<PaneResizerBar> resizerBars`
-- `createTerminal()` — adds a leaf to the tree, creates a Terminal::Component, grafts SESSION
-- `createWhelmed(file)` — overlays a Whelmed::Component on the active terminal pane, grafts DOCUMENT
-- `closeWhelmed()` — removes Whelmed::Component and DOCUMENT, restores terminal visibility
+- `createTerminal()` — adds a leaf to the tree, creates a `terminal::Display`, grafts SESSION
+- `createWhelmed(file)` — overlays a `whelmed::Component` on the active terminal pane, grafts DOCUMENT
+- `closeWhelmed()` — removes `whelmed::Component` and DOCUMENT, restores terminal visibility
 - `closePane(uuid)` — ungrafts SESSION, removes pane, removes resizer bar, calls `paneManager.remove()`
 - `splitHorizontal()` — left/right layout (calls `splitImpl("vertical", true)`)
 - `splitVertical()` — top/bottom layout (calls `splitImpl("horizontal", false)`)
@@ -634,15 +638,15 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 
 **Split naming convention:** `splitHorizontal` produces a left/right layout. The internal direction string `"vertical"` describes the divider orientation, not the layout direction.
 
-### Action Registry (Action::Registry)
+### Action Registry (action::Registry)
 
-`Action::Registry` inherits `jam::Context<Registry>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
+`action::Registry` inherits `jam::Context<Registry>` and `juce::Timer`. It is the single owner of all user-performable actions, replacing the former `KeyBinding`, `ModalKeyBinding`, and `ApplicationCommandTarget` system.
 
 **Architecture:**
 - Dynamic action table: built-in actions registered by `MainComponent`, popup + custom Lua actions registered by `lua::Engine`
-- Hot-reloadable key map: `lua::Engine` parses `keys.lua`, `popups.lua`, and `actions.lua`, passes bindings to `Registry::buildKeyMap()`. File watcher auto-reloads on save.
+- Hot-reloadable key map: `lua::Engine` parses `keys.lua`, `popups.lua`, and `actions.lua`, passes bindings to `action::Registry::buildKeyMap()`. File watcher auto-reloads on save.
 - Prefix state machine: tmux-style two-keystroke input (prefix key + action key with timeout)
-- Global singleton via `jam::Context<Action>`
+- Global singleton via `jam::Context<action::Registry>`
 
 **Key resolution order in `handleKeyPress()`:**
 1. If in **waiting** state: match by text character in modal bindings → execute → idle
@@ -652,7 +656,7 @@ Rendering delegated to `LookAndFeel::drawStretchableLayoutResizerBar()`. Configu
 
 **Modal character matching:** Shifted characters (e.g. `?` = Shift+/) are matched by text character, not keycode+modifiers. Falls back to exact KeyPress match for non-character keys.
 
-Built-in actions are registered in `MainComponentActions.cpp`. Popup and custom Lua actions are registered by `lua::Engine::registerActions()`. All keybindings (built-in + popup + custom) are defined in `~/.config/end/keys.lua`, `popups.lua`, and `actions.lua`, parsed by `lua::Engine`, which passes them to `Registry::buildKeyMap()`.
+Built-in actions are registered in `MainComponentActions.cpp`. Popup and custom Lua actions are registered by `lua::Engine::registerActions()`. All keybindings (built-in + popup + custom) are defined in `~/.config/end/keys.lua`, `popups.lua`, and `actions.lua`, parsed by `lua::Engine`, which passes them to `action::Registry::buildKeyMap()`.
 
 **Copy action special behavior:** If box selection is active, copies to clipboard and returns true (consumed). If no selection, returns false — key falls through to PTY as `\x03` (SIGINT).
 
@@ -662,15 +666,15 @@ Prefix key and timeout configurable via `keys.prefix` and `keys.prefix_timeout` 
 
 Two entry points feed into the same cascade: explicit close action and shell exit.
 
-**Explicit close:** `Action::close_pane` callback calls `Panes::closePane(uuid)`.
+**Explicit close:** `action::close_pane` callback calls `terminal::Panes::closePane(uuid)`.
 
-**Shell exit:** `TTY` reader thread detects EOF/process exit → posts `onProcessExited` lambda to message thread → `TerminalDisplay::onProcessExited()` → calls `Panes::closePane(uuid)`.
+**Shell exit:** State shellExited parameter fires via VT flush chain → `terminal::Panes::valueTreePropertyChanged` → `callAsync` → `Panes::closePane(uuid)`.
 
 Cascade from `closePane()`:
 
-1. `Panes::closePane()` ungrafts SESSION, destroys terminal, removes resizer bar
+1. `terminal::Panes::closePane()` ungrafts SESSION, destroys terminal, removes resizer bar
 2. `PaneManager::remove()` collapses the parent split node, promotes the sibling
-3. If last pane in tab: `Tabs::closeTab()` removes the tab
+3. If last pane in tab: `terminal::Tabs::closeTab()` removes the tab
 4. If last tab: application quits
 
 ---
@@ -681,19 +685,19 @@ Cascade from `closePane()`:
 
 `AppState` holds a `juce::Value pwdValue` member that tracks the active terminal's current working directory via `Value::referTo`.
 
-**`setPwd(sessionTree)`** — Binds `pwdValue` to the `Terminal::ID::cwd` property of the given SESSION ValueTree:
+**`setPwd(sessionTree)`** — Binds `pwdValue` to the `terminal::id::cwd` property of the given SESSION ValueTree:
 ```cpp
 void setPwd (juce::ValueTree sessionTree);
-// Calls: pwdValue.referTo (sessionTree.getPropertyAsValue (Terminal::ID::cwd, nullptr))
+// Calls: pwdValue.referTo (sessionTree.getPropertyAsValue (terminal::id::cwd, nullptr))
 ```
 
 **`getPwd()`** — Returns `pwdValue.toString()`, falls back to `$HOME` if empty.
 
 **Binding lifecycle:**
-- `Tabs::globalFocusChanged()` calls `setPwd(term->getValueTree())` when focus moves to a terminal
-- `Tabs::addNewTab()` calls `setPwd()` on the new terminal
-- New splits inherit cwd: `Panes::splitImpl()` passes `AppState::getContext()->getPwd()` to `createTerminal()`
-- New tabs inherit cwd: `Tabs::addNewTab()` passes `getPwd()` to `createTerminal()`
+- `terminal::Tabs::globalFocusChanged()` calls `setPwd(term->getValueTree())` when focus moves to a terminal
+- `terminal::Tabs::addNewTab()` calls `setPwd()` on the new terminal
+- New splits inherit cwd: `terminal::Panes::splitImpl()` passes `AppState::getContext()->getPwd()` to `createTerminal()`
+- New tabs inherit cwd: `terminal::Tabs::addNewTab()` passes `getPwd()` to `createTerminal()`
 
 **Critical pattern:** `Value::referTo` must bind to a **stored** `juce::Value` member, not a temporary. `getPropertyAsValue()` returns a temporary — calling `referTo` on a temporary does nothing.
 
@@ -703,7 +707,7 @@ void setPwd (juce::ValueTree sessionTree);
 juce::String createTerminal (const juce::String& workingDirectory = {});
 ```
 
-Passes `workingDirectory` through to `Terminal::Component::create()`, which constructs the terminal with the given cwd. Default empty string = inherit from environment.
+Passes `workingDirectory` through to `terminal::Display::create()`, which constructs the terminal with the given cwd. Default empty string = inherit from environment.
 
 ---
 
@@ -711,20 +715,20 @@ Passes `workingDirectory` through to `Terminal::Component::create()`, which cons
 
 ### Value::Listener Pattern
 
-`Tabs` uses `juce::Value::Listener` (not `ValueTree::Listener`) to track the active terminal's display name:
+`terminal::Tabs` uses `juce::Value::Listener` (not `ValueTree::Listener`) to track the active terminal's display name:
 
-- **Member:** `juce::Value tabName` — bound via `referTo` to active terminal's `App::ID::displayName`
+- **Member:** `juce::Value tabName` — bound via `referTo` to active terminal's `app::id::displayName`
 - **Binding:** `globalFocusChanged()` rebinds `tabName` when focus changes
 - **Update:** `valueChanged()` calls `setTabName()` on the tab bar
 
 ### displayName Computation (Session::onFlush + State::flushStrings)
 
-`Session::onFlush` runs on the message thread (via `State::timerCallback`).  It calls
-`tty->getForegroundPid()` and `tty->getShellPid()`.  When the two PIDs are equal (shell
-at prompt), it writes an empty string to the `foregroundProcess` slot.  When they differ
+`Session::onFlush` runs on the message thread (via `State::timerCallback`). It calls
+`tty->getForegroundPid()` and `tty->getShellPid()`. When the two PIDs are equal (shell
+at prompt), it writes an empty string to the `foregroundProcess` slot. When they differ
 (a TUI or child process is running), it writes the foreground process name.
 
-`State::flushStrings()` then computes `displayName` stored as `App::ID::displayName` with priority:
+`State::flushStrings()` then computes `displayName` stored as `app::id::displayName` with priority:
 
 1. **foregroundProcess** — when non-empty (set by `Session::onFlush` when fgPid != shellPid)
 2. **cwd leaf** — `juce::File(cwdPath).getFileName()` (e.g., "end" from "/Users/me/dev/end")
@@ -733,7 +737,7 @@ at prompt), it writes an empty string to the `foregroundProcess` slot.  When the
 
 ### SESSION Node Identification
 
-SESSION nodes use `jam::ID::id` (not a Terminal-specific UUID identifier). This makes SESSION nodes compatible with `jam::ValueTree::getChildWithID()` — a recursive lookup utility in the jam_data_structures module.
+SESSION nodes use `jam::ID::id` (not a terminal-specific UUID identifier). This makes SESSION nodes compatible with `jam::ValueTree::getChildWithID()` — a recursive lookup utility in the jam_data_structures module.
 
 ---
 
@@ -763,7 +767,7 @@ Per-screen stacks (normal/alternate) with max depth 16. Stacks cleared on RIS (`
 
 #### Flag-Aware Keyboard Encoding (Keyboard::map)
 
-`Session::handleKeyPress()` reads `getKeyboardFlags()` and passes to `Keyboard::map()`.
+`terminal::Session::handleKeyPress()` reads `getKeyboardFlags()` and passes to `Keyboard::map()`.
 
 | Flag | Bit | Effect on encoding |
 |------|-----|--------------------|
@@ -797,9 +801,9 @@ CSI u format: `CSI keycode ; modifiers u` where modifiers = `1 + shift(1) + alt(
 
 `window.state` persists WINDOW width/height only (standalone mode, cross-instance geometry). In daemon client mode the client reads and writes `nexus/<uuid>.display` (full WINDOW + TABS state) for session restore.
 
-The daemon's TCP port is written to `nexus/<uuid>.nexus` (plain text) by `Daemon::start()` via `AppState::setPort()`. GUI clients read this file during startup to discover the port before beginning connect attempts. The NEXUS directory/file subtree is `nexus/`, regardless of the config key rename.
+The daemon's TCP port is written to `nexus/<uuid>.nexus` (plain text) by `nexus::Daemon::start()` via `AppState::setPort()`. GUI clients read this file during startup to discover the port before beginning connect attempts. The NEXUS directory/file subtree is `nexus/`, regardless of the config key rename.
 
-The config key controlling daemon mode is `lua::Engine::nexus.daemon` (`"daemon"` in end.lua).  The ValueTree property is `App::ID::daemonMode` on the WINDOW subtree.
+The config key controlling daemon mode is `lua::Engine::nexus.daemon` (`"daemon"` in end.lua). The ValueTree property is `app::id::daemonMode` on the WINDOW subtree.
 
 ---
 
@@ -827,9 +831,13 @@ Access: `setRGB()`, `setPalette()`, `setTheme()`, `paletteIndex()`
 
 Dual buffers (normal + alternate). Each buffer is a flat `HeapBlock<Cell>` with ring-buffer row indexing. Parallel `HeapBlock<uint16_t> linkIds` sidecar carries per-cell link IDs (non-zero when `LAYOUT_HYPERLINK` is set). `head` tracks the logical top row. Dirty tracking via `std::atomic<uint64_t> dirtyRows[4]` (256-bit bitmask).
 
-`getCols()` and `getVisibleRows()` return the buffer allocation dimensions. `resize()` runs on the message thread and holds `resizeLock` for the duration.
+`getCols()` and `getVisibleRows()` return the buffer allocation dimensions. `resize()` is managed by `GridResize` on the message thread, holding `resizeLock` for the duration.
 
-Parser reads geometry via `state.getRawValue<int>(ID::cols)` etc. (lock-free atomics). `getCols()`/`getVisibleRows()` on Grid remain for message-thread consumers.
+Video reads geometry via `state.getRawValue<int>(terminal::id::cols)` etc. (lock-free atomics). `getCols()`/`getVisibleRows()` on Grid remain for message-thread consumers.
+
+### terminal::ScreenMap
+
+`terminal::ScreenMap` is a `jam::Map::Instance<ScreenMap>` providing the `normal`/`alternate` index mapping for Grid screen access. Lives in `terminal/ScreenMap.h`.
 
 ### GlyphConstraint
 
@@ -867,55 +875,55 @@ Uses SDF for rounded corners and anti-aliased diagonals. Produces pixel-perfect 
 
 ### ScreenSelection
 
-Anchor + end `Point<int>` pair. `SelectionType` enum (linear/line/box). `containsCell()` dispatches to `contains()`, `containsLine()`, or `containsBox()`. Renders via transparent background overlay using `colours.selection` config color.
+Anchor + end `Point<int>` pair. `SelectionType` enum (linear/line/box). `containsCell()` dispatches to `contains()`, `containsLine()`, or `containsBox()`. Renders via transparent background overlay using `colours.selection` config color. Lives in `terminal/component/ScreenSelection.h`.
 
 ### ModalType
 
-`ModalType` is an **app-level** enum stored as an integer property on the **TABS** subtree via `AppState::setModalType()` / `getModalType()`. Both Terminal::Component and Whelmed::Component read it to gate their key dispatch. `ModalType::none` means no modal is active.
+`ModalType` is an **app-level** enum stored as an integer property on the **TABS** subtree via `AppState::setModalType()` / `getModalType()`. Both `terminal::Display` and `whelmed::Component` read it to gate their key dispatch. `ModalType::none` means no modal is active.
 
 ```cpp
 enum class ModalType : uint8_t { none, selection, openFile };
 ```
 
-Terminal::State also mirrors the active modal via its own atomic (for the render path). When non-none, ALL keys are intercepted by the active pane's key handler before the Action system or PTY.
+`terminal::State` also mirrors the active modal via its own atomic (for the render path). When non-none, ALL keys are intercepted by the active pane's key handler before the Action system or PTY.
 
-**Terminal key dispatch chain:**
+**terminal::Display key dispatch chain:**
 
 ```
 keyPressed()
     |
     +-- mouse copy shortcut? → copySelection()
-    +-- Terminal::Input::handleKey()
+    +-- terminal::Input::handleKey()
             +-- isPopupTerminal? → session.handleKeyPress()
             +-- State::isModal()? → handleModalKey()
             |       +-- selection → handleSelectionKey()
             |       +-- openFile  → handleOpenFileKey()
-            +-- Action::handleKeyPress()       (prefix state machine + global bindings)
+            +-- action::Registry::handleKeyPress()    (prefix state machine + global bindings)
             +-- isScrollNav? → handleScrollNav()
             +-- clearSelectionAndScroll() + session.handleKeyPress()
 ```
 
-**Whelmed key dispatch chain:**
+**whelmed::Component key dispatch chain:**
 
 ```
 keyPressed()
     |
-    +-- Whelmed::Input::handleKey()
+    +-- whelmed::InputHandler::handleKey()
             +-- modal == selection? → handleCursorMovement() + handleSelectionToggle()
             +-- mouse selection + copy key? → clipboard copy
-            +-- Action::handleKeyPress()
+            +-- action::Registry::handleKeyPress()
             +-- handleNavigation()
 ```
 
 ### PaneComponent
 
-Pure virtual base (`Source/component/PaneComponent.h`) shared between Terminal::Component and Whelmed::Component. Inherits `jam::GLComponent`.
+Pure virtual base (`terminal/component/PaneComponent.h`) shared between `terminal::Display` and `whelmed::Component`. Inherits `jam::GLComponent`.
 
 **Contract (all methods pure virtual unless noted):**
 
 | Method | Description |
 |--------|-------------|
-| `getPaneType()` | Returns `App::ID::paneTypeTerminal` or `App::ID::paneTypeDocument` |
+| `getPaneType()` | Returns `app::id::paneTypeTerminal` or `app::id::paneTypeDocument` |
 | `switchRenderer(type)` | Switches CPU/GPU backend at runtime |
 | `getValueTree()` | Returns root ValueTree (SESSION or DOCUMENT) for grafting |
 | `applyConfig()` | Applies current Config to the component |
@@ -926,23 +934,23 @@ Pure virtual base (`Source/component/PaneComponent.h`) shared between Terminal::
 
 ### StatusBarOverlay
 
-`StatusBarOverlay` is a `juce::Component` and `juce::ValueTree::Listener` that listens to the **TABS** subtree for `App::ID::modalType` and `App::ID::selectionType` property changes. Displays the active modal mode name (VISUAL / VISUAL LINE / VISUAL BLOCK) as a status bar.
+`StatusBarOverlay` is a `juce::Component` and `juce::ValueTree::Listener` that listens to the **TABS** subtree for `app::id::modalType` and `app::id::selectionType` property changes. Displays the active modal mode name (VISUAL / VISUAL LINE / VISUAL BLOCK) as a status bar.
 
 ### Cursor (Whelmed)
 
-`Cursor` (`Source/Cursor.h/cpp`) is a shared descriptor for the Whelmed selection cursor. It stores pixel bounds, blink state, and block/character position. `Whelmed::Screen::updateCursor()` builds and stores the cursor for the current selection position; `Screen::paint()` renders it.
+`Cursor` (`Source/Cursor.h/cpp`) is a shared descriptor for the Whelmed selection cursor. It stores pixel bounds, blink state, and block/character position. `whelmed::Screen::updateCursor()` builds and stores the cursor for the current selection position; `Screen::paint()` renders it.
 
 ### Whelmed
 
-`Whelmed::Component` is a `PaneComponent` subclass that hosts the markdown viewer. It owns:
+`whelmed::Component` is a `PaneComponent` subclass that hosts the markdown viewer. It owns:
 
 - **State** — document ValueTree, atomic block count, parse-complete flag
 - **Parser** — background markdown parse thread
 - **Screen** — block renderer (owns `Block` instances, handles mouse selection)
-- **Whelmed::Input** — modal key dispatch, selection keys, scroll nav
+- **InputHandler** — modal key dispatch, selection keys, scroll nav
 - **LoaderOverlay** — shown during async parse
 
-**Block hierarchy (`Whelmed::Block`):**
+**Block hierarchy (`whelmed::Block`):**
 
 ```
 Block (pure virtual)
@@ -953,7 +961,7 @@ Block (pure virtual)
 
 Blocks are not `juce::Component` instances — they are data objects that measure and paint themselves into a `juce::Graphics` context. Screen owns them in a flat `std::vector<BlockEntry>` and lays them out vertically.
 
-**Selection architecture:** Mouse events on Screen write anchor/cursor coordinates to the DOCUMENT ValueTree (`App::ID::selAnchorBlock`, `selCursorBlock`, etc.). `Whelmed::Input` reads these same properties to perform keyboard navigation and copy operations. AppState::selectionType and modalType on TABS are the SSOT for selection state visible to the status bar.
+**Selection architecture:** Mouse events on Screen write anchor/cursor coordinates to the DOCUMENT ValueTree (`app::id::selAnchorBlock`, `selCursorBlock`, etc.). `whelmed::InputHandler` reads these same properties to perform keyboard navigation and copy operations. `AppState::selectionType` and `modalType` on TABS are the SSOT for selection state visible to the status bar.
 
 ### MessageOverlay
 
@@ -981,7 +989,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Timer-based render trigger (60-120Hz) suffered latency under CPU contention because macOS deprioritizes the JUCE timer thread.
 
-**Decision:** Replace timer-driven render with CVDisplayLink-driven polling via `juce::VBlankAttachment`. State stays pure (timer + atomics only). `TerminalDisplay` polls `consumeSnapshotDirty()` on every vsync.
+**Decision:** Replace timer-driven render with CVDisplayLink-driven polling via `juce::VBlankAttachment`. State stays pure (timer + atomics only). `terminal::Display` polls `consumeSnapshotDirty()` on every vsync.
 
 **Rationale:** CVDisplayLink runs at display-driver priority, immune to timer QoS coalescing. Worst-case latency is one frame (8-16ms), imperceptible for terminal text. State remains a pure data layer with no UI knowledge.
 
@@ -1021,7 +1029,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** SPEC proposed 2x SPSC ring buffers (`juce::AbstractFifo`) between PTY and message thread.
 
-**Decision:** TTY reader thread calls `Parser::process()` directly. Parser writes to Grid cells and State atomics on the reader thread.
+**Decision:** TTY reader thread calls `Processor::process()` → `Parser::process()` directly. Video writes to Grid cells and State atomics on the reader thread.
 
 **Rationale:** Simpler, lower latency. The FIFO added a drain step on the message thread that was unnecessary — the parser is fast enough to run on the reader thread without blocking. Grid access is protected by `resizeLock` CriticalSection only during resize.
 
@@ -1051,7 +1059,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 ### Decision: Shared Fonts Context over Per-Terminal Font Ownership
 
-**Context:** Each `Screen` owned its own `Fonts` instance inside a `Resources` struct. When closing tabs rapidly, the GL thread could access a destroyed font while mid-render, causing a HarfBuzz crash.
+**Context:** Each `terminal::Screen` owned its own `Fonts` instance inside a `Resources` struct. When closing tabs rapidly, the GL thread could access a destroyed font while mid-render, causing a HarfBuzz crash.
 
 **Decision:** `Fonts` inherits `jam::Context<Fonts>`, owned by `MainComponent`. All terminals share a single instance via `Fonts::getContext()`.
 
@@ -1069,7 +1077,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Pane navigation and splitting needed keyboard shortcuts. Options: Cmd+Shift chords, or tmux-style prefix key.
 
-**Decision:** Prefix key system (now `Terminal::Action`). Default prefix: backtick. Action keys: h/j/k/l for navigation, `\`/`-` for splitting.
+**Decision:** Prefix key system (`action::Registry`). Default prefix: backtick. Action keys: h/j/k/l for navigation, `\`/`-` for splitting.
 
 **Rationale:** Chord modifiers (Cmd+Shift+H/J/K/L) conflict with terminal applications that use these sequences. Prefix key avoids conflicts entirely — the prefix is consumed, then the next key is unambiguously a pane action. Familiar to tmux users. Fully configurable.
 
@@ -1077,17 +1085,33 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** Terminal state (SESSION ValueTree) needs to be associated with a specific pane in the split tree.
 
-**Decision:** SESSION is grafted as a child of its PANE node in the ValueTree hierarchy. `Panes` manages the grafting at terminal creation time and ungrafts before tree restructuring.
+**Decision:** SESSION is grafted as a child of its PANE node in the ValueTree hierarchy. `terminal::Panes` manages the grafting at terminal creation time and ungrafts before tree restructuring.
 
 **Rationale:** Co-locating SESSION under PANE enables future state persistence of the full split layout + terminal state in a single ValueTree. Ungrafting before `PaneManager::remove()` prevents re-parenting asserts when the tree restructures.
 
-### Decision: Overlay as jam::gl::Component, No Atlas/FIFO
+### Decision: Overlay as jam::animation::Base, No Atlas/FIFO
 
 **Context:** Previous image subsystem used ImageAtlas (shelf-packed RGBA8 atlas, READER FIFO, MESSAGE drain, GL upload pipeline) and a ~960-line Preview god object with handrolled GL shaders. Grid is pure text — images extracted.
 
-**Decision:** Replace entire image rendering subsystem with `Terminal::Overlay` — a `jam::gl::Component` child of Display (~140 lines). Overlay owns a `juce::Image` directly, renders via `jam::gl::Graphics` (GPU) or `juce::Graphics` (CPU). No atlas, no FIFO, no staging pipeline, no handrolled shaders. Display::resized() splits content area: Screen gets left portion, Overlay gets right. Screen reflows automatically via PTY resize — same mechanism as pane resize.
+**Decision:** Replace entire image rendering subsystem with `terminal::Overlay` — a `jam::animation::Base` child of `terminal::Display` (~140 lines). Overlay owns a `juce::Image` directly, renders via `jam::gl::Graphics` (GPU) or `juce::Graphics` (CPU). No atlas, no FIFO, no staging pipeline, no handrolled shaders. Display::resized() splits content area: Screen gets left portion, Overlay gets right. Screen reflows automatically via PTY resize — same mechanism as pane resize.
 
-**Rationale:** One image at a time. Screen renders thousands of glyphs without FIFO — one preview image needs even less infrastructure. The `jam::gl::Component` pattern handles GPU/CPU context switching. Side-by-side layout with automatic reflow is the pane resize pattern already proven in the codebase. Follows Display→Screen ownership pattern: Display→Overlay for images.
+**Rationale:** One image at a time. Screen renders thousands of glyphs without FIFO — one preview image needs even less infrastructure. The `jam::animation::Base` pattern handles GPU/CPU context switching. Side-by-side layout with automatic reflow is the pane resize pattern already proven in the codebase. Follows Display→Screen ownership pattern: Display→Overlay for images.
+
+### Decision: Nexus Mode via setMode() Enum, not attach() Overloads
+
+**Context:** Previous design used `attach(Daemon&)` / `attach(Link&)` overloads to determine Nexus mode, storing pointers to the IPC objects.
+
+**Decision:** `Nexus::setMode(Mode)` sets an enum. `nexus::Daemon` and `nexus::Link` register directly on `Nexus::events` ValueTree as `juce::ValueTree::Listener`. Nexus stores no pointers to IPC objects.
+
+**Rationale:** Nexus has no IPC knowledge. Decoupling via the events ValueTree follows the APVTS observer pattern already used throughout the codebase. Daemon/Link lifecycle is independently managed by ENDApplication.
+
+### Decision: Video replaces Parser as VT Command Processor
+
+**Context:** The old `Parser` class conflated byte-stream decoding and VT command execution (cursor moves, grid writes, mode changes). The name was overloaded — it implied both parsing and interpretation.
+
+**Decision:** `Parser` is the byte-stream state machine. `Video` is the VT command processor that receives decoded semantic actions from Parser and translates them into Grid mutations and State writes. `Processor` is the pipeline orchestrator owning both.
+
+**Rationale:** Clear single-responsibility boundary. Parser does syntax; Video does semantics. Processor routes. Matches the existing naming pattern (Session is the data source, Processor is the pipeline, Grid is storage, State is the parameter SSOT).
 
 ---
 
@@ -1185,7 +1209,7 @@ Display Monolithic -> OS system fonts (CJK/exotic) -> OS color emoji
 
 ### Font Ownership
 
-`Fonts` inherits `jam::Context<Fonts>` — single global instance owned by `MainComponent`. All terminals share the same font handles, shaping buffers, and metrics. `Screen` and `CursorComponent` access fonts via `Fonts::getContext()`. This ensures font lifetime exceeds all terminal components, preventing use-after-free when closing tabs.
+`Fonts` inherits `jam::Context<Fonts>` — single global instance owned by `MainComponent`. All terminals share the same font handles, shaping buffers, and metrics. `terminal::Screen` and `CursorComponent` access fonts via `Fonts::getContext()`. This ensures font lifetime exceeds all terminal components, preventing use-after-free when closing tabs.
 
 ### Platform Font Dispatch
 
@@ -1210,15 +1234,15 @@ Zoom state is persisted in `~/.config/end/state.lua`, not in `end.lua` config.
 
 ---
 
-## Component Extraction (TerminalDisplay)
+## Component Extraction (terminal::Display)
 
-`TerminalDisplay` delegates to three focused handlers:
+`terminal::Display` delegates to three focused handlers:
 
 | Class | File | Responsibility |
 |-------|------|----------------|
-| Terminal::Input | component/Terminal/Input.h/cpp | Modal gate, selection keys, open-file keys, scroll nav |
-| Terminal::Mouse | component/Terminal/Mouse.h/cpp | PTY forwarding, drag selection, click dispatch, wheel scroll |
-| LinkManager | terminal/selection/LinkManager.h/cpp | Viewport scan, cell-native hyperlink scanning, hit-test, dispatch |
+| terminal::Input | terminal/Input.h/cpp | Modal gate, selection keys, open-file keys, scroll nav |
+| terminal::Mouse | terminal/Mouse.h/cpp | PTY forwarding, drag selection, click dispatch, wheel scroll |
+| terminal::LinkManager | terminal/LinkManager.h/cpp | Viewport scan, cell-native hyperlink scanning, hit-test, dispatch |
 
 All selection/gesture state in State parameterMap. ScreenSelection rebuilt from State in onVBlank.
 
@@ -1254,13 +1278,15 @@ Click-mode link underlines only render on OSC 133 output rows.
 | ConPTY sideload | Runtime extraction of conpty.dll + OpenConsole.exe from BinaryData to ~/.config/end/conpty/ (all Windows versions — inbox ConPTY broken on both Win10 and Win11) |
 | getActiveScreen | Message-thread ValueTree reader for active screen state (normal/alternate) |
 | Cell | 16-byte struct representing one terminal character position |
-| displayName | Derived tab label from `App::ID::displayName`.  Terminal panes: foregroundProcess (non-empty, set by Session::onFlush when fgPid != shellPid) > cwd leaf name.  Whelmed panes: file basename set at openFile time. |
+| displayName | Derived tab label from `app::id::displayName`. Terminal panes: foregroundProcess (non-empty, set by Session::onFlush when fgPid != shellPid) > cwd leaf name. Whelmed panes: file basename set at openFile time. |
 | Embolden | Platform stroke-widening for bold: kCGTextFillStroke (macOS), FT_Outline_Embolden (Linux) |
 | FontCollection | Flat int8_t[0x110000] codepoint-to-font-slot dispatch table, O(1) lookup |
 | GlyphConstraint | Per-codepoint NF icon scaling/alignment descriptor applied at rasterization time |
 | Grapheme | Multi-codepoint character cluster (e.g., flag emoji, combining marks) |
 | Grid | Ring-buffer storage for terminal cells, dual-screen (normal/alternate). Pure text — no image flags |
-| Overlay | `jam::gl::Component` child of Display; ephemeral image preview. Owns `juce::Image`, renders via paint/paintGL. Created on demand by `activatePreview()`, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
+| GridResize | Resize lifecycle manager: coalesces resize events via 50ms quiet timer, applies PTY resize and grid reflow |
+| History | Ring buffer of raw PTY bytes owned by terminal::Session. Used for daemon snapshot/restore via snapshotHistory() |
+| Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. Owns `juce::Image`, renders via paint/paintGL. Created on demand by `activatePreview()`, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
 | handleSkitFilepath | Shared parser helper for SKiT (Sixel/Kitty/iTerm2) file preview protocol. Extracts filepath from `END;` marker, calls `onPreviewFile` callback |
 | jam::tui::Metrics | Cell metrics SSOT: gridSize (floor), cellSpan (ceiling), cellToPixel, pixelToCell conversions. Constructed from physCellWidth, physCellHeight, scale |
 | LRUGlyphCache | Frame-stamped LRU map; evicts oldest 10% when over capacity |
@@ -1268,19 +1294,24 @@ Click-mode link underlines only render on OSC 133 output rows.
 | GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jam::GLSnapshotBuffer<T>`) |
 | LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via lua::Engine |
 | MessageOverlay | Transient overlay for status messages (reload confirmation, config errors) |
-| Action | Unified action registry: action table + key map + prefix state machine, Context-managed, owned by MainComponent |
-| ActionList | Command palette component: jam::Window with fuzzy-searchable list of all registered actions |
+| Nexus | Session container (global scope): action table + session map + Mode enum + events ValueTree, Context-managed, owned by ENDApplication |
+| action::Registry | Unified action registry: action table + key map + prefix state machine, Context-managed, owned by MainComponent |
+| action::List | Command palette component: jam::Window with fuzzy-searchable list of all registered actions |
 | PaneManager | Binary tree ValueTree layout engine for recursive split pane layout |
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
-| Panes | Per-tab component owning Terminal::Component instances and managing split layout via PaneManager |
+| Panes | `terminal::Panes` — per-tab component owning `terminal::Display` instances and managing split layout via PaneManager |
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
+| Processor | Pipeline orchestrator: owns Parser, Video, GridResize; references Grid and State received from Session |
 | pwdValue | juce::Value in AppState bound via referTo to active terminal's cwd property |
+| ScreenMap | `terminal::ScreenMap` — normal/alternate screen index map (jam::Map::Instance) |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
+| Skit | SKiT unified entry point for Sixel/Kitty/iTerm2 inline image preview protocol |
 | Snapshot | Pre-built GPU instance data (glyphs + backgrounds) for one frame |
 | StagedBitmap | Cross-thread upload packet: pixel data + atlas region + mono/emoji kind |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state |
-| Tabs | TabbedComponent subclass; Value::Listener for tabName, manages Panes instances |
+| Tabs | `terminal::Tabs` — TabbedComponent subclass; Value::Listener for tabName, manages Panes instances |
 | VBlank | Display vertical blank — CVDisplayLink callback synced to monitor refresh |
+| Video | VT command processor: receives decoded semantic actions from Parser, writes Grid cells, fires events for State writes |
 | Atlas | 4096x4096 texture containing rasterized glyphs, shelf-packed |
 
 ---

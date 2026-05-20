@@ -54,13 +54,11 @@
  */
 
 #include "WindowsTTY.h"
-#include "../../lua/Engine.h"
 
 #ifdef JUCE_WINDOWS
 
 #include <BinaryData.h>
 #include <tlhelp32.h>
-#include <unordered_set>
 
 #pragma comment(lib, "kernel32.lib")
 
@@ -278,9 +276,7 @@ static juce::File extractConPtyBinaries() noexcept
     return (allOk and dllPath.existsAsFile()) ? dllPath : juce::File {};
 }
 
-// isWindows10() — defined in jam_platform.h, included via WindowsTTY.h → JuceHeader.h → windows.h
-// The header is safe to include here because windows.h is already pulled in by WindowsTTY.h.
-#include <jam_core/utilities/jam_platform.h>
+// isWindows10() — provided via JuceHeader.h → jam_platform.h (included through WindowsTTY.h → TTY.h).
 
 // =============================================================================
 

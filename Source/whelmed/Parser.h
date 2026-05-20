@@ -1,9 +1,11 @@
 #pragma once
 #include <JuceHeader.h>
 #include "State.h"
+#include "../lua/Engine.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 class Parser : public juce::Thread
 {
@@ -41,4 +43,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

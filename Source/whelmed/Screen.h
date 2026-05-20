@@ -2,8 +2,8 @@
  * @file Screen.h
  * @brief Whelmed document renderer — owns blocks, paints the document, handles mouse selection.
  *
- * @see Whelmed::Block
- * @see Whelmed::Component
+ * @see whelmed::Block
+ * @see whelmed::Component
  */
 
 #pragma once
@@ -14,18 +14,24 @@
 #include "TableBlock.h"
 #include "MermaidSVGParser.h"
 #include "../Cursor.h"
+#include "Tokenizer.h"
+#include "../AppState.h"
+#include "../SelectionType.h"
+#include "../ModalType.h"
+#include "../lua/Engine.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 /**
- * @class Whelmed::Screen
+ * @class whelmed::Screen
  * @brief juce::Component that owns and renders all Block instances for a document.
  *
- * Screen is placed inside a juce::Viewport by Whelmed::Component. It builds blocks
+ * Screen is placed inside a juce::Viewport by whelmed::Component. It builds blocks
  * incrementally as the parser completes, lays them out vertically, and paints them
  * in a single paint() pass. Mouse events drive selection; InputHandler reads the
- * selection state via App::ID properties on the shared ValueTree.
+ * selection state via app::ID properties on the shared ValueTree.
  *
  * @note MESSAGE THREAD — all public methods.
  */
@@ -140,4 +146,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

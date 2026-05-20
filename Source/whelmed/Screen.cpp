@@ -1,12 +1,8 @@
 #include "Screen.h"
-#include "Tokenizer.h"
-#include "../AppState.h"
-#include "../SelectionType.h"
-#include "../ModalType.h"
-#include "../lua/Engine.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 Screen::Screen() { setOpaque (false); }
 
@@ -132,7 +128,7 @@ std::unique_ptr<Block> Screen::createBlock (const jam::Markdown::ParsedDocument&
         juce::String code { juce::String::fromUTF8 (doc.text + block.contentOffset, block.contentLength) };
         juce::String language { juce::String::fromUTF8 (doc.text + block.languageOffset, block.languageLength) };
 
-        juce::AttributedString as { Whelmed::tokenize (code, language) };
+        juce::AttributedString as { whelmed::tokenize (code, language) };
 
         const auto bgColour { cfg->whelmed.codeFenceBackground };
 
@@ -470,10 +466,10 @@ void Screen::mouseDown (const juce::MouseEvent& event)
             const auto lineRange { getBlockLineCharRange (hit.block, lineIndex) };
 
             AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::visualLine));
-            stateTree.setProperty (App::ID::selAnchorBlock, hit.block, nullptr);
-            stateTree.setProperty (App::ID::selAnchorChar, lineRange.getStart(), nullptr);
-            stateTree.setProperty (App::ID::selCursorBlock, hit.block, nullptr);
-            stateTree.setProperty (App::ID::selCursorChar, lineRange.getEnd() - 1, nullptr);
+            stateTree.setProperty (app::id::selAnchorBlock, hit.block, nullptr);
+            stateTree.setProperty (app::id::selAnchorChar, lineRange.getStart(), nullptr);
+            stateTree.setProperty (app::id::selCursorBlock, hit.block, nullptr);
+            stateTree.setProperty (app::id::selCursorChar, lineRange.getEnd() - 1, nullptr);
             dragActive = false;
         }
         else if (clickCount == 2)
@@ -497,10 +493,10 @@ void Screen::mouseDown (const juce::MouseEvent& event)
                         ++wordEnd;
 
                     AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::visual));
-                    stateTree.setProperty (App::ID::selAnchorBlock, hit.block, nullptr);
-                    stateTree.setProperty (App::ID::selAnchorChar, wordStart, nullptr);
-                    stateTree.setProperty (App::ID::selCursorBlock, hit.block, nullptr);
-                    stateTree.setProperty (App::ID::selCursorChar, wordEnd, nullptr);
+                    stateTree.setProperty (app::id::selAnchorBlock, hit.block, nullptr);
+                    stateTree.setProperty (app::id::selAnchorChar, wordStart, nullptr);
+                    stateTree.setProperty (app::id::selCursorBlock, hit.block, nullptr);
+                    stateTree.setProperty (app::id::selCursorChar, wordEnd, nullptr);
                 }
             }
 
@@ -533,15 +529,15 @@ void Screen::mouseDrag (const juce::MouseEvent& event)
             if (crossedThreshold and not dragActive)
             {
                 AppState::getContext()->setSelectionType (static_cast<int> (SelectionType::visual));
-                stateTree.setProperty (App::ID::selAnchorBlock, dragAnchor.block, nullptr);
-                stateTree.setProperty (App::ID::selAnchorChar, dragAnchor.character, nullptr);
+                stateTree.setProperty (app::id::selAnchorBlock, dragAnchor.block, nullptr);
+                stateTree.setProperty (app::id::selAnchorChar, dragAnchor.character, nullptr);
                 dragActive = true;
             }
 
             if (dragActive)
             {
-                stateTree.setProperty (App::ID::selCursorBlock, hit.block, nullptr);
-                stateTree.setProperty (App::ID::selCursorChar, hit.character, nullptr);
+                stateTree.setProperty (app::id::selCursorBlock, hit.block, nullptr);
+                stateTree.setProperty (app::id::selCursorChar, hit.character, nullptr);
                 repaint();
             }
         }
@@ -852,4 +848,4 @@ void Screen::paintMermaidSpinner (juce::Graphics& g, juce::Rectangle<int> area) 
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

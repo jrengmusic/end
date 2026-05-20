@@ -1,8 +1,11 @@
 #pragma once
 #include <JuceHeader.h>
+#include "GenericTokeniser.h"
+#include "../lua/Engine.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 /** Tokenizes code and returns a styled AttributedString with syntax colours.
     Uses JUCE's CodeTokeniser standalone (no CodeEditorComponent).
@@ -11,4 +14,4 @@ juce::AttributedString tokenize (const juce::String& code,
                                   const juce::String& language);
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

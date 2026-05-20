@@ -44,19 +44,7 @@
   ==============================================================================
 */
 
-#include <JuceHeader.h>
-#include "MainComponent.h"
-#include "AppState.h"
-#include "lua/Engine.h"
-#include "action/Action.h"
-#include "nexus/Nexus.h"
-#include "interprocess/Daemon.h"
-#include "interprocess/Link.h"
-#include "component/TerminalWindow.h"
-#include "terminal/rendering/Screen.h"
-#if JUCE_WINDOWS
-#include <jam_core/utilities/jam_platform.h>
-#endif
+#include "Main.h"
 
 //==============================================================================
 /**
@@ -166,7 +154,7 @@ public:
                 // Minimal InterprocessConnection for fire-and-forget PDU send.
                 struct KillConn : public juce::InterprocessConnection
                 {
-                    KillConn() : juce::InterprocessConnection (false, Interprocess::wireMagicHeader) {}
+                    KillConn() : juce::InterprocessConnection (false, nexus::wireMagicHeader) {}
                     void connectionMade() override {}
                     void connectionLost() override {}
                     void messageReceived (const juce::MemoryBlock&) override {}
@@ -194,7 +182,7 @@ public:
 
                                 if (conn.connectToSocket ("127.0.0.1", port, killProbeTimeoutMs))
                                 {
-                                    conn.sendMessage (Interprocess::encodePdu (Interprocess::Message::killDaemon, {}));
+                                    conn.sendMessage (nexus::encodePdu (nexus::Message::killDaemon, {}));
                                     conn.disconnect();
                                 }
                             }
@@ -217,7 +205,7 @@ public:
 
                             if (conn.connectToSocket ("127.0.0.1", port, killProbeTimeoutMs))
                             {
-                                conn.sendMessage (Interprocess::encodePdu (Interprocess::Message::killDaemon, {}));
+                                conn.sendMessage (nexus::encodePdu (nexus::Message::killDaemon, {}));
                                 conn.disconnect();
                             }
                         }
@@ -241,10 +229,10 @@ public:
 
                 // Hide dock icon, construct nexus + daemon, attach, start, wire exit callback.
                 // No window is created.  The JUCE message loop runs until all sessions exit.
-                Interprocess::Daemon::hideDockIcon();
+                nexus::Daemon::hideDockIcon();
                 nexus = std::make_unique<Nexus>();
-                daemon = std::make_unique<Interprocess::Daemon> (*nexus);
-                nexus->attach (*daemon);
+                nexus->setMode (Nexus::Mode::daemon);
+                daemon = std::make_unique<nexus::Daemon> (*nexus);
                 daemon->start();
 
                 daemon->onAllSessionsExited = [this]
@@ -282,14 +270,14 @@ public:
             }
 
 #if JUCE_WINDOWS
-            if (isWindows11() and appState.getRendererType() == App::RendererType::cpu)
+            if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
             {
                 jam::BackgroundBlur::applyForceEffectRegistry (cfg->display.window.forceDwm);
             }
 #endif
 
             auto* mainComponent { new MainComponent (luaEngine) };
-            mainWindow.reset (new Terminal::Window (mainComponent,
+            mainWindow.reset (new terminal::Window (mainComponent,
                                                  cfg->display.window.title,
                                                  cfg->display.window.alwaysOnTop,
                                                  cfg->display.window.buttons));
@@ -314,17 +302,18 @@ public:
             {
                 // Standalone mode — MainComponent listeners are now registered.
                 // Append SESSIONS child to trigger valueTreeChildAdded → initialiseTabs.
-                juce::ValueTree sessionsNode { App::ID::SESSIONS };
+                juce::ValueTree sessionsNode { app::id::SESSIONS };
                 appState.getNexusNode().appendChild (sessionsNode, nullptr);
 
             }
             else
             {
-                // Client mode — construct Link, attach to nexus, begin connect attempts.
+                // Client mode — construct Link, begin connect attempts.
+                // Link registers on nexus.events in its constructor.
                 // When the sessions PDU arrives, SESSIONS is rewritten and the LOADING
                 // op is removed.  MainComponent::valueTreeChildAdded reacts to both.
-                link = std::make_unique<Interprocess::Link>();
-                nexus->attach (*link);
+                nexus->setMode (Nexus::Mode::client);
+                link = std::make_unique<nexus::Link>();
                 link->beginConnectAttempts();
             }
 
@@ -343,7 +332,7 @@ public:
                     content->showReloadMessage();
 
 #if JUCE_WINDOWS
-                    if (isWindows11() and appState.getRendererType() == App::RendererType::cpu)
+                    if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
                     {
                         jam::BackgroundBlur::applyForceEffectRegistry (
                             lua::Engine::getContext()->display.window.forceDwm);
@@ -367,7 +356,7 @@ public:
      * 1. link   — disconnect IPC before sessions die.
      * 2. daemon — stop server.
      * 3. mainWindow — tears down component tree (Display → Processor refs).
-     * 4. nexus  — releases all Terminal::Session objects.
+     * 4. nexus  — releases all terminal::Session objects.
      *
      * @note MESSAGE THREAD — called once at shutdown.
      */
@@ -443,30 +432,30 @@ private:
     /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
     lua::Engine luaEngine;
 
-    /** @brief Screen index map — registers Terminal::Screen::Map context. Must be constructed before any consumer of Screen::Map::getContext(). */
-    Terminal::Screen::Map screenMap;
+    /** @brief Screen index map — registers terminal::ScreenMap context. Must be constructed before any consumer of ScreenMap::getContext(). */
+    terminal::ScreenMap screenMap;
 
     /** @brief Application-level ValueTree. Must be constructed after luaEngine. */
     AppState appState;
 
     /** @brief Global action registry. Must be constructed after luaEngine. */
-    Action::Registry action;
+    action::Registry action;
 
-    /** @brief Session pool — owns all Terminal::Session objects.
+    /** @brief Session pool — owns all terminal::Session objects.
      *  Destroyed after mainWindow — Display must die before Sessions. */
     std::unique_ptr<Nexus> nexus;
 
     /** @brief The native OS window. Destroyed before nexus (Display → Session dependency). */
-    std::unique_ptr<Terminal::Window> mainWindow;
+    std::unique_ptr<terminal::Window> mainWindow;
 
     /** @brief IPC server. Non-null in daemon mode only. Destroyed before mainWindow. */
-    std::unique_ptr<Interprocess::Daemon> daemon;
+    std::unique_ptr<nexus::Daemon> daemon;
 
     /** @brief OS-level lock held while connected to a daemon. Auto-releases on quit. */
     std::unique_ptr<juce::InterProcessLock> clientLock;
 
     /** @brief IPC client connector. Non-null in client mode only. Destroyed first. */
-    std::unique_ptr<Interprocess::Link> link;
+    std::unique_ptr<nexus::Link> link;
 
     /**
      * @brief Scans nexus/\*.nexus files to find a live unclaimed daemon.
@@ -540,7 +529,7 @@ juce::String ENDApplication::resolveNexusInstance()
                 // Claim succeeded — keep the lock for the process lifetime.
                 clientLock = std::move (candidateLock);
                 appState.setInstanceUuid (candidateUuid);
-                appState.setValue (App::ID::port, port);
+                appState.setValue (app::id::port, port);
                 resolvedUuid = candidateUuid;
             }
             else
@@ -558,7 +547,7 @@ juce::String ENDApplication::resolveNexusInstance()
         resolvedUuid = juce::Uuid().toString();
         clientLock = std::make_unique<juce::InterProcessLock> (resolvedUuid);
         clientLock->enter (0);
-        Interprocess::Daemon::spawnDaemon (resolvedUuid);
+        nexus::Daemon::spawnDaemon (resolvedUuid);
     }
 
     return resolvedUuid;

@@ -1,0 +1,308 @@
+/**
+ * @file Input.cpp
+ * @brief Implementation of keyboard input routing for a terminal processor.
+ *
+ * @see terminal::Input
+ */
+
+#include "Input.h"
+
+namespace terminal
+{
+/*____________________________________________________________________________*/
+
+Input::Input (terminal::Processor& p,
+              terminal::LinkManager& lm) noexcept
+    : processor (p)
+    , linkManager (lm)
+{
+}
+
+bool Input::handleKeyDirect (const juce::KeyPress& key) noexcept
+{
+    const auto bytes { processor.encodeKeyPress (key) };
+
+    if (bytes.isNotEmpty())
+        processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+
+    return true;
+}
+
+bool Input::handleKey (const juce::KeyPress& key) noexcept
+{
+    const int code { key.getKeyCode() };
+    const auto mods { key.getModifiers() };
+
+    /**
+     * Preview dismiss takes priority over all other modal handling.
+     * Any key while isPreviewActive removes the preview IMAGE node and deactivates
+     * the split viewport.  The lambda evaluates to true so the result is consumed.
+     */
+    const bool result
+    {
+        (processor.getState().isPreviewActive() and processor.getState().getSplitCol() > 0 and [this]
+            {
+                processor.getState().dismissPreview();
+                return true;
+            }())
+        or (processor.getState().isModal() and handleModalKey (key))
+        or action::Registry::getContext()->handleKeyPress (key)
+        or [this, &key]
+            {
+                clearSelectionAndScroll();
+                const auto bytes { processor.encodeKeyPress (key) };
+
+                if (bytes.isNotEmpty())
+                    processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
+
+                return true;
+            }()
+    };
+
+    return result;
+}
+
+void Input::clearSelectionAndScroll() noexcept
+{
+    if (processor.getState().isDragActive()
+        or processor.getState().getSelectionType() != static_cast<int> (terminal::SelectionType::none))
+    {
+        processor.getState().setDragActive (false);
+        processor.getState().setSelectionType (static_cast<int> (terminal::SelectionType::none));
+    }
+}
+
+void Input::buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept
+{
+    selectionKeys.up          = keys.up;
+    selectionKeys.down        = keys.down;
+    selectionKeys.left        = keys.left;
+    selectionKeys.right       = keys.right;
+    selectionKeys.visual      = keys.visual;
+    selectionKeys.visualLine  = keys.visualLine;
+    selectionKeys.visualBlock = keys.visualBlock;
+    selectionKeys.copy        = keys.copy;
+    selectionKeys.globalCopy  = keys.globalCopy;
+    selectionKeys.top         = keys.top;
+    selectionKeys.bottom      = keys.bottom;
+    selectionKeys.lineStart   = keys.lineStart;
+    selectionKeys.lineEnd     = keys.lineEnd;
+    selectionKeys.exit        = keys.exit;
+
+    openFileNextPage = keys.openFileNextPage;
+}
+
+void Input::reset() noexcept
+{
+    pendingG = false;
+}
+
+bool Input::isSelectionCopyKey (const juce::KeyPress& key) const noexcept
+{
+    return key == selectionKeys.copy or key == selectionKeys.globalCopy;
+}
+
+bool Input::handleModalKey (const juce::KeyPress& key) noexcept
+{
+    const auto type { processor.getState().getModalType() };
+    bool handled { false };
+
+    if (type == terminal::ModalType::selection)
+    {
+        handled = handleSelectionKey (key);
+    }
+    else if (type == terminal::ModalType::openFile)
+    {
+        handled = handleOpenFileKey (key);
+    }
+
+    return handled;
+}
+
+bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
+{
+    const int maxRow { processor.getState().getVisibleRows().value - 1 };
+    const int maxCol { processor.getState().getCols().value - 1 };
+
+    auto& st { processor.getState() };
+
+    bool consumed { false };
+
+    if (key == selectionKeys.exit)
+    {
+        st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
+        st.setModalType (terminal::ModalType::none);
+        pendingG = false;
+        st.setDragActive (false);
+        consumed = true;
+    }
+    else if (key == selectionKeys.visualBlock)
+    {
+        const auto current { static_cast<terminal::SelectionType> (st.getSelectionType()) };
+
+        if (current == terminal::SelectionType::visualBlock)
+        {
+            st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
+            st.setModalType (terminal::ModalType::none);
+        }
+        else
+        {
+            st.setSelectionAnchor (st.getSelectionCursorRow(), st.getSelectionCursorCol());
+            st.setSelectionType (static_cast<int> (terminal::SelectionType::visualBlock));
+        }
+
+        consumed = true;
+    }
+    else if (key == selectionKeys.left)
+    {
+        st.setSelectionCursor (st.getSelectionCursorRow(),
+                               cell (std::max (0, st.getSelectionCursorCol().value - 1)));
+        consumed = true;
+    }
+    else if (key == selectionKeys.down)
+    {
+        st.setSelectionCursor (cell (std::min (maxRow, st.getSelectionCursorRow().value + 1)),
+                               st.getSelectionCursorCol());
+        consumed = true;
+    }
+    else if (key == selectionKeys.up)
+    {
+        st.setSelectionCursor (cell (std::max (0, st.getSelectionCursorRow().value - 1)),
+                               st.getSelectionCursorCol());
+        consumed = true;
+    }
+    else if (key == selectionKeys.right)
+    {
+        st.setSelectionCursor (st.getSelectionCursorRow(),
+                               cell (std::min (maxCol, st.getSelectionCursorCol().value + 1)));
+        consumed = true;
+    }
+    else if (key == selectionKeys.visualLine)
+    {
+        const auto current { static_cast<terminal::SelectionType> (st.getSelectionType()) };
+
+        if (current == terminal::SelectionType::visualLine)
+        {
+            st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
+            st.setModalType (terminal::ModalType::none);
+        }
+        else
+        {
+            st.setSelectionAnchor (st.getSelectionCursorRow(), st.getSelectionCursorCol());
+            st.setSelectionType (static_cast<int> (terminal::SelectionType::visualLine));
+        }
+
+        consumed = true;
+    }
+    else if (key == selectionKeys.visual)
+    {
+        const auto current { static_cast<terminal::SelectionType> (st.getSelectionType()) };
+
+        if (current == terminal::SelectionType::visual)
+        {
+            st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
+            st.setModalType (terminal::ModalType::none);
+        }
+        else
+        {
+            st.setSelectionAnchor (st.getSelectionCursorRow(), st.getSelectionCursorCol());
+            st.setSelectionType (static_cast<int> (terminal::SelectionType::visual));
+        }
+
+        consumed = true;
+    }
+    else if (key == selectionKeys.copy or key == selectionKeys.globalCopy)
+    {
+        const auto smType { static_cast<terminal::SelectionType> (st.getSelectionType()) };
+
+        if (smType != terminal::SelectionType::none)
+        {
+            const int cols { processor.getState().getCols().value };
+
+            const int anchorVisRow { st.getSelectionAnchorRow().value };
+            const int cursorVisRow { st.getSelectionCursorRow().value };
+            const int anchorCol { st.getSelectionAnchorCol().value };
+            const int cursorCol { st.getSelectionCursorCol().value };
+
+            juce::String text;
+
+            // Text extraction from Grid migrated to Screen — stub pending Screen accessor.
+            juce::ignoreUnused (anchorVisRow, cursorVisRow, anchorCol, cursorCol, cols);
+
+            juce::SystemClipboard::copyTextToClipboard (text);
+        }
+
+        st.setSelectionType (static_cast<int> (terminal::SelectionType::none));
+        st.setModalType (terminal::ModalType::none);
+        st.setDragActive (false);
+        pendingG = false;
+        consumed = true;
+    }
+    else if (key == selectionKeys.bottom)
+    {
+        st.setSelectionCursor (cell (maxRow), st.getSelectionCursorCol());
+        consumed = true;
+    }
+    else if (key == selectionKeys.top)
+    {
+        if (pendingG)
+        {
+            st.setSelectionCursor (0_cell, 0_cell);
+            pendingG = false;
+        }
+        else
+        {
+            pendingG = true;
+        }
+
+        consumed = true;
+    }
+    else if (key == selectionKeys.lineStart)
+    {
+        st.setSelectionCursor (st.getSelectionCursorRow(), 0_cell);
+        consumed = true;
+    }
+    else if (key == selectionKeys.lineEnd)
+    {
+        st.setSelectionCursor (st.getSelectionCursorRow(), cell (maxCol));
+        consumed = true;
+    }
+
+    return true;
+}
+
+bool Input::handleOpenFileKey (const juce::KeyPress& key) noexcept
+{
+    if (key == juce::KeyPress::escapeKey)
+    {
+        linkManager.clearHints();
+        processor.getState().setModalType (terminal::ModalType::none);
+    }
+    else if (key.getKeyCode() == juce::KeyPress::spaceKey)
+    {
+        linkManager.advanceHintPage();
+        processor.getState().setSnapshotDirty();
+    }
+    else
+    {
+        const juce::juce_wchar ch { key.getTextCharacter() };
+        const char lower { static_cast<char> (ch >= 'A' and ch <= 'Z' ? ch + 32 : ch) };
+
+        if (lower >= 'a' and lower <= 'z')
+        {
+            const terminal::LinkSpan* matched { linkManager.hitTestHint (lower) };
+
+            if (matched != nullptr)
+            {
+                linkManager.dispatch (*matched);
+                linkManager.clearHints();
+                processor.getState().setModalType (terminal::ModalType::none);
+            }
+        }
+    }
+
+    return true;
+}
+
+/**______________________________END OF NAMESPACE______________________________*/
+} // namespace terminal

@@ -3,22 +3,22 @@
  * @brief Root JUCE component that hosts the terminal UI.
  *
  * MainComponent is the content component of the application's `Window`.
- * It owns a `Terminal::Tabs` child that manages multiple terminal sessions,
+ * It owns a `terminal::Tabs` child that manages multiple terminal sessions,
  * and paints the window background with the configured colour and opacity.
  *
  * ### Responsibilities
  * - Sets the initial window size from `AppState` (persisted in `window.state` (standalone)
  *   or `<uuid>.display` (daemon client)).
- * - Delegates all keyboard, mouse, and terminal I/O to `Terminal::Tabs`.
- * - Registers all user-performable action callbacks with `Action::Registry`.
+ * - Delegates all keyboard, mouse, and terminal I/O to `terminal::Tabs`.
+ * - Registers all user-performable action callbacks with `action::Registry`.
  *
  * @par Thread context
  * All methods are called on the **MESSAGE THREAD**.
  *
- * @see Terminal::Tabs
+ * @see terminal::Tabs
  * @see lua::Engine
  * @see ENDApplication::systemRequestedQuit
- * @see Action::Registry
+ * @see action::Registry
  */
 
 /*
@@ -33,31 +33,33 @@
 */
 
 #pragma once
-#include <memory>
 #include <JuceHeader.h>
 #include "AppState.h"
-#include "component/LookAndFeel.h"
-#include "component/TerminalWindow.h"
-#include "component/PaneComponent.h"
-#include "component/MessageOverlay.h"
-#include "component/Popup.h"
-#include "component/Tabs.h"
+#include "nexus/Nexus.h"
+#include "terminal/Identifier.h"
+#include "terminal/component/Dialog.h"
+#include "terminal/component/LookAndFeel.h"
+#include "terminal/component/TerminalWindow.h"
+#include "terminal/component/PaneComponent.h"
+#include "terminal/component/MessageOverlay.h"
+#include "terminal/component/Popup.h"
+#include "terminal/component/Tabs.h"
 #include "lua/Engine.h"
-#include "action/Action.h"
-#include "action/ActionList.h"
-#include "component/StatusBarOverlay.h"
-#include "whelmed/Component.h"
+#include "terminal/action/Action.h"
+#include "terminal/action/ActionList.h"
+#include "terminal/component/StatusBarOverlay.h"
+#include "whelmed/component/Component.h"
 
 /**
  * @class MainComponent
  * @brief Root content component of the END application window.
  *
  * Placed inside `jam::Window` by `ENDApplication::initialise()`.
- * Owns the `Terminal::Tabs` container and paints the translucent background
+ * Owns the `terminal::Tabs` container and paints the translucent background
  * layer that shows through the native window blur effect.
  *
  * @par Layout
- * `resized()` gives the full local bounds to `Terminal::Tabs`; each terminal
+ * `resized()` gives the full local bounds to `terminal::Tabs`; each terminal
  * applies its own insets and title-bar offset internally.
  *
  * @par Background painting
@@ -65,9 +67,9 @@
  * layer beneath the window provides the frosted-glass effect; this fill sets
  * the tint colour and transparency.
  *
- * @see Terminal::Tabs
+ * @see terminal::Tabs
  * @see lua::Engine::Display::Window
- * @see Action::Registry
+ * @see action::Registry
  */
 class MainComponent : public juce::Component,
                       public juce::ValueTree::Listener,
@@ -75,7 +77,7 @@ class MainComponent : public juce::Component,
 {
 public:
     /**
-     * @brief Constructs the component, creates Terminal::Tabs, sets initial size.
+     * @brief Constructs the component, creates terminal::Tabs, sets initial size.
      * @param engine  The unified Lua engine — owns config and scripting state.
      */
     explicit MainComponent (lua::Engine& engine);
@@ -84,7 +86,7 @@ public:
     ~MainComponent() override;
 
     /**
-     * @brief Fills the full bounds to Terminal::Tabs.
+     * @brief Fills the full bounds to terminal::Tabs.
      * @note MESSAGE THREAD — called by JUCE layout system on every resize.
      */
     void resized() override;
@@ -119,30 +121,30 @@ public:
 
 private:
     /**
-     * @brief Registers all user-performable actions with `Action::Registry`.
+     * @brief Registers all user-performable actions with `action::Registry`.
      *
      * Clears existing actions, delegates to grouped register* methods, then
      * rebuilds the key map.
      *
      * @note MESSAGE THREAD.
-     * @see Action::Registry
+     * @see action::Registry
      */
     void registerActions();
 
     /** @brief Registers copy, paste, and newline actions. @note MESSAGE THREAD. */
-    void registerEditActions (Action::Registry& action);
+    void registerEditActions (action::Registry& action);
 
     /** @brief Registers quit, reload_config, new_window, and action_list actions. @note MESSAGE THREAD. */
-    void registerApplicationActions (Action::Registry& action);
+    void registerApplicationActions (action::Registry& action);
 
     /** @brief Registers close_tab, new_tab, prev_tab, and next_tab actions. @note MESSAGE THREAD. */
-    void registerTabActions (Action::Registry& action);
+    void registerTabActions (action::Registry& action);
 
     /** @brief Registers split and pane-focus actions. @note MESSAGE THREAD. */
-    void registerPaneActions (Action::Registry& action);
+    void registerPaneActions (action::Registry& action);
 
     /** @brief Registers zoom, selection, open-file, and open-markdown actions. @note MESSAGE THREAD. */
-    void registerNavigationActions (Action::Registry& action);
+    void registerNavigationActions (action::Registry& action);
 
 
     /**
@@ -151,7 +153,7 @@ private:
      * @param rendererType  The renderer type to apply.
      * @note MESSAGE THREAD.
      */
-    void setRenderer (App::RendererType rendererType);
+    void setRenderer (app::RendererType rendererType);
 
     /** @brief Unified Lua engine — config and scripting SSOT. */
     lua::Engine& luaEngine;
@@ -160,13 +162,13 @@ private:
     AppState& appState { *AppState::getContext() };
 
     /** @brief Application-wide LookAndFeel; set as default, inherited by all children. */
-    Terminal::LookAndFeel terminalLookAndFeel;
+    terminal::LookAndFeel terminalLookAndFeel;
 
     /** @brief OpenGL context; attached to this component when GPU renderer is active. */
     juce::OpenGLContext openGLContext;
 
-    /** @brief Tabbed terminal container; owns all Terminal::Display instances. */
-    std::unique_ptr<Terminal::Tabs> tabs;
+    /** @brief Tabbed terminal container; owns all terminal::Display instances. */
+    std::unique_ptr<terminal::Tabs> tabs;
 
     /** @brief Transient overlay for grid-size and status messages. */
     std::unique_ptr<MessageOverlay> messageOverlay;
@@ -185,7 +187,7 @@ private:
     juce::ValueTree sessionsNode;
 
     /** @brief Modal popup dialog; shows content in a glass window. */
-    Terminal::Popup popup;
+    terminal::Popup popup;
 
     // lua::Engine is owned by ENDApplication and injected via constructor reference.
 
@@ -201,9 +203,9 @@ private:
 #endif
 
     /**
-     * @brief Creates Terminal::Tabs, wires repaint callback, restores tabs.
+     * @brief Creates terminal::Tabs, wires repaint callback, restores tabs.
      * @note MESSAGE THREAD.
-     * @see Terminal::Tabs
+     * @see terminal::Tabs
      * @see AppState
      */
     void initialiseTabs();

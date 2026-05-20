@@ -7,13 +7,11 @@
  * @see lua::Engine
  */
 
-#include <jam_lua/jam_lua.h>
-
 #include "Engine.h"
-#include "../action/Action.h"
 
 namespace lua
 {
+/*____________________________________________________________________________*/
 
 //==============================================================================
 void Engine::parseNexus()
@@ -289,4 +287,5 @@ void Engine::parseWhelmed()
     }
 }
 
+/**______________________________END OF NAMESPACE______________________________*/
 } // namespace lua

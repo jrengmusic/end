@@ -9,7 +9,7 @@
  * so any subsystem can call `AppState::getContext()` without passing references.
  *
  * ### Mechanism
- * AppParameters.xml declares the schema. AppLayout::build walks it and creates
+ * AppParameters.xml declares the schema. `build()` walks it and creates
  * PARAM children + Parameter<int> adapters in the flat params AnyMap. All scalar
  * reads use getValueFromChildWithID; all scalar writes use setValue. flush()
  * syncs Parameters to VT on the 60 Hz timer; restoreValues() syncs VT back to Parameters
@@ -33,7 +33,7 @@
  * - `getStateFile()` returns `nexus/<uuid>.display` (daemon client mode only).
  *
  * ### Instance UUID
- * The ctor calls AppLayout::build and overlays Lua runtime defaults.
+ * The ctor calls `build()` and overlays Lua runtime defaults.
  * `initialise()` must call `setInstanceUuid()` first, then `load()` explicitly.
  * File paths derive from the stored UUID and whether nexus mode is active.
  * UUID is stored as a property on the root VT node using `jam::ID::id`.
@@ -50,7 +50,6 @@
  * storeRelease/exchangeAcquire; message thread reads via consumeAtlasDirty().
  *
  * @see AppIdentifier.h
- * @see AppLayout.h
  * @see Config
  */
 
@@ -58,7 +57,8 @@
 
 #include <JuceHeader.h>
 #include "AppIdentifier.h"
-#include "AppLayout.h"
+#include "lua/Engine.h"
+#include "terminal/Identifier.h"
 
 struct AppState : public jam::ValueTree, public jam::Context<AppState>
 {
@@ -94,7 +94,7 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     bool consumeAtlasDirty() noexcept;
 
     /** @brief Returns the resolved renderer type enum. */
-    App::RendererType getRendererType() const noexcept;
+    app::RendererType getRendererType() const noexcept;
 
     /**
      * @brief Resolves and stores the renderer type from a config setting.
@@ -175,7 +175,7 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     /**
      * @brief Returns the cwd of the active session, or the user home directory if none.
      *
-     * Reads `Terminal::ID::cwd` directly from `activeSession` — the ref-counted
+     * Reads `terminal::id::cwd` directly from `activeSession` — the ref-counted
      * juce::ValueTree handle stored by `setPwd()`.  Reading a live VT reference
      * produces the current value without any binding or listener.
      */
@@ -184,7 +184,7 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     /**
      * @brief Stores a reference to the active session ValueTree.
      *
-     * `getPwd()` reads `Terminal::ID::cwd` from this tree directly.  Because
+     * `getPwd()` reads `terminal::id::cwd` from this tree directly.  Because
      * juce::ValueTree is ref-counted, the stored handle always reflects current
      * session state — no binding, no listener, no stale reads.
      *
@@ -281,6 +281,35 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     //==============================================================================
 
 private:
+    /**
+     * @brief Walks AppParameters.xml and populates the ValueTree with PARAM children
+     *        and Parameter<int> adapters. Called once from the constructor.
+     *
+     * @param xml  The parsed AppParameters.xml root element.
+     */
+    void build (const juce::XmlElement& xml);
+
+    struct AppLayoutBoolean : public jam::Map::Instance<AppLayoutBoolean>
+    {
+        AppLayoutBoolean()
+        {
+            map = {
+                { no,  "false" },
+                { yes, "true"  }
+            };
+        }
+
+        enum { no = 0, yes = 1 };
+
+        const juce::String& getDefault() const noexcept override
+        {
+            return map.at (no);
+        }
+    };
+
+    static juce::var resolveAppLayoutDefault (const juce::XmlElement& elem,
+                                              const AppLayoutBoolean& boolMap) noexcept;
+
     /** @brief Ref-counted handle to the active session's VT. Set by setPwd(). */
     juce::ValueTree activeSession;
 

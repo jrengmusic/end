@@ -6,15 +6,16 @@
 #pragma once
 #include <JuceHeader.h>
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 /**
     Base class for all renderable block types in the Whelmed document stack.
 
     Blocks are NOT juce::Components. They are data objects that know how to
     measure their height and paint themselves into a Graphics context.
-    Whelmed::Screen owns blocks and renders them in a single unified paint() call.
+    whelmed::Screen owns blocks and renders them in a single unified paint() call.
 */
 class Block
 {
@@ -68,4 +69,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

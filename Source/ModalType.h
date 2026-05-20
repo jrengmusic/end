@@ -12,8 +12,6 @@
 
 #pragma once
 
-#include <cstdint>
-
 /**
  * @enum ModalType
  * @brief Identifies which modal input mode is currently active.

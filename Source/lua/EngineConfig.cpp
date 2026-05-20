@@ -13,6 +13,7 @@
 
 namespace lua
 {
+/*____________________________________________________________________________*/
 
 //==============================================================================
 juce::Colour Engine::parseColour (const juce::String& input)
@@ -169,4 +170,5 @@ bool Engine::isClickableExtension (const juce::String& extension) const noexcept
         or nexus.hyperlinks.handlers.count (extension) > 0;
 }
 
+/**______________________________END OF NAMESPACE______________________________*/
 } // namespace lua

@@ -22,7 +22,6 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/wait.h>
-#include <cerrno>
 
 #ifdef __APPLE__
 #include <util.h>

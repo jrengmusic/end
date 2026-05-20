@@ -35,11 +35,6 @@
 #pragma once
 #include <JuceHeader.h>
 
-#include <functional>
-#include <string>
-#include <utility>
-#include <vector>
-
 /**
  * @class TTY
  * @brief Abstract pseudo-terminal base: reader thread + platform PTY interface.

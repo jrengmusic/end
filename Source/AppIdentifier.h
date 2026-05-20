@@ -14,21 +14,23 @@
  *         +-- TAB
  *             +-- PANES (direction, ratio)
  *                 +-- PANE (uuid) | PANES (nested split)
- *                     +-- SESSION (terminal state, grafted from Terminal::State)
- *                     +-- DOCUMENT (whelmed state, grafted from Whelmed::State)
+ *                     +-- SESSION (terminal state, grafted from terminal::State)
+ *                     +-- DOCUMENT (whelmed state, grafted from whelmed::State)
  *
  * nexus/<uuid>.nexus  — daemon port only (plain text, no ValueTree).
  *
  * @see AppState
- * @see Terminal::ID (terminal-level identifiers in Source/terminal/data/Identifier.h)
+ * @see terminal::ID (terminal-level identifiers in Source/terminal/data/Identifier.h)
  */
 
 #pragma once
 
 #include <JuceHeader.h>
 
-namespace App
+namespace app
 {
+/*____________________________________________________________________________*/
+
     //==========================================================================
     // Renderer type
     //==========================================================================
@@ -41,8 +43,10 @@ namespace App
 
     static constexpr int titleBarHeight { 24 };
 
-namespace ID
+namespace id
 {
+/*____________________________________________________________________________*/
+
     //==========================================================================
     // Node types
     //==========================================================================
@@ -117,5 +121,8 @@ namespace ID
     static const juce::String paneTypeTerminal { "terminal" };
     static const juce::String paneTypeDocument { "document" };
 
-}
-}
+/**______________________________END OF NAMESPACE______________________________*/
+} // namespace id
+
+/**______________________________END OF NAMESPACE______________________________*/
+} // namespace app

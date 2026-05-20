@@ -19,7 +19,7 @@
 
 **Design Philosophy:** Performance and beauty. Opinionated defaults, everything overridable.
 
-**End Game:** WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer — is integrated as `Whelmed::Component` in split panes. Both END and WHELMED share a common GL text rendering module (shared via `jam_fonts` module (`jam::TextLayout`)).
+**End Game:** WHELMED — WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid renderer — is integrated as `whelmed::Component` in split panes. Both END and WHELMED share a common GL text rendering module (shared via `jam_fonts` module (`jam::TextLayout`)).
 
 ---
 
@@ -97,7 +97,7 @@ BEL character (`\x07`) — **Done**. Passes BEL to stderr.
 
 **Goal:** Fully configurable keybinding system. Nothing hardcoded except defaults. All actions assignable globally (direct shortcut) or modally (prefix key + action key), or both. User overrides everything via `~/.config/end/action.lua`.
 
-**Implemented.** Single unified action registry (`Action::Registry`) with global and modal bindings, fully configurable via `action.lua`. Prefix key system with configurable timeout. Command palette (`Action::List`) for discovery and inline shortcut remapping. Lua-scriptable custom actions with `display` API for composing pane/tab operations. File watcher auto-reloads on save (gated by `auto_reload` in `end.lua`).
+**Implemented.** Single unified action registry (`action::Registry`) with global and modal bindings, fully configurable via `action.lua`. Prefix key system with configurable timeout. Command palette (`action::List`) for discovery and inline shortcut remapping. Lua-scriptable custom actions with `display` API for composing pane/tab operations. File watcher auto-reloads on save (gated by `auto_reload` in `end.lua`).
 
 **Design:**
 
@@ -230,7 +230,7 @@ popups = {
 
 **Popup actions are registered in the action registry** and appear in the command palette as `popup:<name>` (e.g., `popup:lazygit`).
 
-**Rendering:** Popup is a `juce::Component` child of the main terminal window. Contains its own `Terminal::Component` with its own PTY, Session, Grid, State. Uses the shared `Fonts` context and GL renderer. Drawn as an overlay with optional border/shadow.
+**Rendering:** Popup is a `juce::Component` child of the main terminal window. Contains its own `terminal::Display` with its own PTY, Session, Grid, State. Uses the shared `Fonts` context and GL renderer. Drawn as an overlay with optional border/shadow.
 
 ---
 
@@ -363,7 +363,7 @@ Input is `juce::AttributedString` — no custom string type. Two `draw()` overlo
 **Dependencies:** `jam_gui` (opengl), `jam_core`, `jam_freetype`, `jam_harfbuzz`, `juce_graphics`
 
 **Migration path:**
-1. Extract shared types (GlyphAtlas, FontCollection, Fonts, shaping) from `Source/terminal/rendering/` into `~/Documents/Poems/dev/jam/jam_text/`
+1. Extract shared types (GlyphAtlas, FontCollection, Fonts, shaping) from `Source/terminal/component/` into `~/Documents/Poems/dev/jam/jam_text/`
 2. END's `Screen` and `TerminalGLRenderer` become consumers of `jam_text` monospace API
 3. WHELMED consumes `jam_text` attributed API
 4. Both share the same atlas instance and font handles
@@ -374,9 +374,9 @@ Input is `juce::AttributedString` — no custom string type. Two `draw()` overlo
 
 **WHELMED:** WYSIWYG Hybrid Encoder Lightweight Markdown Editor with mermaid diagram renderer.
 
-**Status:** `Whelmed::Component` is integrated into END's split pane system as a `PaneComponent` subclass. Opening a `.md` file from a terminal link (`onOpenMarkdown` callback) overlays a Whelmed pane on the active terminal. The terminal is restored when the Whelmed pane is closed.
+**Status:** `whelmed::Component` is integrated into END's split pane system as a `PaneComponent` subclass. Opening a `.md` file from a terminal link (`onOpenMarkdown` callback) overlays a Whelmed pane on the active terminal. The terminal is restored when the Whelmed pane is closed.
 
-**Integration model:** `Whelmed::Component` subclasses `PaneComponent`, the same base as `Terminal::Component`. `Panes::createWhelmed()` overlays it on the active pane. `Panes::closeWhelmed()` removes it. DOCUMENT ValueTree is grafted alongside SESSION in the PANE node.
+**Integration model:** `whelmed::Component` subclasses `PaneComponent`, the same base as `terminal::Display`. `terminal::Panes::createWhelmed()` overlays it on the active pane. `terminal::Panes::closeWhelmed()` removes it. DOCUMENT ValueTree is grafted alongside SESSION in the PANE node.
 
 **Shared infrastructure with END:**
 - `jam_text` module — GL text rendering (attributed mode for WHELMED, monospace for END)
@@ -436,7 +436,7 @@ Dual glyph atlas, font rasterization, HarfBuzz shaping, emoji, instanced renderi
 - [x] GL text rendering infrastructure (jam::TextLayout in jam_fonts)
 - [ ] Extract to standalone jam_text module
 - [x] Attributed text layout mode (jam::TextLayout)
-- [x] WHELMED component (markdown rendering, mermaid diagrams) — integrated as Whelmed::Component
+- [x] WHELMED component (markdown rendering, mermaid diagrams) — integrated as whelmed::Component
 - [x] WHELMED integration into END split panes — Panes::createWhelmed(), PaneComponent interface
 - [ ] WHELMED standalone wrapper
 

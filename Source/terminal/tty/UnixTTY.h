@@ -39,8 +39,6 @@
 #if JUCE_MAC || JUCE_LINUX
 
 #include <unistd.h>
-#include <utility>
-#include <vector>
 
 /**
  * @class UnixTTY

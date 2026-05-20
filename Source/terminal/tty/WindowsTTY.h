@@ -74,6 +74,7 @@
 
 #pragma once
 #include "TTY.h"
+#include "../../lua/Engine.h"
 
 #ifdef JUCE_WINDOWS
 #include <windows.h>

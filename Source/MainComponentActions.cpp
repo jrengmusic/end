@@ -3,11 +3,11 @@
  * @brief Action registration method definitions for MainComponent.
  *
  * Contains the six register* methods that wire user-performable actions into
- * Action::Registry. Separated from MainComponent.cpp to keep the root
+ * action::Registry. Separated from MainComponent.cpp to keep the root
  * component file focused on lifecycle and layout concerns.
  *
  * @see MainComponent::registerActions
- * @see Action::Registry
+ * @see action::Registry
  */
 
 /*
@@ -22,10 +22,9 @@
 */
 
 #include "MainComponent.h"
-#include "component/Dialog.h"
 
 /** @note MESSAGE THREAD. */
-void MainComponent::registerEditActions (Action::Registry& action)
+void MainComponent::registerEditActions (action::Registry& action)
 {
     action.registerAction ("copy",
                            "Copy",
@@ -69,7 +68,7 @@ void MainComponent::registerEditActions (Action::Registry& action)
 }
 
 /** @note MESSAGE THREAD. */
-void MainComponent::registerApplicationActions (Action::Registry& action)
+void MainComponent::registerApplicationActions (action::Registry& action)
 {
     action.registerAction ("quit",
                            "Quit",
@@ -92,7 +91,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                                            ? "Save this session?"
                                            : "Are you sure you wanna quit?" };
 
-                                       auto dialog { std::make_unique<Terminal::Dialog> (message) };
+                                       auto dialog { std::make_unique<terminal::Dialog> (message) };
 
                                        if (daemonMode)
                                        {
@@ -178,7 +177,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
                            {
                                if (not popup.isActive())
                                {
-                                   auto list { std::make_unique<Action::List> (*this, luaEngine) };
+                                   auto list { std::make_unique<action::List> (*this, luaEngine) };
 
                                    list->onActionRun = [this]
                                    {
@@ -201,7 +200,7 @@ void MainComponent::registerApplicationActions (Action::Registry& action)
 }
 
 /** @note MESSAGE THREAD. */
-void MainComponent::registerTabActions (Action::Registry& action)
+void MainComponent::registerTabActions (action::Registry& action)
 {
     action.registerAction ("close_tab",
                            "Close Tab",
@@ -275,7 +274,7 @@ void MainComponent::registerTabActions (Action::Registry& action)
 }
 
 /** @note MESSAGE THREAD. */
-void MainComponent::registerPaneActions (Action::Registry& action)
+void MainComponent::registerPaneActions (action::Registry& action)
 {
     action.registerAction ("split_horizontal",
                            "Split Horizontal",
@@ -349,7 +348,7 @@ void MainComponent::registerPaneActions (Action::Registry& action)
 }
 
 /** @note MESSAGE THREAD. */
-void MainComponent::registerNavigationActions (Action::Registry& action)
+void MainComponent::registerNavigationActions (action::Registry& action)
 {
     action.registerAction ("zoom_in",
                            "Zoom In",
@@ -441,9 +440,9 @@ void MainComponent::showReloadMessage()
     if (reloadError.isEmpty())
     {
         const auto rendererType { AppState::getContext()->getRendererType() };
-        const juce::String rendererName { rendererType == App::RendererType::gpu
-                                              ? App::ID::rendererGpu.toUpperCase()
-                                              : App::ID::rendererCpu.toUpperCase() };
+        const juce::String rendererName { rendererType == app::RendererType::gpu
+                                              ? app::id::rendererGpu.toUpperCase()
+                                              : app::id::rendererCpu.toUpperCase() };
         messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
     }
     else

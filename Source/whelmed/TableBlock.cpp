@@ -1,7 +1,8 @@
 #include "TableBlock.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 //==============================================================================
 TableBlock::TableBlock (juce::Font bodyFont)
@@ -406,4 +407,4 @@ void TableBlock::paintBorders (juce::Graphics& g) const
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

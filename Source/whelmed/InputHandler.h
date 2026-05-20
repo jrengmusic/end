@@ -5,8 +5,8 @@
  * Handles navigation (scroll), modal dispatch (selection mode),
  * and falls through to the global Action system for unhandled keys.
  *
- * @see Whelmed::Component
- * @see Action::Registry
+ * @see whelmed::Component
+ * @see action::Registry
  */
 
 #pragma once
@@ -16,11 +16,13 @@
 #include "../SelectionType.h"
 #include "../AppState.h"
 #include "../lua/Engine.h"
+#include "Screen.h"
+#include "../terminal/action/Action.h"
+#include "../AppIdentifier.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
-
-class Screen;
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 /**
  * @class InputHandler
@@ -118,4 +120,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

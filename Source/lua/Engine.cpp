@@ -235,7 +235,7 @@ void Engine::registerApiTable()
     }
 }
 
-void Engine::registerActions (::Action::Registry& registry)
+void Engine::registerActions (::action::Registry& registry)
 {
     for (const auto& popupEntry : popup.entries)
     {
@@ -290,9 +290,9 @@ void Engine::registerActions (::Action::Registry& registry)
     }
 }
 
-void Engine::buildKeyMap (::Action::Registry& registry)
+void Engine::buildKeyMap (::action::Registry& registry)
 {
-    std::vector<::Action::Registry::Binding> bindings;
+    std::vector<::action::Registry::Binding> bindings;
     bindings.reserve (keys.bindings.size() + popup.entries.size() * 2 + action.entries.size());
 
     // Built-in key bindings from the keys table.
@@ -337,4 +337,4 @@ void Engine::fileChanged (const juce::File& file, jam::File::Watcher::Event even
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-}// namespace lua
+} // namespace lua

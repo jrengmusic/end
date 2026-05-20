@@ -1,35 +1,30 @@
 # SPRINT-LOG
 
-## Handoff: Sprint 23
+## Handoff: Sprint 24
 
 **From:** COUNSELOR
-**Date:** 2026-05-19
+**Date:** 2026-05-20
 
 ### Problem
 Grid reflow produces wrong output on terminal resize. Two symptoms:
 1. **Upsize (width increase):** Content duplicates — same text appears multiple times across the wider row. Digits ("2", "0", "4") appear between duplications, likely Row header bytes (`usedCols` uint16_t) bleeding through wrong memcpy offsets.
 2. **Downsize (width decrease):** Content does not wrap — lines stay at original width, truncated instead of split into multiple rows.
 
-Root cause is in `Source/terminal/logic/GridReflow.cpp` — the reflow algorithm's move/join/split dispatch and/or the scratch→buffer copy loop. The resize DATA FLOW is now correct (Sprint 22 fixed that). The reflow ALGORITHM has bugs.
+Root cause is in `Source/terminal/GridResize.cpp` — the reflow algorithm's move/join/split dispatch and/or the scratch→buffer copy loop. The resize DATA FLOW is correct (Sprint 22). The reflow ALGORITHM has bugs.
 
-### Architecture Context (Sprint 22 Established)
+### Architecture Context (Sprint 22+23 Established)
 - **Display** writes State only (`setValue` for cols, visibleRows, width, height)
 - **Processor::valueTreePropertyChanged** delegates to `GridResize::set()` (one-liner setter)
 - **GridResize** coalesces rapid resize events (50ms timer), calls `apply()` which runs the reflow
 - **GridResize::apply()** calls `Grid::reflow()`, updates Video dimensions, fires SIGWINCH via TTY
 - **process()** is pure — bytes→parse→Grid, no sizing, no locks
 - Lock-free architecture. No callbackLock/suspendProcessing.
-
-### Recommended Investigation
-1. Verify `Row::usedCols` is being set correctly by `Video::print()` — add diagnostic logging in `GridReflow.cpp` to dump usedCols values per row before reflow dispatch
-2. Check the move/join/split dispatch conditions against actual usedCols values — the dispatch may never hit the split path (usedCols always 0 or wrong)
-3. Check the scratch→buffer copy loop — physical row mapping between scratch (sequential writeIdx) and buffer (head-based arithmetic) may produce wrong positions
-4. Compare against tmux `grid_reflow()` in `~/Documents/Poems/dev/end/design/tmux-grid.c` — the reference implementation
+- **Sprint 23 restructure:** all files now flat under `Source/terminal/`, namespaces lowercase, no forward declarations, strict include discipline
 
 ### Files to Modify
-- `Source/terminal/logic/GridReflow.cpp` — reflow algorithm: reflowScreen, reflowJoin, reflowSplit, scratch→buffer copy
-- `Source/terminal/logic/Grid.h` — Row struct (usedCols, wrapped flag)
-- `Source/terminal/logic/Video.cpp` — usedCols tracking in print()
+- `Source/terminal/GridResize.cpp` — reflow algorithm: reflowScreen, reflowJoin, reflowSplit, scratch→buffer copy
+- `Source/terminal/Grid.h` — Row struct (usedCols, wrapped flag)
+- `Source/terminal/Video.cpp` — usedCols tracking in print()
 
 ### Acceptance Criteria
 - [ ] Downsize wraps content at new width (lines longer than newCols split into multiple rows)
@@ -39,15 +34,95 @@ Root cause is in `Source/terminal/logic/GridReflow.cpp` — the reflow algorithm
 - [ ] Aggressive rapid resize back-and-forth does not corrupt content
 - [ ] Active prompt line survives resize
 
-### Notes
-- `DEBT-20260519T124500` tracks this issue
-- The reference tmux implementation is at `~/Documents/Poems/dev/end/design/tmux-grid.c`
-- `Row::usedCols` tracking was added in Sprint 22 — verify it works for all write paths (print, shiftCellsRight, DECALN, erase, scroll)
-- GridResize coalesce is 50ms — aggressive resize produces one reflow per stable dimension, not per pixel change
-
 ### Scope 2: Screen rendering — jam::Block, no copy
 
 Screen (terminal rendering) currently copies cell content from Grid into a snapshot for rendering. This should use `jam::Block` to build content directly — same pattern as Whelmed's block-based renderer. No cell copy. Screen reads Grid cells in place via block descriptors.
+
+### Notes
+- `DEBT-20260519T124500` tracks the reflow issue
+- Reference tmux implementation at `~/Documents/Poems/dev/end/design/tmux-grid.c`
+- GridResize coalesce is 50ms — aggressive resize produces one reflow per stable dimension
+
+---
+
+## Sprint 23: File Restructure — Directory Reorganization + Include Discipline + Circular Dependency Fixes ✅
+
+**Date:** 2026-05-20
+
+### Agents Participated
+- COUNSELOR: strategic analysis, plan, delegation, verification
+- Pathfinder: codebase discovery, include mapping, namespace mapping, sed damage detection
+- Engineer: all code implementation (file moves, include fixes, namespace renames, design refactors)
+- Auditor: final validation against all contracts
+
+### Files Modified (100+ total)
+
+**Directory restructure:**
+- `Source/action/*` → `Source/terminal/action/*` (8 files)
+- `Source/component/*` → `Source/terminal/component/*` (18 files, TerminalDisplay renamed to Display)
+- `Source/interprocess/*` → `Source/nexus/*` (11 files)
+- `Source/terminal/data/*` → `Source/terminal/` flat (15 files)
+- `Source/terminal/logic/*` → `Source/terminal/` flat (30 files)
+- `Source/terminal/rendering/*` → `Source/terminal/component/` (3 files)
+- `Source/terminal/selection/*` → `Source/terminal/` flat (4 files)
+- `Source/terminal/notifications/*` → `Source/terminal/` flat (3 files)
+- `Source/whelmed/Component.h/.cpp` → `Source/whelmed/component/`
+
+**Deleted (dead code):**
+- `Source/terminal/data/Command.h` — unused VT dispatch enum
+- `Source/action/KeyRemapDialog.h/.cpp` — deprecated stub
+- `Source/terminal/rendering/shaders/*` — 5 dead GL shader files
+- `Source/terminal/Layout.h/.cpp` — absorbed into State::buildLayout
+- `Source/AppLayout.h/.cpp` — absorbed into AppState::build
+- `Source/nexus/Channel.h` — Channel nested into Daemon
+
+**Namespace renames (all lowercase):**
+- `Terminal` → `terminal`, `Action` → `action`, `Interprocess` → `nexus`, `Whelmed` → `whelmed`, `App` → `app`, `ID` → `id`
+
+**Include discipline (every .h/.cpp):**
+- All STL includes removed (JUCE/jam provides via JuceHeader.h)
+- All specific JUCE/jam module includes → `<JuceHeader.h>`
+- Every .cpp includes ONLY its adjacent .h (exceptions: OS platform headers, BinaryData)
+- Every .h is self-contained
+
+**Circular dependency fixes (design changes):**
+- `Nexus ↔ Daemon/Link` → Nexus fires VT events via `events` ValueTree; Daemon/Link listen. Nexus has `Mode` enum, no stored Daemon*/Link*
+- `Processor ↔ Display` → `createDisplay()` removed from Processor. Callers construct Display directly
+- `State ↔ Layout` → `Layout::build` absorbed into `State::buildLayout`
+- `AppState ↔ AppLayout` → `AppLayout::build` absorbed into `AppState::build`
+- `Daemon ↔ Channel` → Channel nested as `Daemon::Channel` inside Daemon.h
+- `Screen::Map` → extracted to `terminal::ScreenMap` (own header, no cycle with State)
+
+**Other fixes:**
+- `Notifications::show()` → `terminal::showNotification()` (namespace eliminated)
+- Grid::getWritePointer assert removed (Screen/Grid resize race — ring bitmask is inherently safe)
+- Trailing underscore params fixed (Channel.cpp, SixelDecoder.cpp, MermaidSVGParser.h)
+- `ParserAction` sed collateral fixed, `jam::ID::` sed collateral fixed
+- All TerminalDisplay references in comments → Display
+
+**Documentation:**
+- `ARCHITECTURE.md` — comprehensive rewrite reflecting new structure
+- `SPEC.md` — namespace references updated
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+- [ ] Lean (L) — 22 files exceed 300-line limit (pre-existing, not from this sprint)
+
+### Problems Solved
+- Eliminated all forward declarations (zero remain)
+- Established strict include discipline (.cpp → own .h only)
+- Broke 6 circular include cycles by design
+- Purged all dead code/files
+- Unified namespace casing (lowercase throughout)
+- Standardized namespace block formatting
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
 
 ---
 

@@ -12,6 +12,7 @@
 
 namespace lua
 {
+/*____________________________________________________________________________*/
 
 //==============================================================================
 void Engine::patchKey (const juce::String& key, const juce::String& value)
@@ -172,4 +173,5 @@ juce::String Engine::getShortcutString (const juce::String& actionLuaKey) const
     return result;
 }
 
+/**______________________________END OF NAMESPACE______________________________*/
 } // namespace lua

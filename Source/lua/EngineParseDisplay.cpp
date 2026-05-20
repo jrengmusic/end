@@ -9,13 +9,11 @@
  * @see lua::Engine
  */
 
-#include <jam_lua/jam_lua.h>
-
 #include "Engine.h"
-#include "../action/Action.h"
 
 namespace lua
 {
+/*____________________________________________________________________________*/
 
 //==============================================================================
 static void parseDisplayWindow (Engine::Display::Window& window, jam::lua::Value& displayTable)
@@ -375,4 +373,5 @@ void Engine::parseDisplay()
     }
 }
 
+/**______________________________END OF NAMESPACE______________________________*/
 } // namespace lua

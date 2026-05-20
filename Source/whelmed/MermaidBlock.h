@@ -14,8 +14,9 @@
 #include "Block.h"
 #include "MermaidSVGParser.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 class MermaidBlock : public Block
 {
@@ -37,4 +38,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

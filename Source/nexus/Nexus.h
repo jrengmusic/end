@@ -1,19 +1,24 @@
 /**
  * @file Nexus.h
- * @brief Session manager — owns all Terminal::Session instances and manages
+ * @brief Session manager — owns all terminal::Session instances and manages
  *        data flow attachment.
  *
- * `Nexus` is a pure session container.  It owns `Terminal::Session` objects
+ * `Nexus` is a pure session container.  It owns `terminal::Session` objects
  * indexed by UUID and exposes lifecycle methods (`create`, `remove`, `get`,
- * `has`, `list`).  Data flow mode (standalone, daemon, client) is determined
- * by which `attach` overload the caller invokes.
+ * `has`, `list`).  Data flow mode (standalone, daemon, client) is set via
+ * `setMode()`.
  *
- * ### Attachment model
- * - **No attachment** — standalone.  Session exit signals flow via State shellExited
+ * ### Mode model
+ * - **standalone** — no IPC.  Session exit signals flow via State shellExited
  *   parameter → Panes::valueTreePropertyChanged → callAsync → Panes::closePane → Nexus::remove.
- * - **attach(Daemon&)** — daemon mode.  IPC wiring is layered on top of the
- *   session container by a higher-level coordinator (Step 4/5 work).
- * - **attach(Link&)** — client mode.  Same: IPC wiring applied externally.
+ * - **daemon** — Daemon registers on `events` and wires IPC callbacks on each new session.
+ * - **client** — Link registers on `events` and sends PDUs on each session lifecycle event.
+ *
+ * ### Session lifecycle events
+ * Nexus fires `juce::ValueTree::Listener` callbacks on the public `events` tree.
+ * Listeners observe session creation via `valueTreeChildAdded` and removal via
+ * `valueTreeChildRemoved`.  Child nodes are type "SESSION" with `jam::ID::id`
+ * property set to the session UUID.
  *
  * ### Context
  * Nexus extends `jam::Context<Nexus>` so any subsystem can reach it via
@@ -23,44 +28,59 @@
  * @note All public methods are **NEXUS PROCESS MESSAGE THREAD** only unless
  *       stated otherwise.
  *
- * @see Terminal::Session
- * @see Interprocess::Daemon
- * @see Interprocess::Link
+ * @see terminal::Session
+ * @see nexus::Daemon
+ * @see nexus::Link
  * @see jam::Context
  */
 
 #pragma once
 
-#include <juce_data_structures/juce_data_structures.h>
-#include <jam_core/jam_core.h>
-#include <unordered_map>
-#include <memory>
-#include <functional>
-
-namespace Terminal  { class Session; }
-namespace Interprocess { class Daemon; class Link; }
+#include <JuceHeader.h>
+#include "../terminal/Session.h"
+#include "../lua/Engine.h"
 
 /*____________________________________________________________________________*/
 
 /**
  * @class Nexus
- * @brief Session manager — owns Terminal::Session instances and routes data flow.
+ * @brief Session manager — owns terminal::Session instances and routes data flow.
  *
  * Constructed once by `ENDApplication`.  Destroyed after the main window so
  * that all Display objects are torn down before sessions are destroyed.
  *
  * @par Thread context
  * All session-management methods: **NEXUS PROCESS MESSAGE THREAD**.
- * `attach` overloads: any thread (pointer store only — no contention).
+ * `setMode` — any thread (atomic store only).
  */
 class Nexus : public jam::Context<Nexus>
-           , public juce::ValueTree::Listener
 {
 public:
+    /** @brief Session creation mode. */
+    enum class Mode { standalone, daemon, client };
+
     /** @brief Constructs Nexus with no attachment — standalone mode. */
     Nexus();
 
     ~Nexus() override;
+
+    // =========================================================================
+    /** @name Mode control
+     * @{ */
+
+    /**
+     * @brief Sets the IPC mode.  Called once during ENDApplication initialization.
+     * @note Any thread.
+     */
+    void setMode (Mode m) noexcept;
+
+    /**
+     * @brief Returns the current IPC mode.
+     * @note Any thread.
+     */
+    Mode getMode() const noexcept;
+
+    /** @} */
 
     // =========================================================================
     /** @name Session lifecycle
@@ -69,9 +89,10 @@ public:
     /**
      * @brief Creates a full PTY-backed session and stores it by UUID.
      *
-     * Delegates to `Terminal::Session::create(cwd, cols, rows, shell, args,
+     * Delegates to `terminal::Session::create(cwd, cols, rows, shell, args,
      * seedEnv, uuid)`.  Session exit is signalled via the State shellExited parameter,
      * which flows to registered VT listeners via the VT flush chain.
+     * Fires a child-added event on `events` after the session is stored.
      *
      * @param cwd      Initial working directory.  Empty = inherit.
      * @param cols     Initial column count.  Must be > 0.
@@ -80,10 +101,10 @@ public:
      * @param args     Shell arguments override.  Empty = read from Config.
      * @param seedEnv  Extra environment variables merged before shell open.
      * @param uuid     Explicit UUID to assign.  Must be non-empty.
-     * @return Mutable reference to the newly constructed Terminal::Session.
+     * @return Mutable reference to the newly constructed terminal::Session.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    Terminal::Session& create (const juce::String& cwd,
+    terminal::Session& create (const juce::String& cwd,
                                cell cols,
                                cell rows,
                                const juce::String& shell,
@@ -94,19 +115,20 @@ public:
     /**
      * @brief Creates a remote (no-TTY) session and stores it by UUID.
      *
-     * Delegates to `Terminal::Session::create(cols, rows, cwd, shell, uuid)`.
+     * Delegates to `terminal::Session::create(cols, rows, cwd, shell, uuid)`.
      * Used in client mode where the daemon owns the PTY.  CWD and shell are
      * written to State so display logic works without waiting for a stateUpdate PDU.
+     * Fires a child-added event on `events` after the session is stored.
      *
      * @param cols   Terminal width in character columns.  Must be > 0.
      * @param rows   Terminal height in character rows.  Must be > 0.
      * @param cwd    Initial working directory — written to State.
      * @param shell  Shell program name — written to State for displayName logic.
      * @param uuid   Explicit UUID to assign.  Must be non-empty.
-     * @return Mutable reference to the newly constructed Terminal::Session.
+     * @return Mutable reference to the newly constructed terminal::Session.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    Terminal::Session& create (cell cols, cell rows,
+    terminal::Session& create (cell cols, cell rows,
                                const juce::String& cwd,
                                const juce::String& shell,
                                const juce::String& uuid);
@@ -114,13 +136,11 @@ public:
     /**
      * @brief Mode-routing session creation.
      *
-     * Routes internally based on which attachment is live:
-     * - If `attachedLink != nullptr` (client mode): creates a remote (no-TTY) session
-     *   and sends a `createSession` PDU to the daemon via Link.  Registers
-     *   `setInputWriter()` on the Processor to route through Link.
-     * - Otherwise (standalone / daemon mode): creates a full PTY-backed session.
-     *   In daemon mode Nexus additionally calls
-     *   `attachedDaemon->wireSessionCallbacks(uuid, session)` to wire IPC broadcast.
+     * Routes internally based on `mode`:
+     * - **client**: creates a remote (no-TTY) session; fires `events` child-added
+     *   which Link observes to send the createSession PDU and wire IPC.
+     * - **standalone / daemon**: creates a full PTY-backed session; fires `events`
+     *   child-added which Daemon observes to wire IPC callbacks.
      *
      * Returns the existing session immediately if @p uuid already exists
      * (idempotency guard for GUI reconnect).
@@ -129,16 +149,18 @@ public:
      * @param uuid  Explicit UUID to assign.  Must be non-empty.
      * @param cols  Initial column count.  Must be > 0.
      * @param rows  Initial row count.  Must be > 0.
-     * @return Mutable reference to the Terminal::Session (use getProcessor() for the Processor).
+     * @return Mutable reference to the terminal::Session (use getProcessor() for the Processor).
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    Terminal::Session& create (const juce::String& cwd,
+    terminal::Session& create (const juce::String& cwd,
                                const juce::String& uuid,
                                cell cols,
                                cell rows);
 
     /**
      * @brief Removes and destroys the session with the given UUID.
+     *
+     * Fires a child-removed event on `events` before erasing the session.
      *
      * @param uuid  UUID of the session to remove.
      * @note NEXUS PROCESS MESSAGE THREAD.
@@ -151,10 +173,10 @@ public:
      * jasserts if no session with @p uuid exists.
      *
      * @param uuid  UUID of the target session.
-     * @return Mutable reference to the owned Terminal::Session.
+     * @return Mutable reference to the owned terminal::Session.
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
-    Terminal::Session& get (const juce::String& uuid);
+    terminal::Session& get (const juce::String& uuid);
 
     /**
      * @brief Returns true if a session with @p uuid is live.
@@ -176,34 +198,14 @@ public:
     /** @} */
 
     // =========================================================================
-    /** @name Interprocess attachment
-     *  Determines data flow mode.  Non-owning pointers — ENDApplication owns
-     *  the actual objects.
-     * @{ */
 
     /**
-     * @brief Attaches a Daemon — enables daemon-mode data flow wiring.
+     * @brief Event surface — listeners observe session lifecycle via valueTreeChildAdded/Removed.
      *
-     * Stores a non-owning pointer.  IPC callback wiring is applied by a
-     * higher-level coordinator (Step 4/5 work).
-     *
-     * @param daemon  The daemon instance owned by ENDApplication.
-     * @note Any thread.
+     * Child nodes are type "SESSION" with jam::ID::id property = uuid.
+     * Added on session creation, removed on session removal.
      */
-    void attach (Interprocess::Daemon& daemon);
-
-    /**
-     * @brief Attaches a Link — enables client-mode data flow wiring.
-     *
-     * Stores a non-owning pointer.  IPC callback wiring is applied by a
-     * higher-level coordinator (Step 4/5 work).
-     *
-     * @param link  The link instance owned by ENDApplication.
-     * @note Any thread.
-     */
-    void attach (Interprocess::Link& link);
-
-    /** @} */
+    juce::ValueTree events { "NEXUS_EVENTS" };
 
     // =========================================================================
     /**
@@ -215,23 +217,14 @@ public:
 
 private:
     /**
-     * @brief Owned Terminal::Session map: UUID → unique_ptr<Terminal::Session>.
+     * @brief Owned terminal::Session map: UUID → unique_ptr<terminal::Session>.
      */
-    std::unordered_map<juce::String, std::unique_ptr<Terminal::Session>> sessions;
+    std::unordered_map<juce::String, std::unique_ptr<terminal::Session>> sessions;
 
     /**
-     * @brief Non-owning pointer to an attached Daemon.  Null when not in daemon mode.
-     *
-     * Ownership lives in ENDApplication.
+     * @brief Current IPC mode.
      */
-    Interprocess::Daemon* attachedDaemon { nullptr };
-
-    /**
-     * @brief Non-owning pointer to an attached Link.  Null when not in client mode.
-     *
-     * Ownership lives in ENDApplication.
-     */
-    Interprocess::Link* attachedLink { nullptr };
+    Mode mode { Mode::standalone };
 
     /**
      * @brief Fires onAllSessionsExited if the sessions map is now empty.
@@ -241,21 +234,6 @@ private:
      * @note NEXUS PROCESS MESSAGE THREAD.
      */
     void fireIfAllExited() noexcept;
-
-    // juce::ValueTree::Listener — dispatched from session State VT flush on the message thread.
-    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
-
-    /**
-     * @brief Maps session UUID → session State root ValueTree for client-mode resize routing.
-     *
-     * Populated in the client-mode `create` path. Used in `valueTreePropertyChanged`
-     * to match an incoming PARAM tree against a known session root when forwarding
-     * cols/visibleRows changes to the daemon via `attachedLink->sendResize`.
-     * Entries are inserted in client-mode `create` and erased in `remove`.
-     *
-     * @note NEXUS PROCESS MESSAGE THREAD — accessed only on the message thread.
-     */
-    std::unordered_map<juce::String, juce::ValueTree> clientSessionStateRoots;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Nexus)

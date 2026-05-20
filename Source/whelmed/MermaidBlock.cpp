@@ -1,7 +1,8 @@
 #include "MermaidBlock.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 MermaidBlock::MermaidBlock() = default;
 
@@ -71,4 +72,4 @@ void MermaidBlock::paint (juce::Graphics& g, juce::Rectangle<int> area) const
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

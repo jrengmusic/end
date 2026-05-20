@@ -2,17 +2,17 @@
  * @file MainComponent.cpp
  * @brief Implementation of the root application content component.
  *
- * Constructs the `Terminal::Tabs` container, sets the initial window size from
+ * Constructs the `terminal::Tabs` container, sets the initial window size from
  * persisted state, and registers a close callback so that window dimensions
  * are saved when the native close button is pressed.
  *
- * Owns `Action::Registry` and registers all user-performable action callbacks
+ * Owns `action::Registry` and registers all user-performable action callbacks
  * via `registerActions()`.
  *
  * @see MainComponent
- * @see Terminal::Tabs
+ * @see terminal::Tabs
  * @see Config
- * @see Action::Registry
+ * @see action::Registry
  */
 
 /*
@@ -28,8 +28,6 @@
 
 #include "MainComponent.h"
 #include <JamFontsBinaryData.h>
-#include "nexus/Nexus.h"
-#include "terminal/data/Identifier.h"
 
 
 /**
@@ -83,7 +81,7 @@ MainComponent::MainComponent (lua::Engine& engine)
         jam::Typeface::registerTypeface (cfg->display.font.family, std::move (typeface));
     }
 
-    setOpaque (appState.getRendererType() == App::RendererType::cpu);
+    setOpaque (appState.getRendererType() == app::RendererType::cpu);
 
     //==============================================================================
     initialiseOverlays();
@@ -153,7 +151,7 @@ MainComponent::MainComponent (lua::Engine& engine)
                                    cfg->display.font.cellWidth, cfg->display.font.lineHeight };
             jassert (font.cellWidth > 0 and font.cellHeight > 0);
 
-            const int titleBarHeight { cfg->display.window.buttons ? App::titleBarHeight : 0 };
+            const int titleBarHeight { cfg->display.window.buttons ? app::titleBarHeight : 0 };
             const int paddingTop    { cfg->nexus.terminal.paddingTop };
             const int paddingRight  { cfg->nexus.terminal.paddingRight };
             const int paddingBottom { cfg->nexus.terminal.paddingBottom };
@@ -165,9 +163,10 @@ MainComponent::MainComponent (lua::Engine& engine)
 
             const auto effectiveCwd { cwd.isNotEmpty() ? cwd : appState.getPwd() };
 
-            auto termSession { Terminal::Session::create (effectiveCwd, cols, rows, shell, shellArgs) };
+            auto termSession { terminal::Session::create (effectiveCwd, cols, rows, shell, shellArgs) };
 
-            auto terminal { termSession->getProcessor().createDisplay() };
+            auto terminal { std::make_unique<terminal::Display> (termSession->getProcessor()) };
+            terminal->setComponentID (termSession->getProcessor().getUuid());
 
             popup.show (*this, std::move (terminal), pixelWidth, pixelHeight);
             popup.setTerminalSession (std::move (termSession));
@@ -200,9 +199,9 @@ void MainComponent::applyConfig()
     sendLookAndFeelChange();
 }
 
-void MainComponent::setRenderer (App::RendererType rendererType)
+void MainComponent::setRenderer (app::RendererType rendererType)
 {
-    const bool isUsingGpu { rendererType == App::RendererType::gpu };
+    const bool isUsingGpu { rendererType == app::RendererType::gpu };
     const auto atlasSize { isUsingGpu ? jam::glyph::AtlasSize::standard : jam::glyph::AtlasSize::compact }; // AtlasSize stays in jam::glyph
     jam::Typeface::setAtlasSize (atlasSize);
 
@@ -249,7 +248,7 @@ void MainComponent::paint (juce::Graphics& g)
  * full-bounds to `tabs` and `messageOverlay`; positions `statusBarOverlay`
  * at top or bottom edge per `keys.status_bar.position`.  Triggers the
  * `showMessageOverlay()` resize ruler only while the user is actively
- * dragging the window border (`Terminal::Window::isUserResizing()`).
+ * dragging the window border (`terminal::Window::isUserResizing()`).
  *
  * @note MESSAGE THREAD.
  */
@@ -263,7 +262,7 @@ void MainComponent::resized()
     if (messageOverlay != nullptr)
         messageOverlay->setBounds (getLocalBounds());
 
-    if (auto* window { dynamic_cast<Terminal::Window*> (getTopLevelComponent()) }; window != nullptr)
+    if (auto* window { dynamic_cast<terminal::Window*> (getTopLevelComponent()) }; window != nullptr)
     {
         if (window->isUserResizing())
             showMessageOverlay();
@@ -309,23 +308,23 @@ MainComponent::~MainComponent()
  */
 void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (tree.getType() == App::ID::WINDOW)
+    if (tree.getType() == app::id::WINDOW)
     {
-        if (property == App::ID::fontFamily)
+        if (property == app::id::fontFamily)
         {
             auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
             if (typeface != nullptr)
                 typeface->setFontFamily (appState.getFontFamily());
             appState.markAtlasDirty();
         }
-        else if (property == App::ID::fontSize)
+        else if (property == app::id::fontSize)
         {
             auto* typeface { jam::Typeface::findTypeface (appState.getFontFamily()) };
             if (typeface != nullptr)
                 typeface->setFontSize (appState.getFontSize());
             appState.markAtlasDirty();
         }
-        else if (property == App::ID::renderer)
+        else if (property == app::id::renderer)
         {
             appState.markAtlasDirty();
         }
@@ -341,7 +340,7 @@ void MainComponent::valueTreePropertyChanged (juce::ValueTree& tree, const juce:
  */
 void MainComponent::valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child)
 {
-    if (parent == nexusNode and child.getType() == App::ID::SESSIONS)
+    if (parent == nexusNode and child.getType() == app::id::SESSIONS)
     {
         sessionsNode = child;
         sessionsNode.addListener (this);
@@ -376,17 +375,17 @@ void MainComponent::valueTreeChildRemoved (juce::ValueTree& parent, juce::ValueT
 }
 
 /**
- * @brief Registers all user-performable actions with `Action::Registry`.
+ * @brief Registers all user-performable actions with `action::Registry`.
  *
  * Clears existing actions, delegates to grouped register* methods, then
  * rebuilds the key map.
  *
  * @note MESSAGE THREAD.
- * @see Action::Registry
+ * @see action::Registry
  */
 void MainComponent::registerActions()
 {
-    auto& action { *Action::Registry::getContext() };
+    auto& action { *action::Registry::getContext() };
     action.clear();
 
     registerEditActions (action);
@@ -421,11 +420,11 @@ juce::Rectangle<int> MainComponent::getContentRect (int windowWidth, int windowH
     // native title bar is already excluded by JUCE's setUsingNativeTitleBar.
     auto content { juce::Rectangle<int> (0, 0, windowWidth, windowHeight) };
 
-    const int tabBarDepth { (tabCount > 1) ? Terminal::LookAndFeel::getTabBarHeight() : 0 };
+    const int tabBarDepth { (tabCount > 1) ? terminal::LookAndFeel::getTabBarHeight() : 0 };
 
     if (tabBarDepth > 0)
     {
-        const auto orientation { Terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position) };
+        const auto orientation { terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position) };
 
         if (orientation == jam::TabbedButtonBar::TabsAtTop)
             content = content.withTrimmedTop (tabBarDepth);
@@ -474,7 +473,7 @@ void MainComponent::showMessageOverlay()
             else if (orientation == juce::TabbedButtonBar::TabsAtRight)
                 content = content.withTrimmedRight (depth);
 
-            const int titleBarHeight { cfg->display.window.buttons ? App::titleBarHeight : 0 };
+            const int titleBarHeight { cfg->display.window.buttons ? app::titleBarHeight : 0 };
             const int padTop    { cfg->nexus.terminal.paddingTop };
             const int padRight  { cfg->nexus.terminal.paddingRight };
             const int padBottom { cfg->nexus.terminal.paddingBottom };
@@ -499,20 +498,20 @@ void MainComponent::showMessageOverlay()
 }
 
 /**
- * @brief Creates Terminal::Tabs, wires repaint callback, restores tabs.
+ * @brief Creates terminal::Tabs, wires repaint callback, restores tabs.
  *
  * Reads the saved tab count from AppState. If tabs were saved, clears the
  * TABS subtree and recreates that many tabs (addNewTab rebuilds the tree).
  * Falls back to one tab if no saved state exists.
  *
  * @note MESSAGE THREAD.
- * @see Terminal::Tabs
+ * @see terminal::Tabs
  * @see AppState
  */
 void MainComponent::initialiseTabs()
 {
-    tabs = std::make_unique<Terminal::Tabs> (
-        Terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position));
+    tabs = std::make_unique<terminal::Tabs> (
+        terminal::Tabs::orientationFromString (lua::Engine::getContext()->display.tab.position));
     addAndMakeVisible (tabs.get());
 
     tabs->onRepaintNeeded = [this]
@@ -538,7 +537,7 @@ void MainComponent::initialiseTabs()
 
     for (int t { 0 }; t < savedTabs.getNumChildren(); ++t)
     {
-        if (savedTabs.getChild (t).getType() == App::ID::TAB)
+        if (savedTabs.getChild (t).getType() == app::id::TAB)
             ++savedTabCount;
     }
 
@@ -550,10 +549,10 @@ void MainComponent::initialiseTabs()
 
     for (int i { tabsNode.getNumChildren() - 1 }; i >= 0; --i)
     {
-        if (tabsNode.getChild (i).getType() == App::ID::TAB)
+        if (tabsNode.getChild (i).getType() == app::id::TAB)
             tabsNode.removeChild (i, nullptr);
     }
-    AppState::getContext()->setActivePaneType (App::ID::paneTypeTerminal);
+    AppState::getContext()->setActivePaneType (app::id::paneTypeTerminal);
 
     if (savedTabCount > 0)
     {
@@ -574,7 +573,7 @@ void MainComponent::initialiseTabs()
 /**
  * @brief Exits selection mode on the active terminal if it is currently modal.
  * @note MESSAGE THREAD.
- * @see Terminal::Display::exitSelectionMode
+ * @see terminal::Display::exitSelectionMode
  */
 void MainComponent::exitActiveTerminalSelectionMode() noexcept
 {

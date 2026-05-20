@@ -6,13 +6,10 @@
  */
 
 #include "InputHandler.h"
-#include "Screen.h"
-#include "../lua/Engine.h"
-#include "../action/Action.h"
-#include "../AppIdentifier.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 void InputHandler::buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept
 {
@@ -71,7 +68,7 @@ bool InputHandler::handleKey (const juce::KeyPress& key) noexcept
 
     if (not handled)
     {
-        handled = Action::Registry::getContext()->handleKeyPress (key);
+        handled = action::Registry::getContext()->handleKeyPress (key);
     }
 
     if (not handled)
@@ -150,9 +147,9 @@ bool InputHandler::handleNavigation (const juce::KeyPress& key) noexcept
 
 bool InputHandler::handleCursorMovement (const juce::KeyPress& key) noexcept
 {
-    const int cursorBlock { static_cast<int> (state.getProperty (App::ID::selCursorBlock)) };
-    const int cursorChar  { static_cast<int> (state.getProperty (App::ID::selCursorChar)) };
-    const int totalBlocks { static_cast<int> (state.getProperty (App::ID::totalBlocks)) };
+    const int cursorBlock { static_cast<int> (state.getProperty (app::id::selCursorBlock)) };
+    const int cursorChar  { static_cast<int> (state.getProperty (app::id::selCursorChar)) };
+    const int totalBlocks { static_cast<int> (state.getProperty (app::id::totalBlocks)) };
     const int maxBlock { juce::jmax (0, totalBlocks - 1) };
 
     bool consumed { false };
@@ -248,8 +245,8 @@ bool InputHandler::handleCursorMovement (const juce::KeyPress& key) noexcept
 
     if (consumed and (newPos.block != cursorBlock or newPos.character != cursorChar))
     {
-        state.setProperty (App::ID::selCursorBlock, newPos.block, nullptr);
-        state.setProperty (App::ID::selCursorChar, newPos.character, nullptr);
+        state.setProperty (app::id::selCursorBlock, newPos.block, nullptr);
+        state.setProperty (app::id::selCursorChar, newPos.character, nullptr);
 
         if (updatePreferredX)
             preferredX = screen.getBlockCharX (newPos.block, newPos.character);
@@ -264,8 +261,8 @@ void InputHandler::toggleSelectionType (SelectionType target) noexcept
 {
     auto* appState { AppState::getContext() };
     const auto current { static_cast<SelectionType> (appState->getSelectionType()) };
-    const int cursorBlock { static_cast<int> (state.getProperty (App::ID::selCursorBlock)) };
-    const int cursorChar  { static_cast<int> (state.getProperty (App::ID::selCursorChar)) };
+    const int cursorBlock { static_cast<int> (state.getProperty (app::id::selCursorBlock)) };
+    const int cursorChar  { static_cast<int> (state.getProperty (app::id::selCursorChar)) };
 
     if (current == target)
     {
@@ -275,8 +272,8 @@ void InputHandler::toggleSelectionType (SelectionType target) noexcept
     }
     else
     {
-        state.setProperty (App::ID::selAnchorBlock, cursorBlock, nullptr);
-        state.setProperty (App::ID::selAnchorChar, cursorChar, nullptr);
+        state.setProperty (app::id::selAnchorBlock, cursorBlock, nullptr);
+        state.setProperty (app::id::selAnchorChar, cursorChar, nullptr);
         appState->setSelectionType (static_cast<int> (target));
         appState->setModalType (static_cast<int> (ModalType::selection));
     }
@@ -284,10 +281,10 @@ void InputHandler::toggleSelectionType (SelectionType target) noexcept
 
 void InputHandler::copyAndClearSelection() noexcept
 {
-    const int cursorBlock { static_cast<int> (state.getProperty (App::ID::selCursorBlock)) };
-    const int cursorChar  { static_cast<int> (state.getProperty (App::ID::selCursorChar)) };
-    const int anchorBlock { static_cast<int> (state.getProperty (App::ID::selAnchorBlock)) };
-    const int anchorChar  { static_cast<int> (state.getProperty (App::ID::selAnchorChar)) };
+    const int cursorBlock { static_cast<int> (state.getProperty (app::id::selCursorBlock)) };
+    const int cursorChar  { static_cast<int> (state.getProperty (app::id::selCursorChar)) };
+    const int anchorBlock { static_cast<int> (state.getProperty (app::id::selAnchorBlock)) };
+    const int anchorChar  { static_cast<int> (state.getProperty (app::id::selAnchorChar)) };
 
     const bool anchorFirst { anchorBlock < cursorBlock
         or (anchorBlock == cursorBlock and anchorChar <= cursorChar) };
@@ -360,4 +357,4 @@ bool InputHandler::handleSelectionToggle (const juce::KeyPress& key) noexcept
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

@@ -7,8 +7,9 @@
 #include <JuceHeader.h>
 #include "Block.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 class TextBlock : public Block
 {
@@ -55,4 +56,4 @@ private:
 };
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed

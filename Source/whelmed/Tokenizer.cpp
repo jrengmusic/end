@@ -1,9 +1,8 @@
 #include "Tokenizer.h"
-#include "GenericTokeniser.h"
-#include "../lua/Engine.h"
 
-namespace Whelmed
-{ /*____________________________________________________________________________*/
+namespace whelmed
+{
+/*____________________________________________________________________________*/
 
 static LanguageDefinition getLanguageDefinition (const juce::String& language)
 {
@@ -235,4 +234,4 @@ juce::AttributedString tokenize (const juce::String& code,
 }
 
 /**_____________________________END OF NAMESPACE______________________________*/
-} // namespace Whelmed
+} // namespace whelmed
