@@ -431,7 +431,7 @@ void Processor::registerEvents() noexcept
             video.loadScreenState (cell (newRow), cell (newCol), newVisible, cell { 0 }, cell { 0 }, false, newKbFlags);
         });
 
-    // GridResize per-tick event — writes State so Screen repaints at interpolated dims.
+    // GridSizeTransition per-tick event — writes State so Screen repaints at interpolated dims.
     // Ordering: scrollOffset + cursor first, numRows last (numRows triggers repaint).
     events.add<int, int, int, int, int> (id::resizeTick,
         [this] (int numRowsNormal, int numRowsAlternate, int scrollOffset, int cursorRow, int cursorCol)
@@ -448,7 +448,7 @@ void Processor::registerEvents() noexcept
             state.setValue (alternateScreenId, id::numRows, numRowsAlternate);
         });
 
-    // GridResize SIGWINCH debounce — fired when resize gesture settles.
+    // GridSizeTransition SIGWINCH debounce — fired when resize gesture settles.
     events.add<> (id::resizeEnd,
         [this]
         {
@@ -769,7 +769,7 @@ juce::String Processor::encodeMouseEvent (int button, cell col, cell row, bool p
  *
  * Pure bytes-to-Grid pipeline: forwards to Parser::process(), flushes Video,
  * and consumes the paste echo gate.  No lock, no suspended check, no cell-size
- * detection — all resize work is handled exclusively by GridResize on the
+ * detection — all resize work is handled exclusively by GridSizeTransition on the
  * message thread.
  *
  * @note READER THREAD only — called from the byte source (terminal::Session
@@ -800,7 +800,7 @@ const juce::String& Processor::getUuid() const noexcept { return uuid; }
 void Processor::flushResponses() noexcept { video.flushResponses(); }
 
 /**
- * @brief Transfers TTY ownership to this Processor and wires GridResize for SIGWINCH delivery.
+ * @brief Transfers TTY ownership to this Processor and wires GridSizeTransition for SIGWINCH delivery.
  *
  * @note MESSAGE THREAD.
  */

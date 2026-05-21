@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-05-21 (restructure: flattened terminal/ subdirs, terminal/component/ absorbs rendering+selection, terminal/action/ consolidated, interprocess/ → nexus/, Parser renamed to Video, new Processor/History/GridResize/Skit/decoder files, all namespaces lowercased; Cell 8B packed u64, Map.h replaces ScreenMap.h, Screen IS TextEditor, Display owns ComponentAttachment + seedScreenNodes, Processor owns keyboard stack + onStateFlush, displayName from Processor::valueTreePropertyChanged, start() replaces resize() on Session, State expanded)
+**Last Updated:** 2026-05-22 (GL audit: removed stale GLSnapshotBuffer/GLMailbox/GLComponent/GLRenderer/StagedBitmap references — none exist in codebase. GL pipeline is juce::OpenGLContext on MainComponent with setComponentPaintingEnabled(true); renderOpenGL() only clears background. Terminal rendering is JUCE component paint via glyph::Graphics CPU compositing. PaneComponent inherits juce::Component only. Corrected LRUGlyphCache→LRUCache, AtlasGlyph→Atlas::Region. Overlay uses standard paint() only.)
 
 ---
 
@@ -185,20 +185,7 @@ Source/
   jam_core/                         Shared utilities (Owner, identifiers, Context, BinaryData)
   jam_graphics/                     Graphics utilities, blur, shadows, colours
   jam_fonts/                        Font management, glyph atlas, typeface shaping, text layout
-  jam_gui/                          Window, layout utilities, and OpenGL rendering (PaneManager, PaneResizerBar, GLRenderer)
-    opengl/
-      context/
-        jam_gl_mailbox.h            Lock-free atomic pointer exchange (generic template)
-        jam_gl_snapshot_buffer.h    Double-buffered snapshot with mailbox (generic template)
-        jam_gl_graphics.h/cpp       juce::Graphics-like command buffer API for OpenGL
-        jam_gl_component.h/cpp      Base class for GL-rendered components
-        jam_gl_renderer.h/cpp       OpenGL renderer (shader management, draw dispatch)
-        jam_gl_overlay.h            Integration overlay for JUCE components
-      renderers/
-        jam_gl_path.h/cpp           juce::Path tessellation to GL vertices
-        jam_gl_vignette.h           Vignette edge effect component
-      shaders/
-        flat_colour.vert/frag       Vertex colour shader with optional alpha mask
+  jam_gui/                          Window, layout utilities, PaneManager, PaneResizerBar
     layout/
       jam_pane_manager.h/cpp        Binary tree ValueTree layout engine for split panes
       jam_pane_resizer_bar.h/cpp    Draggable divider bar between panes
@@ -227,7 +214,7 @@ Source/
 | IPC | `nexus/` | IPC transport layer. `nexus::Daemon` (TCP server), `nexus::Link` (client), `nexus::Daemon::Channel` (per-client server-side connection, nested class), `nexus::EncoderDecoder` (wire format), `nexus::Message` (PDU kind enum). Daemon owns broadcast + subscriber registries, wires session callbacks. Daemon/Link listen on Nexus::events ValueTree. | JUCE IPC, Nexus, terminal::Session, AppState |
 | Panes | `terminal/component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
 | Whelmed | `whelmed/` | Markdown viewer: whelmed::Component, Screen, block hierarchy, InputHandler | PaneComponent, jam_markdown |
-| jam_gui | `~/Documents/Poems/dev/jam/jam_gui/` | Window, layout utilities, and OpenGL rendering: PaneManager binary tree, PaneResizerBar, GLRenderer, GLComponent. `jam::ComponentAttachment` — APVTS-style component-to-ValueTree binding used by Display for the DISPLAY node (cellWidth, cellHeight, baseline, fontSize) and NORMAL/ALTERNATE screen nodes. | juce_opengl, jam_core, jam_graphics |
+| jam_gui | `~/Documents/Poems/dev/jam/jam_gui/` | Window, layout utilities: PaneManager binary tree, PaneResizerBar. `jam::ComponentAttachment` — APVTS-style component-to-ValueTree binding used by Display for the DISPLAY node (cellWidth, cellHeight, baseline, fontSize) and NORMAL/ALTERNATE screen nodes. | jam_core, jam_graphics |
 
 ---
 
@@ -500,7 +487,7 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 | **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Grid cells, dirty bits, scrollbackUsed |
 | **Timer** (JUCE) | default | — | `needsFlush` atomic | ValueTree properties |
 | **Message** (main) | user-interactive | Component, Screen | ValueTree, Grid cells via Block<Row> | Snapshot (reads Grid cells directly) |
-| **GL** (OpenGL) | user-interactive | OpenGL context | Snapshot (via GLSnapshotBuffer), staged bitmaps | GPU textures, framebuffer |
+| **GL** (OpenGL) | user-interactive | OpenGL context | — | background clear only (`renderOpenGL` calls `OpenGLHelpers::clear`). JUCE component paint routed through GL context. |
 
 ### Data Flow: Keystroke to Pixel
 
@@ -510,7 +497,8 @@ Keystroke -> Message Thread -> TTY::write()
          -> Grid cells written, State atomics set
          -> Timer flush (60/120 Hz) on Message Thread -> State flushes dirty atomics to ValueTree
          -> Screen::valueTreePropertyChanged() -> Grid::getBlock() -> TextEditor::setText(Block<Row>) -> calc() -> repaint
-          -> GL Thread -> GLSnapshotBuffer::read() -> uploadStagedBitmaps() -> draw
+         -> JUCE composites component paint through GL context when GPU renderer active.
+            glyph::Graphics::pop() blits renderTarget juce::Image via g.drawImageAt() inside paint().
 ```
 
 ### Synchronization Primitives
@@ -519,8 +507,7 @@ Keystroke -> Message Thread -> TTY::write()
 |-----------|---------|---------|
 | `std::atomic<float>` | Reader -> Timer/Message | State parameter transport |
 | `std::atomic<bool> needsFlush` | Reader -> Timer | ValueTree flush trigger |
-| `jam::GLSnapshotBuffer` (atomic exchange) | Message -> GL | Double-buffered snapshot handoff |
-| `std::mutex` (uploadMutex) | Message -> GL | Staged bitmap queue |
+| `AppState::atlasDirty` (`Parameter<int>`, storeRelease/exchangeAcquire) | Message | Atlas rebuild signal on font/size change |
 
 ---
 
@@ -534,19 +521,9 @@ Keystroke -> Message Thread -> TTY::write()
 
 Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Screen (which IS jam::TextEditor) reads Grid via `Grid::getBlock()` and calls `setText(Block<Row>)` on itself — no copy, stateless renderer.
 
-WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `std::atomic<bool>`. Two consumers:
-- **GL thread** — GPU lambda calls `consumeAtlasDirty()` and invokes `GlyphAtlas::getContext()->rebuildAtlas()` to tear down and re-upload GPU textures.
-- **Message thread** — `renderPaint` CPU path calls `consumeAtlasDirty()` before rasterizing to avoid stale CPU atlas.
+WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `Parameter<int>` using `storeRelease`/`exchangeAcquire`. Consumer: message thread calls `consumeAtlasDirty()` to detect font/size changes before the next paint cycle, then calls `jam::Typeface::setAtlasSize()` to clear and rebuild the atlas.
 
 `markAtlasDirty()` / `consumeAtlasDirty()` are the only public API. No caller reads `atlasDirty` directly.
-
-### Pattern: Double-Buffered Snapshot (GLSnapshotBuffer)
-
-**Used for:** Lock-free handoff of render data from message thread to GL thread.
-
-**Implementation:** `~/Documents/Poems/dev/jam/jam_gui/opengl/context/` — `jam::GLSnapshotBuffer<T>`, `jam::GLMailbox<T>`
-
-`GLSnapshotBuffer` owns two snapshot instances and a `GLMailbox`. Message thread calls `getWriteBuffer()`, fills the snapshot, calls `write()`. GL thread calls `read()` — returns latest snapshot, or retains the previous one if nothing new. Double-buffer rotation is encapsulated. Zero allocation, zero locking. Forked from KANJUT `kuassa_opengl`.
 
 ### Pattern: Context<T> (Responsible Global)
 
@@ -556,11 +533,11 @@ WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive fo
 
 lua::Engine lifetime owned by `ENDApplication` (Main.cpp). Fonts lifetime owned by `MainComponent`. Access via `lua::Engine::getContext()->` / `Fonts::getContext()->`. Fail-fast jassert if accessed before construction.
 
-`GlyphAtlas` (`~/Documents/Poems/dev/jam/jam_gui/opengl/context/jam_glyph_atlas.h`) also inherits `jam::Context<GlyphAtlas>`. Pure GL texture handle holder: `monoAtlas`, `emojiAtlas`, `atlasSize`. Owned by `MainComponent` (value member). Shared by all `GLAtlasRenderer` instances (main + popup). `rebuildAtlas()` runs on the GL thread — calls `glDeleteTextures` and zeroes handles, triggering re-upload. CPU atlas images remain on `Typeface`; `GlyphAtlas` owns only the GPU handles.
+`jam::glyph::Atlas` is the CPU-side image store: owns `juce::Image mono` (SingleChannel) and `juce::Image emoji` (ARGB) plus an internal `Packer`. All MESSAGE THREAD. Accessed via `jam::Typeface::getAtlas()`. `Atlas::rebuild()` resets both images. `Atlas::Packer` holds the shelf packers and `LRUCache` instances, rasterizes glyphs via platform backends (CoreText/FreeType), and writes pixels directly to the atlas images.
 
 ### Pattern: Shelf-Based Atlas Packing
 
-**Used for:** Packing variable-size glyphs into a fixed texture atlas (4096x4096 GPU, 2048x2048 CPU).
+**Used for:** Packing variable-size glyphs into a fixed-size CPU image atlas (4096×4096 standard, 2048×2048 compact).
 
 **Implementation:** `AtlasPacker.h`
 
@@ -935,7 +912,7 @@ keyPressed()
 
 ### PaneComponent
 
-Pure virtual base (`terminal/component/PaneComponent.h`) shared between `terminal::Display` and `whelmed::Component`. Inherits `jam::GLComponent`.
+Pure virtual base (`terminal/component/PaneComponent.h`) shared between `terminal::Display` and `whelmed::Component`. Inherits `juce::Component`.
 
 **Contract (all methods pure virtual unless noted):**
 
@@ -1067,13 +1044,11 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Rationale:** Matches NF patcher's own scaling logic. Icons render identically to how they appear in patched fonts, but with runtime flexibility for any cell size.
 
-### Decision: Shared Fonts Context over Per-Terminal Font Ownership
+### Decision: Shared Typeface over Per-Terminal Font Ownership
 
-**Context:** Each `terminal::Screen` owned its own `Fonts` instance inside a `Resources` struct. When closing tabs rapidly, the GL thread could access a destroyed font while mid-render, causing a HarfBuzz crash.
+**Context:** Each `terminal::Screen` owned its own `Fonts` instance. When closing tabs rapidly, the GL thread could access a destroyed font.
 
-**Decision:** `Fonts` inherits `jam::Context<Fonts>`, owned by `MainComponent`. All terminals share a single instance via `Fonts::getContext()`.
-
-**Rationale:** Font metrics are global (zoom is global via state.lua). Shared ownership ensures font lifetime exceeds all terminal components. Enables global grid size computation from `Fonts::getContext()->calcMetrics()` without querying individual terminals.
+**Decision:** `jam::Typeface` is the global font owner. All terminals access the typeface and atlas via static methods (`jam::Typeface::findTypeface()`, `jam::Typeface::getAtlas()`). Font lifetime exceeds all terminal components.
 
 ### Decision: Binary Tree ValueTree for Split Pane Layout
 
@@ -1099,13 +1074,13 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Rationale:** Co-locating SESSION under PANE enables future state persistence of the full split layout + terminal state in a single ValueTree. Ungrafting before `PaneManager::remove()` prevents re-parenting asserts when the tree restructures.
 
-### Decision: Overlay as jam::animation::Base, No Atlas/FIFO
+### Decision: Overlay as jam::animation::Base, No FIFO
 
-**Context:** Previous image subsystem used ImageAtlas (shelf-packed RGBA8 atlas, READER FIFO, MESSAGE drain, GL upload pipeline) and a ~960-line Preview god object with handrolled GL shaders. Grid is pure text — images extracted.
+**Context:** Previous image subsystem used a READER FIFO and MESSAGE drain pipeline. Grid is pure text — images extracted.
 
-**Decision:** Replace entire image rendering subsystem with `terminal::Overlay` — a `jam::animation::Base` child of `terminal::Display` (~140 lines). Overlay owns a `juce::Image` directly, renders via `jam::gl::Graphics` (GPU) or `juce::Graphics` (CPU). No atlas, no FIFO, no staging pipeline, no handrolled shaders. Display::resized() splits content area: Screen gets left portion, Overlay gets right. Screen reflows automatically via PTY resize — same mechanism as pane resize.
+**Decision:** `terminal::Overlay` inherits `jam::animation::Base` (`juce::Component + juce::Timer`). Owns `juce::Image` (static) or `std::vector<juce::Image>` (animated frames with `std::vector<int>` delays). Renders via standard `paint()`. No FIFO, no staging, no GL shaders. Display::resized() allocates side-by-side bounds; Screen reflows via PTY resize.
 
-**Rationale:** One image at a time. Screen renders thousands of glyphs without FIFO — one preview image needs even less infrastructure. The `jam::animation::Base` pattern handles GPU/CPU context switching. Side-by-side layout with automatic reflow is the pane resize pattern already proven in the codebase. Follows Display→Screen ownership pattern: Display→Overlay for images.
+**Rationale:** One image at a time needs no pipeline. Standard `paint()` composited by JUCE is sufficient. Matches the Display→Screen ownership pattern.
 
 ### Decision: Nexus Mode via setMode() Enum, not attach() Overloads
 
@@ -1213,13 +1188,11 @@ Display Monolithic -> OS system fonts (CJK/exotic) -> OS color emoji
 
 ### jam::glyph::Atlas::Packer — Atlas Rasterization
 
-`jam::glyph::Atlas::Packer` owns atlas rasterization. It was moved out of `Typeface` to give the atlas a clear, single-responsibility boundary: `Typeface` shapes text; `Packer` rasterizes glyphs into the texture atlas.
-
-`Packer` holds the shelf-based atlas packer, the LRU glyph cache, and the staged bitmap queue. It exposes `getOrRasterize()` — callers pass a `glyph::Atlas::Key` and receive an `AtlasGlyph` (UV rect + bearing). Rasterization delegates to `Typeface` for the raw pixel data.
+`jam::glyph::Atlas::Packer` owns atlas rasterization. `Typeface` shapes text; `Packer` rasterizes glyphs and writes pixel data directly into the `Atlas` images via `Atlas::writePixels()`. `Packer` exposes `getOrRasterize()` — callers pass a `glyph::Atlas::Key` and receive an `Atlas::Region` (UV rect + bearing).
 
 ### Font Ownership
 
-`Fonts` inherits `jam::Context<Fonts>` — single global instance owned by `MainComponent`. All terminals share the same font handles, shaping buffers, and metrics. `terminal::Screen` and `CursorComponent` access fonts via `Fonts::getContext()`. This ensures font lifetime exceeds all terminal components, preventing use-after-free when closing tabs.
+`jam::Typeface` is the global font owner. All terminals share the same typeface via `jam::Typeface::findTypeface()` and atlas via `jam::Typeface::getAtlas()`. This ensures font lifetime exceeds all terminal components.
 
 ### Platform Font Dispatch
 
@@ -1282,7 +1255,7 @@ Click-mode link underlines only render on OSC 133 output rows.
 | Term | Definition |
 |------|------------|
 | AppState | Application-level ValueTree root; tracks active terminal UUID, pwd via Value::referTo |
-| AtlasGlyph | Cached rasterization result: texture UV rect, pixel dimensions, bearing |
+| AtlasGlyph | See Atlas::Region. |
 | BoxDrawing | Procedural rasterizer for box drawing, block elements, and braille — no font lookup |
 | BoxSelection | Rectangle selection: anchor + end cell coordinates, rendered as overlay |
 | ConPTY sideload | Runtime extraction of conpty.dll + OpenConsole.exe from BinaryData to ~/.config/end/conpty/ (all Windows versions — inbox ConPTY broken on both Win10 and Win11) |
@@ -1296,12 +1269,11 @@ Click-mode link underlines only render on OSC 133 output rows.
 | Grid | Ring-buffer storage for terminal cells, dual-screen (normal/alternate). Pure text — no image flags |
 | GridResize | Resize lifecycle manager: coalesces resize events via 50ms quiet timer, applies PTY resize and grid reflow |
 | History | Ring buffer of raw PTY bytes owned by terminal::Session. Used for daemon snapshot/restore via snapshotHistory() |
-| Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. Owns `juce::Image`, renders via paint/paintGL. Created on demand by `activatePreview()`, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
+| Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. `jam::animation::Base` is `juce::Component + juce::Timer`. Owns `juce::Image` (static) or `std::vector<juce::Image>` frames. Renders via standard `paint()`. Created on demand by Display, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
 | handleSkitFilepath | Shared parser helper for SKiT (Sixel/Kitty/iTerm2) file preview protocol. Extracts filepath from `END;` marker, calls `onPreviewFile` callback |
 | Font::bounds | `jam::Bounds` — cell dimension descriptor (cellWidth, cellHeight, baseline, fontSize) stored on the DISPLAY node via `jam::ComponentAttachment`. Source of truth for cell pixel dimensions; `Cell::Rectangle` reads these to compute grid dimensions without manual arithmetic. |
-| LRUGlyphCache | Frame-stamped LRU map; evicts oldest 10% when over capacity |
-| GLMailbox | Generic lock-free atomic pointer exchange template (`jam::GLMailbox<T>`) |
-| GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jam::GLSnapshotBuffer<T>`) |
+| LRUCache | `jam::glyph::LRUCache` — frame-stamped LRU map inside `Atlas::Packer`; evicts oldest 10% when over capacity. Capacities: mono 19,000; emoji 4,000. MESSAGE THREAD only. |
+| Atlas::Region | `jam::glyph::Atlas::Region` — cached rasterization result: `textureCoordinates` (UV rect), `widthPixels`, `heightPixels`, `bearingX`, `bearingY`, `type` (mono/emoji). |
 | LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via lua::Engine |
 | MessageOverlay | Transient overlay for status messages (reload confirmation, config errors) |
 | Nexus | Session container (global scope): action table + session map + Mode enum + events ValueTree, Context-managed, owned by ENDApplication |
@@ -1316,13 +1288,12 @@ Click-mode link underlines only render on OSC 133 output rows.
 | Map::Screen | `jam::Map::Screen` — normal/alternate screen index map instance in `terminal::Map`. See also `Map::Bool` and `Map::Gpu`. Lives in `terminal/Map.h`. |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
 | Skit | SKiT unified entry point for Sixel/Kitty/iTerm2 inline image preview protocol |
-| Snapshot | Pre-built GPU instance data (glyphs + backgrounds) for one frame |
-| StagedBitmap | Cross-thread upload packet: pixel data + atlas region + mono/emoji kind |
+| Snapshot | `GridResize::previous` — full Grid buffer copy captured before resize; held alive until transition completes. |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state. Includes: OSC 133 shell integration tracking, paste echo gate, sync output (mode 2026), preview split-viewport, hints, modal type, snapshot dirty signal. Per-screen methods removed — callers use `storeValue`/`loadValue` (READER) or VT API (MESSAGE). |
 | Tabs | `terminal::Tabs` — TabbedComponent subclass; Value::Listener for tabName, manages Panes instances |
 | VBlank | Not currently implemented. Render trigger is timer-driven flush (60/120 Hz). |
 | Video | VT command processor: receives decoded semantic actions from Parser, writes Grid cells, fires events for State writes |
-| Atlas | 4096x4096 texture containing rasterized glyphs, shelf-packed |
+| Atlas | `jam::glyph::Atlas` — CPU-side image store: `juce::Image mono` + `juce::Image emoji` + `Packer`. Accessed via `jam::Typeface::getAtlas()`. All MESSAGE THREAD. |
 
 ---
 

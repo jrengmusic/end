@@ -1,12 +1,13 @@
-#include "GridResize.h"
+#include "GridSizeTransition.h"
 #include "../Map.h"
 
 namespace terminal
 {
 /*____________________________________________________________________________*/
 
-GridResize::GridResize (Grid& gridRef, Video& videoRef,
-                        jam::Function::Map<juce::Identifier, void>& eventsRef) noexcept
+GridSizeTransition::GridSizeTransition (Grid& gridRef,
+                                        Video& videoRef,
+                                        jam::Function::Map<juce::Identifier, void>& eventsRef) noexcept
     : grid (gridRef)
     , video (videoRef)
     , events (eventsRef)
@@ -16,7 +17,7 @@ GridResize::GridResize (Grid& gridRef, Video& videoRef,
 
 //==============================================================================
 // SST: process(sample) — timer-driven
-void GridResize::process() noexcept
+void GridSizeTransition::process() noexcept
 {
     if (isTransitioning)
     {
@@ -28,7 +29,7 @@ void GridResize::process() noexcept
 
 //==============================================================================
 // SST: reset()
-void GridResize::reset() noexcept
+void GridSizeTransition::reset() noexcept
 {
     isTransitioning = false;
     crossfadePosition = 1.0;
@@ -37,7 +38,7 @@ void GridResize::reset() noexcept
 }
 
 // SST: prepare(sampleRate, blockSize)
-void GridResize::prepare (int scrollbackLinesValue) noexcept
+void GridSizeTransition::prepare (int scrollbackLinesValue) noexcept
 {
     scrollbackLines = scrollbackLinesValue;
     updateCrossfadeIncrement();
@@ -46,7 +47,7 @@ void GridResize::prepare (int scrollbackLinesValue) noexcept
 
 //==============================================================================
 // SST: set(name, value)
-void GridResize::set (cell cols, cell rows) noexcept
+void GridSizeTransition::set (cell cols, cell rows) noexcept
 {
     if (cols.value != targetCols.value or rows.value != targetRows.value)
     {
@@ -68,7 +69,7 @@ void GridResize::set (cell cols, cell rows) noexcept
 }
 
 // SST: flush()
-void GridResize::flush() noexcept
+void GridSizeTransition::flush() noexcept
 {
     if (hasPending)
     {
@@ -85,7 +86,7 @@ void GridResize::flush() noexcept
 
 //==============================================================================
 // SST: applyChange(name, value)
-void GridResize::applyChange() noexcept
+void GridSizeTransition::applyChange() noexcept
 {
     // Apply pending cell size.
     if (hasPendingCellSize)
@@ -115,21 +116,29 @@ void GridResize::applyChange() noexcept
     startCols = video.getCols();
     startRows = video.getVisibleRows();
 
-    const auto reflowedNumRows { grid.reflowFrom (previous, previousHead, previousNumRows,
-                                                   previousRingMask, previousViewportRows,
-                                                   targetRows.value, targetCols.value, scrollbackLines,
-                                                   cursorRow, cursorCol, scrollOffset) };
+    const auto reflowedNumRows { grid.reflowFrom (previous,
+                                                  previousHead,
+                                                  previousNumRows,
+                                                  previousRingMask,
+                                                  previousViewportRows,
+                                                  targetRows.value,
+                                                  targetCols.value,
+                                                  scrollbackLines,
+                                                  cursorRow,
+                                                  cursorCol,
+                                                  scrollOffset) };
 
     video.setDimensions (targetCols, targetRows);
-    video.loadScreenState (cell (cursorRow), cell (cursorCol), true,
-                           cell (0), cell (0), false, 0);
+    video.loadScreenState (cell (cursorRow), cell (cursorCol), true, cell (0), cell (0), false, 0);
     video.resize (targetCols, targetRows);
 
     // Fire tick event so Processor writes State for the target state.
     events.get (id::resizeTick,
                 reflowedNumRows.at (Map::Screen::normal),
                 reflowedNumRows.at (Map::Screen::alternate),
-                scrollOffset, cursorRow, cursorCol);
+                scrollOffset,
+                cursorRow,
+                cursorCol);
 
     if (isReady)
     {
@@ -145,7 +154,7 @@ void GridResize::applyChange() noexcept
 
 //==============================================================================
 // SST: advanceCrossfade()
-void GridResize::advanceCrossfade() noexcept
+void GridSizeTransition::advanceCrossfade() noexcept
 {
     crossfadePosition += crossfadeIncrement;
 
@@ -170,7 +179,7 @@ void GridResize::advanceCrossfade() noexcept
 
 //==============================================================================
 // SST: updateCrossfadeIncrement()
-void GridResize::updateCrossfadeIncrement() noexcept
+void GridSizeTransition::updateCrossfadeIncrement() noexcept
 {
     if (transitionTimeMs > 0.0 and tickIntervalMs > 0)
     {
@@ -180,14 +189,14 @@ void GridResize::updateCrossfadeIncrement() noexcept
 }
 
 //==============================================================================
-void GridResize::setCellSize (int cellWidth, int cellHeight) noexcept
+void GridSizeTransition::setCellSize (int cellWidth, int cellHeight) noexcept
 {
     pendingCellWidth = cellWidth;
     pendingCellHeight = cellHeight;
     hasPendingCellSize = true;
 }
 
-void GridResize::allocate (cell cols, cell rows) noexcept
+void GridSizeTransition::allocate (cell cols, cell rows) noexcept
 {
     if (hasPendingCellSize)
     {
@@ -198,18 +207,15 @@ void GridResize::allocate (cell cols, cell rows) noexcept
     grid.setSize (rows, cols, cell (scrollbackLines));
     video.setDimensions (cols, rows);
     video.resize (cols, rows);
-
 }
 
 //==============================================================================
-void GridResize::captureSnapshot() noexcept
+void GridSizeTransition::captureSnapshot() noexcept
 {
     previousRingMask = grid.getRingMask();
     previousViewportRows = grid.getViewportRows().value;
-    previousHead = { grid.getHeadPosition (Map::Screen::normal),
-                     grid.getHeadPosition (Map::Screen::alternate) };
-    previousNumRows = { grid.getNumRows (Map::Screen::normal),
-                        grid.getNumRows (Map::Screen::alternate) };
+    previousHead = { grid.getHeadPosition (Map::Screen::normal), grid.getHeadPosition (Map::Screen::alternate) };
+    previousNumRows = { grid.getNumRows (Map::Screen::normal), grid.getNumRows (Map::Screen::alternate) };
 
     const int srcRingSize { previousRingMask + 1 };
     previous.setSize (2, srcRingSize, grid.getBuffer().getNumCols(), false, true, false);
@@ -227,4 +233,4 @@ void GridResize::captureSnapshot() noexcept
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace terminal
+}// namespace terminal

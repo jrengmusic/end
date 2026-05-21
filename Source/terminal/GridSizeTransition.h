@@ -1,8 +1,8 @@
 /**
- * @file GridResize.h
+ * @file GridSizeTransition.h
  * @brief SmoothStateTransition for terminal Grid resize — VERBATIM SST pattern.
  *
- * GridResize is SmoothStateTransition applied to terminal resize.
+ * GridSizeTransition is SmoothStateTransition applied to terminal resize.
  * previous = snapshot of grid before resize. current = live grid.
  * target = requested dimensions. Timer drives process() which interpolates
  * from previous to target, reflowing each tick. Content is NEVER destroyed.
@@ -20,13 +20,12 @@ namespace terminal
 {
 /*____________________________________________________________________________*/
 
-class GridResize : private juce::Timer
+class GridSizeTransition : private juce::Timer
 {
 public:
-    GridResize (Grid& grid, Video& video,
-                jam::Function::Map<juce::Identifier, void>& events) noexcept;
+    GridSizeTransition (Grid& grid, Video& video, jam::Function::Map<juce::Identifier, void>& events) noexcept;
 
-    ~GridResize() = default;
+    ~GridSizeTransition() = default;
 
     //==========================================================================
     // SST: process(sample) — timer-driven, advances crossfade
@@ -82,7 +81,7 @@ private:
     void captureSnapshot() noexcept;
 
     //==========================================================================
-    Grid& grid;       ///< current (modified in place by reflowFrom)
+    Grid& grid;///< current (modified in place by reflowFrom)
     Video& video;
     jam::Function::Map<juce::Identifier, void>& events;
 
@@ -122,8 +121,9 @@ private:
     int pendingCellHeight { 0 };
     bool hasPendingCellSize { false };
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GridResize)
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GridSizeTransition)
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace terminal
+}// namespace terminal

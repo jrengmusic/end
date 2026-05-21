@@ -103,7 +103,7 @@ public:
      *
      *  Same tmux-faithful dispatch as reflow(), but reads from the provided
      *  source buffer instead of the live buffer. Writes results to the live
-     *  buffer. Used by GridResize for per-tick animation — the source is an
+     *  buffer. Used by GridSizeTransition for per-tick animation — the source is an
      *  immutable snapshot, each tick reflowes it to different target dimensions.
      *
      *  Normal screen only — alternate screen rows are moved as-is (no reflow).
@@ -235,13 +235,13 @@ public:
      */
     jam::Block<jam::Row> getBlock (int screen, cell scrollOffset, cell viewportRows) const noexcept;
 
-    /** Returns the ring buffer mask. Used by GridResize for snapshot allocation. */
+    /** Returns the ring buffer mask. Used by GridSizeTransition for snapshot allocation. */
     int getRingMask() const noexcept;
 
-    /** Returns the head position for the given screen. Used by GridResize for snapshot. */
+    /** Returns the head position for the given screen. Used by GridSizeTransition for snapshot. */
     int getHeadPosition (int screen) const noexcept;
 
-    /** Returns the current viewport row count. Used by GridResize for snapshot. */
+    /** Returns the current viewport row count. Used by GridSizeTransition for snapshot. */
     cell getViewportRows() const noexcept;
 
     /** Returns a const reference to the internal buffer for snapshot copy. */

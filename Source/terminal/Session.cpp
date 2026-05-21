@@ -277,7 +277,7 @@ Session::Session (cell cols,
                 cell (procRawPtr->getState().loadValue (terminal::id::SESSION, terminal::id::visibleRows)));
     };
 
-    // Transfer TTY ownership to Processor. setTTY() wires the TTY into GridResize for SIGWINCH delivery.
+    // Transfer TTY ownership to Processor. setTTY() wires the TTY into GridSizeTransition for SIGWINCH delivery.
     processor->setTTY (std::move (tty));
 }
 

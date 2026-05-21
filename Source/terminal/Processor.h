@@ -1,9 +1,9 @@
 /**
  * @file Processor.h
- * @brief Terminal pipeline orchestrator: owns Parser, Video, and GridResize, references Grid and State.
+ * @brief Terminal pipeline orchestrator: owns Parser, Video, and GridSizeTransition, references Grid and State.
  *
  * `Processor` is the pipeline half of the terminal emulator.  It owns the
- * Parser, Video, and GridResize, and routes bytes through the Grid and State received from Session:
+ * Parser, Video, and GridSizeTransition, and routes bytes through the Grid and State received from Session:
  *
  * ```
  *  bytes → Processor::process → Parser → Video → State / Grid → Display
@@ -23,11 +23,11 @@
  *    flushed back via the `writeToHost` event handler registered in `events`.
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
- * 8. Resize: GridResize is SmoothStateTransition for terminal dimensions; Processor orchestrates it.
+ * 8. Resize: GridSizeTransition is SmoothStateTransition for terminal dimensions; Processor orchestrates it.
  *    Constructor calls gridResize.prepare() then gridResize.allocate() for cold start.
  *    valueTreePropertyChanged calls gridResize.set() or gridResize.allocate().
  *    gridResize.setCellSize() coalesces cell pixel changes.
- *    GridResize fires id::resizeTick on each timer tick and id::resizeEnd when settled.
+ *    GridSizeTransition fires id::resizeTick on each timer tick and id::resizeEnd when settled.
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
@@ -36,7 +36,7 @@
  *
  * @see terminal::Session — owns TTY and History (PTY side).
  * @see Grid       — flat Buffer<Cell> storage, stateless data buffer.
- * @see GridResize — coalescing resize lifecycle manager.
+ * @see GridSizeTransition — coalescing resize lifecycle manager.
  * @see Parser     — VT100/VT520 state machine.
  * @see Video      — terminal state machine: pen, cursor, modes, Grid writes.
  * @see State      — atomic terminal parameter store.
@@ -51,7 +51,7 @@
 #include "TextBuffer.h"
 #include "tty/TTY.h"
 #include "Grid.h"
-#include "GridResize.h"
+#include "GridSizeTransition.h"
 #include "Parser.h"
 #include "Skit.h"
 #include "Video.h"
@@ -100,7 +100,7 @@ public:
      * @brief Constructs the Processor and wires the parser, video, and resize pipeline.
      *
      * Receives Grid and TextBuffer by reference from the owning Session,
-     * constructs State, Video, GridResize, and Parser.  UUID is provided by the caller.
+     * constructs State, Video, GridSizeTransition, and Parser.  UUID is provided by the caller.
      * Call `setHostWriter()` immediately after construction to route video
      * responses (e.g. cursor-position reports) to the appropriate sink.
      *
@@ -178,7 +178,7 @@ public:
      *
      * Pure bytes-to-Grid pipeline: forwards to Parser::process(), flushes Video,
      * and consumes the paste echo gate.  No lock, no suspended check, no cell-size
-     * detection — all resize work is handled exclusively by GridResize.
+     * detection — all resize work is handled exclusively by GridSizeTransition.
      *
      * @param data    Pointer to the raw byte buffer.
      * @param length  Number of bytes in the buffer.
@@ -347,8 +347,8 @@ private:
      */
     Skit skit;
 
-    /** @brief SST resize — GridResize snapshots previous state, drives animated reflow, sends SIGWINCH on completion. */
-    GridResize gridResize;
+    /** @brief SST resize — GridSizeTransition snapshots previous state, drives animated reflow, sends SIGWINCH on completion. */
+    GridSizeTransition gridResize;
 
     /** @brief Stable UUID identifying this Processor across process boundaries. */
     const juce::String uuid;
