@@ -23,11 +23,11 @@
  *    flushed back via the `writeToHost` event handler registered in `events`.
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
- * 8. Resize: GridResize owns the resize lifecycle. Processor constructor calls
- *    gridResize.set() and gridResize.apply() for initial allocation.
- *    valueTreePropertyChanged calls gridResize.set() on cols/visibleRows changes
- *    and gridResize.setCellSize() on cellWidth/cellHeight changes; GridResize
- *    coalesces and applies on a 50 ms quiet timer.
+ * 8. Resize: GridResize is SmoothStateTransition for terminal dimensions; Processor orchestrates it.
+ *    Constructor calls gridResize.prepare() then gridResize.allocate() for cold start.
+ *    valueTreePropertyChanged calls gridResize.set() or gridResize.allocate().
+ *    gridResize.setCellSize() coalesces cell pixel changes.
+ *    GridResize fires id::resizeTick on each timer tick and id::resizeEnd when settled.
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
@@ -185,16 +185,6 @@ public:
      * @note READER THREAD only — never call from the message thread.
      */
     void process (const char* data, int length) noexcept;
-
-    /**
-     * @brief Returns a mutable reference to the GridResize manager.
-     *
-     * Used by Session to wire the TTY pointer into GridResize after TTY construction.
-     *
-     * @return Mutable reference to the owned GridResize.
-     * @note MESSAGE THREAD.
-     */
-    GridResize& getGridResize() noexcept;
 
     /**
      * @brief Returns a mutable reference to the terminal parameter store.
@@ -357,7 +347,7 @@ private:
      */
     Skit skit;
 
-    /** @brief Resize lifecycle manager — coalesces dimension and cell-size changes into atomic Grid/Video/TTY updates. */
+    /** @brief SST resize — GridResize snapshots previous state, drives animated reflow, sends SIGWINCH on completion. */
     GridResize gridResize;
 
     /** @brief Stable UUID identifying this Processor across process boundaries. */
@@ -394,8 +384,8 @@ private:
      *  Fires on the message thread when State's ValueTree properties change.
      *  Handles shell integration callbacks (outputBlockTop → command process query,
      *  promptRow → clear foreground), dimension changes (cols, visibleRows) via
-     *  gridResize.set(), and cell pixel changes (cellWidth, cellHeight) via
-     *  gridResize.setCellSize().
+     *  gridResize.set() / gridResize.allocate(), and cell pixel changes
+     *  (cellWidth, cellHeight) via gridResize.setCellSize().
      *
      *  @note MESSAGE THREAD.
      */

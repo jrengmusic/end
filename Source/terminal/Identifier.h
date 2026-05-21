@@ -367,6 +367,22 @@ namespace id
      */
     static const juce::Identifier apcPayloadComplete  { "apcPayloadComplete" };
 
+    /** @brief Fired by GridResize on each timer tick during a transition.
+     *
+     *  Args: int numRowsNormal, int numRowsAlternate, int scrollOffset, int cursorRow, int cursorCol.
+     *  Processor handler writes State so Screen repaints at interpolated dims.
+     *  Fired on the MESSAGE THREAD (timer callback).
+     */
+    static const juce::Identifier resizeTick           { "resizeTick" };
+
+    /** @brief Fired by GridResize SIGWINCH debounce timer when the resize gesture settles.
+     *
+     *  No arguments. Processor reads current State dims (freshest values) and
+     *  delivers SIGWINCH to the shell.
+     *  Fired on the MESSAGE THREAD (timer callback).
+     */
+    static const juce::Identifier resizeEnd            { "resizeEnd" };
+
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace id
 

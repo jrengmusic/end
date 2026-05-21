@@ -1,117 +1,126 @@
 /**
  * @file GridResize.h
- * @brief Resize lifecycle manager for the terminal Grid — discrete state switch with timer coalesce.
+ * @brief SmoothStateTransition for terminal Grid resize — VERBATIM SST pattern.
  *
- * GridResize is the resize analogue of kuassa::dsp::SmoothStateTransition.
- * It coalesces rapid dimension changes into a single apply() call after a
- * fixed quiet period, preventing partial-resize artifacts when cols and rows
- * arrive in separate ValueTree notifications.
+ * GridResize is SmoothStateTransition applied to terminal resize.
+ * previous = snapshot of grid before resize. current = live grid.
+ * target = requested dimensions. Timer drives process() which interpolates
+ * from previous to target, reflowing each tick. Content is NEVER destroyed.
  *
- * ### Pattern
- * - `set()` / `setCellSize()` — store pending values and restart the coalesce timer.
- * - `timerCallback()` — fires after the quiet period and calls `apply()`.
- * - `apply()` — executes the actual Grid / Video / State / TTY mutations.
- *
- * ### Thread model
- * All public methods are MESSAGE THREAD only.  The timer fires on the message
- * thread.  apply() is also callable directly from the message thread for
- * immediate allocation (Processor constructor).
+ * @note MESSAGE THREAD only.
  */
 
 #pragma once
 
 #include <JuceHeader.h>
-#include "tty/TTY.h"
 #include "Grid.h"
 #include "Video.h"
-#include "State.h"
 
 namespace terminal
 {
 /*____________________________________________________________________________*/
 
-/**
- * @class GridResize
- * @brief Resize lifecycle manager: coalesces terminal dimension changes and applies them atomically.
- *
- * Stores pending cols, rows, and cell pixel dimensions.  A 50 ms coalesce timer
- * prevents redundant apply() calls when ValueTree fires multiple property changes
- * in rapid succession (e.g. cols then rows then cellWidth then cellHeight).
- *
- * Wired to an optional TTY for SIGWINCH delivery after every apply().
- * IPC sessions pass nullptr — the TTY call is guarded accordingly.
- *
- * @note MESSAGE THREAD only.
- */
 class GridResize : private juce::Timer
 {
 public:
-    /**
-     * @brief Constructs GridResize with references to the Grid, Video, and State it manages.
-     *
-     * @param grid   Terminal cell buffer — resized by apply().
-     * @param video  VT command processor — receives setDimensions / resize / setCellSize.
-     * @param state  Terminal parameter store — receives storeValue for numRows after reflow.
-     *
-     * @note MESSAGE THREAD.
-     */
-    GridResize (Grid& grid, Video& video, State& state) noexcept;
+    GridResize (Grid& grid, Video& video,
+                jam::Function::Map<juce::Identifier, void>& events) noexcept;
 
-    /** Stores pending terminal dimensions. Restarts coalesce timer.
-     *  Called by Processor::valueTreePropertyChanged when cols/visibleRows change.
-     *
-     *  @param cols  New terminal column count.
-     *  @param rows  New terminal viewport row count.
-     *
-     *  @note MESSAGE THREAD. */
+    ~GridResize() = default;
+
+    //==========================================================================
+    // SST: process(sample) — timer-driven, advances crossfade
+    void process() noexcept;
+
+    //==========================================================================
+    // SST: reset()
+    void reset() noexcept;
+
+    // SST: prepare(sampleRate, blockSize)
+    void prepare (int scrollbackLines) noexcept;
+
+    //==========================================================================
+    // SST: set(name, value) — told by Processor
     void set (cell cols, cell rows) noexcept;
 
-    /** Stores pending cell pixel dimensions.
-     *  Called by Processor::valueTreePropertyChanged when cellWidth/cellHeight change.
-     *
-     *  @param cellWidth   Cell width in physical pixels.
-     *  @param cellHeight  Cell height in physical pixels.
-     *
-     *  @note MESSAGE THREAD. */
+    // SST: flush() — apply pending immediately, no transition
+    void flush() noexcept;
+
+    //==========================================================================
+    // SST: getCurrent() — grid ref is always current
+    // (Grid& grid is public accessible via Processor::getGrid())
+
+    // SST: getTarget()
+    cell getTargetCols() const noexcept { return targetCols; }
+    cell getTargetRows() const noexcept { return targetRows; }
+
+    // SST: isInTransition()
+    bool isInTransition() const noexcept { return isTransitioning; }
+
+    //==========================================================================
+    // Cell pixel size — coalesced, applied at next applyChange
     void setCellSize (int cellWidth, int cellHeight) noexcept;
 
-    /** Sets the scrollback line limit from config.
-     *
-     *  @param lines  Maximum scrollback history row count.
-     *
-     *  @note MESSAGE THREAD. */
-    void setScrollbackLines (int lines) noexcept;
-
-    /** Wires the TTY for SIGWINCH on resize. Nullable (IPC mode has no TTY).
-     *
-     *  @param ttyToUse  Owning TTY, or nullptr for IPC sessions.
-     *
-     *  @note MESSAGE THREAD. */
-    void setTTY (TTY* ttyToUse) noexcept;
-
-    /** Applies pending changes immediately without coalesce delay.
-     *  Used for initial allocation in Processor constructor.
-     *
-     *  @note MESSAGE THREAD. */
-    void apply() noexcept;
+    // First allocation — cold start, grid not yet allocated
+    void allocate (cell cols, cell rows) noexcept;
 
 private:
-    void timerCallback() override;
+    //==========================================================================
+    // SST: applyChange(name, value)
+    void applyChange() noexcept;
 
-    Grid& grid;
+    // SST: advanceCrossfade()
+    void advanceCrossfade() noexcept;
+
+    // SST: updateCrossfadeIncrement()
+    void updateCrossfadeIncrement() noexcept;
+
+    // SST: timerCallback drives process()
+    void timerCallback() override { process(); }
+
+    // Snapshot helper — captures live grid into previous
+    void captureSnapshot() noexcept;
+
+    //==========================================================================
+    Grid& grid;       ///< current (modified in place by reflowFrom)
     Video& video;
-    State& state;
-    TTY* tty { nullptr };
+    jam::Function::Map<juce::Identifier, void>& events;
 
-    cell pendingCols { 0 };
-    cell pendingRows { 0 };
+    // SST: previous
+    jam::Buffer<jam::Row> previous;
+    std::array<int, 2> previousHead { 0, 0 };
+    std::array<int, 2> previousNumRows { 0, 0 };
+    int previousRingMask { 0 };
+    int previousViewportRows { 0 };
+
+    // SST: target
+    cell targetCols { cell (0) };
+    cell targetRows { cell (0) };
+
+    // Interpolated current dims (between start and target during crossfade)
+    cell startCols { cell (0) };
+    cell startRows { cell (0) };
+
+    // SST: pending
+    bool hasPending { false };
+    cell pendingCols { cell (0) };
+    cell pendingRows { cell (0) };
+
+    // SST: transition state
+    bool isReady { false };
+    bool isTransitioning { false };
+    double crossfadePosition { 1.0 };
+    double crossfadeIncrement { 0.0 };
+
+    // Config
+    int scrollbackLines { 0 };
+    double transitionTimeMs { 200.0 };
+    static constexpr int tickIntervalMs { 16 };
+
+    // Cell size coalescing
     int pendingCellWidth { 0 };
     int pendingCellHeight { 0 };
-    int scrollbackLines { 0 };
-    bool hasPendingDimensions { false };
     bool hasPendingCellSize { false };
-
-    static constexpr int coalesceMs { 50 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GridResize)
 };

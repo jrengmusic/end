@@ -1,5 +1,69 @@
 # SPRINT-LOG
 
+## Sprint 27: Grid Reflow Convergence — tmux Faithful + TETRIS SST ✅
+
+**Date:** 2026-05-21
+**Duration:** 12:00
+
+### Agents Participated
+- COUNSELOR: orchestrated full sprint, design discussions, PLAN iterations
+- Engineer: all code implementation across jam + END
+- Auditor: multiple audit sweeps (scrollOffset guard, width-aware primitives, SST conformance, final comprehensive)
+- Pathfinder: startup sequence trace, blank screen root cause, git history
+- Librarian: JUCE resize APIs, ValueTree/Value/var semantics, juce::Viewport bounds
+
+### Files Modified (22 total)
+
+**jam library:**
+- `jam_fonts/cell/jam_row.h:38-39` — Row::dead bit (reflow tombstone, bit 1)
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement_shape.cpp:226` — SPACER_HEAD skip alongside SPACER_TAIL
+- `jam_gui/text_editor/jam_text_editor.h:38-41,115,130` — visibleWidthId/visibleHeightId/scrollbarVisibleId enums, onResized removed, font moved to protected
+- `jam_gui/text_editor/jam_text_editor.cpp:17-31,71-82,168-176` — properties array updated, resized() writes visible dims to state, setScrollRange toggles scrollbar visibility
+
+**END terminal:**
+- `Source/terminal/Grid.h` — reflowFrom, resizeHeight, snapshot accessors (getRingMask, getHeadPosition, getViewportRows, getBuffer)
+- `Source/terminal/Grid.cpp` — complete reflow rewrite: reflowDead/Move/Join/Split/Screen primitives (width-aware), reflowFrom with workCopy, reflow wrapper with resizeHeight, cursor wrap/unwrap with sentinel, screenCount→Map::Screen::count, defensive assertions removed from getBlock
+- `Source/terminal/GridResize.h` — SST pattern: set/applyChange/process/advanceCrossfade/prepare/flush/reset/allocate, snapshot members, transition state
+- `Source/terminal/GridResize.cpp` — full SST implementation, captureSnapshot, SIGWINCH via resizeEnd event, isReady cold start guard
+- `Source/terminal/Processor.h` — getGridResize removed, doc comments updated
+- `Source/terminal/Processor.cpp` — constructor (prepare+allocate), registerEvents (resizeTick+resizeEnd handlers), valueTreePropertyChanged (resize orchestration with dims guard)
+- `Source/terminal/Identifier.h` — resizeTick, resizeEnd identifiers added
+- `Source/terminal/component/Display.h` — updateDimensions removed, seedScreenNodes→createAndAttachState
+- `Source/terminal/component/Display.cpp` — sole dimension author (reads TextEditor visible bounds, computes cols/rows via setDimensions), applyConfig no longer calls resized(), simplified resized()
+- `Source/terminal/component/Screen.h` — updateDimension removed
+- `Source/terminal/component/Screen.cpp` — dimension computation removed (Display owns it), valueTreePropertyChanged render-only
+- `Source/terminal/component/LookAndFeel.cpp:290` — getDefaultScrollbarWidth (pre-existing, used by TextEditor)
+- `Source/terminal/shell/zsh_end_integration.zsh:21` — end()→END() (zsh reserved word fix)
+- `Source/Map.h:38` — Map::Screen::count SSOT
+- `ARCHITECTURE.md` — GridResize SST description, resizeLock references removed
+- `DEBT.md` — DEBT-20260521T120000 added (tmux garbage bytes)
+
+**Deleted:**
+- `PLAN-reflow-convergence.md` — objective complete
+- `RFC-reflow-convergence.md` — objective complete
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (createAndAttachState, Map::Screen::count, END shell function)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Grid reflow now tmux-faithful: dead-row tombstones, three primitives (move/split/join), split-calls-join
+- Width-aware reflow: WIDE+SPACER_TAIL atomic pairs never torn, SPACER_HEAD boundary padding
+- Content never destroyed during resize: SST snapshot (previous = current) pattern
+- Scrollbar width mismatch: Display reads TextEditor visible bounds, sole dimension author
+- Blank screen on first creation: removed resized() from applyConfig (zero-bounds poisoning)
+- SIGWINCH delivery: resizeEnd event with debounce timer
+- scrollOffset=0 guard: live mode never incremented during reflow
+- Cursor position at startup: isReady cold start skips animation on first resize
+- zsh reserved word collision: end()→END()
+
+### Debts Paid
+- `DEBT-20260519T124500` — Grid reflow on resize produces wrong output (tmux-faithful reflow replaces broken consumed-counter bookkeeping)
+
+### Debts Deferred
+- `DEBT-20260521T120000` — tmux garbage bytes on session start (CSI response fragments echoed)
+
 ## Sprint 26: Cell Unification + Map SSOT + int→cell Migration + Module Cleanup ✅
 
 **Date:** 2026-05-21

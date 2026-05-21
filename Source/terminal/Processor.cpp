@@ -43,7 +43,7 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, cell cols, cell 
     , state (textBufferRef)
     , video (grid, events)
     , skit (events)
-    , gridResize (grid, video, state)
+    , gridResize (grid, video, events)
     , uuid (uuid)
 {
     // Set initial dimensions via setDimensions — writes the Parameter<int> atomics
@@ -53,9 +53,8 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, cell cols, cell 
     parser = std::make_unique<Parser> (video);
     state.get().addListener (this);
     scrollbackLines = lua::Engine::getContext()->nexus.terminal.scrollbackLines;
-    gridResize.setScrollbackLines (scrollbackLines);
-    gridResize.set (cols, rows);
-    gridResize.apply();
+    gridResize.prepare (scrollbackLines);
+    gridResize.allocate (cols, rows);
 }
 
 /**
@@ -432,6 +431,37 @@ void Processor::registerEvents() noexcept
             video.loadScreenState (cell (newRow), cell (newCol), newVisible, cell { 0 }, cell { 0 }, false, newKbFlags);
         });
 
+    // GridResize per-tick event — writes State so Screen repaints at interpolated dims.
+    // Ordering: scrollOffset + cursor first, numRows last (numRows triggers repaint).
+    events.add<int, int, int, int, int> (id::resizeTick,
+        [this] (int numRowsNormal, int numRowsAlternate, int scrollOffset, int cursorRow, int cursorCol)
+        {
+            const int activeScr { state.getActiveScreen() };
+            const juce::Identifier activeScreenId { Map::Screen::getContext()->get (activeScr) };
+            state.setValue (activeScreenId, id::scrollOffset, scrollOffset);
+            state.setValue (activeScreenId, id::cursorRow, cursorRow);
+            state.setValue (activeScreenId, id::cursorCol, cursorCol);
+
+            const juce::Identifier normalScreenId { Map::Screen::getContext()->get (Map::Screen::normal) };
+            const juce::Identifier alternateScreenId { Map::Screen::getContext()->get (Map::Screen::alternate) };
+            state.setValue (normalScreenId, id::numRows, numRowsNormal);
+            state.setValue (alternateScreenId, id::numRows, numRowsAlternate);
+        });
+
+    // GridResize SIGWINCH debounce — fired when resize gesture settles.
+    events.add<> (id::resizeEnd,
+        [this]
+        {
+            if (tty != nullptr and tty->isThreadRunning())
+            {
+                const cell cols { state.getCols() };
+                const cell rows { state.getVisibleRows() };
+                const int pixelWidth { static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.get(), jam::ID::width).getValue()) };
+                const int pixelHeight { static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.get(), jam::ID::height).getValue()) };
+                tty->platformResize (cols, rows, pixelWidth, pixelHeight);
+            }
+        });
+
 }
 
 // =============================================================================
@@ -533,8 +563,9 @@ void Processor::resetKeyboardMode (int s) noexcept
  * Fires on the message thread when State's ValueTree properties change.
  * Handles shell integration callbacks (outputBlockTop → command process query,
  * promptRow → clear foreground), dimension changes (cols, visibleRows) via
- * gridResize.set(), cell pixel changes (cellWidth, cellHeight) via
- * gridResize.setCellSize(), and displayName recomputation from foregroundProcess / cwd.
+ * gridResize.set() / gridResize.allocate(), cell pixel changes (cellWidth,
+ * cellHeight) via gridResize.setCellSize(), and displayName recomputation
+ * from foregroundProcess / cwd.
  *
  * @note MESSAGE THREAD.
  */
@@ -585,7 +616,21 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
 
         if (paramId == id::cols or paramId == id::visibleRows)
         {
-            gridResize.set (state.getCols(), state.getVisibleRows());
+            const cell newCols { state.getCols() };
+            const cell newRows { state.getVisibleRows() };
+
+            if (newCols.value > 0 and newRows.value > 0)
+            {
+                if (not grid.isAllocated())
+                {
+                    gridResize.allocate (newCols, newRows);
+                }
+                else if (newCols.value != video.getCols().value
+                         or newRows.value != video.getVisibleRows().value)
+                {
+                    gridResize.set (newCols, newRows);
+                }
+            }
         }
 
         if (paramId == id::cellWidth or paramId == id::cellHeight)
@@ -744,8 +789,6 @@ void Processor::process (const char* data, int length) noexcept
     state.consumePasteEcho (length);
 }
 
-GridResize& Processor::getGridResize() noexcept { return gridResize; }
-
 State& Processor::getState() noexcept { return state; }
 const State& Processor::getState() const noexcept { return state; }
 
@@ -764,7 +807,6 @@ void Processor::flushResponses() noexcept { video.flushResponses(); }
 void Processor::setTTY (std::unique_ptr<TTY> ttyToOwn) noexcept
 {
     tty = std::move (ttyToOwn);
-    gridResize.setTTY (tty.get());
 }
 
 /**

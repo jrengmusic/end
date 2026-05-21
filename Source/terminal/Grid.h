@@ -99,6 +99,35 @@ public:
     std::array<int, 2> reflow (int newViewportRows, int newCols, int scrollbackLines,
                                int& cursorRow, int& cursorCol, int& scrollOffset) noexcept;
 
+    /** Content-preserving reflow from an external source buffer.
+     *
+     *  Same tmux-faithful dispatch as reflow(), but reads from the provided
+     *  source buffer instead of the live buffer. Writes results to the live
+     *  buffer. Used by GridResize for per-tick animation — the source is an
+     *  immutable snapshot, each tick reflowes it to different target dimensions.
+     *
+     *  Normal screen only — alternate screen rows are moved as-is (no reflow).
+     *
+     *  @param source              External source buffer (immutable snapshot).
+     *  @param sourceHead          Per-screen head positions in source.
+     *  @param sourceNumRows       Per-screen history row counts in source.
+     *  @param sourceRingMask      Ring mask of source buffer.
+     *  @param sourceViewportRows  Viewport row count at time of snapshot.
+     *  @param newViewportRows     New visible row count.
+     *  @param newCols             New column count.
+     *  @param scrollbackLines     Maximum history row count from config.
+     *  @param cursorRow           Viewport-relative cursor row (modified in place).
+     *  @param cursorCol           Cursor column (modified in place).
+     *  @param scrollOffset        Current scroll position (modified in place).
+     *  @return New numRows per screen {normal, alternate}.
+     */
+    std::array<int, 2> reflowFrom (const jam::Buffer<jam::Row>& source,
+                                    const std::array<int, 2>& sourceHead,
+                                    const std::array<int, 2>& sourceNumRows,
+                                    int sourceRingMask, int sourceViewportRows,
+                                    int newViewportRows, int newCols, int scrollbackLines,
+                                    int& cursorRow, int& cursorCol, int& scrollOffset) noexcept;
+
     /** Height-only resize step — called before reflow.
      *
      *  Translates tmux's screen_resize_y: adjusts head and numRows
@@ -205,6 +234,18 @@ public:
      *  @return Non-owning Block<Row> over the requested region.
      */
     jam::Block<jam::Row> getBlock (int screen, cell scrollOffset, cell viewportRows) const noexcept;
+
+    /** Returns the ring buffer mask. Used by GridResize for snapshot allocation. */
+    int getRingMask() const noexcept;
+
+    /** Returns the head position for the given screen. Used by GridResize for snapshot. */
+    int getHeadPosition (int screen) const noexcept;
+
+    /** Returns the current viewport row count. Used by GridResize for snapshot. */
+    cell getViewportRows() const noexcept;
+
+    /** Returns a const reference to the internal buffer for snapshot copy. */
+    const jam::Buffer<jam::Row>& getBuffer() const noexcept;
 
     ///@}
 

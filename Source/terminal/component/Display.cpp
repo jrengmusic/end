@@ -3,7 +3,7 @@
 terminal::Display::Display (terminal::Processor& processorToUse)
     : processor (processorToUse)
     , state (processorToUse.getState())
-    , screen (Display::seedScreenNodes (processorToUse.getState(), normalScreen, alternateScreen),
+    , screen (Display::createAndAttachState (processorToUse.getState(), normalScreen, alternateScreen),
               processorToUse.getGrid())
     , linkManager (processorToUse.getState(),
                    [&processorToUse] (const char* data, int len)
@@ -31,7 +31,7 @@ terminal::Display::Display (terminal::Processor& processorToUse)
     applyConfig();
 }
 
-terminal::State& terminal::Display::seedScreenNodes (terminal::State& stateToSeed,
+terminal::State& terminal::Display::createAndAttachState (terminal::State& stateToSeed,
                                                       juce::ValueTree& normalScreenNode,
                                                       juce::ValueTree& alternateScreenNode) noexcept
 {
@@ -91,8 +91,6 @@ void terminal::Display::applyConfig() noexcept
 
     mouse.setCellSize (font.bounds.width, font.bounds.height);
     input.buildKeyMap (config.keys.selection);
-
-    resized();
 }
 void terminal::Display::applyZoom (float) noexcept {}
 void terminal::Display::enterSelectionMode() noexcept
@@ -142,34 +140,26 @@ void terminal::Display::resized()
                                    .withTrimmedLeft (config.nexus.terminal.paddingLeft) };
 
     screen.setBounds (contentBounds);
-    updateDimensions (contentBounds);
-}
 
-void terminal::Display::updateDimensions (const juce::Rectangle<int>& contentBounds) noexcept
-{
-    const int cellWidth  { static_cast<int> (jam::ValueTree::getValueFromChildWithID (attachment->getNode(), terminal::id::cellWidth).getValue()) };
+    // After screen.setBounds, TextEditor::resized() has written visibleWidth/visibleHeight
+    // to the TextEditor state node (grafted into SESSION tree). Read them to compute cell dims.
+    const auto teNode { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
+    const int visibleWidth { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::visibleWidthId), 0)) };
+    const int visibleHeight { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::visibleHeightId), 0)) };
+
+    const int cellWidth { static_cast<int> (jam::ValueTree::getValueFromChildWithID (attachment->getNode(), terminal::id::cellWidth).getValue()) };
     const int cellHeight { static_cast<int> (jam::ValueTree::getValueFromChildWithID (attachment->getNode(), terminal::id::cellHeight).getValue()) };
 
-    if (cellWidth > 0 and cellHeight > 0)
+    if (visibleWidth > 0 and visibleHeight > 0 and cellWidth > 0 and cellHeight > 0)
     {
-        const auto gridRect { jam::Cell::Rectangle (jam::Bounds { cellWidth, cellHeight }, contentBounds) };
-        const cell newCols { gridRect.getWidth() };
-        const cell newRows { gridRect.getHeight() };
-
-        if (newCols.value > 0 and newRows.value > 0)
-        {
-            if (newCols != lastCols or newRows != lastRows)
-            {
-                lastCols = newCols;
-                lastRows = newRows;
-
-                state.setValue (terminal::id::cols, newCols.value);
-                state.setValue (terminal::id::visibleRows, newRows.value);
-                state.setValue (jam::ID::width, int (contentBounds.getWidth()));
-                state.setValue (jam::ID::height, int (contentBounds.getHeight()));
-            }
-        }
+        const auto gridRect { jam::Cell::Rectangle (jam::Bounds { cellWidth, cellHeight },
+                                                    juce::Rectangle<int> { 0, 0, visibleWidth, visibleHeight }) };
+        state.setDimensions (cell (gridRect.getWidth().value), cell (gridRect.getHeight().value));
     }
+
+    // Pixel dimensions — needed by SIGWINCH (tty->platformResize).
+    state.setValue (jam::ID::width, contentBounds.getWidth());
+    state.setValue (jam::ID::height, contentBounds.getHeight());
 }
 
 // juce::KeyListener

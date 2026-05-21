@@ -93,7 +93,7 @@ Source/
     Charset.h                       Character set tables (G0/G1)
     DispatchTable.h                 VT state machine transition table
     Grid.h/cpp                      Ring buffer, dual screen, dirty tracking
-    GridResize.h/cpp                Resize lifecycle: coalescing 50ms quiet timer, PTY resize, reflow
+    GridResize.h/cpp                SmoothStateTransition resize: snapshot + animated reflow, SIGWINCH on completion
     History.h/cpp                   Ring buffer of raw PTY bytes (for daemon snapshot/restore)
     Identifier.h                    ValueTree IDs + Identifier hash (terminal::id namespace)
     ImageDecode.h/cpp               Platform-independent BGRA→RGBA swizzle + ImageSequence struct
@@ -418,7 +418,7 @@ ValueTree is the SSOT for all scalar state. `State::flush()` copies dirty atomic
 READER → jam::Buffer<jam::Row> on Grid → timer flush → MESSAGE reads via getBlock()
 ```
 
-Grid stores `jam::Buffer<jam::Row>` (2 channels, ring-indexed via `head` + `ringMask`). `terminal::Screen` reads via `Grid::getBlock()` which returns a `Block<Row>` — a non-owning view with no copy. No dirty tracking on Grid — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask. No `resizeLock` on Grid. Synchronization: `juce::CriticalSection resizeLock` on `GridResize` (resize only, not on Grid directly).
+Grid stores `jam::Buffer<jam::Row>` (2 channels, ring-indexed via `head` + `ringMask`). `terminal::Screen` reads via `Grid::getBlock()` which returns a `Block<Row>` — a non-owning view with no copy. No dirty tracking on Grid — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask.
 
 **Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → Grid `jam::Buffer<jam::Row>`. If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
 
@@ -521,7 +521,6 @@ Keystroke -> Message Thread -> TTY::write()
 | `std::atomic<bool> needsFlush` | Reader -> Timer | ValueTree flush trigger |
 | `jam::GLSnapshotBuffer` (atomic exchange) | Message -> GL | Double-buffered snapshot handoff |
 | `std::mutex` (uploadMutex) | Message -> GL | Staged bitmap queue |
-| `juce::CriticalSection` (resizeLock) | Message <-> Reader | Grid resize + data processing safety |
 
 ---
 
@@ -1042,7 +1041,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Decision:** TTY reader thread calls `Processor::process()` → `Parser::process()` directly. Video writes to Grid cells and State atomics on the reader thread.
 
-**Rationale:** Simpler, lower latency. The FIFO added a drain step on the message thread that was unnecessary — the parser is fast enough to run on the reader thread without blocking. Grid access is protected by `resizeLock` CriticalSection only during resize.
+**Rationale:** Simpler, lower latency. The FIFO added a drain step on the message thread that was unnecessary — the parser is fast enough to run on the reader thread without blocking.
 
 ### Decision: Sideloaded ConPTY (All Windows Versions)
 

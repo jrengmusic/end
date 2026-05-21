@@ -18,7 +18,7 @@ autoload -Uz add-zsh-hook
 add-zsh-hook precmd _end_precmd
 add-zsh-hook preexec _end_preexec
 
-end() {
+END() {
     if [[ "$1" == "preview" ]]; then
         local file="${2:a}"
         printf '\033]1337;END;%s;%s;%s\a' "$file" "${FZF_PREVIEW_COLUMNS:-0}" "${FZF_PREVIEW_LINES:-0}"

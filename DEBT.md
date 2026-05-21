@@ -10,11 +10,12 @@
 
 ---
 
-## DEBT-20260519T124500
+## DEBT-20260521T120000
 
-**Observation:** Grid reflow on resize produces wrong output — downsize doesn't wrap content, upsize duplicates/copies content instead of reflowing
-**Divergence:** resizing terminal window should reflow wrapped lines at new width (join on width increase, split on width decrease) preserving content — same as tmux grid_reflow
-**Expectation:** content-preserving resize with correct wrap/unwrap following tmux structural pattern: move/join/split dispatch based on usedCols vs newCols and wrapped flag
+**Observation:** entering tmux inside END, garbage bytes echoed to terminal: `^[[?62;4c%` and `/62;4c_`. Need to type random input until gaining full control of active prompt.
+**Divergence:** entering tmux should start cleanly with no garbage byte echo — the CSI response bytes should be consumed by tmux, not displayed
+**Expectation:** tmux session starts with clean prompt, no leaked escape sequence fragments visible to the user
+
 
 ---
 

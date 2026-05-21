@@ -34,6 +34,8 @@ struct Map
             };
         }
 
+        static constexpr int count { 2 };
+
         enum
         {
             normal    = 0,

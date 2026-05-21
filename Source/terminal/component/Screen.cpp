@@ -67,12 +67,16 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
 
     const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
     auto screenNode { terminal.get().getChildWithName (screenId) };
-    const int scrollOffset { static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::scrollOffset).getValue()) };
-    const int numRows { static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::numRows).getValue()) };
-    const cell cursorCol { static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::cursorCol).getValue()) };
-    const cell cursorRow { static_cast<int> (jam::ValueTree::getValueFromChildWithID (screenNode, id::cursorRow).getValue()) };
+    const int scrollOffset { static_cast<int> (
+        jam::ValueTree::getValueFromChildWithID (screenNode, id::scrollOffset).getValue()) };
+    const int numRows { static_cast<int> (
+        jam::ValueTree::getValueFromChildWithID (screenNode, id::numRows).getValue()) };
+    const cell cursorCol { static_cast<int> (
+        jam::ValueTree::getValueFromChildWithID (screenNode, id::cursorCol).getValue()) };
+    const cell cursorRow { static_cast<int> (
+        jam::ValueTree::getValueFromChildWithID (screenNode, id::cursorRow).getValue()) };
 
-    if (numCols > 0 and viewportRows > 0)
+    if (numCols > 0 and viewportRows > 0 and grid.isAllocated())
     {
         const auto block { grid.getBlock (activeScreen, cell (scrollOffset), cell (viewportRows)) };
         setText (block);
