@@ -45,8 +45,8 @@ namespace terminal
 void Video::saveCursor (int scr) noexcept
 {
     auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-    sc.row         = cursorRow.value;
-    sc.col         = cursorCol.value;
+    sc.row         = cursorRow;
+    sc.col         = cursorCol;
     sc.fg          = penFg;
     sc.bg          = penBg;
     sc.flags       = penFlags;
@@ -58,8 +58,8 @@ void Video::saveCursor (int scr) noexcept
 void Video::restoreCursor (int scr) noexcept
 {
     const auto& sc { savedCursor.at (static_cast<size_t> (scr)) };
-    cursorRow      = cell (sc.row);
-    cursorCol      = cell (sc.col);
+    cursorRow      = sc.row;
+    cursorCol      = sc.col;
     penFg          = sc.fg;
     penBg          = sc.bg;
     penFlags       = sc.flags;
@@ -103,17 +103,16 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
         case 'D':
         {
             // IND — Index: line feed without CR
-            const int scrollBot { activeScrollBottom() };
-            const int vRows     { visibleRows.value };
-            const int cRow      { cursorRow.value };
-            const int sTop      { scrollTop.value };
+            const cell scrollBot { activeScrollBottom() };
+            const int  cRow      { cursorRow.value };
+            const int  sTop      { scrollTop.value };
 
-            if (cRow == scrollBot)
+            if (cRow == scrollBot.value)
             {
-                scrollUpAndFill (sTop, scrollBot);
+                scrollUpAndFill (sTop, scrollBot.value);
             }
 
-            cursorGoToNextLine (scrollBot, vRows);
+            cursorGoToNextLine (scrollBot, visibleRows);
 
             break;
         }
@@ -124,17 +123,16 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
             cursorCol   = 0_cell;
             wrapPending = false;
 
-            const int scrollBot { activeScrollBottom() };
-            const int vRows     { visibleRows.value };
-            const int cRow      { cursorRow.value };
-            const int sTop      { scrollTop.value };
+            const cell scrollBot { activeScrollBottom() };
+            const int  cRow      { cursorRow.value };
+            const int  sTop      { scrollTop.value };
 
-            if (cRow == scrollBot)
+            if (cRow == scrollBot.value)
             {
-                scrollUpAndFill (sTop, scrollBot);
+                scrollUpAndFill (sTop, scrollBot.value);
             }
 
-            cursorGoToNextLine (scrollBot, vRows);
+            cursorGoToNextLine (scrollBot, visibleRows);
 
             break;
         }
@@ -146,13 +144,13 @@ void Video::escDispatchNoIntermediate (int scr, uint8_t finalByte) noexcept
         case 'M':
         {
             // RI — Reverse Index: scroll down if at top of scroll region
-            const int cRow      { cursorRow.value };
-            const int sTopVal   { scrollTop.value };
-            const int scrollBot { activeScrollBottom() };
+            const int  cRow      { cursorRow.value };
+            const int  sTopVal   { scrollTop.value };
+            const cell scrollBot { activeScrollBottom() };
 
             if (cRow == sTopVal)
             {
-                scrollDownAndFill (sTopVal, scrollBot);
+                scrollDownAndFill (sTopVal, scrollBot.value);
             }
             else if (cRow > 0)
             {
@@ -248,7 +246,7 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 
         for (int row { 0 }; row < vRows; ++row)
         {
-            jam::Row* rowPtr { grid.getWritePointer (scr, row) };
+            jam::Row* rowPtr { grid.getWritePointer (scr, cell (row)) };
 
             for (int col { 0 }; col < nCols; ++col)
                 rowPtr->cells[col] = alignCell;
@@ -256,7 +254,7 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
             rowPtr->usedCols = static_cast<uint16_t> (nCols);
         }
 
-        cursorSetPosition (0, 0, nCols, vRows);
+        cursorSetPosition (0_cell, 0_cell, cell (nCols), cell (vRows));
     }
 }
 

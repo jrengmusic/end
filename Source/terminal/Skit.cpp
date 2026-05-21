@@ -60,11 +60,11 @@ void Skit::setCellSize (int widthPx, int heightPx) noexcept
  * @param cursorCol  Cursor column at signal time.
  * @note READER THREAD only.
  */
-void Skit::handleSkitFilepath (const juce::String& filepath, int cols, int lines,
-                                int cursorRow, int cursorCol) noexcept
+void Skit::handleSkitFilepath (const juce::String& filepath, cell cols, cell lines,
+                                cell cursorRow, cell cursorCol) noexcept
 {
     if (events.contains (id::previewFile))
-        events.get (id::previewFile, filepath, int (cursorRow), int (cursorCol), int (cols), int (lines));
+        events.get (id::previewFile, filepath, cursorRow.value, cursorCol.value, cols.value, lines.value);
 }
 
 // =============================================================================
@@ -84,7 +84,7 @@ void Skit::handleSkitFilepath (const juce::String& filepath, int cols, int lines
  * @note READER THREAD only.
  */
 void Skit::processDCS (uint8_t finalByte, const uint8_t* data, int length,
-                        int cursorRow, int cursorCol) noexcept
+                        cell cursorRow, cell cursorCol) noexcept
 {
     lastImageRows = 0_cell;
     lastResponse  = {};
@@ -104,16 +104,16 @@ void Skit::processDCS (uint8_t finalByte, const uint8_t* data, int length,
             const int firstSep  { payload.indexOfChar (';') };
             const int secondSep { firstSep >= 0 ? payload.indexOfChar (firstSep + 1, ';') : -1 };
 
-            int previewCols  { 0 };
-            int previewLines { 0 };
+            cell previewCols  { 0 };
+            cell previewLines { 0 };
 
             juce::String filepath;
 
             if (firstSep >= 0 and secondSep > firstSep)
             {
                 filepath     = payload.substring (0, firstSep);
-                previewCols  = payload.substring (firstSep + 1, secondSep).getIntValue();
-                previewLines = payload.substring (secondSep + 1).getIntValue();
+                previewCols  = cell (payload.substring (firstSep + 1, secondSep).getIntValue());
+                previewLines = cell (payload.substring (secondSep + 1).getIntValue());
             }
             else
             {
@@ -149,7 +149,7 @@ void Skit::processDCS (uint8_t finalByte, const uint8_t* data, int length,
                             juce::HeapBlock<int>(),
                             1,
                             int (image.width), int (image.height),
-                            int (cursorRow), int (cursorCol),
+                            cursorRow.value, cursorCol.value,
                             int (cellCols), int (cellRows),
                             false);
                     }
@@ -180,7 +180,7 @@ void Skit::processDCS (uint8_t finalByte, const uint8_t* data, int length,
  * @note READER THREAD only.
  */
 void Skit::processAPC (const uint8_t* data, int length,
-                        int cursorRow, int cursorCol) noexcept
+                        cell cursorRow, cell cursorCol) noexcept
 {
     lastImageRows = 0_cell;
     lastResponse  = {};
@@ -201,16 +201,16 @@ void Skit::processAPC (const uint8_t* data, int length,
             const int firstSep  { payload.indexOfChar (';') };
             const int secondSep { firstSep >= 0 ? payload.indexOfChar (firstSep + 1, ';') : -1 };
 
-            int previewCols  { 0 };
-            int previewLines { 0 };
+            cell previewCols  { 0 };
+            cell previewLines { 0 };
 
             juce::String filepath;
 
             if (firstSep >= 0 and secondSep > firstSep)
             {
                 filepath     = payload.substring (0, firstSep);
-                previewCols  = payload.substring (firstSep + 1, secondSep).getIntValue();
-                previewLines = payload.substring (secondSep + 1).getIntValue();
+                previewCols  = cell (payload.substring (firstSep + 1, secondSep).getIntValue());
+                previewLines = cell (payload.substring (secondSep + 1).getIntValue());
             }
             else
             {
@@ -249,7 +249,7 @@ void Skit::processAPC (const uint8_t* data, int length,
                             juce::HeapBlock<int>(),
                             1,
                             int (result.image.width), int (result.image.height),
-                            int (cursorRow), int (cursorCol),
+                            cursorRow.value, cursorCol.value,
                             int (cellCols), int (cellRows),
                             false);
                     }
@@ -278,7 +278,7 @@ void Skit::processAPC (const uint8_t* data, int length,
  * @note READER THREAD only.
  */
 void Skit::processOSC1337 (const uint8_t* data, int length,
-                             int cursorRow, int cursorCol) noexcept
+                             cell cursorRow, cell cursorCol) noexcept
 {
     lastImageRows = 0_cell;
     lastResponse  = {};
@@ -298,16 +298,16 @@ void Skit::processOSC1337 (const uint8_t* data, int length,
             const int firstSep  { payload.indexOfChar (';') };
             const int secondSep { firstSep >= 0 ? payload.indexOfChar (firstSep + 1, ';') : -1 };
 
-            int previewCols  { 0 };
-            int previewLines { 0 };
+            cell previewCols  { 0 };
+            cell previewLines { 0 };
 
             juce::String filepath;
 
             if (firstSep >= 0 and secondSep > firstSep)
             {
                 filepath     = payload.substring (0, firstSep);
-                previewCols  = payload.substring (firstSep + 1, secondSep).getIntValue();
-                previewLines = payload.substring (secondSep + 1).getIntValue();
+                previewCols  = cell (payload.substring (firstSep + 1, secondSep).getIntValue());
+                previewLines = cell (payload.substring (secondSep + 1).getIntValue());
             }
             else
             {
@@ -343,7 +343,7 @@ void Skit::processOSC1337 (const uint8_t* data, int length,
                             std::move (seq.delays),
                             int (seq.frameCount),
                             int (seq.width), int (seq.height),
-                            int (cursorRow), int (cursorCol),
+                            cursorRow.value, cursorCol.value,
                             int (cellCols), int (cellRows),
                             false);
                     }

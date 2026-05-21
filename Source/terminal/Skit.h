@@ -71,7 +71,7 @@ public:
      *  @note READER THREAD only.
      */
     void processDCS (uint8_t finalByte, const uint8_t* data, int length,
-                     int cursorRow, int cursorCol) noexcept;
+                     cell cursorRow, cell cursorCol) noexcept;
 
     /** @brief Processes an APC payload (Kitty graphics or SKiT filepath).
      *
@@ -86,7 +86,7 @@ public:
      *  @note READER THREAD only.
      */
     void processAPC (const uint8_t* data, int length,
-                     int cursorRow, int cursorCol) noexcept;
+                     cell cursorRow, cell cursorCol) noexcept;
 
     /** @brief Processes an OSC 1337 payload (iTerm2 image or SKiT filepath).
      *
@@ -101,7 +101,7 @@ public:
      *  @note READER THREAD only.
      */
     void processOSC1337 (const uint8_t* data, int length,
-                         int cursorRow, int cursorCol) noexcept;
+                         cell cursorRow, cell cursorCol) noexcept;
 
     /** @brief Returns the number of cell rows the last image placement occupied.
      *
@@ -147,8 +147,8 @@ private:
      *  @param cursorCol  Cursor column at signal time.
      *  @note READER THREAD only.
      */
-    void handleSkitFilepath (const juce::String& filepath, int cols, int lines,
-                             int cursorRow, int cursorCol) noexcept;
+    void handleSkitFilepath (const juce::String& filepath, cell cols, cell lines,
+                             cell cursorRow, cell cursorCol) noexcept;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Skit)
 };

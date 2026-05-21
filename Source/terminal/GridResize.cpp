@@ -79,12 +79,12 @@ void GridResize::apply() noexcept
                 const uint32_t kbFlags { static_cast<uint32_t> (static_cast<int> (jam::ValueTree::getValueFromChildWithID (activeNode, id::keyboardFlags).getValue())) };
 
                 video.setDimensions (pendingCols, pendingRows);
-                video.loadScreenState (cursorRow, cursorCol, visible, 0, 0, false, kbFlags);
+                video.loadScreenState (cell (cursorRow), cell (cursorCol), visible, 0_cell, 0_cell, false, kbFlags);
                 video.resize (pendingCols, pendingRows);
             }
             else
             {
-                grid.setSize (pendingRows.value, pendingCols.value, scrollbackLines);
+                grid.setSize (pendingRows, pendingCols, cell (scrollbackLines));
                 video.setDimensions (pendingCols, pendingRows);
                 video.resize (pendingCols, pendingRows);
             }

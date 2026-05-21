@@ -86,7 +86,7 @@ namespace terminal
  * @see initializeTabStops()    — rebuilds the tab stop vector
  * @see reset()                 — full terminal reset (RIS) entry point
  */
-void Video::resetCursor (int numCols) noexcept
+void Video::resetCursor (cell cols) noexcept
 {
     cursorRow     = 0_cell;
     cursorCol     = 0_cell;
@@ -94,7 +94,7 @@ void Video::resetCursor (int numCols) noexcept
     wrapPending   = false;
     scrollTop     = 0_cell;
     scrollBottom  = 0_cell;
-    initializeTabStops (numCols);
+    initializeTabStops (cols.value);
 }
 
 /**
@@ -121,7 +121,7 @@ void Video::resetCursor (int numCols) noexcept
 void Video::cursorMoveUp (int count) noexcept
 {
     const int top    { scrollTop.value };
-    const int bottom { effectiveScrollBottom (visibleRows.value) };
+    const int bottom { effectiveScrollBottom (visibleRows).value };
     const int row    { cursorRow.value };
     const bool withinMargins { row >= top and row <= bottom };
     const int clampTop { withinMargins ? top : 0 };
@@ -151,10 +151,10 @@ void Video::cursorMoveUp (int count) noexcept
  * @see cursorMoveUp()           — complementary upward movement
  * @see effectiveScrollBottom()  — computes the effective scroll region bottom
  */
-void Video::cursorMoveDown (int count, int bottom) noexcept
+void Video::cursorMoveDown (int count, cell bottom) noexcept
 {
     const int row { cursorRow.value };
-    cursorRow   = cell (juce::jmin (bottom, row + count));
+    cursorRow   = cell (juce::jmin (bottom.value, row + count));
     wrapPending = false;
 }
 
@@ -177,10 +177,10 @@ void Video::cursorMoveDown (int count, int bottom) noexcept
  *
  * @see cursorMoveBackward()  — complementary leftward movement
  */
-void Video::cursorMoveForward (int count, int cols) noexcept
+void Video::cursorMoveForward (int count, cell cols) noexcept
 {
     const int col { cursorCol.value };
-    cursorCol   = cell (juce::jmin (cols - 1, col + count));
+    cursorCol   = cell (juce::jmin (cols.value - 1, col + count));
     wrapPending = false;
 }
 
@@ -232,10 +232,10 @@ void Video::cursorMoveBackward (int count) noexcept
  *
  * @see cursorSetPositionInOrigin()  — use this variant when DECOM is active
  */
-void Video::cursorSetPosition (int row, int col, int cols, int visibleRows) noexcept
+void Video::cursorSetPosition (cell row, cell col, cell cols, cell visibleRows) noexcept
 {
-    cursorRow   = cell (juce::jlimit (0, visibleRows - 1, row));
-    cursorCol   = cell (juce::jlimit (0, cols - 1, col));
+    cursorRow   = cell (juce::jlimit (0, visibleRows.value - 1, row.value));
+    cursorCol   = cell (juce::jlimit (0, cols.value - 1, col.value));
     wrapPending = false;
 }
 
@@ -264,12 +264,12 @@ void Video::cursorSetPosition (int row, int col, int cols, int visibleRows) noex
  * @see cursorSetPosition()      — use this variant when DECOM is inactive
  * @see effectiveScrollBottom()  — computes the effective scroll region bottom
  */
-void Video::cursorSetPositionInOrigin (int row, int col, int cols, int visibleRows) noexcept
+void Video::cursorSetPositionInOrigin (cell row, cell col, cell cols, cell visibleRows) noexcept
 {
     const int top    { scrollTop.value };
-    const int bottom { effectiveScrollBottom (visibleRows) };
-    cursorRow   = cell (juce::jlimit (top, bottom, row + top));
-    cursorCol   = cell (juce::jlimit (0, cols - 1, col));
+    const int bottom { effectiveScrollBottom (visibleRows).value };
+    cursorRow   = cell (juce::jlimit (top, bottom, row.value + top));
+    cursorCol   = cell (juce::jlimit (0, cols.value - 1, col.value));
     wrapPending = false;
 }
 
@@ -298,20 +298,20 @@ void Video::cursorSetPositionInOrigin (int row, int col, int cols, int visibleRo
  * @see executeLineFeed()    — calls this; scrolls the region if it returns false
  * @see resolveWrapPending() — calls this when auto-wrap fires at the right margin
  */
-bool Video::cursorGoToNextLine (int bottom, int visibleRows) noexcept
+bool Video::cursorGoToNextLine (cell bottom, cell visibleRows) noexcept
 {
     wrapPending = false;
     const int row { cursorRow.value };
     bool moved { false };
 
-    if (row < bottom)
+    if (row < bottom.value)
     {
         cursorRow = cell (row + 1);
         moved = true;
     }
-    else if (row > bottom)
+    else if (row > bottom.value)
     {
-        cursorRow = cell (juce::jmin (row + 1, visibleRows - 1));
+        cursorRow = cell (juce::jmin (row + 1, visibleRows.value - 1));
         moved = true;
     }
 
@@ -338,12 +338,12 @@ bool Video::cursorGoToNextLine (int bottom, int visibleRows) noexcept
  *
  * @see resize()  — calls this after updating State with new dimensions
  */
-void Video::cursorClamp (int cols, int visibleRows) noexcept
+void Video::cursorClamp (cell cols, cell visibleRows) noexcept
 {
     const int col { cursorCol.value };
     const int row { cursorRow.value };
-    cursorCol = cell (juce::jlimit (0, cols - 1, col));
-    cursorRow = cell (juce::jlimit (0, visibleRows - 1, row));
+    cursorCol = cell (juce::jlimit (0, cols.value - 1, col));
+    cursorRow = cell (juce::jlimit (0, visibleRows.value - 1, row));
 }
 
 /**
@@ -363,10 +363,10 @@ void Video::cursorClamp (int cols, int visibleRows) noexcept
  * @see cursorResetScrollRegion()  — resets the region to the full screen
  * @see effectiveScrollBottom()    — interprets a stored bottom of 0 as full-screen
  */
-void Video::cursorSetScrollRegion (int top, int bottom) noexcept
+void Video::cursorSetScrollRegion (cell top, cell bottom) noexcept
 {
-    scrollTop    = cell (top);
-    scrollBottom = cell (bottom);
+    scrollTop    = top;
+    scrollBottom = bottom;
 }
 
 /**
@@ -412,10 +412,10 @@ void Video::cursorResetScrollRegion() noexcept
  * @see cursorSetScrollRegion()   — sets an explicit scroll region
  * @see cursorResetScrollRegion() — resets to the sentinel value (0)
  */
-int Video::effectiveScrollBottom (int visibleRows) const noexcept
+cell Video::effectiveScrollBottom (cell visibleRows) const noexcept
 {
     const int sb { scrollBottom.value };
-    return (sb > 0) ? sb : visibleRows - 1;
+    return (sb > 0) ? scrollBottom : cell (visibleRows.value - 1);
 }
 
 /**
@@ -433,12 +433,12 @@ int Video::effectiveScrollBottom (int visibleRows) const noexcept
  * @see moveCursorDown()      — CUD handler
  * @see moveCursorNextLine()  — CNL handler
  */
-int Video::effectiveClampBottom() const noexcept
+cell Video::effectiveClampBottom() const noexcept
 {
     const int row { cursorRow.value };
     const int top { scrollTop.value };
-    const bool withinMargins { row >= top and row <= activeScrollBottom() };
-    return withinMargins ? activeScrollBottom() : visibleRows.value - 1;
+    const bool withinMargins { row >= top and row <= activeScrollBottom().value };
+    return withinMargins ? activeScrollBottom() : cell (visibleRows.value - 1);
 }
 
 // ============================================================================
@@ -516,11 +516,11 @@ void Video::initializeTabStops (int numCols) noexcept
  * @see initializeTabStops()  — sets the default stop layout
  * @see setTabStop()          — adds a stop at the cursor column
  */
-int Video::nextTabStop (int cols) noexcept
+cell Video::nextTabStop (cell cols) noexcept
 {
     int nextTab { cursorCol.value + 1 };
 
-    while (nextTab < cols)
+    while (nextTab < cols.value)
     {
         if (nextTab < static_cast<int> (tabStops.size()) and tabStops.at (static_cast<size_t> (nextTab)) != 0)
         {
@@ -530,7 +530,7 @@ int Video::nextTabStop (int cols) noexcept
         ++nextTab;
     }
 
-    return juce::jmin (nextTab, cols - 1);
+    return cell (juce::jmin (nextTab, cols.value - 1));
 }
 
 /**

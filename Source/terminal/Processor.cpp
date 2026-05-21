@@ -192,8 +192,8 @@ void Processor::registerEvents() noexcept
     events.add<const uint8_t*, int, int, int> (id::osc1337Raw,
                                                [this] (const uint8_t* data, int length, int cursorRow, int cursorCol)
                                                {
-                                                   skit.processOSC1337 (data, length, cursorRow, cursorCol);
-                                                   video.advanceCursorForImage (skit.getLastImageRows().value);
+                                                   skit.processOSC1337 (data, length, cell (cursorRow), cell (cursorCol));
+                                                   video.advanceCursorForImage (skit.getLastImageRows());
                                                });
 
     // DCS payload complete — delegate to Skit, then advance cursor.
@@ -201,8 +201,8 @@ void Processor::registerEvents() noexcept
         id::dcsPayloadComplete,
         [this] (const uint8_t* data, int length)
         {
-            skit.processDCS (video.getDcsFinalByte(), data, length, video.getCursorRow().value, video.getCursorCol().value);
-            video.advanceCursorForImage (skit.getLastImageRows().value);
+            skit.processDCS (video.getDcsFinalByte(), data, length, video.getCursorRow(), video.getCursorCol());
+            video.advanceCursorForImage (skit.getLastImageRows());
         });
 
     // APC payload complete — delegate to Skit, forward any Kitty response, then advance cursor.
@@ -210,13 +210,13 @@ void Processor::registerEvents() noexcept
         id::apcPayloadComplete,
         [this] (const uint8_t* data, int length)
         {
-            skit.processAPC (data, length, video.getCursorRow().value, video.getCursorCol().value);
+            skit.processAPC (data, length, video.getCursorRow(), video.getCursorCol());
 
             const juce::String& response { skit.getLastResponse() };
             if (response.isNotEmpty() and events.contains (id::writeToHost))
                 events.get (id::writeToHost, response.toRawUTF8(), int (response.getNumBytesAsUTF8()));
 
-            video.advanceCursorForImage (skit.getLastImageRows().value);
+            video.advanceCursorForImage (skit.getLastImageRows());
         });
 
     // Cell erase — mark snapshot dirty so the renderer sees erased content.
@@ -352,22 +352,22 @@ void Processor::registerEvents() noexcept
                      });
 
     // State delivery: cursor row for active screen.
-    events.add<int, int> (id::cursorRow,
-                          [this] (int scr, int row)
-                          {
-                              const juce::Identifier rowScreenId { Map::Screen::getContext()->get (scr) };
-                              state.storeValue (rowScreenId, id::cursorRow, row);
-                              state.setSnapshotDirty();
-                          });
+    events.add<int, cell> (id::cursorRow,
+                           [this] (int scr, cell row)
+                           {
+                               const juce::Identifier rowScreenId { Map::Screen::getContext()->get (scr) };
+                               state.storeValue (rowScreenId, id::cursorRow, row.value);
+                               state.setSnapshotDirty();
+                           });
 
     // State delivery: cursor column for active screen.
-    events.add<int, int> (id::cursorCol,
-                          [this] (int scr, int col)
-                          {
-                              const juce::Identifier colScreenId { Map::Screen::getContext()->get (scr) };
-                              state.storeValue (colScreenId, id::cursorCol, col);
-                              state.setSnapshotDirty();
-                          });
+    events.add<int, cell> (id::cursorCol,
+                           [this] (int scr, cell col)
+                           {
+                               const juce::Identifier colScreenId { Map::Screen::getContext()->get (scr) };
+                               state.storeValue (colScreenId, id::cursorCol, col.value);
+                               state.setSnapshotDirty();
+                           });
 
     // State delivery: cursor visibility for active screen.
     events.add<int, bool> (id::cursorVisible,
@@ -429,7 +429,7 @@ void Processor::registerEvents() noexcept
             const uint32_t newKbFlags { static_cast<uint32_t> (state.loadValue (newScreenId, id::keyboardFlags)) };
 
             // scrollTop/scrollBottom reset to 0 (sentinel = full screen); wrapPending cleared.
-            video.loadScreenState (newRow, newCol, newVisible, 0, 0, false, newKbFlags);
+            video.loadScreenState (cell (newRow), cell (newCol), newVisible, cell { 0 }, cell { 0 }, false, newKbFlags);
         });
 
 }
@@ -712,10 +712,10 @@ juce::String Processor::encodeFocusEvent (bool gained) const noexcept
  *
  * @note MESSAGE THREAD only.
  */
-juce::String Processor::encodeMouseEvent (int button, int col, int row, bool press) const noexcept
+juce::String Processor::encodeMouseEvent (int button, cell col, cell row, bool press) const noexcept
 {
     const char finalChar { press ? 'M' : 'm' };
-    return juce::String ("\x1b[<") + juce::String (button) + ";" + juce::String (col + 1) + ";" + juce::String (row + 1)
+    return juce::String ("\x1b[<") + juce::String (button) + ";" + juce::String (col.value + 1) + ";" + juce::String (row.value + 1)
            + finalChar;
 }
 
@@ -734,7 +734,7 @@ void Processor::process (const char* data, int length) noexcept
 {
     jassert (parser != nullptr);
 
-    if (video.getCols().value > 0 and video.getVisibleRows().value > 0)
+    if (video.getCols() > cell (0) and video.getVisibleRows() > cell (0))
     {
         parser->process (reinterpret_cast<const uint8_t*> (data), static_cast<size_t> (length));
         video.flush();

@@ -131,11 +131,11 @@ void Video::applyAPCPayload (const uint8_t* data, int length) noexcept
  * @param numRows  Number of cell rows to advance downward.
  * @note READER THREAD only.
  */
-void Video::advanceCursorForImage (int numRows) noexcept
+void Video::advanceCursorForImage (cell numRows) noexcept
 {
-    if (numRows > 0)
+    if (numRows.value > 0)
     {
-        cursorMoveDown (numRows, effectiveClampBottom());
+        cursorMoveDown (numRows.value, effectiveClampBottom());
         cursorCol = 0_cell;
     }
 }

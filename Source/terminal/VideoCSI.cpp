@@ -280,7 +280,7 @@ void Video::moveCursorDown (const CSI& params) noexcept
  */
 void Video::moveCursorForward (const CSI& params) noexcept
 {
-    cursorMoveForward (static_cast<int> (params.param (0, 1)), cols.value);
+    cursorMoveForward (static_cast<int> (params.param (0, 1)), cols);
 }
 
 /**
@@ -353,7 +353,7 @@ void Video::cursorForwardTab (const CSI& params) noexcept
 
     for (int i { 0 }; i < count; ++i)
     {
-        cursorCol = cell (nextTabStop (cols.value));
+        cursorCol = nextTabStop (cols);
     }
 
     wrapPending = false;
@@ -419,7 +419,7 @@ void Video::setCursorColumn (const CSI& params) noexcept
  */
 void Video::setCursorPosition (const CSI& params) noexcept
 {
-    moveCursorTo (paramToIndex (params, 0, 1), paramToIndex (params, 1, 1));
+    moveCursorTo (cell (paramToIndex (params, 0, 1)), cell (paramToIndex (params, 1, 1)));
 }
 
 /**
@@ -437,7 +437,7 @@ void Video::setCursorPosition (const CSI& params) noexcept
  */
 void Video::setCursorLine (const CSI& params) noexcept
 {
-    moveCursorTo (paramToIndex (params, 0, 1), cursorCol.value);
+    moveCursorTo (cell (paramToIndex (params, 0, 1)), cursorCol);
 }
 
 /**
@@ -458,18 +458,15 @@ void Video::setCursorLine (const CSI& params) noexcept
  * @see cursorSetPositionInOrigin()
  * @see calc()
  */
-void Video::moveCursorTo (int row, int col) noexcept
+void Video::moveCursorTo (cell row, cell col) noexcept
 {
-    const int colCount { cols.value };
-    const int rowCount { visibleRows.value };
-
     if (originMode)
     {
-        cursorSetPositionInOrigin (row, col, colCount, rowCount);
+        cursorSetPositionInOrigin (row, col, cols, visibleRows);
     }
     else
     {
-        cursorSetPosition (row, col, colCount, rowCount);
+        cursorSetPosition (row, col, cols, visibleRows);
     }
 
     calc();
@@ -493,7 +490,7 @@ void Video::moveCursorTo (int row, int col) noexcept
 void Video::scrollUp (const CSI& params) noexcept
 {
     const int scrTop { scrollTop.value };
-    const int bottom { activeScrollBottom() };
+    const int bottom { activeScrollBottom().value };
     const int count { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
@@ -515,7 +512,7 @@ void Video::scrollDown (const CSI& params) noexcept
 {
     const auto scr    { activeScreen };
     const int scrTop  { scrollTop.value };
-    const int bottom  { activeScrollBottom() };
+    const int bottom  { activeScrollBottom().value };
     const int count   { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
@@ -528,7 +525,7 @@ void Video::scrollDown (const CSI& params) noexcept
 
         for (int r { scrTop }; r < scrTop + clampedCount; ++r)
         {
-            jam::Row* row { grid.getWritePointer (scr, r) };
+            jam::Row* row { grid.getWritePointer (scr, cell (r)) };
 
             for (int c { 0 }; c < numCols; ++c)
                 row->cells[c] = fill;
@@ -560,7 +557,7 @@ void Video::setScrollRegion (const CSI& params) noexcept
 
     if (top >= 0 and bottom > top and bottom < vRows)
     {
-        cursorSetScrollRegion (top, bottom);
+        cursorSetScrollRegion (cell (top), cell (bottom));
     }
     else
     {
@@ -569,7 +566,7 @@ void Video::setScrollRegion (const CSI& params) noexcept
 
     calc();
 
-    cursorSetPosition (0, 0, cols.value, vRows);
+    cursorSetPosition (0_cell, 0_cell, cols, visibleRows);
 }
 
 // ============================================================================

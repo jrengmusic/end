@@ -46,6 +46,17 @@
 - `tty/TTY.h` — stale Session::onFlush doc fixed
 - `tty/WindowsTTY.cpp` — stale Session::onFlush doc fixed
 - `ARCHITECTURE.md` — comprehensive rewrite (Cell 8B layout, Session::start, ComponentAttachment, seedScreenNodes, keyboard stack on Processor, Map, displayName, stale sections)
+- `Video.h/.cpp` — int→cell migration (params, returns, SavedCursor members)
+- `VideoOps.cpp` — int→cell migration (all cursor/scroll/tab functions)
+- `VideoCSI.cpp` — int→cell (moveCursorTo, cursorSetPosition callers)
+- `VideoESC.cpp` — int→cell (grid.getWritePointer callers)
+- `VideoDCS.cpp` — int→cell (advanceCursorForImage)
+- `VideoEdit.cpp` — int→cell (cursorClamp, grid callers, screenSwitch)
+- `VideoMode.cpp` — int→cell (cursorSetPosition)
+- `Grid.h/.cpp` — int→cell (setSize, clear, getWritePointer, getBlock, physicalRow, viewportRows member)
+- `GridResize.cpp` — int→cell (grid.setSize, video.loadScreenState callers)
+- `Skit.h/.cpp` — int→cell (processDCS/APC/OSC1337 row/col/cols/lines params)
+- `ScreenSelection.h` — int→cell (contains* col/row params)
 
 ### Alignment Check
 - [x] BLESSED principles followed
@@ -66,12 +77,13 @@
 - Owner::find value-based lookup (O(1) hash / O(n) fallback)
 - SharedResource::addIfNotAlreadyThere find-first optimization (avoid unnecessary allocation)
 - Bounds.h coding standard violations fixed (pre-existing, exposed by file move)
+- int→cell migration: Video.h/.cpp, VideoOps.cpp, VideoCSI.cpp, VideoESC.cpp, VideoDCS.cpp, VideoEdit.cpp, VideoMode.cpp, Grid.h/.cpp, GridResize.cpp, Processor.h/.cpp, Screen.cpp, ScreenSelection.h, Skit.h/.cpp, Mouse.cpp, Display.cpp — all cell-unit params/members/returns typed as `cell`
+- Style consistency: redundant casts removed, .value comparisons → cell operators, round-trip .value+cell() → cell arithmetic
 
 ### Debts Paid
 - `DEBT-20260521T060000` — screenSwitch event slimmed from 8 to 4 args
 
 ### Debts Deferred
-- END-wide int→cell migration (~15 files, ~80 lines) — enforce type-safe cell coordinates throughout terminal layer
 - Lean violations: Input.cpp handleSelectionKey (148 lines, 12+ branches), Processor.cpp registerEvents (312 lines), Processor.cpp total (837 lines), Panes.cpp (684), State.cpp (463), Session.cpp (448)
 
 ---

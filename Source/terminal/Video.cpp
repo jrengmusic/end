@@ -83,7 +83,7 @@ Video::Video (Grid& grid, jam::Function::Map<juce::Identifier, void>& events) no
 void Video::resize (cell newCols, cell newVisibleRows) noexcept
 {
     wrapPending = false;
-    cursorClamp (newCols.value, newVisibleRows.value);
+    cursorClamp (newCols, newVisibleRows);
     cursorResetScrollRegion();
     initializeTabStops (newCols.value);
     calc();
@@ -145,8 +145,8 @@ void Video::setCellSize (int widthPx, int heightPx) noexcept
 void Video::flush() noexcept
 {
     events.get (id::activeScreen, int (activeScreen));
-    events.get (id::cursorRow, int (activeScreen), int (cursorRow.value));
-    events.get (id::cursorCol, int (activeScreen), int (cursorCol.value));
+    events.get (id::cursorRow, int (activeScreen), cursorRow);
+    events.get (id::cursorCol, int (activeScreen), cursorCol);
     events.get (id::cursorVisible, int (activeScreen), bool (cursorVisible));
 
     events.get (id::applicationCursor,   bool (applicationCursor));
@@ -161,15 +161,15 @@ void Video::flush() noexcept
         events.get (id::screenDirty, int (activeScreen));
 }
 
-void Video::loadScreenState (int row, int col, bool visible,
-                              int top, int bottom, bool wrap,
+void Video::loadScreenState (cell row, cell col, bool visible,
+                              cell top, cell bottom, bool wrap,
                               uint32_t kbFlags) noexcept
 {
-    cursorRow     = cell (row);
-    cursorCol     = cell (col);
+    cursorRow     = row;
+    cursorCol     = col;
     cursorVisible = visible;
-    scrollTop     = cell (top);
-    scrollBottom  = cell (bottom);
+    scrollTop     = top;
+    scrollBottom  = bottom;
     wrapPending   = wrap;
     keyboardFlags = kbFlags;
 }
@@ -268,9 +268,9 @@ void Video::setMode (juce::Identifier id, bool value) noexcept
  *
  * @see effectiveScrollBottom()
  */
-int Video::activeScrollBottom() const noexcept
+cell Video::activeScrollBottom() const noexcept
 {
-    return effectiveScrollBottom (visibleRows.value);
+    return effectiveScrollBottom (visibleRows);
 }
 
 
@@ -307,7 +307,7 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
 
         for (int r { bottom - count + 1 }; r <= bottom; ++r)
         {
-            jam::Row* row { grid.getWritePointer (activeScreen, r) };
+            jam::Row* row { grid.getWritePointer (activeScreen, cell (r)) };
 
             for (int col { 0 }; col < numCols; ++col)
                 row->cells[col] = fill;
@@ -334,7 +334,7 @@ void Video::scrollDownAndFill (int top, int bottom) noexcept
 
     if (penBg.getAlpha() > 0)
     {
-        jam::Row* row { grid.getWritePointer (activeScreen, top) };
+        jam::Row* row { grid.getWritePointer (activeScreen, cell (top)) };
         const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
         const int numCols { cols.value };
 
@@ -371,19 +371,19 @@ void Video::resolveWrapPending (int /*scr*/) noexcept
 {
     if (autoWrap)
     {
-        const int row       { cursorRow.value };
-        const int scrollBot { activeScrollBottom() };
-        const int vRows     { visibleRows.value };
-        const int sTop      { scrollTop.value };
+        const int  row       { cursorRow.value };
+        const cell scrollBot { activeScrollBottom() };
+        const int  vRows     { visibleRows.value };
+        const int  sTop      { scrollTop.value };
 
-        jam::Row* currentRow { grid.getWritePointer (activeScreen, row) };
+        jam::Row* currentRow { grid.getWritePointer (activeScreen, cell (row)) };
         currentRow->flags |= jam::Row::wrapped;
 
-        if (row == scrollBot)
+        if (row == scrollBot.value)
         {
-            scrollUpAndFill (sTop, scrollBot);
+            scrollUpAndFill (sTop, scrollBot.value);
         }
-        else if (row > scrollBot)
+        else if (row > scrollBot.value)
         {
             cursorRow = cell (juce::jmin (row + 1, vRows - 1));
         }
@@ -440,7 +440,7 @@ void Video::print (uint32_t codepoint) noexcept
 
     if (segResult.addToCurrentCell())
     {
-        jam::Cell* const baseCell { &grid.getWritePointer (scr, lastWriteRow)->cells[lastWriteCol] };
+        jam::Cell* const baseCell { &grid.getWritePointer (scr, cell (lastWriteRow))->cells[lastWriteCol] };
 
         jam::Grapheme::Entry cluster {};
 
@@ -483,15 +483,15 @@ void Video::print (uint32_t codepoint) noexcept
         {
             if (autoWrap)
             {
-                const int scrollBot { activeScrollBottom() };
-                const int vRows     { visibleRows.value };
-                const int sTop      { scrollTop.value };
+                const cell scrollBot { activeScrollBottom() };
+                const int  vRows     { visibleRows.value };
+                const int  sTop      { scrollTop.value };
 
-                if (row == scrollBot)
+                if (row == scrollBot.value)
                 {
-                    scrollUpAndFill (sTop, scrollBot);
+                    scrollUpAndFill (sTop, scrollBot.value);
                 }
-                else if (row > scrollBot)
+                else if (row > scrollBot.value)
                 {
                     cursorRow = cell (juce::jmin (row + 1, vRows - 1));
                 }
@@ -525,7 +525,7 @@ void Video::print (uint32_t codepoint) noexcept
 
         const jam::Cell glyph { jam::Cell::make (cp, jam::Cell::CONTENT_CODEPOINT, wideHint, sid) };
 
-        jam::Row* const writtenRow { grid.getWritePointer (scr, writeRow) };
+        jam::Row* const writtenRow { grid.getWritePointer (scr, cell (writeRow)) };
         writtenRow->cells[writeCol] = glyph;
         writtenRow->usedCols = juce::jmax (writtenRow->usedCols, static_cast<uint16_t> (writeCol + charWidth));
 
@@ -576,19 +576,18 @@ void Video::print (uint32_t codepoint) noexcept
  */
 void Video::executeLineFeed (int scr) noexcept
 {
-    const int scrollBot { activeScrollBottom() };
-    const int vRows     { visibleRows.value };
-    const int cRow      { cursorRow.value };
-    const int sTop      { scrollTop.value };
+    const cell scrollBot { activeScrollBottom() };
+    const int  cRow      { cursorRow.value };
+    const int  sTop      { scrollTop.value };
 
-    if (cRow == scrollBot)
+    if (cRow == scrollBot.value)
     {
-        scrollUpAndFill (sTop, scrollBot);
+        scrollUpAndFill (sTop, scrollBot.value);
     }
 
-    cursorGoToNextLine (scrollBot, vRows);
+    cursorGoToNextLine (scrollBot, visibleRows);
 
-    if (events.contains (id::extendOutputBlock)) events.get (id::extendOutputBlock, int (cursorRow.value));
+    if (events.contains (id::extendOutputBlock)) events.get (id::extendOutputBlock, cursorRow.value);
 }
 
 /**
@@ -621,8 +620,7 @@ void Video::executeLineFeed (int scr) noexcept
  */
 void Video::applyControlCode (uint8_t controlByte) noexcept
 {
-    const auto scr    { activeScreen };
-    const int numCols { cols.value };
+    const auto scr { activeScreen };
 
     switch (controlByte)
     {
@@ -632,7 +630,7 @@ void Video::applyControlCode (uint8_t controlByte) noexcept
             break;
 
         case 0x08:
-            if (cursorCol.value > 0)
+            if (cursorCol > cell (0))
             {
                 --cursorCol;
                 wrapPending = false;
@@ -641,8 +639,7 @@ void Video::applyControlCode (uint8_t controlByte) noexcept
 
         case 0x09:
         {
-            const int nextTab { nextTabStop (numCols) };
-            cursorCol   = cell (nextTab);
+            cursorCol   = nextTabStop (cols);
             wrapPending = false;
             break;
         }
@@ -782,7 +779,7 @@ void Video::resetModes() noexcept
 void Video::reset() noexcept
 {
     activeScreen = Map::Screen::normal;
-    resetCursor (cols.value);
+    resetCursor (cols);
     resetModes();
     resetPen();
     useLineDrawing = false;

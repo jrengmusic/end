@@ -74,7 +74,7 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
 
     if (numCols > 0 and viewportRows > 0)
     {
-        const auto block { grid.getBlock (activeScreen, scrollOffset, viewportRows) };
+        const auto block { grid.getBlock (activeScreen, cell (scrollOffset), cell (viewportRows)) };
         setText (block);
         setScrollRange (numRows);
         setCaretPosition (cursorCol, cursorRow);

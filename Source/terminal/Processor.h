@@ -158,7 +158,7 @@ public:
      * @return UTF-8 encoded SGR mouse escape sequence.
      * @note MESSAGE THREAD only.
      */
-    juce::String encodeMouseEvent (int button, int col, int row, bool press) const noexcept;
+    juce::String encodeMouseEvent (int button, cell col, cell row, bool press) const noexcept;
 
     /**
      * @brief Encodes a focus-in or focus-out event into a VT byte sequence.

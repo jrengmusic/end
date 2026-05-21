@@ -69,7 +69,7 @@ public:
      *  @param numCols          Column count per row.
      *  @param scrollbackLines  Maximum history row count from config.
      */
-    void setSize (int numRows, int numCols, int scrollbackLines) noexcept;
+    void setSize (cell numRows, cell numCols, cell scrollbackLines) noexcept;
 
     /** Content-preserving resize — tmux-conformant row-by-row reflow.
      *
@@ -132,10 +132,10 @@ public:
     void clear (int screen) noexcept;
 
     /** Clears an entire viewport-relative row of the given screen. */
-    void clear (int screen, int row) noexcept;
+    void clear (int screen, cell row) noexcept;
 
     /** Clears a range of cells within a viewport-relative row. */
-    void clear (int screen, int row, int startCol, int numCols) noexcept;
+    void clear (int screen, cell row, cell startCol, cell numCols) noexcept;
 
     ///@}
 
@@ -151,7 +151,7 @@ public:
      *  @param screen  Screen index (0 = normal, 1 = alternate).
      *  @param row     Viewport-relative row (0 = top of viewport).
      */
-    jam::Row* getWritePointer (int screen, int row) noexcept;
+    jam::Row* getWritePointer (int screen, cell row) noexcept;
 
     /** Returns a read-only pointer to the given absolute logical row.
      *
@@ -185,7 +185,7 @@ public:
      *  @param viewportRows   Number of rows in the view.
      *  @return Non-owning Block<Row> over the requested region.
      */
-    jam::Block<jam::Row> getBlock (int screen, int scrollOffset, int viewportRows) const noexcept;
+    jam::Block<jam::Row> getBlock (int screen, cell scrollOffset, cell viewportRows) const noexcept;
 
     ///@}
 
@@ -193,7 +193,7 @@ private:
     //==========================================================================
 
     /** Maps a viewport-relative row to a physical ring position. */
-    int physicalRow (int screen, int row) const noexcept;
+    int physicalRow (int screen, cell row) const noexcept;
 
     //==========================================================================
 
@@ -201,7 +201,7 @@ private:
     std::array<int, 2> head { 0, 0 };                      ///< Physical position of viewport row 0 per screen.
     std::array<int, 2> numRows { 0, 0 };                   ///< History row count per screen. Calculation input for getRow.
     int ringMask { 0 };                                    ///< Power-of-two bitmask for ring indexing.
-    int viewportRows { 0 };                                ///< Visible row count.
+    cell viewportRows { 0 };                               ///< Visible row count.
     int scrollbackLines { 0 };                             ///< Maximum history row count from config.
     mutable juce::HeapBlock<const jam::Row*> blockPointers; ///< Logical-order row pointer array for getBlock. Grid-owned.
 

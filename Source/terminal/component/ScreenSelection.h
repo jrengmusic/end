@@ -84,7 +84,7 @@ struct ScreenSelection
      * @note The normalisation is performed on local copies; `anchor` and
      *       `end` are not modified.
      */
-    bool contains (int col, int row) const noexcept
+    bool contains (cell col, cell row) const noexcept
     {
         int startRow { anchor.y };
         int startCol { anchor.x };
@@ -100,19 +100,19 @@ struct ScreenSelection
 
         bool result { false };
 
-        if (row >= startRow and row <= endRow)
+        if (row.value >= startRow and row.value <= endRow)
         {
             if (startRow == endRow)
             {
-                result = col >= startCol and col <= endCol;
+                result = col.value >= startCol and col.value <= endCol;
             }
-            else if (row == startRow)
+            else if (row.value == startRow)
             {
-                result = col >= startCol;
+                result = col.value >= startCol;
             }
-            else if (row == endRow)
+            else if (row.value == endRow)
             {
-                result = col <= endCol;
+                result = col.value <= endCol;
             }
             else
             {
@@ -139,15 +139,15 @@ struct ScreenSelection
      * @note The normalisation is performed on local copies; `anchor` and
      *       `end` are not modified.
      */
-    bool containsBox (int col, int row) const noexcept
+    bool containsBox (cell col, cell row) const noexcept
     {
         const int startRow { std::min (anchor.y, end.y) };
         const int endRow   { std::max (anchor.y, end.y) };
         const int startCol { std::min (anchor.x, end.x) };
         const int endCol   { std::max (anchor.x, end.x) };
 
-        return row >= startRow and row <= endRow
-           and col >= startCol and col <= endCol;
+        return row.value >= startRow and row.value <= endRow
+           and col.value >= startCol and col.value <= endCol;
     }
 
     /**
@@ -163,13 +163,13 @@ struct ScreenSelection
      *
      * @note The row range is normalised internally so dragging upward works.
      */
-    bool containsLine (int col, int row) const noexcept
+    bool containsLine (cell col, cell row) const noexcept
     {
         juce::ignoreUnused (col);
         const int startRow { std::min (anchor.y, end.y) };
         const int endRow   { std::max (anchor.y, end.y) };
 
-        return row >= startRow and row <= endRow;
+        return row.value >= startRow and row.value <= endRow;
     }
 
     /**
@@ -186,7 +186,7 @@ struct ScreenSelection
      * @param row  Row index of the cell to test (0-based).
      * @return     `true` if the cell is within the active selection.
      */
-    bool containsCell (int col, int row) const noexcept
+    bool containsCell (cell col, cell row) const noexcept
     {
         bool result { false };
 

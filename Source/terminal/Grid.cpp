@@ -362,26 +362,26 @@ static void reflowScreen (int screen,
 // Private helper
 // =============================================================================
 
-int Grid::physicalRow (int screen, int row) const noexcept { return (head.at (screen) + row) & ringMask; }
+int Grid::physicalRow (int screen, cell row) const noexcept { return (head.at (screen) + row.value) & ringMask; }
 
 // =============================================================================
 // Told — Processor tells Grid what to do
 // =============================================================================
 
-void Grid::setSize (int viewportRowCount, int numCols, int scrollbackLineCount) noexcept
+void Grid::setSize (cell viewportRowCount, cell numCols, cell scrollbackLineCount) noexcept
 {
-    jassert (viewportRowCount > 0 and numCols > 0 and scrollbackLineCount >= 0);
+    jassert (viewportRowCount.value > 0 and numCols.value > 0 and scrollbackLineCount.value >= 0);
 
-    const int minRing { (scrollbackLineCount + viewportRowCount) * 2 };
+    const int minRing { (scrollbackLineCount.value + viewportRowCount.value) * 2 };
     int ringSize { 1 };
     while (ringSize < minRing)
         ringSize <<= 1;
 
-    buffer.setSize (2, ringSize, numCols, false, true, false);
+    buffer.setSize (2, ringSize, numCols.value, false, true, false);
     ringMask = ringSize - 1;
     viewportRows = viewportRowCount;
-    scrollbackLines = scrollbackLineCount;
-    blockPointers.realloc (static_cast<size_t> (viewportRowCount));
+    scrollbackLines = scrollbackLineCount.value;
+    blockPointers.realloc (static_cast<size_t> (viewportRowCount.value));
     head.at (0) = 0;
     head.at (1) = 0;
     numRows.at (0) = 0;
@@ -396,7 +396,7 @@ Grid::reflow (int newViewportRows, int newCols, int scrollbackLines, int& cursor
     const int oldRingMask { ringMask };
     const auto oldHead { head };
     const auto oldNumRows { numRows };
-    const int oldViewportRows { viewportRows };
+    const int oldViewportRows { viewportRows.value };
 
     const int minRing { (scrollbackLines + newViewportRows) * 2 };
     int newRingSize { 1 };
@@ -453,7 +453,7 @@ Grid::reflow (int newViewportRows, int newCols, int scrollbackLines, int& cursor
 
     head = newHead;
     ringMask = newRingMask;
-    viewportRows = newViewportRows;
+    viewportRows = cell (newViewportRows);
     this->scrollbackLines = scrollbackLines;
     numRows.at (0) = result.at (0);
     numRows.at (1) = result.at (1);
@@ -478,13 +478,13 @@ Grid::reflow (int newViewportRows, int newCols, int scrollbackLines, int& cursor
 int Grid::scrollUp (int screen, int scrollTop, int scrollBottom, int count) noexcept
 {
     jassert (screen >= 0 and screen < 2);
-    jassert (scrollTop >= 0 and scrollBottom < viewportRows and scrollTop <= scrollBottom);
+    jassert (scrollTop >= 0 and scrollBottom < viewportRows.value and scrollTop <= scrollBottom);
 
     const int clampedCount { juce::jmin (count, scrollBottom - scrollTop + 1) };
 
     if (clampedCount > 0)
     {
-        const bool isFullScreen { scrollTop == 0 and scrollBottom == viewportRows - 1 };
+        const bool isFullScreen { scrollTop == 0 and scrollBottom == viewportRows.value - 1 };
 
         if (isFullScreen)
         {
@@ -494,7 +494,7 @@ int Grid::scrollUp (int screen, int scrollTop, int scrollBottom, int count) noex
                 head.at (screen) = (head.at (screen) + 1) & ringMask;
 
                 // Clear new bottom viewport row.
-                buffer.clear (screen, physicalRow (screen, viewportRows - 1));
+                buffer.clear (screen, physicalRow (screen, viewportRows - cell (1)));
 
                 // Grow history count — each head advance adds one row to history.
                 numRows.at (screen) = juce::jmin (numRows.at (screen) + 1, scrollbackLines);
@@ -505,9 +505,9 @@ int Grid::scrollUp (int screen, int scrollTop, int scrollBottom, int count) noex
             for (int n { 0 }; n < clampedCount; ++n)
             {
                 for (int r { scrollTop }; r < scrollBottom; ++r)
-                    buffer.copyFrom (screen, physicalRow (screen, r), buffer, screen, physicalRow (screen, r + 1));
+                    buffer.copyFrom (screen, physicalRow (screen, cell (r)), buffer, screen, physicalRow (screen, cell (r + 1)));
 
-                buffer.clear (screen, physicalRow (screen, scrollBottom));
+                buffer.clear (screen, physicalRow (screen, cell (scrollBottom)));
             }
         }
     }
@@ -518,13 +518,13 @@ int Grid::scrollUp (int screen, int scrollTop, int scrollBottom, int count) noex
 void Grid::scrollDown (int screen, int scrollTop, int scrollBottom, int count) noexcept
 {
     jassert (screen >= 0 and screen < 2);
-    jassert (scrollTop >= 0 and scrollBottom < viewportRows and scrollTop <= scrollBottom);
+    jassert (scrollTop >= 0 and scrollBottom < viewportRows.value and scrollTop <= scrollBottom);
 
     const int clampedCount { juce::jmin (count, scrollBottom - scrollTop + 1) };
 
     if (clampedCount > 0)
     {
-        const bool isFullScreen { scrollTop == 0 and scrollBottom == viewportRows - 1 };
+        const bool isFullScreen { scrollTop == 0 and scrollBottom == viewportRows.value - 1 };
 
         if (isFullScreen)
         {
@@ -532,7 +532,7 @@ void Grid::scrollDown (int screen, int scrollTop, int scrollBottom, int count) n
             {
                 // Retreat head — clear new top viewport row.
                 head.at (screen) = (head.at (screen) - 1) & ringMask;
-                buffer.clear (screen, physicalRow (screen, 0));
+                buffer.clear (screen, physicalRow (screen, 0_cell));
             }
         }
         else
@@ -540,9 +540,9 @@ void Grid::scrollDown (int screen, int scrollTop, int scrollBottom, int count) n
             for (int n { 0 }; n < clampedCount; ++n)
             {
                 for (int r { scrollBottom }; r > scrollTop; --r)
-                    buffer.copyFrom (screen, physicalRow (screen, r), buffer, screen, physicalRow (screen, r - 1));
+                    buffer.copyFrom (screen, physicalRow (screen, cell (r)), buffer, screen, physicalRow (screen, cell (r - 1)));
 
-                buffer.clear (screen, physicalRow (screen, scrollTop));
+                buffer.clear (screen, physicalRow (screen, cell (scrollTop)));
             }
         }
     }
@@ -556,35 +556,35 @@ void Grid::clear (int screen) noexcept
 {
     jassert (screen >= 0 and screen < 2);
 
-    for (int r { 0 }; r < viewportRows; ++r)
-        buffer.clear (screen, physicalRow (screen, r));
+    for (int r { 0 }; r < viewportRows.value; ++r)
+        buffer.clear (screen, physicalRow (screen, cell (r)));
 
     numRows.at (screen) = 0;
 }
 
-void Grid::clear (int screen, int row) noexcept
+void Grid::clear (int screen, cell row) noexcept
 {
     jassert (screen >= 0 and screen < 2);
-    jassert (row >= 0 and row < viewportRows);
+    jassert (row.value >= 0 and row.value < viewportRows.value);
     buffer.clear (screen, physicalRow (screen, row));
 }
 
-void Grid::clear (int screen, int row, int startCol, int numCols) noexcept
+void Grid::clear (int screen, cell row, cell startCol, cell numCols) noexcept
 {
     jassert (screen >= 0 and screen < 2);
-    jassert (row >= 0 and row < viewportRows);
+    jassert (row.value >= 0 and row.value < viewportRows.value);
 
-    const int clampedCount { juce::jmin (numCols, buffer.getNumCols() - startCol) };
+    const int clampedCount { juce::jmin (numCols.value, buffer.getNumCols() - startCol.value) };
 
     if (clampedCount > 0)
-        buffer.clear (screen, physicalRow (screen, row), startCol, clampedCount);
+        buffer.clear (screen, physicalRow (screen, row), startCol.value, clampedCount);
 }
 
 // =============================================================================
 // Asked — storage access only
 // =============================================================================
 
-jam::Row* Grid::getWritePointer (int screen, int row) noexcept
+jam::Row* Grid::getWritePointer (int screen, cell row) noexcept
 {
     jassert (screen >= 0 and screen < 2);
     return buffer.getWritePointer (screen, physicalRow (screen, row));
@@ -593,7 +593,7 @@ jam::Row* Grid::getWritePointer (int screen, int row) noexcept
 const jam::Row* Grid::getRow (int screen, int absoluteIndex) const noexcept
 {
     jassert (screen >= 0 and screen < 2);
-    jassert (absoluteIndex >= 0 and absoluteIndex < numRows.at (screen) + viewportRows);
+    jassert (absoluteIndex >= 0 and absoluteIndex < numRows.at (screen) + viewportRows.value);
     return buffer.getReadPointer (screen, (head.at (screen) - numRows.at (screen) + absoluteIndex) & ringMask);
 }
 
@@ -605,31 +605,31 @@ int Grid::getNumRows (int screen) const noexcept
     return numRows.at (screen);
 }
 
-jam::Block<jam::Row> Grid::getBlock (int screen, int scrollOffset, int vpRows) const noexcept
+jam::Block<jam::Row> Grid::getBlock (int screen, cell scrollOffset, cell vpRows) const noexcept
 {
     jassert (screen >= 0 and screen < 2);
-    jassert (vpRows >= 0 and vpRows <= viewportRows);
-    jassert (scrollOffset >= 0 and scrollOffset <= numRows.at (screen));
+    jassert (vpRows.value >= 0 and vpRows.value <= viewportRows.value);
+    jassert (scrollOffset.value >= 0 and scrollOffset.value <= numRows.at (screen));
 
-    if (scrollOffset == 0)
+    if (scrollOffset.value == 0)
     {
         // Live mode — viewport rows in logical order.
-        for (int r { 0 }; r < vpRows; ++r)
-            blockPointers[r] = buffer.getReadPointer (screen, physicalRow (screen, r));
+        for (int r { 0 }; r < vpRows.value; ++r)
+            blockPointers[r] = buffer.getReadPointer (screen, physicalRow (screen, cell (r)));
     }
     else
     {
         // History mode — absolute rows starting from scrollOffset.
-        const int startIndex { numRows.at (screen) - scrollOffset };
+        const int startIndex { numRows.at (screen) - scrollOffset.value };
 
-        for (int r { 0 }; r < vpRows; ++r)
+        for (int r { 0 }; r < vpRows.value; ++r)
         {
             const int absIndex { startIndex + r };
             blockPointers[r] = buffer.getReadPointer (screen, (head.at (screen) - numRows.at (screen) + absIndex) & ringMask);
         }
     }
 
-    return jam::Block<jam::Row> (blockPointers.getData(), vpRows, buffer.getNumCols());
+    return jam::Block<jam::Row> (blockPointers.getData(), vpRows.value, buffer.getNumCols());
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

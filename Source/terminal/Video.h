@@ -185,8 +185,8 @@ public:
 
     /** @brief Loads cursor position for the newly active screen.
      *         Called by Processor during screen switch mediation. */
-    void loadScreenState (int row, int col, bool visible,
-                          int top, int bottom, bool wrap,
+    void loadScreenState (cell row, cell col, bool visible,
+                          cell top, cell bottom, bool wrap,
                           uint32_t kbFlags) noexcept;
 
     /** @brief Sets terminal dimensions on the reader thread.
@@ -295,7 +295,7 @@ public:
      *  @param numRows  Number of cell rows to advance downward.
      *  @note READER THREAD only.
      */
-    void advanceCursorForImage (int numRows) noexcept;
+    void advanceCursorForImage (cell numRows) noexcept;
 
     /** @brief Returns the DCS final byte stored by `storeDCSHeader()`.
      *
@@ -464,8 +464,8 @@ private:
      */
     struct SavedCursor
     {
-        int row { 0 };
-        int col { 0 };
+        cell row { 0 };
+        cell col { 0 };
         juce::Colour fg {};
         juce::Colour bg {};
         uint8_t flags { 0 };
@@ -493,7 +493,7 @@ private:
      *
      * @see effectiveScrollBottom()
      */
-    int activeScrollBottom() const noexcept;
+    cell activeScrollBottom() const noexcept;
 
     /**
      * @brief Whether the VT100 line-drawing character set is active in GL.
@@ -621,7 +621,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void resetCursor (int cols) noexcept;
+    void resetCursor (cell cols) noexcept;
 
     /**
      * @brief Returns a mutable pointer to the named mode flag, or nullptr if unknown.
@@ -663,7 +663,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void cursorMoveDown (int count, int bottom) noexcept;
+    void cursorMoveDown (int count, cell bottom) noexcept;
 
     /**
      * @brief Moves the cursor right by `count` columns, clamped to `cols - 1`.
@@ -673,7 +673,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void cursorMoveForward (int count, int cols) noexcept;
+    void cursorMoveForward (int count, cell cols) noexcept;
 
     /**
      * @brief Moves the cursor left by `count` columns, clamped to column 0.
@@ -699,7 +699,7 @@ private:
      *
      * @see cursorSetPositionInOrigin()
      */
-    void cursorSetPosition (int row, int col, int cols, int visibleRows) noexcept;
+    void cursorSetPosition (cell row, cell col, cell cols, cell visibleRows) noexcept;
 
     /**
      * @brief Sets the cursor position relative to the scroll region origin.
@@ -717,7 +717,7 @@ private:
      *
      * @see cursorSetPosition()
      */
-    void cursorSetPositionInOrigin (int row, int col, int cols, int visibleRows) noexcept;
+    void cursorSetPositionInOrigin (cell row, cell col, cell cols, cell visibleRows) noexcept;
 
     /**
      * @brief Advances the cursor to the next line, scrolling if at the bottom.
@@ -734,7 +734,7 @@ private:
      *
      * @see executeLineFeed()
      */
-    bool cursorGoToNextLine (int bottom, int visibleRows) noexcept;
+    bool cursorGoToNextLine (cell bottom, cell visibleRows) noexcept;
 
     /**
      * @brief Clamps the cursor to the valid screen area after a resize.
@@ -747,7 +747,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void cursorClamp (int cols, int visibleRows) noexcept;
+    void cursorClamp (cell cols, cell visibleRows) noexcept;
 
     /**
      * @brief Saves cursor position and associated state for DECSC (ESC 7).
@@ -795,7 +795,7 @@ private:
      *
      * @see cursorResetScrollRegion()
      */
-    void cursorSetScrollRegion (int top, int bottom) noexcept;
+    void cursorSetScrollRegion (cell top, cell bottom) noexcept;
 
     /**
      * @brief Resets the scrolling region to the full screen height.
@@ -821,7 +821,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    int effectiveScrollBottom (int visibleRows) const noexcept;
+    cell effectiveScrollBottom (cell visibleRows) const noexcept;
 
     /**
      * @brief Returns the effective downward clamp for cursor movement.
@@ -835,7 +835,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    int effectiveClampBottom() const noexcept;
+    cell effectiveClampBottom() const noexcept;
 
     /** @} */
 
@@ -879,7 +879,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    int nextTabStop (int cols) noexcept;
+    cell nextTabStop (cell cols) noexcept;
 
     /**
      * @brief Returns the column index of the previous tab stop to the left of the cursor.
@@ -1376,7 +1376,7 @@ private:
      *
      * @note READER THREAD only.
      */
-    void moveCursorTo (int row, int col) noexcept;
+    void moveCursorTo (cell row, cell col) noexcept;
 
     /** @} */
 

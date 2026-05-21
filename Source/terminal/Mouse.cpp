@@ -41,7 +41,7 @@ void Mouse::handleDown (const juce::MouseEvent& event)
     else if (shouldForwardToPty())
     {
         const auto hitCell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const auto bytes { processor.encodeMouseEvent (0, hitCell.x, hitCell.y, true) };
+        const auto bytes { processor.encodeMouseEvent (0, cell (hitCell.x), cell (hitCell.y), true) };
 
         processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
@@ -108,7 +108,7 @@ void Mouse::handleDoubleClick (const juce::MouseEvent& event)
     if (shouldForwardToPty())
     {
         const auto hitCell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const auto bytes { processor.encodeMouseEvent (0, hitCell.x, hitCell.y, true) };
+        const auto bytes { processor.encodeMouseEvent (0, cell (hitCell.x), cell (hitCell.y), true) };
 
         processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
@@ -139,7 +139,7 @@ void Mouse::handleDrag (const juce::MouseEvent& event)
     if (shouldForwardToPty())
     {
         const auto hitCell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const auto bytes { processor.encodeMouseEvent (32, hitCell.x, hitCell.y, true) };
+        const auto bytes { processor.encodeMouseEvent (32, cell (hitCell.x), cell (hitCell.y), true) };
 
         processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
@@ -186,7 +186,7 @@ void Mouse::handleUp (const juce::MouseEvent& event)
     if (shouldForwardToPty())
     {
         const auto hitCell { jam::Cell::Point (jam::Bounds { physCellWidth, physCellHeight }, juce::Point<int> { event.x, event.y }) };
-        const auto bytes { processor.encodeMouseEvent (0, hitCell.x, hitCell.y, false) };
+        const auto bytes { processor.encodeMouseEvent (0, cell (hitCell.x), cell (hitCell.y), false) };
 
         processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
     }
@@ -238,7 +238,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
 
                 for (int i { 0 }; i < scrollLines; ++i)
                 {
-                    const auto bytes { processor.encodeMouseEvent (button, hitCell.x, hitCell.y, true) };
+                    const auto bytes { processor.encodeMouseEvent (button, cell (hitCell.x), cell (hitCell.y), true) };
 
                     processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
                 }
@@ -271,7 +271,7 @@ void Mouse::handleWheel (const juce::MouseEvent& event,
 
                     for (int i { 0 }; i < count; ++i)
                     {
-                        const auto bytes { processor.encodeMouseEvent (button, hitCell.x, hitCell.y, true) };
+                        const auto bytes { processor.encodeMouseEvent (button, cell (hitCell.x), cell (hitCell.y), true) };
 
                         processor.writeInput (bytes.toRawUTF8(), int (bytes.getNumBytesAsUTF8()));
                     }
