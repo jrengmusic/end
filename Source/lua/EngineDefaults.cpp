@@ -10,6 +10,7 @@
  */
 
 #include "Engine.h"
+#include "../Map.h"
 
 namespace lua
 {
@@ -49,7 +50,7 @@ static void writeDisplayFontDefaults (juce::String& content, const Engine::Displ
     content =
         jam::String::replaceholder (content, "cursor_blink_interval", juce::String (display.cursor.blinkInterval));
     content = jam::String::replaceholder (content, "cursor_force", display.cursor.force ? "true" : "false");
-    content = jam::String::replaceholder (content, "cursor_style", display.cursor.style == 3 ? "underline" : (display.cursor.style == 5 ? "bar" : "block"));
+    content = jam::String::replaceholder (content, "cursor_style", Map::Cursor::getContext()->get (display.cursor.style));
 }
 
 /** @brief Substitutes colour palette placeholder values into display.lua content. */

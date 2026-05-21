@@ -441,8 +441,8 @@ void MainComponent::showReloadMessage()
     {
         const auto rendererType { AppState::getContext()->getRendererType() };
         const juce::String rendererName { rendererType == app::RendererType::gpu
-                                              ? app::id::rendererGpu.toUpperCase()
-                                              : app::id::rendererCpu.toUpperCase() };
+                                              ? Map::Renderer::getContext()->get (Map::Renderer::gpu).toUpperCase()
+                                              : Map::Renderer::getContext()->get (Map::Renderer::cpu).toUpperCase() };
         messageOverlay->showMessage ("RELOADED (" + rendererName + ")", 1000);
     }
     else

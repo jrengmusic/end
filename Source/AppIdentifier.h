@@ -106,20 +106,7 @@ namespace id
     static const juce::Identifier floatType      { "float" };
     static const juce::Identifier stringType     { "string" };
 
-    //==========================================================================
-    // Renderer type string constants (used by AppState::getRendererType())
-    //==========================================================================
-
-    static const juce::String rendererGpu { "gpu" };
-    static const juce::String rendererCpu { "cpu" };
     static const juce::String appMetadata { "AppParameters.xml" };
-
-    //==========================================================================
-    // Pane type string constants (used by PaneComponent::getPaneType())
-    //==========================================================================
-
-    static const juce::String paneTypeTerminal { "terminal" };
-    static const juce::String paneTypeDocument { "document" };
 
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace id

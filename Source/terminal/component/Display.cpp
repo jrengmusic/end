@@ -68,7 +68,7 @@ terminal::Display::~Display()
 }
 
 // PaneComponent
-juce::String terminal::Display::getPaneType() const noexcept { return app::id::paneTypeTerminal; }
+juce::String terminal::Display::getPaneType() const noexcept { return Map::PaneType::getContext()->get (Map::PaneType::terminal); }
 void terminal::Display::switchRenderer (app::RendererType) noexcept {}
 juce::ValueTree terminal::Display::getValueTree() noexcept { return state.get(); }
 void terminal::Display::applyConfig() noexcept

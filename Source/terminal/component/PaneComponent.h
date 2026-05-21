@@ -46,7 +46,7 @@ public:
      *
      * Used by Panes and Tabs to distinguish component types without RTTI.
      *
-     * @return The pane type string — see app::id::paneTypeTerminal / paneTypeDocument.
+     * @return The pane type string — see Map::PaneType.
      * @note MESSAGE THREAD.
      */
     virtual juce::String getPaneType() const noexcept = 0;

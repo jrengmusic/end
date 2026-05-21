@@ -96,7 +96,7 @@ std::pair<juce::Rectangle<int>, juce::Rectangle<int>>
     juce::Rectangle<int> targetRect;
     juce::Rectangle<int> newRect;
 
-    if (direction == "vertical")
+    if (direction == Map::Direction::getContext()->get (Map::Direction::vertical))
     {
         const int totalWidth  { parent.getWidth() };
         const int firstWidth  { juce::roundToInt (static_cast<double> (totalWidth - jam::PaneManager::resizerBarSize) * ratio) };
@@ -192,7 +192,7 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
     for (auto& pane : panes)
     {
-        if (pane->getComponentID() == activeID and pane->getPaneType() == app::id::paneTypeTerminal)
+        if (pane->getComponentID() == activeID and pane->getPaneType() == Map::PaneType::getContext()->get (Map::PaneType::terminal))
             activeTerminal = pane.get();
     }
 
@@ -224,7 +224,7 @@ juce::String Panes::createWhelmed (const juce::File& file)
 
     AppState::getContext()->setModalType (0);
     AppState::getContext()->setSelectionType (0);
-    AppState::getContext()->setActivePaneType (app::id::paneTypeDocument);
+    AppState::getContext()->setActivePaneType (Map::PaneType::getContext()->get (Map::PaneType::document));
     resized();
 
     return activeID;
@@ -244,13 +244,13 @@ void Panes::closeWhelmed()
     {
         if (panes.at (i)->getComponentID() == activeID)
         {
-            if (panes.at (i)->getPaneType() == app::id::paneTypeDocument)
+            if (panes.at (i)->getPaneType() == Map::PaneType::getContext()->get (Map::PaneType::document))
             {
                 whelmedPane = panes.at (i).get();
                 whelmedIndex = i;
             }
 
-            if (panes.at (i)->getPaneType() == app::id::paneTypeTerminal)
+            if (panes.at (i)->getPaneType() == Map::PaneType::getContext()->get (Map::PaneType::terminal))
                 terminalPane = panes.at (i).get();
         }
     }
@@ -277,7 +277,7 @@ void Panes::closeWhelmed()
 
     AppState::getContext()->setModalType (0);
     AppState::getContext()->setSelectionType (0);
-    AppState::getContext()->setActivePaneType (app::id::paneTypeTerminal);
+    AppState::getContext()->setActivePaneType (Map::PaneType::getContext()->get (Map::PaneType::terminal));
 }
 
 /**
@@ -392,14 +392,14 @@ void Panes::closePane (const juce::String& uuid)
  *
  * @note MESSAGE THREAD.
  */
-void Panes::splitHorizontal() { splitActive ("vertical", true, 0.5); }
+void Panes::splitHorizontal() { splitActive (Map::Direction::getContext()->get (Map::Direction::vertical),   true,  0.5); }
 
 /**
  * @brief Splits the active pane into stacked rows.
  *
  * @note MESSAGE THREAD.
  */
-void Panes::splitVertical() { splitActive ("horizontal", false, 0.5); }
+void Panes::splitVertical() { splitActive (Map::Direction::getContext()->get (Map::Direction::horizontal), false, 0.5); }
 
 void Panes::splitActiveWithRatio (const juce::String& direction, bool isVertical, double ratio)
 {
@@ -530,7 +530,7 @@ void Panes::visibilityChanged()
 
     for (auto& pane : panes)
     {
-        if (visible and pane->getPaneType() == app::id::paneTypeTerminal)
+        if (visible and pane->getPaneType() == Map::PaneType::getContext()->get (Map::PaneType::terminal))
         {
             auto paneNode { jam::PaneManager::findLeaf (paneManager.getState(), pane->getComponentID()) };
             const bool hasDocument { paneNode.isValid() and paneNode.getChildWithName (app::id::DOCUMENT).isValid() };
@@ -569,7 +569,7 @@ void Panes::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identif
 
         for (size_t i { 0 }; i < panes.size(); ++i)
         {
-            if (panes.at (i)->getPaneType() == app::id::paneTypeTerminal
+            if (panes.at (i)->getPaneType() == Map::PaneType::getContext()->get (Map::PaneType::terminal)
                 and panes.at (i)->getValueTree() == sessionRoot)
             {
                 exitedUuid = panes.at (i)->getComponentID();

@@ -8,6 +8,7 @@
  */
 
 #include "Engine.h"
+#include "../Map.h"
 
 namespace lua
 {
@@ -24,10 +25,10 @@ void Engine::parseNexus()
         if (gpu.has_value()) nexus.gpu = gpu.value();
 
         auto daemon { nexusTable["daemon"].optional<juce::String>() };
-        if (daemon.has_value()) nexus.daemon = (daemon.value() == "true");
+        if (daemon.has_value()) nexus.daemon = Map::Bool::getContext()->get (daemon.value()) == Map::Bool::yes;
 
         auto autoReload { nexusTable["auto_reload"].optional<juce::String>() };
-        if (autoReload.has_value()) nexus.autoReload = (autoReload.value() == "true");
+        if (autoReload.has_value()) nexus.autoReload = Map::Bool::getContext()->get (autoReload.value()) == Map::Bool::yes;
 
         // Shell sub-table
         jam::lua::Value shellTable { nexusTable["shell"] };
@@ -41,7 +42,7 @@ void Engine::parseNexus()
             if (args.has_value()) nexus.shell.args = args.value();
 
             auto integration { shellTable["integration"].optional<juce::String>() };
-            if (integration.has_value()) nexus.shell.integration = (integration.value() == "true");
+            if (integration.has_value()) nexus.shell.integration = Map::Bool::getContext()->get (integration.value()) == Map::Bool::yes;
         }
 
         // Terminal sub-table
@@ -61,7 +62,7 @@ void Engine::parseNexus()
             if (dropMultifiles.has_value()) nexus.terminal.dropMultifiles = dropMultifiles.value();
 
             auto dropQuoted { terminalTable["drop_quoted"].optional<juce::String>() };
-            if (dropQuoted.has_value()) nexus.terminal.dropQuoted = (dropQuoted.value() == "true");
+            if (dropQuoted.has_value()) nexus.terminal.dropQuoted = Map::Bool::getContext()->get (dropQuoted.value()) == Map::Bool::yes;
 
             // Padding array: { top, right, bottom, left }
             jam::lua::Value p { terminalTable["padding"] };

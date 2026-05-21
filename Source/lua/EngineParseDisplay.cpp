@@ -10,6 +10,7 @@
  */
 
 #include "Engine.h"
+#include "../Map.h"
 
 namespace lua
 {
@@ -43,20 +44,20 @@ static void parseDisplayWindow (Engine::Display::Window& window, jam::lua::Value
             window.blurRadius = static_cast<float> (juce::jlimit (0.0, 100.0, blurRadius.value()));
 
         auto alwaysOnTop { t["always_on_top"].optional<juce::String>() };
-        if (alwaysOnTop.has_value()) window.alwaysOnTop = (alwaysOnTop.value() == "true");
+        if (alwaysOnTop.has_value()) window.alwaysOnTop = Map::Bool::getContext()->get (alwaysOnTop.value()) == Map::Bool::yes;
 
         auto buttons { t["buttons"].optional<juce::String>() };
-        if (buttons.has_value()) window.buttons = (buttons.value() == "true");
+        if (buttons.has_value()) window.buttons = Map::Bool::getContext()->get (buttons.value()) == Map::Bool::yes;
 
         auto forceDwm { t["force_dwm"].optional<juce::String>() };
-        if (forceDwm.has_value()) window.forceDwm = (forceDwm.value() == "true");
+        if (forceDwm.has_value()) window.forceDwm = Map::Bool::getContext()->get (forceDwm.value()) == Map::Bool::yes;
 
         auto saveSize { t["save_size"].optional<juce::String>() };
-        if (saveSize.has_value()) window.saveSize = (saveSize.value() == "true");
+        if (saveSize.has_value()) window.saveSize = Map::Bool::getContext()->get (saveSize.value()) == Map::Bool::yes;
 
         auto confirmationOnExit { t["confirmation_on_exit"].optional<juce::String>() };
         if (confirmationOnExit.has_value())
-            window.confirmationOnExit = (confirmationOnExit.value() == "true");
+            window.confirmationOnExit = Map::Bool::getContext()->get (confirmationOnExit.value()) == Map::Bool::yes;
     }
 }
 
@@ -119,26 +120,19 @@ static void parseDisplayCursor (Engine::Display::Cursor& cursor, jam::lua::Value
         }
 
         auto blink { t["blink"].optional<juce::String>() };
-        if (blink.has_value()) cursor.blink = (blink.value() == "true");
+        if (blink.has_value()) cursor.blink = Map::Bool::getContext()->get (blink.value()) == Map::Bool::yes;
 
         auto blinkInterval { t["blink_interval"].optional<double>() };
         if (blinkInterval.has_value())
             cursor.blinkInterval = juce::jlimit (100, 5000, static_cast<int> (blinkInterval.value()));
 
         auto force { t["force"].optional<juce::String>() };
-        if (force.has_value()) cursor.force = (force.value() == "true");
+        if (force.has_value()) cursor.force = Map::Bool::getContext()->get (force.value()) == Map::Bool::yes;
 
         auto style { t["style"].optional<juce::String>() };
 
         if (style.has_value())
-        {
-            if (style.value() == "underline")
-                cursor.style = 3;
-            else if (style.value() == "bar")
-                cursor.style = 5;
-            else
-                cursor.style = 1;
-        }
+            cursor.style = Map::Cursor::getContext()->get (style.value());
     }
 }
 
@@ -156,10 +150,10 @@ static void parseDisplayFont (Engine::Display::Font& font, jam::lua::Value& disp
             font.size = static_cast<float> (juce::jlimit (1.0, 200.0, size.value()));
 
         auto ligatures { t["ligatures"].optional<juce::String>() };
-        if (ligatures.has_value()) font.ligatures = (ligatures.value() == "true");
+        if (ligatures.has_value()) font.ligatures = Map::Bool::getContext()->get (ligatures.value()) == Map::Bool::yes;
 
         auto embolden { t["embolden"].optional<juce::String>() };
-        if (embolden.has_value()) font.embolden = (embolden.value() == "true");
+        if (embolden.has_value()) font.embolden = Map::Bool::getContext()->get (embolden.value()) == Map::Bool::yes;
 
         auto lineHeight { t["line_height"].optional<double>() };
         if (lineHeight.has_value())
@@ -170,7 +164,7 @@ static void parseDisplayFont (Engine::Display::Font& font, jam::lua::Value& disp
             font.cellWidth = static_cast<float> (juce::jlimit (0.5, 3.0, cellWidth.value()));
 
         auto desktopScale { t["desktop_scale"].optional<juce::String>() };
-        if (desktopScale.has_value()) font.desktopScale = (desktopScale.value() == "true");
+        if (desktopScale.has_value()) font.desktopScale = Map::Bool::getContext()->get (desktopScale.value()) == Map::Bool::yes;
     }
 }
 
@@ -253,7 +247,7 @@ static void parseDisplayMisc (Engine::Display& display, jam::lua::Value& display
     if (t.isTable())
     {
         auto closeOnRun { t["close_on_run"].optional<juce::String>() };
-        if (closeOnRun.has_value()) display.actionList.closeOnRun = (closeOnRun.value() == "true");
+        if (closeOnRun.has_value()) display.actionList.closeOnRun = Map::Bool::getContext()->get (closeOnRun.value()) == Map::Bool::yes;
 
         auto position { t["position"].optional<juce::String>() };
         if (position.has_value()) display.actionList.position = position.value();

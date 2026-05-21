@@ -181,8 +181,7 @@ struct State
     bool refresh() noexcept;
 
 private:
-    static int resolveLayoutDefault (const juce::XmlElement& elem,
-                                     const Map::Bool& boolMap) noexcept;
+    static int resolveLayoutDefault (const juce::XmlElement& elem) noexcept;
 
     void valueTreeChildAdded (juce::ValueTree& parent, juce::ValueTree& child) override;
 

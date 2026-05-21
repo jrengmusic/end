@@ -278,7 +278,7 @@ void MainComponent::resized()
     {
         const juce::String position { lua::Engine::getContext()->display.statusBar.position };
         const int barHeight { statusBarOverlay->getPreferredHeight() };
-        const int y { (position == "top") ? 0 : getHeight() - barHeight };
+        const int y { (position == Map::Position::getContext()->get (Map::Position::top)) ? 0 : getHeight() - barHeight };
         statusBarOverlay->setBounds (0, y, getWidth(), barHeight);
     }
 }
@@ -559,7 +559,7 @@ void MainComponent::initialiseTabs()
         if (tabsNode.getChild (i).getType() == app::id::TAB)
             tabsNode.removeChild (i, nullptr);
     }
-    AppState::getContext()->setActivePaneType (app::id::paneTypeTerminal);
+    AppState::getContext()->setActivePaneType (Map::PaneType::getContext()->get (Map::PaneType::terminal));
 
     if (savedTabCount > 0)
     {

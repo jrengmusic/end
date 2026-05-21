@@ -28,7 +28,7 @@ void Tabs::closeActiveTab()
         auto* activePanes { panes.at (index).get() };
         const juce::String paneType { AppState::getContext()->getActivePaneType() };
 
-        if (paneType == app::id::paneTypeDocument)
+        if (paneType == Map::PaneType::getContext()->get (Map::PaneType::document))
         {
             activePanes->closeWhelmed();
 
@@ -75,7 +75,7 @@ void Tabs::closeActiveTab()
 
             for (const auto& pane : activePanes->getPanes())
             {
-                if (pane->getPaneType() == app::id::paneTypeTerminal)
+                if (pane->getPaneType() == Map::PaneType::getContext()->get (Map::PaneType::terminal))
                     terminalUuids.add (pane->getComponentID());
             }
 
@@ -142,7 +142,7 @@ void Tabs::closeSession (const juce::String& uuid)
 
             for (const auto& pane : ownerPanes->getPanes())
             {
-                if (pane->getPaneType() == app::id::paneTypeTerminal)
+                if (pane->getPaneType() == Map::PaneType::getContext()->get (Map::PaneType::terminal))
                     terminalUuids.add (pane->getComponentID());
             }
 

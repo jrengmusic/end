@@ -290,8 +290,7 @@ private:
      */
     void build (const juce::XmlElement& xml);
 
-    static juce::var resolveAppLayoutDefault (const juce::XmlElement& elem,
-                                              const Map::Bool& boolMap) noexcept;
+    static juce::var resolveAppLayoutDefault (const juce::XmlElement& elem) noexcept;
 
     /** @brief Ref-counted handle to the active session's VT. Set by setPwd(). */
     juce::ValueTree activeSession;

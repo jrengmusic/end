@@ -43,7 +43,7 @@ public:
     Component();
     ~Component() override;
 
-    juce::String getPaneType() const noexcept override { return app::id::paneTypeDocument; }
+    juce::String getPaneType() const noexcept override { return Map::PaneType::getContext()->get (Map::PaneType::document); }
     void switchRenderer (app::RendererType type) override;
     void applyConfig() noexcept override;
     void applyZoom (float) noexcept override {}

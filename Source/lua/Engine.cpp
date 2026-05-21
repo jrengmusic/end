@@ -16,6 +16,7 @@
  */
 
 #include "Engine.h"
+#include "../Map.h"
 
 namespace lua
 {
@@ -167,7 +168,7 @@ void Engine::registerApiTable()
                          {
                              auto direction { jam::lua::Stack::get<juce::String> (L, 1) };
                              auto ratio { jam::lua::Stack::get<double> (L, 2) };
-                             const bool isVertical { direction == "vertical" };
+                             const bool isVertical { direction == Map::Direction::getContext()->get (Map::Direction::vertical) };
                              displayCallbacks.splitWithRatio (direction, isVertical, ratio);
                              return 0;
                          });

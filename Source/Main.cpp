@@ -47,155 +47,83 @@
 #include "Main.h"
 
 //==============================================================================
-/**
- * @class ENDApplication
- * @brief Top-level JUCE application object for END.
- *
- * Inherits `juce::JUCEApplication` and implements the four lifecycle hooks
- * required by the JUCE application model.  Member construction order is
- * significant: `luaEngine` must be fully constructed before `appState`
- * (which reads font family and window dims from luaEngine), and both must
- * exist before `initialise()` creates the window.
- *
- * @par Ownership
- * - `luaEngine` and `appState` are value members — they are destroyed last.
- * - `nexus`, `daemon`, `link`, and `mainWindow` are `unique_ptr` members reset
- *   in `shutdown()` in dependency order.
- *
- * @par Thread context
- * All methods are called on the **MESSAGE THREAD** by the JUCE event loop.
- *
- * @see MainComponent
- * @see lua::Engine
- */
-class ENDApplication : public juce::JUCEApplication
+
+ENDApplication::ENDApplication()
 {
-public:
-    //==============================================================================
-    ENDApplication()
-    {
-        const auto probeResult { jam::GpuProbe::probe() };
-        appState.setGpuAvailable (probeResult.isAvailable);
-        appState.setRendererType (lua::Engine::getContext()->nexus.gpu);
-    }
+    const auto probeResult { jam::GpuProbe::probe() };
+    appState.setGpuAvailable (probeResult.isAvailable);
+    appState.setRendererType (lua::Engine::getContext()->nexus.gpu);
+}
 
-    /** @return The human-readable application name from ProjectInfo. */
-    const juce::String getApplicationName() override { return ProjectInfo::projectName; }
+//==============================================================================
 
-    /** @return The version string from ProjectInfo (e.g. "1.0.0"). */
-    const juce::String getApplicationVersion() override { return ProjectInfo::versionString; }
+void ENDApplication::initialise (const juce::String& commandLine)
+{
+    juce::ignoreUnused (commandLine);
 
-    /**
-     * @return @c true — END supports multiple simultaneous instances.
-     * @note Each instance owns its own pty session and window.
-     */
-    bool moreThanOneInstanceAllowed() override { return true; }
-
-    //==============================================================================
-    /**
-     * @brief Creates the main window and wires up all subsystems.
-     *
-     * Called by JUCE after the message loop starts.  Reads window geometry and
-     * appearance from Config, then constructs a `jam::Window` wrapping a
-     * freshly allocated `MainComponent`.
-     *
-     * @param commandLine  The raw command-line string passed to the process.
-     *                     Currently unused; reserved for future shell override.
-     *
-     * @note MESSAGE THREAD — called once at startup.
-     *
-     * @see lua::Engine::Display::Window
-     */
-    void initialise (const juce::String& commandLine) override
-    {
-        juce::ignoreUnused (commandLine);
-    
 #if JUCE_WINDOWS
-        // Safety net: create a Job Object with KILL_ON_JOB_CLOSE so that all
-        // child processes (shell, OpenConsole.exe from ConPTY) are killed when
-        // this process exits — even on crash.  The daemon has its own Job Object
-        // via Daemon::installPlatformProcessCleanup(); this covers the GUI
-        // (standalone and client) process.  Handle intentionally not stored —
-        // the OS closes it on process exit, which triggers the kill.
-        {
-            HANDLE job { CreateJobObject (nullptr, nullptr) };
+    // Safety net: create a Job Object with KILL_ON_JOB_CLOSE so that all
+    // child processes (shell, OpenConsole.exe from ConPTY) are killed when
+    // this process exits — even on crash.  The daemon has its own Job Object
+    // via Daemon::installPlatformProcessCleanup(); this covers the GUI
+    // (standalone and client) process.  Handle intentionally not stored —
+    // the OS closes it on process exit, which triggers the kill.
+    {
+        HANDLE job { CreateJobObject (nullptr, nullptr) };
 
-            if (job != nullptr)
-            {
-                JOBOBJECT_EXTENDED_LIMIT_INFORMATION info {};
-                info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
-                                                      | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
-                SetInformationJobObject (job, JobObjectExtendedLimitInformation, &info, sizeof (info));
-                AssignProcessToJobObject (job, GetCurrentProcess());
-            }
+        if (job != nullptr)
+        {
+            JOBOBJECT_EXTENDED_LIMIT_INFORMATION info {};
+            info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+                                                  | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
+            SetInformationJobObject (job, JobObjectExtendedLimitInformation, &info, sizeof (info));
+            AssignProcessToJobObject (job, GetCurrentProcess());
         }
+    }
 #endif
 
-        const auto args { getCommandLineParameterArray() };
-        const int nexusFlagIndex { args.indexOf ("--nexus") };
-        const bool isNexusFlag { nexusFlagIndex >= 0 };
+    const auto args { getCommandLineParameterArray() };
+    const int nexusFlagIndex { args.indexOf ("--nexus") };
+    const bool isNexusFlag { nexusFlagIndex >= 0 };
 
-        const auto* cfg { lua::Engine::getContext() };
+    const auto* cfg { lua::Engine::getContext() };
 
-        if (isNexusFlag)
+    if (isNexusFlag)
+    {
+        const juce::String nexusArg { nexusFlagIndex + 1 < args.size()
+                                          ? args[nexusFlagIndex + 1]
+                                          : juce::String() };
+
+        if (nexusArg == "kill" or nexusArg == "kill-all")
         {
-            const juce::String nexusArg { nexusFlagIndex + 1 < args.size()
-                                              ? args[nexusFlagIndex + 1]
-                                              : juce::String() };
+            // ---- Ephemeral kill command --------------------------------------
+            // Connects to the daemon, sends killDaemon PDU, exits.
+            // No window, no nexus, no state.
 
-            if (nexusArg == "kill" or nexusArg == "kill-all")
+            static constexpr int killProbeTimeoutMs { 200 };
+
+            // Minimal InterprocessConnection for fire-and-forget PDU send.
+            struct KillConn : public juce::InterprocessConnection
             {
-                // ---- Ephemeral kill command --------------------------------------
-                // Connects to the daemon, sends killDaemon PDU, exits.
-                // No window, no nexus, no state.
+                KillConn() : juce::InterprocessConnection (false, nexus::wireMagicHeader) {}
+                void connectionMade() override {}
+                void connectionLost() override {}
+                void messageReceived (const juce::MemoryBlock&) override {}
+            };
 
-                static constexpr int killProbeTimeoutMs { 200 };
+            const juce::File nexusDir { lua::Engine::getConfigPath().getChildFile ("nexus") };
 
-                // Minimal InterprocessConnection for fire-and-forget PDU send.
-                struct KillConn : public juce::InterprocessConnection
+            if (nexusArg == "kill")
+            {
+                const juce::String targetUuid { nexusFlagIndex + 2 < args.size()
+                                                    ? args[nexusFlagIndex + 2]
+                                                    : juce::String() };
+
+                if (targetUuid.isNotEmpty())
                 {
-                    KillConn() : juce::InterprocessConnection (false, nexus::wireMagicHeader) {}
-                    void connectionMade() override {}
-                    void connectionLost() override {}
-                    void messageReceived (const juce::MemoryBlock&) override {}
-                };
+                    const juce::File nexusFile { nexusDir.getChildFile (targetUuid + ".nexus") };
 
-                const juce::File nexusDir { lua::Engine::getConfigPath().getChildFile ("nexus") };
-
-                if (nexusArg == "kill")
-                {
-                    const juce::String targetUuid { nexusFlagIndex + 2 < args.size()
-                                                        ? args[nexusFlagIndex + 2]
-                                                        : juce::String() };
-
-                    if (targetUuid.isNotEmpty())
-                    {
-                        const juce::File nexusFile { nexusDir.getChildFile (targetUuid + ".nexus") };
-
-                        if (nexusFile.existsAsFile())
-                        {
-                            const int port { nexusFile.loadFileAsString().trim().getIntValue() };
-
-                            if (port > 0)
-                            {
-                                KillConn conn;
-
-                                if (conn.connectToSocket ("127.0.0.1", port, killProbeTimeoutMs))
-                                {
-                                    conn.sendMessage (nexus::encodePdu (nexus::Message::killDaemon, {}));
-                                    conn.disconnect();
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // kill-all: scan every .nexus file and send killDaemon to each live daemon.
-                    const auto nexusFiles { nexusDir.findChildFiles (
-                        juce::File::findFiles, false, "*.nexus") };
-
-                    for (const auto& nexusFile : nexusFiles)
+                    if (nexusFile.existsAsFile())
                     {
                         const int port { nexusFile.loadFileAsString().trim().getIntValue() };
 
@@ -211,264 +139,209 @@ public:
                         }
                     }
                 }
-
-                quit();
             }
             else
             {
-                // ---- Headless daemon mode ----------------------------------------
-                // nexusArg is the UUID.
-                const juce::String daemonUuid { nexusArg.isNotEmpty()
-                                                    ? nexusArg
-                                                    : juce::Uuid().toString() };
-                appState.setInstanceUuid (daemonUuid);
-                appState.load();
+                // kill-all: scan every .nexus file and send killDaemon to each live daemon.
+                const auto nexusFiles { nexusDir.findChildFiles (
+                    juce::File::findFiles, false, "*.nexus") };
 
-                // Ensure nexus/ directory exists before the server writes its port.
-                appState.getNexusFile().getParentDirectory().createDirectory();
-
-                // Hide dock icon, construct nexus + daemon, attach, start, wire exit callback.
-                // No window is created.  The JUCE message loop runs until all sessions exit.
-                nexus::Daemon::hideDockIcon();
-                nexus = std::make_unique<Nexus>();
-                nexus->setMode (Nexus::Mode::daemon);
-                daemon = std::make_unique<nexus::Daemon> (*nexus);
-                daemon->start();
-
-                daemon->onAllSessionsExited = [this]
+                for (const auto& nexusFile : nexusFiles)
                 {
-                    appState.deleteNexusFile();
-                    quit();
-                };
+                    const int port { nexusFile.loadFileAsString().trim().getIntValue() };
+
+                    if (port > 0)
+                    {
+                        KillConn conn;
+
+                        if (conn.connectToSocket ("127.0.0.1", port, killProbeTimeoutMs))
+                        {
+                            conn.sendMessage (nexus::encodePdu (nexus::Message::killDaemon, {}));
+                            conn.disconnect();
+                        }
+                    }
+                }
             }
+
+            quit();
         }
         else
         {
-            const bool daemonEnabled { cfg->nexus.daemon };
+            // ---- Headless daemon mode ----------------------------------------
+            // nexusArg is the UUID.
+            const juce::String daemonUuid { nexusArg.isNotEmpty()
+                                                ? nexusArg
+                                                : juce::Uuid().toString() };
+            appState.setInstanceUuid (daemonUuid);
+            appState.load();
 
-            if (not daemonEnabled)
-            {
-                // ---- Single-process mode (nexus = false) --------------------
-                // No daemon, no IPC.  Standalone persists only window size
-                // via loadWindowState/saveWindowState (window.state).
-                if (cfg->display.window.saveSize)
-                    appState.loadWindowState();
-            }
+            // Ensure nexus/ directory exists before the server writes its port.
+            appState.getNexusFile().getParentDirectory().createDirectory();
 
-            if (daemonEnabled)
-            {
-                // ---- Client mode (nexus = true, no --nexus flag) -------------
-                const juce::String resolvedUuid { resolveNexusInstance() };
-                appState.setInstanceUuid (resolvedUuid);
-                appState.setDaemonMode (true);
-
-                const bool hadState { appState.getStateFile().existsAsFile() };
-                appState.load();
-
-                if (not hadState and cfg->display.window.saveSize)
-                    appState.loadWindowState();
-            }
-
-#if JUCE_WINDOWS
-            if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
-            {
-                jam::BackgroundBlur::applyForceEffectRegistry (cfg->display.window.forceDwm);
-            }
-#endif
-
-            auto* mainComponent { new MainComponent (luaEngine) };
-            mainWindow.reset (new terminal::Window (mainComponent,
-                                                 cfg->display.window.title,
-                                                 cfg->display.window.alwaysOnTop,
-                                                 cfg->display.window.buttons));
-
-            mainWindow->setGlass (cfg->display.window.colour
-                                      .withAlpha (cfg->display.window.opacity),
-                                  cfg->display.window.blurRadius);
-
-            // P: applyConfig fires here — after Window exists — so that
-            // dynamic_cast<jam::Window*>(getTopLevelComponent()) inside
-            // MainComponent::setRenderer succeeds.
-            mainComponent->applyConfig();
-
-            // JUCE InterprocessConnection manages its own reader thread internally.
-            // No startThread() call is needed.
-
-            mainWindow->setVisible (true);
-
+            // Hide dock icon, construct nexus + daemon, attach, start, wire exit callback.
+            // No window is created.  The JUCE message loop runs until all sessions exit.
+            nexus::Daemon::hideDockIcon();
             nexus = std::make_unique<Nexus>();
+            nexus->setMode (Nexus::Mode::daemon);
+            daemon = std::make_unique<nexus::Daemon> (*nexus);
+            daemon->start();
 
-            if (not daemonEnabled)
+            daemon->onAllSessionsExited = [this]
             {
-                // Standalone mode — MainComponent listeners are now registered.
-                // Append SESSIONS child to trigger valueTreeChildAdded → initialiseTabs.
-                juce::ValueTree sessionsNode { app::id::SESSIONS };
-                appState.getNexusNode().appendChild (sessionsNode, nullptr);
+                appState.deleteNexusFile();
+                quit();
+            };
+        }
+    }
+    else
+    {
+        const bool daemonEnabled { cfg->nexus.daemon };
 
-            }
-            else
-            {
-                // Client mode — construct Link, begin connect attempts.
-                // Link registers on nexus.events in its constructor.
-                // When the sessions PDU arrives, SESSIONS is rewritten and the LOADING
-                // op is removed.  MainComponent::valueTreeChildAdded reacts to both.
-                nexus->setMode (Nexus::Mode::client);
-                link = std::make_unique<nexus::Link>();
-                link->beginConnectAttempts();
-            }
+        if (not daemonEnabled)
+        {
+            // ---- Single-process mode (nexus = false) --------------------
+            // No daemon, no IPC.  Standalone persists only window size
+            // via loadWindowState/saveWindowState (window.state).
+            if (cfg->display.window.saveSize)
+                appState.loadWindowState();
+        }
 
-            juce::MessageManager::callAsync (
-                [this]
-                {
-                    if (auto* content { mainWindow->getContentComponent() })
-                        content->grabKeyboardFocus();
-                });
+        if (daemonEnabled)
+        {
+            // ---- Client mode (nexus = true, no --nexus flag) -------------
+            const juce::String resolvedUuid { resolveNexusInstance() };
+            appState.setInstanceUuid (resolvedUuid);
+            appState.setDaemonMode (true);
 
-            luaEngine.onReload = [this]
-            {
-                if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
-                {
-                    content->applyConfig();
-                    content->showReloadMessage();
+            const bool hadState { appState.getStateFile().existsAsFile() };
+            appState.load();
+
+            if (not hadState and cfg->display.window.saveSize)
+                appState.loadWindowState();
+        }
 
 #if JUCE_WINDOWS
-                    if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
-                    {
-                        jam::BackgroundBlur::applyForceEffectRegistry (
-                            lua::Engine::getContext()->display.window.forceDwm);
-                    }
+        if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
+        {
+            jam::BackgroundBlur::applyForceEffectRegistry (cfg->display.window.forceDwm);
+        }
 #endif
 
-                    const auto* reloadedCfg { lua::Engine::getContext() };
-                    mainWindow->setGlass (reloadedCfg->display.window.colour
-                                              .withAlpha (reloadedCfg->display.window.opacity),
-                                          reloadedCfg->display.window.blurRadius);
+        auto* mainComponent { new MainComponent (luaEngine) };
+        mainWindow.reset (new terminal::Window (mainComponent,
+                                             cfg->display.window.title,
+                                             cfg->display.window.alwaysOnTop,
+                                             cfg->display.window.buttons));
+
+        mainWindow->setGlass (cfg->display.window.colour
+                                  .withAlpha (cfg->display.window.opacity),
+                              cfg->display.window.blurRadius);
+
+        // P: applyConfig fires here — after Window exists — so that
+        // dynamic_cast<jam::Window*>(getTopLevelComponent()) inside
+        // MainComponent::setRenderer succeeds.
+        mainComponent->applyConfig();
+
+        // JUCE InterprocessConnection manages its own reader thread internally.
+        // No startThread() call is needed.
+
+        mainWindow->setVisible (true);
+
+        nexus = std::make_unique<Nexus>();
+
+        if (not daemonEnabled)
+        {
+            // Standalone mode — MainComponent listeners are now registered.
+            // Append SESSIONS child to trigger valueTreeChildAdded → initialiseTabs.
+            juce::ValueTree sessionsNode { app::id::SESSIONS };
+            appState.getNexusNode().appendChild (sessionsNode, nullptr);
+
+        }
+        else
+        {
+            // Client mode — construct Link, begin connect attempts.
+            // Link registers on nexus.events in its constructor.
+            // When the sessions PDU arrives, SESSIONS is rewritten and the LOADING
+            // op is removed.  MainComponent::valueTreeChildAdded reacts to both.
+            nexus->setMode (Nexus::Mode::client);
+            link = std::make_unique<nexus::Link>();
+            link->beginConnectAttempts();
+        }
+
+        juce::MessageManager::callAsync (
+            [this]
+            {
+                if (auto* content { mainWindow->getContentComponent() })
+                    content->grabKeyboardFocus();
+            });
+
+        luaEngine.onReload = [this]
+        {
+            if (auto* content { dynamic_cast<MainComponent*> (mainWindow->getContentComponent()) })
+            {
+                content->applyConfig();
+                content->showReloadMessage();
+
+#if JUCE_WINDOWS
+                if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
+                {
+                    jam::BackgroundBlur::applyForceEffectRegistry (
+                        lua::Engine::getContext()->display.window.forceDwm);
                 }
-            };
+#endif
 
-        }
-    }
-
-    /**
-     * @brief Destroys the main window and releases all resources.
-     *
-     * Destruction order:
-     * 1. link   — disconnect IPC before sessions die.
-     * 2. daemon — stop server.
-     * 3. mainWindow — tears down component tree (Display → Processor refs).
-     * 4. nexus  — releases all terminal::Session objects.
-     *
-     * @note MESSAGE THREAD — called once at shutdown.
-     */
-    void shutdown() override
-    {
-    }
-
-    //==============================================================================
-    /**
-     * @brief Handles OS quit requests (Cmd+Q, window close, SIGTERM).
-     *
-     * Saves window size then quits.  In nexus mode with live sessions, persists
-     * UI state so the next client can restore window and tab layout.
-     * In nexus mode with no sessions, deletes both `.display` and `.nexus`.
-     * In standalone mode, only window size persists (via `saveWindowState`).
-     * Sessions die with the window by design.  Main owns all file I/O decisions.
-     * In the byte-forward architecture the GUI process and the daemon process are
-     * separate — quitting the GUI does not affect the daemon, which outlives the
-     * GUI until its own shell count hits zero.
-     *
-     * @note MESSAGE THREAD — called by the OS or by `JUCEApplication::quit()`.
-     *
-     * @see AppState::save
-     */
-    void systemRequestedQuit() override
-    {
-        // UI process always quits unconditionally.
-        // - nexus = true (client mode): daemon lives on in its own process.
-        // - nexus = false (single-process): sessions die with the window by design.
-        // - --nexus (daemon mode): OS quit means all sessions should die; message loop
-        //   exits via onAllSessionsExited after sessions are destroyed.
-        if (mainWindow != nullptr)
-        {
-            if (lua::Engine::getContext()->display.window.saveSize)
-                appState.saveWindowState();
-        }
-
-        if (appState.isDaemonMode())
-        {
-            const int tabCount { appState.getTabs().getNumChildren() };
-
-            if (tabCount > 0)
-            {
-                // Sessions alive — persist UI state (window, tabs) so the next
-                // client can restore layout.  The InterProcessLock auto-releases
-                // on quit, signalling the daemon is free to reconnect.
-                appState.save();
+                const auto* reloadedCfg { lua::Engine::getContext() };
+                mainWindow->setGlass (reloadedCfg->display.window.colour
+                                          .withAlpha (reloadedCfg->display.window.opacity),
+                                      reloadedCfg->display.window.blurRadius);
             }
-            else
-            {
-                // No sessions — clean up both files.
-                appState.getStateFile().deleteFile();
-                appState.getNexusFile().deleteFile();
-            }
-        }
+        };
 
-        quit();
+    }
+}
+
+//==============================================================================
+
+void ENDApplication::shutdown()
+{
+}
+
+//==============================================================================
+
+void ENDApplication::systemRequestedQuit()
+{
+    // UI process always quits unconditionally.
+    // - nexus = true (client mode): daemon lives on in its own process.
+    // - nexus = false (single-process): sessions die with the window by design.
+    // - --nexus (daemon mode): OS quit means all sessions should die; message loop
+    //   exits via onAllSessionsExited after sessions are destroyed.
+    if (mainWindow != nullptr)
+    {
+        if (lua::Engine::getContext()->display.window.saveSize)
+            appState.saveWindowState();
     }
 
-private:
-    /** @brief Diagnostic file logger -- fresh each launch. */
-    jam::debug::Log::Scope logScope { juce::File { "/tmp/end-perf.log" } };
+    if (appState.isDaemonMode())
+    {
+        const int tabCount { appState.getTabs().getNumChildren() };
 
-    /** @brief Application-owned typeface registry and shared glyph atlas. */
-    jam::TypefaceResources typefaceResources;
+        if (tabCount > 0)
+        {
+            // Sessions alive — persist UI state (window, tabs) so the next
+            // client can restore layout.  The InterProcessLock auto-releases
+            // on quit, signalling the daemon is free to reconnect.
+            appState.save();
+        }
+        else
+        {
+            // No sessions — clean up both files.
+            appState.getStateFile().deleteFile();
+            appState.getNexusFile().deleteFile();
+        }
+    }
 
-    /** @brief Application-owned style table — self-registers as jam::Stamp::getContext() on construction. */
-    jam::Stamp stampContext;
-
-    /** @brief Application-owned grapheme cluster table — self-registers as jam::Grapheme::getContext() on construction. */
-    jam::Grapheme graphemeContext;
-
-    /** @brief Unified Lua config and scripting engine. Must be constructed before appState. */
-    lua::Engine luaEngine;
-
-    /** @brief Screen index map — registers Map::Screen context. Must be constructed before any consumer of Map::Screen::getContext(). */
-    Map::Screen screenMap;
-
-    /** @brief Application-level ValueTree. Must be constructed after luaEngine. */
-    AppState appState;
-
-    /** @brief Global action registry. Must be constructed after luaEngine. */
-    action::Registry action;
-
-    /** @brief Session pool — owns all terminal::Session objects.
-     *  Destroyed after mainWindow — Display must die before Sessions. */
-    std::unique_ptr<Nexus> nexus;
-
-    /** @brief The native OS window. Destroyed before nexus (Display → Session dependency). */
-    std::unique_ptr<terminal::Window> mainWindow;
-
-    /** @brief IPC server. Non-null in daemon mode only. Destroyed before mainWindow. */
-    std::unique_ptr<nexus::Daemon> daemon;
-
-    /** @brief OS-level lock held while connected to a daemon. Auto-releases on quit. */
-    std::unique_ptr<juce::InterProcessLock> clientLock;
-
-    /** @brief IPC client connector. Non-null in client mode only. Destroyed first. */
-    std::unique_ptr<nexus::Link> link;
-
-    /**
-     * @brief Scans nexus/\*.nexus files to find a live unclaimed daemon.
-     *
-     * Returns the UUID of the first usable daemon, or spawns a new daemon and returns
-     * its fresh UUID if no usable daemon is found.  Deletes stale .nexus/.display file
-     * pairs where the daemon process is no longer alive.
-     *
-     * @return UUID string to use for this client session.
-     * @note MESSAGE THREAD.
-     */
-    juce::String resolveNexusInstance();
-};
+    quit();
+}
 
 //==============================================================================
 

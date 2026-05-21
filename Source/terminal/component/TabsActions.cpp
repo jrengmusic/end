@@ -197,7 +197,7 @@ void Tabs::restore (juce::ValueTree savedTabs, juce::Rectangle<int> contentRect)
             if (targetUuid.isNotEmpty() and newUuid.isNotEmpty())
             {
                 const auto [splitCols, splitRows] { Panes::cellsFromRect (newRect) };
-                const bool isVertical { direction == "vertical" };
+                const bool isVertical { direction == Map::Direction::getContext()->get (Map::Direction::vertical) };
                 activePanes->splitAt (targetUuid, newUuid, newCwd, direction, isVertical, splitCols, splitRows);
 
                 auto newLeafNode { jam::PaneManager::findLeaf (activePanes->getState(), newUuid) };

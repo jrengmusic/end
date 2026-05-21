@@ -1,9 +1,9 @@
 # SPRINT-LOG
 
-## Sprint 26: Cell Unification + Event Wiring + Audit Sweep ✅
+## Sprint 26: Cell Unification + Map SSOT + int→cell Migration + Module Cleanup ✅
 
 **Date:** 2026-05-21
-**Duration:** ~6h
+**Duration:** ~10h
 
 ### Agents Participated
 - COUNSELOR: orchestration, planning, delegation, audit resolution
@@ -79,6 +79,17 @@
 - Bounds.h coding standard violations fixed (pre-existing, exposed by file move)
 - int→cell migration: Video.h/.cpp, VideoOps.cpp, VideoCSI.cpp, VideoESC.cpp, VideoDCS.cpp, VideoEdit.cpp, VideoMode.cpp, Grid.h/.cpp, GridResize.cpp, Processor.h/.cpp, Screen.cpp, ScreenSelection.h, Skit.h/.cpp, Mouse.cpp, Display.cpp — all cell-unit params/members/returns typed as `cell`
 - Style consistency: redundant casts removed, .value comparisons → cell operators, round-trip .value+cell() → cell arithmetic
+- Map SSOT: 6 new Map types (TabPosition, Renderer, PaneType, Direction, Position, LinkHandler) — all string→int mappings consolidated, zero magic string comparisons remain
+- Map::Bool wired to 15 lua config bool parse sites, Map::Gpu wired to AppState::setRendererType
+- Map::Cursor wired to cursor style parse/serialize
+- Removed string constants from AppIdentifier.h (rendererGpu, rendererCpu, paneTypeTerminal, paneTypeDocument)
+- Removed duplicate Map::Bool local instances from State.cpp and AppState.cpp (Context singleton violation)
+- Main.h/Main.cpp split — ENDApplication declaration in header, definitions in .cpp
+- All Map instances declared before luaEngine in Main.h (construction order)
+- State.cpp DCF fix: raw "float" string → app::id::floatType.toString()
+- GL context detach in MainComponent destructor (crash on exit fix)
+- Bell/clipboard/notification events wired to real implementations
+- LinkManager handler comparisons wired to Map::LinkHandler
 
 ### Debts Paid
 - `DEBT-20260521T060000` — screenSwitch event slimmed from 8 to 4 args

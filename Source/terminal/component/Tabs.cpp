@@ -403,20 +403,7 @@ void Tabs::applyOrientation()
 
 jam::TabbedButtonBar::Orientation Tabs::orientationFromString (const juce::String& position)
 {
-    static const std::unordered_map<juce::String, jam::TabbedButtonBar::Orientation> table {
-        { "top",    jam::TabbedButtonBar::TabsAtTop    },
-        { "bottom", jam::TabbedButtonBar::TabsAtBottom },
-        { "right",  jam::TabbedButtonBar::TabsAtRight  },
-        { "left",   jam::TabbedButtonBar::TabsAtLeft   },
-    };
-
-    jam::TabbedButtonBar::Orientation result { jam::TabbedButtonBar::TabsAtLeft };
-    const auto it { table.find (position) };
-
-    if (it != table.end())
-        result = it->second;
-
-    return result;
+    return static_cast<jam::TabbedButtonBar::Orientation> (Map::TabPosition::getContext()->get (position));
 }
 
 /**

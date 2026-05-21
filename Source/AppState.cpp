@@ -119,7 +119,7 @@ app::RendererType AppState::getRendererType() const noexcept
 {
     const auto renderer { jam::ValueTree::getValueFromChildWithID (get(), app::id::renderer).getValue().toString() };
 
-    if (renderer == app::id::rendererCpu)
+    if (Map::Renderer::getContext()->get (renderer) == Map::Renderer::cpu)
         return app::RendererType::cpu;
 
     return app::RendererType::gpu;
@@ -128,8 +128,9 @@ app::RendererType AppState::getRendererType() const noexcept
 void AppState::setRendererType (const juce::String& setting)
 {
     const bool gpuAvailable { static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::gpuAvailable).getValue()) != 0 };
-    const bool wantsGpu { setting != "false" };
-    const juce::String resolved { wantsGpu and gpuAvailable ? app::id::rendererGpu : app::id::rendererCpu };
+    const bool wantsGpu { Map::Gpu::getContext()->get (setting) != Map::Gpu::off };
+    const juce::String resolved { wantsGpu and gpuAvailable ? Map::Renderer::getContext()->get (Map::Renderer::gpu)
+                                                             : Map::Renderer::getContext()->get (Map::Renderer::cpu) };
     setValue (app::id::renderer, resolved);
     jam::BackgroundBlur::setEnabled (getRendererType() == app::RendererType::gpu);
 }
@@ -407,8 +408,7 @@ void AppState::loadWindowState()
 
 //==============================================================================
 
-juce::var AppState::resolveAppLayoutDefault (const juce::XmlElement& elem,
-                                              const Map::Bool& boolMap) noexcept
+juce::var AppState::resolveAppLayoutDefault (const juce::XmlElement& elem) noexcept
 {
     const auto typeStr    { elem.getStringAttribute (app::id::type.toString()) };
     const auto defaultStr { elem.getStringAttribute (app::id::defaultValue.toString()) };
@@ -416,7 +416,7 @@ juce::var AppState::resolveAppLayoutDefault (const juce::XmlElement& elem,
 
     if (typeStr == app::id::boolType.toString())
     {
-        result = boolMap.get (defaultStr);
+        result = Map::Bool::getContext()->get (defaultStr);
     }
     else if (typeStr == app::id::floatType.toString())
     {
@@ -436,8 +436,6 @@ juce::var AppState::resolveAppLayoutDefault (const juce::XmlElement& elem,
 
 void AppState::build (const juce::XmlElement& xml)
 {
-    Map::Bool boolMap;
-
     // Root VT node — already constructed in AppState (app::id::END).
     juce::ValueTree rootNode { get() };
 
@@ -457,14 +455,14 @@ void AppState::build (const juce::XmlElement& xml)
                 // Float/string: PARAM child only, no Parameter.
                 juce::ValueTree param { jam::ValueTree::PARAM };
                 param.setProperty (jam::ID::id, id.toString(), nullptr);
-                param.setProperty (jam::ID::value, resolveAppLayoutDefault (*child, boolMap), nullptr);
+                param.setProperty (jam::ID::value, resolveAppLayoutDefault (*child), nullptr);
                 rootNode.appendChild (param, nullptr);
             }
             else
             {
                 // int/bool: Parameter<int> + PARAM child via addParameter.
                 addParameter (id,
-                              static_cast<int> (resolveAppLayoutDefault (*child, boolMap)),
+                              static_cast<int> (resolveAppLayoutDefault (*child)),
                               params,
                               rootNode);
             }
@@ -486,14 +484,14 @@ void AppState::build (const juce::XmlElement& xml)
                     // Float/string: PARAM child only, no Parameter.
                     juce::ValueTree param { jam::ValueTree::PARAM };
                     param.setProperty (jam::ID::id, paramId.toString(), nullptr);
-                    param.setProperty (jam::ID::value, resolveAppLayoutDefault (*groupChild, boolMap), nullptr);
+                    param.setProperty (jam::ID::value, resolveAppLayoutDefault (*groupChild), nullptr);
                     groupNode.appendChild (param, nullptr);
                 }
                 else
                 {
                     // int/bool: Parameter<int> + PARAM child, flat AnyMap.
                     addParameter (paramId,
-                                  static_cast<int> (resolveAppLayoutDefault (*groupChild, boolMap)),
+                                  static_cast<int> (resolveAppLayoutDefault (*groupChild)),
                                   params,
                                   groupNode);
                 }

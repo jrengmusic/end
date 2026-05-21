@@ -24,8 +24,7 @@ State::~State() = default;
 // SSOT registration
 //==========================================================================
 
-int State::resolveLayoutDefault (const juce::XmlElement& elem,
-                                 const Map::Bool& boolMap) noexcept
+int State::resolveLayoutDefault (const juce::XmlElement& elem) noexcept
 {
     const auto typeStr    { elem.getStringAttribute (id::type.toString()) };
     const auto defaultStr { elem.getStringAttribute (id::defaultValue.toString()) };
@@ -33,7 +32,7 @@ int State::resolveLayoutDefault (const juce::XmlElement& elem,
 
     if (typeStr == id::boolType.toString())
     {
-        result = boolMap.get (defaultStr);
+        result = Map::Bool::getContext()->get (defaultStr);
     }
     else
     {
@@ -45,8 +44,6 @@ int State::resolveLayoutDefault (const juce::XmlElement& elem,
 
 void State::buildLayout (const juce::XmlElement& xml, TextBuffer& tb)
 {
-    Map::Bool boolMap;
-
     // All groups are nested AnyMaps so flush() can iterate uniformly.
     params.add<jam::AnyMap> (id::SESSION);
     params.add<jam::AnyMap> (id::MODES);
@@ -69,7 +66,7 @@ void State::buildLayout (const juce::XmlElement& xml, TextBuffer& tb)
             auto* sessionGroup { params.get<jam::AnyMap> (id::SESSION) };
             const auto typeStr { child->getStringAttribute (id::type.toString()) };
 
-            if (typeStr == "float")
+            if (typeStr == app::id::floatType.toString())
             {
                 addParameter<float> (juce::Identifier { child->getStringAttribute (id::id.toString()) },
                                      static_cast<float> (child->getDoubleAttribute (id::defaultValue.toString())),
@@ -79,7 +76,7 @@ void State::buildLayout (const juce::XmlElement& xml, TextBuffer& tb)
             else
             {
                 addParameter (juce::Identifier { child->getStringAttribute (id::id.toString()) },
-                              resolveLayoutDefault (*child, boolMap),
+                              resolveLayoutDefault (*child),
                               *sessionGroup,
                               rootNode);
             }
@@ -92,7 +89,7 @@ void State::buildLayout (const juce::XmlElement& xml, TextBuffer& tb)
             for (auto* modeChild : child->getChildIterator())
             {
                 addParameter (juce::Identifier { modeChild->getStringAttribute (id::id.toString()) },
-                              resolveLayoutDefault (*modeChild, boolMap),
+                              resolveLayoutDefault (*modeChild),
                               *modesGroup,
                               modesNode);
             }

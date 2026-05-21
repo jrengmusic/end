@@ -149,17 +149,17 @@ void LinkManager::dispatch (const LinkSpan& span) const
         const auto* cfg { lua::Engine::getContext() };
         const juce::String handler { cfg->getHandler (ext) };
 
-        if (handler == "whelmed" and onOpenMarkdown != nullptr)
+        if (handler == Map::LinkHandler::getContext()->get (Map::LinkHandler::whelmed) and onOpenMarkdown != nullptr)
         {
             onOpenMarkdown (juce::File (path));
         }
-        else if (handler == "image" and onOpenImage != nullptr)
+        else if (handler == Map::LinkHandler::getContext()->get (Map::LinkHandler::image) and onOpenImage != nullptr)
         {
             onOpenImage (juce::File (path), span.row);
         }
         else
         {
-            const juce::String opener { handler.isNotEmpty() and handler != "whelmed"
+            const juce::String opener { handler.isNotEmpty() and handler != Map::LinkHandler::getContext()->get (Map::LinkHandler::whelmed)
                                             ? handler
                                             : cfg->nexus.hyperlinks.editor };
             const bool bracketed { state.getMode (id::bracketedPaste) };
