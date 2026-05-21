@@ -60,8 +60,22 @@ void GridResize::apply() noexcept
             {
                 int cursorRow { video.getCursorRow().value };
                 int cursorCol { video.getCursorCol().value };
-                const auto reflowedNumRows { grid.reflow (pendingRows.value, pendingCols.value, scrollbackLines, cursorRow, cursorCol) };
 
+                // Read current scroll state from active screen.
+                const int activeScreen { state.getActiveScreen() };
+                const juce::Identifier activeScreenId { Map::Screen::getContext()->get (activeScreen) };
+                auto activeNode { state.get().getChildWithName (activeScreenId) };
+                int scrollOffset { static_cast<int> (jam::ValueTree::getValueFromChildWithID (activeNode, id::scrollOffset).getValue()) };
+
+                // Height resize step (before reflow).
+                cell cursorRowCell { cursorRow };
+                grid.resizeHeight (pendingRows, cursorRowCell);
+                cursorRow = cursorRowCell.value;
+
+                // Width reflow.
+                const auto reflowedNumRows { grid.reflow (pendingRows.value, pendingCols.value, scrollbackLines, cursorRow, cursorCol, scrollOffset) };
+
+                // Write numRows per screen to State.
                 const juce::Identifier normalScreenId { Map::Screen::getContext()->get (Map::Screen::normal) };
                 const juce::Identifier alternateScreenId { Map::Screen::getContext()->get (Map::Screen::alternate) };
                 auto normalNode { state.get().getChildWithName (normalScreenId) };
@@ -72,9 +86,11 @@ void GridResize::apply() noexcept
                 auto alternateNumRowsParam { jam::ValueTree::getChildWithID (alternateNode, id::numRows.toString()) };
                 alternateNumRowsParam.setProperty (id::value, reflowedNumRows.at (1), nullptr);
 
-                const int activeScreen { state.getActiveScreen() };
-                const juce::Identifier activeScreenId { Map::Screen::getContext()->get (activeScreen) };
-                auto activeNode { state.get().getChildWithName (activeScreenId) };
+                // Write adjusted scrollOffset back to active screen.
+                auto activeScrollParam { jam::ValueTree::getChildWithID (activeNode, id::scrollOffset.toString()) };
+                activeScrollParam.setProperty (id::value, scrollOffset, nullptr);
+
+                // Restore cursor and video state.
                 const bool visible { static_cast<int> (jam::ValueTree::getValueFromChildWithID (activeNode, id::cursorVisible).getValue()) != 0 };
                 const uint32_t kbFlags { static_cast<uint32_t> (static_cast<int> (jam::ValueTree::getValueFromChildWithID (activeNode, id::keyboardFlags).getValue())) };
 

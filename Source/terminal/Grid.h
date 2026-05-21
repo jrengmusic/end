@@ -92,11 +92,30 @@ public:
      *  @param scrollbackLines  Maximum history row count from config.
      *  @param cursorRow        Viewport-relative cursor row (modified in place).
      *  @param cursorCol        Cursor column (modified in place).
+     *  @param scrollOffset     Current scroll position (modified in place — adjusted for reflow).
      *  @return New numRows per screen {normal, alternate} — Grid sets these internally;
      *          Processor reads the return to sync State.
      */
     std::array<int, 2> reflow (int newViewportRows, int newCols, int scrollbackLines,
-                               int& cursorRow, int& cursorCol) noexcept;
+                               int& cursorRow, int& cursorCol, int& scrollOffset) noexcept;
+
+    /** Height-only resize step — called before reflow.
+     *
+     *  Translates tmux's screen_resize_y: adjusts head and numRows
+     *  for both screens without reallocating the ring.
+     *
+     *  - Shrink: eat empty rows below cursor (screen 0), push remainder to scrollback.
+     *  - Grow: pull from scrollback history, fill remaining with blanks.
+     *
+     *  Updates viewportRows. Reflow is called after to handle width changes
+     *  and ring reallocation.
+     *
+     *  @param newRows    New viewport row count.
+     *  @param cursorRow  Screen 0 cursor row, viewport-relative (modified in place).
+     *
+     *  @note MESSAGE THREAD.
+     */
+    void resizeHeight (cell newRows, cell& cursorRow) noexcept;
 
     /** Scrolls rows up within the given scroll region on the given screen.
      *

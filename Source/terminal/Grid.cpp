@@ -46,7 +46,15 @@ static void wrapCursorPosition (const jam::Buffer<jam::Row>& buf,
         }
     }
 
-    wx = paragraphCol + cursorCol;
+    // Sentinel: cursor at or past end of line → wx = -1 (tmux UINT_MAX equivalent).
+    const int cursorPhys { (screenHead - screenNumRows + absoluteCursorRow) & mask };
+    const jam::Row* cursorLine { buf.getReadPointer (screen, cursorPhys) };
+
+    if (cursorCol >= static_cast<int> (cursorLine->usedCols))
+        wx = -1;
+    else
+        wx = paragraphCol + cursorCol;
+
     wy = paragraphRow;
 }
 
@@ -64,8 +72,10 @@ static void unwrapCursorPosition (const jam::Buffer<jam::Row>& scratch,
 {
     const int totalRows { newNumRows + newViewportRows };
     int foundParagraph { 0 };
-    int colsRemaining { wx };
     bool found { false };
+
+    // Find the first physical row of the target paragraph.
+    int yyStart { 0 };
 
     for (int i { 0 }; i < totalRows and not found; ++i)
     {
@@ -75,16 +85,69 @@ static void unwrapCursorPosition (const jam::Buffer<jam::Row>& scratch,
 
         if (foundParagraph == wy)
         {
+            yyStart = i;
+            found = true;
+        }
+        else if (not isWrapped)
+        {
+            ++foundParagraph;
+        }
+    }
+
+    if (not found)
+    {
+        cursorRow = 0;
+        cursorCol = 0;
+    }
+    else if (wx == -1)
+    {
+        // Sentinel: walk to last physical row of logical line, cursor at usedCols.
+        int yy { yyStart };
+
+        for (;;)
+        {
+            const int physical { (newHead - newNumRows + yy) & newMask };
+            const jam::Row* row { scratch.getReadPointer (screen, physical) };
+
+            if ((row->flags & jam::Row::wrapped) == 0 or yy + 1 >= totalRows)
+            {
+                if (yy >= newNumRows)
+                {
+                    cursorRow = yy - newNumRows;
+                    cursorCol = static_cast<int> (row->usedCols);
+                }
+                else
+                {
+                    cursorRow = 0;
+                    cursorCol = 0;
+                }
+
+                break;
+            }
+
+            ++yy;
+        }
+    }
+    else
+    {
+        // Normal unwrap: walk forward consuming wx.
+        int colsRemaining { wx };
+        bool placed { false };
+
+        for (int i { yyStart }; i < totalRows and not placed; ++i)
+        {
+            const int physical { (newHead - newNumRows + i) & newMask };
+            const jam::Row* row { scratch.getReadPointer (screen, physical) };
+            const bool isWrapped { (row->flags & jam::Row::wrapped) != 0 };
             const int rowCols { isWrapped ? newCols : static_cast<int> (row->usedCols) };
 
             if (colsRemaining <= rowCols or not isWrapped)
             {
-                const int absoluteRow { i };
-                found = true;
+                placed = true;
 
-                if (absoluteRow >= newNumRows)
+                if (i >= newNumRows)
                 {
-                    cursorRow = absoluteRow - newNumRows;
+                    cursorRow = i - newNumRows;
                     cursorCol = colsRemaining;
                 }
                 else
@@ -98,21 +161,30 @@ static void unwrapCursorPosition (const jam::Buffer<jam::Row>& scratch,
                 colsRemaining -= rowCols;
             }
         }
-        else if (not isWrapped)
-        {
-            ++foundParagraph;
-            colsRemaining = wx;
-        }
-    }
 
-    if (not found)
-    {
-        cursorRow = 0;
-        cursorCol = 0;
+        if (not placed)
+        {
+            cursorRow = 0;
+            cursorCol = 0;
+        }
     }
 }
 
-static void reflowJoin (const jam::Buffer<jam::Row>& oldBuf,
+static void reflowDead (jam::Buffer<jam::Row>& buf, int screen, int physRow) noexcept
+{
+    buf.clear (screen, physRow);
+    jam::Row* row { buf.getWritePointer (screen, physRow) };
+    row->flags = jam::Row::dead;
+}
+
+static void reflowMove (jam::Buffer<jam::Row>& oldBuf, jam::Buffer<jam::Row>& scratch,
+                        int screen, int srcPhys, int destPhys) noexcept
+{
+    scratch.copyFrom (screen, destPhys, oldBuf, screen, srcPhys);
+    reflowDead (oldBuf, screen, srcPhys);
+}
+
+static void reflowJoin (jam::Buffer<jam::Row>& oldBuf,
                         jam::Buffer<jam::Row>& scratch,
                         int screen,
                         int oldHead,
@@ -120,65 +192,120 @@ static void reflowJoin (const jam::Buffer<jam::Row>& oldBuf,
                         int oldMask,
                         int newMask,
                         int newCols,
-                        int sourceIndex,
+                        int yy,
                         int totalOldRows,
-                        int cellOffset,
                         int& writeIdx,
-                        int& consumed,
-                        int& nextCellOffset) noexcept
+                        bool already,
+                        int& scrollOffset) noexcept
 {
-    const int srcPhysical { (oldHead - oldNumRows + sourceIndex) & oldMask };
-    const jam::Row* srcRow { oldBuf.getReadPointer (screen, srcPhysical) };
-    const int srcUsed { static_cast<int> (srcRow->usedCols) - cellOffset };
-    jam::Row* destRow { scratch.getWritePointer (screen, writeIdx & newMask) };
-    std::memcpy (destRow->cells, srcRow->cells + cellOffset, static_cast<size_t> (srcUsed) * sizeof (jam::Cell));
-    destRow->usedCols = static_cast<uint16_t> (srcUsed);
-    int destOffset { srcUsed };
-    consumed = 0;
-    nextCellOffset = 0;
+    int to { 0 };
 
-    for (int next { sourceIndex + 1 }; next < totalOldRows; ++next)
+    if (not already)
     {
-        const int nextPhysical { (oldHead - oldNumRows + next) & oldMask };
-        const jam::Row* nextSrcRow { oldBuf.getReadPointer (screen, nextPhysical) };
-        const int nextUsed { static_cast<int> (nextSrcRow->usedCols) };
-        const int space { newCols - destOffset };
-        const int take { juce::jmin (nextUsed, space) };
-
-        if (take > 0)
-        {
-            std::memcpy (
-                destRow->cells + destOffset, nextSrcRow->cells, static_cast<size_t> (take) * sizeof (jam::Cell));
-            destOffset += take;
-        }
-
-        destRow->usedCols = static_cast<uint16_t> (destOffset);
-        const bool nextIsWrapped { (nextSrcRow->flags & jam::Row::wrapped) != 0 };
-
-        if (take < nextUsed)
-        {
-            nextCellOffset = take;
-            destRow->flags |= jam::Row::wrapped;
-            break;
-        }
-
-        ++consumed;
-
-        if (not nextIsWrapped or destOffset >= newCols)
-        {
-            if (destOffset >= newCols and nextIsWrapped)
-                destRow->flags |= jam::Row::wrapped;
-            else if (destOffset < newCols)
-                destRow->flags = static_cast<uint8_t> (destRow->flags & ~jam::Row::wrapped);
-
-            break;
-        }
+        to = writeIdx;
+        const int srcPhys { (oldHead - oldNumRows + yy) & oldMask };
+        reflowMove (oldBuf, scratch, screen, srcPhys, to & newMask);
+        ++writeIdx;
+    }
+    else
+    {
+        to = writeIdx - 1;
     }
 
-    ++writeIdx;
+    jam::Row* targetRow { scratch.getWritePointer (screen, to & newMask) };
+    int at { static_cast<int> (targetRow->usedCols) };
+    int lines { 0 };
+    int wrapped { 1 };
+    int want { 0 };
+    const jam::Row* lastSrc { nullptr };
+
+    for (int line { yy + 1 }; line < totalOldRows; ++line)
+    {
+        const int srcPhys { (oldHead - oldNumRows + line) & oldMask };
+        const jam::Row* srcRow { oldBuf.getReadPointer (screen, srcPhys) };
+
+        if ((srcRow->flags & jam::Row::wrapped) == 0)
+            wrapped = 0;
+
+        if (srcRow->usedCols == 0)
+        {
+            if (not wrapped)
+                break;
+
+            ++lines;
+            lastSrc = srcRow;
+            want = 0;
+            continue;
+        }
+
+        // Check if first cell fits.
+        if (at + 1 > newCols)
+            break;
+
+        // Copy cells from source into target.
+        lastSrc = srcRow;
+        const int srcUsed { static_cast<int> (srcRow->usedCols) };
+        want = 0;
+
+        for (int c { 0 }; c < srcUsed; ++c)
+        {
+            if (at + 1 > newCols)
+                break;
+
+            targetRow->cells[at] = srcRow->cells[c];
+            ++at;
+            ++want;
+        }
+
+        ++lines;
+
+        if (want != srcUsed or not wrapped or at >= newCols)
+            break;
+    }
+
+    if (lines > 0)
+    {
+        targetRow->usedCols = static_cast<uint16_t> (at);
+
+        // Handle partial consumption of last source row.
+        if (lastSrc != nullptr)
+        {
+            const int srcUsed { static_cast<int> (lastSrc->usedCols) };
+            const int left { srcUsed - want };
+
+            if (left > 0)
+            {
+                // Shift remaining cells left in the source row.
+                const int lastLine { yy + lines };
+                const int lastPhys { (oldHead - oldNumRows + lastLine) & oldMask };
+                jam::Row* lastSrcMut { oldBuf.getWritePointer (screen, lastPhys) };
+                std::memmove (lastSrcMut->cells, lastSrcMut->cells + want,
+                              static_cast<size_t> (left) * sizeof (jam::Cell));
+                lastSrcMut->usedCols = static_cast<uint16_t> (left);
+                --lines;
+            }
+            else if (not wrapped)
+            {
+                targetRow->flags = static_cast<uint8_t> (targetRow->flags & ~jam::Row::wrapped);
+            }
+        }
+
+        // Dead all fully consumed source rows.
+        for (int i { yy + 1 }; i < yy + 1 + lines; ++i)
+        {
+            const int physRow { (oldHead - oldNumRows + i) & oldMask };
+            reflowDead (oldBuf, screen, physRow);
+        }
+
+        // Adjust scroll offset (tmux hscrolled logic).
+        if (scrollOffset > to + lines)
+            scrollOffset -= lines;
+        else if (scrollOffset > to)
+            scrollOffset = to;
+    }
 }
 
-static void reflowSplit (const jam::Buffer<jam::Row>& oldBuf,
+static void reflowSplit (jam::Buffer<jam::Row>& oldBuf,
                          jam::Buffer<jam::Row>& scratch,
                          int screen,
                          int oldHead,
@@ -186,73 +313,63 @@ static void reflowSplit (const jam::Buffer<jam::Row>& oldBuf,
                          int oldMask,
                          int newMask,
                          int newCols,
-                         int sourceIndex,
+                         int yy,
                          int totalOldRows,
-                         int cellOffset,
                          int& writeIdx,
-                         int& consumed,
-                         int& nextCellOffset) noexcept
+                         int& scrollOffset) noexcept
 {
-    const int srcPhysical { (oldHead - oldNumRows + sourceIndex) & oldMask };
-    const jam::Row* srcRow { oldBuf.getReadPointer (screen, srcPhysical) };
+    const int srcPhys { (oldHead - oldNumRows + yy) & oldMask };
+    const jam::Row* srcRow { oldBuf.getReadPointer (screen, srcPhys) };
     const int usedCols { static_cast<int> (srcRow->usedCols) };
-    const bool srcIsWrapped { (srcRow->flags & jam::Row::wrapped) != 0 };
-    consumed = 0;
-    nextCellOffset = 0;
-    int srcOffset { cellOffset };
+    const int srcFlags { srcRow->flags };
+    const bool srcWrapped { (srcFlags & jam::Row::wrapped) != 0 };
+
+    // Chunk source into newCols-width rows.
+    int srcOffset { 0 };
 
     while (srcOffset < usedCols)
     {
         const int chunkSize { juce::jmin (newCols, usedCols - srcOffset) };
         jam::Row* destRow { scratch.getWritePointer (screen, writeIdx & newMask) };
-        std::memcpy (destRow->cells, srcRow->cells + srcOffset, static_cast<size_t> (chunkSize) * sizeof (jam::Cell));
+        std::memcpy (destRow->cells, srcRow->cells + srcOffset,
+                     static_cast<size_t> (chunkSize) * sizeof (jam::Cell));
         destRow->usedCols = static_cast<uint16_t> (chunkSize);
         destRow->flags = 0;
         srcOffset += chunkSize;
 
+        // All chunks except the last get WRAPPED.
         if (srcOffset < usedCols)
-            destRow->flags |= jam::Row::wrapped;
-        else if (srcIsWrapped)
             destRow->flags |= jam::Row::wrapped;
 
         ++writeIdx;
     }
 
-    if (srcIsWrapped)
+    // If source was wrapped, last chunk inherits WRAPPED.
+    if (srcWrapped)
     {
         jam::Row* lastDest { scratch.getWritePointer (screen, (writeIdx - 1) & newMask) };
-        int destOffset { static_cast<int> (lastDest->usedCols) };
+        lastDest->flags |= jam::Row::wrapped;
+    }
 
-        for (int next { sourceIndex + 1 }; next < totalOldRows and destOffset < newCols; ++next)
+    // Dead the source row.
+    reflowDead (oldBuf, screen, srcPhys);
+
+    // Adjust scroll offset: each split adds (numChunks - 1) new rows.
+    const int numChunks { (usedCols + newCols - 1) / newCols };
+
+    if (yy <= scrollOffset)
+        scrollOffset += numChunks - 1;
+
+    // If source was wrapped and last chunk has room, try to join with next lines.
+    if (srcWrapped)
+    {
+        jam::Row* lastDest { scratch.getWritePointer (screen, (writeIdx - 1) & newMask) };
+        const int lastUsed { static_cast<int> (lastDest->usedCols) };
+
+        if (lastUsed < newCols)
         {
-            const int nextPhysical { (oldHead - oldNumRows + next) & oldMask };
-            const jam::Row* nextSrc { oldBuf.getReadPointer (screen, nextPhysical) };
-            const int nextUsed { static_cast<int> (nextSrc->usedCols) };
-            const int space { newCols - destOffset };
-            const int take { juce::jmin (nextUsed, space) };
-            const bool nextIsWrapped { (nextSrc->flags & jam::Row::wrapped) != 0 };
-
-            if (take > 0)
-                std::memcpy (
-                    lastDest->cells + destOffset, nextSrc->cells, static_cast<size_t> (take) * sizeof (jam::Cell));
-
-            destOffset += take;
-            lastDest->usedCols = static_cast<uint16_t> (destOffset);
-
-            if (take < nextUsed)
-            {
-                lastDest->flags |= jam::Row::wrapped;
-                nextCellOffset = take;
-                break;
-            }
-
-            ++consumed;
-
-            if (not nextIsWrapped)
-            {
-                lastDest->flags = static_cast<uint8_t> (lastDest->flags & ~jam::Row::wrapped);
-                break;
-            }
+            reflowJoin (oldBuf, scratch, screen, oldHead, oldNumRows, oldMask,
+                        newMask, newCols, yy, totalOldRows, writeIdx, true, scrollOffset);
         }
     }
 }
@@ -269,90 +386,58 @@ static void reflowScreen (int screen,
                           jam::Buffer<jam::Row>& oldBuf,
                           jam::Buffer<jam::Row>& scratch,
                           int& outHead,
-                          int& outNumRows) noexcept
+                          int& outNumRows,
+                          int& scrollOffset) noexcept
 {
     const int totalOldRows { oldNumRows + oldViewportRows };
     int writeIdx { 0 };
-    int i { 0 };
-    int cellOffset { 0 };
 
-    while (i < totalOldRows)
+    for (int yy { 0 }; yy < totalOldRows; ++yy)
     {
-        const int oldPhysical { (oldHead - oldNumRows + i) & oldMask };
-        const jam::Row* srcRow { oldBuf.getReadPointer (screen, oldPhysical) };
-        const int used { static_cast<int> (srcRow->usedCols) - cellOffset };
+        const int physRow { (oldHead - oldNumRows + yy) & oldMask };
+        const jam::Row* srcRow { oldBuf.getReadPointer (screen, physRow) };
+
+        // Skip dead rows (consumed by join/split).
+        if ((srcRow->flags & jam::Row::dead) != 0)
+            continue;
+
+        const int usedCols { static_cast<int> (srcRow->usedCols) };
         const bool isWrapped { (srcRow->flags & jam::Row::wrapped) != 0 };
-        int consumed { 0 };
-        int nextOffset { 0 };
 
-        if (used <= 0 and isWrapped)
+        if (usedCols == newCols)
         {
-            cellOffset = 0;
-            ++i;
+            // Exact fit — move as-is.
+            reflowMove (oldBuf, scratch, screen, physRow, writeIdx & newMask);
+            ++writeIdx;
         }
-        else if (used > newCols)
+        else if (usedCols > newCols)
         {
-            reflowSplit (oldBuf,
-                         scratch,
-                         screen,
-                         oldHead,
-                         oldNumRows,
-                         oldMask,
-                         newMask,
-                         newCols,
-                         i,
-                         totalOldRows,
-                         cellOffset,
-                         writeIdx,
-                         consumed,
-                         nextOffset);
-
-            cellOffset = nextOffset;
-            i += 1 + consumed;
+            // Too wide — split into multiple rows (may join tail if wrapped).
+            reflowSplit (oldBuf, scratch, screen, oldHead, oldNumRows, oldMask,
+                         newMask, newCols, yy, totalOldRows, writeIdx, scrollOffset);
         }
-        else if (used > 0 and isWrapped)
+        else if (isWrapped)
         {
-            reflowJoin (oldBuf,
-                        scratch,
-                        screen,
-                        oldHead,
-                        oldNumRows,
-                        oldMask,
-                        newMask,
-                        newCols,
-                        i,
-                        totalOldRows,
-                        cellOffset,
-                        writeIdx,
-                        consumed,
-                        nextOffset);
-
-            cellOffset = nextOffset;
-            i += 1 + consumed;
+            // Narrower and wrapped — join with successor rows.
+            reflowJoin (oldBuf, scratch, screen, oldHead, oldNumRows, oldMask,
+                        newMask, newCols, yy, totalOldRows, writeIdx, false, scrollOffset);
         }
         else
         {
-            jam::Row* destRow { scratch.getWritePointer (screen, writeIdx & newMask) };
-
-            if (used > 0)
-                std::memcpy (destRow->cells,
-                             srcRow->cells + cellOffset,
-                             static_cast<size_t> (juce::jmin (used, newCols)) * sizeof (jam::Cell));
-
-            destRow->usedCols = static_cast<uint16_t> (juce::jmin (used > 0 ? used : 0, newCols));
-            destRow->flags = static_cast<uint8_t> (srcRow->flags & ~jam::Row::wrapped);
-            cellOffset = 0;
+            // Short unwrapped line — move as-is.
+            reflowMove (oldBuf, scratch, screen, physRow, writeIdx & newMask);
             ++writeIdx;
-            ++i;
         }
     }
 
+    // Pad target to at least newViewportRows.
     while (writeIdx < newViewportRows)
     {
         scratch.clear (screen, writeIdx & newMask);
         ++writeIdx;
     }
 
+    // Compute output ring state.
     const int computedHead { juce::jmax (0, writeIdx - newViewportRows) };
     outNumRows = juce::jmin (computedHead, scrollbackLineCount);
     outHead = computedHead & newMask;
@@ -388,8 +473,71 @@ void Grid::setSize (cell viewportRowCount, cell numCols, cell scrollbackLineCoun
     numRows.at (1) = 0;
 }
 
+void Grid::resizeHeight (cell newRows, cell& cursorRow) noexcept
+{
+    jassert (isAllocated());
+
+    const int oldVP { viewportRows.value };
+    const int newVP { newRows.value };
+
+    if (newVP != oldVP)
+    {
+        for (int screen { 0 }; screen < 2; ++screen)
+        {
+            if (newVP < oldVP)
+            {
+                // Shrink: eat empty from bottom, push remainder to scrollback.
+                int needed { oldVP - newVP };
+
+                // Eat empty rows below cursor (screen 0 only).
+                if (screen == 0)
+                {
+                    const int belowCursor { oldVP - 1 - cursorRow.value };
+                    const int available { juce::jmin (belowCursor, needed) };
+                    needed -= available;
+                }
+
+                // Push remaining from top into scrollback by advancing head.
+                if (needed > 0)
+                {
+                    head.at (screen) = (head.at (screen) + needed) & ringMask;
+                    numRows.at (screen) = juce::jmin (numRows.at (screen) + needed, scrollbackLines);
+
+                    if (screen == 0)
+                        cursorRow = cell (cursorRow.value - needed);
+                }
+            }
+            else
+            {
+                // Grow: pull from scrollback, fill remaining with blanks.
+                int needed { newVP - oldVP };
+
+                // Pull from scrollback.
+                const int available { juce::jmin (numRows.at (screen), needed) };
+
+                if (available > 0)
+                {
+                    numRows.at (screen) -= available;
+                    head.at (screen) = (head.at (screen) - available) & ringMask;
+
+                    if (screen == 0)
+                        cursorRow = cell (cursorRow.value + available);
+                }
+
+                needed -= available;
+
+                // Fill remaining with blanks at bottom of new viewport.
+                for (int r { oldVP + available }; r < newVP; ++r)
+                    buffer.clear (screen, (head.at (screen) + r) & ringMask);
+            }
+        }
+
+        viewportRows = newRows;
+    }
+}
+
 std::array<int, 2>
-Grid::reflow (int newViewportRows, int newCols, int scrollbackLines, int& cursorRow, int& cursorCol) noexcept
+Grid::reflow (int newViewportRows, int newCols, int scrollbackLines, int& cursorRow, int& cursorCol, int& scrollOffset) noexcept
 {
     jassert (isAllocated());
 
@@ -398,6 +546,7 @@ Grid::reflow (int newViewportRows, int newCols, int scrollbackLines, int& cursor
     const auto oldNumRows { numRows };
     const int oldViewportRows { viewportRows.value };
 
+    // New ring geometry.
     const int minRing { (scrollbackLines + newViewportRows) * 2 };
     int newRingSize { 1 };
     while (newRingSize < minRing)
@@ -407,37 +556,51 @@ Grid::reflow (int newViewportRows, int newCols, int scrollbackLines, int& cursor
     jam::Buffer<jam::Row> scratch;
     scratch.setSize (2, newRingSize, newCols, false, true, false);
 
+    // Wrap cursor to paragraph-relative coordinates (screen 0 only).
     int wx { 0 };
     int wy { 0 };
     static constexpr int cursorScreen { 0 };
-    wrapCursorPosition (buffer,
-                        cursorScreen,
-                        oldHead.at (cursorScreen),
-                        oldNumRows.at (cursorScreen),
-                        oldRingMask,
-                        cursorCol,
-                        cursorRow,
-                        wx,
-                        wy);
+    wrapCursorPosition (buffer, cursorScreen, oldHead.at (cursorScreen),
+                        oldNumRows.at (cursorScreen), oldRingMask,
+                        cursorCol, cursorRow, wx, wy);
 
+    // Reflow screen 0 (normal) only — alternate screen is NOT reflowed per PLAN.
     std::array<int, 2> result { 0, 0 };
     std::array<int, 2> newHead { 0, 0 };
 
-    for (int screen { 0 }; screen < 2; ++screen)
-        reflowScreen (screen,
-                      oldHead.at (screen),
-                      oldNumRows.at (screen),
-                      oldViewportRows,
-                      oldRingMask,
-                      newRingMask,
-                      newCols,
-                      newViewportRows,
-                      scrollbackLines,
-                      buffer,
-                      scratch,
-                      newHead.at (screen),
-                      result.at (screen));
+    reflowScreen (0, oldHead.at (0), oldNumRows.at (0), oldViewportRows, oldRingMask,
+                  newRingMask, newCols, newViewportRows, scrollbackLines,
+                  buffer, scratch, newHead.at (0), result.at (0), scrollOffset);
 
+    // Alternate screen: move rows as-is (no reflow, just resize).
+    {
+        const int altTotal { oldNumRows.at (1) + oldViewportRows };
+        int altWrite { 0 };
+
+        for (int i { 0 }; i < altTotal; ++i)
+        {
+            const int srcPhys { (oldHead.at (1) - oldNumRows.at (1) + i) & oldRingMask };
+            const jam::Row* srcRow { buffer.getReadPointer (1, srcPhys) };
+
+            if ((srcRow->flags & jam::Row::dead) == 0)
+            {
+                scratch.copyFrom (1, altWrite & newRingMask, buffer, 1, srcPhys);
+                ++altWrite;
+            }
+        }
+
+        while (altWrite < newViewportRows)
+        {
+            scratch.clear (1, altWrite & newRingMask);
+            ++altWrite;
+        }
+
+        const int altComputed { juce::jmax (0, altWrite - newViewportRows) };
+        result.at (1) = juce::jmin (altComputed, scrollbackLines);
+        newHead.at (1) = altComputed & newRingMask;
+    }
+
+    // Copy scratch to live buffer.
     buffer.setSize (2, newRingSize, newCols, false, true, false);
 
     for (int screen { 0 }; screen < 2; ++screen)
@@ -451,23 +614,23 @@ Grid::reflow (int newViewportRows, int newCols, int scrollbackLines, int& cursor
         }
     }
 
+    // Clamp scrollOffset to valid range after reflow.
+    scrollOffset = juce::jlimit (0, result.at (0), scrollOffset);
+
+    // Update Grid state.
     head = newHead;
     ringMask = newRingMask;
     viewportRows = cell (newViewportRows);
     this->scrollbackLines = scrollbackLines;
     numRows.at (0) = result.at (0);
     numRows.at (1) = result.at (1);
-    unwrapCursorPosition (scratch,
-                          cursorScreen,
-                          newHead.at (cursorScreen),
-                          result.at (cursorScreen),
-                          newViewportRows,
-                          newRingMask,
-                          newCols,
-                          wx,
-                          wy,
-                          cursorRow,
-                          cursorCol);
+    blockPointers.realloc (static_cast<size_t> (newViewportRows));
+
+    // Unwrap cursor back to viewport-relative coordinates.
+    unwrapCursorPosition (buffer, cursorScreen, newHead.at (cursorScreen),
+                          result.at (cursorScreen), newViewportRows, newRingMask,
+                          newCols, wx, wy, cursorRow, cursorCol);
+
     return result;
 }
 
