@@ -323,21 +323,21 @@ private:
      *
      *  Registered event keys:
      *  - `id::writeToHost`         — `(const char*, int)` — flushed from Video on reader thread
-     *  - `id::bell`                — `()` — BEL character, dispatched via callAsync
-     *  - `id::clipboardChanged`    — `(const juce::String&)` — OSC 52, dispatched via callAsync
-     *  - `id::desktopNotification` — `(const juce::String&, const juce::String&)` — OSC 9/777, dispatched via callAsync
      *  - `id::imageDecoded`        — see Video::onImageDecoded signature — reader thread
      *  - `id::previewFile`         — `(const juce::String&, int, int, int, int)` — reader thread
      *  - `id::registerLink`        — `(const juce::String& uri, const juce::String& params)` — OSC 8 open
      *  - `id::writeInput`          — `(const char*, int)` — PTY stdin; wired via setInputWriter()
+     *  - `id::bell`                — `()` — BEL 0x07; writes `\a` to stderr; message thread
+     *  - `id::clipboardChanged`    — `(const juce::String&)` — OSC 52 clipboard write; message thread
+     *  - `id::desktopNotification` — `(const juce::String& title, const juce::String& body)` — OSC 9/777; message thread
      *  - `id::activeScreen`        — `(int)` — active screen index flush; reader thread
      *  - `id::cursorRow`           — `(int screen, int row)` — cursor row flush; reader thread
      *  - `id::cursorCol`           — `(int screen, int col)` — cursor col flush; reader thread
      *  - `id::cursorVisible`       — `(int screen, bool visible)` — cursor visibility flush; reader thread
      *  - `id::applicationCursor` / `id::bracketedPaste` / ... — `(bool)` — mode flag flushes; reader thread
-     *  - `id::screenSwitch`        — `(int newScreen, int oldRow, int oldCol, bool oldVisible, int, int, bool, uint32_t)` — screen switch mediation; reader thread
+     *  - `id::screenSwitch`        — `(int newScreen, int oldRow, int oldCol, bool oldVisible)` — screen switch mediation; reader thread
      *
-     *  @note READER THREAD for most event handlers; callAsync handlers land on message thread. */
+     *  @note READER THREAD — all handlers execute on the reader thread except bell, clipboardChanged, and desktopNotification (message thread via callAsync). */
     jam::Function::Map<juce::Identifier, void> events;
 
     /** @brief Terminal state machine — pen, cursor, modes, Grid writes. */
@@ -371,8 +371,8 @@ private:
 
     // Keyboard mode stack — per-screen progressive enhancement flags (CSI u protocol).
     static constexpr int maxKeyboardStackDepth { 16 };
-    juce::HeapBlock<uint32_t> keyboardModeStack;
-    juce::HeapBlock<int> keyboardModeStackSize;
+    std::array<uint32_t, 2 * maxKeyboardStackDepth> keyboardModeStack {};
+    std::array<int, 2> keyboardModeStackSize {};
 
     void pushKeyboardMode (int screen, uint32_t flags) noexcept;
     void popKeyboardMode (int screen, int count) noexcept;

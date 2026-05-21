@@ -198,7 +198,8 @@ public:
     /**
      * @brief Returns the PID of the foreground process group leader.
      * @return The foreground PID, or -1 if unavailable.
-     * @note Any thread.  Called from Session::onFlush (message thread) in the default wiring.
+     * @note Any thread.  Called from Processor::valueTreePropertyChanged (message thread) when
+     *       foregroundProcess/cwd ValueTree properties change.
      */
     virtual int getForegroundPid() const noexcept { return -1; }
 

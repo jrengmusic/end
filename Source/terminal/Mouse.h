@@ -16,7 +16,7 @@
  * selection path in Input.
  *
  * @see terminal::Processor
- * @see cell::Point
+ * @see jam::Cell::Point
  * @see terminal::LinkManager
  */
 

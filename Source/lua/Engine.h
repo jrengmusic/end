@@ -535,7 +535,7 @@ public:
         PopupBorder popup;
 
         /** @brief Terminal scrollbar width in pixels. 0 = hidden. */
-        int scrollbarWidth { 4 };
+        int scrollbarWidth { 8 };
     };
 
     //==========================================================================

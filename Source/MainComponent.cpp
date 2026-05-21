@@ -156,7 +156,7 @@ MainComponent::MainComponent (lua::Engine& engine)
             const int paddingBottom { cfg->nexus.terminal.paddingBottom };
             const int paddingLeft   { cfg->nexus.terminal.paddingLeft };
 
-            const auto cellPx { cell::Point::totalPixels<int> (cols, rows, font.bounds) };
+            const auto cellPx { jam::Cell::Point::totalPixels<int> (cols, rows, font.bounds) };
             const int pixelWidth  { cellPx.x + paddingLeft + paddingRight };
             const int pixelHeight { cellPx.y + paddingTop + paddingBottom + titleBarHeight };
 
@@ -294,6 +294,8 @@ void MainComponent::resized()
  */
 MainComponent::~MainComponent()
 {
+    openGLContext.detach();
+
     if (sessionsNode.isValid())
         sessionsNode.removeListener (this);
 
@@ -490,7 +492,7 @@ void MainComponent::showMessageOverlay()
             content.removeFromBottom (padBottom);
             content.removeFromLeft (padLeft);
 
-            const auto gridRect { cell::Rectangle (font.bounds, content) };
+            const auto gridRect { jam::Cell::Rectangle (font.bounds, content) };
             const cell cols { gridRect.getWidth() };
             const cell rows { gridRect.getHeight() };
 

@@ -35,27 +35,24 @@ terminal::State& terminal::Display::seedScreenNodes (terminal::State& stateToSee
                                                       juce::ValueTree& normalScreenNode,
                                                       juce::ValueTree& alternateScreenNode) noexcept
 {
+    const auto seedNode = [] (juce::ValueTree& node)
+    {
+        node.setProperty (terminal::id::cursorRow,     0, nullptr);
+        node.setProperty (terminal::id::cursorCol,     0, nullptr);
+        node.setProperty (terminal::id::cursorVisible, 1, nullptr);
+        node.setProperty (terminal::id::cursorShape,   0, nullptr);
+        node.setProperty (terminal::id::cursorColor,  -1, nullptr);
+        node.setProperty (terminal::id::keyboardFlags, 0, nullptr);
+        node.setProperty (terminal::id::numRows,       0, nullptr);
+        node.setProperty (terminal::id::scrollOffset,  0, nullptr);
+        node.setProperty (terminal::id::screenDirty,   0, nullptr);
+    };
+
     normalScreenNode = juce::ValueTree (terminal::id::NORMAL);
-    normalScreenNode.setProperty (terminal::id::cursorRow,     0, nullptr);
-    normalScreenNode.setProperty (terminal::id::cursorCol,     0, nullptr);
-    normalScreenNode.setProperty (terminal::id::cursorVisible, 1, nullptr);
-    normalScreenNode.setProperty (terminal::id::cursorShape,   0, nullptr);
-    normalScreenNode.setProperty (terminal::id::cursorColor,  -1, nullptr);
-    normalScreenNode.setProperty (terminal::id::keyboardFlags, 0, nullptr);
-    normalScreenNode.setProperty (terminal::id::numRows,       0, nullptr);
-    normalScreenNode.setProperty (terminal::id::scrollOffset,  0, nullptr);
-    normalScreenNode.setProperty (terminal::id::screenDirty,   0, nullptr);
+    seedNode (normalScreenNode);
 
     alternateScreenNode = juce::ValueTree (terminal::id::ALTERNATE);
-    alternateScreenNode.setProperty (terminal::id::cursorRow,     0, nullptr);
-    alternateScreenNode.setProperty (terminal::id::cursorCol,     0, nullptr);
-    alternateScreenNode.setProperty (terminal::id::cursorVisible, 1, nullptr);
-    alternateScreenNode.setProperty (terminal::id::cursorShape,   0, nullptr);
-    alternateScreenNode.setProperty (terminal::id::cursorColor,  -1, nullptr);
-    alternateScreenNode.setProperty (terminal::id::keyboardFlags, 0, nullptr);
-    alternateScreenNode.setProperty (terminal::id::numRows,       0, nullptr);
-    alternateScreenNode.setProperty (terminal::id::scrollOffset,  0, nullptr);
-    alternateScreenNode.setProperty (terminal::id::screenDirty,   0, nullptr);
+    seedNode (alternateScreenNode);
 
     stateToSeed.get().appendChild (normalScreenNode, nullptr);
     stateToSeed.get().appendChild (alternateScreenNode, nullptr);
@@ -155,8 +152,9 @@ void terminal::Display::updateDimensions (const juce::Rectangle<int>& contentBou
 
     if (cellWidth > 0 and cellHeight > 0)
     {
-        const cell newCols { contentBounds.getWidth()  / cellWidth };
-        const cell newRows { contentBounds.getHeight() / cellHeight };
+        const auto gridRect { jam::Cell::Rectangle (jam::Bounds { cellWidth, cellHeight }, contentBounds) };
+        const cell newCols { gridRect.getWidth() };
+        const cell newRows { gridRect.getHeight() };
 
         if (newCols.value > 0 and newRows.value > 0)
         {

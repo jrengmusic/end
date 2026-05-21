@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-05-20 (restructure: flattened terminal/ subdirs, terminal/component/ absorbs rendering+selection, terminal/action/ consolidated, interprocess/ → nexus/, Parser renamed to Video, new Processor/History/GridResize/Skit/decoder files, all namespaces lowercased)
+**Last Updated:** 2026-05-21 (restructure: flattened terminal/ subdirs, terminal/component/ absorbs rendering+selection, terminal/action/ consolidated, interprocess/ → nexus/, Parser renamed to Video, new Processor/History/GridResize/Skit/decoder files, all namespaces lowercased; Cell 8B packed u64, Map.h replaces ScreenMap.h, Screen IS TextEditor, Display owns ComponentAttachment + seedScreenNodes, Processor owns keyboard stack + onStateFlush, displayName from Processor::valueTreePropertyChanged, start() replaces resize() on Session, State expanded)
 
 ---
 
@@ -117,7 +117,7 @@ Source/
     Parser.h/cpp                    VT state machine + byte stream decoder
     ParserAction.cpp                Parser action dispatch
     Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video, GridResize; references Grid and State
-    ScreenMap.h                     terminal::ScreenMap — normal/alternate screen index map
+    Map.h                           terminal::Map — jam::Map::Bool, jam::Map::Screen, jam::Map::Gpu typed map instances
     Session.h/cpp                   PTY orchestrator: owns TTY + History; Processor owns State, Grid, Video
     SixelDecoder.h/cpp              Sixel graphics protocol decoder
     SixelDecoderParse.cpp           Sixel decode internals
@@ -158,7 +158,7 @@ Source/
       Panes.h/cpp                   Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
       Panes.cpp                     Panes implementation
       Popup.h/cpp                   Popup terminal component
-      Screen.h/cpp                  terminal::Screen — render coordinator, reads Grid via getBlock(), calls TextEditor::setText(Block<Row>); inherits jam::TextEditor, grafts its ValueTree node into State
+      Screen.h/cpp                  terminal::Screen — IS jam::TextEditor (inherits directly); stateless renderer; reads Grid via getBlock(), calls setText(Block<Row>) on itself; grafts only its TextEditor state node; no node creation or ownership
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
       StatusBarOverlay.h            Overlay that listens to TABS subtree for modal/selection state display
       Tabs.h/cpp                    terminal::Tabs — tab container, manages one Panes instance per tab
@@ -220,14 +220,14 @@ Source/
 | jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | Graphics utilities, blur, shadows, colours | jam_core |
 | jam_fonts | `~/Documents/Poems/dev/jam/jam_fonts/` | Font management, glyph atlas, typeface shaping, text layout | jam_core, FreeType, HarfBuzz |
-| jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: Cell type, Metrics (cell↔pixel SSOT), Point, Rectangle | jam_core |
+| jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: Cell type (jam::Cell — 8-byte packed u64), Cell::Unit, Cell::Point, Cell::Rectangle, Cell::RowState, Block<Row> | jam_core |
 | jam_gui/opengl | `~/Documents/Poems/dev/jam/jam_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jam_core |
 | Action | `terminal/action/` | Unified action registry (`action::Registry`), key dispatch, prefix state machine, command palette (`action::List`) | lua::Engine, jam::Context |
 | Nexus | `nexus/` | Session container (global scope). Owns `unordered_map<String, unique_ptr<terminal::Session>>`. Mode determined by `setMode(Mode)` — standalone/daemon/client. Fires session lifecycle events on public `events` ValueTree. `jam::Context<Nexus>` singleton owned by ENDApplication. | terminal::Session, jam::Context |
 | IPC | `nexus/` | IPC transport layer. `nexus::Daemon` (TCP server), `nexus::Link` (client), `nexus::Daemon::Channel` (per-client server-side connection, nested class), `nexus::EncoderDecoder` (wire format), `nexus::Message` (PDU kind enum). Daemon owns broadcast + subscriber registries, wires session callbacks. Daemon/Link listen on Nexus::events ValueTree. | JUCE IPC, Nexus, terminal::Session, AppState |
 | Panes | `terminal/component/` | Per-tab pane container, owns Owner<PaneComponent> and resizer bars | PaneManager, PaneComponent |
 | Whelmed | `whelmed/` | Markdown viewer: whelmed::Component, Screen, block hierarchy, InputHandler | PaneComponent, jam_markdown |
-| jam_gui | `~/Documents/Poems/dev/jam/jam_gui/` | Window, layout utilities, and OpenGL rendering: PaneManager binary tree, PaneResizerBar, GLRenderer, GLComponent | juce_opengl, jam_core, jam_graphics |
+| jam_gui | `~/Documents/Poems/dev/jam/jam_gui/` | Window, layout utilities, and OpenGL rendering: PaneManager binary tree, PaneResizerBar, GLRenderer, GLComponent. `jam::ComponentAttachment` — APVTS-style component-to-ValueTree binding used by Display for the DISPLAY node (cellWidth, cellHeight, baseline, fontSize) and NORMAL/ALTERNATE screen nodes. | juce_opengl, jam_core, jam_graphics |
 
 ---
 
@@ -292,7 +292,7 @@ The `nexus` namespace contains the TCP-based IPC transport between a daemon proc
 `nexus::Daemon` observes `Nexus::events` via `juce::ValueTree::Listener`. On `valueTreeChildAdded`, it calls `wireSessionCallbacks(uuid, session)` to install three callbacks:
 
 - `wireOnBytes` — wires `session.onBytes` to broadcast `nexus::Message::output` to per-session subscribers. Runs on the reader thread; acquires `connectionsLock`.
-- `wireOnStateFlush` — wires `session.onStateFlush` to broadcast `nexus::Message::stateUpdate` (cwd + foreground process). Fires on the message thread; suppresses redundant broadcasts via shared-ptr captured previous values.
+- `wireOnStateFlush` — wires `session.getProcessor().onStateFlush` to broadcast `nexus::Message::stateUpdate` (cwd + foreground process). Fires on the message thread via Processor::valueTreePropertyChanged; suppresses redundant broadcasts via shared-ptr captured previous values.
 - `wireOnExit` — wires shell exit detection via State ValueTree listener to broadcast `nexus::Message::sessionKilled`, schedule async `Nexus::remove`, re-broadcast sessions list, and fire `onAllSessionsExited` if empty.
 
 ### Snapshot Restore on Client Attach
@@ -311,7 +311,7 @@ Daemon:  PTY → Session::onBytes → nexus::Message::output → nexus::Daemon::
 Link:    handleOutput → terminal::Session::process → Processor → Grid → terminal::Display
 
 Standalone:
-         PTY → Session::onBytes → Processor::processWithLock → Grid → terminal::Display
+         PTY → Session::onBytes → Processor::process → Grid → terminal::Display
 ```
 
 ### terminal::Session
@@ -320,7 +320,6 @@ Standalone:
 - `unique_ptr<tty::TTY>` — the platform PTY (null in client mode). Ownership transferred to Processor after callback wiring.
 - `History` — ring buffer of raw PTY bytes.
 - `unique_ptr<terminal::Processor>` — Parser + Video + GridResize + Grid + State pipeline.
-- `bool shouldTrackCwdFromOs` — when true, `onFlush` queries the OS for cwd via the PTY's PEB (Windows) or `/proc` (Linux). Set to `false` when shell integration is active (OSC 7 provides cwd directly).
 
 **Factory — two overloads:**
 
@@ -336,11 +335,11 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
 
 | Method | Purpose |
 |--------|---------|
+| `start()` | Defers TTY open until Display/Screen are in component hierarchy; called after grafting |
 | `process(data, len)` | Feed raw bytes from daemon IPC into the Processor |
 | `sendInput(data, len)` | Write raw bytes to PTY stdin |
-| `resize(cols, rows)` | Signal PTY resize (SIGWINCH) |
-| `getStateInformation(block)` | Serialize Processor state for daemon → GUI sync |
-| `setStateInformation(data, size)` | Restore Processor state from daemon snapshot |
+| `getStateInformation(block)` | Serialize Processor state for daemon → GUI sync (stubbed) |
+| `setStateInformation(data, size)` | Restore Processor state from daemon snapshot (stubbed) |
 | `getProcessor()` | Returns the owned `terminal::Processor` |
 | `snapshotHistory()` | Returns a `MemoryBlock` of buffered PTY output (for `nexus::Message::loading`) |
 
@@ -349,8 +348,12 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
 | Callback | Thread | Purpose |
 |----------|--------|---------|
 | `onBytes` | Reader | PTY output chunk — broadcast in daemon mode, process locally in standalone |
-| `onExit` | Message | Shell process exited |
-| `onStateFlush` | Message | cwd + foreground process updated in State — daemon mode broadcasts `stateUpdate` |
+
+**Processor callbacks (set on Processor, not Session):**
+
+| Callback | Thread | Purpose |
+|----------|--------|---------|
+| `onStateFlush` | Message | cwd + foreground process updated via Processor::valueTreePropertyChanged — daemon mode broadcasts `stateUpdate` |
 
 ### Windows Job Object (Cascade-Kill)
 
@@ -442,12 +445,16 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 **Data -> Component (timer path):**
 - `State::timerCallback()` runs on message thread (60-120Hz)
 - Flushes atomics to ValueTree via `flush()`
-- ValueTree fires `valueTreePropertyChanged` → Screen reads Grid via `Grid::getBlock()` → `TextEditor::setText(Block<Row>)` → `repaint()`; CursorComponent updates separately
+- ValueTree fires `valueTreePropertyChanged` → Screen (which IS jam::TextEditor) reads Grid via `Grid::getBlock()` → calls `setText(Block<Row>)` on itself → `repaint()`; CursorComponent updates separately
 
 **Data -> Component (render path):**
 - Timer-driven flush (60/120 Hz) on the message thread flushes dirty atomics to ValueTree
-- `Screen::valueTreePropertyChanged()` fires → reads Grid via `Grid::getBlock()` → calls `TextEditor::setText(Block<Row>)` (non-owning, no copy) → `calc()` → `repaint()`
-- Screen is a stateless renderer; TextEditor holds no persistent cell buffer
+- `Screen::valueTreePropertyChanged()` fires → Screen reads Grid via `Grid::getBlock()` → calls `setText(Block<Row>)` on itself (non-owning, no copy) → `calc()` → `repaint()`
+- Screen inherits jam::TextEditor directly — it IS the TextEditor, not a coordinator calling setText on a separate object
+- Screen is stateless: no node creation, no node ownership; grafts only its TextEditor `state` node (selection, caret, viewport mode)
+- Display owns NORMAL/ALTERNATE screen nodes via `seedScreenNodes` static helper; grafts them BEFORE Screen construction so atomics exist before the reader thread starts
+- Display owns `jam::ComponentAttachment` for the DISPLAY node (Font::bounds — cellWidth/cellHeight/baseline/fontSize); reads cell dimensions via `jam::Cell::Rectangle` constructor (no manual arithmetic)
+- Display destructor removes screen nodes
 
 **Component -> Rendering (GL path):**
 - `GLSnapshotBuffer::write()` — message thread publishes snapshot
@@ -526,7 +533,7 @@ Keystroke -> Message Thread -> TTY::write()
 
 **Implementation:** `terminal/State.h/cpp`, `terminal/StateFlush.cpp`
 
-Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Screen reads Grid via `Grid::getBlock()` and sets content on TextEditor via `setText(Block<Row>)` — no copy, stateless renderer.
+Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Screen (which IS jam::TextEditor) reads Grid via `Grid::getBlock()` and calls `setText(Block<Row>)` on itself — no copy, stateless renderer.
 
 WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `std::atomic<bool>`. Two consumers:
 - **GL thread** — GPU lambda calls `consumeAtlasDirty()` and invokes `GlyphAtlas::getContext()->rebuildAtlas()` to tear down and re-upload GPU textures.
@@ -724,16 +731,11 @@ Passes `workingDirectory` through to `terminal::Display::create()`, which constr
 - **Binding:** `globalFocusChanged()` rebinds `tabName` when focus changes
 - **Update:** `valueChanged()` calls `setTabName()` on the tab bar
 
-### displayName Computation (Session::onFlush + State::flushStrings)
+### displayName Computation (Processor::valueTreePropertyChanged)
 
-`Session::onFlush` runs on the message thread (via `State::timerCallback`). It calls
-`tty->getForegroundPid()` and `tty->getShellPid()`. When the two PIDs are equal (shell
-at prompt), it writes an empty string to the `foregroundProcess` slot. When they differ
-(a TUI or child process is running), it writes the foreground process name.
+`Processor::valueTreePropertyChanged` runs on the message thread. When `foregroundProcess` or `cwd` properties change on the State ValueTree, it recomputes `displayName` stored as `app::id::displayName` with priority:
 
-`State::flushStrings()` then computes `displayName` stored as `app::id::displayName` with priority:
-
-1. **foregroundProcess** — when non-empty (set by `Session::onFlush` when fgPid != shellPid)
+1. **foregroundProcess** — when non-empty (non-shell process running)
 2. **cwd leaf** — `juce::File(cwdPath).getFileName()` (e.g., "end" from "/Users/me/dev/end")
 
 `title` (OSC 0/2) is NOT used in displayName computation — it's shell prompt noise that overrides everything else.
@@ -764,13 +766,13 @@ Per-screen stacks (normal/alternate) with max depth 16. Stacks cleared on RIS (`
 #### State Storage
 
 `keyboardFlags` is a per-screen parameter in the APVTS pattern:
-- **Reader thread:** `State::getKeyboardFlags(screen)` reads the atomic.
-- **Message thread:** `State::getKeyboardFlags()` reads the ValueTree (post-flush).
-- Stack storage: `HeapBlock<uint32_t>` (flat) + `HeapBlock<int>` (stack sizes per screen).
+- Stack storage lives on `Processor`: `std::array<uint32_t, 2 * maxKeyboardStackDepth>` (flat) and `std::array<int, 2>` (stack sizes per screen). No HeapBlock.
+- Keyboard flags are read directly from the screen ValueTree node via `jam::ValueTree::getValueFromChildWithID`.
+- No `State::getKeyboardFlags()` method — keyboard flags are not accessed via State.
 
 #### Flag-Aware Keyboard Encoding (Keyboard::map)
 
-`terminal::Session::handleKeyPress()` reads `getKeyboardFlags()` and passes to `Keyboard::map()`.
+`Processor::encodeKeyPress()` reads flags from the screen ValueTree node and passes them to `Keyboard::map()`.
 
 | Flag | Bit | Effect on encoding |
 |------|-----|--------------------|
@@ -812,14 +814,20 @@ The config key controlling daemon mode is `lua::Engine::nexus.daemon` (`"daemon"
 
 ## Key Data Types
 
-### Cell (16 bytes, trivially copyable)
+### Cell (8 bytes, packed u64, trivially copyable)
 
 ```
-| codepoint (4B) | style (1B) | layout (1B) | width (1B) | reserved (1B) | fg (4B) | bg (4B) |
+| codepoint (21 bits) | contentTag (2 bits) | wide (2 bits) | styleId (16 bits) | padding (23 bits) |
 ```
 
-Style bits: BOLD, ITALIC, UNDERLINE, STRIKE, BLINK, INVERSE
-Layout bits: LAYOUT_HYPERLINK (0x20), wide continuation, has grapheme
+Packed into a single u64. `jam::Cell` in jam_tui. Global alias: `using cell = jam::Cell::Unit;`
+
+Nested types:
+- `Cell::Unit` — coordinate scalar
+- `Cell::Point` — cell-space 2D coordinate
+- `Cell::Rectangle` — cell-space rectangle; constructed from pixel dimensions + Font::bounds (no manual arithmetic)
+- `Cell::RowState` — per-row metadata
+- `Cell::getKey()` — extract cache key from packed cell
 
 ### Color (4 bytes, trivially copyable)
 
@@ -838,9 +846,9 @@ Grid API: `getBlock()` returns `Block<Row>` (non-owning view, no copy). `getWrit
 
 Video reads geometry via `state.getRawValue<int>(terminal::id::cols)` etc. (lock-free atomics).
 
-### terminal::ScreenMap
+### terminal::Map
 
-`terminal::ScreenMap` is a `jam::Map::Instance<ScreenMap>` providing the `normal`/`alternate` index mapping for Grid screen access. Lives in `terminal/ScreenMap.h`.
+`terminal::Map` provides typed map instances via `jam::Map::Bool`, `jam::Map::Screen`, and `jam::Map::Gpu`. The `Map::Screen` instance provides the `normal`/`alternate` index mapping for Grid screen access. Lives in `terminal/Map.h`.
 
 ### GlyphConstraint
 
@@ -882,13 +890,11 @@ Anchor + end `Point<int>` pair. Uses `::SelectionType` (none/visual/visualLine/v
 
 ### TextEditor (jam::TextEditor)
 
-Stateless monospace cell-grid renderer. Owns a ValueTree node grafted into State by Screen.
-Content set per frame via `setText(Block<Row>)` — non-owning, no copy. Two viewport modes:
-proportional (terminal — jam::Scrollbar, interactive) and absolute (whelmed — juce::Viewport).
-Both scrollbars render identically via LookAndFeel.
+Stateless monospace cell-grid renderer. `terminal::Screen` IS jam::TextEditor (direct inheritance) — not a separate entity. Holds no persistent cell buffer. Content set per frame via `setText(Block<Row>)` — non-owning, no copy. Two viewport modes: proportional (terminal — jam::Scrollbar, interactive) and absolute (whelmed — juce::Viewport). Both scrollbars render identically via LookAndFeel.
 
-Selection is TextEditor's responsibility. Input/Mouse write selection properties directly to
-TextEditor's grafted node. Processor adjusts selection anchors on scroll via storeValue atomics.
+Properties accessed via static array + enum (`TextEditor::properties`, `TextEditor::PropertyIndex`). Selection is TextEditor's responsibility. Input/Mouse write selection properties directly to TextEditor's grafted node. Processor adjusts selection anchors on scroll via storeValue atomics.
+
+Screen grafts only its TextEditor `state` node (selection, caret, viewport mode). Node creation and NORMAL/ALTERNATE screen node ownership belong to Display.
 
 ### ModalType
 
@@ -1006,13 +1012,13 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Rationale:** Explicit lifetime, fail-fast on misuse, no static init ordering problems.
 
-### Decision: Unified Cell (16B) over HotCell/ColdCell Split
+### Decision: Packed 8-byte Cell over HotCell/ColdCell Split
 
-**Context:** SPEC originally proposed 8B HotCell + 20B ColdCell SoA layout for cache optimization.
+**Context:** SPEC originally proposed 8B HotCell + 20B ColdCell SoA layout for cache optimization. Interim implementation used a 16-byte unified Cell with inline fg/bg Color.
 
-**Decision:** Unified 16-byte Cell with inline fg/bg Color. Grapheme stored separately in a sparse map.
+**Decision:** Packed 8-byte u64 Cell (`jam::Cell`) — codepoint(21) + contentTag(2) + wide(2) + styleId(16) + padding(23). Grapheme stored separately in a sparse map. Style and color resolved via styleId lookup.
 
-**Rationale:** Simpler code, still fits 2 cells per cache line. The HotCell/ColdCell split added complexity for marginal cache benefit given typical terminal workloads. 95%+ of cells have no grapheme, so the sparse map handles the rare case efficiently.
+**Rationale:** 8 bytes fits 8 cells per cache line. Packing eliminates padding waste. styleId indirection keeps the hot path narrow. 95%+ of cells have no grapheme, so the sparse map handles the rare case efficiently.
 
 ### Decision: Procedural Box Drawing over Font Glyphs
 
@@ -1282,8 +1288,8 @@ Click-mode link underlines only render on OSC 133 output rows.
 | BoxSelection | Rectangle selection: anchor + end cell coordinates, rendered as overlay |
 | ConPTY sideload | Runtime extraction of conpty.dll + OpenConsole.exe from BinaryData to ~/.config/end/conpty/ (all Windows versions — inbox ConPTY broken on both Win10 and Win11) |
 | getActiveScreen | Message-thread ValueTree reader for active screen state (normal/alternate) |
-| Cell | 16-byte struct representing one terminal character position |
-| displayName | Derived tab label from `app::id::displayName`. Terminal panes: foregroundProcess (non-empty, set by Session::onFlush when fgPid != shellPid) > cwd leaf name. Whelmed panes: file basename set at openFile time. |
+| Cell | `jam::Cell` — 8-byte packed u64 representing one terminal character position. Nested: `Cell::Unit` (coordinate scalar), `Cell::Point`, `Cell::Rectangle`, `Cell::RowState`, `Cell::getKey()`. Global alias: `using cell = jam::Cell::Unit;` |
+| displayName | Derived tab label from `app::id::displayName`. Terminal panes: foregroundProcess (non-empty) > cwd leaf name — computed in `Processor::valueTreePropertyChanged`. Whelmed panes: file basename set at openFile time. |
 | Embolden | Platform stroke-widening for bold: kCGTextFillStroke (macOS), FT_Outline_Embolden (Linux) |
 | FontCollection | Flat int8_t[0x110000] codepoint-to-font-slot dispatch table, O(1) lookup |
 | GlyphConstraint | Per-codepoint NF icon scaling/alignment descriptor applied at rasterization time |
@@ -1293,7 +1299,7 @@ Click-mode link underlines only render on OSC 133 output rows.
 | History | Ring buffer of raw PTY bytes owned by terminal::Session. Used for daemon snapshot/restore via snapshotHistory() |
 | Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. Owns `juce::Image`, renders via paint/paintGL. Created on demand by `activatePreview()`, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
 | handleSkitFilepath | Shared parser helper for SKiT (Sixel/Kitty/iTerm2) file preview protocol. Extracts filepath from `END;` marker, calls `onPreviewFile` callback |
-| jam::tui::Metrics | Cell metrics SSOT: gridSize (floor), cellSpan (ceiling), cellToPixel, pixelToCell conversions. Constructed from physCellWidth, physCellHeight, scale |
+| Font::bounds | `jam::Bounds` — cell dimension descriptor (cellWidth, cellHeight, baseline, fontSize) stored on the DISPLAY node via `jam::ComponentAttachment`. Source of truth for cell pixel dimensions; `Cell::Rectangle` reads these to compute grid dimensions without manual arithmetic. |
 | LRUGlyphCache | Frame-stamped LRU map; evicts oldest 10% when over capacity |
 | GLMailbox | Generic lock-free atomic pointer exchange template (`jam::GLMailbox<T>`) |
 | GLSnapshotBuffer | Double-buffered snapshot owner with GLMailbox (`jam::GLSnapshotBuffer<T>`) |
@@ -1308,12 +1314,12 @@ Click-mode link underlines only render on OSC 133 output rows.
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
 | Processor | Pipeline orchestrator: owns Parser, Video, GridResize; references Grid and State received from Session |
 | pwdValue | juce::Value in AppState bound via referTo to active terminal's cwd property |
-| ScreenMap | `terminal::ScreenMap` — normal/alternate screen index map (jam::Map::Instance) |
+| Map::Screen | `jam::Map::Screen` — normal/alternate screen index map instance in `terminal::Map`. See also `Map::Bool` and `Map::Gpu`. Lives in `terminal/Map.h`. |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
 | Skit | SKiT unified entry point for Sixel/Kitty/iTerm2 inline image preview protocol |
 | Snapshot | Pre-built GPU instance data (glyphs + backgrounds) for one frame |
 | StagedBitmap | Cross-thread upload packet: pixel data + atlas region + mono/emoji kind |
-| State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state |
+| State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state. Includes: OSC 133 shell integration tracking, paste echo gate, sync output (mode 2026), preview split-viewport, hints, modal type, snapshot dirty signal. Per-screen methods removed — callers use `storeValue`/`loadValue` (READER) or VT API (MESSAGE). |
 | Tabs | `terminal::Tabs` — TabbedComponent subclass; Value::Listener for tabName, manages Panes instances |
 | VBlank | Not currently implemented. Render trigger is timer-driven flush (60/120 Hz). |
 | Video | VT command processor: receives decoded semantic actions from Parser, writes Grid cells, fires events for State writes |

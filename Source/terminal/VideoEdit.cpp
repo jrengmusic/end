@@ -563,9 +563,7 @@ void Video::setScreen (bool shouldUseAlternate) noexcept
         // then calls video.loadScreenState() synchronously on the reader thread.
         events.get (id::screenSwitch,
                     int (target),
-                    int (cursorRow.value), int (cursorCol.value), bool (cursorVisible),
-                    int (scrollTop.value), int (scrollBottom.value), bool (wrapPending),
-                    uint32_t (keyboardFlags));
+                    int (cursorRow.value), int (cursorCol.value), bool (cursorVisible));
 
         // After loadScreenState() has run, activeScreen and live registers hold new values.
         activeScreen = target;

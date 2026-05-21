@@ -1,5 +1,81 @@
 # SPRINT-LOG
 
+## Sprint 26: Cell Unification + Event Wiring + Audit Sweep ✅
+
+**Date:** 2026-05-21
+**Duration:** ~6h
+
+### Agents Participated
+- COUNSELOR: orchestration, planning, delegation, audit resolution
+- Pathfinder: Cell type survey, ARCHITECTURE.md stale section survey, Owner/SharedResource survey, bell/clipboard/notification implementation hunt
+- Librarian: Cell scalar naming research
+- Researcher: Cell naming conventions (W3C, Qt, mp-units, Ratatui)
+- Engineer: Cell unification (merge metrics→fonts), cell::Point/Rectangle migration, manual arithmetic elimination, event wiring, screenSwitch slim, DRY refactors, HeapBlock→std::array, GL crash fix, Bounds cleanup, Owner::find, ARCHITECTURE.md rewrite
+- Auditor: comprehensive 25-finding audit (cell call sites, docs, BLESSED, coding standard, dead code, refactoring)
+
+### Files Modified (30+ total)
+
+**jam library:**
+- `jam_fonts/cell/jam_cell.h` — unified Cell: added Cell::Unit, RowState, getKey, Point/Rectangle forward decls, using alias, UDL
+- `jam_fonts/cell/jam_cell_point.h` — NEW: Cell::Point (moved from metrics, Cell→Unit)
+- `jam_fonts/cell/jam_cell_rectangle.h` — NEW: Cell::Rectangle (moved from metrics, Cell→Unit)
+- `jam_fonts/jam_fonts.h` — added Point/Rectangle includes
+- `jam_core/jam_bounds.h` — moved from metrics/, coding standard fixes (explicit captures, static_cast, no early returns, removed unreachable return)
+- `jam_core/jam_core.h` — removed metrics includes, updated bounds include
+- `jam_core/utilities/jam_owner.h` — added find(const ObjectClass&) value-based lookup
+- `jam_core/utilities/jam_shared_resource.h` — addIfNotAlreadyThere find-first optimization
+- `jam_gui/text_editor/jam_text_editor.cpp` — calc uses Cell::Point::totalPixels, cell::Point→jam::Cell::Point
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement_queries.cpp` — metrics::Cell→jam::Cell::Unit/Point/Rectangle
+- Multiple jam_tui files — jam::Cell{}→jam::Cell::Unit{} (8 files)
+- DELETED: jam_core/metrics/ directory (jam_cell.h, jam_cell_point.h, jam_cell_rectangle.h, jam_bounds.h)
+- DELETED: jam_core/identifier/jam_identifier_text_editor.h
+- DELETED: jam_tui/graphics/jam_tui_rectangle.h
+
+**END:**
+- `MainComponent.cpp` — GL context detach in destructor, cell::Point→jam::Cell::Point
+- `Processor.h` — events doc updated, screenSwitch signature slimmed
+- `Processor.cpp` — bell/clipboard/notification wired, screenSwitch 8→4 args, mode handlers loop, DRY property locals in scrollUp, setKeyboardMode named constants, HeapBlock→std::array+.at()
+- `Input.cpp` — DRY property locals via using TE alias
+- `Display.cpp` — manual arithmetic→Cell::Rectangle, seedScreenNodes seed lambda
+- `VideoEdit.cpp` — screenSwitch fire site slimmed
+- `VideoCSI.cpp` — cell::Point→jam::Cell::Point
+- `Skit.cpp` — cell::Rectangle→jam::Cell::Rectangle
+- `Panes.cpp` — cell::Rectangle→jam::Cell::Rectangle
+- `Mouse.cpp` — cell::Point→jam::Cell::Point
+- `Mouse.h` — doc update
+- `tty/TTY.h` — stale Session::onFlush doc fixed
+- `tty/WindowsTTY.cpp` — stale Session::onFlush doc fixed
+- `ARCHITECTURE.md` — comprehensive rewrite (Cell 8B layout, Session::start, ComponentAttachment, seedScreenNodes, keyboard stack on Processor, Map, displayName, stale sections)
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Cell unification: jam::metrics::Cell merged into jam::Cell as Cell::Unit, Point/Rectangle/RowState/getKey nested. No more name collision.
+- Bell/clipboard/notification events wired to real implementations (were no-op stubs since architecture refactor)
+- screenSwitch event slimmed from 8 to 4 args (4 unused params removed)
+- Manual pixel/cell arithmetic replaced with Cell::Rectangle/Point::totalPixels in Display and TextEditor
+- HeapBlock[]→std::array.at() for keyboard mode stack (JRENG coding standard)
+- Mode handler boilerplate collapsed to range-for loop (7→1)
+- DRY: repeated TextEditor::properties.at() chains extracted to locals
+- setKeyboardMode magic numbers (1/2/3) → named constants
+- GL context crash on exit — detach in destructor before component hierarchy teardown
+- ARCHITECTURE.md comprehensively updated (9 stale sections rewritten)
+- Owner::find value-based lookup (O(1) hash / O(n) fallback)
+- SharedResource::addIfNotAlreadyThere find-first optimization (avoid unnecessary allocation)
+- Bounds.h coding standard violations fixed (pre-existing, exposed by file move)
+
+### Debts Paid
+- `DEBT-20260521T060000` — screenSwitch event slimmed from 8 to 4 args
+
+### Debts Deferred
+- END-wide int→cell migration (~15 files, ~80 lines) — enforce type-safe cell coordinates throughout terminal layer
+- Lean violations: Input.cpp handleSelectionKey (148 lines, 12+ branches), Processor.cpp registerEvents (312 lines), Processor.cpp total (837 lines), Panes.cpp (684), State.cpp (463), Session.cpp (448)
+
+---
+
 ## Sprint 25: Screen State Ownership + ComponentAttachment + jam Module Cleanup ✅
 
 **Date:** 2026-05-20 — 2026-05-21

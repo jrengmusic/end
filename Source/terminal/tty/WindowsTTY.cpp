@@ -1001,12 +1001,12 @@ bool WindowsTTY::isRunning() const
  *
  * ### Thread safety
  * `cachedForegroundPid` and `lastForegroundQueryTimeMs` are `mutable` and are
- * written only from `Session::onFlush`, which is invoked exclusively on the
- * JUCE message thread via `State::timerCallback`.  No lock is required.
+ * written only from `Processor::valueTreePropertyChanged`, which fires exclusively on the
+ * JUCE message thread when foregroundProcess/cwd ValueTree properties change.  No lock is required.
  *
  * @return The most-recently-spawned descendant PID (or `childPid` as fallback),
  *         or -1 if `childPid` is 0 (shell not running).
- * @note MESSAGE THREAD context (via State::timerCallback → Session::onFlush).
+ * @note MESSAGE THREAD context (via Processor::valueTreePropertyChanged).
  */
 int WindowsTTY::getForegroundPid() const noexcept
 {

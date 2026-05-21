@@ -14,6 +14,7 @@
  */
 
 #include "Processor.h"
+#include "Notifications.h"
 
 namespace terminal
 {
@@ -45,9 +46,6 @@ Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, cell cols, cell 
     , gridResize (grid, video, state)
     , uuid (uuid)
 {
-    keyboardModeStack.allocate (2 * maxKeyboardStackDepth, true);
-    keyboardModeStackSize.allocate (2, true);
-
     // Set initial dimensions via setDimensions — writes the Parameter<int> atomics
     // so the flush timer cannot overwrite them with 0 on first paint.
     state.setDimensions (cols, rows);
@@ -125,9 +123,6 @@ Processor::~Processor()
  *
  * - `"requestSyncResize"` — DEC mode 2026 set; calls `State::requestSyncResize()`.
  *
- * - `"bell"`, `"clipboardChanged"`, `"desktopNotification"` — placeholder registrations
- *   so `events.contains()` passes; Session registers the actual handlers after construction.
- *
  * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — Video::flush()
  *   flush events; write the corresponding State atomics.
  *
@@ -143,8 +138,20 @@ Processor::~Processor()
  *   forwards any Kitty response via writeToHost, then Video::advanceCursorForImage().
  *   Synchronous on reader thread.
  *
- * @note READER THREAD — all handlers execute on the reader thread unless dispatched
- *       via `callAsync` (bell, clipboardChanged, desktopNotification land on the message thread).
+ * - `"bell"` — BEL (0x07); writes `\a` to stderr for system alert sound.
+ *   Fired by Video via `callAsync` on the message thread.
+ *
+ * - `"clipboardChanged"` — OSC 52 clipboard write; calls
+ *   `juce::SystemClipboard::copyTextToClipboard()`.
+ *   Fired by Video via `callAsync` on the message thread.
+ *
+ * - `"desktopNotification"` — OSC 9 / OSC 777 desktop notification; calls
+ *   `terminal::showNotification()`.
+ *   Fired by Video via `callAsync` on the message thread.
+ *
+ * @note READER THREAD — all handlers execute on the reader thread except bell,
+ *       clipboardChanged, and desktopNotification, which fire on the message thread
+ *       (Video dispatches them via callAsync).
  */
 void Processor::registerEvents() noexcept
 {
@@ -310,22 +317,27 @@ void Processor::registerEvents() noexcept
                               const juce::Identifier scrollUpScreenId { Map::Screen::getContext()->get (screen) };
                               state.storeValue (scrollUpScreenId, id::numRows, grid.getNumRows (screen));
 
-                              const int selType { state.loadValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId)) };
+                              using TE = jam::TextEditor;
+                              const auto& teId        { TE::properties.at (TE::textEditorId) };
+                              const auto& selTypeId   { TE::properties.at (TE::selectionTypeId) };
+                              const auto& anchorRowId { TE::properties.at (TE::selectionAnchorRowId) };
+                              const auto& cursorRowId { TE::properties.at (TE::selectionCursorRowId) };
+
+                              const int selType { state.loadValue (teId, selTypeId) };
 
                               if (selType != static_cast<int> (terminal::SelectionType::none))
                               {
-                                  const int anchorRow { state.loadValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId)) + (-count) };
-                                  const int cursorRow { state.loadValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId)) + (-count) };
+                                  const int anchorRow { state.loadValue (teId, anchorRowId) + (-count) };
+                                  const int cursorRow { state.loadValue (teId, cursorRowId) + (-count) };
 
                                   if (anchorRow < 0 or cursorRow < 0)
                                   {
-                                      state.storeValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId),
-                                                        static_cast<int> (terminal::SelectionType::none));
+                                      state.storeValue (teId, selTypeId, static_cast<int> (terminal::SelectionType::none));
                                   }
                                   else
                                   {
-                                      state.storeValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId), anchorRow);
-                                      state.storeValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId), jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), cursorRow);
+                                      state.storeValue (teId, anchorRowId, anchorRow);
+                                      state.storeValue (teId, cursorRowId, cursorRow);
                                   }
                               }
                           });
@@ -366,62 +378,43 @@ void Processor::registerEvents() noexcept
                            });
 
     // State delivery: mode flags.
-    events.add<bool> (id::applicationCursor,
-                      [this] (bool value)
-                      {
-                          state.setMode (id::applicationCursor, value);
-                      });
+    for (const auto& modeId : { id::applicationCursor, id::bracketedPaste, id::mouseTracking,
+                                 id::mouseMotionTracking, id::mouseAllTracking, id::focusEvents,
+                                 id::win32InputMode })
+    {
+        events.add<bool> (modeId, [this, modeId] (bool value) { state.setMode (modeId, value); });
+    }
 
-    events.add<bool> (id::bracketedPaste,
-                      [this] (bool value)
-                      {
-                          state.setMode (id::bracketedPaste, value);
-                      });
+    // BEL (0x07) — write ASCII BEL to stderr for system alert sound.
+    events.add (id::bell,
+                []
+                {
+                    std::fwrite ("\a", 1, 1, stderr);
+                });
 
-    events.add<bool> (id::mouseTracking,
-                      [this] (bool value)
-                      {
-                          state.setMode (id::mouseTracking, value);
-                      });
+    // OSC 52 — clipboard write.
+    events.add<const juce::String&> (id::clipboardChanged,
+                                     [] (const juce::String& text)
+                                     {
+                                         juce::SystemClipboard::copyTextToClipboard (text);
+                                     });
 
-    events.add<bool> (id::mouseMotionTracking,
-                      [this] (bool value)
-                      {
-                          state.setMode (id::mouseMotionTracking, value);
-                      });
-
-    events.add<bool> (id::mouseAllTracking,
-                      [this] (bool value)
-                      {
-                          state.setMode (id::mouseAllTracking, value);
-                      });
-
-    events.add<bool> (id::focusEvents,
-                      [this] (bool value)
-                      {
-                          state.setMode (id::focusEvents, value);
-                      });
-
-    events.add<bool> (id::win32InputMode,
-                      [this] (bool value)
-                      {
-                          state.setMode (id::win32InputMode, value);
-                      });
+    // OSC 9 / OSC 777 — desktop notification.
+    events.add<const juce::String&, const juce::String&> (
+        id::desktopNotification,
+        [] (const juce::String& title, const juce::String& body)
+        {
+            terminal::showNotification (title, body);
+        });
 
     // Screen switch — fired by Video::setScreen() with the OLD screen's cursor values.
     // Saves old cursor to State, loads new cursor from State atomics, calls video.loadScreenState().
-    // scrollTop/scrollBottom are always reset to 0 on screen switch (matches original setScreen behaviour).
-    // wrapPending is always cleared on screen switch.
-    events.add<int, int, int, bool, int, int, bool, uint32_t> (
+    events.add<int, int, int, bool> (
         id::screenSwitch,
         [this] (int newScreen,
                 int oldRow,
                 int oldCol,
-                bool oldVisible,
-                int /*oldScrollTop*/,
-                int /*oldScrollBottom*/,
-                bool /*oldWrapPending*/,
-                uint32_t /*oldKeyboardFlags*/)
+                bool oldVisible)
         {
             const int oldScreen { newScreen == Map::Screen::alternate ? Map::Screen::normal : Map::Screen::alternate };
             const juce::Identifier oldScreenId { Map::Screen::getContext()->get (oldScreen) };
@@ -439,24 +432,6 @@ void Processor::registerEvents() noexcept
             video.loadScreenState (newRow, newCol, newVisible, 0, 0, false, newKbFlags);
         });
 
-    // BEL — placeholder so events.contains() passes; Session registers the actual handler.
-    events.add (id::bell,
-                []
-                {
-                });
-
-    // OSC 52 clipboard write — placeholder; Session registers the actual handler.
-              events.add<const juce::String&> (id::clipboardChanged,
-                                               [] (const juce::String& /*text*/)
-                                               {
-                                               });
-
-    // OSC 9 / OSC 777 desktop notification — placeholder; Session registers the actual handler.
-    events.add<const juce::String&, const juce::String&> (
-        id::desktopNotification,
-        [] (const juce::String& /*title*/, const juce::String& /*body*/)
-        {
-        });
 }
 
 // =============================================================================
@@ -471,21 +446,21 @@ void Processor::pushKeyboardMode (int s, uint32_t flags) noexcept
 {
     jassert (s >= 0 and s < 2);
     const int base { s * maxKeyboardStackDepth };
-    auto& size { keyboardModeStackSize[s] };
+    auto& size { keyboardModeStackSize.at (static_cast<size_t> (s)) };
 
     if (size >= maxKeyboardStackDepth)
     {
         for (int i { 0 }; i < maxKeyboardStackDepth - 1; ++i)
         {
             jassert (base + i + 1 < 2 * maxKeyboardStackDepth);
-            keyboardModeStack[base + i] = keyboardModeStack[base + i + 1];
+            keyboardModeStack.at (static_cast<size_t> (base + i)) = keyboardModeStack.at (static_cast<size_t> (base + i + 1));
         }
 
         --size;
     }
 
     jassert (base + size < 2 * maxKeyboardStackDepth);
-    keyboardModeStack[base + size] = flags;
+    keyboardModeStack.at (static_cast<size_t> (base + size)) = flags;
     ++size;
     const juce::Identifier pushScreenId { Map::Screen::getContext()->get (s) };
     state.storeValue (pushScreenId, id::keyboardFlags, static_cast<int> (flags));
@@ -494,13 +469,13 @@ void Processor::pushKeyboardMode (int s, uint32_t flags) noexcept
 void Processor::popKeyboardMode (int s, int count) noexcept
 {
     jassert (s >= 0 and s < 2);
-    auto& size { keyboardModeStackSize[s] };
+    auto& size { keyboardModeStackSize.at (static_cast<size_t> (s)) };
     const int toPop { std::min (count, size) };
     size -= toPop;
 
     const int base { s * maxKeyboardStackDepth };
     jassert (size <= 0 or base + size - 1 < 2 * maxKeyboardStackDepth);
-    const uint32_t current { size > 0 ? keyboardModeStack[base + size - 1] : 0u };
+    const uint32_t current { size > 0 ? keyboardModeStack.at (static_cast<size_t> (base + size - 1)) : 0u };
     const juce::Identifier popScreenId { Map::Screen::getContext()->get (s) };
     state.storeValue (popScreenId, id::keyboardFlags, static_cast<int> (current));
 }
@@ -509,27 +484,31 @@ void Processor::setKeyboardMode (int s, uint32_t flags, int mode) noexcept
 {
     jassert (s >= 0 and s < 2);
     const int base { s * maxKeyboardStackDepth };
-    auto& size { keyboardModeStackSize[s] };
+    auto& size { keyboardModeStackSize.at (static_cast<size_t> (s)) };
 
     if (size == 0)
     {
         jassert (base < 2 * maxKeyboardStackDepth);
-        keyboardModeStack[base] = 0u;
+        keyboardModeStack.at (static_cast<size_t> (base)) = 0u;
         size = 1;
     }
 
     jassert (base + size - 1 < 2 * maxKeyboardStackDepth);
-    auto& top { keyboardModeStack[base + size - 1] };
+    auto& top { keyboardModeStack.at (static_cast<size_t> (base + size - 1)) };
 
-    if (mode == 1)
+    static constexpr int kbModeSet    { 1 }; // XTMODKEYS: assign flags verbatim
+    static constexpr int kbModeOr     { 2 }; // XTMODKEYS: enable bits (bitwise OR)
+    static constexpr int kbModeAndNot { 3 }; // XTMODKEYS: disable bits (bitwise AND NOT)
+
+    if (mode == kbModeSet)
     {
         top = flags;
     }
-    else if (mode == 2)
+    else if (mode == kbModeOr)
     {
         top |= flags;
     }
-    else if (mode == 3)
+    else if (mode == kbModeAndNot)
     {
         top &= ~flags;
     }
@@ -541,7 +520,7 @@ void Processor::setKeyboardMode (int s, uint32_t flags, int mode) noexcept
 void Processor::resetKeyboardMode (int s) noexcept
 {
     jassert (s >= 0 and s < 2);
-    keyboardModeStackSize[s] = 0;
+    keyboardModeStackSize.at (static_cast<size_t> (s)) = 0;
     const juce::Identifier resetScreenId { Map::Screen::getContext()->get (s) };
     state.storeValue (resetScreenId, id::keyboardFlags, 0);
 }
