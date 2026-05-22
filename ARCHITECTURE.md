@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-05-22 (GL audit: removed stale GLSnapshotBuffer/GLMailbox/GLComponent/GLRenderer/StagedBitmap references — none exist in codebase. GL pipeline is juce::OpenGLContext on MainComponent with setComponentPaintingEnabled(true); renderOpenGL() only clears background. Terminal rendering is JUCE component paint via glyph::Graphics CPU compositing. PaneComponent inherits juce::Component only. Corrected LRUGlyphCache→LRUCache, AtlasGlyph→Atlas::Region. Overlay uses standard paint() only.)
+**Last Updated:** 2026-05-22 (Sprint 29: AppState config SSOT, Buffer<Cell>/Block<Cell> integration, Display reactive listener, stale GL/StagedBitmap sections removed.)
 
 ---
 
@@ -92,7 +92,6 @@ Source/
     CharPropsData.h                 Character property lookup table
     Charset.h                       Character set tables (G0/G1)
     DispatchTable.h                 VT state machine transition table
-    GridSizeTransition.h/cpp        DELETED — DiscreteStateTransition lives in jam_core
     History.h/cpp                   Ring buffer of raw PTY bytes (for daemon snapshot/restore)
     Identifier.h                    ValueTree IDs + Identifier hash (terminal::id namespace)
     ImageDecode.h/cpp               Platform-independent BGRA→RGBA swizzle + ImageSequence struct
@@ -206,7 +205,7 @@ Source/
 | jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | Graphics utilities, blur, shadows, colours | jam_core |
 | jam_fonts | `~/Documents/Poems/dev/jam/jam_fonts/` | Font management, glyph atlas, typeface shaping, text layout | jam_core, FreeType, HarfBuzz |
-| jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: Cell type (jam::Cell — 8-byte packed u64), Cell::Unit, Cell::Point, Cell::Rectangle, Cell::RowState, Block<Cell> | jam_core |
+| jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: ANSI rendering, terminal metrics, raw input, ANSI markdown renderer | jam_core, jam_fonts |
 | jam_gui/opengl | `~/Documents/Poems/dev/jam/jam_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jam_core |
 | Action | `terminal/action/` | Unified action registry (`action::Registry`), key dispatch, prefix state machine, command palette (`action::List`) | lua::Engine, jam::Context |
 | Nexus | `nexus/` | Session container (global scope). Owns `unordered_map<String, unique_ptr<terminal::Session>>`. Mode determined by `setMode(Mode)` — standalone/daemon/client. Fires session lifecycle events on public `events` ValueTree. `jam::Context<Nexus>` singleton owned by ENDApplication. | terminal::Session, jam::Context |
@@ -443,11 +442,6 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 - Display owns `jam::ComponentAttachment` for the DISPLAY node (Font::bounds — cellWidth/cellHeight/baseline/fontSize); reads config from AppState via listener, writes computed font metrics to session State via attachment
 - Display destructor removes screen nodes
 
-**Component -> Rendering (GL path):**
-- `GLSnapshotBuffer::write()` — message thread publishes snapshot
-- `GLSnapshotBuffer::read()` — GL thread acquires latest snapshot (retains previous if none new)
-- Lock-free: double-buffered with atomic pointer exchange via `GLMailbox`
-
 **Panes/Tabs -> Nexus (session lifecycle):**
 - `terminal::Panes::createTerminal(cwd)` calls `Nexus::getContext()->create(cwd, uuid, cols, rows)` — mode-routing entry point
 - `terminal::Tabs::closeSession(uuid)` calls `Nexus::getContext()->remove(uuid)`
@@ -570,6 +564,7 @@ Config values flow unidirectionally: `lua::Engine` → `AppState` → reactive l
 1. **Init:** `AppState` constructor reads `lua::Engine::getContext()` and seeds all config PARAMs (fontFamily, fontSize, cellWidth, lineHeight, cursorCodepoint, cursorStyle, cursorBlinkInterval, scrollbackLines, paddingTop/Right/Bottom/Left).
 2. **Hot reload:** `MainComponent::applyConfig()` writes updated values to `AppState` via typed setters. No downstream cascade — listeners react automatically.
 3. **Distribution:** `terminal::Display` and `whelmed::Component` register as `juce::ValueTree::Listener` on `AppState::getContext()->get()`. On any property change, they re-apply config to their owned components (Screen, Mouse, Input, attachment).
+4. **Atomic reads:** `Processor` and `History` read `scrollbackLines` directly from AppState's atomic Parameter via `getRawParameterValue<int>(app::id::scrollbackLines)->load()` — lock-free, any thread. No member variable caching.
 
 **Guarantee:** AppState is constructed by `ENDApplication` before any Session or Display exists. Config values are always available when components initialize. No init sequence issues.
 
@@ -811,7 +806,7 @@ The config key controlling daemon mode is `lua::Engine::nexus.daemon` (`"daemon"
 | codepoint (21 bits) | contentTag (2 bits) | wide (2 bits) | styleId (16 bits) | padding (23 bits) |
 ```
 
-Packed into a single u64. `jam::Cell` in jam_tui. Global alias: `using cell = jam::Cell::Unit;`
+Packed into a single u64. `jam::Cell` in jam_fonts. Global alias: `using cell = jam::Cell::Unit;`
 
 Nested types:
 - `Cell::Unit` — coordinate scalar
@@ -940,6 +935,8 @@ Pure virtual base (`terminal/component/PaneComponent.h`) shared between `termina
 | `copySelection()` | Copies active selection to clipboard and clears it |
 | `hasSelection()` | Returns true if a non-degenerate selection is active |
 | `focusGained()` | (non-virtual) Sets activePaneID and activePaneType in AppState |
+| `applyZoom(float zoom)` | Applies the given zoom factor to the pane's rendering |
+| `onRepaintNeeded` | (non-virtual) Callback invoked after rendering to trigger a repaint |
 
 ### StatusBarOverlay
 
@@ -976,15 +973,11 @@ Blocks are not `juce::Component` instances — they are data objects that measur
 
 Transient overlay component. Shows grid dimensions (columns x rows) during resize. Accepts arbitrary string messages on demand. Fade-in/out animation driven by `jam::Animator`. Replaces the earlier GridSizeOverlay.
 
-### StagedBitmap
-
-Cross-thread upload packet passed from the message thread to the GL thread via the staged bitmap queue. Contains: pixel data, target atlas region, and kind (mono / emoji).
-
-### AtlasGlyph
+### Atlas::Region
 
 Cached rasterization result stored in the LRU map. Contains: texture UV rect, pixel dimensions, and bearing (horizontal + vertical offset from cell origin).
 
-### LRUGlyphCache
+### LRUCache
 
 Frame-stamped LRU map. Each entry records the last frame it was accessed. When capacity is exceeded, the oldest 10% of entries are evicted and their atlas regions returned to the packer.
 
