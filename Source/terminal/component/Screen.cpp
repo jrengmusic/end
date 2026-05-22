@@ -1,20 +1,19 @@
 /**
  * @file Screen.cpp
- * @brief Cell grid renderer — full viewport repaint from State and Grid.
+ * @brief Cell buffer renderer — full viewport repaint from State and Buffer.
  *
  * Screen registers as a ValueTree::Listener on State's SESSION root and grafts
  * its TextEditor node into that tree on construction.
  * On every parameter flush, valueTreePropertyChanged:
  *   1. Reads activeScreen, scrollOffset, and numRows from State.
- *   2. Calls grid.getBlock() to obtain a Block<Row> for the visible window.
+ *   2. Calls buffer.getBlock() to obtain a Block<Cell> for the visible window.
  *   3. Calls setText (block) — single call replaces the old per-row loop.
- *   4. Calls setScrollRange to size the scrollbar thumb.
  *
- * Screen holds no scroll terminal. scrollOffset is read from State each flush.
+ * Screen holds no scroll state. scrollOffset is read from State each flush.
  *
  * @see Screen.h
- * @see terminal::State  — SSOT for scrollOffset, activeScreen, visibleRows, numRows
- * @see terminal::Grid   — cell storage; Screen reads via getBlock
+ * @see terminal::State         — SSOT for scrollOffset, activeScreen, visibleRows, numRows
+ * @see jam::Buffer<jam::Cell>  — cell storage; Screen reads via getBlock
  */
 
 #include "Screen.h"
@@ -23,10 +22,10 @@ namespace terminal
 {
 /*____________________________________________________________________________*/
 
-Screen::Screen (State& stateMachine, Grid& gridToUse) noexcept
+Screen::Screen (State& stateMachine, jam::Buffer<jam::Cell>& bufferToUse) noexcept
     : jam::TextEditor ({})
     , terminal (stateMachine)
-    , grid (gridToUse)
+    , buffer (bufferToUse)
 {
     setWantsKeyboardFocus (false);
 
@@ -34,13 +33,6 @@ Screen::Screen (State& stateMachine, Grid& gridToUse) noexcept
     // this constructor runs — they are already present in the tree here.
     terminal.get().addListener (this);
     terminal.get().appendChild (state, nullptr);
-    setViewportMode (ViewportMode::proportional);
-
-    const int activeScreen { terminal.getActiveScreen() };
-    const juce::Identifier screenId { Map::Screen::getContext()->get (activeScreen) };
-    auto screenNode { terminal.get().getChildWithName (screenId) };
-    auto scrollValue { jam::ValueTree::getValueFromChildWithID (screenNode, id::scrollOffset) };
-    attach (scrollValue);
 }
 
 Screen::~Screen()
@@ -76,16 +68,13 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
     const cell cursorRow { static_cast<int> (
         jam::ValueTree::getValueFromChildWithID (screenNode, id::cursorRow).getValue()) };
 
-    if (numCols > 0 and viewportRows > 0 and grid.isAllocated())
+    if (numCols > 0 and viewportRows > 0 and buffer.getNumRows() > 0)
     {
-        const auto block { grid.getBlock (activeScreen, cell (scrollOffset), cell (viewportRows)) };
+        const int startRow { numRows - scrollOffset };
+        const auto block { buffer.getBlock (activeScreen, startRow, viewportRows) };
         setText (block);
-        setScrollRange (numRows);
         setCaretPosition (cursorCol, cursorRow);
     }
-
-    auto scrollValue { jam::ValueTree::getValueFromChildWithID (screenNode, id::scrollOffset) };
-    attach (scrollValue);
 }
 
 /**______________________________END OF NAMESPACE______________________________*/

@@ -36,7 +36,7 @@
  *
  * @see Parser       — DFA byte decoder that drives Video's action methods
  * @see Processor    — owner that wires Parser → Video and calls `resize()` / `calc()`
- * @see Grid         — cell buffer written by `print()` and erase operations
+ * @see Buffer       — cell buffer written by `print()` and erase operations
  */
 
 #pragma once
@@ -49,7 +49,6 @@
 #include "Identifier.h"
 #include "CharProps.h"
 #include "../Map.h"
-#include "Grid.h"
 #include "Palette.h"
 
 namespace terminal
@@ -58,15 +57,15 @@ namespace terminal
 
 /**
  * @class Video
- * @brief VT command processor: receives decoded actions, writes Grid, holds calculation inputs.
+ * @brief VT command processor: receives decoded actions, writes Buffer, holds calculation inputs.
  *
  * Video is the VT command processor.  It receives decoded semantic actions from
- * Parser and translates them into mutations of the Grid cell buffer.  It holds
+ * Parser and translates them into mutations of the cell buffer.  It holds
  * calculation inputs: the drawing pen, cursor state (both normal and alternate
  * screens), scroll region, tab stops, charset selection, and response buffering.
  *
  * @par Lifecycle
- * 1. Construct with references to a `Grid` and the events map.
+ * 1. Construct with references to a `jam::Buffer<jam::Cell>` and the events map.
  * 2. Call `calc()` once after construction (and after every `resize()`) to
  *    synchronise internal geometry.
  * 3. Parser calls action methods (`print()`, `applyControlCode()`, `applyCSI()`, …)
@@ -83,7 +82,7 @@ namespace terminal
  *
  * @see Parser  — DFA decoder that drives action methods on this class
  * @see CSI     — CSI parameter accumulator passed to dispatch handlers
- * @see Grid    — screen buffer target for print and erase operations
+ * @see Buffer  — cell buffer target for print and erase operations
  */
 class Video
 {
@@ -103,7 +102,7 @@ public:
      * after construction (and after every `resize()`) to synchronise the
      * internal geometry.
      *
-     * @param grid    Live cell buffer. Video writes in-place; Display reads dirty rows.
+     * @param buffer  Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
      * @param events  Events map owned by Processor.  Video fires events through
      *                this map instead of holding std::function callbacks directly.
      *
@@ -111,7 +110,7 @@ public:
      *
      * @see calc()
      */
-    explicit Video (Grid& grid, jam::Function::Map<juce::Identifier, void>& events) noexcept;
+    explicit Video (jam::Buffer<jam::Cell>& buffer, jam::Function::Map<juce::Identifier, void>& events) noexcept;
 
     /**
      * @brief Notifies Video that the terminal dimensions have changed.
@@ -312,7 +311,7 @@ private:
     /**
      * @brief Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
      */
-    Grid& grid;
+    jam::Buffer<jam::Cell>& buffer;
 
 
     /**

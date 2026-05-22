@@ -1,5 +1,64 @@
 # SPRINT-LOG
 
+## Sprint 28: Grid→Buffer, GST→DST ✅
+
+**Date:** 2026-05-22
+**Duration:** 04:00
+
+### Agents Participated
+- COUNSELOR: orchestrated full sprint, PLAN rewrite, decision gating, fix verification
+- Engineer: Session, Processor, Video (5 files), Screen, Display code changes, file deletion
+- Pathfinder: END + jam repo surveys (parallel)
+
+### Files Modified (14 total)
+
+**jam library:**
+- `jam_core/buffer/jam_buffer.h:166` — `keepExistingContent` → `hasContent` (stale param reference after signature change to 3-arg setSize)
+
+**END terminal:**
+- `Source/terminal/Session.h:291-292` — `Grid grid` → `jam::Buffer<jam::Cell> buffer` + `int scrollbackLines`
+- `Source/terminal/Session.cpp:208-209,218,280,298-299,304` — scrollbackLines member init, Processor construction updated
+- `Source/terminal/Processor.h:114,208-215,304,351` — `Grid&` → `Buffer<Cell>&`, `GridSizeTransition` → `DiscreteStateTransition<Cell>`, `getGrid` → `getBuffer`
+- `Source/terminal/Processor.cpp:32-103,126-201,455-460,740-760,795-796` — static `resizeHeight` helper, DST trigger registration (id::resizeStart), onStop → id::resizeEnd, cold start allocation, scrollUp handler numRows increment, clearBuffer handler buffer.clear, cell size direct to video
+- `Source/terminal/Identifier.h:386-391` — `id::resizeStart` added
+- `Source/terminal/Video.h:114,315` — `Grid&` → `Buffer<Cell>&`
+- `Source/terminal/Video.cpp:61-65,296-316,331-344,370-399,433-551,790` — constructor, scroll inlined with Buffer primitives, Row*→Cell*, usedCols/flags deleted, reset fires clearBuffer event
+- `Source/terminal/VideoEdit.cpp:27,83-509` — all grid→buffer, Row*→Cell*, scroll inlined, usedCols deleted
+- `Source/terminal/VideoESC.cpp:249` — Row*→Cell*, usedCols deleted
+- `Source/terminal/VideoCSI.cpp:519-531` — scrollDown inlined, Row*→Cell*
+- `Source/terminal/component/Screen.h:45,47-48,52` — `Grid&` → `Buffer<Cell>&`, `setCaretShape(int)` added
+- `Source/terminal/component/Screen.cpp:26-44,62-89` — constructor simplified (no proportional/attach), getBlock uses startRow=numRows-scrollOffset, removed setScrollRange
+- `Source/terminal/component/Display.cpp:7` — `getGrid()` → `getBuffer()`
+
+**Deleted:**
+- `Source/terminal/Grid.h` — dissolved into Buffer<Cell>
+- `Source/terminal/Grid.cpp` — dissolved into Buffer<Cell> + static resizeHeight + Video inline scroll
+- `Source/terminal/GridSizeTransition.h` — replaced by jam::DiscreteStateTransition<Cell>
+- `Source/terminal/GridSizeTransition.cpp` — replaced by jam::DiscreteStateTransition<Cell>
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered (resizeStart/resizeEnd paired naming, setCaretShape terminal vocabulary on Screen)
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- Grid class dissolved — Buffer<Cell> is direct storage, no wrapper class. Ring addressing already on Buffer.
+- GridSizeTransition replaced by generic jam::DiscreteStateTransition<Cell> — same SST lifecycle, no hardwired Grid/Video refs
+- Row* → Cell* throughout Video — usedCols and wrapped flags deleted (only existed for reflow)
+- numRows tracking moved from Grid internal to State SSOT — Video fires scrollUp event, Processor increments
+- Scroll operations inlined at Video call sites using Buffer primitives (advanceHead/reverseHead/copyFrom/clear)
+- resizeHeight logic preserved as static helper in Processor.cpp (relocated from Grid)
+- Screen proportional viewport mode calls removed (setViewportMode/setScrollRange/attach removed from jam TextEditor)
+- jam Buffer::setSize stale `keepExistingContent` param reference fixed
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 27: Grid Reflow Convergence — tmux Faithful + TETRIS SST ✅
 
 **Date:** 2026-05-21

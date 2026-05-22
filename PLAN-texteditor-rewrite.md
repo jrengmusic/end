@@ -1,17 +1,21 @@
-# PLAN: Terminal Rendering Architecture Rewrite
+# PLAN: Terminal Rendering — Grid→Buffer, GST→DST
 
 **RFC:** RFC-texteditor-rewrite.md
 **Date:** 2026-05-22
 **BLESSED Compliance:** verified
-**Language Constraints:** C++ / JUCE (reference implementation, no overrides per LANGUAGE.md)
+**Language Constraints:** C++ / JUCE (reference implementation, no overrides)
 
 ## Overview
 
-Replace `Buffer<Row>` with `Buffer<Cell>`, delete tmux storage-mutating reflow (~470 lines), extract generic `jam::DiscreteStateTransition` from `GridSizeTransition`, simplify `TextEditor` to single viewport mode with juce::Viewport subclass. Three active regressions deleted with their cause. Net deletion ~500+ lines.
+Replace `Grid` with `jam::Buffer<jam::Cell>` and `GridSizeTransition` with `jam::DiscreteStateTransition<jam::Cell>`. Same ownership, same listener pattern, same init sequence. Only the objects and render types change. jam modules already have DST, Buffer with ring ops, Row deleted, TextEditor accepts `Block<Cell>`.
 
-## Language / Framework Constraints
+## Preconditions (already done in jam)
 
-C++ / JUCE reference implementation. All BLESSED principles enforced as written. JUCE Viewport reentrant guard pattern adopted from `juce_TextEditor.cpp:164-199`.
+- `jam::Buffer<ElementType>` — ring-addressed storage with `advanceHead`, `reverseHead`, `getHead`, `setHead`, `getBlock`, `clear`, `copyFrom`, `setSize`
+- `jam::DiscreteStateTransition<ElementType>` — generic SST in jam_core: `addTrigger`, `set`, `prepare`, `flush`, `process`, `onStop`, `previous`, `previousHead`, `liveRows`
+- `jam::TextEditor` — accepts `setText(Block<Cell>)`, has `getWrapWidth()`, `TextEditorViewport` with reentrant guard
+- `jam::Row` deleted, `Block<Row>` shape overloads deleted from Arrangement
+- `jam_core.h` includes DST after Block
 
 ## Validation Gate
 
@@ -21,279 +25,219 @@ Each step validated by @Auditor against:
 - ~/.carol/JRENG-CODING-STANDARD.md (coding standards)
 - Locked PLAN decisions (no deviation, no scope drift)
 
-**Compilation groups noted.** Steps 1-3 form one compilation unit — validated together after Step 3.
+## Ownership Map (unchanged from 396c195)
+
+```
+Session         owns    Buffer<Cell> buffer         (was: Grid grid)
+Processor       holds   Buffer<Cell>& buffer        (was: Grid& grid)
+Processor       owns    DST<Cell> transitioner      (was: GridSizeTransition gridResize)
+Video           holds   Buffer<Cell>& buffer        (was: Grid& grid)
+Screen          holds   Buffer<Cell>& buffer        (was: Grid& grid)
+Display         passes  buffer& to Screen           (was: grid& to Screen)
+State           owns    all dimensions, cursor, scroll, numRows (unchanged)
+```
+
+## Grid→Buffer Method Mapping
+
+| Grid method | Buffer equivalent | Notes |
+|---|---|---|
+| `setSize(rows, cols, scrollback)` | `buffer.setSize(2, ringSize, cols)` | Caller computes `ringSize = nextPow2((scrollback + rows) * 2)` |
+| `getWritePointer(screen, row)` | `buffer.getWritePointer(screen, row.value)` | Returns `Cell*` (was `Row*`) |
+| `getBlock(screen, scrollOff, vpRows)` | `buffer.getBlock(screen, startRow, vpRows.value)` | Caller computes `startRow` from numRows - scrollOffset |
+| `scrollUp` (full-screen) | `buffer.advanceHead(screen, count)` + `buffer.clear(screen, row)` | Caller increments numRows via State atomic |
+| `scrollUp` (partial region) | `buffer.copyFrom` loop + `buffer.clear` | No head change — same as Grid's partial path |
+| `scrollDown` (full-screen) | `buffer.reverseHead(screen, count)` + `buffer.clear` | |
+| `scrollDown` (partial region) | `buffer.copyFrom` loop + `buffer.clear` | |
+| `clear(screen)` | `buffer.clear(screen)` | Caller resets numRows via State atomic |
+| `clear(screen, row)` | `buffer.clear(screen, row.value)` | |
+| `clear(screen, row, startCol, n)` | `buffer.clear(screen, row.value, startCol.value, n.value)` | |
+| `isAllocated()` | `buffer.getNumRows() > 0` | |
+| `getNumRows(screen)` | `state.loadValue(screenId, id::numRows)` | State is SSOT — no Grid shadow |
+| `getViewportRows()` | `state.loadValue(id::SESSION, id::visibleRows)` | State is SSOT |
+| `getRingMask()` | not needed — Buffer manages ring internally | |
+| `getHeadPosition(screen)` | `buffer.getHead(screen)` | |
+| `getBuffer()` | not needed — DST holds `Buffer&` directly | |
+| `resizeHeight(rows, cursorRow)` | inline in DST trigger | Logic preserved, operates on buffer + State |
+| `reflow` / `reflowFrom` | DELETED | Render-time wrapping replaces storage reflow |
+| `getRow(screen, absIdx)` | DELETED | Only consumed by reflow |
+| `physicalRow` | not needed — Buffer maps internally | |
+
+## numRows Tracking (Grid dissolution)
+
+Grid owned `numRows[screen]` — incremented by `scrollUp`, read by Processor to sync State.
+
+With Grid dissolved: State is SSOT for `numRows`. Video (READER thread) writes via `state.storeValue(screenId, id::numRows, value)` after scroll operations. Same cross-thread atomic pattern used for cursor, modes, etc.
+
+`scrollbackLines` stays as config constant — read from `lua::Engine::nexus.terminal.scrollbackLines` at Session construction, passed to Processor, stored locally.
 
 ---
 
 ## Steps
 
-### Step 1: Delete Row + Transform Grid
+### Step 1: Session — Grid→Buffer
 
-**Scope:** `jam_fonts/cell/jam_row.h`, `Source/terminal/Grid.h`, `Source/terminal/Grid.cpp`
+**Scope:** `Session.h`, `Session.cpp`
 
 **Action:**
+- `Grid grid` → `jam::Buffer<jam::Cell> buffer`
+- `getGrid()` → `getBuffer()` returning `jam::Buffer<jam::Cell>&`
+- Pass `buffer` to Processor constructor (same reference pattern)
+- Add `scrollbackLines` member — read from lua config at construction, passed to Processor
+- Remove `#include "Grid.h"` — add `<jam_core/jam_core.h>` if not already included
 
-1. Delete `jam_fonts/cell/jam_row.h` entirely.
-
-2. Grid.h changes:
-   - Buffer type: `jam::Buffer<jam::Row>` -> `jam::Buffer<jam::Cell>`
-   - `getWritePointer(int screen, cell row)` returns `jam::Cell*` (was `jam::Row*`)
-   - `getBlock(int screen, cell scrollOffset, cell viewportRows)` returns `jam::Block<jam::Cell>` (was `Block<jam::Row>`)
-   - Delete: `reflow()` (line 99), `reflowFrom()` (line 124), `getRow()` (line 214), `getBuffer()` (line 248)
-   - Add: `resizeCols (cell newCols, cell scrollbackLines)`
-
-3. Grid.cpp changes:
-   - Delete all static reflow helpers: `wrapCursorPosition`, `unwrapCursorPosition`, `reflowDead`, `reflowMove`, `reflowJoin`, `reflowSplit`, `reflowScreen` (~470 lines)
-   - Delete `reflow()`, `reflowFrom()`, `getRow()`, `getBuffer()` implementations
-   - Update all remaining method bodies: `Row*` -> `Cell*` in returns, `buffer.clear` calls (stride changes automatically via Buffer template)
-   - Implement `resizeCols()`: allocate new buffer at new stride, copy `min(oldCols, newCols)` cells per row for all live rows (history + viewport, both screens), pad with `Cell::erase()` on grow, update `ringMask`, reallocate `blockPointers`
-
-**Validation:** Grid.h/cpp has no `jam::Row` references. No reflow methods. Buffer type is `Cell`. `resizeCols` implemented. (Does not compile alone — Row consumers remain.)
+**Validation:** Session compiles with Buffer<Cell>. Grid no longer referenced. Does not compile alone — Processor/Video/Screen still reference Grid.
 
 ---
 
-### Step 2: Video Mechanical Migration
+### Step 2: Processor — Grid&→Buffer&, GST→DST
 
-**Scope:** `Source/terminal/Video.cpp`, `VideoEdit.cpp`, `VideoESC.cpp`, `VideoCSI.cpp`
+**Scope:** `Processor.h`, `Processor.cpp`
 
 **Action:**
 
-Mechanical `Row*` -> `Cell*` at every `getWritePointer()` callsite. Pattern:
+**Header:**
+- `Grid& grid` → `jam::Buffer<jam::Cell>& buffer`
+- `GridSizeTransition gridResize` → `jam::DiscreteStateTransition<jam::Cell> transitioner`
+- Constructor: `Processor(jam::Buffer<jam::Cell>& buffer, TextBuffer& textBuffer, cell cols, cell rows, int scrollbackLines, const juce::String& uuid)`
+- `getGrid()` → `getBuffer()` returning `jam::Buffer<jam::Cell>&`
+- Store `scrollbackLines` as member (int)
+- Remove `#include "GridSizeTransition.h"`, remove `#include "Grid.h"`
 
-```
-// Before
-jam::Row* const row { grid.getWritePointer (scr, cell (writeRow)) };
-row->cells[writeCol] = glyph;
-row->usedCols = juce::jmax (row->usedCols, uint16_t (writeCol + charWidth));
+**Constructor body — same init sequence as 396c195:**
+1. `state.setDimensions(cols, rows)` (unchanged)
+2. `registerEvents()` (unchanged)
+3. `parser = make_unique<Parser>(video)` (unchanged)
+4. `state.get().addListener(this)` (unchanged)
+5. Cold start: compute `ringSize`, call `buffer.setSize(2, ringSize, cols.value)`, then `video.setDimensions(cols, rows)`, `video.resize(cols, rows)` — same as GST.allocate() did
+6. `transitioner.prepare()` (was `gridResize.prepare(scrollbackLines)`)
 
-// After
-jam::Cell* const cells { grid.getWritePointer (scr, cell (writeRow)) };
-cells[writeCol] = glyph;
-// usedCols write deleted
-```
+**DST trigger registration (in constructor or registerEvents):**
+- Register `id::resize` trigger via `transitioner.addTrigger<cell, cell>(id::resize, [this](cell cols, cell rows) { ... })` — lambda contains resizeHeight logic (from Grid.resizeHeight) + buffer.setSize for column change + video.setDimensions + video.loadScreenState + video.resize + State sync + fire `id::resizeTick` event
+- `transitioner.onStop = [this]() { events.get(id::resizeEnd); }` — SIGWINCH delivery (was advanceCrossfade firing resizeEnd)
+- Set `transitioner.liveRows` before each `transitioner.set()` call
 
-Exhaustive callsites (from Pathfinder):
+**valueTreePropertyChanged — same dispatch as 396c195:**
+- `id::cols` / `id::visibleRows` → set liveRows, call `transitioner.set(id::resize, cols, rows)` (was `gridResize.set(cols, rows)`)
+- `id::cellWidth` / `id::cellHeight` → handled via DST coalescing or direct (same as GST.setCellSize pattern)
+- Cold start path (first dimension set): `transitioner.set` fires immediately without animation (DST's `isReady=false` path — same as GST)
 
-| File | Lines | Change |
-|---|---|---|
-| Video.cpp | 310,337 | scroll fill: `row->cells[col]` -> `cells[col]` |
-| Video.cpp | 379-380 | resolveWrapPending: delete `row->flags \|= jam::Row::wrapped`. Keep cursor advance + scroll. |
-| Video.cpp | 443 | grapheme cluster: `&row->cells[lastWriteCol]` -> `&cells[lastWriteCol]` |
-| Video.cpp | 528-530,540 | print main write: `row->cells` -> `cells`, delete `usedCols` write |
-| VideoCSI.cpp | 528,531 | scrollDown fill: `row->cells[c]` -> `cells[c]` |
-| VideoESC.cpp | 249,252,254 | DECALN: `rowPtr->cells[col]` -> `cells[col]`, delete `usedCols` write |
-| VideoEdit.cpp | 83-278 | eraseInDisplay/eraseInLine (12+ sites): `row->cells[c]` -> `cells[c]` |
-| VideoEdit.cpp | 380-393 | shiftLines fill: same pattern |
-| VideoEdit.cpp | 430-442 | shiftCellsRight: `row->cells` memmove -> `cells` memmove, delete `usedCols` write |
-| VideoEdit.cpp | 469 | removeCells: `row->cells` memmove -> `cells` memmove |
-| VideoEdit.cpp | 506-509 | eraseCells: `row->cells[c]` -> `cells[c]` |
+**registerEvents — adapt Grid references:**
+- `id::scrollUp` handler: was `grid.getNumRows(screen)` → `state.loadValue(screenId, id::numRows)` (State is SSOT)
+- `id::clearBuffer` handler: was `grid.clear(screen)` → `buffer.clear(screen)`
+- `id::resizeTick` handler: State writes unchanged (numRows, scrollOffset, cursor)
+- `id::resizeEnd` handler: `tty->platformResize()` (unchanged)
 
-**Validation:** No `jam::Row` references in any Video*.cpp file. No `usedCols` writes. No `flags` writes. (Does not compile alone — Block<Row> consumers remain.)
+**Validation:** Processor compiles with Buffer&, DST, no Grid/GST references. Does not compile alone — Video/Screen still reference Grid.
 
 ---
 
-### Step 3: Type Cascade — Arrangement + TextEditor + Screen
+### Step 3: Video — Grid&→Buffer&, Row*→Cell*
 
-**Scope:** `jam_glyph_arrangement.h`, `jam_glyph_arrangement.cpp`, `jam_text_editor.h`, `jam_text_editor_content_view.cpp`, `Source/terminal/component/Screen.cpp`
+**Scope:** `Video.h`, `Video.cpp`, `VideoEdit.cpp`, `VideoESC.cpp`, `VideoCSI.cpp`
 
 **Action:**
 
-1. Arrangement (jam_glyph_arrangement.h):
-   - Delete `Block<Row>` shape overloads: array (line 171) and single (line 178)
-   - Keep `Block<Cell>` overloads unchanged (lines 133, 152)
+**Header:**
+- `Grid& grid` → `jam::Buffer<jam::Cell>& buffer`
+- Constructor: `Video(jam::Buffer<jam::Cell>& buffer, jam::Function::Map<juce::Identifier, void>& events)`
+- Add `State& state` reference (for numRows atomic writes during scroll) — or pass from Processor if Video doesn't already hold State
+- Add `int scrollbackLines` member (for numRows cap during scrollUp)
 
-2. Arrangement (jam_glyph_arrangement.cpp):
-   - Delete `Block<Row>` extractor lambda and `shapeImpl` instantiation
-   - Keep `Block<Cell>` path unchanged
+**Scroll operations — inline Grid logic using Buffer primitives:**
 
-3. TextEditor (jam_text_editor.h):
-   - `jam::Block<jam::Row> content` -> `jam::Block<jam::Cell> content`
-   - `setText (jam::Block<jam::Row>)` -> `setText (jam::Block<jam::Cell>)` (both overloads)
+`scrollUp(screen, top, bottom, count)`:
+- Full-screen (top == 0 and bottom == viewportRows - 1): `buffer.advanceHead(screen, count)` + clear new rows + increment numRows via `state.storeValue` capped at scrollbackLines
+- Partial region: `buffer.copyFrom` loop within region + clear vacated rows
+- Same logic as Grid.cpp scrollUp, using Buffer API
 
-4. content_view (jam_text_editor_content_view.cpp):
-   - Shape calls now use `Block<Cell>` overload (type change automatic from #3)
+`scrollDown(screen, top, bottom, count)`:
+- Full-screen: `buffer.reverseHead(screen, count)` + clear new rows
+- Partial region: `buffer.copyFrom` loop + clear
 
-5. Screen.cpp:
-   - `grid.getBlock()` returns `Block<Cell>` (from Step 1). `setText()` accepts `Block<Cell>` (from #3). Types align mechanically.
+**Cell* migration — mechanical at every getWritePointer callsite:**
 
-**Validation:** **[COMPILATION GATE]** Full project compiles. All `jam::Row` references eliminated across entire codebase. `Block<Cell>` flows from Grid -> Screen -> TextEditor -> Arrangement. `jam_row.h` file does not exist.
+Pattern: `grid.getWritePointer(scr, row)` returned `Row*`, accessed `row->cells[col]`.
+Now: `buffer.getWritePointer(screen, row.value)` returns `Cell*`, accessed `cells[col]`.
+
+All `row->usedCols` writes deleted. All `row->flags |= wrapped` writes deleted.
+
+`grid.clear(...)` → `buffer.clear(...)` at all call sites.
+
+**Validation:** Video compiles with Buffer&, Cell*. No Grid, Row, usedCols, flags references. Scroll operations use Buffer primitives.
 
 ---
 
-### Step 4: TextEditor Cleanup — Single Viewport Mode
+### Step 4: Screen + Display — Grid&→Buffer&
 
-**Scope:** `jam_text_editor.h`, `jam_text_editor.cpp`, `jam_text_editor_content_view.cpp`, `Source/terminal/component/Screen.h`, `Screen.cpp`
+**Scope:** `Screen.h`, `Screen.cpp`, `Display.h`, `Display.cpp`
 
 **Action:**
 
-**TextEditor removals:**
-- `ViewportMode` enum (h:96)
-- `setViewportMode()` (cpp:133-161)
-- `setScrollRange()` (cpp:163-178)
-- `attach (juce::Value)` (cpp:180-184)
-- `scrollOffsetId`, `scrollCapacityId` from property enum (h:26-27)
-- `scrollbarVisibleId` from property enum (h:48)
-- `viewportMode` member (h:142)
-- `std::unique_ptr<jam::Scrollbar> scrollbar` member (h:140)
-- Proportional branch in `calc()` (cpp:98-101)
-- Proportional branch in `shapeVisibleContent()` (content_view:47-49)
-- Scrollbar bounds reservation in `resized()` (cpp:78-79)
-- `setCaretShape (int decscusr)` (h:69) — terminal VT vocabulary, moves to Screen
+**Screen.h:**
+- `Grid& grid` → `jam::Buffer<jam::Cell>& buffer`
+- Constructor: `Screen(State& state, jam::Buffer<jam::Cell>& buffer)`
 
-**TextEditor additions:**
-- `TextEditorViewport` inner struct — `juce::Viewport` subclass with `bool reentrant` guard + `juce::ScopedValueSetter`. Adopted from `juce_TextEditor.cpp:164-199`. `visibleAreaChanged` override checks `getWrapWidth() != lastWrapWidth`, guards with reentrant flag, calls `owner.checkLayout()`.
-- `getWrapWidth()` -> `viewport->getMaximumVisibleWidth()`
-- `checkLayout()` — computes content height, sets ContentView size, juce::Viewport auto-manages scrollbar. Reentrant guard prevents oscillation.
-- Constructor creates `TextEditorViewport` (replacing raw `juce::Viewport`)
+**Screen.cpp:**
+- Constructor: same as 396c195 but with `buffer` reference
+- `valueTreePropertyChanged`: `grid.getBlock(activeScreen, scrollOffset, viewportRows)` → `buffer.getBlock(activeScreen, startRow, viewportRows.value)` where `startRow = numRows - scrollOffset` (both read from State)
+- `grid.isAllocated()` → `buffer.getNumRows() > 0`
+- `setText(block)` — Block<Cell> flows from buffer.getBlock (jam TextEditor already accepts Block<Cell>)
+- Remove `setViewportMode(ViewportMode::proportional)` — jam TextEditor no longer has this
+- Remove `setScrollRange(numRows)` — jam TextEditor no longer has this
+- Remove `attach(scrollValue)` — jam TextEditor no longer has this
 
-**Screen adaptation:**
-- Remove `setViewportMode (ViewportMode::proportional)` call (Screen.cpp constructor)
-- Remove `setScrollRange (numRows)` call (Screen.cpp valueTreePropertyChanged)
-- Remove `attach (scrollValue)` calls (Screen.cpp constructor + valueTreePropertyChanged)
-- Add `setCaretShape (int decscusr)` method to Screen.h/cpp (moved from TextEditor — terminal DECSCUSR vocabulary)
-- Compute wrapColumns via `jam::Cell::Rectangle (font.bounds, juce::Rectangle<int> { 0, 0, getWrapWidth(), 1 }).getWidth().value` — no manual division. Same pattern as Display.cpp:155.
+**Display.h:**
+- Constructor unchanged: `Display(terminal::Processor& processor)`
 
-**Validation:** TextEditor compiles with single viewport mode. No `ViewportMode` enum. No `jam::Scrollbar` usage in TextEditor. `TextEditorViewport` with reentrant guard present. Screen compiles without proportional API calls. `setCaretShape` on Screen. wrapColumns passed to arrangement.
+**Display.cpp:**
+- Screen construction: `screen(Display::createAndAttachState(...), processorToUse.getBuffer())` (was `getGrid()`)
+
+**Validation:** **[COMPILATION GATE]** Full project compiles. No Grid, GridSizeTransition, Row references anywhere in END. Buffer<Cell> flows from Session → Processor → Video (write) and Session → Processor → Display → Screen (read via getBlock → Block<Cell> → setText).
 
 ---
 
-### Step 5: Create jam::DiscreteStateTransition
+### Step 5: Delete Grid + GridSizeTransition files
 
-**Scope:** NEW: `jam_gui/transition/jam_discrete_state_transition.h`, `jam_gui/transition/jam_discrete_state_transition.cpp`
+**Scope:** `Source/terminal/Grid.h`, `Source/terminal/Grid.cpp`, `Source/terminal/GridSizeTransition.h`, `Source/terminal/GridSizeTransition.cpp`
 
 **Action:**
+- Delete all four files
+- Remove from CMakeLists.txt / Projucer / build system
+- Verify no remaining `#include` references
 
-Create `jam::DiscreteStateTransition` class per RFC Pillar 2 — generic SST for discrete state changes. Same TETRIS contract as `kuassa::dsp::SmoothStateTransition`.
-
-Class structure:
-- `class DiscreteStateTransition : private juce::Timer`
-- `addTrigger<Args...> (const juce::Identifier& name, FunctionType&& callback)` — registered via `jam::Function::Map<juce::Identifier, void>`
-- `set<Args...> (const juce::Identifier& name, Args... args)` — fires trigger via `applyChange`, or queues as pending if transitioning (coalescing: `pendingChanges.clear()` + add)
-- `process() noexcept` — called from `timerCallback()`. Calls `advanceCrossfade()`. If still transitioning, fires tick trigger (if registered).
-- `flush() noexcept` — immediate apply, no animation
-- `prepare() noexcept` — cold start: `isReady = false`. First `applyChange` fires immediately without animation, sets `isReady = true`.
-- `setCrossfadeTimeMs (double timeMs) noexcept` — configure timing, recalculate increment
-- `setTickTrigger (const juce::Identifier& tickId)` — register which trigger fires per tick during transition (for repaint)
-- `setSettledTrigger (const juce::Identifier& settledId)` — register which trigger fires on completion
-- `isInTransition() const noexcept`, `getCrossfadePosition() const noexcept` — query state
-
-Private:
-- `applyChange<Args...> (name, args...)` — calls `triggers.get(name, args...)`. If `isReady`, starts transition (position=0, timer starts). If not ready, sets `isReady = true` (cold start).
-- `advanceCrossfade() noexcept` — position += increment. On completion (>=1.0): stop timer, `isTransitioning = false`, fire settled trigger, drain pending.
-- `updateCrossfadeIncrement() noexcept` — `increment = tickIntervalMs / transitionTimeMs`
-- `timerCallback() override { process(); }`
-
-Members:
-- `jam::Function::Map<juce::Identifier, void> triggers`
-- `jam::Function::Vector<void> pendingChanges`
-- `bool isReady { false }`, `bool isTransitioning { false }`
-- `double crossfadePosition { 1.0 }`, `double crossfadeIncrement { 0.0 }`, `double transitionTimeMs { 200.0 }`
-- `juce::Identifier settledId`, `juce::Identifier tickId`
-- `static constexpr int tickIntervalMs { 16 }`
-
-**Validation:** DST compiles. No domain-specific references (no Grid, Video, terminal types). Generic trigger registration via `Function::Map`. Same SST lifecycle as `SmoothStateTransition`: prepare -> set -> snapshot+mutate -> crossfade -> settle -> drain pending. Coalescing (latest wins).
+**Validation:** **[COMPILATION GATE]** Full project compiles and links. No orphan includes. Clean build.
 
 ---
 
-### Step 6: Delete GridSizeTransition + Wire Screen/Processor
+### Step 6: ARCHITECTURE.md update
 
-**Scope:** `Source/terminal/GridSizeTransition.h` (DELETE), `GridSizeTransition.cpp` (DELETE), `Source/terminal/component/Screen.h`, `Screen.cpp`, `Source/terminal/Processor.h`, `Processor.cpp`, `Source/terminal/Identifier.h`
+**Scope:** `ARCHITECTURE.md`
 
 **Action:**
+- Update Module Map: remove Grid.h/cpp, GridSizeTransition.h/cpp
+- Update Key Data Types: `jam::Buffer<jam::Cell>` replaces Grid, `jam::DiscreteStateTransition<jam::Cell>` replaces GridSizeTransition
+- Update Data Flow: Buffer<Cell> storage, Block<Cell> render path
+- Update ownership: Session owns Buffer, Processor owns DST
+- Remove all Row, reflow, GridSizeTransition references
 
-**Delete GridSizeTransition:**
-- Delete `Source/terminal/GridSizeTransition.h`
-- Delete `Source/terminal/GridSizeTransition.cpp`
-
-**CONTRACT CONSTRAINTS (Step 6):**
-- State is SSOT for all dimensions, cursor, scroll. No shadow state on Screen.
-- READER → atomics. MESSAGE → State set/getValue. Unidirectional, lock-free.
-- Tick repaint flows through State (`id::snapshotDirty`) → `valueTreePropertyChanged` → repaint. No direct `repaint()` from callbacks.
-- Interpolation: `jam::Value::map (crossfadePosition, previousCols, targetCols)`. No manual arithmetic.
-- Previous cols/rows derived from snapshot metadata — no separate `startCols`/`startRows` members.
-- Follow existing patterns verbatim. `jam::Function::Map` for triggers (SST pattern). ValueTree reactive for repaint.
-
-**Processor — remove GridSizeTransition:**
-- Delete `GridSizeTransition gridResize` member (Processor.h:351)
-- Delete `gridResize` construction from constructor (Processor.cpp:40)
-- Delete `gridResize.prepare(scrollbackLines)`, `gridResize.allocate(cols, rows)` from constructor
-- Delete dimension-change handling from `valueTreePropertyChanged` (Processor.cpp:617-642): `gridResize.set()`, `gridResize.allocate()`, `gridResize.setCellSize()` — all gone
-- Keep `id::resizeEnd` event handler registration for SIGWINCH delivery (`tty->platformResize()`)
-- Make `events` member public (not a getter — same access pattern as Video/Skit/GridSizeTransition)
-
-**Screen — add DST ownership (Screen.h):**
-- `jam::DiscreteStateTransition transitioner` member
-- `jam::Buffer<jam::Cell> previous` snapshot buffer — SST `previous` state. State preserverance: lossless, non-negotiable.
-- Snapshot metadata: `std::array<int, 2> previousHead { 0, 0 }`, `std::array<int, 2> previousNumRows { 0, 0 }`, `int previousRingMask { 0 }`, `int previousViewportRows { 0 }`, `int previousCols { 0 }`
-- No `startCols`/`startRows` — previous dimensions derived from snapshot metadata (`previousCols`, `previousViewportRows`)
-- `void captureSnapshot()` — private method
-- `jam::Function::Map<juce::Identifier, void>& events` reference member (public on Processor)
-
-**Screen — constructor (Screen.cpp):**
-- Accept `jam::Function::Map& events` parameter (Display passes from `processor.events`)
-- Register DST triggers:
-  - `id::resize` trigger `<cell, cell>`: `captureSnapshot()` (previous = current, captures previousCols/previousViewportRows) -> `grid.resizeHeight(rows, cursorRow)` -> `grid.resizeCols(cols, scrollbackLines)` -> cursor clamp via `state.storeValue` -> numRows sync via `state.setValue` for both screens -> `scrollOffset` reset to 0 -> write `id::snapshotDirty` to State (triggers repaint via reactive path)
-  - `id::resizeEnd` trigger `<>`: calls `events.get(id::resizeEnd)` for SIGWINCH delivery
-- `transitioner.setSettledTrigger(id::resizeEnd)`
-- `transitioner.prepare()` — cold start
-
-**DST tick repaint — unidirectional reactive path:**
-- DST `process()` (timer, 16ms, message thread) → advances crossfade → writes `id::snapshotDirty` to State (message thread direct VT write)
-- State `valueTreePropertyChanged` fires on Screen → Screen detects `transitioner.isInTransition()` → renders from `previous` at interpolated wrapColumns → repaint
-- No direct `repaint()` calls from DST. No manual lambda callbacks for repaint. Standard reactive ValueTree path.
-
-**Screen — captureSnapshot (SST contract: previous = current):**
-- Captures `previousCols` from Grid's current logical column count (read from State: `id::cols`)
-- Same ring metadata logic as GridSizeTransition.cpp:213-233: `previous.setSize(2, ringSize, previousCols, false, true, false)`, copy physical rows via `previous.copyFrom` per screen
-- Lossless cell-level memcpy. Content at old dimensions preserved in `previous` for the entire transition duration.
-
-**Screen — render path during transition (analogous to SST crossfade):**
-- Audio SST: `previous.process(sample)` + `current.process(sample)` + blend
-- Terminal DST: shape `previous` at interpolated wrapColumns. Dimension interpolation IS the crossfade.
-- Interpolation: `int interpolatedCols { jam::Value::map (crossfadePosition, previousCols, targetCols) }` where `targetCols` read from State SSOT (`id::cols`)
-- Build `Block<Cell>` from `previous` buffer using snapshot ring metadata (previousHead, previousNumRows, previousRingMask)
-- `Arrangement::shape (previousBlock, font, interpolatedCols, lineOffset)`
-- After settle: shell has received SIGWINCH, redraws at target dims → live grid updated → Screen renders from live grid
-
-**Screen — rewrite valueTreePropertyChanged:**
-- Dimension change (`id::cols` or `id::visibleRows`): `transitioner.set(id::resize, cols, rows)` → return
-- Cell size change (`id::cellWidth` or `id::cellHeight`): propagate through DST if coalescing needed, or direct
-- `id::snapshotDirty` change while `transitioner.isInTransition()`: render from `previous` at interpolated cols via `jam::Value::map`, repaint
-- `id::snapshotDirty` change while not transitioning: read live grid, `setText(Block<Cell>)`, `setCaretPosition`, repaint
-- Normal flush (non-dimension, non-snapshot): read live grid, `setText(Block<Cell>)`, `setCaretPosition`, repaint
-
-**Display — pass events to Screen:**
-- Screen constructor gains `events&` parameter
-- Display passes `processor.events` to Screen construction (public member, no getter)
-
-**Identifier.h:**
-- Add `id::resize` if not present (DST trigger name for dimension change)
-- Keep `id::resizeEnd` (repurposed: DST settled trigger for SIGWINCH)
-- Keep `id::snapshotDirty` (existing — repaint signal during transition, written by DST process())
-
-**Validation:** **[COMPILATION GATE]** Full project compiles and runs. No `GridSizeTransition` references anywhere. DST owned by Screen. Resize lifecycle: Display::resized() → State dimensions → Screen::valueTreePropertyChanged → transitioner.set(id::resize) → registered trigger fires (snapshot → grid mutation → state sync → snapshotDirty) → crossfade → per-tick snapshotDirty → reactive repaint from previous at interpolated cols → settle → resizeEnd → SIGWINCH. No shadow state. No manual arithmetic. No direct repaint calls. Unidirectional data flow through State.
+**Validation:** ARCHITECTURE.md reflects codebase. No stale references.
 
 ---
 
 ## BLESSED Alignment
 
-- **B (Bound):** `previous` owned by Screen for transition lifetime. Grid owned by Session. DST owns no domain state — all in registered triggers. Lifetimes explicit.
-- **L (Lean):** ~500+ lines deleted (reflow helpers, Row, proportional mode, GridSizeTransition hardwiring). DST ~60 lines generic. Net deletion.
-- **E (Explicit):** `Arrangement::shape(block, font, wrapColumns, lineOffset)` — all params visible. Wrap columns derived from `Cell::Rectangle(font.bounds, pixelRect).getWidth()` — no manual arithmetic. DST triggers registered with named Identifiers and typed args. State reads via `jam::ValueTree::getValueFromChildWithID` — existing battle-tested API.
-- **S (SSOT):** scrollOffset in State. Cursor in State. Dimensions in State. Viewport position derived.
-- **S (Stateless):** Arrangement produces glyph positions fresh each frame. No reflow state. Grid is dumb ring. DST is a state machine with no domain knowledge.
-- **E (Encapsulation):** Grid: ring storage. Arrangement: shaping. Screen: render + resize coord. DST: transition lifecycle. Video: VT. Display: dimensions. One job each.
-- **D (Deterministic):** Same `Block<Cell>` + same `wrapColumns` -> same glyph positions. No tmux history interaction. No ring-full edge cases.
-
-## Resolved Questions
-
-1. **events& wiring:** `Processor::events` made public. Same pattern as Video/Skit/GridSizeTransition — all receive reference at construction. Display passes `processor.events` to Screen constructor.
-2. **wrapColumns source:** `font.bounds.width` — protected member of TextEditor, already accessed by content_view (content_view.cpp:42). Screen inherits TextEditor.
-3. **Snapshot during transition:** Dimension interpolation IS the crossfade. `jam::Value::map(crossfadePosition, previousCols, targetCols)` → shape `previous` at interpolated cols. 1:1 analogy with audio SST `blend(outPrev, outCurr, pos)`.
-4. **No shadow state:** Previous cols/rows derived from snapshot metadata (`previousCols`, `previousViewportRows`). Target cols from State SSOT (`id::cols`). No `startCols`/`startRows` members.
-5. **Tick repaint:** Unidirectional through State (`id::snapshotDirty`) → `valueTreePropertyChanged` → repaint. No direct repaint() calls.
+- **B (Bound):** Buffer owned by Session (unchanged). DST owned by Processor (same as GST). References passed down. Lifetimes explicit.
+- **L (Lean):** ~500+ lines deleted (reflow, Row, Grid class, GST class). DST is generic in jam_core. Net deletion.
+- **E (Explicit):** `buffer.getBlock(screen, startRow, numRows)` — all params visible. `buffer.advanceHead(screen, count)` — no hidden ring math.
+- **S (SSOT):** numRows in State (was shadow-tracked on Grid). Dimensions in State. Cursor in State.
+- **S (Stateless):** Buffer is dumb storage. DST is generic state machine. Video writes cells, doesn't track history.
+- **E (Encapsulation):** Buffer: storage. Video: VT writes + scroll. Screen: render. Processor: lifecycle + DST. Display: dimensions.
+- **D (Deterministic):** Same Block<Cell> + same wrapColumns → same glyphs. No reflow edge cases.
 
 ## Risks / Open Questions
 
-1. **setCaretShape consumers:** Verify no jam-level consumers call `TextEditor::setCaretShape()` before removing. If found, keep on TextEditor and add override on Screen.
-2. **Block<Cell> from previous snapshot:** Screen must build `Block<Cell>` from `previous` buffer using snapshot ring metadata (previousHead, previousNumRows, previousRingMask). Verify `blockPointers` allocation for snapshot or use a local array.
+1. **Video scroll — State access:** Video currently has no State& reference. It fires events that Processor handles. With Grid dissolved, Video needs `state.storeValue` for numRows during scrollUp. Options: (a) Video gets State& reference, (b) Video fires event with numRows delta and Processor writes. Current GST pattern has Grid track numRows internally — which Video-to-State pattern does ARCHITECT prefer?
+
+2. **resizeHeight logic in DST trigger:** Grid.resizeHeight is ~50 lines of scrollback pull/push logic. This goes into the DST trigger lambda. The lambda may exceed 30-line Lean limit — may need extraction to a static helper. Decision deferred to execution.
+
+3. **getBlock startRow computation:** Grid.getBlock computed `startRow = head - numRows + scrollOffset` internally. With Buffer, caller computes `startRow`. Screen reads numRows and scrollOffset from State, computes startRow, passes to `buffer.getBlock`. Verify arithmetic matches Grid's absolute-index formula.

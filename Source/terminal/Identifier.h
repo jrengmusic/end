@@ -383,6 +383,13 @@ namespace id
      */
     static const juce::Identifier resizeEnd            { "resizeEnd" };
 
+    /** @brief DST trigger key — applies height adjustment, column change, and video sync.
+     *
+     *  Args: cell (targetCols), cell (targetRows).
+     *  Fired from valueTreePropertyChanged on the MESSAGE THREAD.
+     */
+    static const juce::Identifier resizeStart           { "resizeStart" };
+
 /**______________________________END OF NAMESPACE______________________________*/
 } // namespace id
 

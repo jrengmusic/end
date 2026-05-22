@@ -206,6 +206,7 @@ Session::Session (cell cols,
                   const juce::StringPairArray& seedEnv,
                   const juce::String& uuid)
     : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
+    , scrollbackLines { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
 #if JUCE_MAC || JUCE_LINUX
     auto tty { std::make_unique<UnixTTY>() };
@@ -215,7 +216,7 @@ Session::Session (cell cols,
 
     // Create Processor before wiring TTY callbacks so procRawPtr is valid in lambdas.
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (buffer, textBuffer, cols, rows, scrollbackLines, effectiveUuid);
     processor->getState().setId (effectiveUuid);
 
     terminal::Processor* procRawPtr { processor.get() };
@@ -277,7 +278,7 @@ Session::Session (cell cols,
                 cell (procRawPtr->getState().loadValue (terminal::id::SESSION, terminal::id::visibleRows)));
     };
 
-    // Transfer TTY ownership to Processor. setTTY() wires the TTY into GridSizeTransition for SIGWINCH delivery.
+    // Transfer TTY ownership to Processor.
     processor->setTTY (std::move (tty));
 }
 
@@ -296,12 +297,13 @@ Session::Session (cell cols,
                   const juce::String& shell,
                   const juce::String& uuid)
     : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
+    , scrollbackLines { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
 {
     jassert (cols.value > 0);
     jassert (rows.value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (grid, textBuffer, cols, rows, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (buffer, textBuffer, cols, rows, scrollbackLines, effectiveUuid);
     processor->getState().setId (effectiveUuid);
     processor->getState().get().setProperty (terminal::id::cwd, cwd, nullptr);
 }

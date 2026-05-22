@@ -40,9 +40,9 @@ namespace terminal
 // ============================================================================
 
 /**
- * @brief Constructs the Video, binding it to the Grid and events map.
+ * @brief Constructs the Video, binding it to the Buffer and events map.
  *
- * Stores references to `grid` and `events` for use throughout the parsing
+ * Stores references to `buffer` and `events` for use throughout the parsing
  * lifetime.  Internal terminal state is initialised to VT power-on defaults
  * (80×24, cursor at home, autoWrap on, cursor visible).
  *
@@ -50,7 +50,7 @@ namespace terminal
  * after construction (and after every `resize()`) to synchronise internal
  * cached geometry.
  *
- * @param grid    Live cell buffer. Video writes in-place; Display reads dirty rows.
+ * @param buffer  Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
  * @param events  Events map owned by Processor.  Video fires events through this map.
  *
  * @note MESSAGE THREAD — called before the reader thread starts.
@@ -58,8 +58,8 @@ namespace terminal
  * @see calc()
  * @see Video.h
  */
-Video::Video (Grid& grid, jam::Function::Map<juce::Identifier, void>& events) noexcept
-    : grid (grid)
+Video::Video (jam::Buffer<jam::Cell>& buffer, jam::Function::Map<juce::Identifier, void>& events) noexcept
+    : buffer (buffer)
     , events (events)
 {
 }
@@ -295,22 +295,46 @@ cell Video::activeScrollBottom() const noexcept
  */
 void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
 {
-    grid.scrollUp (activeScreen, top, bottom, count);
+    const int clampedCount { juce::jmin (count, bottom - top + 1) };
 
-    if (top == 0 and events.contains (id::scrollUp))
-        events.get (id::scrollUp, int (activeScreen), int (count));
-
-    if (penBg.getAlpha() > 0)
+    if (clampedCount > 0)
     {
-        const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
-        const int numCols { cols.value };
+        const bool isFullScreen { top == 0 and bottom == visibleRows.value - 1 };
 
-        for (int r { bottom - count + 1 }; r <= bottom; ++r)
+        if (isFullScreen)
         {
-            jam::Row* row { grid.getWritePointer (activeScreen, cell (r)) };
+            for (int n { 0 }; n < clampedCount; ++n)
+            {
+                buffer.advanceHead (activeScreen, 1);
+                buffer.clear (activeScreen, bottom);
+            }
+        }
+        else
+        {
+            for (int n { 0 }; n < clampedCount; ++n)
+            {
+                for (int r { top }; r < bottom; ++r)
+                    buffer.copyFrom (activeScreen, r, buffer, activeScreen, r + 1);
 
-            for (int col { 0 }; col < numCols; ++col)
-                row->cells[col] = fill;
+                buffer.clear (activeScreen, bottom);
+            }
+        }
+
+        if (top == 0 and events.contains (id::scrollUp))
+            events.get (id::scrollUp, int (activeScreen), int (clampedCount));
+
+        if (penBg.getAlpha() > 0)
+        {
+            const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
+            const int numCols { cols.value };
+
+            for (int r { bottom - clampedCount + 1 }; r <= bottom; ++r)
+            {
+                jam::Cell* const cells { buffer.getWritePointer (activeScreen, r) };
+
+                for (int col { 0 }; col < numCols; ++col)
+                    cells[col] = fill;
+            }
         }
     }
 }
@@ -330,16 +354,29 @@ void Video::scrollUpAndFill (int top, int bottom, int count) noexcept
  */
 void Video::scrollDownAndFill (int top, int bottom) noexcept
 {
-    grid.scrollDown (activeScreen, top, bottom);
+    const bool isFullScreen { top == 0 and bottom == visibleRows.value - 1 };
+
+    if (isFullScreen)
+    {
+        buffer.reverseHead (activeScreen, 1);
+        buffer.clear (activeScreen, 0);
+    }
+    else
+    {
+        for (int r { bottom }; r > top; --r)
+            buffer.copyFrom (activeScreen, r, buffer, activeScreen, r - 1);
+
+        buffer.clear (activeScreen, top);
+    }
 
     if (penBg.getAlpha() > 0)
     {
-        jam::Row* row { grid.getWritePointer (activeScreen, cell (top)) };
+        jam::Cell* const cells { buffer.getWritePointer (activeScreen, top) };
         const jam::Cell fill { jam::Cell::erase (eraseStyleId()) };
         const int numCols { cols.value };
 
         for (int col { 0 }; col < numCols; ++col)
-            row->cells[col] = fill;
+            cells[col] = fill;
     }
 }
 
@@ -375,9 +412,6 @@ void Video::resolveWrapPending (int /*scr*/) noexcept
         const cell scrollBot { activeScrollBottom() };
         const int  vRows     { visibleRows.value };
         const int  sTop      { scrollTop.value };
-
-        jam::Row* currentRow { grid.getWritePointer (activeScreen, cell (row)) };
-        currentRow->flags |= jam::Row::wrapped;
 
         if (row == scrollBot.value)
         {
@@ -440,7 +474,7 @@ void Video::print (uint32_t codepoint) noexcept
 
     if (segResult.addToCurrentCell())
     {
-        jam::Cell* const baseCell { &grid.getWritePointer (scr, cell (lastWriteRow))->cells[lastWriteCol] };
+        jam::Cell* const baseCell { &buffer.getWritePointer (scr, lastWriteRow)[lastWriteCol] };
 
         jam::Grapheme::Entry cluster {};
 
@@ -525,9 +559,8 @@ void Video::print (uint32_t codepoint) noexcept
 
         const jam::Cell glyph { jam::Cell::make (cp, jam::Cell::CONTENT_CODEPOINT, wideHint, sid) };
 
-        jam::Row* const writtenRow { grid.getWritePointer (scr, cell (writeRow)) };
-        writtenRow->cells[writeCol] = glyph;
-        writtenRow->usedCols = juce::jmax (writtenRow->usedCols, static_cast<uint16_t> (writeCol + charWidth));
+        jam::Cell* const cells { buffer.getWritePointer (scr, writeRow) };
+        cells[writeCol] = glyph;
 
         lastGraphicChar = codepoint;
         lastWriteRow    = writeRow;
@@ -537,7 +570,7 @@ void Video::print (uint32_t codepoint) noexcept
         {
             const jam::Cell cont { jam::Cell::make (0, jam::Cell::CONTENT_CODEPOINT,
                                                     jam::Cell::SPACER_TAIL, sid) };
-            writtenRow->cells[writeCol + 1] = cont;
+            cells[writeCol + 1] = cont;
         }
 
         if (writeCol + charWidth >= numCols)
@@ -766,7 +799,7 @@ void Video::resetModes() noexcept
  * 3. Resets all mode flags via `resetModes()`.
  * 4. Resets the active pen via `resetPen()`.
  * 5. Disables the line-drawing charset.
- * 6. Calls `grid.clear(Map::Screen::normal)` to clear the normal screen.
+ * 6. Fires `id::clearBuffer` event to clear the normal screen.
  * 7. Calls `calc()` to synchronise internal cached geometry.
  *
  * @note READER THREAD only.
@@ -787,7 +820,7 @@ void Video::reset() noexcept
     g1LineDrawing  = false;
     activeLinkId   = 0;
 
-    grid.clear (Map::Screen::normal);
+    events.get (id::clearBuffer, int (Map::Screen::normal));
 
     calc();
 }

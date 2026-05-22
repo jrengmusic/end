@@ -3,8 +3,9 @@
  * @brief Implementation of the terminal pipeline orchestrator.
  *
  * Implements Processor — the pipeline half that owns State (the APVTS), Video
- * (the terminal state machine), and Parser, and references Grid owned by
- * terminal::Session.  The PTY side (TTY + History) lives in terminal::Session.
+ * (the terminal state machine), DiscreteStateTransition transitioner, and Parser,
+ * and references Buffer<Cell> owned by terminal::Session.
+ * The PTY side (TTY + History) lives in terminal::Session.
  *
  * ### Thread contexts used in this file
  * - **MESSAGE THREAD** — JUCE message loop; all public methods except `process()`.
@@ -14,47 +15,194 @@
  */
 
 #include "Processor.h"
-#include "Notifications.h"
+
+/** @brief Height-only viewport resize — adjusts ring head and numRows per screen.
+ *
+ *  Relocated from Grid::resizeHeight. Same algorithm:
+ *  - Shrink: eat empty rows below cursor (screen 0), push remainder to scrollback.
+ *  - Grow: pull from scrollback history, fill remaining with blanks.
+ *
+ *  @param buffer          Live cell buffer.
+ *  @param state           Terminal parameter store (numRows read/write via setValue).
+ *  @param video           Video state machine (cursor row read).
+ *  @param scrollbackLines Maximum history row count from config.
+ *  @param currentRows     Current viewport row count.
+ *  @param newRows         Target viewport row count.
+ */
+static void resizeHeight (jam::Buffer<jam::Cell>& buffer,
+                          terminal::State& state,
+                          terminal::Video& video,
+                          int scrollbackLines,
+                          cell currentRows,
+                          cell newRows) noexcept
+{
+    if (newRows.value != currentRows.value)
+    {
+        for (int screen { 0 }; screen < Map::Screen::count; ++screen)
+        {
+            const juce::Identifier screenId { Map::Screen::getContext()->get (screen) };
+            int screenNumRows { state.loadValue (screenId, terminal::id::numRows) };
+
+            if (newRows.value < currentRows.value)
+            {
+                // Shrink: eat empty from bottom, push remainder to scrollback.
+                int needed { currentRows.value - newRows.value };
+
+                // Eat empty rows below cursor (normal screen only).
+                if (screen == Map::Screen::normal)
+                {
+                    const int belowCursor { currentRows.value - 1 - video.getCursorRow().value };
+                    const int available { juce::jmin (belowCursor, needed) };
+                    needed -= available;
+                }
+
+                // Push remaining from top into scrollback by advancing head.
+                if (needed > 0)
+                {
+                    buffer.advanceHead (screen, needed);
+                    screenNumRows = juce::jmin (screenNumRows + needed, scrollbackLines);
+
+                    if (screen == Map::Screen::normal)
+                    {
+                        const int cursorRow { video.getCursorRow().value - needed };
+                        state.setValue (screenId, terminal::id::cursorRow, cursorRow);
+                    }
+                }
+            }
+            else
+            {
+                // Grow: pull from scrollback, fill remaining with blanks.
+                int needed { newRows.value - currentRows.value };
+
+                // Pull from scrollback.
+                const int available { juce::jmin (screenNumRows, needed) };
+
+                if (available > 0)
+                {
+                    screenNumRows -= available;
+                    buffer.reverseHead (screen, available);
+
+                    if (screen == Map::Screen::normal)
+                    {
+                        const int cursorRow { video.getCursorRow().value + available };
+                        state.setValue (screenId, terminal::id::cursorRow, cursorRow);
+                    }
+                }
+
+                needed -= available;
+
+                // Fill remaining with blanks at bottom of new viewport.
+                for (int r { currentRows.value + available }; r < newRows.value; ++r)
+                    buffer.clear (screen, r);
+            }
+
+            state.setValue (screenId, terminal::id::numRows, screenNumRows);
+        }
+    }
+}
 
 namespace terminal
 {
 /*____________________________________________________________________________*/
 
 /**
- * @brief Constructs the Processor: binds Grid&, constructs State, Video, and Parser.
+ * @brief Constructs the Processor: binds Buffer<Cell>&, constructs State, Video, DiscreteStateTransition, and Parser.
  *
- * Grid is owned by terminal::Session and must outlive this Processor.
+ * Buffer<Cell> is owned by terminal::Session and must outlive this Processor.
  * State is owned by this Processor (the APVTS).
- * Video is owned by this Processor and receives Grid& and events& references.
+ * Video is owned by this Processor and receives Buffer<Cell>& and events& references.
  * Parser is owned by this Processor and receives Video& reference directly.
  * UUID is provided by the caller — no internal generation.
  *
- * @param gridRef        Live cell buffer owned by terminal::Session.
- * @param textBufferRef  Cross-thread string buffer owned by terminal::Session.
- * @param cols           Initial terminal column count.
- * @param rows           Initial terminal row count.
- * @param uuid           Stable UUID for this Processor — generated once by the caller.
+ * @param bufferRef          Live cell buffer owned by terminal::Session.
+ * @param textBufferRef      Cross-thread string buffer owned by terminal::Session.
+ * @param cols               Initial terminal column count.
+ * @param rows               Initial terminal row count.
+ * @param scrollbackLinesValue Maximum history row count from config.
+ * @param uuid               Stable UUID for this Processor — generated once by the caller.
  *
  * @note MESSAGE THREAD — must be constructed on the message thread.
  */
-Processor::Processor (Grid& gridRef, TextBuffer& textBufferRef, cell cols, cell rows, const juce::String& uuid)
-    : grid (gridRef)
+Processor::Processor (jam::Buffer<jam::Cell>& bufferRef,
+                      TextBuffer& textBufferRef,
+                      cell cols,
+                      cell rows,
+                      int scrollbackLinesValue,
+                      const juce::String& uuid)
+    : buffer (bufferRef)
     , textBuffer (textBufferRef)
     , state (textBufferRef)
-    , video (grid, events)
+    , video (buffer, events)
     , skit (events)
-    , gridResize (grid, video, events)
+    , transitioner (buffer)
     , uuid (uuid)
 {
-    // Set initial dimensions via setDimensions — writes the Parameter<int> atomics
-    // so the flush timer cannot overwrite them with 0 on first paint.
+    scrollbackLines = scrollbackLinesValue;
     state.setDimensions (cols, rows);
     registerEvents();
     parser = std::make_unique<Parser> (video);
     state.get().addListener (this);
-    scrollbackLines = lua::Engine::getContext()->nexus.terminal.scrollbackLines;
-    gridResize.prepare (scrollbackLines);
-    gridResize.allocate (cols, rows);
+
+    // DST trigger: resize — height adjustment + column change + video sync.
+    transitioner.addTrigger<cell, cell> (
+        id::resizeStart,
+        [this] (cell targetCols, cell targetRows)
+        {
+            const cell currentRows { video.getVisibleRows() };
+
+            // Height adjustment (same logic as the former Grid::resizeHeight).
+            resizeHeight (buffer, state, video, scrollbackLines, currentRows, targetRows);
+
+            // Column change — destructive setSize. Content preserved in DST snapshot;
+            // shell redraws after SIGWINCH.
+            if (targetCols.value != buffer.getNumCols())
+            {
+                const int ringSize { juce::nextPowerOfTwo ((scrollbackLines + targetRows.value) * 2) };
+                buffer.setSize (2, ringSize, targetCols.value);
+            }
+            else if (targetRows.value != currentRows.value)
+            {
+                // Height-only: reallocate ring if needed (larger viewport).
+                const int needed { juce::nextPowerOfTwo ((scrollbackLines + targetRows.value) * 2) };
+
+                if (needed > buffer.getNumRows())
+                    buffer.setSize (2, needed, buffer.getNumCols());
+            }
+
+            // Video sync — same calls as former GridSizeTransition::applyChange.
+            video.setDimensions (targetCols, targetRows);
+
+            const int activeScr { state.getActiveScreen() };
+            const juce::Identifier activeScreenId { Map::Screen::getContext()->get (activeScr) };
+            const int cursorRow { video.getCursorRow().value };
+            const int cursorCol { video.getCursorCol().value };
+
+            video.loadScreenState (cell (cursorRow), cell (cursorCol), true, cell (0), cell (0), false, 0);
+            video.resize (targetCols, targetRows);
+
+            // State sync — direct ValueTree writes (message thread).
+            const juce::Identifier normalScreenId { Map::Screen::getContext()->get (Map::Screen::normal) };
+            const juce::Identifier alternateScreenId { Map::Screen::getContext()->get (Map::Screen::alternate) };
+            state.setValue (normalScreenId, id::numRows, state.loadValue (normalScreenId, id::numRows));
+            state.setValue (alternateScreenId, id::numRows, state.loadValue (alternateScreenId, id::numRows));
+            state.setValue (activeScreenId, id::scrollOffset, 0);
+            state.setValue (activeScreenId, id::cursorRow, cursorRow);
+            state.setValue (activeScreenId, id::cursorCol, cursorCol);
+        });
+
+    // SIGWINCH delivery on settle.
+    transitioner.onStop = [this]
+    {
+        events.get (id::resizeEnd);
+    };
+
+    transitioner.prepare();
+
+    // Cold start allocation — same as former GridSizeTransition::allocate().
+    const int ringSize { juce::nextPowerOfTwo ((scrollbackLines + rows.value) * 2) };
+    buffer.setSize (2, ringSize, cols.value);
+    video.setDimensions (cols, rows);
+    video.resize (cols, rows);
 }
 
 /**
@@ -191,7 +339,8 @@ void Processor::registerEvents() noexcept
     events.add<const uint8_t*, int, int, int> (id::osc1337Raw,
                                                [this] (const uint8_t* data, int length, int cursorRow, int cursorCol)
                                                {
-                                                   skit.processOSC1337 (data, length, cell (cursorRow), cell (cursorCol));
+                                                   skit.processOSC1337 (
+                                                       data, length, cell (cursorRow), cell (cursorCol));
                                                    video.advanceCursorForImage (skit.getLastImageRows());
                                                });
 
@@ -225,11 +374,11 @@ void Processor::registerEvents() noexcept
                     state.setSnapshotDirty();
                 });
 
-    // Clear scrollback — clear Grid cells, reset numRows, and clear scroll offset for the given screen.
+    // Clear scrollback — clear Buffer cells, reset numRows, and clear scroll offset for the given screen.
     events.add<int> (id::clearBuffer,
                      [this] (int screen)
                      {
-                         grid.clear (screen);
+                         buffer.clear (screen);
                          const juce::Identifier clearScreenId { Map::Screen::getContext()->get (screen) };
                          state.storeValue (clearScreenId, id::numRows, 0);
                          state.storeValue (clearScreenId, id::scrollOffset, 0);
@@ -254,8 +403,8 @@ void Processor::registerEvents() noexcept
                                    [this] (int screen, juce::Colour colour)
                                    {
                                        const juce::Identifier colorScreenId { Map::Screen::getContext()->get (screen) };
-                                       state.storeValue (colorScreenId, id::cursorColor,
-                                                         static_cast<int> (colour.getARGB()));
+                                       state.storeValue (
+                                           colorScreenId, id::cursorColor, static_cast<int> (colour.getARGB()));
                                    });
 
     // OSC 112 cursor colour reset — revert to user config default.
@@ -309,37 +458,38 @@ void Processor::registerEvents() noexcept
                          state.setScreen (scr);
                      });
 
-    // State delivery: scrollUp — Grid already incremented numRows internally; sync State.
-    events.add<int, int> (id::scrollUp,
-                          [this] (int screen, int count)
-                          {
-                              const juce::Identifier scrollUpScreenId { Map::Screen::getContext()->get (screen) };
-                              state.storeValue (scrollUpScreenId, id::numRows, grid.getNumRows (screen));
+    // State delivery: scrollUp — increment numRows (history count) capped at scrollbackLines, then adjust selection.
+    events.add<int, int> (
+        id::scrollUp,
+        [this] (int screen, int count)
+        {
+            const juce::Identifier scrollScreenId { Map::Screen::getContext()->get (screen) };
+            const int current { state.loadValue (scrollScreenId, id::numRows) };
+            state.storeValue (scrollScreenId, id::numRows, juce::jmin (current + count, scrollbackLines));
+            using TE = jam::TextEditor;
+            const auto& teId { TE::properties.at (TE::textEditorId) };
+            const auto& selTypeId { TE::properties.at (TE::selectionTypeId) };
+            const auto& anchorRowId { TE::properties.at (TE::selectionAnchorRowId) };
+            const auto& cursorRowId { TE::properties.at (TE::selectionCursorRowId) };
 
-                              using TE = jam::TextEditor;
-                              const auto& teId        { TE::properties.at (TE::textEditorId) };
-                              const auto& selTypeId   { TE::properties.at (TE::selectionTypeId) };
-                              const auto& anchorRowId { TE::properties.at (TE::selectionAnchorRowId) };
-                              const auto& cursorRowId { TE::properties.at (TE::selectionCursorRowId) };
+            const int selType { state.loadValue (teId, selTypeId) };
 
-                              const int selType { state.loadValue (teId, selTypeId) };
+            if (selType != static_cast<int> (terminal::SelectionType::none))
+            {
+                const int anchorRow { state.loadValue (teId, anchorRowId) + (-count) };
+                const int cursorRow { state.loadValue (teId, cursorRowId) + (-count) };
 
-                              if (selType != static_cast<int> (terminal::SelectionType::none))
-                              {
-                                  const int anchorRow { state.loadValue (teId, anchorRowId) + (-count) };
-                                  const int cursorRow { state.loadValue (teId, cursorRowId) + (-count) };
-
-                                  if (anchorRow < 0 or cursorRow < 0)
-                                  {
-                                      state.storeValue (teId, selTypeId, static_cast<int> (terminal::SelectionType::none));
-                                  }
-                                  else
-                                  {
-                                      state.storeValue (teId, anchorRowId, anchorRow);
-                                      state.storeValue (teId, cursorRowId, cursorRow);
-                                  }
-                              }
-                          });
+                if (anchorRow < 0 or cursorRow < 0)
+                {
+                    state.storeValue (teId, selTypeId, static_cast<int> (terminal::SelectionType::none));
+                }
+                else
+                {
+                    state.storeValue (teId, anchorRowId, anchorRow);
+                    state.storeValue (teId, cursorRowId, cursorRow);
+                }
+            }
+        });
 
     // State delivery: screenDirty — increment monotonic counter so Screen detects new cell data.
     events.add<int> (id::screenDirty,
@@ -377,11 +527,19 @@ void Processor::registerEvents() noexcept
                            });
 
     // State delivery: mode flags.
-    for (const auto& modeId : { id::applicationCursor, id::bracketedPaste, id::mouseTracking,
-                                 id::mouseMotionTracking, id::mouseAllTracking, id::focusEvents,
-                                 id::win32InputMode })
+    for (const auto& modeId : { id::applicationCursor,
+                                id::bracketedPaste,
+                                id::mouseTracking,
+                                id::mouseMotionTracking,
+                                id::mouseAllTracking,
+                                id::focusEvents,
+                                id::win32InputMode })
     {
-        events.add<bool> (modeId, [this, modeId] (bool value) { state.setMode (modeId, value); });
+        events.add<bool> (modeId,
+                          [this, modeId] (bool value)
+                          {
+                              state.setMode (modeId, value);
+                          });
     }
 
     // BEL (0x07) — write ASCII BEL to stderr for system alert sound.
@@ -399,21 +557,17 @@ void Processor::registerEvents() noexcept
                                      });
 
     // OSC 9 / OSC 777 — desktop notification.
-    events.add<const juce::String&, const juce::String&> (
-        id::desktopNotification,
-        [] (const juce::String& title, const juce::String& body)
-        {
-            terminal::showNotification (title, body);
-        });
+    events.add<const juce::String&, const juce::String&> (id::desktopNotification,
+                                                          [] (const juce::String& title, const juce::String& body)
+                                                          {
+                                                              terminal::showNotification (title, body);
+                                                          });
 
     // Screen switch — fired by Video::setScreen() with the OLD screen's cursor values.
     // Saves old cursor to State, loads new cursor from State atomics, calls video.loadScreenState().
     events.add<int, int, int, bool> (
         id::screenSwitch,
-        [this] (int newScreen,
-                int oldRow,
-                int oldCol,
-                bool oldVisible)
+        [this] (int newScreen, int oldRow, int oldCol, bool oldVisible)
         {
             const int oldScreen { newScreen == Map::Screen::alternate ? Map::Screen::normal : Map::Screen::alternate };
             const juce::Identifier oldScreenId { Map::Screen::getContext()->get (oldScreen) };
@@ -431,37 +585,21 @@ void Processor::registerEvents() noexcept
             video.loadScreenState (cell (newRow), cell (newCol), newVisible, cell { 0 }, cell { 0 }, false, newKbFlags);
         });
 
-    // GridSizeTransition per-tick event — writes State so Screen repaints at interpolated dims.
-    // Ordering: scrollOffset + cursor first, numRows last (numRows triggers repaint).
-    events.add<int, int, int, int, int> (id::resizeTick,
-        [this] (int numRowsNormal, int numRowsAlternate, int scrollOffset, int cursorRow, int cursorCol)
-        {
-            const int activeScr { state.getActiveScreen() };
-            const juce::Identifier activeScreenId { Map::Screen::getContext()->get (activeScr) };
-            state.setValue (activeScreenId, id::scrollOffset, scrollOffset);
-            state.setValue (activeScreenId, id::cursorRow, cursorRow);
-            state.setValue (activeScreenId, id::cursorCol, cursorCol);
-
-            const juce::Identifier normalScreenId { Map::Screen::getContext()->get (Map::Screen::normal) };
-            const juce::Identifier alternateScreenId { Map::Screen::getContext()->get (Map::Screen::alternate) };
-            state.setValue (normalScreenId, id::numRows, numRowsNormal);
-            state.setValue (alternateScreenId, id::numRows, numRowsAlternate);
-        });
-
-    // GridSizeTransition SIGWINCH debounce — fired when resize gesture settles.
+    // DiscreteStateTransition SIGWINCH debounce — fired when resize gesture settles.
     events.add<> (id::resizeEnd,
-        [this]
-        {
-            if (tty != nullptr and tty->isThreadRunning())
-            {
-                const cell cols { state.getCols() };
-                const cell rows { state.getVisibleRows() };
-                const int pixelWidth { static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.get(), jam::ID::width).getValue()) };
-                const int pixelHeight { static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.get(), jam::ID::height).getValue()) };
-                tty->platformResize (cols, rows, pixelWidth, pixelHeight);
-            }
-        });
-
+                  [this]
+                  {
+                      if (tty != nullptr and tty->isThreadRunning())
+                      {
+                          const cell cols { state.getCols() };
+                          const cell rows { state.getVisibleRows() };
+                          const int pixelWidth { static_cast<int> (
+                              jam::ValueTree::getValueFromChildWithID (state.get(), jam::ID::width).getValue()) };
+                          const int pixelHeight { static_cast<int> (
+                              jam::ValueTree::getValueFromChildWithID (state.get(), jam::ID::height).getValue()) };
+                          tty->platformResize (cols, rows, pixelWidth, pixelHeight);
+                      }
+                  });
 }
 
 // =============================================================================
@@ -483,7 +621,8 @@ void Processor::pushKeyboardMode (int s, uint32_t flags) noexcept
         for (int i { 0 }; i < maxKeyboardStackDepth - 1; ++i)
         {
             jassert (base + i + 1 < 2 * maxKeyboardStackDepth);
-            keyboardModeStack.at (static_cast<size_t> (base + i)) = keyboardModeStack.at (static_cast<size_t> (base + i + 1));
+            keyboardModeStack.at (static_cast<size_t> (base + i)) =
+                keyboardModeStack.at (static_cast<size_t> (base + i + 1));
         }
 
         --size;
@@ -526,9 +665,9 @@ void Processor::setKeyboardMode (int s, uint32_t flags, int mode) noexcept
     jassert (base + size - 1 < 2 * maxKeyboardStackDepth);
     auto& top { keyboardModeStack.at (static_cast<size_t> (base + size - 1)) };
 
-    static constexpr int kbModeSet    { 1 }; // XTMODKEYS: assign flags verbatim
-    static constexpr int kbModeOr     { 2 }; // XTMODKEYS: enable bits (bitwise OR)
-    static constexpr int kbModeAndNot { 3 }; // XTMODKEYS: disable bits (bitwise AND NOT)
+    static constexpr int kbModeSet { 1 };// XTMODKEYS: assign flags verbatim
+    static constexpr int kbModeOr { 2 };// XTMODKEYS: enable bits (bitwise OR)
+    static constexpr int kbModeAndNot { 3 };// XTMODKEYS: disable bits (bitwise AND NOT)
 
     if (mode == kbModeSet)
     {
@@ -563,8 +702,8 @@ void Processor::resetKeyboardMode (int s) noexcept
  * Fires on the message thread when State's ValueTree properties change.
  * Handles shell integration callbacks (outputBlockTop → command process query,
  * promptRow → clear foreground), dimension changes (cols, visibleRows) via
- * gridResize.set() / gridResize.allocate(), cell pixel changes (cellWidth,
- * cellHeight) via gridResize.setCellSize(), and displayName recomputation
+ * transitioner.set() or direct cold-start allocation, cell pixel changes (cellWidth,
+ * cellHeight) applied directly to Video, and displayName recomputation
  * from foregroundProcess / cwd.
  *
  * @note MESSAGE THREAD.
@@ -596,8 +735,8 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
                         const int fgNameLen { tty->getProcessName (fgPid, fgNameBuf, fgNameBufSize) };
 
                         if (fgNameLen > 0)
-                            state.get().setProperty (id::foregroundProcess,
-                                                     juce::String::fromUTF8 (fgNameBuf, fgNameLen), nullptr);
+                            state.get().setProperty (
+                                id::foregroundProcess, juce::String::fromUTF8 (fgNameBuf, fgNameLen), nullptr);
                     }
                 }
             }
@@ -621,14 +760,18 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
 
             if (newCols.value > 0 and newRows.value > 0)
             {
-                if (not grid.isAllocated())
+                if (buffer.getNumRows() == 0)
                 {
-                    gridResize.allocate (newCols, newRows);
+                    // Cold start — allocate directly (no transition).
+                    const int ringSize { juce::nextPowerOfTwo ((scrollbackLines + newRows.value) * 2) };
+                    buffer.setSize (2, ringSize, newCols.value);
+                    video.setDimensions (newCols, newRows);
+                    video.resize (newCols, newRows);
                 }
-                else if (newCols.value != video.getCols().value
-                         or newRows.value != video.getVisibleRows().value)
+                else if (newCols.value != video.getCols().value or newRows.value != video.getVisibleRows().value)
                 {
-                    gridResize.set (newCols, newRows);
+                    transitioner.liveRows = { 0, 0 };
+                    transitioner.set (id::resizeStart, newCols, newRows);
                 }
             }
         }
@@ -637,11 +780,12 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
         {
             const juce::Identifier displayId { id::DISPLAY };
             auto displayNode { state.get().getChildWithName (displayId) };
-            const int cellW { static_cast<int> (jam::ValueTree::getValueFromChildWithID (displayNode, id::cellWidth).getValue()) };
-            const int cellH { static_cast<int> (jam::ValueTree::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
-            gridResize.setCellSize (cellW, cellH);
+            const int cellW { static_cast<int> (
+                jam::ValueTree::getValueFromChildWithID (displayNode, id::cellWidth).getValue()) };
+            const int cellH { static_cast<int> (
+                jam::ValueTree::getValueFromChildWithID (displayNode, id::cellHeight).getValue()) };
+            video.setCellSize (cellW, cellH);
         }
-
     }
 
     // TEXT parameters flush as direct properties on the SESSION root node.
@@ -760,16 +904,16 @@ juce::String Processor::encodeFocusEvent (bool gained) const noexcept
 juce::String Processor::encodeMouseEvent (int button, cell col, cell row, bool press) const noexcept
 {
     const char finalChar { press ? 'M' : 'm' };
-    return juce::String ("\x1b[<") + juce::String (button) + ";" + juce::String (col.value + 1) + ";" + juce::String (row.value + 1)
-           + finalChar;
+    return juce::String ("\x1b[<") + juce::String (button) + ";" + juce::String (col.value + 1) + ";"
+           + juce::String (row.value + 1) + finalChar;
 }
 
 /**
  * @brief Processes raw bytes through the parser pipeline.
  *
- * Pure bytes-to-Grid pipeline: forwards to Parser::process(), flushes Video,
+ * Pure bytes-to-Buffer pipeline: forwards to Parser::process(), flushes Video,
  * and consumes the paste echo gate.  No lock, no suspended check, no cell-size
- * detection — all resize work is handled exclusively by GridSizeTransition on the
+ * detection — all resize work is handled exclusively by DiscreteStateTransition on the
  * message thread.
  *
  * @note READER THREAD only — called from the byte source (terminal::Session
@@ -792,22 +936,19 @@ void Processor::process (const char* data, int length) noexcept
 State& Processor::getState() noexcept { return state; }
 const State& Processor::getState() const noexcept { return state; }
 
-Grid& Processor::getGrid() noexcept { return grid; }
-const Grid& Processor::getGrid() const noexcept { return grid; }
+jam::Buffer<jam::Cell>& Processor::getBuffer() noexcept { return buffer; }
+const jam::Buffer<jam::Cell>& Processor::getBuffer() const noexcept { return buffer; }
 
 const juce::String& Processor::getUuid() const noexcept { return uuid; }
 
 void Processor::flushResponses() noexcept { video.flushResponses(); }
 
 /**
- * @brief Transfers TTY ownership to this Processor and wires GridSizeTransition for SIGWINCH delivery.
+ * @brief Transfers TTY ownership to this Processor.
  *
  * @note MESSAGE THREAD.
  */
-void Processor::setTTY (std::unique_ptr<TTY> ttyToOwn) noexcept
-{
-    tty = std::move (ttyToOwn);
-}
+void Processor::setTTY (std::unique_ptr<TTY> ttyToOwn) noexcept { tty = std::move (ttyToOwn); }
 
 /**
  * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
@@ -855,4 +996,4 @@ void Processor::setInputWriter (std::function<void (const char*, int)> handler) 
 }
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace terminal
+}// namespace terminal

@@ -516,7 +516,28 @@ void Video::scrollDown (const CSI& params) noexcept
     const int count   { static_cast<int> (params.param (0, 1)) };
     const int clampedCount { juce::jmin (count, bottom - scrTop + 1) };
 
-    grid.scrollDown (scr, scrTop, bottom, clampedCount);
+    {
+        const bool isFullScreen { scrTop == 0 and bottom == visibleRows.value - 1 };
+
+        if (isFullScreen)
+        {
+            for (int n { 0 }; n < clampedCount; ++n)
+            {
+                buffer.reverseHead (scr, 1);
+                buffer.clear (scr, 0);
+            }
+        }
+        else
+        {
+            for (int n { 0 }; n < clampedCount; ++n)
+            {
+                for (int r { bottom }; r > scrTop; --r)
+                    buffer.copyFrom (scr, r, buffer, scr, r - 1);
+
+                buffer.clear (scr, scrTop);
+            }
+        }
+    }
 
     if (penBg.getAlpha() > 0)
     {
@@ -525,10 +546,10 @@ void Video::scrollDown (const CSI& params) noexcept
 
         for (int r { scrTop }; r < scrTop + clampedCount; ++r)
         {
-            jam::Row* row { grid.getWritePointer (scr, cell (r)) };
+            jam::Cell* const cells { buffer.getWritePointer (scr, r) };
 
             for (int c { 0 }; c < numCols; ++c)
-                row->cells[c] = fill;
+                cells[c] = fill;
         }
     }
 }

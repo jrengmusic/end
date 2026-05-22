@@ -246,12 +246,10 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 
         for (int row { 0 }; row < vRows; ++row)
         {
-            jam::Row* rowPtr { grid.getWritePointer (scr, cell (row)) };
+            jam::Cell* const cells { buffer.getWritePointer (scr, row) };
 
             for (int col { 0 }; col < nCols; ++col)
-                rowPtr->cells[col] = alignCell;
-
-            rowPtr->usedCols = static_cast<uint16_t> (nCols);
+                cells[col] = alignCell;
         }
 
         cursorSetPosition (0_cell, 0_cell, cell (nCols), cell (vRows));

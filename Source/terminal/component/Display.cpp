@@ -4,7 +4,7 @@ terminal::Display::Display (terminal::Processor& processorToUse)
     : processor (processorToUse)
     , state (processorToUse.getState())
     , screen (Display::createAndAttachState (processorToUse.getState(), normalScreen, alternateScreen),
-              processorToUse.getGrid())
+              processorToUse.getBuffer())
     , linkManager (processorToUse.getState(),
                    [&processorToUse] (const char* data, int len)
                    {

@@ -3,17 +3,15 @@
 #include "../Identifier.h"
 #include "../../Map.h"
 #include "../State.h"
-#include "../Grid.h"
-
 namespace terminal
 {
 /*____________________________________________________________________________*/
 
 /**
- * @brief Cell grid renderer — scrollback ring + alternate buffer for the terminal.
+ * @brief Cell buffer renderer — scrollback ring + alternate buffer for the terminal.
  *
- * Listens to State's ValueTree and re-renders from Grid on every flush.
- * Display mediates all communication — Screen owns its State and Grid references
+ * Listens to State's ValueTree and re-renders from Buffer on every flush.
+ * Display mediates all communication — Screen owns its State and Buffer references
  * and drives itself on valueTreePropertyChanged.
  */
 class Screen : public jam::TextEditor
@@ -44,14 +42,18 @@ public:
         ansi15ColourId = 0x300001F,
     };
 
-    Screen (State& state, Grid& grid) noexcept;
+    Screen (State& state, jam::Buffer<jam::Cell>& buffer) noexcept;
     ~Screen() override;
+
+    /** @brief Sets the DECSCUSR cursor shape (terminal VT vocabulary).
+     *  Forwards to CaretComponent::setShape(). */
+    void setCaretShape (int decscusr) noexcept { caret->setShape (decscusr); }
 
 private:
     void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
 
     State& terminal;
-    Grid& grid;
+    jam::Buffer<jam::Cell>& buffer;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)

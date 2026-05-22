@@ -1,12 +1,13 @@
 /**
  * @file Processor.h
- * @brief Terminal pipeline orchestrator: owns Parser, Video, and GridSizeTransition, references Grid and State.
+ * @brief Terminal pipeline orchestrator: owns Parser, Video, and DiscreteStateTransition, references Buffer<Cell> and State.
  *
  * `Processor` is the pipeline half of the terminal emulator.  It owns the
- * Parser, Video, and GridSizeTransition, and routes bytes through the Grid and State received from Session:
+ * Parser, Video, and DiscreteStateTransition transitioner, and routes bytes through the
+ * Buffer<Cell> and State received from Session:
  *
  * ```
- *  bytes → Processor::process → Parser → Video → State / Grid → Display
+ *  bytes → Processor::process → Parser → Video → State / Buffer<Cell> → Display
  * ```
  *
  * The PTY-side (TTY + History) lives in `terminal::Session`.  Processor is
@@ -17,28 +18,28 @@
  * 1. Caller delivers raw bytes on the READER THREAD via `process()`.
  * 2. `process()` forwards to `Parser::process()`.
  * 3. The parser decodes VT sequences and calls Video action methods directly.
- * 4. Video writes cells to `Grid`.
+ * 4. Video writes cells to `Buffer<Cell>`.
  * 5. Video fires events; Processor handlers write State atomics (event dispatch).
  * 6. Responses (e.g. cursor-position reports) are buffered in Video and
  *    flushed back via the `writeToHost` event handler registered in `events`.
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
- * 8. Resize: GridSizeTransition is SmoothStateTransition for terminal dimensions; Processor orchestrates it.
- *    Constructor calls gridResize.prepare() then gridResize.allocate() for cold start.
- *    valueTreePropertyChanged calls gridResize.set() or gridResize.allocate().
- *    gridResize.setCellSize() coalesces cell pixel changes.
- *    GridSizeTransition fires id::resizeTick on each timer tick and id::resizeEnd when settled.
+ * 8. Resize: DiscreteStateTransition debounces SIGWINCH delivery on completion.
+ *    Constructor calls transitioner.prepare() then cold-start allocate for initial size.
+ *    valueTreePropertyChanged calls transitioner.set() or direct allocate on cold start.
+ *    Cell pixel changes are applied to Video directly — no DST coalescing needed.
+ *    transitioner.onStop fires id::resizeEnd when the resize gesture settles.
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
  * - All other public methods — MESSAGE THREAD only.
- * - `State` and `Grid` handle their own internal thread safety.
+ * - `State` and `Buffer<Cell>` handle their own internal thread safety.
  *
  * @see terminal::Session — owns TTY and History (PTY side).
- * @see Grid       — flat Buffer<Cell> storage, stateless data buffer.
- * @see GridSizeTransition — coalescing resize lifecycle manager.
+ * @see jam::Buffer<jam::Cell> — flat cell storage, stateless data buffer.
+ * @see jam::DiscreteStateTransition — coalescing resize lifecycle manager.
  * @see Parser     — VT100/VT520 state machine.
- * @see Video      — terminal state machine: pen, cursor, modes, Grid writes.
+ * @see Video      — terminal state machine: pen, cursor, modes, Buffer<Cell> writes.
  * @see State      — atomic terminal parameter store.
  */
 
@@ -50,21 +51,20 @@
 #include "State.h"
 #include "TextBuffer.h"
 #include "tty/TTY.h"
-#include "Grid.h"
-#include "GridSizeTransition.h"
 #include "Parser.h"
 #include "Skit.h"
 #include "Video.h"
-
+#include "Notifications.h"
 namespace terminal
 {
 /*____________________________________________________________________________*/
 /**
  * @class Processor
- * @brief Terminal pipeline orchestrator — owns Parser and Video, receives Grid& and State& from Session.
+ * @brief Terminal pipeline orchestrator — owns Parser and Video, receives Buffer<Cell>& and State& from Session.
  *
- * Processor owns the Parser and Video.  Grid and State are owned by terminal::Session
- * and passed by reference at construction.  Processor has no knowledge of TTY, PTY, or IPC.
+ * Processor owns the Parser, Video, and DiscreteStateTransition transitioner.
+ * Buffer<Cell> and State are owned by terminal::Session and passed by reference at construction.
+ * Processor has no knowledge of TTY, PTY, or IPC.
  * Bytes arrive via `process()` from whichever source owns the byte stream
  * (local `terminal::Session` callback, IPC byte-forward, or history replay).
  *
@@ -73,10 +73,10 @@ namespace terminal
  * which notifies Display to repaint.
  *
  * ### Boundary contract
- * `State`, `Grid`, `uuid`, `video`, `parser`, and `events` are private.
+ * `State`, `buffer`, `uuid`, `video`, `parser`, and `events` are private.
  * The events map is private. Session registers handlers via setHostWriter(), setInputWriter(), and setTTY().
  * External callers access state through the public getter API:
- * - `getState()` / `getGrid()` — mutable and const references.
+ * - `getState()` / `getBuffer()` — mutable and const references.
  * - `getUuid()` — const reference to the stable session UUID.
  * - `setHostWriter()` — registers the `writeToHost` event handler.
  * - `setTTY()` — transfers TTY ownership; Processor calls platformResize directly.
@@ -90,7 +90,7 @@ namespace terminal
  *
  * @note Construct and destroy on the **message thread**.
  *
- * @see Grid, Parser, Video, State, terminal::Session
+ * @see jam::Buffer<jam::Cell>, Parser, Video, State, terminal::Session
  */
 class Processor : public juce::ValueTree::Listener
 {
@@ -99,19 +99,26 @@ public:
     /**
      * @brief Constructs the Processor and wires the parser, video, and resize pipeline.
      *
-     * Receives Grid and TextBuffer by reference from the owning Session,
-     * constructs State, Video, GridSizeTransition, and Parser.  UUID is provided by the caller.
+     * Receives Buffer<Cell> and TextBuffer by reference from the owning Session,
+     * constructs State, Video, DiscreteStateTransition transitioner, and Parser.
+     * UUID is provided by the caller.
      * Call `setHostWriter()` immediately after construction to route video
      * responses (e.g. cursor-position reports) to the appropriate sink.
      *
-     * @param grid        Live cell buffer owned by terminal::Session.
-     * @param textBuffer  Cross-thread string buffer owned by terminal::Session.
-     * @param cols        Initial terminal column count.
-     * @param rows        Initial terminal row count.
-     * @param uuid        Stable UUID for this Processor — generated once by the caller.
+     * @param buffer           Live cell buffer — owned by terminal::Session.
+     * @param textBuffer       Cross-thread string buffer owned by terminal::Session.
+     * @param cols             Initial terminal column count.
+     * @param rows             Initial terminal row count.
+     * @param scrollbackLines  Maximum history row count from config.
+     * @param uuid             Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
-    Processor (Grid& grid, TextBuffer& textBuffer, cell cols, cell rows, const juce::String& uuid);
+    Processor (jam::Buffer<jam::Cell>& buffer,
+               TextBuffer& textBuffer,
+               cell cols,
+               cell rows,
+               int scrollbackLines,
+               const juce::String& uuid);
 
     /**
      * @brief Destroys the Processor.
@@ -176,9 +183,9 @@ public:
     /**
      * @brief Processes raw bytes through the parser pipeline.
      *
-     * Pure bytes-to-Grid pipeline: forwards to Parser::process(), flushes Video,
+     * Pure bytes-to-Buffer pipeline: forwards to Parser::process(), flushes Video,
      * and consumes the paste echo gate.  No lock, no suspended check, no cell-size
-     * detection — all resize work is handled exclusively by GridSizeTransition.
+     * detection — all resize work is handled exclusively by DiscreteStateTransition.
      *
      * @param data    Pointer to the raw byte buffer.
      * @param length  Number of bytes in the buffer.
@@ -201,18 +208,18 @@ public:
     const State& getState() const noexcept;
 
     /**
-     * @brief Returns a mutable reference to the cell grid.
-     * @return Mutable reference to the Session-owned `Grid` object.
+     * @brief Returns a mutable reference to the cell buffer.
+     * @return Mutable reference to the Session-owned `Buffer<Cell>` object.
      * @note MESSAGE THREAD only.
      */
-    Grid& getGrid() noexcept;
+    jam::Buffer<jam::Cell>& getBuffer() noexcept;
 
     /**
-     * @brief Returns a const reference to the cell grid.
-     * @return Const reference to the Session-owned `Grid` object.
+     * @brief Returns a const reference to the cell buffer.
+     * @return Const reference to the Session-owned `Buffer<Cell>` object.
      * @note MESSAGE THREAD only.
      */
-    const Grid& getGrid() const noexcept;
+    const jam::Buffer<jam::Cell>& getBuffer() const noexcept;
 
     /**
      * @brief Returns the stable UUID identifying this Processor across process boundaries.
@@ -263,8 +270,7 @@ public:
      * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
      * @note READER THREAD (called from tty->onDrainComplete during sync-resize).
      */
-    void platformResize (cell cols, cell rows,
-                         int pixelWidth = 0, int pixelHeight = 0) noexcept;
+    void platformResize (cell cols, cell rows, int pixelWidth = 0, int pixelHeight = 0) noexcept;
 
     /** @brief Fires after cwd and foreground process are written to State.
      *
@@ -301,7 +307,7 @@ private:
     std::unique_ptr<TTY> tty;
 
     /** @brief Live cell buffer — owned by terminal::Session. */
-    Grid& grid;
+    jam::Buffer<jam::Cell>& buffer;
 
     /** @brief Cross-thread string buffer — owned by terminal::Session. */
     TextBuffer& textBuffer;
@@ -330,7 +336,7 @@ private:
      *  @note READER THREAD — all handlers execute on the reader thread except bell, clipboardChanged, and desktopNotification (message thread via callAsync). */
     jam::Function::Map<juce::Identifier, void> events;
 
-    /** @brief Terminal state machine — pen, cursor, modes, Grid writes. */
+    /** @brief Terminal state machine — pen, cursor, modes, Buffer<Cell> writes. */
     Video video;
 
     /**
@@ -347,8 +353,8 @@ private:
      */
     Skit skit;
 
-    /** @brief SST resize — GridSizeTransition snapshots previous state, drives animated reflow, sends SIGWINCH on completion. */
-    GridSizeTransition gridResize;
+    /** @brief SST resize — DiscreteStateTransition debounces SIGWINCH delivery on completion. */
+    jam::DiscreteStateTransition<jam::Cell> transitioner;
 
     /** @brief Stable UUID identifying this Processor across process boundaries. */
     const juce::String uuid;
@@ -384,8 +390,8 @@ private:
      *  Fires on the message thread when State's ValueTree properties change.
      *  Handles shell integration callbacks (outputBlockTop → command process query,
      *  promptRow → clear foreground), dimension changes (cols, visibleRows) via
-     *  gridResize.set() / gridResize.allocate(), and cell pixel changes
-     *  (cellWidth, cellHeight) via gridResize.setCellSize().
+     *  transitioner.set() or direct cold-start allocation, and cell pixel changes
+     *  (cellWidth, cellHeight) applied directly to Video.
      *
      *  @note MESSAGE THREAD.
      */
@@ -396,4 +402,4 @@ private:
 };
 
 /**______________________________END OF NAMESPACE______________________________*/
-} // namespace terminal
+}// namespace terminal

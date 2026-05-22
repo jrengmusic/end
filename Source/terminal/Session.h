@@ -1,11 +1,11 @@
 /**
  * @file Session.h
- * @brief PTY-side terminal session: byte history, Grid, State, and Processor.
+ * @brief PTY-side terminal session: byte history, Buffer<Cell>, State, and Processor.
  *
  * `terminal::Session` is the data-source half of a terminal connection.  It owns:
  * - A `terminal::History` ring buffer that records every byte the shell emits.
- * - The `Grid` live cell buffer and `State` atomic parameter store.
- * - The `terminal::Processor` pipeline (Parser → Grid → Display).
+ * - The `Buffer<Cell>` live cell buffer and `State` atomic parameter store.
+ * - The `terminal::Processor` pipeline (Parser → Buffer<Cell> → Display).
  *
  * TTY ownership is transferred to Processor immediately after wiring callbacks.
  * Processor calls platformResize directly when dimensions change.
@@ -36,7 +36,6 @@
 #include <JuceHeader.h>
 #include "History.h"
 #include "TextBuffer.h"
-#include "Grid.h"
 #include "Processor.h"
 #include "tty/TTY.h"
 #if JUCE_MAC || JUCE_LINUX
@@ -52,7 +51,7 @@ namespace terminal
 
 /**
  * @class terminal::Session
- * @brief PTY-side terminal session — byte history, Grid, State, and Processor.
+ * @brief PTY-side terminal session — byte history, Buffer<Cell>, State, and Processor.
  *
  * Constructed by `Nexus` (or its mode-specific delegates).  Caller
  * sets `onBytes` before calling any method that starts the reader thread.
@@ -289,7 +288,8 @@ public:
     terminal::Processor& getProcessor() noexcept;
 
 private:
-    Grid grid;                                    ///< Live cell buffer — the AudioBuffer.
+    jam::Buffer<jam::Cell> buffer;                ///< Live cell buffer — 2 channels (normal/alternate), ring-addressed.
+    int scrollbackLines { 0 };                    ///< Maximum history row count from config.
     TextBuffer textBuffer;                        ///< Cross-thread string buffer — constructed before processor.
     History history;
     std::unique_ptr<terminal::Processor> processor;
