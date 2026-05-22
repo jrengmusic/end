@@ -289,7 +289,6 @@ public:
 
 private:
     jam::Buffer<jam::Cell> buffer;                ///< Live cell buffer — 2 channels (normal/alternate), ring-addressed.
-    int scrollbackLines { 0 };                    ///< Maximum history row count from config.
     TextBuffer textBuffer;                        ///< Cross-thread string buffer — constructed before processor.
     History history;
     std::unique_ptr<terminal::Processor> processor;

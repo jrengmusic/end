@@ -6,20 +6,23 @@
  */
 
 #include "History.h"
+#include "../AppState.h"
+#include "../AppIdentifier.h"
 
 namespace terminal
 {
 /*____________________________________________________________________________*/
 
 /**
- * @brief Constructs a History with capacity = scrollbackLines × bytesPerLineEstimate.
+ * @brief Constructs a History with capacity read from AppState (SSOT).
  *
- * @param scrollbackLines  Must be > 0.
+ * Capacity = `app::id::scrollbackLines × bytesPerLineEstimate`.
  */
-History::History (int scrollbackLines)
-    : capacity { static_cast<size_t> (scrollbackLines) * static_cast<size_t> (bytesPerLineEstimate) }
+History::History()
+    : capacity { static_cast<size_t> (AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load())
+                 * static_cast<size_t> (bytesPerLineEstimate) }
 {
-    jassert (scrollbackLines > 0);
+    jassert (capacity > 0);
     buffer.calloc (capacity);
 }
 

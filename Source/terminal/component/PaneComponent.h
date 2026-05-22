@@ -18,7 +18,7 @@
  * @class PaneComponent
  * @brief Pure virtual base for renderable pane components.
  *
- * Inherits juce::Component. Subclasses implement switchRenderer and applyConfig.
+ * Inherits juce::Component. Subclasses implement switchRenderer.
  *
  * @note App-level — not in any namespace. Shared between Terminal and Whelmed.
  */
@@ -63,12 +63,6 @@ public:
      * @note MESSAGE THREAD.
      */
     virtual juce::ValueTree getValueTree() noexcept = 0;
-
-    /**
-     * @brief Applies the current config to the component.
-     * @note MESSAGE THREAD.
-     */
-    virtual void applyConfig() noexcept = 0;
 
     /**
      * @brief Applies the given zoom factor to the pane's rendering.

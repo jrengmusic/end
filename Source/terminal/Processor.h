@@ -105,19 +105,17 @@ public:
      * Call `setHostWriter()` immediately after construction to route video
      * responses (e.g. cursor-position reports) to the appropriate sink.
      *
-     * @param buffer           Live cell buffer — owned by terminal::Session.
-     * @param textBuffer       Cross-thread string buffer owned by terminal::Session.
-     * @param cols             Initial terminal column count.
-     * @param rows             Initial terminal row count.
-     * @param scrollbackLines  Maximum history row count from config.
-     * @param uuid             Stable UUID for this Processor — generated once by the caller.
+     * @param buffer      Live cell buffer — owned by terminal::Session.
+     * @param textBuffer  Cross-thread string buffer owned by terminal::Session.
+     * @param cols        Initial terminal column count.
+     * @param rows        Initial terminal row count.
+     * @param uuid        Stable UUID for this Processor — generated once by the caller.
      * @note MESSAGE THREAD — must be constructed on the message thread.
      */
     Processor (jam::Buffer<jam::Cell>& buffer,
                TextBuffer& textBuffer,
                cell cols,
                cell rows,
-               int scrollbackLines,
                const juce::String& uuid);
 
     /**
@@ -361,9 +359,6 @@ private:
 
     /** @brief VT100/VT520 state machine that decodes PTY output. */
     std::unique_ptr<Parser> parser;
-
-    /** @brief Maximum history row count — set once in constructor from config, used by scrollUp handler. */
-    int scrollbackLines { 0 };
 
     // Keyboard mode stack — per-screen progressive enhancement flags (CSI u protocol).
     static constexpr int maxKeyboardStackDepth { 16 };

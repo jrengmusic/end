@@ -87,6 +87,27 @@ struct AppState : public jam::ValueTree, public jam::Context<AppState>
     void setFontFamily (const juce::String& family);
     float getFontSize() const noexcept;
     void setFontSize (float size);
+    void setScrollbackLines (int lines);
+
+    int getCellWidth() const noexcept;
+    void setCellWidth (int width);
+    int getLineHeight() const noexcept;
+    void setLineHeight (int height);
+    int getCursorCodepoint() const noexcept;
+    void setCursorCodepoint (int codepoint);
+    int getCursorStyle() const noexcept;
+    void setCursorStyle (int style);
+    int getCursorBlinkInterval() const noexcept;
+    void setCursorBlinkInterval (int ms);
+
+    int getPaddingTop() const noexcept;
+    int getPaddingRight() const noexcept;
+    int getPaddingBottom() const noexcept;
+    int getPaddingLeft() const noexcept;
+    void setPaddingTop (int value);
+    void setPaddingRight (int value);
+    void setPaddingBottom (int value);
+    void setPaddingLeft (int value);
 
     /** @brief Marks the glyph atlas as stale. GL thread safe — uses atomic store/release. */
     void markAtlasDirty() noexcept;

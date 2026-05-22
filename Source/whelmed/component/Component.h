@@ -45,7 +45,6 @@ public:
 
     juce::String getPaneType() const noexcept override { return Map::PaneType::getContext()->get (Map::PaneType::document); }
     void switchRenderer (app::RendererType type) override;
-    void applyConfig() noexcept override;
     void applyZoom (float) noexcept override {}
 
     bool keyPressed (const juce::KeyPress& key) override;
@@ -60,6 +59,7 @@ public:
     juce::ValueTree getValueTree() noexcept override;
 
 private:
+    void applyFromAppState() noexcept;
     void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     State docState;

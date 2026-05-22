@@ -49,14 +49,12 @@ public:
     static constexpr int bytesPerLineEstimate { 256 };
 
     /**
-     * @brief Constructs a History with capacity sized for @p scrollbackLines.
+     * @brief Constructs a History with capacity read directly from AppState.
      *
-     * Capacity = `scrollbackLines × bytesPerLineEstimate`.
-     *
-     * @param scrollbackLines  Number of scrollback lines to budget for.
-     *                         Must be > 0.
+     * Capacity = `app::id::scrollbackLines × bytesPerLineEstimate`.
+     * AppState is the SSOT — no parameter is accepted.
      */
-    explicit History (int scrollbackLines);
+    History();
 
     /**
      * @brief Appends raw PTY bytes to the ring buffer.

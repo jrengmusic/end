@@ -1,5 +1,74 @@
 # SPRINT-LOG
 
+## Sprint 29: AppState Config SSOT + Viewport Scrollback + Buffer/Block Integration ✅
+
+**Date:** 2026-05-22
+**Duration:** 06:00
+
+### Agents Participated
+- COUNSELOR: orchestrated, BLESSED analysis, design discussions, ARCHITECTURE.md
+- Engineer: all code implementation (14 delegations)
+- Pathfinder: app state access pattern survey
+- Librarian: AudioBuffer storage, AudioBlock pattern, APVTS getRawParameterValue, Viewport keyboard API
+- Auditor: comprehensive sprint audit
+
+### Files Modified (24 total)
+
+**App level:**
+- `Source/AppParameters.xml` — added scrollbackLines, cellWidth, lineHeight, cursorCodepoint, cursorStyle, cursorBlinkInterval, paddingTop/Right/Bottom/Left
+- `Source/AppIdentifier.h` — added identifiers for all new PARAMs
+- `Source/AppState.h` — getters/setters for all config values, setScrollbackLines
+- `Source/AppState.cpp` — constructor seeds all config from lua::Engine, getter/setter implementations
+- `Source/MainComponent.cpp` — applyConfig writes all config to AppState, tabs->applyConfig() removed
+
+**Terminal:**
+- `Source/terminal/Processor.h` — scrollbackLines member + constructor param removed
+- `Source/terminal/Processor.cpp` — scrollbackLines reads from AppState atomic via getRawParameterValue<int>. Ring size tightened (removed * 2). Eviction clearing in scrollUp handler.
+- `Source/terminal/Session.h` — scrollbackLines member removed
+- `Source/terminal/Session.cpp` — scrollbackLines removed from init lists, Processor construction simplified
+- `Source/terminal/History.h` — constructor param removed, default-constructible
+- `Source/terminal/History.cpp` — reads scrollbackLines from AppState atomic
+- `Source/terminal/Identifier.h` — scrollbackLines identifier removed (moved to app::id)
+- `Source/terminal/Parameters.xml` — scrollbackLines PARAM removed (moved to AppParameters.xml)
+- `Source/terminal/Input.h` — buildKeyMap no-arg, reads lua::Engine internally
+- `Source/terminal/Input.cpp` — buildKeyMap self-contained
+- `Source/terminal/component/Display.h` — config member eliminated, juce::ValueTree::Listener added, applyConfig → applyFromAppState (private)
+- `Source/terminal/component/Display.cpp` — reads from AppState exclusively, listener registration, padding from AppState
+- `Source/terminal/component/Screen.h` — unchanged
+- `Source/terminal/component/Screen.cpp` — full content Block (history + viewport), capped at scrollbackLines from AppState, viewport position sync, cursor offset by historyRows
+- `Source/terminal/component/PaneComponent.h` — applyConfig removed from interface
+- `Source/terminal/component/Tabs.h` — applyConfig declaration removed
+- `Source/terminal/component/TabsActions.cpp` — Tabs::applyConfig deleted
+
+**Whelmed:**
+- `Source/whelmed/component/Component.h` — applyConfig removed, AppState listener
+- `Source/whelmed/component/Component.cpp` — applyFromAppState, listener registration
+
+**Documentation:**
+- `ARCHITECTURE.md` — Grid→Buffer<Cell> throughout, config distribution pattern, Display reactive listener, TextEditor single viewport, PaneComponent contract updated, glossary updated
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **Config SSOT:** All display config (font, cursor, padding, scrollbackLines) flows through AppState. Components react via ValueTree listener — no manual applyConfig cascade. Display no longer holds lua::Engine reference.
+- **Viewport scrollback:** Screen passes full content Block (history + viewport rows). ContentView exceeds Viewport → scrollbar appears naturally. Viewport position synced from scrollOffset. Cursor offset by history rows.
+- **Scrollback cap enforced:** totalRows capped at scrollbackLines. Ring size tightened (removed * 2 multiplier). Eviction clearing zeros rows exiting history window.
+- **Buffer/Block integration:** Block constructs from Buffer (AudioBlock pattern). getBlock removed from Buffer. Screen uses Block(buffer, screen, startRow, totalRows).
+- **scrollbackLines SSOT:** Eliminated from Session and Processor members. All consumers read from AppState atomic via getRawParameterValue<int>. History also migrated.
+- **Init sequence guaranteed:** AppState populated before any Session/Display exists. No font guards, no sequence hacks.
+- **Reactive Display:** Display listens to AppState. Config hot-reload propagates automatically to all Display instances.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- None
+
+---
+
 ## Sprint 28: Grid→Buffer, GST→DST ✅
 
 **Date:** 2026-05-22

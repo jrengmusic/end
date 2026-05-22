@@ -87,6 +87,16 @@ namespace id
     static const juce::Identifier scrollOffset       { "scrollOffset" };
     static const juce::Identifier port              { "port" };
     static const juce::Identifier atlasDirty        { "atlasDirty" };
+    static const juce::Identifier scrollbackLines   { "scrollbackLines" };
+    static const juce::Identifier cellWidth            { "cellWidth" };
+    static const juce::Identifier lineHeight           { "lineHeight" };
+    static const juce::Identifier cursorCodepoint      { "cursorCodepoint" };
+    static const juce::Identifier cursorStyle          { "cursorStyle" };
+    static const juce::Identifier cursorBlinkInterval  { "cursorBlinkInterval" };
+    static const juce::Identifier paddingTop           { "paddingTop" };
+    static const juce::Identifier paddingRight         { "paddingRight" };
+    static const juce::Identifier paddingBottom        { "paddingBottom" };
+    static const juce::Identifier paddingLeft          { "paddingLeft" };
 
     static const juce::Identifier blockCount         { "blockCount" };
     static const juce::Identifier parseComplete      { "parseComplete" };

@@ -28,7 +28,8 @@ terminal::Display::Display (terminal::Processor& processorToUse)
     addAndMakeVisible (screen);
     screen.addKeyListener (this);
 
-    applyConfig();
+    AppState::getContext()->get().addListener (this);
+    applyFromAppState();
 }
 
 terminal::State& terminal::Display::createAndAttachState (terminal::State& stateToSeed,
@@ -62,6 +63,7 @@ terminal::State& terminal::Display::createAndAttachState (terminal::State& state
 
 terminal::Display::~Display()
 {
+    AppState::getContext()->get().removeListener (this);
     screen.removeKeyListener (this);
     state.get().removeChild (normalScreen, nullptr);
     state.get().removeChild (alternateScreen, nullptr);
@@ -71,17 +73,19 @@ terminal::Display::~Display()
 juce::String terminal::Display::getPaneType() const noexcept { return Map::PaneType::getContext()->get (Map::PaneType::terminal); }
 void terminal::Display::switchRenderer (app::RendererType) noexcept {}
 juce::ValueTree terminal::Display::getValueTree() noexcept { return state.get(); }
-void terminal::Display::applyConfig() noexcept
+void terminal::Display::applyFromAppState() noexcept
 {
-    const jam::Font font { config.display.font.family,
-                           config.dpiCorrectedFontSize(),
-                           config.display.font.cellWidth,
-                           config.display.font.lineHeight };
+    const auto* appState { AppState::getContext() };
+
+    const jam::Font font { appState->getFontFamily(),
+                           appState->getFontSize(),
+                           static_cast<float> (appState->getCellWidth()),
+                           static_cast<float> (appState->getLineHeight()) };
 
     screen.setFont (font);
-    screen.setCaretChar (jam::toChar (config.display.cursor.codepoint));
-    screen.setCaretShape (config.display.cursor.style);
-    screen.setCaretBlinkRate (config.display.cursor.blinkInterval);
+    screen.setCaretChar (jam::toChar (appState->getCursorCodepoint()));
+    screen.setCaretShape (appState->getCursorStyle());
+    screen.setCaretBlinkRate (appState->getCursorBlinkInterval());
 
 
     attachment->setValue (terminal::id::cellWidth,  font.bounds.width);
@@ -90,8 +94,13 @@ void terminal::Display::applyConfig() noexcept
     attachment->setValue (terminal::id::fontSize,   static_cast<int> (font.fontSize));
 
     mouse.setCellSize (font.bounds.width, font.bounds.height);
-    input.buildKeyMap (config.keys.selection);
+    input.buildKeyMap();
 }
+void terminal::Display::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&)
+{
+    applyFromAppState();
+}
+
 void terminal::Display::applyZoom (float) noexcept {}
 void terminal::Display::enterSelectionMode() noexcept
 {
@@ -133,11 +142,12 @@ void terminal::Display::focusGained (FocusChangeType) { screen.grabKeyboardFocus
 
 void terminal::Display::resized()
 {
+    const auto* appState { AppState::getContext() };
     const auto contentBounds { getLocalBounds()
-                                   .withTrimmedTop (config.nexus.terminal.paddingTop)
-                                   .withTrimmedRight (config.nexus.terminal.paddingRight)
-                                   .withTrimmedBottom (config.nexus.terminal.paddingBottom)
-                                   .withTrimmedLeft (config.nexus.terminal.paddingLeft) };
+                                   .withTrimmedTop (appState->getPaddingTop())
+                                   .withTrimmedRight (appState->getPaddingRight())
+                                   .withTrimmedBottom (appState->getPaddingBottom())
+                                   .withTrimmedLeft (appState->getPaddingLeft()) };
 
     screen.setBounds (contentBounds);
 

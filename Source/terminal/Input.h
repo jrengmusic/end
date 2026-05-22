@@ -94,13 +94,12 @@ public:
     /**
      * @brief Copies selection-mode key bindings from the scripting engine into the cached key map.
      *
-     * Called from `Display::initialise()` and `applyConfig()` so Engine
-     * reloads take effect without restarting.
+     * Called from `Display::applyConfig()` so Engine reloads take effect without restarting.
+     * Reads directly from `lua::Engine::getContext()->keys.selection`.
      *
-     * @param keys  Parsed selection keys from lua::Engine.
      * @note MESSAGE THREAD.
      */
-    void buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept;
+    void buildKeyMap() noexcept;
 
     /**
      * @brief Clears the pending-g flag.

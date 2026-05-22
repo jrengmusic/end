@@ -22,7 +22,17 @@ AppState::AppState()
     setValue (app::id::zoom,       static_cast<double> (lua::Engine::zoomMin));
     setValue (app::id::fontFamily, cfg->display.font.family);
     setValue (app::id::fontSize,   static_cast<double> (cfg->dpiCorrectedFontSize()));
-    setValue (app::id::position,   cfg->display.tab.position);
+    setValue (app::id::position,        cfg->display.tab.position);
+    setValue (app::id::scrollbackLines,    cfg->nexus.terminal.scrollbackLines);
+    setValue (app::id::cellWidth,           cfg->display.font.cellWidth);
+    setValue (app::id::lineHeight,          cfg->display.font.lineHeight);
+    setValue (app::id::cursorCodepoint,     static_cast<int> (cfg->display.cursor.codepoint));
+    setValue (app::id::cursorStyle,         cfg->display.cursor.style);
+    setValue (app::id::cursorBlinkInterval, cfg->display.cursor.blinkInterval);
+    setValue (app::id::paddingTop,          cfg->nexus.terminal.paddingTop);
+    setValue (app::id::paddingRight,        cfg->nexus.terminal.paddingRight);
+    setValue (app::id::paddingBottom,       cfg->nexus.terminal.paddingBottom);
+    setValue (app::id::paddingLeft,         cfg->nexus.terminal.paddingLeft);
 
     startTimerHz (60);
 }
@@ -103,6 +113,101 @@ float AppState::getFontSize() const noexcept
 void AppState::setFontSize (float size)
 {
     setValue (app::id::fontSize, static_cast<double> (size));
+}
+
+void AppState::setScrollbackLines (int lines)
+{
+    setValue (app::id::scrollbackLines, lines);
+}
+
+int AppState::getCellWidth() const noexcept
+{
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::cellWidth).getValue());
+}
+
+void AppState::setCellWidth (int width)
+{
+    setValue (app::id::cellWidth, width);
+}
+
+int AppState::getLineHeight() const noexcept
+{
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::lineHeight).getValue());
+}
+
+void AppState::setLineHeight (int height)
+{
+    setValue (app::id::lineHeight, height);
+}
+
+int AppState::getCursorCodepoint() const noexcept
+{
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::cursorCodepoint).getValue());
+}
+
+void AppState::setCursorCodepoint (int codepoint)
+{
+    setValue (app::id::cursorCodepoint, codepoint);
+}
+
+int AppState::getCursorStyle() const noexcept
+{
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::cursorStyle).getValue());
+}
+
+void AppState::setCursorStyle (int style)
+{
+    setValue (app::id::cursorStyle, style);
+}
+
+int AppState::getCursorBlinkInterval() const noexcept
+{
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::cursorBlinkInterval).getValue());
+}
+
+void AppState::setCursorBlinkInterval (int ms)
+{
+    setValue (app::id::cursorBlinkInterval, ms);
+}
+
+int AppState::getPaddingTop() const noexcept
+{
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::paddingTop).getValue());
+}
+
+int AppState::getPaddingRight() const noexcept
+{
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::paddingRight).getValue());
+}
+
+int AppState::getPaddingBottom() const noexcept
+{
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::paddingBottom).getValue());
+}
+
+int AppState::getPaddingLeft() const noexcept
+{
+    return static_cast<int> (jam::ValueTree::getValueFromChildWithID (get(), app::id::paddingLeft).getValue());
+}
+
+void AppState::setPaddingTop (int value)
+{
+    setValue (app::id::paddingTop, value);
+}
+
+void AppState::setPaddingRight (int value)
+{
+    setValue (app::id::paddingRight, value);
+}
+
+void AppState::setPaddingBottom (int value)
+{
+    setValue (app::id::paddingBottom, value);
+}
+
+void AppState::setPaddingLeft (int value)
+{
+    setValue (app::id::paddingLeft, value);
 }
 
 void AppState::markAtlasDirty() noexcept

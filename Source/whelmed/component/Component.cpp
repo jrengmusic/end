@@ -38,6 +38,7 @@ Component::Component()
     addChildComponent (loaderOverlay);
     viewport.addMouseListener (this, true);
     AppState::getContext()->getTabs().addListener (this);
+    AppState::getContext()->get().addListener (this);
 
     if (auto* engine { lua::Engine::getContext() }; engine != nullptr)
         inputHandler.buildKeyMap (engine->getSelectionKeys());
@@ -47,6 +48,7 @@ Component::Component()
 
 Component::~Component()
 {
+    AppState::getContext()->get().removeListener (this);
     AppState::getContext()->getTabs().removeListener (this);
     viewport.removeMouseListener (this);
     state.removeListener (this);
@@ -63,7 +65,7 @@ bool Component::keyPressed (const juce::KeyPress& key)
 
 void Component::switchRenderer (app::RendererType type) { juce::ignoreUnused (type); }
 
-void Component::applyConfig() noexcept
+void Component::applyFromAppState() noexcept
 {
     screen.load (docState.getDocument(), std::numeric_limits<int>::max());
     resized();
@@ -217,64 +219,71 @@ juce::ValueTree Component::getValueTree() noexcept { return state; }
 
 void Component::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property)
 {
-    if (property == app::id::blockCount)
+    if (tree == AppState::getContext()->get())
     {
-        const int blockCount { static_cast<int> (tree.getProperty (app::id::blockCount)) };
-        const int blockIndex { blockCount - 1 };
-
-        const int totalBlocks { static_cast<int> (state.getProperty (app::id::totalBlocks)) };
-
-        if (blockIndex >= 0 and blockIndex < totalBlocks)
+        applyFromAppState();
+    }
+    else
+    {
+        if (property == app::id::blockCount)
         {
-            screen.build (blockIndex, docState.getDocument());
-            loaderOverlay.update (blockCount, totalBlocks);
+            const int blockCount { static_cast<int> (tree.getProperty (app::id::blockCount)) };
+            const int blockIndex { blockCount - 1 };
 
-            if (blockCount >= totalBlocks)
+            const int totalBlocks { static_cast<int> (state.getProperty (app::id::totalBlocks)) };
+
+            if (blockIndex >= 0 and blockIndex < totalBlocks)
             {
-                loaderOverlay.hide();
+                screen.build (blockIndex, docState.getDocument());
+                loaderOverlay.update (blockCount, totalBlocks);
+
+                if (blockCount >= totalBlocks)
+                {
+                    loaderOverlay.hide();
+                    setBufferedToImage (true);
+                }
+            }
+        }
+
+        if (property == app::id::modalType)
+        {
+            const int modal { static_cast<int> (tree.getProperty (app::id::modalType)) };
+
+            if (modal == static_cast<int> (ModalType::none))
+            {
                 setBufferedToImage (true);
             }
         }
-    }
 
-    if (property == app::id::modalType)
-    {
-        const int modal { static_cast<int> (tree.getProperty (app::id::modalType)) };
-
-        if (modal == static_cast<int> (ModalType::none))
+        if (property == app::id::selCursorBlock or property == app::id::selCursorChar
+            or property == app::id::selAnchorBlock or property == app::id::selAnchorChar)
         {
-            setBufferedToImage (true);
-        }
-    }
+            const int anchorBlock { static_cast<int> (state.getProperty (app::id::selAnchorBlock)) };
+            const int anchorChar  { static_cast<int> (state.getProperty (app::id::selAnchorChar)) };
+            const int cursorBlock { static_cast<int> (state.getProperty (app::id::selCursorBlock)) };
+            const int cursorChar  { static_cast<int> (state.getProperty (app::id::selCursorChar)) };
 
-    if (property == app::id::selCursorBlock or property == app::id::selCursorChar
-        or property == app::id::selAnchorBlock or property == app::id::selAnchorChar)
-    {
-        const int anchorBlock { static_cast<int> (state.getProperty (app::id::selAnchorBlock)) };
-        const int anchorChar  { static_cast<int> (state.getProperty (app::id::selAnchorChar)) };
-        const int cursorBlock { static_cast<int> (state.getProperty (app::id::selCursorBlock)) };
-        const int cursorChar  { static_cast<int> (state.getProperty (app::id::selCursorChar)) };
+            screen.setSelection (anchorBlock, anchorChar, cursorBlock, cursorChar);
+            screen.updateCursor (cursorBlock, cursorChar);
+            screen.repaint();
 
-        screen.setSelection (anchorBlock, anchorChar, cursorBlock, cursorChar);
-        screen.updateCursor (cursorBlock, cursorChar);
-        screen.repaint();
+            const auto cursorBounds { screen.getCursorBounds() };
 
-        const auto cursorBounds { screen.getCursorBounds() };
-
-        if (not cursorBounds.isEmpty())
-        {
-            const int viewTop    { viewport.getViewPositionY() };
-            const int viewBottom { viewTop + viewport.getViewHeight() };
-            const int cursorTop    { static_cast<int> (cursorBounds.getY()) };
-            const int cursorBottom { static_cast<int> (cursorBounds.getBottom()) };
-
-            if (cursorTop < viewTop)
+            if (not cursorBounds.isEmpty())
             {
-                viewport.setViewPosition (0, cursorTop);
-            }
-            else if (cursorBottom > viewBottom)
-            {
-                viewport.setViewPosition (0, cursorBottom - viewport.getViewHeight());
+                const int viewTop    { viewport.getViewPositionY() };
+                const int viewBottom { viewTop + viewport.getViewHeight() };
+                const int cursorTop    { static_cast<int> (cursorBounds.getY()) };
+                const int cursorBottom { static_cast<int> (cursorBounds.getBottom()) };
+
+                if (cursorTop < viewTop)
+                {
+                    viewport.setViewPosition (0, cursorTop);
+                }
+                else if (cursorBottom > viewBottom)
+                {
+                    viewport.setViewPosition (0, cursorBottom - viewport.getViewHeight());
+                }
             }
         }
     }

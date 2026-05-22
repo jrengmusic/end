@@ -10,17 +10,6 @@
 namespace terminal
 {
 /*____________________________________________________________________________*/
-void Tabs::applyConfig()
-{
-    for (auto& p : panes)
-    {
-        for (auto& pane : p->getPanes())
-        {
-            pane->applyConfig();
-        }
-    }
-}
-
 void Tabs::switchRenderer (app::RendererType type)
 {
     for (auto& p : panes)

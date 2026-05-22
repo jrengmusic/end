@@ -255,15 +255,6 @@ public:
     void writeToActivePty (const char* data, int len);
 
     /**
-     * @brief Applies the current config to all terminal sessions.
-     *
-     * Iterates all terminals across all tabs and calls applyConfig() on each.
-     *
-     * @note MESSAGE THREAD.
-     */
-    void applyConfig();
-
-    /**
      * @brief Increase the terminal zoom level.
      *
      * Increases zoom by `lua::Engine::zoomStep` and applies to all panes across all tabs.

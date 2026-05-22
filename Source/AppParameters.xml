@@ -1,6 +1,23 @@
 <END>
     <PARAM id="atlasDirty"    type="bool"   default="false"/>
     <PARAM id="port"          type="int"    default="0"/>
+    <PARAM id="scrollbackLines"  type="int"  default="0"/>
+
+    <!-- Font metrics -->
+    <PARAM id="cellWidth"           type="int"  default="0"/>
+    <PARAM id="lineHeight"          type="int"  default="0"/>
+
+    <!-- Cursor -->
+    <PARAM id="cursorCodepoint"     type="int"  default="0"/>
+    <PARAM id="cursorStyle"         type="int"  default="0"/>
+    <PARAM id="cursorBlinkInterval" type="int"  default="0"/>
+
+    <!-- Terminal padding -->
+    <PARAM id="paddingTop"         type="int"  default="0"/>
+    <PARAM id="paddingRight"       type="int"  default="0"/>
+    <PARAM id="paddingBottom"      type="int"  default="0"/>
+    <PARAM id="paddingLeft"        type="int"  default="0"/>
+
     <WINDOW>
         <PARAM id="width"        type="int"    default="0"/>
         <PARAM id="height"       type="int"    default="0"/>

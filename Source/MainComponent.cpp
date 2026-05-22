@@ -189,14 +189,23 @@ void MainComponent::applyConfig()
     registerActions();
 
     const auto* cfg { lua::Engine::getContext() };
-    appState.setFontFamily (cfg->display.font.family);
-    appState.setFontSize   (static_cast<float> (cfg->dpiCorrectedFontSize()));
-    appState.setRendererType (cfg->nexus.gpu);
+    appState.setFontFamily          (cfg->display.font.family);
+    appState.setFontSize            (static_cast<float> (cfg->dpiCorrectedFontSize()));
+    appState.setScrollbackLines     (cfg->nexus.terminal.scrollbackLines);
+    appState.setCellWidth           (cfg->display.font.cellWidth);
+    appState.setLineHeight          (cfg->display.font.lineHeight);
+    appState.setCursorCodepoint     (cfg->display.cursor.codepoint);
+    appState.setCursorStyle         (cfg->display.cursor.style);
+    appState.setCursorBlinkInterval (cfg->display.cursor.blinkInterval);
+    appState.setPaddingTop          (cfg->nexus.terminal.paddingTop);
+    appState.setPaddingRight        (cfg->nexus.terminal.paddingRight);
+    appState.setPaddingBottom       (cfg->nexus.terminal.paddingBottom);
+    appState.setPaddingLeft         (cfg->nexus.terminal.paddingLeft);
+    appState.setRendererType        (cfg->nexus.gpu);
 
     if (tabs != nullptr)
     {
         setRenderer (appState.getRendererType());
-        tabs->applyConfig();
         tabs->applyOrientation();
     }
 

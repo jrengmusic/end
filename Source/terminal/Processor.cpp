@@ -114,12 +114,11 @@ namespace terminal
  * Parser is owned by this Processor and receives Video& reference directly.
  * UUID is provided by the caller — no internal generation.
  *
- * @param bufferRef          Live cell buffer owned by terminal::Session.
- * @param textBufferRef      Cross-thread string buffer owned by terminal::Session.
- * @param cols               Initial terminal column count.
- * @param rows               Initial terminal row count.
- * @param scrollbackLinesValue Maximum history row count from config.
- * @param uuid               Stable UUID for this Processor — generated once by the caller.
+ * @param bufferRef      Live cell buffer owned by terminal::Session.
+ * @param textBufferRef  Cross-thread string buffer owned by terminal::Session.
+ * @param cols           Initial terminal column count.
+ * @param rows           Initial terminal row count.
+ * @param uuid           Stable UUID for this Processor — generated once by the caller.
  *
  * @note MESSAGE THREAD — must be constructed on the message thread.
  */
@@ -127,7 +126,6 @@ Processor::Processor (jam::Buffer<jam::Cell>& bufferRef,
                       TextBuffer& textBufferRef,
                       cell cols,
                       cell rows,
-                      int scrollbackLinesValue,
                       const juce::String& uuid)
     : buffer (bufferRef)
     , textBuffer (textBufferRef)
@@ -137,7 +135,6 @@ Processor::Processor (jam::Buffer<jam::Cell>& bufferRef,
     , transitioner (buffer)
     , uuid (uuid)
 {
-    scrollbackLines = scrollbackLinesValue;
     state.setDimensions (cols, rows);
     registerEvents();
     parser = std::make_unique<Parser> (video);
@@ -148,6 +145,7 @@ Processor::Processor (jam::Buffer<jam::Cell>& bufferRef,
         id::resizeStart,
         [this] (cell targetCols, cell targetRows)
         {
+            const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
             const cell currentRows { video.getVisibleRows() };
 
             // Height adjustment (same logic as the former Grid::resizeHeight).
@@ -157,13 +155,13 @@ Processor::Processor (jam::Buffer<jam::Cell>& bufferRef,
             // shell redraws after SIGWINCH.
             if (targetCols.value != buffer.getNumCols())
             {
-                const int ringSize { juce::nextPowerOfTwo ((scrollbackLines + targetRows.value) * 2) };
+                const int ringSize { juce::nextPowerOfTwo (scrollbackLines + targetRows.value) };
                 buffer.setSize (2, ringSize, targetCols.value);
             }
             else if (targetRows.value != currentRows.value)
             {
                 // Height-only: reallocate ring if needed (larger viewport).
-                const int needed { juce::nextPowerOfTwo ((scrollbackLines + targetRows.value) * 2) };
+                const int needed { juce::nextPowerOfTwo (scrollbackLines + targetRows.value) };
 
                 if (needed > buffer.getNumRows())
                     buffer.setSize (2, needed, buffer.getNumCols());
@@ -199,7 +197,8 @@ Processor::Processor (jam::Buffer<jam::Cell>& bufferRef,
     transitioner.prepare();
 
     // Cold start allocation — same as former GridSizeTransition::allocate().
-    const int ringSize { juce::nextPowerOfTwo ((scrollbackLines + rows.value) * 2) };
+    const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
+    const int ringSize { juce::nextPowerOfTwo (scrollbackLines + rows.value) };
     buffer.setSize (2, ringSize, cols.value);
     video.setDimensions (cols, rows);
     video.resize (cols, rows);
@@ -463,8 +462,17 @@ void Processor::registerEvents() noexcept
         id::scrollUp,
         [this] (int screen, int count)
         {
+            const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
             const juce::Identifier scrollScreenId { Map::Screen::getContext()->get (screen) };
             const int current { state.loadValue (scrollScreenId, id::numRows) };
+            const int excess { current + count - scrollbackLines };
+
+            if (excess > 0)
+            {
+                for (int i { 0 }; i < excess; ++i)
+                    buffer.clear (screen, buffer.getNumRows() - scrollbackLines - excess + i);
+            }
+
             state.storeValue (scrollScreenId, id::numRows, juce::jmin (current + count, scrollbackLines));
             using TE = jam::TextEditor;
             const auto& teId { TE::properties.at (TE::textEditorId) };
@@ -763,7 +771,8 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
                 if (buffer.getNumRows() == 0)
                 {
                     // Cold start — allocate directly (no transition).
-                    const int ringSize { juce::nextPowerOfTwo ((scrollbackLines + newRows.value) * 2) };
+                    const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
+                    const int ringSize { juce::nextPowerOfTwo (scrollbackLines + newRows.value) };
                     buffer.setSize (2, ringSize, newCols.value);
                     video.setDimensions (newCols, newRows);
                     video.resize (newCols, newRows);

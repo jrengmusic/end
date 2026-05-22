@@ -189,7 +189,7 @@ std::unique_ptr<Session> Session::create (const juce::String& cwd,
  * @brief Constructs the Session, wires the TTY, and transfers TTY ownership to Processor.
  *        Does NOT open the shell — call start() after Display/Screen construction.
  *
- * History capacity comes from `lua::Engine::nexus.terminal.scrollbackLines`.
+ * History capacity is read from AppState (`app::id::scrollbackLines`) at construction.
  * The `onBytes` callback may be overridden by the owner (`Nexus` /
  * `nexus::Daemon`) after construction for daemon-mode byte broadcasting.
  * All TTY callbacks are wired before ownership is transferred to Processor via setTTY().
@@ -205,8 +205,7 @@ Session::Session (cell cols,
                   const juce::String& cwd,
                   const juce::StringPairArray& seedEnv,
                   const juce::String& uuid)
-    : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
-    , scrollbackLines { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
+    : history {}
 {
 #if JUCE_MAC || JUCE_LINUX
     auto tty { std::make_unique<UnixTTY>() };
@@ -216,7 +215,7 @@ Session::Session (cell cols,
 
     // Create Processor before wiring TTY callbacks so procRawPtr is valid in lambdas.
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (buffer, textBuffer, cols, rows, scrollbackLines, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (buffer, textBuffer, cols, rows, effectiveUuid);
     processor->getState().setId (effectiveUuid);
 
     terminal::Processor* procRawPtr { processor.get() };
@@ -296,14 +295,13 @@ Session::Session (cell cols,
                   const juce::String& cwd,
                   const juce::String& shell,
                   const juce::String& uuid)
-    : history { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
-    , scrollbackLines { lua::Engine::getContext()->nexus.terminal.scrollbackLines }
+    : history {}
 {
     jassert (cols.value > 0);
     jassert (rows.value > 0);
 
     const juce::String effectiveUuid { uuid.isNotEmpty() ? uuid : juce::Uuid().toString() };
-    processor = std::make_unique<terminal::Processor> (buffer, textBuffer, cols, rows, scrollbackLines, effectiveUuid);
+    processor = std::make_unique<terminal::Processor> (buffer, textBuffer, cols, rows, effectiveUuid);
     processor->getState().setId (effectiveUuid);
     processor->getState().get().setProperty (terminal::id::cwd, cwd, nullptr);
 }

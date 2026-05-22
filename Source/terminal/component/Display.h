@@ -2,7 +2,6 @@
 #include <JuceHeader.h>
 #include "PaneComponent.h"
 #include "Screen.h"
-#include "../../lua/Engine.h"
 #include "../Processor.h"
 #include "../Input.h"
 #include "../Mouse.h"
@@ -15,6 +14,7 @@ namespace terminal
 class Display
     : public PaneComponent
     , public juce::KeyListener
+    , public juce::ValueTree::Listener
 {
 public:
     Display (terminal::Processor& processor);
@@ -25,7 +25,6 @@ public:
     juce::String getPaneType() const noexcept override;
     void switchRenderer (app::RendererType type) noexcept override;
     juce::ValueTree getValueTree() noexcept override;
-    void applyConfig() noexcept override;
     void applyZoom (float zoom) noexcept override;
     void enterSelectionMode() noexcept override;
     void copySelection() noexcept override;
@@ -63,7 +62,6 @@ public:
     void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
 
 private:
-    const lua::Engine& config { *lua::Engine::getContext() };
     terminal::Processor& processor;
     terminal::State& state;
 
@@ -83,6 +81,9 @@ private:
     static terminal::State& createAndAttachState (terminal::State& stateToSeed,
                                                   juce::ValueTree& normalScreenNode,
                                                   juce::ValueTree& alternateScreenNode) noexcept;
+
+    void applyFromAppState() noexcept;
+    void valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifier& property) override;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Display)

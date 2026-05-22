@@ -92,8 +92,7 @@ Source/
     CharPropsData.h                 Character property lookup table
     Charset.h                       Character set tables (G0/G1)
     DispatchTable.h                 VT state machine transition table
-    Grid.h/cpp                      Ring buffer, dual screen, dirty tracking
-    GridResize.h/cpp                SmoothStateTransition resize: snapshot + animated reflow, SIGWINCH on completion
+    GridSizeTransition.h/cpp        DELETED — DiscreteStateTransition lives in jam_core
     History.h/cpp                   Ring buffer of raw PTY bytes (for daemon snapshot/restore)
     Identifier.h                    ValueTree IDs + Identifier hash (terminal::id namespace)
     ImageDecode.h/cpp               Platform-independent BGRA→RGBA swizzle + ImageSequence struct
@@ -116,16 +115,16 @@ Source/
     Parameter.h                     APVTS-style parameter slot type
     Parser.h/cpp                    VT state machine + byte stream decoder
     ParserAction.cpp                Parser action dispatch
-    Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video, GridResize; references Grid and State
+    Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video, DiscreteStateTransition; references Buffer<Cell> and State
     Map.h                           terminal::Map — jam::Map::Bool, jam::Map::Screen, jam::Map::Gpu typed map instances
-    Session.h/cpp                   PTY orchestrator: owns TTY + History; Processor owns State, Grid, Video
+    Session.h/cpp                   PTY orchestrator: owns TTY + History + Buffer<Cell>; Processor owns State, Video, DiscreteStateTransition
     SixelDecoder.h/cpp              Sixel graphics protocol decoder
     SixelDecoderParse.cpp           Sixel decode internals
     Skit.h/cpp                      SKiT (Sixel/Kitty/iTerm2) unified preview protocol entry point
     State.h/cpp                     APVTS-style atomic + timer + ValueTree
     StateFlush.cpp                  Timer flush implementation
     TextBuffer.h                    Text buffer utility
-    Video.h/cpp                     VT command processor: cursor, pen, modes, Grid writes
+    Video.h/cpp                     VT command processor: cursor, pen, modes, Buffer<Cell> writes
     VideoCSI.cpp                    CSI dispatch (cursor, erase, mode)
     VideoDCS.cpp                    DCS dispatch (Sixel entry)
     VideoESC.cpp                    ESC dispatch (charset, OSC 0/2/7/8/9/12/52/112/133/777, DCS)
@@ -158,7 +157,7 @@ Source/
       Panes.h/cpp                   Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
       Panes.cpp                     Panes implementation
       Popup.h/cpp                   Popup terminal component
-      Screen.h/cpp                  terminal::Screen — IS jam::TextEditor (inherits directly); stateless renderer; reads Grid via getBlock(), calls setText(Block<Row>) on itself; grafts only its TextEditor state node; no node creation or ownership
+      Screen.h/cpp                  terminal::Screen — IS jam::TextEditor (inherits directly); stateless renderer; reads Buffer<Cell> via Block<Cell> constructor, calls setText(Block<Cell>) on itself; grafts only its TextEditor state node; no node creation or ownership
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
       StatusBarOverlay.h            Overlay that listens to TABS subtree for modal/selection state display
       Tabs.h/cpp                    terminal::Tabs — tab container, manages one Panes instance per tab
@@ -195,10 +194,10 @@ Source/
 
 | Module | Location | Responsibility | Dependencies |
 |--------|----------|----------------|--------------|
-| AppState | `Source/` | App ValueTree root, pwd tracking via Value::referTo, active pane type + UUID | JUCE ValueTree, terminal::id |
+| AppState | `Source/` | App-level config SSOT — font, cursor, padding, scrollback seeded from lua::Engine at init + hot reload. ValueTree root, pwd tracking, active pane type + UUID. Components listen and react — no manual config cascade. | JUCE ValueTree, terminal::id, lua::Engine (init only) |
 | AppIdentifier | `Source/` | ValueTree node and property identifiers (app::id:: namespace); pane type string constants; app::RendererType enum | JUCE |
 | lua::Engine | `lua/` | Unified Lua config + scripting engine. Sole owner of `jam::lua::state` — SSOT for all settings, keybindings, popup definitions, and custom actions. Six typed module structs (Nexus, Display, Whelmed, Keys, Popup, Action) replace string-keyed value maps. Unified colour parser handles `#RRGGBB`, `#RRGGBBAA`, and bare `RRGGBBAA` formats. File watcher triggers total reload on any `.lua` change (gated by `nexus.autoReload`). Provides parsed bindings to `action::Registry`, selection keys to `terminal::Input` / `whelmed::InputHandler`, and Theme to Screen. | sol2, jam::Context, jam::File::Watcher |
-| Component | `terminal/component/` | JUCE UI hosting, tabs, panes, LookAndFeel, timer-driven render trigger | Session, Screen, lua::Engine, PaneManager, AppState |
+| Component | `terminal/component/` | JUCE UI hosting, tabs, panes, LookAndFeel, timer-driven render trigger | Session, Screen, PaneManager, AppState |
 | Fonts | `fonts/` | Embedded TTF binaries (BinaryData) | — |
 | Terminal | `terminal/` | Pure value types, state atomics, IDs, VT parsing, Video command processor, grid storage, session orchestration, preview decoders | JUCE ValueTree |
 | Rendering | `terminal/component/` | Screen render coordinator, GL/CPU draw, Fonts (Context-managed), Overlay (image preview component) | terminal/, FreeType, HarfBuzz, OpenGL, jam_graphics, jam_tui |
@@ -207,7 +206,7 @@ Source/
 | jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
 | jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | Graphics utilities, blur, shadows, colours | jam_core |
 | jam_fonts | `~/Documents/Poems/dev/jam/jam_fonts/` | Font management, glyph atlas, typeface shaping, text layout | jam_core, FreeType, HarfBuzz |
-| jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: Cell type (jam::Cell — 8-byte packed u64), Cell::Unit, Cell::Point, Cell::Rectangle, Cell::RowState, Block<Row> | jam_core |
+| jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: Cell type (jam::Cell — 8-byte packed u64), Cell::Unit, Cell::Point, Cell::Rectangle, Cell::RowState, Block<Cell> | jam_core |
 | jam_gui/opengl | `~/Documents/Poems/dev/jam/jam_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jam_core |
 | Action | `terminal/action/` | Unified action registry (`action::Registry`), key dispatch, prefix state machine, command palette (`action::List`) | lua::Engine, jam::Context |
 | Nexus | `nexus/` | Session container (global scope). Owns `unordered_map<String, unique_ptr<terminal::Session>>`. Mode determined by `setMode(Mode)` — standalone/daemon/client. Fires session lifecycle events on public `events` ValueTree. `jam::Context<Nexus>` singleton owned by ENDApplication. | terminal::Session, jam::Context |
@@ -288,17 +287,17 @@ When a GUI client sends `createSession` for an existing UUID, `nexus::Daemon::at
 
 ```
 Daemon:  terminal::Session::snapshotHistory() → nexus::Message::loading → nexus::Link
-Link:    handleLoading → terminal::Session::process → Processor → Grid → terminal::Display
+Link:    handleLoading → terminal::Session::process → Processor → Buffer<Cell> → terminal::Display
 ```
 
 ### Byte-Forward Flow (Live)
 
 ```
 Daemon:  PTY → Session::onBytes → nexus::Message::output → nexus::Daemon::Channel → nexus::Link
-Link:    handleOutput → terminal::Session::process → Processor → Grid → terminal::Display
+Link:    handleOutput → terminal::Session::process → Processor → Buffer<Cell> → terminal::Display
 
 Standalone:
-         PTY → Session::onBytes → Processor::process → Grid → terminal::Display
+         PTY → Session::onBytes → Processor::process → Buffer<Cell> → terminal::Display
 ```
 
 ### terminal::Session
@@ -306,7 +305,8 @@ Standalone:
 `terminal::Session` is the singular owner of one terminal instance. It holds:
 - `unique_ptr<tty::TTY>` — the platform PTY (null in client mode). Ownership transferred to Processor after callback wiring.
 - `History` — ring buffer of raw PTY bytes.
-- `unique_ptr<terminal::Processor>` — Parser + Video + GridResize + Grid + State pipeline.
+- `jam::Buffer<jam::Cell>` — the terminal cell buffer (owned by Session, referenced by Processor).
+- `unique_ptr<terminal::Processor>` — Parser + Video + DiscreteStateTransition + State pipeline.
 
 **Factory — two overloads:**
 
@@ -363,13 +363,13 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
     — includes terminal::Session; forward-declares nexus::Daemon and nexus::Link
     |
     v
- Terminal / Logic (Processor → Video → Grid)   writes atomics on reader thread
+ Terminal / Logic (Processor → Video → Buffer<Cell>)   writes atomics on reader thread
     |
     v
- Terminal / Data (State/Grid)                  pure types, atomic storage, timer flush
+ Terminal / Data (State/Buffer<Cell>)                   pure types, atomic storage, timer flush
     |
     v
- Terminal / Component (terminal::Screen/GL)    reads from Grid + State, builds GPU snapshots
+ Terminal / Component (terminal::Screen/GL)             reads from Buffer<Cell> + State, builds GPU snapshots
     |
     v
  Terminal / TTY (platform)                     reader thread feeds raw bytes to Processor
@@ -402,12 +402,12 @@ ValueTree is the SSOT for all scalar state. `State::flush()` copies dirty atomic
 **Bulk data** — cell content (25,000+ entries at 5K fullscreen, updated every frame). High-volume, consumed by render path.
 
 ```
-READER → jam::Buffer<jam::Row> on Grid → timer flush → MESSAGE reads via getBlock()
+READER → jam::Buffer<jam::Cell> (owned by Session) → timer flush → MESSAGE reads via Block<Cell> constructor
 ```
 
-Grid stores `jam::Buffer<jam::Row>` (2 channels, ring-indexed via `head` + `ringMask`). `terminal::Screen` reads via `Grid::getBlock()` which returns a `Block<Row>` — a non-owning view with no copy. No dirty tracking on Grid — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask.
+Session owns `jam::Buffer<jam::Cell>` (2 channels, ring-indexed via per-channel `head` positions + `ringMask`). `terminal::Screen` reads via the `Block<Cell>` constructor from Buffer — a non-owning view with no copy. No dirty tracking on Buffer — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask.
 
-**Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → Grid `jam::Buffer<jam::Row>`. If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
+**Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → `jam::Buffer<jam::Cell>` (owned by Session). If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
 
 **Image preview** — file-based image display triggered by hyperlink click or SKiT protocol (Sixel/Kitty/iTerm2).
 
@@ -421,26 +421,26 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 
 **TTY -> Logic:**
 - TTY reader thread calls `Processor::process(data, length)` → `Parser::process()` directly
-- Video writes to Grid and State atomics on reader thread
+- Video writes to Buffer<Cell> and State atomics on reader thread
 - No allocation, no locks on this path
 
 **Logic -> Data:**
-- Video calls Grid write methods — cell writes, scroll, erase, dirty tracking
+- Video calls Buffer<Cell> write methods — cell writes, scroll, erase
 - Video reads geometry (cols, visibleRows, scrollbackUsed) from `State` parameterMap atomics
 - All calls are `noexcept`, reader thread safe
 
 **Data -> Component (timer path):**
 - `State::timerCallback()` runs on message thread (60-120Hz)
 - Flushes atomics to ValueTree via `flush()`
-- ValueTree fires `valueTreePropertyChanged` → Screen (which IS jam::TextEditor) reads Grid via `Grid::getBlock()` → calls `setText(Block<Row>)` on itself → `repaint()`; CursorComponent updates separately
+- ValueTree fires `valueTreePropertyChanged` → Screen (which IS jam::TextEditor) reads Buffer<Cell> via `Block<Cell>` constructor → calls `setText(Block<Cell>)` on itself → `repaint()`; CursorComponent updates separately
 
 **Data -> Component (render path):**
 - Timer-driven flush (60/120 Hz) on the message thread flushes dirty atomics to ValueTree
-- `Screen::valueTreePropertyChanged()` fires → Screen reads Grid via `Grid::getBlock()` → calls `setText(Block<Row>)` on itself (non-owning, no copy) → `calc()` → `repaint()`
+- `Screen::valueTreePropertyChanged()` fires → Screen reads Buffer<Cell> via `Block<Cell>` constructor → calls `setText(Block<Cell>)` on itself (non-owning, no copy) → `calc()` → `repaint()`
 - Screen inherits jam::TextEditor directly — it IS the TextEditor, not a coordinator calling setText on a separate object
 - Screen is stateless: no node creation, no node ownership; grafts only its TextEditor `state` node (selection, caret, viewport mode)
 - Display owns NORMAL/ALTERNATE screen nodes via `seedScreenNodes` static helper; grafts them BEFORE Screen construction so atomics exist before the reader thread starts
-- Display owns `jam::ComponentAttachment` for the DISPLAY node (Font::bounds — cellWidth/cellHeight/baseline/fontSize); reads cell dimensions via `jam::Cell::Rectangle` constructor (no manual arithmetic)
+- Display owns `jam::ComponentAttachment` for the DISPLAY node (Font::bounds — cellWidth/cellHeight/baseline/fontSize); reads config from AppState via listener, writes computed font metrics to session State via attachment
 - Display destructor removes screen nodes
 
 **Component -> Rendering (GL path):**
@@ -470,10 +470,10 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 
 ### Layer Violations (FORBIDDEN)
 
-- Rendering must NEVER call Video or Grid mutators
+- Rendering must NEVER call Video or Buffer<Cell> mutators
 - TTY must NEVER call UI/Component code
 - Video must NEVER allocate on reader thread
-- GL thread must NEVER write to Grid or State
+- GL thread must NEVER write to Buffer<Cell> or State
 - `terminal/` headers must NEVER include `Nexus.h` or any `nexus/` header
 
 ---
@@ -484,9 +484,9 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 
 | Thread | QoS | Owns | Reads | Writes |
 |--------|-----|------|-------|--------|
-| **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Grid cells, dirty bits, scrollbackUsed |
+| **Reader** (TTY) | high | TTY fd | raw bytes | State atomics, Buffer<Cell> writes, scrollbackUsed |
 | **Timer** (JUCE) | default | — | `needsFlush` atomic | ValueTree properties |
-| **Message** (main) | user-interactive | Component, Screen | ValueTree, Grid cells via Block<Row> | Snapshot (reads Grid cells directly) |
+| **Message** (main) | user-interactive | Component, Screen | ValueTree, Buffer<Cell> via Block<Cell> | Snapshot (reads Buffer<Cell> directly) |
 | **GL** (OpenGL) | user-interactive | OpenGL context | — | background clear only (`renderOpenGL` calls `OpenGLHelpers::clear`). JUCE component paint routed through GL context. |
 
 ### Data Flow: Keystroke to Pixel
@@ -494,9 +494,9 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 ```
 Keystroke -> Message Thread -> TTY::write()
          -> Reader Thread reads response -> Processor::process() -> Parser -> Video
-         -> Grid cells written, State atomics set
+         -> Buffer<Cell> written, State atomics set
          -> Timer flush (60/120 Hz) on Message Thread -> State flushes dirty atomics to ValueTree
-         -> Screen::valueTreePropertyChanged() -> Grid::getBlock() -> TextEditor::setText(Block<Row>) -> calc() -> repaint
+         -> Screen::valueTreePropertyChanged() -> Block<Cell> constructor from Buffer -> TextEditor::setText(Block<Cell>) -> calc() -> repaint
          -> JUCE composites component paint through GL context when GPU renderer active.
             glyph::Graphics::pop() blits renderTarget juce::Image via g.drawImageAt() inside paint().
 ```
@@ -519,7 +519,7 @@ Keystroke -> Message Thread -> TTY::write()
 
 **Implementation:** `terminal/State.h/cpp`, `terminal/StateFlush.cpp`
 
-Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Screen (which IS jam::TextEditor) reads Grid via `Grid::getBlock()` and calls `setText(Block<Row>)` on itself — no copy, stateless renderer.
+Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Screen (which IS jam::TextEditor) reads Buffer<Cell> via the `Block<Cell>` constructor and calls `setText(Block<Cell>)` on itself — no copy, stateless renderer.
 
 WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `Parameter<int>` using `storeRelease`/`exchangeAcquire`. Consumer: message thread calls `consumeAtlasDirty()` to detect font/size changes before the next paint cycle, then calls `jam::Typeface::setAtlasSize()` to clear and rebuild the atlas.
 
@@ -548,7 +548,6 @@ Horizontal shelves, best-fit allocation. Separate packers for mono and emoji. LR
 **Used for:** Keeping files under 300 lines while maintaining logical cohesion.
 
 Video.cpp -> VideoCSI, VideoDCS, VideoESC, VideoSGR, VideoEdit, VideoMode, VideoOps, VideoOSC, VideoOSCExt
-Grid.cpp -> GridResize (separate class)
 State.cpp -> StateFlush
 Screen.cpp (in terminal/component/)
 SixelDecoder.cpp -> SixelDecoderParse
@@ -559,6 +558,22 @@ ActionList.cpp -> ActionListBinding, ActionListSelection
 lua/Engine.cpp -> EngineConfig, EngineDefaults, EngineParse, EngineParseConfig, EngineParseDisplay, EnginePatch
 
 All split files define member functions of the parent class. No separate classes needed.
+
+### Pattern: Config Distribution via AppState
+
+**Used for:** Distributing config values (font, cursor, padding, scrollback) to terminal components without direct config reads.
+
+**Implementation:** `AppState.h/cpp`, `MainComponent.cpp`, `Display.cpp`
+
+Config values flow unidirectionally: `lua::Engine` → `AppState` → reactive listeners.
+
+1. **Init:** `AppState` constructor reads `lua::Engine::getContext()` and seeds all config PARAMs (fontFamily, fontSize, cellWidth, lineHeight, cursorCodepoint, cursorStyle, cursorBlinkInterval, scrollbackLines, paddingTop/Right/Bottom/Left).
+2. **Hot reload:** `MainComponent::applyConfig()` writes updated values to `AppState` via typed setters. No downstream cascade — listeners react automatically.
+3. **Distribution:** `terminal::Display` and `whelmed::Component` register as `juce::ValueTree::Listener` on `AppState::getContext()->get()`. On any property change, they re-apply config to their owned components (Screen, Mouse, Input, attachment).
+
+**Guarantee:** AppState is constructed by `ENDApplication` before any Session or Display exists. Config values are always available when components initialize. No init sequence issues.
+
+**SSOT contract:** Components never read `lua::Engine` for config values consumed by the render/UI path. `lua::Engine` is the config parser; `AppState` is the config SSOT for runtime.
 
 ---
 
@@ -814,17 +829,17 @@ Nested types:
 Mode: theme (0), palette (1), rgb (2)
 Access: `setRGB()`, `setPalette()`, `setTheme()`, `paletteIndex()`
 
-### Grid Ring Buffer
+### Buffer<Cell> Ring Buffer
 
-Dual buffers (normal + alternate). Each buffer is a `jam::Buffer<jam::Row>` with ring-buffer row indexing via `head` + `ringMask`. `head` tracks the logical top row. No dirty tracking on Grid — no `dirtyRows` bitmask. No `linkIds` sidecar on Grid.
+Dual channels (normal + alternate). `jam::Buffer<jam::Cell>` with ring-buffer row indexing via per-channel `head` positions + `ringMask`. `head` tracks the logical top row per channel. No dirty tracking on Buffer — no `dirtyRows` bitmask. No `linkIds` sidecar.
 
-Grid API: `getBlock()` returns `Block<Row>` (non-owning view, no copy). `getWritePointer()` returns a mutable `jam::Row*` for the reader thread. `getRow()` returns a const row pointer. `resize()` is managed by `GridResize` on the message thread.
+Buffer API: `Block<Cell>` constructor from Buffer returns a non-owning view with no copy. `getWritePointer()` returns a mutable `jam::Cell*` for the reader thread. `resize()` is managed by `DiscreteStateTransition` (in jam_core) on the message thread.
 
 Video reads geometry via `state.getRawValue<int>(terminal::id::cols)` etc. (lock-free atomics).
 
 ### terminal::Map
 
-`terminal::Map` provides typed map instances via `jam::Map::Bool`, `jam::Map::Screen`, and `jam::Map::Gpu`. The `Map::Screen` instance provides the `normal`/`alternate` index mapping for Grid screen access. Lives in `terminal/Map.h`.
+`terminal::Map` provides typed map instances via `jam::Map::Bool`, `jam::Map::Screen`, and `jam::Map::Gpu`. The `Map::Screen` instance provides the `normal`/`alternate` index mapping for Buffer<Cell> channel access. Lives in `terminal/Map.h`.
 
 ### GlyphConstraint
 
@@ -866,7 +881,7 @@ Anchor + end `Point<int>` pair. Uses `::SelectionType` (none/visual/visualLine/v
 
 ### TextEditor (jam::TextEditor)
 
-Stateless monospace cell-grid renderer. `terminal::Screen` IS jam::TextEditor (direct inheritance) — not a separate entity. Holds no persistent cell buffer. Content set per frame via `setText(Block<Row>)` — non-owning, no copy. Two viewport modes: proportional (terminal — jam::Scrollbar, interactive) and absolute (whelmed — juce::Viewport). Both scrollbars render identically via LookAndFeel.
+Stateless monospace cell-grid renderer. `terminal::Screen` IS jam::TextEditor (direct inheritance) — not a separate entity. Holds no persistent cell buffer. Content set per frame via `setText(Block<Cell>)` — non-owning, no copy. Single viewport mode: `juce::Viewport` with vertical scrollbar.
 
 Properties accessed via static array + enum (`TextEditor::properties`, `TextEditor::PropertyIndex`). Selection is TextEditor's responsibility. Input/Mouse write selection properties directly to TextEditor's grafted node. Processor adjusts selection anchors on scroll via storeValue atomics.
 
@@ -921,7 +936,6 @@ Pure virtual base (`terminal/component/PaneComponent.h`) shared between `termina
 | `getPaneType()` | Returns `app::id::paneTypeTerminal` or `app::id::paneTypeDocument` |
 | `switchRenderer(type)` | Switches CPU/GPU backend at runtime |
 | `getValueTree()` | Returns root ValueTree (SESSION or DOCUMENT) for grafting |
-| `applyConfig()` | Applies current Config to the component |
 | `enterSelectionMode()` | Enters vim-style keyboard selection mode |
 | `copySelection()` | Copies active selection to clipboard and clears it |
 | `hasSelection()` | Returns true if a non-degenerate selection is active |
@@ -1016,7 +1030,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** SPEC proposed 2x SPSC ring buffers (`juce::AbstractFifo`) between PTY and message thread.
 
-**Decision:** TTY reader thread calls `Processor::process()` → `Parser::process()` directly. Video writes to Grid cells and State atomics on the reader thread.
+**Decision:** TTY reader thread calls `Processor::process()` → `Parser::process()` directly. Video writes to Buffer<Cell> and State atomics on the reader thread.
 
 **Rationale:** Simpler, lower latency. The FIFO added a drain step on the message thread that was unnecessary — the parser is fast enough to run on the reader thread without blocking.
 
@@ -1076,7 +1090,7 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 ### Decision: Overlay as jam::animation::Base, No FIFO
 
-**Context:** Previous image subsystem used a READER FIFO and MESSAGE drain pipeline. Grid is pure text — images extracted.
+**Context:** Previous image subsystem used a READER FIFO and MESSAGE drain pipeline. Buffer<Cell> is pure text — images extracted.
 
 **Decision:** `terminal::Overlay` inherits `jam::animation::Base` (`juce::Component + juce::Timer`). Owns `juce::Image` (static) or `std::vector<juce::Image>` (animated frames with `std::vector<int>` delays). Renders via standard `paint()`. No FIFO, no staging, no GL shaders. Display::resized() allocates side-by-side bounds; Screen reflows via PTY resize.
 
@@ -1094,9 +1108,9 @@ Capacities: mono 19,000 glyphs; emoji 4,000 glyphs.
 
 **Context:** The old `Parser` class conflated byte-stream decoding and VT command execution (cursor moves, grid writes, mode changes). The name was overloaded — it implied both parsing and interpretation.
 
-**Decision:** `Parser` is the byte-stream state machine. `Video` is the VT command processor that receives decoded semantic actions from Parser and translates them into Grid mutations and State writes. `Processor` is the pipeline orchestrator owning both.
+**Decision:** `Parser` is the byte-stream state machine. `Video` is the VT command processor that receives decoded semantic actions from Parser and translates them into Buffer<Cell> mutations and State writes. `Processor` is the pipeline orchestrator owning both.
 
-**Rationale:** Clear single-responsibility boundary. Parser does syntax; Video does semantics. Processor routes. Matches the existing naming pattern (Session is the data source, Processor is the pipeline, Grid is storage, State is the parameter SSOT).
+**Rationale:** Clear single-responsibility boundary. Parser does syntax; Video does semantics. Processor routes. Matches the existing naming pattern (Session is the data source and Buffer<Cell> owner, Processor is the pipeline, State is the parameter SSOT).
 
 ---
 
@@ -1254,7 +1268,7 @@ Click-mode link underlines only render on OSC 133 output rows.
 
 | Term | Definition |
 |------|------------|
-| AppState | Application-level ValueTree root; tracks active terminal UUID, pwd via Value::referTo |
+| AppState | Application-level config SSOT — font, cursor, padding, scrollback seeded from lua::Engine at init + hot reload. ValueTree root; tracks active terminal UUID, pwd via Value::referTo. Components listen and react — no manual config cascade. |
 | AtlasGlyph | See Atlas::Region. |
 | BoxDrawing | Procedural rasterizer for box drawing, block elements, and braille — no font lookup |
 | BoxSelection | Rectangle selection: anchor + end cell coordinates, rendered as overlay |
@@ -1266,8 +1280,8 @@ Click-mode link underlines only render on OSC 133 output rows.
 | FontCollection | Flat int8_t[0x110000] codepoint-to-font-slot dispatch table, O(1) lookup |
 | GlyphConstraint | Per-codepoint NF icon scaling/alignment descriptor applied at rasterization time |
 | Grapheme | Multi-codepoint character cluster (e.g., flag emoji, combining marks) |
-| Grid | Ring-buffer storage for terminal cells, dual-screen (normal/alternate). Pure text — no image flags |
-| GridResize | Resize lifecycle manager: coalesces resize events via 50ms quiet timer, applies PTY resize and grid reflow |
+| Buffer<Cell> | `jam::Buffer<jam::Cell>` — ring-buffer storage for terminal cells, dual-channel (normal/alternate). Owned by Session, referenced by Processor. Pure text — no image flags |
+| DiscreteStateTransition | Resize lifecycle manager (in jam_core): coalesces resize events via 50ms quiet timer, applies PTY resize and buffer reflow. Owned by Processor. Replaces the deleted GridResize/GridSizeTransition. |
 | History | Ring buffer of raw PTY bytes owned by terminal::Session. Used for daemon snapshot/restore via snapshotHistory() |
 | Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. `jam::animation::Base` is `juce::Component + juce::Timer`. Owns `juce::Image` (static) or `std::vector<juce::Image>` frames. Renders via standard `paint()`. Created on demand by Display, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
 | handleSkitFilepath | Shared parser helper for SKiT (Sixel/Kitty/iTerm2) file preview protocol. Extracts filepath from `END;` marker, calls `onPreviewFile` callback |
@@ -1283,16 +1297,16 @@ Click-mode link underlines only render on OSC 133 output rows.
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
 | Panes | `terminal::Panes` — per-tab component owning `terminal::Display` instances and managing split layout via PaneManager |
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
-| Processor | Pipeline orchestrator: owns Parser, Video, GridResize; references Grid and State received from Session |
+| Processor | Pipeline orchestrator: owns Parser, Video, DiscreteStateTransition; references Buffer<Cell> and State received from Session |
 | pwdValue | juce::Value in AppState bound via referTo to active terminal's cwd property |
-| Map::Screen | `jam::Map::Screen` — normal/alternate screen index map instance in `terminal::Map`. See also `Map::Bool` and `Map::Gpu`. Lives in `terminal/Map.h`. |
+| Map::Screen | `jam::Map::Screen` — normal/alternate channel index map instance in `terminal::Map`; used for Buffer<Cell> channel access. See also `Map::Bool` and `Map::Gpu`. Lives in `terminal/Map.h`. |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
 | Skit | SKiT unified entry point for Sixel/Kitty/iTerm2 inline image preview protocol |
-| Snapshot | `GridResize::previous` — full Grid buffer copy captured before resize; held alive until transition completes. |
+| Snapshot | `DiscreteStateTransition::previous` — full Buffer<Cell> copy captured before resize; held alive until transition completes. |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state. Includes: OSC 133 shell integration tracking, paste echo gate, sync output (mode 2026), preview split-viewport, hints, modal type, snapshot dirty signal. Per-screen methods removed — callers use `storeValue`/`loadValue` (READER) or VT API (MESSAGE). |
 | Tabs | `terminal::Tabs` — TabbedComponent subclass; Value::Listener for tabName, manages Panes instances |
 | VBlank | Not currently implemented. Render trigger is timer-driven flush (60/120 Hz). |
-| Video | VT command processor: receives decoded semantic actions from Parser, writes Grid cells, fires events for State writes |
+| Video | VT command processor: receives decoded semantic actions from Parser, writes Buffer<Cell>, fires events for State writes |
 | Atlas | `jam::glyph::Atlas` — CPU-side image store: `juce::Image mono` + `juce::Image emoji` + `Packer`. Accessed via `jam::Typeface::getAtlas()`. All MESSAGE THREAD. |
 
 ---

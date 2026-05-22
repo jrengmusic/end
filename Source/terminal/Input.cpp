@@ -81,8 +81,9 @@ void Input::clearSelectionAndScroll() noexcept
     scrollParamNode.setProperty (id::value, 0, nullptr);
 }
 
-void Input::buildKeyMap (const lua::Engine::SelectionKeys& keys) noexcept
+void Input::buildKeyMap() noexcept
 {
+    const auto& keys { lua::Engine::getContext()->keys.selection };
     selectionKeys.up          = keys.up;
     selectionKeys.down        = keys.down;
     selectionKeys.left        = keys.left;
