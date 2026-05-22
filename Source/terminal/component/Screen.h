@@ -8,7 +8,7 @@ namespace terminal
 /*____________________________________________________________________________*/
 
 /**
- * @brief Cell buffer renderer — scrollback ring + alternate buffer for the terminal.
+ * @brief Row buffer renderer — scrollback ring + alternate buffer for the terminal.
  *
  * Listens to State's ValueTree and re-renders from Buffer on every flush.
  * Display mediates all communication — Screen owns its State and Buffer references
@@ -42,18 +42,46 @@ public:
         ansi15ColourId = 0x300001F,
     };
 
-    Screen (State& state, jam::Buffer<jam::Cell>& buffer) noexcept;
+    Screen (State& state, jam::Buffer<jam::Row>& buffer) noexcept;
     ~Screen() override;
+
+    /** @brief Resize transitioner — owned by Screen, wired by Display.
+     *  Public for Display to wire trigger/onStop and call set(). */
+    jam::DiscreteStateTransition<jam::Row> transitioner;
 
     /** @brief Sets the DECSCUSR cursor shape (terminal VT vocabulary).
      *  Forwards to CaretComponent::setShape(). */
     void setCaretShape (int decscusr) noexcept { caret->setShape (decscusr); }
 
+    /** @brief Reflowed content — produced by DST trigger, rendered during transition,
+     *  written to live buffer on onStop. */
+    jam::Buffer<jam::Row> reflowedContent;
+
+    /** @brief History row count for the normal screen from the last reflow, consumed by onStop. */
+    int reflowedHistoryNormal { 0 };
+
+    /** @brief Pure transform: reflows source rows to new column width.
+     *  Source column width is source.getNumCols(); destination column width is dest.getNumCols().
+     *  dest must be pre-allocated by the caller at the new dimensions.
+     *  Content extent = numHistoryNormal + cursorRow + 1 — empty rows below cursor are viewport padding.
+     *  @return Total reflowed history row count for the normal screen. */
+    static int reflow (jam::Buffer<jam::Row>& dest,
+                       const jam::Buffer<jam::Row>& source,
+                       int scrollbackLines,
+                       int oldVisibleRows,
+                       int newVisibleRows,
+                       int numHistoryNormal,
+                       int numHistoryAlternate,
+                       int cursorRow) noexcept;
+
+    /** @brief Hide or show the caret. Called by Display at transition start/stop. */
+    void setCaretVisible (bool visible) noexcept { caret->setVisible (visible); }
+
 private:
     void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
 
     State& terminal;
-    jam::Buffer<jam::Cell>& buffer;
+    jam::Buffer<jam::Row>& buffer;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)

@@ -1,5 +1,133 @@
 # SPRINT-LOG
 
+## Sprint 30: Lossless Reflow — Infrastructure + Architecture Discovery (INCOMPLETE)
+
+**Date:** 2026-05-22 — 2026-05-23
+**Duration:** 10:00+
+**Status:** INCOMPLETE — reflow algorithm broken, needs flexbox rewrite in next sprint
+
+### Agents Participated
+- COUNSELOR: orchestrated, architecture discovery, diagnostic analysis, TETRIS/SST pattern mapping
+- Engineer: code implementation (15+ delegations)
+- Pathfinder: codebase discovery (Video access paths, DST internals, Arrangement shapeImpl)
+- Auditor: step validation (Steps 1-7)
+
+### What Was Accomplished (Infrastructure — DONE)
+1. **jam::Row FAM struct** — `jam_fonts/cell/jam_row.h` created. FlexType=Cell, usedCols, flags (wrapped/dead), Cell cells[] FAM.
+2. **Buffer FlexType stride** — `jam_core/buffer/jam_buffer.h`: hasFlexType SFINAE trait, if constexpr stride dispatch, rowAddress() byte arithmetic, static_assert guards on col-indexed overloads.
+3. **Block byte stride** — `jam_core/buffer/jam_block.h`: stride → strideBytes (size_t), byte arithmetic in getRowPointer.
+4. **Arrangement + TextEditor Row support** — Both Block<Cell> and Block<Row> overloads. Dual content (hasRowContent flag).
+5. **Session + Video type migration** — Buffer<Row> throughout. All 17 getWritePointer sites: row->cells[col], usedCols in print(), wrapped in resolveWrapPending().
+6. **Screen + Processor type alignment** — Block<Row>, DiscreteStateTransition<Row>.
+7. **DST moved from Processor to Screen** — Screen owns transitioner. Display wires trigger/onStop.
+8. **jam::debug::Log moved to jam_core** — ahead of buffer includes, accessible from DST header.
+9. **Buffer maxPreallocatedChannels made public** — DST arrays use it instead of hardcoded 2.
+
+### Architecture Discovery (Correct Mental Model — PRESERVE FOR NEXT SPRINT)
+
+**Display is sole dimension author:**
+- Display::resized() computes Cell::Rectangle from contentBounds + font pixel dims (from DISPLAY attachment node)
+- Predicts scrollbar visibility: numRows > 0 from VT → subtract scrollbar width
+- Triggers DST: screen.transitioner.set(resizeStart, cols, rows)
+
+**DST trigger (Display lambda):**
+- Reads old dims from VT BEFORE overwriting
+- Writes TARGET dims to State (moving target — TETRIS SST pattern)
+- Hides caret
+- Reflows snapshot → Screen::reflowedContent (← THIS IS BROKEN)
+- Screen::reflowedHistoryNormal captures return value
+
+**During transition:**
+- Screen::vTPC renders from reflowedContent (not live buffer)
+- transitioner.isInTransition() gates the render source
+
+**DST onStop (Display lambda):**
+- buffer.setSize (safe — content in reflowedContent)
+- Copy reflowedContent → buffer
+- Write newHistoryNormal to State
+- Show caret
+- processor.finishResize() → SIGWINCH
+
+**Processor is traffic manager:**
+- vTPC detects cols/visibleRows change on State VT → tells Video (setDimensions, resize, loadScreenState)
+- No buffer mutation. No applyResize. No Video getters on MESSAGE thread.
+- All MESSAGE thread reads from VT. Unidirectional.
+
+**TextEditor Viewport no longer writes visibleWidth/visibleHeight** — Display computes deterministically.
+
+### What Failed (Reflow Algorithm)
+
+The cell-streaming reflow approach (tmux model) is fundamentally broken:
+- **Content destroyed on downsize**: items split mid-word at column boundaries
+- **Content scrambled on upsize**: no structural understanding of items vs gaps
+- **Empty rows accumulate**: viewport padding below cursor treated as content
+- **OMP prompt mangled**: left-pinned + right-pinned content with elastic gap not understood
+
+**Root cause**: reflow treats cells individually. Doesn't understand content STRUCTURE (items, gaps, columns). The `Row::wrapped` flag is necessary but insufficient — it marks soft/hard line breaks but doesn't guide content-aware layout.
+
+### Decision: Flexbox Reflow Model (NEXT SPRINT)
+
+ARCHITECT decided: rewrite Screen::reflow() with HTML flexbox-inspired segment model.
+
+Parse each logical line into segments:
+- **Item** = non-whitespace run (never split mid-item)
+- **Gap** = whitespace run >= 2 chars (elastic, flex-grow)
+- **Downsize**: gaps contract first (flex-shrink), then items wrap to next row (flex-wrap)
+- **Upsize**: gaps expand proportionally (flex-grow), items stay intact
+
+The pipeline (DST lifecycle, Display authoring, Screen rendering, Processor traffic) is correct. ONLY the reflow transform function needs rewriting.
+
+### Contract Violations Fixed
+- `state.loadValue()` on MESSAGE thread → VT reads via getValueFromChildWithID
+- `video.getCols()/getVisibleRows()/getCursorRow()/getCursorCol()` → VT reads (no Video getters on MESSAGE thread)
+- `terminal.getCols()/getVisibleRows()/getActiveScreen()` → VT reads
+- Display::resized() cell computation from contentBounds (sole author) instead of TE viewport visibleWidth
+- buffer.getNumCols() smell removed — buffer told, never asked
+
+### Files Modified (END — 30+ total)
+
+**jam framework:**
+- `jam_core/buffer/jam_buffer.h` — FlexType stride, rowAddress, static_assert guards, maxPreallocatedChannels public
+- `jam_core/buffer/jam_block.h` — strideBytes (size_t), byte arithmetic
+- `jam_core/buffer/jam_discrete_state_transition.h` — maxPreallocatedChannels arrays, DIAG logs
+- `jam_core/debug/jam_log.h` + `jam_log.cpp` — NEW (moved from jam_debug)
+- `jam_core/jam_core.h` — Log include at top, before buffers
+- `jam_core/jam_core.cpp` — Log cpp include
+- `jam_fonts/cell/jam_row.h` — NEW
+- `jam_fonts/jam_fonts.h` — Row include
+- `jam_fonts/jam_font/glyph/jam_glyph_arrangement.h` + `.cpp` — Block<Row> shape overloads
+- `jam_gui/text_editor/jam_text_editor.h` — Block<Row> setText, rowContent, hasRowContent, TextEditorViewport simplified
+- `jam_gui/text_editor/jam_text_editor.cpp` — setText(Block<Row>), calc() dual content, resized() simplified
+- `jam_gui/text_editor/jam_text_editor_content_view.cpp` — dual content shaping
+- `jam_debug/jam_debug.h` — Log struct removed (moved to jam_core)
+- `jam_debug/jam_log.cpp` — redirect comment
+
+**END:**
+- `Source/terminal/Session.h` — Buffer<Row>
+- `Source/terminal/Video.h` + `Video.cpp` — Buffer<Row>&, Row* access, usedCols, wrapped flag
+- `Source/terminal/VideoEdit.cpp` — Row* access paths, partial clear memset
+- `Source/terminal/VideoCSI.cpp` — Row* access
+- `Source/terminal/VideoESC.cpp` — Row* access
+- `Source/terminal/Processor.h` — applyResize removed, finishResize kept, vTPC dim detection restored
+- `Source/terminal/Processor.cpp` — reflow removed, applyResize removed, vTPC Video sync via VT reads
+- `Source/terminal/Identifier.h` — resizeTick/resizeEnd removed, resizeStart updated
+- `Source/terminal/component/Screen.h` — DST member, reflowedContent, reflowedHistoryNormal, reflow static, setCaretVisible
+- `Source/terminal/component/Screen.cpp` — reflow function (BROKEN), transition render, vTPC VT reads
+- `Source/terminal/component/Display.h` — unchanged
+- `Source/terminal/component/Display.cpp` — sole dimension author, DST trigger/onStop, no applyResize
+- `ARCHITECTURE.md` — Buffer<Row>, DST ownership, reflow, layer separation updated
+
+### DIAG Markers
+All files contain `// DIAG` diagnostic logging. Must be removed after reflow algorithm is fixed. Grep `// DIAG` to find all instances.
+
+### Debts Paid
+- None
+
+### Debts Deferred
+- Reflow algorithm rewrite (flexbox model) — next sprint with ORACLE RFC
+
+---
+
 ## Sprint 29: AppState Config SSOT + Viewport Scrollback + Buffer/Block Integration ✅
 
 **Date:** 2026-05-22

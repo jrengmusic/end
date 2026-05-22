@@ -65,7 +65,7 @@ namespace terminal
  * screens), scroll region, tab stops, charset selection, and response buffering.
  *
  * @par Lifecycle
- * 1. Construct with references to a `jam::Buffer<jam::Cell>` and the events map.
+ * 1. Construct with references to a `jam::Buffer<jam::Row>` and the events map.
  * 2. Call `calc()` once after construction (and after every `resize()`) to
  *    synchronise internal geometry.
  * 3. Parser calls action methods (`print()`, `applyControlCode()`, `applyCSI()`, …)
@@ -110,7 +110,7 @@ public:
      *
      * @see calc()
      */
-    explicit Video (jam::Buffer<jam::Cell>& buffer, jam::Function::Map<juce::Identifier, void>& events) noexcept;
+    explicit Video (jam::Buffer<jam::Row>& buffer, jam::Function::Map<juce::Identifier, void>& events) noexcept;
 
     /**
      * @brief Notifies Video that the terminal dimensions have changed.
@@ -311,7 +311,7 @@ private:
     /**
      * @brief Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
      */
-    jam::Buffer<jam::Cell>& buffer;
+    jam::Buffer<jam::Row>& buffer;
 
 
     /**

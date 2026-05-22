@@ -29,7 +29,7 @@
  * @see VideoDCS.cpp — DCS and APC passthrough
  * @see VideoVT.cpp  — ground-state print and applyControlCode handlers
  * @see VideoCSI.cpp — CSI sequence dispatch
- * @see Grid         — flat cell storage (Buffer<Cell>)
+ * @see Buffer<Row>  — flat cell storage with per-row FAM metadata
  */
 
 #include "Video.h"
@@ -246,10 +246,13 @@ void Video::escDispatchDEC (int scr, uint8_t finalByte) noexcept
 
         for (int row { 0 }; row < vRows; ++row)
         {
-            jam::Cell* const cells { buffer.getWritePointer (scr, row) };
+            jam::Row* const rowPtr { buffer.getWritePointer (scr, row) };
 
             for (int col { 0 }; col < nCols; ++col)
-                cells[col] = alignCell;
+                rowPtr->cells[col] = alignCell;
+
+            rowPtr->usedCols = static_cast<uint16_t> (nCols);
+            rowPtr->flags    = 0;
         }
 
         cursorSetPosition (0_cell, 0_cell, cell (nCols), cell (vRows));

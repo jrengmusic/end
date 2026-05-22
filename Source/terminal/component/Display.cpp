@@ -30,6 +30,80 @@ terminal::Display::Display (terminal::Processor& processorToUse)
 
     AppState::getContext()->get().addListener (this);
     applyFromAppState();
+
+    screen.transitioner.addTrigger<cell, cell> (
+        terminal::id::resizeStart,
+        [this] (cell targetCols, cell targetRows)
+        {
+            screen.setCaretVisible (false);
+
+            // Read old values from State VT BEFORE overwriting with target.
+            const cell oldVisibleRows { static_cast<int> (
+                jam::ValueTree::getValueFromChildWithID (state.get(), terminal::id::visibleRows).getValue()) };
+
+            // Write target dimensions to State — DST drives the moving target.
+            state.setValue (terminal::id::cols, targetCols.value);
+            state.setValue (terminal::id::visibleRows, targetRows.value);
+
+            jam::debug::Log::write ("[DST::trigger] targetCols=" + juce::String (targetCols.value)                  // DIAG
+                                    + " targetRows=" + juce::String (targetRows.value)                                // DIAG
+                                    + " oldVisRows=" + juce::String (oldVisibleRows.value)                            // DIAG
+                                    + " prevNumRows=" + juce::String (screen.transitioner.previous.getNumRows()));   // DIAG
+
+            // Reflow from DST snapshot — skipped on cold start (snapshot empty).
+            if (screen.transitioner.previous.getNumRows() > 0)
+            {
+                const int scrollbackLines { static_cast<int> (
+                    jam::ValueTree::getValueFromChildWithID (AppState::getContext()->get(), app::id::scrollbackLines).getValue()) };
+
+                const juce::Identifier normalId { Map::Screen::getContext()->get (Map::Screen::normal) };
+                const juce::Identifier alternateId { Map::Screen::getContext()->get (Map::Screen::alternate) };
+                const int numHistoryNormal { static_cast<int> (
+                    jam::ValueTree::getValueFromChildWithID (state.get().getChildWithName (normalId), terminal::id::numRows).getValue()) };
+                const int numHistoryAlternate { static_cast<int> (
+                    jam::ValueTree::getValueFromChildWithID (state.get().getChildWithName (alternateId), terminal::id::numRows).getValue()) };
+                const int cursorRow { static_cast<int> (
+                    jam::ValueTree::getValueFromChildWithID (state.get().getChildWithName (normalId), terminal::id::cursorRow).getValue()) };
+
+                // Allocate reflowed storage at new dimensions.
+                const int ringSize { juce::nextPowerOfTwo (scrollbackLines + targetRows.value) };
+                screen.reflowedContent.setSize (2, ringSize, targetCols.value);
+
+                // Reflow DST snapshot into reflowedContent; capture history count for onStop.
+                screen.reflowedHistoryNormal = terminal::Screen::reflow (screen.reflowedContent,
+                                                                         screen.transitioner.previous,
+                                                                         scrollbackLines,
+                                                                         oldVisibleRows.value,
+                                                                         targetRows.value,
+                                                                         numHistoryNormal,
+                                                                         numHistoryAlternate,
+                                                                         cursorRow);
+            }
+        });
+
+    screen.transitioner.onStop = [this]
+    {
+        auto& buf { processor.getBuffer() };
+        const int ringSize { screen.reflowedContent.getNumRows() };
+        const int numCols { screen.reflowedContent.getNumCols() };
+
+        // NOW safe to resize live buffer — reflowed content is in screen.reflowedContent.
+        buf.setSize (2, ringSize, numCols);
+
+        // Copy reflowed content to live buffer.
+        for (int ch { 0 }; ch < 2; ++ch)
+        {
+            for (int r { 0 }; r < ringSize; ++r)
+                buf.copyFrom (ch, r, screen.reflowedContent, ch, r);
+        }
+
+        // Write new history count to State.
+        const juce::Identifier normalId { Map::Screen::getContext()->get (Map::Screen::normal) };
+        state.setValue (normalId, terminal::id::numRows, screen.reflowedHistoryNormal);
+
+        processor.finishResize();
+        screen.setCaretVisible (true);
+    };
 }
 
 terminal::State& terminal::Display::createAndAttachState (terminal::State& stateToSeed,
@@ -151,20 +225,38 @@ void terminal::Display::resized()
 
     screen.setBounds (contentBounds);
 
-    // After screen.setBounds, TextEditor::resized() has written visibleWidth/visibleHeight
-    // to the TextEditor state node (grafted into SESSION tree). Read them to compute cell dims.
-    const auto teNode { state.get().getChildWithName (jam::TextEditor::properties.at (jam::TextEditor::textEditorId)) };
-    const int visibleWidth { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::visibleWidthId), 0)) };
-    const int visibleHeight { static_cast<int> (teNode.getProperty (jam::TextEditor::properties.at (jam::TextEditor::visibleHeightId), 0)) };
-
+    // Compute cell dimensions from pixel bounds — Display is sole dimension author.
+    // Cell pixel dims from DISPLAY attachment node (written by applyFromAppState).
     const int cellWidth { static_cast<int> (jam::ValueTree::getValueFromChildWithID (attachment->getNode(), terminal::id::cellWidth).getValue()) };
     const int cellHeight { static_cast<int> (jam::ValueTree::getValueFromChildWithID (attachment->getNode(), terminal::id::cellHeight).getValue()) };
 
-    if (visibleWidth > 0 and visibleHeight > 0 and cellWidth > 0 and cellHeight > 0)
+    if (cellWidth > 0 and cellHeight > 0 and contentBounds.getWidth() > 0 and contentBounds.getHeight() > 0)
     {
+        // Predict scrollbar visibility: content exceeds viewport when history exists.
+        const juce::Identifier normalId { Map::Screen::getContext()->get (Map::Screen::normal) };
+        const int numRows { static_cast<int> (
+            jam::ValueTree::getValueFromChildWithID (state.get().getChildWithName (normalId), terminal::id::numRows).getValue()) };
+        const int scrollbarWidth { numRows > 0 ? screen.getLookAndFeel().getDefaultScrollbarWidth() : 0 };
+
+        const int availableWidth { contentBounds.getWidth() - scrollbarWidth };
         const auto gridRect { jam::Cell::Rectangle (jam::Bounds { cellWidth, cellHeight },
-                                                    juce::Rectangle<int> { 0, 0, visibleWidth, visibleHeight }) };
-        state.setDimensions (cell (gridRect.getWidth().value), cell (gridRect.getHeight().value));
+                                                     juce::Rectangle<int> { 0, 0, availableWidth, contentBounds.getHeight() }) };
+
+        const cell newCols { gridRect.getWidth() };
+        const cell newRows { gridRect.getHeight() };
+
+        if (newCols.value > 0 and newRows.value > 0)
+        {
+            jam::debug::Log::write ("[DISPLAY::resized] cols=" + juce::String (newCols.value)                          // DIAG
+                                    + " rows=" + juce::String (newRows.value)                                           // DIAG
+                                    + " availW=" + juce::String (availableWidth) + " scrollbar=" + juce::String (scrollbarWidth) // DIAG
+                                    + " contentBounds=" + juce::String (contentBounds.getWidth()) + "x" + juce::String (contentBounds.getHeight())); // DIAG
+
+            // Trigger DST — Screen owns transitioner, Display wires it.
+            // DST trigger writes target dims to State (moving target during animation).
+            screen.transitioner.liveRows = { numRows + newRows.value, newRows.value };
+            screen.transitioner.set (terminal::id::resizeStart, newCols, newRows);
+        }
     }
 
     // Pixel dimensions — needed by SIGWINCH (tty->platformResize).

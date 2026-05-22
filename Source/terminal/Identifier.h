@@ -367,26 +367,10 @@ namespace id
      */
     static const juce::Identifier apcPayloadComplete  { "apcPayloadComplete" };
 
-    /** @brief Fired by GridSizeTransition on each timer tick during a transition.
-     *
-     *  Args: int numRowsNormal, int numRowsAlternate, int scrollOffset, int cursorRow, int cursorCol.
-     *  Processor handler writes State so Screen repaints at interpolated dims.
-     *  Fired on the MESSAGE THREAD (timer callback).
-     */
-    static const juce::Identifier resizeTick           { "resizeTick" };
-
-    /** @brief Fired by GridSizeTransition SIGWINCH debounce timer when the resize gesture settles.
-     *
-     *  No arguments. Processor reads current State dims (freshest values) and
-     *  delivers SIGWINCH to the shell.
-     *  Fired on the MESSAGE THREAD (timer callback).
-     */
-    static const juce::Identifier resizeEnd            { "resizeEnd" };
-
-    /** @brief DST trigger key — applies height adjustment, column change, and video sync.
+    /** @brief DST trigger key — lossless reflow, buffer reallocation, video + state sync.
      *
      *  Args: cell (targetCols), cell (targetRows).
-     *  Fired from valueTreePropertyChanged on the MESSAGE THREAD.
+     *  Fired from Display::resized() via Screen's DST on the MESSAGE THREAD.
      */
     static const juce::Identifier resizeStart           { "resizeStart" };
 

@@ -546,10 +546,13 @@ void Video::scrollDown (const CSI& params) noexcept
 
         for (int r { scrTop }; r < scrTop + clampedCount; ++r)
         {
-            jam::Cell* const cells { buffer.getWritePointer (scr, r) };
+            jam::Row* const rowPtr { buffer.getWritePointer (scr, r) };
 
             for (int c { 0 }; c < numCols; ++c)
-                cells[c] = fill;
+                rowPtr->cells[c] = fill;
+
+            rowPtr->usedCols = 0;
+            rowPtr->flags    = 0;
         }
     }
 }
