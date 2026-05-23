@@ -18,13 +18,6 @@
 
 ---
 
-## DEBT-20260523T070000
-
-**Observation:** viewport broken — empty lines, wrong prompt position, scrollbar on cold start
-**Divergence:** Viewport renders empty rows between content and prompt, active prompt at wrong position, cursor correct but after empties. Likely introduced when Row FAM replaced Cell-based rendering.
-**Expectation:** Viewport should render content contiguously — no empty rows between content and prompt on cold start
-
----
 
 ## DEBT-20260521T120000
 
@@ -43,46 +36,11 @@
 
 ---
 
-## DEBT-20260428T215350
-
-**Observation:** need lua api for pane resizing
-**Divergence:** resizing pane only available with mouse
-**Expectation:** can assign keyboard shorcut for resizing pane vertically/horizontally
-
----
 
 
-## DEBT-20260428T213146
 
-**Observation:** codebase is messy with violation:
-**Divergence:** constant naming with polish notation, variable names especially args with underscore, naked pointers
-**Expectation:** all must adhere to NAMES.md JRENG-CODING-STANDARD.md MANIFESTO.md windows pointers must be wrapped with RAII
 
----
 
-## DEBT-20260426T122105
-
-**Observation:** when screen resolution changes, end didnt resized
-**Divergence:** screen resolution (also include desktop scaling) changes, end stays at starting resolution, terminal rendered small, while window size is correct
-**Expectation:** end should reactively conform to screen resolution/desktop scaling changes and adjust terminal render dims accordingly
-
----
-
-## DEBT-20260426T121503
-
-**Observation:** update nexus.lua hot reload
-**Divergence:** changes on nexus.lua saved, file watcher triggered, config reloaded, no message at all
-**Expectation:** changes on any lua files included in end.lua should trigger "RELOAD" message overlay
-
----
-
-## DEBT-20260426T120444
-
-**Observation:** https://developer.apple.com/documentation/AppKit/NSGlassEffectView
-**Divergence:** jam style window and menu that using "modern" API fallback with NSVisualEffect should be gone
-**Expectation:** mac glassmorphism pre-Tahoe must be using CGSBackgroundBlur as default, Tahoe+ use the latest API with NSGlassEffectView for all Window, Menu, and Sheet (might need to fork from kuassa lib)
-
----
 
 
 

@@ -69,16 +69,16 @@ static int mapPosition (const int col, const int sourceCols, const int destCols)
  * @return New history row count for normal screen after reflow.
  */
 int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
-                               const jam::Buffer<jam::Row>& source,
-                               int scrollbackLines,
-                               int oldVisibleRows,
-                               int newVisibleRows,
-                               int numHistoryNormal,
-                               int numHistoryAlternate,
-                               int cursorRow) noexcept
+                              const jam::Buffer<jam::Row>& source,
+                              int scrollbackLines,
+                              int oldVisibleRows,
+                              int newVisibleRows,
+                              int numHistoryNormal,
+                              int numHistoryAlternate,
+                              int cursorRow) noexcept
 {
-    const int destCols        { dest.getNumCols() };
-    const int sourceCols      { source.getNumCols() };
+    const int destCols { dest.getNumCols() };
+    const int sourceCols { source.getNumCols() };
     const int totalSourceRows { numHistoryNormal + cursorRow + 1 };
 
     int srcRow { 0 };
@@ -91,15 +91,14 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
         // Find logical line boundary (rows joined by flexWrap).
         const int lineStart { srcRow };
 
-        while (srcRow < totalSourceRows
-               and (source.getReadPointer (0, srcRow)->flags & jam::Row::flexWrap) != 0)
+        while (srcRow < totalSourceRows and (source.getReadPointer (0, srcRow)->flags & jam::Row::flexWrap) != 0)
         {
             ++srcRow;
         }
 
-        ++srcRow; // consume the terminating (non-wrapped) row
-        const int lineEnd      { srcRow }; // exclusive
-        const int numSrcRows   { lineEnd - lineStart };
+        ++srcRow;// consume the terminating (non-wrapped) row
+        const int lineEnd { srcRow };// exclusive
+        const int numSrcRows { lineEnd - lineStart };
 
         // Check if logical line is entirely empty.
         bool allEmpty { true };
@@ -146,7 +145,7 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                 for (int r { lineStart }; r < lineEnd; ++r)
                 {
                     const auto* srcRowPtr { source.getReadPointer (0, r) };
-                    const int   used      { static_cast<int> (srcRowPtr->usedCols) };
+                    const int used { static_cast<int> (srcRowPtr->usedCols) };
 
                     for (int c { 0 }; c < used; ++c)
                     {
@@ -155,10 +154,10 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                         if (segCount == 0)
                         {
                             segOffsets[0] = flatPos;
-                            segWidths[0]  = 1;
-                            segIsGap[0]   = cellGap;
-                            segCount      = 1;
-                            inGap         = cellGap;
+                            segWidths[0] = 1;
+                            segIsGap[0] = cellGap;
+                            segCount = 1;
+                            inGap = cellGap;
                         }
                         else if (cellGap == inGap)
                         {
@@ -167,8 +166,8 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                         else if (segCount < maxSegs)
                         {
                             segOffsets[segCount] = flatPos;
-                            segWidths[segCount]  = 1;
-                            segIsGap[segCount]   = cellGap;
+                            segWidths[segCount] = 1;
+                            segIsGap[segCount] = cellGap;
                             ++segCount;
                             inGap = cellGap;
                         }
@@ -181,7 +180,7 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                 // Source cursor for reading cells.
                 int curSrcRow { lineStart };
                 int curSrcCol { 0 };
-                int curFlat   { 0 };
+                int curFlat { 0 };
 
                 for (int s { 0 }; s < segCount; ++s)
                 {
@@ -222,10 +221,7 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                         // Write FLEX_GAP cells from destCol to gapDestEnd.
                         for (int g { destCol }; g < gapDestEnd and g < destCols; ++g)
                         {
-                            destRowPtr->cells[g] = jam::Cell::make (0x20,
-                                                                    jam::Cell::FLEX_GAP,
-                                                                    jam::Cell::NARROW,
-                                                                    0);
+                            destRowPtr->cells[g] = jam::Cell::make (0x20, jam::Cell::FLEX_GAP, jam::Cell::NARROW, 0);
                         }
 
                         destCol = juce::jmin (gapDestEnd, destCols);
@@ -235,10 +231,7 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                         // Fill any space before this item with FLEX_GAP (from previous item end).
                         for (int g { destCol }; g < segStart and g < destCols; ++g)
                         {
-                            destRowPtr->cells[g] = jam::Cell::make (0x20,
-                                                                    jam::Cell::FLEX_GAP,
-                                                                    jam::Cell::NARROW,
-                                                                    0);
+                            destRowPtr->cells[g] = jam::Cell::make (0x20, jam::Cell::FLEX_GAP, jam::Cell::NARROW, 0);
                         }
 
                         destCol = juce::jmax (destCol, segStart);
@@ -273,7 +266,7 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                 }
 
                 destRowPtr->usedCols = static_cast<uint16_t> (destCol);
-                destRowPtr->flags    = 0;
+                destRowPtr->flags = 0;
                 ++dstRow;
             }
             else
@@ -282,12 +275,12 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                 // FLEX_GAP runs contract proportionally (minimum 1 cell).
                 // Items copy verbatim and wrap at dest row boundary.
                 auto* destRowPtr { dest.getWritePointer (0, dstRow) };
-                int   destCol    { 0 };
+                int destCol { 0 };
 
                 for (int r { lineStart }; r < lineEnd and dstRow < scrollbackLines; ++r)
                 {
                     const auto* srcRowPtr { source.getReadPointer (0, r) };
-                    const int   used      { static_cast<int> (srcRowPtr->usedCols) };
+                    const int used { static_cast<int> (srcRowPtr->usedCols) };
                     int c { 0 };
 
                     while (c < used and dstRow < scrollbackLines)
@@ -296,10 +289,10 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                         if (destCol >= destCols)
                         {
                             destRowPtr->usedCols = static_cast<uint16_t> (destCol);
-                            destRowPtr->flags    = jam::Row::flexWrap;
+                            destRowPtr->flags = jam::Row::flexWrap;
                             ++dstRow;
                             destRowPtr = dest.getWritePointer (0, dstRow);
-                            destCol    = 0;
+                            destCol = 0;
                         }
 
                         const jam::Cell& srcCell { srcRowPtr->cells[c] };
@@ -309,47 +302,39 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                             // Measure gap run length.
                             const int gapStart { c };
 
-                            while (c < used
-                                   and srcRowPtr->cells[c].contentTag() == jam::Cell::FLEX_GAP)
+                            while (c < used and srcRowPtr->cells[c].contentTag() == jam::Cell::FLEX_GAP)
                             {
                                 ++c;
                             }
 
-                            const int gapLen    { c - gapStart };
+                            const int gapLen { c - gapStart };
                             // Contract proportionally — minimum 1 cell preserved.
                             const int newGapLen { juce::jmax (1, gapLen * destCols / sourceCols) };
 
-                            for (int g { 0 };
-                                 g < newGapLen and dstRow < scrollbackLines;
-                                 ++g)
+                            for (int g { 0 }; g < newGapLen and dstRow < scrollbackLines; ++g)
                             {
                                 if (destCol >= destCols)
                                 {
                                     destRowPtr->usedCols = static_cast<uint16_t> (destCol);
-                                    destRowPtr->flags    = jam::Row::flexWrap;
+                                    destRowPtr->flags = jam::Row::flexWrap;
                                     ++dstRow;
                                     destRowPtr = dest.getWritePointer (0, dstRow);
-                                    destCol    = 0;
+                                    destCol = 0;
                                 }
 
-                                destRowPtr->cells[destCol] = jam::Cell::make (0x20,
-                                                                              jam::Cell::FLEX_GAP,
-                                                                              jam::Cell::NARROW,
-                                                                              0);
+                                destRowPtr->cells[destCol] =
+                                    jam::Cell::make (0x20, jam::Cell::FLEX_GAP, jam::Cell::NARROW, 0);
                                 ++destCol;
                             }
                         }
                         else
                         {
                             // Content cell — handle wide char at last column.
-                            if (destCol == destCols - 1
-                                and srcCell.wide() == jam::Cell::WIDE)
+                            if (destCol == destCols - 1 and srcCell.wide() == jam::Cell::WIDE)
                             {
                                 // Wide char at last column: insert SPACER_HEAD, defer cell.
-                                destRowPtr->cells[destCol] = jam::Cell::make (0,
-                                                                              jam::Cell::CONTENT_CODEPOINT,
-                                                                              jam::Cell::SPACER_HEAD,
-                                                                              0);
+                                destRowPtr->cells[destCol] =
+                                    jam::Cell::make (0, jam::Cell::CONTENT_CODEPOINT, jam::Cell::SPACER_HEAD, 0);
                                 ++destCol;
                                 // Do NOT advance c — cell will be copied on next iteration
                                 // after wrapping to the new row.
@@ -361,9 +346,7 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                                 ++c;
 
                                 // Copy SPACER_TAIL immediately following a WIDE cell.
-                                if (srcCell.wide() == jam::Cell::WIDE
-                                    and c < used
-                                    and destCol < destCols)
+                                if (srcCell.wide() == jam::Cell::WIDE and c < used and destCol < destCols)
                                 {
                                     destRowPtr->cells[destCol] = srcRowPtr->cells[c];
                                     ++destCol;
@@ -378,7 +361,7 @@ int terminal::Screen::reflow (jam::Buffer<jam::Row>& dest,
                 if (dstRow < scrollbackLines)
                 {
                     destRowPtr->usedCols = static_cast<uint16_t> (destCol);
-                    destRowPtr->flags    = 0; // last row of logical line has no flexWrap
+                    destRowPtr->flags = 0;// last row of logical line has no flexWrap
                     ++dstRow;
                 }
             }
@@ -447,8 +430,7 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
 
     const cell viewportRows { static_cast<int> (
         jam::ValueTree::getValueFromChildWithID (terminal.get(), id::visibleRows).getValue()) };
-    const cell cols { static_cast<int> (
-        jam::ValueTree::getValueFromChildWithID (terminal.get(), id::cols).getValue()) };
+    const cell cols { static_cast<int> (jam::ValueTree::getValueFromChildWithID (terminal.get(), id::cols).getValue()) };
     const cell scrollOffset { static_cast<int> (
         jam::ValueTree::getValueFromChildWithID (screenNode, id::scrollOffset).getValue()) };
     const cell numRows { static_cast<int> (
@@ -468,6 +450,11 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
         const cell startRow { contentRows.value - totalRows.value };
         const cell historyRows { totalRows.value - viewportRows.value };
 
+        // Ring-aware start: history rows are before head, wrapping at high logical indices.
+        // reflowedContent has head=0 (reflow writes from physical 0), so live path only.
+        const int ringSize { buffer.getNumRows() };
+        const int liveStartRow { (ringSize - historyRows.value) % ringSize };
+
         // During transition: render from reflowedContent. Else: render from live buffer.
         if (transitioner.isInTransition() and reflowedContent.getNumRows() > 0)
         {
@@ -478,7 +465,7 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
         }
         else
         {
-            const jam::Block<jam::Row> block (buffer, activeScreen, startRow.value, totalRows.value);
+            const jam::Block<jam::Row> block (buffer, activeScreen, liveStartRow, totalRows.value);
 
             setText (block);
         }

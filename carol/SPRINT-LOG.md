@@ -1,5 +1,31 @@
 # SPRINT-LOG
 
+## Sprint 32: Viewport ring-addressing fix ✅
+
+**Date:** 2026-05-23
+
+### Agents Participated
+- COUNSELOR: root cause analysis, codebase investigation
+
+### Files Modified (1 total)
+- `Source/terminal/component/Screen.cpp:453-456` — added `ringSize` and `liveStartRow = (ringSize - historyRows) % ringSize`; live buffer Block construction now uses `liveStartRow` instead of the old `startRow` (which was always 0 within scrollbackLines). reflowedContent path retains `startRow = contentRows - totalRows` (correct: head=0 in reflowedContent, history at physical 0).
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **Viewport empty rows / wrong prompt position / spurious scrollbar on cold start** — Sprint 30 introduced `buffer.advanceHead()` for full-screen scrolls. History rows now live at ring positions *before* `head` (logical indices `ringSize-N .. ringSize-1`), wrapping around. `startRow = contentRows - totalRows = 0` always started the block at physical `head` (viewport top). The "history" slots `[viewportRows..totalRows-1]` mapped to cleared blank rows, not actual scrollback. `setViewportPosition(0, historyRows * cellH)` then scrolled the viewport into blank space; ContentView height exceeded viewportMaxH causing a spurious scrollbar; top `historyRows` viewport rows were hidden. Fix: `liveStartRow = (ringSize - historyRows) % ringSize` wraps correctly to physical `(head - historyRows) % ringSize` = oldest history row.
+
+### Debts Paid
+- `DEBT-20260523T070000` — ring-aware liveStartRow in Screen::valueTreePropertyChanged fixes empty rows, wrong prompt position, and spurious scrollbar
+
+### Debts Deferred
+- None
+
+---
+
 ## Handoff to COUNSELOR: Flexbox Reflow Algorithm
 
 **From:** COUNSELOR
