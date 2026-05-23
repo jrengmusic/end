@@ -1,5 +1,63 @@
 # SPRINT-LOG
 
+## Handoff to COUNSELOR: Flexbox Reflow Algorithm
+
+**From:** COUNSELOR
+**Date:** 2026-05-23
+**Status:** In Progress — upsize works, downsize broken, viewport broken
+
+### Context
+Sprint 31 implementing flexbox reflow algorithm per RFC-flexbox-reflow.md. Sprint 30 delivered all infrastructure (Row FAM, Buffer<Row> stride, DST at Screen, Display sole author). This sprint rewrites the reflow transform function and adds supporting cell metadata (FLEX_GAP).
+
+### Completed
+- `Cell::FLEX_GAP { 2 }` constant — fits existing 2-bit contentTag field
+- `Row::wrapped→flexWrap`, `Row::dead→collapsed` rename across both codebases
+- Video FLEX_GAP stamping in print() — look-back stamps consecutive blanks
+- Screen::reflow() rewritten: two-path layout mapping model (EXPAND: segment-boundary mapping + verbatim item copy; CONTRACT: streaming with proportional gap contraction)
+- `juce::CriticalSection reflowLock` on reflowedContent — guards GL thread vs message thread race
+- Buffer refactor: `char*` channels (was `ElementType*`), DRY rowAddress via `std::as_const` delegate, zero `reinterpret_cast`
+- All `// DIAG` markers removed from END and jam codebases
+- Cold start caret fix: `setCaretVisible(false)` moved inside `previous.getNumRows() > 0` guard
+
+### Remaining
+- **DEBT-20260523T070000**: viewport broken — empty lines, wrong prompt position on cold start. Likely from Row FAM introduction (Sprint 30)
+- **DEBT-20260523T070001**: downsize CONTRACT path is broken and destructive. Should NOT remap — should wrap current content sequentially at new column width. Current implementation scatters content.
+- Upsize EXPAND path works but needs verification at edge cases (wide chars, very narrow terminals)
+- ARCHITECTURE.md needs update after reflow algorithm is finalized
+
+### Key Decisions
+- **Layout mapping over flex distribution**: ARCHITECT decided against CSS flex-grow distribution (hard justifies). Instead: map segment BOUNDARIES proportionally from source width to dest width. Items stay intact. Gaps + trailing empty absorb extra proportionally via `mapPosition(offset, sourceCols, destCols)`.
+- **FLEX_GAP at Video write time**: SSOT — only Video knows "application wrote a space" vs "erase cleared a cell". Cell-level tag survives all buffer operations.
+- **CriticalSection for reflowedContent**: GL thread renders via `drawGlyphRuns` while message thread writes via reflow. Cross-thread race confirmed from crash trace.
+- **Buffer char* channels**: Eliminates `reinterpret_cast` chain. `char*` is native byte arithmetic. `static_cast<void*>` chain is standard-compliant.
+
+### Files Modified
+
+**jam:**
+- `jam_fonts/cell/jam_cell.h` — FLEX_GAP { 2 } constant
+- `jam_fonts/cell/jam_row.h` — wrapped→flexWrap, dead→collapsed
+- `jam_core/buffer/jam_buffer.h` — char* channels, DRY rowAddress, no reinterpret_cast
+- `jam_core/buffer/jam_discrete_state_transition.h` — DIAG removed
+
+**END:**
+- `Source/terminal/Video.cpp` — FLEX_GAP stamping in print(), Row::flexWrap rename
+- `Source/terminal/component/Screen.h` — reflowLock member
+- `Source/terminal/component/Screen.cpp` — full reflow rewrite (layout mapping), ScopedLock on render, Row::flexWrap rename, DIAG removed
+- `Source/terminal/component/Display.cpp` — ScopedLock on trigger+onStop, caret guard fix, DIAG removed
+- `DEBT.md` — two new entries
+
+### Open Questions
+- Should downsize CONTRACT path use simple cell streaming with wrap (no gap awareness), or should it still contract gaps before wrapping?
+- Is the viewport empty lines issue in Screen::vTPC's startRow/contentRows formula, or in the Block construction?
+
+### Next Steps
+1. Fix DEBT-20260523T070000 (viewport empty lines) — investigate Screen::vTPC startRow calculation
+2. Fix DEBT-20260523T070001 (downsize) — replace CONTRACT path with sequential cell streaming + wrap at destCols
+3. Verify upsize with wide chars and edge cases
+4. Update ARCHITECTURE.md
+
+---
+
 ## Sprint 30: Lossless Reflow — Infrastructure + Architecture Discovery (INCOMPLETE)
 
 **Date:** 2026-05-22 — 2026-05-23

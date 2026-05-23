@@ -421,7 +421,7 @@ void Video::resolveWrapPending (int /*scr*/) noexcept
 
         {
             jam::Row* const completedRow { buffer.getWritePointer (activeScreen, row) };
-            completedRow->flags |= jam::Row::wrapped;
+            completedRow->flags |= jam::Row::flexWrap;
         }
 
         if (row == scrollBot.value)
@@ -573,6 +573,20 @@ void Video::print (uint32_t codepoint) noexcept
         jam::Row* const writeRowPtr { buffer.getWritePointer (scr, writeRow) };
         writeRowPtr->cells[writeCol] = glyph;
         writeRowPtr->usedCols = static_cast<uint16_t> (juce::jmax (static_cast<int> (writeRowPtr->usedCols), writeCol + charWidth));
+
+        // Stamp consecutive blanks as FLEX_GAP — elastic whitespace for reflow.
+        if (cp == 0x20 and writeCol > 0)
+        {
+            auto& prev { writeRowPtr->cells[writeCol - 1] };
+
+            if (prev.codepoint() == 0x20)
+            {
+                if (prev.contentTag() != jam::Cell::FLEX_GAP)
+                    prev = jam::Cell::make (0x20, jam::Cell::FLEX_GAP, jam::Cell::NARROW, prev.styleId());
+
+                writeRowPtr->cells[writeCol] = jam::Cell::make (0x20, jam::Cell::FLEX_GAP, jam::Cell::NARROW, sid);
+            }
+        }
 
         lastGraphicChar = codepoint;
         lastWriteRow    = writeRow;

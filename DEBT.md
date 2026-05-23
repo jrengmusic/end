@@ -10,6 +10,22 @@
 
 ---
 
+## DEBT-20260523T070001
+
+**Observation:** downsize reflow is broken and destructive
+**Divergence:** CONTRACT path remaps/scatters content instead of wrapping. Content destroyed after downsize cycle.
+**Expectation:** Downsize should NOT remap — should wrap current content at new column width, preserving all characters sequentially.
+
+---
+
+## DEBT-20260523T070000
+
+**Observation:** viewport broken — empty lines, wrong prompt position, scrollbar on cold start
+**Divergence:** Viewport renders empty rows between content and prompt, active prompt at wrong position, cursor correct but after empties. Likely introduced when Row FAM replaced Cell-based rendering.
+**Expectation:** Viewport should render content contiguously — no empty rows between content and prompt on cold start
+
+---
+
 ## DEBT-20260521T120000
 
 **Observation:** entering tmux inside END, garbage bytes echoed to terminal: `^[[?62;4c%` and `/62;4c_`. Need to type random input until gaining full control of active prompt.

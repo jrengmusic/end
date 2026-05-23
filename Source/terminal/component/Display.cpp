@@ -35,8 +35,6 @@ terminal::Display::Display (terminal::Processor& processorToUse)
         terminal::id::resizeStart,
         [this] (cell targetCols, cell targetRows)
         {
-            screen.setCaretVisible (false);
-
             // Read old values from State VT BEFORE overwriting with target.
             const cell oldVisibleRows { static_cast<int> (
                 jam::ValueTree::getValueFromChildWithID (state.get(), terminal::id::visibleRows).getValue()) };
@@ -45,14 +43,11 @@ terminal::Display::Display (terminal::Processor& processorToUse)
             state.setValue (terminal::id::cols, targetCols.value);
             state.setValue (terminal::id::visibleRows, targetRows.value);
 
-            jam::debug::Log::write ("[DST::trigger] targetCols=" + juce::String (targetCols.value)                  // DIAG
-                                    + " targetRows=" + juce::String (targetRows.value)                                // DIAG
-                                    + " oldVisRows=" + juce::String (oldVisibleRows.value)                            // DIAG
-                                    + " prevNumRows=" + juce::String (screen.transitioner.previous.getNumRows()));   // DIAG
-
             // Reflow from DST snapshot — skipped on cold start (snapshot empty).
             if (screen.transitioner.previous.getNumRows() > 0)
             {
+                screen.setCaretVisible (false);
+
                 const int scrollbackLines { static_cast<int> (
                     jam::ValueTree::getValueFromChildWithID (AppState::getContext()->get(), app::id::scrollbackLines).getValue()) };
 
@@ -67,23 +62,29 @@ terminal::Display::Display (terminal::Processor& processorToUse)
 
                 // Allocate reflowed storage at new dimensions.
                 const int ringSize { juce::nextPowerOfTwo (scrollbackLines + targetRows.value) };
-                screen.reflowedContent.setSize (2, ringSize, targetCols.value);
 
-                // Reflow DST snapshot into reflowedContent; capture history count for onStop.
-                screen.reflowedHistoryNormal = terminal::Screen::reflow (screen.reflowedContent,
-                                                                         screen.transitioner.previous,
-                                                                         scrollbackLines,
-                                                                         oldVisibleRows.value,
-                                                                         targetRows.value,
-                                                                         numHistoryNormal,
-                                                                         numHistoryAlternate,
-                                                                         cursorRow);
+                {
+                    const juce::ScopedLock sl (screen.reflowLock);
+                    screen.reflowedContent.setSize (2, ringSize, targetCols.value);
+
+                    // Reflow DST snapshot into reflowedContent; capture history count for onStop.
+                    screen.reflowedHistoryNormal = terminal::Screen::reflow (screen.reflowedContent,
+                                                                             screen.transitioner.previous,
+                                                                             scrollbackLines,
+                                                                             oldVisibleRows.value,
+                                                                             targetRows.value,
+                                                                             numHistoryNormal,
+                                                                             numHistoryAlternate,
+                                                                             cursorRow);
+                }
             }
         });
 
     screen.transitioner.onStop = [this]
     {
         auto& buf { processor.getBuffer() };
+
+        const juce::ScopedLock sl (screen.reflowLock);
         const int ringSize { screen.reflowedContent.getNumRows() };
         const int numCols { screen.reflowedContent.getNumCols() };
 
@@ -247,11 +248,6 @@ void terminal::Display::resized()
 
         if (newCols.value > 0 and newRows.value > 0)
         {
-            jam::debug::Log::write ("[DISPLAY::resized] cols=" + juce::String (newCols.value)                          // DIAG
-                                    + " rows=" + juce::String (newRows.value)                                           // DIAG
-                                    + " availW=" + juce::String (availableWidth) + " scrollbar=" + juce::String (scrollbarWidth) // DIAG
-                                    + " contentBounds=" + juce::String (contentBounds.getWidth()) + "x" + juce::String (contentBounds.getHeight())); // DIAG
-
             // Trigger DST — Screen owns transitioner, Display wires it.
             // DST trigger writes target dims to State (moving target during animation).
             screen.transitioner.liveRows = { numRows + newRows.value, newRows.value };

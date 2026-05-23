@@ -60,6 +60,9 @@ public:
     /** @brief History row count for the normal screen from the last reflow, consumed by onStop. */
     int reflowedHistoryNormal { 0 };
 
+    /** @brief Guards reflowedContent access between message thread (reflow/onStop) and GL thread (render). */
+    juce::CriticalSection reflowLock;
+
     /** @brief Pure transform: reflows source rows to new column width.
      *  Source column width is source.getNumCols(); destination column width is dest.getNumCols().
      *  dest must be pre-allocated by the caller at the new dimensions.
