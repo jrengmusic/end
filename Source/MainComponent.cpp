@@ -202,6 +202,7 @@ void MainComponent::applyConfig()
     appState.setPaddingBottom       (cfg->nexus.terminal.paddingBottom);
     appState.setPaddingLeft         (cfg->nexus.terminal.paddingLeft);
     appState.setRendererType        (cfg->nexus.gpu);
+    jam::Typeface::getAtlas().setEmbolden (cfg->display.font.embolden);
 
     if (tabs != nullptr)
     {

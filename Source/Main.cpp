@@ -74,8 +74,7 @@ void ENDApplication::initialise (const juce::String& commandLine)
         if (job != nullptr)
         {
             JOBOBJECT_EXTENDED_LIMIT_INFORMATION info {};
-            info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
-                                                  | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
+            info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
             SetInformationJobObject (job, JobObjectExtendedLimitInformation, &info, sizeof (info));
             AssignProcessToJobObject (job, GetCurrentProcess());
         }
@@ -90,9 +89,7 @@ void ENDApplication::initialise (const juce::String& commandLine)
 
     if (isNexusFlag)
     {
-        const juce::String nexusArg { nexusFlagIndex + 1 < args.size()
-                                          ? args[nexusFlagIndex + 1]
-                                          : juce::String() };
+        const juce::String nexusArg { nexusFlagIndex + 1 < args.size() ? args[nexusFlagIndex + 1] : juce::String() };
 
         if (nexusArg == "kill" or nexusArg == "kill-all")
         {
@@ -105,7 +102,10 @@ void ENDApplication::initialise (const juce::String& commandLine)
             // Minimal InterprocessConnection for fire-and-forget PDU send.
             struct KillConn : public juce::InterprocessConnection
             {
-                KillConn() : juce::InterprocessConnection (false, nexus::wireMagicHeader) {}
+                KillConn()
+                    : juce::InterprocessConnection (false, nexus::wireMagicHeader)
+                {
+                }
                 void connectionMade() override {}
                 void connectionLost() override {}
                 void messageReceived (const juce::MemoryBlock&) override {}
@@ -115,9 +115,8 @@ void ENDApplication::initialise (const juce::String& commandLine)
 
             if (nexusArg == "kill")
             {
-                const juce::String targetUuid { nexusFlagIndex + 2 < args.size()
-                                                    ? args[nexusFlagIndex + 2]
-                                                    : juce::String() };
+                const juce::String targetUuid { nexusFlagIndex + 2 < args.size() ? args[nexusFlagIndex + 2]
+                                                                                 : juce::String() };
 
                 if (targetUuid.isNotEmpty())
                 {
@@ -143,8 +142,7 @@ void ENDApplication::initialise (const juce::String& commandLine)
             else
             {
                 // kill-all: scan every .nexus file and send killDaemon to each live daemon.
-                const auto nexusFiles { nexusDir.findChildFiles (
-                    juce::File::findFiles, false, "*.nexus") };
+                const auto nexusFiles { nexusDir.findChildFiles (juce::File::findFiles, false, "*.nexus") };
 
                 for (const auto& nexusFile : nexusFiles)
                 {
@@ -169,9 +167,7 @@ void ENDApplication::initialise (const juce::String& commandLine)
         {
             // ---- Headless daemon mode ----------------------------------------
             // nexusArg is the UUID.
-            const juce::String daemonUuid { nexusArg.isNotEmpty()
-                                                ? nexusArg
-                                                : juce::Uuid().toString() };
+            const juce::String daemonUuid { nexusArg.isNotEmpty() ? nexusArg : juce::Uuid().toString() };
             appState.setInstanceUuid (daemonUuid);
             appState.load();
 
@@ -228,14 +224,11 @@ void ENDApplication::initialise (const juce::String& commandLine)
 #endif
 
         auto* mainComponent { new MainComponent (luaEngine) };
-        mainWindow.reset (new terminal::Window (mainComponent,
-                                             cfg->display.window.title,
-                                             cfg->display.window.alwaysOnTop,
-                                             cfg->display.window.buttons));
+        mainWindow.reset (new terminal::Window (
+            mainComponent, cfg->display.window.title, cfg->display.window.alwaysOnTop, cfg->display.window.buttons));
 
-        mainWindow->setGlass (cfg->display.window.colour
-                                  .withAlpha (cfg->display.window.opacity),
-                              cfg->display.window.blurRadius);
+        mainWindow->setGlass (
+            cfg->display.window.colour.withAlpha (cfg->display.window.opacity), cfg->display.window.blurRadius);
 
         // P: applyConfig fires here — after Window exists — so that
         // dynamic_cast<jam::Window*>(getTopLevelComponent()) inside
@@ -255,7 +248,6 @@ void ENDApplication::initialise (const juce::String& commandLine)
             // Append SESSIONS child to trigger valueTreeChildAdded → initialiseTabs.
             juce::ValueTree sessionsNode { app::id::SESSIONS };
             appState.getNexusNode().appendChild (sessionsNode, nullptr);
-
         }
         else
         {
@@ -285,26 +277,22 @@ void ENDApplication::initialise (const juce::String& commandLine)
 #if JUCE_WINDOWS
                 if (isWindows11() and appState.getRendererType() == app::RendererType::cpu)
                 {
-                    jam::BackgroundBlur::applyForceEffectRegistry (
-                        lua::Engine::getContext()->display.window.forceDwm);
+                    jam::BackgroundBlur::applyForceEffectRegistry (lua::Engine::getContext()->display.window.forceDwm);
                 }
 #endif
 
                 const auto* reloadedCfg { lua::Engine::getContext() };
-                mainWindow->setGlass (reloadedCfg->display.window.colour
-                                          .withAlpha (reloadedCfg->display.window.opacity),
-                                      reloadedCfg->display.window.blurRadius);
+                mainWindow->setGlass (
+                    reloadedCfg->display.window.colour.withAlpha (reloadedCfg->display.window.opacity),
+                    reloadedCfg->display.window.blurRadius);
             }
         };
-
     }
 }
 
 //==============================================================================
 
-void ENDApplication::shutdown()
-{
-}
+void ENDApplication::shutdown() {}
 
 //==============================================================================
 
@@ -366,8 +354,7 @@ juce::String ENDApplication::resolveNexusInstance()
 
     juce::String resolvedUuid;
 
-    const auto nexusFiles { nexusDir.findChildFiles (
-        juce::File::findFiles, false, "*.nexus") };
+    const auto nexusFiles { nexusDir.findChildFiles (juce::File::findFiles, false, "*.nexus") };
 
     for (int i { 0 }; resolvedUuid.isEmpty() and i < nexusFiles.size(); ++i)
     {
