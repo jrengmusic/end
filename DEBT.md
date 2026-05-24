@@ -8,17 +8,6 @@
 
 ---
 
----
-
-## DEBT-20260523T070001
-
-**Observation:** downsize reflow is broken and destructive
-**Divergence:** CONTRACT path remaps/scatters content instead of wrapping. Content destroyed after downsize cycle.
-**Expectation:** Downsize should NOT remap — should wrap current content at new column width, preserving all characters sequentially.
-
----
-
-
 ## DEBT-20260521T120000
 
 **Observation:** entering tmux inside END, garbage bytes echoed to terminal: `^[[?62;4c%` and `/62;4c_`. Need to type random input until gaining full control of active prompt.

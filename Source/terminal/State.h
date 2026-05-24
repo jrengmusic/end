@@ -173,7 +173,6 @@ struct State
     bool isModal() const noexcept;
 
     // Cross-thread read/write — any thread, lock-free.
-    void setDimensions (cell cols, cell rows) noexcept;
     void storeValue (const juce::Identifier& groupId, const juce::Identifier& paramId, int value) noexcept;
     int loadValue (const juce::Identifier& groupId, const juce::Identifier& paramId) const noexcept;
 

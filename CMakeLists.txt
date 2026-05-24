@@ -101,7 +101,6 @@ configure_app(
         jam_fuzzy
         jam_style
         jam_data_structures
-        jam_fonts
         jam_freetype
         jam_graphics
         jam_gui

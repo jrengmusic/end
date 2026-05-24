@@ -163,12 +163,6 @@ void State::storeTextValue (const juce::Identifier& groupId, const juce::Identif
     params.get<jam::AnyMap> (groupId)->get<Parameter<const char*>> (paramId)->store (ptr);
 }
 
-void State::setDimensions (cell cols, cell rows) noexcept
-{
-    storeValue (id::SESSION, id::cols, cols.value);
-    storeValue (id::SESSION, id::visibleRows, rows.value);
-}
-
 //==========================================================================
 // ValueTree access — MESSAGE THREAD
 //==========================================================================
@@ -201,9 +195,15 @@ getSessionParamInt (const juce::ValueTree& root, const juce::Identifier& paramId
     return result;
 }
 
-cell State::getCols() const noexcept { return cell (getSessionParamInt (get(), id::cols)); }
+cell State::getCols() const noexcept
+{
+    return cell (jam::Bounds::unpack (getSessionParamInt (get(), id::viewport)).width);
+}
 
-cell State::getVisibleRows() const noexcept { return cell (getSessionParamInt (get(), id::visibleRows)); }
+cell State::getVisibleRows() const noexcept
+{
+    return cell (jam::Bounds::unpack (getSessionParamInt (get(), id::viewport)).height);
+}
 
 juce::String State::getTitle() const noexcept
 {

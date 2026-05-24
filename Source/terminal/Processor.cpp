@@ -48,19 +48,73 @@ Processor::Processor (jam::Buffer<jam::Row>& bufferRef,
     , video (buffer, events)
     , skit (events)
     , uuid (uuid)
+    , smoothResizer (buffer)
 {
-    state.setDimensions (cols, rows);
+    juce::ignoreUnused (cols, rows);
+
     registerEvents();
     parser = std::make_unique<Parser> (video);
     state.get().addListener (this);
 
-    // Cold start allocation.
-    const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
-    const int ringSize { juce::nextPowerOfTwo (scrollbackLines + rows.value) };
-    buffer.setSize (2, ringSize, cols.value);
-    video.setDimensions (cols, rows);
-    video.resize (cols, rows);
+    smoothResizer.addTrigger<cell, cell> (
+        id::resizeStart,
+        [this] (cell, cell)
+        {
+            prepare();
+        });
+
+    // SIGWINCH — fires after crossfade settles; app starts writing at new dims.
+    smoothResizer.onStop = [this]
+    {
+        const auto viewportSize { jam::Bounds::unpack (
+            static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.get(), id::viewport).getValue())) };
+
+        if (viewportSize.isValid())
+            setWinsize (cell (viewportSize.width), cell (viewportSize.height));
+    };
 }
+
+/**
+ * @brief Cold-path allocation — reads viewport from State, sizes buffer, tells Video.
+ *
+ * Reads the packed viewport rect from the session ValueTree, derives the ring
+ * size from scrollbackLines + viewport.height, and calls buffer.setSize() and
+ * video.setWinsize().  No-op when the viewport is not yet valid (zero or
+ * unpopulated).  Called by Session::start() before the reader thread opens,
+ * and by the smoothResizer trigger on every resize.
+ *
+ * Suspends processing before allocation and unsuspends after, matching the
+ * AudioProcessor::prepareToPlay contract.
+ *
+ * @note MESSAGE THREAD.
+ */
+void Processor::prepare() noexcept
+{
+    suspendProcessing (true);
+
+    const auto viewport { jam::Bounds::unpack (
+        static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.get(), id::viewport).getValue())) };
+
+    if (viewport.isValid())
+    {
+        const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
+        const int ringSize { scrollbackLines + viewport.height };
+
+        // Guard: only reallocate when dimensions actually changed.
+        // Skipping setSize on a same-dimension call prevents head reset,
+        // which was triggered by scrollbar oscillation calling prepare repeatedly.
+        if (ringSize != buffer.getNumRows() or viewport.width != buffer.getNumCols())
+        {
+            buffer.setSize (2, ringSize, viewport.width);
+        }
+
+        video.setWinsize (cell (viewport.width), cell (viewport.height));
+    }
+
+    suspendProcessing (false);
+}
+
+// =============================================================================
 
 /**
  * @brief Destroys the Processor.
@@ -133,7 +187,7 @@ Processor::~Processor()
  * - `"applicationCursor"` / `"bracketedPaste"` / ... — Video::flush() mode flag flushes.
  *
  * - `"screenSwitch"` — Video::setScreen(); saves old cursor to State, loads new cursor from
- *   State atomics, calls `Video::loadScreenState()`.  Synchronous on reader thread.
+ *   State atomics, calls `Video::setCursor()` + `Video::setWrapPending()`.  Synchronous on reader thread.
  *
  * - `"dcsPayloadComplete"` — Video::applyDCSPayload(); delegates to Skit::processDCS()
  *   then Video::advanceCursorForImage().  Synchronous on reader thread.
@@ -430,7 +484,7 @@ void Processor::registerEvents() noexcept
                                                           });
 
     // Screen switch — fired by Video::setScreen() with the OLD screen's cursor values.
-    // Saves old cursor to State, loads new cursor from State atomics, calls video.loadScreenState().
+    // Saves old cursor to State, loads new cursor from State atomics, calls video.setCursor() + video.setWrapPending().
     events.add<int, int, int, bool> (
         id::screenSwitch,
         [this] (int newScreen, int oldRow, int oldCol, bool oldVisible)
@@ -448,7 +502,8 @@ void Processor::registerEvents() noexcept
             const uint32_t newKbFlags { static_cast<uint32_t> (state.loadValue (newScreenId, id::keyboardFlags)) };
 
             // scrollTop/scrollBottom reset to 0 (sentinel = full screen); wrapPending cleared.
-            video.loadScreenState (cell (newRow), cell (newCol), newVisible, cell { 0 }, cell { 0 }, false, newKbFlags);
+            video.setCursor ({ newRow, newCol, newVisible ? 1 : 0, static_cast<int> (newKbFlags) });
+            video.setWrapPending (false);
         });
 
 }
@@ -458,11 +513,12 @@ void Processor::registerEvents() noexcept
 /**
  * @brief Delivers SIGWINCH after resize settles.
  *
+ * Reads cols / rows / pixel dimensions from State and forwards to tty->setWinsize().
  * Called from Screen's DST onStop handler (wired by Display).
  *
  * @note MESSAGE THREAD.
  */
-void Processor::finishResize() noexcept
+void Processor::setWinsize() noexcept
 {
     if (tty != nullptr and tty->isThreadRunning())
     {
@@ -473,7 +529,7 @@ void Processor::finishResize() noexcept
         const int pixelHeight { static_cast<int> (
             jam::ValueTree::getValueFromChildWithID (state.get(), jam::ID::height).getValue()) };
 
-        tty->platformResize (cols, rows, pixelWidth, pixelHeight);
+        tty->setWinsize (cols, rows, pixelWidth, pixelHeight);
     }
 }
 
@@ -624,31 +680,22 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
                 onStateFlush();
         }
 
-        if (paramId == id::cols or paramId == id::visibleRows)
+        if (paramId == id::viewport)
         {
-            const cell newCols { static_cast<int> (
-                jam::ValueTree::getValueFromChildWithID (state.get(), id::cols).getValue()) };
-            const cell newRows { static_cast<int> (
-                jam::ValueTree::getValueFromChildWithID (state.get(), id::visibleRows).getValue()) };
+            const auto viewportSize { jam::Bounds::unpack (
+                static_cast<int> (jam::ValueTree::getValueFromChildWithID (state.get(), id::viewport).getValue())) };
+            const cell newCols { viewportSize.width };
+            const cell newRows { viewportSize.height };
 
             if (newCols.value > 0 and newRows.value > 0)
             {
-                video.setDimensions (newCols, newRows);
+                // Set liveRows for DST snapshot — tells DST how many rows to copy per channel.
+                const juce::Identifier normalId { Map::Screen::getContext()->get (Map::Screen::normal) };
+                const int numHistory { static_cast<int> (
+                    jam::ValueTree::getValueFromChildWithID (state.get().getChildWithName (normalId), id::numRows).getValue()) };
+                smoothResizer.liveRows = { numHistory + newRows.value, newRows.value };
 
-                const int activeScr { static_cast<int> (
-                    jam::ValueTree::getValueFromChildWithID (state.get(), id::activeScreen).getValue()) };
-                const juce::Identifier activeScreenId { Map::Screen::getContext()->get (activeScr) };
-                auto activeScreenNode { state.get().getChildWithName (activeScreenId) };
-
-                const int cursorRow { juce::jmin (
-                    static_cast<int> (jam::ValueTree::getValueFromChildWithID (activeScreenNode, id::cursorRow).getValue()),
-                    newRows.value - 1) };
-                const int cursorCol { juce::jmin (
-                    static_cast<int> (jam::ValueTree::getValueFromChildWithID (activeScreenNode, id::cursorCol).getValue()),
-                    newCols.value - 1) };
-
-                video.loadScreenState (cell (cursorRow), cell (cursorCol), true, cell (0), cell (0), false, 0);
-                video.resize (newCols, newRows);
+                smoothResizer.set (id::resizeStart, newCols, newRows);
             }
         }
 
@@ -787,10 +834,8 @@ juce::String Processor::encodeMouseEvent (int button, cell col, cell row, bool p
 /**
  * @brief Processes raw bytes through the parser pipeline.
  *
- * Pure bytes-to-Buffer pipeline: forwards to Parser::process(), flushes Video,
- * and consumes the paste echo gate.  No lock, no suspended check, no cell-size
- * detection — all resize work is handled exclusively by DiscreteStateTransition on the
- * message thread.
+ * Clean pipeline — lock and suspend check are the caller's responsibility
+ * (host wrapper pattern, matching the JUCE VST wrapper contract).
  *
  * @note READER THREAD only — called from the byte source (terminal::Session
  *       onBytes callback or IPC dispatch in client mode).
@@ -807,6 +852,20 @@ void Processor::process (const char* data, int length) noexcept
     }
 
     state.consumePasteEcho (length);
+}
+
+/**
+ * @brief Suspends or unsuspends processing.
+ *
+ * Acquires callbackLock before writing the flag — blocks until any in-progress
+ * process() call completes.  Same implementation as AudioProcessor::suspendProcessing.
+ *
+ * @note MESSAGE THREAD — blocks on callbackLock.
+ */
+void Processor::suspendProcessing (bool shouldBeSuspended) noexcept
+{
+    const juce::ScopedLock sl (callbackLock);
+    suspended = shouldBeSuspended;
 }
 
 State& Processor::getState() noexcept { return state; }
@@ -834,10 +893,10 @@ void Processor::setTTY (std::unique_ptr<TTY> ttyToOwn) noexcept { tty = std::mov
  *
  * @note READER THREAD.
  */
-void Processor::platformResize (cell cols, cell rows, int pixelWidth, int pixelHeight) noexcept
+void Processor::setWinsize (cell cols, cell rows, int pixelWidth, int pixelHeight) noexcept
 {
     if (tty != nullptr and tty->isThreadRunning())
-        tty->platformResize (cols, rows, pixelWidth, pixelHeight);
+        tty->setWinsize (cols, rows, pixelWidth, pixelHeight);
 }
 
 /**

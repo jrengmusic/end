@@ -1606,13 +1606,15 @@ bool WindowsTTY::write (const char* buf, int len)
 // =============================================================================
 
 /**
- * @brief Resize the ConPTY window.
+ * @brief Notify the ConPTY of a new window size.
  *
- * Calls `ResizePseudoConsole()` with the new dimensions.  ConPTY propagates
- * the resize to the child process as a `WINDOW_BUFFER_SIZE_EVENT` console
- * event, which the shell or foreground TUI application can handle.
- * Pixel dimensions are accepted for interface compatibility but are not used
- * on Windows (ConPTY does not expose a pixel winsize).
+ * Skipped when @p cols / @p rows match the last successful call
+ * (guard on `lastResizeCols` / `lastResizeRows`).  When dims change,
+ * calls `ResizePseudoConsole()` which propagates the resize to the child
+ * process as a `WINDOW_BUFFER_SIZE_EVENT` console event.  Updates
+ * `lastResizeCols` / `lastResizeRows`.  Pixel dimensions are accepted for
+ * interface compatibility but are not used on Windows (ConPTY does not
+ * expose a pixel winsize).
  *
  * @param cols        New terminal width in character columns.
  * @param rows        New terminal height in character rows.
@@ -1621,17 +1623,23 @@ bool WindowsTTY::write (const char* buf, int len)
  *
  * @note MESSAGE THREAD context.
  */
-void WindowsTTY::doPlatformResize (int cols, int rows, int /*pixelWidth*/, int /*pixelHeight*/)
+void WindowsTTY::setWinsize (cell cols, cell rows, int /*pixelWidth*/, int /*pixelHeight*/)
 {
-    if (pseudoConsole != nullptr)
+    if (cols.value != lastResizeCols or rows.value != lastResizeRows)
     {
-        const ConPtyFuncs& funcs { loadConPtyFuncs() };
-
-        if (funcs.resize != nullptr)
+        if (pseudoConsole != nullptr)
         {
-            const COORD size { static_cast<short> (cols), static_cast<short> (rows) };
-            funcs.resize (pseudoConsole, size);
+            const ConPtyFuncs& funcs { loadConPtyFuncs() };
+
+            if (funcs.resize != nullptr)
+            {
+                const COORD size { static_cast<short> (cols.value), static_cast<short> (rows.value) };
+                funcs.resize (pseudoConsole, size);
+            }
         }
+
+        lastResizeCols = cols.value;
+        lastResizeRows = rows.value;
     }
 }
 

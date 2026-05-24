@@ -53,7 +53,7 @@
  * | `writeEvent`     | WindowsTTY          | Manual-reset event for write OVERLAPPED |
  *
  * ### Thread model
- * - `open()`, `close()`, `write()`, `platformResize()` — message thread
+ * - `open()`, `close()`, `write()`, `setWinsize()` — message thread
  * - `read()`, `waitForData()` — reader thread (called from TTY::run)
  *
  * ### Shutdown sequence
@@ -102,7 +102,7 @@
  * prevents double-issuing a read while one is already in flight.
  *
  * @par Thread model
- * - `open()`, `close()`, `write()`, `platformResize()` — message thread
+ * - `open()`, `close()`, `write()`, `setWinsize()` — message thread
  * - `read()`, `waitForData()` — reader thread (called from TTY::run)
  *
  * @see TTY
@@ -272,14 +272,13 @@ public:
      */
     int getCwd (int pid, char* buffer, int maxLength) const noexcept override;
 
-    /** @} */
-
-protected:
     /**
-     * @brief Resize the ConPTY window.
+     * @brief Notify the ConPTY of a new window size.
      *
-     * Calls `ResizePseudoConsole()` with the new dimensions.  The child
-     * process receives a `WINDOW_BUFFER_SIZE_EVENT` console event.
+     * Skipped when @p cols / @p rows match the last successful call
+     * (guard on `lastResizeCols` / `lastResizeRows`).  When dims change,
+     * calls `ResizePseudoConsole()` which delivers a `WINDOW_BUFFER_SIZE_EVENT`
+     * to the child process.  Updates `lastResizeCols` / `lastResizeRows`.
      * Pixel dimensions are accepted for interface compatibility but not used
      * on Windows (ConPTY does not expose a pixel winsize).
      *
@@ -288,9 +287,11 @@ protected:
      * @param pixelWidth  Unused on Windows.
      * @param pixelHeight Unused on Windows.
      *
-     * @note MESSAGE THREAD context — called by TTY::platformResize() when dims changed.
+     * @note MESSAGE THREAD context.
      */
-    void doPlatformResize (int cols, int rows, int pixelWidth, int pixelHeight) override;
+    void setWinsize (cell cols, cell rows, int pixelWidth, int pixelHeight) override;
+
+    /** @} */
 
 private:
     /** @brief ConPTY handle created by `CreatePseudoConsole()`.  nullptr when not open. */

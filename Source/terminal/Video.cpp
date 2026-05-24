@@ -1,11 +1,11 @@
 /**
  * @file Video.cpp
- * @brief Video constructor, resize, calc, cached geometry helpers, and ground-state VT handlers.
+ * @brief Video constructor, setWinsize, calc, cached geometry helpers, and ground-state VT handlers.
  *
  * This translation unit implements:
  *
- * - Construction, resize, and cached geometry (`calc()`).
- * - `setDimensions()` and `setCellSize()` — cross-thread dimension setters.
+ * - Construction, dimension update (`setWinsize()`), and cached geometry (`calc()`).
+ * - `setWinsize()` and `setCellSize()` — cross-thread dimension setters.
  * - Mode flag SSOT (`modePtr()`, `getMode()`, `setMode()`).
  * - `activeScrollBottom()` — effective scroll region bottom.
  * - `scrollUpAndFill()` / `scrollDownAndFill()` — DRY single-row scroll + fill helpers.
@@ -47,7 +47,7 @@ namespace terminal
  * (80×24, cursor at home, autoWrap on, cursor visible).
  *
  * The constructor does **not** call `calc()`.  The owner must call `calc()`
- * after construction (and after every `resize()`) to synchronise internal
+ * after construction (and after every `setWinsize()`) to synchronise internal
  * cached geometry.
  *
  * @param buffer  Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
@@ -65,41 +65,16 @@ Video::Video (jam::Buffer<jam::Row>& buffer, jam::Function::Map<juce::Identifier
 }
 
 /**
- * @brief Updates internal geometry after terminal dimensions change.
- *
- * Re-clamps the cursor and scroll region to the new bounds on both screen
- * buffers, reinitialises tab stops, and calls `calc()` to update internal
- * cached values.
- *
- * @param newCols         New terminal width in character columns.
- * @param newVisibleRows  New terminal height in visible rows.
- *
- * @note MESSAGE THREAD — called from Processor::resized().
- *
- * @see calc()
- * @see initializeTabStops()
- * @see cursorResetScrollRegion()
- */
-void Video::resize (cell newCols, cell newVisibleRows) noexcept
-{
-    wrapPending = false;
-    cursorClamp (newCols, newVisibleRows);
-    cursorResetScrollRegion();
-    initializeTabStops (newCols.value);
-    calc();
-}
-
-/**
  * @brief Marks the pen style cache dirty and recomputes cached geometry.
  *
  * Sets penStyleDirty so that currentStyleId() will re-query the Stamp table
  * on the next cell write.  Must be called after construction and after every
- * `resize()`.  Also called internally by `cursorSetScrollRegion()` and
+ * `setWinsize()`.  Also called internally by `cursorSetScrollRegion()` and
  * `cursorResetScrollRegion()`.
  *
  * @note READER THREAD only.
  *
- * @see resize()
+ * @see setWinsize()
  */
 void Video::calc() noexcept
 {
@@ -118,10 +93,15 @@ void Video::calc() noexcept
  *
  * @note READER THREAD only.
  */
-void Video::setDimensions (cell newCols, cell newRows) noexcept
+void Video::setWinsize (cell newCols, cell newRows) noexcept
 {
     cols        = newCols;
     visibleRows = newRows;
+    wrapPending = false;
+    cursorClamp (newCols, newRows);
+    cursorResetScrollRegion();
+    initializeTabStops (newCols.value);
+    calc();
 }
 
 /**
@@ -161,17 +141,17 @@ void Video::flush() noexcept
         events.get (id::screenDirty, int (activeScreen));
 }
 
-void Video::loadScreenState (cell row, cell col, bool visible,
-                              cell top, cell bottom, bool wrap,
-                              uint32_t kbFlags) noexcept
+void Video::setCursor (CursorState cs) noexcept
 {
-    cursorRow     = row;
-    cursorCol     = col;
-    cursorVisible = visible;
-    scrollTop     = top;
-    scrollBottom  = bottom;
-    wrapPending   = wrap;
-    keyboardFlags = kbFlags;
+    cursorRow     = cell (cs.row);
+    cursorCol     = cell (cs.col);
+    cursorVisible = cs.visible != 0;
+    keyboardFlags = static_cast<uint32_t> (cs.kbFlags);
+}
+
+void Video::setWrapPending (bool pending) noexcept
+{
+    wrapPending = pending;
 }
 
 /**
@@ -585,6 +565,7 @@ void Video::print (uint32_t codepoint) noexcept
                     prev = jam::Cell::make (0x20, jam::Cell::FLEX_GAP, jam::Cell::NARROW, prev.styleId());
 
                 writeRowPtr->cells[writeCol] = jam::Cell::make (0x20, jam::Cell::FLEX_GAP, jam::Cell::NARROW, sid);
+                writeRowPtr->flags |= jam::Row::justify;
             }
         }
 

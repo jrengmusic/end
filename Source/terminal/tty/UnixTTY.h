@@ -50,8 +50,8 @@
  * immediately when no data is available.
  *
  * @par Thread model
- * - `open()`, `close()`, `write()` — message thread
- * - `read()`, `resize()`, `waitForData()` — reader thread (called from TTY::run)
+ * - `open()`, `close()`, `write()`, `setWinsize()` — message thread
+ * - `read()`, `waitForData()` — reader thread (called from TTY::run)
  *
  * @see TTY
  */
@@ -209,26 +209,28 @@ public:
      */
     int getEnvVar (int pid, const char* varName, char* buffer, int maxLength) const override;
 
-    /** @} */
-
-protected:
     /**
-     * @brief Resize the terminal window via ioctl and SIGWINCH.
+     * @brief Notify the kernel PTY of a new window size via ioctl and SIGWINCH.
      *
-     * Issues `ioctl (master, TIOCSWINSZ, &ws)` to update the kernel's idea of
-     * the window size, including physical pixel dimensions so tools such as
-     * chafa can query cell and viewport pixel size via `CSI 14 t` / `CSI 16 t`.
-     * Sends `SIGWINCH` to the child process so the shell and any running TUI
-     * application can re-query the size.
+     * Skipped if @p cols / @p rows are identical to the last successful call
+     * (guard on `lastResizeCols` / `lastResizeRows`).  When dims change:
+     * - Issues `ioctl (master, TIOCSWINSZ, &ws)` to update the kernel's idea of
+     *   the window size, including physical pixel dimensions so tools such as
+     *   chafa can query cell and viewport pixel size via `CSI 14 t` / `CSI 16 t`.
+     * - Sends `SIGWINCH` to the child process so the shell and any running TUI
+     *   application can re-query the size.
+     * - Updates `lastResizeCols` / `lastResizeRows`.
      *
      * @param cols        New terminal width in character columns.
      * @param rows        New terminal height in character rows.
      * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
      * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
      *
-     * @note MESSAGE THREAD context (called by TTY::platformResize() when dims changed).
+     * @note MESSAGE THREAD context.
      */
-    void doPlatformResize (int cols, int rows, int pixelWidth, int pixelHeight) override;
+    void setWinsize (cell cols, cell rows, int pixelWidth, int pixelHeight) override;
+
+    /** @} */
 
 private:
     /** @brief Master side of the PTY pair.  -1 when not open. */

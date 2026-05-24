@@ -1,5 +1,98 @@
 # SPRINT-LOG
 
+## Sprint 33: TextEditor Reflow Infrastructure + TETRIS Resize Pipeline ✅
+
+**Date:** 2026-05-23 — 2026-05-24
+
+### Agents Participated
+- COUNSELOR: architecture discussion, RFC/PLAN authoring, orchestration, audit resolution
+- Engineer: code implementation (30+ delegations)
+- Pathfinder: codebase discovery (Screen vTPC, Processor resize, TTY setWinsize, DST internals, Video state)
+- Librarian: JUCE TextEditor/JustifiedText/ShapedText research, suspendProcessing pattern, terminal whitespace conventions
+- Researcher: Knuth-Plass line breaking, CLI whitespace patterns
+- Auditor: comprehensive audit (25 findings, all resolved)
+
+### Files Modified
+
+**jam (module restructure + reflow infrastructure):**
+- `jam_core/jam_bounds.h` — pack()/unpack()/isValid() added
+- `jam_core/buffer/jam_buffer.h` — power-of-two rounding removed from setSize(), head preserved on resize (reset only on first allocation)
+- `jam_graphics/jam_graphics.h` — merged jam_fonts includes, added detail/ includes (ParagraphStorage, ShapedTextOptions, JustifiedText)
+- `jam_graphics/jam_graphics.cpp` — merged jam_fonts unity includes
+- `jam_graphics/jam_graphics.mm` — created (Obj-C, from jam_fonts.mm)
+- `jam_graphics/detail/jam_cell.h` — moved from fonts/cell/
+- `jam_graphics/detail/jam_cell_point.h` — moved from fonts/cell/
+- `jam_graphics/detail/jam_cell_rectangle.h` — moved from fonts/cell/
+- `jam_graphics/detail/jam_row.h` — moved from fonts/cell/, added justify flag (bit 2)
+- `jam_graphics/detail/jam_stamp.h` — moved from fonts/cell/
+- `jam_graphics/detail/jam_grapheme.h` — moved from fonts/cell/
+- `jam_graphics/detail/jam_ParagraphStorage.h` — new (ParagraphStorage + ParagraphsModel)
+- `jam_graphics/detail/jam_ShapedTextOptions.h` — new (wrapColumns, justification, allowBreakingInsideWord)
+- `jam_graphics/detail/jam_JustifiedText.h` — new (cell-based justification, forked from juce::JustifiedText)
+- `jam_graphics/detail/jam_JustifiedText.cpp` — new (gap distribution via Value::map, applyTo)
+- `jam_graphics/fonts/font/glyph/jam_glyph_arrangement.h` — Entry::isFlexGap, getEntry, getEntryMutable, getNumEntries, rebuildDrawRuns
+- `jam_graphics/fonts/font/glyph/jam_glyph_arrangement.cpp` — implementations for above
+- `jam_graphics/fonts/font/glyph/jam_glyph_arrangement_shape.cpp` — FLEX_GAP word wrap (backtrack to last gap, fallback to char wrap)
+- `jam_gui/text_editor/jam_text_editor.h` — onResized callback, getVisibleWidth/Height, paragraphsModel, shapedTextOptions members
+- `jam_gui/text_editor/jam_text_editor.cpp` — calc() shapes full content, setFont fires onResized, getWrapWidth removed
+- `jam_gui/text_editor/jam_text_editor_content_view.cpp` — shapeVisibleContent deleted, paint is pure drawGlyphRuns
+- `jam_gui/jam_gui.h` — jam_fonts dep removed (already had jam_graphics)
+- `jam_tui/jam_tui.h` — dep changed from jam_fonts to jam_graphics
+- `jam_look_and_feel/jam_look_and_feel.h` — jam_fonts dep removed
+- `jam_debug/jam_debug.h` — dep changed from jam_fonts to jam_graphics
+- `CMakeLists.txt` — jam_fonts removed from module list
+
+**END (TETRIS resize pipeline + Screen pure renderer):**
+- `Source/terminal/Processor.h` — smoothResizer member, prepare(), suspendProcessing/isSuspended/getCallbackLock, doc updates
+- `Source/terminal/Processor.cpp` — prepare() implementation, smoothResizer wiring (trigger=buffer.setSize, onStop=SIGWINCH), suspendProcessing, vTPC viewport handler, setWinsize rename, loadScreenState removed from resize path
+- `Source/terminal/Video.h` — CursorState struct, setCursor, setWrapPending, loadScreenState deleted
+- `Source/terminal/Video.cpp` — setCursor/setWrapPending implementations, loadScreenState deleted, setWinsize merges resize(), setDimensions renamed
+- `Source/terminal/VideoEdit.cpp` — ED mode 0 usedCols/flags reset on full-row erase
+- `Source/terminal/State.h` — setDimensions deleted
+- `Source/terminal/State.cpp` — setDimensions deleted, getCols/getVisibleRows unpack from packed viewport
+- `Source/terminal/Session.h` — reviewed (no structural change)
+- `Source/terminal/Session.cpp` — suspendProcessing guard on both process call sites, prepare() removed from start()
+- `Source/terminal/Identifier.h` — viewportCols/viewportRows replaced with single viewport identifier
+- `Source/terminal/Parameters.xml` — viewportCols/viewportRows replaced with single viewport param
+- `Source/terminal/component/Screen.h` — transitioner/reflowedContent/reflowLock/setCaretVisible removed, onCellChanged added, getValue helper
+- `Source/terminal/component/Screen.cpp` — reflow() deleted, vTPC restored to full-content Block, onCellChanged wires viewport computation
+- `Source/terminal/component/Display.cpp` — DST trigger/onStop wiring removed, resized simplified to setBounds + pixel dims
+- `Source/terminal/tty/TTY.h` — platformResize→setWinsize, NVI flattened (doPlatformResize eliminated)
+- `Source/terminal/tty/TTY.cpp` — platformResize deleted, setWinsize is pure virtual
+- `Source/terminal/tty/UnixTTY.h` — doPlatformResize→setWinsize override
+- `Source/terminal/tty/UnixTTY.cpp` — doPlatformResize→setWinsize, dims-changed guard added
+- `Source/terminal/tty/WindowsTTY.h` — doPlatformResize→setWinsize override
+- `Source/terminal/tty/WindowsTTY.cpp` — doPlatformResize→setWinsize, dims-changed guard added
+- `Source/nexus/Link.cpp` — viewport rename
+- `Source/nexus/Channel.cpp` — viewport rename
+- `Source/nexus/Daemon.cpp` — viewport rename
+- `CMakeLists.txt` — jam_fonts removed
+- `ARCHITECTURE.md` — comprehensive update (DST ownership, module merge, Screen pure renderer, CursorState, viewport packing, TETRIS pattern)
+- `RFC-reflow.md` — created (replaces 4 old RFCs)
+- `PLAN-text-editor-reflow.md` — created
+
+### Alignment Check
+- [x] BLESSED principles followed
+- [x] NAMES.md adhered
+- [x] MANIFESTO.md principles applied
+
+### Problems Solved
+- **jam_fonts → jam_graphics merge**: eliminated module boundary between fonts/cells and graphics, cleaner dependency graph
+- **TETRIS-compliant resize**: Processor::prepare() = prepareToPlay, suspendProcessing/callbackLock = AudioProcessor pattern, smoothResizer = SmoothChain lifecycle
+- **Screen pure renderer**: removed all transition/reflow/scratch-buffer logic from Screen, TextEditor handles content natively
+- **Viewport packing**: single packed Bounds parameter eliminates double-fire vTPC crash from two separate State writes
+- **CursorState packing**: four scattered cursor params → one packed struct with setCursor setter
+- **setWinsize unification**: platformResize/finishResize/doPlatformResize → single setWinsize across TTY/Processor stack, NVI flattened
+- **ED mode 0 fix**: usedCols/flags reset on full-row erase (% character persistence after clear)
+- **Buffer head preservation**: setSize no longer unconditionally resets head, preventing content shift on resize
+- **Buffer power-of-two removal**: exact allocation, no unnecessary oversize
+
+### Debts Paid
+- `DEBT-20260523T070001` — downsize reflow destructive: Screen::reflow() deleted entirely, wrapping moved to TextEditor infrastructure (Arrangement FLEX_GAP word wrap + JustifiedText). Buffer content preserved across resize via head preservation.
+
+### Debts Deferred
+- None
+
 ## Sprint 32: Viewport ring-addressing fix ✅
 
 **Date:** 2026-05-23

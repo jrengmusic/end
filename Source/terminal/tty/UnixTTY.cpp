@@ -337,13 +337,15 @@ bool UnixTTY::write (const char* buf, int len)
 }
 
 /**
- * @brief Resize the terminal window via ioctl and SIGWINCH.
+ * @brief Notify the kernel PTY of a new window size via ioctl and SIGWINCH.
  *
- * Updates the kernel's `winsize` record for the PTY via `TIOCSWINSZ`, including
- * physical pixel extents in `ws_xpixel` / `ws_ypixel` so that pixel-aware
- * programs (e.g. chafa) can determine cell size by querying `CSI 14 t` or
- * `CSI 16 t` directly from the kernel.  Sends `SIGWINCH` to the child process
- * so the shell and any foreground TUI application can re-query the size.
+ * Skipped when @p cols / @p rows match the last successful call.
+ * When dims change, updates the kernel `winsize` record via `TIOCSWINSZ`,
+ * including physical pixel extents in `ws_xpixel` / `ws_ypixel` so that
+ * pixel-aware programs (e.g. chafa) can determine cell size by querying
+ * `CSI 14 t` or `CSI 16 t` directly from the kernel.  Sends `SIGWINCH` to
+ * the child process so the shell and any foreground TUI application can
+ * re-query the size.
  *
  * @param cols        New terminal width in character columns.
  * @param rows        New terminal height in character rows.
@@ -354,18 +356,24 @@ bool UnixTTY::write (const char* buf, int len)
  *
  * @note MESSAGE THREAD context.
  */
-void UnixTTY::doPlatformResize (int cols, int rows, int pixelWidth, int pixelHeight)
+void UnixTTY::setWinsize (cell cols, cell rows, int pixelWidth, int pixelHeight)
 {
-    struct winsize ws {};
-    ws.ws_row    = static_cast<unsigned short> (rows);
-    ws.ws_col    = static_cast<unsigned short> (cols);
-    ws.ws_xpixel = static_cast<unsigned short> (pixelWidth);
-    ws.ws_ypixel = static_cast<unsigned short> (pixelHeight);
-    ioctl (master, TIOCSWINSZ, &ws);
-
-    if (childProcess > 0)
+    if (cols.value != lastResizeCols or rows.value != lastResizeRows)
     {
-        kill (childProcess, SIGWINCH);
+        struct winsize ws {};
+        ws.ws_row    = static_cast<unsigned short> (rows.value);
+        ws.ws_col    = static_cast<unsigned short> (cols.value);
+        ws.ws_xpixel = static_cast<unsigned short> (pixelWidth);
+        ws.ws_ypixel = static_cast<unsigned short> (pixelHeight);
+        ioctl (master, TIOCSWINSZ, &ws);
+
+        if (childProcess > 0)
+        {
+            kill (childProcess, SIGWINCH);
+        }
+
+        lastResizeCols = cols.value;
+        lastResizeRows = rows.value;
     }
 }
 

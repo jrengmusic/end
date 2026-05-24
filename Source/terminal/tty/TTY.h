@@ -13,7 +13,7 @@
  *  ─────────────           ──────────────────────────────────────────────
  *  open()                  waitForData() — blocks up to 100 ms
  *  write()                 read()        — drains all available bytes
- *  resize()                onData()  — fires callback per chunk
+ *  setWinsize()            onData()  — fires callback per chunk
  *  close()                 onDrainComplete() — fires after full drain
  *                          onShellExited() — fires synchronously on reader thread on EOF
  * ```
@@ -26,7 +26,7 @@
  *
  * ### Resize protocol
  * The message thread calls `grid.resize()` and `parser.resize()` directly,
- * then calls `platformResize()` to notify the shell via SIGWINCH.
+ * then calls `setWinsize()` to notify the shell via SIGWINCH.
  *
  * @see UnixTTY  macOS / Linux implementation via forkpty()
  * @see WindowsTTY  Windows implementation via ConPTY
@@ -325,11 +325,13 @@ public:
     /** @} */
 
     /**
-     * @brief Resize the PTY. Skipped if dimensions are unchanged from last call.
+     * @brief Notify the OS PTY of a new window size.
      *
-     * Callers fire resize on every JUCE layout pass; this gate avoids a
-     * redundant OS-level resize (and the SIGWINCH / ResizePseudoConsole
-     * side-effect) when nothing actually changed.
+     * Subclasses implement the actual `ioctl TIOCSWINSZ` (Unix) or
+     * `ResizePseudoConsole` (Windows) call.  Each override must guard on
+     * `lastResizeCols` / `lastResizeRows` to avoid redundant OS-level resize
+     * syscalls and the resulting SIGWINCH / WINDOW_BUFFER_SIZE_EVENT when
+     * callers fire on every JUCE layout pass.
      *
      * @param cols        New terminal width in character columns.
      * @param rows        New terminal height in character rows.
@@ -338,26 +340,13 @@ public:
      *
      * @note MESSAGE THREAD.
      */
-    void platformResize (cell cols, cell rows,
-                         int pixelWidth = 0, int pixelHeight = 0);
+    virtual void setWinsize (cell cols, cell rows,
+                             int pixelWidth = 0, int pixelHeight = 0) = 0;
 
 protected:
     /**
-     * @brief Platform-specific PTY resize hook — subclasses implement the actual
-     * `ioctl TIOCSWINSZ` (Unix) or `ResizePseudoConsole` (Windows) call.
-     *
-     * @param cols        New terminal width in character columns.
-     * @param rows        New terminal height in character rows.
-     * @param pixelWidth  Total viewport width in physical pixels (0 if unknown).
-     * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
-     *
-     * @note MESSAGE THREAD. Called by `platformResize` only when dims changed.
-     */
-    virtual void doPlatformResize (int cols, int rows, int pixelWidth, int pixelHeight) = 0;
-
-    /**
      * @brief Record the dimensions the PTY was opened with so the first
-     * `platformResize(sameDims)` is correctly suppressed.
+     * `setWinsize(sameDims)` call is correctly suppressed.
      *
      * Subclasses call this from `open()` after the OS PTY is created.
      */
@@ -366,9 +355,11 @@ protected:
     /** @brief Shell integration environment variable pairs injected before shell start. */
     std::vector<std::pair<std::string, std::string>> shellIntegrationEnv;
 
-
-
-private:
+    /** @brief Column count from the most recent successful setWinsize() call.
+     *  Initialised to -1 so the first call is never suppressed. */
     int lastResizeCols { -1 };
+
+    /** @brief Row count from the most recent successful setWinsize() call.
+     *  Initialised to -1 so the first call is never suppressed. */
     int lastResizeRows { -1 };
 };

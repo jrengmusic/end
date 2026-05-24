@@ -24,10 +24,10 @@
  *    flushed back via the `writeToHost` event handler registered in `events`.
  * 7. State::flush() propagates atomic values to the ValueTree on the timer tick,
  *    notifying Display via `juce::ValueTree::Listener`.
- * 8. Resize: Screen owns DiscreteStateTransition; Display wires trigger/onStop.
- *    Processor exposes finishResize() (onStop handler); dimension detection lives in vTPC.
+ * 8. Resize: Processor vTPC detects viewport change (packed cols+rows), resizes buffer,
+ *    tells Video via setWinsize(), and fires tty->setWinsize() for SIGWINCH.
  *    Cold-start allocation happens in the constructor before the first bytes flow.
- *    Cell pixel changes are applied to Video directly — no DST coalescing needed.
+ *    Cell pixel changes are applied to Video directly.
  *
  * ### Thread safety
  * - `process()` — READER THREAD only.
@@ -36,7 +36,7 @@
  *
  * @see terminal::Session — owns TTY and History (PTY side).
  * @see jam::Buffer<jam::Row> — flat row storage, stateless data buffer.
- * @see jam::DiscreteStateTransition — coalescing resize lifecycle manager (owned by Screen).
+ * @see jam::DiscreteStateTransition — coalescing resize lifecycle manager (smoothResizer, owned by Processor).
  * @see Parser     — VT100/VT520 state machine.
  * @see Video      — terminal state machine: pen, cursor, modes, Buffer<Row> writes.
  * @see State      — atomic terminal parameter store.
@@ -78,14 +78,14 @@ namespace terminal
  * - `getState()` / `getBuffer()` — mutable and const references.
  * - `getUuid()` — const reference to the stable session UUID.
  * - `setHostWriter()` — registers the `writeToHost` event handler.
- * - `setTTY()` — transfers TTY ownership; Processor calls platformResize directly.
+ * - `setTTY()` — transfers TTY ownership; Processor calls setWinsize() directly.
  * - `flushResponses()` — flushes queued device responses to the host.
  *
  * ### Public surface
  * - **Input encoding** — `encodeKeyPress()`, `encodePaste()`, `encodeMouseEvent()`, `encodeFocusEvent()` (const, no side effects)
  * - **Output** — `process()` (called on the reader thread by the byte source)
  * - **Response flushing** — `flushResponses()` (reader thread; called by Session on drain-complete)
- * - **TTY ownership** — `setTTY()` transfers unique_ptr from Session; `platformResize()` delegates to owned TTY
+ * - **TTY ownership** — `setTTY()` transfers unique_ptr from Session; `setWinsize()` delegates to owned TTY
  *
  * @note Construct and destroy on the **message thread**.
  *
@@ -180,9 +180,9 @@ public:
     /**
      * @brief Processes raw bytes through the parser pipeline.
      *
-     * Pure bytes-to-Buffer pipeline: forwards to Parser::process(), flushes Video,
-     * and consumes the paste echo gate.  No lock, no suspended check, no cell-size
-     * detection — all resize work is handled exclusively by DiscreteStateTransition.
+     * Clean pipeline entry point — forwards to Parser::process(), flushes Video,
+     * and consumes the paste echo gate.  Lock acquisition and suspend check are
+     * the caller's responsibility (host wrapper pattern — see Session.cpp onData).
      *
      * @param data    Pointer to the raw byte buffer.
      * @param length  Number of bytes in the buffer.
@@ -218,10 +218,31 @@ public:
      */
     const jam::Buffer<jam::Row>& getBuffer() const noexcept;
 
+    /** @brief Cold-path allocation — reads viewport from State, sizes buffer, tells Video.
+     *  Analogous to PluginProcessor::prepareToPlay.
+     *  Called by Session before reader thread starts, and by smoothResizer on resize.
+     *  Suspends processing before allocating and unsuspends after.
+     *  @note MESSAGE THREAD. */
+    void prepare() noexcept;
+
+    /** @brief Suspends processing — blocks until current process() completes, then sets flag.
+     *  While suspended, process() outputs nothing. Same contract as AudioProcessor::suspendProcessing.
+     *  @note MESSAGE THREAD — blocks on callbackLock. */
+    void suspendProcessing (bool shouldBeSuspended) noexcept;
+
+    /** @brief Returns true when processing is suspended.
+     *  @note Only safe to read under callbackLock. */
+    bool isSuspended() const noexcept { return suspended; }
+
+    /** @brief Returns the callback lock — held during process() on the reader thread.
+     *  Acquire from the message thread to serialize against process(). */
+    const juce::CriticalSection& getCallbackLock() const noexcept { return callbackLock; }
+
     /** @brief Delivers SIGWINCH after resize settles.
+     *  Reads cols / rows / pixel dimensions from State and calls tty->setWinsize().
      *  Called from Screen's DST onStop handler (wired by Display).
      *  @note MESSAGE THREAD. */
-    void finishResize() noexcept;
+    void setWinsize() noexcept;
 
     /**
      * @brief Returns the stable UUID identifying this Processor across process boundaries.
@@ -252,7 +273,7 @@ public:
      *
      * Called by Session after wiring all TTY callbacks but before the reader
      * thread starts producing bytes.  After this call, Processor calls
-     * tty->platformResize() from finishResize().
+     * tty->setWinsize() from setWinsize().
      *
      * @param ttyToOwn  TTY unique_ptr to take ownership of.
      * @note MESSAGE THREAD.
@@ -262,8 +283,8 @@ public:
     /**
      * @brief Performs the OS-level PTY resize (SIGWINCH to shell).
      *
-     * Delegates to tty->platformResize() when a TTY is owned and its thread
-     * is running.  Called from Session::onDrainComplete for the sync-resize path.
+     * Delegates to tty->setWinsize() when a TTY is owned and its thread is
+     * running.  Called from Session::onDrainComplete for the sync-resize path.
      * No-op if no TTY is owned.
      *
      * @param cols        New column count.
@@ -272,7 +293,16 @@ public:
      * @param pixelHeight Total viewport height in physical pixels (0 if unknown).
      * @note READER THREAD (called from tty->onDrainComplete during sync-resize).
      */
-    void platformResize (cell cols, cell rows, int pixelWidth = 0, int pixelHeight = 0) noexcept;
+    void setWinsize (cell cols, cell rows, int pixelWidth = 0, int pixelHeight = 0) noexcept;
+
+    /** @brief Returns the buffer to read from — previous snapshot during transition, live otherwise.
+     *  @note MESSAGE THREAD. */
+    const jam::Buffer<jam::Row>& getReadBuffer() const noexcept
+    {
+        if (smoothResizer.isInTransition() and smoothResizer.previous.getNumRows() > 0)
+            return smoothResizer.previous;
+        return buffer;
+    }
 
     /** @brief Fires after cwd and foreground process are written to State.
      *
@@ -305,11 +335,22 @@ public:
 
 private:
     //==============================================================================
+    /** @brief Callback lock — held for the duration of process() on the reader thread.
+     *  suspendProcessing() acquires this lock to serialize against process(). */
+    juce::CriticalSection callbackLock;
+
+    /** @brief Processing suspended flag — plain bool under callbackLock, matching AudioProcessor contract.
+     *  Starts true; prepare() unsuspends. process() skips its body when true. */
+    bool suspended { true };
+
     /** @brief Owned PTY — transferred from Session via setTTY().  Null in IPC client mode. */
     std::unique_ptr<TTY> tty;
 
     /** @brief Live row buffer — owned by terminal::Session. */
     jam::Buffer<jam::Row>& buffer;
+
+    /** @brief Resize transition — snapshots buffer before resize for safe reader-thread decoupling. */
+    jam::DiscreteStateTransition<jam::Row> smoothResizer;
 
     /** @brief Cross-thread string buffer — owned by terminal::Session. */
     TextBuffer& textBuffer;

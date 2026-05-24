@@ -536,14 +536,13 @@ void Link::valueTreeChildRemoved (juce::ValueTree&, juce::ValueTree& child, int)
 }
 
 /**
- * @brief Detects cols/visibleRows changes on client-mode session State VTs and
+ * @brief Detects viewport changes on client-mode session State VTs and
  *        forwards a resize PDU to the daemon.
  *
- * Checks for a PARAM node whose `id` property matches `terminal::id::cols` or
- * `terminal::id::visibleRows` with a `value` property change.  Matches the
- * tree's root against `clientSessionStateRoots` to find the affected UUID.
- * Reads both dimensions from the parent session root so the PDU always carries
- * the fully-current pair regardless of which property changed first.
+ * Checks for a PARAM node whose `id` property matches `terminal::id::viewport`
+ * with a `value` property change.  Matches the tree's root against
+ * `clientSessionStateRoots` to find the affected UUID.
+ * Unpacks the packed viewport value to obtain cols and rows.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -553,10 +552,8 @@ void Link::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
         and tree.getType() == jam::ValueTree::PARAM)
     {
         const juce::String paramId { tree.getProperty (terminal::id::id).toString() };
-        const bool isColsChange       { paramId == terminal::id::cols.toString() };
-        const bool isVisibleRowsChange { paramId == terminal::id::visibleRows.toString() };
 
-        if (isColsChange or isVisibleRowsChange)
+        if (paramId == terminal::id::viewport.toString())
         {
             const juce::ValueTree sessionRoot { tree.getParent() };
 
@@ -573,14 +570,13 @@ void Link::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identifi
 
             if (resizeUuid.isNotEmpty())
             {
-                auto colsParam { jam::ValueTree::getChildWithID (sessionRoot, terminal::id::cols.toString()) };
-                auto rowsParam { jam::ValueTree::getChildWithID (sessionRoot, terminal::id::visibleRows.toString()) };
+                auto viewportParam { jam::ValueTree::getChildWithID (sessionRoot, terminal::id::viewport.toString()) };
 
-                if (colsParam.isValid() and rowsParam.isValid())
+                if (viewportParam.isValid())
                 {
-                    const int cols { static_cast<int> (colsParam.getProperty (terminal::id::value)) };
-                    const int rows { static_cast<int> (rowsParam.getProperty (terminal::id::value)) };
-                    sendResize (resizeUuid, cols, rows);
+                    const auto viewportSize { jam::Bounds::unpack (
+                        static_cast<int> (viewportParam.getProperty (terminal::id::value))) };
+                    sendResize (resizeUuid, viewportSize.width, viewportSize.height);
                 }
             }
         }

@@ -100,16 +100,6 @@ void TTY::run()
     }
 }
 
-void TTY::platformResize (cell cols, cell rows, int pixelWidth, int pixelHeight)
-{
-    if (cols.value != lastResizeCols or rows.value != lastResizeRows)
-    {
-        doPlatformResize (cols.value, rows.value, pixelWidth, pixelHeight);
-        lastResizeCols = cols.value;
-        lastResizeRows = rows.value;
-    }
-}
-
 void TTY::rememberDimensions (int cols, int rows) noexcept
 {
     lastResizeCols = cols;

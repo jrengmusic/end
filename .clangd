@@ -14,7 +14,6 @@ CompileFlags:
     - -DJUCE_MODULE_AVAILABLE_jam_core=1
     - -DJUCE_MODULE_AVAILABLE_jam_data_structures=1
     - -DJUCE_MODULE_AVAILABLE_jam_debug=1
-    - -DJUCE_MODULE_AVAILABLE_jam_fonts=1
     - -DJUCE_MODULE_AVAILABLE_jam_freetype=1
     - -DJUCE_MODULE_AVAILABLE_jam_fuzzy=1
     - -DJUCE_MODULE_AVAILABLE_jam_graphics=1
@@ -57,7 +56,7 @@ CompileFlags:
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/sratom
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv
     - -I/Users/jreng/Documents/Poems/JUCE/modules/juce_audio_processors_headless/format_types/LV2_SDK/lilv/src
-    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_fonts_FontData/JuceLibraryCode
+    - -I/Users/jreng/Documents/Poems/dev/end/Builds/Ninja/Debug/juce_binarydata_jam_graphics_FontData/JuceLibraryCode
     - -g
     - -std=c++17
     - -arch

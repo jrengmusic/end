@@ -262,7 +262,12 @@ Session::Session (cell cols,
         if (onBytes != nullptr)
             onBytes (bytes, len);
 
-        procRawPtr->process (bytes, len);
+        {
+            const juce::ScopedLock sl (procRawPtr->getCallbackLock());
+
+            if (not procRawPtr->isSuspended())
+                procRawPtr->process (bytes, len);
+        }
     };
 
     // 4. Drain-complete: flush parser responses, clear paste gate, sync resize.
@@ -272,9 +277,9 @@ Session::Session (cell cols,
         procRawPtr->getState().clearPasteEchoGate();
 
         if (procRawPtr->getState().consumeSyncResize())
-            procRawPtr->platformResize (
-                cell (procRawPtr->getState().loadValue (terminal::id::SESSION, terminal::id::cols)),
-                cell (procRawPtr->getState().loadValue (terminal::id::SESSION, terminal::id::visibleRows)));
+            procRawPtr->setWinsize (
+                procRawPtr->getState().getCols(),
+                procRawPtr->getState().getVisibleRows());
     };
 
     // Transfer TTY ownership to Processor.
@@ -368,8 +373,13 @@ void Session::process (const char* data, int len)
     jassert (data != nullptr);
     jassert (len > 0);
 
-    processor->process (data, len);
-    processor->flushResponses();
+    const juce::ScopedLock sl (processor->getCallbackLock());
+
+    if (not processor->isSuspended())
+    {
+        processor->process (data, len);
+        processor->flushResponses();
+    }
 }
 
 /**

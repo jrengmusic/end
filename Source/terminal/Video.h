@@ -30,12 +30,13 @@
  *
  * ## Thread model
  *
- * **All methods are READER THREAD only.**  `setDimensions()` and `setCellSize()`
+ * **All methods are READER THREAD only.**  `setWinsize()` (which subsumes the former
+ * `resize()` + `calc()` sequence) and `setCellSize()`
  * are called by Processor::process() on the reader thread after consuming pending
  * values from State atomics written by message-thread callers.
  *
  * @see Parser       — DFA byte decoder that drives Video's action methods
- * @see Processor    — owner that wires Parser → Video and calls `resize()` / `calc()`
+ * @see Processor    — owner that wires Parser → Video and calls `setWinsize()`
  * @see Buffer       — cell buffer written by `print()` and erase operations
  */
 
@@ -55,6 +56,32 @@ namespace terminal
 {
 /*____________________________________________________________________________*/
 
+/** @brief Packed cursor state for atomic screen-switch transfer.
+ *
+ *  Aggregates the four scalars that define cursor position and visibility
+ *  for a single screen.  pack()/unpack() mirror jam::Bounds::pack()/unpack()
+ *  in naming convention — 12 bits each for row/col, 1 for visible, 5 for kbFlags.
+ */
+struct CursorState
+{
+    int row     { 0 };
+    int col     { 0 };
+    int visible { 1 };
+    int kbFlags { 0 };
+
+    int pack() const noexcept
+    {
+        return (row & 0xFFF) | ((col & 0xFFF) << 12) | ((visible & 0x1) << 24) | ((kbFlags & 0x1F) << 25);
+    }
+
+    static CursorState unpack (int v) noexcept
+    {
+        return { v & 0xFFF, (v >> 12) & 0xFFF, (v >> 24) & 0x1, (v >> 25) & 0x1F };
+    }
+
+    bool isValid() const noexcept { return row >= 0 and col >= 0; }
+};
+
 /**
  * @class Video
  * @brief VT command processor: receives decoded actions, writes Buffer, holds calculation inputs.
@@ -66,8 +93,7 @@ namespace terminal
  *
  * @par Lifecycle
  * 1. Construct with references to a `jam::Buffer<jam::Row>` and the events map.
- * 2. Call `calc()` once after construction (and after every `resize()`) to
- *    synchronise internal geometry.
+ * 2. Call `setWinsize()` after construction to synchronise internal geometry.
  * 3. Parser calls action methods (`print()`, `applyControlCode()`, `applyCSI()`, …)
  *    on the reader thread as bytes are decoded.
  * 4. Call `flushResponses()` after each `process()` pass to deliver any queued
@@ -98,9 +124,8 @@ public:
     /**
      * @brief Constructs Video and initialises internal geometry.
      *
-     * The constructor does not call `calc()`.  The owner must call `calc()`
-     * after construction (and after every `resize()`) to synchronise the
-     * internal geometry.
+     * The constructor does not call `setWinsize()`.  The owner must call
+     * `setWinsize()` after construction to synchronise the internal geometry.
      *
      * @param buffer  Live cell buffer. Video writes in-place; dirty flags on Buffer signal Screen.
      * @param events  Events map owned by Processor.  Video fires events through
@@ -111,23 +136,6 @@ public:
      * @see calc()
      */
     explicit Video (jam::Buffer<jam::Row>& buffer, jam::Function::Map<juce::Identifier, void>& events) noexcept;
-
-    /**
-     * @brief Notifies Video that the terminal dimensions have changed.
-     *
-     * Re-clamps the cursor and scroll region to the new bounds on both screens
-     * and reinitialises tab stops.  Must be preceded by `setDimensions()` and
-     * followed by `calc()` to propagate the change to internal cached geometry.
-     *
-     * @param newCols         New terminal width in character columns.
-     * @param newVisibleRows  New terminal height in visible rows.
-     *
-     * @note MESSAGE THREAD — called from Processor::resized().
-     *
-     * @see setDimensions()
-     * @see calc()
-     */
-    void resize (cell newCols, cell newVisibleRows) noexcept;
 
     /**
      * @brief Resets Video and the terminal to a clean initial state.
@@ -143,12 +151,12 @@ public:
      * @brief Marks the pen style cache dirty and recomputes cached geometry.
      *
      * Marks penStyleDirty so that currentStyleId() will re-query the Stamp
-     * table on the next cell write.  Must be called after construction and
-     * after every `resize()`.
+     * table on the next cell write.  Called internally by `setWinsize()` and
+     * `reset()`.
      *
      * @note READER THREAD only.
      *
-     * @see resize()
+     * @see setWinsize()
      */
     void calc() noexcept;
 
@@ -182,23 +190,30 @@ public:
      *         Called once per byte batch by Processor::process(). */
     void flush() noexcept;
 
-    /** @brief Loads cursor position for the newly active screen.
+    /** @brief Loads cursor position and keyboard flags for the newly active screen.
      *         Called by Processor during screen switch mediation. */
-    void loadScreenState (cell row, cell col, bool visible,
-                          cell top, cell bottom, bool wrap,
-                          uint32_t kbFlags) noexcept;
+    void setCursor (CursorState cs) noexcept;
 
-    /** @brief Sets terminal dimensions on the reader thread.
+    /** @brief Sets the wrap-pending flag directly.
+     *         Called by Processor during screen switch mediation. */
+    void setWrapPending (bool pending) noexcept;
+
+    /** @brief Sets terminal dimensions and resets cursor, scroll region, and tab stops.
      *
-     *  Writes new column and row counts to plain int members.  Called by
-     *  Processor::process() at batch start — all writes occur on the reader
-     *  thread, so no synchronisation is needed.
+     *  Stores the new column and row counts, clears wrap-pending, clamps the cursor
+     *  to the new bounds, resets the scroll region to full screen, reinitialises tab
+     *  stops, and calls `calc()` to synchronise internal cached geometry.  Replaces
+     *  the former two-step `setWinsize()` + `resize()` call sequence.
+     *
+     *  Called by Processor at cold-start (constructor) and on every viewport resize
+     *  (valueTreePropertyChanged).  All writes occur on the reader thread — no
+     *  synchronisation is needed.
      *
      *  @param newCols  New terminal width in character columns.
      *  @param newRows  New terminal height in visible rows.
      *  @note READER THREAD only.
      */
-    void setDimensions (cell newCols, cell newRows) noexcept;
+    void setWinsize (cell newCols, cell newRows) noexcept;
 
     /** @brief Sets physical cell dimensions for CSI pixel dimension reports.
      *
@@ -739,7 +754,7 @@ private:
      * @brief Clamps the cursor to the valid screen area after a resize.
      *
      * Ensures the cursor row and column do not exceed the new terminal
-     * dimensions.  Called by `resize()` after updating State.
+     * dimensions.  Called by `setWinsize()`.
      *
      * @param cols        New terminal column count.
      * @param visibleRows New terminal visible row count.
@@ -859,7 +874,7 @@ private:
      *
      * Resizes `tabStops` to `numCols` and sets a stop at every column that is
      * a multiple of 8 (columns 8, 16, 24, …).  Called by `reset()` and
-     * `resize()`.
+     * `setWinsize()`.
      *
      * @param numCols  Number of columns in the terminal.
      *

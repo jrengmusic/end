@@ -91,6 +91,21 @@ void Video::eraseInDisplay (int mode) noexcept
                 std::memset (&cursorRowPtr->cells[cCol], 0, static_cast<size_t> (nCols - cCol) * sizeof (jam::Cell));
             }
 
+            // Update cursor row metadata after partial or full erase.
+            {
+                jam::Row* const rowPtr { buffer.getWritePointer (scr, cRow) };
+
+                if (cCol == 0)
+                {
+                    rowPtr->usedCols = 0;
+                    rowPtr->flags    = 0;
+                }
+                else if (static_cast<int> (rowPtr->usedCols) > cCol)
+                {
+                    rowPtr->usedCols = static_cast<uint16_t> (cCol);
+                }
+            }
+
             // Clear rows below cursor
             for (int r { cRow + 1 }; r < vRows; ++r)
             {
@@ -623,12 +638,12 @@ void Video::setScreen (bool shouldUseAlternate) noexcept
     {
         // Fire screenSwitch — carries OLD screen's cursor values.
         // Processor handler saves them to State[old] and loads State[new],
-        // then calls video.loadScreenState() synchronously on the reader thread.
+        // then calls video.setCursor() + video.setWrapPending() synchronously on the reader thread.
         events.get (id::screenSwitch,
                     int (target),
                     int (cursorRow.value), int (cursorCol.value), bool (cursorVisible));
 
-        // After loadScreenState() has run, activeScreen and live registers hold new values.
+        // After setCursor() + setWrapPending() have run, activeScreen and live registers hold new values.
         activeScreen = target;
         calc();
 

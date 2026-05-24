@@ -8,7 +8,7 @@
  * - The `terminal::Processor` pipeline (Parser → Buffer<Row> → Display).
  *
  * TTY ownership is transferred to Processor immediately after wiring callbacks.
- * Processor calls platformResize directly when dimensions change.
+ * Processor calls setWinsize() directly when dimensions change.
  *
  * ### Data flow
  * ```

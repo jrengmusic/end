@@ -4,7 +4,7 @@
 
 **Status:** STABLE
 
-**Last Updated:** 2026-05-22 (Sprint 30: Lossless reflow — jam::Row FAM, Buffer<Row>/Block<Row> with FlexType stride, DST moved from Processor to Screen, Display wires resize, reflow algorithm wrap/unwrap with wide char boundary.)
+**Last Updated:** 2026-05-24 (Sprint 31: Flexbox reflow — Screen pure renderer (no DST, no reflow), Processor owns smoothResizer (DiscreteStateTransition), Display pure pixel-bounds setter, resize path via Screen::onCellChanged → viewport State → Processor vTPC → smoothResizer → prepare() + setWinsize() → SIGWINCH, CursorState packed struct, Bounds::pack/unpack/isValid, jam_fonts → jam_graphics/fonts/.)
 
 ---
 
@@ -114,7 +114,7 @@ Source/
     Parameter.h                     APVTS-style parameter slot type
     Parser.h/cpp                    VT state machine + byte stream decoder
     ParserAction.cpp                Parser action dispatch
-    Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video; references Buffer<Row> and State; exposes applyResize/finishResize for DST trigger
+    Processor.h/cpp                 Pipeline orchestrator: owns Parser, Video, smoothResizer (DiscreteStateTransition<Row>); references Buffer<Row> and State; exposes prepare() (cold-path alloc, reads viewport from State), suspendProcessing(), isSuspended(), getCallbackLock() (JUCE AudioProcessor pattern); setWinsize() fires SIGWINCH via onStop
     Map.h                           terminal::Map — jam::Map::Bool, jam::Map::Screen, jam::Map::Gpu typed map instances
     Session.h/cpp                   PTY orchestrator: owns TTY + History + Buffer<Row>; Processor owns State, Video
     SixelDecoder.h/cpp              Sixel graphics protocol decoder
@@ -123,7 +123,7 @@ Source/
     State.h/cpp                     APVTS-style atomic + timer + ValueTree
     StateFlush.cpp                  Timer flush implementation
     TextBuffer.h                    Text buffer utility
-    Video.h/cpp                     VT command processor: cursor, pen, modes, Buffer<Row> writes
+    Video.h/cpp                     VT command processor: cursor, pen, modes, Buffer<Row> writes; setCursor(CursorState) + setWrapPending() for screen state; setWinsize() is the single resize API (no doPlatformResize NVI)
     VideoCSI.cpp                    CSI dispatch (cursor, erase, mode)
     VideoDCS.cpp                    DCS dispatch (Sixel entry)
     VideoESC.cpp                    ESC dispatch (charset, OSC 0/2/7/8/9/12/52/112/133/777, DCS)
@@ -144,7 +144,7 @@ Source/
 
     component/                      UI hosting layer (Display, Screen, Overlay, Panes, Tabs, LookAndFeel)
       Dialog.h/cpp                  Modal dialog component
-      Display.h/cpp                 terminal::Display — UI host, timer-driven render; delegates to Input + Mouse
+      Display.h/cpp                 terminal::Display — UI host, timer-driven render; delegates to Input + Mouse; resized() sets screen.setBounds(contentBounds) and writes pixel dims to State; does NOT wire DST trigger/onStop
       LoaderOverlay.h               Loading spinner overlay (used by whelmed::Component)
       LookAndFeel.h/cpp             Custom LookAndFeel: tab styling, popup menu, colour system
       LookAndFeelMenu.cpp           Menu LookAndFeel overrides
@@ -156,7 +156,7 @@ Source/
       Panes.h/cpp                   Per-tab pane container, owns Owner<PaneComponent> and PaneResizerBars
       Panes.cpp                     Panes implementation
       Popup.h/cpp                   Popup terminal component
-      Screen.h/cpp                  terminal::Screen — IS jam::TextEditor (inherits directly); stateless renderer; reads Buffer<Row> via Block<Row> constructor, calls setText(Block<Row>) on itself; owns DiscreteStateTransition<Row> for resize; grafts only its TextEditor state node; no node creation or ownership
+      Screen.h/cpp                  terminal::Screen — IS jam::TextEditor (inherits directly); pure stateless renderer; reads Buffer<Row> via Block<Row> constructor, calls setText(Block<Row>) on itself; computes viewport dims via onCellChanged callback → writes packed id::viewport to State; no DST, no reflow, no reflowedContent/reflowLock; grafts only its TextEditor state node; no node creation or ownership
       ScreenSelection.h             Selection anchor/end, contains() hit test, inversion rendering
       StatusBarOverlay.h            Overlay that listens to TABS subtree for modal/selection state display
       Tabs.h/cpp                    terminal::Tabs — tab container, manages one Panes instance per tab
@@ -181,8 +181,9 @@ Source/
 
 ~/Documents/Poems/dev/jam/
   jam_core/                         Shared utilities (Owner, identifiers, Context, BinaryData)
-  jam_graphics/                     Graphics utilities, blur, shadows, colours
-  jam_fonts/                        Font management, glyph atlas, typeface shaping, text layout
+  jam_graphics/                     Graphics utilities, blur, shadows, colours, font management, glyph atlas, typeface shaping, text layout
+    fonts/                          Font management, glyph atlas, typeface shaping, text layout
+    detail/                         Cell types, Row, packed descriptors
   jam_gui/                          Window, layout utilities, PaneManager, PaneResizerBar
     layout/
       jam_pane_manager.h/cpp        Binary tree ValueTree layout engine for split panes
@@ -203,9 +204,8 @@ Source/
 | Notifications | `terminal/` | Native desktop notification dispatch (`terminal::showNotification()`, OSC 9/777) | JUCE, UserNotifications (macOS) |
 | TTY | `terminal/tty/` | Platform PTY abstraction, reader thread | JUCE Thread |
 | jam_core | `~/Documents/Poems/dev/jam/jam_core/` | Shared utilities, identifiers, Context, BinaryData | JUCE core |
-| jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | Graphics utilities, blur, shadows, colours | jam_core |
-| jam_fonts | `~/Documents/Poems/dev/jam/jam_fonts/` | Font management, glyph atlas, typeface shaping, text layout | jam_core, FreeType, HarfBuzz |
-| jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: ANSI rendering, terminal metrics, raw input, ANSI markdown renderer | jam_core, jam_fonts |
+| jam_graphics | `~/Documents/Poems/dev/jam/jam_graphics/` | Graphics utilities, blur, shadows, colours; `fonts/` — font management, glyph atlas, typeface shaping, text layout; `detail/` — Cell types, Row, packed descriptors | jam_core, FreeType, HarfBuzz |
+| jam_tui | `~/Documents/Poems/dev/jam/jam_tui/` | Terminal UI primitives: ANSI rendering, terminal metrics, raw input, ANSI markdown renderer | jam_core, jam_graphics |
 | jam_gui/opengl | `~/Documents/Poems/dev/jam/jam_gui/opengl/` | GL mailbox, snapshot buffer, path tessellation, Graphics-like API | juce_opengl, jam_core |
 | Action | `terminal/action/` | Unified action registry (`action::Registry`), key dispatch, prefix state machine, command palette (`action::List`) | lua::Engine, jam::Context |
 | Nexus | `nexus/` | Session container (global scope). Owns `unordered_map<String, unique_ptr<terminal::Session>>`. Mode determined by `setMode(Mode)` — standalone/daemon/client. Fires session lifecycle events on public `events` ValueTree. `jam::Context<Nexus>` singleton owned by ENDApplication. | terminal::Session, jam::Context |
@@ -368,7 +368,7 @@ static unique_ptr<Session> create(cols, rows, cwd, shell, uuid);
  Terminal / Data (State/Buffer<Row>)                   pure types, atomic storage, timer flush
     |
     v
- Terminal / Component (terminal::Screen/Display)         reads from Buffer<Row> + State; Screen owns DST<Row>, Display wires resize; lossless reflow on column change
+ Terminal / Component (terminal::Screen/Display)         Screen is pure renderer — reads Buffer<Row> via Block, writes packed viewport to State via onCellChanged; Processor owns DST (smoothResizer) — triggered by vTPC on viewport change; Display only sets pixel bounds in resized()
     |
     v
  Terminal / TTY (platform)                     reader thread feeds raw bytes to Processor
@@ -404,7 +404,7 @@ ValueTree is the SSOT for all scalar state. `State::flush()` copies dirty atomic
 READER → jam::Buffer<jam::Cell> (owned by Session) → timer flush → MESSAGE reads via Block<Row> constructor
 ```
 
-Session owns `jam::Buffer<jam::Cell>` (2 channels, ring-indexed via per-channel `head` positions + `ringMask`). `terminal::Screen` reads via the `Block<Row>` constructor from Buffer — a non-owning view with no copy. No dirty tracking on Buffer — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask.
+Session owns `jam::Buffer<jam::Cell>` (2 channels, ring-indexed via per-channel `head` positions; ring addressing uses `% numRows` — any size, no power-of-two requirement; head preserved on resize, reset only on first allocation). `terminal::Screen` reads directly from `buffer` via the `Block<Row>` constructor — a non-owning view with no copy. During `smoothResizer` transition, `smoothResizer.previous` snapshot preserves content. `suspendProcessing()` / `callbackLock` gate the reader thread during resize. No dirty tracking on Buffer — render trigger is timer flush. No VBlank polling. No `dirtyRows` bitmask.
 
 **Classification rule:** if the data is one-per-cell (O(rows × cols)), it is bulk → `jam::Buffer<jam::Cell>` (owned by Session). If the data is sparse/scalar (O(1) or O(small N)), it is scalar → State ValueTree.
 
@@ -431,16 +431,23 @@ Preview is a Display-side concern. The READER thread writes a filepath + trigger
 **Data -> Component (timer path):**
 - `State::timerCallback()` runs on message thread (60-120Hz)
 - Flushes atomics to ValueTree via `flush()`
-- ValueTree fires `valueTreePropertyChanged` → Screen (which IS jam::TextEditor) reads Buffer<Row> via `Block<Row>` constructor → calls `setText(Block<Row>)` on itself → `repaint()`; CursorComponent updates separately
+- ValueTree fires `valueTreePropertyChanged` → Screen::vTPC reads packed `id::viewport` from State → reads Buffer<Row> directly via `Block<Row>` constructor → calls `setText(Block<Row>)` on itself → `repaint()`; CursorComponent updates separately via `setCursor(CursorState)`
 
 **Data -> Component (render path):**
 - Timer-driven flush (60/120 Hz) on the message thread flushes dirty atomics to ValueTree
 - `Screen::valueTreePropertyChanged()` fires → Screen reads Buffer<Row> via `Block<Row>` constructor → calls `setText(Block<Row>)` on itself (non-owning, no copy) → `calc()` → `repaint()`
 - Screen inherits jam::TextEditor directly — it IS the TextEditor, not a coordinator calling setText on a separate object
-- Screen is stateless: no node creation, no node ownership; grafts only its TextEditor `state` node (selection, caret, viewport mode)
+- Screen is pure stateless renderer: no DST, no reflow; no node creation, no node ownership; grafts only its TextEditor `state` node (selection, caret, viewport mode)
 - Display owns NORMAL/ALTERNATE screen nodes via `seedScreenNodes` static helper; grafts them BEFORE Screen construction so atomics exist before the reader thread starts
 - Display owns `jam::ComponentAttachment` for the DISPLAY node (Font::bounds — cellWidth/cellHeight/baseline/fontSize); reads config from AppState via listener, writes computed font metrics to session State via attachment
 - Display destructor removes screen nodes
+
+**Resize path:**
+- Display::resized() → `screen.setBounds(contentBounds)` → Screen::onCellChanged fires → writes packed `id::viewport` to State
+- Processor::vTPC fires on `id::viewport` change → `smoothResizer.set(newViewport)` triggers DST
+- DST trigger → `Processor::prepare()` (buffer.setSize + video.setWinsize, reads viewport from State, cold-path allocation)
+- DST onStop → `Processor::setWinsize()` → SIGWINCH to shell
+- During transition: `smoothResizer.previous` snapshot preserves content; `suspendProcessing()` / `callbackLock` gate the reader thread
 
 **Panes/Tabs -> Nexus (session lifecycle):**
 - `terminal::Panes::createTerminal(cwd)` calls `Nexus::getContext()->create(cwd, uuid, cols, rows)` — mode-routing entry point
@@ -514,6 +521,16 @@ Keystroke -> Message Thread -> TTY::write()
 **Implementation:** `terminal/State.h/cpp`, `terminal/StateFlush.cpp`
 
 Reader thread writes to `std::atomic<float>` via `storeAndFlush()`. Timer polls `needsFlush` and copies atomics to ValueTree. UI reads from ValueTree listeners. Screen (which IS jam::TextEditor) reads Buffer<Row> via the `Block<Row>` constructor and calls `setText(Block<Row>)` on itself — no copy, stateless renderer.
+
+Viewport is stored as a packed `Bounds` integer in `id::viewport` on State. Cursor is stored as a packed `CursorState` integer in `id::cursor`. Both use the same atomic slot → ValueTree flush path.
+
+### Pattern: AudioProcessor-Analogous Processor Lifecycle
+
+**Used for:** Safe cold-path allocation and reader-thread suspension during resize.
+
+**Implementation:** `terminal/Processor.h/cpp`
+
+Mirrors JUCE AudioProcessor: `prepare()` = `prepareToPlay` (cold-path buffer allocation, reads viewport from State, called when smoothResizer triggers); `suspendProcessing()` / `isSuspended()` = AudioProcessor suspend pattern; `getCallbackLock()` = critical section guarding the reader thread during resize. `setWinsize()` is the single resize API (replaces the former `platformResize()`/`finishResize()` split), called from DST onStop to deliver SIGWINCH.
 
 WINDOW-subtree properties `app::id::fontFamily` and `app::id::fontSize` drive font changes. A `ValueTree::Listener` on the WINDOW subtree detects changes, applies `fontFamily`/`fontSize` to `Typeface`, then calls `AppState::markAtlasDirty()`. `AppState::atlasDirty` is a `Parameter<int>` using `storeRelease`/`exchangeAcquire`. Consumer: message thread calls `consumeAtlasDirty()` to detect font/size changes before the next paint cycle, then calls `jam::Typeface::setAtlasSize()` to clear and rebuild the atlas.
 
@@ -806,7 +823,7 @@ The config key controlling daemon mode is `lua::Engine::nexus.daemon` (`"daemon"
 | codepoint (21 bits) | contentTag (2 bits) | wide (2 bits) | styleId (16 bits) | padding (23 bits) |
 ```
 
-Packed into a single u64. `jam::Cell` in jam_fonts. Global alias: `using cell = jam::Cell::Unit;`
+Packed into a single u64. `jam::Cell` in `jam_graphics/detail/`. Global alias: `using cell = jam::Cell::Unit;`
 
 Nested types:
 - `Cell::Unit` — coordinate scalar
@@ -828,7 +845,7 @@ Access: `setRGB()`, `setPalette()`, `setTheme()`, `paletteIndex()`
 
 Dual channels (normal + alternate). `jam::Buffer<jam::Cell>` with ring-buffer row indexing via per-channel `head` positions + `ringMask`. `head` tracks the logical top row per channel. No dirty tracking on Buffer — no `dirtyRows` bitmask. No `linkIds` sidecar.
 
-Buffer API: `Block<Row>` constructor from Buffer returns a non-owning view with no copy. `getWritePointer()` returns a mutable `jam::Row*` for the reader thread; cells accessed via `row->cells[col]`. Resize is managed by `DiscreteStateTransition<Row>` (owned by Screen, wired by Display) on the message thread. Lossless reflow preserves history content across column changes.
+Buffer API: `Block<Row>` constructor from Buffer returns a non-owning view with no copy. `getWritePointer()` returns a mutable `jam::Row*` for the reader thread; cells accessed via `row->cells[col]`. Ring addressing uses `% numRows` (any size, no power-of-two). Head preserved on resize, reset only on first allocation. Resize is managed by `DiscreteStateTransition<Row>` (owned by Processor as `smoothResizer`) on the message thread via `prepare()`. Lossless reflow preserves history content across column changes.
 
 Video reads geometry via `state.getRawValue<int>(terminal::id::cols)` etc. (lock-free atomics).
 
@@ -1183,7 +1200,7 @@ Display Monolithic -> OS system fonts (CJK/exotic) -> OS color emoji
 
 `jam::Font` is a value type carrying the application-level font specification: family name, point size, and style. It is the unit of font identity at the call site — passed to `setFont()` on renderers and used to resolve the underlying `jam::Typeface` handle.
 
-`jam::Font` does not own any platform resource. It is trivially copyable and comparable. Font selection (which typeface to use) happens outside the `jam_fonts` module — callers construct a `jam::Font` with the desired family/size/style and hand it to the renderer.
+`jam::Font` does not own any platform resource. It is trivially copyable and comparable. Font selection (which typeface to use) happens outside the `jam_graphics/fonts/` module — callers construct a `jam::Font` with the desired family/size/style and hand it to the renderer.
 
 ### jam::Typeface — Platform Font Handle Manager
 
@@ -1267,19 +1284,20 @@ Click-mode link underlines only render on OSC 133 output rows.
 | BoxSelection | Rectangle selection: anchor + end cell coordinates, rendered as overlay |
 | ConPTY sideload | Runtime extraction of conpty.dll + OpenConsole.exe from BinaryData to ~/.config/end/conpty/ (all Windows versions — inbox ConPTY broken on both Win10 and Win11) |
 | getActiveScreen | Message-thread ValueTree reader for active screen state (normal/alternate) |
-| Cell | `jam::Cell` — 8-byte packed u64 representing one terminal character position. Nested: `Cell::Unit` (coordinate scalar), `Cell::Point`, `Cell::Rectangle`, `Cell::RowState`, `Cell::getKey()`. Global alias: `using cell = jam::Cell::Unit;` |
-| Row | `jam::Row` — FAM struct packing per-row metadata (`usedCols`, `flags`) and a C99 `Cell cells[]` flexible array into a single allocation. `FlexType = Cell` tells `Buffer<Row>` to compute stride as `sizeof(Row) + alignedCols * sizeof(Cell)`. Flags: `wrapped` (soft wrap at right margin, set by Video::resolveWrapPending()), `dead` (reflow tombstone). |
+| Cell | `jam::Cell` in `jam_graphics/detail/` — 8-byte packed u64 representing one terminal character position. Nested: `Cell::Unit` (coordinate scalar), `Cell::Point`, `Cell::Rectangle`, `Cell::RowState`, `Cell::getKey()`. Global alias: `using cell = jam::Cell::Unit;` |
+| Row | `jam::Row` — FAM struct packing per-row metadata (`usedCols`, `flags`) and a C99 `Cell cells[]` flexible array into a single allocation. `FlexType = Cell` tells `Buffer<Row>` to compute stride as `sizeof(Row) + alignedCols * sizeof(Cell)`. Flags: `wrapped` (soft wrap at right margin, set by Video::resolveWrapPending()), `dead` (reflow tombstone), `justify { 1 << 2 }` (FLEX_GAP justification marker). |
 | displayName | Derived tab label from `app::id::displayName`. Terminal panes: foregroundProcess (non-empty) > cwd leaf name — computed in `Processor::valueTreePropertyChanged`. Whelmed panes: file basename set at openFile time. |
 | Embolden | Platform stroke-widening for bold: kCGTextFillStroke (macOS), FT_Outline_Embolden (Linux) |
 | FontCollection | Flat int8_t[0x110000] codepoint-to-font-slot dispatch table, O(1) lookup |
 | GlyphConstraint | Per-codepoint NF icon scaling/alignment descriptor applied at rasterization time |
 | Grapheme | Multi-codepoint character cluster (e.g., flag emoji, combining marks) |
-| Buffer<Row> | `jam::Buffer<jam::Cell>` — ring-buffer storage for terminal cells, dual-channel (normal/alternate). Owned by Session, referenced by Processor. Pure text — no image flags |
-| DiscreteStateTransition | Resize lifecycle manager (in jam_core): coalesces resize events, captures snapshot before trigger, animates crossfade, fires onStop on completion. `DiscreteStateTransition<Row>` owned by Screen, wired by Display. Display triggers via `set()`; trigger calls `Processor::applyResize()` (lossless reflow + buffer realloc + video sync); onStop calls `Processor::finishResize()` (SIGWINCH). |
+| Buffer<Row> | `jam::Buffer<jam::Cell>` — ring-buffer storage for terminal cells, dual-channel (normal/alternate). Owned by Session, referenced by Processor. Ring addressing `% numRows` (any size). Head preserved on resize, reset only on first allocation. Pure text — no image flags |
+| DiscreteStateTransition | Resize lifecycle manager (in jam_core): coalesces resize events, captures snapshot before trigger, animates crossfade, fires onStop on completion. `DiscreteStateTransition<Row>` owned by Processor as `smoothResizer`. Triggered by Processor::vTPC on viewport State change; trigger calls `prepare()` (buffer.setSize + video.setWinsize); onStop calls `setWinsize()` (SIGWINCH). |
 | History | Ring buffer of raw PTY bytes owned by terminal::Session. Used for daemon snapshot/restore via snapshotHistory() |
 | Overlay | `jam::animation::Base` child of `terminal::Display`; ephemeral image preview. `jam::animation::Base` is `juce::Component + juce::Timer`. Owns `juce::Image` (static) or `std::vector<juce::Image>` frames. Renders via standard `paint()`. Created on demand by Display, destroyed by `dismissPreview()`. Side-by-side with Screen in Display::resized() |
 | handleSkitFilepath | Shared parser helper for SKiT (Sixel/Kitty/iTerm2) file preview protocol. Extracts filepath from `END;` marker, calls `onPreviewFile` callback |
-| Font::bounds | `jam::Bounds` — cell dimension descriptor (cellWidth, cellHeight, baseline, fontSize) stored on the DISPLAY node via `jam::ComponentAttachment`. Source of truth for cell pixel dimensions; `Cell::Rectangle` reads these to compute grid dimensions without manual arithmetic. |
+| CursorState | Packed struct for per-screen cursor save/restore. Carries cursor position, pen attributes, and origin mode. Used by Video via `setCursor(CursorState)` / `getCursor()` for DEC save/restore and screen switch. |
+| Font::bounds | `jam::Bounds` — cell dimension descriptor (cellWidth, cellHeight, baseline, fontSize) stored on the DISPLAY node via `jam::ComponentAttachment`. Source of truth for cell pixel dimensions; `Cell::Rectangle` reads these to compute grid dimensions without manual arithmetic. `Bounds::pack()` / `Bounds::unpack()` encode/decode to a single atomic integer; `Bounds::isValid()` guards against zero dimensions. |
 | LRUCache | `jam::glyph::LRUCache` — frame-stamped LRU map inside `Atlas::Packer`; evicts oldest 10% when over capacity. Capacities: mono 19,000; emoji 4,000. MESSAGE THREAD only. |
 | Atlas::Region | `jam::glyph::Atlas::Region` — cached rasterization result: `textureCoordinates` (UV rect), `widthPixels`, `heightPixels`, `bearingX`, `bearingY`, `type` (mono/emoji). |
 | LookAndFeel | Custom JUCE LookAndFeel: tab line indicator, popup menu glass blur, colour system via lua::Engine |
@@ -1291,12 +1309,12 @@ Click-mode link underlines only render on OSC 133 output rows.
 | PaneResizerBar | Draggable divider bar between split panes, paired with split tree nodes |
 | Panes | `terminal::Panes` — per-tab component owning `terminal::Display` instances and managing split layout via PaneManager |
 | Pen | Current text attributes (style + fg/bg color) applied to new cells |
-| Processor | Pipeline orchestrator: owns Parser, Video; references Buffer<Row> and State received from Session. Exposes `applyResize()` (lossless reflow) and `finishResize()` (SIGWINCH) for Screen's DST trigger/onStop. |
+| Processor | Pipeline orchestrator: owns Parser, Video, `smoothResizer` (DiscreteStateTransition<Row>); references Buffer<Row> and State received from Session. Exposes `prepare()` (cold-path allocation, reads viewport from State), `suspendProcessing()`, `isSuspended()`, `getCallbackLock()`. `setWinsize()` is the single resize API — fires SIGWINCH via onStop. |
 | pwdValue | juce::Value in AppState bound via referTo to active terminal's cwd property |
 | Map::Screen | `jam::Map::Screen` — normal/alternate channel index map instance in `terminal::Map`; used for Buffer<Row> channel access. See also `Map::Bool` and `Map::Gpu`. Lives in `terminal/Map.h`. |
 | ScreenSelection | Anchor + end Point<int> pair for text selection; contains() for hit testing |
 | Skit | SKiT unified entry point for Sixel/Kitty/iTerm2 inline image preview protocol |
-| Snapshot | `DiscreteStateTransition::previous` — full Buffer<Row> copy captured before resize; held alive until transition completes. |
+| Snapshot | `smoothResizer.previous` — full Buffer<Row> copy captured before resize by Processor's `smoothResizer`; held alive until DST transition completes. |
 | State | APVTS-style atomic + ValueTree bridge for cross-thread terminal state. Includes: OSC 133 shell integration tracking, paste echo gate, sync output (mode 2026), preview split-viewport, hints, modal type, snapshot dirty signal. Per-screen methods removed — callers use `storeValue`/`loadValue` (READER) or VT API (MESSAGE). |
 | Tabs | `terminal::Tabs` — TabbedComponent subclass; Value::Listener for tabName, manages Panes instances |
 | VBlank | Not currently implemented. Render trigger is timer-driven flush (60/120 Hz). |

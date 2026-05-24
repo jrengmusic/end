@@ -190,8 +190,8 @@ void Daemon::Channel::messageReceived (const juce::MemoryBlock& message)
                     if (nexus.has (uuid))
                     {
                         auto& state { nexus.get (uuid).getProcessor().getState() };
-                        state.setValue (terminal::id::cols, static_cast<int> (cols));
-                        state.setValue (terminal::id::visibleRows, static_cast<int> (rows));
+                        state.setValue (terminal::id::viewport,
+                                        jam::Bounds { static_cast<int> (cols), static_cast<int> (rows) }.pack());
                     }
                 }
 

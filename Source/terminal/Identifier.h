@@ -38,8 +38,7 @@ namespace terminal
  * @par Usage Pattern
  * @code
  * ValueTree session = state.getOrCreateChildWithName(id::SESSION, nullptr);
- * session.setProperty(id::cols, 80, nullptr);
- * session.setProperty(id::visibleRows, 24, nullptr);
+ * session.setProperty(id::viewport, jam::Bounds{80, 24}.pack(), nullptr);
  * @endcode
  *
  * @see State.h for the complete state model
@@ -102,11 +101,9 @@ namespace id
     /** @brief Active screen index (which screen is currently visible). */
     static const juce::Identifier activeScreen   { "activeScreen" };
 
-    /** @brief Number of columns in the terminal (terminal width). */
-    static const juce::Identifier cols           { "cols" };
-
-    /** @brief Number of visible rows (terminal height in lines). */
-    static const juce::Identifier visibleRows    { "visibleRows" };
+    /** @brief Packed viewport size — width (cols) in high 16 bits, height (rows) in low 16 bits.
+     *         Pack: jam::Bounds::pack(). Unpack: jam::Bounds::unpack(). */
+    static const juce::Identifier viewport       { "viewport" };
 
 
     /** @brief Logical cell width in pixels. SSOT for all cell metric consumers. */
@@ -342,7 +339,7 @@ namespace id
     /** @brief Fired by `Video::setScreen()` when switching buffers.
      *
      *  Carries the current (old) screen's cursor state so Processor can save it
-     *  to State and load the new screen's cursor, then call `Video::loadScreenState()`.
+     *  to State and load the new screen's cursor, then call `Video::setCursor()` + `Video::setWrapPending()`.
      *  Args: `int newScreen, int cursorRow, int cursorCol, bool cursorVisible,
      *          int scrollTop, int scrollBottom, bool wrapPending, uint32_t keyboardFlags`.
      *  Fired synchronously on the READER THREAD — handler runs before Video continues.

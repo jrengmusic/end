@@ -1,8 +1,8 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../Identifier.h"
-#include "../../Map.h"
 #include "../State.h"
+#include "../../Map.h"
 namespace terminal
 {
 /*____________________________________________________________________________*/
@@ -45,46 +45,35 @@ public:
     Screen (State& state, jam::Buffer<jam::Row>& buffer) noexcept;
     ~Screen() override;
 
-    /** @brief Resize transitioner — owned by Screen, wired by Display.
-     *  Public for Display to wire trigger/onStop and call set(). */
-    jam::DiscreteStateTransition<jam::Row> transitioner;
-
     /** @brief Sets the DECSCUSR cursor shape (terminal VT vocabulary).
      *  Forwards to CaretComponent::setShape(). */
     void setCaretShape (int decscusr) noexcept { caret->setShape (decscusr); }
 
-    /** @brief Reflowed content — produced by DST trigger, rendered during transition,
-     *  written to live buffer on onStop. */
-    jam::Buffer<jam::Row> reflowedContent;
-
-    /** @brief History row count for the normal screen from the last reflow, consumed by onStop. */
-    int reflowedHistoryNormal { 0 };
-
-    /** @brief Guards reflowedContent access between message thread (reflow/onStop) and GL thread (render). */
-    juce::CriticalSection reflowLock;
-
-    /** @brief Pure transform: reflows source rows to new column width.
-     *  Source column width is source.getNumCols(); destination column width is dest.getNumCols().
-     *  dest must be pre-allocated by the caller at the new dimensions.
-     *  Content extent = numHistoryNormal + cursorRow + 1 — empty rows below cursor are viewport padding.
-     *  @return Total reflowed history row count for the normal screen. */
-    static int reflow (jam::Buffer<jam::Row>& dest,
-                       const jam::Buffer<jam::Row>& source,
-                       int scrollbackLines,
-                       int oldVisibleRows,
-                       int newVisibleRows,
-                       int numHistoryNormal,
-                       int numHistoryAlternate,
-                       int cursorRow) noexcept;
-
-    /** @brief Hide or show the caret. Called by Display at transition start/stop. */
-    void setCaretVisible (bool visible) noexcept { caret->setVisible (visible); }
-
 private:
     void valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&) override;
+    juce::ValueTree terminalState;
 
-    State& terminal;
     jam::Buffer<jam::Row>& buffer;
+
+    static int getValue (const juce::ValueTree& valueTree, juce::Identifier Id) noexcept
+    {
+        return static_cast<int> (jam::ValueTree::getValueFromChildWithID (valueTree, Id).getValue());
+    }
+
+    std::function<void()> onCellChanged (State& stateMachine)
+    {
+        return [this, &stateMachine]
+        {
+            const auto gridRect { jam::Cell::Rectangle (font.bounds,
+                                                        juce::Rectangle<int> { 0, 0,
+                                                                               getVisibleWidth(),
+                                                                               getVisibleHeight() }) };
+            const jam::Bounds viewportSize { gridRect.getWidth().value, gridRect.getHeight().value };
+
+            if (viewportSize.isValid())
+                stateMachine.setValue (id::viewport, viewportSize.pack());
+        };
+    }
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Screen)

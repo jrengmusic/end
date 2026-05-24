@@ -289,8 +289,7 @@ void Daemon::attachSession (const juce::String& uuid, Channel& target,
     if (nexus.has (uuid))
     {
         auto& state { nexus.get (uuid).getProcessor().getState() };
-        state.setValue (terminal::id::cols, cols);
-        state.setValue (terminal::id::visibleRows, rows);
+        state.setValue (terminal::id::viewport, jam::Bounds { cols, rows }.pack());
     }
 }
 
