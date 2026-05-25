@@ -67,6 +67,59 @@ Screen::Screen (State& stateMachine, cell cols, cell rows) noexcept
 Screen::~Screen() { terminalState.removeListener (this); }
 
 // ============================================================================
+
+/**
+ * @brief Resizes buffers with content preservation.
+ *
+ * Allocates buffers[nextIndex] with new dimensions, copies content from
+ * buffers[activeIndex] per-channel in ring order (oldest row first),
+ * constructs new blockSets, swaps activeBlocks, and updates activeIndex.
+ *
+ * The head for each channel is positioned at the end of the copied content.
+ * Empty rows (when old ring was not full) copy as zeros — Screen renders
+ * only as many rows as WriteHead.historyRows + viewportRows, so empty rows
+ * beyond that boundary are never displayed.
+ *
+ * @note MESSAGE THREAD — called under suspendProcessing.
+ */
+std::array<int, 2> Screen::resizeBuffers (int newRingSize, int newCols, const std::array<int, 2>& writePositions) noexcept
+{
+    const int nextIndex { 1 - activeIndex };
+    buffers[nextIndex].setSize (2, newRingSize, newCols);
+
+    const jam::Buffer<jam::Row>& oldBuffer { buffers[activeIndex] };
+    const int oldRingSize { oldBuffer.getNumRows() };
+    const int rowsToCopy { juce::jmin (oldRingSize, newRingSize) };
+
+    std::array<int, 2> newWritePositions {};
+
+    for (int ch { 0 }; ch < 2; ++ch)
+    {
+        const int wp { writePositions.at (static_cast<size_t> (ch)) };
+
+        // Copy in ring order: oldest row first (wp % oldRingSize), newest last.
+        for (int r { 0 }; r < rowsToCopy; ++r)
+        {
+            const int srcRow { (wp + r) % oldRingSize };
+            buffers[nextIndex].copyFrom (ch, r, oldBuffer, ch, srcRow);
+        }
+
+        // New head is at the end of copied content.
+        newWritePositions.at (static_cast<size_t> (ch)) = rowsToCopy % newRingSize;
+        buffers[nextIndex].setHead (ch, newWritePositions.at (static_cast<size_t> (ch)));
+    }
+
+    blockSets[nextIndex].at (0) = jam::Block<jam::Row> (buffers[nextIndex], 0);
+    blockSets[nextIndex].at (1) = jam::Block<jam::Row> (buffers[nextIndex], 1);
+    activeBlocks.store (blockSets[nextIndex].data(), std::memory_order_release);
+    activeIndex = nextIndex;
+
+    jam::debug::Log::write ("Screen::resizeBuffers newRing=" + juce::String (newRingSize) + " newCols=" + juce::String (newCols) + " rowsCopied=" + juce::String (rowsToCopy));
+
+    return newWritePositions;
+}
+
+// ============================================================================
 // juce::ValueTree::Listener
 // ============================================================================
 
@@ -82,8 +135,9 @@ void Screen::valueTreePropertyChanged (juce::ValueTree&, const juce::Identifier&
 
     const cell scrollOffset { getValue (screenNode, id::scrollOffset) };
     const jam::WriteHead wh { jam::WriteHead::unpack (getValue (screenNode, id::writeHead)) };
-    const cell cursorCol { getValue (screenNode, id::cursorCol) };
-    const cell cursorRow { getValue (screenNode, id::cursorRow) };
+    const CursorState cursorState { CursorState::unpack (getValue (screenNode, id::cursor)) };
+    const cell cursorCol { cursorState.col };
+    const cell cursorRow { cursorState.row };
 
     const int scrollbackLines { getValue (AppState::getContext()->get(), app::id::scrollbackLines) };
 

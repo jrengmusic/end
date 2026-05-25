@@ -57,32 +57,6 @@ namespace terminal
 {
 /*____________________________________________________________________________*/
 
-/** @brief Packed cursor state for atomic screen-switch transfer.
- *
- *  Aggregates the four scalars that define cursor position and visibility
- *  for a single screen.  pack()/unpack() mirror jam::Bounds::pack()/unpack()
- *  in naming convention — 12 bits each for row/col, 1 for visible, 5 for kbFlags.
- */
-struct CursorState
-{
-    int row     { 0 };
-    int col     { 0 };
-    int visible { 1 };
-    int kbFlags { 0 };
-
-    int pack() const noexcept
-    {
-        return (row & 0xFFF) | ((col & 0xFFF) << 12) | ((visible & 0x1) << 24) | ((kbFlags & 0x1F) << 25);
-    }
-
-    static CursorState unpack (int v) noexcept
-    {
-        return { v & 0xFFF, (v >> 12) & 0xFFF, (v >> 24) & 0x1, (v >> 25) & 0x1F };
-    }
-
-    bool isValid() const noexcept { return row >= 0 and col >= 0; }
-};
-
 /**
  * @class Video
  * @brief VT command processor: receives decoded actions, writes Buffer, holds calculation inputs.
@@ -387,9 +361,9 @@ private:
      * - `"previewFile"`  — `(const juce::String&, int, int, int, int)` — reader thread
      * - `"dcsPayloadComplete"` — `(const uint8_t*, int)` — DCS ST received, reader thread
      * - `"apcPayloadComplete"` — `(const uint8_t*, int)` — APC ST/BEL received, reader thread
-     * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — `flush()`, reader thread
+     * - `"activeScreen"` / `"cursor"` — `flush()`, reader thread.  `"cursor"` is packed CursorState (row+col+visible+kbFlags).
+     * - `"writeHead"` — `(int screen, int position)` — ring write position per screen — `flush()`, reader thread
      * - `"applicationCursor"` / `"bracketedPaste"` / mode flags — `(bool)` — `flush()`, reader thread
-     * - `"screenSwitch"` — `(int, int, int, bool, int, int, bool, uint32_t)` — `setScreen()`, reader thread
      *
      * @note READER THREAD — events are fired on the reader thread; callAsync handlers
      *       land on the message thread.

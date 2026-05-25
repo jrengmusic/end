@@ -659,8 +659,7 @@ void Video::setScreen (bool shouldUseAlternate) noexcept
 
     if (target != activeScreen)
     {
-        // Update State activeScreen and signal Processor.
-        // Cursor is already in State from VTPC flush — no screenSwitch mediation needed.
+        // Cursor is already in State from flush — update activeScreen directly.
         events.get (id::activeScreen, int (target));
 
         activeScreen = target;

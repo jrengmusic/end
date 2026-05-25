@@ -221,6 +221,49 @@ Session::Session (cell cols,
     processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, cols, rows, effectiveUuid);
     state.setId (effectiveUuid);
 
+    // Resize coordinator — coalesces dimension changes, suspends/resumes processing.
+    resizer = std::make_unique<jam::DiscreteStateTransition<jam::Row>> (screen.getActiveBuffer());
+
+    resizer->addTrigger<int, int> (jam::ID::start,
+        [this] (int, int)
+        {
+            processor->suspendProcessing (true);
+        });
+
+    resizer->addTrigger<int, int> (jam::ID::stop,
+        [this] (int newCols, int newRows)
+        {
+            const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
+            const int newRingSize { scrollbackLines + newRows };
+
+            std::array<int, 2> writePositions {};
+
+            for (int ch { 0 }; ch < 2; ++ch)
+            {
+                const juce::Identifier screenId { Map::Screen::getContext()->get (ch) };
+                const jam::WriteHead wh { jam::WriteHead::unpack (state.loadValue (screenId, id::writeHead)) };
+                writePositions.at (static_cast<size_t> (ch)) = wh.position;
+            }
+
+            const auto newWritePositions { screen.resizeBuffers (newRingSize, newCols, writePositions) };
+
+            for (int ch { 0 }; ch < 2; ++ch)
+            {
+                const juce::Identifier screenId { Map::Screen::getContext()->get (ch) };
+                const jam::WriteHead currentWH { jam::WriteHead::unpack (state.loadValue (screenId, id::writeHead)) };
+                const jam::WriteHead newWH { newWritePositions.at (static_cast<size_t> (ch)), currentWH.historyRows };
+                state.storeValue (screenId, id::writeHead, newWH.pack());
+            }
+
+            processor->suspendProcessing (false);
+            processor->setWinsize (cell (newCols), cell (newRows));
+        });
+
+    screen.onDimensionsChanged = [this] (cell newCols, cell newRows)
+    {
+        resizer->set (jam::ID::start, newCols.value, newRows.value);
+    };
+
     terminal::Processor* procRawPtr { processor.get() };
     TTY* ttyRawPtr { tty.get() };
 
@@ -315,6 +358,49 @@ Session::Session (cell cols,
     processor = std::make_unique<terminal::Processor> (state, screen.getActiveBlocksRef(), textBuffer, cols, rows, effectiveUuid);
     state.setId (effectiveUuid);
     state.get().setProperty (terminal::id::cwd, cwd, nullptr);
+
+    // Resize coordinator — same wiring as PTY constructor.
+    resizer = std::make_unique<jam::DiscreteStateTransition<jam::Row>> (screen.getActiveBuffer());
+
+    resizer->addTrigger<int, int> (jam::ID::start,
+        [this] (int, int)
+        {
+            processor->suspendProcessing (true);
+        });
+
+    resizer->addTrigger<int, int> (jam::ID::stop,
+        [this] (int newCols, int newRows)
+        {
+            const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
+            const int newRingSize { scrollbackLines + newRows };
+
+            std::array<int, 2> writePositions {};
+
+            for (int ch { 0 }; ch < 2; ++ch)
+            {
+                const juce::Identifier screenId { Map::Screen::getContext()->get (ch) };
+                const jam::WriteHead wh { jam::WriteHead::unpack (state.loadValue (screenId, id::writeHead)) };
+                writePositions.at (static_cast<size_t> (ch)) = wh.position;
+            }
+
+            const auto newWritePositions { screen.resizeBuffers (newRingSize, newCols, writePositions) };
+
+            for (int ch { 0 }; ch < 2; ++ch)
+            {
+                const juce::Identifier screenId { Map::Screen::getContext()->get (ch) };
+                const jam::WriteHead currentWH { jam::WriteHead::unpack (state.loadValue (screenId, id::writeHead)) };
+                const jam::WriteHead newWH { newWritePositions.at (static_cast<size_t> (ch)), currentWH.historyRows };
+                state.storeValue (screenId, id::writeHead, newWH.pack());
+            }
+
+            processor->suspendProcessing (false);
+            processor->setWinsize (cell (newCols), cell (newRows));
+        });
+
+    screen.onDimensionsChanged = [this] (cell newCols, cell newRows)
+    {
+        resizer->set (jam::ID::start, newCols.value, newRows.value);
+    };
 }
 
 /**

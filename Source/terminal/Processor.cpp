@@ -125,13 +125,11 @@ Processor::~Processor()
  *
  * - `"requestSyncResize"` — DEC mode 2026 set; calls `State::requestSyncResize()`.
  *
- * - `"activeScreen"` / `"cursorRow"` / `"cursorCol"` / `"cursorVisible"` — Video::flush()
- *   flush events; write the corresponding State atomics.
+ * - `"activeScreen"` / `"cursor"` / `"writeHead"` — Video::flush() flush events; write the
+ *   corresponding State atomics.  `"cursor"` carries packed CursorState (row+col+visible+kbFlags).
+ *   `"writeHead"` carries the raw ring write position; handler preserves historyRows from State.
  *
  * - `"applicationCursor"` / `"bracketedPaste"` / ... — Video::flush() mode flag flushes.
- *
- * - `"screenSwitch"` — Video::setScreen(); saves old cursor to State, loads new cursor from
- *   State atomics, calls `Video::setCursor()` + `Video::setWrapPending()`.  Synchronous on reader thread.
  *
  * - `"dcsPayloadComplete"` — Video::applyDCSPayload(); delegates to Skit::processDCS()
  *   then Video::advanceCursorForImage().  Synchronous on reader thread.
@@ -317,8 +315,8 @@ void Processor::registerEvents() noexcept
                          state.setScreen (scr);
                      });
 
-    // State delivery: scrollUp — pack new WriteHead (ring position + history rows) capped at scrollbackLines, then adjust selection.
-    // Excess rows beyond scrollbackLines are overwritten naturally by ring rotation — no explicit clear needed.
+    // State delivery: scrollUp — pack new WriteHead (ring position + history rows) capped at scrollbackLines,
+    // then adjust selection anchors. Excess rows beyond scrollbackLines are overwritten naturally by ring rotation.
     events.add<int, int, int> (
         id::scrollUp,
         [this] (int screen, int count, int newWritePosition)
@@ -327,31 +325,31 @@ void Processor::registerEvents() noexcept
             const juce::Identifier scrollScreenId { Map::Screen::getContext()->get (screen) };
             const jam::WriteHead currentWH { jam::WriteHead::unpack (state.loadValue (scrollScreenId, id::writeHead)) };
             const int newHistoryRows { juce::jmin (currentWH.historyRows + count, scrollbackLines) };
-
-            // Head position comes from Video's live writePosition — Video is the authority during parsing.
             const jam::WriteHead newWH { newWritePosition, newHistoryRows };
             state.storeValue (scrollScreenId, id::writeHead, newWH.pack());
-            using TE = jam::TextEditor;
-            const auto& teId { TE::properties.at (TE::textEditorId) };
-            const auto& selTypeId { TE::properties.at (TE::selectionTypeId) };
-            const auto& anchorRowId { TE::properties.at (TE::selectionAnchorRowId) };
-            const auto& cursorRowId { TE::properties.at (TE::selectionCursorRowId) };
 
-            const int selType { state.loadValue (teId, selTypeId) };
+            const int selType { state.loadValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId),
+                                                 jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId)) };
 
             if (selType != static_cast<int> (terminal::SelectionType::none))
             {
-                const int anchorRow { state.loadValue (teId, anchorRowId) + (-count) };
-                const int cursorRow { state.loadValue (teId, cursorRowId) + (-count) };
+                const int anchorRow { state.loadValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId),
+                                                       jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId)) - count };
+                const int selCursorRow { state.loadValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId),
+                                                          jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId)) - count };
 
-                if (anchorRow < 0 or cursorRow < 0)
+                if (anchorRow < 0 or selCursorRow < 0)
                 {
-                    state.storeValue (teId, selTypeId, static_cast<int> (terminal::SelectionType::none));
+                    state.storeValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId),
+                                      jam::TextEditor::properties.at (jam::TextEditor::selectionTypeId),
+                                      static_cast<int> (terminal::SelectionType::none));
                 }
                 else
                 {
-                    state.storeValue (teId, anchorRowId, anchorRow);
-                    state.storeValue (teId, cursorRowId, cursorRow);
+                    state.storeValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId),
+                                      jam::TextEditor::properties.at (jam::TextEditor::selectionAnchorRowId), anchorRow);
+                    state.storeValue (jam::TextEditor::properties.at (jam::TextEditor::textEditorId),
+                                      jam::TextEditor::properties.at (jam::TextEditor::selectionCursorRowId), selCursorRow);
                 }
             }
         });
@@ -365,31 +363,24 @@ void Processor::registerEvents() noexcept
                          state.storeValue (dirtyScreenId, id::screenDirty, current + 1);
                      });
 
-    // State delivery: cursor row for active screen.
-    events.add<int, cell> (id::cursorRow,
-                           [this] (int scr, cell row)
-                           {
-                               const juce::Identifier rowScreenId { Map::Screen::getContext()->get (scr) };
-                               state.storeValue (rowScreenId, id::cursorRow, row.value);
-                               state.setSnapshotDirty();
-                           });
+    // State delivery: packed cursor (row + col + visible + kbFlags) for active screen.
+    events.add<int, int> (id::cursor,
+                          [this] (int scr, int packedCursor)
+                          {
+                              const juce::Identifier cursorScreenId { Map::Screen::getContext()->get (scr) };
+                              state.storeValue (cursorScreenId, id::cursor, packedCursor);
+                              state.setSnapshotDirty();
+                          });
 
-    // State delivery: cursor column for active screen.
-    events.add<int, cell> (id::cursorCol,
-                           [this] (int scr, cell col)
-                           {
-                               const juce::Identifier colScreenId { Map::Screen::getContext()->get (scr) };
-                               state.storeValue (colScreenId, id::cursorCol, col.value);
-                               state.setSnapshotDirty();
-                           });
-
-    // State delivery: cursor visibility for active screen.
-    events.add<int, bool> (id::cursorVisible,
-                           [this] (int scr, bool visible)
-                           {
-                               const juce::Identifier visScreenId { Map::Screen::getContext()->get (scr) };
-                               state.storeValue (visScreenId, id::cursorVisible, visible ? 1 : 0);
-                           });
+    // State delivery: writeHead position per screen — preserves historyRows set by scrollUp.
+    events.add<int, int> (id::writeHead,
+                          [this] (int screen, int position)
+                          {
+                              const juce::Identifier whScreenId { Map::Screen::getContext()->get (screen) };
+                              const jam::WriteHead currentWH { jam::WriteHead::unpack (state.loadValue (whScreenId, id::writeHead)) };
+                              const jam::WriteHead newWH { position, currentWH.historyRows };
+                              state.storeValue (whScreenId, id::writeHead, newWH.pack());
+                          });
 
     // State delivery: mode flags.
     for (const auto& modeId : { id::applicationCursor,
@@ -431,35 +422,6 @@ void Processor::registerEvents() noexcept
     }
 
 // =============================================================================
-
-/**
- * @brief Delivers SIGWINCH after resize settles.
- *
- * Reads cols / rows / pixel dimensions from State and forwards to tty->setWinsize().
- * Called from Screen's DST onStop handler (wired by Display).
- *
- * @note MESSAGE THREAD.
- */
-void Processor::setWinsize() noexcept
-{
-    const cell cols { state.getCols() };
-    const cell rows { state.getVisibleRows() };
-
-    if (cols.value > 0 and rows.value > 0)
-    {
-        video.setWinsize (cols, rows);
-
-        if (tty != nullptr and tty->isThreadRunning())
-        {
-            const int pixelWidth { static_cast<int> (
-                jam::ValueTree::getValueFromChildWithID (state.get(), jam::ID::width).getValue()) };
-            const int pixelHeight { static_cast<int> (
-                jam::ValueTree::getValueFromChildWithID (state.get(), jam::ID::height).getValue()) };
-
-            tty->setWinsize (cols, rows, pixelWidth, pixelHeight);
-        }
-    }
-}
 
 // =============================================================================
 // Keyboard mode stack — per-screen progressive enhancement flags (CSI u protocol).
@@ -595,22 +557,11 @@ void Processor::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Ide
                     }
                 }
             }
-
-            if (onStateFlush != nullptr)
-                onStateFlush();
         }
 
         if (paramId == id::promptRow)
         {
             state.get().setProperty (id::foregroundProcess, juce::String(), nullptr);
-
-            if (onStateFlush != nullptr)
-                onStateFlush();
-        }
-
-        if (paramId == id::viewport)
-        {
-            setWinsize();
         }
 
         if (paramId == id::cellWidth or paramId == id::cellHeight)

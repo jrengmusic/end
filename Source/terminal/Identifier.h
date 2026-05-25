@@ -24,6 +24,33 @@
 namespace terminal
 {
 /*____________________________________________________________________________*/
+
+/** @brief Packed cursor state for atomic screen state transfer.
+ *
+ *  Aggregates cursor position, visibility, and keyboard flags for one screen.
+ *  pack()/unpack() mirror jam::Bounds::pack()/unpack() in naming convention —
+ *  12 bits each for row/col, 1 for visible, 5 for kbFlags.
+ */
+struct CursorState
+{
+    int row     { 0 };
+    int col     { 0 };
+    int visible { 1 };
+    int kbFlags { 0 };
+
+    int pack() const noexcept
+    {
+        return (row & 0xFFF) | ((col & 0xFFF) << 12) | ((visible & 0x1) << 24) | ((kbFlags & 0x1F) << 25);
+    }
+
+    static CursorState unpack (int v) noexcept
+    {
+        return { v & 0xFFF, (v >> 12) & 0xFFF, (v >> 24) & 0x1, (v >> 25) & 0x1F };
+    }
+
+    bool isValid() const noexcept { return row >= 0 and col >= 0; }
+};
+
 /**
  * @brief Terminal identifier constants for ValueTree property names.
  *
@@ -187,6 +214,11 @@ namespace id
     // Per-screen parameter IDs (screen-specific cursor and scroll state)
     //==========================================================================
 
+    /** @brief Packed cursor state — row (12 bits) + col (12 bits) + visible (1 bit) + kbFlags (5 bits).
+     *         Pack: CursorState::pack(). Unpack: CursorState::unpack().
+     *         Used both as a per-screen State param and as a Video::flush() event key. */
+    static const juce::Identifier cursor              { "cursor" };
+
     /** @brief Cursor row position (0-based, top row is 0). */
     static const juce::Identifier cursorRow            { "cursorRow" };
 
@@ -335,16 +367,6 @@ namespace id
      *  `Video::advanceCursorForImage()`.
      */
     static const juce::Identifier osc1337Raw          { "osc1337Raw" };
-
-    /** @brief Fired by `Video::setScreen()` when switching buffers.
-     *
-     *  Carries the current (old) screen's cursor state so Processor can save it
-     *  to State and load the new screen's cursor, then call `Video::setCursor()` + `Video::setWrapPending()`.
-     *  Args: `int newScreen, int cursorRow, int cursorCol, bool cursorVisible,
-     *          int scrollTop, int scrollBottom, bool wrapPending, uint32_t keyboardFlags`.
-     *  Fired synchronously on the READER THREAD — handler runs before Video continues.
-     */
-    static const juce::Identifier screenSwitch        { "screenSwitch" };
 
     /** @brief Fired by `Video::applyDCSPayload()` when a DCS sequence terminates.
      *

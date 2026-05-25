@@ -181,9 +181,9 @@ void Video::flush() noexcept
 {
     jam::debug::Log::write ("Video::flush scr=" + juce::String (int (activeScreen)) + " row=" + juce::String (cursorRow.value) + " col=" + juce::String (cursorCol.value));
     events.get (id::activeScreen, int (activeScreen));
-    events.get (id::cursorRow, int (activeScreen), cursorRow);
-    events.get (id::cursorCol, int (activeScreen), cursorCol);
-    events.get (id::cursorVisible, int (activeScreen), bool (cursorVisible));
+
+    const CursorState cs { cursorRow.value, cursorCol.value, cursorVisible ? 1 : 0, 0 };
+    events.get (id::cursor, int (activeScreen), cs.pack());
 
     events.get (id::applicationCursor,   bool (applicationCursor));
     events.get (id::bracketedPaste,      bool (bracketedPaste));
@@ -195,6 +195,9 @@ void Video::flush() noexcept
 
     if (events.contains (id::screenDirty))
         events.get (id::screenDirty, int (activeScreen));
+
+    for (int s { 0 }; s < 2; ++s)
+        events.get (id::writeHead, s, writePosition.at (static_cast<size_t> (s)));
 }
 
 void Video::setCursor (CursorState cs) noexcept

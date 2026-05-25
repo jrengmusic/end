@@ -87,6 +87,28 @@ public:
      *  @note MESSAGE THREAD — called before reader thread starts. */
     std::atomic<jam::Block<jam::Row>*>& getActiveBlocksRef() noexcept { return activeBlocks; }
 
+    /** @brief Returns a reference to the currently active buffer.
+     *  Used by Session to construct the DST resizer.
+     *  @note MESSAGE THREAD. */
+    jam::Buffer<jam::Row>& getActiveBuffer() noexcept { return buffers[activeIndex]; }
+
+    /** @brief Callback fired when terminal dimensions (cols/rows) change.
+     *  Session wires this to the DST resizer. */
+    std::function<void (cell, cell)> onDimensionsChanged;
+
+    /** @brief Resizes buffers with content preservation.
+     *
+     *  Allocates buffers[nextIndex] with new dimensions, copies all content from
+     *  buffers[activeIndex] per-channel in ring order (oldest to newest),
+     *  constructs new blockSets, swaps activeBlocks, and updates activeIndex.
+     *
+     *  @param newRingSize     New ring buffer row count (scrollback + viewport rows).
+     *  @param newCols         New column count.
+     *  @param writePositions  Ring write position per channel [normal, alternate].
+     *  @return New write position per channel in the resized buffer.
+     *  @note MESSAGE THREAD — called under suspendProcessing. */
+    std::array<int, 2> resizeBuffers (int newRingSize, int newCols, const std::array<int, 2>& writePositions) noexcept;
+
     /** @brief Sets the DECSCUSR cursor shape (terminal VT vocabulary).
      *  Forwards to CaretComponent::setShape(). */
     void setCaretShape (int decscusr) noexcept { caret->setShape (decscusr); }
@@ -131,22 +153,17 @@ private:
             if (viewportSize.isValid())
             {
                 const int scrollbackLines { AppState::getContext()->getRawParameterValue<int> (app::id::scrollbackLines)->load() };
-                const int ringSize { scrollbackLines + viewportSize.height };
+                const int newRingSize { scrollbackLines + viewportSize.height };
                 const int currentCols { buffers[activeIndex].getNumCols() };
                 const int currentRing { buffers[activeIndex].getNumRows() };
 
-                if (ringSize != currentRing or viewportSize.width != currentCols)
-                {
-                    const int nextIndex { 1 - activeIndex };
-                    buffers[nextIndex].setSize (2, ringSize, viewportSize.width);
-                    // TODO: copy content from active to next (Step 6 — reflow)
-                    blockSets[nextIndex].at (0) = jam::Block<jam::Row> (buffers[nextIndex], 0);
-                    blockSets[nextIndex].at (1) = jam::Block<jam::Row> (buffers[nextIndex], 1);
-                    activeBlocks.store (blockSets[nextIndex].data(), std::memory_order_release);
-                    activeIndex = nextIndex;
-                }
-
                 stateMachine.setValue (id::viewport, viewportSize.pack());
+
+                if (newRingSize != currentRing or viewportSize.width != currentCols)
+                {
+                    if (onDimensionsChanged != nullptr)
+                        onDimensionsChanged (cell (viewportSize.width), cell (viewportSize.height));
+                }
             }
         };
     }

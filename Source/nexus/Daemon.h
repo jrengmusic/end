@@ -8,10 +8,10 @@
  * for each accepted client.
  *
  * Daemon also owns the broadcast and per-session subscriber registries that were
- * previously held inline in `Nexus`.  Session callback wiring (onBytes,
- * Processor::onStateFlush, and State ValueTree exit detection) is applied via
- * `wireSessionCallbacks()` after each `terminal::Session` is created by Nexus
- * in daemon mode.
+ * previously held inline in `Nexus`.  Session callback wiring (onBytes and State
+ * ValueTree exit detection) is applied via `wireSessionCallbacks()` after each
+ * `terminal::Session` is created by Nexus in daemon mode.  State updates
+ * (cwd, foregroundProcess) are broadcast via `valueTreePropertyChanged`.
  *
  * Daemon registers itself as a `juce::ValueTree::Listener` on each session's
  * State ValueTree to detect shellExited without crossing component callback
@@ -263,8 +263,8 @@ public:
      * - re-broadcasts the sessions list,
      * - fires onAllSessionsExited if empty.
      *
-     * Also wires `onBytes` and `Processor::onStateFlush` to broadcast output and state PDUs
-     * to per-session subscribers.
+     * Also wires `onBytes` to broadcast output PDUs to per-session subscribers.
+     * State updates (cwd, foregroundProcess) are broadcast via valueTreePropertyChanged.
      *
      * @param uuid     UUID of the session (used in closures for routing).
      * @param session  The terminal::Session to wire.
@@ -328,6 +328,7 @@ private:
     /** @name wireSessionCallbacks helpers
      *  Each wires exactly one callback on @p session.
      *  Called sequentially from wireSessionCallbacks().
+     *  State updates (cwd, foregroundProcess) are handled by valueTreePropertyChanged.
      * @{ */
 
     /**
@@ -342,19 +343,6 @@ private:
      * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on READER THREAD).
      */
     void wireOnBytes (const juce::String& uuid, terminal::Session& session);
-
-    /**
-     * @brief Wires `session.getProcessor().onStateFlush` to broadcast stateUpdate PDUs to per-session subscribers.
-     *
-     * Reads cwd and foreground-process strings from the session Processor state.
-     * Broadcasts only when at least one field changed relative to the previous flush
-     * (tracked via function-local `shared_ptr` captures to avoid 60 Hz noise).
-     *
-     * @param uuid     Session UUID used as the PDU routing key.
-     * @param session  terminal::Session whose Processor::onStateFlush callback is being set.
-     * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on MESSAGE THREAD).
-     */
-    void wireOnStateFlush (const juce::String& uuid, terminal::Session& session);
 
     /**
      * @brief Registers Daemon as a ValueTree::Listener on the session's State and maps

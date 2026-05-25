@@ -306,6 +306,10 @@ private:
     terminal::Screen screen;                      ///< Cell buffer + renderer — constructed before processor.
     std::unique_ptr<terminal::Processor> processor;
 
+    /** @brief DST resize coordinator — coalesces dimension changes, suspends/resumes Processor.
+     *  Constructed in the constructor body after processor is valid. */
+    std::unique_ptr<jam::DiscreteStateTransition<jam::Row>> resizer;
+
     /** @brief Non-owning observer pointer to the TTY transferred to Processor.
      *  Kept here so sendInput() can write to the shell without routing through
      *  Processor internals.  Null for remote (no-TTY) sessions. */

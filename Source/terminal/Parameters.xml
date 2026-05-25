@@ -49,9 +49,7 @@
 
     <!-- Per-screen parameters (created for NORMAL and ALTERNATE) -->
     <SCREEN>
-        <PARAM id="cursorRow"      type="int"  default="0"/>
-        <PARAM id="cursorCol"      type="int"  default="0"/>
-        <PARAM id="cursorVisible"  type="int"  default="1"/>
+        <PARAM id="cursor"         type="int"  default="0"/>
         <PARAM id="cursorShape"    type="int"  default="0"/>
         <PARAM id="cursorColor"    type="int"  default="-1"/>
         <PARAM id="keyboardFlags"  type="int"  default="0"/>

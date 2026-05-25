@@ -36,7 +36,7 @@
  *
  * @see terminal::Session — owns TTY and History (PTY side).
  * @see jam::Buffer<jam::Row> — flat row storage, stateless data buffer.
- * @see jam::DiscreteStateTransition — coalescing resize lifecycle manager (owned by Display).
+ * @see jam::DiscreteStateTransition — coalescing resize lifecycle manager (owned by Session).
  * @see Parser     — VT100/VT520 state machine.
  * @see Video      — terminal state machine: pen, cursor, modes, Buffer<Row> writes.
  * @see State      — atomic terminal parameter store.
@@ -224,12 +224,6 @@ public:
      *  Acquire from the message thread to serialize against process(). */
     const juce::CriticalSection& getCallbackLock() const noexcept { return callbackLock; }
 
-    /** @brief Delivers SIGWINCH after resize settles.
-     *  Reads cols / rows / pixel dimensions from State and calls tty->setWinsize().
-     *  Called from Screen's DST onStop handler (wired by Display).
-     *  @note MESSAGE THREAD. */
-    void setWinsize() noexcept;
-
     /**
      * @brief Returns the stable UUID identifying this Processor across process boundaries.
      * @return Const reference to the UUID string.
@@ -280,14 +274,6 @@ public:
      * @note READER THREAD (called from tty->onDrainComplete during sync-resize).
      */
     void setWinsize (cell cols, cell rows, int pixelWidth = 0, int pixelHeight = 0) noexcept;
-
-    /** @brief Fires after cwd and foreground process are written to State.
-     *
-     *  Set by nexus::Daemon in daemon mode to broadcast a stateUpdate PDU.
-     *  Fires from valueTreePropertyChanged on outputBlockTop and promptRow changes.
-     *  @note MESSAGE THREAD.
-     */
-    std::function<void()> onStateFlush;
 
     /** @brief Writes raw input bytes to the PTY via the registered handler.
      *
@@ -341,9 +327,8 @@ private:
      *  - `id::clipboardChanged`    — `(const juce::String&)` — OSC 52 clipboard write; message thread
      *  - `id::desktopNotification` — `(const juce::String& title, const juce::String& body)` — OSC 9/777; message thread
      *  - `id::activeScreen`        — `(int)` — active screen index flush; reader thread
-     *  - `id::cursorRow`           — `(int screen, int row)` — cursor row flush; reader thread
-     *  - `id::cursorCol`           — `(int screen, int col)` — cursor col flush; reader thread
-     *  - `id::cursorVisible`       — `(int screen, bool visible)` — cursor visibility flush; reader thread
+     *  - `id::cursor`              — `(int screen, int packed)` — packed cursor (row+col+visible+kbFlags); reader thread
+     *  - `id::writeHead`           — `(int screen, int position)` — ring write position per screen; reader thread
      *  - `id::applicationCursor` / `id::bracketedPaste` / ... — `(bool)` — mode flag flushes; reader thread
      *
      *  @note READER THREAD — all handlers execute on the reader thread except bell, clipboardChanged, and desktopNotification (message thread via callAsync). */

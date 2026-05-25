@@ -172,12 +172,11 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
                 if (current == terminal::SelectionType::none)
                 {
-                    const int cursorRow { static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursorRow).getValue()) };
-                    const int cursorCol { static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursorCol).getValue()) };
-                    node.setProperty (anchorRowId,    cursorRow, nullptr);
-                    node.setProperty (anchorColId,    cursorCol, nullptr);
-                    node.setProperty (selCursorRowId, cursorRow, nullptr);
-                    node.setProperty (selCursorColId, cursorCol, nullptr);
+                    const terminal::CursorState vbCursor { terminal::CursorState::unpack (static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
+                    node.setProperty (anchorRowId,    vbCursor.row, nullptr);
+                    node.setProperty (anchorColId,    vbCursor.col, nullptr);
+                    node.setProperty (selCursorRowId, vbCursor.row, nullptr);
+                    node.setProperty (selCursorColId, vbCursor.col, nullptr);
                 }
             }
         }
@@ -216,11 +215,11 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
                 if (current == terminal::SelectionType::none)
                 {
-                    const int cursorRow { static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursorRow).getValue()) };
-                    node.setProperty (anchorRowId,    cursorRow, nullptr);
-                    node.setProperty (anchorColId,    0,         nullptr);
-                    node.setProperty (selCursorRowId, cursorRow, nullptr);
-                    node.setProperty (selCursorColId, 0,         nullptr);
+                    const terminal::CursorState vlCursor { terminal::CursorState::unpack (static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
+                    node.setProperty (anchorRowId,    vlCursor.row, nullptr);
+                    node.setProperty (anchorColId,    0,            nullptr);
+                    node.setProperty (selCursorRowId, vlCursor.row, nullptr);
+                    node.setProperty (selCursorColId, 0,            nullptr);
                 }
             }
         }
@@ -239,12 +238,11 @@ bool Input::handleSelectionKey (const juce::KeyPress& key) noexcept
 
                 if (current == terminal::SelectionType::none)
                 {
-                    const int cursorRow { static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursorRow).getValue()) };
-                    const int cursorCol { static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursorCol).getValue()) };
-                    node.setProperty (anchorRowId,    cursorRow, nullptr);
-                    node.setProperty (anchorColId,    cursorCol, nullptr);
-                    node.setProperty (selCursorRowId, cursorRow, nullptr);
-                    node.setProperty (selCursorColId, cursorCol, nullptr);
+                    const terminal::CursorState vCursor { terminal::CursorState::unpack (static_cast<int> (jam::ValueTree::getValueFromChildWithID (selScreenNode, id::cursor).getValue())) };
+                    node.setProperty (anchorRowId,    vCursor.row, nullptr);
+                    node.setProperty (anchorColId,    vCursor.col, nullptr);
+                    node.setProperty (selCursorRowId, vCursor.row, nullptr);
+                    node.setProperty (selCursorColId, vCursor.col, nullptr);
                 }
             }
         }

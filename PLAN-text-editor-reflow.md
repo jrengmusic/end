@@ -29,8 +29,8 @@ start/stop trigger lifecycle. No smoothResizer, no onStop callback.
 ```
 Session (owns Screen, Processor, resizer)
   |-- Screen (jam::TextEditor) -- sole author of dims, owns Buffer, always exists
-  |     |-- jam::Buffer<Row>[2]  -- double-buffered cell storage, allocated by Screen
-  |     +-- Block<Row>            -- shared view into Buffer (atomic pointer)
+  |     |-- jam::Buffer<Row>   -- cell storage (2 channels: NORMAL=0, ALTERNATE=1)
+  |     +-- Block<Row>         -- shared view into Buffer (atomic activeBlocks pointer)
   |-- Processor                   -- owns Video, Parser, State, TTY
   |     +-- Video                 -- writes cells through Block, dumb worker
   +-- jam::DiscreteStateTransition<Row> resizer  -- scratch buffer, timer, start/stop lifecycle
@@ -56,7 +56,12 @@ and on resize. For daemon mode, dimensions come from persisted State.
 **Session owns the resizer.** `jam::DiscreteStateTransition<Row>` lives on Session.
 It manages the scratch buffer internally, the 16ms coalescing timer, and fires
 "start" and "stop" triggers. Session registers both triggers in its constructor.
-Display does NOT own or wire the resizer.
+Display does NOT own or wire the resizer. DST does NOT access Screen internals.
+DST creates Block views from its scratch buffer and calls `screen.swapActiveBlocks(blockData)`.
+
+**DST scratch vs NORMAL/ALTERNATE:** Screen's `buffers[2]` (2 channels) is for
+DECSC/DECRC terminal screen switching -- NOT resize ping-pong. DST scratch is a
+separate Buffer owned by DST, used only during resize. They are unrelated.
 
 **Session doesn't listen to State for resize.** Pure callback chain via DST.
 No Session vTPC listener for resize. No resizeStart/resizeEnd State params needed
@@ -90,7 +95,7 @@ Display::resized()
 Screen vTPC (viewport changed):
   → compute new cols/rows from pixel dims
   → if (cols/rows changed):
-       resizer.set(IDref::start, newCols, newRows)    // fires "start" trigger + starts timer
+       resizer.set(jam::ID::start, newCols, newRows)    // fires "start" trigger + starts timer
 
 DST "start" trigger (fires synchronously):
   → processor.suspendProcessing(true)                  // callbackLock held, reader blocked
@@ -108,7 +113,7 @@ DST "stop" trigger:
   → processor.setWinsize(newCols, newRows)            // Video fires SIGWINCH
 ```
 
-**Coalescing:** If `resizer.set(IDref::start, ...)` is called again during the
+**Coalescing:** If `resizer.set(jam::ID::start, ...)` is called again during the
 timer window, latest cols/rows replace pending. Timer restarts. On timer fire,
 drain pending and fire "stop" with final values. Exactly one resize per cycle.
 
@@ -155,8 +160,8 @@ copy/swap window inside the "start" trigger.
      -> Processor creates Parser
 
 3. Session creates resizer (jam::DiscreteStateTransition<Row>(buffers[0]))
-     -> resizer.addTrigger(IDref::start, [this] (int c, int r) { ... suspend + copy ... })
-     -> resizer.addTrigger(IDref::stop,  [this] (int c, int r) { ... swap + resume + SIGWINCH ... })
+     -> resizer.addTrigger(jam::ID::start, [this] (int c, int r) { ... suspend + copy ... })
+     -> resizer.addTrigger(jam::ID::stop,  [this] (int c, int r) { ... swap + resume + SIGWINCH ... })
 
 4. UI creates Display (when terminal pane appears)
      -> Display calls addAndMakeVisible(session.getScreen())
@@ -193,49 +198,62 @@ All objects are dumb workers. They are told, not asked. State is SSOT.
 
 ## What is already done
 
-- `setWinsize` rename across TTY/Processor/Session/Display
-- `jam_fonts` merged into `jam_graphics/fonts/`
-- `jam::ParagraphStorage` + `ParagraphsModel` (jam_graphics/detail/)
-- `jam::ShapedTextOptions` with builder pattern (jam_graphics/detail/)
-- `Row::justify` flag (bit 2) -- defined + stamped by Video on FLEX_GAP
-- `glyph::Arrangement` FLEX_GAP-aware word wrap (jam_glyph_arrangement_shape.cpp)
-- `jam::JustifiedText` with `Value::map` distribution (jam_graphics/detail/)
-- `TextEditor` holds `paragraphsModel`, `shapedTextOptions` (jam_text_editor.h)
-- Screen sole author of cell dims via `onCellChanged` lambda + packed viewport param
-- TETRIS lifecycle: `suspendProcessing` / `callbackLock` on Processor
+**jam HEAD (commit 1644941):**
+- `WriteHead` struct with `pack()`/`unpack()` (jam_write_head.h)
+- `jam::AtomicOps` cross-platform lock-free builtins (jam_atomic_ops.h)
+- `Block` mutable access: `getWritePointer()`, `clear()`, `copyRow()` with head override overloads
+- `Buffer::copyFrom()` cross-buffer row copy
 - `Bounds::pack()`/`unpack()` for single-write viewport parameter (16+16 bits)
-- Full-content Block (history + viewport) passed to TextEditor -- native Viewport scroll
-- `WriteHead` struct with `pack()`/`unpack()` (jam_core/jam_write_head.h)
 - `<SCREEN>` section in Parameters.xml -- per-screen params declared in schema
 - `State::buildLayout` creates NORMAL/ALTERNATE nodes from `<SCREEN>` XML
-- `id::writeHead` replaces `id::numRows` -- packed position+historyRows
-- `jam::AtomicOps` cross-platform lock-free builtins (jam_core/jam_atomic_ops.h)
-- `Block` mutable access: `getWritePointer()`, `clear()`, `copyRow()` with head override overloads
+- `Row::justify` flag (bit 2) -- defined + stamped by Video on FLEX_GAP
+- `glyph::Arrangement` FLEX_GAP-aware word wrap
+- `jam::JustifiedText` with `Value::map` distribution
+- `TextEditor` holds `paragraphsModel`, `shapedTextOptions`
+
+**END HEAD:**
+- `setWinsize` rename across TTY/Processor/Session/Display
+- `id::writeHead` declared in Identifier.h (packed position+historyRows)
+- `id::writeHead` stored internally in Processor for scrollUp (lines 242, 328, 333)
+- `id::screenSwitch` declared in Identifier.h -- has NO handler (cleanup needed)
+- TETRIS lifecycle: `suspendProcessing` / `callbackLock` on Processor
 - Session owns Screen (value member), Processor receives `screen.getActiveBlocksRef()`
 - Display takes `Session&`, no smoothResizer, no Screen member
-- Screen owns double-buffered `buffers[2]` + `activeBlocks` atomic pointer
-- `screenSwitch` event removed -- `id::activeScreen` delivery handles State write alone
-- Video flushes `id::activeScreen`, cursor values every tick
-- `IDref::start` / `IDref::stop` identifiers in `jam_identifier_misc.h`
+- Screen owns `buffers[2]` (NORMAL+ALTERNATE channels) + `activeBlocks` atomic pointer
+- Screen sole author of cell dims via `onCellChanged` lambda + packed viewport param
+- Full-content Block (history + viewport) passed to TextEditor -- native Viewport scroll
+- Video flushes cursor values every tick
+
+**END HEAD missing (Step 1 remaining):**
+- `id::screenSwitch` declared but unused -- remove from Identifier.h
+- Video::flush() does NOT write `id::writeHead` every tick -- add it
+- `id::writeHead` event NOT registered in Processor::registerEvents() -- add handler
 
 ---
 
 ## Steps
 
-### Step 1: WriteHead -- packed State Parameter  done
+### Step 1: WriteHead -- packed State Parameter  IN PROGRESS
 
-**Problem:** Buffer head lives in `Buffer::headPositions[]` (immediate, racy),
-`numRows` lives in State Parameter (flush-delayed). Screen reads both --
-inconsistent pair causes wrong `liveStartRow` -> orphaned prompt, wrong viewport.
+**jam:** Done. `WriteHead` struct + `pack()`/`unpack()` at jam HEAD.
 
-**Solution:** `WriteHead` struct -- packs `position` (16 bits) and `historyRows`
-(16 bits) into a single `int`, same pattern as `Bounds::pack()`/`unpack()`.
-Video writes to State on every `flush()`, not just on scroll. Both values
-arrive at Screen on the same flush tick -- always consistent.
-
-**Additional requirement (Step 3):** `id::writeHead` must be flushed on every
-`Video::flush()`, not just during scroll. Required so "start" trigger callback
-can read the current head position from State when copying content to scratch.
+**END:** Remaining:
+1. Remove `id::screenSwitch` from `Identifier.h` -- declared but no handler, dead code
+2. Add `id::writeHead` flush in `Video::flush()` -- fires for both screens every tick:
+   ```cpp
+   for (int s = 0; s < 2; ++s)
+       events.get (id::writeHead, s, writePosition[s].pack());
+   ```
+3. Register `id::writeHead` event handler in `Processor::registerEvents()`:
+   ```cpp
+   events.add<int, int> (id::writeHead,
+       [this] (int screen, int packedWH) {
+           const juce::Identifier screenId { Map::Screen::getContext()->get (screen) };
+           state.storeValue (screenId, id::writeHead, packedWH);
+       });
+   ```
+   This stores `writeHead` into State. Video fires it every tick. Processor stores it.
+   State is SSOT for cross-thread values.
 
 ---
 
@@ -260,7 +278,11 @@ head-override overloads. Head state lives in State (`WriteHead` Parameter).
 
 ---
 
-### Step 3: DST Resizer + Ownership Restructure
+### Step 3: DST Resizer + Ownership Restructure  IN PROGRESS
+
+**jam remaining:**
+- Add `jam::ID::start` / `jam::ID::stop` to `jam_identifier_misc.h` (IDENTIFIER_MISCELLANEOUS macro)
+- Adapt `jam::DiscreteStateTransition` for terminal resize (see below)
 
 **Problem:** Buffer resize happens inline in `onCellChanged` with no content copy,
 no suspend, no SIGWINCH coordination. History lost when viewport grows. smoothResizer
@@ -272,17 +294,16 @@ copy. Timer coalesces. "stop" trigger fires swap + resume + SIGWINCH.
 
 **DST adaptation (jam):**
 - Holds `scratch` buffer internally (not `previous` snapshot)
-- "start" and "stop" are pre-defined identifiers (`IDref::start`, `IDref::stop`)
-  registered via `addTrigger<int, int>()`
-- `set(IDref::start, cols, rows)` fires "start" trigger synchronously, starts timer
-- Timer callback: `isTransitioning = false`, `stopTimer()`, fires "stop" trigger
-  directly via `triggers.get("stop", ...)`, no new timer started
+- `set(jam::ID::start, cols, rows)`: sizes scratch based on `cols` and `rows`, fires "start" trigger synchronously, starts 16ms coalescing timer
+- Timer callback: `isTransitioning = false`, `stopTimer()`, fires "stop" trigger via `triggers.get(jam::ID::stop, ...)`
+- `getTargetValue()` returns pending bounds from last `set()` call
 - `captureSnapshot()` removed (not used)
 - Crossfade mechanics removed (not used)
-- Coalescing: `set()` during transition updates pending, timer restarts
+- Coalescing: `set()` during transition replaces pending bounds, restarts timer
+- Fixed 16ms timer. No `setCrossfadeTimeMs()`.
 
 **jam_identifier changes:**
-- `IDref::start` / `IDref::stop` in `jam_identifier_misc.h` -- pre-defined identifiers
+- `jam::ID::start` / `jam::ID::stop` in `jam_identifier_misc.h` -- pre-defined identifiers
   for the resize lifecycle
 
 **Session changes:**
@@ -293,7 +314,7 @@ jam::DiscreteStateTransition<jam::Row> resizer;
 // Session.cpp constructor (after screen + processor created):
 resizer = jam::DiscreteStateTransition<jam::Row>(screen.getActiveBuffer());
 
-resizer.addTrigger<int, int>(IDref::start,
+resizer.addTrigger<int, int>(jam::ID::start,
     [this] (int newCols, int newRows) {
         processor->suspendProcessing(true);
         const jam::WriteHead wh { jam::WriteHead::unpack (
@@ -305,23 +326,33 @@ resizer.addTrigger<int, int>(IDref::start,
         }
     });
 
-resizer.addTrigger<int, int>(IDref::stop,
-    [this] (int newCols, int newRows) {
-        // swap activeBlocks to point to scratch
-        activeBlocks.store(scratchBlocks[screen.getActiveScreen()].data());
-        screen.setText(getBlocks());  // TextEditor sees new content
-        processor->suspendProcessing(false);
-        processor->setWinsize(newCols, newRows);  // Video fires SIGWINCH
+resizer.addTrigger<int, int>(jam::ID::stop,
+    [this] (int /*newCols*/, int /*newRows*/) {
+        const jam::Bounds target { resizer.getTargetValue() };
+        const int ch { screen.getActiveScreen() };
+        jam::Block<jam::Row> scratchBlock { resizer.scratch, ch };
+        screen.setText (scratchBlock);  // TextEditor renders from scratch
+        processor->suspendProcessing (false);
+        if (target.width > 0 and target.height > 0)
+            processor->setWinsize (cell (target.width), cell (target.height));
     });
 
-resizer.setCrossfadeTimeMs(16.0);
+screen.onDimensionsChanged = [this] (cell cols, cell rows) {
+    resizer.set (jam::ID::start, cols.value, rows.value);
+};
 ```
 
 **Screen changes:**
-- `onCellChanged` no longer does inline `buffers[nextIndex].setSize()` + atomic swap
-- Instead: `resizer.set(IDref::start, newCols, newRows)` when dims change
-- `screen.resizeBufferAndSwap()` moved into DST trigger callbacks (no longer on Screen)
-- Screen retains `getActiveBuffer()` for DST construction
+- `onCellChanged` fires `onDimensionsChanged(cols, rows)` callback when dimensions change
+- No inline buffer resize. Screen is a dumb renderer.
+- `onDimensionsChanged` callback: owner (Session) sets this to call `resizer.set(jam::ID::start, cols, rows)`
+- Screen exposes `getActiveBuffer()` for DST construction
+- Screen exposes `setText(Block<Row>)` -- already exists, used by Session's "stop" trigger
+
+**DST swap mechanics:**
+- DST creates Block view from scratch: `jam::Block<Row>(scratch, channel)`
+- Session's "stop" trigger calls `screen.setText(scratchBlock)` -- uses existing setText API
+- Screen does NOT know about DST. No new swap method needed.
 
 **Video changes:**
 - `Video::flush()` writes `id::writeHead` (WriteHead pack) every tick, not just on scroll
@@ -407,8 +438,8 @@ re-derived from logical address after reflow.
 ## Sequencing
 
 ```
-Step 1 -> WriteHead packed Parameter                    done
-Step 2 -> Block mutable access (cleanup done)           done
+Step 1 -> WriteHead packed Parameter (jam done, END in progress)
+Step 2 -> Block mutable access                          done
 Step 3 -> DST resizer + ownership restructure            ← NEXT SPRINT
 Step 4 -> enable wrapping pipeline
 Step 5 -> scrollbar width accounting
@@ -454,7 +485,7 @@ Step 6 depends on Steps 3 + 4.
 - Processor is a dumb executor -- suspends/resumes on command, sends SIGWINCH on command
 - Video is a dumb worker -- writes where told, reports state to State, no storage mgmt
 - Daemon mode: same structure, Display writes dims to State before destruction, daemon reads persisted State
-- DST uses `IDref::start` / `IDref::stop` identifiers for the resize lifecycle
+- DST uses `jam::ID::start` / `jam::ID::stop` identifiers for the resize lifecycle
 - Session does not listen to State for resize -- pure callback chain via DST
 
 ---

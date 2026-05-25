@@ -318,10 +318,11 @@ void Daemon::detachSession (const juce::String& uuid, Channel& connection)
 /**
  * @brief Wires daemon-mode IPC callbacks on a newly created terminal::Session.
  *
- * Delegates to three helpers, each wiring exactly one callback:
- * - wireOnBytes      → `session.onBytes`
- * - wireOnStateFlush → `session.getProcessor().onStateFlush`
- * - wireOnExit       → registers Daemon as VT listener on session State
+ * Delegates to two helpers:
+ * - wireOnBytes → `session.onBytes`
+ * - wireOnExit  → registers Daemon as VT listener on session State
+ *
+ * State updates (cwd, foregroundProcess) are broadcast from valueTreePropertyChanged.
  *
  * Called by Nexus::create (TTY overload) when an nexus::Daemon is attached.
  *
@@ -331,9 +332,8 @@ void Daemon::detachSession (const juce::String& uuid, Channel& connection)
  */
 void Daemon::wireSessionCallbacks (const juce::String& uuid, terminal::Session& session)
 {
-    wireOnBytes      (uuid, session);
-    wireOnStateFlush (uuid, session);
-    wireOnExit       (uuid, session);
+    wireOnBytes (uuid, session);
+    wireOnExit  (uuid, session);
 }
 
 // =============================================================================
@@ -373,58 +373,6 @@ void Daemon::wireOnBytes (const juce::String& uuid, terminal::Session& session)
 // =============================================================================
 
 /**
- * @brief Wires `session.getProcessor().onStateFlush` to broadcast stateUpdate PDUs to per-session subscribers.
- *
- * Reads cwd and foreground-process strings from the Processor state on each flush.
- * Broadcasts only when at least one field changed relative to the last broadcast
- * (tracked via function-local `lastSentCwd` / `lastSentFg` shared_ptr captures
- * to avoid 60 Hz noise).
- *
- * @param uuid     Session UUID used as the PDU routing key.
- * @param session  terminal::Session whose Processor::onStateFlush callback is being set.
- * @note NEXUS PROCESS MESSAGE THREAD (called at wire time; lambda fires on MESSAGE THREAD).
- */
-void Daemon::wireOnStateFlush (const juce::String& uuid, terminal::Session& session)
-{
-    jassert (session.getProcessor().getState().get().isValid());
-
-    terminal::Processor* procRawPtr { &session.getProcessor() };
-
-    // lastSentCwd / lastSentFg must survive across flush calls — kept as shared_ptr
-    // captures so they are function-local to this helper but lambda-lifetime.
-    auto lastSentCwd { std::make_shared<juce::String>() };
-    auto lastSentFg  { std::make_shared<juce::String>() };
-
-    session.getProcessor().onStateFlush = [this, uuid, procRawPtr, lastSentCwd, lastSentFg]
-    {
-        const juce::String cwdStr { procRawPtr->getState().getCwd() };
-        const juce::String fgStr  { procRawPtr->getState().getForegroundProcess() };
-
-        if (cwdStr != *lastSentCwd or fgStr != *lastSentFg)
-        {
-            *lastSentCwd = cwdStr;
-            *lastSentFg  = fgStr;
-
-            juce::MemoryBlock statePayload;
-            Codec::writeString (statePayload, uuid);
-            Codec::writeString (statePayload, cwdStr);
-            Codec::writeString (statePayload, fgStr);
-
-            const juce::ScopedLock lock (connectionsLock);
-            const auto it { subscribers.find (uuid) };
-
-            if (it != subscribers.end())
-            {
-                for (auto* conn : it->second)
-                    conn->sendPdu (Message::stateUpdate, statePayload);
-            }
-        }
-    };
-}
-
-// =============================================================================
-
-/**
  * @brief Registers Daemon as a ValueTree::Listener on the session's State and maps
  *        the session root VT to @p uuid for routing in valueTreePropertyChanged.
  *
@@ -448,12 +396,17 @@ void Daemon::wireOnExit (const juce::String& uuid, terminal::Session& session)
 // =============================================================================
 
 /**
- * @brief Detects shellExited on any registered session State VT and defers cleanup.
+ * @brief Detects shellExited and cwd/foregroundProcess changes on registered session State VTs.
  *
- * Checks for a PARAM node whose id property equals terminal::id::shellExited
+ * shellExited: Checks for a PARAM node whose id property equals terminal::id::shellExited
  * with value 1.  Matches the tree's root against sessionStateRoots to find the
  * exiting UUID.  Cleanup is deferred via callAsync to avoid mutating session
  * state from within the ValueTree listener callback chain.
+ *
+ * cwd / foregroundProcess: Direct properties on the session root (TEXT parameters).
+ * Broadcasts a stateUpdate PDU to per-session subscribers when either changes.
+ * juce::ValueTree fires valueTreePropertyChanged only when the value actually changes,
+ * so no additional dedup is required.
  *
  * @note NEXUS PROCESS MESSAGE THREAD.
  */
@@ -499,6 +452,40 @@ void Daemon::valueTreePropertyChanged (juce::ValueTree& tree, const juce::Identi
                 if (nexus.list().isEmpty() and onAllSessionsExited != nullptr)
                     onAllSessionsExited();
             });
+        }
+    }
+
+    if (property == terminal::id::foregroundProcess or property == terminal::id::cwd)
+    {
+        juce::String changedUuid;
+
+        for (const auto& entry : sessionStateRoots)
+        {
+            if (entry.second == tree)
+            {
+                changedUuid = entry.first;
+                break;
+            }
+        }
+
+        if (changedUuid.isNotEmpty())
+        {
+            const juce::String cwdStr { tree.getProperty (terminal::id::cwd).toString() };
+            const juce::String fgStr  { tree.getProperty (terminal::id::foregroundProcess).toString() };
+
+            juce::MemoryBlock statePayload;
+            Codec::writeString (statePayload, changedUuid);
+            Codec::writeString (statePayload, cwdStr);
+            Codec::writeString (statePayload, fgStr);
+
+            const juce::ScopedLock lock (connectionsLock);
+            const auto it { subscribers.find (changedUuid) };
+
+            if (it != subscribers.end())
+            {
+                for (auto* conn : it->second)
+                    conn->sendPdu (Message::stateUpdate, statePayload);
+            }
         }
     }
 }

@@ -1,5 +1,43 @@
 # SPRINT-LOG
 
+## Handoff to COUNSELOR: Step 3 DST Resizer Implementation
+
+**From:** COUNSELOR
+**Date:** 2026-05-26
+**Status:** Blocked — reset END + jam working trees, then implement Step 1 + Step 3
+
+### Context
+Step 3 (DST Resizer) was attempted. Session devolved into hack-upon-hack due to conflated understanding. NORMAL/ALTERNATE mistaken for resize ping-pong. `commitResize()` and `swapActiveBlocks()` invented and wrong. PLAN-text-editor-reflow.md updated with correct architecture. Working trees need reset.
+
+### Completed
+- PLAN-text-editor-reflow.md updated: correct Step 3 architecture, `jam::ID::start`/`jam::ID::stop`, NORMAL/ALTERNATE vs DST scratch clarified, invented methods removed
+
+### Remaining
+- **jam:** Add `jam::ID::start`/`jam::ID::stop` to `jam_identifier_misc.h`. Adapt DST (remove crossfade, add scratch, setTargetValue, 16ms timer fires stop)
+- **END Step 1:** Remove `id::screenSwitch` from `Identifier.h`. Add `id::writeHead` flush in `Video::flush()` every tick. Register `id::writeHead` event in `Processor::registerEvents()`
+- **END Step 3:** Session owns DST resizer. Screen fires `onDimensionsChanged` callback. Session wires to `resizer.set(jam::ID::start)`. DST holds scratch. "stop" calls `screen.setText(Block)` — uses existing API
+
+### Key Decisions
+- `jam::ID::start`/`jam::ID::stop` — correct jam namespace identifiers (not `IDref`)
+- NORMAL/ALTERNATE buffers = terminal screen switching (2 channels). DST scratch = resize temp. Unrelated
+- No `commitResize()` or `swapActiveBlocks()` invented methods. Use existing `setText(Block)` API
+- DST creates `Block<Row>(scratch, channel)`. Session's "stop" trigger calls `screen.setText(scratchBlock)`
+- jam HEAD confirmed at Step 2. END HEAD pre-Step 1. Both repos need working tree reset
+
+### Files Modified
+- `PLAN-text-editor-reflow.md` — corrected Step 3 architecture, jam::ID::, NORMAL/ALTERNATE vs DST scratch, removed invented methods
+
+### Open Questions
+- None
+
+### Next Steps
+1. ARCHITECT runs `git checkout HEAD -- .` in END and `git checkout HEAD -- .` in jam to reset working trees
+2. COUNSELOR implements jam: `jam_identifier_misc.h` add ID::start/ID::stop, adapt DST
+3. COUNSELOR implements END Step 1: screenSwitch cleanup, Video::flush writeHead, Processor event registration
+4. COUNSELOR implements END Step 3: Session resizer wiring per PLAN
+
+---
+
 ## Sprint 34: TETRIS Resize Fix + Screen Owns Buffer + screenSwitch Cleanup ✅
 
 **Date:** 2026-05-24 — 2026-05-25
